@@ -1,84 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWEFBoi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWEFB5O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750868AbWEFBoi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 21:44:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWEFBoi
+	id S1750786AbWEFB5O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 21:57:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWEFB5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 21:44:38 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:58347 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750868AbWEFBoh (ORCPT
+	Fri, 5 May 2006 21:57:14 -0400
+Received: from wr-out-0506.google.com ([64.233.184.233]:7001 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750786AbWEFB5N convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 21:44:37 -0400
-Subject: [PATCH] Time: optimize out some mults, since gcc can't avoid them
-From: john stultz <johnstul@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Roman Zippel <zippel@linux-m68k.org>
-Content-Type: text/plain
-Date: Fri, 05 May 2006 18:44:33 -0700
-Message-Id: <1146879873.12414.3.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 5 May 2006 21:57:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=a95GHKYhSVNsF+aM7oMWrl5+4/3ZgI97XFZ8onLynNkvEBWugDMAMPjBZLgy743IkqpeounOarjg8bjNn+JspnqPraFL2NYpwBlUz+84QAoTQwhohvrS0BpVpg16RoZT1DHPdcudc0aGcz3GC9SGfbcnDs7etd/v7pBHnd+NJCw=
+Message-ID: <21d7e9970605051857l4415a04ai7d1b1f886bb01cee@mail.gmail.com>
+Date: Sat, 6 May 2006 11:57:12 +1000
+From: "Dave Airlie" <airlied@gmail.com>
+To: "Jon Smirl" <jonsmirl@gmail.com>
+Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace (Xorg) to enable devices without doing foul direct access
+Cc: "Greg KH" <greg@kroah.com>, "Ian Romanick" <idr@us.ibm.com>,
+       "Dave Airlie" <airlied@linux.ie>,
+       "Arjan van de Ven" <arjan@linux.intel.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <9e4733910605051705j755ad61dm1c07c66c2c24c525@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <mj+md-20060504.211425.25445.atrey@ucw.cz>
+	 <1146784923.4581.3.camel@localhost.localdomain>
+	 <445BA584.40309@us.ibm.com>
+	 <9e4733910605051314jb681476y4b2863918dfae1f8@mail.gmail.com>
+	 <20060505202603.GB6413@kroah.com>
+	 <9e4733910605051335h7a98670ie8102666bbc4d7cd@mail.gmail.com>
+	 <20060505210614.GB7365@kroah.com>
+	 <9e4733910605051415o48fddbafpf0f8b096f971e482@mail.gmail.com>
+	 <20060505222738.GA8985@kroah.com>
+	 <9e4733910605051705j755ad61dm1c07c66c2c24c525@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Newsflash: GCC not as smart as once hoped.
+> It has everything to do with the 'enable' file. The 'enable' file lets
+> you change the state of the hardware without an ownership mechanism.
+> Other device users will not be notified of the state change. Since the
+> other users can't be sure of the state of the hardware when they are
+> activated, they will have to reload their state into the hardware on
+> every activation.
 
-This patch removes some mults since GCC can't figure out how.
+Jon
 
-Pointed out by Roman Zippel.
+you seem to miss the fact that this can be done now without the enable
+flag, setpci can be used to disable the BARs, again the enable flag
+doesn't change that....
 
-Signed-off-by: John Stultz <johnstul@us.ibm.com>
-
-diff --git a/include/linux/clocksource.h b/include/linux/clocksource.h
-index 585789f..5f4a7f7 100644
---- a/include/linux/clocksource.h
-+++ b/include/linux/clocksource.h
-@@ -236,7 +236,6 @@ static inline int error_aproximation(u64
-  *
-  * Where mult_delta is the adjustment value made to mult
-  *
-- * XXX - Hopefully gcc is smart enough to avoid the multiplies.
-  */
- static inline s64 make_ntp_adj(struct clocksource *clock,
- 				cycles_t cycles_delta, s64* error)
-@@ -244,27 +243,27 @@ static inline s64 make_ntp_adj(struct cl
- 	s64 ret = 0;
- 	if (*error  > ((s64)clock->interval_cycles+1)/2) {
- 		/* calculate adjustment value */
--		int adjustment = 1 << error_aproximation(*error,
-+		int adjustment = error_aproximation(*error,
- 						clock->interval_cycles);
- 		/* adjust clock */
--		clock->mult += adjustment;
--		clock->interval_snsecs += clock->interval_cycles * adjustment;
-+		clock->mult += 1 << adjustment;
-+		clock->interval_snsecs += clock->interval_cycles << adjustment;
- 
- 		/* adjust the base and error for the adjustment */
--		ret =  -(cycles_delta * adjustment);
--		*error -= clock->interval_cycles * adjustment;
-+		ret =  -(cycles_delta << adjustment);
-+		*error -= clock->interval_cycles << adjustment;
- 		/* XXX adj error for cycle_delta offset? */
- 	} else if ((-(*error))  > ((s64)clock->interval_cycles+1)/2) {
- 		/* calculate adjustment value */
--		int adjustment = 1 << error_aproximation(-(*error),
-+		int adjustment = error_aproximation(-(*error),
- 						clock->interval_cycles);
- 		/* adjust clock */
--		clock->mult -= adjustment;
--		clock->interval_snsecs -= clock->interval_cycles * adjustment;
-+		clock->mult -= 1 << adjustment;
-+		clock->interval_snsecs -= clock->interval_cycles << adjustment;
- 
- 		/* adjust the base and error for the adjustment */
--		ret =  cycles_delta * adjustment;
--		*error += clock->interval_cycles * adjustment;
-+		ret =  cycles_delta << adjustment;
-+		*error += clock->interval_cycles << adjustment;
- 		/* XXX adj error for cycle_delta offset? */
- 	}
- 	return ret;
-
-
+Dave.

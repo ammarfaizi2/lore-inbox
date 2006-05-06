@@ -1,53 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWEFLHf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbWEFLNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWEFLHf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 07:07:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWEFLHf
+	id S1750769AbWEFLNP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 07:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbWEFLNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 07:07:35 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:21452 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1750747AbWEFLHe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 07:07:34 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH 8/14] random: Remove SA_SAMPLE_RANDOM from USB gadget drivers
-Date: Sat, 6 May 2006 14:07:02 +0300
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       dbrownell@users.sourceforge.net
-References: <9.420169009@selenic.com>
-In-Reply-To: <9.420169009@selenic.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Sat, 6 May 2006 07:13:14 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:21456 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1750769AbWEFLMz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 May 2006 07:12:55 -0400
+Subject: [PATCH] LED: Fix sysfs store function error handling
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Johannes Berg <johannes@sipsolutions.net>
+Content-Type: text/plain
+Date: Sat, 06 May 2006 12:12:36 +0100
+Message-Id: <1146913956.6237.52.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605061407.02737.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 05 May 2006 19:42, Matt Mackall wrote:
-> Remove SA_SAMPLE_RANDOM from USB gadget drivers
-> 
-> There's no a priori reason to think that USB device interrupts will
-> contain "entropy" as defined/required by /dev/random. In fact, most
-> operations will be streaming and bandwidth- or CPU-limited.
-> /dev/random needs unpredictable inputs such as human interaction or
-> chaotic physical processes like turbulence manifested in disk seek
-> times.
+Fix the error handling of some LED _store functions. This corrects them
+to return -EINVAL if the value is not numeric with an optional byte of 
+trailing whitespace.
 
-You may remove SA_SAMPLE_RANDOM from disk interrupts on the same grounds,
-because flash-based "IDE" drives have no seek. Indeed, with careful
-choice of components, setup, and placement of sniffing equipment
-you may construct a case where you can predict interrupt times.
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
 
-But it's too artificial to matter in real life.
+Index: git/drivers/leds/led-class.c
+===================================================================
+--- git.orig/drivers/leds/led-class.c	2006-05-04 23:12:57.000000000 +0100
++++ git/drivers/leds/led-class.c	2006-05-06 11:01:04.000000000 +0100
+@@ -19,6 +19,7 @@
+ #include <linux/sysdev.h>
+ #include <linux/timer.h>
+ #include <linux/err.h>
++#include <linux/ctype.h>
+ #include <linux/leds.h>
+ #include "leds.h"
+ 
+@@ -43,9 +44,13 @@
+ 	ssize_t ret = -EINVAL;
+ 	char *after;
+ 	unsigned long state = simple_strtoul(buf, &after, 10);
++	size_t count = after - buf;
+ 
+-	if (after - buf > 0) {
+-		ret = after - buf;
++	if (*after && isspace(*after))
++		count++;
++
++	if (count == size) {
++		ret = count;
+ 		led_set_brightness(led_cdev, state);
+ 	}
+ 
+Index: git/drivers/leds/ledtrig-timer.c
+===================================================================
+--- git.orig/drivers/leds/ledtrig-timer.c	2006-05-04 23:12:57.000000000 +0100
++++ git/drivers/leds/ledtrig-timer.c	2006-05-06 11:01:42.000000000 +0100
+@@ -20,6 +20,7 @@
+ #include <linux/device.h>
+ #include <linux/sysdev.h>
+ #include <linux/timer.h>
++#include <linux/ctype.h>
+ #include <linux/leds.h>
+ #include "leds.h"
+ 
+@@ -69,11 +70,15 @@
+ 	int ret = -EINVAL;
+ 	char *after;
+ 	unsigned long state = simple_strtoul(buf, &after, 10);
++	size_t count = after - buf;
+ 
+-	if (after - buf > 0) {
++	if (*after && isspace(*after))
++		count++;
++
++	if (count == size) {
+ 		timer_data->delay_on = state;
+ 		mod_timer(&timer_data->timer, jiffies + 1);
+-		ret = after - buf;
++		ret = count;
+ 	}
+ 
+ 	return ret;
+@@ -97,11 +102,15 @@
+ 	int ret = -EINVAL;
+ 	char *after;
+ 	unsigned long state = simple_strtoul(buf, &after, 10);
++	size_t count = after - buf;
++
++	if (*after && isspace(*after))
++		count++;
+ 
+-	if (after - buf > 0) {
++	if (count == size) {
+ 		timer_data->delay_off = state;
+ 		mod_timer(&timer_data->timer, jiffies + 1);
+-		ret = after - buf;
++		ret = count;
+ 	}
+ 
+ 	return ret;
 
-Come on, let's get real. A few low bits of TSC are random enough
-(for just about any interrupt source).
 
-Attackers will probably look for easier ways to hack your crypto
-than predicting /dev/random.
---
-vda

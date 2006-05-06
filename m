@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751817AbWEFEK1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbWEFEQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751817AbWEFEK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 00:10:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751815AbWEFEK1
+	id S932431AbWEFEQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 00:16:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbWEFEQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 00:10:27 -0400
-Received: from mx2.suse.de ([195.135.220.15]:9660 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751139AbWEFEK0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 00:10:26 -0400
-Date: Fri, 5 May 2006 21:08:39 -0700
-From: Greg KH <greg@kroah.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: shemminger@osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] netdev: create attribute_groups with class_device_add
-Message-ID: <20060506040839.GA12636@kroah.com>
-References: <20060421125255.3451959f@localhost.localdomain> <20060421125438.50f93a34@localhost.localdomain> <20060505.184158.131584956.davem@davemloft.net>
-Mime-Version: 1.0
+	Sat, 6 May 2006 00:16:56 -0400
+Received: from 2-1-3-15a.ens.sth.bostream.se ([82.182.31.214]:29870 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id S932431AbWEFEQz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 May 2006 00:16:55 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Bugs aren't features: X86_FEATURE_FXSAVE_LEAK
+References: <445B7EF0.6090708@zytor.com> <p733bfo5ol1.fsf@bragg.suse.de>
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 06 May 2006 06:16:54 +0200
+In-Reply-To: <p733bfo5ol1.fsf@bragg.suse.de>
+Message-ID: <m3iroju6rt.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060505.184158.131584956.davem@davemloft.net>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 05, 2006 at 06:41:58PM -0700, David S. Miller wrote:
-> From: Stephen Hemminger <shemminger@osdl.org>
-> Date: Fri, 21 Apr 2006 12:54:38 -0700
+Andi Kleen <ak@suse.de> writes:
+
+> "H. Peter Anvin" <hpa@zytor.com> writes:
 > 
-> > Atomically create attributes when class device is added. This avoids the
-> > race between registering class_device (which generates hotplug event),
-> > and the creation of attribute groups.
-> > 
-> > Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+> > The recent fix for the AMD FXSAVE information leak had a problematic
+> > side effect.  It introduced an entry in the x86 features vector which
+> > is a bug, not a feature.
 > 
-> Did the first patch that adds the attribute_group creation
-> infrastructure go in so that we can get this networking fix in?
+> It's a non issue because it affects all AMD CPUs (except K5/K6).
+> You'll never find a system where only some CPUs have this problem.
 
-It and the netdev patch are setting in my tree which is showing up in
--mm.  I'm going to wait until 2.6.17 is out to send the first patch.  I
-can send the second one then too if you want me to (probably make it
-easier that way.)
+I have a dual CPU system (Tyan Tomcat 1564D) where only one CPU is
+reported to have the F00F bug (iirc).  So yes, there can be
+SMP-systems where the CPU's have different bugs.
 
-thanks,
+    /Christer
 
-greg k-h
+-- 
+"Just how much can I get away with and still go to heaven?"
+
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

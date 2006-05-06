@@ -1,105 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWEFUh6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbWEFUhw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbWEFUh6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 16:37:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932072AbWEFUh6
+	id S1750886AbWEFUhw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 16:37:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbWEFUhw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 16:37:58 -0400
-Received: from wr-out-0506.google.com ([64.233.184.236]:17098 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932073AbWEFUh5 convert rfc822-to-8bit (ORCPT
+	Sat, 6 May 2006 16:37:52 -0400
+Received: from waste.org ([64.81.244.121]:52153 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1750886AbWEFUhv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 16:37:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=D2K8hYa7JcdcAyxsaO8KVm98zKAo9bD9yz59nk5yErpfSYLAk5hQu6JLR5rxHIfm7ITQhc6BWY58Nmdxrx9ijXBoUdem51wF7LPNNOPb+o8PadCjVS9lEhJvSYSMTfmRoeJI/gmUiKHd/RgO05SWwquOFiNIfzsGZPrGzqA09dY=
-Message-ID: <6e6e20a10605061337r53b918cal38a5048bb284b8ed@mail.gmail.com>
-Date: Sat, 6 May 2006 22:37:56 +0200
-From: "=?ISO-8859-1?Q?Bj=F6rn_Nilsson?=" <bni.swe@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 3COM 3C940, does not work anymore after upgrade to 2.6.15
-Cc: akpm@osdl.org, shemminger@osdl.org
-In-Reply-To: <20060501131801.341aeb6b.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+	Sat, 6 May 2006 16:37:51 -0400
+Date: Sat, 6 May 2006 15:33:04 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Theodore Tso <tytso@mit.edu>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       davem@davemloft.net
+Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
+Message-ID: <20060506203304.GF15445@waste.org>
+References: <8.420169009@selenic.com> <65CF7F44-0452-4E94-8FC1-03B024BCCAE7@mac.com> <20060505172424.GV15445@waste.org> <20060505191127.GA16076@thunk.org> <20060505203436.GW15445@waste.org> <20060506115502.GB18880@thunk.org> <20060506164808.GY15445@waste.org> <20060506180551.GB22474@thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <6e6e20a10601160751v362d2312v6c99fa8db64ce7e1@mail.gmail.com>
-	 <20060501131801.341aeb6b.akpm@osdl.org>
+In-Reply-To: <20060506180551.GB22474@thunk.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Disregard my earlier theories about this problem, they where completely wrong.
+On Sat, May 06, 2006 at 02:05:51PM -0400, Theodore Tso wrote:
+> On Sat, May 06, 2006 at 11:48:08AM -0500, Matt Mackall wrote:
+> > Case 3:
+> > Hash function broken, entropy accounting is over-optimistic:
+> > /dev/urandom and /dev/random are both equally insecure because both
+> > are revealing more internal entropy than they're collecting. So you
+> > should just use /dev/urandom because at least it doesn't block.
+> > 
+> > Putting aside all the practical issue of what exactly is entropy and
+> > what decent entropy sources are, we should be able to agree on this
+> > much. And this basically says that if you do your entropy accounting
+> > badly, you throw the baby out with the bathwater.
+> 
+> Agreed, but I'd an additional point of nuance; this assumes that the
+> attacker (call him Boris for the sake of argument) can actually gain
+> access to enough /dev/random or /dev/urandom outputs, and be
+> knowledgable about all other calls to /dev/random and exactly when
+> they happen (since entropy extractions cause the TSC to be mixed into
+> the pool) so Boris can can actually determine the contents of the
+> pool.
 
-Turns out it wasnt a Linux, skge or kernel version related problem at
-all. After rebooting about 10 times and swapping network cards in my
-computer a couple of times today, I tracked it down to the new
-router/adsl-modem my ISP has supplied me with. It turns off its
-ethernet port when nothing is connected to it for some reason. Doesnt
-turn it on again until I reboot it with some network device connected
-and powered on. This made me draw the wrong conclusions about versions
-etc earlier, sorry about that.
+Yes, that's assumed. Because otherwise /dev/urandom would be
+sufficient in all cases.
 
-Regards
-/Björn
+> Note that simply "breaking" a cryptographic hash, in the sense
+> of finding two input values that collide to the same output value,
+> does not mean that the hash has been sufficiently analyzed that it
+> would be possible to accomplish this feat.
 
-On 5/1/06, Andrew Morton <akpm@osdl.org> wrote:
->
-> If this bug is still present in 2.6.17-rc3, could you please raise a report
-> at bugzilla.kernel.org so we can track it?
->
-> Thanks.
->
->
-> Björn Nilsson <bni.swe@gmail.com> wrote:
-> >
-> > Hi,
-> >
-> > I have a problem with the network card attached to my motherboard
-> > after doing an upgrade of the kernel from 2.6.11 to 2.6.15.
-> >
-> > The Motherboard is an ASUS P4P800, and the network card is 3COM 3C940
-> > and is afaik a variant of SysKonnect SK-98xx.
-> >
-> > It worked with 2.6.15 until I shut the system down and started it up
-> > again for the first time with 2.6.15 running, and now the card does
-> > not work anymore. The driver is loaded, and it detects that the cable
-> > is plugged in and the interface is brought up (so says dmesg). The
-> > green led on the card is now turned off, it used to be on before.
-> >
-> > I have tried to reinstall the system from scratch (Using Debian 3.1
-> > installer cd), and to my astonishment the card is not working like it
-> > used to.
-> >
-> > It seems like 2.6.15 set the card in some state so it does not work
-> > anymore. Is this even possible? I have tried power cycling, even
-> > disconnected the power coord from the computer.
-> >
-> > When i used 2.6.11 I was using the sk98lin driver, when upgrading it
-> > is possible the newer skge driver was used, however I am not sure.
-> >
-> > Debian installer 3.1 uses 2.6.8 kernel with sk98lin driver.
-> >
-> > I have found others with the same/similar problem:
-> > http://bugs.gentoo.org/show_bug.cgi?id=100258
-> > http://marc.theaimsgroup.com/?l=linux-netdev&m=112268414417743&w=2
-> >
-> > But for me the card does not work even with 2.6.15. I dont have
-> > Wind*ws to test with, so I cant test the solution in one of the above
-> > emails.
-> >
-> > If the driver in 2.6.15 breaks cards of this type it is qiute a
-> > serious bug I think. Anyone have any suggestions as to how I can try
-> > to fix this? Reset the card in some way maybe?
-> >
-> > Please CC me.
-> >
-> > Regards
-> > /Björn
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
->
+I'm not talking about any existing attacks, I'm talking about what
+would theoretically be possible were a first preimage attack on our
+hash to become practical.
+
+> Does this mean we should __depend__ on this?  No, we should always do
+> the best job that we can.  But it's also fair to say that even if the
+> hash function is "broken", that the results are not automatically
+> going to be catastrophic.  If the attacker can't get their hands on
+> enough of an output stream from /dev/random, then it's not likely to
+> do much.  For an attacker who only has network access, this could be
+> quite difficult.
+
+All agreed. But that applies equally to /dev/urandom. The only thing that
+distinguishes the two is entropy accounting and entropy accounting
+only makes a difference if it's conservative. 
+
+I am _not_ arguing that any of this is practical. I'm arguing that
+it's completely beside the point.
+ 
+> > But network traffic should be _assumed_ to be observable to some
+> > degree. Everything else in network security makes the assumption that
+> > traffic is completely snoopable. By contrast, we assume people can't
+> > see us type our passwords[1]. So while our entropy estimator assumes
+> > observability == 0, for the network case, 0 < observability <= 1. And
+> > if it's greater than what our entropy estimator assumes, our entropy
+> > estimates are now too optimistic and /dev/random security degrades to
+> > that of /dev/urandom.
+> 
+> The timing of network arrivals is observable to *some* degree.  Of
+> course, so is the timing from block I/O interrupts.
+
+That's a whole 'nother topic we can tackle separately.
+ 
+> For network traffic, again, it depends on your threat model.
+
+Here's a threat model: I remotely break into your LAN and 0wn insecure
+Windows box X that's one switch jump away from the web server Y that
+processes your credit card transactions. I use standard techniques to
+kick the switch into broadcast mode so I can see all its traffic or
+maybe I break into the switch itself and temporarily isolate Y from
+the rest of the world so that only X can talk to it. I'm still in
+Russia, but I might as well be in the same room.
+
+> That's why I think it should be configurable.  If you don't have a
+> real hardware number generator, maybe blocking would be preferable to
+> not having good entropy.  But in other circumstances, what people need
+> is the best possible randomness they can get, and their security is
+> not enhanced by simply taking it away from them altogether.  That
+> makes about as much sense as GNOME making its applications "easier to
+> use" by removing functionality (to quote Linus).
+
+Again, I think it's perfectly reasonable to sample from all sorts of
+sources. All my issues are about the entropy accounting.
+
+> > Yes, this is all strictly theoretical. But the usefulness of
+> > /dev/random is exactly as theoretical. So if you use /dev/random for
+> > it's theoretical advantages (and why else would you?), this defeats
+> > that.
+> 
+> This becomes a philosophical arugment.  Yes, we should strive for as
+> much theoretical perfection as possible.  But at the same time, we
+> need to live in the real world, and adding network entropy which can
+> defeat the bored high school student in Russia using some black hat
+> toolkit they downloaded of the internet is useful --- even if it can't
+> defeat the NSA/FBI agent who can perform a black bag job and place a
+> monitoring device on your internal ethernet segment.
+
+No thoughts on scaling back our entropy estimates?
+
+-- 
+Mathematics is the supreme nostalgia of our time.

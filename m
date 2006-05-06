@@ -1,127 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbWEFUhw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWEFVFZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750886AbWEFUhw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 16:37:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbWEFUhw
+	id S932072AbWEFVFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 17:05:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbWEFVFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 16:37:52 -0400
-Received: from waste.org ([64.81.244.121]:52153 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1750886AbWEFUhv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 16:37:51 -0400
-Date: Sat, 6 May 2006 15:33:04 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Theodore Tso <tytso@mit.edu>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       davem@davemloft.net
-Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
-Message-ID: <20060506203304.GF15445@waste.org>
-References: <8.420169009@selenic.com> <65CF7F44-0452-4E94-8FC1-03B024BCCAE7@mac.com> <20060505172424.GV15445@waste.org> <20060505191127.GA16076@thunk.org> <20060505203436.GW15445@waste.org> <20060506115502.GB18880@thunk.org> <20060506164808.GY15445@waste.org> <20060506180551.GB22474@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060506180551.GB22474@thunk.org>
-User-Agent: Mutt/1.5.9i
+	Sat, 6 May 2006 17:05:25 -0400
+Received: from fmmailgate01.web.de ([217.72.192.221]:46258 "EHLO
+	fmmailgate01.web.de") by vger.kernel.org with ESMTP id S932072AbWEFVFZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 May 2006 17:05:25 -0400
+From: Michael Helmling <supermihi@web.de>
+To: "Markus Rechberger" <mrechberger@gmail.com>
+Subject: Re: New, yet unsupported USB-Ethernet adaptor
+Date: Sat, 6 May 2006 23:05:20 +0200
+User-Agent: KMail/1.9.1
+Cc: "Ioan Ionita" <opslynx@gmail.com>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+References: <200605022002.15845.supermihi@web.de> <200605022303.10832.supermihi@web.de> <d9def9db0605050554m7b1e093di85782c1b09ca2636@mail.gmail.com>
+In-Reply-To: <d9def9db0605050554m7b1e093di85782c1b09ca2636@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1426170.3YvNsdGz8u";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200605062305.20750.supermihi@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 06, 2006 at 02:05:51PM -0400, Theodore Tso wrote:
-> On Sat, May 06, 2006 at 11:48:08AM -0500, Matt Mackall wrote:
-> > Case 3:
-> > Hash function broken, entropy accounting is over-optimistic:
-> > /dev/urandom and /dev/random are both equally insecure because both
-> > are revealing more internal entropy than they're collecting. So you
-> > should just use /dev/urandom because at least it doesn't block.
-> > 
-> > Putting aside all the practical issue of what exactly is entropy and
-> > what decent entropy sources are, we should be able to agree on this
-> > much. And this basically says that if you do your entropy accounting
-> > badly, you throw the baby out with the bathwater.
-> 
-> Agreed, but I'd an additional point of nuance; this assumes that the
-> attacker (call him Boris for the sake of argument) can actually gain
-> access to enough /dev/random or /dev/urandom outputs, and be
-> knowledgable about all other calls to /dev/random and exactly when
-> they happen (since entropy extractions cause the TSC to be mixed into
-> the pool) so Boris can can actually determine the contents of the
-> pool.
+--nextPart1426170.3YvNsdGz8u
+Content-Type: text/plain;
+  charset="iso-8859-6"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Yes, that's assumed. Because otherwise /dev/urandom would be
-sufficient in all cases.
+Hi Markus,
 
-> Note that simply "breaking" a cryptographic hash, in the sense
-> of finding two input values that collide to the same output value,
-> does not mean that the hash has been sufficiently analyzed that it
-> would be possible to accomplish this feat.
+I'm sorry but your attachment has 0kb size. :(
 
-I'm not talking about any existing attacks, I'm talking about what
-would theoretically be possible were a first preimage attack on our
-hash to become practical.
+On Friday 05 May 2006 14:54, Markus Rechberger wrote:
+> Hi Michael,
+>=20
+> I mailed you the complete package it compiled fine but I'm also unable to
+> test since I don't have such a device either
+> I should have known about this thread earlier :)
+>=20
+> Markus
+>=20
+> On 5/2/06, Michael Helmling <supermihi@web.de> wrote:
+> >
+> >
+> >
+> > Am Dienstag 02 Mai 2006 22:40 schrieb Ioan Ionita:
+> > > On 5/2/06, Michael Helmling <supermihi@web.de> wrote:
+> > > > Thank you very much for the immediate answer.
+> > > > I applied the patch  - well, I had to do this manually, for some
+> > reason, I
+> > > > assume bad formatting in my mail program, patch -p0 < patch1 didn't
+> > work.
+> > Or
+> > > > am I using the wrong command?
+> > >
+> > > You shoud use patch -p1< patch
+> >
+> > $ patch -p1 < patch
+> > patching file mcs7830.c
+> > Hunk #1 FAILED at 1309.
+> > Hunk #2 FAILED at 1370.
+> > Hunk #3 FAILED at 1503.
+> > Hunk #4 FAILED at 1935.
+> > Hunk #5 FAILED at 1997.
+> > Hunk #6 FAILED at 2044.
+> > Hunk #7 FAILED at 2404.
+> > 7 out of 7 hunks FAILED -- saving rejects to file mcs7830.c.rej
+> >
+> > Don't know why. :( But since it are only a few lines this isn't a major
+> > problem.
+> >
+> > > Me neither. It was a quick & dirty patch, I must have missed
+> > > something. I'll toy around with it some more.
+> >
+> > Good luck!
+> > >
+> > >
+> > > P.S In the future, make sure you use reply-to-all. Thanks
+> >
+> > Ok.
+> >
+> >
+> >
+>=20
+>=20
+> --
+> Markus Rechberger
+>=20
 
-> Does this mean we should __depend__ on this?  No, we should always do
-> the best job that we can.  But it's also fair to say that even if the
-> hash function is "broken", that the results are not automatically
-> going to be catastrophic.  If the attacker can't get their hands on
-> enough of an output stream from /dev/random, then it's not likely to
-> do much.  For an attacker who only has network access, this could be
-> quite difficult.
+--nextPart1426170.3YvNsdGz8u
+Content-Type: application/pgp-signature
 
-All agreed. But that applies equally to /dev/urandom. The only thing that
-distinguishes the two is entropy accounting and entropy accounting
-only makes a difference if it's conservative. 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
 
-I am _not_ arguing that any of this is practical. I'm arguing that
-it's completely beside the point.
- 
-> > But network traffic should be _assumed_ to be observable to some
-> > degree. Everything else in network security makes the assumption that
-> > traffic is completely snoopable. By contrast, we assume people can't
-> > see us type our passwords[1]. So while our entropy estimator assumes
-> > observability == 0, for the network case, 0 < observability <= 1. And
-> > if it's greater than what our entropy estimator assumes, our entropy
-> > estimates are now too optimistic and /dev/random security degrades to
-> > that of /dev/urandom.
-> 
-> The timing of network arrivals is observable to *some* degree.  Of
-> course, so is the timing from block I/O interrupts.
+iD8DBQBEXQ+QcLJiNWFgTBIRAs8aAKCGIxVTsW1L5fN+Stt6wQiuzWSWOgCfSraH
+BOLG12YHkGpdeA7HF260/98=
+=/tnw
+-----END PGP SIGNATURE-----
 
-That's a whole 'nother topic we can tackle separately.
- 
-> For network traffic, again, it depends on your threat model.
-
-Here's a threat model: I remotely break into your LAN and 0wn insecure
-Windows box X that's one switch jump away from the web server Y that
-processes your credit card transactions. I use standard techniques to
-kick the switch into broadcast mode so I can see all its traffic or
-maybe I break into the switch itself and temporarily isolate Y from
-the rest of the world so that only X can talk to it. I'm still in
-Russia, but I might as well be in the same room.
-
-> That's why I think it should be configurable.  If you don't have a
-> real hardware number generator, maybe blocking would be preferable to
-> not having good entropy.  But in other circumstances, what people need
-> is the best possible randomness they can get, and their security is
-> not enhanced by simply taking it away from them altogether.  That
-> makes about as much sense as GNOME making its applications "easier to
-> use" by removing functionality (to quote Linus).
-
-Again, I think it's perfectly reasonable to sample from all sorts of
-sources. All my issues are about the entropy accounting.
-
-> > Yes, this is all strictly theoretical. But the usefulness of
-> > /dev/random is exactly as theoretical. So if you use /dev/random for
-> > it's theoretical advantages (and why else would you?), this defeats
-> > that.
-> 
-> This becomes a philosophical arugment.  Yes, we should strive for as
-> much theoretical perfection as possible.  But at the same time, we
-> need to live in the real world, and adding network entropy which can
-> defeat the bored high school student in Russia using some black hat
-> toolkit they downloaded of the internet is useful --- even if it can't
-> defeat the NSA/FBI agent who can perform a black bag job and place a
-> monitoring device on your internal ethernet segment.
-
-No thoughts on scaling back our entropy estimates?
-
--- 
-Mathematics is the supreme nostalgia of our time.
+--nextPart1426170.3YvNsdGz8u--

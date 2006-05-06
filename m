@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbWEFXXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbWEFXmd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750963AbWEFXXN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 19:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbWEFXXN
+	id S1751149AbWEFXmd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 19:42:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWEFXmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 19:23:13 -0400
-Received: from science.horizon.com ([192.35.100.1]:40493 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S1750963AbWEFXXN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 19:23:13 -0400
-Date: 6 May 2006 19:23:11 -0400
-Message-ID: <20060506232311.7353.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] New, yet unsupported USB-Ethernet adaptor
-Cc: linux@horizon.com
+	Sat, 6 May 2006 19:42:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19596 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751140AbWEFXmd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 May 2006 19:42:33 -0400
+Date: Sat, 6 May 2006 16:42:27 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: minixfs bitmaps and associated lossage
+In-Reply-To: <20060506231054.GR27946@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0605061633020.16343@g5.osdl.org>
+References: <44560796.8010700@gmail.com> <20060506162956.GO27946@ftp.linux.org.uk>
+ <20060506163737.GP27946@ftp.linux.org.uk> <20060506220451.GQ27946@ftp.linux.org.uk>
+ <Pine.LNX.4.64.0605061524420.16343@g5.osdl.org> <20060506231054.GR27946@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Correct.  He is violating the license in a number of ways, though it
->>> probably isn't totally intentional.
->>
->> Removing copyright and licence statements can't have been anything BUT
->> intentional.
->> 
->> That's really a basic rule, pretty much a "programming 101" thing.  You
->> know, like "test your code", "don't remove other folks' copyrights",
->> "don't try to change the licence on code copyrighted by someone else".
 
-That's programming 101 in a litigous country.  Some people are lucky
-enough to live in places where the law is treated with the respect
-it deserves.
 
-> Well, I suspect that poor soul did not know what (s)he was doing. They
-> are clearly trying to do the right thing... just paste back original
-> copyrights and be done with it.
+On Sun, 7 May 2006, Al Viro wrote:
+> 
+> FWIW, the only way to really deal with such structure would be to treat
+> on-disk values as "fs-endian" and make the conversion to and from
+> host-endian check the superblock.  That would _really_ consolidate
+> minix_..._bit() (turning them into __test_bit(nr ^ sbi->mangle, p), etc.)
 
-> No need to pull them into the loop, I'd say. What they done is wrong,
-> but we can correct it without their help.
+Yeah, especially for bitmaps, it really _should_ be pretty simple, since 
+it's literally a bitwise xor of the bit number. It's actually worse for 
+things that truly have byte order dependencies where the values span bytes 
+and need re-ordering. For bits, that obviously will never be the case.
 
-I'm with Pavel.  This was probably done by some underpaid junior coder
-in Bangalore who is utterly innocent of law, much less international law.
+> If somebody wants to play with that code, they could just merge fs/minix
+> into fs/sysv - that might very well turn out to be the right thing and
+> a fun exercise.  Codebases are very close - minixfs is a derivative of
+> v7 filesystem, after all, and our fs/minix and fs/sysv had been kept
+> mostly in sync.
 
-The point is, they didn't try to claim it's proprietary and a trade secret.
-Misplacing the credit is very rude, but also easily fixable, especially
-once the duplicate code is properly factored out.
+Heh. Yes. The physical filesystem layout of minix is close to the old sysv 
+one, and the implementation ends up being pretty closely related too, 
+although the genealogy there is the other way around.
 
-A mention of "you shouldn't do that" is appropriate, but harassing a party
-who's basically being cooperative is unnecessary and counterproductive.
+However, I thought the direct sysv descendants used linked lists of 
+free-block lists, not bitmaps? So while a lot of the _other_ part of the 
+filesystem layout is similar, the actual free-block handling is very 
+different. No?
 
-A lot of expensive stonewalling in courts is caused by the fact that
-it's dangerous to admit that you did anything wrong; it has very little
-benefit, and lawyers proceed to just twist it into "and what else *aren't*
-they admitting to?"  Unless you want to encourage that behaviour,
-please don't make their lawyers regret that they let the source code
-out with the incriminating lack-of-comments.  Just fix it and move on.
+So there are things that are very similar (directory layout, inode 
+format), and could probably be share, while other things (free block and 
+inode handling) are fundamentally different, no?
 
-Save your righteous ire for the hard cases at gpl-violations.org.
+			Linus

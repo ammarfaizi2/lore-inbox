@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWEFXQ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbWEFXXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751134AbWEFXQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 19:16:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWEFXQ2
+	id S1750963AbWEFXXN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 19:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbWEFXXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 19:16:28 -0400
-Received: from khc.piap.pl ([195.187.100.11]:58119 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1751134AbWEFXQ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 19:16:27 -0400
-To: "Jon Smirl" <jonsmirl@gmail.com>
-Cc: "Dave Airlie" <airlied@gmail.com>, "Greg KH" <greg@kroah.com>,
-       "Ian Romanick" <idr@us.ibm.com>, "Dave Airlie" <airlied@linux.ie>,
-       "Arjan van de Ven" <arjan@linux.intel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace (Xorg) to enable devices without doing foul direct access
-References: <mj+md-20060504.211425.25445.atrey@ucw.cz>
-	<20060505210614.GB7365@kroah.com>
-	<9e4733910605051415o48fddbafpf0f8b096f971e482@mail.gmail.com>
-	<20060505222738.GA8985@kroah.com>
-	<9e4733910605051705j755ad61dm1c07c66c2c24c525@mail.gmail.com>
-	<21d7e9970605051857l4415a04ai7d1b1f886bb01cee@mail.gmail.com>
-	<9e4733910605052039n7d2debbse0fd07e0d1d059fb@mail.gmail.com>
-	<m3d5er729f.fsf@defiant.localdomain>
-	<9e4733910605060608l57c1a215pa300c326ef1eef4b@mail.gmail.com>
-	<m34q036n46.fsf@defiant.localdomain>
-	<9e4733910605061124u6b1c4b88nd84faa914c72521f@mail.gmail.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Sun, 07 May 2006 01:16:25 +0200
-In-Reply-To: <9e4733910605061124u6b1c4b88nd84faa914c72521f@mail.gmail.com> (Jon Smirl's message of "Sat, 6 May 2006 14:24:35 -0400")
-Message-ID: <m33bfm4ud2.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 6 May 2006 19:23:13 -0400
+Received: from science.horizon.com ([192.35.100.1]:40493 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S1750963AbWEFXXN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 May 2006 19:23:13 -0400
+Date: 6 May 2006 19:23:11 -0400
+Message-ID: <20060506232311.7353.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] New, yet unsupported USB-Ethernet adaptor
+Cc: linux@horizon.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jon Smirl" <jonsmirl@gmail.com> writes:
+>>> Correct.  He is violating the license in a number of ways, though it
+>>> probably isn't totally intentional.
+>>
+>> Removing copyright and licence statements can't have been anything BUT
+>> intentional.
+>> 
+>> That's really a basic rule, pretty much a "programming 101" thing.  You
+>> know, like "test your code", "don't remove other folks' copyrights",
+>> "don't try to change the licence on code copyrighted by someone else".
 
->> The card in question _has_ a driver. I, for example, just need a way
->> to write EEPROM data to it (vendor/device ID etc). The card has to be
->> selected by PCI bus and slot (device) number, not by device class
->> and/or IDs, because it can contain garbage and/or some generic IDs
->> with generic device class.
->
-> Hardware like you describe violates the PCI spec
+That's programming 101 in a litigous country.  Some people are lucky
+enough to live in places where the law is treated with the respect
+it deserves.
 
-What exactly does it violate?
+> Well, I suspect that poor soul did not know what (s)he was doing. They
+> are clearly trying to do the right thing... just paste back original
+> copyrights and be done with it.
 
-> and it should not be
-> expected that Linux will support it in the general case. It sounds
-> like this is some kind of prototype hardware.
+> No need to pull them into the loop, I'd say. What they done is wrong,
+> but we can correct it without their help.
 
-No. Just one of the final steps of production, or in-system update.
+I'm with Pavel.  This was probably done by some underpaid junior coder
+in Bangalore who is utterly innocent of law, much less international law.
 
-> I would probably handle this by writing an unbound device driver that
-> exposes a sysfs file for bus:slot. When you write the bus:slot to the
-> file it would then bind to the appropriate hardware and enable it. The
-> newly bound driver would support the driver firmware loader interface
-> as a means of getting your data in.
+The point is, they didn't try to claim it's proprietary and a trade secret.
+Misplacing the credit is very rude, but also easily fixable, especially
+once the duplicate code is properly factored out.
 
-What is also needed is that end users perform this task from time to
-time. They generally don't want to have to compile the kernel :-)
+A mention of "you shouldn't do that" is appropriate, but harassing a party
+who's basically being cooperative is unnecessary and counterproductive.
 
-You know, even now it can be done (entirely in userspace), and only
-enabling the device seems a bit dangerous.
--- 
-Krzysztof Halasa
+A lot of expensive stonewalling in courts is caused by the fact that
+it's dangerous to admit that you did anything wrong; it has very little
+benefit, and lawyers proceed to just twist it into "and what else *aren't*
+they admitting to?"  Unless you want to encourage that behaviour,
+please don't make their lawyers regret that they let the source code
+out with the incriminating lack-of-comments.  Just fix it and move on.
+
+Save your righteous ire for the hard cases at gpl-violations.org.

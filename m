@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbWEGKfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWEGKyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932118AbWEGKfL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 06:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbWEGKfL
+	id S932126AbWEGKyU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 06:54:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWEGKyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 06:35:11 -0400
-Received: from keetweej.vanheusden.com ([213.84.46.114]:19683 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S932118AbWEGKfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 06:35:10 -0400
-Date: Sun, 7 May 2006 12:35:08 +0200
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: "David S. Miller" <davem@davemloft.net>, mpm@selenic.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
-Message-ID: <20060507103507.GV25646@vanheusden.com>
-References: <2.420169009@selenic.com> <8.420169009@selenic.com>
-	<20060505.141040.53473194.davem@davemloft.net>
-	<20060506140850.GN25646@vanheusden.com>
-	<1146928743.15364.89.camel@mindpipe>
+	Sun, 7 May 2006 06:54:20 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:10708 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S932126AbWEGKyT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 May 2006 06:54:19 -0400
+Date: Sun, 7 May 2006 12:54:09 +0200
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: Jason Schoonover <jasons@pioneer-pra.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: High load average on disk I/O on 2.6.17-rc3
+Message-ID: <20060507105409.GA3835@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	Jason Schoonover <jasons@pioneer-pra.com>,
+	linux-kernel@vger.kernel.org
+References: <200605051010.19725.jasons@pioneer-pra.com> <20060506230320.GA3463@outpost.ds9a.nl> <200605061802.47261.jasons@pioneer-pra.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1146928743.15364.89.camel@mindpipe>
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Reply-By: Sat Apr 29 15:52:22 CEST 2006
-X-Message-Flag: PGP key-id: 0x1f28d8ae - consider encrypting your e-mail to me
-	with PGP!
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <200605061802.47261.jasons@pioneer-pra.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Consider adding a cheap soundcard to the system and run
-> > 'audio-entropyd': www.vanheusden.com/aed 
-> Can't get much cheaper than the crap that comes on every motherboard
-> these days ;-)
-> Also aren't temp sensors (on the disk or mobo) a good entropy source?
+On Sat, May 06, 2006 at 06:02:47PM -0700, Jason Schoonover wrote:
 
-Not sure about that. If I look at
-http://keetweej.vanheusden.com/draw_temp.php?limit=86400 it looks like
-that at least the cpu sensor gets only updated every x seconds.
+> The interesting thing was that after I did a Ctrl-C on the ncftpget, the id 
+> column was still at 0, even though the ncftpget process was over.  The id 
+> column was at 0 and the 'wa' column was at 98, up until all of the pdflush 
+> processes ended.
+> 
+> Is that the expected behavior?
 
+Yes - data is still being written out. 'wa' stands for waiting for io. As
+long as 'us' and 'sy' are not 100 (together), your system ('computing
+power') is not 'busy'.
 
-Folkert van Heusden
+The lines below are perfect:
+>  0  2     40  47816   7888 1920116    0    0     0 36264 1354    56  0  1  0 99
+>  0  2     40  48312   7888 1920116    0    0     0 36248 1362    52  0  1  0 99
+
+Wether you should have 5 pdflushes running is something I have no relevant
+experience about, but your system should function just fine during writeout.
 
 -- 
-Feeling generous? -> http://www.vanheusden.com/wishlist.php
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

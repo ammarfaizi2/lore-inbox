@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWEGNfw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbWEGNpf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932162AbWEGNfw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 09:35:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWEGNfw
+	id S932163AbWEGNpf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 09:45:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbWEGNpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 09:35:52 -0400
-Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:10837 "HELO
-	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932162AbWEGNfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 09:35:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=vPXFqAA1uvxTAfgXqtYTpSBczUqlnkTvuNMOhaesYVqjoTqjQ+bEvIixB7LG8twQlA7k35MuQIHwri+Dg/EhUiyFhT2SWeNGzg5k5ZW1Fy3FTyImlbYQj+i3frYNCvKfrk7INLQeonjlmskTGnAbCjYKN3kzAYRTTeZaTljh1WE=  ;
-Message-ID: <445DF667.309@yahoo.com.au>
-Date: Sun, 07 May 2006 23:30:15 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Mike Galbraith <efault@gmx.de>, Andi Kleen <ak@suse.de>,
-       Christopher Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
-Subject: Re: sched_clock() uses are broken
-References: <20060502132953.GA30146@flint.arm.linux.org.uk> <p73slns5qda.fsf@bragg.suse.de> <44578EB9.8050402@nortel.com> <200605021859.18948.ak@suse.de> <445791D3.9060306@yahoo.com.au> <1146640155.7526.27.camel@homer> <445DE925.9010006@yahoo.com.au> <20060507124307.GA20443@flint.arm.linux.org.uk> <445DEE70.10807@yahoo.com.au> <445DEF6D.1050902@yahoo.com.au> <20060507131825.GC20443@flint.arm.linux.org.uk>
-In-Reply-To: <20060507131825.GC20443@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 7 May 2006 09:45:35 -0400
+Received: from master.altlinux.org ([62.118.250.235]:59151 "EHLO
+	master.altlinux.org") by vger.kernel.org with ESMTP id S932163AbWEGNpe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 May 2006 09:45:34 -0400
+Date: Sun, 7 May 2006 17:45:27 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Michael Buesch <mb@bu3sch.de>
+Cc: akpm@osdl.org, Deepak Saxena <dsaxena@plexity.net>,
+       bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/6] New Generic HW RNG
+Message-ID: <20060507134527.GA14704@procyon.home>
+References: <20060507113513.418451000@pc1> <20060507170320.3ce0d3e0.vsu@altlinux.ru> <200605071516.09167.mb@bu3sch.de> <200605071527.33376.mb@bu3sch.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
+Content-Disposition: inline
+In-Reply-To: <200605071527.33376.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Sun, May 07, 2006 at 11:00:29PM +1000, Nick Piggin wrote:
-> 
->>Nick Piggin wrote:
->>
->>
->>>I stand by my first reply to your comment WRT the API.
->>
->>Actually, on rereading, it seems like I was a bit confused about
->>your proposal. I don't think you specified anyway the units
->>returned by your new sched_clock(). So it is identical to my
->>"corrected" interface :\
-> 
-> 
-> Okay, so that presumably means we have to either stick with what we
-> currently have, or go the whole hog and re-implement the sched_clock()
-> support?
-> 
-> IOW, my patch on 2nd May isn't of any use as it currently stands?
 
-IMO it would probably be best to try to re implement it in one go.
-It shouldn't have spread too far out of kernel/sched.c, and the arch
-code should mostly be implementable in terms of their sched_clock().
-Mundane but not difficult.
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Making arch code actually try to do the right thing may require a
-bit more thinking, to handle both the variable time counter issue
-and your time counter wrap problem. That wouldn't be your problem
-though, outside arch/arm/
+On Sun, May 07, 2006 at 03:27:33PM +0200, Michael Buesch wrote:
+> On Sunday 07 May 2006 15:16, you wrote:
+> > On Sunday 07 May 2006 15:03, you wrote:
+> > > This does not handle the case of partial read correctly - the code
+> > > should be
+> > >=20
+> > > 			return ret ? : -ERESTARTSYS;
+>=20
+> Or, hm. Shouldn't we
+> return ret ? : err;
+>=20
+> err is -EINTR
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+-ERESTARTSYS is the proper return code for this case - the signal
+handling code will either convert it to EINTR for userspace, or
+restart the system call after handling the signal, depending on the
+state of the SA_RESTART flag set by sigaction().
+
+--zhXaljGHf11kAtnf
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFEXfn3W82GfkQfsqIRAjD+AJ439toerJ8Y6NW8QA1xIq3LuOhhmACfbAqo
+pKIwjGSlAwXqu6P9JnEtdWg=
+=2bRN
+-----END PGP SIGNATURE-----
+
+--zhXaljGHf11kAtnf--

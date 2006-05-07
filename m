@@ -1,54 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWEGNJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWEGNJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbWEGNJY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 09:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWEGNJY
+	id S932152AbWEGNJc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 09:09:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWEGNJc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 09:09:24 -0400
-Received: from master.altlinux.org ([62.118.250.235]:1805 "EHLO
-	master.altlinux.org") by vger.kernel.org with ESMTP id S932148AbWEGNJX
+	Sun, 7 May 2006 09:09:32 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:20938
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932152AbWEGNJb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 09:09:23 -0400
-Date: Sun, 7 May 2006 17:09:16 +0400
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Michael Buesch <mb@bu3sch.de>
-Cc: akpm@osdl.org, Deepak Saxena <dsaxena@plexity.net>, mbuesch@freenet.de,
+	Sun, 7 May 2006 09:09:31 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Sergey Vlasov <vsu@altlinux.ru>, gregkh@suse.de
+Subject: Re: [patch 2/6] New Generic HW RNG
+Date: Sun, 7 May 2006 15:16:08 +0200
+User-Agent: KMail/1.9.1
+References: <20060507113513.418451000@pc1> <20060507113604.778384000@pc1> <20060507170320.3ce0d3e0.vsu@altlinux.ru>
+In-Reply-To: <20060507170320.3ce0d3e0.vsu@altlinux.ru>
+Cc: akpm@osdl.org, Deepak Saxena <dsaxena@plexity.net>,
        bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/6] New Generic HW RNG
-Message-Id: <20060507170916.510a66d7.vsu@altlinux.ru>
-In-Reply-To: <20060507113605.144341000@pc1>
-References: <20060507113513.418451000@pc1>
-	<20060507113605.144341000@pc1>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i586-alt-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Sun__7_May_2006_17_09_16_+0400_3pgOrI9S2r/I_MCL"
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200605071516.09167.mb@bu3sch.de>
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Sun__7_May_2006_17_09_16_+0400_3pgOrI9S2r/I_MCL
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sunday 07 May 2006 15:03, you wrote:
+> This does not handle the case of partial read correctly - the code
+> should be
+> 
+> 			return ret ? : -ERESTARTSYS;
+> 
+> > +		if (!current_rng) {
+> > +			mutex_unlock(&rng_mutex);
+> > +			return -ENODEV;
+> 
+> The same problem here (although finding the RNG suddenly missing after
+> we heve just read something from it is pretty unlikely).
+> 
+> > +		}
+> > +		have_data = 0;
+> > +		if (current_rng->data_present == NULL ||
+> > +		    current_rng->data_present(current_rng))
+> > +			have_data = current_rng->data_read(current_rng, &data);
+> > +		mutex_unlock(&rng_mutex);
+> > +
+> > +		while (have_data && size) {
+> > +			if (put_user((u8)data, buf++)) {
+> > +				ret = ret ? : -EFAULT;
+> > +				break;
+> > +			}
+> > +			size--;
+> > +			ret++;
+> > +			have_data--;
+> > +			data>>=8;
+> > +		}
+> > +
+> > +		if (filp->f_flags & O_NONBLOCK)
+> > +			return ret ? : -EAGAIN;
+> > +
+> > +		if (need_resched()) {
+> > +			schedule_timeout_interruptible(1);
+> > +		} else {
+> > +			err = mutex_lock_interruptible(&rng_mutex);
+> > +			if (err)
+> > +				return err;
+> 
+> And here...
+> 
+> > +			if (!current_rng) {
+> > +				mutex_unlock(&rng_mutex);
+> > +				return -ENODEV;
+> 
+> And here too.
 
-On Sun, 07 May 2006 13:35:16 +0200 Michael Buesch wrote:
+Whoops, will fix these.
 
-> Add a driver for the x86 RNG.
-> This driver is ported from the old hw_random.c
+> > +	list_for_each_entry(rng, &rng_list, list) {
+> > +		if (strncmp(rng->name, buf, len) == 0) {
+> 
+> This will match if the passed string is just a prefix of rng->name.
+> Apparently sysfs guarantees that the buffer passed to ->store will be
+> NUL-terminated, so this should be just a strcmp().
 
-In fact, this is 4 completely different drivers - probably they should
-be split now?
+I am not sure if it is guaranteed NUL terminated. Greg?
+But I will look into this.
 
---Signature=_Sun__7_May_2006_17_09_16_+0400_3pgOrI9S2r/I_MCL
-Content-Type: application/pgp-signature
+> > +			if (rng->init) {
+> > +				err = rng->init(rng);
+> > +				if (err)
+> > +					break;
+> > +			}
+> > +			if (current_rng && current_rng->cleanup)
+> > +				current_rng->cleanup(current_rng);
+> 
+> What if rng == current_rng here (someone has written the same RNG name
+> to the "store" attribute)?  The lowlevel RNG driver should not have to
+> handle nested init/cleanup calls.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.17 (GNU/Linux)
+I see. Will fix this.
 
-iD8DBQFEXfF8W82GfkQfsqIRAkg1AJsF33goT1RfsWPQ3y0bktFlYArG3ACeML0Q
-7AaNCpdviCxQ1aYg/bCMjTk=
-=zDnG
------END PGP SIGNATURE-----
 
---Signature=_Sun__7_May_2006_17_09_16_+0400_3pgOrI9S2r/I_MCL--
+I will also fix the bcm43xx patch. It registers always with the same "name".
+That will blow up, if there is more than one bcm43xx device in the system.
+
+-- 
+Greetings Michael.

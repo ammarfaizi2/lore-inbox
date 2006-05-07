@@ -1,73 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWEGCZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbWEGE43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWEGCZU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 22:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWEGCZU
+	id S1751009AbWEGE43 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 00:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbWEGE43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 22:25:20 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:32138 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751173AbWEGCZS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 22:25:18 -0400
+	Sun, 7 May 2006 00:56:29 -0400
+Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:22374 "HELO
+	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751000AbWEGE42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 May 2006 00:56:28 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=A5wsQTKJWVMbK9+Q1n5przsRnfKomWIixSqahFMTTQtQa9a2BBWYfQMKejpgyrzxBO+9+KhOosoVzicRbk5BPB0ZUu+EoicmGr6BTBPAQdT63o0et4hXWwaQ5vojPjkMUtqRQGQPM0VvPdLvarRz/bn7WipU9r0OJbppDX/kIWk=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix mem-leak in netfilter
-Date: Sun, 7 May 2006 04:26:10 +0200
-User-Agent: KMail/1.9.1
-Cc: Stephen Frost <sfrost@snowman.net>, laforge@netfilter.org,
-       netfilter-devel@lists.netfilter.org,
-       Jesper Juhl <jesper.juhl@gmail.com>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=afu+kS0dN//ZZlTjsJ7eCp5J1z1DFrXaVcxfFDUxYtgcVsHK+19VTBLmjPqkxuKUOE0VL0AY+rbwiU6PHOyC8agY566QHA/Vjh2VPnCU4QQtVAgkz1jBgveQWOpxet8bEu9/gNdNEzKOCqBzTwiEphzpXJny7IpK3lXpQP1USYU=  ;
+Message-ID: <445D75EB.5030909@yahoo.com.au>
+Date: Sun, 07 May 2006 14:22:03 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Ulrich Drepper <drepper@redhat.com>
+CC: Blaisorblade <blaisorblade@yahoo.it>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Val Henson <val.henson@intel.com>
+Subject: Re: [patch 00/14] remap_file_pages protection support
+References: <20060430172953.409399000@zion.home.lan> <4456D5ED.2040202@yahoo.com.au> <200605030225.54598.blaisorblade@yahoo.it> <445CC949.7050900@redhat.com>
+In-Reply-To: <445CC949.7050900@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605070426.10405.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker spotted that we may leak 'hold' in 
-net/ipv4/netfilter/ipt_recent.c::checkentry() when the following
-is true : 
-  if (!curr_table->status_proc) {
-    ...
-    if(!curr_table) {
-    ...
-      return 0;  <-- here we leak.
-Simply moving an existing vfree(hold); up a bit avoids the possible leak.
+Ulrich Drepper wrote:
+> Blaisorblade wrote:
+> 
+>>I've not seen the numbers indeed, I've been told of a problem with a "customer 
+>>program" and Ingo connected my work with this problem. Frankly, I've been 
+>>always astonished about how looking up a 10-level tree can be slow. Poor 
+>>cache locality is the only thing that I could think about.
+> 
+> 
+> It might be good if I explain a bit how much we use mmap in libc.  The
+> numbers can really add up quickly.
 
+[...]
 
-(please keep me on CC when replying since I'm not subscribed 
- to netfilter-devel)
+Thanks. Very informative.
 
+> Put all this together and non-trivial apps as written today (I don't say
+> they are high-quality apps) can easily have a few thousand, maybe even
+> 10,000 to 20,000 VMAs.  Firefox on my machine uses in the moment ~560
+> VMAs and this is with only a handful of threads.  Are these the numbers
+> the VM system is optimized for?  I think what our people running the
+> experiments at the customer site saw is that it's not.  The VMA
+> traversal showed up on the profile lists.
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+Your % improvement numbers are of course only talking about memory
+usage improvements. Time complexity increases with the log of the
+number of VMAs, so while search within 100,000 vmas might have a CPU
+cost of 16 arbitrary units, it is only about 300% the cost in 40
+vmas (and not the 2,500,000% that the number of vmas suggests).
 
- net/ipv4/netfilter/ipt_recent.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Definitely reducing vmas would be good. If guard ranges around vmas
+can be implemented easily and reduce vmas by even 20%, it would come
+at an almost zero complexity cost to the kernel.
 
---- linux-2.6.17-rc3-git12-orig/net/ipv4/netfilter/ipt_recent.c	2006-05-07 03:25:38.000000000 +0200
-+++ linux-2.6.17-rc3-git12/net/ipv4/netfilter/ipt_recent.c	2006-05-07 04:16:26.000000000 +0200
-@@ -821,6 +821,7 @@ checkentry(const char *tablename,
- 	/* Create our proc 'status' entry. */
- 	curr_table->status_proc = create_proc_entry(curr_table->name, ip_list_perms, proc_net_ipt_recent);
- 	if (!curr_table->status_proc) {
-+		vfree(hold);
- 		printk(KERN_INFO RECENT_NAME ": checkentry: unable to allocate for /proc entry.\n");
- 		/* Destroy the created table */
- 		spin_lock_bh(&recent_lock);
-@@ -845,7 +846,6 @@ checkentry(const char *tablename,
- 		spin_unlock_bh(&recent_lock);
- 		vfree(curr_table->time_info);
- 		vfree(curr_table->hash_table);
--		vfree(hold);
- 		vfree(curr_table->table);
- 		vfree(curr_table);
- 		return 0;
+However, I think another consideration is the vma lookup cache. I need
+to get around to looking at this again, but IMO it is inadequate for
+threaded applications. Currently we have one last-lookup cached vma
+for each mm. You get cacheline bouncing when updating the cache, and
+the locality becomes almost useless.
 
+I think possibly each thread should have a private vma cache, with
+room for at least its stack vma(s), (and several others, eg. code,
+data). Perhaps the per-mm cache could be dispensed with completely,
+although it might be useful eg. for the heap. And it might be helped
+with increased entries as well.
 
+I've got patches lying around to implement this stuff -- I'd be
+interested to have more detail about this problem, or distilled test
+cases.
+
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

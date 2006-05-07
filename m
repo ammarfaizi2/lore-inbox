@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWEGTbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWEGTmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbWEGTbj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 15:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWEGTbj
+	id S932218AbWEGTmz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 15:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWEGTmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 15:31:39 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:18819 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S932217AbWEGTbj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 15:31:39 -0400
-Date: Sun, 7 May 2006 21:31:37 +0200 (MEST)
-From: <Andries.Brouwer@cwi.nl>
-Message-Id: <200605071931.k47JVbs18224@apps.cwi.nl>
-To: linux-kernel@vger.kernel.org
-Subject: a Linux swap storm
+	Sun, 7 May 2006 15:42:55 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:30348 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932218AbWEGTmy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 May 2006 15:42:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=amEWRfVuccy8hr474kXz2tH7FIx/ZWOvA0Z2YO8a3rL5wHji9eFNyXxj4Q+QGFGybqeNys8RA1p+8W1Nsmo6xPiUD280C7OOysMi2lqserqiIAIyhXhqGL1NcM7HYmL7ZZbLNLKalFqcq6ywWf6Fh/yNrt2SPiOp+PfzaKLlGhI=
+Message-ID: <445E4D86.8000103@gmail.com>
+Date: Sun, 07 May 2006 21:41:58 +0200
+From: =?ISO-8859-1?Q?Daniel_Aragon=E9s?= <danarag@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: es-ar, es, en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Al Viro <viro@ftp.linux.org.uk>, Arjan van de Ven <arjan@infradead.org>,
+       Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH/RFC] minix_fs_v3 update corrected according to Al Viro
+References: <445DEEAC.9060004@gmail.com> <20060507101744.2e636c05.akpm@osdl.org>
+In-Reply-To: <20060507101744.2e636c05.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Earlier this evening I showed someone some pictures under X:
+Hi Andrew,
 
-% display -size 300x300 *.jpg
+you wrote:
 
-(395 pictures, 315 MB). When display (from ImageMagick)
-started to repeat, I exited the program.
-At this moment the machine became unusable for twenty minutes
-of solid disk activity.
-No keystroke seen, not even the Ctrl-Alt-Backspace to kill X,
-or Ctrl-Alt-F1 to switch consoles, no mouse movement seen,
-vmstat did not produce any output for twenty minutes.
+> Please see Al's recent emails to linux-kernel.   Minix has
+> serious problems which we'll need to sort through before
+> adding features.
 
-The vmstat 5 output was
+Yes, I have read them and those of Linus too.
 
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+No matter for me. I do not belong to the Minix team. I have been only 
+entertaining myself with Minix for a while and I needed to mount it from Linux, 
+so I wrote the patch and published it in my page:
 
- 0  3 315728   3164   4424   3356  646  382   792   382 2425   182  0  5  0 95
- 1  1 316356   3856   4428   3572  454  366   507   366 2242   150  0  5  0 95
- 0  1 317540   3784   4456   3664  530  578   590   578 2403   179  0  7  0 93
- 0  1 306740   4240   4524   5372 127013 49878 129427 50061 405016 32901  0  4  0 95
- 1  1 306712   3992   4536   5372   30    0    30     3  450   122  2  1 94  2
- 0  0 306692   4016   4548   5372   18    0    18     3  402   134  2  2 96  1
- 0  0 306692   4016   4560   5372    0    0     0     3  257    35  1  1 98  0
+http://www.terra.es/personal2/danarag
 
-The machine is vanilla 2.6.14, 256MB, 550MB swap.
+to help others with the same curiosity. If my patch can bee merged into the 
+Linux Kernel mainline, good. If not, also good.
 
-% rpm -qf `which X`
-xorg-x11-server-6.8.2-100
+Keep it on the queue if you think it helpful. Otherwise, just drop it out.
 
-I wonder what precisely happened. Is this an X bug? Or a kernel bug?
-The effect is reproducible.
+Regards,
 
-Andries
+Signed-off-by: Daniel Aragones <danarag@gmail.com>
+
+
+
 

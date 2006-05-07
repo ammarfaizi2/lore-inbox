@@ -1,81 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWEGNNw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWEGNSm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbWEGNNw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 09:13:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWEGNNw
+	id S932156AbWEGNSm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 09:18:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932158AbWEGNSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 09:13:52 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:42681 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932150AbWEGNNv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 09:13:51 -0400
+	Sun, 7 May 2006 09:18:42 -0400
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:39287 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932156AbWEGNSl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 May 2006 09:18:41 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iKzLVCOwjJc8e0YogHy0AiL5srA1kbI9DiLMos4lU24dXVFYOo77eyJNTHuSeZsgLP9hYem5Qy4pPwSIcNgyzHB2FOA78pLT5g2LWEWGY4VLvdfS8+mQV+9scTsG2R9104asprBzxhPShb8M0iba/7BXYlVfo+zSS7dN0qXZyzo=
-Message-ID: <82ecf08e0605070613o7b217a2bw4c71c3a8c33bed28@mail.gmail.com>
-Date: Sun, 7 May 2006 10:13:50 -0300
-From: "Thiago Galesi" <thiagogalesi@gmail.com>
-To: "Matt Mackall" <mpm@selenic.com>
-Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060507045920.GH15445@waste.org>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=gB8tMKDGurKMi37CJLpmCOMcE164aBzD234yYWgcUWDK8YVfPJhDsFEaA2qv1N+v73AVHiOVrmkvRel/yraUz8tk1kjER39Vu9wnR/EA3CZFEZkh8NbCivMk0ZNaR3YRYzQH3cQlk/ZEJaq6sI1A0W/K6vd1UhsWbXytjiVg5C8=  ;
+Message-ID: <445DF3AB.9000009@yahoo.com.au>
+Date: Sun, 07 May 2006 23:18:35 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060505203436.GW15445@waste.org>
-	 <20060506115502.GB18880@thunk.org> <20060506164808.GY15445@waste.org>
-	 <20060506.170810.74552888.davem@davemloft.net>
-	 <20060507045920.GH15445@waste.org>
+To: Andy Whitcroft <apw@shadowen.org>
+CC: Dave Hansen <haveblue@us.ibm.com>, Bob Picco <bob.picco@hp.com>,
+       Ingo Molnar <mingo@elte.hu>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
+References: <44576688.6050607@mbligh.org> <44576BF5.8070903@yahoo.com.au>	 <20060504013239.GG19859@localhost>	 <1146756066.22503.17.camel@localhost.localdomain>	 <20060504154652.GA4530@localhost> <20060504192528.GA26759@elte.hu>	 <20060504194334.GH19859@localhost> <445A7725.8030401@shadowen.org>	 <20060505135503.GA5708@localhost>	 <1146839590.22503.48.camel@localhost.localdomain>	 <20060505145018.GI19859@localhost> <1146841064.22503.53.camel@localhost.localdomain> <445C5F36.3030207@yahoo.com.au> <445DF114.4090708@shadowen.org>
+In-Reply-To: <445DF114.4090708@shadowen.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Sure.
->
-> First, since the existence of /dev/random's entropy accounting scheme
-> is predicated on the assumption that we can break the hash function at
-> will, I'll replace SHA1 with, oh, say, CRC-16. This'll be illustrative
-> until someone has a nice preimage attack against SHA1.
->
-> Then I'll run my test on one of the various arches where HZ=~100 and
-> we don't have a TSC. Like Sparc?
->
-> Now all the inputs are easily predictable from anywhere with <10ms
-> ping, with the occassional need to guess between a pair of timer
-> ticks. And since I can calculate preimages of CRC-16, I can now deduce
-> the state of the pool if I can watch some subset of its output, say
-> https session keys I request. And then I can start guessing future
-> outputs and breaking into other people's https sessions.
->
-> The point of /dev/random is to -survive- SHA1 being broken by never
-> giving out more secrets than we take in.
+Andy Whitcroft wrote:
 
-OK, here goes...
+> I agree that there is no need for these checks to leak out of
+> page_is_buddy().  If its not there or in another zone, its not my buddy.
+>  The allocator loop is nasty enough as it is.
 
-1 - by eliminating feeding enthopy from network cards you are
-eliminating all sources of enthropy for _lots_ of people (think
-headless servers, embedded systems - even though there can be other
-sources of enthropy there) Unfortunatelly, bad enthropy is still
-better than no enthropy (just think - no ssh / https, etc, etc)
+OK, glad you agree.
 
-2 - some platforms have much better enthropy sources than ethernet (or
-user input), just think hardware rngs, or even the sound card rng
-thing mentioned above
+> 
+> I think we need to do a couple of things:
+> 
+> 1) check the alignment of the zones matches the implied alignment
+> constraints and correct it as we go.
 
-3 - as people said, your example (CRC-16 on specific platfoms) is
-(IMHO) an exxageration. Of course, /dev/random should try and protect
-us from whatever protocol being broken. That being said, this
-protection should be 'realistic'. In theory most things are broken if
-we have enough equipment and computing power.
+Yes. And preferably have checks in the generic page allocator setup
+code, so we can do something sane if the arch code gets it wrong.
 
-My conclusion, I have no problem removing SA_SAMPLE_RANDOM *IN
-SPECIFIC CASES* (meaning, this should be user configurable). In a
-secure environment / platform has rng, it could be turned off, and in
-a headless server / embedded system / it could be left on.
+> 2) optionally allow an architecture to say its not aligning and doesn't
+> want to have to align its zone -- providing a config option to add the
+> zone index checks
+> 
+> I think the later is valuable for these test builds and potentially for
+> the embedded side where megabytes mean something.
 
-Of course, that's just MHO...
+Yes. Depends whether we fold it under the HOLES_IN_ZONE config. I guess
+HOLES_IN_ZONE is potentially quite a bit more expensive than the plain
+zone check, so having 2 config options may not be unreasonable.
 
-Thiago
+Also, if the architecture doesn't align the ends of zones, *and* they are
+not adjacent to another zone, they need either CONFIG_HOLES_IN_ZONE or
+they need to provide dummy 'struct page's that never have PageBuddy set.
+
+
+> 
+> I'm testing a patch for this at the moment and will drop it out when I'm
+> done.
+
+Great!
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

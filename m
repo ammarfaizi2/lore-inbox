@@ -1,651 +1,273 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWEGLaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWEGLbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932128AbWEGLaN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 07:30:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWEGL3z
+	id S932130AbWEGLbD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 07:31:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbWEGLaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 07:29:55 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:53160
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932127AbWEGL3t
+	Sun, 7 May 2006 07:30:16 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:62120
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932127AbWEGL36
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 07:29:49 -0400
-X-Mailbox-Line: From mb@pc1 Sun May  7 13:36:05 2006
-Message-Id: <20060507113605.144341000@pc1>
+	Sun, 7 May 2006 07:29:58 -0400
+X-Mailbox-Line: From mb@pc1 Sun May  7 13:36:06 2006
+Message-Id: <20060507113605.838282000@pc1>
 References: <20060507113513.418451000@pc1>
-Date: Sun, 07 May 2006 13:35:16 +0200
+Date: Sun, 07 May 2006 13:35:18 +0200
 To: akpm@osdl.org
 Cc: Deepak Saxena <dsaxena@plexity.net>, mbuesch@freenet.de,
        bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org
-Subject: [patch 3/6] New Generic HW RNG
-Content-Disposition: inline; filename=add-x86-hw-random.patch
+Subject: [patch 5/6] New Generic HW RNG
+Content-Disposition: inline; filename=add-omap-hw-random.patch
 From: Michael Buesch <mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a driver for the x86 RNG.
-This driver is ported from the old hw_random.c
+Add H/W RNG driver for TI OMAP CPU family.
+Driver written by Deepak Saxena.
 
 Signed-off-by: Michael Buesch <mb@bu3sch.de>
 Index: hwrng/drivers/char/hw_random/Kconfig
 ===================================================================
---- hwrng.orig/drivers/char/hw_random/Kconfig	2006-05-07 01:40:45.000000000 +0200
-+++ hwrng/drivers/char/hw_random/Kconfig	2006-05-07 01:51:25.000000000 +0200
-@@ -9,3 +9,16 @@
- 	  Hardware Random Number Generator Core infrastructure.
+--- hwrng.orig/drivers/char/hw_random/Kconfig	2006-05-07 01:51:36.000000000 +0200
++++ hwrng/drivers/char/hw_random/Kconfig	2006-05-07 01:51:42.000000000 +0200
+@@ -34,3 +34,16 @@
+ 	  module will be called ixp4xx-rng.
  
  	  If unsure, say Y.
 +
-+config X86_RNG
-+	tristate "Intel/AMD/VIA HW Random Number Generator support"
-+	depends on HW_RANDOM && (X86 || IA64) && PCI
-+	---help---
-+	  This driver provides kernel-side support for the Random Number
-+	  Generator hardware found on Intel i8xx-based motherboards,
-+	  AMD 76x-based motherboards, and Via Nehemiah CPUs.
++config OMAP_RNG
++	tristate "OMAP Random Number Generator support"
++	depends on HW_RANDOM && (ARCH_OMAP16XX || ARCH_OMAP24XX)
++ 	---help---
++ 	  This driver provides kernel-side support for the Random Number
++	  Generator hardware found on OMAP16xx and OMAP24xx multimedia
++	  processors.
 +
 +	  To compile this driver as a module, choose M here: the
-+	  module will be called x86-rng.
++	  module will be called omap-rng.
 +
-+	  If unsure, say Y.
++ 	  If unsure, say Y.
 Index: hwrng/drivers/char/hw_random/Makefile
 ===================================================================
---- hwrng.orig/drivers/char/hw_random/Makefile	2006-05-07 01:41:11.000000000 +0200
-+++ hwrng/drivers/char/hw_random/Makefile	2006-05-07 01:51:25.000000000 +0200
-@@ -3,3 +3,4 @@
- #
- 
+--- hwrng.orig/drivers/char/hw_random/Makefile	2006-05-07 01:51:36.000000000 +0200
++++ hwrng/drivers/char/hw_random/Makefile	2006-05-07 01:51:42.000000000 +0200
+@@ -5,3 +5,4 @@
  obj-$(CONFIG_HW_RANDOM) += core.o
-+obj-$(CONFIG_X86_RNG) += x86-rng.o
-Index: hwrng/drivers/char/hw_random/x86-rng.c
+ obj-$(CONFIG_X86_RNG) += x86-rng.o
+ obj-$(CONFIG_IXP4XX_RNG) += ixp4xx-rng.o
++obj-$(CONFIG_OMAP_RNG) += omap-rng.o
+Index: hwrng/drivers/char/hw_random/omap-rng.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ hwrng/drivers/char/hw_random/x86-rng.c	2006-05-07 00:26:57.000000000 +0200
-@@ -0,0 +1,586 @@
++++ hwrng/drivers/char/hw_random/omap-rng.c	2006-05-07 01:51:42.000000000 +0200
+@@ -0,0 +1,208 @@
 +/*
-+ * drivers/char/rng/x86.c
++ * driver/char/hw_random/omap-rng.c
 + *
-+ * RNG driver for Intel/AMD/VIA RNGs
++ * RNG driver for TI OMAP CPU family
++ *
++ * Author: Deepak Saxena <dsaxena@plexity.net>
 + *
 + * Copyright 2005 (c) MontaVista Software, Inc.
 + *
-+ * with the majority of the code coming from:
++ * Mostly based on original driver:
 + *
-+ * Hardware driver for the Intel/AMD/VIA Random Number Generators (RNG)
-+ * (c) Copyright 2003 Red Hat Inc <jgarzik@redhat.com>
-+ *
-+ * derived from
-+ *
-+ * Hardware driver for the AMD 768 Random Number Generator (RNG)
-+ * (c) Copyright 2001 Red Hat Inc <alan@redhat.com>
-+ *
-+ * derived from
-+ *
-+ * Hardware driver for Intel i810 Random Number Generator (RNG)
-+ * Copyright 2000,2001 Jeff Garzik <jgarzik@pobox.com>
-+ * Copyright 2000,2001 Philipp Rumpf <prumpf@mandrakesoft.com>
++ * Copyright (C) 2005 Nokia Corporation
++ * Author: Juha Yrj��<juha.yrjola@nokia.com>
 + *
 + * This file is licensed under  the terms of the GNU General Public
 + * License version 2. This program is licensed "as is" without any
 + * warranty of any kind, whether express or implied.
++ *
++ * TODO:
++ *
++ * - Make status updated be interrupt driven so we don't poll
++ *
 + */
 +
 +#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/fs.h>
 +#include <linux/init.h>
-+#include <linux/pci.h>
-+#include <linux/interrupt.h>
-+#include <linux/spinlock.h>
 +#include <linux/random.h>
-+#include <linux/miscdevice.h>
-+#include <linux/smp_lock.h>
-+#include <linux/mm.h>
-+#include <linux/delay.h>
++#include <linux/err.h>
++#include <linux/device.h>
 +#include <linux/hw_random.h>
 +
-+#include <asm/msr.h>
-+#include <asm/cpufeature.h>
-+
 +#include <asm/io.h>
++#include <asm/hardware/clock.h>
 +
++#define RNG_OUT_REG		0x00		/* Output register */
++#define RNG_STAT_REG		0x04		/* Status register
++							[0] = STAT_BUSY */
++#define RNG_ALARM_REG		0x24		/* Alarm register
++							[7:0] = ALARM_COUNTER */
++#define RNG_CONFIG_REG		0x28		/* Configuration register
++							[11:6] = RESET_COUNT
++							[5:3]  = RING2_DELAY
++							[2:0]  = RING1_DELAY */
++#define RNG_REV_REG		0x3c		/* Revision register
++							[7:0] = REV_NB */
++#define RNG_MASK_REG		0x40		/* Mask and reset register
++							[2] = IT_EN
++							[1] = SOFTRESET
++							[0] = AUTOIDLE */
++#define RNG_SYSSTATUS		0x44		/* System status
++							[0] = RESETDONE */
 +
-+/*
-+ * debugging macros
-+ */
++static void __iomem *rng_base;
++static struct clk *rng_ick;
++static struct device *rng_dev;
 +
-+/* pr_debug() collapses to a no-op if DEBUG is not defined */
-+#define DPRINTK(fmt, args...) pr_debug(PFX "%s: " fmt, __FUNCTION__ , ## args)
++static u32 omap_rng_read_reg(int reg)
++{
++	return __raw_readl(rng_base + reg);
++}
 +
-+#define RNG_VERSION "1.1.0"
-+#define RNG_MODULE_NAME "x86-rng"
-+#define RNG_DRIVER_NAME RNG_MODULE_NAME " hardware driver " RNG_VERSION
-+#define PFX RNG_MODULE_NAME ": "
++static void omap_rng_write_reg(int reg, u32 val)
++{
++	__raw_writel(val, rng_base + reg);
++}
 +
-+#undef RNG_NDEBUG        /* define to enable lightweight runtime checks */
-+#ifdef RNG_NDEBUG
-+#define assert(expr)							\
-+		if(!(expr)) {						\
-+		printk(KERN_DEBUG PFX "Assertion failed! %s,%s,%s,"	\
-+		"line=%d\n", #expr, __FILE__, __FUNCTION__, __LINE__);	\
++/* REVISIT: Does the status bit really work on 16xx? */
++static int omap_rng_data_present(struct hwrng *rng)
++{
++	return omap_rng_read_reg(RNG_STAT_REG) ? 0 : 1;
++}
++
++static int omap_rng_data_read(struct hwrng *rng, u32 *data)
++{
++	*data = omap_rng_read_reg(RNG_OUT_REG);
++
++	return 4;
++}
++
++static struct hwrng omap_rng_ops = {
++	.name		= "omap",
++	.data_present	= omap_rng_data_present,
++	.data_read	= omap_rng_data_read,
++};
++
++static int __init omap_rng_probe(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct resource *res, *mem;
++	int ret;
++
++	/*
++	 * A bit ugly, and it will never actually happen but there can
++	 * be only one RNG and this catches any bork
++	 */
++	BUG_ON(rng_dev);
++
++    	if (cpu_is_omap24xx()) {
++		rng_ick = clk_get(NULL, "rng_ick");
++		if (IS_ERR(rng_ick)) {
++			dev_err(dev, "Could not get rng_ick\n");
++			ret = PTR_ERR(rng_ick);
++			return ret;
 +		}
-+#else
-+#define assert(expr)
-+#endif
-+
-+static struct hwrng *x86_rng_ops;
-+
-+static int __init intel_init (struct hwrng *rng);
-+static void intel_cleanup(struct hwrng *rng);
-+static int intel_data_present (struct hwrng *rng);
-+static int intel_data_read (struct hwrng *rng, u32 *data);
-+
-+static int __init amd_init (struct hwrng *rng);
-+static void amd_cleanup(struct hwrng *rng);
-+static int amd_data_present (struct hwrng *rng);
-+static int amd_data_read (struct hwrng *rng, u32 *data);
-+
-+#ifdef __i386__
-+static int __init via_init(struct hwrng *rng);
-+static int via_data_present (struct hwrng *rng);
-+static int via_data_read (struct hwrng *rng, u32 *data);
-+#endif
-+
-+static int __init geode_init(struct hwrng *rng);
-+static void geode_cleanup(struct hwrng *rng);
-+static int geode_data_present (struct hwrng *rng);
-+static int geode_data_read (struct hwrng *rng, u32 *data);
-+
-+enum {
-+	rng_hw_none,
-+	rng_hw_intel,
-+	rng_hw_amd,
-+#ifdef __i386__
-+	rng_hw_via,
-+#endif
-+	rng_hw_geode,
-+};
-+
-+static struct hwrng rng_vendor_ops[] = {
-+	{ /* rng_hw_none */
-+	}, { /* rng_hw_intel */
-+		.name		= "intel",
-+		.init		= intel_init,
-+		.cleanup	= intel_cleanup,
-+		.data_present	= intel_data_present,
-+		.data_read	= intel_data_read,
-+	}, { /* rng_hw_amd */
-+		.name		= "amd",
-+		.init		= amd_init,
-+		.cleanup	= amd_cleanup,
-+		.data_present	= amd_data_present,
-+		.data_read	= amd_data_read,
-+	},
-+#ifdef __i386__
-+	{ /* rng_hw_via */
-+		.name		= "via",
-+		.init		= via_init,
-+		.data_present	= via_data_present,
-+		.data_read	= via_data_read,
-+	},
-+#endif
-+	{ /* rng_hw_geode */
-+		.name		= "geode",
-+		.init		= geode_init,
-+		.cleanup	= geode_cleanup,
-+		.data_present	= geode_data_present,
-+		.data_read	= geode_data_read,
-+	},
-+};
-+
-+/*
-+ * Data for PCI driver interface
-+ *
-+ * This data only exists for exporting the supported
-+ * PCI ids via MODULE_DEVICE_TABLE.  We do not actually
-+ * register a pci_driver, because someone else might one day
-+ * want to register another driver on the same PCI id.
-+ */
-+static struct pci_device_id rng_pci_tbl[] = {
-+	{ 0x1022, 0x7443, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_amd },
-+	{ 0x1022, 0x746b, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_amd },
-+
-+	{ 0x8086, 0x2418, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_intel },
-+	{ 0x8086, 0x2428, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_intel },
-+	{ 0x8086, 0x2430, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_intel },
-+	{ 0x8086, 0x2448, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_intel },
-+	{ 0x8086, 0x244e, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_intel },
-+	{ 0x8086, 0x245e, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_intel },
-+
-+	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_LX_AES,
-+	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_geode },
-+
-+	{ 0, },	/* terminate list */
-+};
-+MODULE_DEVICE_TABLE (pci, rng_pci_tbl);
-+
-+
-+/***********************************************************************
-+ *
-+ * Intel RNG operations
-+ *
-+ */
-+
-+/*
-+ * RNG registers (offsets from rng_mem)
-+ */
-+#define INTEL_RNG_HW_STATUS			0
-+#define         INTEL_RNG_PRESENT		0x40
-+#define         INTEL_RNG_ENABLED		0x01
-+#define INTEL_RNG_STATUS			1
-+#define         INTEL_RNG_DATA_PRESENT		0x01
-+#define INTEL_RNG_DATA				2
-+
-+/*
-+ * Magic address at which Intel PCI bridges locate the RNG
-+ */
-+#define INTEL_RNG_ADDR				0xFFBC015F
-+#define INTEL_RNG_ADDR_LEN			3
-+
-+static inline u8 intel_hwstatus (void __iomem *rng_mem)
-+{
-+	assert (rng_mem != NULL);
-+	return readb (rng_mem + INTEL_RNG_HW_STATUS);
-+}
-+
-+static inline u8 intel_hwstatus_set (void __iomem *rng_mem, u8 hw_status)
-+{
-+	assert (rng_mem != NULL);
-+	writeb (hw_status, rng_mem + INTEL_RNG_HW_STATUS);
-+	return intel_hwstatus (rng_mem);
-+}
-+
-+static int intel_data_present(struct hwrng *rng)
-+{
-+	void __iomem *rng_mem = (void __iomem *)rng->priv;
-+
-+	assert (rng_mem != NULL);
-+	return (readb (rng_mem + INTEL_RNG_STATUS) & INTEL_RNG_DATA_PRESENT) ?
-+		1 : 0;
-+}
-+
-+static int intel_data_read(struct hwrng *rng, u32 *data)
-+{
-+	void __iomem *rng_mem = (void __iomem *)rng->priv;
-+
-+	assert (rng_mem != NULL);
-+	*data = readb (rng_mem + INTEL_RNG_DATA);
-+
-+	return 1;
-+}
-+
-+static int __init intel_init(struct hwrng *rng)
-+{
-+	void __iomem *rng_mem;
-+	int rc;
-+	u8 hw_status;
-+
-+	DPRINTK ("ENTER\n");
-+
-+	rng_mem = ioremap (INTEL_RNG_ADDR, INTEL_RNG_ADDR_LEN);
-+	if (rng_mem == NULL) {
-+		printk (KERN_ERR PFX "cannot ioremap RNG Memory\n");
-+		rc = -EBUSY;
-+		goto err_out;
-+	}
-+	rng->priv = (unsigned long)rng_mem;
-+
-+	/* Check for Intel 82802 */
-+	hw_status = intel_hwstatus (rng_mem);
-+	if ((hw_status & INTEL_RNG_PRESENT) == 0) {
-+		printk (KERN_ERR PFX "RNG not detected\n");
-+		rc = -ENODEV;
-+		goto err_out_free_map;
++		else {
++			clk_use(rng_ick);
++		}
 +	}
 +
-+	/* turn RNG h/w on, if it's off */
-+	if ((hw_status & INTEL_RNG_ENABLED) == 0)
-+		hw_status = intel_hwstatus_set (rng_mem, hw_status | INTEL_RNG_ENABLED);
-+	if ((hw_status & INTEL_RNG_ENABLED) == 0) {
-+		printk (KERN_ERR PFX "cannot enable RNG, aborting\n");
-+		rc = -EIO;
-+		goto err_out_free_map;
-+	}
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 +
-+	DPRINTK ("EXIT, returning 0\n");
-+	return 0;
++	if (!res)
++		return -ENOENT;
 +
-+err_out_free_map:
-+	iounmap (rng_mem);
-+err_out:
-+	DPRINTK ("EXIT, returning %d\n", rc);
-+	return rc;
-+}
-+
-+static void intel_cleanup(struct hwrng *rng)
-+{
-+	void __iomem *rng_mem = (void __iomem *)rng->priv;
-+	u8 hw_status;
-+
-+	hw_status = intel_hwstatus (rng_mem);
-+	if (hw_status & INTEL_RNG_ENABLED)
-+		intel_hwstatus_set (rng_mem, hw_status & ~INTEL_RNG_ENABLED);
-+	else
-+		printk(KERN_WARNING PFX "unusual: RNG already disabled\n");
-+	iounmap(rng_mem);
-+}
-+
-+/***********************************************************************
-+ *
-+ * AMD RNG operations
-+ *
-+ */
-+
-+static struct pci_dev *amd_pdev;
-+
-+static int amd_data_present (struct hwrng *rng)
-+{
-+	u32 pmbase = (u32)rng->priv;
-+
-+      	return !!(inl(pmbase + 0xF4) & 1);
-+}
-+
-+
-+static int amd_data_read (struct hwrng *rng, u32 *data)
-+{
-+	u32 pmbase = (u32)rng->priv;
-+
-+	*data = inl(pmbase + 0xF0);
-+
-+	return 4;
-+}
-+
-+static int __init amd_init(struct hwrng *rng)
-+{
-+	u32 pmbase;
-+	int rc;
-+	u8 rnen;
-+
-+	DPRINTK ("ENTER\n");
-+
-+	amd_pdev = (struct pci_dev *)rng->priv;
-+	pci_read_config_dword(amd_pdev, 0x58, &pmbase);
-+
-+	pmbase &= 0x0000FF00;
-+
-+	if (pmbase == 0)
-+	{
-+		printk (KERN_ERR PFX "power management base not set\n");
-+		rc = -EIO;
-+		goto err_out;
-+	}
-+	rng->priv = (unsigned long)pmbase;
-+
-+	pci_read_config_byte(amd_pdev, 0x40, &rnen);
-+	rnen |= (1 << 7);	/* RNG on */
-+	pci_write_config_byte(amd_pdev, 0x40, rnen);
-+
-+	pci_read_config_byte(amd_pdev, 0x41, &rnen);
-+	rnen |= (1 << 7);	/* PMIO enable */
-+	pci_write_config_byte(amd_pdev, 0x41, rnen);
-+
-+	pr_info( PFX "AMD768 system management I/O registers at 0x%X.\n",
-+			pmbase);
-+
-+	DPRINTK ("EXIT, returning 0\n");
-+	return 0;
-+
-+err_out:
-+	DPRINTK ("EXIT, returning %d\n", rc);
-+	return rc;
-+}
-+
-+static void amd_cleanup(struct hwrng *rng)
-+{
-+	u8 rnen;
-+
-+	pci_read_config_byte(amd_pdev, 0x40, &rnen);
-+	rnen &= ~(1 << 7);	/* RNG off */
-+	pci_write_config_byte(amd_pdev, 0x40, rnen);
-+	amd_pdev = NULL;
-+
-+	/* FIXME: twiddle pmio, also? */
-+}
-+
-+#ifdef __i386__
-+/***********************************************************************
-+ *
-+ * VIA RNG operations
-+ *
-+ */
-+
-+enum {
-+	VIA_STRFILT_CNT_SHIFT	= 16,
-+	VIA_STRFILT_FAIL	= (1 << 15),
-+	VIA_STRFILT_ENABLE	= (1 << 14),
-+	VIA_RAWBITS_ENABLE	= (1 << 13),
-+	VIA_RNG_ENABLE		= (1 << 6),
-+	VIA_XSTORE_CNT_MASK	= 0x0F,
-+
-+	VIA_RNG_CHUNK_8		= 0x00,	/* 64 rand bits, 64 stored bits */
-+	VIA_RNG_CHUNK_4		= 0x01,	/* 32 rand bits, 32 stored bits */
-+	VIA_RNG_CHUNK_4_MASK	= 0xFFFFFFFF,
-+	VIA_RNG_CHUNK_2		= 0x02,	/* 16 rand bits, 32 stored bits */
-+	VIA_RNG_CHUNK_2_MASK	= 0xFFFF,
-+	VIA_RNG_CHUNK_1		= 0x03,	/* 8 rand bits, 32 stored bits */
-+	VIA_RNG_CHUNK_1_MASK	= 0xFF,
-+};
-+
-+/*
-+ * Investigate using the 'rep' prefix to obtain 32 bits of random data
-+ * in one insn.  The upside is potentially better performance.  The
-+ * downside is that the instruction becomes no longer atomic.  Due to
-+ * this, just like familiar issues with /dev/random itself, the worst
-+ * case of a 'rep xstore' could potentially pause a cpu for an
-+ * unreasonably long time.  In practice, this condition would likely
-+ * only occur when the hardware is failing.  (or so we hope :))
-+ *
-+ * Another possible performance boost may come from simply buffering
-+ * until we have 4 bytes, thus returning a u32 at a time,
-+ * instead of the current u8-at-a-time.
-+ */
-+
-+static inline u32 xstore(u32 *addr, u32 edx_in)
-+{
-+	u32 eax_out;
-+
-+	asm(".byte 0x0F,0xA7,0xC0 /* xstore %%edi (addr=%0) */"
-+		:"=m"(*addr), "=a"(eax_out)
-+		:"D"(addr), "d"(edx_in));
-+
-+	return eax_out;
-+}
-+
-+static int via_data_present(struct hwrng *rng)
-+{
-+	u32 bytes_out;
-+	u32 *via_rng_datum = (u32 *)(&rng->priv);
-+
-+	/* We choose the recommended 1-byte-per-instruction RNG rate,
-+	 * for greater randomness at the expense of speed.  Larger
-+	 * values 2, 4, or 8 bytes-per-instruction yield greater
-+	 * speed at lesser randomness.
-+	 *
-+	 * If you change this to another VIA_CHUNK_n, you must also
-+	 * change the ->n_bytes values in rng_vendor_ops[] tables.
-+	 * VIA_CHUNK_8 requires further code changes.
-+	 *
-+	 * A copy of MSR_VIA_RNG is placed in eax_out when xstore
-+	 * completes.
-+	 */
-+
-+	*via_rng_datum = 0; /* paranoia, not really necessary */
-+	bytes_out = xstore(via_rng_datum, VIA_RNG_CHUNK_1) & VIA_XSTORE_CNT_MASK;
-+	if (bytes_out == 0)
-+		return 0;
-+
-+	return 1;
-+}
-+
-+static int via_data_read(struct hwrng *rng, u32 *data)
-+{
-+	u32 via_rng_datum = (u32)rng->priv;
-+
-+	*data = via_rng_datum;
-+
-+	return 1;
-+}
-+
-+static int __init via_init(struct hwrng *rng)
-+{
-+	u32 lo, hi, old_lo;
-+
-+	/* Control the RNG via MSR.  Tread lightly and pay very close
-+	 * close attention to values written, as the reserved fields
-+	 * are documented to be "undefined and unpredictable"; but it
-+	 * does not say to write them as zero, so I make a guess that
-+	 * we restore the values we find in the register.
-+	 */
-+	rdmsr(MSR_VIA_RNG, lo, hi);
-+
-+	old_lo = lo;
-+	lo &= ~(0x7f << VIA_STRFILT_CNT_SHIFT);
-+	lo &= ~VIA_XSTORE_CNT_MASK;
-+	lo &= ~(VIA_STRFILT_ENABLE | VIA_STRFILT_FAIL | VIA_RAWBITS_ENABLE);
-+	lo |= VIA_RNG_ENABLE;
-+
-+	if (lo != old_lo)
-+		wrmsr(MSR_VIA_RNG, lo, hi);
-+
-+	/* perhaps-unnecessary sanity check; remove after testing if
-+	   unneeded */
-+	rdmsr(MSR_VIA_RNG, lo, hi);
-+	if ((lo & VIA_RNG_ENABLE) == 0) {
-+		printk(KERN_ERR PFX "cannot enable VIA C3 RNG, aborting\n");
-+		return -ENODEV;
-+	}
-+
-+	return 0;
-+}
-+#endif
-+
-+/***********************************************************************
-+ *
-+ * AMD Geode RNG operations
-+ *
-+ */
-+
-+#define GEODE_RNG_DATA_REG   0x50
-+#define GEODE_RNG_STATUS_REG 0x54
-+
-+static int geode_data_read(struct hwrng *rng, u32 *data)
-+{
-+	void __iomem *geode_rng_base = (void __iomem *)rng->priv;
-+
-+	assert(geode_rng_base != NULL);
-+	*data = readl(geode_rng_base + GEODE_RNG_DATA_REG);
-+
-+	return 4;
-+}
-+
-+static int geode_data_present(struct hwrng *rng)
-+{
-+	void __iomem *geode_rng_base = (void __iomem *)rng->priv;
-+	u32 val;
-+
-+	assert(geode_rng_base != NULL);
-+	val = readl(geode_rng_base + GEODE_RNG_STATUS_REG);
-+
-+	return !!val;
-+}
-+
-+static void geode_cleanup(struct hwrng *rng)
-+{
-+	void __iomem *geode_rng_base = (void __iomem *)rng->priv;
-+
-+	iounmap(geode_rng_base);
-+  	geode_rng_base = NULL;
-+}
-+
-+static int geode_init(struct hwrng *rng)
-+{
-+	void __iomem *geode_rng_base;
-+	struct pci_dev *dev = (struct pci_dev *)rng->priv;
-+	unsigned long rng_base = pci_resource_start(dev, 0);
-+
-+	if (rng_base == 0)
-+		return 1;
-+
-+	geode_rng_base = ioremap(rng_base, 0x58);
-+
-+	if (geode_rng_base == NULL) {
-+		printk(KERN_ERR PFX "Cannot ioremap RNG memory\n");
++	mem = request_mem_region(res->start, res->end - res->start + 1,
++				 pdev->name);
++	if (mem == NULL)
 +		return -EBUSY;
++
++	dev_set_drvdata(dev, mem);
++	rng_base = (u32 __iomem *)io_p2v(res->start);
++
++	ret = hwrng_register(&omap_rng_ops);
++	if (ret) {
++		release_resource(mem);
++		rng_base = NULL;
++		return ret;
 +	}
-+	rng->priv = (unsigned long)geode_rng_base;
++
++	dev_info(dev, "OMAP Random Number Generator ver. %02x\n",
++		omap_rng_read_reg(RNG_REV_REG));
++	omap_rng_write_reg(RNG_MASK_REG, 0x1);
++
++	rng_dev = dev;
 +
 +	return 0;
 +}
 +
-+
-+/*
-+ * rng_init - initialize RNG module
-+ */
-+static int __init x86_rng_init(void)
++static int __exit omap_rng_remove(struct device *dev)
 +{
-+	int rc;
-+	struct pci_dev *pdev = NULL;
-+	const struct pci_device_id *ent;
++	struct resource *mem = dev_get_drvdata(dev);
 +
-+	DPRINTK ("ENTER\n");
++	hwrng_unregister(&omap_rng_ops);
 +
-+	/* Probe for Intel, AMD RNGs */
-+	for_each_pci_dev(pdev) {
-+		ent = pci_match_id(rng_pci_tbl, pdev);
-+		if (ent) {
-+			x86_rng_ops = &rng_vendor_ops[ent->driver_data];
-+			goto match;
-+		}
++	omap_rng_write_reg(RNG_MASK_REG, 0x0);
++
++	if (cpu_is_omap24xx()) {
++		clk_unuse(rng_ick);
++		clk_put(rng_ick);
 +	}
 +
-+	/* Probe for VIA RNG */
-+	if (cpu_has_xstore) {
-+		x86_rng_ops = &rng_vendor_ops[rng_hw_via];
-+		pdev = NULL;
-+		goto match;
-+	}
++	release_resource(mem);
++	rng_base = NULL;
 +
-+	DPRINTK ("EXIT, returning -ENODEV\n");
-+	return -ENODEV;
-+
-+match:
-+	x86_rng_ops->priv = (unsigned long)pdev;
-+	rc = hwrng_register(x86_rng_ops);
-+	if (rc)
-+		return rc;
-+
-+	pr_info( RNG_DRIVER_NAME " loaded\n");
-+
-+	DPRINTK ("EXIT, returning 0\n");
 +	return 0;
 +}
 +
-+/*
-+ * rng_init - shutdown RNG module
-+ */
-+static void __exit x86_rng_exit (void)
++#ifdef CONFIG_PM
++
++static int omap_rng_suspend(struct device *dev, pm_message_t message, u32 level)
 +{
-+	DPRINTK ("ENTER\n");
++	omap_rng_write_reg(RNG_MASK_REG, 0x0);
 +
-+	hwrng_unregister(x86_rng_ops);
-+
-+	DPRINTK ("EXIT\n");
++	return 0;
 +}
 +
-+subsys_initcall(x86_rng_init);
-+module_exit(x86_rng_exit);
++static int omap_rng_resume(struct device *dev, pm_message_t message, u32 level)
++{
++	omap_rng_write_reg(RNG_MASK_REG, 0x1);
 +
-+MODULE_AUTHOR("The Linux Kernel team");
-+MODULE_DESCRIPTION("H/W RNG driver for Intel/AMD/VIA chipsets");
++	return 1;
++}
++
++#else
++
++#define	omap_rng_suspend	NULL
++#define	omap_rng_resume		NULL
++
++#endif
++
++
++static struct device_driver omap_rng_driver = {
++	.name		= "omap_rng",
++	.bus		= &platform_bus_type,
++	.probe		= omap_rng_probe,
++	.remove		= __exit_p(omap_rng_remove),
++	.suspend	= omap_rng_suspend,
++	.resume		= omap_rng_resume
++};
++
++static int __init omap_rng_init(void)
++{
++	if (!cpu_is_omap16xx() && !cpu_is_omap24xx())
++		return -ENODEV;
++
++	return driver_register(&omap_rng_driver);
++}
++
++static void __exit omap_rng_exit(void)
++{
++	driver_unregister(&omap_rng_driver);
++}
++
++module_init(omap_rng_init);
++module_exit(omap_rng_exit);
++
++MODULE_AUTHOR("Deepak Saxena (and others)");
 +MODULE_LICENSE("GPL");
 
 --

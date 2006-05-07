@@ -1,274 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWEGLbD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWEGMCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbWEGLbD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 07:31:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbWEGLaQ
+	id S1751045AbWEGMCI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 08:02:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWEGMCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 07:30:16 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:62120
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932127AbWEGL36
+	Sun, 7 May 2006 08:02:07 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:51636
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751045AbWEGMCG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 07:29:58 -0400
+	Sun, 7 May 2006 08:02:06 -0400
 X-Mailbox-Line: From mb@pc1 Sun May  7 13:36:06 2006
-Message-Id: <20060507113605.838282000@pc1>
+Message-Id: <20060507113606.265064000@pc1>
 References: <20060507113513.418451000@pc1>
-Date: Sun, 07 May 2006 13:35:18 +0200
+Date: Sun, 07 May 2006 13:35:19 +0200
 To: akpm@osdl.org
 Cc: Deepak Saxena <dsaxena@plexity.net>, mbuesch@freenet.de,
        bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org
-Subject: [patch 5/6] New Generic HW RNG
-Content-Disposition: inline; filename=add-omap-hw-random.patch
+Subject: [patch 6/6] New Generic HW RNG
+Content-Disposition: inline; filename=bcm43xx-hw-random.patch
 From: Michael Buesch <mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add H/W RNG driver for TI OMAP CPU family.
-Driver written by Deepak Saxena.
+Add bcm43xx H/W RNG support.
 
 Signed-off-by: Michael Buesch <mb@bu3sch.de>
-Index: hwrng/drivers/char/hw_random/Kconfig
+Index: hwrng/drivers/net/wireless/bcm43xx/Kconfig
 ===================================================================
---- hwrng.orig/drivers/char/hw_random/Kconfig	2006-05-07 01:51:36.000000000 +0200
-+++ hwrng/drivers/char/hw_random/Kconfig	2006-05-07 01:51:42.000000000 +0200
-@@ -34,3 +34,16 @@
- 	  module will be called ixp4xx-rng.
+--- hwrng.orig/drivers/net/wireless/bcm43xx/Kconfig	2006-05-07 01:53:13.000000000 +0200
++++ hwrng/drivers/net/wireless/bcm43xx/Kconfig	2006-05-07 01:58:41.000000000 +0200
+@@ -2,6 +2,7 @@
+ 	tristate "Broadcom BCM43xx wireless support"
+ 	depends on PCI && IEEE80211 && IEEE80211_SOFTMAC && NET_RADIO && EXPERIMENTAL
+ 	select FW_LOADER
++	select HW_RANDOM
+ 	---help---
+ 	  This is an experimental driver for the Broadcom 43xx wireless chip,
+ 	  found in the Apple Airport Extreme and various other devices.
+Index: hwrng/drivers/net/wireless/bcm43xx/bcm43xx.h
+===================================================================
+--- hwrng.orig/drivers/net/wireless/bcm43xx/bcm43xx.h	2006-05-07 01:53:13.000000000 +0200
++++ hwrng/drivers/net/wireless/bcm43xx/bcm43xx.h	2006-05-07 01:58:41.000000000 +0200
+@@ -1,6 +1,7 @@
+ #ifndef BCM43xx_H_
+ #define BCM43xx_H_
  
- 	  If unsure, say Y.
-+
-+config OMAP_RNG
-+	tristate "OMAP Random Number Generator support"
-+	depends on HW_RANDOM && (ARCH_OMAP16XX || ARCH_OMAP24XX)
-+ 	---help---
-+ 	  This driver provides kernel-side support for the Random Number
-+	  Generator hardware found on OMAP16xx and OMAP24xx multimedia
-+	  processors.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called omap-rng.
-+
-+ 	  If unsure, say Y.
-Index: hwrng/drivers/char/hw_random/Makefile
-===================================================================
---- hwrng.orig/drivers/char/hw_random/Makefile	2006-05-07 01:51:36.000000000 +0200
-+++ hwrng/drivers/char/hw_random/Makefile	2006-05-07 01:51:42.000000000 +0200
-@@ -5,3 +5,4 @@
- obj-$(CONFIG_HW_RANDOM) += core.o
- obj-$(CONFIG_X86_RNG) += x86-rng.o
- obj-$(CONFIG_IXP4XX_RNG) += ixp4xx-rng.o
-+obj-$(CONFIG_OMAP_RNG) += omap-rng.o
-Index: hwrng/drivers/char/hw_random/omap-rng.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ hwrng/drivers/char/hw_random/omap-rng.c	2006-05-07 01:51:42.000000000 +0200
-@@ -0,0 +1,208 @@
-+/*
-+ * driver/char/hw_random/omap-rng.c
-+ *
-+ * RNG driver for TI OMAP CPU family
-+ *
-+ * Author: Deepak Saxena <dsaxena@plexity.net>
-+ *
-+ * Copyright 2005 (c) MontaVista Software, Inc.
-+ *
-+ * Mostly based on original driver:
-+ *
-+ * Copyright (C) 2005 Nokia Corporation
-+ * Author: Juha Yrj��<juha.yrjola@nokia.com>
-+ *
-+ * This file is licensed under  the terms of the GNU General Public
-+ * License version 2. This program is licensed "as is" without any
-+ * warranty of any kind, whether express or implied.
-+ *
-+ * TODO:
-+ *
-+ * - Make status updated be interrupt driven so we don't poll
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/random.h>
-+#include <linux/err.h>
-+#include <linux/device.h>
 +#include <linux/hw_random.h>
+ #include <linux/version.h>
+ #include <linux/kernel.h>
+ #include <linux/spinlock.h>
+@@ -82,6 +83,7 @@
+ #define BCM43xx_MMIO_TSF_1		0x634 /* core rev < 3 only */
+ #define BCM43xx_MMIO_TSF_2		0x636 /* core rev < 3 only */
+ #define BCM43xx_MMIO_TSF_3		0x638 /* core rev < 3 only */
++#define BCM43xx_MMIO_RNG		0x65A
+ #define BCM43xx_MMIO_POWERUP_DELAY	0x6A8
+ 
+ /* SPROM offsets. */
+@@ -741,6 +743,9 @@
+ 	const struct firmware *initvals0;
+ 	const struct firmware *initvals1;
+ 
++	/* Random Number Generator. */
++	struct hwrng rng;
 +
-+#include <asm/io.h>
-+#include <asm/hardware/clock.h>
-+
-+#define RNG_OUT_REG		0x00		/* Output register */
-+#define RNG_STAT_REG		0x04		/* Status register
-+							[0] = STAT_BUSY */
-+#define RNG_ALARM_REG		0x24		/* Alarm register
-+							[7:0] = ALARM_COUNTER */
-+#define RNG_CONFIG_REG		0x28		/* Configuration register
-+							[11:6] = RESET_COUNT
-+							[5:3]  = RING2_DELAY
-+							[2:0]  = RING1_DELAY */
-+#define RNG_REV_REG		0x3c		/* Revision register
-+							[7:0] = REV_NB */
-+#define RNG_MASK_REG		0x40		/* Mask and reset register
-+							[2] = IT_EN
-+							[1] = SOFTRESET
-+							[0] = AUTOIDLE */
-+#define RNG_SYSSTATUS		0x44		/* System status
-+							[0] = RESETDONE */
-+
-+static void __iomem *rng_base;
-+static struct clk *rng_ick;
-+static struct device *rng_dev;
-+
-+static u32 omap_rng_read_reg(int reg)
+ 	/* Debugging stuff follows. */
+ #ifdef CONFIG_BCM43XX_DEBUG
+ 	struct bcm43xx_dfsentry *dfsentry;
+Index: hwrng/drivers/net/wireless/bcm43xx/bcm43xx_main.c
+===================================================================
+--- hwrng.orig/drivers/net/wireless/bcm43xx/bcm43xx_main.c	2006-05-07 01:53:13.000000000 +0200
++++ hwrng/drivers/net/wireless/bcm43xx/bcm43xx_main.c	2006-05-07 01:58:41.000000000 +0200
+@@ -3144,6 +3144,37 @@
+ 	bcm43xx_clear_keys(bcm);
+ }
+ 
++static int bcm43xx_rng_read(struct hwrng *rng, u32 *data)
 +{
-+	return __raw_readl(rng_base + reg);
++	struct bcm43xx_private *bcm = (struct bcm43xx_private *)rng->priv;
++	unsigned long flags;
++
++	bcm43xx_lock(bcm, flags);
++	*data = bcm43xx_read16(bcm, BCM43xx_MMIO_RNG);
++	bcm43xx_unlock(bcm, flags);
++
++	return (sizeof(u16));
 +}
 +
-+static void omap_rng_write_reg(int reg, u32 val)
++static void bcm43xx_rng_exit(struct bcm43xx_private *bcm)
 +{
-+	__raw_writel(val, rng_base + reg);
++	hwrng_unregister(&bcm->rng);
 +}
 +
-+/* REVISIT: Does the status bit really work on 16xx? */
-+static int omap_rng_data_present(struct hwrng *rng)
++static int bcm43xx_rng_init(struct bcm43xx_private *bcm)
 +{
-+	return omap_rng_read_reg(RNG_STAT_REG) ? 0 : 1;
++	int err;
++
++	bcm->rng.name = KBUILD_MODNAME;
++	bcm->rng.data_read = bcm43xx_rng_read;
++	bcm->rng.priv = (unsigned long)bcm;
++	err = hwrng_register(&bcm->rng);
++	if (err)
++		printk(KERN_ERR PFX "RNG init failed\n");
++
++	return err;
 +}
 +
-+static int omap_rng_data_read(struct hwrng *rng, u32 *data)
-+{
-+	*data = omap_rng_read_reg(RNG_OUT_REG);
-+
-+	return 4;
-+}
-+
-+static struct hwrng omap_rng_ops = {
-+	.name		= "omap",
-+	.data_present	= omap_rng_data_present,
-+	.data_read	= omap_rng_data_read,
-+};
-+
-+static int __init omap_rng_probe(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct resource *res, *mem;
-+	int ret;
-+
-+	/*
-+	 * A bit ugly, and it will never actually happen but there can
-+	 * be only one RNG and this catches any bork
-+	 */
-+	BUG_ON(rng_dev);
-+
-+    	if (cpu_is_omap24xx()) {
-+		rng_ick = clk_get(NULL, "rng_ick");
-+		if (IS_ERR(rng_ick)) {
-+			dev_err(dev, "Could not get rng_ick\n");
-+			ret = PTR_ERR(rng_ick);
-+			return ret;
-+		}
-+		else {
-+			clk_use(rng_ick);
-+		}
-+	}
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+
-+	if (!res)
-+		return -ENOENT;
-+
-+	mem = request_mem_region(res->start, res->end - res->start + 1,
-+				 pdev->name);
-+	if (mem == NULL)
-+		return -EBUSY;
-+
-+	dev_set_drvdata(dev, mem);
-+	rng_base = (u32 __iomem *)io_p2v(res->start);
-+
-+	ret = hwrng_register(&omap_rng_ops);
-+	if (ret) {
-+		release_resource(mem);
-+		rng_base = NULL;
-+		return ret;
-+	}
-+
-+	dev_info(dev, "OMAP Random Number Generator ver. %02x\n",
-+		omap_rng_read_reg(RNG_REV_REG));
-+	omap_rng_write_reg(RNG_MASK_REG, 0x1);
-+
-+	rng_dev = dev;
-+
-+	return 0;
-+}
-+
-+static int __exit omap_rng_remove(struct device *dev)
-+{
-+	struct resource *mem = dev_get_drvdata(dev);
-+
-+	hwrng_unregister(&omap_rng_ops);
-+
-+	omap_rng_write_reg(RNG_MASK_REG, 0x0);
-+
-+	if (cpu_is_omap24xx()) {
-+		clk_unuse(rng_ick);
-+		clk_put(rng_ick);
-+	}
-+
-+	release_resource(mem);
-+	rng_base = NULL;
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+
-+static int omap_rng_suspend(struct device *dev, pm_message_t message, u32 level)
-+{
-+	omap_rng_write_reg(RNG_MASK_REG, 0x0);
-+
-+	return 0;
-+}
-+
-+static int omap_rng_resume(struct device *dev, pm_message_t message, u32 level)
-+{
-+	omap_rng_write_reg(RNG_MASK_REG, 0x1);
-+
-+	return 1;
-+}
-+
-+#else
-+
-+#define	omap_rng_suspend	NULL
-+#define	omap_rng_resume		NULL
-+
-+#endif
-+
-+
-+static struct device_driver omap_rng_driver = {
-+	.name		= "omap_rng",
-+	.bus		= &platform_bus_type,
-+	.probe		= omap_rng_probe,
-+	.remove		= __exit_p(omap_rng_remove),
-+	.suspend	= omap_rng_suspend,
-+	.resume		= omap_rng_resume
-+};
-+
-+static int __init omap_rng_init(void)
-+{
-+	if (!cpu_is_omap16xx() && !cpu_is_omap24xx())
-+		return -ENODEV;
-+
-+	return driver_register(&omap_rng_driver);
-+}
-+
-+static void __exit omap_rng_exit(void)
-+{
-+	driver_unregister(&omap_rng_driver);
-+}
-+
-+module_init(omap_rng_init);
-+module_exit(omap_rng_exit);
-+
-+MODULE_AUTHOR("Deepak Saxena (and others)");
-+MODULE_LICENSE("GPL");
+ /* This is the opposite of bcm43xx_init_board() */
+ static void bcm43xx_free_board(struct bcm43xx_private *bcm)
+ {
+@@ -3159,6 +3190,7 @@
+ 	bcm->shutting_down = 1;
+ 	bcm43xx_unlock(bcm, flags);
+ 
++	bcm43xx_rng_exit(bcm);
+ 	for (i = 0; i < BCM43xx_MAX_80211_CORES; i++) {
+ 		if (!bcm->core_80211[i].available)
+ 			continue;
+@@ -3240,6 +3272,9 @@
+ 		bcm43xx_switch_core(bcm, &bcm->core_80211[0]);
+ 		bcm43xx_mac_enable(bcm);
+ 	}
++	err = bcm43xx_rng_init(bcm);
++	if (err)
++		goto err_80211_unwind;
+ 	bcm43xx_macfilter_clear(bcm, BCM43xx_MACFILTER_ASSOC);
+ 	bcm43xx_macfilter_set(bcm, BCM43xx_MACFILTER_SELF, (u8 *)(bcm->net_dev->dev_addr));
+ 	dprintk(KERN_INFO PFX "80211 cores initialized\n");
 
 --
 

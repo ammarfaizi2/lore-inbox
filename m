@@ -1,35 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbWEGGPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWEGHhK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751184AbWEGGPI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 02:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWEGGPI
+	id S1751197AbWEGHhK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 03:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWEGHhK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 02:15:08 -0400
-Received: from mproxy.googlegroups.com ([216.239.56.131]:55858 "EHLO
-	mproxy.googlegroups.com") by vger.kernel.org with ESMTP
-	id S1751184AbWEGGPH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 02:15:07 -0400
-X-Google-Token: dAe6WwwAAACI2mo-qVBxzsIuQWzI6I2w
-From: "Edison Wong" <hswong3i@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: TCP congestion module: add TCP-LP supporting for 2.6.16.14
-Date: Sun, 07 May 2006 06:15:06 -0000
-Message-ID: <1146982506.888889.196040@i39g2000cwa.googlegroups.com>
-In-Reply-To: <20060506.224817.133223713.davem@davemloft.net>
-References: <3feffd230605062232m1b9a3951h6d21071cdacc890f@mail.gmail.com>
-   <20060506.224817.133223713.davem@davemloft.net>
-User-Agent: G2/0.2
-X-HTTP-UserAgent: Mozilla/5.0 (Windows; U; Windows NT 5.2; zh-TW; rv:1.8.0.3) Gecko/20060426 Firefox/1.5.0.3,gzip(gfe),gzip(gfe)
-X-HTTP-Via: 1.1 EDIN-DC
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+	Sun, 7 May 2006 03:37:10 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:56263 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751197AbWEGHhJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 May 2006 03:37:09 -0400
+Date: Sun, 7 May 2006 08:37:08 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: minixfs bitmaps and associated lossage
+Message-ID: <20060507073708.GW27946@ftp.linux.org.uk>
+References: <44560796.8010700@gmail.com> <20060506162956.GO27946@ftp.linux.org.uk> <20060506163737.GP27946@ftp.linux.org.uk> <20060506220451.GQ27946@ftp.linux.org.uk> <Pine.LNX.4.64.0605061524420.16343@g5.osdl.org> <20060506231054.GR27946@ftp.linux.org.uk> <Pine.LNX.4.64.0605061633020.16343@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0605061633020.16343@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sorry that as i can't see it in web mlist
-and also didn't send back to me as i have join the mlist
-i think there may be some error...
-and so resend...
+On Sat, May 06, 2006 at 04:42:27PM -0700, Linus Torvalds wrote:
+> > If somebody wants to play with that code, they could just merge fs/minix
+> > into fs/sysv - that might very well turn out to be the right thing and
+> > a fun exercise.  Codebases are very close - minixfs is a derivative of
+> > v7 filesystem, after all, and our fs/minix and fs/sysv had been kept
+> > mostly in sync.
+> 
+> Heh. Yes. The physical filesystem layout of minix is close to the old sysv 
+> one, and the implementation ends up being pretty closely related too, 
+> although the genealogy there is the other way around.
 
-sorry about that :'(
+Actually, some things (e.g. indirect block tree handling and directory
+handling via pagecache) went the other way - from fs/sysv to fs/minix.
 
+> However, I thought the direct sysv descendants used linked lists of 
+> free-block lists, not bitmaps? So while a lot of the _other_ part of the 
+> filesystem layout is similar, the actual free-block handling is very 
+> different. No?
+
+Yes and no - keep in mind that details of those lists are different for
+various sysvfs flavours, so sysv_new_block() et.al. check sbi->s_type
+anyway.  And the entry points into [ib]alloc are parallel, so it's not
+hard to merge transparently for the rest of code.
+
+Superblock layouts are very different, obviously, but they are just as
+different among sysv flavours.  Again, no big deal...
+ 
+BTW, there's a sysv flavour that uses bitmaps (EAFS); we only do it
+read-only, so that's not an issue with the current fs/sysv code.
+
+Again, what I'm saying is that figuring out details of doing it clean
+way would make a good exercise, not that we can't live without that.

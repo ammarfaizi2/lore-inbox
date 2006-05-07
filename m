@@ -1,44 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWEGQiV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWEGQmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbWEGQiV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 12:38:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWEGQiV
+	id S932195AbWEGQmu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 12:42:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWEGQmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 12:38:21 -0400
-Received: from waste.org ([64.81.244.121]:3462 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932194AbWEGQiU (ORCPT
+	Sun, 7 May 2006 12:42:50 -0400
+Received: from mail.gmx.de ([213.165.64.20]:16588 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932195AbWEGQmu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 12:38:20 -0400
-Date: Sun, 7 May 2006 11:33:19 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Folkert van Heusden <folkert@vanheusden.com>
-Cc: Lee Revell <rlrevell@joe-job.com>, "David S. Miller" <davem@davemloft.net>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
-Message-ID: <20060507163319.GO15445@waste.org>
-References: <2.420169009@selenic.com> <8.420169009@selenic.com> <20060505.141040.53473194.davem@davemloft.net> <20060506140850.GN25646@vanheusden.com> <1146928743.15364.89.camel@mindpipe> <20060507103507.GV25646@vanheusden.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060507103507.GV25646@vanheusden.com>
-User-Agent: Mutt/1.5.9i
+	Sun, 7 May 2006 12:42:50 -0400
+X-Authenticated: #20450766
+Date: Sun, 7 May 2006 18:42:51 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: power management processor on y ttyS - new line disciplin?
+Message-ID: <Pine.LNX.4.60.0605071838300.3555@poirot.grange>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 07, 2006 at 12:35:08PM +0200, Folkert van Heusden wrote:
-> > > Consider adding a cheap soundcard to the system and run
-> > > 'audio-entropyd': www.vanheusden.com/aed 
-> > Can't get much cheaper than the crap that comes on every motherboard
-> > these days ;-)
-> > Also aren't temp sensors (on the disk or mobo) a good entropy source?
-> 
-> Not sure about that. If I look at
-> http://keetweej.vanheusden.com/draw_temp.php?limit=86400 it looks like
-> that at least the cpu sensor gets only updated every x seconds.
+Hi
 
-Yeah, heat sensors are not terribly useful. Thermal insulation acts as
-a very aggressive low pass filter on whatever noise might exist in the
-input.
+On an embedded system (kurobox from Buffalo) they connected a 
+power-management controller to ttyS0. Among basic functions you have to 
+write some byte sequence to it to disable the watchdog, then you have to 
+write some stuff to it to switch power off / reboot. You also get power- 
+and reset-button events from it. The buttons one would connect as input. 
+but the power management? Is it a case for a new line discipline? Are 
+there other examples of similar designs?
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski

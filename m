@@ -1,92 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWEGMrS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWEGMsM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932143AbWEGMrS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 08:47:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbWEGMrS
+	id S932142AbWEGMsM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 08:48:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWEGMsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 08:47:18 -0400
-Received: from mout2.freenet.de ([194.97.50.155]:3506 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S932136AbWEGMrR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 08:47:17 -0400
-From: Joachim Fritschi <jfritschi@freenet.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 2/2]  Twofish cipher x86_64-asm optimized
-Date: Sun, 7 May 2006 14:47:15 +0200
-User-Agent: KMail/1.8.3
-References: <200605071157.03362.jfritschi@freenet.de> <p73odya3ys9.fsf@bragg.suse.de>
-In-Reply-To: <p73odya3ys9.fsf@bragg.suse.de>
-Cc: linux-crypto@vger.kernel.org, Andi Kleen <ak@suse.de>
+	Sun, 7 May 2006 08:48:11 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:26768 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932142AbWEGMsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 May 2006 08:48:10 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Leon Woestenberg <leonw@mailcan.com>
+Subject: Re: [smartmontools-support]Re: LibPATA code issues / 2.6.16 (previously, 2.6.15.x)
+Date: Sun, 7 May 2006 14:44:46 +0200
+User-Agent: KMail/1.9.1
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       smartmontools-support@lists.sourceforge.net,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Justin Piszcz <jpiszcz@lucidpixels.com>, Mark Lord <lkml@rtr.ca>,
+       David Greaves <david@dgreaves.com>, Tejun Heo <htejun@gmail.com>,
+       linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       albertcc@tw.ibm.com, axboe@suse.de
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <Pine.LNX.4.64.0604211704120.3701@g5.osdl.org> <1146928152.2611.18.camel@dhcppc7>
+In-Reply-To: <1146928152.2611.18.camel@dhcppc7>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200605071447.15485.jfritschi@freenet.de>
+Message-Id: <200605071444.49225.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday, 6. May 2006 17:09, Leon Woestenberg wrote:
+> However, for large files where parts may be bad sectors, I am still
+> searching for a way to read, then re-write every physical sector
+> occupied by the file. 
+> 
+> With the purpose to remap the bad sectors inside large MPEG files (where
+> I would rather have a few zeroed holes than a read error in them).
 
-> > Testing:
-> > -----------
-> > The code passed the kernel test module and passed automated tests on a
-> > dm-crypt volume reading/writing large files with alternating modules ( c
-> > / assembler ) and comparing results. It is also running on my workstation
-> > for over a week now.
->
-> It would be good if you could run some random input encrypt/decrypt tests
-> comparing the C reference version with yours. We have had bad luck
-> with assembler functions not quite implementing the same cipher
-> in the past.
+This much easier to solve in the player software:
+do {
+	ret = read(fd, buffer, size)
+	if (ret > 0) {
+		playbuffer(buffer, ret)
+	} else if (ret < 0) {
+		switch(errno) {
+		case EIO:
+			playbuffer(allzeroesbuffer, size);
+			/* skip over this frame because of disk problems */
+			lseek(fd, size, SEEK_CUR);
+			/* TODO: Handle return or lseek() here */
+		}
+	}
+} while(ret != 0)
 
-That's exactly what my skript did.
+> Anyone know such tooling exists? I suspect it has to use filesystem
+> specific IOCTL's to query for the blocks involved.
 
-http://homepages.tu-darmstadt.de/~fritschi/twofish/test_twofish.sh
+The (somewhat) portable ioctl() FIBMAP would suffice. 
+That way you find out what blocks are this file is mapped to,
+and could add some of these blocks to the badblock list of e2fsck.
 
-Be careful with this script. It formats the testpartition you specify. The 
-script assumes you have both modules (c and asm) compiled as modules.
-It generates a 1Gb random file and a random passphrase. It copies the file on 
-your crypted partition with the c module and reads it again with the asm 
-module. Then it copies the file again onto the crypto partition with the asm 
-module and reads it with the c module. After each step the md5sum of the 
-files are compared with the original file. Then the script starts all over 
-again with a new random file and passphrase.
+Regards
 
-My modules also pass the tcrypt tests.
-
-> > Please have a look, try, improve and criticise.
->
-> Is it really needed to duplicate all the C code and tables - can't that
-> be shared with the portable C code?
-
-I really don't know. I'm quite a newbie when it comes to kernel programming. 
-Maybe there is a way, but my reference for this module was the aes assembler 
-code which duplicates everything as well. I assumed there is reason for this. 
-Maybe someone with a little more knowledge about the crypto-api / kernel 
-could pitch in here.
->
-> Also don't make it a separate config - it should just be a replacement
-> on x86-64.
-
-There was a patch in 2.6.16:
--------------------------
-commit c8a19c91b5b488fed8cce04200a84c6a35c0bf0c
-Author: Herbert Xu <herbert@gondor.apana.org.au>
-Date:   Sat Nov 5 18:06:26 2005 +1100
-
-    [CRYPTO] Allow AES C/ASM implementations to coexist
-    
-    As the Crypto API now allows multiple implementations to be registered
-    for the same algorithm, we no longer have to play tricks with Kconfig
-    to select the right AES implementation.
-    
-    This patch sets the driver name and priority for all the AES
-    implementations and removes the Kconfig conditions on the C implementation
-    for AES.
-------------------------------
-
-That's why i did it the same way. 
-
-
-
-
+Ingo Oeser

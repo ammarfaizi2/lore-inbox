@@ -1,70 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWEGQFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWEGQYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbWEGQFG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 12:05:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWEGQFG
+	id S932191AbWEGQYY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 12:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWEGQYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 12:05:06 -0400
-Received: from waste.org ([64.81.244.121]:17068 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932190AbWEGQFF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 12:05:05 -0400
-Date: Sun, 7 May 2006 11:00:14 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Thiago Galesi <thiagogalesi@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
-Message-ID: <20060507160013.GM15445@waste.org>
-References: <20060505203436.GW15445@waste.org> <20060506115502.GB18880@thunk.org> <20060506164808.GY15445@waste.org> <20060506.170810.74552888.davem@davemloft.net> <20060507045920.GH15445@waste.org> <82ecf08e0605070613o7b217a2bw4c71c3a8c33bed28@mail.gmail.com>
+	Sun, 7 May 2006 12:24:24 -0400
+Received: from master.altlinux.org ([62.118.250.235]:45072 "EHLO
+	master.altlinux.org") by vger.kernel.org with ESMTP id S932191AbWEGQYX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 May 2006 12:24:23 -0400
+Date: Sun, 7 May 2006 20:24:16 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Michael Buesch <mb@bu3sch.de>
+Cc: akpm@osdl.org, Deepak Saxena <dsaxena@plexity.net>,
+       bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org
+Subject: Re: [patch 3/6] New Generic HW RNG (#2)
+Message-ID: <20060507162416.GD14704@procyon.home>
+References: <20060507143806.465264000@pc1> <20060507144257.311084000@pc1> <20060507152206.GC14704@procyon.home> <200605071739.44443.mb@bu3sch.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gE7i1rD7pdK0Ng3j"
 Content-Disposition: inline
-In-Reply-To: <82ecf08e0605070613o7b217a2bw4c71c3a8c33bed28@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <200605071739.44443.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 07, 2006 at 10:13:50AM -0300, Thiago Galesi wrote:
-> >Sure.
-> >
-> >First, since the existence of /dev/random's entropy accounting scheme
-> >is predicated on the assumption that we can break the hash function at
-> >will, I'll replace SHA1 with, oh, say, CRC-16. This'll be illustrative
-> >until someone has a nice preimage attack against SHA1.
-> >
-> >Then I'll run my test on one of the various arches where HZ=~100 and
-> >we don't have a TSC. Like Sparc?
-> >
-> >Now all the inputs are easily predictable from anywhere with <10ms
-> >ping, with the occassional need to guess between a pair of timer
-> >ticks. And since I can calculate preimages of CRC-16, I can now deduce
-> >the state of the pool if I can watch some subset of its output, say
-> >https session keys I request. And then I can start guessing future
-> >outputs and breaking into other people's https sessions.
-> >
-> >The point of /dev/random is to -survive- SHA1 being broken by never
-> >giving out more secrets than we take in.
-> 
-> OK, here goes...
-> 
-> 1 - by eliminating feeding enthopy from network cards you are
 
-Keep up, folks, I dropped that position in the very first round of replies.
- 
-> 2 - some platforms have much better enthropy sources than ethernet (or
-> user input), just think hardware rngs, or even the sound card rng
-> thing mentioned above
+--gE7i1rD7pdK0Ng3j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Point?
+On Sun, May 07, 2006 at 05:39:44PM +0200, Michael Buesch wrote:
+> On Sunday 07 May 2006 17:22, you wrote:
+> > On Sun, May 07, 2006 at 04:38:09PM +0200, Michael Buesch wrote:
+> > > Add a driver for the x86 RNG.
+> > > This driver is ported from the old hw_random.c
+> > >=20
+> > [skip]
+> > > +static int __init intel_init(struct hwrng *rng)
+> >=20
+> > Cannot be __init anymore - now rng->init could be called at any time.
+>=20
+> Sure, will fix this.
+>=20
+> > Also, there is another problem with putting this function into
+> > rng->init - if another RNG has been registered when this module is
+> > loaded, ->init will not be called during hwrng_register(), so the
+> > module load will succeed even if the chipset does not have RNG
+> > hardware.
+>=20
+> Ok, I see. The question is, are we going to hwrng_register() the
+> intel, althought there is no device? We check for the PCI IDs.
 
-> 3 - as people said, your example (CRC-16 on specific platfoms) is
-> (IMHO) an exxageration.
+Most Intel chipset do not really have the hardware RNG - PCI ID
+matches, but the check for INTEL_RNG_PRESENT bit in intel_init()
+fails.  (In fact, I have not ever seen a board which had that RNG.)
 
-Yes, CRC-16 was a rhetorical device. MD4 would not have been. HZ=100
-is not an exaggeration. Odds are pretty good you have such a Linux box
-in the form of a router or such already. This completely invalidates
-all the arguments about the hardware making the timing too
-unpredictable as it does so on a timescale of microseconds or less.
+[skip]
 
--- 
-Mathematics is the supreme nostalgia of our time.
+> Ah, and I found another bug in hwrng_unregister:
+> 	current_rng =3D list_entry(rng_list.prev, struct hwrng, list);
+> current_rng->init() should be called here (if nonNULL). If that fails
+> current_rng =3D NULL;
+
+All that logic in hwrng_register() and hwrng_unregister() looks overly
+complex.  Maybe we should just register the miscdevice
+unconditionally, and make it return -ENODEV from open() if no RNG is
+registered?
+
+--gE7i1rD7pdK0Ng3j
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFEXh8wW82GfkQfsqIRAu+rAJ9molAE243PBxepjp0XC9ITIQW1lwCfSj/9
+1dZsZXs4iYu/wqUDK9n9+GE=
+=RTVQ
+-----END PGP SIGNATURE-----
+
+--gE7i1rD7pdK0Ng3j--

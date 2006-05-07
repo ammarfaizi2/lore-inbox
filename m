@@ -1,45 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWEGQuy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWEGQyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbWEGQuy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 12:50:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWEGQuy
+	id S932197AbWEGQyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 12:54:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWEGQyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 12:50:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32967 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932199AbWEGQuy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 12:50:54 -0400
-Date: Sun, 7 May 2006 09:50:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jason Schoonover <jasons@pioneer-pra.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: High load average on disk I/O on 2.6.17-rc3
-Message-Id: <20060507095039.089ad37c.akpm@osdl.org>
-In-Reply-To: <200605051010.19725.jasons@pioneer-pra.com>
-References: <200605051010.19725.jasons@pioneer-pra.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Sun, 7 May 2006 12:54:08 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51725 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932197AbWEGQyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 May 2006 12:54:07 -0400
+Date: Sun, 7 May 2006 17:53:56 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Mike Galbraith <efault@gmx.de>, Andi Kleen <ak@suse.de>,
+       Christopher Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
+Subject: Re: sched_clock() uses are broken
+Message-ID: <20060507165356.GA32453@flint.arm.linux.org.uk>
+Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
+	Mike Galbraith <efault@gmx.de>, Andi Kleen <ak@suse.de>,
+	Christopher Friesen <cfriesen@nortel.com>,
+	linux-kernel@vger.kernel.org
+References: <44578EB9.8050402@nortel.com> <200605021859.18948.ak@suse.de> <445791D3.9060306@yahoo.com.au> <1146640155.7526.27.camel@homer> <445DE925.9010006@yahoo.com.au> <20060507124307.GA20443@flint.arm.linux.org.uk> <445DEE70.10807@yahoo.com.au> <445DEF6D.1050902@yahoo.com.au> <20060507131825.GC20443@flint.arm.linux.org.uk> <445DF667.309@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <445DF667.309@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 May 2006 10:10:19 -0700
-Jason Schoonover <jasons@pioneer-pra.com> wrote:
+On Sun, May 07, 2006 at 11:30:15PM +1000, Nick Piggin wrote:
+> Russell King wrote:
+> >On Sun, May 07, 2006 at 11:00:29PM +1000, Nick Piggin wrote:
+> >
+> >>Nick Piggin wrote:
+> >>
+> >>
+> >>>I stand by my first reply to your comment WRT the API.
+> >>
+> >>Actually, on rereading, it seems like I was a bit confused about
+> >>your proposal. I don't think you specified anyway the units
+> >>returned by your new sched_clock(). So it is identical to my
+> >>"corrected" interface :\
+> >
+> >
+> >Okay, so that presumably means we have to either stick with what we
+> >currently have, or go the whole hog and re-implement the sched_clock()
+> >support?
+> >
+> >IOW, my patch on 2nd May isn't of any use as it currently stands?
+> 
+> IMO it would probably be best to try to re implement it in one go.
+> It shouldn't have spread too far out of kernel/sched.c, and the arch
+> code should mostly be implementable in terms of their sched_clock().
+> Mundane but not difficult.
 
-> I'm having some problems on the latest 2.6.17-rc3 kernel and SCSI disk I/O.  
-> Whenever I copy any large file (over 500GB) the load average starts to slowly 
-> rise and after about a minute it is up to 7.5 and keeps on rising (depending 
-> on how long the file takes to copy).  When I watch top, the processes at the 
-> top of the list are cp, pdflush, kjournald and kswapd.
+Having looked at this several times over the last couple of days, I've
+come to the conclusion that I'm not the right person to fix this problem.
+I've tried several methods of converting the code, but every time I
+remain unconvinced that the changes are provably correct as far as not
+missing something, so I end up throwing the changes away and starting
+again.
 
-This is probably because the number of pdflush threads slowly grows to its
-maximum.  This is bogus, and we seem to have broken it sometime in the past
-few releases.  I need to find a few quality hours to get in there and fix
-it, but they're rare :(
+Yes, I admit defeat.
 
-It's pretty harmless though.  The "load average" thing just means that the
-extra pdflush threads are twiddling thumbs waiting on some disk I/O -
-they'll later exit and clean themselves up.  They won't be consuming
-significant resources.
+Maybe someone who cares about this stuff[1] (or who sees the problem)
+should look into it.
 
+[1] - eg, the original poster on linux-arm-kernel who indirectly pointed
+out the sched_clock() issue.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

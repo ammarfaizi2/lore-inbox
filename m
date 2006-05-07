@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWEGQgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWEGQiV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbWEGQgP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 12:36:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbWEGQgP
+	id S932194AbWEGQiV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 12:38:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWEGQiV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 12:36:15 -0400
-Received: from waste.org ([64.81.244.121]:46561 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932193AbWEGQgP (ORCPT
+	Sun, 7 May 2006 12:38:21 -0400
+Received: from waste.org ([64.81.244.121]:3462 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S932194AbWEGQiU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 12:36:15 -0400
-Date: Sun, 7 May 2006 11:31:14 -0500
+	Sun, 7 May 2006 12:38:20 -0400
+Date: Sun, 7 May 2006 11:33:19 -0500
 From: Matt Mackall <mpm@selenic.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: tytso@mit.edu, mrmacman_g4@mac.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
+To: Folkert van Heusden <folkert@vanheusden.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, "David S. Miller" <davem@davemloft.net>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
-Message-ID: <20060507163114.GN15445@waste.org>
-References: <20060506164808.GY15445@waste.org> <20060506.170810.74552888.davem@davemloft.net> <20060507045920.GH15445@waste.org> <20060506.224639.91383490.davem@davemloft.net>
+Message-ID: <20060507163319.GO15445@waste.org>
+References: <2.420169009@selenic.com> <8.420169009@selenic.com> <20060505.141040.53473194.davem@davemloft.net> <20060506140850.GN25646@vanheusden.com> <1146928743.15364.89.camel@mindpipe> <20060507103507.GV25646@vanheusden.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060506.224639.91383490.davem@davemloft.net>
+In-Reply-To: <20060507103507.GV25646@vanheusden.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 06, 2006 at 10:46:39PM -0700, David S. Miller wrote:
-> You're just circling around the real issues and trying to be "right"
-> and this is what I dislike so much about theoretical people.  They
-> show you what can be done theoretically, yet never in practice with
-> what we really have now.
+On Sun, May 07, 2006 at 12:35:08PM +0200, Folkert van Heusden wrote:
+> > > Consider adding a cheap soundcard to the system and run
+> > > 'audio-entropyd': www.vanheusden.com/aed 
+> > Can't get much cheaper than the crap that comes on every motherboard
+> > these days ;-)
+> > Also aren't temp sensors (on the disk or mobo) a good entropy source?
+> 
+> Not sure about that. If I look at
+> http://keetweej.vanheusden.com/draw_temp.php?limit=86400 it looks like
+> that at least the cpu sensor gets only updated every x seconds.
 
-What you're missing is this:
-
-/dev/random's entropy counting scheme sole reason to exist is to
-defend against theoretical future attacks against its cryptographic
-primitives. Thus _any_ discussion of its correctness must perforce be
-theoretical.
-
-By substituting CRC-16 for SHA1, I've simply brought the future 
-attack we're concerned about to today.
-
-As I said at the beginning of this thread, I'm perfectly happy to
-continue taking samples from network devices. My concerns are entirely
-with how we account their entropy, which is strictly in the realm of
-theory to start with.
-
-I will instead change the entropy estimator to be more conservative
-and to note the presence of high resolution clocks so that we can feed
-it garbage more safely.
+Yeah, heat sensors are not terribly useful. Thermal insulation acts as
+a very aggressive low pass filter on whatever noise might exist in the
+input.
 
 -- 
 Mathematics is the supreme nostalgia of our time.

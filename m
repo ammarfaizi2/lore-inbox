@@ -1,54 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWEGMnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWEGMrS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbWEGMnS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 08:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWEGMnS
+	id S932143AbWEGMrS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 08:47:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbWEGMrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 08:43:18 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39690 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932139AbWEGMnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 08:43:18 -0400
-Date: Sun, 7 May 2006 13:43:07 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Mike Galbraith <efault@gmx.de>, Andi Kleen <ak@suse.de>,
-       Christopher Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
-Subject: Re: sched_clock() uses are broken
-Message-ID: <20060507124307.GA20443@flint.arm.linux.org.uk>
-Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
-	Mike Galbraith <efault@gmx.de>, Andi Kleen <ak@suse.de>,
-	Christopher Friesen <cfriesen@nortel.com>,
-	linux-kernel@vger.kernel.org
-References: <20060502132953.GA30146@flint.arm.linux.org.uk> <p73slns5qda.fsf@bragg.suse.de> <44578EB9.8050402@nortel.com> <200605021859.18948.ak@suse.de> <445791D3.9060306@yahoo.com.au> <1146640155.7526.27.camel@homer> <445DE925.9010006@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 7 May 2006 08:47:18 -0400
+Received: from mout2.freenet.de ([194.97.50.155]:3506 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S932136AbWEGMrR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 May 2006 08:47:17 -0400
+From: Joachim Fritschi <jfritschi@freenet.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 2/2]  Twofish cipher x86_64-asm optimized
+Date: Sun, 7 May 2006 14:47:15 +0200
+User-Agent: KMail/1.8.3
+References: <200605071157.03362.jfritschi@freenet.de> <p73odya3ys9.fsf@bragg.suse.de>
+In-Reply-To: <p73odya3ys9.fsf@bragg.suse.de>
+Cc: linux-crypto@vger.kernel.org, Andi Kleen <ak@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <445DE925.9010006@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200605071447.15485.jfritschi@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 07, 2006 at 10:33:41PM +1000, Nick Piggin wrote:
-> Mike Galbraith wrote:
-> >On Wed, 2006-05-03 at 03:07 +1000, Nick Piggin wrote:
-> >
-> >>Other problem is that some people didn't RTFM and have started trying to
-> >>use it for precise accounting :(
-> >
-> >
-> >Are you talking about me perchance?  I don't really care about precision
-> >_that_ much, though I certainly do want to tighten timeslice accounting.
-> 
-> No, sched_clock is fine to be used in CPU scheduling choices, which are
-> heuristic anyway (although strictly speaking, even using it for timeslicing
-> within a single CPU could cause slight unfairness).
 
-Except maybe if it rolls over every 178 seconds, which is my original
-point.  Maybe someone could comment on my initial patch sent 5 days
-ago?
+> > Testing:
+> > -----------
+> > The code passed the kernel test module and passed automated tests on a
+> > dm-crypt volume reading/writing large files with alternating modules ( c
+> > / assembler ) and comparing results. It is also running on my workstation
+> > for over a week now.
+>
+> It would be good if you could run some random input encrypt/decrypt tests
+> comparing the C reference version with yours. We have had bad luck
+> with assembler functions not quite implementing the same cipher
+> in the past.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+That's exactly what my skript did.
+
+http://homepages.tu-darmstadt.de/~fritschi/twofish/test_twofish.sh
+
+Be careful with this script. It formats the testpartition you specify. The 
+script assumes you have both modules (c and asm) compiled as modules.
+It generates a 1Gb random file and a random passphrase. It copies the file on 
+your crypted partition with the c module and reads it again with the asm 
+module. Then it copies the file again onto the crypto partition with the asm 
+module and reads it with the c module. After each step the md5sum of the 
+files are compared with the original file. Then the script starts all over 
+again with a new random file and passphrase.
+
+My modules also pass the tcrypt tests.
+
+> > Please have a look, try, improve and criticise.
+>
+> Is it really needed to duplicate all the C code and tables - can't that
+> be shared with the portable C code?
+
+I really don't know. I'm quite a newbie when it comes to kernel programming. 
+Maybe there is a way, but my reference for this module was the aes assembler 
+code which duplicates everything as well. I assumed there is reason for this. 
+Maybe someone with a little more knowledge about the crypto-api / kernel 
+could pitch in here.
+>
+> Also don't make it a separate config - it should just be a replacement
+> on x86-64.
+
+There was a patch in 2.6.16:
+-------------------------
+commit c8a19c91b5b488fed8cce04200a84c6a35c0bf0c
+Author: Herbert Xu <herbert@gondor.apana.org.au>
+Date:   Sat Nov 5 18:06:26 2005 +1100
+
+    [CRYPTO] Allow AES C/ASM implementations to coexist
+    
+    As the Crypto API now allows multiple implementations to be registered
+    for the same algorithm, we no longer have to play tricks with Kconfig
+    to select the right AES implementation.
+    
+    This patch sets the driver name and priority for all the AES
+    implementations and removes the Kconfig conditions on the C implementation
+    for AES.
+------------------------------
+
+That's why i did it the same way. 
+
+
+
+

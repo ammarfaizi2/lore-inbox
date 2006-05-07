@@ -1,117 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWEGPdD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWEGPsj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932182AbWEGPdD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 11:33:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWEGPdD
+	id S932166AbWEGPsj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 11:48:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbWEGPsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 11:33:03 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:30857
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932182AbWEGPdB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 11:33:01 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Sergey Vlasov <vsu@altlinux.ru>
-Subject: Re: [patch 3/6] New Generic HW RNG (#2)
-Date: Sun, 7 May 2006 17:39:44 +0200
+	Sun, 7 May 2006 11:48:38 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:43037 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932166AbWEGPsi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 May 2006 11:48:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=L/VRw8z3slfA39AvEmsvAyGw4ea9sfvEf24C1TYNPgQh9PVA3VBQH0/XFbAk6gg8K2fwekKcVPUVjWuHX+TJPviqvLLSIe1AtMnqMSYbQN/QPvfg0Qn6d5omfibciWoMOhj0x/AEqZdIiKAd7Fm96Tqil8ylh2c2rexch4FsRJY=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] a few small mconf improvements
+Date: Sun, 7 May 2006 17:49:28 +0200
 User-Agent: KMail/1.9.1
-References: <20060507143806.465264000@pc1> <20060507144257.311084000@pc1> <20060507152206.GC14704@procyon.home>
-In-Reply-To: <20060507152206.GC14704@procyon.home>
-Cc: akpm@osdl.org, Deepak Saxena <dsaxena@plexity.net>,
-       bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org
+Cc: Roman Zippel <zippel@linux-m68k.org>, Petr Baudis <pasky@ucw.cz>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Sam Ravnborg <sam@ravnborg.org>, Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200605071739.44443.mb@bu3sch.de>
+Message-Id: <200605071749.28822.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 07 May 2006 17:22, you wrote:
-> On Sun, May 07, 2006 at 04:38:09PM +0200, Michael Buesch wrote:
-> > Add a driver for the x86 RNG.
-> > This driver is ported from the old hw_random.c
-> > 
-> [skip]
-> > +static int __init intel_init(struct hwrng *rng)
-> 
-> Cannot be __init anymore - now rng->init could be called at any time.
+Hi,
 
-Sure, will fix this.
+I just took a look at scripts/kconfig/mconf.c and found a few tiny things 
+that I feel could be improved. So below is a patch for those.
 
-> Also, there is another problem with putting this function into
-> rng->init - if another RNG has been registered when this module is
-> loaded, ->init will not be called during hwrng_register(), so the
-> module load will succeed even if the chipset does not have RNG
-> hardware.
+The patch makes the following changes : 
 
-Ok, I see. The question is, are we going to hwrng_register() the
-intel, althought there is no device? We check for the PCI IDs.
-Anyway. This should be fixed.
-And I think this is also a good time to split the x86 driver,
-so all this init-stuff is much cleaner.
+ - use EXIT_SUCCESS/EXIT_FAILURE in place of 0/1.
 
-> > +{
-> > +	void __iomem *rng_mem;
-> > +	int rc;
-> > +	u8 hw_status;
-> > +
-> > +	DPRINTK ("ENTER\n");
-> > +
-> > +	rng_mem = ioremap (INTEL_RNG_ADDR, INTEL_RNG_ADDR_LEN);
-> > +	if (rng_mem == NULL) {
-> > +		printk (KERN_ERR PFX "cannot ioremap RNG Memory\n");
-> > +		rc = -EBUSY;
-> > +		goto err_out;
-> > +	}
-> > +	rng->priv = (unsigned long)rng_mem;
-> > +
-> > +	/* Check for Intel 82802 */
-> > +	hw_status = intel_hwstatus (rng_mem);
-> > +	if ((hw_status & INTEL_RNG_PRESENT) == 0) {
-> > +		printk (KERN_ERR PFX "RNG not detected\n");
-> > +		rc = -ENODEV;
-> > +		goto err_out_free_map;
-> > +	}
-> > +
-> > +	/* turn RNG h/w on, if it's off */
-> > +	if ((hw_status & INTEL_RNG_ENABLED) == 0)
-> > +		hw_status = intel_hwstatus_set (rng_mem, hw_status | INTEL_RNG_ENABLED);
-> > +	if ((hw_status & INTEL_RNG_ENABLED) == 0) {
-> > +		printk (KERN_ERR PFX "cannot enable RNG, aborting\n");
-> > +		rc = -EIO;
-> > +		goto err_out_free_map;
-> > +	}
-> > +
-> > +	DPRINTK ("EXIT, returning 0\n");
-> > +	return 0;
-> > +
-> > +err_out_free_map:
-> > +	iounmap (rng_mem);
-> > +err_out:
-> > +	DPRINTK ("EXIT, returning %d\n", rc);
-> > +	return rc;
-> > +}
-> > +
-> [skip]
-> > +static int __init amd_init(struct hwrng *rng)
-> 
-> Again, __init is wrong.
-> 
-> [skip]
-> > +static int __init via_init(struct hwrng *rng)
-> 
-> This __init is wrong too.
-> 
-> [skip]
-> 
+ - rename main() arguments from "ac"/"av" to the more common "argc"/"argv".
 
-Ah, and I found another bug in hwrng_unregister:
-	current_rng = list_entry(rng_list.prev, struct hwrng, list);
-current_rng->init() should be called here (if nonNULL). If that fails
-current_rng = NULL;
+ - when unlinking lxdialog.scrltmp, the return value of unlink() is not 
+   checked. The patch adds a check of the return value and bails out if 
+   unlink() fails for any reason other than ENOENT.
 
-Will fix that, too.
+ - if the sscanf() call in conf() fails and stat==0 && type=='t', then 
+   we'll end up dereferencing a NULL 'sym' in sym_is_choice(). The patch 
+   adds a NULL check of 'sym' to that path and bails out with a big fat 
+   error message if that should ever happen (better than just crashing 
+   IMHO).
 
--- 
-Greetings Michael.
+ - change the type if the 'i' variable in conf() from 'int' to 
+   'unsigned int' to avoid a "comparison between signed and unsigned" 
+   warning if building with gcc -W. Given the use of 'i', 'unsigned' is 
+   also the logical type to use.
+
+Please consider for inclusion.
+
+
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+ scripts/kconfig/mconf.c |   27 +++++++++++++++++++--------
+ 1 files changed, 19 insertions(+), 8 deletions(-)
+
+--- linux-2.6.17-rc3-git12-orig/scripts/kconfig/mconf.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6.17-rc3-git12/scripts/kconfig/mconf.c	2006-05-07 17:34:47.000000000 +0200
+@@ -311,7 +311,7 @@ static void init_wsize(void)
+ 	if (rows < 19 || cols < 80) {
+ 		fprintf(stderr, N_("Your display is too small to run Menuconfig!\n"));
+ 		fprintf(stderr, N_("It must be at least 19 lines by 80 columns.\n"));
+-		exit(1);
++		exit(EXIT_FAILURE);
+ 	}
+ 
+ 	rows -= 4;
+@@ -505,7 +505,7 @@ static int exec_conf(void)
+ 	}
+ 	if (WIFSIGNALED(stat)) {
+ 		printf("\finterrupted(%d)\n", WTERMSIG(stat));
+-		exit(1);
++		exit(EXIT_FAILURE);
+ 	}
+ #if 0
+ 	printf("\fexit state: %d\nexit data: '%s'\n", WEXITSTATUS(stat), input_buf);
+@@ -514,7 +514,7 @@ static int exec_conf(void)
+ 	sigpending(&sset);
+ 	if (sigismember(&sset, SIGINT)) {
+ 		printf("\finterrupted\n");
+-		exit(1);
++		exit(EXIT_FAILURE);
+ 	}
+ 	sigprocmask(SIG_SETMASK, &osset, NULL);
+ 
+@@ -718,9 +718,14 @@ static void conf(struct menu *menu)
+ 	const char *prompt = menu_get_prompt(menu);
+ 	struct symbol *sym;
+ 	char active_entry[40];
+-	int stat, type, i;
++	int stat, type;
++	unsigned int i;
+ 
+-	unlink("lxdialog.scrltmp");
++	if (unlink("lxdialog.scrltmp") == -1 && errno != ENOENT) {
++		fprintf(stderr, "mconf error, unable to unlink "
++			"lxdialog.scrltmp : %s\n", strerror(errno));
++		exit(EXIT_FAILURE);
++	}
+ 	active_entry[0] = 0;
+ 	while (1) {
+ 		cprint_init();
+@@ -777,6 +782,12 @@ static void conf(struct menu *menu)
+ 					conf(submenu);
+ 				break;
+ 			case 't':
++				if (!sym) {
++					fprintf(stderr, "mconf error: "
++						"expected a symbol, got NULL."
++						" Something's badly broken\n");
++					exit(EXIT_FAILURE);
++				}
+ 				if (sym_is_choice(sym) && sym_get_tristate_value(sym) == yes)
+ 					conf_choice(submenu);
+ 				else if (submenu->prompt->type == P_MENU)
+@@ -1038,7 +1049,7 @@ static void conf_cleanup(void)
+ 	unlink("lxdialog.scrltmp");
+ }
+ 
+-int main(int ac, char **av)
++int main(int argc, char **argv)
+ {
+ 	struct symbol *sym;
+ 	char *mode;
+@@ -1048,7 +1059,7 @@ int main(int ac, char **av)
+ 	bindtextdomain(PACKAGE, LOCALEDIR);
+ 	textdomain(PACKAGE);
+ 
+-	conf_parse(av[1]);
++	conf_parse(argv[1]);
+ 	conf_read(NULL);
+ 
+ 	sym = sym_lookup("KERNELVERSION", 0);
+@@ -1094,5 +1105,5 @@ int main(int ac, char **av)
+ 			"\n\n"));
+ 	}
+ 
+-	return 0;
++	return EXIT_SUCCESS;
+ }
+
+

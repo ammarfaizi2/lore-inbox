@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWEGAIO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWEGARX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbWEGAIO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 20:08:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbWEGAIO
+	id S1751148AbWEGARX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 20:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbWEGARX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 20:08:14 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:46473
+	Sat, 6 May 2006 20:17:23 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:62861
 	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751148AbWEGAIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 20:08:13 -0400
-Date: Sat, 06 May 2006 17:08:10 -0700 (PDT)
-Message-Id: <20060506.170810.74552888.davem@davemloft.net>
+	id S1751148AbWEGARW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 May 2006 20:17:22 -0400
+Date: Sat, 06 May 2006 17:17:20 -0700 (PDT)
+Message-Id: <20060506.171720.21872950.davem@davemloft.net>
 To: mpm@selenic.com
 Cc: tytso@mit.edu, mrmacman_g4@mac.com, akpm@osdl.org,
        linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network
  drivers
 From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060506164808.GY15445@waste.org>
-References: <20060505203436.GW15445@waste.org>
-	<20060506115502.GB18880@thunk.org>
-	<20060506164808.GY15445@waste.org>
+In-Reply-To: <20060506203304.GF15445@waste.org>
+References: <20060506164808.GY15445@waste.org>
+	<20060506180551.GB22474@thunk.org>
+	<20060506203304.GF15445@waste.org>
 X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -29,48 +29,39 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Matt Mackall <mpm@selenic.com>
-Date: Sat, 6 May 2006 11:48:08 -0500
+Date: Sat, 6 May 2006 15:33:04 -0500
 
-> But network traffic should be _assumed_ to be observable to some
-> degree.
+> On Sat, May 06, 2006 at 02:05:51PM -0400, Theodore Tso wrote:
+> > For network traffic, again, it depends on your threat model.
+> 
+> Here's a threat model: I remotely break into your LAN and 0wn insecure
+> Windows box X that's one switch jump away from the web server Y that
+> processes your credit card transactions. I use standard techniques to
+> kick the switch into broadcast mode so I can see all its traffic or
+> maybe I break into the switch itself and temporarily isolate Y from
+> the rest of the world so that only X can talk to it. I'm still in
+> Russia, but I might as well be in the same room.
 
-But, and this is a huge but and the one that matters, nothing
-between the network packet arriving and the interrupt being
-delivered is observable outside of the machine.
+Doesn't matter.
 
-The PHY of the network card has some tiny delays internal
-to how it decodes the coding sequence on the wire and passes
-it on to the MAC.
+You cannot measure any of the delays happening between network packet
+being seen on the wire to interrupt handler actually executing.
 
-The MAC and the bus frontend have all sorts of timing and
-delays wrt. making sure the necessary RX descriptor is fetched
-and if a free packet buffer is available, DMA'ing the packet
-into memory.
+There is so much variable jitter and it depends on so many minute
+details at both the hardware and software level, that you can't guess
+this stuff.  What's the load on the box?  How many clock cycles does
+it take for an interrupt to propagate to the cpu, how many clock
+cycles from interrupt reception until the cpu executes the interrupt
+handler, how are the hw interrupt mitigation facilities programmed
+and how do their timers work, what is the wire to PHY delay, what is
+the PHY to MAC delay, how many cycles does it take for the FIFO to
+DMA the packet into main memory, what is the delay from DMA'ing the
+packet to main memory and the indication of the interrupt condition.
+etc. etc. etc.
 
-If the chip has hw interrupt mitigation enabled, these add other
-delays and almost across the board these interrupt mitigation
-timers are relatively imprecise.  If the first packet that starts
-the time hits half-way between two clock ticks, the mitigation
-fire will be a half clock off.
+You can't know any of that.
 
-There are propagation delays for the interrupt to get to the cpu.
-Every implementation is there, but the delays are there and highly
-variable.  In many cases, it's the time to send a cacheline over
-the main system bus to the target cpu (MSI, or sparc64 style PCI
-controllers which turn traditional INTX signals into 64-byte
-interrupt packets targeted at specific cpus).
-
-Then there is the trap entry delay, and perhaps the cpu has interrupts
-disabled while holding a spinlock or whatever.  Then there are all the
-cache misses and instruction execution delays just to get into the
-interrupt handler.
-
-None of this is observable or predictable outside of the machine.
-So the arguments about the SA_SAMPLE_RANDOM samples being risky in
-the networking drivers is bogus.
-
-Please put together a test case that proves that /dev/random can
-be predicted just by being on the wire sniffing packets going into
-the machine.  Then you will have my full support.
-
-Everything shown so far is theoretical swiss cheese.
+Please put together a real reproducable attack that others can run too
+and would validate justify SA_SAMPLE_RANDOM from networking drivers.
+It's all swiss cheese theory until you do this.  And we should not be
+making kernel changes merely due to swiss cheese theory.

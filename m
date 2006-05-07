@@ -1,157 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWEGNKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWEGNNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932154AbWEGNKi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 09:10:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWEGNKi
+	id S932150AbWEGNNw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 09:13:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWEGNNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 09:10:38 -0400
-Received: from exo3753.pck.nerim.net ([213.41.240.142]:20930 "EHLO
-	mail-out1.exosec.net") by vger.kernel.org with ESMTP
-	id S932155AbWEGNKh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 09:10:37 -0400
-Date: Sun, 7 May 2006 15:10:34 +0200
-From: Willy Tarreau <wtarreau@exosec.fr>
-To: linux-kernel@vger.kernel.org
-Cc: Marcelo Tosatti <marcelo@kvack.org>, Grant Coady <grant_lkml@dodo.com.au>,
-       willy@w.ods.org
-Subject: [ANNOUNCE] Linux-2.4.32-hf32.4
-Message-ID: <20060507131034.GA19198@exosec.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sun, 7 May 2006 09:13:52 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:42681 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932150AbWEGNNv convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 May 2006 09:13:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iKzLVCOwjJc8e0YogHy0AiL5srA1kbI9DiLMos4lU24dXVFYOo77eyJNTHuSeZsgLP9hYem5Qy4pPwSIcNgyzHB2FOA78pLT5g2LWEWGY4VLvdfS8+mQV+9scTsG2R9104asprBzxhPShb8M0iba/7BXYlVfo+zSS7dN0qXZyzo=
+Message-ID: <82ecf08e0605070613o7b217a2bw4c71c3a8c33bed28@mail.gmail.com>
+Date: Sun, 7 May 2006 10:13:50 -0300
+From: "Thiago Galesi" <thiagogalesi@gmail.com>
+To: "Matt Mackall" <mpm@selenic.com>
+Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060507045920.GH15445@waste.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.10i
+References: <20060505203436.GW15445@waste.org>
+	 <20060506115502.GB18880@thunk.org> <20060506164808.GY15445@waste.org>
+	 <20060506.170810.74552888.davem@davemloft.net>
+	 <20060507045920.GH15445@waste.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Sure.
+>
+> First, since the existence of /dev/random's entropy accounting scheme
+> is predicated on the assumption that we can break the hash function at
+> will, I'll replace SHA1 with, oh, say, CRC-16. This'll be illustrative
+> until someone has a nice preimage attack against SHA1.
+>
+> Then I'll run my test on one of the various arches where HZ=~100 and
+> we don't have a TSC. Like Sparc?
+>
+> Now all the inputs are easily predictable from anywhere with <10ms
+> ping, with the occassional need to guess between a pair of timer
+> ticks. And since I can calculate preimages of CRC-16, I can now deduce
+> the state of the pool if I can watch some subset of its output, say
+> https session keys I request. And then I can start guessing future
+> outputs and breaking into other people's https sessions.
+>
+> The point of /dev/random is to -survive- SHA1 being broken by never
+> giving out more secrets than we take in.
 
-here is the fourth hotfix for 2.4.32 and older kernels. There are 9 new
-fixes, 5 of which are security-related, 1 memory leak, and 3 minor bugs :
+OK, here goes...
 
-  - 2.4.32-CVE-2006-0741-always-check-that-rips-are-canonical-1   (Andi Kleen)
-  - 2.4.32-CVE-2006-1524-fix-shm-mprotect-1                     (Hugh Dickins)
-  - 2.4.32-CVE-2006-1056-i386-x86_64-x87-information-leak-1       (Andi Kleen)
-  - 2.4.32-via-rhine-zero-pad-short-packets-1                    (Craig Brind)
-  - 2.4.32-CVE-2006-1864-smbfs-escape-chroot-1                    (Olaf Kirch)
-  - 2.4.32-netfilter-ipt_recent-memleak-1                        (Jesper Juhl)
-  - 2.4.32-nfs-cache-consistency-with-mmap-1                     (Jeff Layton)
-  - 2.4.32-vlan_ioctl-missing-checks-1                         (Mika Kukkonen)
-  - 2.4.32-quota_v2-module-taints-the-kernel-1                   (Marek Szuba)
+1 - by eliminating feeding enthopy from network cards you are
+eliminating all sources of enthropy for _lots_ of people (think
+headless servers, embedded systems - even though there can be other
+sources of enthropy there) Unfortunatelly, bad enthropy is still
+better than no enthropy (just think - no ssh / https, etc, etc)
 
-This leads to the following number of patches per kernel :
+2 - some platforms have much better enthropy sources than ethernet (or
+user input), just think hardware rngs, or even the sound card rng
+thing mentioned above
 
-   Version | New | Total
-   --------+-----+------
-    2.4.28 |   9 |  170 
-    2.4.29 |   9 |  167 
-    2.4.30 |   9 |  101 
-    2.4.31 |   9 |   88 
-    2.4.32 |   9 |   38 
-   --------+-----+------
+3 - as people said, your example (CRC-16 on specific platfoms) is
+(IMHO) an exxageration. Of course, /dev/random should try and protect
+us from whatever protocol being broken. That being said, this
+protection should be 'realistic'. In theory most things are broken if
+we have enough equipment and computing power.
 
-Please note that two of those patches are not in mainline yet (merged at the
-last minute) : the SMBFS fix (CVE-2006-1864, which is fixed in 2.6.16.14) and
-the ipt_recent memory leak.
+My conclusion, I have no problem removing SA_SAMPLE_RANDOM *IN
+SPECIFIC CASES* (meaning, this should be user configurable). In a
+secure environment / platform has rng, it could be turned off, and in
+a headless server / embedded system / it could be left on.
 
-I've built it with all modules on x86-smp but not booted it yet. The detailed
-changelog follows.
+Of course, that's just MHO...
 
-Please use the links below to download it :
-
-    hotfixes home : http://linux.exosec.net/kernel/2.4-hf/
-     last version : http://linux.exosec.net/kernel/2.4-hf/LATEST/LATEST/
-         RSS feed : http://linux.exosec.net/kernel/hf.xml
-    build results : http://bugsplatter.mine.nu/test/linux-2.4/ (Grant's site)
-              GIT : http://w.ods.org/kernel/2.4/patches-2.4-hf.git/
-           GITWEB : http://w.ods.org/git/?p=patches-2.4-hf.git;a=summary
-
-
-Changelog from 2.4.32-hf32.3 to 2.4.32-hf32.4
----------------------------------------
-'+' = added ; '-' = removed
-
-+ 2.4.32-CVE-2006-0741-always-check-that-rips-are-canonical-1   (Andi Kleen)
-
-  This works around a problem in handling non canonical RIPs on SYSRET on
-  Intel CPUs. They report the #GP on the SYSRET, not the next instruction
-  as Linux expects it. With these changes this path should never see a non
-  canonical user RIP. This is CVE-2006-0741. Roughly based on a patch by
-  Ernie Petrides, but redone by AK.
-
-+ 2.4.32-CVE-2006-1524-fix-shm-mprotect-1                     (Hugh Dickins)
-
-  shmat stop mprotect from giving write permission to a readonly
-  attachment.
-
-+ 2.4.32-CVE-2006-1056-i386-x86_64-x87-information-leak-1       (Andi Kleen)
-
-  AMD K7/K8 CPUs only save/restore the FOP/FIP/FDP x87 registers in FXSAVE
-  when an exception is pending. This means the value leak through context
-  switches and allow processes to observe some x87 instruction state of
-  other processes. This is CVE-2006-1056. The problem was discovered
-  originally by Jan Beulich. Richard Brunner provided the basic code for
-  the workarounds with contributions from Jan.
-
-+ 2.4.32-via-rhine-zero-pad-short-packets-1                    (Craig Brind)
-
-  Fixes Rhine I cards disclosing fragments of previously transmitted
-  frames in new transmissions.
-
-  Before transmission, any socket buffer (skb) shorter than the ethernet
-  minimum length of 60 bytes was zero-padded. On Rhine I cards the data
-  can later be copied into an aligned transmission buffer without copying
-  this padding. This resulted in the transmission of the frame with the
-  extra bytes beyond the provided content leaking the previous contents of
-  this buffer on to the network. Now zero-padding is repeated in the local
-  aligned buffer if one is used.
-
-+ 2.4.32-CVE-2006-1864-smbfs-escape-chroot-1                    (Olaf Kirch)
-
-  Initial work and description from Olaf Kirch for kernel 2.6 :
-  Mark Moseley reported that a chroot environment on a SMB share can be
-  left via "cd ..\\".  Similar to CVE-2006-1863 issue with cifs, this fix
-  is for smbfs (CVE-2006-1864). Steven French <sfrench@us.ibm.com> wrote:
-  Looks fine to me.  This should catch the slash on lookup or equivalent,
-  which will be all obvious paths of interest. Back-ported from 2.6 to 2.4
-  by Willy Tarreau.
-
-+ 2.4.32-netfilter-ipt_recent-memleak-1                        (Jesper Juhl)
-
-  The Coverity checker spotted that we may leak 'hold' in 
-  net/ipv4/netfilter/ipt_recent.c::checkentry() when the following
-  is true : 
-    if (!curr_table->status_proc) {
-      ...
-      if(!curr_table) {
-      ...
-        return 0;  <-- here we leak.
-  Simply moving an existing vfree(hold); up a bit avoids the possible leak.
-
-+ 2.4.32-nfs-cache-consistency-with-mmap-1                     (Jeff Layton)
-
-  A customer of Red Hat reported a problem with cache invalidation when
-  using mmapped files over NFS with the 2.4 kernel. This patch fixes this
-  by checking whether the clean_pages list for the inode is empty after
-  invalidate_inode_pages is called. If it's not then we set a flag so on
-  the next pass through it automatically flags the data as invalid.
-
-+ 2.4.32-vlan_ioctl-missing-checks-1                         (Mika Kukkonen)
-
-  In vlan_ioctl_handler() the code misses couple checks for
-  error return values. The same patch was merged into 2.6.
-
-+ 2.4.32-quota_v2-module-taints-the-kernel-1                   (Marek Szuba)
-
-  Apparently the quota_v2 module in 2.4 still lacks the licence macro
-  and taints the kernel, even though the same module in 2.6 is correctly
-  tagged as GPL. In case it makes things any easier, I am enclosing an
-  appropriate patch.
-
-
---
-Willy Tarreau - http://w.ods.org/
-EXOSEC - ZAC des Metz - 3 Rue du petit robinson - 78350 JOUY EN JOSAS
-N°Indigo: 0 825 075 510 - Accueil: +33 1 72 89 72 30 - Fax: +33 1 72 89 80 19
-Site web : http://www.exosec.fr/
-
+Thiago

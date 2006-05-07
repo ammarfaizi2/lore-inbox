@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWEGQvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWEGQuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932206AbWEGQvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 12:51:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWEGQvP
+	id S932199AbWEGQuy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 12:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWEGQuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 12:51:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39623 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932201AbWEGQvO (ORCPT
+	Sun, 7 May 2006 12:50:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32967 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932199AbWEGQuy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 12:51:14 -0400
-Date: Sun, 7 May 2006 09:50:58 -0700
+	Sun, 7 May 2006 12:50:54 -0400
+Date: Sun, 7 May 2006 09:50:39 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Paul Risenhoover <prisenhoover@daxsolutions.com>
+To: Jason Schoonover <jasons@pioneer-pra.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: GPF on Dell machines
-Message-Id: <20060507095058.8f2cc4d3.akpm@osdl.org>
-In-Reply-To: <445B7F4E.8030304@daxsolutions.com>
-References: <445B7F4E.8030304@daxsolutions.com>
+Subject: Re: High load average on disk I/O on 2.6.17-rc3
+Message-Id: <20060507095039.089ad37c.akpm@osdl.org>
+In-Reply-To: <200605051010.19725.jasons@pioneer-pra.com>
+References: <200605051010.19725.jasons@pioneer-pra.com>
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,51 +24,22 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 05 May 2006 09:37:34 -0700
-Paul Risenhoover <prisenhoover@daxsolutions.com> wrote:
+On Fri, 5 May 2006 10:10:19 -0700
+Jason Schoonover <jasons@pioneer-pra.com> wrote:
 
-> I've been getting the following error repeatedly on a number of machines 
-> in my server farm.  Unfortunately, when this happens, the machine 
-> becomes completely inoperable and must be hard booted.  These are 
-> dual-processor Dell X64 machines . 
+> I'm having some problems on the latest 2.6.17-rc3 kernel and SCSI disk I/O.  
+> Whenever I copy any large file (over 500GB) the load average starts to slowly 
+> rise and after about a minute it is up to 7.5 and keeps on rising (depending 
+> on how long the file takes to copy).  When I watch top, the processes at the 
+> top of the list are cp, pdflush, kjournald and kswapd.
 
-Unfortunately smbfs hasn't had a breathing maintainer for a couple of years
-and I do not know anyone who knows the code much at all.  The stock answer
-here is that you should migrate to cifs, which is maintained.
+This is probably because the number of pdflush threads slowly grows to its
+maximum.  This is bogus, and we seem to have broken it sometime in the past
+few releases.  I need to find a few quality hours to get in there and fix
+it, but they're rare :(
 
-If you are for some reason not able to do that then please make the reasons
-for this known to the cifs maintainer.
+It's pretty harmless though.  The "load average" thing just means that the
+extra pdflush threads are twiddling thumbs waiting on some disk I/O -
+they'll later exit and clean themselves up.  They won't be consuming
+significant resources.
 
-> Can anybody please help?  How can I make this stop?  Should I be posting 
-> this to the samba mailing list instead?
-> 
-> May  3 12:35:04 neon kernel: general protection fault: 0000 [1] SMP
-> May  3 12:35:04 neon kernel: last sysfs file: /class/vc/vcsa4/dev
-> May  3 12:35:04 neon kernel: CPU 0
-> May  3 12:35:04 neon kernel: Modules linked in: smbfs ipv6 parport_pc lp 
-> parport autofs4 i2c_dev i2c_core rfcomm l2cap bluetooth sunrpc pcmcia
-> yenta_socket rsrc_nonstatic pcmcia_core video button battery ac 
-> e752x_edac edac_mc e1000 dm_snapshot dm_zero dm_mirror ext3 jbd dm_mod 
-> ata_piix
->  libata sd_mod scsi_mod
-> May  3 12:35:04 neon kernel: Pid: 21979, comm: smbiod Not tainted 
-> 2.6.16-1.2069_FC4smp #1
-> May  3 12:35:04 neon kernel: RIP: 0010:[<ffffffff882ea8ff>] 
-> <ffffffff882ea8ff>{:smbfs:smbiod+520}
-
-This oops is really hard to follow.  Without a
-compiled-with-CONFIG_DEBUG_INFO kernel it'll be hard to work out where it
-crashed.  And it appears that RH do not ship kernels with CONFIG_DEBUG_INFO
-set.  Or maybe they do have that as a download somewhere; I don't know.
-
-One option would be to self-compile a kernel with CONFIG_DEBUG_INFO and
-when it crashes, do
-
-cd /usr/src/linux
-gdb /path/to/vmlinux
-(gdb) l *0xffffffff882ea8ff
-
-(substitute in the correct RIP value when doing this).
-
-
-Sorry, no easy answers there.

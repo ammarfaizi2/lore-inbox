@@ -1,59 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbWEGIHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWEGIYx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751211AbWEGIHV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 04:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWEGIHU
+	id S932099AbWEGIYx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 04:24:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWEGIYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 04:07:20 -0400
-Received: from nz-out-0102.google.com ([64.233.162.197]:33505 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751211AbWEGIHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 04:07:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
-        b=X8bcXt4CrrQrkflgEzw5ePeH9+cP52A/rHJc8IspA+HUNNm/kFnHskd/jmxP3/X/Op8iqYkk58q72atTckRlfXzzmzm2sD3qJzuR8HvAsrimCD/5HgfyVEP2z2snG3mQadEsvybr5OgJngln9spMnYdx0Pqejw74f+tc9kbHQIw=
-Date: Sun, 7 May 2006 04:07:16 -0400
-To: Nuri Jawad <lkml@jawad.org>
-Cc: Martin Bligh <mbligh@mbligh.org>, Dave Jones <davej@redhat.com>,
-       Martin Mares <mj@ucw.cz>, Pavel Machek <pavel@ucw.cz>,
-       dtor_core@ameritech.net, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Remove silly messages from input layer.
-Message-ID: <20060507080715.GA8216@nineveh.rivenstone.net>
-Mail-Followup-To: Nuri Jawad <lkml@jawad.org>,
-	Martin Bligh <mbligh@mbligh.org>, Dave Jones <davej@redhat.com>,
-	Martin Mares <mj@ucw.cz>, Pavel Machek <pavel@ucw.cz>,
-	dtor_core@ameritech.net,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060504183840.GE18962@redhat.com> <20060505103123.GB4206@elf.ucw.cz> <20060505152748.GA22870@redhat.com> <mj+md-20060505.153608.7268.albireo@ucw.cz> <20060505154638.GE22870@redhat.com> <mj+md-20060505.154834.7444.albireo@ucw.cz> <20060505160009.GB25883@redhat.com> <Pine.LNX.4.64.0605052131580.28721@pc> <445BB050.4040309@mbligh.org> <Pine.LNX.4.64.0605052218370.9702@pc>
-MIME-Version: 1.0
+	Sun, 7 May 2006 04:24:53 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:60433 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932099AbWEGIYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 May 2006 04:24:52 -0400
+Date: Sun, 7 May 2006 09:24:44 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Gerd Hoffmann <kraxel@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] serial: fix UART_BUG_TXEN test
+Message-ID: <20060507082444.GA15039@flint.arm.linux.org.uk>
+Mail-Followup-To: Gerd Hoffmann <kraxel@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <44339A8F.7030305@suse.de> <20060412092631.GA25799@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0605052218370.9702@pc>
-User-Agent: Mutt/1.5.11
-From: jfannin@gmail.com (Joseph Fannin)
+In-Reply-To: <20060412092631.GA25799@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 05, 2006 at 10:30:00PM +0200, Nuri Jawad wrote:
->
-> It is useful to show you what kind of environment many users do not want
-> to have. Hiding information is not user-friendly for the experienced user,
-> only for the novice.
+On Wed, Apr 12, 2006 at 10:26:31AM +0100, Russell King wrote:
+> On Wed, Apr 05, 2006 at 12:23:11PM +0200, Gerd Hoffmann wrote:
+> > There is a bug in the UART_BUG_TXEN test: It gives false positives in
+> > case the UART_IER_THRI bit is set.  Fixed by explicitly clearing the
+> > UART_IER register first.
+> > 
+> > It may trigger with an active serial console as serial console writes
+> > set the UART_IER_THRI bit.
+> 
+> Actually, I think Alan's (f91a3715db2bb44fcf08cec642e68f919b70f7f4)
+> idea of setting UART_IER_THRI after serial console writes is buggy.
+> If the serial port being used as a console is sharing its interrupt
+> line with other devices, then there's the very real possibility for
+> causing spurious interrupts.
+> 
+> I think that's what needs to be fixed rather than working around this
+> potentially buggy behaviour.
+> 
+> Maybe we have no option but to take the spinlock in the serial console
+> code, and suck it if we oops with that spinlock held.
 
-    Spamming my logs with these messages so often that my dmesg buffer
-soon contains nothing but and I have to use grep -v to read my syslog
-is not user-friendly, and I am hardly a novice.
+So here's the patch.  I've been waiting for feedback from Alan before
+sending this upstream...  Nevertheless, could you (Gerd) test it please?
 
-    At most, a reworded message should be emitted on the first
-occurance of the error and not again until a reboot.  If you want to
-know more, there are debugging tools for that sort of thing.
+Thanks.
 
---
-Joseph Fannin
-jhf@rivenstone.net
+diff --git a/drivers/serial/8250.c b/drivers/serial/8250.c
+--- a/drivers/serial/8250.c
++++ b/drivers/serial/8250.c
+@@ -2200,10 +2200,17 @@ static void
+ serial8250_console_write(struct console *co, const char *s, unsigned int count)
+ {
+ 	struct uart_8250_port *up = &serial8250_ports[co->index];
++	unsigned long flags;
+ 	unsigned int ier;
++	int locked = 1;
+ 
+ 	touch_nmi_watchdog();
+ 
++	if (oops_in_progress) {
++		locked = spin_trylock_irqsave(&up->port.lock, flags);
++	} else
++		spin_lock_irqsave(&up->port.lock, flags);
++
+ 	/*
+ 	 *	First save the IER then disable the interrupts
+ 	 */
+@@ -2221,8 +2228,10 @@ serial8250_console_write(struct console 
+ 	 *	and restore the IER
+ 	 */
+ 	wait_for_xmitr(up, BOTH_EMPTY);
+-	up->ier |= UART_IER_THRI;
+-	serial_out(up, UART_IER, ier | UART_IER_THRI);
++	serial_out(up, UART_IER, ier);
++
++	if (locked)
++		spin_unlock_irqrestore(&up->port.lock, flags);
+ }
+ 
+ static int serial8250_console_setup(struct console *co, char *options)
 
- /* So there I am, in the middle of my `netfilter-is-wonderful'
-talk in Sydney, and someone asks `What happens if you try
-to enlarge a 64k packet here?'. I think I said something
-eloquent like `fuck'. - RR */
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

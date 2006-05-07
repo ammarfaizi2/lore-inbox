@@ -1,76 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWEGQyJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWEGRA6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbWEGQyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 12:54:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWEGQyI
+	id S932198AbWEGRA6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 13:00:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWEGRA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 12:54:08 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51725 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932197AbWEGQyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 12:54:07 -0400
-Date: Sun, 7 May 2006 17:53:56 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Mike Galbraith <efault@gmx.de>, Andi Kleen <ak@suse.de>,
-       Christopher Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
-Subject: Re: sched_clock() uses are broken
-Message-ID: <20060507165356.GA32453@flint.arm.linux.org.uk>
-Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
-	Mike Galbraith <efault@gmx.de>, Andi Kleen <ak@suse.de>,
-	Christopher Friesen <cfriesen@nortel.com>,
-	linux-kernel@vger.kernel.org
-References: <44578EB9.8050402@nortel.com> <200605021859.18948.ak@suse.de> <445791D3.9060306@yahoo.com.au> <1146640155.7526.27.camel@homer> <445DE925.9010006@yahoo.com.au> <20060507124307.GA20443@flint.arm.linux.org.uk> <445DEE70.10807@yahoo.com.au> <445DEF6D.1050902@yahoo.com.au> <20060507131825.GC20443@flint.arm.linux.org.uk> <445DF667.309@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 7 May 2006 13:00:58 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:33335 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932198AbWEGRA5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 May 2006 13:00:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LXI7nsrovL5jkRf7Oi1yPJ1EoJFeEbPwa+swwc6Z/MGHRYgrcYxHQQX4nWDBsBZXyneQxWHTogsp2EQJRlBZtbDnpi25iAgffEy4bkzo5ZIF8mOQGI/4qz0+ZaJ3JHWDX/cwjPbfQhCp67sPZKl53WM4mvGzEBItjBZF+x7ZsBo=
+Message-ID: <82ecf08e0605071000s55818329q4c51c1771f88e372@mail.gmail.com>
+Date: Sun, 7 May 2006 14:00:55 -0300
+From: "Thiago Galesi" <thiagogalesi@gmail.com>
+To: "Matt Mackall" <mpm@selenic.com>
+Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060507160013.GM15445@waste.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <445DF667.309@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
+References: <20060505203436.GW15445@waste.org>
+	 <20060506115502.GB18880@thunk.org> <20060506164808.GY15445@waste.org>
+	 <20060506.170810.74552888.davem@davemloft.net>
+	 <20060507045920.GH15445@waste.org>
+	 <82ecf08e0605070613o7b217a2bw4c71c3a8c33bed28@mail.gmail.com>
+	 <20060507160013.GM15445@waste.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 07, 2006 at 11:30:15PM +1000, Nick Piggin wrote:
-> Russell King wrote:
-> >On Sun, May 07, 2006 at 11:00:29PM +1000, Nick Piggin wrote:
 > >
-> >>Nick Piggin wrote:
-> >>
-> >>
-> >>>I stand by my first reply to your comment WRT the API.
-> >>
-> >>Actually, on rereading, it seems like I was a bit confused about
-> >>your proposal. I don't think you specified anyway the units
-> >>returned by your new sched_clock(). So it is identical to my
-> >>"corrected" interface :\
+> > OK, here goes...
 > >
-> >
-> >Okay, so that presumably means we have to either stick with what we
-> >currently have, or go the whole hog and re-implement the sched_clock()
-> >support?
-> >
-> >IOW, my patch on 2nd May isn't of any use as it currently stands?
-> 
-> IMO it would probably be best to try to re implement it in one go.
-> It shouldn't have spread too far out of kernel/sched.c, and the arch
-> code should mostly be implementable in terms of their sched_clock().
-> Mundane but not difficult.
+> > 1 - by eliminating feeding enthopy from network cards you are
+>
+> Keep up, folks, I dropped that position in the very first round of replies.
 
-Having looked at this several times over the last couple of days, I've
-come to the conclusion that I'm not the right person to fix this problem.
-I've tried several methods of converting the code, but every time I
-remain unconvinced that the changes are provably correct as far as not
-missing something, so I end up throwing the changes away and starting
-again.
+>As I said at the beginning of this thread, I'm perfectly happy to
+>continue taking samples from network devices. My concerns are entirely
+>with how we account their entropy, which is strictly in the realm of
+>theory to start with.
 
-Yes, I admit defeat.
+ok, now I get it...
 
-Maybe someone who cares about this stuff[1] (or who sees the problem)
-should look into it.
+>
+> > 2 - some platforms have much better enthropy sources than ethernet (or
+> > user input), just think hardware rngs, or even the sound card rng
+> > thing mentioned above
+>
+> Point?
 
-[1] - eg, the original poster on linux-arm-kernel who indirectly pointed
-out the sched_clock() issue.
+Point is, sometimes you have plenty of enthropy available and
+sometimes you only have the network card (and maybe an HD). Two
+different situations, in one of them we can accept (it's even beter)
+not acquiring enthropy from the network card completely.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+>
+> > 3 - as people said, your example (CRC-16 on specific platfoms) is
+> > (IMHO) an exxageration.
+>
+> Yes, CRC-16 was a rhetorical device. MD4 would not have been. HZ=100
+> is not an exaggeration.
+
+Agreed
+
+ Odds are pretty good you have such a Linux box
+> in the form of a router or such already. This completely invalidates
+> all the arguments about the hardware making the timing too
+> unpredictable as it does so on a timescale of microseconds or less.
+
+Yes, that situation is pretty common.
+
+Here is my point: I don't think the kernel shoud "try very hard" to
+fix "lack of good enthropy sources". Yes, you've presented situations
+where someone (ultimately) could guess what is being read from
+/dev/random.
+
+In practice, though, it should ultimatelly fall upon the
+end-user/developer to have a system with good enough (for him/her)
+enthropy sources. If he is happy with lots of "bad enthropy" so be it.
+Hovever, if he wants / needs to be sure that /dev/random is not
+predictable, (IMHO) he can always plug a hardware RNG and only read
+from that (hence what I said about configuring who are your enthropy
+sources).

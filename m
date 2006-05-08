@@ -1,74 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWEHDXW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWEHDel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbWEHDXW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 23:23:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWEHDXW
+	id S932274AbWEHDel (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 23:34:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbWEHDel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 23:23:22 -0400
-Received: from mail.gmx.net ([213.165.64.20]:8417 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932270AbWEHDXV (ORCPT
+	Sun, 7 May 2006 23:34:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26316 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932274AbWEHDek (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 23:23:21 -0400
-X-Authenticated: #14349625
-Subject: Re: a Linux swap storm
-From: Mike Galbraith <efault@gmx.de>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200605071931.k47JVbs18224@apps.cwi.nl>
-References: <200605071931.k47JVbs18224@apps.cwi.nl>
-Content-Type: text/plain
-Date: Mon, 08 May 2006 05:23:19 +0200
-Message-Id: <1147058599.7584.9.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Sun, 7 May 2006 23:34:40 -0400
+Date: Sun, 7 May 2006 20:34:32 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Daniel Hokka Zakrisson <daniel@hozac.com>
+cc: linux-kernel@vger.kernel.org,
+       =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
+       greg@kroah.com, matthew@wil.cx
+Subject: Re: [PATCH] fs: fcntl_setlease defies lease_init assumptions
+In-Reply-To: <Pine.LNX.4.64.0605072030280.3718@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0605072033530.3718@g5.osdl.org>
+References: <445E80DD.9090507@hozac.com> <Pine.LNX.4.64.0605072030280.3718@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="21872808-1656112386-1147059272=:3718"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-05-07 at 21:31 +0200, Andries.Brouwer@cwi.nl wrote: 
-> Earlier this evening I showed someone some pictures under X:
-> 
-> % display -size 300x300 *.jpg
-> 
-> (395 pictures, 315 MB). When display (from ImageMagick)
-> started to repeat, I exited the program.
-> At this moment the machine became unusable for twenty minutes
-> of solid disk activity.
-> No keystroke seen, not even the Ctrl-Alt-Backspace to kill X,
-> or Ctrl-Alt-F1 to switch consoles, no mouse movement seen,
-> vmstat did not produce any output for twenty minutes.
-> 
-> The vmstat 5 output was
-> 
-> procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
->  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
-> 
->  0  3 315728   3164   4424   3356  646  382   792   382 2425   182  0  5  0 95
->  1  1 316356   3856   4428   3572  454  366   507   366 2242   150  0  5  0 95
->  0  1 317540   3784   4456   3664  530  578   590   578 2403   179  0  7  0 93
->  0  1 306740   4240   4524   5372 127013 49878 129427 50061 405016 32901  0  4  0 95
->  1  1 306712   3992   4536   5372   30    0    30     3  450   122  2  1 94  2
->  0  0 306692   4016   4548   5372   18    0    18     3  402   134  2  2 96  1
->  0  0 306692   4016   4560   5372    0    0     0     3  257    35  1  1 98  0
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-This is after ImageMagic exited?  If so, and you don't have a userland
-hog sitting on that memory, I'd suggest posting /proc/meminfo and any
-part of /proc/slabinfo showing large numbers of allocations.  (if you
-can repeat with latest vanilla kernel that is)
+--21872808-1656112386-1147059272=:3718
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 
-> The machine is vanilla 2.6.14, 256MB, 550MB swap.
+
+
+On Sun, 7 May 2006, Linus Torvalds wrote:
 > 
-> % rpm -qf `which X`
-> xorg-x11-server-6.8.2-100
-> 
-> I wonder what precisely happened. Is this an X bug? Or a kernel bug?
-> The effect is reproducible.
+> Trond wrote an alternate patch for the actual problem which I sent 
+> separately, but it would probably be good to have more safety in the slab 
+> layer by default regardless.
 
-I'd lean toward kernel.  If it was thrashing so hard that the box became
-a doorstop for 20 minutes, seems to me that's a fine description of oom,
-so somebody should have been killed.  Does SysRq-M work during the
-seizure?
+And here's Trond's suggested locks.c fix.
 
--Mike
+		Linus
 
+---
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+Subject: fs/locks.c: Fix lease_init
+Date: Sun, 07 May 2006 23:02:42 -0400
+
+It is insane to be giving lease_init() the task of freeing the lock it is
+supposed to initialise, given that the lock is not guaranteed to be
+allocated on the stack. This causes lockups in fcntl_setlease().
+Problem diagnosed by Daniel Hokka Zakrisson <daniel@hozac.com>
+
+Also fix a slab leak in __setlease() due to an uninitialised return value.
+Problem diagnosed by Björn Steinbrink.
+
+Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+---
+
+ fs/locks.c |   21 ++++++++++++---------
+ 1 files changed, 12 insertions(+), 9 deletions(-)
+
+diff --git a/fs/locks.c b/fs/locks.c
+index abd9448..64b96b1 100644
+--- a/fs/locks.c
++++ b/fs/locks.c
+@@ -446,15 +446,14 @@ static struct lock_manager_operations le
+  */
+ static int lease_init(struct file *filp, int type, struct file_lock *fl)
+  {
++	if (assign_type(fl, type) != 0)
++		return -EINVAL;
++
+ 	fl->fl_owner = current->files;
+ 	fl->fl_pid = current->tgid;
+ 
+ 	fl->fl_file = filp;
+ 	fl->fl_flags = FL_LEASE;
+-	if (assign_type(fl, type) != 0) {
+-		locks_free_lock(fl);
+-		return -EINVAL;
+-	}
+ 	fl->fl_start = 0;
+ 	fl->fl_end = OFFSET_MAX;
+ 	fl->fl_ops = NULL;
+@@ -466,16 +465,19 @@ static int lease_init(struct file *filp,
+ static int lease_alloc(struct file *filp, int type, struct file_lock **flp)
+ {
+ 	struct file_lock *fl = locks_alloc_lock();
+-	int error;
++	int error = -ENOMEM;
+ 
+ 	if (fl == NULL)
+-		return -ENOMEM;
++		goto out;
+ 
+ 	error = lease_init(filp, type, fl);
+-	if (error)
+-		return error;
++	if (error) {
++		locks_free_lock(fl);
++		fl = NULL;
++	}
++out:
+ 	*flp = fl;
+-	return 0;
++	return error;
+ }
+ 
+ /* Check if two locks overlap each other.
+@@ -1391,6 +1393,7 @@ static int __setlease(struct file *filp,
+ 		goto out;
+ 
+ 	if (my_before != NULL) {
++		*flp = *my_before;
+ 		error = lease->fl_lmops->fl_change(my_before, arg);
+ 		goto out;
+ 	}
+
+--21872808-1656112386-1147059272=:3718--

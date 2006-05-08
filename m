@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWEHH0K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWEHHeg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932184AbWEHH0K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 03:26:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWEHH0K
+	id S1750757AbWEHHeg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 03:34:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWEHHeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 03:26:10 -0400
-Received: from mail02.syd.optusnet.com.au ([211.29.132.183]:58786 "EHLO
-	mail02.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932184AbWEHH0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 03:26:08 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Remove silly messages from input layer.
-Date: Mon, 8 May 2006 17:25:29 +1000
-User-Agent: KMail/1.9.1
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>, Dave Jones <davej@redhat.com>,
-       Pavel Machek <pavel@ucw.cz>, dtor_core@ameritech.net,
-       "Martin J. Bligh" <mbligh@mbligh.org>
-References: <20060504024404.GA17818@redhat.com> <20060505152748.GA22870@redhat.com> <445EE899.6040908@aitel.hist.no>
-In-Reply-To: <445EE899.6040908@aitel.hist.no>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 8 May 2006 03:34:36 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:58333 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S1750757AbWEHHeg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 03:34:36 -0400
+Date: Mon, 8 May 2006 09:27:01 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       Andries.Brouwer@cwi.nl
+Subject: Re: [PATCH] make kernel ignore bogus partitions
+Message-ID: <20060508072701.GB15941@apps.cwi.nl>
+References: <20060503210055.GB31048@beardog.cca.cpqcorp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605081725.29977.kernel@kolivas.org>
+In-Reply-To: <20060503210055.GB31048@beardog.cca.cpqcorp.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 08 May 2006 16:43, Helge Hafting wrote:
-> Dave Jones wrote:
-> >On Fri, May 05, 2006 at 12:31:23PM +0200, Pavel Machek wrote:
-> > > If you only pressed single key -- your keyboard is crap or there's
-> > > some problem in the driver.
-> > >
-> > > If you never pressed any key -- your keyboard is crap or there's
-> > > some problem in the driver.
-> >
-> >That's hardly a constructive answer when the keyboard is a part of
-> >a laptop.  Crap hardware exists, get used to it.
->
-> If some laptop comes with a bad keyboard, please blacklist
-> it so future linux users can avoid the brand when shopping
-> for hardware.
+On Wed, May 03, 2006 at 04:00:55PM -0500, Mike Miller (OS Dev) wrote:
+> Patch 1/1
+> Sometimes partitions claim to be larger than the reported capacity of a
+> disk device. This patch makes the kernel ignore those partitions.
+> 
+> Signed-off-by: Mike Miller <mike.miller@hp.com>
+> Signed-off-by: Stephen Cameron <steve.cameron@hp.com>
 
-This is great in theory but if we end up blacklisting half of the hardware out 
-there we're stuffed. The truth is most hardware out there is cheap and nasty 
-and sells in vast quantities. We have workarounds for timer code being buggy 
-on virtually half the motherboards out there on amd64 for example...
+> +		if (from+size-1 > get_capacity(disk)) {
+> +			printk(" %s: p%d exceeds device capacity, ignoring.\n", 
+> +				disk->disk_name, p);
+> +			continue;
+> +		}
 
--- 
--ck
+I debated for a while with myself whether I should like or dislike
+such a patch. On the one hand, this partition stuff is rather messy,
+and if you invent strict rules that partitions should satisfy then
+during the transition lots of people will be unhappy, but afterwards
+the stuff may be less messy.
+
+On the other hand, such changes do indeed make people unhappy.
+Indeed, with this change one of my systems does not boot anymore.
+
+There can be reasons, or there can have been reasons, for partitions
+larger than the disk. Maybe the disk has a jumper clipping the capacity
+while in other machines such a jumper is unnecessary, or while soon
+after booting the setmax utility is called to set the disk to full
+capacity again.
+Or, while doing forensics on a disk one copies the start to some
+other disk, and that other disk may be smaller.
+Etc.
+
+So, it seems that Linux loses a little bit of its power when such things
+are made impossible.
+
+Andries
+

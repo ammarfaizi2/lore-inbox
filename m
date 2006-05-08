@@ -1,79 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWEHUqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWEHU4Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750729AbWEHUqz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 16:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWEHUqz
+	id S1750816AbWEHU4Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 16:56:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbWEHU4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 16:46:55 -0400
-Received: from hs-grafik.net ([80.237.205.72]:64267 "EHLO hs-grafik.net")
-	by vger.kernel.org with ESMTP id S1750729AbWEHUqy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 16:46:54 -0400
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: reiser4 bug [was Re: 2.6.17-rc3-mm1]
-Date: Mon, 8 May 2006 22:46:49 +0200
-User-Agent: KMail/1.9.1
-Cc: "Vladimir V. Saveliev" <vs@namesys.com>, reiserfs-list@namesys.com,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <20060503210055.GB31048@beardog.cca.cpqcorp.net> <445F64E2.3000902@dgreaves.com> <Pine.LNX.4.61.0605082214581.20743@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0605082214581.20743@yvahk01.tjqt.qr>
-X-Face: ){635DT*1Z+Z}$~Bf[[i"X:f2i+:Za[:Q0<UzyJPoAm(;y"@=?utf-8?q?LwMhWM4=5D=60x1bDaQDpet=3B=3Be=0A=09N=5CBIb8o=5BF!fdHrI-=7E=24?=
- =?utf-8?q?ctS=3F!?=,U+0}](xD}_b]awZrK=>753Wk;RwhCU`Bt(I^/Jxl~5zIH<
- =?utf-8?q?=0A=09XplI=3A9GKEcr/JPqzW=3BR=5FqDQe*=23CE=7E70=3Bj=25Hg8CNh*4?=<
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5390710.z7rVPEToxi";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Mon, 8 May 2006 16:56:24 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:56277 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750816AbWEHU4Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 16:56:24 -0400
+Subject: [PATCH] tpm: update module dependencies
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org, TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
+Content-Type: text/plain
+Date: Mon, 08 May 2006 15:54:48 -0500
+Message-Id: <1147121688.29414.59.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200605082246.50332@zodiac.zodiac.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart5390710.z7rVPEToxi
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+The TIS driver is dependent upon information from the ACPI table for
+device discovery thus it compiles but does no actual work with out this
+dependency.
 
-Hi all,
+Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+---
+ drivers/char/tpm/Kconfig |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-2.6.17-rc3-mm1 doesn't get up running  here, it bugs around while init runs:
-I cannot login afterwards, and syslog did not get the bug too. So here are=
-=20
-some poor screenshots from my Treo650 (digicam is broken, sorry..;)
-EIP is in clear_inode.
-Trace:
-reiser4_delete_inode+0x6c/0xd0
-d_delete+0xf0/0x10f
-reiser4_delete_inode+0x0/0xd0
-generic_delete_inode+0x6b/0xfb
-input+0x5c/0x68
-do_unlikat+0xd7/0x12c
-sysenter_past_esp+0x54/0x75
-__hidp_send_ctrl_message+0xb4/0xfa
-details:
-http://zodiac.dnsalias.org/images/1.jpg
-http://zodiac.dnsalias.org/images/2.jpg
-http://zodiac.dnsalias.org/images/3.jpg
-http://zodiac.dnsalias.org/images/4.jpg
-Kernel config:
-http://zodiac.dnsalias.org/images/config
-System is my T40p, as usual. running an up2date debian unstable.
+--- linux-2.6.17-rc3/drivers/char/tpm/Kconfig	2006-04-26 21:19:25.000000000 -0500
++++ linux-2.6.17-rc3-tpm/drivers/char/tpm/Kconfig	2006-05-08 16:11:03.707961750 -0500
+@@ -22,7 +22,7 @@ config TCG_TPM
+ 
+ config TCG_TIS
+ 	tristate "TPM Interface Specification 1.2 Interface"
+-	depends on TCG_TPM
++	depends on TCG_TPM && PNPACPI
+ 	---help---
+ 	  If you have a TPM security chip that is compliant with the
+ 	  TCG TIS 1.2 TPM specification say Yes and it will be accessible
 
-regards
-Alex
 
---nextPart5390710.z7rVPEToxi
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQBEX646/aHb+2190pERArLrAKCZHw4d54UmacIuXocnACHDfz2gLQCgsHSv
-vB/3Cr8ZShGqvM1MVumlJfc=
-=Twk0
------END PGP SIGNATURE-----
-
---nextPart5390710.z7rVPEToxi--

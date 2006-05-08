@@ -1,112 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWEHPoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbWEHPpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbWEHPoI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 11:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWEHPoI
+	id S932268AbWEHPpr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 11:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbWEHPpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 11:44:08 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:33540 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S932116AbWEHPoH convert rfc822-to-8bit (ORCPT
+	Mon, 8 May 2006 11:45:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39329 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932268AbWEHPpq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 11:44:07 -0400
-MIME-Version: 1.0
+	Mon, 8 May 2006 11:45:46 -0400
+Date: Mon, 8 May 2006 08:43:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: florin@iucha.net, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       linux@dominikbrodowski.net
+Subject: Re: pcmcia oops on 2.6.17-rc[12]
+Message-Id: <20060508084301.5025b25d.akpm@osdl.org>
+In-Reply-To: <20060508145609.GA3983@rhlx01.fht-esslingen.de>
+References: <20060423192251.GD8896@iucha.net>
+	<20060423150206.546b7483.akpm@osdl.org>
+	<20060508145609.GA3983@rhlx01.fht-esslingen.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <6bffcb0e0605080815t483955b3yf357175abb9a1a46@mail.gmail.com>
-X-OriginalArrivalTime: 08 May 2006 15:44:06.0426 (UTC) FILETIME=[3D4627A0:01C672B6]
-Content-class: urn:content-classes:message
-Subject: Re: How to read BIOS information
-Date: Mon, 8 May 2006 11:43:56 -0400
-Message-ID: <Pine.LNX.4.61.0605081131100.22905@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: How to read BIOS information
-Thread-Index: AcZytj1NKCdP7oX2RIa057yYmo1y4A==
-References: <445F5228.7060006@wipro.com> <1147099994.2888.32.camel@laptopd505.fenrus.org> <445F5DF1.3020606@wipro.com> <6bffcb0e0605080815t483955b3yf357175abb9a1a46@mail.gmail.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Cc: "Madhukar Mythri" <madhukar.mythri@wipro.com>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 8 May 2006, Michal Piotrowski wrote:
-
+Andreas Mohr <andi@rhlx01.fht-esslingen.de> wrote:
+>
 > Hi,
+> 
+> On Sun, Apr 23, 2006 at 03:02:06PM -0700, Andrew Morton wrote:
+> > It's actually not an oops - it's a warning, telling us that i82365 is
+> > requesting an IRQ in non-sharing mode, but there's already a handler
+> > registered for that IRQ (which might or might not be shareable).
+> 
+> And the same thing on a Toshiba Satellite 4280, P3/450, 2.6.17-rc3-ck2:
+> 
+> setup_irq: irq handler mismatch
+>  <c0103248> show_trace+0xd/0xf   <c010325f> dump_stack+0x15/0x17
+>  <c012aeca> setup_irq+0xd9/0xe8   <c012b002> request_irq+0x6e/0x8c
+>  <c020cdfd> serial8250_startup+0x263/0x394   <c020a1aa> uart_startup+0x68/0xf1
+>  <c020adba> uart_ioctl+0x554/0x847   <c01f31ed> tty_ioctl+0xbae/0xc36
+>  <c0151eec> do_ioctl+0x3c/0x4f   <c01520ed> vfs_ioctl+0x1ee/0x205
+>  <c015212e> sys_ioctl+0x2a/0x44   <c01029bb> sysenter_past_esp+0x54/0x75
 >
-> On 08/05/06, Madhukar Mythri <madhukar.mythri@wipro.com> wrote:
-> [snip]
->> "proc/cpuinfo" says only HT support is their or not but, it will not say
->> whether HT is Enalbled/Disabled..
->> How to read ACPI tables ? Can  you give little info on this...
->> even from Driver program, if its possible please tell me...
->>
->
-> How about  comparing /sys/devices/system/cpu/cpu0/topology/core_id and
-> /sys/devices/system/cpu/cpu1/topology/core_id values?
->
-> On my northwood ht (single core) cpu0/topology/core_id and
-> cpu1/topology/core_id contain "0". For dual core system should be
-> something like
->
-> cpu0/topology/core_id = 0
-> cpu1/topology/core_id = 0
-> cpu2/topology/core_id = 1
-> cpu3/topology/core_id = 1
->
-> Regards,
-> Michal
->
+> ...
+> 
+> # cat /proc/interrupts
+>            CPU0
+>   0:   31607214          XT-PIC  timer
+>   1:      11092          XT-PIC  i8042
+>   2:          0          XT-PIC  cascade
+>   3:      36368          XT-PIC  pcnet_cs
+>   8:          3          XT-PIC  rtc
+>   9:         84          XT-PIC  acpi
+>  11:      73639          XT-PIC  yenta, yenta, uhci_hcd:usb1, YMFPCI, irda0
+>  12:       9996          XT-PIC  i8042
+>  14:      63830          XT-PIC  ide0
+>  15:     536942          XT-PIC  ide1
+> NMI:          0
+> LOC:          0
+> ERR:          0
 
-The problem is that if the BIOS didn't turn them on, there might
-be only /proc/sys/devices/system/cpu/cpu0, nothing else... and
-you get bad information as well. This machine has a dual-core
-CPU that *was* a hyper-threaded, two core device until I
-changed the motherboard. Now it's just a single core, non
-HT device even though the HT flag is set. There isn't any
-way to turn it ON and the motherboard vendor, CompUSA, claims
-that there is "no such thing" as HT. FYI, the board was made
-by Intel and I think they invented HT. Nevertheless, the
-consumer ends up with the crap that the vendors supply and
-that's that! My only recourse was to just return the board
-and get my money back. I needed the board because the previous
-one from Tyan didn't work at all!
-
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 15
-model		: 2
-model name	: Intel(R) Pentium(R) 4 CPU 2.80GHz
-stepping	: 7
-cpu MHz		: 2793.171
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-  cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid xtpr
-                                                       ^__ HT ready
-bogomips	: 5592.89
+So 8250 is requesting an IRQ for non-sharing mode and it's actually
+failing, because something else is already using that IRQ.  The difference
+is that the kernel now generates a warning when this happens.
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
-New book: http://www.lymanschool.com
-_
-
+> # lspci
+> 0000:00:00.0 Host bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
+> 0000:00:01.0 PCI bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03)
+> 0000:00:05.0 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 02)
+> 0000:00:05.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
+> 0000:00:05.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB (rev 01)
+> 0000:00:05.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 03)
+> 0000:00:07.0 Communication controller: Agere Systems 56k WinModem (rev 01)
+> 0000:00:09.0 IRDA controller: Toshiba America Info Systems FIR Port Type-DO
+> 0000:00:0b.0 CardBus bridge: Toshiba America Info Systems ToPIC100 PCI to Cardbus Bridge with ZV Support (rev 20)
+> 0000:00:0b.1 CardBus bridge: Toshiba America Info Systems ToPIC100 PCI to Cardbus Bridge with ZV Support (rev 20)
+> 0000:00:0c.0 Multimedia audio controller: Yamaha Corporation YMF-744B [DS-1S Audio Controller] (rev 02)
+> 0000:01:00.0 VGA compatible controller: S3 Inc. 86C270-294 Savage/IX-MV (rev 11)
+> 
+> > Your machine should otherwise continue to work OK.  Is that the case?
+> 
+> It seems so, yes.
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+I don't see how your 8250 can be working if serial_link_irq_chain() has failed.
 
-Thank you.
+> > i82365 appears to be poking around in interrupt space trying to find an IRQ
+> > which isn't shared with anyone else (I'm not sure why, but these sorts of
+> > things tend to be derived from hard experience).
+> > 
+> > Anyway.  We need to either a) make i82365 better-behaved or b) remove the
+> > warning or c) allow callers to suppress the warning (SA_PROBEIRQ?).
+> 
+> Add SA_PROBEIRQ to 8250.c, then, I guess?
+
+That would be appropriate if it is actually expected that the request_irq()
+in there will fail, and we still manage to make the hardware work via some
+fallback method.  But I don't immediately see any code which does that.
+
+Russell, any opinions?
+
+Thanks.
+

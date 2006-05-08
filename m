@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbWEHJJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751033AbWEHJRg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750971AbWEHJJb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 05:09:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWEHJJb
+	id S1751033AbWEHJRg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 05:17:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751066AbWEHJRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 05:09:31 -0400
-Received: from smtp.blackdown.de ([213.239.206.42]:62631 "EHLO
-	smtp.blackdown.de") by vger.kernel.org with ESMTP id S1750819AbWEHJJb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 05:09:31 -0400
-Message-ID: <445F0A99.3050700@blackdown.de>
-Date: Mon, 08 May 2006 11:08:41 +0200
-From: Juergen Kreileder <jk@blackdown.de>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-MIME-Version: 1.0
-To: Amin Azez <azez@ufomechanic.net>
-CC: "David S. Miller" <davem@davemloft.net>, sfrost@snowman.net,
-       gcoady.lk@gmail.com, laforge@netfilter.org, jesper.juhl@gmail.com,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-       marcelo@kvack.org
-Subject: Re: [PATCH] fix mem-leak in netfilter
-References: <20060507093640.GF11191@w.ods.org>	<egts52hm2epfu4g1b9kqkm4s9cdiv3tvt9@4ax.com>	<20060508050748.GA11495@w.ods.org>	<20060507.224339.48487003.davem@davemloft.net> <445F02F1.1090604@ufomechanic.net>
-In-Reply-To: <445F02F1.1090604@ufomechanic.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 8 May 2006 05:17:36 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:18890 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751007AbWEHJRf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 05:17:35 -0400
+Date: Mon, 8 May 2006 14:45:36 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: [RT PATCH] fix futex compilation (rt20)
+Message-ID: <20060508091535.GB6081@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amin Azez wrote:
-> David S. Miller wrote:
->> From: Willy Tarreau <willy@w.ods.org>
->> Date: Mon, 8 May 2006 07:07:48 +0200
->>
->>> I wonder how such unmaintainable code has been merged in the first
->>> place. Obviously, Davem has never seen it !
->> Oh I've seen ipt_recent.c, it's one huge pile of trash
->> that needs to be rewritten.  It has all sorts of problems.
->>
->> This is well understood on the netfilter-devel list and
->> I am to understand that someone has taken up the task to
->> finally rewrite the thing.
-> 
-> 
-> Is that Juergen.Kreileder@empolis.com ?
+Hi Ingo,
 
-Please use jk@blackdown.de (@empolis.com is just an address at
-a client's site).
+I needed this patch to compile and boot rt20 on x86_64. Just FYI.
 
-> ...just checking... he seemed to volunteer in December
+Thanks
+Dipankar
 
-but not for a rewrite.  Anyhow, if somebody is planning to do that
-I'll gladly help.
+Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
 
-> last year but Stephen Frost has been taking recent questions.
+diff -puN kernel/futex_compat.c~fix-futex-compile kernel/futex_compat.c
+--- linux-2.6.16-rt20/kernel/futex_compat.c~fix-futex-compile	2006-05-08 13:59:53.000000000 +0530
++++ linux-2.6.16-rt20-dipankar/kernel/futex_compat.c	2006-05-08 14:01:02.000000000 +0530
+@@ -137,5 +137,5 @@ asmlinkage long compat_sys_futex(u32 __u
+ 	if (op == FUTEX_REQUEUE || op == FUTEX_CMP_REQUEUE)
+ 		val2 = (int) (unsigned long) utime;
+ 
+-	return do_futex(uaddr, op, val, timeout, uaddr2, val2, val3);
++	return do_futex(uaddr, op, val, &t, uaddr2, val2, val3);
+ }
 
-
-	Juergen
-
--- 
-Juergen Kreileder, Blackdown Java-Linux Team
-http://blog.blackdown.de/
+_

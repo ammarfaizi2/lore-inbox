@@ -1,134 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWEHTge@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWEHTrP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbWEHTge (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 15:36:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbWEHTge
+	id S1750735AbWEHTrP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 15:47:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWEHTrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 15:36:34 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:23169 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1750708AbWEHTgd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 15:36:33 -0400
-Subject: Re: [PATCH] fs: fcntl_setlease defies lease_init assumptions
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Daniel Hokka Zakrisson <daniel@hozac.com>, linux-kernel@vger.kernel.org,
-       "=?ISO-8859-1?Q?Bj=F6rn?= Steinbrink" <B.Steinbrink@gmx.de>,
-       greg@kroah.com, matthew@wil.cx, Christoph Lameter <clameter@sgi.com>,
-       manfred@colorfullife.com, akpm@osdl.org
-In-Reply-To: <Pine.LNX.4.64.0605080913240.3718@g5.osdl.org>
-References: <445E80DD.9090507@hozac.com>
-	 <Pine.LNX.4.64.0605072030280.3718@g5.osdl.org>
-	 <84144f020605080131r58ce2a93w6c7ba784a266bbeb@mail.gmail.com>
-	 <84144f020605080134q7e16f37fl385359c634ece8ca@mail.gmail.com>
-	 <Pine.LNX.4.64.0605080807430.3718@g5.osdl.org>
-	 <1147104412.22096.8.camel@localhost>
-	 <Pine.LNX.4.64.0605080913240.3718@g5.osdl.org>
-Date: Mon, 08 May 2006 22:36:30 +0300
-Message-Id: <1147116991.11282.3.camel@localhost>
+	Mon, 8 May 2006 15:47:15 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:40130 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750735AbWEHTrP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 15:47:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=hc+5Ip4gxbcHbQCo1W5JVPtxKa6FUeawPG4aQlWuX0gNJkBQ41B6ni7HZk4u4BkHKNu4bkCwon6tjnTkmDYJdJXuf6/+7x2TPmi/qN43j2J86hUiPJccLDY5d60QeUlTHVHzr8VkLU3i4lUTxxDKkr/osTxW5qsAxHBOb3NRf4Q=
+Date: Mon, 8 May 2006 23:45:43 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Don't trigger full rebuild via CONFIG_X86_MCE
+Message-ID: <20060508194542.GC7235@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.2.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-08 at 09:28 -0700, Linus Torvalds wrote:
-> So from a performance standpoint, maybe my previous trivial patch is the 
-> right thing to do, along with an even _stronger_ test for 
-> kmem_cache_free(), where we could do
-> 
-> 	BUG_ON(virt_to_cache(objp) != cachep);
-> 
-> which you can then remove from the slab debug case.
-> 
-> So for a lot of the normal paths, you'd basically have no extra cost (two 
-> instructions, no data cache pressure), but for kmem_cache_free() we'd have 
-> a slight overhead (but a lot lower than SLAB_DEBUG, and at least for NUMA 
-> it's reading a cacheline that we'd be using regardless.
-> 
-> I think it sounds like it's worth it, but I'm not going to really push it.
-
-Sounds good to me. Andrew?
-
-				Pekka
-
-[PATCH] slab: verify pointers before free
-
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-
-Passing an invalid pointer to kfree() and kmem_cache_free() is likely
-to cause bad memory corruption or even take down the whole system
-because the bad pointer is likely reused immediately due to the
-per-CPU caches.  Until now, we don't do any verification for this if
-CONFIG_DEBUG_SLAB is disabled.
-
-As suggested by Linus, add PageSlab check to page_to_cache() and
-page_to_slab() to verify pointers passed to kfree().  Also, move the
-stronger check from cache_free_debugcheck() to kmem_cache_free() to
-ensure the passed pointer actually belongs to the cache we're about to
-free the object.
-
-For page_to_cache() and page_to_slab(), the assertions should have
-virtually no extra cost (two instructions, no data cache pressure) and
-for kmem_cache_free() the overhead should be minimal.
-
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
-
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 ---
 
- mm/slab.c |   13 ++++---------
- 1 files changed, 4 insertions(+), 9 deletions(-)
+ To be applied on top of already sent CONFIG_MTRR patch.
 
-8e4b800f3fb45bbffcc7b365115a63b2a4c911cb
-diff --git a/mm/slab.c b/mm/slab.c
-index c32af7e..bc9805a 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -597,6 +597,7 @@ static inline struct kmem_cache *page_ge
- {
- 	if (unlikely(PageCompound(page)))
- 		page = (struct page *)page_private(page);
-+	BUG_ON(!PageSlab(page));
- 	return (struct kmem_cache *)page->lru.next;
- }
+--- a/arch/i386/kernel/cpu/common.c
++++ b/arch/i386/kernel/cpu/common.c
+@@ -10,10 +10,11 @@
+ #include <asm/i387.h>
+ #include <asm/msr.h>
+ #include <asm/io.h>
+ #include <asm/mmu_context.h>
+ #include <asm/mtrr.h>
++#include <asm/mce.h>
+ #ifdef CONFIG_X86_LOCAL_APIC
+ #include <asm/mpspec.h>
+ #include <asm/apic.h>
+ #include <mach_apic.h>
+ #endif
+--- a/arch/i386/power/cpu.c
++++ b/arch/i386/power/cpu.c
+@@ -9,10 +9,11 @@
  
-@@ -609,6 +610,7 @@ static inline struct slab *page_get_slab
- {
- 	if (unlikely(PageCompound(page)))
- 		page = (struct page *)page_private(page);
-+	BUG_ON(!PageSlab(page));
- 	return (struct slab *)page->lru.prev;
- }
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/suspend.h>
+ #include <asm/mtrr.h>
++#include <asm/mce.h>
  
-@@ -2597,15 +2599,6 @@ static void *cache_free_debugcheck(struc
- 	kfree_debugcheck(objp);
- 	page = virt_to_page(objp);
+ static struct saved_context saved_context;
  
--	if (page_get_cache(page) != cachep) {
--		printk(KERN_ERR "mismatch in kmem_cache_free: expected "
--				"cache %p, got %p\n",
--		       page_get_cache(page), cachep);
--		printk(KERN_ERR "%p is %s.\n", cachep, cachep->name);
--		printk(KERN_ERR "%p is %s.\n", page_get_cache(page),
--		       page_get_cache(page)->name);
--		WARN_ON(1);
--	}
- 	slabp = page_get_slab(page);
+ unsigned long saved_context_ebx;
+ unsigned long saved_context_esp, saved_context_ebp;
+--- /dev/null
++++ b/include/asm-i386/mce.h
+@@ -0,0 +1,5 @@
++#ifdef CONFIG_X86_MCE
++extern void mcheck_init(struct cpuinfo_x86 *c);
++#else
++#define mcheck_init(c) do {} while(0)
++#endif
+--- a/include/asm-i386/processor.h
++++ b/include/asm-i386/processor.h
+@@ -727,12 +727,6 @@ extern void select_idle_routine(const st
  
- 	if (cachep->flags & SLAB_RED_ZONE) {
-@@ -3361,6 +3354,8 @@ void kmem_cache_free(struct kmem_cache *
- {
- 	unsigned long flags;
+ extern unsigned long boot_option_idle_override;
+ extern void enable_sep_cpu(void);
+ extern int sysenter_setup(void);
  
-+	BUG_ON(virt_to_cache(objp) != cachep);
-+
- 	local_irq_save(flags);
- 	__cache_free(cachep, objp);
- 	local_irq_restore(flags);
--- 
-1.3.0
-
-
-
+-#ifdef CONFIG_X86_MCE
+-extern void mcheck_init(struct cpuinfo_x86 *c);
+-#else
+-#define mcheck_init(c) do {} while(0)
+-#endif
+-
+ #endif /* __ASM_I386_PROCESSOR_H */
 

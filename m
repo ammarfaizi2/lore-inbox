@@ -1,137 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWEHFuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbWEHF5c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932329AbWEHFuE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 01:50:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWEHFuD
+	id S932325AbWEHF5c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 01:57:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWEHF5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 01:50:03 -0400
-Received: from mga02.intel.com ([134.134.136.20]:22651 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932329AbWEHFr0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 01:47:26 -0400
-X-IronPort-AV: i="4.05,99,1146466800"; 
-   d="scan'208"; a="32948567:sNHT730216935"
-Subject: [PATCH 9/10] Allow sysdev_calss have attributes
-From: Shaohua Li <shaohua.li@intel.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Greg <greg@kroah.com>, Patrick Mochel <mochel@linux.intel.com>,
-       Ashok Raj <ashok.raj@intel.com>, Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 08 May 2006 13:45:57 +0800
-Message-Id: <1147067157.2760.89.camel@sli10-desk.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+	Mon, 8 May 2006 01:57:32 -0400
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:3787 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S932325AbWEHF5b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 01:57:31 -0400
+Date: Mon, 8 May 2006 07:57:26 +0200
+From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+To: Stephen Hemminger <shemminger@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: sky2 tx hangups
+Message-ID: <20060508055726.GI8522@cip.informatik.uni-erlangen.de>
+Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+	Stephen Hemminger <shemminger@osdl.org>,
+	LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="eRtJSFbw+EEWtPj3"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-allow sysdev_class adding attribute. Next patch will use the new API to 
-add an attribute under /sys/device/system/cpu/.
+--eRtJSFbw+EEWtPj3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Shaohua Li <shaohua.li@intel.com>
----
+Hello Stephen,
+I think that I still have sky2 problems. And I am going to switch to a
+more reliable eepro100, I think. What I experience is that I can't ping
+my default router for about 100 seconds, after that my watchdog reboots
+the machine. But the difference to my last report is, that there are no
+additional sky2 related printk's that indicate a problem. I raised the
+timeout from 100 seconds to 500 and try again. This happens ca. once a day
+and since this machine is supposed to be a production system, this is a
+bad thing.
 
- linux-2.6.17-rc3-root/drivers/base/sys.c     |   53 ++++++++++++++++++++++++++-
- linux-2.6.17-rc3-root/include/linux/sysdev.h |   18 ++++++++-
- 2 files changed, 69 insertions(+), 2 deletions(-)
+        Thomas
 
-diff -puN drivers/base/sys.c~sysdev-class-attribute drivers/base/sys.c
---- linux-2.6.17-rc3/drivers/base/sys.c~sysdev-class-attribute	2006-05-07 07:46:51.000000000 +0800
-+++ linux-2.6.17-rc3-root/drivers/base/sys.c	2006-05-07 07:46:51.000000000 +0800
-@@ -80,10 +80,61 @@ void sysdev_remove_file(struct sys_devic
- EXPORT_SYMBOL_GPL(sysdev_create_file);
- EXPORT_SYMBOL_GPL(sysdev_remove_file);
- 
-+#define to_sysdev_class(k) container_of(k, struct sysdev_class, kset.kobj)
-+#define to_sysdev_class_attr(a) container_of(a, \
-+	struct sysdev_class_attribute, attr)
-+
-+static ssize_t
-+sysdev_class_show(struct kobject * kobj, struct attribute * attr, char * buffer)
-+{
-+	struct sysdev_class * class = to_sysdev_class(kobj);
-+	struct sysdev_class_attribute *class_attr = to_sysdev_class_attr(attr);
-+
-+	if (class_attr->show)
-+		return class_attr->show(class, buffer);
-+	return -EIO;
-+}
-+
-+static ssize_t
-+sysdev_class_store(struct kobject * kobj, struct attribute * attr,
-+	     const char * buffer, size_t count)
-+{
-+	struct sysdev_class * class = to_sysdev_class(kobj);
-+	struct sysdev_class_attribute * class_attr = to_sysdev_class_attr(attr);
-+
-+	if (class_attr->store)
-+		return class_attr->store(class, buffer, count);
-+	return -EIO;
-+}
-+
-+static struct sysfs_ops sysfs_class_ops = {
-+	.show	= sysdev_class_show,
-+	.store	= sysdev_class_store,
-+};
-+
-+static struct kobj_type ktype_sysdev_class = {
-+	.sysfs_ops	= &sysfs_class_ops,
-+};
-+
-+int sysdev_class_create_file(struct sysdev_class * c,
-+	struct sysdev_class_attribute * a)
-+{
-+	return sysfs_create_file(&c->kset.kobj, &a->attr);
-+}
-+
-+void sysdev_class_remove_file(struct sysdev_class * c,
-+	struct sysdev_class_attribute * a)
-+{
-+	sysfs_remove_file(&c->kset.kobj, &a->attr);
-+}
-+
-+EXPORT_SYMBOL_GPL(sysdev_class_create_file);
-+EXPORT_SYMBOL_GPL(sysdev_class_remove_file);
-+
- /*
-  * declare system_subsys
-  */
--static decl_subsys(system, &ktype_sysdev, NULL);
-+static decl_subsys(system, &ktype_sysdev_class, NULL);
- 
- int sysdev_class_register(struct sysdev_class * cls)
- {
-diff -puN include/linux/sysdev.h~sysdev-class-attribute include/linux/sysdev.h
---- linux-2.6.17-rc3/include/linux/sysdev.h~sysdev-class-attribute	2006-05-07 07:46:51.000000000 +0800
-+++ linux-2.6.17-rc3-root/include/linux/sysdev.h	2006-05-07 07:46:51.000000000 +0800
-@@ -37,11 +37,27 @@ struct sysdev_class {
- 	struct kset		kset;
- };
- 
-+struct sysdev_class_attribute {
-+	struct attribute attr;
-+	ssize_t (*show)(struct sysdev_class *, char *);
-+	ssize_t (*store)(struct sysdev_class *, const char *, size_t);
-+};
-+
-+#define SYSDEV_CLASS_ATTR(_name,_mode,_show,_store) 		\
-+struct sysdev_class_attribute attr_##_name = { 			\
-+	.attr = {.name = __stringify(_name), .mode = _mode },	\
-+	.show	= _show,					\
-+	.store	= _store,					\
-+};
-+
- 
- extern int sysdev_class_register(struct sysdev_class *);
- extern void sysdev_class_unregister(struct sysdev_class *);
- 
--
-+extern int sysdev_class_create_file(struct sysdev_class *,
-+	struct sysdev_class_attribute *);
-+extern void sysdev_class_remove_file(struct sysdev_class *,
-+	struct sysdev_class_attribute *);
- /**
-  * Auxillary system device drivers.
-  */
-_
+--eRtJSFbw+EEWtPj3
+Content-Type: message/rfc822
+Content-Disposition: inline
+
+Date: Mon, 1 May 2006 23:55:56 +0200
+From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+To: Stephen Hemminger <shemminger@osdl.org>,
+	LKML <linux-kernel@vger.kernel.org>
+Subject: sky2 tx hangups
+Message-ID: <20060501215556.GH1487@cip.informatik.uni-erlangen.de>
+Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+	Stephen Hemminger <shemminger@osdl.org>,
+	LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
+
+Hello Stephen and others,
+I have a Intel board with a SKY2 network card[1]. The board stopped to receive
+packages under havy network load with Linus linux tree (GIT HEAD at this timestamp:
+2.6.17-rc2 (root@faui02) #1 SMP Mon Apr 24 22:30:57 CEST 2006) version. The
+following was in the syslog:
+
+        Apr 30 00:11:31 localhost kernel: sky2 eth0: tx timeout
+        Apr 30 00:11:31 localhost kernel: sky2 eth0: transmit ring 271 .. 248 report=273 done=273
+        Apr 30 00:11:31 localhost kernel: sky2 status report lost?
+        Apr 30 00:11:41 localhost kernel: sky2 eth0: tx timeout
+        Apr 30 00:11:41 localhost kernel: sky2 eth0: transmit ring 273 .. 250 report=273 done=273
+        Apr 30 00:11:41 localhost kernel: sky2 hardware hung? flushing
+        Apr 30 00:43:41 localhost kernel: sky2 eth0: tx timeout
+        Apr 30 00:43:41 localhost kernel: sky2 eth0: transmit ring 250 .. 227 report=273 done=273
+        Apr 30 00:43:41 localhost kernel: sky2 status report lost?
+        Apr 30 00:45:16 localhost kernel: sky2 eth0: tx timeout
+        Apr 30 00:45:16 localhost kernel: sky2 eth0: transmit ring 273 .. 250 report=273 done=273
+        Apr 30 00:45:16 localhost kernel: sky2 hardware hung? flushing
+
+Note: There went a few changes from 25th April into the kernel which I missed.
+A few look relevant: (git-whatchanged -p drivers/net/sky2.c | less)
+
+        [PATCH] sky2: add fake idle irq timer
+        [PATCH] sky2: reschedule if irq still pending
+
+I rebuild a new kernel with the changes in and have that at the moment running
+(Linus linux kernel tree GIT HEAD) and stress testing the network card. If the
+problem pops up again, I raise my voice.
+
+Thanks for putting that much work in the driver,
+                                                Thomas
+
+[1] sky2 networkcard
+
+0000:04:00.0 0200: 11ab:4361 (rev 17)
+0000:04:00.0 Ethernet controller: Marvell Technology Group Ltd.: Unknown device 4361 (rev 17)
+        Subsystem: Intel Corp.: Unknown device 3065
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0, Cache Line Size: 0x10 (64 bytes)
+        Interrupt: pin A routed to IRQ 58
+        Region 0: Memory at ff720000 (64-bit, non-prefetchable) [size=16K]
+        Region 2: I/O ports at 9800 [size=256]
+        Expansion ROM at ff700000 [disabled] [size=128K]
+        Capabilities: [48] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=1 PME-
+        Capabilities: [50] Vital Product Data
+        Capabilities: [5c] Message Signalled Interrupts: 64bit+ Queue=0/1 Enable+
+                Address: 00000000fee00000  Data: 403a
+        Capabilities: [e0] #10 [0011]
+
+--eRtJSFbw+EEWtPj3--

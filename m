@@ -1,44 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWEHRsW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbWEHRtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932451AbWEHRsW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 13:48:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbWEHRsW
+	id S932427AbWEHRtu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 13:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWEHRtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 13:48:22 -0400
-Received: from hera.kernel.org ([140.211.167.34]:57828 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932451AbWEHRsW (ORCPT
+	Mon, 8 May 2006 13:49:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24528 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932427AbWEHRtt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 13:48:22 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Bugs aren't features: X86_FEATURE_FXSAVE_LEAK
-Date: Mon, 8 May 2006 10:47:58 -0700 (PDT)
-Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <e3o08e$jm1$1@terminus.zytor.com>
-References: <69bvw-2zO-5@gated-at.bofh.it> <69d4M-4Yx-19@gated-at.bofh.it> <69mqY-1Ci-9@gated-at.bofh.it> <445CDED0.4070402@shaw.ca>
+	Mon, 8 May 2006 13:49:49 -0400
+Date: Mon, 8 May 2006 10:46:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: James Morris <jmorris@namei.org>
+Cc: serue@us.ibm.com, linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil,
+       jmorris@redhat.com
+Subject: Re: [PATCH] selinux: check for failed kmalloc in
+ security_sid_to_context
+Message-Id: <20060508104659.7f17f38d.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0604262325090.5735@d.namei>
+References: <20060427020740.GA23112@sergelap.austin.ibm.com>
+	<Pine.LNX.4.64.0604262325090.5735@d.namei>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1147110478 20162 127.0.0.1 (8 May 2006 17:47:58 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Mon, 8 May 2006 17:47:58 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <445CDED0.4070402@shaw.ca>
-By author:    Robert Hancock <hancockr@shaw.ca>
-In newsgroup: linux.dev.kernel
+James Morris <jmorris@namei.org> wrote:
+>
+> On Wed, 26 Apr 2006, Serge E. Hallyn wrote:
+> 
+> > Check for NULL kmalloc return value before writing to it.
 > > 
-> > I have a dual CPU system (Tyan Tomcat 1564D) where only one CPU is
-> > reported to have the F00F bug (iirc).  So yes, there can be
-> > SMP-systems where the CPU's have different bugs.
+> > Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
 > 
-> Point being, not this bug..
+> Acked-by: James Morris <jmorris@namei.org>
+> 
+> 
+> > ---
+> > 
+> >  security/selinux/ss/services.c |    4 ++++
+> >  1 files changed, 4 insertions(+), 0 deletions(-)
+> > 
+> > 3d9cf05c7fa2578f87648dd0862e70cf7959ad7a
+> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> > index 6149248..20b1065 100644
+> > --- a/security/selinux/ss/services.c
+> > +++ b/security/selinux/ss/services.c
+> > @@ -593,6 +593,10 @@ int security_sid_to_context(u32 sid, cha
+> >  
+> >  			*scontext_len = strlen(initial_sid_to_string[sid]) + 1;
+> >  			scontextp = kmalloc(*scontext_len,GFP_ATOMIC);
+> > +			if (!scontextp) {
+> > +				rc = -ENOMEM;
+> > +				goto out;
+> > +			}
+> >  			strcpy(scontextp, initial_sid_to_string[sid]);
+> >  			*scontext = scontextp;
+> >  			goto out;
+> > 
 > 
 
-However, *MY* point is that we should have a uniform infrastructure
-for bugs, just like we now have for features.
+Given that GFP_ATOMIC can fail and it'll cause an oops I'll queue this for
+2.6.17 and shall send it in the direction of the -stable guys too, thanks.
 
-	-hpa
+What will happen when one of the GFP_ATOMIC allocations in there fails? 
+Will the computer become insecure?
 

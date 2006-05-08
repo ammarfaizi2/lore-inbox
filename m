@@ -1,47 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbWEHHIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWEHHLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932353AbWEHHIM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 03:08:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbWEHHIM
+	id S932356AbWEHHLU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 03:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWEHHLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 03:08:12 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:48522
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932353AbWEHHIL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 03:08:11 -0400
-Date: Mon, 08 May 2006 00:07:54 -0700 (PDT)
-Message-Id: <20060508.000754.06312852.davem@davemloft.net>
-To: pavel@suse.cz
-Cc: mpm@selenic.com, tytso@mit.edu, mrmacman_g4@mac.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network
- drivers
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060508062604.GD5765@ucw.cz>
-References: <20060506.170810.74552888.davem@davemloft.net>
-	<20060507045920.GH15445@waste.org>
-	<20060508062604.GD5765@ucw.cz>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 8 May 2006 03:11:20 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:18977
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S932356AbWEHHLU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 03:11:20 -0400
+Message-Id: <445F0B6F.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
+Date: Mon, 08 May 2006 09:12:15 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: <sam@ravnborg.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: GPL-only symbols issue
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pavel Machek <pavel@suse.cz>
-Date: Mon, 8 May 2006 06:26:05 +0000
+Sam,
 
-> > Then I'll run my test on one of the various arches where HZ=~100 and
-> > we don't have a TSC. Like Sparc?
-> > 
-> >   /* XXX Maybe do something better at some point... -DaveM */
-> >   typedef unsigned long cycles_t;
-> >   #define get_cycles()    (0)
-> 
-> Seems like sparc32 is broken :-(, and probably broken terminally...
-> there are very little randomness sources that can handle 10msec
-> sampling period :-(.
-> 
-> Maybe we should disable /dev/random on sparc32?
+would it seem reasonable a request to detect imports of GPL-only symbols by non-GPL modules also at build time rather
+than only at run time, and at least warn about such?
 
-What do other platforms without a TSC do?
+Thanks, Jan

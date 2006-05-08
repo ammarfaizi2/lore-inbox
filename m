@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWEHOz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbWEHO5W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbWEHOz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 10:55:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbWEHOz5
+	id S932341AbWEHO5W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 10:57:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWEHO5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 10:55:57 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:27015 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932313AbWEHOz5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 10:55:57 -0400
-Subject: Re: High load average on disk I/O on 2.6.17-rc3
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Andrew Morton <akpm@osdl.org>, Jason Schoonover <jasons@pioneer-pra.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <445F548A.703@mbligh.org>
-References: <200605051010.19725.jasons@pioneer-pra.com>
-	 <20060507095039.089ad37c.akpm@osdl.org>  <445F548A.703@mbligh.org>
-Content-Type: text/plain
-Date: Mon, 08 May 2006 16:55:48 +0200
-Message-Id: <1147100149.2888.37.camel@laptopd505.fenrus.org>
+	Mon, 8 May 2006 10:57:22 -0400
+Received: from secure.htb.at ([195.69.104.11]:10000 "EHLO pop3.htb.at")
+	by vger.kernel.org with ESMTP id S932341AbWEHO5V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 10:57:21 -0400
+Date: Mon, 8 May 2006 16:57:10 +0200
+From: Richard Mittendorfer <delist@gmx.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How to read BIOS information
+Message-Id: <20060508165710.78e4e3e0.delist@gmx.net>
+In-Reply-To: <445F5BC0.9040707@wipro.com>
+References: <445F5228.7060006@wipro.com>
+	<20060508163630.1059bd9a.delist@gmx.net>
+	<445F5BC0.9040707@wipro.com>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
+X-Face: &0P^N,K:@}b8ykW@3d!=n}3D;*Cf{9KYT>>+gcM)XyIMRkBSDg|ur7Zen^BlzmJVr&!;7KT6\t+sHI69\fW(}.=PM+(`w_jnzZ.HbWb/KM"`795_k(&\Lje|'g\cm$4e%Zy*I)hJz-z0!}xkm@!>U0rO{>~[YZUs/=B{}R%#nZ8eBt'{,*>kTTKl_kj'vzrl5|'j5SBiFy#!Sj,p_zl;)q.lpSI\Er"]D`bZY@#+']kJW/YsqvRzi0GR!7ifpt$?]0TYcNs.*wC5OukokPm~R&mmW\q&DL@='khZEET;3ryo[0_mC^K~7,ZvHkj
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Scanner: exiscan *1Fd7Ad-0004my-00*v6MMBigKwUI*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-08 at 07:24 -0700, Martin J. Bligh wrote:
-> > It's pretty harmless though.  The "load average" thing just means that the
-> > extra pdflush threads are twiddling thumbs waiting on some disk I/O -
-> > they'll later exit and clean themselves up.  They won't be consuming
-> > significant resources.
-> 
-> If they're waiting on disk I/O, they shouldn't be runnable, and thus
-> should not be counted as part of the load average, surely?
+Also sprach Madhukar Mythri <madhukar.mythri@wipro.com> (Mon, 08 May
+2006 20:24:56 +0530):
+> But, HT information is not present in demicode(SMBIOS info..)
 
-yes they are, since at least a decade. "load average" != "cpu
-utilisation" by any means. It's "tasks waiting for a hardware resource
-to become available". CPU is one such resource (runnable) but disk is
-another. There are more ... 
+Never had a HT system, shouldn't this info be availible through
+/var/log/dmesg, /proc/couinfo or /proc/acpi/processor or something like
+this?  
 
-think of load as "if I bought faster hardware this would improve"
+sl ritch
 
-
+Please don't top-post and CC me, I'm reading this list.

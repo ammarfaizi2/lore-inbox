@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWEHUNd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWEHUNV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751300AbWEHUNd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 16:13:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWEHUNd
+	id S1751303AbWEHUNV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 16:13:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWEHUNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 16:13:33 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:27591 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751300AbWEHUNc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 16:13:32 -0400
-Date: Mon, 8 May 2006 22:13:20 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix console utf8 composing
-In-Reply-To: <Pine.LNX.4.61.0604031048330.2220@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.61.0605082211580.20743@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0604022005290.12603@yvahk01.tjqt.qr>
- <44308100.6080009@ums.usu.ru> <Pine.LNX.4.61.0604031048330.2220@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 May 2006 16:13:21 -0400
+Received: from mga03.intel.com ([143.182.124.21]:13123 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1751298AbWEHUNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 16:13:20 -0400
+X-IronPort-AV: i="4.05,102,1146466800"; 
+   d="scan'208"; a="33313249:sNHT6900234488"
+Subject: Re: [patch] fix pciehp compile issue when CONFIG_ACPI is not
+	enabled.
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: arjan@linux.intel.com, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, len.brown@intel.com, greg@kroah.com
+In-Reply-To: <20060508192431.GB7235@mipter.zuzino.mipt.ru>
+References: <1147114470.3094.14.camel@whizzy>
+	 <20060508192431.GB7235@mipter.zuzino.mipt.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 08 May 2006 13:22:52 -0700
+Message-Id: <1147119772.3094.42.camel@whizzy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-OriginalArrivalTime: 08 May 2006 20:12:37.0942 (UTC) FILETIME=[C07C6560:01C672DB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alex,
+Fix build error when CONFIG_ACPI not defined
 
->> Yes, please assume this line on all utf8 composing patches I submitted to LKML:
->> But this line already exists in http://lkml.org/lkml/2006/3/20/571 :)
->Must have missed it.
->
+Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
 
-Your patch will not apply 100% cleanly to 2.6.17-rc3, and in fact it 
-seems like it is not needed anymore (composing works without it again).
-Can you confirm that?
+---
+Here's an alternate way to solve this problem - also easy, that may look
+nicer. (thanks arjan).
 
+ include/linux/pci-acpi.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-
-Jan Engelhardt
--- 
+--- 2.6-git.orig/include/linux/pci-acpi.h
++++ 2.6-git/include/linux/pci-acpi.h
+@@ -50,7 +50,7 @@
+ extern acpi_status pci_osc_control_set(acpi_handle handle, u32 flags);
+ extern acpi_status pci_osc_support_set(u32 flags);
+ #else
+-#if !defined(acpi_status)
++#if !defined(AE_ERROR)
+ typedef u32 		acpi_status;
+ #define AE_ERROR      	(acpi_status) (0x0001)
+ #endif    

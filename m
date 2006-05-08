@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWEHRV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932495AbWEHRZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbWEHRV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 13:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932490AbWEHRV0
+	id S932495AbWEHRZi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 13:25:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbWEHRZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 13:21:26 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28688 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932491AbWEHRV0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 13:21:26 -0400
-Date: Mon, 8 May 2006 17:21:12 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Matt Mackall <mpm@selenic.com>
-Cc: "David S. Miller" <davem@davemloft.net>, tytso@mit.edu,
-       mrmacman_g4@mac.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
-Message-ID: <20060508172111.GA5266@ucw.cz>
-References: <20060506.170810.74552888.davem@davemloft.net> <20060507045920.GH15445@waste.org> <20060508062604.GD5765@ucw.cz> <20060508.000754.06312852.davem@davemloft.net> <20060508140500.GZ15445@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 8 May 2006 13:25:37 -0400
+Received: from mout2.freenet.de ([194.97.50.155]:20387 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S932470AbWEHRZh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 13:25:37 -0400
+From: Joachim Fritschi <jfritschi@freenet.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 1/2] Twofish cipher i586-asm optimized
+Date: Mon, 8 May 2006 19:25:31 +0200
+User-Agent: KMail/1.8.3
+Cc: yoshfuji@linux-ipv6.org, linux-crypto@vger.kernel.org
+References: <200605071156.57844.jfritschi@freenet.de> <200605072247.46655.jfritschi@freenet.de> <20060508.150152.113737945.yoshfuji@linux-ipv6.org>
+In-Reply-To: <20060508.150152.113737945.yoshfuji@linux-ipv6.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060508140500.GZ15445@waste.org>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200605081925.32028.jfritschi@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> > After going over my patch again, i realized i missed the .cra_priority
+> > and .cra_driver_name setting in the crypto api struct. Here is an updated
+> > version of my patch:
+> >
+> > http://homepages.tu-darmstadt.de/~fritschi/twofish/twofish-i586-asm-2.6.1
+> >7-2.diff
+>
+> Any reasons to exclude 64BIT on Kconfig?
 
-> > What do other platforms without a TSC do?
-> 
-> Using get_cycles() for /dev/random is new as of 2.6. Before that, we
-> were directly calling rdtsc on x86 alone. 10msec resolution is fine
-> for plenty of sources.
+This is the patch for i586 and above only (i386 arch). If you want 64bit 
+(x86_64 arch) you should take a look at my other patch:
 
-For what devices are timestamps still 'random/unobservable' in 10msec
-range?
+http://homepages.tu-darmstadt.de/~fritschi/twofish/twofish-x86_64-asm-2.6.17-2.diff
 
-Maybe keyboard... but no, keyboard has autorepeat and can be observed
-remotely with 10msec accuracy in many cases. (telnet to bbs?)
-
-Disk requests take less than 10msec.
-
-It is trivial to measure packets with 10msec accuracy.
-
-Mouse will generate many events within 10msec when user actually uses
-it.
-
-...so, what devices are still random with 10msec sampling?
--- 
-Thanks for all the (sleeping) penguins.
+Regards,
+Joachim

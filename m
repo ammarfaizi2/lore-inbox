@@ -1,113 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWEGXUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWEHADi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750781AbWEGXUc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 19:20:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWEGXUc
+	id S1751172AbWEHADi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 20:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWEHADi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 19:20:32 -0400
-Received: from mxfep01.bredband.com ([195.54.107.70]:36490 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S1750781AbWEGXUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 19:20:32 -0400
-Message-ID: <445E80DD.9090507@hozac.com>
-Date: Mon, 08 May 2006 01:21:01 +0200
-From: Daniel Hokka Zakrisson <daniel@hozac.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
-X-Accept-Language: en-us, en
+	Sun, 7 May 2006 20:03:38 -0400
+Received: from khc.piap.pl ([195.187.100.11]:31762 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1751172AbWEHADi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 May 2006 20:03:38 -0400
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Dave Airlie <airlied@gmail.com>,
+       Greg KH <greg@kroah.com>, Ian Romanick <idr@us.ibm.com>,
+       Dave Airlie <airlied@linux.ie>,
+       Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace (Xorg) to enable devices without doing foul direct access
+References: <mj+md-20060504.211425.25445.atrey@ucw.cz>
+	<20060505210614.GB7365@kroah.com>
+	<9e4733910605051415o48fddbafpf0f8b096f971e482@mail.gmail.com>
+	<20060505222738.GA8985@kroah.com>
+	<9e4733910605051705j755ad61dm1c07c66c2c24c525@mail.gmail.com>
+	<21d7e9970605051857l4415a04ai7d1b1f886bb01cee@mail.gmail.com>
+	<9e4733910605052039n7d2debbse0fd07e0d1d059fb@mail.gmail.com>
+	<m3d5er729f.fsf@defiant.localdomain>
+	<9e4733910605060608l57c1a215pa300c326ef1eef4b@mail.gmail.com>
+	<m34q036n46.fsf@defiant.localdomain>
+	<9e4733910605061124u6b1c4b88nd84faa914c72521f@mail.gmail.com>
+	<m33bfm4ud2.fsf@defiant.localdomain>
+	<9E6FFBE8-39F0-4C3D-8D6C-B0EC59AD5D22@mac.com>
+	<m3mzdum448.fsf@defiant.localdomain>
+	<E4FD2AAC-98AA-42EF-951D-02757C24550C@mac.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Mon, 08 May 2006 02:03:34 +0200
+In-Reply-To: <E4FD2AAC-98AA-42EF-951D-02757C24550C@mac.com> (Kyle Moffett's message of "Sun, 7 May 2006 15:07:08 -0400")
+Message-ID: <m3r735mlgp.fsf@defiant.localdomain>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>, greg@kroah.com,
-       matthew@wil.cx, torvalds@osdl.org
-Subject: [PATCH] fs: fcntl_setlease defies lease_init assumptions
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fcntl_setlease uses a struct file_lock on the stack to find the
-file_lock it's actually looking for. The problem with this approach is
-that lease_init will attempt to free the file_lock if the arg argument
-is invalid, causing kmem_cache_free to be called with the address of the
-on-stack file_lock.
-After running the following test-case, it doesn't take long for an i686
-machine running 2.6.16.13 to stop responding completely. 
-2.6.17-rc3-git12 shows similar results, although it takes a bit more 
-activity before crashing.
+Kyle Moffett <mrmacman_g4@mac.com> writes:
 
-Björn Steinbrink also identified a slab leak in the same piece of code, 
-caused by the fasync_helper call which will allocate a new slab every 
-time because it uses the wrong structure (the one on the stack) when the 
-a lease on that file already exists.
+> This is *exactly* what we don't want to do!  The whole point of this
+> thread is to prevent the need to use /dev/mem and /dev/kmem for
+> anything except debugging.
 
-#define _GNU_SOURCE
-#include <fcntl.h>
-#include <stdio.h>
-#include <unistd.h>
+Look, it's me who's using that and I tell you I want just that :-)
 
-void die(const char *msg)
-{
-	perror(msg);
-	exit(1);
-}
-int main(int argc, char *argv[])
-{
-	int fd;
-	if (argc == 1)
-	{
-		fprintf(stderr, "Usage: %s file\n", argv[0]);
-		exit(1);
-	}
-	fd = open(argv[1], O_RDONLY);
-	if (fd == -1)
-		die("open()");
-	if (fcntl(fd, F_SETLEASE, F_RDLCK) == -1)
-		die("setlease(RDLCK)");
-	if (fcntl(fd, F_SETLEASE, F_RDLCK) == -1)
-		die("setlease(RDLCK2)");
-	if (fcntl(fd, F_SETLEASE, 5) == -1)
-		die("setlease(invalid)");
-	close(fd);
-	return 0;
-}
+> Ewww, I certainly wouldn't trust a binary statically-linked binary
+> program that mmaps /dev/mem or /dev/kmem
 
-Signed-off-by: Daniel Hokka Zakrisson <daniel@hozac.com>
+And would you trust a binary which doesn't have "/dev/mem" string
+in it?
 
----
---- a/fs/locks.c	2006-05-07 00:29:26.000000000 +0200
-+++ b/fs/locks.c	2006-05-07 23:29:12.000000000 +0200
-@@ -1363,6 +1363,7 @@ static int __setlease(struct file *filp,
-  		goto out;
+Anyway you can compile it yourself if you want. It's not about trust,
+it's about simplicity and robustness.
 
-  	if (my_before != NULL) {
-+		*flp = *my_before;
-  		error = lease->fl_lmops->fl_change(my_before, arg);
-  		goto out;
-  	}
-@@ -1433,7 +1434,7 @@ EXPORT_SYMBOL(setlease);
-   */
-  int fcntl_setlease(unsigned int fd, struct file *filp, long arg)
-  {
--	struct file_lock fl, *flp = &fl;
-+	struct file_lock *fl, *flp;
-  	struct dentry *dentry = filp->f_dentry;
-  	struct inode *inode = dentry->d_inode;
-  	int error;
-@@ -1446,14 +1447,15 @@ int fcntl_setlease(unsigned int fd, stru
-  	if (error)
-  		return error;
+>    #! /bin/sh
+>    cp firmware.bin /lib/firmware/some_firmware_file.bin
+>    echo -n eeprom_load_driver >/sys/device/$PCI_ID/bind
+>    echo -n 1 >/sys/device/$PCI_ID/unbind
+>
+> Simple, obviously correct, and uses a nice reuseable driver too!
 
--	locks_init_lock(&fl);
--	error = lease_init(filp, arg, &fl);
-+	error = lease_alloc(filp, arg, &fl);
-  	if (error)
-  		return error;
-+	flp = fl;
+Sure. If the driver is loaded/available. What if, say, the
+distribution you use doesn't have it?
 
-  	lock_kernel();
+> No!  That would be even worse!  You're then having userspace poke at
+> the driver while a kernel driver is loaded, which is *exactly* what X
+> is getting into trouble for doing.
 
-  	error = __setlease(filp, arg, &flp);
-+	locks_free_lock(fl);
-  	if (error || arg == F_UNLCK)
-  		goto out_unlock;
+So what? The driver and EEPROM updater don't conflict.
 
+>  If you want to add firmware
+> update capability, add it to the preexisting primary driver.
 
+It will not load with blank or invalid EEPROM :-)
+
+> No, not an "enable" interface.  In this case the kernel should do
+> basically all of the poking at PCI resources for you.
+
+Because?
+
+>  If you
+> _really_ want to do that kind of update in userspace, write a stub
+> driver which just enables the device on bind, disables it on unbind,
+> and mmap and write to the sysfs "rom" file.
+
+It has nothing to do with any "ROM".
+-- 
+Krzysztof Halasa

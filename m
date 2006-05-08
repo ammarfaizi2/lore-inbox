@@ -1,85 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWEHPQG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbWEHPW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932375AbWEHPQG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 11:16:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbWEHPQG
+	id S932385AbWEHPW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 11:22:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbWEHPW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 11:16:06 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:45061 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932375AbWEHPQE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 11:16:04 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <445F5228.7060006@wipro.com>
-X-OriginalArrivalTime: 08 May 2006 15:16:03.0239 (UTC) FILETIME=[52043370:01C672B2]
-Content-class: urn:content-classes:message
-Subject: Re: How to read BIOS information
-Date: Mon, 8 May 2006 11:16:02 -0400
-Message-ID: <Pine.LNX.4.61.0605081105590.22796@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: How to read BIOS information
-Thread-Index: AcZyslIqwA0H06kBTg+PH0Bqo3i0HA==
-References: <445F5228.7060006@wipro.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Madhukar Mythri" <madhukar.mythri@wipro.com>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Mon, 8 May 2006 11:22:58 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:35428 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S932385AbWEHPW5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 11:22:57 -0400
+Date: Mon, 8 May 2006 17:22:55 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       Jason Schoonover <jasons@pioneer-pra.com>, linux-kernel@vger.kernel.org
+Subject: Re: High load average on disk I/O on 2.6.17-rc3
+Message-ID: <20060508152255.GF1875@harddisk-recovery.com>
+References: <200605051010.19725.jasons@pioneer-pra.com> <20060507095039.089ad37c.akpm@osdl.org> <445F548A.703@mbligh.org> <1147100149.2888.37.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1147100149.2888.37.camel@laptopd505.fenrus.org>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 08, 2006 at 04:55:48PM +0200, Arjan van de Ven wrote:
+> On Mon, 2006-05-08 at 07:24 -0700, Martin J. Bligh wrote:
+> > > It's pretty harmless though.  The "load average" thing just means that the
+> > > extra pdflush threads are twiddling thumbs waiting on some disk I/O -
+> > > they'll later exit and clean themselves up.  They won't be consuming
+> > > significant resources.
+> > 
+> > If they're waiting on disk I/O, they shouldn't be runnable, and thus
+> > should not be counted as part of the load average, surely?
+> 
+> yes they are, since at least a decade. "load average" != "cpu
+> utilisation" by any means. It's "tasks waiting for a hardware resource
+> to become available". CPU is one such resource (runnable) but disk is
+> another. There are more ... 
 
-On Mon, 8 May 2006, Madhukar Mythri wrote:
+... except that any kernel < 2.6 didn't account tasks waiting for disk
+IO. Load average has always been somewhat related to tasks contending
+for CPU power. It's easy to say "shrug, it changed, live with it", but
+at least give applications that want to be nice to the system a way to
+figure out the real cpu load.
 
-> Hi,
->     Im new to this group.
-> I want to get some information from BIOS. i.e i want to know whether
-> Hyperthreading is Enabled/Disabled(as per BIOS settings)  from an user
-> applications program.
->
-> Please reply, if anybody has worked on it.
->
 
-The BIOS settings, and where the BIOS information is stored, is
-different for each and every BIOS. That's why there is a BIOS
-setup screen. You can't run this screen from within the 32-bit
-protected-mode environment of Linux. You could, however, implement
-a VM-86 environment, just as is done for dosemu, the MS-DOS
-emulator. However, dosemu creates a virtual BIOS environment and
-doesn't use the real one, therefore you would have to copy over
-a the real BIOS pages in order to run the BIOS setup screen.
+Erik
 
-The bottom line is that it's possible, but very difficult. That's
-why relevant information is gathered by Linux and put into
-the /proc file-system. If you have hyper-threading, it should
-show up as two or more CPUs in /proc/cpuinfo.
-
-> --
-> Thanks & Regards
-> Madhukar Mythri
-> Wipro Technologies
-> Bangalore.
-> Off: +91 80 30294361.
-> M: +91 9886442416.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
-New book: http://www.lymanschool.com
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

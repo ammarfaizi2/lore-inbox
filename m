@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbWEHUFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWEHUNd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751299AbWEHUFz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 16:05:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWEHUFz
+	id S1751300AbWEHUNd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 16:13:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWEHUNd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 16:05:55 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:48400 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751299AbWEHUFy (ORCPT
+	Mon, 8 May 2006 16:13:33 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:27591 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751300AbWEHUNc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 16:05:54 -0400
-Date: Mon, 8 May 2006 22:05:46 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Hua Zhong <Hua.Zhong@teneros.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] Build error in modpost.c for latest git
-Message-ID: <20060508200546.GA4340@mars.ravnborg.org>
-References: <384422E6306C7D439E6C327F5FCFFDCE011C236F@EXCH-US02.nuitysystems.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <384422E6306C7D439E6C327F5FCFFDCE011C236F@EXCH-US02.nuitysystems.com>
-User-Agent: Mutt/1.5.11
+	Mon, 8 May 2006 16:13:32 -0400
+Date: Mon, 8 May 2006 22:13:20 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix console utf8 composing
+In-Reply-To: <Pine.LNX.4.61.0604031048330.2220@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.61.0605082211580.20743@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0604022005290.12603@yvahk01.tjqt.qr>
+ <44308100.6080009@ums.usu.ru> <Pine.LNX.4.61.0604031048330.2220@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 08, 2006 at 11:34:35AM -0700, Hua Zhong wrote:
-> scripts/mod/modpost.c: In function `check_sec_ref':
-> scripts/mod/modpost.c:716: error: cast to union type from type not
-> present in union
-> make[2]: *** [scripts/mod/modpost.o] Error 1
-> make[1]: *** [scripts/mod] Error 2
-> make: *** [scripts] Error 2
+Hi Alex,
 
-I have just asked Linus to revert the bogus commit.
-Sorry for this!
+>> Yes, please assume this line on all utf8 composing patches I submitted to LKML:
+>> But this line already exists in http://lkml.org/lkml/2006/3/20/571 :)
+>Must have missed it.
+>
 
-The bogus commit is:
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=c8d8b837ebe4b4f11e1b0c4a2bdc358c697692ed
+Your patch will not apply 100% cleanly to 2.6.17-rc3, and in fact it 
+seems like it is not needed anymore (composing works without it again).
+Can you confirm that?
 
-	Sam
+
+
+Jan Engelhardt
+-- 

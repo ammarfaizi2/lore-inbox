@@ -1,85 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbWEHP4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbWEHQBe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932412AbWEHP4R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 11:56:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWEHP4R
+	id S932381AbWEHQBe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 12:01:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWEHQBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 11:56:17 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:21379 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S932406AbWEHP4P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 11:56:15 -0400
-Date: Mon, 8 May 2006 08:49:44 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: perfmon@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, perfctr-devel@lists.sourceforge.net,
-       Stephane Eranian <eranian@hpl.hp.com>
-Subject: Re: [perfmon] Re: beta of pfmon-3.2 available
-Message-ID: <20060508154944.GD19268@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <20060426145636.GA6819@frankl.hpl.hp.com> <20060503054711.b1734c26.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060503054711.b1734c26.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+	Mon, 8 May 2006 12:01:34 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:61324 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932381AbWEHQBe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 12:01:34 -0400
+Date: Mon, 8 May 2006 12:01:06 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: LKML <linux-kernel@vger.kernel.org>
+cc: ntachino@jp.fujitsu.com, akpm@osdl.org, torvalds@osdl.org,
+       Adrian Bunk <bunk@stusta.de>
+Subject: Re: [PATCH] __deprecated_for_modules: panic_timeout
+Message-ID: <Pine.LNX.4.58.0605081149180.12205@gandalf.stny.rr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
 
-On Wed, May 03, 2006 at 05:47:11AM -0700, Andrew Morton wrote:
-> 
-> perfctr was almost-ready-for-merge.  Then it was decided that perfmon was
-> the way ahead, and perfctr died.  And now perfmon isn't making progress in
-> the kernelwards direction (worse, perfmon is getting bigger, thus making a
-> merge harder and harder).  So we now have the worst of all worlds.
-> 
+> tree 10b2b90d2fd270d86f381a06e535736ea7c16792
+> parent 24622efd11fc5ee569b008b9f89e5e268265811b
+> author Adrian Bunk <bunk@stusta.de> Mon, 07 Nov 2005 17:01:44 -0800
+> committer Linus Torvalds <torvalds@g5.osdl.org> Mon, 07 Nov 2005
+> 23:54:08
+> -0800
+>
+> [PATCH] __deprecated_for_modules: panic_timeout
+>
+> This looks like something which out-of-tree code could possibly be
+> using.
+> Give panic_timeout the twelve-month treatment.
 
-I have been very busy cleaning up the code with some help of IBM. In the
-last few months the code and was split into multiple C and header files.
-The arch-specific modules for X86-64 and i386 have been merged.
+Hi,
 
-I have also recently added a few features based upon requests from users.
-For instance, the ability to automatically load PMU description modules. That
-simplifies greatly the job of system administrators. I have also been busy talking
-to Don Zickus about cleaning up the NMI watchdog timer and its use of performance
-counters. He has produced a patch. I don't know if it is in your tree yet. Once that
-happens, I will be able to simplify the perfmon code even more. So yes, the code is
-changing but I think all of this is going into the direction of the kernel merge.
+I found a user of panic_timeout.  The module diskdump:
 
-I have also received new feature requests from people of the SystemTap project.
-They want to be able to call the interface from inside the kernel. This will add some
-code but I don't anticipate it breaking the user level API. I think we all agree this
-is something very useful to have. 
+ http://sourceforge.net/project/showfiles.php?group_id=110436
 
-With Will Cohen from Redhat we are also looking at migrating Oprofile entirely over
-to perfmon on x86 platforms. This can be accomplished very easily with perfmon. We did
-that a long time ago on Itanium. In fact the exact same "glue" code can be shared between
-all architectures. We are talking with John Levon about this. It is important that perfmon
-provides smooth transition to Oprofile users.
+It uses the panic_timeout to actually implement the timeout after it
+completes the dump.
 
-> This is a problem.  I'd suggest that at this time we should be
-> concentrating on getting perfmon merged up rather than adding more stuff to
-> the out-of-tree version.
-> 
-I agree with you on this. Except for the recent Systemtap request, I do not think any *major* new
-features were added in the last few months. By *major* I mean that changed the user level API
-in an incompatbile way.
+diskdump is a light weight crash dump utility which works great for my
+embedded devices that don't have much resources.  I don't know if it is
+still maintained (I CC'd the reported author), but I'm hacking it quite a
+bit.  The last release (1.0) was based off of 2.6.9.  I'm bringing it up
+to 2.6.16 with some major changes.
 
-I may not have posted the full patches on lkml last time I released a patch but I will next time.
+Not sure if anyone cares about this module, but I felt like I should
+report of one user.  But since the diskdump needs to modify the kernel
+anyway, it could just remove the deprecated warning or export
+panic_timeout itself.  So this isn't really an issue.
 
-> IOW: please send patches ;)
-> 
-I was on vacation up until today. So I will likely release a new patch within a week.
+Just sending an FYI.
 
-> And keep sending them.  People want this.
-> 
-But please keep sending me constructive feeback as well.
+-- Steve
 
--- 
--Stephane
+
+>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+>
+>  Documentation/feature-removal-schedule.txt |    8 ++++++++
+>  include/linux/kernel.h                     |    2 +-
+>  2 files changed, 9 insertions(+), 1 deletion(-)
+
+

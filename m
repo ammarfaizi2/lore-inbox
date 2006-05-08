@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWEHDA2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWEHDHL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbWEHDA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 23:00:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWEHDA2
+	id S932265AbWEHDHL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 23:07:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbWEHDHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 23:00:28 -0400
-Received: from waste.org ([64.81.244.121]:37054 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932263AbWEHDA2 (ORCPT
+	Sun, 7 May 2006 23:07:11 -0400
+Received: from waste.org ([64.81.244.121]:26064 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S932265AbWEHDHK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 23:00:28 -0400
-Date: Sun, 7 May 2006 21:55:29 -0500
+	Sun, 7 May 2006 23:07:10 -0400
+Date: Sun, 7 May 2006 22:02:16 -0500
 From: Matt Mackall <mpm@selenic.com>
-To: Theodore Tso <tytso@mit.edu>, Thiago Galesi <thiagogalesi@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
-Message-ID: <20060508025529.GQ15445@waste.org>
-References: <20060505203436.GW15445@waste.org> <20060506115502.GB18880@thunk.org> <20060506164808.GY15445@waste.org> <20060506.170810.74552888.davem@davemloft.net> <20060507045920.GH15445@waste.org> <82ecf08e0605070613o7b217a2bw4c71c3a8c33bed28@mail.gmail.com> <20060507160013.GM15445@waste.org> <20060508001333.GA17138@thunk.org>
+To: Rob Landley <rob@landley.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Small patch to bloat-o-meter.
+Message-ID: <20060508030216.GR15445@waste.org>
+References: <200605071559.00253.rob@landley.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060508001333.GA17138@thunk.org>
+In-Reply-To: <200605071559.00253.rob@landley.net>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 07, 2006 at 08:13:33PM -0400, Theodore Tso wrote:
-> But in answer to your question, what should we do, my suggestion would
-> be to sample all interrupts, and calculate the estimated entropy
-> credits as we to day, but scaled by an amount that can range from 0 to
-> 100%.
+On Sun, May 07, 2006 at 03:59:00PM -0400, Rob Landley wrote:
+> Workaround for the fact that gcc 4.x no longer provides consistent names for 
+> static symbols.
+> 
+> Signed-off-by: Rob Landley <rob@landley.net>
+> ---
+> 
+> When I added bloat-o-meter to busybox, I had to fix this to get useful 
+> results.  Since the kernel version seems to be the master, I thought you 
+> might be interested.
+> 
+> --- linux-old/scripts/bloat-o-meter	2006-05-07 15:47:23.000000000 -0400
+> +++ linux-2.6.16/scripts/bloat-o-meter	2006-05-07 15:08:31.000000000 -0400
+> @@ -18,7 +18,9 @@
+>      for l in os.popen("nm --size-sort " + file).readlines():
+>          size, type, name = l[:-1].split()
+>          if type in "tTdDbB":
+> -            sym[name] = int(size, 16)
+> +            if name.find(".") != -1: name = "static." + name.split(".")[0]
 
-I actually posted a patch to add a sysctl to do exactly that a few
-years ago.
+if "." in name:
 
-> But for most normal/modern platforms, I would argue the default
-> scaling factor should be 100%.
+(just like 'if type in "tTdDbB":' above it)
 
-And I would argue it should be no more than 50%. Just because I've
-seen so many would-have-thought-they-were-impossible attacks pan out.
+> +            if name in sym: sym[name] += int(size, 16)
+> +            else :sym[name] = int(size, 16)
+
+else:
+
+Actually, this probably wants to be:
+
+sym.setdefault(name, 0) += int(size, 16)
 
 -- 
 Mathematics is the supreme nostalgia of our time.

@@ -1,60 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWEHWOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbWEHWQH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbWEHWOc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 18:14:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWEHWOa
+	id S1751304AbWEHWQH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 18:16:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWEHWPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 18:14:30 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:2790 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751290AbWEHWO0 (ORCPT
+	Mon, 8 May 2006 18:15:44 -0400
+Received: from [63.64.152.142] ([63.64.152.142]:22533 "EHLO gitlost.site")
+	by vger.kernel.org with ESMTP id S1751304AbWEHWNO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 18:14:26 -0400
-Subject: RE: [PATCH] tpm: update module dependencies
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
-In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB65EAC0D@hdsmsx411.amr.corp.intel.com>
-References: <CFF307C98FEABE47A452B27C06B85BB65EAC0D@hdsmsx411.amr.corp.intel.com>
-Content-Type: text/plain
-Date: Mon, 08 May 2006 17:12:49 -0500
-Message-Id: <1147126369.29414.63.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Mon, 8 May 2006 18:13:14 -0400
+From: Chris Leech <christopher.leech@intel.com>
+Subject: [PATCH 5/9] [I/OAT] Structure changes for TCP recv offload to I/OAT
+Date: Mon, 08 May 2006 15:17:42 -0700
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Message-Id: <20060508221741.15181.30220.stgit@gitlost.site>
+In-Reply-To: <20060508221632.15181.50046.stgit@gitlost.site>
+References: <20060508221632.15181.50046.stgit@gitlost.site>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No I think I really want PNPACPI because I have a pnp_driver which
-probes based on a CID value.  PNPACPI is dependent on ACPI.  Am I
-misunderstanding something.  It works with PNPACPI on but turning off
-only PNPACPI causes it to not work.
+Adds an async_wait_queue and some additional fields to tcp_sock, and a
+dma_cookie_t to sk_buff.
 
-Thanks,
-Kylie
+Signed-off-by: Chris Leech <christopher.leech@intel.com>
+---
 
-On Mon, 2006-05-08 at 17:59 -0400, Brown, Len wrote:
-> >The TIS driver is dependent upon information from the ACPI table for
-> >device discovery thus it compiles but does no actual work with out this
-> >dependency.
-> >
-> >Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
-> >---
-> > drivers/char/tpm/Kconfig |    2 +-
-> > 1 files changed, 1 insertion(+), 1 deletion(-)
-> >
-> >--- linux-2.6.17-rc3/drivers/char/tpm/Kconfig	2006-04-26 
-> >21:19:25.000000000 -0500
-> >+++ linux-2.6.17-rc3-tpm/drivers/char/tpm/Kconfig	
-> >2006-05-08 16:11:03.707961750 -0500
-> >@@ -22,7 +22,7 @@ config TCG_TPM
-> > 
-> > config TCG_TIS
-> > 	tristate "TPM Interface Specification 1.2 Interface"
-> >-	depends on TCG_TPM
-> >+	depends on TCG_TPM && PNPACPI
-> 
-> I think you want simply "ACPI" rather than "PNPACPI" here, yes?
-> 
-> -Len
+ include/linux/skbuff.h |    4 ++++
+ include/linux/tcp.h    |    8 ++++++++
+ include/net/sock.h     |    2 ++
+ include/net/tcp.h      |    7 +++++++
+ net/core/sock.c        |    6 ++++++
+ 5 files changed, 27 insertions(+), 0 deletions(-)
+
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index f8f2347..23bad3b 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -29,6 +29,7 @@
+ #include <linux/net.h>
+ #include <linux/textsearch.h>
+ #include <net/checksum.h>
++#include <linux/dmaengine.h>
+ 
+ #define HAVE_ALLOC_SKB		/* For the drivers to know */
+ #define HAVE_ALIGNABLE_SKB	/* Ditto 8)		   */
+@@ -285,6 +286,9 @@ struct sk_buff {
+ 	__u16			tc_verd;	/* traffic control verdict */
+ #endif
+ #endif
++#ifdef CONFIG_NET_DMA
++	dma_cookie_t		dma_cookie;
++#endif
+ 
+ 
+ 	/* These elements must be at the end, see alloc_skb() for details.  */
+diff --git a/include/linux/tcp.h b/include/linux/tcp.h
+index 542d395..c90daa5 100644
+--- a/include/linux/tcp.h
++++ b/include/linux/tcp.h
+@@ -18,6 +18,7 @@
+ #define _LINUX_TCP_H
+ 
+ #include <linux/types.h>
++#include <linux/dmaengine.h>
+ #include <asm/byteorder.h>
+ 
+ struct tcphdr {
+@@ -233,6 +234,13 @@ struct tcp_sock {
+ 		struct iovec		*iov;
+ 		int			memory;
+ 		int			len;
++#ifdef CONFIG_NET_DMA
++		/* members for async copy */
++		struct dma_chan		*dma_chan;
++		int			wakeup;
++		struct dma_pinned_list	*pinned_list;
++		dma_cookie_t		dma_cookie;
++#endif
+ 	} ucopy;
+ 
+ 	__u32	snd_wl1;	/* Sequence for window update		*/
+diff --git a/include/net/sock.h b/include/net/sock.h
+index c9fad6f..90c65cb 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -132,6 +132,7 @@ struct sock_common {
+   *	@sk_receive_queue: incoming packets
+   *	@sk_wmem_alloc: transmit queue bytes committed
+   *	@sk_write_queue: Packet sending queue
++  *	@sk_async_wait_queue: DMA copied packets
+   *	@sk_omem_alloc: "o" is "option" or "other"
+   *	@sk_wmem_queued: persistent queue size
+   *	@sk_forward_alloc: space allocated forward
+@@ -205,6 +206,7 @@ struct sock {
+ 	atomic_t		sk_omem_alloc;
+ 	struct sk_buff_head	sk_receive_queue;
+ 	struct sk_buff_head	sk_write_queue;
++	struct sk_buff_head	sk_async_wait_queue;
+ 	int			sk_wmem_queued;
+ 	int			sk_forward_alloc;
+ 	gfp_t			sk_allocation;
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index 3c989db..d0c2c2f 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -28,6 +28,7 @@
+ #include <linux/cache.h>
+ #include <linux/percpu.h>
+ #include <linux/skbuff.h>
++#include <linux/dmaengine.h>
+ 
+ #include <net/inet_connection_sock.h>
+ #include <net/inet_timewait_sock.h>
+@@ -817,6 +818,12 @@ static inline void tcp_prequeue_init(str
+ 	tp->ucopy.len = 0;
+ 	tp->ucopy.memory = 0;
+ 	skb_queue_head_init(&tp->ucopy.prequeue);
++#ifdef CONFIG_NET_DMA
++	tp->ucopy.dma_chan = NULL;
++	tp->ucopy.wakeup = 0;
++	tp->ucopy.pinned_list = NULL;
++	tp->ucopy.dma_cookie = 0;
++#endif
+ }
+ 
+ /* Packet is added to VJ-style prequeue for processing in process
+diff --git a/net/core/sock.c b/net/core/sock.c
+index ed2afdb..5d820c3 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -832,6 +832,9 @@ struct sock *sk_clone(const struct sock 
+ 		atomic_set(&newsk->sk_omem_alloc, 0);
+ 		skb_queue_head_init(&newsk->sk_receive_queue);
+ 		skb_queue_head_init(&newsk->sk_write_queue);
++#ifdef CONFIG_NET_DMA
++		skb_queue_head_init(&newsk->sk_async_wait_queue);
++#endif
+ 
+ 		rwlock_init(&newsk->sk_dst_lock);
+ 		rwlock_init(&newsk->sk_callback_lock);
+@@ -1383,6 +1386,9 @@ void sock_init_data(struct socket *sock,
+ 	skb_queue_head_init(&sk->sk_receive_queue);
+ 	skb_queue_head_init(&sk->sk_write_queue);
+ 	skb_queue_head_init(&sk->sk_error_queue);
++#ifdef CONFIG_NET_DMA
++	skb_queue_head_init(&sk->sk_async_wait_queue);
++#endif
+ 
+ 	sk->sk_send_head	=	NULL;
+ 
 

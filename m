@@ -1,67 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWEHEwz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWEHEyV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932297AbWEHEwz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 00:52:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWEHEwz
+	id S932298AbWEHEyV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 00:54:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbWEHEyV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 00:52:55 -0400
-Received: from waste.org ([64.81.244.121]:54936 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932297AbWEHEwz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 00:52:55 -0400
-Date: Sun, 7 May 2006 23:48:00 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Rob Landley <rob@landley.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Small patch to bloat-o-meter.
-Message-ID: <20060508044800.GV15445@waste.org>
-References: <200605071559.00253.rob@landley.net> <20060508030216.GR15445@waste.org> <200605080043.51415.rob@landley.net>
+	Mon, 8 May 2006 00:54:21 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:49562 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932298AbWEHEyU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 00:54:20 -0400
+Date: Sun, 7 May 2006 23:58:23 -0500
+From: Jon Mason <jdmason@us.ibm.com>
+To: Muli Ben-Yehuda <muli@il.ibm.com>
+Cc: Jon Mason <jdmason@us.ibm.com>, linux-kernel@vger.kernel.org, ak@suse.de,
+       tony.luck@intel.com, linux-ia64@vger.kernel.org, mulix@mulix.org
+Subject: Re: [PATCH 2/3] swiotlb: create __alloc_bootmem_low_nopanic and add support in SWIOTLB
+Message-ID: <20060508045822.GB7729@us.ibm.com>
+References: <20060504205929.GD14361@us.ibm.com> <20060507085036.GF6015@rhun.haifa.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200605080043.51415.rob@landley.net>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060507085036.GF6015@rhun.haifa.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 08, 2006 at 12:43:51AM -0400, Rob Landley wrote:
-> On Sunday 07 May 2006 11:02 pm, Matt Mackall wrote:
-> > > --- linux-old/scripts/bloat-o-meter	2006-05-07 15:47:23.000000000 -0400
-> > > +++ linux-2.6.16/scripts/bloat-o-meter	2006-05-07 15:08:31.000000000
-> > > -0400 @@ -18,7 +18,9 @@
-> > >      for l in os.popen("nm --size-sort " + file).readlines():
-> > >          size, type, name = l[:-1].split()
-> > >          if type in "tTdDbB":
-> > > -            sym[name] = int(size, 16)
-> > > +            if name.find(".") != -1: name = "static." +
-> > > name.split(".")[0]
-> >
-> > if "." in name:
-> >
-> > (just like 'if type in "tTdDbB":' above it)
+On Sun, May 07, 2006 at 11:50:36AM +0300, Muli Ben-Yehuda wrote:
+> On Thu, May 04, 2006 at 03:59:29PM -0500, Jon Mason wrote:
 > 
-> I learned python over 5 years ago and the language has changed out from under 
-> me a bit.  When I've done a lot of C programming recently, I tend to fall 
-> back on the old ways... :)
+> > Per Andi Kleen's suggestion in the review of our Calgary IOMMU code, I
+> > tried to use the alloc_bootmem_nopanic that Andi recently added.
+> > Unfortunately, it needs low mem for our translation tables, so we needed
+> > a new function to do this.
+> > 
+> > I have updated swiotlb to take advantage of this new function (and
+> > added an error path to lib/swiotlb.c and resulting fallout from
+> > calling functions).
+> > 
+> > This patch has been tested individually and cumulatively on x86_64 and
+> > cross-compile tested on IA64.  Since I have no IA64 hardware, any
+> > testing on that platform would be appreciated.
 > 
-> > > +            if name in sym: sym[name] += int(size, 16)
-> > > +            else :sym[name] = int(size, 16)
-> >
-> > else:
+> A couple of minor nits below, otherwise looks good.
 > 
-> I'm surprised that even ran...
+> > Signed-off-by: Jon Mason <jdmason@us.ibm.com>
 > 
-> > Actually, this probably wants to be:
-> >
-> > sym.setdefault(name, 0) += int(size, 16)
+> Acked-by: Muli Ben-Yehuda <muli@il.ibm.com>
 > 
-> File "scripts/bloat-o-meter", line 22
->   sym.setdefault(name, 0) += int(size, 16)
-> SyntaxError: can't assign to function call
+> > diff -r b5bb5fea7490 -r 62dc1eb0c5e2 include/linux/bootmem.h
+> > --- a/include/linux/bootmem.h	Tue Apr 25 18:18:55 2006
+> > +++ b/include/linux/bootmem.h	Wed Apr 26 16:12:39 2006
+> > @@ -46,6 +46,7 @@
+> >  extern void __init free_bootmem (unsigned long addr, unsigned long size);
+> >  extern void * __init __alloc_bootmem (unsigned long size, unsigned long align, unsigned long goal);
+> >  extern void * __init __alloc_bootmem_nopanic (unsigned long size, unsigned long align, unsigned long goal);
+> > +extern void * __init __alloc_bootmem_low_nopanic(unsigned long size, unsigned long align, unsigned long goal);
+> 
+> Would be nice to convert this and the preceding declarations to 80
+> chars per line, please.
+> 
+> > diff -r b5bb5fea7490 -r 62dc1eb0c5e2 mm/bootmem.c
+> > --- a/mm/bootmem.c	Tue Apr 25 18:18:55 2006
+> > +++ b/mm/bootmem.c	Wed Apr 26 16:12:39 2006
+> > @@ -463,3 +463,16 @@
+> >  {
+> >  	return __alloc_bootmem_core(pgdat->bdata, size, align, goal, LOW32LIMIT);
+> >  }
+> > +
+> > +void * __init __alloc_bootmem_low_nopanic(unsigned long size, 
+> > +					unsigned long align, unsigned long goal)
+> > +{
+> > +	bootmem_data_t *bdata;
+> > +	void *ptr;
+> > +
+> > +	list_for_each_entry(bdata, &bdata_list, list)
+> > +		if ((ptr = __alloc_bootmem_core(bdata, size, align, goal, 
+> > +						LOW32LIMIT)))
+> > +			return(ptr);
+> 
+> This should be 'return ptr';
 
-Oh, right. That's why I never do that.
+I completely agree with both nits, but the changes follow the style
+currently in the files.  I'll do a clean-up patch to both of the
+files in question.  :)
 
-sym[name] = sym.get(name, 0) + int(size, 16)
+Thanks,
+Jon
 
--- 
-Mathematics is the supreme nostalgia of our time.
+> 
+> Cheers,
+> Muli

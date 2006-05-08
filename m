@@ -1,89 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWEHSSJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbWEHSV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbWEHSSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 14:18:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750922AbWEHSSJ
+	id S1750922AbWEHSV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 14:21:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWEHSV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 14:18:09 -0400
-Received: from mummy.ncsc.mil ([144.51.88.129]:21687 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1750741AbWEHSSI (ORCPT
+	Mon, 8 May 2006 14:21:27 -0400
+Received: from leitseite.net ([213.239.214.51]:3216 "EHLO mail.leitseite.net")
+	by vger.kernel.org with ESMTP id S1750922AbWEHSV0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 14:18:08 -0400
-Subject: Re: [PATCH] selinux: check for failed kmalloc in
-	security_sid_to_context
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andrew Morton <akpm@osdl.org>
-Cc: James Morris <jmorris@namei.org>, serue@us.ibm.com,
-       linux-kernel@vger.kernel.org, jmorris@redhat.com
-In-Reply-To: <20060508104659.7f17f38d.akpm@osdl.org>
-References: <20060427020740.GA23112@sergelap.austin.ibm.com>
-	 <Pine.LNX.4.64.0604262325090.5735@d.namei>
-	 <20060508104659.7f17f38d.akpm@osdl.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Mon, 08 May 2006 14:21:33 -0400
-Message-Id: <1147112493.23640.134.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 8 May 2006 14:21:26 -0400
+Date: Mon, 8 May 2006 20:21:16 +0200 (CEST)
+From: Nuri Jawad <lkml@jawad.org>
+X-X-Sender: lkml@pc
+To: linux-kernel@vger.kernel.org
+Subject: Re: Re: Remove silly messages from input layer. 
+Message-ID: <Pine.LNX.4.64.0605081950210.4170@pc>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-08 at 10:46 -0700, Andrew Morton wrote:
-> James Morris <jmorris@namei.org> wrote:
-> >
-> > On Wed, 26 Apr 2006, Serge E. Hallyn wrote:
-> > 
-> > > Check for NULL kmalloc return value before writing to it.
-> > > 
-> > > Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
-> > 
-> > Acked-by: James Morris <jmorris@namei.org>
-> > 
-> > 
-> > > ---
-> > > 
-> > >  security/selinux/ss/services.c |    4 ++++
-> > >  1 files changed, 4 insertions(+), 0 deletions(-)
-> > > 
-> > > 3d9cf05c7fa2578f87648dd0862e70cf7959ad7a
-> > > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> > > index 6149248..20b1065 100644
-> > > --- a/security/selinux/ss/services.c
-> > > +++ b/security/selinux/ss/services.c
-> > > @@ -593,6 +593,10 @@ int security_sid_to_context(u32 sid, cha
-> > >  
-> > >  			*scontext_len = strlen(initial_sid_to_string[sid]) + 1;
-> > >  			scontextp = kmalloc(*scontext_len,GFP_ATOMIC);
-> > > +			if (!scontextp) {
-> > > +				rc = -ENOMEM;
-> > > +				goto out;
-> > > +			}
-> > >  			strcpy(scontextp, initial_sid_to_string[sid]);
-> > >  			*scontext = scontextp;
-> > >  			goto out;
-> > > 
-> > 
-> 
-> Given that GFP_ATOMIC can fail and it'll cause an oops I'll queue this for
-> 2.6.17 and shall send it in the direction of the -stable guys too, thanks.
+Joseph Fannin wrote:
+>Spamming my logs with these messages so often that my dmesg buffer
+>soon contains nothing but and I have to use grep -v to read my syslog
+>is not user-friendly, and I am hardly a novice.
 
-Note however that this can only occur prior to initial policy load
-by /sbin/init; after that, we don't follow that branch.
+I don't doubt that, but we're going in circles here. I never alleged this 
+message was useful for everyone, but it IS useful for users with a working 
+keyboard and specifically with mechanical switches (can be triggered by a 
+loose cable or too slow turning of the dial, this a few times repeated can
+cause the keyboard *port* to lock up, requiring a reboot).
 
-> What will happen when one of the GFP_ATOMIC allocations in there fails? 
-> Will the computer become insecure?
+If you have broken hardware that keeps triggering an error message that 
+is valid and informative for a majority of users, use the source and 
+comment it out. Nobody has a problem with that.
+But don't try something that will leave us with no error messages left in 
+the long run because somebody somewhere with broken hard- or software got 
+spammed by them.
 
-No, it doesn't affect the access control enforcement.  The caller just
-can't get the context string in that case, so in the case of the AVC or
-audit, it falls back to only logging the SID for later analysis.  The
-audit people are interested in having a way to dump the kernel's SID
-table in that case, so we may end up exporting that via selinuxfs.  In
-some other cases where we are returning the context to userspace, the
-program would get the ENOMEM error ultimately and have to retry when
-memory was available.
+To the topic starter: calling such a message "silly" is pretty silly. And 
+that from a distro maintainer..
 
--- 
-Stephen Smalley
-National Security Agency
-
+Regards, Nuri

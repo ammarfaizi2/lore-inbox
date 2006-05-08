@@ -1,72 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbWEHQBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWEHQCO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932381AbWEHQBe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 12:01:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWEHQBe
+	id S932411AbWEHQCO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 12:02:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWEHQCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 12:01:34 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:61324 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932381AbWEHQBe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 12:01:34 -0400
-Date: Mon, 8 May 2006 12:01:06 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: LKML <linux-kernel@vger.kernel.org>
-cc: ntachino@jp.fujitsu.com, akpm@osdl.org, torvalds@osdl.org,
-       Adrian Bunk <bunk@stusta.de>
-Subject: Re: [PATCH] __deprecated_for_modules: panic_timeout
-Message-ID: <Pine.LNX.4.58.0605081149180.12205@gandalf.stny.rr.com>
+	Mon, 8 May 2006 12:02:13 -0400
+Received: from dvhart.com ([64.146.134.43]:57057 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S932411AbWEHQCM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 12:02:12 -0400
+Message-ID: <445F6B7E.8030804@mbligh.org>
+Date: Mon, 08 May 2006 09:02:06 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Jason Schoonover <jasons@pioneer-pra.com>, linux-kernel@vger.kernel.org
+Subject: Re: High load average on disk I/O on 2.6.17-rc3
+References: <200605051010.19725.jasons@pioneer-pra.com> <20060507095039.089ad37c.akpm@osdl.org> <445F548A.703@mbligh.org> <1147100149.2888.37.camel@laptopd505.fenrus.org> <20060508152255.GF1875@harddisk-recovery.com> <1147102290.2888.41.camel@laptopd505.fenrus.org> <20060508154217.GH1875@harddisk-recovery.com>
+In-Reply-To: <20060508154217.GH1875@harddisk-recovery.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Erik Mouw wrote:
+> On Mon, May 08, 2006 at 05:31:29PM +0200, Arjan van de Ven wrote:
+> 
+>>On Mon, 2006-05-08 at 17:22 +0200, Erik Mouw wrote:
+>>
+>>>... except that any kernel < 2.6 didn't account tasks waiting for disk
+>>>IO.
+>>
+>>they did. It was "D" state, which counted into load average.
+> 
+> 
+> They did not or at least to a much lesser extent. That's the reason why
+> ZenIV.linux.org.uk had a mail DoS during the last FC release and why we
+> see load average questions on lkml.
+> 
+> I've seen it on our servers as well: when using 2.4 and doing 50 MB/s
+> to disk (through NFS), the load just was slightly above 0. When we
+> switched the servers to 2.6 it went to ~16 for the same disk usage.
 
-> tree 10b2b90d2fd270d86f381a06e535736ea7c16792
-> parent 24622efd11fc5ee569b008b9f89e5e268265811b
-> author Adrian Bunk <bunk@stusta.de> Mon, 07 Nov 2005 17:01:44 -0800
-> committer Linus Torvalds <torvalds@g5.osdl.org> Mon, 07 Nov 2005
-> 23:54:08
-> -0800
->
-> [PATCH] __deprecated_for_modules: panic_timeout
->
-> This looks like something which out-of-tree code could possibly be
-> using.
-> Give panic_timeout the twelve-month treatment.
+Looks like both count it, or something stranger is going on.
 
-Hi,
+2.6.16:
 
-I found a user of panic_timeout.  The module diskdump:
+static unsigned long count_active_tasks(void)
+{
+         return (nr_running() + nr_uninterruptible()) * FIXED_1;
+}
 
- http://sourceforge.net/project/showfiles.php?group_id=110436
+2.4.0:
 
-It uses the panic_timeout to actually implement the timeout after it
-completes the dump.
+static unsigned long count_active_tasks(void)
+{
+         struct task_struct *p;
+         unsigned long nr = 0;
 
-diskdump is a light weight crash dump utility which works great for my
-embedded devices that don't have much resources.  I don't know if it is
-still maintained (I CC'd the reported author), but I'm hacking it quite a
-bit.  The last release (1.0) was based off of 2.6.9.  I'm bringing it up
-to 2.6.16 with some major changes.
-
-Not sure if anyone cares about this module, but I felt like I should
-report of one user.  But since the diskdump needs to modify the kernel
-anyway, it could just remove the deprecated warning or export
-panic_timeout itself.  So this isn't really an issue.
-
-Just sending an FYI.
-
--- Steve
-
-
->
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
->
->  Documentation/feature-removal-schedule.txt |    8 ++++++++
->  include/linux/kernel.h                     |    2 +-
->  2 files changed, 9 insertions(+), 1 deletion(-)
-
+         read_lock(&tasklist_lock);
+         for_each_task(p) {
+                 if ((p->state == TASK_RUNNING ||
+                      (p->state & TASK_UNINTERRUPTIBLE)))
+                         nr += FIXED_1;
+         }
+         read_unlock(&tasklist_lock);
+         return nr;
+}
 

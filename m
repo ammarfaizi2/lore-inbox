@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWEHWGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWEHWNJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751280AbWEHWGR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 18:06:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWEHWGR
+	id S1751276AbWEHWNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 18:13:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWEHWNJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 18:06:17 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:7891 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751188AbWEHWGQ (ORCPT
+	Mon, 8 May 2006 18:13:09 -0400
+Received: from [63.64.152.142] ([63.64.152.142]:18693 "EHLO gitlost.site")
+	by vger.kernel.org with ESMTP id S1751276AbWEHWNI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 18:06:16 -0400
-Date: Tue, 9 May 2006 00:06:04 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Jesper Juhl <jesper.juhl@gmail.com>
-cc: linux-kernel@vger.kernel.org, Petr Baudis <pasky@ucw.cz>,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH] a few small mconf improvements
-In-Reply-To: <200605071749.28822.jesper.juhl@gmail.com>
-Message-ID: <Pine.LNX.4.64.0605082337280.32445@scrub.home>
-References: <200605071749.28822.jesper.juhl@gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 May 2006 18:13:08 -0400
+From: Chris Leech <christopher.leech@intel.com>
+Subject: [PATCH 0/9] I/OAT network recv copy offload
+Date: Mon, 08 May 2006 15:16:32 -0700
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Message-Id: <20060508221632.15181.50046.stgit@gitlost.site>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A few changes after going over all the memory allocations, but mostly just
+keeping the patches up to date.
 
+This patch series is the a full release of the Intel(R) I/O
+Acceleration Technology (I/OAT) for Linux.  It includes an in kernel API
+for offloading memory copies to hardware, a driver for the I/OAT DMA memcpy
+engine, and changes to the TCP stack to offload copies of received
+networking data to application space.
 
-On Sun, 7 May 2006, Jesper Juhl wrote:
+Changes from last posting:
+	Fixed a struct ioat_dma_chan memory leak on driver unload.
+	Changed a lock that was never held in atomic contexts to a mutex
+	as part of avoiding unneeded GFP_ATOMIC allocations.
 
->  - rename main() arguments from "ac"/"av" to the more common "argc"/"argv".
+These changes apply to Linus' tree as of commit
+	6810b548b25114607e0814612d84125abccc0a4f
+	[PATCH] x86_64: Move ondemand timer into own work queue
 
-conf.c and qconf.cc do the same, it's a personal preference.
+They are available to pull from
+	git://63.64.152.142/~cleech/linux-2.6 ioat-2.6.17
 
->  - when unlinking lxdialog.scrltmp, the return value of unlink() is not 
->    checked. The patch adds a check of the return value and bails out if 
->    unlink() fails for any reason other than ENOENT.
+There are 9 patches in the series:
+	1) The memcpy offload APIs and class code
+	2) The Intel I/OAT DMA driver (ioatdma)
+	3) Core networking code to setup networking as a DMA memcpy client
+	4) Utility functions for sk_buff to iovec offloaded copy
+	5) Structure changes needed for TCP receive offload
+	6) Rename cleanup_rbuf to tcp_cleanup_rbuf
+	7) Make sk_eat_skb aware of early copied packets
+	8) Add a sysctl to tune the minimum offloaded I/O size for TCP
+	9) The main TCP receive offload changes
 
-The check is not needed, the worst that can happen is a misbehaving 
-lxdialog and you certainly have bigger problems than this, if the unlink
-should fail. In the long term this should go away anyway.
-
->  - if the sscanf() call in conf() fails and stat==0 && type=='t', then 
->    we'll end up dereferencing a NULL 'sym' in sym_is_choice(). The patch 
->    adds a NULL check of 'sym' to that path and bails out with a big fat 
->    error message if that should ever happen (better than just crashing 
->    IMHO).
-
-That error message is as useful to the normal user as a segfault - mconf 
-doesn't work. Since it shouldn't happen, this check adds no real value, 
-the user still has to provide enough information to reproduce the problem 
-and at this point it makes no difference, whether I get this message or I 
-see where it stops with gdb.
-
-bye, Roman
+--
+Chris Leech <christopher.leech@intel.com>
+I/O Acceleration Technology Software Development
+LAN Access Division / Digital Enterprise Group 

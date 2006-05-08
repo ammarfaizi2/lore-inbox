@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbWEHFrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWEHFrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932328AbWEHFrP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 01:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWEHFrP
+	id S932326AbWEHFrY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 01:47:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbWEHFrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 01:47:15 -0400
+	Mon, 8 May 2006 01:47:20 -0400
 Received: from mga02.intel.com ([134.134.136.20]:43637 "EHLO
 	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932322AbWEHFq7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 01:46:59 -0400
+	id S932326AbWEHFrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 01:47:11 -0400
 X-IronPort-AV: i="4.05,99,1146466800"; 
-   d="scan'208"; a="32948445:sNHT169566950"
-Subject: [PATCH 3/10] explict migrate tasks for cpu removal
+   d="scan'208"; a="32948506:sNHT284113606"
+Subject: [PATCH 6/10] i386 implementation of cpu bulk removal
 From: Shaohua Li <shaohua.li@intel.com>
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>,
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
        Srivatsa Vaddagiri <vatsa@in.ibm.com>, Ashok Raj <ashok.raj@intel.com>,
        Andrew Morton <akpm@osdl.org>
 Content-Type: text/plain
-Date: Mon, 08 May 2006 13:45:43 +0800
-Message-Id: <1147067143.2760.81.camel@sli10-desk.sh.intel.com>
+Date: Mon, 08 May 2006 13:45:52 +0800
+Message-Id: <1147067152.2760.85.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
@@ -28,131 +27,202 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Make cpu_down explictly migrate tasks off dead cpus, this is to fix a dead
-lock in bulk cpu hotremoval (An example of the deadlock is one dead cpu is
-notifing udev the cpu is dead and khelper thread is on another dead cpu).
-Detail info is in the code.
+i386 specific implementation of cpu bulk removal. Add the config and make
+__cpu_die/__cpu_disable work with cpumask_t.
 
-Signed-off-by: Ashok Raj <ashok.raj@intel.com> 
 Signed-off-by: Shaohua Li <shaohua.li@intel.com>
 ---
 
- linux-2.6.17-rc3-root/include/linux/sched.h |    1 
- linux-2.6.17-rc3-root/kernel/cpu.c          |    7 ++
- linux-2.6.17-rc3-root/kernel/sched.c        |   67 +++++++++++++++++-----------
- 3 files changed, 48 insertions(+), 27 deletions(-)
+ linux-2.6.17-rc3-root/arch/i386/Kconfig          |   11 ++
+ linux-2.6.17-rc3-root/arch/i386/kernel/smpboot.c |  118 ++++++++++++++++-------
+ 2 files changed, 97 insertions(+), 32 deletions(-)
 
-diff -puN include/linux/sched.h~explict-migrate-tasks include/linux/sched.h
---- linux-2.6.17-rc3/include/linux/sched.h~explict-migrate-tasks	2006-05-07 07:45:14.000000000 +0800
-+++ linux-2.6.17-rc3-root/include/linux/sched.h	2006-05-07 07:45:14.000000000 +0800
-@@ -997,6 +997,7 @@ extern void sched_exec(void);
+diff -puN arch/i386/Kconfig~i386-bulk-cpu-hotplug arch/i386/Kconfig
+--- linux-2.6.17-rc3/arch/i386/Kconfig~i386-bulk-cpu-hotplug	2006-05-07 07:46:01.000000000 +0800
++++ linux-2.6.17-rc3-root/arch/i386/Kconfig	2006-05-07 07:46:01.000000000 +0800
+@@ -763,6 +763,17 @@ config HOTPLUG_CPU
+ 
+ 	  Say N.
+ 
++config BULK_CPU_REMOVE
++	bool "Support for bulk removal of CPUs (EXPERIMENTAL)"
++	depends on HOTPLUG_CPU && EXPERIMENTAL
++	help
++	  Say Y if need the ability to remove more than one cpu during cpu
++	  removal. Current mechanisms may be in-efficient when a NUMA
++	  node is being removed, which would involve removing one cpu at a
++	  time. This will let interrupts, timers and processes to be bound
++	  to a CPU that might be removed right after the current cpu is
++	  being offlined.
++
+ endmenu
+ 
+ 
+diff -puN arch/i386/kernel/smpboot.c~i386-bulk-cpu-hotplug arch/i386/kernel/smpboot.c
+--- linux-2.6.17-rc3/arch/i386/kernel/smpboot.c~i386-bulk-cpu-hotplug	2006-05-07 07:46:01.000000000 +0800
++++ linux-2.6.17-rc3-root/arch/i386/kernel/smpboot.c	2006-05-07 07:46:01.000000000 +0800
+@@ -1317,35 +1317,43 @@ void __devinit smp_prepare_boot_cpu(void
  
  #ifdef CONFIG_HOTPLUG_CPU
- extern void idle_task_exit(void);
-+extern void migrate_tasks_off_dead_cpu(int cpu);
- #else
- static inline void idle_task_exit(void) {}
- #endif
-diff -puN kernel/cpu.c~explict-migrate-tasks kernel/cpu.c
---- linux-2.6.17-rc3/kernel/cpu.c~explict-migrate-tasks	2006-05-07 07:45:14.000000000 +0800
-+++ linux-2.6.17-rc3-root/kernel/cpu.c	2006-05-07 07:45:14.000000000 +0800
-@@ -173,7 +173,12 @@ int cpu_down(unsigned int cpu)
- 	kthread_bind(p, get_cpu());
- 	put_cpu();
+ static void
+-remove_siblinginfo(int cpu)
++remove_siblinginfo(cpumask_t remove_mask)
+ {
+ 	int sibling;
+ 	struct cpuinfo_x86 *c = cpu_data;
++	int cpu;
  
--	/* CPU is completely dead: tell everyone.  Too late to complain. */
-+	/*
-+	 * CPU is completely dead: tell everyone.  Too late to complain.
-+	 * we explictly call migrate_tasks here, otherwise there is a deadlock,
-+	 * one cpu's notifier handler is waiting for tasks in other dead CPUs
-+	 */
-+	migrate_tasks_off_dead_cpu(cpu);
- 	if (blocking_notifier_call_chain(&cpu_chain, CPU_DEAD,
- 			(void *)(long)cpu) == NOTIFY_BAD)
- 		BUG();
-diff -puN kernel/sched.c~explict-migrate-tasks kernel/sched.c
---- linux-2.6.17-rc3/kernel/sched.c~explict-migrate-tasks	2006-05-07 07:45:14.000000000 +0800
-+++ linux-2.6.17-rc3-root/kernel/sched.c	2006-05-07 07:45:14.000000000 +0800
-@@ -4739,6 +4739,39 @@ static void migrate_dead_tasks(unsigned 
- 		}
- 	}
- }
-+
-+void migrate_tasks_off_dead_cpu(int cpu)
-+{
-+	struct runqueue *rq;
-+	unsigned long flags;
-+
-+	migrate_live_tasks(cpu);
-+	rq = cpu_rq(cpu);
-+	kthread_stop(rq->migration_thread);
-+	rq->migration_thread = NULL;
-+	/* Idle task back to normal (off runqueue, low prio) */
-+	rq = task_rq_lock(rq->idle, &flags);
-+	deactivate_task(rq->idle, rq);
-+	rq->idle->static_prio = MAX_PRIO;
-+	__setscheduler(rq->idle, SCHED_NORMAL, 0);
-+	migrate_dead_tasks(cpu);
-+	task_rq_unlock(rq, &flags);
-+	migrate_nr_uninterruptible(rq);
-+	BUG_ON(rq->nr_running != 0);
-+
-+	/* No need to migrate the tasks: it was best-effort if
-+	 * they didn't do lock_cpu_hotplug().  Just wake up
-+	 * the requestors. */
-+	spin_lock_irq(&rq->lock);
-+	while (!list_empty(&rq->migration_queue)) {
-+		migration_req_t *req;
-+		req = list_entry(rq->migration_queue.next,
-+				 migration_req_t, list);
-+		list_del_init(&req->list);
-+		complete(&req->done);
+-	for_each_cpu_mask(sibling, cpu_core_map[cpu]) {
+-		cpu_clear(cpu, cpu_core_map[sibling]);
+-		/*
+-		 * last thread sibling in this cpu core going down
+-		 */
+-		if (cpus_weight(cpu_sibling_map[cpu]) == 1)
+-			c[sibling].booted_cores--;
+-	}
++	for_each_cpu_mask(cpu, remove_mask) {
++		for_each_cpu_mask(sibling, cpu_core_map[cpu]) {
++			cpu_clear(cpu, cpu_core_map[sibling]);
++			/*
++			 * last thread sibling in this cpu core going down
++			 */
++			if (cpus_weight(cpu_sibling_map[cpu]) == 1)
++				c[sibling].booted_cores--;
++		}
+ 			
+-	for_each_cpu_mask(sibling, cpu_sibling_map[cpu])
+-		cpu_clear(cpu, cpu_sibling_map[sibling]);
+-	cpus_clear(cpu_sibling_map[cpu]);
+-	cpus_clear(cpu_core_map[cpu]);
+-	phys_proc_id[cpu] = BAD_APICID;
+-	cpu_core_id[cpu] = BAD_APICID;
+-	cpu_clear(cpu, cpu_sibling_setup_map);
++		for_each_cpu_mask(sibling, cpu_sibling_map[cpu])
++			cpu_clear(cpu, cpu_sibling_map[sibling]);
++		cpus_clear(cpu_sibling_map[cpu]);
++		cpus_clear(cpu_core_map[cpu]);
++		phys_proc_id[cpu] = BAD_APICID;
++		cpu_core_id[cpu] = BAD_APICID;
++		cpu_clear(cpu, cpu_sibling_setup_map);
 +	}
-+	spin_unlock_irq(&rq->lock);
-+}
- #endif /* CONFIG_HOTPLUG_CPU */
+ }
  
- /*
-@@ -4779,32 +4812,14 @@ static int migration_call(struct notifie
- 		cpu_rq(cpu)->migration_thread = NULL;
- 		break;
- 	case CPU_DEAD:
--		migrate_live_tasks(cpu);
--		rq = cpu_rq(cpu);
--		kthread_stop(rq->migration_thread);
--		rq->migration_thread = NULL;
--		/* Idle task back to normal (off runqueue, low prio) */
--		rq = task_rq_lock(rq->idle, &flags);
--		deactivate_task(rq->idle, rq);
--		rq->idle->static_prio = MAX_PRIO;
--		__setscheduler(rq->idle, SCHED_NORMAL, 0);
--		migrate_dead_tasks(cpu);
--		task_rq_unlock(rq, &flags);
--		migrate_nr_uninterruptible(rq);
--		BUG_ON(rq->nr_running != 0);
++static cpumask_t cpu_dead_mask = CPU_MASK_NONE;
++static cpumask_t cpu_dead_error_mask = CPU_MASK_NONE;
++static atomic_t disable_cpu_start = ATOMIC_INIT(0); /* 1:start, 2:error */
+ int __cpu_disable(cpumask_t remove_mask)
+ {
+-	cpumask_t map = cpu_online_map;
+ 	int cpu = smp_processor_id();
++	int master = 0;
+ 
+-	BUG_ON(cpus_weight(remove_mask) != 1);
++	/* are we the master cpu? */
++	if (first_cpu(remove_mask) == cpu)
++		master = 1;
+ 	/*
+ 	 * Perhaps use cpufreq to drop frequency, but that could go
+ 	 * into generic code.
+@@ -1354,21 +1362,58 @@ int __cpu_disable(cpumask_t remove_mask)
+ 	 * interrupts only being able to be serviced by the BSP.
+ 	 * Especially so if we're not using an IOAPIC	-zwane
+ 	 */
+-	if (cpu == 0)
+-		return -EBUSY;
++	if (master) {
++		if (cpu_isset(0, remove_mask)) {
++			/* report the error */
++			atomic_set(&disable_cpu_start, 2);
++			smp_wmb(); /* set error first */
++			cpu_set(cpu, cpu_dead_error_mask);
++			while (!cpus_equal(cpu_dead_error_mask, remove_mask))
++				cpu_relax();
++			atomic_set(&disable_cpu_start, 0);
++			cpus_clear(cpu_dead_error_mask);
++			return -EBUSY;
++		}
++		smp_mb();
++		atomic_set(&disable_cpu_start, 1);
++	} else {
++		while (atomic_read(&disable_cpu_start) == 0)
++			cpu_relax();
++		if (atomic_read(&disable_cpu_start) == 2) {
++			cpu_set(cpu, cpu_dead_error_mask);
++			return -EBUSY;
++		}
++	}
+ 
+ 	clear_local_APIC();
+ 	/* Allow any queued timer interrupts to get serviced */
+ 	local_irq_enable();
+ 	mdelay(1);
+ 	local_irq_disable();
 -
--		/* No need to migrate the tasks: it was best-effort if
--		 * they didn't do lock_cpu_hotplug().  Just wake up
--		 * the requestors. */
--		spin_lock_irq(&rq->lock);
--		while (!list_empty(&rq->migration_queue)) {
--			migration_req_t *req;
--			req = list_entry(rq->migration_queue.next,
--					 migration_req_t, list);
--			list_del_init(&req->list);
--			complete(&req->done);
--		}
--		spin_unlock_irq(&rq->lock);
-+		/*
-+		 * Shouldn't call migrate_tasks_off_dead_cpu here. We explictly
-+		 * migrate tasks off dead cpu in cpu_down, otherwise there is
-+		 * a deadlock in bulk cpu removal. When one dead CPU's notifier
-+		 * handler is waitting for tasks in other dead CPUs' runqueue
-+		 * and in the meantime other dead CPUs' tasks aren't migrated
-+		 * to online cpus, the deadlock occurs.
-+		 */
- 		break;
- #endif
+-	remove_siblinginfo(cpu);
+-
+-	cpu_clear(cpu, map);
+-	fixup_irqs(map);
+ 	/* It's now safe to remove this processor from the online map */
+ 	cpu_clear(cpu, cpu_online_map);
++
++	/*
++	 * Till here, all changes master cpu can't remotely do should be
++	 * finished. Remainings don't require local cpu access.
++	 */
++	smp_mb();
++	cpu_set(cpu, cpu_dead_mask);
++	if (!master)
++		return 0;
++	/* master does cleanup. */
++	while (!cpus_equal(cpu_dead_mask, remove_mask))
++		cpu_relax();
++
++	remove_siblinginfo(remove_mask);
++
++	cpus_clear(cpu_dead_mask);
++	atomic_set(&disable_cpu_start, 0);
++	/*
++	 * Note: this depends on fixup_irqs doesn't need access other CPUs'
++	 * local CPU registers, otherwise each cpu should call this routine.
++	 */
++	fixup_irqs(cpu_online_map);
+ 	return 0;
+ }
+ 
+@@ -1376,19 +1421,28 @@ void __cpu_die(cpumask_t remove_mask)
+ {
+ 	/* We don't do anything here: idle task is faking death itself. */
+ 	unsigned int i;
+-	int cpu = first_cpu(remove_mask);
++	int cpu;
+ 
+ 	for (i = 0; i < 10; i++) {
+ 		/* They ack this in play_dead by setting CPU_DEAD */
+-		if (per_cpu(cpu_state, cpu) == CPU_DEAD) {
+-			printk ("CPU %d is now offline\n", cpu);
+-			if (1 == num_online_cpus())
+-				alternatives_smp_switch(0);
+-			return;
++		for_each_cpu_mask(cpu, remove_mask) {
++			if (per_cpu(cpu_state, cpu) == CPU_DEAD) {
++				printk ("CPU %d is now offline\n", cpu);
++				cpu_clear(cpu, remove_mask);
++			}
+ 		}
++		if (cpus_empty(remove_mask))
++			break;
++
+ 		msleep(100);
  	}
+- 	printk(KERN_ERR "CPU %u didn't die...\n", cpu);
++
++	if (!cpus_empty(remove_mask)) {
++		for_each_cpu_mask(cpu, remove_mask)
++ 			printk(KERN_ERR "CPU %u didn't die...\n", cpu);
++	}
++	if (1 == num_online_cpus())
++		alternatives_smp_switch(0);
+ }
+ #else /* ... !CONFIG_HOTPLUG_CPU */
+ int __cpu_disable(cpumask_t remove_mask)
 _
-

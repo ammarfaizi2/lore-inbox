@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWEHOI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWEHOHq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751264AbWEHOI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 10:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWEHOI2
+	id S1751118AbWEHOHq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 10:07:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWEHOHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 10:08:28 -0400
-Received: from wip-ec-mm01.wipro.com ([203.91.193.25]:59313 "EHLO
-	wip-ec-mm01.wipro.com") by vger.kernel.org with ESMTP
-	id S1751266AbWEHOI1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 10:08:27 -0400
-Message-ID: <445F5228.7060006@wipro.com>
-Date: Mon, 08 May 2006 19:44:00 +0530
-From: Madhukar Mythri <madhukar.mythri@wipro.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Mon, 8 May 2006 10:07:46 -0400
+Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:19635 "EHLO
+	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751118AbWEHOHq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 10:07:46 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] mm: swap prefetch sched batch
+Date: Tue, 9 May 2006 00:07:35 +1000
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: How to read BIOS information
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605090007.35787.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-     Im new to this group.
-I want to get some information from BIOS. i.e i want to know whether 
-Hyperthreading is Enabled/Disabled(as per BIOS settings)  from an user 
-applications program.
+kprefetchd is a latency insensitive ultra low priority task. Set it to
+SCHED_BATCH to obtain the benefit of this scheduling policy hint.
 
-Please reply, if anybody has worked on it.
+Signed-off-by: Con Kolivas <kernel@kolivas.org>
+
+---
+ mm/swap_prefetch.c |    3 +++
+ 1 files changed, 3 insertions(+)
+
+Index: linux-2.6.17-rc3-mm1/mm/swap_prefetch.c
+===================================================================
+--- linux-2.6.17-rc3-mm1.orig/mm/swap_prefetch.c	2006-05-08 23:56:17.000000000 +1000
++++ linux-2.6.17-rc3-mm1/mm/swap_prefetch.c	2006-05-09 00:00:21.000000000 +1000
+@@ -504,6 +504,9 @@ static enum trickle_return trickle_swap(
+ 
+ static int kprefetchd(void *__unused)
+ {
++	struct sched_param param = { .sched_priority = 0 };
++
++	sched_setscheduler(current, SCHED_BATCH, &param);
+ 	set_user_nice(current, 19);
+ 	/* Set ioprio to lowest if supported by i/o scheduler */
+ 	sys_ioprio_set(IOPRIO_WHO_PROCESS, 0, IOPRIO_CLASS_IDLE);
 
 -- 
-Thanks & Regards
-Madhukar Mythri
-Wipro Technologies
-Bangalore.
-Off: +91 80 30294361.
-M: +91 9886442416.
-
+-ck

@@ -1,96 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbWEHVvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbWEHV6L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750876AbWEHVvn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 17:51:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbWEHVvm
+	id S1751162AbWEHV6L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 17:58:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWEHV6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 17:51:42 -0400
-Received: from mga01.intel.com ([192.55.52.88]:59803 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750858AbWEHVvl convert rfc822-to-8bit (ORCPT
+	Mon, 8 May 2006 17:58:11 -0400
+Received: from main.gmane.org ([80.91.229.2]:64936 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751162AbWEHV6J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 17:51:41 -0400
-X-IronPort-AV: i="4.05,103,1146466800"; 
-   d="scan'208"; a="34169235:sNHT147049343"
-X-MIMEOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-Date: Mon, 8 May 2006 17:51:35 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB65EAC04@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-Thread-index: AcZvj+3cUNJ/67FZTaabyEaNx8cUSQAAHvvQAAIXkFAATcJ24AACFL4wAHSAIGAADV8rMA==
-From: "Brown, Len" <len.brown@intel.com>
-To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Andi Kleen" <ak@suse.de>, <sergio@sergiomb.no-ip.org>,
-       "Kimball Murray" <kimball.murray@gmail.com>,
-       <linux-kernel@vger.kernel.org>, <akpm@digeo.com>, <kmurray@redhat.com>,
-       <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 08 May 2006 21:51:35.0707 (UTC) FILETIME=[93AB6EB0:01C672E9]
+	Mon, 8 May 2006 17:58:09 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthieu CASTET <castet.matthieu@free.fr>
+Subject: Re: libata PATA patch update
+Date: Mon, 08 May 2006 23:57:54 +0200
+Message-ID: <pan.2006.05.08.21.57.53.522263@free.fr>
+References: <1147104400.3172.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<6>IOAPIC[64]: apic_id 127, version 32, address 0xfec49000, GSI
-1728-1751
+Hi Alan,
 
-wow, big box!
+Le Mon, 08 May 2006 17:06:40 +0100, Alan Cox a écrit :
 
->I have tested this algorithm and it worked just fine for me... I used
->the following compression code in mp_register_gsi():
->
->
->int     irqs_used = 0;
->int     gsi_to_irq[NR_IRQS] = { [0 ... NR_IRQS-1] = -1 };
->...
->
->        if (triggering == ACPI_LEVEL_SENSITIVE) {
->                if (gsi > NR_IRQS) {
->                        int i;
->                        printk("NBP: looking for unused IRQ\n");
->                        for (i = nr_ioapic_registers[0]; i < NR_IRQS;
-i++) {
->                                if (gsi_to_irq[i] == -1) {
->                                        gsi_to_irq[i] = gsi;
->                                        gsi = i;
->                                        break;
->                                }
->                        }
->                        if (i >= NR_IRQS) {
->                                printk(KERN_ERR "GSI %u is too high\n",
-...
->                                return gsi;
->                        }
->                } else
->                        gsi_to_irq[gsi] = gsi;
->        }
+> I've posted a new patch versus 2.6.17-rc3 up at the usual location.
+> 
+> http://zeniv.linux.org.uk/~alan/IDE
+> 
+Aren't there a bug in via cable detect ?
 
-the problem with this code as it stands is that acpi/mp_register_gsi()
-can be called with gsi in any order.  So it is possible
-for the compression code above to select gsi_to_irq[n]
-and later for the non-compression path to over-write gsi_to_irq[n].
+The via ide driver do
+pci_read_config_dword(dev, VIA_UDMA_TIMING, &u);
+for (i = 24; i >= 0; i -= 8)
+                                if (((u >> i) & 0x10) ||
+                                    (((u >> i) & 0x20) &&
+                                     (((u >> i) & 7) < 6))) {
+                                        /* BIOS 80-wire bit or
+                                         * UDMA w/ < 60ns/cycle
+                                         */
+                                        vdev->via_80w |= (1 << (1 - (i >> 4)));
+                                }
+80w = (vdev->via_80w >> hwif->channel) & 1;
 
-Also, I would prefer that this code be in ioapic_renumber_irq(), as I
-think
-it is unnecessarily complex to re-number, and then re-number again.
-(gsi_irq_sharing() is a separate discussion)
+upper bit are for channel 0 and lower bit for channel 1.
+the pata driver do
+pci_read_config_dword(pdev, 0x50, &ata66);
+80w = ata66 & (0x1010 << (16 * ap->hard_port_no))
+upper bit are for channel 1 and lower bit for channel 0.
 
-I think this should be model-specific, but if you feel that handling
-(gsi > NR_IRQS) here is important in the generic case, then I'm
-fine with this being a default ioapic_renumber_irq() handler
-that a platform can augment/override.
+at boot VIA_UDMA_TIMING is 0xf1f1e6e6 for a 80w cable on channel 0 and 40w
+cable on channel 1.
+Pata driver set my UDMA100 disk at UDMA33.
 
-Re: returning error
-At one point acpi_register_gsi() was able to return an error.
-However, that was broken when acpi_gsi_to_irq() was created,
-and then broken worse when that routine was modified
-with gsi_irq_sharing().  if you BUG() on i > NR_IRQS,
-that would be consistent wth gsi_irq_sharing().
+Matthieu.
 
-thanks,
--Len
+PS : any idea in order to allow to work my cdrw drive, that don't return
+interrupt when setting xfermode ?
+

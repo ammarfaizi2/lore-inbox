@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWEHHzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWEHH5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbWEHHzc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 03:55:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWEHHzc
+	id S932158AbWEHH5M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 03:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWEHH5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 03:55:32 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:48276 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750721AbWEHHzb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 03:55:31 -0400
-Message-ID: <445EF968.3080903@sgi.com>
-Date: Mon, 08 May 2006 09:55:20 +0200
-From: Jes Sorensen <jes@sgi.com>
-User-Agent: Thunderbird 1.5 (X11/20060317)
+	Mon, 8 May 2006 03:57:12 -0400
+Received: from mxfep01.bredband.com ([195.54.107.70]:2762 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S1751146AbWEHH5M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 03:57:12 -0400
+Message-ID: <445EF9F7.7080405@hozac.com>
+Date: Mon, 08 May 2006 09:57:43 +0200
+From: Daniel Hokka Zakrisson <daniel@hozac.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Grant Coady <gcoady.lk@gmail.com>
-CC: "Randy.Dunlap" <rdunlap@xenotime.net>, Brent Casavant <bcasavan@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, akpm@osdl.org,
-       jeremy@sgi.com
-Subject: Re: [PATCH] Move various PCI IDs to header file
-References: <20060504180614.X88573@chenjesu.americas.sgi.com> <20060504173722.028c2b24.rdunlap@xenotime.net> <445AE690.5030700@sgi.com> <Pine.LNX.4.58.0605050926250.3161@shark.he.net> <0jkn52lnu505eb26plf5o7buertimg2e6v@4ax.com>
-In-Reply-To: <0jkn52lnu505eb26plf5o7buertimg2e6v@4ax.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Linus Torvalds <torvalds@osdl.org>
+CC: linux-kernel@vger.kernel.org,
+       =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
+       greg@kroah.com, matthew@wil.cx
+Subject: Re: [PATCH] fs: fcntl_setlease defies lease_init assumptions
+References: <445E80DD.9090507@hozac.com> <Pine.LNX.4.64.0605072030280.3718@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0605072030280.3718@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Coady wrote:
-> When I worked on pci_ids.h cleanup last year I didn't get a clear 
-> idea of whether moving all #defines to the one header file was 
-> desired.  Last I looked there were heaps of them scattered all 
-> over.  Is there a preferred model for placing these #defines?
+Linus Torvalds wrote:
+> Ok, I was actually really surprised that we'd ever allow a non-slab page 
+> to be free'd as a slab or kmalloc allocation, without screaming very 
+> loudly indeed. That implies a lack of some pretty fundamental sanity 
+> checking by default in the slab layer (I suspect slab debugging turns it 
+> on, but even without it, that's just nasty).
 > 
-> Grant.
+> Can you see if this trivial patch at least causes a honking huge 
+> "kernel BUG" message to be triggered quickly?
 
-According to the document Randy referenced, the preferred place for
-*new* defines is to stick them in the local files where they are used.
-I don't think there is any preference for moving the out of pci_ids.h
-as it would just cause patch noise for the sake of making noise.
+It doesn't, at least not before the machine becomes unresponsive.
 
-So much for being able to go through the pci_ids.h file to get an idea
-about whether or not a device may have a chance of being supported :(
-
-Jes
+-- 
+Daniel Hokka Zakrisson

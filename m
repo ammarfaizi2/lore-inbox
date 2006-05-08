@@ -1,93 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbWEHWOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWEHWOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751311AbWEHWOa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 18:14:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbWEHWNv
+	id S1751320AbWEHWOc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 18:14:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWEHWOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 18:13:51 -0400
-Received: from [63.64.152.142] ([63.64.152.142]:23301 "EHLO gitlost.site")
-	by vger.kernel.org with ESMTP id S1751287AbWEHWNP (ORCPT
+	Mon, 8 May 2006 18:14:30 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:2790 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751290AbWEHWO0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 18:13:15 -0400
-From: Chris Leech <christopher.leech@intel.com>
-Subject: [PATCH 6/9] [I/OAT] Rename cleanup_rbuf to tcp_cleanup_rbuf and make non-static
-Date: Mon, 08 May 2006 15:17:43 -0700
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Message-Id: <20060508221743.15181.37962.stgit@gitlost.site>
-In-Reply-To: <20060508221632.15181.50046.stgit@gitlost.site>
-References: <20060508221632.15181.50046.stgit@gitlost.site>
+	Mon, 8 May 2006 18:14:26 -0400
+Subject: RE: [PATCH] tpm: update module dependencies
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
+In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB65EAC0D@hdsmsx411.amr.corp.intel.com>
+References: <CFF307C98FEABE47A452B27C06B85BB65EAC0D@hdsmsx411.amr.corp.intel.com>
+Content-Type: text/plain
+Date: Mon, 08 May 2006 17:12:49 -0500
+Message-Id: <1147126369.29414.63.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Needed to be able to call tcp_cleanup_rbuf in tcp_input.c for I/OAT
+No I think I really want PNPACPI because I have a pnp_driver which
+probes based on a CID value.  PNPACPI is dependent on ACPI.  Am I
+misunderstanding something.  It works with PNPACPI on but turning off
+only PNPACPI causes it to not work.
 
-Signed-off-by: Chris Leech <christopher.leech@intel.com>
----
+Thanks,
+Kylie
 
- include/net/tcp.h |    2 ++
- net/ipv4/tcp.c    |   10 +++++-----
- 2 files changed, 7 insertions(+), 5 deletions(-)
-
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index d0c2c2f..578cccf 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -294,6 +294,8 @@ extern int			tcp_rcv_established(struct 
- 
- extern void			tcp_rcv_space_adjust(struct sock *sk);
- 
-+extern void			tcp_cleanup_rbuf(struct sock *sk, int copied);
-+
- extern int			tcp_twsk_unique(struct sock *sk,
- 						struct sock *sktw, void *twp);
- 
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index e2b7b80..1c0cfd7 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -937,7 +937,7 @@ static int tcp_recv_urg(struct sock *sk,
-  * calculation of whether or not we must ACK for the sake of
-  * a window update.
-  */
--static void cleanup_rbuf(struct sock *sk, int copied)
-+void tcp_cleanup_rbuf(struct sock *sk, int copied)
- {
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	int time_to_ack = 0;
-@@ -1086,7 +1086,7 @@ int tcp_read_sock(struct sock *sk, read_
- 
- 	/* Clean up data we have read: This will do ACK frames. */
- 	if (copied)
--		cleanup_rbuf(sk, copied);
-+		tcp_cleanup_rbuf(sk, copied);
- 	return copied;
- }
- 
-@@ -1220,7 +1220,7 @@ int tcp_recvmsg(struct kiocb *iocb, stru
- 			}
- 		}
- 
--		cleanup_rbuf(sk, copied);
-+		tcp_cleanup_rbuf(sk, copied);
- 
- 		if (!sysctl_tcp_low_latency && tp->ucopy.task == user_recv) {
- 			/* Install new reader */
-@@ -1391,7 +1391,7 @@ skip_copy:
- 	 */
- 
- 	/* Clean up data we have read: This will do ACK frames. */
--	cleanup_rbuf(sk, copied);
-+	tcp_cleanup_rbuf(sk, copied);
- 
- 	TCP_CHECK_TIMER(sk);
- 	release_sock(sk);
-@@ -1858,7 +1858,7 @@ static int do_tcp_setsockopt(struct sock
- 			    (TCPF_ESTABLISHED | TCPF_CLOSE_WAIT) &&
- 			    inet_csk_ack_scheduled(sk)) {
- 				icsk->icsk_ack.pending |= ICSK_ACK_PUSHED;
--				cleanup_rbuf(sk, 1);
-+				tcp_cleanup_rbuf(sk, 1);
- 				if (!(val & 1))
- 					icsk->icsk_ack.pingpong = 1;
- 			}
+On Mon, 2006-05-08 at 17:59 -0400, Brown, Len wrote:
+> >The TIS driver is dependent upon information from the ACPI table for
+> >device discovery thus it compiles but does no actual work with out this
+> >dependency.
+> >
+> >Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+> >---
+> > drivers/char/tpm/Kconfig |    2 +-
+> > 1 files changed, 1 insertion(+), 1 deletion(-)
+> >
+> >--- linux-2.6.17-rc3/drivers/char/tpm/Kconfig	2006-04-26 
+> >21:19:25.000000000 -0500
+> >+++ linux-2.6.17-rc3-tpm/drivers/char/tpm/Kconfig	
+> >2006-05-08 16:11:03.707961750 -0500
+> >@@ -22,7 +22,7 @@ config TCG_TPM
+> > 
+> > config TCG_TIS
+> > 	tristate "TPM Interface Specification 1.2 Interface"
+> >-	depends on TCG_TPM
+> >+	depends on TCG_TPM && PNPACPI
+> 
+> I think you want simply "ACPI" rather than "PNPACPI" here, yes?
+> 
+> -Len
 

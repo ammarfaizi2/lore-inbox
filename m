@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751033AbWEHJRg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750902AbWEHKBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751033AbWEHJRg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 05:17:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751066AbWEHJRg
+	id S1750902AbWEHKBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 06:01:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750939AbWEHKBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 05:17:36 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:18890 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751007AbWEHJRf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 05:17:35 -0400
-Date: Mon, 8 May 2006 14:45:36 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: [RT PATCH] fix futex compilation (rt20)
-Message-ID: <20060508091535.GB6081@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Mon, 8 May 2006 06:01:16 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:30636 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750892AbWEHKBQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 06:01:16 -0400
+Date: Mon, 8 May 2006 06:01:13 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Krishna Chaitanya <lnxctnya@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: real-time in linux
+In-Reply-To: <ae649ba00605080039k704c0c08gb87640d1205f5bd1@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0605080555020.6403@gandalf.stny.rr.com>
+References: <ae649ba00605080039k704c0c08gb87640d1205f5bd1@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
 
-I needed this patch to compile and boot rt20 on x86_64. Just FYI.
+On Mon, 8 May 2006, Krishna Chaitanya wrote:
 
-Thanks
-Dipankar
+> Hi All!
+>
+> I am interested to work on real-time applications.
+> Is there any source to understand real-time in linux.
+>
 
-Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+Hi Krishna,
 
-diff -puN kernel/futex_compat.c~fix-futex-compile kernel/futex_compat.c
---- linux-2.6.16-rt20/kernel/futex_compat.c~fix-futex-compile	2006-05-08 13:59:53.000000000 +0530
-+++ linux-2.6.16-rt20-dipankar/kernel/futex_compat.c	2006-05-08 14:01:02.000000000 +0530
-@@ -137,5 +137,5 @@ asmlinkage long compat_sys_futex(u32 __u
- 	if (op == FUTEX_REQUEUE || op == FUTEX_CMP_REQUEUE)
- 		val2 = (int) (unsigned long) utime;
- 
--	return do_futex(uaddr, op, val, timeout, uaddr2, val2, val3);
-+	return do_futex(uaddr, op, val, &t, uaddr2, val2, val3);
- }
+Are you looking for documentation or source?
 
-_
+Ingo Molnar maintains the current -rt patch set that makes the vanilla
+linux kernel real-time.
+
+You can get the source from here:
+
+  http://people.redhat.com/mingo/realtime-preempt/
+
+Or if you have the latest version of ketchup you can just do the following
+in a empty directory:
+
+  $ ketchup 2.6.16-rt20
+
+Which would bring you upto the current latest of the patch (as of this
+email).
+
+-- Steve
+

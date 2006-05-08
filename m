@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbWEHVUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWEHVYJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751046AbWEHVUt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 17:20:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWEHVUt
+	id S1751088AbWEHVYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 17:24:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWEHVYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 17:20:49 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27050 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751046AbWEHVUs (ORCPT
+	Mon, 8 May 2006 17:24:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:61611 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751103AbWEHVYG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 17:20:48 -0400
-Date: Mon, 8 May 2006 14:23:22 -0700
+	Mon, 8 May 2006 17:24:06 -0400
+Date: Mon, 8 May 2006 14:26:40 -0700
 From: Andrew Morton <akpm@osdl.org>
 To: balbir@in.ibm.com
 Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
        jlan@engr.sgi.com
-Subject: Re: [Patch 1/8] Setup
-Message-Id: <20060508142322.71e88a54.akpm@osdl.org>
-In-Reply-To: <20060502061255.GL13962@in.ibm.com>
-References: <20060502061255.GL13962@in.ibm.com>
+Subject: Re: [Patch 3/8] cpu delay collection via schedstats
+Message-Id: <20060508142640.675665c7.akpm@osdl.org>
+In-Reply-To: <20060502061505.GN13962@in.ibm.com>
+References: <20060502061505.GN13962@in.ibm.com>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,26 +27,32 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Balbir Singh <balbir@in.ibm.com> wrote:
 >
-> +static inline void delayacct_end(struct timespec *start, struct timespec *end,
-> +				u64 *total, u32 *count)
+> +/*
+> + * Expects runqueue lock to be held for atomicity of update
+> + */
+> +static inline void rq_sched_info_arrive(struct runqueue *rq,
+> +						unsigned long diff)
 > +{
-> +	struct timespec ts = {0, 0};
-> +	s64 ns;
+> +	if (rq) {
+> +		rq->rq_sched_info.run_delay += diff;
+> +		rq->rq_sched_info.pcnt++;
+> +	}
+> +}
 > +
-> +	do_posix_clock_monotonic_gettime(end);
-> +	timespec_sub(&ts, start, end);
-> +	ns = timespec_to_ns(&ts);
-> +	if (ns < 0)
-> +		return;
-> +
-> +	spin_lock(&current->delays->lock);
-> +	*total += ns;
-> +	(*count)++;
-> +	spin_unlock(&current->delays->lock);
+> +/*
+> + * Expects runqueue lock to be held for atomicity of update
+> + */
+> +static inline void rq_sched_info_depart(struct runqueue *rq,
+> +						unsigned long diff)
+> +{
+> +	if (rq)
+> +		rq->rq_sched_info.cpu_time += diff;
 > +}
 
-- too large to be inlined
+The kernel has many different units of time - jiffies, cpu ticks, ns, us,
+ms, etc.  So the reader of these functions doesn't have a clue what "diff"
+is.
 
-- The initialisation of `ts' is unneeded (maybe it generated a bogus
-  warning, but it won't do that if you switch timespec_sub to
-  return-by-value)
+A good way to remove all doubt in all cases is to include the units in the
+variable's name.  Something like delta_jiffies, perhaps.
+

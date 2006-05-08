@@ -1,92 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWEHADi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbWEHANp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751172AbWEHADi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 May 2006 20:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWEHADi
+	id S1751236AbWEHANp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 May 2006 20:13:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbWEHANp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 May 2006 20:03:38 -0400
-Received: from khc.piap.pl ([195.187.100.11]:31762 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1751172AbWEHADi (ORCPT
+	Sun, 7 May 2006 20:13:45 -0400
+Received: from thunk.org ([69.25.196.29]:52701 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1751236AbWEHANp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 May 2006 20:03:38 -0400
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Dave Airlie <airlied@gmail.com>,
-       Greg KH <greg@kroah.com>, Ian Romanick <idr@us.ibm.com>,
-       Dave Airlie <airlied@linux.ie>,
-       Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace (Xorg) to enable devices without doing foul direct access
-References: <mj+md-20060504.211425.25445.atrey@ucw.cz>
-	<20060505210614.GB7365@kroah.com>
-	<9e4733910605051415o48fddbafpf0f8b096f971e482@mail.gmail.com>
-	<20060505222738.GA8985@kroah.com>
-	<9e4733910605051705j755ad61dm1c07c66c2c24c525@mail.gmail.com>
-	<21d7e9970605051857l4415a04ai7d1b1f886bb01cee@mail.gmail.com>
-	<9e4733910605052039n7d2debbse0fd07e0d1d059fb@mail.gmail.com>
-	<m3d5er729f.fsf@defiant.localdomain>
-	<9e4733910605060608l57c1a215pa300c326ef1eef4b@mail.gmail.com>
-	<m34q036n46.fsf@defiant.localdomain>
-	<9e4733910605061124u6b1c4b88nd84faa914c72521f@mail.gmail.com>
-	<m33bfm4ud2.fsf@defiant.localdomain>
-	<9E6FFBE8-39F0-4C3D-8D6C-B0EC59AD5D22@mac.com>
-	<m3mzdum448.fsf@defiant.localdomain>
-	<E4FD2AAC-98AA-42EF-951D-02757C24550C@mac.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Mon, 08 May 2006 02:03:34 +0200
-In-Reply-To: <E4FD2AAC-98AA-42EF-951D-02757C24550C@mac.com> (Kyle Moffett's message of "Sun, 7 May 2006 15:07:08 -0400")
-Message-ID: <m3r735mlgp.fsf@defiant.localdomain>
+	Sun, 7 May 2006 20:13:45 -0400
+Date: Sun, 7 May 2006 20:13:33 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Thiago Galesi <thiagogalesi@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
+Message-ID: <20060508001333.GA17138@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Matt Mackall <mpm@selenic.com>,
+	Thiago Galesi <thiagogalesi@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <20060505203436.GW15445@waste.org> <20060506115502.GB18880@thunk.org> <20060506164808.GY15445@waste.org> <20060506.170810.74552888.davem@davemloft.net> <20060507045920.GH15445@waste.org> <82ecf08e0605070613o7b217a2bw4c71c3a8c33bed28@mail.gmail.com> <20060507160013.GM15445@waste.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060507160013.GM15445@waste.org>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett <mrmacman_g4@mac.com> writes:
+On Sun, May 07, 2006 at 11:00:14AM -0500, Matt Mackall wrote:
+> Yes, CRC-16 was a rhetorical device. MD4 would not have been. 
 
-> This is *exactly* what we don't want to do!  The whole point of this
-> thread is to prevent the need to use /dev/mem and /dev/kmem for
-> anything except debugging.
+MD4 is succeptible to a 2nd pre-image attack, yes.  This means that
+given a specific message and its MD4 checksum, you can find another
+message which will have the same MD4 checksum.  But that doesn't help
+you at all if you only have the MD4 checksum.  And even the 2nd
+pre-image attack still requires O(2**40) operations.  That's within
+the reach of modern CPU's yes, but that simply gives you a *second*
+pre-image that has the same MD4 checksum as original message.  
 
-Look, it's me who's using that and I tell you I want just that :-)
+In order to crack the entropy pool, you need a large number of outputs
+from /dev/random, and be able to find a large number of pre-images
+very rapidly.  This is the main reason why I believe the entropy
+accounting is still useful.  Even if the entropy accounting is off by
+several orders of magnitude, it is still useful, since the attacks
+that we're talking about will very likely require a huge number of
+data points.  For example, the most powerful cryptoanalytic attack
+against DES still requires 2**43 plaintext/ciphertext pairs.
 
-> Ewww, I certainly wouldn't trust a binary statically-linked binary
-> program that mmaps /dev/mem or /dev/kmem
+But in answer to your question, what should we do, my suggestion would
+be to sample all interrupts, and calculate the estimated entropy
+credits as we to day, but scaled by an amount that can range from 0 to
+100%.  This amount can be configured by system administrators, and
+will have intelligent defaults for each device driver to the amount of
+entropy should be credited for a particular device.  If we care, we
+can set the default percentage scalaing factor for platforms with no
+TSC reguster and HZ=100 to be zero.  But for most normal/modern
+platforms, I would argue the default scaling factor should be 100%.
 
-And would you trust a binary which doesn't have "/dev/mem" string
-in it?
+The bottom line is this is much ado about nothing.  As I have said,
+most programs use /dev/urandom, not /dev/random; the only really
+appropriate use of /dev/random is to generate long-term public/private
+keypairs, or perhaps to seed some other cryptographic random number
+generator (like /dev/urandom).
 
-Anyway you can compile it yourself if you want. It's not about trust,
-it's about simplicity and robustness.
-
->    #! /bin/sh
->    cp firmware.bin /lib/firmware/some_firmware_file.bin
->    echo -n eeprom_load_driver >/sys/device/$PCI_ID/bind
->    echo -n 1 >/sys/device/$PCI_ID/unbind
->
-> Simple, obviously correct, and uses a nice reuseable driver too!
-
-Sure. If the driver is loaded/available. What if, say, the
-distribution you use doesn't have it?
-
-> No!  That would be even worse!  You're then having userspace poke at
-> the driver while a kernel driver is loaded, which is *exactly* what X
-> is getting into trouble for doing.
-
-So what? The driver and EEPROM updater don't conflict.
-
->  If you want to add firmware
-> update capability, add it to the preexisting primary driver.
-
-It will not load with blank or invalid EEPROM :-)
-
-> No, not an "enable" interface.  In this case the kernel should do
-> basically all of the poking at PCI resources for you.
-
-Because?
-
->  If you
-> _really_ want to do that kind of update in userspace, write a stub
-> driver which just enables the device on bind, disables it on unbind,
-> and mmap and write to the sysfs "rom" file.
-
-It has nothing to do with any "ROM".
--- 
-Krzysztof Halasa
+						- Ted

@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750902AbWEHKBQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWEHLNt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750902AbWEHKBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 06:01:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750939AbWEHKBQ
+	id S1751156AbWEHLNt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 07:13:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWEHLNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 06:01:16 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:30636 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750892AbWEHKBQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 06:01:16 -0400
-Date: Mon, 8 May 2006 06:01:13 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Krishna Chaitanya <lnxctnya@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: real-time in linux
-In-Reply-To: <ae649ba00605080039k704c0c08gb87640d1205f5bd1@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0605080555020.6403@gandalf.stny.rr.com>
-References: <ae649ba00605080039k704c0c08gb87640d1205f5bd1@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 May 2006 07:13:48 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:2037 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751156AbWEHLNr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 07:13:47 -0400
+Date: Mon, 8 May 2006 13:13:45 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jason Schoonover <jasons@pioneer-pra.com>, linux-kernel@vger.kernel.org
+Subject: Re: High load average on disk I/O on 2.6.17-rc3
+Message-ID: <20060508111345.GA1875@harddisk-recovery.com>
+References: <200605051010.19725.jasons@pioneer-pra.com> <20060507095039.089ad37c.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060507095039.089ad37c.akpm@osdl.org>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, May 07, 2006 at 09:50:39AM -0700, Andrew Morton wrote:
+> This is probably because the number of pdflush threads slowly grows to its
+> maximum.  This is bogus, and we seem to have broken it sometime in the past
+> few releases.  I need to find a few quality hours to get in there and fix
+> it, but they're rare :(
+> 
+> It's pretty harmless though.  The "load average" thing just means that the
+> extra pdflush threads are twiddling thumbs waiting on some disk I/O -
+> they'll later exit and clean themselves up.  They won't be consuming
+> significant resources.
 
-On Mon, 8 May 2006, Krishna Chaitanya wrote:
+Not completely harmless. Some daemons (sendmail, exim) use the load
+average to decide if they will allow more work. A local user could
+create a mail DoS by just copying a couple of large files around.
+Zeniv.linux.org.uk mail went down due to this. See
+http://lkml.org/lkml/2006/3/28/70 .
 
-> Hi All!
->
-> I am interested to work on real-time applications.
-> Is there any source to understand real-time in linux.
->
 
-Hi Krishna,
+Erik
 
-Are you looking for documentation or source?
-
-Ingo Molnar maintains the current -rt patch set that makes the vanilla
-linux kernel real-time.
-
-You can get the source from here:
-
-  http://people.redhat.com/mingo/realtime-preempt/
-
-Or if you have the latest version of ketchup you can just do the following
-in a empty directory:
-
-  $ ketchup 2.6.16-rt20
-
-Which would bring you upto the current latest of the patch (as of this
-email).
-
--- Steve
-
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

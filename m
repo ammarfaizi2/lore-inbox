@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWEHVRK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbWEHVOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750866AbWEHVRK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 17:17:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWEHVRJ
+	id S1750859AbWEHVOq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 17:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbWEHVOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 17:17:09 -0400
-Received: from wx-out-0102.google.com ([66.249.82.200]:10546 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750866AbWEHVRI convert rfc822-to-8bit (ORCPT
+	Mon, 8 May 2006 17:14:46 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2985 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750841AbWEHVOp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 17:17:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=c02uSAhczUwpvu7TaI7m35GrvesMxXotnlk+WZW3tezxnzXSTu2Tq6reln1+aMPuwNGT0xvdpm8ugd0ImmKKcSiTyi4BaCR+mvKxjLtTIftrg7e2l8HiheUMe376QhSGYPL53svrod6I98ld5t6+bMfE7HsEdATOe1Acn4m48eM=
-Message-ID: <64b292120605081417y1684cba4kfb85ce39c14df0f7@mail.gmail.com>
-Date: Mon, 8 May 2006 16:17:07 -0500
-From: "Circuitsoft Development" <circuitsoft.devel@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Fwd: Fwd: Extended Volume Manager API
-In-Reply-To: <64b292120605062123gdb302d2g201fa59e93bc6a25@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <64b292120604302226i377f1c37qd33db36693ea1871@mail.gmail.com>
-	 <200605010702.k4172Q5H006348@turing-police.cc.vt.edu>
-	 <64b292120605010759h4d9c74d7s717d125018ab95d3@mail.gmail.com>
-	 <64b292120605011310n59ac3bdew2508bfa8b923adb3@mail.gmail.com>
-	 <Pine.LNX.4.64.0605020842250.29285@cuia.boston.redhat.com>
-	 <64b292120605062123gdb302d2g201fa59e93bc6a25@mail.gmail.com>
+	Mon, 8 May 2006 17:14:45 -0400
+Date: Mon, 8 May 2006 14:17:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: balbir@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       jlan@engr.sgi.com, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [Patch 1/8] Setup
+Message-Id: <20060508141713.60c9d33e.akpm@osdl.org>
+In-Reply-To: <20060502061255.GL13962@in.ibm.com>
+References: <20060502061255.GL13962@in.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/2/06, Rik van Riel <riel@redhat.com> wrote:
-> On Mon, 1 May 2006, Circuitsoft Development wrote:
+Balbir Singh <balbir@in.ibm.com> wrote:
 >
-> > I was actually planning on a 5msec timeout to ignore that computer,
-> > for now, then if I don't get a response within 100msec,  ping them,
-> > and permenantly remove them from the list of peers and broadcast a
-> > "this peer is dead" message to the network if the ping times out at
-> > 500msec.
->
-> How are you going to prevent your "dead" peer from writing
-> to the disk anyway ?
->
-> --
-> All Rights Reversed
->
+>  /*
+> + * sub = end - start, in normalized form
+> + */
+> +static inline void timespec_sub(struct timespec *start, struct timespec *end,
+> +				struct timespec *sub)
+> +{
+> +	set_normalized_timespec(sub, end->tv_sec - start->tv_sec,
+> +				end->tv_nsec - start->tv_nsec);
+> +}
 
-I'm not. They also need to get permission from the network before they
-write to the disk, and they're not going to get permission without
-hearing back from everybody. Besides, since the same network is used
-to connect to the disks as is used to connect the computers to each
-other, how would it be able to access the disks without being able to
-access other computers which also connect to the disks?
+The interface might not be right here.
 
-(Sorry for the repeat, Rik)
+- I think "lhs" and "rhs" would be better names than "start" and "end". 
+  After all, we don't _know_ that the caller is using the two times as a
+  start and an end.  The caller might be taking the difference between two
+  differences, for example.
+
+- The existing timespec and timeval funtions tend to do return-by-value. 
+  So this would become
+
+	static inline struct timespec timespec_sub(struct timespec lhs,
+							struct timespec rhs)
+
+  (and given that it's inlined, the added overhead of passing the
+  arguments by value will be zero)
+
+- If we don't want to do that then at least let's get the arguments in a
+  sane order:
+
+	static inline void timespec_sub(struct timespec *result,
+				struct timespec lhs, struct timespec rhs)
+
+

@@ -1,18 +1,18 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbWEHIay (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 8 May 2006 04:30:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932232AbWEHIax
+	id S932369AbWEHIe3 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 8 May 2006 04:34:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWEHIe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 04:30:53 -0400
-Received: from 193-80-232-250.ip.osiris.at ([193.80.232.250]:62217 "EHLO
+	Mon, 8 May 2006 04:34:27 -0400
+Received: from 193-80-232-250.ip.osiris.at ([193.80.232.250]:27408 "EHLO
 	mailexchange.oundt.net") by vger.kernel.org with ESMTP
-	id S932187AbWEHIav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 04:30:51 -0400
-Date: Mon, 08 May 2006 10:25:13 +0200
+	id S932361AbWEHIeY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 04:34:24 -0400
+Date: Mon, 08 May 2006 10:30:15 +0200
 From: "Shu Lee Wong" <kydeienterprisecoltd@yahoo.com.hk>
 Reply-To: "Shu Lee Wong" <kydei_enterprisecoltd@yahoo.com.hk>
 Subject: KYDEI ENTERPRISE (H.K) CO.LTD.
-Message-ID: <bbfc0cbb53f025ba7f694d60c79a4bb7@promail4you.at>
+Message-ID: <193cbcd2d744e01f9b793a530e39eb01@promail4you.at>
 X-Mailer: IceWarp Web Mail 5.6.0
 X-Originating-IP: 196.3.62.3
 MIME-Version: 1.0
@@ -21,7 +21,7 @@ Content-Transfer-Encoding: 7bit
 To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932188AbWEHIay@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932369AbWEHIe3@vger.kernel.org>
 
 KYDEI ENTERPRISE (H.K) CO.LTD.
 29-32/F., 30 Queen’s Road Central, Hong Kong,

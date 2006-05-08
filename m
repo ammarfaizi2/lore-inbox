@@ -1,52 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbWEHRnh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbWEHRsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932445AbWEHRnh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 13:43:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWEHRnh
+	id S932459AbWEHRsq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 13:48:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWEHRsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 13:43:37 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:46016
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932424AbWEHRng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 13:43:36 -0400
-Date: Mon, 08 May 2006 10:43:22 -0700 (PDT)
-Message-Id: <20060508.104322.58430929.davem@davemloft.net>
-To: pavel@suse.cz
-Cc: hswong3i@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] TCP congestion module: add TCP-LP supporting for
- 2.6.16.14
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060508112915.GB4162@ucw.cz>
-References: <3feffd230605062232m1b9a3951h6d21071cdacc890f@mail.gmail.com>
-	<20060508112915.GB4162@ucw.cz>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 8 May 2006 13:48:46 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:59830 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932459AbWEHRsp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 13:48:45 -0400
+Subject: Re: 2.6.17-rc3-mm1
+From: john stultz <johnstul@us.ibm.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Benoit Boissinot <benoit.boissinot@ens-lyon.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1146911438.7467.13.camel@localhost.localdomain>
+References: <20060501014737.54ee0dd5.akpm@osdl.org>
+	 <40f323d00605030211t78e41d18h298c8be3721a135a@mail.gmail.com>
+	 <20060503064816.ef7ec2b7.akpm@osdl.org>
+	 <1146665732.27820.75.camel@localhost.localdomain>
+	 <20060503144318.GA5505@ens-lyon.fr>  <20060505150509.GA16562@ens-lyon.fr>
+	 <1146911438.7467.13.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 08 May 2006 10:48:39 -0700
+Message-Id: <1147110520.13441.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pavel Machek <pavel@suse.cz>
-Date: Mon, 8 May 2006 11:29:15 +0000
-
-> Hi!
+On Sat, 2006-05-06 at 10:30 +0000, Thomas Gleixner wrote:
+> Benoit,
 > 
-> > TCP Low Priority is a distributed algorithm whose goal 
-> > is to utilize only
-> > the excess network bandwidth as compared to the ``fair 
-> > share`` of
-> > bandwidth as targeted by TCP. Available from:
-> >   http://www.ece.rice.edu/~akuzma/Doc/akuzma/TCP-LP.pdf
+> On Fri, 2006-05-05 at 17:05 +0200, Benoit Boissinot wrote:
+> > @@ -437,6 +438,12 @@ hrtimer_start(struct hrtimer *timer, kti
+> >  
+> >  	if (mode == HRTIMER_REL) {
+> - 		tim = ktime_add(tim, new_base->get_time());
+> +		ktime_t curr = new_base->get_time();
+> +		
+> +		tim = ktime_add(tim, curr);
+> +
 > 
-> Nice... I'd like to use something like this on my (overloaded)
-> GPRS/EDGE link.
+> Can you change the debug that way? So we have the values which are
+> added. Please print out new_base->id too.
 > 
-> Unfortunately, patch does not include documentation update AFAICS. How
-> do I use it? net-nice -n 19 rsync would be nice, but I guess that
-> would be quite complex...?
+> > and when urxvtd hanged I had the following in dmesg:
+> > [  356.696000] urxvtd: empty nanosleep 356726124322 17948911854451
+> > 
+> > So I suppose something is wrong in ktime_add()
+> 
+> Well, ktime_add is adding two 64 bit values.
+> 
+> The delta between the two values is 0xFFFFFFB3451. That looks like the
+> timekeeping on your box is screwed by 0x100000000000. 
+> 
+> John, any idea ?
 
-You could select it as the default congestion control algorithm
-in your kernel config, but that's probably not what you want.
+I suspect the system is falling back to the PIT instead of the ACPI PM
+due to mis-merged patch in 2.6.17-rc3-mm1. The PIT has had a few reports
+of problems, and I've got a test patch which I'm waiting for some
+results on from a tester before sending (I can't reproduce the issue
+locally).
 
-Or, just include it, and select it with the TCP_CONGESTION socket
-option when you want it.  Sorry, this does require app modifications.
+Applying the patch here should get the ACPI PM working again.
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=f0ec5e39765cd254d436a6d86e211d81795952a4;hp=30d55280b867aa0cae99f836ad0181bb0bf8f9cb
+
+
+thanks
+-john
+

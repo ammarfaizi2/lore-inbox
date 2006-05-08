@@ -1,92 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWEHEyV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWEHFIA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932298AbWEHEyV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 00:54:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbWEHEyV
+	id S932302AbWEHFIA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 01:08:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbWEHFH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 00:54:21 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:49562 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932298AbWEHEyU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 00:54:20 -0400
-Date: Sun, 7 May 2006 23:58:23 -0500
-From: Jon Mason <jdmason@us.ibm.com>
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-Cc: Jon Mason <jdmason@us.ibm.com>, linux-kernel@vger.kernel.org, ak@suse.de,
-       tony.luck@intel.com, linux-ia64@vger.kernel.org, mulix@mulix.org
-Subject: Re: [PATCH 2/3] swiotlb: create __alloc_bootmem_low_nopanic and add support in SWIOTLB
-Message-ID: <20060508045822.GB7729@us.ibm.com>
-References: <20060504205929.GD14361@us.ibm.com> <20060507085036.GF6015@rhun.haifa.ibm.com>
+	Mon, 8 May 2006 01:07:59 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:45580 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932302AbWEHFH7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 01:07:59 -0400
+Date: Mon, 8 May 2006 07:07:48 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Grant Coady <gcoady.lk@gmail.com>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       Stephen Frost <sfrost@snowman.net>, laforge@netfilter.org,
+       netfilter-devel@lists.netfilter.org, marcelo@kvack.org
+Subject: Re: [PATCH] fix mem-leak in netfilter
+Message-ID: <20060508050748.GA11495@w.ods.org>
+References: <200605070426.10405.jesper.juhl@gmail.com> <20060507093640.GF11191@w.ods.org> <egts52hm2epfu4g1b9kqkm4s9cdiv3tvt9@4ax.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060507085036.GF6015@rhun.haifa.ibm.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <egts52hm2epfu4g1b9kqkm4s9cdiv3tvt9@4ax.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 07, 2006 at 11:50:36AM +0300, Muli Ben-Yehuda wrote:
-> On Thu, May 04, 2006 at 03:59:29PM -0500, Jon Mason wrote:
-> 
-> > Per Andi Kleen's suggestion in the review of our Calgary IOMMU code, I
-> > tried to use the alloc_bootmem_nopanic that Andi recently added.
-> > Unfortunately, it needs low mem for our translation tables, so we needed
-> > a new function to do this.
-> > 
-> > I have updated swiotlb to take advantage of this new function (and
-> > added an error path to lib/swiotlb.c and resulting fallout from
-> > calling functions).
-> > 
-> > This patch has been tested individually and cumulatively on x86_64 and
-> > cross-compile tested on IA64.  Since I have no IA64 hardware, any
-> > testing on that platform would be appreciated.
-> 
-> A couple of minor nits below, otherwise looks good.
-> 
-> > Signed-off-by: Jon Mason <jdmason@us.ibm.com>
-> 
-> Acked-by: Muli Ben-Yehuda <muli@il.ibm.com>
-> 
-> > diff -r b5bb5fea7490 -r 62dc1eb0c5e2 include/linux/bootmem.h
-> > --- a/include/linux/bootmem.h	Tue Apr 25 18:18:55 2006
-> > +++ b/include/linux/bootmem.h	Wed Apr 26 16:12:39 2006
-> > @@ -46,6 +46,7 @@
-> >  extern void __init free_bootmem (unsigned long addr, unsigned long size);
-> >  extern void * __init __alloc_bootmem (unsigned long size, unsigned long align, unsigned long goal);
-> >  extern void * __init __alloc_bootmem_nopanic (unsigned long size, unsigned long align, unsigned long goal);
-> > +extern void * __init __alloc_bootmem_low_nopanic(unsigned long size, unsigned long align, unsigned long goal);
-> 
-> Would be nice to convert this and the preceding declarations to 80
-> chars per line, please.
-> 
-> > diff -r b5bb5fea7490 -r 62dc1eb0c5e2 mm/bootmem.c
-> > --- a/mm/bootmem.c	Tue Apr 25 18:18:55 2006
-> > +++ b/mm/bootmem.c	Wed Apr 26 16:12:39 2006
-> > @@ -463,3 +463,16 @@
-> >  {
-> >  	return __alloc_bootmem_core(pgdat->bdata, size, align, goal, LOW32LIMIT);
-> >  }
-> > +
-> > +void * __init __alloc_bootmem_low_nopanic(unsigned long size, 
-> > +					unsigned long align, unsigned long goal)
-> > +{
-> > +	bootmem_data_t *bdata;
-> > +	void *ptr;
-> > +
-> > +	list_for_each_entry(bdata, &bdata_list, list)
-> > +		if ((ptr = __alloc_bootmem_core(bdata, size, align, goal, 
-> > +						LOW32LIMIT)))
-> > +			return(ptr);
-> 
-> This should be 'return ptr';
+Hi Grant,
 
-I completely agree with both nits, but the changes follow the style
-currently in the files.  I'll do a clean-up patch to both of the
-files in question.  :)
-
-Thanks,
-Jon
-
+On Mon, May 08, 2006 at 08:42:53AM +1000, Grant Coady wrote:
+> On Sun, 7 May 2006 11:36:40 +0200, Willy Tarreau <willy@w.ods.org> wrote:
 > 
-> Cheers,
-> Muli
+> >On Sun, May 07, 2006 at 04:26:10AM +0200, Jesper Juhl wrote:
+> >> The Coverity checker spotted that we may leak 'hold' in 
+> >> net/ipv4/netfilter/ipt_recent.c::checkentry() when the following
+> >> is true : 
+> >>   if (!curr_table->status_proc) {
+> >>     ...
+> >>     if(!curr_table) {
+> >>     ...
+> >>       return 0;  <-- here we leak.
+> >> Simply moving an existing vfree(hold); up a bit avoids the possible leak.
+> >> 
+> >> 
+> >> (please keep me on CC when replying since I'm not subscribed 
+> >>  to netfilter-devel)
+> >> 
+> >> 
+> >> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> >> ---
+> >> 
+> >>  net/ipv4/netfilter/ipt_recent.c |    2 +-
+> >>  1 files changed, 1 insertion(+), 1 deletion(-)
+> >> 
+> >> --- linux-2.6.17-rc3-git12-orig/net/ipv4/netfilter/ipt_recent.c	2006-05-07 03:25:38.000000000 +0200
+> >> +++ linux-2.6.17-rc3-git12/net/ipv4/netfilter/ipt_recent.c	2006-05-07 04:16:26.000000000 +0200
+> >> @@ -821,6 +821,7 @@ checkentry(const char *tablename,
+> >>  	/* Create our proc 'status' entry. */
+> >>  	curr_table->status_proc = create_proc_entry(curr_table->name, ip_list_perms, proc_net_ipt_recent);
+> >>  	if (!curr_table->status_proc) {
+> >> +		vfree(hold);
+> >>  		printk(KERN_INFO RECENT_NAME ": checkentry: unable to allocate for /proc entry.\n");
+> >>  		/* Destroy the created table */
+> >>  		spin_lock_bh(&recent_lock);
+> >> @@ -845,7 +846,6 @@ checkentry(const char *tablename,
+> >>  		spin_unlock_bh(&recent_lock);
+> >>  		vfree(curr_table->time_info);
+> >>  		vfree(curr_table->hash_table);
+> >> -		vfree(hold);
+> >>  		vfree(curr_table->table);
+> >>  		vfree(curr_table);
+> >>  		return 0;
+> >
+> >Seems valid for 2.4.32 too. I'm queuing it up for Marcelo.
+> 
+> When CONFIG_PROC_FS is not set the function looks like it may exit 
+> without doing the vfree()s for stuff allocated above the #ifdef 
+> CONFIG_PROC_FS.  
+
+At first, I thought you were right. But after a night long rest,
+I'm doubting. In fact, I'm not even sure that we can free 'hold' :
+
+    753         for(c = 0; c < ip_list_tot; c++) {
+    754                 curr_table->table[c].last_pkts = hold + c*ip_pkt_list_tot;
+    755         }
+    756 
+
+So it seems like the vfree(hold) must not be performed if curr_table
+is not unlinked. If this is the case, even Jesper's patch might be
+wrong. Otherwise, vfree(hold) should be called unconditionnally
+after #endif CONFIG_PROC_FS.
+
+> I wonder if the larger view of the function is also correct?  The 
+> coding style is difficult to work with as my terminal only goes to 
+> 156 characters wide ;)  
+
+Agreed ! Reading this code is really painful. Even after one long
+night, I have huge trouble understanding it. Here are some good
+excerpts, that we might honnestly call 'obfuscation' :
+
+    799  while( (last_table = find_table) && strncmp(info->name,find_table->name,IPT_RECENT_NAME_LEN) && (find_table = find_table->next) );
+    836  while( strncmp(info->name,curr_table->name,IPT_RECENT_NAME_LEN) && (last_table = curr_table) && (curr_table = curr_table->next) );
+    844  if(last_table) last_table->next = curr_table->next; else r_tables = curr_table->next;
+
+I wonder how such unmaintainable code has been merged in the first
+place. Obviously, Davem has never seen it ! He has already annoyed
+me for 81-chars wide lines because his terminal is 80 columns. Or
+he has given up from the very beginning. The fact is it's a tool
+which has found a potential memory leak.
+
+> Grant.
+
+Regards,
+Willy
+

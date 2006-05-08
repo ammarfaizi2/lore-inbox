@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbWEHWBQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWEHWGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751268AbWEHWBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 18:01:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWEHWBQ
+	id S1751280AbWEHWGR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 18:06:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWEHWGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 18:01:16 -0400
-Received: from mga03.intel.com ([143.182.124.21]:20046 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751271AbWEHWBP convert rfc822-to-8bit (ORCPT
+	Mon, 8 May 2006 18:06:17 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:7891 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751188AbWEHWGQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 18:01:15 -0400
-X-IronPort-AV: i="4.05,103,1146466800"; 
-   d="scan'208"; a="33365188:sNHT23478154322"
-X-MIMEOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Mon, 8 May 2006 18:06:16 -0400
+Date: Tue, 9 May 2006 00:06:04 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: linux-kernel@vger.kernel.org, Petr Baudis <pasky@ucw.cz>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH] a few small mconf improvements
+In-Reply-To: <200605071749.28822.jesper.juhl@gmail.com>
+Message-ID: <Pine.LNX.4.64.0605082337280.32445@scrub.home>
+References: <200605071749.28822.jesper.juhl@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] tpm: update module dependencies
-Date: Mon, 8 May 2006 17:59:44 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB65EAC0D@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] tpm: update module dependencies
-Thread-index: AcZy4f7Jo9lwZ8ZuTU2KINtiWvs8CQACKXiA
-From: "Brown, Len" <len.brown@intel.com>
-To: "Kylene Jo Hall" <kjhall@us.ibm.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-Cc: <akpm@osdl.org>,
-       "TPM Device Driver List" <tpmdd-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 08 May 2006 21:59:45.0681 (UTC) FILETIME=[B7B78810:01C672EA]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->The TIS driver is dependent upon information from the ACPI table for
->device discovery thus it compiles but does no actual work with out this
->dependency.
->
->Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
->---
-> drivers/char/tpm/Kconfig |    2 +-
-> 1 files changed, 1 insertion(+), 1 deletion(-)
->
->--- linux-2.6.17-rc3/drivers/char/tpm/Kconfig	2006-04-26 
->21:19:25.000000000 -0500
->+++ linux-2.6.17-rc3-tpm/drivers/char/tpm/Kconfig	
->2006-05-08 16:11:03.707961750 -0500
->@@ -22,7 +22,7 @@ config TCG_TPM
-> 
-> config TCG_TIS
-> 	tristate "TPM Interface Specification 1.2 Interface"
->-	depends on TCG_TPM
->+	depends on TCG_TPM && PNPACPI
 
-I think you want simply "ACPI" rather than "PNPACPI" here, yes?
+On Sun, 7 May 2006, Jesper Juhl wrote:
 
--Len
+>  - rename main() arguments from "ac"/"av" to the more common "argc"/"argv".
+
+conf.c and qconf.cc do the same, it's a personal preference.
+
+>  - when unlinking lxdialog.scrltmp, the return value of unlink() is not 
+>    checked. The patch adds a check of the return value and bails out if 
+>    unlink() fails for any reason other than ENOENT.
+
+The check is not needed, the worst that can happen is a misbehaving 
+lxdialog and you certainly have bigger problems than this, if the unlink
+should fail. In the long term this should go away anyway.
+
+>  - if the sscanf() call in conf() fails and stat==0 && type=='t', then 
+>    we'll end up dereferencing a NULL 'sym' in sym_is_choice(). The patch 
+>    adds a NULL check of 'sym' to that path and bails out with a big fat 
+>    error message if that should ever happen (better than just crashing 
+>    IMHO).
+
+That error message is as useful to the normal user as a segfault - mconf 
+doesn't work. Since it shouldn't happen, this check adds no real value, 
+the user still has to provide enough information to reproduce the problem 
+and at this point it makes no difference, whether I get this message or I 
+see where it stops with gdb.
+
+bye, Roman

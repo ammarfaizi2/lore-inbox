@@ -1,95 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWEHQ2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbWEHQ2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751082AbWEHQ2e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 12:28:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWEHQ2d
+	id S1751270AbWEHQ2r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 12:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWEHQ2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 12:28:33 -0400
-Received: from az33egw02.freescale.net ([192.88.158.103]:30347 "EHLO
-	az33egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S1751082AbWEHQ2d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 12:28:33 -0400
-In-Reply-To: <20060508160531.GA2131@digi.com>
-References: <20060508160531.GA2131@digi.com>
-Mime-Version: 1.0 (Apple Message framework v749.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <FA22B12D-5910-4EE9-A351-6AB770330AFC@freescale.com>
-Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Victor <andrew@sanpeople.com>
-Content-Transfer-Encoding: 7bit
-From: Andy Fleming <afleming@freescale.com>
-Subject: Re: LXT971 driver in the phy lib
-Date: Mon, 8 May 2006 11:22:47 -0500
-To: Uwe Zeisberger <Uwe_Zeisberger@digi.com>
-X-Mailer: Apple Mail (2.749.3)
+	Mon, 8 May 2006 12:28:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:29361 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751270AbWEHQ2q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 12:28:46 -0400
+Date: Mon, 8 May 2006 09:28:19 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+cc: Daniel Hokka Zakrisson <daniel@hozac.com>, linux-kernel@vger.kernel.org,
+       =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
+       greg@kroah.com, matthew@wil.cx, Christoph Lameter <clameter@sgi.com>,
+       manfred@colorfullife.com, akpm@osdl.org
+Subject: Re: [PATCH] fs: fcntl_setlease defies lease_init assumptions
+In-Reply-To: <1147104412.22096.8.camel@localhost>
+Message-ID: <Pine.LNX.4.64.0605080913240.3718@g5.osdl.org>
+References: <445E80DD.9090507@hozac.com>  <Pine.LNX.4.64.0605072030280.3718@g5.osdl.org>
+  <84144f020605080131r58ce2a93w6c7ba784a266bbeb@mail.gmail.com> 
+ <84144f020605080134q7e16f37fl385359c634ece8ca@mail.gmail.com> 
+ <Pine.LNX.4.64.0605080807430.3718@g5.osdl.org> <1147104412.22096.8.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On May 8, 2006, at 11:05, Uwe Zeisberger wrote:
 
-> Hello,
->
-> I try to get an network interface running that has an LXT971A[1].
->
-> If I apply the following patch, the target can detect the phy.
->
-> diff --git a/drivers/net/phy/lxt.c b/drivers/net/phy/lxt.c
-> index bef79e4..4c66fac 100644
-> --- a/drivers/net/phy/lxt.c
-> +++ b/drivers/net/phy/lxt.c
-> @@ -137,9 +137,9 @@ static struct phy_driver lxt970_driver =
->  };
->
->  static struct phy_driver lxt971_driver = {
-> -	.phy_id		= 0x0001378e,
-> +	.phy_id		= 0x001378e0,
->  	.name		= "LXT971",
-> -	.phy_id_mask	= 0x0fffffff,
-> +	.phy_id_mask	= 0xfffffff0,
->  	.features	= PHY_BASIC_FEATURES,
->  	.flags		= PHY_HAS_INTERRUPT,
->  	.config_aneg	= genphy_config_aneg,
+On Mon, 8 May 2006, Pekka Enberg wrote:
+> 
+> I was under the impression that virt_to_page() is expensive, even more
+> so on NUMA.
 
+virt_to_page() should be pretty cheap, but you're right, that's probably 
+the much higher expense than the test. And reading the "struct page" can 
+get a cache-miss.  Although - especially for NUMA - we're actually going 
+to do that virt_to_page() _anyway_ just a few lines below (as part of 
+"virt_to_slab()".
 
-This looks good.
+Similarly, for "kfree()", we will actually have done that same thing 
+already (kfree() does "virt_to_cache(objp);").
 
->
-> According to
->
-> 	http://www.intel.com/design/network/products/LAN/datashts/ 
-> 24941402.pdf
->
-> page 90f the id registers yield 0x001378eX (with X being current
-> revision ID)
->
-> 	uzeisberger@io:~/gsrc/linux-2.6$ git grep -i 1378e drivers/net/
-> 	drivers/net/arm/at91_ether.h:#define MII_LXT971A_ID     0x001378E0
-> 	drivers/net/e1000/e1000_hw.h:#define L1LXT971A_PHY_ID   0x001378E0
-> 	drivers/net/fec.c:      .id = 0x0001378e,
-> 	drivers/net/fec_8xx/fec_mii.c:   .id = 0x0001378e,
-> 	drivers/net/phy/lxt.c:  .phy_id         = 0x0001378e,
+So we're actually only left with a single case that doesn't currently do 
+it (and didn't trigger my trivial two additions): kmem_cache_free() just 
+trusts the cachep pointer implicitly. And that's obviously the case that 
+the whole fcntl_setlease thing used.
 
-The fec.c and fec_mii.c drivers used a shift by 4 to chop off the end  
-of the ID.  When the PHY Layer switched to using a mask, not all of  
-the drivers got properly switched.
+Everybody else would have triggered from my patch which added it at a 
+point where it was basically free (because we had looked up the page 
+anyway, and we were going to read from the "struct page" info regardless).
 
->
-> So both variants occur more than once.  (I only took a quick glance at
-> the usage of these ids, but I think they all use it in the same way.
-> That is, ID1 << 16 | ID2.)
+So from a performance standpoint, maybe my previous trivial patch is the 
+right thing to do, along with an even _stronger_ test for 
+kmem_cache_free(), where we could do
 
-The fec-style drivers do this:
+	BUG_ON(virt_to_cache(objp) != cachep);
 
-         if(phy_info[i]->id == (fep->phy_id >> 4))
+which you can then remove from the slab debug case.
 
-Anyway, your patch is correct.
+So for a lot of the normal paths, you'd basically have no extra cost (two 
+instructions, no data cache pressure), but for kmem_cache_free() we'd have 
+a slight overhead (but a lot lower than SLAB_DEBUG, and at least for NUMA 
+it's reading a cacheline that we'd be using regardless.
 
->
-> "My" phy reports 0x001378e2 and now I wonder if there are different
-> chips out there with the same name.
->
-> Can anybody explain this mismatch to me?  (Or point me to the right
-> query for google.)
+I think it sounds like it's worth it, but I'm not going to really push it.
 
-
+		Linus

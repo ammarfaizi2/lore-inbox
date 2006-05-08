@@ -1,167 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbWEHHsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWEHHzc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932173AbWEHHsb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 03:48:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWEHHsb
+	id S932179AbWEHHzc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 03:55:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWEHHzc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 03:48:31 -0400
-Received: from proof.pobox.com ([207.106.133.28]:44948 "EHLO proof.pobox.com")
-	by vger.kernel.org with ESMTP id S1751256AbWEHHsa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 03:48:30 -0400
-Date: Mon, 8 May 2006 02:48:23 -0500
-From: Nathan Lynch <ntl@pobox.com>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Srivatsa Vaddagiri <vatsa@in.ibm.com>, Ashok Raj <ashok.raj@intel.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/10] make stop_machine_run accept cpumask
-Message-ID: <20060508074823.GC9344@localdomain>
-References: <1147067141.2760.78.camel@sli10-desk.sh.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1147067141.2760.78.camel@sli10-desk.sh.intel.com>
-User-Agent: Mutt/1.5.9i
+	Mon, 8 May 2006 03:55:32 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:48276 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750721AbWEHHzb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 03:55:31 -0400
+Message-ID: <445EF968.3080903@sgi.com>
+Date: Mon, 08 May 2006 09:55:20 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5 (X11/20060317)
+MIME-Version: 1.0
+To: Grant Coady <gcoady.lk@gmail.com>
+CC: "Randy.Dunlap" <rdunlap@xenotime.net>, Brent Casavant <bcasavan@sgi.com>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, akpm@osdl.org,
+       jeremy@sgi.com
+Subject: Re: [PATCH] Move various PCI IDs to header file
+References: <20060504180614.X88573@chenjesu.americas.sgi.com> <20060504173722.028c2b24.rdunlap@xenotime.net> <445AE690.5030700@sgi.com> <Pine.LNX.4.58.0605050926250.3161@shark.he.net> <0jkn52lnu505eb26plf5o7buertimg2e6v@4ax.com>
+In-Reply-To: <0jkn52lnu505eb26plf5o7buertimg2e6v@4ax.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shaohua Li wrote:
+Grant Coady wrote:
+> When I worked on pci_ids.h cleanup last year I didn't get a clear 
+> idea of whether moving all #defines to the one header file was 
+> desired.  Last I looked there were heaps of them scattered all 
+> over.  Is there a preferred model for placing these #defines?
 > 
-> Make __stop_machine_run accepts 'cpumask_t' parameter and 
-> multiple cpus be able to run specified task.
-> 
-> Signed-off-by: Ashok Raj <ashok.raj@intel.com> 
-> Signed-off-by: Shaohua Li <shaohua.li@intel.com> 
-> ---
-> 
->  linux-2.6.17-rc3-root/include/linux/stop_machine.h |    4 -
->  linux-2.6.17-rc3-root/kernel/cpu.c                 |    2 
->  linux-2.6.17-rc3-root/kernel/stop_machine.c        |   68 ++++++++++++++-------
->  3 files changed, 50 insertions(+), 24 deletions(-)
-> 
-> diff -puN include/linux/stop_machine.h~stopmachine-run-accept-cpumask include/linux/stop_machine.h
-> --- linux-2.6.17-rc3/include/linux/stop_machine.h~stopmachine-run-accept-cpumask	2006-05-07 07:44:34.000000000 +0800
-> +++ linux-2.6.17-rc3-root/include/linux/stop_machine.h	2006-05-07 07:44:34.000000000 +0800
-> @@ -28,14 +28,14 @@ int stop_machine_run(int (*fn)(void *), 
->   * __stop_machine_run: freeze the machine on all CPUs and run this function
->   * @fn: the function to run
->   * @data: the data ptr for the @fn
-> - * @cpu: the cpu to run @fn on (or any, if @cpu == NR_CPUS.
-> + * @cpus: the cpus to run @fn on.
->   *
->   * Description: This is a special version of the above, which returns the
->   * thread which has run @fn(): kthread_stop will return the return value
->   * of @fn().  Used by hotplug cpu.
->   */
->  struct task_struct *__stop_machine_run(int (*fn)(void *), void *data,
-> -				       unsigned int cpu);
-> +				       cpumask_t cpus);
->  
->  #else
->  
-> diff -puN kernel/cpu.c~stopmachine-run-accept-cpumask kernel/cpu.c
-> --- linux-2.6.17-rc3/kernel/cpu.c~stopmachine-run-accept-cpumask	2006-05-07 07:44:34.000000000 +0800
-> +++ linux-2.6.17-rc3-root/kernel/cpu.c	2006-05-07 07:44:34.000000000 +0800
-> @@ -148,7 +148,7 @@ int cpu_down(unsigned int cpu)
->  	cpu_clear(cpu, tmp);
->  	set_cpus_allowed(current, tmp);
->  
-> -	p = __stop_machine_run(take_cpu_down, NULL, cpu);
-> +	p = __stop_machine_run(take_cpu_down, NULL, cpumask_of_cpu(cpu));
->  	if (IS_ERR(p)) {
->  		/* CPU didn't die: tell everyone.  Can't complain. */
->  		if (blocking_notifier_call_chain(&cpu_chain, CPU_DOWN_FAILED,
-> diff -puN kernel/stop_machine.c~stopmachine-run-accept-cpumask kernel/stop_machine.c
-> --- linux-2.6.17-rc3/kernel/stop_machine.c~stopmachine-run-accept-cpumask	2006-05-07 07:44:34.000000000 +0800
-> +++ linux-2.6.17-rc3-root/kernel/stop_machine.c	2006-05-07 07:44:34.000000000 +0800
-> @@ -17,18 +17,31 @@ enum stopmachine_state {
->  	STOPMACHINE_WAIT,
->  	STOPMACHINE_PREPARE,
->  	STOPMACHINE_DISABLE_IRQ,
-> +	STOPMACHINE_PREPARE_TASK,
-> +	STOPMACHINE_FINISH_TASK,
->  	STOPMACHINE_EXIT,
->  };
->  
-> +struct stop_machine_data
-> +{
-> +	cpumask_t task_cpus;
-> +	int (*fn)(void *);
-> +	void *data;
-> +	struct completion done;
-> +};
-> +
->  static enum stopmachine_state stopmachine_state;
->  static unsigned int stopmachine_num_threads;
->  static atomic_t stopmachine_thread_ack;
->  static DECLARE_MUTEX(stopmachine_mutex);
-> +static struct stop_machine_data *smdata;
->  
->  static int stopmachine(void *cpu)
->  {
->  	int irqs_disabled = 0;
->  	int prepared = 0;
-> +	int task_prepared = 0;
-> +	int task_finished = 0;
->  
->  	set_cpus_allowed(current, cpumask_of_cpu((int)(long)cpu));
->  
-> @@ -52,7 +65,22 @@ static int stopmachine(void *cpu)
->  			prepared = 1;
->  			smp_mb(); /* Must read state first. */
->  			atomic_inc(&stopmachine_thread_ack);
-> +		} else if (stopmachine_state == STOPMACHINE_PREPARE_TASK
-> +			   && !task_prepared) {
-> +			task_prepared = 1;
-> +			smp_mb(); /* Must read state first. */
-> +			atomic_inc(&stopmachine_thread_ack);
-> +			/* do the task */
-> +			if (cpu_isset((int)(long)cpu, smdata->task_cpus))
-> +				smdata->fn(smdata->data);
+> Grant.
 
-Bug?  smdata->fn() should be called first, and only then should
-stopmachine_thread_ack be incremented, no?
+According to the document Randy referenced, the preferred place for
+*new* defines is to stick them in the local files where they are used.
+I don't think there is any preference for moving the out of pci_ids.h
+as it would just cause patch noise for the sake of making noise.
 
+So much for being able to go through the pci_ids.h file to get an idea
+about whether or not a device may have a chance of being supported :(
 
-> +		} else if (stopmachine_state == STOPMACHINE_FINISH_TASK
-> +			   && !task_finished) {
-> +			task_finished = 1;
-> +			smp_mb(); /* Must read state first. */
-> +			atomic_inc(&stopmachine_thread_ack);
->  		}
-> +
-> +
->  		/* Yield in first stage: migration threads need to
->  		 * help our sisters onto their CPUs. */
->  		if (!prepared && !irqs_disabled)
-> @@ -133,21 +161,18 @@ static void restart_machine(void)
->  	preempt_enable_no_resched();
->  }
->  
-> -struct stop_machine_data
-> -{
-> -	int (*fn)(void *);
-> -	void *data;
-> -	struct completion done;
-> -};
->  
->  static int do_stop(void *_smdata)
->  {
-> -	struct stop_machine_data *smdata = _smdata;
->  	int ret;
->  
->  	ret = stop_machine();
->  	if (ret == 0) {
-> +		stopmachine_set_state(STOPMACHINE_PREPARE_TASK);
-> +		/* only record first cpu's return value */
->  		ret = smdata->fn(smdata->data);
-> +		/* wait peers finish task */
-> +		stopmachine_set_state(STOPMACHINE_FINISH_TASK);
-
-It seems rather arbitrary to record the return value of smdata->fn
-from only one of the cpus.  I'm really not keen to have this kind of
-situation where the function can partially fail and there's no sane
-way to report this back to the caller, nor is there any way to roll
-back to the state beforehand.
-
+Jes

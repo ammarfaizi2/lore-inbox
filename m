@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbWEHIeb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbWEHIgF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932361AbWEHIeb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 04:34:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWEHIe3
+	id S932374AbWEHIgF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 04:36:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWEHIgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 04:34:29 -0400
-Received: from wr-out-0506.google.com ([64.233.184.224]:15960 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932366AbWEHIe0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 04:34:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=KaZINzdCeMGboxITa4XTouhOeGwyd/tk8BSaCrjxaA1kKXYgKdevNH+gyc7YwctcB4mSbkCri3cXogaqLAGEGCd6OFdC2rGO019K4IBjgzznYbCvFtz2KPH1JNafLStjMmtFQGPQzSP5+XYdteT7lCWYQ5HAbIu29swbq/YFw9E=
-Message-ID: <84144f020605080134q7e16f37fl385359c634ece8ca@mail.gmail.com>
-Date: Mon, 8 May 2006 11:34:25 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: [PATCH] fs: fcntl_setlease defies lease_init assumptions
-Cc: "Daniel Hokka Zakrisson" <daniel@hozac.com>, linux-kernel@vger.kernel.org,
-       "=?ISO-8859-1?Q?Bj=F6rn_Steinbrink?=" <B.Steinbrink@gmx.de>,
-       greg@kroah.com, matthew@wil.cx
-In-Reply-To: <84144f020605080131r58ce2a93w6c7ba784a266bbeb@mail.gmail.com>
+	Mon, 8 May 2006 04:36:05 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:28567 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932364AbWEHIgC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 04:36:02 -0400
+Message-ID: <445F02E4.5000004@sgi.com>
+Date: Mon, 08 May 2006 10:35:48 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <445E80DD.9090507@hozac.com>
-	 <Pine.LNX.4.64.0605072030280.3718@g5.osdl.org>
-	 <84144f020605080131r58ce2a93w6c7ba784a266bbeb@mail.gmail.com>
-X-Google-Sender-Auth: a250f837e636db98
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Grant Coady <gcoady.lk@gmail.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Brent Casavant <bcasavan@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, akpm@osdl.org, jeremy@sgi.com
+Subject: Re: [PATCH] Move various PCI IDs to header file
+References: <20060504180614.X88573@chenjesu.americas.sgi.com>	 <20060504173722.028c2b24.rdunlap@xenotime.net> <445AE690.5030700@sgi.com>	 <Pine.LNX.4.58.0605050926250.3161@shark.he.net>	 <0jkn52lnu505eb26plf5o7buertimg2e6v@4ax.com>  <445EF968.3080903@sgi.com> <1147077120.2888.5.camel@laptopd505.fenrus.org>
+In-Reply-To: <1147077120.2888.5.camel@laptopd505.fenrus.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/8/06, Linus Torvalds <torvalds@osdl.org> wrote:
-> > Ok, I was actually really surprised that we'd ever allow a non-slab page
-> > to be free'd as a slab or kmalloc allocation, without screaming very
-> > loudly indeed. That implies a lack of some pretty fundamental sanity
-> > checking by default in the slab layer (I suspect slab debugging turns it
-> > on, but even without it, that's just nasty).
-> >
-> > Can you see if this trivial patch at least causes a honking huge
-> > "kernel BUG" message to be triggered quickly?
+Arjan van de Ven wrote:
+> On Mon, 2006-05-08 at 09:55 +0200, Jes Sorensen wrote:
+>> So much for being able to go through the pci_ids.h file to get an idea
+>> about whether or not a device may have a chance of being supported :(
+> 
+> that wasn't there ever anyway..
+> 
+> modules.pcimap is more like it anyway
 
-On 5/8/06, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> page_get_cache and page_get_slab are too late. You would need to do
-> the check in __cache_free; otherwise the stack pointer goes to per-CPU
-> caches and can be given back by kmalloc(). Adding PageSlab debugging
-> to __cache_free is probably too much of a performance hit, though.
+Wasn't bullet proof since some people just stuck it in their drivers due
+to laziness, but it was a pretty good indicator. I've gone through it
+many times to see if I could find a match for a device ;(
 
-Btw, CONFIG_DEBUG_SLAB should catch this case, see kfree_debugcheck()
-for details.
+Anyway ....
 
-                                                  Pekka
+Cheers,
+Jes

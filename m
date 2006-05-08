@@ -1,55 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWEHWNJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbWEHWOR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751276AbWEHWNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 18:13:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWEHWNJ
+	id S1751318AbWEHWOR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 18:14:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWEHWNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 18:13:09 -0400
-Received: from [63.64.152.142] ([63.64.152.142]:18693 "EHLO gitlost.site")
-	by vger.kernel.org with ESMTP id S1751276AbWEHWNI (ORCPT
+	Mon, 8 May 2006 18:13:52 -0400
+Received: from [63.64.152.142] ([63.64.152.142]:24069 "EHLO gitlost.site")
+	by vger.kernel.org with ESMTP id S1751290AbWEHWNQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 18:13:08 -0400
+	Mon, 8 May 2006 18:13:16 -0400
 From: Chris Leech <christopher.leech@intel.com>
-Subject: [PATCH 0/9] I/OAT network recv copy offload
-Date: Mon, 08 May 2006 15:16:32 -0700
+Subject: [PATCH 7/9] [I/OAT] make sk_eat_skb I/OAT aware
+Date: Mon, 08 May 2006 15:17:44 -0700
 To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Message-Id: <20060508221632.15181.50046.stgit@gitlost.site>
+Message-Id: <20060508221744.15181.72992.stgit@gitlost.site>
+In-Reply-To: <20060508221632.15181.50046.stgit@gitlost.site>
+References: <20060508221632.15181.50046.stgit@gitlost.site>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A few changes after going over all the memory allocations, but mostly just
-keeping the patches up to date.
+Add an extra argument to sk_eat_skb, and make it move early copied packets
+to the async_wait_queue instead of freeing them.
+Signed-off-by: Chris Leech <christopher.leech@intel.com>
+---
 
-This patch series is the a full release of the Intel(R) I/O
-Acceleration Technology (I/OAT) for Linux.  It includes an in kernel API
-for offloading memory copies to hardware, a driver for the I/OAT DMA memcpy
-engine, and changes to the TCP stack to offload copies of received
-networking data to application space.
+ include/net/sock.h |   13 ++++++++++++-
+ net/dccp/proto.c   |    4 ++--
+ net/ipv4/tcp.c     |    8 ++++----
+ net/llc/af_llc.c   |    2 +-
+ 4 files changed, 19 insertions(+), 8 deletions(-)
 
-Changes from last posting:
-	Fixed a struct ioat_dma_chan memory leak on driver unload.
-	Changed a lock that was never held in atomic contexts to a mutex
-	as part of avoiding unneeded GFP_ATOMIC allocations.
+diff --git a/include/net/sock.h b/include/net/sock.h
+index 90c65cb..75b0e97 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -1273,11 +1273,22 @@ sock_recv_timestamp(struct msghdr *msg, 
+  * This routine must be called with interrupts disabled or with the socket
+  * locked so that the sk_buff queue operation is ok.
+ */
+-static inline void sk_eat_skb(struct sock *sk, struct sk_buff *skb)
++#ifdef CONFIG_NET_DMA
++static inline void sk_eat_skb(struct sock *sk, struct sk_buff *skb, int copied_early)
++{
++	__skb_unlink(skb, &sk->sk_receive_queue);
++	if (!copied_early)
++		__kfree_skb(skb);
++	else
++		__skb_queue_tail(&sk->sk_async_wait_queue, skb);
++}
++#else
++static inline void sk_eat_skb(struct sock *sk, struct sk_buff *skb, int copied_early)
+ {
+ 	__skb_unlink(skb, &sk->sk_receive_queue);
+ 	__kfree_skb(skb);
+ }
++#endif
+ 
+ extern void sock_enable_timestamp(struct sock *sk);
+ extern int sock_get_timestamp(struct sock *, struct timeval __user *);
+diff --git a/net/dccp/proto.c b/net/dccp/proto.c
+index 2e0ee83..5317fd3 100644
+--- a/net/dccp/proto.c
++++ b/net/dccp/proto.c
+@@ -719,7 +719,7 @@ int dccp_recvmsg(struct kiocb *iocb, str
+ 		}
+ 		dccp_pr_debug("packet_type=%s\n",
+ 			      dccp_packet_name(dh->dccph_type));
+-		sk_eat_skb(sk, skb);
++		sk_eat_skb(sk, skb, 0);
+ verify_sock_status:
+ 		if (sock_flag(sk, SOCK_DONE)) {
+ 			len = 0;
+@@ -773,7 +773,7 @@ verify_sock_status:
+ 		}
+ 	found_fin_ok:
+ 		if (!(flags & MSG_PEEK))
+-			sk_eat_skb(sk, skb);
++			sk_eat_skb(sk, skb, 0);
+ 		break;
+ 	} while (1);
+ out:
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 1c0cfd7..4e067d2 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -1072,11 +1072,11 @@ int tcp_read_sock(struct sock *sk, read_
+ 				break;
+ 		}
+ 		if (skb->h.th->fin) {
+-			sk_eat_skb(sk, skb);
++			sk_eat_skb(sk, skb, 0);
+ 			++seq;
+ 			break;
+ 		}
+-		sk_eat_skb(sk, skb);
++		sk_eat_skb(sk, skb, 0);
+ 		if (!desc->count)
+ 			break;
+ 	}
+@@ -1356,14 +1356,14 @@ skip_copy:
+ 		if (skb->h.th->fin)
+ 			goto found_fin_ok;
+ 		if (!(flags & MSG_PEEK))
+-			sk_eat_skb(sk, skb);
++			sk_eat_skb(sk, skb, 0);
+ 		continue;
+ 
+ 	found_fin_ok:
+ 		/* Process the FIN. */
+ 		++*seq;
+ 		if (!(flags & MSG_PEEK))
+-			sk_eat_skb(sk, skb);
++			sk_eat_skb(sk, skb, 0);
+ 		break;
+ 	} while (len > 0);
+ 
+diff --git a/net/llc/af_llc.c b/net/llc/af_llc.c
+index 5a04db7..7465170 100644
+--- a/net/llc/af_llc.c
++++ b/net/llc/af_llc.c
+@@ -789,7 +789,7 @@ static int llc_ui_recvmsg(struct kiocb *
+ 			continue;
+ 
+ 		if (!(flags & MSG_PEEK)) {
+-			sk_eat_skb(sk, skb);
++			sk_eat_skb(sk, skb, 0);
+ 			*seq = 0;
+ 		}
+ 	} while (len > 0);
 
-These changes apply to Linus' tree as of commit
-	6810b548b25114607e0814612d84125abccc0a4f
-	[PATCH] x86_64: Move ondemand timer into own work queue
-
-They are available to pull from
-	git://63.64.152.142/~cleech/linux-2.6 ioat-2.6.17
-
-There are 9 patches in the series:
-	1) The memcpy offload APIs and class code
-	2) The Intel I/OAT DMA driver (ioatdma)
-	3) Core networking code to setup networking as a DMA memcpy client
-	4) Utility functions for sk_buff to iovec offloaded copy
-	5) Structure changes needed for TCP receive offload
-	6) Rename cleanup_rbuf to tcp_cleanup_rbuf
-	7) Make sk_eat_skb aware of early copied packets
-	8) Add a sysctl to tune the minimum offloaded I/O size for TCP
-	9) The main TCP receive offload changes
-
---
-Chris Leech <christopher.leech@intel.com>
-I/O Acceleration Technology Software Development
-LAN Access Division / Digital Enterprise Group 

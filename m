@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWEHVYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWEHVXs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751088AbWEHVYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 17:24:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWEHVYJ
+	id S1751090AbWEHVXs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 17:23:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWEHVXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 17:24:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61611 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751103AbWEHVYG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 17:24:06 -0400
-Date: Mon, 8 May 2006 14:26:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: balbir@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-       jlan@engr.sgi.com
-Subject: Re: [Patch 3/8] cpu delay collection via schedstats
-Message-Id: <20060508142640.675665c7.akpm@osdl.org>
-In-Reply-To: <20060502061505.GN13962@in.ibm.com>
-References: <20060502061505.GN13962@in.ibm.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 8 May 2006 17:23:48 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:13498 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751090AbWEHVXr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 17:23:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=A7Re09nPJidsrvH6lFbbDkw4Wqn3BvJC7rkcP9cEkQjB0yNMrCA36lkTQeNrBouqSOuMeqZbVknCkVta1QLUFC6v5P0YsxWvl/Ja7zUR7lqsiuNSJlu5scWp+6vXthmxmCHYQH3u+tMO5FaXW6xkTa49dLjDjthZQKPeux+yNKo=
+Date: Tue, 9 May 2006 01:22:15 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: akpm@osdl.org
+Cc: bjdouma@xs4all.nl, linux-kernel@vger.kernel.org
+Subject: Re: + two-additions-to-linux-documentation-ioctl-numbertxt.patch added to -mm tree
+Message-ID: <20060508212215.GD7235@mipter.zuzino.mipt.ru>
+References: <200605081751.k48HpCfT016898@shell0.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200605081751.k48HpCfT016898@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh <balbir@in.ibm.com> wrote:
->
-> +/*
-> + * Expects runqueue lock to be held for atomicity of update
-> + */
-> +static inline void rq_sched_info_arrive(struct runqueue *rq,
-> +						unsigned long diff)
-> +{
-> +	if (rq) {
-> +		rq->rq_sched_info.run_delay += diff;
-> +		rq->rq_sched_info.pcnt++;
-> +	}
-> +}
-> +
-> +/*
-> + * Expects runqueue lock to be held for atomicity of update
-> + */
-> +static inline void rq_sched_info_depart(struct runqueue *rq,
-> +						unsigned long diff)
-> +{
-> +	if (rq)
-> +		rq->rq_sched_info.cpu_time += diff;
-> +}
+On Mon, May 08, 2006 at 10:48:40AM -0700, akpm@osdl.org wrote:
+>      two additions to ./linux/Documentation/ioctl-number.txt
 
-The kernel has many different units of time - jiffies, cpu ticks, ns, us,
-ms, etc.  So the reader of these functions doesn't have a clue what "diff"
-is.
+> --- devel/Documentation/ioctl-number.txt~two-additions-to-linux-documentation-ioctl-numbertxt
+> +++ devel-akpm/Documentation/ioctl-number.txt
+> @@ -85,7 +85,9 @@ Code	Seq#	Include File		Comments
 
-A good way to remove all doubt in all cases is to include the units in the
-variable's name.  Something like delta_jiffies, perhaps.
+>  'C'	all	linux/soundcard.h
+>  'D'	all	asm-s390/dasd.h
+> +'E'	all	linux/input.h
+
+This one is good.
+
+>  'F'	all	linux/fb.h
+> +'H'	all	linux/hiddev.h
+
+Quick grep shows 'H' namespace is kinda-sorta divided between some bluetooth
+headers, hiddev.h (as was correctly noted) and sound SNDRV_*. Of course,
+it's worse because ALSA and hiddev.h ioctls conflict pretty often.
+
+Was second column "Seq#" meant to be central registration point of new
+ioctls? If it's, boundaries are not obeyed and comments like
+
+	/*
+	 * IOCTLS (0x00 - 0x7f)
+	 */
+
+should be removed probably from everywhere to not give false sense of
+ownership TOGETHER with rejecting every new conflicting ioctl.
 

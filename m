@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWEHEm6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWEHEqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932291AbWEHEm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 00:42:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWEHEm6
+	id S932293AbWEHEqS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 00:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWEHEqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 00:42:58 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:32469
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S932291AbWEHEm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 00:42:58 -0400
-From: Rob Landley <rob@landley.net>
-To: Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH] Small patch to bloat-o-meter.
-Date: Mon, 8 May 2006 00:43:51 -0400
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org
-References: <200605071559.00253.rob@landley.net> <20060508030216.GR15445@waste.org>
-In-Reply-To: <20060508030216.GR15445@waste.org>
+	Mon, 8 May 2006 00:46:18 -0400
+Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:58985 "HELO
+	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932293AbWEHEqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 00:46:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=1D4YzW5moG2SPWL7D8WHWEN+27csVu42aVwVTNfaZ8xiXNKNUcJL3iYFH4R0AzyFEJaCoI1r7GIjs+Z48E5X0eFk2T+FhqUCQBsYRe3iZJ87GDoG3WGEDpyzvlRGH7kSETCGl/KSz4/Y5DeUo2hYmRx3tn8J7Es9mo4/wLjM4dU=  ;
+Message-ID: <445ECD10.1090506@yahoo.com.au>
+Date: Mon, 08 May 2006 14:46:08 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Mike Galbraith <efault@gmx.de>
+CC: Andi Kleen <ak@suse.de>, Christopher Friesen <cfriesen@nortel.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: sched_clock() uses are broken
+References: <20060502132953.GA30146@flint.arm.linux.org.uk>	 <p73slns5qda.fsf@bragg.suse.de> <44578EB9.8050402@nortel.com>	 <200605021859.18948.ak@suse.de>  <445791D3.9060306@yahoo.com.au>	 <1146640155.7526.27.camel@homer>  <445DE925.9010006@yahoo.com.au>	 <1147023122.13315.16.camel@homer>  <1147061696.8544.12.camel@homer> <1147063063.8809.7.camel@homer>
+In-Reply-To: <1147063063.8809.7.camel@homer>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605080043.51415.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 07 May 2006 11:02 pm, Matt Mackall wrote:
-> > --- linux-old/scripts/bloat-o-meter	2006-05-07 15:47:23.000000000 -0400
-> > +++ linux-2.6.16/scripts/bloat-o-meter	2006-05-07 15:08:31.000000000
-> > -0400 @@ -18,7 +18,9 @@
-> >      for l in os.popen("nm --size-sort " + file).readlines():
-> >          size, type, name = l[:-1].split()
-> >          if type in "tTdDbB":
-> > -            sym[name] = int(size, 16)
-> > +            if name.find(".") != -1: name = "static." +
-> > name.split(".")[0]
+Mike Galbraith wrote:
+
+>Sorry for yet another reply, but running the old starvation testcase
+>that caused sched_clock() to be born in the first place tickled my
+>funny-bone.  With that running and hitting 300k context switches...
 >
-> if "." in name:
+>now: 2100508962835 tick: 2100508972067 stamp: 2100508961220 total: 2906
+>now: 2101531243883 tick: 2101531251877 stamp: 2101531238543 total: 2924
+>now: 2102695422392 tick: 2102695431699 stamp: 2102695418265 total: 2940
 >
-> (just like 'if type in "tTdDbB":' above it)
-
-I learned python over 5 years ago and the language has changed out from under 
-me a bit.  When I've done a lot of C programming recently, I tend to fall 
-back on the old ways... :)
-
-> > +            if name in sym: sym[name] += int(size, 16)
-> > +            else :sym[name] = int(size, 16)
+>Accounting?  Not :)
 >
-> else:
 
-I'm surprised that even ran...
+Yeah I agree with Andi that this accounting stuff is probably done
+for some POSIX conformance that doesn't matter. Actually it is worse
+than that because if anyone _really_ did need it, then they'll get a
+horrible surprise when their system mysteriously fails in production.
 
-> Actually, this probably wants to be:
->
-> sym.setdefault(name, 0) += int(size, 16)
+It should either get ripped out, or perhaps converted to use jiffies
+until a sane high resolution, low overhead scheme is developed (if
+ever). And that would exclude something that does this accounting in
+fastpaths for the 99.99% of processes that never use it.
 
-File "scripts/bloat-o-meter", line 22
-  sym.setdefault(name, 0) += int(size, 16)
-SyntaxError: can't assign to function call
+--
 
-Rob
--- 
-Never bet against the cheap plastic solution.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

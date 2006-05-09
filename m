@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWEIWfe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWEIWjA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbWEIWfe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 18:35:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWEIWfe
+	id S1751325AbWEIWjA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 18:39:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWEIWjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 18:35:34 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:24214 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751296AbWEIWfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 18:35:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=G/KHhCjipFMCchX1eaC2mLklT3bvvRCxU031+yW3NAglU26GrgG4LuhAMnbFhaxbWd3Bh5xQvKJk2ZeRtO/Km1OONQBqz2si31QDG96Skufkn6DoxYfZC0FvuZlPz6LGoJmor17JpHWn1D/t8Nbo7myjf1zdBHtK8vLchi6ZkC0=
-Date: Wed, 10 May 2006 02:34:05 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Allen <amah@highpoint-tech.com>
-Cc: linux-scsi@vger.kernel.org, "'Andrew Morton'" <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] hptiop: HighPoint RocketRAID 3xxx controller driver
-Message-ID: <20060509223404.GE7237@mipter.zuzino.mipt.ru>
-References: <200605092128.k49LSQ6R024308@mail.hypersurf.com> <20060509215936.GD7237@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 9 May 2006 18:39:00 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:10886 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751327AbWEIWi7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 18:38:59 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [RFC PATCH 03/35] Add Xen interface header files
+Date: Wed, 10 May 2006 00:36:00 +0200
+User-Agent: KMail/1.9.1
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+References: <20060509084945.373541000@sous-sol.org> <20060509085147.903310000@sous-sol.org> <20060509151516.GA16332@infradead.org>
+In-Reply-To: <20060509151516.GA16332@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060509215936.GD7237@mipter.zuzino.mipt.ru>
-User-Agent: Mutt/1.5.11
+Message-Id: <200605100036.02776.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 10, 2006 at 01:59:36AM +0400, Alexey Dobriyan wrote:
-> That plethora of HPT_IOCTL_* defines, where are you using them? What
-> arguments are passed in and out?
+Hi Christoph,
 
-Argh, sorry for confusion, I've checked several first in the list and wrongly
-concluded nothing is used. Anyway, please, remove unused HPT_IOCTL_ defines.
+On Tuesday, 9. May 2006 17:15, Christoph Hellwig wrote:
+> > Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+> > Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+> > ---
+> >  include/xen/interface/arch-x86_32.h   |  197 +++++++++++++++
+> 
+> that kind of stuff needs to go to asm/
+> 
+> >  include/xen/interface/event_channel.h |  205 +++++++++++++++
+> 
+> instead of interface please use something shorter, we'll see this
+> all over the includes statements.  intf for example.
 
-> #ifdef MODULE_LICENSE
-> MODULE_LICENSE("GPL");
-> #endif
+I like them and think they are quite clear.
 
-#ifdef is totally unneeded.
+Documentation/CodingStyle Chapter 4: Naming
+seem to apply here.
 
-Module init and exit functions should be marked with __init and __exit
-resp.
+And since you type the include only ONCE per file,
+this looks like a good trade, doesn't it?
 
-Use DMA_??BIT_MASK in calls to pci_set_dma_mask(). See
-include/linux/dma-mapping.h for readily available items.
 
-hptiop_get_logical_devices can return -1 and you'll end up with
+Regards
 
-	for (j = 0; j < -1; j++)
-
-in hptiop_show_devicelist()
-
-u64 things are printed as
-
-	"%llu", (unsigned long long)capacity
-
-Is unsigned long long enough in this case?
-
-I also suggest to use vsnprintf() in hptiop_copy_info() because you use
-it with strings.
-
-Funny, that you do
-
-	driveid->model[20] = 0;
-
-when ->model is in fact 40 chars long.
-
+Ingo Oeser

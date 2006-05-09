@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbWEITdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWEITeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750966AbWEITdi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 15:33:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750970AbWEITdi
+	id S1750972AbWEITeT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 15:34:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750978AbWEITeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 15:33:38 -0400
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:1529 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1750965AbWEITdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 15:33:37 -0400
-In-Reply-To: <20060505172847.GC6450@in.ibm.com>
-References: <20060505172847.GC6450@in.ibm.com>
-Mime-Version: 1.0 (Apple Message framework v749.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <2C184B1B-9F70-4175-B90B-A1CC5741A6DE@kernel.crashing.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Greg KH <gregkh@suse.de>, Morton Andrew Morton <akpm@osdl.org>
+	Tue, 9 May 2006 15:34:19 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:21228 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750972AbWEITeS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 15:34:18 -0400
+Subject: Re: [RFC PATCH 03/35] Add Xen interface header files
+From: Hollis Blanchard <hollisb@us.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org,
+       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
+       Ian Pratt <ian.pratt@xensource.com>
+In-Reply-To: <20060509151516.GA16332@infradead.org>
+References: <20060509084945.373541000@sous-sol.org>
+	 <20060509085147.903310000@sous-sol.org>
+	 <20060509151516.GA16332@infradead.org>
+Content-Type: text/plain
+Organization: IBM Linux Technology Center
+Date: Tue, 09 May 2006 14:35:09 -0500
+Message-Id: <1147203309.19485.62.camel@basalt.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
 Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [RFC][PATCH 1/6] kconfigurable resources core changes
-Date: Tue, 9 May 2006 14:33:48 -0500
-To: vgoyal@in.ibm.com
-X-Mailer: Apple Mail (2.749.3)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2006-05-09 at 16:15 +0100, Christoph Hellwig wrote:
+> 
+> > +#ifdef __XEN__
+> > +#define __DEFINE_GUEST_HANDLE(name, type) \
+> > +    typedef struct { type *p; } __guest_handle_ ## name
+> > +#else
+> > +#define __DEFINE_GUEST_HANDLE(name, type) \
+> > +    typedef type * __guest_handle_ ## name
+> > +#endif
+> 
+> please get rid of all these stupid typedefs 
 
-On May 5, 2006, at 12:28 PM, Vivek Goyal wrote:
+These typedefs are a new hack to work around a basic interface problem:
+instead of explicitly-sized types, Xen uses longs and pointers in its
+interface. On PowerPC in particular, where we need a 32-bit userland
+communicating with a 64-bit hypervisor, those types don't work.
 
->
->
-> o Core changes for Kconfigurable memory and IO resources. By  
-> default resources
->   are 64bit until chosen to be 32bit.
->
-> o Last time I posted the patches for 64bit memory resources but it  
-> raised
->   the concerns regarding code bloat on 32bit systems who use 32 bit
->   resources.
->
-> o This patch-set allows resources to be kconfigurable.
->
-> o I have done cross compilation on i386, x86_64, ppc, powerpc,  
-> sparc, sparc64
->   ia64 and alpha.
->
-> Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
-> ---
+However, the maintainers are reluctant to switch the interface to use
+explicitly-sized types because it would break binary compatibility.
+These ugly "HANDLE" macros allow PowerPC to do what we need without
+affecting binary compatibility on x86.
 
-[snip]
-
-I didn't think the bloat was a big issue based on the numbers you  
-reported.  I'd still prefer to see us just move to a 64-bit resource  
-on all systems.
-
-- k
+-- 
+Hollis Blanchard
+IBM Linux Technology Center
 

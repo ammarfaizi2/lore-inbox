@@ -1,133 +1,199 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751493AbWEII4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751581AbWEII61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751493AbWEII4X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 04:56:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751500AbWEIItO
+	id S1751581AbWEII61 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 04:58:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751760AbWEII5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 04:49:14 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:2688 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751513AbWEIIsx
+	Tue, 9 May 2006 04:57:50 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:54147 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751595AbWEIItK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 04:48:53 -0400
-Message-Id: <20060509085158.933866000@sous-sol.org>
+	Tue, 9 May 2006 04:49:10 -0400
+Message-Id: <20060509085156.337930000@sous-sol.org>
 References: <20060509084945.373541000@sous-sol.org>
-Date: Tue, 09 May 2006 00:00:28 -0700
+Date: Tue, 09 May 2006 00:00:21 -0700
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org
 Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
        Ian Pratt <ian.pratt@xensource.com>,
        Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: [RFC PATCH 28/35] add support for Xen feature queries
-Content-Disposition: inline; filename=xen-features
+Subject: [RFC PATCH 21/35] subarch TLB support
+Content-Disposition: inline; filename=i386-tlbflush
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add support for parsing and interpreting hypervisor feature
-flags. These allow the kernel to determine what features are provided
-by the underlying hypervisor. For example, whether page tables need to
-be write protected explicitly by the kernel, and whether the kernel
-(appears to) run in ring 0 rather than ring 1. This information allows
-the kernel to improve performance by avoiding unnecessary actions.
+Paravirtualize TLB flushes by using the flush interfaces provided by
+the hypervisor. These hide the details of cross-CPU shootdowns and
+allow significant optimisations (for example, by avoiding shooting
+down on virtual CPUs that are descheduled). This is considerably
+faster in most cases than performing virtual IPIs in the guest kernel.
 
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- drivers/Makefile                            |    1 
- drivers/xen/Makefile                        |    3 ++
- drivers/xen/core/Makefile                   |    3 ++
- drivers/xen/core/features.c                 |   29 ++++++++++++++++++++++++++++
- include/asm-i386/mach-xen/setup_arch_post.h |    2 +
- include/xen/features.h                      |   20 +++++++++++++++++++
- 6 files changed, 58 insertions(+)
+ include/asm-i386/mach-default/mach_tlbflush.h |   59 ++++++++++++++++++++++++++
+ include/asm-i386/mach-xen/mach_tlbflush.h     |   25 +++++++++++
+ include/asm-i386/tlbflush.h                   |   55 ------------------------
+ 3 files changed, 85 insertions(+), 54 deletions(-)
 
---- linus-2.6.orig/include/asm-i386/mach-xen/setup_arch_post.h
-+++ linus-2.6/include/asm-i386/mach-xen/setup_arch_post.h
-@@ -27,6 +27,8 @@ static void __init machine_specific_arch
- {
- 	struct physdev_op op;
+--- linus-2.6.orig/include/asm-i386/tlbflush.h
++++ linus-2.6/include/asm-i386/tlbflush.h
+@@ -5,64 +5,11 @@
+ #include <linux/mm.h>
+ #include <asm/processor.h>
  
-+	setup_xen_features();
-+
- 	HYPERVISOR_shared_info =
- 		(struct shared_info *)__va(xen_start_info->shared_info);
- 	memset(empty_zero_page, 0, sizeof(empty_zero_page));
---- linus-2.6.orig/drivers/Makefile
-+++ linus-2.6/drivers/Makefile
-@@ -31,6 +31,7 @@ obj-y				+= base/ block/ misc/ mfd/ net/
- obj-$(CONFIG_NUBUS)		+= nubus/
- obj-$(CONFIG_ATM)		+= atm/
- obj-$(CONFIG_PPC_PMAC)		+= macintosh/
-+obj-$(CONFIG_XEN)		+= xen/
- obj-$(CONFIG_IDE)		+= ide/
- obj-$(CONFIG_FC4)		+= fc4/
- obj-$(CONFIG_SCSI)		+= scsi/
+-#define __flush_tlb()							\
+-	do {								\
+-		unsigned int tmpreg;					\
+-									\
+-		__asm__ __volatile__(					\
+-			"movl %%cr3, %0;              \n"		\
+-			"movl %0, %%cr3;  # flush TLB \n"		\
+-			: "=r" (tmpreg)					\
+-			:: "memory");					\
+-	} while (0)
+-
+-/*
+- * Global pages have to be flushed a bit differently. Not a real
+- * performance problem because this does not happen often.
+- */
+-#define __flush_tlb_global()						\
+-	do {								\
+-		unsigned int tmpreg, cr4, cr4_orig;			\
+-									\
+-		__asm__ __volatile__(					\
+-			"movl %%cr4, %2;  # turn off PGE     \n"	\
+-			"movl %2, %1;                        \n"	\
+-			"andl %3, %1;                        \n"	\
+-			"movl %1, %%cr4;                     \n"	\
+-			"movl %%cr3, %0;                     \n"	\
+-			"movl %0, %%cr3;  # flush TLB        \n"	\
+-			"movl %2, %%cr4;  # turn PGE back on \n"	\
+-			: "=&r" (tmpreg), "=&r" (cr4), "=&r" (cr4_orig)	\
+-			: "i" (~X86_CR4_PGE)				\
+-			: "memory");					\
+-	} while (0)
+-
+ extern unsigned long pgkern_mask;
+ 
+-# define __flush_tlb_all()						\
+-	do {								\
+-		if (cpu_has_pge)					\
+-			__flush_tlb_global();				\
+-		else							\
+-			__flush_tlb();					\
+-	} while (0)
+-
+ #define cpu_has_invlpg	(boot_cpu_data.x86 > 3)
+ 
+-#define __flush_tlb_single(addr) \
+-	__asm__ __volatile__("invlpg %0": :"m" (*(char *) addr))
+-
+-#ifdef CONFIG_X86_INVLPG
+-# define __flush_tlb_one(addr) __flush_tlb_single(addr)
+-#else
+-# define __flush_tlb_one(addr)						\
+-	do {								\
+-		if (cpu_has_invlpg)					\
+-			__flush_tlb_single(addr);			\
+-		else							\
+-			__flush_tlb();					\
+-	} while (0)
+-#endif
++#include <mach_tlbflush.h>
+ 
+ /*
+  * TLB flushing:
 --- /dev/null
-+++ linus-2.6/include/xen/features.h
-@@ -0,0 +1,20 @@
-+/******************************************************************************
-+ * features.h
-+ *
-+ * Query the features reported by Xen.
-+ *
-+ * Copyright (c) 2006, Ian Campbell
++++ linus-2.6/include/asm-i386/mach-default/mach_tlbflush.h
+@@ -0,0 +1,59 @@
++#ifndef __ASM_MACH_TLBFLUSH_H
++#define __ASM_MACH_TLBFLUSH_H
++
++#define __flush_tlb()							\
++	do {								\
++		unsigned int tmpreg;					\
++									\
++		__asm__ __volatile__(					\
++			"movl %%cr3, %0;              \n"		\
++			"movl %0, %%cr3;  # flush TLB \n"		\
++			: "=r" (tmpreg)					\
++			:: "memory");					\
++	} while (0)
++
++/*
++ * Global pages have to be flushed a bit differently. Not a real
++ * performance problem because this does not happen often.
 + */
++#define __flush_tlb_global()						\
++	do {								\
++		unsigned int tmpreg, cr4, cr4_orig;			\
++									\
++		__asm__ __volatile__(					\
++			"movl %%cr4, %2;  # turn off PGE     \n"	\
++			"movl %2, %1;                        \n"	\
++			"andl %3, %1;                        \n"	\
++			"movl %1, %%cr4;                     \n"	\
++			"movl %%cr3, %0;                     \n"	\
++			"movl %0, %%cr3;  # flush TLB        \n"	\
++			"movl %2, %%cr4;  # turn PGE back on \n"	\
++			: "=&r" (tmpreg), "=&r" (cr4), "=&r" (cr4_orig)	\
++			: "i" (~X86_CR4_PGE)				\
++			: "memory");					\
++	} while (0)
 +
-+#ifndef __ASM_XEN_FEATURES_H__
-+#define __ASM_XEN_FEATURES_H__
++#define __flush_tlb_all()						\
++	do {								\
++		if (cpu_has_pge)					\
++			__flush_tlb_global();				\
++		else							\
++			__flush_tlb();					\
++	} while (0)
 +
-+#include <xen/interface/version.h>
++#define __flush_tlb_single(addr) \
++	__asm__ __volatile__("invlpg %0": :"m" (*(char *) addr))
 +
-+extern void setup_xen_features(void);
++#ifdef CONFIG_X86_INVLPG
++# define __flush_tlb_one(addr) __flush_tlb_single(addr)
++#else
++# define __flush_tlb_one(addr)						\
++	do {								\
++		if (cpu_has_invlpg)					\
++			__flush_tlb_single(addr);			\
++		else							\
++			__flush_tlb();					\
++	} while (0)
++#endif
 +
-+extern u8 xen_features[XENFEAT_NR_SUBMAPS * 32];
-+
-+#define xen_feature(flag)	(xen_features[flag])
-+
-+#endif /* __ASM_XEN_FEATURES_H__ */
++#endif /* __ASM_MACH_TLBFLUSH_H */
 --- /dev/null
-+++ linus-2.6/drivers/xen/Makefile
-@@ -0,0 +1,3 @@
++++ linus-2.6/include/asm-i386/mach-xen/mach_tlbflush.h
+@@ -0,0 +1,25 @@
++#ifndef __ASM_MACH_TLBFLUSH_H
++#define __ASM_MACH_TLBFLUSH_H
 +
-+obj-y	+= core/
-+
---- /dev/null
-+++ linus-2.6/drivers/xen/core/Makefile
-@@ -0,0 +1,3 @@
-+
-+obj-y	:= features.o
-+
---- /dev/null
-+++ linus-2.6/drivers/xen/core/features.c
-@@ -0,0 +1,29 @@
-+/******************************************************************************
-+ * features.c
-+ *
-+ * Xen feature flags.
-+ *
-+ * Copyright (c) 2006, Ian Campbell, XenSource Inc.
-+ */
-+#include <linux/types.h>
-+#include <linux/cache.h>
-+#include <linux/module.h>
-+#include <asm/hypervisor.h>
-+#include <xen/features.h>
-+
-+u8 xen_features[XENFEAT_NR_SUBMAPS * 32] __read_mostly;
-+EXPORT_SYMBOL_GPL(xen_features);
-+
-+void setup_xen_features(void)
++static inline void xen_tlb_flush(void)
 +{
-+	struct xen_feature_info fi;
-+	int i, j;
-+
-+	for (i = 0; i < XENFEAT_NR_SUBMAPS; i++) {
-+		fi.submap_idx = i;
-+		if (HYPERVISOR_xen_version(XENVER_get_features, &fi) < 0)
-+			break;
-+		for (j=0; j<32; j++)
-+			xen_features[i*32+j] = !!(fi.submap & 1<<j);
-+	}
++        struct mmuext_op op;
++        op.cmd = MMUEXT_TLB_FLUSH_LOCAL;
++        BUG_ON(HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF) < 0);
 +}
++
++static inline void xen_invlpg(unsigned long ptr)
++{
++        struct mmuext_op op;
++        op.cmd = MMUEXT_INVLPG_LOCAL;
++        op.arg1.linear_addr = ptr & PAGE_MASK;
++        BUG_ON(HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF) < 0);
++}
++
++#define __flush_tlb() xen_tlb_flush()
++#define __flush_tlb_global() xen_tlb_flush()
++#define __flush_tlb_all() xen_tlb_flush()
++#define __flush_tlb_single(addr) xen_invlpg(addr)
++#define __flush_tlb_one(addr) __flush_tlb_single(addr)
++
++#endif /* __ASM_MACH_TLBFLUSH_H */
 
 --

@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbWEIQHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWEIQIH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751282AbWEIQHz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 12:07:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbWEIQHz
+	id S1751283AbWEIQIH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 12:08:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWEIQIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 12:07:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:38886 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751282AbWEIQHy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 12:07:54 -0400
-Date: Tue, 9 May 2006 09:02:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: bunk@stusta.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/17] Infrastructure to mark exported symbols as
- unused-for-removal-soon
-Message-Id: <20060509090202.2f209f32.akpm@osdl.org>
-In-Reply-To: <1146581587.32045.41.camel@laptopd505.fenrus.org>
-References: <1146581587.32045.41.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 9 May 2006 12:08:06 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:45896 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751283AbWEIQIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 12:08:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=A/a0WPaYqnErH7T8RKELku9rHIvgKTTlbi7A8EcLRaA5NVuFgP6gEVsdyrlEYLizzG8F3lM4D5ZP2AshBXIxtVL3ROBi162zRv5GK9kZ3+yPKxfyDX2nGU9ZnorK0exHdIjNUIkpeD8TvzwRtiEPponhNYC325Q7SuHfv6yu15Y=
+Date: Tue, 9 May 2006 20:06:35 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
+       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Subject: Re: [RFC PATCH 33/35] Add the Xenbus sysfs and virtual device hotplug driver.
+Message-ID: <20060509160635.GB7237@mipter.zuzino.mipt.ru>
+References: <20060509084945.373541000@sous-sol.org> <20060509085200.826853000@sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060509085200.826853000@sous-sol.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@linux.intel.com> wrote:
->
->  As discussed on lkml before; the patch with the infrastructure to deprecate unused symbols
-> 
->  This is patch one in a series of 17; to not overload lkml the other 16 will be mailed direct;
->  people who want to see them all can see them at http://www.fenrus.org/unused
+> +/* Simplified asprintf. */
+> +char *kasprintf(const char *fmt, ...)
+> +{
+> +	va_list ap;
+> +	unsigned int len;
+> +	char *p, dummy[1];
+> +
+> +	va_start(ap, fmt);
+> +	/* FIXME: vsnprintf has a bug, NULL should work */
+> +	len = vsnprintf(dummy, 0, fmt, ap);
+> +	va_end(ap);
+> +
+> +	p = kmalloc(len + 1, GFP_KERNEL);
+> +	if (!p)
+> +		return NULL;
+> +	va_start(ap, fmt);
+> +	vsprintf(p, fmt, ap);
+> +	va_end(ap);
+> +	return p;
+> +}
 
-A lot of these patches go through major APIs and seemingly-randomly prepare
-to unexport things based on whether they are presently used within modules.
-
-So, for example, drivers/base/attribute_container.c gets a whole pile of
-exports scheduled for removal, regardless of whether the resulting module
-API makes *sense*.  Ditto scsi core.  And lib/*.
-
-For example this:
-
-  EXPORT_SYMBOL(generic_getxattr);
- -EXPORT_SYMBOL(generic_listxattr);
- +EXPORT_UNUSED_SYMBOL(generic_listxattr); /* removal in 2.6.19 */
-  EXPORT_SYMBOL(generic_setxattr);
-  EXPORT_SYMBOL(generic_removexattr);
-
-just seems random to me, and it's setting us up for later churn.
-
-So hum.  Don't you think it'd be better to look at each API as a whole,
-make decisions about what parts of it _should_ be offered to modules,
-rather then looking empirically at which parts presently _need_ to be
-exported?
+This should go to lib/
 

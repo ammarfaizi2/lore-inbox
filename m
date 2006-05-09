@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWEITCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbWEITDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750807AbWEITCh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 15:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWEITCh
+	id S1750938AbWEITDV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 15:03:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbWEITDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 15:02:37 -0400
-Received: from c3po.0xdef.net ([217.172.181.57]:18950 "EHLO c3po.0xdef.net")
-	by vger.kernel.org with ESMTP id S1750807AbWEITCg (ORCPT
+	Tue, 9 May 2006 15:03:21 -0400
+Received: from verein.lst.de ([213.95.11.210]:64995 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S1750829AbWEITDU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 15:02:36 -0400
-Date: Tue, 9 May 2006 21:02:34 +0200
-From: Hagen Paul Pfeifer <hagen@jauu.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Elf loader question: who updates .rela.dyn entries for load_bias compensation?
-Message-ID: <20060509190234.GA26436@c3po.0xdef.net>
-Mail-Followup-To: Hagen Paul Pfeifer <hagen@jauu.net>,
-	linux-kernel@vger.kernel.org
-References: <200605050944.15440.jzb@aexorsyst.com>
+	Tue, 9 May 2006 15:03:20 -0400
+Date: Tue, 9 May 2006 21:03:10 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org,
+       hch@lst.de, bcrl@kvack.org, cel@citi.umich.edu
+Subject: Re: [PATCH 1/3] Vectorize aio_read/aio_write methods
+Message-ID: <20060509190310.GA19124@lst.de>
+References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com> <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com> <1147198025.28388.0.camel@dyn9047017100.beaverton.ibm.com> <20060509120105.7255e265.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200605050944.15440.jzb@aexorsyst.com>
-X-Key-Id: 98350C22
-X-Key-Fingerprint: 490F 557B 6C48 6D7E 5706 2EA2 4A22 8D45 9835 0C22
-X-GPG-Key: gpg --recv-keys --keyserver wwwkeys.eu.pgp.net 98350C22
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060509120105.7255e265.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* John Z. Bohach | 2006-05-05 09:44:15 [-0700]:
+On Tue, May 09, 2006 at 12:01:05PM -0700, Andrew Morton wrote:
+> Together these three patches shrink the kernel by 113 lines.  I don't know
+> what the effect is on text size, but that's a pretty modest saving, at a
+> pretty high risk level.
+> 
+> What else do we get in return for this risk?
 
->I'm porting Linux to a new architecture, and ran into an issue with
->the .rela.dyn entries not being adjusted to compensate for the load_bias
->of an ET_DYN shared executable:  in particular, this is the ld.so itself that
->doesn't get its .rela.dyn entries incremented by +load_bias.  This makes
->references from _GLOBAL_OFFSET_TABLE_ refer to the old compile-time
->vma addresses, which of course causes runtime  segfaults (appropriately
->enough) with ld.so.
+there's another patch ontop which I didn't bother to redo until this is
+accepted which kills a lot more code.  After that filesystems only have
+to implement one method each for all kinds of read/write calls.  Which
+allows to both make the mm/filemap.c far less complex and actually
+understandable aswell as for any filesystem that uses more complex
+read/write variants than direct filemap.c calls.  In addition to these
+simplification we also get a feature (async vectored I/O) for free.
 
-This is an issue of the link-editor.
-
-HGN
-
-
-
--- 
-A computer is like an Old Testament god, with a lot of rules  and
-no mercy. - Joseph Campbell

@@ -1,117 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbWEIVHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWEIV1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750954AbWEIVHK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 17:07:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWEIVHK
+	id S1751026AbWEIV1N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 17:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbWEIV1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 17:07:10 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:50595 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750954AbWEIVHI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 17:07:08 -0400
-Date: Tue, 9 May 2006 14:07:23 -0700
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dave Hansen <haveblue@us.ibm.com>, Christoph Lameter <clameter@sgi.com>,
-       Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] alloc_memory_early() routines
-Message-ID: <20060509210722.GD3168@w-mikek2.ibm.com>
-References: <20060509053512.GA20073@monkey.ibm.com> <20060508224952.0b43d0fd.akpm@osdl.org>
+	Tue, 9 May 2006 17:27:13 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:65486 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751026AbWEIV1M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 17:27:12 -0400
+Date: Tue, 9 May 2006 16:26:03 -0500
+From: Jon Mason <jdmason@us.ibm.com>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: Muli Ben-Yehuda <muli@il.ibm.com>, linux-kernel@vger.kernel.org,
+       ak@suse.de, linux-ia64@vger.kernel.org, mulix@mulix.org
+Subject: Re: [PATCH 2/3] swiotlb: create __alloc_bootmem_low_nopanic and add support in SWIOTLB
+Message-ID: <20060509212602.GD22385@us.ibm.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0670403C@scsmsx401.amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060508224952.0b43d0fd.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0670403C@scsmsx401.amr.corp.intel.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add alloc_memory_early() routines so that code needing to allocate
-space during boot need not be aware of which allocator is in use.
-Includes first use of such routine by the SPARSEMEM code.
+On Tue, May 09, 2006 at 02:04:08PM -0700, Luck, Tony wrote:
+> > I "fixed" it with the hack below.  Please let me know if this is not
+> > palatable for you.
+> 
+> Not really.  The only use of platform_dma_init() that I can see is in
+> arch/ia64/mm/init.c:mem_init() ...
+> 
+> 	platform_dma_init();
+> 
+> so "void" looks to be the right return value.  Why did it get changed to
+> be "int" (here's where I admit that I've only looked superficially at your
+> patch).
 
-I did not include support for 'large' allocations as suggested by
-Dave, or corresponding free_memory_early() routines.  The only
-immediate need is for NUMA/node aware allocation.  Others can be
-added as the needs arise.
+Ah, then I better describe it.  The patch makes it possible to recover
+from an insufficient amount of bootmem during swiotlb_init (instead of
+panicing).  For x86_64, I have it bailing out (via the returned int from
+swiotlb_init and using the non-iommu DMA routines from
+arch/x86_64/kernel/pci-nommu.c).  For ia64, its not that simple.
+There are no alternative DMA routines to switch to incase of an error.
+Also, There is no way to "bail-out" from its mem_init.  I could add a
+panic there, if that is more palatable.
 
-Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
+Thanks,
+Jon
 
-diff -Naupr linux-2.6.17-rc3-mm1/include/linux/slab.h linux-2.6.17-rc3-mm1.work3/include/linux/slab.h
---- linux-2.6.17-rc3-mm1/include/linux/slab.h	2006-05-03 22:19:15.000000000 +0000
-+++ linux-2.6.17-rc3-mm1.work3/include/linux/slab.h	2006-05-09 21:09:37.000000000 +0000
-@@ -150,10 +150,12 @@ static inline void *kcalloc(size_t n, si
- 
- extern void kfree(const void *);
- extern unsigned int ksize(const void *);
-+extern void *alloc_memory_early(size_t size, gfp_t flags);
- 
- #ifdef CONFIG_NUMA
- extern void *kmem_cache_alloc_node(kmem_cache_t *, gfp_t flags, int node);
- extern void *kmalloc_node(size_t size, gfp_t flags, int node);
-+extern void *alloc_memory_early_node(size_t size, gfp_t flags, int node);
- #else
- static inline void *kmem_cache_alloc_node(kmem_cache_t *cachep, gfp_t flags, int node)
- {
-@@ -163,6 +165,10 @@ static inline void *kmalloc_node(size_t 
- {
- 	return kmalloc(size, flags);
- }
-+static inline void *alloc_memory_early_node(size_t size, gfp_t flags, int node)
-+{
-+	return alloc_memory_early(size, flags);
-+}
- #endif
- 
- extern int FASTCALL(kmem_cache_reap(int));
-diff -Naupr linux-2.6.17-rc3-mm1/mm/slab.c linux-2.6.17-rc3-mm1.work3/mm/slab.c
---- linux-2.6.17-rc3-mm1/mm/slab.c	2006-05-03 22:19:16.000000000 +0000
-+++ linux-2.6.17-rc3-mm1.work3/mm/slab.c	2006-05-09 21:38:23.000000000 +0000
-@@ -108,6 +108,7 @@
- #include	<linux/mempolicy.h>
- #include	<linux/mutex.h>
- #include	<linux/rtmutex.h>
-+#include	<linux/bootmem.h>
- 
- #include	<asm/uaccess.h>
- #include	<asm/cacheflush.h>
-@@ -3266,8 +3267,24 @@ void *kmalloc_node(size_t size, gfp_t fl
- 	return kmem_cache_alloc_node(cachep, flags, node);
- }
- EXPORT_SYMBOL(kmalloc_node);
-+
-+void * __init alloc_memory_early_node(size_t size, gfp_t flags, int node)
-+{
-+	if (g_cpucache_up == FULL)
-+		return kmalloc_node(size, flags, node);
-+	else
-+		return alloc_bootmem_node(NODE_DATA(node), size);
-+}
- #endif
- 
-+void * __init alloc_memory_early(size_t size, gfp_t flags)
-+{
-+	if (g_cpucache_up == FULL)
-+		return kmalloc(size, flags);
-+	else
-+		return alloc_bootmem(size);
-+}
-+
- /**
-  * kmalloc - allocate memory
-  * @size: how many bytes of memory are required.
-diff -Naupr linux-2.6.17-rc3-mm1/mm/sparse.c linux-2.6.17-rc3-mm1.work3/mm/sparse.c
---- linux-2.6.17-rc3-mm1/mm/sparse.c	2006-05-03 22:19:16.000000000 +0000
-+++ linux-2.6.17-rc3-mm1.work3/mm/sparse.c	2006-05-09 20:37:51.000000000 +0000
-@@ -32,11 +32,7 @@ static struct mem_section *sparse_index_
- 	unsigned long array_size = SECTIONS_PER_ROOT *
- 				   sizeof(struct mem_section);
- 
--	if (system_state == SYSTEM_RUNNING)
--		section = kmalloc_node(array_size, GFP_KERNEL, nid);
--	else
--		section = alloc_bootmem_node(NODE_DATA(nid), array_size);
--
-+	section = alloc_memory_early_node(array_size, GFP_KERNEL, nid);
- 	if (section)
- 		memset(section, 0, array_size);
- 
+> 
+> -Tony

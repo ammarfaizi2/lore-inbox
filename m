@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbWEITDV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750979AbWEITEx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750938AbWEITDV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 15:03:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbWEITDV
+	id S1750979AbWEITEx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 15:04:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbWEITEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 15:03:21 -0400
-Received: from verein.lst.de ([213.95.11.210]:64995 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1750829AbWEITDU (ORCPT
+	Tue, 9 May 2006 15:04:53 -0400
+Received: from hera.kernel.org ([140.211.167.34]:14732 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750829AbWEITEx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 15:03:20 -0400
-Date: Tue, 9 May 2006 21:03:10 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org,
-       hch@lst.de, bcrl@kvack.org, cel@citi.umich.edu
-Subject: Re: [PATCH 1/3] Vectorize aio_read/aio_write methods
-Message-ID: <20060509190310.GA19124@lst.de>
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com> <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com> <1147198025.28388.0.camel@dyn9047017100.beaverton.ibm.com> <20060509120105.7255e265.akpm@osdl.org>
+	Tue, 9 May 2006 15:04:53 -0400
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [openib-general] Re: [PATCH 07/16] ehca: interrupt handling
+ routines
+Date: Tue, 9 May 2006 12:04:21 -0700
+Organization: OSDL
+Message-ID: <20060509120421.6ac3f15c@localhost.localdomain>
+References: <4450A196.2050901@de.ibm.com>
+	<adaejz9o4vh.fsf@cisco.com>
+	<445B4DA9.9040601@de.ibm.com>
+	<adafyjomsrd.fsf@cisco.com>
+	<44608C90.30909@de.ibm.com>
+	<adalktbcgl1.fsf@cisco.com>
+	<20060509164919.GC5063@mellanox.co.il>
+	<40FCD6B6-9135-43C1-8974-E9070475DB78@schihei.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060509120105.7255e265.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1147201456 1166 10.8.0.54 (9 May 2006 19:04:16 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Tue, 9 May 2006 19:04:16 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 2.1.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 09, 2006 at 12:01:05PM -0700, Andrew Morton wrote:
-> Together these three patches shrink the kernel by 113 lines.  I don't know
-> what the effect is on text size, but that's a pretty modest saving, at a
-> pretty high risk level.
+On Tue, 9 May 2006 20:57:01 +0200
+Heiko J Schick <info@schihei.de> wrote:
+
+> On 09.05.2006, at 18:49, Michael S. Tsirkin wrote:
 > 
-> What else do we get in return for this risk?
+> >> The trivial way to do it would be to use the same idea as the current
+> >> ehca driver: just create a thread for receive CQ events and a thread
+> >> for send CQ events, and defer CQ polling into those two threads.
+> >
+> > For RX, isn't this basically what NAPI is doing?
+> > Only NAPI seems better, avoiding interrupts completely and avoiding  
+> > latency hit
+> > by only getting triggered on high load ...
+> 
+> Does NAPI schedules CQ callbacks to different CPUs or stays the callback
+> (handling of data, etc.) on the same CPU where the interrupt came in?
+> 
 
-there's another patch ontop which I didn't bother to redo until this is
-accepted which kills a lot more code.  After that filesystems only have
-to implement one method each for all kinds of read/write calls.  Which
-allows to both make the mm/filemap.c far less complex and actually
-understandable aswell as for any filesystem that uses more complex
-read/write variants than direct filemap.c calls.  In addition to these
-simplification we also get a feature (async vectored I/O) for free.
-
+NAPI runs callback on same cpu that called netif_rx_schedule. 
+This has benefit of cache location and reduces locking overhead.

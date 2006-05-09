@@ -1,122 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWEIFEe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWEIFOl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751377AbWEIFEe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 01:04:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWEIFEe
+	id S1751387AbWEIFOl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 01:14:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWEIFOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 01:04:34 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:37884 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1751377AbWEIFEd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 01:04:33 -0400
-Date: Mon, 8 May 2006 22:03:48 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Erik Mouw <erik@harddisk-recovery.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       Jason Schoonover <jasons@pioneer-pra.com>, linux-kernel@vger.kernel.org
-Subject: Re: High load average on disk I/O on 2.6.17-rc3
-In-Reply-To: <1147149399.3198.10.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.62.0605082143270.20330@qynat.qvtvafvgr.pbz>
-References: <200605051010.19725.jasons@pioneer-pra.com> 
- <20060507095039.089ad37c.akpm@osdl.org> <445F548A.703@mbligh.org> 
- <1147100149.2888.37.camel@laptopd505.fenrus.org>  <20060508152255.GF1875@harddisk-recovery.com>
-  <1147102290.2888.41.camel@laptopd505.fenrus.org>  <445FF714.4050803@yahoo.com.au>
- <1147149399.3198.10.camel@laptopd505.fenrus.org>
+	Tue, 9 May 2006 01:14:41 -0400
+Received: from usea-naimss1.unisys.com ([192.61.61.103]:22790 "EHLO
+	usea-naimss1.unisys.com") by vger.kernel.org with ESMTP
+	id S1751384AbWEIFOk convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 01:14:40 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
+Date: Tue, 9 May 2006 00:14:36 -0500
+Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0BD0@USRV-EXCH4.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
+Thread-Index: AcZvj+3cUNJ/67FZTaabyEaNx8cUSQAAHvvQAAIXkFAATcJ24AACFL4wAHSAIGAADV8rMAANMJDwAADh/DAAA79doA==
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "Brown, Len" <len.brown@intel.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Andi Kleen" <ak@suse.de>, <sergio@sergiomb.no-ip.org>,
+       "Kimball Murray" <kimball.murray@gmail.com>,
+       <linux-kernel@vger.kernel.org>, <akpm@digeo.com>, <kmurray@redhat.com>,
+       <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 09 May 2006 05:14:36.0876 (UTC) FILETIME=[7747F0C0:01C67327]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 May 2006, Arjan van de Ven wrote:
+>> >I have tested this algorithm and it worked just fine for me... I 
+> >> >used the following compression code in mp_register_gsi():
+> >> >
+> >> >
+> >> >int     irqs_used = 0;
+> >> >int     gsi_to_irq[NR_IRQS] = { [0 ... NR_IRQS-1] = -1 };
+> >> >...
+> >> >
+> >> >        if (triggering == ACPI_LEVEL_SENSITIVE) {
+> >> >                if (gsi > NR_IRQS) {
+> >> >                        int i;
+> >> >                        printk("NBP: looking for unused IRQ\n");
+> >> >                        for (i = nr_ioapic_registers[0]; i 
+> >< NR_IRQS;
+> >> i++) {
+> >> >                                if (gsi_to_irq[i] == -1) {
+> >> >                                        gsi_to_irq[i] = gsi;
+> >> >                                        gsi = i;
+> >> >                                        break;
+> >> >                                }
+> >> >                        }
+> >> >                        if (i >= NR_IRQS) {
+> >> >                                printk(KERN_ERR "GSI %u is 
+> >> too high\n",
+> >> ...
+> >> >                                return gsi;
+> >> >                        }
+> >> >                } else
+> >> >                        gsi_to_irq[gsi] = gsi;
+> >> >        }
+> >> 
+> >> the problem with this code as it stands is that 
+> >> acpi/mp_register_gsi() can be called with gsi in any order.  
+> >> So it is possible for the compression code above to select 
+> >> gsi_to_irq[n] and later for the non-compression path to 
+> >> over-write gsi_to_irq[n].
+> >> 
+> >
+> >It should always find the entry it's done the first one around 
+> >actually, the first thing in mp_register_gsi() will check for it I
+> think.
+> 
+> No, the top of mp_register_gsi() is based on the real GSI
+> (before re-numbering) and the real IOAPIC pin number.
+> It prevents re-programming the real IOAPIC pin (a dubious 
+> optimization,
+> IMHO).
+> Yes, if it finds a 2nd call results in the same pin, it returns
+> gsi_to_irq[i],
+> but that isn't the failure case here.
+> 
+> a failure case is like so:
+> say the 1st IOAPIC has 24 pins, so the 0th RTE of the 2nd APIC is #24,
+> and this happens:
+> 
+> mp_register_gsi(NR_IRQS+1);
+> 	gsi_to_irq[24] is free, so it will get claimed
+> 	by the IRQ that wants to talk to GSI NR_IRQS+1
+> 
+> mp_register_gsi(24);
+> 	gsi_to_irq[24] was not -1 here, it was NR_IRQS+1,
+> 	but that will get over-written to be 24.
+> 
+> So now you have multiple independent interrupt sources that think
+> they own IRQ 24.
 
-> On Tue, 2006-05-09 at 11:57 +1000, Nick Piggin wrote:
->> Arjan van de Ven wrote:
->>
->>>> ... except that any kernel < 2.6 didn't account tasks waiting for disk
->>>> IO.
->>>>
->>>
->>> they did. It was "D" state, which counted into load average.
->>>
->>
->> Perhaps kernel threads in D state should not contribute toward load avg
->
-> that would be a change from, well... a LONG time
->
-> The question is what "load" means; if you want to change that... then
-> there are even better metrics possible. Like
-> "number of processes wanting to run + number of busy spindles + number
-> of busy nics + number of VM zones that are below the problem
-> watermark" (where "busy" means "queue full")
->
-> or 50 million other definitions. If we're going to change the meaning,
-> we might as well give it a "real" meaning.
->
-> (And even then it is NOT a good measure for determining if the machine
-> can perform more work, the graph I put in a previous mail is very real,
-> and in practice it seems the saturation line is easily 4x or 5x of the
-> "linear" point)
+But if the first one was say 280, then gsi_to_irq[24]=280. The other one
+will be looking for gsi_to_irq[XX]=24. That should make differentiation
+I hope. Don't you think? I will go through this some more...
 
-while this is true, it's also true that up in this area it's very easy for 
-a spike of activity to cascade through the box and bring everything down 
-to it's knees (I've seen a production box go from 'acceptable' response 
-time to being effectivly down for two hours with a small 'tar' command 
-(10's of K of writes) being the trigger that pushed it over the edge.
-
-in general loadave > 2x #procs has been a good indication that the box is 
-in danger and needs careful watching. I don't know when Linux changed it's 
-loadavg calculation, but within the last several years there was a change 
-that caused the loadaveg to report higher for the same amount of activity 
-on the box. as a user it's hard to argue which is the more 'correct' 
-value.
-
-of the various functions that you mentioned above.
-
-# processes wanting to run.
-   gives a good indication if the cpu is the bottleneck. this is what 
-people think loadavg means (the textbooks may be wrong, but they're what 
-people learn from)
-
-# spindles busy
-   gives a good indication if the disks are the bottleneck. this needs to 
-cover seek time and read/write time. My initial reaction is to base this 
-on the avg # of outstanding requests to the drive, but I'm not sure how 
-this would interact with TCQ/NCQ (it may just be that people need to know 
-their drives, and know that a higher value for those drives is 
-acceptable). This is one that I don't know how to find today (wait time 
-won't show if something else keeps the cpu busy). In many ways this stat 
-should be per-drive as well as any summary value (you can't just start 
-useing another spindle the way you can just use another cpu, even in a 
-NUMA system :-)
-
-# Nic's busy
-   don't bother with this, the networking folks have been tracking this for 
-years, either locally on the box, or through the networking infrastructure 
-(mrtg and friends were built for this)
-
-# vm zones below the danger point
-   I'm not sure about this one either in practice watching for pageing 
-rates to climb seems to work, but this area is where black magic 
-monitoring is in full force (and at the rate of change on the VM doesn't 
-help this understanding)
-
-I can understand your reluctance to quickly tinker with the loadavg 
-calculation, but would it be possible to make the other values available 
-by themselves for a while. then people can experiment in userspace to find 
-the best way to combine the values into a single, nicely graphable 'health 
-of the box' value.
-
-David Lang
-
-P.S. I would love to be told that I'm just ignorant of how to monitor 
-these things independantly. it would make my life much easier to learn 
-how.
-
-
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
-
+--Natalie

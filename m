@@ -1,52 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWEIXgI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbWEIXnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932209AbWEIXgI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 19:36:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWEIXgI
+	id S932094AbWEIXnY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 19:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWEIXnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 19:36:08 -0400
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:7907 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932209AbWEIXgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 19:36:07 -0400
-In-Reply-To: <adalktbcgl1.fsf@cisco.com>
-References: <4450A196.2050901@de.ibm.com> <adaejz9o4vh.fsf@cisco.com> <445B4DA9.9040601@de.ibm.com> <adafyjomsrd.fsf@cisco.com> <44608C90.30909@de.ibm.com> <adalktbcgl1.fsf@cisco.com>
-Mime-Version: 1.0 (Apple Message framework v749.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <75CCC04D-06EF-48B6-BE76-8BFAA541A764@kernel.crashing.org>
-Cc: Heiko J Schick <schihei@de.ibm.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, linuxppc-dev@ozlabs.org,
-       Christoph Raisch <RAISCH@de.ibm.com>,
-       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>
+	Tue, 9 May 2006 19:43:24 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:58261 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932094AbWEIXnX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 19:43:23 -0400
+Message-ID: <44612916.1030606@us.ibm.com>
+Date: Tue, 09 May 2006 18:43:18 -0500
+From: Anthony Liguori <aliguori@us.ibm.com>
+User-Agent: Mail/News 1.5 (X11/20060309)
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org,
+       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
+       Ian Pratt <ian.pratt@xensource.com>
+Subject: Re: [RFC PATCH 33/35] Add the Xenbus sysfs and virtual device	hotplug
+ driver.
+References: <20060509084945.373541000@sous-sol.org>	<20060509085200.826853000@sous-sol.org>	<20060509194044.GA374@kroah.com>	<20060509215314.GU24291@moss.sous-sol.org> <20060509220158.GA20564@kroah.com>
+In-Reply-To: <20060509220158.GA20564@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [openib-general] [PATCH 07/16] ehca: interrupt handling routines
-Date: Wed, 10 May 2006 01:35:57 +0200
-To: Roland Dreier <rdreier@cisco.com>
-X-Mailer: Apple Mail (2.749.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     Heiko> Yes, I agree. It would not be an optimal solution, because
->     Heiko> other upper level protocols (e.g. SDP, SRP, etc.) or
->     Heiko> userspace verbs would not be affected by this
->     Heiko> changes. Nevertheless, how can an improved "scaling" or
->     Heiko> "SMP" version of IPoIB look like. How could it be
->     Heiko> implemented?
+Greg KH wrote:
+> On Tue, May 09, 2006 at 02:53:14PM -0700, Chris Wright wrote:
+>   
+>>> What is the "frontend/backend" relationship here?
+>>>       
+>> do you mean in sysfs?  or more in general?
+>>     
 >
-> The trivial way to do it would be to use the same idea as the current
-> ehca driver: just create a thread for receive CQ events and a thread
-> for send CQ events, and defer CQ polling into those two threads.
+> Either.  You seem to mention a lot of nested depths in sysfs or "files",
+> yet your above tree doesn't show that.  And I don't understand what you
+> mean by frontend/backend here either?  Is it a sysfs thing?  Or a Xen
+> thing?
+>   
+
+Hi Greg,
+
+XenStore is a shared namespace (similar to sysfs or open firmware) 
+between domains.  The interdomain communication primitives exposed by 
+Xen are very lowlevel (virtual IRQ and shared memory).  XenStore is 
+implemented on top of these primitives and provides some higher level 
+operations (read a key, write a key, enumerate a directory, notify when 
+a key changes value).
+
+We use XenStore to implement our virtual drivers (this infrastructure is 
+called XenBus).  The drivers are split between a backend and frontend.  
+The frontend is the portion of the driver that runs in the guest and the 
+backend is the portion of the driver that runs in the host (and actually 
+virtualizes the underlying device).
+
+The xenbus_mkdir, etc. functions you see operate on XenStore.
+
+Regards,
+
+Anthony Liguori
+
+> thanks,
 >
-> Something even better may be possible by specializing to IPoIB of  
-> course.
-
-The hardware IRQ should go to some CPU close to the hardware itself.   
-The
-softirq (or whatever else) should go to the same CPU that is handling  
-the
-user-level task for that message.  Or a CPU close to it, at least.
-
-
-Segher
+> greg k-h
+>   
+> ------------------------------------------------------------------------
+>
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.osdl.org
+> https://lists.osdl.org/mailman/listinfo/virtualization
+>   
 

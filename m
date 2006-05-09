@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751458AbWEIIMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbWEIIVF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751458AbWEIIMf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 04:12:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWEIIMe
+	id S1751464AbWEIIVF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 04:21:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751465AbWEIIVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 04:12:34 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:39631 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751458AbWEIIMe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 04:12:34 -0400
-Date: Tue, 9 May 2006 13:38:49 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-       jlan@engr.sgi.com
-Subject: Re: [updated] [Patch 5/8] taskstats interface
-Message-ID: <20060509080849.GC11533@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <20060502061829.GB22607@in.ibm.com> <20060504184011.GB6966@in.ibm.com> <20060508143139.2f1c7623.akpm@osdl.org>
+	Tue, 9 May 2006 04:21:05 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:42706 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1751464AbWEIIVE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 04:21:04 -0400
+Subject: Re: [RT PATCH] fix futex compilation (rt20)
+From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+To: dipankar@in.ibm.com
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060508091535.GB6081@in.ibm.com>
+References: <20060508091535.GB6081@in.ibm.com>
+Date: Tue, 09 May 2006 10:24:51 +0200
+Message-Id: <1147163091.3969.0.camel@frecb000686>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060508143139.2f1c7623.akpm@osdl.org>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.4.2.1 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 09/05/2006 10:23:32,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 09/05/2006 10:24:02,
+	Serialize complete at 09/05/2006 10:24:02
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 08, 2006 at 02:31:39PM -0700, Andrew Morton wrote:
-> Balbir Singh <balbir@in.ibm.com> wrote:
-> >
-> > +
-> > +	if ((rc = genl_register_ops(&family, &taskstats_ops)) < 0)
-> > +		goto err;
+On Mon, 2006-05-08 at 14:45 +0530, Dipankar Sarma wrote:
+> Hi Ingo,
 > 
-> 	rc = genl_register_ops(&family, &taskstats_ops);
-> 	if (rc < 0)
-> 		goto err;
+> I needed this patch to compile and boot rt20 on x86_64. Just FYI.
 > 
-> please.
+> Thanks
+> Dipankar
+> 
+> Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+> 
+> diff -puN kernel/futex_compat.c~fix-futex-compile kernel/futex_compat.c
+> --- linux-2.6.16-rt20/kernel/futex_compat.c~fix-futex-compile	2006-05-08 13:59:53.000000000 +0530
+> +++ linux-2.6.16-rt20-dipankar/kernel/futex_compat.c	2006-05-08 14:01:02.000000000 +0530
+> @@ -137,5 +137,5 @@ asmlinkage long compat_sys_futex(u32 __u
+>  	if (op == FUTEX_REQUEUE || op == FUTEX_CMP_REQUEUE)
+>  		val2 = (int) (unsigned long) utime;
+>  
+> -	return do_futex(uaddr, op, val, timeout, uaddr2, val2, val3);
+> +	return do_futex(uaddr, op, val, &t, uaddr2, val2, val3);
+>  }
+> 
+> _
 
-Will follow the new style.
+  Whoops, missed this one, thanks.
 
-	Thanks,
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+  OK with me.
+
+  Sébastien.
+

@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbWEIWHg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWEIWIn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751137AbWEIWHg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 18:07:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWEIWHg
+	id S1751217AbWEIWIn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 18:08:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWEIWIn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 18:07:36 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:15316 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751137AbWEIWHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 18:07:35 -0400
-Subject: Re: [PATCH] hptiop: HighPoint RocketRAID 3xxx controller driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: amah@highpoint-tech.com
-Cc: linux-scsi@vger.kernel.org, "'Andrew Morton'" <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200605092128.k49LSQ6R024308@mail.hypersurf.com>
-References: <200605092128.k49LSQ6R024308@mail.hypersurf.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 09 May 2006 23:19:21 +0100
-Message-Id: <1147213161.3172.157.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Tue, 9 May 2006 18:08:43 -0400
+Received: from mga03.intel.com ([143.182.124.21]:38550 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1751191AbWEIWIm convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 18:08:42 -0400
+X-IronPort-AV: i="4.05,107,1146466800"; 
+   d="scan'208"; a="33946476:sNHT650684475"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH 2/3] swiotlb: create __alloc_bootmem_low_nopanic and add support in SWIOTLB
+Date: Tue, 9 May 2006 15:08:36 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F06704163@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2/3] swiotlb: create __alloc_bootmem_low_nopanic and add support in SWIOTLB
+Thread-Index: AcZzr1jK8NykJpdnQWiy3lVoOpLO+QAAhBMA
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Jon Mason" <jdmason@us.ibm.com>
+Cc: "Muli Ben-Yehuda" <muli@il.ibm.com>, <linux-kernel@vger.kernel.org>,
+       <ak@suse.de>, <linux-ia64@vger.kernel.org>, <mulix@mulix.org>
+X-OriginalArrivalTime: 09 May 2006 22:08:36.0954 (UTC) FILETIME=[1ECB1BA0:01C673B5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Ah, then I better describe it.  The patch makes it possible to recover
+> from an insufficient amount of bootmem during swiotlb_init (instead of
+> panicing).  For x86_64, I have it bailing out (via the returned int from
+> swiotlb_init and using the non-iommu DMA routines from
+> arch/x86_64/kernel/pci-nommu.c).  For ia64, its not that simple.
+> There are no alternative DMA routines to switch to incase of an error.
+> Also, There is no way to "bail-out" from its mem_init.  I could add a
+> panic there, if that is more palatable.
 
-> +Non-queued requests (reset/flush etc) can be sent via inbound message
-> +register 0. An outbound message with the same value indicates the
-> completion
-> +of an inbouind message.
+Presumably if you have insufficient memory to allocate the swiotlb
+buffers, then you actually don't need *any* swiotlb buffers at all
+as all your memory is at low enough addresses to be directly accessed
+by whatever devices you have (offer void on bizarre discontig systems
+that put the only memory they have in an address range that can't be
+used by the devices that need to access it ... but perhaps in that
+case it would be better to buy a different computer :-)
 
-One typo..
+But ignoring that ... a new "noop" routine that returns an int
+does seem to be the right solution.  Looking at the others that
+are already there, calling it machvec_noop_dma() isn't a bad fit
+with the style of the other "_noop" functions that are already
+there.
 
-
-> +static int iop_wait_ready(struct hpt_iopmu __iomem * iop, u32 millisec)
-> +{
-> + u32 req = 0;
-> + int i;
-> +
-
-Your mailer seems to have removed the tabs in the file (at least the
-preview version had the formatting correct and this one does not)
-
-If you can't get the mailer not to do this you might want to try
-resending it as an attachment if other fixes don't work.
-
-Alan
-
+-Tony

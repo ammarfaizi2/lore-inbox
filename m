@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWEIQIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWEIQNU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbWEIQIS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 12:08:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWEIQIS
+	id S1751067AbWEIQNU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 12:13:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWEIQNU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 12:08:18 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:38299 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751286AbWEIQIH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 12:08:07 -0400
-From: Andi Kleen <ak@suse.de>
-To: virtualization@lists.osdl.org
-Subject: Re: [RFC PATCH 15/35] subarch support for controlling interrupt delivery
-Date: Tue, 9 May 2006 18:07:57 +0200
-User-Agent: KMail/1.9.1
-Cc: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Chris Wright <chrisw@sous-sol.org>, xen-devel@lists.xensource.com,
-       linux-kernel@vger.kernel.org, Ian Pratt <ian.pratt@xensource.com>
-References: <20060509084945.373541000@sous-sol.org> <4460AC06.4000303@mbligh.org> <20060509155153.GJ7834@cl.cam.ac.uk>
-In-Reply-To: <20060509155153.GJ7834@cl.cam.ac.uk>
+	Tue, 9 May 2006 12:13:20 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:43224 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751067AbWEIQNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 12:13:20 -0400
+Message-ID: <4460BF8C.1050803@linux.intel.com>
+Date: Tue, 09 May 2006 18:13:00 +0200
+From: Arjan van de Ven <arjan@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Andrew Morton <akpm@osdl.org>
+CC: bunk@stusta.de, linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/17] Infrastructure to mark exported symbols as unused-for-removal-soon
+References: <1146581587.32045.41.camel@laptopd505.fenrus.org> <20060509090202.2f209f32.akpm@osdl.org>
+In-Reply-To: <20060509090202.2f209f32.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605091807.57522.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> So hum.  Don't you think it'd be better to look at each API as a whole,
+> make decisions about what parts of it _should_ be offered to modules,
+> rather then looking empirically at which parts presently _need_ to be
+> exported?
 
-> 
-> Anybody want to comment on the performance impact of making
-> local_irq_* non-inline functions?
+Well so far we as kernel developers have been rather bad at it, with the result
+that there are 900 unused ones roughly. Each export takes somewhere between 100
+and 150 bytes. *WITHOUT ANY BENEFIT*. The reason to remove them all is to save
+that memory NOW. It's easy to add an export back later if it gets used. Yes that
+is churn, but it's minor churn. The price for not doing that is a bigger kernel
+for everyone, today, without any positive gain of that space..
 
-I would guess for that much inline code it will be even a win to not
-inline because it will save icache.
+(and this size excludes even those functions that aren't used at all, but are
+only there to be exported. Adrian has been working on removing the really unused
+functions in the kernel, via static marking and then gcc noticing the unusedness,
+but once they're exported that breaks down)
 
--Andi
+So I think personally it's worth biting the bullet. I expect 95% of those 900 to
+never ever come back. Those 5% will churn, sure. But, to a large degree, the fact
+that there's no user is an indication that the API may well not be right in the
+first place, or not in demand.

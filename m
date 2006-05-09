@@ -1,224 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWEIRaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWEIRa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750765AbWEIRaV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 13:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWEIRaV
+	id S1750772AbWEIRa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 13:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbWEIRa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 13:30:21 -0400
-Received: from ns1.suse.de ([195.135.220.2]:47271 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750765AbWEIRaT (ORCPT
+	Tue, 9 May 2006 13:30:56 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:35509 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750771AbWEIRaz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 13:30:19 -0400
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: Novell, SUSE Labs
-To: Ram Pai <linuxram@us.ibm.com>
-Subject: [PATCH] Check for license compliance at build time
-Date: Tue, 9 May 2006 19:31:48 +0200
-User-Agent: KMail/1.9.1
-Cc: Greg KH <greg@kroah.com>, Jan Beulich <jbeulich@novell.com>,
-       sam@ravnborg.org, linux-kernel@vger.kernel.org
-References: <445F0B6F.76E4.0078.0@novell.com> <20060509042500.GA4226@kroah.com> <1147154238.7203.62.camel@localhost>
-In-Reply-To: <1147154238.7203.62.camel@localhost>
-MIME-Version: 1.0
+	Tue, 9 May 2006 13:30:55 -0400
+Date: Tue, 9 May 2006 22:57:16 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, jlan@engr.sgi.com
+Subject: Re: [Patch 2/8] Sync block I/O and swapin delay collection
+Message-ID: <20060509172716.GB10478@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+References: <20060502061408.GM13962@in.ibm.com> <20060508141952.2d4b9069.akpm@osdl.org> <20060509035320.GC784@in.ibm.com> <44601933.2040905@yahoo.com.au> <20060509054556.GG784@in.ibm.com> <44602F32.1060909@yahoo.com.au> <20060509080638.GB11533@in.ibm.com> <446050BC.5070608@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Length: 7874
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200605091931.49216.agruen@suse.de>
+In-Reply-To: <446050BC.5070608@yahoo.com.au>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch on to of Ram Pai's modpost.diff patch at 
-http://sudhaa.com/~ram/misc/kernelpatch implements license compliance testing 
-in modpost. This prevents kbuild from producing modules that won't load.
+On Tue, May 09, 2006 at 06:20:12PM +1000, Nick Piggin wrote:
+> Balbir Singh wrote:
+> 
+> >On Tue, May 09, 2006 at 03:57:06PM +1000, Nick Piggin wrote:
+> >
+> >>Well they'll be _collecting_ the stats, yes. Will they really be using
+> >>them for anything?
+> >>
+> >
+> >Hmm.. No, the statistics are sent down using the netlink interface
+> >to listeners on the netlink group (on every task exit) or to the task that
+> >actually requested for the delay accounting data.
+> >
+> >The stats are currently gathered in kernel and used by user space.
+> >
+> 
+> So... what are the consumers of this data going to be? That is my question.
 
-Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+More details on the consumers of this data is available at
+http://lkml.org/lkml/2006/3/13/367
 
-Index: linux-2.6.16/include/linux/license.h
-===================================================================
---- /dev/null
-+++ linux-2.6.16/include/linux/license.h
-@@ -0,0 +1,14 @@
-+#ifndef __LICENSE_H
-+#define __LICENSE_H
-+
-+static inline int license_is_gpl_compatible(const char *license)
-+{
-+	return (strcmp(license, "GPL") == 0
-+		|| strcmp(license, "GPL v2") == 0
-+		|| strcmp(license, "GPL and additional rights") == 0
-+		|| strcmp(license, "Dual BSD/GPL") == 0
-+		|| strcmp(license, "Dual MIT/GPL") == 0
-+		|| strcmp(license, "Dual MPL/GPL") == 0);
-+}
-+
-+#endif
-Index: linux-2.6.16/kernel/module.c
-===================================================================
---- linux-2.6.16.orig/kernel/module.c
-+++ linux-2.6.16/kernel/module.c
-@@ -43,6 +43,7 @@
- #include <asm/uaccess.h>
- #include <asm/semaphore.h>
- #include <asm/cacheflush.h>
-+#include <linux/license.h>
- 
- #if 0
- #define DEBUGP printk
-@@ -1248,16 +1249,6 @@ static void layout_sections(struct modul
- 	}
- }
- 
--static inline int license_is_gpl_compatible(const char *license)
--{
--	return (strcmp(license, "GPL") == 0
--		|| strcmp(license, "GPL v2") == 0
--		|| strcmp(license, "GPL and additional rights") == 0
--		|| strcmp(license, "Dual BSD/GPL") == 0
--		|| strcmp(license, "Dual MIT/GPL") == 0
--		|| strcmp(license, "Dual MPL/GPL") == 0);
--}
--
- static void set_license(struct module *mod, const char *license)
- {
- 	if (!license)
-Index: linux-2.6.16/scripts/mod/modpost.c
-===================================================================
---- linux-2.6.16.orig/scripts/mod/modpost.c
-+++ linux-2.6.16/scripts/mod/modpost.c
-@@ -13,6 +13,7 @@
- 
- #include <ctype.h>
- #include "modpost.h"
-+#include "../../include/linux/license.h"
- 
- /* Are we using CONFIG_MODVERSIONS? */
- int modversions = 0;
-@@ -101,6 +102,7 @@ static struct module *new_module(char *m
- 
- 	/* add to list */
- 	mod->name = p;
-+	mod->gpl_compatible = -1;
- 	mod->next = modules;
- 	modules = mod;
- 
-@@ -454,13 +456,18 @@ static char *next_string(char *string, u
- 	return string;
- }
- 
--static char *get_modinfo(void *modinfo, unsigned long modinfo_len,
--			 const char *tag)
-+static char *get_next_modinfo(void *modinfo, unsigned long modinfo_len,
-+			      const char *tag, char *info)
- {
- 	char *p;
- 	unsigned int taglen = strlen(tag);
- 	unsigned long size = modinfo_len;
- 
-+	if (info) {
-+		size -= info - (char *)modinfo;
-+		modinfo = next_string(info, &size);
-+	}
-+
- 	for (p = modinfo; p; p = next_string(p, &size)) {
- 		if (strncmp(p, tag, taglen) == 0 && p[taglen] == '=')
- 			return p + taglen + 1;
-@@ -468,6 +475,13 @@ static char *get_modinfo(void *modinfo, 
- 	return NULL;
- }
- 
-+static char *get_modinfo(void *modinfo, unsigned long modinfo_len,
-+			 const char *tag)
-+
-+{
-+	return get_next_modinfo(modinfo, modinfo_len, tag, NULL);
-+}
-+
- /**
-  * Test if string s ends in string sub
-  * return 0 if match
-@@ -888,6 +902,7 @@ static void read_symbols(char *modname)
- {
- 	const char *symname;
- 	char *version;
-+	char *license;
- 	struct module *mod;
- 	struct elf_info info = { };
- 	Elf_Sym *sym;
-@@ -903,6 +918,18 @@ static void read_symbols(char *modname)
- 		mod->skip = 1;
- 	}
- 
-+	license = get_modinfo(info.modinfo, info.modinfo_len, "license");
-+	while (license) {
-+		if (license_is_gpl_compatible(license))
-+			mod->gpl_compatible = 1;
-+		else {
-+			mod->gpl_compatible = 0;
-+			break;
-+		}
-+		license = get_next_modinfo(info.modinfo, info.modinfo_len,
-+					   "license", license);
-+	}
-+
- 	for (sym = info.symtab_start; sym < info.symtab_stop; sym++) {
- 		symname = info.strtab + sym->st_name;
- 
-@@ -959,6 +986,31 @@ void buf_write(struct buffer *buf, const
- 	buf->pos += len;
- }
- 
-+void check_license(struct module *mod)
-+{
-+	struct symbol *s, *exp;
-+
-+	for (s = mod->unres; s; s = s->next) {
-+		if (mod->gpl_compatible == 1) {
-+			/* GPL-compatible modules may use all symbols */
-+			continue;
-+		}
-+		exp = find_symbol(s->name);
-+		if (!exp || exp->module == mod)
-+			continue;
-+		if (exp->export_type == 1) {
-+			const char *basename = strrchr(mod->name, '/');
-+			if (basename)
-+				basename++;
-+
-+			fatal("modpost: GPL-incompatible module %s uses the "
-+			      "GPL-only symbol %s\n",
-+			      basename ? basename : mod->name,
-+			      exp->name);
-+		}
-+        }
-+}
-+
- /**
-  * Header for the generated file
-  **/
-@@ -1244,6 +1296,12 @@ int main(int argc, char **argv)
- 	for (mod = modules; mod; mod = mod->next) {
- 		if (mod->skip)
- 			continue;
-+		check_license(mod);
-+	}
-+
-+	for (mod = modules; mod; mod = mod->next) {
-+		if (mod->skip)
-+			continue;
- 
- 		buf.pos = 0;
- 
-Index: linux-2.6.16/scripts/mod/modpost.h
-===================================================================
---- linux-2.6.16.orig/scripts/mod/modpost.h
-+++ linux-2.6.16/scripts/mod/modpost.h
-@@ -81,6 +81,7 @@ buf_write(struct buffer *buf, const char
- struct module {
- 	struct module *next;
- 	const char *name;
-+	int gpl_compatible;
- 	struct symbol *unres;
- 	int seen;
- 	int skip;
+> 
+> >>If you make the whole thing much lighter weight for tasks which aren't
+> >>using the accounting, you have a better chance of people turning the
+> >>CONFIG option on.
+> >>
+> >>
+> >
+> >I am not sure I understand the point completely. Are you suggesting that
+> >struct task_delay_info be moved to common data structure as an aggregate
+> >containing all the delay stats data?
+> >
+> 
+> My suggestion is basically this: if the accounting is going to be used
+> infrequently, it might be a good idea to allocate the accounting structures
+> on demand, and only perform the accounting when these structures are
+> allocated.
+> 
+> It all adds up. Extra cache misses, more icache, more logic, etc... I 
+> suspect
+> that relatively few people will care about these stats.
+>
+
+Thanks for clarifying.  I now understand your suggestion better.
+
+The accounting is going to be frequent, with data from all tasks in the
+system being collected and processed frequently. Since the accounting is
+frequent, I think the current scheme works better than on-demand allocation.
+
+Regarding the usefulness of these stats, please see
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0604.2/1731.html
+
+
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

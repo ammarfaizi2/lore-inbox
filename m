@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWEIQ15@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWEIQ26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751319AbWEIQ15 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 12:27:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWEIQ15
+	id S1750702AbWEIQ26 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 12:28:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWEIQ26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 12:27:57 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:65444 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751319AbWEIQ14
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 12:27:56 -0400
-Subject: Re: [PATCH] SPARSEMEM + NUMA can't handle unaligned memory regions?
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: Michael Ellerman <michael@ellerman.id.au>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, kravetz@us.ibm.com
-In-Reply-To: <4460A6F3.5060303@shadowen.org>
-References: <20060509070343.57853679F2@ozlabs.org>
-	 <44609A7B.7010103@shadowen.org>  <4460A6F3.5060303@shadowen.org>
-Content-Type: text/plain
-Date: Tue, 09 May 2006 09:26:46 -0700
-Message-Id: <1147192006.23893.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Tue, 9 May 2006 12:28:58 -0400
+Received: from ns.suse.de ([195.135.220.2]:7327 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750702AbWEIQ25 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 12:28:57 -0400
+From: Andi Kleen <ak@suse.de>
+To: virtualization@lists.osdl.org
+Subject: Re: [RFC PATCH 33/35] Add the Xenbus sysfs and virtual device hotplug driver.
+Date: Tue, 9 May 2006 18:28:31 +0200
+User-Agent: KMail/1.9.1
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, Chris Wright <chrisw@sous-sol.org>,
+       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
+       Ian Pratt <ian.pratt@xensource.com>
+References: <20060509084945.373541000@sous-sol.org> <20060509085200.826853000@sous-sol.org> <20060509160635.GB7237@mipter.zuzino.mipt.ru>
+In-Reply-To: <20060509160635.GB7237@mipter.zuzino.mipt.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605091828.31686.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-09 at 15:28 +0100, Andy Whitcroft wrote:		
-> +/*
-> + * During early boot we need to record the nid from which we will
-> + * later allocate the section mem_map.  Encode this into the section
-> + * pointer.  Overload the section_mem_map with this information.
-> + */ 
+On Tuesday 09 May 2006 18:06, Alexey Dobriyan wrote:
+> > +/* Simplified asprintf. */
+> > +char *kasprintf(const char *fmt, ...)
+> > +{
+> > +	va_list ap;
+> > +	unsigned int len;
+> > +	char *p, dummy[1];
+> > +
+> > +	va_start(ap, fmt);
+> > +	/* FIXME: vsnprintf has a bug, NULL should work */
+> > +	len = vsnprintf(dummy, 0, fmt, ap);
+> > +	va_end(ap);
+> > +
+> > +	p = kmalloc(len + 1, GFP_KERNEL);
+> > +	if (!p)
+> > +		return NULL;
+> > +	va_start(ap, fmt);
+> > +	vsprintf(p, fmt, ap);
+> > +	va_end(ap);
+> > +	return p;
+> > +}
+> 
+> This should go to lib/
 
-Andy, this all looks pretty good.  Although, it might be nice to
-document this a bit more. 
+First for kernel usage I think it should have a maximum length parameter
+to avoid dumb code from being easily exploited.
 
-First, can you update the mem_section definition comment?  It has a nice
-explanation of how we use section_mem_map, and it would be a shame to
-miss this use.
+And the bug should be fixed in vsnprintf instead of being worked
+around.
 
-Also, your comment says when we _record_ the nid information, but not
-that it is only _used_ during early boot.  I think this is what Mike K.
-missed, and it might be good to clarify.
-
-How about something like this:
-
-/*
- * During early boot, before section_mem_map is used for an actual
- * mem_map, we use section_mem_map to store the section's NUMA
- * node.  This keeps us from having to use another data structure.  The
- * node information is cleared just before we store the real mem_map.
- */
-
--- Dave
-
+-Andi

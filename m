@@ -1,53 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751763AbWEIOAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751772AbWEIOCX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751763AbWEIOAm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 10:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751753AbWEIOAm
+	id S1751772AbWEIOCX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 10:02:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751753AbWEIOCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 10:00:42 -0400
-Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:54936 "EHLO mta2.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S1751041AbWEIOAl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 10:00:41 -0400
-Date: Tue, 9 May 2006 15:00:27 +0100
-From: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: xen-devel@lists.xensource.com, ian.pratt@xensource.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       chrisw@sous-sol.org, virtualization@lists.osdl.org
-Subject: Re: [Xen-devel] [RFC PATCH 34/35] Add the Xen virtual network	device	driver.
-Message-ID: <20060509140027.GD7834@cl.cam.ac.uk>
-References: <20060509131632.GB7834@cl.cam.ac.uk> <E1FdSDz-0008Lv-00@gondolin.me.apana.org.au>
+	Tue, 9 May 2006 10:02:23 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:36812 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751310AbWEIOCW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 10:02:22 -0400
+Subject: Re: [tpmdd-devel] RE: [PATCH] tpm: update module dependencies
+	(PNPACPI)
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>,
+       linux-acpi@vger.kernel.org
+In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB65EAC3D@hdsmsx411.amr.corp.intel.com>
+References: <CFF307C98FEABE47A452B27C06B85BB65EAC3D@hdsmsx411.amr.corp.intel.com>
+Content-Type: text/plain
+Date: Tue, 09 May 2006 09:00:33 -0500
+Message-Id: <1147183233.29414.66.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1FdSDz-0008Lv-00@gondolin.me.apana.org.au>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 09, 2006 at 11:26:03PM +1000, Herbert Xu wrote:
-> Christian Limpach <Christian.Limpach@cl.cam.ac.uk> wrote:
-> > 
-> > Possibly having to page in the process and switching to it would add
-> > to the live migration time.  More importantly, having to install an
-> > additional program in the guest is certainly not very convenient.
+On Mon, 2006-05-08 at 18:26 -0400, Brown, Len wrote:
+> >On Mon, 2006-05-08 at 17:59 -0400, Brown, Len wrote:
+> >> >The TIS driver is dependent upon information from the ACPI table for
+> >> >device discovery thus it compiles but does no actual work 
+> >with out this
+> >> >dependency.
+> >> >
+> >> >Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+> >> >---
+> >> > drivers/char/tpm/Kconfig |    2 +-
+> >> > 1 files changed, 1 insertion(+), 1 deletion(-)
+> >> >
+> >> >--- linux-2.6.17-rc3/drivers/char/tpm/Kconfig	2006-04-26 
+> >> >21:19:25.000000000 -0500
+> >> >+++ linux-2.6.17-rc3-tpm/drivers/char/tpm/Kconfig	
+> >> >2006-05-08 16:11:03.707961750 -0500
+> >> >@@ -22,7 +22,7 @@ config TCG_TPM
+> >> > 
+> >> > config TCG_TIS
+> >> > 	tristate "TPM Interface Specification 1.2 Interface"
+> >> >-	depends on TCG_TPM
+> >> >+	depends on TCG_TPM && PNPACPI
+> >> 
+> >> I think you want simply "ACPI" rather than "PNPACPI" here, yes?
 > 
-> Sorry I'm still not convinced.  What's there to stop me from suspending
-> my laptop to disk, moving it from port A to port B and resuming it?
+> >No I think I really want PNPACPI because I have a pnp_driver which
+> >probes based on a CID value.  PNPACPI is dependent on ACPI.  Am I
+> >misunderstanding something.  It works with PNPACPI on but turning off
+> >only PNPACPI causes it to not work.
 > 
-> Wouldn't I be in exactly the same situation? By the same reasoning we'd
-> be adding a gratuitous ARP routine to every single laptop network driver.
+> So if you boot with "pnpacpi=off" it fails to probe?
+> Nice to have proof that PNPACPI finally obsoletes PNPBIOS
+> on a real system in the field.
 
-It is the same situation except that in the laptop case you don't care
-that reconfiguring your network will take a second or a few.  For live
-migration we're looking at network downtime from as low as 60ms to
-something like 210ms on a busy virtual machine.  I'm not saying that
-a userspace solution wouldn't work but it would probably add a measurable
-delay to the network downtime during live migration.
+Correct probe fails with pnpacpi=off.
 
-You might also find the following paper an interesting read:
-http://www.cl.cam.ac.uk/Research/SRG/netos/papers/2005-migration-nsdi-pre.pdf
+Thanks,
+Kylie
 
-    christian
+> 
+> thanks,
+> -Len
+> 
+> 
+> -------------------------------------------------------
+> Using Tomcat but need to do more? Need to support web services, security?
+> Get stuff done quickly with pre-integrated technology to make your job easier
+> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
+> http://sel.as-us.falkag.net/sel?cmd=lnk&kid0709&bid&3057&dat1642
+> _______________________________________________
+> tpmdd-devel mailing list
+> tpmdd-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/tpmdd-devel
 

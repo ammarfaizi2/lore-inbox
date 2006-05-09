@@ -1,78 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbWEITVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbWEITX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbWEITVE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 15:21:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750905AbWEITVD
+	id S1750919AbWEITX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 15:23:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbWEITX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 15:21:03 -0400
-Received: from verein.lst.de ([213.95.11.210]:8421 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1750824AbWEITVC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 15:21:02 -0400
-Date: Tue, 9 May 2006 21:20:51 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Hellwig <hch@lst.de>, pbadari@us.ibm.com,
-       linux-kernel@vger.kernel.org, bcrl@kvack.org, cel@citi.umich.edu
-Subject: Re: [PATCH 1/3] Vectorize aio_read/aio_write methods
-Message-ID: <20060509192051.GA19378@lst.de>
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com> <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com> <1147198025.28388.0.camel@dyn9047017100.beaverton.ibm.com> <20060509120105.7255e265.akpm@osdl.org> <20060509190310.GA19124@lst.de> <20060509121305.0840e770.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060509121305.0840e770.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Tue, 9 May 2006 15:23:26 -0400
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:54648 "HELO
+	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750911AbWEITX0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 15:23:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=JGTbNmbtH3clK+oKr7r5aEJxgqhgrdVynQNbwaDiloYopGhFZ8YpeczXguRwgeM9Wb2ca2YTYdxPvMAnp1AvvtSlqz+XmNZw1hlsfUhnTkGQUZlYrEHuz6O11LyK1vbvjHv13cSsLPthmC4oT96msmVNIYd3cFLGS1uUy9Yvq0w=  ;
+Message-ID: <4460AD45.4070608@yahoo.com.au>
+Date: Wed, 10 May 2006 00:55:01 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+CC: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       Ian Pratt <ian.pratt@xensource.com>
+Subject: Re: [RFC PATCH 15/35] subarch support for controlling interrupt delivery
+References: <20060509084945.373541000@sous-sol.org> <20060509085154.095325000@sous-sol.org> <4460AC06.4000303@mbligh.org>
+In-Reply-To: <4460AC06.4000303@mbligh.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 09, 2006 at 12:13:05PM -0700, Andrew Morton wrote:
-> > there's another patch ontop which I didn't bother to redo until this is
-> > accepted which kills a lot more code.  After that filesystems only have
-> > to implement one method each for all kinds of read/write calls.  Which
-> > allows to both make the mm/filemap.c far less complex and actually
-> > understandable aswell as for any filesystem that uses more complex
-> > read/write variants than direct filemap.c calls.  In addition to these
-> > simplification we also get a feature (async vectored I/O) for free.
+Martin J. Bligh wrote:
+>> +/*
+>> + * The use of 'barrier' in the following reflects their use as 
+>> local-lock
+>> + * operations. Reentrancy must be prevented (e.g., __cli()) /before/ 
+>> following
+>> + * critical operations are executed. All critical operations must 
+>> complete
+>> + * /before/ reentrancy is permitted (e.g., __sti()). Alpha 
+>> architecture also
+>> + * includes these barriers, for example.
+>> + */
 > 
-> Fair enough, thanks.  Simplifying filemap.c would be a win.
 > 
-> I'll crunch on these three patches in the normal fashion.  It'll be good if
-> we can get the followup patch done within the next week or two so we can
-> get it all tested at the same time.  Although from your description it
-> doesn't sound like it'll be completely trivial...
+> Seems like an odd comment to have in an i386 header file.
 
-That patch is lots of tirival and boring work.  If anyone wants to beat
-me to it:
+Also, it is only talking about compiler barriers, which have nothing
+to do with the architecture.
 
- - in any filesystem that implements the generic_file_aio_{read,write}
-   directly remove these apply this patch to the file_operations
-   vectors:
+And preempt_* macros should contain the correct compiler barriers, so
+several can be removed.
 
-
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.write		= do_sync_write,
-
-   Note that this does _not_ cause additional indirection for normal
-   sys_read/sys_write calls because they call .aio_read/.aio_write
-   directly.  It's only needed because we have various places in the
-   tree that like to call .read/.write directly
-
- - in the filesystems that implement more or less trivial wrappers
-   around  generic_file_read/generic_file_write to the
-   aio_read/aio_write prototypes so they can set .read/.write as above
-
- - after that generic_file_read/generic_file_write/generic_file_read/
-   generic_file_write_nolock should have no callers left and the code
-   for read/write in mm/filemap.c can be collapsed into very few functions.
-   What's left should be something like:
-
-     - generic_file_aio_read
-       (__generic_file_aio_read and generic_file_aio_read merged into one)
-     - __generic_file_aio_write
-       (basically the current __generic_file_aio_write_nolock)
-     - generic_file_aio_write_nolock
-     - generic_file_aio_write
-       (small wrappers around __generic_file_aio_write)
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

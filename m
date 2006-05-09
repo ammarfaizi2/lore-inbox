@@ -1,108 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWEIS4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWEIS51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751187AbWEIS4g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 14:56:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWEIS4g
+	id S1750826AbWEIS51 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 14:57:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWEIS51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 14:56:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7352 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751178AbWEIS4e (ORCPT
+	Tue, 9 May 2006 14:57:27 -0400
+Received: from schihei.net ([81.169.184.117]:33550 "EHLO schihei.org")
+	by vger.kernel.org with ESMTP id S1750826AbWEIS50 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 14:56:34 -0400
-Date: Tue, 9 May 2006 11:56:33 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       netdev@vger.kernel.org
-Subject: Re: [RFC PATCH 34/35] Add the Xen virtual network device driver.
-Message-ID: <20060509115633.36b4879e@localhost.localdomain>
-In-Reply-To: <20060509085201.446830000@sous-sol.org>
-References: <20060509084945.373541000@sous-sol.org>
-	<20060509085201.446830000@sous-sol.org>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 9 May 2006 14:57:26 -0400
+X-PGP-Universal: processed;
+	by Achilles.local on Tue, 09 May 2006 20:57:22 +0200
+In-Reply-To: <20060509164919.GC5063@mellanox.co.il>
+References: <4450A196.2050901@de.ibm.com> <adaejz9o4vh.fsf@cisco.com> <445B4DA9.9040601@de.ibm.com> <adafyjomsrd.fsf@cisco.com> <44608C90.30909@de.ibm.com> <adalktbcgl1.fsf@cisco.com> <20060509164919.GC5063@mellanox.co.il>
+Mime-Version: 1.0 (Apple Message framework v749.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <40FCD6B6-9135-43C1-8974-E9070475DB78@schihei.de>
+Cc: Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, linuxppc-dev@ozlabs.org,
+       Christoph Raisch <RAISCH@de.ibm.com>,
+       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>
 Content-Transfer-Encoding: 7bit
+From: Heiko J Schick <info@schihei.de>
+Subject: Re: [openib-general] Re: [PATCH 07/16] ehca: interrupt handling routines
+Date: Tue, 9 May 2006 20:57:01 +0200
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+X-Mailer: Apple Mail (2.749.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The stuff in /proc could easily just be added attributes to the class_device kobject
-of the net device (and then show up in sysfs).
+On 09.05.2006, at 18:49, Michael S. Tsirkin wrote:
 
+>> The trivial way to do it would be to use the same idea as the current
+>> ehca driver: just create a thread for receive CQ events and a thread
+>> for send CQ events, and defer CQ polling into those two threads.
+>
+> For RX, isn't this basically what NAPI is doing?
+> Only NAPI seems better, avoiding interrupts completely and avoiding  
+> latency hit
+> by only getting triggered on high load ...
 
-> +
-> +#define GRANT_INVALID_REF	0
-> +
-> +#define NET_TX_RING_SIZE __RING_SIZE((struct netif_tx_sring *)0, PAGE_SIZE)
-> +#define NET_RX_RING_SIZE __RING_SIZE((struct netif_rx_sring *)0, PAGE_SIZE)
-> +
-> +static inline void init_skb_shinfo(struct sk_buff *skb)
-> +{
-> +	atomic_set(&(skb_shinfo(skb)->dataref), 1);
-> +	skb_shinfo(skb)->nr_frags = 0;
-> +	skb_shinfo(skb)->frag_list = NULL;
-> +}
-> +
+Does NAPI schedules CQ callbacks to different CPUs or stays the callback
+(handling of data, etc.) on the same CPU where the interrupt came in?
 
-Could you use existing sk_buff_head instead of inventing your
-own skb queue?
-
-> +struct netfront_info
-> +{
-> +	struct list_head list;
-> +	struct net_device *netdev;
-> +
-> +	struct net_device_stats stats;
-> +	unsigned int tx_full;
-> +
-> +	struct netif_tx_front_ring tx;
-> +	struct netif_rx_front_ring rx;
-> +
-> +	spinlock_t   tx_lock;
-> +	spinlock_t   rx_lock;
-> +
-> +	unsigned int handle;
-> +	unsigned int evtchn, irq;
-> +
-> +	/* What is the status of our connection to the remote backend? */
-> +#define BEST_CLOSED       0
-> +#define BEST_DISCONNECTED 1
-> +#define BEST_CONNECTED    2
-> +	unsigned int backend_state;
-> +
-> +	/* Is this interface open or closed (down or up)? */
-> +#define UST_CLOSED        0
-> +#define UST_OPEN          1
-> +	unsigned int user_state;
-> +
-> +	/* Receive-ring batched refills. */
-> +#define RX_MIN_TARGET 8
-> +#define RX_DFL_MIN_TARGET 64
-> +#define RX_MAX_TARGET NET_RX_RING_SIZE
-> +	int rx_min_target, rx_max_target, rx_target;
-> +	struct sk_buff_head rx_batch;
-> +
-> +	struct timer_list rx_refill_timer;
-> +
-> +	/*
-> +	 * {tx,rx}_skbs store outstanding skbuffs. The first entry in each
-> +	 * array is an index into a chain of free entries.
-> +	 */
-> +	struct sk_buff *tx_skbs[NET_TX_RING_SIZE+1];
-> +	struct sk_buff *rx_skbs[NET_RX_RING_SIZE+1];
-> +
-> +	grant_ref_t gref_tx_head;
-> +	grant_ref_t grant_tx_ref[NET_TX_RING_SIZE + 1];
-> +	grant_ref_t gref_rx_head;
-> +	grant_ref_t grant_rx_ref[NET_TX_RING_SIZE + 1];
-> +
-> +	struct xenbus_device *xbdev;
-> +	int tx_ring_ref;
-> +	int rx_ring_ref;
-> +	u8 mac[ETH_ALEN];
-
-Isn't mac address already stored in dev->dev_addr and/or dev->perm_addr?
-
+Regards,
+	Heiko

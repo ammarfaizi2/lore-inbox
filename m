@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbWEIQbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWEIQbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750766AbWEIQbp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 12:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWEIQbp
+	id S1750762AbWEIQbo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 12:31:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWEIQbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 12:31:45 -0400
-Received: from cantor.suse.de ([195.135.220.2]:31647 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750766AbWEIQbn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 12:31:43 -0400
-From: Andi Kleen <ak@suse.de>
-To: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: Re: [RFC PATCH 15/35] subarch support for controlling interrupt delivery
-Date: Tue, 9 May 2006 18:31:37 +0200
-User-Agent: KMail/1.9.1
-Cc: virtualization@lists.osdl.org, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Chris Wright <chrisw@sous-sol.org>, xen-devel@lists.xensource.com,
-       linux-kernel@vger.kernel.org, Ian Pratt <ian.pratt@xensource.com>
-References: <20060509084945.373541000@sous-sol.org> <200605091807.57522.ak@suse.de> <20060509162959.GL7834@cl.cam.ac.uk>
-In-Reply-To: <20060509162959.GL7834@cl.cam.ac.uk>
+	Tue, 9 May 2006 12:31:44 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:35847 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1750762AbWEIQbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 12:31:42 -0400
+Message-ID: <4460C3D5.1060905@shadowen.org>
+Date: Tue, 09 May 2006 17:31:17 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: Michael Ellerman <michael@ellerman.id.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, kravetz@us.ibm.com
+Subject: Re: [PATCH] SPARSEMEM + NUMA can't handle unaligned memory regions?
+References: <20060509070343.57853679F2@ozlabs.org>	 <44609A7B.7010103@shadowen.org>  <4460A6F3.5060303@shadowen.org> <1147192006.23893.6.camel@localhost.localdomain>
+In-Reply-To: <1147192006.23893.6.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605091831.37757.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 May 2006 18:29, Christian Limpach wrote:
-> On Tue, May 09, 2006 at 06:07:57PM +0200, Andi Kleen wrote:
-> > 
-> > > 
-> > > Anybody want to comment on the performance impact of making
-> > > local_irq_* non-inline functions?
-> > 
-> > I would guess for that much inline code it will be even a win to not
-> > inline because it will save icache.
+Dave Hansen wrote:
+> On Tue, 2006-05-09 at 15:28 +0100, Andy Whitcroft wrote:		
 > 
-> Maybe, although some of the macros compile down to only 2-3 instructions.
+>>+/*
+>>+ * During early boot we need to record the nid from which we will
+>>+ * later allocate the section mem_map.  Encode this into the section
+>>+ * pointer.  Overload the section_mem_map with this information.
+>>+ */ 
+> 
+> 
+> Andy, this all looks pretty good.  Although, it might be nice to
+> document this a bit more. 
+> 
+> First, can you update the mem_section definition comment?  It has a nice
+> explanation of how we use section_mem_map, and it would be a shame to
+> miss this use.
+> 
+> Also, your comment says when we _record_ the nid information, but not
+> that it is only _used_ during early boot.  I think this is what Mike K.
+> missed, and it might be good to clarify.
+> 
+> How about something like this:
+> 
+> /*
+>  * During early boot, before section_mem_map is used for an actual
+>  * mem_map, we use section_mem_map to store the section's NUMA
+>  * node.  This keeps us from having to use another data structure.  The
+>  * node information is cleared just before we store the real mem_map.
+>  */
 
-Can you post before/after vmlinux size numbers for inline/out of line?
+Yep sounds very sane.  Will update and resend -- best wait and see if it
+fixes Michael find its works for him too :).
 
--Andi
+Thanks.
+
+-apw

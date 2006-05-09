@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbWEIRNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWEIRON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750769AbWEIRNE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 13:13:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWEIRNE
+	id S1750758AbWEIRON (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 13:14:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWEIROM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 13:13:04 -0400
-Received: from main.gmane.org ([80.91.229.2]:16022 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750760AbWEIRNC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 13:13:02 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Stefan Schweizer <genstef@gentoo.org>
-Subject: Re: [PATCH 2.6.17-rc3] Fix capi reload by unregistering the correct major
-Followup-To: gmane.linux.kernel
-Date: Tue, 09 May 2006 19:12:14 +0200
-Message-ID: <e3qihe$3q2$1@sea.gmane.org>
-References: <e307i4$f1h$1@sea.gmane.org> <20060508130029.08a9a962.akpm@osdl.org>
+	Tue, 9 May 2006 13:14:12 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:45015 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750758AbWEIROL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 13:14:11 -0400
+Subject: Re: [patch 1/17] Infrastructure to mark exported symbols as
+	unused-for-removal-soon
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, bunk@stusta.de,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <4460BF8C.1050803@linux.intel.com>
+References: <1146581587.32045.41.camel@laptopd505.fenrus.org>
+	 <20060509090202.2f209f32.akpm@osdl.org>  <4460BF8C.1050803@linux.intel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 09 May 2006 18:23:55 +0100
+Message-Id: <1147195436.3172.115.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-62-245-211-185.mnet-online.de
-User-Agent: KNode/0.10.2
-Cc: i4ldeveloper@listserv.isdn4linux.de
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-
-> Stefan Schweizer <genstef@gentoo.org> wrote:
->> --- drivers/isdn/capi/capi.c.orig    2006-04-29 18:40:25.000000000 +0200
->> +++ drivers/isdn/capi/capi.c 2006-04-29 18:27:22.000000000 +0200
->> @@ -1499,7 +1499,6 @@
->>  printk(KERN_ERR "capi20: unable to get major %d\n", capi_major);
->>  return major_ret;
->>  }
->> -    capi_major = major_ret;
->>  capi_class = class_create(THIS_MODULE, "capi");
->>  if (IS_ERR(capi_class)) {
->>  unregister_chrdev(capi_major, "capi20");
->> 
->> 
->> 
+On Maw, 2006-05-09 at 18:13 +0200, Arjan van de Ven wrote:
+> Andrew Morton wrote:
+> > So hum.  Don't you think it'd be better to look at each API as a whole,
+> > make decisions about what parts of it _should_ be offered to modules,
+> > rather then looking empirically at which parts presently _need_ to be
+> > exported?
 > 
-> What does "unload and retry" mean?
-> 
-> An `rmmod capi;modprobe capi' will reset the major to 68, so you must mean
-> something else.  What?
+> Well so far we as kernel developers have been rather bad at it, with the result
+> that there are 900 unused ones roughly. Each export takes somewhere between 100
+> and 150 bytes. 
 
-I mean exactly rmmod capi; modprobe capi. The problem is, that on unload
-time, the capi_major has been set to major_ret, which is 0 if a major
-number is given. Of course it does not unregister 68 then. Consequently
-when trying to load it a second time after unloading it fails, because it
-has not freed the major 68.
-
-Regards,
-Stefan
-
+Of course the more technically beneficial approach would be to stop
+exports taking such ludicrous amounts of memory. 

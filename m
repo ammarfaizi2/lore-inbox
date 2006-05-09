@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWEITtk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWEITvZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750997AbWEITtk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 15:49:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbWEITtk
+	id S1751048AbWEITvZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 15:51:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbWEITvZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 15:49:40 -0400
-Received: from ns.suse.de ([195.135.220.2]:59067 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750997AbWEITtj (ORCPT
+	Tue, 9 May 2006 15:51:25 -0400
+Received: from ns1.suse.de ([195.135.220.2]:36028 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750996AbWEITvZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 15:49:39 -0400
-Date: Tue, 9 May 2006 12:48:02 -0700
+	Tue, 9 May 2006 15:51:25 -0400
+Date: Tue, 9 May 2006 12:49:48 -0700
 From: Greg KH <greg@kroah.com>
 To: Chris Wright <chrisw@sous-sol.org>
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
        xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       Jan Beulich <JBeulich@novell.com>
-Subject: Re: [RFC PATCH 32/35] Add Xen driver utility functions.
-Message-ID: <20060509194802.GA671@kroah.com>
-References: <20060509084945.373541000@sous-sol.org> <20060509085200.309814000@sous-sol.org>
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Subject: Re: [RFC PATCH 33/35] Add the Xenbus sysfs and virtual device hotplug driver.
+Message-ID: <20060509194948.GB671@kroah.com>
+References: <20060509084945.373541000@sous-sol.org> <20060509085200.826853000@sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060509085200.309814000@sous-sol.org>
+In-Reply-To: <20060509085200.826853000@sous-sol.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 09, 2006 at 12:00:32AM -0700, Chris Wright wrote:
-> +EXPORT_SYMBOL_GPL(alloc_vm_area);
+On Tue, May 09, 2006 at 12:00:33AM -0700, Chris Wright wrote:
+> +#ifdef XEN_XENBUS_PROC_INTERFACE
+> +#include <xen/xen_proc.h>
+> +#endif
 
-> +EXPORT_SYMBOL_GPL(free_vm_area);
+Oh, you all never define this anywhere in the series, so anything
+protected by it should be removed.
 
-> +EXPORT_SYMBOL_GPL(lock_vm_area);
-
-> +EXPORT_SYMBOL_GPL(unlock_vm_area);
-
-These are all pretty generic function names.  Perhaps they belong in the
-core kernel code instead of a Xen specific file?
+And I sure hope you don't have a xen_proc.h file anywhere, we do not
+need any new non-process files going into /proc...
 
 thanks,
 

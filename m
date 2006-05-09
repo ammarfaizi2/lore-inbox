@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWEIWfi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWEIWfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751306AbWEIWfi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 18:35:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWEIWfi
+	id S1751296AbWEIWfe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 18:35:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWEIWfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 18:35:38 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:45204 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751306AbWEIWfh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 18:35:37 -0400
-Date: Tue, 9 May 2006 23:35:29 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Frank Ch. Eigler" <fche@redhat.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Christoph Hellwig <hch@infradead.org>,
-       Richard J Moore <richardj_moore@uk.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org,
-       Prasanna S Panchamukhi <prasanna@in.ibm.com>, suparna@in.ibm.com
-Subject: Re: [RFC] [PATCH 3/6] Kprobes: New interfaces for user-space probes
-Message-ID: <20060509223529.GB14753@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Frank Ch. Eigler" <fche@redhat.com>, Adrian Bunk <bunk@stusta.de>,
-	Richard J Moore <richardj_moore@uk.ibm.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org,
-	Prasanna S Panchamukhi <prasanna@in.ibm.com>, suparna@in.ibm.com
-References: <20060509093614.GB26953@infradead.org> <OFB21F3208.CA125B3A-ON41257169.005345DD-41257169.005375F5@uk.ibm.com> <20060509151857.GB16332@infradead.org> <y0mk68vyu2y.fsf@ton.toronto.redhat.com> <20060509204052.GN3570@stusta.de> <20060509205835.GD13413@redhat.com>
+	Tue, 9 May 2006 18:35:34 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:24214 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751296AbWEIWfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 18:35:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=G/KHhCjipFMCchX1eaC2mLklT3bvvRCxU031+yW3NAglU26GrgG4LuhAMnbFhaxbWd3Bh5xQvKJk2ZeRtO/Km1OONQBqz2si31QDG96Skufkn6DoxYfZC0FvuZlPz6LGoJmor17JpHWn1D/t8Nbo7myjf1zdBHtK8vLchi6ZkC0=
+Date: Wed, 10 May 2006 02:34:05 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Allen <amah@highpoint-tech.com>
+Cc: linux-scsi@vger.kernel.org, "'Andrew Morton'" <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] hptiop: HighPoint RocketRAID 3xxx controller driver
+Message-ID: <20060509223404.GE7237@mipter.zuzino.mipt.ru>
+References: <200605092128.k49LSQ6R024308@mail.hypersurf.com> <20060509215936.GD7237@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060509205835.GD13413@redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20060509215936.GD7237@mipter.zuzino.mipt.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 09, 2006 at 04:58:35PM -0400, Frank Ch. Eigler wrote:
-> Hi -
-> 
-> On Tue, May 09, 2006 at 10:40:52PM +0200, Adrian Bunk wrote:
-> > > It is reasonable to want to see code that exercises this function.
-> > > Until systemtap does, hand-written examples can surely be provided.
-> > 
-> > It's not about examples, it's about in-kernel users.
-> 
-> Just as for kprobes, this facility is for dynamically generated
-> kernel-resident code.
+On Wed, May 10, 2006 at 01:59:36AM +0400, Alexey Dobriyan wrote:
+> That plethora of HPT_IOCTL_* defines, where are you using them? What
+> arguments are passed in and out?
 
-kprobes is not for "dynamically generated kernel-resident code".  That's
-just what you abuse it for. 
+Argh, sorry for confusion, I've checked several first in the list and wrongly
+concluded nothing is used. Anyway, please, remove unused HPT_IOCTL_ defines.
+
+> #ifdef MODULE_LICENSE
+> MODULE_LICENSE("GPL");
+> #endif
+
+#ifdef is totally unneeded.
+
+Module init and exit functions should be marked with __init and __exit
+resp.
+
+Use DMA_??BIT_MASK in calls to pci_set_dma_mask(). See
+include/linux/dma-mapping.h for readily available items.
+
+hptiop_get_logical_devices can return -1 and you'll end up with
+
+	for (j = 0; j < -1; j++)
+
+in hptiop_show_devicelist()
+
+u64 things are printed as
+
+	"%llu", (unsigned long long)capacity
+
+Is unsigned long long enough in this case?
+
+I also suggest to use vsnprintf() in hptiop_copy_info() because you use
+it with strings.
+
+Funny, that you do
+
+	driveid->model[20] = 0;
+
+when ->model is in fact 40 chars long.
 

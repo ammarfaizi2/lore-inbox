@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751314AbWEIQX6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWEIQ15@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751314AbWEIQX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 12:23:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWEIQX5
+	id S1751319AbWEIQ15 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 12:27:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWEIQ15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 12:23:57 -0400
-Received: from test-iport-2.cisco.com ([171.71.176.105]:16038 "EHLO
-	test-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S1751314AbWEIQX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 12:23:56 -0400
-To: Heiko J Schick <schihei@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
-       linuxppc-dev@ozlabs.org, Christoph Raisch <RAISCH@de.ibm.com>,
-       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>
-Subject: Re: [openib-general] [PATCH 07/16] ehca: interrupt handling routines
-X-Message-Flag: Warning: May contain useful information
-References: <4450A196.2050901@de.ibm.com> <adaejz9o4vh.fsf@cisco.com>
-	<445B4DA9.9040601@de.ibm.com> <adafyjomsrd.fsf@cisco.com>
-	<44608C90.30909@de.ibm.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 09 May 2006 09:23:38 -0700
-In-Reply-To: <44608C90.30909@de.ibm.com> (Heiko J. Schick's message of "Tue, 09 May 2006 14:35:28 +0200")
-Message-ID: <adalktbcgl1.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 09 May 2006 16:23:45.0932 (UTC) FILETIME=[F1FBB4C0:01C67384]
+	Tue, 9 May 2006 12:27:57 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:65444 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751319AbWEIQ14
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 12:27:56 -0400
+Subject: Re: [PATCH] SPARSEMEM + NUMA can't handle unaligned memory regions?
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: Michael Ellerman <michael@ellerman.id.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, kravetz@us.ibm.com
+In-Reply-To: <4460A6F3.5060303@shadowen.org>
+References: <20060509070343.57853679F2@ozlabs.org>
+	 <44609A7B.7010103@shadowen.org>  <4460A6F3.5060303@shadowen.org>
+Content-Type: text/plain
+Date: Tue, 09 May 2006 09:26:46 -0700
+Message-Id: <1147192006.23893.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Heiko> Yes, I agree. It would not be an optimal solution, because
-    Heiko> other upper level protocols (e.g. SDP, SRP, etc.) or
-    Heiko> userspace verbs would not be affected by this
-    Heiko> changes. Nevertheless, how can an improved "scaling" or
-    Heiko> "SMP" version of IPoIB look like. How could it be
-    Heiko> implemented?
+On Tue, 2006-05-09 at 15:28 +0100, Andy Whitcroft wrote:		
+> +/*
+> + * During early boot we need to record the nid from which we will
+> + * later allocate the section mem_map.  Encode this into the section
+> + * pointer.  Overload the section_mem_map with this information.
+> + */ 
 
-The trivial way to do it would be to use the same idea as the current
-ehca driver: just create a thread for receive CQ events and a thread
-for send CQ events, and defer CQ polling into those two threads.
+Andy, this all looks pretty good.  Although, it might be nice to
+document this a bit more. 
 
-Something even better may be possible by specializing to IPoIB of course.
+First, can you update the mem_section definition comment?  It has a nice
+explanation of how we use section_mem_map, and it would be a shame to
+miss this use.
 
- - R.
+Also, your comment says when we _record_ the nid information, but not
+that it is only _used_ during early boot.  I think this is what Mike K.
+missed, and it might be good to clarify.
+
+How about something like this:
+
+/*
+ * During early boot, before section_mem_map is used for an actual
+ * mem_map, we use section_mem_map to store the section's NUMA
+ * node.  This keeps us from having to use another data structure.  The
+ * node information is cleared just before we store the real mem_map.
+ */
+
+-- Dave
+

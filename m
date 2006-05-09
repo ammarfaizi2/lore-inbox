@@ -1,20 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWEIU0L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWEIU1I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751131AbWEIU0L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 16:26:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbWEIU0K
+	id S1750868AbWEIU1I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 16:27:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbWEIU1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 16:26:10 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:4482 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751132AbWEIU0J
+	Tue, 9 May 2006 16:27:07 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:59521 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1750868AbWEIU1G
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 16:26:09 -0400
-Date: Tue, 9 May 2006 13:28:50 -0700
+	Tue, 9 May 2006 16:27:06 -0400
+Date: Tue, 9 May 2006 13:29:23 -0700
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: torvalds@osdl.org
-Subject: Linux 2.6.16.15
-Message-ID: <20060509202850.GQ24291@moss.sous-sol.org>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: Olaf Kirch <okir@suse.de>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, stable@kernel.org,
+       Steven French <sfrench@us.ibm.com>, shaggy@austin.ibm.com,
+       Mark Moseley <moseleymark@gmail.com>,
+       Marcel Holtmann <holtmann@redhat.com>
+Subject: [PATCH resend] smbfs chroot issue (CVE-2006-1864)
+Message-ID: <20060509202923.GS24291@moss.sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,45 +26,40 @@ User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We (the -stable team) are announcing the release of the 2.6.16.15
-kernel.  Fixes for SCTP security issues.
+From: Olaf Kirch <okir@suse.de>
 
-The diffstat and short summary of the fixes are below.
+Mark Moseley reported that a chroot environment on a SMB share can be
+left via "cd ..\\".  Similar to CVE-2006-1863 issue with cifs, this fix
+is for smbfs.
 
-I'll also be replying to this message with a copy of the patch between
-2.6.16.14 and 2.6.16.15, as it is small enough to do so.
+Steven French <sfrench@us.ibm.com> wrote:
 
-The updated 2.6.16.y git tree can be found at:
- 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
-and can be browsed at the normal kernel.org git web browser:
-	www.kernel.org/git/
+Looks fine to me.  This should catch the slash on lookup or equivalent,
+which will be all obvious paths of interest.
 
-thanks,
--chris
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+---
+ This fix is in -stable, but doesn't appear to be in your tree yet.
 
---------
+ fs/smbfs/dir.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
- Makefile                   |    2 -
- include/net/sctp/structs.h |    1 
- net/sctp/inqueue.c         |    1 
- net/sctp/sm_statefuns.c    |   59 +++++++++++++++++++++++++++++++++------------
- net/sctp/sm_statetable.c   |   10 +++----
- net/sctp/ulpqueue.c        |   27 +++++++++++++++++++-
- 6 files changed, 77 insertions(+), 23 deletions(-)
+--- linus-2.6.orig/fs/smbfs/dir.c
++++ linus-2.6/fs/smbfs/dir.c
+@@ -434,6 +434,11 @@ smb_lookup(struct inode *dir, struct den
+ 	if (dentry->d_name.len > SMB_MAXNAMELEN)
+ 		goto out;
+ 
++	/* Do not allow lookup of names with backslashes in */
++	error = -EINVAL;
++	if (memchr(dentry->d_name.name, '\\', dentry->d_name.len))
++		goto out;
++
+ 	lock_kernel();
+ 	error = smb_proc_getattr(dentry, &finfo);
+ #ifdef SMBFS_PARANOIA
 
-Summary of changes from v2.6.16.14 to v2.6.16.15
-================================================
-
-Chris Wright:
-      Linux 2.6.16.15
-
-Neil Horman:
-      SCTP: Allow spillover of receive buffer to avoid deadlock. (CVE-2006-2275)
-
-Sridhar Samudrala:
-      SCTP: Fix panic's when receiving fragmented SCTP control chunks. (CVE-2006-2272)
-      SCTP: Fix state table entries for chunks received in CLOSED state. (CVE-2006-2271)
-
-Vladislav Yasevich:
-      SCTP: Prevent possible infinite recursion with multiple bundled DATA. (CVE-2006-2274)
-
+_______________________________________________
+stable mailing list
+stable@linux.kernel.org
+http://linux.kernel.org/mailman/listinfo/stable

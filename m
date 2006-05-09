@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWEIBks@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWEIBrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751336AbWEIBks (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 21:40:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWEIBks
+	id S1751091AbWEIBrk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 21:47:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWEIBrk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 21:40:48 -0400
-Received: from ns.suse.de ([195.135.220.2]:63137 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751086AbWEIBkr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 21:40:47 -0400
-From: Neil Brown <neilb@suse.de>
-To: bert hubert <bert.hubert@netherlabs.nl>
-Date: Tue, 9 May 2006 11:40:26 +1000
+	Mon, 8 May 2006 21:47:40 -0400
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:20901 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751091AbWEIBrj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 21:47:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Nt3sV+z2XNu0s55Ve+8E/JLgM46wD/tWrzPeRavKo+XGFRS98Fz4fXRBfu/rOQgvnpB9pE+f9Ah21/s3DOyJ13vQ3lq3LEnMNrK203pvA0ZSYcEhrvYPsIqL5XGsL5aPFXHwud+2W86xpF95GYweKTlpXeqfqoYJ9NhmHFcu7t0=  ;
+Message-ID: <445FF4B3.7020101@yahoo.com.au>
+Date: Tue, 09 May 2006 11:47:31 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Mel Gorman <mel@csn.ul.ie>
+CC: akpm@osdl.org, davej@codemonkey.org.uk, tony.luck@intel.com, ak@suse.de,
+       bob.picco@hp.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       linux-mm@kvack.org
+Subject: Re: [PATCH 6/6] Break out memory initialisation code from page_alloc.c
+ to mem_init.c
+References: <20060508141030.26912.93090.sendpatchset@skynet> <20060508141231.26912.52976.sendpatchset@skynet>
+In-Reply-To: <20060508141231.26912.52976.sendpatchset@skynet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17503.62218.637245.890380@cse.unsw.edu.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 004 of 11] md: Increase the delay before marking metadata clean, and make it configurable.
-In-Reply-To: message from bert hubert on Tuesday May 2
-References: <20060501152229.18367.patches@notabene>
-	<1060501053019.22949@suse.de>
-	<20060502055621.GA552@outpost.ds9a.nl>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday May 2, bert.hubert@netherlabs.nl wrote:
-> On Mon, May 01, 2006 at 03:30:19PM +1000, NeilBrown wrote:
-> > When a md array has been idle (no writes) for 20msecs it is marked as
-> > 'clean'.  This delay turns out to be too short for some real
-> > workloads.  So increase it to 200msec (the time to update the metadata
-> > should be a tiny fraction of that) and make it sysfs-configurable.
-> 
-> What does this mean, 'too short'? What happens in that case, backing block
-> devices are still busy writing? When making this configurable, the help text
-> better explain what the trade offs are.
+Mel Gorman wrote:
 
-"too short" means that the update happens often enough to cause a
-noticeable performance degradation.
+>page_alloc.c contains a large amount of memory initialisation code. This patch
+>breaks out the initialisation code to a separate file to make page_alloc.c
+>a bit easier to read.
+>
 
-In an application writes steadily very 21msecs (or maybe 30msecs) then
-there will be 2 superblock writes and 1 application write every
-21msecs, and this causes enough disk io to close the app down. - I
-guess all the updates fill up the 21msec space.
+I realise this is at the wrong end of your queue, but if you _can_ easily
+break it out and submit it first, it would be a nice cleanup and would help
+shrink your main patchset.
 
-With a larger delay - 200msec - you could still get bad situations
-e.g. with the app writing every 210msecs.  However 2 superblock
-updates plus one app write is a much smaller fraction of 200msecs, so
-there shouldn't be as many problems.
+Also, we're recently having some problems with architectures not aligning
+zones correctly. Would it make sense to add these sorts of sanity checks,
+and possibly forcing alignment corrections into your generic code?
 
-Yes, a more detailed explanation should go in Documentation/md.txt
+Nick
+--
 
-NeilBrown
+Send instant messages to your online friends http://au.messenger.yahoo.com 

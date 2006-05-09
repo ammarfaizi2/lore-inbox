@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWEIQ26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWEIQ3f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbWEIQ26 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 12:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWEIQ26
+	id S1750747AbWEIQ3f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 12:29:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbWEIQ3e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 12:28:58 -0400
-Received: from ns.suse.de ([195.135.220.2]:7327 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750702AbWEIQ25 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 12:28:57 -0400
-From: Andi Kleen <ak@suse.de>
-To: virtualization@lists.osdl.org
-Subject: Re: [RFC PATCH 33/35] Add the Xenbus sysfs and virtual device hotplug driver.
-Date: Tue, 9 May 2006 18:28:31 +0200
-User-Agent: KMail/1.9.1
-Cc: Alexey Dobriyan <adobriyan@gmail.com>, Chris Wright <chrisw@sous-sol.org>,
-       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
+	Tue, 9 May 2006 12:29:34 -0400
+Received: from ns1.mvista.com ([63.81.120.158]:38052 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1750747AbWEIQ3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 12:29:34 -0400
+Subject: Re: [RFC PATCH 03/35] Add Xen interface header files
+From: Daniel Walker <dwalker@mvista.com>
+To: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
        Ian Pratt <ian.pratt@xensource.com>
-References: <20060509084945.373541000@sous-sol.org> <20060509085200.826853000@sous-sol.org> <20060509160635.GB7237@mipter.zuzino.mipt.ru>
-In-Reply-To: <20060509160635.GB7237@mipter.zuzino.mipt.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+In-Reply-To: <20060509161850.GK7834@cl.cam.ac.uk>
+References: <20060509084945.373541000@sous-sol.org>
+	 <20060509085147.903310000@sous-sol.org>
+	 <1147190772.21536.30.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <20060509161850.GK7834@cl.cam.ac.uk>
+Content-Type: text/plain
+Date: Tue, 09 May 2006 09:29:31 -0700
+Message-Id: <1147192172.21536.35.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605091828.31686.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 May 2006 18:06, Alexey Dobriyan wrote:
-> > +/* Simplified asprintf. */
-> > +char *kasprintf(const char *fmt, ...)
-> > +{
-> > +	va_list ap;
-> > +	unsigned int len;
-> > +	char *p, dummy[1];
-> > +
-> > +	va_start(ap, fmt);
-> > +	/* FIXME: vsnprintf has a bug, NULL should work */
-> > +	len = vsnprintf(dummy, 0, fmt, ap);
-> > +	va_end(ap);
-> > +
-> > +	p = kmalloc(len + 1, GFP_KERNEL);
-> > +	if (!p)
-> > +		return NULL;
-> > +	va_start(ap, fmt);
-> > +	vsprintf(p, fmt, ap);
-> > +	va_end(ap);
-> > +	return p;
-> > +}
+On Tue, 2006-05-09 at 17:18 +0100, Christian Limpach wrote:
+
 > 
-> This should go to lib/
+> The full set of interface headers supports several architectures.
+> 
+> I think having all the header files in one place is preferable,
+> but will gladly move them wherever is agreed on to be best ;-)
 
-First for kernel usage I think it should have a maximum length parameter
-to avoid dumb code from being easily exploited.
+I'd say include/linux/xen/ would be a better choice, if it's multi
+architecture ..
 
-And the bug should be fixed in vsnprintf instead of being worked
-around.
+Daniel
 
--Andi

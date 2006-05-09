@@ -1,80 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbWEJB65@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWEJB63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751181AbWEJB65 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 21:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWEJB65
+	id S1751155AbWEJB63 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 21:58:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbWEJB63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 21:58:57 -0400
-Received: from silver.veritas.com ([143.127.12.111]:64320 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751181AbWEJB6z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 21:58:55 -0400
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
+	Tue, 9 May 2006 21:58:29 -0400
+Received: from gold.veritas.com ([143.127.12.110]:60321 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751155AbWEJB63 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 21:58:29 -0400
 X-IronPort-AV: i="4.05,107,1146466800"; 
-   d="scan'208"; a="38018411:sNHT37932684"
-Date: Tue, 9 May 2006 13:30:48 +0100 (BST)
+   d="scan'208"; a="59364736:sNHT27428360"
+Date: Tue, 9 May 2006 12:25:43 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@blonde.wat.veritas.com
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       nickpiggin@yahoo.com.au, pavel@suse.cz
-Subject: Re: [PATCH -mm] swsusp: support creating bigger images
-In-Reply-To: <200605091219.17386.rjw@sisk.pl>
-Message-ID: <Pine.LNX.4.64.0605091301140.21281@blonde.wat.veritas.com>
-References: <200605021200.37424.rjw@sisk.pl> <20060509003334.70771572.akpm@osdl.org>
- <200605091219.17386.rjw@sisk.pl>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Hua Zhong <hzhong@gmail.com>, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       linux-mm@kvack.org
+Subject: Re: [PATCH] fix can_share_swap_page() when !CONFIG_SWAP
+In-Reply-To: <445FF78B.9060803@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0605091223190.19410@blonde.wat.veritas.com>
+References: <Pine.LNX.4.64.0605071525550.2515@localhost.localdomain>
+ <445ED495.3020401@yahoo.com.au> <Pine.LNX.4.64.0605081335030.7003@blonde.wat.veritas.com>
+ <445FF78B.9060803@yahoo.com.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 10 May 2006 01:58:55.0009 (UTC) FILETIME=[4AFEF910:01C673D5]
+X-OriginalArrivalTime: 10 May 2006 01:58:28.0713 (UTC) FILETIME=[3B528590:01C673D5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 May 2006, Rafael J. Wysocki wrote:
-> On Tuesday 09 May 2006 09:33, Andrew Morton wrote:
-> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> > 
-> > I have a host of minor problems with this patch.
-> > 
-> > > --- linux-2.6.17-rc3-mm1.orig/mm/rmap.c
-> > > +++ linux-2.6.17-rc3-mm1/mm/rmap.c
-> > >  
-> > > +#ifdef CONFIG_SOFTWARE_SUSPEND
-> > > +static int page_mapped_by_task(struct page *page, struct task_struct *task)
-> > > +{
-> > > +	struct vm_area_struct *vma;
-> > > +	int ret = 0;
-> > > +
-> > > +	spin_lock(&task->mm->page_table_lock);
-> > > +
-> > > +	for (vma = task->mm->mmap; vma; vma = vma->vm_next)
-> > > +		if (page_address_in_vma(page, vma) != -EFAULT) {
-> > > +			ret = 1;
-> > > +			break;
-> > > +		}
-> > > +
-> > > +	spin_unlock(&task->mm->page_table_lock);
-> > > +
-> > > +	return ret;
-> > > +}
-> > 
-> > task_struct.mm can sometimes be NULL.  This function assumes that it will
-> > never be NULL.  That makes it a somewhat risky interface.  Are we sure it
-> > can never be NULL?
+On Tue, 9 May 2006, Nick Piggin wrote:
+> Hugh Dickins wrote:
+> >
+> >True; but I think Hua's patch is good as is for now, to fix
+> >that inefficiency.  I do agree (as you know) that there's scope for
+> >cleanup there, and that that function is badly named; but I'm still
+> >unprepared to embark on the cleanup, so let's just get the fix in.
 > 
-> Well, now it's only called for task == current, but I can add a check.
+> Sure. Queue it up for 2.6.18?
 
-Better fold it into the (renamed and recommented) page_to_copy,
-applying only to current.
-
-The "use" of page_table_lock there is totally bogus.  Normally you
-need down_read(&current->mm->mmap_sem) to walk that vma chain; but
-I'm guessing you have everything sufficiently frozen here that you
-don't need that.
-
-But if it is sufficiently frozen, I'm puzzled as to why pages mapped
-into the current process are (potentially) unsafe, while those mapped
-into others are safe.  If the current process can get back to messing
-with its mapped pages, what if it maps a page you earlier judged safe?
+I'd be perfectly happy for Hua's one-liner to go into 2.6.17;
+but that's up to Andrew.
 
 Hugh

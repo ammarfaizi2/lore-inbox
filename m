@@ -1,68 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWEIX3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWEIXdS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932097AbWEIX3s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 19:29:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWEIX3s
+	id S932101AbWEIXdS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 19:33:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWEIXdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 19:29:48 -0400
-Received: from wr-out-0506.google.com ([64.233.184.232]:33814 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932094AbWEIX3r convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 19:29:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WOuA0y7E0wrqhNXEtPbuyxUE5bQbOc8MM5dhG7Etjt25cD/iy1adXerDj6yQWeYQ6Nhi+T8Cuew13kOPICDkQ0gPOlSlzQWhmVuC1Vz2NRS/W+3upe5pHSW7JtYPxFBIjfiUP2xNK/lf5sYbM0PudbDAkswASM2sCwwPsvkKBjo=
-Message-ID: <df35dfeb0605091629y6f2390f3lad8f99c7aad62c4f@mail.gmail.com>
-Date: Tue, 9 May 2006 16:29:47 -0700
-From: "Yum Rayan" <yum.rayan@gmail.com>
-To: amah@highpoint-tech.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, akpm@osdl.org
-Subject: Re:[PATCH] hptiop: HighPoint RocketRAID 3xxx controller driver
-In-Reply-To: <464B3C0C5BFD894FADEFDD94B6D734E488181E@taus-ies1.dom1.taus.us.thales>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+	Tue, 9 May 2006 19:33:18 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:38786 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S932072AbWEIXdR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 19:33:17 -0400
+Date: Tue, 9 May 2006 16:35:43 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: David Boutcher <boutcher@us.ibm.com>
+Cc: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, chrisw@sous-sol.org,
+       Herbert Xu <herbert@gondor.apana.org.au>, ian.pratt@xensource.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com
+Subject: Re: [Xen-devel] [RFC PATCH 34/35] Add the Xen virtual	network	device	driver.
+Message-ID: <20060509233543.GG24291@moss.sous-sol.org>
+References: <20060509140027.GD7834@cl.cam.ac.uk> <OFE128D80F.BD59DF3E-ON86257169.004F91EA-86257169.004F6870@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <464B3C0C5BFD894FADEFDD94B6D734E488181E@taus-ies1.dom1.taus.us.thales>
+In-Reply-To: <OFE128D80F.BD59DF3E-ON86257169.004F91EA-86257169.004F6870@us.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +static ssize_t hptiop_show_devicelist(struct class_device *class_dev,
-> char
-> *buf)
+* David Boutcher (boutcher@us.ibm.com) wrote:
+> Then make a generic solution.  VMWare supports migration, the Power 
+> virtualization will get around to it eventually.  All will need something
+> similar.  So either make a common user-land tool, or (if you insist on
+> incorrectly driving this into the kernel) add some kind of common hook to
+> the TCP/IP stack.
 
-There is a one value per sysfs attribute rule. Seems like you are
-returning quite some info here.
+I'm not that fond of the in-kernel solution either.  HA failover does
+this stuff in userspace, and has the same gratuitous arp requirements.
+Perhaps we should see some numbers showing the migration latency
+introduced.  At the very least, it's easy to factor out as suggested.
 
-> + /* map buffer to kernel. */
-> + if (ioctl_k.inbuf_size) {
-> +  ioctl_k.inbuf = kmalloc(ioctl_k.inbuf_size, GFP_KERNEL);
-> +  if (!ioctl_k.inbuf) {
-> +   dprintk("scsi%d: fail to alloc inbuf\n",
-> +     hba->host->host_no);
-> +   err = -ENOMEM;
-> +   goto err_exit;
-> +  }
-> +
-> +  if (copy_from_user(ioctl_k.inbuf,
-> +    ioctl_u->inbuf, ioctl_k.inbuf_size)) {
-> +   goto err_exit;
-> +  }
-
-You are essentially wrapping ioctl with sysfs and passing user space
-buffers....
-
-> + .proc_name                  = driver_name,
-
-I believe this is going away.
-
-> + printk(KERN_INFO "%s %s\n", driver_name_long, driver_ver);
-> +
-> + return pci_module_init(&hptiop_pci_driver);
-> +}
-> +
-
-pci_register_driver? pci.h indicates that pci_module_init is being obsoleted...
+thanks,
+-chris

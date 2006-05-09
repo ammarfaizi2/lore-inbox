@@ -1,80 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWEIEg7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWEIEgs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751374AbWEIEg7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 00:36:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWEIEg7
+	id S1751375AbWEIEgs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 00:36:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWEIEgs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 00:36:59 -0400
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:40824 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751374AbWEIEg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 00:36:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=z2sNPPTe9IZeNQt2FKOWTp/jhvZSMdi2eBTKoSxmgQlqffuWkoXEqRJA6RZBrfPhCvO+p7e8pgcF6uQC0lAD32HrAuxPt+SOPQwrkEa15vkaHocsbE3QzDLH59kq2FNhxhLqGGU7bIcKfzKCVeh5y5w81hoVmy8ijwMuC7kbN7w=  ;
-Message-ID: <44601933.2040905@yahoo.com.au>
-Date: Tue, 09 May 2006 14:23:15 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: balbir@in.ibm.com
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, jlan@engr.sgi.com
-Subject: Re: [Patch 2/8] Sync block I/O and swapin delay collection
-References: <20060502061408.GM13962@in.ibm.com> <20060508141952.2d4b9069.akpm@osdl.org> <20060509035320.GC784@in.ibm.com>
-In-Reply-To: <20060509035320.GC784@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 9 May 2006 00:36:48 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:61374 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751375AbWEIEgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 00:36:48 -0400
+Subject: Re: High load average on disk I/O on 2.6.17-rc3
+From: Arjan van de Ven <arjan@infradead.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Erik Mouw <erik@harddisk-recovery.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       Jason Schoonover <jasons@pioneer-pra.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <445FF714.4050803@yahoo.com.au>
+References: <200605051010.19725.jasons@pioneer-pra.com>
+	 <20060507095039.089ad37c.akpm@osdl.org> <445F548A.703@mbligh.org>
+	 <1147100149.2888.37.camel@laptopd505.fenrus.org>
+	 <20060508152255.GF1875@harddisk-recovery.com>
+	 <1147102290.2888.41.camel@laptopd505.fenrus.org>
+	 <445FF714.4050803@yahoo.com.au>
+Content-Type: text/plain
+Date: Tue, 09 May 2006 06:36:39 +0200
+Message-Id: <1147149399.3198.10.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh wrote:
+On Tue, 2006-05-09 at 11:57 +1000, Nick Piggin wrote:
+> Arjan van de Ven wrote:
+> 
+> >>... except that any kernel < 2.6 didn't account tasks waiting for disk
+> >>IO.
+> >>
+> >
+> >they did. It was "D" state, which counted into load average.
+> >
+> 
+> Perhaps kernel threads in D state should not contribute toward load avg
 
->On Mon, May 08, 2006 at 02:19:52PM -0700, Andrew Morton wrote:
->
->>Balbir Singh <balbir@in.ibm.com> wrote:
->>
->>>@@ -550,6 +550,12 @@ struct task_delay_info {
->>> 	 * Atomicity of updates to XXX_delay, XXX_count protected by
->>> 	 * single lock above (split into XXX_lock if contention is an issue).
->>> 	 */
->>>+
->>>+	struct timespec blkio_start, blkio_end;	/* Shared by blkio, swapin */
->>>+	u64 blkio_delay;	/* wait for sync block io completion */
->>>+	u64 swapin_delay;	/* wait for swapin block io completion */
->>>+	u32 blkio_count;
->>>+	u32 swapin_count;
->>>
->>These fields are a bit mystifying.
->>
->>In what units are blkio_delay and swapin_delay?
->>
->>What is the meaning behind blkio_count and swapin_count?
->>
->>Better comments needed, please.
->>
->
->Will add more detailed comments and send them as updates.
->
+that would be a change from, well... a LONG time
 
-What kinds of usages will this stuff see? Will the CONFIG be usually 
-turned on,
-with some tasks occasionally using the statistics?
+The question is what "load" means; if you want to change that... then
+there are even better metrics possible. Like
+"number of processes wanting to run + number of busy spindles + number
+of busy nics + number of VM zones that are below the problem
+watermark" (where "busy" means "queue full")
 
-In which case, might it be better to make each delay collector in its 
-own data
-structure { .list; .start; .end; .delay; .count; .private; .name }, and 
-allocate
-them and hang them off the task structure when they're in use?
+or 50 million other definitions. If we're going to change the meaning,
+we might as well give it a "real" meaning. 
 
-Or even put them in their own data structure (a small hash or something).
+(And even then it is NOT a good measure for determining if the machine
+can perform more work, the graph I put in a previous mail is very real,
+and in practice it seems the saturation line is easily 4x or 5x of the
+"linear" point)
 
-OTOH if they're often going to be in use by many tasks, then what you 
-have might
-be the best option.
-
-Nick
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 

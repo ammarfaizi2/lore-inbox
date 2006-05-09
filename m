@@ -1,37 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbWEIOVh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbWEIO2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751035AbWEIOVh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 10:21:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbWEIOVh
+	id S1750858AbWEIO2y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 10:28:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbWEIO2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 10:21:37 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:12255 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751035AbWEIOVh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 10:21:37 -0400
-Date: Tue, 9 May 2006 10:21:26 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-Cc: davem@davemloft.net, akpm@osdl.org, heiko.carstens@de.ibm.com,
-       linux-kernel@vger.kernel.org, blaisorblade@yahoo.it,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [PROBLEM] UML is killed by SIGALRM
-Message-ID: <20060509142126.GA3906@ccure.user-mode-linux.org>
-References: <Pine.LNX.4.58.0605091125400.24592@sbz-30.cs.Helsinki.FI>
+	Tue, 9 May 2006 10:28:53 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:44220 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1750858AbWEIO2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 10:28:53 -0400
+Date: Tue, 9 May 2006 10:28:51 -0400
+To: Carlos Ojea Castro <nuudoo.fb@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: LPC bus in a geode sc1200
+Message-ID: <20060509142851.GA2837@csclub.uwaterloo.ca>
+References: <bae323a50605090211t6af09c75u7cab1aac71e0e412@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0605091125400.24592@sbz-30.cs.Helsinki.FI>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <bae323a50605090211t6af09c75u7cab1aac71e0e412@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 09, 2006 at 11:28:19AM +0300, Pekka J Enberg wrote:
-> UML in Linus' head doesn't start on my machine whereas 2.6.17-rc3 works 
-> fine:
+On Tue, May 09, 2006 at 11:11:17AM +0200, Carlos Ojea Castro wrote:
+> I wrote a driver to use LPC bus in a geode sc1200. For now I am able
+> to transmit an read or write "I/O cycle" to the LPC.
+> What I want to do now is to read or write to the LPC using a "Memory cycle".
+> 
+> Anyone knows how can I archieve this?
+> is there another list more suitable for my question?
 
-This is fixed for me by http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff_plain;h=6760da0197a6ee327a09dafc070b26e2f02651fe;hp=f0ec5e39765cd254d436a6d86e211d81795952a4
+The LPC bus is the same as ISA as far as software is concerned.  You
+just read and write to it, or do DMA or whatever you want.
 
-And that's been in Linus' git since last week.
+I have an FPGA on port 0x500 on the LPC bus of an sc1200, and I just
+read and write the registers there the same as any other hardware.
 
-				Jeff
+Len Sorensen

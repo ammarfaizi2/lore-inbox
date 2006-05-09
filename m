@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751470AbWEIPMl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWEIPON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751470AbWEIPMl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 11:12:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWEIPMl
+	id S1750737AbWEIPON (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 11:14:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbWEIPON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 11:12:41 -0400
-Received: from dvhart.com ([64.146.134.43]:8419 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1751157AbWEIPMk (ORCPT
+	Tue, 9 May 2006 11:14:13 -0400
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:35989 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S1750737AbWEIPOM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 11:12:40 -0400
-Message-ID: <4460B161.7030800@mbligh.org>
-Date: Tue, 09 May 2006 08:12:33 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com
-Subject: Re: [RFC PATCH 00/35] Xen i386 paravirtualization support
-References: <20060509084945.373541000@sous-sol.org> <4460AC01.5020503@mbligh.org> <20060509150701.GA14050@infradead.org>
-In-Reply-To: <20060509150701.GA14050@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 9 May 2006 11:14:12 -0400
+Date: Tue, 9 May 2006 16:13:57 +0100
+From: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>,
+       Ian Pratt <ian.pratt@xensource.com>, xen-devel@lists.xensource.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH 22/35] subarch suport for idle loop (NO_IDLE_HZ for Xen)
+Message-ID: <20060509151357.GH7834@cl.cam.ac.uk>
+References: <20060509084945.373541000@sous-sol.org> <20060509085156.694312000@sous-sol.org> <200605091521.19910.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200605091521.19910.ak@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Tue, May 09, 2006 at 07:49:37AM -0700, Martin J. Bligh wrote:
+On Tue, May 09, 2006 at 03:21:19PM +0200, Andi Kleen wrote:
 > 
->>Congrats on getting this thrashed out. A few comments, most of which are
->>boring style nits, but nonetheless ... will try to take a proper look
->>later.
->>
->>General comment:
->>
->>Why is this style used:
->>
->>HYPERVISOR_foo_bar ?
->>
->>ie the capitalization of HYPERVISOR. Doesn't seem to fit with the rest
->>of the kernel style.
+> > +extern void stop_hz_timer(void);
+> > +extern void start_hz_timer(void);
+> > +
+> > +void xen_idle(void);
+> > +
+> >  static char * __init machine_specific_memory_setup(void)
+> >  {
+> >  	unsigned long max_pfn = xen_start_info->nr_pages;
+> > @@ -65,4 +70,23 @@ static void __init machine_specific_arch
+> >  		console_use_vt = 0;
+> >  		conswitchp = NULL;
+> >  	}
+> > +
+> > +	pm_idle = xen_idle;
+> > +}
+> > +
+> > +void xen_idle(void)
 > 
+> I think that should be in some .c file, not a .h
 > 
-> It's also wrong.  There's more than one hypervisor and Xen shouldn't just
-> grab this namespace.  make it xen_ or xenhv_.
+> Probably applies to more of your functions too.
 
-I think the intent was to create something generic enough for others to
-use. There were other projects that already intended to use the same
-model ... and please, lets not have one stack of this stuff for each
-hypervisor. So in general, I think the approach is correct, I was just
-whining about style stuff ;-)
+I guess I agree, although I was mostly following the examples in other
+mach setup_arch_*.h files.
 
-M.
+    christian
+

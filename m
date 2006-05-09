@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWEIQaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbWEIQbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbWEIQaq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 12:30:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbWEIQap
+	id S1750766AbWEIQbp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 12:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWEIQbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 12:30:45 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:9103 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S1750806AbWEIQah convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 12:30:37 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 9 May 2006 12:31:45 -0400
+Received: from cantor.suse.de ([195.135.220.2]:31647 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750766AbWEIQbn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 12:31:43 -0400
+From: Andi Kleen <ak@suse.de>
+To: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Subject: Re: [RFC PATCH 15/35] subarch support for controlling interrupt delivery
+Date: Tue, 9 May 2006 18:31:37 +0200
+User-Agent: KMail/1.9.1
+Cc: virtualization@lists.osdl.org, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Chris Wright <chrisw@sous-sol.org>, xen-devel@lists.xensource.com,
+       linux-kernel@vger.kernel.org, Ian Pratt <ian.pratt@xensource.com>
+References: <20060509084945.373541000@sous-sol.org> <200605091807.57522.ak@suse.de> <20060509162959.GL7834@cl.cam.ac.uk>
+In-Reply-To: <20060509162959.GL7834@cl.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [RFC PATCH 03/35] Add Xen interface header files
-Date: Tue, 9 May 2006 09:30:35 -0700
-Message-ID: <516F50407E01324991DD6D07B0531AD5B24A10@cacexc12.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC PATCH 03/35] Add Xen interface header files
-Thread-Index: AcZzg5ygH5ZZwXhrSf+AgkwAhCdQYgAAaROg
-From: "Magenheimer, Dan (HP Labs Fort Collins)" <dan.magenheimer@hp.com>
-To: "Daniel Walker" <dwalker@mvista.com>, "Chris Wright" <chrisw@sous-sol.org>
-Cc: <virtualization@lists.osdl.org>, <xen-devel@lists.xensource.com>,
-       <linux-kernel@vger.kernel.org>, "Ian Pratt" <ian.pratt@xensource.com>
-X-OriginalArrivalTime: 09 May 2006 16:30:36.0360 (UTC) FILETIME=[E69E0C80:01C67385]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605091831.37757.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >  include/xen/interface/arch-x86_32.h   |  197 +++++++++++++++
-> >  include/xen/interface/event_channel.h |  205 +++++++++++++++
-> >  include/xen/interface/features.h      |   53 ++++
-> >  include/xen/interface/grant_table.h   |  311 
-> +++++++++++++++++++++++
-> >  include/xen/interface/io/blkif.h      |   85 ++++++
+On Tuesday 09 May 2006 18:29, Christian Limpach wrote:
+> On Tue, May 09, 2006 at 06:07:57PM +0200, Andi Kleen wrote:
+> > 
+> > > 
+> > > Anybody want to comment on the performance impact of making
+> > > local_irq_* non-inline functions?
+> > 
+> > I would guess for that much inline code it will be even a win to not
+> > inline because it will save icache.
 > 
-> 
-> Shouldn't these be under asm-i386 , or are they used by other
-> architecture ? 
+> Maybe, although some of the macros compile down to only 2-3 instructions.
 
-The latter.  Xen also runs on ia64 (and soon ppc) and
-many Xen header files are arch-independent.
+Can you post before/after vmlinux size numbers for inline/out of line?
 
-Dan
-
+-Andi

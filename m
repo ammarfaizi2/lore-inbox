@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWEIF2D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbWEIFcR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbWEIF2D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 01:28:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWEIF2D
+	id S1750930AbWEIFcR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 01:32:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWEIFcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 01:28:03 -0400
-Received: from nz-out-0102.google.com ([64.233.162.197]:42848 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751386AbWEIF2C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 01:28:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:x-mimeole:in-reply-to:thread-index;
-        b=ptmp7vrj2uCsRCeg6KexUQ5ueV70lYwe80iVcB+hY6a8unR021aQJ+JXiJf85/eCvmSVcjx8fafU7QN3iINzgJTjK7XPLkwGEI6DeN2zn/Licj5Oe+A4KJU0rgj+C7tGvKokHMXS+uM0tOCqA80YsKIt1kYBYlP0N4abNyifXSE=
-From: "Hua Zhong" <hzhong@gmail.com>
-To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
-       "'Arjan van de Ven'" <arjan@infradead.org>
-Cc: "'Erik Mouw'" <erik@harddisk-recovery.com>,
-       "'Martin J. Bligh'" <mbligh@mbligh.org>,
-       "'Andrew Morton'" <akpm@osdl.org>,
-       "'Jason Schoonover'" <jasons@pioneer-pra.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: High load average on disk I/O on 2.6.17-rc3
-Date: Mon, 8 May 2006 22:27:52 -0700
-Message-ID: <005301c67329$52b5fe30$0200a8c0@nuitysystems.com>
+	Tue, 9 May 2006 01:32:16 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:51604 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750930AbWEIFcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 01:32:16 -0400
+Date: Mon, 8 May 2006 22:31:57 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+cc: Pekka Enberg <penberg@cs.helsinki.fi>, Linus Torvalds <torvalds@osdl.org>,
+       Daniel Hokka Zakrisson <daniel@hozac.com>, linux-kernel@vger.kernel.org,
+       =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
+       greg@kroah.com, matthew@wil.cx, manfred@colorfullife.com, akpm@osdl.org
+Subject: Re: [PATCH] fs: fcntl_setlease defies lease_init assumptions
+In-Reply-To: <4460113C.9090609@mbligh.org>
+Message-ID: <Pine.LNX.4.64.0605082230310.23795@schroedinger.engr.sgi.com>
+References: <445E80DD.9090507@hozac.com>  <Pine.LNX.4.64.0605072030280.3718@g5.osdl.org>
+  <84144f020605080131r58ce2a93w6c7ba784a266bbeb@mail.gmail.com> 
+ <84144f020605080134q7e16f37fl385359c634ece8ca@mail.gmail.com> 
+ <Pine.LNX.4.64.0605080807430.3718@g5.osdl.org>  <1147104412.22096.8.camel@localhost>
+  <Pine.LNX.4.64.0605080913240.3718@g5.osdl.org> <1147116991.11282.3.camel@localhost>
+ <Pine.LNX.4.64.0605082031580.23431@schroedinger.engr.sgi.com>
+ <4460113C.9090609@mbligh.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-In-Reply-To: <44601E9C.2010802@yahoo.com.au>
-Thread-index: AcZzJxKf4UjKgWgRSGCUEf+iHXm+KgAAf+qg
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> A global loadavg isn't too good anyway, as everyone has 
-> observed, there are many independant resources. But my point 
-> is that it isn't going away while apps still use it, so my 
-> point is that this might be an easy way to improve it.
+On Mon, 8 May 2006, Martin J. Bligh wrote:
 
-It's not just those MTA's using it. Worse, many watchdog implementations use it too, and they will reload the box if the load is too
-high.
+> Can't you use sparsemem instead? It solves the same problem without the
+> magic faulting, doesn't it?
 
-So we do need some ways to make the loadavg more meaningful or at least more predictable.
-
-Hua
+But sparsemem has more complex table lookups. Ultimately IA64 will move 
+to sparsemem (I think) but we are not there yet and we would like to be 
+sure that there are no performance regressions with that move.
 

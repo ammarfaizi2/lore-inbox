@@ -1,87 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWEIFtl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWEIFwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751399AbWEIFtl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 01:49:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbWEIFtl
+	id S1751406AbWEIFwg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 01:52:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbWEIFwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 01:49:41 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:63109 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751399AbWEIFtk (ORCPT
+	Tue, 9 May 2006 01:52:36 -0400
+Received: from wr-out-0506.google.com ([64.233.184.232]:41173 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751406AbWEIFwf convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 01:49:40 -0400
-Date: Tue, 9 May 2006 11:15:56 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, jlan@engr.sgi.com
-Subject: Re: [Patch 2/8] Sync block I/O and swapin delay collection
-Message-ID: <20060509054556.GG784@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <20060502061408.GM13962@in.ibm.com> <20060508141952.2d4b9069.akpm@osdl.org> <20060509035320.GC784@in.ibm.com> <44601933.2040905@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 9 May 2006 01:52:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Ysr/FCleakStUS2+PzVqQm/7i3u43KGL/f86gQ6iLIf4QyanOBhHdC4XUZuVg0+NS+exTWOyX4R0WzElV1nlXZwa7b4zSmDwgbhCQdFEShMep8npSfI9+PmjE9yhh9e6n1cAKN166yVAFz9UfuQSw/GX6DlBAUr+TgAKAatKiJ4=
+Message-ID: <844f6ea60605082252n1e729e37m3802abe5c4c18380@mail.gmail.com>
+Date: Tue, 9 May 2006 11:22:35 +0530
+From: "C K Kashyap" <ckkashyap@gmail.com>
+To: "Alistair John Strachan" <s0348365@sms.ed.ac.uk>
+Subject: Re: Booting vmlinux with GRUB on x86
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200605061448.57892.s0348365@sms.ed.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <44601933.2040905@yahoo.com.au>
-User-Agent: Mutt/1.5.10i
+References: <844f6ea60605052202i224bf7cew9018afa7e6959e11@mail.gmail.com>
+	 <200605061448.57892.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 09, 2006 at 02:23:15PM +1000, Nick Piggin wrote:
-> Balbir Singh wrote:
-> 
-> >On Mon, May 08, 2006 at 02:19:52PM -0700, Andrew Morton wrote:
-> >
-> >>Balbir Singh <balbir@in.ibm.com> wrote:
-> >>
-> >>>@@ -550,6 +550,12 @@ struct task_delay_info {
-> >>>	 * Atomicity of updates to XXX_delay, XXX_count protected by
-> >>>	 * single lock above (split into XXX_lock if contention is an issue).
-> >>>	 */
-> >>>+
-> >>>+	struct timespec blkio_start, blkio_end;	/* Shared by blkio, swapin */
-> >>>+	u64 blkio_delay;	/* wait for sync block io completion */
-> >>>+	u64 swapin_delay;	/* wait for swapin block io completion */
-> >>>+	u32 blkio_count;
-> >>>+	u32 swapin_count;
-> >>>
-> >>These fields are a bit mystifying.
-> >>
-> >>In what units are blkio_delay and swapin_delay?
-> >>
-> >>What is the meaning behind blkio_count and swapin_count?
-> >>
-> >>Better comments needed, please.
-> >>
-> >
-> >Will add more detailed comments and send them as updates.
-> >
-> 
-> What kinds of usages will this stuff see? Will the CONFIG be usually 
-> turned on,
-> with some tasks occasionally using the statistics?
-> 
-> In which case, might it be better to make each delay collector in its 
-> own data
-> structure { .list; .start; .end; .delay; .count; .private; .name }, and 
-> allocate
-> them and hang them off the task structure when they're in use?
-> 
-> Or even put them in their own data structure (a small hash or something).
-> 
-> OTOH if they're often going to be in use by many tasks, then what you 
-> have might
-> be the best option.
-> 
-> Nick
-> 
-> Send instant messages to your online friends http://au.messenger.yahoo.com 
-
-I expect/hope that the CONFIG will be turned on. There is a boot
-option (called delayacct) to enable/disable the statistics collection.
-Once turned on and enabled, all tasks will be filling in/using the statistics.
+Thanks Alistair,
+Looks like a useful place.
+regards,
+Kashyap
 
 
-	Thanks,
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+On 5/6/06, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> On Saturday 06 May 2006 06:02, C K Kashyap wrote:
+> > Looks like kernel 2.6 generates a kernel that can be loaded by GRUB by
+> > just adding the multiboot signature...However, it does'nt quite work!
+> > ... Has anyone tried it? Just want to do away with the overhead of
+> > bzImage etc!!
+>
+> You might be interested in Gujin.
+>
+> http://en.wikipedia.org/wiki/Gujin
+>
+> --
+> Cheers,
+> Alistair.
+>
+> Third year Computer Science undergraduate.
+> 1F2 55 South Clerk Street, Edinburgh, UK.
+>
+
+
+--
+Regards,
+Kashyap

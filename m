@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWEIWp5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbWEIWrs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751333AbWEIWp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 18:45:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbWEIWp5
+	id S1751343AbWEIWrs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 18:47:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbWEIWrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 18:45:57 -0400
-Received: from smtprelay05.ispgateway.de ([80.67.18.43]:62375 "EHLO
-	smtprelay05.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751333AbWEIWp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 18:45:57 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [RFC PATCH 04/35] Hypervisor interface header files.
-Date: Wed, 10 May 2006 00:43:03 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
+	Tue, 9 May 2006 18:47:47 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:54146 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751343AbWEIWrr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 18:47:47 -0400
+Date: Tue, 9 May 2006 15:50:50 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: Greg KH <greg@kroah.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       Ian Pratt <ian.pratt@xensource.com>,
        Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-References: <20060509084945.373541000@sous-sol.org> <20060509085148.485343000@sous-sol.org>
-In-Reply-To: <20060509085148.485343000@sous-sol.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Subject: Re: [RFC PATCH 33/35] Add the Xenbus sysfs and virtual device hotplug driver.
+Message-ID: <20060509225050.GA24291@moss.sous-sol.org>
+References: <20060509084945.373541000@sous-sol.org> <20060509085200.826853000@sous-sol.org> <20060509194044.GA374@kroah.com> <20060509215314.GU24291@moss.sous-sol.org> <20060509220158.GA20564@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605100043.05241.ioe-lkml@rameria.de>
+In-Reply-To: <20060509220158.GA20564@kroah.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Chris,
+* Greg KH (greg@kroah.com) wrote:
+> Either.  You seem to mention a lot of nested depths in sysfs or "files",
+> yet your above tree doesn't show that.  And I don't understand what you
+> mean by frontend/backend here either?  Is it a sysfs thing?  Or a Xen
+> thing?
 
-first of all: Thanks to the Xen-Team for doing this!
+The files are xenstore, it's part of the communication between frontend
+and backend.  The frontend is the device driver in the guest domain
+which is just an I/O channel to the backend driver.  The backend is in
+the driver domain where the physical hardware can be driven.
 
-On Tuesday, 9. May 2006 09:00, Chris Wright wrote:
-> Define macros and inline functions for doing hypercalls into the
-> hypervisor.
-> +static inline int
-> +HYPERVISOR_set_trap_table(
-> +	struct trap_info *table)
-> +{
-> +	return _hypercall1(int, set_trap_table, table);
-> +}
-
-This is outright ugly and non-conformant to 
-Documentation/CodingStyle Chapter 2
-
-Fixing this also saves some code lines.
-
-It also looks like generated code. Maybe you can fix your generator
-instead?
-
-
-Regards
-
-Ingo Oeser
+thanks,
+-chris

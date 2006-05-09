@@ -1,198 +1,201 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751697AbWEIIyM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751680AbWEIIyw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751697AbWEIIyM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 04:54:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751550AbWEIItV
+	id S1751680AbWEIIyw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 04:54:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751700AbWEIIyV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 04:49:21 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:44675 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751534AbWEIItB
+	Tue, 9 May 2006 04:54:21 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:58755 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751539AbWEIItU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 04:49:01 -0400
-Message-Id: <20060509085154.802230000@sous-sol.org>
+	Tue, 9 May 2006 04:49:20 -0400
+Message-Id: <20060509085154.095325000@sous-sol.org>
 References: <20060509084945.373541000@sous-sol.org>
-Date: Tue, 09 May 2006 00:00:17 -0700
+Date: Tue, 09 May 2006 00:00:15 -0700
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org
 Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
        Ian Pratt <ian.pratt@xensource.com>,
        Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: [RFC PATCH 17/35] Segment register changes for Xen
-Content-Disposition: inline; filename=i386-segments
+Subject: [RFC PATCH 15/35] subarch support for controlling interrupt delivery
+Content-Disposition: inline; filename=i386-interrupt-control
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1. We clear FS/GS before changing TLS entries and switching LDT, as
-otherwise the hypervisor will fail to restore thread-local values on
-return to the guest kernel and we take a slow exception path.
-
-2. We allow for the fact that the guest kernel may not run in ring 0.
-This requires some abstraction in a few places when setting %cs or
-checking privilege level (user vs kernel).
+Abstract the code that controls interrupt delivery, and add a separate
+subarch implementation for Xen that manipulates a shared-memory event
+delivery mask.
 
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- arch/i386/kernel/process.c                   |    4 +++-
- arch/i386/mm/fault.c                         |    8 +++++---
- include/asm-i386/mach-default/mach_segment.h |    8 ++++++++
- include/asm-i386/mach-default/mach_system.h  |    2 ++
- include/asm-i386/mach-xen/mach_segment.h     |    9 +++++++++
- include/asm-i386/mach-xen/mach_system.h      |    2 ++
- include/asm-i386/mach-xen/setup_arch_post.h  |    2 ++
- include/asm-i386/ptrace.h                    |    6 ++++--
- include/asm-i386/segment.h                   |    2 ++
- 9 files changed, 37 insertions(+), 6 deletions(-)
+ include/asm-i386/mach-default/mach_system.h |   24 ++++++
+ include/asm-i386/mach-xen/mach_system.h     |  103 ++++++++++++++++++++++++++++
+ include/asm-i386/system.h                   |   20 -----
+ 3 files changed, 128 insertions(+), 19 deletions(-)
 
---- linus-2.6.orig/arch/i386/kernel/process.c
-+++ linus-2.6/arch/i386/kernel/process.c
-@@ -347,7 +347,7 @@ int kernel_thread(int (*fn)(void *), voi
- 	regs.xes = __USER_DS;
- 	regs.orig_eax = -1;
- 	regs.eip = (unsigned long) kernel_thread_helper;
--	regs.xcs = __KERNEL_CS;
-+	regs.xcs = get_kernel_cs();
- 	regs.eflags = X86_EFLAGS_IF | X86_EFLAGS_SF | X86_EFLAGS_PF | 0x2;
+--- linus-2.6.orig/include/asm-i386/system.h
++++ linus-2.6/include/asm-i386/system.h
+@@ -490,25 +490,7 @@ static inline unsigned long long __cmpxc
  
- 	/* Ok, create the new process.. */
-@@ -647,6 +647,8 @@ struct task_struct fastcall * __switch_t
- 	 */
- 	savesegment(fs, prev->fs);
- 	savesegment(gs, prev->gs);
-+	clearsegment(fs);
-+	clearsegment(gs);
+ #define set_wmb(var, value) do { var = value; wmb(); } while (0)
  
- 	/*
- 	 * Load the per-thread Thread-Local Storage descriptor.
---- linus-2.6.orig/arch/i386/mm/fault.c
-+++ linus-2.6/arch/i386/mm/fault.c
-@@ -28,6 +28,8 @@
- #include <asm/desc.h>
- #include <asm/kdebug.h>
- 
-+#include <mach_segment.h>
-+
- extern void die(const char *,struct pt_regs *,long);
+-/* interrupt control.. */
+-#define local_save_flags(x)	do { typecheck(unsigned long,x); __asm__ __volatile__("pushfl ; popl %0":"=g" (x): /* no input */); } while (0)
+-#define local_irq_restore(x) 	do { typecheck(unsigned long,x); __asm__ __volatile__("pushl %0 ; popfl": /* no output */ :"g" (x):"memory", "cc"); } while (0)
+-#define local_irq_disable() 	__asm__ __volatile__("cli": : :"memory")
+-#define local_irq_enable()	__asm__ __volatile__("sti": : :"memory")
+-/* used in the idle loop; sti takes one instruction cycle to complete */
+-#define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
+-/* used when interrupts are already enabled or to shutdown the processor */
+-#define halt()			__asm__ __volatile__("hlt": : :"memory")
+-
+-#define irqs_disabled()			\
+-({					\
+-	unsigned long flags;		\
+-	local_save_flags(flags);	\
+-	!(flags & (1<<9));		\
+-})
+-
+-/* For spinlocks etc */
+-#define local_irq_save(x)	__asm__ __volatile__("pushfl ; popl %0 ; cli":"=g" (x): /* no input */ :"memory")
++#include <mach_system.h>
  
  /*
-@@ -78,14 +80,14 @@ static inline unsigned long get_segment_
- 	u32 seg_ar, seg_limit, base, *desc;
- 
- 	/* The standard kernel/user address space limit. */
--	*eip_limit = (seg & 3) ? USER_DS.seg : KERNEL_DS.seg;
-+	*eip_limit = (seg & USER_MODE_MASK) ? USER_DS.seg : KERNEL_DS.seg;
- 
- 	/* Unlikely, but must come before segment checks. */
- 	if (unlikely((regs->eflags & VM_MASK) != 0))
- 		return eip + (seg << 4);
- 	
- 	/* By far the most common cases. */
--	if (likely(seg == __USER_CS || seg == __KERNEL_CS))
-+	if (likely(seg == __USER_CS || seg == get_kernel_cs()))
- 		return eip;
- 
- 	/* Check the segment exists, is within the current LDT/GDT size,
-@@ -400,7 +402,7 @@ good_area:
- 	switch (error_code & 3) {
- 		default:	/* 3: write, present */
- #ifdef TEST_VERIFY_AREA
--			if (regs->cs == KERNEL_CS)
-+			if (regs->cs == get_kernel_cs())
- 				printk("WP fault at %08lx\n", regs->eip);
- #endif
- 			/* fall through */
---- linus-2.6.orig/include/asm-i386/mach-default/mach_system.h
+  * disable hlt during certain critical i/o operations
+--- /dev/null
 +++ linus-2.6/include/asm-i386/mach-default/mach_system.h
-@@ -1,6 +1,8 @@
- #ifndef __ASM_MACH_SYSTEM_H
- #define __ASM_MACH_SYSTEM_H
- 
-+#define clearsegment(seg)
+@@ -0,0 +1,24 @@
++#ifndef __ASM_MACH_SYSTEM_H
++#define __ASM_MACH_SYSTEM_H
 +
- /* interrupt control.. */
- #define local_save_flags(x)	do { typecheck(unsigned long,x); __asm__ __volatile__("pushfl ; popl %0":"=g" (x): /* no input */); } while (0)
- #define local_irq_restore(x) 	do { typecheck(unsigned long,x); __asm__ __volatile__("pushl %0 ; popfl": /* no output */ :"g" (x):"memory", "cc"); } while (0)
---- linus-2.6.orig/include/asm-i386/mach-xen/mach_system.h
++/* interrupt control.. */
++#define local_save_flags(x)	do { typecheck(unsigned long,x); __asm__ __volatile__("pushfl ; popl %0":"=g" (x): /* no input */); } while (0)
++#define local_irq_restore(x) 	do { typecheck(unsigned long,x); __asm__ __volatile__("pushl %0 ; popfl": /* no output */ :"g" (x):"memory", "cc"); } while (0)
++#define local_irq_disable() 	__asm__ __volatile__("cli": : :"memory")
++#define local_irq_enable()	__asm__ __volatile__("sti": : :"memory")
++/* used in the idle loop; sti takes one instruction cycle to complete */
++#define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
++/* used when interrupts are already enabled or to shutdown the processor */
++#define halt()			__asm__ __volatile__("hlt": : :"memory")
++
++#define irqs_disabled()			\
++({					\
++	unsigned long flags;		\
++	local_save_flags(flags);	\
++	!(flags & (1<<9));		\
++})
++
++/* For spinlocks etc */
++#define local_irq_save(x)	__asm__ __volatile__("pushfl ; popl %0 ; cli":"=g" (x): /* no input */ :"memory")
++
++#endif /* __ASM_MACH_SYSTEM_H */
+--- /dev/null
 +++ linus-2.6/include/asm-i386/mach-xen/mach_system.h
-@@ -5,6 +5,8 @@
- 
- #include <asm/hypervisor.h>
- 
-+#define clearsegment(seg) loadsegment(seg, 0)
+@@ -0,0 +1,103 @@
++#ifndef __ASM_MACH_SYSTEM_H
++#define __ASM_MACH_SYSTEM_H
 +
- #ifdef CONFIG_SMP
- #define __vcpu_id smp_processor_id()
- #else
---- linus-2.6.orig/include/asm-i386/mach-xen/setup_arch_post.h
-+++ linus-2.6/include/asm-i386/mach-xen/setup_arch_post.h
-@@ -26,6 +26,8 @@ static void __init machine_specific_arch
- 		(struct shared_info *)__va(xen_start_info->shared_info);
- 	memset(empty_zero_page, 0, sizeof(empty_zero_page));
- 
-+	HYPERVISOR_vm_assist(VMASST_CMD_enable, VMASST_TYPE_4gb_segments);
++#ifdef __KERNEL__
 +
- 	HYPERVISOR_set_callbacks(
- 	    __KERNEL_CS, (unsigned long)hypervisor_callback,
- 	    __KERNEL_CS, (unsigned long)failsafe_callback);
---- linus-2.6.orig/include/asm-i386/ptrace.h
-+++ linus-2.6/include/asm-i386/ptrace.h
-@@ -1,6 +1,8 @@
- #ifndef _I386_PTRACE_H
- #define _I386_PTRACE_H
- 
-+#include <mach_segment.h>
++#include <asm/hypervisor.h>
 +
- #define EBX 0
- #define ECX 1
- #define EDX 2
-@@ -73,11 +75,11 @@ extern void send_sigtrap(struct task_str
-  */
- static inline int user_mode(struct pt_regs *regs)
- {
--	return (regs->xcs & 3) != 0;
-+	return (regs->xcs & USER_MODE_MASK) != 0;
- }
- static inline int user_mode_vm(struct pt_regs *regs)
- {
--	return ((regs->xcs & 3) | (regs->eflags & VM_MASK)) != 0;
-+	return ((regs->xcs & USER_MODE_MASK) | (regs->eflags & VM_MASK)) != 0;
- }
- #define instruction_pointer(regs) ((regs)->eip)
- #if defined(CONFIG_SMP) && defined(CONFIG_FRAME_POINTER)
---- linus-2.6.orig/include/asm-i386/segment.h
-+++ linus-2.6/include/asm-i386/segment.h
-@@ -1,6 +1,8 @@
- #ifndef _ASM_SEGMENT_H
- #define _ASM_SEGMENT_H
- 
-+#include <mach_segment.h>
++#ifdef CONFIG_SMP
++#define __vcpu_id smp_processor_id()
++#else
++#define __vcpu_id 0
++#endif
 +
- /*
-  * The layout of the per-CPU GDT under Linux:
-  *
---- /dev/null
-+++ linus-2.6/include/asm-i386/mach-default/mach_segment.h
-@@ -0,0 +1,8 @@
-+#ifndef __ASM_MACH_SEGMENT_H
-+#define __ASM_MACH_SEGMENT_H
++/* interrupt control.. */
 +
-+#define USER_MODE_MASK 3
++/*
++ * The use of 'barrier' in the following reflects their use as local-lock
++ * operations. Reentrancy must be prevented (e.g., __cli()) /before/ following
++ * critical operations are executed. All critical operations must complete
++ * /before/ reentrancy is permitted (e.g., __sti()). Alpha architecture also
++ * includes these barriers, for example.
++ */
 +
-+#define get_kernel_cs() __KERNEL_CS
++#define __cli()								\
++do {									\
++	struct vcpu_info *_vcpu;					\
++	preempt_disable();						\
++	_vcpu = &HYPERVISOR_shared_info->vcpu_info[__vcpu_id];		\
++	_vcpu->evtchn_upcall_mask = 1;					\
++	preempt_enable_no_resched();					\
++	barrier();							\
++} while (0)
 +
-+#endif /* __ASM_MACH_SEGMENT_H */
---- /dev/null
-+++ linus-2.6/include/asm-i386/mach-xen/mach_segment.h
-@@ -0,0 +1,9 @@
-+#ifndef __ASM_MACH_SEGMENT_H
-+#define __ASM_MACH_SEGMENT_H
++#define __sti()								\
++do {									\
++	struct vcpu_info *_vcpu;					\
++	barrier();							\
++	preempt_disable();						\
++	_vcpu = &HYPERVISOR_shared_info->vcpu_info[__vcpu_id];		\
++	_vcpu->evtchn_upcall_mask = 0;					\
++	barrier(); /* unmask then check (avoid races) */		\
++	if (unlikely(_vcpu->evtchn_upcall_pending))			\
++		force_evtchn_callback();				\
++	preempt_enable();						\
++} while (0)
 +
-+#define USER_MODE_MASK 2
++#define __save_flags(x)							\
++do {									\
++	struct vcpu_info *_vcpu;					\
++	preempt_disable();						\
++	_vcpu = &HYPERVISOR_shared_info->vcpu_info[__vcpu_id];		\
++	(x) = _vcpu->evtchn_upcall_mask;				\
++	preempt_enable();						\
++} while (0)
 +
-+#define get_kernel_cs() \
-+	(__KERNEL_CS + (xen_feature(XENFEAT_supervisor_mode_kernel) ? 0 : 1))
++#define __restore_flags(x)						\
++do {									\
++	struct vcpu_info *_vcpu;					\
++	barrier();							\
++	preempt_disable();						\
++	_vcpu = &HYPERVISOR_shared_info->vcpu_info[__vcpu_id];		\
++	if ((_vcpu->evtchn_upcall_mask = (x)) == 0) {			\
++		barrier(); /* unmask then check (avoid races) */	\
++		if (unlikely(_vcpu->evtchn_upcall_pending))		\
++			force_evtchn_callback();			\
++		preempt_enable();					\
++	} else								\
++		preempt_enable_no_resched();				\
++} while (0)
 +
-+#endif /* __ASM_MACH_SEGMENT_H */
++#define safe_halt()		((void)0)
++#define halt()			((void)0)
++
++#define __save_and_cli(x)						\
++do {									\
++	struct vcpu_info *_vcpu;					\
++	preempt_disable();						\
++	_vcpu = &HYPERVISOR_shared_info->vcpu_info[__vcpu_id];		\
++	(x) = _vcpu->evtchn_upcall_mask;				\
++	_vcpu->evtchn_upcall_mask = 1;					\
++	preempt_enable_no_resched();					\
++	barrier();							\
++} while (0)
++
++#define local_irq_save(x)	__save_and_cli(x)
++#define local_irq_restore(x)	__restore_flags(x)
++#define local_save_flags(x)	__save_flags(x)
++#define local_irq_disable()	__cli()
++#define local_irq_enable()	__sti()
++
++/* Cannot use preempt_enable() here as we would recurse in preempt_sched(). */
++#define irqs_disabled()							\
++({	int ___x;							\
++	struct vcpu_info *_vcpu;					\
++	preempt_disable();						\
++	_vcpu = &HYPERVISOR_shared_info->vcpu_info[__vcpu_id];		\
++	___x = (_vcpu->evtchn_upcall_mask != 0);			\
++	preempt_enable_no_resched();					\
++	___x; })
++
++#endif /* __KERNEL__ */
++
++#endif /* __ASM_MACH_SYSTEM_H */
 
 --

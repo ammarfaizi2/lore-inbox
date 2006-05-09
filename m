@@ -1,71 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbWEILHP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751760AbWEILJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751459AbWEILHP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 07:07:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbWEILHP
+	id S1751760AbWEILJF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 07:09:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751761AbWEILJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 07:07:15 -0400
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:13747
+	Tue, 9 May 2006 07:09:05 -0400
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:13239
 	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1751459AbWEILHO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 07:07:14 -0400
-Date: Tue, 9 May 2006 12:05:20 +0100
+	id S1751760AbWEILJE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 07:09:04 -0400
+Date: Tue, 9 May 2006 12:05:05 +0100
 To: Nick Piggin <nickpiggin@yahoo.com.au>
 Cc: Andy Whitcroft <apw@shadowen.org>, Dave Hansen <haveblue@us.ibm.com>,
        Bob Picco <bob.picco@hp.com>, Ingo Molnar <mingo@elte.hu>,
        "Martin J. Bligh" <mbligh@mbligh.org>, Andi Kleen <ak@suse.de>,
        linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
        Linux Memory Management <linux-mm@kvack.org>
-Subject: [PATCH 1/3] zone init check and report unaligned zone boundries
-Message-ID: <20060509110520.GA9634@shadowen.org>
-References: <exportbomb.1147172704@pinky>
+Subject: [PATCH 0/3] Zone boundry alignment fixes
+Message-ID: <exportbomb.1147172704@pinky>
+References: <445DF3AB.9000009@yahoo.com.au>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-InReply-To: <exportbomb.1147172704@pinky>
+InReply-To: <445DF3AB.9000009@yahoo.com.au>
 User-Agent: Mutt/1.5.11+cvs20060126
 From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-zone init check and report unaligned zone boundries
+Ok.  Finally got my test bed working and got this lot tested.
 
-We have a number of strict constraints on the layout of struct
-page's for use with the buddy allocator.  One of which is that zone
-boundries must occur at MAX_ORDER page boundries.  Add a check for
-this during init.
+To summarise the problem , the buddy allocator currently requires
+that the boundries between zones occur at MAX_ORDER boundries.
+The specific case where we were tripping up on this was in x86 with
+NUMA enabled.  There we try to ensure that each node's stuct pages
+are in node local memory, in order to allow them to be virtually
+mapped we have to reduce the size of ZONE_NORMAL.  Here we are
+rounding the remap space up to a large page size to allow large
+page TLB entries to be used.  However, these are smaller than
+MAX_ORDER.  This can lead to bad buddy merges.  With VM_DEBUG enabled
+we detect the attempts to merge across this boundry and panic.
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
----
- include/linux/mmzone.h |    5 +++++
- mm/page_alloc.c        |    4 ++++
- 2 files changed, 9 insertions(+)
-diff -upN reference/include/linux/mmzone.h current/include/linux/mmzone.h
---- reference/include/linux/mmzone.h
-+++ current/include/linux/mmzone.h
-@@ -388,6 +388,11 @@ static inline int is_dma(struct zone *zo
- 	return zone == zone->zone_pgdat->node_zones + ZONE_DMA;
- }
- 
-+static inline unsigned long zone_boundry_align_pfn(unsigned long pfn)
-+{
-+	return pfn & ~((1 << MAX_ORDER) - 1);
-+}
-+
- /* These two functions are used to setup the per zone pages min values */
- struct ctl_table;
- struct file;
-diff -upN reference/mm/page_alloc.c current/mm/page_alloc.c
---- reference/mm/page_alloc.c
-+++ current/mm/page_alloc.c
-@@ -2078,6 +2078,10 @@ static void __init free_area_init_core(s
- 		struct zone *zone = pgdat->node_zones + j;
- 		unsigned long size, realsize;
- 
-+		if (zone_boundry_align_pfn(zone_start_pfn) != zone_start_pfn)
-+			printk(KERN_CRIT "node %d zone %s missaligned "
-+					"start pfn\n", nid, zone_names[j]);
-+
- 		realsize = size = zones_size[j];
- 		if (zholes_size)
- 			realsize -= zholes_size[j];
+We have two basic options we can either apply the appropriate
+alignment when we make make the NUMA remap space, or we can 'fix'
+the assumption in the buddy allocator.  The fix for the buddy
+allocator involves adding conditionals to the free fast path and
+so it seems reasonable to at least favor realigning the remap space.
+
+Following this email are 3 patches:
+
+zone-init-check-and-report-unaligned-zone-boundries -- introduces
+  a zone alignement helper, and uses it to add a check to zone
+  initialisation for unaligned zone boundries,
+
+x86-align-highmem-zone-boundries-with-NUMA -- uses the zone alignment
+  helper to align the end of ZONE_NORMAL after the remap space has
+  been reserved, and
+
+zone-allow-unaligned-zone-boundries -- modifies the buddy allocator
+  so that we can allow unaligned zone boundries.  A new configuration
+  option is added to enable this functionality.
+
+The first two are the fixes for alignement in x86, these fix the
+panics thrown when VM_DEBUG is enabled.
+
+The last is a patch to support unaligned zone boundries.  As this
+(re)introduces a zone check into the free hot path it seems
+reasonable to only enable this should it be needed; for example
+we never need this if we have a single zone.  I have tested the
+failing system with this patch enabled and it also fixes the panic.
+I am inclined to suggest that it be included as it very clearly
+documents the alignment requirements for the buddy allocator.
+
+Comments.
+
+-apw

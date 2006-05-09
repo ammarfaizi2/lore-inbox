@@ -1,46 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbWEINBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932503AbWEINNZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932499AbWEINBS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 09:01:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbWEINBS
+	id S932503AbWEINNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 09:13:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbWEINNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 09:01:18 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:5138 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932301AbWEINBR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 09:01:17 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Christian.Limpach@cl.cam.ac.uk (Christian Limpach)
-Subject: Re: [Xen-devel] [RFC PATCH 34/35] Add the Xen virtual network	device	driver.
-Cc: herbert@gondor.apana.org.au, xen-devel@lists.xensource.com,
-       ian.pratt@xensource.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, chrisw@sous-sol.org,
-       virtualization@lists.osdl.org
-Organization: Core
-In-Reply-To: <20060509124359.GA5407@cl.cam.ac.uk>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev,apana.lists.os.xen.devel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1FdRpp-0008HG-00@gondolin.me.apana.org.au>
-Date: Tue, 09 May 2006 23:01:05 +1000
+	Tue, 9 May 2006 09:13:25 -0400
+Received: from roadrunner-base.egenera.com ([63.160.166.46]:12428 "EHLO
+	roadrunner-base.egenera.com") by vger.kernel.org with ESMTP
+	id S932503AbWEINNY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 09:13:24 -0400
+Date: Tue, 9 May 2006 09:11:21 -0400
+From: "Philip R. Auld" <pauld@egenera.com>
+To: Ram Pai <linuxram@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: GPL-only symbols issue
+Message-ID: <20060509131121.GJ30333@vienna.egenera.com>
+References: <445F0B6F.76E4.0078.0@novell.com> <20060509042500.GA4226@kroah.com> <1147154238.7203.62.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1147154238.7203.62.camel@localhost>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Limpach <Christian.Limpach@cl.cam.ac.uk> wrote:
+Hi,
+
+Rumor has it that on Mon, May 08, 2006 at 10:57:18PM -0700 Ram Pai said:
+> On Mon, 2006-05-08 at 21:25 -0700, Greg KH wrote:
+> > On Mon, May 08, 2006 at 09:12:15AM +0200, Jan Beulich wrote:
+> > > Sam,
+> > > 
+> > > would it seem reasonable a request to detect imports of GPL-only
+> > > symbols by non-GPL modules also at build time rather than only at run
+> > > time, and at least warn about such?
+> > 
+> > Ram has some tools that might catch this kind of thing.  He's posted his
+> > scripts to lkml in the past, try looking in the archives.
 > 
-> There's at least two reasons why having it in the driver is preferable:
-> - synchronizing sending the fake ARP request with when the device is
->  operational -- you really want to make this well synchronized to keep
->  unreachability as short as possible, especially when doing live
->  migration
-> - anybody but the guest might not know (all) the MAC addresses for which
->  to send a fake ARP request
+> The patches are at
+> 
+> http://sudhaa.com/~ram/misc/kernelpatch
+> 
+> The patch of interest for you would be modpost.patch
+> I have a script and some code that can poke into a given .ko file and
+> warn against symbols that don't match what the kernel exports. 
+> 
+> I can post that code if there is interest in that functionality,
 
-Sure.  However, what's there to stop you from doing this in user-space
-inside the guest?
+I'd love to see it. 
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Thanks,
+
+Phil
+
+> RP
+> 
+> > 
+> > thanks,
+> 
+> > greg k-h
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

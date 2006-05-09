@@ -1,49 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751063AbWEIA4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbWEIBHa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751063AbWEIA4u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 20:56:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751064AbWEIA4u
+	id S1751271AbWEIBHa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 May 2006 21:07:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbWEIBHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 20:56:50 -0400
-Received: from smtp2.Stanford.EDU ([171.67.20.25]:5513 "EHLO
-	smtp2.stanford.edu") by vger.kernel.org with ESMTP id S1751060AbWEIA4u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 20:56:50 -0400
-Subject: 2.6.16-rt17, hang with skge network driver
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-Content-Type: text/plain
-Date: Mon, 08 May 2006 17:56:48 -0700
-Message-Id: <1147136208.5758.3.camel@cmn3.stanford.edu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Mon, 8 May 2006 21:07:30 -0400
+Received: from dvhart.com ([64.146.134.43]:21986 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1751271AbWEIBHa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 May 2006 21:07:30 -0400
+Message-ID: <445FEB51.2040607@mbligh.org>
+Date: Mon, 08 May 2006 18:07:29 -0700
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+Cc: tim.c.chen@linux.intel.com, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: Regression seen for patch "sched:dont         decrease idle sleep
+ avg"
+References: <1147130298.30649.33.camel@localhost.localdomain> <cone.1147135389.188411.32203.501@kolivas.org>
+In-Reply-To: <cone.1147135389.188411.32203.501@kolivas.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo, I've seen a few hangs with 2.6.16-rt17 - my feeling was that
-they had to do with high network load - and this time something was left
-behind after the reboot (I have to set up a serial console, it is not
-happening very frequently). Most probably this does not say much but
-here it goes anyway:
+Con Kolivas wrote:
+> Tim Chen writes:
+> 
+>> Con,
+>>
+>> As a result of the patch "sched:dont decrease idle sleep avg" 
+>> introduced after 2.6.15, there is a 4% drop in Volanomark throughput 
+>> on our Itanium test machine.  Probably the following happened:
+>> Compared to previous code, this patch slightly increases the the 
+>> priority boost when a job is woken up.
+>> This adds priority spread and variations to the wait time of jobs
+>> on run queue if we have a lot of similar jobs in the system.
+>>
+>> See patch:
+>> http://www.kernel.org/git/?
+>> p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=e72ff0bb2c163eb13014ba113701bd42dab382fe 
+> 
+> 
+> 
+> Lovely
+> 
+> This patch corrects a bug in the original code which unintentionally 
+> dropped the priority of tasks that were idle but were already high 
+> priority on other merits. It doesn't further increase the priority. The 
+> 4% almost certainly is due to the lack of any locking in the threading 
+> model used by the java virtual machine on volanomark and it being pure 
+> luck that penalising particularly idle tasks previously improved the 
+> wakeup timing of basically yielding dependant threads. This patch did 
+> fix bugs related to interactive yet idle tasks like consoles 
+> misbehaving. The fact that the presence of that particular bug improved 
+> a multithreaded benchmark that uses such a threading model is pure 
+> chance and (obviously) not design. I wouldn't like to see this bug 
+> reintroduced on the basis of this benchmark result.
 
-May  8 17:46:14 cmn3 kernel: softirq-net-tx//16[CPU#1]: BUG in
-dma_map_single at include/asm/dma-mapping.h:26
-May  8 17:46:14 cmn3 kernel:  [<c0123b95>] __WARN_ON+0x42/0x55 (8)
-May  8 17:46:14 cmn3 kernel:  [<c01282d3>] ksoftirqd+0x0/0x188 (44)
-May  8 17:46:14 cmn3 kernel:  [<f88ec916>] skge_xmit_frame+0xe9/0x2bc
-[skge] (4)
-May  8 17:46:14 cmn3 kernel:  [<c01282d3>] ksoftirqd+0x0/0x188 (56)
-May  8 17:46:14 cmn3 kernel:  [<c02ad1f4>] qdisc_restart+0x92/0x1f0 (4)
-May  8 17:46:14 cmn3 kernel:  [<c01282d3>] ksoftirqd+0x0/0x188 (20)
-May  8 17:46:14 cmn3 kernel:  [<c029f357>] net_tx_action+0x9a/0xb3 (4)
-May  8 17:46:14 cmn3 kernel:  [<c01283ac>] ksoftirqd+0xd9/0x188 (16)
-May  8 17:46:14 cmn3 kernel:  [<c0134495>] kthread+0x9d/0xcc (20)
-May  8 17:46:14 cmn3 kernel:  [<c01343f8>] kthread+0x0/0xcc (12)
-May  8 17:46:14 cmn3 kernel:  [<c0102005>] kernel_thread_helper+0x5/0xb
-(16)
-May  8 17:48:33 cmn3 syslogd 1.4.1: restart.
+Volanomark (and most Java benchmarks) are random number generators
+anyway, especially when it comes to scheduler patches. They're doing
+such utterly stupid things anyway that I don't think we should care
+if we break them ...
 
--- Fernando
-
-
+M.

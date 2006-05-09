@@ -1,50 +1,44 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750940AbWEHJQh (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 8 May 2006 05:16:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbWEHJQh
+	id S1751449AbWEIHcN (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 9 May 2006 03:32:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWEIHcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 05:16:37 -0400
-Received: from 85-250-64-237.bb.netvision.net.il ([85.250.64.237]:16905 "HELO
-	85.250.64.237") by vger.kernel.org with SMTP id S1750991AbWEHJQg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 05:16:36 -0400
-Date: Mon, 08 May 2006 08:18:27 +0000
-From: Gabriela Noel <Noel59@activatormail.com>
-X-Mailer: The Bat! (v2.12.00) CD5BF9353B3B7091
-Reply-To: Gabriela Noel <Noel59@activatormail.com>
-X-Priority: 3 (Normal)
-Message-ID: <248999840.1147076307@activatormail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Your L0AN has been sanctioned -Gabriela
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 9 May 2006 03:32:13 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:50074 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751449AbWEIHcM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 03:32:12 -0400
+Message-Id: <200605090732.k497VwFM014476@zeus1.kernel.org>
+Illegal-Object: Syntax error in From: address found on vger.kernel.org:
+	From:	"Editora  =?ISO-8859-1?Q?=20T=E9cnica=22?= <editora_tecnica@yahoo.com.br>"
+			^-missing closing '"' in token
+From: linux-kernel-owner@vger.kernel.org
+To: <linux-kernel@vger.kernel.org>
+Subject: I N F O R M  =?ISO-8859-1?Q?=20=C1?= T I C A   P R O F I S S I O N A L
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Tue, 9 May 2006 04:32:16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750940AbWEHJQh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751449AbWEIHcN@vger.kernel.org>
 
-Dear Home-owner,
-You have been pre-approved for a $ 489 , 545 Home Loan at a % 3.2 3 Fixed Rate.
-This offer is being extended to you unconditionally  and we will work with you regardless your credit
+C U R S O S   E M   C D - R O M   P A R A   A U T O A P R E N D I Z A G E M
 
+Se você precisa aprender ou treinar alguém num dos seguintes programas:
 
-To take Advantage of this Limited Time opportunity all
-we ask is that you visit our Website and complete
-the 1 minute post Approval Form.
-http://loanira.com/blue/
+AutoCAD
+       Arqui3D
+              3DStudio Max
+                     Photoshop
+                            Excel
+                                   Flash
+                                          DreamWeaver
+                                                 CorelDraw
 
-Best Regards,
-Gabriela Noel
-Endorsement Assistant
-http://loanira.com/blue/
+Acesse nosso site e baixe gratuitamente alguns demonstrativos.
 
+WWW.CURSOSEMCDROM.COM.BR
 
-
-
-maybe ? will do that later - lets wait for now
-http://loanira.com/lit.html
-
-
-
-
+Você aprende em sua própria casa, de acordo com seu ritmo 
+de aprendizagem e com sua disponibilidade de tempo.
 

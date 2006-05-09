@@ -1,50 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWEINOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbWEINQC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750988AbWEINOi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 09:14:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbWEINOh
+	id S1751013AbWEINQC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 09:16:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751035AbWEINQB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 09:14:37 -0400
-Received: from mx1.suse.de ([195.135.220.2]:55684 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750974AbWEINOg (ORCPT
+	Tue, 9 May 2006 09:16:01 -0400
+Received: from verein.lst.de ([213.95.11.210]:8399 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S1750997AbWEINQB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 09:14:36 -0400
-From: Andi Kleen <ak@suse.de>
-To: virtualization@lists.osdl.org
-Subject: Re: [Xen-devel] [RFC PATCH 34/35] Add the Xen virtual =?utf-8?q?network=09device=09driver=2E?=
-Date: Tue, 9 May 2006 15:14:28 +0200
-User-Agent: KMail/1.9.1
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, chrisw@sous-sol.org,
-       ian.pratt@xensource.com, xen-devel@lists.xensource.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <E1FdRpp-0008HG-00@gondolin.me.apana.org.au>
-In-Reply-To: <E1FdRpp-0008HG-00@gondolin.me.apana.org.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Tue, 9 May 2006 09:16:01 -0400
+Date: Tue, 9 May 2006 15:15:47 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Heiko J Schick <schihei@de.ibm.com>
+Cc: openib-general@openib.org, Christoph Raisch <RAISCH@de.ibm.com>,
+       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>,
+       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+Subject: Re: [openib-general] [PATCH 07/16] ehca: interrupt handling routines
+Message-ID: <20060509131547.GA8449@lst.de>
+References: <4450A196.2050901@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605091514.29205.ak@suse.de>
+In-Reply-To: <4450A196.2050901@de.ibm.com>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 May 2006 15:01, Herbert Xu wrote:
-> Christian Limpach <Christian.Limpach@cl.cam.ac.uk> wrote:
-> > 
-> > There's at least two reasons why having it in the driver is preferable:
-> > - synchronizing sending the fake ARP request with when the device is
-> >  operational -- you really want to make this well synchronized to keep
-> >  unreachability as short as possible, especially when doing live
-> >  migration
-> > - anybody but the guest might not know (all) the MAC addresses for which
-> >  to send a fake ARP request
-> 
-> Sure.  However, what's there to stop you from doing this in user-space
-> inside the guest?
+> +#include <linux/interrupt.h>
+> +#include <asm/atomic.h>
+> +#include <asm/types.h>
 
-I guess they don't trust user space. But the standard ipup script
-from iproute2 does this already so at least for modern distributions
-it should just work.
+Please don't use <asm/types.h> directly ever.  Always include
+<linux/types.h>
 
--Andi

@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWEIVws@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWEIVxy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbWEIVws (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 17:52:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWEIVws
+	id S1751186AbWEIVxy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 17:53:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWEIVxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 17:52:48 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:62402 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751177AbWEIVwr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 17:52:47 -0400
-From: Andi Kleen <ak@suse.de>
-To: virtualization@lists.osdl.org
-Subject: Re: [RFC PATCH 32/35] Add Xen driver utility functions.
-Date: Tue, 9 May 2006 23:50:54 +0200
-User-Agent: KMail/1.9.1
-Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       xen-devel@lists.xensource.com, Jan Beulich <JBeulich@novell.com>,
-       Ian Pratt <ian.pratt@xensource.com>
-References: <20060509084945.373541000@sous-sol.org> <20060509085200.309814000@sous-sol.org>
-In-Reply-To: <20060509085200.309814000@sous-sol.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Tue, 9 May 2006 17:53:54 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:29314 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751186AbWEIVxx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 17:53:53 -0400
+Date: Tue, 9 May 2006 14:56:55 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Chris Wright <chrisw@sous-sol.org>, xen-devel@lists.xensource.com,
+       linux-kernel@vger.kernel.org, Ian Pratt <ian.pratt@xensource.com>
+Subject: Re: [RFC PATCH 15/35] subarch support for controlling interrupt delivery
+Message-ID: <20060509215655.GV24291@moss.sous-sol.org>
+References: <20060509084945.373541000@sous-sol.org> <200605091807.57522.ak@suse.de> <20060509162959.GL7834@cl.cam.ac.uk> <200605091831.37757.ak@suse.de> <20060509204207.GQ7834@cl.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605092350.54692.ak@suse.de>
+In-Reply-To: <20060509204207.GQ7834@cl.cam.ac.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 May 2006 09:00, Chris Wright wrote:
-> Allocate/destroy a 'vmalloc' VM area: alloc_vm_area and free_vm_area
-> The alloc function ensures that page tables are constructed for the
-> region of kernel virtual address space and mapped into init_mm.
-> 
-> Lock an area so that PTEs are accessible in the current address space:
-> lock_vm_area and unlock_vm_area
-> The lock function prevents context switches to a lazy mm that doesn't
-> have the area mapped into its page tables.  It also ensures that the
-> page tables are mapped into the current mm by causing the page fault
-> handler to copy the page directory pointers from init_mm into the
-> current mm.
+* Christian Limpach (Christian.Limpach@cl.cam.ac.uk) wrote:
+> Everything[1] in line:
+> -rwxr-xr-x  1 cl349 cl349  2633640 May  9 19:42 vmlinux-inline-stripped
+> Everything out of line:
+> -rwxr-xr-x  1 cl349 cl349  2621352 May  9 19:45 vmlinux-outline-stripped
 
-Having that in drivers/xen looks wrong.  It should be probably somewhere generic.
+Have the output of 'size vmlinux*' handy?  Be nice to get the extra
+details.
 
--Andi
+thanks,
+-chris

@@ -1,39 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWEIUUA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWEIUYW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751121AbWEIUUA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 16:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWEIUUA
+	id S1750773AbWEIUYW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 16:24:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWEIUYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 16:20:00 -0400
-Received: from [194.90.237.34] ([194.90.237.34]:47708 "EHLO mtlexch01.mtl.com")
-	by vger.kernel.org with ESMTP id S1751121AbWEIUT7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 16:19:59 -0400
-Date: Tue, 9 May 2006 23:20:41 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Shirley Ma <xma@us.ibm.com>
-Cc: Heiko J Schick <info@schihei.de>, Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       Marcus Eder <MEDER@de.ibm.com>, openib-general@openib.org,
-       openib-general-bounces@openib.org, Christoph Raisch <RAISCH@de.ibm.com>,
-       Roland Dreier <rdreier@cisco.com>
-Subject: Re: [openib-general] Re: [PATCH 07/16] ehca: interrupt handling	routines
-Message-ID: <20060509202041.GB24713@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <40FCD6B6-9135-43C1-8974-E9070475DB78@schihei.de> <OF6CAB9865.804CAFBB-ON87257169.006C3DBC-88257169.00718277@us.ibm.com>
-Mime-Version: 1.0
+	Tue, 9 May 2006 16:24:22 -0400
+Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:59829 "HELO
+	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750773AbWEIUYW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 16:24:22 -0400
+Date: Tue, 9 May 2006 13:24:18 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, masouds@masoud.ir, jeff@garzik.org,
+       gregkh@suse.de
+Subject: Re: [PATCH] VIA quirk fixup, additional PCI IDs
+Message-ID: <20060509202418.GA27734@taniwha.stupidest.org>
+References: <20060430162820.GA18666@masoud.ir> <20060509191455.GA27503@taniwha.stupidest.org> <20060509125916.03c96efe.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <OF6CAB9865.804CAFBB-ON87257169.006C3DBC-88257169.00718277@us.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 09 May 2006 20:23:41.0546 (UTC) FILETIME=[767014A0:01C673A6]
+In-Reply-To: <20060509125916.03c96efe.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Shirley Ma <xma@us.ibm.com>:
-> My understanding is NAPI handle interrutps CQ callbacks on the same CPU.
+On Tue, May 09, 2006 at 12:59:16PM -0700, Andrew Morton wrote:
 
-My understanding is NAPI disables interrupts under high RX load. No?
+> This looks like a 2.6.17-worthy fix, but it's not clear.  Help.
+> What happens if 2.6.17 doesn't have this??
 
--- 
-MST
+Some machines with this hardware stop working.
+
+> Wanna buy an "f"?
+
+Sure.  How much?

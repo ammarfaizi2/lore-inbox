@@ -1,93 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751481AbWEIItI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751707AbWEII75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751481AbWEIItI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 04:49:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751533AbWEIIs7
+	id S1751707AbWEII75 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 04:59:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWEIItG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 04:48:59 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:50051 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751484AbWEIIss
+	Tue, 9 May 2006 04:49:06 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:48259 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751487AbWEIIsv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 04:48:48 -0400
-Message-Id: <20060509085156.694312000@sous-sol.org>
+	Tue, 9 May 2006 04:48:51 -0400
+Message-Id: <20060509085159.621872000@sous-sol.org>
 References: <20060509084945.373541000@sous-sol.org>
-Date: Tue, 09 May 2006 00:00:22 -0700
+Date: Tue, 09 May 2006 00:00:30 -0700
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org
 Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
        Ian Pratt <ian.pratt@xensource.com>,
        Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: [RFC PATCH 22/35] subarch suport for idle loop (NO_IDLE_HZ for Xen)
-Content-Disposition: inline; filename=i386-idle
+Subject: [RFC PATCH 30/35] Add apply_to_page_range() function
+Content-Disposition: inline; filename=apply-to-page-range
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paravirtualize the idle loop to explicitly trap to the hypervisor when
-blocking, and to use the NO_IDLE_HZ functionality introduced by s390
-to inform the rcu subsystem that the CPU is quiescent.
+Add a new mm function apply_to_page_range() which applies a given
+function to every pte in a given virtual address range in a given mm
+structure. This is a generic alternative to cut-and-pasting the Linux
+idiomatic pagetable walking code in every place that a sequence of
+PTEs must be accessed.
+
+Although this interface is intended to be useful in a wide range of
+situations, it is currently used specifically by several Xen
+subsystems, for example: to ensure that pagetables have been allocated
+for a virtual address range, and to construct batched special
+pagetable update requests to map I/O memory (in ioremap()).
 
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- drivers/xen/Kconfig                         |    8 ++++++++
- include/asm-i386/mach-xen/setup_arch_post.h |   24 ++++++++++++++++++++++++
- 2 files changed, 32 insertions(+)
+ include/linux/mm.h |    5 ++
+ mm/memory.c        |   94 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 99 insertions(+)
 
---- linus-2.6.orig/drivers/xen/Kconfig
-+++ linus-2.6/drivers/xen/Kconfig
-@@ -12,6 +12,14 @@ config XEN
+--- linus-2.6.orig/include/linux/mm.h
++++ linus-2.6/include/linux/mm.h
+@@ -1014,6 +1014,11 @@ struct page *follow_page(struct vm_area_
+ #define FOLL_GET	0x04	/* do get_page on page */
+ #define FOLL_ANON	0x08	/* give ZERO_PAGE if no pgtable */
  
- if XEN
++typedef int (*pte_fn_t)(pte_t *pte, struct page *pmd_page, unsigned long addr,
++			void *data);
++extern int apply_to_page_range(struct mm_struct *mm, unsigned long address,
++			       unsigned long size, pte_fn_t fn, void *data);
++
+ #ifdef CONFIG_PROC_FS
+ void vm_stat_account(struct mm_struct *, unsigned long, struct file *, long);
+ #else
+--- linus-2.6.orig/mm/memory.c
++++ linus-2.6/mm/memory.c
+@@ -1356,6 +1356,100 @@ int remap_pfn_range(struct vm_area_struc
+ }
+ EXPORT_SYMBOL(remap_pfn_range);
  
-+config NO_IDLE_HZ
-+	bool
-+	default y
-+	help
-+	  Switches the regular HZ timer off when the system is going idle.
-+	  This helps Xen to detect that the Linux system is idle, reducing
-+	  the overhead of idle systems.
++static inline int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
++				     unsigned long addr, unsigned long end,
++				     pte_fn_t fn, void *data)
++{
++	pte_t *pte;
++	int err;
++	struct page *pmd_page;
++	spinlock_t *ptl;
 +
- config XEN_SHADOW_MODE
- 	bool
- 	default y
---- linus-2.6.orig/include/asm-i386/mach-xen/setup_arch_post.h
-+++ linus-2.6/include/asm-i386/mach-xen/setup_arch_post.h
-@@ -8,6 +8,11 @@
- 
- #include <xen/interface/physdev.h>
- 
-+extern void stop_hz_timer(void);
-+extern void start_hz_timer(void);
++	pte = (mm == &init_mm) ?
++		pte_alloc_kernel(pmd, addr) :
++		pte_alloc_map_lock(mm, pmd, addr, &ptl);
++	if (!pte)
++		return -ENOMEM;
 +
-+void xen_idle(void);
++	BUG_ON(pmd_huge(*pmd));
 +
- static char * __init machine_specific_memory_setup(void)
- {
- 	unsigned long max_pfn = xen_start_info->nr_pages;
-@@ -65,4 +70,23 @@ static void __init machine_specific_arch
- 		console_use_vt = 0;
- 		conswitchp = NULL;
- 	}
++	pmd_page = pmd_page(*pmd);
 +
-+	pm_idle = xen_idle;
++	do {
++		err = fn(pte, pmd_page, addr, data);
++		if (err)
++			break;
++	} while (pte++, addr += PAGE_SIZE, addr != end);
++
++	if (mm != &init_mm)
++		pte_unmap_unlock(pte-1, ptl);
++	return err;
 +}
 +
-+void xen_idle(void)
++static inline int apply_to_pmd_range(struct mm_struct *mm, pud_t *pud,
++				     unsigned long addr, unsigned long end,
++				     pte_fn_t fn, void *data)
 +{
-+	local_irq_disable();
++	pmd_t *pmd;
++	unsigned long next;
++	int err;
 +
-+	if (need_resched())
-+		local_irq_enable();
-+	else {
-+		clear_thread_flag(TIF_POLLING_NRFLAG);
-+		smp_mb__after_clear_bit();
-+		stop_hz_timer();
-+		/* Blocking includes an implicit local_irq_enable(). */
-+		HYPERVISOR_sched_op(SCHEDOP_block, 0);
-+		start_hz_timer();
-+		set_thread_flag(TIF_POLLING_NRFLAG);
-+	}
- }
++	pmd = pmd_alloc(mm, pud, addr);
++	if (!pmd)
++		return -ENOMEM;
++	do {
++		next = pmd_addr_end(addr, end);
++		err = apply_to_pte_range(mm, pmd, addr, next, fn, data);
++		if (err)
++			break;
++	} while (pmd++, addr = next, addr != end);
++	return err;
++}
++
++static inline int apply_to_pud_range(struct mm_struct *mm, pgd_t *pgd,
++				     unsigned long addr, unsigned long end,
++				     pte_fn_t fn, void *data)
++{
++	pud_t *pud;
++	unsigned long next;
++	int err;
++
++	pud = pud_alloc(mm, pgd, addr);
++	if (!pud)
++		return -ENOMEM;
++	do {
++		next = pud_addr_end(addr, end);
++		err = apply_to_pmd_range(mm, pud, addr, next, fn, data);
++		if (err)
++			break;
++	} while (pud++, addr = next, addr != end);
++	return err;
++}
++
++/*
++ * Scan a region of virtual memory, filling in page tables as necessary
++ * and calling a provided function on each leaf page table.
++ */
++int apply_to_page_range(struct mm_struct *mm, unsigned long addr,
++			unsigned long size, pte_fn_t fn, void *data)
++{
++	pgd_t *pgd;
++	unsigned long next;
++	unsigned long end = addr + size;
++	int err;
++
++	BUG_ON(addr >= end);
++	pgd = pgd_offset(mm, addr);
++	do {
++		next = pgd_addr_end(addr, end);
++		err = apply_to_pud_range(mm, pgd, addr, next, fn, data);
++		if (err)
++			break;
++	} while (pgd++, addr = next, addr != end);
++	return err;
++}
++EXPORT_SYMBOL_GPL(apply_to_page_range);
++
+ /*
+  * handle_pte_fault chooses page fault handler according to an entry
+  * which was read non-atomically.  Before making any commitment, on
 
 --

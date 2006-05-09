@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWEIQwq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWEIQwy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750733AbWEIQwq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 12:52:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWEIQwq
+	id S1750734AbWEIQwy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 12:52:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWEIQwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 12:52:46 -0400
-Received: from mx2.suse.de ([195.135.220.15]:10145 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750733AbWEIQwq (ORCPT
+	Tue, 9 May 2006 12:52:54 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:55064 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750734AbWEIQwx convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 12:52:46 -0400
-From: Andi Kleen <ak@suse.de>
-To: virtualization@lists.osdl.org
-Subject: Re: [RFC PATCH 11/35] Add support for Xen to entry.S.
-Date: Tue, 9 May 2006 18:51:37 +0200
-User-Agent: KMail/1.9.1
-Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>
-References: <20060509084945.373541000@sous-sol.org> <20060509085152.524462000@sous-sol.org>
-In-Reply-To: <20060509085152.524462000@sous-sol.org>
+	Tue, 9 May 2006 12:52:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=c83z8EA54VcdQBf/DCDLbD/v8EejRiUUTPJc5A/L2YmeQdS2NzqgNyg4dUNjPkUNPWuq5XtpCCjR0K6s74OeIcbE2y3t/boVvy3YDcrQXLVGYOFMxz8msF4cMB36GfdWSIcXvr8pq/55RD5DwIE8VWLCJcCSZ5FKkNLSRpRaPtg=
+Message-ID: <3b0ffc1f0605090952p6afb2eebjfa33fdf8af56997a@mail.gmail.com>
+Date: Tue, 9 May 2006 12:52:53 -0400
+From: "Kevin Radloff" <radsaq@gmail.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: libata PATA patch update
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1147177496.3172.64.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200605091851.37903.ak@suse.de>
+References: <1147104400.3172.7.camel@localhost.localdomain>
+	 <3b0ffc1f0605081029o604e5a3eu62f58b765a10bf65@mail.gmail.com>
+	 <1147177496.3172.64.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 May 2006 09:00, Chris Wright wrote:
-
-> +#define sizeof_vcpu_shift		6
-
-This should be generated in asm-offsets.c
-
-> +
-> +#ifdef CONFIG_SMP
-> +#define GET_VCPU_INFO		movl TI_cpu(%ebp),%esi			; \
-> +				shl  $sizeof_vcpu_shift,%esi		; \
-> +				addl HYPERVISOR_shared_info,%esi
-
-I think you need some comments on the register usage in the macros.
-Otherwise people hacking on it later will go crazy.
-
->  restore_all:
-> +#ifndef CONFIG_XEN
->  	movl EFLAGS(%esp), %eax		# mix EFLAGS, SS and CS
->  	# Warning: OLDSS(%esp) contains the wrong/random values if we
->  	# are returning to the kernel.
-> @@ -258,12 +289,32 @@ restore_all:
->  	cmpl $((4 << 8) | 3), %eax
->  	je ldt_ss			# returning to user-space with LDT SS
->  restore_nocheck:
-> +#else
-
-Needs comment
-
-> +restore_nocheck:
-> +	movl EFLAGS(%esp), %eax		# mix EFLAGS and CS
-> +	movb CS(%esp), %al
-> +	andl $(VM_MASK | 3), %eax
-> +	cmpl $3, %eax
-> +	jne hypervisor_iret
-> +	ENABLE_INTERRUPTS
+On 5/9/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Llu, 2006-05-08 at 13:29 -0400, Kevin Radloff wrote:
+> > Thanks for the update. I'm still getting the same oops when inserting
+> > a CF card, though:
 >
+> Different oops I think 8) I've fixed that one now although it may well
+> be that ide2 once I release it now oopses where it did before the PCMCIA
+> change rather than where it did this time.
 
--Andi
+Ahh, yes.. no longer through alloc_io_space. And the setup_irq
+message/trace is new. ;)
+
+Is there anything I can do to help debug this?
+
+--
+Kevin 'radsaq' Radloff
+radsaq@gmail.com
+http://thesaq.com/

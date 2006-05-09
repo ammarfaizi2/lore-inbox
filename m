@@ -1,47 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWEIT5J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbWEIUDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbWEIT5J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 15:57:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWEIT5J
+	id S1751072AbWEIUDM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 16:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWEIUDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 15:57:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:10193 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750732AbWEIT5H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 15:57:07 -0400
-Date: Tue, 9 May 2006 12:59:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: linux-kernel@vger.kernel.org, masouds@masoud.ir, jeff@garzik.org,
-       gregkh@suse.de
-Subject: Re: [PATCH] VIA quirk fixup, additional PCI IDs
-Message-Id: <20060509125916.03c96efe.akpm@osdl.org>
-In-Reply-To: <20060509191455.GA27503@taniwha.stupidest.org>
-References: <20060430162820.GA18666@masoud.ir>
-	<20060509191455.GA27503@taniwha.stupidest.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Tue, 9 May 2006 16:03:12 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:30927 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751057AbWEIUDL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 16:03:11 -0400
+Date: Tue, 9 May 2006 16:03:01 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Greg KH <gregkh@suse.de>, Morton Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH 1/6] kconfigurable resources core changes
+Message-ID: <20060509200301.GA15891@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060505172847.GC6450@in.ibm.com> <2C184B1B-9F70-4175-B90B-A1CC5741A6DE@kernel.crashing.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2C184B1B-9F70-4175-B90B-A1CC5741A6DE@kernel.crashing.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood <cw@f00f.org> wrote:
->
-> An earlier commit (75cf7456dd87335f574dcd53c4ae616a2ad71a11) changed
-> an overly-zealous PCI quirk to only poke those VIA devices that need
-> it.  However, some PCI devices were not included in what I hope is now
-> the full list.
+On Tue, May 09, 2006 at 02:33:48PM -0500, Kumar Gala wrote:
 > 
-> This should I hope correct this.
+> On May 5, 2006, at 12:28 PM, Vivek Goyal wrote:
 > 
-> Thanks to Masoud Sharbiani <masouds@masoud.ir> for pointing this out
-> and testing the fix.
-
-This looks like a 2.6.17-worthy fix, but it's not clear.  Help.  What
-happens if 2.6.17 doesn't have this??
-
+> >
+> >
+> >o Core changes for Kconfigurable memory and IO resources. By  
+> >default resources
+> >  are 64bit until chosen to be 32bit.
+> >
+> >o Last time I posted the patches for 64bit memory resources but it  
+> >raised
+> >  the concerns regarding code bloat on 32bit systems who use 32 bit
+> >  resources.
+> >
+> >o This patch-set allows resources to be kconfigurable.
+> >
+> >o I have done cross compilation on i386, x86_64, ppc, powerpc,  
+> >sparc, sparc64
+> >  ia64 and alpha.
+> >
+> >Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+> >---
 > 
-> Signed-of-By: Chris Wedgwood <cw@f00f.org>
+> [snip]
+> 
+> I didn't think the bloat was a big issue based on the numbers you  
+> reported.  I'd still prefer to see us just move to a 64-bit resource  
+> on all systems.
 
-Wanna buy an "f"?
+I had also thought that bloat was not a big issue but Andrew thinks
+otherwise. Here is the link to the thread.
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114626907106986&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114635425606186&w=2
+
+In the latest patches, 64bit resources are default but one can force
+these to be 32bit.
+
+Thanks
+Vivek

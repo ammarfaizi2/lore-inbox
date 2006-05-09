@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbWEIOkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbWEIOkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751373AbWEIOkH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 10:40:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWEIOkH
+	id S1751467AbWEIOkk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 10:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbWEIOkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 10:40:07 -0400
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:11472 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1751347AbWEIOkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 10:40:06 -0400
-Message-ID: <4460A9A0.5090404@tmr.com>
-Date: Tue, 09 May 2006 10:39:28 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.2) Gecko/20060409 SeaMonkey/1.0.1
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: www.softpanorama.org: sparc_vs_x86 fun
-References: <200605041224.41827.vda@ilport.com.ua> <Pine.LNX.4.61.0605041322070.24957@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0605041322070.24957@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 9 May 2006 10:40:39 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:9396 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1751298AbWEIOkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 10:40:24 -0400
+Date: Tue, 9 May 2006 17:40:19 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Jeff Dike <jdike@addtoit.com>
+cc: davem@davemloft.net, akpm@osdl.org, heiko.carstens@de.ibm.com,
+       linux-kernel@vger.kernel.org, blaisorblade@yahoo.it,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] [PROBLEM] UML is killed by SIGALRM
+In-Reply-To: <20060509142126.GA3906@ccure.user-mode-linux.org>
+Message-ID: <Pine.LNX.4.58.0605091739400.12999@sbz-30.cs.Helsinki.FI>
+References: <Pine.LNX.4.58.0605091125400.24592@sbz-30.cs.Helsinki.FI>
+ <20060509142126.GA3906@ccure.user-mode-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
+On Tue, May 09, 2006 at 11:28:19AM +0300, Pekka J Enberg wrote:
+> > UML in Linus' head doesn't start on my machine whereas 2.6.17-rc3 works 
+> > fine:
 
-> while on SPARC, it takes 6 instructions (of course, being RISC makes it 
-> execute differently than x64)
+On Tue, 9 May 2006, Jeff Dike wrote:
+> This is fixed for me by http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff_plain;h=6760da0197a6ee327a09dafc070b26e2f02651fe;hp=f0ec5e39765cd254d436a6d86e211d81795952a4
 > 
->     sethi %g1, $some_upper_bits
->     or %g1, $next_bitgroup
->     (shift-left)
->     or %g1, $next_bitgroup
->     (shift-left)
->     or %g1, $last_bitgroup
-> 
-> BTW, T1 is cool, but that the 1U version only has space for 1 disk is 
-> pretty limiting :/
+> And that's been in Linus' git since last week.
 
-I have to believe that you can load 64 bit constant data from memory and
-don't have to do all this dancing with immediate loads. Therefore this
-must be faster or they wouldn't do it this way. Or is this a point that
-some unoptimized compiler could generate this code?
+Oh, I had forgotten to rebase... Works now, thanks!
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
-
-
+				Pekka

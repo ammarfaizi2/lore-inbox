@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWEIVAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWEIVFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750953AbWEIVAd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 17:00:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWEIVAd
+	id S1750808AbWEIVFb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 17:05:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbWEIVFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 17:00:33 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:32224 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750791AbWEIVAc (ORCPT
+	Tue, 9 May 2006 17:05:31 -0400
+Received: from mga02.intel.com ([134.134.136.20]:17442 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750808AbWEIVFa convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 17:00:32 -0400
-Date: Tue, 9 May 2006 16:58:35 -0400
-From: "Frank Ch. Eigler" <fche@redhat.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Richard J Moore <richardj_moore@uk.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org,
-       Prasanna S Panchamukhi <prasanna@in.ibm.com>, suparna@in.ibm.com
-Subject: Re: [RFC] [PATCH 3/6] Kprobes: New interfaces for user-space probes
-Message-ID: <20060509205835.GD13413@redhat.com>
-References: <20060509093614.GB26953@infradead.org> <OFB21F3208.CA125B3A-ON41257169.005345DD-41257169.005375F5@uk.ibm.com> <20060509151857.GB16332@infradead.org> <y0mk68vyu2y.fsf@ton.toronto.redhat.com> <20060509204052.GN3570@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060509204052.GN3570@stusta.de>
-User-Agent: Mutt/1.4.1i
+	Tue, 9 May 2006 17:05:30 -0400
+X-IronPort-AV: i="4.05,107,1146466800"; 
+   d="scan'208"; a="33858613:sNHT2316935341"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH 2/3] swiotlb: create __alloc_bootmem_low_nopanic and add support in SWIOTLB
+Date: Tue, 9 May 2006 14:04:08 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0670403C@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2/3] swiotlb: create __alloc_bootmem_low_nopanic and add support in SWIOTLB
+Thread-Index: AcZzp3+Hah+p0LzQS060rOsybR08rQAA/5zQ
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Jon Mason" <jdmason@us.ibm.com>
+Cc: "Muli Ben-Yehuda" <muli@il.ibm.com>, <linux-kernel@vger.kernel.org>,
+       <ak@suse.de>, <linux-ia64@vger.kernel.org>, <mulix@mulix.org>
+X-OriginalArrivalTime: 09 May 2006 21:04:09.0779 (UTC) FILETIME=[1DC70830:01C673AC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi -
+> I "fixed" it with the hack below.  Please let me know if this is not
+> palatable for you.
 
-On Tue, May 09, 2006 at 10:40:52PM +0200, Adrian Bunk wrote:
-> > It is reasonable to want to see code that exercises this function.
-> > Until systemtap does, hand-written examples can surely be provided.
-> 
-> It's not about examples, it's about in-kernel users.
+Not really.  The only use of platform_dma_init() that I can see is in
+arch/ia64/mm/init.c:mem_init() ...
 
-Just as for kprobes, this facility is for dynamically generated
-kernel-resident code.  Just as for kprobes, there is nothing there to
-submit to lkml to be "in-kernel" in that sense.
+	platform_dma_init();
 
-- FChE
+so "void" looks to be the right return value.  Why did it get changed to
+be "int" (here's where I admit that I've only looked superficially at your
+patch).
+
+-Tony

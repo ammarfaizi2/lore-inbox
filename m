@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbWEISyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750914AbWEISz4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750946AbWEISyw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 14:54:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750955AbWEISyw
+	id S1750914AbWEISz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 14:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751077AbWEISz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 14:54:52 -0400
-Received: from [194.90.237.34] ([194.90.237.34]:3397 "EHLO mtlexch01.mtl.com")
-	by vger.kernel.org with ESMTP id S1750946AbWEISyv (ORCPT
+	Tue, 9 May 2006 14:55:56 -0400
+Received: from verein.lst.de ([213.95.11.210]:27619 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S1750914AbWEISzz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 14:54:51 -0400
-Date: Tue, 9 May 2006 21:55:33 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Shirley Ma <xma@us.ibm.com>
-Cc: Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, Marcus Eder <MEDER@de.ibm.com>,
-       openib-general@openib.org, openib-general-bounces@openib.org,
-       Christoph Raisch <RAISCH@de.ibm.com>, Roland Dreier <rdreier@cisco.com>
-Subject: Re: Re: [PATCH 07/16] ehca: interrupt handling routines
-Message-ID: <20060509185533.GG22825@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20060509184451.GF22825@mellanox.co.il> <OF9332FF11.38007290-ON87257169.00673F71-88257169.006C7F6E@us.ibm.com>
+	Tue, 9 May 2006 14:55:55 -0400
+Date: Tue, 9 May 2006 20:55:34 +0200
+From: christoph <hch@lst.de>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org, christoph <hch@lst.de>,
+       Benjamin LaHaise <bcrl@kvack.org>, cel@citi.umich.edu
+Subject: Re: [PATCH 3/3] Zach's core aio changes to support vectored AIO
+Message-ID: <20060509185534.GA18808@lst.de>
+References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com> <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com> <1147198119.28388.5.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <OF9332FF11.38007290-ON87257169.00673F71-88257169.006C7F6E@us.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 09 May 2006 18:58:33.0578 (UTC) FILETIME=[91DA04A0:01C6739A]
+In-Reply-To: <1147198119.28388.5.camel@dyn9047017100.beaverton.ibm.com>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Shirley Ma <xma@us.ibm.com>:
-> No, CPU utilization wasn't reduced. When you use single CQ, NAPI polls on both RX/TX.
+On Tue, May 09, 2006 at 11:08:39AM -0700, Badari Pulavarty wrote:
+> This work is initially done by Zach Brown to add support for
+> vectored aio. These are the core changes for AIO to support
+> IOCB_CMD_PREADV/IOCB_CMD_PWRITEV. 
+> 
+> I made few extra changes beyond Zach's work. They are
+> 	- took out aio_pread/aio_pwrite and made them
+> 	  a special case into vectored support
+> 	- added single inlined vector to save on kmalloc()
+> 	  for a simple aio_read/aio_write
+> 	- kiocb->ki_left always indicates the amount of
+> 	  IO need to be done. Made sure that this gets
+> 	  set in sync case also, so that we don't need
+> 	  to loop over iovecs to figure out IO size all
+> 	  the time. 
+> 
+> Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
+> Signed-off-by: Zach Brown <zach.brown@oracle.com>
+> Acked-by: Benjamin LaHaise <bcrl@kvack.org>
 
-I think NAPI's point is to reduce the interrupt rate.
-Wouldn't this reduce CPU load?
+Please add my Signed-off-by somewhere, I did large portions of the
+changes and ACK the final version too.
 
-> netperf, iperf, mpstat, netpipe, oprofiling, what's your suggestion?
-
-netperf has -C which gives CPU load, which is handy.
-Running vmstat in another window also works reasoably well.
-
--- 
-MST

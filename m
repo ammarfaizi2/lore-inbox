@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWEIWB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWEIWBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbWEIWB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 18:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWEIWB1
+	id S1751196AbWEIWBG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 18:01:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWEIWBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 18:01:27 -0400
-Received: from wr-out-0506.google.com ([64.233.184.230]:38850 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751202AbWEIWB0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 18:01:26 -0400
+	Tue, 9 May 2006 18:01:06 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:24654 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751196AbWEIWBE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 18:01:04 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BWGbhBNfR51yqjPMIOORU7WZzAhegy+bcyyOAZSveOaW6dWgFkyW/QHDwuydCHJvPkktW1LJyFjeob3WKrvX2/TSqfTO/oCZF5iZr4P88ceShabBPvf2RubDhTi2u/iaIJbGjfN+kTwTkkExqBWeScOhUTh1votJwxLxc/npKmU=
-Message-ID: <9a8748490605091501r4bcff8b0q630cbf2fa0e33732@mail.gmail.com>
-Date: Wed, 10 May 2006 00:01:25 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Joshua Hudson" <joshudson@gmail.com>
-Subject: Re: Stability of 2.6.17-rc3?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <bda6d13a0605091340x2e16342v15733b2c9612d985@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=V1UmXC9ibO2rie0kaeBFyBuwZUDAw560ymP6Z4yEXQMe3zqsvxSITu6EydT2nRg7PUyhgbCBpOmXbQY85E9eicoqbrJ3wFoJ8/LJBUxBMuw7ek7GO9wncOz2aCNcoXdXQGEXECOBMOU2oWXKok0/WLcl0du4vkbN17VUTeqtPKg=
+Date: Wed, 10 May 2006 01:59:36 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Allen <amah@highpoint-tech.com>
+Cc: linux-scsi@vger.kernel.org, "'Andrew Morton'" <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] hptiop: HighPoint RocketRAID 3xxx controller driver
+Message-ID: <20060509215936.GD7237@mipter.zuzino.mipt.ru>
+References: <200605092128.k49LSQ6R024308@mail.hypersurf.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <bda6d13a0605091340x2e16342v15733b2c9612d985@mail.gmail.com>
+In-Reply-To: <200605092128.k49LSQ6R024308@mail.hypersurf.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/9/06, Joshua Hudson <joshudson@gmail.com> wrote:
-> Was hoping 2.6.17 would be out within one week, doesn't look like it
-> is going to happen.
+On Tue, May 09, 2006 at 02:28:31PM -0700, Allen wrote:
+> This is the first time driver submission of HighPoint RocketRAID 3xxx
+> controllers.
 
-It'll be released when it is ready, not according to a fixed
-schedule... and yes, within one week looks unlikely.
+Please, use sane mailer. Sane means:
+* it shouldn't convert tab to space
+* it shouldn't wrap long lines
 
-> My thesis defense is coming up, need to merge my patches against some kernel
-> (requiring 2.6.16.1 looks weird).
->
-> On a machine that 2.6.16.1 runs bug-free, is it sane to assume
-> 2.6.17-rc3 will as well?
+> +static struct class_device_attribute hptiop_attr_ioctl = {
+> + .attr = {
+> +  .name = "ioctl",
+> +  .mode = S_IWUSR,
+> + },
+> + .store = hptiop_store_ioctl
+> +};
 
-I'd say no.
+No way in hell. ioctls are done by defining ->ioctl method.
+struct scsi_host_template has one. struct file_operations has one.
+Quick grepping shows some subsystems also exctracted ->ioctl.
 
-2.6.17-rc3 is a development kernel, no guarantees about anything really.
+That plethora of HPT_IOCTL_* defines, where are you using them? What
+arguments are passed in and out?
 
-If you want a newer kernel stable kernel, then your safest bet would
-be the latest -stable one, currently that would be 2.6.16.15
+s/vender/vendor/ somewhere, also
 
-> If it fails outright, I can revert, but if it is unstable I'm going to
-> have some problems.
-
-Development kernels are run completely at your own risk. It may run
-fine, it may explode at boot, it may cause slow silent corruption, it
-may eat your lunch, it may cause an alien invasion - all bets are
-off... (although it actually seems to be getting pretty good, I've
-been running 2.6.17-rc3-git12 without problems for a while).
-
-> (You would be surprised how long it took me to discover a mistake that
-> sys_rename(on any filesystem) -> deadlock with my custom patch).
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

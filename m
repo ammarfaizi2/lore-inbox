@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWEIFWL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWEIF2D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751383AbWEIFWL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 01:22:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWEIFWK
+	id S1751386AbWEIF2D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 01:28:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWEIF2D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 01:22:10 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:17340 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S1751383AbWEIFWJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 01:22:09 -0400
-Subject: [PATCH] TI PCIxx12 CardBus controller support
-From: Alex Williamson <alex.williamson@hp.com>
-To: linux-pcmcia@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: LOSL
-Date: Mon, 08 May 2006 23:22:07 -0600
-Message-Id: <1147152127.8911.108.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Tue, 9 May 2006 01:28:03 -0400
+Received: from nz-out-0102.google.com ([64.233.162.197]:42848 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751386AbWEIF2C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 01:28:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:x-mimeole:in-reply-to:thread-index;
+        b=ptmp7vrj2uCsRCeg6KexUQ5ueV70lYwe80iVcB+hY6a8unR021aQJ+JXiJf85/eCvmSVcjx8fafU7QN3iINzgJTjK7XPLkwGEI6DeN2zn/Licj5Oe+A4KJU0rgj+C7tGvKokHMXS+uM0tOCqA80YsKIt1kYBYlP0N4abNyifXSE=
+From: "Hua Zhong" <hzhong@gmail.com>
+To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       "'Arjan van de Ven'" <arjan@infradead.org>
+Cc: "'Erik Mouw'" <erik@harddisk-recovery.com>,
+       "'Martin J. Bligh'" <mbligh@mbligh.org>,
+       "'Andrew Morton'" <akpm@osdl.org>,
+       "'Jason Schoonover'" <jasons@pioneer-pra.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: High load average on disk I/O on 2.6.17-rc3
+Date: Mon, 8 May 2006 22:27:52 -0700
+Message-ID: <005301c67329$52b5fe30$0200a8c0@nuitysystems.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+In-Reply-To: <44601E9C.2010802@yahoo.com.au>
+Thread-index: AcZzJxKf4UjKgWgRSGCUEf+iHXm+KgAAf+qg
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> A global loadavg isn't too good anyway, as everyone has 
+> observed, there are many independant resources. But my point 
+> is that it isn't going away while apps still use it, so my 
+> point is that this might be an easy way to improve it.
 
-   The patch below adds support for the TI PCIxx12 CardBus controllers.
-This seems to be sufficient to detect the cardbus bridge on an HP nc6320
-and works with an orinoco wifi card.  Thanks,
+It's not just those MTA's using it. Worse, many watchdog implementations use it too, and they will reload the box if the load is too
+high.
 
-	Alex
+So we do need some ways to make the loadavg more meaningful or at least more predictable.
 
-Signed-off-by: Alex Williamson <alex.williamson@hp.com>
----
-
-diff -r ce52ec65b1a0 drivers/pcmcia/ti113x.h
---- a/drivers/pcmcia/ti113x.h	Tue May  9 00:41:05 2006
-+++ b/drivers/pcmcia/ti113x.h	Mon May  8 23:08:29 2006
-@@ -647,6 +647,7 @@
- 		 */
- 		break;
- 
-+	case PCI_DEVICE_ID_TI_XX12:
- 	case PCI_DEVICE_ID_TI_X515:
- 	case PCI_DEVICE_ID_TI_X420:
- 	case PCI_DEVICE_ID_TI_X620:
-diff -r ce52ec65b1a0 drivers/pcmcia/yenta_socket.c
---- a/drivers/pcmcia/yenta_socket.c	Tue May  9 00:41:05 2006
-+++ b/drivers/pcmcia/yenta_socket.c	Mon May  8 23:08:29 2006
-@@ -1232,6 +1232,7 @@
- 
- 	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_XX21_XX11, TI12XX),
- 	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_X515, TI12XX),
-+	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_XX12, TI12XX),
- 	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_X420, TI12XX),
- 	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_X620, TI12XX),
- 	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_7410, TI12XX),
-diff -r ce52ec65b1a0 include/linux/pci_ids.h
---- a/include/linux/pci_ids.h	Tue May  9 00:41:05 2006
-+++ b/include/linux/pci_ids.h	Mon May  8 23:08:29 2006
-@@ -726,6 +726,7 @@
- #define PCI_DEVICE_ID_TI_4450		0x8011
- #define PCI_DEVICE_ID_TI_XX21_XX11	0x8031
- #define PCI_DEVICE_ID_TI_X515		0x8036
-+#define PCI_DEVICE_ID_TI_XX12		0x8039
- #define PCI_DEVICE_ID_TI_1130		0xac12
- #define PCI_DEVICE_ID_TI_1031		0xac13
- #define PCI_DEVICE_ID_TI_1131		0xac15
-
+Hua
 

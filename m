@@ -1,47 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932470AbWEIMTD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWEIMS6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932470AbWEIMTD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 08:19:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWEIMTD
+	id S932401AbWEIMS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 08:18:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWEIMS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 08:19:03 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:25521 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932470AbWEIMTB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 08:19:01 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH -mm] swsusp: support creating bigger images
-Date: Tue, 9 May 2006 14:18:55 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       nickpiggin@yahoo.com.au
-References: <200605021200.37424.rjw@sisk.pl> <200605091219.17386.rjw@sisk.pl> <20060509112225.GA8816@elf.ucw.cz>
-In-Reply-To: <20060509112225.GA8816@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 9 May 2006 08:18:58 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:17091 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932401AbWEIMS5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 08:18:57 -0400
+Subject: Re: libata PATA patch update
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <445FD8D4.9030106@keyaccess.nl>
+References: <1147104400.3172.7.camel@localhost.localdomain>
+	 <445FD8D4.9030106@keyaccess.nl>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605091418.56429.rjw@sisk.pl>
+Date: Tue, 09 May 2006 13:30:57 +0100
+Message-Id: <1147177857.3172.70.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Maw, 2006-05-09 at 01:48 +0200, Rene Herman wrote:
+> The "couldn't disable kernel command translation layer" bit is probably
+> expected?
 
-On Tuesday 09 May 2006 13:22, Pavel Machek wrote:
-> Hi!
-> 
-> > > EXTRA_PAGES is not a well-chosen identifier.  Please choose something
-> > > within the swsusp "namespace", if there's such a thing.
-> > 
-> > Unfortunately there's not any, but I'll try to invent a better
-> > name. :-)
-> 
-> PM_EXTRA_PAGES would probably be acceptable, as would
-> SUSPEND_EXTRA_PAGES be...
+I think so yes.
 
-Thanks, SUSPEND_EXTRA_PAGES sounds better to me.
+> In any case, it seems that this driver is also not using DMA for CDDA? I 
 
-Greetings,
-Rafael
+It should use whatever the sr.c SCSI CD driver code uses when doing
+CDDA, and it isn't directly a part of the driver (although there are
+hooks so drivers can filter/control what ATAPI can be done with DMA).
+
+> am using slackware 10.2 (vanilla) "cdparanoia III release 9.8 (March 23, 
+> 2001)". A while ago someone on this list pointed to some patches for 
+> SG_IO use with cdparanoia but this made my machine highly unstable. 
+> Would you like me to retest with this new driver? If so, any specific 
+> version of cdparanoia?
+
+I would be interested to know what happens if you try this, version
+doesn't matter.
+
+> DVD is fine. UDMA33 though, although the drive is capable of UDMA66:
+
+The core code sets both drives to the same speed on the cable. The old
+-ac code fixed this but I've not pushed that change over (in part
+because it will naturally happen now as other changes go in).
+
+Thus dev1 is pulling dev0 down to UDMA33 for now.
+
+> The old IDE driver does set it to UDMA66 after an ide1=ata66, and after
+> the recently merged patch to amd74xx to "only do disk side cable
+> detection". I assumed it was that same problem, but I see that
+
+That change is in the libata driver as well so should not be a problem.
+
+> Hope this was a useful report...
+
+Much appreciated,
+
+Alan
+

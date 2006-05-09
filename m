@@ -1,56 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWEIRVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbWEIRaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750770AbWEIRVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 13:21:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWEIRVQ
+	id S1750752AbWEIRaO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 13:30:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWEIRaO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 13:21:16 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:40350 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750770AbWEIRVP (ORCPT
+	Tue, 9 May 2006 13:30:14 -0400
+Received: from ns2.suse.de ([195.135.220.15]:38053 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750752AbWEIRaM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 13:21:15 -0400
-Subject: Re: Add SYSTEM_BOOTING_KMALLOC_AVAIL system_state
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mike Kravetz <kravetz@us.ibm.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060508224952.0b43d0fd.akpm@osdl.org>
-References: <20060509053512.GA20073@monkey.ibm.com>
-	 <20060508224952.0b43d0fd.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 09 May 2006 10:20:04 -0700
-Message-Id: <1147195205.23893.15.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Tue, 9 May 2006 13:30:12 -0400
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: Novell, SUSE Labs
+To: Ram Pai <linuxram@us.ibm.com>
+Subject: Re: GPL-only symbols issue
+Date: Tue, 9 May 2006 19:31:35 +0200
+User-Agent: KMail/1.9.1
+Cc: Greg KH <greg@kroah.com>, Jan Beulich <jbeulich@novell.com>,
+       sam@ravnborg.org, linux-kernel@vger.kernel.org
+References: <445F0B6F.76E4.0078.0@novell.com> <20060509042500.GA4226@kroah.com> <1147154238.7203.62.camel@localhost>
+In-Reply-To: <1147154238.7203.62.camel@localhost>
+MIME-Version: 1.0
+Content-Disposition: inline
+X-Length: 7874
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200605091931.35753.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-08 at 22:49 -0700, Andrew Morton wrote:
-> Mike Kravetz <kravetz@us.ibm.com> wrote:
-> >
-> > There are a few places that check the system_state variable to
-> >  determine if they should use the bootmem or kmalloc allocator.
-> >  However, this is not accurate as system_state transitions from
-> >  SYSTEM_BOOTING to SYSTEM_RUNNING well after the bootmem allocator
-> >  is no longer usable.  Introduce the SYSTEM_BOOTING_KMALLOC_AVAIL
-> >  state which indicates the kmalloc allocator is available for use.
-> 
-> Let's not do this - system_state is getting out of control.
-> 
-> How about some private boolean in slab.c, and some special allocation
-> function like
-> 
-> void __init *alloc_memory_early(size_t size, gfp_t gfp_flags)
-> {
-> 	if (slab_is_available)
-> 		return kmalloc(size, gfp_flags);
-> 	return alloc_bootmem(size);
-> }	
+On Tuesday, 09 May 2006 07:57, Ram Pai wrote:
+> On Mon, 2006-05-08 at 21:25 -0700, Greg KH wrote:
+> > On Mon, May 08, 2006 at 09:12:15AM +0200, Jan Beulich wrote:
+> > > Sam,
+> > >
+> > > would it seem reasonable a request to detect imports of GPL-only
+> > > symbols by non-GPL modules also at build time rather than only at run
+> > > time, and at least warn about such?
 
-One issue with that approach is that you can't use it for larger
-allocations (which we have a lot of at boot-time).  Would it be OK to
-fall back to the raw page allocator for things where kmalloc() fails?
-Oh, and do we want to make it explicitly NUMA aware?
+I would appreciate such a check: it avoids unnecessary errors later. See 
+my proposed patch in the next message.
 
--- Dave
+> > Ram has some tools that might catch this kind of thing.  He's posted his
+> > scripts to lkml in the past, try looking in the archives.
+>
+> The patches are at
+>
+> http://sudhaa.com/~ram/misc/kernelpatch
+>
+> The patch of interest for you would be modpost.patch
+> I have a script and some code that can poke into a given .ko file and
+> warn against symbols that don't match what the kernel exports.
 
+I like the extension that modpost.patch adds. Statistics gathering like your 
+other patch does doesn't need to be in the mainline kernel IMVHO, but I don't 
+really mind. Here is a bugfix to modpost.patch:
+
+Index: linux-2.6.16/scripts/mod/modpost.c
+===================================================================
+--- linux-2.6.16.orig/scripts/mod/modpost.c
++++ linux-2.6.16/scripts/mod/modpost.c
+@@ -811,8 +817,12 @@ static void read_dump(const char *fname,
+ 					*d != '\0')
+ 			goto fail;
+ 
+-		if (!(strcmp(export, "EXPORT_GPL_ONLY")))
++		if (strcmp(export, "EXPORT_SYMBOL_GPL") == 0)
+ 			export_type = 1;
++		else if (strcmp(export, "EXPORT_SYMBOL") == 0)
++			export_type = 0;
++		else
++			goto fail;
+ 
+ 		if (!(mod = find_module(modname))) {
+ 			if (is_vmlinux(modname)) {
+
+Andreas

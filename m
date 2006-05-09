@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751720AbWEILP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751759AbWEILXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751720AbWEILP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 07:15:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751759AbWEILP2
+	id S1751759AbWEILXA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 07:23:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751761AbWEILXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 07:15:28 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:43242 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751720AbWEILP2 (ORCPT
+	Tue, 9 May 2006 07:23:00 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45499 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751759AbWEILW7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 07:15:28 -0400
-From: Andi Kleen <ak@suse.de>
-To: virtualization@lists.osdl.org
-Subject: Re: [RFC PATCH 16/35] subarch support for interrupt and exception gates
-Date: Tue, 9 May 2006 13:09:49 +0200
-User-Agent: KMail/1.9.1
-Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>
-References: <20060509084945.373541000@sous-sol.org> <20060509085154.441800000@sous-sol.org>
-In-Reply-To: <20060509085154.441800000@sous-sol.org>
+	Tue, 9 May 2006 07:22:59 -0400
+Date: Tue, 9 May 2006 13:22:25 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       nickpiggin@yahoo.com.au
+Subject: Re: [PATCH -mm] swsusp: support creating bigger images
+Message-ID: <20060509112225.GA8816@elf.ucw.cz>
+References: <200605021200.37424.rjw@sisk.pl> <20060509003334.70771572.akpm@osdl.org> <200605091219.17386.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605091309.49631.ak@suse.de>
+In-Reply-To: <200605091219.17386.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-> +/*
-> + * This needs to use 'idt_table' rather than 'idt', and
-> + * thus use the _nonmapped_ version of the IDT, as the
-> + * Pentium F0 0F bugfix can have resulted in the mapped
-> + * IDT being write-protected.
-> + */
-> +void set_intr_gate(unsigned int n, void *addr)
-> +{
-> +	_set_gate(idt_table+n,14,0,addr,__KERNEL_CS);
-> +}
+> > EXTRA_PAGES is not a well-chosen identifier.  Please choose something
+> > within the swsusp "namespace", if there's such a thing.
+> 
+> Unfortunately there's not any, but I'll try to invent a better
+> name. :-)
 
-No need to duplicate the various set_*_gate functions into the subarchs.
+PM_EXTRA_PAGES would probably be acceptable, as would
+SUSPEND_EXTRA_PAGES be...
+							Pavel
 
-
-> +static void __init set_task_gate(unsigned int n, unsigned int gdt_entry)
-> +{
-> +	/* _set_gate(n, 5, 0, 0, (gdt_entry<<3)); */
-> +}
-
-Looks weird, but can be handled in the low level function.
-
--Andi
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

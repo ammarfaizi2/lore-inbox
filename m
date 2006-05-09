@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWEIXEj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWEIXGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932067AbWEIXEj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 19:04:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932071AbWEIXEj
+	id S932071AbWEIXGx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 19:06:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932072AbWEIXGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 19:04:39 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:11467 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932067AbWEIXEi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 19:04:38 -0400
-From: Andi Kleen <ak@suse.de>
-To: virtualization@lists.osdl.org
-Subject: Re: [RFC PATCH 05/35] Add sync bitops
-Date: Wed, 10 May 2006 01:04:34 +0200
+	Tue, 9 May 2006 19:06:52 -0400
+Received: from smtprelay03.ispgateway.de ([80.67.18.15]:27521 "EHLO
+	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932071AbWEIXGw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 19:06:52 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [RFC PATCH 25/35] Add Xen time abstractions
+Date: Wed, 10 May 2006 01:03:53 +0200
 User-Agent: KMail/1.9.1
-Cc: Christoph Lameter <clameter@sgi.com>, Chris Wright <chrisw@sous-sol.org>,
-       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
+Cc: virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>,
+       linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com,
        Ian Pratt <ian.pratt@xensource.com>
-References: <20060509084945.373541000@sous-sol.org> <20060509085149.024456000@sous-sol.org> <Pine.LNX.4.64.0605091555540.30338@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0605091555540.30338@schroedinger.engr.sgi.com>
+References: <20060509084945.373541000@sous-sol.org> <20060509085157.908244000@sous-sol.org> <200605092350.03886.ak@suse.de>
+In-Reply-To: <200605092350.03886.ak@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200605100104.34751.ak@suse.de>
+Message-Id: <200605100103.54875.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 May 2006 00:56, Christoph Lameter wrote:
-> On Tue, 9 May 2006, Chris Wright wrote:
+Hi Andi,
+
+On Tuesday, 9. May 2006 23:50, Andi Kleen wrote:
+> On Tuesday 09 May 2006 09:00, Chris Wright wrote:
+> > Add support for Xen time abstractions. To avoid expensive traps into
+> > the hypervisor, the passage of time is extrapolated from the local TSC
+> > and a set of timestamps and scaling factors exported to the guest via
+> > shared memory. Xen also provides a periodic interrupt facility which
+> > is used to drive updates of xtime and jiffies, and perform the usual
+> > process accounting and profiling.
 > 
-> > Add "always lock'd" implementations of set_bit, clear_bit and
-> > change_bit and the corresponding test_and_ functions.  Also add
-> > "always lock'd" implementation of cmpxchg.  These give guaranteed
-> > strong synchronisation and are required for non-SMP kernels running on
-> > an SMP hypervisor.
+> There is far too much code duplication in there. I think you need to
+> refactor the main time.c a bit first and strip that down.
 > 
-> Could you explain why this is done and what is exactly meant with "always 
-> looked"? Wh the performance impact?
+> Also you can drop all the __x86_64__ support for now.
 
-When UP guest runs on SMP hypervisor they still need the LOCK prefix
-to talk to the hypervisor through shared memory in a smp safe way.
+Isn't time and timer handling a moving target anyway?
+The refactoring will be done by the timer people in a completly different
+manner anyway.
 
-Normally UP kernels don't use any LOCK prefixes.
+Are you sure, you want to disturb these efforts by requiring another
+refactoring here?
 
-I suggested to refactor the bitops this way earlier for this.
 
--Andi
+Regards
 
+Ingo Oeser

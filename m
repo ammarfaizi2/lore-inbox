@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbWEIT4T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWEIT5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751078AbWEIT4T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 15:56:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWEIT4T
+	id S1750732AbWEIT5J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 15:57:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWEIT5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 15:56:19 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:45697 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1750732AbWEIT4S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 15:56:18 -0400
-Date: Tue, 9 May 2006 12:58:43 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Greg KH <greg@kroah.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: Re: [RFC PATCH 33/35] Add the Xenbus sysfs and virtual device hotplug driver.
-Message-ID: <20060509195843.GO24291@moss.sous-sol.org>
-References: <20060509084945.373541000@sous-sol.org> <20060509085200.826853000@sous-sol.org> <20060509194948.GB671@kroah.com>
+	Tue, 9 May 2006 15:57:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10193 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750732AbWEIT5H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 15:57:07 -0400
+Date: Tue, 9 May 2006 12:59:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: linux-kernel@vger.kernel.org, masouds@masoud.ir, jeff@garzik.org,
+       gregkh@suse.de
+Subject: Re: [PATCH] VIA quirk fixup, additional PCI IDs
+Message-Id: <20060509125916.03c96efe.akpm@osdl.org>
+In-Reply-To: <20060509191455.GA27503@taniwha.stupidest.org>
+References: <20060430162820.GA18666@masoud.ir>
+	<20060509191455.GA27503@taniwha.stupidest.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060509194948.GB671@kroah.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Greg KH (greg@kroah.com) wrote:
-> And I sure hope you don't have a xen_proc.h file anywhere, we do not
-> need any new non-process files going into /proc...
+Chris Wedgwood <cw@f00f.org> wrote:
+>
+> An earlier commit (75cf7456dd87335f574dcd53c4ae616a2ad71a11) changed
+> an overly-zealous PCI quirk to only poke those VIA devices that need
+> it.  However, some PCI devices were not included in what I hope is now
+> the full list.
+> 
+> This should I hope correct this.
+> 
+> Thanks to Masoud Sharbiani <masouds@masoud.ir> for pointing this out
+> and testing the fix.
 
-I'll be happy once we've got all the /proc abuse eliminated, sorry some
-of this snuck through.
+This looks like a 2.6.17-worthy fix, but it's not clear.  Help.  What
+happens if 2.6.17 doesn't have this??
 
-thanks,
--chris
+> 
+> Signed-of-By: Chris Wedgwood <cw@f00f.org>
+
+Wanna buy an "f"?

@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWEIWYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWEIWaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751218AbWEIWYI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 18:24:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWEIWYH
+	id S1751286AbWEIWaW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 18:30:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWEIWaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 18:24:07 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:38661 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751218AbWEIWYH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 18:24:07 -0400
-Date: Wed, 10 May 2006 00:24:10 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Ram Pai <linuxram@us.ibm.com>
-Cc: Andreas Gruenbacher <agruen@suse.de>, Greg KH <greg@kroah.com>,
-       Jan Beulich <jbeulich@novell.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Check for license compliance at build time
-Message-ID: <20060509222410.GB12810@mars.ravnborg.org>
-References: <445F0B6F.76E4.0078.0@novell.com> <20060509042500.GA4226@kroah.com> <1147154238.7203.62.camel@localhost> <200605091931.49216.agruen@suse.de> <1147208158.7203.107.camel@localhost>
+	Tue, 9 May 2006 18:30:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58775 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751286AbWEIWaV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 18:30:21 -0400
+Date: Tue, 9 May 2006 15:27:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, pavel@suse.cz
+Subject: Re: [PATCH -mm] swsusp: support creating bigger images (rev. 2)
+Message-Id: <20060509152713.36bb94f0.akpm@osdl.org>
+In-Reply-To: <200605100015.53455.rjw@sisk.pl>
+References: <200605021200.37424.rjw@sisk.pl>
+	<20060509003334.70771572.akpm@osdl.org>
+	<200605091219.17386.rjw@sisk.pl>
+	<200605100015.53455.rjw@sisk.pl>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1147208158.7203.107.camel@localhost>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 09, 2006 at 01:55:58PM -0700, Ram Pai wrote:
-> On Tue, 2006-05-09 at 19:31 +0200, Andreas Gruenbacher wrote:
-> > This patch on to of Ram Pai's modpost.diff patch at 
-> > http://sudhaa.com/~ram/misc/kernelpatch implements license compliance testing 
-> > in modpost. This prevents kbuild from producing modules that won't load.
-> 
-> Yes, I like this patch. Its a early warning system for a module having
-> no chance of getting inserted into the kernel.
-> 
-> Sam : do you want all these patches submitted togather? 
-Yes - please do. I have the originals queued up but it would be helpfull
-to get it as a new serie.
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+>
+> Now if the mapped pages that are not mapped by the
+>  current task are considered, it turns out that they would change only if they
+>  were reclaimed by try_to_free_pages().  Thus if we take them out of reach
+>  of try_to_free_pages(), for example by (temporarily) moving them out of their
+>  respective LRU lists after creating the image, we will be able to include them
+>  in the image without copying.
 
-And integrate the fix from Andreas so it is not a separate commit.
+I'm a bit curious about how this is true.  There are all sorts of way in
+which there could be activity against these pages - interrupt-time
+asynchronous network Tx completion, async interrupt-time direct-io
+completion, tasklets, schedule_work(), etc, etc.
 
-	Sam
+So...  could we check your homework on this please?  How come only page
+reclaim can disturb these pages?

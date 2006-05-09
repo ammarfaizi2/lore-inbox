@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751749AbWEILHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbWEILHP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751749AbWEILHV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 07:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751759AbWEILHV
+	id S1751459AbWEILHP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 07:07:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbWEILHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 07:07:21 -0400
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:14771
+	Tue, 9 May 2006 07:07:15 -0400
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:13747
 	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1751749AbWEILHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 07:07:19 -0400
-Date: Tue, 9 May 2006 12:05:35 +0100
+	id S1751459AbWEILHO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 07:07:14 -0400
+Date: Tue, 9 May 2006 12:05:20 +0100
 To: Nick Piggin <nickpiggin@yahoo.com.au>
 Cc: Andy Whitcroft <apw@shadowen.org>, Dave Hansen <haveblue@us.ibm.com>,
        Bob Picco <bob.picco@hp.com>, Ingo Molnar <mingo@elte.hu>,
        "Martin J. Bligh" <mbligh@mbligh.org>, Andi Kleen <ak@suse.de>,
        linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
        Linux Memory Management <linux-mm@kvack.org>
-Subject: [PATCH 2/3] x86 align highmem zone boundries with NUMA
-Message-ID: <20060509110535.GA9732@shadowen.org>
+Subject: [PATCH 1/3] zone init check and report unaligned zone boundries
+Message-ID: <20060509110520.GA9634@shadowen.org>
 References: <exportbomb.1147172704@pinky>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -28,33 +28,44 @@ From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-x86 align highmem zone boundries with NUMA
+zone init check and report unaligned zone boundries
 
-When in x86 NUMA mode we allocate struct pages's node local and map
-them into the kernel virtual address space in the remap space.
-This space cuts into the end of ZONE_NORMAL.  When we round
-ZONE_NORMAL down we must ensure we maintain the zone boundry
-constraint, we must round to MAX_ORDER.
+We have a number of strict constraints on the layout of struct
+page's for use with the buddy allocator.  One of which is that zone
+boundries must occur at MAX_ORDER page boundries.  Add a check for
+this during init.
 
 Signed-off-by: Andy Whitcroft <apw@shadowen.org>
 ---
- discontig.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
-diff -upN reference/arch/i386/mm/discontig.c current/arch/i386/mm/discontig.c
---- reference/arch/i386/mm/discontig.c
-+++ current/arch/i386/mm/discontig.c
-@@ -304,10 +304,13 @@ unsigned long __init setup_memory(void)
- 	/* partially used pages are not usable - thus round upwards */
- 	system_start_pfn = min_low_pfn = PFN_UP(init_pg_tables_end);
+ include/linux/mmzone.h |    5 +++++
+ mm/page_alloc.c        |    4 ++++
+ 2 files changed, 9 insertions(+)
+diff -upN reference/include/linux/mmzone.h current/include/linux/mmzone.h
+--- reference/include/linux/mmzone.h
++++ current/include/linux/mmzone.h
+@@ -388,6 +388,11 @@ static inline int is_dma(struct zone *zo
+ 	return zone == zone->zone_pgdat->node_zones + ZONE_DMA;
+ }
  
--	system_max_low_pfn = max_low_pfn = find_max_low_pfn() - reserve_pages;
-+	max_low_pfn = find_max_low_pfn() - reserve_pages;
- 	printk("reserve_pages = %ld find_max_low_pfn() ~ %ld\n",
- 			reserve_pages, max_low_pfn + reserve_pages);
- 	printk("max_pfn = %ld\n", max_pfn);
++static inline unsigned long zone_boundry_align_pfn(unsigned long pfn)
++{
++	return pfn & ~((1 << MAX_ORDER) - 1);
++}
 +
-+	system_max_low_pfn = max_low_pfn = zone_boundry_align_pfn(max_low_pfn);
+ /* These two functions are used to setup the per zone pages min values */
+ struct ctl_table;
+ struct file;
+diff -upN reference/mm/page_alloc.c current/mm/page_alloc.c
+--- reference/mm/page_alloc.c
++++ current/mm/page_alloc.c
+@@ -2078,6 +2078,10 @@ static void __init free_area_init_core(s
+ 		struct zone *zone = pgdat->node_zones + j;
+ 		unsigned long size, realsize;
+ 
++		if (zone_boundry_align_pfn(zone_start_pfn) != zone_start_pfn)
++			printk(KERN_CRIT "node %d zone %s missaligned "
++					"start pfn\n", nid, zone_names[j]);
 +
- #ifdef CONFIG_HIGHMEM
- 	highstart_pfn = highend_pfn = max_pfn;
- 	if (max_pfn > system_max_low_pfn)
+ 		realsize = size = zones_size[j];
+ 		if (zholes_size)
+ 			realsize -= zholes_size[j];

@@ -1,186 +1,537 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWEIX4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWEIX4e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbWEIX4h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 19:56:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWEIX4h
+	id S932288AbWEIX4e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 19:56:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbWEIX4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 19:56:37 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:54414 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932279AbWEIX4f
+	Tue, 9 May 2006 19:56:33 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:17353 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932288AbWEIX4d
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 19:56:35 -0400
-Date: Tue, 9 May 2006 18:55:29 -0500
-From: Jon Mason <jdmason@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: ak@suse.de, "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org,
-       mulix@mulix.org
-Subject: [PATCH 1/5] swiotlb: SWIOTLB code cleanup
-Message-ID: <20060509235529.GE22385@us.ibm.com>
+	Tue, 9 May 2006 19:56:33 -0400
+Subject: Re: [PATCH 1/3] Vectorize aio_read/aio_write methods
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Benjamin LaHaise <bcrl@kvack.org>, cel@citi.umich.edu
+In-Reply-To: <20060509192051.GA19378@lst.de>
+References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>
+	 <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
+	 <1147198025.28388.0.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060509120105.7255e265.akpm@osdl.org> <20060509190310.GA19124@lst.de>
+	 <20060509121305.0840e770.akpm@osdl.org>  <20060509192051.GA19378@lst.de>
+Content-Type: text/plain
+Date: Tue, 09 May 2006 16:57:42 -0700
+Message-Id: <1147219062.30738.8.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SWIOTLB Cleanup.  Mostly a comment and white space clean-up.
-However, some compiler cache optimizations (via the static and
-__read_mostly keywords) were added, and
-swiotlb_init_with_default_size was renamed swiotlb_init (as that
-functional was redundant).
+On Tue, 2006-05-09 at 21:20 +0200, Christoph Hellwig wrote:
+> On Tue, May 09, 2006 at 12:13:05PM -0700, Andrew Morton wrote:
+> > > there's another patch ontop which I didn't bother to redo until this is
+> > > accepted which kills a lot more code.  After that filesystems only have
+> > > to implement one method each for all kinds of read/write calls.  Which
+> > > allows to both make the mm/filemap.c far less complex and actually
+> > > understandable aswell as for any filesystem that uses more complex
+> > > read/write variants than direct filemap.c calls.  In addition to these
+> > > simplification we also get a feature (async vectored I/O) for free.
+> > 
+> > Fair enough, thanks.  Simplifying filemap.c would be a win.
+> > 
+> > I'll crunch on these three patches in the normal fashion.  It'll be good if
+> > we can get the followup patch done within the next week or two so we can
+> > get it all tested at the same time.  Although from your description it
+> > doesn't sound like it'll be completely trivial...
+> 
+> That patch is lots of tirival and boring work.  If anyone wants to beat
+> me to it:
 
-This patch has been tested individually and cumulatively on x86_64 and
-cross-compile tested on IA64.  Since I have no IA64 hardware, any
-testing on that platform would be appreciated.
+Well, I am not sure if you mean *exactly* this..
+
+So far, I have this. I really don't like the idea of
+adding .aio_read/.aio_write methods for the filesystems who currently
+don't have one (so we can force their .read/.write to do_sync_*()). 
+Is there a way to fix callers of .read/.write() methods to use
+something like do_sync_read/write - that way we can take out
+.read/.write completely ?
+
+Anyway, here it is compiled but untested.. I think I can clean up
+more in filemap.c (after reading through your suggestions). Please
+let me know, if I am on wrong path ...
 
 Thanks,
-Jon
+Badari
 
-Signed-off-by: Jon Mason <jdmason@us.ibm.com>
+Patch to remove generic_file_read() and generic_file_write()
+as we seem to have too many interfaces. 
 
-diff -r de9ab457255b -r 1d9d729a821b lib/swiotlb.c
---- a/lib/swiotlb.c	Mon May  8 15:10:36 2006
-+++ b/lib/swiotlb.c	Mon May  8 15:18:59 2006
-@@ -8,9 +8,9 @@
-  * Copyright (C) 2000, 2003 Hewlett-Packard Co
-  *	David Mosberger-Tang <davidm@hpl.hp.com>
-  *
-- * 03/05/07 davidm	Switch from PCI-DMA to generic device DMA API.
-  * 00/12/13 davidm	Rename to swiotlb.c and add mark_clean() to avoid
-  *			unnecessary i-cache flushing.
-+ * 03/05/07 davidm	Switch from PCI-DMA to generic device DMA API.
-  * 04/07/.. ak		Better overflow handling. Assorted fixes.
-  * 05/09/10 linville	Add support for syncing ranges, support syncing for
-  *			DMA_BIDIRECTIONAL mappings, miscellaneous cleanup.
-@@ -24,13 +24,11 @@
- #include <linux/string.h>
- #include <linux/types.h>
- #include <linux/ctype.h>
--
-+#include <linux/init.h>
-+#include <linux/bootmem.h>
- #include <asm/io.h>
- #include <asm/dma.h>
- #include <asm/scatterlist.h>
--
--#include <linux/init.h>
--#include <linux/bootmem.h>
+Make .read/.write methods for filesystems to use do_sync_read()
+and do_sync_write() which makes use of aio_read/aio_write().
+
+I really don't like keeping .read()/.write() methods since
+sys_read/sys_write() can make use of async methods - but
+this is for those who call .read/.write() directly.
+
+ drivers/char/raw.c      |    4 +--
+ fs/adfs/file.c          |    6 +++--
+ fs/affs/file.c          |    6 +++--
+ fs/bfs/file.c           |    6 +++--
+ fs/block_dev.c          |    2 -
+ fs/ext2/file.c          |    4 +--
+ fs/fuse/file.c          |    6 +++--
+ fs/hfs/inode.c          |    6 +++--
+ fs/hfsplus/inode.c      |    6 +++--
+ fs/hostfs/hostfs_kern.c |    4 +--
+ fs/hpfs/file.c          |    6 +++--
+ fs/jffs/inode-v23.c     |    6 +++--
+ fs/jffs2/file.c         |    6 +++--
+ fs/jfs/file.c           |    4 +--
+ fs/minix/file.c         |    6 +++--
+ fs/ntfs/file.c          |    2 -
+ fs/qnx4/file.c          |    6 +++--
+ fs/ramfs/file-mmu.c     |    6 +++--
+ fs/ramfs/file-nommu.c   |    6 +++--
+ fs/read_write.c         |    3 +-
+ include/linux/fs.h      |    2 -
+ mm/filemap.c            |   55 ------------------------------------------------
+ 22 files changed, 64 insertions(+), 94 deletions(-)
+
+Index: linux-2.6.17-rc3.save/drivers/char/raw.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/drivers/char/raw.c	2006-05-09 14:11:51.000000000 -0700
++++ linux-2.6.17-rc3.save/drivers/char/raw.c	2006-05-09 14:15:28.000000000 -0700
+@@ -251,9 +251,9 @@ static ssize_t raw_file_write(struct fil
+ }
  
- #define OFFSET(val,align) ((unsigned long)	\
- 	                   ( (val) & ( (align) - 1)))
-@@ -68,27 +66,26 @@
- 	SYNC_FOR_DEVICE = 1,
+ static struct file_operations raw_fops = {
+-	.read	=	generic_file_read,
++	.read	=	do_sync_read,
+ 	.aio_read = 	generic_file_aio_read,
+-	.write	=	raw_file_write,
++	.write	=	do_sync_write,
+ 	.aio_write = 	generic_file_aio_write_nolock,
+ 	.open	=	raw_open,
+ 	.release=	raw_release,
+Index: linux-2.6.17-rc3.save/fs/adfs/file.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/adfs/file.c	2006-04-26 19:19:25.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/adfs/file.c	2006-05-09 14:31:50.000000000 -0700
+@@ -27,10 +27,12 @@
+ 
+ const struct file_operations adfs_file_operations = {
+ 	.llseek		= generic_file_llseek,
+-	.read		= generic_file_read,
++	.read		= do_sync_read,
++	.aio_read	= generic_file_aio_read,
+ 	.mmap		= generic_file_mmap,
+ 	.fsync		= file_fsync,
+-	.write		= generic_file_write,
++	.write		= do_sync_write,
++	.aio_write	= generic_file_aio_write,
+ 	.sendfile	= generic_file_sendfile,
  };
  
--int swiotlb_force;
-+int __read_mostly swiotlb_force;
+Index: linux-2.6.17-rc3.save/fs/affs/file.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/affs/file.c	2006-04-26 19:19:25.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/affs/file.c	2006-05-09 14:35:22.000000000 -0700
+@@ -27,8 +27,10 @@ static int affs_file_release(struct inod
  
- /*
-  * Used to do a quick range check in swiotlb_unmap_single and
-  * swiotlb_sync_single_*, to see if the memory was in fact allocated by this
-  * API.
-  */
--static char *io_tlb_start, *io_tlb_end;
-+static __read_mostly char *io_tlb_start, *io_tlb_end;
+ const struct file_operations affs_file_operations = {
+ 	.llseek		= generic_file_llseek,
+-	.read		= generic_file_read,
+-	.write		= generic_file_write,
++	.read		= do_sync_read,
++	.aio_read	= generic_file_aio_read,
++	.write		= do_sync_write,
++	.aio_write	= generic_file_aio_write,
+ 	.mmap		= generic_file_mmap,
+ 	.open		= affs_file_open,
+ 	.release	= affs_file_release,
+Index: linux-2.6.17-rc3.save/fs/bfs/file.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/bfs/file.c	2006-04-26 19:19:25.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/bfs/file.c	2006-05-09 14:36:49.000000000 -0700
+@@ -19,8 +19,10 @@
  
- /*
-  * The number of IO TLB blocks (in groups of 64) betweeen io_tlb_start and
-  * io_tlb_end.  This is command line adjustable via setup_io_tlb_npages.
+ const struct file_operations bfs_file_operations = {
+ 	.llseek 	= generic_file_llseek,
+-	.read		= generic_file_read,
+-	.write		= generic_file_write,
++	.read		= do_sync_read,
++	.aio_read	= generic_file_aio_read,
++	.write		= do_sync_write,
++	.aio_write	= generic_file_aio_write,
+ 	.mmap		= generic_file_mmap,
+ 	.sendfile	= generic_file_sendfile,
+ };
+Index: linux-2.6.17-rc3.save/fs/block_dev.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/block_dev.c	2006-05-09 14:11:51.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/block_dev.c	2006-05-09 14:39:54.000000000 -0700
+@@ -1083,7 +1083,7 @@ const struct file_operations def_blk_fop
+ 	.open		= blkdev_open,
+ 	.release	= blkdev_close,
+ 	.llseek		= block_llseek,
+-	.read		= generic_file_read,
++	.read		= do_sync_read,
+ 	.write		= blkdev_file_write,
+   	.aio_read	= generic_file_aio_read,
+   	.aio_write	= generic_file_aio_write_nolock,
+Index: linux-2.6.17-rc3.save/fs/ext2/file.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/ext2/file.c	2006-05-09 14:11:51.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/ext2/file.c	2006-05-09 14:41:14.000000000 -0700
+@@ -41,8 +41,8 @@ static int ext2_release_file (struct ino
   */
--static unsigned long io_tlb_nslabs;
-+static __read_mostly unsigned long io_tlb_nslabs;
+ const struct file_operations ext2_file_operations = {
+ 	.llseek		= generic_file_llseek,
+-	.read		= generic_file_read,
+-	.write		= generic_file_write,
++	.read		= do_sync_read,
++	.write		= do_sync_write,
+ 	.aio_read	= generic_file_aio_read,
+ 	.aio_write	= generic_file_aio_write,
+ 	.ioctl		= ext2_ioctl,
+Index: linux-2.6.17-rc3.save/fs/fuse/file.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/fuse/file.c	2006-04-26 19:19:25.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/fuse/file.c	2006-05-09 14:44:43.000000000 -0700
+@@ -621,8 +621,10 @@ static int fuse_set_page_dirty(struct pa
  
- /*
-  * When the IOMMU overflows we return a fallback buffer. This sets the size.
-  */
--static unsigned long io_tlb_overflow = 32*1024;
--
--void *io_tlb_overflow_buffer;
-+static __read_mostly unsigned long io_tlb_overflow = 32*1024;
-+static void *io_tlb_overflow_buffer;
+ static const struct file_operations fuse_file_operations = {
+ 	.llseek		= generic_file_llseek,
+-	.read		= generic_file_read,
+-	.write		= generic_file_write,
++	.read		= do_sync_read,
++	.aio_read	= generic_file_aio_read,
++	.write		= do_sync_write,
++	.aio_write	= generic_file_aio_write,
+ 	.mmap		= fuse_file_mmap,
+ 	.open		= fuse_open,
+ 	.flush		= fuse_flush,
+Index: linux-2.6.17-rc3.save/fs/hfs/inode.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/hfs/inode.c	2006-04-26 19:19:25.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/hfs/inode.c	2006-05-09 14:46:37.000000000 -0700
+@@ -603,8 +603,10 @@ int hfs_inode_setattr(struct dentry *den
  
- /*
-  * This is a free list describing the number of free entries available from
-@@ -130,19 +127,21 @@
-  * structures for the software IO TLB used to implement the DMA API.
-  */
- void
--swiotlb_init_with_default_size (size_t default_size)
-+swiotlb_init(void)
+ static const struct file_operations hfs_file_operations = {
+ 	.llseek		= generic_file_llseek,
+-	.read		= generic_file_read,
+-	.write		= generic_file_write,
++	.read		= do_sync_read,
++	.aio_read	= generic_file_aio_read,
++	.write		= do_sync_write,
++	.aio_write	= generic_file_aio_write,
+ 	.mmap		= generic_file_mmap,
+ 	.sendfile	= generic_file_sendfile,
+ 	.fsync		= file_fsync,
+Index: linux-2.6.17-rc3.save/fs/hfsplus/inode.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/hfsplus/inode.c	2006-04-26 19:19:25.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/hfsplus/inode.c	2006-05-09 15:05:44.000000000 -0700
+@@ -282,8 +282,10 @@ static struct inode_operations hfsplus_f
+ 
+ static const struct file_operations hfsplus_file_operations = {
+ 	.llseek 	= generic_file_llseek,
+-	.read		= generic_file_read,
+-	.write		= generic_file_write,
++	.read		= do_sync_read,
++	.aio_read	= generic_file_aio_read,
++	.write		= do_sync_write,
++	.aio_write	= generic_file_aio_write,
+ 	.mmap		= generic_file_mmap,
+ 	.sendfile	= generic_file_sendfile,
+ 	.fsync		= file_fsync,
+Index: linux-2.6.17-rc3.save/fs/hostfs/hostfs_kern.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/hostfs/hostfs_kern.c	2006-05-09 14:11:51.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/hostfs/hostfs_kern.c	2006-05-09 15:06:37.000000000 -0700
+@@ -386,11 +386,11 @@ int hostfs_fsync(struct file *file, stru
+ 
+ static const struct file_operations hostfs_file_fops = {
+ 	.llseek		= generic_file_llseek,
+-	.read		= generic_file_read,
++	.read		= do_sync_read,
+ 	.sendfile	= generic_file_sendfile,
+ 	.aio_read	= generic_file_aio_read,
+ 	.aio_write	= generic_file_aio_write,
+-	.write		= generic_file_write,
++	.write		= do_sync_write,
+ 	.mmap		= generic_file_mmap,
+ 	.open		= hostfs_file_open,
+ 	.release	= NULL,
+Index: linux-2.6.17-rc3.save/fs/hpfs/file.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/hpfs/file.c	2006-04-26 19:19:25.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/hpfs/file.c	2006-05-09 15:08:53.000000000 -0700
+@@ -113,7 +113,7 @@ static ssize_t hpfs_file_write(struct fi
  {
- 	unsigned long i;
+ 	ssize_t retval;
  
- 	if (!io_tlb_nslabs) {
--		io_tlb_nslabs = (default_size >> IO_TLB_SHIFT);
-+		/* if not defined via boot arg, default to 64MB */
-+		io_tlb_nslabs = ((64 * (1 << 20)) >> IO_TLB_SHIFT);
- 		io_tlb_nslabs = ALIGN(io_tlb_nslabs, IO_TLB_SEGSIZE);
- 	}
+-	retval = generic_file_write(file, buf, count, ppos);
++	retval = do_sync_write(file, buf, count, ppos);
+ 	if (retval > 0)
+ 		hpfs_i(file->f_dentry->d_inode)->i_dirty = 1;
+ 	return retval;
+@@ -122,8 +122,10 @@ static ssize_t hpfs_file_write(struct fi
+ const struct file_operations hpfs_file_ops =
+ {
+ 	.llseek		= generic_file_llseek,
+-	.read		= generic_file_read,
++	.read		= do_sync_read,
++	.aio_read	= generic_file_aio_read,
+ 	.write		= hpfs_file_write,
++	.aio_write	= generic_file_aio_write,
+ 	.mmap		= generic_file_mmap,
+ 	.release	= hpfs_file_release,
+ 	.fsync		= hpfs_file_fsync,
+Index: linux-2.6.17-rc3.save/fs/jffs/inode-v23.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/jffs/inode-v23.c	2006-04-26 19:19:25.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/jffs/inode-v23.c	2006-05-09 15:10:34.000000000 -0700
+@@ -1633,8 +1633,10 @@ static const struct file_operations jffs
+ {
+ 	.open		= generic_file_open,
+ 	.llseek		= generic_file_llseek,
+-	.read		= generic_file_read,
+-	.write		= generic_file_write,
++	.read		= do_sync_read,
++	.aio_read	= generic_file_aio_read,
++	.write		= do_sync_write,
++	.aio_write	= generic_file_aio_write,
+ 	.ioctl		= jffs_ioctl,
+ 	.mmap		= generic_file_readonly_mmap,
+ 	.fsync		= jffs_fsync,
+Index: linux-2.6.17-rc3.save/fs/jffs2/file.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/jffs2/file.c	2006-04-26 19:19:25.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/jffs2/file.c	2006-05-09 15:11:58.000000000 -0700
+@@ -42,8 +42,10 @@ const struct file_operations jffs2_file_
+ {
+ 	.llseek =	generic_file_llseek,
+ 	.open =		generic_file_open,
+-	.read =		generic_file_read,
+-	.write =	generic_file_write,
++	.read =		do_sync_read,
++	.aio_read =	generic_file_aio_read,
++	.write =	do_sync_write,
++	.aio_write =	generic_file_aio_write,
+ 	.ioctl =	jffs2_ioctl,
+ 	.mmap =		generic_file_readonly_mmap,
+ 	.fsync =	jffs2_fsync,
+Index: linux-2.6.17-rc3.save/fs/jfs/file.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/jfs/file.c	2006-05-09 14:11:51.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/jfs/file.c	2006-05-09 15:12:41.000000000 -0700
+@@ -103,8 +103,8 @@ struct inode_operations jfs_file_inode_o
+ const struct file_operations jfs_file_operations = {
+ 	.open		= jfs_open,
+ 	.llseek		= generic_file_llseek,
+-	.write		= generic_file_write,
+-	.read		= generic_file_read,
++	.write		= do_sync_write,
++	.read		= do_sync_read,
+ 	.aio_read	= generic_file_aio_read,
+ 	.aio_write	= generic_file_aio_write,
+ 	.mmap		= generic_file_mmap,
+Index: linux-2.6.17-rc3.save/fs/minix/file.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/minix/file.c	2006-04-26 19:19:25.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/minix/file.c	2006-05-09 15:15:06.000000000 -0700
+@@ -17,8 +17,10 @@ int minix_sync_file(struct file *, struc
  
- 	/*
- 	 * Get IO TLB memory from the low pages
- 	 */
--	io_tlb_start = alloc_bootmem_low_pages(io_tlb_nslabs * (1 << IO_TLB_SHIFT));
-+	io_tlb_start = alloc_bootmem_low_pages(io_tlb_nslabs *
-+					       (1 << IO_TLB_SHIFT));
- 	if (!io_tlb_start)
- 		panic("Cannot allocate SWIOTLB buffer");
- 	io_tlb_end = io_tlb_start + io_tlb_nslabs * (1 << IO_TLB_SHIFT);
-@@ -162,14 +161,9 @@
- 	 * Get the overflow emergency buffer
- 	 */
- 	io_tlb_overflow_buffer = alloc_bootmem_low(io_tlb_overflow);
--	printk(KERN_INFO "Placing software IO TLB between 0x%lx - 0x%lx\n",
-+	printk(KERN_INFO "Placing %dMB software IO TLB between 0x%lx - 0x%lx\n",
-+	       (int) (io_tlb_nslabs * (1 << IO_TLB_SHIFT)) >> 20,
- 	       virt_to_phys(io_tlb_start), virt_to_phys(io_tlb_end));
+ const struct file_operations minix_file_operations = {
+ 	.llseek		= generic_file_llseek,
+-	.read		= generic_file_read,
+-	.write		= generic_file_write,
++	.read		= do_sync_read,
++	.aio_read	= generic_file_aio_read,
++	.write		= do_sync_write,
++	.aio_write	= generic_file_aio_write,
+ 	.mmap		= generic_file_mmap,
+ 	.fsync		= minix_sync_file,
+ 	.sendfile	= generic_file_sendfile,
+Index: linux-2.6.17-rc3.save/fs/ntfs/file.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/ntfs/file.c	2006-05-09 14:11:51.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/ntfs/file.c	2006-05-09 15:50:43.000000000 -0700
+@@ -2294,7 +2294,7 @@ static int ntfs_file_fsync(struct file *
+ 
+ const struct file_operations ntfs_file_ops = {
+ 	.llseek		= generic_file_llseek,	 /* Seek inside file. */
+-	.read		= generic_file_read,	 /* Read from file. */
++	.read		= do_sync_read,		 /* Read from file. */
+ 	.aio_read	= generic_file_aio_read, /* Async read from file. */
+ #ifdef NTFS_RW
+ 	.write		= ntfs_file_write,	 /* Write to file. */
+Index: linux-2.6.17-rc3.save/fs/qnx4/file.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/qnx4/file.c	2006-04-26 19:19:25.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/qnx4/file.c	2006-05-09 15:18:10.000000000 -0700
+@@ -22,11 +22,13 @@
+ const struct file_operations qnx4_file_operations =
+ {
+ 	.llseek		= generic_file_llseek,
+-	.read		= generic_file_read,
++	.read		= do_sync_read,
++	.aio_read	= generic_file_aio_read,
+ 	.mmap		= generic_file_mmap,
+ 	.sendfile	= generic_file_sendfile,
+ #ifdef CONFIG_QNX4FS_RW
+-	.write		= generic_file_write,
++	.write		= do_sync_write,
++	.aio_write	= generic_file_aio_write,
+ 	.fsync		= qnx4_sync_file,
+ #endif
+ };
+Index: linux-2.6.17-rc3.save/fs/ramfs/file-mmu.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/ramfs/file-mmu.c	2006-04-26 19:19:25.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/ramfs/file-mmu.c	2006-05-09 15:19:34.000000000 -0700
+@@ -33,8 +33,10 @@ struct address_space_operations ramfs_ao
+ };
+ 
+ const struct file_operations ramfs_file_operations = {
+-	.read		= generic_file_read,
+-	.write		= generic_file_write,
++	.read		= do_sync_read,
++	.aio_read	= generic_file_aio_read,
++	.write		= do_sync_write,
++	.aio_write	= generic_file_aio_write,
+ 	.mmap		= generic_file_mmap,
+ 	.fsync		= simple_sync_file,
+ 	.sendfile	= generic_file_sendfile,
+Index: linux-2.6.17-rc3.save/fs/ramfs/file-nommu.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/ramfs/file-nommu.c	2006-04-26 19:19:25.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/ramfs/file-nommu.c	2006-05-09 15:20:37.000000000 -0700
+@@ -36,8 +36,10 @@ struct address_space_operations ramfs_ao
+ const struct file_operations ramfs_file_operations = {
+ 	.mmap			= ramfs_nommu_mmap,
+ 	.get_unmapped_area	= ramfs_nommu_get_unmapped_area,
+-	.read			= generic_file_read,
+-	.write			= generic_file_write,
++	.read			= do_sync_read,
++	.aio_read		= generic_file_aio_read,
++	.write			= do_sync_write,
++	.aio_write		= generic_file_aio_write,
+ 	.fsync			= simple_sync_file,
+ 	.sendfile		= generic_file_sendfile,
+ 	.llseek			= generic_file_llseek,
+Index: linux-2.6.17-rc3.save/fs/read_write.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/fs/read_write.c	2006-05-09 14:11:53.000000000 -0700
++++ linux-2.6.17-rc3.save/fs/read_write.c	2006-05-09 15:21:53.000000000 -0700
+@@ -22,7 +22,8 @@
+ 
+ const struct file_operations generic_ro_fops = {
+ 	.llseek		= generic_file_llseek,
+-	.read		= generic_file_read,
++	.read		= do_sync_read,
++	.aio_read	= generic_file_aio_read,
+ 	.mmap		= generic_file_readonly_mmap,
+ 	.sendfile	= generic_file_sendfile,
+ };
+Index: linux-2.6.17-rc3.save/include/linux/fs.h
+===================================================================
+--- linux-2.6.17-rc3.save.orig/include/linux/fs.h	2006-05-09 14:11:53.000000000 -0700
++++ linux-2.6.17-rc3.save/include/linux/fs.h	2006-05-09 15:41:52.000000000 -0700
+@@ -1594,9 +1594,7 @@ extern int generic_file_mmap(struct file
+ extern int generic_file_readonly_mmap(struct file *, struct vm_area_struct *);
+ extern int file_read_actor(read_descriptor_t * desc, struct page *page, unsigned long offset, unsigned long size);
+ extern int file_send_actor(read_descriptor_t * desc, struct page *page, unsigned long offset, unsigned long size);
+-extern ssize_t generic_file_read(struct file *, char __user *, size_t, loff_t *);
+ int generic_write_checks(struct file *file, loff_t *pos, size_t *count, int isblk);
+-extern ssize_t generic_file_write(struct file *, const char __user *, size_t, loff_t *);
+ extern ssize_t generic_file_aio_read(struct kiocb *, const struct iovec *, unsigned long, loff_t);
+ extern ssize_t __generic_file_aio_read(struct kiocb *, const struct iovec *, unsigned long, loff_t *);
+ extern ssize_t generic_file_aio_write(struct kiocb *, const struct iovec *, unsigned long, loff_t);
+Index: linux-2.6.17-rc3.save/mm/filemap.c
+===================================================================
+--- linux-2.6.17-rc3.save.orig/mm/filemap.c	2006-05-09 14:11:51.000000000 -0700
++++ linux-2.6.17-rc3.save/mm/filemap.c	2006-05-09 15:41:20.000000000 -0700
+@@ -1104,22 +1104,6 @@ generic_file_aio_read(struct kiocb *iocb
+ }
+ EXPORT_SYMBOL(generic_file_aio_read);
+ 
+-ssize_t
+-generic_file_read(struct file *filp, char __user *buf, size_t count, loff_t *ppos)
+-{
+-	struct iovec local_iov = { .iov_base = buf, .iov_len = count };
+-	struct kiocb kiocb;
+-	ssize_t ret;
+-
+-	init_sync_kiocb(&kiocb, filp);
+-	ret = __generic_file_aio_read(&kiocb, &local_iov, 1, ppos);
+-	if (-EIOCBQUEUED == ret)
+-		ret = wait_on_sync_kiocb(&kiocb);
+-	return ret;
 -}
 -
--void
--swiotlb_init (void)
+-EXPORT_SYMBOL(generic_file_read);
+-
+ int file_send_actor(read_descriptor_t * desc, struct page *page, unsigned long offset, unsigned long size)
+ {
+ 	ssize_t written;
+@@ -2185,21 +2169,6 @@ ssize_t generic_file_aio_write_nolock(st
+ }
+ EXPORT_SYMBOL(generic_file_aio_write_nolock);
+ 
+-static ssize_t
+-__generic_file_write_nolock(struct file *file, const struct iovec *iov,
+-				unsigned long nr_segs, loff_t *ppos)
 -{
--	swiotlb_init_with_default_size(64 * (1<<20));	/* default to 64MB */
+-	struct kiocb kiocb;
+-	ssize_t ret;
+-
+-	init_sync_kiocb(&kiocb, file);
+-	kiocb.ki_pos = *ppos;
+-	ret = __generic_file_aio_write_nolock(&kiocb, iov, nr_segs, ppos);
+-	if (-EIOCBQUEUED == ret)
+-		ret = wait_on_sync_kiocb(&kiocb);
+-	return ret;
+-}
+-
+ ssize_t
+ generic_file_write_nolock(struct file *file, const struct iovec *iov,
+ 				unsigned long nr_segs, loff_t *ppos)
+@@ -2242,30 +2211,6 @@ ssize_t generic_file_aio_write(struct ki
  }
+ EXPORT_SYMBOL(generic_file_aio_write);
  
+-ssize_t generic_file_write(struct file *file, const char __user *buf,
+-			   size_t count, loff_t *ppos)
+-{
+-	struct address_space *mapping = file->f_mapping;
+-	struct inode *inode = mapping->host;
+-	ssize_t	ret;
+-	struct iovec local_iov = { .iov_base = (void __user *)buf,
+-					.iov_len = count };
+-
+-	mutex_lock(&inode->i_mutex);
+-	ret = __generic_file_write_nolock(file, &local_iov, 1, ppos);
+-	mutex_unlock(&inode->i_mutex);
+-
+-	if (ret > 0 && ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
+-		ssize_t err;
+-
+-		err = sync_page_range(inode, mapping, *ppos - ret, ret);
+-		if (err < 0)
+-			ret = err;
+-	}
+-	return ret;
+-}
+-EXPORT_SYMBOL(generic_file_write);
+-
  /*
-@@ -178,7 +172,7 @@
-  * This should be just like above, but with some error catching.
-  */
- int
--swiotlb_late_init_with_default_size (size_t default_size)
-+swiotlb_late_init_with_default_size(size_t default_size)
- {
- 	unsigned long i, req_nslabs = io_tlb_nslabs;
- 	unsigned int order;
-@@ -250,11 +244,11 @@
- 
- cleanup4:
- 	free_pages((unsigned long)io_tlb_orig_addr, get_order(io_tlb_nslabs *
--	                                                      sizeof(char *)));
-+							      sizeof(char *)));
- 	io_tlb_orig_addr = NULL;
- cleanup3:
- 	free_pages((unsigned long)io_tlb_list, get_order(io_tlb_nslabs *
--	                                                 sizeof(int)));
-+							 sizeof(int)));
- 	io_tlb_list = NULL;
- 	io_tlb_end = NULL;
- cleanup2:
-@@ -268,7 +262,7 @@
- static inline int
- address_needs_mapping(struct device *hwdev, dma_addr_t addr)
- {
--	dma_addr_t mask = 0xffffffff;
-+	dma_addr_t mask = DMA_32BIT_MASK;
- 	/* If the device has a mask, use it, otherwise default to 32 bits */
- 	if (hwdev && hwdev->dma_mask)
- 		mask = *hwdev->dma_mask;
-@@ -491,7 +485,7 @@
- 		free_pages((unsigned long) vaddr, get_order(size));
- 	else
- 		/* DMA_TO_DEVICE to avoid memcpy in unmap_single */
--		swiotlb_unmap_single (hwdev, dma_handle, size, DMA_TO_DEVICE);
-+		swiotlb_unmap_single(hwdev, dma_handle, size, DMA_TO_DEVICE);
- }
- 
- static void
+  * Called under i_mutex for writes to S_ISREG files.   Returns -EIO if something
+  * went wrong during pagecache shootdown.
+
+
+
+

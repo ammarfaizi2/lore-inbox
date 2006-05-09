@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751235AbWEIWVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWEIWYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751235AbWEIWVb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 18:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWEIWVb
+	id S1751218AbWEIWYI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 18:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWEIWYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 18:21:31 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:25104 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751235AbWEIWVb (ORCPT
+	Tue, 9 May 2006 18:24:07 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:38661 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751218AbWEIWYH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 18:21:31 -0400
-Date: Wed, 10 May 2006 00:21:36 +0200
+	Tue, 9 May 2006 18:24:07 -0400
+Date: Wed, 10 May 2006 00:24:10 +0200
 From: Sam Ravnborg <sam@ravnborg.org>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andy Whitcroft <apw@shadowen.org>
-Subject: Re: build failure on 2.6.17-rc3-git15
-Message-ID: <20060509222136.GA12810@mars.ravnborg.org>
-References: <446010CC.4050908@mbligh.org>
+To: Ram Pai <linuxram@us.ibm.com>
+Cc: Andreas Gruenbacher <agruen@suse.de>, Greg KH <greg@kroah.com>,
+       Jan Beulich <jbeulich@novell.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Check for license compliance at build time
+Message-ID: <20060509222410.GB12810@mars.ravnborg.org>
+References: <445F0B6F.76E4.0078.0@novell.com> <20060509042500.GA4226@kroah.com> <1147154238.7203.62.camel@localhost> <200605091931.49216.agruen@suse.de> <1147208158.7203.107.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <446010CC.4050908@mbligh.org>
+In-Reply-To: <1147208158.7203.107.camel@localhost>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 08, 2006 at 08:47:24PM -0700, Martin J. Bligh wrote:
-> i386 with this config:
-> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/numaq
+On Tue, May 09, 2006 at 01:55:58PM -0700, Ram Pai wrote:
+> On Tue, 2006-05-09 at 19:31 +0200, Andreas Gruenbacher wrote:
+> > This patch on to of Ram Pai's modpost.diff patch at 
+> > http://sudhaa.com/~ram/misc/kernelpatch implements license compliance testing 
+> > in modpost. This prevents kbuild from producing modules that won't load.
 > 
-> scripts/mod/modpost.c: In function `check_sec_ref':
-> scripts/mod/modpost.c:716: error: cast to union type from type not 
-> present in union
-> make[2]: *** [scripts/mod/modpost.o] Error 1
-> make[1]: *** [scripts/mod] Error 2
-> make: *** [scripts] Error 2
-> 05/08/06-19:27:02 Build the kernel. Failed rc = 2
-> 05/08/06-19:27:02 build: kernel build Failed rc = 1
+> Yes, I like this patch. Its a early warning system for a module having
+> no chance of getting inserted into the kernel.
 > 
-> was fine in -git14
-> 
->                         if (hdr->e_ident[EI_CLASS] == ELFCLASS64 &&
->                             hdr->e_machine == EM_MIPS) {
->                                 r_sym = ELF64_MIPS_R_SYM(rela->r_info);
-> 
-> No idea how that got set ...
-The bad commit has been reverted so it should be OK in next (current?)
--git.
+> Sam : do you want all these patches submitted togather? 
+Yes - please do. I have the originals queued up but it would be helpfull
+to get it as a new serie.
+
+And integrate the fix from Andreas so it is not a separate commit.
+
 	Sam

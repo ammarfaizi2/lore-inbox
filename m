@@ -1,35 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWEIQXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751314AbWEIQX6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751313AbWEIQXn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 12:23:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWEIQXn
+	id S1751314AbWEIQX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 12:23:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWEIQX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 12:23:43 -0400
-Received: from nz-out-0102.google.com ([64.233.162.201]:18839 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751313AbWEIQXm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 12:23:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition:x-google-sender-auth;
-        b=SjZN7ucmVrYnT8I/xr76nQGaSR0bAPz1YpPi63CuWnA6VLXLxtr00WrqbrFAxOezFQapklgIeC30gc1COUfBp9nu+cp3TgLxO+vwTVKWoJuGeH7n5qenPDYTkmMnaI9R1C/JA/61rVZf0z/jWV9dbX0HgJZy6vuFyHc2uwnxDRo=
-Message-ID: <727e50150605090923k5796cbfcy99204c802a393573@mail.gmail.com>
-Date: Tue, 9 May 2006 12:23:41 -0400
-From: "Aaron Cohen" <aaron@assonance.org>
-To: linux-kernel@vger.kernel.org
-Subject: USB storage emulation
+	Tue, 9 May 2006 12:23:57 -0400
+Received: from test-iport-2.cisco.com ([171.71.176.105]:16038 "EHLO
+	test-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S1751314AbWEIQX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 12:23:56 -0400
+To: Heiko J Schick <schihei@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
+       linuxppc-dev@ozlabs.org, Christoph Raisch <RAISCH@de.ibm.com>,
+       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>
+Subject: Re: [openib-general] [PATCH 07/16] ehca: interrupt handling routines
+X-Message-Flag: Warning: May contain useful information
+References: <4450A196.2050901@de.ibm.com> <adaejz9o4vh.fsf@cisco.com>
+	<445B4DA9.9040601@de.ibm.com> <adafyjomsrd.fsf@cisco.com>
+	<44608C90.30909@de.ibm.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 09 May 2006 09:23:38 -0700
+In-Reply-To: <44608C90.30909@de.ibm.com> (Heiko J. Schick's message of "Tue, 09 May 2006 14:35:28 +0200")
+Message-ID: <adalktbcgl1.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-X-Google-Sender-Auth: e2ac911b644215d7
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 09 May 2006 16:23:45.0932 (UTC) FILETIME=[F1FBB4C0:01C67384]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there any way currently to connect two computers via usb cable and
-have one of them pretend to be a usb storage device for the other?
+    Heiko> Yes, I agree. It would not be an optimal solution, because
+    Heiko> other upper level protocols (e.g. SDP, SRP, etc.) or
+    Heiko> userspace verbs would not be affected by this
+    Heiko> changes. Nevertheless, how can an improved "scaling" or
+    Heiko> "SMP" version of IPoIB look like. How could it be
+    Heiko> implemented?
 
-Thanks,
-Aaron
+The trivial way to do it would be to use the same idea as the current
+ehca driver: just create a thread for receive CQ events and a thread
+for send CQ events, and defer CQ polling into those two threads.
+
+Something even better may be possible by specializing to IPoIB of course.
+
+ - R.

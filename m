@@ -1,131 +1,260 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751579AbWEIItw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751582AbWEIItv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751579AbWEIItw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 04:49:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751609AbWEIItb
+	id S1751582AbWEIItv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 04:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751546AbWEIItq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 04:49:31 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:46723 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751547AbWEIItD
+	Tue, 9 May 2006 04:49:46 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:54915 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751582AbWEIIti
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 04:49:03 -0400
-Message-Id: <20060509085157.070289000@sous-sol.org>
+	Tue, 9 May 2006 04:49:38 -0400
+Message-Id: <20060509085149.024456000@sous-sol.org>
 References: <20060509084945.373541000@sous-sol.org>
-Date: Tue, 09 May 2006 00:00:23 -0700
+Date: Tue, 09 May 2006 00:00:05 -0700
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org
 Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
        Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: [RFC PATCH 23/35] Increase x86 interrupt vector range
-Content-Disposition: inline; filename=x86-increase-interrupt-vector-range
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
+       Christoph Lameter <clameter@sgi.com>
+Subject: [RFC PATCH 05/35] Add sync bitops
+Content-Disposition: inline; filename=synch-ops
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove the limit of 256 interrupt vectors by changing the value
-stored in orig_{e,r}ax to be the negated interrupt vector.
-The orig_{e,r}ax needs to be < 0 to allow the signal code to
-distinguish between return from interrupt and return from syscall.
-With this change applied, NR_IRQS can be > 256.
-
-Xen extends the IRQ numbering space to include room for dynamically
-allocated virtual interrupts (in the range 256-511), which requires a
-more permissive interface to do_IRQ.
+Add "always lock'd" implementations of set_bit, clear_bit and
+change_bit and the corresponding test_and_ functions.  Also add
+"always lock'd" implementation of cmpxchg.  These give guaranteed
+strong synchronisation and are required for non-SMP kernels running on
+an SMP hypervisor.
 
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Cc: Christoph Lameter <clameter@sgi.com>
 ---
- arch/i386/kernel/entry.S    |    4 ++--
- arch/i386/kernel/irq.c      |    4 ++--
- arch/x86_64/kernel/entry.S  |    2 +-
- arch/x86_64/kernel/irq.c    |    4 ++--
- arch/x86_64/kernel/smp.c    |    4 ++--
- include/asm-x86_64/hw_irq.h |    2 +-
- 6 files changed, 10 insertions(+), 10 deletions(-)
+ include/asm-i386/synch_bitops.h |  166 ++++++++++++++++++++++++++++++++++++++++
+ include/asm-i386/system.h       |   33 +++++++
+ 2 files changed, 199 insertions(+)
 
---- linus-2.6.orig/arch/i386/kernel/entry.S
-+++ linus-2.6/arch/i386/kernel/entry.S
-@@ -464,7 +464,7 @@ vector=0
- ENTRY(irq_entries_start)
- .rept NR_IRQS
- 	ALIGN
--1:	pushl $vector-256
-+1:	pushl $~(vector)
- 	jmp common_interrupt
- .data
- 	.long 1b
-@@ -481,7 +481,7 @@ common_interrupt:
+--- linus-2.6.orig/include/asm-i386/system.h
++++ linus-2.6/include/asm-i386/system.h
+@@ -263,6 +263,9 @@ static inline unsigned long __xchg(unsig
+ #define cmpxchg(ptr,o,n)\
+ 	((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
+ 					(unsigned long)(n),sizeof(*(ptr))))
++#define synch_cmpxchg(ptr,o,n)\
++	((__typeof__(*(ptr)))__synch_cmpxchg((ptr),(unsigned long)(o),\
++					(unsigned long)(n),sizeof(*(ptr))))
+ #endif
  
- #define BUILD_INTERRUPT(name, nr)	\
- ENTRY(name)				\
--	pushl $nr-256;			\
-+	pushl $~(nr);			\
- 	SAVE_ALL			\
- 	movl %esp,%eax;			\
- 	call smp_/**/name;		\
---- linus-2.6.orig/arch/i386/kernel/irq.c
-+++ linus-2.6/arch/i386/kernel/irq.c
-@@ -53,8 +53,8 @@ static union irq_ctx *softirq_ctx[NR_CPU
-  */
- fastcall unsigned int do_IRQ(struct pt_regs *regs)
- {	
--	/* high bits used in ret_from_ code */
--	int irq = regs->orig_eax & 0xff;
-+	/* high bit used in ret_from_ code */
-+	int irq = ~regs->orig_eax;
- #ifdef CONFIG_4KSTACKS
- 	union irq_ctx *curctx, *irqctx;
- 	u32 *isp;
---- linus-2.6.orig/arch/x86_64/kernel/entry.S
-+++ linus-2.6/arch/x86_64/kernel/entry.S
-@@ -601,7 +601,7 @@ retint_kernel:	
-  */		
- 	.macro apicinterrupt num,func
- 	INTR_FRAME
--	pushq $\num-256
-+	pushq $~(\num)
- 	CFI_ADJUST_CFA_OFFSET 8
- 	interrupt \func
- 	jmp ret_from_intr
---- linus-2.6.orig/arch/x86_64/kernel/irq.c
-+++ linus-2.6/arch/x86_64/kernel/irq.c
-@@ -91,8 +91,8 @@ skip:
-  */
- asmlinkage unsigned int do_IRQ(struct pt_regs *regs)
- {	
--	/* high bits used in ret_from_ code  */
--	unsigned irq = regs->orig_rax & 0xff;
-+	/* high bit used in ret_from_ code  */
-+	unsigned irq = ~regs->orig_rax;
+ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
+@@ -292,6 +295,36 @@ static inline unsigned long __cmpxchg(vo
+ 	return old;
+ }
  
- 	exit_idle();
- 	irq_enter();
---- linus-2.6.orig/arch/x86_64/kernel/smp.c
-+++ linus-2.6/arch/x86_64/kernel/smp.c
-@@ -135,10 +135,10 @@ asmlinkage void smp_invalidate_interrupt
- 
- 	cpu = smp_processor_id();
- 	/*
--	 * orig_rax contains the interrupt vector - 256.
-+	 * orig_rax contains the negated interrupt vector.
- 	 * Use that to determine where the sender put the data.
- 	 */
--	sender = regs->orig_rax + 256 - INVALIDATE_TLB_VECTOR_START;
-+	sender = ~regs->orig_rax - INVALIDATE_TLB_VECTOR_START;
- 	f = &per_cpu(flush_state, sender);
- 
- 	if (!cpu_isset(cpu, f->flush_cpumask))
---- linus-2.6.orig/include/asm-x86_64/hw_irq.h
-+++ linus-2.6/include/asm-x86_64/hw_irq.h
-@@ -127,7 +127,7 @@ asmlinkage void IRQ_NAME(nr); \
- __asm__( \
- "\n.p2align\n" \
- "IRQ" #nr "_interrupt:\n\t" \
--	"push $" #nr "-256 ; " \
-+	"push $~(" #nr ") ; " \
- 	"jmp common_interrupt");
- 
- #if defined(CONFIG_X86_IO_APIC)
++#define __LOCK_PREFIX "lock ; "
++static inline unsigned long __synch_cmpxchg(volatile void *ptr,
++					    unsigned long old,
++					    unsigned long new, int size)
++{
++	unsigned long prev;
++	switch (size) {
++	case 1:
++		__asm__ __volatile__(__LOCK_PREFIX "cmpxchgb %b1,%2"
++				     : "=a"(prev)
++				     : "q"(new), "m"(*__xg(ptr)), "0"(old)
++				     : "memory");
++		return prev;
++	case 2:
++		__asm__ __volatile__(__LOCK_PREFIX "cmpxchgw %w1,%2"
++				     : "=a"(prev)
++				     : "r"(new), "m"(*__xg(ptr)), "0"(old)
++				     : "memory");
++		return prev;
++	case 4:
++		__asm__ __volatile__(__LOCK_PREFIX "cmpxchgl %1,%2"
++				     : "=a"(prev)
++				     : "r"(new), "m"(*__xg(ptr)), "0"(old)
++				     : "memory");
++		return prev;
++	}
++	return old;
++}
++#undef __LOCK_PREFIX
++
+ #ifndef CONFIG_X86_CMPXCHG
+ /*
+  * Building a kernel capable running on 80386. It may be necessary to
+--- /dev/null
++++ linus-2.6/include/asm-i386/synch_bitops.h
+@@ -0,0 +1,166 @@
++#ifndef _I386_SYNCH_BITOPS_H
++#define _I386_SYNCH_BITOPS_H
++
++/*
++ * Copyright 1992, Linus Torvalds.
++ */
++
++/* make sure these are always locked */
++#define __LOCK_PREFIX "lock ; "
++
++/*
++ * These have to be done with inline assembly: that way the bit-setting
++ * is guaranteed to be atomic. All bit operations return 0 if the bit
++ * was cleared before the operation and != 0 if it was not.
++ *
++ * bit 0 is the LSB of addr; bit 32 is the LSB of (addr+1).
++ */
++
++#define ADDR (*(volatile long *) addr)
++
++/**
++ * synch_set_bit - Atomically set a bit in memory
++ * @nr: the bit to set
++ * @addr: the address to start counting from
++ *
++ * This function is atomic and may not be reordered.  See __set_bit()
++ * if you do not require the atomic guarantees.
++ *
++ * Note: there are no guarantees that this function will not be reordered
++ * on non x86 architectures, so if you are writting portable code,
++ * make sure not to rely on its reordering guarantees.
++ *
++ * Note that @nr may be almost arbitrarily large; this function is not
++ * restricted to acting on a single-word quantity.
++ */
++static inline void synch_set_bit(int nr, volatile unsigned long * addr)
++{
++	__asm__ __volatile__( __LOCK_PREFIX
++		"btsl %1,%0"
++		:"+m" (ADDR)
++		:"Ir" (nr)
++		: "memory");
++}
++
++/**
++ * synch_clear_bit - Clears a bit in memory
++ * @nr: Bit to clear
++ * @addr: Address to start counting from
++ *
++ * synch_clear_bit() is atomic and may not be reordered.  However, it does
++ * not contain a memory barrier, so if it is used for locking purposes,
++ * you should call smp_mb__before_clear_bit() and/or smp_mb__after_clear_bit()
++ * in order to ensure changes are visible on other processors.
++ */
++static inline void synch_clear_bit(int nr, volatile unsigned long * addr)
++{
++	__asm__ __volatile__( __LOCK_PREFIX
++		"btrl %1,%0"
++		:"+m" (ADDR)
++		:"Ir" (nr)
++		: "memory");
++}
++
++/**
++ * synch_change_bit - Toggle a bit in memory
++ * @nr: Bit to change
++ * @addr: Address to start counting from
++ *
++ * change_bit() is atomic and may not be reordered. It may be
++ * reordered on other architectures than x86.
++ * Note that @nr may be almost arbitrarily large; this function is not
++ * restricted to acting on a single-word quantity.
++ */
++static inline void synch_change_bit(int nr, volatile unsigned long * addr)
++{
++	__asm__ __volatile__( __LOCK_PREFIX
++		"btcl %1,%0"
++		:"+m" (ADDR)
++		:"Ir" (nr)
++		: "memory");
++}
++
++/**
++ * synch_test_and_set_bit - Set a bit and return its old value
++ * @nr: Bit to set
++ * @addr: Address to count from
++ *
++ * This operation is atomic and cannot be reordered.  
++ * It may be reordered on other architectures than x86.
++ * It also implies a memory barrier.
++ */
++static inline int synch_test_and_set_bit(int nr, volatile unsigned long * addr)
++{
++	int oldbit;
++
++	__asm__ __volatile__( __LOCK_PREFIX
++		"btsl %2,%1\n\tsbbl %0,%0"
++		:"=r" (oldbit),"+m" (ADDR)
++		:"Ir" (nr) : "memory");
++	return oldbit;
++}
++
++/**
++ * synch_test_and_clear_bit - Clear a bit and return its old value
++ * @nr: Bit to clear
++ * @addr: Address to count from
++ *
++ * This operation is atomic and cannot be reordered.
++ * It can be reorderdered on other architectures other than x86.
++ * It also implies a memory barrier.
++ */
++static inline int synch_test_and_clear_bit(int nr, volatile unsigned long * addr)
++{
++	int oldbit;
++
++	__asm__ __volatile__( __LOCK_PREFIX
++		"btrl %2,%1\n\tsbbl %0,%0"
++		:"=r" (oldbit),"+m" (ADDR)
++		:"Ir" (nr) : "memory");
++	return oldbit;
++}
++
++/**
++ * synch_test_and_change_bit - Change a bit and return its old value
++ * @nr: Bit to change
++ * @addr: Address to count from
++ *
++ * This operation is atomic and cannot be reordered.  
++ * It also implies a memory barrier.
++ */
++static inline int synch_test_and_change_bit(int nr, volatile unsigned long* addr)
++{
++	int oldbit;
++
++	__asm__ __volatile__( __LOCK_PREFIX
++		"btcl %2,%1\n\tsbbl %0,%0"
++		:"=r" (oldbit),"+m" (ADDR)
++		:"Ir" (nr) : "memory");
++	return oldbit;
++}
++
++static __always_inline int synch_const_test_bit(int nr, const volatile unsigned long *addr)
++{
++	return ((1UL << (nr & 31)) &
++		(((const volatile unsigned int *)addr)[nr >> 5])) != 0;
++}
++
++static inline int synch_var_test_bit(int nr, const volatile unsigned long * addr)
++{
++	int oldbit;
++
++	__asm__ __volatile__(
++		"btl %2,%1\n\tsbbl %0,%0"
++		:"=r" (oldbit)
++		:"m" (ADDR),"Ir" (nr));
++	return oldbit;
++}
++
++#define synch_test_bit(nr,addr) \
++(__builtin_constant_p(nr) ? \
++ synch_constant_test_bit((nr),(addr)) : \
++ synch_var_test_bit((nr),(addr)))
++
++#undef ADDR
++
++#endif /* _I386_SYNCH_BITOPS_H */
 
 --

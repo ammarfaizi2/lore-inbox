@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWEIREw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbWEIRNE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbWEIREw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 13:04:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWEIREw
+	id S1750769AbWEIRNE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 13:13:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWEIRNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 13:04:52 -0400
-Received: from gold.veritas.com ([143.127.12.110]:12940 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1750727AbWEIREv (ORCPT
+	Tue, 9 May 2006 13:13:04 -0400
+Received: from main.gmane.org ([80.91.229.2]:16022 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750760AbWEIRNC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 13:04:51 -0400
-X-IronPort-AV: i="4.05,106,1146466800"; 
-   d="scan'208"; a="59349415:sNHT31840196"
-Date: Tue, 9 May 2006 18:04:50 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-cc: linux-kernel@vger.kernel.org, systemtap@sources.redhat.com, akpm@osdl.org,
-       Andi Kleen <ak@suse.de>, davem@davemloft.net, suparna@in.ibm.com,
-       richardj_moore@uk.ibm.com, hch@infradead.org
-Subject: Re: [RFC] [PATCH 6/6] Kprobes: Remove breakpoints from the copied
- pages
-In-Reply-To: <20060509071523.GF22493@in.ibm.com>
-Message-ID: <Pine.LNX.4.64.0605091747050.10238@blonde.wat.veritas.com>
-References: <20060509065455.GA11630@in.ibm.com> <20060509065917.GA22493@in.ibm.com>
- <20060509070106.GB22493@in.ibm.com> <20060509070508.GC22493@in.ibm.com>
- <20060509070911.GD22493@in.ibm.com> <20060509071204.GE22493@in.ibm.com>
- <20060509071523.GF22493@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 09 May 2006 17:04:51.0410 (UTC) FILETIME=[AF85CB20:01C6738A]
+	Tue, 9 May 2006 13:13:02 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Stefan Schweizer <genstef@gentoo.org>
+Subject: Re: [PATCH 2.6.17-rc3] Fix capi reload by unregistering the correct major
+Followup-To: gmane.linux.kernel
+Date: Tue, 09 May 2006 19:12:14 +0200
+Message-ID: <e3qihe$3q2$1@sea.gmane.org>
+References: <e307i4$f1h$1@sea.gmane.org> <20060508130029.08a9a962.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ppp-62-245-211-185.mnet-online.de
+User-Agent: KNode/0.10.2
+Cc: i4ldeveloper@listserv.isdn4linux.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 May 2006, Prasanna S Panchamukhi wrote:
-> This patch removes the breakpoints if the pages read from the page
-> cache contains breakpoints. If the pages containing the breakpoints
-> is copied from the page cache, the copied image would also contain
-> breakpoints in them. This could be a major problem for tools like
-> tripwire etc and cause security concerns, hence must be prevented.
-> This patch hooks up the actor routine, checks if the executable was
-> a probed executable using the file inode and then replaces the
-> breakpoints with the original opcodes in the copied image.
+Andrew Morton wrote:
 
-You've done a nice job of making the code look like kernel code
-throughout, it's a much tidier patchset than many.
+> Stefan Schweizer <genstef@gentoo.org> wrote:
+>> --- drivers/isdn/capi/capi.c.orig    2006-04-29 18:40:25.000000000 +0200
+>> +++ drivers/isdn/capi/capi.c 2006-04-29 18:27:22.000000000 +0200
+>> @@ -1499,7 +1499,6 @@
+>>  printk(KERN_ERR "capi20: unable to get major %d\n", capi_major);
+>>  return major_ret;
+>>  }
+>> -    capi_major = major_ret;
+>>  capi_class = class_create(THIS_MODULE, "capi");
+>>  if (IS_ERR(capi_class)) {
+>>  unregister_chrdev(capi_major, "capi20");
+>> 
+>> 
+>> 
+> 
+> What does "unload and retry" mean?
+> 
+> An `rmmod capi;modprobe capi' will reset the major to 68, so you must mean
+> something else.  What?
 
-With that said... it looks to me like one of the scariest and
-most inappropriate sets I can remember.  Getting the kernel to
-connive in presenting an incoherent view of its pagecache:
-I don't think we'd ever want that.
+I mean exactly rmmod capi; modprobe capi. The problem is, that on unload
+time, the capi_major has been set to major_ret, which is 0 if a major
+number is given. Of course it does not unregister 68 then. Consequently
+when trying to load it a second time after unloading it fails, because it
+has not freed the major 68.
 
-There's all kinds of things that could be said about the details
-(your locking is often insufficient, for example); but there's a
-lot going on, and it doesn't seem worth going through this line
-by line, when the whole concept seems so unwelcome.
+Regards,
+Stefan
 
-You've a big task to convince people that this is something the
-Linux kernel will want: and perhaps you'll succeed - good luck.
-
-But please approach what you're trying to do from userspace:
-you can patch the binaries from there if you wish (but not on
-my system, thanks).  Or perhaps you can patch it all into the
-kernel via kprobes itself, but I wouldn't recommend it.
-
-Hugh

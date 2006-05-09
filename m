@@ -1,80 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751755AbWEIK0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbWEIKvs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751755AbWEIK0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 06:26:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751757AbWEIK0Q
+	id S1751385AbWEIKvs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 06:51:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWEIKvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 06:26:16 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:26023 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1751755AbWEIK0P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 06:26:15 -0400
-Date: Tue, 9 May 2006 13:26:06 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Christoph Lameter <clameter@sgi.com>, Linus Torvalds <torvalds@osdl.org>,
-       Daniel Hokka Zakrisson <daniel@hozac.com>, linux-kernel@vger.kernel.org,
-       "=?ISO-8859-1?Q?Bj=F6rn_Steinbrink?=" <B.Steinbrink@gmx.de>,
-       greg@kroah.com, matthew@wil.cx, akpm@osdl.org
-Subject: Re: [PATCH] fs: fcntl_setlease defies lease_init assumptions
-In-Reply-To: <44603543.8070205@colorfullife.com>
-Message-ID: <Pine.LNX.4.58.0605091316010.27821@sbz-30.cs.Helsinki.FI>
-References: <445E80DD.9090507@hozac.com>  <Pine.LNX.4.64.0605072030280.3718@g5.osdl.org>
-  <84144f020605080131r58ce2a93w6c7ba784a266bbeb@mail.gmail.com> 
- <84144f020605080134q7e16f37fl385359c634ece8ca@mail.gmail.com> 
- <Pine.LNX.4.64.0605080807430.3718@g5.osdl.org>  <1147104412.22096.8.camel@localhost>
-  <Pine.LNX.4.64.0605080913240.3718@g5.osdl.org> <1147116991.11282.3.camel@localhost>
- <Pine.LNX.4.64.0605082031580.23431@schroedinger.engr.sgi.com>
- <44603543.8070205@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 9 May 2006 06:51:48 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:65155 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751385AbWEIKvs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 06:51:48 -0400
+Subject: Re: How to read BIOS information
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Madhukar Mythri <madhukar.mythri@wipro.com>
+Cc: Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <4460273E.5040608@wipro.com>
+References: <445F5228.7060006@wipro.com>
+	 <1147099994.2888.32.camel@laptopd505.fenrus.org>
+	 <445F5DF1.3020606@wipro.com>
+	 <1147101329.2888.39.camel@laptopd505.fenrus.org>
+	 <445F63B3.2010501@wipro.com> <20060508152659.GG1875@harddisk-recovery.com>
+	 <4460273E.5040608@wipro.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Tue, 09 May 2006 12:03:44 +0100
+Message-Id: <1147172624.3172.60.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 May 2006, Manfred Spraul wrote:
-> Probably the allocator should be rewritten, without relying on virt_to_page().
-> Any proposals how kfree and kmem_cache_free could locate the cachep pointer?
-> That's the performance critical part.
-> 
-> Right's now it's
-> <<<
->   page = vir_to_page(objp)
->   if (unlikely(PageCompound(page)))
->           page = (struct page *)page_private(page);
->   cachep = (struct kmem_cache *)page->lru.next;
-> >>>
-> 
-> What about:
-> - switch from power of two kmalloc caches to slighly smaller caches.
-> - change the kmalloc(PAGE_SIZE) users to get_free_page(). get_free_page() is
-> now fast, too.
-> - use cachep= *((struct kmem_cache **)(objp & 0xfff))
+On Maw, 2006-05-09 at 10:53 +0530, Madhukar Mythri wrote:
+>   yeah, your are correct. but, the thing is my superiors want, even if 
+> kernel not reconize/use HT, we have to capture it from BIOS...
+> Thats why i asked as, how to read BIOS information?
 
-I think you mean
+You ask the BIOS vendor for the exact board in question.
 
-static inline struct kmem_cache *slab_get_cache(const void *obj)
-{
-        struct kmem_cache **p = (void *)((unsigned long) obj & ~(PAGE_SIZE-1));
-        return *p;
-}
+If you want to ask the processor itself then you can use the model
+specific registers. These are accessible via /dev/cpu/<cpuid>/msr so you
+can perform the Intel recommended sequence for checking if the processor
+has HT enabled.
 
-On Tue, 9 May 2006, Manfred Spraul wrote:
-> The result would be a few small restrictions: all objects must start in the
-> first page of a slab (there are no exceptions on my 2.6.16 system), and
-> PAGE_SIZE'd caches are very expensive. Replacing the names_cache with
-> get_free_page is trivial. That leaves the pgd cache.
+It might be simpler to look in /proc/cpuinfo if you just need the basic
+information
 
-Your plan makes sense for slabs that have slab management structures 
-embedded within. We already have enough free space there for one pointer 
-due to 
-
-    colour_off += cachep->slab_size;
-
-in the alloc_slabmgmt() function, I think. Are you planning to kill 
-external slab management allocation completely by switching to 
-get_free_pages() for those cases? I'd much rather make the switch to page 
-allocator under the hood so kmalloc(PAGE_SIZE*n) would still work because 
-it's much nicer API.
-
-				Pekka

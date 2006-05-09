@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWEIPPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbWEIPQ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbWEIPPT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 11:15:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWEIPPT
+	id S932391AbWEIPQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 11:16:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWEIPQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 11:15:19 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:13719 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932395AbWEIPPS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 11:15:18 -0400
-Date: Tue, 9 May 2006 16:15:16 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: Re: [RFC PATCH 03/35] Add Xen interface header files
-Message-ID: <20060509151516.GA16332@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-	virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-	Ian Pratt <ian.pratt@xensource.com>,
-	Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-References: <20060509084945.373541000@sous-sol.org> <20060509085147.903310000@sous-sol.org>
+	Tue, 9 May 2006 11:16:58 -0400
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:55970 "EHLO mta2.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S932391AbWEIPQ5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 11:16:57 -0400
+Date: Tue, 9 May 2006 16:16:51 +0100
+From: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       Ian Pratt <ian.pratt@xensource.com>
+Subject: Re: [RFC PATCH 01/35] Add XEN config options and disable unsupported config options.
+Message-ID: <20060509151651.GI7834@cl.cam.ac.uk>
+References: <20060509084945.373541000@sous-sol.org> <20060509085145.790527000@sous-sol.org> <1147186032.21536.16.camel@c-67-180-134-207.hsd1.ca.comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060509085147.903310000@sous-sol.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <1147186032.21536.16.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> ---
->  include/xen/interface/arch-x86_32.h   |  197 +++++++++++++++
+On Tue, May 09, 2006 at 07:47:12AM -0700, Daniel Walker wrote:
+> On Tue, 2006-05-09 at 00:00 -0700, Chris Wright wrote:
+> > The disabled config options are:
+> > - DOUBLEFAULT: are trapped by Xen and not virtualized
+> > - HZ: defaults to 100 in Xen VMs
+> > - Power management: not supported in unprivileged VMs
+> > - SMP: not supported in this set of patches
+> > - X86_{UP,LOCAL,IO}_APIC: not supported in unprivileged VMs
+> > 
+> > +++ linus-2.6/arch/i386/Kconfig
+> > @@ -55,6 +55,7 @@ menu "Processor type and features"
+> >  
+> >  config SMP
+> >  	bool "Symmetric multi-processing support"
+> > +	depends on !X86_XEN
+> >  	---help---
+> >  	  This enables support for systems with more than one CPU. If you have
+> >  	  a system with only one CPU, like most personal computers, say N. If
+> > @@ -91,6 +92,12 @@ config X86_PC
+> >  	help
+> >  	  Choose this option if your computer is a standard PC or compatible.
+> >  
+> > +config X86_XEN
+> > +	bool "Xen-compatible"
+> > +	help
+> > +	  Choose this option if you plan to run this kernel on top of the
+> > +	  Xen Hypervisor.
+> > +
+> 
+> Couldn't you just add "depends on !SMP && .." to the config X86_XEN
+> block ? 
 
-that kind of stuff needs to go to asm/
+I guess you could, but it would make it rather non-obvious and tedious
+to enable X86_XEN then, wouldn't it?
 
->  include/xen/interface/event_channel.h |  205 +++++++++++++++
-
-instead of interface please use something shorter, we'll see this
-all over the includes statements.  intf for example.
-
-> +#ifdef __XEN__
-> +#define __DEFINE_GUEST_HANDLE(name, type) \
-> +    typedef struct { type *p; } __guest_handle_ ## name
-> +#else
-> +#define __DEFINE_GUEST_HANDLE(name, type) \
-> +    typedef type * __guest_handle_ ## name
-> +#endif
-
-please get rid of all these stupid typedefs
-
-> +#ifndef __ASSEMBLY__
-> +/* Guest handles for primitive C types. */
-> +__DEFINE_GUEST_HANDLE(uchar, unsigned char);
-> +__DEFINE_GUEST_HANDLE(uint,  unsigned int);
-> +__DEFINE_GUEST_HANDLE(ulong, unsigned long);
-
-don't use uchar/uint/ulong types ever.  And in things like
-hypervisor/kernel interfaces always use __u* types.
+    christian
 

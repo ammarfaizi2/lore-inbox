@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWEIUkv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWEIUmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751179AbWEIUkv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 16:40:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWEIUku
+	id S1751160AbWEIUmT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 16:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWEIUmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 16:40:50 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:34565 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751168AbWEIUku (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 16:40:50 -0400
-Date: Tue, 9 May 2006 22:40:52 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: "Frank Ch. Eigler" <fche@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Richard J Moore <richardj_moore@uk.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org,
-       Prasanna S Panchamukhi <prasanna@in.ibm.com>, suparna@in.ibm.com
-Subject: Re: [RFC] [PATCH 3/6] Kprobes: New interfaces for user-space probes
-Message-ID: <20060509204052.GN3570@stusta.de>
-References: <20060509093614.GB26953@infradead.org> <OFB21F3208.CA125B3A-ON41257169.005345DD-41257169.005375F5@uk.ibm.com> <20060509151857.GB16332@infradead.org> <y0mk68vyu2y.fsf@ton.toronto.redhat.com>
-MIME-Version: 1.0
+	Tue, 9 May 2006 16:42:19 -0400
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:30661 "EHLO mta2.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S1751160AbWEIUmT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 16:42:19 -0400
+Date: Tue, 9 May 2006 21:42:07 +0100
+From: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: virtualization@lists.osdl.org, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Chris Wright <chrisw@sous-sol.org>, xen-devel@lists.xensource.com,
+       linux-kernel@vger.kernel.org, Ian Pratt <ian.pratt@xensource.com>
+Subject: Re: [RFC PATCH 15/35] subarch support for controlling interrupt delivery
+Message-ID: <20060509204207.GQ7834@cl.cam.ac.uk>
+References: <20060509084945.373541000@sous-sol.org> <200605091807.57522.ak@suse.de> <20060509162959.GL7834@cl.cam.ac.uk> <200605091831.37757.ak@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <y0mk68vyu2y.fsf@ton.toronto.redhat.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <200605091831.37757.ak@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 09, 2006 at 01:41:09PM -0400, Frank Ch. Eigler wrote:
+On Tue, May 09, 2006 at 06:31:37PM +0200, Andi Kleen wrote:
+> On Tuesday 09 May 2006 18:29, Christian Limpach wrote:
+> > On Tue, May 09, 2006 at 06:07:57PM +0200, Andi Kleen wrote:
+> > > 
+> > > > 
+> > > > Anybody want to comment on the performance impact of making
+> > > > local_irq_* non-inline functions?
+> > > 
+> > > I would guess for that much inline code it will be even a win to not
+> > > inline because it will save icache.
+> > 
+> > Maybe, although some of the macros compile down to only 2-3 instructions.
 > 
-> hch wrote:
-> 
-> > [...]  why the hell do you guys expect to get a huge piele of flaky
-> > code integrate that slows down pagecaches and adds thousands of
-> > lines of undebuggable and untestable code without submitting
-> > something that actually calls it. [...]
-> 
-> It is reasonable to want to see code that exercises this function.
-> Until systemtap does, hand-written examples can surely be provided.
+> Can you post before/after vmlinux size numbers for inline/out of line?
 
-It's not about examples, it's about in-kernel users.
+Sure, although it is a bit tricky since the #define's pass non-pointer
+arguments by reference.  This would also make it quite ugly to change
+these.
 
-If the code using it is not yet ready for submission, there's no need to 
-add interfaces for it now.
+Everything[1] in line:
+-rwxr-xr-x  1 cl349 cl349  2633640 May  9 19:42 vmlinux-inline-stripped
+Everything out of line:
+-rwxr-xr-x  1 cl349 cl349  2621352 May  9 19:45 vmlinux-outline-stripped
 
-> - FChE
+Additionally, I changed did a build with only __sti and __restore_flags
+out of line and the others in line:
+-rwxr-xr-x  1 cl349 cl349  2617256 May  9 19:50 vmlinux-hybrid-stripped
 
-cu
-Adrian
+__sti and __restore_flags are the ones which generate more code,
+so it seemed more sensible to make the out of line.
 
--- 
+Any conlusions?
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+    christian
+
+[1] __cli, __sti, __save_flags, __restore_flags, __save_and_cli, irqs_disabled
 

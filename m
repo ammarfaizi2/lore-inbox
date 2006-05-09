@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWEIMBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbWEIMM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbWEIMBP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 08:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWEIMBP
+	id S932394AbWEIMM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 08:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWEIMM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 08:01:15 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:58565 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932399AbWEIMBO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 08:01:14 -0400
-Date: Tue, 9 May 2006 13:01:13 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: Re: [RFC PATCH 35/35] Add Xen virtual block device driver.
-Message-ID: <20060509120113.GB2213@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-	virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-	Ian Pratt <ian.pratt@xensource.com>,
-	Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-References: <20060509084945.373541000@sous-sol.org> <20060509085201.799981000@sous-sol.org>
+	Tue, 9 May 2006 08:12:58 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:57543 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932394AbWEIMM6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 08:12:58 -0400
+Subject: Re: libata PATA patch update
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kevin Radloff <radsaq@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3b0ffc1f0605081029o604e5a3eu62f58b765a10bf65@mail.gmail.com>
+References: <1147104400.3172.7.camel@localhost.localdomain>
+	 <3b0ffc1f0605081029o604e5a3eu62f58b765a10bf65@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 09 May 2006 13:24:56 +0100
+Message-Id: <1147177496.3172.64.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060509085201.799981000@sous-sol.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 09, 2006 at 12:00:35AM -0700, Chris Wright wrote:
-> The block device frontend driver allows the kernel to access block
-> devices exported exported by a virtual machine containing a physical
-> block device driver.
+On Llu, 2006-05-08 at 13:29 -0400, Kevin Radloff wrote:
+> On 5/8/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > I've posted a new patch versus 2.6.17-rc3 up at the usual location.
+> 
+> Thanks for the update. I'm still getting the same oops when inserting
+> a CF card, though:
 
-Any reason you're using the old crappy xen I/O code instead of Rusty's
-alternative version?
+Different oops I think 8) I've fixed that one now although it may well
+be that ide2 once I release it now oopses where it did before the PCMCIA
+change rather than where it did this time.
 
-Also please stop this stupid front/back naming.  In Linux terminology the
-frontend is the client if there's a need for a postfix at all, and the
-backend the server.  Compare that to e.g. ibm vio.
+Alan
+

@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWEIJ54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751744AbWEIKAw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932138AbWEIJ54 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 05:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751744AbWEIJ54
+	id S1751744AbWEIKAw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 06:00:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751731AbWEIKAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 05:57:56 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:39874 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1751746AbWEIJ5z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 05:57:55 -0400
-Date: Tue, 9 May 2006 11:57:54 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Madhukar Mythri <madhukar.mythri@wipro.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to read BIOS information
-Message-ID: <20060509095753.GA20750@harddisk-recovery.com>
-References: <445F5228.7060006@wipro.com> <1147099994.2888.32.camel@laptopd505.fenrus.org> <445F5DF1.3020606@wipro.com> <1147101329.2888.39.camel@laptopd505.fenrus.org> <445F63B3.2010501@wipro.com> <20060508152659.GG1875@harddisk-recovery.com> <4460273E.5040608@wipro.com>
+	Tue, 9 May 2006 06:00:52 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:6310 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1751485AbWEIKAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 06:00:51 -0400
+Date: Tue, 9 May 2006 13:00:44 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+cc: davem@davemloft.net, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       blaisorblade@yahoo.it, jdike@karaya.com,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [PROBLEM] UML is killed by SIGALRM
+In-Reply-To: <20060509092154.GC9417@osiris.boeblingen.de.ibm.com>
+Message-ID: <Pine.LNX.4.58.0605091259430.27821@sbz-30.cs.Helsinki.FI>
+References: <Pine.LNX.4.58.0605091125400.24592@sbz-30.cs.Helsinki.FI>
+ <20060509092154.GC9417@osiris.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4460273E.5040608@wipro.com>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 09, 2006 at 10:53:10AM +0530, Madhukar Mythri wrote:
-> Erik Mouw wrote:
-> >On Mon, May 08, 2006 at 08:58:51PM +0530, Madhukar Mythri wrote:
-> >>I forgot mention, that my Kernel is NONSMP based kernel....
-> >
-> >Then your application can't use HT anyway, so why bother?
->
->  yeah, your are correct. but, the thing is my superiors want, even if 
-> kernel not reconize/use HT, we have to capture it from BIOS...
-> Thats why i asked as, how to read BIOS information?
+On Tue, 9 May 2006, Heiko Carstens wrote:
+> No idea what might cause this. Guess there are no messages on the console?
 
-You can't. Tell your superiors life sucks.
+Nope.
 
+On Tue, 9 May 2006, Heiko Carstens wrote:
+> > I did a git bisect which found the offending commit:
+> > 
+> >     [IPV4]: inet_init() -> fs_initcall
+> > 
+> >     Convert inet_init to an fs_initcall to make sure its called before any
+> >     device driver's initcall.
+> 
+> Could you try the patch below? It will move inet_init a bit down the chain of
+> the initcall list. Even though I doubt it will help...
 
-Erik
+Tried it, still the same problem.
 
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+				Pekka

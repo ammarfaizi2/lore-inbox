@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWEIPqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbWEIPpq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbWEIPqO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 11:46:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbWEIPqN
+	id S1750950AbWEIPpq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 11:45:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750847AbWEIPpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 11:46:13 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:59544 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S1750837AbWEIPqM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 11:46:12 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 9 May 2006 11:45:46 -0400
+Received: from wr-out-0506.google.com ([64.233.184.230]:7954 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750837AbWEIPpq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 11:45:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=Ies4Rv1ibdYsAtB2N18JsPChoFLKYXFogfVCUtzK0uOrl8nNcTT14RaZVo24tr+gI0HHgH+o+Kwrp6lg+45TIbkgUJmFAKeqXfFqJgXWRkC4xVr2MV09o5O6h9NwfSGMYAgW3CMEdtJxB/1ON8Isgt+GlliiUHWPrCiXSdKRepg=
+Message-ID: <84144f020605090845m722d68c1l375e54fc6aa1f297@mail.gmail.com>
+Date: Tue, 9 May 2006 18:45:45 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Christoph Hellwig" <hch@infradead.org>, "Andi Kleen" <ak@suse.de>,
+       "Chris Wright" <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com
+Subject: Re: [RFC PATCH 00/35] Xen i386 paravirtualization support
+In-Reply-To: <20060509152240.GA17837@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [RFC PATCH 01/35] Add XEN config options and disableunsupported config options.
-Date: Tue, 9 May 2006 08:46:10 -0700
-Message-ID: <516F50407E01324991DD6D07B0531AD5B249FE@cacexc12.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC PATCH 01/35] Add XEN config options and disableunsupported config options.
-Thread-Index: AcZzaFckWAJUIlQ9S0mJTyReIA0WjgAFogaQ
-From: "Magenheimer, Dan (HP Labs Fort Collins)" <dan.magenheimer@hp.com>
-To: "Christian Limpach" <Christian.Limpach@cl.cam.ac.uk>,
-       "Adrian Bunk" <bunk@stusta.de>
-Cc: "Chris Wright" <chrisw@sous-sol.org>, <virtualization@lists.osdl.org>,
-       <xen-devel@lists.xensource.com>, <linux-kernel@vger.kernel.org>,
-       "Ian Pratt" <ian.pratt@xensource.com>
-X-OriginalArrivalTime: 09 May 2006 15:46:11.0356 (UTC) FILETIME=[B226B5C0:01C6737F]
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060509084945.373541000@sous-sol.org>
+	 <4460AC01.5020503@mbligh.org> <20060509150701.GA14050@infradead.org>
+	 <p73k68v4444.fsf@bragg.suse.de> <20060509152240.GA17837@infradead.org>
+X-Google-Sender-Auth: dc5c28fb7588fdb1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > >  config HZ
-> > >  	int
-> > > -	default 100 if HZ_100
-> > > +	default 100 if HZ_100 || XEN
-> > >  	default 250 if HZ_250
-> > >  	default 1000 if HZ_1000
-> > >...
-> > 
-> > Why?
-> 
-> Because the hypervisor sends timer interrupts to the guest at a rate
-> of 100 Hz while the guest is running.  We might add support to have
-> an adjustable rate in the future but so far 100 Hz has worked quite
-> well for us.
+On Tue, May 09, 2006 at 05:20:11PM +0200, Andi Kleen wrote:
+> > > It's also wrong.  There's more than one hypervisor and Xen shouldn't just
+> > > grab this namespace.  make it xen_ or xenhv_.
+> >
+> > You should reject the recent "hypervisor file system" with the same
+> > argument then.
 
-It seems to me that a guest should be telling a hypervisor how
-frequently it needs a timer interrupt, not vice versa.  And
-it should be possible for different guests to have different HZ.
+On 5/9/06, Christoph Hellwig <hch@infradead.org> wrote:
+> I prefer it would become lparfs or something like that indeed.
 
-Given all the lkml debate on HZ over the last few years
-and the compromise solution (configurable HZ_nnn), forcing
-100 Hz on the guest appears to be a step backwards.
+AFAIK it's called s390-hypfs now.
 
-(BTW, Xen/ia64 honors all guest's configured HZ.)
+                                      Pekka

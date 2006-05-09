@@ -1,69 +1,422 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWEIIsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbWEIItG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWEIIsi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 04:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbWEIIsh
+	id S1751480AbWEIItG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 04:49:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbWEIIs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 04:48:37 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:51587 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1750703AbWEIIsh
+	Tue, 9 May 2006 04:48:58 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:47491 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751482AbWEIIsm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 04:48:37 -0400
-Message-Id: <20060509085146.825885000@sous-sol.org>
+	Tue, 9 May 2006 04:48:42 -0400
+Message-Id: <20060509085148.485343000@sous-sol.org>
 References: <20060509084945.373541000@sous-sol.org>
-Date: Tue, 09 May 2006 00:00:02 -0700
+Date: Tue, 09 May 2006 00:00:04 -0700
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org
 Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
        Ian Pratt <ian.pratt@xensource.com>,
        Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: [RFC PATCH 02/35] Makefile support to build Xen subarch
-Content-Disposition: inline; filename=i386-mach-xen
+Subject: [RFC PATCH 04/35] Hypervisor interface header files.
+Content-Disposition: inline; filename=i386-hypervisor-interface
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use arch/i386/mach-xen when building Xen subarch. The separate
-subarchitecture allows us to hide details of interfacing with the
-hypervisor from i386 common code.
+Define macros and inline functions for doing hypercalls into the
+hypervisor.
 
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- arch/i386/Makefile          |    5 +++++
- arch/i386/mach-xen/Makefile |    7 +++++++
- 2 files changed, 12 insertions(+)
+ include/asm-i386/hypercall.h  |  309 ++++++++++++++++++++++++++++++++++++++++++
+ include/asm-i386/hypervisor.h |   70 +++++++++
+ 2 files changed, 379 insertions(+)
 
---- linus-2.6.orig/arch/i386/Makefile
-+++ linus-2.6/arch/i386/Makefile
-@@ -71,6 +71,10 @@ mcore-$(CONFIG_X86_BIGSMP)	:= mach-defau
- mflags-$(CONFIG_X86_SUMMIT) := -Iinclude/asm-i386/mach-summit
- mcore-$(CONFIG_X86_SUMMIT)  := mach-default
- 
-+# Xen subarch support
-+mflags-$(CONFIG_X86_XEN)	:= -Iinclude/asm-i386/mach-xen
-+mcore-$(CONFIG_X86_XEN)		:= mach-xen
-+
- # generic subarchitecture
- mflags-$(CONFIG_X86_GENERICARCH) := -Iinclude/asm-i386/mach-generic
- mcore-$(CONFIG_X86_GENERICARCH) := mach-default
-@@ -99,6 +103,7 @@ drivers-$(CONFIG_PM)			+= arch/i386/powe
- 
- CFLAGS += $(mflags-y)
- AFLAGS += $(mflags-y)
-+CPPFLAGS += $(mflags-y)
- 
- boot := arch/i386/boot
- 
 --- /dev/null
-+++ linus-2.6/arch/i386/mach-xen/Makefile
-@@ -0,0 +1,7 @@
-+#
-+# Makefile for the linux kernel.
-+#
++++ linus-2.6/include/asm-i386/hypercall.h
+@@ -0,0 +1,309 @@
++/******************************************************************************
++ * hypercall.h
++ *
++ * Linux-specific hypervisor handling.
++ *
++ * Copyright (c) 2002-2004, K A Fraser
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modify,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
++ * and to permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
++ */
 +
-+obj-y				:= setup.o
++#ifndef __HYPERCALL_H__
++#define __HYPERCALL_H__
 +
-+setup-y				:= ../mach-default/setup.o
++#include <linux/config.h>
++
++#include <xen/interface/xen.h>
++#include <xen/interface/sched.h>
++
++#define __STR(x) #x
++#define STR(x) __STR(x)
++
++#define _hypercall0(type, name)			\
++({						\
++	long __res;				\
++	asm volatile (				\
++		"call hypercall_page + ("STR(__HYPERVISOR_##name)" * 32)"\
++		: "=a" (__res)			\
++		:				\
++		: "memory" );			\
++	(type)__res;				\
++})
++
++#define _hypercall1(type, name, a1)				\
++({								\
++	long __res, __ign1;					\
++	asm volatile (						\
++		"call hypercall_page + ("STR(__HYPERVISOR_##name)" * 32)"\
++		: "=a" (__res), "=b" (__ign1)			\
++		: "1" ((long)(a1))				\
++		: "memory" );					\
++	(type)__res;						\
++})
++
++#define _hypercall2(type, name, a1, a2)				\
++({								\
++	long __res, __ign1, __ign2;				\
++	asm volatile (						\
++		"call hypercall_page + ("STR(__HYPERVISOR_##name)" * 32)"\
++		: "=a" (__res), "=b" (__ign1), "=c" (__ign2)	\
++		: "1" ((long)(a1)), "2" ((long)(a2))		\
++		: "memory" );					\
++	(type)__res;						\
++})
++
++#define _hypercall3(type, name, a1, a2, a3)			\
++({								\
++	long __res, __ign1, __ign2, __ign3;			\
++	asm volatile (						\
++		"call hypercall_page + ("STR(__HYPERVISOR_##name)" * 32)"\
++		: "=a" (__res), "=b" (__ign1), "=c" (__ign2), 	\
++		"=d" (__ign3)					\
++		: "1" ((long)(a1)), "2" ((long)(a2)),		\
++		"3" ((long)(a3))				\
++		: "memory" );					\
++	(type)__res;						\
++})
++
++#define _hypercall4(type, name, a1, a2, a3, a4)			\
++({								\
++	long __res, __ign1, __ign2, __ign3, __ign4;		\
++	asm volatile (						\
++		"call hypercall_page + ("STR(__HYPERVISOR_##name)" * 32)"\
++		: "=a" (__res), "=b" (__ign1), "=c" (__ign2),	\
++		"=d" (__ign3), "=S" (__ign4)			\
++		: "1" ((long)(a1)), "2" ((long)(a2)),		\
++		"3" ((long)(a3)), "4" ((long)(a4))		\
++		: "memory" );					\
++	(type)__res;						\
++})
++
++#define _hypercall5(type, name, a1, a2, a3, a4, a5)		\
++({								\
++	long __res, __ign1, __ign2, __ign3, __ign4, __ign5;	\
++	asm volatile (						\
++		"call hypercall_page + ("STR(__HYPERVISOR_##name)" * 32)"\
++		: "=a" (__res), "=b" (__ign1), "=c" (__ign2),	\
++		"=d" (__ign3), "=S" (__ign4), "=D" (__ign5)	\
++		: "1" ((long)(a1)), "2" ((long)(a2)),		\
++		"3" ((long)(a3)), "4" ((long)(a4)),		\
++		"5" ((long)(a5))				\
++		: "memory" );					\
++	(type)__res;						\
++})
++
++static inline int
++HYPERVISOR_set_trap_table(
++	struct trap_info *table)
++{
++	return _hypercall1(int, set_trap_table, table);
++}
++
++static inline int
++HYPERVISOR_mmu_update(
++	struct mmu_update *req, int count, int *success_count, domid_t domid)
++{
++	return _hypercall4(int, mmu_update, req, count, success_count, domid);
++}
++
++static inline int
++HYPERVISOR_mmuext_op(
++	struct mmuext_op *op, int count, int *success_count, domid_t domid)
++{
++	return _hypercall4(int, mmuext_op, op, count, success_count, domid);
++}
++
++static inline int
++HYPERVISOR_set_gdt(
++	unsigned long *frame_list, int entries)
++{
++	return _hypercall2(int, set_gdt, frame_list, entries);
++}
++
++static inline int
++HYPERVISOR_stack_switch(
++	unsigned long ss, unsigned long esp)
++{
++	return _hypercall2(int, stack_switch, ss, esp);
++}
++
++static inline int
++HYPERVISOR_set_callbacks(
++	unsigned long event_selector, unsigned long event_address,
++	unsigned long failsafe_selector, unsigned long failsafe_address)
++{
++	return _hypercall4(int, set_callbacks,
++			   event_selector, event_address,
++			   failsafe_selector, failsafe_address);
++}
++
++static inline int
++HYPERVISOR_fpu_taskswitch(
++	int set)
++{
++	return _hypercall1(int, fpu_taskswitch, set);
++}
++
++static inline int
++HYPERVISOR_sched_op(
++	int cmd, unsigned long arg)
++{
++	return _hypercall2(int, sched_op, cmd, arg);
++}
++
++static inline long
++HYPERVISOR_set_timer_op(
++	u64 timeout)
++{
++	unsigned long timeout_hi = (unsigned long)(timeout>>32);
++	unsigned long timeout_lo = (unsigned long)timeout;
++	return _hypercall2(long, set_timer_op, timeout_lo, timeout_hi);
++}
++
++static inline int
++HYPERVISOR_set_debugreg(
++	int reg, unsigned long value)
++{
++	return _hypercall2(int, set_debugreg, reg, value);
++}
++
++static inline unsigned long
++HYPERVISOR_get_debugreg(
++	int reg)
++{
++	return _hypercall1(unsigned long, get_debugreg, reg);
++}
++
++static inline int
++HYPERVISOR_update_descriptor(
++	u64 ma, u64 desc)
++{
++	return _hypercall4(int, update_descriptor, ma, ma>>32, desc, desc>>32);
++}
++
++static inline int
++HYPERVISOR_memory_op(
++	unsigned int cmd, void *arg)
++{
++	return _hypercall2(int, memory_op, cmd, arg);
++}
++
++static inline int
++HYPERVISOR_multicall(
++	void *call_list, int nr_calls)
++{
++	return _hypercall2(int, multicall, call_list, nr_calls);
++}
++
++static inline int
++HYPERVISOR_update_va_mapping(
++	unsigned long va, pte_t new_val, unsigned long flags)
++{
++	unsigned long pte_hi = 0;
++#ifdef CONFIG_X86_PAE
++	pte_hi = new_val.pte_high;
++#endif
++	return _hypercall4(int, update_va_mapping, va,
++			   new_val.pte_low, pte_hi, flags);
++}
++
++static inline int
++HYPERVISOR_event_channel_op(
++	void *op)
++{
++	return _hypercall1(int, event_channel_op, op);
++}
++
++static inline int
++HYPERVISOR_xen_version(
++	int cmd, void *arg)
++{
++	return _hypercall2(int, xen_version, cmd, arg);
++}
++
++static inline int
++HYPERVISOR_console_io(
++	int cmd, int count, char *str)
++{
++	return _hypercall3(int, console_io, cmd, count, str);
++}
++
++static inline int
++HYPERVISOR_physdev_op(
++	void *physdev_op)
++{
++	return _hypercall1(int, physdev_op, physdev_op);
++}
++
++static inline int
++HYPERVISOR_grant_table_op(
++	unsigned int cmd, void *uop, unsigned int count)
++{
++	return _hypercall3(int, grant_table_op, cmd, uop, count);
++}
++
++static inline int
++HYPERVISOR_update_va_mapping_otherdomain(
++	unsigned long va, pte_t new_val, unsigned long flags, domid_t domid)
++{
++	unsigned long pte_hi = 0;
++#ifdef CONFIG_X86_PAE
++	pte_hi = new_val.pte_high;
++#endif
++	return _hypercall5(int, update_va_mapping_otherdomain, va,
++			   new_val.pte_low, pte_hi, flags, domid);
++}
++
++static inline int
++HYPERVISOR_vm_assist(
++	unsigned int cmd, unsigned int type)
++{
++	return _hypercall2(int, vm_assist, cmd, type);
++}
++
++static inline int
++HYPERVISOR_vcpu_op(
++	int cmd, int vcpuid, void *extra_args)
++{
++	return _hypercall3(int, vcpu_op, cmd, vcpuid, extra_args);
++}
++
++static inline int
++HYPERVISOR_suspend(
++	unsigned long srec)
++{
++	return _hypercall3(int, sched_op, SCHEDOP_shutdown,
++			   SHUTDOWN_suspend, srec);
++}
++
++static inline int
++HYPERVISOR_nmi_op(
++	unsigned long op,
++	unsigned long arg)
++{
++	return _hypercall2(int, nmi_op, op, arg);
++}
++
++#endif /* __HYPERCALL_H__ */
+--- /dev/null
++++ linus-2.6/include/asm-i386/hypervisor.h
+@@ -0,0 +1,70 @@
++/******************************************************************************
++ * hypervisor.h
++ *
++ * Linux-specific hypervisor handling.
++ *
++ * Copyright (c) 2002-2004, K A Fraser
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modify,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
++ * and to permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
++ */
++
++#ifndef __HYPERVISOR_H__
++#define __HYPERVISOR_H__
++
++#include <linux/config.h>
++#include <linux/types.h>
++#include <linux/kernel.h>
++#include <linux/version.h>
++
++#include <xen/interface/xen.h>
++#include <xen/interface/version.h>
++#include <xen/features.h>
++
++#include <asm/ptrace.h>
++#include <asm/page.h>
++#if defined(__i386__)
++#  ifdef CONFIG_X86_PAE
++#   include <asm-generic/pgtable-nopud.h>
++#  else
++#   include <asm-generic/pgtable-nopmd.h>
++#  endif
++#endif
++
++/* arch/i386/kernel/setup.c */
++extern struct shared_info *HYPERVISOR_shared_info;
++extern struct start_info *xen_start_info;
++
++/* arch/i386/mach-xen/evtchn.c */
++/* Force a proper event-channel callback from Xen. */
++extern void force_evtchn_callback(void);
++
++/* Turn jiffies into Xen system time. */
++u64 jiffies_to_st(unsigned long jiffies);
++
++#include <asm/hypercall.h>
++
++#define xen_init()	(0)
++
++#endif /* __HYPERVISOR_H__ */
 
 --

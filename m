@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbWEILFW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751749AbWEILHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751411AbWEILFW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 07:05:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWEILFW
+	id S1751749AbWEILHV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 07:07:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751759AbWEILHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 07:05:22 -0400
-Received: from mail.aei.ca ([206.123.6.14]:60923 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S1751411AbWEILFV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 07:05:21 -0400
-From: Ed Tomlinson <edt@aei.ca>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [RFC PATCH 01/35] Add XEN config options and disable unsupported config options.
-Date: Tue, 9 May 2006 07:06:48 -0400
-User-Agent: KMail/1.8.3
-Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-References: <20060509084945.373541000@sous-sol.org> <20060509085145.790527000@sous-sol.org> <20060509100547.GL3570@stusta.de>
-In-Reply-To: <20060509100547.GL3570@stusta.de>
+	Tue, 9 May 2006 07:07:21 -0400
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:14771
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1751749AbWEILHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 07:07:19 -0400
+Date: Tue, 9 May 2006 12:05:35 +0100
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andy Whitcroft <apw@shadowen.org>, Dave Hansen <haveblue@us.ibm.com>,
+       Bob Picco <bob.picco@hp.com>, Ingo Molnar <mingo@elte.hu>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: [PATCH 2/3] x86 align highmem zone boundries with NUMA
+Message-ID: <20060509110535.GA9732@shadowen.org>
+References: <exportbomb.1147172704@pinky>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605090706.49780.edt@aei.ca>
+InReply-To: <exportbomb.1147172704@pinky>
+User-Agent: Mutt/1.5.11+cvs20060126
+From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 May 2006 06:05, Adrian Bunk wrote:
-> On Tue, May 09, 2006 at 12:00:01AM -0700, Chris Wright wrote:
-> >...
-> > --- linus-2.6.orig/arch/i386/Kconfig
-> > +++ linus-2.6/arch/i386/Kconfig
-> >...
-> >  config X86_IO_APIC
-> >  	bool
-> > -	depends on X86_UP_IOAPIC || (SMP && !(X86_VISWS || X86_VOYAGER))
-> > +	depends on X86_UP_IOAPIC || (SMP && !(X86_VISWS || X86_VOYAGER || X86_XEN))
-> >  	default y
-> >...
-> 
-> <nitpick>not required</nitpick>
-> 
-> > --- linus-2.6.orig/kernel/Kconfig.hz
-> > +++ linus-2.6/kernel/Kconfig.hz
-> > @@ -3,7 +3,7 @@
-> >  #
-> >  
-> >  choice
-> > -	prompt "Timer frequency"
-> > +	prompt "Timer frequency" if !XEN
-> >  	default HZ_250
-> >  	help
-> >  	 Allows the configuration of the timer frequency. It is customary
-> > @@ -40,7 +40,7 @@ endchoice
-> >  
-> >  config HZ
-> >  	int
-> > -	default 100 if HZ_100
-> > +	default 100 if HZ_100 || XEN
-> >  	default 250 if HZ_250
-> >  	default 1000 if HZ_1000
-> >...
-> 
-> Why?
+x86 align highmem zone boundries with NUMA
 
-Guessing, but its probably to limit the number of parahypervisor calls.
+When in x86 NUMA mode we allocate struct pages's node local and map
+them into the kernel virtual address space in the remap space.
+This space cuts into the end of ZONE_NORMAL.  When we round
+ZONE_NORMAL down we must ensure we maintain the zone boundry
+constraint, we must round to MAX_ORDER.
 
-Ed Tomlinson
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+---
+ discontig.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletion(-)
+diff -upN reference/arch/i386/mm/discontig.c current/arch/i386/mm/discontig.c
+--- reference/arch/i386/mm/discontig.c
++++ current/arch/i386/mm/discontig.c
+@@ -304,10 +304,13 @@ unsigned long __init setup_memory(void)
+ 	/* partially used pages are not usable - thus round upwards */
+ 	system_start_pfn = min_low_pfn = PFN_UP(init_pg_tables_end);
+ 
+-	system_max_low_pfn = max_low_pfn = find_max_low_pfn() - reserve_pages;
++	max_low_pfn = find_max_low_pfn() - reserve_pages;
+ 	printk("reserve_pages = %ld find_max_low_pfn() ~ %ld\n",
+ 			reserve_pages, max_low_pfn + reserve_pages);
+ 	printk("max_pfn = %ld\n", max_pfn);
++
++	system_max_low_pfn = max_low_pfn = zone_boundry_align_pfn(max_low_pfn);
++
+ #ifdef CONFIG_HIGHMEM
+ 	highstart_pfn = highend_pfn = max_pfn;
+ 	if (max_pfn > system_max_low_pfn)

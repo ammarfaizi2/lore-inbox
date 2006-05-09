@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbWEILzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWEIL63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932400AbWEILzz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 07:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbWEILzz
+	id S932406AbWEIL63 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 07:58:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWEIL63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 07:55:55 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:59408 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932397AbWEILzy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 07:55:54 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: chrisw@sous-sol.org (Chris Wright)
-Subject: Re: [Xen-devel] [RFC PATCH 34/35] Add the Xen virtual network device	driver.
+	Tue, 9 May 2006 07:58:29 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:56488 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932393AbWEIL62 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 07:58:28 -0400
+Date: Tue, 9 May 2006 12:58:26 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Chris Wright <chrisw@sous-sol.org>
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       Christian.Limpach@cl.cam.ac.uk, xen-devel@lists.xensource.com,
-       netdev@vger.kernel.org, ian.pratt@xensource.com
-Organization: Core
+       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
+       netdev@vger.kernel.org
+Subject: Re: [RFC PATCH 34/35] Add the Xen virtual network device driver.
+Message-ID: <20060509115826.GA2213@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+	virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+	Ian Pratt <ian.pratt@xensource.com>,
+	Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
+	netdev@vger.kernel.org
+References: <20060509084945.373541000@sous-sol.org> <20060509085201.446830000@sous-sol.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20060509085201.446830000@sous-sol.org>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev,apana.lists.os.xen.devel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1FdQoP-0007iN-00@gondolin.me.apana.org.au>
-Date: Tue, 09 May 2006 21:55:33 +1000
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Chris:
+On Tue, May 09, 2006 at 12:00:34AM -0700, Chris Wright wrote:
+> The network device frontend driver allows the kernel to access network
+> devices exported exported by a virtual machine containing a physical
+> network device driver.
 
-Chris Wright <chrisw@sous-sol.org> wrote:
->
-> +/** Send a packet on a net device to encourage switches to learn the
-> + * MAC. We send a fake ARP request.
-> + *
-> + * @param dev device
-> + * @return 0 on success, error code otherwise
-> + */
-> +static int send_fake_arp(struct net_device *dev)
+Please don't add procfs code to new network drivers.  Especially if it's oopsable
+like the code in this driver by simple device renaming.
 
-I think we talked about this before.  I don't see why Xen is so special
-that it needs its own gratuitous arp routine embedded in the driver.
-If this is needed at all (presumably for migration) then it should be
-performed by the management scripts which can send grat ARP packets just
-as easily.
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

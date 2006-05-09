@@ -1,63 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWEID7v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWEIEEc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751364AbWEID7v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 May 2006 23:59:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWEID7v
+	id S1751367AbWEIEEc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 00:04:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbWEIEEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 May 2006 23:59:51 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:2000 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751364AbWEID7u (ORCPT
+	Tue, 9 May 2006 00:04:32 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:899 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751367AbWEIEEc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 May 2006 23:59:50 -0400
-Date: Tue, 9 May 2006 09:26:09 +0530
+	Tue, 9 May 2006 00:04:32 -0400
+Date: Tue, 9 May 2006 09:30:50 +0530
 From: Balbir Singh <balbir@in.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
        jlan@engr.sgi.com
-Subject: Re: [Patch 1/8] Setup
-Message-ID: <20060509035609.GD784@in.ibm.com>
+Subject: Re: [Patch 3/8] cpu delay collection via schedstats
+Message-ID: <20060509040050.GE784@in.ibm.com>
 Reply-To: balbir@in.ibm.com
-References: <20060502061255.GL13962@in.ibm.com> <20060508142322.71e88a54.akpm@osdl.org>
+References: <20060502061505.GN13962@in.ibm.com> <20060508142640.675665c7.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060508142322.71e88a54.akpm@osdl.org>
+In-Reply-To: <20060508142640.675665c7.akpm@osdl.org>
 User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 08, 2006 at 02:23:22PM -0700, Andrew Morton wrote:
+On Mon, May 08, 2006 at 02:26:40PM -0700, Andrew Morton wrote:
 > Balbir Singh <balbir@in.ibm.com> wrote:
 > >
-> > +static inline void delayacct_end(struct timespec *start, struct timespec *end,
-> > +				u64 *total, u32 *count)
+> > +/*
+> > + * Expects runqueue lock to be held for atomicity of update
+> > + */
+> > +static inline void rq_sched_info_arrive(struct runqueue *rq,
+> > +						unsigned long diff)
 > > +{
-> > +	struct timespec ts = {0, 0};
-> > +	s64 ns;
+> > +	if (rq) {
+> > +		rq->rq_sched_info.run_delay += diff;
+> > +		rq->rq_sched_info.pcnt++;
+> > +	}
+> > +}
 > > +
-> > +	do_posix_clock_monotonic_gettime(end);
-> > +	timespec_sub(&ts, start, end);
-> > +	ns = timespec_to_ns(&ts);
-> > +	if (ns < 0)
-> > +		return;
-> > +
-> > +	spin_lock(&current->delays->lock);
-> > +	*total += ns;
-> > +	(*count)++;
-> > +	spin_unlock(&current->delays->lock);
+> > +/*
+> > + * Expects runqueue lock to be held for atomicity of update
+> > + */
+> > +static inline void rq_sched_info_depart(struct runqueue *rq,
+> > +						unsigned long diff)
+> > +{
+> > +	if (rq)
+> > +		rq->rq_sched_info.cpu_time += diff;
 > > +}
 > 
-> - too large to be inlined
-
-I will un-inline it.
-
+> The kernel has many different units of time - jiffies, cpu ticks, ns, us,
+> ms, etc.  So the reader of these functions doesn't have a clue what "diff"
+> is.
 > 
-> - The initialisation of `ts' is unneeded (maybe it generated a bogus
->   warning, but it won't do that if you switch timespec_sub to
->   return-by-value)
+> A good way to remove all doubt in all cases is to include the units in the
+> variable's name.  Something like delta_jiffies, perhaps.
 
-gcc-4.1 does generate a bogus warning. I will switch to return by value
-and remove the initialization of `ts'
+Yes, that makes sense and enhances readability. We will fix the naming
+convention. "diff" is indeed "delta_jiffies"
 
 
 	Thanks,

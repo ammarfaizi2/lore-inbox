@@ -1,58 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWEIWjA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbWEIWmG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751325AbWEIWjA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 18:39:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWEIWjA
+	id S1751330AbWEIWmG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 18:42:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWEIWmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 18:39:00 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:10886 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751327AbWEIWi7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 18:38:59 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [RFC PATCH 03/35] Add Xen interface header files
-Date: Wed, 10 May 2006 00:36:00 +0200
-User-Agent: KMail/1.9.1
-Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-References: <20060509084945.373541000@sous-sol.org> <20060509085147.903310000@sous-sol.org> <20060509151516.GA16332@infradead.org>
-In-Reply-To: <20060509151516.GA16332@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605100036.02776.ioe-lkml@rameria.de>
+	Tue, 9 May 2006 18:42:06 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:5392 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751327AbWEIWmF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 18:42:05 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: chrisw@sous-sol.org (Chris Wright)
+Subject: Re: [Xen-devel] [RFC PATCH 34/35] Add the Xen virtual network device	driver.
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
+       Christian.Limpach@cl.cam.ac.uk, xen-devel@lists.xensource.com,
+       netdev@vger.kernel.org, ian.pratt@xensource.com
+Organization: Core
+In-Reply-To: <20060509085201.446830000@sous-sol.org>
+X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev,apana.lists.os.xen.devel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1FdatV-0000lj-00@gondolin.me.apana.org.au>
+Date: Wed, 10 May 2006 08:41:29 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph,
+Chris Wright <chrisw@sous-sol.org> wrote:
+>
+> +       netdev->features        = NETIF_F_IP_CSUM;
 
-On Tuesday, 9. May 2006 17:15, Christoph Hellwig wrote:
-> > Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-> > Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> > ---
-> >  include/xen/interface/arch-x86_32.h   |  197 +++++++++++++++
-> 
-> that kind of stuff needs to go to asm/
-> 
-> >  include/xen/interface/event_channel.h |  205 +++++++++++++++
-> 
-> instead of interface please use something shorter, we'll see this
-> all over the includes statements.  intf for example.
+Any reason why IP_CSUM was chosen instead of HW_CSUM? Doing the latter
+would seem to be in fact easier for a virtual driver, no?
 
-I like them and think they are quite clear.
-
-Documentation/CodingStyle Chapter 4: Naming
-seem to apply here.
-
-And since you type the include only ONCE per file,
-this looks like a good trade, doesn't it?
-
-
-Regards
-
-Ingo Oeser
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

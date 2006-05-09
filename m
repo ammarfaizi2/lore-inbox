@@ -1,51 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWEIS4f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWEIS4g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbWEIS4f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 14:56:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWEIS4f
+	id S1751187AbWEIS4g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 14:56:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWEIS4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 14:56:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:6840 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751163AbWEIS4e (ORCPT
+	Tue, 9 May 2006 14:56:36 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:7352 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751178AbWEIS4e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 9 May 2006 14:56:34 -0400
-Date: Tue, 9 May 2006 11:56:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Pekka J Enberg <penberg@cs.Helsinki.FI>,
-       Christoph Lameter <clameter@sgi.com>,
-       Daniel Hokka Zakrisson <daniel@hozac.com>, linux-kernel@vger.kernel.org,
-       =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
-       greg@kroah.com, matthew@wil.cx, akpm@osdl.org
-Subject: Re: [PATCH] fs: fcntl_setlease defies lease_init assumptions
-In-Reply-To: <4460DEAD.9040900@colorfullife.com>
-Message-ID: <Pine.LNX.4.64.0605091152211.3718@g5.osdl.org>
-References: <445E80DD.9090507@hozac.com>  <Pine.LNX.4.64.0605072030280.3718@g5.osdl.org>
-  <84144f020605080131r58ce2a93w6c7ba784a266bbeb@mail.gmail.com> 
- <84144f020605080134q7e16f37fl385359c634ece8ca@mail.gmail.com> 
- <Pine.LNX.4.64.0605080807430.3718@g5.osdl.org>  <1147104412.22096.8.camel@localhost>
-  <Pine.LNX.4.64.0605080913240.3718@g5.osdl.org> <1147116991.11282.3.camel@localhost>
- <Pine.LNX.4.64.0605082031580.23431@schroedinger.engr.sgi.com>
- <44603543.8070205@colorfullife.com> <Pine.LNX.4.58.0605091316010.27821@sbz-30.cs.Helsinki.FI>
- <4460DEAD.9040900@colorfullife.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Tue, 9 May 2006 11:56:33 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
+       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
+       netdev@vger.kernel.org
+Subject: Re: [RFC PATCH 34/35] Add the Xen virtual network device driver.
+Message-ID: <20060509115633.36b4879e@localhost.localdomain>
+In-Reply-To: <20060509085201.446830000@sous-sol.org>
+References: <20060509084945.373541000@sous-sol.org>
+	<20060509085201.446830000@sous-sol.org>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The stuff in /proc could easily just be added attributes to the class_device kobject
+of the net device (and then show up in sysfs).
 
 
-On Tue, 9 May 2006, Manfred Spraul wrote:
->
-> How many kmalloc(PAGE_SIZE*n) users are there?
+> +
+> +#define GRANT_INVALID_REF	0
+> +
+> +#define NET_TX_RING_SIZE __RING_SIZE((struct netif_tx_sring *)0, PAGE_SIZE)
+> +#define NET_RX_RING_SIZE __RING_SIZE((struct netif_rx_sring *)0, PAGE_SIZE)
+> +
+> +static inline void init_skb_shinfo(struct sk_buff *skb)
+> +{
+> +	atomic_set(&(skb_shinfo(skb)->dataref), 1);
+> +	skb_shinfo(skb)->nr_frags = 0;
+> +	skb_shinfo(skb)->frag_list = NULL;
+> +}
+> +
 
-A single PAGE_SIZE allocation is quite common. Lots of kernel structures 
-end up (often for historical reasons) being that size. PATH_MAX, for one. 
-Sometimes it's also simply because it's the one "known" size that doesn't 
-cause fragmentation and is easily available, so..
+Could you use existing sk_buff_head instead of inventing your
+own skb queue?
 
-In other words, it's often the "canonical size" for some random buffer: 
-if only because it's known to be the largest possible buffer that is 
-always available.
+> +struct netfront_info
+> +{
+> +	struct list_head list;
+> +	struct net_device *netdev;
+> +
+> +	struct net_device_stats stats;
+> +	unsigned int tx_full;
+> +
+> +	struct netif_tx_front_ring tx;
+> +	struct netif_rx_front_ring rx;
+> +
+> +	spinlock_t   tx_lock;
+> +	spinlock_t   rx_lock;
+> +
+> +	unsigned int handle;
+> +	unsigned int evtchn, irq;
+> +
+> +	/* What is the status of our connection to the remote backend? */
+> +#define BEST_CLOSED       0
+> +#define BEST_DISCONNECTED 1
+> +#define BEST_CONNECTED    2
+> +	unsigned int backend_state;
+> +
+> +	/* Is this interface open or closed (down or up)? */
+> +#define UST_CLOSED        0
+> +#define UST_OPEN          1
+> +	unsigned int user_state;
+> +
+> +	/* Receive-ring batched refills. */
+> +#define RX_MIN_TARGET 8
+> +#define RX_DFL_MIN_TARGET 64
+> +#define RX_MAX_TARGET NET_RX_RING_SIZE
+> +	int rx_min_target, rx_max_target, rx_target;
+> +	struct sk_buff_head rx_batch;
+> +
+> +	struct timer_list rx_refill_timer;
+> +
+> +	/*
+> +	 * {tx,rx}_skbs store outstanding skbuffs. The first entry in each
+> +	 * array is an index into a chain of free entries.
+> +	 */
+> +	struct sk_buff *tx_skbs[NET_TX_RING_SIZE+1];
+> +	struct sk_buff *rx_skbs[NET_RX_RING_SIZE+1];
+> +
+> +	grant_ref_t gref_tx_head;
+> +	grant_ref_t grant_tx_ref[NET_TX_RING_SIZE + 1];
+> +	grant_ref_t gref_rx_head;
+> +	grant_ref_t grant_rx_ref[NET_TX_RING_SIZE + 1];
+> +
+> +	struct xenbus_device *xbdev;
+> +	int tx_ring_ref;
+> +	int rx_ring_ref;
+> +	u8 mac[ETH_ALEN];
 
-			Linus
+Isn't mac address already stored in dev->dev_addr and/or dev->perm_addr?
+

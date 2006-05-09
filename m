@@ -1,82 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751716AbWEII5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751481AbWEIItI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751716AbWEII5t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 04:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751585AbWEIItK
+	id S1751481AbWEIItI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 04:49:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751533AbWEIIs7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 04:49:10 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:128 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751493AbWEIIsw
+	Tue, 9 May 2006 04:48:59 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:50051 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751484AbWEIIss
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 04:48:52 -0400
-Message-Id: <20060509085158.618397000@sous-sol.org>
+	Tue, 9 May 2006 04:48:48 -0400
+Message-Id: <20060509085156.694312000@sous-sol.org>
 References: <20060509084945.373541000@sous-sol.org>
-Date: Tue, 09 May 2006 00:00:27 -0700
+Date: Tue, 09 May 2006 00:00:22 -0700
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org
 Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
        Ian Pratt <ian.pratt@xensource.com>,
        Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: [RFC PATCH 27/35] Add nosegneg capability to the vsyscall page notes
-Content-Disposition: inline; filename=i386-vsyscall-note
+Subject: [RFC PATCH 22/35] subarch suport for idle loop (NO_IDLE_HZ for Xen)
+Content-Disposition: inline; filename=i386-idle
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add the "nosegneg" fake capabilty to the vsyscall page notes. This is
-used by the runtime linker to select a glibc version which then
-disables negative-offset accesses to the thread-local segment via
-%gs. These accesses require emulation in Xen (because segments are
-truncated to protect the hypervisor address space) and avoiding them
-provides a measurable performance boost.
+Paravirtualize the idle loop to explicitly trap to the hypervisor when
+blocking, and to use the NO_IDLE_HZ functionality introduced by s390
+to inform the rcu subsystem that the CPU is quiescent.
 
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- arch/i386/kernel/vsyscall-note.S |   29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+ drivers/xen/Kconfig                         |    8 ++++++++
+ include/asm-i386/mach-xen/setup_arch_post.h |   24 ++++++++++++++++++++++++
+ 2 files changed, 32 insertions(+)
 
---- linus-2.6.orig/arch/i386/kernel/vsyscall-note.S
-+++ linus-2.6/arch/i386/kernel/vsyscall-note.S
-@@ -3,6 +3,7 @@
-  * Here we can supply some information useful to userland.
-  */
+--- linus-2.6.orig/drivers/xen/Kconfig
++++ linus-2.6/drivers/xen/Kconfig
+@@ -12,6 +12,14 @@ config XEN
  
-+#include <linux/config.h>
- #include <linux/uts.h>
- #include <linux/version.h>
+ if XEN
  
-@@ -23,3 +24,31 @@
- 	ASM_ELF_NOTE_BEGIN(".note.kernel-version", "a", UTS_SYSNAME, 0)
- 	.long LINUX_VERSION_CODE
- 	ASM_ELF_NOTE_END
++config NO_IDLE_HZ
++	bool
++	default y
++	help
++	  Switches the regular HZ timer off when the system is going idle.
++	  This helps Xen to detect that the Linux system is idle, reducing
++	  the overhead of idle systems.
 +
-+#ifdef CONFIG_XEN
-+/*
-+ * Add a special note telling glibc's dynamic linker a fake hardware
-+ * flavor that it will use to choose the search path for libraries in the
-+ * same way it uses real hardware capabilities like "mmx".
-+ * We supply "nosegneg" as the fake capability, to indicate that we
-+ * do not like negative offsets in instructions using segment overrides,
-+ * since we implement those inefficiently.  This makes it possible to
-+ * install libraries optimized to avoid those access patterns in someplace
-+ * like /lib/i686/tls/nosegneg.  Note that an /etc/ld.so.conf.d/file
-+ * corresponding to the bits here is needed to make ldconfig work right.
-+ * It should contain:
-+ *	hwcap 0 nosegneg
-+ * to match the mapping of bit to name that we give here.
-+ */
-+#define NOTE_KERNELCAP_BEGIN(ncaps, mask) \
-+	ASM_ELF_NOTE_BEGIN(".note.kernelcap", "a", "GNU", 2) \
-+	.long ncaps, mask
-+#define NOTE_KERNELCAP(bit, name) \
-+	.byte bit; .asciz name
-+#define NOTE_KERNELCAP_END ASM_ELF_NOTE_END
+ config XEN_SHADOW_MODE
+ 	bool
+ 	default y
+--- linus-2.6.orig/include/asm-i386/mach-xen/setup_arch_post.h
++++ linus-2.6/include/asm-i386/mach-xen/setup_arch_post.h
+@@ -8,6 +8,11 @@
+ 
+ #include <xen/interface/physdev.h>
+ 
++extern void stop_hz_timer(void);
++extern void start_hz_timer(void);
 +
-+NOTE_KERNELCAP_BEGIN(1, 1)
-+NOTE_KERNELCAP(1, "nosegneg")
-+NOTE_KERNELCAP_END
-+#endif
++void xen_idle(void);
 +
+ static char * __init machine_specific_memory_setup(void)
+ {
+ 	unsigned long max_pfn = xen_start_info->nr_pages;
+@@ -65,4 +70,23 @@ static void __init machine_specific_arch
+ 		console_use_vt = 0;
+ 		conswitchp = NULL;
+ 	}
++
++	pm_idle = xen_idle;
++}
++
++void xen_idle(void)
++{
++	local_irq_disable();
++
++	if (need_resched())
++		local_irq_enable();
++	else {
++		clear_thread_flag(TIF_POLLING_NRFLAG);
++		smp_mb__after_clear_bit();
++		stop_hz_timer();
++		/* Blocking includes an implicit local_irq_enable(). */
++		HYPERVISOR_sched_op(SCHEDOP_block, 0);
++		start_hz_timer();
++		set_thread_flag(TIF_POLLING_NRFLAG);
++	}
+ }
 
 --

@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWEIXKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWEIXWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbWEIXKu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 19:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932068AbWEIXKu
+	id S932092AbWEIXWg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 19:22:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932093AbWEIXWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 19:10:50 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:9091 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S932066AbWEIXKu
+	Tue, 9 May 2006 19:22:35 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:31106 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S932092AbWEIXWf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 19:10:50 -0400
-Date: Tue, 9 May 2006 16:13:47 -0700
+	Tue, 9 May 2006 19:22:35 -0400
+Date: Tue, 9 May 2006 16:23:35 -0700
 From: Chris Wright <chrisw@sous-sol.org>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
-       Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>
-Subject: Re: [RFC PATCH 25/35] Add Xen time abstractions
-Message-ID: <20060509231347.GD24291@moss.sous-sol.org>
-References: <20060509084945.373541000@sous-sol.org> <20060509085157.908244000@sous-sol.org> <200605092350.03886.ak@suse.de> <200605100103.54875.ioe-lkml@rameria.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Subject: Re: [RFC PATCH 01/35] Add XEN config options and disable unsupported config options.
+Message-ID: <20060509232335.GE24291@moss.sous-sol.org>
+References: <20060509084945.373541000@sous-sol.org> <20060509085145.790527000@sous-sol.org> <20060509100547.GL3570@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200605100103.54875.ioe-lkml@rameria.de>
+In-Reply-To: <20060509100547.GL3570@stusta.de>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ingo Oeser (ioe-lkml@rameria.de) wrote:
-> On Tuesday, 9. May 2006 23:50, Andi Kleen wrote:
-> > On Tuesday 09 May 2006 09:00, Chris Wright wrote:
-> > > Add support for Xen time abstractions. To avoid expensive traps into
-> > > the hypervisor, the passage of time is extrapolated from the local TSC
-> > > and a set of timestamps and scaling factors exported to the guest via
-> > > shared memory. Xen also provides a periodic interrupt facility which
-> > > is used to drive updates of xtime and jiffies, and perform the usual
-> > > process accounting and profiling.
-> > 
-> > There is far too much code duplication in there. I think you need to
-> > refactor the main time.c a bit first and strip that down.
-> > 
-> > Also you can drop all the __x86_64__ support for now.
+* Adrian Bunk (bunk@stusta.de) wrote:
+> On Tue, May 09, 2006 at 12:00:01AM -0700, Chris Wright wrote:
+> >...
+> > --- linus-2.6.orig/arch/i386/Kconfig
+> > +++ linus-2.6/arch/i386/Kconfig
+> >...
+> >  config X86_IO_APIC
+> >  	bool
+> > -	depends on X86_UP_IOAPIC || (SMP && !(X86_VISWS || X86_VOYAGER))
+> > +	depends on X86_UP_IOAPIC || (SMP && !(X86_VISWS || X86_VOYAGER || X86_XEN))
+> >  	default y
+> >...
 > 
-> Isn't time and timer handling a moving target anyway?
-> The refactoring will be done by the timer people in a completly different
-> manner anyway.
-> 
-> Are you sure, you want to disturb these efforts by requiring another
-> refactoring here?
+> <nitpick>not required</nitpick>
 
-Yes.  Otherwise we end up with either duplicated code if the moving
-target winds up not moving, or outdated code if it does.  I agree with
-Andi.  It's on the todo list to refactor, but I wanted to get the
-patches out even though it's a work in progress.
+True, although SMP is just disabled in this patchset which is a subset
+of full Xen support.
 
 thanks,
 -chris

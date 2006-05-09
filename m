@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWEIQNU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWEIQO7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751067AbWEIQNU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 12:13:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWEIQNU
+	id S1751287AbWEIQO7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 12:14:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWEIQO7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 12:13:20 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:43224 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751067AbWEIQNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 12:13:20 -0400
-Message-ID: <4460BF8C.1050803@linux.intel.com>
-Date: Tue, 09 May 2006 18:13:00 +0200
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 9 May 2006 12:14:59 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:30471 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1751287AbWEIQO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 12:14:58 -0400
+Message-ID: <4460BFE6.4060504@shadowen.org>
+Date: Tue, 09 May 2006 17:14:30 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: bunk@stusta.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/17] Infrastructure to mark exported symbols as unused-for-removal-soon
-References: <1146581587.32045.41.camel@laptopd505.fenrus.org> <20060509090202.2f209f32.akpm@osdl.org>
-In-Reply-To: <20060509090202.2f209f32.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: mike kravetz <kravetz@us.ibm.com>
+CC: Michael Ellerman <michael@ellerman.id.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, haveblue@us.ibm.com
+Subject: Re: [PATCH] SPARSEMEM + NUMA can't handle unaligned memory regions?
+References: <20060509070343.57853679F2@ozlabs.org> <44609A7B.7010103@shadowen.org> <20060509160528.GA3168@w-mikek2.ibm.com>
+In-Reply-To: <20060509160528.GA3168@w-mikek2.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> So hum.  Don't you think it'd be better to look at each API as a whole,
-> make decisions about what parts of it _should_ be offered to modules,
-> rather then looking empirically at which parts presently _need_ to be
-> exported?
+mike kravetz wrote:
+> On Tue, May 09, 2006 at 02:34:51PM +0100, Andy Whitcroft wrote:
+> 
+>>3) record the nid -- when we record the memory present in the system we
+>>are passed the nid.
+>>
+>>Somehow the last of these seems the most logical given we have the
+>>correct information at the time we record that we need to instantiate
+>>the section.  So I had a quick go at something which seems to have come
+>>out pretty clean.  Attached is a completly untested patch to show what I
+>>am proposing.
+> 
+> 
+> Looks sane to me.  I've always wanted to encode the nid in the section.
+> But, never had a compelling reason to do so.
+> 
+> With this code in place, we could optimize the pfn_to_nid() routines to
+> now obtain the nid from the section (rather than page struct).  However,
+> I'm not sure this is worth the effort.
 
-Well so far we as kernel developers have been rather bad at it, with the result
-that there are 900 unused ones roughly. Each export takes somewhere between 100
-and 150 bytes. *WITHOUT ANY BENEFIT*. The reason to remove them all is to save
-that memory NOW. It's easy to add an export back later if it gets used. Yes that
-is churn, but it's minor churn. The price for not doing that is a bigger kernel
-for everyone, today, without any positive gain of that space..
+Well its only in there temporarily during init, its not in there once we
+have allocated the section mem_map.
 
-(and this size excludes even those functions that aren't used at all, but are
-only there to be exported. Adrian has been working on removing the really unused
-functions in the kernel, via static marking and then gcc noticing the unusedness,
-but once they're exported that breaks down)
-
-So I think personally it's worth biting the bullet. I expect 95% of those 900 to
-never ever come back. Those 5% will churn, sure. But, to a large degree, the fact
-that there's no user is an indication that the API may well not be right in the
-first place, or not in demand.
+-apw

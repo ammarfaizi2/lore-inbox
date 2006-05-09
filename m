@@ -1,56 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWEIFRa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWEIFWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751381AbWEIFRa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 01:17:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWEIFRa
+	id S1751383AbWEIFWL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 01:22:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWEIFWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 01:17:30 -0400
-Received: from wip-ec-mm01.wipro.com ([203.91.193.25]:58249 "EHLO
-	wip-ec-mm01.wipro.com") by vger.kernel.org with ESMTP
-	id S1751381AbWEIFR3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 01:17:29 -0400
-Message-ID: <4460273E.5040608@wipro.com>
-Date: Tue, 09 May 2006 10:53:10 +0530
-From: Madhukar Mythri <madhukar.mythri@wipro.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Erik Mouw <erik@harddisk-recovery.com>
+	Tue, 9 May 2006 01:22:10 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:17340 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S1751383AbWEIFWJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 01:22:09 -0400
+Subject: [PATCH] TI PCIxx12 CardBus controller support
+From: Alex Williamson <alex.williamson@hp.com>
+To: linux-pcmcia@lists.infradead.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to read BIOS information
-References: <445F5228.7060006@wipro.com> <1147099994.2888.32.camel@laptopd505.fenrus.org> <445F5DF1.3020606@wipro.com> <1147101329.2888.39.camel@laptopd505.fenrus.org> <445F63B3.2010501@wipro.com> <20060508152659.GG1875@harddisk-recovery.com>
-In-Reply-To: <20060508152659.GG1875@harddisk-recovery.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain
+Organization: LOSL
+Date: Mon, 08 May 2006 23:22:07 -0600
+Message-Id: <1147152127.8911.108.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw wrote:
+Hi,
 
->On Mon, May 08, 2006 at 08:58:51PM +0530, Madhukar Mythri wrote:
->  
->
->>I forgot mention, that my Kernel is NONSMP based kernel....
->>    
->>
->
->Then your application can't use HT anyway, so why bother?
->
->
->Erik
->
->  
->
-  yeah, your are correct. but, the thing is my superiors want, even if 
-kernel not reconize/use HT, we have to capture it from BIOS...
-Thats why i asked as, how to read BIOS information?
+   The patch below adds support for the TI PCIxx12 CardBus controllers.
+This seems to be sufficient to detect the cardbus bridge on an HP nc6320
+and works with an orinoco wifi card.  Thanks,
 
+	Alex
 
--- 
-Thanks & Regards
-Madhukar Mythri
-Wipro Technologies
-Bangalore.
-Off: +91 80 30294361.
-M: +91 9886442416.
+Signed-off-by: Alex Williamson <alex.williamson@hp.com>
+---
+
+diff -r ce52ec65b1a0 drivers/pcmcia/ti113x.h
+--- a/drivers/pcmcia/ti113x.h	Tue May  9 00:41:05 2006
++++ b/drivers/pcmcia/ti113x.h	Mon May  8 23:08:29 2006
+@@ -647,6 +647,7 @@
+ 		 */
+ 		break;
+ 
++	case PCI_DEVICE_ID_TI_XX12:
+ 	case PCI_DEVICE_ID_TI_X515:
+ 	case PCI_DEVICE_ID_TI_X420:
+ 	case PCI_DEVICE_ID_TI_X620:
+diff -r ce52ec65b1a0 drivers/pcmcia/yenta_socket.c
+--- a/drivers/pcmcia/yenta_socket.c	Tue May  9 00:41:05 2006
++++ b/drivers/pcmcia/yenta_socket.c	Mon May  8 23:08:29 2006
+@@ -1232,6 +1232,7 @@
+ 
+ 	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_XX21_XX11, TI12XX),
+ 	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_X515, TI12XX),
++	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_XX12, TI12XX),
+ 	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_X420, TI12XX),
+ 	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_X620, TI12XX),
+ 	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_7410, TI12XX),
+diff -r ce52ec65b1a0 include/linux/pci_ids.h
+--- a/include/linux/pci_ids.h	Tue May  9 00:41:05 2006
++++ b/include/linux/pci_ids.h	Mon May  8 23:08:29 2006
+@@ -726,6 +726,7 @@
+ #define PCI_DEVICE_ID_TI_4450		0x8011
+ #define PCI_DEVICE_ID_TI_XX21_XX11	0x8031
+ #define PCI_DEVICE_ID_TI_X515		0x8036
++#define PCI_DEVICE_ID_TI_XX12		0x8039
+ #define PCI_DEVICE_ID_TI_1130		0xac12
+ #define PCI_DEVICE_ID_TI_1031		0xac13
+ #define PCI_DEVICE_ID_TI_1131		0xac15
+
 

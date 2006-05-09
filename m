@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbWEITw0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWEITwU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750992AbWEITw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 15:52:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWEITwV
+	id S1751079AbWEITwU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 15:52:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWEITwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 15:52:21 -0400
-Received: from dsl093-016-182.msp1.dsl.speakeasy.net ([66.93.16.182]:30883
+	Tue, 9 May 2006 15:52:20 -0400
+Received: from dsl093-016-182.msp1.dsl.speakeasy.net ([66.93.16.182]:31395
 	"EHLO cinder.waste.org") by vger.kernel.org with ESMTP
-	id S1751078AbWEITvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1751079AbWEITvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 9 May 2006 15:51:50 -0400
 From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@osdl.org>
 X-PatchBomber: http://selenic.com/scripts/mailpatches
-Cc: linux-kernel@vger.kernel.org, dbrownell@users.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, iss_storagedev@hp.com
 In-Reply-To: <2.628477917@selenic.com>
-Message-Id: <6.628477917@selenic.com>
-Subject: [PATCH 5/6] random: Remove bogus SA_SAMPLE_RANDOM from at91 compact flash driver
+Message-Id: <4.628477917@selenic.com>
+Subject: [PATCH 3/6] random: Make CCISS use add_disk_randomness
 Date: Tue, 09 May 2006 14:50:25 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove bogus SA_SAMPLE_RANDOM from at91 compact flash driver
+Make CCISS use add_disk_randomness
 
-Flash doesn't possess the same unpredictable performance
-characteristics as traditional media.
+Disk devices should use the add_disk_randomness API rather than
+SA_SAMPLE_RANDOM.
 
 Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-Index: 2.6/drivers/pcmcia/at91_cf.c
+Index: 2.6/drivers/block/cciss.c
 ===================================================================
---- 2.6.orig/drivers/pcmcia/at91_cf.c	2006-05-02 17:28:44.000000000 -0500
-+++ 2.6/drivers/pcmcia/at91_cf.c	2006-05-03 11:28:06.000000000 -0500
-@@ -267,8 +267,7 @@ static int __init at91_cf_probe(struct d
- 	);
+--- 2.6.orig/drivers/block/cciss.c	2006-05-02 17:29:26.000000000 -0500
++++ 2.6/drivers/block/cciss.c	2006-05-03 11:22:54.000000000 -0500
+@@ -1221,6 +1221,7 @@ static void cciss_softirq_done(struct re
+ 	printk("Done with %p\n", rq);
+ #endif /* CCISS_DEBUG */
  
- 	/* must be a GPIO; ergo must trigger on both edges */
--	status = request_irq(board->det_pin, at91_cf_irq,
--			SA_SAMPLE_RANDOM, driver_name, cf);
-+	status = request_irq(board->det_pin, at91_cf_irq, 0, driver_name, cf);
- 	if (status < 0)
- 		goto fail0;
- 
-Index: 2.6/drivers/mmc/at91_mci.c
-===================================================================
---- 2.6.orig/drivers/mmc/at91_mci.c	2006-05-02 17:28:43.000000000 -0500
-+++ 2.6/drivers/mmc/at91_mci.c	2006-05-03 11:33:40.000000000 -0500
-@@ -889,7 +889,7 @@ static int at91_mci_probe(struct platfor
- 	 */
- 	if (host->board->det_pin) {
- 		ret = request_irq(host->board->det_pin, at91_mmc_det_irq,
--				SA_SAMPLE_RANDOM, DRIVER_NAME, host);
-+				0, DRIVER_NAME, host);
- 		if (ret)
- 			DBG("couldn't allocate MMC detect irq\n");
- 	}
++	add_disk_randomness(rq->rq_disk);
+ 	spin_lock_irqsave(&h->lock, flags);
+ 	end_that_request_last(rq, rq->errors);
+ 	cmd_free(h, cmd,1);
+@@ -3152,8 +3153,7 @@ static int __devinit cciss_init_one(stru
+ 	/* make sure the board interrupts are off */
+ 	hba[i]->access.set_intr_mask(hba[i], CCISS_INTR_OFF);
+ 	if( request_irq(hba[i]->intr[SIMPLE_MODE_INT], do_cciss_intr,
+-		SA_INTERRUPT | SA_SHIRQ | SA_SAMPLE_RANDOM, 
+-			hba[i]->devname, hba[i])) {
++		SA_INTERRUPT | SA_SHIRQ, hba[i]->devname, hba[i])) {
+ 		printk(KERN_ERR "cciss: Unable to get irq %d for %s\n",
+ 			hba[i]->intr[SIMPLE_MODE_INT], hba[i]->devname);
+ 		goto clean2;

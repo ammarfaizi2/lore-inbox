@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbWEIKxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWEIK4t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751402AbWEIKxu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 06:53:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWEIKxu
+	id S1751398AbWEIK4t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 06:56:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbWEIK4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 06:53:50 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:64941 "EHLO
+	Tue, 9 May 2006 06:56:49 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:44462 "EHLO
 	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751402AbWEIKxt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 06:53:49 -0400
-Date: Tue, 9 May 2006 12:53:49 +0200
+	id S1751398AbWEIK4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 06:56:49 -0400
+Date: Tue, 9 May 2006 12:56:48 +0200
 From: Michael Holzheu <holzheu@de.ibm.com>
-To: greg@kroah.com, akpm@osdl.org
+To: akpm@osdl.org, greg@kroah.com
 Cc: ioe-lkml@rameria.de, joern@wohnheim.fh-wedel.de,
        linux-kernel@vger.kernel.org, mschwid2@de.ibm.com,
        penberg@cs.helsinki.fi
-Subject: [PATCH 1/2] Add /sys/hypervisor
-Message-Id: <20060509125349.72c974b2.holzheu@de.ibm.com>
+Subject: [PATCH 2/2] s390: Make hypfs more s390 specific
+Message-Id: <20060509125648.060b0b1b.holzheu@de.ibm.com>
 Organization: IBM
 X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
@@ -25,109 +25,105 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg, Hi Andrew,
-
-As discussed, here comes the final patch:
-
-To have a home for all hypervisors, this patch
-creates /sys/hypervisor.
-A new config option SYS_HYPERVISOR is introduced,
-which should to be set by architecture dependent
-hypervisors (e.g. s390 or Xen).
+- Rename filesystem from "hypfs" to "s390-hypfs"
+- Create /sys/hypervisor/s390 instead of /sys/hypervisor
+  as mount point for s390-hypfs.
+- Rename kernel config option from "HYPFS_FS" to
+  "S390_HYPFS_FS"
 
 Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
 
 ---
 
- drivers/base/Kconfig      |    4 ++++
- drivers/base/Makefile     |    1 +
- drivers/base/base.h       |    5 +++++
- drivers/base/hypervisor.c |   19 +++++++++++++++++++
- drivers/base/init.c       |    1 +
- include/linux/kobject.h   |    2 ++
- 6 files changed, 32 insertions(+)
+ arch/s390/Kconfig        |    3 ++-
+ arch/s390/hypfs/Makefile |    2 +-
+ arch/s390/hypfs/inode.c  |   23 ++++++++++++-----------
+ 3 files changed, 15 insertions(+), 13 deletions(-)
 
-diff -urpN linux-2.6.17-rc3-mm1/drivers/base/Kconfig linux-2.6.17-rc3-mm1-sys-hypervisor/drivers/base/Kconfig
---- linux-2.6.17-rc3-mm1/drivers/base/Kconfig	2006-05-08 15:56:23.000000000 +0200
-+++ linux-2.6.17-rc3-mm1-sys-hypervisor/drivers/base/Kconfig	2006-05-08 16:00:58.000000000 +0200
-@@ -38,3 +38,7 @@ config DEBUG_DRIVER
- 	  If you are unsure about this, say N here.
+diff -urpN linux-2.6.17-rc3-mm1-sys-hypervisor/arch/s390/Kconfig linux-2.6.17-rc3-mm1-sys-hypervisor-hypfs/arch/s390/Kconfig
+--- linux-2.6.17-rc3-mm1-sys-hypervisor/arch/s390/Kconfig	2006-05-08 15:57:31.000000000 +0200
++++ linux-2.6.17-rc3-mm1-sys-hypervisor-hypfs/arch/s390/Kconfig	2006-05-08 16:24:27.000000000 +0200
+@@ -446,8 +446,9 @@ config NO_IDLE_HZ_INIT
+ 	  The HZ timer is switched off in idle by default. That means the
+ 	  HZ timer is already disabled at boot time.
  
- endmenu
-+
-+config SYS_HYPERVISOR
-+	bool
-+	default n
-diff -urpN linux-2.6.17-rc3-mm1/drivers/base/Makefile linux-2.6.17-rc3-mm1-sys-hypervisor/drivers/base/Makefile
---- linux-2.6.17-rc3-mm1/drivers/base/Makefile	2006-05-08 15:56:23.000000000 +0200
-+++ linux-2.6.17-rc3-mm1-sys-hypervisor/drivers/base/Makefile	2006-05-08 16:00:41.000000000 +0200
-@@ -9,6 +9,7 @@ obj-$(CONFIG_FW_LOADER)	+= firmware_clas
- obj-$(CONFIG_NUMA)	+= node.o
- obj-$(CONFIG_MEMORY_HOTPLUG) += memory.o
- obj-$(CONFIG_SMP)	+= topology.o
-+obj-$(CONFIG_SYS_HYPERVISOR) += hypervisor.o
+-config HYPFS_FS
++config S390_HYPFS_FS
+ 	bool "s390 hypervisor file system support"
++	select SYS_HYPERVISOR
+ 	default y
+ 	help
+ 	  This is a virtual file system intended to provide accounting
+diff -urpN linux-2.6.17-rc3-mm1-sys-hypervisor/arch/s390/hypfs/Makefile linux-2.6.17-rc3-mm1-sys-hypervisor-hypfs/arch/s390/hypfs/Makefile
+--- linux-2.6.17-rc3-mm1-sys-hypervisor/arch/s390/hypfs/Makefile	2006-05-08 15:57:31.000000000 +0200
++++ linux-2.6.17-rc3-mm1-sys-hypervisor-hypfs/arch/s390/hypfs/Makefile	2006-05-08 18:08:55.000000000 +0200
+@@ -2,6 +2,6 @@
+ # Makefile for the linux hypfs filesystem routines.
+ #
  
- ifeq ($(CONFIG_DEBUG_DRIVER),y)
- EXTRA_CFLAGS += -DDEBUG
-diff -urpN linux-2.6.17-rc3-mm1/drivers/base/base.h linux-2.6.17-rc3-mm1-sys-hypervisor/drivers/base/base.h
---- linux-2.6.17-rc3-mm1/drivers/base/base.h	2006-05-08 15:57:02.000000000 +0200
-+++ linux-2.6.17-rc3-mm1-sys-hypervisor/drivers/base/base.h	2006-05-09 10:18:06.000000000 +0200
-@@ -5,6 +5,11 @@ extern int devices_init(void);
- extern int buses_init(void);
- extern int classes_init(void);
- extern int firmware_init(void);
-+#ifdef CONFIG_SYS_HYPERVISOR
-+extern int hypervisor_init(void);
-+#else
-+static inline int hypervisor_init(void) { return 0; }
-+#endif
- extern int platform_bus_init(void);
- extern int system_bus_init(void);
- extern int cpu_dev_init(void);
-diff -urpN linux-2.6.17-rc3-mm1/drivers/base/hypervisor.c linux-2.6.17-rc3-mm1-sys-hypervisor/drivers/base/hypervisor.c
---- linux-2.6.17-rc3-mm1/drivers/base/hypervisor.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.17-rc3-mm1-sys-hypervisor/drivers/base/hypervisor.c	2006-05-08 16:00:20.000000000 +0200
-@@ -0,0 +1,19 @@
-+/*
-+ * hypervisor.c - /sys/hypervisor subsystem.
-+ *
-+ * This file is released under the GPLv2
-+ *
-+ */
-+
-+#include <linux/kobject.h>
-+#include <linux/device.h>
-+
-+#include "base.h"
-+
-+decl_subsys(hypervisor, NULL, NULL);
-+EXPORT_SYMBOL_GPL(hypervisor_subsys);
-+
-+int __init hypervisor_init(void)
-+{
-+	return subsystem_register(&hypervisor_subsys);
-+}
-diff -urpN linux-2.6.17-rc3-mm1/drivers/base/init.c linux-2.6.17-rc3-mm1-sys-hypervisor/drivers/base/init.c
---- linux-2.6.17-rc3-mm1/drivers/base/init.c	2006-05-08 15:56:23.000000000 +0200
-+++ linux-2.6.17-rc3-mm1-sys-hypervisor/drivers/base/init.c	2006-05-08 16:00:07.000000000 +0200
-@@ -27,6 +27,7 @@ void __init driver_init(void)
- 	buses_init();
- 	classes_init();
- 	firmware_init();
-+	hypervisor_init();
+-obj-$(CONFIG_HYPFS_FS) += hypfs.o
++obj-$(CONFIG_S390_HYPFS_FS) += hypfs.o
  
- 	/* These are also core pieces, but must come after the
- 	 * core core pieces.
-diff -urpN linux-2.6.17-rc3-mm1/include/linux/kobject.h linux-2.6.17-rc3-mm1-sys-hypervisor/include/linux/kobject.h
---- linux-2.6.17-rc3-mm1/include/linux/kobject.h	2006-05-08 15:57:05.000000000 +0200
-+++ linux-2.6.17-rc3-mm1-sys-hypervisor/include/linux/kobject.h	2006-05-08 15:59:35.000000000 +0200
-@@ -190,6 +190,8 @@ struct subsystem _varname##_subsys = { \
+ hypfs-objs := inode.o hypfs_diag.o
+diff -urpN linux-2.6.17-rc3-mm1-sys-hypervisor/arch/s390/hypfs/inode.c linux-2.6.17-rc3-mm1-sys-hypervisor-hypfs/arch/s390/hypfs/inode.c
+--- linux-2.6.17-rc3-mm1-sys-hypervisor/arch/s390/hypfs/inode.c	2006-05-08 15:57:31.000000000 +0200
++++ linux-2.6.17-rc3-mm1-sys-hypervisor-hypfs/arch/s390/hypfs/inode.c	2006-05-08 16:58:01.000000000 +0200
+@@ -422,7 +422,7 @@ static struct file_operations hypfs_file
  
- /* The global /sys/kernel/ subsystem for people to chain off of */
- extern struct subsystem kernel_subsys;
-+/* The global /sys/hypervisor/ subsystem  */
-+extern struct subsystem hypervisor_subsys;
+ static struct file_system_type hypfs_type = {
+ 	.owner		= THIS_MODULE,
+-	.name		= "hypfs",
++	.name		= "s390-hypfs",
+ 	.get_sb		= hypfs_get_super,
+ 	.kill_sb	= kill_litter_super
+ };
+@@ -433,7 +433,7 @@ static struct super_operations hypfs_s_o
+ 	.put_super	= hypfs_put_super
+ };
  
- /**
-  * Helpers for setting the kset of registered objects.
+-static decl_subsys(hypervisor, NULL, NULL);
++static decl_subsys(s390, NULL, NULL);
+ 
+ static int __init hypfs_init(void)
+ {
+@@ -443,21 +443,22 @@ static int __init hypfs_init(void)
+ 		return -ENODATA;
+ 	if (hypfs_diag_init()) {
+ 		rc = -ENODATA;
+-		goto err_msg;
++		goto fail_diag;
+ 	}
+-	rc = subsystem_register(&hypervisor_subsys);
++	kset_set_kset_s(&s390_subsys, hypervisor_subsys);
++	rc = subsystem_register(&s390_subsys);
+ 	if (rc)
+-		goto err_diag;
++		goto fail_sysfs;
+ 	rc = register_filesystem(&hypfs_type);
+ 	if (rc)
+-		goto err_sysfs;
++		goto fail_filesystem;
+ 	return 0;
+ 
+-err_sysfs:
+-	subsystem_unregister(&hypervisor_subsys);
+-err_diag:
++fail_filesystem:
++	subsystem_unregister(&s390_subsys);
++fail_sysfs:
+ 	hypfs_diag_exit();
+-err_msg:
++fail_diag:
+ 	printk(KERN_ERR "hypfs: Initialization failed with rc = %i.\n", rc);
+ 	return rc;
+ }
+@@ -466,7 +467,7 @@ static void __exit hypfs_exit(void)
+ {
+ 	hypfs_diag_exit();
+ 	unregister_filesystem(&hypfs_type);
+-	subsystem_unregister(&hypervisor_subsys);
++	subsystem_unregister(&s390_subsys);
+ }
+ 
+ module_init(hypfs_init)

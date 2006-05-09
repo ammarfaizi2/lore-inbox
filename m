@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWEITeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWEITm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750972AbWEITeT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 15:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750978AbWEITeT
+	id S1750853AbWEITm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 15:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWEITm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 15:34:19 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:21228 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750972AbWEITeS (ORCPT
+	Tue, 9 May 2006 15:42:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33993 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750825AbWEITm2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 15:34:18 -0400
-Subject: Re: [RFC PATCH 03/35] Add Xen interface header files
-From: Hollis Blanchard <hollisb@us.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
-       Ian Pratt <ian.pratt@xensource.com>
-In-Reply-To: <20060509151516.GA16332@infradead.org>
-References: <20060509084945.373541000@sous-sol.org>
-	 <20060509085147.903310000@sous-sol.org>
-	 <20060509151516.GA16332@infradead.org>
-Content-Type: text/plain
-Organization: IBM Linux Technology Center
-Date: Tue, 09 May 2006 14:35:09 -0500
-Message-Id: <1147203309.19485.62.camel@basalt.austin.ibm.com>
+	Tue, 9 May 2006 15:42:28 -0400
+Date: Tue, 9 May 2006 12:41:38 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, aeb@cwi.nl
+Subject: Re: [PATCH] make kernel ignore bogus partitions
+Message-Id: <20060509124138.43e4bac0.akpm@osdl.org>
+In-Reply-To: <20060503210055.GB31048@beardog.cca.cpqcorp.net>
+References: <20060503210055.GB31048@beardog.cca.cpqcorp.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-09 at 16:15 +0100, Christoph Hellwig wrote:
+"Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net> wrote:
+>
+> Patch 1/1
+> Sometimes partitions claim to be larger than the reported capacity of a
+> disk device. This patch makes the kernel ignore those partitions.
 > 
-> > +#ifdef __XEN__
-> > +#define __DEFINE_GUEST_HANDLE(name, type) \
-> > +    typedef struct { type *p; } __guest_handle_ ## name
-> > +#else
-> > +#define __DEFINE_GUEST_HANDLE(name, type) \
-> > +    typedef type * __guest_handle_ ## name
-> > +#endif
+> Signed-off-by: Mike Miller <mike.miller@hp.com>
+> Signed-off-by: Stephen Cameron <steve.cameron@hp.com>
 > 
-> please get rid of all these stupid typedefs 
+> Please consider this for inclusion.
+> 
+> 
+>  fs/partitions/check.c |    5 +++++
+>  1 files changed, 5 insertions(+)
+> 
+> --- linux-2.6.14/fs/partitions/check.c~partition_vs_capacity	2006-01-06 09:32:14.000000000 -0600
+> +++ linux-2.6.14-root/fs/partitions/check.c	2006-01-06 11:24:50.000000000 -0600
+> @@ -382,6 +382,11 @@ int rescan_partitions(struct gendisk *di
+>  		sector_t from = state->parts[p].from;
+>  		if (!size)
+>  			continue;
+> +		if (from+size-1 > get_capacity(disk)) {
+> +			printk(" %s: p%d exceeds device capacity, ignoring.\n", 
+> +				disk->disk_name, p);
+> +			continue;
+> +		}
+>  		add_partition(disk, p, from, size);
+>  #ifdef CONFIG_BLK_DEV_MD
+>  		if (state->parts[p].flags)
 
-These typedefs are a new hack to work around a basic interface problem:
-instead of explicitly-sized types, Xen uses longs and pointers in its
-interface. On PowerPC in particular, where we need a 32-bit userland
-communicating with a 64-bit hypervisor, those types don't work.
+Shouldn't that be
 
-However, the maintainers are reluctant to switch the interface to use
-explicitly-sized types because it would break binary compatibility.
-These ugly "HANDLE" macros allow PowerPC to do what we need without
-affecting binary compatibility on x86.
+	if (from+size > get_capacity(disk)) {
 
--- 
-Hollis Blanchard
-IBM Linux Technology Center
+?
 

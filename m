@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWEIUjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWEIUki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbWEIUjx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 16:39:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWEIUjx
+	id S1751166AbWEIUki (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 16:40:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWEIUki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 16:39:53 -0400
-Received: from hera.kernel.org ([140.211.167.34]:33186 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751152AbWEIUjx (ORCPT
+	Tue, 9 May 2006 16:40:38 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:39245 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751166AbWEIUkh convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 16:39:53 -0400
+	Tue, 9 May 2006 16:40:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Fkqi8USkWhdMN5JHQpkk0cb2nQkoN/roPLuK1R8NvZ6tXNyxT1Esu6x1VjeSA7I18Lg1oT5tLErHlIeOpBS8A7oGr6+eJvPuRBegHW7blKj5Csm3xRwAhbxmzr8HjGSEkxwH4ais5ZSp/a6uL8g/FYOhUIC+xLVbIwSUzXqMVFQ=
+Message-ID: <bda6d13a0605091340x2e16342v15733b2c9612d985@mail.gmail.com>
+Date: Tue, 9 May 2006 13:40:37 -0700
+From: "Joshua Hudson" <joshudson@gmail.com>
 To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [RFC PATCH 34/35] Add the Xen virtual network device driver.
-Date: Tue, 9 May 2006 13:39:25 -0700
-Organization: OSDL
-Message-ID: <20060509133925.13890416@localhost.localdomain>
-References: <20060509084945.373541000@sous-sol.org>
-	<20060509085201.446830000@sous-sol.org>
-	<20060509132556.76deaa91@localhost.localdomain>
-	<6a1855ab01a195ac2a28a97c5f966f67@cl.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1147207165 1857 10.8.0.54 (9 May 2006 20:39:25 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Tue, 9 May 2006 20:39:25 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 2.1.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
+Subject: Stability of 2.6.17-rc3?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 May 2006 21:26:11 +0100
-Keir Fraser <Keir.Fraser@cl.cam.ac.uk> wrote:
+Was hoping 2.6.17 would be out within one week, doesn't look like it
+is going to happen.
+My thesis defense is coming up, need to merge my patches against some kernel
+(requiring 2.6.16.1 looks weird).
 
-> 
-> On 9 May 2006, at 21:25, Stephen Hemminger wrote:
-> 
-> >> +	memcpy(netdev->dev_addr, info->mac, ETH_ALEN);
-> >> +	network_connect(netdev);
-> >> +	info->irq = bind_evtchn_to_irqhandler(
-> >> +		info->evtchn, netif_int, SA_SAMPLE_RANDOM,
-> >> netdev->name,
-> >>
-> >
-> > This doesn't look like a real random entropy source. packets
-> > arriving from another domain are easily timed.
-> 
-> Where should we get our entropy from in a VM environment? Leaving the 
-> pool empty can cause processes to hang.
-> 
-
-You probably need to get entropy from dom0 and real hardware sources.
-Could you piggyback on some other perodic polling/message passing to
-push some entropy out?
+On a machine that 2.6.16.1 runs bug-free, is it sane to assume
+2.6.17-rc3 will as well?
+If it fails outright, I can revert, but if it is unstable I'm going to
+have some problems.
+(You would be surprised how long it took me to discover a mistake that
+sys_rename(on any filesystem) -> deadlock with my custom patch).

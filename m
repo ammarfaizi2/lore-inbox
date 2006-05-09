@@ -1,37 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbWEISII@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbWEISOP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750856AbWEISII (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 14:08:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbWEISII
+	id S1750843AbWEISOP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 14:14:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbWEISOP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 14:08:08 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:62162 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750856AbWEISIF convert rfc822-to-8bit (ORCPT
+	Tue, 9 May 2006 14:14:15 -0400
+Received: from kanga.kvack.org ([66.96.29.28]:59014 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1750843AbWEISOO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 14:08:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JdDpSSJSzZandwCpmv5oGv2AkuC1s2be6G2eyGMvo1fPZS5XSK4HlBVqj/cLHxz+L9RYX/2xB2zlK4dL6nf/+8lkly16Cx5Jlw6oF1O6mUvS9l6Eneit6//6w/PqOL7fbX76zq1TW4RxoRCuSPonrSxUwATlR0zp2uwnddnk8es=
-Message-ID: <3feffd230605091108y2cdd5709neb63dcc3066c7261@mail.gmail.com>
-Date: Wed, 10 May 2006 02:08:04 +0800
-From: "Wong Edison" <hswong3i@gmail.com>
-To: netdev@vger.kernel.org
-Subject: Re: [PATCH] TCP congestion module: add TCP-LP supporting for 2.6.16.14
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3feffd230605062232m1b9a3951h6d21071cdacc890f@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+	Tue, 9 May 2006 14:14:14 -0400
+Date: Tue, 9 May 2006 14:14:02 -0400
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org, christoph <hch@lst.de>,
+       cel@citi.umich.edu
+Subject: Re: [PATCH 0/3] VFS changes to collapse AIO and vectored IO  into single (set of) fileops.
+Message-ID: <20060509181402.GD2046@kvack.org>
+References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com> <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <3feffd230605062232m1b9a3951h6d21071cdacc890f@mail.gmail.com>
+In-Reply-To: <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-as this patch is use to add a new function but not bug fix
-what can i help after i have submit it ??
+On Tue, May 09, 2006 at 11:03:45AM -0700, Badari Pulavarty wrote:
+> single set of file-operation method using aio_read/aio_write.
+> This work was originally suggested & started by Christoph Hellwig,
+> when Zach Brown tried to add vectored support for AIO.
+> 
+> Here is the summary:
+> 
+> [PATCH 1/3] Vectorize aio_read/aio_write methods
+> 
+> [PATCH 2/3] Remove readv/writev methods and use aio_read/aio_write
+> instead.
+> 
+> [PATCH 3/3] Zach's core aio changes to support vectored AIO.
 
-as i have test it before
-i can provide the data that i have tested out ;-)
+They look pretty sane, and I agree they should go into -mm soon.  Cheers,
+
+		-ben
+-- 
+"Time is of no importance, Mr. President, only life is important."
+Don't Email: <dont@kvack.org>.

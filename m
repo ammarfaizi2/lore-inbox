@@ -1,416 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751747AbWEIKTd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751746AbWEIKYw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751747AbWEIKTd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 06:19:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbWEIKTd
+	id S1751746AbWEIKYw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 06:24:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751756AbWEIKYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 06:19:33 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:29872 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751743AbWEIKTc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 06:19:32 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH -mm] swsusp: support creating bigger images
-Date: Tue, 9 May 2006 12:19:16 +0200
-User-Agent: KMail/1.9.1
-References: <200605021200.37424.rjw@sisk.pl> <20060509003334.70771572.akpm@osdl.org>
-In-Reply-To: <20060509003334.70771572.akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, pavel@suse.cz
+	Tue, 9 May 2006 06:24:52 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:1030 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1751746AbWEIKYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 06:24:52 -0400
+Message-ID: <44606DD3.5080408@shadowen.org>
+Date: Tue, 09 May 2006 11:24:19 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: michael@ellerman.id.au
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       haveblue@us.ibm.com, kravetz@us.ibm.com
+Subject: Re: [PATCH] SPARSEMEM + NUMA can't handle unaligned memory regions?
+References: <20060509070343.57853679F2@ozlabs.org>	 <44605396.40507@shadowen.org> <1147165871.8704.14.camel@localhost.localdomain>
+In-Reply-To: <1147165871.8704.14.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605091219.17386.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 May 2006 09:33, you wrote:
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> >
-> > Currently swsusp is only capable of creating suspend images that are not
-> > bigger than 1/2 of the normal zone, because it needs to create a copy of every
-> > page which should be included in the image.  This may hurt the system
-> > responsiveness after resume, especially on systems with less that 1 GB of RAM.
-> > 
-> > To allow swsusp to create bigger images we can use the observation that
-> > if some pages don't change after the snapshot image of the system has been
-> > created and before the image is entirely saved, they can be included in the
-> > image without copying.  Now if the mapped pages that are not mapped by the
-> > current task are considered, it turns out that they would change only if they
-> > were reclaimed by try_to_free_pages().  Thus if we take them out of reach
-> > of try_to_free_pages(), for example by (temporarily) moving them out of their
-> > respective LRU lists after creating the image, we will be able to include them
-> > in the image without copying.
-> > 
-> > If these pages are included in the image without copying, the amount of free
-> > memory needed by swsusp is usually much less than otherwise, so the size
-> > of the image may be bigger.  This also makes swsusp use less memory during
-> > suspend and saves us quite a lot of memory allocations and copyings.
-> > 
+Michael Ellerman wrote:
+> On Tue, 2006-05-09 at 09:32 +0100, Andy Whitcroft wrote:
 > 
-> I have a host of minor problems with this patch.
+>>Michael Ellerman wrote:
+>>
+>>>I can't believe I'm the first person to see this, so I imagine I'm missing
+>>>something. Perhaps it's only an issue on powerpc?
+>>>
+>>>I have a machine with some memory at 0, then a hole, and then some more memory
+>>>which doesn't start on a section boundary. This is causing the following
+>>>crash:
+>>>
+>>>add_region nid 1 start_pfn 0x77c0 pages 0x840
+>>>add_region nid 1 start_pfn 0x0 pages 0x6000
+>>
+>>Nasty, could you send me your full boot log and your config and I'll
+>>have a look at it.  I can say this code has been booted on a lot of
+>>power boxes and I've never seen that before!  :)
 > 
-> > --- linux-2.6.17-rc3-mm1.orig/mm/rmap.c
-> > +++ linux-2.6.17-rc3-mm1/mm/rmap.c
-> >  
-> > +#ifdef CONFIG_SOFTWARE_SUSPEND
-> > +static int page_mapped_by_task(struct page *page, struct task_struct *task)
-> > +{
-> > +	struct vm_area_struct *vma;
-> > +	int ret = 0;
-> > +
-> > +	spin_lock(&task->mm->page_table_lock);
-> > +
-> > +	for (vma = task->mm->mmap; vma; vma = vma->vm_next)
-> > +		if (page_address_in_vma(page, vma) != -EFAULT) {
-> > +			ret = 1;
-> > +			break;
-> > +		}
-> > +
-> > +	spin_unlock(&task->mm->page_table_lock);
-> > +
-> > +	return ret;
-> > +}
 > 
-> task_struct.mm can sometimes be NULL.  This function assumes that it will
-> never be NULL.  That makes it a somewhat risky interface.  Are we sure it
-> can never be NULL?
-
-Well, now it's only called for task == current, but I can add a check.
-
-> > +/**
-> > + *	page_to_copy - determine if a page can be included in the
-> > + *	suspend image without copying (returns false if that's the case).
-> > + *
-> > + *	It is safe to include the page in the suspend image without
-> > + *	copying if (a) it's on the LRU and (b) it's mapped by a frozen task
-> > + *	(all tasks except for the current task should be frozen when it's
-> > + *	called).  Otherwise the page should be copied for this purpose
-> > + *	(compound pages are avoided for simplicity).
-> > + */
-> > +
-> > +int page_to_copy(struct page *page)
-> > +{
-> > +	if (!PageLRU(page) || PageCompound(page))
-> > +		return 1;
-> > +	if (page_mapped(page))
-> > +		return page_mapped_by_task(page, current);
-> > +
-> > +	return 1;
-> > +}
+> Ah yeah, I seem to have neglected to mention it's a kdump boot :} Sorry.
+> That's why we get the strangely aligned memory sections. The section
+> starting at 0 is for the kdump kernel, the bit at 0x77c0 covers some
+> firmware that's allocated there by the first kernel.
 > 
-> a) This is a poorly-chosen name for a globally-scoped function.  There's
->    no indication in its name that it is a swsusp thing.
-> 
-> b) It hurts my brain.  "determine X and return false if it's true (!)",
->    where "X" means "can it be included" whereas the name "page_to_copy"
->    implies something seemingly unrelated - some semantic caller-defined
->    consequence of X.
-> 
-> Shudder.  Please try again.
+> I can still give you a .config and log if you want it, but not 'til
+> tomorrow morning.
 
-OK (although it's not that easy ;-))
+Heh.  Well at least that makes more sense.  It would be good to have
+them generally.  But no I'm not scared of where this odd alignment is
+coming from I can look at what we can do about it.
 
-> > +#endif /* CONFIG_SOFTWARE_SUSPEND */
-> > Index: linux-2.6.17-rc3-mm1/include/linux/rmap.h
-> > ===================================================================
-> > --- linux-2.6.17-rc3-mm1.orig/include/linux/rmap.h
-> > +++ linux-2.6.17-rc3-mm1/include/linux/rmap.h
-> > @@ -104,6 +104,14 @@ pte_t *page_check_address(struct page *,
-> >   */
-> >  unsigned long page_address_in_vma(struct page *, struct vm_area_struct *);
-> >  
-> > +#ifdef CONFIG_SOFTWARE_SUSPEND
-> > +/*
-> > + * Used to determine if the page can be included in the suspend image without
-> > + * copying
-> > + */
-> > +int page_to_copy(struct page *);
-> > +#endif
-> 
-> Please remove the ifdef here.
+Thanks.
 
-OK
-
-> > +++ linux-2.6.17-rc3-mm1/kernel/power/snapshot.c
-> > --- linux-2.6.17-rc3-mm1.orig/kernel/power/snapshot.c
-> > +
-> > +unsigned int count_data_pages(unsigned int *total)
-> >  {
-> >  	struct zone *zone;
-> >  	unsigned long zone_pfn;
-> > -	unsigned int n = 0;
-> > +	unsigned int n, m;
-> >  
-> > +	n = m = 0;
-> 
-> Please avoid the multiple assignment.  Kernel coding style is super-simple
-> - no tricksy stuff.
-
-OK
-
-> 
-> 	unsigned int n = 0;
-> 	unsigned int m = 0;
-> 
-> See, if we put each declaration on its own line we get a little bit of room
-> for a comment explaining what it does.  Which is pretty much compulsory if
-> one insists on using identifiers like `m' and `n'.
-
-OK, I'll change the names.
-
-> 
-> >  	for_each_zone (zone) {
-> 
-> Might as well remove the extranous space here.
-
-OK
-
-> >  		if (is_highmem(zone))
-> >  			continue;
-> >  		mark_free_pages(zone);
-> > -		for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn)
-> > -			n += saveable(zone, &zone_pfn);
-> > +		for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn) {
-> > +			unsigned long pfn = zone_pfn + zone->zone_start_pfn;
-> > +
-> > +			if (saveable(pfn)) {
-> > +				n++;
-> > +				if (!page_to_copy(pfn_to_page(pfn)))
-> > +					m++;
-> > +			}
-> > +		}
-> >  	}
-> > -	return n;
-> > +	if (total)
-> > +		*total = n;
-> > +
-> > +	return n - m;
-> >  }
-> 
-> See, I think `n' should be renamed to `pages_to_copy'.
-
-Actually 'n' is the total number of data pages, and (n - m) is the number of
-pages to copy ...
-
-> I don't know what `m' should be renamed to, because that would require me
-> to understand `page_to_copy()', and I'm not smart enough for that.
-
-... so 'm' is the number of pages we don't want to be copied. :-)
-
-> >  /**
-> > + *	protect_data_pages - move data pages that need to be protected from
-> > + *	being reclaimed (ie. those included in the suspend image without
-> > + *	copying) out of their respective LRU lists.  This is done after the
-> > + *	image has been created so the LRU lists only have to be restored if
-> > + *	the suspend fails.
-> > + *
-> > + *	This function is only called from the critical section, ie. when
-> > + *	processes are frozen, there's only one CPU online and local IRQs
-> > + *	are disabled on it.
-> > + */
-> > +
-> > +static void protect_data_pages(struct pbe *pblist)
-> > +{
-> > +	struct pbe *p;
-> > +
-> > +	for_each_pbe (p, pblist)
-> 
-> extraneous space.
-
-Will fix.
-
-> > -static int enough_free_mem(unsigned int nr_pages)
-> > +static int enough_free_mem(unsigned int nr_pages, unsigned int copy_pages)
-> >  {
-> >  	struct zone *zone;
-> > -	unsigned int n = 0;
-> > +	long n = 0;
-> 
-> Suggest you rename `n' to something useful while you're there.
-
-OK
-
-> > +	pr_debug("swsusp: pages needed: %u + %lu + %lu\n",
-> > +		 copy_pages,
-> > +		 (nr_pages + PBES_PER_PAGE - 1) / PBES_PER_PAGE,
-> > +		 EXTRA_PAGES);
-> 
-> Use DIV_ROUND_UP() here.
-
-OK
-
-> >  	for_each_zone (zone)
-> > -		if (!is_highmem(zone))
-> > +		if (!is_highmem(zone) && populated_zone(zone)) {
-> >  			n += zone->free_pages;
-> > -	pr_debug("swsusp: available memory: %u pages\n", n);
-> > -	return n > (nr_pages + PAGES_FOR_IO +
-> > -		(nr_pages + PBES_PER_PAGE - 1) / PBES_PER_PAGE);
-> > -}
-> > -
-> > -static int alloc_data_pages(struct pbe *pblist, gfp_t gfp_mask, int safe_needed)
-> > -{
-> > -	struct pbe *p;
-> > +			/*
-> > +			 * We're going to use atomic allocations, so we
-> > +			 * shouldn't count the lowmem reserves in the lower
-> > +			 * zones as available to us
-> > +			 */
-> > +			n -= zone->lowmem_reserve[ZONE_NORMAL];
-> > +		}
-> >  
-> > -	for_each_pbe (p, pblist) {
-> > -		p->address = (unsigned long)alloc_image_page(gfp_mask, safe_needed);
-> > -		if (!p->address)
-> > -			return -ENOMEM;
-> > -	}
-> > -	return 0;
-> > +	pr_debug("swsusp: available memory: %ld pages\n", n);
-> > +	return n > (long)(copy_pages + EXTRA_PAGES +
-> > +		(nr_pages + PBES_PER_PAGE - 1) / PBES_PER_PAGE);
-> 
-> DIV_ROUND_UP().
-
-OK
-
-> >  asmlinkage int swsusp_save(void)
-> >  {
-> > -	unsigned int nr_pages;
-> > +	unsigned int nr_pages, copy_pages;
-> 
-> 	unsigned int nr_pages;
-> 	unsigned int pages_to_copy;
-
-OK
-
-> > +#if (defined(CONFIG_BLK_DEV_INITRD) && defined(CONFIG_BLK_DEV_RAM))
-> > +#define EXTRA_PAGES	(PAGES_FOR_IO + \
-> > +			(2 * CONFIG_BLK_DEV_RAM_SIZE * 1024) / PAGE_SIZE)
-> > +#else
-> > +#define EXTRA_PAGES	PAGES_FOR_IO
-> > +#endif
-> 
-> What is the significance of the ramdisk to the swsusp code?  (Need commenting).
-
-Well, yes.  If the userland suspend is used, it needs the extra space for
-itself and the initrd on resume (I'll add a comment).
-
-> EXTRA_PAGES is not a well-chosen identifier.  Please choose something
-> within the swsusp "namespace", if there's such a thing.
-
-Unfortunately there's not any, but I'll try to invent a better name. :-)
-
-> > ===================================================================
-> > --- linux-2.6.17-rc3-mm1.orig/kernel/power/swsusp.c
-> > +++ linux-2.6.17-rc3-mm1/kernel/power/swsusp.c
-> > @@ -177,28 +177,29 @@ int swsusp_shrink_memory(void)
-> >  	long size, tmp;
-> >  	struct zone *zone;
-> >  	unsigned long pages = 0;
-> > -	unsigned int i = 0;
-> > +	unsigned int to_save, i = 0;
-> 
-> 	unsigned int pages_to_save;
-> 	unsigned int i = 0;		/* Maybe a comment */
-> 
-> > ===================================================================
-> > --- linux-2.6.17-rc3-mm1.orig/mm/vmscan.c
-> > +++ linux-2.6.17-rc3-mm1/mm/vmscan.c
-> > @@ -1437,7 +1437,68 @@ out:
-> >  
-> >  	return ret;
-> >  }
-> > -#endif
-> > +
-> > +static LIST_HEAD(saved_active_pages);
-> > +static LIST_HEAD(saved_inactive_pages);
-> > +
-> > +/**
-> > + *	move_out_of_lru - software suspend includes some pages in the
-> > + *	suspend snapshot image without copying and these pages should be
-> > + *	procected from being reclaimed, which can be done by (temporarily)
-> > + *	moving them out of their respective LRU lists
-> > + *
-> > + *	It is to be called with local IRQs disabled.
-> > + */
-> > +
-> > +void move_out_of_lru(struct page *page)
-> > +{
-> > +	struct zone *zone = page_zone(page);
-> > +
-> > +	spin_lock(&zone->lru_lock);
-> 
-> Normally we'd check that PageLRU() is still true after acquiring the lock.
-
-OK
-
-> > +	if (PageActive(page)) {
-> > +		del_page_from_active_list(zone, page);
-> > +		list_add(&page->lru, &saved_active_pages);
-> > +	} else {
-> > +		del_page_from_inactive_list(zone, page);
-> > +		list_add(&page->lru, &saved_inactive_pages);
-> > +	}
-> > +	ClearPageLRU(page);
-> > +	spin_unlock(&zone->lru_lock);
-> > +}
-> > +
-> > +
-> > +/**
-> > + *	restore_active_inactive_lists - used by the software suspend to move
-> > + *	the pages taken out of the LRU by take_page_out_of_lru() back to
-> > + *	their respective active/inactive lists (if the suspend fails)
-> > + */
-> > +
-> > +void restore_active_inactive_lists(void)
-> > +{
-> > +	struct page *page;
-> > +	struct zone *zone;
-> > +
-> > +	while(!list_empty(&saved_active_pages)) {
-> 
-> Add a space after `while'.
-
-OK
-
-> > +		page = lru_to_page(&saved_active_pages);
-> > +		zone = page_zone(page);
-> > +		list_del(&page->lru);
-> > +		spin_lock_irq(&zone->lru_lock);
-> > +		SetPageLRU(page);
-> > +		add_page_to_active_list(zone, page);
-> > +		spin_unlock_irq(&zone->lru_lock);
-> > +	}
-> > +
-> > +	while(!list_empty(&saved_inactive_pages)) {
-> 
-> Ditto.
-
-OK
-
-> > +		page = lru_to_page(&saved_inactive_pages);
-> > +		zone = page_zone(page);
-> > +		list_del(&page->lru);
-> > +		spin_lock_irq(&zone->lru_lock);
-> > +		SetPageLRU(page);
-> > +		add_page_to_inactive_list(zone, page);
-> > +		spin_unlock_irq(&zone->lru_lock);
-> > +	}
-> > +}
-> > +#endif /* CONFIG_PM */
-> 
-> All the above code is inside CONFIG_PM, but afaik it's only used by
-> CONFIG_SOFTWARE_SUSPEND.
-
-Yes, but CONFIG_PM has been used here for quite some time and I wanted
-to change that in a separate patch, along with some header clean-ups.  Still
-I can do it in this patch if that's better.
-
-Thanks for the comments.  I'll do my best to fix all of the issues in the next
-version.
-
-Greetings,
-Rafael
+-apw

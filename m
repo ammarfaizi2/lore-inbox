@@ -1,90 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWEIU0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWEIU0L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbWEIU0G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 16:26:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWEIU0G
+	id S1751131AbWEIU0L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 16:26:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbWEIU0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 16:26:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:37852 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751124AbWEIU0E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 16:26:04 -0400
-Date: Tue, 9 May 2006 13:25:56 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       netdev@vger.kernel.org
-Subject: Re: [RFC PATCH 34/35] Add the Xen virtual network device driver.
-Message-ID: <20060509132556.76deaa91@localhost.localdomain>
-In-Reply-To: <20060509085201.446830000@sous-sol.org>
-References: <20060509084945.373541000@sous-sol.org>
-	<20060509085201.446830000@sous-sol.org>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
+	Tue, 9 May 2006 16:26:10 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:4482 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751132AbWEIU0J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 16:26:09 -0400
+Date: Tue, 9 May 2006 13:28:50 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: torvalds@osdl.org
+Subject: Linux 2.6.16.15
+Message-ID: <20060509202850.GQ24291@moss.sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +static int setup_device(struct xenbus_device *dev, struct
-> netfront_info *info) +{
-> +	struct netif_tx_sring *txs;
-> +	struct netif_rx_sring *rxs;
-> +	int err;
-> +	struct net_device *netdev = info->netdev;
-> +
-> +	info->tx_ring_ref = GRANT_INVALID_REF;
-> +	info->rx_ring_ref = GRANT_INVALID_REF;
-> +	info->rx.sring = NULL;
-> +	info->tx.sring = NULL;
-> +	info->irq = 0;
-> +
-> +	txs = (struct netif_tx_sring *)get_zeroed_page(GFP_KERNEL);
-> +	if (!txs) {
-> +		err = -ENOMEM;
-> +		xenbus_dev_fatal(dev, err, "allocating tx ring
-> page");
-> +		goto fail;
-> +	}
-> +	rxs = (struct netif_rx_sring *)get_zeroed_page(GFP_KERNEL);
-> +	if (!rxs) {
-> +		err = -ENOMEM;
-> +		xenbus_dev_fatal(dev, err, "allocating rx ring
-> page");
-> +		free_page((unsigned long)txs);
-> +		goto fail;
-> +	}
-> +	info->backend_state = BEST_DISCONNECTED;
-> +
-> +	SHARED_RING_INIT(txs);
-> +	FRONT_RING_INIT(&info->tx, txs, PAGE_SIZE);
-> +
-> +	SHARED_RING_INIT(rxs);
-> +	FRONT_RING_INIT(&info->rx, rxs, PAGE_SIZE);
-> +
-> +	err = xenbus_grant_ring(dev, virt_to_mfn(txs));
-> +	if (err < 0)
-> +		goto fail;
-> +	info->tx_ring_ref = err;
-> +
-> +	err = xenbus_grant_ring(dev, virt_to_mfn(rxs));
-> +	if (err < 0)
-> +		goto fail;
-> +	info->rx_ring_ref = err;
-> +
-> +	err = xenbus_alloc_evtchn(dev, &info->evtchn);
-> +	if (err)
-> +		goto fail;
-> +
-> +	memcpy(netdev->dev_addr, info->mac, ETH_ALEN);
-> +	network_connect(netdev);
-> +	info->irq = bind_evtchn_to_irqhandler(
-> +		info->evtchn, netif_int, SA_SAMPLE_RANDOM,
-> netdev->name,
-> 
+We (the -stable team) are announcing the release of the 2.6.16.15
+kernel.  Fixes for SCTP security issues.
 
-This doesn't look like a real random entropy source. packets
-arriving from another domain are easily timed.
+The diffstat and short summary of the fixes are below.
+
+I'll also be replying to this message with a copy of the patch between
+2.6.16.14 and 2.6.16.15, as it is small enough to do so.
+
+The updated 2.6.16.y git tree can be found at:
+ 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+and can be browsed at the normal kernel.org git web browser:
+	www.kernel.org/git/
+
+thanks,
+-chris
+
+--------
+
+ Makefile                   |    2 -
+ include/net/sctp/structs.h |    1 
+ net/sctp/inqueue.c         |    1 
+ net/sctp/sm_statefuns.c    |   59 +++++++++++++++++++++++++++++++++------------
+ net/sctp/sm_statetable.c   |   10 +++----
+ net/sctp/ulpqueue.c        |   27 +++++++++++++++++++-
+ 6 files changed, 77 insertions(+), 23 deletions(-)
+
+Summary of changes from v2.6.16.14 to v2.6.16.15
+================================================
+
+Chris Wright:
+      Linux 2.6.16.15
+
+Neil Horman:
+      SCTP: Allow spillover of receive buffer to avoid deadlock. (CVE-2006-2275)
+
+Sridhar Samudrala:
+      SCTP: Fix panic's when receiving fragmented SCTP control chunks. (CVE-2006-2272)
+      SCTP: Fix state table entries for chunks received in CLOSED state. (CVE-2006-2271)
+
+Vladislav Yasevich:
+      SCTP: Prevent possible infinite recursion with multiple bundled DATA. (CVE-2006-2274)
+

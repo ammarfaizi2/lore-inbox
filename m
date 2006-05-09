@@ -1,537 +1,295 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWEIX4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWEIX7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932288AbWEIX4e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 19:56:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbWEIX4d
+	id S932317AbWEIX7g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 19:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWEIX7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 19:56:33 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:17353 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932288AbWEIX4d
+	Tue, 9 May 2006 19:59:36 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:49104 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932292AbWEIX7f
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 19:56:33 -0400
-Subject: Re: [PATCH 1/3] Vectorize aio_read/aio_write methods
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Benjamin LaHaise <bcrl@kvack.org>, cel@citi.umich.edu
-In-Reply-To: <20060509192051.GA19378@lst.de>
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>
-	 <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
-	 <1147198025.28388.0.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060509120105.7255e265.akpm@osdl.org> <20060509190310.GA19124@lst.de>
-	 <20060509121305.0840e770.akpm@osdl.org>  <20060509192051.GA19378@lst.de>
-Content-Type: text/plain
-Date: Tue, 09 May 2006 16:57:42 -0700
-Message-Id: <1147219062.30738.8.camel@dyn9047017100.beaverton.ibm.com>
+	Tue, 9 May 2006 19:59:35 -0400
+Date: Tue, 9 May 2006 18:58:28 -0500
+From: Jon Mason <jdmason@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: ak@suse.de, "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org,
+       mulix@mulix.org
+Subject: [PATCH 2/5] mm: bootmem code cleanup
+Message-ID: <20060509235828.GF22385@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-09 at 21:20 +0200, Christoph Hellwig wrote:
-> On Tue, May 09, 2006 at 12:13:05PM -0700, Andrew Morton wrote:
-> > > there's another patch ontop which I didn't bother to redo until this is
-> > > accepted which kills a lot more code.  After that filesystems only have
-> > > to implement one method each for all kinds of read/write calls.  Which
-> > > allows to both make the mm/filemap.c far less complex and actually
-> > > understandable aswell as for any filesystem that uses more complex
-> > > read/write variants than direct filemap.c calls.  In addition to these
-> > > simplification we also get a feature (async vectored I/O) for free.
-> > 
-> > Fair enough, thanks.  Simplifying filemap.c would be a win.
-> > 
-> > I'll crunch on these three patches in the normal fashion.  It'll be good if
-> > we can get the followup patch done within the next week or two so we can
-> > get it all tested at the same time.  Although from your description it
-> > doesn't sound like it'll be completely trivial...
-> 
-> That patch is lots of tirival and boring work.  If anyone wants to beat
-> me to it:
+Per Muli's comment on the initial series of patches.
+Clean-up to remove 80 char/line wrapping and make code more uniform.
 
-Well, I am not sure if you mean *exactly* this..
-
-So far, I have this. I really don't like the idea of
-adding .aio_read/.aio_write methods for the filesystems who currently
-don't have one (so we can force their .read/.write to do_sync_*()). 
-Is there a way to fix callers of .read/.write() methods to use
-something like do_sync_read/write - that way we can take out
-.read/.write completely ?
-
-Anyway, here it is compiled but untested.. I think I can clean up
-more in filemap.c (after reading through your suggestions). Please
-let me know, if I am on wrong path ...
+This patch has been tested individually and cumulatively on x86_64 and
+cross-compile tested on IA64.  Since I have no IA64 hardware, any
+testing on that platform would be appreciated
 
 Thanks,
-Badari
+Jon
 
-Patch to remove generic_file_read() and generic_file_write()
-as we seem to have too many interfaces. 
+Signed-off-by: Jon Mason <jdmason@us.ibm.com>
 
-Make .read/.write methods for filesystems to use do_sync_read()
-and do_sync_write() which makes use of aio_read/aio_write().
-
-I really don't like keeping .read()/.write() methods since
-sys_read/sys_write() can make use of async methods - but
-this is for those who call .read/.write() directly.
-
- drivers/char/raw.c      |    4 +--
- fs/adfs/file.c          |    6 +++--
- fs/affs/file.c          |    6 +++--
- fs/bfs/file.c           |    6 +++--
- fs/block_dev.c          |    2 -
- fs/ext2/file.c          |    4 +--
- fs/fuse/file.c          |    6 +++--
- fs/hfs/inode.c          |    6 +++--
- fs/hfsplus/inode.c      |    6 +++--
- fs/hostfs/hostfs_kern.c |    4 +--
- fs/hpfs/file.c          |    6 +++--
- fs/jffs/inode-v23.c     |    6 +++--
- fs/jffs2/file.c         |    6 +++--
- fs/jfs/file.c           |    4 +--
- fs/minix/file.c         |    6 +++--
- fs/ntfs/file.c          |    2 -
- fs/qnx4/file.c          |    6 +++--
- fs/ramfs/file-mmu.c     |    6 +++--
- fs/ramfs/file-nommu.c   |    6 +++--
- fs/read_write.c         |    3 +-
- include/linux/fs.h      |    2 -
- mm/filemap.c            |   55 ------------------------------------------------
- 22 files changed, 64 insertions(+), 94 deletions(-)
-
-Index: linux-2.6.17-rc3.save/drivers/char/raw.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/drivers/char/raw.c	2006-05-09 14:11:51.000000000 -0700
-+++ linux-2.6.17-rc3.save/drivers/char/raw.c	2006-05-09 14:15:28.000000000 -0700
-@@ -251,9 +251,9 @@ static ssize_t raw_file_write(struct fil
- }
+diff -r 1d9d729a821b -r 235bc05ff8b1 include/linux/bootmem.h
+--- a/include/linux/bootmem.h	Mon May  8 15:18:59 2006
++++ b/include/linux/bootmem.h	Mon May  8 16:17:49 2006
+@@ -41,11 +41,16 @@
+ 	struct list_head list;
+ } bootmem_data_t;
  
- static struct file_operations raw_fops = {
--	.read	=	generic_file_read,
-+	.read	=	do_sync_read,
- 	.aio_read = 	generic_file_aio_read,
--	.write	=	raw_file_write,
-+	.write	=	do_sync_write,
- 	.aio_write = 	generic_file_aio_write_nolock,
- 	.open	=	raw_open,
- 	.release=	raw_release,
-Index: linux-2.6.17-rc3.save/fs/adfs/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/adfs/file.c	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/adfs/file.c	2006-05-09 14:31:50.000000000 -0700
-@@ -27,10 +27,12 @@
- 
- const struct file_operations adfs_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
- 	.mmap		= generic_file_mmap,
- 	.fsync		= file_fsync,
--	.write		= generic_file_write,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.sendfile	= generic_file_sendfile,
- };
- 
-Index: linux-2.6.17-rc3.save/fs/affs/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/affs/file.c	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/affs/file.c	2006-05-09 14:35:22.000000000 -0700
-@@ -27,8 +27,10 @@ static int affs_file_release(struct inod
- 
- const struct file_operations affs_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.open		= affs_file_open,
- 	.release	= affs_file_release,
-Index: linux-2.6.17-rc3.save/fs/bfs/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/bfs/file.c	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/bfs/file.c	2006-05-09 14:36:49.000000000 -0700
-@@ -19,8 +19,10 @@
- 
- const struct file_operations bfs_file_operations = {
- 	.llseek 	= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.sendfile	= generic_file_sendfile,
- };
-Index: linux-2.6.17-rc3.save/fs/block_dev.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/block_dev.c	2006-05-09 14:11:51.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/block_dev.c	2006-05-09 14:39:54.000000000 -0700
-@@ -1083,7 +1083,7 @@ const struct file_operations def_blk_fop
- 	.open		= blkdev_open,
- 	.release	= blkdev_close,
- 	.llseek		= block_llseek,
--	.read		= generic_file_read,
-+	.read		= do_sync_read,
- 	.write		= blkdev_file_write,
-   	.aio_read	= generic_file_aio_read,
-   	.aio_write	= generic_file_aio_write_nolock,
-Index: linux-2.6.17-rc3.save/fs/ext2/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/ext2/file.c	2006-05-09 14:11:51.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/ext2/file.c	2006-05-09 14:41:14.000000000 -0700
-@@ -41,8 +41,8 @@ static int ext2_release_file (struct ino
-  */
- const struct file_operations ext2_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.write		= do_sync_write,
- 	.aio_read	= generic_file_aio_read,
- 	.aio_write	= generic_file_aio_write,
- 	.ioctl		= ext2_ioctl,
-Index: linux-2.6.17-rc3.save/fs/fuse/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/fuse/file.c	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/fuse/file.c	2006-05-09 14:44:43.000000000 -0700
-@@ -621,8 +621,10 @@ static int fuse_set_page_dirty(struct pa
- 
- static const struct file_operations fuse_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= fuse_file_mmap,
- 	.open		= fuse_open,
- 	.flush		= fuse_flush,
-Index: linux-2.6.17-rc3.save/fs/hfs/inode.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/hfs/inode.c	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/hfs/inode.c	2006-05-09 14:46:37.000000000 -0700
-@@ -603,8 +603,10 @@ int hfs_inode_setattr(struct dentry *den
- 
- static const struct file_operations hfs_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.sendfile	= generic_file_sendfile,
- 	.fsync		= file_fsync,
-Index: linux-2.6.17-rc3.save/fs/hfsplus/inode.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/hfsplus/inode.c	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/hfsplus/inode.c	2006-05-09 15:05:44.000000000 -0700
-@@ -282,8 +282,10 @@ static struct inode_operations hfsplus_f
- 
- static const struct file_operations hfsplus_file_operations = {
- 	.llseek 	= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.sendfile	= generic_file_sendfile,
- 	.fsync		= file_fsync,
-Index: linux-2.6.17-rc3.save/fs/hostfs/hostfs_kern.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/hostfs/hostfs_kern.c	2006-05-09 14:11:51.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/hostfs/hostfs_kern.c	2006-05-09 15:06:37.000000000 -0700
-@@ -386,11 +386,11 @@ int hostfs_fsync(struct file *file, stru
- 
- static const struct file_operations hostfs_file_fops = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
-+	.read		= do_sync_read,
- 	.sendfile	= generic_file_sendfile,
- 	.aio_read	= generic_file_aio_read,
- 	.aio_write	= generic_file_aio_write,
--	.write		= generic_file_write,
-+	.write		= do_sync_write,
- 	.mmap		= generic_file_mmap,
- 	.open		= hostfs_file_open,
- 	.release	= NULL,
-Index: linux-2.6.17-rc3.save/fs/hpfs/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/hpfs/file.c	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/hpfs/file.c	2006-05-09 15:08:53.000000000 -0700
-@@ -113,7 +113,7 @@ static ssize_t hpfs_file_write(struct fi
- {
- 	ssize_t retval;
- 
--	retval = generic_file_write(file, buf, count, ppos);
-+	retval = do_sync_write(file, buf, count, ppos);
- 	if (retval > 0)
- 		hpfs_i(file->f_dentry->d_inode)->i_dirty = 1;
- 	return retval;
-@@ -122,8 +122,10 @@ static ssize_t hpfs_file_write(struct fi
- const struct file_operations hpfs_file_ops =
- {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
- 	.write		= hpfs_file_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.release	= hpfs_file_release,
- 	.fsync		= hpfs_file_fsync,
-Index: linux-2.6.17-rc3.save/fs/jffs/inode-v23.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/jffs/inode-v23.c	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/jffs/inode-v23.c	2006-05-09 15:10:34.000000000 -0700
-@@ -1633,8 +1633,10 @@ static const struct file_operations jffs
- {
- 	.open		= generic_file_open,
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.ioctl		= jffs_ioctl,
- 	.mmap		= generic_file_readonly_mmap,
- 	.fsync		= jffs_fsync,
-Index: linux-2.6.17-rc3.save/fs/jffs2/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/jffs2/file.c	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/jffs2/file.c	2006-05-09 15:11:58.000000000 -0700
-@@ -42,8 +42,10 @@ const struct file_operations jffs2_file_
- {
- 	.llseek =	generic_file_llseek,
- 	.open =		generic_file_open,
--	.read =		generic_file_read,
--	.write =	generic_file_write,
-+	.read =		do_sync_read,
-+	.aio_read =	generic_file_aio_read,
-+	.write =	do_sync_write,
-+	.aio_write =	generic_file_aio_write,
- 	.ioctl =	jffs2_ioctl,
- 	.mmap =		generic_file_readonly_mmap,
- 	.fsync =	jffs2_fsync,
-Index: linux-2.6.17-rc3.save/fs/jfs/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/jfs/file.c	2006-05-09 14:11:51.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/jfs/file.c	2006-05-09 15:12:41.000000000 -0700
-@@ -103,8 +103,8 @@ struct inode_operations jfs_file_inode_o
- const struct file_operations jfs_file_operations = {
- 	.open		= jfs_open,
- 	.llseek		= generic_file_llseek,
--	.write		= generic_file_write,
--	.read		= generic_file_read,
-+	.write		= do_sync_write,
-+	.read		= do_sync_read,
- 	.aio_read	= generic_file_aio_read,
- 	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
-Index: linux-2.6.17-rc3.save/fs/minix/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/minix/file.c	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/minix/file.c	2006-05-09 15:15:06.000000000 -0700
-@@ -17,8 +17,10 @@ int minix_sync_file(struct file *, struc
- 
- const struct file_operations minix_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.fsync		= minix_sync_file,
- 	.sendfile	= generic_file_sendfile,
-Index: linux-2.6.17-rc3.save/fs/ntfs/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/ntfs/file.c	2006-05-09 14:11:51.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/ntfs/file.c	2006-05-09 15:50:43.000000000 -0700
-@@ -2294,7 +2294,7 @@ static int ntfs_file_fsync(struct file *
- 
- const struct file_operations ntfs_file_ops = {
- 	.llseek		= generic_file_llseek,	 /* Seek inside file. */
--	.read		= generic_file_read,	 /* Read from file. */
-+	.read		= do_sync_read,		 /* Read from file. */
- 	.aio_read	= generic_file_aio_read, /* Async read from file. */
- #ifdef NTFS_RW
- 	.write		= ntfs_file_write,	 /* Write to file. */
-Index: linux-2.6.17-rc3.save/fs/qnx4/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/qnx4/file.c	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/qnx4/file.c	2006-05-09 15:18:10.000000000 -0700
-@@ -22,11 +22,13 @@
- const struct file_operations qnx4_file_operations =
- {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
- 	.mmap		= generic_file_mmap,
- 	.sendfile	= generic_file_sendfile,
- #ifdef CONFIG_QNX4FS_RW
--	.write		= generic_file_write,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.fsync		= qnx4_sync_file,
+-extern unsigned long __init bootmem_bootmap_pages (unsigned long);
+-extern unsigned long __init init_bootmem (unsigned long addr, unsigned long memend);
+-extern void __init free_bootmem (unsigned long addr, unsigned long size);
+-extern void * __init __alloc_bootmem (unsigned long size, unsigned long align, unsigned long goal);
+-extern void * __init __alloc_bootmem_nopanic (unsigned long size, unsigned long align, unsigned long goal);
++extern unsigned long __init bootmem_bootmap_pages(unsigned long);
++extern unsigned long __init init_bootmem(unsigned long addr,
++					 unsigned long memend);
++extern void __init free_bootmem(unsigned long addr, unsigned long size);
++extern void * __init __alloc_bootmem(unsigned long size,
++				     unsigned long align,
++				     unsigned long goal);
++extern void * __init __alloc_bootmem_nopanic(unsigned long size,
++					     unsigned long align,
++					     unsigned long goal);
+ extern void * __init __alloc_bootmem_low(unsigned long size,
+ 					 unsigned long align,
+ 					 unsigned long goal);
+@@ -54,8 +59,10 @@
+ 					      unsigned long align,
+ 					      unsigned long goal);
+ extern void * __init __alloc_bootmem_core(struct bootmem_data *bdata,
+-		unsigned long size, unsigned long align, unsigned long goal,
+-		unsigned long limit);
++					  unsigned long size,
++					  unsigned long align,
++					  unsigned long goal,
++					  unsigned long limit);
+ #ifndef CONFIG_HAVE_ARCH_BOOTMEM_NODE
+ extern void __init reserve_bootmem (unsigned long addr, unsigned long size);
+ #define alloc_bootmem(x) \
+@@ -67,12 +74,22 @@
+ #define alloc_bootmem_low_pages(x) \
+ 	__alloc_bootmem_low((x), PAGE_SIZE, 0)
+ #endif /* !CONFIG_HAVE_ARCH_BOOTMEM_NODE */
+-extern unsigned long __init free_all_bootmem (void);
+-extern void * __init __alloc_bootmem_node (pg_data_t *pgdat, unsigned long size, unsigned long align, unsigned long goal);
+-extern unsigned long __init init_bootmem_node (pg_data_t *pgdat, unsigned long freepfn, unsigned long startpfn, unsigned long endpfn);
+-extern void __init reserve_bootmem_node (pg_data_t *pgdat, unsigned long physaddr, unsigned long size);
+-extern void __init free_bootmem_node (pg_data_t *pgdat, unsigned long addr, unsigned long size);
+-extern unsigned long __init free_all_bootmem_node (pg_data_t *pgdat);
++extern unsigned long __init free_all_bootmem(void);
++extern void * __init __alloc_bootmem_node(pg_data_t *pgdat,
++					  unsigned long size,
++					  unsigned long align,
++					  unsigned long goal);
++extern unsigned long __init init_bootmem_node(pg_data_t *pgdat,
++					      unsigned long freepfn,
++					      unsigned long startpfn,
++					      unsigned long endpfn);
++extern void __init reserve_bootmem_node(pg_data_t *pgdat,
++					unsigned long physaddr,
++					unsigned long size);
++extern void __init free_bootmem_node(pg_data_t *pgdat,
++				     unsigned long addr,
++				     unsigned long size);
++extern unsigned long __init free_all_bootmem_node(pg_data_t *pgdat);
+ #ifndef CONFIG_HAVE_ARCH_BOOTMEM_NODE
+ #define alloc_bootmem_node(pgdat, x) \
+ 	__alloc_bootmem_node((pgdat), (x), SMP_CACHE_BYTES, __pa(MAX_DMA_ADDRESS))
+diff -r 1d9d729a821b -r 235bc05ff8b1 mm/bootmem.c
+--- a/mm/bootmem.c	Mon May  8 15:18:59 2006
++++ b/mm/bootmem.c	Mon May  8 16:17:49 2006
+@@ -43,7 +43,7 @@
  #endif
- };
-Index: linux-2.6.17-rc3.save/fs/ramfs/file-mmu.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/ramfs/file-mmu.c	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/ramfs/file-mmu.c	2006-05-09 15:19:34.000000000 -0700
-@@ -33,8 +33,10 @@ struct address_space_operations ramfs_ao
- };
  
- const struct file_operations ramfs_file_operations = {
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.fsync		= simple_sync_file,
- 	.sendfile	= generic_file_sendfile,
-Index: linux-2.6.17-rc3.save/fs/ramfs/file-nommu.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/ramfs/file-nommu.c	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/ramfs/file-nommu.c	2006-05-09 15:20:37.000000000 -0700
-@@ -36,8 +36,10 @@ struct address_space_operations ramfs_ao
- const struct file_operations ramfs_file_operations = {
- 	.mmap			= ramfs_nommu_mmap,
- 	.get_unmapped_area	= ramfs_nommu_get_unmapped_area,
--	.read			= generic_file_read,
--	.write			= generic_file_write,
-+	.read			= do_sync_read,
-+	.aio_read		= generic_file_aio_read,
-+	.write			= do_sync_write,
-+	.aio_write		= generic_file_aio_write,
- 	.fsync			= simple_sync_file,
- 	.sendfile		= generic_file_sendfile,
- 	.llseek			= generic_file_llseek,
-Index: linux-2.6.17-rc3.save/fs/read_write.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/read_write.c	2006-05-09 14:11:53.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/read_write.c	2006-05-09 15:21:53.000000000 -0700
-@@ -22,7 +22,8 @@
- 
- const struct file_operations generic_ro_fops = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
- 	.mmap		= generic_file_readonly_mmap,
- 	.sendfile	= generic_file_sendfile,
- };
-Index: linux-2.6.17-rc3.save/include/linux/fs.h
-===================================================================
---- linux-2.6.17-rc3.save.orig/include/linux/fs.h	2006-05-09 14:11:53.000000000 -0700
-+++ linux-2.6.17-rc3.save/include/linux/fs.h	2006-05-09 15:41:52.000000000 -0700
-@@ -1594,9 +1594,7 @@ extern int generic_file_mmap(struct file
- extern int generic_file_readonly_mmap(struct file *, struct vm_area_struct *);
- extern int file_read_actor(read_descriptor_t * desc, struct page *page, unsigned long offset, unsigned long size);
- extern int file_send_actor(read_descriptor_t * desc, struct page *page, unsigned long offset, unsigned long size);
--extern ssize_t generic_file_read(struct file *, char __user *, size_t, loff_t *);
- int generic_write_checks(struct file *file, loff_t *pos, size_t *count, int isblk);
--extern ssize_t generic_file_write(struct file *, const char __user *, size_t, loff_t *);
- extern ssize_t generic_file_aio_read(struct kiocb *, const struct iovec *, unsigned long, loff_t);
- extern ssize_t __generic_file_aio_read(struct kiocb *, const struct iovec *, unsigned long, loff_t *);
- extern ssize_t generic_file_aio_write(struct kiocb *, const struct iovec *, unsigned long, loff_t);
-Index: linux-2.6.17-rc3.save/mm/filemap.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/mm/filemap.c	2006-05-09 14:11:51.000000000 -0700
-+++ linux-2.6.17-rc3.save/mm/filemap.c	2006-05-09 15:41:20.000000000 -0700
-@@ -1104,22 +1104,6 @@ generic_file_aio_read(struct kiocb *iocb
- }
- EXPORT_SYMBOL(generic_file_aio_read);
- 
--ssize_t
--generic_file_read(struct file *filp, char __user *buf, size_t count, loff_t *ppos)
--{
--	struct iovec local_iov = { .iov_base = buf, .iov_len = count };
--	struct kiocb kiocb;
--	ssize_t ret;
--
--	init_sync_kiocb(&kiocb, filp);
--	ret = __generic_file_aio_read(&kiocb, &local_iov, 1, ppos);
--	if (-EIOCBQUEUED == ret)
--		ret = wait_on_sync_kiocb(&kiocb);
--	return ret;
--}
--
--EXPORT_SYMBOL(generic_file_read);
--
- int file_send_actor(read_descriptor_t * desc, struct page *page, unsigned long offset, unsigned long size)
+ /* return the number of _pages_ that will be allocated for the boot bitmap */
+-unsigned long __init bootmem_bootmap_pages (unsigned long pages)
++unsigned long __init bootmem_bootmap_pages(unsigned long pages)
  {
- 	ssize_t written;
-@@ -2185,21 +2169,6 @@ ssize_t generic_file_aio_write_nolock(st
- }
- EXPORT_SYMBOL(generic_file_aio_write_nolock);
+ 	unsigned long mapsize;
  
--static ssize_t
--__generic_file_write_nolock(struct file *file, const struct iovec *iov,
--				unsigned long nr_segs, loff_t *ppos)
--{
--	struct kiocb kiocb;
--	ssize_t ret;
--
--	init_sync_kiocb(&kiocb, file);
--	kiocb.ki_pos = *ppos;
--	ret = __generic_file_aio_write_nolock(&kiocb, iov, nr_segs, ppos);
--	if (-EIOCBQUEUED == ret)
--		ret = wait_on_sync_kiocb(&kiocb);
--	return ret;
--}
--
- ssize_t
- generic_file_write_nolock(struct file *file, const struct iovec *iov,
- 				unsigned long nr_segs, loff_t *ppos)
-@@ -2242,30 +2211,6 @@ ssize_t generic_file_aio_write(struct ki
- }
- EXPORT_SYMBOL(generic_file_aio_write);
- 
--ssize_t generic_file_write(struct file *file, const char __user *buf,
--			   size_t count, loff_t *ppos)
--{
--	struct address_space *mapping = file->f_mapping;
--	struct inode *inode = mapping->host;
--	ssize_t	ret;
--	struct iovec local_iov = { .iov_base = (void __user *)buf,
--					.iov_len = count };
--
--	mutex_lock(&inode->i_mutex);
--	ret = __generic_file_write_nolock(file, &local_iov, 1, ppos);
--	mutex_unlock(&inode->i_mutex);
--
--	if (ret > 0 && ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
--		ssize_t err;
--
--		err = sync_page_range(inode, mapping, *ppos - ret, ret);
--		if (err < 0)
--			ret = err;
--	}
--	return ret;
--}
--EXPORT_SYMBOL(generic_file_write);
--
+@@ -78,8 +78,8 @@
  /*
-  * Called under i_mutex for writes to S_ISREG files.   Returns -EIO if something
-  * went wrong during pagecache shootdown.
-
-
-
-
+  * Called once to set up the allocator itself.
+  */
+-static unsigned long __init init_bootmem_core (pg_data_t *pgdat,
+-	unsigned long mapstart, unsigned long start, unsigned long end)
++static unsigned long __init init_bootmem_core(pg_data_t *pgdat,
++		unsigned long mapstart, unsigned long start, unsigned long end)
+ {
+ 	bootmem_data_t *bdata = pgdat->bdata;
+ 	unsigned long mapsize = ((end - start)+7)/8;
+@@ -104,7 +104,8 @@
+  * might be used for boot-time allocations - or it might get added
+  * to the free page pool later on.
+  */
+-static void __init reserve_bootmem_core(bootmem_data_t *bdata, unsigned long addr, unsigned long size)
++static void __init reserve_bootmem_core(bootmem_data_t *bdata,
++		unsigned long addr, unsigned long size)
+ {
+ 	unsigned long i;
+ 	/*
+@@ -129,7 +130,8 @@
+ 		}
+ }
+ 
+-static void __init free_bootmem_core(bootmem_data_t *bdata, unsigned long addr, unsigned long size)
++static void __init free_bootmem_core(bootmem_data_t *bdata, unsigned long addr,
++		unsigned long size)
+ {
+ 	unsigned long i;
+ 	unsigned long start;
+@@ -172,9 +174,9 @@
+  *
+  * NOTE:  This function is _not_ reentrant.
+  */
+-void * __init
+-__alloc_bootmem_core(struct bootmem_data *bdata, unsigned long size,
+-	      unsigned long align, unsigned long goal, unsigned long limit)
++void * __init __alloc_bootmem_core(struct bootmem_data *bdata,
++		unsigned long size, unsigned long align, unsigned long goal,
++		unsigned long limit)
+ {
+ 	unsigned long offset, remaining_size, areasize, preferred;
+ 	unsigned long i, start = 0, incr, eidx, end_pfn = bdata->node_low_pfn;
+@@ -347,7 +349,9 @@
+ 	 */
+ 	page = virt_to_page(bdata->node_bootmem_map);
+ 	count = 0;
+-	for (i = 0; i < ((bdata->node_low_pfn-(bdata->node_boot_start >> PAGE_SHIFT))/8 + PAGE_SIZE-1)/PAGE_SIZE; i++,page++) {
++	for (i = 0; i < ((bdata->node_low_pfn -
++			  (bdata->node_boot_start >> PAGE_SHIFT)) / 8 +
++			 PAGE_SIZE - 1) / PAGE_SIZE; i++, page++) {
+ 		count++;
+ 		__free_pages_bootmem(page, 0);
+ 	}
+@@ -357,27 +361,30 @@
+ 	return total;
+ }
+ 
+-unsigned long __init init_bootmem_node (pg_data_t *pgdat, unsigned long freepfn, unsigned long startpfn, unsigned long endpfn)
++unsigned long __init init_bootmem_node(pg_data_t *pgdat, unsigned long freepfn,
++		unsigned long startpfn, unsigned long endpfn)
+ {
+ 	return(init_bootmem_core(pgdat, freepfn, startpfn, endpfn));
+ }
+ 
+-void __init reserve_bootmem_node (pg_data_t *pgdat, unsigned long physaddr, unsigned long size)
++void __init reserve_bootmem_node(pg_data_t *pgdat, unsigned long physaddr,
++		unsigned long size)
+ {
+ 	reserve_bootmem_core(pgdat->bdata, physaddr, size);
+ }
+ 
+-void __init free_bootmem_node (pg_data_t *pgdat, unsigned long physaddr, unsigned long size)
++void __init free_bootmem_node(pg_data_t *pgdat, unsigned long physaddr,
++	unsigned long size)
+ {
+ 	free_bootmem_core(pgdat->bdata, physaddr, size);
+ }
+ 
+-unsigned long __init free_all_bootmem_node (pg_data_t *pgdat)
++unsigned long __init free_all_bootmem_node(pg_data_t *pgdat)
+ {
+ 	return(free_all_bootmem_core(pgdat));
+ }
+ 
+-unsigned long __init init_bootmem (unsigned long start, unsigned long pages)
++unsigned long __init init_bootmem(unsigned long start, unsigned long pages)
+ {
+ 	max_low_pfn = pages;
+ 	min_low_pfn = start;
+@@ -385,34 +392,36 @@
+ }
+ 
+ #ifndef CONFIG_HAVE_ARCH_BOOTMEM_NODE
+-void __init reserve_bootmem (unsigned long addr, unsigned long size)
++void __init reserve_bootmem(unsigned long addr, unsigned long size)
+ {
+ 	reserve_bootmem_core(NODE_DATA(0)->bdata, addr, size);
+ }
+ #endif /* !CONFIG_HAVE_ARCH_BOOTMEM_NODE */
+ 
+-void __init free_bootmem (unsigned long addr, unsigned long size)
++void __init free_bootmem(unsigned long addr, unsigned long size)
+ {
+ 	free_bootmem_core(NODE_DATA(0)->bdata, addr, size);
+ }
+ 
+-unsigned long __init free_all_bootmem (void)
++unsigned long __init free_all_bootmem(void)
+ {
+ 	return(free_all_bootmem_core(NODE_DATA(0)));
+ }
+ 
+-void * __init __alloc_bootmem_nopanic(unsigned long size, unsigned long align, unsigned long goal)
++void * __init __alloc_bootmem_nopanic(unsigned long size, unsigned long align,
++		unsigned long goal)
+ {
+ 	bootmem_data_t *bdata;
+ 	void *ptr;
+ 
+ 	list_for_each_entry(bdata, &bdata_list, list)
+ 		if ((ptr = __alloc_bootmem_core(bdata, size, align, goal, 0)))
+-			return(ptr);
++			return ptr;
+ 	return NULL;
+ }
+ 
+-void * __init __alloc_bootmem(unsigned long size, unsigned long align, unsigned long goal)
++void * __init __alloc_bootmem(unsigned long size, unsigned long align,
++		unsigned long goal)
+ {
+ 	void *mem = __alloc_bootmem_nopanic(size,align,goal);
+ 	if (mem)
+@@ -426,21 +435,22 @@
+ }
+ 
+ 
+-void * __init __alloc_bootmem_node(pg_data_t *pgdat, unsigned long size, unsigned long align,
+-				   unsigned long goal)
++void * __init __alloc_bootmem_node(pg_data_t *pgdat, unsigned long size,
++		unsigned long align, unsigned long goal)
+ {
+ 	void *ptr;
+ 
+ 	ptr = __alloc_bootmem_core(pgdat->bdata, size, align, goal, 0);
+ 	if (ptr)
+-		return (ptr);
++		return ptr;
+ 
+ 	return __alloc_bootmem(size, align, goal);
+ }
+ 
+ #define LOW32LIMIT 0xffffffff
+ 
+-void * __init __alloc_bootmem_low(unsigned long size, unsigned long align, unsigned long goal)
++void * __init __alloc_bootmem_low(unsigned long size, unsigned long align,
++		unsigned long goal)
+ {
+ 	bootmem_data_t *bdata;
+ 	void *ptr;
+@@ -448,7 +458,7 @@
+ 	list_for_each_entry(bdata, &bdata_list, list)
+ 		if ((ptr = __alloc_bootmem_core(bdata, size,
+ 						 align, goal, LOW32LIMIT)))
+-			return(ptr);
++			return ptr;
+ 
+ 	/*
+ 	 * Whoops, we cannot satisfy the allocation request.
+@@ -459,7 +469,7 @@
+ }
+ 
+ void * __init __alloc_bootmem_low_node(pg_data_t *pgdat, unsigned long size,
+-				       unsigned long align, unsigned long goal)
++		unsigned long align, unsigned long goal)
+ {
+ 	return __alloc_bootmem_core(pgdat->bdata, size, align, goal, LOW32LIMIT);
+ }

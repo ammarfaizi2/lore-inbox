@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWELODi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWELOEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932067AbWELODi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 10:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWELODi
+	id S932083AbWELOEN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 10:04:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWELOEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 10:03:38 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:19607 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S932067AbWELODh
+	Fri, 12 May 2006 10:04:13 -0400
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:54867 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932083AbWELOEN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 10:03:37 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: Segfault on the i386 enter instruction
-Date: Fri, 12 May 2006 17:03:23 +0300
-User-Agent: KMail/1.8.2
-Cc: Tomasz Malesinski <tmal@mimuw.edu.pl>, linux-kernel@vger.kernel.org
-References: <20060512131654.GB2994@duch.mimuw.edu.pl> <p734pzv73oj.fsf@bragg.suse.de>
-In-Reply-To: <p734pzv73oj.fsf@bragg.suse.de>
+	Fri, 12 May 2006 10:04:13 -0400
+Message-ID: <4460E06D.5010903@tmr.com>
+Date: Tue, 09 May 2006 14:33:17 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.2) Gecko/20060409 SeaMonkey/1.0.1
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Bernd Eckenfels <be-news06@lina.inka.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: High load average on disk I/O on 2.6.17-rc3
+References: <20060508152255.GF1875@harddisk-recovery.com> <E1FdE9I-00058a-00@calista.inka.de>
+In-Reply-To: <E1FdE9I-00058a-00@calista.inka.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605121703.23366.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 May 2006 16:50, Andi Kleen wrote:
-> Tomasz Malesinski <tmal@mimuw.edu.pl> writes:
+Bernd Eckenfels wrote:
+> Erik Mouw <erik@harddisk-recovery.com> wrote:
+>> ... except that any kernel < 2.6 didn't account tasks waiting for disk
+>> IO. Load average has always been somewhat related to tasks contending
+>> for CPU power.
 > 
-> > The code attached below segfaults on the enter instruction. It works
-> > when a stack frame is created by the three commented out
-> > instructions and also when the first operand of the enter instruction
-> > is small (less than about 6500 on my system).
-> 
-> The difference is the value of the stack pointer when the page fault
-> of extending the stack downwards occurs. For the long sequence 
-> ESP is already changed when it happens. For ENTER the CPU undoes
-> the change before raising the fault. The page fault handler
-> checks the page fault against ESP to catch invalid references below
-> the stack.
-> 
-> I don't think the 64bit kernel does anything different here than the 
-> 32bit kernel. I tested it on a 32bit box and it faulted there too.
+> Actually all Linux kernels accounted for diskwaits and others like BSD based
+> not. It is a very old linux oddness.
 
-For me, it doesn't fault. I looked with strace. It doesn't fault even with
-enter $64008, $0
+Well, sort of. The current numbers are counting kernel threads against 
+load average, and before there were kernel threads that clearly didn't 
+happen. So what you say is true, but it's only a part of the truth.
 
-Is it something in newest kernels? Mine is 2.6.16-rc5.
---
-vda
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me
+

@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbWEISOP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbWEISOx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750843AbWEISOP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 14:14:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbWEISOP
+	id S1750882AbWEISOx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 14:14:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWEISOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 14:14:15 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:59014 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1750843AbWEISOO (ORCPT
+	Tue, 9 May 2006 14:14:53 -0400
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:62379 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S1750878AbWEISOw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 14:14:14 -0400
-Date: Tue, 9 May 2006 14:14:02 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org, christoph <hch@lst.de>,
-       cel@citi.umich.edu
-Subject: Re: [PATCH 0/3] VFS changes to collapse AIO and vectored IO  into single (set of) fileops.
-Message-ID: <20060509181402.GD2046@kvack.org>
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com> <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
+	Tue, 9 May 2006 14:14:52 -0400
+Date: Tue, 9 May 2006 19:14:44 +0100
+From: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org,
+       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
+       Ian Pratt <ian.pratt@xensource.com>
+Subject: Re: [RFC PATCH 18/35] Support gdt/idt/ldt handling on Xen.
+Message-ID: <20060509181444.GP7834@cl.cam.ac.uk>
+References: <20060509084945.373541000@sous-sol.org> <20060509085155.177937000@sous-sol.org> <4460AC12.3000006@mbligh.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
+In-Reply-To: <4460AC12.3000006@mbligh.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 09, 2006 at 11:03:45AM -0700, Badari Pulavarty wrote:
-> single set of file-operation method using aio_read/aio_write.
-> This work was originally suggested & started by Christoph Hellwig,
-> when Zach Brown tried to add vectored support for AIO.
+On Tue, May 09, 2006 at 07:49:54AM -0700, Martin J. Bligh wrote:
+> >+static inline void load_TLS(struct thread_struct *t, unsigned int cpu)
+> >+{
+> >+#define C(i) 
+> >HYPERVISOR_update_descriptor(virt_to_machine(&get_cpu_gdt_table(cpu)[GDT_ENTRY_TLS_MIN + i]), *(u64 *)&t->tls_array[i])
+> >+	C(0); C(1); C(2);
+> >+#undef C
+> >+}
 > 
-> Here is the summary:
-> 
-> [PATCH 1/3] Vectorize aio_read/aio_write methods
-> 
-> [PATCH 2/3] Remove readv/writev methods and use aio_read/aio_write
-> instead.
-> 
-> [PATCH 3/3] Zach's core aio changes to support vectored AIO.
+> Please just expand this or make it a real function call (static inline),
+> not a temporary macro ..
 
-They look pretty sane, and I agree they should go into -mm soon.  Cheers,
+Yes, I've added an inline function to do a single descriptor.
 
-		-ben
--- 
-"Time is of no importance, Mr. President, only life is important."
-Don't Email: <dont@kvack.org>.
+Should I change the non-xen case as well?  It was the inspiration
+for this code ;-)
+
+    christian
+

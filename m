@@ -1,78 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWEIFiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWEIFtl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751392AbWEIFiA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 01:38:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWEIFiA
+	id S1751399AbWEIFtl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 01:49:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbWEIFtl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 01:38:00 -0400
-Received: from lug-owl.de ([195.71.106.12]:55720 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1751392AbWEIFiA (ORCPT
+	Tue, 9 May 2006 01:49:41 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:63109 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751399AbWEIFtk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 01:38:00 -0400
-Date: Tue, 9 May 2006 07:37:58 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Madhukar Mythri <madhukar.mythri@wipro.com>
-Cc: Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org
-Subject: Re: How to read BIOS information
-Message-ID: <20060509053758.GH17031@lug-owl.de>
-Mail-Followup-To: Madhukar Mythri <madhukar.mythri@wipro.com>,
-	Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org
-References: <445F5228.7060006@wipro.com> <1147099994.2888.32.camel@laptopd505.fenrus.org> <445F5DF1.3020606@wipro.com> <1147101329.2888.39.camel@laptopd505.fenrus.org> <445F63B3.2010501@wipro.com> <20060508152659.GG1875@harddisk-recovery.com> <4460273E.5040608@wipro.com>
+	Tue, 9 May 2006 01:49:40 -0400
+Date: Tue, 9 May 2006 11:15:56 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, jlan@engr.sgi.com
+Subject: Re: [Patch 2/8] Sync block I/O and swapin delay collection
+Message-ID: <20060509054556.GG784@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+References: <20060502061408.GM13962@in.ibm.com> <20060508141952.2d4b9069.akpm@osdl.org> <20060509035320.GC784@in.ibm.com> <44601933.2040905@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QDd5rp1wjxlDmy9q"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4460273E.5040608@wipro.com>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <44601933.2040905@yahoo.com.au>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 09, 2006 at 02:23:15PM +1000, Nick Piggin wrote:
+> Balbir Singh wrote:
+> 
+> >On Mon, May 08, 2006 at 02:19:52PM -0700, Andrew Morton wrote:
+> >
+> >>Balbir Singh <balbir@in.ibm.com> wrote:
+> >>
+> >>>@@ -550,6 +550,12 @@ struct task_delay_info {
+> >>>	 * Atomicity of updates to XXX_delay, XXX_count protected by
+> >>>	 * single lock above (split into XXX_lock if contention is an issue).
+> >>>	 */
+> >>>+
+> >>>+	struct timespec blkio_start, blkio_end;	/* Shared by blkio, swapin */
+> >>>+	u64 blkio_delay;	/* wait for sync block io completion */
+> >>>+	u64 swapin_delay;	/* wait for swapin block io completion */
+> >>>+	u32 blkio_count;
+> >>>+	u32 swapin_count;
+> >>>
+> >>These fields are a bit mystifying.
+> >>
+> >>In what units are blkio_delay and swapin_delay?
+> >>
+> >>What is the meaning behind blkio_count and swapin_count?
+> >>
+> >>Better comments needed, please.
+> >>
+> >
+> >Will add more detailed comments and send them as updates.
+> >
+> 
+> What kinds of usages will this stuff see? Will the CONFIG be usually 
+> turned on,
+> with some tasks occasionally using the statistics?
+> 
+> In which case, might it be better to make each delay collector in its 
+> own data
+> structure { .list; .start; .end; .delay; .count; .private; .name }, and 
+> allocate
+> them and hang them off the task structure when they're in use?
+> 
+> Or even put them in their own data structure (a small hash or something).
+> 
+> OTOH if they're often going to be in use by many tasks, then what you 
+> have might
+> be the best option.
+> 
+> Nick
+> 
+> Send instant messages to your online friends http://au.messenger.yahoo.com 
 
---QDd5rp1wjxlDmy9q
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I expect/hope that the CONFIG will be turned on. There is a boot
+option (called delayacct) to enable/disable the statistics collection.
+Once turned on and enabled, all tasks will be filling in/using the statistics.
 
-On Tue, 2006-05-09 10:53:10 +0530, Madhukar Mythri <madhukar.mythri@wipro.c=
-om> wrote:
-> Erik Mouw wrote:
-> > On Mon, May 08, 2006 at 08:58:51PM +0530, Madhukar Mythri wrote:
-> > > I forgot mention, that my Kernel is NONSMP based kernel....
-> > Then your application can't use HT anyway, so why bother?
->  yeah, your are correct. but, the thing is my superiors want, even if=20
-> kernel not reconize/use HT, we have to capture it from BIOS...
 
-Some things just won't work.  I'd like to have a nice house and not
-pay for it.  Won't work either:)
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---QDd5rp1wjxlDmy9q
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFEYCq2Hb1edYOZ4bsRAsOdAJ9l697LsUwTpR7Nbpoe0vpHxjZ2fACfVFSq
-c7DG6084o5ijBeNLFOyIDJk=
-=8VSc
------END PGP SIGNATURE-----
-
---QDd5rp1wjxlDmy9q--
+	Thanks,
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

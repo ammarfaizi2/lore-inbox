@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751769AbWEIOlA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbWEIOkE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751769AbWEIOlA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 10:41:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751778AbWEIOlA
+	id S1751065AbWEIOkE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 10:40:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWEIOkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 10:41:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:10173 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751773AbWEIOk7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 10:40:59 -0400
-Date: Tue, 9 May 2006 07:40:36 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-cc: Pekka Enberg <penberg@cs.helsinki.fi>,
-       Daniel Hokka Zakrisson <daniel@hozac.com>, linux-kernel@vger.kernel.org,
-       =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
-       greg@kroah.com, matthew@wil.cx, manfred@colorfullife.com, akpm@osdl.org
-Subject: Re: [PATCH] fs: fcntl_setlease defies lease_init assumptions
-In-Reply-To: <Pine.LNX.4.64.0605082031580.23431@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.64.0605090737500.3718@g5.osdl.org>
-References: <445E80DD.9090507@hozac.com>  <Pine.LNX.4.64.0605072030280.3718@g5.osdl.org>
-  <84144f020605080131r58ce2a93w6c7ba784a266bbeb@mail.gmail.com> 
- <84144f020605080134q7e16f37fl385359c634ece8ca@mail.gmail.com> 
- <Pine.LNX.4.64.0605080807430.3718@g5.osdl.org>  <1147104412.22096.8.camel@localhost>
-  <Pine.LNX.4.64.0605080913240.3718@g5.osdl.org> <1147116991.11282.3.camel@localhost>
- <Pine.LNX.4.64.0605082031580.23431@schroedinger.engr.sgi.com>
+	Tue, 9 May 2006 10:40:04 -0400
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:5072 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1751065AbWEIOkC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 10:40:02 -0400
+Message-ID: <4460A94A.10905@tmr.com>
+Date: Tue, 09 May 2006 10:38:02 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.2) Gecko/20060409 SeaMonkey/1.0.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Bugs aren't features: X86_FEATURE_FXSAVE_LEAK
+References: <445B7EF0.6090708@zytor.com> <p733bfo5ol1.fsf@bragg.suse.de>
+In-Reply-To: <p733bfo5ol1.fsf@bragg.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 8 May 2006, Christoph Lameter wrote:
->
-> On Mon, 8 May 2006, Pekka Enberg wrote:
+Andi Kleen wrote:
+> "H. Peter Anvin" <hpa@zytor.com> writes:
 > 
-> > > I think it sounds like it's worth it, but I'm not going to really push it.
-> > 
-> > Sounds good to me. Andrew?
+>> The recent fix for the AMD FXSAVE information leak had a problematic
+>> side effect.  It introduced an entry in the x86 features vector which
+>> is a bug, not a feature.
 > 
-> virt_to_page is not cheap on NUMA.
+> It's a non issue because it affects all AMD CPUs (except K5/K6).
+> You'll never find a system where only some CPUs have this problem.
+> 
+The initial argument is dead on, bugs should be either presented as a
+"fixed" feature, or there could (should?) be a bugs vector which could
+be or'd. It's at least possible that AMD might fix this some time.
 
-Right now the __cache_free() chain does "virt_to_page()" on NUMA 
-regardless, through the
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me
 
-	#ifdef CONFIG_NUMA
-	        {
-	                struct slab *slabp;
-	                slabp = virt_to_slab(objp);
-	,,,
 
-thing. The suggested patch obviously makes it do it _twice_: once to get 
-the cachep, once to get the slabp. But some simple re-organization would 
-make it do it just once, if we passed in the "struct page *" instead of 
-the "struct cachep" - since in the end, every single path into the real 
-core of the allocator does end up needing it.
-
-			Linus

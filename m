@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWEIXdS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWEIXd6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932101AbWEIXdS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 19:33:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWEIXdS
+	id S932100AbWEIXd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 19:33:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWEIXd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 19:33:18 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:38786 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S932072AbWEIXdR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 19:33:17 -0400
-Date: Tue, 9 May 2006 16:35:43 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: David Boutcher <boutcher@us.ibm.com>
-Cc: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>, chrisw@sous-sol.org,
-       Herbert Xu <herbert@gondor.apana.org.au>, ian.pratt@xensource.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com
-Subject: Re: [Xen-devel] [RFC PATCH 34/35] Add the Xen virtual	network	device	driver.
-Message-ID: <20060509233543.GG24291@moss.sous-sol.org>
-References: <20060509140027.GD7834@cl.cam.ac.uk> <OFE128D80F.BD59DF3E-ON86257169.004F91EA-86257169.004F6870@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 9 May 2006 19:33:58 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:43157 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932100AbWEIXd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 19:33:57 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Subject: Re: [PATCH] Fix console utf8 composing
+Date: Wed, 10 May 2006 01:31:01 +0200
+User-Agent: KMail/1.9.1
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0604022005290.12603@yvahk01.tjqt.qr> <Pine.LNX.4.61.0605082211580.20743@yvahk01.tjqt.qr> <44604977.1090008@ums.usu.ru>
+In-Reply-To: <44604977.1090008@ums.usu.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <OFE128D80F.BD59DF3E-ON86257169.004F91EA-86257169.004F6870@us.ibm.com>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200605100131.02692.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* David Boutcher (boutcher@us.ibm.com) wrote:
-> Then make a generic solution.  VMWare supports migration, the Power 
-> virtualization will get around to it eventually.  All will need something
-> similar.  So either make a common user-land tool, or (if you insist on
-> incorrectly driving this into the kernel) add some kind of common hook to
-> the TCP/IP stack.
+Hi Alex,
 
-I'm not that fond of the in-kernel solution either.  HA failover does
-this stuff in userspace, and has the same gratuitous arp requirements.
-Perhaps we should see some numbers showing the migration latency
-introduced.  At the very least, it's easy to factor out as suggested.
+Just for the archive...
 
-thanks,
--chris
+On Tuesday, 9. May 2006 09:49, Alexander E. Patrakov wrote:
+> Both the current situation and my patch share the defect that an accent 
+> cannot be put on top of a multibyte character, such as Greek letter alpha.
+
+This is also a problem for proper Vietnamese console support, 
+which requires two accents per character. 
+Like "~" on top of "^" ontop of "a".
+
+
+Regards
+
+Ingo Oeser
+

@@ -1,68 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWEIEEc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbWEIEZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751367AbWEIEEc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 00:04:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbWEIEEc
+	id S1751370AbWEIEZU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 00:25:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751372AbWEIEZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 00:04:32 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:899 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751367AbWEIEEc (ORCPT
+	Tue, 9 May 2006 00:25:19 -0400
+Received: from mga03.intel.com ([143.182.124.21]:32780 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1751370AbWEIEZR convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 00:04:32 -0400
-Date: Tue, 9 May 2006 09:30:50 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-       jlan@engr.sgi.com
-Subject: Re: [Patch 3/8] cpu delay collection via schedstats
-Message-ID: <20060509040050.GE784@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <20060502061505.GN13962@in.ibm.com> <20060508142640.675665c7.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060508142640.675665c7.akpm@osdl.org>
-User-Agent: Mutt/1.5.10i
+	Tue, 9 May 2006 00:25:17 -0400
+X-IronPort-AV: i="4.05,103,1146466800"; 
+   d="scan'208"; a="33507088:sNHT17013605"
+X-MIMEOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
+Date: Tue, 9 May 2006 00:25:13 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB65EAD47@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
+Thread-index: AcZvj+3cUNJ/67FZTaabyEaNx8cUSQAAHvvQAAIXkFAATcJ24AACFL4wAHSAIGAADV8rMAANMJDwAADh/DA=
+From: "Brown, Len" <len.brown@intel.com>
+To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Andi Kleen" <ak@suse.de>, <sergio@sergiomb.no-ip.org>,
+       "Kimball Murray" <kimball.murray@gmail.com>,
+       <linux-kernel@vger.kernel.org>, <akpm@digeo.com>, <kmurray@redhat.com>,
+       <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 09 May 2006 04:25:15.0039 (UTC) FILETIME=[91E37AF0:01C67320]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 08, 2006 at 02:26:40PM -0700, Andrew Morton wrote:
-> Balbir Singh <balbir@in.ibm.com> wrote:
-> >
-> > +/*
-> > + * Expects runqueue lock to be held for atomicity of update
-> > + */
-> > +static inline void rq_sched_info_arrive(struct runqueue *rq,
-> > +						unsigned long diff)
-> > +{
-> > +	if (rq) {
-> > +		rq->rq_sched_info.run_delay += diff;
-> > +		rq->rq_sched_info.pcnt++;
-> > +	}
-> > +}
-> > +
-> > +/*
-> > + * Expects runqueue lock to be held for atomicity of update
-> > + */
-> > +static inline void rq_sched_info_depart(struct runqueue *rq,
-> > +						unsigned long diff)
-> > +{
-> > +	if (rq)
-> > +		rq->rq_sched_info.cpu_time += diff;
-> > +}
-> 
-> The kernel has many different units of time - jiffies, cpu ticks, ns, us,
-> ms, etc.  So the reader of these functions doesn't have a clue what "diff"
-> is.
-> 
-> A good way to remove all doubt in all cases is to include the units in the
-> variable's name.  Something like delta_jiffies, perhaps.
+>> >I have tested this algorithm and it worked just fine for 
+>> >me... I used 
+>> >the following compression code in mp_register_gsi():
+>> >
+>> >
+>> >int     irqs_used = 0;
+>> >int     gsi_to_irq[NR_IRQS] = { [0 ... NR_IRQS-1] = -1 };
+>> >...
+>> >
+>> >        if (triggering == ACPI_LEVEL_SENSITIVE) {
+>> >                if (gsi > NR_IRQS) {
+>> >                        int i;
+>> >                        printk("NBP: looking for unused IRQ\n");
+>> >                        for (i = nr_ioapic_registers[0]; i 
+>< NR_IRQS;
+>> i++) {
+>> >                                if (gsi_to_irq[i] == -1) {
+>> >                                        gsi_to_irq[i] = gsi;
+>> >                                        gsi = i;
+>> >                                        break;
+>> >                                }
+>> >                        }
+>> >                        if (i >= NR_IRQS) {
+>> >                                printk(KERN_ERR "GSI %u is 
+>> too high\n",
+>> ...
+>> >                                return gsi;
+>> >                        }
+>> >                } else
+>> >                        gsi_to_irq[gsi] = gsi;
+>> >        }
+>> 
+>> the problem with this code as it stands is that 
+>> acpi/mp_register_gsi() can be called with gsi in any order.  
+>> So it is possible for the compression code above to select 
+>> gsi_to_irq[n] and later for the non-compression path to 
+>> over-write gsi_to_irq[n].
+>> 
+>
+>It should always find the entry it's done the first one around 
+>actually, the first thing in mp_register_gsi() will check for it I
+think.
 
-Yes, that makes sense and enhances readability. We will fix the naming
-convention. "diff" is indeed "delta_jiffies"
+No, the top of mp_register_gsi() is based on the real GSI
+(before re-numbering) and the real IOAPIC pin number.
+It prevents re-programming the real IOAPIC pin (a dubious optimization,
+IMHO).
+Yes, if it finds a 2nd call results in the same pin, it returns
+gsi_to_irq[i],
+but that isn't the failure case here.
 
+a failure case is like so:
+say the 1st IOAPIC has 24 pins, so the 0th RTE of the 2nd APIC is #24,
+and this happens:
 
-	Thanks,
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+mp_register_gsi(NR_IRQS+1);
+	gsi_to_irq[24] is free, so it will get claimed
+	by the IRQ that wants to talk to GSI NR_IRQS+1
+
+mp_register_gsi(24);
+	gsi_to_irq[24] was not -1 here, it was NR_IRQS+1,
+	but that will get over-written to be 24.
+
+So now you have multiple independent interrupt sources that think
+they own IRQ 24.
+
+-Len

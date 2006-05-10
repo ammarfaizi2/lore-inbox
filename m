@@ -1,80 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965053AbWEJWxW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751520AbWEJW6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965053AbWEJWxW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 18:53:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbWEJWxW
+	id S1751520AbWEJW6k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 18:58:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751524AbWEJW6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 18:53:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9360 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965053AbWEJWxV (ORCPT
+	Wed, 10 May 2006 18:58:40 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:15552 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751520AbWEJW6j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 18:53:21 -0400
-Date: Wed, 10 May 2006 15:50:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Kravetz <kravetz@us.ibm.com>
-Cc: penberg@cs.Helsinki.FI, clameter@sgi.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add slab_is_available() routine for boot code
-Message-Id: <20060510155026.173c57a1.akpm@osdl.org>
-In-Reply-To: <20060510205543.GI3198@w-mikek2.ibm.com>
-References: <20060510205543.GI3198@w-mikek2.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 10 May 2006 18:58:39 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: [PATCH -mm] swsusp: support creating bigger images
+Date: Thu, 11 May 2006 00:26:47 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       nickpiggin@yahoo.com.au, pavel@suse.cz
+References: <200605021200.37424.rjw@sisk.pl> <200605091219.17386.rjw@sisk.pl> <Pine.LNX.4.64.0605091301140.21281@blonde.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.64.0605091301140.21281@blonde.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605110026.48445.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Kravetz <kravetz@us.ibm.com> wrote:
->
-> slab_is_available() indicates slab based allocators are available
-> for use.  SPARSEMEM code needs to know this as it can be called
-> at various times during the boot process.
+On Tuesday 09 May 2006 14:30, Hugh Dickins wrote:
+> On Tue, 9 May 2006, Rafael J. Wysocki wrote:
+> > On Tuesday 09 May 2006 09:33, Andrew Morton wrote:
+> > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > > 
+> > > I have a host of minor problems with this patch.
+> > > 
+> > > > --- linux-2.6.17-rc3-mm1.orig/mm/rmap.c
+> > > > +++ linux-2.6.17-rc3-mm1/mm/rmap.c
+> > > >  
+> > > > +#ifdef CONFIG_SOFTWARE_SUSPEND
+> > > > +static int page_mapped_by_task(struct page *page, struct task_struct *task)
+> > > > +{
+> > > > +	struct vm_area_struct *vma;
+> > > > +	int ret = 0;
+> > > > +
+> > > > +	spin_lock(&task->mm->page_table_lock);
+> > > > +
+> > > > +	for (vma = task->mm->mmap; vma; vma = vma->vm_next)
+> > > > +		if (page_address_in_vma(page, vma) != -EFAULT) {
+> > > > +			ret = 1;
+> > > > +			break;
+> > > > +		}
+> > > > +
+> > > > +	spin_unlock(&task->mm->page_table_lock);
+> > > > +
+> > > > +	return ret;
+> > > > +}
+> > > 
+> > > task_struct.mm can sometimes be NULL.  This function assumes that it will
+> > > never be NULL.  That makes it a somewhat risky interface.  Are we sure it
+> > > can never be NULL?
+> > 
+> > Well, now it's only called for task == current, but I can add a check.
 > 
-> Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
+> Better fold it into the (renamed and recommented) page_to_copy,
+> applying only to current.
 > 
-> diff -Naupr linux-2.6.17-rc3-mm1/include/linux/slab.h linux-2.6.17-rc3-mm1.work3/include/linux/slab.h
-> --- linux-2.6.17-rc3-mm1/include/linux/slab.h	2006-05-03 22:19:15.000000000 +0000
-> +++ linux-2.6.17-rc3-mm1.work3/include/linux/slab.h	2006-05-10 19:15:20.000000000 +0000
-> @@ -150,6 +150,7 @@ static inline void *kcalloc(size_t n, si
->  
->  extern void kfree(const void *);
->  extern unsigned int ksize(const void *);
-> +extern int slab_is_available(void);
->  
->  #ifdef CONFIG_NUMA
->  extern void *kmem_cache_alloc_node(kmem_cache_t *, gfp_t flags, int node);
-> diff -Naupr linux-2.6.17-rc3-mm1/mm/slab.c linux-2.6.17-rc3-mm1.work3/mm/slab.c
-> --- linux-2.6.17-rc3-mm1/mm/slab.c	2006-05-03 22:19:16.000000000 +0000
-> +++ linux-2.6.17-rc3-mm1.work3/mm/slab.c	2006-05-10 21:43:08.000000000 +0000
-> @@ -694,6 +694,14 @@ static enum {
->  	FULL
->  } g_cpucache_up;
->  
-> +/*
-> + * used by boot code to determine if it can use slab based allocator
-> + */
-> +int slab_is_available(void)
-> +{
-> +	return g_cpucache_up == FULL;
-> +}
+> The "use" of page_table_lock there is totally bogus.  Normally you
+> need down_read(&current->mm->mmap_sem) to walk that vma chain; but
+> I'm guessing you have everything sufficiently frozen here that you
+> don't need that.
 
-Even I can understand this ;)
+So I think it can be changed into something like this:
 
->  static DEFINE_PER_CPU(struct work_struct, reap_work);
->  
->  static void free_block(struct kmem_cache *cachep, void **objpp, int len,
-> diff -Naupr linux-2.6.17-rc3-mm1/mm/sparse.c linux-2.6.17-rc3-mm1.work3/mm/sparse.c
-> --- linux-2.6.17-rc3-mm1/mm/sparse.c	2006-05-03 22:19:16.000000000 +0000
-> +++ linux-2.6.17-rc3-mm1.work3/mm/sparse.c	2006-05-10 19:15:56.000000000 +0000
-> @@ -32,7 +32,7 @@ static struct mem_section *sparse_index_
->  	unsigned long array_size = SECTIONS_PER_ROOT *
->  				   sizeof(struct mem_section);
->  
-> -	if (system_state == SYSTEM_RUNNING)
-> +	if (slab_is_available())
->  		section = kmalloc_node(array_size, GFP_KERNEL, nid);
->  	else
->  		section = alloc_bootmem_node(NODE_DATA(nid), array_size);
+--- linux-2.6.17-rc3-mm1.orig/mm/rmap.c	2006-05-01 14:11:50.000000000 +0200
++++ linux-2.6.17-rc3-mm1/mm/rmap.c	2006-05-10 23:10:58.000000000 +0200
+@@ -857,3 +857,38 @@ int try_to_unmap(struct page *page, int 
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_SOFTWARE_SUSPEND
++/**
++ *	suspend_safe_page - determine if a page can be included in the
++ *	suspend image without copying (returns true if so).
++ *
++ *	It is safe to include the page in the suspend image without
++ *	copying if (a) it's on the LRU and (b) it's mapped by a frozen task
++ *	(all tasks except for the current task should be frozen when it's
++ *	called).  Otherwise the page should be copied for this purpose
++ *	(compound pages are avoided for simplicity).
++ */
++
++int suspend_safe_page(struct page *page)
++{
++	struct vm_area_struct *vma;
++	int ret = 0;
++
++	if (!PageLRU(page) || PageCompound(page))
++		return 0;
++
++	if (page_mapped(page)) {
++		ret = 1;
++		down_read(&current->mm->mmap_sem);
++		/* Return 0 if the page is mapped by the current task */
++		for (vma = current->mm->mmap; vma; vma = vma->vm_next)
++			if (page_address_in_vma(page, vma) != -EFAULT) {
++				ret = 0;
++				break;
++			}
++		up_read(&current->mm->mmap_sem);
++	}
++
++	return ret;
++}
++#endif /* CONFIG_SOFTWARE_SUSPEND */
 
-Is this a needed-for-2.6.17 fix?
+I've left the locking, because the functions is called when we're freeing
+memory and I'm not 100% sure it's safe to drop it.
+
+> But if it is sufficiently frozen, I'm puzzled as to why pages mapped
+> into the current process are (potentially) unsafe, while those mapped
+> into others are safe.  If the current process can get back to messing
+> with its mapped pages, what if it maps a page you earlier judged safe?
+
+The current task is forbidden to map anything at this point.
+
+Greetings,
+Rafael
+

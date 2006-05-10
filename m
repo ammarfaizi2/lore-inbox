@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751469AbWEJW6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965057AbWEJXAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751469AbWEJW6i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 18:58:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751520AbWEJW6i
+	id S965057AbWEJXAo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 19:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbWEJXAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 18:58:38 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:15296 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751469AbWEJW6i convert rfc822-to-8bit
+	Wed, 10 May 2006 19:00:44 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:29621 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S965057AbWEJXAn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 18:58:38 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH -mm] swsusp: support creating bigger images (rev. 2)
-Date: Thu, 11 May 2006 00:58:18 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, pavel@suse.cz
-References: <200605021200.37424.rjw@sisk.pl> <200605100015.53455.rjw@sisk.pl> <20060509152713.36bb94f0.akpm@osdl.org>
-In-Reply-To: <20060509152713.36bb94f0.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Wed, 10 May 2006 19:00:43 -0400
+Date: Wed, 10 May 2006 16:00:54 -0700
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>, Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Cc: penberg@cs.Helsinki.FI, clameter@sgi.com, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add slab_is_available() routine for boot code
+Message-ID: <20060510230054.GA11214@w-mikek2.ibm.com>
+References: <20060510205543.GI3198@w-mikek2.ibm.com> <20060510155026.173c57a1.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605110058.19458.rjw@sisk.pl>
+In-Reply-To: <20060510155026.173c57a1.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 May 2006 00:27, Andrew Morton wrote:
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> >
-> > Now if the mapped pages that are not mapped by the
-> >  current task are considered, it turns out that they would change only if they
-> >  were reclaimed by try_to_free_pages().  Thus if we take them out of reach
-> >  of try_to_free_pages(), for example by (temporarily) moving them out of their
-> >  respective LRU lists after creating the image, we will be able to include them
-> >  in the image without copying.
+On Wed, May 10, 2006 at 03:50:26PM -0700, Andrew Morton wrote:
+> Mike Kravetz <kravetz@us.ibm.com> wrote:
+> > diff -Naupr linux-2.6.17-rc3-mm1/mm/sparse.c linux-2.6.17-rc3-mm1.work3/mm/sparse.c
+> > --- linux-2.6.17-rc3-mm1/mm/sparse.c	2006-05-03 22:19:16.000000000 +0000
+> > +++ linux-2.6.17-rc3-mm1.work3/mm/sparse.c	2006-05-10 19:15:56.000000000 +0000
+> > @@ -32,7 +32,7 @@ static struct mem_section *sparse_index_
+> >  	unsigned long array_size = SECTIONS_PER_ROOT *
+> >  				   sizeof(struct mem_section);
+> >  
+> > -	if (system_state == SYSTEM_RUNNING)
+> > +	if (slab_is_available())
+> >  		section = kmalloc_node(array_size, GFP_KERNEL, nid);
+> >  	else
+> >  		section = alloc_bootmem_node(NODE_DATA(nid), array_size);
 > 
-> I'm a bit curious about how this is true.  There are all sorts of way in
-> which there could be activity against these pages - interrupt-time
-> asynchronous network Tx completion, async interrupt-time direct-io
-> completion, tasklets, schedule_work(), etc, etc.
+> Is this a needed-for-2.6.17 fix?
 
-AFAIK, many of these things are waited for uninterruptibly, and uninterruptible
-tasks cannot be frozen.  Theoretically we may have a problem if there's an
-interruptible task that waits for the completion of an operation that gets
-finished after snapshotting the system.  However that would have to survive the
-syncing of filesystems, freezing of kernel threads, freeing of memory as well
-as suspending and resuming all devices.  [In which case it would be starving
-to death. :-)]
+I'll let Arnd answer.  He ran into this when doing some Cell work.  Not
+sure where in the development cycle the code is that exposes this bug.
 
-Greetings,
-Rafael
+-- 
+Mike

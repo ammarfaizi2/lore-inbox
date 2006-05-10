@@ -1,85 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932474AbWEJSq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932486AbWEJSto@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932474AbWEJSq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 14:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbWEJSq4
+	id S932486AbWEJSto (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 14:49:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWEJStn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 14:46:56 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:32211 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932461AbWEJSq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 14:46:56 -0400
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, herbert@13thfloor.at, dev@sw.ru,
-       sam@vilain.net, xemul@sw.ru, haveblue@us.ibm.com, clg@fr.ibm.com,
-       frankeh@us.ibm.com
-Subject: Re: [PATCH 1/9] nsproxy: Introduce nsproxy
-References: <29vfyljM.2006059-s@us.ibm.com>
-	<20060510021129.GB32523@sergelap.austin.ibm.com>
-	<20060510100057.GA27946@ftp.linux.org.uk>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 10 May 2006 12:45:09 -0600
-In-Reply-To: <20060510100057.GA27946@ftp.linux.org.uk> (Al Viro's message of
- "Wed, 10 May 2006 11:00:57 +0100")
-Message-ID: <m1ejz1wwga.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Wed, 10 May 2006 14:49:43 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:34245 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932486AbWEJStn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 14:49:43 -0400
+Date: Wed, 10 May 2006 14:49:37 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Mark Hounschell <markh@compro.net>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: rt20 patch question
+In-Reply-To: <44623157.9090105@compro.net>
+Message-ID: <Pine.LNX.4.58.0605101446090.22959@gandalf.stny.rr.com>
+References: <446089CF.3050809@compro.net> <1147185483.21536.13.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+ <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
+ <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
+ <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
+ <44623157.9090105@compro.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro <viro@ftp.linux.org.uk> writes:
 
-> On Tue, May 09, 2006 at 09:11:29PM -0500, Serge E. Hallyn wrote:
->> Introduce the nsproxy struct.  Doesn't do anything yet, but has it's
->> own lifecycle pretty much mirrorring the fs namespace.
->> 
->> Subsequent patches will move the namespace struct into the nsproxy.
->> Then as more namespaces are introduced, such as utsname, they can
->> be added to the nsproxy as well.
+On Wed, 10 May 2006, Mark Hounschell wrote:
+
+> Steven Rostedt wrote:
+> > Wow! I asked for some info on your system, and boy, did I get info! :)
+> >
 >
-> Is there any reason why those can't be simply part of namespace?  I.e.
-> be carried by the stuff mounted in standard places...
+> Sorry. I talk to much.
 
-Wee...  Exploring the implementation space.
+No, by all means, I liked it.
 
-So the namespaces under discussion are:
-- The uts namespace
-- The sysvipc namespace
-- The pid namespace
-- The network namespace
-- The uid namespace
-- The time namespace
+>
+> >> I can only say for sure that I do not have these "stops" when running
+> >> any other kernel or when running the rt20 kernel in any of the
+> >> non-complete preemption modes.
+> >>
+>
+> Configured for "Preempable Kernel" I got the following but no "stops"
+> came with it.
 
-None of which are currently expressed as a standard mount,
-so there is not an obvious mapping.  Suggestions?
+Hmm, do you have "Compile kernel with frame pointers" turned on. It's in
+kernel hacking. It usually gives a better stack trace.
 
-A standard mount location is not strong enough,
-it must be a fixed mount location so the kernel can
-use it.
+>
+> BUG: scheduling while atomic: softirq-timer/1/0x00000100/15
+> caller is schedule+0x33/0xf0
+>  [<b0309acc>] __schedule+0x517/0x95b (8)
+>  [<f09d7627>] mdio_ctrl+0xaa/0x135 [e100] (48)
+>  [<f09d7627>] mdio_ctrl+0xaa/0x135 [e100] (12)
+>  [<b030a06c>] schedule+0x33/0xf0 (36)
+>  [<b012eee5>] prepare_to_wait+0x12/0x4f (8)
+>  [<b0142318>] synchronize_irq+0x96/0xba (20)
+>  [<b012eda0>] autoremove_wake_function+0x0/0x37 (12)
+>  [<f0a13677>] vortex_timer+0xa0/0x563 [3c59x] (24)
+>  [<b0125b76>] __mod_timer+0x8c/0xc3 (12)
+>  [<f09d8998>] e100_watchdog+0x0/0x39c [e100] (24)
+>  [<b030a4cf>] cond_resched_softirq+0x64/0xaa (8)
+>  [<b02a2dcd>] dev_watchdog+0x77/0xac (4)
+>  [<f0a135d7>] vortex_timer+0x0/0x563 [3c59x] (12)
+>  [<b0125902>] run_timer_softirq+0x1bf/0x3a7 (8)
+>  [<b0121960>] ksoftirqd+0x112/0x1cc (52)
+>  [<b012184e>] ksoftirqd+0x0/0x1cc (52)
+>  [<b012eb9c>] kthread+0xc2/0xc6 (4)
+>  [<b012eada>] kthread+0x0/0xc6 (12)
+>  [<b0100e35>] kernel_thread_helper+0x5/0xb (16)
 
-Looking at a fixed mount location in the kernel looks
-likely to be too clumsy to use we would need pointers
-similar to those in fs_struct to cache the mount,
-and we would still have the problem of identifying which
-mounts from kernel space are for the different namespaces.
+I'll look into this.
 
-I am a little concerned about the overhead in implementing
-this on the kernel side but those are simply implementation
-optimization issues not semantic issues.
-
-Exporting the different kernel namespaces/subsystem through
-filesystems sounds reasonable if it will simplify the semantics.
-Currently the only practical difference I can see is that you could
-use mount/umount instead of clone and unshare.  Which seems to
-give us additional complications for no real gain. 
-
-If we did not have to be backwards compatible and we could reduce our
-number of system calls by exporting whole subsystem instances as
-filesystem mounts I can see great gains here, but since we
-are concerned with existing namespaces/subsystems and just
-want to make it appear that we have multiple instances of
-them I don't see any gains. 
-
-Eric
+-- Steve

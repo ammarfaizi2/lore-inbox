@@ -1,77 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965049AbWEJWnO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965047AbWEJWpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965049AbWEJWnO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 18:43:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965050AbWEJWnO
+	id S965047AbWEJWpz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 18:45:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965050AbWEJWpy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 18:43:14 -0400
-Received: from smtp-vbr3.xs4all.nl ([194.109.24.23]:54799 "EHLO
-	smtp-vbr3.xs4all.nl") by vger.kernel.org with ESMTP id S965049AbWEJWnO
+	Wed, 10 May 2006 18:45:54 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:13715 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965047AbWEJWpy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 18:43:14 -0400
-From: Hans Verkuil <hverkuil@xs4all.nl>
-To: v4l-dvb-maintainer@linuxtv.org
-Subject: Re: [v4l-dvb-maintainer] [PATCH] new driver for TLV320AIC23B
-Date: Thu, 11 May 2006 00:42:34 +0200
-User-Agent: KMail/1.8.91
-Cc: Scott Alfter <salfter@ssai.us>, linux-kernel@vger.kernel.org
-References: <44626150.9050804@ssai.us>
-In-Reply-To: <44626150.9050804@ssai.us>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Wed, 10 May 2006 18:45:54 -0400
+Date: Wed, 10 May 2006 23:45:49 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: akpm@osdl.org, dwalker@mvista.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
+Message-ID: <20060510224549.GI27946@ftp.linux.org.uk>
+References: <20060510162106.GC27946@ftp.linux.org.uk> <20060510150321.11262b24.akpm@osdl.org> <20060510221024.GH27946@ftp.linux.org.uk> <20060510.153129.122741274.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605110042.34815.hverkuil@xs4all.nl>
+In-Reply-To: <20060510.153129.122741274.davem@davemloft.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 May 2006 23:55, Scott Alfter wrote:
-> Signed-off-by: Scott Alfter <salfter@ssai.us>
->
-> It took a little bit longer than I thought, but the attached patch
-> adds a driver for the TI TLV320AIC23B audio codec.  It implements
-> analog audio capture at 32, 44.1, and 48 kHz (16-bit stereo).  The
-> hardware is capable of more (it supports more sample rates and
-> includes analog output), but in its current form, the driver works
-> well with ivtv.
->
-> The patch is attached; a test mailing indicated that Thunderbird
-> attaches patches inline instead of encoded.  The patch is also
-> available from this URL:
->
-> http://alfter.us/files/linux-2.6.16-tlv320aic23b.patch
->
-> Scott Alfter
-> salfter@ssai.us
+On Wed, May 10, 2006 at 03:31:29PM -0700, David S. Miller wrote:
+> From: Al Viro <viro@ftp.linux.org.uk>
+> Date: Wed, 10 May 2006 23:10:24 +0100
+> 
+> > But that's the argument in favour of using diff, not shutting the
+> > bogus warnings up...
+> 
+> IMHO, the tree should build with -Werror without exception.
+> Once you have that basis, new ones will not show up easily
+> and the hard part of the battle has been won.
+> 
+> Yes, people will post a lot of bogus versions of warning fixes, but
+> we're already good at flaming those off already :-)
 
-Hi Scott,
-
-I've taken a quick look and I noticed a few things: first of all I 
-recommend making a patch against the v4l-dvb repository as there have 
-been a few changes compared to 2.6.16 that are relevant. In particular 
-your device should start supporting VIDIOC_INT_G/S_AUDIO_ROUTING 
-commands instead of VIDIOC_G/S_AUDIO. See the definition of these 
-commands in v4l2-common.h for more info. This also implies that a 
-media/tlv320aic23b.h header should be added (look at the existing 
-headers such as wm8775.h).
-
-I also noticed what seems to be a superfluous TODO in the 
-VIDIOC_INT_AUDIO_CLOCK_FREQ implementation.
-
-The enum (R7, R11, etc) isn't used and can be removed.
-
-The input field of struct tlv320aic23b_state doesn't seem to be used, so 
-that too can be removed.
-
-You probably do not have to implement the VIDIOC_S_FREQUENCY command, 
-that was wm8775 specific. I doubt it is necessary for this driver.
-
-It is also a good idea to add support for older kernels to this driver 
-(again, see the #if lines in the wm8775.c driver).
-
-Hmm, well that seems to be it.
-
-Thanks!
-
-	Hans
+Alternatively, gcc could get saner.  Seriously, some very common patterns
+trigger that shit - e.g. function that returns error or 0 and stores
+value to *pointer_argument in case of success.  It's a clear regression
+in 4.x and IMO should be treated as gcc bug.

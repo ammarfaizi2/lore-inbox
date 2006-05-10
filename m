@@ -1,33 +1,35 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964946AbWEJMrQ (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 10 May 2006 08:47:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbWEJMrQ
+	id S1751465AbWEJPwn (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 10 May 2006 11:52:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWEJPwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 08:47:16 -0400
-Received: from dslb-088-072-224-232.pools.arcor-ip.net ([88.72.224.232]:60665
-	"HELO dslb-088-072-224-232.pools.arcor-ip.net") by vger.kernel.org
-	with SMTP id S964946AbWEJMrP (ORCPT
+	Wed, 10 May 2006 11:52:43 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:62916 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S1751465AbWEJPwm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 08:47:15 -0400
-Date: Wed, 10 May 2006 18:52:47 -0700
-From: Jody Atkinson <edcpnhl@cce.com>
-Reply-To: Jody Atkinson <edcpnhl@cce.com>
-Message-ID: <931759271689.559599307250@cce.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: delectable Innocent Sluts getting handsome it anaally!
+	Wed, 10 May 2006 11:52:42 -0400
+Date: Wed, 10 May 2006 10:03:35 -0400
+From: "Puckered K. Maintenance" <pgman@finklfan.com>
+X-Mailer: The Bat! (v2.00.0) Personal
+X-Priority: 3
+Message-ID: <0694414028.20060510100335@finklfan.com>
+To: Linux <linux-kernel@vger.kernel.org>
+Subject: Work From Home! 2000 USD per week
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-AntiVirus: Checked by Dr.Web (http://www.drweb.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S964946AbWEJMrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751465AbWEJPwn@vger.kernel.org>
 
+You can participate in our money forwarding program!
 
-admirable russiann Ladies!
+you can earn up to $2000 a week.
 
-http://betterthere.com/xfuck.htm?YbWPM-ZfSWfY.OdfS,ZfSWfY,VSd
+please visit 
 
-U.N.S.U.B.S..C.R.l.B.E
+http://www.valueforprofit.com
 
-http://betterthere.com
+for more details
 

@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbWEJSU6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751494AbWEJS2C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751490AbWEJSU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 14:20:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWEJSU6
+	id S1751494AbWEJS2C (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 14:28:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbWEJS2C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 14:20:58 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:57439 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1751490AbWEJSU6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 14:20:58 -0400
-Subject: Re: [PATCH] mm: cleanup swap unused warning
-From: Daniel Walker <dwalker@mvista.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-In-Reply-To: <20060510043834.70f40ddc.akpm@osdl.org>
-References: <200605102132.41217.kernel@kolivas.org>
-	 <20060510043834.70f40ddc.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 10 May 2006 11:20:55 -0700
-Message-Id: <1147285256.21536.132.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	Wed, 10 May 2006 14:28:02 -0400
+Received: from hera.kernel.org ([140.211.167.34]:57534 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751494AbWEJS2A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 14:28:00 -0400
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
+Date: Wed, 10 May 2006 11:27:30 -0700
+Organization: OSDL
+Message-ID: <20060510112730.2f462289@localhost.localdomain>
+References: <200605100256.k4A2u8bd031779@dwalker1.mvista.com>
+	<1147257266.17886.3.camel@localhost.localdomain>
+	<1147271489.21536.70.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	<1147273787.17886.46.camel@localhost.localdomain>
+	<1147273598.21536.92.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	<Pine.LNX.4.58.0605101116590.5532@gandalf.stny.rr.com>
+	<20060510162404.GR3570@stusta.de>
+	<Pine.LNX.4.58.0605101240190.20305@gandalf.stny.rr.com>
+	<Pine.LNX.4.58.0605101327380.20305@gandalf.stny.rr.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1147285651 8997 10.8.0.54 (10 May 2006 18:27:31 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Wed, 10 May 2006 18:27:31 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 2.1.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-10 at 04:38 -0700, Andrew Morton wrote:
-> Con Kolivas <kernel@kolivas.org> wrote:
-> >
-> > Are there any users of swp_entry_t when CONFIG_SWAP is not defined?
+On Wed, 10 May 2006 13:45:58 -0400 (EDT)
+Steven Rostedt <rostedt@goodmis.org> wrote:
+
 > 
-> Well there shouldn't be.  Making accesses to swp_entry_t.val fail to
-> compile if !CONFIG_SWAP might be useful.
+> Oh fsck! gcc is hosed. I just tried out this BS module:
 
-In mm/vmscan.c line 387 it defined swp_entry_t and sets val regardless
-of CONFIG_SWAP , but the value never really gets used .. Showed up in my
-warning reviews.
+Read the GCC bug report.
+	http://gcc.gnu.org/bugzilla/show_bug.cgi?id=5035
 
-Daniel
-
+It seems it is one of those "it too hard to fix, so we aren't going to"
+blow offs.

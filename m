@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWEJHT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbWEJHW1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964834AbWEJHT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 03:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbWEJHT7
+	id S964842AbWEJHW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 03:22:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbWEJHW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 03:19:59 -0400
-Received: from wr-out-0506.google.com ([64.233.184.239]:30856 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S964834AbWEJHT6 convert rfc822-to-8bit (ORCPT
+	Wed, 10 May 2006 03:22:27 -0400
+Received: from gate.crashing.org ([63.228.1.57]:10714 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964836AbWEJHW0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 03:19:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=M4Rkkrs8k+wwBqZ5rxb12YhoD/1Vyk3fPzxm9bEpCAmczCYhyjUjw8V7/MFEhCIgr1CW05hZZQDUlocbJgy4OJjVZX2rGIsyoiaQ5ZjweM8OtUj+focA4f4pT7J5c/8MjVbk6iMTyPYIW2VRMOVxwt19h++V5y9wqjBMY7pif3I=
-Message-ID: <84144f020605100019i26e1c649m18c9b314b63dce@mail.gmail.com>
-Date: Wed, 10 May 2006 10:19:57 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Mike Kravetz" <kravetz@us.ibm.com>
-Subject: Re: [PATCH] alloc_memory_early() routines
-Cc: "Andrew Morton" <akpm@osdl.org>, "Dave Hansen" <haveblue@us.ibm.com>,
-       "Christoph Lameter" <clameter@sgi.com>,
-       "Andy Whitcroft" <apw@shadowen.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060509210722.GD3168@w-mikek2.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060509053512.GA20073@monkey.ibm.com>
-	 <20060508224952.0b43d0fd.akpm@osdl.org>
-	 <20060509210722.GD3168@w-mikek2.ibm.com>
-X-Google-Sender-Auth: ea41ee72ed780505
+	Wed, 10 May 2006 03:22:26 -0400
+Subject: Re: [RFC/PATCH] Make powerpc64 use __thread for per-cpu variables
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: paulus@samba.org, olof@lixom.net, linux-arch@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+In-Reply-To: <20060509.233958.73723993.davem@davemloft.net>
+References: <17505.26159.807484.477212@cargo.ozlabs.ibm.com>
+	 <20060510051649.GD1794@lixom.net>
+	 <17505.34919.750295.170941@cargo.ozlabs.ibm.com>
+	 <20060509.233958.73723993.davem@davemloft.net>
+Content-Type: text/plain
+Date: Wed, 10 May 2006 17:21:49 +1000
+Message-Id: <1147245709.32448.74.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/10/06, Mike Kravetz <kravetz@us.ibm.com> wrote:
-> I did not include support for 'large' allocations as suggested by
-> Dave, or corresponding free_memory_early() routines.  The only
-> immediate need is for NUMA/node aware allocation.  Others can be
-> added as the needs arise.
+On Tue, 2006-05-09 at 23:39 -0700, David S. Miller wrote:
+> From: Paul Mackerras <paulus@samba.org>
+> Date: Wed, 10 May 2006 16:29:59 +1000
+> 
+> > I have moved current, smp_processor_id and a couple of other things to
+> > per-cpu variables, and that results in the kernel text being about 8k
+> > smaller than without any of these __thread patches.  Performance seems
+> > to be very slightly better but it's hard to be sure that the change is
+> > statistically significant, from the measurements I've done so far.
+> 
+> That first cache line of current_thread_info() should be so hot that
+> it's probably just fine to use current_thread_info()->task since
+> you're just doing a mask on a fixed register (r1) to implement that.
 
-Sorry if this was already discussed, but you're not supposed to free
-the memory allocated by alloc_memory_early() ever? If so, please add a
-kerneldoc stating that.
+Iirc, he tried that, though it did bloat the kernel size a bit due the
+the amount of occurences of current-> in there. We are now thinking
+about either dedicating a register to current (that would avoid the
+problem of printk() using it in start_kernel before we get the per-cpu
+areas setup) in addition to __thread (heh, we have lots of registers on
+ppc :) or maybe putting current back in the paca...
 
-                                             Pekka
+It's a bit sad that we can't get rid of the PACA because it has to be in
+the RMA (for those who don't know that it is, the RMA is an area of
+memory that is accessible in real mode on LPAR machines, that is the
+hypervisor guarantees a bunch of physically contiguous memory that is
+made accessible to the partition for use in real mode). We could have
+put the per-cpu infos in the RMA but I'm a bit freaked out by the idea
+of having those not be node-local...
+
+Ben.
+
+

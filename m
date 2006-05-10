@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbWEJLkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWEJLlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964928AbWEJLkb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 07:40:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbWEJLkb
+	id S964930AbWEJLlY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 07:41:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbWEJLlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 07:40:31 -0400
-Received: from smtpq3.tilbu1.nb.home.nl ([213.51.146.202]:17859 "EHLO
-	smtpq3.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
-	id S964928AbWEJLka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 07:40:30 -0400
-Message-ID: <4461D16A.3000301@keyaccess.nl>
-Date: Wed, 10 May 2006 13:41:30 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
-MIME-Version: 1.0
-To: Gerd Hoffmann <kraxel@suse.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.17-rc3 -- SMP alternatives: switching to UP code
-References: <4461341B.7050602@keyaccess.nl> <4461B24A.7050805@suse.de>
-In-Reply-To: <4461B24A.7050805@suse.de>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+	Wed, 10 May 2006 07:41:24 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59023 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964930AbWEJLlX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 07:41:23 -0400
+Date: Wed, 10 May 2006 04:38:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] mm: cleanup swap unused warning
+Message-Id: <20060510043834.70f40ddc.akpm@osdl.org>
+In-Reply-To: <200605102132.41217.kernel@kolivas.org>
+References: <200605102132.41217.kernel@kolivas.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Hoffmann wrote:
+Con Kolivas <kernel@kolivas.org> wrote:
+>
+> Are there any users of swp_entry_t when CONFIG_SWAP is not defined?
 
-> Rene Herman wrote:
+Well there shouldn't be.  Making accesses to swp_entry_t.val fail to
+compile if !CONFIG_SWAP might be useful.
 
->> Should I be seeing this "SMP alternatives" thing on a !CONFIG_SMP
->> kernel? It does say 0k, but something is apparently being done at
->> runtime still. Why?
-> 
-> The UP kernel has empty alternatives tables (as you've noticed), thus
-> the code doesn't do anything.  Nevertheless it probably makes sense to
-> add a few #ifdef CONFIG_SMP lines to avoid confusing people and safe a
-> few bytes ...
+> +/*
+> + * A swap entry has to fit into a "unsigned long", as
+> + * the entry is hidden in the "index" field of the
+> + * swapper address space.
+> + */
+> +#ifdef CONFIG_SWAP
+>  typedef struct {
+>  	unsigned long val;
+>  } swp_entry_t;
+> +#else
+> +typedef struct {
+> +	unsigned long val;
+> +} swp_entry_t __attribute__((__unused__));
+> +#endif
 
-Okay, thanks. Yes, I agree such would make sense.
-
-Rene.
-
-
+We have __attribute_used__, which hides a gcc oddity.

@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbWEJRFA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964929AbWEJRKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964984AbWEJRFA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 13:05:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965018AbWEJRFA
+	id S964929AbWEJRKT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 13:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964997AbWEJRKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 13:05:00 -0400
-Received: from wx-out-0102.google.com ([66.249.82.203]:15534 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S964984AbWEJRE7 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 13:04:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=p0hzhTaOwsiwLGTlHaGG5HI3vcjV551olfxv7a7ZI4dU0b/oKxc5UO/c1Hqr1bOZx4SIXADImWjHACw9hPlVX62SEnpRd9wZVem0CLWHIdr9do2DZzX4OeryXabaoHZu2mUCu9Im2lgvOFtOxal77udwleD/a4tVjYmrCtwYHBU=
-Message-ID: <2151339d0605101004l4a2153d4h40ec7db907ae5d43@mail.gmail.com>
-Date: Wed, 10 May 2006 10:04:59 -0700
-From: "Nathan Becker" <nathanbecker@gmail.com>
-To: "David Brownell" <david-b@pacbell.net>
-Subject: Re: USB 2.0 ehci failure with large amount of RAM (4GB) on x86_64
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <2151339d0605092237m4ef4e835k16b8c779f6ad7046@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <2151339d0605032148n5d6936ay31ab017fbabc65b3@mail.gmail.com>
-	 <200605041922.52243.david-b@pacbell.net>
-	 <2151339d0605042246n1e40a496l8af646218edc781e@mail.gmail.com>
-	 <200605061232.52303.david-b@pacbell.net>
-	 <2151339d0605092237m4ef4e835k16b8c779f6ad7046@mail.gmail.com>
+	Wed, 10 May 2006 13:10:18 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:60848 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964929AbWEJRKQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 13:10:16 -0400
+Subject: Re: [PATCH -mm] tpm_register_hardware gcc 4.1 warning fix
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: akpm@osdl.org, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200605100256.k4A2u88J031785@dwalker1.mvista.com>
+References: <200605100256.k4A2u88J031785@dwalker1.mvista.com>
+Content-Type: text/plain
+Date: Wed, 10 May 2006 12:08:37 -0500
+Message-Id: <1147280918.29414.104.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In my last message I sent a patch that I thought fixed the problem.
+Ack'ed by: Kylene Hall <kjhall@us.ibm.com>
 
-I made a mistake in my testing.  It turns out that my patch doesn't
-have an effect on this problem.  What I discovered was a workaround: 
-If I rmmod ehci-hcd and then modprobe it back in, usb 2.0 it works. 
-That's what I did when I tested my patched version, so I mistakenly
-thought it was my patch that fixed it.
+On Tue, 2006-05-09 at 19:56 -0700, Daniel Walker wrote:
+> Fixes the following warning,
+> 
+> drivers/char/tpm/tpm.c: In function 'tpm_register_hardware':
+> drivers/char/tpm/tpm.c:1157: warning: assignment from incompatible pointer type
+> 
+> Signed-Off-By: Daniel Walker <dwalker@mvista.com>
+> 
+> Index: linux-2.6.16/drivers/char/tpm/tpm.h
+> ===================================================================
+> --- linux-2.6.16.orig/drivers/char/tpm/tpm.h
+> +++ linux-2.6.16/drivers/char/tpm/tpm.h
+> @@ -140,7 +140,7 @@ extern int tpm_pm_resume(struct device *
+>  extern struct dentry ** tpm_bios_log_setup(char *);
+>  extern void tpm_bios_log_teardown(struct dentry **);
+>  #else
+> -static inline struct dentry* tpm_bios_log_setup(char *name)
+> +static inline struct dentry ** tpm_bios_log_setup(char *name)
+>  {
+>  	return NULL;
+>  }
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-So it seems that there is something that happens when the ehci-hcd
-shuts down that helps initialize it to work properly.  What could it
-be?

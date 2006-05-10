@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964854AbWEJVDT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbWEJVFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964854AbWEJVDT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 17:03:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWEJVDT
+	id S964863AbWEJVFe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 17:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbWEJVFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 17:03:19 -0400
-Received: from mail.kroah.org ([69.55.234.183]:41449 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964854AbWEJVDS (ORCPT
+	Wed, 10 May 2006 17:05:34 -0400
+Received: from ozlabs.org ([203.10.76.45]:19845 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S964857AbWEJVFd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 17:03:18 -0400
-Date: Wed, 10 May 2006 13:57:43 -0700
-From: Greg KH <gregkh@suse.de>
-To: Michael Buesch <mb@bu3sch.de>
-Cc: Sergey Vlasov <vsu@altlinux.ru>, akpm@osdl.org,
-       Deepak Saxena <dsaxena@plexity.net>, bcm43xx-dev@lists.berlios.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/6] New Generic HW RNG
-Message-ID: <20060510205743.GC23446@suse.de>
-References: <20060507113513.418451000@pc1> <20060507113604.778384000@pc1> <20060507170320.3ce0d3e0.vsu@altlinux.ru> <200605071516.09167.mb@bu3sch.de>
-Mime-Version: 1.0
+	Wed, 10 May 2006 17:05:33 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605071516.09167.mb@bu3sch.de>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
+Message-ID: <17506.21908.857189.645889@cargo.ozlabs.ibm.com>
+Date: Thu, 11 May 2006 07:05:24 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: rth@twiddle.net, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+Subject: Re: [RFC/PATCH] Make powerpc64 use __thread for per-cpu variables
+In-Reply-To: <20060510.124003.04457042.davem@davemloft.net>
+References: <17505.26159.807484.477212@cargo.ozlabs.ibm.com>
+	<20060510154702.GA28938@twiddle.net>
+	<20060510.124003.04457042.davem@davemloft.net>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 07, 2006 at 03:16:08PM +0200, Michael Buesch wrote:
-> On Sunday 07 May 2006 15:03, you wrote:
-> > > +	list_for_each_entry(rng, &rng_list, list) {
-> > > +		if (strncmp(rng->name, buf, len) == 0) {
-> > 
-> > This will match if the passed string is just a prefix of rng->name.
-> > Apparently sysfs guarantees that the buffer passed to ->store will be
-> > NUL-terminated, so this should be just a strcmp().
+David S. Miller writes:
+
+> From: Richard Henderson <rth@twiddle.net>
+> Date: Wed, 10 May 2006 08:47:13 -0700
 > 
-> I am not sure if it is guaranteed NUL terminated. Greg?
-> But I will look into this.
+> > How do you plan to address the compiler optimizing
+>  ...
+> > Across the schedule, we may have changed cpus, making the cached
+> > address invalid.
+> 
+> Per-cpu variables need to be accessed only with preemption
+> disabled.  And the preemption enable/disable operations
+> provide a compiler memory barrier.
 
-Yes it will be.
+No, Richard has a point, it's not the value that is the concern, it's
+the address, which gcc could assume is still valid after a barrier.
+Drat.
 
-thanks,
-
-greg k-h
+Paul.

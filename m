@@ -1,131 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWEJGqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWEJGyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750822AbWEJGqI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 02:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWEJGqH
+	id S964830AbWEJGyU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 02:54:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWEJGyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 02:46:07 -0400
-Received: from mga01.intel.com ([192.55.52.88]:9064 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750822AbWEJGqG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 02:46:06 -0400
-X-IronPort-AV: i="4.05,108,1146466800"; 
-   d="scan'208"; a="34963791:sNHT1075930086"
-Message-ID: <44618C0D.6020604@intel.com>
-Date: Wed, 10 May 2006 14:45:33 +0800
-From: "bibo,mao" <bibo.mao@intel.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
-MIME-Version: 1.0
-To: akpm@osdl.org
-CC: Andi Kleen <ak@suse.de>, Jan Beulich <jbeulich@novell.com>,
-       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH]x86_64 debug_stack nested patch
-Content-Type: multipart/mixed;
- boundary="------------060909040604050307040701"
+	Wed, 10 May 2006 02:54:19 -0400
+Received: from iron.cat.pdx.edu ([131.252.208.92]:19584 "EHLO iron.cat.pdx.edu")
+	by vger.kernel.org with ESMTP id S1751049AbWEJGyT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 02:54:19 -0400
+Date: Tue, 9 May 2006 23:53:03 -0700 (PDT)
+From: Suzanne Wood <suzannew@cs.pdx.edu>
+Message-Id: <200605100653.k4A6r3Qw007727@wezen.cs.pdx.edu>
+To: dipankar@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com
+Subject: commit of [PATCH] Fix file lookup without ref
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060909040604050307040701
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello,
+In studying proc_readfd() of fs/proc/base.c, I'd looked back
+at the linux-2.5.60 version which was prior to the conversion
+to RCU and noticed that rather than straight spin_lock() as 
+introduced in this patch, proc_fd_link() and proc_lookupfd() 
+used read_lock(&files->file_lock).  Similarly, for __do_SAK() 
+in drivers/char/tty_io.c
 
-hi,
-In x86_64 platform, INT1 and INT3 trap stack is IST stack called 
-DEBUG_STACK, when INT1/INT3 trap happens, system will switch to 
-DEBUG_STACK by hardware. Current DEBUG_STACK size is 4K, when int1/int3 
-trap happens, kernel will minus current DEBUG_STACK IST value by 4k. But 
-if int3/int1 trap is nested, it will destroy other vector's IST stack.
-This patch modifies this, it sets DEBUG_STACK size as 8K and allows two 
-level of nested int1/int3 trap.
-Kprobe DEBUG_STACK may be nested, because kprobe hanlder may be probed 
-by other kprobes. This patch is against 2.6.17-rc3.
+Just thought it might be something to consider after seeing 
+http://www.ussg.iu.edu/hypermail/linux/kernel/9801.0/0095.html
 
-Signed-Off-By: bibo, mao <bibo.mao@intel.com>
+Thanks.
+Suzanne
 
-Thanks
-bibo,mao
-
---------------060909040604050307040701
-Content-Type: text/x-patch;
- name="DEBUG_STACK_NEST.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="DEBUG_STACK_NEST.patch"
-
-diff -Nruap 2.6.17-rc3.org/arch/x86_64/kernel/traps.c 2.6.17-rc3/arch/x86_64/kernel/traps.c
---- 2.6.17-rc3.org/arch/x86_64/kernel/traps.c	2006-05-10 12:07:30.000000000 +0800
-+++ 2.6.17-rc3/arch/x86_64/kernel/traps.c	2006-05-10 12:18:53.000000000 +0800
-@@ -141,50 +141,24 @@ static unsigned long *in_exception_stack
- 		[DOUBLEFAULT_STACK - 1] = "#DF",
- 		[STACKFAULT_STACK - 1] = "#SS",
- 		[MCE_STACK - 1] = "#MC",
--#if DEBUG_STKSZ > EXCEPTION_STKSZ
--		[N_EXCEPTION_STACKS ... N_EXCEPTION_STACKS + DEBUG_STKSZ / EXCEPTION_STKSZ - 2] = "#DB[?]"
--#endif
- 	};
--	unsigned k;
-+	unsigned stack_size, end, k;
- 
- 	for (k = 0; k < N_EXCEPTION_STACKS; k++) {
--		unsigned long end;
--
--		switch (k + 1) {
--#if DEBUG_STKSZ > EXCEPTION_STKSZ
--		case DEBUG_STACK:
--			end = cpu_pda(cpu)->debugstack + DEBUG_STKSZ;
--			break;
--#endif
--		default:
--			end = per_cpu(init_tss, cpu).ist[k];
--			break;
--		}
-+		end = per_cpu(init_tss, cpu).ist[k];
- 		if (stack >= end)
- 			continue;
--		if (stack >= end - EXCEPTION_STKSZ) {
-+		if (k == (DEBUG_STACK - 1))
-+			stack_size = DEBUG_STKSZ;
-+		else stack_size = EXCEPTION_STKSZ;
-+
-+		if (stack >= end - stack_size) {
- 			if (*usedp & (1U << k))
- 				break;
- 			*usedp |= 1U << k;
- 			*idp = ids[k];
- 			return (unsigned long *)end;
- 		}
--#if DEBUG_STKSZ > EXCEPTION_STKSZ
--		if (k == DEBUG_STACK - 1 && stack >= end - DEBUG_STKSZ) {
--			unsigned j = N_EXCEPTION_STACKS - 1;
--
--			do {
--				++j;
--				end -= EXCEPTION_STKSZ;
--				ids[j][4] = '1' + (j - N_EXCEPTION_STACKS);
--			} while (stack < end - EXCEPTION_STKSZ);
--			if (*usedp & (1U << j))
--				break;
--			*usedp |= 1U << j;
--			*idp = ids[j];
--			return (unsigned long *)end;
--		}
--#endif
- 	}
- 	return NULL;
- }
-diff -Nruap 2.6.17-rc3.org/include/asm-x86_64/page.h 2.6.17-rc3/include/asm-x86_64/page.h
---- 2.6.17-rc3.org/include/asm-x86_64/page.h	2006-05-10 12:07:18.000000000 +0800
-+++ 2.6.17-rc3/include/asm-x86_64/page.h	2006-05-10 12:19:24.000000000 +0800
-@@ -20,7 +20,7 @@
- #define EXCEPTION_STACK_ORDER 0
- #define EXCEPTION_STKSZ (PAGE_SIZE << EXCEPTION_STACK_ORDER)
- 
--#define DEBUG_STACK_ORDER EXCEPTION_STACK_ORDER
-+#define DEBUG_STACK_ORDER 1
- #define DEBUG_STKSZ (PAGE_SIZE << DEBUG_STACK_ORDER)
- 
- #define IRQSTACK_ORDER 2
-
---------------060909040604050307040701--
+ > List:       git-commits-head
+ > Subject:    [PATCH] Fix file lookup without ref
+ > From:       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+ > Date:       2006-04-19 17:00:12
+ > 
+ > commit ca99c1da080345e227cfb083c330a184d42e27f3
+ > tree e417b4c456ae31dc1dde8027b6be44a1a9f19395
+ > parent fb30d64568fd8f6a21afef987f11852a109723da
+ > author Dipankar Sarma <dipankar@in.ibm.com> Wed, 19 Apr 2006 12:21:46 -0700
+ > committer Linus Torvalds <torvalds@g5.osdl.org> Wed, 19 Apr 2006 23:13:51 -0700
+ > 
+ > [PATCH] Fix file lookup without ref
+ > 
+ > There are places in the kernel where we look up files in fd tables and
+ > access the file structure without holding refereces to the file.  So, we
+ > need special care to avoid the race between looking up files in the fd
+ > table and tearing down of the file in another CPU.  Otherwise, one might
+ > see a NULL f_dentry or such torn down version of the file.  This patch
+ > fixes those special places where such a race may happen.
+ > 
+ > Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+ > Acked-by: "Paul E. McKenney" <paulmck@us.ibm.com>
+ > Signed-off-by: Andrew Morton <akpm@osdl.org>
+ > Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+ > 
+ >  drivers/char/tty_io.c |    8 ++++++--
+ >  fs/locks.c            |    9 +++++++--
+ >  fs/proc/base.c        |   21 +++++++++++++++------
+ >  3 files changed, 28 insertions(+), 10 deletions(-)
+ > 
+ > diff --git a/drivers/char/tty_io.c b/drivers/char/tty_io.c
+ > index 841f0bd..f07637a 100644
+ > --- a/drivers/char/tty_io.c
+ > +++ b/drivers/char/tty_io.c
+ > @@ -2723,7 +2723,11 @@ static void __do_SAK(void *arg)
+ >  		}
+ >  		task_lock(p);
+ >  		if (p->files) {
+ > -			rcu_read_lock();
+ > +			/*
+ > +			 * We don't take a ref to the file, so we must
+ > +			 * hold ->file_lock instead.
+ > +			 */
+ > +			spin_lock(&p->files->file_lock);
+ >  			fdt = files_fdtable(p->files);
+ >  			for (i=0; i < fdt->max_fds; i++) {
+ >  				filp = fcheck_files(p->files, i);
+ > @@ -2738,7 +2742,7 @@ static void __do_SAK(void *arg)
+ >  					break;
+ >  				}
+ >  			}
+ > -			rcu_read_unlock();
+ > +			spin_unlock(&p->files->file_lock);
+ >  		}
+ >  		task_unlock(p);
+ >  	} while_each_thread(g, p);
+ > diff --git a/fs/locks.c b/fs/locks.c
+ > index dda83d6..efad798 100644
+ > --- a/fs/locks.c
+ > +++ b/fs/locks.c
+ > @@ -2230,7 +2230,12 @@ void steal_locks(fl_owner_t from)
+ >  
+ >  	lock_kernel();
+ >  	j = 0;
+ > -	rcu_read_lock();
+ > +
+ > +	/*
+ > +	 * We are not taking a ref to the file structures, so
+ > +	 * we need to acquire ->file_lock.
+ > +	 */
+ > +	spin_lock(&files->file_lock);
+ >  	fdt = files_fdtable(files);
+ >  	for (;;) {
+ >  		unsigned long set;
+ > @@ -2248,7 +2253,7 @@ void steal_locks(fl_owner_t from)
+ >  			set >>= 1;
+ >  		}
+ >  	}
+ > -	rcu_read_unlock();
+ > +	spin_unlock(&files->file_lock);
+ >  	unlock_kernel();
+ >  }
+ >  EXPORT_SYMBOL(steal_locks);
+ > diff --git a/fs/proc/base.c b/fs/proc/base.c
+ > index a3a3eec..6cc77dc 100644
+ > --- a/fs/proc/base.c
+ > +++ b/fs/proc/base.c
+ > @@ -297,16 +297,20 @@ static int proc_fd_link(struct inode *in
+ >  
+ >  	files = get_files_struct(task);
+ >  	if (files) {
+ > -		rcu_read_lock();
+ > +		/*
+ > +		 * We are not taking a ref to the file structure, so we must
+ > +		 * hold ->file_lock.
+ > +		 */
+ > +		spin_lock(&files->file_lock);
+ >  		file = fcheck_files(files, fd);
+ >  		if (file) {
+ >  			*mnt = mntget(file->f_vfsmnt);
+ >  			*dentry = dget(file->f_dentry);
+ > -			rcu_read_unlock();
+ > +			spin_unlock(&files->file_lock);
+ >  			put_files_struct(files);
+ >  			return 0;
+ >  		}
+ > -		rcu_read_unlock();
+ > +		spin_unlock(&files->file_lock);
+ >  		put_files_struct(files);
+ >  	}
+ >  	return -ENOENT;
+ > @@ -1523,7 +1527,12 @@ static struct dentry *proc_lookupfd(stru
+ >  	if (!files)
+ >  		goto out_unlock;
+ >  	inode->i_mode = S_IFLNK;
+ > -	rcu_read_lock();
+ > +
+ > +	/*
+ > +	 * We are not taking a ref to the file structure, so we must
+ > +	 * hold ->file_lock.
+ > +	 */
+ > +	spin_lock(&files->file_lock);
+ >  	file = fcheck_files(files, fd);
+ >  	if (!file)
+ >  		goto out_unlock2;
+ > @@ -1531,7 +1540,7 @@ static struct dentry *proc_lookupfd(stru
+ >  		inode->i_mode |= S_IRUSR | S_IXUSR;
+ >  	if (file->f_mode & 2)
+ >  		inode->i_mode |= S_IWUSR | S_IXUSR;
+ > -	rcu_read_unlock();
+ > +	spin_unlock(&files->file_lock);
+ >  	put_files_struct(files);
+ >  	inode->i_op = &proc_pid_link_inode_operations;
+ >  	inode->i_size = 64;
+ > @@ -1541,7 +1550,7 @@ static struct dentry *proc_lookupfd(stru
+ >  	return NULL;
+ >  
+ >  out_unlock2:
+ > -	rcu_read_unlock();
+ > +	spin_unlock(&files->file_lock);
+ >  	put_files_struct(files);
+ >  out_unlock:
+ >  	iput(inode);
+ > -

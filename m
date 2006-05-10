@@ -1,153 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbWEJSIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWEJSKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932440AbWEJSIg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 14:08:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWEJSIg
+	id S1751310AbWEJSKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 14:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbWEJSKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 14:08:36 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:38732 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S932440AbWEJSIf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 14:08:35 -0400
-Date: Wed, 10 May 2006 11:08:32 -0700
-From: Dave Jiang <djiang@mvista.com>
-To: linux-kernel@vger.kernel.org, mgreer@mvista.com, rmk+lkml@arm.linux.org.uk
-Subject: Re: [PATCH] MPSC serial driver tx locking
-Message-ID: <20060510180832.GA6920@blade.az.mvista.com>
-References: <20060510003552.GB22447@blade.az.mvista.com> <20060510162708.GD32632@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060510162708.GD32632@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.9i
+	Wed, 10 May 2006 14:10:25 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:11856 "EHLO
+	dwalker1.mvista.com") by vger.kernel.org with ESMTP
+	id S1751310AbWEJSKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 14:10:25 -0400
+Date: Wed, 10 May 2006 11:10:10 -0700
+Message-Id: <200605101810.k4AIAA8x006488@dwalker1.mvista.com>
+From: Daniel Walker <dwalker@mvista.com>
+To: akpm@osdl.org
+CC: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: [PATCH -mm] updated idetape gcc 4.1 warning fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 10, 2006 at 05:27:08PM +0100, Russell King wrote:
-> 
-> Why not do the spinlock initialisation first?
-> 
+I added returns for failures .. I would hope that this doesn't break anything in
+userspace , but I'll confess that I have no way to determin that for certain . 
 
-Patch repost per Russell's suggestion
+Hows that Alan?
 
----
+Fixes the following warning,
 
-The MPSC serial driver assumes that interrupt is always on to pick up the
-DMA transmit ops that aren't submitted while the DMA engine is active. However
-when irqs are off for a period of time such as operations under kernel crash
-dump console messages do not show up due to additional DMA ops are being
-dropped. This makes console writes to process through all the tx DMAs queued
-up before submitting a new request.
+drivers/ide/ide-tape.c: In function ‘idetape_copy_stage_from_user’:
+drivers/ide/ide-tape.c:2662: warning: ignoring return value of ‘copy_from_user’, declared with attribute warn_unused_result
+drivers/ide/ide-tape.c: In function ‘idetape_copy_stage_to_user’:
+drivers/ide/ide-tape.c:2689: warning: ignoring return value of ‘copy_to_user’, declared with attribute warn_unused_result
 
-Also, the current locking mechanism does not protect the hardware registers
-and ring buffer when a printk is done during the serial write operations 
-since console_write does not both with locking while mucking with the DMA 
-regs and ring buffer. The additional per port transmit lock provides a 
-finer granular locking and protects registers being clobbered while 
-printks are nested within uart writes. 
+Signed-Off-By: Daniel Walker <dwalker@mvista.com>
 
-Signed-off-by: Dave Jiang <djiang@mvista.com>
-Signed-off-by: Mark A. Greer <mgreer@mvista.com>
----
-
-diff -Naurp linux-2.6.17-rc3-mm1/drivers/serial/mpsc.c linux-2.6.17-rc3-mm1.mod/drivers/serial/mpsc.c
---- linux-2.6.17-rc3-mm1/drivers/serial/mpsc.c	2006-05-05 09:56:15.000000000 -0700
-+++ linux-2.6.17-rc3-mm1.mod/drivers/serial/mpsc.c	2006-05-10 09:56:29.533084808 -0700
-@@ -184,6 +184,7 @@ struct mpsc_port_info {
- 	u8 *txb_p;		/* Phys addr of txb */
- 	int txr_head;		/* Where new data goes */
- 	int txr_tail;		/* Where sent data comes off */
-+	spinlock_t tx_lock;	/* transmit lock */
+Index: linux-2.6.16/drivers/ide/ide-tape.c
+===================================================================
+--- linux-2.6.16.orig/drivers/ide/ide-tape.c
++++ linux-2.6.16/drivers/ide/ide-tape.c
+@@ -2645,7 +2645,7 @@ static idetape_stage_t *idetape_kmalloc_
+ 	return __idetape_kmalloc_stage(tape, 0, 0);
+ }
  
- 	/* Mirrored values of regs we can't read (if 'mirror_regs' set) */
- 	u32 MPSC_MPCR_m;
-@@ -1213,6 +1214,9 @@ mpsc_tx_intr(struct mpsc_port_info *pi)
+-static void idetape_copy_stage_from_user (idetape_tape_t *tape, idetape_stage_t *stage, const char __user *buf, int n)
++static int idetape_copy_stage_from_user (idetape_tape_t *tape, idetape_stage_t *stage, const char __user *buf, int n)
  {
- 	struct mpsc_tx_desc *txre;
- 	int rc = 0;
-+	unsigned long iflags;
-+
-+	spin_lock_irqsave(&pi->tx_lock, iflags);
- 
- 	if (!mpsc_sdma_tx_active(pi)) {
- 		txre = (struct mpsc_tx_desc *)(pi->txr +
-@@ -1249,6 +1253,7 @@ mpsc_tx_intr(struct mpsc_port_info *pi)
- 		mpsc_sdma_start_tx(pi);	/* start next desc if ready */
- 	}
- 
-+	spin_unlock_irqrestore(&pi->tx_lock, iflags);
- 	return rc;
- }
- 
-@@ -1339,11 +1344,16 @@ static void
- mpsc_start_tx(struct uart_port *port)
- {
- 	struct mpsc_port_info *pi = (struct mpsc_port_info *)port;
-+	unsigned long iflags;
-+
-+	spin_lock_irqsave(&pi->tx_lock, iflags);
- 
- 	mpsc_unfreeze(pi);
- 	mpsc_copy_tx_data(pi);
- 	mpsc_sdma_start_tx(pi);
- 
-+	spin_unlock_irqrestore(&pi->tx_lock, iflags);
-+
- 	pr_debug("mpsc_start_tx[%d]\n", port->line);
- 	return;
- }
-@@ -1626,6 +1636,16 @@ mpsc_console_write(struct console *co, c
- 	struct mpsc_port_info *pi = &mpsc_ports[co->index];
- 	u8 *bp, *dp, add_cr = 0;
- 	int i;
-+	unsigned long iflags;
-+
-+	spin_lock_irqsave(&pi->tx_lock, iflags);
-+
-+	while (pi->txr_head != pi->txr_tail) {
-+		while (mpsc_sdma_tx_active(pi))
-+			udelay(100);
-+		mpsc_sdma_intr_ack(pi);
-+		mpsc_tx_intr(pi);
-+	}
- 
- 	while (mpsc_sdma_tx_active(pi))
- 		udelay(100);
-@@ -1669,6 +1689,7 @@ mpsc_console_write(struct console *co, c
- 		pi->txr_tail = (pi->txr_tail + 1) & (MPSC_TXR_ENTRIES - 1);
- 	}
- 
-+	spin_unlock_irqrestore(&pi->tx_lock, iflags);
- 	return;
- }
- 
-@@ -1994,15 +2015,15 @@ mpsc_drv_probe(struct platform_device *d
- 		if (!(rc = mpsc_drv_map_regs(pi, dev))) {
- 			mpsc_drv_get_platform_data(pi, dev, dev->id);
- 
--			if (!(rc = mpsc_make_ready(pi)))
--				if (!(rc = uart_add_one_port(&mpsc_reg,
--					&pi->port)))
--					rc = 0;
--				else {
-+			if (!(rc = mpsc_make_ready(pi))) {
-+				spin_lock_init(&pi->tx_lock);
-+				if (rc = uart_add_one_port(&mpsc_reg,
-+					&pi->port)) {
- 					mpsc_release_port(
- 						(struct uart_port *)pi);
- 					mpsc_drv_unmap_regs(pi);
- 				}
-+			}
- 			else
- 				mpsc_drv_unmap_regs(pi);
+ 	struct idetape_bh *bh = tape->bh;
+ 	int count;
+@@ -2655,11 +2655,12 @@ static void idetape_copy_stage_from_user
+ 		if (bh == NULL) {
+ 			printk(KERN_ERR "ide-tape: bh == NULL in "
+ 				"idetape_copy_stage_from_user\n");
+-			return;
++			return 1;
  		}
--- 
-
-------------------------------------------------------
-Dave Jiang
-Software Engineer
-MontaVista Software, Inc.    
-http://www.mvista.com
-------------------------------------------------------
-
+ #endif /* IDETAPE_DEBUG_BUGS */
+ 		count = min((unsigned int)(bh->b_size - atomic_read(&bh->b_count)), (unsigned int)n);
+-		copy_from_user(bh->b_data + atomic_read(&bh->b_count), buf, count);
++		if (copy_from_user(bh->b_data + atomic_read(&bh->b_count), buf, count))
++			return 1;
+ 		n -= count;
+ 		atomic_add(count, &bh->b_count);
+ 		buf += count;
+@@ -2670,9 +2671,10 @@ static void idetape_copy_stage_from_user
+ 		}
+ 	}
+ 	tape->bh = bh;
++	return 0;
+ }
+ 
+-static void idetape_copy_stage_to_user (idetape_tape_t *tape, char __user *buf, idetape_stage_t *stage, int n)
++static int idetape_copy_stage_to_user (idetape_tape_t *tape, char __user *buf, idetape_stage_t *stage, int n)
+ {
+ 	struct idetape_bh *bh = tape->bh;
+ 	int count;
+@@ -2682,11 +2684,12 @@ static void idetape_copy_stage_to_user (
+ 		if (bh == NULL) {
+ 			printk(KERN_ERR "ide-tape: bh == NULL in "
+ 				"idetape_copy_stage_to_user\n");
+-			return;
++			return 1;
+ 		}
+ #endif /* IDETAPE_DEBUG_BUGS */
+ 		count = min(tape->b_count, n);
+-		copy_to_user(buf, tape->b_data, count);
++		if  (copy_to_user(buf, tape->b_data, count))
++			return 1;
+ 		n -= count;
+ 		tape->b_data += count;
+ 		tape->b_count -= count;
+@@ -2699,6 +2702,7 @@ static void idetape_copy_stage_to_user (
+ 			}
+ 		}
+ 	}
++	return 0;
+ }
+ 
+ static void idetape_init_merge_stage (idetape_tape_t *tape)
+@@ -3736,7 +3740,8 @@ static ssize_t idetape_chrdev_read (stru
+ 		return (0);
+ 	if (tape->merge_stage_size) {
+ 		actually_read = min((unsigned int)(tape->merge_stage_size), (unsigned int)count);
+-		idetape_copy_stage_to_user(tape, buf, tape->merge_stage, actually_read);
++		if (idetape_copy_stage_to_user(tape, buf, tape->merge_stage, actually_read))
++			return -EFAULT;
+ 		buf += actually_read;
+ 		tape->merge_stage_size -= actually_read;
+ 		count -= actually_read;
+@@ -3745,7 +3750,8 @@ static ssize_t idetape_chrdev_read (stru
+ 		bytes_read = idetape_add_chrdev_read_request(drive, tape->capabilities.ctl);
+ 		if (bytes_read <= 0)
+ 			goto finish;
+-		idetape_copy_stage_to_user(tape, buf, tape->merge_stage, bytes_read);
++		if (idetape_copy_stage_to_user(tape, buf, tape->merge_stage, bytes_read))
++			return -EFAULT;
+ 		buf += bytes_read;
+ 		count -= bytes_read;
+ 		actually_read += bytes_read;
+@@ -3755,7 +3761,8 @@ static ssize_t idetape_chrdev_read (stru
+ 		if (bytes_read <= 0)
+ 			goto finish;
+ 		temp = min((unsigned long)count, (unsigned long)bytes_read);
+-		idetape_copy_stage_to_user(tape, buf, tape->merge_stage, temp);
++		if (idetape_copy_stage_to_user(tape, buf, tape->merge_stage, temp))
++			return -EFAULT;
+ 		actually_read += temp;
+ 		tape->merge_stage_size = bytes_read-temp;
+ 	}
+@@ -3833,7 +3840,8 @@ static ssize_t idetape_chrdev_write (str
+ 		}
+ #endif /* IDETAPE_DEBUG_BUGS */
+ 		actually_written = min((unsigned int)(tape->stage_size - tape->merge_stage_size), (unsigned int)count);
+-		idetape_copy_stage_from_user(tape, tape->merge_stage, buf, actually_written);
++		if (idetape_copy_stage_from_user(tape, tape->merge_stage, buf, actually_written))
++				return -EFAULT;
+ 		buf += actually_written;
+ 		tape->merge_stage_size += actually_written;
+ 		count -= actually_written;
+@@ -3846,7 +3854,8 @@ static ssize_t idetape_chrdev_write (str
+ 		}
+ 	}
+ 	while (count >= tape->stage_size) {
+-		idetape_copy_stage_from_user(tape, tape->merge_stage, buf, tape->stage_size);
++		if (idetape_copy_stage_from_user(tape, tape->merge_stage, buf, tape->stage_size))
++			return -EFAULT;
+ 		buf += tape->stage_size;
+ 		count -= tape->stage_size;
+ 		retval = idetape_add_chrdev_write_request(drive, tape->capabilities.ctl);
+@@ -3856,7 +3865,8 @@ static ssize_t idetape_chrdev_write (str
+ 	}
+ 	if (count) {
+ 		actually_written += count;
+-		idetape_copy_stage_from_user(tape, tape->merge_stage, buf, count);
++		if (idetape_copy_stage_from_user(tape, tape->merge_stage, buf, count))
++			return -EFAULT;
+ 		tape->merge_stage_size += count;
+ 	}
+ 	return (actually_written);

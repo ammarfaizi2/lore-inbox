@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbWEJKbB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbWEJKaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964903AbWEJKbB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 06:31:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbWEJKbB
+	id S964900AbWEJKaV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 06:30:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWEJKaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 06:31:01 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:2760 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964903AbWEJKbA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 06:31:00 -0400
-Date: Wed, 10 May 2006 15:57:16 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-       jlan@engr.sgi.com, tglx@linutronix.de
-Subject: Re: [PATCH][delayacct] Fix the timespec_sub() interface (was Re: [Patch 1/8] Setup)
-Message-ID: <20060510102716.GG29432@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <20060502061255.GL13962@in.ibm.com> <20060508141713.60c9d33e.akpm@osdl.org> <20060510101622.GB29432@in.ibm.com> <20060510032449.2872a8ba.akpm@osdl.org>
+	Wed, 10 May 2006 06:30:21 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:34721 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964900AbWEJKaT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 06:30:19 -0400
+Subject: Re: [PATCH -mm] idetape gcc 4.1 warning fix
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200605100255.k4A2twOE031688@dwalker1.mvista.com>
+References: <200605100255.k4A2twOE031688@dwalker1.mvista.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Date: Wed, 10 May 2006 11:42:18 +0100
+Message-Id: <1147257738.17886.13.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060510032449.2872a8ba.akpm@osdl.org>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 10, 2006 at 03:24:49AM -0700, Andrew Morton wrote:
-> Balbir Singh <balbir@in.ibm.com> wrote:
-> >
-> > Please find the updated patch, which changes the interface of timespec_sub()
-> > as suggested in the review comments
-> > 
-> > ...
-> >
-> >  /*
-> > - * sub = end - start, in normalized form
-> > + * sub = lhs - rhs, in normalized form
-> >   */
-> > -static inline void timespec_sub(struct timespec *start, struct timespec *end,
-> > -				struct timespec *sub)
-> > +static inline struct timespec timespec_sub(struct timespec *lhs,
-> > +						struct timespec *rhs)
-> >  {
+On Maw, 2006-05-09 at 19:55 -0700, Daniel Walker wrote:
+> Fixes the following warning,
 > 
-> I'd have thought that it would be more consistent and a saner interface to
-> use pass-by-value:
-> 
-> static inline struct timespec timespec_sub(struct timespec lhs,
-> 						struct timespec rhs)
-> 
-> It should generate the same code.
-> 
-> I mentioned this last time - did you choose to not do this for some reason,
-> or did it just slip past?
+> drivers/ide/ide-tape.c: In function ‘idetape_copy_stage_from_user’:
+> drivers/ide/ide-tape.c:2662: warning: ignoring return value of ‘copy_from_user’, declared with attribute warn_unused_result
+> drivers/ide/ide-tape.c: In function ‘idetape_copy_stage_to_user’:
 
-Sorry, that definitely slip past.
+>  		count = min((unsigned int)(bh->b_size - atomic_read(&bh->b_count)), (unsigned int)n);
+> -		copy_from_user(bh->b_data + atomic_read(&bh->b_count), buf, count);
+> +		WARN_ON(copy_from_user(bh->b_data + atomic_read(&bh->b_count), buf, count));
 
-I'll send another update
+So you want to let users spew all over the kernel log when a copy from
+user fails. Either fix it properly or leave it alone. In this case its
+actually quite hard to fix properly which is why it hasn't been done.
 
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+(POSIX doesn't require invalid addresses reliably report -EFAULT)
+

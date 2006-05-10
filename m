@@ -1,103 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965021AbWEJQYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965023AbWEJQYR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965021AbWEJQYG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 12:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965023AbWEJQYF
+	id S965023AbWEJQYR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 12:24:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965025AbWEJQYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 12:24:05 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:59919 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965021AbWEJQYC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 12:24:02 -0400
-Date: Wed, 10 May 2006 18:24:05 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Daniel Walker <dwalker@mvista.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
-Message-ID: <20060510162404.GR3570@stusta.de>
-References: <200605100256.k4A2u8bd031779@dwalker1.mvista.com> <1147257266.17886.3.camel@localhost.localdomain> <1147271489.21536.70.camel@c-67-180-134-207.hsd1.ca.comcast.net> <1147273787.17886.46.camel@localhost.localdomain> <1147273598.21536.92.camel@c-67-180-134-207.hsd1.ca.comcast.net> <Pine.LNX.4.58.0605101116590.5532@gandalf.stny.rr.com>
+	Wed, 10 May 2006 12:24:17 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:28357 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S965023AbWEJQYL convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 12:24:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lznbN3ohV5L+wkEP63tduqjhfa0/JAC+sV8njARrnHv4jO0FxYxs3Ki3Vm28GMMw5QSgRxTZaDns6NZYmQcmluaJligQ3GILTBVEGzuTIglTZDzm8xd4XUQL+e4DJBIQwV0FdZQiQQIkKJNdjZMMd0hczhrsjEafz8msWTMvXqg=
+Message-ID: <bda6d13a0605100924u12270e3dh5f6b519ee0d0b14f@mail.gmail.com>
+Date: Wed, 10 May 2006 09:24:09 -0700
+From: "Joshua Hudson" <joshudson@gmail.com>
+To: "Anton Altaparmakov" <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Not mounting NTFS rw, 2.6.16.1, but does so on 2.6.15
+In-Reply-To: <Pine.LNX.4.64.0605100957040.28166@hermes-1.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0605101116590.5532@gandalf.stny.rr.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+References: <bda6d13a0605092320y5cca6e1co2228f52c9777c3b1@mail.gmail.com>
+	 <Pine.LNX.4.64.0605100957040.28166@hermes-1.csi.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 10, 2006 at 11:24:31AM -0400, Steven Rostedt wrote:
-> 
-> On Wed, 10 May 2006, Daniel Walker wrote:
-> 
-> > On Wed, 2006-05-10 at 16:09 +0100, Alan Cox wrote:
-> > > On Mer, 2006-05-10 at 07:31 -0700, Daniel Walker wrote:
-> > > > > Hiding warnings like this can be a hazard as it will hide real warnings
-> > > > > later on.
-> > > >
-> > > > How could it hide real warnings? If anything these patch allow other
-> > > > (real warnings) to be seen .
-> > >
-> > > Because while the warning is present people will check it now and again.
+On 5/10/06, Anton Altaparmakov <aia21@cam.ac.uk> wrote:
+> On Tue, 9 May 2006, Joshua Hudson wrote:
+> > which means cannot re-run lilo on my laptop, so Not progressing beyond
+> > 2.6.15 until fixed.
+> > Downloading 2.6.16.15 to try that version now.
 > >
-> > But it's pointless to review it, in this case and for this warning .
-> >
-> > > If you set the variable to zero then you generate extra code and you
-> > > ensure nobody will look in future.
-> >
-> > The extra code is a problem , I'll admit that . But the warning should
-> > disappear , it's just a waste .
-> >
-> 
-> What is really needed is an attribute to add to function parameters, that
-> tells gcc that the parameter, if a pointer, will be initialize via the
-> function.
-> 
-> For example:
-> 
-> #define __assigned  __attribute__((initialized))
-> 
-> then declare a function:
-> 
-> int my_init_variabl(__assigned struct mystruct *var);
-> 
-> So gcc can know that the passed in variable will be updated. It could
-> then check to see if the function actually does initialize the pointer,
-> if the declaration is visible to the function definition itself.
-> 
-> Any gcc developers watching :)
+> > 16kstacks patch was applied (I use ndiswrapper with broadcom drivers loaded).
+>
+> What are the error messages?  (Run dmesg to find out.)
+>
+> Best regards,
+>
+>         Anton
 
+Verified on 2.6.16.15. 16kstacks applied. ndiswrapper not loaded.
 
-It seems you don't understand the problem at all:
+Dmesg:
 
+[snip]
+EXT3 FS on hdc7, internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+NTFS volume version 3.1.
+NTFS-fs warning (device hdc1): load_system_files(): Unsupported volume
+flags 0x4000 encountered.
+NTFS-fs error (device hdc1): load_system_files(): Volume has
+unsupported flags set.  Mounting read-only.  Run chkdsk and mount in
+Windows.
+ACPI: PCI Interrupt 0000:00:1f.5[B] -> Link [LNKB] -> GSI 7 (level,
+low) -> IRQ 7
+[snip]
 
-First of all note that your example does not apply in this case:
-
-copy_semid_from_user() does _not_ initialize sembuf in all cases.
-
-
-And you do not understand where gcc's problem is:
-
-gcc does in fact see that setbuf is always initialized if 
-copy_semid_from_user() returns 0.
-
-setbuf is only initialized in the (cmd == IPC_SET) case and later only 
-used in the (cmd == IPC_SET) case. And cmd can't change between the two 
-occurences.
-
-Therefore, gcc should in theory already have enough information to prove 
-that sembuf is always initialized before it's used.
-
-
-> -- Steve
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Yes, I know. This machine: boot disk = /dev/hdc, cdrom = /dev/hda

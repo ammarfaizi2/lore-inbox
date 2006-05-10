@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWEJS2P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWEJSax@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932307AbWEJS2P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 14:28:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbWEJS2O
+	id S932435AbWEJSax (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 14:30:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWEJSax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 14:28:14 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:14293 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751495AbWEJS2N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 14:28:13 -0400
-From: Andi Kleen <ak@suse.de>
-To: Roland Dreier <rdreier@cisco.com>
-Subject: Re: [RFC PATCH 34/35] Add the Xen virtual network device driver.
-Date: Wed, 10 May 2006 20:28:22 +0200
-User-Agent: KMail/1.9.1
-Cc: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>,
-       Stephen Hemminger <shemminger@osdl.org>, virtualization@lists.osdl.org,
-       Ian Pratt <ian.pratt@xensource.com>, xen-devel@lists.xensource.com,
-       linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
-       netdev@vger.kernel.org
-References: <20060509084945.373541000@sous-sol.org> <6a1855ab01a195ac2a28a97c5f966f67@cl.cam.ac.uk> <ada1wv3apu0.fsf@cisco.com>
-In-Reply-To: <ada1wv3apu0.fsf@cisco.com>
+	Wed, 10 May 2006 14:30:53 -0400
+Received: from 216-54-166-5.gen.twtelecom.net ([216.54.166.5]:19917 "EHLO
+	mx1.compro.net") by vger.kernel.org with ESMTP id S932435AbWEJSaw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 14:30:52 -0400
+Message-ID: <44623157.9090105@compro.net>
+Date: Wed, 10 May 2006 14:30:47 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+User-Agent: Thunderbird 1.5 (X11/20060111)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: rt20 patch question
+References: <446089CF.3050809@compro.net> <1147185483.21536.13.camel@c-67-180-134-207.hsd1.ca.comcast.net> <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com> <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com> <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
+In-Reply-To: <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605102028.22974.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 May 2006 22:46, Roland Dreier wrote:
->     Keir> Where should we get our entropy from in a VM environment?
->     Keir> Leaving the pool empty can cause processes to hang.
->
-> You could have something like a virtual HW RNG driver (with a frontend
-> and backend), which steals from the dom0 /dev/random pool.
+Steven Rostedt wrote:
+> Wow! I asked for some info on your system, and boy, did I get info! :)
+> 
 
-They already have a vTPM - iirc TPMs support random numbers so
-that could be used. But it's probably complicated to use.
+Sorry. I talk to much.
 
-But if sampling virtual events for randomness is really unsafe (is it 
-really?) then native guests in Xen would also get bad random numbers
-and this would need to be somehow addressed.
+>> I can only say for sure that I do not have these "stops" when running
+>> any other kernel or when running the rt20 kernel in any of the
+>> non-complete preemption modes.
+>>
 
-I haven't seen real evidence yet why the virtual events should 
-provide less randomness than the hardware.
+Configured for "Preempable Kernel" I got the following but no "stops"
+came with it.
 
--And
+BUG: scheduling while atomic: softirq-timer/1/0x00000100/15
+caller is schedule+0x33/0xf0
+ [<b0309acc>] __schedule+0x517/0x95b (8)
+ [<f09d7627>] mdio_ctrl+0xaa/0x135 [e100] (48)
+ [<f09d7627>] mdio_ctrl+0xaa/0x135 [e100] (12)
+ [<b030a06c>] schedule+0x33/0xf0 (36)
+ [<b012eee5>] prepare_to_wait+0x12/0x4f (8)
+ [<b0142318>] synchronize_irq+0x96/0xba (20)
+ [<b012eda0>] autoremove_wake_function+0x0/0x37 (12)
+ [<f0a13677>] vortex_timer+0xa0/0x563 [3c59x] (24)
+ [<b0125b76>] __mod_timer+0x8c/0xc3 (12)
+ [<f09d8998>] e100_watchdog+0x0/0x39c [e100] (24)
+ [<b030a4cf>] cond_resched_softirq+0x64/0xaa (8)
+ [<b02a2dcd>] dev_watchdog+0x77/0xac (4)
+ [<f0a135d7>] vortex_timer+0x0/0x563 [3c59x] (12)
+ [<b0125902>] run_timer_softirq+0x1bf/0x3a7 (8)
+ [<b0121960>] ksoftirqd+0x112/0x1cc (52)
+ [<b012184e>] ksoftirqd+0x0/0x1cc (52)
+ [<b012eb9c>] kthread+0xc2/0xc6 (4)
+ [<b012eada>] kthread+0x0/0xc6 (12)
+ [<b0100e35>] kernel_thread_helper+0x5/0xb (16)
+
+Mark
+

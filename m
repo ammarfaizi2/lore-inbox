@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbWEJU7l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbWEJVDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964859AbWEJU7l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 16:59:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWEJU7k
+	id S964853AbWEJVDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 17:03:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964854AbWEJVDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 16:59:40 -0400
-Received: from network.ucsd.edu ([132.239.1.195]:28932 "EHLO network.ucsd.edu")
-	by vger.kernel.org with ESMTP id S964859AbWEJU7k (ORCPT
+	Wed, 10 May 2006 17:03:16 -0400
+Received: from mail.kroah.org ([69.55.234.183]:40169 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964853AbWEJVDP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 16:59:40 -0400
-Date: Wed, 10 May 2006 13:59:39 -0700 (PDT)
-From: Mark Hedges <hedges@ucsd.edu>
-To: linux-kernel@vger.kernel.org
-Subject: unknown io writes in 2.6.16
-Message-ID: <20060510135100.F26270@network.ucsd.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 10 May 2006 17:03:15 -0400
+Date: Wed, 10 May 2006 13:56:00 -0700
+From: Greg KH <gregkh@suse.de>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
+Cc: Pavel Machek <pavel@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, trenn@suse.de,
+       thoenig@suse.de
+Subject: Re: [RFC] [PATCH] Execute PCI quirks on resume from suspend-to-RAM
+Message-ID: <20060510205600.GB23446@suse.de>
+References: <446139FF.205@gmx.net> <20060510093942.GA12259@elf.ucw.cz> <4461C0CA.8080803@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4461C0CA.8080803@gmx.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 10, 2006 at 12:30:34PM +0200, Carl-Daniel Hailfinger wrote:
+> 
+> Thinking about it again, if we restored the full pci config space
+> on resume, this quirk handling would be completely unnecessary.
+> Any reasons why we don't do that?
 
-Apologies if this is out of place, but I can't find anyone else 
-who might know about this.
+We do do that.  Look at pci_restore_state().
 
-I'm using 2.6.16 (built from Debian unstable linux-source-2.6.16).
-It's a pretty generic system with ext3 partitions.
+Actually, look at it in the latest -mm tree, that version works better
+than mainline does right now :)
 
-I stop every non-kernel process except syslogd, klogd and the 
-tty's.  Interfaces are down.  It is still in default runlevel.  
-But the disk keeps clicking away.
+thanks,
 
-`iostat` reports about 12 bytes written out to my root partition 
-every 5 seconds or so.  But `top` and/or `sar -x ALL 1 10` 
-report no noticible process activity beyond what they need to 
-run, and there is no file on the partition that has its mtime 
-modified.
-
-selinux is not compiled in the kernel.
-
-Any idea what's doing these writes?
-
-Is there any way to view disk i/o by process ID?
-
-Mark
-
+greg k-h

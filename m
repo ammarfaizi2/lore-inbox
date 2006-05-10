@@ -1,49 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964973AbWEJPGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbWEJPKQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964973AbWEJPGk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 11:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964975AbWEJPGk
+	id S964974AbWEJPKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 11:10:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964976AbWEJPKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 11:06:40 -0400
-Received: from [63.81.120.158] ([63.81.120.158]:59018 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S964973AbWEJPGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 11:06:39 -0400
-Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
-From: Daniel Walker <dwalker@mvista.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1147273787.17886.46.camel@localhost.localdomain>
-References: <200605100256.k4A2u8bd031779@dwalker1.mvista.com>
-	 <1147257266.17886.3.camel@localhost.localdomain>
-	 <1147271489.21536.70.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-	 <1147273787.17886.46.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 10 May 2006 08:06:37 -0700
-Message-Id: <1147273598.21536.92.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	Wed, 10 May 2006 11:10:16 -0400
+Received: from tayrelbas03.tay.hp.com ([161.114.80.246]:46489 "EHLO
+	tayrelbas03.tay.hp.com") by vger.kernel.org with ESMTP
+	id S964974AbWEJPKN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 11:10:13 -0400
+Date: Wed, 10 May 2006 08:03:57 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Don Zickus <dzickus@redhat.com>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de,
+       oprofile-list@lists.sourceforge.net, perfmon@napali.hpl.hp.com
+Subject: Re: [patch 8/8] Add abilty to enable/disable nmi watchdog from sysfs
+Message-ID: <20060510150357.GO21833@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <20060509205035.446349000@drseuss.boston.redhat.com> <20060509205958.578466000@drseuss.boston.redhat.com> <20060510091026.GD21833@frankl.hpl.hp.com> <20060510145952.GL16561@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060510145952.GL16561@redhat.com>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-10 at 16:09 +0100, Alan Cox wrote:
-> On Mer, 2006-05-10 at 07:31 -0700, Daniel Walker wrote:
-> > > Hiding warnings like this can be a hazard as it will hide real warnings
-> > > later on.
+Don,
+
+On Wed, May 10, 2006 at 10:59:53AM -0400, Don Zickus wrote:
 > > 
-> > How could it hide real warnings? If anything these patch allow other
-> > (real warnings) to be seen . 
+> > This means you can at runtime enable/disbale nmi_watchdog, i.e., reserve
+> > some performance counters on the fly. This gets complicated because now
+> > the perfmon subsystem (and probably oprofile) cannot check register
+> > availability when they are first initialized. Basically each time,
+> > the /sys entry is modified, they would have to scan the list of available
+> > performance counters. I don't know exactly when Oprofile does this checking.
+> > For perfmon, this is done only once, when the PMU description table is loaded.
+
+> How often did you plan on enabling/disabling the nmi_watchdog?  My
+> understanding was you disable nmi_watchdog, run oprofile/perfmon,
+> re-enable nmi_watchdog.  I guess I don't understand what type of funky
+> scenarios you are dealing with.  
 > 
-> Because while the warning is present people will check it now and again.
+I thought that part of the exercise was to allow oprofile/perfmon and nmi_watchdog
+to work simultaneously, i.e., don't disable watchdog when you monitor. Leave watchdog
+on and have oprofile/perfmon run with fewer counters. The alternative would be to do
+what you say: disbale nmi, monitor, re-enable nmi.
 
-But it's pointless to review it, in this case and for this warning .
+> > 
+> > Also something that I did not see in this code is the error detection in
+> > case enable_lapic_nmi_watchdog() fails. Oprofile runs on all CPUs or none.
+> > Perfmon lets you monitor on subsets on CPUs. In case NMI was disabled and
+> > a monitoring session was active on some CPUs. The enable_lapic_nmi_watchdog()
+> > will fail on some CPUs. How is that handled?
+> 
+> It's not.  In fact I wouldn't know what to do in such situations.  Is it
+> really wrong to only have a subset of cpus being monitored by the
+> nmi_watchdog?  This seems to be wandering into the area where the user is
+> looking to do something complicated (profiling a subset of cpus) and as
+> such might be expected to make sure the nmi_watchdog is properly enabled
+> on all cpus when they are done.
+> 
+On larger machines (think NUMA-style), it does not always make sense to monitor all CPUs.
 
-> If you set the variable to zero then you generate extra code and you
-> ensure nobody will look in future.
+-- 
 
-The extra code is a problem , I'll admit that . But the warning should
-disappear , it's just a waste .
-
-Daniel
-
+-Stephane

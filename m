@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWEJJ0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWEJJ0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964870AbWEJJ0W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 05:26:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbWEJJ0W
+	id S964876AbWEJJ0r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 05:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbWEJJ0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 05:26:22 -0400
-Received: from mga01.intel.com ([192.55.52.88]:10117 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S964870AbWEJJ0V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 05:26:21 -0400
-X-IronPort-AV: i="4.05,108,1146466800"; 
-   d="scan'208"; a="35027702:sNHT32533571"
-From: "bibo,mao" <bibo.mao@intel.com>
-To: akpm@osdl.org
-Subject: [PATCH]x86_64 debug_stack nested patch (again)
-Date: Wed, 10 May 2006 17:26:07 +0800
-User-Agent: KMail/1.9.1
-Cc: Andi Kleen <ak@suse.de>, Jan Beulich <jbeulich@novell.com>,
-       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-       linux-kernel@vger.kernel.org
+	Wed, 10 May 2006 05:26:47 -0400
+Received: from ns2.suse.de ([195.135.220.15]:45718 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964871AbWEJJ0q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 05:26:46 -0400
+Message-ID: <4461B24A.7050805@suse.de>
+Date: Wed, 10 May 2006 11:28:42 +0200
+From: Gerd Hoffmann <kraxel@suse.de>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060411)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605101726.08338.bibo.mao@intel.com>
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.17-rc3 -- SMP alternatives: switching to UP code
+References: <4461341B.7050602@keyaccess.nl>
+In-Reply-To: <4461341B.7050602@keyaccess.nl>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-In x86_64 platform, INT1 and INT3 trap stack is IST stack called DEBUG_STACK,
-when INT1/INT3 trap happens, system will switch to DEBUG_STACK by hardware. 
-Current DEBUG_STACK size is 4K, when int1/int3 trap happens, kernel will 
-minus current DEBUG_STACK IST value by 4k. But if int3/int1 trap is nested, 
-it will destroy other vector's IST stack. This patch modifies this, it sets 
-DEBUG_STACK size as 8K and allows two level of nested int1/int3 trap.
+Rene Herman wrote:
+> Hi list.
+> 
+> I just noticed this in the 2.6.17-rc3 dmesg:
+> 
+> ===
+> Checking 'hlt' instruction... OK.
+> SMP alternatives: switching to UP code
+> Freeing SMP alternatives: 0k freed
+> ACPI: setting ELCR to 0400 (from 1608)
+> ===
+> 
+> Should I be seeing this "SMP alternatives" thing on a !CONFIG_SMP
+> kernel? It does say 0k, but something is apparently being done at
+> runtime still. Why?
 
-Kprobe DEBUG_STACK may be nested, because kprobe hanlder may be probed 
-by other kprobes. This patch is against 2.6.17-rc3. Thanks jbeulich for pointing out error in the first patch.
+The UP kernel has empty alternatives tables (as you've noticed), thus
+the code doesn't do anything.  Nevertheless it probably makes sense to
+add a few #ifdef CONFIG_SMP lines to avoid confusing people and safe a
+few bytes ...
 
-Signed-Off-By: bibo, mao <bibo.mao@intel.com>
+cheers,
 
---- 2.6.17-rc3.org/include/asm-x86_64/page.h	2006-05-10 12:07:18.000000000 +0800
-+++ 2.6.17-rc3/include/asm-x86_64/page.h	2006-05-10 12:19:24.000000000 +0800
-@@ -20,7 +20,7 @@
- #define EXCEPTION_STACK_ORDER 0
- #define EXCEPTION_STKSZ (PAGE_SIZE << EXCEPTION_STACK_ORDER)
- 
--#define DEBUG_STACK_ORDER EXCEPTION_STACK_ORDER
-+#define DEBUG_STACK_ORDER (EXCEPTION_STACK_ORDER + 1)
- #define DEBUG_STKSZ (PAGE_SIZE << DEBUG_STACK_ORDER)
- 
- #define IRQSTACK_ORDER 2
+  Gerd
 
-
-Thanks
-bibo,mao
+-- 
+Gerd Hoffmann <kraxel@suse.de>
+Erst mal heiraten, ein, zwei Kinder, und wenn alles läuft
+geh' ich nach drei Jahren mit der Familie an die Börse.
+http://www.suse.de/~kraxel/julika-dora.jpeg

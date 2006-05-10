@@ -1,48 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbWEJVFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964858AbWEJVJV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964863AbWEJVFe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 17:05:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbWEJVFe
+	id S964858AbWEJVJV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 17:09:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWEJVJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 17:05:34 -0400
-Received: from ozlabs.org ([203.10.76.45]:19845 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S964857AbWEJVFd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 17:05:33 -0400
+	Wed, 10 May 2006 17:09:21 -0400
+Received: from test-iport-1.cisco.com ([171.71.176.117]:42141 "EHLO
+	test-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S964858AbWEJVJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 17:09:20 -0400
+To: "Or Gerlitz" <or.gerlitz@gmail.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH 0/6] iSER (iSCSI Extensions for RDMA) initiator
+X-Message-Flag: Warning: May contain useful information
+References: <Pine.LNX.4.44.0605101618360.17835-100000@zuben>
+	<adak68t94g6.fsf@cisco.com>
+	<15ddcffd0605101233x104265adp31c3fbd13f541f96@mail.gmail.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 10 May 2006 14:09:13 -0700
+In-Reply-To: <15ddcffd0605101233x104265adp31c3fbd13f541f96@mail.gmail.com> (Or Gerlitz's message of "Wed, 10 May 2006 21:33:32 +0200")
+Message-ID: <adapsil7fk6.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17506.21908.857189.645889@cargo.ozlabs.ibm.com>
-Date: Thu, 11 May 2006 07:05:24 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: rth@twiddle.net, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-Subject: Re: [RFC/PATCH] Make powerpc64 use __thread for per-cpu variables
-In-Reply-To: <20060510.124003.04457042.davem@davemloft.net>
-References: <17505.26159.807484.477212@cargo.ozlabs.ibm.com>
-	<20060510154702.GA28938@twiddle.net>
-	<20060510.124003.04457042.davem@davemloft.net>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+X-OriginalArrivalTime: 10 May 2006 21:09:14.0548 (UTC) FILETIME=[FDD8D740:01C67475]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller writes:
+    Or> OK., I see now that as of few hours ago the second iscsi
+    Or> update for 2.6.18 was commited there which means iser should
+    Or> compile with it, you can go ahead pull it!
 
-> From: Richard Henderson <rth@twiddle.net>
-> Date: Wed, 10 May 2006 08:47:13 -0700
-> 
-> > How do you plan to address the compiler optimizing
->  ...
-> > Across the schedule, we may have changed cpus, making the cached
-> > address invalid.
-> 
-> Per-cpu variables need to be accessed only with preemption
-> disabled.  And the preemption enable/disable operations
-> provide a compiler memory barrier.
+Great, I've got it.  Can you resend the iSER patches with changelog
+entries for each patch and a Signed-off-by: line too?
 
-No, Richard has a point, it's not the value that is the concern, it's
-the address, which gcc could assume is still valid after a barrier.
-Drat.
-
-Paul.
+Thanks,
+  Roland

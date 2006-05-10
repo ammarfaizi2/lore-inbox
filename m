@@ -1,95 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965016AbWEJTJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750900AbWEJTQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965016AbWEJTJF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 15:09:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964833AbWEJTJF
+	id S1750900AbWEJTQj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 15:16:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbWEJTQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 15:09:05 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47315 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S965016AbWEJTJD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 15:09:03 -0400
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       herbert@13thfloor.at, dev@sw.ru, sam@vilain.net, xemul@sw.ru,
-       haveblue@us.ibm.com, clg@fr.ibm.com, frankeh@us.ibm.com
-Subject: Re: [PATCH 2/9] nsproxy: incorporate fs namespace
-References: <29vfyljM-1.2006059-s@us.ibm.com>
-	<20060510021135.GC32523@sergelap.austin.ibm.com>
-	<m1k68uvyhq.fsf@ebiederm.dsl.xmission.com>
-	<20060510132623.GB20892@sergelap.austin.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 10 May 2006 13:07:39 -0600
-In-Reply-To: <20060510132623.GB20892@sergelap.austin.ibm.com> (Serge E.
- Hallyn's message of "Wed, 10 May 2006 08:26:23 -0500")
-Message-ID: <m1ac9pwves.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Wed, 10 May 2006 15:16:39 -0400
+Received: from gold.veritas.com ([143.127.12.110]:11318 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1750821AbWEJTQj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 15:16:39 -0400
+X-IronPort-AV: i="4.05,110,1146466800"; 
+   d="scan'208"; a="59393866:sNHT29710868"
+Date: Wed, 10 May 2006 16:17:06 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+cc: linux-kernel@vger.kernel.org, systemtap@sources.redhat.com, akpm@osdl.org,
+       Andi Kleen <ak@suse.de>, davem@davemloft.net, suparna@in.ibm.com,
+       richardj_moore@uk.ibm.com, hch@infradead.org
+Subject: Re: [RFC] [PATCH 6/6] Kprobes: Remove breakpoints from the copied 
+ pages
+In-Reply-To: <20060510121750.GD12463@in.ibm.com>
+Message-ID: <Pine.LNX.4.64.0605101610300.17281@blonde.wat.veritas.com>
+References: <20060509065455.GA11630@in.ibm.com> <20060509065917.GA22493@in.ibm.com>
+ <20060509070106.GB22493@in.ibm.com> <20060509070508.GC22493@in.ibm.com>
+ <20060509070911.GD22493@in.ibm.com> <20060509071204.GE22493@in.ibm.com>
+ <20060509071523.GF22493@in.ibm.com> <Pine.LNX.4.64.0605091747050.10238@blonde.wat.veritas.com>
+ <20060510121750.GD12463@in.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 10 May 2006 19:16:38.0808 (UTC) FILETIME=[431CB980:01C67466]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Serge E. Hallyn" <serue@us.ibm.com> writes:
+On Wed, 10 May 2006, Prasanna S Panchamukhi wrote:
+> 
+> As Andi Kleen and Christoph suggested pagecache contention can be avoided
+> using the COW approach.
 
-> Quoting Eric W. Biederman (ebiederm@xmission.com):
->> "Serge E. Hallyn" <serue@us.ibm.com> writes:
->> 
->> 
->> > @@ -1727,11 +1727,16 @@ static void __init init_mount_tree(void)
->> >  	namespace->root = mnt;
->> >  	mnt->mnt_namespace = namespace;
->> >  
->> > -	init_task.namespace = namespace;
->> > +	init_task.nsproxy->namespace = namespace;
->> >  	read_lock(&tasklist_lock);
->> >  	do_each_thread(g, p) {
->> > +		/* do we want namespace count to be #nsproxies,
->> > +		 * or # processes pointing to the namespace? */
->> 
->> I am fairly certain we want the count to be #nsproxies.
->> 
->> >  		get_namespace(namespace);
->> > -		p->namespace = namespace;
->> > +#if 0
->> > +		/* should only be 1 nsproxy so far */
->> > +		p->nsproxy->namespace = namespace;
->> > +#endif
->> >  	} while_each_thread(g, p);
->> >  	read_unlock(&tasklist_lock);
->> 
->> So I think this bit is wrong.
->
-> Ok - in that case I need to audit the rest of namespace usage to make
-> certain nothing depends on the count being #tasks.
+Yes, COWing is fine, I've no pagecache qualms if you go that way.
 
-Ok.  Thats makes sense.
+> Some thoughts about COW implications AFAIK
+> 1. Need to hookup mmap() to make a per process copy.
+I don't understand.
+> 2. Bring in the pages just to insert the probes.
+They'll be faulted in to insert probes, yes.
+> 3. All the text pages need to be in memory until process exits.
+No, COWed pages can go out to swap.
+> 4. Free up the per process text pages by hooking exit() and exec().
+exit_mmap frees process pages on exit and exec.
+> 5. Maskoff probes visible across fork(), by hooking fork().
+Depends on what semantics you want across fork.
 
-> BTW - a first set of comparison results showed nsproxy to have better
-> dbench and tbench throughput, and worse kernbench performance.  Which
-> may make sense given that nsproxy results in lower memory usage but
-> likely increased cache misses due to extra pointer dereference.
+Perhaps I don't understand, but you seem to be overcomplicating it,
+seeing VM (mm) problems which would be automatically handled for you.
 
-There are two additional things I can think of that are worth looking
-at:
-- moving copy_uts_namespace, and copy_namespace inside of copy_nsproxy
-  so we only run those we create a new nsproxy instance.
+Wouldn't you just use ptrace(2) to insert and remove your uprobes?
+See access_process_vm in kernel/ptrace.c for what that would do.
+It goes on to get_user_pages to do the faulting and COWing.
 
-- Attempting to optimize cache line utilization by placing the
-  structures in line in struct ns_proxy:
-	struct nsproxy {
-		atomic_t count;
-	        struct namespace *namespace;
-	        struct uts_namespace *uts_ns;
-	        struct namespace namespace_data;
-	        struct new_utsname uts_data;
-	};
-  With the nsproxy count severing as a count for both the embedded
-  data and for the nsproxy itself.  I think it is a long shot but it
-  could be interesting.
-
-Given the frequency of use of the uts namespace and the filesystem
-namespace simply I think not accessing those namespaces on fork is
-likely to reduce the additional cache line miss rate enough so
-that it is lost in the noise.
-
-Eric
+Hugh

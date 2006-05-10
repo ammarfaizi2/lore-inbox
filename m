@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbWEJGj7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbWEJGlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750828AbWEJGj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 02:39:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbWEJGj7
+	id S1750805AbWEJGlW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 02:41:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWEJGlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 02:39:59 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:9687
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750792AbWEJGj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 02:39:58 -0400
-Date: Tue, 09 May 2006 23:39:58 -0700 (PDT)
-Message-Id: <20060509.233958.73723993.davem@davemloft.net>
-To: paulus@samba.org
-Cc: olof@lixom.net, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-Subject: Re: [RFC/PATCH] Make powerpc64 use __thread for per-cpu variables
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <17505.34919.750295.170941@cargo.ozlabs.ibm.com>
-References: <17505.26159.807484.477212@cargo.ozlabs.ibm.com>
-	<20060510051649.GD1794@lixom.net>
-	<17505.34919.750295.170941@cargo.ozlabs.ibm.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 10 May 2006 02:41:22 -0400
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:35563 "EHLO mta2.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S1750805AbWEJGlV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 02:41:21 -0400
+In-Reply-To: <20060509235122.GJ24291@moss.sous-sol.org>
+References: <20060509085201.446830000@sous-sol.org> <E1FdatV-0000lj-00@gondolin.me.apana.org.au> <20060509235122.GJ24291@moss.sous-sol.org>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <c40c8b573caa8bf4931382d5e4722318@cl.cam.ac.uk>
 Content-Transfer-Encoding: 7bit
+Cc: virtualization@lists.osdl.org, linux-kernel@vger.kernel.org,
+       xen-devel@lists.xensource.com, Herbert Xu <herbert@gondor.apana.org.au>,
+       ian.pratt@xensource.com, netdev@vger.kernel.org
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Subject: Re: [Xen-devel] [RFC PATCH 34/35] Add the Xen virtual network device	driver.
+Date: Wed, 10 May 2006 07:36:57 +0100
+To: Chris Wright <chrisw@sous-sol.org>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paul Mackerras <paulus@samba.org>
-Date: Wed, 10 May 2006 16:29:59 +1000
 
-> I have moved current, smp_processor_id and a couple of other things to
-> per-cpu variables, and that results in the kernel text being about 8k
-> smaller than without any of these __thread patches.  Performance seems
-> to be very slightly better but it's hard to be sure that the change is
-> statistically significant, from the measurements I've done so far.
+On 10 May 2006, at 00:51, Chris Wright wrote:
 
-That first cache line of current_thread_info() should be so hot that
-it's probably just fine to use current_thread_info()->task since
-you're just doing a mask on a fixed register (r1) to implement that.
+> * Herbert Xu (herbert@gondor.apana.org.au) wrote:
+>> Chris Wright <chrisw@sous-sol.org> wrote:
+>>>
+>>> +       netdev->features        = NETIF_F_IP_CSUM;
+>>
+>> Any reason why IP_CSUM was chosen instead of HW_CSUM? Doing the latter
+>> would seem to be in fact easier for a virtual driver, no?
+>
+> That, I really don't know.
+
+Checksum offload was added late to the virtual transport and currently 
+not enough info is carried to identify protocol checksum fields in 
+arbitrary locations. When we rev the virtual interface, and include a 
+proper checksum-offset field, we'll be able to switch to 
+NETIF_F_HW_CSUM.
+
+  -- Keir
+

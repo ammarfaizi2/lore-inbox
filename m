@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWEJOnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751446AbWEJOoX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751456AbWEJOnn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 10:43:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWEJOnm
+	id S1751446AbWEJOoX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 10:44:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWEJOoX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 10:43:42 -0400
-Received: from [63.81.120.158] ([63.81.120.158]:14970 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1751456AbWEJOnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 10:43:42 -0400
-Subject: Re: [BUG] mtd redboot (also gcc 4.1 warning fix)
-From: Daniel Walker <dwalker@mvista.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0605100453540.556@gandalf.stny.rr.com>
-References: <200605100256.k4A2u4FO031737@dwalker1.mvista.com>
-	 <20060510053701.GO3570@stusta.de>
-	 <Pine.LNX.4.58.0605100453540.556@gandalf.stny.rr.com>
-Content-Type: text/plain
-Date: Wed, 10 May 2006 07:43:40 -0700
-Message-Id: <1147272220.21536.77.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 10 May 2006 10:44:23 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:58382 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751446AbWEJOoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 10:44:23 -0400
+Date: Wed, 10 May 2006 16:44:25 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Christoph Hellwig <hch@infradead.org>, Daniel Walker <dwalker@mvista.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] xfs gcc 4.1 warning fixes
+Message-ID: <20060510144424.GP3570@stusta.de>
+References: <200605100256.k4A2u8ho031797@dwalker1.mvista.com> <20060510082746.GC18947@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060510082746.GC18947@infradead.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-10 at 05:00 -0400, Steven Rostedt wrote:
+On Wed, May 10, 2006 at 09:27:46AM +0100, Christoph Hellwig wrote:
+> On Tue, May 09, 2006 at 07:56:08PM -0700, Daniel Walker wrote:
+> > Fixes the following warnings,
+> > 
+> > fs/xfs/xfs_dir.c: In function 'xfs_dir_removename':
+> > fs/xfs/xfs_dir.c:363: warning: 'totallen' may be used uninitialized in this function
+> > fs/xfs/xfs_dir.c:363: warning: 'count' may be used uninitialized in this function
+> > 
+> 
+> and so on.  that's all false positives.  gcc should be fixed here, not xfs.
 
-> Perfect example of what Andrew Morten stated in his keynote at LinuxTag.
-> He mentioned patches that fixed warnings but not the problem that they
-> warn about.  He stated that these are very dangerous, because, not only is
-> the problem not fixed, but now no one knows of the problem.
+gcc would need to know that xfs_dir_leaf_lookup_int() in xfs_dir_leaf.c 
+does never return 0.
 
-This is the third time I've had to remind people that this email is a
-bug report .. It's not a fix for anything , I even said as much in my
-initial email.  (Also notice Andrew isn't CC'd on this one..)
+This is something gcc can't ever figure out automatically since it's in 
+a different source file.
 
-Daniel
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

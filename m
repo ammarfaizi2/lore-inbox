@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964925AbWEJQof@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964924AbWEJQ5v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964925AbWEJQof (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 12:44:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbWEJQoe
+	id S964924AbWEJQ5v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 12:57:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964989AbWEJQ5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 12:44:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63181 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964925AbWEJQoe (ORCPT
+	Wed, 10 May 2006 12:57:51 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:17307 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S964924AbWEJQ5u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 12:44:34 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060510162342.GA18827@infradead.org> 
-References: <20060510162342.GA18827@infradead.org>  <20060510160111.9058.55026.stgit@warthog.cambridge.redhat.com> <20060510160132.9058.35796.stgit@warthog.cambridge.redhat.com> 
-To: Christoph Hellwig <hch@infradead.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       steved@redhat.com, trond.myklebust@fys.uio.no, aviro@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 06/14] NFS: Share NFS superblocks per-protocol per-server per-FSID [try #8] 
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Wed, 10 May 2006 17:44:25 +0100
-Message-ID: <20161.1147279465@warthog.cambridge.redhat.com>
+	Wed, 10 May 2006 12:57:50 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: "Andrea Galbusera" <gizero@gmail.com>
+Subject: Re: custom parallel interface driver
+Date: Wed, 10 May 2006 10:57:47 -0600
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org
+References: <f8e53fb0605100224r298d4799q16c088a5ca9918d5@mail.gmail.com>
+In-Reply-To: <f8e53fb0605100224r298d4799q16c088a5ca9918d5@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605101057.47870.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
+On Wednesday 10 May 2006 03:24, Andrea Galbusera wrote:
+> Here are some specifications of the hardware module to support (not
+> developed by me):
+> - single unidirectional Centronics-like with control signals interface
+> - 1K x 8bit FIFO for data
+> 
+> Minimal driver requirements are:
+> - capability to read data from the FIFO (possiblbly through ususal
+> device file interfaces and using interrupts)
+> - capability to read/write control registers of the interface
 
-> As last time a big fat "no fucking way" for the exports.
+If the parallel interface is directly exposed as a PCI device
+and it supports the typical 8255 programming model, it should
+just work if you add the appropriate vendor and device IDs to
+parport_pc_pci_tbl[].
 
-If you can't be polite you should be consigned to the porn spam bin.
+The serial driver has a default case that claims any device that
+PCI_CLASS_COMMUNICATION_SERIAL class code.  In theory, the parport
+driver could claim anything with PCI_CLASS_COMMUNICATION_PARALLEL.
+In that case, you wouldn't even need to modify anything.  But
+maybe there are issues that prevent parport_pc.c from doing this.
 
-> I already told you how to fix it by creating a common helper in the VFS last
-> time.
-
-Thanks for spotting that.  They're actually now unnecessary and so I've put up
-try #9 with them removed.  The common helper idea is also no longer necessary
-since I can't use VFS pathwalk now to find the NFS4 root FH.
-
-David
+The following sites have lots of information that might be useful
+to you:
+    http://www.torque.net/linux-pp.html
+    http://www.lvr.com/parport.htm

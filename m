@@ -1,63 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbWEJUxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbWEJUzh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964815AbWEJUxh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 16:53:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbWEJUxh
+	id S964895AbWEJUzh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 16:55:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbWEJUzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 16:53:37 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:7095 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S964815AbWEJUxg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 16:53:36 -0400
-Date: Wed, 10 May 2006 16:53:03 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Adrian Bunk <bunk@stusta.de>
-cc: Stephen Hemminger <shemminger@osdl.org>,
-       Daniel Walker <dwalker@mvista.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       akpm@osdl.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
-In-Reply-To: <20060510203622.GT3570@stusta.de>
-Message-ID: <Pine.LNX.4.58.0605101645581.22959@gandalf.stny.rr.com>
-References: <200605100256.k4A2u8bd031779@dwalker1.mvista.com>
- <1147257266.17886.3.camel@localhost.localdomain>
- <1147271489.21536.70.camel@c-67-180-134-207.hsd1.ca.comcast.net>
- <1147273787.17886.46.camel@localhost.localdomain>
- <1147273598.21536.92.camel@c-67-180-134-207.hsd1.ca.comcast.net>
- <Pine.LNX.4.58.0605101116590.5532@gandalf.stny.rr.com> <20060510162404.GR3570@stusta.de>
- <Pine.LNX.4.58.0605101240190.20305@gandalf.stny.rr.com>
- <Pine.LNX.4.58.0605101327380.20305@gandalf.stny.rr.com> <20060510202401.GS3570@stusta.de>
- <20060510203622.GT3570@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 10 May 2006 16:55:36 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:31915 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964895AbWEJUzg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 16:55:36 -0400
+Date: Wed, 10 May 2006 13:55:43 -0700
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Pekka J Enberg <penberg@cs.Helsinki.FI>,
+       Christoph Lameter <clameter@sgi.com>, Dave Hansen <haveblue@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] add slab_is_available() routine for boot code
+Message-ID: <20060510205543.GI3198@w-mikek2.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+slab_is_available() indicates slab based allocators are available
+for use.  SPARSEMEM code needs to know this as it can be called
+at various times during the boot process.
 
-On Wed, 10 May 2006, Adrian Bunk wrote:
+Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
 
->
-> Same with gcc 4.0.
-
-I had a typo. it's 4.0.4
-
-gcc version 4.0.4 20060422 (prerelease) (Debian 4.0.3-2)
-
-But it is a Debian "prerelease".
-
->
-> I can reproduce your problem only with gcc 3.3 and gcc 3.4.
->
-> Can we please discuss issues in current gcc releases instead of gcc
-> bashing ("Oh fsck! gcc is hosed.") based on issues no longer present in
-> the latest two major releases of gcc?
->
-
-Apologies to gcc.  It's no excuse, but I get a bit ansie when I'm late a
-work debugging lots of problems.  Both work related and LKML related.
-I think I took my frustrations out in that email.
-
-So I don't unneccessarily insult anyone else, I'm calling it a day.
-
--- Steve
-
+diff -Naupr linux-2.6.17-rc3-mm1/include/linux/slab.h linux-2.6.17-rc3-mm1.work3/include/linux/slab.h
+--- linux-2.6.17-rc3-mm1/include/linux/slab.h	2006-05-03 22:19:15.000000000 +0000
++++ linux-2.6.17-rc3-mm1.work3/include/linux/slab.h	2006-05-10 19:15:20.000000000 +0000
+@@ -150,6 +150,7 @@ static inline void *kcalloc(size_t n, si
+ 
+ extern void kfree(const void *);
+ extern unsigned int ksize(const void *);
++extern int slab_is_available(void);
+ 
+ #ifdef CONFIG_NUMA
+ extern void *kmem_cache_alloc_node(kmem_cache_t *, gfp_t flags, int node);
+diff -Naupr linux-2.6.17-rc3-mm1/mm/slab.c linux-2.6.17-rc3-mm1.work3/mm/slab.c
+--- linux-2.6.17-rc3-mm1/mm/slab.c	2006-05-03 22:19:16.000000000 +0000
++++ linux-2.6.17-rc3-mm1.work3/mm/slab.c	2006-05-10 21:43:08.000000000 +0000
+@@ -694,6 +694,14 @@ static enum {
+ 	FULL
+ } g_cpucache_up;
+ 
++/*
++ * used by boot code to determine if it can use slab based allocator
++ */
++int slab_is_available(void)
++{
++	return g_cpucache_up == FULL;
++}
++
+ static DEFINE_PER_CPU(struct work_struct, reap_work);
+ 
+ static void free_block(struct kmem_cache *cachep, void **objpp, int len,
+diff -Naupr linux-2.6.17-rc3-mm1/mm/sparse.c linux-2.6.17-rc3-mm1.work3/mm/sparse.c
+--- linux-2.6.17-rc3-mm1/mm/sparse.c	2006-05-03 22:19:16.000000000 +0000
++++ linux-2.6.17-rc3-mm1.work3/mm/sparse.c	2006-05-10 19:15:56.000000000 +0000
+@@ -32,7 +32,7 @@ static struct mem_section *sparse_index_
+ 	unsigned long array_size = SECTIONS_PER_ROOT *
+ 				   sizeof(struct mem_section);
+ 
+-	if (system_state == SYSTEM_RUNNING)
++	if (slab_is_available())
+ 		section = kmalloc_node(array_size, GFP_KERNEL, nid);
+ 	else
+ 		section = alloc_bootmem_node(NODE_DATA(nid), array_size);

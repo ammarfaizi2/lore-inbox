@@ -1,94 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWEJVYF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbWEJVeU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964865AbWEJVYF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 17:24:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWEJVYF
+	id S964920AbWEJVeU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 17:34:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbWEJVeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 17:24:05 -0400
-Received: from smtp4-g19.free.fr ([212.27.42.30]:64699 "EHLO smtp4-g19.free.fr")
-	by vger.kernel.org with ESMTP id S964865AbWEJVYE (ORCPT
+	Wed, 10 May 2006 17:34:20 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:11448 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S964866AbWEJVeT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 17:24:04 -0400
-Message-ID: <446259F2.4080308@free.fr>
-Date: Wed, 10 May 2006 23:24:02 +0200
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060205 Debian/1.7.12-1.1
-X-Accept-Language: fr-fr, en, en-us
+	Wed, 10 May 2006 17:34:19 -0400
+Message-ID: <44625C51.5060401@myri.com>
+Date: Wed, 10 May 2006 23:34:09 +0200
+From: Brice Goglin <brice@myri.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: libata PATA patch update
-References: <1147104400.3172.7.camel@localhost.localdomain>	 <pan.2006.05.08.21.57.53.522263@free.fr> <1147178241.3172.74.camel@localhost.localdomain> <4460D7D7.3070807@free.fr>
-In-Reply-To: <4460D7D7.3070807@free.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: netdev@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+CC: LKML <linux-kernel@vger.kernel.org>,
+       "Andrew J. Gallatin" <gallatin@myri.com>
+Subject: [PATCH 1/6] myri10ge - Revive pci_find_ext_capability
+References: <446259A0.8050504@myri.com>
+In-Reply-To: <446259A0.8050504@myri.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-matthieu castet wrote:
-> Hi,
-> 
-> Alan Cox wrote:
-> 
->> On Llu, 2006-05-08 at 23:57 +0200, Matthieu CASTET wrote:
->>
-> 
->>
->>> PS : any idea in order to allow to work my cdrw drive, that don't return
->>> interrupt when setting xfermode ?
->>
->>
->>
->> The real question is "why is it not returning an interrupt", as it is
->> required to do so unless nIEN masking is active. Handling that is a
->> matter for the libata core itself and depends on what Jeff has planned,
->> but I'm still a bit bothered that it may not be a drive problem but a
->> bug in the via pata driver.
-> 
-> You seem right : I tried the drive on the sil680 and it works [1].
-> The same config (only one slave drive channel 1) fails [2].
-> What is strange it that there is the same problem with the old via ide 
-> driver and hdparm -X [3].
-> Have you any hint what could I try ?
-> 
+[PATCH 1/6] myri10ge - Revive pci_find_ext_capability
 
-It seems there is really a bug in the timing code.
-I attach the lspci diff (from ide to pata) and the viaideinfo one
+This patch revives pci_find_ext_capability (has been disabled a couple month
+ago since it was not used anywhere. See http://lkml.org/lkml/2006/1/20/247).
+It will now be used by the myri10ge driver.
+
+Signed-off-by: Brice Goglin <brice@myri.com>
+Signed-off-by: Andrew J. Gallatin <gallatin@myri.com>
+
+ drivers/pci/pci.c   |    3 +--
+ include/linux/pci.h |    2 ++
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+--- linux-mm/drivers/pci/pci.c.old
++++ linux-mm/drivers/pci/pci.c
+@@ -164,7 +164,6 @@ int pci_bus_find_capability(struct pci_b
+ 	return __pci_bus_find_cap(bus, devfn, hdr_type & 0x7f, cap);
+ }
+ 
+-#if 0
+ /**
+  * pci_find_ext_capability - Find an extended capability
+  * @dev: PCI device to query
+@@ -212,7 +211,7 @@ int pci_find_ext_capability(struct pci_d
+ 
+ 	return 0;
+ }
+-#endif  /*  0  */
++EXPORT_SYMBOL_GPL(pci_find_ext_capability);
+ 
+ /**
+  * pci_find_parent_resource - return resource region of parent bus of given region
+--- linux-mm/include/linux/pci.h.old
++++ linux-mm/include/linux/pci.h
+@@ -443,6 +443,7 @@ struct pci_dev *pci_find_device_reverse 
+ struct pci_dev *pci_find_slot (unsigned int bus, unsigned int devfn);
+ int pci_find_capability (struct pci_dev *dev, int cap);
+ int pci_find_next_capability (struct pci_dev *dev, u8 pos, int cap);
++int pci_find_ext_capability (struct pci_dev *dev, int cap);
+ struct pci_bus * pci_find_next_bus(const struct pci_bus *from);
+ 
+ struct pci_dev *pci_get_device (unsigned int vendor, unsigned int device, struct pci_dev *from);
+@@ -665,6 +666,7 @@ static inline int pci_register_driver(st
+ static inline void pci_unregister_driver(struct pci_driver *drv) { }
+ static inline int pci_find_capability (struct pci_dev *dev, int cap) {return 0; }
+ static inline int pci_find_next_capability (struct pci_dev *dev, u8 post, int cap) { return 0; }
++static inline int pci_find_ext_capability (struct pci_dev *dev, int cap) {return 0; }
+ static inline const struct pci_device_id *pci_match_device(const struct pci_device_id *ids, const struct pci_dev *dev) { return NULL; }
+ 
+ /* Power management related routines */
 
 
-Matthieu
-
-  00: 06 11 71 05 07 00 90 02 06 8a 01 01 00 20 00 00
-  10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  20: 01 fc 00 00 00 00 00 00 00 00 00 00 06 11 71 05
-  30: 00 00 00 00 c0 00 00 00 00 00 00 00 ff 01 00 00
-  40: 0b f2 09 35 18 1c c0 00 20 20 20 20 ff 00 20 20
--50: e6 e6 e1 e1 0c 00 00 00 a8 a8 a8 a8 00 00 00 00
-+50: 27 27 27 27 0c 00 00 00 a8 a8 a8 a8 00 00 00 00
-  60: 00 02 00 00 00 00 00 00 00 02 00 00 00 00 00 00
-  70: 02 01 00 00 00 00 00 00 02 01 00 00 00 00 00 00
--80: 00 40 ed 3f 00 00 00 00 00 00 00 00 00 00 00 00
-+80: 00 f0 b9 01 00 00 00 00 00 50 a9 01 00 00 00 00
-  90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-
-@@ -16,7 +16,7 @@
-  Post Write Buffer:            yes                 yes
-  Enabled:                      yes                 yes
-  Simplex only:                  no                  no
--Cable Type:                   80w                 40w
-+Cable Type:                   40w                 40w
-  -------------------drive0----drive1----drive2----drive3-----
-  Transfer Mode:       UDMA      UDMA      UDMA      UDMA
-  Address Setup:      120ns     120ns     120ns     120ns
-@@ -24,5 +24,5 @@
-  Cmd Recovery:        30ns      30ns      30ns      30ns
-  Data Active:         90ns      90ns      90ns      90ns
-  Data Recovery:       30ns      30ns      30ns      30ns
--Cycle Time:          22ns      22ns      60ns      60ns
--Transfer Rate:   88.8MB/s  88.8MB/s  33.3MB/s  33.3MB/s
-+Cycle Time:          67ns      67ns      67ns      67ns
-+Transfer Rate:   29.6MB/s  29.6MB/s  29.6MB/s  29.6MB/s

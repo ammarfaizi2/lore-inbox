@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWEJFhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbWEJFg7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964822AbWEJFhG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 01:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWEJFhG
+	id S964795AbWEJFg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 01:36:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbWEJFg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 01:37:06 -0400
-Received: from wx-out-0102.google.com ([66.249.82.204]:45282 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S964822AbWEJFhC convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 01:37:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fQO0gucidyrpcJSRATvVnanFk/r4qS4SUvSrmICPTk/Ep755DerA2vEPd2YAWKhrHn3ANuAp5r7r31mejrZUAwy3bQpmCYnX3fAoHQ0wJkLn8i8MCjJkI80XZPIuWR2vCjkQxTbNITkX3oWLBAzI2cm0ueSy1uAw1gztqZivybE=
-Message-ID: <2151339d0605092237m4ef4e835k16b8c779f6ad7046@mail.gmail.com>
-Date: Tue, 9 May 2006 22:37:00 -0700
-From: "Nathan Becker" <nathanbecker@gmail.com>
-To: "David Brownell" <david-b@pacbell.net>
-Subject: Re: USB 2.0 ehci failure with large amount of RAM (4GB) on x86_64
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <200605061232.52303.david-b@pacbell.net>
+	Wed, 10 May 2006 01:36:59 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:8969 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964795AbWEJFg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 01:36:58 -0400
+Date: Wed, 10 May 2006 07:37:01 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] mtd redboot (also gcc 4.1 warning fix)
+Message-ID: <20060510053701.GO3570@stusta.de>
+References: <200605100256.k4A2u4FO031737@dwalker1.mvista.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <2151339d0605032148n5d6936ay31ab017fbabc65b3@mail.gmail.com>
-	 <200605041922.52243.david-b@pacbell.net>
-	 <2151339d0605042246n1e40a496l8af646218edc781e@mail.gmail.com>
-	 <200605061232.52303.david-b@pacbell.net>
+In-Reply-To: <200605100256.k4A2u4FO031737@dwalker1.mvista.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Like I said in my previous message, I am not a kernel developer.  I am
-a programmer though, so I thought I'd give your suggestions a try.
+On Tue, May 09, 2006 at 07:56:04PM -0700, Daniel Walker wrote:
 
-I added 1 line to drivers/usb/host/ehci-pci.c which sets the DMA mask,
-and now it seems to work with ehci loaded and with 4 GB of RAM.
-Unfortunately, I don't really understand what I did.  Perhaps you have
-a better idea what this is doing and if it is correct.
+> unsigned long may not always be 32 bits, right ? This patch fixes the 
+> warning, but not the bug .
+>...
 
-case PCI_VENDOR_ID_NVIDIA:
-		/* NVidia reports that certain chips don't handle
-		 * QH, ITD, or SITD addresses above 2GB.  (But TD,
-		 * data buffer, and periodic schedule are normal.)
-		 */
-		
-		dma_set_mask(hcd->self.controller, DMA_31BIT_MASK); /* I added this line */
-		
-		switch (pdev->device) {
-		case 0x003c:	/* MCP04 */
-		case 0x005b:	/* CK804 */
-		case 0x00d8:	/* CK8 */
-		case 0x00e8:	/* CK8S */
-			if (pci_set_consistent_dma_mask(pdev,
-						DMA_31BIT_MASK) < 0)
-				ehci_warn(ehci, "can't enable NVidia "
-					"workaround for >2GB RAM\n");
-			break;
-		}
-		break;
-	}
+IOW, all your patch does is to hide a bug?
+
+Not exactly an improvement...
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

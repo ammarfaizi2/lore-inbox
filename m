@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWEJCMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWEJCN4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932405AbWEJCMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 22:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWEJCMB
+	id S932216AbWEJCN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 22:13:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbWEJCNr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 22:12:01 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:32947 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751395AbWEJCLu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 22:11:50 -0400
-Date: Tue, 9 May 2006 21:11:35 -0500
+	Tue, 9 May 2006 22:13:47 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:60904 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932216AbWEJCLy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 May 2006 22:11:54 -0400
+Date: Tue, 9 May 2006 21:11:51 -0500
 From: "Serge E. Hallyn" <serue@us.ibm.com>
 To: Andi Kleen <ak@suse.de>
 Cc: linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>,
        herbert@13thfloor.at, dev@sw.ru, sam@vilain.net, xemul@sw.ru,
        haveblue@us.ibm.com, clg@fr.ibm.com, frankeh@us.ibm.com
-Subject: [PATCH 2/9] nsproxy: incorporate fs namespace
-Message-ID: <20060510021135.GC32523@sergelap.austin.ibm.com>
-References: <29vfyljM-1.2006059-s@us.ibm.com>
+Subject: [PATCH 6/9] uts namespaces: implement utsname namespaces
+Message-ID: <20060510021151.GG32523@sergelap.austin.ibm.com>
+References: <29vfyljM-5.2006059-s@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,272 +25,350 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Incorporate fs namespace into nsproxy.
+This patch defines the uts namespace and some manipulators.
+Adds the uts namespace to task_struct, and initializes a
+system-wide init namespace.
+
+It leaves a #define for system_utsname so sysctl will compile.
+This define will be removed in a separate patch.
+
+Changes:
+	Moved code from init/version.c to kernel/utsname.c.
+	Modified the clone/unshare functions to better fit
+		unsharing at clone and sys_unshare, vs allowing
+		other parts of the kernel to unshare.
 
 Signed-off-by: Serge Hallyn <serue@us.ibm.com>
 
 ---
 
- fs/namespace.c            |   21 +++++++++++++--------
- fs/proc/base.c            |    5 +++--
- include/linux/init_task.h |    1 +
- include/linux/namespace.h |    6 ++----
- include/linux/nsproxy.h   |    3 +++
- include/linux/sched.h     |    4 +---
- kernel/exit.c             |    7 +++----
- kernel/fork.c             |    6 +++---
- 8 files changed, 29 insertions(+), 24 deletions(-)
+ include/linux/init_task.h |    2 ++
+ include/linux/nsproxy.h   |    1 +
+ include/linux/sched.h     |    1 +
+ include/linux/utsname.h   |   55 ++++++++++++++++++++++++++++++++++++++++++---
+ init/Kconfig              |    8 +++++++
+ init/version.c            |   22 +++++++++++-------
+ kernel/Makefile           |    1 +
+ kernel/exit.c             |    7 +++++-
+ kernel/fork.c             |    7 +++++-
+ kernel/utsname.c          |   43 +++++++++++++++++++++++++++++++++++
+ 10 files changed, 132 insertions(+), 15 deletions(-)
+ create mode 100644 kernel/utsname.c
 
-8095ae8032ce2164e7177fb2d254629e7851947c
-diff --git a/fs/namespace.c b/fs/namespace.c
-index 2c5f1f8..851a02d 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -133,7 +133,7 @@ struct vfsmount *lookup_mnt(struct vfsmo
- 
- static inline int check_mnt(struct vfsmount *mnt)
- {
--	return mnt->mnt_namespace == current->namespace;
-+	return mnt->mnt_namespace == current->nsproxy->namespace;
- }
- 
- static void touch_namespace(struct namespace *ns)
-@@ -832,7 +832,7 @@ static int attach_recursive_mnt(struct v
- 	if (parent_nd) {
- 		detach_mnt(source_mnt, parent_nd);
- 		attach_mnt(source_mnt, nd);
--		touch_namespace(current->namespace);
-+		touch_namespace(current->nsproxy->namespace);
- 	} else {
- 		mnt_set_mountpoint(dest_mnt, dest_dentry, source_mnt);
- 		commit_tree(source_mnt);
-@@ -1372,7 +1372,7 @@ dput_out:
-  */
- struct namespace *dup_namespace(struct task_struct *tsk, struct fs_struct *fs)
- {
--	struct namespace *namespace = tsk->namespace;
-+	struct namespace *namespace = tsk->nsproxy->namespace;
- 	struct namespace *new_ns;
- 	struct vfsmount *rootmnt = NULL, *pwdmnt = NULL, *altrootmnt = NULL;
- 	struct vfsmount *p, *q;
-@@ -1439,7 +1439,7 @@ struct namespace *dup_namespace(struct t
- 
- int copy_namespace(int flags, struct task_struct *tsk)
- {
--	struct namespace *namespace = tsk->namespace;
-+	struct namespace *namespace = tsk->nsproxy->namespace;
- 	struct namespace *new_ns;
- 	int err = 0;
- 
-@@ -1462,7 +1462,7 @@ int copy_namespace(int flags, struct tas
- 		goto out;
- 	}
- 
--	tsk->namespace = new_ns;
-+	tsk->nsproxy->namespace = new_ns;
- 
- out:
- 	put_namespace(namespace);
-@@ -1685,7 +1685,7 @@ asmlinkage long sys_pivot_root(const cha
- 	detach_mnt(user_nd.mnt, &root_parent);
- 	attach_mnt(user_nd.mnt, &old_nd);     /* mount old root on put_old */
- 	attach_mnt(new_nd.mnt, &root_parent); /* mount new_root on / */
--	touch_namespace(current->namespace);
-+	touch_namespace(current->nsproxy->namespace);
- 	spin_unlock(&vfsmount_lock);
- 	chroot_fs_refs(&user_nd, &new_nd);
- 	security_sb_post_pivotroot(&user_nd, &new_nd);
-@@ -1727,11 +1727,16 @@ static void __init init_mount_tree(void)
- 	namespace->root = mnt;
- 	mnt->mnt_namespace = namespace;
- 
--	init_task.namespace = namespace;
-+	init_task.nsproxy->namespace = namespace;
- 	read_lock(&tasklist_lock);
- 	do_each_thread(g, p) {
-+		/* do we want namespace count to be #nsproxies,
-+		 * or # processes pointing to the namespace? */
- 		get_namespace(namespace);
--		p->namespace = namespace;
-+#if 0
-+		/* should only be 1 nsproxy so far */
-+		p->nsproxy->namespace = namespace;
-+#endif
- 	} while_each_thread(g, p);
- 	read_unlock(&tasklist_lock);
- 
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 6cc77dc..f74acae 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -72,6 +72,7 @@ #include <linux/seccomp.h>
- #include <linux/cpuset.h>
- #include <linux/audit.h>
- #include <linux/poll.h>
-+#include <linux/nsproxy.h>
- #include "internal.h"
- 
- /*
-@@ -685,7 +686,7 @@ static int mounts_open(struct inode *ino
- 	int ret = -EINVAL;
- 
- 	task_lock(task);
--	namespace = task->namespace;
-+	namespace = task->nsproxy->namespace;
- 	if (namespace)
- 		get_namespace(namespace);
- 	task_unlock(task);
-@@ -752,7 +753,7 @@ static int mountstats_open(struct inode 
- 		struct seq_file *m = file->private_data;
- 		struct namespace *namespace;
- 		task_lock(task);
--		namespace = task->namespace;
-+		namespace = task->nsproxy->namespace;
- 		if (namespace)
- 			get_namespace(namespace);
- 		task_unlock(task);
+d7e342120496af2cd8520bc89f7b1e54b7ab2749
 diff --git a/include/linux/init_task.h b/include/linux/init_task.h
-index 79ec4ea..672dc04 100644
+index 672dc04..ceb68b7 100644
 --- a/include/linux/init_task.h
 +++ b/include/linux/init_task.h
-@@ -70,6 +70,7 @@ extern struct nsproxy init_nsproxy;
+@@ -3,6 +3,7 @@ #define _LINUX__INIT_TASK_H
+ 
+ #include <linux/file.h>
+ #include <linux/rcupdate.h>
++#include <linux/utsname.h>
+ 
+ #define INIT_FDTABLE \
+ {							\
+@@ -70,6 +71,7 @@ extern struct nsproxy init_nsproxy;
  #define INIT_NSPROXY(nsproxy) {						\
  	.count		= ATOMIC_INIT(1),				\
  	.nslock		= SPIN_LOCK_UNLOCKED,				\
-+	.namespace	= NULL,						\
++	.uts_ns		= &init_uts_ns,					\
+ 	.namespace	= NULL,						\
  }
  
- #define INIT_SIGHAND(sighand) {						\
-diff --git a/include/linux/namespace.h b/include/linux/namespace.h
-index 3abc8e3..d137009 100644
---- a/include/linux/namespace.h
-+++ b/include/linux/namespace.h
-@@ -4,6 +4,7 @@ #ifdef __KERNEL__
- 
- #include <linux/mount.h>
- #include <linux/sched.h>
-+#include <linux/nsproxy.h>
- 
- struct namespace {
- 	atomic_t		count;
-@@ -26,11 +27,8 @@ static inline void put_namespace(struct 
- 
- static inline void exit_namespace(struct task_struct *p)
- {
--	struct namespace *namespace = p->namespace;
-+	struct namespace *namespace = p->nsproxy->namespace;
- 	if (namespace) {
--		task_lock(p);
--		p->namespace = NULL;
--		task_unlock(p);
- 		put_namespace(namespace);
- 	}
- }
 diff --git a/include/linux/nsproxy.h b/include/linux/nsproxy.h
-index 065107d..64e9075 100644
+index 64e9075..18fcd8f 100644
 --- a/include/linux/nsproxy.h
 +++ b/include/linux/nsproxy.h
-@@ -4,9 +4,12 @@ #define _LINUX_NSPROXY_H
- #include <linux/spinlock.h>
- #include <linux/sched.h>
- 
-+struct namespace;
-+
+@@ -9,6 +9,7 @@ struct namespace;
  struct nsproxy {
  	atomic_t count;
  	spinlock_t nslock;
-+	struct namespace *namespace;
++	struct uts_namespace *uts_ns;
+ 	struct namespace *namespace;
  };
  extern struct nsproxy init_nsproxy;
- 
 diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 4c0bbb3..f2c945b 100644
+index f2c945b..3332d5e 100644
 --- a/include/linux/sched.h
 +++ b/include/linux/sched.h
-@@ -235,7 +235,6 @@ extern signed long schedule_timeout_inte
- extern signed long schedule_timeout_uninterruptible(signed long timeout);
- asmlinkage void schedule(void);
+@@ -685,6 +685,7 @@ #endif
+ struct audit_context;		/* See audit.c */
+ struct mempolicy;
+ struct pipe_inode_info;
++struct uts_namespace;
  
--struct namespace;
- struct nsproxy;
+ enum sleep_type {
+ 	SLEEP_NORMAL,
+diff --git a/include/linux/utsname.h b/include/linux/utsname.h
+index 8f0decf..b6b9801 100644
+--- a/include/linux/utsname.h
++++ b/include/linux/utsname.h
+@@ -1,6 +1,11 @@
+ #ifndef _LINUX_UTSNAME_H
+ #define _LINUX_UTSNAME_H
  
- /* Maximum number of active map areas.. This is a random (large) number */
-@@ -807,8 +806,7 @@ #endif
- 	struct fs_struct *fs;
- /* open file information */
- 	struct files_struct *files;
--/* namespace */
--	struct namespace *namespace;
-+/* namespaces */
- 	struct nsproxy *nsproxy;
- /* signal handlers */
- 	struct signal_struct *signal;
++#include <linux/sched.h>
++#include <linux/kref.h>
++#include <linux/nsproxy.h>
++#include <asm/atomic.h>
++
+ #define __OLD_UTS_LEN 8
+ 
+ struct oldold_utsname {
+@@ -30,15 +35,57 @@ struct new_utsname {
+ 	char domainname[65];
+ };
+ 
+-extern struct new_utsname system_utsname;
++struct uts_namespace {
++	struct kref kref;
++	struct new_utsname name;
++};
++extern struct uts_namespace init_uts_ns;
++
++static inline void get_uts_ns(struct uts_namespace *ns)
++{
++	kref_get(&ns->kref);
++}
++
++#ifdef CONFIG_UTS_NS
++extern int copy_utsname(int flags, struct task_struct *tsk);
++extern void free_uts_ns(struct kref *kref);
++
++static inline void put_uts_ns(struct uts_namespace *ns)
++{
++	kref_put(&ns->kref, free_uts_ns);
++}
+ 
+-static inline struct new_utsname *utsname(void) {
+-	return &system_utsname;
++static inline void exit_utsname(struct task_struct *p)
++{
++	struct uts_namespace *uts_ns = p->nsproxy->uts_ns;
++	if (uts_ns) {
++		put_uts_ns(uts_ns);
++	}
++}
++
++#else
++static inline int copy_utsname(int flags, struct task_struct *tsk)
++{
++	return 0;
++}
++static inline void put_uts_ns(struct uts_namespace *ns)
++{
++}
++static inline void exit_utsname(struct task_struct *p)
++{
++}
++#endif
++
++static inline struct new_utsname *utsname(void)
++{
++	return &current->nsproxy->uts_ns->name;
+ }
+ 
+ static inline struct new_utsname *init_utsname(void) {
+-	return &system_utsname;
++	return &init_uts_ns.name;
+ }
+ 
++#define system_utsname init_uts_ns.name
++
+ extern struct rw_semaphore uts_sem;
+ #endif
+diff --git a/init/Kconfig b/init/Kconfig
+index 3b36a1d..8460e5a 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -166,6 +166,14 @@ config SYSCTL
+ 	  building a kernel for install/rescue disks or your system is very
+ 	  limited in memory.
+ 
++config UTS_NS
++	bool "UTS Namespaces"
++	default n
++	help
++	  Support uts namespaces.  This allows containers, i.e.
++	  vservers, to use uts namespaces to provide different
++	  uts info for different servers.  If unsure, say N.
++
+ config AUDIT
+ 	bool "Auditing support"
+ 	depends on NET
+diff --git a/init/version.c b/init/version.c
+index 3ddc3ce..78cef48 100644
+--- a/init/version.c
++++ b/init/version.c
+@@ -11,23 +11,27 @@ #include <linux/module.h>
+ #include <linux/uts.h>
+ #include <linux/utsname.h>
+ #include <linux/version.h>
++#include <linux/sched.h>
+ 
+ #define version(a) Version_ ## a
+ #define version_string(a) version(a)
+ 
+ int version_string(LINUX_VERSION_CODE);
+ 
+-struct new_utsname system_utsname = {
+-	.sysname	= UTS_SYSNAME,
+-	.nodename	= UTS_NODENAME,
+-	.release	= UTS_RELEASE,
+-	.version	= UTS_VERSION,
+-	.machine	= UTS_MACHINE,
+-	.domainname	= UTS_DOMAINNAME,
++struct uts_namespace init_uts_ns = {
++	.kref = {
++		.refcount	= ATOMIC_INIT(2),
++	},
++	.name = {
++		.sysname	= UTS_SYSNAME,
++		.nodename	= UTS_NODENAME,
++		.release	= UTS_RELEASE,
++		.version	= UTS_VERSION,
++		.machine	= UTS_MACHINE,
++		.domainname	= UTS_DOMAINNAME,
++	},
+ };
+ 
+-EXPORT_SYMBOL(system_utsname);
+-
+ const char linux_banner[] =
+ 	"Linux version " UTS_RELEASE " (" LINUX_COMPILE_BY "@"
+ 	LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") " UTS_VERSION "\n";
+diff --git a/kernel/Makefile b/kernel/Makefile
+index 215fb33..ab7426c 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -38,6 +38,7 @@ obj-$(CONFIG_GENERIC_HARDIRQS) += irq/
+ obj-$(CONFIG_SECCOMP) += seccomp.o
+ obj-$(CONFIG_RCU_TORTURE_TEST) += rcutorture.o
+ obj-$(CONFIG_RELAY) += relay.o
++obj-$(CONFIG_UTS_NS) += utsname.o
+ 
+ ifneq ($(CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER),y)
+ # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
 diff --git a/kernel/exit.c b/kernel/exit.c
-index 234f5ea..1862d36 100644
+index 1862d36..921a4b7 100644
 --- a/kernel/exit.c
 +++ b/kernel/exit.c
-@@ -14,6 +14,7 @@ #include <linux/capability.h>
+@@ -14,7 +14,7 @@ #include <linux/capability.h>
  #include <linux/completion.h>
  #include <linux/personality.h>
  #include <linux/tty.h>
-+#include <linux/nsproxy.h>
+-#include <linux/nsproxy.h>
++#include <linux/utsname.h>
  #include <linux/namespace.h>
  #include <linux/key.h>
  #include <linux/security.h>
-@@ -36,7 +37,6 @@ #include <linux/futex.h>
- #include <linux/compat.h>
- #include <linux/pipe_fs_i.h>
- #include <linux/audit.h> /* for audit_free() */
--#include <linux/nsproxy.h>
- 
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-@@ -416,11 +416,10 @@ void daemonize(const char *name, ...)
+@@ -415,11 +415,15 @@ void daemonize(const char *name, ...)
+ 	fs = init_task.fs;
  	current->fs = fs;
  	atomic_inc(&fs->count);
++
++	exit_utsname(current);
  	exit_namespace(current);
--	current->namespace = init_task.namespace;
--	get_namespace(current->namespace);
  	exit_nsproxy(current);
  	current->nsproxy = init_task.nsproxy;
  	get_nsproxy(current->nsproxy);
-+	get_namespace(current->nsproxy->namespace);
+ 	get_namespace(current->nsproxy->namespace);
++	get_uts_ns(current->nsproxy->uts_ns);
++
   	exit_files(current);
  	current->files = init_task.files;
  	atomic_inc(&current->files->count);
-@@ -923,7 +922,7 @@ #endif
+@@ -922,6 +926,7 @@ #endif
  	exit_sem(tsk);
  	__exit_files(tsk);
  	__exit_fs(tsk);
--	exit_namespace(tsk);
-+	exit_namespace(current);
++	exit_utsname(current);
+ 	exit_namespace(current);
  	exit_nsproxy(current);
  	exit_thread();
- 	cpuset_exit(tsk);
 diff --git a/kernel/fork.c b/kernel/fork.c
-index 9b6f1de..06cc87a 100644
+index 06cc87a..4d7cbae 100644
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
-@@ -1472,7 +1472,7 @@ static int unshare_fs(unsigned long unsh
-  */
- static int unshare_namespace(unsigned long unshare_flags, struct namespace **new_nsp, struct fs_struct *new_fs)
- {
--	struct namespace *ns = current->namespace;
-+	struct namespace *ns = current->nsproxy->namespace;
+@@ -45,6 +45,7 @@ #include <linux/rmap.h>
+ #include <linux/acct.h>
+ #include <linux/cn_proc.h>
+ #include <linux/nsproxy.h>
++#include <linux/utsname.h>
  
- 	if ((unshare_flags & CLONE_NEWNS) &&
- 	    (ns && atomic_read(&ns->count) > 1)) {
-@@ -1609,8 +1609,8 @@ asmlinkage long sys_unshare(unsigned lon
- 		}
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+@@ -1063,8 +1064,10 @@ #endif
+ 		goto bad_fork_cleanup_mm;
+ 	if ((retval = copy_nsproxy(clone_flags, p)))
+ 		goto bad_fork_cleanup_keys;
+-	if ((retval = copy_namespace(clone_flags, p)))
++	if ((retval = copy_utsname(clone_flags, p)))
+ 		goto bad_fork_cleanup_nsproxy;
++	if ((retval = copy_namespace(clone_flags, p)))
++		goto bad_fork_cleanup_utsname;
+ 	retval = copy_thread(0, clone_flags, stack_start, stack_size, p, regs);
+ 	if (retval)
+ 		goto bad_fork_cleanup_namespace;
+@@ -1221,6 +1224,8 @@ #endif
  
- 		if (new_ns) {
--			ns = current->namespace;
--			current->namespace = new_ns;
-+			ns = current->nsproxy->namespace;
-+			current->nsproxy->namespace = new_ns;
- 			new_ns = ns;
- 		}
- 
+ bad_fork_cleanup_namespace:
+ 	exit_namespace(p);
++bad_fork_cleanup_utsname:
++	exit_utsname(p);
+ bad_fork_cleanup_nsproxy:
+ 	exit_nsproxy(p);
+ bad_fork_cleanup_keys:
+diff --git a/kernel/utsname.c b/kernel/utsname.c
+new file mode 100644
+index 0000000..2818c9b
+--- /dev/null
++++ b/kernel/utsname.c
+@@ -0,0 +1,43 @@
++/*
++ *  Copyright (C) 2004 IBM Corporation
++ *
++ *  Author: Serge Hallyn <serue@us.ibm.com>
++ *
++ *  This program is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU General Public License as
++ *  published by the Free Software Foundation, version 2 of the
++ *  License.
++ */
++
++#include <linux/compile.h>
++#include <linux/module.h>
++#include <linux/uts.h>
++#include <linux/utsname.h>
++#include <linux/version.h>
++
++/*
++ * Copy task tsk's utsname namespace, or clone it if flags
++ * specifies CLONE_NEWUTS.  In latter case, changes to the
++ * utsname of this process won't be seen by parent, and vice
++ * versa.
++ */
++int copy_utsname(int flags, struct task_struct *tsk)
++{
++	struct uts_namespace *old_ns = tsk->nsproxy->uts_ns;
++	int err = 0;
++	
++	if (!old_ns)
++		return 0;
++
++	get_uts_ns(old_ns);
++
++	return err;
++}
++
++void free_uts_ns(struct kref *kref)
++{
++	struct uts_namespace *ns;
++
++	ns = container_of(kref, struct uts_namespace, kref);
++	kfree(ns);
++}
 -- 
 1.3.0
 

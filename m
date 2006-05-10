@@ -1,48 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbWEJQ1Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbWEJQ1v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965013AbWEJQ1Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 12:27:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWEJQ1Q
+	id S965015AbWEJQ1v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 12:27:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWEJQ1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 12:27:16 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14092 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S965013AbWEJQ1P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 12:27:15 -0400
-Date: Wed, 10 May 2006 17:27:08 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Dave Jiang <djiang@mvista.com>
-Cc: linux-kernel@vger.kernel.org, mgreer@mvista.com
-Subject: Re: [PATCH] MPSC serial driver tx locking
-Message-ID: <20060510162708.GD32632@flint.arm.linux.org.uk>
-Mail-Followup-To: Dave Jiang <djiang@mvista.com>,
-	linux-kernel@vger.kernel.org, mgreer@mvista.com
-References: <20060510003552.GB22447@blade.az.mvista.com>
+	Wed, 10 May 2006 12:27:51 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:9924 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965015AbWEJQ1u
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 12:27:50 -0400
+Subject: Re: Updated libata PATA patch
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kevin Radloff <radsaq@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3b0ffc1f0605100905x18d07f76jda38d1807cf9e9d7@mail.gmail.com>
+References: <1147196676.3172.133.camel@localhost.localdomain>
+	 <3b0ffc1f0605091848med1f37ua83c283a922ea682@mail.gmail.com>
+	 <1147270145.17886.42.camel@localhost.localdomain>
+	 <3b0ffc1f0605100905x18d07f76jda38d1807cf9e9d7@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 10 May 2006 17:39:58 +0100
+Message-Id: <1147279198.19935.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060510003552.GB22447@blade.az.mvista.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 09, 2006 at 05:35:52PM -0700, Dave Jiang wrote:
-> @@ -1997,7 +2018,7 @@ mpsc_drv_probe(struct platform_device *d
->  			if (!(rc = mpsc_make_ready(pi)))
->  				if (!(rc = uart_add_one_port(&mpsc_reg,
->  					&pi->port)))
-> -					rc = 0;
-> +					spin_lock_init(&pi->tx_lock);
+On Mer, 2006-05-10 at 12:05 -0400, Kevin Radloff wrote:
+> >         ae.irq_flags = SA_SHIRQ ?
+> 
+> Another new and exciting oops :)
 
-You publish the port to the uart layer and then do initialisation.
-What if someone nips in and starts using the port between registering
-it and initialising the spinlock?  (that's a general principle - for
-any device driver, never publish the device interfaces until you've
-completed all initialisation.)
+Yay, so that one was the PCMCIA code being broken.
 
-Why not do the spinlock initialisation first?
+> pcmcia: registering new device pcmcia1.0
+> ata3: PATA max PIO0 cmd 0x3100 ctl 0x310E bmdma 0x0 irq 11
+> ata3: dev 0 cfg 49:0200 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000 88:0000
+> ata3: dev 0 ATA-10, max PIO4, 2001888 sectors: LBA
+> ata3: dev 0 configured for PIO0
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+This is all good. Its a PIO0 device (PCMCIA is ISA cycles which are PIO0
+cycles)
+
+> scsi2 : pata_pcmcia
+>   Vendor: ATA       Model: SanDisk SDCFH-10  Rev: HDX
+>   Type:   Direct-Access                      ANSI SCSI revision: 05
+> SCSI device sdb: 2001888 512-byte hdwr sectors (1025 MB)
+
+The disk was found and the indentify data came out correctly.
+
+> sdb: Write Protect is off
+> sdb: Mode Sense: 00 3a 00 00
+> SCSI device sdb: drive cache: write through
+> SCSI device sdb: 2001888 512-byte hdwr sectors (1025 MB)
+> sdb: Write Protect is off
+> sdb: Mode Sense: 00 3a 00 00
+> SCSI device sdb: drive cache: write through
+
+The drive was sized, the cache checked properly.
+
+>  sdb:<1>BUG: unable to handle kernel NULL pointer dereference at
+> virtual address 00000000
+
+Awww.. how to ruin a good day 8)
+
+At this point its trying to read the partition table. It has translated
+the command into a SCSI command block and into ATA,. It has queued it,
+and it has just set out to issue it when it went boom
+
+I'll do some more digging, but putting printks into ata_qc_issue_prot to
+see where it explodes is the next step I suspect.
+

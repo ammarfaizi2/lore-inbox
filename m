@@ -1,55 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbWEJKWe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbWEJKW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964891AbWEJKWe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 06:22:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbWEJKWe
+	id S964873AbWEJKW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 06:22:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbWEJKW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 06:22:34 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:60894 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964888AbWEJKWd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 06:22:33 -0400
-Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200605100256.k4A2u8bd031779@dwalker1.mvista.com>
-References: <200605100256.k4A2u8bd031779@dwalker1.mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 10 May 2006 11:34:26 +0100
-Message-Id: <1147257266.17886.3.camel@localhost.localdomain>
+	Wed, 10 May 2006 06:22:26 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:21711 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964873AbWEJKWZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 06:22:25 -0400
+Date: Wed, 10 May 2006 15:48:41 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       jlan@engr.sgi.com
+Subject: [PATCH][delayacct] un-inline delayacct_end(), remove initialization of ts (was Re: [Patch 1/8] Setup)
+Message-ID: <20060510101841.GC29432@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+References: <20060502061255.GL13962@in.ibm.com> <20060508142322.71e88a54.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060508142322.71e88a54.akpm@osdl.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-05-09 at 19:56 -0700, Daniel Walker wrote:
-> Fixes the following warnings,
+On Mon, May 08, 2006 at 02:23:22PM -0700, Andrew Morton wrote:
+> Balbir Singh <balbir@in.ibm.com> wrote:
+> >
+> > +static inline void delayacct_end(struct timespec *start, struct timespec *end,
+> > +				u64 *total, u32 *count)
+> > +{
+> > +	struct timespec ts = {0, 0};
+> > +	s64 ns;
+> > +
+> > +	do_posix_clock_monotonic_gettime(end);
+> > +	timespec_sub(&ts, start, end);
+> > +	ns = timespec_to_ns(&ts);
+> > +	if (ns < 0)
+> > +		return;
+> > +
+> > +	spin_lock(&current->delays->lock);
+> > +	*total += ns;
+> > +	(*count)++;
+> > +	spin_unlock(&current->delays->lock);
+> > +}
 > 
-> ipc/sem.c: In function 'sys_semctl':
-> ipc/sem.c:810: warning: 'setbuf.uid' may be used uninitialized in this function
-> ipc/sem.c:810: warning: 'setbuf.gid' may be used uninitialized in this function
-> ipc/sem.c:810: warning: 'setbuf.mode' may be used uninitialized in this function
+> - too large to be inlined
 > 
-> Signed-Off-By: Daniel Walker <dwalker@mvista.com>
-> 
-> Index: linux-2.6.16/ipc/sem.c
-> ===================================================================
-> --- linux-2.6.16.orig/ipc/sem.c
-> +++ linux-2.6.16/ipc/sem.c
-> @@ -807,7 +807,7 @@ static int semctl_down(int semid, int se
->  {
->  	struct sem_array *sma;
->  	int err;
-> -	struct sem_setbuf setbuf;
-> +	struct sem_setbuf setbuf = {0, 0, 0};
+> - The initialisation of `ts' is unneeded (maybe it generated a bogus
+>   warning, but it won't do that if you switch timespec_sub to
+>   return-by-value)
+
+Hi, Andrew,
+
+Here is an update to un-inline delayacct_end() and remove the initialization
+of ts to 0.
+
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs
 
 
-This causes very poor code as its initializing an object on the stack.
-It also appears from inspection to be entirely un-neccessary. Instead
-the compiler needs some help.
+Changelog
+1. Remove inlining of delayacct_end(), the function is too big to be inlined
+2. Remove initialization of ts. 
 
-Hiding warnings like this can be a hazard as it will hide real warnings
-later on.
 
+Signed-off-by: Balbir Singh <balbir@in.ibm.com>
+---
+
+ kernel/delayacct.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -puN kernel/delayacct.c~remove-initialization-of-ts-and-inline kernel/delayacct.c
+--- linux-2.6.17-rc3/kernel/delayacct.c~remove-initialization-of-ts-and-inline	2006-05-10 14:11:21.000000000 +0530
++++ linux-2.6.17-rc3-balbir/kernel/delayacct.c	2006-05-10 14:11:57.000000000 +0530
+@@ -67,10 +67,10 @@ static inline void delayacct_start(struc
+  * its timestamps (@start, @end), accumalator (@total) and @count
+  */
+ 
+-static inline void delayacct_end(struct timespec *start, struct timespec *end,
++static void delayacct_end(struct timespec *start, struct timespec *end,
+ 				u64 *total, u32 *count)
+ {
+-	struct timespec ts = {0, 0};
++	struct timespec ts;
+ 	s64 ns;
+ 
+ 	do_posix_clock_monotonic_gettime(end);
+_

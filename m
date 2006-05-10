@@ -1,86 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbWEJVoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965040AbWEJVqA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964997AbWEJVoI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 17:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965036AbWEJVoI
+	id S965040AbWEJVqA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 17:46:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbWEJVp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 17:44:08 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:8633 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S964997AbWEJVoG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 17:44:06 -0400
-Message-ID: <44625E9B.3090509@myri.com>
-Date: Wed, 10 May 2006 23:43:55 +0200
-From: Brice Goglin <brice@myri.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: netdev@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-CC: LKML <linux-kernel@vger.kernel.org>,
-       "Andrew J. Gallatin" <gallatin@myri.com>
-Subject: [PATCH 6/6] myri10ge - Kconfig and Makefile
-References: <446259A0.8050504@myri.com>
-In-Reply-To: <446259A0.8050504@myri.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 10 May 2006 17:45:59 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:13426 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S965040AbWEJVp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 17:45:58 -0400
+Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
+From: Daniel Walker <dwalker@mvista.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Adrian Bunk <bunk@stusta.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060510213929.GF27946@ftp.linux.org.uk>
+References: <1147273787.17886.46.camel@localhost.localdomain>
+	 <1147273598.21536.92.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <Pine.LNX.4.58.0605101116590.5532@gandalf.stny.rr.com>
+	 <20060510162404.GR3570@stusta.de>
+	 <Pine.LNX.4.58.0605101506540.22959@gandalf.stny.rr.com>
+	 <1147290577.21536.151.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <Pine.LNX.4.58.0605101636580.22959@gandalf.stny.rr.com>
+	 <1147295515.21536.168.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <20060510212058.GE27946@ftp.linux.org.uk>
+	 <1147296822.21536.175.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <20060510213929.GF27946@ftp.linux.org.uk>
+Content-Type: text/plain
+Date: Wed, 10 May 2006 14:45:54 -0700
+Message-Id: <1147297555.21536.177.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 6/6] myri10ge - Kconfig and Makefile
+On Wed, 2006-05-10 at 22:39 +0100, Al Viro wrote:
+> On Wed, May 10, 2006 at 02:33:42PM -0700, Daniel Walker wrote:
+> > > Consider the following scenario:
+> > > 
+> > > 1) gcc gives false positive
+> > > 2) tosser on a rampage "fixes" it
+> > > 3) code is chaged a month later
+> > > 4) a real bug is introduced - one that would be _really_ visible to gcc,
+> > > with "is used" in a warning
+> > > 5) thanks to aforementioned tosser, that bug remains hidden.
+> > 
+> > I don't really see anything new here .. The same sort of stuff can
+> > happen in any code considered for inclusion .. That's what the review
+> > process is for .
+> > 
+> > Real errors can be covered up any number of way ..
+> 
+> One last time: your kind of patches actually increases the odds of new bug
+> staying unnoticed.
 
-Add Kconfig and Makefile support for the myri10ge driver.
+Your using kind of a broad brush .. What do you mean "your kind of
+patches" ?
 
-Signed-off-by: Brice Goglin <brice@myri.com>
-Signed-off-by: Andrew J. Gallatin <gallatin@myri.com>
+> If you really fill the urge to pull a Bunk, do it somewhere else, please -
+> the real thing is already more than sufficiently annoying.
 
- Kconfig           |   16 ++++++++++++++++
- Makefile          |    1 +
- myri10ge/Makefile |    5 +++++
- 3 files changed, 22 insertions(+)
+Huh ?
 
---- linux-mm/drivers/net/Kconfig.old	2006-04-10 03:44:01.000000000 -0700
-+++ linux-mm/drivers/net/Kconfig	2006-04-18 03:49:11.000000000 -0700
-@@ -2327,6 +2327,23 @@ config S2IO_NAPI
- 
- 	  If in doubt, say N.
- 
-+config MYRI10GE
-+	tristate "Myricom Myri-10G Ethernet support"
-+	depends on PCI
-+	select FW_LOADER
-+	select CRC32
-+	---help---
-+	  This driver supports Myricom Myri-10G Dual Protocol interface in
-+	  Ethernet mode. If the eeprom on your board is not recent enough,
-+	  you will need a newer firmware image.
-+	  You may get this image or more information, at:
-+
-+	  <http://www.myri.com/Myri-10G/>
-+
-+	  To compile this driver as a module, choose M here and read
-+	  <file:Documentation/networking/net-modules.txt>.  The module
-+	  will be called myri10ge.
-+
- endmenu
- 
- source "drivers/net/tokenring/Kconfig"
---- linux-mm/drivers/net/Makefile.old	2006-04-08 04:49:53.000000000 -0700
-+++ linux-mm/drivers/net/Makefile	2006-04-21 08:10:27.000000000 -0700
-@@ -192,6 +192,7 @@ obj-$(CONFIG_R8169) += r8169.o
- obj-$(CONFIG_AMD8111_ETH) += amd8111e.o
- obj-$(CONFIG_IBMVETH) += ibmveth.o
- obj-$(CONFIG_S2IO) += s2io.o
-+obj-$(CONFIG_MYRI10GE) += myri10ge/
- obj-$(CONFIG_SMC91X) += smc91x.o
- obj-$(CONFIG_SMC911X) += smc911x.o
- obj-$(CONFIG_DM9000) += dm9000.o
---- /dev/null	2006-04-21 00:45:09.064430000 -0700
-+++ linux-mm/drivers/net/myri10ge/Makefile	2006-04-21 08:14:21.000000000 -0700
-@@ -0,0 +1,5 @@
-+#
-+# Makefile for the Myricom Myri-10G ethernet driver
-+#
-+
-+obj-$(CONFIG_MYRI10GE) += myri10ge.o
-
+Daniel
 

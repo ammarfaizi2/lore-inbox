@@ -1,331 +1,325 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbWEJQDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964999AbWEJQDB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965002AbWEJQDS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 12:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964992AbWEJQCu
+	id S964999AbWEJQDB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 12:03:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbWEJQCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 12:02:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17577 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751490AbWEJQBx (ORCPT
+	Wed, 10 May 2006 12:02:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:43177 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964929AbWEJQCP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 12:01:53 -0400
+	Wed, 10 May 2006 12:02:15 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 07/14] FS-Cache: Provide a filesystem-specific sync'able page bit [try #8]
-Date: Wed, 10 May 2006 17:01:35 +0100
+Subject: [PATCH 09/14] FS-Cache: Avoid ENFILE checking for kernel-specific open files [try #8]
+Date: Wed, 10 May 2006 17:01:39 +0100
 To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
        trond.myklebust@fys.uio.no, aviro@redhat.com
 Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
        nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Message-Id: <20060510160135.9058.74825.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060510160139.9058.48399.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060510160111.9058.55026.stgit@warthog.cambridge.redhat.com>
 References: <20060510160111.9058.55026.stgit@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch provides a filesystem-specific page bit that a filesystem
-can synchronise upon.  This can be used, for example, by a netfs to synchronise
-with CacheFS writing its pages to disk.
+Make it possible to avoid ENFILE checking for kernel specific open files, such
+as are used by the CacheFiles module.
 
-The PG_checked bit is replaced with PG_fs_misc, and various operations are
-provided based upon that.  The *PageChecked() macros still exist, though now
-they just convert to *PageFsMisc() macros.  The name of the "checked" macros
-seems appropriate as they're used for metadata page validation by various
-filesystems.
+After, for example, tarring up a kernel source tree over the network, the
+CacheFiles module may easily have 20000+ files open in the backing filesystem,
+thus causing all non-root processes to be given error ENFILE when they try to
+open a file, socket, pipe, etc..
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/afs/dir.c               |    5 +----
- fs/ext2/dir.c              |    6 +++---
- fs/ext3/inode.c            |   10 +++++-----
- fs/freevxfs/vxfs_subr.c    |    2 +-
- fs/reiserfs/inode.c        |   10 +++++-----
- include/linux/page-flags.h |   15 ++++++++++-----
- include/linux/pagemap.h    |   11 +++++++++++
- mm/filemap.c               |   17 +++++++++++++++++
- mm/migrate.c               |    4 ++--
- mm/page_alloc.c            |    2 +-
- 10 files changed, 56 insertions(+), 26 deletions(-)
+ Documentation/sysctl/fs.txt |    6 ++++-
+ fs/file_table.c             |   48 +++++++++++++++++++++++++++++++++++--------
+ fs/open.c                   |   20 ++++++++++++++++++
+ include/linux/file.h        |    1 -
+ include/linux/fs.h          |   10 +++++++++
+ include/linux/sysctl.h      |    1 +
+ kernel/sysctl.c             |   11 ++++++++++
+ 7 files changed, 86 insertions(+), 11 deletions(-)
 
-diff --git a/fs/afs/dir.c b/fs/afs/dir.c
-index a6dff6a..c23de2b 100644
---- a/fs/afs/dir.c
-+++ b/fs/afs/dir.c
-@@ -155,11 +155,9 @@ #endif
- 		}
- 	}
+diff --git a/Documentation/sysctl/fs.txt b/Documentation/sysctl/fs.txt
+index 0b62c62..ead15f0 100644
+--- a/Documentation/sysctl/fs.txt
++++ b/Documentation/sysctl/fs.txt
+@@ -71,7 +71,7 @@ you might want to raise the limit.
  
--	SetPageChecked(page);
- 	return;
+ ==============================================================
  
-  error:
--	SetPageChecked(page);
- 	SetPageError(page);
+-file-max & file-nr:
++file-max, file-nr & file-kernel:
  
- } /* end afs_dir_check_page() */
-@@ -193,8 +191,7 @@ static struct page *afs_dir_get_page(str
- 		kmap(page);
- 		if (!PageUptodate(page))
- 			goto fail;
--		if (!PageChecked(page))
--			afs_dir_check_page(dir, page);
-+		afs_dir_check_page(dir, page);
- 		if (PageError(page))
- 			goto fail;
- 	}
-diff --git a/fs/ext2/dir.c b/fs/ext2/dir.c
-index d672aa9..cf9cee4 100644
---- a/fs/ext2/dir.c
-+++ b/fs/ext2/dir.c
-@@ -112,7 +112,7 @@ static void ext2_check_page(struct page 
- 	if (offs != limit)
- 		goto Eend;
- out:
--	SetPageChecked(page);
-+	SetPageFsMisc(page);
- 	return;
+ The kernel allocates file handles dynamically, but as yet it
+ doesn't free them again.
+@@ -88,6 +88,10 @@ close to the maximum, but the number of 
+ significantly greater than 0, you've encountered a peak in your 
+ usage of file handles and you don't need to increase the maximum.
  
- 	/* Too bad, we had an error */
-@@ -152,7 +152,7 @@ Eend:
- 		dir->i_ino, (page->index<<PAGE_CACHE_SHIFT)+offs,
- 		(unsigned long) le32_to_cpu(p->inode));
- fail:
--	SetPageChecked(page);
-+	SetPageFsMisc(page);
- 	SetPageError(page);
++The value in file-kernel denotes the number of internal file handles
++that the kernel has open.  These do not contribute to ENFILE
++accounting.
++
+ ==============================================================
+ 
+ inode-max, inode-nr & inode-state:
+diff --git a/fs/file_table.c b/fs/file_table.c
+index bcea199..0b42be9 100644
+--- a/fs/file_table.c
++++ b/fs/file_table.c
+@@ -30,10 +30,13 @@ struct files_stat_struct files_stat = {
+ 	.max_files = NR_FILE
+ };
+ 
++struct files_kernel_stat_struct files_kernel_stat;
++
+ /* public. Not pretty! */
+ __cacheline_aligned_in_smp DEFINE_SPINLOCK(files_lock);
+ 
+ static struct percpu_counter nr_files __cacheline_aligned_in_smp;
++static atomic_t nr_kernel_files;
+ 
+ static inline void file_free_rcu(struct rcu_head *head)
+ {
+@@ -43,7 +46,10 @@ static inline void file_free_rcu(struct 
+ 
+ static inline void file_free(struct file *f)
+ {
+-	percpu_counter_dec(&nr_files);
++	if (f->f_kernel_flags & FKFLAGS_NO_ENFILE)
++		atomic_dec(&nr_kernel_files);
++	else
++		percpu_counter_dec(&nr_files);
+ 	call_rcu(&f->f_u.fu_rcuhead, file_free_rcu);
  }
  
-@@ -166,7 +166,7 @@ static struct page * ext2_get_page(struc
- 		kmap(page);
- 		if (!PageUptodate(page))
- 			goto fail;
--		if (!PageChecked(page))
-+		if (!PageFsMisc(page))
- 			ext2_check_page(page);
- 		if (PageError(page))
- 			goto fail;
-diff --git a/fs/ext3/inode.c b/fs/ext3/inode.c
-index 2edd7ee..2a38eee 100644
---- a/fs/ext3/inode.c
-+++ b/fs/ext3/inode.c
-@@ -1528,12 +1528,12 @@ static int ext3_journalled_writepage(str
- 		goto no_write;
- 	}
- 
--	if (!page_has_buffers(page) || PageChecked(page)) {
-+	if (!page_has_buffers(page) || PageFsMisc(page)) {
- 		/*
- 		 * It's mmapped pagecache.  Add buffers and journal it.  There
- 		 * doesn't seem much point in redirtying the page here.
- 		 */
--		ClearPageChecked(page);
-+		ClearPageFsMisc(page);
- 		ret = block_prepare_write(page, 0, PAGE_CACHE_SIZE,
- 					ext3_get_block);
- 		if (ret != 0) {
-@@ -1590,7 +1590,7 @@ static void ext3_invalidatepage(struct p
- 	 * If it's a full truncate we just forget about the pending dirtying
- 	 */
- 	if (offset == 0)
--		ClearPageChecked(page);
-+		ClearPageFsMisc(page);
- 
- 	journal_invalidatepage(journal, page, offset);
+@@ -74,45 +80,64 @@ int proc_nr_files(ctl_table *table, int 
+ 	files_stat.nr_files = get_nr_files();
+ 	return proc_dointvec(table, write, filp, buffer, lenp, ppos);
  }
-@@ -1599,7 +1599,7 @@ static int ext3_releasepage(struct page 
++int proc_files_kernel(ctl_table *table, int write, struct file *filp,
++		      void __user *buffer, size_t *lenp, loff_t *ppos)
++{
++	files_kernel_stat.nr_kernel_files = atomic_read(&nr_kernel_files);
++	return proc_dointvec(table, write, filp, buffer, lenp, ppos);
++}
+ #else
+ int proc_nr_files(ctl_table *table, int write, struct file *filp,
+                      void __user *buffer, size_t *lenp, loff_t *ppos)
  {
- 	journal_t *journal = EXT3_JOURNAL(page->mapping->host);
- 
--	WARN_ON(PageChecked(page));
-+	WARN_ON(PageFsMisc(page));
- 	if (!page_has_buffers(page))
- 		return 0;
- 	return journal_try_to_free_buffers(journal, page, wait);
-@@ -1695,7 +1695,7 @@ out:
-  */
- static int ext3_journalled_set_page_dirty(struct page *page)
- {
--	SetPageChecked(page);
-+	SetPageFsMisc(page);
- 	return __set_page_dirty_nobuffers(page);
+ 	return -ENOSYS;
  }
- 
-diff --git a/fs/freevxfs/vxfs_subr.c b/fs/freevxfs/vxfs_subr.c
-index 50aae77..e884bfc 100644
---- a/fs/freevxfs/vxfs_subr.c
-+++ b/fs/freevxfs/vxfs_subr.c
-@@ -79,7 +79,7 @@ vxfs_get_page(struct address_space *mapp
- 		kmap(pp);
- 		if (!PageUptodate(pp))
- 			goto fail;
--		/** if (!PageChecked(pp)) **/
-+		/** if (!PageFsMisc(pp)) **/
- 			/** vxfs_check_page(pp); **/
- 		if (PageError(pp))
- 			goto fail;
-diff --git a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
-index 9857e50..3c79e02 100644
---- a/fs/reiserfs/inode.c
-+++ b/fs/reiserfs/inode.c
-@@ -2352,7 +2352,7 @@ static int reiserfs_write_full_page(stru
- 	struct buffer_head *head, *bh;
- 	int partial = 0;
- 	int nr = 0;
--	int checked = PageChecked(page);
-+	int checked = PageFsMisc(page);
- 	struct reiserfs_transaction_handle th;
- 	struct super_block *s = inode->i_sb;
- 	int bh_per_page = PAGE_CACHE_SIZE / s->s_blocksize;
-@@ -2421,7 +2421,7 @@ static int reiserfs_write_full_page(stru
- 	 * blocks we're going to log
- 	 */
- 	if (checked) {
--		ClearPageChecked(page);
-+		ClearPageFsMisc(page);
- 		reiserfs_write_lock(s);
- 		error = journal_begin(&th, s, bh_per_page + 1);
- 		if (error) {
-@@ -2802,7 +2802,7 @@ static void reiserfs_invalidatepage(stru
- 	BUG_ON(!PageLocked(page));
- 
- 	if (offset == 0)
--		ClearPageChecked(page);
-+		ClearPageFsMisc(page);
- 
- 	if (!page_has_buffers(page))
- 		goto out;
-@@ -2843,7 +2843,7 @@ static int reiserfs_set_page_dirty(struc
- {
- 	struct inode *inode = page->mapping->host;
- 	if (reiserfs_file_data_log(inode)) {
--		SetPageChecked(page);
-+		SetPageFsMisc(page);
- 		return __set_page_dirty_nobuffers(page);
- 	}
- 	return __set_page_dirty_buffers(page);
-@@ -2866,7 +2866,7 @@ static int reiserfs_releasepage(struct p
- 	struct buffer_head *bh;
- 	int ret = 1;
- 
--	WARN_ON(PageChecked(page));
-+	WARN_ON(PageFsMisc(page));
- 	spin_lock(&j->j_dirty_buffers_lock);
- 	head = page_buffers(page);
- 	bh = head;
-diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-index d276a4e..7d7ef97 100644
---- a/include/linux/page-flags.h
-+++ b/include/linux/page-flags.h
-@@ -73,7 +73,7 @@ #define PG_lru			 5
- #define PG_active		 6
- #define PG_slab			 7	/* slab debug (Suparna wants this) */
- 
--#define PG_checked		 8	/* kill me in 2.5.<early>. */
-+#define PG_fs_misc		 8
- #define PG_arch_1		 9
- #define PG_reserved		10
- #define PG_private		11	/* Has something at ->private */
-@@ -274,10 +274,6 @@ #else
- #define PageHighMem(page)	0 /* needed to optimize away at compile time */
++int proc_files_kernel(ctl_table *table, int write, struct file *filp,
++		      void __user *buffer, size_t *lenp, loff_t *ppos)
++{
++	return -ENOSYS;
++}
  #endif
  
--#define PageChecked(page)	test_bit(PG_checked, &(page)->flags)
--#define SetPageChecked(page)	set_bit(PG_checked, &(page)->flags)
--#define ClearPageChecked(page)	clear_bit(PG_checked, &(page)->flags)
--
- #define PageReserved(page)	test_bit(PG_reserved, &(page)->flags)
- #define SetPageReserved(page)	set_bit(PG_reserved, &(page)->flags)
- #define ClearPageReserved(page)	clear_bit(PG_reserved, &(page)->flags)
-@@ -376,4 +372,13 @@ static inline void set_page_writeback(st
- 	test_set_page_writeback(page);
+ /* Find an unused file structure and return a pointer to it.
+  * Returns NULL, if there are no more free file structures or
+  * we run out of memory.
+  */
+-struct file *get_empty_filp(void)
++struct file *get_empty_kernel_filp(unsigned short kflags)
+ {
+ 	struct task_struct *tsk;
+ 	static int old_max;
+ 	struct file * f;
+ 
+ 	/*
+-	 * Privileged users can go above max_files
++	 * Privileged users can go above max_files and internal kernel users
++	 * can avoid it completely
+ 	 */
+-	if (get_nr_files() >= files_stat.max_files && !capable(CAP_SYS_ADMIN)) {
++	if (!(kflags & FKFLAGS_NO_ENFILE) &&
++	    get_nr_files() >= files_stat.max_files &&
++	    !capable(CAP_SYS_ADMIN)
++	    ) {
+ 		/*
+-		 * percpu_counters are inaccurate.  Do an expensive check before
+-		 * we go and fail.
++		 * percpu_counters are inaccurate.  Do an expensive
++		 * check before we go and fail.
+ 		 */
+ 		if (percpu_counter_sum(&nr_files) >= files_stat.max_files)
+ 			goto over;
+ 	}
+ 
+-	f = kmem_cache_alloc(filp_cachep, GFP_KERNEL);
++	f = kmem_cache_zalloc(filp_cachep, GFP_KERNEL);
+ 	if (f == NULL)
+ 		goto fail;
+ 
+-	percpu_counter_inc(&nr_files);
+-	memset(f, 0, sizeof(*f));
++	if (kflags & FKFLAGS_NO_ENFILE)
++		atomic_inc(&nr_kernel_files);
++	else
++		percpu_counter_inc(&nr_files);
++
+ 	if (security_file_alloc(f))
+ 		goto fail_sec;
+ 
++	f->f_kernel_flags = kflags;
+ 	tsk = current;
+ 	INIT_LIST_HEAD(&f->f_u.fu_list);
+ 	atomic_set(&f->f_count, 1);
+@@ -138,6 +163,11 @@ fail:
+ 	return NULL;
  }
  
-+/*
-+ * Filesystem-specific page bit testing
-+ */
-+#define PageFsMisc(page)		test_bit(PG_fs_misc, &(page)->flags)
-+#define SetPageFsMisc(page)		set_bit(PG_fs_misc, &(page)->flags)
-+#define TestSetPageFsMisc(page)		test_and_set_bit(PG_fs_misc, &(page)->flags)
-+#define ClearPageFsMisc(page)		clear_bit(PG_fs_misc, &(page)->flags)
-+#define TestClearPageFsMisc(page)	test_and_clear_bit(PG_fs_misc, &(page)->flags)
-+
- #endif	/* PAGE_FLAGS_H */
-diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
-index 7a1af57..049382d 100644
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -208,6 +208,17 @@ static inline void wait_on_page_writebac
- extern void end_page_writeback(struct page *page);
- 
- /*
-+ * Wait for filesystem-specific page synchronisation to complete
-+ */
-+static inline void wait_on_page_fs_misc(struct page *page)
++struct file *get_empty_filp(void)
 +{
-+	if (PageFsMisc(page))
-+		wait_on_page_bit(page, PG_fs_misc);
++	return get_empty_kernel_filp(0);
 +}
 +
-+extern void fastcall end_page_fs_misc(struct page *page);
-+
-+/*
-  * Fault a userspace page into pagetables.  Return non-zero on a fault.
-  *
-  * This assumes that two userspace pages are always sufficient.  That's
-diff --git a/mm/filemap.c b/mm/filemap.c
-index fd57442..02c4925 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -545,6 +545,23 @@ void fastcall __lock_page(struct page *p
- EXPORT_SYMBOL(__lock_page);
+ EXPORT_SYMBOL(get_empty_filp);
+ 
+ void fastcall fput(struct file *file)
+diff --git a/fs/open.c b/fs/open.c
+index c7a48ee..a7d293f 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -974,6 +974,26 @@ struct file *dentry_open(struct dentry *
+ EXPORT_SYMBOL(dentry_open);
  
  /*
-+ * Note completion of filesystem specific page synchronisation
-+ *
-+ * This is used to allow a page to be written to a filesystem cache in the
-+ * background without holding up the completion of readpage
++ * open a specifically in-kernel file
 + */
-+void fastcall end_page_fs_misc(struct page *page)
++struct file *dentry_open_kernel(struct dentry *dentry, struct vfsmount *mnt, int flags)
 +{
-+	smp_mb__before_clear_bit();
-+	if (!TestClearPageFsMisc(page))
-+		BUG();
-+	smp_mb__after_clear_bit();
-+	__wake_up_bit(page_waitqueue(page), &page->flags, PG_fs_misc);
-+}
++	int error;
++	struct file *f;
 +
-+EXPORT_SYMBOL(end_page_fs_misc);
++	error = -ENFILE;
++	f = get_empty_kernel_filp(FKFLAGS_NO_ENFILE);
++	if (f == NULL) {
++		dput(dentry);
++		mntput(mnt);
++		return ERR_PTR(error);
++	}
++
++	return __dentry_open(dentry, mnt, flags, f, NULL);
++}
++EXPORT_SYMBOL_GPL(dentry_open_kernel);
 +
 +/*
-  * a rather lightweight function, finding and getting a reference to a
-  * hashed page atomically.
+  * Find an empty file descriptor entry, and mark it busy.
   */
-diff --git a/mm/migrate.c b/mm/migrate.c
-index 1c25040..bb3f22f 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -272,8 +272,8 @@ void migrate_page_copy(struct page *newp
- 		SetPageUptodate(newpage);
- 	if (PageActive(page))
- 		SetPageActive(newpage);
--	if (PageChecked(page))
--		SetPageChecked(newpage);
-+	if (PageFsMisc(page))
-+		SetPageFsMisc(newpage);
- 	if (PageMappedToDisk(page))
- 		SetPageMappedToDisk(newpage);
+ int get_unused_fd(void)
+diff --git a/include/linux/file.h b/include/linux/file.h
+index 9f7c251..da7be8f 100644
+--- a/include/linux/file.h
++++ b/include/linux/file.h
+@@ -79,7 +79,6 @@ extern void FASTCALL(set_close_on_exec(u
+ extern void put_filp(struct file *);
+ extern int get_unused_fd(void);
+ extern void FASTCALL(put_unused_fd(unsigned int fd));
+-struct kmem_cache;
  
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index ea77c99..b40e04a 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -544,7 +544,7 @@ static int prep_new_page(struct page *pa
+ extern struct file ** alloc_fd_array(int);
+ extern void free_fd_array(struct file **, int);
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index e57518e..cdb0972 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -34,7 +34,11 @@ struct files_stat_struct {
+ 	int nr_free_files;	/* read only */
+ 	int max_files;		/* tunable */
+ };
++struct files_kernel_stat_struct {
++	int nr_kernel_files;	/* read only */
++};
+ extern struct files_stat_struct files_stat;
++extern struct files_kernel_stat_struct files_kernel_stat;
+ extern int get_max_files(void);
  
- 	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
- 			1 << PG_referenced | 1 << PG_arch_1 |
--			1 << PG_checked | 1 << PG_mappedtodisk);
-+			1 << PG_fs_misc | 1 << PG_mappedtodisk);
- 	set_page_private(page, 0);
- 	set_page_refcounted(page);
- 	kernel_map_pages(page, 1 << order, 1);
+ struct inodes_stat_t {
+@@ -70,6 +74,8 @@ #define FMODE_PWRITE	FMODE_PREAD	/* Thes
+    behavior for cross-node execution/opening_for_writing of files */
+ #define FMODE_EXEC	16
+ 
++#define FKFLAGS_NO_ENFILE	1	/* kernel internal file (ignored for ENFILE accounting) */
++
+ #define RW_MASK		1
+ #define RWA_MASK	2
+ #define READ 0
+@@ -640,6 +646,7 @@ struct file {
+ 	atomic_t		f_count;
+ 	unsigned int 		f_flags;
+ 	mode_t			f_mode;
++	unsigned short		f_kernel_flags;
+ 	loff_t			f_pos;
+ 	struct fown_struct	f_owner;
+ 	unsigned int		f_uid, f_gid;
+@@ -1382,6 +1389,7 @@ extern long do_sys_open(int fdf, const c
+ 			int mode);
+ extern struct file *filp_open(const char *, int, int);
+ extern struct file * dentry_open(struct dentry *, struct vfsmount *, int);
++extern struct file * dentry_open_kernel(struct dentry *, struct vfsmount *, int);
+ extern int filp_close(struct file *, fl_owner_t id);
+ extern char * getname(const char __user *);
+ 
+@@ -1583,6 +1591,7 @@ static inline void insert_inode_hash(str
+ }
+ 
+ extern struct file * get_empty_filp(void);
++extern struct file * get_empty_kernel_filp(unsigned short fkflags);
+ extern void file_move(struct file *f, struct list_head *list);
+ extern void file_kill(struct file *f);
+ struct bio;
+@@ -1608,6 +1617,7 @@ extern ssize_t generic_file_direct_write
+ 		unsigned long *, loff_t, loff_t *, size_t, size_t);
+ extern ssize_t generic_file_buffered_write(struct kiocb *, const struct iovec *,
+ 		unsigned long, loff_t, loff_t *, size_t, ssize_t);
++extern int generic_file_buffered_write_one_kernel_page(struct file *, pgoff_t, struct page *);
+ extern ssize_t do_sync_read(struct file *filp, char __user *buf, size_t len, loff_t *ppos);
+ extern ssize_t do_sync_write(struct file *filp, const char __user *buf, size_t len, loff_t *ppos);
+ ssize_t generic_file_write_nolock(struct file *file, const struct iovec *iov,
+diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
+index 76eaeff..8a0d4f8 100644
+--- a/include/linux/sysctl.h
++++ b/include/linux/sysctl.h
+@@ -787,6 +787,7 @@ enum
+ 	FS_AIO_NR=18,	/* current system-wide number of aio requests */
+ 	FS_AIO_MAX_NR=19,	/* system-wide maximum number of aio requests */
+ 	FS_INOTIFY=20,	/* inotify submenu */
++	FS_FILE_KERNEL=21,	/* int: number of internal kernel files */
+ };
+ 
+ /* /proc/sys/fs/quota/ */
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index e82726f..f849104 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -53,6 +53,9 @@ #include <asm/processor.h>
+ extern int proc_nr_files(ctl_table *table, int write, struct file *filp,
+                      void __user *buffer, size_t *lenp, loff_t *ppos);
+ 
++extern int proc_files_kernel(ctl_table *table, int write, struct file *filp,
++                     void __user *buffer, size_t *lenp, loff_t *ppos);
++
+ #if defined(CONFIG_SYSCTL)
+ 
+ /* External variables not in a header file. */
+@@ -956,6 +959,14 @@ static ctl_table fs_table[] = {
+ 		.proc_handler	= &proc_dointvec,
+ 	},
+ 	{
++		.ctl_name	= FS_FILE_KERNEL,
++		.procname	= "file-kernel",
++		.data		= &files_stat,
++		.maxlen		= 1*sizeof(int),
++		.mode		= 0444,
++		.proc_handler	= &proc_files_kernel,
++	},
++	{
+ 		.ctl_name	= FS_DENTRY,
+ 		.procname	= "dentry-state",
+ 		.data		= &dentry_stat,
 

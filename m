@@ -1,36 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbWEJMrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964943AbWEJMsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964950AbWEJMrO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 08:47:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964948AbWEJMrO
+	id S964943AbWEJMsx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 08:48:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbWEJMsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 08:47:14 -0400
-Received: from taurus.voltaire.com ([193.47.165.240]:4203 "EHLO
-	taurus.voltaire.com") by vger.kernel.org with ESMTP id S964943AbWEJMrN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 08:47:13 -0400
-Date: Wed, 10 May 2006 15:46:00 +0300
-From: Gleb Natapov <gleb@minantech.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, akpm@osdl.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Document futex PI design
-Message-ID: <20060510124600.GN5319@minantech.com>
-References: <Pine.LNX.4.58.0605090954150.7007@gandalf.stny.rr.com> <Pine.LNX.4.58.0605100331290.31598@gandalf.stny.rr.com> <Pine.LNX.4.58.0605100429220.436@gandalf.stny.rr.com> <20060510101729.GB31504@elte.hu> <Pine.LNX.4.58.0605100657510.2485@gandalf.stny.rr.com>
+	Wed, 10 May 2006 08:48:53 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:11984 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S964943AbWEJMsw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 08:48:52 -0400
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       herbert@13thfloor.at, dev@sw.ru, sam@vilain.net, xemul@sw.ru,
+       haveblue@us.ibm.com, clg@fr.ibm.com, frankeh@us.ibm.com
+Subject: Re: [PATCH 2/9] nsproxy: incorporate fs namespace
+References: <29vfyljM-1.2006059-s@us.ibm.com>
+	<20060510021135.GC32523@sergelap.austin.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 10 May 2006 06:46:25 -0600
+In-Reply-To: <20060510021135.GC32523@sergelap.austin.ibm.com> (Serge E.
+ Hallyn's message of "Tue, 9 May 2006 21:11:35 -0500")
+Message-ID: <m1k68uvyhq.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0605100657510.2485@gandalf.stny.rr.com>
-X-OriginalArrivalTime: 10 May 2006 12:47:12.0264 (UTC) FILETIME=[DB911080:01C6742F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 10, 2006 at 06:59:49AM -0400, Steven Rostedt wrote:
-> +lock	 - In this document from now on, the term lock and spin lock will
-> +	   be synonymous.  These are locks that are used for SMP as well
-> +	   as turning off preemption to protect areas of code on SMP machines.
-Should the last SMP be UP?
+"Serge E. Hallyn" <serue@us.ibm.com> writes:
 
---
-			Gleb.
+
+> @@ -1727,11 +1727,16 @@ static void __init init_mount_tree(void)
+>  	namespace->root = mnt;
+>  	mnt->mnt_namespace = namespace;
+>  
+> -	init_task.namespace = namespace;
+> +	init_task.nsproxy->namespace = namespace;
+>  	read_lock(&tasklist_lock);
+>  	do_each_thread(g, p) {
+> +		/* do we want namespace count to be #nsproxies,
+> +		 * or # processes pointing to the namespace? */
+
+I am fairly certain we want the count to be #nsproxies.
+
+>  		get_namespace(namespace);
+> -		p->namespace = namespace;
+> +#if 0
+> +		/* should only be 1 nsproxy so far */
+> +		p->nsproxy->namespace = namespace;
+> +#endif
+>  	} while_each_thread(g, p);
+>  	read_unlock(&tasklist_lock);
+
+So I think this bit is wrong.

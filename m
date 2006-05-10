@@ -1,70 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965035AbWEJVpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbWEJVsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965035AbWEJVpo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 17:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965036AbWEJVpo
+	id S965041AbWEJVsN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 17:48:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbWEJVsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 17:45:44 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:41674 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965035AbWEJVpn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 17:45:43 -0400
-Subject: Re: [RFC] Hugetlb demotion for x86
-From: Adam Litke <agl@us.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-mm@kvack.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060510204928.GA31315@infradead.org>
-References: <1147287400.24029.81.camel@localhost.localdomain>
-	 <20060510200516.GA30346@infradead.org>
-	 <1147293156.24029.95.camel@localhost.localdomain>
-	 <20060510204928.GA31315@infradead.org>
-Content-Type: text/plain
-Organization: IBM
-Date: Wed, 10 May 2006 16:45:35 -0500
-Message-Id: <1147297535.24029.114.camel@localhost.localdomain>
+	Wed, 10 May 2006 17:48:13 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:22686 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965042AbWEJVsL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 17:48:11 -0400
+Date: Wed, 10 May 2006 22:48:04 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Adrian Bunk <bunk@stusta.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
+Message-ID: <20060510214804.GG27946@ftp.linux.org.uk>
+References: <Pine.LNX.4.58.0605101116590.5532@gandalf.stny.rr.com> <20060510162404.GR3570@stusta.de> <Pine.LNX.4.58.0605101506540.22959@gandalf.stny.rr.com> <1147290577.21536.151.camel@c-67-180-134-207.hsd1.ca.comcast.net> <Pine.LNX.4.58.0605101636580.22959@gandalf.stny.rr.com> <1147295515.21536.168.camel@c-67-180-134-207.hsd1.ca.comcast.net> <20060510212058.GE27946@ftp.linux.org.uk> <1147296822.21536.175.camel@c-67-180-134-207.hsd1.ca.comcast.net> <20060510213929.GF27946@ftp.linux.org.uk> <1147297555.21536.177.camel@c-67-180-134-207.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1147297555.21536.177.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-10 at 21:49 +0100, Christoph Hellwig wrote:
-> On Wed, May 10, 2006 at 03:32:36PM -0500, Adam Litke wrote:
-> > By smart fallback do you mean we should convert the hugetlb fault code
-> > back to using VM_FAULT_SIGBUS and writing userspace sighandlers to do
-> > the same thing I am, but in userspace?  FWIW I did implement that in
-> > libhugetlbfs to try it out, but that seems much dirtier to me than
-> > handling faults in the kernel.
+On Wed, May 10, 2006 at 02:45:54PM -0700, Daniel Walker wrote:
+> > One last time: your kind of patches actually increases the odds of new bug
+> > staying unnoticed.
 > 
-> Umm, why do these faults happen at all?  When all the hugetlb code went
-> in it we allocated at mmap time.  Later it was converted to demand faulting
-> but under the premise that we keep the strict overcommit accounting.  When
-> did that part go away aswell?  With strict overcommit handling for huge
-> pages no fault should happen when the pool is exausted.
+> Your using kind of a broad brush .. What do you mean "your kind of
+> patches" ?
 
-Strict overcommit is there for shared mappings.  When private mapping
-support was added, people agreed that full overcommit should apply to
-private mappings for the same reasons normal page overcommit is desired.
-For one: an application using lots of private huge pages should not be
-prohibited from forking if it's likely to just exec a small helper
-program.
-
-"These faults" are happening in two cases when MAP_PRIVATE huge pages
-are being used:
-1) Fault on an uninstantiated huge page: This can happen when numerous
-users of huge pages in the system are competing for a finite number of
-huge pages.  Even if the process checks for free huge pages before
-mmaping the area, another process is free to "steal" those pages out
-from under the careful process.
-
-2) COW fault on an instantiated huge page:  Happens in child processes
-who inherit a private hugetlb region and write to it.
-
-Both of these cases are non-deterministic and should be handled in some
-way.  Just killing the process doesn't seem like a permanent solution to
-me.
-
--- 
-Adam Litke - (agl at us.ibm.com)
-IBM Linux Technology Center
-
+"Just to make gcc STFU" variety you seem to be advocating in these threads.

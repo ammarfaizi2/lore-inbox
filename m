@@ -1,80 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbWEJVeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWEJVdp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964920AbWEJVeU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 17:34:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbWEJVeU
+	id S964898AbWEJVdp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 17:33:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbWEJVdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 17:34:20 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:11448 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S964866AbWEJVeT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 17:34:19 -0400
-Message-ID: <44625C51.5060401@myri.com>
-Date: Wed, 10 May 2006 23:34:09 +0200
-From: Brice Goglin <brice@myri.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: netdev@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-CC: LKML <linux-kernel@vger.kernel.org>,
-       "Andrew J. Gallatin" <gallatin@myri.com>
-Subject: [PATCH 1/6] myri10ge - Revive pci_find_ext_capability
-References: <446259A0.8050504@myri.com>
-In-Reply-To: <446259A0.8050504@myri.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 10 May 2006 17:33:45 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:4455 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S964898AbWEJVdp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 17:33:45 -0400
+Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
+From: Daniel Walker <dwalker@mvista.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Adrian Bunk <bunk@stusta.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060510212058.GE27946@ftp.linux.org.uk>
+References: <1147257266.17886.3.camel@localhost.localdomain>
+	 <1147271489.21536.70.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <1147273787.17886.46.camel@localhost.localdomain>
+	 <1147273598.21536.92.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <Pine.LNX.4.58.0605101116590.5532@gandalf.stny.rr.com>
+	 <20060510162404.GR3570@stusta.de>
+	 <Pine.LNX.4.58.0605101506540.22959@gandalf.stny.rr.com>
+	 <1147290577.21536.151.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <Pine.LNX.4.58.0605101636580.22959@gandalf.stny.rr.com>
+	 <1147295515.21536.168.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <20060510212058.GE27946@ftp.linux.org.uk>
+Content-Type: text/plain
+Date: Wed, 10 May 2006 14:33:42 -0700
+Message-Id: <1147296822.21536.175.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 1/6] myri10ge - Revive pci_find_ext_capability
+On Wed, 2006-05-10 at 22:20 +0100, Al Viro wrote:
+> On Wed, May 10, 2006 at 02:11:54PM -0700, Daniel Walker wrote:
+> > > I really don't see why it couldn't be added.  What's the problem with it?
+> > > 
+> > > I mean, I see lots of advantages, and really no disadvantages.
+> 
+> Your vision is quite selective, then.
+>  
+> > We are in complete agreement .. The only disadvantage is maybe we cover
+> > up and real error
+> 
+> ... which is more than enough to veto it.  However, that is not all.
+> Consider the following scenario:
+> 
+> 1) gcc gives false positive
+> 2) tosser on a rampage "fixes" it
+> 3) code is chaged a month later
+> 4) a real bug is introduced - one that would be _really_ visible to gcc,
+> with "is used" in a warning
+> 5) thanks to aforementioned tosser, that bug remains hidden.
 
-This patch revives pci_find_ext_capability (has been disabled a couple month
-ago since it was not used anywhere. See http://lkml.org/lkml/2006/1/20/247).
-It will now be used by the myri10ge driver.
+I don't really see anything new here .. The same sort of stuff can
+happen in any code considered for inclusion .. That's what the review
+process is for .
 
-Signed-off-by: Brice Goglin <brice@myri.com>
-Signed-off-by: Andrew J. Gallatin <gallatin@myri.com>
+Real errors can be covered up any number of way ..
 
- drivers/pci/pci.c   |    3 +--
- include/linux/pci.h |    2 ++
- 2 files changed, 3 insertions(+), 2 deletions(-)
-
---- linux-mm/drivers/pci/pci.c.old
-+++ linux-mm/drivers/pci/pci.c
-@@ -164,7 +164,6 @@ int pci_bus_find_capability(struct pci_b
- 	return __pci_bus_find_cap(bus, devfn, hdr_type & 0x7f, cap);
- }
- 
--#if 0
- /**
-  * pci_find_ext_capability - Find an extended capability
-  * @dev: PCI device to query
-@@ -212,7 +211,7 @@ int pci_find_ext_capability(struct pci_d
- 
- 	return 0;
- }
--#endif  /*  0  */
-+EXPORT_SYMBOL_GPL(pci_find_ext_capability);
- 
- /**
-  * pci_find_parent_resource - return resource region of parent bus of given region
---- linux-mm/include/linux/pci.h.old
-+++ linux-mm/include/linux/pci.h
-@@ -443,6 +443,7 @@ struct pci_dev *pci_find_device_reverse 
- struct pci_dev *pci_find_slot (unsigned int bus, unsigned int devfn);
- int pci_find_capability (struct pci_dev *dev, int cap);
- int pci_find_next_capability (struct pci_dev *dev, u8 pos, int cap);
-+int pci_find_ext_capability (struct pci_dev *dev, int cap);
- struct pci_bus * pci_find_next_bus(const struct pci_bus *from);
- 
- struct pci_dev *pci_get_device (unsigned int vendor, unsigned int device, struct pci_dev *from);
-@@ -665,6 +666,7 @@ static inline int pci_register_driver(st
- static inline void pci_unregister_driver(struct pci_driver *drv) { }
- static inline int pci_find_capability (struct pci_dev *dev, int cap) {return 0; }
- static inline int pci_find_next_capability (struct pci_dev *dev, u8 post, int cap) { return 0; }
-+static inline int pci_find_ext_capability (struct pci_dev *dev, int cap) {return 0; }
- static inline const struct pci_device_id *pci_match_device(const struct pci_device_id *ids, const struct pci_dev *dev) { return NULL; }
- 
- /* Power management related routines */
-
+Daniel
 

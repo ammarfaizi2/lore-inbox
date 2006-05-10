@@ -1,71 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbWEJKbt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbWEJKco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbWEJKbt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 06:31:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbWEJKbt
+	id S964909AbWEJKco (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 06:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964911AbWEJKco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 06:31:49 -0400
-Received: from mail.gmx.de ([213.165.64.20]:2011 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964904AbWEJKbs (ORCPT
+	Wed, 10 May 2006 06:32:44 -0400
+Received: from mail.gondor.com ([212.117.64.182]:62480 "EHLO moria.gondor.com")
+	by vger.kernel.org with ESMTP id S964909AbWEJKcn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 06:31:48 -0400
-X-Authenticated: #31060655
-Message-ID: <4461C0CA.8080803@gmx.net>
-Date: Wed, 10 May 2006 12:30:34 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060316 SUSE/1.0-27 SeaMonkey/1.0
+	Wed, 10 May 2006 06:32:43 -0400
+Date: Wed, 10 May 2006 12:32:03 +0200
+From: Jan Niehusmann <jan@gondor.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: urban@teststation.com, linux-kernel@vger.kernel.org, samba@samba.org
+Subject: Re: [PATCH] smbfs: Fix slab corruption in samba error path
+Message-ID: <20060510103202.GA5913@knautsch.gondor.com>
+References: <20060505121856.GA20033@knautsch.gondor.com> <20060510022529.24e15d28.akpm@osdl.org>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, trenn@suse.de,
-       thoenig@suse.de, Greg KH <gregkh@suse.de>
-Subject: Re: [RFC] [PATCH] Execute PCI quirks on resume from suspend-to-RAM
-References: <446139FF.205@gmx.net> <20060510093942.GA12259@elf.ucw.cz>
-In-Reply-To: <20060510093942.GA12259@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060510022529.24e15d28.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
+On Wed, May 10, 2006 at 02:25:29AM -0700, Andrew Morton wrote:
+> I think the bug is actually that this code is accessing *req after having
+> doen the smb_rput().  I worry that your patch "fixes" this by accidentally
+> leaking the request.
 > 
->> machines with the asus_hides_smbus "feature" have the problem
->> that the smbus is disabled again after suspend-to-RAM. This
->> causes all sorts of problems, the worst being a total fan
->> failure on my Samsung P35 notebook after STR and STD.
+> We can fairly simply restructure this code so that it doesn't touch the
+> request after that possible smb_rput().
 > 
-> What happens if we disable hiding altogether? ASUS decided software
-> should not see smbus, perhaps they had a reason?
+> How does this look?  If "OK", are you able to test it?
 
-IIRC this was introduced only to keep older ms-windows versions
-from complaining about hardware for which no driver existed.
-Newer ms-windows versions seem to unhide the smbus like we do.
+No, it doesn't look ok: The callers of smb_add_request (which are all in
+fs/smbfs/proc.c) do touch the req structure after calling
+smb_add_request, even if an error is returned. So your code would still
+cause access after release and double frees on the req object.
 
-> If we decide that we want to keep unhiding, redoing quirks after
-> resume is probably neccessary...
+As I understand the code smb_add_request is not allowed to completely 
+release the req structure at all.
 
-Yes. Now the question is where exactly we want to execute these
-quirks. Before or after restoring pci config space? If we do it
-before restoring config space, it might cause some yet unknown
-side effects. If we do it after restoring config space, it might
-be worse because we would restore config space of a device not
-existing anymore.
+What smb_add_request should do is 
+ - increase the req usage counter by one (by calling smb_rget), and add 
+   the req to one of the work queues
+ - or leave the usage counter alone, and don't add the req to one of the
+   work queues
 
-Thinking about it again, if we restored the full pci config space
-on resume, this quirk handling would be completely unnecessary.
-Any reasons why we don't do that?
+On error, one has to be careful: If we actively remove the req from the
+work queues again, we have to decrease the usage counter (otherwise we
+leak requests). But if some other function already removed the req from
+the queue, that function already did decrease the counter, so we are not
+allowed to do it again.
 
+The original code did get the latter case partly wrong. It assumed that
+the only way a req could be removed from the work queue would be in
+smb_request_recv, where the SMB_REQ_RECEIVED flag gets set. But it did
+miss the error cases in smbiod.c, eg. smbiod_flush(), where the req gets
+removed from the queues (and the usage counter decreased), without the
+SMB_REQ_RECEIVED flag being set.
 
->> References: Novell bugzilla #173420.
->>
->> This (totally ugly) patch fixes it.
->> Comments/criticism welcome.
->>
->> Signed-off-by: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-> 
+Therefore I changed the code to not check SMB_REQ_RECEIVED, but test if
+the req is still on one of the work queue linked lists.
 
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
+After that change, smb_add_request never releases the req, so reordering
+is not necessary.
+
+Unfortunately it's not easy to test the patch: Of course I did check
+that it properly compiles, but the bug is not easily reproducible.
+
+Jan
+

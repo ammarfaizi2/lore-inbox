@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbWEJR0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbWEJR1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965006AbWEJR0J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 13:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965018AbWEJR0I
+	id S965028AbWEJR1m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 13:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965027AbWEJR1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 13:26:08 -0400
-Received: from homer.mvista.com ([63.81.120.158]:7455 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S965006AbWEJR0H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 13:26:07 -0400
-Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
+	Wed, 10 May 2006 13:27:42 -0400
+Received: from homer.mvista.com ([63.81.120.158]:14881 "EHLO
+	dwalker1.mvista.com") by vger.kernel.org with ESMTP id S965022AbWEJR1l
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 13:27:41 -0400
+Date: Wed, 10 May 2006 10:26:52 -0700
+Message-Id: <200605101726.k4AHQqZf004367@dwalker1.mvista.com>
 From: Daniel Walker <dwalker@mvista.com>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
+To: akpm@osdl.org
+CC: Seokmann.Ju@lsil.com, alan@lxorguk.ukuu.org.uk,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20060510164207.GD27946@ftp.linux.org.uk>
-References: <200605100256.k4A2u8bd031779@dwalker1.mvista.com>
-	 <1147257266.17886.3.camel@localhost.localdomain>
-	 <1147271489.21536.70.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-	 <1147273787.17886.46.camel@localhost.localdomain>
-	 <1147273598.21536.92.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-	 <1147275571.17886.64.camel@localhost.localdomain>
-	 <1147275522.21536.109.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-	 <20060510162106.GC27946@ftp.linux.org.uk>
-	 <1147279038.21536.120.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-	 <20060510164207.GD27946@ftp.linux.org.uk>
-Content-Type: text/plain
-Date: Wed, 10 May 2006 10:25:48 -0700
-Message-Id: <1147281948.21536.127.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH -mm] updated megaraid gcc 4.1 warning fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-10 at 17:42 +0100, Al Viro wrote:
+Hows that Alan?
 
-> s/codepath.*/bug being fixed/
+Fixes the following warning,
 
-There's several that aren't fixing bugs , but I still think they are
-useful . 
+drivers/scsi/megaraid.c: In function ‘megadev_ioctl’:
+drivers/scsi/megaraid.c:3665: warning: ignoring return value of ‘copy_to_user’, declared with attribute warn_unused_result
 
-For instance, I found several drivers that defined tables used when the
-driver is defined as a module, but I was compiling the driver built-in
-so the table showed as "unused" . 
+Signed-Off-By: Daniel Walker <dwalker@mvista.com>
 
-I added
-
-#ifdef MODULE
-
-...
-
-#endif /* MODULE */
-
-How about those ? 
-
-Daniel
-
+Index: linux-2.6.16/drivers/scsi/megaraid.c
+===================================================================
+--- linux-2.6.16.orig/drivers/scsi/megaraid.c
++++ linux-2.6.16/drivers/scsi/megaraid.c
+@@ -3662,8 +3662,9 @@ megadev_ioctl(struct inode *inode, struc
+ 			 * Send the request sense data also, irrespective of
+ 			 * whether the user has asked for it or not.
+ 			 */
+-			copy_to_user(upthru->reqsensearea,
+-					pthru->reqsensearea, 14);
++			if (copy_to_user(upthru->reqsensearea,
++					pthru->reqsensearea, 14))
++				rval = (-EFAULT);
+ 
+ freemem_and_return:
+ 			if( pthru->dataxferlen ) {

@@ -1,120 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbWEJKv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbWEJKyd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964912AbWEJKv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 06:51:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbWEJKv1
+	id S964917AbWEJKyd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 06:54:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWEJKyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 06:51:27 -0400
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:41951
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S964912AbWEJKv0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 06:51:26 -0400
-Date: Wed, 10 May 2006 11:51:02 +0100
-To: Michael Ellerman <michael@ellerman.id.au>
-Cc: Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, haveblue@us.ibm.com, kravetz@us.ibm.com
-Subject: [PATCH] sparsemem record nid during memory present
-Message-ID: <20060510105102.GA9533@shadowen.org>
-References: <1147241173.8091.21.camel@localhost.localdomain>
+	Wed, 10 May 2006 06:54:33 -0400
+Received: from ns2.suse.de ([195.135.220.15]:8352 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964917AbWEJKyd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 06:54:33 -0400
+From: Andi Kleen <ak@suse.de>
+To: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Subject: Re: [RFC PATCH 15/35] subarch support for controlling interrupt delivery
+Date: Wed, 10 May 2006 12:54:26 +0200
+User-Agent: KMail/1.9.1
+Cc: virtualization@lists.osdl.org, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Chris Wright <chrisw@sous-sol.org>, xen-devel@lists.xensource.com,
+       linux-kernel@vger.kernel.org, Ian Pratt <ian.pratt@xensource.com>
+References: <20060509084945.373541000@sous-sol.org> <200605092356.28818.ak@suse.de> <20060510103520.GX7834@cl.cam.ac.uk>
+In-Reply-To: <20060510103520.GX7834@cl.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-InReply-To: <1147241173.8091.21.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11+cvs20060126
-From: Andy Whitcroft <apw@shadowen.org>
+Message-Id: <200605101254.26870.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, here is the updated version.  Better commentry on what we are doing
-and how long the data is kept (suggested by Dave Hansen).  Also added a 
-SECTION_NID_SHIFT to better describe its use.  This showed a small
-buglett as we were shifting by 4 (1<<2) instead of 2; now fixed.
+es, which is why I measured that one as well.
+> 
+> Now, the original concern was that we have the five operations implemented
+> as multi-line macros and doing a hybrid solution doesn't really address
+> that.
 
--apw
-=== 8< ===
-sparsemem record nid during memory present
+If it's straight-forward to convert to an inline do it. If not keep
+it as a macro. After all code style is just a tool, not something
+self serving.
 
-Record the node id as we mark sections for instantiation.  Use this
-nid during instantiation to direct allocations.
+> 
+> Also, it's not quite clear to me what's the best way to turn three of
+> the five into functions, whether inline or not.
+> 
+> For measuring the sizes, I did the following:
+> add void ___restore_flags(unsigned long *x) with the implementation
+> and then:
+> #define __restore_flags(x) ___restore_flags(&(x))
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
----
- include/linux/mmzone.h |    5 +++++
- mm/sparse.c            |   22 ++++++++++++++++++++--
- 2 files changed, 25 insertions(+), 2 deletions(-)
-diff -upN reference/include/linux/mmzone.h current/include/linux/mmzone.h
---- reference/include/linux/mmzone.h
-+++ current/include/linux/mmzone.h
-@@ -508,6 +508,10 @@ struct mem_section {
- 	 * pages.  However, it is stored with some other magic.
- 	 * (see sparse.c::sparse_init_one_section())
- 	 *
-+	 * Additionally during early boot we encode node id of
-+	 * the location of the section here to guide allocation.
-+	 * (see sparse.c::memory_present())
-+	 *
- 	 * Making it a UL at least makes someone do a cast
- 	 * before using it wrong.
- 	 */
-@@ -547,6 +551,7 @@ extern int __section_nr(struct mem_secti
- #define SECTION_HAS_MEM_MAP	(1UL<<1)
- #define SECTION_MAP_LAST_BIT	(1UL<<2)
- #define SECTION_MAP_MASK	(~(SECTION_MAP_LAST_BIT-1))
-+#define SECTION_NID_SHIFT	2
- 
- static inline struct page *__section_mem_map_addr(struct mem_section *section)
- {
-diff -upN reference/mm/sparse.c current/mm/sparse.c
---- reference/mm/sparse.c
-+++ current/mm/sparse.c
-@@ -102,6 +102,22 @@ int __section_nr(struct mem_section* ms)
- 	return (root_nr * SECTIONS_PER_ROOT) + (ms - root);
- }
- 
-+/*
-+ * During early boot, before section_mem_map is used for an actual
-+ * mem_map, we use section_mem_map to store the section's NUMA
-+ * node.  This keeps us from having to use another data structure.  The
-+ * node information is cleared just before we store the real mem_map.
-+ */
-+static inline unsigned long sparse_encode_early_nid(int nid)
-+{
-+	return (nid << SECTION_NID_SHIFT);
-+}
-+
-+static inline int sparse_early_nid(struct mem_section *section)
-+{
-+	return (section->section_mem_map >> SECTION_NID_SHIFT);
-+}
-+
- /* Record a memory area against a node. */
- void memory_present(int nid, unsigned long start, unsigned long end)
- {
-@@ -116,7 +132,8 @@ void memory_present(int nid, unsigned lo
- 
- 		ms = __nr_to_section(section);
- 		if (!ms->section_mem_map)
--			ms->section_mem_map = SECTION_MARKED_PRESENT;
-+			ms->section_mem_map = sparse_encode_early_nid(nid) |
-+							SECTION_MARKED_PRESENT;
- 	}
- }
- 
-@@ -167,6 +184,7 @@ static int sparse_init_one_section(struc
- 	if (!valid_section(ms))
- 		return -EINVAL;
- 
-+	ms->section_mem_map &= ~SECTION_MAP_MASK;
- 	ms->section_mem_map |= sparse_encode_mem_map(mem_map, pnum);
- 
- 	return 1;
-@@ -175,8 +193,8 @@ static int sparse_init_one_section(struc
- static struct page *sparse_early_mem_map_alloc(unsigned long pnum)
- {
- 	struct page *map;
--	int nid = early_pfn_to_nid(section_nr_to_pfn(pnum));
- 	struct mem_section *ms = __nr_to_section(pnum);
-+	int nid = sparse_early_nid(ms);
- 
- 	map = alloc_remap(nid, sizeof(struct page) * PAGES_PER_SECTION);
- 	if (map)
+Yes that is the standard way to do it 
+
+> Alternatively, would it make sense to change __restore_flags to take
+> a pointer to flags instead?  That would be quite an invasive change...
+
+No.
+
+-Andi
+

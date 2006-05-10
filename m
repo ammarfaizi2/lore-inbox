@@ -1,66 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbWEJMKo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964937AbWEJMR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964936AbWEJMKo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 08:10:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbWEJMKo
+	id S964937AbWEJMR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 08:17:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbWEJMR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 08:10:44 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:33249 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964936AbWEJMKn (ORCPT
+	Wed, 10 May 2006 08:17:56 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:33493 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964937AbWEJMRz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 08:10:43 -0400
-Date: Wed, 10 May 2006 17:36:58 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: lse-tech@lists.sourceforge.net, akpm@osdl.org
-Subject: [PATCH][delayacct] Use portable cputime API in __delayacct_add_tsk()
-Message-ID: <20060510120658.GA16239@in.ibm.com>
-Reply-To: balbir@in.ibm.com
+	Wed, 10 May 2006 08:17:55 -0400
+Date: Wed, 10 May 2006 17:47:50 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org, systemtap@sources.redhat.com, akpm@osdl.org,
+       Andi Kleen <ak@suse.de>, davem@davemloft.net, suparna@in.ibm.com,
+       richardj_moore@uk.ibm.com, hch@infradead.org
+Subject: Re: [RFC] [PATCH 6/6] Kprobes: Remove breakpoints from the copied  pages
+Message-ID: <20060510121750.GD12463@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+References: <20060509065455.GA11630@in.ibm.com> <20060509065917.GA22493@in.ibm.com> <20060509070106.GB22493@in.ibm.com> <20060509070508.GC22493@in.ibm.com> <20060509070911.GD22493@in.ibm.com> <20060509071204.GE22493@in.ibm.com> <20060509071523.GF22493@in.ibm.com> <Pine.LNX.4.64.0605091747050.10238@blonde.wat.veritas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <Pine.LNX.4.64.0605091747050.10238@blonde.wat.veritas.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Andrew,
+On Tue, May 09, 2006 at 06:04:50PM +0100, Hugh Dickins wrote:
+> On Tue, 9 May 2006, Prasanna S Panchamukhi wrote:
+> > This patch removes the breakpoints if the pages read from the page
+> > cache contains breakpoints. If the pages containing the breakpoints
+> > is copied from the page cache, the copied image would also contain
+> > breakpoints in them. This could be a major problem for tools like
+> > tripwire etc and cause security concerns, hence must be prevented.
+> > This patch hooks up the actor routine, checks if the executable was
+> > a probed executable using the file inode and then replaces the
+> > breakpoints with the original opcodes in the copied image.
+> 
+> You've done a nice job of making the code look like kernel code
+> throughout, it's a much tidier patchset than many.
+> 
+> With that said... it looks to me like one of the scariest and
+> most inappropriate sets I can remember.  Getting the kernel to
+> connive in presenting an incoherent view of its pagecache:
+> I don't think we'd ever want that.
+> 
 
-While testing on ppc64, I found that taskstats could return incorrect data.
-The same code worked fine on x86.
+As Andi Kleen and Christoph suggested pagecache contention can be avoided
+using the COW approach.
 
-	Thanks,
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+Advantages of COW:
 
+1. No need to hookup file_read_actor() to remove the breakpoints if a
+   the probed page was read from pagecache.
+2. No need to hookup readpage(s)() to insert probes when pages are
+   read into the memory.
+                                                                                
+Some thoughts about COW implications AFAIK
+                                                                                
+1. Need to hookup mmap() to make a per process copy.
+2. Bring in the pages just to insert the probes.
+3. All the text pages need to be in memory until process exits.
+4. Free up the per process text pages by hooking exit() and exec().
+5. Maskoff probes visible across fork(), by hooking fork().
+                                                                                
+Any implications ?
+                                                                                
 
-Description of the patch
-------------------------
-
-tsk->utime and tsk->stime are of type cputime_t. Explicitly converting from
-cputime to nanoseconds does not work on all platforms. Use the cputime
-API for conversion. This makes the code more portable and returns correct data
-on ppc64.
-
-This patch has been tested on x86 and ppc64.
-
-Signed-off-by: Balbir Singh <balbir@in.ibm.com>
----
-
- kernel/delayacct.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
-diff -puN kernel/delayacct.c~taskstats-use-cputime-api-for-cpu_run_real_time kernel/delayacct.c
---- linux-2.6.17-rc3/kernel/delayacct.c~taskstats-use-cputime-api-for-cpu_run_real_time	2006-05-10 17:04:22.000000000 +0530
-+++ linux-2.6.17-rc3-balbir/kernel/delayacct.c	2006-05-10 17:05:45.000000000 +0530
-@@ -112,7 +112,8 @@ int __delayacct_add_tsk(struct taskstats
- 	unsigned long t1,t2,t3;
- 
- 	tmp = (s64)d->cpu_run_real_total;
--	tmp += (u64)(tsk->utime + tsk->stime) * TICK_NSEC;
-+	cputime_to_timespec(tsk->utime + tsk->stime, &ts);
-+	tmp += timespec_to_ns(&ts);
- 	d->cpu_run_real_total = (tmp < (s64)d->cpu_run_real_total) ? 0 : tmp;
- 
- 	/*
-_
+Thanks
+Prasanna
+-- 
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Email: prasanna@in.ibm.com
+Ph: 91-80-41776329

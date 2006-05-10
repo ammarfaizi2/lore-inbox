@@ -1,242 +1,300 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWEJDbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbWEJDcy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbWEJDbj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 May 2006 23:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWEJDbj
+	id S964784AbWEJDcy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 May 2006 23:32:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWEJDcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 May 2006 23:31:39 -0400
-Received: from ozlabs.org ([203.10.76.45]:2696 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S964782AbWEJDbi (ORCPT
+	Tue, 9 May 2006 23:32:54 -0400
+Received: from ozlabs.org ([203.10.76.45]:3464 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S964784AbWEJDcw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 May 2006 23:31:38 -0400
+	Tue, 9 May 2006 23:32:52 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17505.24133.491523.358882@cargo.ozlabs.ibm.com>
-Date: Wed, 10 May 2006 13:30:13 +1000
+Message-ID: <17505.24288.11207.982907@cargo.ozlabs.ibm.com>
+Date: Wed, 10 May 2006 13:32:48 +1000
 From: Paul Mackerras <paulus@samba.org>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-CC: linux-arch@vger.kernel.org
-Subject: [PATCH] Define __raw_get_cpu_var and use it
+CC: linux-arch@vger.kernel.org, rusty@rustcorp.com.au
+Subject: [PATCH] Allow for per-cpu data being in .tdata and .tbss sections
 X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are several instances of per_cpu(foo, raw_smp_processor_id()),
-which is semantically equivalent to __get_cpu_var(foo) but without the
-warning that smp_processor_id() can give if CONFIG_DEBUG_PREEMPT is
-enabled.  For those architectures with optimized per-cpu
-implementations, namely ia64, powerpc, s390, sparc64 and x86_64,
-per_cpu() turns into more and slower code than __get_cpu_var(), so it
-would be preferable to use __get_cpu_var on those platforms.
+This lays the groundwork for using __thread for per-cpu variables.
+The toolchain will put initialized __thread variables into a .tdata
+section, and uninitialized __thread variables into a .tbss section.
+Thus the module loader needs to cope with two per-cpu sections, of
+which one is initialized and the other must be zeroed.
 
-This defines a __raw_get_cpu_var(x) macro which turns into
-per_cpu(x, raw_smp_processor_id()) on architectures that use the
-generic per-cpu implementation, and turns into __get_cpu_var(x) on
-the architectures that have an optimized per-cpu implementation.
-    
+With this patch, the module loader looks for .tdata and .tbss, and if
+it finds neither, falls back to the .data.percpu section that we
+currently use.  This patch extends the various percpu_modcopy
+implementations to take two size parameters: the first is the amount
+to initialize and the second is the amount to zero following that.
+At the moment all percpu_modcopy implementations simply check that
+the amount to zero is zero.
+
+I have a following patch that makes 64-bit powerpc use __thread for
+per-cpu variables.
+
 Signed-off-by: Paul Mackerras <paulus@samba.org>
 ---
-diff --git a/include/asm-generic/percpu.h b/include/asm-generic/percpu.h
-index c0caf43..c745211 100644
---- a/include/asm-generic/percpu.h
-+++ b/include/asm-generic/percpu.h
-@@ -14,6 +14,7 @@ #define DEFINE_PER_CPU(type, name) \
- /* var is in discarded region: offset to particular copy we want */
- #define per_cpu(var, cpu) (*RELOC_HIDE(&per_cpu__##var, __per_cpu_offset[cpu]))
- #define __get_cpu_var(var) per_cpu(var, smp_processor_id())
-+#define __raw_get_cpu_var(var) per_cpu(var, raw_smp_processor_id())
+diff --git a/arch/ia64/kernel/module.c b/arch/ia64/kernel/module.c
+index 3a30cfc..88790f4 100644
+--- a/arch/ia64/kernel/module.c
++++ b/arch/ia64/kernel/module.c
+@@ -944,9 +944,11 @@ module_arch_cleanup (struct module *mod)
  
- /* A macro to avoid #include hell... */
- #define percpu_modcopy(pcpudst, src, size)			\
-@@ -30,6 +31,7 @@ #define DEFINE_PER_CPU(type, name) \
- 
- #define per_cpu(var, cpu)			(*((void)(cpu), &per_cpu__##var))
- #define __get_cpu_var(var)			per_cpu__##var
-+#define __raw_get_cpu_var(var)			per_cpu__##var
- 
- #endif	/* SMP */
- 
+ #ifdef CONFIG_SMP
+ void
+-percpu_modcopy (void *pcpudst, const void *src, unsigned long size)
++percpu_modcopy (void *pcpudst, const void *src, unsigned long size,
++		unsigned long zero_size)
+ {
+ 	unsigned int i;
++	BUG_ON(zero_size != 0);
+ 	for_each_possible_cpu(i) {
+ 		memcpy(pcpudst + __per_cpu_offset[i], src, size);
+ 	}
 diff --git a/include/asm-ia64/percpu.h b/include/asm-ia64/percpu.h
-index 2b14dee..4bfbeb4 100644
+index 4bfbeb4..f0a679e 100644
 --- a/include/asm-ia64/percpu.h
 +++ b/include/asm-ia64/percpu.h
-@@ -43,6 +43,7 @@ DECLARE_PER_CPU(unsigned long, local_per
- 
- #define per_cpu(var, cpu)  (*RELOC_HIDE(&per_cpu__##var, __per_cpu_offset[cpu]))
+@@ -45,7 +45,8 @@ #define per_cpu(var, cpu)  (*RELOC_HIDE(
  #define __get_cpu_var(var) (*RELOC_HIDE(&per_cpu__##var, __ia64_per_cpu_var(local_per_cpu_offset)))
-+#define __raw_get_cpu_var(var) (*RELOC_HIDE(&per_cpu__##var, __ia64_per_cpu_var(local_per_cpu_offset)))
+ #define __raw_get_cpu_var(var) (*RELOC_HIDE(&per_cpu__##var, __ia64_per_cpu_var(local_per_cpu_offset)))
  
- extern void percpu_modcopy(void *pcpudst, const void *src, unsigned long size);
+-extern void percpu_modcopy(void *pcpudst, const void *src, unsigned long size);
++extern void percpu_modcopy(void *pcpudst, const void *src,
++			   unsigned long init_sz, unsigned long zero_sz);
  extern void setup_per_cpu_areas (void);
-@@ -52,6 +53,7 @@ #else /* ! SMP */
+ extern void *per_cpu_init(void);
  
- #define per_cpu(var, cpu)			(*((void)(cpu), &per_cpu__##var))
- #define __get_cpu_var(var)			per_cpu__##var
-+#define __raw_get_cpu_var(var)			per_cpu__##var
- #define per_cpu_init()				(__phys_per_cpu_start)
- 
- #endif	/* SMP */
 diff --git a/include/asm-powerpc/percpu.h b/include/asm-powerpc/percpu.h
-index 184a7a4..faa1fc7 100644
+index faa1fc7..5d603ff 100644
 --- a/include/asm-powerpc/percpu.h
 +++ b/include/asm-powerpc/percpu.h
-@@ -22,6 +22,7 @@ #define DEFINE_PER_CPU(type, name) \
- /* var is in discarded region: offset to particular copy we want */
- #define per_cpu(var, cpu) (*RELOC_HIDE(&per_cpu__##var, __per_cpu_offset(cpu)))
- #define __get_cpu_var(var) (*RELOC_HIDE(&per_cpu__##var, __my_cpu_offset()))
-+#define __raw_get_cpu_var(var) (*RELOC_HIDE(&per_cpu__##var, __my_cpu_offset()))
+@@ -25,9 +25,10 @@ #define __get_cpu_var(var) (*RELOC_HIDE(
+ #define __raw_get_cpu_var(var) (*RELOC_HIDE(&per_cpu__##var, __my_cpu_offset()))
  
  /* A macro to avoid #include hell... */
- #define percpu_modcopy(pcpudst, src, size)			\
-@@ -41,6 +42,7 @@ #define DEFINE_PER_CPU(type, name) \
- 
- #define per_cpu(var, cpu)			(*((void)(cpu), &per_cpu__##var))
- #define __get_cpu_var(var)			per_cpu__##var
-+#define __raw_get_cpu_var(var)			per_cpu__##var
- 
- #endif	/* SMP */
- 
+-#define percpu_modcopy(pcpudst, src, size)			\
++#define percpu_modcopy(pcpudst, src, size, zero_size)		\
+ do {								\
+ 	unsigned int __i;					\
++	BUG_ON(zero_size != 0);					\
+ 	for_each_possible_cpu(__i)				\
+ 		memcpy((pcpudst)+__per_cpu_offset(__i),		\
+ 		       (src), (size));				\
 diff --git a/include/asm-s390/percpu.h b/include/asm-s390/percpu.h
-index 436d216..d9a8cca 100644
+index d9a8cca..c443986 100644
 --- a/include/asm-s390/percpu.h
 +++ b/include/asm-s390/percpu.h
-@@ -40,6 +40,7 @@ #define DEFINE_PER_CPU(type, name) \
-     __typeof__(type) per_cpu__##name
- 
- #define __get_cpu_var(var) __reloc_hide(var,S390_lowcore.percpu_offset)
-+#define __raw_get_cpu_var(var) __reloc_hide(var,S390_lowcore.percpu_offset)
+@@ -44,9 +44,10 @@ #define __raw_get_cpu_var(var) __reloc_h
  #define per_cpu(var,cpu) __reloc_hide(var,__per_cpu_offset[cpu])
  
  /* A macro to avoid #include hell... */
-@@ -57,6 +58,7 @@ #define DEFINE_PER_CPU(type, name) \
-     __typeof__(type) per_cpu__##name
- 
- #define __get_cpu_var(var) __reloc_hide(var,0)
-+#define __raw_get_cpu_var(var) __reloc_hide(var,0)
- #define per_cpu(var,cpu) __reloc_hide(var,0)
- 
- #endif /* SMP */
+-#define percpu_modcopy(pcpudst, src, size)			\
++#define percpu_modcopy(pcpudst, src, size, zero_size)		\
+ do {								\
+ 	unsigned int __i;					\
++	BUG_ON(zero_size != 0);					\
+ 	for_each_possible_cpu(__i)				\
+ 		memcpy((pcpudst)+__per_cpu_offset[__i],		\
+ 		       (src), (size));				\
 diff --git a/include/asm-sparc64/percpu.h b/include/asm-sparc64/percpu.h
-index baef13b..a6ece06 100644
+index a6ece06..21f9b01 100644
 --- a/include/asm-sparc64/percpu.h
 +++ b/include/asm-sparc64/percpu.h
-@@ -21,6 +21,7 @@ register unsigned long __local_per_cpu_o
- /* var is in discarded region: offset to particular copy we want */
- #define per_cpu(var, cpu) (*RELOC_HIDE(&per_cpu__##var, __per_cpu_offset(cpu)))
- #define __get_cpu_var(var) (*RELOC_HIDE(&per_cpu__##var, __local_per_cpu_offset))
-+#define __raw_get_cpu_var(var) (*RELOC_HIDE(&per_cpu__##var, __local_per_cpu_offset))
+@@ -24,9 +24,10 @@ #define __get_cpu_var(var) (*RELOC_HIDE(
+ #define __raw_get_cpu_var(var) (*RELOC_HIDE(&per_cpu__##var, __local_per_cpu_offset))
  
  /* A macro to avoid #include hell... */
- #define percpu_modcopy(pcpudst, src, size)			\
-@@ -37,6 +38,7 @@ #define DEFINE_PER_CPU(type, name) \
- 
- #define per_cpu(var, cpu)			(*((void)cpu, &per_cpu__##var))
- #define __get_cpu_var(var)			per_cpu__##var
-+#define __raw_get_cpu_var(var)			per_cpu__##var
- 
- #endif	/* SMP */
- 
+-#define percpu_modcopy(pcpudst, src, size)			\
++#define percpu_modcopy(pcpudst, src, size, zero_size)		\
+ do {								\
+ 	unsigned int __i;					\
++	BUG_ON(zero_size != 0);					\
+ 	for_each_possible_cpu(__i)				\
+ 		memcpy((pcpudst)+__per_cpu_offset(__i),		\
+ 		       (src), (size));				\
 diff --git a/include/asm-x86_64/percpu.h b/include/asm-x86_64/percpu.h
-index 7f33aaf..549eb92 100644
+index 549eb92..0e6ffde 100644
 --- a/include/asm-x86_64/percpu.h
 +++ b/include/asm-x86_64/percpu.h
-@@ -21,6 +21,7 @@ #define DEFINE_PER_CPU(type, name) \
- /* var is in discarded region: offset to particular copy we want */
- #define per_cpu(var, cpu) (*RELOC_HIDE(&per_cpu__##var, __per_cpu_offset(cpu)))
- #define __get_cpu_var(var) (*RELOC_HIDE(&per_cpu__##var, __my_cpu_offset()))
-+#define __raw_get_cpu_var(var) (*RELOC_HIDE(&per_cpu__##var, __my_cpu_offset()))
+@@ -24,9 +24,10 @@ #define __get_cpu_var(var) (*RELOC_HIDE(
+ #define __raw_get_cpu_var(var) (*RELOC_HIDE(&per_cpu__##var, __my_cpu_offset()))
  
  /* A macro to avoid #include hell... */
- #define percpu_modcopy(pcpudst, src, size)			\
-@@ -40,6 +41,7 @@ #define DEFINE_PER_CPU(type, name) \
- 
- #define per_cpu(var, cpu)			(*((void)(cpu), &per_cpu__##var))
- #define __get_cpu_var(var)			per_cpu__##var
-+#define __raw_get_cpu_var(var)			per_cpu__##var
- 
- #endif	/* SMP */
- 
-diff --git a/kernel/hrtimer.c b/kernel/hrtimer.c
-index b7f0388..63626be 100644
---- a/kernel/hrtimer.c
-+++ b/kernel/hrtimer.c
-@@ -572,7 +572,7 @@ void hrtimer_init(struct hrtimer *timer,
- 
- 	memset(timer, 0, sizeof(struct hrtimer));
- 
--	bases = per_cpu(hrtimer_bases, raw_smp_processor_id());
-+	bases = __raw_get_cpu_var(hrtimer_bases);
- 
- 	if (clock_id == CLOCK_REALTIME && mode != HRTIMER_ABS)
- 		clock_id = CLOCK_MONOTONIC;
-@@ -594,7 +594,7 @@ int hrtimer_get_res(const clockid_t whic
- {
- 	struct hrtimer_base *bases;
- 
--	bases = per_cpu(hrtimer_bases, raw_smp_processor_id());
-+	bases = __raw_get_cpu_var(hrtimer_bases);
- 	*tp = ktime_to_timespec(bases[which_clock].resolution);
- 
- 	return 0;
-diff --git a/kernel/sched.c b/kernel/sched.c
-index 4c64f85..cf904dd 100644
---- a/kernel/sched.c
-+++ b/kernel/sched.c
-@@ -4168,7 +4168,7 @@ EXPORT_SYMBOL(yield);
-  */
- void __sched io_schedule(void)
- {
--	struct runqueue *rq = &per_cpu(runqueues, raw_smp_processor_id());
-+	struct runqueue *rq = &__raw_get_cpu_var(runqueues);
- 
- 	atomic_inc(&rq->nr_iowait);
- 	schedule();
-@@ -4179,7 +4179,7 @@ EXPORT_SYMBOL(io_schedule);
- 
- long __sched io_schedule_timeout(long timeout)
- {
--	struct runqueue *rq = &per_cpu(runqueues, raw_smp_processor_id());
-+	struct runqueue *rq = &__raw_get_cpu_var(runqueues);
- 	long ret;
- 
- 	atomic_inc(&rq->nr_iowait);
-diff --git a/kernel/softlockup.c b/kernel/softlockup.c
-index 14c7faf..2c1be11 100644
---- a/kernel/softlockup.c
-+++ b/kernel/softlockup.c
-@@ -36,7 +36,7 @@ static struct notifier_block panic_block
- 
- void touch_softlockup_watchdog(void)
- {
--	per_cpu(touch_timestamp, raw_smp_processor_id()) = jiffies;
-+	__raw_get_cpu_var(touch_timestamp) = jiffies;
+-#define percpu_modcopy(pcpudst, src, size)			\
++#define percpu_modcopy(pcpudst, src, size, zero_size)		\
+ do {								\
+ 	unsigned int __i;					\
++	BUG_ON(zero_size != 0);					\
+ 	for_each_possible_cpu(__i)				\
+ 		memcpy((pcpudst)+__per_cpu_offset(__i),		\
+ 		       (src), (size));				\
+diff --git a/kernel/module.c b/kernel/module.c
+index d24deb0..4986e06 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -354,11 +354,28 @@ static void percpu_modfree(void *freeme)
+ 	}
  }
- EXPORT_SYMBOL(touch_softlockup_watchdog);
  
-diff --git a/kernel/timer.c b/kernel/timer.c
-index 67eaf0f..4afc9f1 100644
---- a/kernel/timer.c
-+++ b/kernel/timer.c
-@@ -146,7 +146,7 @@ static void internal_add_timer(tvec_base
- void fastcall init_timer(struct timer_list *timer)
- {
- 	timer->entry.next = NULL;
--	timer->base = per_cpu(tvec_bases, raw_smp_processor_id());
-+	timer->base = __raw_get_cpu_var(tvec_bases);
+-static unsigned int find_pcpusec(Elf_Ehdr *hdr,
+-				 Elf_Shdr *sechdrs,
+-				 const char *secstrings)
+-{
+-	return find_sec(hdr, sechdrs, secstrings, ".data.percpu");
++static void find_pcpusecs(Elf_Ehdr *hdr,
++			  Elf_Shdr *sechdrs,
++			  const char *secstrings,
++			  unsigned int pcpuindex[2])
++{
++	/*
++	 * Some architectures use __thread for per-cpu variables,
++	 * and that generates .tdata and .tbss sections.
++	 */
++	pcpuindex[0] = find_sec(hdr, sechdrs, secstrings, ".tdata");
++	pcpuindex[1] = find_sec(hdr, sechdrs, secstrings, ".tbss");
++	if (pcpuindex[0])
++		return;
++	if (pcpuindex[1] && !pcpuindex[0]) {
++		/* move .tbss to pcpuindex[0], it makes things easier later */
++		pcpuindex[0] = pcpuindex[1];
++		pcpuindex[1] = 0;
++		return;
++	}
++
++	/* look for the generic .data.percpu if no .tdata */
++	pcpuindex[0] = find_sec(hdr, sechdrs, secstrings, ".data.percpu");
  }
- EXPORT_SYMBOL(init_timer);
  
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index cc9423d..60b11ae 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -244,7 +244,7 @@ static unsigned int		rt_hash_rnd;
+ static int percpu_modinit(void)
+@@ -389,17 +406,20 @@ static inline void percpu_modfree(void *
+ {
+ 	BUG();
+ }
+-static inline unsigned int find_pcpusec(Elf_Ehdr *hdr,
+-					Elf_Shdr *sechdrs,
+-					const char *secstrings)
++static inline void find_pcpusecs(Elf_Ehdr *hdr,
++				 Elf_Shdr *sechdrs,
++				 const char *secstrings,
++				 unsigned int pcpuindex[2])
+ {
+-	return 0;
++	pcpuindex[0] = 0;
++	pcpuindex[1] = 0;
+ }
+ static inline void percpu_modcopy(void *pcpudst, const void *src,
+-				  unsigned long size)
++				  unsigned long init_sz, unsigned long zero_sz)
+ {
+-	/* pcpusec should be 0, and size of that section should be 0. */
+-	BUG_ON(size != 0);
++	/* there should be no per-cpu data to copy or clear */
++	BUG_ON(init_sz != 0);
++	BUG_ON(zero_sz != 0);
+ }
+ #endif /* CONFIG_SMP */
  
- static DEFINE_PER_CPU(struct rt_cache_stat, rt_cache_stat);
- #define RT_CACHE_STAT_INC(field) \
--	(per_cpu(rt_cache_stat, raw_smp_processor_id()).field++)
-+	(__raw_get_cpu_var(rt_cache_stat).field++)
+@@ -1121,7 +1141,7 @@ static int simplify_symbols(Elf_Shdr *se
+ 			    unsigned int symindex,
+ 			    const char *strtab,
+ 			    unsigned int versindex,
+-			    unsigned int pcpuindex,
++			    unsigned int pcpuindex[2],
+ 			    struct module *mod)
+ {
+ 	Elf_Sym *sym = (void *)sechdrs[symindex].sh_addr;
+@@ -1165,9 +1185,13 @@ static int simplify_symbols(Elf_Shdr *se
  
- static int rt_intern_hash(unsigned hash, struct rtable *rth,
- 				struct rtable **res);
+ 		default:
+ 			/* Divert to percpu allocation if a percpu var. */
+-			if (sym[i].st_shndx == pcpuindex)
++			if (sym[i].st_shndx == pcpuindex[0])
+ 				secbase = (unsigned long)mod->percpu;
+-			else
++			else if (sym[i].st_shndx == pcpuindex[1]) {
++				/* .tbss follows .tdata */
++				secbase = (unsigned long)mod->percpu
++					+ sechdrs[pcpuindex[0]].sh_size;
++			} else
+ 				secbase = sechdrs[sym[i].st_shndx].sh_addr;
+ 			sym[i].st_value += secbase;
+ 			break;
+@@ -1411,8 +1435,9 @@ static struct module *load_module(void _
+ 	char *secstrings, *args, *modmagic, *strtab = NULL;
+ 	unsigned int i, symindex = 0, strindex = 0, setupindex, exindex,
+ 		exportindex, modindex, obsparmindex, infoindex, gplindex,
+-		crcindex, gplcrcindex, versindex, pcpuindex, gplfutureindex,
++		crcindex, gplcrcindex, versindex, pcpuindex[2], gplfutureindex,
+ 		gplfuturecrcindex;
++	unsigned int pcpusize = 0, pcpuinitsize = 0;
+ 	struct module *mod;
+ 	long err = 0;
+ 	void *percpu = NULL, *ptr = NULL; /* Stops spurious gcc warning */
+@@ -1501,7 +1526,7 @@ #endif
+ 	obsparmindex = find_sec(hdr, sechdrs, secstrings, "__obsparm");
+ 	versindex = find_sec(hdr, sechdrs, secstrings, "__versions");
+ 	infoindex = find_sec(hdr, sechdrs, secstrings, ".modinfo");
+-	pcpuindex = find_pcpusec(hdr, sechdrs, secstrings);
++	find_pcpusecs(hdr, sechdrs, secstrings, pcpuindex);
+ 
+ 	/* Don't keep modinfo section */
+ 	sechdrs[infoindex].sh_flags &= ~(unsigned long)SHF_ALLOC;
+@@ -1548,17 +1573,33 @@ #endif
+ 	err = module_frob_arch_sections(hdr, sechdrs, secstrings, mod);
+ 	if (err < 0)
+ 		goto free_mod;
++
++	if (pcpuindex[0]) {
++		/* We have a special allocation for these sections. */
++		unsigned int align = 0;
++		int i, j;
+ 
+-	if (pcpuindex) {
+-		/* We have a special allocation for this section. */
+-		percpu = percpu_modalloc(sechdrs[pcpuindex].sh_size,
+-					 sechdrs[pcpuindex].sh_addralign,
+-					 mod->name);
++		i = pcpuindex[0];
++		pcpusize = sechdrs[i].sh_size;
++		align = sechdrs[i].sh_addralign;
++		sechdrs[i].sh_flags &= ~(unsigned long)SHF_ALLOC;
++		if (sechdrs[i].sh_type != SHT_NOBITS)
++			pcpuinitsize = pcpusize;
++		if (pcpuindex[1]) {
++			/* have both .tdata and .tbss */
++			j = pcpuindex[1];
++			pcpusize = ALIGN(pcpusize, sechdrs[j].sh_addralign);
++			sechdrs[i].sh_size = pcpusize;
++			if (sechdrs[j].sh_addralign > align)
++				align = sechdrs[j].sh_addralign;
++			pcpusize += sechdrs[j].sh_size;
++			sechdrs[j].sh_flags &= ~(unsigned long)SHF_ALLOC;
++		}
++		percpu = percpu_modalloc(pcpusize, align, mod->name);
+ 		if (!percpu) {
+ 			err = -ENOMEM;
+ 			goto free_mod;
+ 		}
+-		sechdrs[pcpuindex].sh_flags &= ~(unsigned long)SHF_ALLOC;
+ 		mod->percpu = percpu;
+ 	}
+ 
+@@ -1687,8 +1728,8 @@ #endif
+ 	sort_extable(extable, extable + mod->num_exentries);
+ 
+ 	/* Finally, copy percpu area over. */
+-	percpu_modcopy(mod->percpu, (void *)sechdrs[pcpuindex].sh_addr,
+-		       sechdrs[pcpuindex].sh_size);
++	percpu_modcopy(mod->percpu, (void *)sechdrs[pcpuindex[0]].sh_addr,
++		       pcpuinitsize, pcpusize - pcpuinitsize);
+ 
+ 	add_kallsyms(mod, sechdrs, symindex, strindex, secstrings);
+ 

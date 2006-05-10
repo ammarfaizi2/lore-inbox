@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964927AbWEJLzZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbWEJMG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964927AbWEJLzZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 07:55:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbWEJLzZ
+	id S964932AbWEJMG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 08:06:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964933AbWEJMG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 07:55:25 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:62900 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964927AbWEJLzZ (ORCPT
+	Wed, 10 May 2006 08:06:28 -0400
+Received: from fwstl1-1.wul.qc.ec.gc.ca ([205.211.132.24]:46866 "EHLO
+	ecstlaurent8.quebec.int.ec.gc.ca") by vger.kernel.org with ESMTP
+	id S964932AbWEJMG2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 07:55:25 -0400
-Date: Wed, 10 May 2006 06:55:21 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org,
-       "Eric W. Biederman" <ebiederm@xmission.com>, herbert@13thfloor.at,
-       dev@sw.ru, sam@vilain.net, xemul@sw.ru, haveblue@us.ibm.com,
-       clg@fr.ibm.com, frankeh@us.ibm.com
-Subject: Re: [PATCH 1/9] nsproxy: Introduce nsproxy
-Message-ID: <20060510115520.GA25720@sergelap.austin.ibm.com>
-References: <29vfyljM.2006059-s@us.ibm.com> <20060510021129.GB32523@sergelap.austin.ibm.com> <20060510100057.GA27946@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060510100057.GA27946@ftp.linux.org.uk>
-User-Agent: Mutt/1.5.11
+	Wed, 10 May 2006 08:06:28 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+Subject: RE: 2.6.16-rt17, hang with skge network driver
+Date: Wed, 10 May 2006 08:06:24 -0400
+Message-ID: <8E8F647D7835334B985D069AE964A4F7011B268D@ECQCMTLMAIL1.quebec.int.ec.gc.ca>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.16-rt17, hang with skge network driver
+Thread-Index: AcZzA4I2Ir27LTWpTouUSA0SNQwiGgBJgDug
+From: "Fortier,Vincent [Montreal]" <Vincent.Fortier1@EC.GC.CA>
+To: "Fernando Lopez-Lezcano" <nando@ccrma.Stanford.EDU>,
+       "lkml" <linux-kernel@vger.kernel.org>, "Ingo Molnar" <mingo@elte.hu>
+X-OriginalArrivalTime: 10 May 2006 12:06:25.0041 (UTC) FILETIME=[28E87810:01C6742A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Al Viro (viro@ftp.linux.org.uk):
-> On Tue, May 09, 2006 at 09:11:29PM -0500, Serge E. Hallyn wrote:
-> > Introduce the nsproxy struct.  Doesn't do anything yet, but has it's
-> > own lifecycle pretty much mirrorring the fs namespace.
-> > 
-> > Subsequent patches will move the namespace struct into the nsproxy.
-> > Then as more namespaces are introduced, such as utsname, they can
-> > be added to the nsproxy as well.
-> 
-> Is there any reason why those can't be simply part of namespace?  I.e.
-> be carried by the stuff mounted in standard places...
+> Hi Ingo, I've seen a few hangs with 2.6.16-rt17 - my feeling 
+> was that they had to do with high network load - and this 
+> time something was left behind after the reboot (I have to 
+> set up a serial console, it is not happening very 
+> frequently). Most probably this does not say much but here it 
+> goes anyway:
 
-The argument has been that it is desirable to be able to unshare these
-namespaces - uid, pid, network, sysv, utsname, fs-namespace -
-separately.  Are you talking about having these all be part of a single
-namespace unshared all at once (and stored in struct namespace)?  Or am
-I misunderstandimg you entirely?
+I've switch from sk98lin to skge this morning using 2.6.17-rc3-git17
+since the sk98lin driver simply drops my connection after a little while
+and also has a lot of problem enbling the connection with my linksys
+(although it`s linux also).  
 
-Andi Kleen (I believe) thinks it should be like that, all or nothing.  I
-think Herbert Poetzl had current examples where vserver is used to
-unshare just pieces, i.e. apache unsharing network but sharing global
-pidspace.
+Suprisingly my PC frozed about an hour after the driver switch?  Maybie
+it is not a problem with the real-time patch of Ingo since I'm not using
+it?
 
-thanks,
--serge
+- vin

@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964888AbWEJK3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbWEJKbB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964888AbWEJK3A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 06:29:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWEJK3A
+	id S964903AbWEJKbB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 06:31:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbWEJKbB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 06:29:00 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:33441 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964888AbWEJK27
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 06:28:59 -0400
-Subject: Re: [PATCH -mm] ixj gcc 4.1 warning fix
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: akpm@osdl.org, eokerson@quicknet.net, linux-kernel@vger.kernel.org
-In-Reply-To: <200605100255.k4A2tx1b031712@dwalker1.mvista.com>
-References: <200605100255.k4A2tx1b031712@dwalker1.mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 10 May 2006 11:40:36 +0100
-Message-Id: <1147257636.17886.11.camel@localhost.localdomain>
+	Wed, 10 May 2006 06:31:01 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:2760 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964903AbWEJKbA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 06:31:00 -0400
+Date: Wed, 10 May 2006 15:57:16 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       jlan@engr.sgi.com, tglx@linutronix.de
+Subject: Re: [PATCH][delayacct] Fix the timespec_sub() interface (was Re: [Patch 1/8] Setup)
+Message-ID: <20060510102716.GG29432@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+References: <20060502061255.GL13962@in.ibm.com> <20060508141713.60c9d33e.akpm@osdl.org> <20060510101622.GB29432@in.ibm.com> <20060510032449.2872a8ba.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060510032449.2872a8ba.akpm@osdl.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-05-09 at 19:55 -0700, Daniel Walker wrote:
-> Fixes the following warnings,
+On Wed, May 10, 2006 at 03:24:49AM -0700, Andrew Morton wrote:
+> Balbir Singh <balbir@in.ibm.com> wrote:
+> >
+> > Please find the updated patch, which changes the interface of timespec_sub()
+> > as suggested in the review comments
+> > 
+> > ...
+> >
+> >  /*
+> > - * sub = end - start, in normalized form
+> > + * sub = lhs - rhs, in normalized form
+> >   */
+> > -static inline void timespec_sub(struct timespec *start, struct timespec *end,
+> > -				struct timespec *sub)
+> > +static inline struct timespec timespec_sub(struct timespec *lhs,
+> > +						struct timespec *rhs)
+> >  {
 > 
-> drivers/telephony/ixj.c: In function 'ixj_pstn_state':
-> drivers/telephony/ixj.c:4847: warning: 'bytes.high' may be used uninitialized in this function
-> drivers/telephony/ixj.c: In function 'ixj_write_frame':
-> drivers/telephony/ixj.c:3448: warning: 'blankword.high' may be used uninitialized in this function
-> drivers/telephony/ixj.c:3448: warning: 'blankword.low' may be used uninitialized in this function
+> I'd have thought that it would be more consistent and a saner interface to
+> use pass-by-value:
 > 
-> Signed-Off-By: Daniel Walker <dwalker@mvista.com>
+> static inline struct timespec timespec_sub(struct timespec lhs,
+> 						struct timespec rhs)
+> 
+> It should generate the same code.
+> 
+> I mentioned this last time - did you choose to not do this for some reason,
+> or did it just slip past?
 
-No this is not a good idea either. The missing default case stuff is as
-far as I can see from inspection not neccessary. If anything you want to
-add
+Sorry, that definitely slip past.
 
-	default:
-		BUG();
+I'll send another update
 
-since those are impossible cases.
-
-The unusued variables also appear to be just compiler confusion.
-
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

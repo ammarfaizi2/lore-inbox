@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWEJTde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWEJTko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751225AbWEJTde (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 15:33:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWEJTde
+	id S1751309AbWEJTko (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 15:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWEJTko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 15:33:34 -0400
-Received: from nz-out-0102.google.com ([64.233.162.193]:37978 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751225AbWEJTdd convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 15:33:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YrzCkW1LkrKU7ztrXrJ5QlmEQId+35Zjyxk5U/VLWXWWFRyXXbJN8XM1l9YOeBJebqVbyhosHg8K/3anYvmdu3LokByB0yjdiP8m58y0Y2HDYqgVHMT1SxWZa8ZgNmvJ+3AWOoNYKp+T3JjF3VbVsmOEr46D+zwze+VP4YD3NHs=
-Message-ID: <15ddcffd0605101233x104265adp31c3fbd13f541f96@mail.gmail.com>
-Date: Wed, 10 May 2006 21:33:32 +0200
-From: "Or Gerlitz" <or.gerlitz@gmail.com>
-To: "Roland Dreier" <rdreier@cisco.com>
-Subject: Re: [openib-general] Re: [PATCH 0/6] iSER (iSCSI Extensions for RDMA) initiator
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <adak68t94g6.fsf@cisco.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.44.0605101618360.17835-100000@zuben>
-	 <adak68t94g6.fsf@cisco.com>
+	Wed, 10 May 2006 15:40:44 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:13218
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751229AbWEJTkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 15:40:43 -0400
+Date: Wed, 10 May 2006 12:40:03 -0700 (PDT)
+Message-Id: <20060510.124003.04457042.davem@davemloft.net>
+To: rth@twiddle.net
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+Subject: Re: [RFC/PATCH] Make powerpc64 use __thread for per-cpu variables
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060510154702.GA28938@twiddle.net>
+References: <17505.26159.807484.477212@cargo.ozlabs.ibm.com>
+	<20060510154702.GA28938@twiddle.net>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/10/06, Roland Dreier <rdreier@cisco.com> wrote:
->     Or> To have this code compiled you would need to get the iscsi
->     Or> updates for 2.6.18 into your source tree, that is pull/sync
->     Or> with include/scsi and drivers/scsi of the scsi-misc-2.6 git
->     Or> tree.
->
-> What is the URL of this git tree?
+From: Richard Henderson <rth@twiddle.net>
+Date: Wed, 10 May 2006 08:47:13 -0700
 
-The URL is http://kernel.org/git/?p=linux/kernel/git/jejb/scsi-misc-2.6.git
+> How do you plan to address the compiler optimizing
+ ...
+> Across the schedule, we may have changed cpus, making the cached
+> address invalid.
 
->     Or> There's one patch which is not yet merged there and without it
->     Or> iser's compilation fails. The patch is named "iscsi: add
->     Or> transport end point callbacks" and i will send it to you
->     Or> offlist.
->
-> Please let me know when it is merged.  I don't want to be merging
-> iSCSI changes via my tree.
+Per-cpu variables need to be accessed only with preemption
+disabled.  And the preemption enable/disable operations
+provide a compiler memory barrier.
 
-OK., I see now that as of few hours ago the second iscsi update for
-2.6.18 was commited
-there which means iser should compile with it, you can go ahead pull it!
+#define preempt_disable() \
+do { \
+	inc_preempt_count(); \
+	barrier(); \
+} while (0)
 
-Let me know if you have any issue compiling/linking iser with the
-combind infiniband/scsi-misc configuration.
+ ...
 
-Cheers
+#define preempt_enable() \
+do { \
+	preempt_enable_no_resched(); \
+	barrier(); \
+	preempt_check_resched(); \
+} while (0)
 
-   (:
+The scheduler itself need to take care to not cause the situation
+you mention either.
 
-       Or.
+Therefore this is an issue we had already, not some new thing
+introduced by using __thread for per-cpu variables.

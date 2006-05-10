@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965070AbWEJXUs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965082AbWEJXcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965070AbWEJXUs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 19:20:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965077AbWEJXUs
+	id S965082AbWEJXcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 19:32:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965083AbWEJXcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 19:20:48 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:53938 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965070AbWEJXUr
+	Wed, 10 May 2006 19:32:25 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:23300 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S965082AbWEJXcY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 19:20:47 -0400
-Date: Thu, 11 May 2006 00:20:42 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: davem@davemloft.net, dwalker@mvista.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
-Message-ID: <20060510232042.GJ27946@ftp.linux.org.uk>
-References: <20060510162106.GC27946@ftp.linux.org.uk> <20060510150321.11262b24.akpm@osdl.org> <20060510221024.GH27946@ftp.linux.org.uk> <20060510.153129.122741274.davem@davemloft.net> <20060510224549.GI27946@ftp.linux.org.uk> <20060510160548.36e92daf.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060510160548.36e92daf.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 10 May 2006 19:32:24 -0400
+Message-ID: <44627733.4010305@vmware.com>
+Date: Wed, 10 May 2006 16:28:51 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
+       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Subject: Re: [RFC PATCH 07/35] Make LOAD_OFFSET defined by subarch
+References: <20060509084945.373541000@sous-sol.org> <20060509085150.509458000@sous-sol.org>
+In-Reply-To: <20060509085150.509458000@sous-sol.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 10, 2006 at 04:05:48PM -0700, Andrew Morton wrote:
-> Sure - it's sad and we need some workaround.
-> 
-> The init_self() thingy seemed reasonable to me - it shuts up the warning
-> and has no runtime cost.  What we could perhaps do is to make
-> 
-> #define init_self(x) (x = x)
-> 
-> only if the problematic gcc versions are detected.  Later, if/when gcc gets
-> fixed up, we use
+Chris Wright wrote:
+> Change LOAD_OFFSET so that the kernel has virtual addresses in the elf header fields.
+>
+> Unlike bare metal kernels, Xen kernels start with virtual address
+> management turned on and thus the addresses to load to should be
+> virtual addresses.
 
-Sorry, no - it shuts up too much.  Look, there are two kinds of warnings
-here.  "May be used" and "is used".  This stuff shuts both.  And unlike
-"may be used", "is used" has fairly high S/N ratio.
+This patch interferes with using a traditional bootloader.  The loader 
+for Xen should be smarter - it already has VIRT_BASE from the xen_guest 
+section, and can simply add the relocation to these header fields.  This 
+is unnecessary, and one of the many reasons a Xen kernel can't run in a 
+normal environment.
 
-Moreover, once you do that, you lose all future "is used" warnings on
-that variable.  So your ability to catch future bugs is decreased, not
-increased.
+Zach

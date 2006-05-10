@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965018AbWEJR0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbWEJR0J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965018AbWEJR0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 13:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbWEJR0Y
+	id S965006AbWEJR0J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 13:26:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965018AbWEJR0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 13:26:24 -0400
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:39952 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S965018AbWEJR0X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 13:26:23 -0400
-X-IronPort-AV: i="4.05,110,1146466800"; 
-   d="scan'208"; a="274609981:sNHT539213004"
-To: Or Gerlitz <ogerlitz@voltaire.com>
-Cc: openib-general@openib.org, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/6] iSER (iSCSI Extensions for RDMA) initiator
-X-Message-Flag: Warning: May contain useful information
-References: <Pine.LNX.4.44.0605101618360.17835-100000@zuben>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Wed, 10 May 2006 10:26:17 -0700
-In-Reply-To: <Pine.LNX.4.44.0605101618360.17835-100000@zuben> (Or Gerlitz's message of "Wed, 10 May 2006 16:20:30 +0300 (IDT)")
-Message-ID: <adak68t94g6.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 10 May 2006 17:26:20.0782 (UTC) FILETIME=[DA7618E0:01C67456]
+	Wed, 10 May 2006 13:26:08 -0400
+Received: from homer.mvista.com ([63.81.120.158]:7455 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S965006AbWEJR0H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 13:26:07 -0400
+Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
+From: Daniel Walker <dwalker@mvista.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060510164207.GD27946@ftp.linux.org.uk>
+References: <200605100256.k4A2u8bd031779@dwalker1.mvista.com>
+	 <1147257266.17886.3.camel@localhost.localdomain>
+	 <1147271489.21536.70.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <1147273787.17886.46.camel@localhost.localdomain>
+	 <1147273598.21536.92.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <1147275571.17886.64.camel@localhost.localdomain>
+	 <1147275522.21536.109.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <20060510162106.GC27946@ftp.linux.org.uk>
+	 <1147279038.21536.120.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <20060510164207.GD27946@ftp.linux.org.uk>
+Content-Type: text/plain
+Date: Wed, 10 May 2006 10:25:48 -0700
+Message-Id: <1147281948.21536.127.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Or> To have this code compiled you would need to get the iscsi
-    Or> updates for 2.6.18 into your source tree, that is pull/sync
-    Or> with include/scsi and drivers/scsi of the scsi-misc-2.6 git
-    Or> tree.
+On Wed, 2006-05-10 at 17:42 +0100, Al Viro wrote:
 
-What is the URL of this git tree?
+> s/codepath.*/bug being fixed/
 
-(Since git works on changesets and not on paths a la CVS, I can only
-pull the whole tree rather than selecting certain paths; but I don't
-think that matters)
+There's several that aren't fixing bugs , but I still think they are
+useful . 
 
-    Or> There's one patch which is not yet merged there and without it
-    Or> iser's compilation fails. The patch is named "iscsi: add
-    Or> transport end point callbacks" and i will send it to you
-    Or> offlist.
+For instance, I found several drivers that defined tables used when the
+driver is defined as a module, but I was compiling the driver built-in
+so the table showed as "unused" . 
 
-Please let me know when it is merged.  I don't want to be merging
-iSCSI changes via my tree.
+I added
 
- - R.
+#ifdef MODULE
+
+...
+
+#endif /* MODULE */
+
+How about those ? 
+
+Daniel
+

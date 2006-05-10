@@ -1,102 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965033AbWEJWDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbWEJWEY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965033AbWEJWDf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 18:03:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbWEJWDf
+	id S964921AbWEJWEY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 18:04:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWEJWEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 18:03:35 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:9934 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S932305AbWEJWDe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 18:03:34 -0400
-Date: Thu, 11 May 2006 00:02:23 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Brice Goglin <brice@myri.com>
+	Wed, 10 May 2006 18:04:24 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:18481 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S932496AbWEJWEW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 18:04:22 -0400
+X-IronPort-AV: i="4.05,111,1146466800"; 
+   d="scan'208"; a="274766815:sNHT35615824"
+To: Brice Goglin <bgoglin@myri.com>
 Cc: netdev@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
        LKML <linux-kernel@vger.kernel.org>,
-       "Andrew J. Gallatin" <gallatin@myri.com>
-Subject: Re: [PATCH 3/6] myri10ge - Driver header files
-Message-ID: <20060510220223.GB25334@electric-eye.fr.zoreil.com>
-References: <446259A0.8050504@myri.com> <44625CD2.8040100@myri.com>
-Mime-Version: 1.0
+       "Andrew J. Gallatin" <gallatin@myri.com>, <brice@myri.com>
+Subject: Re: [PATCH 4/6] myri10ge - First half of the driver
+X-Message-Flag: Warning: May contain useful information
+References: <Pine.GSO.4.44.0605101438410.498-100000@adel.myri.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 10 May 2006 15:04:20 -0700
+In-Reply-To: <Pine.GSO.4.44.0605101438410.498-100000@adel.myri.com> (Brice Goglin's message of "Wed, 10 May 2006 14:40:22 -0700 (PDT)")
+Message-ID: <adahd3x7d0b.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44625CD2.8040100@myri.com>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+X-OriginalArrivalTime: 10 May 2006 22:04:21.0814 (UTC) FILETIME=[B1219560:01C6747D]
+Authentication-Results: sj-dkim-2.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brice Goglin <brice@myri.com> :
-> [PATCH 3/6] myri10ge - Driver header files
-> 
-> myri10ge driver header files.
-> myri10ge_mcp.h is the generic header, while myri10ge_mcp_gen_header.h
-> is automatically generated from our firmware image.
-> 
-> Signed-off-by: Brice Goglin <brice@myri.com>
-> Signed-off-by: Andrew J. Gallatin <gallatin@myri.com>
-> 
->  myri10ge_mcp.h            |  233 ++++++++++++++++++++++++++++++++++++++++++++++
->  myri10ge_mcp_gen_header.h |   73 ++++++++++++++
->  2 files changed, 306 insertions(+)
-> 
-> --- /dev/null	2006-04-21 00:45:09.064430000 -0700
-> +++ linux-mm/drivers/net/myri10ge/myri10ge_mcp.h	2006-04-21 08:20:59.000000000 -0700
-> @@ -0,0 +1,233 @@
-> +#ifndef _myri10ge_mcp_h
-> +#define _myri10ge_mcp_h
+ > +typedef struct {
+ > +	mcp_kreq_ether_recv_t __iomem *lanai;	/* lanai ptr for recv ring */
+ > +	volatile uint8_t __iomem *wc_fifo;	/* w/c rx dma addr fifo address */
+ > +	mcp_kreq_ether_recv_t *shadow;	/* host shadow of recv ring */
+ > +	struct myri10ge_rx_buffer_state *info;
+ > +	int cnt;
+ > +	int alloc_fail;
+ > +	int mask;			/* number of rx slots -1 */
+ > +} myri10ge_rx_buf_t;
 
-Uppercase please.
+Why is wc_fifo volatile?  The only places you actually use it, you
+seem to cast away the volatile anyway.
 
-[...]
-> +#ifdef MYRI10GE_MCP
-> +typedef signed char          int8_t;
-> +typedef signed short        int16_t;
-> +typedef signed int          int32_t;
-> +typedef signed long long    int64_t;
-> +typedef unsigned char       uint8_t;
-> +typedef unsigned short     uint16_t;
-> +typedef unsigned int       uint32_t;
-> +typedef unsigned long long uint64_t;
-> +#endif
+Also, again, no typedef of structures please.
 
-Bloat. u8/u16/u32 and friends should be used instead.
+ > +#define myri10ge_pio_copy(to,from,size) __iowrite64_copy(to,from,size/8)
 
-> +/* 8 Bytes */
-> +typedef struct
-> +{
-> +  uint32_t high;
-> +  uint32_t low;
-> +} mcp_dma_addr_t;
+Why do you need this wrapper?  Why not just call __iowrite64_copy()
+without the obfuscation?  Anyone reading the code will just have to
+search back to this define and mentally translate the size back and
+forth all the time.
 
-Typedef are frowned upon.
+ > +int myri10ge_hyper_msi_cap_on(struct pci_dev *pdev)
+ > +{
+ > +	uint8_t cap_off;
+ > +	int nbcap = 0;
+ > +
+ > +	cap_off = PCI_CAPABILITY_LIST - 1;
+ > +	/* go through all caps looking for a hypertransport msi mapping */
 
-[...]
-> +/* 32 Bytes */
+This looks like something that should be fixed up in the general PCI
+quirk handling rather than in every driver...
 
-The struct takes 40 bytes. Does it need a 32 bytes alignment or such ?
+ > +static int
+ > +myri10ge_use_msi(struct pci_dev *pdev)
+ > +{
+ > +	if (myri10ge_msi == 1 || myri10ge_msi == 0)
+ > +		return myri10ge_msi;
+ > +
+ > +	/*  find root complex for our device */
+ > +	while (pdev->bus && pdev->bus->self) {
+ > +		pdev = pdev->bus->self;
+ > +	}
 
-> +typedef struct
-> +{
-> +  uint32_t send_done_count;
-> +
-> +  uint32_t link_up;
-> +  uint32_t dropped_link_overflow;
-> +  uint32_t dropped_link_error_or_filtered;
-> +  uint32_t dropped_runt;
-> +  uint32_t dropped_overrun;
-> +  uint32_t dropped_no_small_buffer;
-> +  uint32_t dropped_no_big_buffer;
-> +  uint32_t rdma_tags_available;
-> +
-> +  uint8_t tx_stopped;
-> +  uint8_t link_down;
-> +  uint8_t stats_updated;
-> +  uint8_t valid;
-> +} mcp_irq_data_t;
-> +
-> +
+Similarly looks like generic PCI code (if it's needed at all).  If I
+understand correctly you're trying to check if MSI has a chance at
+working on the system, but a network device driver has no business
+walking up the PCI hierarchy.
 
--- 
-Ueimor
+ > +	buf = (mcp_cmd_t *) ((unsigned long)(buf_bytes + 7) & ~7UL);
+
+ALIGN() from <linux/kernel.h>?
+
+ - R.

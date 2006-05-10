@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750955AbWEJJY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWEJJ0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750955AbWEJJY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 05:24:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWEJJY4
+	id S964870AbWEJJ0W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 05:26:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbWEJJ0W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 05:24:56 -0400
-Received: from wr-out-0506.google.com ([64.233.184.232]:29421 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750955AbWEJJYz convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 05:24:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=jDYlvxmMd4s4ICQXgS1ca3fE6NB1xBCdLU1nvgz54bHCETg7gi4qaX87kX3+MSp/J6MJizFnBg2fmDyGBqoehWDMUZrMpkFqb8LAgsZuCqwEtMn4aIduwKVqo+VAGqkWRs8d3zp2eHT+VEEuy0miJYrsSlPrqsiulNaPJNfven0=
-Message-ID: <f8e53fb0605100224r298d4799q16c088a5ca9918d5@mail.gmail.com>
-Date: Wed, 10 May 2006 11:24:54 +0200
-From: "Andrea Galbusera" <gizero@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: custom parallel interface driver
+	Wed, 10 May 2006 05:26:22 -0400
+Received: from mga01.intel.com ([192.55.52.88]:10117 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S964870AbWEJJ0V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 05:26:21 -0400
+X-IronPort-AV: i="4.05,108,1146466800"; 
+   d="scan'208"; a="35027702:sNHT32533571"
+From: "bibo,mao" <bibo.mao@intel.com>
+To: akpm@osdl.org
+Subject: [PATCH]x86_64 debug_stack nested patch (again)
+Date: Wed, 10 May 2006 17:26:07 +0800
+User-Agent: KMail/1.9.1
+Cc: Andi Kleen <ak@suse.de>, Jan Beulich <jbeulich@novell.com>,
+       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+       linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200605101726.08338.bibo.mao@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the context of a PowerPC Linux project I am required to support a
-custom parallel interface. The hardware module implementing such
-interface lives on a FPGA board connected to the PowerPC by the PCI
-bus.
+Hi,
+In x86_64 platform, INT1 and INT3 trap stack is IST stack called DEBUG_STACK,
+when INT1/INT3 trap happens, system will switch to DEBUG_STACK by hardware. 
+Current DEBUG_STACK size is 4K, when int1/int3 trap happens, kernel will 
+minus current DEBUG_STACK IST value by 4k. But if int3/int1 trap is nested, 
+it will destroy other vector's IST stack. This patch modifies this, it sets 
+DEBUG_STACK size as 8K and allows two level of nested int1/int3 trap.
 
-I'm reading developer's docs about the parport subsystem: I'm asking
-myself how to use (if possible) all that already available code. Do I
-have to develop a new low-level driver using pci and parport
-interfaces? Or may I expect to be able to use parport_pc?
-Unfortunately I still don't have the hardware available and I'm
-evaluating the complexity of this task.
+Kprobe DEBUG_STACK may be nested, because kprobe hanlder may be probed 
+by other kprobes. This patch is against 2.6.17-rc3. Thanks jbeulich for pointing out error in the first patch.
 
-Here are some specifications of the hardware module to support (not
-developed by me):
-- single unidirectional Centronics-like with control signals interface
-- 1K x 8bit FIFO for data
+Signed-Off-By: bibo, mao <bibo.mao@intel.com>
 
-Minimal driver requirements are:
-- capability to read data from the FIFO (possiblbly through ususal
-device file interfaces and using interrupts)
-- capability to read/write control registers of the interface
+--- 2.6.17-rc3.org/include/asm-x86_64/page.h	2006-05-10 12:07:18.000000000 +0800
++++ 2.6.17-rc3/include/asm-x86_64/page.h	2006-05-10 12:19:24.000000000 +0800
+@@ -20,7 +20,7 @@
+ #define EXCEPTION_STACK_ORDER 0
+ #define EXCEPTION_STKSZ (PAGE_SIZE << EXCEPTION_STACK_ORDER)
+ 
+-#define DEBUG_STACK_ORDER EXCEPTION_STACK_ORDER
++#define DEBUG_STACK_ORDER (EXCEPTION_STACK_ORDER + 1)
+ #define DEBUG_STKSZ (PAGE_SIZE << DEBUG_STACK_ORDER)
+ 
+ #define IRQSTACK_ORDER 2
 
-These may sound as very preliminar questions. In fact, they are! My
-kernel development experience is just at the beginning, but I have a
-basic knowledge of kernel module writing and I read Rubini's book on
-the subject.
 
-Hope somebody can suggest me how to approach the problem, to avoid
-re-inventing the wheel...
-
-TIA
+Thanks
+bibo,mao

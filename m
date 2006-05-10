@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbWEJPio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751488AbWEJPj5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751491AbWEJPio (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 11:38:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751465AbWEJPio
+	id S1751488AbWEJPj5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 11:39:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751465AbWEJPj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 11:38:44 -0400
-Received: from [63.81.120.158] ([63.81.120.158]:25758 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1751490AbWEJPin (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 11:38:43 -0400
-Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
-From: Daniel Walker <dwalker@mvista.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1147275571.17886.64.camel@localhost.localdomain>
-References: <200605100256.k4A2u8bd031779@dwalker1.mvista.com>
-	 <1147257266.17886.3.camel@localhost.localdomain>
-	 <1147271489.21536.70.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-	 <1147273787.17886.46.camel@localhost.localdomain>
-	 <1147273598.21536.92.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-	 <1147275571.17886.64.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 10 May 2006 08:38:41 -0700
-Message-Id: <1147275522.21536.109.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	Wed, 10 May 2006 11:39:57 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:61161 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1751488AbWEJPj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 11:39:57 -0400
+Date: Wed, 10 May 2006 11:39:50 -0400
+To: Carlos Ojea Castro <nuudoo.fb@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: LPC bus in a geode sc1200
+Message-ID: <20060510153950.GE2835@csclub.uwaterloo.ca>
+References: <bae323a50605090211t6af09c75u7cab1aac71e0e412@mail.gmail.com> <20060509142851.GA2837@csclub.uwaterloo.ca> <bae323a50605100055q7fbe9470q889874316348c2c3@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bae323a50605100055q7fbe9470q889874316348c2c3@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-10 at 16:39 +0100, Alan Cox wrote:
-> On Mer, 2006-05-10 at 08:06 -0700, Daniel Walker wrote:
-> > > Because while the warning is present people will check it now and again.
-> > 
-> > But it's pointless to review it, in this case and for this warning .
+On Wed, May 10, 2006 at 09:55:47AM +0200, Carlos Ojea Castro wrote:
+> Thank you very much for your reply, Len.
+> I will also have an FPGA (I think it will be on port 0x1400 or so). I
+> am writing to LPC using 'outb' like this: outb (data, port);
+> So I see an I/O write on the LPC bus, that is: 2 bytes for address and
+> 1 byte for data (it tooks one microsecond per transfer).
 > 
-> Then why did you review it ? 
+> To speed up things, I wish to transmit more than 1 byte for data in
+> each transfer (if possible).
+> Accordingly with page 194 of the sc1200 processor data book, it is
+> also possible to do a "Bus Master Memory Write" to transmit 1,2 or 4
+> bytes.
+> Do you know how can I make a "Bus Master Memory Write" to the LPC?
 
-So I wouldn't have to see that warning again ..
+Well I know we don't do that.  We have very little data, just board
+status information from various places on the board.  LPC does support
+doing DMA, which I believe is done in the same way it was done on ISA at
+least as far as the software is concerned.  How to implement DMA for LPC
+in the FPGA I have no idea.  The LPC specifications would probably tell
+you.  I imagine it involves setting up a DMA buffer in RAM (in the first
+16MB probably) and then sending a command to the FPGA telling it to do a
+DMA transfer from that memory location using the LPC DMA commands.
 
-> It reminds people that it does need checking, and ensures now and then
-> people do check that there isn't actually a bug there.
-
-I don't see a reason why it needs checking .. People are just going to
-spin their wheel reviewing code that's been reviewed .. Maybe someone
-like me will write a patch to fix this warning , and we'll see this
-process happening all over again ..
-
-Daniel
-
+Len Sorensen

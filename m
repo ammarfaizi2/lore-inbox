@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWEJKAJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWEJKGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964878AbWEJKAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 06:00:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbWEJKAI
+	id S964880AbWEJKGM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 06:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964882AbWEJKGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 06:00:08 -0400
-Received: from mx3.aixit.com ([82.149.224.22]:42666 "EHLO mx3.aixit.com")
-	by vger.kernel.org with ESMTP id S964878AbWEJKAG (ORCPT
+	Wed, 10 May 2006 06:06:12 -0400
+Received: from mx3.aixit.com ([82.149.224.22]:53466 "EHLO mx3.aixit.com")
+	by vger.kernel.org with ESMTP id S964880AbWEJKGL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 06:00:06 -0400
+	Wed, 10 May 2006 06:06:11 -0400
 X-Qmail-Scanner-Mail-From: lk@stresslinux.org via mx3
-X-Qmail-Scanner: 1.25 (Clear:RC:1(82.149.224.60):. Processed in 0.116598 secs)
-Message-ID: <4461B9A3.6010801@stresslinux.org>
-Date: Wed, 10 May 2006 12:00:03 +0200
+X-Qmail-Scanner: 1.25 (Clear:RC:1(82.149.224.60):. Processed in 0.105358 secs)
+Message-ID: <4461BB11.3050707@stresslinux.org>
+Date: Wed, 10 May 2006 12:06:09 +0200
 From: Stresslinux Kernel <lk@stresslinux.org>
 User-Agent: Thunderbird 1.5.0.2 (X11/20060411)
 MIME-Version: 1.0
@@ -30,7 +30,6 @@ the LATEST-IS file seems not updated yet
 
 http://www.kernel.org/pub/linux/kernel/v2.6/LATEST-IS-2.6.16.15
 Error 404
-
 
 Chris Wright schrieb:
 > diff --git a/Makefile b/Makefile

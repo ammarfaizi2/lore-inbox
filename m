@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWEJHJs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWEJHJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751408AbWEJHJs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 03:09:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWEJHJs
+	id S1751412AbWEJHJn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 03:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWEJHJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 03:09:48 -0400
-Received: from wr-out-0506.google.com ([64.233.184.239]:32896 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751408AbWEJHJr convert rfc822-to-8bit (ORCPT
+	Wed, 10 May 2006 03:09:43 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:40077 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751405AbWEJHJm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 03:09:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=GDAN0p7m+l6vIsOPmstyipTJYCkBkNlNb4RbQfaDu75N5cBRW1wSuO8IUb622QzeRx2nTKZWivrBO+0Ou4kAwIzi6gDFRo41g1LAdr67mmlxYWFn3vAg9puR8MnXGNlClOTyNOi9JeDiyOjKy5O9AKkBCzp6VZ5G/TkI+aEry/0=
-Message-ID: <84144f020605100009i74824233ie6feaf6fd2d9055f@mail.gmail.com>
-Date: Wed, 10 May 2006 10:09:46 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Mike Kravetz" <kravetz@us.ibm.com>
-Subject: Re: [PATCH] alloc_memory_early() routines
-Cc: "Andrew Morton" <akpm@osdl.org>, "Dave Hansen" <haveblue@us.ibm.com>,
-       "Christoph Lameter" <clameter@sgi.com>,
-       "Andy Whitcroft" <apw@shadowen.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060509210722.GD3168@w-mikek2.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+	Wed, 10 May 2006 03:09:42 -0400
+Date: Wed, 10 May 2006 09:09:29 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Paul Mackerras <paulus@samba.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH] Define __raw_get_cpu_var and use it
+Message-ID: <20060510070929.GA23414@elte.hu>
+References: <17505.24133.491523.358882@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060509053512.GA20073@monkey.ibm.com>
-	 <20060508224952.0b43d0fd.akpm@osdl.org>
-	 <20060509210722.GD3168@w-mikek2.ibm.com>
-X-Google-Sender-Auth: fdaa3bbeb096424a
+In-Reply-To: <17505.24133.491523.358882@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mike,
 
-On 5/10/06, Mike Kravetz <kravetz@us.ibm.com> wrote:
-> diff -Naupr linux-2.6.17-rc3-mm1/mm/slab.c linux-2.6.17-rc3-mm1.work3/mm/slab.c
-> --- linux-2.6.17-rc3-mm1/mm/slab.c      2006-05-03 22:19:16.000000000 +0000
-> +++ linux-2.6.17-rc3-mm1.work3/mm/slab.c        2006-05-09 21:38:23.000000000 +0000
+* Paul Mackerras <paulus@samba.org> wrote:
 
-[snip]
+> There are several instances of per_cpu(foo, raw_smp_processor_id()), 
+> which is semantically equivalent to __get_cpu_var(foo) but without the 
+> warning that smp_processor_id() can give if CONFIG_DEBUG_PREEMPT is 
+> enabled.  For those architectures with optimized per-cpu 
+> implementations, namely ia64, powerpc, s390, sparc64 and x86_64, 
+> per_cpu() turns into more and slower code than __get_cpu_var(), so it 
+> would be preferable to use __get_cpu_var on those platforms.
+> 
+> This defines a __raw_get_cpu_var(x) macro which turns into per_cpu(x, 
+> raw_smp_processor_id()) on architectures that use the generic per-cpu 
+> implementation, and turns into __get_cpu_var(x) on the architectures 
+> that have an optimized per-cpu implementation.
+>     
+> Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-> +void * __init alloc_memory_early_node(size_t size, gfp_t flags, int node)
-> +{
-> +       if (g_cpucache_up == FULL)
-> +               return kmalloc_node(size, flags, node);
-> +       else
-> +               return alloc_bootmem_node(NODE_DATA(node), size);
-> +}
+i made the original raw_smp_processor_id() changes and i never liked the 
+per_cpu() open-coding it introduced. Your patch solves this problem 
+nicely.
 
-I'd prefer you put this in mm/bootmem.c and added a
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-int slab_is_available(void)
-{
-       return g_cpucache_up == FULL;
-}
-
-to mm/slab.c instead.
-
-                                               Pekka
+	Ingo

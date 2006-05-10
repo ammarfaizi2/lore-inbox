@@ -1,113 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWEJS7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWEJTFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964810AbWEJS7k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 14:59:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWEJS7k
+	id S964814AbWEJTFF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 15:05:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964815AbWEJTFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 14:59:40 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:42713 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S964776AbWEJS7j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 14:59:39 -0400
-Date: Wed, 10 May 2006 20:57:18 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: akpm@osdl.org, edward_peng@dlink.com.tw, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] dl2k: use explicit DMA_48BIT_MASK
-Message-ID: <20060510185718.GA25334@electric-eye.fr.zoreil.com>
-References: <200605101812.k4AICpRo006555@dwalker1.mvista.com>
+	Wed, 10 May 2006 15:05:05 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53262 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964814AbWEJTFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 15:05:02 -0400
+Date: Wed, 10 May 2006 20:04:55 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Vasquez <andrew.vasquez@qlogic.com>
+Cc: Linux-SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, axboe@suse.de
+Subject: Re: OOPS during FC-aware-driver module reload...
+Message-ID: <20060510190455.GB22636@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Vasquez <andrew.vasquez@qlogic.com>,
+	Linux-SCSI Mailing List <linux-scsi@vger.kernel.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	axboe@suse.de
+References: <20060510183144.GG2190@andrew-vasquezs-powerbook-g4-15.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200605101812.k4AICpRo006555@dwalker1.mvista.com>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+In-Reply-To: <20060510183144.GG2190@andrew-vasquezs-powerbook-g4-15.local>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Typo will be harder with this one.
+On Wed, May 10, 2006 at 11:31:44AM -0700, Andrew Vasquez wrote:
+> Recent linux-2.6.git trees introduced some oddities while performing a
+> simple load/unload/load of the qla2xxx (a FC transport aware driver)
+> driver.
+> 
+> Basically on module reload, I'd consistently hit the following
+> 
+> 	# insmod qla2xxx
+> 	# rmmod qla2xxx
+> 	# insmod qla2xxx
+> 
+> 	BUG: unable to handle kernel NULL pointer dereference at virtual address 00000000
+> 	 printing eip: 00000000
+> 	*pde = 00000000
+> 	Oops: 0000 [#1]
+> 	SMP
+> 	Modules linked in: qla2xxx scsi_transport_fc
+> 	CPU:    1
+> 	EIP:    0060:[<00000000>]    Not tainted VLI
+> 	EFLAGS: 00010246   (2.6.17-rc3 #32)
+> 	EIP is at _stext+0x3feffd68/0x23
+> 	eax: 00000000   ebx: f7c6c448   ecx: f3e92128   edx: 00000000
+> 	esi: f3e92128   edi: c02fe420   ebp: 6b6b6b6b   esp: ea290dcc
+> 	ds: 007b   es: 007b   ss: 0068
+> 	Process insmod (pid: 10001, threadinfo=ea290000 task=f40ada90)
+> 	Stack: <0>c0226794 6b6b6b6b f3e92128 f8b216e0 f3e92128 f3e92000 00000000 000000d0 
+> 	       c0226cc3 f3e92128 c0226c90 c02598e4 f3e92128 f3e920f1 f3e92000 c02520c7 
+> 	       f3e92000 ffff5e05 f3e92358 f3e93b14 f3e92000 f8b04d29 f3e92000 c1b2eb5c 
+> 	Call Trace:
+> 	 <c0226794> attribute_container_add_device+0x4b/0x135  <c0226cc3> transport_setup_device+0xe/0x11
+> 	 <c0226c90> transport_setup_classdev+0x0/0x25   <c02598e4> scsi_sysfs_add_host+0x9e/0xac
+> 	 <c02520c7> scsi_add_host+0x129/0x179   <f8b04d29> qla2x00_probe_one+0xa33/0xb34 [qla2xxx]
+> 	 <c0125eb3> call_usermodehelper_keys+0xf7/0x104   <c0125d78> __call_usermodehelper+0x0/0x44
+> 	 <f8b05e1b> qla2xxx_probe_one+0xe/0x11 [qla2xxx]   <c01e4ae6> pci_call_probe+0xf/0x12
+> 	 <c01e4b1c> __pci_device_probe+0x33/0x47   <c01e4b4f> pci_device_probe+0x1f/0x34
+> 	 <c0223ec4> driver_probe_device+0x43/0xa4   <c0223f95> __driver_attach+0x0/0x84
+> 	 <c0223fee> __driver_attach+0x59/0x84   <c02235aa> bus_for_each_dev+0x47/0x6d
+> 	 <c01dc91e> kobject_add+0xae/0xf7   <c022402d> driver_attach+0x14/0x18
+> 	 <c0223f95> __driver_attach+0x0/0x84   <c02239d1> bus_add_driver+0x57/0x8d
+> 	 <c02244b6> driver_register+0xb9/0xbe   <c01e4d4e> __pci_register_driver+0x85/0x96
+> 	 <f883c07b> qla2x00_module_init+0x7b/0xa2 [qla2xxx]   <c01308c1> sys_init_module+0x8d/0x171
+> 	 <c010266f> sysenter_past_esp+0x54/0x75  
+> 	Code:  Bad EIP value.
+> 	EIP: [<00000000>] _stext+0x3feffd68/0x23 SS:ESP 0068:ea290dcc
+> 
+> after some churning, git-bisect pointed to commit:
+> 
+> 	commit 56cf6504fc1c0c221b82cebc16a444b684140fb7
+> 	Author: Russell King <rmk@dyn-67.arm.linux.org.uk>
+> 	Date:   Fri May 5 17:57:52 2006 +0100
+> 
+> 	    [BLOCK] Fix oops on removal of SD/MMC card
+> 
+> 	    The block layer keeps a reference (driverfs_dev) to the struct
+> 	    device associated with the block device, and uses it internally
+> 	    for generating uevents in block_uevent.
+> 
+> 	    Block device uevents include umounting the partition, which can
+> 	    occur after the backing device has been removed.
+> 
+> 	    Unfortunately, this reference is not counted.  This means that
+> 	    if the struct device is removed from the device tree, the block
+> 	    layers reference will become stale.
+> 
+> 	    Guard against this by holding a reference to the struct device
+> 	    in add_disk(), and only drop the reference when we're releasing
+> 	    the gendisk kobject - in other words when we can be sure that no
+> 	    further uevents will be generated for this block device.
+> 
+> 	    Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+> 	    Acked-by: Jens Axboe <axboe@suse.de>
+> 
+> after reverting the commit, all is fine again (no more panics during
+> reload).  My fear though is that we're simply masking an underlying
+> problem which the commit attempted to correct.
 
-Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+Not sure why that would be, but I think your assumption is correct (that
+this fix has uncovered something else which is wrong.)
 
----
+I'm not sure what because I don't do well when trying to decode x86
+oopsen.  In fact, I'm not sure how it's getting from
+attribute_container_add_device() to a NULL pointer.
 
- drivers/net/dl2k.c          |   13 ++++++-------
- include/linux/dma-mapping.h |    1 +
- 2 files changed, 7 insertions(+), 7 deletions(-)
+The obvious thing is this:
 
-5019a27a2a4e259f29a7bd03e905764eedfa034c
-diff --git a/drivers/net/dl2k.c b/drivers/net/dl2k.c
-index ca73f07..18d67cf 100644
---- a/drivers/net/dl2k.c
-+++ b/drivers/net/dl2k.c
-@@ -765,8 +765,7 @@ rio_free_tx (struct net_device *dev, int
- 			break;
- 		skb = np->tx_skbuff[entry];
- 		pci_unmap_single (np->pdev,
--				  np->tx_ring[entry].fraginfo & 
--						0xffffffffffffULL,
-+				  np->tx_ring[entry].fraginfo & DMA_48BIT_MASK,
- 				  skb->len, PCI_DMA_TODEVICE);
- 		if (irq)
- 			dev_kfree_skb_irq (skb);
-@@ -895,7 +894,7 @@ receive_packet (struct net_device *dev)
- 			if (pkt_len > copy_thresh) {
- 				pci_unmap_single (np->pdev,
- 						  desc->fraginfo & 
--							0xffffffffffffULL,
-+							DMA_48BIT_MASK,
- 						  np->rx_buf_sz,
- 						  PCI_DMA_FROMDEVICE);
- 				skb_put (skb = np->rx_skbuff[entry], pkt_len);
-@@ -903,7 +902,7 @@ receive_packet (struct net_device *dev)
- 			} else if ((skb = dev_alloc_skb (pkt_len + 2)) != NULL) {
- 				pci_dma_sync_single_for_cpu(np->pdev,
- 				  			    desc->fraginfo & 
--							      0xffffffffffffULL,
-+							      DMA_48BIT_MASK,
- 							    np->rx_buf_sz,
- 							    PCI_DMA_FROMDEVICE);
- 				skb->dev = dev;
-@@ -915,7 +914,7 @@ receive_packet (struct net_device *dev)
- 				skb_put (skb, pkt_len);
- 				pci_dma_sync_single_for_device(np->pdev,
- 				  			      desc->fraginfo & 
--							      0xffffffffffffULL,
-+							      DMA_48BIT_MASK,
- 							       np->rx_buf_sz,
- 							       PCI_DMA_FROMDEVICE);
- 			}
-@@ -1803,7 +1802,7 @@ rio_close (struct net_device *dev)
- 		if (skb) {
- 			pci_unmap_single(np->pdev, 
- 					 np->rx_ring[i].fraginfo & 
--						0xffffffffffffULL,
-+						DMA_48BIT_MASK,
- 					 skb->len, PCI_DMA_FROMDEVICE);
- 			dev_kfree_skb (skb);
- 			np->rx_skbuff[i] = NULL;
-@@ -1814,7 +1813,7 @@ rio_close (struct net_device *dev)
- 		if (skb) {
- 			pci_unmap_single(np->pdev, 
- 					 np->tx_ring[i].fraginfo & 
--						0xffffffffffffULL,
-+						DMA_48BIT_MASK,
- 					 skb->len, PCI_DMA_TODEVICE);
- 			dev_kfree_skb (skb);
- 			np->tx_skbuff[i] = NULL;
-diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-index ff61817..635690c 100644
---- a/include/linux/dma-mapping.h
-+++ b/include/linux/dma-mapping.h
-@@ -14,6 +14,7 @@ enum dma_data_direction {
- };
- 
- #define DMA_64BIT_MASK	0xffffffffffffffffULL
-+#define DMA_48BIT_MASK	0x0000ffffffffffffULL
- #define DMA_40BIT_MASK	0x000000ffffffffffULL
- #define DMA_39BIT_MASK	0x0000007fffffffffULL
- #define DMA_32BIT_MASK	0x00000000ffffffffULL
+                if (!cont->match(cont, dev))
+                        continue;
+
+but that means that "cont" must be invalid.  I don't know this code.
+
 -- 
-1.3.1
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

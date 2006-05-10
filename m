@@ -1,62 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750900AbWEJTQj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbWEJTVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750900AbWEJTQj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 15:16:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbWEJTQj
+	id S1750923AbWEJTVc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 15:21:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbWEJTVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 15:16:39 -0400
-Received: from gold.veritas.com ([143.127.12.110]:11318 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1750821AbWEJTQj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 15:16:39 -0400
-X-IronPort-AV: i="4.05,110,1146466800"; 
-   d="scan'208"; a="59393866:sNHT29710868"
-Date: Wed, 10 May 2006 16:17:06 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-cc: linux-kernel@vger.kernel.org, systemtap@sources.redhat.com, akpm@osdl.org,
-       Andi Kleen <ak@suse.de>, davem@davemloft.net, suparna@in.ibm.com,
-       richardj_moore@uk.ibm.com, hch@infradead.org
-Subject: Re: [RFC] [PATCH 6/6] Kprobes: Remove breakpoints from the copied 
- pages
-In-Reply-To: <20060510121750.GD12463@in.ibm.com>
-Message-ID: <Pine.LNX.4.64.0605101610300.17281@blonde.wat.veritas.com>
-References: <20060509065455.GA11630@in.ibm.com> <20060509065917.GA22493@in.ibm.com>
- <20060509070106.GB22493@in.ibm.com> <20060509070508.GC22493@in.ibm.com>
- <20060509070911.GD22493@in.ibm.com> <20060509071204.GE22493@in.ibm.com>
- <20060509071523.GF22493@in.ibm.com> <Pine.LNX.4.64.0605091747050.10238@blonde.wat.veritas.com>
- <20060510121750.GD12463@in.ibm.com>
+	Wed, 10 May 2006 15:21:32 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:47790 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750923AbWEJTVb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 15:21:31 -0400
+Date: Wed, 10 May 2006 15:20:59 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Adrian Bunk <bunk@stusta.de>
+cc: Daniel Walker <dwalker@mvista.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
+In-Reply-To: <20060510162404.GR3570@stusta.de>
+Message-ID: <Pine.LNX.4.58.0605101506540.22959@gandalf.stny.rr.com>
+References: <200605100256.k4A2u8bd031779@dwalker1.mvista.com>
+ <1147257266.17886.3.camel@localhost.localdomain>
+ <1147271489.21536.70.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+ <1147273787.17886.46.camel@localhost.localdomain>
+ <1147273598.21536.92.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+ <Pine.LNX.4.58.0605101116590.5532@gandalf.stny.rr.com> <20060510162404.GR3570@stusta.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 10 May 2006 19:16:38.0808 (UTC) FILETIME=[431CB980:01C67466]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 May 2006, Prasanna S Panchamukhi wrote:
-> 
-> As Andi Kleen and Christoph suggested pagecache contention can be avoided
-> using the COW approach.
 
-Yes, COWing is fine, I've no pagecache qualms if you go that way.
+Someone emailed me the bug report for gcc:
 
-> Some thoughts about COW implications AFAIK
-> 1. Need to hookup mmap() to make a per process copy.
-I don't understand.
-> 2. Bring in the pages just to insert the probes.
-They'll be faulted in to insert probes, yes.
-> 3. All the text pages need to be in memory until process exits.
-No, COWed pages can go out to swap.
-> 4. Free up the per process text pages by hooking exit() and exec().
-exit_mmap frees process pages on exit and exec.
-> 5. Maskoff probes visible across fork(), by hooking fork().
-Depends on what semantics you want across fork.
+ http://gcc.gnu.org/bugzilla/show_bug.cgi?id=5035
 
-Perhaps I don't understand, but you seem to be overcomplicating it,
-seeing VM (mm) problems which would be automatically handled for you.
 
-Wouldn't you just use ptrace(2) to insert and remove your uprobes?
-See access_process_vm in kernel/ptrace.c for what that would do.
-It goes on to get_user_pages to do the faulting and COWing.
+And in this, it showed the trick to initialize self to turn off that
+warning.
 
-Hugh
+Would it be OK to define a macro like:
+
+#ifdef CONFIG_SHOW_ALL_UNINIT_WARNINGS
+#  define init_self(x) x
+#else
+#  define init_self(x) x = x
+#endif
+
+Such that we can at least look at the places of bogus uninitialized
+warnings and do something like:
+
+Index: ipc/sem.c
+===================================================================
+--- ipc/sem.c   (revision 796)
++++ ipc/sem.c   (working copy)
+@@ -809,7 +809,7 @@
+ {
+        struct sem_array *sma;
+        int err;
+-       struct sem_setbuf setbuf;
++       struct sem_setbuf init_self(setbuf);
+        struct kern_ipc_perm *ipcp;
+
+        if(cmd == IPC_SET) {
+
+
+Seems to work.  And if you want to make sure that a place doesn't need it
+anymore, use -Winit-self and have a script to do a full make once with
+CONFIG_SHOW_ALL_UNINIT_WARNINGS and once with -Winit-self, and make sure
+that all the -Winit-self warnings are in the
+CONFIG_SHOW_ALL_UNINIT_WARNINGS. Otherwise the init_self isn't needed
+anymore.
+
+-- Steve
+
+

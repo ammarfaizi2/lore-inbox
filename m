@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbWEJQ1v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWEJQhW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965015AbWEJQ1v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 12:27:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWEJQ1v
+	id S1750880AbWEJQhW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 12:37:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbWEJQhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 12:27:51 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:9924 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965015AbWEJQ1u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 12:27:50 -0400
-Subject: Re: Updated libata PATA patch
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kevin Radloff <radsaq@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3b0ffc1f0605100905x18d07f76jda38d1807cf9e9d7@mail.gmail.com>
-References: <1147196676.3172.133.camel@localhost.localdomain>
-	 <3b0ffc1f0605091848med1f37ua83c283a922ea682@mail.gmail.com>
-	 <1147270145.17886.42.camel@localhost.localdomain>
-	 <3b0ffc1f0605100905x18d07f76jda38d1807cf9e9d7@mail.gmail.com>
+	Wed, 10 May 2006 12:37:22 -0400
+Received: from [63.81.120.158] ([63.81.120.158]:28892 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1750880AbWEJQhV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 12:37:21 -0400
+Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
+From: Daniel Walker <dwalker@mvista.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060510162106.GC27946@ftp.linux.org.uk>
+References: <200605100256.k4A2u8bd031779@dwalker1.mvista.com>
+	 <1147257266.17886.3.camel@localhost.localdomain>
+	 <1147271489.21536.70.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <1147273787.17886.46.camel@localhost.localdomain>
+	 <1147273598.21536.92.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <1147275571.17886.64.camel@localhost.localdomain>
+	 <1147275522.21536.109.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <20060510162106.GC27946@ftp.linux.org.uk>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 10 May 2006 17:39:58 +0100
-Message-Id: <1147279198.19935.6.camel@localhost.localdomain>
+Date: Wed, 10 May 2006 09:37:18 -0700
+Message-Id: <1147279038.21536.120.camel@c-67-180-134-207.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2006-05-10 at 12:05 -0400, Kevin Radloff wrote:
-> >         ae.irq_flags = SA_SHIRQ ?
+On Wed, 2006-05-10 at 17:21 +0100, Al Viro wrote:
+
+> Don't.  Fix.  Correct.  Code.
 > 
-> Another new and exciting oops :)
+> Ever.  Because sooner or later you will paper over real bug.  It's far better
+> to reject patches that just make $TOOL to STFU than risk blind "fix" hiding
+> a real bug.
 
-Yay, so that one was the PCMCIA code being broken.
+Couldn't agree with you more .. But I don't want to see the warning
+either ..
 
-> pcmcia: registering new device pcmcia1.0
-> ata3: PATA max PIO0 cmd 0x3100 ctl 0x310E bmdma 0x0 irq 11
-> ata3: dev 0 cfg 49:0200 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000 88:0000
-> ata3: dev 0 ATA-10, max PIO4, 2001888 sectors: LBA
-> ata3: dev 0 configured for PIO0
+> Unless you show a real codepath that leads to use without initialization
+> (and do that in commit message, so it could be verified as real issue),
+> these patches are worthless in the best case and dangerous in the worst
+> one.
 
-This is all good. Its a PIO0 device (PCMCIA is ISA cycles which are PIO0
-cycles)
+Several of my patches have nothing to do with initialization .. 
 
-> scsi2 : pata_pcmcia
->   Vendor: ATA       Model: SanDisk SDCFH-10  Rev: HDX
->   Type:   Direct-Access                      ANSI SCSI revision: 05
-> SCSI device sdb: 2001888 512-byte hdwr sectors (1025 MB)
-
-The disk was found and the indentify data came out correctly.
-
-> sdb: Write Protect is off
-> sdb: Mode Sense: 00 3a 00 00
-> SCSI device sdb: drive cache: write through
-> SCSI device sdb: 2001888 512-byte hdwr sectors (1025 MB)
-> sdb: Write Protect is off
-> sdb: Mode Sense: 00 3a 00 00
-> SCSI device sdb: drive cache: write through
-
-The drive was sized, the cache checked properly.
-
->  sdb:<1>BUG: unable to handle kernel NULL pointer dereference at
-> virtual address 00000000
-
-Awww.. how to ruin a good day 8)
-
-At this point its trying to read the partition table. It has translated
-the command into a SCSI command block and into ATA,. It has queued it,
-and it has just set out to issue it when it went boom
-
-I'll do some more digging, but putting printks into ata_qc_issue_prot to
-see where it explodes is the next step I suspect.
+Daniel
 

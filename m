@@ -1,93 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbWEJKW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbWEJKYH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964873AbWEJKW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 06:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbWEJKW0
+	id S964890AbWEJKYH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 06:24:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbWEJKYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 06:22:26 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:21711 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964873AbWEJKWZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 06:22:25 -0400
-Date: Wed, 10 May 2006 15:48:41 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-       jlan@engr.sgi.com
-Subject: [PATCH][delayacct] un-inline delayacct_end(), remove initialization of ts (was Re: [Patch 1/8] Setup)
-Message-ID: <20060510101841.GC29432@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <20060502061255.GL13962@in.ibm.com> <20060508142322.71e88a54.akpm@osdl.org>
+	Wed, 10 May 2006 06:24:07 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:62686 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964890AbWEJKYF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 06:24:05 -0400
+Subject: Re: [PATCH -mm] riva CalcStateExt gcc 4.1 warning fix
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: akpm@osdl.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org
+In-Reply-To: <200605100256.k4A2u56F031749@dwalker1.mvista.com>
+References: <200605100256.k4A2u56F031749@dwalker1.mvista.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 10 May 2006 11:35:43 +0100
+Message-Id: <1147257343.17886.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060508142322.71e88a54.akpm@osdl.org>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 08, 2006 at 02:23:22PM -0700, Andrew Morton wrote:
-> Balbir Singh <balbir@in.ibm.com> wrote:
-> >
-> > +static inline void delayacct_end(struct timespec *start, struct timespec *end,
-> > +				u64 *total, u32 *count)
-> > +{
-> > +	struct timespec ts = {0, 0};
-> > +	s64 ns;
-> > +
-> > +	do_posix_clock_monotonic_gettime(end);
-> > +	timespec_sub(&ts, start, end);
-> > +	ns = timespec_to_ns(&ts);
-> > +	if (ns < 0)
-> > +		return;
-> > +
-> > +	spin_lock(&current->delays->lock);
-> > +	*total += ns;
-> > +	(*count)++;
-> > +	spin_unlock(&current->delays->lock);
-> > +}
+On Maw, 2006-05-09 at 19:56 -0700, Daniel Walker wrote:
+> This could be a bug. The return from CalcVClock isn't checked
+> so the variables in questions could be random data ..
 > 
-> - too large to be inlined
+> Fixes the following warning,
 > 
-> - The initialisation of `ts' is unneeded (maybe it generated a bogus
->   warning, but it won't do that if you switch timespec_sub to
->   return-by-value)
+> drivers/video/riva/riva_hw.c: In function 'CalcStateExt':
+> drivers/video/riva/riva_hw.c:1241: warning: 'p' may be used uninitialized in this function
+> drivers/video/riva/riva_hw.c:1241: warning: 'n' may be used uninitialized in this function
+> drivers/video/riva/riva_hw.c:1241: warning: 'm' may be used uninitialized in this function
+> drivers/video/riva/riva_hw.c:1241: warning: 'VClk' may be used uninitialized in this function
 
-Hi, Andrew,
+But zero isn't valid data. You need to fix the missing return check not
+hide the warnings. This goes for just about every patch in this series
 
-Here is an update to un-inline delayacct_end() and remove the initialization
-of ts to 0.
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
-
-
-Changelog
-1. Remove inlining of delayacct_end(), the function is too big to be inlined
-2. Remove initialization of ts. 
-
-
-Signed-off-by: Balbir Singh <balbir@in.ibm.com>
----
-
- kernel/delayacct.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff -puN kernel/delayacct.c~remove-initialization-of-ts-and-inline kernel/delayacct.c
---- linux-2.6.17-rc3/kernel/delayacct.c~remove-initialization-of-ts-and-inline	2006-05-10 14:11:21.000000000 +0530
-+++ linux-2.6.17-rc3-balbir/kernel/delayacct.c	2006-05-10 14:11:57.000000000 +0530
-@@ -67,10 +67,10 @@ static inline void delayacct_start(struc
-  * its timestamps (@start, @end), accumalator (@total) and @count
-  */
- 
--static inline void delayacct_end(struct timespec *start, struct timespec *end,
-+static void delayacct_end(struct timespec *start, struct timespec *end,
- 				u64 *total, u32 *count)
- {
--	struct timespec ts = {0, 0};
-+	struct timespec ts;
- 	s64 ns;
- 
- 	do_posix_clock_monotonic_gettime(end);
-_

@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965064AbWEJXFx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965069AbWEJXG4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965064AbWEJXFx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 19:05:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965065AbWEJXFx
+	id S965069AbWEJXG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 19:06:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965067AbWEJXG4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 19:05:53 -0400
-Received: from linux.dunaweb.hu ([62.77.196.1]:477 "EHLO linux.dunaweb.hu")
-	by vger.kernel.org with ESMTP id S965064AbWEJXFw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 19:05:52 -0400
-Message-ID: <446271C6.9050509@dunaweb.hu>
-Date: Thu, 11 May 2006 01:05:42 +0200
-From: Zoltan Boszormenyi <zboszor@dunaweb.hu>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Wed, 10 May 2006 19:06:56 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:38980 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S965065AbWEJXGy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 19:06:54 -0400
+X-IronPort-AV: i="4.05,111,1146466800"; 
+   d="scan'208"; a="274800609:sNHT33812900"
+To: "David S. Miller" <davem@davemloft.net>
+Cc: viro@ftp.linux.org.uk, akpm@osdl.org, dwalker@mvista.com,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
+X-Message-Flag: Warning: May contain useful information
+References: <20060510162106.GC27946@ftp.linux.org.uk>
+	<20060510150321.11262b24.akpm@osdl.org>
+	<20060510221024.GH27946@ftp.linux.org.uk>
+	<20060510.153129.122741274.davem@davemloft.net>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 10 May 2006 16:06:51 -0700
+In-Reply-To: <20060510.153129.122741274.davem@davemloft.net> (David S. Miller's message of "Wed, 10 May 2006 15:31:29 -0700 (PDT)")
+Message-ID: <adaody55vjo.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Oops in au8830 driver on x86-64
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 10 May 2006 23:06:52.0079 (UTC) FILETIME=[6C769BF0:01C67486]
+Authentication-Results: sj-dkim-5.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+    David> IMHO, the tree should build with -Werror without exception.
+    David> Once you have that basis, new ones will not show up easily
+    David> and the hard part of the battle has been won.
 
-I bought a used sound card for secondary uses, it happens to be
-a Diamond Sound Monster MX300 with an Aureal Vortex2 chip.
-Unfortunately, after putting it into the machine, it doesn't boot up,
-I get an oops that prevents booting further. I have hand-copied
-the relevant info:
+It's a great goal, but which gcc version and architecture do you
+declare has to build the kernel with -Werror?  Every gcc version and
+platform produces a different set of warnings.  And what do you do
+when all released versions of gcc produce a false positive warning?
 
-RIP: {:snd_au8830:snd_vortex_probe+411}
-...
-Call Trace: {sprintf+81} {__wake_up+56}
- {pci_device_probe+256} {driver_probe_device+82}
- {__driver_attach+142} {__driver_attach+0}
- {bus_for_each_dev+67} {bus_add_driver+118}
- {__pci_register_driver+142} {stop_machine_run+58}
- {sys_init_module+278} {system_call+126}
+The problem is that fixing false positive warnings often leads people
+to write unnatural code that may hide future bugs (and in fact may be
+buggy even when written).
 
-The kernel is not tainted.
-
-$ uname -a
-Linux xxxxxx 2.6.16-1.2111_FC5 #1 SMP Thu May 4 21:16:04 EDT 2006 x86_64 
-x86_64 x86_64 GNU/Linux
-
-System is an FC5/x86-64 updated to the latest erratas.
-
-There is only one sprintf() call in the whole au88x0 driver source,
-line 328 in au88x0.c. Why it fails for x86-64 is beyond my understanding.
-This is the code in question:
-
-327:    strcpy(card->shortname, CARD_NAME_SHORT);
-328:    sprintf(card->longname, "%s at 0x%lx irq %i",
-                card->shortname, chip->io, chip->irq);
-
-Pointer "card" exists or the driver would have failed earlier allocating 
-or dereferencing it.
-card->longname is 80 byte large, length of the string is at most 44 byte:
-12 byte (format string fillings + terminating NULL) +
-6 byte (CARD_NAME_SHORT) +
-6 byte (unsigned long written in hex) +
-10 byte (unsigned int written in dec)
-
-I couldn't seek further, I put the card away for now. :-)
-
-Best regards,
-Zoltán Böszörményi
-
+ - R.

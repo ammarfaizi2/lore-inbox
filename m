@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbWEJMG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbWEJMKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964932AbWEJMG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 08:06:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964933AbWEJMG2
+	id S964936AbWEJMKo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 08:10:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbWEJMKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 08:06:28 -0400
-Received: from fwstl1-1.wul.qc.ec.gc.ca ([205.211.132.24]:46866 "EHLO
-	ecstlaurent8.quebec.int.ec.gc.ca") by vger.kernel.org with ESMTP
-	id S964932AbWEJMG2 convert rfc822-to-8bit (ORCPT
+	Wed, 10 May 2006 08:10:44 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:33249 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964936AbWEJMKn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 08:06:28 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-Subject: RE: 2.6.16-rt17, hang with skge network driver
-Date: Wed, 10 May 2006 08:06:24 -0400
-Message-ID: <8E8F647D7835334B985D069AE964A4F7011B268D@ECQCMTLMAIL1.quebec.int.ec.gc.ca>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.16-rt17, hang with skge network driver
-Thread-Index: AcZzA4I2Ir27LTWpTouUSA0SNQwiGgBJgDug
-From: "Fortier,Vincent [Montreal]" <Vincent.Fortier1@EC.GC.CA>
-To: "Fernando Lopez-Lezcano" <nando@ccrma.Stanford.EDU>,
-       "lkml" <linux-kernel@vger.kernel.org>, "Ingo Molnar" <mingo@elte.hu>
-X-OriginalArrivalTime: 10 May 2006 12:06:25.0041 (UTC) FILETIME=[28E87810:01C6742A]
+	Wed, 10 May 2006 08:10:43 -0400
+Date: Wed, 10 May 2006 17:36:58 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: lse-tech@lists.sourceforge.net, akpm@osdl.org
+Subject: [PATCH][delayacct] Use portable cputime API in __delayacct_add_tsk()
+Message-ID: <20060510120658.GA16239@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi Ingo, I've seen a few hangs with 2.6.16-rt17 - my feeling 
-> was that they had to do with high network load - and this 
-> time something was left behind after the reboot (I have to 
-> set up a serial console, it is not happening very 
-> frequently). Most probably this does not say much but here it 
-> goes anyway:
+Hi, Andrew,
 
-I've switch from sk98lin to skge this morning using 2.6.17-rc3-git17
-since the sk98lin driver simply drops my connection after a little while
-and also has a lot of problem enbling the connection with my linksys
-(although it`s linux also).  
+While testing on ppc64, I found that taskstats could return incorrect data.
+The same code worked fine on x86.
 
-Suprisingly my PC frozed about an hour after the driver switch?  Maybie
-it is not a problem with the real-time patch of Ingo since I'm not using
-it?
+	Thanks,
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs
 
-- vin
+
+Description of the patch
+------------------------
+
+tsk->utime and tsk->stime are of type cputime_t. Explicitly converting from
+cputime to nanoseconds does not work on all platforms. Use the cputime
+API for conversion. This makes the code more portable and returns correct data
+on ppc64.
+
+This patch has been tested on x86 and ppc64.
+
+Signed-off-by: Balbir Singh <balbir@in.ibm.com>
+---
+
+ kernel/delayacct.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+diff -puN kernel/delayacct.c~taskstats-use-cputime-api-for-cpu_run_real_time kernel/delayacct.c
+--- linux-2.6.17-rc3/kernel/delayacct.c~taskstats-use-cputime-api-for-cpu_run_real_time	2006-05-10 17:04:22.000000000 +0530
++++ linux-2.6.17-rc3-balbir/kernel/delayacct.c	2006-05-10 17:05:45.000000000 +0530
+@@ -112,7 +112,8 @@ int __delayacct_add_tsk(struct taskstats
+ 	unsigned long t1,t2,t3;
+ 
+ 	tmp = (s64)d->cpu_run_real_total;
+-	tmp += (u64)(tsk->utime + tsk->stime) * TICK_NSEC;
++	cputime_to_timespec(tsk->utime + tsk->stime, &ts);
++	tmp += timespec_to_ns(&ts);
+ 	d->cpu_run_real_total = (tmp < (s64)d->cpu_run_real_total) ? 0 : tmp;
+ 
+ 	/*
+_

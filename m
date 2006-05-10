@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWEJJ0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWEJJ3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964876AbWEJJ0r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 05:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbWEJJ0r
+	id S964874AbWEJJ3E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 05:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbWEJJ3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 05:26:47 -0400
-Received: from ns2.suse.de ([195.135.220.15]:45718 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964871AbWEJJ0q (ORCPT
+	Wed, 10 May 2006 05:29:04 -0400
+Received: from cantor.suse.de ([195.135.220.2]:50088 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964874AbWEJJ3D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 05:26:46 -0400
-Message-ID: <4461B24A.7050805@suse.de>
-Date: Wed, 10 May 2006 11:28:42 +0200
-From: Gerd Hoffmann <kraxel@suse.de>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060411)
+	Wed, 10 May 2006 05:29:03 -0400
+From: Andi Kleen <ak@suse.de>
+To: eranian@hpl.hp.com
+Subject: Re: [patch 8/8] Add abilty to enable/disable nmi watchdog from sysfs
+Date: Wed, 10 May 2006 11:28:57 +0200
+User-Agent: KMail/1.9.1
+Cc: dzickus <dzickus@redhat.com>, linux-kernel@vger.kernel.org,
+       oprofile-list@lists.sourceforge.net, perfmon@napali.hpl.hp.com
+References: <20060509205035.446349000@drseuss.boston.redhat.com> <20060509205958.578466000@drseuss.boston.redhat.com> <20060510091026.GD21833@frankl.hpl.hp.com>
+In-Reply-To: <20060510091026.GD21833@frankl.hpl.hp.com>
 MIME-Version: 1.0
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.17-rc3 -- SMP alternatives: switching to UP code
-References: <4461341B.7050602@keyaccess.nl>
-In-Reply-To: <4461341B.7050602@keyaccess.nl>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605101128.57935.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rene Herman wrote:
-> Hi list.
+
+> On Tue, May 09, 2006 at 04:50:43PM -0400, dzickus wrote:
+> > 
+> > Adds a new /proc/sys/kernel/nmi call that will enable/disable the nmi
+> > watchdog.
+> > 
 > 
-> I just noticed this in the 2.6.17-rc3 dmesg:
-> 
-> ===
-> Checking 'hlt' instruction... OK.
-> SMP alternatives: switching to UP code
-> Freeing SMP alternatives: 0k freed
-> ACPI: setting ELCR to 0400 (from 1608)
-> ===
-> 
-> Should I be seeing this "SMP alternatives" thing on a !CONFIG_SMP
-> kernel? It does say 0k, but something is apparently being done at
-> runtime still. Why?
+> This means you can at runtime enable/disbale nmi_watchdog, i.e., reserve
+> some performance counters on the fly. This gets complicated because now
+> the perfmon subsystem 
 
-The UP kernel has empty alternatives tables (as you've noticed), thus
-the code doesn't do anything.  Nevertheless it probably makes sense to
-add a few #ifdef CONFIG_SMP lines to avoid confusing people and safe a
-few bytes ...
+Right now we don't care about perfmon at all because it's not in (x86) mainline
+If you want anybody to care you have to submit and pass review
 
-cheers,
+> (and probably oprofile) cannot check register 
+> availability when they are first initialized. Basically each time,
+> the /sys entry is modified, they would have to scan the list of available
+> performance counters. I don't know exactly when Oprofile does this checking.
+> For perfmon, this is done only once, when the PMU description table is loaded.
 
-  Gerd
+I think the NMI watchdog will fail if the register is already allocated.
+oprofile should check and allocate when it fills in the register. 
 
--- 
-Gerd Hoffmann <kraxel@suse.de>
-Erst mal heiraten, ein, zwei Kinder, und wenn alles läuft
-geh' ich nach drei Jahren mit der Familie an die Börse.
-http://www.suse.de/~kraxel/julika-dora.jpeg
+-Andi
+

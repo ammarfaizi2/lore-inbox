@@ -1,41 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751518AbWEJWbq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751521AbWEJWdi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751518AbWEJWbq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 18:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751520AbWEJWbq
+	id S1751521AbWEJWdi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 18:33:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbWEJWdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 18:31:46 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:1248
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751518AbWEJWbp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 18:31:45 -0400
-Date: Wed, 10 May 2006 15:31:29 -0700 (PDT)
-Message-Id: <20060510.153129.122741274.davem@davemloft.net>
-To: viro@ftp.linux.org.uk
-Cc: akpm@osdl.org, dwalker@mvista.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060510221024.GH27946@ftp.linux.org.uk>
-References: <20060510162106.GC27946@ftp.linux.org.uk>
-	<20060510150321.11262b24.akpm@osdl.org>
-	<20060510221024.GH27946@ftp.linux.org.uk>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 10 May 2006 18:33:38 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:34857 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751520AbWEJWdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 18:33:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=rZlu6uxM4y4O60e3c0xJ/RLI1ncmSBqMSCYCNzPZi3QTtXL5ZYru6tnHX0knh0nMPC1WPqpYHhJN7gPU49/cOOoz9ImTP2jq63WULtgaqOKfyqyg+uIj+oMv03oZrSY50v6T+VvH56JO9def8cq/iZRHnt813chFtntZBX7XHBE=
+Date: Thu, 11 May 2006 02:32:12 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Scott Alfter <salfter@ssai.us>
+Cc: v4l-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new driver for TLV320AIC23B
+Message-ID: <20060510223212.GG7237@mipter.zuzino.mipt.ru>
+References: <44626150.9050804@ssai.us>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44626150.9050804@ssai.us>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Wed, 10 May 2006 23:10:24 +0100
+On Wed, May 10, 2006 at 02:55:28PM -0700, Scott Alfter wrote:
+>                                                 the attached patch adds a
+> driver for the TI TLV320AIC23B audio codec.  It implements analog audio capture
+> at 32, 44.1, and 48 kHz (16-bit stereo).  The hardware is capable of more (it
+> supports more sample rates and includes analog output), but in its current
+> form, the driver works well with ivtv.
 
-> But that's the argument in favour of using diff, not shutting the
-> bogus warnings up...
+> --- linux-2.6.16-gentoo-r1/drivers/media/video/tlv320aic23b.c
+> +++ linux-2.6.16-gentoo-r1/drivers/media/video/tlv320aic23b.c
 
-IMHO, the tree should build with -Werror without exception.
-Once you have that basis, new ones will not show up easily
-and the hard part of the battle has been won.
+> +static int tlv320aic23b_attach(struct i2c_adapter *adapter, int address, int kind)
+> +{
+> +	struct i2c_client *client;
+> +	struct tlv320aic23b_state *state;
+> +
+> +	/* Check if the adapter supports the needed features */
+> +	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
+> +		return 0;
+> +
+> +	client = kzalloc(sizeof(struct i2c_client), GFP_KERNEL);
+> +	if (client == 0)
+> +		return -ENOMEM;
 
-Yes, people will post a lot of bogus versions of warning fixes, but
-we're already good at flaming those off already :-)
+client is a pointer, so
+
+	if (client == NULL)
+
+or
+
+	if (!client)
+
+> +	snprintf(client->name, sizeof(client->name) - 1, "tlv320aic23b");
+
+	snprintf(buf, sizeof(buf), ...)
+
+is idiomatic.
+
+> +static int tlv320aic23b_detach(struct i2c_client *client)
+> +{
+> +	int err;
+> +
+> +	err = i2c_detach_client(client);
+> +	if (err) {
+> +		return err;
+> +	}
+
+Preferred style is
+
+	if (err)
+		return err;
+
+> diff -Nupr -X dontdiff linux-2.6.16-gentoo-r1/drivers/media/video/tlv320aic23b.mod.c linux-2.6.16-gentoo-r1/drivers/media/video/tlv320aic23b.mod.c
+
+> --- linux-2.6.16-gentoo-r1/drivers/media/video/tlv320aic23b.mod.c
+> +++ linux-2.6.16-gentoo-r1/drivers/media/video/tlv320aic23b.mod.c
+
+This file is generated and you have outdated dontdiff. Use "-X Documentation/dontdiff".
+

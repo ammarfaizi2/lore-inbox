@@ -1,36 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWEJLlY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964931AbWEJLmW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbWEJLlY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 07:41:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbWEJLlY
+	id S964931AbWEJLmW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 07:42:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964932AbWEJLmW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 07:41:24 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:59023 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964930AbWEJLlX (ORCPT
+	Wed, 10 May 2006 07:42:22 -0400
+Received: from wr-out-0506.google.com ([64.233.184.226]:5994 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S964931AbWEJLmV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 07:41:23 -0400
-Date: Wed, 10 May 2006 04:38:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+	Wed, 10 May 2006 07:42:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=HXPOpUuVEMstTF1cpUKA1AkVWSOj2yuU82t5UdNmBeIsRf1DyLw1DXZ3lgnZ95RP8Og1o8Pgtl1NEVsj+NBguUk1zfX6MoYUI009QiJWeZSpgyjZq+rMFMKSvtljbhq66hqhg3mzWJUBh2DWMxGN3LuZXyspoV6HJAPRCiVKQvQ=
+Message-ID: <84144f020605100442g617e9ddfk45ce444483ea86b8@mail.gmail.com>
+Date: Wed, 10 May 2006 14:42:20 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Con Kolivas" <kernel@kolivas.org>
 Subject: Re: [PATCH] mm: cleanup swap unused warning
-Message-Id: <20060510043834.70f40ddc.akpm@osdl.org>
+Cc: "linux list" <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       "Andrew Morton" <akpm@osdl.org>
 In-Reply-To: <200605102132.41217.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 References: <200605102132.41217.kernel@kolivas.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Google-Sender-Auth: 86b31a03400b7790
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> wrote:
->
-> Are there any users of swp_entry_t when CONFIG_SWAP is not defined?
-
-Well there shouldn't be.  Making accesses to swp_entry_t.val fail to
-compile if !CONFIG_SWAP might be useful.
-
+On 5/10/06, Con Kolivas <kernel@kolivas.org> wrote:
 > +/*
 > + * A swap entry has to fit into a "unsigned long", as
 > + * the entry is hidden in the "index" field of the
@@ -38,12 +40,15 @@ compile if !CONFIG_SWAP might be useful.
 > + */
 > +#ifdef CONFIG_SWAP
 >  typedef struct {
->  	unsigned long val;
+>         unsigned long val;
 >  } swp_entry_t;
 > +#else
 > +typedef struct {
-> +	unsigned long val;
+> +       unsigned long val;
 > +} swp_entry_t __attribute__((__unused__));
 > +#endif
 
-We have __attribute_used__, which hides a gcc oddity.
+Or we could make swap_free() an empty static inline function for the
+non-CONFIG_SWAP case.
+
+                                                     Pekka

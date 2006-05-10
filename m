@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbWEJO3P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbWEJObc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751448AbWEJO3P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 10:29:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbWEJO3P
+	id S1751452AbWEJObc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 10:31:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWEJObb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 10:29:15 -0400
-Received: from www.osadl.org ([213.239.205.134]:15336 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751448AbWEJO3O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 10:29:14 -0400
-Subject: Re: [RFC][PATCH RT 0/2] futex priority based wakeup
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1147266235.3969.31.camel@frecb000686>
-References: <20060510112651.24a36e7b@frecb000686>
-	 <20060510100858.GA31504@elte.hu>  <1147266235.3969.31.camel@frecb000686>
-Content-Type: text/plain; charset=utf-8
-Date: Wed, 10 May 2006 16:32:14 +0200
-Message-Id: <1147271536.27820.288.camel@localhost.localdomain>
+	Wed, 10 May 2006 10:31:31 -0400
+Received: from [63.81.120.158] ([63.81.120.158]:18803 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1751452AbWEJObb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 10:31:31 -0400
+Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
+From: Daniel Walker <dwalker@mvista.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1147257266.17886.3.camel@localhost.localdomain>
+References: <200605100256.k4A2u8bd031779@dwalker1.mvista.com>
+	 <1147257266.17886.3.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 10 May 2006 07:31:29 -0700
+Message-Id: <1147271489.21536.70.camel@c-67-180-134-207.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 8bit
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-10 at 15:03 +0200, Sébastien Dugué wrote:
->   Maybe the pthread_cond_*() function should be made to use the
-> PI-futexes support in glibc.
+On Wed, 2006-05-10 at 11:34 +0100, Alan Cox wrote:
+> 
+> This causes very poor code as its initializing an object on the stack.
+> It also appears from inspection to be entirely un-neccessary. Instead
+> the compiler needs some help.
 
-<hack_alert>
+It's just a warning .. The compiler flagged a spot which look suspect .
+We have -Wall turn on now , so we could possibly disable these
+warnings. 
 
-There is a simple way to do so. Just remove the assembler version of
-pthread_cond_xx and use the generic c code implementation in glibc. That
-allows you to use a PI mutex for the outer mutex.
+> Hiding warnings like this can be a hazard as it will hide real warnings
+> later on.
 
-</hack_alert>
-
-	tglx
-
+How could it hide real warnings? If anything these patch allow other
+(real warnings) to be seen . 
 

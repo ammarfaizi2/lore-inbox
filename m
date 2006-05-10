@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWEJHfB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWEJHhn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750898AbWEJHfB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 03:35:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbWEJHfB
+	id S932289AbWEJHhn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 03:37:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWEJHhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 03:35:01 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:16104 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750779AbWEJHfA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 03:35:00 -0400
-Date: Wed, 10 May 2006 09:34:56 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-cc: Joshua Hudson <joshudson@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Stability of 2.6.17-rc3?
-In-Reply-To: <9a8748490605091501r4bcff8b0q630cbf2fa0e33732@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0605100931250.27657@yvahk01.tjqt.qr>
-References: <bda6d13a0605091340x2e16342v15733b2c9612d985@mail.gmail.com>
- <9a8748490605091501r4bcff8b0q630cbf2fa0e33732@mail.gmail.com>
+	Wed, 10 May 2006 03:37:43 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:57086 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932289AbWEJHhm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 03:37:42 -0400
+Date: Wed, 10 May 2006 03:37:20 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: akpm@osdl.org
+cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Document futex PI design
+In-Reply-To: <Pine.LNX.4.58.0605090954150.7007@gandalf.stny.rr.com>
+Message-ID: <Pine.LNX.4.58.0605100331290.31598@gandalf.stny.rr.com>
+References: <Pine.LNX.4.58.0605090954150.7007@gandalf.stny.rr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+
+On Tue, 9 May 2006, Steven Rostedt wrote:
+
+> Andrew,
 >
-> 2.6.17-rc3 is a development kernel, no guarantees about anything really.
-> Development kernels are run completely at your own risk. It may run
-> fine, it may explode at boot, [...], it may eat your lunch, it may cause 
-> an alien invasion -[...]
+> Here's a design document of the code that implements Ingo Molnar's and
+> Thomas Gleixner's futex PI code (kernel/rtmutex.c).  Since that code is
+> somewhat complex, I spent the time to write up this document that should
+> help others understand what was done and why.
+>
 
-Quite a list. So what can -mm kernels make go wrong more? :-]
+Andrew,
 
+I've noticed that since this document is rather large, it should have a
+copyright notice attached.  I would like to put it under the GFDL.  Should
+I send a new patch with the stated license, or should I just send a patch
+to the previous patch I sent.
 
-Jan Engelhardt
--- 
+Thanks,
+
+-- Steve
+

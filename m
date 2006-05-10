@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWEJVdp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbWEJVfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbWEJVdp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 17:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbWEJVdp
+	id S964899AbWEJVfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 17:35:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbWEJVfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 17:33:45 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:4455 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S964898AbWEJVdp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 17:33:45 -0400
-Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
-From: Daniel Walker <dwalker@mvista.com>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Adrian Bunk <bunk@stusta.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060510212058.GE27946@ftp.linux.org.uk>
-References: <1147257266.17886.3.camel@localhost.localdomain>
-	 <1147271489.21536.70.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-	 <1147273787.17886.46.camel@localhost.localdomain>
-	 <1147273598.21536.92.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-	 <Pine.LNX.4.58.0605101116590.5532@gandalf.stny.rr.com>
-	 <20060510162404.GR3570@stusta.de>
-	 <Pine.LNX.4.58.0605101506540.22959@gandalf.stny.rr.com>
-	 <1147290577.21536.151.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-	 <Pine.LNX.4.58.0605101636580.22959@gandalf.stny.rr.com>
-	 <1147295515.21536.168.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-	 <20060510212058.GE27946@ftp.linux.org.uk>
-Content-Type: text/plain
-Date: Wed, 10 May 2006 14:33:42 -0700
-Message-Id: <1147296822.21536.175.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 10 May 2006 17:35:25 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:19128 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S964913AbWEJVfY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 17:35:24 -0400
+Message-ID: <44625C92.8020209@myri.com>
+Date: Wed, 10 May 2006 23:35:14 +0200
+From: Brice Goglin <brice@myri.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: netdev@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+CC: LKML <linux-kernel@vger.kernel.org>,
+       "Andrew J. Gallatin" <gallatin@myri.com>
+Subject: [PATCH 2/6] myri10ge - Add missing PCI IDs
+References: <446259A0.8050504@myri.com>
+In-Reply-To: <446259A0.8050504@myri.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-10 at 22:20 +0100, Al Viro wrote:
-> On Wed, May 10, 2006 at 02:11:54PM -0700, Daniel Walker wrote:
-> > > I really don't see why it couldn't be added.  What's the problem with it?
-> > > 
-> > > I mean, I see lots of advantages, and really no disadvantages.
-> 
-> Your vision is quite selective, then.
->  
-> > We are in complete agreement .. The only disadvantage is maybe we cover
-> > up and real error
-> 
-> ... which is more than enough to veto it.  However, that is not all.
-> Consider the following scenario:
-> 
-> 1) gcc gives false positive
-> 2) tosser on a rampage "fixes" it
-> 3) code is chaged a month later
-> 4) a real bug is introduced - one that would be _really_ visible to gcc,
-> with "is used" in a warning
-> 5) thanks to aforementioned tosser, that bug remains hidden.
+[PATCH 2/6] myri10ge - Add missing PCI IDs
 
-I don't really see anything new here .. The same sort of stuff can
-happen in any code considered for inclusion .. That's what the review
-process is for .
+Add nVidia nForce CK804 PCI-E bridge and 
+ServerWorks HT2000 PCI-E bridge IDs.
+They will be used by the myri10ge driver.
 
-Real errors can be covered up any number of way ..
+Signed-off-by: Brice Goglin <brice@myri.com>
+Signed-off-by: Andrew J. Gallatin <gallatin@myri.com>
 
-Daniel
+ pci_ids.h |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- linux-mm/include/linux/pci_ids.h.old	2006-05-09 03:03:23.000000000 +0200
++++ linux-mm/include/linux/pci_ids.h	2006-05-09 03:05:19.000000000 +0200
+@@ -1021,6 +1021,7 @@
+ #define PCI_DEVICE_ID_NVIDIA_NVENET_8		0x0056
+ #define PCI_DEVICE_ID_NVIDIA_NVENET_9		0x0057
+ #define PCI_DEVICE_ID_NVIDIA_CK804_AUDIO	0x0059
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_PCIE	0x005d
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE2_SMBUS	0x0064
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE	0x0065
+ #define PCI_DEVICE_ID_NVIDIA_NVENET_2		0x0066
+@@ -1383,6 +1384,7 @@
+ #define PCI_DEVICE_ID_SERVERWORKS_LE	  0x0009
+ #define PCI_DEVICE_ID_SERVERWORKS_GCNB_LE 0x0017
+ #define PCI_DEVICE_ID_SERVERWORKS_EPB	  0x0103
++#define PCI_DEVICE_ID_SERVERWORKS_HT2000_PCIE	0x0132
+ #define PCI_DEVICE_ID_SERVERWORKS_OSB4	  0x0200
+ #define PCI_DEVICE_ID_SERVERWORKS_CSB5	  0x0201
+ #define PCI_DEVICE_ID_SERVERWORKS_CSB6    0x0203
+
 

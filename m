@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWEJHQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWEJHT7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751407AbWEJHQy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 03:16:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWEJHQy
+	id S964834AbWEJHT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 03:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbWEJHT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 03:16:54 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:42458 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1751407AbWEJHQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 03:16:54 -0400
-Date: Wed, 10 May 2006 10:16:48 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Christoph Lameter <clameter@sgi.com>
-cc: Mike Kravetz <kravetz@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Dave Hansen <haveblue@us.ibm.com>, Andy Whitcroft <apw@shadowen.org>,
-       linux-kernel@vger.kernel.org
+	Wed, 10 May 2006 03:19:59 -0400
+Received: from wr-out-0506.google.com ([64.233.184.239]:30856 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S964834AbWEJHT6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 03:19:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=M4Rkkrs8k+wwBqZ5rxb12YhoD/1Vyk3fPzxm9bEpCAmczCYhyjUjw8V7/MFEhCIgr1CW05hZZQDUlocbJgy4OJjVZX2rGIsyoiaQ5ZjweM8OtUj+focA4f4pT7J5c/8MjVbk6iMTyPYIW2VRMOVxwt19h++V5y9wqjBMY7pif3I=
+Message-ID: <84144f020605100019i26e1c649m18c9b314b63dce@mail.gmail.com>
+Date: Wed, 10 May 2006 10:19:57 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Mike Kravetz" <kravetz@us.ibm.com>
 Subject: Re: [PATCH] alloc_memory_early() routines
-In-Reply-To: <Pine.LNX.4.64.0605100011090.3040@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0605101015190.12536@sbz-30.cs.Helsinki.FI>
-References: <20060509053512.GA20073@monkey.ibm.com>  <20060508224952.0b43d0fd.akpm@osdl.org>
-  <20060509210722.GD3168@w-mikek2.ibm.com> <84144f020605100009i74824233ie6feaf6fd2d9055f@mail.gmail.com>
- <Pine.LNX.4.64.0605100011090.3040@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Cc: "Andrew Morton" <akpm@osdl.org>, "Dave Hansen" <haveblue@us.ibm.com>,
+       "Christoph Lameter" <clameter@sgi.com>,
+       "Andy Whitcroft" <apw@shadowen.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060509210722.GD3168@w-mikek2.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060509053512.GA20073@monkey.ibm.com>
+	 <20060508224952.0b43d0fd.akpm@osdl.org>
+	 <20060509210722.GD3168@w-mikek2.ibm.com>
+X-Google-Sender-Auth: ea41ee72ed780505
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 May 2006, Pekka Enberg wrote:
-> > > +void * __init alloc_memory_early_node(size_t size, gfp_t flags, int node)
-> > > +{
-> > > +       if (g_cpucache_up == FULL)
-> > > +               return kmalloc_node(size, flags, node);
-> > > +       else
-> > > +               return alloc_bootmem_node(NODE_DATA(node), size);
-> > > +}
-> > 
-> > I'd prefer you put this in mm/bootmem.c and added a
-> > 
-> > int slab_is_available(void)
-> > {
-> >       return g_cpucache_up == FULL;
-> > }
-> > 
-> > to mm/slab.c instead.
+On 5/10/06, Mike Kravetz <kravetz@us.ibm.com> wrote:
+> I did not include support for 'large' allocations as suggested by
+> Dave, or corresponding free_memory_early() routines.  The only
+> immediate need is for NUMA/node aware allocation.  Others can be
+> added as the needs arise.
 
-On Wed, 10 May 2006, Christoph Lameter wrote:
-> Does slab not available mean that bootmem can be used? 
+Sorry if this was already discussed, but you're not supposed to free
+the memory allocated by alloc_memory_early() ever? If so, please add a
+kerneldoc stating that.
 
-Yes.
-
-					Pekka
+                                             Pekka

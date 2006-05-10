@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965076AbWEJXR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965070AbWEJXUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965076AbWEJXR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 19:17:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965077AbWEJXR5
+	id S965070AbWEJXUs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 19:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965077AbWEJXUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 19:17:57 -0400
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:51426 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S965076AbWEJXR5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 19:17:57 -0400
-In-Reply-To: <17506.21908.857189.645889@cargo.ozlabs.ibm.com>
-References: <17505.26159.807484.477212@cargo.ozlabs.ibm.com> <20060510154702.GA28938@twiddle.net> <20060510.124003.04457042.davem@davemloft.net> <17506.21908.857189.645889@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0 (Apple Message framework v749.3)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <49BB818F-DF88-43A3-8B6A-7F9F5C7A2C3C@kernel.crashing.org>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-arch@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, rth@twiddle.net
-Content-Transfer-Encoding: 7bit
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [RFC/PATCH] Make powerpc64 use __thread for per-cpu variables
-Date: Thu, 11 May 2006 01:17:50 +0200
-To: Paul Mackerras <paulus@samba.org>
-X-Mailer: Apple Mail (2.749.3)
+	Wed, 10 May 2006 19:20:48 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:53938 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965070AbWEJXUr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 19:20:47 -0400
+Date: Thu, 11 May 2006 00:20:42 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: davem@davemloft.net, dwalker@mvista.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
+Message-ID: <20060510232042.GJ27946@ftp.linux.org.uk>
+References: <20060510162106.GC27946@ftp.linux.org.uk> <20060510150321.11262b24.akpm@osdl.org> <20060510221024.GH27946@ftp.linux.org.uk> <20060510.153129.122741274.davem@davemloft.net> <20060510224549.GI27946@ftp.linux.org.uk> <20060510160548.36e92daf.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060510160548.36e92daf.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> How do you plan to address the compiler optimizing
->>  ...
->>> Across the schedule, we may have changed cpus, making the cached
->>> address invalid.
->>
->> Per-cpu variables need to be accessed only with preemption
->> disabled.  And the preemption enable/disable operations
->> provide a compiler memory barrier.
->
-> No, Richard has a point, it's not the value that is the concern, it's
-> the address, which gcc could assume is still valid after a barrier.
-> Drat.
+On Wed, May 10, 2006 at 04:05:48PM -0700, Andrew Morton wrote:
+> Sure - it's sad and we need some workaround.
+> 
+> The init_self() thingy seemed reasonable to me - it shuts up the warning
+> and has no runtime cost.  What we could perhaps do is to make
+> 
+> #define init_self(x) (x = x)
+> 
+> only if the problematic gcc versions are detected.  Later, if/when gcc gets
+> fixed up, we use
 
-Would an asm clobber of GPR13 in the schedule routines (or a wrapper
-for them, or whatever) work?
+Sorry, no - it shuts up too much.  Look, there are two kinds of warnings
+here.  "May be used" and "is used".  This stuff shuts both.  And unlike
+"may be used", "is used" has fairly high S/N ratio.
 
-
-Segher
-
+Moreover, once you do that, you lose all future "is used" warnings on
+that variable.  So your ability to catch future bugs is decreased, not
+increased.

@@ -1,75 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965011AbWEJQRg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964988AbWEJQVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965011AbWEJQRg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 12:17:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbWEJQRg
+	id S964988AbWEJQVM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 12:21:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965020AbWEJQVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 12:17:36 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:32507 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965011AbWEJQRf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 12:17:35 -0400
-Date: Wed, 10 May 2006 12:17:30 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Mark Hounschell <markh@compro.net>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: rt20 patch question
-In-Reply-To: <446207D6.2030602@compro.net>
-Message-ID: <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
-References: <446089CF.3050809@compro.net> <1147185483.21536.13.camel@c-67-180-134-207.hsd1.ca.comcast.net>
- <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
- <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
- <446207D6.2030602@compro.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 10 May 2006 12:21:11 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:4075 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964988AbWEJQVK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 12:21:10 -0400
+Date: Wed, 10 May 2006 17:21:06 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
+Message-ID: <20060510162106.GC27946@ftp.linux.org.uk>
+References: <200605100256.k4A2u8bd031779@dwalker1.mvista.com> <1147257266.17886.3.camel@localhost.localdomain> <1147271489.21536.70.camel@c-67-180-134-207.hsd1.ca.comcast.net> <1147273787.17886.46.camel@localhost.localdomain> <1147273598.21536.92.camel@c-67-180-134-207.hsd1.ca.comcast.net> <1147275571.17886.64.camel@localhost.localdomain> <1147275522.21536.109.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1147275522.21536.109.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 10, 2006 at 08:38:41AM -0700, Daniel Walker wrote:
+> On Wed, 2006-05-10 at 16:39 +0100, Alan Cox wrote:
+> > On Mer, 2006-05-10 at 08:06 -0700, Daniel Walker wrote:
+> > > > Because while the warning is present people will check it now and again.
+> > > 
+> > > But it's pointless to review it, in this case and for this warning .
+> > 
+> > Then why did you review it ? 
+> 
+> So I wouldn't have to see that warning again ..
+> 
+> > It reminds people that it does need checking, and ensures now and then
+> > people do check that there isn't actually a bug there.
+> 
+> I don't see a reason why it needs checking .. People are just going to
+> spin their wheel reviewing code that's been reviewed .. Maybe someone
+> like me will write a patch to fix this warning , and we'll see this
+> process happening all over again ..
 
-Wow! I asked for some info on your system, and boy, did I get info! :)
+Don't.  Fix.  Correct.  Code.
 
-On Wed, 10 May 2006, Mark Hounschell wrote:
+Ever.  Because sooner or later you will paper over real bug.  It's far better
+to reject patches that just make $TOOL to STFU than risk blind "fix" hiding
+a real bug.
 
->
-> Ok, I'll try to explain the application. It is an emulation of some old
-> legacy hardware (SEL-32) that ran a proprietary RTOS (MPX-32). We
-> emulate the hardware not the software. We have some specialized pci
-> cards that emulate some of that hardware. IE, a card that has some
-> timers and external interrupt capabilities (RTOM). All our drivers are
-> GPL BTW.
->
-
-[snip long explaination of system]
-
->
-> So to my problem. What I mean by "the machine stops" is just that all
-> indications of the mouse, keyboard, and vidio stop. Then in a few
-> seconds will usually continue. At first I only saw problems when using
-> ethernet in the emulation. I would telnet into the emulation from the
-> linux box and do the equivalent of cat'ing a very large file. The
-> machine will always "stop" somewhere randomly along the display. Then
-> maybe continue on or maybe not. So I thought I might have a problem with
-> my ethernet module. Then I noticed similar things with the SCSI module
-> when accessing legacy scsi devices from within the emulation. Somtimes
-> the whole machine doesn't stop. It would appear that only somethings
-> have stopped. Like one or more of my I/O threads??
->
-> I can only say for sure that I do not have these "stops" when running
-> any other kernel or when running the rt20 kernel in any of the
-> non-complete preemption modes.
->
-> The only change that had to be made to this app for it to run at all on
-> the rt20 kernel was insuring that the RTOM irq thread was at a higher
-> priority than the CPU process/thread. Otherwise no signals were received
-> from the RTOM.
->
-
-Well, I need to leave the office tonight.  I'll look at it in my hotel,
-and tomorrow, I'll give some feedback.
-
-Thanks,
-
--- Steve
-
+Unless you show a real codepath that leads to use without initialization
+(and do that in commit message, so it could be verified as real issue),
+these patches are worthless in the best case and dangerous in the worst
+one.

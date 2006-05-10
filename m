@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbWEJL42@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964927AbWEJLzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964935AbWEJL42 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 07:56:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbWEJL42
+	id S964927AbWEJLzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 07:55:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbWEJLzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 07:56:28 -0400
-Received: from mail02.syd.optusnet.com.au ([211.29.132.183]:26818 "EHLO
-	mail02.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S964935AbWEJL41 convert rfc822-to-8bit (ORCPT
+	Wed, 10 May 2006 07:55:25 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:62900 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964927AbWEJLzZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 07:56:27 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm: cleanup swap unused warning
-Date: Wed, 10 May 2006 21:56:07 +1000
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org
-References: <200605102132.41217.kernel@kolivas.org> <20060510043834.70f40ddc.akpm@osdl.org> <200605102146.26080.kernel@kolivas.org>
-In-Reply-To: <200605102146.26080.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+	Wed, 10 May 2006 07:55:25 -0400
+Date: Wed, 10 May 2006 06:55:21 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>, herbert@13thfloor.at,
+       dev@sw.ru, sam@vilain.net, xemul@sw.ru, haveblue@us.ibm.com,
+       clg@fr.ibm.com, frankeh@us.ibm.com
+Subject: Re: [PATCH 1/9] nsproxy: Introduce nsproxy
+Message-ID: <20060510115520.GA25720@sergelap.austin.ibm.com>
+References: <29vfyljM.2006059-s@us.ibm.com> <20060510021129.GB32523@sergelap.austin.ibm.com> <20060510100057.GA27946@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605102156.07929.kernel@kolivas.org>
+In-Reply-To: <20060510100057.GA27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 May 2006 21:46, Con Kolivas wrote:
-> On Wednesday 10 May 2006 21:38, Andrew Morton wrote:
-> > We have __attribute_used__, which hides a gcc oddity.
->
-> I tried that.
->
-> In file included from arch/i386/mm/pgtable.c:11:
-> include/linux/swap.h:82: warning: ‘__used__’ attribute ignored
-> In file included from include/linux/suspend.h:8,
->                  from init/do_mounts.c:7:
-> include/linux/swap.h:82: warning: ‘__used__’ attribute ignored
-> In file included from arch/i386/mm/init.c:22:
-> include/linux/swap.h:82: warning: ‘__used__’ attribute ignored
->   AS      arch/i386/kernel/vsyscall-sysenter.o
->
-> etc..
->
-> and doesn't fix the warning in vmscan.c. __attribute_used__ is handled
-> differently by gcc4 it seems (this is 4.1.0)
+Quoting Al Viro (viro@ftp.linux.org.uk):
+> On Tue, May 09, 2006 at 09:11:29PM -0500, Serge E. Hallyn wrote:
+> > Introduce the nsproxy struct.  Doesn't do anything yet, but has it's
+> > own lifecycle pretty much mirrorring the fs namespace.
+> > 
+> > Subsequent patches will move the namespace struct into the nsproxy.
+> > Then as more namespaces are introduced, such as utsname, they can
+> > be added to the nsproxy as well.
+> 
+> Is there any reason why those can't be simply part of namespace?  I.e.
+> be carried by the stuff mounted in standard places...
 
-in compiler-gcc3.h
-#if __GNUC_MINOR__ >= 3
-# define __attribute_used__     __attribute__((__used__))
-#else
-# define __attribute_used__     __attribute__((__unused__))
-#endif
+The argument has been that it is desirable to be able to unshare these
+namespaces - uid, pid, network, sysv, utsname, fs-namespace -
+separately.  Are you talking about having these all be part of a single
+namespace unshared all at once (and stored in struct namespace)?  Or am
+I misunderstandimg you entirely?
 
-and in compiler-gcc4.h
-#define __attribute_used__      __attribute__((__used__))
+Andi Kleen (I believe) thinks it should be like that, all or nothing.  I
+think Herbert Poetzl had current examples where vserver is used to
+unshare just pieces, i.e. apache unsharing network but sharing global
+pidspace.
 
-it looks like the pre gcc3.3 version is suited here or I'm misusing the 
-__attribute_used__ extension somehow.
-
--- 
--ck
+thanks,
+-serge

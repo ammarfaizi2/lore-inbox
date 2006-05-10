@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWEJWZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751515AbWEJWaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751191AbWEJWZS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 18:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbWEJWZS
+	id S1751515AbWEJWaV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 18:30:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbWEJWaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 18:25:18 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:23724
+	Wed, 10 May 2006 18:30:21 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:65247
 	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750869AbWEJWZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 18:25:17 -0400
-Date: Wed, 10 May 2006 15:25:02 -0700 (PDT)
-Message-Id: <20060510.152502.11682204.davem@davemloft.net>
-To: paulus@samba.org
-Cc: rth@twiddle.net, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-Subject: Re: [RFC/PATCH] Make powerpc64 use __thread for per-cpu variables
+	id S1751511AbWEJWaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 18:30:20 -0400
+Date: Wed, 10 May 2006 15:30:07 -0700 (PDT)
+Message-Id: <20060510.153007.19037157.davem@davemloft.net>
+To: akpm@osdl.org
+Cc: viro@ftp.linux.org.uk, dwalker@mvista.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
 From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <17506.21908.857189.645889@cargo.ozlabs.ibm.com>
-References: <20060510154702.GA28938@twiddle.net>
-	<20060510.124003.04457042.davem@davemloft.net>
-	<17506.21908.857189.645889@cargo.ozlabs.ibm.com>
+In-Reply-To: <20060510150321.11262b24.akpm@osdl.org>
+References: <1147275522.21536.109.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	<20060510162106.GC27946@ftp.linux.org.uk>
+	<20060510150321.11262b24.akpm@osdl.org>
 X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -27,15 +27,16 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paul Mackerras <paulus@samba.org>
-Date: Thu, 11 May 2006 07:05:24 +1000
+From: Andrew Morton <akpm@osdl.org>
+Date: Wed, 10 May 2006 15:03:21 -0700
 
-> No, Richard has a point, it's not the value that is the concern, it's
-> the address, which gcc could assume is still valid after a barrier.
-> Drat.
+> I occasionally receive patches which generate new warnings, and those
+> warnings flag real bugs.  The developer simply missing the warning amongst
+> all the other crap.
 
-Oh right, and that's currently part of why we obfuscate the
-address computation with the RELOC_HIDE() buisness.
+I totally agree.  These gcc-4.x warnings bug this shit out of
+me too and we should fix them now.
 
-Once we expose what's really going on with something like
-__thread, gcc can now be "smart" about it.
+Even a huge tree like gcc can build itself %100 fine with -Werror, for
+pretty much every configuration possible, and yet we're astronomically
+so far away from that.  That's totally unacceptable.

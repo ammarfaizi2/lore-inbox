@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWEJUFW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWEJUJ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932072AbWEJUFW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 16:05:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751512AbWEJUFW
+	id S932229AbWEJUJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 16:09:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWEJUJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 16:05:22 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:56274 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751511AbWEJUFV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 16:05:21 -0400
-Date: Wed, 10 May 2006 21:05:16 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Adam Litke <agl@us.ibm.com>
-Cc: linux-mm@kvack.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Hugetlb demotion for x86
-Message-ID: <20060510200516.GA30346@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Adam Litke <agl@us.ibm.com>, linux-mm@kvack.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <1147287400.24029.81.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 10 May 2006 16:09:29 -0400
+Received: from mx2.suse.de ([195.135.220.15]:59619 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932229AbWEJUJ2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 16:09:28 -0400
+From: Andi Kleen <ak@suse.de>
+To: virtualization@lists.osdl.org
+Subject: Re: [RFC PATCH 17/35] Segment register changes for Xen
+Date: Wed, 10 May 2006 22:09:04 +0200
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, Chris Wright <chrisw@sous-sol.org>,
+       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
+       Ian Pratt <ian.pratt@xensource.com>
+References: <20060509084945.373541000@sous-sol.org> <20060509085154.802230000@sous-sol.org> <20060509071640.GA4150@ucw.cz>
+In-Reply-To: <20060509071640.GA4150@ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1147287400.24029.81.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200605102209.05004.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 10, 2006 at 01:56:40PM -0500, Adam Litke wrote:
-> The following patch enables demotion of MAP_PRIVATE hugetlb memory to
-> normal anonymous memory on the i386 architecture.
+On Tuesday 09 May 2006 09:16, Pavel Machek wrote:
+> Hi!
+> 
+> > --- linus-2.6.orig/include/asm-i386/mach-default/mach_system.h
+> > +++ linus-2.6/include/asm-i386/mach-default/mach_system.h
+> > @@ -1,6 +1,8 @@
+> >  #ifndef __ASM_MACH_SYSTEM_H
+> >  #define __ASM_MACH_SYSTEM_H
+> >  
+> > +#define clearsegment(seg)
+> 
+> do {} while (0), please.
 
-This is an awfully bad idea.  Applications should do smart fallback
-instead.  For the same reason we for example fail O_DIRECT requests
-we can fullfill instead of doing the half buffered I/O braindamage
-solaris does.
+It's not needed. Think about it.
 
+-Andi

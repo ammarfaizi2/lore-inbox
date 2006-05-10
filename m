@@ -1,632 +1,285 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWEJQAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWEJQBl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbWEJQAd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 12:00:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWEJQAd
+	id S964845AbWEJQBl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 12:01:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbWEJQBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 12:00:33 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:55697 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751124AbWEJQAc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 12:00:32 -0400
-Subject: Re: [PATCH 1/3] Vectorize aio_read/aio_write methods
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Benjamin LaHaise <bcrl@kvack.org>, cel@citi.umich.edu
-In-Reply-To: <20060509192051.GA19378@lst.de>
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>
-	 <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
-	 <1147198025.28388.0.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060509120105.7255e265.akpm@osdl.org> <20060509190310.GA19124@lst.de>
-	 <20060509121305.0840e770.akpm@osdl.org>  <20060509192051.GA19378@lst.de>
-Content-Type: text/plain
-Date: Wed, 10 May 2006 09:01:41 -0700
-Message-Id: <1147276901.4016.15.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 10 May 2006 12:01:40 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:1193 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964845AbWEJQBj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 12:01:39 -0400
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 04/14] NFS: Add dentry materialisation op [try #8]
+Date: Wed, 10 May 2006 17:01:28 +0100
+To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
+       trond.myklebust@fys.uio.no, aviro@redhat.com
+Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Message-Id: <20060510160128.9058.33635.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20060510160111.9058.55026.stgit@warthog.cambridge.redhat.com>
+References: <20060510160111.9058.55026.stgit@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The attached patch adds a new directory cache management function that prepares
+a disconnected anonymous function to be connected into the dentry tree. The
+anonymous dentry is transferred the name and parentage from another dentry.
 
-I am starting to like this :)
 
-Here is what I have so far (this patch applies on top of the other set).
+The following changes were made in [try #2]:
 
-We will NOW have only up following:
+ (*) d_materialise_dentry() now switches the parentage of the two nodes around
+     correctly when one or other of them is self-referential.
 
-	generic_file_aio_read() - read handler
+The following changes were made in [try #7]:
 
-	generic_file_aio_write() - write handler
-	generic_file_aio_write_nolock() - no lock write handler
-	__generic_file_aio_write_nolock() - internal worker routine 
-		(not exported)
+ (*) d_instantiate_unique() has had the interior part split out as function
+     __d_instantiate_unique(). Callers of this latter function must be holding
+     the appropriate locks.
 
-	
+ (*) _d_rehash() has been added as a wrapper around __d_rehash() to call it
+     with the most obvious hash list (the one from the name). d_rehash() now
+     calls _d_rehash().
 
-Thanks,
-Badari
+ (*) d_materialise_dentry() is now __d_materialise_dentry() and is static.
 
-Get rid of everything other than following generic read/write
-interfaces:
+ (*) d_materialise_unique() added to perform the combination of d_find_alias(),
+     d_materialise_dentry() and d_add_unique() that the NFS client was doing
+     twice, all within a single dcache_lock critical section. This reduces the
+     number of times two different spinlocks were being accessed.
 
-	generic_file_aio_read() - read handler
 
-	generic_file_aio_write() - write handler
-	generic_file_aio_write_nolock() - no lock write handler
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
-	__generic_file_aio_write_nolock() - internal worker routine 
-		(not exported)
+ fs/dcache.c            |  152 ++++++++++++++++++++++++++++++++++++++++++++----
+ include/linux/dcache.h |    1 
+ 2 files changed, 139 insertions(+), 14 deletions(-)
 
-Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
-
- drivers/char/raw.c         |   15 +------
- fs/adfs/file.c             |    6 ++-
- fs/affs/file.c             |    6 ++-
- fs/bfs/file.c              |    6 ++-
- fs/block_dev.c             |   12 +-----
- fs/ext2/file.c             |    4 +-
- fs/fuse/file.c             |    6 ++-
- fs/hfs/inode.c             |    6 ++-
- fs/hfsplus/inode.c         |    6 ++-
- fs/hostfs/hostfs_kern.c    |    4 +-
- fs/hpfs/file.c             |    6 ++-
- fs/jffs/inode-v23.c        |    6 ++-
- fs/jffs2/file.c            |    6 ++-
- fs/jfs/file.c              |    4 +-
- fs/minix/file.c            |    6 ++-
- fs/ntfs/file.c             |    2 -
- fs/qnx4/file.c             |    6 ++-
- fs/ramfs/file-mmu.c        |    6 ++-
- fs/ramfs/file-nommu.c      |    6 ++-
- fs/read_write.c            |    3 +
- fs/xfs/linux-2.6/xfs_lrw.c |    4 +-
- include/linux/fs.h         |    5 --
- mm/filemap.c               |   88 ++-------------------------------------------
- 23 files changed, 72 insertions(+), 147 deletions(-)
-
-Index: linux-2.6.17-rc3.save/drivers/char/raw.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/drivers/char/raw.c	2006-05-10 08:23:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/drivers/char/raw.c	2006-05-10 08:29:35.000000000 -0700
-@@ -239,21 +239,10 @@ out:
- 	return err;
- }
- 
--static ssize_t raw_file_write(struct file *file, const char __user *buf,
--				   size_t count, loff_t *ppos)
--{
--	struct iovec local_iov = {
--		.iov_base = (char __user *)buf,
--		.iov_len = count
--	};
--
--	return generic_file_write_nolock(file, &local_iov, 1, ppos);
--}
--
- static struct file_operations raw_fops = {
--	.read	=	generic_file_read,
-+	.read	=	do_sync_read,
- 	.aio_read = 	generic_file_aio_read,
--	.write	=	raw_file_write,
-+	.write	=	do_sync_write,
- 	.aio_write = 	generic_file_aio_write_nolock,
- 	.open	=	raw_open,
- 	.release=	raw_release,
-Index: linux-2.6.17-rc3.save/fs/adfs/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/adfs/file.c	2006-05-10 08:21:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/adfs/file.c	2006-05-10 08:29:35.000000000 -0700
-@@ -27,10 +27,12 @@
- 
- const struct file_operations adfs_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
- 	.mmap		= generic_file_mmap,
- 	.fsync		= file_fsync,
--	.write		= generic_file_write,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.sendfile	= generic_file_sendfile,
- };
- 
-Index: linux-2.6.17-rc3.save/fs/affs/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/affs/file.c	2006-05-10 08:21:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/affs/file.c	2006-05-10 08:29:35.000000000 -0700
-@@ -27,8 +27,10 @@ static int affs_file_release(struct inod
- 
- const struct file_operations affs_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.open		= affs_file_open,
- 	.release	= affs_file_release,
-Index: linux-2.6.17-rc3.save/fs/bfs/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/bfs/file.c	2006-05-10 08:21:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/bfs/file.c	2006-05-10 08:29:35.000000000 -0700
-@@ -19,8 +19,10 @@
- 
- const struct file_operations bfs_file_operations = {
- 	.llseek 	= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.sendfile	= generic_file_sendfile,
- };
-Index: linux-2.6.17-rc3.save/fs/block_dev.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/block_dev.c	2006-05-10 08:23:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/block_dev.c	2006-05-10 08:29:35.000000000 -0700
-@@ -1056,14 +1056,6 @@ static int blkdev_close(struct inode * i
- 	return blkdev_put(bdev);
- }
- 
--static ssize_t blkdev_file_write(struct file *file, const char __user *buf,
--				   size_t count, loff_t *ppos)
--{
--	struct iovec local_iov = { .iov_base = (void __user *)buf, .iov_len = count };
--
--	return generic_file_write_nolock(file, &local_iov, 1, ppos);
--}
--
- static long block_ioctl(struct file *file, unsigned cmd, unsigned long arg)
- {
- 	return blkdev_ioctl(file->f_mapping->host, file, cmd, arg);
-@@ -1083,8 +1075,8 @@ const struct file_operations def_blk_fop
- 	.open		= blkdev_open,
- 	.release	= blkdev_close,
- 	.llseek		= block_llseek,
--	.read		= generic_file_read,
--	.write		= blkdev_file_write,
-+	.read		= do_sync_read,
-+	.write		= do_sync_write,
-   	.aio_read	= generic_file_aio_read,
-   	.aio_write	= generic_file_aio_write_nolock,
- 	.mmap		= generic_file_mmap,
-Index: linux-2.6.17-rc3.save/fs/ext2/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/ext2/file.c	2006-05-10 08:23:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/ext2/file.c	2006-05-10 08:29:35.000000000 -0700
-@@ -41,8 +41,8 @@ static int ext2_release_file (struct ino
+diff --git a/fs/dcache.c b/fs/dcache.c
+index 940d188..c118827 100644
+--- a/fs/dcache.c
++++ b/fs/dcache.c
+@@ -815,17 +815,19 @@ void d_instantiate(struct dentry *entry,
+  * (or otherwise set) by the caller to indicate that it is now
+  * in use by the dcache.
   */
- const struct file_operations ext2_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.write		= do_sync_write,
- 	.aio_read	= generic_file_aio_read,
- 	.aio_write	= generic_file_aio_write,
- 	.ioctl		= ext2_ioctl,
-Index: linux-2.6.17-rc3.save/fs/fuse/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/fuse/file.c	2006-05-10 08:21:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/fuse/file.c	2006-05-10 08:29:35.000000000 -0700
-@@ -621,8 +621,10 @@ static int fuse_set_page_dirty(struct pa
- 
- static const struct file_operations fuse_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= fuse_file_mmap,
- 	.open		= fuse_open,
- 	.flush		= fuse_flush,
-Index: linux-2.6.17-rc3.save/fs/hfs/inode.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/hfs/inode.c	2006-05-10 08:21:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/hfs/inode.c	2006-05-10 08:29:35.000000000 -0700
-@@ -603,8 +603,10 @@ int hfs_inode_setattr(struct dentry *den
- 
- static const struct file_operations hfs_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.sendfile	= generic_file_sendfile,
- 	.fsync		= file_fsync,
-Index: linux-2.6.17-rc3.save/fs/hfsplus/inode.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/hfsplus/inode.c	2006-05-10 08:21:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/hfsplus/inode.c	2006-05-10 08:29:35.000000000 -0700
-@@ -282,8 +282,10 @@ static struct inode_operations hfsplus_f
- 
- static const struct file_operations hfsplus_file_operations = {
- 	.llseek 	= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.sendfile	= generic_file_sendfile,
- 	.fsync		= file_fsync,
-Index: linux-2.6.17-rc3.save/fs/hostfs/hostfs_kern.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/hostfs/hostfs_kern.c	2006-05-10 08:23:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/hostfs/hostfs_kern.c	2006-05-10 08:29:35.000000000 -0700
-@@ -386,11 +386,11 @@ int hostfs_fsync(struct file *file, stru
- 
- static const struct file_operations hostfs_file_fops = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
-+	.read		= do_sync_read,
- 	.sendfile	= generic_file_sendfile,
- 	.aio_read	= generic_file_aio_read,
- 	.aio_write	= generic_file_aio_write,
--	.write		= generic_file_write,
-+	.write		= do_sync_write,
- 	.mmap		= generic_file_mmap,
- 	.open		= hostfs_file_open,
- 	.release	= NULL,
-Index: linux-2.6.17-rc3.save/fs/hpfs/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/hpfs/file.c	2006-05-10 08:21:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/hpfs/file.c	2006-05-10 08:29:35.000000000 -0700
-@@ -113,7 +113,7 @@ static ssize_t hpfs_file_write(struct fi
+-struct dentry *d_instantiate_unique(struct dentry *entry, struct inode *inode)
++static struct dentry *__d_instantiate_unique(struct dentry *entry,
++					     struct inode *inode)
  {
- 	ssize_t retval;
+ 	struct dentry *alias;
+ 	int len = entry->d_name.len;
+ 	const char *name = entry->d_name.name;
+ 	unsigned int hash = entry->d_name.hash;
  
--	retval = generic_file_write(file, buf, count, ppos);
-+	retval = do_sync_write(file, buf, count, ppos);
- 	if (retval > 0)
- 		hpfs_i(file->f_dentry->d_inode)->i_dirty = 1;
- 	return retval;
-@@ -122,8 +122,10 @@ static ssize_t hpfs_file_write(struct fi
- const struct file_operations hpfs_file_ops =
- {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
- 	.write		= hpfs_file_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.release	= hpfs_file_release,
- 	.fsync		= hpfs_file_fsync,
-Index: linux-2.6.17-rc3.save/fs/jffs/inode-v23.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/jffs/inode-v23.c	2006-05-10 08:21:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/jffs/inode-v23.c	2006-05-10 08:29:35.000000000 -0700
-@@ -1633,8 +1633,10 @@ static const struct file_operations jffs
- {
- 	.open		= generic_file_open,
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.ioctl		= jffs_ioctl,
- 	.mmap		= generic_file_readonly_mmap,
- 	.fsync		= jffs_fsync,
-Index: linux-2.6.17-rc3.save/fs/jffs2/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/jffs2/file.c	2006-05-10 08:21:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/jffs2/file.c	2006-05-10 08:29:35.000000000 -0700
-@@ -42,8 +42,10 @@ const struct file_operations jffs2_file_
- {
- 	.llseek =	generic_file_llseek,
- 	.open =		generic_file_open,
--	.read =		generic_file_read,
--	.write =	generic_file_write,
-+	.read =		do_sync_read,
-+	.aio_read =	generic_file_aio_read,
-+	.write =	do_sync_write,
-+	.aio_write =	generic_file_aio_write,
- 	.ioctl =	jffs2_ioctl,
- 	.mmap =		generic_file_readonly_mmap,
- 	.fsync =	jffs2_fsync,
-Index: linux-2.6.17-rc3.save/fs/jfs/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/jfs/file.c	2006-05-10 08:23:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/jfs/file.c	2006-05-10 08:29:35.000000000 -0700
-@@ -103,8 +103,8 @@ struct inode_operations jfs_file_inode_o
- const struct file_operations jfs_file_operations = {
- 	.open		= jfs_open,
- 	.llseek		= generic_file_llseek,
--	.write		= generic_file_write,
--	.read		= generic_file_read,
-+	.write		= do_sync_write,
-+	.read		= do_sync_read,
- 	.aio_read	= generic_file_aio_read,
- 	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
-Index: linux-2.6.17-rc3.save/fs/minix/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/minix/file.c	2006-05-10 08:21:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/minix/file.c	2006-05-10 08:29:35.000000000 -0700
-@@ -17,8 +17,10 @@ int minix_sync_file(struct file *, struc
- 
- const struct file_operations minix_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.fsync		= minix_sync_file,
- 	.sendfile	= generic_file_sendfile,
-Index: linux-2.6.17-rc3.save/fs/ntfs/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/ntfs/file.c	2006-05-10 08:23:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/ntfs/file.c	2006-05-10 08:29:35.000000000 -0700
-@@ -2294,7 +2294,7 @@ static int ntfs_file_fsync(struct file *
- 
- const struct file_operations ntfs_file_ops = {
- 	.llseek		= generic_file_llseek,	 /* Seek inside file. */
--	.read		= generic_file_read,	 /* Read from file. */
-+	.read		= do_sync_read,		 /* Read from file. */
- 	.aio_read	= generic_file_aio_read, /* Async read from file. */
- #ifdef NTFS_RW
- 	.write		= ntfs_file_write,	 /* Write to file. */
-Index: linux-2.6.17-rc3.save/fs/qnx4/file.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/qnx4/file.c	2006-05-10 08:21:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/qnx4/file.c	2006-05-10 08:29:35.000000000 -0700
-@@ -22,11 +22,13 @@
- const struct file_operations qnx4_file_operations =
- {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
- 	.mmap		= generic_file_mmap,
- 	.sendfile	= generic_file_sendfile,
- #ifdef CONFIG_QNX4FS_RW
--	.write		= generic_file_write,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.fsync		= qnx4_sync_file,
- #endif
- };
-Index: linux-2.6.17-rc3.save/fs/ramfs/file-mmu.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/ramfs/file-mmu.c	2006-05-10 08:21:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/ramfs/file-mmu.c	2006-05-10 08:29:35.000000000 -0700
-@@ -33,8 +33,10 @@ struct address_space_operations ramfs_ao
- };
- 
- const struct file_operations ramfs_file_operations = {
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.fsync		= simple_sync_file,
- 	.sendfile	= generic_file_sendfile,
-Index: linux-2.6.17-rc3.save/fs/ramfs/file-nommu.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/ramfs/file-nommu.c	2006-05-10 08:21:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/ramfs/file-nommu.c	2006-05-10 08:29:35.000000000 -0700
-@@ -36,8 +36,10 @@ struct address_space_operations ramfs_ao
- const struct file_operations ramfs_file_operations = {
- 	.mmap			= ramfs_nommu_mmap,
- 	.get_unmapped_area	= ramfs_nommu_get_unmapped_area,
--	.read			= generic_file_read,
--	.write			= generic_file_write,
-+	.read			= do_sync_read,
-+	.aio_read		= generic_file_aio_read,
-+	.write			= do_sync_write,
-+	.aio_write		= generic_file_aio_write,
- 	.fsync			= simple_sync_file,
- 	.sendfile		= generic_file_sendfile,
- 	.llseek			= generic_file_llseek,
-Index: linux-2.6.17-rc3.save/fs/read_write.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/read_write.c	2006-05-10 08:29:26.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/read_write.c	2006-05-10 08:29:35.000000000 -0700
-@@ -22,7 +22,8 @@
- 
- const struct file_operations generic_ro_fops = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
- 	.mmap		= generic_file_readonly_mmap,
- 	.sendfile	= generic_file_sendfile,
- };
-Index: linux-2.6.17-rc3.save/include/linux/fs.h
-===================================================================
---- linux-2.6.17-rc3.save.orig/include/linux/fs.h	2006-05-10 08:29:26.000000000 -0700
-+++ linux-2.6.17-rc3.save/include/linux/fs.h	2006-05-10 09:00:37.000000000 -0700
-@@ -1594,11 +1594,8 @@ extern int generic_file_mmap(struct file
- extern int generic_file_readonly_mmap(struct file *, struct vm_area_struct *);
- extern int file_read_actor(read_descriptor_t * desc, struct page *page, unsigned long offset, unsigned long size);
- extern int file_send_actor(read_descriptor_t * desc, struct page *page, unsigned long offset, unsigned long size);
--extern ssize_t generic_file_read(struct file *, char __user *, size_t, loff_t *);
- int generic_write_checks(struct file *file, loff_t *pos, size_t *count, int isblk);
--extern ssize_t generic_file_write(struct file *, const char __user *, size_t, loff_t *);
- extern ssize_t generic_file_aio_read(struct kiocb *, const struct iovec *, unsigned long, loff_t);
--extern ssize_t __generic_file_aio_read(struct kiocb *, const struct iovec *, unsigned long, loff_t *);
- extern ssize_t generic_file_aio_write(struct kiocb *, const struct iovec *, unsigned long, loff_t);
- extern ssize_t generic_file_aio_write_nolock(struct kiocb *, const struct iovec *,
- 		unsigned long, loff_t);
-@@ -1608,8 +1605,6 @@ extern ssize_t generic_file_buffered_wri
- 		unsigned long, loff_t, loff_t *, size_t, ssize_t);
- extern ssize_t do_sync_read(struct file *filp, char __user *buf, size_t len, loff_t *ppos);
- extern ssize_t do_sync_write(struct file *filp, const char __user *buf, size_t len, loff_t *ppos);
--ssize_t generic_file_write_nolock(struct file *file, const struct iovec *iov,
--				unsigned long nr_segs, loff_t *ppos);
- extern ssize_t generic_file_sendfile(struct file *, loff_t *, size_t, read_actor_t, void *);
- extern void do_generic_mapping_read(struct address_space *mapping,
- 				    struct file_ra_state *, struct file *,
-Index: linux-2.6.17-rc3.save/mm/filemap.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/mm/filemap.c	2006-05-10 08:23:47.000000000 -0700
-+++ linux-2.6.17-rc3.save/mm/filemap.c	2006-05-10 08:44:01.000000000 -0700
-@@ -1018,13 +1018,14 @@ success:
-  * that can use the page cache directly.
-  */
- ssize_t
--__generic_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
--		unsigned long nr_segs, loff_t *ppos)
-+generic_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
-+		unsigned long nr_segs, loff_t pos)
- {
- 	struct file *filp = iocb->ki_filp;
- 	ssize_t retval;
- 	unsigned long seg;
- 	size_t count;
-+	loff_t *ppos = &iocb->ki_pos;
- 
- 	count = 0;
- 	for (seg = 0; seg < nr_segs; seg++) {
-@@ -1048,7 +1049,7 @@ __generic_file_aio_read(struct kiocb *io
- 
- 	/* coalesce the iovecs and go direct-to-BIO for O_DIRECT */
- 	if (filp->f_flags & O_DIRECT) {
--		loff_t pos = *ppos, size;
-+		loff_t size;
- 		struct address_space *mapping;
- 		struct inode *inode;
- 
-@@ -1093,33 +1094,8 @@ out:
- 	return retval;
- }
- 
--EXPORT_SYMBOL(__generic_file_aio_read);
--
--ssize_t
--generic_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
--		unsigned long nr_segs, loff_t pos)
--{
--	BUG_ON(iocb->ki_pos != pos);
--	return __generic_file_aio_read(iocb, iov, nr_segs, &iocb->ki_pos);
--}
- EXPORT_SYMBOL(generic_file_aio_read);
- 
--ssize_t
--generic_file_read(struct file *filp, char __user *buf, size_t count, loff_t *ppos)
--{
--	struct iovec local_iov = { .iov_base = buf, .iov_len = count };
--	struct kiocb kiocb;
--	ssize_t ret;
--
--	init_sync_kiocb(&kiocb, filp);
--	ret = __generic_file_aio_read(&kiocb, &local_iov, 1, ppos);
--	if (-EIOCBQUEUED == ret)
--		ret = wait_on_sync_kiocb(&kiocb);
--	return ret;
--}
--
--EXPORT_SYMBOL(generic_file_read);
--
- int file_send_actor(read_descriptor_t * desc, struct page *page, unsigned long offset, unsigned long size)
- {
- 	ssize_t written;
-@@ -2185,38 +2161,6 @@ ssize_t generic_file_aio_write_nolock(st
- }
- EXPORT_SYMBOL(generic_file_aio_write_nolock);
- 
--static ssize_t
--__generic_file_write_nolock(struct file *file, const struct iovec *iov,
--				unsigned long nr_segs, loff_t *ppos)
--{
--	struct kiocb kiocb;
--	ssize_t ret;
--
--	init_sync_kiocb(&kiocb, file);
--	kiocb.ki_pos = *ppos;
--	ret = __generic_file_aio_write_nolock(&kiocb, iov, nr_segs, ppos);
--	if (-EIOCBQUEUED == ret)
--		ret = wait_on_sync_kiocb(&kiocb);
--	return ret;
--}
--
--ssize_t
--generic_file_write_nolock(struct file *file, const struct iovec *iov,
--				unsigned long nr_segs, loff_t *ppos)
--{
--	struct kiocb kiocb;
--	ssize_t ret;
--
--	init_sync_kiocb(&kiocb, file);
--	kiocb.ki_pos = *ppos;
--	ret = generic_file_aio_write_nolock(&kiocb, iov, nr_segs, *ppos);
--	if (-EIOCBQUEUED == ret)
--		ret = wait_on_sync_kiocb(&kiocb);
--	*ppos = kiocb.ki_pos;
--	return ret;
--}
--EXPORT_SYMBOL(generic_file_write_nolock);
--
- ssize_t generic_file_aio_write(struct kiocb *iocb, const struct iovec *iov,
- 		unsigned long nr_segs, loff_t pos)
- {
-@@ -2242,30 +2186,6 @@ ssize_t generic_file_aio_write(struct ki
- }
- EXPORT_SYMBOL(generic_file_aio_write);
- 
--ssize_t generic_file_write(struct file *file, const char __user *buf,
--			   size_t count, loff_t *ppos)
--{
--	struct address_space *mapping = file->f_mapping;
--	struct inode *inode = mapping->host;
--	ssize_t	ret;
--	struct iovec local_iov = { .iov_base = (void __user *)buf,
--					.iov_len = count };
--
--	mutex_lock(&inode->i_mutex);
--	ret = __generic_file_write_nolock(file, &local_iov, 1, ppos);
--	mutex_unlock(&inode->i_mutex);
--
--	if (ret > 0 && ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
--		ssize_t err;
--
--		err = sync_page_range(inode, mapping, *ppos - ret, ret);
--		if (err < 0)
--			ret = err;
--	}
--	return ret;
--}
--EXPORT_SYMBOL(generic_file_write);
--
- /*
-  * Called under i_mutex for writes to S_ISREG files.   Returns -EIO if something
-  * went wrong during pagecache shootdown.
-Index: linux-2.6.17-rc3.save/fs/xfs/linux-2.6/xfs_lrw.c
-===================================================================
---- linux-2.6.17-rc3.save.orig/fs/xfs/linux-2.6/xfs_lrw.c	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/xfs/linux-2.6/xfs_lrw.c	2006-05-10 08:45:52.000000000 -0700
-@@ -276,7 +276,9 @@ xfs_read(
- 
- 	xfs_rw_enter_trace(XFS_READ_ENTER, &ip->i_iocore,
- 				(void *)iovp, segs, *offset, ioflags);
--	ret = __generic_file_aio_read(iocb, iovp, segs, offset);
+-	BUG_ON(!list_empty(&entry->d_alias));
+-	spin_lock(&dcache_lock);
+-	if (!inode)
+-		goto do_negative;
++	if (!inode) {
++		entry->d_inode = NULL;
++		return NULL;
++	}
 +
-+	iocb->ki_pos = *offset;
-+	ret = generic_file_aio_read(iocb, iovp, segs, *offset);
- 	if (ret == -EIOCBQUEUED && !(ioflags & IO_ISAIO))
- 		ret = wait_on_sync_kiocb(iocb);
- 	if (ret > 0)
-
-
+ 	list_for_each_entry(alias, &inode->i_dentry, d_alias) {
+ 		struct qstr *qstr = &alias->d_name;
+ 
+@@ -838,19 +840,35 @@ struct dentry *d_instantiate_unique(stru
+ 		if (memcmp(qstr->name, name, len))
+ 			continue;
+ 		dget_locked(alias);
+-		spin_unlock(&dcache_lock);
+-		BUG_ON(!d_unhashed(alias));
+-		iput(inode);
+ 		return alias;
+ 	}
++
+ 	list_add(&entry->d_alias, &inode->i_dentry);
+-do_negative:
+ 	entry->d_inode = inode;
+ 	fsnotify_d_instantiate(entry, inode);
+-	spin_unlock(&dcache_lock);
+-	security_d_instantiate(entry, inode);
+ 	return NULL;
+ }
++
++struct dentry *d_instantiate_unique(struct dentry *entry, struct inode *inode)
++{
++	struct dentry *result;
++
++	BUG_ON(!list_empty(&entry->d_alias));
++
++	spin_lock(&dcache_lock);
++	result = __d_instantiate_unique(entry, inode);
++	spin_unlock(&dcache_lock);
++
++	if (!result) {
++		security_d_instantiate(entry, inode);
++		return NULL;
++	}
++
++	BUG_ON(!d_unhashed(result));
++	iput(inode);
++	return result;
++}
++
+ EXPORT_SYMBOL(d_instantiate_unique);
+ 
+ /**
+@@ -1222,6 +1240,11 @@ static void __d_rehash(struct dentry * e
+  	hlist_add_head_rcu(&entry->d_hash, list);
+ }
+ 
++static void _d_rehash(struct dentry * entry)
++{
++	__d_rehash(entry, d_hash(entry->d_parent, entry->d_name.hash));
++}
++
+ /**
+  * d_rehash	- add an entry back to the hash
+  * @entry: dentry to add to the hash
+@@ -1231,11 +1254,9 @@ static void __d_rehash(struct dentry * e
+  
+ void d_rehash(struct dentry * entry)
+ {
+-	struct hlist_head *list = d_hash(entry->d_parent, entry->d_name.hash);
+-
+ 	spin_lock(&dcache_lock);
+ 	spin_lock(&entry->d_lock);
+-	__d_rehash(entry, list);
++	_d_rehash(entry);
+ 	spin_unlock(&entry->d_lock);
+ 	spin_unlock(&dcache_lock);
+ }
+@@ -1373,6 +1394,108 @@ already_unhashed:
+ 	spin_unlock(&dcache_lock);
+ }
+ 
++/*
++ * Prepare an anonymous dentry for life in the superblock's dentry tree as a
++ * named dentry in place of the dentry to be replaced.
++ */
++static void __d_materialise_dentry(struct dentry *dentry, struct dentry *anon)
++{
++	struct dentry *dparent, *aparent;
++
++	switch_names(dentry, anon);
++	do_switch(dentry->d_name.len, anon->d_name.len);
++	do_switch(dentry->d_name.hash, anon->d_name.hash);
++
++	dparent = dentry->d_parent;
++	aparent = anon->d_parent;
++	dentry->d_parent = (aparent == anon) ? dentry : aparent;
++	anon->d_parent = (dparent == dentry) ? anon : dparent;
++
++	anon->d_flags &= ~DCACHE_DISCONNECTED;
++}
++
++/**
++ * d_materialise_unique - introduce an inode into the tree
++ * @dentry: candidate dentry
++ * @inode: inode to bind to the dentry, to which aliases may be attached
++ *
++ * Introduces an dentry into the tree, substituting an extant disconnected
++ * root directory alias in its place if there is one
++ */
++struct dentry *d_materialise_unique(struct dentry *dentry, struct inode *inode)
++{
++	struct dentry *alias, *actual;
++
++	BUG_ON(!d_unhashed(dentry));
++
++	spin_lock(&dcache_lock);
++
++	if (!inode) {
++		actual = dentry;
++		dentry->d_inode = NULL;
++		goto found_lock;
++	}
++
++	/* See if a disconnected directory already exists as an anonymous root
++	 * that we should splice into the tree instead */
++	if (S_ISDIR(inode->i_mode) && (alias = __d_find_alias(inode, 1))) {
++		spin_lock(&alias->d_lock);
++
++		/* Is this a mountpoint that we could splice into our tree? */
++		if (IS_ROOT(alias))
++			goto connect_mountpoint;
++
++		if (alias->d_name.len == dentry->d_name.len &&
++		    alias->d_parent == dentry->d_parent &&
++		    memcmp(alias->d_name.name,
++			   dentry->d_name.name,
++			   dentry->d_name.len) == 0)
++			goto replace_with_alias;
++
++		spin_unlock(&alias->d_lock);
++
++		/* Doh! Seem to be aliasing directories for some reason... */
++		dput(alias);
++	}
++
++	/* Add a unique reference */
++	actual = __d_instantiate_unique(dentry, inode);
++	if (!actual)
++		actual = dentry;
++	else if (unlikely(!d_unhashed(actual)))
++		goto shouldnt_be_hashed;
++
++found_lock:
++	spin_lock(&actual->d_lock);
++found:
++	_d_rehash(actual);
++	spin_unlock(&actual->d_lock);
++	spin_unlock(&dcache_lock);
++
++	if (actual == dentry) {
++		security_d_instantiate(dentry, inode);
++		return NULL;
++	}
++
++	iput(inode);
++	return actual;
++
++	/* Convert the anonymous/root alias into an ordinary dentry */
++connect_mountpoint:
++	__d_materialise_dentry(dentry, alias);
++
++	/* Replace the candidate dentry with the alias in the tree */
++replace_with_alias:
++	__d_drop(alias);
++	actual = alias;
++	goto found;
++
++shouldnt_be_hashed:
++	spin_unlock(&dcache_lock);
++	BUG();
++	goto shouldnt_be_hashed;
++}
++
+ /**
+  * d_path - return the path of a dentry
+  * @dentry: dentry to report
+@@ -1771,6 +1894,7 @@ EXPORT_SYMBOL(d_instantiate);
+ EXPORT_SYMBOL(d_invalidate);
+ EXPORT_SYMBOL(d_lookup);
+ EXPORT_SYMBOL(d_move);
++EXPORT_SYMBOL_GPL(d_materialise_unique);
+ EXPORT_SYMBOL(d_path);
+ EXPORT_SYMBOL(d_prune_aliases);
+ EXPORT_SYMBOL(d_rehash);
+diff --git a/include/linux/dcache.h b/include/linux/dcache.h
+index 836325e..1054df6 100644
+--- a/include/linux/dcache.h
++++ b/include/linux/dcache.h
+@@ -209,6 +209,7 @@ static inline int dname_external(struct 
+  */
+ extern void d_instantiate(struct dentry *, struct inode *);
+ extern struct dentry * d_instantiate_unique(struct dentry *, struct inode *);
++extern struct dentry * d_materialise_unique(struct dentry *, struct inode *);
+ extern void d_delete(struct dentry *);
+ 
+ /* allocate/de-allocate */
 

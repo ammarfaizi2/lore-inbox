@@ -1,30 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965050AbWEJXFE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965062AbWEJXFw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965050AbWEJXFE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 19:05:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965062AbWEJXFE
+	id S965062AbWEJXFw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 19:05:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965063AbWEJXFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 19:05:04 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:23210 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S965050AbWEJXFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 19:05:02 -0400
-Date: Wed, 10 May 2006 16:04:54 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Con Kolivas <kernel@kolivas.org>
-cc: linux list <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] mm: cleanup swap unused warning
-In-Reply-To: <200605102132.41217.kernel@kolivas.org>
-Message-ID: <Pine.LNX.4.64.0605101604330.7472@schroedinger.engr.sgi.com>
-References: <200605102132.41217.kernel@kolivas.org>
+	Wed, 10 May 2006 19:05:51 -0400
+Received: from ozlabs.org ([203.10.76.45]:54159 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S965062AbWEJXFu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 19:05:50 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17506.29128.591758.502430@cargo.ozlabs.ibm.com>
+Date: Thu, 11 May 2006 09:05:44 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Richard Henderson <rth@twiddle.net>
+Cc: t@twiddle.net, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+Subject: Re: [RFC/PATCH] Make powerpc64 use __thread for per-cpu variables
+In-Reply-To: <20060510154702.GA28938@twiddle.net>
+References: <17505.26159.807484.477212@cargo.ozlabs.ibm.com>
+	<20060510154702.GA28938@twiddle.net>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 May 2006, Con Kolivas wrote:
+Richard Henderson writes:
 
-> Are there any users of swp_entry_t when CONFIG_SWAP is not defined?
+> How do you plan to address the compiler optimizing
+> 
+> 	__thread int foo;
+> 	{
+> 	  use(foo);
+> 	  schedule();
+> 	  use(foo);
+> 	}
+> 
+> into
+> 
+> 	{
+> 	  int *tmp = &foo;	// tls arithmetic here
+> 	  use(*tmp);
+> 	  schedule();
+> 	  use(*tmp);
+> 	}
 
-Yes, a migration entry is a form of swap entry.
+Hmmm...  Would it be sufficient to use a RELOC_HIDE in __get_cpu_var,
+like this?
+
+#define __get_cpu_var(x)	(*(RELOC_HIDE(&per_cpu__##x, 0)))
+
+Paul.

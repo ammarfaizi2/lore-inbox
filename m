@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbWEJVKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWEJVL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964856AbWEJVKy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 17:10:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWEJVKy
+	id S964861AbWEJVL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 17:11:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbWEJVL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 17:10:54 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:43929
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S964856AbWEJVKy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 17:10:54 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Greg KH <gregkh@suse.de>
-Subject: Re: [patch 2/6] New Generic HW RNG
-Date: Wed, 10 May 2006 23:18:16 +0200
-User-Agent: KMail/1.9.1
-References: <20060507113513.418451000@pc1> <200605071516.09167.mb@bu3sch.de> <20060510205743.GC23446@suse.de>
-In-Reply-To: <20060510205743.GC23446@suse.de>
-Cc: Sergey Vlasov <vsu@altlinux.ru>, akpm@osdl.org,
-       Deepak Saxena <dsaxena@plexity.net>, bcm43xx-dev@lists.berlios.de,
-       linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 10 May 2006 17:11:58 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:39750 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S964861AbWEJVL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 17:11:57 -0400
+Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
+From: Daniel Walker <dwalker@mvista.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0605101636580.22959@gandalf.stny.rr.com>
+References: <200605100256.k4A2u8bd031779@dwalker1.mvista.com>
+	 <1147257266.17886.3.camel@localhost.localdomain>
+	 <1147271489.21536.70.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <1147273787.17886.46.camel@localhost.localdomain>
+	 <1147273598.21536.92.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <Pine.LNX.4.58.0605101116590.5532@gandalf.stny.rr.com>
+	 <20060510162404.GR3570@stusta.de>
+	 <Pine.LNX.4.58.0605101506540.22959@gandalf.stny.rr.com>
+	 <1147290577.21536.151.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <Pine.LNX.4.58.0605101636580.22959@gandalf.stny.rr.com>
+Content-Type: text/plain
+Date: Wed, 10 May 2006 14:11:54 -0700
+Message-Id: <1147295515.21536.168.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605102318.16939.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 May 2006 22:57, you wrote:
-> On Sun, May 07, 2006 at 03:16:08PM +0200, Michael Buesch wrote:
-> > On Sunday 07 May 2006 15:03, you wrote:
-> > > > +	list_for_each_entry(rng, &rng_list, list) {
-> > > > +		if (strncmp(rng->name, buf, len) == 0) {
-> > > 
-> > > This will match if the passed string is just a prefix of rng->name.
-> > > Apparently sysfs guarantees that the buffer passed to ->store will be
-> > > NUL-terminated, so this should be just a strcmp().
-> > 
-> > I am not sure if it is guaranteed NUL terminated. Greg?
-> > But I will look into this.
+On Wed, 2006-05-10 at 16:44 -0400, Steven Rostedt wrote:
+> On Wed, 10 May 2006, Daniel Walker wrote:
 > 
-> Yes it will be.
+> >
+> > There's no code increase when you init something to itself . I could
+> > convert all the instance of the warning, that I've investigated, to a
+> > system like this . I think it would be a benefit so we could clearly
+> > identify any new warnings added over time, and quiet the ones we know
+> > aren't real errors .
+> >
+> > However, from all the responses I'd imagine a patch like this wouldn't
+> > get accepted ..
+> >
+> 
+> I really don't see why it couldn't be added.  What's the problem with it?
+> 
+> I mean, I see lots of advantages, and really no disadvantages.
 
-Ok, very nice.
-I will resend the patches as soon as I have some time.
-I also splitted up the x86 drivers. Looks very good and clean now. ;)
+We are in complete agreement .. The only disadvantage is maybe we cover
+up and real error , but that seems pretty unlikely .. Maybe I'll get
+motivated while your sleeping ..
 
--- 
-Greetings Michael.
+Daniel
+
+

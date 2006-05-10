@@ -1,34 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbWEJGUS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWEJGWQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964823AbWEJGUS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 02:20:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWEJGUR
+	id S964827AbWEJGWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 02:22:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWEJGWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 02:20:17 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:42838 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S964823AbWEJGUQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 02:20:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Cy9BoduI/XOmw8H7XUw/5ddgh9lNSLV/ZjsDd93q9ebMbTWoONWWQM64lh90Lcg9J6jLJsYA7IIHNscA7e5xnnEgrFmJJ/d9mFfcEbcJ/Z+xkpAoOgbx77+I5XF5Vq3DS8dUzt83n2L4aLECKTAlBv2gc2N3Tr4nRrACkavkvls=
-Message-ID: <bda6d13a0605092320y5cca6e1co2228f52c9777c3b1@mail.gmail.com>
-Date: Tue, 9 May 2006 23:20:15 -0700
-From: "Joshua Hudson" <joshudson@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Not mounting NTFS rw, 2.6.16.1, but does so on 2.6.15
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Wed, 10 May 2006 02:22:16 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:37354
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S964827AbWEJGWP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 02:22:15 -0400
+Date: Tue, 09 May 2006 23:22:15 -0700 (PDT)
+Message-Id: <20060509.232215.69573210.davem@davemloft.net>
+To: olof@lixom.net
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+Subject: Re: [RFC/PATCH] Make powerpc64 use __thread for per-cpu variables
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060510051649.GD1794@lixom.net>
+References: <17505.26159.807484.477212@cargo.ozlabs.ibm.com>
+	<20060510051649.GD1794@lixom.net>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-which means cannot re-run lilo on my laptop, so Not progressing beyond
-2.6.15 until fixed.
-Downloading 2.6.16.15 to try that version now.
+From: Olof Johansson <olof@lixom.net>
+Date: Wed, 10 May 2006 00:16:50 -0500
 
-16kstacks patch was applied (I use ndiswrapper with broadcom drivers loaded).
+> It would be interesting to see benchmarks of how much it improves
+> things. I guess it doesn't really get interesting until after the paca
+> gets removed though, due to the added mfsprg's.
+
+When I moved the per-cpu base into a fixed register on sparc64,
+it definitely showed up on the micro-benchmarks because this
+shrunk the .text a lot in that case.

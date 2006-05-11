@@ -1,59 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbWEKLHr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030216AbWEKLUG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030217AbWEKLHr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 07:07:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbWEKLHq
+	id S1030216AbWEKLUG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 07:20:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbWEKLUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 07:07:46 -0400
-Received: from wr-out-0506.google.com ([64.233.184.233]:28050 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030217AbWEKLHq convert rfc822-to-8bit (ORCPT
+	Thu, 11 May 2006 07:20:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10119 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030216AbWEKLUE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 07:07:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=cqpuQ5lQpYZWkToPIIgosWm+12I93zR60GW0vgisckF5nq4T/n8p8a5mhRDyJ+PhsrTkd1n9EkD1D+GYuXebLZjxrC2158LL2rq0v7tN+IRGGyMKU7y+fIEHrtWHaEkPbyh4wyPRUDDRTqzdiqupflVQJgEctxQmgcMj2eaibsY=
-Message-ID: <7c3341450605110407g70159436ye1a60283ed586c9@mail.gmail.com>
-Date: Thu, 11 May 2006 12:07:45 +0100
-From: "Nick Warne" <nick@linicks.net>
-To: "Maciej Soltysiak" <solt2@dns.toxicfilms.tv>
-Subject: Re: Linux 2.6.16.16
-Cc: "Chris Wright" <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <296295514.20060511123419@dns.toxicfilms.tv>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060511022547.GE25010@moss.sous-sol.org>
-	 <296295514.20060511123419@dns.toxicfilms.tv>
-X-Google-Sender-Auth: 98d197ca087806c5
+	Thu, 11 May 2006 07:20:04 -0400
+Date: Thu, 11 May 2006 04:17:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "bibo,mao" <bibo.mao@intel.com>
+Cc: ak@suse.de, jbeulich@novell.com, anil.s.keshavamurthy@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]x86_64 debug_stack nested patch (again)
+Message-Id: <20060511041700.49c3bab0.akpm@osdl.org>
+In-Reply-To: <200605101726.08338.bibo.mao@intel.com>
+References: <200605101726.08338.bibo.mao@intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/05/06, Maciej Soltysiak <solt2@dns.toxicfilms.tv> wrote:
-
-> But this one looks important, something that every kernel build
-> has in its code path, however I am unable to say if I need it badly
-> or maybe not.
+"bibo,mao" <bibo.mao@intel.com> wrote:
 >
-> The url: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1860
-> says nothing about it.
->
-> Could we have a word or two under each patchlet that would qualify them
-> somehow?
-> Like:
-> "Important, not required for all, apply if using SCTP"
-> "Important, required for all, may *do bad things*, apply ASAP"
-> "Critical, required for all, surely will *do bad things*, apply ASAP"
+> Hi,
+> In x86_64 platform, INT1 and INT3 trap stack is IST stack called DEBUG_STACK,
+> when INT1/INT3 trap happens, system will switch to DEBUG_STACK by hardware. 
+> Current DEBUG_STACK size is 4K, when int1/int3 trap happens, kernel will 
+> minus current DEBUG_STACK IST value by 4k. But if int3/int1 trap is nested, 
+> it will destroy other vector's IST stack. This patch modifies this, it sets 
+> DEBUG_STACK size as 8K and allows two level of nested int1/int3 trap.
+> 
+> Kprobe DEBUG_STACK may be nested, because kprobe hanlder may be probed 
+> by other kprobes. This patch is against 2.6.17-rc3. Thanks jbeulich for pointing out error in the first patch.
+> 
+> Signed-Off-By: bibo, mao <bibo.mao@intel.com>
+> 
+> --- 2.6.17-rc3.org/include/asm-x86_64/page.h	2006-05-10 12:07:18.000000000 +0800
+> +++ 2.6.17-rc3/include/asm-x86_64/page.h	2006-05-10 12:19:24.000000000 +0800
+> @@ -20,7 +20,7 @@
+>  #define EXCEPTION_STACK_ORDER 0
+>  #define EXCEPTION_STKSZ (PAGE_SIZE << EXCEPTION_STACK_ORDER)
+>  
+> -#define DEBUG_STACK_ORDER EXCEPTION_STACK_ORDER
+> +#define DEBUG_STACK_ORDER (EXCEPTION_STACK_ORDER + 1)
+>  #define DEBUG_STKSZ (PAGE_SIZE << DEBUG_STACK_ORDER)
+>  
+>  #define IRQSTACK_ORDER 2
 
-This is exactly my thoughts.  I read the changelog:
+So....   why not do it this way?
 
-http://kernel.org/pub/linux/kernel/v2.6/ChangeLog-2.6.16.16
 
-and it does look important, but I am not sure either if I need to apply.
 
-Good suggestion, Maciej!
+--- devel/include/asm-x86_64/page.h~x86_64-kprobes-debug_stack-nesting-fix	2006-05-11 04:15:12.000000000 -0700
++++ devel-akpm/include/asm-x86_64/page.h	2006-05-11 04:16:07.000000000 -0700
+@@ -20,7 +20,15 @@
+ #define EXCEPTION_STACK_ORDER 0
+ #define EXCEPTION_STKSZ (PAGE_SIZE << EXCEPTION_STACK_ORDER)
+ 
++#ifdef CONFIG_KPROBES
++/*
++ * kprobes uses an 8k stack because int1/int3 exceptions can nest
++ */
++#define DEBUG_STACK_ORDER (EXCEPTION_STACK_ORDER + 1)
++#else
+ #define DEBUG_STACK_ORDER EXCEPTION_STACK_ORDER
++#endif
++
+ #define DEBUG_STKSZ (PAGE_SIZE << DEBUG_STACK_ORDER)
+ 
+ #define IRQSTACK_ORDER 2
+_
 
-Nick

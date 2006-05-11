@@ -1,103 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWEKWII@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbWEKWKW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbWEKWII (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 18:08:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbWEKWIH
+	id S1750793AbWEKWKW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 18:10:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWEKWKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 18:08:07 -0400
-Received: from rtsoft2.corbina.net ([85.21.88.2]:17107 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1750810AbWEKWIG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 18:08:06 -0400
-Message-ID: <4463B589.5050205@ru.mvista.com>
-Date: Fri, 12 May 2006 02:07:05 +0400
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] PIIX: remove check for broken MW DMA mode 0
-Content-Type: multipart/mixed;
- boundary="------------080308030506060108080409"
+	Thu, 11 May 2006 18:10:22 -0400
+Received: from mga07.intel.com ([143.182.124.22]:26440 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1750793AbWEKWKV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 18:10:21 -0400
+TrustInternalSourcedMail: True
+X-ExchangeTrusted: True
+X-IronPort-AV: i="4.05,117,1146466800"; 
+   d="scan'208"; a="35124929:sNHT2870418943"
+Date: Thu, 11 May 2006 15:09:27 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: Martin Bligh <mbligh@mbligh.org>
+Cc: Ashok Raj <ashok.raj@intel.com>, Andrew Morton <akpm@osdl.org>,
+       shaohua.li@intel.com, linux-kernel@vger.kernel.org, zwane@linuxpower.ca,
+       vatsa@in.ibm.com, nickpiggin@yahoo.com.au
+Subject: Re: [PATCH 0/10] bulk cpu removal support
+Message-ID: <20060511150927.A16977@unix-os.sc.intel.com>
+References: <1147067137.2760.77.camel@sli10-desk.sh.intel.com> <20060510230606.076271b2.akpm@osdl.org> <20060511095308.A15483@unix-os.sc.intel.com> <20060511100215.588e89aa.akpm@osdl.org> <20060511102711.A15733@unix-os.sc.intel.com> <4463A1C7.6010205@mbligh.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4463A1C7.6010205@mbligh.org>; from mbligh@mbligh.org on Thu, May 11, 2006 at 01:42:47PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080308030506060108080409
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, May 11, 2006 at 01:42:47PM -0700, Martin Bligh wrote:
+> Ashok Raj wrote:
+> > 
+> > 
+> > It depends on whats running at the time... with some light load, i measured 
+> > wall clock time, i remember seeing 2 secs at times, but its been a long time
+> > i did that.. so take that with a pinch :-)_
+> > 
+> > i will try to get those idle and load times worked out again... the best
+> > i have is a  16 way, if i get help from big system oems i will send the 
+> > numbers out
+> 
+> Why is taking 30s to offline CPUs a problem?
+> 
 
-Hello.
+Well, the real problem is that for each cpu offline we schedule a RT thread
+kstopmachine() on each cpu, then turn off interrupts until this one cpu has 
+removed. stop_machine_run() is a big enough sledge hammer during cpu offline
+and doing this repeatedly... say on a 4 socket system, where each socket=16
+logical cpus.
 
-    There's no need to check in piix_config_drive_for_dma() for broken MW DMA
-mode 0 as this mode is not supported by the driver (it sets hwif->mwdma_mask
-to 0x6), and hence can't be selected by ide_dma_speed().
+the system would tend to get hick ups 64 times, since we do the stopmachine
+thread once for each logical cpu. When we want to replace a node for
+reliability reasons, its not clear if this hick ups is a good thing.
 
-MBR, Sergei
+Doing kstopmachine() on a single system is in itself noticable, what we heard
+from some OEM's is this would have other app level impact as well.
 
-Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+With the bulk removal, we do stop machine just once, but all the 16 cpus
+get removed once hence there is just one hickup, instead of 64.
 
+Less time to offline, avoid process and interrupt bouncing on and off a cpu
+which is just about to be offlined are almost extra fringe benefits you get 
+with the bulk removal approach.
 
---------------080308030506060108080409
-Content-Type: text/plain;
- name="piix-remove-mwdma0-check.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="piix-remove-mwdma0-check.patch"
-
-Index: linus/drivers/ide/pci/piix.c
-===================================================================
---- linus.orig/drivers/ide/pci/piix.c
-+++ linus/drivers/ide/pci/piix.c
-@@ -334,33 +334,6 @@ static int piix_tune_chipset (ide_drive_
- }
- 
- /**
-- *	piix_faulty_dma0		-	check for DMA0 errata
-- *	@hwif: IDE interface to check
-- *
-- *	If an ICH/ICH0/ICH2 interface is is operating in multi-word
-- *	DMA mode with 600nS cycle time the IDE PIO prefetch buffer will
-- *	inadvertently provide an extra piece of secondary data to the primary
-- *	device resulting in data corruption.
-- *
-- *	With such a device this test function returns true. This allows
-- *	our tuning code to follow Intel recommendations and use PIO on
-- *	such devices.
-- */
-- 
--static int piix_faulty_dma0(ide_hwif_t *hwif)
--{
--	switch(hwif->pci_dev->device)
--	{
--		case PCI_DEVICE_ID_INTEL_82801AA_1:	/* ICH */
--		case PCI_DEVICE_ID_INTEL_82801AB_1:	/* ICH0 */
--		case PCI_DEVICE_ID_INTEL_82801BA_8:	/* ICH2 */
--		case PCI_DEVICE_ID_INTEL_82801BA_9:	/* ICH2 */
--			return 1;
--	}
--	return 0;
--}
--
--/**
-  *	piix_config_drive_for_dma	-	configure drive for DMA
-  *	@drive: IDE drive to configure
-  *
-@@ -372,10 +345,6 @@ static int piix_faulty_dma0(ide_hwif_t *
- static int piix_config_drive_for_dma (ide_drive_t *drive)
- {
- 	u8 speed = ide_dma_speed(drive, piix_ratemask(drive));
--	
--	/* Some ICH devices cannot support DMA mode 0 */
--	if(speed == XFER_MW_DMA_0 && piix_faulty_dma0(HWIF(drive)))
--		speed = 0;
- 
- 	/*
- 	 * If no DMA speed was available or the chipset has DMA bugs
-
-
---------------080308030506060108080409--
+-- 
+Cheers,
+Ashok Raj
+- Open Source Technology Center

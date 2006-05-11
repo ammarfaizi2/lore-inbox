@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751679AbWEKNHl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751685AbWEKNNO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751679AbWEKNHl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 09:07:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751681AbWEKNHl
+	id S1751685AbWEKNNO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 09:13:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751686AbWEKNNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 09:07:41 -0400
-Received: from anubis.fi.muni.cz ([147.251.54.96]:54030 "EHLO
-	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S1751678AbWEKNHk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 09:07:40 -0400
-Date: Thu, 11 May 2006 15:07:43 +0200
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: acpi4asus
-Message-ID: <20060511130743.GG15876@mail.muni.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+	Thu, 11 May 2006 09:13:14 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:62392 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751681AbWEKNNO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 09:13:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=DSQUme0N+DhhB+QmhHpgNtDX6DSq8rfi7pSf8zFucC8drYKUMgpBqcRhZX3ojAsF3rItcXqw8bEYwLwTLWsT52+g2rxLU0P2/xZOq60kXJKATx8weYdZ6qvACmgqEzJZmkHpVaCyVTi7K8QoQpdV9onTJEdgujAaDEnXFXFbKxI=
+Date: Thu, 11 May 2006 17:11:47 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Matthew Martin <lihnucks@gmail.com>, linux-kernel@vger.kernel.org
+Subject: [TRIVIAL] ixj: make ixj_set_tone_off() static
+Message-ID: <20060511131147.GA23492@mipter.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.11+cvs20060403
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+From: Matthew Martin <lihnucks@gmail.com>
 
-is project acpi4asus still alive? (I'm asking here whether Andrew or Linus are
-receiving patches from acpi guys). For me, it looks like this is somewhat dead.
+Signed-off-by: Matthew Martin <lihnucks@gmail.com>
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-I posted patch to include Asus M6A support to both lkm and acpi4asus list but no
-response. I only noticed, that Andrew once tried to include in -mm but I did not
-see it there anyway.
+--- linux-vanilla/drivers/telephony/ixj.c
++++ linux-1/drivers/telephony/ixj.c
+@@ -5712,7 +5712,7 @@ static int ixj_daa_write(IXJ *j)
+ 	return 1;
+ }
+ 
+-int ixj_set_tone_off(unsigned short arg, IXJ *j)
++static int ixj_set_tone_off(unsigned short arg, IXJ *j)
+ {
+ 	j->tone_off_time = arg;
+ 	if (ixj_WriteDSPCommand(0x6E05, j))		/* Set Tone Off Period */
 
--- 
-Luká¹ Hejtmánek

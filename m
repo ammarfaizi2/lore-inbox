@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWEKTXR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWEKTYf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbWEKTXR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 15:23:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWEKTXR
+	id S1750731AbWEKTYf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 15:24:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbWEKTYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 15:23:17 -0400
-Received: from linux.dunaweb.hu ([62.77.196.1]:45704 "EHLO linux.dunaweb.hu")
-	by vger.kernel.org with ESMTP id S1750728AbWEKTXQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 15:23:16 -0400
-Message-ID: <44638F21.7020201@dunaweb.hu>
-Date: Thu, 11 May 2006 21:23:13 +0200
-From: Zoltan Boszormenyi <zboszor@dunaweb.hu>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
+	Thu, 11 May 2006 15:24:34 -0400
+Received: from mx1.suse.de ([195.135.220.2]:42704 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750731AbWEKTYe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 15:24:34 -0400
+From: Andi Kleen <ak@suse.de>
+To: Zoltan Boszormenyi <zboszor@dunaweb.hu>
 Subject: Re: Oops in au8830 driver on x86-64
-References: <446271C6.9050509@dunaweb.hu> <p73d5ek76k7.fsf@bragg.suse.de>
-In-Reply-To: <p73d5ek76k7.fsf@bragg.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Date: Thu, 11 May 2006 21:24:47 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <446271C6.9050509@dunaweb.hu> <p73d5ek76k7.fsf@bragg.suse.de> <44638F21.7020201@dunaweb.hu>
+In-Reply-To: <44638F21.7020201@dunaweb.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200605112124.47803.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Andi Kleen írta:
-> Zoltan Boszormenyi <zboszor@dunaweb.hu> writes:
->   
->> I couldn't seek further, I put the card away for now. :-)
->>     
+On Thursday 11 May 2006 21:23, Zoltan Boszormenyi wrote:
+> Hi,
 >
-> First thing I would do is to fix all the compile warnings.
+> Andi Kleen írta:
+> > Zoltan Boszormenyi <zboszor@dunaweb.hu> writes:
+> >> I couldn't seek further, I put the card away for now. :-)
+> >
+> > First thing I would do is to fix all the compile warnings.
+> >
+> > -Andi
 >
-> -Andi
->
->   
+> What warnings are you talking about?
 
-What warnings are you talking about?
+It was just a general comment. If there aren't any it's harder.
+I guess you would need to find out where exactly it crashes.
 
-...
-  LD [M]  sound/pci/ali5451/snd-ali5451.o
-  LD      sound/pci/au88x0/built-in.o
-  CC [M]  sound/pci/au88x0/au8810.o
-  CC [M]  sound/pci/au88x0/au8820.o
-  CC [M]  sound/pci/au88x0/au8830.o
-  LD [M]  sound/pci/au88x0/snd-au8810.o
-  LD [M]  sound/pci/au88x0/snd-au8820.o
-  LD [M]  sound/pci/au88x0/snd-au8830.o
-  LD      sound/pci/ca0106/built-in.o
-  CC [M]  sound/pci/ca0106/ca0106_main.o
-...
-
-Should I do an 'export CFLAGS="-Wall"' before make?
-
-Best regards,
-Zoltán Böszörményi
-
+-Andi

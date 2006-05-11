@@ -1,79 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWEKKFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWEKKeV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751224AbWEKKFd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 06:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWEKKFd
+	id S1750885AbWEKKeV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 06:34:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751536AbWEKKeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 06:05:33 -0400
-Received: from mail.bmlv.gv.at ([193.171.152.37]:18655 "EHLO mail.bmlv.gv.at")
-	by vger.kernel.org with ESMTP id S1751224AbWEKKFc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 06:05:32 -0400
-From: "Ph. Marek" <philipp.marek@bmlv.gv.at>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
-Date: Thu, 11 May 2006 12:05:52 +0200
-User-Agent: KMail/1.9.1
-Cc: Matt Mackall <mpm@selenic.com>, "David S. Miller" <davem@davemloft.net>,
-       tytso@mit.edu, mrmacman_g4@mac.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-References: <20060506.170810.74552888.davem@davemloft.net> <20060508140500.GZ15445@waste.org> <20060508172111.GA5266@ucw.cz>
-In-Reply-To: <20060508172111.GA5266@ucw.cz>
+	Thu, 11 May 2006 06:34:21 -0400
+Received: from dze141s31.ae.poznan.pl.220.254.150.in-addr.arpa ([150.254.220.184]:17333
+	"EHLO dns.toxicfilms.tv") by vger.kernel.org with ESMTP
+	id S1750885AbWEKKeU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 06:34:20 -0400
+X-Spam-Report: SA TESTS
+ -1.7 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+ -2.3 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                             [score: 0.0000]
+  0.6 AWL                    AWL: From: address is in the auto white-list
+X-QSS-TOXIC-Mail-From: solt2@dns.toxicfilms.tv via dns
+X-QSS-TOXIC: 1.25st (Clear:RC:1(85.221.144.160):SA:0(-3.4/3.0):. Processed in 0.742452 secs Process 22345)
+Date: Thu, 11 May 2006 12:34:19 +0200
+From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Priority: 3 (Normal)
+Message-ID: <296295514.20060511123419@dns.toxicfilms.tv>
+To: Chris Wright <chrisw@sous-sol.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.16.16
+In-Reply-To: <20060511022547.GE25010@moss.sous-sol.org>
+References: <20060511022547.GE25010@moss.sous-sol.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605111205.53192.philipp.marek@bmlv.gv.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 08 May 2006 19:21, Pavel Machek wrote:
-> Hi!
->
-> > > What do other platforms without a TSC do?
-> >
-> > Using get_cycles() for /dev/random is new as of 2.6. Before that, we
-> > were directly calling rdtsc on x86 alone. 10msec resolution is fine
-> > for plenty of sources.
->
-> For what devices are timestamps still 'random/unobservable' in 10msec
-> range?
->
-> Maybe keyboard... but no, keyboard has autorepeat and can be observed
-> remotely with 10msec accuracy in many cases. (telnet to bbs?)
->
-> Disk requests take less than 10msec.
->
-> It is trivial to measure packets with 10msec accuracy.
->
-> Mouse will generate many events within 10msec when user actually uses
-> it.
->
-> ...so, what devices are still random with 10msec sampling?
-There may be no devices with randomness in 10msec ...
+Hello Chris,
 
-... but how about the *count* of events during 10msec?
+Thursday, May 11, 2006, 4:25:47 AM, you wrote:
+> Trond Myklebust:
+>       fs/locks.c: Fix lease_init (CVE-2006-1860)
+I want to say that I like the quick stable cycle. People like to see
+fixes. Big thanks!
 
-Keyboard presses may be observable from outside, but disk accesses, network 
-interrupts, mouse moves etc. .... especially if the (outside) accesses have 
-to be correlated to the (internal) timer interrupt.
+However...
+I must say that usually I know if I need the the update,
+eg. I do not care for SCTP that much so I could skip that update.
 
-Get the count of events in 10msec, take the lowest bit. In 1.28 seconds you'll 
-get your 128bit key.
+But this one looks important, something that every kernel build
+has in its code path, however I am unable to say if I need it badly
+or maybe not.
 
-Or, to be conservative, take only the XOR of 8 consecutive bits ... then 
-you'll have to wait 10 seconds, but will be a bit more secure.
+The url: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1860
+says nothing about it.
 
-Such a mechanism could even be used on machines with TSC ... just do an 
-(non-locked) increment of some counter, reset it on every jiffie, and take a 
-bit of entropy.
+Could we have a word or two under each patchlet that would qualify them
+somehow?
+Like:
+"Important, not required for all, apply if using SCTP"
+"Important, required for all, may *do bad things*, apply ASAP"
+"Critical, required for all, surely will *do bad things*, apply ASAP"
+
+Not only distro kernel developers/maintainers use these, so I think
+it would be nice.
+
+Best Regards,
+Maciej
 
 
-How about that?
-
-
-
-Regards,
-
-Phil

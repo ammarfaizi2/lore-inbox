@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965111AbWEKBpR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965117AbWEKByj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965111AbWEKBpR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 21:45:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965114AbWEKBpR
+	id S965117AbWEKByj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 21:54:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965118AbWEKByj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 21:45:17 -0400
-Received: from inglit.ubishops.ca ([206.167.194.132]:31951 "EHLO
-	cs.ubishops.ca") by vger.kernel.org with ESMTP id S965111AbWEKBpQ
+	Wed, 10 May 2006 21:54:39 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:39590 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S965117AbWEKByi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 21:45:16 -0400
-Message-ID: <4462978C.6080809@cs.mcgill.ca>
-Date: Wed, 10 May 2006 21:46:52 -0400
-From: Patrick McLean <chutz@cs.mcgill.ca>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060430)
-MIME-Version: 1.0
-To: Neil Brown <neilb@suse.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Bogecho <andrewb@cs.mcgill.ca>
-Subject: Re: NFS locking
-References: <446246D6.5010509@cs.mcgill.ca> <17506.33247.884320.387785@cse.unsw.edu.au>
-In-Reply-To: <17506.33247.884320.387785@cse.unsw.edu.au>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 10 May 2006 21:54:38 -0400
+Subject: Re: [PATCHSET] Time: Generic Timekeeping Subsystem (v C2)
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Roman Zippel <zippel@linux-m68k.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, Tim Mann <mann@vmware.com>,
+       Jim Cromie <jim.cromie@gmail.com>
+In-Reply-To: <1147305476.12500.3.camel@localhost.localdomain>
+References: <1147305476.12500.3.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 10 May 2006 18:54:36 -0700
+Message-Id: <1147312476.12500.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> On Wednesday May 10, chutz@cs.mcgill.ca wrote:
->> We have a NFS server here with a fairly high load. The clients are
->> Linux, FreeBSD and Solaris. The exported filesystem is XFS, which is onb
->> a LVM drive. After between 3 and 30 days it seems that locking
->> completely stops working, clients generally either error or simply lock
->> up when they try to lock a file. The only way to fix it seems to be a
->> reboot.
-> 
-> Reboot the client or the server?
-> 
+On Wed, 2006-05-10 at 16:57 -0700, john stultz wrote:
+> All,
+> 	Here is an updated version of the smaller, reworked and improved
+> patchset, most of which is currently in -mm. 
 
-The server, rebooting the clients had no effect.
+Tim pointed out I had a typo in apm.c that kept it from building. The
+following fix is need (I'll be making a silent update of the release on
+the web site).
 
->> Last time it happened was on 2.6.17-rc2, it started around 2.6.15.
->>
->> There is nothing in the dmesg on the server, the (Linux) clients are
->> printing this in the dmesg when something tries to create a lock:
->>
->> lockd: server xxx.xxx.xxx.xxx not responding, still trying
->> lockd: server xxx.xxx.xxx.xxx not responding, still trying
-> 
-> Sounds like the server has locked up.
-> What does 'ps' on the server show for 'lockd'?  Is it in 'D'?  What is
-> the 'wchan'?  Are any 'nfsd's permanently in 'D'?
-> 
-> Try
->  echo t > /proc/sysrq-trigger
-> 
-> and see what the stack trace for lockd is - probably only useful if it
-> is in 'D'.
-> 
-> Maybe a 'tcpdump -s 1500' of traffic between client and server would
-> help.
+thanks
+-john
 
-We have already rebooted the server this time around, we will do the stack trace
-and tcpdump from a client next time it happens.
+diff --git a/arch/i386/kernel/apm.c b/arch/i386/kernel/apm.c
+index 25d5ef4..5811438 100644
+--- a/arch/i386/kernel/apm.c
++++ b/arch/i386/kernel/apm.c
+@@ -1154,7 +1154,7 @@ static void set_time(void)
+ 	if (got_clock_diff) {	/* Must know time zone in order to set clock */
+ 		ts.tv_sec = get_cmos_time() + clock_cmos_diff;
+ 		ts.tv_nsec = 0;
+-		do_settimeofday(&ts)
++		do_settimeofday(&ts);
+ 	} 
+ }
+ 
 
-Though, I do seem to remember that lockd was in the "D" state on the server when
-it happened this afternoon. Restarting the nfs service on the server did spawn a
-new lockd process, but did not fix the problem.
+

@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965117AbWEKByj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964963AbWEKCB2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965117AbWEKByj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 21:54:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965118AbWEKByj
+	id S964963AbWEKCB2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 22:01:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWEKCB2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 21:54:39 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:39590 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S965117AbWEKByi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 21:54:38 -0400
-Subject: Re: [PATCHSET] Time: Generic Timekeeping Subsystem (v C2)
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Roman Zippel <zippel@linux-m68k.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, Tim Mann <mann@vmware.com>,
-       Jim Cromie <jim.cromie@gmail.com>
-In-Reply-To: <1147305476.12500.3.camel@localhost.localdomain>
-References: <1147305476.12500.3.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 10 May 2006 18:54:36 -0700
-Message-Id: <1147312476.12500.11.camel@localhost.localdomain>
+	Wed, 10 May 2006 22:01:28 -0400
+Received: from CPE-144-136-172-108.sa.bigpond.net.au ([144.136.172.108]:9222
+	"EHLO grove.modra.org") by vger.kernel.org with ESMTP
+	id S1751228AbWEKCB1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 22:01:27 -0400
+Date: Thu, 11 May 2006 11:31:25 +0930
+From: Alan Modra <amodra@bigpond.net.au>
+To: Paul Mackerras <paulus@samba.org>
+Cc: "David S. Miller" <davem@davemloft.net>, linux-arch@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, rth@twiddle.net
+Subject: Re: [RFC/PATCH] Make powerpc64 use __thread for per-cpu variables
+Message-ID: <20060511020125.GF24458@bubble.grove.modra.org>
+References: <17505.26159.807484.477212@cargo.ozlabs.ibm.com> <20060510154702.GA28938@twiddle.net> <20060510.124003.04457042.davem@davemloft.net> <17506.21908.857189.645889@cargo.ozlabs.ibm.com> <20060511010438.GE24458@bubble.grove.modra.org> <17506.37259.755099.974824@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17506.37259.755099.974824@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-10 at 16:57 -0700, john stultz wrote:
-> All,
-> 	Here is an updated version of the smaller, reworked and improved
-> patchset, most of which is currently in -mm. 
+On Thu, May 11, 2006 at 11:21:15AM +1000, Paul Mackerras wrote:
+> Alan Modra writes:
+> 
+> > gcc shouldn't think there is any reason to cache the address.
+> 
+> Can I rely on that being true in the future?
 
-Tim pointed out I had a typo in apm.c that kept it from building. The
-following fix is need (I'll be making a silent update of the release on
-the web site).
+It isn't true in the *present*, except with a compiler on my home
+machine.  :-) 
 
-thanks
--john
+__thread int i1;
+void
+f3 (void)
+{
+  int x = i1;
+  __asm__ __volatile__ ("#dragons be here.  %0" : "+r" (x));
+  i1 = x;
+}
 
-diff --git a/arch/i386/kernel/apm.c b/arch/i386/kernel/apm.c
-index 25d5ef4..5811438 100644
---- a/arch/i386/kernel/apm.c
-+++ b/arch/i386/kernel/apm.c
-@@ -1154,7 +1154,7 @@ static void set_time(void)
- 	if (got_clock_diff) {	/* Must know time zone in order to set clock */
- 		ts.tv_sec = get_cmos_time() + clock_cmos_diff;
- 		ts.tv_nsec = 0;
--		do_settimeofday(&ts)
-+		do_settimeofday(&ts);
- 	} 
- }
- 
+current mainline with -O2 -S -mtls-size=16
 
+f3:
+        addi 9,2,i1@tprel
+        lwz 0,0(9)
+#APP
+        #dragons be here.  0
+#NO_APP
+        stw 0,0(9)
+        blr
 
+Same thing with my modified compiler.
+
+f3:
+        lwz 0,i1@tprel(2)
+#APP
+        #dragons be here.  0
+#NO_APP
+        stw 0,i1@tprel(2)
+        blr
+
+-- 
+Alan Modra
+IBM OzLabs - Linux Technology Centre

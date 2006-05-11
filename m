@@ -1,78 +1,196 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWEKUdV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWEKUdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbWEKUdV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 16:33:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWEKUdU
+	id S1750773AbWEKUdt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 16:33:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWEKUds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 16:33:20 -0400
-Received: from rtsoft2.corbina.net ([85.21.88.2]:25807 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1750773AbWEKUdU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 16:33:20 -0400
-Message-ID: <44639F4C.7040709@ru.mvista.com>
-Date: Fri, 12 May 2006 00:32:12 +0400
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
+	Thu, 11 May 2006 16:33:48 -0400
+Received: from touchdown.wvpn.de ([212.227.64.97]:58858 "EHLO mail.wvpn.de")
+	by vger.kernel.org with ESMTP id S1750773AbWEKUdr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 16:33:47 -0400
+Message-ID: <44639FC7.7030800@maintech.de>
+Date: Thu, 11 May 2006 22:34:15 +0200
+From: "Thomas Kleffel (maintech GmbH)" <tk@maintech.de>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060508)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Andrew Morton <akpm@osdl.org>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PIIX: fix 82371MX enablebits
-References: <446395A0.20806@ru.mvista.com> <1147379225.26130.81.camel@localhost.localdomain>
-In-Reply-To: <1147379225.26130.81.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ide_cs: Make ide_cs work with the memory space of CF-Cards
+ if IO space is not available (revised)
+References: <44629D10.80803@maintech.de> <1147362779.26130.45.camel@localhost.localdomain>
+In-Reply-To: <1147362779.26130.45.camel@localhost.localdomain>
+Content-Type: multipart/mixed;
+ boundary="------------050603010200090800010701"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+This is a multi-part message in MIME format.
+--------------050603010200090800010701
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Alan Cox wrote:
+From: Thomas Kleffel <tk@maintech.de>
 
->>     According to the datasheet, Intel 82371MX (MPIIX) actually has only a
->>single IDE channel mapped to the primary or secondary ports depending on the
->>value of the bit 14 of the IDETIM register at PCI config. offset 0x6C (the
->>register at 0x6F which the driver refers to. doesn't exist). So, disguise the
->>controller as dual channel and set enablebits masks/values such that only
->>either primary or secondary channel is detected enabled. Also, preclude the
->>IDE probing code from reading PCI BARs, this controller just doesn't have them
->>(it's not the separate PCI function like the other PCI controllers), it only
->>decodes the legacy addresses.
+this patch enables ide_cs to access CF-cards via their common memory
+rather than via their IO space.
 
-> There are lots and lots of other things you need to fix to make MPIIX
-> work with that driver. It has only a single timing register for one so
-> you must switch timing as you flip drive.
+Signed-off-by: Thomas Kleffel <tk@maintech.de>
+---
 
-    I know. All in a good time (if I have it :-)...
+This patch is against 2.6.17-rc3
 
-> Also it is not an IDE class
-> device so the PCI native/legacy and simplex stuff is not valid.
+The reason why this patch makes sense is that it is pretty easy to build
+a CF-Interface out of a simple address/data-bus if you only use common
+and attribute memory. Adding the capability to access IO space makes
+things more complicated.
 
-    Erm, simplex stuff shouldn't be touched at all since the chip is not 
-DMA-capable. The same should be true about the native/legacy mode...
+If you just want to use CF-Storage cards, access to common and attribute
+memory is enough as the IDE registers are available there, as well.
 
-> Finally the PIIX driver pokes several registers it doesn't even have.
+I have submitted a patch to RMK which enables the AT91RM9200's CF
+interface to work in that mode.
 
-    Hm, as I can see, it avoids touching anything at all on MPIIX. This may 
-rather be said of PIIX -- this chip didn't have SIDETIM register yet, so slave 
-tuning won't work on it...
+I made some changes based on the feedback from Alan Cox and Iain Barker.
 
-> What else - oh yes the piix driver doesn't even tune the timings, so it
-> doesn't work anyway.
+Thomas
 
-    Of course it doesn't, because of the non-standard timing reg.
-    BTW, piix_tune_drive() "forgets" to actully set the speed for drive and... 
-setting UDMA modes affects PIO timing for absolutely no reason and ... all in 
-all, the tuning code here is BAD.
 
-> Thats why drivers/scsi/pata_mpiix is a separate driver. Really if you
-> want to try and rescue the old PIIX driver you should split out PIIX3
-> and MPIIX into their own drivers.
 
-    There's no great need in splitting, just the separate tune_chipset() 
-functions for PIIX/MPIIX and the rest of the crowd would suffice, IMHO...
+--------------050603010200090800010701
+Content-Type: text/x-patch;
+ name="ide_cs.mem.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide_cs.mem.patch"
 
-MBR, Sergei
+diff -uprN l1/drivers/ide/legacy/ide-cs.c l2/drivers/ide/legacy/ide-cs.c
+--- l1/drivers/ide/legacy/ide-cs.c	2006-05-11 00:19:59.000000000 +0200
++++ l2/drivers/ide/legacy/ide-cs.c	2006-05-11 22:32:54.000000000 +0200
+@@ -146,7 +146,16 @@ static void ide_detach(struct pcmcia_dev
+     kfree(link->priv);
+ } /* ide_detach */
+ 
+-static int idecs_register(unsigned long io, unsigned long ctl, unsigned long irq, struct pcmcia_device *handle)
++static void idecs_mmio_fixup(ide_hwif_t *hwif)
++{
++	default_hwif_mmiops(hwif);
++	hwif->mmio = 2;
++	
++	ide_undecoded_slave(hwif);
++}
++
++static int idecs_register(unsigned long io, unsigned long ctl, 
++	unsigned long irq, struct pcmcia_device *handle, int is_mmio)
+ {
+     hw_regs_t hw;
+     memset(&hw, 0, sizeof(hw));
+@@ -154,7 +163,19 @@ static int idecs_register(unsigned long 
+     hw.irq = irq;
+     hw.chipset = ide_pci;
+     hw.dev = &handle->dev;
+-    return ide_register_hw_with_fixup(&hw, NULL, ide_undecoded_slave);
++    
++    if(is_mmio)
++    	return ide_register_hw_with_fixup(&hw, NULL, idecs_mmio_fixup);
++    else
++        return ide_register_hw_with_fixup(&hw, NULL, ide_undecoded_slave);
++}
++
++void outb_io(unsigned char value, unsigned long port) {
++	outb(value, port);
++}
++
++void outb_mem(unsigned char value, unsigned long port) {
++	writeb(value, (void __iomem *) port);
+ }
+ 
+ /*======================================================================
+@@ -180,7 +201,8 @@ static int ide_config(struct pcmcia_devi
+     } *stk = NULL;
+     cistpl_cftable_entry_t *cfg;
+     int i, pass, last_ret = 0, last_fn = 0, hd, is_kme = 0;
+-    unsigned long io_base, ctl_base;
++    unsigned long io_base, ctl_base, is_mmio;
++    void (*my_outb)(unsigned char, unsigned long);
+ 
+     DEBUG(0, "ide_config(0x%p)\n", link);
+ 
+@@ -210,7 +232,7 @@ static int ide_config(struct pcmcia_devi
+     /* Not sure if this is right... look up the current Vcc */
+     CS_CHECK(GetConfigurationInfo, pcmcia_get_configuration_info(link, &stk->conf));
+ 
+-    pass = io_base = ctl_base = 0;
++    pass = io_base = ctl_base = is_mmio = 0;
+     tuple.DesiredTuple = CISTPL_CFTABLE_ENTRY;
+     tuple.Attributes = 0;
+     CS_CHECK(GetFirstTuple, pcmcia_get_first_tuple(link, &tuple));
+@@ -263,6 +285,33 @@ static int ide_config(struct pcmcia_devi
+ 	    break;
+ 	}
+ 
++	if ((cfg->mem.nwin > 0) || (stk->dflt.mem.nwin > 0)) {
++	    win_req_t req;
++	    memreq_t map;
++	    cistpl_mem_t *mem = (cfg->mem.nwin) ? &cfg->mem : &stk->dflt.mem;
++	    
++	    if (mem->win[0].len < 16) 
++	    	goto next_entry;
++	    
++	    req.Attributes = WIN_DATA_WIDTH_16|WIN_MEMORY_TYPE_CM;
++	    req.Attributes |= WIN_ENABLE;
++	    req.Base = mem->win[0].host_addr;
++	    req.Size = 16;
++
++	    req.AccessSpeed = 0;
++	    if (pcmcia_request_window(&link, &req, &link->win) != 0)
++		goto next_entry;
++	    map.Page = 0; map.CardOffset = mem->win[0].card_addr;
++	    if (pcmcia_map_mem_page(link->win, &map) != 0)
++		goto next_entry;
++
++      	    io_base = (unsigned long) ioremap(req.Base, req.Size);
++    	    ctl_base = io_base + 0x0e;
++    	    is_mmio = 1;
++
++	    break;
++	}
++
+     next_entry:
+ 	if (cfg->flags & CISTPL_CFTABLE_DEFAULT)
+ 	    memcpy(&stk->dflt, cfg, sizeof(stk->dflt));
+@@ -277,22 +326,27 @@ static int ide_config(struct pcmcia_devi
+ 
+     CS_CHECK(RequestIRQ, pcmcia_request_irq(link, &link->irq));
+     CS_CHECK(RequestConfiguration, pcmcia_request_configuration(link, &link->conf));
++    
++    if(is_mmio) 
++    	my_outb = outb_mem;
++    else
++    	my_outb = outb_io;
+ 
+     /* disable drive interrupts during IDE probe */
+-    outb(0x02, ctl_base);
++    my_outb(0x02, ctl_base);
+ 
+     /* special setup for KXLC005 card */
+     if (is_kme)
+-	outb(0x81, ctl_base+1);
++	my_outb(0x81, ctl_base+1);
+ 
+     /* retry registration in case device is still spinning up */
+     for (hd = -1, i = 0; i < 10; i++) {
+-	hd = idecs_register(io_base, ctl_base, link->irq.AssignedIRQ, link);
++	hd = idecs_register(io_base, ctl_base, link->irq.AssignedIRQ, link, is_mmio);
+ 	if (hd >= 0) break;
+ 	if (link->io.NumPorts1 == 0x20) {
+-	    outb(0x02, ctl_base + 0x10);
++	    my_outb(0x02, ctl_base + 0x10);
+ 	    hd = idecs_register(io_base + 0x10, ctl_base + 0x10,
+-				link->irq.AssignedIRQ, link);
++				link->irq.AssignedIRQ, link, is_mmio);
+ 	    if (hd >= 0) {
+ 		io_base += 0x10;
+ 		ctl_base += 0x10;
+
+--------------050603010200090800010701--

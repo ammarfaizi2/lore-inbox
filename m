@@ -1,226 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965144AbWEKGWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965153AbWEKGez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965144AbWEKGWo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 02:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965145AbWEKGWo
+	id S965153AbWEKGez (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 02:34:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbWEKGey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 02:22:44 -0400
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:35282 "EHLO
-	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP id S965144AbWEKGWn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 02:22:43 -0400
-Message-ID: <4462D816.7090207@cn.ibm.com>
-Date: Thu, 11 May 2006 14:22:14 +0800
-From: Lin Feng Shen <shenlinf@cn.ibm.com>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-MIME-Version: 1.0
-To: neilb@cse.unsw.edu.au, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH 1/1] NFS: fix error handling on access_ok in compat_sys_nfsservctl
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 11 May 2006 02:34:54 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:2963 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965153AbWEKGey (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 02:34:54 -0400
+Date: Wed, 10 May 2006 23:34:27 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Cc: akpm@osdl.org, bunk@stusta.de, linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/17] Infrastructure to mark exported symbols as
+ unused-for-removal-soon
+Message-Id: <20060510233427.4306422b.pj@sgi.com>
+In-Reply-To: <1146581587.32045.41.camel@laptopd505.fenrus.org>
+References: <1146581587.32045.41.camel@laptopd505.fenrus.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Lin Feng Shen <shenlinf@cn.ibm.com>
+Arjan wrote:
+> This is patch one in a series of 17; to not overload lkml the other
+> 16 will be mailed direct; people who want to see them all can see
+> them at http://www.fenrus.org/unused
 
-Functions compat_nfs_svc_trans, compat_nfs_clnt_trans, compat_nfs_exp_trans,
-compat_nfs_getfd_trans and compat_nfs_getfs_trans, which are called by
-compat_sys_nfsservctl(fs/compat.c), don't handle the return value of
-access_ok properly. access_ok return 1 when the addr is valid, and 0
-when it's not, but these functions have the reversed understanding. When the
-address is valid, they always return -EFAULT to compat_sys_nfsservctl.
+Well ... here's one case where your patch series is broken.
 
-An example is to run /usr/sbin/rpc.nfsd(32bit program on Power5). It doesn't
-function as expected. strace showes that nfsservctl returns -EFAULT.
+Argh - I almost missed this one.  My mailer is setup to tag all
+incoming lkml email that mentions the magic word 'cpuset'.  But
+it is not setup to catch indirect patches, needless to say.
 
-The patch fixes this by correcting the error handling on the return value of
-access_ok in the five functions. It is created against 
-linux-2.6.17-rc3-git16.
+One of your proposed changes (the only one I reviewed) removed the only
+EXPORT_SYMBOL_GPL in kernel/cpuset.c.  That EXPORT is needed because
+the routine in question is called from inlines which modules use.
 
-Signed-off-by: Lin Feng Shen <shenlinf@cn.ibm.com>
+I can't help but wonder how many more such cases your patches miss.
+
+The details ...
+
+Your patch includes this change:
+
+
++++++++++++++++++++++++ begin +++++++++++++++++++++++
+Index: linux-2.6.17-rc3-mm1-unused/kernel/cpuset.c
+===================================================================
+--- linux-2.6.17-rc3-mm1-unused.orig/kernel/cpuset.c
++++ linux-2.6.17-rc3-mm1-unused/kernel/cpuset.c
+@@ -2338,7 +2338,7 @@ int cpuset_mem_spread_node(void)
+ 	current->cpuset_mem_spread_rotor = node;
+ 	return node;
+ }
+-EXPORT_SYMBOL_GPL(cpuset_mem_spread_node);
++EXPORT_UNUSED_SYMBOL_GPL(cpuset_mem_spread_node); /* removal in 2.6.19 */
+ 
+ /**
+  * cpuset_excl_nodes_overlap - Do we overlap @p's mem_exclusive ancestors?
+++++++++++++++++++++++++ end +++++++++++++++++++++++
+
+
+Andrew added this EXPORT, with the following patch:
+
+
++++++++++++++++++++++++ begin +++++++++++++++++++++++
+From: Andrew Morton <akpm@osdl.org>
+
+It's called from inlines which modules use.
+
+Cc: Paul Jackson <pj@sgi.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
---- linux-2.6.17-rc3-git16/fs/compat.c.orig    2006-05-09 
-09:07:38.000000000 -0500
-+++ linux-2.6.17-rc3-git16/fs/compat.c    2006-05-09 09:21:00.000000000 
--0500
-@@ -2032,101 +2032,96 @@ union compat_nfsctl_res {
- 
- static int compat_nfs_svc_trans(struct nfsctl_arg *karg, struct 
-compat_nfsctl_arg __user *arg)
- {
--    int err;
--
--    err = access_ok(VERIFY_READ, &arg->ca32_svc, sizeof(arg->ca32_svc));
--    err |= get_user(karg->ca_version, &arg->ca32_version);
--    err |= __get_user(karg->ca_svc.svc_port, &arg->ca32_svc.svc32_port);
--    err |= __get_user(karg->ca_svc.svc_nthreads, 
-&arg->ca32_svc.svc32_nthreads);
--    return (err) ? -EFAULT : 0;
-+    if(!access_ok(VERIFY_READ, &arg->ca32_svc, sizeof(arg->ca32_svc)) ||
-+        get_user(karg->ca_version, &arg->ca32_version) ||
-+        __get_user(karg->ca_svc.svc_port, &arg->ca32_svc.svc32_port) ||
-+        __get_user(karg->ca_svc.svc_nthreads, 
-&arg->ca32_svc.svc32_nthreads))
-+        return -EFAULT;
-+    return 0;
- }
- 
- static int compat_nfs_clnt_trans(struct nfsctl_arg *karg, struct 
-compat_nfsctl_arg __user *arg)
- {
--    int err;
--
--    err = access_ok(VERIFY_READ, &arg->ca32_client, 
-sizeof(arg->ca32_client));
--    err |= get_user(karg->ca_version, &arg->ca32_version);
--    err |= __copy_from_user(&karg->ca_client.cl_ident[0],
-+    if(!access_ok(VERIFY_READ, &arg->ca32_client, 
-sizeof(arg->ca32_client)) ||
-+        get_user(karg->ca_version, &arg->ca32_version) ||
-+        __copy_from_user(&karg->ca_client.cl_ident[0],
-               &arg->ca32_client.cl32_ident[0],
--              NFSCLNT_IDMAX);
--    err |= __get_user(karg->ca_client.cl_naddr, 
-&arg->ca32_client.cl32_naddr);
--    err |= __copy_from_user(&karg->ca_client.cl_addrlist[0],
-+              NFSCLNT_IDMAX) ||
-+        __get_user(karg->ca_client.cl_naddr, 
-&arg->ca32_client.cl32_naddr) ||
-+        __copy_from_user(&karg->ca_client.cl_addrlist[0],
-               &arg->ca32_client.cl32_addrlist[0],
--              (sizeof(struct in_addr) * NFSCLNT_ADDRMAX));
--    err |= __get_user(karg->ca_client.cl_fhkeytype,
--              &arg->ca32_client.cl32_fhkeytype);
--    err |= __get_user(karg->ca_client.cl_fhkeylen,
--              &arg->ca32_client.cl32_fhkeylen);
--    err |= __copy_from_user(&karg->ca_client.cl_fhkey[0],
-+              (sizeof(struct in_addr) * NFSCLNT_ADDRMAX)) ||
-+        __get_user(karg->ca_client.cl_fhkeytype,
-+              &arg->ca32_client.cl32_fhkeytype) ||
-+        __get_user(karg->ca_client.cl_fhkeylen,
-+              &arg->ca32_client.cl32_fhkeylen) ||
-+        __copy_from_user(&karg->ca_client.cl_fhkey[0],
-               &arg->ca32_client.cl32_fhkey[0],
--              NFSCLNT_KEYMAX);
-+              NFSCLNT_KEYMAX))
-+        return -EFAULT;
- 
--    return (err) ? -EFAULT : 0;
-+    return 0;
- }
- 
- static int compat_nfs_exp_trans(struct nfsctl_arg *karg, struct 
-compat_nfsctl_arg __user *arg)
- {
--    int err;
--
--    err = access_ok(VERIFY_READ, &arg->ca32_export, 
-sizeof(arg->ca32_export));
--    err |= get_user(karg->ca_version, &arg->ca32_version);
--    err |= __copy_from_user(&karg->ca_export.ex_client[0],
-+    if(!access_ok(VERIFY_READ, &arg->ca32_export, 
-sizeof(arg->ca32_export)) ||
-+        get_user(karg->ca_version, &arg->ca32_version) ||
-+        __copy_from_user(&karg->ca_export.ex_client[0],
-               &arg->ca32_export.ex32_client[0],
--              NFSCLNT_IDMAX);
--    err |= __copy_from_user(&karg->ca_export.ex_path[0],
-+              NFSCLNT_IDMAX) ||
-+        __copy_from_user(&karg->ca_export.ex_path[0],
-               &arg->ca32_export.ex32_path[0],
--              NFS_MAXPATHLEN);
--    err |= __get_user(karg->ca_export.ex_dev,
--              &arg->ca32_export.ex32_dev);
--    err |= __get_user(karg->ca_export.ex_ino,
--              &arg->ca32_export.ex32_ino);
--    err |= __get_user(karg->ca_export.ex_flags,
--              &arg->ca32_export.ex32_flags);
--    err |= __get_user(karg->ca_export.ex_anon_uid,
--              &arg->ca32_export.ex32_anon_uid);
--    err |= __get_user(karg->ca_export.ex_anon_gid,
--              &arg->ca32_export.ex32_anon_gid);
-+              NFS_MAXPATHLEN) ||
-+        __get_user(karg->ca_export.ex_dev,
-+              &arg->ca32_export.ex32_dev) ||
-+        __get_user(karg->ca_export.ex_ino,
-+              &arg->ca32_export.ex32_ino) ||
-+        __get_user(karg->ca_export.ex_flags,
-+              &arg->ca32_export.ex32_flags) ||
-+        __get_user(karg->ca_export.ex_anon_uid,
-+              &arg->ca32_export.ex32_anon_uid) ||
-+        __get_user(karg->ca_export.ex_anon_gid,
-+              &arg->ca32_export.ex32_anon_gid))
-+        return -EFAULT;
-     SET_UID(karg->ca_export.ex_anon_uid, karg->ca_export.ex_anon_uid);
-     SET_GID(karg->ca_export.ex_anon_gid, karg->ca_export.ex_anon_gid);
- 
--    return (err) ? -EFAULT : 0;
-+    return 0;
- }
- 
- static int compat_nfs_getfd_trans(struct nfsctl_arg *karg, struct 
-compat_nfsctl_arg __user *arg)
- {
--    int err;
--
--    err = access_ok(VERIFY_READ, &arg->ca32_getfd, 
-sizeof(arg->ca32_getfd));
--    err |= get_user(karg->ca_version, &arg->ca32_version);
--    err |= __copy_from_user(&karg->ca_getfd.gd_addr,
-+    if(!access_ok(VERIFY_READ, &arg->ca32_getfd, 
-sizeof(arg->ca32_getfd)) ||
-+        get_user(karg->ca_version, &arg->ca32_version) ||
-+        __copy_from_user(&karg->ca_getfd.gd_addr,
-               &arg->ca32_getfd.gd32_addr,
--              (sizeof(struct sockaddr)));
--    err |= __copy_from_user(&karg->ca_getfd.gd_path,
-+              (sizeof(struct sockaddr))) ||
-+        __copy_from_user(&karg->ca_getfd.gd_path,
-               &arg->ca32_getfd.gd32_path,
--              (NFS_MAXPATHLEN+1));
--    err |= __get_user(karg->ca_getfd.gd_version,
--              &arg->ca32_getfd.gd32_version);
-+              (NFS_MAXPATHLEN+1)) ||
-+        __get_user(karg->ca_getfd.gd_version,
-+              &arg->ca32_getfd.gd32_version))
-+        return -EFAULT;
- 
--    return (err) ? -EFAULT : 0;
-+    return 0;
- }
- 
- static int compat_nfs_getfs_trans(struct nfsctl_arg *karg, struct 
-compat_nfsctl_arg __user *arg)
- {
--    int err;
--
--    err = access_ok(VERIFY_READ, &arg->ca32_getfs, 
-sizeof(arg->ca32_getfs));
--    err |= get_user(karg->ca_version, &arg->ca32_version);
--    err |= __copy_from_user(&karg->ca_getfs.gd_addr,
-+    if(!access_ok(VERIFY_READ, &arg->ca32_getfs, 
-sizeof(arg->ca32_getfs)) ||
-+        get_user(karg->ca_version, &arg->ca32_version) ||
-+        __copy_from_user(&karg->ca_getfs.gd_addr,
-               &arg->ca32_getfs.gd32_addr,
--              (sizeof(struct sockaddr)));
--    err |= __copy_from_user(&karg->ca_getfs.gd_path,
-+              (sizeof(struct sockaddr))) ||
-+        __copy_from_user(&karg->ca_getfs.gd_path,
-               &arg->ca32_getfs.gd32_path,
--              (NFS_MAXPATHLEN+1));
--    err |= __get_user(karg->ca_getfs.gd_maxlen,
--              &arg->ca32_getfs.gd32_maxlen);
-+              (NFS_MAXPATHLEN+1)) ||
-+        __get_user(karg->ca_getfs.gd_maxlen,
-+              &arg->ca32_getfs.gd32_maxlen))
-+        return -EFAULT;
- 
--    return (err) ? -EFAULT : 0;
-+    return 0;
- }
- 
- /* This really doesn't need translations, we are only passing
+ kernel/cpuset.c |    1 +
+ 1 files changed, 1 insertion(+)
 
+diff -puN kernel/cpuset.c~cpuset-memory-spread-basic-implementation-fix kernel/cpuset.c
+--- devel/kernel/cpuset.c~cpuset-memory-spread-basic-implementation-fix 2006-02-06 23:51:0
+0.000000000 -0800
++++ devel-akpm/kernel/cpuset.c  2006-02-06 23:51:00.000000000 -0800
+@@ -2220,6 +2220,7 @@ int cpuset_mem_spread_node(void)
+        current->cpuset_mem_spread_rotor = node;
+        return node;
+ }
++EXPORT_SYMBOL_GPL(cpuset_mem_spread_node);
+
+ /**
+  * cpuset_excl_nodes_overlap - Do we overlap @p's mem_exclusive ancestors?
+++++++++++++++++++++++++ end +++++++++++++++++++++++
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

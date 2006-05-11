@@ -1,61 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965199AbWEKH4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965197AbWEKIDN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965199AbWEKH4r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 03:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965197AbWEKH4r
+	id S965197AbWEKIDN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 04:03:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965204AbWEKIDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 03:56:47 -0400
-Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:12430 "EHLO mta2.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S965195AbWEKH4q (ORCPT
+	Thu, 11 May 2006 04:03:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:61879 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965197AbWEKIDL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 03:56:46 -0400
-In-Reply-To: <E1Fdz7v-0007zc-00@gondolin.me.apana.org.au>
-References: <E1Fdz7v-0007zc-00@gondolin.me.apana.org.au>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <fb99d7085b85310ef7d423a8f135db32@cl.cam.ac.uk>
+	Thu, 11 May 2006 04:03:11 -0400
+Date: Thu, 11 May 2006 00:59:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: nickpiggin@yahoo.com.au, apw@shadowen.org, haveblue@us.ibm.com,
+       bob.picco@hp.com, mingo@elte.hu, mbligh@mbligh.org, ak@suse.de,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 0/3] Zone boundry alignment fixes
+Message-Id: <20060511005952.3d23897c.akpm@osdl.org>
+In-Reply-To: <exportbomb.1147172704@pinky>
+References: <445DF3AB.9000009@yahoo.com.au>
+	<exportbomb.1147172704@pinky>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Cc: xen-devel@lists.xensource.com, ian.pratt@xensource.com, rdreier@cisco.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       ak@suse.de (Andi Kleen), virtualization@lists.osdl.org,
-       chrisw@sous-sol.org, shemminger@osdl.org
-From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Subject: Re: [RFC PATCH 34/35] Add the Xen virtual network device driver.
-Date: Thu, 11 May 2006 08:49:04 +0100
-To: Herbert Xu <herbert@gondor.apana.org.au>
-X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 11 May 2006, at 01:33, Herbert Xu wrote:
-
->> But if sampling virtual events for randomness is really unsafe (is it
->> really?) then native guests in Xen would also get bad random numbers
->> and this would need to be somehow addressed.
+Andy Whitcroft <apw@shadowen.org> wrote:
 >
-> Good point.  I wonder what VMWare does in this situation.
+> Ok.  Finally got my test bed working and got this lot tested.
+> 
+> To summarise the problem , the buddy allocator currently requires
+> that the boundries between zones occur at MAX_ORDER boundries.
+> The specific case where we were tripping up on this was in x86 with
+> NUMA enabled.  There we try to ensure that each node's stuct pages
+> are in node local memory, in order to allow them to be virtually
+> mapped we have to reduce the size of ZONE_NORMAL.  Here we are
+> rounding the remap space up to a large page size to allow large
+> page TLB entries to be used.  However, these are smaller than
+> MAX_ORDER.  This can lead to bad buddy merges.  With VM_DEBUG enabled
+> we detect the attempts to merge across this boundry and panic.
+> 
+> We have two basic options we can either apply the appropriate
+> alignment when we make make the NUMA remap space, or we can 'fix'
+> the assumption in the buddy allocator.  The fix for the buddy
+> allocator involves adding conditionals to the free fast path and
+> so it seems reasonable to at least favor realigning the remap space.
+> 
+> Following this email are 3 patches:
+> 
+> zone-init-check-and-report-unaligned-zone-boundries -- introduces
+>   a zone alignement helper, and uses it to add a check to zone
+>   initialisation for unaligned zone boundries,
+> 
+> x86-align-highmem-zone-boundries-with-NUMA -- uses the zone alignment
+>   helper to align the end of ZONE_NORMAL after the remap space has
+>   been reserved, and
+> 
+> zone-allow-unaligned-zone-boundries -- modifies the buddy allocator
+>   so that we can allow unaligned zone boundries.  A new configuration
+>   option is added to enable this functionality.
+> 
+> The first two are the fixes for alignement in x86, these fix the
+> panics thrown when VM_DEBUG is enabled.
+> 
+> The last is a patch to support unaligned zone boundries.  As this
+> (re)introduces a zone check into the free hot path it seems
+> reasonable to only enable this should it be needed; for example
+> we never need this if we have a single zone.  I have tested the
+> failing system with this patch enabled and it also fixes the panic.
+> I am inclined to suggest that it be included as it very clearly
+> documents the alignment requirements for the buddy allocator.
 
-Well, there's not much they can do except maybe jitter interrupt 
-delivery. I doubt they do that though.
+There's some possibility here of interaction with Mel's "patchset to size
+zones and memory holes in an architecture-independent manner." I jammed
+them together - let's see how it goes.
 
-The original complaint in our case was that we take entropy from 
-interrupts caused by other local VMs, as well as external sources. 
-There was a feeling that the former was more predictable and could form 
-the basis of an attack. I have to say I'm unconvinced: I don't really 
-see that it's significantly easier to inject precisely-timed interrupts 
-into a local VM. Certainly not to better than +/- a few microseconds. 
-As long as you add cycle-counter info to the entropy pool, the least 
-significant bits of that will always be noise.
-
-The alternatives are unattractive:
-  1. We have no good way to distinguish interrupts caused by packets 
-from local VMs versus packets from remote hosts. Both get muxed on the 
-same virtual interface.
-  2. An entropy front/back is tricky -- how do we decide how much 
-entropy to pull from domain0? How much should domain0 be prepared to 
-give other domains? How easy is it to DoS domain0 by draining its 
-entropy pool? Yuk.
-
-  -- Keir
-
+I also fixed the spelling of "boundary" in about 1.5 zillion places ;)

@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965202AbWEKIFD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965204AbWEKIH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965202AbWEKIFD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 04:05:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965204AbWEKIFD
+	id S965204AbWEKIH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 04:07:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965205AbWEKIH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 04:05:03 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:23047 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S965202AbWEKIFB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 04:05:01 -0400
-Date: Thu, 11 May 2006 18:04:43 +1000
-To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Cc: xen-devel@lists.xensource.com, ian.pratt@xensource.com, rdreier@cisco.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
-       chrisw@sous-sol.org, shemminger@osdl.org
-Subject: Re: [RFC PATCH 34/35] Add the Xen virtual network device driver.
-Message-ID: <20060511080443.GB29704@gondor.apana.org.au>
-References: <E1Fdz7v-0007zc-00@gondolin.me.apana.org.au> <fb99d7085b85310ef7d423a8f135db32@cl.cam.ac.uk>
+	Thu, 11 May 2006 04:07:29 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:10197 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S965204AbWEKIH2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 04:07:28 -0400
+Date: Thu, 11 May 2006 01:06:58 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Cc: akpm@osdl.org, bunk@stusta.de, linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/17] Infrastructure to mark exported symbols as
+ unused-for-removal-soon
+Message-Id: <20060511010658.c1e11d02.pj@sgi.com>
+In-Reply-To: <4462E474.9020200@linux.intel.com>
+References: <1146581587.32045.41.camel@laptopd505.fenrus.org>
+	<20060510233427.4306422b.pj@sgi.com>
+	<4462E474.9020200@linux.intel.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <fb99d7085b85310ef7d423a8f135db32@cl.cam.ac.uk>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 11, 2006 at 08:49:04AM +0100, Keir Fraser wrote:
-> 
-> The alternatives are unattractive:
->  1. We have no good way to distinguish interrupts caused by packets 
-> from local VMs versus packets from remote hosts. Both get muxed on the 
-> same virtual interface.
->  2. An entropy front/back is tricky -- how do we decide how much 
-> entropy to pull from domain0? How much should domain0 be prepared to 
-> give other domains? How easy is it to DoS domain0 by draining its 
-> entropy pool? Yuk.
+Arjan wrote:
+> not in the configs I tested at least... but maybe I need to add a specific config to
+> my set..
 
-IMHO there just isn't enough real entropy to go around in one physical
-machine without a proper HRNG.  So either use urandom in all the guests
-or for those that really have to use /dev/random, install a hardware
-RNG (or wait for it :).
+Dang - I think you're right.
 
-Cheers,
+The original version of the patch that provided the new routine
+cpuset_mem_spread_node() on about Feb 2, 2006 required that EXPORT, as
+in that version cpuset_mem_spread_node() was called from the inline
+versions of page_cache_alloc() and page_cache_alloc_cold().
+
+But the final version of the cpuset_mem_spread_node() patch, on about
+Feb 9, 2006, does not seem to require that EXPORT, because the callers
+page_cache_alloc() and page_cache_alloc_code() were taken -out-of-line-
+for the configurations that made use of cpuset_mem_spread_node().
+
+However the EXPORT had already been added on about Feb 6 or 7, when
+everyone and his brother noticed that I had broken the build with my
+Feb 2 patch.
+
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

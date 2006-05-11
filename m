@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030397AbWEKRwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030406AbWEKSAh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030397AbWEKRwe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 13:52:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030402AbWEKRwe
+	id S1030406AbWEKSAh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 14:00:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030407AbWEKSAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 13:52:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:40080 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030397AbWEKRwd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 13:52:33 -0400
-Date: Thu, 11 May 2006 13:51:43 -0400
-From: Dave Jones <davej@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, sfrench@us.ibm.com, stable@kernel.org,
-       urban@teststation.com
-Subject: Re: + deprecate-smbfs-in-favour-of-cifs.patch added to -mm tree
-Message-ID: <20060511175143.GH25646@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org, sfrench@us.ibm.com,
-	stable@kernel.org, urban@teststation.com
-References: <200605110717.k4B7HuVW006999@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605110717.k4B7HuVW006999@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 11 May 2006 14:00:37 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:29711 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1030406AbWEKSAg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 14:00:36 -0400
+Date: Thu, 11 May 2006 14:00:33 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andrew Morton <akpm@osdl.org>
+cc: Chandra Seetharaman <sekharan@us.ibm.com>, Jes Sorensen <jes@sgi.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Allow raw_notifier callouts to unregister themselves 
+Message-ID: <Pine.LNX.4.44L0.0605111353210.5834-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 11, 2006 at 12:15:10AM -0700, Andrew Morton wrote:
- > 
- > The patch titled
- > 
- >      deprecate smbfs in favour of cifs
- > 
- > has been added to the -mm tree.  Its filename is
- > 
- >      deprecate-smbfs-in-favour-of-cifs.patch
- > 
- > See http://www.zip.com.au/~akpm/linux/patches/stuff/added-to-mm.txt to find
- > out what to do about this
- > 
- > 
- > From: Andrew Morton <akpm@osdl.org>
- > 
- > smbfs is a bit buggy and has no maintainer.  Change it to shout at the user on
- > the first five mount attempts - tell them to switch to CIFS.
- > 
- > Come November we'll mark it BROKEN and see what happens.
+Since raw_notifier chains don't benefit from any centralized locking
+protections, they shouldn't suffer from the associated limitations.  
+Under some circumstances it might make sense for a raw_notifier callout
+routine to unregister itself from the notifier chain.  This patch (as678)
+changes the notifier core to allow for such things.
 
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 
-For Fedora Core 5, I disabled SMBFS for pretty much the same reasons.
-Users migrating to CIFS haven't really had any problems so far, except for
-this case: https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=186914
-(Which has also come up a few times on Fedora mailing lists since).
+---
 
-I mailed Steve about this, and he did reply, but I can't seem to find it
-right now
+Index: linux-2.6.17-rc3/kernel/sys.c
+===================================================================
+--- linux-2.6.17-rc3.orig/kernel/sys.c
++++ linux-2.6.17-rc3/kernel/sys.c
+@@ -132,14 +132,15 @@ static int __kprobes notifier_call_chain
+ 		unsigned long val, void *v)
+ {
+ 	int ret = NOTIFY_DONE;
+-	struct notifier_block *nb;
++	struct notifier_block *nb, *next_nb;
+ 
+ 	nb = rcu_dereference(*nl);
+ 	while (nb) {
++		next_nb = rcu_dereference(nb->next);
+ 		ret = nb->notifier_call(nb, val, v);
+ 		if ((ret & NOTIFY_STOP_MASK) == NOTIFY_STOP_MASK)
+ 			break;
+-		nb = rcu_dereference(nb->next);
++		nb = next_nb;
+ 	}
+ 	return ret;
+ }
 
-		Dave
-
--- 
-http://www.codemonkey.org.uk

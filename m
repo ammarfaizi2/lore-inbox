@@ -1,43 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751677AbWEKND0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751679AbWEKNHl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751677AbWEKND0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 09:03:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751678AbWEKNDZ
+	id S1751679AbWEKNHl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 09:07:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751681AbWEKNHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 09:03:25 -0400
-Received: from cantor.suse.de ([195.135.220.2]:37271 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751676AbWEKNDZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 09:03:25 -0400
-Message-ID: <4463369B.6020207@suse.de>
-Date: Thu, 11 May 2006 15:05:31 +0200
-From: Gerd Hoffmann <kraxel@suse.de>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060411)
+	Thu, 11 May 2006 09:07:41 -0400
+Received: from anubis.fi.muni.cz ([147.251.54.96]:54030 "EHLO
+	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S1751678AbWEKNHk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 09:07:40 -0400
+Date: Thu, 11 May 2006 15:07:43 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: acpi4asus
+Message-ID: <20060511130743.GG15876@mail.muni.cz>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix ELF entry point (i386)
-References: <43FC4682.6050803@suse.de>	<m1bqwkc0l1.fsf@ebiederm.dsl.xmission.com> <440C363F.8000503@suse.de>	<m1r75f8k21.fsf@ebiederm.dsl.xmission.com> <440D8D97.6000300@suse.de> <m1y7zm16nn.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1y7zm16nn.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+Hello,
 
-> I have some pending patches that make a bzImage a ET_DYN executable.
-> Would that be interesting to you?  Especially if that would just mean
-> your initial page tables got to set physical == virtual?
+is project acpi4asus still alive? (I'm asking here whether Andrew or Linus are
+receiving patches from acpi guys). For me, it looks like this is somewhat dead.
 
-ping, do you have a url to the patches for me?
-
-cheers,
-
-  Gerd
+I posted patch to include Asus M6A support to both lkm and acpi4asus list but no
+response. I only noticed, that Andrew once tried to include in -mm but I did not
+see it there anyway.
 
 -- 
-Gerd Hoffmann <kraxel@suse.de>
-Erst mal heiraten, ein, zwei Kinder, und wenn alles läuft
-geh' ich nach drei Jahren mit der Familie an die Börse.
-http://www.suse.de/~kraxel/julika-dora.jpeg
+Luká¹ Hejtmánek

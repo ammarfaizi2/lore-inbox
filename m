@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbWEKKld@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbWEKLGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030221AbWEKKld (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 06:41:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030218AbWEKKld
+	id S1030224AbWEKLGd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 07:06:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbWEKLGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 06:41:33 -0400
-Received: from mail.suse.de ([195.135.220.2]:25478 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030221AbWEKKlc (ORCPT
+	Thu, 11 May 2006 07:06:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59267 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030222AbWEKLGc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 06:41:32 -0400
-From: Andi Kleen <ak@suse.de>
-To: Avi Kivity <avi@argo.co.il>
-Subject: Re: [RFC PATCH 17/35] Segment register changes for Xen
-Date: Thu, 11 May 2006 12:41:25 +0200
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@suse.cz>, virtualization@lists.osdl.org,
-       Chris Wright <chrisw@sous-sol.org>, xen-devel@lists.xensource.com,
-       linux-kernel@vger.kernel.org, Ian Pratt <ian.pratt@xensource.com>
-References: <20060509084945.373541000@sous-sol.org> <20060510203015.GA13949@elf.ucw.cz> <4463133A.8060806@argo.co.il>
-In-Reply-To: <4463133A.8060806@argo.co.il>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 11 May 2006 07:06:32 -0400
+Date: Thu, 11 May 2006 04:00:14 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: mikem@beardog.cca.cpqcorp.net, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, Andries.Brouwer@cwi.nl
+Subject: Re: [PATCH] make kernel ignore bogus partitions
+Message-Id: <20060511040014.66ea16fc.akpm@osdl.org>
+In-Reply-To: <20060509224848.GA29754@apps.cwi.nl>
+References: <20060503210055.GB31048@beardog.cca.cpqcorp.net>
+	<20060509124138.43e4bac0.akpm@osdl.org>
+	<20060509224848.GA29754@apps.cwi.nl>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605111241.26252.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 May 2006 12:34, Avi Kivity wrote:
-> Pavel Machek wrote:
-> > Really? If someone does 
-> >
-> > 	if (something)
-> > 		clearsegment(seg)
-> > 	somethingelse();
-> >
-> > ... he'll get very confusing behaviour instead of compile error. 
-> >
-> > Okay, that's weaker argument than expected...
-> >
-> > Also clearsegment(x) clearsegment(y); will compile when it should not.
-> >
-> > Also clearsegment(i++) will behave strangely. So perhaps 
-> >
-> > #define clearsegment(seg) do { seg; } while (0)
-> >   
+Andries Brouwer <Andries.Brouwer@cwi.nl> wrote:
+>
+> On Tue, May 09, 2006 at 12:41:38PM -0700, Andrew Morton wrote:
 > 
-> static inline void clearsegment(int seg) {}
+> > > +		if (from+size-1 > get_capacity(disk)) {
+> > > +			printk(" %s: p%d exceeds device capacity, ignoring.\n", 
+> > > +				disk->disk_name, p);
+> > > +			continue;
+> > > +		}
+> > >  		add_partition(disk, p, from, size);
+> 
+> > Shouldn't that be
+> > 
+> > 	if (from+size > get_capacity(disk)) {
+> > 
+> > ?
+> 
+> Ha, you are awake.
 
+Opinions differ.
 
-It's all mood because the complete function is wrongly named
-and probably should just go.
+> Yes, it should.
+> And no "ignoring". And no "continue". E.g.:
+> 
+> 	printk(" %s: warning: p%d exceeds device capacity.\n", ...);
+> 
 
--Andi
+So you're saying that after detecting this inconsistency we should proceed
+to use the partition anyway?
+
+For what reason?

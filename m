@@ -1,72 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965131AbWEKEDQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965044AbWEKEoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965131AbWEKEDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 00:03:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965132AbWEKEDQ
+	id S965044AbWEKEoP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 00:44:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbWEKEoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 00:03:16 -0400
-Received: from mail.gmx.net ([213.165.64.20]:24963 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S965131AbWEKEDQ (ORCPT
+	Thu, 11 May 2006 00:44:14 -0400
+Received: from mail.gmx.net ([213.165.64.20]:2489 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965044AbWEKEoO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 00:03:16 -0400
-X-Authenticated: #31060655
-Message-ID: <4462B737.80108@gmx.net>
-Date: Thu, 11 May 2006 06:01:59 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060316 SUSE/1.0-27 SeaMonkey/1.0
-MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Greg KH <gregkh@suse.de>, Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, trenn@suse.de,
-       thoenig@suse.de
-Subject: Re: [RFC] [PATCH] Execute PCI quirks on resume from suspend-to-RAM
-References: <446139FF.205@gmx.net> <20060510093942.GA12259@elf.ucw.cz> <4461C0CA.8080803@gmx.net> <20060510205600.GB23446@suse.de> <44625CE9.2060204@gmx.net> <20060511023109.GB11693@redhat.com>
-In-Reply-To: <20060511023109.GB11693@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 11 May 2006 00:44:14 -0400
+X-Authenticated: #14349625
+Subject: Re: OOM Killer firing when plenty of memory left and no swap used
+From: Mike Galbraith <efault@gmx.de>
+To: Bron Gondwana <brong@fastmail.fm>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060511020808.GA6126@brong.net>
+References: <20060511020808.GA6126@brong.net>
+Content-Type: text/plain
+Date: Thu, 11 May 2006 06:44:07 +0200
+Message-Id: <1147322647.8432.59.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Wed, May 10, 2006 at 11:36:41PM +0200, Carl-Daniel Hailfinger wrote:
->  > Greg KH wrote:
->  > > On Wed, May 10, 2006 at 12:30:34PM +0200, Carl-Daniel Hailfinger wrote:
->  > >> Thinking about it again, if we restored the full pci config space
->  > >> on resume, this quirk handling would be completely unnecessary.
->  > >> Any reasons why we don't do that?
->  > > 
->  > > We do do that.  Look at pci_restore_state().
->  > > 
->  > > Actually, look at it in the latest -mm tree, that version works better
->  > > than mainline does right now :)
->  > 
->  > Sorry. Even the version in -mm does not restore all 256 bytes, so it
->  > will not change anything.
+On Thu, 2006-05-11 at 12:08 +1000, Bron Gondwana wrote:
 > 
-> You can't generically look at a PCI device past the first 32 bytes.
-> *anything* could be there, including registers which cause the machine
-> to lock up when they get read.
-> 
-> This is exactly the reason that lspci by default only shows 32 bytes,
-> and you need to be root to see past that limit.
+> I hope someone can shed some light on what could possibly
+> have caused the oom-killer to engage with so much free
+> memory.
 
-You mean 64 bytes?
+> Log messages from the first failure:
+> May 10 19:57:00 heartbeat1 kernel: oom-killer: gfp_mask=0xd0, order=1
 
->  > So either we really restore the full config space (probably a good idea
->  > by itself)
-> 
-> No, *really* *really* bad idea :)
+A two page GFP_KERNEL allocation fails...
 
-I had hoped the warnings in the lspci man page would be obsolete now.
-Wishful thinking, it appears. Thanks for the hint.
+> May 10 19:57:00 heartbeat1 kernel:  [out_of_memory+180/209] out_of_memory+0xb4/0xd1
+> May 10 19:57:00 heartbeat1 kernel:  [__alloc_pages+623/795] __alloc_pages+0x26f/0x31boom-killer: gfp_mask=0xd0, order=1
+> May 10 19:57:00 heartbeat1 kernel:  [out_of_memory+180/209] out_of_memory+0xb4/0xd1
+> May 10 19:57:00 heartbeat1 kernel:  [__alloc_pages+623/795] __alloc_pages+0x26f/0x31b
+> May 10 19:57:00 heartbeat1 kernel:  [kmem_getpages+52/155] kmem_getpages+0x34/0x9b
+> May 10 19:57:00 heartbeat1 kernel:  [cache_grow+190/375] cache_grow+0xbe/0x177
+> May 10 19:57:00 heartbeat1 kernel:  [cache_alloc_refill+354/523] cache_alloc_refill+0x162/0x20b
+> May 10 19:57:00 heartbeat1 kernel:  [kmem_cache_alloc+103/127] kmem_cache_alloc+0x67/0x7f
+> May 10 19:57:00 heartbeat1 kernel:  [dup_task_struct+69/153] dup_task_struct+0x45/0x99
+> May 10 19:57:00 heartbeat1 kernel:  [copy_process+94/3348] copy_process+0x5e/0xd14
+> May 10 19:57:00 heartbeat1 kernel:  [do_fork+105/395] do_fork+0x69/0x18b
+> May 10 19:57:00 heartbeat1 kernel:  [sys_rt_sigprocmask+161/256] sys_rt_sigprocmask+0xa1/0x100
+> May 10 19:57:00 heartbeat1 kernel:  [sys_clone+62/66] sys_clone+0x3e/0x42
+> May 10 19:57:00 heartbeat1 kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
 
+...for the slab allocator as it tries to expand it's cache to create
+space for a new task. 
 
-Unfortunately, that means we either have to introduce a new PCI_FIXUP_
-type or we execute PCI_FIXUP_HEADER also on resume. Which is better?
+> May 10 19:57:00 heartbeat1 kernel: Normal free:24276kB min:26732kB low:33412kB high:40096kB active:2256kB inactive:1940kB present:901120kB pages_scanned:6457 all_unreclaimable? yes
 
+Zone normal is below min watermark, and GFP_HIGH isn't set, so no
+digging down into reserves is allowed.  Most of Zone Normal memory isn't
+on the LRU, and what is there is all unreclaimable, so swap can't help
+with the shortage.  Genuine oom situation.
 
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
+Question is, where are all your Zone Normal pages hanging out?  If it
+happens again, take a look at /proc/slabinfo to see if it's there, and
+if so, in which cache[s].
+
+If it's not there, somebody is leaking pages.  If that's the case, I'd
+take a close look at those out-of-tree patches.
+
+	-Mike
+

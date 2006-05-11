@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751610AbWEKMW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751657AbWEKMkX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751610AbWEKMW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 08:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751632AbWEKMW3
+	id S1751657AbWEKMkX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 08:40:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751666AbWEKMkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 08:22:29 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:1010 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751616AbWEKMW3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 08:22:29 -0400
-Date: Thu, 11 May 2006 08:22:20 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Mark Hounschell <markh@compro.net>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: rt20 patch question
-In-Reply-To: <Pine.LNX.4.58.0605110739520.5610@gandalf.stny.rr.com>
-Message-ID: <Pine.LNX.4.58.0605110805470.5610@gandalf.stny.rr.com>
-References: <446089CF.3050809@compro.net> <1147185483.21536.13.camel@c-67-180-134-207.hsd1.ca.comcast.net>
- <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
- <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
- <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
- <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101446090.22959@gandalf.stny.rr.com>
- <44623ED4.1030103@compro.net> <44631F1B.8000100@compro.net>
- <Pine.LNX.4.58.0605110739520.5610@gandalf.stny.rr.com>
+	Thu, 11 May 2006 08:40:23 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:44708 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751655AbWEKMkX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 08:40:23 -0400
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: Mike Kravetz <kravetz@us.ibm.com>
+Subject: Re: [PATCH] add slab_is_available() routine for boot code
+Date: Thu, 11 May 2006 14:40:16 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, penberg@cs.helsinki.fi, clameter@sgi.com,
+       haveblue@us.ibm.com, linux-kernel@vger.kernel.org
+References: <20060510205543.GI3198@w-mikek2.ibm.com> <20060510155026.173c57a1.akpm@osdl.org> <20060510230054.GA11214@w-mikek2.ibm.com>
+In-Reply-To: <20060510230054.GA11214@w-mikek2.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200605111440.17239.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 11 May 2006, Steven Rostedt wrote:
-
-> On Thu, 11 May 2006, Mark Hounschell wrote:
->
-> > Mark Hounschell wrote:
+On Thursday 11 May 2006 01:00, Mike Kravetz wrote:
+> On Wed, May 10, 2006 at 03:50:26PM -0700, Andrew Morton wrote:
 > >
-> >  After this one my network connection into the emulation was broken
-> > BTW.
+> > Is this a needed-for-2.6.17 fix?
+> 
+> I'll let Arnd answer.  He ran into this when doing some Cell work.  Not
+> sure where in the development cycle the code is that exposes this bug.
 
-Crap! I read your email too quick and didn't notice this.
+The code in 2.6.17 breaks when spufs is non-modular. Currently, this is
+a compile-time option so users can work around it by building spufs
+as a loadable module.
 
-The patch I sent you would probably only fix the warning, and not the bug.
+For 2.6.18, we want to make the part of spufs that calls this
+non-modular in order to avoid adding further EXPORT_SYMBOLs. I would
+much prefer to have the fix in 2.6.17 already, but we could
+alternatively force spufs to be a loadable module in 2.6.17 and
+change it later.
 
-Don't do the patch yet.  Could your run it again, and after it does the
-bug, and you lose the network connection, could you do a sysrq-t to get
-the state of the tasks.  You need sysrq turned on in the config.
-
-Ingo,
-
-If soft and hard irqs are threaded on a non PREEMPT_RT kernel?  Is it ok
-to call schedule in a softirq thread?  Specifically, it's the disable_irq
-that's causing the problem.
-
-
-Thanks,
-
--- Steve
-
+	Arnd <><

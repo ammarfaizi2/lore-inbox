@@ -1,65 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWEKVrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWEKVqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbWEKVrM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 17:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWEKVrM
+	id S1750780AbWEKVqh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 17:46:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWEKVqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 17:47:12 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:22738 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S1750785AbWEKVrK (ORCPT
+	Thu, 11 May 2006 17:46:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:28344 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750780AbWEKVqg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 17:47:10 -0400
-Date: Thu, 11 May 2006 16:47:09 -0500
-From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] make kernel ignore bogus partitions
-Message-ID: <20060511214709.GA26045@beardog.cca.cpqcorp.net>
-References: <20060503210055.GB31048@beardog.cca.cpqcorp.net> <20060509124138.43e4bac0.akpm@osdl.org> <20060509224848.GA29754@apps.cwi.nl> <20060511040014.66ea16fc.akpm@osdl.org>
+	Thu, 11 May 2006 17:46:36 -0400
+Date: Thu, 11 May 2006 17:49:33 -0400
+From: Don Zickus <dzickus@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: ak@suse.de
+Subject: [PATCH] Allow users to force a panic on NMI
+Message-ID: <20060511214933.GU16561@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060511040014.66ea16fc.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 11, 2006 at 04:00:14AM -0700, Andrew Morton wrote:
-> Andries Brouwer <Andries.Brouwer@cwi.nl> wrote:
-> >
-> > On Tue, May 09, 2006 at 12:41:38PM -0700, Andrew Morton wrote:
-> > 
-> > > > +		if (from+size-1 > get_capacity(disk)) {
-> > > > +			printk(" %s: p%d exceeds device capacity, ignoring.\n", 
-> > > > +				disk->disk_name, p);
-> > > > +			continue;
-> > > > +		}
-> > > >  		add_partition(disk, p, from, size);
-> > 
-> > > Shouldn't that be
-> > > 
-> > > 	if (from+size > get_capacity(disk)) {
-> > > 
-> > > ?
-> > 
-> > Ha, you are awake.
-> 
-> Opinions differ.
-> 
-> > Yes, it should.
-> > And no "ignoring". And no "continue". E.g.:
-> > 
-> > 	printk(" %s: warning: p%d exceeds device capacity.\n", ...);
-> > 
-> 
-> So you're saying that after detecting this inconsistency we should proceed
-> to use the partition anyway?
-> 
-> For what reason?
+To quote Alan Cox:
 
-Using the partition will result in io errors when accessing beyond the end
-of the device. Most users don't appreciate that. It makes them nervous
-about the hw.
+The default Linux behaviour on an NMI of either memory or unknown is to
+continue operation. For many environments such as scientific computing
+it is preferable that the box is taken out and the error dealt with than
+an uncorrected parity/ECC error get propogated.
 
-mikem
+A small number of systems do generate NMI's for bizarre random reasons
+such as power management so the default is unchanged. In other respects
+the new proc/sys entry works like the existing panic controls already in
+that directory.
+
+This is separate to the edac support - EDAC allows supported chipsets to
+handle ECC errors well, this change allows unsupported cases to at least
+panic rather than cause problems further down the line.
+
+Signed-off-by: Don Zickus <dzickus@redhat.com>
+
+---
+
+This is just a refreshed post of Alan's original patch
+<http://www.ussg.iu.edu/hypermail/linux/kernel/0510.2/1208.html>, with
+hopes this time it sticks. :)
+
+It applies cleanly on top of my other nmi patches.  
+
+Cheers,
+Don
+
+
+Index: linux-don/arch/i386/kernel/traps.c
+===================================================================
+--- linux-don.orig/arch/i386/kernel/traps.c
++++ linux-don/arch/i386/kernel/traps.c
+@@ -602,6 +602,8 @@ static void mem_parity_error(unsigned ch
+ 			"to continue\n");
+ 	printk(KERN_EMERG "You probably have a hardware problem with your RAM "
+ 			"chips\n");
++	if (panic_on_unrecovered_nmi)
++                panic("NMI: Not continuing");
+ 
+ 	/* Clear and disable the memory parity error line. */
+ 	clear_mem_error(reason);
+@@ -637,6 +639,10 @@ static void unknown_nmi_error(unsigned c
+ 		reason, smp_processor_id());
+ 	printk("Dazed and confused, but trying to continue\n");
+ 	printk("Do you have a strange power saving mode enabled?\n");
++
++	if (panic_on_unrecovered_nmi)
++                panic("NMI: Not continuing");
++
+ }
+ 
+ static DEFINE_SPINLOCK(nmi_print_lock);
+Index: linux-don/arch/x86_64/kernel/traps.c
+===================================================================
+--- linux-don.orig/arch/x86_64/kernel/traps.c
++++ linux-don/arch/x86_64/kernel/traps.c
+@@ -608,6 +608,8 @@ mem_parity_error(unsigned char reason, s
+ {
+ 	printk("Uhhuh. NMI received. Dazed and confused, but trying to continue\n");
+ 	printk("You probably have a hardware problem with your RAM chips\n");
++	if (panic_on_unrecovered_nmi)
++               panic("NMI: Not continuing");
+ 
+ 	/* Clear and disable the memory parity error line. */
+ 	reason = (reason & 0xf) | 4;
+@@ -633,6 +635,10 @@ unknown_nmi_error(unsigned char reason, 
+ {	printk("Uhhuh. NMI received for unknown reason %02x.\n", reason);
+ 	printk("Dazed and confused, but trying to continue\n");
+ 	printk("Do you have a strange power saving mode enabled?\n");
++
++	if (panic_on_unrecovered_nmi)
++                panic("NMI: Not continuing");
++
+ }
+ 
+ /* Runs on IST stack. This code must keep interrupts off all the time.
+Index: linux-don/include/linux/kernel.h
+===================================================================
+--- linux-don.orig/include/linux/kernel.h
++++ linux-don/include/linux/kernel.h
+@@ -178,6 +178,7 @@ extern void bust_spinlocks(int yes);
+ extern int oops_in_progress;		/* If set, an oops, panic(), BUG() or die() is in progress */
+ extern int panic_timeout;
+ extern int panic_on_oops;
++extern int panic_on_unrecovered_nmi;
+ extern int tainted;
+ extern const char *print_tainted(void);
+ extern void add_taint(unsigned);
+Index: linux-don/kernel/sysctl.c
+===================================================================
+--- linux-don.orig/kernel/sysctl.c
++++ linux-don/kernel/sysctl.c
+@@ -644,6 +644,14 @@ static ctl_table kern_table[] = {
+ #endif
+ #if defined(CONFIG_X86)
+ 	{
++		.ctl_name	= KERN_PANIC_ON_NMI,
++		.procname	= "panic_on_unrecovered_nmi",
++		.data		= &panic_on_unrecovered_nmi,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++	},
++	{
+ 		.ctl_name	= KERN_BOOTLOADER_TYPE,
+ 		.procname	= "bootloader_type",
+ 		.data		= &bootloader_type,
+Index: linux-don/include/linux/sysctl.h
+===================================================================
+--- linux-don.orig/include/linux/sysctl.h
++++ linux-don/include/linux/sysctl.h
+@@ -149,6 +149,7 @@ enum
+ 	KERN_ACPI_VIDEO_FLAGS=71, /* int: flags for setting up video after ACPI sleep */
+ 	KERN_IA64_UNALIGNED=72, /* int: ia64 unaligned userland trap enable */
+ 	KERN_NMI_ENABLED=73, /* int: enable/disable nmi watchdog */
++	KERN_PANIC_ON_NMI=74, /* int: whether we will panic on an unrecovered */
+ };
+ 
+ 
+Index: linux-don/kernel/panic.c
+===================================================================
+--- linux-don.orig/kernel/panic.c
++++ linux-don/kernel/panic.c
+@@ -21,6 +21,7 @@
+ #include <linux/kexec.h>
+ 
+ int panic_on_oops;
++int panic_on_unrecovered_nmi;
+ int tainted;
+ static int pause_on_oops;
+ static int pause_on_oops_flag;

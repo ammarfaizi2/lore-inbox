@@ -1,79 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030330AbWEKQdp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030339AbWEKQnI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030330AbWEKQdp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 12:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030329AbWEKQdp
+	id S1030339AbWEKQnI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 12:43:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbWEKQnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 12:33:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27526 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030327AbWEKQdo (ORCPT
+	Thu, 11 May 2006 12:43:08 -0400
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:54984 "EHLO mta2.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S1030339AbWEKQnG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 12:33:44 -0400
-Date: Thu, 11 May 2006 09:27:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, aeb@cwi.nl
-Subject: Re: [PATCH] make kernel ignore bogus partitions
-Message-Id: <20060511092736.27cedfd5.akpm@osdl.org>
-In-Reply-To: <20060511161736.GB8124@beardog.cca.cpqcorp.net>
-References: <20060503210055.GB31048@beardog.cca.cpqcorp.net>
-	<20060509124138.43e4bac0.akpm@osdl.org>
-	<20060511161736.GB8124@beardog.cca.cpqcorp.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 11 May 2006 12:43:06 -0400
+Date: Thu, 11 May 2006 17:43:00 +0100
+From: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       Ian Pratt <ian.pratt@xensource.com>
+Subject: Re: [RFC PATCH 07/35] Make LOAD_OFFSET defined by subarch
+Message-ID: <20060511164300.GA7834@cl.cam.ac.uk>
+References: <20060509084945.373541000@sous-sol.org> <20060509085150.509458000@sous-sol.org> <44627733.4010305@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44627733.4010305@vmware.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net> wrote:
->
-> On Tue, May 09, 2006 at 12:41:38PM -0700, Andrew Morton wrote:
-> > "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net> wrote:
-> > >
-> > > Patch 1/1
-> > > Sometimes partitions claim to be larger than the reported capacity of a
-> > > disk device. This patch makes the kernel ignore those partitions.
-> > > 
-> > > Signed-off-by: Mike Miller <mike.miller@hp.com>
-> > > Signed-off-by: Stephen Cameron <steve.cameron@hp.com>
-> > > 
-> > > Please consider this for inclusion.
-> > > 
-> > > 
-> > >  fs/partitions/check.c |    5 +++++
-> > >  1 files changed, 5 insertions(+)
-> > > 
-> > > --- linux-2.6.14/fs/partitions/check.c~partition_vs_capacity	2006-01-06 09:32:14.000000000 -0600
-> > > +++ linux-2.6.14-root/fs/partitions/check.c	2006-01-06 11:24:50.000000000 -0600
-> > > @@ -382,6 +382,11 @@ int rescan_partitions(struct gendisk *di
-> > >  		sector_t from = state->parts[p].from;
-> > >  		if (!size)
-> > >  			continue;
-> > > +		if (from+size-1 > get_capacity(disk)) {
-> > > +			printk(" %s: p%d exceeds device capacity, ignoring.\n", 
-> > > +				disk->disk_name, p);
-> > > +			continue;
-> > > +		}
-> > >  		add_partition(disk, p, from, size);
-> > >  #ifdef CONFIG_BLK_DEV_MD
-> > >  		if (state->parts[p].flags)
-> > 
-> > Shouldn't that be
-> > 
-> > 	if (from+size > get_capacity(disk)) {
-> > 
-> > ?
-> > 
-> Since the partition size is 0-based this is correct:
+On Wed, May 10, 2006 at 04:28:51PM -0700, Zachary Amsden wrote:
+> Chris Wright wrote:
+> >Change LOAD_OFFSET so that the kernel has virtual addresses in the elf 
+> >header fields.
+> >
+> >Unlike bare metal kernels, Xen kernels start with virtual address
+> >management turned on and thus the addresses to load to should be
+> >virtual addresses.
 > 
-> 	if (from+size-1 > get_capacity(disk)) {
-> 
+> This patch interferes with using a traditional bootloader.  The loader 
+> for Xen should be smarter - it already has VIRT_BASE from the xen_guest 
+> section, and can simply add the relocation to these header fields.  This 
+> is unnecessary, and one of the many reasons a Xen kernel can't run in a 
+> normal environment.
 
-Don't think so.
+It's certainly not as simple as you make it sound, if you want to
+support existing kernels without having to guess how the kernel image
+was built.
 
-If `from' is 0 and `size' is 1025 and get_capacity() is 1024 then we have
+I've updated our loader to support this now, so that this patch is
+no longer necessary.  I have at the same time added a new field to
+xen_guest which allows specifying the entry point, allowing us to have
+a different entry point when running the kernel image on Xen.
 
-	if (1024 > 1024)
+    christian
 
-which returns false.

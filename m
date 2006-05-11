@@ -1,63 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWEKVOR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWEKVQD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbWEKVOR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 17:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWEKVOQ
+	id S1750794AbWEKVQD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 17:16:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWEKVQD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 17:14:16 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:65461 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750790AbWEKVOQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 17:14:16 -0400
-Date: Thu, 11 May 2006 22:14:02 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, davem@davemloft.net, dwalker@mvista.com,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
-Message-ID: <20060511211401.GN27946@ftp.linux.org.uk>
-References: <20060510162106.GC27946@ftp.linux.org.uk> <20060510150321.11262b24.akpm@osdl.org> <20060510221024.GH27946@ftp.linux.org.uk> <20060510.153129.122741274.davem@davemloft.net> <20060510224549.GI27946@ftp.linux.org.uk> <20060510160548.36e92daf.akpm@osdl.org> <20060510232042.GJ27946@ftp.linux.org.uk> <20060510164554.27a13ca9.akpm@osdl.org> <20060511204033.GB3570@stusta.de>
-Mime-Version: 1.0
+	Thu, 11 May 2006 17:16:03 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:22173 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750794AbWEKVQB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 17:16:01 -0400
+Date: Thu, 11 May 2006 14:16:15 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>, staubach@redhat.com
+Subject: Re: Linux poll() <sigh> again
+Message-ID: <20060511211615.GA8485@us.ibm.com>
+References: <Pine.LNX.4.61.0605111023030.3729@chaos.analogic.com> <20060511204741.GG22741@us.ibm.com> <Pine.LNX.4.61.0605111659580.5484@chaos.analogic.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060511204033.GB3570@stusta.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.61.0605111659580.5484@chaos.analogic.com>
+X-Operating-System: Linux 2.6.17-rc2 (x86_64)
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 11, 2006 at 10:40:33PM +0200, Adrian Bunk wrote:
-> We could turn of this kind of warnings that generate these kind of false 
-> positives globally with -Wno-uninitialized until a future gcc version 
-> might be better at avoiding false positives.
+On 11.05.2006 [17:04:46 -0400], linux-os (Dick Johnson) wrote:
 > 
-> But there's one problem, this turns off two kinds of warnings:
-> - 'foo' may be used uninitialized in this function
-> - 'foo' is used uninitialized in this function
+> On Thu, 11 May 2006, Nishanth Aravamudan wrote:
 > 
-> The first kind of warnings is the one generating the false positives 
-> while the second kind are warnings we do not want to lose, but AFAIK 
-> there's no way to only turn off the first kind.
+> > On 11.05.2006 [10:25:29 -0400], linux-os (Dick Johnson) wrote:
+> >>
+> >>
+> >> Hello,
+> >>
+> >> I'm trying to fix a long-standing bug which has a
+> >> work-around that has been working for a year or
+> >> so.
+> >
+> > <snip valiant efforts>
+> >
+> >> Here is relevent code:
+> >>
+> >>              for(;;) {
+> >>                  mem->pfd.fd = fd;
+> >>                  mem->pfd.events = POLLIN|POLLERR|POLLHUP|POLLNVAL;
+> >>                  mem->pfd.revents = 0x00;
+> >
+> > Hrm, in looking at the craziness that is sys_poll() for a bit, I think
+> > it's the underlying f_ops that are responsible for not setting POLLHUP,
+> > that is:
+> >
+> >                        if (file != NULL) {
+> >                                mask = DEFAULT_POLLMASK;
+> >                                if (file->f_op && file->f_op->poll)
+> >                                        mask = file->f_op->poll(file, *pwait);
+> >                                mask &= fdp->events | POLLERR | POLLHUP;
+> >                                fput_light(file, fput_needed);
+> >                        }
+> >
+> > and file->f_op->poll(file, *pwait) is not setting POLLHUP on the
+> > disconnect. What filesystem is this?
 > 
-> Perhaps asking the gcc developers for separate options for these two 
-> kinds of warnings in gcc 4.2 and then turning off the first kind is 
-> the way to go?
+> I think that's the problem. A socket isn't a file-system and the
+> code won't set either bits if it isn't. Perhaps, the kernel code
+> needs to consider a socket as a virtual file of some kind? Surely
+> one needs to use poll() on sockets, no?
 
-Folks, let's look at it that way:
-	* warnings are tools to locate broken places in the tree.
-	* we have two signals ("is unused" and "may be unused"), say
-A(location, verision) and B(location, version).
-	* A has fairly high S/N ratio.
-	* B has very large noise component, but it's only weakly dependent
-on the verision.
+Duh, I'm not reading well today -- for sockets, we do
 
-The question is how to get useful information out of those.
-	* solution 1: introduce C(location, version) and filter A and B
-with it, to kill noise in B.
-	* solution 2: ignore B, either by gcc modification or simply filtering
-it with grep.
-	* solution 3: subtract the signals for consequent versions.
+file->f_op->poll() -> (socket_file_ops) sock_poll() -> sock->ops->poll()
 
-IMO it's obvious that combining outputs of (2) and (3) gives the best S/N.
-The reason why (1) is bad is that it kills high-S/N channel in the areas
-with high noise on low-S/N channel *and* that filtered-out areas will
-remain filtered out in the next versions.  IOW, it's a clear loss.
+So, now I need to know what kind of socket is this to go from there ...
+
+Thanks,
+Nish
+
+-- 
+Nishanth Aravamudan <nacc@us.ibm.com>
+IBM Linux Technology Center

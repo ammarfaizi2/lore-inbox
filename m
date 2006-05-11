@@ -1,33 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030255AbWEKP2Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbWEKPbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030255AbWEKP2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 11:28:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030256AbWEKP2Q
+	id S1030263AbWEKPbY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 11:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030256AbWEKPbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 11:28:16 -0400
-Received: from chiark.greenend.org.uk ([193.201.200.170]:3729 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id S1030255AbWEKP2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 11:28:16 -0400
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-CC: Dave Jones <davej@redhat.com>, Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, trenn@suse.de,
-       Greg KH <gregkh@suse.de>, thoenig@suse.de
-Subject: Re: [RFC] [PATCH] Execute PCI quirks on resume from suspend-to-RAM
-In-Reply-To: <4463556C.3040107@gmx.net>
-References: <446139FF.205@gmx.net> <20060510093942.GA12259@elf.ucw.cz> <4461C0CA.8080803@gmx.net> <20060510205600.GB23446@suse.de> <44625CE9.2060204@gmx.net> <20060511023109.GB11693@redhat.com> <4462B737.80108@gmx.net> <4462B737.80108@gmx.net> <4463556C.3040107@gmx.net>
-Date: Thu, 11 May 2006 16:28:11 +0100
-Message-Id: <E1FeD5H-0003tn-00@chiark.greenend.org.uk>
-From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+	Thu, 11 May 2006 11:31:24 -0400
+Received: from rusty.kulnet.kuleuven.ac.be ([134.58.240.42]:128 "EHLO
+	rusty.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id S1030264AbWEKPbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 11:31:23 -0400
+From: Rik Bobbaers <Rik.Bobbaers@cc.kuleuven.be>
+Organization: KULueven - LUDIT
+To: linux-kernel@vger.kernel.org
+Subject: fix compiler warning in ip_nat_standalone.c
+Date: Thu, 11 May 2006 17:29:48 +0200
+User-Agent: KMail/1.9.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605111729.48871.Rik.Bobbaers@cc.kuleuven.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net> wrote:
+hey all,
 
-> +#ifndef CONFIG_SOFTWARE_SUSPEND
+i just made small patch that fixes a compiler warning:
 
-ACPI_SLEEP doesn't depend on SOFTWARE_SUSPEND, so this looks like the 
-wrong fix.
+--- net/ipv4/netfilter/ip_nat_standalone.c~	2006-05-11 03:56:24.000000000 
++0200
++++ net/ipv4/netfilter/ip_nat_standalone.c	2006-05-11 17:17:22.000000000 +0200
+@@ -219,8 +219,10 @@ ip_nat_out(unsigned int hooknum,
+ 	   const struct net_device *out,
+ 	   int (*okfn)(struct sk_buff *))
+ {
++#ifdef CONFIG_XFRM
+ 	struct ip_conntrack *ct;
+ 	enum ip_conntrack_info ctinfo;
++#endif
+ 	unsigned int ret;
+ 
+ 	/* root is playing with raw sockets. */
+
+or at http://harry.ulyssis.org/ip_nat.diff
 
 -- 
-Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org
+harry
+aka Rik Bobbaers
+
+K.U.Leuven - LUDIT          -=- Tel: +32 485 52 71 50
+Rik.Bobbaers@cc.kuleuven.be -=- http://harry.ulyssis.org
+
+"Work hard and do your best, it'll make it easier for the rest"
+-- Garfield
+
+Disclaimer: http://www.kuleuven.be/cwis/email_disclaimer.htm
+

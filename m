@@ -1,161 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWEKWsw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWEKXHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750819AbWEKWsw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 18:48:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWEKWsw
+	id S1750825AbWEKXHz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 19:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWEKXHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 18:48:52 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:41173 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750819AbWEKWsv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 18:48:51 -0400
-Subject: Re: [PATCH 1/4] Vectorize aio_read/aio_write methods
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: cel@citi.umich.edu
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org
-In-Reply-To: <4463B7B0.4000102@citi.umich.edu>
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>
-	 <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
-	 <1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com>
-	 <1147361939.12117.12.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060511114743.53120432.akpm@osdl.org>
-	 <1147374464.12421.24.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060511132136.569d59c1.akpm@osdl.org> <4463A269.2080601@us.ibm.com>
-	 <4463AB55.2010105@citi.umich.edu> <4463B368.9050602@us.ibm.com>
-	 <4463B7B0.4000102@citi.umich.edu>
-Content-Type: text/plain
-Date: Thu, 11 May 2006 15:50:03 -0700
-Message-Id: <1147387803.12421.34.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 11 May 2006 19:07:55 -0400
+Received: from iabervon.org ([66.92.72.58]:8977 "EHLO iabervon.org")
+	by vger.kernel.org with ESMTP id S1750825AbWEKXHy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 19:07:54 -0400
+Date: Thu, 11 May 2006 19:08:49 -0400 (EDT)
+From: Daniel Barkalow <barkalow@iabervon.org>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+cc: Andrew Morton <akpm@osdl.org>, mikem@beardog.cca.cpqcorp.net,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] make kernel ignore bogus partitions
+In-Reply-To: <20060511115117.GA870@apps.cwi.nl>
+Message-ID: <Pine.LNX.4.64.0605111822320.6713@iabervon.org>
+References: <20060503210055.GB31048@beardog.cca.cpqcorp.net>
+ <20060509124138.43e4bac0.akpm@osdl.org> <20060509224848.GA29754@apps.cwi.nl>
+ <20060511040014.66ea16fc.akpm@osdl.org> <20060511115117.GA870@apps.cwi.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-05-11 at 18:16 -0400, Chuck Lever wrote:
-> Badari Pulavarty wrote:
-> > 
-> > 
-> > Chuck Lever wrote:
-> > 
-> >>
-> >> Noticed these four file systems still appear to invoke 
-> >> generic_file_read/write:
-> >>
-> >> 0 fs/sysv/file.c  <global>        25 .write = generic_file_write,
-> >> 1 fs/ufs/file.c   <global>        37 .write = generic_file_write,
-> >> 2 fs/smbfs/file.c smb_file_write 341 result = generic_file_write(file, 
-> >> buf, count, ppos);
-> >> 3 fs/udf/file.c   udf_file_write 139 retval = generic_file_write(file, 
-> >> buf, count, ppos);
-> > 
-> > 
-> > Hmm ? My 4th patch would get rid of generic_file_read() and 
-> > generic_file_write()
-> > and all its users. (basically converted to do_sync_read/write).
-> > 
-> > Where do you see these, after applying all 4 patches ? I can't see them 
-> > in my tree.
+On Thu, 11 May 2006, Andries Brouwer wrote:
+
+> The normal situation is that partitions are contained within
+> the disk. In the normal situation the test is superfluous.
 > 
-> Yes, I applied all 4 of the patches you mailed out today to the latest 
-> 2.6.17-rc3 git tree.  Could be my mistake... but when I try to build the 
-> kernel with UDF enabled, the build fails because it can't find 
-> generic_file_read.
+> Suppose the test fails. Why might that be? There isn't really
+> a good scenario where this is a mistake. In all the (rare) cases
+> that I can imagine, it would make matters worse to reject the
+> partition and make access impossible (or at least more difficult).
 > 
+> Case 1: The kernel is mistaken about the size of the disk.
+> (There are commands to clip a disk to a certain capacity,
+> there are jumpers to tell a disk that it should report a certain
+> capacity etc. Usually this is because of BIOS bugs. In bad cases
+> the machine will crash in the BIOS and hence fail to boot if
+> the disk reports full capacity.)
+> In such cases actually accessing the blocks of the partition
+> may work fine, or may work fine after running an unclip utility.
+> I wrote "setmax" some years ago precisely for this reason.
 
-Hi Andrew,
+Perhaps the kernel should try reading beyond the ends of disks when it 
+detects them, so that it can determine if there's actually available 
+storage there, and automatically increase the size if there is? Or, at 
+least, it could check whether the medium actually goes out to the point 
+the partition table implies, and suppress the I/O error if the disk 
+actually ends where it claims to.
 
-Some how I missed updates to few filesystems. Here is the patch to fix
-them.
+> Case 2: There was a messy partition table (maybe just a rounding
+> error) but the actual filesystem on the partition is contained
+> in the physical disk. Now using the filesystem goes without problem.
 
-Thanks,
-Badari
+I think I've seen cameras format SD cards like this. If I understand the 
+situation correctly, it's a pain to mount them, because the kernel pokes 
+around beyond the end of the medium trying to determine the filesystem 
+type. In this case, wouldn't the right thing be to add the partition as 
+ending at the end of the disk, rather than where it claims to?
 
-Missed to convert few filesystems not to use generic_file_read
-and generic_file_write interfaces.
+> Case 3: Both partition and filesystem extend beyond the end of the disk.
+> In forensic or debugging situations one often uses a copy of the start
+> of a disk. Now access beyond the end gives an expected I/O error.
 
-Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
+I think cropping the partition to the size of the copied area is fine 
+here, too, and should generate I/O errors on the partition without errors 
+on the underlying block device, so it will be more clear that the hardware 
+is fine, but your filesystem has problems (i.e., part of it isn't 
+included).
 
-diff -Naurp -X /usr/src/dontdiff linux-2.6.17-rc3/fs/smbfs/file.c linux-2.6.17-rc3.save/fs/smbfs/file.c
---- linux-2.6.17-rc3/fs/smbfs/file.c	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/smbfs/file.c	2006-05-09 15:30:32.000000000 -0700
-@@ -233,7 +233,7 @@ smb_file_read(struct file * file, char _
- 		(long)dentry->d_inode->i_size,
- 		dentry->d_inode->i_flags, dentry->d_inode->i_atime);
- 
--	status = generic_file_read(file, buf, count, ppos);
-+	status = do_sync_read(file, buf, count, ppos);
- out:
- 	return status;
- }
-@@ -338,7 +338,7 @@ smb_file_write(struct file *file, const 
- 		goto out;
- 
- 	if (count > 0) {
--		result = generic_file_write(file, buf, count, ppos);
-+		result = do_sync_write(file, buf, count, ppos);
- 		VERBOSE("pos=%ld, size=%ld, mtime=%ld, atime=%ld\n",
- 			(long) file->f_pos, (long) dentry->d_inode->i_size,
- 			dentry->d_inode->i_mtime, dentry->d_inode->i_atime);
-diff -Naurp -X /usr/src/dontdiff linux-2.6.17-rc3/fs/sysv/file.c linux-2.6.17-rc3.save/fs/sysv/file.c
---- linux-2.6.17-rc3/fs/sysv/file.c	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/sysv/file.c	2006-05-09 15:25:00.000000000 -0700
-@@ -21,8 +21,10 @@
-  */
- const struct file_operations sysv_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.fsync		= sysv_sync_file,
- 	.sendfile	= generic_file_sendfile,
-diff -Naurp -X /usr/src/dontdiff linux-2.6.17-rc3/fs/udf/file.c linux-2.6.17-rc3.save/fs/udf/file.c
---- linux-2.6.17-rc3/fs/udf/file.c	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/udf/file.c	2006-05-09 15:27:28.000000000 -0700
-@@ -136,7 +136,7 @@ static ssize_t udf_file_write(struct fil
- 		}
- 	}
- 
--	retval = generic_file_write(file, buf, count, ppos);
-+	retval = do_sync_write(file, buf, count, ppos);
- 
- 	if (retval > 0)
- 		mark_inode_dirty(inode);
-@@ -249,11 +249,13 @@ static int udf_release_file(struct inode
- }
- 
- const struct file_operations udf_file_operations = {
--	.read			= generic_file_read,
-+	.read			= do_sync_read,
-+	.aio_read		= generic_file_aio_read,
- 	.ioctl			= udf_ioctl,
- 	.open			= generic_file_open,
- 	.mmap			= generic_file_mmap,
- 	.write			= udf_file_write,
-+	.aio_write		= generic_file_aio_write,
- 	.release		= udf_release_file,
- 	.fsync			= udf_fsync_file,
- 	.sendfile		= generic_file_sendfile,
-diff -Naurp -X /usr/src/dontdiff linux-2.6.17-rc3/fs/ufs/file.c linux-2.6.17-rc3.save/fs/ufs/file.c
---- linux-2.6.17-rc3/fs/ufs/file.c	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17-rc3.save/fs/ufs/file.c	2006-05-09 15:28:16.000000000 -0700
-@@ -33,8 +33,10 @@
-  
- const struct file_operations ufs_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.open           = generic_file_open,
- 	.sendfile	= generic_file_sendfile,
+In any case, I don't think it makes sense to leave the partition and 
+underlying device inconsistant, rather than correcting one or the other.
 
-
-
+	-Daniel
+*This .sig left intentionally blank*

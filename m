@@ -1,70 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964963AbWEKCB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWEKCJf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964963AbWEKCB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 22:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWEKCB2
+	id S1751228AbWEKCJf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 22:09:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbWEKCJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 22:01:28 -0400
-Received: from CPE-144-136-172-108.sa.bigpond.net.au ([144.136.172.108]:9222
-	"EHLO grove.modra.org") by vger.kernel.org with ESMTP
-	id S1751228AbWEKCB1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 22:01:27 -0400
-Date: Thu, 11 May 2006 11:31:25 +0930
-From: Alan Modra <amodra@bigpond.net.au>
-To: Paul Mackerras <paulus@samba.org>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-arch@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, rth@twiddle.net
-Subject: Re: [RFC/PATCH] Make powerpc64 use __thread for per-cpu variables
-Message-ID: <20060511020125.GF24458@bubble.grove.modra.org>
-References: <17505.26159.807484.477212@cargo.ozlabs.ibm.com> <20060510154702.GA28938@twiddle.net> <20060510.124003.04457042.davem@davemloft.net> <17506.21908.857189.645889@cargo.ozlabs.ibm.com> <20060511010438.GE24458@bubble.grove.modra.org> <17506.37259.755099.974824@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17506.37259.755099.974824@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.4i
+	Wed, 10 May 2006 22:09:35 -0400
+Received: from touchdown.wvpn.de ([212.227.64.97]:36292 "EHLO mail.wvpn.de")
+	by vger.kernel.org with ESMTP id S1751228AbWEKCJe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 22:09:34 -0400
+Message-ID: <44629CF4.1070008@maintech.de>
+Date: Thu, 11 May 2006 04:09:56 +0200
+From: "Thomas Kleffel (maintech GmbH)" <tk@maintech.de>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060508)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] ide_cs: Add IBM microdrive to known IDs
+Content-Type: multipart/mixed;
+ boundary="------------040704060002050107060301"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 11, 2006 at 11:21:15AM +1000, Paul Mackerras wrote:
-> Alan Modra writes:
-> 
-> > gcc shouldn't think there is any reason to cache the address.
-> 
-> Can I rely on that being true in the future?
+This is a multi-part message in MIME format.
+--------------040704060002050107060301
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-It isn't true in the *present*, except with a compiler on my home
-machine.  :-) 
+From: Thomas Kleffel <tk@maintech.de>
 
-__thread int i1;
-void
-f3 (void)
-{
-  int x = i1;
-  __asm__ __volatile__ ("#dragons be here.  %0" : "+r" (x));
-  i1 = x;
-}
+this patch adds the IBM microdrive to the known PCMCIA IDs for ide_cs.
 
-current mainline with -O2 -S -mtls-size=16
+Signed-off-by: Thomas Kleffel <tk@maintech.de>
+---
 
-f3:
-        addi 9,2,i1@tprel
-        lwz 0,0(9)
-#APP
-        #dragons be here.  0
-#NO_APP
-        stw 0,0(9)
-        blr
+This patch is against 2.6.17-rc3
 
-Same thing with my modified compiler.
 
-f3:
-        lwz 0,i1@tprel(2)
-#APP
-        #dragons be here.  0
-#NO_APP
-        stw 0,i1@tprel(2)
-        blr
+--------------040704060002050107060301
+Content-Type: text/x-patch;
+ name="ide_cs.microdrive.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide_cs.microdrive.patch"
 
--- 
-Alan Modra
-IBM OzLabs - Linux Technology Centre
+diff -uprN l1/drivers/ide/legacy/ide-cs.c l2/drivers/ide/legacy/ide-cs.c
+--- l1/drivers/ide/legacy/ide-cs.c	2006-05-11 00:19:59.000000000 +0200
++++ l2/drivers/ide/legacy/ide-cs.c	2006-05-11 03:38:03.000000000 +0200
+@@ -392,6 +415,7 @@ static struct pcmcia_device_id ide_ids[]
+ 	PCMCIA_DEVICE_PROD_ID12("FREECOM", "PCCARD-IDE", 0x5714cbf7, 0x48e0ab8e),
+ 	PCMCIA_DEVICE_PROD_ID12("HITACHI", "FLASH", 0xf4f43949, 0x9eb86aae),
+ 	PCMCIA_DEVICE_PROD_ID12("HITACHI", "microdrive", 0xf4f43949, 0xa6d76178),
++	PCMCIA_DEVICE_PROD_ID12("IBM", "microdrive", 0xb569a6e5, 0xa6d76178),
+ 	PCMCIA_DEVICE_PROD_ID12("IBM", "IBM17JSSFP20", 0xb569a6e5, 0xf2508753),
+ 	PCMCIA_DEVICE_PROD_ID12("IO DATA", "CBIDE2      ", 0x547e66dc, 0x8671043b),
+ 	PCMCIA_DEVICE_PROD_ID12("IO DATA", "PCIDE", 0x547e66dc, 0x5c5ab149),
+
+--------------040704060002050107060301--

@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWEKSb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWEKSfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbWEKSb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 14:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWEKSb1
+	id S1750849AbWEKSfX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 14:35:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWEKSfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 14:31:27 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:9408 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1750817AbWEKSb0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 14:31:26 -0400
-Date: Thu, 11 May 2006 20:30:33 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Rik Bobbaers <Rik.Bobbaers@cc.kuleuven.be>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fix compiler warning in ip_nat_standalone.c
-Message-ID: <20060511183033.GB14232@wohnheim.fh-wedel.de>
-References: <200605111729.48871.Rik.Bobbaers@cc.kuleuven.be> <20060511155537.GF1104@wohnheim.fh-wedel.de> <200605111849.41565.Rik.Bobbaers@cc.kuleuven.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200605111849.41565.Rik.Bobbaers@cc.kuleuven.be>
-User-Agent: Mutt/1.5.9i
+	Thu, 11 May 2006 14:35:22 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:44552 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1750849AbWEKSfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 14:35:22 -0400
+Date: Thu, 11 May 2006 14:35:21 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andrew Morton <akpm@osdl.org>
+cc: sekharan@us.ibm.com, <jes@sgi.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Allow raw_notifier callouts to unregister themselves
+In-Reply-To: <20060511112509.6c9db883.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44L0.0605111433380.5834-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 May 2006 18:49:41 +0200, Rik Bobbaers wrote:
-> On Thursday 11 May 2006 17:55, Jörn Engel wrote:
+On Thu, 11 May 2006, Andrew Morton wrote:
+
+> Alan Stern <stern@rowland.harvard.edu> wrote:
+> >
+> > Since raw_notifier chains don't benefit from any centralized locking
+> > protections, they shouldn't suffer from the associated limitations.  
+> > Under some circumstances it might make sense for a raw_notifier callout
+> > routine to unregister itself from the notifier chain.  This patch (as678)
+> > changes the notifier core to allow for such things.
 > 
-> > That said, your patch looks as if it would actually fix the code.  I'm
-> > not firm enough with NAT to confirm that, though.  So if it fixes the
-> > code, please state exactly that.
-> 
-> mkay... it fixes the code :)
+> ok...  Can you see any reason why 2.6.17 needs this?
 
-Ok.  Then excuse my rant and thanks for the patch. :)
+No.  The patch was submitted in preparation for some work that Jes
+Sorensen is doing on task notifiers.  It definitely is not needed
+immediately.
 
-Jörn
+Alan Stern
 
--- 
-To my face you have the audacity to advise me to become a thief - the worst
-kind of thief that is conceivable, a thief of spiritual things, a thief of
-ideas! It is insufferable, intolerable!
--- M. Binet in Scarabouche
+

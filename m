@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965102AbWEKARM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965105AbWEKATi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965102AbWEKARM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 20:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbWEKARM
+	id S965105AbWEKATi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 20:19:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965106AbWEKATi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 20:17:12 -0400
-Received: from mail.kroah.org ([69.55.234.183]:17853 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965102AbWEKARL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 20:17:11 -0400
-Date: Wed, 10 May 2006 17:12:26 -0700
-From: Greg KH <greg@kroah.com>
-To: Henne <henne@nachtwindheim.de>
-Cc: arjan@infradead.org, tiwai@suse.de, linux-kernel@vger.kernel.org,
-       greg@kroah.org
-Subject: Re: [ALSA] add __devinitdata to all pci_device_id
-Message-ID: <20060511001226.GA27465@kroah.com>
-References: <445673F0.4020607@nachtwindheim.de> <44577C75.8040202@nachtwindheim.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 10 May 2006 20:19:38 -0400
+Received: from smtp.bulldogdsl.com ([212.158.248.7]:53770 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S965105AbWEKATh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 20:19:37 -0400
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: Stability of 2.6.17-rc3?
+Date: Thu, 11 May 2006 01:19:46 +0100
+User-Agent: KMail/1.9.1
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, Joshua Hudson <joshudson@gmail.com>,
+       linux-kernel@vger.kernel.org
+References: <bda6d13a0605091340x2e16342v15733b2c9612d985@mail.gmail.com> <200605101041.14595.s0348365@sms.ed.ac.uk> <Pine.LNX.4.61.0605110022040.5869@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0605110022040.5869@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44577C75.8040202@nachtwindheim.de>
-User-Agent: Mutt/1.5.11
+Message-Id: <200605110119.46822.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 02, 2006 at 05:36:21PM +0200, Henne wrote:
-> Henne wrote:
-> >On Mon, May 01, 2006 at 06:49:24PM +0200, Arjan van de Ven wrote:
-> >
-> > > are you really really sure you want to do this?
-> > > These structures are exported via sysfs for example, I would think this
-> > > is quite the wrong thing to make go away silently...
-> 
-> 
-> I tested that on my system.
-> 
-> make oldconfig
-> <comment out CONFIG_HOTPLUG>
-> <install and booting that kernel>
-> <reading vendor device, etc. of built-in devices in sysfs>
-> <adding new ID's via new_id>
+On Wednesday 10 May 2006 23:23, Jan Engelhardt wrote:
+> >Though, Joshua, 2.6.17-rc3 seems to be a rock-solid release. It's safe
+> > enough to diff against and boot, if that's what you want to do.
+>
+> It did not eat the virtual machine so its chances are good. However, I wait
+> for 2.6.17 because of the few XFS fixes gone in since then.
 
-Hm, I don't think you really disabled CONFIG_HOTPLUG, as that file will
-not be present if you disable that option.
+I run a 1TB XFS filesystem on a RAID5 with no ill-effects. I've never 
+experienced data-loss in 2.6, mostly due to conservative options (no 4k 
+stacks, no regparm, XFS only).
 
-So I think your testing was invalid.
+-- 
+Cheers,
+Alistair.
 
-thanks,
-
-greg k-h
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

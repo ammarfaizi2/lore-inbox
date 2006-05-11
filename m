@@ -1,78 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbWEKXxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbWEKXyA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750840AbWEKXxT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 19:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWEKXxT
+	id S1750862AbWEKXyA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 19:54:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbWEKXyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 19:53:19 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:14005 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1750837AbWEKXxS (ORCPT
+	Thu, 11 May 2006 19:54:00 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:20917 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S1750862AbWEKXx6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 19:53:18 -0400
-Message-ID: <4463CE5D.1030301@myri.com>
-Date: Fri, 12 May 2006 01:53:01 +0200
+	Thu, 11 May 2006 19:53:58 -0400
+Message-ID: <4463CE88.20301@myri.com>
+Date: Fri, 12 May 2006 01:53:44 +0200
 From: Brice Goglin <brice@myri.com>
 User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Roland Dreier <rdreier@cisco.com>
+To: Francois Romieu <romieu@fr.zoreil.com>
 CC: netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
        "Andrew J. Gallatin" <gallatin@myri.com>
 Subject: Re: [PATCH 4/6] myri10ge - First half of the driver
-References: <Pine.GSO.4.44.0605101438410.498-100000@adel.myri.com> <adahd3x7d0b.fsf@cisco.com>
-In-Reply-To: <adahd3x7d0b.fsf@cisco.com>
+References: <446259A0.8050504@myri.com> <Pine.GSO.4.44.0605101438410.498-100000@adel.myri.com> <20060510231347.GC25334@electric-eye.fr.zoreil.com>
+In-Reply-To: <20060510231347.GC25334@electric-eye.fr.zoreil.com>
 X-Enigmail-Version: 0.94.0.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
->  > +#define myri10ge_pio_copy(to,from,size) __iowrite64_copy(to,from,size/8)
+Francois Romieu wrote:
 >
-> Why do you need this wrapper?  Why not just call __iowrite64_copy()
-> without the obfuscation?  Anyone reading the code will just have to
-> search back to this define and mentally translate the size back and
-> forth all the time.
+>> +	spin_lock(&mgp->cmd_lock);
+>> +	response->result = 0xffffffff;
+>> +	mb();
+>> +	myri10ge_pio_copy((void __iomem *) cmd_addr, buf, sizeof (*buf));
+>> +
+>> +	/* wait up to 2 seconds */
+>>     
+>
+> You must not hold a spinlock for up to 2 seconds.
 >   
 
-Well, I know that abstraction layer is bad. But in this case I really
-think that a name like myri10ge_pio_copy(size) is way less obfuscating
-than __iowrite64_copy(size/8).
-Will fix it if it really matters.
+We are working on reducing the delay to about 15ms. It only occurs when
+the driver is loaded or the link brought up.
 
-
->  > +int myri10ge_hyper_msi_cap_on(struct pci_dev *pdev)
->  > +{
->  > +	uint8_t cap_off;
->  > +	int nbcap = 0;
->  > +
->  > +	cap_off = PCI_CAPABILITY_LIST - 1;
->  > +	/* go through all caps looking for a hypertransport msi mapping */
+>> +	for (sleep_total = 0; sleep_total < (2 * 1000); sleep_total += 10) {
+>> +		mb();
+>> +		if (response->result != 0xffffffff) {
+>> +			if (response->result == 0) {
+>> +				data->data0 = ntohl(response->data);
+>> +				spin_unlock(&mgp->cmd_lock);
+>> +				return 0;
+>> +			} else {
+>> +				dev_err(&mgp->pdev->dev,
+>> +					"command %d failed, result = %d\n",
+>> +				       cmd, ntohl(response->result));
+>> +				spin_unlock(&mgp->cmd_lock);
+>> +				return -ENXIO;
+>>     
 >
-> This looks like something that should be fixed up in the general PCI
-> quirk handling rather than in every driver...
->
->  > +static int
->  > +myri10ge_use_msi(struct pci_dev *pdev)
->  > +{
->  > +	if (myri10ge_msi == 1 || myri10ge_msi == 0)
->  > +		return myri10ge_msi;
->  > +
->  > +	/*  find root complex for our device */
->  > +	while (pdev->bus && pdev->bus->self) {
->  > +		pdev = pdev->bus->self;
->  > +	}
->
-> Similarly looks like generic PCI code (if it's needed at all).  If I
-> understand correctly you're trying to check if MSI has a chance at
-> working on the system, but a network device driver has no business
-> walking up the PCI hierarchy.
+> Return in a middle of a spinlock-intensive function. :o(
 >   
 
-Right, I will look at moving all this to the core PCI code.
+What do you mean ?
+
+>   
+>> +{
+>> +	struct sk_buff *skb;
+>> +	unsigned long data, roundup;
+>> +
+>> +	skb = dev_alloc_skb(bytes + 4096 + MYRI10GE_MCP_ETHER_PAD);
+>> +	if (skb == NULL)
+>> +		return NULL;
+>>     
+>
+> Imho you will want to work directly with pages shortly.
+>   
+
+We had thought about doing this, but were a little nervous since we did
+not know of any other drivers that worked directly with pages.  If this
+is an official direction to work directly with pages, we will. But the
+existing approach is well tested through our beta cycle, and we would
+prefer to leave it as is and update to a pages based approach in the
+future.
 
 
-Thanks for all the comments.
+Thanks a lot for all the comments.
 
 Brice
 

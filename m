@@ -1,71 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbWEKJsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbWEKJvj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030214AbWEKJsa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 05:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030213AbWEKJsa
+	id S1030208AbWEKJvj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 05:51:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbWEKJvj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 05:48:30 -0400
-Received: from ns2.suse.de ([195.135.220.15]:12737 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030210AbWEKJs3 (ORCPT
+	Thu, 11 May 2006 05:51:39 -0400
+Received: from ns2.suse.de ([195.135.220.15]:46273 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030208AbWEKJvi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 05:48:29 -0400
-From: Andi Kleen <ak@suse.de>
-To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>, tytso@mit.edu
-Subject: Re: [RFC PATCH 34/35] Add the Xen virtual network device driver.
-Date: Thu, 11 May 2006 11:47:52 +0200
-User-Agent: KMail/1.9.1
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, xen-devel@lists.xensource.com,
-       ian.pratt@xensource.com, rdreier@cisco.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       virtualization@lists.osdl.org, chrisw@sous-sol.org, shemminger@osdl.org
-References: <E1Fdz7v-0007zc-00@gondolin.me.apana.org.au> <fb99d7085b85310ef7d423a8f135db32@cl.cam.ac.uk>
-In-Reply-To: <fb99d7085b85310ef7d423a8f135db32@cl.cam.ac.uk>
+	Thu, 11 May 2006 05:51:38 -0400
+From: Neil Brown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Thu, 11 May 2006 19:51:18 +1000
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605111147.53011.ak@suse.de>
+Message-ID: <17507.2326.70030.243757@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, wli@holomorphy.com
+Subject: Re: [PATCH-RFC] Improve randomness of hash_long on 64bit.
+In-Reply-To: message from Andrew Morton on Thursday May 11
+References: <20060509165610.10378.patches@notabene>
+	<1060509065940.10406@suse.de>
+	<20060511003556.5ba2e3d2.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 May 2006 09:49, Keir Fraser wrote:
-> On 11 May 2006, at 01:33, Herbert Xu wrote:
-> >> But if sampling virtual events for randomness is really unsafe (is it
-> >> really?) then native guests in Xen would also get bad random numbers
-> >> and this would need to be somehow addressed.
-> >
-> > Good point.  I wonder what VMWare does in this situation.
->
-> Well, there's not much they can do except maybe jitter interrupt
-> delivery. I doubt they do that though.
->
-> The original complaint in our case was that we take entropy from
-> interrupts caused by other local VMs, as well as external sources.
-> There was a feeling that the former was more predictable and could form
-> the basis of an attack. I have to say I'm unconvinced: I don't really
-> see that it's significantly easier to inject precisely-timed interrupts
-> into a local VM. Certainly not to better than +/- a few microseconds.
-> As long as you add cycle-counter info to the entropy pool, the least
-> significant bits of that will always be noise.
+On Thursday May 11, akpm@osdl.org wrote:
+> 
+> We end up with
+> 
+> static inline u32 hash_u32(u32 val, unsigned int bits)
+> {
+> 	u32 hash = val;
+> 
+> 	/* On some cpus multiply is faster, on others gcc will do shifts */
+> 	hash *= GOLDEN_RATIO_PRIME_32;
+> 
+> 	/* High bits are more random, so use them. */
+> 	return hash >> (32 - bits);
+> }
+> 
+> static inline u32 hash_u64(u64 val, unsigned int bits)
+> {
+> 	u32 hi = val >> 32;
+> 	return hash_u32(hash_u32(val, 32) ^ hi, bits);
+> }
+> 
+> So if one does
+> 
+> 	hash_u64(foo, 44)
+> 
+> we have a negative shift distance.
 
-I think I agree - e.g. i would expect the virtual interrupts to have
-enough jitter too. Maybe it would be good if someone could
-run a few statistics on the resulting numbers?
+True.  But as hash_u64 returns a u32, asking for 44 bits would be
+clearly unwise.  It really no different than doing
 
-Ok the randomness added doesn't consist only of the least significant
-bits. Currently it adds jiffies+full 32bit cycle count.  I guess if it was
-a real problem the code could be changed to leave out the jiffies and 
-only add maybe a 8 bit word from the low bits. But that would only
-help for the para case because the algorithm for native guests
-cannot be changed.
+        hash_long(foo, 100)
 
->   2. An entropy front/back is tricky -- how do we decide how much
-> entropy to pull from domain0? How much should domain0 be prepared to
-> give other domains? How easy is it to DoS domain0 by draining its
-> entropy pool? Yuk.
+Based on the return type, that is equally unwise.
 
-I claim (without having read any code) that in theory you need to have solved 
-that problem already in the vTPM @)
+Fortunately no one (current) askes for more than 14 bits.
 
--Andi
+Thanks,
+NeilBrown

@@ -1,136 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWEKVEt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWEKVHa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750763AbWEKVEt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 17:04:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbWEKVEt
+	id S1750717AbWEKVHa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 17:07:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbWEKVHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 17:04:49 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:18950 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1750763AbWEKVEs convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 17:04:48 -0400
+	Thu, 11 May 2006 17:07:30 -0400
+Received: from smtpq2.groni1.gr.home.nl ([213.51.130.201]:11152 "EHLO
+	smtpq2.groni1.gr.home.nl") by vger.kernel.org with ESMTP
+	id S1750717AbWEKVH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 17:07:29 -0400
+Message-ID: <4463A78F.5030703@keyaccess.nl>
+Date: Thu, 11 May 2006 23:07:27 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 11 May 2006 21:04:47.0269 (UTC) FILETIME=[88F30D50:01C6753E]
-Content-class: urn:content-classes:message
-Subject: Re: Linux poll() <sigh> again
-Date: Thu, 11 May 2006 17:04:46 -0400
-Message-ID: <Pine.LNX.4.61.0605111659580.5484@chaos.analogic.com>
-In-Reply-To: <20060511204741.GG22741@us.ibm.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Linux poll() <sigh> again
-Thread-Index: AcZ1Poj8Cw2G6ow7R1u4sByqQSz9Jw==
-References: <Pine.LNX.4.61.0605111023030.3729@chaos.analogic.com> <20060511204741.GG22741@us.ibm.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Nishanth Aravamudan" <nacc@us.ibm.com>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>, <staubach@redhat.com>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: Gerd Hoffmann <kraxel@suse.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] SMP alternatives: skip with UP kernels.
+References: <4461341B.7050602@keyaccess.nl> <4461B24A.7050805@suse.de> <4461D16A.3000301@keyaccess.nl> <44632A62.2020505@suse.de>
+In-Reply-To: <44632A62.2020505@suse.de>
+Content-Type: multipart/mixed;
+ boundary="------------090608090409000108060703"
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------090608090409000108060703
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, 11 May 2006, Nishanth Aravamudan wrote:
+Gerd Hoffmann wrote:
 
-> On 11.05.2006 [10:25:29 -0400], linux-os (Dick Johnson) wrote:
->>
->>
->> Hello,
->>
->> I'm trying to fix a long-standing bug which has a
->> work-around that has been working for a year or
->> so.
->
-> <snip valiant efforts>
->
->> Here is relevent code:
->>
->>              for(;;) {
->>                  mem->pfd.fd = fd;
->>                  mem->pfd.events = POLLIN|POLLERR|POLLHUP|POLLNVAL;
->>                  mem->pfd.revents = 0x00;
->
-> Hrm, in looking at the craziness that is sys_poll() for a bit, I think
-> it's the underlying f_ops that are responsible for not setting POLLHUP,
-> that is:
->
->                        if (file != NULL) {
->                                mask = DEFAULT_POLLMASK;
->                                if (file->f_op && file->f_op->poll)
->                                        mask = file->f_op->poll(file, *pwait);
->                                mask &= fdp->events | POLLERR | POLLHUP;
->                                fput_light(file, fput_needed);
->                        }
->
-> and file->f_op->poll(file, *pwait) is not setting POLLHUP on the
-> disconnect. What filesystem is this?
+[ depending on CONFIG_SMP ]
 
-I think that's the problem. A socket isn't a file-system and the
-code won't set either bits if it isn't. Perhaps, the kernel code
-needs to consider a socket as a virtual file of some kind? Surely
-one needs to use poll() on sockets, no?
+>> Okay, thanks. Yes, I agree such would make sense.
+> 
+> Patch below.  It simply returns in case the tables are empty and nothing
+> is do to, thus avoids printing the confusing message.
 
->
-> On an independent note, it seems like the relatively recent cleanups to
-> sys_poll() made the negative case a bit inefficient (and reliant on
-> msecs_to_jiffies() dealing with negative values, which I don't think it
-> was really ever designed to (it's mostly used for converting time
-> values, which can never go negative)). Maybe the following would make
-> sense? Peter, I know you had been looking at poll() issues earlier, does
-> this change make sense?
->
-> Description: Rather than make msecs_to_jiffies() deal with negative
-> values, just send them on to do_sys_poll(), which (eventually in
-> do_poll()) explicitly checks for them.
->
-> Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
->
-> diff -urpN 2.6.17-rc3-git18/fs/select.c 2.6.17-rc3-git18-dev/fs/select.c
-> --- 2.6.17-rc3-git18/fs/select.c	2006-05-11 12:17:15.000000000 -0700
-> +++ 2.6.17-rc3-git18-dev/fs/select.c	2006-05-11 12:38:16.000000000 -0700
-> @@ -727,9 +727,9 @@ out_fds:
-> asmlinkage long sys_poll(struct pollfd __user *ufds, unsigned int nfds,
-> 			long timeout_msecs)
-> {
-> -	s64 timeout_jiffies = 0;
-> +	s64 timeout_jiffies;
->
-> -	if (timeout_msecs) {
-> +	if (timeout_msecs > 0) {
-> #if HZ > 1000
-> 		/* We can only overflow if HZ > 1000 */
-> 		if (timeout_msecs / 1000 > (s64)0x7fffffffffffffffULL / (s64)HZ)
-> @@ -737,6 +737,8 @@ asmlinkage long sys_poll(struct pollfd _
-> 		else
-> #endif
-> 			timeout_jiffies = msecs_to_jiffies(timeout_msecs);
-> +	} else {
-> +		timeout_jiffies = timeout_msecs;
-> 	}
->
-> 	return do_sys_poll(ufds, nfds, &timeout_jiffies);
->
-> --
-> Nishanth Aravamudan <nacc@us.ibm.com>
-> IBM Linux Technology Center
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+It does avoid the message but well, that's also _all_ it avoids. Why do 
+you want to do it this way? If I apply the attached, things compile and 
+work fine which seems to confirm that, yes, all this smp_alternatives 
+code is simply dead baggage on !CONFIG_SMP.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
-New book: http://www.lymanschool.com
-_
-
+Yes, the #ifdef in arch/i386/kernel/module.c is a bit clumsy. Just proof 
+of concept, might be abstracted out a bit better. It does lose most of 
+alternatives.c which would seem to be good thing.
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+Unless I'm missing some points, I believe this code should not be 
+compiled in for !CONFIG_SMP.
 
-Thank you.
+One other point, although probably not a relevant one. Your changes in 
+module_finalize() potentially change behaviour. It used to be:
+
+for (s = sechdrs; s < sechdrs + hdr->e_shnum; s++) {
+	void *seg;
+	if (strcmp(".altinstructions", secstrings + s->sh_name))
+		continue;
+	seg = (void *)s->sh_addr;
+	apply_alternatives(seg, seg + s->sh_size);
+}
+
+which means that any .altinstructions section would be patched. It's now:
+
+for (s = sechdrs; s < sechdrs + hdr->e_shnum; s++) {
+	...
+	if (!strcmp(".altinstructions", secstrings + s->sh_name))
+		alt = s;
+	...
+}
+if (alt) {
+	/* patch .altinstructions */
+	void *aseg = (void *)alt->sh_addr;
+	apply_alternatives(aseg, aseg + alt->sh_size);
+}
+
+which means that only the last such section would. I suppose there's 
+only one such section anyway, but not seeing a break in the original 
+does make me wonder if this was originally done on purpose.
+
+Rene.
+
+
+--------------090608090409000108060703
+Content-Type: text/plain;
+ name="alternatives_no_smp.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="alternatives_no_smp.diff"
+
+Index: local/arch/i386/kernel/alternative.c
+===================================================================
+--- local.orig/arch/i386/kernel/alternative.c	2006-05-11 20:28:56.000000000 +0200
++++ local/arch/i386/kernel/alternative.c	2006-05-11 20:32:24.000000000 +0200
+@@ -118,6 +118,8 @@ void apply_alternatives(struct alt_instr
+ 	}
+ }
+ 
++#ifdef CONFIG_SMP
++
+ static void alternatives_smp_save(struct alt_instr *start, struct alt_instr *end)
+ {
+ 	struct alt_instr *a;
+@@ -283,10 +285,13 @@ void alternatives_smp_switch(int smp)
+ 	spin_unlock_irqrestore(&smp_alt, flags);
+ }
+ 
++#endif /* CONFIG_SMP */
++
+ void __init alternative_instructions(void)
+ {
+ 	apply_alternatives(__alt_instructions, __alt_instructions_end);
+ 
++#ifdef CONFIG_SMP
+ 	/* switch to patch-once-at-boottime-only mode and free the
+ 	 * tables in case we know the number of CPUs will never ever
+ 	 * change */
+@@ -318,4 +323,5 @@ void __init alternative_instructions(voi
+ 					    _text, _etext);
+ 		alternatives_smp_switch(0);
+ 	}
++#endif
+ }
+Index: local/arch/i386/kernel/module.c
+===================================================================
+--- local.orig/arch/i386/kernel/module.c	2006-05-11 20:28:56.000000000 +0200
++++ local/arch/i386/kernel/module.c	2006-05-11 20:29:00.000000000 +0200
+@@ -112,12 +112,14 @@ int module_finalize(const Elf_Ehdr *hdr,
+ 	char *secstrings = (void *)hdr + sechdrs[hdr->e_shstrndx].sh_offset;
+ 
+ 	for (s = sechdrs; s < sechdrs + hdr->e_shnum; s++) { 
+-		if (!strcmp(".text", secstrings + s->sh_name))
+-			text = s;
+ 		if (!strcmp(".altinstructions", secstrings + s->sh_name))
+ 			alt = s;
++#ifdef CONFIG_SMP
+ 		if (!strcmp(".smp_locks", secstrings + s->sh_name))
+ 			locks= s;
++		if (!strcmp(".text", secstrings + s->sh_name))
++			text = s;
++#endif
+ 	}
+ 
+ 	if (alt) {
+@@ -126,16 +128,20 @@ int module_finalize(const Elf_Ehdr *hdr,
+ 		apply_alternatives(aseg, aseg + alt->sh_size);
+ 	}
+ 	if (locks && text) {
++#ifdef CONFIG_SMP
+ 		void *lseg = (void *)locks->sh_addr;
+ 		void *tseg = (void *)text->sh_addr;
+ 		alternatives_smp_module_add(me, me->name,
+ 					    lseg, lseg + locks->sh_size,
+ 					    tseg, tseg + text->sh_size);
++#endif
+ 	}
+ 	return 0;
+ }
+ 
+ void module_arch_cleanup(struct module *mod)
+ {
++#ifdef CONFIG_SMP
+ 	alternatives_smp_module_del(mod);
++#endif
+ }
+
+--------------090608090409000108060703--

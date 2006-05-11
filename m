@@ -1,75 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWEKSpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWEKSqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750875AbWEKSpN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 14:45:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbWEKSpN
+	id S932084AbWEKSqM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 14:46:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932068AbWEKSqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 14:45:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52403 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750932AbWEKSpL (ORCPT
+	Thu, 11 May 2006 14:46:11 -0400
+Received: from news.cistron.nl ([62.216.30.38]:45798 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S1750987AbWEKSqI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 14:45:11 -0400
-Date: Thu, 11 May 2006 11:47:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, hch@lst.de, bcrl@kvack.org,
-       cel@citi.umich.edu
-Subject: Re: [PATCH 1/4] Vectorize aio_read/aio_write methods
-Message-Id: <20060511114743.53120432.akpm@osdl.org>
-In-Reply-To: <1147361939.12117.12.camel@dyn9047017100.beaverton.ibm.com>
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>
-	<1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
-	<1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com>
-	<1147361939.12117.12.camel@dyn9047017100.beaverton.ibm.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 11 May 2006 14:46:08 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: ext3 metadata performace
+Date: Thu, 11 May 2006 18:46:07 +0000 (UTC)
+Organization: Cistron
+Message-ID: <e400pf$ens$1@news.cistron.nl>
+References: <4463461C.3070201@conterra.de> <44635BA8.9060002@argo.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1147373167 15100 194.109.0.112 (11 May 2006 18:46:07 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: mikevs@n2o.xs4all.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
->
->  static ssize_t ep_aio_read_retry(struct kiocb *iocb)
->  {
->  	struct kiocb_priv	*priv = iocb->private;
-> -	ssize_t			status = priv->actual;
-> +	ssize_t			len, total;
->  
->  	/* we "retry" to get the right mm context for this: */
-> -	status = copy_to_user(priv->ubuf, priv->buf, priv->actual);
-> -	if (unlikely(0 != status))
-> -		status = -EFAULT;
-> -	else
-> -		status = priv->actual;
-> +
-> +	/* copy stuff into user buffers */
-> +	total = priv->actual;
-> +	len = 0;
-> +	for (i=0; i < priv->count; i++) {
-> +		ssize_t this = min(priv->iv[i].iov_len, total);
-> +
-> +		if (copy_to_user(priv->iv[i].iov_buf, priv->buf, this))
-> +			break;
-> +
-> +		total -= this;
-> +		len += this;
-> +		if (total <= 0)
-> +			break;
-> +	}
-> +
-> +	if (unlikely(len == 0))
-> +		len = -EFAULT;
+In article <44635BA8.9060002@argo.co.il>,
+Avi Kivity  <avi@argo.co.il> wrote:
+>Dieter Stuken wrote:
+>> after I switched from from ext2 to ext3 i observed some severe 
+>> performance degradation. Most discussion about this topic deals
+>> with tuning of data-io performance. My problem however is related to 
+>> metadata updates. When cloning (cp -al) or deleting directory trees I 
+>> find, that about 7200 files are created/deleted per minute. Seems
+>> this is related to some ex3 strategy, to wait for each metadata to be
+>> written to disk. Interestingly this occurs with my new hw-raid
+>> controller (3ware 9500S), which even has an battery buffered disk cache.
+>> Thus there is no need for synchronous IO anyway. If I disable the
+>> disk cache on my plain SATA disk using ext3, I also get this behavior.
+>>
+>Try increasing the journal size (mkfs -t ext3 -J size=20000) and see if 
+>that improves things.
 
-This is still wrong, isn't it?  Or am I looking at the same patch?
+Also, with 3ware, look in /sys/block/sd* and set queue_depth to
+254/(nr_arrays), and nr_requests to at least 2*queue_depth. Also
+try another I/O scheduler (deadline instead of as).
 
-There's no way in which `total' can go negative, so it'd be nicer to just
-test it for equality with zero.  Because if it goes unexpectedly negative,
-we _want_ the kernel to malfunction, rather than mysteriously covering
-things up.
+Mike.
 
-The final test there should be
-
-	if (unlikely(total != 0))
-
-yes?

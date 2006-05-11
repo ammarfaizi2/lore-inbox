@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030304AbWEKQLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030310AbWEKQO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030304AbWEKQLG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 12:11:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030305AbWEKQLG
+	id S1030310AbWEKQO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 12:14:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030309AbWEKQO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 12:11:06 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:22184 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030304AbWEKQLE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 12:11:04 -0400
-Subject: Re: [RFC] Hugetlb demotion for x86
-From: Adam Litke <agl@us.ibm.com>
-To: Christoph Lameter <christoph@engr.sgi.com>
-Cc: linux-mm@kvack.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0605101633140.7639@schroedinger.engr.sgi.com>
-References: <1147287400.24029.81.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0605101633140.7639@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Organization: IBM
-Date: Thu, 11 May 2006 11:10:58 -0500
-Message-Id: <1147363859.24029.134.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 11 May 2006 12:14:27 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:4111 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030308AbWEKQO1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 12:14:27 -0400
+Date: Thu, 11 May 2006 18:14:30 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Rik Bobbaers <Rik.Bobbaers@cc.kuleuven.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fix compiler warning in ip_nat_standalone.c
+Message-ID: <20060511161430.GY3570@stusta.de>
+References: <200605111729.48871.Rik.Bobbaers@cc.kuleuven.be>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200605111729.48871.Rik.Bobbaers@cc.kuleuven.be>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-10 at 16:42 -0700, Christoph Lameter wrote:
-> Seems that the code is not modifying x86 code but all code. 
+On Thu, May 11, 2006 at 05:29:48PM +0200, Rik Bobbaers wrote:
 
-Right.  It's definitely broken in that regard.  I sent it out in this
-condition so the patch was small, easy to review, and my approach would
-be easy to see.
-
-> An app should be getting an out of memory error and not a SIGBUS when 
-> running out of memory.
+> hey all,
 > 
-> I thought we fixed the SIGBUS problems and were now reporting out of 
-> memory? If there still is an issue then we better fix out of memory 
-> handling. Provide a way for the app to trap OOM conditions?
+> i just made small patch that fixes a compiler warning:
+>...
 
-Yes, the SIGBUS issues are "fixed".  Now the application is killed
-directly via VM_FAULT_OOM so it is not possible to handle the fault from
-userspace.  For my libhugetlbfs-based fallback approach, I needed to
-patch the kernel so that SIGBUS was delivered to the process like in the
-days of old.
+Already fixed in Linus' tree since one week.
+
+> harry
+> aka Rik Bobbaers
+
+cu
+Adrian
 
 -- 
-Adam Litke - (agl at us.ibm.com)
-IBM Linux Technology Center
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

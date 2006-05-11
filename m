@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWEKSqM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWEKSuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932084AbWEKSqM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 14:46:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932068AbWEKSqL
+	id S932123AbWEKSuT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 14:50:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWEKSuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 14:46:11 -0400
-Received: from news.cistron.nl ([62.216.30.38]:45798 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S1750987AbWEKSqI (ORCPT
+	Thu, 11 May 2006 14:50:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55477 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932123AbWEKSuS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 14:46:08 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: ext3 metadata performace
-Date: Thu, 11 May 2006 18:46:07 +0000 (UTC)
-Organization: Cistron
-Message-ID: <e400pf$ens$1@news.cistron.nl>
-References: <4463461C.3070201@conterra.de> <44635BA8.9060002@argo.co.il>
+	Thu, 11 May 2006 14:50:18 -0400
+Date: Thu, 11 May 2006 11:52:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, hch@lst.de, bcrl@kvack.org,
+       cel@citi.umich.edu
+Subject: Re: [PATCH 1/4] Vectorize aio_read/aio_write methods
+Message-Id: <20060511115251.5e008c5d.akpm@osdl.org>
+In-Reply-To: <1147361939.12117.12.camel@dyn9047017100.beaverton.ibm.com>
+References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>
+	<1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
+	<1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com>
+	<1147361939.12117.12.camel@dyn9047017100.beaverton.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1147373167 15100 194.109.0.112 (11 May 2006 18:46:07 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@n2o.xs4all.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <44635BA8.9060002@argo.co.il>,
-Avi Kivity  <avi@argo.co.il> wrote:
->Dieter Stuken wrote:
->> after I switched from from ext2 to ext3 i observed some severe 
->> performance degradation. Most discussion about this topic deals
->> with tuning of data-io performance. My problem however is related to 
->> metadata updates. When cloning (cp -al) or deleting directory trees I 
->> find, that about 7200 files are created/deleted per minute. Seems
->> this is related to some ex3 strategy, to wait for each metadata to be
->> written to disk. Interestingly this occurs with my new hw-raid
->> controller (3ware 9500S), which even has an battery buffered disk cache.
->> Thus there is no need for synchronous IO anyway. If I disable the
->> disk cache on my plain SATA disk using ext3, I also get this behavior.
->>
->Try increasing the journal size (mkfs -t ext3 -J size=20000) and see if 
->that improves things.
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+> +	size_t count = 0;
+> +
+> +	for (seg = 0; seg < nr_segs; seg++)
+> +		count += iov[seg].iov_len;
 
-Also, with 3ware, look in /sys/block/sd* and set queue_depth to
-254/(nr_arrays), and nr_requests to at least 2*queue_depth. Also
-try another I/O scheduler (deadline instead of as).
-
-Mike.
+We have iov_length() for this.  pls review all patches, send updates if
+appropriate.
 

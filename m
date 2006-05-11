@@ -1,59 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbWEKPbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030267AbWEKPhD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030263AbWEKPbY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 11:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030256AbWEKPbY
+	id S1030267AbWEKPhD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 11:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030275AbWEKPhD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 11:31:24 -0400
-Received: from rusty.kulnet.kuleuven.ac.be ([134.58.240.42]:128 "EHLO
-	rusty.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id S1030264AbWEKPbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 11:31:23 -0400
-From: Rik Bobbaers <Rik.Bobbaers@cc.kuleuven.be>
-Organization: KULueven - LUDIT
-To: linux-kernel@vger.kernel.org
-Subject: fix compiler warning in ip_nat_standalone.c
-Date: Thu, 11 May 2006 17:29:48 +0200
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Thu, 11 May 2006 11:37:03 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:20182 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030267AbWEKPhB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 11:37:01 -0400
+Subject: [PATCH 0/4] VFS fileop cleanups by collapsing AIO and vector IO
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org, christoph <hch@lst.de>, Benjamin LaHaise <bcrl@kvack.org>,
+       cel@citi.umich.edu, pbadari@us.ibm.com
+In-Reply-To: <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
+References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>
+	 <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Thu, 11 May 2006 08:38:05 -0700
+Message-Id: <1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605111729.48871.Rik.Bobbaers@cc.kuleuven.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hey all,
+Hi,
 
-i just made small patch that fixes a compiler warning:
+These series of patches clean up and streamlines generic_file_*
+interfaces in filemap.c. 
 
---- net/ipv4/netfilter/ip_nat_standalone.c~	2006-05-11 03:56:24.000000000 
-+0200
-+++ net/ipv4/netfilter/ip_nat_standalone.c	2006-05-11 17:17:22.000000000 +0200
-@@ -219,8 +219,10 @@ ip_nat_out(unsigned int hooknum,
- 	   const struct net_device *out,
- 	   int (*okfn)(struct sk_buff *))
- {
-+#ifdef CONFIG_XFRM
- 	struct ip_conntrack *ct;
- 	enum ip_conntrack_info ctinfo;
-+#endif
- 	unsigned int ret;
- 
- 	/* root is playing with raw sockets. */
+First (3) patches collapses all the vectored IO support into
+single set of file-operation method using aio_read/aio_write.
+This work was originally suggested & started by Christoph Hellwig,
+when Zach Brown tried to add vectored support for AIO.
 
-or at http://harry.ulyssis.org/ip_nat.diff
+Patch 4, sets all the filesystems .read/.write/.aio_read/.aio_write
+methods correctly to allow us to cleanup most generic_file_*_read/write
+interfaces in filemap.c
 
--- 
-harry
-aka Rik Bobbaers
+After this patch set, we should end up with ONLY following 
+read/write (exported) interfaces in filemap.c:
 
-K.U.Leuven - LUDIT          -=- Tel: +32 485 52 71 50
-Rik.Bobbaers@cc.kuleuven.be -=- http://harry.ulyssis.org
+	generic_file_aio_read() - read handler
+	generic_file_aio_write() - write handler
+	generic_file_aio_write_nolock() - no lock write handler
 
-"Work hard and do your best, it'll make it easier for the rest"
--- Garfield
+Here is the summary:
 
-Disclaimer: http://www.kuleuven.be/cwis/email_disclaimer.htm
+[PATCH 1/4] Vectorize aio_read/aio_write methods
+
+[PATCH 2/4] Remove readv/writev methods and use aio_read/aio_write
+instead.
+
+[PATCH 3/4] Core aio changes to support vectored AIO.
+
+[PATCH 4/4] Streamline generic_file_* interfaces and filemap cleanups 
+
+BTW, Chuck Lever is actually re-arranging NFS DIO, AIO code to
+fit into this model.
+
+Thanks to Chuck Lever and Shaggy for tracking down the latest
+set of issues. Big Thanks Christoph Hellwig for all his ideas
+and suggestions.
+
+I ran various testing including LTP on this series. Andrew,
+can you include these in -mm tree ?
+
+Thanks,
+Badari
+
 

@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030253AbWEKPPx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030258AbWEKPSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030253AbWEKPPx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 11:15:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030257AbWEKPPx
+	id S1030258AbWEKPSV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 11:18:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030257AbWEKPSV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 11:15:53 -0400
-Received: from gold.veritas.com ([143.127.12.110]:14664 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1030253AbWEKPPw (ORCPT
+	Thu, 11 May 2006 11:18:21 -0400
+Received: from mail.gmx.de ([213.165.64.20]:3822 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030258AbWEKPSU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 11:15:52 -0400
-X-IronPort-AV: i="4.05,116,1146466800"; 
-   d="scan'208"; a="59423634:sNHT28593516"
-Date: Thu, 11 May 2006 16:15:43 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Adam Litke <agl@us.ibm.com>
-cc: Christoph Hellwig <hch@infradead.org>, linux-mm@kvack.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Hugetlb demotion for x86
-In-Reply-To: <1147297535.24029.114.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0605111607250.24407@blonde.wat.veritas.com>
-References: <1147287400.24029.81.camel@localhost.localdomain> 
- <20060510200516.GA30346@infradead.org>  <1147293156.24029.95.camel@localhost.localdomain>
-  <20060510204928.GA31315@infradead.org> <1147297535.24029.114.camel@localhost.localdomain>
+	Thu, 11 May 2006 11:18:20 -0400
+X-Authenticated: #31060655
+Message-ID: <4463556C.3040107@gmx.net>
+Date: Thu, 11 May 2006 17:17:00 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060316 SUSE/1.0-27 SeaMonkey/1.0
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 11 May 2006 15:15:51.0860 (UTC) FILETIME=[CA792740:01C6750D]
+To: Greg KH <gregkh@suse.de>
+CC: Dave Jones <davej@redhat.com>, Pavel Machek <pavel@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, trenn@suse.de,
+       thoenig@suse.de
+Subject: Re: [RFC] [PATCH] Execute PCI quirks on resume from suspend-to-RAM
+References: <446139FF.205@gmx.net> <20060510093942.GA12259@elf.ucw.cz> <4461C0CA.8080803@gmx.net> <20060510205600.GB23446@suse.de> <44625CE9.2060204@gmx.net> <20060511023109.GB11693@redhat.com> <4462B737.80108@gmx.net>
+In-Reply-To: <4462B737.80108@gmx.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 May 2006, Adam Litke wrote:
-> 
-> Strict overcommit is there for shared mappings.  When private mapping
+Suggestion for a minimal fix for -stable:
 
-I presume that by "strict overcommit" you mean "strict no overcommit".
+Do not enable the SMBus device on Asus boards if software suspend
+is used. We do not reenable the device on resume, leading to all sorts
+of undesirable effects, the worst being a total fan failure after
+resume on my Samsung P35 laptop.
 
-> support was added, people agreed that full overcommit should apply to
-> private mappings for the same reasons normal page overcommit is desired.
+Signed-off-by: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
 
-I'm not sure how wide that agreement was.  But what I wanted to say is...
+--- linux-2.6.16.14/drivers/pci/quirks.c.vanilla	2006-05-05 02:03:45.000000000 +0200
++++ linux-2.6.16.14/drivers/pci/quirks.c	2006-05-11 17:09:15.000000000 +0200
+@@ -861,6 +861,8 @@
+ }
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82375,	quirk_eisa_bridge );
 
-> For one: an application using lots of private huge pages should not be
-> prohibited from forking if it's likely to just exec a small helper
-> program.
++#ifndef CONFIG_SOFTWARE_SUSPEND
++
+ /*
+  * On ASUS P4B boards, the SMBus PCI Device within the ICH2/4 southbridge
+  * is not activated. The myth is that Asus said that they do not want the
+@@ -1008,6 +1010,8 @@
+ }
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH6_1,	asus_hides_smbus_lpc_ich6 );
 
-This is an excellent use for madvise(start, length, MADV_DONTFORK).
-Though it was added mainly for RDMA issues, it's a great way for a
-program with a huge commitment to exclude areas of its address space
-from the fork, so making that fork much more likely to succeed.
++#endif
++
+ /*
+  * SiS 96x south bridge: BIOS typically hides SMBus device...
+  */
 
-Hugh
+
+-- 
+http://www.hailfinger.org/

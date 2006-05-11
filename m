@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965136AbWEKGLn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965140AbWEKGOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965136AbWEKGLn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 02:11:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbWEKGLn
+	id S965140AbWEKGOM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 02:14:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965142AbWEKGOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 02:11:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14998 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965136AbWEKGLn (ORCPT
+	Thu, 11 May 2006 02:14:12 -0400
+Received: from gate.crashing.org ([63.228.1.57]:492 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S965140AbWEKGOL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 02:11:43 -0400
-Date: Wed, 10 May 2006 23:06:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: linux-kernel@vger.kernel.org, zwane@linuxpower.ca, vatsa@in.ibm.com,
-       ashok.raj@intel.com
-Subject: Re: [PATCH 0/10] bulk cpu removal support
-Message-Id: <20060510230606.076271b2.akpm@osdl.org>
-In-Reply-To: <1147067137.2760.77.camel@sli10-desk.sh.intel.com>
-References: <1147067137.2760.77.camel@sli10-desk.sh.intel.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 11 May 2006 02:14:11 -0400
+Subject: Re: [RFC][PATCH] Cascaded interrupts: a simple solution
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <1147325215.30380.45.camel@localhost.localdomain>
+References: <1147325215.30380.45.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 11 May 2006 16:13:43 +1000
+Message-Id: <1147328023.30380.59.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shaohua Li <shaohua.li@intel.com> wrote:
->
-> CPU hotremove will migrate tasks and redirect interrupts off dead cpu.
-> To remove multiple CPUs, we should iteratively do single cpu removal.
-> If tasks and interrupts are migrated to a cpu which will be soon
-> removed, then we will trash tasks and interrupts again. The following
-> patches allow remove several cpus one time. It's fast and avoids
-> unnecessary repeated trash tasks and interrupts. This will help NUMA
-> style hardware removal and SMP suspend/resume. Comments and suggestions
-> are appreciated.
 
-This seems an awful lot of code for something which happens so infrequently.
+> Index: linux-work/kernel/irq/manage.c
+> ===================================================================
+> --- linux-work.orig/kernel/irq/manage.c	2006-05-11 11:45:09.000000000 +1000
+> +++ linux-work/kernel/irq/manage.c	2006-05-11 12:00:52.000000000 +1000
+> @@ -371,6 +371,13 @@ int request_irq(unsigned int irq,
+>  	if (!handler)
+>  		return -EINVAL;
+>  
+> +	/*
+> +	 * SA_CASCADE implies SA_INTERRUPT (that is, the demux itself happens
+> +	 * with interrupts disabled, the final handler is still called with
+> +	 */
+> +	if (irqflags & SA_CASCADEIRQ)
+> +		irqflags |= SA_INTERRUPT;
+> +
 
-How big is the problem you're fixing here, and what are the
-user-observeable effects of these changes?
+Oh and that bit isn't actually necessary ...
+
+Ben.
+
+

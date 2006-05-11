@@ -1,48 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030349AbWEKQtg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030342AbWEKQxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030349AbWEKQtg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 12:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030354AbWEKQtg
+	id S1030342AbWEKQxm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 12:53:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030355AbWEKQxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 12:49:36 -0400
-Received: from iabervon.org ([66.92.72.58]:33550 "EHLO iabervon.org")
-	by vger.kernel.org with ESMTP id S1030349AbWEKQtf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 12:49:35 -0400
-Date: Thu, 11 May 2006 12:50:30 -0400 (EDT)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.16.16
-In-Reply-To: <296295514.20060511123419@dns.toxicfilms.tv>
-Message-ID: <Pine.LNX.4.64.0605111246150.6713@iabervon.org>
-References: <20060511022547.GE25010@moss.sous-sol.org>
- <296295514.20060511123419@dns.toxicfilms.tv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 11 May 2006 12:53:42 -0400
+Received: from mga06.intel.com ([134.134.136.21]:48728 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1030342AbWEKQxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 12:53:42 -0400
+TrustInternalSourcedMail: True
+X-ExchangeTrusted: True
+X-IronPort-AV: i="4.05,116,1146466800"; 
+   d="scan'208"; a="34842530:sNHT140893977"
+Date: Thu, 11 May 2006 09:53:09 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Shaohua Li <shaohua.li@intel.com>, linux-kernel@vger.kernel.org,
+       zwane@linuxpower.ca, vatsa@in.ibm.com, ashok.raj@intel.com
+Subject: Re: [PATCH 0/10] bulk cpu removal support
+Message-ID: <20060511095308.A15483@unix-os.sc.intel.com>
+References: <1147067137.2760.77.camel@sli10-desk.sh.intel.com> <20060510230606.076271b2.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060510230606.076271b2.akpm@osdl.org>; from akpm@osdl.org on Wed, May 10, 2006 at 11:06:06PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 May 2006, Maciej Soltysiak wrote:
+On Wed, May 10, 2006 at 11:06:06PM -0700, Andrew Morton wrote:
+Hi Andrew,
 
-> Hello Chris,
+> Shaohua Li <shaohua.li@intel.com> wrote:
+> >
+> > CPU hotremove will migrate tasks and redirect interrupts off dead cpu.
 > 
-> Thursday, May 11, 2006, 4:25:47 AM, you wrote:
-> > Trond Myklebust:
-> >       fs/locks.c: Fix lease_init (CVE-2006-1860)
-> I want to say that I like the quick stable cycle. People like to see
-> fixes. Big thanks!
+> This seems an awful lot of code for something which happens so infrequently.
 > 
-> However...
-> I must say that usually I know if I need the the update,
-> eg. I do not care for SCTP that much so I could skip that update.
-> 
-> But this one looks important, something that every kernel build
-> has in its code path, however I am unable to say if I need it badly
-> or maybe not.
+> How big is the problem you're fixing here, and what are the
+> user-observeable effects of these changes?
 
-It looks from the commit that it is a user-triggerable lockup and memory 
-leak. Perhaps the posting of the patch should include the comments?
+This is useful when say a NUMA node is being removed. With new multi-core
+CPUs comming up, considering a 2 core with HT, we could have up to 4 logical
+per socket. On NUMA node with 4 sockets, a node removal will mean we 
+do 16 single cpu offlines. Each time the process and interrupts could
+end up on a CPU that might be removed just immediatly.
 
-	-Daniel
-*This .sig left intentionally blank*
+The same is also useful for SMP Suspend/resume cases since the logical offline
+is same here as well.
+
+Even thought the code changes seem a lot, most of it is just preparation of
+functions ready to accept a cpumask_t instead of a single cpu like earlier.
+The reason we split them to smaller chunks so the scope of change is well
+understood with each patch.
+
+The major changes are
+
+ - stop machine to run cpu offline functions on each cpu going offline
+ - prepare offline functions in offline path to take cpumask_t
+ - Some task migrate dead lock removal consideration that we ran into
+    during stress test.
+
+I know Shaohua ran tests for more than 20+ hrs with the patch, both on i386 
+and x86_64.
+
+once we get some time deltas on a bigger machine it will help a lot. 
+Iam also trying to check with some OEM';s who have such large machines for
+some data.. keep posted.
+
+ashokr
+
+-- 
+Cheers,
+Ashok Raj
+- Open Source Technology Center

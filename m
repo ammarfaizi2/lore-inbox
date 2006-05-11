@@ -1,119 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWEKUTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWEKUab@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbWEKUTI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 16:19:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWEKUTI
+	id S1750768AbWEKUab (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 16:30:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWEKUab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 16:19:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:976 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750763AbWEKUTH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 16:19:07 -0400
-Date: Thu, 11 May 2006 13:21:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, hch@lst.de, bcrl@kvack.org,
-       cel@citi.umich.edu
-Subject: Re: [PATCH 1/4] Vectorize aio_read/aio_write methods
-Message-Id: <20060511132136.569d59c1.akpm@osdl.org>
-In-Reply-To: <1147374464.12421.24.camel@dyn9047017100.beaverton.ibm.com>
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>
-	<1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
-	<1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com>
-	<1147361939.12117.12.camel@dyn9047017100.beaverton.ibm.com>
-	<20060511114743.53120432.akpm@osdl.org>
-	<1147374464.12421.24.camel@dyn9047017100.beaverton.ibm.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 11 May 2006 16:30:31 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:55502 "EHLO
+	dwalker1.mvista.com") by vger.kernel.org with ESMTP
+	id S1750768AbWEKUaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 16:30:30 -0400
+Date: Thu, 11 May 2006 13:30:13 -0700
+Message-Id: <200605112030.k4BKUDDe011199@dwalker1.mvista.com>
+From: Daniel Walker <dwalker@mvista.com>
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: [PATCH -mm] BusLogic gcc 4.1 warning fixes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
->
-> On Thu, 2006-05-11 at 11:47 -0700, Andrew Morton wrote:
-> > Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> > >
-> > >  static ssize_t ep_aio_read_retry(struct kiocb *iocb)
-> > >  {
-> > >  	struct kiocb_priv	*priv = iocb->private;
-> > > -	ssize_t			status = priv->actual;
-> > > +	ssize_t			len, total;
-> > >  
-> > >  	/* we "retry" to get the right mm context for this: */
-> > > -	status = copy_to_user(priv->ubuf, priv->buf, priv->actual);
-> > > -	if (unlikely(0 != status))
-> > > -		status = -EFAULT;
-> > > -	else
-> > > -		status = priv->actual;
-> > > +
-> > > +	/* copy stuff into user buffers */
-> > > +	total = priv->actual;
-> > > +	len = 0;
-> > > +	for (i=0; i < priv->count; i++) {
-> > > +		ssize_t this = min(priv->iv[i].iov_len, total);
-> > > +
-> > > +		if (copy_to_user(priv->iv[i].iov_buf, priv->buf, this))
-> > > +			break;
-> > > +
-> > > +		total -= this;
-> > > +		len += this;
-> > > +		if (total <= 0)
-> > > +			break;
-> > > +	}
-> > > +
-> > > +	if (unlikely(len == 0))
-> > > +		len = -EFAULT;
-> > 
-> > This is still wrong, isn't it?  Or am I looking at the same patch?
-> > 
-> > There's no way in which `total' can go negative, so it'd be nicer to just
-> > test it for equality with zero.  Because if it goes unexpectedly negative,
-> > we _want_ the kernel to malfunction, rather than mysteriously covering
-> > things up.
-> > 
-> > The final test there should be
-> > 
-> > 	if (unlikely(total != 0))
-> > 
-> > yes?
-> 
-> No. The original check is correct - we want to return EFAULT if
-> copy_to_user() failed and we haven't copied anything so far.
-> If we copied anything so far, we should return, that many bytes.
-> (like short-io).
 
-oic.  And we're sure that we cannot call into this code if someone's trying
-a zero-sized read?
+Here's another attempt . 
 
-Either way, the below (which is faster!) will fix, yes?
+- Reworked all the very long lines in that block (this drivers full of them though)
+- Returns an error in three places that it didn't before.
+- Properly clean up after a scsi_add_host() failure .
 
---- 25/drivers/usb/gadget/inode.c~vectorize-aio_read-aio_write-methods-fix	Thu May 11 11:53:41 2006
-+++ 25-akpm/drivers/usb/gadget/inode.c	Thu May 11 13:19:45 2006
-@@ -567,18 +567,18 @@ static ssize_t ep_aio_read_retry(struct 
- 	for (i = 0; i < priv->count; i++) {
- 		ssize_t this = min(priv->iv[i].iov_len, total);
+Signed-Off-By: Daniel Walker <dwalker@mvista.com>
+
+Index: linux-2.6.16/drivers/scsi/BusLogic.c
+===================================================================
+--- linux-2.6.16.orig/drivers/scsi/BusLogic.c
++++ linux-2.6.16/drivers/scsi/BusLogic.c
+@@ -2177,6 +2177,7 @@ static int __init BusLogic_init(void)
+ {
+ 	int BusLogicHostAdapterCount = 0, DriverOptionsIndex = 0, ProbeIndex;
+ 	struct BusLogic_HostAdapter *PrototypeHostAdapter;
++	int ret = 0;	
  
--		if (copy_to_user(priv->iv[i].iov_buf, priv->buf, this))
-+		if (copy_to_user(priv->iv[i].iov_buf, priv->buf, this)) {
-+			if (len == 0)
-+				len = -EFAULT;
- 			break;
-+		}
- 
- 		total -= this;
- 		len += this;
--		if (total <= 0)
-+		if (total == 0)
- 			break;
+ #ifdef MODULE
+ 	if (BusLogic)
+@@ -2282,26 +2283,50 @@ static int __init BusLogic_init(void)
+ 		   Create the Initial CCBs, Initialize the Host Adapter, and finally
+ 		   perform Target Device Inquiry.
+ 		 */
+-		if (BusLogic_ReadHostAdapterConfiguration(HostAdapter) &&
+-		    BusLogic_ReportHostAdapterConfiguration(HostAdapter) && BusLogic_AcquireResources(HostAdapter) && BusLogic_CreateInitialCCBs(HostAdapter) && BusLogic_InitializeHostAdapter(HostAdapter) && BusLogic_TargetDeviceInquiry(HostAdapter)) {
++		if (BusLogic_ReadHostAdapterConfiguration(HostAdapter) && 
++		    BusLogic_ReportHostAdapterConfiguration(HostAdapter) && 
++		    BusLogic_AcquireResources(HostAdapter) && 
++		    BusLogic_CreateInitialCCBs(HostAdapter) && 
++		    BusLogic_InitializeHostAdapter(HostAdapter) && 
++		    BusLogic_TargetDeviceInquiry(HostAdapter)) {
+ 			/*
+ 			   Initialization has been completed successfully.  Release and
+ 			   re-register usage of the I/O Address range so that the Model
+ 			   Name of the Host Adapter will appear, and initialize the SCSI
+ 			   Host structure.
+ 			 */
+-			release_region(HostAdapter->IO_Address, HostAdapter->AddressCount);
+-			if (!request_region(HostAdapter->IO_Address, HostAdapter->AddressCount, HostAdapter->FullModelName)) {
+-				printk(KERN_WARNING "BusLogic: Release and re-register of " "port 0x%04lx failed \n", (unsigned long) HostAdapter->IO_Address);
++			release_region(HostAdapter->IO_Address, 
++				       HostAdapter->AddressCount);
++			if (!request_region(HostAdapter->IO_Address, 
++					    HostAdapter->AddressCount, 
++					    HostAdapter->FullModelName)) {
++				printk(KERN_WARNING 
++					"BusLogic: Release and re-register of " 
++					"port 0x%04lx failed \n", 
++					(unsigned long)HostAdapter->IO_Address);
+ 				BusLogic_DestroyCCBs(HostAdapter);
+ 				BusLogic_ReleaseResources(HostAdapter);
+ 				list_del(&HostAdapter->host_list);
+ 				scsi_host_put(Host);
++				ret = -ENOMEM;
+ 			} else {
+-				BusLogic_InitializeHostStructure(HostAdapter, Host);
+-				scsi_add_host(Host, HostAdapter->PCI_Device ? &HostAdapter->PCI_Device->dev : NULL);
+-				scsi_scan_host(Host);
+-				BusLogicHostAdapterCount++;
++				BusLogic_InitializeHostStructure(HostAdapter, 
++								 Host);
++				if (scsi_add_host(Host, HostAdapter->PCI_Device 
++						? &HostAdapter->PCI_Device->dev 
++						  : NULL)) {
++					printk(KERN_WARNING 
++					       "BusLogic: scsi_add_host()"
++					       "failed!\n");
++					BusLogic_DestroyCCBs(HostAdapter);
++					BusLogic_ReleaseResources(HostAdapter);
++					list_del(&HostAdapter->host_list);
++					scsi_host_put(Host);
++					ret = -ENODEV;
++				} else {
++					scsi_scan_host(Host);
++					BusLogicHostAdapterCount++;
++				}
+ 			}
+ 		} else {
+ 			/*
+@@ -2316,12 +2341,13 @@ static int __init BusLogic_init(void)
+ 			BusLogic_ReleaseResources(HostAdapter);
+ 			list_del(&HostAdapter->host_list);
+ 			scsi_host_put(Host);
++			ret = -ENODEV;
+ 		}
  	}
+ 	kfree(PrototypeHostAdapter);
+ 	kfree(BusLogic_ProbeInfoList);
+ 	BusLogic_ProbeInfoList = NULL;
+-	return 0;
++	return ret;
+ }
  
--	if (unlikely(len == 0))
--		len = -EFAULT;
--
- 	kfree(priv->buf);
- 	kfree(priv);
- 	aio_put_req(iocb);
-_
-
+ 
+@@ -2955,6 +2981,7 @@ static int BusLogic_QueueCommand(struct 
+ }
+ 
+ 
++#if 0
+ /*
+   BusLogic_AbortCommand aborts Command if possible.
+ */
+@@ -3025,6 +3052,7 @@ static int BusLogic_AbortCommand(struct 
+ 	return SUCCESS;
+ }
+ 
++#endif
+ /*
+   BusLogic_ResetHostAdapter resets Host Adapter if possible, marking all
+   currently executing SCSI Commands as having been Reset.

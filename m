@@ -1,67 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751558AbWEKL7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751630AbWEKMB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751558AbWEKL7K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 07:59:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751555AbWEKL7K
+	id S1751630AbWEKMB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 08:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751632AbWEKMB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 07:59:10 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:44701 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S1751554AbWEKL7I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 07:59:08 -0400
-Date: Thu, 11 May 2006 13:51:17 +0200
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, mikem@beardog.cca.cpqcorp.net,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] make kernel ignore bogus partitions
-Message-ID: <20060511115117.GA870@apps.cwi.nl>
-References: <20060503210055.GB31048@beardog.cca.cpqcorp.net> <20060509124138.43e4bac0.akpm@osdl.org> <20060509224848.GA29754@apps.cwi.nl> <20060511040014.66ea16fc.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060511040014.66ea16fc.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+	Thu, 11 May 2006 08:01:59 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:26025 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751621AbWEKMB6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 08:01:58 -0400
+Date: Thu, 11 May 2006 08:01:48 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Mark Hounschell <markh@compro.net>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: rt20 patch question
+In-Reply-To: <44631F1B.8000100@compro.net>
+Message-ID: <Pine.LNX.4.58.0605110739520.5610@gandalf.stny.rr.com>
+References: <446089CF.3050809@compro.net> <1147185483.21536.13.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+ <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
+ <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
+ <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
+ <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101446090.22959@gandalf.stny.rr.com>
+ <44623ED4.1030103@compro.net> <44631F1B.8000100@compro.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 11, 2006 at 04:00:14AM -0700, Andrew Morton wrote:
+On Thu, 11 May 2006, Mark Hounschell wrote:
 
-> > Yes, it should.
-> > And no "ignoring". And no "continue". E.g.:
-> > 
-> > 	printk(" %s: warning: p%d exceeds device capacity.\n", ...);
-> > 
-> 
-> So you're saying that after detecting this inconsistency we should proceed
-> to use the partition anyway?
-> 
-> For what reason?
+> Mark Hounschell wrote:
+>
+> This is with frame pointers on but doesn't look any more revealing to
+> me. After this one my network connection into the emulation was broken
+> BTW. And yes hard and soft irqs are threaded, preemptable-kernel, and
+> classic RCU
+>
+> BUG: scheduling while atomic: softirq-timer/1/0x00000100/15
+> caller is schedule+0x33/0xf0
+>  [<b01041c9>] show_trace+0xd/0xf (8)
+>  [<b01041e2>] dump_stack+0x17/0x19 (12)
+>  [<b03112ec>] __schedule+0x517/0x95b (96)
+>  [<b031188f>] schedule+0x33/0xf0 (28)
+>  [<b014381f>] synchronize_irq+0x94/0xb9 (40)
+>  [<b0143943>] disable_irq+0x31/0x35 (16)
+>  [<f0a12715>] vortex_timer+0xa1/0x55b [3c59x] (72)
+>  [<b01261d5>] run_timer_softirq+0x1ce/0x3de (56)
+>  [<b012212c>] ksoftirqd+0x110/0x1cb (60)
+>  [<b012f851>] kthread+0xc8/0xcc (32)
+>  [<b0100e15>] kernel_thread_helper+0x5/0xb (268935196)
 
-The normal situation is that partitions are contained within
-the disk. In the normal situation the test is superfluous.
+Nope, this trace is _a_lot_ better, the previous trace had a lot of
+garbage in it.
 
-Suppose the test fails. Why might that be? There isn't really
-a good scenario where this is a mistake. In all the (rare) cases
-that I can imagine, it would make matters worse to reject the
-partition and make access impossible (or at least more difficult).
+Anyway, I already figured out the problem from the last dump. Could you
+try the patch below to see if it fixes it.
 
-Case 1: The kernel is mistaken about the size of the disk.
-(There are commands to clip a disk to a certain capacity,
-there are jumpers to tell a disk that it should report a certain
-capacity etc. Usually this is because of BIOS bugs. In bad cases
-the machine will crash in the BIOS and hence fail to boot if
-the disk reports full capacity.)
-In such cases actually accessing the blocks of the partition
-may work fine, or may work fine after running an unclip utility.
-I wrote "setmax" some years ago precisely for this reason.
+>
+> I hope it was OK to add Ingo to the CC list?
+>
 
-Case 2: There was a messy partition table (maybe just a rounding
-error) but the actual filesystem on the partition is contained
-in the physical disk. Now using the filesystem goes without problem.
+Yep, that's fine, in fact, he should have been added.
 
-Case 3: Both partition and filesystem extend beyond the end of the disk.
-In forensic or debugging situations one often uses a copy of the start
-of a disk. Now access beyond the end gives an expected I/O error.
+Try this patch to see if it fixes that bug.
 
-Andries
+-- Steve
+
+Index: linux-2.6.16-rt20/kernel/sched.c
+===================================================================
+--- linux-2.6.16-rt20.orig/kernel/sched.c	2006-05-10 16:23:15.000000000 -0400
++++ linux-2.6.16-rt20/kernel/sched.c	2006-05-10 16:28:31.000000000 -0400
+@@ -3316,7 +3316,8 @@ void __sched __schedule(void)
+ 	/*
+ 	 * Test if we are atomic.
+ 	 */
+-	if (unlikely(in_atomic())) {
++	if (unlikely(in_atomic()) &&
++	    (!hardirq_preemption || (preempt_count() & PREEMPT_MASK))) {
+ 		stop_trace();
+ 		printk(KERN_ERR "BUG: scheduling while atomic: "
+ 			"%s/0x%08x/%d\n",

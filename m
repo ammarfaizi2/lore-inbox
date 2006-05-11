@@ -1,100 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965153AbWEKGez@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965154AbWEKGgn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965153AbWEKGez (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 02:34:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbWEKGey
+	id S965154AbWEKGgn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 02:36:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbWEKGgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 02:34:54 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:2963 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965153AbWEKGey (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 02:34:54 -0400
-Date: Wed, 10 May 2006 23:34:27 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: akpm@osdl.org, bunk@stusta.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/17] Infrastructure to mark exported symbols as
- unused-for-removal-soon
-Message-Id: <20060510233427.4306422b.pj@sgi.com>
-In-Reply-To: <1146581587.32045.41.camel@laptopd505.fenrus.org>
-References: <1146581587.32045.41.camel@laptopd505.fenrus.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 11 May 2006 02:36:42 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:24034 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S965154AbWEKGgm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 02:36:42 -0400
+Date: Thu, 11 May 2006 02:36:03 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: Daniel Walker <dwalker@mvista.com>, Adrian Bunk <bunk@stusta.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
+In-Reply-To: <20060510212058.GE27946@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.58.0605110223540.925@gandalf.stny.rr.com>
+References: <1147257266.17886.3.camel@localhost.localdomain>
+ <1147271489.21536.70.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+ <1147273787.17886.46.camel@localhost.localdomain>
+ <1147273598.21536.92.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+ <Pine.LNX.4.58.0605101116590.5532@gandalf.stny.rr.com> <20060510162404.GR3570@stusta.de>
+ <Pine.LNX.4.58.0605101506540.22959@gandalf.stny.rr.com>
+ <1147290577.21536.151.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+ <Pine.LNX.4.58.0605101636580.22959@gandalf.stny.rr.com>
+ <1147295515.21536.168.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+ <20060510212058.GE27946@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan wrote:
-> This is patch one in a series of 17; to not overload lkml the other
-> 16 will be mailed direct; people who want to see them all can see
-> them at http://www.fenrus.org/unused
 
-Well ... here's one case where your patch series is broken.
+On Wed, 10 May 2006, Al Viro wrote:
 
-Argh - I almost missed this one.  My mailer is setup to tag all
-incoming lkml email that mentions the magic word 'cpuset'.  But
-it is not setup to catch indirect patches, needless to say.
+> On Wed, May 10, 2006 at 02:11:54PM -0700, Daniel Walker wrote:
+> > > I really don't see why it couldn't be added.  What's the problem with it?
+> > >
+> > > I mean, I see lots of advantages, and really no disadvantages.
+>
+> Your vision is quite selective, then.
 
-One of your proposed changes (the only one I reviewed) removed the only
-EXPORT_SYMBOL_GPL in kernel/cpuset.c.  That EXPORT is needed because
-the routine in question is called from inlines which modules use.
+And maybe so is yours.
 
-I can't help but wonder how many more such cases your patches miss.
+>
+> > We are in complete agreement .. The only disadvantage is maybe we cover
+> > up and real error
 
-The details ...
+I disagree here that it covers up any bug. See below.
 
-Your patch includes this change:
+>
+> ... which is more than enough to veto it.  However, that is not all.
+> Consider the following scenario:
+>
+> 1) gcc gives false positive
+> 2) tosser on a rampage "fixes" it
+> 3) code is chaged a month later
+> 4) a real bug is introduced - one that would be _really_ visible to gcc,
+> with "is used" in a warning
+> 5) thanks to aforementioned tosser, that bug remains hidden.
 
+What's the difference in seeing a warning in a compile, and noticing that
+there's a wrapper around a variable?  In fact, that wrapper is more
+of a flag that something might be broken than a warning that everyone is
+use to seeing.  In step 3, the code that is changed, should either remove
+the wrapper on the variable, or recompile with the wrapper defaulted to
+warn.  The bug is never hidden due to the fact that you can keep the
+warnings on.
 
-+++++++++++++++++++++++ begin +++++++++++++++++++++++
-Index: linux-2.6.17-rc3-mm1-unused/kernel/cpuset.c
-===================================================================
---- linux-2.6.17-rc3-mm1-unused.orig/kernel/cpuset.c
-+++ linux-2.6.17-rc3-mm1-unused/kernel/cpuset.c
-@@ -2338,7 +2338,7 @@ int cpuset_mem_spread_node(void)
- 	current->cpuset_mem_spread_rotor = node;
- 	return node;
- }
--EXPORT_SYMBOL_GPL(cpuset_mem_spread_node);
-+EXPORT_UNUSED_SYMBOL_GPL(cpuset_mem_spread_node); /* removal in 2.6.19 */
- 
- /**
-  * cpuset_excl_nodes_overlap - Do we overlap @p's mem_exclusive ancestors?
-++++++++++++++++++++++++ end +++++++++++++++++++++++
+So if you like to look for real warnings, you can compile it with the
+false positives turned off, and if you don't trust the hidden warnings,
+use a compile where the false positives stay on.  So it's now a choice to
+which you perfer.  Not everyone likes to see a bunch of false positives,
+and have to fight to find the real bugs.
 
+As stated before, gcc (and any other program) is not perfect, and can't be
+right all the time.  So it takes the side of aggressive warnings. But with
+the help of the programmer, it only needs to warn on actual bugs.
 
-Andrew added this EXPORT, with the following patch:
+This solution does _not_ hide the bug in step 5.  It only surpresses it to
+those who don't care.
 
+>
+> And that's besides making code uglier for no good reason, etc.
 
-+++++++++++++++++++++++ begin +++++++++++++++++++++++
-From: Andrew Morton <akpm@osdl.org>
+The ugliness of the code, only helps to point out that there might be a
+problem.  So instead of constantly weeding through warnings in search of
+real bugs, you can look through the code once in a while to see if
+something was missed.
 
-It's called from inlines which modules use.
+>
+> Consider that preemptively NAKed.
+>
 
-Cc: Paul Jackson <pj@sgi.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+Preemptive strikes are usually never a good thing.
 
- kernel/cpuset.c |    1 +
- 1 files changed, 1 insertion(+)
+-- Steve
 
-diff -puN kernel/cpuset.c~cpuset-memory-spread-basic-implementation-fix kernel/cpuset.c
---- devel/kernel/cpuset.c~cpuset-memory-spread-basic-implementation-fix 2006-02-06 23:51:0
-0.000000000 -0800
-+++ devel-akpm/kernel/cpuset.c  2006-02-06 23:51:00.000000000 -0800
-@@ -2220,6 +2220,7 @@ int cpuset_mem_spread_node(void)
-        current->cpuset_mem_spread_rotor = node;
-        return node;
- }
-+EXPORT_SYMBOL_GPL(cpuset_mem_spread_node);
-
- /**
-  * cpuset_excl_nodes_overlap - Do we overlap @p's mem_exclusive ancestors?
-++++++++++++++++++++++++ end +++++++++++++++++++++++
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

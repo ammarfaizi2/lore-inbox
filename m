@@ -1,65 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965101AbWEKB2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965111AbWEKBpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965101AbWEKB2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 21:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965109AbWEKB2Z
+	id S965111AbWEKBpR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 21:45:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965114AbWEKBpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 21:28:25 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:39366 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965101AbWEKB2Y
+	Wed, 10 May 2006 21:45:17 -0400
+Received: from inglit.ubishops.ca ([206.167.194.132]:31951 "EHLO
+	cs.ubishops.ca") by vger.kernel.org with ESMTP id S965111AbWEKBpQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 21:28:24 -0400
-Date: Thu, 11 May 2006 02:28:18 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: davem@davemloft.net, dwalker@mvista.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
-Message-ID: <20060511012818.GL27946@ftp.linux.org.uk>
-References: <20060510162106.GC27946@ftp.linux.org.uk> <20060510150321.11262b24.akpm@osdl.org> <20060510221024.GH27946@ftp.linux.org.uk> <20060510.153129.122741274.davem@davemloft.net> <20060510224549.GI27946@ftp.linux.org.uk> <20060510160548.36e92daf.akpm@osdl.org> <20060510232042.GJ27946@ftp.linux.org.uk> <20060510164554.27a13ca9.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060510164554.27a13ca9.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 10 May 2006 21:45:16 -0400
+Message-ID: <4462978C.6080809@cs.mcgill.ca>
+Date: Wed, 10 May 2006 21:46:52 -0400
+From: Patrick McLean <chutz@cs.mcgill.ca>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060430)
+MIME-Version: 1.0
+To: Neil Brown <neilb@suse.de>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Bogecho <andrewb@cs.mcgill.ca>
+Subject: Re: NFS locking
+References: <446246D6.5010509@cs.mcgill.ca> <17506.33247.884320.387785@cse.unsw.edu.au>
+In-Reply-To: <17506.33247.884320.387785@cse.unsw.edu.au>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 10, 2006 at 04:45:54PM -0700, Andrew Morton wrote:
-> Al Viro <viro@ftp.linux.org.uk> wrote:
-> > Sorry, no - it shuts up too much.  Look, there are two kinds of warnings
-> > here.  "May be used" and "is used".  This stuff shuts both.  And unlike
-> > "may be used", "is used" has fairly high S/N ratio.
-> > 
-> > Moreover, once you do that, you lose all future "is used" warnings on
-> > that variable.  So your ability to catch future bugs is decreased, not
-> > increased.
+Neil Brown wrote:
+> On Wednesday May 10, chutz@cs.mcgill.ca wrote:
+>> We have a NFS server here with a fairly high load. The clients are
+>> Linux, FreeBSD and Solaris. The exported filesystem is XFS, which is onb
+>> a LVM drive. After between 3 and 30 days it seems that locking
+>> completely stops working, clients generally either error or simply lock
+>> up when they try to lock a file. The only way to fix it seems to be a
+>> reboot.
 > 
-> Only for certain gcc versions.  Other people use other versions, so it'll
-> be noticed.  If/when gcc gets fixed, more and more people will see the real
-> warnings.
+> Reboot the client or the server?
 > 
-> Look, of course it has problems.  But the current build has problems too. 
-> It's a question of which problem is worse..
 
-FWIW, I've got mostly finished pile of scripts (still needs to be
-consolidated, with merge into git for some parts) that does that following:
-take two trees and build log for the first one; generate remapped log
-with all lines of form <filename>:<line number>:<text> modified.  If line
-in question survives in the new tree, turn it into
-N:<new filename>:<new line number>:<text>
-with new filename and line giving its new location, otherwise turn it into
-O:<filename>:<line number>:<text>
+The server, rebooting the clients had no effect.
 
-That reduces the size of diff between build logs a _lot_ - basically,
-all noise from changed line numbers is gone and we are left with real
-changes.  It works better with git (we catch renames that way), but
-even starting with diff between the trees works fairly well.
+>> Last time it happened was on 2.6.17-rc2, it started around 2.6.15.
+>>
+>> There is nothing in the dmesg on the server, the (Linux) clients are
+>> printing this in the dmesg when something tries to create a lock:
+>>
+>> lockd: server xxx.xxx.xxx.xxx not responding, still trying
+>> lockd: server xxx.xxx.xxx.xxx not responding, still trying
+> 
+> Sounds like the server has locked up.
+> What does 'ps' on the server show for 'lockd'?  Is it in 'D'?  What is
+> the 'wchan'?  Are any 'nfsd's permanently in 'D'?
+> 
+> Try
+>  echo t > /proc/sysrq-trigger
+> 
+> and see what the stack trace for lockd is - probably only useful if it
+> is in 'D'.
+> 
+> Maybe a 'tcpdump -s 1500' of traffic between client and server would
+> help.
 
-IME, it makes watching for regressions quite simple, even when dealing with
-something like 2.6.16-rc2 and current, with shitloads of changes in between.
-And yes, I _do_ watch ia64 tree, with all its noise.  Moreover, I watch
-CHECK_ENDIAN sparse builds, aka thousands of warnings all over the tree...
+We have already rebooted the server this time around, we will do the stack trace
+and tcpdump from a client next time it happens.
 
-I'll get that stuff into sane form and post it; IMO it solves the noise
-problem just fine.
+Though, I do seem to remember that lockd was in the "D" state on the server when
+it happened this afternoon. Restarting the nfs service on the server did spawn a
+new lockd process, but did not fix the problem.

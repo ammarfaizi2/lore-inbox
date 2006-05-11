@@ -1,84 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965091AbWEJX6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbWEKALf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965091AbWEJX6A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 19:58:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965098AbWEJX6A
+	id S965103AbWEKALf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 20:11:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965100AbWEKALf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 19:58:00 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:58754 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S965097AbWEJX57
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 19:57:59 -0400
-Subject: [PATCHSET] Time: Generic Timekeeping Subsystem (v C2)
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Roman Zippel <zippel@linux-m68k.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, Tim Mann <mann@vmware.com>,
-       Jim Cromie <jim.cromie@gmail.com>
-Content-Type: text/plain
-Date: Wed, 10 May 2006 16:57:56 -0700
-Message-Id: <1147305476.12500.3.camel@localhost.localdomain>
+	Wed, 10 May 2006 20:11:35 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:40072
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965101AbWEKALe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 May 2006 20:11:34 -0400
+Date: Wed, 10 May 2006 17:11:27 -0700 (PDT)
+Message-Id: <20060510.171127.42619262.davem@davemloft.net>
+To: paulus@samba.org
+Cc: rth@twiddle.net, t@twiddle.net, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, linuxppc-dev@ozlabs.org, amodra@bigpond.net
+Subject: Re: [RFC/PATCH] Make powerpc64 use __thread for per-cpu variables
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <17506.31456.68099.57515@cargo.ozlabs.ibm.com>
+References: <20060510154702.GA28938@twiddle.net>
+	<17506.29128.591758.502430@cargo.ozlabs.ibm.com>
+	<17506.31456.68099.57515@cargo.ozlabs.ibm.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
-	Here is an updated version of the smaller, reworked and improved
-patchset, most of which is currently in -mm. 
+From: Paul Mackerras <paulus@samba.org>
+Date: Thu, 11 May 2006 09:44:32 +1000
 
-Its been awhile since the last update, so there are lots of little fixes
-and a few new patches that will probably need additional testing. Big
-thanks to: Tim Mann, Jim Cromie, Roman Zippel, and OGAWA Hirofumi
-(hopefully I didn't forget anyone) for submitting fixes and ideas for
-improvements
+> That means we lose the possible optimization of combining the addi
+> into a following load or store.  Bah.  However, I guess it's still
+> better than what we do at the moment.
 
-Summary:
-	This patchset provides a generic timekeeping infrastructure that can be
-independent of the timer interrupt. This allows for robust and correct
-behavior in cases of late or lost ticks, avoids interpolation errors,
-reduces duplication in arch specific code, and assists future changes
-such as high-res timers, dynamic ticks, or realtime preemption.
-Additionally, it provides finer nanosecond resolution values to the
-clock_gettime functions. The patchset also converts the i386, x86-64,
-and powerpc arches to use this new infrastructure.
+If you have to hide the operation so deeply like this, maybe you can
+do something similar to sparc64, by explicitly doing the per-cpu fixed
+register and offsets, and still get the single instruction relocs that
+powerpc can do for up to 64K by doing something like:
 
-Changes since the C1 release:
-o Fix for clock=pit bugs - Tim (needs testing)
-o Avoid mults in ntp adjstument- Roman
-o spelling fixes - Jim and Tim
-o clocksourcemask macro - Jim
-o pmtmr fixups and improvements- OGAWA
-o functional x86-64 vsyscall gtod
-o functional powerpc port
-o ktime_t based accounting and accessors (needs testing)
-o i386 xtime cleanups
-o run timekeeping via a timer (needs more testing)
+	&per_cpu_blah - &per_cpu_base
 
-On my TODO list:
-o Continue integrating Roman's ideas and suggestions
-o Re-add any bits needed for -HRT and -RT trees
-o More attention on x86-64 and powerpc
-o Continue merging new bits into -mm
-o Try to restore cleanups via small patches
-
-The patchset applies against the current 2.6.17-rc3-git.
-
-The complete patchset can be found here:
-	http://sr71.net/~jstultz/tod/
-
-I'd like to thank the following people who have contributed ideas,
-criticism, testing and code that has helped shape this work: 
-	George Anzinger, Nish Aravamudan, Max Asbock, Serge Belyshev, Dominik
-Brodowski, Adrian Bunk, Jim Cromie, Thomas Gleixner, Darren Hart, OGAWA
-Hirofumi, Christoph Lameter, Matt Mackal, Tim Mann, Keith Mannthey, Ingo
-Molnar, Andrew Morton, Paul Munt, Martin Schwidefsky, Frank Sorenson,
-Ulrich Windl, Jonathan Woithe, Darrick Wong, Roman Zippel and any others
-whom I've accidentally left off this list.
-
-thanks
--john
-
-
+to calculate the offset.

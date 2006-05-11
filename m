@@ -1,108 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWEKXuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWEKXxf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750835AbWEKXuo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 19:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWEKXuo
+	id S1750844AbWEKXxf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 19:53:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWEKXxf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 19:50:44 -0400
-Received: from CPE-60-226-94-173.qld.bigpond.net.au ([60.226.94.173]:4229 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1750835AbWEKXun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 19:50:43 -0400
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH -mm] swsusp: support creating bigger images (rev. 2)
-Date: Fri, 12 May 2006 09:49:42 +1000
-User-Agent: KMail/1.9.1
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
-References: <200605021200.37424.rjw@sisk.pl> <200605110058.19458.rjw@sisk.pl> <20060511113519.GB27638@elf.ucw.cz>
-In-Reply-To: <20060511113519.GB27638@elf.ucw.cz>
+	Thu, 11 May 2006 19:53:35 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:16565 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S1750838AbWEKXxe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 19:53:34 -0400
+Message-ID: <4463CE71.1000205@myri.com>
+Date: Fri, 12 May 2006 01:53:21 +0200
+From: Brice Goglin <brice@myri.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1645266.NK3eb6zrri";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+       "Andrew J. Gallatin" <gallatin@myri.com>
+Subject: Re: [PATCH 5/6] myri10ge - Second half of the driver
+References: <446259A0.8050504@myri.com>	<Pine.GSO.4.44.0605101441510.498-100000@adel.myri.com> <20060510152244.44fb3db7@localhost.localdomain>
+In-Reply-To: <20060510152244.44fb3db7@localhost.localdomain>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200605120949.47046.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1645266.NK3eb6zrri
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-Hi.
-
-On Thursday 11 May 2006 21:35, Pavel Machek wrote:
-> On =C4=8Ct 11-05-06 00:58:18, Rafael J. Wysocki wrote:
-> > On Wednesday 10 May 2006 00:27, Andrew Morton wrote:
-> > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> > > > Now if the mapped pages that are not mapped by the
-> > > >  current task are considered, it turns out that they would change
-> > > > only if they were reclaimed by try_to_free_pages(). =C2=A0Thus if w=
-e take
-> > > > them out of reach of try_to_free_pages(), for example by
-> > > > (temporarily) moving them out of their respective LRU lists after
-> > > > creating the image, we will be able to include them in the image
-> > > > without copying.
-> > >
-> > > I'm a bit curious about how this is true.  There are all sorts of way
-> > > in which there could be activity against these pages - interrupt-time
-> > > asynchronous network Tx completion, async interrupt-time direct-io
-> > > completion, tasklets, schedule_work(), etc, etc.
-> >
-> > AFAIK, many of these things are waited for uninterruptibly, and
-> > uninterruptible
+Stephen Hemminger wrote:
+>> +
+>> +static int
+>> +myri10ge_open(struct net_device *dev)
+>>     
 >
-> Well, "many of these things" makes me nervous.
+> It is preferred to put function declarations on one line.
 >
-> > tasks cannot be frozen.  Theoretically we may have a problem if there's
-> > an interruptible task that waits for the completion of an operation that
-> > gets finished after snapshotting the system.
+> static int mril10ge_open(struct net_device *dev)
+>   
+
+Well, I have seen several threads about this in the archive, with some
+people against and some people pro. I personaly like grepping for the
+declaration of function using ^name.
+If this codingstyle is really required, I will do.
+
+> I would prefer to just have driver always do NAPI.  It's a 10G driver, it
+> really needs to be NAPI to prevent machine starvation.
+>   
+
+When TSO is disabled, we see performance being about 300Mbs lower when
+enabling NAPI. But we'll probably enable TSO by default (see below) so
+we'll probably drop non-NAPI.
+
+>> +	myri10ge_close(mgp->dev);
+>> +	status = myri10ge_load_firmware(mgp);
+>> +	if (status != 0) {
+>> +		printk(KERN_ERR "myri10ge: %s: failed to load firmware\n",
+>> +		       mgp->dev->name);
+>> +		return;
+>> +	}
+>> +	myri10ge_open(mgp->dev);
+>> +}
+>>     
 >
-> I'd prefer not to have even theoretical problems. If we don't _know_
-> why patch is safe, I'd prefer not to have it.
+> Watchdog's are a sign of buggy hardware and drivers!
+>   
+
+Well... the watchdog is supposed to help detecting memory parity errors
+in the NIC. It's rare, but it happens with cosmic rays. The recovery
+part still need some work anyway. So we might drop the watchdog for now
+and come back when recovery is ready.
+
+Additionally, we are using our own watchdog because the linux netdev
+watchdog does not seem to work well for devices with large hardware
+transmit queues.  If there is a hardware problem, a single (or even a
+handful) of TCP streams will not backup into the hardware queue in a
+timely fashion, leading to a long delay before the netdev watchdog
+routine is called.
+
+>> +#if 0
+>> +	/* TSO can be enabled via ethtool -K eth1 tso on */
+>> +#ifdef NETIF_F_TSO
+>> +	netdev->features |= NETIF_F_TSO;
+>> +#endif
+>> +#endif
+>>     
 >
-> Needing bdev freezing is bad sign, too.
+> If it works enable it, if it doesn't take the code out.
+>   
+
+It works. We did not enable it by default because there were some
+problems in older kernels. They seem to be fixed in recent kernels. So
+we'll enable TSO by default and have people disable it if it causes
+problems.
+
+
+>> [PATCH 3/6] myri10ge - Driver header files
+>>
+>> myri10ge driver header files.
+>> myri10ge_mcp.h is the generic header, while myri10ge_mcp_gen_header.h
+>> is automatically generated from our firmware image.
+>>     
 >
-> We are talking 10% speedup here (on low-mem-machines, IIRC), but whole
-> design has just got way more complex. Previous snapshot was really
-> atomic, and apart from NMI, it was "independend" from the rest of the
-> system.
+> Then clean it up after the auto generation.
+> Auto generated code still gets maintained by humans.
+>   
+
+Oops sorry, I forgot to apply my cleaning script before sending.
+
+
+>> +#define MYRI10GE_MCP_MAJOR	1
+>> +#define MYRI10GE_MCP_MINOR	4
+>> +
+>>     
 >
-> New design depends on bdev freezing (depending on XFS details we do
-> not understand), and depends on all the other parts of kernel using
-> uninteruptible (when we know that networking sleeps interruptibly).
->
-> Too much uncertainity for 10% speedup, I'm afraid. Yes, it was really
-> clever to get this fundamental change down to few hundred lines, but
-> design complexity remains. Could we drop that patch?
+> Major/Minor for what. You don't have a character device.
+>   
 
-Could you provide justification for your claim that the speedup is only 10%?
+That's the firmware version, we'll find better names.
 
-Please also remember that you are introducing complexity in other ways, wit=
-h=20
-that swap prefetching code and so on. Any comparison in speed should includ=
-e=20
-the time to fault back in pages that have been discarded.
 
-Regards,
 
-Nigel
+Thanks a lot for all the comments.
 
---nextPart1645266.NK3eb6zrri
-Content-Type: application/pgp-signature
+Brice
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEY82aN0y+n1M3mo0RAql8AJ0c0yP0wbjpwAbQZM4IS9pfZkLCegCeP0a8
-M+AlvGbm976haw8Q0MnXVTI=
-=n35S
------END PGP SIGNATURE-----
-
---nextPart1645266.NK3eb6zrri--

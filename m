@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbWEKP6r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030293AbWEKP75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030297AbWEKP6r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 11:58:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030300AbWEKP6r
+	id S1030293AbWEKP75 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 11:59:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030300AbWEKP75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 11:58:47 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:17133 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1030297AbWEKP6r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 11:58:47 -0400
-Date: Thu, 11 May 2006 17:55:37 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Rik Bobbaers <Rik.Bobbaers@cc.kuleuven.be>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fix compiler warning in ip_nat_standalone.c
-Message-ID: <20060511155537.GF1104@wohnheim.fh-wedel.de>
-References: <200605111729.48871.Rik.Bobbaers@cc.kuleuven.be>
+	Thu, 11 May 2006 11:59:57 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:57741 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030293AbWEKP75 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 11:59:57 -0400
+Subject: Re: [RFC] Hugetlb demotion for x86
+From: Adam Litke <agl@us.ibm.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-mm@kvack.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0605111607250.24407@blonde.wat.veritas.com>
+References: <1147287400.24029.81.camel@localhost.localdomain>
+	 <20060510200516.GA30346@infradead.org>
+	 <1147293156.24029.95.camel@localhost.localdomain>
+	 <20060510204928.GA31315@infradead.org>
+	 <1147297535.24029.114.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0605111607250.24407@blonde.wat.veritas.com>
+Content-Type: text/plain
+Organization: IBM
+Date: Thu, 11 May 2006 10:59:53 -0500
+Message-Id: <1147363194.24029.128.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200605111729.48871.Rik.Bobbaers@cc.kuleuven.be>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 May 2006 17:29:48 +0200, Rik Bobbaers wrote:
+On Thu, 2006-05-11 at 16:15 +0100, Hugh Dickins wrote:
+> On Wed, 10 May 2006, Adam Litke wrote:
+> > 
+> > Strict overcommit is there for shared mappings.  When private mapping
 > 
-> i just made small patch that fixes a compiler warning:
+> I presume that by "strict overcommit" you mean "strict no overcommit".
+> 
+> > support was added, people agreed that full overcommit should apply to
+> > private mappings for the same reasons normal page overcommit is desired.
+> 
+> I'm not sure how wide that agreement was.  But what I wanted to say is...
+> 
+> > For one: an application using lots of private huge pages should not be
+> > prohibited from forking if it's likely to just exec a small helper
+> > program.
+> 
+> This is an excellent use for madvise(start, length, MADV_DONTFORK).
+> Though it was added mainly for RDMA issues, it's a great way for a
+> program with a huge commitment to exclude areas of its address space
+> from the fork, so making that fork much more likely to succeed.
 
-Just in case Al didn't make it clear enough in the recent thread:
-
-You cannot fix a compiler warning!
-
-Either the code is wrong or it is right.  A compiler warning can
-indicate that code is wrong, or it is a false positive.  If the code
-is wrong, fix the _code_.  If it isn't, ignore the warning or fix the
-_compiler_.
-
-That said, your patch looks as if it would actually fix the code.  I'm
-not firm enough with NAT to confirm that, though.  So if it fixes the
-code, please state exactly that.
-
-Jörn
+I guess it's time for me to take a step back and explain why I am doing
+this.  libhugetlbfs (announced here recently) has the ability to remap
+an executable's ELF segments into huge pages.  So madvise(MADV_DONTFORK)
+would be pretty bad ;)
 
 -- 
-Anything that can go wrong, will.
--- Finagle's Law
+Adam Litke - (agl at us.ibm.com)
+IBM Linux Technology Center
+

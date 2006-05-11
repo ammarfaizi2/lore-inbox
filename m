@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751797AbWEKOhM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751815AbWEKOvn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751797AbWEKOhM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 10:37:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751798AbWEKOhL
+	id S1751815AbWEKOvn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 10:51:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751816AbWEKOvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 10:37:11 -0400
-Received: from outgoing.securityfocus.com ([205.206.231.27]:13411 "EHLO
-	outgoing.securityfocus.com") by vger.kernel.org with ESMTP
-	id S1751797AbWEKOhK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 10:37:10 -0400
-Date: 11 May 2006 14:34:40 -0000
-Message-ID: <20060511143440.23517.qmail@securityfocus.com>
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
+	Thu, 11 May 2006 10:51:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23016 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751815AbWEKOvn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 10:51:43 -0400
+Message-ID: <44634F63.1090504@redhat.com>
+Date: Thu, 11 May 2006 09:51:15 -0500
+From: Clark Williams <williams@redhat.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.411 (Entity 5.404)
-From: "Ed White" <ed.white@libero.it>
-To: "ML" <linux-kernel@vger.kernel.org>
-Subject: SecurityFocus Article
+To: Robert Crocombe <rwcrocombe@raytheon.com>
+CC: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.16-rtXYZ hangs at boot on quad Opteron
+References: <44623EE0.8040300@raytheon.com> <Pine.LNX.4.58.0605101540490.22959@gandalf.stny.rr.com> <44628A70.1020502@raytheon.com>
+In-Reply-To: <44628A70.1020502@raytheon.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A researcher of the french NSA discovered a scary vulnerability in modern x86 cpus and chipsets that expose the kernel to direct tampering.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-http://www.securityfocus.com/print/columnists/402
+Robert Crocombe wrote:
+> testing NMI watchdog ... OK.
+>
+> where we croak.  On the non-realtime version, it is instead like so:
 
-The problem is that a feature called System Management Mode could be used to bypass the kernel and execute code at the highest level possible: ring zero.
+Yeah, this is where my Athlon64x2 goes into the weeds.  I followed it
+down into the routines that calculate processor migration costs and
+got lost in the context switches.  I suspect that the forced
+migrations aggravate a problem down in the 64-bit arch specific code
+that hasn't been looked at in a while (I believe most people running
+AMD are doing so in 32-bit mode).
 
-The big problem is that the attack is possible thanks to the way X Windows is designed, and so the only way to eradicate it is to redesign it, moving video card driver into the kernel, but it seems that this cannot be done also for missing drivers and documentation!
+Maybe it's time for round two...
 
-I would like to hear developers opinion about it...
+Clark
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-------------------------------------------------------------------------
-
-The quest for ring 0
-
-by Federico Biancuzzi
-2006-05-10
-
-Federico Biancuzzi interviews French researcher Lo&iuml;c Duflot to learn about the System Management Mode attack, how to mitigate it, what hardware is vulnerable, and why we should be concerned with recent X Server bugs.
-http://www.securityfocus.com/columnists/402
+iD8DBQFEY09jHyuj/+TTEp0RAl2OAKDYxUa4mW8mvw3cu4QPUvvhpbT+SQCeOq2L
+gagGErHh8V89Yd2Z76hDfuk=
+=rUnG
+-----END PGP SIGNATURE-----
 

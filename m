@@ -1,43 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030314AbWEKQQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030308AbWEKQRl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030314AbWEKQQv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 12:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030317AbWEKQQv
+	id S1030308AbWEKQRl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 12:17:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030295AbWEKQRk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 12:16:51 -0400
-Received: from cavan.codon.org.uk ([217.147.92.49]:13291 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1030314AbWEKQQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 12:16:50 -0400
-Date: Thu, 11 May 2006 17:16:40 +0100
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: htejun@gmail.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com
-Subject: Re: ata_piix failure on ich6m
-Message-ID: <20060511161640.GA24338@srcf.ucam.org>
-References: <20060510235650.GA20206@srcf.ucam.org> <44629E68.3020302@gmail.com> <20060511081140.GA21594@srcf.ucam.org> <20060511084541.90d4e071.rdunlap@xenotime.net>
+	Thu, 11 May 2006 12:17:40 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:51677 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S1030308AbWEKQRj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 12:17:39 -0400
+Date: Thu, 11 May 2006 11:17:36 -0500
+From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, aeb@cwi.nl
+Subject: Re: [PATCH] make kernel ignore bogus partitions
+Message-ID: <20060511161736.GB8124@beardog.cca.cpqcorp.net>
+References: <20060503210055.GB31048@beardog.cca.cpqcorp.net> <20060509124138.43e4bac0.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060511084541.90d4e071.rdunlap@xenotime.net>
+In-Reply-To: <20060509124138.43e4bac0.akpm@osdl.org>
 User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 11, 2006 at 08:45:41AM -0700, Randy.Dunlap wrote:
+On Tue, May 09, 2006 at 12:41:38PM -0700, Andrew Morton wrote:
+> "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net> wrote:
+> >
+> > Patch 1/1
+> > Sometimes partitions claim to be larger than the reported capacity of a
+> > disk device. This patch makes the kernel ignore those partitions.
+> > 
+> > Signed-off-by: Mike Miller <mike.miller@hp.com>
+> > Signed-off-by: Stephen Cameron <steve.cameron@hp.com>
+> > 
+> > Please consider this for inclusion.
+> > 
+> > 
+> >  fs/partitions/check.c |    5 +++++
+> >  1 files changed, 5 insertions(+)
+> > 
+> > --- linux-2.6.14/fs/partitions/check.c~partition_vs_capacity	2006-01-06 09:32:14.000000000 -0600
+> > +++ linux-2.6.14-root/fs/partitions/check.c	2006-01-06 11:24:50.000000000 -0600
+> > @@ -382,6 +382,11 @@ int rescan_partitions(struct gendisk *di
+> >  		sector_t from = state->parts[p].from;
+> >  		if (!size)
+> >  			continue;
+> > +		if (from+size-1 > get_capacity(disk)) {
+> > +			printk(" %s: p%d exceeds device capacity, ignoring.\n", 
+> > +				disk->disk_name, p);
+> > +			continue;
+> > +		}
+> >  		add_partition(disk, p, from, size);
+> >  #ifdef CONFIG_BLK_DEV_MD
+> >  		if (state->parts[p].flags)
+> 
+> Shouldn't that be
+> 
+> 	if (from+size > get_capacity(disk)) {
+> 
+> ?
+> 
+Since the partition size is 0-based this is correct:
 
-> Does the 'combined_mode' kernel parameter help any?
+	if (from+size-1 > get_capacity(disk)) {
 
-Hmm. Slightly awkward to check - it's a modular system with libata in 
-initramfs, so getting parameters in may be a pain. However, there's 
-nothing on the legacy IDE controller - should combined mode actually 
-make a difference in that case? As I said, ahci works fine - the problem 
-only occurs with ata_piix. The MAP register indicates that combined mode 
-isn't in use.
-
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+mikem

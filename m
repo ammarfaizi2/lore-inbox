@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751785AbWEKOMq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbWEKOWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751785AbWEKOMq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 10:12:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751787AbWEKOMq
+	id S1750812AbWEKOWV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 10:22:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751787AbWEKOWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 10:12:46 -0400
-Received: from vvv.conterra.de ([212.124.44.162]:46251 "EHLO conterra.de")
-	by vger.kernel.org with ESMTP id S1751785AbWEKOMp (ORCPT
+	Thu, 11 May 2006 10:22:20 -0400
+Received: from mx1.suse.de ([195.135.220.2]:21668 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750812AbWEKOWU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 10:12:45 -0400
-Message-ID: <4463461C.3070201@conterra.de>
-Date: Thu, 11 May 2006 16:11:40 +0200
-From: =?ISO-8859-1?Q?Dieter_St=FCken?= <stueken@conterra.de>
+	Thu, 11 May 2006 10:22:20 -0400
+From: Andi Kleen <ak@suse.de>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 4/4] KBUILD: export-symbol usage report generator
+Date: Thu, 11 May 2006 16:13:57 +0200
+User-Agent: KMail/1.9.1
+Cc: Ram Pai <linuxram@us.ibm.com>, agruen@suse.de, akpm@osdl.org,
+       arjan@infradead.org, bunk@stusta.de, greg@kroah.com,
+       jbeulich@novell.com, linux-kernel@vger.kernel.org, mathur@us.ibm.com
+References: <20060510235546.8A006470034@localhost> <p73r7307pnk.fsf@bragg.suse.de> <20060511134318.GA7667@infradead.org>
+In-Reply-To: <20060511134318.GA7667@infradead.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ext3 metadata performace
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605111613.57718.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-after I switched from from ext2 to ext3 i observed some severe 
-performance degradation. Most discussion about this topic deals
-with tuning of data-io performance. My problem however is related to 
-metadata updates. When cloning (cp -al) or deleting directory trees I 
-find, that about 7200 files are created/deleted per minute. Seems
-this is related to some ex3 strategy, to wait for each metadata to be
-written to disk. Interestingly this occurs with my new hw-raid
-controller (3ware 9500S), which even has an battery buffered disk cache.
-Thus there is no need for synchronous IO anyway. If I disable the
-disk cache on my plain SATA disk using ext3, I also get this behavior.
 
-Would it be make sense for ext3, to disable synchronous writes even
-for metadata (similar to the "data=writeback" option)? This means, that
-ext3 won't protect the (meta) data currently written. This is needed
-if running a database or an email server, where the process performing
-the IO must be sure, the data is definitely on disk, if it returns form
-the system call. In most cases, however, you choose ex3 to ensure the
-consistency of your file system after a crash, to avoid an fsck.
-If some files, created just before the crash, vanish, does not hurt
-me too much.
+> I'd go even further and say every symbol should have a category. 
 
-Dieter.
+That would be a _lot_ of work. I was thinking more for some specialized
+symbols first where the meaning is very clear. Also someone has to 
+write the infrastructure first.
+
+> These 
+> catgories than could get labels such as mostly stable
+
+I don't labels like "stable" etc. very much because it would give false
+expectations to external users.
+
+-Andi

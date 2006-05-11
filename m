@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751545AbWEKL2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbWEKLgB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751545AbWEKL2v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 07:28:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWEKL2v
+	id S1030230AbWEKLgB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 07:36:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbWEKLgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 07:28:51 -0400
-Received: from mail.suse.de ([195.135.220.2]:5772 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751545AbWEKL2v (ORCPT
+	Thu, 11 May 2006 07:36:01 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:36325 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030230AbWEKLgA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 07:28:51 -0400
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH]x86_64 debug_stack nested patch (again)
-Date: Thu, 11 May 2006 13:28:44 +0200
-User-Agent: KMail/1.9.1
-Cc: "bibo,mao" <bibo.mao@intel.com>, jbeulich@novell.com,
-       anil.s.keshavamurthy@intel.com, linux-kernel@vger.kernel.org
-References: <200605101726.08338.bibo.mao@intel.com> <20060511041700.49c3bab0.akpm@osdl.org>
-In-Reply-To: <20060511041700.49c3bab0.akpm@osdl.org>
+	Thu, 11 May 2006 07:36:00 -0400
+Date: Thu, 11 May 2006 13:35:19 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       nickpiggin@yahoo.com.au
+Subject: Re: [PATCH -mm] swsusp: support creating bigger images (rev. 2)
+Message-ID: <20060511113519.GB27638@elf.ucw.cz>
+References: <200605021200.37424.rjw@sisk.pl> <200605100015.53455.rjw@sisk.pl> <20060509152713.36bb94f0.akpm@osdl.org> <200605110058.19458.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200605111328.45244.ak@suse.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200605110058.19458.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 May 2006 13:17, Andrew Morton wrote:
-> "bibo,mao" <bibo.mao@intel.com> wrote:
-> >
-> > Hi,
-> > In x86_64 platform, INT1 and INT3 trap stack is IST stack called DEBUG_STACK,
-> > when INT1/INT3 trap happens, system will switch to DEBUG_STACK by hardware. 
-> > Current DEBUG_STACK size is 4K, when int1/int3 trap happens, kernel will 
-> > minus current DEBUG_STACK IST value by 4k. But if int3/int1 trap is nested, 
-> > it will destroy other vector's IST stack. This patch modifies this, it sets 
-> > DEBUG_STACK size as 8K and allows two level of nested int1/int3 trap.
+On Čt 11-05-06 00:58:18, Rafael J. Wysocki wrote:
+> On Wednesday 10 May 2006 00:27, Andrew Morton wrote:
+> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > >
+> > > Now if the mapped pages that are not mapped by the
+> > >  current task are considered, it turns out that they would change only if they
+> > >  were reclaimed by try_to_free_pages().  Thus if we take them out of reach
+> > >  of try_to_free_pages(), for example by (temporarily) moving them out of their
+> > >  respective LRU lists after creating the image, we will be able to include them
+> > >  in the image without copying.
 > > 
-> > Kprobe DEBUG_STACK may be nested, because kprobe hanlder may be probed 
-> > by other kprobes. This patch is against 2.6.17-rc3. Thanks jbeulich for pointing out error in the first patch.
-> > 
-> > Signed-Off-By: bibo, mao <bibo.mao@intel.com>
-> > 
-> > --- 2.6.17-rc3.org/include/asm-x86_64/page.h	2006-05-10 12:07:18.000000000 +0800
-> > +++ 2.6.17-rc3/include/asm-x86_64/page.h	2006-05-10 12:19:24.000000000 +0800
-> > @@ -20,7 +20,7 @@
-> >  #define EXCEPTION_STACK_ORDER 0
-> >  #define EXCEPTION_STKSZ (PAGE_SIZE << EXCEPTION_STACK_ORDER)
-> >  
-> > -#define DEBUG_STACK_ORDER EXCEPTION_STACK_ORDER
-> > +#define DEBUG_STACK_ORDER (EXCEPTION_STACK_ORDER + 1)
-> >  #define DEBUG_STKSZ (PAGE_SIZE << DEBUG_STACK_ORDER)
-> >  
-> >  #define IRQSTACK_ORDER 2
+> > I'm a bit curious about how this is true.  There are all sorts of way in
+> > which there could be activity against these pages - interrupt-time
+> > asynchronous network Tx completion, async interrupt-time direct-io
+> > completion, tasklets, schedule_work(), etc, etc.
 > 
-> So....   why not do it this way?
+> AFAIK, many of these things are waited for uninterruptibly, and
+> uninterruptible
 
-Last time we discussed this I was told it could nest upto 3 or 4 times
-So that still wouldn't work.
+Well, "many of these things" makes me nervous.
 
-If anything they should decrease the int3/debug stack to 2K, then 8K 
-might be enough.
+> tasks cannot be frozen.  Theoretically we may have a problem if there's an
+> interruptible task that waits for the completion of an operation that gets
+> finished after snapshotting the system.  
 
-Or even better would be to fix kprobes to not do that.
+I'd prefer not to have even theoretical problems. If we don't _know_
+why patch is safe, I'd prefer not to have it.
 
-I think paranoidentry would need to be fixed for that too.
+Needing bdev freezing is bad sign, too.
 
--Andi
+We are talking 10% speedup here (on low-mem-machines, IIRC), but whole
+design has just got way more complex. Previous snapshot was really
+atomic, and apart from NMI, it was "independend" from the rest of the
+system.
 
+New design depends on bdev freezing (depending on XFS details we do
+not understand), and depends on all the other parts of kernel using
+uninteruptible (when we know that networking sleeps interruptibly).
+
+Too much uncertainity for 10% speedup, I'm afraid. Yes, it was really
+clever to get this fundamental change down to few hundred lines, but
+design complexity remains. Could we drop that patch?
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,60 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030357AbWEKQ7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030374AbWEKRHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030357AbWEKQ7P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 12:59:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030360AbWEKQ7P
+	id S1030374AbWEKRHE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 13:07:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030375AbWEKRHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 12:59:15 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:31412 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030357AbWEKQ7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 12:59:14 -0400
-Subject: Re: [PATCH] make kernel ignore bogus partitions
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, aeb@cwi.nl
-In-Reply-To: <20060511092736.27cedfd5.akpm@osdl.org>
-References: <20060503210055.GB31048@beardog.cca.cpqcorp.net>
-	 <20060509124138.43e4bac0.akpm@osdl.org>
-	 <20060511161736.GB8124@beardog.cca.cpqcorp.net>
-	 <20060511092736.27cedfd5.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 11 May 2006 18:09:04 +0100
-Message-Id: <1147367344.26130.71.camel@localhost.localdomain>
+	Thu, 11 May 2006 13:07:03 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54162 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030374AbWEKRHC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 13:07:02 -0400
+Date: Thu, 11 May 2006 10:02:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: shaohua.li@intel.com, linux-kernel@vger.kernel.org, zwane@linuxpower.ca,
+       vatsa@in.ibm.com, ashok.raj@intel.com
+Subject: Re: [PATCH 0/10] bulk cpu removal support
+Message-Id: <20060511100215.588e89aa.akpm@osdl.org>
+In-Reply-To: <20060511095308.A15483@unix-os.sc.intel.com>
+References: <1147067137.2760.77.camel@sli10-desk.sh.intel.com>
+	<20060510230606.076271b2.akpm@osdl.org>
+	<20060511095308.A15483@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2006-05-11 at 09:27 -0700, Andrew Morton wrote:
-> "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net> wrote:
-> >
-> > On Tue, May 09, 2006 at 12:41:38PM -0700, Andrew Morton wrote:
-> > > "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net> wrote:
-> > > >
-> > > > Patch 1/1
-> > > > Sometimes partitions claim to be larger than the reported capacity of a
-> > > > disk device. This patch makes the kernel ignore those partitions.
+Ashok Raj <ashok.raj@intel.com> wrote:
+>
+> On Wed, May 10, 2006 at 11:06:06PM -0700, Andrew Morton wrote:
+> Hi Andrew,
+> 
+> > Shaohua Li <shaohua.li@intel.com> wrote:
+> > >
+> > > CPU hotremove will migrate tasks and redirect interrupts off dead cpu.
+> > 
+> > This seems an awful lot of code for something which happens so infrequently.
+> > 
+> > How big is the problem you're fixing here, and what are the
+> > user-observeable effects of these changes?
+> 
+> This is useful when say a NUMA node is being removed. With new multi-core
+> CPUs comming up, considering a 2 core with HT, we could have up to 4 logical
+> per socket. On NUMA node with 4 sockets, a node removal will mean we 
+> do 16 single cpu offlines. Each time the process and interrupts could
+> end up on a CPU that might be removed just immediatly.
+> 
+> The same is also useful for SMP Suspend/resume cases since the logical offline
+> is same here as well.
+> 
+> Even thought the code changes seem a lot, most of it is just preparation of
+> functions ready to accept a cpumask_t instead of a single cpu like earlier.
+> The reason we split them to smaller chunks so the scope of change is well
+> understood with each patch.
+> 
+> The major changes are
+> 
+>  - stop machine to run cpu offline functions on each cpu going offline
+>  - prepare offline functions in offline path to take cpumask_t
+>  - Some task migrate dead lock removal consideration that we ran into
+>     during stress test.
+> 
+> I know Shaohua ran tests for more than 20+ hrs with the patch, both on i386 
+> and x86_64.
+> 
+> once we get some time deltas on a bigger machine it will help a lot. 
+> Iam also trying to check with some OEM';s who have such large machines for
+> some data.. keep posted.
+> 
 
-The problem with ignoring such partitions is that you will then get
-burned on some PC setups and also that existing partitions may move
-number on some partitioning schemes.
+OK, thanks.  I'm a little surprised that this patch wasn't accompanied by a
+problem description, really.  I mean, if a single CPU offlining takes three
+milliseconds then why bother?
 
-Allocating them but setting the reported size to zero would cure the
-latter problem, but I'm not sure what the right thing to do is about
-extended partition tables that look like this
-
-0 Partition Table
-  Bootblock
-  ...
-  Extended Partition to disk end
-  Partition
-HPA-------------------------- (reported disk size)
-  Suspend partition
-  BIOS bits
-disk end -----
-
-ie /dev/hda5 might be valid but not /dev/hda4 which contains it...
+I assume it must take much longer, else you wouldn't have written the code.
+Have you any ballpark numbers for how long it _does_ take?
 

@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751781AbWEKOJT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751785AbWEKOMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751781AbWEKOJT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 10:09:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbWEKOJT
+	id S1751785AbWEKOMq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 10:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751787AbWEKOMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 10:09:19 -0400
-Received: from mga03.intel.com ([143.182.124.21]:19635 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751781AbWEKOJS convert rfc822-to-8bit (ORCPT
+	Thu, 11 May 2006 10:12:46 -0400
+Received: from vvv.conterra.de ([212.124.44.162]:46251 "EHLO conterra.de")
+	by vger.kernel.org with ESMTP id S1751785AbWEKOMp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 10:09:18 -0400
-X-IronPort-AV: i="4.05,115,1146466800"; 
-   d="scan'208"; a="34889013:sNHT25182087"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Thu, 11 May 2006 10:12:45 -0400
+Message-ID: <4463461C.3070201@conterra.de>
+Date: Thu, 11 May 2006 16:11:40 +0200
+From: =?ISO-8859-1?Q?Dieter_St=FCken?= <stueken@conterra.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: acpi4asus
-Date: Thu, 11 May 2006 22:09:05 +0800
-Message-ID: <554C5F4C5BA7384EB2B412FD46A3BAD11206D5@pdsmsx411.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: acpi4asus
-Thread-Index: AcZ0/ApFyLoDyWDwTtGmDDAdGW2JmAACCIFA
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Lukas Hejtmanek" <xhejtman@mail.muni.cz>, <linux-kernel@vger.kernel.org>
-Cc: "Andrew Morton" <akpm@osdl.org>
-X-OriginalArrivalTime: 11 May 2006 14:09:06.0153 (UTC) FILETIME=[76E2C590:01C67504]
+To: linux-kernel@vger.kernel.org
+Subject: ext3 metadata performace
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+after I switched from from ext2 to ext3 i observed some severe 
+performance degradation. Most discussion about this topic deals
+with tuning of data-io performance. My problem however is related to 
+metadata updates. When cloning (cp -al) or deleting directory trees I 
+find, that about 7200 files are created/deleted per minute. Seems
+this is related to some ex3 strategy, to wait for each metadata to be
+written to disk. Interestingly this occurs with my new hw-raid
+controller (3ware 9500S), which even has an battery buffered disk cache.
+Thus there is no need for synchronous IO anyway. If I disable the
+disk cache on my plain SATA disk using ext3, I also get this behavior.
 
->
->is project acpi4asus still alive? (I'm asking here whether 
->Andrew or Linus are
->receiving patches from acpi guys). For me, it looks like this 
->is somewhat dead.
->
->I posted patch to include Asus M6A support to both lkm and 
->acpi4asus list but no
->response. I only noticed, that Andrew once tried to include in 
->-mm but I did not
->see it there anyway.
+Would it be make sense for ext3, to disable synchronous writes even
+for metadata (similar to the "data=writeback" option)? This means, that
+ext3 won't protect the (meta) data currently written. This is needed
+if running a database or an email server, where the process performing
+the IO must be sure, the data is definitely on disk, if it returns form
+the system call. In most cases, however, you choose ex3 to ensure the
+consistency of your file system after a crash, to avoid an fsck.
+If some files, created just before the crash, vanish, does not hurt
+me too much.
 
-Please resort to linux-acpi@vger.kernel.org for these
-kind of issue.
-
-Thanks,
-Luming
+Dieter.

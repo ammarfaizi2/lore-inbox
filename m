@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbWEKC6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965109AbWEKDIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965061AbWEKC6P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 May 2006 22:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965078AbWEKC6P
+	id S965109AbWEKDIu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 May 2006 23:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965119AbWEKDIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 May 2006 22:58:15 -0400
-Received: from mail.gmx.net ([213.165.64.20]:13776 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S965061AbWEKC6O (ORCPT
+	Wed, 10 May 2006 23:08:50 -0400
+Received: from gate.crashing.org ([63.228.1.57]:27882 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S965109AbWEKDIu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 May 2006 22:58:14 -0400
-X-Authenticated: #14349625
-Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
-From: Mike Galbraith <efault@gmx.de>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: akpm@osdl.org, viro@ftp.linux.org.uk, dwalker@mvista.com,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <20060510.153007.19037157.davem@davemloft.net>
-References: <1147275522.21536.109.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-	 <20060510162106.GC27946@ftp.linux.org.uk>
-	 <20060510150321.11262b24.akpm@osdl.org>
-	 <20060510.153007.19037157.davem@davemloft.net>
+	Wed, 10 May 2006 23:08:50 -0400
+Subject: Re: [PATCH] add slab_is_available() routine for boot code
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Mike Kravetz <kravetz@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Arnd Bergmann <arnd.bergmann@de.ibm.com>,
+       penberg@cs.Helsinki.FI, clameter@sgi.com, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060510230054.GA11214@w-mikek2.ibm.com>
+References: <20060510205543.GI3198@w-mikek2.ibm.com>
+	 <20060510155026.173c57a1.akpm@osdl.org>
+	 <20060510230054.GA11214@w-mikek2.ibm.com>
 Content-Type: text/plain
-Date: Thu, 11 May 2006 04:58:05 +0200
-Message-Id: <1147316285.8432.17.camel@homer>
+Date: Thu, 11 May 2006 13:07:52 +1000
+Message-Id: <1147316872.30380.17.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-10 at 15:30 -0700, David S. Miller wrote:
-> Even a huge tree like gcc can build itself %100 fine with -Werror, for
 
-What's the emoticon for coffee going down your windpipe?
+> I'll let Arnd answer.  He ran into this when doing some Cell work.  Not
+> sure where in the development cycle the code is that exposes this bug.
 
-	-Mike
+I want that too for some other unrelated patches :) I want request_irq()
+to use alloc_bootmem when slab is not available so that some low level
+arch irqs can be requested at init_IRQ() time.
+
+(Typically IRQs for cascaded controllers). We currently define
+statically irqaction structures for them and call setup_irq() on them,
+this is gross :)
+
+Cheers,
+Ben.
 

@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWEKUGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWEKUPH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750758AbWEKUGu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 16:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbWEKUGu
+	id S1750733AbWEKUPH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 16:15:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbWEKUPH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 16:06:50 -0400
-Received: from smtprelay05.ispgateway.de ([80.67.18.43]:52425 "EHLO
-	smtprelay05.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1750758AbWEKUGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 16:06:50 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-Subject: Re: SecurityFocus Article
-Date: Thu, 11 May 2006 22:03:46 +0200
-User-Agent: KMail/1.9.1
-Cc: "Ed White" <ed.white@libero.it>, "ML" <linux-kernel@vger.kernel.org>
-References: <20060511143440.23517.qmail@securityfocus.com> <Pine.LNX.4.61.0605111140030.3833@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0605111140030.3833@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 11 May 2006 16:15:07 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:20922 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750733AbWEKUPF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 16:15:05 -0400
+Subject: Re: [PATCH] PIIX: fix 82371MX enablebits
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <446395A0.20806@ru.mvista.com>
+References: <446395A0.20806@ru.mvista.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605112203.46996.ioe-lkml@rameria.de>
+Date: Thu, 11 May 2006 21:27:04 +0100
+Message-Id: <1147379225.26130.81.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Iau, 2006-05-11 at 23:50 +0400, Sergei Shtylyov wrote:
+>      According to the datasheet, Intel 82371MX (MPIIX) actually has only a
+> single IDE channel mapped to the primary or secondary ports depending on the
+> value of the bit 14 of the IDETIM register at PCI config. offset 0x6C (the
+> register at 0x6F which the driver refers to. doesn't exist). So, disguise the
+> controller as dual channel and set enablebits masks/values such that only
+> either primary or secondary channel is detected enabled. Also, preclude the
+> IDE probing code from reading PCI BARs, this controller just doesn't have them
+> (it's not the separate PCI function like the other PCI controllers), it only
+> decodes the legacy addresses.
 
-On Thursday, 11. May 2006 17:47, linux-os (Dick Johnson) wrote:
-> If the SMRAM control register exists, the D_LCK bit can be set
-> in 16-bit mode during the boot sequence. This makes the SMRAM
-> register read/only so the long potential compromise sequence
-> that Mr. Duflot describes would not be possible. If the control
-> register doesn't exist, then the vulnerably doesn't exist.
-> 
-> The writer doesn't like the fact that a root process can execute
-> iopl(3) and then be able to read/write ports. He doesn't like
-> the fact that the X-server can read/write ports from user-mode.
-> 
-> Sorry, the X-server is too large to go into the kernel. It's
-> a lot easier to modify the boot-loader to set the D_LCK bit
-> if the security compromise turns out to be real.
+There are lots and lots of other things you need to fix to make MPIIX
+work with that driver. It has only a single timing register for one so
+you must switch timing as you flip drive. Also it is not an IDE class
+device so the PCI native/legacy and simplex stuff is not valid. Finally
+the PIIX driver pokes several registers it doesn't even have.
 
-That sounds like a good move.
-
-Any patches?
-
-I would love to review them!
+What else - oh yes the piix driver doesn't even tune the timings, so it
+doesn't work anyway.
 
 
-Regards
+Thats why drivers/scsi/pata_mpiix is a separate driver. Really if you
+want to try and rescue the old PIIX driver you should split out PIIX3
+and MPIIX into their own drivers.
 
-Ingo Oeser
+

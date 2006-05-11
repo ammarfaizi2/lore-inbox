@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965173AbWEKHCW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965176AbWEKHCu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965173AbWEKHCW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 03:02:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965174AbWEKHCW
+	id S965176AbWEKHCu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 03:02:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965175AbWEKHCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 03:02:22 -0400
-Received: from taurus.voltaire.com ([193.47.165.240]:3781 "EHLO
-	taurus.voltaire.com") by vger.kernel.org with ESMTP id S965173AbWEKHCV
+	Thu, 11 May 2006 03:02:50 -0400
+Received: from taurus.voltaire.com ([193.47.165.240]:5573 "EHLO
+	taurus.voltaire.com") by vger.kernel.org with ESMTP id S965176AbWEKHCs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 03:02:21 -0400
-Date: Thu, 11 May 2006 10:02:19 +0300 (IDT)
+	Thu, 11 May 2006 03:02:48 -0400
+Date: Thu, 11 May 2006 10:02:46 +0300 (IDT)
 From: Or Gerlitz <ogerlitz@voltaire.com>
 X-X-Sender: ogerlitz@zuben
 To: rdreier@cisco.com
 cc: openib-general@openib.org, <linux-kernel@vger.kernel.org>
-Subject: [PATCH 3/6] iSER initiator iSCSI PDU and TX/RX completions processing
-In-Reply-To: <Pine.LNX.4.44.0605111000280.18975-100000@zuben>
-Message-ID: <Pine.LNX.4.44.0605111000510.18975-100000@zuben>
+Subject: [PATCH 4/6] iSER RDMA CM (CMA) and IB verbs interaction
+In-Reply-To: <Pine.LNX.4.44.0605111000510.18975-100000@zuben>
+Message-ID: <Pine.LNX.4.44.0605111002270.18975-100000@zuben>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 11 May 2006 07:02:19.0901 (UTC) FILETIME=[D85ECAD0:01C674C8]
+X-OriginalArrivalTime: 11 May 2006 07:02:46.0870 (UTC) FILETIME=[E871EF60:01C674C8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This file contains the iSER initiator processing of iSCSI PDUs - controls,
-commands and data-outs along with processing of TX and RX completions.
-It interacts with the lower level iser code doing the memory registration
-and and the cma and verbs calls.
+This file contains the low level interaction with the RDMA CM 
+and the IB verbs, where iSER is consumer of both.
 
 Signed-off-by: Or Gerlitz <ogerlitz@voltaire.com>
 
---- /usr/src/linux-2.6.17-rc3/drivers/infiniband/ulp/iser-x/iser_initiator.c	1970-01-01 02:00:00.000000000 +0200
-+++ /usr/src/linux-2.6.17-rc3/drivers/infiniband/ulp/iser/iser_initiator.c	2006-05-10 15:32:01.000000000 +0300
-@@ -0,0 +1,734 @@
+--- /usr/src/linux-2.6.17-rc3/drivers/infiniband/ulp/iser-x/iser_verbs.c	1970-01-01 02:00:00.000000000 +0200
++++ /usr/src/linux-2.6.17-rc3/drivers/infiniband/ulp/iser/iser_verbs.c	2006-05-10 15:32:01.000000000 +0300
+@@ -0,0 +1,827 @@
 +/*
 + * Copyright (c) 2004, 2005, 2006 Voltaire, Inc. All rights reserved.
++ * Copyright (c) 2005, 2006 Cisco Systems.  All rights reserved.
 + *
 + * This software is available to you under a choice of one of two
 + * licenses.  You may choose to be licensed under the terms of the GNU
@@ -64,708 +63,799 @@ Signed-off-by: Or Gerlitz <ogerlitz@voltaire.com>
 + * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 + * SOFTWARE.
 + *
-+ * $Id: iser_initiator.c 6964 2006-05-07 11:11:43Z ogerlitz $
++ * $Id: iser_verbs.c 7051 2006-05-10 12:29:11Z ogerlitz $
 + */
-+#include <linux/kernel.h>
-+#include <linux/slab.h>
-+#include <linux/mm.h>
 +#include <asm/io.h>
-+#include <asm/scatterlist.h>
-+#include <linux/scatterlist.h>
-+#include <linux/kfifo.h>
-+#include <scsi/scsi_cmnd.h>
-+#include <scsi/scsi_host.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/smp_lock.h>
++#include <linux/delay.h>
++#include <linux/version.h>
 +
 +#include "iscsi_iser.h"
 +
-+/* Constant PDU lengths calculations */
-+#define ISER_TOTAL_HEADERS_LEN  (sizeof (struct iser_hdr) + \
-+				 sizeof (struct iscsi_hdr))
++#define ISCSI_ISER_MAX_CONN	8
++#define ISER_MAX_CQ_LEN		((ISER_QP_MAX_RECV_DTOS + \
++				ISER_QP_MAX_REQ_DTOS) *   \
++				 ISCSI_ISER_MAX_CONN)
 +
-+/* iser_dto_add_regd_buff - increments the reference count for *
-+ * the registered buffer & adds it to the DTO object           */
-+static void iser_dto_add_regd_buff(struct iser_dto *dto,
-+				   struct iser_regd_buf *regd_buf,
-+				   unsigned long use_offset,
-+				   unsigned long use_size)
++static void iser_cq_tasklet_fn(unsigned long data);
++static void iser_cq_callback(struct ib_cq *cq, void *cq_context);
++static void iser_comp_error_worker(void *data);
++
++static void iser_cq_event_callback(struct ib_event *cause, void *context)
 +{
-+	int add_idx;
-+
-+	atomic_inc(&regd_buf->ref_count);
-+
-+	add_idx = dto->regd_vector_len;
-+	dto->regd[add_idx] = regd_buf;
-+	dto->used_sz[add_idx] = use_size;
-+	dto->offset[add_idx] = use_offset;
-+
-+	dto->regd_vector_len++;
++	iser_err("got cq event %d \n", cause->event);
 +}
 +
-+static int iser_dma_map_task_data(struct iscsi_iser_cmd_task *iser_ctask,
-+				  struct iser_data_buf       *data,
-+				  enum   iser_data_dir       iser_dir,
-+				  enum   dma_data_direction  dma_dir)
++static void iser_qp_event_callback(struct ib_event *cause, void *context)
 +{
-+	struct device *dma_device;
-+
-+	iser_ctask->dir[iser_dir] = 1;
-+	dma_device = iser_ctask->iser_conn->ib_conn->device->ib_device->dma_device;
-+
-+	data->dma_nents = dma_map_sg(dma_device, data->buf, data->size, dma_dir);
-+	if (data->dma_nents == 0) {
-+		iser_err("dma_map_sg failed!!!\n");
-+		return -EINVAL;
-+	}
-+	return 0;
++	iser_err("got qp event %d\n",cause->event);
 +}
 +
-+static void iser_dma_unmap_task_data(struct iscsi_iser_cmd_task *iser_ctask)
-+{
-+	struct device  *dma_device;
-+	struct iser_data_buf *data;
-+
-+	dma_device = iser_ctask->iser_conn->ib_conn->device->ib_device->dma_device;
-+
-+	if (iser_ctask->dir[ISER_DIR_IN]) {
-+		data = &iser_ctask->data[ISER_DIR_IN];
-+		dma_unmap_sg(dma_device, data->buf, data->size, DMA_FROM_DEVICE);
-+	}
-+
-+	if (iser_ctask->dir[ISER_DIR_OUT]) {
-+		data = &iser_ctask->data[ISER_DIR_OUT];
-+		dma_unmap_sg(dma_device, data->buf, data->size, DMA_TO_DEVICE);
-+	}
-+}
-+
-+/* Register user buffer memory and initialize passive rdma
-+ *  dto descriptor. Total data size is stored in
-+ *  iser_ctask->data[ISER_DIR_IN].data_len
++/**
++ * iser_create_device_ib_res - creates Protection Domain (PD), Completion
++ * Queue (CQ), DMA Memory Region (DMA MR) with the device associated with
++ * the adapator.
++ *
++ * returns 0 on success, -1 on failure
 + */
-+static int iser_prepare_read_cmd(struct iscsi_cmd_task *ctask,
-+				 unsigned int edtl)
-+
++static int iser_create_device_ib_res(struct iser_device *device)
 +{
-+	struct iscsi_iser_cmd_task *iser_ctask = ctask->dd_data;
-+	struct iser_regd_buf *regd_buf;
-+	int err;
-+	struct iser_hdr *hdr = &iser_ctask->desc.iser_header;
-+	struct iser_data_buf *buf_in = &iser_ctask->data[ISER_DIR_IN];
++	device->pd = ib_alloc_pd(device->ib_device);
++	if (IS_ERR(device->pd))
++		goto pd_err;
 +
-+	err = iser_dma_map_task_data(iser_ctask,
-+				     buf_in,
-+				     ISER_DIR_IN,
-+				     DMA_FROM_DEVICE);
-+	if (err)
-+		return err;
++	device->cq = ib_create_cq(device->ib_device,
++				  iser_cq_callback,
++				  iser_cq_event_callback,
++				  (void *)device,
++				  ISER_MAX_CQ_LEN);
++	if (IS_ERR(device->cq))
++		goto cq_err;
 +
-+	if (edtl > iser_ctask->data[ISER_DIR_IN].data_len) {
-+		iser_err("Total data length: %ld, less than EDTL: "
-+			 "%d, in READ cmd BHS itt: %d, conn: 0x%p\n",
-+			 iser_ctask->data[ISER_DIR_IN].data_len, edtl,
-+			 ctask->itt, iser_ctask->iser_conn);
-+		return -EINVAL;
-+	}
++	if (ib_req_notify_cq(device->cq, IB_CQ_NEXT_COMP))
++		goto cq_arm_err;
 +
-+	err = iser_reg_rdma_mem(iser_ctask,ISER_DIR_IN);
-+	if (err) {
-+		iser_err("Failed to set up Data-IN RDMA\n");
-+		return err;
-+	}
-+	regd_buf = &iser_ctask->rdma_regd[ISER_DIR_IN];
++	tasklet_init(&device->cq_tasklet,
++		     iser_cq_tasklet_fn,
++		     (unsigned long)device);
 +
-+	hdr->flags    |= ISER_RSV;
-+	hdr->read_stag = cpu_to_be32(regd_buf->reg.rkey);
-+	hdr->read_va   = cpu_to_be64(regd_buf->reg.va);
-+
-+	iser_dbg("Cmd itt:%d READ tags RKEY:%#.4X VA:%#llX\n",
-+		 ctask->itt, regd_buf->reg.rkey,
-+		 (unsigned long long)regd_buf->reg.va);
++	device->mr = ib_get_dma_mr(device->pd,
++				   IB_ACCESS_LOCAL_WRITE);
++	if (IS_ERR(device->mr))
++		goto dma_mr_err;
 +
 +	return 0;
++
++dma_mr_err:
++	tasklet_kill(&device->cq_tasklet);
++cq_arm_err:
++	ib_destroy_cq(device->cq);
++cq_err:
++	ib_dealloc_pd(device->pd);
++pd_err:
++	iser_err("failed to allocate an IB resource\n");
++	return -1;
 +}
 +
-+/* Register user buffer memory and initialize passive rdma
-+ *  dto descriptor. Total data size is stored in
-+ *  ctask->data[ISER_DIR_OUT].data_len
++/**
++ * iser_free_device_ib_res - destory/dealloc/dereg the DMA MR,
++ * CQ and PD created with the device associated with the adapator.
 + */
-+static int
-+iser_prepare_write_cmd(struct iscsi_cmd_task *ctask,
-+		       unsigned int imm_sz,
-+		       unsigned int unsol_sz,
-+		       unsigned int edtl)
++static void iser_free_device_ib_res(struct iser_device *device)
 +{
-+	struct iscsi_iser_cmd_task *iser_ctask = ctask->dd_data;
-+	struct iser_regd_buf *regd_buf;
-+	int err;
-+	struct iser_dto *send_dto = &iser_ctask->desc.dto;
-+	struct iser_hdr *hdr = &iser_ctask->desc.iser_header;
-+	struct iser_data_buf *buf_out = &iser_ctask->data[ISER_DIR_OUT];
++	BUG_ON(device->mr == NULL);
 +
-+	err = iser_dma_map_task_data(iser_ctask,
-+				     buf_out,
-+				     ISER_DIR_OUT,
-+				     DMA_TO_DEVICE);
-+	if (err)
-+		return err;
++	tasklet_kill(&device->cq_tasklet);
 +
-+	if (edtl > iser_ctask->data[ISER_DIR_OUT].data_len) {
-+		iser_err("Total data length: %ld, less than EDTL: %d, "
-+			 "in WRITE cmd BHS itt: %d, conn: 0x%p\n",
-+			 iser_ctask->data[ISER_DIR_OUT].data_len,
-+			 edtl, ctask->itt, ctask->conn);
-+		return -EINVAL;
++	(void)ib_dereg_mr(device->mr);
++	(void)ib_destroy_cq(device->cq);
++	(void)ib_dealloc_pd(device->pd);
++
++	device->mr = NULL;
++	device->cq = NULL;
++	device->pd = NULL;
++}
++
++/**
++ * iser_create_ib_conn_res - Creates FMR pool and Queue-Pair (QP)
++ *
++ * returns 0 on success, -1 on failure
++ */
++static int iser_create_ib_conn_res(struct iser_conn *ib_conn)
++{
++	struct iser_device	*device;
++	struct ib_qp_init_attr	init_attr;
++	int			ret;
++	struct ib_fmr_pool_param params;
++
++	BUG_ON(ib_conn->device == NULL);
++
++	device = ib_conn->device;
++
++	ib_conn->page_vec = kmalloc(sizeof(struct iser_page_vec) +
++				    (sizeof(u64) * (ISCSI_ISER_SG_TABLESIZE +1)),
++				    GFP_KERNEL);
++	if (!ib_conn->page_vec) {
++		ret = -ENOMEM;
++		goto alloc_err;
++	}
++	ib_conn->page_vec->pages = (u64 *) (ib_conn->page_vec + 1);
++
++	params.page_shift        = PAGE_SHIFT;
++	/* when the first/last SG element are not start/end *
++	 * page aligned, the map whould be of N+1 pages     */
++	params.max_pages_per_fmr = ISCSI_ISER_SG_TABLESIZE + 1;
++	/* make the pool size twice the max number of SCSI commands *
++	 * the ML is expected to queue, watermark for unmap at 50%  */
++	params.pool_size	 = ISCSI_XMIT_CMDS_MAX * 2;
++	params.dirty_watermark	 = ISCSI_XMIT_CMDS_MAX;
++	params.cache		 = 0;
++	params.flush_function	 = NULL;
++	params.access		 = (IB_ACCESS_LOCAL_WRITE  |
++				    IB_ACCESS_REMOTE_WRITE |
++				    IB_ACCESS_REMOTE_READ);
++
++	ib_conn->fmr_pool = ib_create_fmr_pool(device->pd, &params);
++	if (IS_ERR(ib_conn->fmr_pool)) {
++		ret = PTR_ERR(ib_conn->fmr_pool);
++		goto fmr_pool_err;
 +	}
 +
-+	err = iser_reg_rdma_mem(iser_ctask,ISER_DIR_OUT);
-+	if (err != 0) {
-+		iser_err("Failed to register write cmd RDMA mem\n");
-+		return err;
-+	}
++	memset(&init_attr, 0, sizeof init_attr);
 +
-+	regd_buf = &iser_ctask->rdma_regd[ISER_DIR_OUT];
++	init_attr.event_handler = iser_qp_event_callback;
++	init_attr.qp_context	= (void *)ib_conn;
++	init_attr.send_cq	= device->cq;
++	init_attr.recv_cq	= device->cq;
++	init_attr.cap.max_send_wr  = ISER_QP_MAX_REQ_DTOS;
++	init_attr.cap.max_recv_wr  = ISER_QP_MAX_RECV_DTOS;
++	init_attr.cap.max_send_sge = MAX_REGD_BUF_VECTOR_LEN;
++	init_attr.cap.max_recv_sge = 2;
++	init_attr.sq_sig_type	= IB_SIGNAL_REQ_WR;
++	init_attr.qp_type	= IB_QPT_RC;
 +
-+	if (unsol_sz < edtl) {
-+		hdr->flags     |= ISER_WSV;
-+		hdr->write_stag = cpu_to_be32(regd_buf->reg.rkey);
-+		hdr->write_va   = cpu_to_be64(regd_buf->reg.va + unsol_sz);
++	ret = rdma_create_qp(ib_conn->cma_id, device->pd, &init_attr);
++	if (ret)
++		goto qp_err;
 +
-+		iser_dbg("Cmd itt:%d, WRITE tags, RKEY:%#.4X "
-+			 "VA:%#llX + unsol:%d\n",
-+			 ctask->itt, regd_buf->reg.rkey,
-+			 (unsigned long long)regd_buf->reg.va, unsol_sz);
-+	}
++	ib_conn->qp = ib_conn->cma_id->qp;
++	iser_err("setting conn %p cma_id %p: fmr_pool %p qp %p\n",
++		 ib_conn, ib_conn->cma_id,
++		 ib_conn->fmr_pool, ib_conn->cma_id->qp);
++	return ret;
 +
-+	if (imm_sz > 0) {
-+		iser_dbg("Cmd itt:%d, WRITE, adding imm.data sz: %d\n",
-+			 ctask->itt, imm_sz);
-+		iser_dto_add_regd_buff(send_dto,
-+				       regd_buf,
-+				       0,
-+				       imm_sz);
-+	}
++qp_err:
++	(void)ib_destroy_fmr_pool(ib_conn->fmr_pool);
++fmr_pool_err:
++	kfree(ib_conn->page_vec);
++alloc_err:
++	iser_err("unable to alloc mem or create resource, err %d\n", ret);
++	return ret;
++}
++
++/**
++ * releases the FMR pool, QP and CMA ID objects, returns 0 on success,
++ * -1 on failure
++ */
++static int iser_free_ib_conn_res(struct iser_conn *ib_conn)
++{
++	BUG_ON(ib_conn == NULL);
++
++	iser_err("freeing conn %p cma_id %p fmr pool %p qp %p\n",
++		 ib_conn, ib_conn->cma_id,
++		 ib_conn->fmr_pool, ib_conn->qp);
++
++	/* qp is created only once both addr & route are resolved */
++	if (ib_conn->fmr_pool != NULL)
++		ib_destroy_fmr_pool(ib_conn->fmr_pool);
++
++	if (ib_conn->qp != NULL)
++		rdma_destroy_qp(ib_conn->cma_id);
++
++	if (ib_conn->cma_id != NULL)
++		rdma_destroy_id(ib_conn->cma_id);
++
++	ib_conn->fmr_pool = NULL;
++	ib_conn->qp	  = NULL;
++	ib_conn->cma_id   = NULL;
++	kfree(ib_conn->page_vec);
 +
 +	return 0;
 +}
 +
 +/**
-+ * iser_post_receive_control - allocates, initializes and posts receive DTO.
++ * based on the resolved device node GUID see if there already allocated
++ * device for this device. If there's no such, create one.
 + */
-+static int iser_post_receive_control(struct iscsi_conn *conn)
++static
++struct iser_device *iser_device_find_by_ib_device(struct rdma_cm_id *cma_id)
 +{
-+	struct iscsi_iser_conn *iser_conn = conn->dd_data;
-+	struct iser_desc     *rx_desc;
-+	struct iser_regd_buf *regd_hdr;
-+	struct iser_regd_buf *regd_data;
-+	struct iser_dto      *recv_dto = NULL;
-+	struct iser_device  *device = iser_conn->ib_conn->device;
-+	int rx_data_size, err = 0;
++	struct list_head    *p_list;
++	struct iser_device  *device = NULL;
 +
-+	rx_desc = kmem_cache_alloc(ig.desc_cache, GFP_KERNEL);
-+	if (rx_desc == NULL) {
-+		iser_err("Failed to alloc desc for post recv\n");
-+		return -ENOMEM;
-+	}
-+	rx_desc->type = ISCSI_RX;
++	mutex_lock(&ig.device_list_mutex);
 +
-+	/* for the login sequence we must support rx of upto 8K */
-+	if (conn->c_stage == ISCSI_CONN_INITIAL_STAGE)
-+		rx_data_size = DEFAULT_MAX_RECV_DATA_SEGMENT_LENGTH;
-+	else /* FIXME till user space sets conn->max_recv_dlength correctly */
-+		rx_data_size = 128;
-+
-+	rx_desc->data = kmalloc(rx_data_size, GFP_KERNEL);
-+	if (rx_desc->data == NULL) {
-+		iser_err("Failed to alloc data buf for post recv\n");
-+		err = -ENOMEM;
-+		goto post_rx_kmalloc_failure;
++	p_list = ig.device_list.next;
++	while (p_list != &ig.device_list) {
++		device = list_entry(p_list, struct iser_device, ig_list);
++		/* find if there's a match using the node GUID */
++		if (device->ib_device->node_guid == cma_id->device->node_guid)
++			break;
 +	}
 +
-+	recv_dto = &rx_desc->dto;
-+	recv_dto->conn          = iser_conn;
-+	recv_dto->regd_vector_len = 0;
-+
-+	regd_hdr = &rx_desc->hdr_regd_buf;
-+	memset(regd_hdr, 0, sizeof(struct iser_regd_buf));
-+	regd_hdr->device  = device;
-+	regd_hdr->virt_addr  = rx_desc; /* == &rx_desc->iser_header */
-+	regd_hdr->data_size  = ISER_TOTAL_HEADERS_LEN;
-+
-+	iser_reg_single(device, regd_hdr, DMA_FROM_DEVICE);
-+
-+	iser_dto_add_regd_buff(recv_dto, regd_hdr, 0, 0);
-+
-+	regd_data = &rx_desc->data_regd_buf;
-+	memset(regd_data, 0, sizeof(struct iser_regd_buf));
-+	regd_data->device  = device;
-+	regd_data->virt_addr  = rx_desc->data;
-+	regd_data->data_size  = rx_data_size;
-+
-+	iser_reg_single(device, regd_data, DMA_FROM_DEVICE);
-+
-+	iser_dto_add_regd_buff(recv_dto, regd_data, 0, 0);
-+
-+	err = iser_post_recv(rx_desc);
-+	if (!err)
-+		return 0;
-+
-+	/* iser_post_recv failed */
-+	iser_dto_buffs_release(recv_dto);
-+	kfree(rx_desc->data);
-+post_rx_kmalloc_failure:
-+	kmem_cache_free(ig.desc_cache, rx_desc);
-+	return err;
-+}
-+
-+/* creates a new tx descriptor and adds header regd buffer */
-+static void iser_create_send_desc(struct iscsi_iser_conn *iser_conn,
-+				  struct iser_desc       *tx_desc)
-+{
-+	struct iser_regd_buf *regd_hdr = &tx_desc->hdr_regd_buf;
-+	struct iser_dto      *send_dto = &tx_desc->dto;
-+
-+	memset(regd_hdr, 0, sizeof(struct iser_regd_buf));
-+	regd_hdr->device  = iser_conn->ib_conn->device;
-+	regd_hdr->virt_addr  = tx_desc; /* == &tx_desc->iser_header */
-+	regd_hdr->data_size  = ISER_TOTAL_HEADERS_LEN;
-+
-+	send_dto->conn          = iser_conn;
-+	send_dto->notify_enable   = 1;
-+	send_dto->regd_vector_len = 0;
-+
-+	memset(&tx_desc->iser_header, 0, sizeof(struct iser_hdr));
-+	tx_desc->iser_header.flags = ISER_VER;
-+
-+	iser_dto_add_regd_buff(send_dto, regd_hdr, 0, 0);
-+}
-+
-+/**
-+ *  iser_conn_set_full_featured_mode - (iSER API)
-+ */
-+int iser_conn_set_full_featured_mode(struct iscsi_conn *conn)
-+{
-+	struct iscsi_iser_conn *iser_conn = conn->dd_data;
-+
-+	int i;
-+	/* no need to keep it in a var, we are after login so if this should
-+	 * be negotiated, by now the result should be available here */
-+	int initial_post_recv_bufs_num = ISER_MAX_RX_MISC_PDUS;
-+
-+	iser_dbg("Initially post: %d\n", initial_post_recv_bufs_num);
-+
-+	/* Check that there is no posted recv or send buffers left - */
-+	/* they must be consumed during the login phase */
-+	BUG_ON(atomic_read(&iser_conn->ib_conn->post_recv_buf_count) != 0);
-+	BUG_ON(atomic_read(&iser_conn->ib_conn->post_send_buf_count) != 0);
-+
-+	/* Initial post receive buffers */
-+	for (i = 0; i < initial_post_recv_bufs_num; i++) {
-+		if (iser_post_receive_control(conn) != 0) {
-+			iser_err("Failed to post recv bufs at:%d conn:0x%p\n",
-+				 i, conn);
-+			return -ENOMEM;
++	if (device == NULL) {
++		device = kzalloc(sizeof *device, GFP_KERNEL);
++		if (device == NULL)
++			goto out;
++		/* assign this device to the device */
++		device->ib_device = cma_id->device;
++		/* init the device and link it into ig device list */
++		if (iser_create_device_ib_res(device)) {
++			kfree(device);
++			device = NULL;
++			goto out;
 +		}
++		list_add(&device->ig_list, &ig.device_list);
 +	}
-+	iser_dbg("Posted %d post recv bufs, conn:0x%p\n", i, conn);
-+	return 0;
++out:
++	BUG_ON(device == NULL);
++	device->refcount++;
++	mutex_unlock(&ig.device_list_mutex);
++	return device;
 +}
 +
-+static int
-+iser_check_xmit(struct iscsi_conn *conn, void *task)
++/* if there's no demand for this device, release it */
++static void iser_device_try_release(struct iser_device *device)
 +{
-+	int rc = 0;
-+	struct iscsi_iser_conn *iser_conn = conn->dd_data;
-+
-+	write_lock_bh(conn->recv_lock);
-+	if (atomic_read(&iser_conn->ib_conn->post_send_buf_count) ==
-+	    ISER_QP_MAX_REQ_DTOS) {
-+		iser_dbg("%ld can't xmit task %p, suspending tx\n",jiffies,task);
-+		set_bit(ISCSI_SUSPEND_BIT, &conn->suspend_tx);
-+		rc = -EAGAIN;
++	mutex_lock(&ig.device_list_mutex);
++	device->refcount--;
++	iser_err("device %p refcount %d\n",device,device->refcount);
++	if (!device->refcount) {
++		iser_free_device_ib_res(device);
++		list_del(&device->ig_list);
++		kfree(device);
 +	}
-+	write_unlock_bh(conn->recv_lock);
-+	return rc;
++	mutex_unlock(&ig.device_list_mutex);
 +}
 +
-+
-+/**
-+ * iser_send_command - send command PDU
-+ */
-+int iser_send_command(struct iscsi_conn     *conn,
-+		      struct iscsi_cmd_task *ctask)
++int iser_conn_state_comp(struct iser_conn *ib_conn,
++			enum iser_ib_conn_state comp)
 +{
-+	struct iscsi_iser_conn *iser_conn = conn->dd_data;
-+	struct iscsi_iser_cmd_task *iser_ctask = ctask->dd_data;
-+	struct iser_dto *send_dto = NULL;
-+	unsigned long edtl;
-+	int err = 0;
-+	struct iser_data_buf *data_buf;
++	int ret;
 +
-+	struct iscsi_cmd *hdr =  ctask->hdr;
-+	struct scsi_cmnd *sc  =  ctask->sc;
++	spin_lock_bh(&ib_conn->lock);
++	ret = (ib_conn->state == comp);
++	spin_unlock_bh(&ib_conn->lock);
++	return ret;
++}
 +
-+	if (!iser_conn_state_comp(iser_conn->ib_conn, ISER_CONN_UP)) {
-+		iser_err("Failed to send, conn: 0x%p is not up\n", iser_conn->ib_conn);
-+		return -EPERM;
-+	}
-+	if (iser_check_xmit(conn, ctask))
-+		return -EAGAIN;
++static int iser_conn_state_comp_exch(struct iser_conn *ib_conn,
++				     enum iser_ib_conn_state comp,
++				     enum iser_ib_conn_state exch)
++{
++	int ret;
 +
-+	edtl = ntohl(hdr->data_length);
-+
-+	/* build the tx desc regd header and add it to the tx desc dto */
-+	iser_ctask->desc.type = ISCSI_TX_SCSI_COMMAND;
-+	send_dto = &iser_ctask->desc.dto;
-+	send_dto->ctask = iser_ctask;
-+	iser_create_send_desc(iser_conn, &iser_ctask->desc);
-+
-+	if (hdr->flags & ISCSI_FLAG_CMD_READ)
-+		data_buf = &iser_ctask->data[ISER_DIR_IN];
-+	else
-+		data_buf = &iser_ctask->data[ISER_DIR_OUT];
-+
-+	if (sc->use_sg) { /* using a scatter list */
-+		data_buf->buf  = sc->request_buffer;
-+		data_buf->size = sc->use_sg;
-+	} else { /* using a single buffer - convert it into one entry SG */
-+		sg_init_one(&data_buf->sg_single,
-+			    sc->request_buffer, sc->request_bufflen);
-+		data_buf->buf   = &data_buf->sg_single;
-+		data_buf->size  = 1;
-+	}
-+
-+	data_buf->data_len = sc->request_bufflen;
-+
-+	if (hdr->flags & ISCSI_FLAG_CMD_READ) {
-+		err = iser_prepare_read_cmd(ctask, edtl);
-+		if (err)
-+			goto send_command_error;
-+	}
-+	if (hdr->flags & ISCSI_FLAG_CMD_WRITE) {
-+		err = iser_prepare_write_cmd(ctask,
-+					     ctask->imm_count,
-+				             ctask->imm_count +
-+					     ctask->unsol_count,
-+					     edtl);
-+		if (err)
-+			goto send_command_error;
-+	}
-+
-+	iser_reg_single(iser_conn->ib_conn->device,
-+			send_dto->regd[0], DMA_TO_DEVICE);
-+
-+	if (iser_post_receive_control(conn) != 0) {
-+		iser_err("post_recv failed!\n");
-+		err = -ENOMEM;
-+		goto send_command_error;
-+	}
-+
-+	iser_ctask->status = ISER_TASK_STATUS_STARTED;
-+
-+	err = iser_post_send(&iser_ctask->desc);
-+	if (!err)
-+		return 0;
-+
-+send_command_error:
-+	iser_dto_buffs_release(send_dto);
-+	iser_err("conn %p failed ctask->itt %d err %d\n",conn, ctask->itt, err);
-+	return err;
++	spin_lock_bh(&ib_conn->lock);
++	if ((ret = (ib_conn->state == comp)))
++		ib_conn->state = exch;
++	spin_unlock_bh(&ib_conn->lock);
++	return ret;
 +}
 +
 +/**
-+ * iser_send_data_out - send data out PDU
++ * triggers start of the disconnect procedures and wait for them to be done
 + */
-+int iser_send_data_out(struct iscsi_conn     *conn,
-+		       struct iscsi_cmd_task *ctask,
-+		       struct iscsi_data *hdr)
++void iser_conn_terminate(struct iser_conn *ib_conn)
 +{
-+	struct iscsi_iser_conn *iser_conn = conn->dd_data;
-+	struct iscsi_iser_cmd_task *iser_ctask = ctask->dd_data;
-+	struct iser_desc *tx_desc = NULL;
-+	struct iser_dto *send_dto = NULL;
-+	unsigned long buf_offset;
-+	unsigned long data_seg_len;
-+	unsigned int itt;
 +	int err = 0;
 +
-+	if (!iser_conn_state_comp(iser_conn->ib_conn, ISER_CONN_UP)) {
-+		iser_err("Failed to send, conn: 0x%p is not up\n", iser_conn->ib_conn);
-+		return -EPERM;
-+	}
-+
-+	if (iser_check_xmit(conn, ctask))
-+		return -EAGAIN;
-+
-+	itt = ntohl(hdr->itt);
-+	data_seg_len = ntoh24(hdr->dlength);
-+	buf_offset   = ntohl(hdr->offset);
-+
-+	iser_dbg("%s itt %d dseg_len %d offset %d\n",
-+		 __func__,(int)itt,(int)data_seg_len,(int)buf_offset);
-+
-+	tx_desc = kmem_cache_alloc(ig.desc_cache, GFP_KERNEL);
-+	if (tx_desc == NULL) {
-+		iser_err("Failed to alloc desc for post dataout\n");
-+		return -ENOMEM;
-+	}
-+
-+	tx_desc->type = ISCSI_TX_DATAOUT;
-+	memcpy(&tx_desc->iscsi_header, hdr, sizeof(struct iscsi_hdr));
-+
-+	/* build the tx desc regd header and add it to the tx desc dto */
-+	send_dto = &tx_desc->dto;
-+	send_dto->ctask = iser_ctask;
-+	iser_create_send_desc(iser_conn, tx_desc);
-+
-+	iser_reg_single(iser_conn->ib_conn->device,
-+			send_dto->regd[0], DMA_TO_DEVICE);
-+
-+	/* all data was registered for RDMA, we can use the lkey */
-+	iser_dto_add_regd_buff(send_dto,
-+			       &iser_ctask->rdma_regd[ISER_DIR_OUT],
-+			       buf_offset,
-+			       data_seg_len);
-+
-+	if (buf_offset + data_seg_len > iser_ctask->data[ISER_DIR_OUT].data_len) {
-+		iser_err("Offset:%ld & DSL:%ld in Data-Out "
-+			 "inconsistent with total len:%ld, itt:%d\n",
-+			 buf_offset, data_seg_len,
-+			 iser_ctask->data[ISER_DIR_OUT].data_len, itt);
-+		err = -EINVAL;
-+		goto send_data_out_error;
-+	}
-+	iser_dbg("data-out itt: %d, offset: %ld, sz: %ld\n",
-+		 itt, buf_offset, data_seg_len);
-+
-+
-+	err = iser_post_send(tx_desc);
-+	if (!err)
-+		return 0;
-+
-+send_data_out_error:
-+	iser_dto_buffs_release(send_dto);
-+	kmem_cache_free(ig.desc_cache, tx_desc);
-+	iser_err("conn %p failed err %d\n",conn, err);
-+	return err;
-+}
-+
-+int iser_send_control(struct iscsi_conn *conn,
-+		      struct iscsi_mgmt_task *mtask)
-+{
-+	struct iscsi_iser_conn *iser_conn = conn->dd_data;
-+	struct iser_desc *mdesc = mtask->dd_data;
-+	struct iser_dto *send_dto = NULL;
-+	unsigned int itt;
-+	unsigned long data_seg_len;
-+	int err = 0;
-+	unsigned char opcode;
-+	struct iser_regd_buf *regd_buf;
-+	struct iser_device *device;
-+
-+	if (!iser_conn_state_comp(iser_conn->ib_conn, ISER_CONN_UP)) {
-+		iser_err("Failed to send, conn: 0x%p is not up\n", iser_conn->ib_conn);
-+		return -EPERM;
-+	}
-+
-+	if (iser_check_xmit(conn,mtask))
-+		return -EAGAIN;
-+
-+	/* build the tx desc regd header and add it to the tx desc dto */
-+	mdesc->type = ISCSI_TX_CONTROL;
-+	send_dto = &mdesc->dto;
-+	send_dto->ctask = NULL;
-+	iser_create_send_desc(iser_conn, mdesc);
-+
-+	device = iser_conn->ib_conn->device;
-+
-+	iser_reg_single(device, send_dto->regd[0], DMA_TO_DEVICE);
-+
-+	itt = ntohl(mtask->hdr->itt);
-+	opcode = mtask->hdr->opcode & ISCSI_OPCODE_MASK;
-+	data_seg_len = ntoh24(mtask->hdr->dlength);
-+
-+	if (data_seg_len > 0) {
-+		regd_buf = &mdesc->data_regd_buf;
-+		memset(regd_buf, 0, sizeof(struct iser_regd_buf));
-+		regd_buf->device = device;
-+		regd_buf->virt_addr = mtask->data;
-+		regd_buf->data_size = mtask->data_count;
-+		iser_reg_single(device, regd_buf,
-+				DMA_TO_DEVICE);
-+		iser_dto_add_regd_buff(send_dto, regd_buf,
-+				       0,
-+				       data_seg_len);
-+	}
-+
-+	if (iser_post_receive_control(conn) != 0) {
-+		iser_err("post_rcv_buff failed!\n");
-+		err = -ENOMEM;
-+		goto send_control_error;
-+	}
-+
-+	err = iser_post_send(mdesc);
-+	if (!err)
-+		return 0;
-+
-+send_control_error:
-+	iser_dto_buffs_release(send_dto);
-+	iser_err("conn %p failed err %d\n",conn, err);
-+	return err;
-+}
-+
-+/**
-+ * iser_rcv_dto_completion - recv DTO completion
-+ */
-+void iser_rcv_completion(struct iser_desc *rx_desc,
-+			 unsigned long dto_xfer_len)
-+{
-+	struct iser_dto        *dto = &rx_desc->dto;
-+	struct iscsi_iser_conn *conn = dto->conn;
-+	struct iscsi_session *session = conn->iscsi_conn->session;
-+	struct iscsi_cmd_task *ctask;
-+	struct iscsi_iser_cmd_task *iser_ctask;
-+	struct iscsi_hdr *hdr;
-+	char   *rx_data = NULL;
-+	int     rx_data_len = 0;
-+	unsigned int itt;
-+	unsigned char opcode;
-+
-+	hdr = &rx_desc->iscsi_header;
-+
-+	iser_dbg("op 0x%x itt 0x%x\n", hdr->opcode,hdr->itt);
-+
-+	if (dto_xfer_len > ISER_TOTAL_HEADERS_LEN) { /* we have data */
-+		rx_data_len = dto_xfer_len - ISER_TOTAL_HEADERS_LEN;
-+		rx_data     = dto->regd[1]->virt_addr;
-+		rx_data    += dto->offset[1];
-+	}
-+
-+	opcode = hdr->opcode & ISCSI_OPCODE_MASK;
-+
-+	if (opcode == ISCSI_OP_SCSI_CMD_RSP) {
-+	        itt = hdr->itt & ISCSI_ITT_MASK; /* mask out cid and age bits */
-+		if (!(itt < session->cmds_max))
-+			iser_err("itt can't be matched to task!!!"
-+				 "conn %p opcode %d cmds_max %d itt %d\n",
-+				 conn->iscsi_conn,opcode,session->cmds_max,itt);
-+		/* use the mapping given with the cmds array indexed by itt */
-+		ctask = (struct iscsi_cmd_task *)session->cmds[itt];
-+		iser_ctask = ctask->dd_data;
-+		iser_dbg("itt %d ctask %p\n",itt,ctask);
-+		iser_ctask->status = ISER_TASK_STATUS_COMPLETED;
-+		iser_ctask_rdma_finalize(iser_ctask);
-+	}
-+
-+	iser_dto_buffs_release(dto);
-+
-+	iscsi_iser_recv(conn->iscsi_conn, hdr, rx_data, rx_data_len);
-+
-+	kfree(rx_desc->data);
-+	kmem_cache_free(ig.desc_cache, rx_desc);
-+
-+	/* decrementing conn->post_recv_buf_count only --after-- freeing the   *
-+	 * task eliminates the need to worry on tasks which are completed in   *
-+	 * parallel to the execution of iser_conn_term. So the code that waits *
-+	 * for the posted rx bufs refcount to become zero handles everything   */
-+	atomic_dec(&conn->ib_conn->post_recv_buf_count);
-+}
-+
-+void iser_snd_completion(struct iser_desc *tx_desc)
-+{
-+	struct iser_dto        *dto = &tx_desc->dto;
-+	struct iscsi_iser_conn *iser_conn = dto->conn;
-+	struct iscsi_conn      *conn = iser_conn->iscsi_conn;
-+	struct iscsi_mgmt_task *mtask;
-+
-+	iser_dbg("Initiator, Data sent dto=0x%p\n", dto);
-+
-+	iser_dto_buffs_release(dto);
-+
-+	if (tx_desc->type == ISCSI_TX_DATAOUT)
-+		kmem_cache_free(ig.desc_cache, tx_desc);
-+
-+	atomic_dec(&iser_conn->ib_conn->post_send_buf_count);
-+
-+	write_lock(conn->recv_lock);
-+	if (conn->suspend_tx) {
-+		iser_dbg("%ld resuming tx\n",jiffies);
-+		clear_bit(ISCSI_SUSPEND_BIT, &conn->suspend_tx);
-+		scsi_queue_work(conn->session->host, &conn->xmitwork);
-+	}
-+	write_unlock(conn->recv_lock);
-+
-+	if (tx_desc->type == ISCSI_TX_CONTROL) {
-+		/* this arithmetic is legal by libiscsi dd_data allocation */
-+		mtask = (void *) ((long)(void *)tx_desc -
-+				  sizeof(struct iscsi_mgmt_task));
-+		if (mtask->hdr->itt == cpu_to_be32(ISCSI_RESERVED_TAG)) {
-+			struct iscsi_session *session = conn->session;
-+
-+			spin_lock(&conn->session->lock);
-+			list_del(&mtask->running);
-+			__kfifo_put(session->mgmtpool.queue, (void*)&mtask,
-+				    sizeof(void*));
-+			spin_unlock(&session->lock);
-+		}
-+	}
-+}
-+
-+void iser_ctask_rdma_init(struct iscsi_iser_cmd_task *iser_ctask)
-+
-+{
-+	iser_ctask->status = ISER_TASK_STATUS_INIT;
-+
-+	iser_ctask->dir[ISER_DIR_IN] = 0;
-+	iser_ctask->dir[ISER_DIR_OUT] = 0;
-+
-+	iser_ctask->data[ISER_DIR_IN].data_len  = 0;
-+	iser_ctask->data[ISER_DIR_OUT].data_len = 0;
-+
-+	memset(&iser_ctask->rdma_regd[ISER_DIR_IN], 0,
-+	       sizeof(struct iser_regd_buf));
-+	memset(&iser_ctask->rdma_regd[ISER_DIR_OUT], 0,
-+	       sizeof(struct iser_regd_buf));
-+}
-+
-+void iser_ctask_rdma_finalize(struct iscsi_iser_cmd_task *iser_ctask)
-+{
-+	int deferred;
-+
-+	/* if we were reading, copy back to unaligned sglist,
-+	 * anyway dma_unmap and free the copy
++	/* change the ib conn state only if the conn is UP, however always call
++	 * rdma_disconnect since this is the only way to cause the CMA to change
++	 * the QP state to ERROR
 +	 */
-+	if (iser_ctask->data_copy[ISER_DIR_IN].copy_buf != NULL)
-+		iser_finalize_rdma_unaligned_sg(iser_ctask, ISER_DIR_IN);
-+	if (iser_ctask->data_copy[ISER_DIR_OUT].copy_buf != NULL)
-+		iser_finalize_rdma_unaligned_sg(iser_ctask, ISER_DIR_OUT);
 +
-+	if (iser_ctask->dir[ISER_DIR_IN]) {
-+		deferred = iser_regd_buff_release
-+			(&iser_ctask->rdma_regd[ISER_DIR_IN]);
-+		if (deferred) {
-+			iser_err("References remain for BUF-IN rdma reg\n");
-+			BUG();
-+		}
-+	}
++	iser_conn_state_comp_exch(ib_conn, ISER_CONN_UP, ISER_CONN_TERMINATING);
++	err = rdma_disconnect(ib_conn->cma_id);
++	if (err)
++		iser_err("Failed to disconnect, conn: 0x%p err %d\n",
++			 ib_conn,err);
 +
-+	if (iser_ctask->dir[ISER_DIR_OUT]) {
-+		deferred = iser_regd_buff_release
-+			(&iser_ctask->rdma_regd[ISER_DIR_OUT]);
-+		if (deferred) {
-+			iser_err("References remain for BUF-OUT rdma reg\n");
-+			BUG();
-+		}
-+	}
++	wait_event_interruptible(ib_conn->wait,
++				 ib_conn->state == ISER_CONN_DOWN);
 +
-+	iser_dma_unmap_task_data(iser_ctask);
++	iser_conn_release(ib_conn);
 +}
 +
-+void iser_dto_buffs_release(struct iser_dto *dto)
++static void iser_connect_error(struct rdma_cm_id *cma_id)
 +{
-+	int i;
++	struct iser_conn *ib_conn;
++	ib_conn = (struct iser_conn *)cma_id->context;
 +
-+	for (i = 0; i < dto->regd_vector_len; i++)
-+		iser_regd_buff_release(dto->regd[i]);
++	ib_conn->state = ISER_CONN_DOWN;
++	wake_up_interruptible(&ib_conn->wait);
 +}
 +
-
++static void iser_addr_handler(struct rdma_cm_id *cma_id)
++{
++	struct iser_device *device;
++	struct iser_conn   *ib_conn;
++	int    ret;
++
++	device = iser_device_find_by_ib_device(cma_id);
++	ib_conn = (struct iser_conn *)cma_id->context;
++	ib_conn->device = device;
++
++	ret = rdma_resolve_route(cma_id, 1000);
++	if (ret) {
++		iser_err("resolve route failed: %d\n", ret);
++		iser_connect_error(cma_id);
++	}
++	return;
++}
++
++static void iser_route_handler(struct rdma_cm_id *cma_id)
++{
++	struct rdma_conn_param conn_param;
++	int    ret;
++
++	ret = iser_create_ib_conn_res((struct iser_conn *)cma_id->context);
++	if (ret)
++		goto failure;
++
++	iser_dbg("path.mtu is %d setting it to %d\n",
++		 cma_id->route.path_rec->mtu, IB_MTU_1024);
++
++	/* we must set the MTU to 1024 as this is what the target is assuming */
++	if (cma_id->route.path_rec->mtu > IB_MTU_1024)
++		cma_id->route.path_rec->mtu = IB_MTU_1024;
++
++	memset(&conn_param, 0, sizeof conn_param);
++	conn_param.responder_resources = 4;
++	conn_param.initiator_depth     = 1;
++	conn_param.retry_count	       = 7;
++	conn_param.rnr_retry_count     = 6;
++
++	ret = rdma_connect(cma_id, &conn_param);
++	if (ret) {
++		iser_err("failure connecting: %d\n", ret);
++		goto failure;
++	}
++
++	return;
++failure:
++	iser_connect_error(cma_id);
++}
++
++static void iser_connected_handler(struct rdma_cm_id *cma_id)
++{
++	struct iser_conn *ib_conn;
++
++	ib_conn = (struct iser_conn *)cma_id->context;
++	ib_conn->state = ISER_CONN_UP;
++	wake_up_interruptible(&ib_conn->wait);
++}
++
++static void iser_disconnected_handler(struct rdma_cm_id *cma_id)
++{
++	struct iser_conn *ib_conn;
++
++	ib_conn = (struct iser_conn *)cma_id->context;
++	ib_conn->disc_evt_flag = 1;
++
++	/* getting here when the state is UP means that the conn is being *
++	 * terminated asynchronously from the iSCSI layer's perspective.  */
++	if (iser_conn_state_comp_exch(ib_conn, ISER_CONN_UP,
++				      ISER_CONN_TERMINATING))
++		iscsi_conn_failure(ib_conn->iser_conn->iscsi_conn,
++				   ISCSI_ERR_CONN_FAILED);
++
++	/* Complete the termination process if no posts are pending */
++	if ((atomic_read(&ib_conn->post_recv_buf_count) == 0) &&
++	    (atomic_read(&ib_conn->post_send_buf_count) == 0)) {
++		ib_conn->state = ISER_CONN_DOWN;
++		wake_up_interruptible(&ib_conn->wait);
++	}
++}
++
++static int iser_cma_handler(struct rdma_cm_id *cma_id, struct rdma_cm_event *event)
++{
++	int ret = 0;
++
++	iser_err("event %d conn %p id %p\n",event->event,cma_id->context,cma_id);
++
++	switch (event->event) {
++	case RDMA_CM_EVENT_ADDR_RESOLVED:
++		iser_addr_handler(cma_id);
++		break;
++	case RDMA_CM_EVENT_ROUTE_RESOLVED:
++		iser_route_handler(cma_id);
++		break;
++	case RDMA_CM_EVENT_ESTABLISHED:
++		iser_connected_handler(cma_id);
++		break;
++	case RDMA_CM_EVENT_ADDR_ERROR:
++	case RDMA_CM_EVENT_ROUTE_ERROR:
++	case RDMA_CM_EVENT_CONNECT_ERROR:
++	case RDMA_CM_EVENT_UNREACHABLE:
++	case RDMA_CM_EVENT_REJECTED:
++		iser_err("event: %d, error: %d\n", event->event, event->status);
++		iser_connect_error(cma_id);
++		break;
++	case RDMA_CM_EVENT_DISCONNECTED:
++		iser_disconnected_handler(cma_id);
++		break;
++	case RDMA_CM_EVENT_DEVICE_REMOVAL:
++		BUG();
++		break;
++	case RDMA_CM_EVENT_CONNECT_RESPONSE:
++		BUG();
++		break;
++	case RDMA_CM_EVENT_CONNECT_REQUEST:
++	default:
++		break;
++	}
++	return ret;
++}
++
++int iser_conn_init(struct iser_conn **ibconn)
++{
++	struct iser_conn *ib_conn;
++
++	ib_conn = kzalloc(sizeof *ib_conn, GFP_KERNEL);
++	if (!ib_conn) {
++		iser_err("can't alloc memory for struct iser_conn\n");
++		return -ENOMEM;
++	}
++	ib_conn->state = ISER_CONN_INIT;
++	init_waitqueue_head(&ib_conn->wait);
++	atomic_set(&ib_conn->post_recv_buf_count, 0);
++	atomic_set(&ib_conn->post_send_buf_count, 0);
++	INIT_WORK(&ib_conn->comperror_work, iser_comp_error_worker,
++		  ib_conn);
++	INIT_LIST_HEAD(&ib_conn->conn_list);
++	spin_lock_init(&ib_conn->lock);
++
++	*ibconn = ib_conn;
++	return 0;
++}
++
++ /**
++ * starts the process of connecting to the target
++ * sleeps untill the connection is established or rejected
++ */
++int iser_connect(struct iser_conn   *ib_conn,
++		 struct sockaddr_in *src_addr,
++		 struct sockaddr_in *dst_addr,
++		 int                 non_blocking)
++{
++	struct sockaddr *src, *dst;
++	int err = 0;
++
++	sprintf(ib_conn->name,"%d.%d.%d.%d:%d",
++		NIPQUAD(dst_addr->sin_addr.s_addr), dst_addr->sin_port);
++
++	/* the device is known only --after-- address resolution */
++	ib_conn->device = NULL;
++
++	iser_err("connecting to: %d.%d.%d.%d, port 0x%x\n",
++		 NIPQUAD(dst_addr->sin_addr), dst_addr->sin_port);
++
++	ib_conn->state = ISER_CONN_PENDING;
++
++	ib_conn->cma_id = rdma_create_id(iser_cma_handler,
++					     (void *)ib_conn,
++					     RDMA_PS_TCP);
++	if (IS_ERR(ib_conn->cma_id)) {
++		err = PTR_ERR(ib_conn->cma_id);
++		iser_err("rdma_create_id failed: %d\n", err);
++		goto id_failure;
++	}
++
++	src = (struct sockaddr *)src_addr;
++	dst = (struct sockaddr *)dst_addr;
++	err = rdma_resolve_addr(ib_conn->cma_id, src, dst, 1000);
++	if (err) {
++		iser_err("rdma_resolve_addr failed: %d\n", err);
++		goto addr_failure;
++	}
++
++	if (!non_blocking) {
++		wait_event_interruptible(ib_conn->wait,
++					 (ib_conn->state != ISER_CONN_PENDING));
++
++		if (ib_conn->state != ISER_CONN_UP) {
++			err =  -EIO;
++			goto connect_failure;
++		}
++	}
++
++	mutex_lock(&ig.connlist_mutex);
++	list_add(&ib_conn->conn_list, &ig.connlist);
++	mutex_unlock(&ig.connlist_mutex);
++	return 0;
++
++id_failure:
++	ib_conn->cma_id = NULL;
++addr_failure:
++	ib_conn->state = ISER_CONN_DOWN;
++connect_failure:
++	iser_conn_release(ib_conn);
++	return err;
++}
++
++/**
++ * Frees all conn objects and deallocs conn descriptor
++ */
++void iser_conn_release(struct iser_conn *ib_conn)
++{
++	struct iser_device  *device = ib_conn->device;
++
++	BUG_ON(ib_conn->state != ISER_CONN_DOWN);
++
++	mutex_lock(&ig.connlist_mutex);
++	list_del(&ib_conn->conn_list);
++	mutex_unlock(&ig.connlist_mutex);
++
++	iser_free_ib_conn_res(ib_conn);
++	ib_conn->device = NULL;
++	/* on EVENT_ADDR_ERROR there's no device yet for this conn */
++	if (device != NULL)
++		iser_device_try_release(device);
++	kfree(ib_conn);
++}
++
++
++/**
++ * iser_reg_page_vec - Register physical memory
++ *
++ * returns: 0 on success, errno code on failure
++ */
++int iser_reg_page_vec(struct iser_conn     *ib_conn,
++		      struct iser_page_vec *page_vec,
++		      struct iser_mem_reg  *mem_reg)
++{
++	struct ib_pool_fmr *mem;
++	u64		   io_addr;
++	u64		   *page_list;
++	int		   status;
++
++	page_list = page_vec->pages;
++	io_addr	  = page_list[0];
++
++	mem  = ib_fmr_pool_map_phys(ib_conn->fmr_pool,
++				    page_list,
++				    page_vec->length,
++				    &io_addr);
++
++	if (IS_ERR(mem)) {
++		status = (int)PTR_ERR(mem);
++		iser_err("ib_fmr_pool_map_phys failed: %d\n", status);
++		return status;
++	}
++
++	mem_reg->lkey  = mem->fmr->lkey;
++	mem_reg->rkey  = mem->fmr->rkey;
++	mem_reg->len   = page_vec->length * PAGE_SIZE;
++	mem_reg->va    = io_addr;
++	mem_reg->mem_h = (void *)mem;
++
++	mem_reg->va   += page_vec->offset;
++	mem_reg->len   = page_vec->data_size;
++
++	iser_dbg("PHYSICAL Mem.register, [PHYS p_array: 0x%p, sz: %d, "
++		 "entry[0]: (0x%08lx,%ld)] -> "
++		 "[lkey: 0x%08X mem_h: 0x%p va: 0x%08lX sz: %ld]\n",
++		 page_vec, page_vec->length,
++		 (unsigned long)page_vec->pages[0],
++		 (unsigned long)page_vec->data_size,
++		 (unsigned int)mem_reg->lkey, mem_reg->mem_h,
++		 (unsigned long)mem_reg->va, (unsigned long)mem_reg->len);
++	return 0;
++}
++
++/**
++ * Unregister (previosuly registered) memory.
++ */
++void iser_unreg_mem(struct iser_mem_reg *reg)
++{
++	int ret;
++
++	iser_dbg("PHYSICAL Mem.Unregister mem_h %p\n",reg->mem_h);
++
++	ret = ib_fmr_pool_unmap((struct ib_pool_fmr *)reg->mem_h);
++	if (ret)
++		iser_err("ib_fmr_pool_unmap failed %d\n", ret);
++
++	reg->mem_h = NULL;
++}
++
++/**
++ * iser_dto_to_iov - builds IOV from a dto descriptor
++ */
++static void iser_dto_to_iov(struct iser_dto *dto, struct ib_sge *iov, int iov_len)
++{
++	int		     i;
++	struct ib_sge	     *sge;
++	struct iser_regd_buf *regd_buf;
++
++	if (dto->regd_vector_len > iov_len) {
++		iser_err("iov size %d too small for posting dto of len %d\n",
++			 iov_len, dto->regd_vector_len);
++		BUG();
++	}
++
++	for (i = 0; i < dto->regd_vector_len; i++) {
++		sge	    = &iov[i];
++		regd_buf  = dto->regd[i];
++
++		sge->addr   = regd_buf->reg.va;
++		sge->length = regd_buf->reg.len;
++		sge->lkey   = regd_buf->reg.lkey;
++
++		if (dto->used_sz[i] > 0)  /* Adjust size */
++			sge->length = dto->used_sz[i];
++
++		/* offset and length should not exceed the regd buf length */
++		if (sge->length + dto->offset[i] > regd_buf->reg.len) {
++			iser_err("Used len:%ld + offset:%d, exceed reg.buf.len:"
++				 "%ld in dto:0x%p [%d], va:0x%08lX\n",
++				 (unsigned long)sge->length, dto->offset[i],
++				 (unsigned long)regd_buf->reg.len, dto, i,
++				 (unsigned long)sge->addr);
++			BUG();
++		}
++
++		sge->addr += dto->offset[i]; /* Adjust offset */
++	}
++}
++
++/**
++ * iser_post_recv - Posts a receive buffer.
++ *
++ * returns 0 on success, -1 on failure
++ */
++int iser_post_recv(struct iser_desc *rx_desc)
++{
++	int		  ib_ret, ret_val = 0;
++	struct ib_recv_wr recv_wr, *recv_wr_failed;
++	struct ib_sge	  iov[2];
++	struct iser_conn  *ib_conn;
++	struct iser_dto   *recv_dto = &rx_desc->dto;
++
++	/* Retrieve conn */
++	ib_conn = recv_dto->conn->ib_conn;
++
++	iser_dto_to_iov(recv_dto, iov, 2);
++
++	recv_wr.next	= NULL;
++	recv_wr.sg_list = iov;
++	recv_wr.num_sge = recv_dto->regd_vector_len;
++	recv_wr.wr_id	= (unsigned long)rx_desc;
++
++	atomic_inc(&ib_conn->post_recv_buf_count);
++	ib_ret	= ib_post_recv(ib_conn->qp, &recv_wr, &recv_wr_failed);
++	if (ib_ret) {
++		iser_err("ib_post_recv failed ret=%d\n", ib_ret);
++		atomic_dec(&ib_conn->post_recv_buf_count);
++		ret_val = -1;
++	}
++
++	return ret_val;
++}
++
++/**
++ * iser_start_send - Initiate a Send DTO operation
++ *
++ * returns 0 on success, -1 on failure
++ */
++int iser_post_send(struct iser_desc *tx_desc)
++{
++	int		  ib_ret, ret_val = 0;
++	struct ib_send_wr send_wr, *send_wr_failed;
++	struct ib_sge	  iov[MAX_REGD_BUF_VECTOR_LEN];
++	struct iser_conn  *ib_conn;
++	struct iser_dto   *dto = &tx_desc->dto;
++
++	ib_conn = dto->conn->ib_conn;
++
++	iser_dto_to_iov(dto, iov, MAX_REGD_BUF_VECTOR_LEN);
++
++	send_wr.next	   = NULL;
++	send_wr.wr_id	   = (unsigned long)tx_desc;
++	send_wr.sg_list	   = iov;
++	send_wr.num_sge	   = dto->regd_vector_len;
++	send_wr.opcode	   = IB_WR_SEND;
++	send_wr.send_flags = dto->notify_enable ? IB_SEND_SIGNALED : 0;
++
++	atomic_inc(&ib_conn->post_send_buf_count);
++
++	ib_ret = ib_post_send(ib_conn->qp, &send_wr, &send_wr_failed);
++	if (ib_ret) {
++		iser_err("Failed to start SEND DTO, dto: 0x%p, IOV len: %d\n",
++			 dto, dto->regd_vector_len);
++		iser_err("ib_post_send failed, ret:%d\n", ib_ret);
++		atomic_dec(&ib_conn->post_send_buf_count);
++		ret_val = -1;
++	}
++
++	return ret_val;
++}
++
++static void iser_comp_error_worker(void *data)
++{
++	struct iser_conn *ib_conn = data;
++
++	/* getting here when the state is UP means that the conn is being *
++	 * terminated asynchronously from the iSCSI layer's perspective.  */
++	if (iser_conn_state_comp_exch(ib_conn, ISER_CONN_UP,
++				      ISER_CONN_TERMINATING))
++		iscsi_conn_failure(ib_conn->iser_conn->iscsi_conn,
++					ISCSI_ERR_CONN_FAILED);
++
++	/* complete the termination process if disconnect event was delivered *
++	 * note there are no more non completed posts to the QP               */
++	if (ib_conn->disc_evt_flag) {
++		ib_conn->state = ISER_CONN_DOWN;
++		wake_up_interruptible(&ib_conn->wait);
++	}
++}
++
++static void iser_handle_comp_error(struct iser_desc *desc)
++{
++	struct iser_dto  *dto     = &desc->dto;
++	struct iser_conn *ib_conn = dto->conn->ib_conn;
++
++	iser_dto_buffs_release(dto);
++
++	if (desc->type == ISCSI_RX) {
++		kfree(desc->data);
++		kmem_cache_free(ig.desc_cache, desc);
++		atomic_dec(&ib_conn->post_recv_buf_count);
++	} else { /* type is TX control/command/dataout */
++		if (desc->type == ISCSI_TX_DATAOUT)
++			kmem_cache_free(ig.desc_cache, desc);
++		atomic_dec(&ib_conn->post_send_buf_count);
++	}
++
++	if (atomic_read(&ib_conn->post_recv_buf_count) == 0 &&
++	    atomic_read(&ib_conn->post_send_buf_count) == 0)
++		schedule_work(&ib_conn->comperror_work);
++}
++
++static void iser_cq_tasklet_fn(unsigned long data)
++{
++	 struct iser_device  *device = (struct iser_device *)data;
++	 struct ib_cq	     *cq = device->cq;
++	 struct ib_wc	     wc;
++	 struct iser_desc    *desc;
++	 unsigned long	     xfer_len;
++
++	while (ib_poll_cq(cq, 1, &wc) == 1) {
++		desc	 = (struct iser_desc *) (unsigned long) wc.wr_id;
++		BUG_ON(desc == NULL);
++
++		if (wc.status == IB_WC_SUCCESS) {
++			if (desc->type == ISCSI_RX) {
++				xfer_len = (unsigned long)wc.byte_len;
++				iser_rcv_completion(desc, xfer_len);
++			} else /* type == ISCSI_TX_CONTROL/SCSI_CMD/DOUT */
++				iser_snd_completion(desc);
++		} else {
++			iser_err("comp w. error op %d status %d\n",desc->type,wc.status);
++			iser_handle_comp_error(desc);
++		}
++	}
++	/* #warning "it is assumed here that arming CQ only once its empty" *
++	 * " would not cause interrupts to be missed"                       */
++	ib_req_notify_cq(cq, IB_CQ_NEXT_COMP);
++}
++
++static void iser_cq_callback(struct ib_cq *cq, void *cq_context)
++{
++	struct iser_device  *device = (struct iser_device *)cq_context;
++
++	tasklet_schedule(&device->cq_tasklet);
++}
 

@@ -1,69 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751544AbWEKLZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751545AbWEKL2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751544AbWEKLZU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 07:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbWEKLZU
+	id S1751545AbWEKL2v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 07:28:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWEKL2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 07:25:20 -0400
-Received: from 216-54-166-5.gen.twtelecom.net ([216.54.166.5]:4589 "EHLO
-	mx1.compro.net") by vger.kernel.org with ESMTP id S1030227AbWEKLZT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 07:25:19 -0400
-Message-ID: <44631F1B.8000100@compro.net>
-Date: Thu, 11 May 2006 07:25:15 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-User-Agent: Thunderbird 1.5 (X11/20060111)
+	Thu, 11 May 2006 07:28:51 -0400
+Received: from mail.suse.de ([195.135.220.2]:5772 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751545AbWEKL2v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 07:28:51 -0400
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH]x86_64 debug_stack nested patch (again)
+Date: Thu, 11 May 2006 13:28:44 +0200
+User-Agent: KMail/1.9.1
+Cc: "bibo,mao" <bibo.mao@intel.com>, jbeulich@novell.com,
+       anil.s.keshavamurthy@intel.com, linux-kernel@vger.kernel.org
+References: <200605101726.08338.bibo.mao@intel.com> <20060511041700.49c3bab0.akpm@osdl.org>
+In-Reply-To: <20060511041700.49c3bab0.akpm@osdl.org>
 MIME-Version: 1.0
-To: markh@compro.net, Ingo Molnar <mingo@elte.hu>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: rt20 patch question
-References: <446089CF.3050809@compro.net> <1147185483.21536.13.camel@c-67-180-134-207.hsd1.ca.comcast.net> <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com> <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com> <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com> <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101446090.22959@gandalf.stny.rr.com> <44623ED4.1030103@compro.net>
-In-Reply-To: <44623ED4.1030103@compro.net>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605111328.45244.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hounschell wrote:
-> Steven Rostedt wrote:
->>> Configured for "Preempable Kernel" I got the following but no "stops"
->>> came with it.
->>
->> Hmm, do you have "Compile kernel with frame pointers" turned on. It's in
->> kernel hacking. It usually gives a better stack trace.
->>
+On Thursday 11 May 2006 13:17, Andrew Morton wrote:
+> "bibo,mao" <bibo.mao@intel.com> wrote:
+> >
+> > Hi,
+> > In x86_64 platform, INT1 and INT3 trap stack is IST stack called DEBUG_STACK,
+> > when INT1/INT3 trap happens, system will switch to DEBUG_STACK by hardware. 
+> > Current DEBUG_STACK size is 4K, when int1/int3 trap happens, kernel will 
+> > minus current DEBUG_STACK IST value by 4k. But if int3/int1 trap is nested, 
+> > it will destroy other vector's IST stack. This patch modifies this, it sets 
+> > DEBUG_STACK size as 8K and allows two level of nested int1/int3 trap.
+> > 
+> > Kprobe DEBUG_STACK may be nested, because kprobe hanlder may be probed 
+> > by other kprobes. This patch is against 2.6.17-rc3. Thanks jbeulich for pointing out error in the first patch.
+> > 
+> > Signed-Off-By: bibo, mao <bibo.mao@intel.com>
+> > 
+> > --- 2.6.17-rc3.org/include/asm-x86_64/page.h	2006-05-10 12:07:18.000000000 +0800
+> > +++ 2.6.17-rc3/include/asm-x86_64/page.h	2006-05-10 12:19:24.000000000 +0800
+> > @@ -20,7 +20,7 @@
+> >  #define EXCEPTION_STACK_ORDER 0
+> >  #define EXCEPTION_STKSZ (PAGE_SIZE << EXCEPTION_STACK_ORDER)
+> >  
+> > -#define DEBUG_STACK_ORDER EXCEPTION_STACK_ORDER
+> > +#define DEBUG_STACK_ORDER (EXCEPTION_STACK_ORDER + 1)
+> >  #define DEBUG_STKSZ (PAGE_SIZE << DEBUG_STACK_ORDER)
+> >  
+> >  #define IRQSTACK_ORDER 2
 > 
-> I'll turn frame pointers on on this machine and do it again and then
-> also send you (off list) the logdev stuff you asked for from another
-> machine that is configured complete-preempt.
-> 
+> So....   why not do it this way?
 
-This is with frame pointers on but doesn't look any more revealing to
-me. After this one my network connection into the emulation was broken
-BTW. And yes hard and soft irqs are threaded, preemptable-kernel, and
-classic RCU
+Last time we discussed this I was told it could nest upto 3 or 4 times
+So that still wouldn't work.
 
-BUG: scheduling while atomic: softirq-timer/1/0x00000100/15
-caller is schedule+0x33/0xf0
- [<b01041c9>] show_trace+0xd/0xf (8)
- [<b01041e2>] dump_stack+0x17/0x19 (12)
- [<b03112ec>] __schedule+0x517/0x95b (96)
- [<b031188f>] schedule+0x33/0xf0 (28)
- [<b014381f>] synchronize_irq+0x94/0xb9 (40)
- [<b0143943>] disable_irq+0x31/0x35 (16)
- [<f0a12715>] vortex_timer+0xa1/0x55b [3c59x] (72)
- [<b01261d5>] run_timer_softirq+0x1ce/0x3de (56)
- [<b012212c>] ksoftirqd+0x110/0x1cb (60)
- [<b012f851>] kthread+0xc8/0xcc (32)
- [<b0100e15>] kernel_thread_helper+0x5/0xb (268935196)
+If anything they should decrease the int3/debug stack to 2K, then 8K 
+might be enough.
 
-I hope it was OK to add Ingo to the CC list?
+Or even better would be to fix kprobes to not do that.
 
-Mark
+I think paranoidentry would need to be fixed for that too.
 
-
+-Andi
 

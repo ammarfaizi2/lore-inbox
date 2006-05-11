@@ -1,70 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbWEKQSt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbWEKQWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030299AbWEKQSt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 12:18:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030320AbWEKQSs
+	id S1750872AbWEKQWL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 12:22:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751826AbWEKQWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 12:18:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13952 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030315AbWEKQSs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 12:18:48 -0400
-Date: Thu, 11 May 2006 09:15:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: =?ISO-8859-1?B?U+liYXN0aWVuIER1Z3Xp?= <sebastien.dugue@bull.net>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, tglx@linutronix.de
-Subject: Re: [RFC][PATCH RT 1/2] futex_requeue-optimize
-Message-Id: <20060511091541.05160b2c.akpm@osdl.org>
-In-Reply-To: <20060510112701.7ea3a749@frecb000686>
-References: <20060510112701.7ea3a749@frecb000686>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 11 May 2006 12:22:11 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:45953 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750872AbWEKQWJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 12:22:09 -0400
+Date: Thu, 11 May 2006 09:18:38 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>, tytso@mit.edu,
+       Herbert Xu <herbert@gondor.apana.org.au>, xen-devel@lists.xensource.com,
+       ian.pratt@xensource.com, rdreier@cisco.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       virtualization@lists.osdl.org, chrisw@sous-sol.org
+Subject: Re: [RFC PATCH 34/35] Add the Xen virtual network device driver.
+Message-ID: <20060511091838.035c387c@localhost.localdomain>
+In-Reply-To: <200605111147.53011.ak@suse.de>
+References: <E1Fdz7v-0007zc-00@gondolin.me.apana.org.au>
+	<fb99d7085b85310ef7d423a8f135db32@cl.cam.ac.uk>
+	<200605111147.53011.ak@suse.de>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sébastien Dugué <sebastien.dugue@bull.net> wrote:
->
-> 
-> 
->   In futex_requeue(), when the 2 futexes keys hash to the same bucket, there
-> is no need to move the futex_q to the end of the bucket list.
-> 
-> ...
-> 
-> Index: linux-2.6.16-rt20/kernel/futex.c
-> ===================================================================
-> --- linux-2.6.16-rt20.orig/kernel/futex.c	2006-05-04 10:58:38.000000000 +0200
-> +++ linux-2.6.16-rt20/kernel/futex.c	2006-05-04 10:58:55.000000000 +0200
-> @@ -835,17 +835,20 @@ static int futex_requeue(u32 __user *uad
->  		if (++ret <= nr_wake) {
->  			wake_futex(this);
->  		} else {
-> -			list_move_tail(&this->list, &hb2->chain);
-> -			this->lock_ptr = &hb2->lock;
-> +			/*
-> +			 * If key1 and key2 hash to the same bucket, no
-> +			 * need to requeue.
-> +			 */
-> +			if (likely(head1 != &hb2->chain)) {
-> +				list_move_tail(&this->list, &hb2->chain);
-> +				this->lock_ptr = &hb2->lock;
-> +			}
->  			this->key = key2;
->  			get_key_refs(&key2);
->  			drop_count++;
->  
->  			if (ret - nr_wake >= nr_requeue)
->  				break;
-> -			/* Make sure to stop if key1 == key2: */
-> -			if (head1 == &hb2->chain && head1 != &next->list)
-> -				head1 = &this->list;
->  		}
->  	}
+On Thu, 11 May 2006 11:47:52 +0200
+Andi Kleen <ak@suse.de> wrote:
 
-For some reason I get a reject when applying this.  Which is odd, because I
-see no differences in there.  Oh well - please try to work out what went
-wrong and double-check that the patch which I applied still makes sense.
+> On Thursday 11 May 2006 09:49, Keir Fraser wrote:
+> > On 11 May 2006, at 01:33, Herbert Xu wrote:
+> > >> But if sampling virtual events for randomness is really unsafe (is it
+> > >> really?) then native guests in Xen would also get bad random numbers
+> > >> and this would need to be somehow addressed.
+> > >
+> > > Good point.  I wonder what VMWare does in this situation.
+> >
+> > Well, there's not much they can do except maybe jitter interrupt
+> > delivery. I doubt they do that though.
+> >
+> > The original complaint in our case was that we take entropy from
+> > interrupts caused by other local VMs, as well as external sources.
+> > There was a feeling that the former was more predictable and could form
+> > the basis of an attack. I have to say I'm unconvinced: I don't really
+> > see that it's significantly easier to inject precisely-timed interrupts
+> > into a local VM. Certainly not to better than +/- a few microseconds.
+> > As long as you add cycle-counter info to the entropy pool, the least
+> > significant bits of that will always be noise.
+> 
+> I think I agree - e.g. i would expect the virtual interrupts to have
+> enough jitter too. Maybe it would be good if someone could
+> run a few statistics on the resulting numbers?
+> 
+> Ok the randomness added doesn't consist only of the least significant
+> bits. Currently it adds jiffies+full 32bit cycle count.  I guess if it was
+> a real problem the code could be changed to leave out the jiffies and 
+> only add maybe a 8 bit word from the low bits. But that would only
+> help for the para case because the algorithm for native guests
+> cannot be changed.
+> 
+> >   2. An entropy front/back is tricky -- how do we decide how much
+> > entropy to pull from domain0? How much should domain0 be prepared to
+> > give other domains? How easy is it to DoS domain0 by draining its
+> > entropy pool? Yuk.
+> 
+> I claim (without having read any code) that in theory you need to have solved 
+> that problem already in the vTPM @)
+> 
 
-Should the futex code be using hlist_heads for that hashtable?
+The base question under all this is "how good does an entropy source have
+to be?" and then "what guarantees do we make about the entropy inputs used
+by /dev/random?".  If we can resolve those, then the virtual environment
+answer should fall out.
+
+This is a area where the security tin-foil hat types take over, and it
+gets real hard to make "good enough" argument. People have built an expectation
+that /dev/random has really strong entropy, good enough to generate long term
+keys etc.

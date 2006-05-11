@@ -1,32 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWEKSfz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbWEKSgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750873AbWEKSfz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 14:35:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750875AbWEKSfz
+	id S1750888AbWEKSgp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 14:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbWEKSgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 14:35:55 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:39822 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750855AbWEKSfy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 14:35:54 -0400
-To: Zoltan Boszormenyi <zboszor@dunaweb.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops in au8830 driver on x86-64
-References: <446271C6.9050509@dunaweb.hu>
-From: Andi Kleen <ak@suse.de>
-Date: 11 May 2006 20:35:52 +0200
-In-Reply-To: <446271C6.9050509@dunaweb.hu>
-Message-ID: <p73d5ek76k7.fsf@bragg.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 11 May 2006 14:36:45 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:11715 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1750883AbWEKSgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 14:36:44 -0400
+Date: Thu, 11 May 2006 20:35:40 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Rik Bobbaers <Rik.Bobbaers@cc.kuleuven.be>, linux-kernel@vger.kernel.org
+Subject: Re: fix compiler warning in ip_nat_standalone.c
+Message-ID: <20060511183540.GC14232@wohnheim.fh-wedel.de>
+References: <200605111729.48871.Rik.Bobbaers@cc.kuleuven.be> <20060511155537.GF1104@wohnheim.fh-wedel.de> <20060511161846.GM27946@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060511161846.GM27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zoltan Boszormenyi <zboszor@dunaweb.hu> writes:
+On Thu, 11 May 2006 17:18:46 +0100, Al Viro wrote:
+> On Thu, May 11, 2006 at 05:55:37PM +0200, J?rn Engel wrote:
+> > 
+> > You cannot fix a compiler warning!
+> > 
+> > Either the code is wrong or it is right.  A compiler warning can
+> > indicate that code is wrong, or it is a false positive.  If the code
+> > is wrong, fix the _code_.
 > 
-> I couldn't seek further, I put the card away for now. :-)
+> Which is what the patch does, AFAICS.  What's the problem in this case?
 
-First thing I would do is to fix all the compile warnings.
+See subject.  I didn't object to the patch, that looked fine to me.
+But the general idea that a warning can be fixed always hits a loose
+nerve in my brain.  Maybe I'm a bit silly in this respect.
 
--Andi
+Jörn
+
+-- 
+When in doubt, use brute force.
+-- Ken Thompson

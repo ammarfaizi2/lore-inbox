@@ -1,84 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751630AbWEKMB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751556AbWEKMLX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751630AbWEKMB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 08:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751632AbWEKMB7
+	id S1751556AbWEKMLX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 08:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751560AbWEKMLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 08:01:59 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:26025 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751621AbWEKMB6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 08:01:58 -0400
-Date: Thu, 11 May 2006 08:01:48 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Mark Hounschell <markh@compro.net>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: rt20 patch question
-In-Reply-To: <44631F1B.8000100@compro.net>
-Message-ID: <Pine.LNX.4.58.0605110739520.5610@gandalf.stny.rr.com>
-References: <446089CF.3050809@compro.net> <1147185483.21536.13.camel@c-67-180-134-207.hsd1.ca.comcast.net>
- <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
- <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
- <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
- <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101446090.22959@gandalf.stny.rr.com>
- <44623ED4.1030103@compro.net> <44631F1B.8000100@compro.net>
+	Thu, 11 May 2006 08:11:23 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:5073 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751556AbWEKMLW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 08:11:22 -0400
+Message-ID: <44632A62.2020505@suse.de>
+Date: Thu, 11 May 2006 14:13:22 +0200
+From: Gerd Hoffmann <kraxel@suse.de>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060411)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [patch] SMP alternatives: skip with UP kernels.
+References: <4461341B.7050602@keyaccess.nl> <4461B24A.7050805@suse.de> <4461D16A.3000301@keyaccess.nl>
+In-Reply-To: <4461D16A.3000301@keyaccess.nl>
+Content-Type: multipart/mixed;
+ boundary="------------030006070904080907010209"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 May 2006, Mark Hounschell wrote:
+This is a multi-part message in MIME format.
+--------------030006070904080907010209
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
 
-> Mark Hounschell wrote:
->
-> This is with frame pointers on but doesn't look any more revealing to
-> me. After this one my network connection into the emulation was broken
-> BTW. And yes hard and soft irqs are threaded, preemptable-kernel, and
-> classic RCU
->
-> BUG: scheduling while atomic: softirq-timer/1/0x00000100/15
-> caller is schedule+0x33/0xf0
->  [<b01041c9>] show_trace+0xd/0xf (8)
->  [<b01041e2>] dump_stack+0x17/0x19 (12)
->  [<b03112ec>] __schedule+0x517/0x95b (96)
->  [<b031188f>] schedule+0x33/0xf0 (28)
->  [<b014381f>] synchronize_irq+0x94/0xb9 (40)
->  [<b0143943>] disable_irq+0x31/0x35 (16)
->  [<f0a12715>] vortex_timer+0xa1/0x55b [3c59x] (72)
->  [<b01261d5>] run_timer_softirq+0x1ce/0x3de (56)
->  [<b012212c>] ksoftirqd+0x110/0x1cb (60)
->  [<b012f851>] kthread+0xc8/0xcc (32)
->  [<b0100e15>] kernel_thread_helper+0x5/0xb (268935196)
+> Okay, thanks. Yes, I agree such would make sense.
 
-Nope, this trace is _a_lot_ better, the previous trace had a lot of
-garbage in it.
+Patch below.  It simply returns in case the tables are empty and nothing
+is do to, thus avoids printing the confusing message.
 
-Anyway, I already figured out the problem from the last dump. Could you
-try the patch below to see if it fixes it.
+cheers,
 
->
-> I hope it was OK to add Ingo to the CC list?
->
+  Gerd
 
-Yep, that's fine, in fact, he should have been added.
+-- 
+Gerd Hoffmann <kraxel@suse.de>
+Erst mal heiraten, ein, zwei Kinder, und wenn alles läuft
+geh' ich nach drei Jahren mit der Familie an die Börse.
+http://www.suse.de/~kraxel/julika-dora.jpeg
 
-Try this patch to see if it fixes that bug.
+--------------030006070904080907010209
+Content-Type: text/plain;
+ name="ifdef-smp-alts"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ifdef-smp-alts"
 
--- Steve
-
-Index: linux-2.6.16-rt20/kernel/sched.c
+Index: vanilla-2.6.17-rc3-mm1/arch/i386/kernel/alternative.c
 ===================================================================
---- linux-2.6.16-rt20.orig/kernel/sched.c	2006-05-10 16:23:15.000000000 -0400
-+++ linux-2.6.16-rt20/kernel/sched.c	2006-05-10 16:28:31.000000000 -0400
-@@ -3316,7 +3316,8 @@ void __sched __schedule(void)
- 	/*
- 	 * Test if we are atomic.
- 	 */
--	if (unlikely(in_atomic())) {
-+	if (unlikely(in_atomic()) &&
-+	    (!hardirq_preemption || (preempt_count() & PREEMPT_MASK))) {
- 		stop_trace();
- 		printk(KERN_ERR "BUG: scheduling while atomic: "
- 			"%s/0x%08x/%d\n",
+--- vanilla-2.6.17-rc3-mm1.orig/arch/i386/kernel/alternative.c	2006-05-10 12:25:39.000000000 +0200
++++ vanilla-2.6.17-rc3-mm1/arch/i386/kernel/alternative.c	2006-05-10 15:00:10.000000000 +0200
+@@ -349,6 +349,9 @@ void __init alternative_instructions(voi
+ 	smp_alt_once = 1;
+ #endif
+ 
++	if (0 == (__smp_alt_end - __smp_alt_begin))
++		return; /* no tables, nothing to patch (UP kernel) */
++
+ 	if (smp_alt_once) {
+ 		if (1 == num_possible_cpus()) {
+ 			printk(KERN_INFO "SMP alternatives: switching to UP code\n");
+
+--------------030006070904080907010209--

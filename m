@@ -1,82 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWEKUkc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWEKUmt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750781AbWEKUkc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 16:40:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWEKUkc
+	id S1750776AbWEKUmt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 16:42:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWEKUmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 16:40:32 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:37138 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750781AbWEKUkc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 16:40:32 -0400
-Date: Thu, 11 May 2006 22:40:33 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Al Viro <viro@ftp.linux.org.uk>, davem@davemloft.net, dwalker@mvista.com,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] sys_semctl gcc 4.1 warning fix
-Message-ID: <20060511204033.GB3570@stusta.de>
-References: <20060510162106.GC27946@ftp.linux.org.uk> <20060510150321.11262b24.akpm@osdl.org> <20060510221024.GH27946@ftp.linux.org.uk> <20060510.153129.122741274.davem@davemloft.net> <20060510224549.GI27946@ftp.linux.org.uk> <20060510160548.36e92daf.akpm@osdl.org> <20060510232042.GJ27946@ftp.linux.org.uk> <20060510164554.27a13ca9.akpm@osdl.org>
+	Thu, 11 May 2006 16:42:49 -0400
+Received: from dvhart.com ([64.146.134.43]:18661 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1750776AbWEKUms (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 16:42:48 -0400
+Message-ID: <4463A1C7.6010205@mbligh.org>
+Date: Thu, 11 May 2006 13:42:47 -0700
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060510164554.27a13ca9.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, shaohua.li@intel.com,
+       linux-kernel@vger.kernel.org, zwane@linuxpower.ca, vatsa@in.ibm.com
+Subject: Re: [PATCH 0/10] bulk cpu removal support
+References: <1147067137.2760.77.camel@sli10-desk.sh.intel.com> <20060510230606.076271b2.akpm@osdl.org> <20060511095308.A15483@unix-os.sc.intel.com> <20060511100215.588e89aa.akpm@osdl.org> <20060511102711.A15733@unix-os.sc.intel.com>
+In-Reply-To: <20060511102711.A15733@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 10, 2006 at 04:45:54PM -0700, Andrew Morton wrote:
-> Al Viro <viro@ftp.linux.org.uk> wrote:
-> >
-> > On Wed, May 10, 2006 at 04:05:48PM -0700, Andrew Morton wrote:
-> > > Sure - it's sad and we need some workaround.
-> > > 
-> > > The init_self() thingy seemed reasonable to me - it shuts up the warning
-> > > and has no runtime cost.  What we could perhaps do is to make
-> > > 
-> > > #define init_self(x) (x = x)
-> > > 
-> > > only if the problematic gcc versions are detected.  Later, if/when gcc gets
-> > > fixed up, we use
-> > 
-> > Sorry, no - it shuts up too much.  Look, there are two kinds of warnings
-> > here.  "May be used" and "is used".  This stuff shuts both.  And unlike
-> > "may be used", "is used" has fairly high S/N ratio.
-> > 
-> > Moreover, once you do that, you lose all future "is used" warnings on
-> > that variable.  So your ability to catch future bugs is decreased, not
-> > increased.
+Ashok Raj wrote:
+> On Thu, May 11, 2006 at 10:02:15AM -0700, Andrew Morton wrote:
 > 
-> Only for certain gcc versions.  Other people use other versions, so it'll
-> be noticed.  If/when gcc gets fixed, more and more people will see the real
-> warnings.
+>>OK, thanks.  I'm a little surprised that this patch wasn't accompanied by a
+>>problem description, really.  I mean, if a single CPU offlining takes three
+>>milliseconds then why bother?
 > 
-> Look, of course it has problems.  But the current build has problems too. 
-> It's a question of which problem is worse..
+> 
+> It depends on whats running at the time... with some light load, i measured 
+> wall clock time, i remember seeing 2 secs at times, but its been a long time
+> i did that.. so take that with a pinch :-)_
+> 
+> i will try to get those idle and load times worked out again... the best
+> i have is a  16 way, if i get help from big system oems i will send the 
+> numbers out
 
-We could turn of this kind of warnings that generate these kind of false 
-positives globally with -Wno-uninitialized until a future gcc version 
-might be better at avoiding false positives.
+Why is taking 30s to offline CPUs a problem?
 
-But there's one problem, this turns off two kinds of warnings:
-- 'foo' may be used uninitialized in this function
-- 'foo' is used uninitialized in this function
-
-The first kind of warnings is the one generating the false positives 
-while the second kind are warnings we do not want to lose, but AFAIK 
-there's no way to only turn off the first kind.
-
-Perhaps asking the gcc developers for separate options for these two 
-kinds of warnings in gcc 4.2 and then turning off the first kind is 
-the way to go?
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+M.

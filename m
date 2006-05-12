@@ -1,86 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWELGKS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbWELGST@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750964AbWELGKS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 02:10:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbWELGIN
+	id S1750992AbWELGST (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 02:18:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750993AbWELGST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 02:08:13 -0400
-Received: from ns.suse.de ([195.135.220.2]:51874 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750949AbWELGIE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 02:08:04 -0400
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 12 May 2006 16:07:48 +1000
-Message-Id: <1060512060748.8036@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Paul Clements <paul.clements@steeleye.com>
-Subject: [PATCH 004 of 8] md/bitmap: Use set_bit etc for bitmap page attributes.
-References: <20060512160121.7872.patches@notabene>
+	Fri, 12 May 2006 02:18:19 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:11935 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750939AbWELGST (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 02:18:19 -0400
+Date: Fri, 12 May 2006 02:18:03 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Clark Williams <williams@redhat.com>
+cc: Robert Crocombe <rwcrocombe@raytheon.com>,
+       LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.16-rtXYZ hangs at boot on quad Opteron
+In-Reply-To: <44634F63.1090504@redhat.com>
+Message-ID: <Pine.LNX.4.58.0605120216001.26721@gandalf.stny.rr.com>
+References: <44623EE0.8040300@raytheon.com> <Pine.LNX.4.58.0605101540490.22959@gandalf.stny.rr.com>
+ <44628A70.1020502@raytheon.com> <44634F63.1090504@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-In particular, this means that we use 4 bits per page instead of a
-whole unsigned long.
+On Thu, 11 May 2006, Clark Williams wrote:
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+> Robert Crocombe wrote:
+> > testing NMI watchdog ... OK.
+> >
+> > where we croak.  On the non-realtime version, it is instead like so:
+>
+> Yeah, this is where my Athlon64x2 goes into the weeds.  I followed it
+> down into the routines that calculate processor migration costs and
+> got lost in the context switches.  I suspect that the forced
+> migrations aggravate a problem down in the 64-bit arch specific code
+> that hasn't been looked at in a while (I believe most people running
+> AMD are doing so in 32-bit mode).
+>
+> Maybe it's time for round two...
+>
 
-### Diffstat output
- ./drivers/md/bitmap.c |   19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+Hmm, I run my AMDx2 in 64bit kernel mode and 32bit user space.  But since
+it is my main machine I don't usually test the new -rt kernels on it that
+often.  Looks like when I'm back in the States, I'll have to test it
+again.
 
-diff ./drivers/md/bitmap.c~current~ ./drivers/md/bitmap.c
---- ./drivers/md/bitmap.c~current~	2006-05-12 15:56:51.000000000 +1000
-+++ ./drivers/md/bitmap.c	2006-05-12 15:58:22.000000000 +1000
-@@ -700,27 +700,27 @@ static void bitmap_file_kick(struct bitm
- }
- 
- enum bitmap_page_attr {
--	BITMAP_PAGE_DIRTY = 1, // there are set bits that need to be synced
--	BITMAP_PAGE_CLEAN = 2, // there are bits that might need to be cleared
--	BITMAP_PAGE_NEEDWRITE=4, // there are cleared bits that need to be synced
-+	BITMAP_PAGE_DIRTY = 0, // there are set bits that need to be synced
-+	BITMAP_PAGE_CLEAN = 1, // there are bits that might need to be cleared
-+	BITMAP_PAGE_NEEDWRITE=2, // there are cleared bits that need to be synced
- };
- 
- static inline void set_page_attr(struct bitmap *bitmap, struct page *page,
- 				enum bitmap_page_attr attr)
- {
--	bitmap->filemap_attr[page->index] |= attr;
-+	__set_bit((page->index<<2) + attr, bitmap->filemap_attr);
- }
- 
- static inline void clear_page_attr(struct bitmap *bitmap, struct page *page,
- 				enum bitmap_page_attr attr)
- {
--	bitmap->filemap_attr[page->index] &= ~attr;
-+	__clear_bit((page->index<<2) + attr, bitmap->filemap_attr);
- }
- 
- static inline unsigned long test_page_attr(struct bitmap *bitmap, struct page *page,
- 					   enum bitmap_page_attr attr)
- {
--	return bitmap->filemap_attr[page->index] & attr;
-+	return test_bit((page->index<<2) + attr, bitmap->filemap_attr);
- }
- 
- /*
-@@ -872,7 +872,12 @@ static int bitmap_init_from_disk(struct 
- 	if (!bitmap->filemap)
- 		goto out;
- 
--	bitmap->filemap_attr = kzalloc(sizeof(long) * num_pages, GFP_KERNEL);
-+	/* We need 4 bits per page, rounded up to a multiple of sizeof(unsigned long) */
-+	bitmap->filemap_attr = kzalloc(
-+		(((num_pages*4/8)+sizeof(unsigned long)-1)
-+		 /sizeof(unsigned long))
-+		*sizeof(unsigned long),
-+		GFP_KERNEL);
- 	if (!bitmap->filemap_attr)
- 		goto out;
- 
+-- Steve
+

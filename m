@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750944AbWELWQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWELWXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750944AbWELWQz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 18:16:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbWELWQy
+	id S932265AbWELWXF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 18:23:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWELWXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 18:16:54 -0400
-Received: from main.gmane.org ([80.91.229.2]:9378 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750938AbWELWQy (ORCPT
+	Fri, 12 May 2006 18:23:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12243 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932265AbWELWXC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 18:16:54 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Stefan Schweizer <genstef@gentoo.org>
-Subject: Re: [PATCH 2.6.17-rc3] Fix capi reload by unregistering the correct major
-Followup-To: gmane.linux.kernel
-Date: Sat, 13 May 2006 00:16:49 +0200
-Message-ID: <e431gb$qaj$1@sea.gmane.org>
-References: <e307i4$f1h$1@sea.gmane.org> <20060508130029.08a9a962.akpm@osdl.org> <e3qihe$3q2$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-82-135-4-190.mnet-online.de
-User-Agent: KNode/0.10.2
-Cc: i4ldeveloper@listserv.isdn4linux.de
+	Fri, 12 May 2006 18:23:02 -0400
+Date: Fri, 12 May 2006 15:22:42 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: Erik Mouw <erik@harddisk-recovery.com>, Or Gerlitz <or.gerlitz@gmail.com>,
+       linux-scsi@vger.kernel.org, axboe@suse.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG 2.6.17-git] kmem_cache_create: duplicate cache scsi_cmd_cache
+In-Reply-To: <20060512220807.GR27946@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0605121519420.3866@g5.osdl.org>
+References: <20060511151456.GD3755@harddisk-recovery.com>
+ <15ddcffd0605112153q57f139a1k7068e204a3eeaf1f@mail.gmail.com>
+ <20060512171632.GA29077@harddisk-recovery.com> <Pine.LNX.4.64.0605121024310.3866@g5.osdl.org>
+ <20060512203416.GA17120@flint.arm.linux.org.uk> <20060512214354.GP27946@ftp.linux.org.uk>
+ <20060512215520.GH17120@flint.arm.linux.org.uk> <20060512220807.GR27946@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-after seeing your problems with my patch on -mm-commits, I actually think
-this one might be better. It allows dynamic majors and does not break
-anything :)
-Please change my patch
-- Stefan
-
---- drivers/isdn/capi/capi.c    2006-05-13 00:12:46.000000000 +0200
-+++ drivers/isdn/capi/capi.c    2006-05-12 22:16:22.000000000 +0200
-@@ -1499,7 +1499,9 @@
-                printk(KERN_ERR "capi20: unable to get major %d\n",
-capi_major);
-                return major_ret;
-        }
--       capi_major = major_ret;
-+       if (major_ret != 0) {
-+               capi_major = major_ret;
-+       }
-        capi_class = class_create(THIS_MODULE, "capi");
-        if (IS_ERR(capi_class)) {
-                unregister_chrdev(capi_major, "capi20");
 
 
+On Fri, 12 May 2006, Al Viro wrote:
+> 
+> Secondary question: who had resurrected that crap?  I distinctly remember
+> killing it off...
+
+If you did, I don't think it ever got into the kernel.
+
+It was added by Kay Sievers on Nov 3, 2004, according to the old history 
+(back then it was in drivers/block/genhd.c, and the function was called 
+"block_hotplug()", but apart from renaming the function and moving the 
+file, it's recognizably the same.
+
+Of course, you may have killed off an even earlier incarnation..
+
+			Linus

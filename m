@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWELVTa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWELVU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751168AbWELVTa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 17:19:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWELVTa
+	id S1751196AbWELVU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 17:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWELVU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 17:19:30 -0400
-Received: from mcr-smtp-001.bulldogdsl.com ([212.158.248.7]:51730 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1750923AbWELVT3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 17:19:29 -0400
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+	Fri, 12 May 2006 17:20:57 -0400
+Received: from cantor.suse.de ([195.135.220.2]:2993 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751196AbWELVU4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 17:20:56 -0400
+Date: Fri, 12 May 2006 14:18:53 -0700
+From: Greg KH <gregkh@suse.de>
 To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Linux v2.6.17-rc4
-Date: Fri, 12 May 2006 22:19:37 +0100
-User-Agent: KMail/1.9.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       aabdulla@nvidia.com, jeff@garzik.org, netdev@vger.kernel.org
-References: <Pine.LNX.4.64.0605111640010.3866@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0605111640010.3866@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Erik Mouw <erik@harddisk-recovery.com>,
+       Or Gerlitz <or.gerlitz@gmail.com>, linux-scsi@vger.kernel.org,
+       axboe@suse.de, Andrew Vasquez <andrew.vasquez@qlogic.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG 2.6.17-git] kmem_cache_create: duplicate cache scsi_cmd_cache
+Message-ID: <20060512211853.GB26708@suse.de>
+References: <20060511151456.GD3755@harddisk-recovery.com> <15ddcffd0605112153q57f139a1k7068e204a3eeaf1f@mail.gmail.com> <20060512171632.GA29077@harddisk-recovery.com> <Pine.LNX.4.64.0605121024310.3866@g5.osdl.org> <1147456038.3769.39.camel@mulgrave.il.steeleye.com> <1147460325.3769.46.camel@mulgrave.il.steeleye.com> <Pine.LNX.4.64.0605121209020.3866@g5.osdl.org> <20060512203850.GC17120@flint.arm.linux.org.uk> <Pine.LNX.4.64.0605121346060.3866@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605122219.37626.s0348365@sms.ed.ac.uk>
+In-Reply-To: <Pine.LNX.4.64.0605121346060.3866@g5.osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 May 2006 00:44, Linus Torvalds wrote:
-> Ok, I've let the release time between -rc's slide a bit too much again,
-> but -rc4 is out there, and this is the time to hunker down for 2.6.17.
->
-> If you know of any regressions, please holler now, so that we don't miss
-> them.
->
-> -rc4 itself is mainly random driver fixes (sound, infiniband, scsi,
-> network drivers), but some splice fixes too and some arch (arm, powerpc,
-> mips) updates. Shortlog follows,
+On Fri, May 12, 2006 at 01:50:46PM -0700, Linus Torvalds wrote:
+> On Fri, 12 May 2006, Russell King wrote:
+> > Can we revert the patch which broke the MMC/SD layer - the one which
+> > added the mount/unmount hotplug events as well then.
+> > 
+> > That way we get back to a working MMC/SD layer as well as a working
+> > SCSI layer.
+> 
+> That's certainly the logical fix - push the pain up the chain to the 
+> person who introduced it. Which commit is that, do you know?
+> 
+> Really, the added ref-count should be gotten by whoever holds on to the 
+> thing, and it sounds like it's the hotplug event that caused this and 
+> should have held on to its hotplug reference.
+> 
+> Greg added to the Cc: list in case he already knows off-hand which commit 
+> it is..
 
-Linus,
+No, I don't know, that's why I just asked :)
 
-I've got an oops in the forcedeth driver on shutdown. Sorry for the crappy 
-camera phone pictures, this board doesn't have RS232 ports:
+And this bug doesn't have anything to do with why my mmc/sd cards are
+suddenly not showing up at all anymore in my laptop, right?  I need to
+track that regression from 2.6.17-rc1 down...
 
-http://devzero.co.uk/~alistair/oops-20060512/
+thanks,
 
-It was initially difficult to reproduce, but I found I could do so reliably if 
-I ssh'ed into the box and halted it remotely, then it would always oops on 
-shutdown. I assume this is because the driver is still active when something 
-happens to it during halt.
-
-There's been just a single commit since -rc3:
-
-forcedeth: fix multi irq issues
-ebf34c9b6fcd22338ef764b039b3ac55ed0e297b
-
-However, it could have just been hidden since before -rc3, so I'll try to work 
-backwards if nobody has any immediate ideas..
-
--- 
-Cheers,
-Alistair.
-
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+greg k-h

@@ -1,65 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWELNHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbWELNMk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751278AbWELNHF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 09:07:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWELNHF
+	id S1751271AbWELNMk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 09:12:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWELNMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 09:07:05 -0400
-Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:11667 "EHLO
-	mx1.compro.net") by vger.kernel.org with ESMTP id S1751278AbWELNHE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 09:07:04 -0400
-Message-ID: <44648873.7010402@compro.net>
-Date: Fri, 12 May 2006 09:06:59 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-User-Agent: Thunderbird 1.5 (X11/20060111)
-MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [RFC][PATCH -rt] irqd starvation on SMP by a single process?
-References: <1147401812.1907.14.camel@cog.beaverton.ibm.com> <20060512055025.GA25824@elte.hu> <Pine.LNX.4.58.0605120337150.26721@gandalf.stny.rr.com> <4464740C.8060305@compro.net> <20060512115614.GA28377@elte.hu> <44648532.8080200@compro.net> <Pine.LNX.4.58.0605120902460.30264@gandalf.stny.rr.com>
-In-Reply-To: <Pine.LNX.4.58.0605120902460.30264@gandalf.stny.rr.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 12 May 2006 09:12:40 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:49846 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1751271AbWELNMj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 09:12:39 -0400
+Subject: Re: [RFC][PATCH RT 1/2] futex_requeue-optimize
+From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de
+In-Reply-To: <20060512111256.GA27481@elte.hu>
+References: <20060510112701.7ea3a749@frecb000686>
+	 <20060511091541.05160b2c.akpm@osdl.org> <20060512063220.GA630@elte.hu>
+	 <1147421427.3969.60.camel@frecb000686>
+	 <1147432419.3969.70.camel@frecb000686>  <20060512111256.GA27481@elte.hu>
+Date: Fri, 12 May 2006 15:16:56 +0200
+Message-Id: <1147439816.3969.81.camel@frecb000686>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 12/05/2006 15:15:37,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 12/05/2006 15:15:39,
+	Serialize complete at 12/05/2006 15:15:39
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
-> On Fri, 12 May 2006, Mark Hounschell wrote:
+On Fri, 2006-05-12 at 13:12 +0200, Ingo Molnar wrote:
+> * Sébastien Dugué <sebastien.dugue@bull.net> wrote:
 > 
->>> Mark, does this fix the problem?
->>>
->>> 	Ingo
->>>
->>> Index: linux-rt.q/drivers/net/3c59x.c
->>> ===================================================================
->>> --- linux-rt.q.orig/drivers/net/3c59x.c
->>> +++ linux-rt.q/drivers/net/3c59x.c
->>> @@ -1897,7 +1897,8 @@ vortex_timer(unsigned long data)
->>>
->>>  	if (vp->medialock)
->>>  		goto leave_media_alone;
->>> -	disable_irq(dev->irq);
->>> +	/* hack! */
->>> +	disable_irq_nosync(dev->irq);
->>>  	old_window = ioread16(ioaddr + EL3_CMD) >> 13;
->>>  	EL3WINDOW(4);
->>>  	media_status = ioread16(ioaddr + Wn4_Media);
->>>
->> Yes it does.
->>
+> > On Fri, 2006-05-12 at 10:10 +0200, Sébastien Dugué wrote:
+> > > On Fri, 2006-05-12 at 08:32 +0200, Ingo Molnar wrote:
+> > > > * Andrew Morton <akpm@osdl.org> wrote:
+> > > > 
+> > > > > Should the futex code be using hlist_heads for that hashtable?
+> > > > 
+> > > > yeah. That would save 1K of .data on 32-bit platforms, 2K on 64-bit 
+> > > > platforms.
+> > > 
+> > >   I'll try to look into this.
+> > > 
+> > 
+> >   Well, moving the hash bucket list to an hlist may save a few bytes 
+> > on .data, but all the insertions are done at the tail on this list 
+> > which would not be easily done using hlists.
+> > 
+> >   Any thoughts?
 > 
-> 
-> It fixes it for both "complete preemption" and "normal preemption"?
-> 
-> -- Steve
-> 
+> just queue to the head. This is a hash-list, ordering has only 
+> performance effects.
 > 
 
-Normal for sure. I just rebooted to test complete.
+  Queuing to the head would mean that tasks are woken up in LIFO order
+(i.e. the last task put to sleep will be the first to be woken up).
+  I'm not sure that's what people would expect, or am I missing
+something here?
 
-Mark
+  Sébastien.
+

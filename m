@@ -1,83 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWELOvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWELOwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbWELOvu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 10:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWELOvu
+	id S1751204AbWELOwl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 10:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWELOwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 10:51:50 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:12168 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750727AbWELOvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 10:51:50 -0400
-Date: Fri, 12 May 2006 10:51:41 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Mark Hounschell <markh@compro.net>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Daniel Walker <dwalker@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, johnstul@us.ibm.com
-Subject: Re: rt20 patch question
-In-Reply-To: <44649D73.4090700@compro.net>
-Message-ID: <Pine.LNX.4.58.0605121042580.3328@gandalf.stny.rr.com>
-References: <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
- <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
- <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
- <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com>
- <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
- <20060512092159.GC18145@elte.hu> <446481C8.4090506@compro.net>
- <Pine.LNX.4.58.0605120854480.30264@gandalf.stny.rr.com> <44649119.5040105@compro.net>
- <Pine.LNX.4.58.0605120956440.30264@gandalf.stny.rr.com> <44649D73.4090700@compro.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 May 2006 10:52:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33707 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751204AbWELOwk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 10:52:40 -0400
+Date: Fri, 12 May 2006 07:49:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: mingo@elte.hu, markh@compro.net, linux-kernel@vger.kernel.org,
+       dwalker@mvista.com, tglx@linutronix.de
+Subject: Re: 3c59x vortex_timer rt hack (was: rt20 patch question)
+Message-Id: <20060512074929.031d4eaf.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0605121036150.30264@gandalf.stny.rr.com>
+References: <4460ADF8.4040301@compro.net>
+	<Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
+	<4461E53B.7050905@compro.net>
+	<Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
+	<446207D6.2030602@compro.net>
+	<Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
+	<44623157.9090105@compro.net>
+	<Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com>
+	<20060512081628.GA26736@elte.hu>
+	<Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
+	<20060512092159.GC18145@elte.hu>
+	<Pine.LNX.4.58.0605120904110.30264@gandalf.stny.rr.com>
+	<20060512071645.6b59e0a2.akpm@osdl.org>
+	<Pine.LNX.4.58.0605121029540.30264@gandalf.stny.rr.com>
+	<Pine.LNX.4.58.0605121036150.30264@gandalf.stny.rr.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 12 May 2006, Mark Hounschell wrote:
-
+Steven Rostedt <rostedt@goodmis.org> wrote:
 >
-> They stops can be anywhere up to even a few minutes depending how
-> patient I want to be. I was just playing with it to possibly get another
-> log. The machine froze. Did the log thing while frozen. Then I attempted
-> to ssh into it from another machine. It let me in and the machine
-> unfroze at that same time. But only to stop again in a few seconds. The
-> new shell was also frozen. I sshd to it again, same thing.
+>  Use this patch instead.  It needs an irq disable.  But, believe it or not,
+>  on SMP this is actually better.  If the irq is shared (as it is in Mark's
+>  case), we don't stop the irq of other devices from being handled on
+>  another CPU (unfortunately for Mark, he pinned all interrupts to one CPU).
+> 
+>  Andrew,
+> 
+>  should this be changed in mainline too?
 
-This is a good indictation of a missed wake up.  Now the question is, what
-is sleeping and why didn't it wake up.
+I suppose so - we're taking the lock with spin_lock_bh(), but it can also
+be taken by this CPU from the interrupt, so it'll deadlock.  But lo!  We've
+done disable_irq(), so the interrupt won't be happening.
 
->
-> While the machine was unfrozen I was able to halt the cpu process
-> basically taking it out of its execution loop and putting into a delay
-> loop of 1 ms via
->
-> while(clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &tim, NULL) &&
-> errno == EINTR);
+So yes, doing spin_lock_irq() (irqrestore isn't needed in a timer handler)
+instead of disable_irq() in vortex_timer() looks OK.
 
-Hmm, do you have high res timers turned on?
-
->
-> As long as the CPU process is halted and in this loop the machine acts
-> normal. As soon as the CPU process goes back into his execution loop we
-> are back to the "stops".
->
-
-Could you hook up a serial, and on the machine do a
-
-  # cat /dev/ttyS0 &
-
-Just to open the serial for reading.  And then on the machine on the other
-end of the serial cable, bring up minicom, do a ctrl-a f t
-
-ctl-a f sends a break,
-
-the t will do a task dump.  Do this when the machine is stopped and see
-what is running.  Hopefuly the sysrq works from serial (I've had boxes
-where the keyboard sysrq didn't work but serial did).
-
-Oh, and send me the output too.
-
-Thanks,
-
--- Steve
+One does wonder how long we'll hold off interrupts though.
 

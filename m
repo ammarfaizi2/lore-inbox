@@ -1,72 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWELNYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbWELNb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751287AbWELNYn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 09:24:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWELNYn
+	id S1751289AbWELNb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 09:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWELNb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 09:24:43 -0400
-Received: from nz-out-0102.google.com ([64.233.162.201]:53744 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751287AbWELNYm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 09:24:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=Yju52iahxu8c9XkJv270ZjmbD+aM4F/oyd2x1YqvuD6SipWAd45m/wxG3kwzWoDFV0kbT7rQcLtYOmkCkMzakPZ98UWYMwkrQXWbCncT8qTvtR2cb1jmyir/cwd8RIwrUl+RjZKzH+hjkgo8jLMwuQ7+HlAf6S//e9WgktIQ4Tg=
-Date: Fri, 12 May 2006 22:24:37 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: [ANNOUNCE] libata: new EH, NCQ, hotplug and PM patches against stable kernel
-Message-ID: <20060512132437.GB4219@htj.dyndns.org>
+	Fri, 12 May 2006 09:31:26 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:21204 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1751289AbWELNbZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 09:31:25 -0400
+Message-ID: <44648E89.8060605@bull.net>
+Date: Fri, 12 May 2006 15:32:57 +0200
+From: Pierre Peiffer <pierre.peiffer@bull.net>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+To: Ingo Molnar <mingo@elte.hu>
+Cc: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [RFC][PATCH RT 0/2] futex priority based wakeup
+References: <20060510112651.24a36e7b@frecb000686> <20060510100858.GA31504@elte.hu>
+In-Reply-To: <20060510100858.GA31504@elte.hu>
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 12/05/2006 15:34:24,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 12/05/2006 15:34:26,
+	Serialize complete at 12/05/2006 15:34:26
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, all.
+Hi,
 
-Lately libata has been going through a lot of changes and even more
-are around the corner.  I've been working on error handling and
-advanced SATA features for quite sometime now, and, finally, patches
-have been finalized and submitted for review a few days ago.
+Just few comments for my understanding:
 
-2.6.18 is the target for mainline merge.  As there is quite some time
-between now and 2.6.18, I have made patches to update the current
-stable kernel to support the new features so that they can receive
-wider testing and interested people don't have to wait too long.  I
-intend to maintain these patches through 2.6.16 and 17 until the
-mainline merge happens.
+Ingo Molnar a écrit :
+> * Sébastien Dugué <sebastien.dugue@bull.net> wrote:
+> 
+>>   in the current futex implementation, tasks are woken up in FIFO 
+>> order, (i.e. in the order they were put to sleep). For realtime 
+>> systems needing system wide strict realtime priority scheduling, tasks 
+>> should be woken up in priority order.
+>>
+>>   This patchset achieves this by changing the futex hash bucket list 
+>> into a plist. Tasks waiting on a futex are enqueued in this plist 
+>> based on their priority so that they can be woken up in priority 
+>> order.
+> 
+> hm, i dont think this is enough. Basically, waking up in priority order 
+> is just the (easier) half of the story - what you want is to also 
+> propagate priorities when you block. We provided a complete solution via 
+> the PI-futex patchset (currently included in -mm).
+> 
+> In other words: as long as locking primitives go, i dont think real-time 
+> applications should use wakeup-priority-ordered futexes, they should use 
+> the real thing, PI futexes.
 
-Added new features are
+In fact, I agree with that for a lock (pthread_mutex, etc).
 
-* New error handling
-* IRQ driven PIO (from Albert Lee)
-* SATA NCQ support
-* Hotplug support
-* Port Multiplier support
+> 
+> There is one exception: when a normal futex is used as a waitqueue 
+> without any contention properties. (for example a waitqueue for worker 
+> threads) But those are both rare, and typically dont muster tasks with 
+> different priorities - i.e. FIFO is good enough.
+> 
 
-The following drivers support new features.
+But here, I think this is what we have with the condvar, no ? When some 
+threads are blocked on the condvar (pthread_cond_wait), they must be 
+woken in priority order with pthread_broadcast, but there is no 
+"lock-owner" to boost here.
+Even if all threads but one are requeued on the second futex (i.e. the 
+mutex used with the condvar), with the patch from Seb, they are requeued 
+in priority order and thus get woken in priority order: we don't need 
+any priority propagation here, I think.
 
-ata_piix:	new EH, irq-pio, warmplug (hardware restriction)
-sata_sil:	new EH, irq-pio, hotplug
-ahci:		new EH, irq-pio, NCQ, hotplug
-sata_sil24:	new EH, irq-pio, NCQ, hotplug, Port Multiplier
+So, I think that the PI-futexes are the right solution for the mutexes 
+and rwlocks. But this patch seems to me correct for condvar 
+(FUTEX_REQUEUE), I don't think that PI-futexes will add any benefit for 
+condvar (?). But I may have missed something ?
 
-More info can be found at the following URL.
 
- http://home-tj.org/wiki/index.php/Libata-tj-stable
-
-Patches against v2.6.16.16 is avaialbe at the following URL.
-
- http://home-tj.org/files/libata-tj-stable/libata-tj-2.6.16.16-20060512.tar.bz2
-
-Please read README carefully before testing the patches.  Keep in mind
-that these are still quite experimental and not ready for production
-use.
-
-Thanks.
+> Also, there's a performance cost to this. Could you try to measure the 
+> impact to SCHED_OTHER tasks via some pthread locking benchmark?
+> 
+> 	Ingo
 
 -- 
-tejun
+Pierre

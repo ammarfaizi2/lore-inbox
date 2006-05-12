@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWELVzE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWELV6G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932253AbWELVzE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 17:55:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWELVzE
+	id S932262AbWELV6G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 17:58:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWELV6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 17:55:04 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:16003 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S932253AbWELVzC
+	Fri, 12 May 2006 17:58:06 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:13954 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932259AbWELV6E
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 17:55:02 -0400
-Date: Fri, 12 May 2006 14:57:56 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
-       Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>
-Subject: Re: [RFC PATCH 26/35] Add Xen subarch reboot support
-Message-ID: <20060512215756.GE2697@moss.sous-sol.org>
-References: <20060509084945.373541000@sous-sol.org> <20060509085158.282993000@sous-sol.org> <200605091902.31327.ak@suse.de> <20060512214655.GC4189@ucw.cz>
+	Fri, 12 May 2006 17:58:04 -0400
+Date: Fri, 12 May 2006 22:58:00 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>, Erik Mouw <erik@harddisk-recovery.com>,
+       Or Gerlitz <or.gerlitz@gmail.com>, linux-scsi@vger.kernel.org,
+       axboe@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG 2.6.17-git] kmem_cache_create: duplicate cache scsi_cmd_cache
+Message-ID: <20060512215800.GQ27946@ftp.linux.org.uk>
+References: <20060511151456.GD3755@harddisk-recovery.com> <15ddcffd0605112153q57f139a1k7068e204a3eeaf1f@mail.gmail.com> <20060512171632.GA29077@harddisk-recovery.com> <Pine.LNX.4.64.0605121024310.3866@g5.osdl.org> <20060512203416.GA17120@flint.arm.linux.org.uk> <20060512214354.GP27946@ftp.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060512214655.GC4189@ucw.cz>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060512214354.GP27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Pavel Machek (pavel@suse.cz) wrote:
-> Hi!
-> 
-> > > +
-> > > +/* Ignore multiple shutdown requests. */
-> > > +static int shutting_down = SHUTDOWN_INVALID;
-> > > +static void __shutdown_handler(void *unused);
-> > > +static DECLARE_WORK(shutdown_work, __shutdown_handler, NULL);
-> > > +
-> > > +static int shutdown_process(void *__unused)
-> > > +{
-> > > +	static char *envp[] = { "HOME=/", "TERM=linux",
-> > > +				"PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
-> > > +	static char *poweroff_argv[] = { "/sbin/poweroff", NULL };
+On Fri, May 12, 2006 at 10:43:54PM +0100, Al Viro wrote:
+> On Fri, May 12, 2006 at 09:34:16PM +0100, Russell King wrote:
+> > On Fri, May 12, 2006 at 10:36:57AM -0700, Linus Torvalds wrote:
+> > > Yes. We could just revert that commit, but it seems correct, and I'd 
+> > > really like for somebody to understand _why_ that commit matters at all. I 
+> > > certainly don't see the overlap here..
 > > 
-> > This should be configurable, probably in a sysctl
+> > Reverting the commit breaks MMC/SD in a very real way, and the fix
+> > is plainly correct and is actually the only possible fix that can be
+> > applied.
 > 
-> Actually we have similar code in sparc and acpi parts, IIRC. We
-> probably want to have one, common, shut-me-off routine.
+> Bullshit.  Could you explain what generic code dereferences ->driverfs_dev
+> after del_gendisk()?  If you see such beast, please tell; _that_ is the
+> real bug.
 
-Yep, I had that cleanup in mind, the patch said:
+Aha...  So block_uevent() appears to be badly broken.  Lovely...
 
-TODO:
- - move poweroff and halt to generic similar to c_a_d
-
-thanks,
--chris
+OK, could somebody explain WTF is userland supposed to do with event
+refering to device that had been gone for a long time?

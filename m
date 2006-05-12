@@ -1,241 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWELXy4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWELX4W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932222AbWELXy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 19:54:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWELXpG
+	id S932299AbWELX4W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 19:56:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWELXpB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 19:45:06 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:61609 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932278AbWELXoe (ORCPT
+	Fri, 12 May 2006 19:45:01 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:64169 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932293AbWELXoe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 12 May 2006 19:44:34 -0400
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 37 of 53] ipath - name zero counter offsets consistently
-X-Mercurial-Node: f8debae94d44f543ff99cb89b6146e948dccb76f
-Message-Id: <f8debae94d44f543ff99.1147477402@eng-12.pathscale.com>
+Subject: [PATCH 47 of 53] ipath - fix problem with lost interrupts on HT-400
+X-Mercurial-Node: a1615956e57f23c20a45b4b7c853b41164e80ef9
+Message-Id: <a1615956e57f23c20a45.1147477412@eng-12.pathscale.com>
 In-Reply-To: <patchbomb.1147477365@eng-12.pathscale.com>
-Date: Fri, 12 May 2006 16:43:22 -0700
+Date: Fri, 12 May 2006 16:43:32 -0700
 From: "Bryan O'Sullivan" <bos@pathscale.com>
 To: rdreier@cisco.com
 Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Name zero counter offsets consistently so it's clear they aren't counters.
+We can have a race clearing chip interrupt with another interrupt
+about to be delivered and can clear it before it is delivered on the
+GPIO workaround.  By doing the extra check here for the in-memory tail
+register updating while we were doing earlier packets, we "almost"
+guarantee we have covered that case.
 
 Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
 
-diff -r ec1934faf5d1 -r f8debae94d44 drivers/infiniband/hw/ipath/ipath_mad.c
---- a/drivers/infiniband/hw/ipath/ipath_mad.c	Fri May 12 15:55:28 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_mad.c	Fri May 12 15:55:28 2006 -0700
-@@ -251,7 +251,7 @@ static int recv_subn_get_portinfo(struct
- 	/* P_KeyViolations are counted by hardware. */
- 	pip->pkey_violations =
- 		cpu_to_be16((ipath_layer_get_cr_errpkey(dev->dd) -
--			     dev->n_pkey_violations) & 0xFFFF);
-+			     dev->z_pkey_violations) & 0xFFFF);
- 	pip->qkey_violations = cpu_to_be16(dev->qkey_violations);
- 	/* Only the hardware GUID is supported for now */
- 	pip->guid_cap = 1;
-@@ -425,7 +425,7 @@ static int recv_subn_set_portinfo(struct
- 	 * later.
- 	 */
- 	if (pip->pkey_violations == 0)
--		dev->n_pkey_violations =
-+		dev->z_pkey_violations =
- 			ipath_layer_get_cr_errpkey(dev->dd);
+diff -r 04c86dd11b27 -r a1615956e57f drivers/infiniband/hw/ipath/ipath_driver.c
+--- a/drivers/infiniband/hw/ipath/ipath_driver.c	Fri May 12 15:55:29 2006 -0700
++++ b/drivers/infiniband/hw/ipath/ipath_driver.c	Fri May 12 15:55:29 2006 -0700
+@@ -858,7 +858,7 @@ void ipath_kreceive(struct ipath_devdata
+ 	const u32 maxcnt = dd->ipath_rcvhdrcnt * rsize;	/* words */
+ 	u32 etail = -1, l, hdrqtail;
+ 	struct ips_message_header *hdr;
+-	u32 eflags, i, etype, tlen, pkttot = 0, updegr=0;
++	u32 eflags, i, etype, tlen, pkttot = 0, updegr=0, reloop=0;
+ 	static u64 totcalls;	/* stats, may eventually remove */
+ 	char emsg[128];
  
- 	if (pip->qkey_violations == 0)
-@@ -883,18 +883,18 @@ static int recv_pma_get_portcounters(str
- 	ipath_layer_get_counters(dev->dd, &cntrs);
+@@ -873,12 +873,11 @@ void ipath_kreceive(struct ipath_devdata
+ 		goto bail;
  
- 	/* Adjust counters for any resets done. */
--	cntrs.symbol_error_counter -= dev->n_symbol_error_counter;
-+	cntrs.symbol_error_counter -= dev->z_symbol_error_counter;
- 	cntrs.link_error_recovery_counter -=
--		dev->n_link_error_recovery_counter;
--	cntrs.link_downed_counter -= dev->n_link_downed_counter;
-+		dev->z_link_error_recovery_counter;
-+	cntrs.link_downed_counter -= dev->z_link_downed_counter;
- 	cntrs.port_rcv_errors += dev->rcv_errors;
--	cntrs.port_rcv_errors -= dev->n_port_rcv_errors;
--	cntrs.port_rcv_remphys_errors -= dev->n_port_rcv_remphys_errors;
--	cntrs.port_xmit_discards -= dev->n_port_xmit_discards;
--	cntrs.port_xmit_data -= dev->n_port_xmit_data;
--	cntrs.port_rcv_data -= dev->n_port_rcv_data;
--	cntrs.port_xmit_packets -= dev->n_port_xmit_packets;
--	cntrs.port_rcv_packets -= dev->n_port_rcv_packets;
-+	cntrs.port_rcv_errors -= dev->z_port_rcv_errors;
-+	cntrs.port_rcv_remphys_errors -= dev->z_port_rcv_remphys_errors;
-+	cntrs.port_xmit_discards -= dev->z_port_xmit_discards;
-+	cntrs.port_xmit_data -= dev->z_port_xmit_data;
-+	cntrs.port_rcv_data -= dev->z_port_rcv_data;
-+	cntrs.port_xmit_packets -= dev->z_port_xmit_packets;
-+	cntrs.port_rcv_packets -= dev->z_port_rcv_packets;
- 	cntrs.local_link_integrity_errors -=
- 		dev->z_local_link_integrity_errors;
- 	cntrs.excessive_buffer_overrun_errors -=
-@@ -981,10 +981,10 @@ static int recv_pma_get_portcounters_ext
- 				      &rpkts, &xwait);
+ 	l = dd->ipath_port0head;
+-	if(l == (u32)le64_to_cpu(*dd->ipath_hdrqtailptr))
++	hdrqtail = (u32)le64_to_cpu(*dd->ipath_hdrqtailptr);
++	if(l == hdrqtail)
+ 		goto done;
  
- 	/* Adjust counters for any resets done. */
--	swords -= dev->n_port_xmit_data;
--	rwords -= dev->n_port_rcv_data;
--	spkts -= dev->n_port_xmit_packets;
--	rpkts -= dev->n_port_rcv_packets;
-+	swords -= dev->z_port_xmit_data;
-+	rwords -= dev->z_port_rcv_data;
-+	spkts -= dev->z_port_xmit_packets;
-+	rpkts -= dev->z_port_rcv_packets;
+-	/* read only once at start for performance */
+-	hdrqtail = (u32)le64_to_cpu(*dd->ipath_hdrqtailptr);
+-
++reloop:
+ 	for (i = 0; l != hdrqtail; i++) {
+ 		u32 qp;
+ 		u8 *bthbytes;
+@@ -1013,16 +1012,34 @@ void ipath_kreceive(struct ipath_devdata
+ 		 */
+ 		if(l == hdrqtail || (i && !(i&0xf))) {
+ 			u64 lval;
+-			if(l == hdrqtail) /* want interrupt only on last */
++			if(l == hdrqtail) {
++				/* PE-800 interrupt only on last */
+ 				lval = dd->ipath_rhdrhead_intr_off | l;
++			}
+ 			else
+ 				lval = l;
+ 			(void)ipath_write_ureg(dd, ur_rcvhdrhead, lval, 0);
+ 			if(updegr) {
+-				(void)ipath_write_ureg(dd, ur_rcvegrindexhead,
++				ipath_write_ureg(dd, ur_rcvegrindexhead,
+ 						       etail, 0);
+ 				updegr = 0;
+ 			}
++		}
++	}
++	if(!dd->ipath_rhdrhead_intr_off && !reloop) {
++		/* HT-400 workaround; we can have a race clearing chip
++		 * interrupt with another interrupt about to be delivered,
++		 * and can clear it before it is delivered on the GPIO
++		 * workaround.  By doing the extra check here for the
++		 * in-memory tail register updating while we were doing
++		 * earlier packets, we "almost" guarantee we have covered
++		 * that case.
++		 */
++		u32 hqtail = (u32)le64_to_cpu(*dd->ipath_hdrqtailptr);
++		if(hqtail != hdrqtail) {
++		    	hdrqtail = hqtail;
++			reloop = 1; /* loop 1 extra time at most */
++			goto reloop;
+ 		}
+ 	}
  
- 	memset(pmp->data, 0, sizeof(pmp->data));
- 
-@@ -1020,25 +1020,25 @@ static int recv_pma_set_portcounters(str
- 	ipath_layer_get_counters(dev->dd, &cntrs);
- 
- 	if (p->counter_select & IB_PMA_SEL_SYMBOL_ERROR)
--		dev->n_symbol_error_counter = cntrs.symbol_error_counter;
-+		dev->z_symbol_error_counter = cntrs.symbol_error_counter;
- 
- 	if (p->counter_select & IB_PMA_SEL_LINK_ERROR_RECOVERY)
--		dev->n_link_error_recovery_counter =
-+		dev->z_link_error_recovery_counter =
- 			cntrs.link_error_recovery_counter;
- 
- 	if (p->counter_select & IB_PMA_SEL_LINK_DOWNED)
--		dev->n_link_downed_counter = cntrs.link_downed_counter;
-+		dev->z_link_downed_counter = cntrs.link_downed_counter;
- 
- 	if (p->counter_select & IB_PMA_SEL_PORT_RCV_ERRORS)
--		dev->n_port_rcv_errors =
-+		dev->z_port_rcv_errors =
- 			cntrs.port_rcv_errors + dev->rcv_errors;
- 
- 	if (p->counter_select & IB_PMA_SEL_PORT_RCV_REMPHYS_ERRORS)
--		dev->n_port_rcv_remphys_errors =
-+		dev->z_port_rcv_remphys_errors =
- 			cntrs.port_rcv_remphys_errors;
- 
- 	if (p->counter_select & IB_PMA_SEL_PORT_XMIT_DISCARDS)
--		dev->n_port_xmit_discards = cntrs.port_xmit_discards;
-+		dev->z_port_xmit_discards = cntrs.port_xmit_discards;
- 
- 	if (p->counter_select & IB_PMA_SEL_LOCAL_LINK_INTEGRITY_ERRORS)
- 		dev->z_local_link_integrity_errors =
-@@ -1052,16 +1052,16 @@ static int recv_pma_set_portcounters(str
- 		dev->n_vl15_dropped = 0;
- 
- 	if (p->counter_select & IB_PMA_SEL_PORT_XMIT_DATA)
--		dev->n_port_xmit_data = cntrs.port_xmit_data;
-+		dev->z_port_xmit_data = cntrs.port_xmit_data;
- 
- 	if (p->counter_select & IB_PMA_SEL_PORT_RCV_DATA)
--		dev->n_port_rcv_data = cntrs.port_rcv_data;
-+		dev->z_port_rcv_data = cntrs.port_rcv_data;
- 
- 	if (p->counter_select & IB_PMA_SEL_PORT_XMIT_PACKETS)
--		dev->n_port_xmit_packets = cntrs.port_xmit_packets;
-+		dev->z_port_xmit_packets = cntrs.port_xmit_packets;
- 
- 	if (p->counter_select & IB_PMA_SEL_PORT_RCV_PACKETS)
--		dev->n_port_rcv_packets = cntrs.port_rcv_packets;
-+		dev->z_port_rcv_packets = cntrs.port_rcv_packets;
- 
- 	return recv_pma_get_portcounters(pmp, ibdev, port);
+diff -r 04c86dd11b27 -r a1615956e57f drivers/infiniband/hw/ipath/ipath_intr.c
+--- a/drivers/infiniband/hw/ipath/ipath_intr.c	Fri May 12 15:55:29 2006 -0700
++++ b/drivers/infiniband/hw/ipath/ipath_intr.c	Fri May 12 15:55:29 2006 -0700
+@@ -761,13 +761,14 @@ static void handle_urcv(struct ipath_dev
  }
-@@ -1078,16 +1078,16 @@ static int recv_pma_set_portcounters_ext
- 				      &rpkts, &xwait);
  
- 	if (p->counter_select & IB_PMA_SELX_PORT_XMIT_DATA)
--		dev->n_port_xmit_data = swords;
-+		dev->z_port_xmit_data = swords;
  
- 	if (p->counter_select & IB_PMA_SELX_PORT_RCV_DATA)
--		dev->n_port_rcv_data = rwords;
-+		dev->z_port_rcv_data = rwords;
++
+ irqreturn_t ipath_intr(int irq, void *data, struct pt_regs *regs)
+ {
+ 	struct ipath_devdata *dd = data;
+ 	u32 istat, chk0rcv = 0;
+ 	ipath_err_t estat = 0;
+ 	irqreturn_t ret;
+-	u32 p0bits, oldhead;
++	u32 oldhead, curtail;
+ 	static unsigned unexpected = 0;
+ 	static const u32 port0rbits = (1U<<INFINIPATH_I_RCVAVAIL_SHIFT) |
+ 		 (1U<<INFINIPATH_I_RCVURG_SHIFT);
+@@ -810,15 +811,16 @@ irqreturn_t ipath_intr(int irq, void *da
+ 	 * lose intr for later packets that arrive while we are processing.
+ 	 */
+ 	oldhead = dd->ipath_port0head;
+-	if (oldhead != (u32)le64_to_cpu(*dd->ipath_hdrqtailptr)) {
++	curtail = (u32)le64_to_cpu(*dd->ipath_hdrqtailptr);
++	if (oldhead != curtail) {
+ 		if(dd->ipath_flags & IPATH_GPIO_INTR) {
+ 			ipath_write_kreg(dd, dd->ipath_kregs->kr_gpio_clear,
+ 					 (u64) (1 << 2));
+-			p0bits = port0rbits | INFINIPATH_I_GPIO;
++			istat = port0rbits | INFINIPATH_I_GPIO;
+ 		}
+ 		else
+-			p0bits = port0rbits;
+-		ipath_write_kreg(dd, dd->ipath_kregs->kr_intclear, p0bits);
++			istat = port0rbits;
++		ipath_write_kreg(dd, dd->ipath_kregs->kr_intclear, istat);
+ 		ipath_kreceive(dd);
+ 		if(oldhead != dd->ipath_port0head) {
+ 			ipath_stats.sps_fastrcvint++;
+@@ -827,7 +829,6 @@ irqreturn_t ipath_intr(int irq, void *da
+ 	}
  
- 	if (p->counter_select & IB_PMA_SELX_PORT_XMIT_PACKETS)
--		dev->n_port_xmit_packets = spkts;
-+		dev->z_port_xmit_packets = spkts;
+ 	istat = ipath_read_kreg32(dd, dd->ipath_kregs->kr_intstatus);
+-	p0bits = port0rbits;
  
- 	if (p->counter_select & IB_PMA_SELX_PORT_RCV_PACKETS)
--		dev->n_port_rcv_packets = rpkts;
-+		dev->z_port_rcv_packets = rpkts;
+ 	if (unlikely(!istat)) {
+ 		ipath_stats.sps_nullintr++;
+@@ -890,19 +891,19 @@ irqreturn_t ipath_intr(int irq, void *da
+ 		else {
+ 			/* Clear GPIO status bit 2 */
+ 			ipath_write_kreg(dd, dd->ipath_kregs->kr_gpio_clear,
+-					 (u64) (1 << 2));
+-			p0bits |= INFINIPATH_I_GPIO;
++					(u64) (1 << 2));
+ 			chk0rcv = 1;
+ 		}
+ 	}
+-	chk0rcv |= istat & p0bits;
+-
+-	/*
+-	 * clear the ones we will deal with on this round
+-	 * We clear it early, mostly for receive interrupts, so we
+-	 * know the chip will have seen this by the time we process
+-	 * the queue, and will re-interrupt if necessary.  The processor
+-	 * itself won't take the interrupt again until we return.
++	chk0rcv |= istat & port0rbits;
++
++	/*
++	 * Clear the interrupt bits we found set, unless they are receive
++	 * related, in which case we already cleared them above, and don't
++	 * want to clear them again, because we might lose an interrupt.
++	 * Clear it early, so we "know" know the chip will have seen this by
++	 * the time we process the queue, and will re-interrupt if necessary.
++	 * The processor itself won't take the interrupt again until we return.
+ 	 */
+ 	ipath_write_kreg(dd, dd->ipath_kregs->kr_intclear, istat);
  
- 	if (p->counter_select & IB_PMA_SELX_PORT_UNI_XMIT_PACKETS)
- 		dev->n_unicast_xmit = 0;
-diff -r ec1934faf5d1 -r f8debae94d44 drivers/infiniband/hw/ipath/ipath_verbs.c
---- a/drivers/infiniband/hw/ipath/ipath_verbs.c	Fri May 12 15:55:28 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_verbs.c	Fri May 12 15:55:28 2006 -0700
-@@ -700,7 +700,7 @@ static int ipath_query_port(struct ib_de
- 	props->max_msg_sz = 4096;
- 	props->pkey_tbl_len = ipath_layer_get_npkeys(dev->dd);
- 	props->bad_pkey_cntr = ipath_layer_get_cr_errpkey(dev->dd) -
--		dev->n_pkey_violations;
-+		dev->z_pkey_violations;
- 	props->qkey_viol_cntr = dev->qkey_violations;
- 	props->active_width = IB_WIDTH_4X;
- 	/* See rate_show() */
-@@ -1034,18 +1034,18 @@ static void *ipath_register_ib_device(in
- 
- 	/* Snapshot current HW counters to "clear" them. */
- 	ipath_layer_get_counters(dd, &cntrs);
--	idev->n_symbol_error_counter = cntrs.symbol_error_counter;
--	idev->n_link_error_recovery_counter =
-+	idev->z_symbol_error_counter = cntrs.symbol_error_counter;
-+	idev->z_link_error_recovery_counter =
- 		cntrs.link_error_recovery_counter;
--	idev->n_link_downed_counter = cntrs.link_downed_counter;
--	idev->n_port_rcv_errors = cntrs.port_rcv_errors;
--	idev->n_port_rcv_remphys_errors =
-+	idev->z_link_downed_counter = cntrs.link_downed_counter;
-+	idev->z_port_rcv_errors = cntrs.port_rcv_errors;
-+	idev->z_port_rcv_remphys_errors =
- 		cntrs.port_rcv_remphys_errors;
--	idev->n_port_xmit_discards = cntrs.port_xmit_discards;
--	idev->n_port_xmit_data = cntrs.port_xmit_data;
--	idev->n_port_rcv_data = cntrs.port_rcv_data;
--	idev->n_port_xmit_packets = cntrs.port_xmit_packets;
--	idev->n_port_rcv_packets = cntrs.port_rcv_packets;
-+	idev->z_port_xmit_discards = cntrs.port_xmit_discards;
-+	idev->z_port_xmit_data = cntrs.port_xmit_data;
-+	idev->z_port_rcv_data = cntrs.port_rcv_data;
-+	idev->z_port_xmit_packets = cntrs.port_xmit_packets;
-+	idev->z_port_rcv_packets = cntrs.port_rcv_packets;
- 	idev->z_local_link_integrity_errors =
- 		cntrs.local_link_integrity_errors;
- 	idev->z_excessive_buffer_overrun_errors =
-diff -r ec1934faf5d1 -r f8debae94d44 drivers/infiniband/hw/ipath/ipath_verbs.h
---- a/drivers/infiniband/hw/ipath/ipath_verbs.h	Fri May 12 15:55:28 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_verbs.h	Fri May 12 15:55:28 2006 -0700
-@@ -448,17 +448,17 @@ struct ipath_ibdev {
- 	u64 n_unicast_rcv;	/* total unicast packets received */
- 	u64 n_multicast_xmit;	/* total multicast packets sent */
- 	u64 n_multicast_rcv;	/* total multicast packets received */
--	u64 n_symbol_error_counter;	/* starting count for PMA */
--	u64 n_link_error_recovery_counter;	/* starting count for PMA */
--	u64 n_link_downed_counter;	/* starting count for PMA */
--	u64 n_port_rcv_errors;	/* starting count for PMA */
--	u64 n_port_rcv_remphys_errors;	/* starting count for PMA */
--	u64 n_port_xmit_discards;	/* starting count for PMA */
--	u64 n_port_xmit_data;	/* starting count for PMA */
--	u64 n_port_rcv_data;	/* starting count for PMA */
--	u64 n_port_xmit_packets;	/* starting count for PMA */
--	u64 n_port_rcv_packets;	/* starting count for PMA */
--	u32 n_pkey_violations;	/* starting count for PMA */
-+	u64 z_symbol_error_counter;		/* starting count for PMA */
-+	u64 z_link_error_recovery_counter;	/* starting count for PMA */
-+	u64 z_link_downed_counter;		/* starting count for PMA */
-+	u64 z_port_rcv_errors;			/* starting count for PMA */
-+	u64 z_port_rcv_remphys_errors;		/* starting count for PMA */
-+	u64 z_port_xmit_discards;		/* starting count for PMA */
-+	u64 z_port_xmit_data;			/* starting count for PMA */
-+	u64 z_port_rcv_data;			/* starting count for PMA */
-+	u64 z_port_xmit_packets;		/* starting count for PMA */
-+	u64 z_port_rcv_packets;			/* starting count for PMA */
-+	u32 z_pkey_violations;			/* starting count for PMA */
- 	u32 z_local_link_integrity_errors;	/* starting count for PMA */
- 	u32 z_excessive_buffer_overrun_errors;	/* starting count for PMA */
- 	u32 n_rc_resends;

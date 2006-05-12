@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWELRro@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWELRrr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbWELRro (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 13:47:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWELRro
+	id S932176AbWELRrr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 13:47:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWELRrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 13:47:44 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:11963 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932174AbWELRrn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 13:47:43 -0400
-Subject: Re: [BUG 2.6.17-git] kmem_cache_create: duplicate cache
-	scsi_cmd_cache
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Erik Mouw <erik@harddisk-recovery.com>, Or Gerlitz <or.gerlitz@gmail.com>,
-       linux-scsi@vger.kernel.org, rmk@arm.linux.org.uk, axboe@suse.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0605121024310.3866@g5.osdl.org>
-References: <20060511151456.GD3755@harddisk-recovery.com>
-	 <15ddcffd0605112153q57f139a1k7068e204a3eeaf1f@mail.gmail.com>
-	 <20060512171632.GA29077@harddisk-recovery.com>
-	 <Pine.LNX.4.64.0605121024310.3866@g5.osdl.org>
+	Fri, 12 May 2006 13:47:47 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:12504 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932176AbWELRrq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 13:47:46 -0400
+Subject: Re: [RFC][PATCH -rt] irqd starvation on SMP by a single process?
+From: john stultz <johnstul@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: lkml <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>
+In-Reply-To: <20060512055025.GA25824@elte.hu>
+References: <1147401812.1907.14.camel@cog.beaverton.ibm.com>
+	 <20060512055025.GA25824@elte.hu>
 Content-Type: text/plain
-Date: Fri, 12 May 2006 12:47:18 -0500
-Message-Id: <1147456038.3769.39.camel@mulgrave.il.steeleye.com>
+Date: Fri, 12 May 2006 10:47:41 -0700
+Message-Id: <1147456061.9343.12.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-05-12 at 10:36 -0700, Linus Torvalds wrote:
-> Ok, that's just _strange_. Clearly bisection picked the right commit, 
-> since:
+On Fri, 2006-05-12 at 07:50 +0200, Ingo Molnar wrote:
+> * john stultz <johnstul@us.ibm.com> wrote:
+> > +		if(!cpus_equal(current->cpus_allowed, irq_affinity[irq]));
+> > +			set_cpus_allowed(current, irq_affinity[irq]);
+> 
+> > The patch below appears to correct this issue, however it also
+> > repeatedly(on different irqs) causes the following BUG:
+> 
+> ah. This actually uncovered a real bug. We were calling __do_softirq() 
+> with interrupts enabled (and being preemptible) - which is certainly 
+> bad.
+> 
+> this was hidden before because the smp_processor_id() debugging code 
+> handles tasks bound to a single CPU as per-cpu-safe.
+> 
+> could you check the (totally untested) patch below and see if that fixes 
+> things for you? I've also added your affinity change.
 
-I can guess what the problem is.
+Yep, no BUG messages and I get irq affinity behavior that matches what I
+echo into the proc interface.
 
-The kmem_cache_release is triggered from the device model release of the
-host generic device.   I suspect we've induced a tangle in here that
-means scsi devices (and hence hosts) get deleted but never released.
+Looks good to me so far. I'll keep running w/ it and let you know if we
+see any issues.
 
-I'll look at the release paths and see if I can work out what it is.
-
-James
-
+thanks
+-john
 

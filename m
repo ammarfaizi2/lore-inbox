@@ -1,72 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWELJWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWELJ0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751099AbWELJWP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 05:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbWELJWP
+	id S1751102AbWELJ0u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 05:26:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWELJ0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 05:22:15 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:54472 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751099AbWELJWO (ORCPT
+	Fri, 12 May 2006 05:26:50 -0400
+Received: from touchdown.wvpn.de ([212.227.64.97]:2553 "EHLO mail.wvpn.de")
+	by vger.kernel.org with ESMTP id S1751102AbWELJ0t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 05:22:14 -0400
-Date: Fri, 12 May 2006 11:21:59 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Mark Hounschell <markh@compro.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Daniel Walker <dwalker@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: rt20 patch question
-Message-ID: <20060512092159.GC18145@elte.hu>
-References: <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com> <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com> <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com> <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com> <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 12 May 2006 05:26:49 -0400
+Message-ID: <446454ED.9060304@maintech.de>
+Date: Fri, 12 May 2006 11:27:09 +0200
+From: "Thomas Kleffel (maintech GmbH)" <tk@maintech.de>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060508)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Vrabel <dvrabel@cantab.net>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       linux-pcmcia@lists.infradead.org, Iain Barker <ibarker@aastra.com>
+Subject: Re: [PATCH] ide_cs: Make ide_cs work with the memory space of CF-Cards
+ if IO space is not available (2nd revision)
+References: <44629D10.80803@maintech.de> <1147362779.26130.45.camel@localhost.localdomain> <44643B80.5080109@maintech.de> <446452F5.10909@cantab.net>
+In-Reply-To: <446452F5.10909@cantab.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Vrabel wrote:
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+>Thomas Kleffel (maintech GmbH) wrote:
+>  
+>
+>>+void outb_io(unsigned char value, unsigned long port) {
+>>+	outb(value, port);
+>>+}
+>>+
+>>+void outb_mem(unsigned char value, unsigned long port) {
+>>+	writeb(value, (void __iomem *) port);
+>> }
+>>    
+>>
+>
+>[...]
+>
+>  
+>
+>>+    if(is_mmio) 
+>>+    	my_outb = outb_mem;
+>>+    else
+>>+    	my_outb = outb_io;
+>>    
+>>
+>
+>
+>Shouldn't you convert ide_cs to use iowrite8 (and friends) instead of
+>doing this?
+>  
+>
+You're right. I didn't know about iowrite8.
 
-> > one solution would be to forbid disable_irq() from softirq contexts, and
-> > to convert the vortex timeout function to a workqueue and use the
-> > *_delayed_work() APIs to drive it - and cross fingers there's not many
-> > places to fix.
-> 
-> I prefer the above. Maybe even add a WARN_ON(in_softirq()) in 
-> disable_irq.
-> 
-> But I must admit, I wouldn't know how to make that change without 
-> spending more time on it then I have for this.
+I'll post a new revision soon.
 
-the simplest fix for now would be to use the _nosync variant in the 
-vortex timeout function.
-
-Mark, does this fix the problem?
-
-	Ingo
-
-Index: linux-rt.q/drivers/net/3c59x.c
-===================================================================
---- linux-rt.q.orig/drivers/net/3c59x.c
-+++ linux-rt.q/drivers/net/3c59x.c
-@@ -1897,7 +1897,8 @@ vortex_timer(unsigned long data)
- 
- 	if (vp->medialock)
- 		goto leave_media_alone;
--	disable_irq(dev->irq);
-+	/* hack! */
-+	disable_irq_nosync(dev->irq);
- 	old_window = ioread16(ioaddr + EL3_CMD) >> 13;
- 	EL3WINDOW(4);
- 	media_status = ioread16(ioaddr + Wn4_Media);
+Thomas

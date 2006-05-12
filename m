@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWELAOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWELASr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbWELAOc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 20:14:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbWELAOc
+	id S1750713AbWELASr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 20:18:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWELASr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 20:14:32 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:36176 "EHLO
-	pd5mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1750708AbWELAOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 20:14:32 -0400
-Date: Thu, 11 May 2006 18:12:49 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: ext3 metadata performace
-In-reply-to: <6bkbC-4V9-27@gated-at.bofh.it>
-To: =?ISO-8859-1?Q?Dieter_St=FCken?= <stueken@conterra.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <4463D301.5080302@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 8BIT
-References: <6bkbC-4V9-27@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+	Thu, 11 May 2006 20:18:47 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:25238 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750713AbWELASq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 20:18:46 -0400
+Date: Fri, 12 May 2006 10:17:54 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, pavel@suse.cz
+Subject: Re: [PATCH -mm] swsusp: support creating bigger images (rev. 2)
+Message-ID: <20060512101754.A2182805@wobbly.melbourne.sgi.com>
+References: <200605021200.37424.rjw@sisk.pl> <200605111011.23508.ncunningham@cyclades.com> <200605111520.30203.rjw@sisk.pl> <200605120945.52477.ncunningham@cyclades.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200605120945.52477.ncunningham@cyclades.com>; from ncunningham@cyclades.com on Fri, May 12, 2006 at 09:45:48AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dieter Stüken wrote:
-> after I switched from from ext2 to ext3 i observed some severe 
-> performance degradation. Most discussion about this topic deals
-> with tuning of data-io performance. My problem however is related to 
-> metadata updates. When cloning (cp -al) or deleting directory trees I 
-> find, that about 7200 files are created/deleted per minute. Seems
-> this is related to some ex3 strategy, to wait for each metadata to be
-> written to disk. Interestingly this occurs with my new hw-raid
-> controller (3ware 9500S), which even has an battery buffered disk cache.
-> Thus there is no need for synchronous IO anyway. If I disable the
-> disk cache on my plain SATA disk using ext3, I also get this behavior.
-> 
-> Would it be make sense for ext3, to disable synchronous writes even
-> for metadata (similar to the "data=writeback" option)? This means, that
-> ext3 won't protect the (meta) data currently written. This is needed
-> if running a database or an email server, where the process performing
-> the IO must be sure, the data is definitely on disk, if it returns form
-> the system call. In most cases, however, you choose ex3 to ensure the
-> consistency of your file system after a crash, to avoid an fsck.
-> If some files, created just before the crash, vanish, does not hurt
-> me too much.
+On Fri, May 12, 2006 at 09:45:48AM +1000, Nigel Cunningham wrote:
+> On Thursday 11 May 2006 23:20, Rafael J. Wysocki wrote:
+> > On Thursday 11 May 2006 02:11, Nigel Cunningham wrote:
+> > > On Thursday 11 May 2006 09:38, Andrew Morton wrote:
+> > > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > > > > On Wednesday 10 May 2006 00:27, Andrew Morton wrote:
+> > > >
+> > > > There can be situations where we won't be waiting on this IO at all.
+> > > > Network zero-copy transmit, for example.
+> > > >
+> > > > Or maybe there's some async writeback going on against pagecache -
+> > > > we'll end up looking at the page's LRU state within interrupt context
+> > > > at IO completion.  (A sync would prevent this from happening).
+> > >
+> > > I believe more than a sync is needed in at least some cases. I've seen
+> > > XFS continue to submit I/O (presumably on the sb or such like) after
+> > > everything else has been frozen and data has been synced. Freezing bdevs
+> > > addressed this.
 
-I think that doing this would destroy all filesystem consistency 
-guarantees provided by ext3. In this case you might as well use ext2. In 
-order for the journalling to work, the metadata updates must be written 
-to the journal before any of them start modifying the actual disk 
-metadata, otherwise there is no way to recover in the event of a crash.
+[just came across this, missed it before, sorry]
+
+The above is correct - sync means get current state safe ondisk, it
+doesn't mean flush all dirty metadata to its final resting place
+(subtle difference).  XFS will flush and wait on its journal on
+sync, which means theres a reconstructable state for all of the
+currently-incore-dirty-metadata ondisk, so it does not also flush
+and wait on that currently-incore-dirty-metadata.  It doesn't need
+to, it has already ensured thats written elsewhere on disk, in the
+journal.  And should the unthinkable happen, that metadata will be
+correctly recovered on the next mount when the journal is replayed.
+
+Block device freeze, unmount and/or remount,ro will all ensure that
+all incore-dirty-metadata is also flushed and waited on.
+
+cheers.
 
 -- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+Nathan

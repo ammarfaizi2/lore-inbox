@@ -1,71 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbWELNTc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWELNYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751285AbWELNTc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 09:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWELNTc
+	id S1751286AbWELNYL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 09:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWELNYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 09:19:32 -0400
-Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:8855 "EHLO
-	mx1.compro.net") by vger.kernel.org with ESMTP id S1751285AbWELNTb
+	Fri, 12 May 2006 09:24:10 -0400
+Received: from mail.aastra.com ([216.94.98.95]:18128 "EHLO mailfrnt.aastra.com")
+	by vger.kernel.org with ESMTP id S1751286AbWELNYJ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 09:19:31 -0400
-Message-ID: <44648B5E.80105@compro.net>
-Date: Fri, 12 May 2006 09:19:26 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-User-Agent: Thunderbird 1.5 (X11/20060111)
+	Fri, 12 May 2006 09:24:09 -0400
+x-mimeole: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [RFC][PATCH -rt] irqd starvation on SMP by a single process?
-References: <1147401812.1907.14.camel@cog.beaverton.ibm.com> <20060512055025.GA25824@elte.hu> <Pine.LNX.4.58.0605120337150.26721@gandalf.stny.rr.com> <4464740C.8060305@compro.net> <20060512115614.GA28377@elte.hu> <44648532.8080200@compro.net> <Pine.LNX.4.58.0605120902460.30264@gandalf.stny.rr.com>
-In-Reply-To: <Pine.LNX.4.58.0605120902460.30264@gandalf.stny.rr.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH] ide_cs: Make ide_cs work with the memory space of CF-Cards if IO space is not available (2nd revision)
+Date: Fri, 12 May 2006 09:24:01 -0400
+Message-ID: <ABD6885665C7C74DA65B21A1DB4E4A2FB825D9@bilmail.aastra.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] ide_cs: Make ide_cs work with the memory space of CF-Cards if IO space is not available (2nd revision)
+Thread-Index: AcZ1pRO3Oa8qOFVuQWSo0dZ2sf0X/wAIa6sQ
+From: "Iain Barker" <ibarker@aastra.com>
+To: "David Vrabel" <dvrabel@cantab.net>,
+       "Thomas Kleffel \(maintech GmbH\)" <tk@maintech.de>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
+       <linux-pcmcia@lists.infradead.org>
+X-OriginalArrivalTime: 12 May 2006 13:24:09.0042 (UTC) FILETIME=[59B20B20:01C675C7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
-> On Fri, 12 May 2006, Mark Hounschell wrote:
-> 
->>> Mark, does this fix the problem?
->>>
->>> 	Ingo
->>>
->>> Index: linux-rt.q/drivers/net/3c59x.c
->>> ===================================================================
->>> --- linux-rt.q.orig/drivers/net/3c59x.c
->>> +++ linux-rt.q/drivers/net/3c59x.c
->>> @@ -1897,7 +1897,8 @@ vortex_timer(unsigned long data)
->>>
->>>  	if (vp->medialock)
->>>  		goto leave_media_alone;
->>> -	disable_irq(dev->irq);
->>> +	/* hack! */
->>> +	disable_irq_nosync(dev->irq);
->>>  	old_window = ioread16(ioaddr + EL3_CMD) >> 13;
->>>  	EL3WINDOW(4);
->>>  	media_status = ioread16(ioaddr + Wn4_Media);
->>>
->> Yes it does.
->>
-> 
-> 
-> It fixes it for both "complete preemption" and "normal preemption"?
-> 
-> -- Steve
-> 
-> 
 
-Nope, I still have the complete preemption problem. My box locked up
-right away. Had to reboot it.
 
-You guys know best but I think the problem the above patch fixes is
-probably not related to my 'complete preemption' problem or the problem
-reported by John. But my 'complete preemption' problem may certainly be
-the same as Johns.
+Thomas Kleffel (maintech GmbH) wrote:
+> +    if(is_mmio) 
+> +    	my_outb = outb_mem;
+> +    else
+> +    	my_outb = outb_io;
 
-Mark
+David Vrabel wrote:
+> Shouldn't you convert ide_cs to use iowrite8 (and friends) instead of
+> doing this?
+
+
+Actually, I think even better to use the primitives from ide-iops.c ?
+
+i.e. the members of default_hwif_iops and default_hwif_mmiops, which
+map to the ide_mm_outb and ide_outb functions used by the rest of the
+IDE driver code?
+
+- Iain

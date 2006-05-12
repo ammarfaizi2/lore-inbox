@@ -1,43 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbWELMte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWELMts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751054AbWELMte (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 08:49:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWELMte
+	id S1751155AbWELMts (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 08:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWELMtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 08:49:34 -0400
-Received: from stinky.trash.net ([213.144.137.162]:471 "EHLO stinky.trash.net")
-	by vger.kernel.org with ESMTP id S1751054AbWELMte (ORCPT
+	Fri, 12 May 2006 08:49:47 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6075 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751155AbWELMtq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 08:49:34 -0400
-Message-ID: <4464845B.3010502@trash.net>
-Date: Fri, 12 May 2006 14:49:31 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: Jesper Juhl <jesper.juhl@gmail.com>,
-       "David S. Miller" <davem@davemloft.net>, sfrost@snowman.net,
-       gcoady.lk@gmail.com, laforge@netfilter.org,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-       marcelo@kvack.org
-Subject: Re: [PATCH] fix mem-leak in netfilter
-References: <20060507093640.GF11191@w.ods.org> <egts52hm2epfu4g1b9kqkm4s9cdiv3tvt9@4ax.com> <20060508050748.GA11495@w.ods.org> <20060507.224339.48487003.davem@davemloft.net> <44643BFD.3040708@trash.net> <9a8748490605120409x3851ca4fn14fc9c52500701e4@mail.gmail.com> <44647280.1030602@trash.net> <9a8748490605120513w4b078642k816dfef6ab907823@mail.gmail.com> <20060512124041.GA31714@w.ods.org>
-In-Reply-To: <20060512124041.GA31714@w.ods.org>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 12 May 2006 08:49:46 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060510160148.9058.81776.stgit@warthog.cambridge.redhat.com> 
+References: <20060510160148.9058.81776.stgit@warthog.cambridge.redhat.com>  <20060510160111.9058.55026.stgit@warthog.cambridge.redhat.com> 
+To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
+       trond.myklebust@fys.uio.no, aviro@redhat.com
+Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 13/14] FS-Cache: Release page->private in failed readahead [try #9] 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Fri, 12 May 2006 13:49:30 +0100
+Message-ID: <13241.1147438170@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> Please post it to the list, this coding style needs far more than two
-> pairs of eyes to be fixed. It has already discouraged several people,
-> the more we will be, the least pain we will feel :-)
 
-:)
+The attached patch causes read_cache_pages() to release page-private data on a
+page for which add_to_page_cache() fails or the filler function fails. This
+permits pages with caching references associated with them to be cleaned up.
 
-I actually just got to fed up with this garbage (once again) and started
-rewriting it from scratch, which looks like a lot less pain. I'll look
-into these loops again for 2.4 and 2.6.17 once I'm done doing that.
+Further changes [try #9] that have been made:
 
+ (*) The try_to_release_page() is called instead of calling the releasepage()
+     op directly.
+
+ (*) The page is locked before try_to_release_page() is called.
+
+ (*) The call to try_to_release_page() and page_cache_release() have been
+     abstracted out into a helper function as this bit of code occurs twice..
+
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+
+ mm/readahead.c |   21 +++++++++++++++++++--
+ 1 files changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/mm/readahead.c b/mm/readahead.c
+index 0f142a4..5e9d183 100644
+--- a/mm/readahead.c
++++ b/mm/readahead.c
+@@ -14,6 +14,7 @@ #include <linux/module.h>
+ #include <linux/blkdev.h>
+ #include <linux/backing-dev.h>
+ #include <linux/pagevec.h>
++#include <linux/buffer_head.h>
+ 
+ void default_unplug_io_fn(struct backing_dev_info *bdi, struct page *page)
+ {
+@@ -117,6 +118,22 @@ static inline unsigned long get_next_ra_
+ 
+ #define list_to_page(head) (list_entry((head)->prev, struct page, lru))
+ 
++/*
++ * see if a page needs releasing upon read_cache_pages() failure
++ */
++static inline void read_cache_pages_release_page(struct address_space *mapping,
++						 struct page *page)
++{
++	if (PagePrivate(page)) {
++		page->mapping = mapping;
++		SetPageLocked(page);
++		try_to_release_page(page, GFP_KERNEL);
++		page->mapping = NULL;
++	}
++
++	page_cache_release(page);
++}
++
+ /**
+  * read_cache_pages - populate an address space with some pages, and
+  * 			start reads against them.
+@@ -141,7 +158,7 @@ int read_cache_pages(struct address_spac
+ 		page = list_to_page(pages);
+ 		list_del(&page->lru);
+ 		if (add_to_page_cache(page, mapping, page->index, GFP_KERNEL)) {
+-			page_cache_release(page);
++			read_cache_pages_release_page(mapping, page);
+ 			continue;
+ 		}
+ 		ret = filler(data, page);
+@@ -153,7 +170,7 @@ int read_cache_pages(struct address_spac
+ 
+ 				victim = list_to_page(pages);
+ 				list_del(&victim->lru);
+-				page_cache_release(victim);
++				read_cache_pages_release_page(mapping, victim);
+ 			}
+ 			break;
+ 		}

@@ -1,31 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWELPez@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWELPg4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932143AbWELPez (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 11:34:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbWELPez
+	id S932088AbWELPg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 11:36:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWELPg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 11:34:55 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:27338 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S932138AbWELPey (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 11:34:54 -0400
-Date: Fri, 12 May 2006 17:34:50 +0200 (MEST)
-Message-Id: <200605121534.k4CFYodu020885@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: htejun@gmail.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] libata: new EH, NCQ, hotplug and PM patches against stable kernel
+	Fri, 12 May 2006 11:36:56 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:20425 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932088AbWELPgz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 11:36:55 -0400
+Date: Fri, 12 May 2006 11:36:35 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Andrew Morton <akpm@osdl.org>
+cc: mingo@elte.hu, markh@compro.net, linux-kernel@vger.kernel.org,
+       dwalker@mvista.com, tglx@linutronix.de
+Subject: Re: 3c59x vortex_timer rt hack (was: rt20 patch question)
+In-Reply-To: <20060512082340.3e169128.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0605121136060.4281@gandalf.stny.rr.com>
+References: <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
+ <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
+ <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
+ <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com>
+ <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
+ <20060512092159.GC18145@elte.hu> <Pine.LNX.4.58.0605120904110.30264@gandalf.stny.rr.com>
+ <20060512071645.6b59e0a2.akpm@osdl.org> <Pine.LNX.4.58.0605121029540.30264@gandalf.stny.rr.com>
+ <Pine.LNX.4.58.0605121036150.30264@gandalf.stny.rr.com>
+ <20060512074929.031d4eaf.akpm@osdl.org> <Pine.LNX.4.58.0605121110320.3328@gandalf.stny.rr.com>
+ <20060512082340.3e169128.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 May 2006 22:24:37 +0900, Tejun Heo wrote:
->The following drivers support new features.
+
+On Fri, 12 May 2006, Andrew Morton wrote:
+
 >
->ata_piix:	new EH, irq-pio, warmplug (hardware restriction)
->sata_sil:	new EH, irq-pio, hotplug
->ahci:		new EH, irq-pio, NCQ, hotplug
->sata_sil24:	new EH, irq-pio, NCQ, hotplug, Port Multiplier
+> Well, only if the hardware's fratzed.  Normally this is quick.
+>
+> otoh vortex_timer() will play with the MII interface, which is slooooow.
+>
 
-If you were to add new EH and NCQ support to sata_promise,
-then I'd test it on my News server.
+The vortex_timer is a timeout, will it go off often?
 
-/Mikael
+-- Steve
+

@@ -1,70 +1,403 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750999AbWELGmv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWELGoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750999AbWELGmv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 02:42:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbWELGmu
+	id S1751005AbWELGoO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 02:44:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbWELGoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 02:42:50 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24466 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750999AbWELGmu (ORCPT
+	Fri, 12 May 2006 02:44:13 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:43957 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751005AbWELGoN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 02:42:50 -0400
-Date: Thu, 11 May 2006 23:39:55 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.6.17-rc4
-Message-Id: <20060511233955.0e8454fa.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0605111640010.3866@g5.osdl.org>
-References: <Pine.LNX.4.64.0605111640010.3866@g5.osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 12 May 2006 02:44:13 -0400
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@ocs.com.au>
+To: mingo@redhat.com, linux-kernel@vger.kernel.org
+Cc: neilb@cse.unsw.edu.au
+Subject: 2.6.17-rc4 md lock held at task exit
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 12 May 2006 16:43:47 +1000
+Message-ID: <7819.1147416227@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
->
-> Ok, I've let the release time between -rc's slide a bit too much again, 
->  but -rc4 is out there, and this is the time to hunker down for 2.6.17.
+Doing poweroff on 2.6.17-rc4 i386, SMP
 
-I have rather a lot of stuff still queued:
+BUG halt/4781, lock held at task exit time!
+ [f7001b34] {mddev_find}
+.. held by: halt: 4781 [f7cd4030, 118]
+... acquired at: md_notify_reboot+0x3a/0xa9 [md_mod}
 
-selinux-check-for-failed-kmalloc-in-security_sid_to_context.patch
-fs-openc-unexport-sys_openat.patch
-autofs4-nfy_none-wait-race-fix.patch
-autofs4-nfy_none-wait-race-fix-tidy.patch
-fix-capi-reload-by-unregistering-the-correct-major.patch
-tpm-update-module-dependencies.patch
-pcmcia-oopses-fixes.patch
-via-quirk-fixup-additional-pci-ids.patch
-rcu-introduce-rcu_needs_cpu-interface.patch
-rcu-introduce-rcu_needs_cpu-interface-fix.patch
-s390-exploit-rcu_needs_cpu-interface.patch
-setup_per_zone_pages_min-overflow-fix.patch
-s390-lcs-incorrect-test.patch
-initramfs-fix-cpio-hardlink-check.patch
-s390-add-vmsplice-system-call.patch
-symbol_put_addr-locks-kernel.patch
-contact-info-update.patch
-smbfs-fix-slab-corruption-in-samba-error-path.patch
-add-slab_is_available-routine-for-boot-code.patch
-x86_64-disable-aperture-pci-region-check-in-amd64.patch
-x86_64-check-for-too-many-northbridges-in-iommu.patch
-led-improve-kconfig-information.patch
-backlight-lcd-class-fix-sysfs-_store-error-handling.patch
-led-add-maintainer-entry-for-the-led-subsystem.patch
-led-fix-sysfs-store-function-error-handling.patch
-v9fs-twalk-memory-leak.patch
-v9fs-signal-handling-fixes.patch
-fix-can_share_swap_page-when-config_swap.patch
-add-core-solo-and-core-duo-support-to-oprofile.patch
-tpm-fix-constant.patch
-final-rio-polish.patch
-tpm_register_hardware-gcc-41-warning-fix.patch
-fs-compatc-fix-if-a-=-b-typo.patch
-root-mount-failure-emit-filesystems-attempted.patch
+Config:
 
-Some of which I still need originator confirmation from.  Maybe tomorrow,
-more likely the day after..
+X86_32=y
+SEMAPHORE_SLEEPERS=y
+X86=y
+MMU=y
+GENERIC_ISA_DMA=y
+GENERIC_IOMAP=y
+GENERIC_HWEIGHT=y
+ARCH_MAY_HAVE_PC_FDC=y
+DMI=y
+EXPERIMENTAL=y
+LOCK_KERNEL=y
+INIT_ENV_ARG_LIMIT=32
+LOCALVERSION="-kaos"
+SWAP=y
+SYSVIPC=y
+SYSCTL=y
+RELAY=y
+INITRAMFS_SOURCE=""
+UID16=y
+VM86=y
+CC_OPTIMIZE_FOR_SIZE=y
+KALLSYMS=y
+KALLSYMS_ALL=y
+HOTPLUG=y
+PRINTK=y
+BUG=y
+ELF_CORE=y
+BASE_FULL=y
+FUTEX=y
+EPOLL=y
+SHMEM=y
+SLAB=y
+BASE_SMALL=0
+MODULES=y
+MODULE_UNLOAD=y
+KMOD=y
+STOP_MACHINE=y
+LBD=y
+IOSCHED_NOOP=y
+DEFAULT_NOOP=y
+DEFAULT_IOSCHED="noop"
+SMP=y
+X86_PC=y
+M686=y
+X86_CMPXCHG=y
+X86_XADD=y
+X86_L1_CACHE_SHIFT=5
+RWSEM_XCHGADD_ALGORITHM=y
+GENERIC_CALIBRATE_DELAY=y
+X86_PPRO_FENCE=y
+X86_WP_WORKS_OK=y
+X86_INVLPG=y
+X86_BSWAP=y
+X86_POPAD_OK=y
+X86_CMPXCHG64=y
+X86_GOOD_APIC=y
+X86_USE_PPRO_CHECKSUM=y
+X86_TSC=y
+HPET_TIMER=y
+HPET_EMULATE_RTC=y
+NR_CPUS=8
+SCHED_SMT=y
+SCHED_MC=y
+PREEMPT=y
+PREEMPT_BKL=y
+X86_LOCAL_APIC=y
+X86_IO_APIC=y
+X86_MCE=y
+X86_MCE_NONFATAL=y
+X86_MCE_P4THERMAL=y
+MICROCODE=m
+X86_MSR=m
+X86_CPUID=m
+NOHIGHMEM=y
+PAGE_OFFSET=0xC0000000
+ARCH_FLATMEM_ENABLE=y
+ARCH_SPARSEMEM_ENABLE=y
+ARCH_SELECT_MEMORY_MODEL=y
+SELECT_MEMORY_MODEL=y
+FLATMEM_MANUAL=y
+FLATMEM=y
+FLAT_NODE_MEM_MAP=y
+SPARSEMEM_STATIC=y
+SPLIT_PTLOCK_CPUS=4
+MTRR=y
+IRQBALANCE=y
+REGPARM=y
+SECCOMP=y
+HZ_250=y
+HZ=250
+PHYSICAL_START=0x100000
+PCI=y
+PCI_GOANY=y
+PCI_BIOS=y
+PCI_DIRECT=y
+ISA_DMA_API=y
+BINFMT_ELF=y
+BINFMT_MISC=m
+NET=y
+PACKET=m
+PACKET_MMAP=y
+UNIX=y
+INET=y
+IP_FIB_HASH=y
+SYN_COOKIES=y
+INET_DIAG=y
+INET_TCP_DIAG=y
+TCP_CONG_BIC=y
+NETFILTER=y
+NETFILTER_NETLINK=m
+NETFILTER_XTABLES=m
+NETFILTER_XT_TARGET_CLASSIFY=m
+NETFILTER_XT_TARGET_MARK=m
+NETFILTER_XT_TARGET_NFQUEUE=m
+NETFILTER_XT_TARGET_NOTRACK=m
+NETFILTER_XT_MATCH_COMMENT=m
+NETFILTER_XT_MATCH_CONNTRACK=m
+NETFILTER_XT_MATCH_DCCP=m
+NETFILTER_XT_MATCH_ESP=m
+NETFILTER_XT_MATCH_HELPER=m
+NETFILTER_XT_MATCH_LENGTH=m
+NETFILTER_XT_MATCH_LIMIT=m
+NETFILTER_XT_MATCH_MAC=m
+NETFILTER_XT_MATCH_MARK=m
+NETFILTER_XT_MATCH_MULTIPORT=m
+NETFILTER_XT_MATCH_PKTTYPE=m
+NETFILTER_XT_MATCH_REALM=m
+NETFILTER_XT_MATCH_SCTP=m
+NETFILTER_XT_MATCH_STATE=m
+NETFILTER_XT_MATCH_STRING=m
+NETFILTER_XT_MATCH_TCPMSS=m
+IP_NF_CONNTRACK=m
+IP_NF_CONNTRACK_NETLINK=m
+IP_NF_FTP=m
+IP_NF_IRC=m
+IP_NF_H323=m
+IP_NF_QUEUE=m
+IP_NF_IPTABLES=m
+IP_NF_MATCH_IPRANGE=m
+IP_NF_MATCH_TOS=m
+IP_NF_MATCH_RECENT=m
+IP_NF_MATCH_ECN=m
+IP_NF_MATCH_DSCP=m
+IP_NF_MATCH_AH=m
+IP_NF_MATCH_TTL=m
+IP_NF_MATCH_OWNER=m
+IP_NF_MATCH_ADDRTYPE=m
+IP_NF_MATCH_HASHLIMIT=m
+IP_NF_FILTER=m
+IP_NF_TARGET_REJECT=m
+IP_NF_TARGET_LOG=m
+IP_NF_TARGET_ULOG=m
+IP_NF_TARGET_TCPMSS=m
+IP_NF_NAT=m
+IP_NF_NAT_NEEDED=y
+IP_NF_TARGET_MASQUERADE=m
+IP_NF_TARGET_REDIRECT=m
+IP_NF_TARGET_NETMAP=m
+IP_NF_TARGET_SAME=m
+IP_NF_NAT_SNMP_BASIC=m
+IP_NF_NAT_IRC=m
+IP_NF_NAT_FTP=m
+IP_NF_NAT_H323=m
+IP_NF_MANGLE=m
+IP_NF_TARGET_TOS=m
+IP_NF_TARGET_ECN=m
+IP_NF_TARGET_DSCP=m
+IP_NF_TARGET_TTL=m
+IP_NF_RAW=m
+IP_NF_ARPTABLES=m
+IP_NF_ARPFILTER=m
+IP_NF_ARP_MANGLE=m
+NET_CLS_ROUTE=y
+STANDALONE=y
+PREVENT_FIRMWARE_BUILD=y
+PARPORT=m
+PARPORT_PC=m
+BLK_DEV_FD=y
+BLK_DEV_LOOP=m
+BLK_DEV_RAM=y
+BLK_DEV_RAM_COUNT=16
+BLK_DEV_RAM_SIZE=4096
+IDE=y
+BLK_DEV_IDE=y
+BLK_DEV_IDEDISK=y
+IDEDISK_MULTI_MODE=y
+BLK_DEV_IDECD=m
+BLK_DEV_IDESCSI=m
+IDE_GENERIC=y
+BLK_DEV_IDEPCI=y
+IDEPCI_SHARE_IRQ=y
+BLK_DEV_GENERIC=y
+BLK_DEV_IDEDMA_PCI=y
+IDEDMA_PCI_AUTO=y
+BLK_DEV_PIIX=y
+BLK_DEV_IDEDMA=y
+IDEDMA_AUTO=y
+SCSI=y
+SCSI_PROC_FS=y
+BLK_DEV_SD=y
+BLK_DEV_SR=m
+BLK_DEV_SR_VENDOR=y
+CHR_DEV_SG=m
+SCSI_CONSTANTS=y
+SCSI_LOGGING=y
+SCSI_SATA=y
+SCSI_ATA_PIIX=y
+SCSI_SATA_INTEL_COMBINED=y
+MD=y
+BLK_DEV_MD=m
+MD_LINEAR=m
+MD_RAID0=m
+MD_RAID1=m
+MD_RAID10=m
+MD_RAID5=m
+MD_RAID6=m
+MD_MULTIPATH=m
+BLK_DEV_DM=m
+DM_CRYPT=m
+DM_SNAPSHOT=m
+DM_MIRROR=m
+DM_ZERO=m
+NETDEVICES=y
+DUMMY=m
+TUN=m
+NET_ETHERNET=y
+MII=m
+NET_PCI=y
+E100=m
+E1000=m
+TIGON3=m
+PPP=m
+PPP_ASYNC=m
+PPP_DEFLATE=m
+PPP_BSDCOMP=m
+INPUT=y
+INPUT_MOUSEDEV=y
+INPUT_MOUSEDEV_PSAUX=y
+INPUT_MOUSEDEV_SCREEN_X=1024
+INPUT_MOUSEDEV_SCREEN_Y=768
+INPUT_KEYBOARD=y
+KEYBOARD_ATKBD=y
+INPUT_MOUSE=y
+MOUSE_PS2=m
+MOUSE_SERIAL=m
+SERIO=y
+SERIO_I8042=y
+SERIO_PCIPS2=m
+SERIO_LIBPS2=y
+VT=y
+VT_CONSOLE=y
+HW_CONSOLE=y
+SERIAL_8250=y
+SERIAL_8250_CONSOLE=y
+SERIAL_8250_PCI=y
+SERIAL_8250_NR_UARTS=4
+SERIAL_8250_RUNTIME_UARTS=4
+SERIAL_CORE=y
+SERIAL_CORE_CONSOLE=y
+UNIX98_PTYS=y
+LEGACY_PTYS=y
+LEGACY_PTY_COUNT=256
+PRINTER=m
+RTC=y
+HWMON=y
+VGA_CONSOLE=y
+DUMMY_CONSOLE=y
+USB_ARCH_HAS_HCD=y
+USB_ARCH_HAS_OHCI=y
+USB_ARCH_HAS_EHCI=y
+EDAC=y
+EDAC_DEBUG=y
+EDAC_MM_EDAC=y
+EDAC_E7XXX=m
+EDAC_E752X=y
+EDAC_I82875P=m
+EDAC_I82860=m
+EDAC_POLL=y
+EXT2_FS=y
+FS_POSIX_ACL=y
+XFS_FS=y
+XFS_EXPORT=y
+XFS_QUOTA=y
+ROMFS_FS=m
+INOTIFY=y
+QUOTACTL=y
+DNOTIFY=y
+AUTOFS_FS=m
+AUTOFS4_FS=m
+FUSE_FS=m
+ISO9660_FS=m
+JOLIET=y
+ZISOFS=y
+ZISOFS_FS=m
+UDF_FS=m
+UDF_NLS=y
+FAT_FS=m
+MSDOS_FS=m
+VFAT_FS=m
+FAT_DEFAULT_CODEPAGE=437
+FAT_DEFAULT_IOCHARSET="iso8859-1"
+NTFS_FS=m
+PROC_FS=y
+PROC_KCORE=y
+SYSFS=y
+TMPFS=y
+RAMFS=y
+EFS_FS=m
+HPFS_FS=m
+UFS_FS=m
+NFS_FS=m
+NFS_V3=y
+NFS_V4=y
+NFSD=m
+NFSD_V3=y
+NFSD_V4=y
+NFSD_TCP=y
+LOCKD=m
+LOCKD_V4=y
+EXPORTFS=y
+NFS_COMMON=y
+SUNRPC=m
+SUNRPC_GSS=m
+RPCSEC_GSS_KRB5=m
+SMB_FS=m
+MSDOS_PARTITION=y
+NLS=y
+NLS_DEFAULT="iso8859-1"
+NLS_CODEPAGE_437=m
+NLS_CODEPAGE_850=y
+NLS_ISO8859_1=y
+NLS_UTF8=m
+MAGIC_SYSRQ=y
+DEBUG_KERNEL=y
+LOG_BUF_SHIFT=16
+DEBUG_PREEMPT=y
+DEBUG_MUTEXES=y
+DEBUG_BUGVERBOSE=y
+DEBUG_FS=y
+FRAME_POINTER=y
+FORCED_INLINING=y
+EARLY_PRINTK=y
+STACK_BACKTRACE_COLS=2
+DEBUG_RODATA=y
+4KSTACKS=y
+X86_FIND_SMP_CONFIG=y
+X86_MPPARSE=y
+DOUBLEFAULT=y
+KDB=y
+KDB_MODULES=y
+KDB_CONTINUE_CATASTROPHIC=0
+CRYPTO=y
+CRYPTO_MD5=y
+CRYPTO_DES=m
+CRC_CCITT=m
+CRC32=m
+ZLIB_INFLATE=m
+ZLIB_DEFLATE=m
+TEXTSEARCH=y
+TEXTSEARCH_KMP=m
+TEXTSEARCH_BM=m
+TEXTSEARCH_FSM=m
+GENERIC_HARDIRQS=y
+GENERIC_IRQ_PROBE=y
+GENERIC_PENDING_IRQ=y
+X86_SMP=y
+X86_HT=y
+X86_BIOS_REBOOT=y
+X86_TRAMPOLINE=y
+KTIME_SCALAR=y
+

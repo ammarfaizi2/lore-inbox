@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751058AbWELHnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbWELHsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751058AbWELHnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 03:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWELHnZ
+	id S1751057AbWELHsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 03:48:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWELHsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 03:43:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:33701 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751056AbWELHnY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 03:43:24 -0400
-Date: Fri, 12 May 2006 00:40:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "J.A. =?ISO-8859-1?B?TWFnYWxs824i?= <jamagallon@ono.com>"@osdl.org
+	Fri, 12 May 2006 03:48:15 -0400
+Received: from smtp.ono.com ([62.42.230.12]:65387 "EHLO resmta03.ono.com")
+	by vger.kernel.org with ESMTP id S1751057AbWELHsP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 03:48:15 -0400
+Date: Fri, 12 May 2006 09:47:21 +0200
+From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.17-rc3-mm1
-Message-Id: <20060512004025.73ab433d.akpm@osdl.org>
-In-Reply-To: <20060512092538.6c3ee3de@werewolf.auna.net>
+Message-ID: <20060512094721.016dd217@werewolf.auna.net>
+In-Reply-To: <20060512004025.73ab433d.akpm@osdl.org>
 References: <20060501014737.54ee0dd5.akpm@osdl.org>
 	<20060512092538.6c3ee3de@werewolf.auna.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	<20060512004025.73ab433d.akpm@osdl.org>
+X-Mailer: Sylpheed-Claws 2.2.0cvs1 (GTK+ 2.9.0; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J.A. Magallón" <jamagallon@ono.com> wrote:
->
-> On Mon, 1 May 2006 01:47:37 -0700, Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc3/2.6.17-rc3-mm1/
-> > 
-> 
-> I have just noticed that the support for 1Gb low mem has been dropped.
-> Any poblems, is it considered a disgusting hack or just by acccident ?
-> 
+On Fri, 12 May 2006 00:40:25 -0700, Andrew Morton <akpm@osdl.org> wrote:
 
-It's risky and breaks stuff and caused Andi to go on an extensive debugging
-session because someone diddled with it.
+> "J.A. MagallÃ³n" <jamagallon@ono.com> wrote:
+> >
+> > On Mon, 1 May 2006 01:47:37 -0700, Andrew Morton <akpm@osdl.org> wrote:
+> > 
+> > > 
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc3/2.6.17-rc3-mm1/
+> > > 
+> > 
+> > I have just noticed that the support for 1Gb low mem has been dropped.
+> > Any poblems, is it considered a disgusting hack or just by acccident ?
+> > 
+> 
+> It's risky and breaks stuff and caused Andi to go on an extensive debugging
+> session because someone diddled with it.
+> 
+> So we hid it behind CONFIG_EMBEDDED, which has kinda come to mean
+> CONFIG_YOU_DONT_WANT_TO_FUTZ_WITH_THIS_STUFF.
 
-So we hid it behind CONFIG_EMBEDDED, which has kinda come to mean
-CONFIG_YOU_DONT_WANT_TO_FUTZ_WITH_THIS_STUFF.
+OK, thanks.
+Now I think its better just to buy 1Gb more mem and stop using this :)
+
+--
+J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
+                                         \         It's better when it's free
+Mandriva Linux release 2006.1 (Cooker) for i586
+Linux 2.6.16-jam11 (gcc 4.1.1 20060330 (prerelease)) #2 SMP PREEMPT Fri

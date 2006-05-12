@@ -1,72 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWEMAAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWELXod@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbWEMAAu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 20:00:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWEMAAR
+	id S932205AbWELXod (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 19:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWELXod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 20:00:17 -0400
-Received: from ns.suse.de ([195.135.220.2]:7874 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932279AbWEMAAD (ORCPT
+	Fri, 12 May 2006 19:44:33 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:32681 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932185AbWELXoc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 20:00:03 -0400
-Date: Fri, 12 May 2006 16:57:45 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Erik Mouw <erik@harddisk-recovery.com>,
-       Or Gerlitz <or.gerlitz@gmail.com>, linux-scsi@vger.kernel.org,
-       axboe@suse.de, Andrew Vasquez <andrew.vasquez@qlogic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Todd Blumer <todd@sdgsystems.com>
-Subject: Re: [BUG 2.6.17-git] kmem_cache_create: duplicate cache scsi_cmd_cache
-Message-ID: <20060512235745.GA31148@suse.de>
-References: <1147456038.3769.39.camel@mulgrave.il.steeleye.com> <1147460325.3769.46.camel@mulgrave.il.steeleye.com> <Pine.LNX.4.64.0605121209020.3866@g5.osdl.org> <20060512203850.GC17120@flint.arm.linux.org.uk> <Pine.LNX.4.64.0605121346060.3866@g5.osdl.org> <20060512205804.GD17120@flint.arm.linux.org.uk> <Pine.LNX.4.64.0605121409250.3866@g5.osdl.org> <20060512215151.GG17120@flint.arm.linux.org.uk> <Pine.LNX.4.64.0605121508590.3866@g5.osdl.org> <Pine.LNX.4.64.0605121532360.3866@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0605121532360.3866@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+	Fri, 12 May 2006 19:44:32 -0400
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: [PATCH 1 of 53] ipath - fix spinlock recursion bug
+X-Mercurial-Node: 9b9f24aab3505e192ed1021ac0636dcd1d620395
+Message-Id: <9b9f24aab3505e192ed1.1147477366@eng-12.pathscale.com>
+In-Reply-To: <patchbomb.1147477365@eng-12.pathscale.com>
+Date: Fri, 12 May 2006 16:42:46 -0700
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: rdreier@cisco.com
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 12, 2006 at 03:37:59PM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Fri, 12 May 2006, Linus Torvalds wrote:
-> > 
-> > On Fri, 12 May 2006, Russell King wrote:
-> > > 
-> > > From: Todd Blumer <todd@sdgsystems.com>
-> > > On a PXA27x handheld (iPAQ hx4700), when we eject a mounted SD memory
-> > > card, we get a kernel panic (kernel trying to clean up non-existent
-> > > device). One hack patch to avoid the panic is:
-> > > 
-> > > --- fs/partitions/check.c       10 Apr 2006 22:57:27 -0000      1.15
-> > > +++ fs/partitions/check.c       4 May 2006 20:30:15 -0000
-> > > @@ -491,6 +491,7 @@
-> > >                         kfree(disk_name);
-> > >                 }
-> > >                 put_device(disk->driverfs_dev);
-> > > +               disk->driverfs_dev = 0; /* HACK - what's the right solution? */
-> > >         }
-> > >         kobject_uevent(&disk->kobj, KOBJ_REMOVE);
-> > >         kobject_del(&disk->kobj);
-> > 
-> > Btw, on the face it of, I really think that this patch is correct 
-> > regardless of any other issues.
-> 
-> .. and I suspect it also shows what the "other issues" are.
-> 
-> Shouldn't that KOBJ_REMOVE uevent happen _before_ we do all the freeing of 
-> the backing dev object? That KOBJ_REMOVE thing actually seems to want to 
-> report the pathname for the disk it removes. Preferably before the thing 
-> is gone and can't be reported on..
-> 
-> Ie shouldn't the diff be something like this?
+The local loopback path for RC can lock the rkey table lock without
+blocking interrupts.  The receive interrupt path can then call
+ipath_rkey_ok() and deadlock.  Since the lock only protects a 64 bit read,
+the lock isn't needed.
 
-It looks sane to me.  Russell, does it solve your oops too?
+Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
 
-thanks,
-
-greg k-h
+diff -r 89f7c69a68bf -r 9b9f24aab350 drivers/infiniband/hw/ipath/ipath_keys.c
+--- a/drivers/infiniband/hw/ipath/ipath_keys.c	Fri May 12 15:55:27 2006 -0700
++++ b/drivers/infiniband/hw/ipath/ipath_keys.c	Fri May 12 15:55:27 2006 -0700
+@@ -136,9 +136,7 @@ int ipath_lkey_ok(struct ipath_lkey_tabl
+ 		ret = 1;
+ 		goto bail;
+ 	}
+-	spin_lock(&rkt->lock);
+ 	mr = rkt->table[(sge->lkey >> (32 - ib_ipath_lkey_table_size))];
+-	spin_unlock(&rkt->lock);
+ 	if (unlikely(mr == NULL || mr->lkey != sge->lkey)) {
+ 		ret = 0;
+ 		goto bail;
+@@ -184,8 +182,6 @@ bail:
+  * @acc: access flags
+  *
+  * Return 1 if successful, otherwise 0.
+- *
+- * The QP r_rq.lock should be held.
+  */
+ int ipath_rkey_ok(struct ipath_ibdev *dev, struct ipath_sge_state *ss,
+ 		  u32 len, u64 vaddr, u32 rkey, int acc)
+@@ -196,9 +192,7 @@ int ipath_rkey_ok(struct ipath_ibdev *de
+ 	size_t off;
+ 	int ret;
+ 
+-	spin_lock(&rkt->lock);
+ 	mr = rkt->table[(rkey >> (32 - ib_ipath_lkey_table_size))];
+-	spin_unlock(&rkt->lock);
+ 	if (unlikely(mr == NULL || mr->lkey != rkey)) {
+ 		ret = 0;
+ 		goto bail;

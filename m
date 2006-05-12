@@ -1,50 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWELQYt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWELQZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751303AbWELQYt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 12:24:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbWELQYt
+	id S1751306AbWELQZH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 12:25:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbWELQZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 12:24:49 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:63625 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751303AbWELQYs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 12:24:48 -0400
-Date: Fri, 12 May 2006 12:24:40 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: John Kelly <jak@isp2dial.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: + deprecate-smbfs-in-favour-of-cifs.patch added to -mm tree
-In-Reply-To: <200605121619.k4CGJCtR004972@isp2dial.com>
-Message-ID: <Pine.LNX.4.58.0605121222070.5579@gandalf.stny.rr.com>
-References: <200605110717.k4B7HuVW006999@shell0.pdx.osdl.net>
- <20060511175143.GH25646@redhat.com> <Pine.LNX.4.61.0605121243460.9918@yvahk01.tjqt.qr>
- <200605121619.k4CGJCtR004972@isp2dial.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 May 2006 12:25:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:44487 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751306AbWELQZB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 12:25:01 -0400
+Date: Fri, 12 May 2006 09:27:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: mingo@elte.hu, markh@compro.net, linux-kernel@vger.kernel.org,
+       dwalker@mvista.com, tglx@linutronix.de
+Subject: Re: 3c59x vortex_timer rt hack (was: rt20 patch question)
+Message-Id: <20060512092709.5b9efab7.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0605121208350.5357@gandalf.stny.rr.com>
+References: <4460ADF8.4040301@compro.net>
+	<Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
+	<4461E53B.7050905@compro.net>
+	<Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
+	<446207D6.2030602@compro.net>
+	<Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
+	<44623157.9090105@compro.net>
+	<Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com>
+	<20060512081628.GA26736@elte.hu>
+	<Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
+	<20060512092159.GC18145@elte.hu>
+	<Pine.LNX.4.58.0605120904110.30264@gandalf.stny.rr.com>
+	<20060512071645.6b59e0a2.akpm@osdl.org>
+	<Pine.LNX.4.58.0605121029540.30264@gandalf.stny.rr.com>
+	<Pine.LNX.4.58.0605121036150.30264@gandalf.stny.rr.com>
+	<20060512074929.031d4eaf.akpm@osdl.org>
+	<Pine.LNX.4.58.0605121110320.3328@gandalf.stny.rr.com>
+	<20060512082340.3e169128.akpm@osdl.org>
+	<Pine.LNX.4.58.0605121136060.4281@gandalf.stny.rr.com>
+	<20060512090323.252d8600.akpm@osdl.org>
+	<Pine.LNX.4.58.0605121208350.5357@gandalf.stny.rr.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 12 May 2006, John Kelly wrote:
-
-> On Fri, 12 May 2006 17:03:56 +0200 (MEST), Jan Engelhardt
-> <jengelh@linux01.gwdg.de> wrote:
+Steven Rostedt <rostedt@goodmis.org> wrote:
 >
-> >> > smbfs is a bit buggy and has no maintainer.  Change it to shout at the user on
-> >> > the first five mount attempts - tell them to switch to CIFS.
->
-> >> > Come November we'll mark it BROKEN and see what happens.
->
-> >Sorry for falling in late but we can't do that.
-> >Win 98 (95 too?) shared can not be mounted with CIFS, it requires SMBFS.
->
-> W98?  He's dead, Jim.
->
+> 
+> 
+> On Fri, 12 May 2006, Andrew Morton wrote:
+> 
+> > >
+> > > The vortex_timer is a timeout,
+> >
+> > err, it's actually a function.
+> 
+> OK, I meant vp->timer
 
-huh, my wife has a laptop that she still uses that has w98 on it. And I do
-use smbfs to sometimes communicate with it.  Why upgrade when you don't
-have to?
+That's a kernel timer.
 
--- Steve
+> >
+> > > will it go off often?
+> >
+> > Every five seconds if the cable's unplugged.  Every 60 seconds otherwise.
+> >
+> 
+> OK, so the function is a service and not a fixup (or both).  Hmm, so
+> latency is an issue.
 
+yup.  It's been five years, sorry - I'm struggling to remember why
+vortex_timer() needs to block the interrupt handler.
+
+The chip is fairly stateful - that EL3WINDOW() thing selects a particular
+register bank and needs protection against other register readers.  But we
+should avoid running EL3WINDOW() in the rx and tx interrupt handlers anyway
+- iirc the chip is designed to permit that.
+
+Is tricky.
+
+How come -rt cannot permit disable_irq() in there?
+
+(I think the _reason_ it's disable_irq() is, yes, because it's infrequent
+and because it can hold off interrupts for a long time if we use
+spin_lock_irq())

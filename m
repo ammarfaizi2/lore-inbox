@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWELUvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWELUvr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932237AbWELUvN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 16:51:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbWELUvN
+	id S932239AbWELUvr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 16:51:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWELUvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 16:51:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2488 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932065AbWELUvM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 16:51:12 -0400
-Date: Fri, 12 May 2006 13:50:46 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Erik Mouw <erik@harddisk-recovery.com>,
-       Or Gerlitz <or.gerlitz@gmail.com>, linux-scsi@vger.kernel.org,
-       axboe@suse.de, Andrew Vasquez <andrew.vasquez@qlogic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <gregkh@suse.de>
-Subject: Re: [BUG 2.6.17-git] kmem_cache_create: duplicate cache scsi_cmd_cache
-In-Reply-To: <20060512203850.GC17120@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0605121346060.3866@g5.osdl.org>
-References: <20060511151456.GD3755@harddisk-recovery.com>
- <15ddcffd0605112153q57f139a1k7068e204a3eeaf1f@mail.gmail.com>
- <20060512171632.GA29077@harddisk-recovery.com> <Pine.LNX.4.64.0605121024310.3866@g5.osdl.org>
- <1147456038.3769.39.camel@mulgrave.il.steeleye.com>
- <1147460325.3769.46.camel@mulgrave.il.steeleye.com>
- <Pine.LNX.4.64.0605121209020.3866@g5.osdl.org> <20060512203850.GC17120@flint.arm.linux.org.uk>
+	Fri, 12 May 2006 16:51:47 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:8141
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932230AbWELUvq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 16:51:46 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Subject: Re: Linux v2.6.17-rc4
+Date: Fri, 12 May 2006 22:58:46 +0200
+User-Agent: KMail/1.9.1
+References: <Pine.LNX.4.64.0605111640010.3866@g5.osdl.org> <200605121244.22511.mb@bu3sch.de> <20060512114659.GE30285@harddisk-recovery.com>
+In-Reply-To: <20060512114659.GE30285@harddisk-recovery.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605122258.46599.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 12 May 2006, Russell King wrote:
+On Friday 12 May 2006 13:47, you wrote:
+> On Fri, May 12, 2006 at 12:44:22PM +0200, Michael Buesch wrote:
+> > On Friday 12 May 2006 12:24, you wrote:
+> > > On Thu, May 11, 2006 at 04:44:03PM -0700, Linus Torvalds wrote:
+> > > > Ok, I've let the release time between -rc's slide a bit too much again, 
+> > > > but -rc4 is out there, and this is the time to hunker down for 2.6.17.
+> > > > 
+> > > > If you know of any regressions, please holler now, so that we don't miss 
+> > > > them. 
+> > > 
+> > > I got assertion failures in the bcm43xx driver:
+> > > 
+> > > bcm43xx: Chip ID 0x4318, rev 0x2
+> > 
+> > That is expected an non-fatal.
 > 
-> Great, I'm fucked by the SCSI folk again.
+> Assertion failed sounds rather fatal to me.
 
-No, you introduced a regression. This isn't the SCSI layer being evil, 
-this is the "regressions aren't acceptable".
+But it is not fatal. Trust me. I am the author of most of the code.
+The worst thing that can happen is that the card does not work.
+The best thing that can happen is that it works with some luck.
 
-Fixing one bug and introducing another is actively _worse_ than having the 
-same bug stay around.
-
-> Can we revert the patch which broke the MMC/SD layer - the one which
-> added the mount/unmount hotplug events as well then.
+> > It is no regression.
 > 
-> That way we get back to a working MMC/SD layer as well as a working
-> SCSI layer.
+> It is, I didn't see it in 2.6.17-rc3.
 
-That's certainly the logical fix - push the pain up the chain to the 
-person who introduced it. Which commit is that, do you know?
+You did not look close enough.
 
-Really, the added ref-count should be gotten by whoever holds on to the 
-thing, and it sounds like it's the hotplug event that caused this and 
-should have held on to its hotplug reference.
+> > We are working on it, but there won't be any fix for 2.6.17, as
+> > very intrusive changes are needed to fix this.
+> 
+> If it's non-fatal, could you remove the assertion, or make it print
+> something that sounds less fatal?
 
-Greg added to the Cc: list in case he already knows off-hand which commit 
-it is..
+Well, the backtrace could be removed.
+But I am for not removing the assertions completely, because
+this way people don't see what is going on, if the device does not
+work.
+It is non-fatal in the sense that it does not crash the machine.
+It _may_ be fatal, that the device does not work. The
+driver is CONFIG_EXPERIMENTAL for some reason.
 
-		Linus
+To say it again: The 4318 is not completely supported, yet.
+It may work with some luck, but it is not guaranteed and only
+lower bitrates are supported.
+
+-- 
+Greetings Michael.

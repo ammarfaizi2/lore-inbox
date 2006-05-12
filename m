@@ -1,418 +1,240 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbWELTMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWELTOI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751356AbWELTMj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 15:12:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbWELTMj
+	id S1751361AbWELTOI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 15:14:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWELTOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 15:12:39 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:12494 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751356AbWELTMi
+	Fri, 12 May 2006 15:14:08 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:62945 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751237AbWELTOG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 15:12:38 -0400
-Date: Fri, 12 May 2006 14:12:30 -0500
+	Fri, 12 May 2006 15:14:06 -0400
+Date: Fri, 12 May 2006 14:14:04 -0500
 From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@suse.de>,
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Andi Kleen <ak@suse.de>,
        linux-kernel@vger.kernel.org, herbert@13thfloor.at, dev@sw.ru,
-       sam@vilain.net, xemul@sw.ru, clg@fr.ibm.com, frankeh@us.ibm.com
+       sam@vilain.net, xemul@sw.ru, haveblue@us.ibm.com, clg@fr.ibm.com,
+       frankeh@us.ibm.com
 Subject: Re: [PATCH 2/9] nsproxy: incorporate fs namespace
-Message-ID: <20060512191230.GA17153@sergelap.austin.ibm.com>
-References: <29vfyljM-1.2006059-s@us.ibm.com> <20060510021135.GC32523@sergelap.austin.ibm.com> <m1k68uvyhq.fsf@ebiederm.dsl.xmission.com> <20060510132623.GB20892@sergelap.austin.ibm.com> <m1ac9pwves.fsf@ebiederm.dsl.xmission.com> <20060510203449.GA12215@sergelap.austin.ibm.com> <m1ejz1vc2d.fsf@ebiederm.dsl.xmission.com> <20060512152412.GA11734@sergelap.austin.ibm.com> <1147448681.6623.10.camel@localhost.localdomain>
+Message-ID: <20060512191404.GB17153@sergelap.austin.ibm.com>
+References: <29vfyljM-1.2006059-s@us.ibm.com> <20060510021135.GC32523@sergelap.austin.ibm.com> <m1k68uvyhq.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1147448681.6623.10.camel@localhost.localdomain>
+In-Reply-To: <m1k68uvyhq.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Dave Hansen (haveblue@us.ibm.com):
-> On Fri, 2006-05-12 at 10:24 -0500, Serge E. Hallyn wrote:
-> > 
-> > -       exit_utsname(current);
-> > -       exit_namespace(current);
-> > -       exit_nsproxy(current);
-> > +       exit_task_namespaces(current);
-> >         current->nsproxy = init_task.nsproxy;
-> > -       get_nsproxy(current->nsproxy);
-> > -       get_namespace(current->nsproxy->namespace);
-> > -       get_uts_ns(current->nsproxy->uts_ns);
-> > +       get_namespaces(current); 
+Quoting Eric W. Biederman (ebiederm@xmission.com):
+> "Serge E. Hallyn" <serue@us.ibm.com> writes:
 > 
-> That really cleans up the main path quite a bit.  Very nice.
 > 
-> For parity with exit_task_namespaces(), should that be called
-> get_task_namespaces()?
+> > @@ -1727,11 +1727,16 @@ static void __init init_mount_tree(void)
+> >  	namespace->root = mnt;
+> >  	mnt->mnt_namespace = namespace;
+> >  
+> > -	init_task.namespace = namespace;
+> > +	init_task.nsproxy->namespace = namespace;
+> >  	read_lock(&tasklist_lock);
+> >  	do_each_thread(g, p) {
+> > +		/* do we want namespace count to be #nsproxies,
+> > +		 * or # processes pointing to the namespace? */
+> 
+> I am fairly certain we want the count to be #nsproxies.
+> 
+> >  		get_namespace(namespace);
+> > -		p->namespace = namespace;
+> > +#if 0
+> > +		/* should only be 1 nsproxy so far */
+> > +		p->nsproxy->namespace = namespace;
+> > +#endif
+> >  	} while_each_thread(g, p);
+> >  	read_unlock(&tasklist_lock);
+> 
+> So I think this bit is wrong.
 
-Here's a new patch:
+Here is a patch (on top of the patchset + the patch I sent in response
+to Dave) to change the fs namespace and utsname ->counts to being the
+number of nsproxies holding a reference.
 
-Subject: [PATCH 10/11] nsproxy: code cleanup
+thanks,
+-serge
 
-consolidate nsproxy and namespace copy/get/exit.
+Subject: [PATCH 11/11] nsproxy: change meaning of namespace refcount
 
-Changelog:
-	renamed get_namespaces(tsk) to get_task_namespaces(tsk).
+switch namespace+utsname refcount to count nsproxies
 
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+Signed-off-by:  <hallyn@elg11.watson.ibm.com>
 
 ---
 
- include/linux/namespace.h |    8 ----
- include/linux/nsproxy.h   |   26 +++++--------
- kernel/exit.c             |   13 +-----
- kernel/fork.c             |   39 +++++++++----------
- kernel/nsproxy.c          |   92 ++++++++++++++++++++++++++++++++++++++++++---
- 5 files changed, 118 insertions(+), 60 deletions(-)
+ fs/namespace.c          |   13 +------------
+ include/linux/nsproxy.h |   18 +++++++++---------
+ kernel/fork.c           |    3 +--
+ kernel/nsproxy.c        |   39 ++++++++++++++-------------------------
+ 4 files changed, 25 insertions(+), 48 deletions(-)
 
-3f3ce98f9c6fc8c3ce31cb170bf281c8eb0d4c6a
-diff --git a/include/linux/namespace.h b/include/linux/namespace.h
-index d137009..fce3714 100644
---- a/include/linux/namespace.h
-+++ b/include/linux/namespace.h
-@@ -25,14 +25,6 @@ static inline void put_namespace(struct 
- 		__put_namespace(namespace);
- }
- 
--static inline void exit_namespace(struct task_struct *p)
--{
--	struct namespace *namespace = p->nsproxy->namespace;
--	if (namespace) {
--		put_namespace(namespace);
--	}
--}
--
- static inline void get_namespace(struct namespace *namespace)
+41b3b9a9df03156627adc34b88c041dd3ade1236
+diff --git a/fs/namespace.c b/fs/namespace.c
+index 851a02d..33330fe 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -1711,7 +1711,6 @@ static void __init init_mount_tree(void)
  {
- 	atomic_inc(&namespace->count);
+ 	struct vfsmount *mnt;
+ 	struct namespace *namespace;
+-	struct task_struct *g, *p;
+ 
+ 	mnt = do_kern_mount("rootfs", 0, "rootfs", NULL);
+ 	if (IS_ERR(mnt))
+@@ -1728,17 +1727,7 @@ static void __init init_mount_tree(void)
+ 	mnt->mnt_namespace = namespace;
+ 
+ 	init_task.nsproxy->namespace = namespace;
+-	read_lock(&tasklist_lock);
+-	do_each_thread(g, p) {
+-		/* do we want namespace count to be #nsproxies,
+-		 * or # processes pointing to the namespace? */
+-		get_namespace(namespace);
+-#if 0
+-		/* should only be 1 nsproxy so far */
+-		p->nsproxy->namespace = namespace;
+-#endif
+-	} while_each_thread(g, p);
+-	read_unlock(&tasklist_lock);
++	get_namespace(namespace);
+ 
+ 	set_fs_pwd(current->fs, namespace->root, namespace->root->mnt_root);
+ 	set_fs_root(current->fs, namespace->root, namespace->root->mnt_root);
 diff --git a/include/linux/nsproxy.h b/include/linux/nsproxy.h
-index 18fcd8f..6046fc3 100644
+index 6046fc3..3793017 100644
 --- a/include/linux/nsproxy.h
 +++ b/include/linux/nsproxy.h
-@@ -14,28 +14,24 @@ struct nsproxy {
- };
- extern struct nsproxy init_nsproxy;
+@@ -17,21 +17,21 @@ extern struct nsproxy init_nsproxy;
+ struct nsproxy *dup_namespaces(struct nsproxy *orig);
+ int copy_namespaces(int flags, struct task_struct *tsk);
+ void get_task_namespaces(struct task_struct *tsk);
+-void exit_namespaces(struct nsproxy *ns);
++void free_nsproxy(struct nsproxy *ns);
  
--static inline void get_nsproxy(struct nsproxy *nsp)
-+struct nsproxy *dup_namespaces(struct nsproxy *orig);
-+int copy_namespaces(int flags, struct task_struct *tsk);
-+void get_task_namespaces(struct task_struct *tsk);
-+void exit_namespaces(struct nsproxy *ns);
-+
+-static inline void exit_task_namespaces(struct task_struct *p)
++static inline void put_nsproxy(struct nsproxy *ns)
+ {
+-	struct nsproxy *ns = p->nsproxy;
+-	if (ns) {
+-		exit_namespaces(p->nsproxy);
+-		p->nsproxy = NULL;
++	if (atomic_dec_and_test(&ns->count)) {
++		free_nsproxy(ns);
+ 	}
+ }
+ 
+-static inline void put_nsproxy(struct nsproxy *nsp)
 +static inline void exit_task_namespaces(struct task_struct *p)
  {
--	atomic_inc(&nsp->count);
+-	if (atomic_dec_and_test(&nsp->count)) {
+-		kfree(nsp);
 +	struct nsproxy *ns = p->nsproxy;
 +	if (ns) {
-+		exit_namespaces(p->nsproxy);
++		put_nsproxy(ns);
 +		p->nsproxy = NULL;
-+	}
- }
- 
--struct nsproxy *clone_nsproxy(struct nsproxy *orig);
--int copy_nsproxy(int flags, struct task_struct *tsk);
--void free_nsproxy(struct nsproxy *nsp);
--
- static inline void put_nsproxy(struct nsproxy *nsp)
- {
- 	if (atomic_dec_and_test(&nsp->count)) {
- 		kfree(nsp);
  	}
  }
--
--static inline void exit_nsproxy(struct task_struct *p)
--{
--	struct nsproxy *nsp = p->nsproxy;
--	if (nsp) {
--		p->nsproxy = NULL;
--		put_nsproxy(nsp);
--	}
--}
  #endif
-diff --git a/kernel/exit.c b/kernel/exit.c
-index 921a4b7..bdc273a 100644
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -175,7 +175,6 @@ repeat:
- 	write_unlock_irq(&tasklist_lock);
- 	spin_unlock(&p->proc_lock);
- 	proc_pid_flush(proc_dentry);
--	exit_nsproxy(p);
- 	release_thread(p);
- 	call_rcu(&p->rcu, delayed_put_task_struct);
- 
-@@ -416,13 +415,9 @@ void daemonize(const char *name, ...)
- 	current->fs = fs;
- 	atomic_inc(&fs->count);
- 
--	exit_utsname(current);
--	exit_namespace(current);
--	exit_nsproxy(current);
-+	exit_task_namespaces(current);
- 	current->nsproxy = init_task.nsproxy;
--	get_nsproxy(current->nsproxy);
--	get_namespace(current->nsproxy->namespace);
--	get_uts_ns(current->nsproxy->uts_ns);
-+	get_task_namespaces(current);
- 
-  	exit_files(current);
- 	current->files = init_task.files;
-@@ -926,9 +921,7 @@ fastcall NORET_TYPE void do_exit(long co
- 	exit_sem(tsk);
- 	__exit_files(tsk);
- 	__exit_fs(tsk);
--	exit_utsname(current);
--	exit_namespace(current);
--	exit_nsproxy(current);
-+	exit_task_namespaces(current);
- 	exit_thread();
- 	cpuset_exit(tsk);
- 	exit_keys(tsk);
 diff --git a/kernel/fork.c b/kernel/fork.c
-index baeef86..f9b607c 100644
+index f9b607c..6214427 100644
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
-@@ -45,7 +45,6 @@
- #include <linux/acct.h>
- #include <linux/cn_proc.h>
- #include <linux/nsproxy.h>
--#include <linux/utsname.h>
+@@ -1470,8 +1470,7 @@ static int unshare_namespace(unsigned lo
+ {
+ 	struct namespace *ns = current->nsproxy->namespace;
  
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -1062,15 +1061,11 @@ static task_t *copy_process(unsigned lon
- 		goto bad_fork_cleanup_signal;
- 	if ((retval = copy_keys(clone_flags, p)))
- 		goto bad_fork_cleanup_mm;
--	if ((retval = copy_nsproxy(clone_flags, p)))
-+	if ((retval = copy_namespaces(clone_flags, p)))
- 		goto bad_fork_cleanup_keys;
--	if ((retval = copy_utsname(clone_flags, p)))
--		goto bad_fork_cleanup_nsproxy;
--	if ((retval = copy_namespace(clone_flags, p)))
--		goto bad_fork_cleanup_utsname;
- 	retval = copy_thread(0, clone_flags, stack_start, stack_size, p, regs);
- 	if (retval)
--		goto bad_fork_cleanup_namespace;
-+		goto bad_fork_cleanup_namespaces;
+-	if ((unshare_flags & CLONE_NEWNS) &&
+-	    (ns && atomic_read(&ns->count) > 1)) {
++	if ((unshare_flags & CLONE_NEWNS) && ns) {
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
  
- 	p->set_child_tid = (clone_flags & CLONE_CHILD_SETTID) ? child_tidptr : NULL;
- 	/*
-@@ -1157,7 +1152,7 @@ static task_t *copy_process(unsigned lon
- 		spin_unlock(&current->sighand->siglock);
- 		write_unlock_irq(&tasklist_lock);
- 		retval = -ERESTARTNOINTR;
--		goto bad_fork_cleanup_namespace;
-+		goto bad_fork_cleanup_namespaces;
- 	}
- 
- 	if (clone_flags & CLONE_THREAD) {
-@@ -1170,7 +1165,7 @@ static task_t *copy_process(unsigned lon
- 			spin_unlock(&current->sighand->siglock);
- 			write_unlock_irq(&tasklist_lock);
- 			retval = -EAGAIN;
--			goto bad_fork_cleanup_namespace;
-+			goto bad_fork_cleanup_namespaces;
- 		}
- 
- 		p->group_leader = current->group_leader;
-@@ -1222,12 +1217,8 @@ static task_t *copy_process(unsigned lon
- 	proc_fork_connector(p);
- 	return p;
- 
--bad_fork_cleanup_namespace:
--	exit_namespace(p);
--bad_fork_cleanup_utsname:
--	exit_utsname(p);
--bad_fork_cleanup_nsproxy:
--	exit_nsproxy(p);
-+bad_fork_cleanup_namespaces:
-+	exit_task_namespaces(p);
- bad_fork_cleanup_keys:
- 	exit_keys(p);
- bad_fork_cleanup_mm:
-@@ -1570,7 +1561,7 @@ asmlinkage long sys_unshare(unsigned lon
- 	struct files_struct *fd, *new_fd = NULL;
- 	struct sem_undo_list *new_ulist = NULL;
- 	struct nsproxy *new_nsproxy, *old_nsproxy;
--	struct uts_namespace *new_uts = NULL;
-+	struct uts_namespace *uts, *new_uts = NULL;
- 
- 	check_unshare_flags(&unshare_flags);
- 
-@@ -1595,21 +1586,20 @@ asmlinkage long sys_unshare(unsigned lon
- 	if ((err = unshare_semundo(unshare_flags, &new_ulist)))
- 		goto bad_unshare_cleanup_fd;
- 	if ((err = unshare_utsname(unshare_flags, &new_uts)))
--		goto bad_unshare_cleanup_fd;
-+		goto bad_unshare_cleanup_semundo;
- 
- 	if (new_fs || new_ns || new_sigh || new_mm || new_fd || new_ulist ||
- 				new_uts) {
- 
- 		old_nsproxy = current->nsproxy;
--		new_nsproxy = clone_nsproxy(old_nsproxy);
-+		new_nsproxy = dup_namespaces(old_nsproxy);
- 		if (!new_nsproxy) {
- 			err = -ENOMEM;
--			goto bad_unshare_cleanup_semundo;
-+			goto bad_unshare_cleanup_uts;
- 		}
- 
- 		task_lock(current);
- 		current->nsproxy = new_nsproxy;
--		put_nsproxy(old_nsproxy);
- 
- 		if (new_fs) {
- 			fs = current->fs;
-@@ -1645,13 +1635,20 @@ asmlinkage long sys_unshare(unsigned lon
- 		}
- 
- 		if (new_uts) {
--			put_uts_ns(current->nsproxy->uts_ns);
-+			uts = current->nsproxy->uts_ns;
- 			current->nsproxy->uts_ns = new_uts;
-+			new_uts = uts;
- 		}
- 
- 		task_unlock(current);
-+
-+		put_nsproxy(old_nsproxy);
- 	}
- 
-+bad_unshare_cleanup_uts:
-+	if (new_uts)
-+		put_uts_ns(new_uts);
-+
- bad_unshare_cleanup_semundo:
- bad_unshare_cleanup_fd:
- 	if (new_fd)
 diff --git a/kernel/nsproxy.c b/kernel/nsproxy.c
-index 2390afb..d963af9 100644
+index d963af9..19abf95 100644
 --- a/kernel/nsproxy.c
 +++ b/kernel/nsproxy.c
-@@ -13,8 +13,36 @@
- #include <linux/module.h>
- #include <linux/version.h>
- #include <linux/nsproxy.h>
-+#include <linux/namespace.h>
-+#include <linux/utsname.h>
- 
--struct nsproxy *clone_nsproxy(struct nsproxy *orig)
-+static inline void get_nsproxy(struct nsproxy *ns)
-+{
-+	atomic_inc(&ns->count);
-+}
-+
-+static inline void get_namespaces(struct nsproxy *ns)
-+{
-+	get_nsproxy(ns);
-+	if (ns->namespace)
-+		get_namespace(ns->namespace);
-+	if (ns->uts_ns)
-+		get_uts_ns(ns->uts_ns);
-+}
-+
-+void get_task_namespaces(struct task_struct *tsk)
-+{
-+	struct nsproxy *ns = tsk->nsproxy;
-+	if (ns) {
-+		get_namespaces(ns);
-+	}
-+}
-+
-+/*
-+ * creates a copy of "orig" with refcount 1.
-+ * This does not grab references to the contained namespaces.
-+ */
-+static inline struct nsproxy *clone_namespaces(struct nsproxy *orig)
- {
- 	struct nsproxy *ns;
- 
-@@ -26,7 +54,42 @@ struct nsproxy *clone_nsproxy(struct nsp
- 	return ns;
+@@ -21,26 +21,18 @@ static inline void get_nsproxy(struct ns
+ 	atomic_inc(&ns->count);
  }
  
--int copy_nsproxy(int flags, struct task_struct *tsk)
-+/*
-+ * copies the nsproxy, setting refcount to 1, and grabbing a
-+ * reference to all contained namespaces.  Called from
-+ * sys_unshare()
-+ */
-+struct nsproxy *dup_namespaces(struct nsproxy *orig)
-+{
-+	struct nsproxy *ns = clone_namespaces(orig);
-+
-+	if (ns) {
-+		if (ns->namespace)
-+			get_namespace(ns->namespace);
-+		if (ns->uts_ns)
-+			get_uts_ns(ns->uts_ns);
-+	}
-+
-+	return ns;
-+}
-+
-+/*
-+ * Put refcount on nsproxy and each namespace therein
-+ */
-+void exit_namespaces(struct nsproxy *ns)
-+{
-+	if (ns->namespace)
-+		put_namespace(ns->namespace);
-+	if (ns->uts_ns)
-+		put_uts_ns(ns->uts_ns);
-+	put_nsproxy(ns);
-+}
-+
-+/*
-+ * called from clone.  This now handles copy for nsproxy and all
-+ * namespaces therein.
-+ */
-+int copy_namespaces(int flags, struct task_struct *tsk)
+-static inline void get_namespaces(struct nsproxy *ns)
+-{
+-	get_nsproxy(ns);
+-	if (ns->namespace)
+-		get_namespace(ns->namespace);
+-	if (ns->uts_ns)
+-		get_uts_ns(ns->uts_ns);
+-}
+-
+ void get_task_namespaces(struct task_struct *tsk)
  {
- 	struct nsproxy *old_ns = tsk->nsproxy;
- 	struct nsproxy *new_ns;
-@@ -35,19 +98,36 @@ int copy_nsproxy(int flags, struct task_
+ 	struct nsproxy *ns = tsk->nsproxy;
+ 	if (ns) {
+-		get_namespaces(ns);
++		get_nsproxy(ns);
+ 	}
+ }
+ 
+ /*
+  * creates a copy of "orig" with refcount 1.
+- * This does not grab references to the contained namespaces.
++ * This does not grab references to the contained namespaces,
++ * so that needs to be done by dup_namespaces.
+  */
+ static inline struct nsproxy *clone_namespaces(struct nsproxy *orig)
+ {
+@@ -74,18 +66,6 @@ struct nsproxy *dup_namespaces(struct ns
+ }
+ 
+ /*
+- * Put refcount on nsproxy and each namespace therein
+- */
+-void exit_namespaces(struct nsproxy *ns)
+-{
+-	if (ns->namespace)
+-		put_namespace(ns->namespace);
+-	if (ns->uts_ns)
+-		put_uts_ns(ns->uts_ns);
+-	put_nsproxy(ns);
+-}
+-
+-/*
+  * called from clone.  This now handles copy for nsproxy and all
+  * namespaces therein.
+  */
+@@ -98,7 +78,7 @@ int copy_namespaces(int flags, struct ta
  	if (!old_ns)
  		return 0;
  
--	get_nsproxy(old_ns);
-+	get_namespaces(old_ns);
+-	get_namespaces(old_ns);
++	get_nsproxy(old_ns);
  
--	if (!(flags & CLONE_NEWNS))
-+	if (!(flags & (CLONE_NEWNS | CLONE_NEWUTS)))
+ 	if (!(flags & (CLONE_NEWNS | CLONE_NEWUTS)))
  		return 0;
- 
--	new_ns = clone_nsproxy(old_ns);
-+	new_ns = clone_namespaces(old_ns);
- 	if (!new_ns) {
- 		err = -ENOMEM;
- 		goto out;
+@@ -128,6 +108,15 @@ int copy_namespaces(int flags, struct ta
  	}
-+
- 	tsk->nsproxy = new_ns;
  
-+	err = copy_namespace(flags, tsk);
-+	if (err) {
-+		tsk->nsproxy = old_ns;
-+		put_nsproxy(new_ns);
-+		goto out;
-+	}
-+
-+	err = copy_utsname(flags, tsk);
-+	if (err) {
-+		if (new_ns->namespace)
-+			put_namespace(new_ns->namespace);
-+		tsk->nsproxy = old_ns;
-+		put_nsproxy(new_ns);
-+		goto out;
-+	}
-+
  out:
--	put_nsproxy(old_ns);
-+	exit_namespaces(old_ns);
+-	exit_namespaces(old_ns);
++	put_nsproxy(old_ns);
  	return err;
  }
++
++void free_nsproxy(struct nsproxy *ns)
++{
++		if (ns->namespace)
++			put_namespace(ns->namespace);
++		if (ns->uts_ns)
++			put_uts_ns(ns->uts_ns);
++		kfree(ns);
++}
 -- 
 1.1.6

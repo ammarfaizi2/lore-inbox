@@ -1,44 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWELOEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWELOFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbWELOEN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 10:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWELOEN
+	id S932075AbWELOFd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 10:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWELOFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 10:04:13 -0400
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:54867 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932083AbWELOEN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 10:04:13 -0400
-Message-ID: <4460E06D.5010903@tmr.com>
-Date: Tue, 09 May 2006 14:33:17 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.2) Gecko/20060409 SeaMonkey/1.0.1
+	Fri, 12 May 2006 10:05:33 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:58566 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932075AbWELOFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 10:05:32 -0400
+Date: Fri, 12 May 2006 10:05:23 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Mark Hounschell <markh@compro.net>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Daniel Walker <dwalker@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, johnstul@us.ibm.com
+Subject: Re: rt20 patch question
+In-Reply-To: <44649119.5040105@compro.net>
+Message-ID: <Pine.LNX.4.58.0605120956440.30264@gandalf.stny.rr.com>
+References: <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
+ <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
+ <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
+ <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com>
+ <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
+ <20060512092159.GC18145@elte.hu> <446481C8.4090506@compro.net>
+ <Pine.LNX.4.58.0605120854480.30264@gandalf.stny.rr.com> <44649119.5040105@compro.net>
 MIME-Version: 1.0
-To: Bernd Eckenfels <be-news06@lina.inka.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: High load average on disk I/O on 2.6.17-rc3
-References: <20060508152255.GF1875@harddisk-recovery.com> <E1FdE9I-00058a-00@calista.inka.de>
-In-Reply-To: <E1FdE9I-00058a-00@calista.inka.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Eckenfels wrote:
-> Erik Mouw <erik@harddisk-recovery.com> wrote:
->> ... except that any kernel < 2.6 didn't account tasks waiting for disk
->> IO. Load average has always been somewhat related to tasks contending
->> for CPU power.
-> 
-> Actually all Linux kernels accounted for diskwaits and others like BSD based
-> not. It is a very old linux oddness.
 
-Well, sort of. The current numbers are counting kernel threads against 
-load average, and before there were kernel threads that clearly didn't 
-happen. So what you say is true, but it's only a part of the truth.
+On Fri, 12 May 2006, Mark Hounschell wrote:
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+> Steven Rostedt wrote:
+>  >
+> > I was looking at the logdump, but I don't see anything spinning.  CPU 1
+> > seems to be constantly running your v67 program (alternating with
+> > posix_cpu_timer), and CPU: 0 is still switching with the swapper, along
+> > with other tasks, so that this means nothing is just spinning and hogging
+> > the CPU (on CPU 0, but I assume the v67 tasks is suppose to keep running).
+> >
+>
+> Yes the v67 task is the CPU process. Could it also mean I just didn't
+> get the logdump at the right time?
+>
 
+
+[  619.220396] CPU:0 (bash:7783) -->> (konsole:7763)
+[  619.220558] CPU:0 (konsole:7763) -->> (swapper:0)
+[  619.220706] CPU:1 (v67:11149) -->> (IRQ 161:11082)
+[  619.220717] CPU:1 (IRQ 161:11082) -->> (v67:11149)
+[  619.223111] CPU:0 (swapper:0) -->> (posix_cpu_timer:3)
+[  619.223116] CPU:0 (posix_cpu_timer:3) -->> (softirq-timer/0:5)
+[  619.223127] CPU:0 (softirq-timer/0:5) -->> (swapper:0)
+[  619.223570] CPU:1 (v67:11149) -->> (posix_cpu_timer:14)
+[  619.223573] CPU:1 (posix_cpu_timer:14) -->> (v67:11149)
+[  619.227097] CPU:0 (swapper:0) -->> (posix_cpu_timer:3)
+[  619.227099] CPU:0 (posix_cpu_timer:3) -->> (softirq-timer/0:5)
+[  619.227102] CPU:0 (softirq-timer/0:5) -->> (swapper:0)
+[  619.227566] CPU:1 (v67:11149) -->> (posix_cpu_timer:14)
+[  619.227568] CPU:1 (posix_cpu_timer:14) -->> (v67:11149)
+
+   ...
+
+[  633.861475] CPU:1 (v67:11149) -->> (posix_cpu_timer:14)
+[  633.861477] CPU:1 (posix_cpu_timer:14) -->> (v67:11149)
+[  633.865001] CPU:0 (swapper:0) -->> (posix_cpu_timer:3)
+[  633.865003] CPU:0 (posix_cpu_timer:3) -->> (softirq-timer/0:5)
+[  633.865006] CPU:0 (softirq-timer/0:5) -->> (swapper:0)
+[  633.865470] CPU:1 (v67:11149) -->> (posix_cpu_timer:14)
+[  633.865473] CPU:1 (posix_cpu_timer:14) -->> (v67:11149)
+[  633.866421] CPU:1 (v67:11149) -->> (IRQ 161:11082)
+[  633.866430] CPU:1 (IRQ 161:11082) -->> (v67:11149)
+[  633.868998] CPU:0 (swapper:0) -->> (posix_cpu_timer:3)
+[  633.869000] CPU:0 (posix_cpu_timer:3) -->> (softirq-timer/0:5)
+[  633.869002] CPU:0 (softirq-timer/0:5) -->> (swapper:0)
+[  633.869467] CPU:1 (v67:11149) -->> (posix_cpu_timer:14)
+[  633.869470] CPU:1 (posix_cpu_timer:14) -->> (v67:11149)
+[  633.872993] CPU:0 (swapper:0) -->> (posix_cpu_timer:3)
+[  633.872995] CPU:0 (posix_cpu_timer:3) -->> (softirq-timer/0:5)
+[  633.872998] CPU:0 (softirq-timer/0:5) -->> (swapper:0)
+[  633.873463] CPU:1 (v67:11149) -->> (posix_cpu_timer:14)
+[  633.873465] CPU:1 (posix_cpu_timer:14) -->> (v67:11149)
+[  633.874747] CPU:1 (v67:11149) -->> (IRQ 161:11082)
+[  633.874756] CPU:1 (IRQ 161:11082) -->> (v67:11149)
+[  633.876990] CPU:0 (swapper:0) -->> (posix_cpu_timer:3)
+[  633.876992] CPU:0 (posix_cpu_timer:3) -->> (softirq-timer/0:5)
+[  633.876996] CPU:0 (softirq-timer/0:5) -->> (kded:6119)
+[  633.877030] CPU:0 (kded:6119) -->> (swapper:0)
+[  633.877460] CPU:1 (v67:11149) -->> (posix_cpu_timer:14)
+[  633.877462] CPU:1 (posix_cpu_timer:14) -->> (v67:11149)
+[  633.878447] CPU:0 (swapper:0) -->> (IRQ 1:823)
+[  633.878474] CPU:0 (IRQ 1:823) -->> (softirq-tasklet:9)
+[  633.878478] CPU:0 (softirq-tasklet:9) -->> (events/0:24)
+[  633.878488] CPU:0 (events/0:24) -->> (X:5513)
+[  633.878627] CPU:0 (X:5513) -->> (konsole:7763)
+[  633.878669] CPU:0 (konsole:7763) -->> (X:5513)
+[  633.878683] CPU:0 (X:5513) -->> (konsole:7763)
+[  633.879309] CPU:0 (konsole:7763) -->> (X:5513)
+[  633.879415] CPU:0 (X:5513) -->> (konsole:7763)
+[  633.879457] CPU:0 (konsole:7763) -->> (X:5513)
+[  633.879463] CPU:0 (X:5513) -->> (konsole:7763)
+[  633.879467] CPU:0 (konsole:7763) -->> (X:5513)
+[  633.879553] CPU:0 (X:5513) -->> (kded:6119)
+[  633.879651] CPU:0 (kded:6119) -->> (kwin:6135)
+[  633.879711] CPU:0 (kwin:6135) -->> (kdesktop:6140)
+[  633.879782] CPU:0 (kdesktop:6140) -->> (kicker:6142)
+[  633.879858] CPU:0 (kicker:6142) -->> (X:5513)
+[  633.879927] CPU:0 (X:5513) -->> (kwin:6135)
+[  633.879963] CPU:0 (kwin:6135) -->> (X:5513)
+[  633.879977] CPU:0 (X:5513) -->> (bash:7783)
+[  633.880042] CPU:0 (bash:7783) -->> (konsole:7763)
+[  633.880103] CPU:0 (konsole:7763) -->> (X:5513)
+[  633.880119] CPU:0 (X:5513) -->> (konsole:7763)
+[  633.880211] CPU:0 (konsole:7763) -->> (bash:7783)
+
+
+Well, the bash is what turned off the logging, and the logging started at
+619.xxx and ended at 633.xxx so that's ~14 seconds of logging.  So I would
+assume you did it in the right place.
+
+How long does the stop happen, and what exactly freezes?  Can you ping the
+machine?  Also, have you tried to switch to a console before it freezes,
+and see if it doesn't freeze that.  I'm curious if X isn't waiting on
+something.
+
+-- Steve

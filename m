@@ -1,112 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWELRM3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWELRQg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbWELRM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 13:12:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWELRM2
+	id S932068AbWELRQg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 13:16:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWELRQg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 13:12:28 -0400
-Received: from homer.mvista.com ([63.81.120.158]:34555 "EHLO
-	dwalker1.mvista.com") by vger.kernel.org with ESMTP
-	id S1750745AbWELRM2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 13:12:28 -0400
-Date: Fri, 12 May 2006 10:12:17 -0700
-Message-Id: <200605121712.k4CHCHXG011893@dwalker1.mvista.com>
-From: Daniel Walker <dwalker@mvista.com>
-To: mingo@elte.hu
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH -rt] show_held_locks cleanup
+	Fri, 12 May 2006 13:16:36 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:6484 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1750823AbWELRQf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 13:16:35 -0400
+Date: Fri, 12 May 2006 19:16:33 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Or Gerlitz <or.gerlitz@gmail.com>
+Cc: linux-scsi@vger.kernel.org, rmk@arm.linux.org.uk, axboe@suse.de,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [BUG 2.6.17-git] kmem_cache_create: duplicate cache scsi_cmd_cache
+Message-ID: <20060512171632.GA29077@harddisk-recovery.com>
+References: <20060511151456.GD3755@harddisk-recovery.com> <15ddcffd0605112153q57f139a1k7068e204a3eeaf1f@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15ddcffd0605112153q57f139a1k7068e204a3eeaf1f@mail.gmail.com>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- - turns show_held_locks into debug_mutex_show_held_locks() . 
- - Adds debug_mutex_show_held_locks() + rt_mutex_show_held_locks() to x86_64
- - cleans up show_held_locks() on arm .
+On Fri, May 12, 2006 at 06:53:27AM +0200, Or Gerlitz wrote:
+> On 5/11/06, Erik Mouw <erik@harddisk-recovery.com> wrote:
+> >Hi,
+> >
+> >While playing with libata in 2.6.17-git from today, I got this bug:
+> >
+> >SCSI subsystem initialized
+> >libata version 1.20 loaded.
+> >sata_promise 0000:02:05.0: version 1.04
+> >kmem_cache_create: duplicate cache scsi_cmd_cache
+> > <c0159591> kmem_cache_create+0x331/0x390
+> > <e0924371> scsi_setup_command_freelist+0x71/0xf0 [scsi_mod]
+> > <e092588e> scsi_host_alloc+0x17e/0x270 [scsi_mod]
+> > <e08fd061> ata_host_add+0x41/0xc0 [libata]
+> > <c0148c9f> __kzalloc+0x1f/0x50
+> > <e08fd190> ata_device_add+0xb0/0x240 [libata]
+> > <e0839baf> pdc_ata_init_one+0x27f/0x330 [sata_promise]
+> > <c01dd1a9> pci_call_probe+0x19/0x20
+> > <c01dd20e> __pci_device_probe+0x5e/0x70
+> > <c01dd24f> pci_device_probe+0x2f/0x50
+> > <c0220977> driver_probe_device+0xb7/0xe0
+> > <c02b338a> klist_dec_and_del+0x1a/0x20
+> > <c0220a30> __driver_attach+0x0/0x90
+> > <c0220aa1>__driver_attach+0x71/0x90
+> > <c021fd49> bus_for_each_dev+0x69/0x80
+> > <c0220ae6> driver_attach+0x26/0x30
+> > <c0220a30> __driver_attach+0x0/0x90
+> > <c02202a3> bus_add_driver+0x83/0xc0
+> > <c01dd4ed> __pci_register_driver+0x4d/0x70
+> > <e0880017> pdc_ata_init+0x17/0x1b [sata_promise]
+> > <c013a1a0> sys_init_module+0x120/0x1b0
+> > <c0102f27> syscall_call+0x7/0xb
+> 
+> I was pointing on 2.6.17 kmem_cache related  issues while back to LKML
+> and it turns out that you can reproduce them easily with standalone
+> trivial module, see
+> http://openib.org/pipermail/openib-general/2006-April/020582.html
+> 
+> So far no one picked the issue anb i was adviced to use bisection...
 
-I compile tested i386, arm, not x86_64 . Seems like this should go upstream too.
+I tracked it down with git bisect. The culprit is this commit:
 
-Signed-Off-By: Daniel Walker <dwalker@mvista.com>
+56cf6504fc1c0c221b82cebc16a444b684140fb7 is first bad commit
+diff-tree 56cf6504fc1c0c221b82cebc16a444b684140fb7 (from
+d98550e334715b2d9e45f8f0f4e1608720108640)
+Author: Russell King <rmk@dyn-67.arm.linux.org.uk>
+Date:   Fri May 5 17:57:52 2006 +0100
 
-Index: linux-2.6.16/kernel/mutex-debug.c
-===================================================================
---- linux-2.6.16.orig/kernel/mutex-debug.c
-+++ linux-2.6.16/kernel/mutex-debug.c
-@@ -117,7 +117,7 @@ static void show_task_locks(struct task_
-  * printk all locks held in the system (if filter == NULL),
-  * or all locks belonging to a single task (if filter != NULL):
-  */
--void show_held_locks(struct task_struct *filter)
-+void mutex_debug_show_held_locks(struct task_struct *filter)
- {
- 	struct list_head *curr, *cursor = NULL;
- 	struct mutex *lock;
-@@ -201,7 +201,7 @@ retry:
- 	} while_each_thread(g, p);
- 
- 	printk("\n");
--	show_held_locks(NULL);
-+	mutex_debug_show_held_locks(NULL);
- 	printk("=============================================\n\n");
- 
- 	if (unlock)
-@@ -216,7 +216,7 @@ static void report_deadlock(struct task_
- 	printk_lock(lock, 1);
- 	printk("... trying at:                 ");
- 	print_symbol("%s\n", ip);
--	show_held_locks(current);
-+	mutex_debug_show_held_locks(current);
- 
- 	if (lockblk) {
- 		printk("but %s/%d is deadlocking current task %s/%d!\n\n",
-@@ -225,7 +225,7 @@ static void report_deadlock(struct task_
- 			task->comm, task->pid);
- 		printk_lock(lockblk, 1);
- 
--		show_held_locks(task);
-+		mutex_debug_show_held_locks(task);
- 
- 		printk("\n%s/%d's [blocked] stackdump:\n\n",
- 			task->comm, task->pid);
-Index: linux-2.6.16/arch/arm/kernel/traps.c
-===================================================================
---- linux-2.6.16.orig/arch/arm/kernel/traps.c
-+++ linux-2.6.16/arch/arm/kernel/traps.c
-@@ -176,9 +176,12 @@ static void dump_backtrace(struct pt_reg
- void dump_stack(void)
- {
- #ifdef CONFIG_DEBUG_ERRORS
-+	struct task_struct *task = current;
-+
- 	__backtrace();
--	print_traces(current);
--	show_held_locks(current);
-+	print_traces(task);
-+	mutex_debug_show_held_locks(task);
-+	rt_mutex_show_held_locks(task, 1);
- #endif
- }
- 
-Index: linux-2.6.16/arch/x86_64/kernel/traps.c
-===================================================================
---- linux-2.6.16.orig/arch/x86_64/kernel/traps.c
-+++ linux-2.6.16/arch/x86_64/kernel/traps.c
-@@ -255,6 +255,8 @@ void show_trace(struct task_struct *task
- #undef HANDLE_STACK
- 	printk("\n");
- 	print_traces(task);
-+	mutex_debug_show_held_locks(task);
-+	rt_mutex_show_held_locks(task, 1);
- }
- 
- void show_stack(struct task_struct *tsk, unsigned long * rsp)
-Index: linux-2.6.16/arch/i386/kernel/traps.c
-===================================================================
---- linux-2.6.16.orig/arch/i386/kernel/traps.c
-+++ linux-2.6.16/arch/i386/kernel/traps.c
-@@ -175,6 +175,7 @@ static void show_trace_log_lvl(struct ta
- 		printk(" =======================\n");
- 	}
- 	print_traces(task);
-+	mutex_debug_show_held_locks(task);
- 	rt_mutex_show_held_locks(task, 1);
- }
- 
+    [BLOCK] Fix oops on removal of SD/MMC card
+
+    The block layer keeps a reference (driverfs_dev) to the struct
+    device associated with the block device, and uses it internally
+    for generating uevents in block_uevent.
+
+    Block device uevents include umounting the partition, which can
+    occur after the backing device has been removed.
+
+    Unfortunately, this reference is not counted.  This means that
+    if the struct device is removed from the device tree, the block
+    layers reference will become stale.
+
+    Guard against this by holding a reference to the struct device
+    in add_disk(), and only drop the reference when we're releasing
+    the gendisk kobject - in other words when we can be sure that no
+    further uevents will be generated for this block device.
+
+    Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+    Acked-by: Jens Axboe <axboe@suse.de>
+
+:040000 040000 4923c988a57db93382546cd83f4e3043b06c0eed 08e396a4fbf3c7d0beb9178f0fd0c9205c0b5305 M      block
+
+After reverting this commit in 2.6.17-rc4 I can't trigger the bug
+anymore. Might be worth fixing before 2.6.17-final.
+
+Note: I'm going on holiday next week, so I'm not able to test any
+fixes. However, because this bug is very easy to trigger[1], anybody
+with root on NFS and fully modular SCSI or libata should be able to
+test.
+
+
+Erik
+
+[1] See http://marc.theaimsgroup.com/?l=linux-scsi&m=114736053211943&w=2
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

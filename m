@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWELOwl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbWELOxY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751204AbWELOwl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 10:52:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWELOwl
+	id S1751108AbWELOxY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 10:53:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWELOxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 10:52:41 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:33707 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751204AbWELOwk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 10:52:40 -0400
-Date: Fri, 12 May 2006 07:49:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: mingo@elte.hu, markh@compro.net, linux-kernel@vger.kernel.org,
-       dwalker@mvista.com, tglx@linutronix.de
-Subject: Re: 3c59x vortex_timer rt hack (was: rt20 patch question)
-Message-Id: <20060512074929.031d4eaf.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0605121036150.30264@gandalf.stny.rr.com>
-References: <4460ADF8.4040301@compro.net>
-	<Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
-	<4461E53B.7050905@compro.net>
-	<Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
-	<446207D6.2030602@compro.net>
-	<Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
-	<44623157.9090105@compro.net>
-	<Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com>
-	<20060512081628.GA26736@elte.hu>
-	<Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
-	<20060512092159.GC18145@elte.hu>
-	<Pine.LNX.4.58.0605120904110.30264@gandalf.stny.rr.com>
-	<20060512071645.6b59e0a2.akpm@osdl.org>
-	<Pine.LNX.4.58.0605121029540.30264@gandalf.stny.rr.com>
-	<Pine.LNX.4.58.0605121036150.30264@gandalf.stny.rr.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 12 May 2006 10:53:23 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:57040 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1751108AbWELOxX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 10:53:23 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Subject: Re: Segfault on the i386 enter instruction
+Date: Fri, 12 May 2006 17:53:00 +0300
+User-Agent: KMail/1.8.2
+Cc: "Tomasz Malesinski" <tmal@mimuw.edu.pl>, linux-kernel@vger.kernel.org
+References: <20060512131654.GB2994@duch.mimuw.edu.pl> <200605121720.13820.vda@ilport.com.ua> <Pine.LNX.4.61.0605121033030.9091@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0605121033030.9091@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605121753.00978.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt <rostedt@goodmis.org> wrote:
->
->  Use this patch instead.  It needs an irq disable.  But, believe it or not,
->  on SMP this is actually better.  If the irq is shared (as it is in Mark's
->  case), we don't stop the irq of other devices from being handled on
->  another CPU (unfortunately for Mark, he pinned all interrupts to one CPU).
+On Friday 12 May 2006 17:42, linux-os (Dick Johnson) wrote:
+> >>> 	enter $10008, $0
+> >>> #	pushl %ebp
+> >>> #	movl %esp,%ebp
+> >>> #	subl $10008,%esp
+> >>> 	addl $-12,%esp
+> >>          ^^^^^^^^^^^^^^____________ WTF
+> >>          adding a negative number is subtracting that positive value.
+> >>          You just subtracted 0xfffffff3 (on a 32-bit machine) from
+> >>          the stack pointer. It damn-well better seg-fault!
+> >
+> > No. Try it yourself.
+> > --
+> > vda
 > 
->  Andrew,
-> 
->  should this be changed in mainline too?
+> It doesn't matter. It means that you still own the space there
+> (it's mapped into your process). The code is bogus, broken beyond
+> all repair. It has nothing to do with 'enter' it has to do with
+> putting the stack pointer (wrapping it) to somewhere it shouldn't
+> be. The stack pointer is normally around 0xafff0000. It just got
+> wrapped down past zero up to fafff00d, then stuff got pushed
+> onto it for the call.
 
-I suppose so - we're taking the lock with spin_lock_bh(), but it can also
-be taken by this CPU from the interrupt, so it'll deadlock.  But lo!  We've
-done disable_irq(), so the interrupt won't be happening.
+Obviously you
 
-So yes, doing spin_lock_irq() (irqrestore isn't needed in a timer handler)
-instead of disable_irq() in vortex_timer() looks OK.
+(a) Don't want to actually try to compile and run it.
+It will run. For Tomasz, it runs ok with 3-insn instruction sequence
+instead of enter. For me, it works just fine with enter. But it works.
+Why do you think it is not enough?
 
-One does wonder how long we'll hold off interrupts though.
+(b) can't do 32-bit math. You made two mistakes.
+    -12 is 0xfffffff4, not 0xfffffff3.
+    0xafff0000 + 0xfffffff4 = 0xaffefff4, not 0xfafff00d
 
+and
+(c) do not realize that 32bit i386+ CPUs check segment limits
+    AFTER performing 32bit math (i.e. overflow into 33th bit
+    is truncated instead of triggering limit violation)
+--
+vda

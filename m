@@ -1,44 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbWELRKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWELRM3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750821AbWELRKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 13:10:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWELRKQ
+	id S1750745AbWELRM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 13:12:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWELRM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 13:10:16 -0400
-Received: from jacks.isp2dial.com ([64.142.120.55]:1796 "EHLO
-	jacks.isp2dial.com") by vger.kernel.org with ESMTP id S1750821AbWELRKO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 13:10:14 -0400
-From: John Kelly <jak@isp2dial.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: + deprecate-smbfs-in-favour-of-cifs.patch added to -mm tree
-Date: Fri, 12 May 2006 13:10:13 -0400
-Message-ID: <200605121710.k4CHA6Hv005194@isp2dial.com>
-References: <200605110717.k4B7HuVW006999@shell0.pdx.osdl.net> <20060511175143.GH25646@redhat.com> <Pine.LNX.4.61.0605121243460.9918@yvahk01.tjqt.qr> <200605121619.k4CGJCtR004972@isp2dial.com> <Pine.LNX.4.58.0605121222070.5579@gandalf.stny.rr.com> <200605121630.k4CGUuiU005025@isp2dial.com> <Pine.LNX.4.64.0605120949060.3866@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0605120949060.3866@g5.osdl.org>
-X-Mailer: Forte Agent 1.93/32.576 English (American)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Hard2Crack: 0.001
+	Fri, 12 May 2006 13:12:28 -0400
+Received: from homer.mvista.com ([63.81.120.158]:34555 "EHLO
+	dwalker1.mvista.com") by vger.kernel.org with ESMTP
+	id S1750745AbWELRM2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 13:12:28 -0400
+Date: Fri, 12 May 2006 10:12:17 -0700
+Message-Id: <200605121712.k4CHCHXG011893@dwalker1.mvista.com>
+From: Daniel Walker <dwalker@mvista.com>
+To: mingo@elte.hu
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH -rt] show_held_locks cleanup
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 May 2006 09:59:11 -0700 (PDT), Linus Torvalds
-<torvalds@osdl.org> wrote:
+ - turns show_held_locks into debug_mutex_show_held_locks() . 
+ - Adds debug_mutex_show_held_locks() + rt_mutex_show_held_locks() to x86_64
+ - cleans up show_held_locks() on arm .
 
->On Fri, 12 May 2006, John Kelly wrote:
+I compile tested i386, arm, not x86_64 . Seems like this should go upstream too.
+
+Signed-Off-By: Daniel Walker <dwalker@mvista.com>
+
+Index: linux-2.6.16/kernel/mutex-debug.c
+===================================================================
+--- linux-2.6.16.orig/kernel/mutex-debug.c
++++ linux-2.6.16/kernel/mutex-debug.c
+@@ -117,7 +117,7 @@ static void show_task_locks(struct task_
+  * printk all locks held in the system (if filter == NULL),
+  * or all locks belonging to a single task (if filter != NULL):
+  */
+-void show_held_locks(struct task_struct *filter)
++void mutex_debug_show_held_locks(struct task_struct *filter)
+ {
+ 	struct list_head *curr, *cursor = NULL;
+ 	struct mutex *lock;
+@@ -201,7 +201,7 @@ retry:
+ 	} while_each_thread(g, p);
  
->> Users who need vintage features can use vintage kernels.  They haven't
->> been pulled off the market.
-
->I disagree.
-
-What can I say?  You're the man.  I think you maintain a great kernel,
-btw.
-
-I just think forward progress would be easier without dragging around
-some of the old baggage in the kernel.
-
-
+ 	printk("\n");
+-	show_held_locks(NULL);
++	mutex_debug_show_held_locks(NULL);
+ 	printk("=============================================\n\n");
+ 
+ 	if (unlock)
+@@ -216,7 +216,7 @@ static void report_deadlock(struct task_
+ 	printk_lock(lock, 1);
+ 	printk("... trying at:                 ");
+ 	print_symbol("%s\n", ip);
+-	show_held_locks(current);
++	mutex_debug_show_held_locks(current);
+ 
+ 	if (lockblk) {
+ 		printk("but %s/%d is deadlocking current task %s/%d!\n\n",
+@@ -225,7 +225,7 @@ static void report_deadlock(struct task_
+ 			task->comm, task->pid);
+ 		printk_lock(lockblk, 1);
+ 
+-		show_held_locks(task);
++		mutex_debug_show_held_locks(task);
+ 
+ 		printk("\n%s/%d's [blocked] stackdump:\n\n",
+ 			task->comm, task->pid);
+Index: linux-2.6.16/arch/arm/kernel/traps.c
+===================================================================
+--- linux-2.6.16.orig/arch/arm/kernel/traps.c
++++ linux-2.6.16/arch/arm/kernel/traps.c
+@@ -176,9 +176,12 @@ static void dump_backtrace(struct pt_reg
+ void dump_stack(void)
+ {
+ #ifdef CONFIG_DEBUG_ERRORS
++	struct task_struct *task = current;
++
+ 	__backtrace();
+-	print_traces(current);
+-	show_held_locks(current);
++	print_traces(task);
++	mutex_debug_show_held_locks(task);
++	rt_mutex_show_held_locks(task, 1);
+ #endif
+ }
+ 
+Index: linux-2.6.16/arch/x86_64/kernel/traps.c
+===================================================================
+--- linux-2.6.16.orig/arch/x86_64/kernel/traps.c
++++ linux-2.6.16/arch/x86_64/kernel/traps.c
+@@ -255,6 +255,8 @@ void show_trace(struct task_struct *task
+ #undef HANDLE_STACK
+ 	printk("\n");
+ 	print_traces(task);
++	mutex_debug_show_held_locks(task);
++	rt_mutex_show_held_locks(task, 1);
+ }
+ 
+ void show_stack(struct task_struct *tsk, unsigned long * rsp)
+Index: linux-2.6.16/arch/i386/kernel/traps.c
+===================================================================
+--- linux-2.6.16.orig/arch/i386/kernel/traps.c
++++ linux-2.6.16/arch/i386/kernel/traps.c
+@@ -175,6 +175,7 @@ static void show_trace_log_lvl(struct ta
+ 		printk(" =======================\n");
+ 	}
+ 	print_traces(task);
++	mutex_debug_show_held_locks(task);
+ 	rt_mutex_show_held_locks(task, 1);
+ }
+ 

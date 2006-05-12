@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWELUFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWELUM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932198AbWELUFF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 16:05:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWELUFF
+	id S932202AbWELUM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 16:12:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWELUM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 16:05:05 -0400
-Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:39089 "EHLO
-	mx1.compro.net") by vger.kernel.org with ESMTP id S932198AbWELUFD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 16:05:03 -0400
-Message-ID: <4464EA6A.6070903@compro.net>
-Date: Fri, 12 May 2006 16:04:58 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-User-Agent: Thunderbird 1.5 (X11/20060111)
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [RFC][PATCH -rt] irqd starvation on SMP by a single process?
-References: <1147401812.1907.14.camel@cog.beaverton.ibm.com>	 <20060512055025.GA25824@elte.hu> <1147457058.9343.22.camel@localhost.localdomain>
-In-Reply-To: <1147457058.9343.22.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 12 May 2006 16:12:26 -0400
+Received: from mx1.suse.de ([195.135.220.2]:39593 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932202AbWELUM0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 16:12:26 -0400
+Date: Fri, 12 May 2006 13:10:29 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       lm-sensors@lm-sensors.org
+Subject: Re: [GIT PATCH] I2C bugfixes for 2.6.17-rc4 - resend
+Message-ID: <20060512201029.GA12248@suse.de>
+References: <20060512190332.GA22627@kroah.com> <Pine.LNX.4.64.0605121216540.3866@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0605121216540.3866@g5.osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> On Fri, 2006-05-12 at 07:50 +0200, Ingo Molnar wrote:
->> +		if (!cpus_equal(current->cpus_allowed, irq_affinity[irq]));
->> +			set_cpus_allowed(current, irq_affinity[irq]);
-> 
-> Gah! I introduced a terrible bug there. 
-> 
-> Note the semi-colon at the end of the if statement! Sorry about that!
-> 
-> The following patch (which I've tested as well) fixes that.
-> 
-> --- 2.6-rt/kernel/irq/manage.c	2006-05-11 18:37:36.000000000 -0500
-> +++ dev-rt/kernel/irq/manage.c	2006-05-12 12:55:56.000000000 -0500
-> @@ -724,6 +724,7 @@
->  		set_current_state(TASK_INTERRUPTIBLE);
->  		do_hardirq(desc);
->  		cond_resched_all();
-> +		local_irq_disable();
->  		__do_softirq();
->  //		do_softirq_from_hardirq();
->  		local_irq_enable();
-> @@ -731,10 +732,8 @@
->  		/*
->  		 * Did IRQ affinities change?
->  		 */
-> -		if (!cpu_isset(smp_processor_id(), irq_affinity[irq])) {
-> -			mask = cpumask_of_cpu(any_online_cpu(irq_affinity[irq]));
-> -			set_cpus_allowed(current, mask);
-> -		}
-> +		if(!cpus_equal(current->cpus_allowed, irq_affinity[irq]))
-> +			set_cpus_allowed(current, irq_affinity[irq]);
->  #endif
->  		schedule();
->  	}
+On Fri, May 12, 2006 at 12:18:53PM -0700, Linus Torvalds wrote:
 > 
 > 
+> On Fri, 12 May 2006, Greg KH wrote:
+> However, please fix your scripts:
 > 
+> > Please pull from:
+> > 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/i2c-2.6.git/
 > 
+> Nobody should use "rsync:", it's just more pain for everybody these days. 
+> If you use rsync, and miss an object, because the mirroring was 
+> incomplete, you'll never know, you'll just have a strange corrupted 
+> archive.
+> 
+> Use rsync if you mirror things, but not for git.
+> 
+> So please make that read "git://git.kernel.org/.." instead. 
 
-FYI,
+Oops, sorry, that's a leftover from a long time ago when I first wrote
+the "create a pull email" script.  Sorry, I'll go fix that.
 
-I just looked at rt21 and the first version of this patch seems to be in
-it. Not this version.
+thanks,
 
-Mark
-
+greg k-h

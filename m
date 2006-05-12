@@ -1,36 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWELPbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWELPez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWELPbk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 11:31:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWELPbk
+	id S932143AbWELPez (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 11:34:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbWELPez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 11:31:40 -0400
-Received: from duch.mimuw.edu.pl ([193.0.96.2]:46467 "EHLO duch.mimuw.edu.pl")
-	by vger.kernel.org with ESMTP id S932139AbWELPbk (ORCPT
+	Fri, 12 May 2006 11:34:55 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:27338 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S932138AbWELPey (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 11:31:40 -0400
-Date: Fri, 12 May 2006 17:31:39 +0200
-From: Tomasz Malesinski <tmal@mimuw.edu.pl>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Segfault on the i386 enter instruction
-Message-ID: <20060512153139.GA4852@duch.mimuw.edu.pl>
-References: <20060512131654.GB2994@duch.mimuw.edu.pl> <p734pzv73oj.fsf@bragg.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p734pzv73oj.fsf@bragg.suse.de>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 12 May 2006 11:34:54 -0400
+Date: Fri, 12 May 2006 17:34:50 +0200 (MEST)
+Message-Id: <200605121534.k4CFYodu020885@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: htejun@gmail.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] libata: new EH, NCQ, hotplug and PM patches against stable kernel
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 12, 2006 at 03:50:20PM +0200, Andi Kleen wrote:
-> Handling it like you expect would require to disassemble 
-> the function in the page fault handler and it's probably not 
-> worth doing that for this weird case.
+On Fri, 12 May 2006 22:24:37 +0900, Tejun Heo wrote:
+>The following drivers support new features.
+>
+>ata_piix:	new EH, irq-pio, warmplug (hardware restriction)
+>sata_sil:	new EH, irq-pio, hotplug
+>ahci:		new EH, irq-pio, NCQ, hotplug
+>sata_sil24:	new EH, irq-pio, NCQ, hotplug, Port Multiplier
 
-Does it mean that the ENTER instruction should not be used to create
-stack frames in Linux programs?
+If you were to add new EH and NCQ support to sata_promise,
+then I'd test it on my News server.
 
--- 
-Tomek Malesinski
+/Mikael

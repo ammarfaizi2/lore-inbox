@@ -1,74 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWELVqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWELVrI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932245AbWELVqm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 17:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbWELVql
+	id S932247AbWELVrI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 17:47:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWELVrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 17:46:41 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:1224 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932169AbWELVqk (ORCPT
+	Fri, 12 May 2006 17:47:08 -0400
+Received: from py-out-1112.google.com ([64.233.166.179]:64815 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932171AbWELVrH convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 17:46:40 -0400
-Date: Fri, 12 May 2006 14:46:10 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Erik Mouw <erik@harddisk-recovery.com>,
-       Or Gerlitz <or.gerlitz@gmail.com>, linux-scsi@vger.kernel.org,
-       axboe@suse.de, Andrew Vasquez <andrew.vasquez@qlogic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <gregkh@suse.de>
-Subject: Re: [BUG 2.6.17-git] kmem_cache_create: duplicate cache scsi_cmd_cache
-In-Reply-To: <Pine.LNX.4.64.0605121409250.3866@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0605121439070.3866@g5.osdl.org>
-References: <20060511151456.GD3755@harddisk-recovery.com>
- <15ddcffd0605112153q57f139a1k7068e204a3eeaf1f@mail.gmail.com>
- <20060512171632.GA29077@harddisk-recovery.com> <Pine.LNX.4.64.0605121024310.3866@g5.osdl.org>
- <1147456038.3769.39.camel@mulgrave.il.steeleye.com>
- <1147460325.3769.46.camel@mulgrave.il.steeleye.com>
- <Pine.LNX.4.64.0605121209020.3866@g5.osdl.org> <20060512203850.GC17120@flint.arm.linux.org.uk>
- <Pine.LNX.4.64.0605121346060.3866@g5.osdl.org> <20060512205804.GD17120@flint.arm.linux.org.uk>
- <Pine.LNX.4.64.0605121409250.3866@g5.osdl.org>
+	Fri, 12 May 2006 17:47:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=f54OwnX0wIjPs0qLoqAWRc89EPvz7/sUun0kqMhh9wkwbR4VE4ipscBxzYnsU8Sw5x3YmQr3oXamSdAJ0vo4SdB2Z3EuvdbqSTdmYL+/duzvTp9GUnqEN1LDF4+EOeGudBfg7FQIEh/pKlzkrN17UET+nT1DW5Lln2tPP4hgp0I=
+Message-ID: <c0c067900605121447k35bacaffwc3feca071385ca6a@mail.gmail.com>
+Date: Fri, 12 May 2006 17:47:06 -0400
+From: "Dan Merillat" <harik.attar@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [dm-crypt] dm-crypt is broken and causes massive data corruption
+In-Reply-To: <e3vkeh$12h$1@news.cistron.nl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <445F7DCC.2000508@igd.fraunhofer.de>
+	 <20060509190457.GL16180@agk.surrey.redhat.com>
+	 <e3vkeh$12h$1@news.cistron.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 5/11/06, Paul Slootman <paul+nospam@wurtel.net> wrote:
 
+> A data point:
+>
+> I'm running my /home on reiserfs3 over dm-crypt over lvm over raid5 for
+> at least a year now, without any problems. Currently running 2.6.13.4
+> (that's my "stable" work system...).
 
-On Fri, 12 May 2006, Linus Torvalds wrote:
-> 
-> You introduced a commit that fixed one thing, and broke another thing.
+Datapoint:
 
-And btw, don't take that "you" personally. 
+Linux fileserver 2.6.15.6 #1 PREEMPT Wed Mar 8 20:26:55 EST 2006
+x86_64 GNU/Linux
+CONFIG_MD_RAID5=y
+CONFIG_BLK_DEV_DM=y
+CONFIG_DM_SNAPSHOT=y
+CONFIG_CRYPTO_AES_X86_64=y
 
-This happens.
+encrypted logical volume on a raid-5 MD on 4 SATA drives, mounted reiser3.
 
-All the time. And definitely _not_ just to you. 
+aes-cbc-plain
 
-It's why common infrastructure can be such an incredible pain: it may be a 
-nice common layer, but it does obviously end up affecting a hell of a lot 
-of different devices and usages. "Private" code is often much better, and 
-that's what we used to have.
+It's worked through multiple kernels, and moving from 32 to 64bits.
+2.6.11 (64-bit) 2.6.10 (64bit) 2.6.8 (32bit) is the kernel history I
+have so far.  I'm not sure when I switched from cryptoloop to dm-crypt
+though, at least before may '05.
 
-Now, sadly, I think we need that common device layer infrastructure 
-exactly because otherwise we could never have done any global device 
-management etc, so in this case that common interface is definitely a 
-"necessary evil". 
+I'm not running dm-crypt directly on MD, though, the stack is
+SATA->MD->DM->DM-crypt->reiser3.   That may be the difference.
 
-And with that necessary evil comes the linkages that it implies. 
-
-We'd all be much happier of one piece of code didn't depend on five or six 
-other pieces of code, and a bug-fix in one place would be guaranteed to 
-not ever have any other side effects.
-
-We'd all also be much happier if we were all young, healthy, good-looking 
-and drive Lamborghinis. And didn't have incipient beer-bellies (not that 
-_I_ would ever have one, of course.. Oh, no. I'm obviously talking about 
-all you other scruffy people. Me, I'm perfect.)
-
-Sadly, neither of the above schenarios are really very realistic.
-
-So we'd love to have more information. Please?
-
-		Linus
+I've got plenty of free space, I could make a ~75gb encrypted
+partition and run any sort
+of write pattern test/filesystem you want me to try.

@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWELVGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWELVTa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbWELVGu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 17:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWELVGu
+	id S1751168AbWELVTa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 17:19:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWELVTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 17:06:50 -0400
-Received: from heisenberg.zen.co.uk ([212.23.3.141]:12947 "EHLO
-	heisenberg.zen.co.uk") by vger.kernel.org with ESMTP
-	id S932243AbWELVGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 17:06:49 -0400
-Message-ID: <4464F8D9.7020600@cantab.net>
-Date: Fri, 12 May 2006 22:06:33 +0100
-From: David Vrabel <dvrabel@cantab.net>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 12 May 2006 17:19:30 -0400
+Received: from mcr-smtp-001.bulldogdsl.com ([212.158.248.7]:51730 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1750923AbWELVT3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 17:19:29 -0400
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux v2.6.17-rc4
+Date: Fri, 12 May 2006 22:19:37 +0100
+User-Agent: KMail/1.9.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       aabdulla@nvidia.com, jeff@garzik.org, netdev@vger.kernel.org
+References: <Pine.LNX.4.64.0605111640010.3866@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0605111640010.3866@g5.osdl.org>
 MIME-Version: 1.0
-To: Michael Buesch <mb@bu3sch.de>
-CC: akpm@osdl.org, Deepak Saxena <dsaxena@plexity.net>,
-       bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org,
-       Sergey Vlasov <vsu@altlinux.ru>
-Subject: Re: [patch 5/9] Add Geode HW RNG driver
-References: <20060512103522.898597000@bu3sch.de> <20060512103648.229129000@bu3sch.de> <44646C08.9000800@cantab.net> <200605122246.58961.mb@bu3sch.de>
-In-Reply-To: <200605122246.58961.mb@bu3sch.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Originating-Heisenberg-IP: [82.70.146.41]
+Content-Disposition: inline
+Message-Id: <200605122219.37626.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Buesch wrote:
-> On Friday 12 May 2006 13:05, you wrote:
->> mb@bu3sch.de wrote:
->>> Signed-off-by: Michael Buesch <mb@bu3sch.de>
->>> Index: hwrng/drivers/char/hw_random/Kconfig
->>> ===================================================================
->>> --- hwrng.orig/drivers/char/hw_random/Kconfig	2006-05-08 00:11:59.000000000 +0200
->>> +++ hwrng/drivers/char/hw_random/Kconfig	2006-05-08 00:12:08.000000000 +0200
->>> @@ -35,3 +35,16 @@
->>>  	  module will be called amd-rng.
->>>  
->>>  	  If unsure, say Y.
->>> +
->>> +config HW_RANDOM_GEODE
->>> +	tristate "AMD Geode HW Random Number Generator support"
->>> +	depends on HW_RANDOM && (X86 || IA64) && PCI
->>                                      ^^^^^^^
->> IA64?
-> 
-> I have no idea. I neither wrote the driver, nor do I have the device.
-> So, drop IA64?
+On Friday 12 May 2006 00:44, Linus Torvalds wrote:
+> Ok, I've let the release time between -rc's slide a bit too much again,
+> but -rc4 is out there, and this is the time to hunker down for 2.6.17.
+>
+> If you know of any regressions, please holler now, so that we don't miss
+> them.
+>
+> -rc4 itself is mainly random driver fixes (sound, infiniband, scsi,
+> network drivers), but some splice fixes too and some arch (arm, powerpc,
+> mips) updates. Shortlog follows,
 
-Yes, the AMD Geode CPUs are all x86.
+Linus,
 
->>> +	default y
->>> +	---help---
->>> +	  This driver provides kernel-side support for the Random Number
->>> +	  Generator hardware found on AMD Geode based motherboards.
->>> +
->>> +	  To compile this driver as a module, choose M here: the
->>> +	  module will be called geode-rng.
->> You need to state which members of the Geode family have this hardware.
->>  e.g., Is it only the Geode LX CPUs?
-> 
-> Well, no idea. It was not stated in the existing old help text either.
+I've got an oops in the forcedeth driver on shutdown. Sorry for the crappy 
+camera phone pictures, this board doesn't have RS232 ports:
 
-I checked the datasheets for the Geode GX, Geode LX and Geode NX and 
-only the Geode LX has an on-chip random number generator.  So this 
-driver must be for the Geode LX only.
+http://devzero.co.uk/~alistair/oops-20060512/
 
-David Vrabel
+It was initially difficult to reproduce, but I found I could do so reliably if 
+I ssh'ed into the box and halted it remotely, then it would always oops on 
+shutdown. I assume this is because the driver is still active when something 
+happens to it during halt.
 
+There's been just a single commit since -rc3:
+
+forcedeth: fix multi irq issues
+ebf34c9b6fcd22338ef764b039b3ac55ed0e297b
+
+However, it could have just been hidden since before -rc3, so I'll try to work 
+backwards if nobody has any immediate ideas..
+
+-- 
+Cheers,
+Alistair.
+
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

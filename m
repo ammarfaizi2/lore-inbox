@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbWELXFI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWELXKs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751184AbWELXFI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 19:05:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWELXFI
+	id S1751188AbWELXKs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 19:10:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWELXKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 19:05:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:10717 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751184AbWELXFF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 19:05:05 -0400
-Date: Fri, 12 May 2006 16:04:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-cc: Erik Mouw <erik@harddisk-recovery.com>, Or Gerlitz <or.gerlitz@gmail.com>,
-       linux-scsi@vger.kernel.org, axboe@suse.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG 2.6.17-git] kmem_cache_create: duplicate cache scsi_cmd_cache
-In-Reply-To: <20060512225101.GU27946@ftp.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0605121559490.3866@g5.osdl.org>
-References: <15ddcffd0605112153q57f139a1k7068e204a3eeaf1f@mail.gmail.com>
- <20060512171632.GA29077@harddisk-recovery.com> <Pine.LNX.4.64.0605121024310.3866@g5.osdl.org>
- <20060512203416.GA17120@flint.arm.linux.org.uk> <20060512214354.GP27946@ftp.linux.org.uk>
- <20060512215520.GH17120@flint.arm.linux.org.uk> <20060512220807.GR27946@ftp.linux.org.uk>
- <Pine.LNX.4.64.0605121519420.3866@g5.osdl.org> <20060512222816.GS27946@ftp.linux.org.uk>
- <20060512224804.GT27946@ftp.linux.org.uk> <20060512225101.GU27946@ftp.linux.org.uk>
+	Fri, 12 May 2006 19:10:48 -0400
+Received: from nz-out-0102.google.com ([64.233.162.192]:11969 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751188AbWELXKr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 19:10:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=BKgl1vHyr+l/r2784xlGUP4L2tND7wED6gaEmolUbn9rSRo0KEyUFz8khaJrxE3RSPTZMhq2BcPGz4G0U51Y7zYPPkzQNF7OuKdtmLBOWrabUKW4D5o989zza6CDLN61xA4P4yRHiUIUYetW5q77ohIjpUZ0+Udq8slJcZmZ/YA=
+Message-ID: <446515F0.7070702@gmail.com>
+Date: Sat, 13 May 2006 08:10:40 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Mail/News 1.5 (X11/20060318)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mikael Pettersson <mikpe@it.uu.se>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] libata: new EH, NCQ, hotplug and PM patches against
+ stable kernel
+References: <200605121534.k4CFYodu020885@harpo.it.uu.se>
+In-Reply-To: <200605121534.k4CFYodu020885@harpo.it.uu.se>
+Content-Type: text/plain; charset=EUC-KR
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 12 May 2006, Al Viro wrote:
+Mikael Pettersson wrote:
+> On Fri, 12 May 2006 22:24:37 +0900, Tejun Heo wrote:
+>> The following drivers support new features.
+>>
+>> ata_piix:	new EH, irq-pio, warmplug (hardware restriction)
+>> sata_sil:	new EH, irq-pio, hotplug
+>> ahci:		new EH, irq-pio, NCQ, hotplug
+>> sata_sil24:	new EH, irq-pio, NCQ, hotplug, Port Multiplier
 > 
-> PS: it _is_ OK to trigger than puppy from add_disk()/del_gendisk() and in
-> between.  I'm not sure if anyone needs it for anything, though.  Triggering
-> it from bdev_uevent() is definitely bogus.
+> If you were to add new EH and NCQ support to sata_promise,
+> then I'd test it on my News server.
+> 
 
-Wouldn't it be perfectly ok if we just made sure to keep the disk device 
-refcount elevated by the _mount_?
+I have a promise card and played with it a little bit but I don't have
+access to hardware doc.  So...
 
-Ie Russell's patch to elevate it around everything didn't work, but 
-elevating the bdev->bd_disk reference count by a mount, and dropping it on 
-umount (after doing the umount event) should be ok. No?
-
-		Linus
+-- 
+tejun

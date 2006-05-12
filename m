@@ -1,58 +1,235 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWELDRr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWELDcX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750878AbWELDRr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 23:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbWELDRr
+	id S1750884AbWELDcX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 23:32:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbWELDcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 23:17:47 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:45470 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750877AbWELDRr convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 23:17:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QQwNXf3qKu6xffm3Ikjf/miZI2WhcjJPQTsQq31z69utbCY8okXEI0qZlfXdC3a0TgF5QJkXaMItdS3lJKS7tXXEs5s5RhmudctGgxbhNfTquv72mbUIerH/mOvd2wEvj2OSq8ZnuS7/Mb1PEogNi5v6X6UoLtlS3VZATynWLRE=
-Message-ID: <9e4733910605112017u428c04cdm2ff40b53785db09c@mail.gmail.com>
-Date: Thu, 11 May 2006 23:17:46 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Subject: Re: SecurityFocus Article
-Cc: "Ed White" <ed.white@libero.it>, ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0605111140030.3833@chaos.analogic.com>
+	Thu, 11 May 2006 23:32:23 -0400
+Received: from mail15.bluewin.ch ([195.186.18.63]:65163 "EHLO
+	mail15.bluewin.ch") by vger.kernel.org with ESMTP id S1750884AbWELDcX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 23:32:23 -0400
+Date: Thu, 11 May 2006 23:29:13 -0400
+To: Lin Feng Shen <shenlinf@cn.ibm.com>
+Cc: neilb@cse.unsw.edu.au, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] NFS: fix error handling on access_ok in compat_sys_nfsservctl
+Message-ID: <20060512032913.GA9202@krypton>
+References: <4462D816.7090207@cn.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060511143440.23517.qmail@securityfocus.com>
-	 <Pine.LNX.4.61.0605111140030.3833@chaos.analogic.com>
+In-Reply-To: <4462D816.7090207@cn.ibm.com>
+User-Agent: Mutt/1.5.11+cvs20060403
+From: apgo@patchbomb.org (Arthur Othieno)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/11/06, linux-os (Dick Johnson) <linux-os@analogic.com> wrote:
-> Sorry, the X-server is too large to go into the kernel. It's
-> a lot easier to modify the boot-loader to set the D_LCK bit
-> if the security compromise turns out to be real.
+On Thu, May 11, 2006 at 02:22:14PM +0800, Lin Feng Shen wrote:
+> From: Lin Feng Shen <shenlinf@cn.ibm.com>
+> 
+> Functions compat_nfs_svc_trans, compat_nfs_clnt_trans, compat_nfs_exp_trans,
+> compat_nfs_getfd_trans and compat_nfs_getfs_trans, which are called by
+> compat_sys_nfsservctl(fs/compat.c), don't handle the return value of
+> access_ok properly. access_ok return 1 when the addr is valid, and 0
+> when it's not, but these functions have the reversed understanding. When the
+> address is valid, they always return -EFAULT to compat_sys_nfsservctl.
+> 
+> An example is to run /usr/sbin/rpc.nfsd(32bit program on Power5). It doesn't
+> function as expected. strace showes that nfsservctl returns -EFAULT.
+> 
+> The patch fixes this by correcting the error handling on the return value of
+> access_ok in the five functions. It is created against 
+> linux-2.6.17-rc3-git16.
+> 
+> Signed-off-by: Lin Feng Shen <shenlinf@cn.ibm.com>
+> ---
+> 
+> --- linux-2.6.17-rc3-git16/fs/compat.c.orig    2006-05-09 
+> 09:07:38.000000000 -0500
+> +++ linux-2.6.17-rc3-git16/fs/compat.c    2006-05-09 09:21:00.000000000 
+> -0500
+> @@ -2032,101 +2032,96 @@ union compat_nfsctl_res {
+> 
+> static int compat_nfs_svc_trans(struct nfsctl_arg *karg, struct 
+> compat_nfsctl_arg __user *arg)
 
-The X server doesn't need to go into the kernel, only a very tiny
-portion of it needs to go in. But X blindly pursues the idea of total
-platform independence which means it ignores many of the services
-offer by the Linux kernel and reimplements them in user space. This is
-because the BSDs are missing many things that Linux supports.
+Your client is happily munging whitespace all over:
 
-I just love the idea of 2.4M lines of X code that opens network
-sockets needlessly running as root. Top it off with 1,300 unfixed
-Coverity hits, http://scan.coverity.com/. But what fun is life if you
-don't live a little dangerously. If you want ideas on how to fix X to
-not run as root read,
-http://people.freedesktop.org/~jonsmirl/graphics.html
+  patching file fs/compat.c
+  patch: **** malformed patch at line 25: compat_nfsctl_arg __user *arg)
 
-Of course DaveA will chime in and say that they are working on fixing
-things to use the Linux kernel. This is good and I am glad it is being
-done, I just worry that it will get finished sometime around 2014.
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+> {
+> -    int err;
+> -
+> -    err = access_ok(VERIFY_READ, &arg->ca32_svc, sizeof(arg->ca32_svc));
+> -    err |= get_user(karg->ca_version, &arg->ca32_version);
+> -    err |= __get_user(karg->ca_svc.svc_port, &arg->ca32_svc.svc32_port);
+> -    err |= __get_user(karg->ca_svc.svc_nthreads, 
+> &arg->ca32_svc.svc32_nthreads);
+> -    return (err) ? -EFAULT : 0;
+> +    if(!access_ok(VERIFY_READ, &arg->ca32_svc, sizeof(arg->ca32_svc)) ||
+> +        get_user(karg->ca_version, &arg->ca32_version) ||
+> +        __get_user(karg->ca_svc.svc_port, &arg->ca32_svc.svc32_port) ||
+> +        __get_user(karg->ca_svc.svc_nthreads, 
+> &arg->ca32_svc.svc32_nthreads))
+> +        return -EFAULT;
+> +    return 0;
+> }
+> 
+> static int compat_nfs_clnt_trans(struct nfsctl_arg *karg, struct 
+> compat_nfsctl_arg __user *arg)
+> {
+> -    int err;
+> -
+> -    err = access_ok(VERIFY_READ, &arg->ca32_client, 
+> sizeof(arg->ca32_client));
+> -    err |= get_user(karg->ca_version, &arg->ca32_version);
+> -    err |= __copy_from_user(&karg->ca_client.cl_ident[0],
+> +    if(!access_ok(VERIFY_READ, &arg->ca32_client, 
+> sizeof(arg->ca32_client)) ||
+> +        get_user(karg->ca_version, &arg->ca32_version) ||
+> +        __copy_from_user(&karg->ca_client.cl_ident[0],
+>               &arg->ca32_client.cl32_ident[0],
+> -              NFSCLNT_IDMAX);
+> -    err |= __get_user(karg->ca_client.cl_naddr, 
+> &arg->ca32_client.cl32_naddr);
+> -    err |= __copy_from_user(&karg->ca_client.cl_addrlist[0],
+> +              NFSCLNT_IDMAX) ||
+> +        __get_user(karg->ca_client.cl_naddr, 
+> &arg->ca32_client.cl32_naddr) ||
+> +        __copy_from_user(&karg->ca_client.cl_addrlist[0],
+>               &arg->ca32_client.cl32_addrlist[0],
+> -              (sizeof(struct in_addr) * NFSCLNT_ADDRMAX));
+> -    err |= __get_user(karg->ca_client.cl_fhkeytype,
+> -              &arg->ca32_client.cl32_fhkeytype);
+> -    err |= __get_user(karg->ca_client.cl_fhkeylen,
+> -              &arg->ca32_client.cl32_fhkeylen);
+> -    err |= __copy_from_user(&karg->ca_client.cl_fhkey[0],
+> +              (sizeof(struct in_addr) * NFSCLNT_ADDRMAX)) ||
+> +        __get_user(karg->ca_client.cl_fhkeytype,
+> +              &arg->ca32_client.cl32_fhkeytype) ||
+> +        __get_user(karg->ca_client.cl_fhkeylen,
+> +              &arg->ca32_client.cl32_fhkeylen) ||
+> +        __copy_from_user(&karg->ca_client.cl_fhkey[0],
+>               &arg->ca32_client.cl32_fhkey[0],
+> -              NFSCLNT_KEYMAX);
+> +              NFSCLNT_KEYMAX))
+> +        return -EFAULT;
+> 
+> -    return (err) ? -EFAULT : 0;
+> +    return 0;
+> }
+> 
+> static int compat_nfs_exp_trans(struct nfsctl_arg *karg, struct 
+> compat_nfsctl_arg __user *arg)
+> {
+> -    int err;
+> -
+> -    err = access_ok(VERIFY_READ, &arg->ca32_export, 
+> sizeof(arg->ca32_export));
+> -    err |= get_user(karg->ca_version, &arg->ca32_version);
+> -    err |= __copy_from_user(&karg->ca_export.ex_client[0],
+> +    if(!access_ok(VERIFY_READ, &arg->ca32_export, 
+> sizeof(arg->ca32_export)) ||
+> +        get_user(karg->ca_version, &arg->ca32_version) ||
+> +        __copy_from_user(&karg->ca_export.ex_client[0],
+>               &arg->ca32_export.ex32_client[0],
+> -              NFSCLNT_IDMAX);
+> -    err |= __copy_from_user(&karg->ca_export.ex_path[0],
+> +              NFSCLNT_IDMAX) ||
+> +        __copy_from_user(&karg->ca_export.ex_path[0],
+>               &arg->ca32_export.ex32_path[0],
+> -              NFS_MAXPATHLEN);
+> -    err |= __get_user(karg->ca_export.ex_dev,
+> -              &arg->ca32_export.ex32_dev);
+> -    err |= __get_user(karg->ca_export.ex_ino,
+> -              &arg->ca32_export.ex32_ino);
+> -    err |= __get_user(karg->ca_export.ex_flags,
+> -              &arg->ca32_export.ex32_flags);
+> -    err |= __get_user(karg->ca_export.ex_anon_uid,
+> -              &arg->ca32_export.ex32_anon_uid);
+> -    err |= __get_user(karg->ca_export.ex_anon_gid,
+> -              &arg->ca32_export.ex32_anon_gid);
+> +              NFS_MAXPATHLEN) ||
+> +        __get_user(karg->ca_export.ex_dev,
+> +              &arg->ca32_export.ex32_dev) ||
+> +        __get_user(karg->ca_export.ex_ino,
+> +              &arg->ca32_export.ex32_ino) ||
+> +        __get_user(karg->ca_export.ex_flags,
+> +              &arg->ca32_export.ex32_flags) ||
+> +        __get_user(karg->ca_export.ex_anon_uid,
+> +              &arg->ca32_export.ex32_anon_uid) ||
+> +        __get_user(karg->ca_export.ex_anon_gid,
+> +              &arg->ca32_export.ex32_anon_gid))
+> +        return -EFAULT;
+>     SET_UID(karg->ca_export.ex_anon_uid, karg->ca_export.ex_anon_uid);
+>     SET_GID(karg->ca_export.ex_anon_gid, karg->ca_export.ex_anon_gid);
+> 
+> -    return (err) ? -EFAULT : 0;
+> +    return 0;
+> }
+> 
+> static int compat_nfs_getfd_trans(struct nfsctl_arg *karg, struct 
+> compat_nfsctl_arg __user *arg)
+> {
+> -    int err;
+> -
+> -    err = access_ok(VERIFY_READ, &arg->ca32_getfd, 
+> sizeof(arg->ca32_getfd));
+> -    err |= get_user(karg->ca_version, &arg->ca32_version);
+> -    err |= __copy_from_user(&karg->ca_getfd.gd_addr,
+> +    if(!access_ok(VERIFY_READ, &arg->ca32_getfd, 
+> sizeof(arg->ca32_getfd)) ||
+> +        get_user(karg->ca_version, &arg->ca32_version) ||
+> +        __copy_from_user(&karg->ca_getfd.gd_addr,
+>               &arg->ca32_getfd.gd32_addr,
+> -              (sizeof(struct sockaddr)));
+> -    err |= __copy_from_user(&karg->ca_getfd.gd_path,
+> +              (sizeof(struct sockaddr))) ||
+> +        __copy_from_user(&karg->ca_getfd.gd_path,
+>               &arg->ca32_getfd.gd32_path,
+> -              (NFS_MAXPATHLEN+1));
+> -    err |= __get_user(karg->ca_getfd.gd_version,
+> -              &arg->ca32_getfd.gd32_version);
+> +              (NFS_MAXPATHLEN+1)) ||
+> +        __get_user(karg->ca_getfd.gd_version,
+> +              &arg->ca32_getfd.gd32_version))
+> +        return -EFAULT;
+> 
+> -    return (err) ? -EFAULT : 0;
+> +    return 0;
+> }
+> 
+> static int compat_nfs_getfs_trans(struct nfsctl_arg *karg, struct 
+> compat_nfsctl_arg __user *arg)
+> {
+> -    int err;
+> -
+> -    err = access_ok(VERIFY_READ, &arg->ca32_getfs, 
+> sizeof(arg->ca32_getfs));
+> -    err |= get_user(karg->ca_version, &arg->ca32_version);
+> -    err |= __copy_from_user(&karg->ca_getfs.gd_addr,
+> +    if(!access_ok(VERIFY_READ, &arg->ca32_getfs, 
+> sizeof(arg->ca32_getfs)) ||
+> +        get_user(karg->ca_version, &arg->ca32_version) ||
+> +        __copy_from_user(&karg->ca_getfs.gd_addr,
+>               &arg->ca32_getfs.gd32_addr,
+> -              (sizeof(struct sockaddr)));
+> -    err |= __copy_from_user(&karg->ca_getfs.gd_path,
+> +              (sizeof(struct sockaddr))) ||
+> +        __copy_from_user(&karg->ca_getfs.gd_path,
+>               &arg->ca32_getfs.gd32_path,
+> -              (NFS_MAXPATHLEN+1));
+> -    err |= __get_user(karg->ca_getfs.gd_maxlen,
+> -              &arg->ca32_getfs.gd32_maxlen);
+> +              (NFS_MAXPATHLEN+1)) ||
+> +        __get_user(karg->ca_getfs.gd_maxlen,
+> +              &arg->ca32_getfs.gd32_maxlen))
+> +        return -EFAULT;
+> 
+> -    return (err) ? -EFAULT : 0;
+> +    return 0;
+> }
+> 
+> /* This really doesn't need translations, we are only passing

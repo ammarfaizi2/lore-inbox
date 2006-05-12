@@ -1,176 +1,241 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWELX4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbWELXpD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbWELX4W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 19:56:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWELXpB
+	id S932305AbWELXpD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 19:45:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWELXoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 19:45:01 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:64169 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932293AbWELXoe (ORCPT
+	Fri, 12 May 2006 19:44:46 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:55465 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932209AbWELXod (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 19:44:34 -0400
+	Fri, 12 May 2006 19:44:33 -0400
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 47 of 53] ipath - fix problem with lost interrupts on HT-400
-X-Mercurial-Node: a1615956e57f23c20a45b4b7c853b41164e80ef9
-Message-Id: <a1615956e57f23c20a45.1147477412@eng-12.pathscale.com>
+Subject: [PATCH 18 of 53] ipath - make max mcast sizes configurable
+X-Mercurial-Node: df954e47ff670c3a28d685ac3589da248f55c507
+Message-Id: <df954e47ff670c3a28d6.1147477383@eng-12.pathscale.com>
 In-Reply-To: <patchbomb.1147477365@eng-12.pathscale.com>
-Date: Fri, 12 May 2006 16:43:32 -0700
+Date: Fri, 12 May 2006 16:43:03 -0700
 From: "Bryan O'Sullivan" <bos@pathscale.com>
 To: rdreier@cisco.com
 Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We can have a race clearing chip interrupt with another interrupt
-about to be delivered and can clear it before it is delivered on the
-GPIO workaround.  By doing the extra check here for the in-memory tail
-register updating while we were doing earlier packets, we "almost"
-guarantee we have covered that case.
+Make the max IB mcast sizes configurable.
 
 Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
 
-diff -r 04c86dd11b27 -r a1615956e57f drivers/infiniband/hw/ipath/ipath_driver.c
---- a/drivers/infiniband/hw/ipath/ipath_driver.c	Fri May 12 15:55:29 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_driver.c	Fri May 12 15:55:29 2006 -0700
-@@ -858,7 +858,7 @@ void ipath_kreceive(struct ipath_devdata
- 	const u32 maxcnt = dd->ipath_rcvhdrcnt * rsize;	/* words */
- 	u32 etail = -1, l, hdrqtail;
- 	struct ips_message_header *hdr;
--	u32 eflags, i, etype, tlen, pkttot = 0, updegr=0;
-+	u32 eflags, i, etype, tlen, pkttot = 0, updegr=0, reloop=0;
- 	static u64 totcalls;	/* stats, may eventually remove */
- 	char emsg[128];
+diff -r c5f3731224bb -r df954e47ff67 drivers/infiniband/hw/ipath/ipath_verbs.c
+--- a/drivers/infiniband/hw/ipath/ipath_verbs.c	Fri May 12 15:55:28 2006 -0700
++++ b/drivers/infiniband/hw/ipath/ipath_verbs.c	Fri May 12 15:55:28 2006 -0700
+@@ -81,6 +81,32 @@ unsigned int ib_ipath_max_sges = 0xFF;
+ unsigned int ib_ipath_max_sges = 0xFF;
+ module_param_named(max_sges, ib_ipath_max_sges, uint, S_IWUSR | S_IRUGO);
+ MODULE_PARM_DESC(max_sges, "Maximum number of SGEs to support");
++
++unsigned int ib_ipath_max_mcast_grps = 16384;
++module_param_named(max_mcast_grps, ib_ipath_max_mcast_grps, uint,
++		   S_IWUSR | S_IRUGO);
++MODULE_PARM_DESC(max_mcast_grps,
++		 "Maximum number of multicast groups to support");
++
++unsigned int ib_ipath_max_mcast_qp_attached = 16;
++module_param_named(max_mcast_qp_attached, ib_ipath_max_mcast_qp_attached,
++		   uint, S_IWUSR | S_IRUGO);
++MODULE_PARM_DESC(max_mcast_qp_attached,
++		 "Maximum number of attached QPs to support");
++
++unsigned int ib_ipath_max_srqs = 1024;
++module_param_named(max_srqs, ib_ipath_max_srqs, uint, S_IWUSR | S_IRUGO);
++MODULE_PARM_DESC(max_srqs, "Maximum number of SRQs to support");
++
++unsigned int ib_ipath_max_srq_sges = 128;
++module_param_named(max_srq_sges, ib_ipath_max_srq_sges,
++		   uint, S_IWUSR | S_IRUGO);
++MODULE_PARM_DESC(max_srq_sges, "Maximum number of SRQ SGEs to support");
++
++unsigned int ib_ipath_max_srq_wrs = 0x1FFFF;
++module_param_named(max_srq_wrs, ib_ipath_max_srq_wrs,
++		   uint, S_IWUSR | S_IRUGO);
++MODULE_PARM_DESC(max_srq_wrs, "Maximum number of SRQ WRs support");
  
-@@ -873,12 +873,11 @@ void ipath_kreceive(struct ipath_devdata
- 		goto bail;
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("PathScale <support@pathscale.com>");
+@@ -621,14 +647,14 @@ static int ipath_query_device(struct ib_
+ 	props->max_qp_rd_atom = 1;
+ 	props->max_qp_init_rd_atom = 1;
+ 	/* props->max_res_rd_atom */
+-	props->max_srq = 0xffff;
+-	props->max_srq_wr = 0xffff;
+-	props->max_srq_sge = 255;
++	props->max_srq = ib_ipath_max_srqs;
++	props->max_srq_wr = ib_ipath_max_srq_wrs;
++	props->max_srq_sge = ib_ipath_max_srq_sges;
+ 	/* props->local_ca_ack_delay */
+ 	props->atomic_cap = IB_ATOMIC_HCA;
+ 	props->max_pkeys = ipath_layer_get_npkeys(dev->dd);
+-	props->max_mcast_grp = 0xffff;
+-	props->max_mcast_qp_attach = 0xffff;
++	props->max_mcast_grp = ib_ipath_max_mcast_grps;
++	props->max_mcast_qp_attach = ib_ipath_max_mcast_qp_attached;
+ 	props->max_total_mcast_qp_attach = props->max_mcast_qp_attach *
+ 		props->max_mcast_grp;
  
- 	l = dd->ipath_port0head;
--	if(l == (u32)le64_to_cpu(*dd->ipath_hdrqtailptr))
-+	hdrqtail = (u32)le64_to_cpu(*dd->ipath_hdrqtailptr);
-+	if(l == hdrqtail)
- 		goto done;
+diff -r c5f3731224bb -r df954e47ff67 drivers/infiniband/hw/ipath/ipath_verbs.h
+--- a/drivers/infiniband/hw/ipath/ipath_verbs.h	Fri May 12 15:55:28 2006 -0700
++++ b/drivers/infiniband/hw/ipath/ipath_verbs.h	Fri May 12 15:55:28 2006 -0700
+@@ -148,6 +148,7 @@ struct ipath_mcast {
+ 	struct list_head qp_list;
+ 	wait_queue_head_t wait;
+ 	atomic_t refcount;
++	int n_attached;
+ };
  
--	/* read only once at start for performance */
--	hdrqtail = (u32)le64_to_cpu(*dd->ipath_hdrqtailptr);
--
-+reloop:
- 	for (i = 0; l != hdrqtail; i++) {
- 		u32 qp;
- 		u8 *bthbytes;
-@@ -1013,16 +1012,34 @@ void ipath_kreceive(struct ipath_devdata
- 		 */
- 		if(l == hdrqtail || (i && !(i&0xf))) {
- 			u64 lval;
--			if(l == hdrqtail) /* want interrupt only on last */
-+			if(l == hdrqtail) {
-+				/* PE-800 interrupt only on last */
- 				lval = dd->ipath_rhdrhead_intr_off | l;
-+			}
- 			else
- 				lval = l;
- 			(void)ipath_write_ureg(dd, ur_rcvhdrhead, lval, 0);
- 			if(updegr) {
--				(void)ipath_write_ureg(dd, ur_rcvegrindexhead,
-+				ipath_write_ureg(dd, ur_rcvegrindexhead,
- 						       etail, 0);
- 				updegr = 0;
+ /* Memory region */
+@@ -434,6 +435,7 @@ struct ipath_ibdev {
+ 	u32 n_pds_allocated;	/* number of PDs allocated for device */
+ 	u32 n_ahs_allocated;	/* number of AHs allocated for device */
+ 	u32 n_cqs_allocated;	/* number of CQs allocated for device */
++	u32 n_mcast_grps_allocated; /* number of mcast groups allocated */
+ 	u64 ipath_sword;	/* total dwords sent (sample result) */
+ 	u64 ipath_rword;	/* total dwords received (sample result) */
+ 	u64 ipath_spkts;	/* total packets sent (sample result) */
+@@ -699,6 +701,16 @@ extern unsigned int ib_ipath_max_qp_wrs;
+ 
+ extern unsigned int ib_ipath_max_sges;
+ 
++extern unsigned int ib_ipath_max_mcast_grps;
++
++extern unsigned int ib_ipath_max_mcast_qp_attached;
++
++extern unsigned int ib_ipath_max_srqs;
++
++extern unsigned int ib_ipath_max_srq_sges;
++
++extern unsigned int ib_ipath_max_srq_wrs;
++
+ extern const u32 ib_ipath_rnr_table[];
+ 
+ #endif				/* IPATH_VERBS_H */
+diff -r c5f3731224bb -r df954e47ff67 drivers/infiniband/hw/ipath/ipath_verbs_mcast.c
+--- a/drivers/infiniband/hw/ipath/ipath_verbs_mcast.c	Fri May 12 15:55:28 2006 -0700
++++ b/drivers/infiniband/hw/ipath/ipath_verbs_mcast.c	Fri May 12 15:55:28 2006 -0700
+@@ -92,6 +92,7 @@ static struct ipath_mcast *ipath_mcast_a
+ 	INIT_LIST_HEAD(&mcast->qp_list);
+ 	init_waitqueue_head(&mcast->wait);
+ 	atomic_set(&mcast->refcount, 0);
++	mcast->n_attached = 0;
+ 
+ bail:
+ 	return mcast;
+@@ -157,7 +158,8 @@ bail:
+  * the table but the QP was added.  Return ESRCH if the QP was already
+  * attached and neither structure was added.
+  */
+-static int ipath_mcast_add(struct ipath_mcast *mcast,
++static int ipath_mcast_add(struct ipath_ibdev *dev,
++			   struct ipath_mcast *mcast,
+ 			   struct ipath_mcast_qp *mqp)
+ {
+ 	struct rb_node **n = &mcast_tree.rb_node;
+@@ -188,16 +190,28 @@ static int ipath_mcast_add(struct ipath_
+ 		/* Search the QP list to see if this is already there. */
+ 		list_for_each_entry_rcu(p, &tmcast->qp_list, list) {
+ 			if (p->qp == mqp->qp) {
+-				spin_unlock_irqrestore(&mcast_lock, flags);
+ 				ret = ESRCH;
+ 				goto bail;
  			}
-+		}
-+	}
-+	if(!dd->ipath_rhdrhead_intr_off && !reloop) {
-+		/* HT-400 workaround; we can have a race clearing chip
-+		 * interrupt with another interrupt about to be delivered,
-+		 * and can clear it before it is delivered on the GPIO
-+		 * workaround.  By doing the extra check here for the
-+		 * in-memory tail register updating while we were doing
-+		 * earlier packets, we "almost" guarantee we have covered
-+		 * that case.
-+		 */
-+		u32 hqtail = (u32)le64_to_cpu(*dd->ipath_hdrqtailptr);
-+		if(hqtail != hdrqtail) {
-+		    	hdrqtail = hqtail;
-+			reloop = 1; /* loop 1 extra time at most */
-+			goto reloop;
  		}
++		if (tmcast->n_attached == ib_ipath_max_mcast_qp_attached) {
++			ret = ENOMEM;
++			goto bail;
++		}
++
++		tmcast->n_attached++;
++
+ 		list_add_tail_rcu(&mqp->list, &tmcast->qp_list);
+-		spin_unlock_irqrestore(&mcast_lock, flags);
+ 		ret = EEXIST;
+ 		goto bail;
  	}
++
++	if (dev->n_mcast_grps_allocated == ib_ipath_max_mcast_grps) {
++		ret = ENOMEM;
++		goto bail;
++	}
++
++	dev->n_mcast_grps_allocated++;
  
-diff -r 04c86dd11b27 -r a1615956e57f drivers/infiniband/hw/ipath/ipath_intr.c
---- a/drivers/infiniband/hw/ipath/ipath_intr.c	Fri May 12 15:55:29 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_intr.c	Fri May 12 15:55:29 2006 -0700
-@@ -761,13 +761,14 @@ static void handle_urcv(struct ipath_dev
+ 	list_add_tail_rcu(&mqp->list, &mcast->qp_list);
+ 
+@@ -205,17 +219,18 @@ static int ipath_mcast_add(struct ipath_
+ 	rb_link_node(&mcast->rb_node, pn, n);
+ 	rb_insert_color(&mcast->rb_node, &mcast_tree);
+ 
++	ret = 0;
++
++bail:
+ 	spin_unlock_irqrestore(&mcast_lock, flags);
+ 
+-	ret = 0;
+-
+-bail:
+ 	return ret;
  }
  
- 
-+
- irqreturn_t ipath_intr(int irq, void *data, struct pt_regs *regs)
+ int ipath_multicast_attach(struct ib_qp *ibqp, union ib_gid *gid, u16 lid)
  {
- 	struct ipath_devdata *dd = data;
- 	u32 istat, chk0rcv = 0;
- 	ipath_err_t estat = 0;
- 	irqreturn_t ret;
--	u32 p0bits, oldhead;
-+	u32 oldhead, curtail;
- 	static unsigned unexpected = 0;
- 	static const u32 port0rbits = (1U<<INFINIPATH_I_RCVAVAIL_SHIFT) |
- 		 (1U<<INFINIPATH_I_RCVURG_SHIFT);
-@@ -810,15 +811,16 @@ irqreturn_t ipath_intr(int irq, void *da
- 	 * lose intr for later packets that arrive while we are processing.
- 	 */
- 	oldhead = dd->ipath_port0head;
--	if (oldhead != (u32)le64_to_cpu(*dd->ipath_hdrqtailptr)) {
-+	curtail = (u32)le64_to_cpu(*dd->ipath_hdrqtailptr);
-+	if (oldhead != curtail) {
- 		if(dd->ipath_flags & IPATH_GPIO_INTR) {
- 			ipath_write_kreg(dd, dd->ipath_kregs->kr_gpio_clear,
- 					 (u64) (1 << 2));
--			p0bits = port0rbits | INFINIPATH_I_GPIO;
-+			istat = port0rbits | INFINIPATH_I_GPIO;
- 		}
- 		else
--			p0bits = port0rbits;
--		ipath_write_kreg(dd, dd->ipath_kregs->kr_intclear, p0bits);
-+			istat = port0rbits;
-+		ipath_write_kreg(dd, dd->ipath_kregs->kr_intclear, istat);
- 		ipath_kreceive(dd);
- 		if(oldhead != dd->ipath_port0head) {
- 			ipath_stats.sps_fastrcvint++;
-@@ -827,7 +829,6 @@ irqreturn_t ipath_intr(int irq, void *da
+ 	struct ipath_qp *qp = to_iqp(ibqp);
++	struct ipath_ibdev *dev = to_idev(ibqp->device);
+ 	struct ipath_mcast *mcast;
+ 	struct ipath_mcast_qp *mqp;
+ 	int ret;
+@@ -235,7 +250,7 @@ int ipath_multicast_attach(struct ib_qp 
+ 		ret = -ENOMEM;
+ 		goto bail;
+ 	}
+-	switch (ipath_mcast_add(mcast, mqp)) {
++	switch (ipath_mcast_add(dev, mcast, mqp)) {
+ 	case ESRCH:
+ 		/* Neither was used: can't attach the same QP twice. */
+ 		ipath_mcast_qp_free(mqp);
+@@ -245,6 +260,12 @@ int ipath_multicast_attach(struct ib_qp 
+ 	case EEXIST:		/* The mcast wasn't used */
+ 		ipath_mcast_free(mcast);
+ 		break;
++	case ENOMEM:
++		/* Exceeded the maximum number of mcast groups. */
++		ipath_mcast_qp_free(mqp);
++		ipath_mcast_free(mcast);
++		ret = -ENOMEM;
++		goto bail;
+ 	default:
+ 		break;
+ 	}
+@@ -258,6 +279,7 @@ int ipath_multicast_detach(struct ib_qp 
+ int ipath_multicast_detach(struct ib_qp *ibqp, union ib_gid *gid, u16 lid)
+ {
+ 	struct ipath_qp *qp = to_iqp(ibqp);
++	struct ipath_ibdev *dev = to_idev(ibqp->device);
+ 	struct ipath_mcast *mcast = NULL;
+ 	struct ipath_mcast_qp *p, *tmp;
+ 	struct rb_node *n;
+@@ -296,6 +318,7 @@ int ipath_multicast_detach(struct ib_qp 
+ 		 * link until we are sure there are no list walkers.
+ 		 */
+ 		list_del_rcu(&p->list);
++		mcast->n_attached--;
+ 
+ 		/* If this was the last attached QP, remove the GID too. */
+ 		if (list_empty(&mcast->qp_list)) {
+@@ -319,6 +342,7 @@ int ipath_multicast_detach(struct ib_qp 
+ 		atomic_dec(&mcast->refcount);
+ 		wait_event(mcast->wait, !atomic_read(&mcast->refcount));
+ 		ipath_mcast_free(mcast);
++		dev->n_mcast_grps_allocated--;
  	}
  
- 	istat = ipath_read_kreg32(dd, dd->ipath_kregs->kr_intstatus);
--	p0bits = port0rbits;
- 
- 	if (unlikely(!istat)) {
- 		ipath_stats.sps_nullintr++;
-@@ -890,19 +891,19 @@ irqreturn_t ipath_intr(int irq, void *da
- 		else {
- 			/* Clear GPIO status bit 2 */
- 			ipath_write_kreg(dd, dd->ipath_kregs->kr_gpio_clear,
--					 (u64) (1 << 2));
--			p0bits |= INFINIPATH_I_GPIO;
-+					(u64) (1 << 2));
- 			chk0rcv = 1;
- 		}
- 	}
--	chk0rcv |= istat & p0bits;
--
--	/*
--	 * clear the ones we will deal with on this round
--	 * We clear it early, mostly for receive interrupts, so we
--	 * know the chip will have seen this by the time we process
--	 * the queue, and will re-interrupt if necessary.  The processor
--	 * itself won't take the interrupt again until we return.
-+	chk0rcv |= istat & port0rbits;
-+
-+	/*
-+	 * Clear the interrupt bits we found set, unless they are receive
-+	 * related, in which case we already cleared them above, and don't
-+	 * want to clear them again, because we might lose an interrupt.
-+	 * Clear it early, so we "know" know the chip will have seen this by
-+	 * the time we process the queue, and will re-interrupt if necessary.
-+	 * The processor itself won't take the interrupt again until we return.
- 	 */
- 	ipath_write_kreg(dd, dd->ipath_kregs->kr_intclear, istat);
- 
+ 	ret = 0;

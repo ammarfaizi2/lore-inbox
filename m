@@ -1,70 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbWELMJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbWELMNe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751258AbWELMJE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 08:09:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWELMJD
+	id S1751035AbWELMNe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 08:13:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWELMNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 08:09:03 -0400
-Received: from k2smtpout01-02.prod.mesa1.secureserver.net ([64.202.189.89]:29364
-	"HELO k2smtpout01-01.prod.mesa1.secureserver.net") by vger.kernel.org
-	with SMTP id S1751258AbWELMJB (ORCPT
+	Fri, 12 May 2006 08:13:34 -0400
+Received: from wr-out-0506.google.com ([64.233.184.231]:59728 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751035AbWELMNd convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 08:09:01 -0400
-X-Antivirus-MYDOMAIN-Mail-From: razvan.g@plutohome.com via plutohome.com.secureserver.net
-X-Antivirus-MYDOMAIN: 1.25-st-qms (Clear:RC:0(82.77.255.201):SA:0(-2.4/5.0):. Processed in 0.646092 secs Process 5005)
-Message-ID: <44647AEE.6040106@plutohome.com>
-Date: Fri, 12 May 2006 15:09:18 +0300
-From: Razvan Gavril <razvan.g@plutohome.com>
-User-Agent: Mail/News 1.5 (X11/20060309)
+	Fri, 12 May 2006 08:13:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GTpcDCZG4xAZBaWgE6DA+5y0WIgjHlfR6hQw/7TI5tjIRaIWLhSCi3prvTC73QqMKFoi1y3DlmhHe5FdN9wuyRt9Iwr+3SOU+0P4Li0kU7SaB/o/rQmPIGLjNq/jv6yZeE0fbFG76Ize9g1x2O4Jk3WC1TQwfH70qqcsB5Bolpc=
+Message-ID: <9a8748490605120513w4b078642k816dfef6ab907823@mail.gmail.com>
+Date: Fri, 12 May 2006 14:13:32 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Patrick McHardy" <kaber@trash.net>
+Subject: Re: [PATCH] fix mem-leak in netfilter
+Cc: "David S. Miller" <davem@davemloft.net>, willy@w.ods.org,
+       sfrost@snowman.net, gcoady.lk@gmail.com, laforge@netfilter.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       marcelo@kvack.org
+In-Reply-To: <44647280.1030602@trash.net>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Coldpluging or USB Issues ?
-References: <4462F4E1.4060008@plutohome.com> <20060511234452.GA18542@kroah.com>
-In-Reply-To: <20060511234452.GA18542@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060507093640.GF11191@w.ods.org>
+	 <egts52hm2epfu4g1b9kqkm4s9cdiv3tvt9@4ax.com>
+	 <20060508050748.GA11495@w.ods.org>
+	 <20060507.224339.48487003.davem@davemloft.net>
+	 <44643BFD.3040708@trash.net>
+	 <9a8748490605120409x3851ca4fn14fc9c52500701e4@mail.gmail.com>
+	 <44647280.1030602@trash.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Thu, May 11, 2006 at 11:25:05AM +0300, Razvan Gavril wrote:
->   
->> As far as i know since 2.6.15 there is a new coldplug mechanism using 
->> uevent and switching to a newer version of udevd that can do the cold 
->> plugging and replacing the old hotplug scripts would be the natural next 
->> step but before doing this i need to ask some questions like :
->> 1) Where there any changes sine 2.6.15 that could cause the old hotplug 
->> scripts to work reliable because most part of the time (95%) they are 
->> working ?
->>     
+On 5/12/06, Patrick McHardy <kaber@trash.net> wrote:
+> Jesper Juhl wrote:
+> > On 5/12/06, Patrick McHardy <kaber@trash.net> wrote:
+> >
+> >> I haven't seen any cleanup patches so far, so I think I'm
+> >> going to start my nth try at cleaning up this mess.
+> >> Unfortunately its even immune to Lindent ..
+> >>
+> >
+> > If you get too fed up with it, let me know, and I'll give it a go as well.
 >
-> I don't know, what is failing?
+> Thanks, I'm about half-way through (and about to kill someone),
+> just started with the biggest pile of crap (the match function)
+> and already noticed a possible endless loop within the first
+> couple of lines.
 >
->   
-Sometimes if fails to load the modules for the usb devices at boot but 
-there are no step to reproduce, looks totally random and only on rare 
-occasions if failing.
->> 2) Upgrading to newer version of udevd to let the udev scripts to do 
->> the coldpluging can solve any issues that where described ?
->>     
+> Unfortunately this stuff is so unreadable that I'm not exactly
+> sure if the loop really won't terminate, an extra pair of eyes
+> would be appreciated.
 >
-> Probably, that's what all of the major distros have already done.  It
-> makes the startup logic much smaller and simpler.
->
-> This should be continued on the linux-hotplug-devel mailing list if you
-> are interested.
->
-> thanks,
->
-> greg k-h
->   
-I know that most major distros made the switch, but does anything 
-changed so it would make debian's hotplug scripts (and i don't thing 
-they are only used on debian) incompatible with kernels greater than 
-2.6.15 ? I cannot risk to upgrade to udev and have the same unstable 
-platform. The most secure option that i have now is going back to 2.6.13 
-if udev can't give me a satisfactory answer.
 
-PS: I can't find any mailing list named linux-hotplug-devel as i would 
-be more that happy to move my mail there.
+Sure thing.
+
+I don't have time to look at it today (friends comming over for
+dinner), but I should have plenty of time for it tomorrow. So, if you
+could send me your patch once you are done for the day, then I'll look
+it over and see if I can find anything to add on top of your work (or
+have anything to comment on) and bounce it back to you sometime during
+tomorrow.
+
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

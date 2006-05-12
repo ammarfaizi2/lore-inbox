@@ -1,130 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWELOFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWELOHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbWELOFd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 10:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWELOFd
+	id S932085AbWELOHw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 10:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWELOHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 10:05:33 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:58566 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932075AbWELOFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 10:05:32 -0400
-Date: Fri, 12 May 2006 10:05:23 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Mark Hounschell <markh@compro.net>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Daniel Walker <dwalker@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, johnstul@us.ibm.com
-Subject: Re: rt20 patch question
-In-Reply-To: <44649119.5040105@compro.net>
-Message-ID: <Pine.LNX.4.58.0605120956440.30264@gandalf.stny.rr.com>
-References: <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
- <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
- <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
- <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com>
- <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
- <20060512092159.GC18145@elte.hu> <446481C8.4090506@compro.net>
- <Pine.LNX.4.58.0605120854480.30264@gandalf.stny.rr.com> <44649119.5040105@compro.net>
+	Fri, 12 May 2006 10:07:52 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:58129 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S932085AbWELOHv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 10:07:51 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 12 May 2006 14:07:51.0157 (UTC) FILETIME=[74990A50:01C675CD]
+Content-class: urn:content-classes:message
+Subject: Re: Segfault on the i386 enter instruction
+Date: Fri, 12 May 2006 10:07:50 -0400
+Message-ID: <Pine.LNX.4.61.0605121003450.9012@chaos.analogic.com>
+In-Reply-To: <20060512131654.GB2994@duch.mimuw.edu.pl>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Segfault on the i386 enter instruction
+Thread-Index: AcZ1zXSgzG6/PoLNS9+nFYQ8EGtOCg==
+References: <20060512131654.GB2994@duch.mimuw.edu.pl>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Tomasz Malesinski" <tmal@mimuw.edu.pl>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 12 May 2006, Mark Hounschell wrote:
+On Fri, 12 May 2006, Tomasz Malesinski wrote:
 
-> Steven Rostedt wrote:
->  >
-> > I was looking at the logdump, but I don't see anything spinning.  CPU 1
-> > seems to be constantly running your v67 program (alternating with
-> > posix_cpu_timer), and CPU: 0 is still switching with the swapper, along
-> > with other tasks, so that this means nothing is just spinning and hogging
-> > the CPU (on CPU 0, but I assume the v67 tasks is suppose to keep running).
-> >
+> The code attached below segfaults on the enter instruction. It works
+> when a stack frame is created by the three commented out
+> instructions and also when the first operand of the enter instruction
+> is small (less than about 6500 on my system).
 >
-> Yes the v67 task is the CPU process. Could it also mean I just didn't
-> get the logdump at the right time?
+> AFAIK, the only difference between creating a stack frame with the
+> enter instruction or push/mov/sub is that enter checks if the new
+> value of esp is inside the stack segment limit.
+>
+> I tested it on a vanilla kernel 2.4.26 on Intel Celeron and also on
+> probably non-vanilla 2.6.16.13 running on 3 dual core AMD Opteron,
+> quite busy, server. It is working in 32-bit mode. Interestingly, on
+> the second machine sometimes the program worked correctly.
+>
+> I am not subscribed to the list. Please cc replies to me.
+>
+>
+> 	.file	"a.c"
+> 	.version	"01.01"
+> gcc2_compiled.:
+> .section	.rodata
+> .LC0:
+> 	.string	"asdf\n"
+> .text
+> 	.align 4
+> .globl main
+> 	.type	 main,@function
+> main:
+> 	enter $10008, $0
+> #	pushl %ebp
+> #	movl %esp,%ebp
+> #	subl $10008,%esp
+> 	addl $-12,%esp
+         ^^^^^^^^^^^^^^____________ WTF
+         adding a negative number is subtracting that positive value.
+         You just subtracted 0xfffffff3 (on a 32-bit machine) from
+         the stack pointer. It damn-well better seg-fault!
+
+
+> 	pushl $.LC0
+> 	call printf
+> 	addl $16,%esp
+> .L2:
+> 	leave
+> 	ret
+> .Lfe1:
+> 	.size	 main,.Lfe1-main
+> 	.ident	"GCC: (GNU) 2.95.4 20011002 (Debian prerelease)"
+>
+> --
+> Tomek Malesinski
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 >
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
+New book: http://www.lymanschool.com
+_
+
 
-[  619.220396] CPU:0 (bash:7783) -->> (konsole:7763)
-[  619.220558] CPU:0 (konsole:7763) -->> (swapper:0)
-[  619.220706] CPU:1 (v67:11149) -->> (IRQ 161:11082)
-[  619.220717] CPU:1 (IRQ 161:11082) -->> (v67:11149)
-[  619.223111] CPU:0 (swapper:0) -->> (posix_cpu_timer:3)
-[  619.223116] CPU:0 (posix_cpu_timer:3) -->> (softirq-timer/0:5)
-[  619.223127] CPU:0 (softirq-timer/0:5) -->> (swapper:0)
-[  619.223570] CPU:1 (v67:11149) -->> (posix_cpu_timer:14)
-[  619.223573] CPU:1 (posix_cpu_timer:14) -->> (v67:11149)
-[  619.227097] CPU:0 (swapper:0) -->> (posix_cpu_timer:3)
-[  619.227099] CPU:0 (posix_cpu_timer:3) -->> (softirq-timer/0:5)
-[  619.227102] CPU:0 (softirq-timer/0:5) -->> (swapper:0)
-[  619.227566] CPU:1 (v67:11149) -->> (posix_cpu_timer:14)
-[  619.227568] CPU:1 (posix_cpu_timer:14) -->> (v67:11149)
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-   ...
-
-[  633.861475] CPU:1 (v67:11149) -->> (posix_cpu_timer:14)
-[  633.861477] CPU:1 (posix_cpu_timer:14) -->> (v67:11149)
-[  633.865001] CPU:0 (swapper:0) -->> (posix_cpu_timer:3)
-[  633.865003] CPU:0 (posix_cpu_timer:3) -->> (softirq-timer/0:5)
-[  633.865006] CPU:0 (softirq-timer/0:5) -->> (swapper:0)
-[  633.865470] CPU:1 (v67:11149) -->> (posix_cpu_timer:14)
-[  633.865473] CPU:1 (posix_cpu_timer:14) -->> (v67:11149)
-[  633.866421] CPU:1 (v67:11149) -->> (IRQ 161:11082)
-[  633.866430] CPU:1 (IRQ 161:11082) -->> (v67:11149)
-[  633.868998] CPU:0 (swapper:0) -->> (posix_cpu_timer:3)
-[  633.869000] CPU:0 (posix_cpu_timer:3) -->> (softirq-timer/0:5)
-[  633.869002] CPU:0 (softirq-timer/0:5) -->> (swapper:0)
-[  633.869467] CPU:1 (v67:11149) -->> (posix_cpu_timer:14)
-[  633.869470] CPU:1 (posix_cpu_timer:14) -->> (v67:11149)
-[  633.872993] CPU:0 (swapper:0) -->> (posix_cpu_timer:3)
-[  633.872995] CPU:0 (posix_cpu_timer:3) -->> (softirq-timer/0:5)
-[  633.872998] CPU:0 (softirq-timer/0:5) -->> (swapper:0)
-[  633.873463] CPU:1 (v67:11149) -->> (posix_cpu_timer:14)
-[  633.873465] CPU:1 (posix_cpu_timer:14) -->> (v67:11149)
-[  633.874747] CPU:1 (v67:11149) -->> (IRQ 161:11082)
-[  633.874756] CPU:1 (IRQ 161:11082) -->> (v67:11149)
-[  633.876990] CPU:0 (swapper:0) -->> (posix_cpu_timer:3)
-[  633.876992] CPU:0 (posix_cpu_timer:3) -->> (softirq-timer/0:5)
-[  633.876996] CPU:0 (softirq-timer/0:5) -->> (kded:6119)
-[  633.877030] CPU:0 (kded:6119) -->> (swapper:0)
-[  633.877460] CPU:1 (v67:11149) -->> (posix_cpu_timer:14)
-[  633.877462] CPU:1 (posix_cpu_timer:14) -->> (v67:11149)
-[  633.878447] CPU:0 (swapper:0) -->> (IRQ 1:823)
-[  633.878474] CPU:0 (IRQ 1:823) -->> (softirq-tasklet:9)
-[  633.878478] CPU:0 (softirq-tasklet:9) -->> (events/0:24)
-[  633.878488] CPU:0 (events/0:24) -->> (X:5513)
-[  633.878627] CPU:0 (X:5513) -->> (konsole:7763)
-[  633.878669] CPU:0 (konsole:7763) -->> (X:5513)
-[  633.878683] CPU:0 (X:5513) -->> (konsole:7763)
-[  633.879309] CPU:0 (konsole:7763) -->> (X:5513)
-[  633.879415] CPU:0 (X:5513) -->> (konsole:7763)
-[  633.879457] CPU:0 (konsole:7763) -->> (X:5513)
-[  633.879463] CPU:0 (X:5513) -->> (konsole:7763)
-[  633.879467] CPU:0 (konsole:7763) -->> (X:5513)
-[  633.879553] CPU:0 (X:5513) -->> (kded:6119)
-[  633.879651] CPU:0 (kded:6119) -->> (kwin:6135)
-[  633.879711] CPU:0 (kwin:6135) -->> (kdesktop:6140)
-[  633.879782] CPU:0 (kdesktop:6140) -->> (kicker:6142)
-[  633.879858] CPU:0 (kicker:6142) -->> (X:5513)
-[  633.879927] CPU:0 (X:5513) -->> (kwin:6135)
-[  633.879963] CPU:0 (kwin:6135) -->> (X:5513)
-[  633.879977] CPU:0 (X:5513) -->> (bash:7783)
-[  633.880042] CPU:0 (bash:7783) -->> (konsole:7763)
-[  633.880103] CPU:0 (konsole:7763) -->> (X:5513)
-[  633.880119] CPU:0 (X:5513) -->> (konsole:7763)
-[  633.880211] CPU:0 (konsole:7763) -->> (bash:7783)
-
-
-Well, the bash is what turned off the logging, and the logging started at
-619.xxx and ended at 633.xxx so that's ~14 seconds of logging.  So I would
-assume you did it in the right place.
-
-How long does the stop happen, and what exactly freezes?  Can you ping the
-machine?  Also, have you tried to switch to a console before it freezes,
-and see if it doesn't freeze that.  I'm curious if X isn't waiting on
-something.
-
--- Steve
+Thank you.

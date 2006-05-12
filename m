@@ -1,79 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWELR6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWELSEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbWELR6M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 13:58:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWELR6M
+	id S932119AbWELSEW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 14:04:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWELSEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 13:58:12 -0400
-Received: from zombie.ncsc.mil ([144.51.88.131]:38359 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S932092AbWELR6M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 13:58:12 -0400
-Subject: Re: 2.6.17-rc3 - fs/namespace.c issue
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Valdis.Kletnieks@vt.edu, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       herbert@13thfloor.at, hch@lst.de
-In-Reply-To: <20060512105320.5d9f932c.akpm@osdl.org>
-References: <200605012106.k41L6GNc007543@turing-police.cc.vt.edu>
-	 <20060501143344.3952ff53.akpm@osdl.org>
-	 <1147455407.23563.59.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060512105320.5d9f932c.akpm@osdl.org>
+	Fri, 12 May 2006 14:04:22 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:53931 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932119AbWELSEV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 14:04:21 -0400
+Subject: Re: [RFC][PATCH -rt] irqd starvation on SMP by a single process?
+From: john stultz <johnstul@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: lkml <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>
+In-Reply-To: <20060512055025.GA25824@elte.hu>
+References: <1147401812.1907.14.camel@cog.beaverton.ibm.com>
+	 <20060512055025.GA25824@elte.hu>
 Content-Type: text/plain
-Organization: National Security Agency
-Date: Fri, 12 May 2006 14:02:16 -0400
-Message-Id: <1147456936.23563.73.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 12 May 2006 11:04:18 -0700
+Message-Id: <1147457058.9343.22.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-05-12 at 10:53 -0700, Andrew Morton wrote:
-> Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> >
-> > On Mon, 2006-05-01 at 14:33 -0700, Andrew Morton wrote:
-> > > Valdis.Kletnieks@vt.edu wrote:
-> > > >
-> > > > There seems to have been a bug introduced in this changeset:
-> > > > 
-> > > > http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=f6422f17d3a480f21917a3895e2a46b968f56a08
-> > > > 
-> > > > Am running 2.6.17-rc3-mm1.  When this changeset is applied, 'mount --bind'
-> > > > misbehaves:
-> > > > 
-> > > > > # mkdir /foo
-> > > > > # mount -t tmpfs -o rw,nosuid,nodev,noexec,noatime,nodiratime none /foo
-> > > > > # mkdir /foo/bar
-> > > > > # mount --bind /foo/bar /foo
-> > > > > # tail -2 /proc/mounts
-> > > > > none /foo tmpfs rw,nosuid,nodev,noexec,noatime,nodiratime 0 0
-> > > > > none /foo tmpfs rw 0 0
-> > > > 
-> > > > Reverting this changeset causes both mounts to have the same options.
-> > > > 
-> > > > (Thanks to Stephen Smalley for tracking down the changeset...)
-> > > > 
-> > > 
-> > > (cc's added)
-> > 
-> > What's the verdict on this change in user-visible behavior for bind
-> > mounts?  Is it a legitimate change and userland just needs to adapt to
-> > it, or is it a change to the kernel's stable ABI that needs to be
-> > reverted?  It still appears to be present in -rc4.
-> > 
-> 
-> Well.  We'd certainly prefer to not change user-visible behaviour without
-> excellent reasons - I don't htink any have been given, really.
-> 
-> AFACIT nobody tested Herbert's 'untested "fix"'.  What was the verdict on
-> that?
+On Fri, 2006-05-12 at 07:50 +0200, Ingo Molnar wrote:
+> +		if (!cpus_equal(current->cpus_allowed, irq_affinity[irq]));
+> +			set_cpus_allowed(current, irq_affinity[irq]);
 
-The untested 'fix' makes the rest of the patch pointless (no point in
-passing the mnt_flags if we aren't going to use them).  Might as well
-just revert the patch altogether.
+Gah! I introduced a terrible bug there. 
 
--- 
-Stephen Smalley
-National Security Agency
+Note the semi-colon at the end of the if statement! Sorry about that!
+
+The following patch (which I've tested as well) fixes that.
+
+--- 2.6-rt/kernel/irq/manage.c	2006-05-11 18:37:36.000000000 -0500
++++ dev-rt/kernel/irq/manage.c	2006-05-12 12:55:56.000000000 -0500
+@@ -724,6 +724,7 @@
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		do_hardirq(desc);
+ 		cond_resched_all();
++		local_irq_disable();
+ 		__do_softirq();
+ //		do_softirq_from_hardirq();
+ 		local_irq_enable();
+@@ -731,10 +732,8 @@
+ 		/*
+ 		 * Did IRQ affinities change?
+ 		 */
+-		if (!cpu_isset(smp_processor_id(), irq_affinity[irq])) {
+-			mask = cpumask_of_cpu(any_online_cpu(irq_affinity[irq]));
+-			set_cpus_allowed(current, mask);
+-		}
++		if(!cpus_equal(current->cpus_allowed, irq_affinity[irq]))
++			set_cpus_allowed(current, irq_affinity[irq]);
+ #endif
+ 		schedule();
+ 	}
+
+
+
 

@@ -1,67 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbWELS34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWELSav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751220AbWELS34 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 14:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbWELS34
+	id S1751223AbWELSav (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 14:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWELSav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 14:29:56 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:48254 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751220AbWELS34 convert rfc822-to-8bit (ORCPT
+	Fri, 12 May 2006 14:30:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:37260 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751223AbWELSau (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 14:29:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=mo7BgHtaDuf4X5r0IWkIv40bQKi2nqIiIUso9Ct4yrtj6JcvhRCDZLLYWhb7pEERZ8ipwaRVahllSdxaVMkQGwgAKwJRKLH1aUAehEXGHK7MqvRH2tsYzJmQIHkVoR6gdCydPc5SybN5e7thHVnwMsYFctSK2ssdxopTt6y/ZQU=
-Message-ID: <3d78499d0605121129m3fe0951fy68e55ec1dce13397@mail.gmail.com>
-Date: Fri, 12 May 2006 13:29:52 -0500
-From: "Captain Wiggum" <captwiggum@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux kernel 2.6.16.14 boot errors: udevd-event: udev_make_node and find_free_number
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Fri, 12 May 2006 14:30:50 -0400
+Date: Fri, 12 May 2006 11:27:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org, trenn@suse.de, thoenig@suse.de,
+       c-d.hailfinger.devel.2006@gmx.net
+Subject: Re: [patch] smbus unhiding kills thermal management
+Message-Id: <20060512112742.5ab21993.akpm@osdl.org>
+In-Reply-To: <20060512095343.GA28375@elf.ucw.cz>
+References: <20060512095343.GA28375@elf.ucw.cz>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My 2.6.15.4 booted without any errors or warnings. Now with 2.6.16.14 I
-get the below errors. I have also installed 2.6.16.14 on another
-computer, and it works great there. I stepped through every kernel
-config option and everything is in place.
+Pavel Machek <pavel@suse.cz> wrote:
+>
+> Do not enable the SMBus device on Asus boards if suspend
+>  is used. We do not reenable the device on resume, leading to all sorts
+>  of undesirable effects, the worst being a total fan failure after
+>  resume on Samsung P35 laptop.
+> 
+>  Signed-off-by: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
+>  Signed-off-by: Pavel Machek <pavel@suse.cz>
+> 
+>  ---
+>  commit f14c852a8cb7483ce0e1e0e05ef49fed2f67103b
+>  tree ab0cbe41b344a62bc81dd5cb093e3b6062c12556
+>  parent 392dbe84f1e484b1e48036ca266cb826fd34f8da
+>  author <pavel@amd.ucw.cz> Fri, 12 May 2006 11:50:00 +0200
+>  committer <pavel@amd.ucw.cz> Fri, 12 May 2006 11:50:00 +0200
 
-Any ideas? All suggestions appreciated.
-
-Gentoo, gcc 3.4.4-r1, P4-1.5GHz, 512MB RAM, hp pavilion 7955.
-
--------------------------
-BOOT, CONSOLE MESSAGES:
-
-...<snip>...
-* Populating /dev with saved device nodes ...                            [ ok ]
-* Seeding /dev with needed nodes ...
-cp: cannot create special file `/dev/null': File exists
-cp: cannot create special file `/dev/zero': File exists                  [ ok ]
-* Setting up proper hotplug agent ...
-*   Using netlink for hotplug events...                                  [ ok ]
-* Starting udevd ...                                                     [ ok ]
-* Populating /dev with existing devices through uevents ...
-udevd-event[1462]: udev_make_node: mknod(/dev/ttyS0, 020660, 4, 64)
-failed: File exists
-udevd-event[1463]: udev_make_node: mknod(/dev/ttyS1, 020660, 4, 65)
-failed: File exists
-udevd-event[1464]: udev_make_node: mknod(/dev/ttyS2, 020660, 4, 66)
-failed: File exists
-udevd-event[1465]: udev_make_node: mknod(/dev/ttyS3, 020660, 4, 67)
-failed: File exists
-                                                                         [ ok ]
-* Letting udev process events ...
-udevd-event[1984]: find_free_number: %e is deprecated, will be removed
-and is unlikey to work correctly. Don't use it.
-udevd-event[1986]: find_free_number: %e is deprecated, will be removed
-and is unlikey to work correctly. Don't use it.
-                     [ ok ]
-* Finializing udev configuration ...                                     [ ok ]
-...<snip>...
+Are these attributions correct, or did Carl-Daniel write it?

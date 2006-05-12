@@ -1,65 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWELRX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWELR00@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751105AbWELRX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 13:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWELRX5
+	id S932073AbWELR00 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 13:26:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWELR0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 13:23:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:36568 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751105AbWELRX4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 13:23:56 -0400
-Date: Fri, 12 May 2006 10:23:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: John Kelly <jak@isp2dial.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: + deprecate-smbfs-in-favour-of-cifs.patch added to -mm tree
-In-Reply-To: <200605121710.k4CHA6Hv005194@isp2dial.com>
-Message-ID: <Pine.LNX.4.64.0605121015520.3866@g5.osdl.org>
-References: <200605110717.k4B7HuVW006999@shell0.pdx.osdl.net>
- <20060511175143.GH25646@redhat.com> <Pine.LNX.4.61.0605121243460.9918@yvahk01.tjqt.qr>
- <200605121619.k4CGJCtR004972@isp2dial.com> <Pine.LNX.4.58.0605121222070.5579@gandalf.stny.rr.com>
- <200605121630.k4CGUuiU005025@isp2dial.com> <Pine.LNX.4.64.0605120949060.3866@g5.osdl.org>
- <200605121710.k4CHA6Hv005194@isp2dial.com>
+	Fri, 12 May 2006 13:26:25 -0400
+Received: from ns1.soleranetworks.com ([70.103.108.67]:54415 "EHLO
+	ns1.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S1751163AbWELR0Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 13:26:25 -0400
+Message-ID: <4464D060.70700@wolfmountaingroup.com>
+Date: Fri, 12 May 2006 12:13:52 -0600
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@osdl.org>
+CC: John Kelly <jak@isp2dial.com>, linux-kernel@vger.kernel.org
+Subject: Re: + deprecate-smbfs-in-favour-of-cifs.patch added to -mm tree
+References: <200605110717.k4B7HuVW006999@shell0.pdx.osdl.net> <20060511175143.GH25646@redhat.com> <Pine.LNX.4.61.0605121243460.9918@yvahk01.tjqt.qr> <200605121619.k4CGJCtR004972@isp2dial.com> <Pine.LNX.4.58.0605121222070.5579@gandalf.stny.rr.com> <200605121630.k4CGUuiU005025@isp2dial.com> <Pine.LNX.4.64.0605120949060.3866@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0605120949060.3866@g5.osdl.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
 
+>On Fri, 12 May 2006, John Kelly wrote:
+>  
+>
+>>Users who need vintage features can use vintage kernels.  They haven't
+>>been pulled off the market.
+>>    
+>>
+>
+>I disagree.
+>
+>We have two cases:
+>
+> - newer kernels don't always support vintage hardware any more. We don't, 
+>   for example, boot on 1MB PCs (I _think_ we used to), and quite frankly, 
+>   if you have 4MB, I'd be surprised it worked either (and that definitely 
+>   used to work a long time ago).
+>
+>   Similarly, we've occsionally dropped a driver just because it wasn't 
+>   getting maintained, and we knew it couldn't work in the state it was 
+>   in. So over the years, machines have stopped being supported (that 
+>   said, if somebody complains, we try to re-instate the driver. Most 
+>   dropped drivers have never even been commented upon, because they 
+>   really aren't used any more. When was the last time you saw an MCA 
+>   machine or a PC98? I bet some people on this list have never even 
+>   heard of either)
+>
+> - we sometimes drop sw features that have been deprecated long ago, and 
+>   that there are better alternatives for. That said, this is pretty damn 
+>   rare too. I can remember Xiafs, and devfs is obviously on that path 
+>   too.
+>
+>But we do _not_ drop features just because they are deemed "unnecessary". 
+>As long as somebody actually _uses_ smbfs, and as long as those users are 
+>willing to test and perhaps send in patches for when/if it breaks, we 
+>should not drop it.
+>
+>The cost of keeping a filesystem is not normally very high. The way 
+>filesystems in particular get deprecated is if they have really serious 
+>problems, and nobody ends up being able or willing to fix them at all, and 
+>you _can_ migrate away. But if we're talking about win98, it probably 
+>still actually has a pretty big user base, and most of the machines that 
+>run it probably really cannot upgrade.
+>
+>For exactly the same reason you mention:
+>
+>	"Users who need vintage features can use vintage kernels."
+>
+>ie you end up having people who have vintage hardware, and they use 
+>vintage kernels, but in their case, the "vintage" is Win95 or Win98. That 
+>does't mean that the _linux_ machine they use is necessarily vintage.
+>
+>		Linus
+>
+>  
+>
+Correct call. SMBFS is also very stable and well tested.
 
-On Fri, 12 May 2006, John Kelly wrote:
-> 
-> I just think forward progress would be easier without dragging around
-> some of the old baggage in the kernel.
-
-I think that is generally true, but we've actually been pretty successful 
-in having a modular enough source tree that most of the time, old code 
-simply is old - and doesn't much affect new code.
-
-That is especially true in filesystems. We've had a few fairly painful 
-times (the page cache changes in 2.3.x and the switch to the dentry cache 
-in 2.1.x(?)), but on the whole we've had a pretty stable VFS interface 
-that hasn't needed _that_ much work for individual filesystems.
-
-We've had much bigger problems with drivers, although there the main 
-reason for the problems is just that if some interface changes even very 
-trivially, there's just so _many_ drivers that they tend to be harder to 
-fix up (and they tend to do things that you can't "think about" because 
-it's very much due to bugs or specific issues with some random piece of 
-hardware that most developers don't even have access to).
-
-Also, while it can be easier in _one_sense_ to move forwards if you drop 
-the old stuff, it often ends up making it harder in another sense: it can 
-mean, for example, that people or distributions need to do more work to 
-update, which in turn can mean that you have a much harder time getting 
-the change tested.
-
-Which then in turn can mean that you actually lose more developer time 
-than you gained from the code simplification..
-
-So it's not always a very clear-cut thing. For the _users_ (and those are 
-who matter most), backwards compatibility is almost always absolutely the 
-biggest priority, and everything else comes second.
-
-		Linus
+Jeff

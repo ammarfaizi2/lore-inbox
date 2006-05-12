@@ -1,82 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWELOqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWELOvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbWELOqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 10:46:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWELOqJ
+	id S1750727AbWELOvu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 10:51:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWELOvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 10:46:09 -0400
-Received: from usaga01-in.huawei.com ([12.129.211.51]:59086 "EHLO
-	usaga01-in.huawei.com") by vger.kernel.org with ESMTP
-	id S932107AbWELOqI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 10:46:08 -0400
-Date: Fri, 12 May 2006 20:16:03 +0530
-From: jimmy <jimmyb@huawei.com>
-Subject: Re: Linux poll() <sigh> again
-In-reply-to: <44649C85.5000704@shaw.ca>
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <44649FAB.4080806@huawei.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-References: <6bkl7-56Y-11@gated-at.bofh.it> <4463D1E4.5070605@shaw.ca>
- <Pine.LNX.4.61.0605120745050.8670@chaos.analogic.com>
- <44649C85.5000704@shaw.ca>
+	Fri, 12 May 2006 10:51:50 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:12168 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750727AbWELOvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 10:51:50 -0400
+Date: Fri, 12 May 2006 10:51:41 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Mark Hounschell <markh@compro.net>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Daniel Walker <dwalker@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, johnstul@us.ibm.com
+Subject: Re: rt20 patch question
+In-Reply-To: <44649D73.4090700@compro.net>
+Message-ID: <Pine.LNX.4.58.0605121042580.3328@gandalf.stny.rr.com>
+References: <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
+ <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
+ <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
+ <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com>
+ <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
+ <20060512092159.GC18145@elte.hu> <446481C8.4090506@compro.net>
+ <Pine.LNX.4.58.0605120854480.30264@gandalf.stny.rr.com> <44649119.5040105@compro.net>
+ <Pine.LNX.4.58.0605120956440.30264@gandalf.stny.rr.com> <44649D73.4090700@compro.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock wrote:
-> linux-os (Dick Johnson) wrote:
->>> POLLHUP means "The device has been disconnected." This would obviously
->>> be appropriate for a device such as a serial line or TTY, etc. but for a
->>> socket it is less obvious that this return value is appropriate.
->>>
->>
->> Hardly "less obvious". SunOs has returned POLLHUP as has other
->> Unixes like Interactive, from which the software was ported. It
->> went from Interactive, to SunOs, to Linux. Linux was the first
->> OS that required the hack. This was reported several years ago
->> and I was simply excoriated for having the audacity to report
->> such a thing. So, I just implemented a hack. Now the hack is
->> biting me. It's about time for poll() to return the correct
->> stuff.
-> 
-> The standard doesn't require that a close on a socket should report 
-> POLLHUP. Thus this behavior may differ between UNIX implementations. If 
-> your software is requiring a POLLHUP to indicate the socket is closed I 
-> think it is being unnecessarily picky since read returning 0 universally 
-> indicates that the connection has been closed. Such are the compromises 
-> that are sometimes required to write portable software.
-> 
->>
->>>> I have used the subsequent read() with a returned
->>>> value of zero, to indicate that the client disconnected
->>>> (as a work around). However, on recent versions of
->>>> Linux, this is not reliable and the read() may
->>>> wait forever instead of immediately returning.
->>> If you want nonblocking behavior, you should set the socket to
->>> nonblocking. This is a bit strange though, unless the data was stolen by
->>> another thread or something. Are you sure you've seen this?
->>
->> I don't use threads. The hang under the specified conditions was first
->> observed on 2.6.16.4 (that I'm running on this system). The hack, 
->> previously
->> used, i.e., the read of zero was used since 2.4.x with success except 
->> it's
->> a hack and shouldn't be required. It was not ever required on SunOs from
->> which the software was ported.
-> 
-> This may be a bug somewhere.. however, once again if you don't want read 
-> to block under any circumstances, set your sockets to non-blocking!
-> 
-But that's another hack. AFAICS why ppl (mostly) use select/poll wud be 
-to know if their send/recv/read/write would go thru rather than getting 
-blocked!
 
+On Fri, 12 May 2006, Mark Hounschell wrote:
 
--jb
--- 
-Only two things are infinite, the universe and human stupidity, and I'm 
-not sure about the former. - Albert Einstein
+>
+> They stops can be anywhere up to even a few minutes depending how
+> patient I want to be. I was just playing with it to possibly get another
+> log. The machine froze. Did the log thing while frozen. Then I attempted
+> to ssh into it from another machine. It let me in and the machine
+> unfroze at that same time. But only to stop again in a few seconds. The
+> new shell was also frozen. I sshd to it again, same thing.
+
+This is a good indictation of a missed wake up.  Now the question is, what
+is sleeping and why didn't it wake up.
+
+>
+> While the machine was unfrozen I was able to halt the cpu process
+> basically taking it out of its execution loop and putting into a delay
+> loop of 1 ms via
+>
+> while(clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &tim, NULL) &&
+> errno == EINTR);
+
+Hmm, do you have high res timers turned on?
+
+>
+> As long as the CPU process is halted and in this loop the machine acts
+> normal. As soon as the CPU process goes back into his execution loop we
+> are back to the "stops".
+>
+
+Could you hook up a serial, and on the machine do a
+
+  # cat /dev/ttyS0 &
+
+Just to open the serial for reading.  And then on the machine on the other
+end of the serial cable, bring up minicom, do a ctrl-a f t
+
+ctl-a f sends a break,
+
+the t will do a task dump.  Do this when the machine is stopped and see
+what is running.  Hopefuly the sysrq works from serial (I've had boxes
+where the keyboard sysrq didn't work but serial did).
+
+Oh, and send me the output too.
+
+Thanks,
+
+-- Steve
+

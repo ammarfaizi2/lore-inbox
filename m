@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbWELLJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbWELLLF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751211AbWELLJz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 07:09:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWELLJz
+	id S1751208AbWELLLF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 07:11:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWELLLF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 07:09:55 -0400
-Received: from soundwarez.org ([217.160.171.123]:36538 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S1751207AbWELLJy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 07:09:54 -0400
-Date: Fri, 12 May 2006 13:09:51 +0200
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Pozsar Balazs <pozsy@uhulinux.hu>
-Cc: Sergey Vlasov <vsu@altlinux.ru>, Bill Nottingham <notting@redhat.com>,
-       Pierre Ossman <drzeus-list@drzeus.cx>, Andrew Morton <akpm@osdl.org>,
-       ambx1@neo.rr.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
-Message-ID: <20060512110951.GA4183@vrfy.org>
-References: <44082E14.5010201@drzeus.cx> <4412F53B.5010309@drzeus.cx> <20060311173847.23838981.akpm@osdl.org> <4414033F.2000205@drzeus.cx> <20060312172332.GA10278@vrfy.org> <20060313165719.GB4147@devserv.devel.redhat.com> <20060313192411.GA23380@vrfy.org> <20060313222644.GD1311@devserv.devel.redhat.com> <20060314152944.797390cd.vsu@altlinux.ru> <20060509174143.GA2320@ojjektum.uhulinux.hu>
+	Fri, 12 May 2006 07:11:05 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:26302 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751208AbWELLLE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 07:11:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HhMautuNPY2gx5ypqRW1zpw2xZ6wK4J3vJAYdwhVyKO2c5Uj7M4v5XD6IrZYdyiZjo4e0Om5uGp0zt91XX5G/H97UjPZagOzrCPKeKD5nYrqW9OuhL+oCke+TugMPFDHqtCQHdlRtTGBWysKbbVbIc6GIuTcCoYGspNFoEKjqTs=
+Message-ID: <9a8748490605120409x3851ca4fn14fc9c52500701e4@mail.gmail.com>
+Date: Fri, 12 May 2006 13:09:45 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Patrick McHardy" <kaber@trash.net>
+Subject: Re: [PATCH] fix mem-leak in netfilter
+Cc: "David S. Miller" <davem@davemloft.net>, willy@w.ods.org,
+       sfrost@snowman.net, gcoady.lk@gmail.com, laforge@netfilter.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       marcelo@kvack.org
+In-Reply-To: <44643BFD.3040708@trash.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060509174143.GA2320@ojjektum.uhulinux.hu>
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <20060507093640.GF11191@w.ods.org>
+	 <egts52hm2epfu4g1b9kqkm4s9cdiv3tvt9@4ax.com>
+	 <20060508050748.GA11495@w.ods.org>
+	 <20060507.224339.48487003.davem@davemloft.net>
+	 <44643BFD.3040708@trash.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 09, 2006 at 07:41:44PM +0200, Pozsar Balazs wrote:
+On 5/12/06, Patrick McHardy <kaber@trash.net> wrote:
+> David S. Miller wrote:
+> > From: Willy Tarreau <willy@w.ods.org>
+> > Date: Mon, 8 May 2006 07:07:48 +0200
+> >
+> >
+> >>I wonder how such unmaintainable code has been merged in the first
+> >>place. Obviously, Davem has never seen it !
+> >
+> >
+> > Oh I've seen ipt_recent.c, it's one huge pile of trash
+> > that needs to be rewritten.  It has all sorts of problems.
+> >
+> > This is well understood on the netfilter-devel list and
+> > I am to understand that someone has taken up the task to
+> > finally rewrite the thing.
+>
+>
+> I haven't seen any cleanup patches so far, so I think I'm
+> going to start my nth try at cleaning up this mess.
+> Unfortunately its even immune to Lindent ..
+>
 
-> Basically I implemented the above things, to be precise:
->  - the alias for the pnp device drivers are in the form "pnp:*dXXXYYYY*" 
->    instead of the old "pnp:dXXXYYYY*"
->  - the alias for the pnp card drivers are in the form
->      "pnp:cXXXYYYY*dXXXYYYY*dXXXYYYY*"
->    instead of the old
->      "pnp:cXXXYYYYdXXXYYYYdXXXYYYY*"
->    _and_ the device id part are ordered
->  - add a "modalias" file under sysfs for each pnp device, containing
->      "pnp:dXXXYYYYdXXXYYYY..."
->    where "dXXXYYYY" is appended for each pnp id the device has
->  - add a "modalias" file under sysfs for each pnp card, containing
->      "pnp:cXXXYYYYdXXXYYYYdXXXYYYY..."
->    where "cXXXYYYY" is the card_id, and the device ids are appended 
->    after it, _ordered_.
-> 
-> 
-> With this applied, I think we are close to be able to drop 
-> special-casing the pnp bus in udev rules.
+If you get too fed up with it, let me know, and I'll give it a go as well.
 
-That looks promising.
-
-> What still needs to be done is exporting the MODALIAS env variable.
-> (Sorry, I do not see how it could be added elegantly.)
-
-Yeah, we really want the environment variable. You may do the composition
-of the string in a separate function, that just writes to a bufferi, and use
-it to fill the buffer of the uevent environment and the page of the sysfs
-attribute. Like we did for input:
-  http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=bd37e5a951ad2123d3f51f59c407b5242946b6ba
-
-
-Thanks,
-Kay
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

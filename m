@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWELN4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWELODi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932080AbWELN4J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 09:56:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbWELN4I
+	id S932067AbWELODi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 10:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWELODi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 09:56:08 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:42948 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932083AbWELN4H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 09:56:07 -0400
-Message-ID: <446493F2.3000701@us.ibm.com>
-Date: Fri, 12 May 2006 06:56:02 -0700
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
+	Fri, 12 May 2006 10:03:38 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:19607 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S932067AbWELODh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 10:03:37 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: Segfault on the i386 enter instruction
+Date: Fri, 12 May 2006 17:03:23 +0300
+User-Agent: KMail/1.8.2
+Cc: Tomasz Malesinski <tmal@mimuw.edu.pl>, linux-kernel@vger.kernel.org
+References: <20060512131654.GB2994@duch.mimuw.edu.pl> <p734pzv73oj.fsf@bragg.suse.de>
+In-Reply-To: <p734pzv73oj.fsf@bragg.suse.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, hch@lst.de, bcrl@kvack.org,
-       cel@citi.umich.edu
-Subject: Re: [PATCH 1/4] Vectorize aio_read/aio_write methods
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>	<1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>	<1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com>	<1147361939.12117.12.camel@dyn9047017100.beaverton.ibm.com>	<20060512030309.3a94bea8.akpm@osdl.org> <20060512030855.65651bb5.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605121703.23366.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 12 May 2006 16:50, Andi Kleen wrote:
+> Tomasz Malesinski <tmal@mimuw.edu.pl> writes:
+> 
+> > The code attached below segfaults on the enter instruction. It works
+> > when a stack frame is created by the three commented out
+> > instructions and also when the first operand of the enter instruction
+> > is small (less than about 6500 on my system).
+> 
+> The difference is the value of the stack pointer when the page fault
+> of extending the stack downwards occurs. For the long sequence 
+> ESP is already changed when it happens. For ENTER the CPU undoes
+> the change before raising the fault. The page fault handler
+> checks the page fault against ESP to catch invalid references below
+> the stack.
+> 
+> I don't think the 64bit kernel does anything different here than the 
+> 32bit kernel. I tested it on a 32bit box and it faulted there too.
 
+For me, it doesn't fault. I looked with strace. It doesn't fault even with
+enter $64008, $0
 
-Andrew Morton wrote:
-
->Andrew Morton <akpm@osdl.org> wrote:
->
->>Please send fix.
->>
->
->On second thoughts, I'll drop them all.  Too many fixups, this code needs
->more work.
->
->Please ensure that the next version passes allmodconfig without adding any
->new warnings on both 32-bit and 64-bit compilers, thanks.
->
-Will do. I have been building and testing on 64-bit machines (amd64, ppc64).
-
-Thanks,
-Badari
-
->
-
-
+Is it something in newest kernels? Mine is 2.6.16-rc5.
+--
+vda

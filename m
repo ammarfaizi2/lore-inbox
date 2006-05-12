@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbWELLLF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWELLNO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751208AbWELLLF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 07:11:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWELLLF
+	id S1751215AbWELLNO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 07:13:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWELLNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 07:11:05 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:26302 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751208AbWELLLE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 07:11:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HhMautuNPY2gx5ypqRW1zpw2xZ6wK4J3vJAYdwhVyKO2c5Uj7M4v5XD6IrZYdyiZjo4e0Om5uGp0zt91XX5G/H97UjPZagOzrCPKeKD5nYrqW9OuhL+oCke+TugMPFDHqtCQHdlRtTGBWysKbbVbIc6GIuTcCoYGspNFoEKjqTs=
-Message-ID: <9a8748490605120409x3851ca4fn14fc9c52500701e4@mail.gmail.com>
-Date: Fri, 12 May 2006 13:09:45 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Patrick McHardy" <kaber@trash.net>
-Subject: Re: [PATCH] fix mem-leak in netfilter
-Cc: "David S. Miller" <davem@davemloft.net>, willy@w.ods.org,
-       sfrost@snowman.net, gcoady.lk@gmail.com, laforge@netfilter.org,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-       marcelo@kvack.org
-In-Reply-To: <44643BFD.3040708@trash.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+	Fri, 12 May 2006 07:13:14 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:36840 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751215AbWELLNO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 07:13:14 -0400
+Date: Fri, 12 May 2006 13:12:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: =?iso-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de
+Subject: Re: [RFC][PATCH RT 1/2] futex_requeue-optimize
+Message-ID: <20060512111256.GA27481@elte.hu>
+References: <20060510112701.7ea3a749@frecb000686> <20060511091541.05160b2c.akpm@osdl.org> <20060512063220.GA630@elte.hu> <1147421427.3969.60.camel@frecb000686> <1147432419.3969.70.camel@frecb000686>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <20060507093640.GF11191@w.ods.org>
-	 <egts52hm2epfu4g1b9kqkm4s9cdiv3tvt9@4ax.com>
-	 <20060508050748.GA11495@w.ods.org>
-	 <20060507.224339.48487003.davem@davemloft.net>
-	 <44643BFD.3040708@trash.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1147432419.3969.70.camel@frecb000686>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.6 required=5.9 tests=AWL,SUBJ_HAS_UNIQ_ID autolearn=no SpamAssassin version=3.0.3
+	1.1 SUBJ_HAS_UNIQ_ID       Subject contains a unique ID
+	-0.5 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/12/06, Patrick McHardy <kaber@trash.net> wrote:
-> David S. Miller wrote:
-> > From: Willy Tarreau <willy@w.ods.org>
-> > Date: Mon, 8 May 2006 07:07:48 +0200
-> >
-> >
-> >>I wonder how such unmaintainable code has been merged in the first
-> >>place. Obviously, Davem has never seen it !
-> >
-> >
-> > Oh I've seen ipt_recent.c, it's one huge pile of trash
-> > that needs to be rewritten.  It has all sorts of problems.
-> >
-> > This is well understood on the netfilter-devel list and
-> > I am to understand that someone has taken up the task to
-> > finally rewrite the thing.
->
->
-> I haven't seen any cleanup patches so far, so I think I'm
-> going to start my nth try at cleaning up this mess.
-> Unfortunately its even immune to Lindent ..
->
 
-If you get too fed up with it, let me know, and I'll give it a go as well.
+* Sébastien Dugué <sebastien.dugue@bull.net> wrote:
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+> On Fri, 2006-05-12 at 10:10 +0200, Sébastien Dugué wrote:
+> > On Fri, 2006-05-12 at 08:32 +0200, Ingo Molnar wrote:
+> > > * Andrew Morton <akpm@osdl.org> wrote:
+> > > 
+> > > > Should the futex code be using hlist_heads for that hashtable?
+> > > 
+> > > yeah. That would save 1K of .data on 32-bit platforms, 2K on 64-bit 
+> > > platforms.
+> > 
+> >   I'll try to look into this.
+> > 
+> 
+>   Well, moving the hash bucket list to an hlist may save a few bytes 
+> on .data, but all the insertions are done at the tail on this list 
+> which would not be easily done using hlists.
+> 
+>   Any thoughts?
+
+just queue to the head. This is a hash-list, ordering has only 
+performance effects.
+
+	Ingo

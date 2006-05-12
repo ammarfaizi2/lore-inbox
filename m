@@ -1,68 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbWELNMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWELNRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751271AbWELNMk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 09:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWELNMk
+	id S1751281AbWELNRN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 09:17:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWELNRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 09:12:40 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:49846 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1751271AbWELNMj convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 09:12:39 -0400
-Subject: Re: [RFC][PATCH RT 1/2] futex_requeue-optimize
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+	Fri, 12 May 2006 09:17:13 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:55209 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751282AbWELNRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 09:17:12 -0400
+Date: Fri, 12 May 2006 09:16:50 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
 To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de
-In-Reply-To: <20060512111256.GA27481@elte.hu>
-References: <20060510112701.7ea3a749@frecb000686>
-	 <20060511091541.05160b2c.akpm@osdl.org> <20060512063220.GA630@elte.hu>
-	 <1147421427.3969.60.camel@frecb000686>
-	 <1147432419.3969.70.camel@frecb000686>  <20060512111256.GA27481@elte.hu>
-Date: Fri, 12 May 2006 15:16:56 +0200
-Message-Id: <1147439816.3969.81.camel@frecb000686>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 12/05/2006 15:15:37,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 12/05/2006 15:15:39,
-	Serialize complete at 12/05/2006 15:15:39
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-15
+cc: Mark Hounschell <markh@compro.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Daniel Walker <dwalker@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, akpm@osdl.org
+Subject: 3c59x vortex_timer rt hack (was: rt20 patch question)
+In-Reply-To: <20060512092159.GC18145@elte.hu>
+Message-ID: <Pine.LNX.4.58.0605120904110.30264@gandalf.stny.rr.com>
+References: <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
+ <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
+ <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
+ <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com>
+ <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
+ <20060512092159.GC18145@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-05-12 at 13:12 +0200, Ingo Molnar wrote:
-> * Sébastien Dugué <sebastien.dugue@bull.net> wrote:
-> 
-> > On Fri, 2006-05-12 at 10:10 +0200, Sébastien Dugué wrote:
-> > > On Fri, 2006-05-12 at 08:32 +0200, Ingo Molnar wrote:
-> > > > * Andrew Morton <akpm@osdl.org> wrote:
-> > > > 
-> > > > > Should the futex code be using hlist_heads for that hashtable?
-> > > > 
-> > > > yeah. That would save 1K of .data on 32-bit platforms, 2K on 64-bit 
-> > > > platforms.
-> > > 
-> > >   I'll try to look into this.
-> > > 
-> > 
-> >   Well, moving the hash bucket list to an hlist may save a few bytes 
-> > on .data, but all the insertions are done at the tail on this list 
-> > which would not be easily done using hlists.
-> > 
-> >   Any thoughts?
-> 
-> just queue to the head. This is a hash-list, ordering has only 
-> performance effects.
-> 
 
-  Queuing to the head would mean that tasks are woken up in LIFO order
-(i.e. the last task put to sleep will be the first to be woken up).
-  I'm not sure that's what people would expect, or am I missing
-something here?
 
-  Sébastien.
+On Fri, 12 May 2006, Ingo Molnar wrote:
+
+> --- linux-rt.q.orig/drivers/net/3c59x.c
+> +++ linux-rt.q/drivers/net/3c59x.c
+> @@ -1897,7 +1897,8 @@ vortex_timer(unsigned long data)
+>
+>  	if (vp->medialock)
+>  		goto leave_media_alone;
+> -	disable_irq(dev->irq);
+> +	/* hack! */
+> +	disable_irq_nosync(dev->irq);
+>  	old_window = ioread16(ioaddr + EL3_CMD) >> 13;
+>  	EL3WINDOW(4);
+>  	media_status = ioread16(ioaddr + Wn4_Media);
+
+BTW, I originally thought about having Mark do this, but I'm nervious
+about the side effects that this might have.  Basically, it's doing
+ioreads from the device while the interrupt could be doing iowrites.
+
+I don't know the device well enough to know if this is a problem.
+I've added Andrew Morton to the CC list, since his name is all over the
+code.
+
+Andrew,
+
+Do you know off hand what the side-effects to the vortex card might be
+if we use disable_irq_nosync instead of disable_irq?
+
+
+Mark,
+
+ as Ingo commented, this is a Hack! not a solution.
+
+-- Steve
 

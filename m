@@ -1,75 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWELMik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWELMlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751267AbWELMik (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 08:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWELMij
+	id S1751212AbWELMlM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 08:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWELMlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 08:38:39 -0400
-Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:29930 "EHLO
-	mx1.compro.net") by vger.kernel.org with ESMTP id S1751267AbWELMij
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 08:38:39 -0400
-Message-ID: <446481C8.4090506@compro.net>
-Date: Fri, 12 May 2006 08:38:32 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-User-Agent: Thunderbird 1.5 (X11/20060111)
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Daniel Walker <dwalker@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, johnstul@us.ibm.com
-Subject: Re: rt20 patch question
-References: <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com> <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com> <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com> <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com> <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com> <20060512092159.GC18145@elte.hu>
-In-Reply-To: <20060512092159.GC18145@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 12 May 2006 08:41:12 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:47877 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751212AbWELMlM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 08:41:12 -0400
+Date: Fri, 12 May 2006 14:40:41 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Patrick McHardy <kaber@trash.net>, "David S. Miller" <davem@davemloft.net>,
+       sfrost@snowman.net, gcoady.lk@gmail.com, laforge@netfilter.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       marcelo@kvack.org
+Subject: Re: [PATCH] fix mem-leak in netfilter
+Message-ID: <20060512124041.GA31714@w.ods.org>
+References: <20060507093640.GF11191@w.ods.org> <egts52hm2epfu4g1b9kqkm4s9cdiv3tvt9@4ax.com> <20060508050748.GA11495@w.ods.org> <20060507.224339.48487003.davem@davemloft.net> <44643BFD.3040708@trash.net> <9a8748490605120409x3851ca4fn14fc9c52500701e4@mail.gmail.com> <44647280.1030602@trash.net> <9a8748490605120513w4b078642k816dfef6ab907823@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a8748490605120513w4b078642k816dfef6ab907823@mail.gmail.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
+On Fri, May 12, 2006 at 02:13:32PM +0200, Jesper Juhl wrote:
+> On 5/12/06, Patrick McHardy <kaber@trash.net> wrote:
+> >Jesper Juhl wrote:
+> >> On 5/12/06, Patrick McHardy <kaber@trash.net> wrote:
+> >>
+> >>> I haven't seen any cleanup patches so far, so I think I'm
+> >>> going to start my nth try at cleaning up this mess.
+> >>> Unfortunately its even immune to Lindent ..
+> >>>
+> >>
+> >> If you get too fed up with it, let me know, and I'll give it a go as 
+> >well.
+> >
+> >Thanks, I'm about half-way through (and about to kill someone),
+> >just started with the biggest pile of crap (the match function)
+> >and already noticed a possible endless loop within the first
+> >couple of lines.
+> >
+> >Unfortunately this stuff is so unreadable that I'm not exactly
+> >sure if the loop really won't terminate, an extra pair of eyes
+> >would be appreciated.
+> >
 > 
->>> one solution would be to forbid disable_irq() from softirq contexts, and
->>> to convert the vortex timeout function to a workqueue and use the
->>> *_delayed_work() APIs to drive it - and cross fingers there's not many
->>> places to fix.
->> I prefer the above. Maybe even add a WARN_ON(in_softirq()) in 
->> disable_irq.
->>
->> But I must admit, I wouldn't know how to make that change without 
->> spending more time on it then I have for this.
+> Sure thing.
 > 
-> the simplest fix for now would be to use the _nosync variant in the 
-> vortex timeout function.
-> 
-> Mark, does this fix the problem?
-> 
-> 	Ingo
-> 
-> Index: linux-rt.q/drivers/net/3c59x.c
-> ===================================================================
-> --- linux-rt.q.orig/drivers/net/3c59x.c
-> +++ linux-rt.q/drivers/net/3c59x.c
-> @@ -1897,7 +1897,8 @@ vortex_timer(unsigned long data)
->  
->  	if (vp->medialock)
->  		goto leave_media_alone;
-> -	disable_irq(dev->irq);
-> +	/* hack! */
-> +	disable_irq_nosync(dev->irq);
->  	old_window = ioread16(ioaddr + EL3_CMD) >> 13;
->  	EL3WINDOW(4);
->  	media_status = ioread16(ioaddr + Wn4_Media);
-> 
+> I don't have time to look at it today (friends comming over for
+> dinner), but I should have plenty of time for it tomorrow. So, if you
+> could send me your patch once you are done for the day, then I'll look
+> it over and see if I can find anything to add on top of your work (or
+> have anything to comment on) and bounce it back to you sometime during
+> tomorrow.
 
-It looks like it does fix at least the BUG and network disconnection
-problem I am/was seeing. It's been 45 minutes or so without a glitch.
+Please post it to the list, this coding style needs far more than two
+pairs of eyes to be fixed. It has already discouraged several people,
+the more we will be, the least pain we will feel :-)
 
-I'm still not running this in complete preempt mode. Should I see if it
-helps that situation also? It only took a few minutes for that one to
-show up.
+Cheers
+Willy
 
-Mark

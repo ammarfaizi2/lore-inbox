@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWELNRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWELNQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751281AbWELNRN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 09:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWELNRN
+	id S1751277AbWELNQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 09:16:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWELNQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 09:17:13 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:55209 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751282AbWELNRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 09:17:12 -0400
-Date: Fri, 12 May 2006 09:16:50 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: Mark Hounschell <markh@compro.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Daniel Walker <dwalker@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, akpm@osdl.org
-Subject: 3c59x vortex_timer rt hack (was: rt20 patch question)
-In-Reply-To: <20060512092159.GC18145@elte.hu>
-Message-ID: <Pine.LNX.4.58.0605120904110.30264@gandalf.stny.rr.com>
-References: <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
- <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
- <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
- <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com>
- <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
- <20060512092159.GC18145@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 May 2006 09:16:56 -0400
+Received: from duch.mimuw.edu.pl ([193.0.96.2]:1944 "EHLO duch.mimuw.edu.pl")
+	by vger.kernel.org with ESMTP id S1751277AbWELNQ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 09:16:56 -0400
+Date: Fri, 12 May 2006 15:16:54 +0200
+From: Tomasz Malesinski <tmal@mimuw.edu.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Segfault on the i386 enter instruction
+Message-ID: <20060512131654.GB2994@duch.mimuw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The code attached below segfaults on the enter instruction. It works
+when a stack frame is created by the three commented out
+instructions and also when the first operand of the enter instruction
+is small (less than about 6500 on my system).
+
+AFAIK, the only difference between creating a stack frame with the
+enter instruction or push/mov/sub is that enter checks if the new
+value of esp is inside the stack segment limit.
+
+I tested it on a vanilla kernel 2.4.26 on Intel Celeron and also on
+probably non-vanilla 2.6.16.13 running on 3 dual core AMD Opteron,
+quite busy, server. It is working in 32-bit mode. Interestingly, on
+the second machine sometimes the program worked correctly.
+
+I am not subscribed to the list. Please cc replies to me.
 
 
-On Fri, 12 May 2006, Ingo Molnar wrote:
+	.file	"a.c"
+	.version	"01.01"
+gcc2_compiled.:
+.section	.rodata
+.LC0:
+	.string	"asdf\n"
+.text
+	.align 4
+.globl main
+	.type	 main,@function
+main:
+	enter $10008, $0
+#	pushl %ebp
+#	movl %esp,%ebp
+#	subl $10008,%esp
+	addl $-12,%esp
+	pushl $.LC0
+	call printf
+	addl $16,%esp
+.L2:
+	leave
+	ret
+.Lfe1:
+	.size	 main,.Lfe1-main
+	.ident	"GCC: (GNU) 2.95.4 20011002 (Debian prerelease)"
 
-> --- linux-rt.q.orig/drivers/net/3c59x.c
-> +++ linux-rt.q/drivers/net/3c59x.c
-> @@ -1897,7 +1897,8 @@ vortex_timer(unsigned long data)
->
->  	if (vp->medialock)
->  		goto leave_media_alone;
-> -	disable_irq(dev->irq);
-> +	/* hack! */
-> +	disable_irq_nosync(dev->irq);
->  	old_window = ioread16(ioaddr + EL3_CMD) >> 13;
->  	EL3WINDOW(4);
->  	media_status = ioread16(ioaddr + Wn4_Media);
-
-BTW, I originally thought about having Mark do this, but I'm nervious
-about the side effects that this might have.  Basically, it's doing
-ioreads from the device while the interrupt could be doing iowrites.
-
-I don't know the device well enough to know if this is a problem.
-I've added Andrew Morton to the CC list, since his name is all over the
-code.
-
-Andrew,
-
-Do you know off hand what the side-effects to the vortex card might be
-if we use disable_irq_nosync instead of disable_irq?
-
-
-Mark,
-
- as Ingo commented, this is a Hack! not a solution.
-
--- Steve
-
+-- 
+Tomek Malesinski

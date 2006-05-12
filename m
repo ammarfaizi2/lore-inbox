@@ -1,49 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWELGrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbWELGsA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751012AbWELGrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 02:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751013AbWELGrZ
+	id S1751015AbWELGsA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 02:48:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWELGsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 02:47:25 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:56276 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751012AbWELGrY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 02:47:24 -0400
-Date: Fri, 12 May 2006 10:47:11 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Brice Goglin <brice@myri.com>
-Cc: Francois Romieu <romieu@fr.zoreil.com>, netdev@vger.kernel.org,
-       LKML <linux-kernel@vger.kernel.org>,
-       "Andrew J. Gallatin" <gallatin@myri.com>
-Subject: Re: [PATCH 4/6] myri10ge - First half of the driver
-Message-ID: <20060512064710.GA27065@2ka.mipt.ru>
-References: <446259A0.8050504@myri.com> <Pine.GSO.4.44.0605101438410.498-100000@adel.myri.com> <20060510231347.GC25334@electric-eye.fr.zoreil.com> <4463CE88.20301@myri.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <4463CE88.20301@myri.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 12 May 2006 10:47:12 +0400 (MSD)
+	Fri, 12 May 2006 02:48:00 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:11148 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751013AbWELGr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 02:47:59 -0400
+Date: Fri, 12 May 2006 02:47:47 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Mark Hounschell <markh@compro.net>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: rt20 patch question
+In-Reply-To: <446350CF.3010204@compro.net>
+Message-ID: <Pine.LNX.4.58.0605120221410.26721@gandalf.stny.rr.com>
+References: <446089CF.3050809@compro.net> <1147185483.21536.13.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+ <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
+ <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
+ <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
+ <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101446090.22959@gandalf.stny.rr.com>
+ <44623ED4.1030103@compro.net> <44631F1B.8000100@compro.net>
+ <Pine.LNX.4.58.0605110739520.5610@gandalf.stny.rr.com>
+ <Pine.LNX.4.58.0605110805470.5610@gandalf.stny.rr.com> <446335EA.3000506@compro.net>
+ <Pine.LNX.4.58.0605110913220.6863@gandalf.stny.rr.com> <44633B78.8080907@compro.net>
+ <Pine.LNX.4.58.0605110940001.7359@gandalf.stny.rr.com> <446350CF.3010204@compro.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 12, 2006 at 01:53:44AM +0200, Brice Goglin (brice@myri.com) wrote:
-> > Imho you will want to work directly with pages shortly.
-> >   
-> 
-> We had thought about doing this, but were a little nervous since we did
-> not know of any other drivers that worked directly with pages.  If this
-> is an official direction to work directly with pages, we will. 
 
-s2io does. e1000 does it with skb frags.
-If your hardware allows header split and driver can put headers into
-skb->data and real data into frag_list, that allows to create various
-interesting things like receiving zero-copy support and netchannels
-support. It is work in progress, not official direction currently,
-but this definitely will help your driver to support future high 
-performance extensions.
+On Thu, 11 May 2006, Mark Hounschell wrote:
 
-> Brice
+>
+> Here is a detailed list of the RT tasks running with prios, cpu masks
+> etc. There are 3 nics. eth1 is the nic being used by the emulation. eth2
+> is currently unused.
 
--- 
-	Evgeniy Polyakov
+>
+> pid      SCHED        PRIO      CPUM TASK
+> ---      ----         ----      ---- ----
+
+This being a SMP machine, pid 2 and 3 must be the migration threads.
+
+> 2        FIFO         99           1 (unknown)
+> 3        FIFO         99           1 (unknown)
+
+> 4        FIFO         1            1 (unknown)
+> 5        FIFO         1            1 (unknown)
+> 6        FIFO         1            1 (unknown)
+> 7        FIFO         1            1 (unknown)
+> 8        FIFO         1            1 (unknown)
+> 9        FIFO         1            1 (unknown)
+> 10       FIFO         1            1 (unknown)
+
+Do you know what these processes are (12 and 13)?
+
+> 12       FIFO         99           2 (unknown)
+> 13       FIFO         99           2 (unknown)
+
+[...]
+
+> 39       FIFO  acpi   49 [IRQ 9]   1 (unknown)
+> 1129     FIFO  rtc    48 [IRQ 8]   1 (unknown)
+> 1135     FIFO  i8042  47 [IRQ 12]  1 (unknown)
+> 1145     FIFO  floppy 46 [IRQ 6]   1 (unknown)
+> 1178     FIFO  i8042  45 [IRQ 1]   1 (unknown)
+> 1268     FIFO  ide0   44 [IRQ 14]  1 (unknown)
+> 1313     FIFO  ide1   43 [IRQ 15]  1 (unknown)
+>
+
+FYI, The above are all of higher priority than the below.
+
+> 1362     FIFO         42 [IRQ 169] 1 (unknown)
+>      ide2, aic7xxx, aic7xxx, eth1, eth2,
+>      gpiohsd, gpiohsd, gpiohsd, gpiohsd, eprm
+
+Wow! that's a lot on a shared IRQ.  Do you have the ide2 being used. If
+one of these where to spin for a while, then all the below would freeze.
+Also them being preempted will also have a problem.  Perhaps you want to
+raise the priority of this interrupt thread.
+
+>
+> 2663     FIFO ???     41 [IRQ 4]   1 (unknown)
+> 2667     FIFO ???     40 [IRQ 3]   1 (unknown)
+> 3420     FIFO 82801BA 39 [IRQ 177] 1 (unknown)
+> 5788     FIFO eth0    38 [IRQ 185] 1 (unknown)
+> 8036     FIFO rtom    37 [IRQ 193] 2 (unknown)
+> 10338    FIFO EMU-CPU 33           2 ./vrsx
+
+[...]
+
+> > What seems to be happening is that the vortex_timer is going off while the
+> > interrupt is running.  Hence the disable_irq fails and schedules.
+> >
+> > Perhaps the interrupt thread has been preempted by some high priority task
+> > and causes it to lose a connection.
+> >
+> > Yeah that task output would be helpful to see if you can get it to work.
+>
+> Ok I have this but it is 2000+ lines. I probably don't want to put it on
+> the list. Should I send it to you directly?
+
+Yes please (compress it as well).  With so much shared on an IRQ and you
+are disabling it, it might cause some large timeouts. The disable irq with
+the hardirqs as threads is a sleep (that's where you hit the bug) where as
+otherwise it just spins and waits.  So it can be a timing issue.
+
+Could also you try running the RT kernel without hardirqs as threads to
+see if it works fine then?
+
+>
+> > Also can you show us the output of /proc/interrupts so we know which
+> > threads are associated to the network card interrupt, and see where they
+> > are.
+> >
+>
+> harley:/home/markh/work/lcrs-linux # cat /proc/interrupts
+>            CPU0       CPU1
+>   0:     450333          0  IO-APIC-edge   [........N/  0]  pit
+>   1:       4288          0  IO-APIC-edge   [........./  1]  i8042
+>   8:          2          0  IO-APIC-edge   [........./  0]  rtc
+>   9:          0          0  IO-APIC-level  [........./  0]  acpi
+>  12:      66129          0  IO-APIC-edge   [........./  1]  i8042
+>  14:       3523          0  IO-APIC-edge   [........./  0]  ide0
+>  15:      65675          0  IO-APIC-edge   [........./  0]  ide1
+> 169:     219209          0  IO-APIC-level  [........./  0]  ide2,
+> aic7xxx, aic7xxx, eth1, eth2, gpiohsd, gpiohsd, gpiohsd, gpiohsd, eprm
+> 177:       1821          0  IO-APIC-level  [........./  0]  Intel
+> 82801BA-ICH2
+> 185:     185550          0  IO-APIC-level  [........./  0]  eth0
+> 193:          0      76740  IO-APIC-level  [........./  0]  rtom
+> NMI:          0          0
+> LOC:    2657906     587751
+> ERR:          0
+> MIS:          0
+
+I see you are pinning all the irqs to CPU0
+
+>
+> The aic7xxx controllers are both connected to external legacy scsi
+> racks. eth1, eth2, and the aix7xxx cards are in an SBS pci expansion
+> chassis. The 3 gpiohsd and the 1 eprm cards are also in the expansion
+> rack but are not being used at all in this.
+
+So all but the 3 gpiohsd and eprm are being used?  Still that seems to be
+a lot.  But anyway, send me the compressed task dump, and I'll take a
+look.  Maybe it will shed some light.
+
+-- Steve
+

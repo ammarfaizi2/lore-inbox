@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751011AbWELGqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWELGrZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751011AbWELGqq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 02:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbWELGqq
+	id S1751012AbWELGrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 02:47:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751013AbWELGrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 02:46:46 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:58154
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1751009AbWELGqp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 02:46:45 -0400
-Message-Id: <44644B91.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
-Date: Fri, 12 May 2006 08:47:13 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Christian Limpach" <Christian.Limpach@cl.cam.ac.uk>
-Cc: <virtualization@lists.osdl.org>, <xen-devel@lists.xensource.com>,
-       "Chris Wright" <chrisw@sous-sol.org>, <linux-kernel@vger.kernel.org>,
-       "Zachary Amsden" <zach@vmware.com>,
-       "Ian Pratt" <ian.pratt@xensource.com>
-Subject: [Xen-devel] Re: [RFC PATCH 07/35] Make LOAD_OFFSET defined by
-	subarch
-References: <20060509084945.373541000@sous-sol.org> <20060509085150.509458000@sous-sol.org> <44627733.4010305@vmware.com> <20060511164300.GA7834@cl.cam.ac.uk>
-In-Reply-To: <20060511164300.GA7834@cl.cam.ac.uk>
+	Fri, 12 May 2006 02:47:25 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:56276 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751012AbWELGrY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 02:47:24 -0400
+Date: Fri, 12 May 2006 10:47:11 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Brice Goglin <brice@myri.com>
+Cc: Francois Romieu <romieu@fr.zoreil.com>, netdev@vger.kernel.org,
+       LKML <linux-kernel@vger.kernel.org>,
+       "Andrew J. Gallatin" <gallatin@myri.com>
+Subject: Re: [PATCH 4/6] myri10ge - First half of the driver
+Message-ID: <20060512064710.GA27065@2ka.mipt.ru>
+References: <446259A0.8050504@myri.com> <Pine.GSO.4.44.0605101438410.498-100000@adel.myri.com> <20060510231347.GC25334@electric-eye.fr.zoreil.com> <4463CE88.20301@myri.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
+In-Reply-To: <4463CE88.20301@myri.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 12 May 2006 10:47:12 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I've updated our loader to support this now, so that this patch is
->no longer necessary.  I have at the same time added a new field to
->xen_guest which allows specifying the entry point, allowing us to have
->a different entry point when running the kernel image on Xen.
+On Fri, May 12, 2006 at 01:53:44AM +0200, Brice Goglin (brice@myri.com) wrote:
+> > Imho you will want to work directly with pages shortly.
+> >   
+> 
+> We had thought about doing this, but were a little nervous since we did
+> not know of any other drivers that worked directly with pages.  If this
+> is an official direction to work directly with pages, we will. 
 
-Why do you need a separate entry point here? The code should be able to figure out which mode it is run in without
-problems...
+s2io does. e1000 does it with skb frags.
+If your hardware allows header split and driver can put headers into
+skb->data and real data into frag_list, that allows to create various
+interesting things like receiving zero-copy support and netchannels
+support. It is work in progress, not official direction currently,
+but this definitely will help your driver to support future high 
+performance extensions.
 
-Jan
+> Brice
+
+-- 
+	Evgeniy Polyakov

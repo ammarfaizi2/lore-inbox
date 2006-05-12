@@ -1,46 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWELUCW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWELUFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbWELUCW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 16:02:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWELUCW
+	id S932198AbWELUFF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 16:05:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWELUFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 16:02:22 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:58249 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932193AbWELUCV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 16:02:21 -0400
-Subject: Re: How to read BIOS information
-From: Arjan van de Ven <arjan@infradead.org>
-To: Dan Carpenter <error27.lkml@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <b263e5900605100132m62cbfe16yda4213c97ae363e@mail.gmail.com>
-References: <445F5228.7060006@wipro.com>
-	 <1147099994.2888.32.camel@laptopd505.fenrus.org>
-	 <b263e5900605100132m62cbfe16yda4213c97ae363e@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 12 May 2006 22:02:19 +0200
-Message-Id: <1147464139.3173.58.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 12 May 2006 16:05:05 -0400
+Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:39089 "EHLO
+	mx1.compro.net") by vger.kernel.org with ESMTP id S932198AbWELUFD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 16:05:03 -0400
+Message-ID: <4464EA6A.6070903@compro.net>
+Date: Fri, 12 May 2006 16:04:58 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+User-Agent: Thunderbird 1.5 (X11/20060111)
+MIME-Version: 1.0
+To: john stultz <johnstul@us.ibm.com>
+Cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [RFC][PATCH -rt] irqd starvation on SMP by a single process?
+References: <1147401812.1907.14.camel@cog.beaverton.ibm.com>	 <20060512055025.GA25824@elte.hu> <1147457058.9343.22.camel@localhost.localdomain>
+In-Reply-To: <1147457058.9343.22.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-10 at 01:32 -0700, Dan Carpenter wrote:
-> Arjan van de Ven:
-> > But that's the best you can do.
-> > (well you could grovel through the acpi tables just like the kernel
-> > does, but you really don't want to do that from userspace)
+john stultz wrote:
+> On Fri, 2006-05-12 at 07:50 +0200, Ingo Molnar wrote:
+>> +		if (!cpus_equal(current->cpus_allowed, irq_affinity[irq]));
+>> +			set_cpus_allowed(current, irq_affinity[irq]);
 > 
-> Obviously that would be tricky in this case.  But in general it seems
-> like writing an acpi table parser should be  doable.  Couldn't you
-> just search through /dev/mem like dmidecode does?  What's the
-> difficult part?
+> Gah! I introduced a terrible bug there. 
+> 
+> Note the semi-colon at the end of the if statement! Sorry about that!
+> 
+> The following patch (which I've tested as well) fixes that.
+> 
+> --- 2.6-rt/kernel/irq/manage.c	2006-05-11 18:37:36.000000000 -0500
+> +++ dev-rt/kernel/irq/manage.c	2006-05-12 12:55:56.000000000 -0500
+> @@ -724,6 +724,7 @@
+>  		set_current_state(TASK_INTERRUPTIBLE);
+>  		do_hardirq(desc);
+>  		cond_resched_all();
+> +		local_irq_disable();
+>  		__do_softirq();
+>  //		do_softirq_from_hardirq();
+>  		local_irq_enable();
+> @@ -731,10 +732,8 @@
+>  		/*
+>  		 * Did IRQ affinities change?
+>  		 */
+> -		if (!cpu_isset(smp_processor_id(), irq_affinity[irq])) {
+> -			mask = cpumask_of_cpu(any_online_cpu(irq_affinity[irq]));
+> -			set_cpus_allowed(current, mask);
+> -		}
+> +		if(!cpus_equal(current->cpus_allowed, irq_affinity[irq]))
+> +			set_cpus_allowed(current, irq_affinity[irq]);
+>  #endif
+>  		schedule();
+>  	}
+> 
+> 
+> 
+> 
 
-the difficult part is in all the exceptions, quirks and special rules
-the kernel uses (like "don't trust this table if acpi is off", and the
-rules for acpi to not get enabled at runtime are highly complex and
-continuously evolving). 
+FYI,
+
+I just looked at rt21 and the first version of this patch seems to be in
+it. Not this version.
+
+Mark
 

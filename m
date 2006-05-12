@@ -1,119 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbWELMe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWELMik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751270AbWELMe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 08:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWELMe3
+	id S1751267AbWELMik (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 08:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWELMij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 08:34:29 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:25777 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751259AbWELMe2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 08:34:28 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060511104038.4ecad038.akpm@osdl.org> 
-References: <20060511104038.4ecad038.akpm@osdl.org>  <20060510160111.9058.55026.stgit@warthog.cambridge.redhat.com> <20060510160148.9058.81776.stgit@warthog.cambridge.redhat.com> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, steved@redhat.com,
-       trond.myklebust@fys.uio.no, aviro@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 13/14] FS-Cache: Release page->private in failed readahead [try #8] 
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Fri, 12 May 2006 13:34:05 +0100
-Message-ID: <11334.1147437245@warthog.cambridge.redhat.com>
+	Fri, 12 May 2006 08:38:39 -0400
+Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:29930 "EHLO
+	mx1.compro.net") by vger.kernel.org with ESMTP id S1751267AbWELMij
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 08:38:39 -0400
+Message-ID: <446481C8.4090506@compro.net>
+Date: Fri, 12 May 2006 08:38:32 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+User-Agent: Thunderbird 1.5 (X11/20060111)
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Daniel Walker <dwalker@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, johnstul@us.ibm.com
+Subject: Re: rt20 patch question
+References: <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com> <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com> <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com> <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com> <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com> <20060512092159.GC18145@elte.hu>
+In-Reply-To: <20060512092159.GC18145@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
+> 
+>>> one solution would be to forbid disable_irq() from softirq contexts, and
+>>> to convert the vortex timeout function to a workqueue and use the
+>>> *_delayed_work() APIs to drive it - and cross fingers there's not many
+>>> places to fix.
+>> I prefer the above. Maybe even add a WARN_ON(in_softirq()) in 
+>> disable_irq.
+>>
+>> But I must admit, I wouldn't know how to make that change without 
+>> spending more time on it then I have for this.
+> 
+> the simplest fix for now would be to use the _nosync variant in the 
+> vortex timeout function.
+> 
+> Mark, does this fix the problem?
+> 
+> 	Ingo
+> 
+> Index: linux-rt.q/drivers/net/3c59x.c
+> ===================================================================
+> --- linux-rt.q.orig/drivers/net/3c59x.c
+> +++ linux-rt.q/drivers/net/3c59x.c
+> @@ -1897,7 +1897,8 @@ vortex_timer(unsigned long data)
+>  
+>  	if (vp->medialock)
+>  		goto leave_media_alone;
+> -	disable_irq(dev->irq);
+> +	/* hack! */
+> +	disable_irq_nosync(dev->irq);
+>  	old_window = ioread16(ioaddr + EL3_CMD) >> 13;
+>  	EL3WINDOW(4);
+>  	media_status = ioread16(ioaddr + Wn4_Media);
+> 
 
-> The above code is identical to the below code, so a new helper function
-> would be appropriate.
-> ...
-> I think the above will be called against an unlocked page, in which case
-> the ->releasepage() implementation might choose to go BUG, or something.
-> I suppose locking the page here will suffice.
+It looks like it does fix at least the BUG and network disconnection
+problem I am/was seeing. It's been 45 minutes or so without a glitch.
 
-I'll move that bit of code into a helper function, along with the
-page_cache_release() and call it from both places.  I'll also call
-try_to_release_page() as you suggest rather than going directly.  I'll lock
-the page too:
+I'm still not running this in complete preempt mode. Should I see if it
+helps that situation also? It only took a few minutes for that one to
+show up.
 
-static inline void read_cache_pages_release_page(struct address_space *mapping,
-						 struct page *page)
-{
-	if (PagePrivate(page)) {
-		page->mapping = mapping;
-		SetPageLocked(page);
-		try_to_release_page(page, GFP_KERNEL);
-		page->mapping = NULL;
-	}
-
-	page_cache_release(page);
-}
-
-> But it all seems a bit abusive of what ->releasepage() is supposed to do.
-
-Where else should I do it?  I'm using releasepage() to break the association
-that the cache has made with a page.  If I don't do this, the cache may wind
-up retaining metadata unnecessarily.
-
-I suppose I could add another address space op to do this, and have
-page_cache_release() check page->mapping->a_ops->destroypage(), and then force
-the mapping to be passed through to page_cache_release() where necessary.
-
-> add_to_page_cache() won't set PagePrivate() anyway, so what point is there
-> in the first hunk?
-
-The PagePrivate() bit is already set before read_cache_pages() is called.
-What happens is that the cache is invoked first: it sets to read any pages it
-can satisfy from the data it holds, and marks those pages for which it has
-allocated buffer space; the unsatisfied pages are then returned to NFS, which
-then calls read_cache_pages() to invoke readpage() serially - but if any pages
-get discarded, the cache metadata _also_ needs to be discarded.
-
-> For the second hunk, is it not possible to do this cleanup in the callback
-> function?
-
-Which callback function?  The cleanup must be done before the page is returned
-to the page allocator, and since that is performed by read_cache_pages(), in
-read_cache_pages() the cleanup must be done.  The other option is to not use
-read_cache_pages(), I suppose.
-
-> If read_cache_pages() needs this treatment, shouldn't we also do it in
-> read_pages()?
-
-Because read_pages() doesn't give the filesystem a chance to know about pages
-between it allocating them and it releasing them when add_to_page_cache()
-fails.  Although it calls readpage(), if that fails it should clean up for
-itself.
-
-read_cache_pages() does not allocate the pages for itself.  It's called from a
-filesystem's readpages() op, which gives the filesystem ample opportunity to
-know about the pages that read_pages() doesn't afford it.
-
-> And in mpage_readpages()?
-
-mpage_readpages() uses PG_private for its own purposes, and so keying on that
-for any purpose but holding buffers is impossible, and if mpage_readpages()
-needs to clean those up, it must do so already.
-
-However, you've raised a good point, and it's one that'll need to be solved if
-I want to do caching on ISOFS and suchlike.
-
-> Again, as this appears to be some special treatment for cachefs wouldn't it
-> be better to keep this special handling within cachefs?
-
-How?  CacheFS can't practically monitor the pages it has been told about just
-in case they've been given back.  The netfs has to drive that end of things.
-
-I could copy read_cache_pages() and place that in fscache and change it
-thusly, but there's no requirement that a netfs should use PG_private for
-marking cached pages - that just happens to be the way I've done it in NFS and
-AFS, but it can't be the way I do it in ISOFS.
-
-Out of interest, why do we need PG_private to say there's something in
-page->private?  Can't it just be assumed either that if page->private is
-non-zero or that if a_ops->releasepage() is non-NULL, then we need to
-"release" the page?
-
-David
+Mark

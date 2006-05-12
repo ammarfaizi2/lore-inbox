@@ -1,56 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWELOn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWELOqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWELOn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 10:43:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWELOn0
+	id S932107AbWELOqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 10:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWELOqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 10:43:26 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:62946 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932105AbWELOnZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 10:43:25 -0400
-Date: Fri, 12 May 2006 16:43:05 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Andrew Morton <akpm@osdl.org>, markh@compro.net,
-       LKML <linux-kernel@vger.kernel.org>, dwalker@mvista.com,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: 3c59x vortex_timer rt hack (was: rt20 patch question)
-Message-ID: <20060512144305.GA4683@elte.hu>
-References: <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com> <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com> <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com> <20060512092159.GC18145@elte.hu> <Pine.LNX.4.58.0605120904110.30264@gandalf.stny.rr.com> <20060512071645.6b59e0a2.akpm@osdl.org> <Pine.LNX.4.58.0605121029540.30264@gandalf.stny.rr.com> <Pine.LNX.4.58.0605121036150.30264@gandalf.stny.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0605121036150.30264@gandalf.stny.rr.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 12 May 2006 10:46:09 -0400
+Received: from usaga01-in.huawei.com ([12.129.211.51]:59086 "EHLO
+	usaga01-in.huawei.com") by vger.kernel.org with ESMTP
+	id S932107AbWELOqI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 10:46:08 -0400
+Date: Fri, 12 May 2006 20:16:03 +0530
+From: jimmy <jimmyb@huawei.com>
+Subject: Re: Linux poll() <sigh> again
+In-reply-to: <44649C85.5000704@shaw.ca>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <44649FAB.4080806@huawei.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+References: <6bkl7-56Y-11@gated-at.bofh.it> <4463D1E4.5070605@shaw.ca>
+ <Pine.LNX.4.61.0605120745050.8670@chaos.analogic.com>
+ <44649C85.5000704@shaw.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> Use this patch instead.  It needs an irq disable.  But, believe it or 
-> not, on SMP this is actually better.  If the irq is shared (as it is 
-> in Mark's case), we don't stop the irq of other devices from being 
-> handled on another CPU (unfortunately for Mark, he pinned all 
-> interrupts to one CPU).
+Robert Hancock wrote:
+> linux-os (Dick Johnson) wrote:
+>>> POLLHUP means "The device has been disconnected." This would obviously
+>>> be appropriate for a device such as a serial line or TTY, etc. but for a
+>>> socket it is less obvious that this return value is appropriate.
+>>>
+>>
+>> Hardly "less obvious". SunOs has returned POLLHUP as has other
+>> Unixes like Interactive, from which the software was ported. It
+>> went from Interactive, to SunOs, to Linux. Linux was the first
+>> OS that required the hack. This was reported several years ago
+>> and I was simply excoriated for having the audacity to report
+>> such a thing. So, I just implemented a hack. Now the hack is
+>> biting me. It's about time for poll() to return the correct
+>> stuff.
 > 
-> Andrew,
+> The standard doesn't require that a close on a socket should report 
+> POLLHUP. Thus this behavior may differ between UNIX implementations. If 
+> your software is requiring a POLLHUP to indicate the socket is closed I 
+> think it is being unnecessarily picky since read returning 0 universally 
+> indicates that the connection has been closed. Such are the compromises 
+> that are sometimes required to write portable software.
 > 
-> should this be changed in mainline too?
+>>
+>>>> I have used the subsequent read() with a returned
+>>>> value of zero, to indicate that the client disconnected
+>>>> (as a work around). However, on recent versions of
+>>>> Linux, this is not reliable and the read() may
+>>>> wait forever instead of immediately returning.
+>>> If you want nonblocking behavior, you should set the socket to
+>>> nonblocking. This is a bit strange though, unless the data was stolen by
+>>> another thread or something. Are you sure you've seen this?
+>>
+>> I don't use threads. The hang under the specified conditions was first
+>> observed on 2.6.16.4 (that I'm running on this system). The hack, 
+>> previously
+>> used, i.e., the read of zero was used since 2.4.x with success except 
+>> it's
+>> a hack and shouldn't be required. It was not ever required on SunOs from
+>> which the software was ported.
 > 
-> -- Steve
+> This may be a bug somewhere.. however, once again if you don't want read 
+> to block under any circumstances, set your sockets to non-blocking!
 > 
-> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+But that's another hack. AFAICS why ppl (mostly) use select/poll wud be 
+to know if their send/recv/read/write would go thru rather than getting 
+blocked!
 
-yeah, would be nice to have this upstream too. It's not urgent so can go 
-post-2.6.17. I've added it to the -rt tree.
 
-	Ingo
+-jb
+-- 
+Only two things are infinite, the universe and human stupidity, and I'm 
+not sure about the former. - Albert Einstein

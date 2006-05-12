@@ -1,90 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbWELP0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWELPb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932135AbWELP0y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 11:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWELP0y
+	id S932101AbWELPb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 11:31:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWELPb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 11:26:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:63413 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932135AbWELP0x (ORCPT
+	Fri, 12 May 2006 11:31:56 -0400
+Received: from mail.gmx.net ([213.165.64.20]:43977 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932141AbWELPbz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 11:26:53 -0400
-Date: Fri, 12 May 2006 08:23:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: mingo@elte.hu, markh@compro.net, linux-kernel@vger.kernel.org,
-       dwalker@mvista.com, tglx@linutronix.de
-Subject: Re: 3c59x vortex_timer rt hack (was: rt20 patch question)
-Message-Id: <20060512082340.3e169128.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0605121110320.3328@gandalf.stny.rr.com>
-References: <4460ADF8.4040301@compro.net>
-	<Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
-	<4461E53B.7050905@compro.net>
-	<Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
-	<446207D6.2030602@compro.net>
-	<Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
-	<44623157.9090105@compro.net>
-	<Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com>
-	<20060512081628.GA26736@elte.hu>
-	<Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
-	<20060512092159.GC18145@elte.hu>
-	<Pine.LNX.4.58.0605120904110.30264@gandalf.stny.rr.com>
-	<20060512071645.6b59e0a2.akpm@osdl.org>
-	<Pine.LNX.4.58.0605121029540.30264@gandalf.stny.rr.com>
-	<Pine.LNX.4.58.0605121036150.30264@gandalf.stny.rr.com>
-	<20060512074929.031d4eaf.akpm@osdl.org>
-	<Pine.LNX.4.58.0605121110320.3328@gandalf.stny.rr.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 12 May 2006 11:31:55 -0400
+X-Authenticated: #14349625
+Subject: Re: swapping and oom-killer: gfp_mask=0x201d2, order=0
+From: Mike Galbraith <efault@gmx.de>
+To: Al Boldi <a1426z@gawab.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200605121517.59988.a1426z@gawab.com>
+References: <200605111514.45503.a1426z@gawab.com>
+	 <1147412910.8432.14.camel@homer>  <200605121517.59988.a1426z@gawab.com>
+Content-Type: text/plain
+Date: Fri, 12 May 2006 17:31:53 +0200
+Message-Id: <1147447913.7520.6.camel@homer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt <rostedt@goodmis.org> wrote:
->
-> 
-> On Fri, 12 May 2006, Andrew Morton wrote:
-> 
-> >
-> > So yes, doing spin_lock_irq() (irqrestore isn't needed in a timer handler)
-> > instead of disable_irq() in vortex_timer() looks OK.
-> >
-> > One does wonder how long we'll hold off interrupts though.
-> 
-> Any longer than this!
-> 
-> in boomerang_start_xmit()
-> 
-> 	spin_lock_irqsave(&vp->lock, flags);
-> 
-> 	/* Wait for the stall to complete. */
-> 	issue_and_wait(dev, DownStall);
-> 
->   Pretty big wait!
-> 
->     [...]
-> 
-> 	spin_unlock_irqrestore(&vp->lock, flags);
-> 
-> 
-> Where we have in issue_and_wait
-> 
-> static void
-> issue_and_wait(struct net_device *dev, int cmd)
-> {
-> 
->  [...]
-> 
-> 	/* OK, that didn't work.  Do it the slow way.  One second */
-> 	for (i = 0; i < 100000; i++) {
-> 
->  [...]
-> }
-> 
-> So this can have interrupts off for over a second!
-> 
+On Fri, 2006-05-12 at 15:17 +0300, Al Boldi wrote:
+> Note that this is not specific to mem=8M, but rather a general oom 
+> observation even for mem=4G, where it is only much later to occur.
 
-Well, only if the hardware's fratzed.  Normally this is quick.
+An oom situation with 4G ram would be more interesting than this one.
 
-otoh vortex_timer() will play with the MII interface, which is slooooow.
+	-Mike
+
+
+

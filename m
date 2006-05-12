@@ -1,70 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWELKLv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWELKMG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbWELKLv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 06:11:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWELKLu
+	id S1751109AbWELKMG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 06:12:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWELKMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 06:11:50 -0400
-Received: from vvv.conterra.de ([212.124.44.162]:61317 "EHLO conterra.de")
-	by vger.kernel.org with ESMTP id S1751113AbWELKLu (ORCPT
+	Fri, 12 May 2006 06:12:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13776 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751109AbWELKMC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 06:11:50 -0400
-Message-ID: <44645F5A.7000209@conterra.de>
-Date: Fri, 12 May 2006 12:11:38 +0200
-From: =?UTF-8?B?RGlldGVyIFN0w7xrZW4=?= <stueken@conterra.de>
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>, hzhong@gmail.com
-Subject: Re: ext3 metadata performace
-References: <4463461C.3070201@conterra.de> <44642CBD.4000305@aitel.hist.no>
-In-Reply-To: <44642CBD.4000305@aitel.hist.no>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 12 May 2006 06:12:02 -0400
+Date: Fri, 12 May 2006 03:08:55 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: pbadari@us.ibm.com, linux-kernel@vger.kernel.org, hch@lst.de,
+       bcrl@kvack.org, cel@citi.umich.edu
+Subject: Re: [PATCH 1/4] Vectorize aio_read/aio_write methods
+Message-Id: <20060512030855.65651bb5.akpm@osdl.org>
+In-Reply-To: <20060512030309.3a94bea8.akpm@osdl.org>
+References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>
+	<1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
+	<1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com>
+	<1147361939.12117.12.camel@dyn9047017100.beaverton.ibm.com>
+	<20060512030309.3a94bea8.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> Dieter Stüken wrote:
->> Would it be make sense for ext3, to disable synchronous writes even
->> for metadata (similar to the "data=writeback" option)?
-> 
-> Turning off synchronous writes like this won't work!
-> The battery-backed cache can help you in that you can consider
-> data "written" once it is transferred to that cache.  Metadata must still
-> go synchronously into the cache though, or you get a broken fs
-> if ever your machine crash in the middle of a transaction. (Leaving
-> an update halfway in that battery cache, and halfway in main memory.
-> Then main memory dies from the power cut / reboot.)
-> 
-> The caching controller should report back to the linux device driver
-> that "data is committed" as soon as it hits the cache - no need to
-> wait for it to actually hit the platters.  This can help performance with
-> bursty writes tremendously - but it won't help you with long-lasting writes
-> as you will then be limited by platter speed as soon as the battery cache
-> is completely full.
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> Please send fix.
 
-The battery buffered cache is about 100Mb compared to 8k or 16k of the
-disk buffer cache itself. So it won't become full that fast...
+On second thoughts, I'll drop them all.  Too many fixups, this code needs
+more work.
 
-I just tested the same with my other controller (a 3ware 9550SX) which
-has an option to configure explicitly if a write is acknowledged as
-soon as the data is saved to the (buffered) memory or if it will delay
-the acknowledge until data got written to disk. So this is similar to
-enabling/disabling the disk cache on a plain disk. I did not found a
-way to configure this on my older 3ware 9500S controller, even if it
-has a battery backup, too (will ask 3ware about this).
+Please ensure that the next version passes allmodconfig without adding any
+new warnings on both 32-bit and 64-bit compilers, thanks.
 
-Hua Zhong wrote:
->> If you mean the disk cache is reliable with the battery, then it 
- >> should be done by the block layer that a write barrier doesn't
->> translate into a SYNC (or whatever it is called). Instead, data is 
- >> considered synced to disk as soon as it hits the cache.
->> 
->> It's really nothing to do with EXT3. It's doing the right thing.
-
-I read something about "write barriers", but I don't know if these are
-already used by my current 2.6.15 (I may try to use the actual kernel
-tomorrow). Is there a difference between a SATA disk and a SCSI disk?
-(which is emulated by my 3Ware controllers).
-
-Dieter.

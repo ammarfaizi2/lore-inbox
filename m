@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWELUoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWELUvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbWELUoL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 16:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWELUoL
+	id S932237AbWELUvN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 16:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbWELUvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 16:44:11 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:4042
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932233AbWELUoK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 16:44:10 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: bcm43xx-dev@lists.berlios.de
-Subject: Re: [patch 9/9] Add bcm43xx HW RNG support
-Date: Fri, 12 May 2006 22:51:52 +0200
-User-Agent: KMail/1.9.1
-References: <20060512103522.898597000@bu3sch.de> <20060512103649.060196000@bu3sch.de> <200605121816.55025.vda@ilport.com.ua>
-In-Reply-To: <200605121816.55025.vda@ilport.com.ua>
-Cc: akpm@osdl.org, Deepak Saxena <dsaxena@plexity.net>,
-       bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org,
-       Sergey Vlasov <vsu@altlinux.ru>
+	Fri, 12 May 2006 16:51:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2488 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932065AbWELUvM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 16:51:12 -0400
+Date: Fri, 12 May 2006 13:50:46 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Erik Mouw <erik@harddisk-recovery.com>,
+       Or Gerlitz <or.gerlitz@gmail.com>, linux-scsi@vger.kernel.org,
+       axboe@suse.de, Andrew Vasquez <andrew.vasquez@qlogic.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <gregkh@suse.de>
+Subject: Re: [BUG 2.6.17-git] kmem_cache_create: duplicate cache scsi_cmd_cache
+In-Reply-To: <20060512203850.GC17120@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0605121346060.3866@g5.osdl.org>
+References: <20060511151456.GD3755@harddisk-recovery.com>
+ <15ddcffd0605112153q57f139a1k7068e204a3eeaf1f@mail.gmail.com>
+ <20060512171632.GA29077@harddisk-recovery.com> <Pine.LNX.4.64.0605121024310.3866@g5.osdl.org>
+ <1147456038.3769.39.camel@mulgrave.il.steeleye.com>
+ <1147460325.3769.46.camel@mulgrave.il.steeleye.com>
+ <Pine.LNX.4.64.0605121209020.3866@g5.osdl.org> <20060512203850.GC17120@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605122251.52561.mb@bu3sch.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 May 2006 17:16, Denis Vlasenko wrote:
-> On Friday 12 May 2006 13:35, Michael Buesch wrote:
-> > +static int bcm43xx_rng_read(struct hwrng *rng, u32 *data)
-> > +{
-> > +	struct bcm43xx_private *bcm = (struct bcm43xx_private *)rng->priv;
-> > +	unsigned long flags;
-> > +
-> > +	bcm43xx_lock(bcm, flags);
-> > +	*data = bcm43xx_read16(bcm, BCM43xx_MMIO_RNG);
-> 
-> You are storing random 16-bit value _and_ 16 zero bits
-> into 32-bit memory location. Probably not a problem for
-> little-endian machine (you return 2, indicating that there
-> are only 2 bytes of randomness), but on big endian?
-> 
-> Didn't you mean
-> 
-> 	*(u16*)data = bcm43xx_read16(bcm, BCM43xx_MMIO_RNG); ?
 
 
-Nope, the code is correct.
+On Fri, 12 May 2006, Russell King wrote:
+> 
+> Great, I'm fucked by the SCSI folk again.
 
--- 
-Greetings Michael.
+No, you introduced a regression. This isn't the SCSI layer being evil, 
+this is the "regressions aren't acceptable".
+
+Fixing one bug and introducing another is actively _worse_ than having the 
+same bug stay around.
+
+> Can we revert the patch which broke the MMC/SD layer - the one which
+> added the mount/unmount hotplug events as well then.
+> 
+> That way we get back to a working MMC/SD layer as well as a working
+> SCSI layer.
+
+That's certainly the logical fix - push the pain up the chain to the 
+person who introduced it. Which commit is that, do you know?
+
+Really, the added ref-count should be gotten by whoever holds on to the 
+thing, and it sounds like it's the hotplug event that caused this and 
+should have held on to its hotplug reference.
+
+Greg added to the Cc: list in case he already knows off-hand which commit 
+it is..
+
+		Linus

@@ -1,99 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWELOcQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWELOdf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWELOcQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 10:32:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWELOcQ
+	id S932096AbWELOdf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 10:33:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWELOdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 10:32:16 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:35550 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932095AbWELOcP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 10:32:15 -0400
-Date: Fri, 12 May 2006 10:32:00 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Andrew Morton <akpm@osdl.org>
-cc: mingo@elte.hu, markh@compro.net, linux-kernel@vger.kernel.org,
-       dwalker@mvista.com, tglx@linutronix.de
-Subject: Re: 3c59x vortex_timer rt hack (was: rt20 patch question)
-In-Reply-To: <20060512071645.6b59e0a2.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0605121029540.30264@gandalf.stny.rr.com>
-References: <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
- <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
- <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
- <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com>
- <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
- <20060512092159.GC18145@elte.hu> <Pine.LNX.4.58.0605120904110.30264@gandalf.stny.rr.com>
- <20060512071645.6b59e0a2.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 May 2006 10:33:35 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:2370 "EHLO
+	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S932096AbWELOde (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 10:33:34 -0400
+Date: Fri, 12 May 2006 08:32:37 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Linux poll() <sigh> again
+In-reply-to: <Pine.LNX.4.61.0605120745050.8670@chaos.analogic.com>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <44649C85.5000704@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <6bkl7-56Y-11@gated-at.bofh.it> <4463D1E4.5070605@shaw.ca>
+ <Pine.LNX.4.61.0605120745050.8670@chaos.analogic.com>
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+linux-os (Dick Johnson) wrote:
+>> POLLHUP means "The device has been disconnected." This would obviously
+>> be appropriate for a device such as a serial line or TTY, etc. but for a
+>> socket it is less obvious that this return value is appropriate.
+>>
+> 
+> Hardly "less obvious". SunOs has returned POLLHUP as has other
+> Unixes like Interactive, from which the software was ported. It
+> went from Interactive, to SunOs, to Linux. Linux was the first
+> OS that required the hack. This was reported several years ago
+> and I was simply excoriated for having the audacity to report
+> such a thing. So, I just implemented a hack. Now the hack is
+> biting me. It's about time for poll() to return the correct
+> stuff.
 
+The standard doesn't require that a close on a socket should report 
+POLLHUP. Thus this behavior may differ between UNIX implementations. If 
+your software is requiring a POLLHUP to indicate the socket is closed I 
+think it is being unnecessarily picky since read returning 0 universally 
+indicates that the connection has been closed. Such are the compromises 
+that are sometimes required to write portable software.
 
-On Fri, 12 May 2006, Andrew Morton wrote:
+> 
+>>> I have used the subsequent read() with a returned
+>>> value of zero, to indicate that the client disconnected
+>>> (as a work around). However, on recent versions of
+>>> Linux, this is not reliable and the read() may
+>>> wait forever instead of immediately returning.
+>> If you want nonblocking behavior, you should set the socket to
+>> nonblocking. This is a bit strange though, unless the data was stolen by
+>> another thread or something. Are you sure you've seen this?
+> 
+> I don't use threads. The hang under the specified conditions was first
+> observed on 2.6.16.4 (that I'm running on this system). The hack, previously
+> used, i.e., the read of zero was used since 2.4.x with success except it's
+> a hack and shouldn't be required. It was not ever required on SunOs from
+> which the software was ported.
 
-> >
-> > Andrew,
-> >
-> > Do you know off hand what the side-effects to the vortex card might be
-> > if we use disable_irq_nosync instead of disable_irq?
-> >
->
-> ooh, ow, sorry, that's lost in the mists of time.  I don't know why we're
-> doing disable_irq() in there.
->
-> Whatever it does, I think you could take vp->lock instead - that'll stop
-> the interrupt handler from doing anything if it does get entered while this
-> CPU is running vortex_timer().
->
+This may be a bug somewhere.. however, once again if you don't want read 
+to block under any circumstances, set your sockets to non-blocking!
 
-Thanks Andrew, I was thinking about using that lock too.
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-Mark, could you try this instead of the hack, and see if it works.
-
-Thanks,
-
--- Steve
-
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-
-Index: linux-2.6.16-rt20/drivers/net/3c59x.c
-===================================================================
---- linux-2.6.16-rt20.orig/drivers/net/3c59x.c	2006-05-12 10:27:36.000000000 -0400
-+++ linux-2.6.16-rt20/drivers/net/3c59x.c	2006-05-12 10:28:22.000000000 -0400
-@@ -1897,7 +1897,7 @@ vortex_timer(unsigned long data)
-
- 	if (vp->medialock)
- 		goto leave_media_alone;
--	disable_irq(dev->irq);
-+	spin_lock_bh(&vp->lock);
- 	old_window = ioread16(ioaddr + EL3_CMD) >> 13;
- 	EL3WINDOW(4);
- 	media_status = ioread16(ioaddr + Wn4_Media);
-@@ -1919,7 +1919,6 @@ vortex_timer(unsigned long data)
- 		break;
- 	case XCVR_MII: case XCVR_NWAY:
- 		{
--			spin_lock_bh(&vp->lock);
- 			mii_status = mdio_read(dev, vp->phys[0], MII_BMSR);
- 			if (!(mii_status & BMSR_LSTATUS)) {
- 				/* Re-read to get actual link status */
-@@ -1957,7 +1956,6 @@ vortex_timer(unsigned long data)
- 			} else {
- 				netif_carrier_off(dev);
- 			}
--			spin_unlock_bh(&vp->lock);
- 		}
- 		break;
- 	  default:					/* Other media types handled by Tx timeouts. */
-@@ -2000,7 +1998,7 @@ vortex_timer(unsigned long data)
- 		/* AKPM: FIXME: Should reset Rx & Tx here.  P60 of 3c90xc.pdf */
- 	}
- 	EL3WINDOW(old_window);
--	enable_irq(dev->irq);
-+	spin_unlock_bh(&vp->lock);
-
- leave_media_alone:
- 	if (vortex_debug > 2)

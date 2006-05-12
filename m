@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWELS67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbWELTCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751325AbWELS67 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 14:58:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWELS66
+	id S1751298AbWELTCq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 15:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWELTCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 14:58:58 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:24002 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751322AbWELS66 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 14:58:58 -0400
-Subject: Re: [BUG 2.6.17-git] kmem_cache_create: duplicate cache
-	scsi_cmd_cache
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Erik Mouw <erik@harddisk-recovery.com>, Or Gerlitz <or.gerlitz@gmail.com>,
-       linux-scsi@vger.kernel.org, rmk@arm.linux.org.uk, axboe@suse.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1147456038.3769.39.camel@mulgrave.il.steeleye.com>
-References: <20060511151456.GD3755@harddisk-recovery.com>
-	 <15ddcffd0605112153q57f139a1k7068e204a3eeaf1f@mail.gmail.com>
-	 <20060512171632.GA29077@harddisk-recovery.com>
-	 <Pine.LNX.4.64.0605121024310.3866@g5.osdl.org>
-	 <1147456038.3769.39.camel@mulgrave.il.steeleye.com>
-Content-Type: text/plain
-Date: Fri, 12 May 2006 13:58:45 -0500
-Message-Id: <1147460325.3769.46.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Fri, 12 May 2006 15:02:46 -0400
+Received: from ns1.soleranetworks.com ([70.103.108.67]:61327 "EHLO
+	ns1.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S1751298AbWELTCp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 15:02:45 -0400
+Message-ID: <4464E6F5.3000307@wolfmountaingroup.com>
+Date: Fri, 12 May 2006 13:50:13 -0600
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: John Kelly <jak@isp2dial.com>, linux-kernel@vger.kernel.org
+Subject: Re: + deprecate-smbfs-in-favour-of-cifs.patch added to -mm tree
+References: <200605110717.k4B7HuVW006999@shell0.pdx.osdl.net> <20060511175143.GH25646@redhat.com> <Pine.LNX.4.61.0605121243460.9918@yvahk01.tjqt.qr> <200605121619.k4CGJCtR004972@isp2dial.com> <Pine.LNX.4.58.0605121222070.5579@gandalf.stny.rr.com> <200605121630.k4CGUuiU005025@isp2dial.com> <Pine.LNX.4.61.0605121936040.20382@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0605121936040.20382@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-05-12 at 12:47 -0500, James Bottomley wrote:
-> I'll look at the release paths and see if I can work out what it is.
+>
+>
+>>Why drag around old worn out baggage in new kernels?
+>>
+>>    
+>>
+If we follow this logic, then.
 
-OK, here's the scoop.  The problem patch adds a get of driverfs_dev in
-add_disk(), but doesn't put it again until disk_release() (which occurs
-on final put_disk() of the gendisk).
+"LKML == Wikipedia"
 
-However, in SCSI, the driverfs_dev is the sdev_gendev.  That means
-there's a reference held on sdev_gendev  until final disk put.
-Unfortunately, we use the driver model driver_remove to trigger
-del_gendisk (which removes the gendisk from visibility and decrements
-the refcount), so we've introduced an unbreakable deadlock in the
-reference counting with this.
+"Your contributions can be reverted and removed at any time by any editor."
 
-I suggest simply reversing this patch at the moment.  If Russell and
-Jens can tell me what they're trying to do I'll see if there's another
-way to do it.
+So why contribute in the first place?
 
-James
+Leave smbfs. The author worked his butt off and contributed to Linux 
+with some very useful technology,
+and leave his name in contributors.
+
+Jeff
+
+
 
 

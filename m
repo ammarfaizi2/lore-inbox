@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWELPwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWELQBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbWELPwe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 11:52:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbWELPwe
+	id S932141AbWELQBD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 12:01:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWELQBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 11:52:34 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:43274 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932139AbWELPwd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 11:52:33 -0400
-MIME-Version: 1.0
+	Fri, 12 May 2006 12:01:03 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16577 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751227AbWELQBC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 12:01:02 -0400
+Date: Fri, 12 May 2006 09:03:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: mingo@elte.hu, markh@compro.net, linux-kernel@vger.kernel.org,
+       dwalker@mvista.com, tglx@linutronix.de
+Subject: Re: 3c59x vortex_timer rt hack (was: rt20 patch question)
+Message-Id: <20060512090323.252d8600.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0605121136060.4281@gandalf.stny.rr.com>
+References: <4460ADF8.4040301@compro.net>
+	<Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
+	<4461E53B.7050905@compro.net>
+	<Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
+	<446207D6.2030602@compro.net>
+	<Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
+	<44623157.9090105@compro.net>
+	<Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com>
+	<20060512081628.GA26736@elte.hu>
+	<Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
+	<20060512092159.GC18145@elte.hu>
+	<Pine.LNX.4.58.0605120904110.30264@gandalf.stny.rr.com>
+	<20060512071645.6b59e0a2.akpm@osdl.org>
+	<Pine.LNX.4.58.0605121029540.30264@gandalf.stny.rr.com>
+	<Pine.LNX.4.58.0605121036150.30264@gandalf.stny.rr.com>
+	<20060512074929.031d4eaf.akpm@osdl.org>
+	<Pine.LNX.4.58.0605121110320.3328@gandalf.stny.rr.com>
+	<20060512082340.3e169128.akpm@osdl.org>
+	<Pine.LNX.4.58.0605121136060.4281@gandalf.stny.rr.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 12 May 2006 15:52:32.0284 (UTC) FILETIME=[1470F5C0:01C675DC]
-Content-class: urn:content-classes:message
-Subject: Re: mlock into kernel module
-Date: Fri, 12 May 2006 11:52:31 -0400
-Message-ID: <Pine.LNX.4.61.0605121148001.9467@chaos.analogic.com>
-In-Reply-To: <4464A819.2050706@gmail.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: mlock into kernel module
-Thread-Index: AcZ13BSLJYwamonYRTK4zaOtWKqeWw==
-References: <4464A819.2050706@gmail.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "sej.kernel" <sej.kernel@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> 
+> On Fri, 12 May 2006, Andrew Morton wrote:
+> 
+> >
+> > Well, only if the hardware's fratzed.  Normally this is quick.
+> >
+> > otoh vortex_timer() will play with the MII interface, which is slooooow.
+> >
+> 
+> The vortex_timer is a timeout,
 
-On Fri, 12 May 2006, sej.kernel wrote:
+err, it's actually a function.
 
-> Hello,
-> I need to use mlock and munlock function into a kernel module. How so
-> I call this system call from my module ?
-> I need to do this because I must use mlock in my software, but I can't
-> use root or suser to start it. So mlock alwaays fail.
-> Regards,
-> sej
+> will it go off often?
 
-You don't call mlock from a module. You can lock down pages inside
-your module by using non-paged RAM. This can be accessed from user-space
-by implimenting mmap() in your module so that the user-code can
-memory-map it. That way, the page(s) you have allocated in the
-kernel are never swapped.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
-New book: http://www.lymanschool.com
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+Every five seconds if the cable's unplugged.  Every 60 seconds otherwise.

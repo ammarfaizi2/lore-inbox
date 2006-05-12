@@ -1,77 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWELPWd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWELPWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbWELPWd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 11:22:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbWELPWc
+	id S932132AbWELPWH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 11:22:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWELPWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 11:22:32 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:29845 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932130AbWELPWX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 11:22:23 -0400
-Date: Fri, 12 May 2006 11:22:07 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Andrew Morton <akpm@osdl.org>
-cc: mingo@elte.hu, markh@compro.net, linux-kernel@vger.kernel.org,
-       dwalker@mvista.com, tglx@linutronix.de
-Subject: Re: 3c59x vortex_timer rt hack (was: rt20 patch question)
-In-Reply-To: <20060512074929.031d4eaf.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0605121110320.3328@gandalf.stny.rr.com>
-References: <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
- <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
- <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
- <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com>
- <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
- <20060512092159.GC18145@elte.hu> <Pine.LNX.4.58.0605120904110.30264@gandalf.stny.rr.com>
- <20060512071645.6b59e0a2.akpm@osdl.org> <Pine.LNX.4.58.0605121029540.30264@gandalf.stny.rr.com>
- <Pine.LNX.4.58.0605121036150.30264@gandalf.stny.rr.com>
- <20060512074929.031d4eaf.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 May 2006 11:22:07 -0400
+Received: from tayrelbas01.tay.hp.com ([161.114.80.244]:12493 "EHLO
+	tayrelbas01.tay.hp.com") by vger.kernel.org with ESMTP
+	id S932129AbWELPWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 11:22:05 -0400
+Date: Fri, 12 May 2006 08:15:37 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: perfmon@napali.hpl.hp.com
+Cc: linux-ia64@vger.kernel.org, perfctr-devel@lists.sourceforge.net,
+       oprofile-list@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: 2.6.17-rc4 new perfmon code base + libpfm available
+Message-ID: <20060512151537.GA26310@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On Fri, 12 May 2006, Andrew Morton wrote:
+I have released another version of the perfmon new code base package.
+This release is relative to 2.6.17-rc4
 
->
-> So yes, doing spin_lock_irq() (irqrestore isn't needed in a timer handler)
-> instead of disable_irq() in vortex_timer() looks OK.
->
-> One does wonder how long we'll hold off interrupts though.
+There were, once again, new system calls added. As such a new libpfm is
+necessary.
 
-Any longer than this!
+This new kernel patch includes a few changes:
 
-in boomerang_start_xmit()
+	- Merged P6 and Pentium M processors PMU description tables.
+	  perfmon_pm.c is mergde into perfmon_p6.c
 
-	spin_lock_irqsave(&vp->lock, flags);
+	- change system call number for all architectures.
 
-	/* Wait for the stall to complete. */
-	issue_and_wait(dev, DownStall);
+This release uses the new/mod patch breakdown for all architectures.
+To apply, you can simply do:
+	cat ../perfmon-new-base-060512/*.diff | patch -p1 
 
-  Pretty big wait!
+The new version of the library, libpfm, includes the following changes:
 
-    [...]
+	- updated to match 2.6.17-rc4 new system call numbers
 
-	spin_unlock_irqrestore(&vp->lock, flags);
+	- enhancement to MIPS support (Phil Mucci)
 
+	- modified internal get_event_code() to get_event_code_counter()
+	  to accomodate PMU where an event code depends on the counter where
+	  it is programmed.
 
-Where we have in issue_and_wait
+	- enhanced P6 CPU detection
 
-static void
-issue_and_wait(struct net_device *dev, int cmd)
-{
+	- preliminary support for the IA-32 architected PMU as described
+	  in the latest version of the IA-32 architecture manuals. You need
+	  a Core Duo/Solo processor for this to work. Note that the architected
+	  PMU for those models only gives access to a subset of the features.
 
- [...]
+I do not have a Core Duo machine myself so I could not actually test this code.
+I would appreciate if somebody could test the libpfm examples on such machine and
+report back to me. I am glad to see that IA-32 finally has the beginning of an
+architected PMU.
 
-	/* OK, that didn't work.  Do it the slow way.  One second */
-	for (i = 0; i < 100000; i++) {
+You can grab the new packages at our web site: http://perfmon2.sf.net
 
- [...]
-}
+It looks like SF.net is close to fixing the CVS outage. When that happens I will be
+able to populate the repository for both libpfm and pfmon.
 
-So this can have interrupts off for over a second!
+I will post a clear text patch to lkml shortly.
 
--- Steve
+Enjoy,
 
+-- 
+-Stephane

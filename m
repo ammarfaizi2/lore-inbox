@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWELJQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWELJSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751095AbWELJQR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 05:16:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWELJQR
+	id S1751096AbWELJSv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 05:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWELJSv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 05:16:17 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:50639 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751095AbWELJQR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 05:16:17 -0400
-Date: Fri, 12 May 2006 11:16:02 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Mark Hounschell <markh@compro.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Daniel Walker <dwalker@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: rt20 patch question
-Message-ID: <20060512091602.GB18145@elte.hu>
-References: <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com> <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com> <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com> <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com> <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 12 May 2006 05:18:51 -0400
+Received: from webapps.arcom.com ([194.200.159.168]:64525 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S1751097AbWELJSu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 05:18:50 -0400
+Message-ID: <446452F5.10909@cantab.net>
+Date: Fri, 12 May 2006 10:18:45 +0100
+From: David Vrabel <dvrabel@cantab.net>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: "Thomas Kleffel (maintech GmbH)" <tk@maintech.de>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       linux-pcmcia@lists.infradead.org, Iain Barker <ibarker@aastra.com>
+Subject: Re: [PATCH] ide_cs: Make ide_cs work with the memory space of CF-Cards
+ if IO space is not available (2nd revision)
+References: <44629D10.80803@maintech.de> <1147362779.26130.45.camel@localhost.localdomain> <44643B80.5080109@maintech.de>
+In-Reply-To: <44643B80.5080109@maintech.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 May 2006 09:18:45.0377 (UTC) FILETIME=[11B50F10:01C675A5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Steven Rostedt <rostedt@goodmis.org> wrote:
-
+Thomas Kleffel (maintech GmbH) wrote:
 > 
-> On Fri, 12 May 2006, Ingo Molnar wrote:
-> 
-> >
-> > > So I guess we have a case that we can schedule, but while atomic and
-> > > BUG when it's really not bad.  Should we add something like this:
-> >
-> > that's not good enough, we must not schedule with the preempt_count()
-> > set.
-> 
-> It gets even worse, with your new fix, the softirq will schedule with 
-> interrutps disabled, which would definitely BUG.
+> +void outb_io(unsigned char value, unsigned long port) {
+> +	outb(value, port);
+> +}
+> +
+> +void outb_mem(unsigned char value, unsigned long port) {
+> +	writeb(value, (void __iomem *) port);
+>  }
 
-i dont think so. Calling __do_softirq() with hardirqs disabled is not a 
-problem, it does an explicit local_irq_enable().
+[...]
 
-	Ingo
+> +    if(is_mmio) 
+> +    	my_outb = outb_mem;
+> +    else
+> +    	my_outb = outb_io;
+
+
+Shouldn't you convert ide_cs to use iowrite8 (and friends) instead of
+doing this?
+
+David Vrabel

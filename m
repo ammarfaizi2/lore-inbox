@@ -1,69 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWELMY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbWELMe3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750961AbWELMY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 08:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWELMY1
+	id S1751270AbWELMe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 08:34:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWELMe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 08:24:27 -0400
-Received: from smtp2.wanadoo.fr ([193.252.22.29]:53859 "EHLO smtp2.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S1750961AbWELMY0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 08:24:26 -0400
-X-ME-UUID: 20060512122425741.1208F1C00467@mwinf0201.wanadoo.fr
-Message-ID: <44647E6D.7080905@cosmosbay.com>
-Date: Fri, 12 May 2006 14:24:13 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC, PATCH] cond_resched() added to close_files()
-References: <20060419112130.GA22648@elte.hu> <44577822.8050103@mbligh.org> <20060502155244.GA5981@elte.hu> <200605022155.31990.dada1@cosmosbay.com> <20060503070152.GB23921@elte.hu> <20060512024446.00a0b407.akpm@osdl.org> <20060512102057.GA22985@elte.hu>
-In-Reply-To: <20060512102057.GA22985@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+	Fri, 12 May 2006 08:34:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:25777 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751259AbWELMe2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 08:34:28 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060511104038.4ecad038.akpm@osdl.org> 
+References: <20060511104038.4ecad038.akpm@osdl.org>  <20060510160111.9058.55026.stgit@warthog.cambridge.redhat.com> <20060510160148.9058.81776.stgit@warthog.cambridge.redhat.com> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, steved@redhat.com,
+       trond.myklebust@fys.uio.no, aviro@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 13/14] FS-Cache: Release page->private in failed readahead [try #8] 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Fri, 12 May 2006 13:34:05 +0100
+Message-ID: <11334.1147437245@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar a écrit :
-> * Andrew Morton <akpm@osdl.org> wrote:
->
->   
->> Makes my machine hang early during the startup of init.
->>
->> The last process to pass through close_file() is `hostname', presuably 
->> parented by init.  `hostname' exits then everything stops.  init is 
->> left sleeping in select().
->>
->> All very strange.
->>     
->
-> weird. This really shouldnt cause a hang - i think there must be a bug 
-> hiding elsewhere, this cond_resched() ought to be fine.
->
-> 	Ingo
->
->   
-Maybe a process is now awaken because of a closed pipe, instead of a SIGCHLD
+Andrew Morton <akpm@osdl.org> wrote:
 
-Process A, father/parent of process B. They share a pipe (A reads the 
-pipe, B writes to)
+> The above code is identical to the below code, so a new helper function
+> would be appropriate.
+> ...
+> I think the above will be called against an unlocked page, in which case
+> the ->releasepage() implementation might choose to go BUG, or something.
+> I suppose locking the page here will suffice.
 
-Before
+I'll move that bit of code into a helper function, along with the
+page_cache_release() and call it from both places.  I'll also call
+try_to_release_page() as you suggest rather than going directly.  I'll lock
+the page too:
 
-Process B exits, "atomically close all of its files and sending a SIGCLD 
-to its parent"
-Process A catch the SIGCLD.
+static inline void read_cache_pages_release_page(struct address_space *mapping,
+						 struct page *page)
+{
+	if (PagePrivate(page)) {
+		page->mapping = mapping;
+		SetPageLocked(page);
+		try_to_release_page(page, GFP_KERNEL);
+		page->mapping = NULL;
+	}
 
-After :
-Process B exits "close its files (and the pipe), reschedule before final 
-SIGCLD"
-Process A gets the POLLIN/POLLHUP indication on the pipe -> Another code 
-path is run and may trigger a user side bug ?
+	page_cache_release(page);
+}
 
+> But it all seems a bit abusive of what ->releasepage() is supposed to do.
 
-Eric
+Where else should I do it?  I'm using releasepage() to break the association
+that the cache has made with a page.  If I don't do this, the cache may wind
+up retaining metadata unnecessarily.
 
+I suppose I could add another address space op to do this, and have
+page_cache_release() check page->mapping->a_ops->destroypage(), and then force
+the mapping to be passed through to page_cache_release() where necessary.
 
+> add_to_page_cache() won't set PagePrivate() anyway, so what point is there
+> in the first hunk?
 
+The PagePrivate() bit is already set before read_cache_pages() is called.
+What happens is that the cache is invoked first: it sets to read any pages it
+can satisfy from the data it holds, and marks those pages for which it has
+allocated buffer space; the unsatisfied pages are then returned to NFS, which
+then calls read_cache_pages() to invoke readpage() serially - but if any pages
+get discarded, the cache metadata _also_ needs to be discarded.
 
+> For the second hunk, is it not possible to do this cleanup in the callback
+> function?
+
+Which callback function?  The cleanup must be done before the page is returned
+to the page allocator, and since that is performed by read_cache_pages(), in
+read_cache_pages() the cleanup must be done.  The other option is to not use
+read_cache_pages(), I suppose.
+
+> If read_cache_pages() needs this treatment, shouldn't we also do it in
+> read_pages()?
+
+Because read_pages() doesn't give the filesystem a chance to know about pages
+between it allocating them and it releasing them when add_to_page_cache()
+fails.  Although it calls readpage(), if that fails it should clean up for
+itself.
+
+read_cache_pages() does not allocate the pages for itself.  It's called from a
+filesystem's readpages() op, which gives the filesystem ample opportunity to
+know about the pages that read_pages() doesn't afford it.
+
+> And in mpage_readpages()?
+
+mpage_readpages() uses PG_private for its own purposes, and so keying on that
+for any purpose but holding buffers is impossible, and if mpage_readpages()
+needs to clean those up, it must do so already.
+
+However, you've raised a good point, and it's one that'll need to be solved if
+I want to do caching on ISOFS and suchlike.
+
+> Again, as this appears to be some special treatment for cachefs wouldn't it
+> be better to keep this special handling within cachefs?
+
+How?  CacheFS can't practically monitor the pages it has been told about just
+in case they've been given back.  The netfs has to drive that end of things.
+
+I could copy read_cache_pages() and place that in fscache and change it
+thusly, but there's no requirement that a netfs should use PG_private for
+marking cached pages - that just happens to be the way I've done it in NFS and
+AFS, but it can't be the way I do it in ISOFS.
+
+Out of interest, why do we need PG_private to say there's something in
+page->private?  Can't it just be assumed either that if page->private is
+non-zero or that if a_ops->releasepage() is non-NULL, then we need to
+"release" the page?
+
+David

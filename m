@@ -1,79 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbWELNi4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWELNkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751297AbWELNi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 09:38:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWELNi4
+	id S1751300AbWELNkU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 09:40:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWELNkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 09:38:56 -0400
-Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:62882 "EHLO
-	mx1.compro.net") by vger.kernel.org with ESMTP id S1751297AbWELNi4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 09:38:56 -0400
-Message-ID: <44648FEA.8040301@compro.net>
-Date: Fri, 12 May 2006 09:38:50 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-User-Agent: Thunderbird 1.5 (X11/20060111)
-MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Daniel Walker <dwalker@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, johnstul@us.ibm.com
-Subject: Re: rt20 patch question
-References: <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com> <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com> <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com> <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com> <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com> <20060512092159.GC18145@elte.hu> <446481C8.4090506@compro.net> <Pine.LNX.4.58.0605120854480.30264@gandalf.stny.rr.com>
-In-Reply-To: <Pine.LNX.4.58.0605120854480.30264@gandalf.stny.rr.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 12 May 2006 09:40:20 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:50083 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751300AbWELNkS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 09:40:18 -0400
+Date: Fri, 12 May 2006 15:40:06 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: =?iso-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de
+Subject: Re: [RFC][PATCH RT 1/2] futex_requeue-optimize
+Message-ID: <20060512134006.GB30447@elte.hu>
+References: <20060510112701.7ea3a749@frecb000686> <20060511091541.05160b2c.akpm@osdl.org> <20060512063220.GA630@elte.hu> <1147421427.3969.60.camel@frecb000686> <1147432419.3969.70.camel@frecb000686> <20060512111256.GA27481@elte.hu> <1147439816.3969.81.camel@frecb000686>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1147439816.3969.81.camel@frecb000686>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.6 required=5.9 tests=AWL,SUBJ_HAS_UNIQ_ID autolearn=no SpamAssassin version=3.0.3
+	1.1 SUBJ_HAS_UNIQ_ID       Subject contains a unique ID
+	-0.5 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
-> On Fri, 12 May 2006, Mark Hounschell wrote:
-> 
->> Ingo Molnar wrote:
->>> Mark, does this fix the problem?
->>>
->>> 	Ingo
->>>
-> [...]
->> It looks like it does fix at least the BUG and network disconnection
->> problem I am/was seeing. It's been 45 minutes or so without a glitch.
->>
->> I'm still not running this in complete preempt mode. Should I see if it
->> helps that situation also? It only took a few minutes for that one to
->> show up.
->>
-> 
-> 
-> I was looking at the logdump, but I don't see anything spinning.  CPU 1
-> seems to be constantly running your v67 program (alternating with
-> posix_cpu_timer), and CPU: 0 is still switching with the swapper, along
-> with other tasks, so that this means nothing is just spinning and hogging
-> the CPU (on CPU 0, but I assume the v67 tasks is suppose to keep running).
-> 
-> But, this could mean that something is blocked on a lock, or missed a
-> wakeup somewhere and we block X from responding. Although X is shown up,
-> but some signal to do an event my be prevented.
-> 
-> I wonder if the fact that softirqs are running with preemption enabled, is
-> the problem here.
-> 
-> Could you try the patch that Ingo sent here:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=114741312301909&q=raw
-> 
-> -- Steve
-> 
-> 
 
-If anything this made it worse. I actually got the freezes while just
-booting up the emulation. Once up, the same thing though.
+* Sébastien Dugué <sebastien.dugue@bull.net> wrote:
 
->Mark,
->
-> as Ingo commented, this is a Hack! not a solution.
+>   Queuing to the head would mean that tasks are woken up in LIFO order 
+> (i.e. the last task put to sleep will be the first to be woken up).
+>   I'm not sure that's what people would expect, or am I missing 
+> something here?
 
-Understood.
+hm, indeed, you are right. So a double-linked list head it has to be.
 
-Mark
+	Ingo

@@ -1,273 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWELKdp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWELKdp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbWELKdp (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751148AbWELKdp (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 12 May 2006 06:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWELKd2
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbWELKbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 06:33:28 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:60366
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751148AbWELKbv
+	Fri, 12 May 2006 06:31:49 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:49358
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751148AbWELKbi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 06:31:51 -0400
-X-Mailbox-Line: From mb@bu3sch.de Fri May 12 12:36:49 2006
-Message-Id: <20060512103648.851018000@bu3sch.de>
+	Fri, 12 May 2006 06:31:38 -0400
+X-Mailbox-Line: From mb@bu3sch.de Fri May 12 12:36:48 2006
+Message-Id: <20060512103648.022350000@bu3sch.de>
 References: <20060512103522.898597000@bu3sch.de>
 User-Agent: quilt/0.45-1
-Date: Fri, 12 May 2006 12:35:30 +0200
+Date: Fri, 12 May 2006 12:35:26 +0200
 From: mb@bu3sch.de
 To: akpm@osdl.org
 Cc: Deepak Saxena <dsaxena@plexity.net>, bcm43xx-dev@lists.berlios.de,
        linux-kernel@vger.kernel.org, Sergey Vlasov <vsu@altlinux.ru>
-Subject: [patch 8/9] Add TI OMAP CPU family HW RNG driver
-Content-Disposition: inline; filename=add-omap-hw-random.patch
+Subject: [patch 4/9] Add AMD HW RNG driver
+Content-Disposition: inline; filename=add-amd-hw-random.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Michael Buesch <mb@bu3sch.de>
-Index: hwrng/drivers/char/hw_random/Kconfig
-===================================================================
---- hwrng.orig/drivers/char/hw_random/Kconfig	2006-05-08 00:15:58.000000000 +0200
-+++ hwrng/drivers/char/hw_random/Kconfig	2006-05-08 00:16:02.000000000 +0200
-@@ -74,3 +74,17 @@
- 	  module will be called ixp4xx-rng.
- 
- 	  If unsure, say Y.
-+
-+config HW_RANDOM_OMAP
-+	tristate "OMAP Random Number Generator support"
-+	depends on HW_RANDOM && (ARCH_OMAP16XX || ARCH_OMAP24XX)
-+	default y
-+ 	---help---
-+ 	  This driver provides kernel-side support for the Random Number
-+	  Generator hardware found on OMAP16xx and OMAP24xx multimedia
-+	  processors.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called omap-rng.
-+
-+ 	  If unsure, say Y.
-Index: hwrng/drivers/char/hw_random/Makefile
-===================================================================
---- hwrng.orig/drivers/char/hw_random/Makefile	2006-05-08 00:15:42.000000000 +0200
-+++ hwrng/drivers/char/hw_random/Makefile	2006-05-08 00:16:02.000000000 +0200
-@@ -8,3 +8,4 @@
- obj-$(CONFIG_HW_RANDOM_GEODE) += geode-rng.o
- obj-$(CONFIG_HW_RANDOM_VIA) += via-rng.o
- obj-$(CONFIG_HW_RANDOM_IXP4XX) += ixp4xx-rng.o
-+obj-$(CONFIG_HW_RANDOM_OMAP) += omap-rng.o
-Index: hwrng/drivers/char/hw_random/omap-rng.c
+Index: hwrng/drivers/char/hw_random/amd-rng.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ hwrng/drivers/char/hw_random/omap-rng.c	2006-05-08 00:16:02.000000000 +0200
-@@ -0,0 +1,208 @@
++++ hwrng/drivers/char/hw_random/amd-rng.c	2006-05-08 00:11:52.000000000 +0200
+@@ -0,0 +1,152 @@
 +/*
-+ * driver/char/hw_random/omap-rng.c
-+ *
-+ * RNG driver for TI OMAP CPU family
-+ *
-+ * Author: Deepak Saxena <dsaxena@plexity.net>
++ * RNG driver for AMD RNGs
 + *
 + * Copyright 2005 (c) MontaVista Software, Inc.
 + *
-+ * Mostly based on original driver:
++ * with the majority of the code coming from:
 + *
-+ * Copyright (C) 2005 Nokia Corporation
-+ * Author: Juha Yrj��<juha.yrjola@nokia.com>
++ * Hardware driver for the Intel/AMD/VIA Random Number Generators (RNG)
++ * (c) Copyright 2003 Red Hat Inc <jgarzik@redhat.com>
++ *
++ * derived from
++ *
++ * Hardware driver for the AMD 768 Random Number Generator (RNG)
++ * (c) Copyright 2001 Red Hat Inc <alan@redhat.com>
++ *
++ * derived from
++ *
++ * Hardware driver for Intel i810 Random Number Generator (RNG)
++ * Copyright 2000,2001 Jeff Garzik <jgarzik@pobox.com>
++ * Copyright 2000,2001 Philipp Rumpf <prumpf@mandrakesoft.com>
 + *
 + * This file is licensed under  the terms of the GNU General Public
 + * License version 2. This program is licensed "as is" without any
 + * warranty of any kind, whether express or implied.
-+ *
-+ * TODO:
-+ *
-+ * - Make status updated be interrupt driven so we don't poll
-+ *
 + */
 +
 +#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/random.h>
-+#include <linux/err.h>
-+#include <linux/device.h>
++#include <linux/kernel.h>
++#include <linux/pci.h>
 +#include <linux/hw_random.h>
-+
 +#include <asm/io.h>
-+#include <asm/hardware/clock.h>
 +
-+#define RNG_OUT_REG		0x00		/* Output register */
-+#define RNG_STAT_REG		0x04		/* Status register
-+							[0] = STAT_BUSY */
-+#define RNG_ALARM_REG		0x24		/* Alarm register
-+							[7:0] = ALARM_COUNTER */
-+#define RNG_CONFIG_REG		0x28		/* Configuration register
-+							[11:6] = RESET_COUNT
-+							[5:3]  = RING2_DELAY
-+							[2:0]  = RING1_DELAY */
-+#define RNG_REV_REG		0x3c		/* Revision register
-+							[7:0] = REV_NB */
-+#define RNG_MASK_REG		0x40		/* Mask and reset register
-+							[2] = IT_EN
-+							[1] = SOFTRESET
-+							[0] = AUTOIDLE */
-+#define RNG_SYSSTATUS		0x44		/* System status
-+							[0] = RESETDONE */
 +
-+static void __iomem *rng_base;
-+static struct clk *rng_ick;
-+static struct device *rng_dev;
++#define PFX	KBUILD_MODNAME ": "
 +
-+static u32 omap_rng_read_reg(int reg)
++
++/*
++ * Data for PCI driver interface
++ *
++ * This data only exists for exporting the supported
++ * PCI ids via MODULE_DEVICE_TABLE.  We do not actually
++ * register a pci_driver, because someone else might one day
++ * want to register another driver on the same PCI id.
++ */
++static struct pci_device_id pci_tbl[] = {
++	{ 0x1022, 0x7443, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0, },
++	{ 0x1022, 0x746b, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0, },
++	{ 0, },	/* terminate list */
++};
++MODULE_DEVICE_TABLE (pci, pci_tbl);
++
++static struct pci_dev *amd_pdev;
++
++
++static int amd_rng_data_present(struct hwrng *rng)
 +{
-+	return __raw_readl(rng_base + reg);
++	u32 pmbase = (u32)rng->priv;
++
++      	return !!(inl(pmbase + 0xF4) & 1);
 +}
 +
-+static void omap_rng_write_reg(int reg, u32 val)
++static int amd_rng_data_read(struct hwrng *rng, u32 *data)
 +{
-+	__raw_writel(val, rng_base + reg);
-+}
++	u32 pmbase = (u32)rng->priv;
 +
-+/* REVISIT: Does the status bit really work on 16xx? */
-+static int omap_rng_data_present(struct hwrng *rng)
-+{
-+	return omap_rng_read_reg(RNG_STAT_REG) ? 0 : 1;
-+}
-+
-+static int omap_rng_data_read(struct hwrng *rng, u32 *data)
-+{
-+	*data = omap_rng_read_reg(RNG_OUT_REG);
++	*data = inl(pmbase + 0xF0);
 +
 +	return 4;
 +}
 +
-+static struct hwrng omap_rng_ops = {
-+	.name		= "omap",
-+	.data_present	= omap_rng_data_present,
-+	.data_read	= omap_rng_data_read,
++static int amd_rng_init(struct hwrng *rng)
++{
++	u8 rnen;
++
++	pci_read_config_byte(amd_pdev, 0x40, &rnen);
++	rnen |= (1 << 7);	/* RNG on */
++	pci_write_config_byte(amd_pdev, 0x40, rnen);
++
++	pci_read_config_byte(amd_pdev, 0x41, &rnen);
++	rnen |= (1 << 7);	/* PMIO enable */
++	pci_write_config_byte(amd_pdev, 0x41, rnen);
++
++	return 0;
++}
++
++static void amd_rng_cleanup(struct hwrng *rng)
++{
++	u8 rnen;
++
++	pci_read_config_byte(amd_pdev, 0x40, &rnen);
++	rnen &= ~(1 << 7);	/* RNG off */
++	pci_write_config_byte(amd_pdev, 0x40, rnen);
++}
++
++
++static struct hwrng amd_rng = {
++	.name		= "amd",
++	.init		= amd_rng_init,
++	.cleanup	= amd_rng_cleanup,
++	.data_present	= amd_rng_data_present,
++	.data_read	= amd_rng_data_read,
 +};
 +
-+static int __init omap_rng_probe(struct device *dev)
++
++static int __init mod_init(void)
 +{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct resource *res, *mem;
-+	int ret;
++	int err = -ENODEV;
++	struct pci_dev *pdev = NULL;
++	const struct pci_device_id *ent;
++	u32 pmbase;
 +
-+	/*
-+	 * A bit ugly, and it will never actually happen but there can
-+	 * be only one RNG and this catches any bork
-+	 */
-+	BUG_ON(rng_dev);
-+
-+    	if (cpu_is_omap24xx()) {
-+		rng_ick = clk_get(NULL, "rng_ick");
-+		if (IS_ERR(rng_ick)) {
-+			dev_err(dev, "Could not get rng_ick\n");
-+			ret = PTR_ERR(rng_ick);
-+			return ret;
-+		}
-+		else {
-+			clk_use(rng_ick);
-+		}
++	for_each_pci_dev(pdev) {
++		ent = pci_match_id(pci_tbl, pdev);
++		if (ent)
++			goto found;
 +	}
++	/* Device not found. */
++	goto out;
 +
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++found:
++	err = pci_read_config_dword(pdev, 0x58, &pmbase);
++	if (err)
++		goto out;
++	err = -EIO;
++	pmbase &= 0x0000FF00;
++	if (pmbase == 0)
++		goto out;
++	amd_rng.priv = (unsigned long)pmbase;
++	amd_pdev = pdev;
 +
-+	if (!res)
-+		return -ENOENT;
-+
-+	mem = request_mem_region(res->start, res->end - res->start + 1,
-+				 pdev->name);
-+	if (mem == NULL)
-+		return -EBUSY;
-+
-+	dev_set_drvdata(dev, mem);
-+	rng_base = (u32 __iomem *)io_p2v(res->start);
-+
-+	ret = hwrng_register(&omap_rng_ops);
-+	if (ret) {
-+		release_resource(mem);
-+		rng_base = NULL;
-+		return ret;
++	printk(KERN_INFO "AMD768 RNG detected\n");
++	err = hwrng_register(&amd_rng);
++	if (err) {
++		printk(KERN_ERR PFX "RNG registering failed (%d)\n",
++		       err);
++		goto out;
 +	}
-+
-+	dev_info(dev, "OMAP Random Number Generator ver. %02x\n",
-+		omap_rng_read_reg(RNG_REV_REG));
-+	omap_rng_write_reg(RNG_MASK_REG, 0x1);
-+
-+	rng_dev = dev;
-+
-+	return 0;
++out:
++	return err;
 +}
 +
-+static int __exit omap_rng_remove(struct device *dev)
++static void __exit mod_exit(void)
 +{
-+	struct resource *mem = dev_get_drvdata(dev);
-+
-+	hwrng_unregister(&omap_rng_ops);
-+
-+	omap_rng_write_reg(RNG_MASK_REG, 0x0);
-+
-+	if (cpu_is_omap24xx()) {
-+		clk_unuse(rng_ick);
-+		clk_put(rng_ick);
-+	}
-+
-+	release_resource(mem);
-+	rng_base = NULL;
-+
-+	return 0;
++	hwrng_unregister(&amd_rng);
 +}
 +
-+#ifdef CONFIG_PM
++subsys_initcall(mod_init);
++module_exit(mod_exit);
 +
-+static int omap_rng_suspend(struct device *dev, pm_message_t message, u32 level)
-+{
-+	omap_rng_write_reg(RNG_MASK_REG, 0x0);
-+
-+	return 0;
-+}
-+
-+static int omap_rng_resume(struct device *dev, pm_message_t message, u32 level)
-+{
-+	omap_rng_write_reg(RNG_MASK_REG, 0x1);
-+
-+	return 1;
-+}
-+
-+#else
-+
-+#define	omap_rng_suspend	NULL
-+#define	omap_rng_resume		NULL
-+
-+#endif
-+
-+
-+static struct device_driver omap_rng_driver = {
-+	.name		= "omap_rng",
-+	.bus		= &platform_bus_type,
-+	.probe		= omap_rng_probe,
-+	.remove		= __exit_p(omap_rng_remove),
-+	.suspend	= omap_rng_suspend,
-+	.resume		= omap_rng_resume
-+};
-+
-+static int __init omap_rng_init(void)
-+{
-+	if (!cpu_is_omap16xx() && !cpu_is_omap24xx())
-+		return -ENODEV;
-+
-+	return driver_register(&omap_rng_driver);
-+}
-+
-+static void __exit omap_rng_exit(void)
-+{
-+	driver_unregister(&omap_rng_driver);
-+}
-+
-+module_init(omap_rng_init);
-+module_exit(omap_rng_exit);
-+
-+MODULE_AUTHOR("Deepak Saxena (and others)");
++MODULE_AUTHOR("The Linux Kernel team");
++MODULE_DESCRIPTION("H/W RNG driver for AMD chipsets");
 +MODULE_LICENSE("GPL");
+Index: hwrng/drivers/char/hw_random/Kconfig
+===================================================================
+--- hwrng.orig/drivers/char/hw_random/Kconfig	2006-05-08 00:11:47.000000000 +0200
++++ hwrng/drivers/char/hw_random/Kconfig	2006-05-08 00:11:59.000000000 +0200
+@@ -22,3 +22,16 @@
+ 	  module will be called intel-rng.
+ 
+ 	  If unsure, say Y.
++
++config HW_RANDOM_AMD
++	tristate "AMD HW Random Number Generator support"
++	depends on HW_RANDOM && (X86 || IA64) && PCI
++	default y
++	---help---
++	  This driver provides kernel-side support for the Random Number
++	  Generator hardware found on AMD 76x-based motherboards.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called amd-rng.
++
++	  If unsure, say Y.
+Index: hwrng/drivers/char/hw_random/Makefile
+===================================================================
+--- hwrng.orig/drivers/char/hw_random/Makefile	2006-05-08 00:11:35.000000000 +0200
++++ hwrng/drivers/char/hw_random/Makefile	2006-05-08 00:11:52.000000000 +0200
+@@ -4,3 +4,4 @@
+ 
+ obj-$(CONFIG_HW_RANDOM) += core.o
+ obj-$(CONFIG_HW_RANDOM_INTEL) += intel-rng.o
++obj-$(CONFIG_HW_RANDOM_AMD) += amd-rng.o
 
 --
 

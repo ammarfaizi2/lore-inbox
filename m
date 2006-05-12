@@ -1,109 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWELCe7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbWELCiB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750870AbWELCe7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 May 2006 22:34:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750868AbWELCe7
+	id S1750876AbWELCiB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 May 2006 22:38:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750868AbWELCiB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 May 2006 22:34:59 -0400
-Received: from mxsf30.cluster1.charter.net ([209.225.28.230]:55694 "EHLO
-	mxsf30.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S1750866AbWELCe7 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 May 2006 22:34:59 -0400
+	Thu, 11 May 2006 22:38:01 -0400
+Received: from rtsoft2.corbina.net ([85.21.88.2]:38366 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1750737AbWELCiA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 May 2006 22:38:00 -0400
+Message-ID: <4463F4C8.9080608@ru.mvista.com>
+Date: Fri, 12 May 2006 06:36:56 +0400
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
+X-Accept-Language: ru, en-us, en-gb
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Message-ID: <17507.62542.780940.914596@smtp.charter.net>
-Date: Thu, 11 May 2006 22:34:54 -0400
-From: "John Stoffel" <john@stoffel.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Kevin Radloff <radsaq@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Updated libata PATA patch
-In-Reply-To: <1147270145.17886.42.camel@localhost.localdomain>
-References: <1147196676.3172.133.camel@localhost.localdomain>
-	<3b0ffc1f0605091848med1f37ua83c283a922ea682@mail.gmail.com>
-	<1147270145.17886.42.camel@localhost.localdomain>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+To: Andrew Morton <akpm@osdl.org>
+CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Linux IDE <linux-ide@vger.kernel.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ide_dma_speed() fixes
+Content-Type: multipart/mixed;
+ boundary="------------020309060805090308040407"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020309060805090308040407
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Alan,
+Hello.
 
-I just tried to use the IDE2 patches to 2.6.17-rc3 tonight.  I've got
-an old Dell Precision 610, Dual 550Mhz Xeon, 768mb of RAM.  My root
-disk is SCSI, with hda a Samsung DVD/ROM, CDRW drive.  I've got an
-HPT302 controller with a pair of 120gb IDE disks.  I've also got an
-addon PCI USB/Firewire Card, an old Cyclom-Y ISA serial port card,
-Matrox G450 AGP card, builtin Adaptec SCSI cards, DLT 7000 tape
-drive.  Probably other stuff as well.
+    ide_dma_speed() fails to actually honor the IDE drivers' mode support 
+masks) because of the bogus checks -- thus, selecting the DMA transfer mode 
+that the driver explicitly refuses to support is possible. Additionally, there 
+is no check for validity of the UltraDMA mode data in the drive ID, and the 
+function is misdocumented.
 
-Here's the lspci output:
+MBR, Sergei
 
-> lspci
-0000:00:00.0 Host bridge: Intel Corporation 440GX - 82443GX Host bridge
-0000:00:01.0 PCI bridge: Intel Corporation 440GX - 82443GX AGP bridge
-0000:00:07.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 02)
-0000:00:07.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
-0000:00:07.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB (rev 01)
-0000:00:07.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 02)
-0000:00:0d.0 RAID bus controller: Triones Technologies, Inc. HPT302 (rev 01)
-0000:00:0e.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 06)
-0000:00:11.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 24)
-0000:00:13.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 03)
-0000:01:00.0 VGA compatible controller: Matrox Graphics, Inc. G400/G450 (rev 82)
-0000:02:06.0 PCI bridge: Hint Corp HB6 Universal PCI-PCI bridge (non-transparent mode) (rev 13)
-0000:02:0a.0 SCSI storage controller: Adaptec AHA-2940U2/U2W / 7890/7891
-0000:02:0e.0 SCSI storage controller: Adaptec AIC-7880U (rev 01)
-0000:03:08.0 USB Controller: NEC Corporation USB (rev 41)
-0000:03:08.1 USB Controller: NEC Corporation USB (rev 41)
-0000:03:08.2 USB Controller: NEC Corporation USB 2.0 (rev 02)
-0000:03:0b.0 FireWire (IEEE 1394): Texas Instruments TSB12LV26 IEEE-1394 Controller (Link)
+Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
 
 
+--------------020309060805090308040407
+Content-Type: text/plain;
+ name="ide_dma_speed-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide_dma_speed-fix.patch"
 
-n> cat /proc/interrupts 
-           CPU0       CPU1       
-  0:     237231     227203    IO-APIC-edge  timer
-  1:       1213       2640    IO-APIC-edge  i8042
-  8:          3          1    IO-APIC-edge  rtc
-  9:          0          0   IO-APIC-level  acpi
- 11:       2265       2258    IO-APIC-edge  Cyclom-Y
- 12:      10217       2344    IO-APIC-edge  i8042
- 14:       7934       7911    IO-APIC-edge  ide0
- 16:     395587     368729   IO-APIC-level  ide2, ide3, ehci_hcd:usb1, mga@pci:0000:01:00.0
- 17:       3559          1   IO-APIC-level  Ensoniq AudioPCI, ohci1394, eth0
- 18:       7146       4967   IO-APIC-level  aic7xxx, aic7xxx, ohci_hcd:usb2
- 19:     174376     184174   IO-APIC-level  uhci_hcd:usb3, ohci_hcd:usb4
-NMI:          0          0 
-LOC:     464327     464326 
-ERR:          0
-MIS:          0
+Index: linus/drivers/ide/ide-lib.c
+===================================================================
+--- linus.orig/drivers/ide/ide-lib.c
++++ linus/drivers/ide/ide-lib.c
+@@ -72,66 +72,65 @@ EXPORT_SYMBOL(ide_xfer_verbose);
+ /**
+  *	ide_dma_speed	-	compute DMA speed
+  *	@drive: drive
+- *	@mode; intended mode
++ *	@mode:	modes available
+  *
+  *	Checks the drive capabilities and returns the speed to use
+- *	for the transfer. Returns -1 if the requested mode is unknown
+- *	(eg PIO)
++ *	for the DMA transfer.  Returns 0 if the drive is incapable
++ *	of DMA transfers.
+  */
+  
+ u8 ide_dma_speed(ide_drive_t *drive, u8 mode)
+ {
+ 	struct hd_driveid *id   = drive->id;
+ 	ide_hwif_t *hwif	= HWIF(drive);
++	u8 ultra_mask, mwdma_mask, swdma_mask;
+ 	u8 speed = 0;
+ 
+ 	if (drive->media != ide_disk && hwif->atapi_dma == 0)
+ 		return 0;
+ 
+-	switch(mode) {
+-		case 0x04:
+-			if ((id->dma_ultra & 0x0040) &&
+-			    (id->dma_ultra & hwif->ultra_mask))
++	/* Capable of UltraDMA modes? */
++	if (id->field_valid & 4)
++		ultra_mask = id->dma_ultra & hwif->ultra_mask;
++	else
++		mode = 0;	/* fallback to MW/SW DMA if no UltraDMA */
++
++	switch (mode) {
++		case 4:
++			if (ultra_mask & 0x40)
+ 				{ speed = XFER_UDMA_6; break; }
+-		case 0x03:
+-			if ((id->dma_ultra & 0x0020) &&
+-			    (id->dma_ultra & hwif->ultra_mask))
++		case 3:
++			if (ultra_mask & 0x20)
+ 				{ speed = XFER_UDMA_5; break; }
+-		case 0x02:
+-			if ((id->dma_ultra & 0x0010) &&
+-			    (id->dma_ultra & hwif->ultra_mask))
++		case 2:
++			if (ultra_mask & 0x10)
+ 				{ speed = XFER_UDMA_4; break; }
+-			if ((id->dma_ultra & 0x0008) &&
+-			    (id->dma_ultra & hwif->ultra_mask))
++			if (ultra_mask & 0x08)
+ 				{ speed = XFER_UDMA_3; break; }
+-		case 0x01:
+-			if ((id->dma_ultra & 0x0004) &&
+-			    (id->dma_ultra & hwif->ultra_mask))
++		case 1:
++			if (ultra_mask & 0x04)
+ 				{ speed = XFER_UDMA_2; break; }
+-			if ((id->dma_ultra & 0x0002) &&
+-			    (id->dma_ultra & hwif->ultra_mask))
++			if (ultra_mask & 0x02)
+ 				{ speed = XFER_UDMA_1; break; }
+-			if ((id->dma_ultra & 0x0001) &&
+-			    (id->dma_ultra & hwif->ultra_mask))
++			if (ultra_mask & 0x01)
+ 				{ speed = XFER_UDMA_0; break; }
+-		case 0x00:
+-			if ((id->dma_mword & 0x0004) &&
+-			    (id->dma_mword & hwif->mwdma_mask))
++		case 0:
++			mwdma_mask = id->dma_mword & hwif->mwdma_mask;
++
++			if (mwdma_mask & 0x04)
+ 				{ speed = XFER_MW_DMA_2; break; }
+-			if ((id->dma_mword & 0x0002) &&
+-			    (id->dma_mword & hwif->mwdma_mask))
++			if (mwdma_mask & 0x02)
+ 				{ speed = XFER_MW_DMA_1; break; }
+-			if ((id->dma_mword & 0x0001) &&
+-			    (id->dma_mword & hwif->mwdma_mask))
++			if (mwdma_mask & 0x01)
+ 				{ speed = XFER_MW_DMA_0; break; }
+-			if ((id->dma_1word & 0x0004) &&
+-			    (id->dma_1word & hwif->swdma_mask))
++
++			swdma_mask = id->dma_1word & hwif->swdma_mask;
++
++			if (swdma_mask & 0x04)
+ 				{ speed = XFER_SW_DMA_2; break; }
+-			if ((id->dma_1word & 0x0002) &&
+-			    (id->dma_1word & hwif->swdma_mask))
++			if (swdma_mask & 0x02)
+ 				{ speed = XFER_SW_DMA_1; break; }
+-			if ((id->dma_1word & 0x0001) &&
+-			    (id->dma_1word & hwif->swdma_mask))
++			if (swdma_mask & 0x01)
+ 				{ speed = XFER_SW_DMA_0; break; }
+ 	}
+ 
 
-
-Booting up it was *slow*... slower than normal.  I got the following
-oops, copied down from a photo I took, since it didn't end up getting
-written to disk.  
-
-.
-.
-.
-irq 16: nobody cared (try booting with the "irqpoll" option)
- <c013d034> __report_bad_irq_0x24/0x90  <c013d13f> note_interrupt+0x9f/0x260
- <c031ab78> usb_hcd_irq+0x28/0x60 <c013c993> handle_IRQ_event+0x33/0x70
- <c013ca64> __do_IRQ+0xf4/0x100  <c0105909> do_IRQ+0x19/0x30
- <c0103962> common_interrupt+0x1a/0x20  <c0101b80> default_idle+0x0/0x60
- <c010bac> default_idle+0x2c/0x60  <c0101c48> cpu_idle+0x68/0x90
- <c0542729> start_kernel+0x289/0x400 <c0542230> unknown_bootoption+0x0/0x270
-handlers:
-[<c0302d20>] (ata_interrupt+0x0/0x150)
-[c031ab50>] (usb_hcd_irq+0x0/0x60)
-Disabling IRQ #16
-
-
-Please let me know if there's any more information I can provide.
-I'll try to get a serial cable on there so I can capture the boot log
-better to another host, but no sure when I'll be able to do this.
-
-John
-
+--------------020309060805090308040407--

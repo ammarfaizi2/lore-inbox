@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWELNmV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWELNn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbWELNmV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 09:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932067AbWELNmV
+	id S932070AbWELNn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 09:43:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932071AbWELNn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 09:42:21 -0400
-Received: from ntwklan-62-233-162-146.devs.futuro.pl ([62.233.162.146]:46564
-	"EHLO mail.softwaremind.pl") by vger.kernel.org with ESMTP
-	id S932066AbWELNmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 09:42:20 -0400
-From: Marcin Hlybin <marcin.hlybin@swmind.com>
-To: linux-kernel@vger.kernel.org, Florian Lohoff <flo@rfc822.org>,
-       Andrew Burgess <aab@cichlid.com>
-Subject: Re: 3ware 8006-2LP on Linux 2.6 drive error, seagate disks
-Date: Fri, 12 May 2006 15:43:31 +0200
-User-Agent: KMail/1.8.2
-References: <200604261732.31327.marcin.hlybin@swmind.com>
-In-Reply-To: <200604261732.31327.marcin.hlybin@swmind.com>
+	Fri, 12 May 2006 09:43:59 -0400
+Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:47042 "EHLO
+	mx1.compro.net") by vger.kernel.org with ESMTP id S932070AbWELNn7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 09:43:59 -0400
+Message-ID: <44649119.5040105@compro.net>
+Date: Fri, 12 May 2006 09:43:53 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+User-Agent: Thunderbird 1.5 (X11/20060111)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Daniel Walker <dwalker@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, johnstul@us.ibm.com
+Subject: Re: rt20 patch question
+References: <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com> <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com> <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com> <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com> <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com> <20060512092159.GC18145@elte.hu> <446481C8.4090506@compro.net> <Pine.LNX.4.58.0605120854480.30264@gandalf.stny.rr.com>
+In-Reply-To: <Pine.LNX.4.58.0605120854480.30264@gandalf.stny.rr.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605121543.31349.marcin.hlybin@swmind.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 26 of April 2006 17:32, Marcin Hlybin wrote:
+Steven Rostedt wrote:
+ >
+> I was looking at the logdump, but I don't see anything spinning.  CPU 1
+> seems to be constantly running your v67 program (alternating with
+> posix_cpu_timer), and CPU: 0 is still switching with the swapper, along
+> with other tasks, so that this means nothing is just spinning and hogging
+> the CPU (on CPU 0, but I assume the v67 tasks is suppose to keep running).
+>  
 
-> Apr 26 15:07:10 krenn kernel: 3w-xxxx: scsi2: Command failed: status = 0xc7, 
-> flags = 0xc, unit #0.
+Yes the v67 task is the CPU process. Could it also mean I just didn't
+get the logdump at the right time?
 
-Ok, I've solved my problem by changing SATA cables. I have tested controller 
-with massive I/O operations with both enabled and disabled write-caching. 
-Admittedly next day TK server crashed with NMI, parity errors and so on, but 
-now I have new mainboard, new riser and everything works just fine. 
-I use tw_cli to maintain the RAID. 
+Mark
 
-Regards
-
--- 
- Marcin Hlybin, marcin.hlybin (at) swmind.com
- Sys/Net Administrator, tel. +48 12 2523 402
-
- SoftwareMind, www.softwaremind.pl | Where quality meets the future

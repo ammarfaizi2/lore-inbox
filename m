@@ -1,86 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWELQZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWELQa6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751306AbWELQZH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 12:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbWELQZG
+	id S932144AbWELQa6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 12:30:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWELQa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 12:25:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44487 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751306AbWELQZB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 12:25:01 -0400
-Date: Fri, 12 May 2006 09:27:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: mingo@elte.hu, markh@compro.net, linux-kernel@vger.kernel.org,
-       dwalker@mvista.com, tglx@linutronix.de
-Subject: Re: 3c59x vortex_timer rt hack (was: rt20 patch question)
-Message-Id: <20060512092709.5b9efab7.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0605121208350.5357@gandalf.stny.rr.com>
-References: <4460ADF8.4040301@compro.net>
-	<Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
-	<4461E53B.7050905@compro.net>
-	<Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
-	<446207D6.2030602@compro.net>
-	<Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
-	<44623157.9090105@compro.net>
-	<Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com>
-	<20060512081628.GA26736@elte.hu>
-	<Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
-	<20060512092159.GC18145@elte.hu>
-	<Pine.LNX.4.58.0605120904110.30264@gandalf.stny.rr.com>
-	<20060512071645.6b59e0a2.akpm@osdl.org>
-	<Pine.LNX.4.58.0605121029540.30264@gandalf.stny.rr.com>
-	<Pine.LNX.4.58.0605121036150.30264@gandalf.stny.rr.com>
-	<20060512074929.031d4eaf.akpm@osdl.org>
-	<Pine.LNX.4.58.0605121110320.3328@gandalf.stny.rr.com>
-	<20060512082340.3e169128.akpm@osdl.org>
-	<Pine.LNX.4.58.0605121136060.4281@gandalf.stny.rr.com>
-	<20060512090323.252d8600.akpm@osdl.org>
-	<Pine.LNX.4.58.0605121208350.5357@gandalf.stny.rr.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 12 May 2006 12:30:58 -0400
+Received: from jacks.isp2dial.com ([64.142.120.55]:772 "EHLO
+	jacks.isp2dial.com") by vger.kernel.org with ESMTP id S932144AbWELQa6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 12:30:58 -0400
+From: John Kelly <jak@isp2dial.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: + deprecate-smbfs-in-favour-of-cifs.patch added to -mm tree
+Date: Fri, 12 May 2006 12:31:02 -0400
+Message-ID: <200605121630.k4CGUuiU005025@isp2dial.com>
+References: <200605110717.k4B7HuVW006999@shell0.pdx.osdl.net> <20060511175143.GH25646@redhat.com> <Pine.LNX.4.61.0605121243460.9918@yvahk01.tjqt.qr> <200605121619.k4CGJCtR004972@isp2dial.com> <Pine.LNX.4.58.0605121222070.5579@gandalf.stny.rr.com>
+In-Reply-To: <Pine.LNX.4.58.0605121222070.5579@gandalf.stny.rr.com>
+X-Mailer: Forte Agent 1.93/32.576 English (American)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Hard2Crack: 0.001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt <rostedt@goodmis.org> wrote:
->
-> 
-> 
-> On Fri, 12 May 2006, Andrew Morton wrote:
-> 
-> > >
-> > > The vortex_timer is a timeout,
-> >
-> > err, it's actually a function.
-> 
-> OK, I meant vp->timer
+On Fri, 12 May 2006 12:24:40 -0400 (EDT), Steven Rostedt
+<rostedt@goodmis.org> wrote:
 
-That's a kernel timer.
+>> >Sorry for falling in late but we can't do that.
+>> >Win 98 (95 too?) shared can not be mounted with CIFS, it requires SMBFS.
 
-> >
-> > > will it go off often?
-> >
-> > Every five seconds if the cable's unplugged.  Every 60 seconds otherwise.
-> >
-> 
-> OK, so the function is a service and not a fixup (or both).  Hmm, so
-> latency is an issue.
+>> W98?  He's dead, Jim.
 
-yup.  It's been five years, sorry - I'm struggling to remember why
-vortex_timer() needs to block the interrupt handler.
+>huh, my wife has a laptop that she still uses that has w98 on it. And I do
+>use smbfs to sometimes communicate with it.
 
-The chip is fairly stateful - that EL3WINDOW() thing selects a particular
-register bank and needs protection against other register readers.  But we
-should avoid running EL3WINDOW() in the rx and tx interrupt handlers anyway
-- iirc the chip is designed to permit that.
+Users who need vintage features can use vintage kernels.  They haven't
+been pulled off the market.
 
-Is tricky.
 
-How come -rt cannot permit disable_irq() in there?
+>Why upgrade when you don't have to?
 
-(I think the _reason_ it's disable_irq() is, yes, because it's infrequent
-and because it can hold off interrupts for a long time if we use
-spin_lock_irq())
+Why drag around old worn out baggage in new kernels?
+
+

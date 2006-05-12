@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWELPmm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWELPqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751280AbWELPmm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 11:42:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWELPmm
+	id S1751290AbWELPqE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 11:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWELPqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 11:42:42 -0400
-Received: from baldrick.bootc.net ([83.142.228.48]:52969 "EHLO
-	baldrick.fusednetworks.co.uk") by vger.kernel.org with ESMTP
-	id S1751279AbWELPml (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 11:42:41 -0400
-Message-ID: <4464ACED.2010206@bootc.net>
-Date: Fri, 12 May 2006 16:42:37 +0100
-From: Chris Boot <bootc@bootc.net>
-User-Agent: Thunderbird 1.5 (X11/20060309)
-MIME-Version: 1.0
-Cc: Tejun Heo <htejun@gmail.com>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] libata: new EH, NCQ, hotplug and PM patches against
- stable kernel
-References: <20060512132437.GB4219@htj.dyndns.org> <44649CE1.4060407@bootc.net>
-In-Reply-To: <44649CE1.4060407@bootc.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 12 May 2006 11:46:04 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:17621 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751290AbWELPqD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 11:46:03 -0400
+Subject: Re: [PATCH 2/9] nsproxy: incorporate fs namespace
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, herbert@13thfloor.at, dev@sw.ru,
+       sam@vilain.net, xemul@sw.ru, clg@fr.ibm.com, frankeh@us.ibm.com
+In-Reply-To: <20060512152412.GA11734@sergelap.austin.ibm.com>
+References: <29vfyljM-1.2006059-s@us.ibm.com>
+	 <20060510021135.GC32523@sergelap.austin.ibm.com>
+	 <m1k68uvyhq.fsf@ebiederm.dsl.xmission.com>
+	 <20060510132623.GB20892@sergelap.austin.ibm.com>
+	 <m1ac9pwves.fsf@ebiederm.dsl.xmission.com>
+	 <20060510203449.GA12215@sergelap.austin.ibm.com>
+	 <m1ejz1vc2d.fsf@ebiederm.dsl.xmission.com>
+	 <20060512152412.GA11734@sergelap.austin.ibm.com>
+Content-Type: text/plain
+Date: Fri, 12 May 2006 08:44:41 -0700
+Message-Id: <1147448681.6623.10.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Boot wrote:
-> Tejun Heo wrote:
->> Patches against v2.6.16.16 is avaialbe at the following URL.
->>
->>  http://home-tj.org/files/libata-tj-stable/libata-tj-2.6.16.16-20060512.tar.bz2 
->>
->>
->> Please read README carefully before testing the patches.  Keep in mind
->> that these are still quite experimental and not ready for production
->> use.
+On Fri, 2006-05-12 at 10:24 -0500, Serge E. Hallyn wrote:
 > 
-> Are these patches likely to work alongside Alan's PATA patches? 
-> Specifically I have a DVD-RW and an IDE tape that I'd like to use.
+> -       exit_utsname(current);
+> -       exit_namespace(current);
+> -       exit_nsproxy(current);
+> +       exit_task_namespaces(current);
+>         current->nsproxy = init_task.nsproxy;
+> -       get_nsproxy(current->nsproxy);
+> -       get_namespace(current->nsproxy->namespace);
+> -       get_uts_ns(current->nsproxy->uts_ns);
+> +       get_namespaces(current); 
 
-I'll answer my own question: this fails miserably!
+That really cleans up the main path quite a bit.  Very nice.
 
-I'll test 'em anyway, screw the DVD and tape for now. :-P
+For parity with exit_task_namespaces(), should that be called
+get_task_namespaces()?
 
-Chris
+-- Dave
 
--- 
-Chris Boot
-bootc@bootc.net
-http://www.bootc.net/

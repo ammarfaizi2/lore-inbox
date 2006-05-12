@@ -1,111 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWELLmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbWELLrE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbWELLmO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 07:42:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWELLmO
+	id S1751243AbWELLrE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 07:47:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWELLrE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 07:42:14 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:6663 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1751249AbWELLmN convert rfc822-to-8bit (ORCPT
+	Fri, 12 May 2006 07:47:04 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:45762 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751241AbWELLrB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 07:42:13 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 12 May 2006 11:42:12.0159 (UTC) FILETIME=[1BBFC4F0:01C675B9]
-Content-class: urn:content-classes:message
-Subject: Re: Linux poll() <sigh> again
-Date: Fri, 12 May 2006 07:42:07 -0400
-Message-ID: <Pine.LNX.4.61.0605120735550.8670@chaos.analogic.com>
-In-Reply-To: <20060511211615.GA8485@us.ibm.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Linux poll() <sigh> again
-Thread-Index: AcZ1uRvJO98qLENCRoSJvOLUc7BzsA==
-References: <Pine.LNX.4.61.0605111023030.3729@chaos.analogic.com> <20060511204741.GG22741@us.ibm.com> <Pine.LNX.4.61.0605111659580.5484@chaos.analogic.com> <20060511211615.GA8485@us.ibm.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Nishanth Aravamudan" <nacc@us.ibm.com>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>, <staubach@redhat.com>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Fri, 12 May 2006 07:47:01 -0400
+Date: Fri, 12 May 2006 13:47:00 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Michael Buesch <mb@bu3sch.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux v2.6.17-rc4
+Message-ID: <20060512114659.GE30285@harddisk-recovery.com>
+References: <Pine.LNX.4.64.0605111640010.3866@g5.osdl.org> <20060512102422.GA30285@harddisk-recovery.com> <200605121244.22511.mb@bu3sch.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200605121244.22511.mb@bu3sch.de>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 12, 2006 at 12:44:22PM +0200, Michael Buesch wrote:
+> On Friday 12 May 2006 12:24, you wrote:
+> > On Thu, May 11, 2006 at 04:44:03PM -0700, Linus Torvalds wrote:
+> > > Ok, I've let the release time between -rc's slide a bit too much again, 
+> > > but -rc4 is out there, and this is the time to hunker down for 2.6.17.
+> > > 
+> > > If you know of any regressions, please holler now, so that we don't miss 
+> > > them. 
+> > 
+> > I got assertion failures in the bcm43xx driver:
+> > 
+> > bcm43xx: Chip ID 0x4318, rev 0x2
+> 
+> That is expected an non-fatal.
 
-On Thu, 11 May 2006, Nishanth Aravamudan wrote:
+Assertion failed sounds rather fatal to me.
 
-> On 11.05.2006 [17:04:46 -0400], linux-os (Dick Johnson) wrote:
->>
->> On Thu, 11 May 2006, Nishanth Aravamudan wrote:
->>
->>> On 11.05.2006 [10:25:29 -0400], linux-os (Dick Johnson) wrote:
->>>>
->>>>
->>>> Hello,
->>>>
->>>> I'm trying to fix a long-standing bug which has a
->>>> work-around that has been working for a year or
->>>> so.
->>>
->>> <snip valiant efforts>
->>>
->>>> Here is relevent code:
->>>>
->>>>              for(;;) {
->>>>                  mem->pfd.fd = fd;
->>>>                  mem->pfd.events = POLLIN|POLLERR|POLLHUP|POLLNVAL;
->>>>                  mem->pfd.revents = 0x00;
->>>
->>> Hrm, in looking at the craziness that is sys_poll() for a bit, I think
->>> it's the underlying f_ops that are responsible for not setting POLLHUP,
->>> that is:
->>>
->>>                        if (file != NULL) {
->>>                                mask = DEFAULT_POLLMASK;
->>>                                if (file->f_op && file->f_op->poll)
->>>                                        mask = file->f_op->poll(file, *pwait);
->>>                                mask &= fdp->events | POLLERR | POLLHUP;
->>>                                fput_light(file, fput_needed);
->>>                        }
->>>
->>> and file->f_op->poll(file, *pwait) is not setting POLLHUP on the
->>> disconnect. What filesystem is this?
->>
->> I think that's the problem. A socket isn't a file-system and the
->> code won't set either bits if it isn't. Perhaps, the kernel code
->> needs to consider a socket as a virtual file of some kind? Surely
->> one needs to use poll() on sockets, no?
->
-> Duh, I'm not reading well today -- for sockets, we do
->
-> file->f_op->poll() -> (socket_file_ops) sock_poll() -> sock->ops->poll()
->
-> So, now I need to know what kind of socket is this to go from there ..
->
-> Thanks,
-> Nish
+> It is no regression.
 
-A stream socket can be "connected". Anything that can be connected
-needs to know when the connection is broken.
+It is, I didn't see it in 2.6.17-rc3.
 
-     socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
-     ip_sock.sin_family = AF_INET;
+> We are working on it, but there won't be any fix for 2.6.17, as
+> very intrusive changes are needed to fix this.
 
-Such a socket is bound to an address and port using bind(), listen()
-is established, the accept() is called to accept connections. Accept
-returns a socket (fd) of the connected host. It's this fd that needs
-to "know" if/when the host disconnects.
+If it's non-fatal, could you remove the assertion, or make it print
+something that sounds less fatal?
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
-New book: http://www.lymanschool.com
-_
-
+Erik
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-Thank you.
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

@@ -1,185 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWELX6v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWELX6v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932218AbWELX6v (ORCPT <rfc822;willy@w.ods.org>);
+	id S932215AbWELX6v (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 12 May 2006 19:58:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWELX5e
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbWELX5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 19:57:34 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:55977 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932210AbWELXod (ORCPT
+	Fri, 12 May 2006 19:57:33 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:57257 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932215AbWELXod (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 12 May 2006 19:44:33 -0400
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 19 of 53] ipath - replace uses of LIST_POISON
-X-Mercurial-Node: 947e92f4b370dc17f898c2308e93b94018d43aaf
-Message-Id: <947e92f4b370dc17f898.1147477384@eng-12.pathscale.com>
+Subject: [PATCH 24 of 53] ipath - count dropped VL15 packets
+X-Mercurial-Node: e468ad0bd83e87fd2533f9f30f0d8033ae49e1d0
+Message-Id: <e468ad0bd83e87fd2533.1147477389@eng-12.pathscale.com>
 In-Reply-To: <patchbomb.1147477365@eng-12.pathscale.com>
-Date: Fri, 12 May 2006 16:43:04 -0700
+Date: Fri, 12 May 2006 16:43:09 -0700
 From: "Bryan O'Sullivan" <bos@pathscale.com>
 To: rdreier@cisco.com
 Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Per Andrew's request.
+We need to count these for IB conformance.
 
 Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
 
-diff -r df954e47ff67 -r 947e92f4b370 drivers/infiniband/hw/ipath/ipath_qp.c
---- a/drivers/infiniband/hw/ipath/ipath_qp.c	Fri May 12 15:55:28 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_qp.c	Fri May 12 15:55:28 2006 -0700
-@@ -375,10 +375,10 @@ static void ipath_error_qp(struct ipath_
+diff -r 8b882bb46a32 -r e468ad0bd83e drivers/infiniband/hw/ipath/ipath_mad.c
+--- a/drivers/infiniband/hw/ipath/ipath_mad.c	Fri May 12 15:55:28 2006 -0700
++++ b/drivers/infiniband/hw/ipath/ipath_mad.c	Fri May 12 15:55:28 2006 -0700
+@@ -646,6 +646,7 @@ struct ib_pma_portcounters {
+ #define IB_PMA_SEL_PORT_RCV_ERRORS		__constant_htons(0x0008)
+ #define IB_PMA_SEL_PORT_RCV_REMPHYS_ERRORS	__constant_htons(0x0010)
+ #define IB_PMA_SEL_PORT_XMIT_DISCARDS		__constant_htons(0x0040)
++#define IB_PMA_SEL_PORT_VL15_DROPPED		__constant_htons(0x0800)
+ #define IB_PMA_SEL_PORT_XMIT_DATA		__constant_htons(0x1000)
+ #define IB_PMA_SEL_PORT_RCV_DATA		__constant_htons(0x2000)
+ #define IB_PMA_SEL_PORT_XMIT_PACKETS		__constant_htons(0x4000)
+@@ -929,6 +930,10 @@ static int recv_pma_get_portcounters(str
+ 	else
+ 		p->port_xmit_discards =
+ 			cpu_to_be16((u16)cntrs.port_xmit_discards);
++	if (dev->n_vl15_dropped > 0xFFFFUL)
++		p->vl15_dropped = __constant_cpu_to_be16(0xFFFF);
++	else
++		p->vl15_dropped = cpu_to_be16((u16)dev->n_vl15_dropped);
+ 	if (cntrs.port_xmit_data > 0xFFFFFFFFUL)
+ 		p->port_xmit_data = __constant_cpu_to_be32(0xFFFFFFFF);
+ 	else
+@@ -1022,6 +1027,9 @@ static int recv_pma_set_portcounters(str
  
- 	spin_lock(&dev->pending_lock);
- 	/* XXX What if its already removed by the timeout code? */
--	if (qp->timerwait.next != LIST_POISON1)
--		list_del(&qp->timerwait);
--	if (qp->piowait.next != LIST_POISON1)
--		list_del(&qp->piowait);
-+	if (!list_empty(&qp->timerwait))
-+		list_del_init(&qp->timerwait);
-+	if (!list_empty(&qp->piowait))
-+		list_del_init(&qp->piowait);
- 	spin_unlock(&dev->pending_lock);
+ 	if (p->counter_select & IB_PMA_SEL_PORT_XMIT_DISCARDS)
+ 		dev->n_port_xmit_discards = cntrs.port_xmit_discards;
++
++	if (p->counter_select & IB_PMA_SEL_PORT_VL15_DROPPED)
++		dev->n_vl15_dropped = 0;
  
- 	wc.status = IB_WC_WR_FLUSH_ERR;
-@@ -722,10 +722,8 @@ struct ib_qp *ipath_create_qp(struct ib_
- 			     init_attr->qp_type == IB_QPT_RC ?
- 			     ipath_do_rc_send : ipath_do_uc_send,
- 			     (unsigned long)qp);
--		qp->piowait.next = LIST_POISON1;
--		qp->piowait.prev = LIST_POISON2;
--		qp->timerwait.next = LIST_POISON1;
--		qp->timerwait.prev = LIST_POISON2;
-+		INIT_LIST_HEAD(&qp->piowait);
-+		INIT_LIST_HEAD(&qp->timerwait);
- 		qp->state = IB_QPS_RESET;
- 		qp->s_wq = swq;
- 		qp->s_size = init_attr->cap.max_send_wr + 1;
-@@ -795,10 +793,10 @@ int ipath_destroy_qp(struct ib_qp *ibqp)
- 
- 	/* Make sure the QP isn't on the timeout list. */
- 	spin_lock_irqsave(&dev->pending_lock, flags);
--	if (qp->timerwait.next != LIST_POISON1)
--		list_del(&qp->timerwait);
--	if (qp->piowait.next != LIST_POISON1)
--		list_del(&qp->piowait);
-+	if (!list_empty(&qp->timerwait))
-+		list_del_init(&qp->timerwait);
-+	if (!list_empty(&qp->piowait))
-+		list_del_init(&qp->piowait);
- 	spin_unlock_irqrestore(&dev->pending_lock, flags);
- 
- 	/*
-@@ -867,10 +865,10 @@ void ipath_sqerror_qp(struct ipath_qp *q
- 
- 	spin_lock(&dev->pending_lock);
- 	/* XXX What if its already removed by the timeout code? */
--	if (qp->timerwait.next != LIST_POISON1)
--		list_del(&qp->timerwait);
--	if (qp->piowait.next != LIST_POISON1)
--		list_del(&qp->piowait);
-+	if (!list_empty(&qp->timerwait))
-+		list_del_init(&qp->timerwait);
-+	if (!list_empty(&qp->piowait))
-+		list_del_init(&qp->piowait);
- 	spin_unlock(&dev->pending_lock);
- 
- 	ipath_cq_enter(to_icq(qp->ibqp.send_cq), wc, 1);
-diff -r df954e47ff67 -r 947e92f4b370 drivers/infiniband/hw/ipath/ipath_rc.c
---- a/drivers/infiniband/hw/ipath/ipath_rc.c	Fri May 12 15:55:28 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_rc.c	Fri May 12 15:55:28 2006 -0700
-@@ -57,7 +57,7 @@ static void ipath_init_restart(struct ip
- 	qp->s_len = wqe->length - len;
- 	dev = to_idev(qp->ibqp.device);
- 	spin_lock(&dev->pending_lock);
--	if (qp->timerwait.next == LIST_POISON1)
-+	if (list_empty(&qp->timerwait))
- 		list_add_tail(&qp->timerwait,
- 			      &dev->pending[dev->pending_index]);
- 	spin_unlock(&dev->pending_lock);
-@@ -356,7 +356,7 @@ static inline int ipath_make_rc_req(stru
- 		if ((int)(qp->s_psn - qp->s_next_psn) > 0)
- 			qp->s_next_psn = qp->s_psn;
- 		spin_lock(&dev->pending_lock);
--		if (qp->timerwait.next == LIST_POISON1)
-+		if (list_empty(&qp->timerwait))
- 			list_add_tail(&qp->timerwait,
- 				      &dev->pending[dev->pending_index]);
- 		spin_unlock(&dev->pending_lock);
-@@ -726,8 +726,8 @@ void ipath_restart_rc(struct ipath_qp *q
- 	 */
- 	dev = to_idev(qp->ibqp.device);
- 	spin_lock(&dev->pending_lock);
--	if (qp->timerwait.next != LIST_POISON1)
--		list_del(&qp->timerwait);
-+	if (!list_empty(&qp->timerwait))
-+		list_del_init(&qp->timerwait);
- 	spin_unlock(&dev->pending_lock);
- 
- 	if (wqe->wr.opcode == IB_WR_RDMA_READ)
-@@ -886,8 +886,8 @@ static int do_rc_ack(struct ipath_qp *qp
- 	 * just won't find anything to restart if we ACK everything.
- 	 */
- 	spin_lock(&dev->pending_lock);
--	if (qp->timerwait.next != LIST_POISON1)
--		list_del(&qp->timerwait);
-+	if (!list_empty(&qp->timerwait))
-+		list_del_init(&qp->timerwait);
- 	spin_unlock(&dev->pending_lock);
- 
- 	/*
-@@ -1194,8 +1194,7 @@ static inline void ipath_rc_rcv_resp(str
- 		     IB_WR_RDMA_READ))
- 		goto ack_done;
- 	spin_lock(&dev->pending_lock);
--	if (qp->s_rnr_timeout == 0 &&
--	    qp->timerwait.next != LIST_POISON1)
-+	if (qp->s_rnr_timeout == 0 && !list_empty(&qp->timerwait))
- 		list_move_tail(&qp->timerwait,
- 			       &dev->pending[dev->pending_index]);
- 	spin_unlock(&dev->pending_lock);
-diff -r df954e47ff67 -r 947e92f4b370 drivers/infiniband/hw/ipath/ipath_ruc.c
---- a/drivers/infiniband/hw/ipath/ipath_ruc.c	Fri May 12 15:55:28 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_ruc.c	Fri May 12 15:55:28 2006 -0700
-@@ -435,7 +435,7 @@ void ipath_no_bufs_available(struct ipat
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&dev->pending_lock, flags);
--	if (qp->piowait.next == LIST_POISON1)
-+	if (list_empty(&qp->piowait))
- 		list_add_tail(&qp->piowait, &dev->piowait);
- 	spin_unlock_irqrestore(&dev->pending_lock, flags);
- 	/*
-diff -r df954e47ff67 -r 947e92f4b370 drivers/infiniband/hw/ipath/ipath_verbs.c
---- a/drivers/infiniband/hw/ipath/ipath_verbs.c	Fri May 12 15:55:28 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_verbs.c	Fri May 12 15:55:28 2006 -0700
-@@ -517,7 +517,7 @@ static void ipath_ib_timer(void *arg)
- 	last = &dev->pending[dev->pending_index];
- 	while (!list_empty(last)) {
- 		qp = list_entry(last->next, struct ipath_qp, timerwait);
--		list_del(&qp->timerwait);
-+		list_del_init(&qp->timerwait);
- 		qp->timer_next = resend;
- 		resend = qp;
- 		atomic_inc(&qp->refcount);
-@@ -527,7 +527,7 @@ static void ipath_ib_timer(void *arg)
- 		qp = list_entry(last->next, struct ipath_qp, timerwait);
- 		if (--qp->s_rnr_timeout == 0) {
- 			do {
--				list_del(&qp->timerwait);
-+				list_del_init(&qp->timerwait);
- 				tasklet_hi_schedule(&qp->s_task);
- 				if (list_empty(last))
- 					break;
-@@ -607,7 +607,7 @@ static int ipath_ib_piobufavail(void *ar
- 	while (!list_empty(&dev->piowait)) {
- 		qp = list_entry(dev->piowait.next, struct ipath_qp,
- 				piowait);
--		list_del(&qp->piowait);
-+		list_del_init(&qp->piowait);
- 		tasklet_hi_schedule(&qp->s_task);
+ 	if (p->counter_select & IB_PMA_SEL_PORT_XMIT_DATA)
+ 		dev->n_port_xmit_data = cntrs.port_xmit_data;
+diff -r 8b882bb46a32 -r e468ad0bd83e drivers/infiniband/hw/ipath/ipath_ud.c
+--- a/drivers/infiniband/hw/ipath/ipath_ud.c	Fri May 12 15:55:28 2006 -0700
++++ b/drivers/infiniband/hw/ipath/ipath_ud.c	Fri May 12 15:55:28 2006 -0700
+@@ -554,7 +554,11 @@ void ipath_ud_rcv(struct ipath_ibdev *de
+ 	spin_lock_irqsave(&rq->lock, flags);
+ 	if (rq->tail == rq->head) {
+ 		spin_unlock_irqrestore(&rq->lock, flags);
+-		dev->n_pkt_drops++;
++		/* Count VL15 packets dropped due to no receive buffer */
++		if (qp->ibqp.qp_num == 0)
++			dev->n_vl15_dropped++;
++		else
++			dev->n_pkt_drops++;
+ 		goto bail;
  	}
- 	spin_unlock_irqrestore(&dev->pending_lock, flags);
+ 	/* Silently drop packets which are too big. */
+diff -r 8b882bb46a32 -r e468ad0bd83e drivers/infiniband/hw/ipath/ipath_verbs.h
+--- a/drivers/infiniband/hw/ipath/ipath_verbs.h	Fri May 12 15:55:28 2006 -0700
++++ b/drivers/infiniband/hw/ipath/ipath_verbs.h	Fri May 12 15:55:28 2006 -0700
+@@ -468,6 +468,7 @@ struct ipath_ibdev {
+ 	u32 n_other_naks;
+ 	u32 n_timeouts;
+ 	u32 n_pkt_drops;
++	u32 n_vl15_dropped;
+ 	u32 n_wqe_errs;
+ 	u32 n_rdma_dup_busy;
+ 	u32 n_piowait;

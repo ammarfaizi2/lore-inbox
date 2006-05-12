@@ -1,108 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWELPvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWELPwe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932134AbWELPvN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 11:51:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWELPvN
+	id S932139AbWELPwe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 11:52:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbWELPwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 11:51:13 -0400
-Received: from web52903.mail.yahoo.com ([206.190.49.13]:8837 "HELO
-	web52903.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1751291AbWELPvM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 11:51:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=k85LZhMwDzv162xzo+3ZUL3vdb5+Rde40oYDP0DiU3J/8oMSmMq5Gzglpum8WDLL+bjBV0KRyyXoKI7geIAeXquT+3W6S9FCJd9riz/Yxbq8w/l/04ktBT5CjQRNj/TfzeFdTctcVuPl1OB7YhFneSJHAd2UoNHvUxsLorqQXKU=  ;
-Message-ID: <20060512155107.20047.qmail@web52903.mail.yahoo.com>
-Date: Fri, 12 May 2006 08:51:07 -0700 (PDT)
-From: Winn Johnston <winn_johnston@yahoo.com>
-Subject: Re: BUG: soft lockup detected on CPU#0!
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20060511180320.49788.qmail@web52901.mail.yahoo.com>
+	Fri, 12 May 2006 11:52:34 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:43274 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S932139AbWELPwd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 11:52:33 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 12 May 2006 15:52:32.0284 (UTC) FILETIME=[1470F5C0:01C675DC]
+Content-class: urn:content-classes:message
+Subject: Re: mlock into kernel module
+Date: Fri, 12 May 2006 11:52:31 -0400
+Message-ID: <Pine.LNX.4.61.0605121148001.9467@chaos.analogic.com>
+In-Reply-To: <4464A819.2050706@gmail.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: mlock into kernel module
+Thread-Index: AcZ13BSLJYwamonYRTK4zaOtWKqeWw==
+References: <4464A819.2050706@gmail.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "sej.kernel" <sej.kernel@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I noticed another post the other day, and contacted
-the indavidual who posted it. note his message below.
 
-Hi Winn,
-Latest news i had was a *hint* from Andrew Morton
-telling me to try with kernel 2.6.17-rc3 and report if
-the problem was gone or not. I've had no 
-time to give it a try yet.Your problem seems similar
-to mine, a few person argued that the message 
-was bogus and that no harm was done but i guess they
-did not read carefully the post since the consequences
-are pretty bad.
-Let me know if you manage to try with the latest rc of
-the 2.6.17 kernel and if things are better.
+On Fri, 12 May 2006, sej.kernel wrote:
 
-ref:
-http://groups.google.com/group/linux.kernel/browse_thread/thread/450966ffa3043609/59e6a2350b7690bf?lnk=st&q=kernel%3A+ide%3A+failed+opcode+was%3A+0xea%22+BUG%3A+soft+lockup+detected+on+CPU%230!%22&rnum=1&hl=en#59e6a2350b7690bf
+> Hello,
+> I need to use mlock and munlock function into a kernel module. How so
+> I call this system call from my module ?
+> I need to do this because I must use mlock in my software, but I can't
+> use root or suser to start it. So mlock alwaays fail.
+> Regards,
+> sej
 
---- Winn Johnston <winn_johnston@yahoo.com> wrote:
-
-> Error:
-> 
-> kernel: hdi: drive_cmd: status=0xd0 { Busy }
-> kernel: ide: failed opcode was: 0xea
-> BUG: soft lockup detected on CPU#0!
-> 
-> the odd thing is the system experiences a hard
-> lockup,
-> so it is not a false positive. I am working on a
-> trace, but it is hard to get.
-> 
-> My supervisor has asked me to help research this
-> problem. We are using multiple ata cards in our
-> backup
-> machine. We have a Promiss sata 300tx4, and three
-> ATA
-> cards (3 SIG UltraATA 133 PCI) or (3 promise ultra
-> 100tx2). We are experiencing hard lockups. The
-> system
-> resides on a scsi drive connected to the on board
-> controler Adaptec AIC-7899P (Tyan S2462
-> motherboard)the error is repeated for all drives
-> connected to the promis cards, and the error
-> continues
-> until a lock up is eventualy reached.
-> 
-> Also, its in dma mode, not pio.
-> PREEMPT_NONE is already set, so its not the
-> preemption
-> model
-> 
-> possibly related posts
->
-http://www.ussg.iu.edu/hypermail/linux/kernel/0309.1/0444.html
-> 
->
-http://groups.google.com/group/linux.kernel/browse_thread/thread/450966ffa3043609/59e6a2350b7690bf?lnk=st&q=kernel%3A+ide%3A+failed+opcode+was%3A+0xea%22+BUG%3A+soft+lockup+detected+on+CPU%230!%22&rnum=1&hl=en#59e6a2350b7690bf
-> 
-> 
-> 
-> 
-> 
-> __________________________________________________
-> Do You Yahoo!?
-> Tired of spam?  Yahoo! Mail has the best spam
-> protection around 
-> http://mail.yahoo.com 
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+You don't call mlock from a module. You can lock down pages inside
+your module by using non-paged RAM. This can be accessed from user-space
+by implimenting mmap() in your module so that the user-code can
+memory-map it. That way, the page(s) you have allocated in the
+kernel are never swapped.
 
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
+New book: http://www.lymanschool.com
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

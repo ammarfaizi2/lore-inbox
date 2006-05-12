@@ -1,86 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWELMxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWELMy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbWELMxN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 08:53:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWELMxN
+	id S1751221AbWELMy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 08:54:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWELMy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 08:53:13 -0400
-Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:21643 "EHLO
-	mx1.compro.net") by vger.kernel.org with ESMTP id S1751202AbWELMxM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 08:53:12 -0400
-Message-ID: <44648532.8080200@compro.net>
-Date: Fri, 12 May 2006 08:53:06 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-User-Agent: Thunderbird 1.5 (X11/20060111)
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Steven Rostedt <rostedt@goodmis.org>, john stultz <johnstul@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [RFC][PATCH -rt] irqd starvation on SMP by a single process?
-References: <1147401812.1907.14.camel@cog.beaverton.ibm.com> <20060512055025.GA25824@elte.hu> <Pine.LNX.4.58.0605120337150.26721@gandalf.stny.rr.com> <4464740C.8060305@compro.net> <20060512115614.GA28377@elte.hu>
-In-Reply-To: <20060512115614.GA28377@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 12 May 2006 08:54:58 -0400
+Received: from mta07.mail.t-online.hu ([195.228.240.52]:9708 "EHLO
+	mta07.mail.t-online.hu") by vger.kernel.org with ESMTP
+	id S1751221AbWELMy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 08:54:57 -0400
+Subject: [PATCH] i386: Trivial typo fixes
+From: Egry =?ISO-8859-1?Q?G=E1bor?= <gaboregry@t-online.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: trivial-list <trivial@kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 12 May 2006 14:54:53 +0200
+Message-Id: <1147438493.27820.17.camel@spirit>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Mark Hounschell <markh@compro.net> wrote:
-> 
->> Steven Rostedt wrote:
->>> On Fri, 12 May 2006, Ingo Molnar wrote:
->>>
->>>> ah. This actually uncovered a real bug. We were calling __do_softirq()
->>>> with interrupts enabled (and being preemptible) - which is certainly
->>>> bad.
->>> Hmm, I wonder if this is also affecting Mark's problem.
->> I thought the same thing when I read it??
-> 
-> could you try the patch below?
-> 
-> 	Ingo
-> 
-> ----
-> 
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
-> 
->>> one solution would be to forbid disable_irq() from softirq contexts, and
->>> to convert the vortex timeout function to a workqueue and use the
->>> *_delayed_work() APIs to drive it - and cross fingers there's not many
->>> places to fix.
->> I prefer the above. Maybe even add a WARN_ON(in_softirq()) in 
->> disable_irq.
->>
->> But I must admit, I wouldn't know how to make that change without 
->> spending more time on it then I have for this.
-> 
-> the simplest fix for now would be to use the _nosync variant in the 
-> vortex timeout function.
-> 
-> Mark, does this fix the problem?
-> 
-> 	Ingo
-> 
-> Index: linux-rt.q/drivers/net/3c59x.c
-> ===================================================================
-> --- linux-rt.q.orig/drivers/net/3c59x.c
-> +++ linux-rt.q/drivers/net/3c59x.c
-> @@ -1897,7 +1897,8 @@ vortex_timer(unsigned long data)
->  
->  	if (vp->medialock)
->  		goto leave_media_alone;
-> -	disable_irq(dev->irq);
-> +	/* hack! */
-> +	disable_irq_nosync(dev->irq);
->  	old_window = ioread16(ioaddr + EL3_CMD) >> 13;
->  	EL3WINDOW(4);
->  	media_status = ioread16(ioaddr + Wn4_Media);
-> 
 
-Yes it does.
+Trivial typo fixes in Kconfig files (i386).
 
-Mark
+Signed-off-by: Egry Gabor <gaboregry@t-online.hu>
+
+ linux-2.6.17-rc4-i18n-kconfig-gabaman/arch/i386/Kconfig                    |    2 +-
+ linux-2.6.17-rc4-i18n-kconfig-gabaman/arch/i386/Kconfig.cpu                |    2 +-
+
+--
+
+diff -puN arch/i386/Kconfig~kconfig-i18n-22-typo-fixes arch/i386/Kconfig
+--- linux-2.6.17-rc4-i18n-kconfig/arch/i386/Kconfig~kconfig-i18n-22-typo-fixes  2006-05-12 12:43:50.000000000 +0200
++++ linux-2.6.17-rc4-i18n-kconfig-gabaman/arch/i386/Kconfig     2006-05-12 12:43:50.000000000 +0200
+@@ -716,7 +716,7 @@ config KEXEC
+        help
+          kexec is a system call that implements the ability to shutdown your
+          current kernel, and to start another kernel.  It is like a reboot
+-         but it is indepedent of the system firmware.   And like a reboot
++         but it is independent of the system firmware.   And like a reboot
+          you can start any kernel with it, not just Linux.
+ 
+          The name comes from the similiarity to the exec system call.
+diff -puN arch/i386/Kconfig.cpu~kconfig-i18n-22-typo-fixes arch/i386/Kconfig.cpu
+--- linux-2.6.17-rc4-i18n-kconfig/arch/i386/Kconfig.cpu~kconfig-i18n-22-typo-fixes      2006-05-12 12:43:50.000000000 +0200
++++ linux-2.6.17-rc4-i18n-kconfig-gabaman/arch/i386/Kconfig.cpu 2006-05-12 12:43:50.000000000 +0200
+@@ -41,7 +41,7 @@ config M386
+          - "GeodeGX1" for Geode GX1 (Cyrix MediaGX).
+          - "Geode GX/LX" For AMD Geode GX and LX processors.
+          - "CyrixIII/VIA C3" for VIA Cyrix III or VIA C3.
+-         - "VIA C3-2 for VIA C3-2 "Nehemiah" (model 9 and above).
++         - "VIA C3-2" for VIA C3-2 "Nehemiah" (model 9 and above).
+ 
+          If you don't know what to do, choose "386".
+ 
+
+_
+

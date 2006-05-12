@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWELRrr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWELRu7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbWELRrr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 13:47:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWELRrr
+	id S932177AbWELRu7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 13:50:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWELRu7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 13:47:47 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:12504 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932176AbWELRrq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 13:47:46 -0400
-Subject: Re: [RFC][PATCH -rt] irqd starvation on SMP by a single process?
-From: john stultz <johnstul@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: lkml <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>
-In-Reply-To: <20060512055025.GA25824@elte.hu>
-References: <1147401812.1907.14.camel@cog.beaverton.ibm.com>
-	 <20060512055025.GA25824@elte.hu>
-Content-Type: text/plain
-Date: Fri, 12 May 2006 10:47:41 -0700
-Message-Id: <1147456061.9343.12.camel@localhost.localdomain>
+	Fri, 12 May 2006 13:50:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:43745 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932177AbWELRu6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 13:50:58 -0400
+Date: Fri, 12 May 2006 10:53:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Valdis.Kletnieks@vt.edu, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       herbert@13thfloor.at, hch@lst.de
+Subject: Re: 2.6.17-rc3 - fs/namespace.c issue
+Message-Id: <20060512105320.5d9f932c.akpm@osdl.org>
+In-Reply-To: <1147455407.23563.59.camel@moss-spartans.epoch.ncsc.mil>
+References: <200605012106.k41L6GNc007543@turing-police.cc.vt.edu>
+	<20060501143344.3952ff53.akpm@osdl.org>
+	<1147455407.23563.59.camel@moss-spartans.epoch.ncsc.mil>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-05-12 at 07:50 +0200, Ingo Molnar wrote:
-> * john stultz <johnstul@us.ibm.com> wrote:
-> > +		if(!cpus_equal(current->cpus_allowed, irq_affinity[irq]));
-> > +			set_cpus_allowed(current, irq_affinity[irq]);
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>
+> On Mon, 2006-05-01 at 14:33 -0700, Andrew Morton wrote:
+> > Valdis.Kletnieks@vt.edu wrote:
+> > >
+> > > There seems to have been a bug introduced in this changeset:
+> > > 
+> > > http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=f6422f17d3a480f21917a3895e2a46b968f56a08
+> > > 
+> > > Am running 2.6.17-rc3-mm1.  When this changeset is applied, 'mount --bind'
+> > > misbehaves:
+> > > 
+> > > > # mkdir /foo
+> > > > # mount -t tmpfs -o rw,nosuid,nodev,noexec,noatime,nodiratime none /foo
+> > > > # mkdir /foo/bar
+> > > > # mount --bind /foo/bar /foo
+> > > > # tail -2 /proc/mounts
+> > > > none /foo tmpfs rw,nosuid,nodev,noexec,noatime,nodiratime 0 0
+> > > > none /foo tmpfs rw 0 0
+> > > 
+> > > Reverting this changeset causes both mounts to have the same options.
+> > > 
+> > > (Thanks to Stephen Smalley for tracking down the changeset...)
+> > > 
+> > 
+> > (cc's added)
 > 
-> > The patch below appears to correct this issue, however it also
-> > repeatedly(on different irqs) causes the following BUG:
+> What's the verdict on this change in user-visible behavior for bind
+> mounts?  Is it a legitimate change and userland just needs to adapt to
+> it, or is it a change to the kernel's stable ABI that needs to be
+> reverted?  It still appears to be present in -rc4.
 > 
-> ah. This actually uncovered a real bug. We were calling __do_softirq() 
-> with interrupts enabled (and being preemptible) - which is certainly 
-> bad.
-> 
-> this was hidden before because the smp_processor_id() debugging code 
-> handles tasks bound to a single CPU as per-cpu-safe.
-> 
-> could you check the (totally untested) patch below and see if that fixes 
-> things for you? I've also added your affinity change.
 
-Yep, no BUG messages and I get irq affinity behavior that matches what I
-echo into the proc interface.
+Well.  We'd certainly prefer to not change user-visible behaviour without
+excellent reasons - I don't htink any have been given, really.
 
-Looks good to me so far. I'll keep running w/ it and let you know if we
-see any issues.
-
-thanks
--john
-
+AFACIT nobody tested Herbert's 'untested "fix"'.  What was the verdict on
+that?

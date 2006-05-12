@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbWELTFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbWELTFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751340AbWELTFF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 15:05:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWELTFE
+	id S1751354AbWELTFc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 15:05:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWELTFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 15:05:04 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:51842 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751340AbWELTFB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 15:05:01 -0400
-Date: Fri, 12 May 2006 12:08:19 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: "sej.kernel" <sej.kernel@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mlock into kernel module
-Message-ID: <20060512190819.GD2697@moss.sous-sol.org>
-References: <4464A819.2050706@gmail.com>
+	Fri, 12 May 2006 15:05:32 -0400
+Received: from ns.suse.de ([195.135.220.2]:1185 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751354AbWELTFa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 15:05:30 -0400
+Date: Fri, 12 May 2006 12:03:32 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
+Subject: [GIT PATCH] I2C bugfixes for 2.6.17-rc4 - resend
+Message-ID: <20060512190332.GA22627@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4464A819.2050706@gmail.com>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* sej.kernel (sej.kernel@gmail.com) wrote:
-> I need to use mlock and munlock function into a kernel module. How so
-> I call this system call from my module ?
+Here are some i2c bug fixes for a single driver against your current git
+tree.  They all have been in the -mm tree for a few weeks.
 
-You shouldn't.
+Please pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/i2c-2.6.git/
+or from:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/i2c-2.6.git/
+if it isn't synced up yet.
 
-> I need to do this because I must use mlock in my software, but I can't
-> use root or suser to start it. So mlock alwaays fail.
-
-You should be using rlimits for this.
+The full patch series was sent to the sensors mailing list the last time
+this notice was sent out, so I'll not resend them.
 
 thanks,
--chris
+
+greg k-h
+
+
+ drivers/i2c/busses/scx200_acb.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
+
+---------------
+
+Jean Delvare:
+      scx200_acb: Fix return on init error
+      scx200_acb: Fix resource name use after free
+
+Jordan Crouse:
+      scx200_acb: Fix for the CS5535 errata
+

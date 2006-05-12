@@ -1,67 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWELVDN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWELVGu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbWELVDN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 17:03:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWELVDN
+	id S932243AbWELVGu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 17:06:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWELVGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 17:03:13 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12047 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750837AbWELVDM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 17:03:12 -0400
-Date: Fri, 12 May 2006 22:03:01 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Erik Mouw <erik@harddisk-recovery.com>,
-       Or Gerlitz <or.gerlitz@gmail.com>, linux-scsi@vger.kernel.org,
-       axboe@suse.de, Andrew Vasquez <andrew.vasquez@qlogic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG 2.6.17-git] kmem_cache_create: duplicate cache scsi_cmd_cache
-Message-ID: <20060512210300.GE17120@flint.arm.linux.org.uk>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	Erik Mouw <erik@harddisk-recovery.com>,
-	Or Gerlitz <or.gerlitz@gmail.com>, linux-scsi@vger.kernel.org,
-	axboe@suse.de, Andrew Vasquez <andrew.vasquez@qlogic.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20060511151456.GD3755@harddisk-recovery.com> <15ddcffd0605112153q57f139a1k7068e204a3eeaf1f@mail.gmail.com> <20060512171632.GA29077@harddisk-recovery.com> <Pine.LNX.4.64.0605121024310.3866@g5.osdl.org> <1147456038.3769.39.camel@mulgrave.il.steeleye.com> <1147460325.3769.46.camel@mulgrave.il.steeleye.com> <Pine.LNX.4.64.0605121209020.3866@g5.osdl.org> <20060512203850.GC17120@flint.arm.linux.org.uk> <20060512205215.GA26501@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060512205215.GA26501@kroah.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 12 May 2006 17:06:50 -0400
+Received: from heisenberg.zen.co.uk ([212.23.3.141]:12947 "EHLO
+	heisenberg.zen.co.uk") by vger.kernel.org with ESMTP
+	id S932243AbWELVGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 17:06:49 -0400
+Message-ID: <4464F8D9.7020600@cantab.net>
+Date: Fri, 12 May 2006 22:06:33 +0100
+From: David Vrabel <dvrabel@cantab.net>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Michael Buesch <mb@bu3sch.de>
+CC: akpm@osdl.org, Deepak Saxena <dsaxena@plexity.net>,
+       bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org,
+       Sergey Vlasov <vsu@altlinux.ru>
+Subject: Re: [patch 5/9] Add Geode HW RNG driver
+References: <20060512103522.898597000@bu3sch.de> <20060512103648.229129000@bu3sch.de> <44646C08.9000800@cantab.net> <200605122246.58961.mb@bu3sch.de>
+In-Reply-To: <200605122246.58961.mb@bu3sch.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-Heisenberg-IP: [82.70.146.41]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 12, 2006 at 01:52:15PM -0700, Greg KH wrote:
-> On Fri, May 12, 2006 at 09:38:50PM +0100, Russell King wrote:
-> > On Fri, May 12, 2006 at 12:09:50PM -0700, Linus Torvalds wrote:
-> > > On Fri, 12 May 2006, James Bottomley wrote:
-> > > > I suggest simply reversing this patch at the moment.  If Russell and
-> > > > Jens can tell me what they're trying to do I'll see if there's another
-> > > > way to do it.
-> > > 
-> > > Reverted, with a big changelog entry to explain why. 
-> > 
-> > Great, I'm fucked by the SCSI folk again.
-> > 
-> > Can we revert the patch which broke the MMC/SD layer - the one which
-> > added the mount/unmount hotplug events as well then.
+Michael Buesch wrote:
+> On Friday 12 May 2006 13:05, you wrote:
+>> mb@bu3sch.de wrote:
+>>> Signed-off-by: Michael Buesch <mb@bu3sch.de>
+>>> Index: hwrng/drivers/char/hw_random/Kconfig
+>>> ===================================================================
+>>> --- hwrng.orig/drivers/char/hw_random/Kconfig	2006-05-08 00:11:59.000000000 +0200
+>>> +++ hwrng/drivers/char/hw_random/Kconfig	2006-05-08 00:12:08.000000000 +0200
+>>> @@ -35,3 +35,16 @@
+>>>  	  module will be called amd-rng.
+>>>  
+>>>  	  If unsure, say Y.
+>>> +
+>>> +config HW_RANDOM_GEODE
+>>> +	tristate "AMD Geode HW Random Number Generator support"
+>>> +	depends on HW_RANDOM && (X86 || IA64) && PCI
+>>                                      ^^^^^^^
+>> IA64?
 > 
-> Why would the mount/unmount hotplug event change break MMC/SD?  Do you
-> have a reference to the patch in question?
+> I have no idea. I neither wrote the driver, nor do I have the device.
+> So, drop IA64?
 
-Please read the commit message in the change in question.
+Yes, the AMD Geode CPUs are all x86.
 
-The block layer holds on to a reference to a struct device which
-isn't refcounted (until I added it with my patch.)  Hence struct
-gendisk structures have a completely independent lifetime and are
-only destroyed when all references to them are removed.
+>>> +	default y
+>>> +	---help---
+>>> +	  This driver provides kernel-side support for the Random Number
+>>> +	  Generator hardware found on AMD Geode based motherboards.
+>>> +
+>>> +	  To compile this driver as a module, choose M here: the
+>>> +	  module will be called geode-rng.
+>> You need to state which members of the Geode family have this hardware.
+>>  e.g., Is it only the Geode LX CPUs?
+> 
+> Well, no idea. It was not stated in the existing old help text either.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+I checked the datasheets for the Geode GX, Geode LX and Geode NX and 
+only the Geode LX has an on-chip random number generator.  So this 
+driver must be for the Geode LX only.
+
+David Vrabel
+

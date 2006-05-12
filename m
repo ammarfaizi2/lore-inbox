@@ -1,71 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbWELNTX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbWELNTc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751282AbWELNTX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 09:19:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWELNTW
+	id S1751285AbWELNTc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 09:19:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWELNTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 09:19:22 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:51850 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751282AbWELNTW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 09:19:22 -0400
-Date: Fri, 12 May 2006 09:18:38 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Mark Hounschell <markh@compro.net>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Daniel Walker <dwalker@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, johnstul@us.ibm.com
-Subject: Re: rt20 patch question
-In-Reply-To: <446481C8.4090506@compro.net>
-Message-ID: <Pine.LNX.4.58.0605120854480.30264@gandalf.stny.rr.com>
-References: <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
- <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
- <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
- <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com>
- <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
- <20060512092159.GC18145@elte.hu> <446481C8.4090506@compro.net>
+	Fri, 12 May 2006 09:19:32 -0400
+Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:8855 "EHLO
+	mx1.compro.net") by vger.kernel.org with ESMTP id S1751285AbWELNTb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 09:19:31 -0400
+Message-ID: <44648B5E.80105@compro.net>
+Date: Fri, 12 May 2006 09:19:26 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+User-Agent: Thunderbird 1.5 (X11/20060111)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [RFC][PATCH -rt] irqd starvation on SMP by a single process?
+References: <1147401812.1907.14.camel@cog.beaverton.ibm.com> <20060512055025.GA25824@elte.hu> <Pine.LNX.4.58.0605120337150.26721@gandalf.stny.rr.com> <4464740C.8060305@compro.net> <20060512115614.GA28377@elte.hu> <44648532.8080200@compro.net> <Pine.LNX.4.58.0605120902460.30264@gandalf.stny.rr.com>
+In-Reply-To: <Pine.LNX.4.58.0605120902460.30264@gandalf.stny.rr.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steven Rostedt wrote:
+> On Fri, 12 May 2006, Mark Hounschell wrote:
+> 
+>>> Mark, does this fix the problem?
+>>>
+>>> 	Ingo
+>>>
+>>> Index: linux-rt.q/drivers/net/3c59x.c
+>>> ===================================================================
+>>> --- linux-rt.q.orig/drivers/net/3c59x.c
+>>> +++ linux-rt.q/drivers/net/3c59x.c
+>>> @@ -1897,7 +1897,8 @@ vortex_timer(unsigned long data)
+>>>
+>>>  	if (vp->medialock)
+>>>  		goto leave_media_alone;
+>>> -	disable_irq(dev->irq);
+>>> +	/* hack! */
+>>> +	disable_irq_nosync(dev->irq);
+>>>  	old_window = ioread16(ioaddr + EL3_CMD) >> 13;
+>>>  	EL3WINDOW(4);
+>>>  	media_status = ioread16(ioaddr + Wn4_Media);
+>>>
+>> Yes it does.
+>>
+> 
+> 
+> It fixes it for both "complete preemption" and "normal preemption"?
+> 
+> -- Steve
+> 
+> 
 
-On Fri, 12 May 2006, Mark Hounschell wrote:
+Nope, I still have the complete preemption problem. My box locked up
+right away. Had to reboot it.
 
-> Ingo Molnar wrote:
-> >
-> > Mark, does this fix the problem?
-> >
-> > 	Ingo
-> >
-[...]
->
-> It looks like it does fix at least the BUG and network disconnection
-> problem I am/was seeing. It's been 45 minutes or so without a glitch.
->
-> I'm still not running this in complete preempt mode. Should I see if it
-> helps that situation also? It only took a few minutes for that one to
-> show up.
->
+You guys know best but I think the problem the above patch fixes is
+probably not related to my 'complete preemption' problem or the problem
+reported by John. But my 'complete preemption' problem may certainly be
+the same as Johns.
 
-
-I was looking at the logdump, but I don't see anything spinning.  CPU 1
-seems to be constantly running your v67 program (alternating with
-posix_cpu_timer), and CPU: 0 is still switching with the swapper, along
-with other tasks, so that this means nothing is just spinning and hogging
-the CPU (on CPU 0, but I assume the v67 tasks is suppose to keep running).
-
-But, this could mean that something is blocked on a lock, or missed a
-wakeup somewhere and we block X from responding. Although X is shown up,
-but some signal to do an event my be prevented.
-
-I wonder if the fact that softirqs are running with preemption enabled, is
-the problem here.
-
-Could you try the patch that Ingo sent here:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114741312301909&q=raw
-
--- Steve
-
+Mark

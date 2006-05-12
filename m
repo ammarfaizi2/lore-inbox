@@ -1,55 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbWELKGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWELKGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751111AbWELKGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 06:06:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWELKGZ
+	id S1751110AbWELKGS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 06:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbWELKGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 06:06:25 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:34991 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751111AbWELKGY (ORCPT
+	Fri, 12 May 2006 06:06:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24526 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751110AbWELKGS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 06:06:24 -0400
-Date: Fri, 12 May 2006 12:05:44 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-Cc: Patrick Mochel <mochel@digitalimplant.org>
-Subject: [PATCH/rfc] schedule /sys/device/.../power for removal
-Message-ID: <20060512100544.GA29010@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 12 May 2006 06:06:18 -0400
+Date: Fri, 12 May 2006 03:03:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, hch@lst.de, bcrl@kvack.org,
+       cel@citi.umich.edu
+Subject: Re: [PATCH 1/4] Vectorize aio_read/aio_write methods
+Message-Id: <20060512030309.3a94bea8.akpm@osdl.org>
+In-Reply-To: <1147361939.12117.12.camel@dyn9047017100.beaverton.ibm.com>
+References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>
+	<1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
+	<1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com>
+	<1147361939.12117.12.camel@dyn9047017100.beaverton.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is very ugly, and we really should use names instead.
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+>  drivers/usb/gadget/inode.c        |   71 +++++++++++++++++++++++++++-----------
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+The changes in this file don't even approximately vaguely have the
+remotest chance of compiling.  Please send fix.
 
-diff --git a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
-index 421bcff..dfcfc47 100644
---- a/Documentation/feature-removal-schedule.txt
-+++ b/Documentation/feature-removal-schedule.txt
-@@ -6,6 +6,16 @@ be removed from this file.
- 
- ---------------------------
- 
-+What:	/sys/device/.../power
-+When:	July 2007
-+Files:	
-+Why:	Because it takes integers, and different userland applications
-+	expect different numbers to mean different things.
-+	(Pcmcia expect 2 for off, some other code expects 3 for off).
-+Who:	Pavel Machek <pavel@suse.cz>
-+
-+---------------------------
-+
- What:	devfs
- When:	July 2005
- Files:	fs/devfs/*, include/linux/devfs_fs*.h and assorted devfs
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

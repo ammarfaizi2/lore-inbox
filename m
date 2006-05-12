@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWELSUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbWELS34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbWELSUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 14:20:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWELSUJ
+	id S1751220AbWELS34 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 14:29:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbWELS34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 14:20:09 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:43983
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1751217AbWELSUI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 14:20:08 -0400
-From: Rob Landley <rob@landley.net>
+	Fri, 12 May 2006 14:29:56 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:48254 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751220AbWELS34 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 14:29:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=mo7BgHtaDuf4X5r0IWkIv40bQKi2nqIiIUso9Ct4yrtj6JcvhRCDZLLYWhb7pEERZ8ipwaRVahllSdxaVMkQGwgAKwJRKLH1aUAehEXGHK7MqvRH2tsYzJmQIHkVoR6gdCydPc5SybN5e7thHVnwMsYFctSK2ssdxopTt6y/ZQU=
+Message-ID: <3d78499d0605121129m3fe0951fy68e55ec1dce13397@mail.gmail.com>
+Date: Fri, 12 May 2006 13:29:52 -0500
+From: "Captain Wiggum" <captwiggum@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Which process context does /sbin/hotplug run in?
-Date: Fri, 12 May 2006 14:20:59 -0400
-User-Agent: KMail/1.8.3
+Subject: Linux kernel 2.6.16.14 boot errors: udevd-event: udev_make_node and find_free_number
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200605121421.00044.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stupid question bout the interaction of initramfs, hotplug, and per-process 
-filesystem namespaces:
+My 2.6.15.4 booted without any errors or warnings. Now with 2.6.16.14 I
+get the below errors. I have also installed 2.6.16.14 on another
+computer, and it works great there. I stepped through every kernel
+config option and everything is in place.
 
-I do this from initramfs:
+Any ideas? All suggestions appreciated.
 
-  echo /sbin/mdev > /proc/sys/kernel/hotplug
+Gentoo, gcc 3.4.4-r1, P4-1.5GHz, 512MB RAM, hp pavilion 7955.
 
-At the moment I do that, the first "/" in /sbin/mdev points to rootfs.  
-Shortly thereafter I do a switch_root, which does a chroot.  Does hotplug 
-still point into rootfs?  Or does it point to whatever "/" for PID 1 points 
-to now?
+-------------------------
+BOOT, CONSOLE MESSAGES:
 
-Since every process could be in a different chroot environment, how do I know 
-which process context the kernel_thread that call_usermodehelper() runs in 
-was parented from?  It seems random: the x86 implementation of 
-call_usermodehelper() is calling do_fork(), and seems to be using the 
-namespace of whatever process it's running in.  Which could be a chroot 
-process that doesn't have the hotplug I pointed it at visible in its 
-namespace at all...
-
-Anybody know this one?  Now that filesystem namespaces are per-process, and 
-move/bind mounts let us have cycles in our trees, as far as I can tell we 
-could actually have two completely detached namespaces with different sets of 
-processes in each.  A path to hotplug isn't 
-
-Rob
-
-P.S:  mount a filesystem under itself.  Fun for the whole family:
-mount -t tmpfs /tmp /tmp
-cd /tmp
-mkdir sub
-mount --bind sub /var
-cd /var
-mkdir sub2
-mount --move /tmp sub2
--- 
-Never bet against the cheap plastic solution.
+...<snip>...
+* Populating /dev with saved device nodes ...                            [ ok ]
+* Seeding /dev with needed nodes ...
+cp: cannot create special file `/dev/null': File exists
+cp: cannot create special file `/dev/zero': File exists                  [ ok ]
+* Setting up proper hotplug agent ...
+*   Using netlink for hotplug events...                                  [ ok ]
+* Starting udevd ...                                                     [ ok ]
+* Populating /dev with existing devices through uevents ...
+udevd-event[1462]: udev_make_node: mknod(/dev/ttyS0, 020660, 4, 64)
+failed: File exists
+udevd-event[1463]: udev_make_node: mknod(/dev/ttyS1, 020660, 4, 65)
+failed: File exists
+udevd-event[1464]: udev_make_node: mknod(/dev/ttyS2, 020660, 4, 66)
+failed: File exists
+udevd-event[1465]: udev_make_node: mknod(/dev/ttyS3, 020660, 4, 67)
+failed: File exists
+                                                                         [ ok ]
+* Letting udev process events ...
+udevd-event[1984]: find_free_number: %e is deprecated, will be removed
+and is unlikey to work correctly. Don't use it.
+udevd-event[1986]: find_free_number: %e is deprecated, will be removed
+and is unlikey to work correctly. Don't use it.
+                     [ ok ]
+* Finializing udev configuration ...                                     [ ok ]
+...<snip>...

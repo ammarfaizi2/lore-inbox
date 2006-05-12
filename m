@@ -1,74 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWELPVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWELPWd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932124AbWELPVK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 11:21:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWELPVJ
+	id S932130AbWELPWd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 11:22:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbWELPWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 11:21:09 -0400
-Received: from crystal.sipsolutions.net ([195.210.38.204]:5602 "EHLO
-	sipsolutions.net") by vger.kernel.org with ESMTP id S932124AbWELPVI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 11:21:08 -0400
-Subject: Re: [patch 9/9] Add bcm43xx HW RNG support
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: Michael Buesch <mb@bu3sch.de>, akpm@osdl.org,
-       Deepak Saxena <dsaxena@plexity.net>, bcm43xx-dev@lists.berlios.de,
-       linux-kernel@vger.kernel.org, Sergey Vlasov <vsu@altlinux.ru>
-In-Reply-To: <200605121816.55025.vda@ilport.com.ua>
-References: <20060512103522.898597000@bu3sch.de>
-	 <20060512103649.060196000@bu3sch.de> <200605121816.55025.vda@ilport.com.ua>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-A6WlIrzwPHZDZUGfLlwO"
-Date: Fri, 12 May 2006 17:20:24 +0200
-Message-Id: <1147447224.7404.43.camel@johannes.berg>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Fri, 12 May 2006 11:22:32 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:29845 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932130AbWELPWX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 11:22:23 -0400
+Date: Fri, 12 May 2006 11:22:07 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Andrew Morton <akpm@osdl.org>
+cc: mingo@elte.hu, markh@compro.net, linux-kernel@vger.kernel.org,
+       dwalker@mvista.com, tglx@linutronix.de
+Subject: Re: 3c59x vortex_timer rt hack (was: rt20 patch question)
+In-Reply-To: <20060512074929.031d4eaf.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0605121110320.3328@gandalf.stny.rr.com>
+References: <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
+ <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
+ <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
+ <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com>
+ <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
+ <20060512092159.GC18145@elte.hu> <Pine.LNX.4.58.0605120904110.30264@gandalf.stny.rr.com>
+ <20060512071645.6b59e0a2.akpm@osdl.org> <Pine.LNX.4.58.0605121029540.30264@gandalf.stny.rr.com>
+ <Pine.LNX.4.58.0605121036150.30264@gandalf.stny.rr.com>
+ <20060512074929.031d4eaf.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-A6WlIrzwPHZDZUGfLlwO
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Fri, 12 May 2006, Andrew Morton wrote:
 
-On Fri, 2006-05-12 at 18:16 +0300, Denis Vlasenko wrote:
+>
+> So yes, doing spin_lock_irq() (irqrestore isn't needed in a timer handler)
+> instead of disable_irq() in vortex_timer() looks OK.
+>
+> One does wonder how long we'll hold off interrupts though.
 
-> Didn't you mean
->=20
-> 	*(u16*)data =3D bcm43xx_read16(bcm, BCM43xx_MMIO_RNG); ?
->=20
-> > +	bcm43xx_unlock(bcm, flags);
-> > +
-> > +	return (sizeof(u16));
-> > +}
+Any longer than this!
 
-I'm not the expert, but looking at patch 2 I'd say no, because one byte
-is copied out and then the value is right-shifted, so it is always
-treated as a u32 where only 'size' bytes are valid starting with the
-lower bytes.
+in boomerang_start_xmit()
 
-johannes
+	spin_lock_irqsave(&vp->lock, flags);
 
---=-A6WlIrzwPHZDZUGfLlwO
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+	/* Wait for the stall to complete. */
+	issue_and_wait(dev, DownStall);
 
------BEGIN PGP SIGNATURE-----
+  Pretty big wait!
 
-iQIVAwUARGSntaVg1VMiehFYAQKLqRAAnApvULQA5iaOd2+1YLHiB8iCsXjrn0Lt
-pnfoA3PKsG0bQg39SzDFg1BIazFII1tJ7fFfwhc5EcQlQ4/UhRr6pMV1akQZfq8y
-xfTx6O/yUvcSZ+1SgHiqrHvSxqqHDVx4vKJMfZou0r7TKn/TROgL4Yod9YVPJZ1c
-uZWmOIRAOjN2jBVj7PIQFGG6x5gG9tiUqa04LJtidlwtKFS0eIS/vWUFD7e3CNRP
-q8OSI2o5WP5s6lg+qNeEB8mstxrfSS1X029dXnsZJhmAB6OxOguPbNxAt+5gLe0q
-e2NUXEVFrK9Pf3z2Ju+FzJXUT88LJQh2GfQ4Qh6zeMcc1f2UTGEozlKT+usdSWJu
-VBCEaBX1FBdBU8rGQiq/4ZBCHVDmEiQ60K1qxMwcQN8FpArNyMXArs73qpqkQhlX
-CUxnv2wht5Cn57+4ldOYtonOM4k/JvITCUhfaGWOSiyiAS9N00CEpJUA1RckAWDU
-I8Klym8tE/Y2te68+XrJF1Lq4q8rvCwb0vT6JsOXjUlDANFymJK38y0aQGSbQ7nW
-kbJ3KbpEDskupPMtxuHf4UcwaNJKhIofazuSp8Jl564pIJm5NQiHv7mSLgEWXWO7
-KJgu//4PRIU8Wz0WaflocA0norhtNvNwXGbe7o49oQhsPBy7jLdwKnChVjXNWWs/
-ssXmqHcegrw=
-=pKWa
------END PGP SIGNATURE-----
+    [...]
 
---=-A6WlIrzwPHZDZUGfLlwO--
+	spin_unlock_irqrestore(&vp->lock, flags);
+
+
+Where we have in issue_and_wait
+
+static void
+issue_and_wait(struct net_device *dev, int cmd)
+{
+
+ [...]
+
+	/* OK, that didn't work.  Do it the slow way.  One second */
+	for (i = 0; i < 100000; i++) {
+
+ [...]
+}
+
+So this can have interrupts off for over a second!
+
+-- Steve
 

@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWELPIY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbWELPMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWELPIY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 11:08:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWELPIY
+	id S932118AbWELPMO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 11:12:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWELPMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 11:08:24 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:39569
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S932113AbWELPIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 11:08:23 -0400
-Subject: [PATCH] remove dead entry in net wan Kconfig
-From: Paul Fulghum <paulkf@microgate.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Fri, 12 May 2006 10:08:14 -0500
-Message-Id: <1147446494.10079.5.camel@amdx2.microgate.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 12 May 2006 11:12:14 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:57831 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S932118AbWELPMN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 11:12:13 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 12 May 2006 08:12:06 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@alien.or.mcafeemobile.com
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+cc: jimmy <jimmyb@huawei.com>, Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux poll() <sigh> again
+In-Reply-To: <Pine.LNX.4.61.0605121050060.9212@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.64.0605120809490.15220@alien.or.mcafeemobile.com>
+References: <6bkl7-56Y-11@gated-at.bofh.it> <4463D1E4.5070605@shaw.ca>
+ <Pine.LNX.4.61.0605120745050.8670@chaos.analogic.com> <44649C85.5000704@shaw.ca>
+ <44649FAB.4080806@huawei.com> <Pine.LNX.4.61.0605121050060.9212@chaos.analogic.com>
+X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
+X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove dead entry from net wan Kconfig.
-This entry is left over from 2.4 where synclink
-used syncppp driver directly. synclink drivers
-now use generic HDLC
+On Fri, 12 May 2006, linux-os (Dick Johnson) wrote:
 
-Signed-off-by: Paul Fulghum <paulkf@microgate.com>
+> If linux doesn't support POLLHUP, then it shouldn't be documented.
+> I got the same king of crap^M^M^M^Mresponse the last time I reported
+> this __very__ __obvious__ defect!  The information is available
+> in the kernel. It should certainly report it, just like other
+> operating systems do, including <shudder> wsock32.
 
---- linux-2.6.16/drivers/net/wan/Kconfig	2006-03-19 23:53:29.000000000 -0600
-+++ b/drivers/net/wan/Kconfig	2006-05-12 09:17:03.000000000 -0500
-@@ -134,18 +134,6 @@
- 	  The driver will be compiled as a module: the
- 	  module will be called sealevel.
- 
--config SYNCLINK_SYNCPPP
--	tristate "SyncLink HDLC/SYNCPPP support"
--	depends on WAN
--	help
--	  Enables HDLC/SYNCPPP support for the SyncLink WAN driver.
--
--	  Normally the SyncLink WAN driver works with the main PPP driver
--	  <file:drivers/net/ppp_generic.c> and pppd program.
--	  HDLC/SYNCPPP support allows use of the Cisco HDLC/PPP driver
--	  <file:drivers/net/wan/syncppp.c>. The SyncLink WAN driver (in
--	  character devices) must also be enabled.
--
- # Generic HDLC
- config HDLC
- 	tristate "Generic HDLC layer"
+Try to search the list (and the source) for POLLRDHUP ...
+
+
+- Davide
 
 

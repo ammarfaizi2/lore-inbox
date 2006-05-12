@@ -1,49 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWELKVT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWELKYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751140AbWELKVT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 06:21:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWELKVS
+	id S1751144AbWELKYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 06:24:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWELKYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 06:21:18 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:13538 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751140AbWELKVS (ORCPT
+	Fri, 12 May 2006 06:24:25 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:43682 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751142AbWELKYY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 06:21:18 -0400
-Date: Fri, 12 May 2006 12:20:57 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: dada1@cosmosbay.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC, PATCH] cond_resched() added to close_files()
-Message-ID: <20060512102057.GA22985@elte.hu>
-References: <20060419112130.GA22648@elte.hu> <44577822.8050103@mbligh.org> <20060502155244.GA5981@elte.hu> <200605022155.31990.dada1@cosmosbay.com> <20060503070152.GB23921@elte.hu> <20060512024446.00a0b407.akpm@osdl.org>
+	Fri, 12 May 2006 06:24:24 -0400
+Date: Fri, 12 May 2006 12:24:23 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org
+Subject: Re: Linux v2.6.17-rc4
+Message-ID: <20060512102422.GA30285@harddisk-recovery.com>
+References: <Pine.LNX.4.64.0605111640010.3866@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060512024446.00a0b407.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <Pine.LNX.4.64.0605111640010.3866@g5.osdl.org>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> Makes my machine hang early during the startup of init.
+On Thu, May 11, 2006 at 04:44:03PM -0700, Linus Torvalds wrote:
+> Ok, I've let the release time between -rc's slide a bit too much again, 
+> but -rc4 is out there, and this is the time to hunker down for 2.6.17.
 > 
-> The last process to pass through close_file() is `hostname', presuably 
-> parented by init.  `hostname' exits then everything stops.  init is 
-> left sleeping in select().
-> 
-> All very strange.
+> If you know of any regressions, please holler now, so that we don't miss 
+> them. 
 
-weird. This really shouldnt cause a hang - i think there must be a bug 
-hiding elsewhere, this cond_resched() ought to be fine.
+I got assertion failures in the bcm43xx driver:
 
-	Ingo
+bcm43xx: Chip ID 0x4318, rev 0x2
+bcm43xx: Number of cores: 4
+bcm43xx: Core 0: ID 0x800, rev 0xd, vendor 0x4243, enabled
+bcm43xx: Core 1: ID 0x812, rev 0x9, vendor 0x4243, disabled
+bcm43xx: Core 2: ID 0x804, rev 0xc, vendor 0x4243, enabled
+bcm43xx: Core 3: ID 0x80d, rev 0x7, vendor 0x4243, enabled
+bcm43xx: PHY connected
+bcm43xx: Detected PHY: Version: 3, Type 2, Revision 7
+bcm43xx: Detected Radio: ID: 8205017f (Manuf: 17f Ver: 2050 Rev: 8)
+bcm43xx: Radio turned off
+bcm43xx: Radio turned off
+bcm43xx: PHY connected
+bcm43xx: Radio turned on
+bcm43xx: ASSERTION FAILED (radio_attenuation < 10) at: drivers/net/wireless/bcm43xx/bcm43xx_phy.c:1485:bcm43xx_find_lopair()
+bcm43xx: ASSERTION FAILED (radio_attenuation < 10) at: drivers/net/wireless/bcm43xx/bcm43xx_phy.c:1485:bcm43xx_find_lopair()
+bcm43xx: ASSERTION FAILED (radio_attenuation < 10) at: drivers/net/wireless/bcm43xx/bcm43xx_phy.c:1485:bcm43xx_find_lopair()
+bcm43xx: Chip initialized
+bcm43xx: DMA initialized
+bcm43xx: 80211 cores initialized
+bcm43xx: Keys cleared
+ADDRCONF(NETDEV_UP): eth2: link is not ready
+bcm43xx: ASSERTION FAILED (radio_attenuation < 10) at: drivers/net/wireless/bcm43xx/bcm43xx_phy.c:1485:bcm43xx_find_lopair()
+ieee80211_crypt: registered algorithm 'WEP'
+
+
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

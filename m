@@ -1,46 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWELV6G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWELWAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932262AbWELV6G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 17:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWELV6G
+	id S932260AbWELWAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 18:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWELWAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 17:58:06 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:13954 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932259AbWELV6E
+	Fri, 12 May 2006 18:00:08 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37390 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932260AbWELWAH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 17:58:04 -0400
-Date: Fri, 12 May 2006 22:58:00 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>, Erik Mouw <erik@harddisk-recovery.com>,
-       Or Gerlitz <or.gerlitz@gmail.com>, linux-scsi@vger.kernel.org,
-       axboe@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG 2.6.17-git] kmem_cache_create: duplicate cache scsi_cmd_cache
-Message-ID: <20060512215800.GQ27946@ftp.linux.org.uk>
-References: <20060511151456.GD3755@harddisk-recovery.com> <15ddcffd0605112153q57f139a1k7068e204a3eeaf1f@mail.gmail.com> <20060512171632.GA29077@harddisk-recovery.com> <Pine.LNX.4.64.0605121024310.3866@g5.osdl.org> <20060512203416.GA17120@flint.arm.linux.org.uk> <20060512214354.GP27946@ftp.linux.org.uk>
+	Fri, 12 May 2006 18:00:07 -0400
+Date: Fri, 12 May 2006 21:56:45 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
+       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Subject: Re: [RFC PATCH 28/35] add support for Xen feature queries
+Message-ID: <20060512215645.GA4491@ucw.cz>
+References: <20060509084945.373541000@sous-sol.org> <20060509085158.933866000@sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060512214354.GP27946@ftp.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060509085158.933866000@sous-sol.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 12, 2006 at 10:43:54PM +0100, Al Viro wrote:
-> On Fri, May 12, 2006 at 09:34:16PM +0100, Russell King wrote:
-> > On Fri, May 12, 2006 at 10:36:57AM -0700, Linus Torvalds wrote:
-> > > Yes. We could just revert that commit, but it seems correct, and I'd 
-> > > really like for somebody to understand _why_ that commit matters at all. I 
-> > > certainly don't see the overlap here..
-> > 
-> > Reverting the commit breaks MMC/SD in a very real way, and the fix
-> > is plainly correct and is actually the only possible fix that can be
-> > applied.
-> 
-> Bullshit.  Could you explain what generic code dereferences ->driverfs_dev
-> after del_gendisk()?  If you see such beast, please tell; _that_ is the
-> real bug.
+Hi!
 
-Aha...  So block_uevent() appears to be badly broken.  Lovely...
+> Add support for parsing and interpreting hypervisor feature
+> flags. These allow the kernel to determine what features are provided
+> by the underlying hypervisor. For example, whether page tables need to
+> be write protected explicitly by the kernel, and whether the kernel
+> (appears to) run in ring 0 rather than ring 1. This information allows
+> the kernel to improve performance by avoiding unnecessary actions.
 
-OK, could somebody explain WTF is userland supposed to do with event
-refering to device that had been gone for a long time?
+
+> --- /dev/null
+> +++ linus-2.6/include/xen/features.h
+> @@ -0,0 +1,20 @@
+> +/******************************************************************************
+> + * features.h
+> + *
+> + * Query the features reported by Xen.
+> + *
+> + * Copyright (c) 2006, Ian Campbell
+> + */
+> +
+> +#ifndef __ASM_XEN_FEATURES_H__
+> +#define __ASM_XEN_FEATURES_H__
+> +
+> +#include <xen/interface/version.h>
+> +
+> +extern void setup_xen_features(void);
+> +
+> +extern u8 xen_features[XENFEAT_NR_SUBMAPS * 32];
+
+32 bytes per submap? Why not use __test_bit & friends and make the
+bitmap compact?
+
+> +#define xen_feature(flag)	(xen_features[flag])
+
+Perhaps this kind of indirection is not neccessary?
+
+> --- /dev/null
+> +++ linus-2.6/drivers/xen/core/features.c
+> @@ -0,0 +1,29 @@
+> +/******************************************************************************
+> + * features.c
+> + *
+> + * Xen feature flags.
+> + *
+> + * Copyright (c) 2006, Ian Campbell, XenSource Inc.
+
+GPL?
+						Pavel
+-- 
+Thanks for all the (sleeping) penguins.

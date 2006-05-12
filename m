@@ -1,33 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWELV2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751021AbWELVcg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932242AbWELV2A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 17:28:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWELV2A
+	id S1751021AbWELVcg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 17:32:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWELVcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 17:28:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:4034 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750803AbWELV17 (ORCPT
+	Fri, 12 May 2006 17:32:36 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35267 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750754AbWELVcf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 17:27:59 -0400
-Date: Fri, 12 May 2006 14:27:19 -0700 (PDT)
+	Fri, 12 May 2006 17:32:35 -0400
+Date: Fri, 12 May 2006 14:32:05 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
+To: Greg KH <gregkh@suse.de>
+cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
        Erik Mouw <erik@harddisk-recovery.com>,
        Or Gerlitz <or.gerlitz@gmail.com>, linux-scsi@vger.kernel.org,
        axboe@suse.de, Andrew Vasquez <andrew.vasquez@qlogic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <gregkh@suse.de>
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [BUG 2.6.17-git] kmem_cache_create: duplicate cache scsi_cmd_cache
-In-Reply-To: <20060512205804.GD17120@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0605121409250.3866@g5.osdl.org>
+In-Reply-To: <20060512211853.GB26708@suse.de>
+Message-ID: <Pine.LNX.4.64.0605121430110.3866@g5.osdl.org>
 References: <20060511151456.GD3755@harddisk-recovery.com>
  <15ddcffd0605112153q57f139a1k7068e204a3eeaf1f@mail.gmail.com>
  <20060512171632.GA29077@harddisk-recovery.com> <Pine.LNX.4.64.0605121024310.3866@g5.osdl.org>
  <1147456038.3769.39.camel@mulgrave.il.steeleye.com>
  <1147460325.3769.46.camel@mulgrave.il.steeleye.com>
  <Pine.LNX.4.64.0605121209020.3866@g5.osdl.org> <20060512203850.GC17120@flint.arm.linux.org.uk>
- <Pine.LNX.4.64.0605121346060.3866@g5.osdl.org> <20060512205804.GD17120@flint.arm.linux.org.uk>
+ <Pine.LNX.4.64.0605121346060.3866@g5.osdl.org> <20060512211853.GB26708@suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -35,107 +35,120 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 12 May 2006, Russell King wrote:
+On Fri, 12 May 2006, Greg KH wrote:
+> 
+> No, I don't know, that's why I just asked :)
+> 
+> And this bug doesn't have anything to do with why my mmc/sd cards are
+> suddenly not showing up at all anymore in my laptop, right?  I need to
+> track that regression from 2.6.17-rc1 down...
+
+Well, that's certainly an interesting regression to look into too..
+
+Here's all I know as back-ground.. Russell's patch certainly _looked_ ok, 
+which is why it then got acked and merged, but that was before we had 
+multiple people reporting that it breaks things for them.
+
+		Linus
+
+--
+On Thu, 4 May 2006, Russell King wrote:
 >
-> On Fri, May 12, 2006 at 01:50:46PM -0700, Linus Torvalds wrote:
+> Linus,
+> 
+> This has been confirmed to fix an issue which Mikkel discovered, and
+> I'm now seeing reports from other people about this.
+> 
+> I'm not getting any response on it from either Al or Jens and it
+> appears to be otherwise ignored - help!  Would you take this patch
+> direct from me?
+> 
+> ----- Forwarded message from Russell King <rmk+lkml@arm.linux.org.uk> -----
+> 
+> Date:	Fri, 7 Apr 2006 15:40:46 +0100
+> From:	Russell King <rmk+lkml@arm.linux.org.uk>
+> To:	Pierre Ossman <drzeus-list@drzeus.cx>,
+> 	Al Viro <viro@ftp.uk.linux.org>, Jens Axboe <axboe@suse.de>
+> Cc:	Mikkel Erup <mikkelerup@yahoo.com>, Greg KH <greg@kroah.com>,
+> 	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+> Subject: Re: sdhci driver produces kernel oops on ejecting the card
+> 
+> On Fri, Apr 07, 2006 at 10:47:54AM +0200, Pierre Ossman wrote:
+> > Mikkel Erup wrote:
+> > > 
+> > > It happens with 2.6.16-git20 as well.
+> > > Attached are the log file and kernel .config
+> > > 
 > > 
-> > No, you introduced a regression. This isn't the SCSI layer being evil, 
-> > this is the "regressions aren't acceptable".
+> > Since it ooopses during umount, I'm guessing that it's a problem
+> > somewhere in mmc_block. I'll try to get some time to look closer at it
+> > during the weekend. Perhaps Russell has some idea until then?
 > 
-> No - I introduced a correct fix.
-
-Not so. 
-
-You introduced a commit that fixed one thing, and broke another thing.
-
-This is not rocket science, Russell. This is how programming works. There 
-are dependencies on behaviour, and if you change behaviour, it can fix one 
-problem while breaking another one, because different sides depend on 
-different semantics.
-
-Real complexity is in linkages and communication. Surprise, surprise.
-
-The _real_ broken ends up being elsewhere. It might just be a 
-communication error (two different subsystems got the wrong idea because 
-of bad communication about how something _should_ be used), but it migth 
-also be some bad design.
-
-But saying that the two one-liners were the "correct fix" is premature 
-just because they fixed the symptoms for _you_.
-
-> It seems that fixing simple bugs cause other bugs, and that means we're
-> heading into a maintainability nightmare.
-
-That's just stupid, Russell.
-
-You DID NOT FIX A SIMPLE BUG.
-
-You made a change, that on the face of it _looked_ like a simple fix for a 
-simple bug. It wasn't. No amount of you saying so makes it so. It broke 
-something else, and suddenly what you claim was a simple and clear bug-fix 
-obviously isn't.
-
-Ergo, it ended up not being "fixing simple bugs" at all.
-
-> No idea I'm afraid, and since I've had a _really_ extremely shitty couple
-> of days I'm not about to start going to look for it.
-
-Right. You're pissy. That's fine. But you having a shitty couple of days 
-doesn't mean you need to take it out on everybody else. Especially not 
-when people actually offered to help, and asked for details on exactly 
-what the problem that _you_ tracked was.
-
-You depend on the exact same infrastructure that SCSI depends on. SCSI has 
-different expectations of that infrastructure than you do. Arguably, there 
-are more SCSI users out there than MMC users, so when you claim that it's 
-SCSI's fault, you're being biased. It's equally possible that the fault 
-was in the MMC layer all along, and that the MMC layers use of the 
-structure was the thing that caused the oops for the MMC later.
-
-Since you didn't bother to even point to the oopses or the patch that 
-caused then now, you aren't actually giving any reason to believe that 
-your view of the situation is the only right one. 
-
-So you havign a hissy-fit actually makes it harder for people to even help 
-you. James already said
-
-	"If Russell and Jens can tell me what they're trying to do I'll 
-	 see if there's another way to do it."
-
-but you didn't, you just started ranting.
-
-See? Not very useful, is it?
-
-> > Really, the added ref-count should be gotten by whoever holds on to the 
-> > thing, and it sounds like it's the hotplug event that caused this and 
-> > should have held on to its hotplug reference.
+> $ grep -n driverfs_dev block/genhd.c
+> 558:    physdev = disk->driverfs_dev;
+> $
 > 
-> ... which would be the genhd layer - it's keeping the driverfs_dev
-> around so that the genhd layer can generate hotplug events using it
-> at mount/umount time.  Thanks for just re-confirming my original fix
-> and that it's SCSI which is the real problem. 8)
+> Hmm, okay, genhd contains a reference to a device object, but there's
+> no sign of _any_ refcounting in sight.
+> 
+> What's happening is that the MMC card block device is setup and registered
+> with genhd.  We set md->disk->driverfs_dev to point at the owning device
+> structure.
+> 
+> This generates a uevent, which causes disk->driverfs_dev to be dereferenced.
+> All fine here.  We mount the partition, which causes another uevent to be
+> generated, again dereferencing disk->driverfs_dev.
+> 
+> If we remove the MMC card, we destroy the MMC card block device.  This
+> seems to generate another uevent for the block device.  At this point,
+> the counted references to the MMC card block device fall to zero.
+> 
+> But wait!  There's still uncounted disk->driverfs_dev reference waiting
+> for...
+> 
+> You unmount the partition.  This calls block_uevent, which dereferences
+> disk->driverfs_dev.  You know what happens now.
+> 
+> The levels above genhd can't do the refcounting because they don't know
+> when stuff has finished with driverfs_dev.  So the only place for sane
+> refcounting seems to be genhd.c, as per the patch below.
+> 
+> Comments?
+> 
+> diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej -x .git a/block/genhd.c b/block/genhd.c
+> --- a/block/genhd.c	Sat Feb 18 10:31:37 2006
+> +++ b/block/genhd.c	Fri Apr  7 15:22:21 2006
+> @@ -262,6 +262,7 @@ static int exact_lock(dev_t dev, void *d
+>   */
+>  void add_disk(struct gendisk *disk)
+>  {
+> +	get_device(disk->driverfs_dev);
+>  	disk->flags |= GENHD_FL_UP;
+>  	blk_register_region(MKDEV(disk->major, disk->first_minor),
+>  			    disk->minors, NULL, exact_match, exact_lock, disk);
+> @@ -507,6 +508,7 @@ static struct attribute * default_attrs[
+>  static void disk_release(struct kobject * kobj)
+>  {
+>  	struct gendisk *disk = to_disk(kobj);
+> +	put_device(disk->driverfs_dev);
+>  	kfree(disk->random);
+>  	kfree(disk->part);
+>  	free_disk_stats(disk);
+> 
+> 
+> -- 
+> Russell King
+>  Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+>  maintainer of:  2.6 Serial core
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> ----- End forwarded message -----
+> 
+> -- 
+> Russell King
+> 
 
-No. You want your fix to be the correct one, but the fact is, it may well 
-not be that at all. Maybe - once we look at what the oops is - we find 
-that it really _is_ the MMC layer that just doesn't follow the assumptions 
-that the device layer was doing.
-
-I said "sounds like". And without help, we can't much help you. And being 
-pissy about it, will just make everybody more sure that it's the MMC 
-layer.
-
-Reference counts aren't always simple. Exactly because you can get a 
-"recursive" reference count, where a device holds on to its reference 
-count just by account of existing - and that is a BUG, because such a 
-reference count will obviously never go down to zero.
-
-Now, not going down to zero will certainly hide any problems that come 
-from the object being released early, because it will _never_ be released. 
-And it sounds like this is actually what your patch _really_ caused. The 
-oops went away, but perhaps at the cost of a leak?
-
-And hey, maybe your patch was proper, and the bug really _is_ in the SCSI 
-layer. In which case we get back to that message from James that you 
-ignored.
-
-			Linus

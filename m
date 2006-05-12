@@ -1,83 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWELOmV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWELOn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932103AbWELOmV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 10:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbWELOmV
+	id S932105AbWELOn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 10:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWELOn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 10:42:21 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:41488 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932103AbWELOmU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 10:42:20 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 12 May 2006 14:42:19.0015 (UTC) FILETIME=[45232170:01C675D2]
-Content-class: urn:content-classes:message
-Subject: Re: Segfault on the i386 enter instruction
-Date: Fri, 12 May 2006 10:42:18 -0400
-Message-ID: <Pine.LNX.4.61.0605121033030.9091@chaos.analogic.com>
-In-Reply-To: <200605121720.13820.vda@ilport.com.ua>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Segfault on the i386 enter instruction
-Thread-Index: AcZ10kVJBrBaxVsKTBur6DMaoBYsow==
-References: <20060512131654.GB2994@duch.mimuw.edu.pl> <Pine.LNX.4.61.0605121003450.9012@chaos.analogic.com> <200605121720.13820.vda@ilport.com.ua>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Denis Vlasenko" <vda@ilport.com.ua>
-Cc: "Tomasz Malesinski" <tmal@mimuw.edu.pl>, <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Fri, 12 May 2006 10:43:26 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:62946 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932105AbWELOnZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 10:43:25 -0400
+Date: Fri, 12 May 2006 16:43:05 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Andrew Morton <akpm@osdl.org>, markh@compro.net,
+       LKML <linux-kernel@vger.kernel.org>, dwalker@mvista.com,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: 3c59x vortex_timer rt hack (was: rt20 patch question)
+Message-ID: <20060512144305.GA4683@elte.hu>
+References: <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com> <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com> <20060512081628.GA26736@elte.hu> <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com> <20060512092159.GC18145@elte.hu> <Pine.LNX.4.58.0605120904110.30264@gandalf.stny.rr.com> <20060512071645.6b59e0a2.akpm@osdl.org> <Pine.LNX.4.58.0605121029540.30264@gandalf.stny.rr.com> <Pine.LNX.4.58.0605121036150.30264@gandalf.stny.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0605121036150.30264@gandalf.stny.rr.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 12 May 2006, Denis Vlasenko wrote:
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-> On Friday 12 May 2006 17:07, linux-os (Dick Johnson) wrote:
->>> 	.file	"a.c"
->>> 	.version	"01.01"
->>> gcc2_compiled.:
->>> .section	.rodata
->>> .LC0:
->>> 	.string	"asdf\n"
->>> .text
->>> 	.align 4
->>> .globl main
->>> 	.type	 main,@function
->>> main:
->>> 	enter $10008, $0
->>> #	pushl %ebp
->>> #	movl %esp,%ebp
->>> #	subl $10008,%esp
->>> 	addl $-12,%esp
->>          ^^^^^^^^^^^^^^____________ WTF
->>          adding a negative number is subtracting that positive value.
->>          You just subtracted 0xfffffff3 (on a 32-bit machine) from
->>          the stack pointer. It damn-well better seg-fault!
->
-> No. Try it yourself.
-> --
-> vda
+> Use this patch instead.  It needs an irq disable.  But, believe it or 
+> not, on SMP this is actually better.  If the irq is shared (as it is 
+> in Mark's case), we don't stop the irq of other devices from being 
+> handled on another CPU (unfortunately for Mark, he pinned all 
+> interrupts to one CPU).
+> 
+> Andrew,
+> 
+> should this be changed in mainline too?
+> 
+> -- Steve
+> 
+> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-It doesn't matter. It means that you still own the space there
-(it's mapped into your process). The code is bogus, broken beyond
-all repair. It has nothing to do with 'enter' it has to do with
-putting the stack pointer (wrapping it) to somewhere it shouldn't
-be. The stack pointer is normally around 0xafff0000. It just got
-wrapped down past zero up to fafff00d, then stuff got pushed
-onto it for the call.
+yeah, would be nice to have this upstream too. It's not urgent so can go 
+post-2.6.17. I've added it to the -rt tree.
 
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
-New book: http://www.lymanschool.com
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+	Ingo

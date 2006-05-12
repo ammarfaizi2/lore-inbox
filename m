@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWELOUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWELOTt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932090AbWELOUW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 10:20:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWELOUW
+	id S932089AbWELOTt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 10:19:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbWELOTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 10:20:22 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:9452 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S932090AbWELOUU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 10:20:20 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-Subject: Re: Segfault on the i386 enter instruction
-Date: Fri, 12 May 2006 17:20:13 +0300
-User-Agent: KMail/1.8.2
-Cc: "Tomasz Malesinski" <tmal@mimuw.edu.pl>, linux-kernel@vger.kernel.org
-References: <20060512131654.GB2994@duch.mimuw.edu.pl> <Pine.LNX.4.61.0605121003450.9012@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0605121003450.9012@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 12 May 2006 10:19:49 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:34013 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932089AbWELOTs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 10:19:48 -0400
+Date: Fri, 12 May 2006 16:19:21 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andy Whitcroft <apw@shadowen.org>, nickpiggin@yahoo.com.au,
+       haveblue@us.ibm.com, bob.picco@hp.com, mbligh@mbligh.org, ak@suse.de,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 0/3] Zone boundry alignment fixes
+Message-ID: <20060512141921.GA564@elte.hu>
+References: <445DF3AB.9000009@yahoo.com.au> <exportbomb.1147172704@pinky> <20060511005952.3d23897c.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605121720.13820.vda@ilport.com.ua>
+In-Reply-To: <20060511005952.3d23897c.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 May 2006 17:07, linux-os (Dick Johnson) wrote:
-> > 	.file	"a.c"
-> > 	.version	"01.01"
-> > gcc2_compiled.:
-> > .section	.rodata
-> > .LC0:
-> > 	.string	"asdf\n"
-> > .text
-> > 	.align 4
-> > .globl main
-> > 	.type	 main,@function
-> > main:
-> > 	enter $10008, $0
-> > #	pushl %ebp
-> > #	movl %esp,%ebp
-> > #	subl $10008,%esp
-> > 	addl $-12,%esp
->          ^^^^^^^^^^^^^^____________ WTF
->          adding a negative number is subtracting that positive value.
->          You just subtracted 0xfffffff3 (on a 32-bit machine) from
->          the stack pointer. It damn-well better seg-fault!
 
-No. Try it yourself.
---
-vda
+* Andrew Morton <akpm@osdl.org> wrote:
+
+> There's some possibility here of interaction with Mel's "patchset to 
+> size zones and memory holes in an architecture-independent manner." I 
+> jammed them together - let's see how it goes.
+
+update: Andy's 3 patches, applied to 2.6.17-rc3-mm1, fixed all the 
+crashes and asserts i saw. NUMA-on-x86 is now rock-solid on my testbox. 
+Great work Andy!
+
+	Ingo

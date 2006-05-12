@@ -1,39 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWELPb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWELPbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932101AbWELPb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 11:31:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWELPb4
+	id S932136AbWELPbk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 11:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWELPbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 11:31:56 -0400
-Received: from mail.gmx.net ([213.165.64.20]:43977 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932141AbWELPbz (ORCPT
+	Fri, 12 May 2006 11:31:40 -0400
+Received: from duch.mimuw.edu.pl ([193.0.96.2]:46467 "EHLO duch.mimuw.edu.pl")
+	by vger.kernel.org with ESMTP id S932139AbWELPbk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 11:31:55 -0400
-X-Authenticated: #14349625
-Subject: Re: swapping and oom-killer: gfp_mask=0x201d2, order=0
-From: Mike Galbraith <efault@gmx.de>
-To: Al Boldi <a1426z@gawab.com>
+	Fri, 12 May 2006 11:31:40 -0400
+Date: Fri, 12 May 2006 17:31:39 +0200
+From: Tomasz Malesinski <tmal@mimuw.edu.pl>
+To: Andi Kleen <ak@suse.de>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200605121517.59988.a1426z@gawab.com>
-References: <200605111514.45503.a1426z@gawab.com>
-	 <1147412910.8432.14.camel@homer>  <200605121517.59988.a1426z@gawab.com>
-Content-Type: text/plain
-Date: Fri, 12 May 2006 17:31:53 +0200
-Message-Id: <1147447913.7520.6.camel@homer>
+Subject: Re: Segfault on the i386 enter instruction
+Message-ID: <20060512153139.GA4852@duch.mimuw.edu.pl>
+References: <20060512131654.GB2994@duch.mimuw.edu.pl> <p734pzv73oj.fsf@bragg.suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p734pzv73oj.fsf@bragg.suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-05-12 at 15:17 +0300, Al Boldi wrote:
-> Note that this is not specific to mem=8M, but rather a general oom 
-> observation even for mem=4G, where it is only much later to occur.
+On Fri, May 12, 2006 at 03:50:20PM +0200, Andi Kleen wrote:
+> Handling it like you expect would require to disassemble 
+> the function in the page fault handler and it's probably not 
+> worth doing that for this weird case.
 
-An oom situation with 4G ram would be more interesting than this one.
+Does it mean that the ENTER instruction should not be used to create
+stack frames in Linux programs?
 
-	-Mike
-
-
-
+-- 
+Tomek Malesinski

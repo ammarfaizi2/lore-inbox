@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbWELIjf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWELIpl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751078AbWELIjf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 04:39:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWELIjf
+	id S1751089AbWELIpl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 04:45:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWELIpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 04:39:35 -0400
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:55702 "EHLO mta1.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S1751078AbWELIje (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 04:39:34 -0400
-Date: Fri, 12 May 2006 09:38:40 +0100
-From: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-To: Jan Beulich <jbeulich@novell.com>
-Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       Zachary Amsden <zach@vmware.com>, Ian Pratt <ian.pratt@xensource.com>
-Subject: Re: [Xen-devel] Re: [RFC PATCH 07/35] Make LOAD_OFFSET defined by subarch
-Message-ID: <20060512083839.GI7834@cl.cam.ac.uk>
-References: <20060509084945.373541000@sous-sol.org> <20060509085150.509458000@sous-sol.org> <44627733.4010305@vmware.com> <20060511164300.GA7834@cl.cam.ac.uk> <44644B91.76E4.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44644B91.76E4.0078.0@novell.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 12 May 2006 04:45:41 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:40163 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751089AbWELIpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 04:45:40 -0400
+Date: Fri, 12 May 2006 04:45:24 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: Mark Hounschell <markh@compro.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Daniel Walker <dwalker@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: rt20 patch question
+In-Reply-To: <20060512081628.GA26736@elte.hu>
+Message-ID: <Pine.LNX.4.58.0605120435570.28581@gandalf.stny.rr.com>
+References: <446089CF.3050809@compro.net> <1147185483.21536.13.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+ <4460ADF8.4040301@compro.net> <Pine.LNX.4.58.0605100827500.3282@gandalf.stny.rr.com>
+ <4461E53B.7050905@compro.net> <Pine.LNX.4.58.0605100938100.4503@gandalf.stny.rr.com>
+ <446207D6.2030602@compro.net> <Pine.LNX.4.58.0605101215220.19935@gandalf.stny.rr.com>
+ <44623157.9090105@compro.net> <Pine.LNX.4.58.0605101556580.22959@gandalf.stny.rr.com>
+ <20060512081628.GA26736@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 12, 2006 at 08:47:13AM +0200, Jan Beulich wrote:
-> >I've updated our loader to support this now, so that this patch is
-> >no longer necessary.  I have at the same time added a new field to
-> >xen_guest which allows specifying the entry point, allowing us to have
-> >a different entry point when running the kernel image on Xen.
-> 
-> Why do you need a separate entry point here? The code should be able to figure out which mode it is run in without
-> problems...
 
-I think it's the cleanest way to have different startup code for
-native and non-native in the same kernel.  But even if that's not
-needed (for Linux), then you can have it point at the same address.
-It is also always pointing to a virtual address, while the elf header
-one now points to a physical address which doesn't make much sense
-in the environment we start the kernel.
+On Fri, 12 May 2006, Ingo Molnar wrote:
 
-    christian
+>
+> > So I guess we have a case that we can schedule, but while atomic and
+> > BUG when it's really not bad.  Should we add something like this:
+>
+> that's not good enough, we must not schedule with the preempt_count()
+> set.
+
+It gets even worse, with your new fix, the softirq will schedule with
+interrutps disabled, which would definitely BUG.
+
+>
+> one solution would be to forbid disable_irq() from softirq contexts, and
+> to convert the vortex timeout function to a workqueue and use the
+> *_delayed_work() APIs to drive it - and cross fingers there's not many
+> places to fix.
+
+I prefer the above. Maybe even add a WARN_ON(in_softirq()) in disable_irq.
+
+But I must admit, I wouldn't know how to make that change without spending
+more time on it then I have for this.
+
+>
+> another solution would be to make softirqs preemptible if they are
+> threaded. I'm a bit uneasy about that though. In that case we'd also
+> have to make HARDIRQ threading dependent on softirq threading, in the
+> Kconfig.
+
+scary.
+
+-- Steve
 

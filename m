@@ -1,47 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWELKaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbWELKaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751088AbWELKaz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 06:30:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbWELKaz
+	id S1751068AbWELKaP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 06:30:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWELKaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 06:30:55 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4506 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751088AbWELKay (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 06:30:54 -0400
-Date: Fri, 12 May 2006 12:30:13 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
-Subject: Re: [PATCH -mm] swsusp: support creating bigger images (rev. 2)
-Message-ID: <20060512103013.GG28232@elf.ucw.cz>
-References: <200605021200.37424.rjw@sisk.pl> <200605110058.19458.rjw@sisk.pl> <20060511113519.GB27638@elf.ucw.cz> <200605120949.47046.ncunningham@cyclades.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605120949.47046.ncunningham@cyclades.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 12 May 2006 06:30:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:34774 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751068AbWELKaN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 06:30:13 -0400
+Date: Fri, 12 May 2006 03:27:02 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org,
+       mochel@digitalimplant.org
+Subject: Re: [PATCH/rfc] schedule /sys/device/.../power for removal
+Message-Id: <20060512032702.3591289f.akpm@osdl.org>
+In-Reply-To: <20060512101916.GC28232@elf.ucw.cz>
+References: <20060512100544.GA29010@elf.ucw.cz>
+	<20060512031151.76a9d226.akpm@osdl.org>
+	<20060512101916.GC28232@elf.ucw.cz>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Too much uncertainity for 10% speedup, I'm afraid. Yes, it was really
-> > clever to get this fundamental change down to few hundred lines, but
-> > design complexity remains. Could we drop that patch?
+Pavel Machek <pavel@suse.cz> wrote:
+>
+> On Pá 12-05-06 03:11:51, Andrew Morton wrote:
+> > Pavel Machek <pavel@ucw.cz> wrote:
+> > >
+> > > It is very ugly, and we really should use names instead.
+> > > 
+> > > Signed-off-by: Pavel Machek <pavel@suse.cz>
+> > > 
+> > > diff --git a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
+> > > index 421bcff..dfcfc47 100644
+> > > --- a/Documentation/feature-removal-schedule.txt
+> > > +++ b/Documentation/feature-removal-schedule.txt
+> > > @@ -6,6 +6,16 @@ be removed from this file.
+> > >  
+> > >  ---------------------------
+> > >  
+> > > +What:	/sys/device/.../power
+> > > +When:	July 2007
+> > > +Files:	
+> > > +Why:	Because it takes integers, and different userland applications
+> > > +	expect different numbers to mean different things.
+> > > +	(Pcmcia expect 2 for off, some other code expects 3 for off).
+> > > +Who:	Pavel Machek <pavel@suse.cz>
+> > > +
+> > > +---------------------------
+> > 
+> > What will be impacted by this?
 > 
-> Could you provide justification for your claim that the speedup is
-> only 10%?
+> Some obscure place PCMCIA utils, IIRC. There was one more user, but I
+> do not remember who it was. Plus there may be few people doing echo
+> manually.
 
-10% was number Rafael provided, IIRC.
+What will it be replaced with, and how will we communicate the need to
+migrate to the various application developers?  We can't just rip it out
+next year and point at some obscure entry in a kernel file and say "but we
+told you".
 
-> Please also remember that you are introducing complexity in other ways, with 
-> that swap prefetching code and so on. Any comparison in speed should include 
-> the time to fault back in pages that have been discarded.
-
-Well, swap prefetching is useful for other workloads, too; so it gets
-developed/tested outside swsusp.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Some five-times-per-reboot printk which tells people they should be using
+/sys/device/.../whatever-it-will-be-called might be appropriate.

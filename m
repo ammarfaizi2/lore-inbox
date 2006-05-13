@@ -1,82 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbWEMI0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbWEMIvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751001AbWEMI0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 04:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbWEMI0Y
+	id S1751115AbWEMIvR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 04:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbWEMIvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 04:26:24 -0400
-Received: from dsl081-033-126.lax1.dsl.speakeasy.net ([64.81.33.126]:34029
-	"EHLO bifrost.lang.hm") by vger.kernel.org with ESMTP
-	id S1750985AbWEMI0X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 04:26:23 -0400
-Date: Sat, 13 May 2006 01:26:16 -0700 (PDT)
-From: David Lang <david@lang.hm>
-X-X-Sender: dlang@david.lang.hm
-To: Roger Luethi <rl@hellgate.ch>
-cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: network freeze with nforce-A939 integrated rhine card
-In-Reply-To: <Pine.LNX.4.62.0605122209330.2803@qnivq.ynat.uz>
-Message-ID: <Pine.LNX.4.62.0605130122310.2801@qnivq.ynat.uz>
-References: <Pine.LNX.4.62.0605112235170.2802@qnivq.ynat.uz>
- <20060512214109.GD2274@k3.hellgate.ch> <Pine.LNX.4.62.0605122209330.2803@qnivq.ynat.uz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 13 May 2006 04:51:17 -0400
+Received: from lug-owl.de ([195.71.106.12]:32388 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1750752AbWEMIvQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 04:51:16 -0400
+Date: Sat, 13 May 2006 10:51:14 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Phillip Hellewell <phillip@hellewell.homeip.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
+       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, toml@us.ibm.com,
+       yoder1@us.ibm.com, James Morris <jmorris@namei.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>, Erez Zadok <ezk@cs.sunysb.edu>,
+       David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 1/13: eCryptfs] fs/Makefile and fs/Kconfig
+Message-ID: <20060513085114.GB23642@lug-owl.de>
+Mail-Followup-To: Phillip Hellewell <phillip@hellewell.homeip.net>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk,
+	mike@halcrow.us, mhalcrow@us.ibm.com, mcthomps@us.ibm.com,
+	toml@us.ibm.com, yoder1@us.ibm.com, James Morris <jmorris@namei.org>,
+	"Stephen C. Tweedie" <sct@redhat.com>,
+	Erez Zadok <ezk@cs.sunysb.edu>, David Howells <dhowells@redhat.com>
+References: <20060513033742.GA18598@hellewell.homeip.net> <20060513034051.GA18631@hellewell.homeip.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="kORqDWCi7qDJ0mEj"
+Content-Disposition: inline
+In-Reply-To: <20060513034051.GA18631@hellewell.homeip.net>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 May 2006, David Lang wrote:
 
-> On Fri, 12 May 2006, Roger Luethi wrote:
->
->> On Thu, 11 May 2006 22:59:44 -0700, David Lang wrote:
->>> I haven't had time to go back and find where is started (my prior kernel
->>> was 2.6.15-rc7), but with 2.6.17-rc1/2/3/4 I've been running into a
->>> problem where when transfering large amounts of data (trying to ftp a TB
->> 
->> "where is started" sounds as if it used to work at some point. In your
->> second posting, however, you note that the problem goes back at least to
->> 2.6.13. So are there any kernels known not to exhibit the problem you
->> described?
->
-> when I posted this origionally I thought it was new in 2.6.17-rc, however 
-> since my testing with older kernels hasn't found me a working one yet I 
-> suspect that other factors have been involved with makeing it work.
->
-> these failures have been on multi-gig files ftp'd from the raid array on my 
-> machine to the raid array on the replacement machine. In the past I've 
-> sucessfully transfered similar sized files to/from my tivo (slow network), my 
-> laptop (slow drive), and smaller sets of files to single drives on other 
-> systems (7200rpm drives, but not to arrays).
->
-> as I type this I'm starting a test going from a single drive on this machine 
-> to the raid array on the remote machine to transfer ~84G of data. My 
-> suspicion is that this is going to work.
+--kORqDWCi7qDJ0mEj
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I just confirmed this, I was able to transfer 84G with no trouble starting 
-from /dev/hdb, but starting from /dev/md0 the nic hung in less then 3G
+On Fri, 2006-05-12 21:40:51 -0600, Phillip Hellewell <phillip@hellewell.hom=
+eip.net> wrote:
+> This is the 1st patch in a series of 13 constituting the kernel
+> components of the eCryptfs cryptographic filesystem.
+>=20
+> This patch modifies the fs/Kconfig and fs/Makefile files to
+> incorporate eCryptfs into the kernel build.
 
-a good boot logs
-eth0: VIA Rhine II at 0xe8121000, 00:11:5b:f4:14:a3, IRQ 17.
-eth0: MII PHY found at address 1, status 0x7869 advertising 05e1 Link cde1.
+This should have been the last patch: if you're building with a random
+config and only this patch applied (applying in order, of course), you
+won't get a kernel image.
 
-root@david:~# ethtool eth0
-Settings for eth0:
-         Supported ports: [ TP MII ]
-         Supported link modes:   10baseT/Half 10baseT/Full
-                                 100baseT/Half 100baseT/Full
-         Supports auto-negotiation: Yes
-         Advertised link modes:  10baseT/Half 10baseT/Full
-                                 100baseT/Half 100baseT/Full
-         Advertised auto-negotiation: Yes
-         Speed: 100Mb/s
-         Duplex: Full
-         Port: MII
-         PHYAD: 1
-         Transceiver: internal
-         Auto-negotiation: on
-         Supports Wake-on: pumbg
-         Wake-on: d
-         Current message level: 0x00000001 (1)
-         Link detected: yes
+MfG, JBG
 
-David Lang
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--kORqDWCi7qDJ0mEj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFEZZ4CHb1edYOZ4bsRAlIOAKCL8Z7Gjz8fbQqGlXEIE2Ck9Nh2IgCeLOtH
+W96+o24jXllsE7RhjaXZ+7o=
+=hwep
+-----END PGP SIGNATURE-----
+
+--kORqDWCi7qDJ0mEj--

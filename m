@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWEMP3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbWEMPbt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbWEMP3s (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 11:29:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWEMP3s
+	id S932442AbWEMPbt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 11:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWEMPbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 11:29:48 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:10981 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751284AbWEMP3r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 11:29:47 -0400
-Message-ID: <4465FB5C.6070808@steeleye.com>
-Date: Sat, 13 May 2006 11:29:32 -0400
-From: Paul Clements <paul.clements@steeleye.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Neil Brown <neilb@suse.de>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 008 of 8] md/bitmap: Change md/bitmap file handling to
- use bmap to file blocks.
-References: <20060512160121.7872.patches@notabene>	<1060512060809.8099@suse.de>	<20060512104750.0f5cb10a.akpm@osdl.org>	<17509.22160.118149.49714@cse.unsw.edu.au> <20060512235934.4f609019.akpm@osdl.org>
-In-Reply-To: <20060512235934.4f609019.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 13 May 2006 11:31:49 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:59627 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751324AbWEMPbt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 11:31:49 -0400
+Subject: Re: [Sdhci-devel] sdhci needs card to be present when loading
+	module.
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Greg KH <greg@kroah.com>
+Cc: drzeus-sdhci@drzeus.cx, linux-kernel@vger.kernel.org,
+       sdhci-devel@list.drzeus.cx
+In-Reply-To: <20060512232940.GA30610@kroah.com>
+References: <20060512232940.GA30610@kroah.com>
+Content-Type: text/plain
+Date: Sat, 13 May 2006 17:33:07 +0200
+Message-Id: <1147534387.19948.11.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Hi Greg,
 
-> The loss of pagecache coherency seems sad.  I assume there's never a
-> requirement for userspace to read this file.
+> In the 2.6.17-rc4 kernel (and 2.6.17-rc1), on my laptop, if you load the
+> sdhci driver with no SD card in the slot, it never seems to be able to
+> detect the insertion of a new card later on.
+> 
+> However, if I load the module with a card present.  Removing it and then
+> plugging it (or another one) in later seems to work just fine.
 
-Actually, there is. mdadm reads the bitmap file, so that would be 
-broken. Also, it's just useful for a user to be able to read the bitmap 
-(od -x, or similar) to figure out approximately how much more he's got 
-to resync to get an array in-sync. Other than reading the bitmap file, I 
-don't know of any way to determine that.
+I had the same problem with my Ricoh controller (in an IBM X41) and the
+latest sdhci driver from mainline. Try the audit patch from Pierre, but
+be careful. For me it freezes the machine on eject, because of an
+endless loop waiting for some hardware state to change.
 
---
-Paul
+Regards
+
+Marcel
+
 

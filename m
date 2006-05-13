@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbWEMPpP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWEMPpD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932455AbWEMPpP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 11:45:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWEMPpO
+	id S932451AbWEMPpD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 11:45:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWEMPpD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 11:45:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:25296 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932452AbWEMPpN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 11:45:13 -0400
-Date: Sat, 13 May 2006 08:42:08 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Clements <paul.clements@steeleye.com>
-Cc: neilb@suse.de, linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 008 of 8] md/bitmap: Change md/bitmap file handling to
- use bmap to file blocks.
-Message-Id: <20060513084208.0857ff52.akpm@osdl.org>
-In-Reply-To: <4465FB5C.6070808@steeleye.com>
-References: <20060512160121.7872.patches@notabene>
-	<1060512060809.8099@suse.de>
-	<20060512104750.0f5cb10a.akpm@osdl.org>
-	<17509.22160.118149.49714@cse.unsw.edu.au>
-	<20060512235934.4f609019.akpm@osdl.org>
-	<4465FB5C.6070808@steeleye.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 13 May 2006 11:45:03 -0400
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:48818 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932451AbWEMPpC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 11:45:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=08ZqmCd+Z2eN1VlDtUYgsjubengzQJ6lMKrSsSE5gtgqKMvO4AjwOvO7COSVJCrGGJxVtbZGl423jyRsGNKTRMYvNVPGTuMiARy7OhygsB8cGM1ukLNDDE4uUJYZWrz4H0f9cuP+shcLbQnKka+tuYjHVy2w3mQd3at3ZvosxSA=  ;
+Message-ID: <4465FEFD.9050603@yahoo.com.au>
+Date: Sun, 14 May 2006 01:45:01 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Takashi Iwai <tiwai@suse.de>
+CC: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
+       akpm@osdl.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Silly bitmap size accounting fix
+References: <Pine.LNX.4.58.0605120403540.28581@gandalf.stny.rr.com>	<20060512091451.GA18145@elte.hu>	<4465386B.9090804@yahoo.com.au>	<Pine.LNX.4.58.0605131010110.27003@gandalf.stny.rr.com> <s5hpsiivsw8.wl%tiwai@suse.de>
+In-Reply-To: <s5hpsiivsw8.wl%tiwai@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Clements <paul.clements@steeleye.com> wrote:
->
-> Andrew Morton wrote:
+Takashi Iwai wrote:
+> At Sat, 13 May 2006 10:12:11 -0400 (EDT),
+> Steven Rostedt wrote:
 > 
-> > The loss of pagecache coherency seems sad.  I assume there's never a
-> > requirement for userspace to read this file.
+>>
+>>Index: linux-2.6.17-rc3-mm1/kernel/sched.c
+>>===================================================================
+>>--- linux-2.6.17-rc3-mm1.orig/kernel/sched.c	2006-05-12 04:02:32.000000000 -0400
+>>+++ linux-2.6.17-rc3-mm1/kernel/sched.c	2006-05-13 10:09:15.000000000 -0400
+>>@@ -192,6 +192,10 @@ static inline unsigned int task_timeslic
+>>  * These are the runqueue data structures:
+>>  */
+>>
+>>+/*
+>>+ * Calculate BITMAP_SIZE.
+>>+ *  The bitmask holds MAX_PRIO bits + 1 for the delimiter.
+>>+ */
+>> #define BITMAP_SIZE ((((MAX_PRIO+1+7)/8)+sizeof(long)-1)/sizeof(long))
 > 
-> Actually, there is. mdadm reads the bitmap file, so that would be 
-> broken. Also, it's just useful for a user to be able to read the bitmap 
-> (od -x, or similar) to figure out approximately how much more he's got 
-> to resync to get an array in-sync. Other than reading the bitmap file, I 
-> don't know of any way to determine that.
+> 
+> What's wrong with BITS_TO_LONG(MAX_PRIO + 1) ?
+> 
+> Or, using DECLARE_BITMAP() in struct prio_array would be easier...
 
-Read it with O_DIRECT :(
+Yes that sounds even better.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

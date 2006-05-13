@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751314AbWEMPic@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751332AbWEMPj6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751314AbWEMPic (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 11:38:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbWEMPic
+	id S1751332AbWEMPj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 11:39:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWEMPj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 11:38:32 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:24993 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751314AbWEMPib (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 11:38:31 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Chris Wright <chrisw@sous-sol.org>
-Subject: Re: Linux 2.6.16.16
-Date: Sat, 13 May 2006 17:35:19 +0200
-User-Agent: KMail/1.9.1
-Cc: Maciej Soltysiak <solt2@dns.toxicfilms.tv>, linux-kernel@vger.kernel.org
-References: <20060511022547.GE25010@moss.sous-sol.org> <296295514.20060511123419@dns.toxicfilms.tv> <20060511173312.GI25010@moss.sous-sol.org>
-In-Reply-To: <20060511173312.GI25010@moss.sous-sol.org>
+	Sat, 13 May 2006 11:39:57 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:35781 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751332AbWEMPj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 11:39:57 -0400
+Date: Sat, 13 May 2006 11:39:41 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Mike Galbraith <efault@gmx.de>
+cc: Florian Paul Schmidt <mista.tapas@gmx.net>,
+       Darren Hart <dvhltc@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: rt20 scheduling latency testcase and failure data
+In-Reply-To: <1147521338.7909.5.camel@homer>
+Message-ID: <Pine.LNX.4.58.0605131137070.27751@gandalf.stny.rr.com>
+References: <200605121924.53917.dvhltc@us.ibm.com>  <20060513112039.41536fb5@mango.fruits>
+ <1147521338.7909.5.camel@homer>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605131735.20062.ioe-lkml@rameria.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Chris,
 
-first of all: Thanks for the good work!
+On Sat, 13 May 2006, Mike Galbraith wrote:
 
-On Thursday, 11. May 2006 19:33, Chris Wright wrote:
-> Assigning any official severity is a bit of a slippery slope, but
-> making sure it's clear what type of issue (i.e. local DoS in this case)
-> is very reasonable.
+> On Sat, 2006-05-13 at 11:20 +0200, Florian Paul Schmidt wrote:
+>
+> > P.S.: I ran the test a few [20 or so] times and didn't get any failures
+> > of the sort you see. Even with a 1ms period:
+>
+> Something odd happened here... the first time I booted rt21, I could
+> reproduce the problem quite regularly.  Since reboot though, poof.
+>
+> Elves and Gremlins.
+>
 
-Yes, I agree.
+Careful, rt21 has a bug slipped in that might have funny results on SMP
+machines:
 
-I would like to know:
-- local or remote exploitable
-- if a DoS: hang, only service failure, major slowdown 
-- privilege escalation possiible and how far (valid user, root, kernel-level)
-- required privileges (root or user)
++		if (!cpus_equal(current->cpus_allowed, irq_affinity[irq]));
++			set_cpus_allowed(current, irq_affinity[irq]);
 
-That would help risk management a lot :-)
+John (although he later fixed it) added a ; after the if.  But the fix is
+not yet in Ingo's patch.
 
-If you have a lot of time: Affected software components, but these can
-be taken from the patches/commit info or CVE.
-
-Thanks & Regards
-
-Ingo Oeser
+-- Steve

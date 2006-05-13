@@ -1,65 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWEMLiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWEMLhs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932386AbWEMLiW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 07:38:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbWEMLiW
+	id S932389AbWEMLhs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 07:37:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWEMLhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 07:38:22 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:10898 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932386AbWEMLiV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 07:38:21 -0400
-From: Neil Brown <neilb@suse.de>
-To: Stefan Smietanowski <stesmi@stesmi.com>
-Date: Sat, 13 May 2006 21:37:45 +1000
-MIME-Version: 1.0
+	Sat, 13 May 2006 07:37:48 -0400
+Received: from mx1.lost-oasis.net ([212.85.153.8]:55174 "EHLO
+	mx1.lost-oasis.net") by vger.kernel.org with ESMTP id S932389AbWEMLhr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 07:37:47 -0400
+Date: Sat, 13 May 2006 13:37:31 +0200
+From: Mathieu Chouquet-Stringer <mchouque@free.fr>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: rth@twiddle.net, ink@jurassic.park.msu.ru, akpm@osdl.org
+Subject: Remove duplicate symbol exports on Alpha
+Message-ID: <20060513113731.GA31654@bigip.bigip.mine.nu>
+Mail-Followup-To: Mathieu Chouquet-Stringer <mchouque@free.fr>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	rth@twiddle.net, ink@jurassic.park.msu.ru, akpm@osdl.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17509.50441.790871.230011@cse.unsw.edu.au>
-Cc: Douglas McNaught <doug@mcnaught.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Mark Rosenstand <mark@borkware.net>, linux-kernel@vger.kernel.org
-Subject: Re: Executable shell scripts
-In-Reply-To: message from Stefan Smietanowski on Saturday May 13
-References: <20060513103841.B6683146AF@hunin.borkware.net>
-	<1147517786.3217.0.camel@laptopd505.fenrus.org>
-	<20060513110324.10A38146AF@hunin.borkware.net>
-	<1147518432.3217.2.camel@laptopd505.fenrus.org>
-	<87r72yi346.fsf@suzuka.mcnaught.org>
-	<4465C2E8.8070106@stesmi.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday May 13, stesmi@stesmi.com wrote:
-> > 
-> > Every Unix I've ever seen works this way.  It'd be nice to have
-> > unreadable executable scripts, but no one's ever done it.
-> 
-> The solution would be to either stick bash in the kernel (YUCK!)
-> or to have the kernel basically copy the read-only script to /tmp
-> or somewhere else, set permissions to sane values and
-> /bin/sh /tmp/foo.a12345.
+	Hello,
 
-... or open the script file (which there kernel has to do anyway),
-attach it to some unused fd (e.g. fd3) and pass  "/dev/fd/3" to the
-interpreter rather than "/the/shell/script".
+This patch fixes the following warnings seen on alpha using 2.6.17-rc4:
+WARNING: vmlinux: 'enable_irq' exported twice. Previous export was in vmlinux
+WARNING: vmlinux: 'disable_irq' exported twice. Previous export was in vmlinux
+WARNING: vmlinux: 'disable_irq_nosync' exported twice. Previous export was in vmlinux
+WARNING: vmlinux: 'probe_irq_mask' exported twice. Previous export was in vmlinux
+WARNING: vmlinux: 'sys_open' exported twice. Previous export was in vmlinux
+WARNING: vmlinux: 'sys_read' exported twice. Previous export was in vmlinux
+WARNING: vmlinux: 'strstr' exported twice. Previous export was in vmlinux
+WARNING: vmlinux: 'memscan' exported twice. Previous export was in vmlinux
+WARNING: vmlinux: 'memcmp' exported twice. Previous export was in vmlinux
+WARNING: vmlinux: 'strnlen' exported twice. Previous export was in vmlinux
+WARNING: vmlinux: 'strncmp' exported twice. Previous export was in vmlinux
+WARNING: vmlinux: 'strcmp' exported twice. Previous export was in vmlinux
 
-Then the interpreter doesn't need to be able to open the file for
-read.
+Signed-off-by: Mathieu Chouquet-Stringer <mchouque@free.fr>
 
-However it isn't clear that this is really a gain, as the person
-running the script could use ptrace or similar to take a copy of the
-script, the bypassing the missing 'r' permission.
+diff --git a/arch/alpha/kernel/alpha_ksyms.c b/arch/alpha/kernel/alpha_ksyms.c
+index c645c5e..3f70154 100644
+--- a/arch/alpha/kernel/alpha_ksyms.c
++++ b/arch/alpha/kernel/alpha_ksyms.c
+@@ -53,10 +53,6 @@ extern void __divqu (void);
+ extern void __remqu (void);
+ 
+ EXPORT_SYMBOL(alpha_mv);
+-EXPORT_SYMBOL(enable_irq);
+-EXPORT_SYMBOL(disable_irq);
+-EXPORT_SYMBOL(disable_irq_nosync);
+-EXPORT_SYMBOL(probe_irq_mask);
+ EXPORT_SYMBOL(screen_info);
+ EXPORT_SYMBOL(perf_irq);
+ EXPORT_SYMBOL(callback_getenv);
+@@ -68,19 +64,13 @@ #endif /* CONFIG_ALPHA_GENERIC */
+ 
+ /* platform dependent support */
+ EXPORT_SYMBOL(strcat);
+-EXPORT_SYMBOL(strcmp);
+ EXPORT_SYMBOL(strcpy);
+ EXPORT_SYMBOL(strlen);
+-EXPORT_SYMBOL(strncmp);
+ EXPORT_SYMBOL(strncpy);
+-EXPORT_SYMBOL(strnlen);
+ EXPORT_SYMBOL(strncat);
+-EXPORT_SYMBOL(strstr);
+ EXPORT_SYMBOL(strchr);
+ EXPORT_SYMBOL(strrchr);
+-EXPORT_SYMBOL(memcmp);
+ EXPORT_SYMBOL(memmove);
+-EXPORT_SYMBOL(memscan);
+ EXPORT_SYMBOL(__memcpy);
+ EXPORT_SYMBOL(__memset);
+ EXPORT_SYMBOL(__memsetw);
+@@ -122,11 +112,9 @@ EXPORT_SYMBOL(alpha_write_fp_reg_s);
+ 
+ /* In-kernel system calls.  */
+ EXPORT_SYMBOL(kernel_thread);
+-EXPORT_SYMBOL(sys_open);
+ EXPORT_SYMBOL(sys_dup);
+ EXPORT_SYMBOL(sys_exit);
+ EXPORT_SYMBOL(sys_write);
+-EXPORT_SYMBOL(sys_read);
+ EXPORT_SYMBOL(sys_lseek);
+ EXPORT_SYMBOL(execve);
+ EXPORT_SYMBOL(sys_setsid);
 
-Mind you, with ptrace, it isn't too hard to get a copy of a normal
-executable that is mode '111'....
-
-The whole concept of having files that are executable but not readable
-is completely broken - it gives the appearance of protection without
-the reality.
-
-NeilBrown
+-- 
+Mathieu Chouquet-Stringer                         mchouque@free.fr

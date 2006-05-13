@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWEMDnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbWEMDo3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932269AbWEMDnp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 23:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbWEMDno
+	id S932300AbWEMDo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 23:44:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWEMDo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 23:43:44 -0400
-Received: from c-67-177-57-20.hsd1.ut.comcast.net ([67.177.57.20]:13556 "EHLO
+	Fri, 12 May 2006 23:44:29 -0400
+Received: from c-67-177-57-20.hsd1.ut.comcast.net ([67.177.57.20]:19188 "EHLO
 	sshock.homelinux.net") by vger.kernel.org with ESMTP
-	id S932241AbWEMDnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 23:43:42 -0400
-Date: Fri, 12 May 2006 21:43:44 -0600
+	id S932249AbWEMDo1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 23:44:27 -0400
+Date: Fri, 12 May 2006 21:44:30 -0600
 From: Phillip Hellewell <phillip@hellewell.homeip.net>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
@@ -17,8 +17,8 @@ Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
        mcthomps@us.ibm.com, toml@us.ibm.com, yoder1@us.ibm.com,
        James Morris <jmorris@namei.org>, "Stephen C. Tweedie" <sct@redhat.com>,
        Erez Zadok <ezk@cs.sunysb.edu>, David Howells <dhowells@redhat.com>
-Subject: [PATCH 5/13: eCryptfs] Header declarations
-Message-ID: <20060513034344.GE18631@hellewell.homeip.net>
+Subject: [PATCH 6/13: eCryptfs] Superblock operations
+Message-ID: <20060513034429.GF18631@hellewell.homeip.net>
 References: <20060513033742.GA18598@hellewell.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -29,33 +29,33 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the 5th patch in a series of 13 constituting the kernel
+This is the 6th patch in a series of 13 constituting the kernel
 components of the eCryptfs cryptographic filesystem.
 
-This header contains declarations for various structs used in
-eCryptfs.
+eCryptfs superblock operations and inode allocation, deallocation, and
+initialization functions.
 
 Signed-off-by: Phillip Hellewell <phillip@hellewell.homeip.net>
 Signed-off-by: Michael Halcrow <mhalcrow@us.ibm.com>
 
 ---
 
- ecryptfs_kernel.h |  486 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 486 insertions(+)
+ super.c |  212 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 212 insertions(+)
 
-Index: linux-2.6.17-rc3-mm1-ecryptfs/fs/ecryptfs/ecryptfs_kernel.h
+Index: linux-2.6.17-rc3-mm1-ecryptfs/fs/ecryptfs/super.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.17-rc3-mm1-ecryptfs/fs/ecryptfs/ecryptfs_kernel.h	2006-05-12 20:00:27.000000000 -0600
-@@ -0,0 +1,486 @@
++++ linux-2.6.17-rc3-mm1-ecryptfs/fs/ecryptfs/super.c	2006-05-12 20:00:30.000000000 -0600
+@@ -0,0 +1,212 @@
 +/**
 + * eCryptfs: Linux filesystem encryption layer
-+ * Kernel declarations.
 + *
 + * Copyright (C) 1997-2003 Erez Zadok
 + * Copyright (C) 2001-2003 Stony Brook University
 + * Copyright (C) 2004-2006 International Business Machines Corp.
 + *   Author(s): Michael A. Halcrow <mahalcro@us.ibm.com>
++ *              Michael C. Thompson <mcthomps@us.ibm.com>
 + *
 + * This program is free software; you can redistribute it and/or
 + * modify it under the terms of the GNU General Public License as
@@ -73,464 +73,190 @@ Index: linux-2.6.17-rc3-mm1-ecryptfs/fs/ecryptfs/ecryptfs_kernel.h
 + * 02111-1307, USA.
 + */
 +
-+#ifndef ECRYPTFS_KERNEL_H
-+#define ECRYPTFS_KERNEL_H
-+
-+#ifdef CONFIG_ECRYPT_DEBUG
-+#define OBSERVE_ASSERTS 1
-+#endif
-+
-+#include <keys/user-type.h>
 +#include <linux/fs.h>
-+#include <asm/semaphore.h>
-+#include <asm/scatterlist.h>
++#include <linux/mount.h>
++#include <linux/key.h>
++#include <linux/seq_file.h>
++#include "ecryptfs_kernel.h"
 +
-+/* Version verification for shared data structures w/ userspace */
-+#ifndef ECRYPTFS_VERSION_MAJOR
-+#define ECRYPTFS_VERSION_MAJOR 0x00
-+#endif
-+#ifndef ECRYPTFS_VERSION_MINOR
-+#define ECRYPTFS_VERSION_MINOR 0x01
-+#endif
-+
-+#ifndef ECRYPTFS_SUPPORTED_FILE_VERSION
-+#define ECRYPTFS_SUPPORTED_FILE_VERSION 0x01
-+#endif
-+
-+#define ECRYPTFS_MAX_PASSWORD_LENGTH 64
-+#define ECRYPTFS_MAX_PASSPHRASE_BYTES ECRYPTFS_MAX_PASSWORD_LENGTH
-+#define ECRYPTFS_SALT_SIZE 8
-+#define ECRYPTFS_SALT_SIZE_HEX (ECRYPTFS_SALT_SIZE*2)
-+/* The original signature size is only for what is stored on disk; all
-+ * in-memory representations are expanded hex, so it better adapted to
-+ * be passed around or referenced on the command line */
-+#define ECRYPTFS_SIG_SIZE 8
-+#define ECRYPTFS_SIG_SIZE_HEX (ECRYPTFS_SIG_SIZE*2)
-+#define ECRYPTFS_PASSWORD_SIG_SIZE ECRYPTFS_SIG_SIZE_HEX
-+#define ECRYPTFS_MAX_KEY_BYTES 16
-+#define ECRYPTFS_MAX_ENCRYPTED_KEY_BYTES 512
-+#define ECRYPTFS_DEFAULT_IV_BYTES 16
-+#define ECRYPTFS_FILE_VERSION 0x01
-+#define ECRYPTFS_DEFAULT_HEADER_EXTENT_SIZE 8192
-+#define ECRYPTFS_DEFAULT_EXTENT_SIZE 4096
-+#define ECRYPTFS_MINIMUM_HEADER_EXTENT_SIZE 8192
-+
-+#define ECRYPTFS_SET_FLAG(flag_bit_vector, flag) (flag_bit_vector |= (flag))
-+#define ECRYPTFS_CLEAR_FLAG(flag_bit_vector, flag) (flag_bit_vector &= ~(flag))
-+#define ECRYPTFS_CHECK_FLAG(flag_bit_vector, flag) (flag_bit_vector & (flag))
++struct kmem_cache *ecryptfs_inode_info_cache;
 +
 +/**
-+ * For convenience, we may need to pass around the encrypted session
-+ * key between kernel and userspace because the authentication token
-+ * may not be extractable.  For example, the TPM may not release the
-+ * private key, instead requiring the encrypted data and returning the
-+ * decrypted data.
-+ */
-+struct ecryptfs_session_key {
-+#define ECRYPTFS_USERSPACE_SHOULD_TRY_TO_DECRYPT 0x00000001
-+#define ECRYPTFS_USERSPACE_SHOULD_TRY_TO_ENCRYPT 0x00000002
-+#define ECRYPTFS_CONTAINS_DECRYPTED_KEY 0x00000004
-+#define ECRYPTFS_CONTAINS_ENCRYPTED_KEY 0x00000008
-+	s32 flags;
-+	s32 encrypted_key_size;
-+	s32 decrypted_key_size;
-+	u8 encrypted_key[ECRYPTFS_MAX_ENCRYPTED_KEY_BYTES];
-+	u8 decrypted_key[ECRYPTFS_MAX_KEY_BYTES];
-+};
-+
-+struct ecryptfs_password {
-+	s32 password_bytes;
-+	s32 hash_algo;
-+	s32 hash_iterations;
-+	s32 session_key_encryption_key_bytes;
-+#define ECRYPTFS_PERSISTENT_PASSWORD 0x01
-+#define ECRYPTFS_SESSION_KEY_ENCRYPTION_KEY_SET 0x02
-+	u32 flags;
-+	/* Iterated-hash concatenation of salt and passphrase */
-+	u8 session_key_encryption_key[ECRYPTFS_MAX_KEY_BYTES];
-+	u8 signature[ECRYPTFS_PASSWORD_SIG_SIZE + 1];
-+	/* Always in expanded hex */
-+	u8 salt[ECRYPTFS_SALT_SIZE];
-+};
-+
-+/* May be a password or a private key */
-+struct ecryptfs_auth_tok {
-+	uint16_t version; /* 8-bit major and 8-bit minor */
-+#define ECRYPTFS_PASSWORD         0x00000001
-+#define ECRYPTFS_PRIVATE_KEY      0x00000002
-+#define ECRYPTFS_CONTAINS_SECRET  0x00000004
-+#define ECRYPTFS_EXPIRED          0x00000008
-+	u32 flags;
-+	uid_t uid;
-+	s64 creation_time;
-+	s64 expiration_time;
-+	union {
-+		struct ecryptfs_password password;
-+		/* Private key is in future eCryptfs releases */
-+	} token;
-+	struct ecryptfs_session_key session_key;
-+};
-+
-+void ecryptfs_dump_auth_tok(struct ecryptfs_auth_tok *auth_tok);
-+extern void ecryptfs_to_hex(char *dst, char *src, int src_size);
-+extern void ecryptfs_from_hex(char *dst, char *src, int dst_size);
-+
-+struct ecryptfs_key_record {
-+	u16 enc_key_size_bits;
-+	unsigned char type;
-+	unsigned char sig[ECRYPTFS_SIG_SIZE];
-+	unsigned char enc_key[ECRYPTFS_MAX_ENCRYPTED_KEY_BYTES];
-+};
-+
-+struct ecryptfs_auth_tok_list {
-+	struct ecryptfs_auth_tok *auth_tok;
-+	struct list_head list;
-+};
-+
-+struct ecryptfs_crypt_stat;
-+struct ecryptfs_mount_crypt_stat;
-+
-+struct ecryptfs_page_crypt_context {
-+	struct page *page;
-+#define ECRYPTFS_PREPARE_COMMIT_MODE 0
-+#define ECRYPTFS_WRITEPAGE_MODE      1
-+	int mode;
-+	union {
-+		struct file *lower_file;
-+		struct writeback_control *wbc;
-+	} param;
-+};
-+
-+static inline struct ecryptfs_auth_tok *
-+ecryptfs_get_key_payload_data(struct key *key)
-+{
-+	return (struct ecryptfs_auth_tok *)
-+		(((struct user_key_payload*)key->payload.data)->data);
-+}
-+
-+#define ECRYPTFS_SUPER_MAGIC 0xf15f
-+#define ECRYPTFS_MAX_KEYSET_SIZE 1024
-+#define ECRYPTFS_MAX_CIPHER_NAME_SIZE 32
-+#define ECRYPTFS_MAX_NUM_ENC_KEYS 64
-+#define ECRYPTFS_MAX_NUM_KEYSIGS 2 /* TODO: Make this a linked list */
-+#define ECRYPTFS_MAX_IV_BYTES 16	/* 128 bits */
-+#define ECRYPTFS_SALT_BYTES 2
-+#define MAGIC_ECRYPTFS_MARKER 0x3c81b7f5
-+#define MAGIC_ECRYPTFS_MARKER_SIZE_BYTES 8	/* 4*2 */
-+#define ECRYPTFS_FILE_SIZE_BYTES 8
-+#define ECRYPTFS_DEFAULT_CIPHER "aes"
-+#define ECRYPTFS_DEFAULT_KEY_BYTES 16
-+#define ECRYPTFS_DEFAULT_CHAINING_MODE CRYPTO_TFM_MODE_CBC
-+#define ECRYPTFS_TAG_3_PACKET_TYPE 0x8C
-+#define ECRYPTFS_TAG_11_PACKET_TYPE 0xED
-+#ifndef MD5_DIGEST_SIZE
-+#define MD5_DIGEST_SIZE 16
-+#endif
-+
-+/**
-+ * This is the primary struct associated with each encrypted file.
++ * ecryptfs_alloc_inode - allocate an ecryptfs inode
++ * @sb: Pointer to the ecryptfs super block
++ * 
++ * Called to bring an inode into existence.
 + *
-+ * TODO: cache align/pack?
++ * Note that setting the self referencing pointer doesn't work here:
++ * 	i.e. ECRYPTFS_INODE_TO_PRIVATE_SM(inode) = ei;
++ *
++ * Only handle allocation, setting up structures should be done in
++ * ecryptfs_read_inode. This is because the kernel, between now and
++ * then, will 0 out the private data pointer.
++ * 
++ * Returns a pointer to a newly allocated inode, NULL otherwise
 + */
-+struct ecryptfs_crypt_stat {
-+#define ECRYPTFS_STRUCT_INITIALIZED 0x00000001
-+#define ECRYPTFS_POLICY_APPLIED     0x00000002
-+#define ECRYPTFS_NEW_FILE           0x00000004
-+#define ECRYPTFS_ENCRYPTED          0x00000008
-+#define ECRYPTFS_SECURITY_WARNING   0x00000010
-+#define ECRYPTFS_ENABLE_HMAC        0x00000020
-+#define ECRYPTFS_ENCRYPT_IV_PAGES   0x00000040
-+#define ECRYPTFS_KEY_VALID          0x00000080
-+	u32 flags;
-+	int file_version;
-+	int iv_bytes;
-+	int num_keysigs;
-+	int header_extent_size;
-+	int num_header_extents_at_front; /* Number of header extents
-+					  * at the front of the file */
-+	int extent_size; /* Data extent size; default is 4096 */
-+	int key_size_bits;
-+	unsigned int extent_shift;
-+	unsigned int extent_mask;
-+	struct crypto_tfm *tfm;
-+	struct crypto_tfm *md5_tfm; /* Crypto context for generating
-+				     * the initialization vectors */
-+	char cipher[ECRYPTFS_MAX_CIPHER_NAME_SIZE];
-+	unsigned char key[ECRYPTFS_MAX_KEY_BYTES];
-+	unsigned char root_iv[ECRYPTFS_MAX_IV_BYTES];
-+	char keysigs[ECRYPTFS_MAX_NUM_KEYSIGS][ECRYPTFS_SIG_SIZE_HEX];
-+	struct mutex cs_mutex;
-+};
++static struct inode *ecryptfs_alloc_inode(struct super_block *sb)
++{
++	struct ecryptfs_inode_info *ecryptfs_inode;
++	struct inode *inode = NULL;
 +
-+/* inode private data. */
-+struct ecryptfs_inode_info {
-+	struct inode *wii_inode;
-+	struct inode vfs_inode;
-+	struct ecryptfs_crypt_stat crypt_stat;
-+};
-+
-+/* dentry private data. */
-+struct ecryptfs_dentry_info {
-+	struct dentry *wdi_dentry;
-+	struct ecryptfs_crypt_stat *crypt_stat;
-+};
++	ecryptfs_inode = kmem_cache_alloc(ecryptfs_inode_info_cache,
++					  SLAB_KERNEL);
++	if (unlikely(!ecryptfs_inode))
++		goto out;
++	ecryptfs_init_crypt_stat(&ecryptfs_inode->crypt_stat);
++	inode = &ecryptfs_inode->vfs_inode;
++out:
++	return inode;
++}
 +
 +/**
-+ * This struct is to enable a mount-wide passphrase/salt combo. This
-+ * is more or less a stopgap to provide similar functionality to other
-+ * crypto filesystems like EncFS or CFS until full policy support is
-+ * implemented in eCryptfs.
++ * ecryptfs_destroy_inode
++ * @inode: The ecryptfs inode
++ *
++ * This is used during the final destruction of the inode.
++ * All allocation of memory related to the inode, including allocated
++ * memory in the crypt_stat struct, will be released here.
++ * There should be no chance that this deallocation will be missed.
 + */
-+struct ecryptfs_mount_crypt_stat {
-+	/* Pointers to memory we do not own, do not free these */
-+	struct ecryptfs_auth_tok *global_auth_tok;
-+	struct key *global_auth_tok_key;
-+	char global_default_cipher_name[ECRYPTFS_MAX_CIPHER_NAME_SIZE + 1];
-+	char global_auth_tok_sig[ECRYPTFS_SIG_SIZE_HEX + 1];
-+};
++static void ecryptfs_destroy_inode(struct inode *inode)
++{
++	struct ecryptfs_inode_info *inode_info;
 +
-+/* superblock private data. */
-+struct ecryptfs_sb_info {
-+	struct super_block *wsi_sb;
++	inode_info = ecryptfs_inode_to_private(inode);
++	ecryptfs_destruct_crypt_stat(&inode_info->crypt_stat);
++	kmem_cache_free(ecryptfs_inode_info_cache, inode_info);
++}
++
++/**
++ * ecryptfs_read_inode
++ * @inode: The ecryptfs inode
++ *
++ * Set up the ecryptfs inode.
++ */
++static void ecryptfs_read_inode(struct inode *inode)
++{
++	/* This is where we setup the self-reference in the vfs_inode's
++	 * u.generic_ip. That way we don't have to walk the list again. */
++	ecryptfs_set_inode_private(inode,
++				   list_entry(inode, struct ecryptfs_inode_info,
++					      vfs_inode));
++	ecryptfs_set_inode_lower(inode, NULL);
++	inode->i_version++;
++	inode->i_op = &ecryptfs_main_iops;
++	inode->i_fop = &ecryptfs_main_fops;
++	inode->i_mapping->a_ops = &ecryptfs_aops;
++}
++
++/**
++ * ecryptfs_put_super
++ * @sb: Pointer to the ecryptfs super block
++ * 
++ * Final actions when unmounting a file system.
++ * This will handle deallocation and release of our private data.
++ */
++static void ecryptfs_put_super(struct super_block *sb)
++{
++	struct ecryptfs_sb_info *sb_info = ecryptfs_superblock_to_private(sb);
++
++	mntput(sb_info->lower_mnt);
++	key_put(sb_info->mount_crypt_stat.global_auth_tok_key);
++	kmem_cache_free(ecryptfs_sb_info_cache, sb_info);
++	ecryptfs_set_superblock_private(sb, NULL);
++}
++
++/**
++ * ecryptfs_statfs
++ * @sb: The ecryptfs super block
++ * @buf: The struct kstatfs to fill in with stats
++ * 
++ * Get the filesystem statistics. Currently, we let this pass right through
++ * to the lower filesystem and take no action ourselves.
++ */
++static inline int ecryptfs_statfs(struct super_block *sb, struct kstatfs *buf)
++{
++	return vfs_statfs(ecryptfs_superblock_to_lower(sb), buf);
++}
++
++/**
++ * ecryptfs_clear_inode
++ * @inode - The ecryptfs inode
++ *
++ * Called by iput() when the inode reference count reached zero
++ * and the inode is not hashed anywhere.  Used to clear anything
++ * that needs to be, before the inode is completely destroyed and put
++ * on the inode free list. We use this to drop out reference to the
++ * lower inode.
++ */
++static inline void ecryptfs_clear_inode(struct inode *inode)
++{
++	iput(ecryptfs_inode_to_lower(inode));
++}
++
++/**
++ * ecryptfs_umount_begin
++ *
++ * Called in do_umount() if the MNT_FORCE flag was used and this
++ * function is defined.  See comment in linux/fs/super.c:do_umount().
++ * Used only in nfs, to kill any pending RPC tasks, so that subsequent
++ * code can actually succeed and won't leave tasks that need handling.
++ */
++static void ecryptfs_umount_begin(struct vfsmount *vfsmnt, int flags)
++{
 +	struct vfsmount *lower_mnt;
-+	struct ecryptfs_mount_crypt_stat mount_crypt_stat;
++	struct super_block *lower_sb;
++
++	lower_mnt = ecryptfs_superblock_to_private(vfsmnt->mnt_sb)->lower_mnt;
++	lower_sb = lower_mnt->mnt_sb;
++	if (lower_sb->s_op->umount_begin)
++		lower_sb->s_op->umount_begin(lower_mnt, flags);
++}
++
++/**
++ * ecryptfs_show_options
++ * 
++ * Prints the directory we are currently mounted over.
++ * Returns zero on success; non-zero otherwise
++ */
++static int ecryptfs_show_options(struct seq_file *m, struct vfsmount *mnt)
++{
++	struct super_block *sb = mnt->mnt_sb;
++	struct dentry *lower_root_dentry;
++	struct ecryptfs_sb_info *sb_info;
++	struct vfsmount *lower_mount;
++	int rc = 0;
++	char *tmp_page = NULL;
++	char *path;
++
++	tmp_page = (char *)__get_free_page(GFP_KERNEL);
++	if (!tmp_page) {
++		rc = -ENOMEM;
++		goto out;
++	}
++	lower_root_dentry = ecryptfs_dentry_to_lower(sb->s_root);
++	sb_info = ecryptfs_superblock_to_private(sb);
++	lower_mount = sb_info->lower_mnt;
++	path = d_path(lower_root_dentry, lower_mount, tmp_page, PAGE_SIZE);
++	if (IS_ERR(path)) {
++		rc = PTR_ERR(path);
++		goto out;
++	}
++	seq_printf(m, ",dir=%s", path);
++	free_page((unsigned long)tmp_page);
++out:
++	return rc;
++}
++
++struct super_operations ecryptfs_sops = {
++	.alloc_inode = ecryptfs_alloc_inode,
++	.destroy_inode = ecryptfs_destroy_inode,
++	.read_inode = ecryptfs_read_inode,
++	.drop_inode = generic_delete_inode,
++	.put_super = ecryptfs_put_super,
++	.statfs = ecryptfs_statfs,
++	.remount_fs = NULL,
++	.clear_inode = ecryptfs_clear_inode,
++	.umount_begin = ecryptfs_umount_begin,
++	.show_options = ecryptfs_show_options
 +};
-+
-+/* file private data. */
-+struct ecryptfs_file_info {
-+	struct file *wfi_file;
-+	struct ecryptfs_crypt_stat *crypt_stat;
-+};
-+
-+/* auth_tok <=> encrypted_session_key mappings */
-+struct ecryptfs_auth_tok_list_item {
-+	char encrypted_session_key[ECRYPTFS_MAX_KEY_BYTES];
-+	struct list_head list;
-+	struct ecryptfs_auth_tok auth_tok;
-+};
-+
-+#ifdef OBSERVE_ASSERTS
-+#define ASSERT(EX)	                                                      \
-+do {	                                                                      \
-+        if (unlikely(!(EX))) {                                                \
-+	        printk(KERN_CRIT "ASSERTION FAILED: %s at %s:%d (%s)\n", #EX, \
-+	               __FILE__, __LINE__, __FUNCTION__);	              \
-+                BUG();                                                        \
-+        }	                                                              \
-+} while (0)
-+#else
-+#define ASSERT(EX) do { /* nothing */ } while (0)
-+#endif /* OBSERVE_ASSERTS */
-+
-+static inline struct ecryptfs_file_info *
-+ecryptfs_file_to_private(struct file *file)
-+{
-+	return (struct ecryptfs_file_info *)file->private_data;
-+}
-+
-+static inline void
-+ecryptfs_set_file_private(struct file *file,
-+			  struct ecryptfs_file_info *file_info)
-+{
-+	file->private_data = file_info;
-+}
-+
-+static inline struct file *ecryptfs_file_to_lower(struct file *file)
-+{
-+	return ((struct ecryptfs_file_info *)file->private_data)->wfi_file;
-+}
-+
-+static inline void
-+ecryptfs_set_file_lower(struct file *file, struct file *lower_file)
-+{
-+	((struct ecryptfs_file_info *)file->private_data)->wfi_file =
-+		lower_file;
-+}
-+
-+static inline struct ecryptfs_inode_info *
-+ecryptfs_inode_to_private(struct inode *inode)
-+{
-+	return (struct ecryptfs_inode_info *)inode->u.generic_ip;
-+}
-+
-+static inline void
-+ecryptfs_set_inode_private(struct inode *inode,
-+			   struct ecryptfs_inode_info *inode_info)
-+{
-+	inode->u.generic_ip = inode_info;
-+}
-+
-+static inline struct inode *ecryptfs_inode_to_lower(struct inode *inode)
-+{
-+	return ((struct ecryptfs_inode_info *)inode->u.generic_ip)->wii_inode;
-+}
-+
-+static inline void
-+ecryptfs_set_inode_lower(struct inode *inode, struct inode *lower_inode)
-+{
-+	((struct ecryptfs_inode_info *)inode->u.generic_ip)->wii_inode =
-+		lower_inode;
-+}
-+
-+static inline struct ecryptfs_sb_info *
-+ecryptfs_superblock_to_private(struct super_block *sb)
-+{
-+	return (struct ecryptfs_sb_info *)sb->s_fs_info;
-+}
-+
-+static inline void
-+ecryptfs_set_superblock_private(struct super_block *sb,
-+				struct ecryptfs_sb_info *sb_info)
-+{
-+	sb->s_fs_info = sb_info;
-+}
-+
-+static inline struct super_block *
-+ecryptfs_superblock_to_lower(struct super_block *sb)
-+{
-+	return ((struct ecryptfs_sb_info *)sb->s_fs_info)->wsi_sb;
-+}
-+
-+static inline void
-+ecryptfs_set_superblock_lower(struct super_block *sb,
-+			      struct super_block *lower_sb)
-+{
-+	((struct ecryptfs_sb_info *)sb->s_fs_info)->wsi_sb = lower_sb;
-+}
-+
-+static inline struct ecryptfs_dentry_info *
-+ecryptfs_dentry_to_private(struct dentry *dentry)
-+{
-+	return (struct ecryptfs_dentry_info *)dentry->d_fsdata;
-+}
-+
-+static inline void
-+ecryptfs_set_dentry_private(struct dentry *dentry,
-+			    struct ecryptfs_dentry_info *dentry_info)
-+{
-+	dentry->d_fsdata = dentry_info;
-+}
-+
-+static inline struct dentry *
-+ecryptfs_dentry_to_lower(struct dentry *dentry)
-+{
-+	return ((struct ecryptfs_dentry_info *)dentry->d_fsdata)->wdi_dentry;
-+}
-+
-+static inline void
-+ecryptfs_set_dentry_lower(struct dentry *dentry, struct dentry *lower_dentry)
-+{
-+	((struct ecryptfs_dentry_info *)dentry->d_fsdata)->wdi_dentry =
-+		lower_dentry;
-+}
-+
-+
-+#define ecryptfs_printk(type, fmt, arg...) \
-+        __ecryptfs_printk(type "%s: " fmt, __FUNCTION__, ## arg);
-+void __ecryptfs_printk(const char *fmt, ...);
-+
-+extern const struct file_operations ecryptfs_main_fops;
-+extern const struct file_operations ecryptfs_dir_fops;
-+extern struct inode_operations ecryptfs_main_iops;
-+extern struct inode_operations ecryptfs_dir_iops;
-+extern struct inode_operations ecryptfs_symlink_iops;
-+extern struct super_operations ecryptfs_sops;
-+extern struct dentry_operations ecryptfs_dops;
-+extern struct address_space_operations ecryptfs_aops;
-+extern int ecryptfs_verbosity;
-+
-+extern struct kmem_cache *ecryptfs_auth_tok_list_item_cache;
-+extern struct kmem_cache *ecryptfs_file_info_cache;
-+extern struct kmem_cache *ecryptfs_dentry_info_cache;
-+extern struct kmem_cache *ecryptfs_inode_info_cache;
-+extern struct kmem_cache *ecryptfs_sb_info_cache;
-+extern struct kmem_cache *ecryptfs_header_cache_0;
-+extern struct kmem_cache *ecryptfs_header_cache_1;
-+extern struct kmem_cache *ecryptfs_header_cache_2;
-+extern struct kmem_cache *ecryptfs_lower_page_cache;
-+
-+int ecryptfs_interpose(struct dentry *hidden_dentry,
-+		       struct dentry *this_dentry, struct super_block *sb,
-+		       int flag);
-+int ecryptfs_fill_zeros(struct file *file, loff_t new_length);
-+int ecryptfs_decode_filename(struct ecryptfs_crypt_stat *crypt_stat,
-+			     const char *name, int length,
-+			     char **decrypted_name);
-+int ecryptfs_encode_filename(struct ecryptfs_crypt_stat *crypt_stat,
-+			     const char *name, int length,
-+			     char **encoded_name);
-+struct dentry *ecryptfs_lower_dentry(struct dentry *this_dentry);
-+void ecryptfs_copy_attr_times(struct inode *dest, const struct inode *src);
-+void ecryptfs_copy_attr_atime(struct inode *dest, const struct inode *src);
-+void ecryptfs_copy_attr_all(struct inode *dest, const struct inode *src);
-+void ecryptfs_copy_inode_size(struct inode *dst, const struct inode *src);
-+void ecryptfs_dump_hex(char *data, int bytes);
-+int virt_to_scatterlist(const void *addr, int size, struct scatterlist *sg,
-+			int sg_size);
-+int ecryptfs_calculate_md5(char *dst, struct ecryptfs_crypt_stat *crypt_stat,
-+			   char *src, int len);
-+int ecryptfs_derive_iv(char *iv, struct ecryptfs_crypt_stat *crypt_stat,
-+		       pgoff_t offset);
-+int ecryptfs_compute_root_iv(struct ecryptfs_crypt_stat *crypt_stat);
-+void ecryptfs_rotate_iv(unsigned char *iv);
-+void ecryptfs_init_crypt_stat(struct ecryptfs_crypt_stat *crypt_stat);
-+void ecryptfs_destruct_crypt_stat(struct ecryptfs_crypt_stat *crypt_stat);
-+int ecryptfs_init_crypt_ctx(struct ecryptfs_crypt_stat *crypt_stat);
-+int ecryptfs_write_inode_size_to_header(struct file *lower_file,
-+					struct inode *lower_inode,
-+					struct inode *inode);
-+int ecryptfs_get_lower_page(struct page **lower_page, struct inode *lower_inode,
-+			    struct file *lower_file,
-+			    unsigned long lower_page_index, int byte_offset,
-+			    int region_bytes);
-+int
-+ecryptfs_commit_lower_page(struct page *lower_page, struct inode *lower_inode,
-+			   struct file *lower_file, int byte_offset,
-+			   int region_size);
-+int ecryptfs_copy_page_to_lower(struct page *page, struct inode *lower_inode,
-+				struct file *lower_file);
-+int ecryptfs_do_readpage(struct file *file, struct page *page,
-+			 pgoff_t lower_page_index);
-+int ecryptfs_grab_and_map_lower_page(struct page **lower_page,
-+				     char **lower_virt,
-+				     struct inode *lower_inode,
-+				     unsigned long lower_page_index);
-+int ecryptfs_writepage_and_release_lower_page(struct page *lower_page,
-+					      struct inode *lower_inode,
-+					      struct writeback_control *wbc);
-+int ecryptfs_encrypt_page(struct ecryptfs_page_crypt_context *ctx);
-+int
-+ecryptfs_encrypt_page_offset(struct ecryptfs_crypt_stat *crypt_stat,
-+			     struct page *dst_page, int dst_offset,
-+			     struct page *src_page, int src_offset, int size,
-+			     unsigned char *iv);
-+int ecryptfs_decrypt_page(struct file *file, struct page *page);
-+int
-+ecryptfs_decrypt_page_offset(struct ecryptfs_crypt_stat *crypt_stat,
-+			     struct page *dst_page, int dst_offset,
-+			     struct page *src_page, int src_offset, int size,
-+			     unsigned char *iv);
-+int ecryptfs_write_headers(struct dentry *ecryptfs_dentry,
-+			   struct file *lower_file);
-+int ecryptfs_write_headers_virt(char *page_virt, 
-+				struct ecryptfs_crypt_stat *crypt_stat,
-+				struct dentry *ecryptfs_dentry);
-+int ecryptfs_read_headers(struct dentry *ecryptfs_dentry,
-+			  struct file *lower_file);
-+int ecryptfs_new_file_context(struct dentry *ecryptfs_dentry);
-+int contains_ecryptfs_marker(char *data);
-+int ecryptfs_read_header_region(char *data, struct dentry *dentry,
-+				struct nameidata *nd);
-+u16 ecryptfs_code_for_cipher_string(char *str);
-+int ecryptfs_cipher_code_to_string(char *str, u16 cipher_code);
-+void ecryptfs_set_default_sizes(struct ecryptfs_crypt_stat *crypt_stat);
-+int ecryptfs_generate_key_packet_set(char *dest_base,
-+				     struct ecryptfs_crypt_stat *crypt_stat,
-+				     struct dentry *ecryptfs_dentry, int *len);
-+int process_request_key_err(long err_code);
-+int
-+ecryptfs_parse_packet_set(struct ecryptfs_crypt_stat *crypt_stat,
-+			  unsigned char *src, struct dentry *ecryptfs_dentry);
-+int ecryptfs_truncate(struct dentry *dentry, loff_t new_length);
-+
-+#endif /* #ifndef ECRYPTFS_KERNEL_H */

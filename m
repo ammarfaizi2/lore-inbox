@@ -1,91 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbWEMOi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWEMOnk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932422AbWEMOi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 10:38:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWEMOi6
+	id S1751141AbWEMOnk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 10:43:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWEMOnk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 10:38:58 -0400
-Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:36452 "HELO
-	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932422AbWEMOi6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 10:38:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=PzXVIe3NUUF5USUMdlDlkyxbhYS3pl3Mku48soiR9ggJkWeNYAIhXFf2bGXmo9LnIpgklMvXPzgCZsuF3FAgLfp3ui5nJ/03YlOiTXlzY8/mvbnrniDUqgzhaAdr7iO4j/Ug7W8Nu5sI9eackTG6mKUIJcFU5oij6l6PHFD50lc=  ;
-Message-ID: <4465EF80.6010106@yahoo.com.au>
-Date: Sun, 14 May 2006 00:38:56 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Sat, 13 May 2006 10:43:40 -0400
+Received: from cassarossa.samfundet.no ([129.241.93.19]:29079 "EHLO
+	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
+	id S1751141AbWEMOnj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 10:43:39 -0400
+Date: Sat, 13 May 2006 16:43:34 +0200
+From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove softlockup from invalidate_mapping_pages. (might be dm related)
+Message-ID: <20060513144334.GA6013@uio.no>
+References: <20060420160549.7637.patches@notabene> <1060420062955.7727@suse.de> <20060420003839.1a41c36f.akpm@osdl.org> <20060426204809.GA15462@uio.no> <20060426135809.10a37ec3.akpm@osdl.org> <20060513134908.GA4480@uio.no> <20060513073344.4fcbc46b.akpm@osdl.org>
 MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: Ingo Molnar <mingo@elte.hu>, akpm@osdl.org,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Silly bitmap size accounting fix
-References: <Pine.LNX.4.58.0605120403540.28581@gandalf.stny.rr.com> <20060512091451.GA18145@elte.hu> <4465386B.9090804@yahoo.com.au> <Pine.LNX.4.58.0605131010110.27003@gandalf.stny.rr.com>
-In-Reply-To: <Pine.LNX.4.58.0605131010110.27003@gandalf.stny.rr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060513073344.4fcbc46b.akpm@osdl.org>
+X-Operating-System: Linux 2.6.16.11 on a x86_64
+X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
+User-Agent: Mutt/1.5.11+cvs20060403
+X-Spam-Score: -2.6 (--)
+X-Spam-Report: Status=No hits=-2.6 required=5.0 tests=AWL,BAYES_00,NO_RELAYS version=3.1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
-> On Sat, 13 May 2006, Nick Piggin wrote:
-> 
-> 
->>Ingo Molnar wrote:
->>
->>>* Steven Rostedt <rostedt@goodmis.org> wrote:
->>>
->>>
->>>
->>>>-#define BITMAP_SIZE ((((MAX_PRIO+1+7)/8)+sizeof(long)-1)/sizeof(long))
->>>>+#define BITMAP_SIZE ((((MAX_PRIO+7)/8)+sizeof(long)-1)/sizeof(long))
->>>
->>>
->>>Acked-by: Ingo Molnar <mingo@elte.hu>
->>
->>Really?! What about the delimiter bit set at MAX_PRIO?
-> 
-> 
-> 
-> 		// delimiter for bitsearch
-> 		__set_bit(MAX_PRIO, array->bitmap);
-> 
-> 
-> Ah! I see what you mean.  New patch (add a comment).
+On Sat, May 13, 2006 at 07:33:44AM -0700, Andrew Morton wrote:
+> Well if it's the same software lineup on new hardware, one would also
+> suspect that hardware.  Is it new?
 
-That would have caused someone a world of pain 3 years ahead ;)
+Yes, it's new. The differences aren't that big, though: The motherboard has
+been changed, and there's an extra sil3114 controller.
 
-> 
-> -- Steve
-> 
-> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+> Does it run other kernels OK?
 
-OK I guess. Does it help to also spell out exactly what's going on there?
+2.6.15.4 appears to be fine, but I haven't tested it enough to make sure.
+(I'm running 2.6.17-rc4 without swap now, so we'll see.)
 
-> 
-> Index: linux-2.6.17-rc3-mm1/kernel/sched.c
-> ===================================================================
-> --- linux-2.6.17-rc3-mm1.orig/kernel/sched.c	2006-05-12 04:02:32.000000000 -0400
-> +++ linux-2.6.17-rc3-mm1/kernel/sched.c	2006-05-13 10:09:15.000000000 -0400
-> @@ -192,6 +192,10 @@ static inline unsigned int task_timeslic
->   * These are the runqueue data structures:
->   */
-> 
-> +/*
-> + * Calculate BITMAP_SIZE.
-> + *  The bitmask holds MAX_PRIO bits + 1 for the delimiter.
+> Does it always crash in the same manner?
 
-+ * Calculation is to find the minimum number of longs that holds MAX_PRIO+1 bits:
-+ *  size-in-chars = ceiling((MAX_PRIO+1) / CHAR_BITS)
-+ *  size-in-longs = ceiling(size-in-chars / sizeof(long))
+Yes; consistently and in the same place after about the same amount of time.
 
-> + */
->  #define BITMAP_SIZE ((((MAX_PRIO+1+7)/8)+sizeof(long)-1)/sizeof(long))
-> 
-
+/* Steinar */
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Homepage: http://www.sesse.net/

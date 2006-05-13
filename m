@@ -1,79 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbWEMLRP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWEMLTX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751037AbWEMLRP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 07:17:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWEMLRP
+	id S932376AbWEMLTX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 07:19:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbWEMLTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 07:17:15 -0400
-Received: from 0x55511dab.adsl.cybercity.dk ([85.81.29.171]:34359 "EHLO
-	hunin.borkware.net") by vger.kernel.org with ESMTP id S1751037AbWEMLRO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 07:17:14 -0400
-From: Mark Rosenstand <mark@borkware.net>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org
+	Sat, 13 May 2006 07:19:23 -0400
+Received: from smtp.ono.com ([62.42.230.12]:1186 "EHLO resmta04.ono.com")
+	by vger.kernel.org with ESMTP id S932376AbWEMLTW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 07:19:22 -0400
+Date: Sat, 13 May 2006 13:16:47 +0200
+From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
+To: Mark Rosenstand <mark@borkware.net>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
 Subject: Re: Executable shell scripts
-In-Reply-To: <1147518432.3217.2.camel@laptopd505.fenrus.org>
+Message-ID: <20060513131647.150b4b85@werewolf.auna.net>
+In-Reply-To: <20060513110324.10A38146AF@hunin.borkware.net>
 References: <20060513103841.B6683146AF@hunin.borkware.net>
 	<1147517786.3217.0.camel@laptopd505.fenrus.org>
 	<20060513110324.10A38146AF@hunin.borkware.net>
-	<1147518432.3217.2.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+X-Mailer: Sylpheed-Claws 2.2.0cvs8 (GTK+ 2.9.0; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <20060513111713.8031C146CA@hunin.borkware.net>
-Date: Sat, 13 May 2006 13:17:13 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@infradead.org> wrote:
-> On Sat, 2006-05-13 at 13:03 +0200, Mark Rosenstand wrote:
-> > Arjan van de Ven <arjan@infradead.org> wrote:
-> > > On Sat, 2006-05-13 at 12:38 +0200, Mark Rosenstand wrote:
-> > > > Hi,
-> > > > 
-> > > > Is it in any (reasonable) way possible to make Linux support executable
-> > > > shell scripts? Perhaps through binfmt_misc?
+On Sat, 13 May 2006 13:03:24 +0200 (CEST), Mark Rosenstand <mark@borkware.net> wrote:
+
+> Arjan van de Ven <arjan@infradead.org> wrote:
+> > On Sat, 2006-05-13 at 12:38 +0200, Mark Rosenstand wrote:
+> > > Hi,
 > > > 
-> > > ehhhhhh this is already supposed to work.
+> > > Is it in any (reasonable) way possible to make Linux support executable
+> > > shell scripts? Perhaps through binfmt_misc?
 > > 
-> > It doesn't:
-> > 
-> > bash-3.00$ cat << EOF > test
-> > > #!/bin/sh
-> > > echo "yay, I'm executing!"
-> > > EOF
-> > bash-3.00$ chmod 111 test
-> > bash-3.00$ ./test
-> > /bin/sh: ./test: Permission denied
+> > ehhhhhh this is already supposed to work.
 > 
-> is your script readable as well? 111 is just weird/odd.
+> It doesn't:
+> 
+> bash-3.00$ cat << EOF > test
+> > #!/bin/sh
+> > echo "yay, I'm executing!"
+> > EOF
+> bash-3.00$ chmod 111 test
 
-No, it's executable. This is what makes executable shell scripts
-distinct from feeding the file to an interpreter.
+So you could execute the script if you ever could read it :)
+Try with 755...
 
->From http://www.faqs.org/faqs/unix-faq/faq/part4/section-7.html:
-
-      The script is called `executable' because just like a real
-      (binary) executable it starts with a so-called `magic number'
-      indicating the type of the executable.  In our case this number is
-      `#!' and the OS takes the rest of the first line as the
-      interpreter for the script, possibly followed by 1 initial option
-      like:
-
-        #!/bin/sed -f
-
-      Suppose this script is called `foo' and is found in /bin,
-      then if you type:
-
-        foo arg1 arg2 arg3
-
-      the OS will rearrange things as though you had typed:
-
-        /bin/sed -f /bin/foo arg1 arg2 arg3
-
-      There is one difference though: if the setuid permission bit for
-      `foo' is set, it will be honored in the first form of the
-      command; if you really type the second form, the OS will honor
-      the permission bits of /bin/sed, which is not setuid, of course.
+--
+J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
+                                         \         It's better when it's free
+Mandriva Linux release 2006.1 (Cooker) for i586
+Linux 2.6.16-jam11 (gcc 4.1.1 20060330 (prerelease)) #2 SMP PREEMPT Fri

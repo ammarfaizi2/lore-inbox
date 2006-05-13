@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751332AbWEMPj6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbWEMPpP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751332AbWEMPj6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 11:39:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWEMPj5
+	id S932455AbWEMPpP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 11:45:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWEMPpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 11:39:57 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:35781 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751332AbWEMPj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 11:39:57 -0400
-Date: Sat, 13 May 2006 11:39:41 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Mike Galbraith <efault@gmx.de>
-cc: Florian Paul Schmidt <mista.tapas@gmx.net>,
-       Darren Hart <dvhltc@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: rt20 scheduling latency testcase and failure data
-In-Reply-To: <1147521338.7909.5.camel@homer>
-Message-ID: <Pine.LNX.4.58.0605131137070.27751@gandalf.stny.rr.com>
-References: <200605121924.53917.dvhltc@us.ibm.com>  <20060513112039.41536fb5@mango.fruits>
- <1147521338.7909.5.camel@homer>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 13 May 2006 11:45:14 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25296 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932452AbWEMPpN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 11:45:13 -0400
+Date: Sat, 13 May 2006 08:42:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Clements <paul.clements@steeleye.com>
+Cc: neilb@suse.de, linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 008 of 8] md/bitmap: Change md/bitmap file handling to
+ use bmap to file blocks.
+Message-Id: <20060513084208.0857ff52.akpm@osdl.org>
+In-Reply-To: <4465FB5C.6070808@steeleye.com>
+References: <20060512160121.7872.patches@notabene>
+	<1060512060809.8099@suse.de>
+	<20060512104750.0f5cb10a.akpm@osdl.org>
+	<17509.22160.118149.49714@cse.unsw.edu.au>
+	<20060512235934.4f609019.akpm@osdl.org>
+	<4465FB5C.6070808@steeleye.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, 13 May 2006, Mike Galbraith wrote:
-
-> On Sat, 2006-05-13 at 11:20 +0200, Florian Paul Schmidt wrote:
+Paul Clements <paul.clements@steeleye.com> wrote:
 >
-> > P.S.: I ran the test a few [20 or so] times and didn't get any failures
-> > of the sort you see. Even with a 1ms period:
->
-> Something odd happened here... the first time I booted rt21, I could
-> reproduce the problem quite regularly.  Since reboot though, poof.
->
-> Elves and Gremlins.
->
+> Andrew Morton wrote:
+> 
+> > The loss of pagecache coherency seems sad.  I assume there's never a
+> > requirement for userspace to read this file.
+> 
+> Actually, there is. mdadm reads the bitmap file, so that would be 
+> broken. Also, it's just useful for a user to be able to read the bitmap 
+> (od -x, or similar) to figure out approximately how much more he's got 
+> to resync to get an array in-sync. Other than reading the bitmap file, I 
+> don't know of any way to determine that.
 
-Careful, rt21 has a bug slipped in that might have funny results on SMP
-machines:
-
-+		if (!cpus_equal(current->cpus_allowed, irq_affinity[irq]));
-+			set_cpus_allowed(current, irq_affinity[irq]);
-
-John (although he later fixed it) added a ; after the if.  But the fix is
-not yet in Ingo's patch.
-
--- Steve
+Read it with O_DIRECT :(

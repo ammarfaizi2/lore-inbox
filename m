@@ -1,88 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbWEMIvR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbWEMJUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751115AbWEMIvR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 04:51:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbWEMIvR
+	id S1750857AbWEMJUn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 05:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750847AbWEMJUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 04:51:17 -0400
-Received: from lug-owl.de ([195.71.106.12]:32388 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1750752AbWEMIvQ (ORCPT
+	Sat, 13 May 2006 05:20:43 -0400
+Received: from mail.gmx.de ([213.165.64.20]:54210 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750803AbWEMJUn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 04:51:16 -0400
-Date: Sat, 13 May 2006 10:51:14 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Phillip Hellewell <phillip@hellewell.homeip.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
-       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, toml@us.ibm.com,
-       yoder1@us.ibm.com, James Morris <jmorris@namei.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>, Erez Zadok <ezk@cs.sunysb.edu>,
-       David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH 1/13: eCryptfs] fs/Makefile and fs/Kconfig
-Message-ID: <20060513085114.GB23642@lug-owl.de>
-Mail-Followup-To: Phillip Hellewell <phillip@hellewell.homeip.net>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk,
-	mike@halcrow.us, mhalcrow@us.ibm.com, mcthomps@us.ibm.com,
-	toml@us.ibm.com, yoder1@us.ibm.com, James Morris <jmorris@namei.org>,
-	"Stephen C. Tweedie" <sct@redhat.com>,
-	Erez Zadok <ezk@cs.sunysb.edu>, David Howells <dhowells@redhat.com>
-References: <20060513033742.GA18598@hellewell.homeip.net> <20060513034051.GA18631@hellewell.homeip.net>
+	Sat, 13 May 2006 05:20:43 -0400
+X-Authenticated: #4399952
+Date: Sat, 13 May 2006 11:20:39 +0200
+From: Florian Paul Schmidt <mista.tapas@gmx.net>
+To: Darren Hart <dvhltc@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: rt20 scheduling latency testcase and failure data
+Message-ID: <20060513112039.41536fb5@mango.fruits>
+In-Reply-To: <200605121924.53917.dvhltc@us.ibm.com>
+References: <200605121924.53917.dvhltc@us.ibm.com>
+X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kORqDWCi7qDJ0mEj"
-Content-Disposition: inline
-In-Reply-To: <20060513034051.GA18631@hellewell.homeip.net>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 12 May 2006 19:24:53 -0700
+Darren Hart <dvhltc@us.ibm.com> wrote:
 
---kORqDWCi7qDJ0mEj
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> The test case emulates a periodic thread that wakes up on time%PERIOD=0, so 
+> rather than sleeping the same amount of time each round, it checks now 
+> against the start of its next period and sleeps for that length of time.  
+> Every so often it will miss it's period, I've captured that data and included 
+> a few of the interesting bits below.  The results are from a run with a 
+> period of 5ms, although I have seen them with periods as high as 17ms.  The 
+> system was under heavy network load for some of the time, but not all.
 
-On Fri, 2006-05-12 21:40:51 -0600, Phillip Hellewell <phillip@hellewell.hom=
-eip.net> wrote:
-> This is the 1st patch in a series of 13 constituting the kernel
-> components of the eCryptfs cryptographic filesystem.
->=20
-> This patch modifies the fs/Kconfig and fs/Makefile files to
-> incorporate eCryptfs into the kernel build.
+[snip]
 
-This should have been the last patch: if you're building with a random
-config and only this patch applied (applying in order, of course), you
-won't get a kernel image.
+> I'd appreciate any feedback on the test case, and in particular suggestions on 
+> how I can go about determining where this lost time is being spent.
 
-MfG, JBG
+There's a multitude of ways how you can misconfigure your -rt system :)
+Tell us more about your setup. Hardware? Full preemption? High
+resolution timers? Priority setup? From your code i see you run at prio
+98. What about the IRQ handlers? And the softirq's, too? Other software?
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+Flo
 
---kORqDWCi7qDJ0mEj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+P.S.: I ran the test a few [20 or so] times and didn't get any failures
+of the sort you see. Even with a 1ms period:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+~/downloads$ ./sched_latency_lkml 
+-------------------------------
+Scheduling Latency
+-------------------------------
 
-iD8DBQFEZZ4CHb1edYOZ4bsRAlIOAKCL8Z7Gjz8fbQqGlXEIE2Ck9Nh2IgCeLOtH
-W96+o24jXllsE7RhjaXZ+7o=
-=hwep
------END PGP SIGNATURE-----
+Running 10000 iterations with a period of 1 ms
+Expected running time: 10 s
 
---kORqDWCi7qDJ0mEj--
+ITERATION DELAY(US) MAX_DELAY(US) FAILURES
+--------- --------- ------------- --------
+    10000        32            47        0
+
+Start Latency:  305 us: FAIL
+Min Latency:     16 us: PASS
+Avg Latency:     29 us: PASS
+Max Latency:     47 us: PASS
+Failed Iterations: 0
+
+~/downloads$ uname -a
+Linux mango.fruits 2.6.16-rt20 #4 PREEMPT Wed May 10 12:53:39 CEST 2006 i686 GNU/Linux
+
+Ooops, i must admit i have the nvidia binary only kernel module loaded,
+but i suppose this wouldn't make a difference for the better ;)
+
+I got high resolution timers enabled and left the softirq threads at
+their defaults.
+
+-- 
+Palimm Palimm!
+http://tapas.affenbande.org

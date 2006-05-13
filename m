@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWEMOnk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWEMOnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751141AbWEMOnk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 10:43:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWEMOnk
+	id S1751127AbWEMOnh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 10:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWEMOnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 10:43:40 -0400
-Received: from cassarossa.samfundet.no ([129.241.93.19]:29079 "EHLO
-	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
-	id S1751141AbWEMOnj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 10:43:39 -0400
-Date: Sat, 13 May 2006 16:43:34 +0200
-From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove softlockup from invalidate_mapping_pages. (might be dm related)
-Message-ID: <20060513144334.GA6013@uio.no>
-References: <20060420160549.7637.patches@notabene> <1060420062955.7727@suse.de> <20060420003839.1a41c36f.akpm@osdl.org> <20060426204809.GA15462@uio.no> <20060426135809.10a37ec3.akpm@osdl.org> <20060513134908.GA4480@uio.no> <20060513073344.4fcbc46b.akpm@osdl.org>
+	Sat, 13 May 2006 10:43:37 -0400
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:34155 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751127AbWEMOng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 10:43:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=4COr52BUnDt3q4Z8pqEN+r4HAirX6Tno/eaTDF/H2S7Vy82Imm1dYGPmOytIaBMw/gNPKnxjznZAgCG6n5a3PRaqQ+ZK59i1+zTgPUGzO9H/0ohNKaDTyWiABFmYZTUWcSNJzafrOZOylMKYPhnsBBcS7FvPCh63UgnLbCp6N94=  ;
+Message-ID: <4465F097.9080301@yahoo.com.au>
+Date: Sun, 14 May 2006 00:43:35 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20060513073344.4fcbc46b.akpm@osdl.org>
-X-Operating-System: Linux 2.6.16.11 on a x86_64
-X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
-User-Agent: Mutt/1.5.11+cvs20060403
-X-Spam-Score: -2.6 (--)
-X-Spam-Report: Status=No hits=-2.6 required=5.0 tests=AWL,BAYES_00,NO_RELAYS version=3.1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: chrisw@sous-sol.org, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       ian.pratt@xensource.com, Christian.Limpach@cl.cam.ac.uk
+Subject: Re: [RFC PATCH 29/35] Add the Xen virtual console driver.
+References: <20060509084945.373541000@sous-sol.org>	<20060509085159.285105000@sous-sol.org>	<20060513052757.59446e03.akpm@osdl.org>	<4465D63F.4000605@yahoo.com.au> <20060513072938.642bf600.akpm@osdl.org>
+In-Reply-To: <20060513072938.642bf600.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 13, 2006 at 07:33:44AM -0700, Andrew Morton wrote:
-> Well if it's the same software lineup on new hardware, one would also
-> suspect that hardware.  Is it new?
+Andrew Morton wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
 
-Yes, it's new. The differences aren't that big, though: The motherboard has
-been changed, and there's an extra sil3114 controller.
+>>Someone should write you a script to go through a patch and flag the
+>>most common style mistakes. Have the output formatted to look like
+>>you're replying to the mail, and wire it up to your inbox ;)
+>>
+> 
+> 
+> Even better, someone should write a coding style document, so people get it
+> right from the outset.
 
-> Does it run other kernels OK?
+I thought that was tried several years back -- I noticed you still
+do it manually, so I just assumed that the style document scheme
+hadn't worked.
 
-2.6.15.4 appears to be fine, but I haven't tested it enough to make sure.
-(I'm running 2.6.17-rc4 without swap now, so we'll see.)
+> 
+> Clever, aren't I?
+> 
 
-> Does it always crash in the same manner?
+Yes... but I don't think it's your cleverness that's the problem ;)
 
-Yes; consistently and in the same place after about the same amount of time.
-
-/* Steinar */
 -- 
-Homepage: http://www.sesse.net/
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

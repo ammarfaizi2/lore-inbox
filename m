@@ -1,100 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWEMOgt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbWEMOi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbWEMOgt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 10:36:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWEMOgs
+	id S932422AbWEMOi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 10:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWEMOi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 10:36:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:21952 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751080AbWEMOgs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 10:36:48 -0400
-Date: Sat, 13 May 2006 07:33:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove softlockup from invalidate_mapping_pages. (might
- be dm related)
-Message-Id: <20060513073344.4fcbc46b.akpm@osdl.org>
-In-Reply-To: <20060513134908.GA4480@uio.no>
-References: <20060420160549.7637.patches@notabene>
-	<1060420062955.7727@suse.de>
-	<20060420003839.1a41c36f.akpm@osdl.org>
-	<20060426204809.GA15462@uio.no>
-	<20060426135809.10a37ec3.akpm@osdl.org>
-	<20060513134908.GA4480@uio.no>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 13 May 2006 10:38:58 -0400
+Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:36452 "HELO
+	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932422AbWEMOi6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 10:38:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=PzXVIe3NUUF5USUMdlDlkyxbhYS3pl3Mku48soiR9ggJkWeNYAIhXFf2bGXmo9LnIpgklMvXPzgCZsuF3FAgLfp3ui5nJ/03YlOiTXlzY8/mvbnrniDUqgzhaAdr7iO4j/Ug7W8Nu5sI9eackTG6mKUIJcFU5oij6l6PHFD50lc=  ;
+Message-ID: <4465EF80.6010106@yahoo.com.au>
+Date: Sun, 14 May 2006 00:38:56 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Steven Rostedt <rostedt@goodmis.org>
+CC: Ingo Molnar <mingo@elte.hu>, akpm@osdl.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Silly bitmap size accounting fix
+References: <Pine.LNX.4.58.0605120403540.28581@gandalf.stny.rr.com> <20060512091451.GA18145@elte.hu> <4465386B.9090804@yahoo.com.au> <Pine.LNX.4.58.0605131010110.27003@gandalf.stny.rr.com>
+In-Reply-To: <Pine.LNX.4.58.0605131010110.27003@gandalf.stny.rr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Steinar H. Gunderson" <sgunderson@bigfoot.com> wrote:
->
-> On Wed, Apr 26, 2006 at 01:58:09PM -0700, Andrew Morton wrote:
-> >> I tried this patch against 2.6.17-rc2 (I hoped that it might be fixing my
-> >> kswapd oopses too, as they seem related; see
-> >> http://lkml.org/lkml/2006/4/26/124 and followups), and it simply makes my
-> >> machine hang on bootup -- it seems to make modprobe hang forever on some lock
-> >> or something right after it loads raid6.ko (pulled in by evms_activate) in
-> >> initramfs. Without the patch, the machine boots just fine.
-> > It had a silly bug.  Fixed version:
+Steven Rostedt wrote:
+> On Sat, 13 May 2006, Nick Piggin wrote:
 > 
-> That worked fine for a long time (>14 days), but I had to switch motherboards
-> (from a cheap Epox to a Tyan server-board) due to external factors. Since
-> then, stuff has started panicing again wildly -- 2.6.17-rc2 doesn't even
-> boot, 2.6.17-rc3 and 2.6.17-rc4 lives for an hour or so and then gives up:
 > 
-> [ 1127.842645] Unable to handle kernel NULL pointer dereference at 0000000000000040 RIP: 
-> [ 1127.848117] <ffffffff803a1ae8>{__lock_text_start+0}
-> [ 1127.855474] PGD 5e38a067 PUD 5e39d067 PMD 0 
-> [ 1127.859770] Oops: 0002 [1] SMP 
-> [ 1127.862931] CPU 1 
-> [ 1127.864957] Modules linked in: w83627hf_wdt eeprom ide_generic ide_disk ide_cd cdrom ipv6 psmouse i2c_nforce2 serio_raw pcspkr i2c_core parport_pc parport rtc e
-> xt3 jbd mbcahe raid6 raid5 xor raid10 raid1 raid0 linear mdd dm_mod sd_mod sata_nv sata_sil libata scsi_mod amd74xx generic forcedeth tg3 ide_core ohci_hcd ehci_hc
-> d thermal processor fan unix
-> [ 1127.896622] Pid: 0, comm: swapper Not tainted 2.6.17-rc4 #1
-> [ 1127.902191] RIP: 0010:[<ffffffff803a1ae8>] <ffffffff803a1ae8>{__lock_text_start+0}
-> [ 1127.909589] RSP: 0018:ffff81000245bd70  EFLAGS: 00010002
-> [ 1127.915094] RAX: 0000000000005d09 RBX: 0000000000005d09 RCX: ffff8100020446a8
-> [ 1127.922221] RDX: ffff81007e2ee800 RSI: ffff810002044648 RDI: 0000000000000040
-> [ 1127.929346] RBP: 0000000000005d09 R08: 0000000000000000 R09: 0000000000000000
-> [ 1127.936472] R10: 0000000000000001 R11: ffffffff8024c868 R12: ffff81007ddb41c0
-> [ 1127.943599] R13: 0000000000000296 R14: ffff81007caaf650 R15: 0000000000000000
-> [ 1127.950726] FS:  0000000000000000(0000) GS:ffff81007f827840(0000) knlGS:00000000f7d666c0
-> [ 1127.958819] CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> [ 1127.964559] CR2: 0000000000000040 CR3: 0000000062aec000 CR4: 00000000000006e0
-> [ 1127.971686] Process swapper (pid: 0, threadinfo ffff810002452000, task ffff810002444080)
-> [ 1127.979777] Stack: ffffffff802668fb ffff81007caaf650 ffffffff880d3a29 ffff81007caaf650 
-> [ 1127.987634]        0000000000000000 ffff81007cf689f0 ffff81003d41d240 0000000000000000 
-> [ 1127.995684]        ffffffff880d3b5f ffff81007e3530e8 
-> [ 1128.000757] Call Trace: <IRQ> <ffffffff802668fb>{kmem_cache_free+253}
-> [ 1128.007231]        <ffffffff880d3a29>{:dm_mod:dec_pending+169} <ffffffff880d3b5f>{:dm_mod:clone_endio+127}
-> [ 1128.016932]        <ffffffff802c9372>{__end_that_request_first+420} <ffffffff8808e8a6>{:scsi_mod:scsi_end_request+40}
-> [ 1128.027589]        <ffffffff8808eb51>{:scsi_mod:scsi_io_completion+522}
-> [ 1128.034222]        <ffffffff880cc4a1>{:sd_mod:sd_rw_intr+623} <ffffffff8808f5d6>{:scsi_mod:scsi_device_unbusy+85}
-> [ 1128.044527]        <ffffffff802c86cb>{blk_done_softirq+113} <ffffffff8022c41b>{__do_softirq+86}
-> [ 1128.053265]        <ffffffff8020a742>{call_softirq+30} <ffffffff8020b902>{do_softirq+44}
-> [ 1128.061396]        <ffffffff8020b947>{do_IRQ+65} <ffffffff8020827b>{default_idle+0}
-> [ 1128.069091]        <ffffffff80209aa0>{ret_from_intr+0} <EOI> <ffffffff803a02a0>{thread_return+0}
-> [ 1128.077926]        <ffffffff802082a8>{default_idle+45} <ffffffff80208335>{cpu_idle+98}
-> [ 1128.085883]        <ffffffff804d5c22>{start_secondary+1127}
-> [ 1128.091670] 
-> [ 1128.091671] Code: f0 ff 0f 0f 88 c8 01 00 00 c3 f0 ff 0f 8b 07 ba 01 00 00 00 
-> [ 1128.100588] RIP <ffffffff803a1ae8>{__lock_text_start+0} RSP <ffff81000245bd70>
-> [ 1128.107832] CR2: 0000000000000040
-> [ 1128.111378]  <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
-> [ 1128.118498]  <0>Rebooting in 60 seconds..
+>>Ingo Molnar wrote:
+>>
+>>>* Steven Rostedt <rostedt@goodmis.org> wrote:
+>>>
+>>>
+>>>
+>>>>-#define BITMAP_SIZE ((((MAX_PRIO+1+7)/8)+sizeof(long)-1)/sizeof(long))
+>>>>+#define BITMAP_SIZE ((((MAX_PRIO+7)/8)+sizeof(long)-1)/sizeof(long))
+>>>
+>>>
+>>>Acked-by: Ingo Molnar <mingo@elte.hu>
+>>
+>>Really?! What about the delimiter bit set at MAX_PRIO?
 > 
-> This is with the remove-softlockup-from-invalidate_mapping_pages patch, but
-> it looks like it's crashing somewhere else. Any good ideas? Is this related
-> to the memory management at all, or is is better left to the dm people?
+> 
+> 
+> 		// delimiter for bitsearch
+> 		__set_bit(MAX_PRIO, array->bitmap);
+> 
+> 
+> Ah! I see what you mean.  New patch (add a comment).
+
+That would have caused someone a world of pain 3 years ahead ;)
+
+> 
+> -- Steve
+> 
+> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+
+OK I guess. Does it help to also spell out exactly what's going on there?
+
+> 
+> Index: linux-2.6.17-rc3-mm1/kernel/sched.c
+> ===================================================================
+> --- linux-2.6.17-rc3-mm1.orig/kernel/sched.c	2006-05-12 04:02:32.000000000 -0400
+> +++ linux-2.6.17-rc3-mm1/kernel/sched.c	2006-05-13 10:09:15.000000000 -0400
+> @@ -192,6 +192,10 @@ static inline unsigned int task_timeslic
+>   * These are the runqueue data structures:
+>   */
+> 
+> +/*
+> + * Calculate BITMAP_SIZE.
+> + *  The bitmask holds MAX_PRIO bits + 1 for the delimiter.
+
++ * Calculation is to find the minimum number of longs that holds MAX_PRIO+1 bits:
++ *  size-in-chars = ceiling((MAX_PRIO+1) / CHAR_BITS)
++ *  size-in-longs = ceiling(size-in-chars / sizeof(long))
+
+> + */
+>  #define BITMAP_SIZE ((((MAX_PRIO+1+7)/8)+sizeof(long)-1)/sizeof(long))
 > 
 
-Well if it's the same software lineup on new hardware, one would also
-suspect that hardware.  Is it new?
-
-Does it run other kernels OK?
-
-Does it always crash in the same manner?
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

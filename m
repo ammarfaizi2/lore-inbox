@@ -1,71 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbWEMP4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbWEMP7d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932458AbWEMP4I (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 11:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbWEMP4H
+	id S932461AbWEMP7d (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 11:59:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbWEMP7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 11:56:07 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:32005 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932458AbWEMP4G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 11:56:06 -0400
-Date: Sat, 13 May 2006 17:56:10 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: Chris Wright <chrisw@sous-sol.org>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.16.16
-Message-ID: <20060513155610.GB6931@stusta.de>
-References: <20060511022547.GE25010@moss.sous-sol.org> <296295514.20060511123419@dns.toxicfilms.tv> <20060511173312.GI25010@moss.sous-sol.org> <200605131735.20062.ioe-lkml@rameria.de>
+	Sat, 13 May 2006 11:59:33 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:2553 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932461AbWEMP7c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 11:59:32 -0400
+Date: Sat, 13 May 2006 11:59:17 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Takashi Iwai <tiwai@suse.de>, Ingo Molnar <mingo@elte.hu>, akpm@osdl.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Silly bitmap size accounting fix
+In-Reply-To: <4465FEFD.9050603@yahoo.com.au>
+Message-ID: <Pine.LNX.4.58.0605131157220.27751@gandalf.stny.rr.com>
+References: <Pine.LNX.4.58.0605120403540.28581@gandalf.stny.rr.com>
+ <20060512091451.GA18145@elte.hu> <4465386B.9090804@yahoo.com.au>
+ <Pine.LNX.4.58.0605131010110.27003@gandalf.stny.rr.com> <s5hpsiivsw8.wl%tiwai@suse.de>
+ <4465FEFD.9050603@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605131735.20062.ioe-lkml@rameria.de>
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 13, 2006 at 05:35:19PM +0200, Ingo Oeser wrote:
-> Hi Chris,
-> 
-> first of all: Thanks for the good work!
-> 
-> On Thursday, 11. May 2006 19:33, Chris Wright wrote:
-> > Assigning any official severity is a bit of a slippery slope, but
-> > making sure it's clear what type of issue (i.e. local DoS in this case)
-> > is very reasonable.
-> 
-> Yes, I agree.
-> 
-> I would like to know:
-> - local or remote exploitable
-> - if a DoS: hang, only service failure, major slowdown 
-> - privilege escalation possiible and how far (valid user, root, kernel-level)
-> - required privileges (root or user)
-> 
-> That would help risk management a lot :-)
-> 
-> If you have a lot of time: Affected software components, but these can
-> be taken from the patches/commit info or CVE.
 
-The CVE should be enough for easily getting all information you 
-requested.
+On Sun, 14 May 2006, Nick Piggin wrote:
 
-Information whether it's a DoS or a root exploit is helpful, but any 
-qualified person doing risk management will anyways lookup the CVE.
+>
+> Yes that sounds even better.
+>
 
-> Thanks & Regards
-> 
-> Ingo Oeser
+I absolutely agree (a bit of a blush as well!)
 
-cu
-Adrian
+Andrew,
 
--- 
+I guess this is much better than before.  Never seen so much action on a
+patch that was just a comment!
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+-- Steve
+
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+
+Index: linux-2.6.17-rc3-mm1/kernel/sched.c
+===================================================================
+--- linux-2.6.17-rc3-mm1.orig/kernel/sched.c	2006-05-12 04:02:32.000000000 -0400
++++ linux-2.6.17-rc3-mm1/kernel/sched.c	2006-05-13 11:56:08.000000000 -0400
+@@ -192,13 +192,11 @@ static inline unsigned int task_timeslic
+  * These are the runqueue data structures:
+  */
+
+-#define BITMAP_SIZE ((((MAX_PRIO+1+7)/8)+sizeof(long)-1)/sizeof(long))
+-
+ typedef struct runqueue runqueue_t;
+
+ struct prio_array {
+ 	unsigned int nr_active;
+-	unsigned long bitmap[BITMAP_SIZE];
++	DECLARE_BITMAP(bitmap, MAX_PRIO+1); /* include 1 bit for delimiter */
+ 	struct list_head queue[MAX_PRIO];
+ };
 

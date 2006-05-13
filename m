@@ -1,63 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbWEMHYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbWEMH3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932359AbWEMHYe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 03:24:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932361AbWEMHYe
+	id S932374AbWEMH3O (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 03:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbWEMH3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 03:24:34 -0400
-Received: from smtpout.mac.com ([17.250.248.174]:62400 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932359AbWEMHYe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 03:24:34 -0400
-In-Reply-To: <200605121421.00044.rob@landley.net>
-References: <200605121421.00044.rob@landley.net>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <F68E5CEA-AB95-4E1C-9923-0882394AE16E@mac.com>
-Cc: linux-kernel@vger.kernel.org
+	Sat, 13 May 2006 03:29:14 -0400
+Received: from wr-out-0506.google.com ([64.233.184.227]:56580 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932377AbWEMH3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 03:29:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=jnOUKL6ssl/Qc0GJC2KppyP3xzKUgzAHdxRyTQP8syBprBB4qP1Wij5oqVPLAf6hQQS2tXLL1EsHvmk1dHrzTybTvXRtfRgfDiunT3FmDPLcf3M9F/ZNZ3Wu8V+9oppYVGbQInJL6N1ct024Ba4YXWgxCURy8pH+N4eGeHzJWYw=
+Message-ID: <44658AC3.6070400@gmail.com>
+Date: Sat, 13 May 2006 16:29:07 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Mail/News 1.5 (X11/20060318)
+MIME-Version: 1.0
+To: Jeff Garzik <jeff@garzik.org>
+CC: Stefan Smietanowski <stesmi@stesmi.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [ANNOUNCE] libata: new EH, NCQ, hotplug and PM patches against
+ stable kernel
+References: <20060512132437.GB4219@htj.dyndns.org> <20060512122116.152fbe80.rdunlap@xenotime.net> <4464E079.1070307@stesmi.com> <446505F8.7020909@gmail.com> <44655CF3.5010101@garzik.org>
+In-Reply-To: <44655CF3.5010101@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Which process context does /sbin/hotplug run in?
-Date: Sat, 13 May 2006 03:24:17 -0400
-To: Rob Landley <rob@landley.net>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 12, 2006, at 14:20, Rob Landley wrote:
-> Anybody know this one?  Now that filesystem namespaces are per- 
-> process, and  move/bind mounts let us have cycles in our trees,
+Jeff Garzik wrote:
+> Tejun Heo wrote:
+>> Stefan Smietanowski wrote:
+>>> Randy.Dunlap wrote:
+>>>>> * New error handling
+>>>>> * IRQ driven PIO (from Albert Lee)
+>>>>> * SATA NCQ support
+>>>>> * Hotplug support
+>>>>> * Port Multiplier support
+>>>>
+>>>> BTW, we often use PM to mean Power Management.
+>>>> Could we find a different acronym for Port Multiplier support,
+>>>> such as PMS or PX or PXS?
+>>>
+>>> Ok, maybe not PMS ?
+>>>
+>>> Can you imagine a bug report from someone that "has problem with PMS"?
+>>> :)
+>>>
+>>
+>> Would be fun though.  :)
+>>
+>> I thought about using another acronym for port multiplier too.  But 
+>> the spec uses that acronym all over the place, PM, PMP (Port 
+>> Multiplier Portnumber), which reminds me of USB full/high speed fiasco.
+>>
+>> Urghh... I thought we could use power for power management inside 
+>> libata but that might be a bad idea.  So, PMS?
+> 
+> PMS is fine.  I encouraged the use of "UFO" for "UDP Fragmentation 
+> Offload" in network driver land, and it stuck.
+> 
+> This is Linux, we like to have fun around here :)
+> 
 
-Actually; it doesn't.  Your example below looks like this:
-> mount -t tmpfs /tmp /tmp
-> cd /tmp
-> mkdir sub
-> mount --bind sub /var
-> cd /var
-> mkdir sub2
-> mount --move /tmp sub2
+Currently, the candidates are...
 
-/
-   /var
-     /var/sub
-     /var/sub2
-       /var/sub2/sub
-       /var/sub2/sub2
+px	: short (good), but I don't know, not pretty
+pmul	: okay but a bit too long
+pml	: pretty and official
+pms	: pretty and fun
 
-The recursion ends there.  Basically with the first bind mount you  
-attach the same instance of tmpfs to /tmp and /var, then you move the  
-tmpfs from /tmp to the "/sub2" directory in the "/var" tmpfs  
-_mountpoint_.  It's kind of confusing behavior; but the directory  
-tree and the mount tree are basically kind of separate entities in a  
-sense.
+I think I'll go with either pms or pml.  Man, this decision is difficult.
 
-Cheers,
-Kyle Moffett
-
---
-Debugging is twice as hard as writing the code in the first place.   
-Therefore, if you write the code as cleverly as possible, you are, by  
-definition, not smart enough to debug it.
-   -- Brian Kernighan
-
-
+-- 
+tejun

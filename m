@@ -1,67 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWEMR31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWEMR3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbWEMR31 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 13:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWEMR31
+	id S932115AbWEMR3u (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 13:29:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWEMR3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 13:29:27 -0400
-Received: from wr-out-0506.google.com ([64.233.184.228]:10346 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932071AbWEMR30 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 13:29:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tj1/WHi8dOI1C8Dff+R6EREWpFd/iIsFxluYQCaVlus04e2B+c38TkVhPn2oVcSTFSjJ9jRtLiOZ7iEx8fKNMw/SCWx1z2KG7ygHiOBckHqgdcS+BNnn2SzGThKRjpUv2Zhrt9sbKnBLshMruQsdj1AKkrhXRagSJTQrLqkiq5s=
-Message-ID: <7c3341450605131029l194174f3v7339dce0e234b555@mail.gmail.com>
-Date: Sat, 13 May 2006 18:29:25 +0100
-From: "Nick Warne" <nick.warne@gmail.com>
-Reply-To: nick@linicks.net
-To: "Adrian Bunk" <bunk@stusta.de>
-Subject: Re: Linux 2.6.16.16
-Cc: "Ingo Oeser" <ioe-lkml@rameria.de>, "Chris Wright" <chrisw@sous-sol.org>,
-       "Maciej Soltysiak" <solt2@dns.toxicfilms.tv>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060513155610.GB6931@stusta.de>
+	Sat, 13 May 2006 13:29:50 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:50369 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932115AbWEMR3t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 13:29:49 -0400
+Date: Sat, 13 May 2006 13:29:36 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: akpm@osdl.org
+cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+Subject: [PATCH] unnecessary long index i in sched
+Message-ID: <Pine.LNX.4.58.0605131311590.27751@gandalf.stny.rr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <20060511022547.GE25010@moss.sous-sol.org>
-	 <296295514.20060511123419@dns.toxicfilms.tv>
-	 <20060511173312.GI25010@moss.sous-sol.org>
-	 <200605131735.20062.ioe-lkml@rameria.de>
-	 <20060513155610.GB6931@stusta.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13/05/06, Adrian Bunk <bunk@stusta.de> wrote:
-> The CVE should be enough for easily getting all information you
-> requested.
->
-> Information whether it's a DoS or a root exploit is helpful, but any
-> qualified person doing risk management will anyways lookup the CVE.
 
-Well, yes, but some people do *actually* use the latest kernel at home
-and not in labs (et al), and as Maciej asked, we are not sure whether
-the (whatever) latest patch is needed or not on whatever our current
-config is the way the latest stable fixes are announced.
+Unless we expect to have more than 4294967295 CPUs, there's no reason to
+have 'i' as a long long here.
 
-"    [PATCH] fs/locks.c: Fix lease_init (CVE-2006-1860)
+-- Steve
 
-    It is insane to be giving lease_init() the task of freeing the lock it is
-    supposed to initialise, given that the lock is not guaranteed to be
-    allocated on the stack. This causes lockups in fcntl_setlease().
-    Problem diagnosed by Daniel Hokka Zakrisson <daniel@hozac.com>
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-    Also fix a slab leak in __setlease() due to an uninitialised return value.
-    Problem diagnosed by BjÃ¶rn Steinbrink.
-"
+Index: linux-2.6.17-rc3-mm1/kernel/sched.c
+===================================================================
+--- linux-2.6.17-rc3-mm1.orig/kernel/sched.c	2006-05-13 13:08:42.000000000 -0400
++++ linux-2.6.17-rc3-mm1/kernel/sched.c	2006-05-13 13:09:59.000000000 -0400
+@@ -1829,7 +1829,8 @@ unsigned long nr_uninterruptible(void)
 
-OK, great.  But what does it mean?
+ unsigned long long nr_context_switches(void)
+ {
+-	unsigned long long i, sum = 0;
++	int i;
++	unsigned long long sum = 0;
 
-It would be nice to have a short explanation of what the fix is for in
-real world terms.
+ 	for_each_possible_cpu(i)
+ 		sum += cpu_rq(i)->nr_switches;
 
-Nick

@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbWEMXJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbWEMXMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964788AbWEMXJp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 19:09:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964789AbWEMXJp
+	id S964789AbWEMXMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 19:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbWEMXMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 19:09:45 -0400
-Received: from mx2.suse.de ([195.135.220.15]:17874 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964788AbWEMXJp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 19:09:45 -0400
-To: Thomas Zehetbauer <thomasz@hostmaster.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: No DPMS for Console on x86_64
-References: <20060513180158.GB2795@localhost.localdomain>
-From: Andi Kleen <ak@suse.de>
-Date: 14 May 2006 01:09:41 +0200
-In-Reply-To: <20060513180158.GB2795@localhost.localdomain>
-Message-ID: <p73y7x55xoq.fsf@bragg.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 13 May 2006 19:12:08 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:48291 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S964789AbWEMXMI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 19:12:08 -0400
+Subject: Re: http://advogato.org/article/888.html
+From: David Woodhouse <dwmw2@infradead.org>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Linux Visionaries Mailing List <lvml@lists.blackwhale.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060513230206.GC12213@lkcl.net>
+References: <20060513230206.GC12213@lkcl.net>
+Content-Type: text/plain
+Date: Sun, 14 May 2006 00:11:54 +0100
+Message-Id: <1147561914.10812.14.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Zehetbauer <thomasz@hostmaster.org> writes:
-> 
-> I wonder how difficult it would be, to port APM to the x86_64
+On Sun, 2006-05-14 at 00:02 +0100, Luke Kenneth Casson Leighton wrote:
+> "Recently there has been a fuss over monolithic and micro kernels -
+>  specifically the direction of the Linux Kernel development. Free
+>  Software is about "freedom of choice", and we should be able to
+> choose  to compile the Linux Kernel as either a monolith or a
+> microkernel. " 
 
-Modern systems generally don't have working APM anymore.
-There are replacement ACPI video options, but they seem to 
-be rarely implemented because the system vendors assume the
-video driver will do the job.
+The GPL permits you the freedom to do this with the Linux kernel.
 
-Also even if they had it wouldn't be implemented in the 64bit
-kernel.
+Like buggery, however, it falls into the category of things which are
+perfectly acceptable between consenting adults, but best kept within the
+privacy of your own home.
 
-> architecture or to provide DPMS support in the FBDev drivers.
+-- 
+dwmw2
 
-There is some code from PPC for that, but it is generally very 
-PPC specific. Backlight control also varies a lot so it would
-likely need tweaks for most laptops.
-
-Or just run a X server. It also doesn't get this right always, but
-at least sometimes.
-
--Andi

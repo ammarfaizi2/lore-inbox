@@ -1,108 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWEMWiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWEMWmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964781AbWEMWiq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 18:38:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWEMWiq
+	id S964786AbWEMWmx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 18:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWEMWmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 18:38:46 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:11397 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932390AbWEMWip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 18:38:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=N3U4+RdqQCK8STbie1YOvBCiUL7LyeV29eQpS4AYpNg4DTfRzRZ/jCy68Rm5DrJr7h+cnQi0fkk9BPPBcjR92yAwTqmvHN2fgdu1jzp5kPZutf+6vmvFEvGRsoswIoBTcAYCDVkN3CZImg6jwP1OgBmElXL+Vb1qK+5xDZxlD7Q=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix (unlikely) memory leak in DAC960 driver
-Date: Sun, 14 May 2006 00:39:38 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, James.Bottomley@hansenpartnership.com,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-scsi@vger.kernel.org, Jesper Juhl <jesper.juhl@gmail.com>
+	Sat, 13 May 2006 18:42:52 -0400
+Received: from ns.suse.de ([195.135.220.2]:22403 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964786AbWEMWmw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 18:42:52 -0400
+From: Neil Brown <neilb@suse.de>
+To: Mark Rosenstand <mark@borkware.net>
+Date: Sun, 14 May 2006 08:42:21 +1000
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605140039.38385.jesper.juhl@gmail.com>
+Message-ID: <17510.24781.295255.225387@cse.unsw.edu.au>
+Cc: Theodore Tso <tytso@mit.edu>, doug@mcnaught.org, arjan@infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Executable shell scripts
+In-Reply-To: message from Mark Rosenstand on Saturday May 13
+References: <20060513103841.B6683146AF@hunin.borkware.net>
+	<1147517786.3217.0.camel@laptopd505.fenrus.org>
+	<20060513110324.10A38146AF@hunin.borkware.net>
+	<1147518432.3217.2.camel@laptopd505.fenrus.org>
+	<87r72yi346.fsf@suzuka.mcnaught.org>
+	<20060513112754.1CA99146AF@hunin.borkware.net>
+	<20060513125911.GA2871@thunk.org>
+	<20060513131850.2E732146AF@hunin.borkware.net>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker found a memory leak (bug nr. 1245) in
- drivers/block/DAC960.c::DAC960_V2_ProcessCompletedCommand()
+On Saturday May 13, mark@borkware.net wrote:
+> 
+> Anyhow, I don't really mind the 111 mode, the point was to show shell
+> scripts being treated as executables. What I do want this feature for
+> is the "more useful case" that somehow got stripped off in the replies,
+> namely setuid and setgid scripts.
+> -
 
-The leak is pretty unlikely since it requires that the first of two 
-successive kmalloc() calls fail while the second one succeeds. But it can 
-still happen even if it's unlikely.
+setXid scripts are trivially exploitable unless the "/dev/fd/X"
+approach is used to pass the file to the interpreter.
 
-If the first call that allocates 'PhysicalDeviceInfo' fails but the one 
-that allocates 'InquiryUnitSerialNumber' succeeds, then we will leak the 
-memory allocated to 'InquiryUnitSerialNumber' when the variable goes out 
-of scope.
+A classic approach is
 
-A simple fix for this is to change the existing code that frees 
-'PhysicalDeviceInfo' if that one was allocated but 
-'InquiryUnitSerialNumber' was not, into a check for either pointer 
-being NULL and if so just free both. This is safe since kfree() can 
-deal with being passed a NULL pointer and it avoids the leak.
+ ln -s /bin/setuid-script ~/bin/-i
+ -i
 
-While I was there I also removed the casts of the kmalloc() return 
-value since it's pointless.
-I also updated the driver version since this patch changes the workings of
-the code (however slightly).
+This will run the interpreter with a first argument of
+   -i
+which (if it is the shell) will just run an interactive shell for
+you!!!
+Now several shells have hacks to try to detect that case and reject it,
+but there are other approaches..
 
-This issue could probably be fixed a lot more elegantly, but the code 
-is a big mess IMHO and I just took the least intrusive route to a fix 
-that I could find instead of starting on a cleanup as well (that can 
-come later).
- 
-Please consider for inclusion.
+Create a symlink to the script, and just at the right time between the
+interpreter starting setuid and the interpreter opening the script,
+you redirect the symlink somewhere else.  You might have to try a few
+times to win the race, but it is sure to be possible.
 
+Again, several shells have hacks in place to detect and avoid that
+condition. 
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+But it has turned into an arms race - Can you be sure that the
+interpreter you are using correctly detects and avoids all possible
+subversion attempts?  It seems unlikely.
 
- drivers/block/DAC960.c |   13 +++++++------
- 1 files changed, 7 insertions(+), 6 deletions(-)
+It is much safer to have a compiled program be the setuid bit, and it
+does appropriate checks and runs a script in a highly controlled
+manner.  I have a program called 'priv' which runs scripts out of
+/usr/local/priv  after doing some access checks listed at the top of
+the script.  It makes it quite easy and fairly safe (you still need to
+check all command line args carefully) to write setuid-root script.
 
---- linux-2.6.17-rc4-git2-orig/drivers/block/DAC960.c	2006-05-13 21:28:19.000000000 +0200
-+++ linux-2.6.17-rc4-git2/drivers/block/DAC960.c	2006-05-14 00:31:16.000000000 +0200
-@@ -17,8 +17,8 @@
- */
- 
- 
--#define DAC960_DriverVersion			"2.5.47"
--#define DAC960_DriverDate			"14 November 2002"
-+#define DAC960_DriverVersion			"2.5.48"
-+#define DAC960_DriverDate			"14 May 2006"
- 
- 
- #include <linux/module.h>
-@@ -4780,15 +4780,16 @@ static void DAC960_V2_ProcessCompletedCo
- 	      (NewPhysicalDeviceInfo->LogicalUnit !=
- 	       PhysicalDeviceInfo->LogicalUnit))
- 	    {
--	      PhysicalDeviceInfo = (DAC960_V2_PhysicalDeviceInfo_T *)
-+	      PhysicalDeviceInfo =
- 		kmalloc(sizeof(DAC960_V2_PhysicalDeviceInfo_T), GFP_ATOMIC);
- 	      InquiryUnitSerialNumber =
--		(DAC960_SCSI_Inquiry_UnitSerialNumber_T *)
- 		  kmalloc(sizeof(DAC960_SCSI_Inquiry_UnitSerialNumber_T),
- 			  GFP_ATOMIC);
--	      if (InquiryUnitSerialNumber == NULL &&
--		  PhysicalDeviceInfo != NULL)
-+	      if (InquiryUnitSerialNumber == NULL ||
-+		  PhysicalDeviceInfo == NULL)
- 		{
-+		  kfree(InquiryUnitSerialNumber);
-+		  InquiryUnitSerialNumber = NULL;
- 		  kfree(PhysicalDeviceInfo);
- 		  PhysicalDeviceInfo = NULL;
- 		}
-
-
-
-
-
+NeilBrown

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbWEMQHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932475AbWEMQGo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932476AbWEMQHE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 12:07:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWEMQGo
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S932475AbWEMQGo (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 13 May 2006 12:06:44 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:20493 "EHLO
-	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S932469AbWEMQGc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 12:06:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbWEMQGb
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sat, 13 May 2006 12:06:31 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:2591 "EHLO
+	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932469AbWEMQGQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 12:06:16 -0400
 From: Catalin Marinas <catalin.marinas@gmail.com>
-Subject: [PATCH 2.6.17-rc4 6/6] Remove some of the kmemleak false positives
-Date: Sat, 13 May 2006 17:06:25 +0100
+Subject: [PATCH 2.6.17-rc4 4/6] Add kmemleak support for i386
+Date: Sat, 13 May 2006 17:06:12 +0100
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060513160625.8848.76947.stgit@localhost.localdomain>
+Message-Id: <20060513160612.8848.95311.stgit@localhost.localdomain>
 In-Reply-To: <20060513155757.8848.11980.stgit@localhost.localdomain>
 References: <20060513155757.8848.11980.stgit@localhost.localdomain>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -24,82 +24,56 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Catalin Marinas <catalin.marinas@arm.com>
 
-There are allocations for which the main pointer cannot be found but they
-are not memory leaks. This patch fixes some of them.
+This patch modifies the vmlinux.lds.S script and adds the backtrace support
+for i386 to be used with kmemleak.
 
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 ---
 
- ipc/util.c      |   13 +++++++++++++
- kernel/params.c |    9 ++++++++-
- 2 files changed, 21 insertions(+), 1 deletions(-)
+ arch/i386/kernel/vmlinux.lds.S |    4 ++++
+ include/asm-i386/processor.h   |   12 ++++++++++++
+ 2 files changed, 16 insertions(+), 0 deletions(-)
 
-diff --git a/ipc/util.c b/ipc/util.c
-index 8193299..788db50 100644
---- a/ipc/util.c
-+++ b/ipc/util.c
-@@ -31,6 +31,11 @@ #include <linux/seq_file.h>
- #include <linux/proc_fs.h>
- #include <linux/audit.h>
+diff --git a/arch/i386/kernel/vmlinux.lds.S b/arch/i386/kernel/vmlinux.lds.S
+index 8831303..370480e 100644
+--- a/arch/i386/kernel/vmlinux.lds.S
++++ b/arch/i386/kernel/vmlinux.lds.S
+@@ -38,6 +38,7 @@ SECTIONS
+   RODATA
  
-+#ifdef CONFIG_DEBUG_MEMLEAK
-+#include <linux/memleak.h>
+   /* writeable */
++  _sdata = .;			/* Start of data section */
+   .data : AT(ADDR(.data) - LOAD_OFFSET) {	/* Data */
+ 	*(.data)
+ 	CONSTRUCTORS
+@@ -140,6 +141,9 @@ SECTIONS
+   __per_cpu_start = .;
+   .data.percpu  : AT(ADDR(.data.percpu) - LOAD_OFFSET) { *(.data.percpu) }
+   __per_cpu_end = .;
++  __memleak_offsets_start = .;
++  .init.memleak_offsets : AT(ADDR(.init.memleak_offsets) - LOAD_OFFSET) { *(.init.memleak_offsets) }
++  __memleak_offsets_end = .;
+   . = ALIGN(4096);
+   __init_end = .;
+   /* freed after init ends here */
+diff --git a/include/asm-i386/processor.h b/include/asm-i386/processor.h
+index 805f0dc..9b6568a 100644
+--- a/include/asm-i386/processor.h
++++ b/include/asm-i386/processor.h
+@@ -743,4 +743,16 @@ #else
+ #define mcheck_init(c) do {} while(0)
+ #endif
+ 
++#ifdef CONFIG_FRAME_POINTER
++static inline unsigned long arch_call_address(void *frame)
++{
++	return *(unsigned long *) (frame + 4);
++}
++
++static inline void *arch_prev_frame(void *frame)
++{
++	return *(void **) frame;
++}
 +#endif
 +
-+
- #include <asm/unistd.h>
- 
- #include "util.h"
-@@ -389,6 +394,10 @@ void* ipc_rcu_alloc(int size)
- 	 */
- 	if (rcu_use_vmalloc(size)) {
- 		out = vmalloc(HDRLEN_VMALLOC + size);
-+#ifdef CONFIG_DEBUG_MEMLEAK
-+		/* avoid a false alarm. That's not a memory leak */
-+		memleak_free(out);
-+#endif
- 		if (out) {
- 			out += HDRLEN_VMALLOC;
- 			container_of(out, struct ipc_rcu_hdr, data)->is_vmalloc = 1;
-@@ -396,6 +405,10 @@ void* ipc_rcu_alloc(int size)
- 		}
- 	} else {
- 		out = kmalloc(HDRLEN_KMALLOC + size, GFP_KERNEL);
-+#ifdef CONFIG_DEBUG_MEMLEAK
-+		/* avoid a false alarm. That's not a memory leak */
-+		memleak_free(out);
-+#endif
- 		if (out) {
- 			out += HDRLEN_KMALLOC;
- 			container_of(out, struct ipc_rcu_hdr, data)->is_vmalloc = 0;
-diff --git a/kernel/params.c b/kernel/params.c
-index af43ecd..fb268e8 100644
---- a/kernel/params.c
-+++ b/kernel/params.c
-@@ -548,6 +548,7 @@ static void __init kernel_param_sysfs_se
- 					    unsigned int name_skip)
- {
- 	struct module_kobject *mk;
-+	struct module_param_attrs *mp;
- 
- 	mk = kzalloc(sizeof(struct module_kobject), GFP_KERNEL);
- 	BUG_ON(!mk);
-@@ -557,11 +558,17 @@ static void __init kernel_param_sysfs_se
- 	kobject_set_name(&mk->kobj, name);
- 	kobject_register(&mk->kobj);
- 
-+	mp = param_sysfs_setup(mk, kparam, num_params, name_skip);
- 	/* no need to keep the kobject if no parameter is exported */
--	if (!param_sysfs_setup(mk, kparam, num_params, name_skip)) {
-+	if (!mp) {
- 		kobject_unregister(&mk->kobj);
- 		kfree(mk);
- 	}
-+#ifdef CONFIG_DEBUG_MEMLEAK
-+	/* avoid a false alarm. That's not a memory leak */
-+	else
-+		memleak_free(mp);
-+#endif
- }
- 
- /*
+ #endif /* __ASM_I386_PROCESSOR_H */

@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWEMXgV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWEMXlA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964803AbWEMXgV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 19:36:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbWEMXgV
+	id S964806AbWEMXlA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 19:41:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964807AbWEMXlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 19:36:21 -0400
-Received: from www.tglx.de ([213.239.205.147]:13485 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S964803AbWEMXgU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 19:36:20 -0400
-Subject: Re: [PATCH -mm] update comment in rtmutex.c and friends
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: akpm@osdl.org, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0605131846250.2208@gandalf.stny.rr.com>
-References: <Pine.LNX.4.58.0605131846250.2208@gandalf.stny.rr.com>
-Content-Type: text/plain
-Date: Sun, 14 May 2006 01:39:36 +0200
-Message-Id: <1147563576.2667.0.camel@localhost.localdomain>
+	Sat, 13 May 2006 19:41:00 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:31695 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964806AbWEMXk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 19:40:59 -0400
+Subject: Re: [PATCH] mtd: fix memory leaks in phram_setup
+From: David Woodhouse <dwmw2@infradead.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org,
+       Jochen =?ISO-8859-1?Q?Sch=E4uble?= <psionic@psionic.de>,
+       =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <9a8748490605131634w73b8d40ax278fac343602123b@mail.gmail.com>
+References: <200605140107.18293.jesper.juhl@gmail.com>
+	 <1147562300.12379.1.camel@pmac.infradead.org>
+	 <9a8748490605131634w73b8d40ax278fac343602123b@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Date: Sun, 14 May 2006 00:40:42 +0100
+Message-Id: <1147563643.16761.1.camel@shinybook.infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-05-13 at 19:34 -0400, Steven Rostedt wrote:
-> The documented state in both the code and the rt-mutex.txt has a slight
-> incorrect statement.  They state that if the owner of the mutex is NULL,
-> and the "mutex has waiters" bit is set that it is an invalid state.
-> 
-> This is not true. To synchronize with an owner releasing the mutex, the
-> owner field must have the "mutex has waiters" bit set before trying to
-> grab the lock.  This prevents the owner from releasing the lock without going
-> into the slow unlock path.  But if the mutex doesn't have an owner, then
-> before the current process grabs the lock, it sets the "mutex has waiters"
-> bit.  But in this case it will grab the lock and clear the bit. So the
-> "mutex has waiters" bit and owner == NULL is a transitional state.
-> 
-> This patch comments this case.
-> 
-> -- Steve
-> 
-> 
-> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+On Sun, 2006-05-14 at 01:34 +0200, Jesper Juhl wrote:
+> Sure thing, will do. The same problem exists in
+> drivers/mtd/devices/block2mtd.c, I'm cooking up a patch for that one
+> as we speak.
 
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
+OK, thanks.
 
+> > (Ew. The parse_err() macro contains a 'return'. Who do I slap for 
+> > that?)
+>
+> Want me to fix the macro and the users of it?
+
+Well, the exclamation was intended to provoke Jörn or Jochen into fixing
+it for themselves, but if you get there first that'd be great too :)
+
+-- 
+dwmw2
 

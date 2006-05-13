@@ -1,97 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWEMS5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbWEMTEd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964773AbWEMS5a (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 14:57:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932498AbWEMS5a
+	id S964775AbWEMTEd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 15:04:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbWEMTEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 14:57:30 -0400
-Received: from ns.firmix.at ([62.141.48.66]:20671 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S932494AbWEMS53 (ORCPT
+	Sat, 13 May 2006 15:04:33 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:27879 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S932496AbWEMTEc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 14:57:29 -0400
-Subject: Re: Executable shell scripts
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Mark Rosenstand <mark@borkware.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060513122330.CAA54146AF@hunin.borkware.net>
-References: <20060513103841.B6683146AF@hunin.borkware.net>
-	 <1147517786.3217.0.camel@laptopd505.fenrus.org>
-	 <20060513110324.10A38146AF@hunin.borkware.net>
-	 <1147519329.3084.20.camel@gimli.at.home>
-	 <20060513114509.3A90D146AF@hunin.borkware.net>
-	 <1147521363.3084.34.camel@gimli.at.home>
-	 <20060513122330.CAA54146AF@hunin.borkware.net>
-Content-Type: text/plain
-Organization: http://www.firmix.at/
-Date: Sat, 13 May 2006 20:55:26 +0200
-Message-Id: <1147546526.3032.6.camel@gimli.at.home>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+	Sat, 13 May 2006 15:04:32 -0400
+Message-ID: <44662BED.5030000@myri.com>
+Date: Sat, 13 May 2006 20:56:45 +0200
+From: Brice Goglin <brice@myri.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+       "Andrew J. Gallatin" <gallatin@myri.com>
+Subject: Re: [PATCH 6/6] myri10ge - Kconfig and Makefile
+References: <446259A0.8050504@myri.com> <44625E9B.3090509@myri.com> <20060513185157.GC6931@stusta.de>
+In-Reply-To: <20060513185157.GC6931@stusta.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.189 () AWL,BAYES_00,FORGED_RCVD_HELO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-05-13 at 14:23 +0200, Mark Rosenstand wrote:
-> (Cutting Arjan off the CC list, he's been bugged enough for his attempt
-> to help.)
-> 
-> Bernd Petrovitsch <bernd@firmix.at> wrote:
-> > On Sat, 2006-05-13 at 13:45 +0200, Mark Rosenstand wrote:
-> > > Bernd Petrovitsch <bernd@firmix.at> wrote:
-> > > > On Sat, 2006-05-13 at 13:03 +0200, Mark Rosenstand wrote:
-> > > > [...]
-> > > > > A more useful case is when you setuid the script (and no, this doesn't
-> > > > > need to be running as root and/or executable by all.)
+Adrian Bunk wrote:
+> On Wed, May 10, 2006 at 11:43:55PM +0200, Brice Goglin wrote:
+>   
+>> ...
+>> --- linux-mm/drivers/net/Makefile.old	2006-04-08 04:49:53.000000000 -0700
+>> +++ linux-mm/drivers/net/Makefile	2006-04-21 08:10:27.000000000 -0700
+>> @@ -192,6 +192,7 @@ obj-$(CONFIG_R8169) += r8169.o
+>>  obj-$(CONFIG_AMD8111_ETH) += amd8111e.o
+>>  obj-$(CONFIG_IBMVETH) += ibmveth.o
+>>  obj-$(CONFIG_S2IO) += s2io.o
+>> +obj-$(CONFIG_MYRI10GE) += myri10ge/
+>>  obj-$(CONFIG_SMC91X) += smc91x.o
+>>  obj-$(CONFIG_SMC911X) += smc911x.o
+>>  obj-$(CONFIG_DM9000) += dm9000.o
+>> --- /dev/null	2006-04-21 00:45:09.064430000 -0700
+>> +++ linux-mm/drivers/net/myri10ge/Makefile	2006-04-21 08:14:21.000000000 -0700
+>> @@ -0,0 +1,5 @@
+>> +#
+>> +# Makefile for the Myricom Myri-10G ethernet driver
+>> +#
+>> +
+>> +obj-$(CONFIG_MYRI10GE) += myri10ge.o
+>>     
+>
+> If the driver consists of one source file, why does it need an own 
+> subdir?
+>
+> cu
+> Adrian
+>   
 
-What just now comes into my mind is: Do you really want to execute a
-program (be it a script or a binary) which you aren't allowed to read
-before?
 
-> > > > Apart from the permission bug: This has been purposely disabled since it
-> > > > is way to easy to write exploitable shell or other scripts.
-> > > > Use a real programming languages, sudo or a trivial wrapper in C ....
-> > s/languages/language/
-> > 
-> > And I forgot to mention that a kernel patch is another possibility.
-> 
-> I'm too stupid to provide such myself, but I'd sure enable the Kconfig
-> option if it was there :)
+We also have 2 header files. But, I am fine with putting our 3 files in
+drivers/net/ instead.
 
-Yes, is probably the best "solution" if someone creates such a patch.
-
-> > > It isn't a bug on systems that support executable shell scripts.
-> > 
-> > I never wrote that (or anything which implies that directly).
-> 
-> I was commenting on the "Apart from the permission bug" part.
-
-Sorry, that was not clear to me.
-
-> > > Doing security policy based on programming language seems weird at
-> > > best, especially when the only user able to make those decisions is the
-> > > superuser.
-> > 
-> > It boils down to "how easy is it for root to shoot in the foot"?
-> > And the workarounds are somewhere between trivial and simple.
-> 
-> Or "dare we handle root a gun, it's a powerful weapon but can be used
-> to shoot at feet." It's obvious what the answer have been for that in
-> other operating systems, and probably one of the reasons we're here.
-
-I'm also a "root knows per definition what s/he is doing" person but
-more the problem is that root must give sensitive permsisions to scripts
-written by God-knows-who. So either
--) root trusts completely some project/persons/... to quote everything
-   prefectly and rules injections completely out or
--) root has to check all the SUID scripts (including some of the stuff
-   called from there).
-Yes, we have more than enough bugs in compiled programs but it is far
-more easy to get buggy scripts together.
-
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+Brice
 

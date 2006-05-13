@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWEMMvR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWEMMxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932407AbWEMMvR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 08:51:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWEMMvR
+	id S932415AbWEMMxx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 08:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWEMMxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 08:51:17 -0400
-Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:62647 "HELO
-	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932407AbWEMMvQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 08:51:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=SfvgLMor3Dp1IUy9zQelEVfInIzW0mUdqUw4pJMGlfEaAsLCJpS4p4f1bqZ45Gop+2TdTzzCwJn9sFcGJN4kEBHLMWcKuMtJu3fGiRTuM9rvU13fLJ1ZuNOFmTzl72NyssofcE7coQQ18jYimD2CPAjiSaXgBaC5JW4zsKP80Go=  ;
-Message-ID: <4465D63F.4000605@yahoo.com.au>
-Date: Sat, 13 May 2006 22:51:11 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       ian.pratt@xensource.com, Christian.Limpach@cl.cam.ac.uk
-Subject: Re: [RFC PATCH 29/35] Add the Xen virtual console driver.
-References: <20060509084945.373541000@sous-sol.org>	<20060509085159.285105000@sous-sol.org> <20060513052757.59446e03.akpm@osdl.org>
-In-Reply-To: <20060513052757.59446e03.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 13 May 2006 08:53:53 -0400
+Received: from mail.gmx.net ([213.165.64.20]:62645 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932415AbWEMMxw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 08:53:52 -0400
+X-Authenticated: #14349625
+Subject: Re: swapping and oom-killer: gfp_mask=0x201d2, order=0
+From: Mike Galbraith <efault@gmx.de>
+To: Al Boldi <a1426z@gawab.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200605131511.05723.a1426z@gawab.com>
+References: <200605111514.45503.a1426z@gawab.com>
+	 <200605121517.59988.a1426z@gawab.com> <1147447913.7520.6.camel@homer>
+	 <200605131511.05723.a1426z@gawab.com>
+Content-Type: text/plain
+Date: Sat, 13 May 2006 14:54:07 +0200
+Message-Id: <1147524848.9829.20.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-
->>+static void kcons_write_dom0(
->>+	struct console *c, const char *s, unsigned int count)
->>+{
->>+	int rc;
->>+
->>+	while ((count > 0) &&
->>+	       ((rc = HYPERVISOR_console_io(
->>+			CONSOLEIO_write, count, (char *)s)) > 0)) {
->>+		count -= rc;
->>+		s += rc;
->>+	}
->>+}
+On Sat, 2006-05-13 at 15:11 +0300, Al Boldi wrote:
+> Mike Galbraith wrote:
+> > On Fri, 2006-05-12 at 15:17 +0300, Al Boldi wrote:
+> > > Note that this is not specific to mem=8M, but rather a general oom
+> > > observation even for mem=4G, where it is only much later to occur.
+> >
+> > An oom situation with 4G ram would be more interesting than this one.
 > 
+> Agreed, but can you tell me what readahead has to do with this oom?
 > 
-> must.. not.. mention.. coding.. style..
+> oom-killer: gfp_mask=0x201d2, order=0
+>  [<c013ff25>] out_of_memory+0xa5/0xc0
+>  [<c0141099>] __alloc_pages+0x279/0x310
+>  [<c0143669>] __do_page_cache_readahead+0xe9/0x120
+>  [<c0143b3f>] max_sane_readahead+0x2f/0x50
+>  [<c013d8cb>] filemap_nopage+0x2eb/0x370
+>  [<c0149ea5>] do_no_page+0x65/0x220
+>  [<c014a1dc>] __handle_mm_fault+0xec/0x200
+>  [<c0113258>] do_page_fault+0x188/0x5c5
+>  [<c01130d0>] do_page_fault+0x0/0x5c5
+>  [<c0103a0f>] error_code+0x4f/0x54
 
-Someone should write you a script to go through a patch and flag the
-most common style mistakes. Have the output formatted to look like
-you're replying to the mail, and wire it up to your inbox ;)
+Nothing except that it asked for a page at a bad time, triggering the
+bad-hair-day reaction.  That being said, the readahead allocation mask
+should have probably included GFP_NORETRY.  (though with 8MB, if the
+readahead didn't get you, the subsequent read probably would anyway)
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+	-Mike
+

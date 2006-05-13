@@ -1,54 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbWEMNSw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWEMNtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932430AbWEMNSw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 09:18:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbWEMNSv
+	id S932425AbWEMNtP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 09:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbWEMNtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 09:18:51 -0400
-Received: from 0x55511dab.adsl.cybercity.dk ([85.81.29.171]:58937 "EHLO
-	hunin.borkware.net") by vger.kernel.org with ESMTP id S932430AbWEMNSv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 09:18:51 -0400
-From: Mark Rosenstand <mark@borkware.net>
-To: Theodore Tso <tytso@mit.edu>
-Cc: doug@mcnaught.org, arjan@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: Executable shell scripts
-In-Reply-To: <20060513125911.GA2871@thunk.org>
-References: <20060513103841.B6683146AF@hunin.borkware.net>
-	<1147517786.3217.0.camel@laptopd505.fenrus.org>
-	<20060513110324.10A38146AF@hunin.borkware.net>
-	<1147518432.3217.2.camel@laptopd505.fenrus.org>
-	<87r72yi346.fsf@suzuka.mcnaught.org>
-	<20060513112754.1CA99146AF@hunin.borkware.net>
-	<20060513125911.GA2871@thunk.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20060513131850.2E732146AF@hunin.borkware.net>
-Date: Sat, 13 May 2006 15:18:50 +0200 (CEST)
+	Sat, 13 May 2006 09:49:15 -0400
+Received: from cassarossa.samfundet.no ([129.241.93.19]:56456 "EHLO
+	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
+	id S932425AbWEMNtO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 09:49:14 -0400
+Date: Sat, 13 May 2006 15:49:08 +0200
+From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove softlockup from invalidate_mapping_pages. (might be dm related)
+Message-ID: <20060513134908.GA4480@uio.no>
+References: <20060420160549.7637.patches@notabene> <1060420062955.7727@suse.de> <20060420003839.1a41c36f.akpm@osdl.org> <20060426204809.GA15462@uio.no> <20060426135809.10a37ec3.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060426135809.10a37ec3.akpm@osdl.org>
+X-Operating-System: Linux 2.6.16.11 on a x86_64
+X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso <tytso@mit.edu> wrote:
-> On Sat, May 13, 2006 at 01:27:54PM +0200, Mark Rosenstand wrote:
-> > > Every Unix I've ever seen works this way.  It'd be nice to have
-> > > unreadable executable scripts, but no one's ever done it.
-> > 
-> > According to
-> > http://www.faqs.org/faqs/unix-faq/faq/part4/section-7.html both
-> > 4.3BSD and SunOS have. I can confirm that it works on current BSD's
-> > as well.
-> 
-> Incorrect.  The FAQ stated that BSD4.3 and SunOS support executable
-> shell scripts, but both BSD 4.3 and SunOS required that the shell
-> scripts be readable.  I know, I've personally worked on BSD 4.3
-> systems and worked on BSD 4.3 source.  Read the FAQ more carefully....
+On Wed, Apr 26, 2006 at 01:58:09PM -0700, Andrew Morton wrote:
+>> I tried this patch against 2.6.17-rc2 (I hoped that it might be fixing my
+>> kswapd oopses too, as they seem related; see
+>> http://lkml.org/lkml/2006/4/26/124 and followups), and it simply makes my
+>> machine hang on bootup -- it seems to make modprobe hang forever on some lock
+>> or something right after it loads raid6.ko (pulled in by evms_activate) in
+>> initramfs. Without the patch, the machine boots just fine.
+> It had a silly bug.  Fixed version:
 
-I only confirmed that it works on current BSD's, not that it used to
-work that way on 4.3BSD (although that was my impression.)
+That worked fine for a long time (>14 days), but I had to switch motherboards
+(from a cheap Epox to a Tyan server-board) due to external factors. Since
+then, stuff has started panicing again wildly -- 2.6.17-rc2 doesn't even
+boot, 2.6.17-rc3 and 2.6.17-rc4 lives for an hour or so and then gives up:
 
-Anyhow, I don't really mind the 111 mode, the point was to show shell
-scripts being treated as executables. What I do want this feature for
-is the "more useful case" that somehow got stripped off in the replies,
-namely setuid and setgid scripts.
+[ 1127.842645] Unable to handle kernel NULL pointer dereference at 0000000000000040 RIP: 
+[ 1127.848117] <ffffffff803a1ae8>{__lock_text_start+0}
+[ 1127.855474] PGD 5e38a067 PUD 5e39d067 PMD 0 
+[ 1127.859770] Oops: 0002 [1] SMP 
+[ 1127.862931] CPU 1 
+[ 1127.864957] Modules linked in: w83627hf_wdt eeprom ide_generic ide_disk ide_cd cdrom ipv6 psmouse i2c_nforce2 serio_raw pcspkr i2c_core parport_pc parport rtc e
+xt3 jbd mbcahe raid6 raid5 xor raid10 raid1 raid0 linear mdd dm_mod sd_mod sata_nv sata_sil libata scsi_mod amd74xx generic forcedeth tg3 ide_core ohci_hcd ehci_hc
+d thermal processor fan unix
+[ 1127.896622] Pid: 0, comm: swapper Not tainted 2.6.17-rc4 #1
+[ 1127.902191] RIP: 0010:[<ffffffff803a1ae8>] <ffffffff803a1ae8>{__lock_text_start+0}
+[ 1127.909589] RSP: 0018:ffff81000245bd70  EFLAGS: 00010002
+[ 1127.915094] RAX: 0000000000005d09 RBX: 0000000000005d09 RCX: ffff8100020446a8
+[ 1127.922221] RDX: ffff81007e2ee800 RSI: ffff810002044648 RDI: 0000000000000040
+[ 1127.929346] RBP: 0000000000005d09 R08: 0000000000000000 R09: 0000000000000000
+[ 1127.936472] R10: 0000000000000001 R11: ffffffff8024c868 R12: ffff81007ddb41c0
+[ 1127.943599] R13: 0000000000000296 R14: ffff81007caaf650 R15: 0000000000000000
+[ 1127.950726] FS:  0000000000000000(0000) GS:ffff81007f827840(0000) knlGS:00000000f7d666c0
+[ 1127.958819] CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+[ 1127.964559] CR2: 0000000000000040 CR3: 0000000062aec000 CR4: 00000000000006e0
+[ 1127.971686] Process swapper (pid: 0, threadinfo ffff810002452000, task ffff810002444080)
+[ 1127.979777] Stack: ffffffff802668fb ffff81007caaf650 ffffffff880d3a29 ffff81007caaf650 
+[ 1127.987634]        0000000000000000 ffff81007cf689f0 ffff81003d41d240 0000000000000000 
+[ 1127.995684]        ffffffff880d3b5f ffff81007e3530e8 
+[ 1128.000757] Call Trace: <IRQ> <ffffffff802668fb>{kmem_cache_free+253}
+[ 1128.007231]        <ffffffff880d3a29>{:dm_mod:dec_pending+169} <ffffffff880d3b5f>{:dm_mod:clone_endio+127}
+[ 1128.016932]        <ffffffff802c9372>{__end_that_request_first+420} <ffffffff8808e8a6>{:scsi_mod:scsi_end_request+40}
+[ 1128.027589]        <ffffffff8808eb51>{:scsi_mod:scsi_io_completion+522}
+[ 1128.034222]        <ffffffff880cc4a1>{:sd_mod:sd_rw_intr+623} <ffffffff8808f5d6>{:scsi_mod:scsi_device_unbusy+85}
+[ 1128.044527]        <ffffffff802c86cb>{blk_done_softirq+113} <ffffffff8022c41b>{__do_softirq+86}
+[ 1128.053265]        <ffffffff8020a742>{call_softirq+30} <ffffffff8020b902>{do_softirq+44}
+[ 1128.061396]        <ffffffff8020b947>{do_IRQ+65} <ffffffff8020827b>{default_idle+0}
+[ 1128.069091]        <ffffffff80209aa0>{ret_from_intr+0} <EOI> <ffffffff803a02a0>{thread_return+0}
+[ 1128.077926]        <ffffffff802082a8>{default_idle+45} <ffffffff80208335>{cpu_idle+98}
+[ 1128.085883]        <ffffffff804d5c22>{start_secondary+1127}
+[ 1128.091670] 
+[ 1128.091671] Code: f0 ff 0f 0f 88 c8 01 00 00 c3 f0 ff 0f 8b 07 ba 01 00 00 00 
+[ 1128.100588] RIP <ffffffff803a1ae8>{__lock_text_start+0} RSP <ffff81000245bd70>
+[ 1128.107832] CR2: 0000000000000040
+[ 1128.111378]  <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
+[ 1128.118498]  <0>Rebooting in 60 seconds..
+
+This is with the remove-softlockup-from-invalidate_mapping_pages patch, but
+it looks like it's crashing somewhere else. Any good ideas? Is this related
+to the memory management at all, or is is better left to the dm people?
+
+/* Steinar */
+-- 
+Homepage: http://www.sesse.net/

@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWEMUoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbWEMUwX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbWEMUoL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 16:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWEMUoL
+	id S1750989AbWEMUwX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 16:52:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWEMUwX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 16:44:11 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26603 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751213AbWEMUoK (ORCPT
+	Sat, 13 May 2006 16:52:23 -0400
+Received: from [4.21.254.118] ([4.21.254.118]:5789 "EHLO suzuka.mcnaught.org")
+	by vger.kernel.org with ESMTP id S1750989AbWEMUwX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 16:44:10 -0400
-Date: Sat, 13 May 2006 22:43:22 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org,
-       mochel@digitalimplant.org
-Subject: Re: [PATCH/rfc] schedule /sys/device/.../power for removal
-Message-ID: <20060513204322.GB585@elf.ucw.cz>
-References: <20060512100544.GA29010@elf.ucw.cz> <20060512031151.76a9d226.akpm@osdl.org> <20060512101916.GC28232@elf.ucw.cz> <20060512032702.3591289f.akpm@osdl.org>
+	Sat, 13 May 2006 16:52:23 -0400
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Mark Rosenstand <mark@borkware.net>, linux-kernel@vger.kernel.org
+Subject: Re: Executable shell scripts
+References: <20060513103841.B6683146AF@hunin.borkware.net>
+	<1147517786.3217.0.camel@laptopd505.fenrus.org>
+	<20060513110324.10A38146AF@hunin.borkware.net>
+	<1147518432.3217.2.camel@laptopd505.fenrus.org>
+	<87r72yi346.fsf@suzuka.mcnaught.org>
+	<1147528850.3217.5.camel@laptopd505.fenrus.org>
+From: Douglas McNaught <doug@mcnaught.org>
+Date: Sat, 13 May 2006 16:52:16 -0400
+In-Reply-To: <1147528850.3217.5.camel@laptopd505.fenrus.org> (Arjan van de
+ Ven's message of "Sat, 13 May 2006 16:00:49 +0200")
+Message-ID: <87ejyxir5r.fsf@suzuka.mcnaught.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060512032702.3591289f.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Arjan van de Ven <arjan@infradead.org> writes:
 
-> > > > index 421bcff..dfcfc47 100644
-> > > > --- a/Documentation/feature-removal-schedule.txt
-> > > > +++ b/Documentation/feature-removal-schedule.txt
-> > > > @@ -6,6 +6,16 @@ be removed from this file.
-> > > >  
-> > > >  ---------------------------
-> > > >  
-> > > > +What:	/sys/device/.../power
-> > > > +When:	July 2007
-> > > > +Files:	
-> > > > +Why:	Because it takes integers, and different userland applications
-> > > > +	expect different numbers to mean different things.
-> > > > +	(Pcmcia expect 2 for off, some other code expects 3 for off).
-> > > > +Who:	Pavel Machek <pavel@suse.cz>
-> > > > +
-> > > > +---------------------------
-> > > 
-> > > What will be impacted by this?
-> > 
-> > Some obscure place PCMCIA utils, IIRC. There was one more user, but I
-> > do not remember who it was. Plus there may be few people doing echo
-> > manually.
-> 
-> What will it be replaced with, and how will we communicate the need to
-> migrate to the various application developers?  We can't just rip it out
-> next year and point at some obscure entry in a kernel file and say "but we
-> told you".
+>> Every Unix I've ever seen works this way.  It'd be nice to have
+>> unreadable executable scripts, but no one's ever done it.
+>
+>
+> hmm I'm less convinced of what that would bring anyone. Just like you
+> can get to the content of elf files anyway, you can get to the content
+> of the script (just attach a debugger for example)
+>
+> execute == read + action
 
-Ok, we do not have replacement ready, yet. Would it be feasible to
-include warning now so that people are warned as early as possible,
-while we are working on replacement? Ok, maybe not...
-								Pavel
+Good point.
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+-Doug

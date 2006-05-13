@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbWEMOMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWEMOcr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932433AbWEMOMV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 10:12:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWEMOMV
+	id S1751159AbWEMOcr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 10:32:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWEMOcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 10:12:21 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:6289 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932433AbWEMOMV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 10:12:21 -0400
-Date: Sat, 13 May 2006 10:12:11 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
+	Sat, 13 May 2006 10:32:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27583 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751159AbWEMOcq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 10:32:46 -0400
+Date: Sat, 13 May 2006 07:29:38 -0700
+From: Andrew Morton <akpm@osdl.org>
 To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Ingo Molnar <mingo@elte.hu>, akpm@osdl.org,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Silly bitmap size accounting fix
-In-Reply-To: <4465386B.9090804@yahoo.com.au>
-Message-ID: <Pine.LNX.4.58.0605131010110.27003@gandalf.stny.rr.com>
-References: <Pine.LNX.4.58.0605120403540.28581@gandalf.stny.rr.com>
- <20060512091451.GA18145@elte.hu> <4465386B.9090804@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: chrisw@sous-sol.org, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       ian.pratt@xensource.com, Christian.Limpach@cl.cam.ac.uk
+Subject: Re: [RFC PATCH 29/35] Add the Xen virtual console driver.
+Message-Id: <20060513072938.642bf600.akpm@osdl.org>
+In-Reply-To: <4465D63F.4000605@yahoo.com.au>
+References: <20060509084945.373541000@sous-sol.org>
+	<20060509085159.285105000@sous-sol.org>
+	<20060513052757.59446e03.akpm@osdl.org>
+	<4465D63F.4000605@yahoo.com.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, 13 May 2006, Nick Piggin wrote:
-
-> Ingo Molnar wrote:
-> > * Steven Rostedt <rostedt@goodmis.org> wrote:
-> >
-> >
-> >>-#define BITMAP_SIZE ((((MAX_PRIO+1+7)/8)+sizeof(long)-1)/sizeof(long))
-> >>+#define BITMAP_SIZE ((((MAX_PRIO+7)/8)+sizeof(long)-1)/sizeof(long))
-> >
-> >
-> > Acked-by: Ingo Molnar <mingo@elte.hu>
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 >
-> Really?! What about the delimiter bit set at MAX_PRIO?
+> Andrew Morton wrote:
+> 
+> >>+static void kcons_write_dom0(
+> >>+	struct console *c, const char *s, unsigned int count)
+> >>+{
+> >>+	int rc;
+> >>+
+> >>+	while ((count > 0) &&
+> >>+	       ((rc = HYPERVISOR_console_io(
+> >>+			CONSOLEIO_write, count, (char *)s)) > 0)) {
+> >>+		count -= rc;
+> >>+		s += rc;
+> >>+	}
+> >>+}
+> > 
+> > 
+> > must.. not.. mention.. coding.. style..
+> 
+> Someone should write you a script to go through a patch and flag the
+> most common style mistakes. Have the output formatted to look like
+> you're replying to the mail, and wire it up to your inbox ;)
+> 
 
+Even better, someone should write a coding style document, so people get it
+right from the outset.
 
-		// delimiter for bitsearch
-		__set_bit(MAX_PRIO, array->bitmap);
-
-
-Ah! I see what you mean.  New patch (add a comment).
-
--- Steve
-
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-
-Index: linux-2.6.17-rc3-mm1/kernel/sched.c
-===================================================================
---- linux-2.6.17-rc3-mm1.orig/kernel/sched.c	2006-05-12 04:02:32.000000000 -0400
-+++ linux-2.6.17-rc3-mm1/kernel/sched.c	2006-05-13 10:09:15.000000000 -0400
-@@ -192,6 +192,10 @@ static inline unsigned int task_timeslic
-  * These are the runqueue data structures:
-  */
-
-+/*
-+ * Calculate BITMAP_SIZE.
-+ *  The bitmask holds MAX_PRIO bits + 1 for the delimiter.
-+ */
- #define BITMAP_SIZE ((((MAX_PRIO+1+7)/8)+sizeof(long)-1)/sizeof(long))
-
- typedef struct runqueue runqueue_t;
+Clever, aren't I?

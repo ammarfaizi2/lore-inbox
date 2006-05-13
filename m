@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWEMTGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWEMTVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbWEMTGk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 15:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbWEMTGk
+	id S964780AbWEMTVk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 15:21:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWEMTVk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 15:06:40 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57273 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964782AbWEMTGj (ORCPT
+	Sat, 13 May 2006 15:21:40 -0400
+Received: from wr-out-0506.google.com ([64.233.184.229]:58542 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S964780AbWEMTVj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 15:06:39 -0400
-Date: Sat, 13 May 2006 21:05:52 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Greg KH <greg@kroah.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>,
-       trenn@suse.de, thoenig@suse.de, stable@kernel.org
-Subject: Re: [stable] Re: [patch] smbus unhiding kills thermal management
-Message-ID: <20060513190551.GB31347@elf.ucw.cz>
-References: <20060512095343.GA28375@elf.ucw.cz> <44645FC2.80500@gmx.net> <20060512102004.GD28232@elf.ucw.cz> <Pine.LNX.4.61.0605121248540.9918@yvahk01.tjqt.qr> <20060512151524.GB22871@kroah.com>
+	Sat, 13 May 2006 15:21:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nvwk2u18klW349XOUKTI+eDaKM0WFQv86EFffg8mWE36i5chZhx1ml7Klwyuw7CSsQehqLZu1Gy041FSjXYykpPTKvHuBR3UxAzP4UYQNNLQzZrgNpr7Kd3foeSXQ5ahZDvLOJlI1Q7CgfyKgxAPlVDoZ4A1KNw/bI9GqGHrdXA=
+Message-ID: <9a8748490605131221nbadedf4p8904d9627f61f425@mail.gmail.com>
+Date: Sat, 13 May 2006 21:21:38 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Catalin Marinas" <catalin.marinas@gmail.com>
+Subject: Re: [PATCH 2.6.17-rc4 6/6] Remove some of the kmemleak false positives
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060513160625.8848.76947.stgit@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060512151524.GB22871@kroah.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <20060513155757.8848.11980.stgit@localhost.localdomain>
+	 <20060513160625.8848.76947.stgit@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 13/05/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> From: Catalin Marinas <catalin.marinas@arm.com>
+>
+> There are allocations for which the main pointer cannot be found but they
+> are not memory leaks. This patch fixes some of them.
+>
+[snip]
+> +#ifdef CONFIG_DEBUG_MEMLEAK
+> +               /* avoid a false alarm. That's not a memory leak */
+> +               memleak_free(out);
+> +#endif
 
-> > >> 
-> > >> This is probably also -stable material.
-> > >
-> > >Yes, I'd like to see it go into -stable. (But IIRC stable rules were
-> > >"mainline first").
-> > 
-> > That rule was already broken IIRC.
-> 
-> For non-security issues?  The rule is, "accepted by mainline".  So has
-> the maintainer accepted this yet or not?
+Hmm, so eventually we are going to end up with a bunch of ugly #ifdef
+CONFIG_DEBUG_MEMLEAK's all over the place?
 
-Andrew took it to the -mm tree. That's as close to "accepted by
-maintainer" as it gets, I'd say.
-								Pavel
+Wouldn't it be better to just make memleak_free() an empty stub in the
+!CONFIG_DEBUG_MEMLEAK case?
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

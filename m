@@ -1,75 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWEMRNT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbWEMRRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbWEMRNT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 13:13:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbWEMRNS
+	id S1750986AbWEMRRc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 13:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWEMRRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 13:13:18 -0400
-Received: from xenotime.net ([66.160.160.81]:60083 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750705AbWEMRNS (ORCPT
+	Sat, 13 May 2006 13:17:32 -0400
+Received: from wx-out-0102.google.com ([66.249.82.199]:61902 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750764AbWEMRRc convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 13:13:18 -0400
-Date: Sat, 13 May 2006 10:15:45 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: gleb@minantech.com, mingo@elte.hu, akpm@osdl.org, tglx@linutronix.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm 00/02] update to Document futex PI design
-Message-Id: <20060513101545.8afeb220.rdunlap@xenotime.net>
-In-Reply-To: <Pine.LNX.4.58.0605131303100.27751@gandalf.stny.rr.com>
-References: <Pine.LNX.4.58.0605090954150.7007@gandalf.stny.rr.com>
-	<Pine.LNX.4.58.0605100331290.31598@gandalf.stny.rr.com>
-	<Pine.LNX.4.58.0605100429220.436@gandalf.stny.rr.com>
-	<20060510101729.GB31504@elte.hu>
-	<Pine.LNX.4.58.0605100657510.2485@gandalf.stny.rr.com>
-	<20060510124600.GN5319@minantech.com>
-	<Pine.LNX.4.58.0605100925190.4503@gandalf.stny.rr.com>
-	<20060513100142.d437a6b2.rdunlap@xenotime.net>
-	<Pine.LNX.4.58.0605131303100.27751@gandalf.stny.rr.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 13 May 2006 13:17:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=S3RFSS4pO1TH7NElevOQ82LYrlk2dng7Q3o3bjSC4a8BgzLutogivFxR8m8Ibi8XKkJG5TZ24UWvjgxs102Fr5WjBqolrk57V2HQHpS+Vx46t/k2W+LvxV/YAmUkcnRaoeQocSzqvK4mK9PuvtC+FrSF4T36+sEuAOvGKgSJQyQ=
+Message-ID: <2151339d0605131017v6fdda8edt334f43fb62e3f253@mail.gmail.com>
+Date: Sat, 13 May 2006 10:17:31 -0700
+From: "Nathan Becker" <nathanbecker@gmail.com>
+To: "David Brownell" <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] Re: USB 2.0 ehci failure with large amount of RAM (4GB) on x86_64
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <200605122132.41410.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <2151339d0605032148n5d6936ay31ab017fbabc65b3@mail.gmail.com>
+	 <200605061232.52303.david-b@pacbell.net>
+	 <2151339d0605092237m4ef4e835k16b8c779f6ad7046@mail.gmail.com>
+	 <200605122132.41410.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 May 2006 13:07:46 -0400 (EDT) Steven Rostedt wrote:
+Thanks for the patch.  However, did you not get my very last message?
+Checking back through my mail logs, I think it might not have been
+delivered.
 
-> 
-> On Sat, 13 May 2006, Randy.Dunlap wrote:
-> 
-> > On Wed, 10 May 2006 09:27:48 -0400 (EDT) Steven Rostedt wrote:
-> >
-> > >
-> > > Andrew,
-> > >
-> > > The following two patches update the rt-mutex-design.txt document.
-> > >
-> > > The first one simply removes all the tabs that I had in that document.
-> > > Since it's a document and not code, tabs are not really appropiate.
-> >
-> > I think that lots of people would not agree with that sentiment.
-> > Documentation/*.txt has approximately 8800 lines with tabs in them
-> > (just top-level Doc/*.txt, not sub-directories).
-> 
-> Yeah, but I have few ascii art graphs, as well as notes and points, that
-> would look funny if you don't have 8 character tabs.
+After claiming that the dma mask fixed the problem, I quickly
+discovered that the dma was not what did it.  Thus the patch you sent
+does not work.
 
-OK, spaces do make sense for that IMO.
-But tabs are perfectly fine in text indentations.
-
-> But If the standand is to have tabs, then I would convert all 8
-> consecutive spaces to use tabs.  But the original document had a mix of
-> tabs and spaces that just looked horrible on different editors.  So I
-> decided to use spaces since that is more consistent, in the look.
-
-Sure, mixing is often ugly/bad.
-
-> But if this is not the norm, I'll supply a patch, otherwise I'll let it
-> be.
-
-Who can answer that?
-
----
-~Randy
+But, here is what does: If I rmmod ehci_hcd and then modprobe
+ehci_hcd, it works, and I get full USB 2.0 speed.  There must be
+something happening in the clean-up code of the the ehci_hcd  that
+fixes whatever conflict I'm having.  When I originally made that patch
+and then reloaded the ehci_hcd module to test it, I mistakenly thought
+that it was the patch that was fixing the problem.  I should have
+tested more thoroughly before sending the e-mail, but I got very
+excited.  Sorry about that.  After several days of using the
+rmmod/modprobe workaround, I do feel confident that it is a legitimate
+fix.

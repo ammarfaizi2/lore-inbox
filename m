@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWEMPpD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbWEMPq2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932451AbWEMPpD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 11:45:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWEMPpD
+	id S932452AbWEMPq2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 11:46:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWEMPq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 11:45:03 -0400
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:48818 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932451AbWEMPpC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 11:45:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=08ZqmCd+Z2eN1VlDtUYgsjubengzQJ6lMKrSsSE5gtgqKMvO4AjwOvO7COSVJCrGGJxVtbZGl423jyRsGNKTRMYvNVPGTuMiARy7OhygsB8cGM1ukLNDDE4uUJYZWrz4H0f9cuP+shcLbQnKka+tuYjHVy2w3mQd3at3ZvosxSA=  ;
-Message-ID: <4465FEFD.9050603@yahoo.com.au>
-Date: Sun, 14 May 2006 01:45:01 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-       akpm@osdl.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Silly bitmap size accounting fix
-References: <Pine.LNX.4.58.0605120403540.28581@gandalf.stny.rr.com>	<20060512091451.GA18145@elte.hu>	<4465386B.9090804@yahoo.com.au>	<Pine.LNX.4.58.0605131010110.27003@gandalf.stny.rr.com> <s5hpsiivsw8.wl%tiwai@suse.de>
-In-Reply-To: <s5hpsiivsw8.wl%tiwai@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 13 May 2006 11:46:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:44752 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932452AbWEMPq1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 11:46:27 -0400
+Date: Sat, 13 May 2006 08:43:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+Cc: linux-kernel@vger.kernel.org, dm-devel@redhat.com
+Subject: Re: [PATCH] Remove softlockup from invalidate_mapping_pages. (might
+ be dm related)
+Message-Id: <20060513084317.50356155.akpm@osdl.org>
+In-Reply-To: <20060513153231.GA6277@uio.no>
+References: <1060420062955.7727@suse.de>
+	<20060420003839.1a41c36f.akpm@osdl.org>
+	<20060426204809.GA15462@uio.no>
+	<20060426135809.10a37ec3.akpm@osdl.org>
+	<20060513134908.GA4480@uio.no>
+	<20060513073344.4fcbc46b.akpm@osdl.org>
+	<20060513144334.GA6013@uio.no>
+	<20060513075147.423d18bd.akpm@osdl.org>
+	<20060513150003.GA6096@uio.no>
+	<20060513082409.4d173ccc.akpm@osdl.org>
+	<20060513153231.GA6277@uio.no>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai wrote:
-> At Sat, 13 May 2006 10:12:11 -0400 (EDT),
-> Steven Rostedt wrote:
+"Steinar H. Gunderson" <sgunderson@bigfoot.com> wrote:
+>
+>  > Which kind of implies that we passed a null (or very small small) `struct
+>  > kmem_cache' pointer into kmem_cache_free().  But that doesn't seem like the
+>  > sort of thing which will take hours to reproduce.
+>  > 
+>  > Do you have CONFIG_NUMA set?
 > 
->>
->>Index: linux-2.6.17-rc3-mm1/kernel/sched.c
->>===================================================================
->>--- linux-2.6.17-rc3-mm1.orig/kernel/sched.c	2006-05-12 04:02:32.000000000 -0400
->>+++ linux-2.6.17-rc3-mm1/kernel/sched.c	2006-05-13 10:09:15.000000000 -0400
->>@@ -192,6 +192,10 @@ static inline unsigned int task_timeslic
->>  * These are the runqueue data structures:
->>  */
->>
->>+/*
->>+ * Calculate BITMAP_SIZE.
->>+ *  The bitmask holds MAX_PRIO bits + 1 for the delimiter.
->>+ */
->> #define BITMAP_SIZE ((((MAX_PRIO+1+7)/8)+sizeof(long)-1)/sizeof(long))
-> 
-> 
-> What's wrong with BITS_TO_LONG(MAX_PRIO + 1) ?
-> 
-> Or, using DECLARE_BITMAP() in struct prio_array would be easier...
+>  Hm, yes, for some reason CONFIG_NUMA, CONFIG_K8_NUMA and
+>  CONFIG_x86_64_ACPI_NUMA are all set; I guess they're left from the stock
+>  config I use at a base. (For those tuning in; this is a dual-core amd64. That
+>  might be relevant somehow.)
 
-Yes that sounds even better.
+Please try it without NUMA - we've had a few problems there of late.  If
+that fixes it then I have patches for you to test ;)
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 

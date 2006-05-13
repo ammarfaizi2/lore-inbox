@@ -1,63 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbWEMXeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbWEMXeg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964796AbWEMXeP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 19:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964798AbWEMXeP
+	id S964798AbWEMXeg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 19:34:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbWEMXeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 19:34:15 -0400
-Received: from wr-out-0506.google.com ([64.233.184.224]:30528 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S964796AbWEMXeO convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 19:34:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=InWx6LOb4wUnSjiBv2VvZ4AQWHToU7hXpeKP7W7BHPC+J1FDrMGCyNWyrehYkV7lcYMwTU0wg3r5ojHwTAmC5WzmLOMGUAXc89Xa2lwlTYaUVAfcKuC3mUmZm5GvGx1dDGn4VJbU09bVyDHoCpBZzKmmzs9ZKu+OAgxjzrYoRI0=
-Message-ID: <9a8748490605131634w73b8d40ax278fac343602123b@mail.gmail.com>
-Date: Sun, 14 May 2006 01:34:13 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "David Woodhouse" <dwmw2@infradead.org>
-Subject: Re: [PATCH] mtd: fix memory leaks in phram_setup
-Cc: linux-kernel@vger.kernel.org,
-       "=?ISO-8859-1?Q?Jochen_Sch=E4uble?=" <psionic@psionic.de>,
-       "=?ISO-8859-1?Q?J=F6rn_Engel?=" <joern@wohnheim.fh-wedel.de>,
-       "Thomas Gleixner" <tglx@linutronix.de>
-In-Reply-To: <1147562300.12379.1.camel@pmac.infradead.org>
+	Sat, 13 May 2006 19:34:36 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:21937 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S964798AbWEMXef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 19:34:35 -0400
+Date: Sat, 13 May 2006 19:34:22 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: akpm@osdl.org
+cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH -mm] update comment in rtmutex.c and friends
+Message-ID: <Pine.LNX.4.58.0605131846250.2208@gandalf.stny.rr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200605140107.18293.jesper.juhl@gmail.com>
-	 <1147562300.12379.1.camel@pmac.infradead.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14/05/06, David Woodhouse <dwmw2@infradead.org> wrote:
-> On Sun, 2006-05-14 at 01:07 +0200, Jesper Juhl wrote:
-> > There are two code paths in drivers/mtd/devices/phram.c::phram_setup() that
-> > will leak memory.
-> > Memory is allocated to the variable 'name' with kmalloc() by the
-> > parse_name() function, but if we leave by way of the parse_err() macro,
-> > then that memory is never kfree()'d, nor is it ever used with
-> > register_device() so it won't be freed later either - leak.
-> >
-> > Found by the Coverity checker as #593 - simple fix below.
->
-> Applied; thanks. Please Cc me and/or linux-mtd@lists.infradead.org on
-> MTD patches.
->
-Sure thing, will do. The same problem exists in
-drivers/mtd/devices/block2mtd.c, I'm cooking up a patch for that one
-as we speak.
+
+The documented state in both the code and the rt-mutex.txt has a slight
+incorrect statement.  They state that if the owner of the mutex is NULL,
+and the "mutex has waiters" bit is set that it is an invalid state.
+
+This is not true. To synchronize with an owner releasing the mutex, the
+owner field must have the "mutex has waiters" bit set before trying to
+grab the lock.  This prevents the owner from releasing the lock without going
+into the slow unlock path.  But if the mutex doesn't have an owner, then
+before the current process grabs the lock, it sets the "mutex has waiters"
+bit.  But in this case it will grab the lock and clear the bit. So the
+"mutex has waiters" bit and owner == NULL is a transitional state.
+
+This patch comments this case.
+
+-- Steve
 
 
-> (Ew. The parse_err() macro contains a 'return'. Who do I slap for that?)
->
-Want me to fix the macro and the users of it?
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Index: linux-2.6.17-rc3-mm1/Documentation/rt-mutex.txt
+===================================================================
+--- linux-2.6.17-rc3-mm1.orig/Documentation/rt-mutex.txt	2006-05-13 18:39:29.000000000 -0400
++++ linux-2.6.17-rc3-mm1/Documentation/rt-mutex.txt	2006-05-13 18:44:00.000000000 -0400
+@@ -53,7 +53,7 @@ waiters" state.
+  owner		bit1	bit0
+  NULL		0	0	mutex is free (fast acquire possible)
+  NULL		0	1	invalid state
+- NULL		1	0	invalid state
++ NULL		1	0	Transitional state*
+  NULL		1	1	invalid state
+  taskpointer	0	0	mutex is held (fast release possible)
+  taskpointer	0	1	task is pending owner
+@@ -72,3 +72,8 @@ uninterrupted workflow of high-prio task
+ takes/releases locks that have lower-prio waiters. Without this
+ optimization the higher-prio thread would ping-pong to the lower-prio
+ task [because at unlock time we always assign a new owner].
++
++(*) The "mutex has waiters" bit gets set to take the lock. If the lock
++doesn't already have an owner, this bit is quickly cleared if there are
++no waiters.  So this is a transitional state to synchronize with looking
++at the owner field of the mutex and the mutex owner releasing the lock.
+\ No newline at end of file
+Index: linux-2.6.17-rc3-mm1/kernel/rtmutex.c
+===================================================================
+--- linux-2.6.17-rc3-mm1.orig/kernel/rtmutex.c	2006-05-13 17:50:24.000000000 -0400
++++ linux-2.6.17-rc3-mm1/kernel/rtmutex.c	2006-05-13 18:38:35.000000000 -0400
+@@ -31,7 +31,7 @@
+  * owner	bit1	bit0
+  * NULL		0	0	lock is free (fast acquire possible)
+  * NULL		0	1	invalid state
+- * NULL		1	0	invalid state
++ * NULL		1	0	Transitional State*
+  * NULL		1	1	invalid state
+  * taskpointer	0	0	lock is held (fast release possible)
+  * taskpointer	0	1	task is pending owner
+@@ -46,9 +46,15 @@
+  *
+  * The fast atomic compare exchange based acquire and release is only
+  * possible when bit 0 and 1 of lock->owner are 0.
++ *
++ * (*) There's a small time where the owner can be NULL and the
++ * "lock has waiters" bit is set.  This can happen when grabbing the lock.
++ * To prevent a cmpxchg of the owner releasing the lock, we need to set this
++ * bit before looking at the lock, hence the reason this is a transitional
++ * state.
+  */
+
+-static void
++static vid
+ rt_mutex_set_owner(struct rt_mutex *lock, struct task_struct *owner,
+ 		   unsigned long mask)
+ {
+@@ -365,6 +371,7 @@ static int try_to_take_rt_mutex(struct r
+ 	 * Note, that this might set lock->owner =
+ 	 * RT_MUTEX_HAS_WAITERS in the case the lock is not contended
+ 	 * any more. This is fixed up when we take the ownership.
++	 * This is the transitional state explained at the top of this file.
+ 	 */
+ 	mark_rt_mutex_waiters(lock);
+

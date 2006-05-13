@@ -1,60 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWEMOyx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbWEMO43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbWEMOyx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 10:54:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWEMOyx
+	id S1751209AbWEMO43 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 10:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWEMO43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 10:54:53 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:28100 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751153AbWEMOyx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 10:54:53 -0400
-Date: Sat, 13 May 2006 07:51:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove softlockup from invalidate_mapping_pages. (might
- be dm related)
-Message-Id: <20060513075147.423d18bd.akpm@osdl.org>
-In-Reply-To: <20060513144334.GA6013@uio.no>
-References: <20060420160549.7637.patches@notabene>
-	<1060420062955.7727@suse.de>
-	<20060420003839.1a41c36f.akpm@osdl.org>
-	<20060426204809.GA15462@uio.no>
-	<20060426135809.10a37ec3.akpm@osdl.org>
-	<20060513134908.GA4480@uio.no>
-	<20060513073344.4fcbc46b.akpm@osdl.org>
-	<20060513144334.GA6013@uio.no>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 13 May 2006 10:56:29 -0400
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:63331 "HELO
+	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751195AbWEMO42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 10:56:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=ojhoFyfEVReE3gm7r2epUttJnwQ5Qv/jnlgdO40UehHmem8qQssIVNPyRj56td7i3gWr59ErgwNhZjhwl0rFHF6E57FAD4RmX8/qSy0KU1IbJzZt0Jfz6CpWU97f7CaxRzTPMvyf8ieTMQ68j5tO46XoIImmy8kk+qsA65CWyVs=  ;
+Message-ID: <4465F392.60102@yahoo.com.au>
+Date: Sun, 14 May 2006 00:56:18 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Steven Rostedt <rostedt@goodmis.org>
+CC: Ingo Molnar <mingo@elte.hu>, akpm@osdl.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Silly bitmap size accounting fix
+References: <Pine.LNX.4.58.0605120403540.28581@gandalf.stny.rr.com> <20060512091451.GA18145@elte.hu> <4465386B.9090804@yahoo.com.au> <Pine.LNX.4.58.0605131010110.27003@gandalf.stny.rr.com> <4465EF80.6010106@yahoo.com.au> <Pine.LNX.4.58.0605131051160.27751@gandalf.stny.rr.com>
+In-Reply-To: <Pine.LNX.4.58.0605131051160.27751@gandalf.stny.rr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Steinar H. Gunderson" <sgunderson@bigfoot.com> wrote:
->
-> On Sat, May 13, 2006 at 07:33:44AM -0700, Andrew Morton wrote:
-> > Well if it's the same software lineup on new hardware, one would also
-> > suspect that hardware.  Is it new?
+Steven Rostedt wrote:
 > 
-> Yes, it's new. The differences aren't that big, though: The motherboard has
-> been changed, and there's an extra sil3114 controller.
+>>>+/*
+>>>+ * Calculate BITMAP_SIZE.
+>>>+ *  The bitmask holds MAX_PRIO bits + 1 for the delimiter.
+>>
+>>+ * Calculation is to find the minimum number of longs that holds MAX_PRIO+1 bits:
+>>+ *  size-in-chars = ceiling((MAX_PRIO+1) / CHAR_BITS)
+>>+ *  size-in-longs = ceiling(size-in-chars / sizeof(long))
+>>
+>>
+>>>+ */
+>>> #define BITMAP_SIZE ((((MAX_PRIO+1+7)/8)+sizeof(long)-1)/sizeof(long))
+>>>
+>>
 > 
-> > Does it run other kernels OK?
-> 
-> 2.6.15.4 appears to be fine, but I haven't tested it enough to make sure.
-> (I'm running 2.6.17-rc4 without swap now, so we'll see.)
-> 
-> > Does it always crash in the same manner?
-> 
-> Yes; consistently and in the same place after about the same amount of time.
+> What do you think of the following comment, better?
 
-ho-hum.  Please see if there's anything else you can do to rule out a
-hardware failure, then copy dm-devel@redhat.com on the next oops report.
+Cool, thanks.
 
-The stack backtrace you have there is a little surprising.  Enabling
-CONFIG_FRAME_POINTER might help clear it up.  Also it'd be worth seeing if
-CONFIG_DEBUG_SLAB turns up anything.
+> 
+> -- Steve
+> 
+> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+> 
+> Index: linux-2.6.17-rc3-mm1/kernel/sched.c
+> ===================================================================
+> --- linux-2.6.17-rc3-mm1.orig/kernel/sched.c	2006-05-12 04:02:32.000000000 -0400
+> +++ linux-2.6.17-rc3-mm1/kernel/sched.c	2006-05-13 10:50:44.000000000 -0400
+> @@ -192,6 +192,13 @@ static inline unsigned int task_timeslic
+>   * These are the runqueue data structures:
+>   */
+> 
+> +/*
+> + * Calculate BITMAP_SIZE.
+> + *  The bitmask holds MAX_PRIO bits + 1 for the delimiter.
+> + *  BITMAP_SIZE is the minimum number of longs that holds MAX_PRIO+1 bits:
+> + *   size-in-bytes = ceiling((MAX_PRIO+1) / BITS_PER_BYTE)
+> + *   size-in-longs = ceiling(size-in-bytes / sizeof(long))
+> + */
+>  #define BITMAP_SIZE ((((MAX_PRIO+1+7)/8)+sizeof(long)-1)/sizeof(long))
+> 
+>  typedef struct runqueue runqueue_t;
+> 
 
-Thanks.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

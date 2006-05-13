@@ -1,85 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbWEMJUn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWEMKCQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750857AbWEMJUn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 05:20:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750847AbWEMJUn
+	id S932216AbWEMKCQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 06:02:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWEMKCQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 05:20:43 -0400
-Received: from mail.gmx.de ([213.165.64.20]:54210 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750803AbWEMJUn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 05:20:43 -0400
-X-Authenticated: #4399952
-Date: Sat, 13 May 2006 11:20:39 +0200
-From: Florian Paul Schmidt <mista.tapas@gmx.net>
-To: Darren Hart <dvhltc@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: rt20 scheduling latency testcase and failure data
-Message-ID: <20060513112039.41536fb5@mango.fruits>
-In-Reply-To: <200605121924.53917.dvhltc@us.ibm.com>
-References: <200605121924.53917.dvhltc@us.ibm.com>
-X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
+	Sat, 13 May 2006 06:02:16 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:55979 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932100AbWEMKCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 06:02:15 -0400
+Message-Id: <20060513094537.PS23916900000@infradead.org>
+Date: Sat, 13 May 2006 06:45:37 -0300
+From: mchehab@infradead.org
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
+       akpm@osdl.org
+Subject: [PATCH 00/33] V4L/DVB bug fixes
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1-1mdk 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 May 2006 19:24:53 -0700
-Darren Hart <dvhltc@us.ibm.com> wrote:
+Linus,
 
-> The test case emulates a periodic thread that wakes up on time%PERIOD=0, so 
-> rather than sleeping the same amount of time each round, it checks now 
-> against the start of its next period and sleeps for that length of time.  
-> Every so often it will miss it's period, I've captured that data and included 
-> a few of the interesting bits below.  The results are from a run with a 
-> period of 5ms, although I have seen them with periods as high as 17ms.  The 
-> system was under heavy network load for some of the time, but not all.
+Please pull these from master branch at:
+        kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git
 
-[snip]
+Mostly are just small patches to fix bugs. The most changed driver is cx24123 
+frontend, since it had several precision loss at math operations, resulting on
+several digital TV stations not being seen (from my tests, without the patch, 
+only 8 TV stations were available, of a total of 28 ones with the patch).
 
-> I'd appreciate any feedback on the test case, and in particular suggestions on 
-> how I can go about determining where this lost time is being spent.
+We are also including some changes at Multimedia Kconfig menu to allow disabling
+drivers based at V4L1 API. This api were used until kernel 2.4, without providing
+enough capability to handle all analog TV video/audio standards. The removal of this
+feature is marked to July/2006. We intend to keep for a while a compatibility layer, 
+already at V4L core, that converts V4L1 calls into V4L2 ones.
 
-There's a multitude of ways how you can misconfigure your -rt system :)
-Tell us more about your setup. Hardware? Full preemption? High
-resolution timers? Priority setup? From your code i see you run at prio
-98. What about the IRQ handlers? And the softirq's, too? Other software?
+This patch series contains the following stuff:
 
-Flo
+   - Fix some errors on bttv_risc_overlay
+   - Fix mutex in dvb_register_device to work.
+   - Fix TT budget-ci 1.1 CI slots
+   - Kbuild: drivers/media/video/bt8xx: remove $(src) from include path
+   - Saa7134: Fix oops with disable_ir=1
+   - Fix oops in budget-av with CI
+   - Set tone/voltage again if the frontend was reinitialised
+   - Fix some more potential oopses
+   - Fix a bug at pluto2 Makefile
+   - Bug fix: Wrong tuner was used pcHDTV HD-3000 card
+   - Correct buffer size calculations in cx88-core.c
+   - Pvr350 tv out (saa7127)
+   - Create V4L1 config options
+   - Add VIVI Kconfig stuff
+   - Removed uneeded stuff from pwc Makefile
+   - Fix compilation with V4L1_COMPAT
+   - Use after free in drivers/media/video/em28xx/em28xx-video.c
+   - Kbuild: DVB_BT8XX must select DVB_ZL10353
+   - Fix for CX24123 & low symbol rates
+   - Add several debug messages to cx24123 code
+   - Always wait for diseqc queue to become ready before transmitting a diseqc message
+   - Various correctness fixes to tuning.
+   - Tweak bandselect setup fox cx24123
+   - Add support for TCL M2523_5N_E tuner.
+   - Cxusb-bluebird: bug-fix: power down corrupts frontend
+   - Remove broken 'fast firmware load' from cx25840.
+   - Saa7134: Missing 'break' in Terratec Cinergy 400 TV initialization
+   - Fix frequency values in the ranges structures of the LG TDVS H06xF tuners
+   - Get_dvb_firmware: download nxt2002 firmware from new driver location
+   - Sparc32 vivi fix
+   - Vivi build fix
+   - Bt8xx/bttv-cards.c: fix off-by-one errors
+   - Fix CONFIG_VIDEO_VIVI=y build bug
 
-P.S.: I ran the test a few [20 or so] times and didn't get any failures
-of the sort you see. Even with a 1ms period:
+Cheers,
+Mauro.
 
-~/downloads$ ./sched_latency_lkml 
--------------------------------
-Scheduling Latency
--------------------------------
+V4L/DVB development is hosted at http://linuxtv.org
+---
 
-Running 10000 iterations with a period of 1 ms
-Expected running time: 10 s
+ Documentation/dvb/get_dvb_firmware                |    8 
+ drivers/media/Kconfig                             |   45 -
+ drivers/media/common/Kconfig                      |    1 
+ drivers/media/dvb/bt8xx/Kconfig                   |    1 
+ drivers/media/dvb/cinergyT2/cinergyT2.c           |    5 
+ drivers/media/dvb/dvb-core/dvb_frontend.c         |   12 
+ drivers/media/dvb/dvb-core/dvbdev.c               |    4 
+ drivers/media/dvb/dvb-usb/cxusb.c                 |   17 
+ drivers/media/dvb/frontends/cx24123.c             |  617 +++++++++-----
+ drivers/media/dvb/frontends/dvb-pll.c             |    4 
+ drivers/media/dvb/pluto2/Makefile                 |    2 
+ drivers/media/dvb/ttpci/Kconfig                   |   12 
+ drivers/media/dvb/ttpci/budget-av.c               |    6 
+ drivers/media/dvb/ttpci/budget-ci.c               |  105 +-
+ drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c |    6 
+ drivers/media/radio/Kconfig                       |   30 
+ drivers/media/video/Kconfig                       |   81 +
+ drivers/media/video/Makefile                      |    7 
+ drivers/media/video/bt8xx/Kconfig                 |    2 
+ drivers/media/video/bt8xx/Makefile                |    2 
+ drivers/media/video/bt8xx/bttv-cards.c            |    4 
+ drivers/media/video/bt8xx/bttv-risc.c             |   14 
+ drivers/media/video/cx25840/cx25840-firmware.c    |   49 -
+ drivers/media/video/cx88/cx88-cards.c             |    2 
+ drivers/media/video/cx88/cx88-core.c              |   16 
+ drivers/media/video/cx88/cx88-dvb.c               |    2 
+ drivers/media/video/cx88/cx88-video.c             |    2 
+ drivers/media/video/em28xx/Kconfig                |    2 
+ drivers/media/video/em28xx/em28xx-video.c         |   10 
+ drivers/media/video/et61x251/Kconfig              |    2 
+ drivers/media/video/pwc/Kconfig                   |    2 
+ drivers/media/video/pwc/Makefile                  |   17 
+ drivers/media/video/saa7127.c                     |    1 
+ drivers/media/video/saa7134/saa7134-cards.c       |    1 
+ drivers/media/video/saa7134/saa7134-core.c        |    6 
+ drivers/media/video/saa7134/saa7134-video.c       |    2 
+ drivers/media/video/sn9c102/Kconfig               |    2 
+ drivers/media/video/tuner-types.c                 |    4 
+ drivers/media/video/tveeprom.c                    |    2 
+ drivers/media/video/usbvideo/Kconfig              |    6 
+ drivers/media/video/vivi.c                        |    5 
+ drivers/media/video/zc0301/Kconfig                |    2 
+ include/linux/videodev2.h                         |    5 
+ 43 files changed, 729 insertions(+), 396 deletions(-)
 
-ITERATION DELAY(US) MAX_DELAY(US) FAILURES
---------- --------- ------------- --------
-    10000        32            47        0
-
-Start Latency:  305 us: FAIL
-Min Latency:     16 us: PASS
-Avg Latency:     29 us: PASS
-Max Latency:     47 us: PASS
-Failed Iterations: 0
-
-~/downloads$ uname -a
-Linux mango.fruits 2.6.16-rt20 #4 PREEMPT Wed May 10 12:53:39 CEST 2006 i686 GNU/Linux
-
-Ooops, i must admit i have the nvidia binary only kernel module loaded,
-but i suppose this wouldn't make a difference for the better ;)
-
-I got high resolution timers enabled and left the softirq threads at
-their defaults.
-
--- 
-Palimm Palimm!
-http://tapas.affenbande.org

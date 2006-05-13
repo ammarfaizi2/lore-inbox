@@ -1,81 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbWEMO43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWEMO4t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751209AbWEMO43 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 10:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWEMO43
+	id S1751195AbWEMO4t (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 10:56:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWEMO4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 10:56:29 -0400
-Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:63331 "HELO
-	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751195AbWEMO42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 10:56:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=ojhoFyfEVReE3gm7r2epUttJnwQ5Qv/jnlgdO40UehHmem8qQssIVNPyRj56td7i3gWr59ErgwNhZjhwl0rFHF6E57FAD4RmX8/qSy0KU1IbJzZt0Jfz6CpWU97f7CaxRzTPMvyf8ieTMQ68j5tO46XoIImmy8kk+qsA65CWyVs=  ;
-Message-ID: <4465F392.60102@yahoo.com.au>
-Date: Sun, 14 May 2006 00:56:18 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Sat, 13 May 2006 10:56:49 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54468 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751227AbWEMO4s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 10:56:48 -0400
+Date: Sat, 13 May 2006 07:56:26 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Maneesh Soni <maneesh@in.ibm.com>
+cc: Sachin Sant <sachinp@in.ibm.com>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       Sharyathi Nagesh <sharyath@in.ibm.com>, linux-kernel@vger.kernel.org,
+       Arjan van de Ven <arjan@infradead.org>, Vivek Goyal <vgoyal@in.ibm.com>
+Subject: Re: Bug while executing : cat /proc/iomem on 2.6.17-rc1/rc2
+In-Reply-To: <20060513103047.GA28366@in.ibm.com>
+Message-ID: <Pine.LNX.4.64.0605130755040.3866@g5.osdl.org>
+References: <444DFD53.2000108@in.ibm.com> <1145962096.3114.19.camel@laptopd505.fenrus.org>
+ <1147332468.17798.13.camel@localhost.localdomain> <20060511073205.GA28693@flint.arm.linux.org.uk>
+ <4462F7F4.7050908@in.ibm.com> <20060513103047.GA28366@in.ibm.com>
 MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: Ingo Molnar <mingo@elte.hu>, akpm@osdl.org,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Silly bitmap size accounting fix
-References: <Pine.LNX.4.58.0605120403540.28581@gandalf.stny.rr.com> <20060512091451.GA18145@elte.hu> <4465386B.9090804@yahoo.com.au> <Pine.LNX.4.58.0605131010110.27003@gandalf.stny.rr.com> <4465EF80.6010106@yahoo.com.au> <Pine.LNX.4.58.0605131051160.27751@gandalf.stny.rr.com>
-In-Reply-To: <Pine.LNX.4.58.0605131051160.27751@gandalf.stny.rr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
-> 
->>>+/*
->>>+ * Calculate BITMAP_SIZE.
->>>+ *  The bitmask holds MAX_PRIO bits + 1 for the delimiter.
->>
->>+ * Calculation is to find the minimum number of longs that holds MAX_PRIO+1 bits:
->>+ *  size-in-chars = ceiling((MAX_PRIO+1) / CHAR_BITS)
->>+ *  size-in-longs = ceiling(size-in-chars / sizeof(long))
->>
->>
->>>+ */
->>> #define BITMAP_SIZE ((((MAX_PRIO+1+7)/8)+sizeof(long)-1)/sizeof(long))
->>>
->>
-> 
-> What do you think of the following comment, better?
-
-Cool, thanks.
-
-> 
-> -- Steve
-> 
-> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-> 
-> Index: linux-2.6.17-rc3-mm1/kernel/sched.c
-> ===================================================================
-> --- linux-2.6.17-rc3-mm1.orig/kernel/sched.c	2006-05-12 04:02:32.000000000 -0400
-> +++ linux-2.6.17-rc3-mm1/kernel/sched.c	2006-05-13 10:50:44.000000000 -0400
-> @@ -192,6 +192,13 @@ static inline unsigned int task_timeslic
->   * These are the runqueue data structures:
->   */
-> 
-> +/*
-> + * Calculate BITMAP_SIZE.
-> + *  The bitmask holds MAX_PRIO bits + 1 for the delimiter.
-> + *  BITMAP_SIZE is the minimum number of longs that holds MAX_PRIO+1 bits:
-> + *   size-in-bytes = ceiling((MAX_PRIO+1) / BITS_PER_BYTE)
-> + *   size-in-longs = ceiling(size-in-bytes / sizeof(long))
-> + */
->  #define BITMAP_SIZE ((((MAX_PRIO+1+7)/8)+sizeof(long)-1)/sizeof(long))
-> 
->  typedef struct runqueue runqueue_t;
-> 
 
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+On Sat, 13 May 2006, Maneesh Soni wrote:
+> 
+> Backing out 
+> 
+> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=10dbe196a8da6b3196881269c6639c0ec11c36cb
+> 
+> solves this problem for me. This patch adds memory more than 4G to /proc/iomem
+> but without 64-bit fields for struct resource it ends up in confusing 
+> iomem_resource list. I think this patch needs the core 64-bit struct resource
+> related changes also.
+
+Yeah, let's revert that for now. I don't think the people involved 
+realized how it was dependent on the 64-bit struct resource changes.
+
+Thanks,
+
+		Linus

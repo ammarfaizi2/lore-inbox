@@ -1,84 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWEMEco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbWEMEkj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbWEMEco (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 00:32:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWEMEco
+	id S932333AbWEMEkj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 00:40:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWEMEkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 00:32:44 -0400
-Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:9320 "HELO
-	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932081AbWEMEcn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 00:32:43 -0400
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: USB 2.0 ehci failure with large amount of RAM (4GB) on x86_64
-Date: Fri, 12 May 2006 21:32:39 -0700
-User-Agent: KMail/1.7.1
-Cc: "Nathan Becker" <nathanbecker@gmail.com>, linux-kernel@vger.kernel.org
-References: <2151339d0605032148n5d6936ay31ab017fbabc65b3@mail.gmail.com> <200605061232.52303.david-b@pacbell.net> <2151339d0605092237m4ef4e835k16b8c779f6ad7046@mail.gmail.com>
-In-Reply-To: <2151339d0605092237m4ef4e835k16b8c779f6ad7046@mail.gmail.com>
+	Sat, 13 May 2006 00:40:39 -0400
+Received: from mx1.suse.de ([195.135.220.2]:56799 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932175AbWEMEki (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 00:40:38 -0400
+From: Neil Brown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Sat, 13 May 2006 13:46:24 +1000
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_pFWZE9qdpAH0VGN"
-Message-Id: <200605122132.41410.david-b@pacbell.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17509.22160.118149.49714@cse.unsw.edu.au>
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+       paul.clements@steeleye.com
+Subject: Re: [PATCH 008 of 8] md/bitmap: Change md/bitmap file handling to
+ use bmap to file blocks.
+In-Reply-To: message from Andrew Morton on Friday May 12
+References: <20060512160121.7872.patches@notabene>
+	<1060512060809.8099@suse.de>
+	<20060512104750.0f5cb10a.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_pFWZE9qdpAH0VGN
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Friday May 12, akpm@osdl.org wrote:
+> NeilBrown <neilb@suse.de> wrote:
+> >
+> > If md is asked to store a bitmap in a file, it tries to hold onto the
+> > page cache pages for that file, manipulate them directly, and call a
+> > cocktail of operations to write the file out.  I don't believe this is
+> > a supportable approach.
+> 
+> erk.  I think it's better than...
+> 
+> > This patch changes the approach to use the same approach as swap files.
+> > i.e. bmap is used to enumerate all the block address of parts of the file
+> > and we write directly to those blocks of the device.
+> 
+> That's going in at a much lower level.  Even swapfiles don't assume
+> buffer_heads.
 
-On Tuesday 09 May 2006 10:37 pm, Nathan Becker wrote:
-> I added 1 line to drivers/usb/host/ehci-pci.c which sets the DMA mask,
-> and now it seems to work with ehci loaded and with 4 GB of RAM.
-> Unfortunately, I don't really understand what I did.  Perhaps you have
-> a better idea what this is doing and if it is correct.
+I'm not "assuming" buffer_heads.  I'm creating buffer heads and using
+them for my own purposes.  These are my pages and my buffer heads.
+None of them belong to the filesystem.
+The buffer_heads are simply a convenient data-structure to record the
+several block addresses for each page.  I could have equally created
+an array storing all the addresses, and built the required bios by
+hand at write time.  But buffer_heads did most of the work for me, so
+I used them.
 
-Interesting.  My guess is that the IOMMU is helping you out, and the
-issue is that the silicon erratum applies to the I/O buffers too, not
-just to a subset of the schedule data structures.
+Yes, it is a lower level, but
+ 1/ I am certain that there will be no kmalloc problems and
+ 2/ Because it is exactly the level used by swapfile, I know that it
+    is sufficiently 'well defined' that no-one is going to break it.
 
-Can you confirm that this patch also resolves your issue?  Reboot
-from scratch a few times (power off, warm reboot, etc) to be
-reasonably sure you're seeing the cases that failed before.
+> 
+> When playing with bmap() one needs to be careful that nobody has truncated
+> the file on you, else you end up writing to disk blocks which aren't part
+> of the file any more.
 
+Well we currently play games with i_write_count to ensure that no-one
+else has the file open for write.  And if no-one else can get write
+access, then it cannot be truncated.
+I did think about adding the S_SWAPFILE flag, but decided to leave
+that for a separate patch and review different approaches to
+preventing write access first (e.g. can I use a lease?).
 
---Boundary-00=_pFWZE9qdpAH0VGN
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="ehci-nf4.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="ehci-nf4.patch"
+> 
+> All this (and a set_fs(KERNEL_DS), ug) looks like a step backwards to me. 
+> Operating at the pagecache a_ops level looked better, and more
+> filesystem-independent.
 
-Modify workaround for the EHCI quirk in newer NVidia controllers by
-assigning the DMA mask, not just the consistent DMA mask.  It seems
-to matter, as if the silicon erratum isn't quite what was described
-in the original bug workaround (or there's another erratum).
+If you really want filesystem independence, you need to use vfs_read
+and vfs_write to read/write the file.  I have a patch which did that,
+but decided that the possibility of kmalloc failure at awkward times
+would make that not suitable.
+So I now use vfs_read to read in the file (just like knfsd) and
+bmap/submit_bh to write out the file (just like swapfile).
 
+I don't think a_ops really provides an interface that I can use, partly
+because, as I said in a previous email, it isn't really a public
+interface to a filesystem.
 
-Index: g26/drivers/usb/host/ehci-pci.c
-===================================================================
---- g26.orig/drivers/usb/host/ehci-pci.c	2006-05-12 19:40:22.000000000 -0700
-+++ g26/drivers/usb/host/ehci-pci.c	2006-05-12 21:15:31.000000000 -0700
-@@ -118,7 +118,15 @@ static int ehci_pci_setup(struct usb_hcd
- 			if (pci_set_consistent_dma_mask(pdev,
- 						DMA_31BIT_MASK) < 0)
- 				ehci_warn(ehci, "can't enable NVidia "
--					"workaround for >2GB RAM\n");
-+					"workaround %d for >2GB RAM\n", 1);
-+
-+			/* some users report problems with 4GB when the IOMMU
-+			 * doesn't force lowmem addresses... looks like the
-+			 * initial report from NVidia wasn't quite right.
-+			 */
-+			if (pci_set_dma_mask(pdev, DMA_31BIT_MASK) < 0)
-+				ehci_warn(ehci, "can't enable NVidia "
-+					"workaround %d for >2GB RAM\n", 2);
- 			break;
- 		/* Some NForce2 chips have problems with selective suspend;
- 		 * fixed in newer silicon.
+> 
+> I haven't looked at this patch at all closely yet.  Do I really need to?
 
---Boundary-00=_pFWZE9qdpAH0VGN--
+I assume you are asking that because you hope I will retract the
+patch.  While I'm always open to being educated, I am not yet
+convinced that there is any better way, or even any other usable way,
+to do what needs to be done, so I am not inclined to retract the
+patch.
+
+I'd like to say that you don't need to read it because it is perfect,
+but unfortunately history suggests that is unlikely to be true.
+
+Whether you look more closely is of course up to you, but I'm convinced
+that patch is in the right direction, and your review and comments are
+always very valuable.
+
+NeilBrown

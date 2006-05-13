@@ -1,60 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWEMAGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWEMAKx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932284AbWEMAGF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 20:06:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWEMAGF
+	id S932221AbWEMAKx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 20:10:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbWEMAKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 20:06:05 -0400
-Received: from mail.gmx.net ([213.165.64.20]:53929 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932221AbWEMAGA (ORCPT
+	Fri, 12 May 2006 20:10:53 -0400
+Received: from ns.suse.de ([195.135.220.2]:45507 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932221AbWEMAKv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 20:06:00 -0400
-X-Authenticated: #31060655
-Message-ID: <44652292.6070401@gmx.net>
-Date: Sat, 13 May 2006 02:04:34 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060316 SUSE/1.0-27 SeaMonkey/1.0
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-CC: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>, trenn@suse.de,
-       thoenig@suse.de, stable@kernel.org
-Subject: Re: [patch] smbus unhiding kills thermal management
-References: <20060512095343.GA28375@elf.ucw.cz> <44645FC2.80500@gmx.net> <Pine.LNX.4.64.0605121547090.27910@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.64.0605121547090.27910@montezuma.fsmlabs.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Fri, 12 May 2006 20:10:51 -0400
+Date: Fri, 12 May 2006 17:08:52 -0700
+From: Greg KH <greg@kroah.com>
+To: Al Viro <viro@ftp.linux.org.uk>, Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Erik Mouw <erik@harddisk-recovery.com>,
+       Or Gerlitz <or.gerlitz@gmail.com>, linux-scsi@vger.kernel.org,
+       axboe@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG 2.6.17-git] kmem_cache_create: duplicate cache scsi_cmd_cache
+Message-ID: <20060513000852.GA31511@kroah.com>
+References: <20060511151456.GD3755@harddisk-recovery.com> <15ddcffd0605112153q57f139a1k7068e204a3eeaf1f@mail.gmail.com> <20060512171632.GA29077@harddisk-recovery.com> <Pine.LNX.4.64.0605121024310.3866@g5.osdl.org> <20060512203416.GA17120@flint.arm.linux.org.uk> <20060512214354.GP27946@ftp.linux.org.uk> <20060512215520.GH17120@flint.arm.linux.org.uk> <20060512220807.GR27946@ftp.linux.org.uk> <Pine.LNX.4.64.0605121519420.3866@g5.osdl.org> <20060512222816.GS27946@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060512222816.GS27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-> On Fri, 12 May 2006, Carl-Daniel Hailfinger wrote:
+On Fri, May 12, 2006 at 11:28:16PM +0100, Al Viro wrote:
+> On Fri, May 12, 2006 at 03:22:42PM -0700, Linus Torvalds wrote:
+> > 
+> > 
+> > On Fri, 12 May 2006, Al Viro wrote:
+> > > 
+> > > Secondary question: who had resurrected that crap?  I distinctly remember
+> > > killing it off...
+> > 
+> > If you did, I don't think it ever got into the kernel.
+> > 
+> > It was added by Kay Sievers on Nov 3, 2004, according to the old history 
+> > (back then it was in drivers/block/genhd.c, and the function was called 
+> > "block_hotplug()", but apart from renaming the function and moving the 
+> > file, it's recognizably the same.
+> > 
+> > Of course, you may have killed off an even earlier incarnation..
 > 
->> Pavel Machek wrote:
->>> Do not enable the SMBus device on Asus boards if suspend
->>> is used. We do not reenable the device on resume, leading to all sorts
->>> of undesirable effects, the worst being a total fan failure after
->>> resume on Samsung P35 laptop.
->>>
->>> Signed-off-by: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
->>> Signed-off-by: Pavel Machek <pavel@suse.cz>
->> This is probably also -stable material.
+> Ah, right - there was another uevent mess in fs/super.c.  Sorry, got them
+> confused... and that FPOS _is_ back.
 > 
-> Isn't it inevitable that we're going to have to rerun quirks on resume on 
-> some hardware?
+> gregkh, may I ask why had bdev_uevent() been resurrected?
 
-Yes, but until we have a proper infrastructure for that, we have to
-disable the smbus unhiding as a safe fix.
+One user, running an old version of HAL, on a distro that had an updated
+version available (Gentoo), refused to upgrade it and was upset that
+when they plugged a usb-storage device in, it did not show up as an icon
+on the desktop.
 
-If you have the time to whip up a patch to add a sane quirks-on-resume
-infrastructure, I'd be grateful. See the thread
-"[RFC] [PATCH] Execute PCI quirks on resume from suspend-to-RAM" for
-some ugly proof-of-concept.
-My main motivation was to prevent bricking my laptop. Added functionality
-is desirable, but secondary.
+Andrew pointed out that we broke the "don't break the userspace API"
+kernel rule, so I put the patch back, and noted when it would finally be
+removed.
 
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
+I would gladly remove it again if everyone can agree that they will not
+get upset at me again when someone running obsolete/broken userspace
+programs complains...
+
+thanks,
+
+greg k-h

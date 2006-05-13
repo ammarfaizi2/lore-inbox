@@ -1,98 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbWEMX1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbWEMX2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964795AbWEMX1K (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 19:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbWEMX1K
+	id S964802AbWEMX2r (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 19:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbWEMX2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 19:27:10 -0400
-Received: from dsl081-033-126.lax1.dsl.speakeasy.net ([64.81.33.126]:17101
-	"EHLO bifrost.lang.hm") by vger.kernel.org with ESMTP
-	id S964795AbWEMX1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 19:27:08 -0400
-Date: Sat, 13 May 2006 16:27:03 -0700 (PDT)
-From: David Lang <david@lang.hm>
-X-X-Sender: dlang@david.lang.hm
-To: Roger Luethi <rl@hellgate.ch>
-cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: network freeze with nforce-A939 integrated rhine card
-In-Reply-To: <Pine.LNX.4.62.0605130122310.2801@qnivq.ynat.uz>
-Message-ID: <Pine.LNX.4.62.0605131624090.2923@qnivq.ynat.uz>
-References: <Pine.LNX.4.62.0605112235170.2802@qnivq.ynat.uz>
- <20060512214109.GD2274@k3.hellgate.ch> <Pine.LNX.4.62.0605122209330.2803@qnivq.ynat.uz>
- <Pine.LNX.4.62.0605130122310.2801@qnivq.ynat.uz>
+	Sat, 13 May 2006 19:28:47 -0400
+Received: from cassarossa.samfundet.no ([129.241.93.19]:3557 "EHLO
+	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
+	id S964802AbWEMX2q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 19:28:46 -0400
+Date: Sun, 14 May 2006 01:28:42 +0200
+From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, dm-devel@redhat.com, neilb@suse.de
+Subject: Re: [PATCH] Remove softlockup from invalidate_mapping_pages. (might be dm related)
+Message-ID: <20060513232842.GA8591@uio.no>
+References: <20060426135809.10a37ec3.akpm@osdl.org> <20060513134908.GA4480@uio.no> <20060513073344.4fcbc46b.akpm@osdl.org> <20060513144334.GA6013@uio.no> <20060513075147.423d18bd.akpm@osdl.org> <20060513150003.GA6096@uio.no> <20060513082409.4d173ccc.akpm@osdl.org> <20060513153231.GA6277@uio.no> <20060513084317.50356155.akpm@osdl.org> <20060513171414.GA7628@uio.no>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060513171414.GA7628@uio.no>
+X-Operating-System: Linux 2.6.16.11 on a x86_64
+X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 May 2006, David Lang wrote:
+On Sat, May 13, 2006 at 07:14:14PM +0200, Steinar H. Gunderson wrote:
+> I guess it's time for memtest86, just in case I botched the RAM while
+> moving it...
 
-> On Fri, 12 May 2006, David Lang wrote:
->
->> On Fri, 12 May 2006, Roger Luethi wrote:
->> 
->>> On Thu, 11 May 2006 22:59:44 -0700, David Lang wrote:
->
-> I just confirmed this, I was able to transfer 84G with no trouble starting 
-> from /dev/hdb, but starting from /dev/md0 the nic hung in less then 3G
->
-> a good boot logs
-> eth0: VIA Rhine II at 0xe8121000, 00:11:5b:f4:14:a3, IRQ 17.
-> eth0: MII PHY found at address 1, status 0x7869 advertising 05e1 Link cde1.
->
-> root@david:~# ethtool eth0
-> Settings for eth0:
->        Supported ports: [ TP MII ]
->        Supported link modes:   10baseT/Half 10baseT/Full
->                                100baseT/Half 100baseT/Full
->        Supports auto-negotiation: Yes
->        Advertised link modes:  10baseT/Half 10baseT/Full
->                                100baseT/Half 100baseT/Full
->        Advertised auto-negotiation: Yes
->        Speed: 100Mb/s
->        Duplex: Full
->        Port: MII
->        PHYAD: 1
->        Transceiver: internal
->        Auto-negotiation: on
->        Supports Wake-on: pumbg
->        Wake-on: d
->        Current message level: 0x00000001 (1)
->        Link detected: yes
+Good news! :-) memtest86+ refused to boot, since I have too much memory (2GB)
+and this somehow interferes with grub, but mprime (my other favourite tool
+for this kind of testing) quite quickly bombed out. (This in itself usually
+means bad RAM, bad motherboard or some interrupt handler messing up badly.)
 
-and here's what I get when it's hung
+I moved the RAM from DIMM slot 3+4 to 1+2, and suddenly things became a _lot_
+better. I definitely can't say it's oops-free yet, since it's only been
+running a couple of hours, but this certainly points towards that the larger
+part of my issues were some odd sort of motherboard hiccup.
 
-from syslog when it hangs
-May 13 01:58:17 david kernel: attempt to access beyond end of device
-May 13 01:58:17 david kernel: md0: rw=0, want=8708129352, limit=2188035584
-May 13 01:58:17 david kernel: attempt to access beyond end of device
-May 13 01:58:17 david kernel: md0: rw=0, want=7768925008, limit=2188035584
-May 13 02:13:50 david ntpd[2589]: time reset +0.699871 s
-May 13 02:16:51 david kernel: eth0: link down
+I take it this also frees the dm, md and NUMA code of most suspicion --
+consider the issues fixed for now, and I'll be sure to bug you again if I
+start to get oopses again. Sorry for wasting your time :-)
 
-from ethtool
-Settings for eth0:
- 	Supported ports: [ TP MII ]
- 	Supported link modes:   10baseT/Half 10baseT/Full
- 	                        100baseT/Half 100baseT/Full
- 	Supports auto-negotiation: Yes
- 	Advertised link modes:  10baseT/Half 10baseT/Full
- 	                        100baseT/Half 100baseT/Full
- 	Advertised auto-negotiation: Yes
- 	Speed: 10Mb/s
- 	Duplex: Half
- 	Port: MII
- 	PHYAD: 1
- 	Transceiver: internal
- 	Auto-negotiation: on
- 	Supports Wake-on: pumbg
- 	Wake-on: d
- 	Current message level: 0x00000001 (1)
- 	Link detected: no
-
-
-from the boot with it hung.
-eth0: VIA Rhine II at 0xe8121000, 00:11:5b:f4:14:a3, IRQ 17.
-eth0: MII PHY found at address 1, status 0x7849 advertising 05e1 Link 0000.
-
-David Lang
+/* Steinar */
+-- 
+Homepage: http://www.sesse.net/

@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbWEMENo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbWEMEVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932327AbWEMENo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 00:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWEMENo
+	id S1750951AbWEMEVk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 00:21:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750956AbWEMEVj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 00:13:44 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:26338 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932323AbWEMENn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 00:13:43 -0400
-Message-ID: <44655CF3.5010101@garzik.org>
-Date: Sat, 13 May 2006 00:13:39 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Sat, 13 May 2006 00:21:39 -0400
+Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:33372 "HELO
+	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750865AbWEMEVj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 00:21:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=yx7jcfkSqhIbR0ViwqBZ6slQG35Y4R5HVPRRnEHGifPPGZmxrnsveNcfE7qBoPj3GVcwGs4v834vWJ7q1R61ZbOtscUroAk9dfkHpWs4tWI849kOxP6cJngmV9ySCxmqE2SUTXkpTD/OAZ4Ipi2OML76fCv04BfgNqeGiJm6SCU=  ;
+Message-ID: <44655ECD.10404@yahoo.com.au>
+Date: Sat, 13 May 2006 14:21:33 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: Stefan Smietanowski <stesmi@stesmi.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [ANNOUNCE] libata: new EH, NCQ, hotplug and PM patches against
- stable kernel
-References: <20060512132437.GB4219@htj.dyndns.org> <20060512122116.152fbe80.rdunlap@xenotime.net> <4464E079.1070307@stesmi.com> <446505F8.7020909@gmail.com>
-In-Reply-To: <446505F8.7020909@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Phillip Hellewell <phillip@hellewell.homeip.net>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
+       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, toml@us.ibm.com,
+       yoder1@us.ibm.com, James Morris <jmorris@namei.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>, Erez Zadok <ezk@cs.sunysb.edu>,
+       David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 0/13: eCryptfs] eCryptfs Patch Set
+References: <20060513033742.GA18598@hellewell.homeip.net>
+In-Reply-To: <20060513033742.GA18598@hellewell.homeip.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.0 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.0 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> Stefan Smietanowski wrote:
->> Randy.Dunlap wrote:
->>>> * New error handling
->>>> * IRQ driven PIO (from Albert Lee)
->>>> * SATA NCQ support
->>>> * Hotplug support
->>>> * Port Multiplier support
->>>
->>> BTW, we often use PM to mean Power Management.
->>> Could we find a different acronym for Port Multiplier support,
->>> such as PMS or PX or PXS?
->>
->> Ok, maybe not PMS ?
->>
->> Can you imagine a bug report from someone that "has problem with PMS"?
->> :)
->>
+Phillip Hellewell wrote:
+> This patch set constitutes the 0.1.7 release of the eCryptfs
+> cryptographic filesystem:
 > 
-> Would be fun though.  :)
+> http://ecryptfs.sourceforge.net/
 > 
-> I thought about using another acronym for port multiplier too.  But the 
-> spec uses that acronym all over the place, PM, PMP (Port Multiplier 
-> Portnumber), which reminds me of USB full/high speed fiasco.
+> It includes numerous updates based on comments on the 0.1.6 submission
+> made on May 4th. The only functional change worth noting is the
+> removal of the unnecessary second read in ecryptfs_get1page() and
+> ecryptfs_do_readpage().
 > 
-> Urghh... I thought we could use power for power management inside libata 
-> but that might be a bad idea.  So, PMS?
+> This patch set was produced and tested against the 2.6.17-rc3-mm1
+> release of the kernel.
 
-PMS is fine.  I encouraged the use of "UFO" for "UDP Fragmentation 
-Offload" in network driver land, and it stuck.
+BTW.  I'm not sure if linux-fsdevel has different conventions; however
+usually you don't break up a patch according to files, but logical
+components or transformations from one "sane" kernel tree to the next.
+And that means things keep compiling and working.
 
-This is Linux, we like to have fun around here :)
+Sometimes big patches are justified.
 
-	Jeff
-
-
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

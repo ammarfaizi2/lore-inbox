@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbWEMQgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWEMQ7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932436AbWEMQgK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 12:36:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932469AbWEMQgJ
+	id S932481AbWEMQ7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 12:59:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWEMQ7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 12:36:09 -0400
-Received: from mail.gmx.de ([213.165.64.20]:39615 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932436AbWEMQgI (ORCPT
+	Sat, 13 May 2006 12:59:16 -0400
+Received: from xenotime.net ([66.160.160.81]:4265 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932481AbWEMQ7P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 12:36:08 -0400
-X-Authenticated: #14349625
-Subject: Re: rt20 scheduling latency testcase and failure data
-From: Mike Galbraith <efault@gmx.de>
+	Sat, 13 May 2006 12:59:15 -0400
+Date: Sat, 13 May 2006 10:01:42 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
 To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Florian Paul Schmidt <mista.tapas@gmx.net>,
-       Darren Hart <dvhltc@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <Pine.LNX.4.58.0605131137070.27751@gandalf.stny.rr.com>
-References: <200605121924.53917.dvhltc@us.ibm.com>
-	 <20060513112039.41536fb5@mango.fruits> <1147521338.7909.5.camel@homer>
-	 <Pine.LNX.4.58.0605131137070.27751@gandalf.stny.rr.com>
-Content-Type: text/plain
-Date: Sat, 13 May 2006 18:36:22 +0200
-Message-Id: <1147538182.7562.2.camel@homer>
+Cc: gleb@minantech.com, mingo@elte.hu, akpm@osdl.org, tglx@linutronix.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm 00/02] update to Document futex PI design
+Message-Id: <20060513100142.d437a6b2.rdunlap@xenotime.net>
+In-Reply-To: <Pine.LNX.4.58.0605100925190.4503@gandalf.stny.rr.com>
+References: <Pine.LNX.4.58.0605090954150.7007@gandalf.stny.rr.com>
+	<Pine.LNX.4.58.0605100331290.31598@gandalf.stny.rr.com>
+	<Pine.LNX.4.58.0605100429220.436@gandalf.stny.rr.com>
+	<20060510101729.GB31504@elte.hu>
+	<Pine.LNX.4.58.0605100657510.2485@gandalf.stny.rr.com>
+	<20060510124600.GN5319@minantech.com>
+	<Pine.LNX.4.58.0605100925190.4503@gandalf.stny.rr.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-05-13 at 11:39 -0400, Steven Rostedt wrote:
-> Careful, rt21 has a bug slipped in that might have funny results on SMP
-> machines:
+On Wed, 10 May 2006 09:27:48 -0400 (EDT) Steven Rostedt wrote:
+
 > 
-> +		if (!cpus_equal(current->cpus_allowed, irq_affinity[irq]));
-> +			set_cpus_allowed(current, irq_affinity[irq]);
+> Andrew,
 > 
-> John (although he later fixed it) added a ; after the if.  But the fix is
-> not yet in Ingo's patch.
+> The following two patches update the rt-mutex-design.txt document.
+> 
+> The first one simply removes all the tabs that I had in that document.
+> Since it's a document and not code, tabs are not really appropiate.
 
-I saw that go by, and fixed it before building.  Mine is a UP build
-anyway.
+I think that lots of people would not agree with that sentiment.
+Documentation/*.txt has approximately 8800 lines with tabs in them
+(just top-level Doc/*.txt, not sub-directories).
 
-	-Mike
-
+---
+~Randy

@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbWEMEVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbWEME3o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750951AbWEMEVk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 00:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750956AbWEMEVj
+	id S1750957AbWEME3o (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 00:29:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWEME3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 00:21:39 -0400
-Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:33372 "HELO
-	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750865AbWEMEVj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 00:21:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=yx7jcfkSqhIbR0ViwqBZ6slQG35Y4R5HVPRRnEHGifPPGZmxrnsveNcfE7qBoPj3GVcwGs4v834vWJ7q1R61ZbOtscUroAk9dfkHpWs4tWI849kOxP6cJngmV9ySCxmqE2SUTXkpTD/OAZ4Ipi2OML76fCv04BfgNqeGiJm6SCU=  ;
-Message-ID: <44655ECD.10404@yahoo.com.au>
-Date: Sat, 13 May 2006 14:21:33 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Sat, 13 May 2006 00:29:44 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:49122 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750861AbWEME3n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 00:29:43 -0400
+Message-ID: <446560B3.10301@garzik.org>
+Date: Sat, 13 May 2006 00:29:39 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: Phillip Hellewell <phillip@hellewell.homeip.net>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
-       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, toml@us.ibm.com,
-       yoder1@us.ibm.com, James Morris <jmorris@namei.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>, Erez Zadok <ezk@cs.sunysb.edu>,
-       David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH 0/13: eCryptfs] eCryptfs Patch Set
-References: <20060513033742.GA18598@hellewell.homeip.net>
-In-Reply-To: <20060513033742.GA18598@hellewell.homeip.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Greg KH <greg@kroah.com>
+CC: Jes Sorensen <jes@sgi.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Brent Casavant <bcasavan@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, akpm@osdl.org, jeremy@sgi.com
+Subject: Re: [PATCH] Move various PCI IDs to header file
+References: <20060504180614.X88573@chenjesu.americas.sgi.com> <20060504173722.028c2b24.rdunlap@xenotime.net> <445AE690.5030700@sgi.com> <20060505133437.GA24268@kroah.com>
+In-Reply-To: <20060505133437.GA24268@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.0 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.0 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Hellewell wrote:
-> This patch set constitutes the 0.1.7 release of the eCryptfs
-> cryptographic filesystem:
-> 
-> http://ecryptfs.sourceforge.net/
-> 
-> It includes numerous updates based on comments on the 0.1.6 submission
-> made on May 4th. The only functional change worth noting is the
-> removal of the unnecessary second read in ecryptfs_get1page() and
-> ecryptfs_do_readpage().
-> 
-> This patch set was produced and tested against the 2.6.17-rc3-mm1
-> release of the kernel.
 
-BTW.  I'm not sure if linux-fsdevel has different conventions; however
-usually you don't break up a patch according to files, but logical
-components or transformations from one "sane" kernel tree to the next.
-And that means things keep compiling and working.
+(since I was an instigator here...)
 
-Sometimes big patches are justified.
+Greg KH wrote:
+> No, I agree with your patch, as you are having to reference the ids from
+> 2 different files.  So because of that, I feel it's ok to have those ids
+> in the pci_id.h file.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Agreed.
+
+
+> Yes, the wording in the documentation file should be cleaned up a bit to
+> state this a bit better...
+
+Agreed.
+
+	Jeff
+
+
+

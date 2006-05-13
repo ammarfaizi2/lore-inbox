@@ -1,40 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWEMBBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbWEMBey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWEMBBW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 21:01:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbWEMBBW
+	id S1751299AbWEMBey (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 21:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbWEMBey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 21:01:22 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:42557 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750754AbWEMBBW convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 21:01:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rMjsxyWIXRKlqtPzSdz7FV+3O1rsbb/140AtRUDf9iNvVoh7JTNv3Ikh+f269WoMLRqU2HodApGNn+P2Igig/qplwzNej5PzygQEFE4mjvStLd27Hh2//ozyJsSxM4/v+JZAQnE08zFppdf8NMohSugIR1SA+pg7BpZgbf/Gl8A=
-Message-ID: <bda6d13a0605121801s919485el4ba07fdd06394537@mail.gmail.com>
-Date: Fri, 12 May 2006 18:01:21 -0700
-From: "Joshua Hudson" <joshudson@gmail.com>
-To: "Bryan O'Sullivan" <bos@pathscale.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1 of 53] ipath - fix spinlock recursion bug
-In-Reply-To: <9b9f24aab3505e192ed1.1147477366@eng-12.pathscale.com>
+	Fri, 12 May 2006 21:34:54 -0400
+Received: from liaag1ab.mx.compuserve.com ([149.174.40.28]:44471 "EHLO
+	liaag1ab.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751299AbWEMBey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 21:34:54 -0400
+Date: Fri, 12 May 2006 21:30:04 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH 7/11] perfmon2 patch for review: modified i386
+  files
+To: Stephane Eranian <eranian@frankl.hpl.hp.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>
+Message-ID: <200605122132_MC3-1-BFA1-E625@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-References: <patchbomb.1147477365@eng-12.pathscale.com>
-	 <9b9f24aab3505e192ed1.1147477366@eng-12.pathscale.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/12/06, Bryan O'Sullivan <bos@pathscale.com> wrote:
-> The local loopback path for RC can lock the rkey table lock without
-> blocking interrupts.  The receive interrupt path can then call
-> ipath_rkey_ok() and deadlock.  Since the lock only protects a 64 bit read,
-> the lock isn't needed.
-Uhhh, a 64 bit read is not atomic on all architectures. Certainly not i386.
+In-Reply-To: <200605121633.k4CGXmKd027348@frankl.hpl.hp.com>
 
-Might want to verify safety of this.
+On Fri, 12 May 2006 09:33:48 -0700, Stephane Eranian wrote:
+
+<snip>
+
+ > --- linux-2.6.17-rc4.orig/arch/i386/kernel/entry.S    2006-05-12 03:16:09.000000000 -0700
+ > +++ linux-2.6.17-rc4/arch/i386/kernel/entry.S 2006-05-12 03:18:52.000000000 -0700
+ > @@ -436,6 +436,16 @@
+ >  /* The include is where all of the SMP etc. interrupts come from */
+ >  #include "entry_arch.h"
+ >  
+ > +#if defined(CONFIG_X86_LOCAL_APIC) && defined(CONFIG_PERFMON)
+ > +ENTRY(pmu_interrupt)
+ > +     pushl $LOCAL_PERFMON_VECTOR-256
+ > +     SAVE_ALL
+ > +     pushl %esp
+ > +     call pfm_intr_handler
+ > +     addl $4, %esp
+ > +     jmp ret_from_intr
+ > +#endif
+ > +
+ >  ENTRY(divide_error)
+ >       pushl $0                        # no error code
+ >       pushl $do_divide_error
+
+You should rename pfm_intr_handler to smp_pmu_interrupt (yes, it's not
+really SMP but other functions have that problem too, e.g.
+smp_error_interrupt) and make it fastcall, then you can do:
+
+BUILD_INTERRUPT(pmu_interrupt, LOCAL_PERFMON_VECTOR)
+
+instead of open-coding it.  Then the Xen patch that extends the interrupt
+vector range won't have to change to accommodate your patch.
+
+You should also probably move the BUILD_INTERRUPT() into entry_arch.h
+with the rest of them.
+
+-- 
+Chuck
+
+"The x86 isn't all that complex -- it just doesn't make a lot of sense."
+                                                        -- Mike Johnson

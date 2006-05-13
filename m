@@ -1,103 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWEMAEe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWEMAGF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932191AbWEMAEe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 20:04:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbWEMAEd
+	id S932284AbWEMAGF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 20:06:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWEMAGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 20:04:33 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:51369 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932191AbWELXod (ORCPT
+	Fri, 12 May 2006 20:06:05 -0400
+Received: from mail.gmx.net ([213.165.64.20]:53929 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932221AbWEMAGA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 19:44:33 -0400
-Content-Type: text/plain; charset="us-ascii"
+	Fri, 12 May 2006 20:06:00 -0400
+X-Authenticated: #31060655
+Message-ID: <44652292.6070401@gmx.net>
+Date: Sat, 13 May 2006 02:04:34 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060316 SUSE/1.0-27 SeaMonkey/1.0
 MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+CC: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>, trenn@suse.de,
+       thoenig@suse.de, stable@kernel.org
+Subject: Re: [patch] smbus unhiding kills thermal management
+References: <20060512095343.GA28375@elf.ucw.cz> <44645FC2.80500@gmx.net> <Pine.LNX.4.64.0605121547090.27910@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.64.0605121547090.27910@montezuma.fsmlabs.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 7 of 53] ipath - cap maximum number of AHs
-X-Mercurial-Node: e823378bd19cc552e9a9bb2a2d9568007b131329
-Message-Id: <e823378bd19cc552e9a9.1147477372@eng-12.pathscale.com>
-In-Reply-To: <patchbomb.1147477365@eng-12.pathscale.com>
-Date: Fri, 12 May 2006 16:42:52 -0700
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: rdreier@cisco.com
-Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cap the maximum number of address handles.
+Zwane Mwaikambo wrote:
+> On Fri, 12 May 2006, Carl-Daniel Hailfinger wrote:
+> 
+>> Pavel Machek wrote:
+>>> Do not enable the SMBus device on Asus boards if suspend
+>>> is used. We do not reenable the device on resume, leading to all sorts
+>>> of undesirable effects, the worst being a total fan failure after
+>>> resume on Samsung P35 laptop.
+>>>
+>>> Signed-off-by: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
+>>> Signed-off-by: Pavel Machek <pavel@suse.cz>
+>> This is probably also -stable material.
+> 
+> Isn't it inevitable that we're going to have to rerun quirks on resume on 
+> some hardware?
 
-Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
+Yes, but until we have a proper infrastructure for that, we have to
+disable the smbus unhiding as a safe fix.
 
-diff -r def81ab50644 -r e823378bd19c drivers/infiniband/hw/ipath/ipath_verbs.c
---- a/drivers/infiniband/hw/ipath/ipath_verbs.c	Fri May 12 15:55:27 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_verbs.c	Fri May 12 15:55:27 2006 -0700
-@@ -59,6 +59,11 @@ module_param_named(max_pds, ib_ipath_max
- module_param_named(max_pds, ib_ipath_max_pds, uint, S_IWUSR | S_IRUGO);
- MODULE_PARM_DESC(max_pds,
- 		 "Maximum number of protection domains to support");
-+
-+static unsigned int ib_ipath_max_ahs = 0xFFFF;
-+module_param_named(max_ahs, ib_ipath_max_ahs, uint, S_IWUSR | S_IRUGO);
-+MODULE_PARM_DESC(max_ahs,
-+		 "Maximum number of address handles to support");
- 
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("PathScale <support@pathscale.com>");
-@@ -592,6 +597,7 @@ static int ipath_query_device(struct ib_
- 	props->max_qp_wr = 0xffff;
- 	props->max_sge = 255;
- 	props->max_cq = 0xffff;
-+	props->max_ah = ib_ipath_max_ahs;
- 	props->max_cqe = 0xffff;
- 	props->max_mr = dev->lk_table.max;
- 	props->max_pd = ib_ipath_max_pds;
-@@ -764,13 +770,13 @@ static struct ib_pd *ipath_alloc_pd(stru
- 		goto bail;
- 	}
- 
--	dev->n_pds_allocated++;
--
- 	pd = kmalloc(sizeof *pd, GFP_KERNEL);
- 	if (!pd) {
- 		ret = ERR_PTR(-ENOMEM);
- 		goto bail;
- 	}
-+
-+	dev->n_pds_allocated++;
- 
- 	/* ib_alloc_pd() will initialize pd->ibpd. */
- 	pd->user = udata != NULL;
-@@ -805,6 +811,12 @@ static struct ib_ah *ipath_create_ah(str
- {
- 	struct ipath_ah *ah;
- 	struct ib_ah *ret;
-+	struct ipath_ibdev *dev = to_idev(pd->device);
-+
-+	if (dev->n_ahs_allocated == ib_ipath_max_ahs) {
-+		ret = ERR_PTR(-ENOMEM);
-+		goto bail;
-+	}
- 
- 	/* A multicast address requires a GRH (see ch. 8.4.1). */
- 	if (ah_attr->dlid >= IPS_MULTICAST_LID_BASE &&
-@@ -848,7 +860,10 @@ bail:
-  */
- static int ipath_destroy_ah(struct ib_ah *ibah)
- {
-+	struct ipath_ibdev *dev = to_idev(ibah->device);
- 	struct ipath_ah *ah = to_iah(ibah);
-+
-+	dev->n_ahs_allocated--;
- 
- 	kfree(ah);
- 
-diff -r def81ab50644 -r e823378bd19c drivers/infiniband/hw/ipath/ipath_verbs.h
---- a/drivers/infiniband/hw/ipath/ipath_verbs.h	Fri May 12 15:55:27 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_verbs.h	Fri May 12 15:55:27 2006 -0700
-@@ -432,6 +432,7 @@ struct ipath_ibdev {
- 	__be64 gid_prefix;	/* in network order */
- 	__be64 mkey;
- 	u32 n_pds_allocated;	/* number of PDs allocated for device */
-+	u32 n_ahs_allocated;	/* number of AHs allocated for device */
- 	u64 ipath_sword;	/* total dwords sent (sample result) */
- 	u64 ipath_rword;	/* total dwords received (sample result) */
- 	u64 ipath_spkts;	/* total packets sent (sample result) */
+If you have the time to whip up a patch to add a sane quirks-on-resume
+infrastructure, I'd be grateful. See the thread
+"[RFC] [PATCH] Execute PCI quirks on resume from suspend-to-RAM" for
+some ugly proof-of-concept.
+My main motivation was to prevent bricking my laptop. Added functionality
+is desirable, but secondary.
+
+Regards,
+Carl-Daniel
+-- 
+http://www.hailfinger.org/

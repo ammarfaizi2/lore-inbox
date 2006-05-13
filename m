@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWEMNHc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbWEMNHI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932424AbWEMNHc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 09:07:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWEMNHc
+	id S932429AbWEMNHI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 09:07:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWEMNHI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 09:07:32 -0400
-Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:44983 "EHLO mta2.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S932424AbWEMNHb (ORCPT
+	Sat, 13 May 2006 09:07:08 -0400
+Received: from mail.gmx.net ([213.165.64.20]:45465 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932429AbWEMNHH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 09:07:31 -0400
-In-Reply-To: <20060513052750.41cfcb9d.akpm@osdl.org>
-References: <20060509084945.373541000@sous-sol.org> <20060509085157.491027000@sous-sol.org> <20060513052750.41cfcb9d.akpm@osdl.org>
-Mime-Version: 1.0 (Apple Message framework v624)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <6c98457a59001e5e833121fb65075d00@cl.cam.ac.uk>
-Content-Transfer-Encoding: 7bit
-Cc: virtualization@lists.osdl.org, linux-kernel@vger.kernel.org,
-       xen-devel@lists.xensource.com, ian.pratt@xensource.com,
-       Chris Wright <chrisw@sous-sol.org>
-From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Subject: Re: [RFC PATCH 24/35] Add support for Xen event channels.
-Date: Sat, 13 May 2006 14:02:58 +0100
+	Sat, 13 May 2006 09:07:07 -0400
+X-Authenticated: #14349625
+Subject: Re: Regression seen for patch "sched:dont decrease idle sleep avg"
+From: Mike Galbraith <efault@gmx.de>
 To: Andrew Morton <akpm@osdl.org>
-X-Mailer: Apple Mail (2.624)
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, kernel@kolivas.org,
+       tim.c.chen@linux.intel.com, linux-kernel@vger.kernel.org, mingo@elte.hu
+In-Reply-To: <20060513052730.389ea002.akpm@osdl.org>
+References: <cone.1147135389.188411.32203.501@kolivas.org>
+	 <4sur0l$12a3ma@fmsmga001.fm.intel.com>
+	 <20060513052730.389ea002.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sat, 13 May 2006 15:07:17 +0200
+Message-Id: <1147525637.9829.28.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2006-05-13 at 05:27 -0700, Andrew Morton wrote:
+> (Catching up on lkml)
+> 
+> On Thu, 11 May 2006 17:04:11 -0700
+> "Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+> 
+> > Tim Chen writes:
+> > > See patch:
+> > > http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=e72ff0bb2c163eb13014ba113701bd42dab382fe 
+> > 
+> > Con Kolivas wrote on Monday, May 08, 2006 5:43 PM
+> > > This patch corrects a bug in the original code which unintentionally dropped 
+> > > the priority of tasks that were idle but were already high priority on other 
+> > > merits. It doesn't further increase the priority.
+> > 
+> > 
+> > This got me to take a non-casual look at that particular git commit.  The
+> > first portion of the change log description says perfectly about the intent,
+> > but after studying the code, I have to say that the actual code does not
+> > implement what people say it will do.  In recalc_task_prio(), if a task's
+> > sleep_time is more than INTERACTIVE_SLEEP, it will bump up p->sleep_avg all
+> > the way to near maximum (at MAX_SLEEP_AVG - DEF_TIMESLICE), which according
+> > to my calculation, it will have a priority bonus of 4 (out of max 5).
+> > 
+> > IOW, for a prolonged sleep, a task will immediately get near maximum priority
+> > boost. Is that what the real intent is?  Seems to be on the contrary to what
+> > the source code comments as well.
+> > 
+> > I think in the if (sleep_time > INTERACTIVE_SLEEP) block, p->sleep_avg should
+> > be treated similarly like what the "else" block is doing: scale it proportionally
+> > with past sleep time, perhaps not the immediate previously prolonged sleep
+> > because that would for sure bump up priority too fast.  A better method might
+> > be p->sleep_avg *= 2 or something like that.
+> > 
+> 
+> That seems to be a pretty significant discovery.  Is anything happening
+> with it?
 
-On 13 May 2006, at 13:27, Andrew Morton wrote:
+When I tried to fix that, I ran into resistance.
 
->
->> +	init_evtchn_cpu_bindings();
->> +
->> +	/* No VIRQ or IPI bindings. */
->> +	for (cpu = 0; cpu < NR_CPUS; cpu++) {
->
-> Using NR_CPUS is a little...  old-fashioned.  I'd suggest a sweep 
-> through
-> all the Xen code, look for places where it should be using
-> for_each_foo_cpu().
-
-Actually that's a particularly good catch in this case, since we use 
-per_cpu() inside the loop and that's only well defined for 
-cpu_possible_map. Oops.
-
-The elusive users of ring.h are our split device drivers. It hides a 
-bunch of details about muxing requests and responses on the same ring, 
-and notification thresholds. There are a few other places we have ring 
-buffers but they are sufficiently simple that implementing in place is 
-clearer.
-
-  Thanks,
-  Keir
+	-Mike
 

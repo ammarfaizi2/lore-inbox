@@ -1,114 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWEMXBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWEMXG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbWEMXBm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 19:01:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWEMXBm
+	id S1751048AbWEMXG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 19:06:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWEMXG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 19:01:42 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:44996 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750800AbWEMXBl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 19:01:41 -0400
-From: Darren Hart <dvhltc@us.ibm.com>
-Organization: IBM Linux Technology Center
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: rt20 scheduling latency testcase and failure data
-Date: Sat, 13 May 2006 16:01:31 -0700
+	Sat, 13 May 2006 19:06:28 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:19371 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750996AbWEMXG1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 19:06:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=RKGIk6f1198Jun4Wldyah9Ixc5Ft4M4Lq+xQ1xW6R36eWibNkv5WRiOCiT/Fd2ieI5QrXtWkiJ9PM/HE5xH6TI1LZwEAIRUuRYlEenqJIG+QvFHyx5UkGTbovWjm7HdnK9A4/d1H3Jhqfl2b6fBr3ol7nrQViBfOuQWOr4wNPh4=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] mtd: fix memory leaks in phram_setup
+Date: Sun, 14 May 2006 01:07:18 +0200
 User-Agent: KMail/1.9.1
-Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, Mike Galbraith <efault@gmx.de>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-References: <200605121924.53917.dvhltc@us.ibm.com> <200605131106.16864.dvhltc@us.ibm.com> <1147544472.6535.294.camel@mindpipe>
-In-Reply-To: <1147544472.6535.294.camel@mindpipe>
+Cc: Jochen =?iso-8859-1?q?Sch=E4uble?= <psionic@psionic.de>,
+       =?iso-8859-1?q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-15"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200605131601.31880.dvhltc@us.ibm.com>
+Message-Id: <200605140107.18293.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 13 May 2006 11:21, Lee Revell wrote:
-> On Sat, 2006-05-13 at 11:06 -0700, Darren Hart wrote:
-> >      1 [softirq-timer/0]
->
-> What happens if you set the softirq-timer threads to 99?
->
 
-After setting all 4 softirq-timer threads to prio 99 I seemed to get only 2 
-failures in 100 runs. #51 slept too long (10ms too long!), the latency 
-appeared after the sleep in #90 (nearly 483ms worth).  Those latencies seem 
-huge to me.
+There are two code paths in drivers/mtd/devices/phram.c::phram_setup() that
+will leak memory.
+Memory is allocated to the variable 'name' with kmalloc() by the 
+parse_name() function, but if we leave by way of the parse_err() macro, 
+then that memory is never kfree()'d, nor is it ever used with 
+register_device() so it won't be freed later either - leak.
 
-ITERATIONS 0-50 Passed
-
-ITERATION 51
--------------------------------
-Scheduling Latency
--------------------------------
-
-Running 10000 iterations with a period of 5 ms
-Expected running time: 50 s
-
-ITERATION DELAY(US) MAX_DELAY(US) FAILURES
---------- --------- ------------- --------
-     7000     10197         10197        1
-
-PERIOD MISSED!
-     scheduled delta:     4079 us
-        actual delta:    14263 us
-             latency:    10183 us
----------------------------------------
-      previous start: 35010197 us
-                 now: 35011117 us
-     scheduled start: 35005000 us
-next scheduled start is in the past!
+Found by the Coverity checker as #593 - simple fix below.
 
 
-Start Latency:  114 us: FAIL
-Min Latency:      9 us: PASS
-Avg Latency:      7 us: PASS
-Max Latency:   10197 us: FAIL
-Failed Iterations: 1
-
-ITERATIONS 52-89 Passed
-
-ITERATION 90
--------------------------------
-Scheduling Latency
--------------------------------
-
-Running 10000 iterations with a period of 5 ms
-Expected running time: 50 s
-
-ITERATION DELAY(US) MAX_DELAY(US) FAILURES
---------- --------- ------------- --------
-     2747         9            20        0
-
-PERIOD MISSED!
-     scheduled delta:     4072 us
-        actual delta:     4079 us
-             latency:        6 us
----------------------------------------
-      previous start: 13735009 us
-                 now: 14218183 us
-     scheduled start: 13740000 us
-next scheduled start is in the past!
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
 
 
-Start Latency:  112 us: FAIL
-Min Latency:      8 us: PASS
-Avg Latency:      2 us: PASS
-Max Latency:     20 us: PASS
-Failed Iterations: 0
+ drivers/mtd/devices/phram.c |    8 ++++++--
+ 1 files changed, 6 insertions(+), 2 deletions(-)
 
-ITERATIONS 91-99 Passed
 
-Thanks,
+--- linux-2.6.17-rc4-git2-orig/drivers/mtd/devices/phram.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6.17-rc4-git2/drivers/mtd/devices/phram.c	2006-05-14 01:05:27.000000000 +0200
+@@ -266,12 +266,16 @@ static int phram_setup(const char *val, 
+ 		return 0;
+ 
+ 	ret = parse_num32(&start, token[1]);
+-	if (ret)
++	if (ret) {
++		kfree(name);
+ 		parse_err("illegal start address\n");
++	}
+ 
+ 	ret = parse_num32(&len, token[2]);
+-	if (ret)
++	if (ret) {
++		kfree(name);
+ 		parse_err("illegal device length\n");
++	}
+ 
+ 	register_device(name, start, len);
+ 
 
--- 
-Darren Hart
-IBM Linux Technology Center
-Realtime Linux Team
+
+
+

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbWEMQGa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbWEMQHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932467AbWEMQGa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 12:06:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbWEMQGa
+	id S932476AbWEMQHE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 12:07:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWEMQGo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 12:06:30 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:11277 "EHLO
+	Sat, 13 May 2006 12:06:44 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:20493 "EHLO
 	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S932467AbWEMQGW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 12:06:22 -0400
+	id S932469AbWEMQGc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 12:06:32 -0400
 From: Catalin Marinas <catalin.marinas@gmail.com>
-Subject: [PATCH 2.6.17-rc4 5/6] Add kmemleak support for ARM
-Date: Sat, 13 May 2006 17:06:18 +0100
+Subject: [PATCH 2.6.17-rc4 6/6] Remove some of the kmemleak false positives
+Date: Sat, 13 May 2006 17:06:25 +0100
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060513160618.8848.53189.stgit@localhost.localdomain>
+Message-Id: <20060513160625.8848.76947.stgit@localhost.localdomain>
 In-Reply-To: <20060513155757.8848.11980.stgit@localhost.localdomain>
 References: <20060513155757.8848.11980.stgit@localhost.localdomain>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -24,68 +24,82 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Catalin Marinas <catalin.marinas@arm.com>
 
-This patch modifies the vmlinux.lds.S script and adds the backtrace support
-for ARM to be used with kmemleak.
+There are allocations for which the main pointer cannot be found but they
+are not memory leaks. This patch fixes some of them.
 
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 ---
 
- arch/arm/kernel/vmlinux.lds.S |    7 +++++++
- include/asm-arm/processor.h   |   12 ++++++++++++
- 2 files changed, 19 insertions(+), 0 deletions(-)
+ ipc/util.c      |   13 +++++++++++++
+ kernel/params.c |    9 ++++++++-
+ 2 files changed, 21 insertions(+), 1 deletions(-)
 
-diff --git a/arch/arm/kernel/vmlinux.lds.S b/arch/arm/kernel/vmlinux.lds.S
-index 2b254e8..c6f038c 100644
---- a/arch/arm/kernel/vmlinux.lds.S
-+++ b/arch/arm/kernel/vmlinux.lds.S
-@@ -68,6 +68,11 @@ #endif
- 		__per_cpu_start = .;
- 			*(.data.percpu)
- 		__per_cpu_end = .;
+diff --git a/ipc/util.c b/ipc/util.c
+index 8193299..788db50 100644
+--- a/ipc/util.c
++++ b/ipc/util.c
+@@ -31,6 +31,11 @@ #include <linux/seq_file.h>
+ #include <linux/proc_fs.h>
+ #include <linux/audit.h>
+ 
 +#ifdef CONFIG_DEBUG_MEMLEAK
-+		__memleak_offsets_start = .;
-+			*(.init.memleak_offsets)
-+		__memleak_offsets_end = .;
++#include <linux/memleak.h>
 +#endif
- #ifndef CONFIG_XIP_KERNEL
- 		__init_begin = _stext;
- 		*(.init.data)
-@@ -110,6 +115,7 @@ #endif
++
++
+ #include <asm/unistd.h>
  
- 	.data : AT(__data_loc) {
- 		__data_start = .;	/* address in memory */
-+		_sdata = .;
+ #include "util.h"
+@@ -389,6 +394,10 @@ void* ipc_rcu_alloc(int size)
+ 	 */
+ 	if (rcu_use_vmalloc(size)) {
+ 		out = vmalloc(HDRLEN_VMALLOC + size);
++#ifdef CONFIG_DEBUG_MEMLEAK
++		/* avoid a false alarm. That's not a memory leak */
++		memleak_free(out);
++#endif
+ 		if (out) {
+ 			out += HDRLEN_VMALLOC;
+ 			container_of(out, struct ipc_rcu_hdr, data)->is_vmalloc = 1;
+@@ -396,6 +405,10 @@ void* ipc_rcu_alloc(int size)
+ 		}
+ 	} else {
+ 		out = kmalloc(HDRLEN_KMALLOC + size, GFP_KERNEL);
++#ifdef CONFIG_DEBUG_MEMLEAK
++		/* avoid a false alarm. That's not a memory leak */
++		memleak_free(out);
++#endif
+ 		if (out) {
+ 			out += HDRLEN_KMALLOC;
+ 			container_of(out, struct ipc_rcu_hdr, data)->is_vmalloc = 0;
+diff --git a/kernel/params.c b/kernel/params.c
+index af43ecd..fb268e8 100644
+--- a/kernel/params.c
++++ b/kernel/params.c
+@@ -548,6 +548,7 @@ static void __init kernel_param_sysfs_se
+ 					    unsigned int name_skip)
+ {
+ 	struct module_kobject *mk;
++	struct module_param_attrs *mp;
  
- 		/*
- 		 * first, the init task union, aligned
-@@ -158,6 +164,7 @@ #endif
- 		__bss_start = .;	/* BSS				*/
- 		*(.bss)
- 		*(COMMON)
-+		__bss_stop = .;
- 		_end = .;
+ 	mk = kzalloc(sizeof(struct module_kobject), GFP_KERNEL);
+ 	BUG_ON(!mk);
+@@ -557,11 +558,17 @@ static void __init kernel_param_sysfs_se
+ 	kobject_set_name(&mk->kobj, name);
+ 	kobject_register(&mk->kobj);
+ 
++	mp = param_sysfs_setup(mk, kparam, num_params, name_skip);
+ 	/* no need to keep the kobject if no parameter is exported */
+-	if (!param_sysfs_setup(mk, kparam, num_params, name_skip)) {
++	if (!mp) {
+ 		kobject_unregister(&mk->kobj);
+ 		kfree(mk);
  	}
- 					/* Stabs debugging sections.	*/
-diff --git a/include/asm-arm/processor.h b/include/asm-arm/processor.h
-index 04f4d34..feaf017 100644
---- a/include/asm-arm/processor.h
-+++ b/include/asm-arm/processor.h
-@@ -121,6 +121,18 @@ #define spin_lock_prefetch(x) do { } whi
- 
- #endif
- 
-+#ifdef CONFIG_FRAME_POINTER
-+static inline unsigned long arch_call_address(void *frame)
-+{
-+	return *(unsigned long *) (frame - 4) - 4;
-+}
-+
-+static inline void *arch_prev_frame(void *frame)
-+{
-+	return *(void **) (frame - 12);
-+}
++#ifdef CONFIG_DEBUG_MEMLEAK
++	/* avoid a false alarm. That's not a memory leak */
++	else
++		memleak_free(mp);
 +#endif
-+
- #endif
+ }
  
- #endif /* __ASM_ARM_PROCESSOR_H */
+ /*

@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWEMUhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWEMUoL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbWEMUhT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 16:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbWEMUhT
+	id S1751213AbWEMUoL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 16:44:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWEMUoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 16:37:19 -0400
-Received: from smtpout04-04.prod.mesa1.secureserver.net ([64.202.165.199]:65209
-	"HELO smtpout04-04.prod.mesa1.secureserver.net") by vger.kernel.org
-	with SMTP id S1750818AbWEMUhR (ORCPT
+	Sat, 13 May 2006 16:44:11 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26603 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751213AbWEMUoK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 16:37:17 -0400
-Message-ID: <4466437C.1070306@seclark.us>
-Date: Sat, 13 May 2006 16:37:16 -0400
-From: Stephen Clark <Stephen.Clark@seclark.us>
-Reply-To: Stephen.Clark@seclark.us
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
+	Sat, 13 May 2006 16:44:10 -0400
+Date: Sat, 13 May 2006 22:43:22 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org,
+       mochel@digitalimplant.org
+Subject: Re: [PATCH/rfc] schedule /sys/device/.../power for removal
+Message-ID: <20060513204322.GB585@elf.ucw.cz>
+References: <20060512100544.GA29010@elf.ucw.cz> <20060512031151.76a9d226.akpm@osdl.org> <20060512101916.GC28232@elf.ucw.cz> <20060512032702.3591289f.akpm@osdl.org>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: how to set this in the future
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060512032702.3591289f.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello List,
+Hi!
 
-I need to use ide0=ata66 but I get the following:
+> > > > index 421bcff..dfcfc47 100644
+> > > > --- a/Documentation/feature-removal-schedule.txt
+> > > > +++ b/Documentation/feature-removal-schedule.txt
+> > > > @@ -6,6 +6,16 @@ be removed from this file.
+> > > >  
+> > > >  ---------------------------
+> > > >  
+> > > > +What:	/sys/device/.../power
+> > > > +When:	July 2007
+> > > > +Files:	
+> > > > +Why:	Because it takes integers, and different userland applications
+> > > > +	expect different numbers to mean different things.
+> > > > +	(Pcmcia expect 2 for off, some other code expects 3 for off).
+> > > > +Who:	Pavel Machek <pavel@suse.cz>
+> > > > +
+> > > > +---------------------------
+> > > 
+> > > What will be impacted by this?
+> > 
+> > Some obscure place PCMCIA utils, IIRC. There was one more user, but I
+> > do not remember who it was. Plus there may be few people doing echo
+> > manually.
+> 
+> What will it be replaced with, and how will we communicate the need to
+> migrate to the various application developers?  We can't just rip it out
+> next year and point at some obscure entry in a kernel file and say "but we
+> told you".
 
-ide_setup: ide0=ata66 -- OBSOLETE OPTION, WILL BE REMOVED SOON!
-
-what will replace this option?
-
-Thanks,
-Steve
+Ok, we do not have replacement ready, yet. Would it be feasible to
+include warning now so that people are warned as early as possible,
+while we are working on replacement? Ok, maybe not...
+								Pavel
 
 -- 
-
-"They that give up essential liberty to obtain temporary safety, 
-deserve neither liberty nor safety."  (Ben Franklin)
-
-"The course of history shows that as a government grows, liberty 
-decreases."  (Thomas Jefferson)
-
-
-
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

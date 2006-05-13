@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWEMHOj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbWEMHYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbWEMHOj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 03:14:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWEMHOj
+	id S932359AbWEMHYe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 03:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932361AbWEMHYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 03:14:39 -0400
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:62436 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S932302AbWEMHOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 03:14:39 -0400
-Date: Sat, 13 May 2006 09:14:37 +0200
-From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-To: mactel-linux-devel@cip.informatik.uni-erlangen.de
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: intel mac mini: USB keyboard is disfunctional after several hours of passive operation until disconnect/reconnect
-Message-ID: <20060513071437.GA12759@cip.informatik.uni-erlangen.de>
-Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-	mactel-linux-devel@cip.informatik.uni-erlangen.de,
-	LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Sat, 13 May 2006 03:24:34 -0400
+Received: from smtpout.mac.com ([17.250.248.174]:62400 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932359AbWEMHYe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 03:24:34 -0400
+In-Reply-To: <200605121421.00044.rob@landley.net>
+References: <200605121421.00044.rob@landley.net>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <F68E5CEA-AB95-4E1C-9923-0882394AE16E@mac.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Which process context does /sbin/hotplug run in?
+Date: Sat, 13 May 2006 03:24:17 -0400
+To: Rob Landley <rob@landley.net>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I have problems with my USB keyboard after several hours of not using
-it. It simply accepts no input after I come back to my machine. I use
-BIOS (firmware update 1.1 for intel mac mini) emulation and kernel 2.6.15.2.
-When I disconnect it, it works like charm again. Has anyone an idea or sees the
-same effect? I had running 2.6.15.2 two weeks without rebooting running on my
-mac mini and did not experience such problems. My only idea is that it has
-something todo with the firmware upgrade for the bios comp. layer. Does
-anybody sees such effects in here who has firmware update 1.1 installed? My
-solution so far is to unplug my keyboard and put it in after 3 seconds. After
-that it works again. The mouse is working all the time.  I use a SUN
-Type 6 USB keyboard which is shipped with SunRays. I also tried to use
-another SunRay keyboard which doesn't change the problem.
+On May 12, 2006, at 14:20, Rob Landley wrote:
+> Anybody know this one?  Now that filesystem namespaces are per- 
+> process, and  move/bind mounts let us have cycles in our trees,
 
-May 12 00:58:57 mini kernel: usb 2-1: USB disconnect, address 2
-May 12 00:59:08 mini kernel: usb 2-1: new low speed USB device using uhci_hcd and address 3
-May 12 00:59:08 mini kernel: usb 2-1: configuration #1 chosen from 1 choice
-May 12 00:59:08 mini kernel: input: HID 0430:0005 as /class/input/input4
-May 12 00:59:08 mini kernel: input: USB HID v1.00 Keyboard [HID 0430:0005] on usb-0000:00:1d.0-1
+Actually; it doesn't.  Your example below looks like this:
+> mount -t tmpfs /tmp /tmp
+> cd /tmp
+> mkdir sub
+> mount --bind sub /var
+> cd /var
+> mkdir sub2
+> mount --move /tmp sub2
 
-May 12 09:14:21 mini kernel: usb 2-1: USB disconnect, address 3
-May 12 09:14:43 mini kernel: usb 2-1: new low speed USB device using uhci_hcd and address 4
-May 12 09:14:43 mini kernel: usb 2-1: configuration #1 chosen from 1 choice
-May 12 09:14:43 mini kernel: input: HID 0430:0005 as /class/input/input5
-May 12 09:14:43 mini kernel: input: USB HID v1.00 Keyboard [HID 0430:0005] on usb-0000:00:1d.0-1
+/
+   /var
+     /var/sub
+     /var/sub2
+       /var/sub2/sub
+       /var/sub2/sub2
 
-May 13 02:01:31 mini kernel: usb 2-1: USB disconnect, address 4
-May 13 02:01:41 mini kernel: usb 4-1: new low speed USB device using uhci_hcd and address 2
-May 13 02:01:41 mini kernel: usb 4-1: configuration #1 chosen from 1 choice
-May 13 02:01:41 mini kernel: input: HID 0430:0005 as /class/input/input6
-May 13 02:01:41 mini kernel: input: USB HID v1.00 Keyboard [HID 0430:0005] on usb-0000:00:1d.2-1
+The recursion ends there.  Basically with the first bind mount you  
+attach the same instance of tmpfs to /tmp and /var, then you move the  
+tmpfs from /tmp to the "/sub2" directory in the "/var" tmpfs  
+_mountpoint_.  It's kind of confusing behavior; but the directory  
+tree and the mount tree are basically kind of separate entities in a  
+sense.
 
-May 13 08:52:04 mini kernel: usb 4-1: USB disconnect, address 2
-May 13 08:52:08 mini kernel: usb 4-1: new low speed USB device using uhci_hcd and address 3
-May 13 08:52:08 mini kernel: usb 4-1: configuration #1 chosen from 1 choice
-May 13 08:52:09 mini kernel: input: HID 0430:0005 as /class/input/input7
-May 13 08:52:09 mini kernel: input: USB HID v1.00 Keyboard [HID 0430:0005] on usb-0000:00:1d.2-1
+Cheers,
+Kyle Moffett
 
-        Thomas
+--
+Debugging is twice as hard as writing the code in the first place.   
+Therefore, if you write the code as cleverly as possible, you are, by  
+definition, not smart enough to debug it.
+   -- Brian Kernighan
+
+

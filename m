@@ -1,70 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbWEMBey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWEMBhd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751299AbWEMBey (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 May 2006 21:34:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbWEMBey
+	id S1751315AbWEMBhd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 May 2006 21:37:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbWEMBhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 May 2006 21:34:54 -0400
-Received: from liaag1ab.mx.compuserve.com ([149.174.40.28]:44471 "EHLO
-	liaag1ab.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751299AbWEMBey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 May 2006 21:34:54 -0400
-Date: Fri, 12 May 2006 21:30:04 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH 7/11] perfmon2 patch for review: modified i386
-  files
-To: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>
-Message-ID: <200605122132_MC3-1-BFA1-E625@compuserve.com>
+	Fri, 12 May 2006 21:37:33 -0400
+Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:21857 "HELO
+	smtp112.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751314AbWEMBhc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 May 2006 21:37:32 -0400
+Message-ID: <4465389B.3070606@sbcglobal.net>
+Date: Fri, 12 May 2006 20:38:35 -0500
+From: Matthew Frost <artusemrys@sbcglobal.net>
+Reply-To: artusemrys@sbcglobal.net
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
+To: Stefan Smietanowski <stesmi@stesmi.com>
+CC: Tejun Heo <htejun@gmail.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: [ANNOUNCE] libata: new EH, NCQ, hotplug and PM patches against
+ stable kernel
+References: <20060512132437.GB4219@htj.dyndns.org> <20060512122116.152fbe80.rdunlap@xenotime.net> <4464E079.1070307@stesmi.com> <446505F8.7020909@gmail.com> <4465264D.6050608@stesmi.com>
+In-Reply-To: <4465264D.6050608@stesmi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <200605121633.k4CGXmKd027348@frankl.hpl.hp.com>
+Stefan Smietanowski wrote:
+> Tejun Heo wrote:
+>> Stefan Smietanowski wrote:
+>>
+>>> Randy.Dunlap wrote:
+>>>
+>>>>> * New error handling
+>>>>> * IRQ driven PIO (from Albert Lee)
+>>>>> * SATA NCQ support
+>>>>> * Hotplug support
+>>>>> * Port Multiplier support
+>>>>
+>>>> BTW, we often use PM to mean Power Management.
+>>>> Could we find a different acronym for Port Multiplier support,
+>>>> such as PMS or PX or PXS?
+>>>
+>>> Ok, maybe not PMS ?
+>>>
+>>> Can you imagine a bug report from someone that "has problem with PMS"?
+>>> :)
+>>>
+>> Would be fun though.  :)
+>>
+>> I thought about using another acronym for port multiplier too.  But the
+>> spec uses that acronym all over the place, PM, PMP (Port Multiplier
+>> Portnumber), which reminds me of USB full/high speed fiasco.
+>>
+>> Urghh... I thought we could use power for power management inside libata
+>> but that might be a bad idea.  So, PMS?
+> 
+> Actually, pmup?
+> 
+> Sort of describes what it is at the same time. (Alot easier to figure
+> out what pmup is than what pms is (in a computer :))
+> 
 
-On Fri, 12 May 2006 09:33:48 -0700, Stephane Eranian wrote:
+Or PMUL?  MUL is in common usage for the arithmetic multiply sense; 
+wouldn't it make sense in the Port Multiplier sense?  Would it get too 
+confused with FPMUL?  Too much like an arithmetic operator?
 
-<snip>
+> // Stefan
 
- > --- linux-2.6.17-rc4.orig/arch/i386/kernel/entry.S    2006-05-12 03:16:09.000000000 -0700
- > +++ linux-2.6.17-rc4/arch/i386/kernel/entry.S 2006-05-12 03:18:52.000000000 -0700
- > @@ -436,6 +436,16 @@
- >  /* The include is where all of the SMP etc. interrupts come from */
- >  #include "entry_arch.h"
- >  
- > +#if defined(CONFIG_X86_LOCAL_APIC) && defined(CONFIG_PERFMON)
- > +ENTRY(pmu_interrupt)
- > +     pushl $LOCAL_PERFMON_VECTOR-256
- > +     SAVE_ALL
- > +     pushl %esp
- > +     call pfm_intr_handler
- > +     addl $4, %esp
- > +     jmp ret_from_intr
- > +#endif
- > +
- >  ENTRY(divide_error)
- >       pushl $0                        # no error code
- >       pushl $do_divide_error
-
-You should rename pfm_intr_handler to smp_pmu_interrupt (yes, it's not
-really SMP but other functions have that problem too, e.g.
-smp_error_interrupt) and make it fastcall, then you can do:
-
-BUILD_INTERRUPT(pmu_interrupt, LOCAL_PERFMON_VECTOR)
-
-instead of open-coding it.  Then the Xen patch that extends the interrupt
-vector range won't have to change to accommodate your patch.
-
-You should also probably move the BUILD_INTERRUPT() into entry_arch.h
-with the rest of them.
-
--- 
-Chuck
-
-"The x86 isn't all that complex -- it just doesn't make a lot of sense."
-                                                        -- Mike Johnson
+Matt

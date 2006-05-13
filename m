@@ -1,43 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWEMVaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWEMVna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbWEMVaU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 17:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWEMVaT
+	id S932309AbWEMVna (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 17:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWEMVna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 17:30:19 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:38592 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932188AbWEMVaS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 17:30:18 -0400
-Date: Sat, 13 May 2006 23:30:09 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Thomas Zehetbauer <thomasz@hostmaster.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: No DPMS for Console on x86_64
-In-Reply-To: <20060513180158.GB2795@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0605132327410.11638@yvahk01.tjqt.qr>
-References: <20060513180158.GB2795@localhost.localdomain>
+	Sat, 13 May 2006 17:43:30 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:1337 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932309AbWEMVna (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 17:43:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=tj4NBpcu/cxJnpf3r1yOv7yh+t+q5Uur5CzJjcrgbaymVPRmX0mzWi1G+Rt0UgVYivn/agtS3NpofK5stjmZmN3QNJgqFS24+lgv2bnvdPpLZBwOLFTdD0T7jCD8kJOmb2bL6MHQOUzGkpogPCA2GhX1ZQ45SiMJHQZZ9hVAFgM=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Jaroslav Kysela <perex@suse.cz>
+Subject: [PATCH] Fix a memory leak in pdaudiocf
+Date: Sat, 13 May 2006 23:44:25 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+       Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605132344.25862.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> Unfortunately it seems that setterm's powersaving (DPMS) capabilities depend an
-> APM support in the kernel and are therefore unavailable on the x86_64
-> architecture.
->
-> This shortcoming may have seemed unimportant when Opteron started in the server
-> segment but there is a growing number of AMD Turion mobiles that could greatly
-> benefit from this feature.
->
+There's a potential memory leak in 
+sound/pcmcia/pdaudiocf/pdaudiocf.c::pdacf_config()
 
-There are some backlight drivers in the kernel. Currently however the only 
-supported device is Sharp Corgi.
-Would it be possible to make DPMS signalling a backlight driver? (Without 
-the APM overhead.) vgacon for example leaves the backlight on while in X11, 
-DPMS is enabled and signals standby after the timeout.
+If we leave via one of the *failed: labels we may leak 'parse', so add a 
+kfree(parse) to the end of the function and also make sure to set 'parse' 
+to NULL after the kfree() call a little further up so we don't do a 
+double-free of the pointer if we hit one of the *failed: labels after the 
+first kfree().
+
+Since I don't have the hardware I can't test the patch beyond making sure 
+it compiles cleanly, but I feel pretty confident that it is correct.
+
+Please consider for inclusion.
 
 
-Jan Engelhardt
--- 
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+ sound/pcmcia/pdaudiocf/pdaudiocf.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletion(-)
+
+--- linux-2.6.17-rc4-git2-orig/sound/pcmcia/pdaudiocf/pdaudiocf.c	2006-05-13 21:28:55.000000000 +0200
++++ linux-2.6.17-rc4-git2/sound/pcmcia/pdaudiocf/pdaudiocf.c	2006-05-13 23:27:46.000000000 +0200
+@@ -226,7 +226,7 @@ static int pdacf_config(struct pcmcia_de
+ 
+ 	snd_printdd(KERN_DEBUG "pdacf_config called\n");
+ 	parse = kmalloc(sizeof(*parse), GFP_KERNEL);
+-	if (! parse) {
++	if (!parse) {
+ 		snd_printk(KERN_ERR "pdacf_config: cannot allocate\n");
+ 		return -ENOMEM;
+ 	}
+@@ -242,6 +242,7 @@ static int pdacf_config(struct pcmcia_de
+ 	link->conf.ConfigBase = parse->config.base;
+ 	link->conf.ConfigIndex = 0x5;
+ 	kfree(parse);
++	parse = NULL;
+ 
+ 	CS_CHECK(RequestIO, pcmcia_request_io(link, &link->io));
+ 	CS_CHECK(RequestIRQ, pcmcia_request_irq(link, &link->irq));
+@@ -257,6 +258,7 @@ cs_failed:
+ 	cs_error(link, last_fn, last_ret);
+ failed:
+ 	pcmcia_disable_device(link);
++	kfree(parse);
+ 	return -ENODEV;
+ }
+ 
+
+
+
+
+
+PS. Please keep me on Cc when replying since I'm not subscribed to alsa-devel.
+

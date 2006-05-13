@@ -1,118 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWEMMbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932404AbWEMMqN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932411AbWEMMbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 08:31:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932416AbWEMMbZ
+	id S932404AbWEMMqN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 08:46:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932416AbWEMMqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 08:31:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15268 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932411AbWEMMbU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 08:31:20 -0400
-Date: Sat, 13 May 2006 05:28:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, ian.pratt@xensource.com,
-       Christian.Limpach@cl.cam.ac.uk
-Subject: Re: [RFC PATCH 33/35] Add the Xenbus sysfs and virtual device
- hotplug driver.
-Message-Id: <20060513052809.2c6e051f.akpm@osdl.org>
-In-Reply-To: <20060509085200.826853000@sous-sol.org>
-References: <20060509084945.373541000@sous-sol.org>
-	<20060509085200.826853000@sous-sol.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 13 May 2006 08:46:13 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:26637 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932404AbWEMMqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 08:46:13 -0400
+Date: Sat, 13 May 2006 14:45:26 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Neil Brown <neilb@suse.de>
+Cc: Stefan Smietanowski <stesmi@stesmi.com>,
+       Douglas McNaught <doug@mcnaught.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Mark Rosenstand <mark@borkware.net>, linux-kernel@vger.kernel.org
+Subject: Re: Executable shell scripts
+Message-ID: <20060513124526.GJ11191@w.ods.org>
+References: <20060513103841.B6683146AF@hunin.borkware.net> <1147517786.3217.0.camel@laptopd505.fenrus.org> <20060513110324.10A38146AF@hunin.borkware.net> <1147518432.3217.2.camel@laptopd505.fenrus.org> <87r72yi346.fsf@suzuka.mcnaught.org> <4465C2E8.8070106@stesmi.com> <17509.50441.790871.230011@cse.unsw.edu.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17509.50441.790871.230011@cse.unsw.edu.au>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 09 May 2006 00:00:33 -0700
-Chris Wright <chrisw@sous-sol.org> wrote:
-
-> This communicates with the machine control software via a registry
-> residing in a controlling virtual machine. This allows dynamic
-> creation, destruction and modification of virtual device
-> configurations (network devices, block devices and CPUS, to name some
-> examples).
+On Sat, May 13, 2006 at 09:37:45PM +1000, Neil Brown wrote:
+> On Saturday May 13, stesmi@stesmi.com wrote:
+> > > 
+> > > Every Unix I've ever seen works this way.  It'd be nice to have
+> > > unreadable executable scripts, but no one's ever done it.
+> > 
+> > The solution would be to either stick bash in the kernel (YUCK!)
+> > or to have the kernel basically copy the read-only script to /tmp
+> > or somewhere else, set permissions to sane values and
+> > /bin/sh /tmp/foo.a12345.
 > 
->
-> ...
->
-> +void _dev_error(struct xenbus_device *dev, int err, const char *fmt,
-> +		va_list ap)
+> ... or open the script file (which there kernel has to do anyway),
+> attach it to some unused fd (e.g. fd3) and pass  "/dev/fd/3" to the
+> interpreter rather than "/the/shell/script".
+> 
+> Then the interpreter doesn't need to be able to open the file for
+> read.
 
-I don't think this needs global scope?  (hopefully not, with that name..)
+Not exactly, because people who would like to set their scripts to 111
+will also set the shell to 111, which makes the process non-dumpable,
+with /dev/fd/3 unreachable (it's a link to /proc/self/fd).
 
-> +	int ret;
-> +	unsigned int len;
-> +	char *printf_buffer = NULL, *path_buffer = NULL;
+> However it isn't clear that this is really a gain, as the person
+> running the script could use ptrace or similar to take a copy of the
+> script, the bypassing the missing 'r' permission.
+> 
+> Mind you, with ptrace, it isn't too hard to get a copy of a normal
+> executable that is mode '111'....
+> 
+> The whole concept of having files that are executable but not readable
+> is completely broken - it gives the appearance of protection without
+> the reality.
+> 
+> NeilBrown
 
-	char *print_buffer;
-	char *path_buffer = NULL;
-
-> +#define PRINTF_BUFFER_SIZE 4096
-> +	printf_buffer = kmalloc(PRINTF_BUFFER_SIZE, GFP_KERNEL);
-
-Assuming that GFP_KERNEL is legal in this context seems like a bad idea.
-
-<looks>
-
-hm, it does that all over the place, so I guess it works.
-
-> +/* Based on Rusty Russell's skeleton driver's unmap_page */
-> +int xenbus_unmap_ring_vfree(struct xenbus_device *dev, void *vaddr)
-> +{
-> +	struct vm_struct *area;
-> +	struct gnttab_unmap_grant_ref op = {
-> +		.host_addr = (unsigned long)vaddr,
-> +	};
-> +
-> +	/* It'd be nice if linux/vmalloc.h provided a find_vm_area(void *addr)
-> +	 * method so that we don't have to muck with vmalloc internals here.
-
-We take patches ;)
-
-But then, perhaps the requirement doesn't make a lot of sense in a
-multithreaded environment.  We don't refcount the entries on vmlist, so
-there's no point in being able to look them up.  Instead, the calling code
-is supposed to be able to keep track of its own state.
-
-Which begs the question: why isn't this code able to do that thing?
-
-> +	 * We could force the user to hang on to their struct vm_struct from
-> +	 * xenbus_map_ring_valloc, but these 6 lines considerably simplify
-> +	 * this API.
-> +	 */
-> +	read_lock(&vmlist_lock);
-> +	for (area = vmlist; area != NULL; area = area->next) {
-> +		if (area->addr == vaddr)
-> +			break;
-> +	}
-> +	read_unlock(&vmlist_lock);
-> +
-> +	if (!area) {
-> +		xenbus_dev_error(dev, -ENOENT,
-> +				 "can't find mapped virtual address %p", vaddr);
-> +		return GNTST_bad_virt_addr;
-> +	}
-
-One assumes there's some locking hereabouts which ensures that `area' is
-still on that list after vmlist_lock got dropped?
-
-> +
-> +static void *get_output_chunk(XENSTORE_RING_IDX cons,
-> +			      XENSTORE_RING_IDX prod,
-> +			      char *buf, uint32_t *len)
-> +{
-> +	*len = XENSTORE_RING_SIZE - MASK_XENSTORE_IDX(prod);
-> +	if ((XENSTORE_RING_SIZE - (prod - cons)) < *len)
-> +		*len = XENSTORE_RING_SIZE - (prod - cons);
-> +	return buf + MASK_XENSTORE_IDX(prod);
-> +}
-
-Another open-coded ringbuffer?  Am still seeking the user of the
-interesting ring.h.
-
+Cheers,
+Willy
 

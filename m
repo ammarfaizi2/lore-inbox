@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWEMOnh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbWEMOxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751127AbWEMOnh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 10:43:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWEMOnh
+	id S1751162AbWEMOxl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 10:53:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWEMOxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 10:43:37 -0400
-Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:34155 "HELO
-	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751127AbWEMOng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 10:43:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=4COr52BUnDt3q4Z8pqEN+r4HAirX6Tno/eaTDF/H2S7Vy82Imm1dYGPmOytIaBMw/gNPKnxjznZAgCG6n5a3PRaqQ+ZK59i1+zTgPUGzO9H/0ohNKaDTyWiABFmYZTUWcSNJzafrOZOylMKYPhnsBBcS7FvPCh63UgnLbCp6N94=  ;
-Message-ID: <4465F097.9080301@yahoo.com.au>
-Date: Sun, 14 May 2006 00:43:35 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Sat, 13 May 2006 10:53:41 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:42988 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751162AbWEMOxk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 10:53:40 -0400
+Date: Sat, 13 May 2006 10:53:26 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Ingo Molnar <mingo@elte.hu>, akpm@osdl.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Silly bitmap size accounting fix
+In-Reply-To: <4465EF80.6010106@yahoo.com.au>
+Message-ID: <Pine.LNX.4.58.0605131051160.27751@gandalf.stny.rr.com>
+References: <Pine.LNX.4.58.0605120403540.28581@gandalf.stny.rr.com>
+ <20060512091451.GA18145@elte.hu> <4465386B.9090804@yahoo.com.au>
+ <Pine.LNX.4.58.0605131010110.27003@gandalf.stny.rr.com> <4465EF80.6010106@yahoo.com.au>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: chrisw@sous-sol.org, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       ian.pratt@xensource.com, Christian.Limpach@cl.cam.ac.uk
-Subject: Re: [RFC PATCH 29/35] Add the Xen virtual console driver.
-References: <20060509084945.373541000@sous-sol.org>	<20060509085159.285105000@sous-sol.org>	<20060513052757.59446e03.akpm@osdl.org>	<4465D63F.4000605@yahoo.com.au> <20060513072938.642bf600.akpm@osdl.org>
-In-Reply-To: <20060513072938.642bf600.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
 
->>Someone should write you a script to go through a patch and flag the
->>most common style mistakes. Have the output formatted to look like
->>you're replying to the mail, and wire it up to your inbox ;)
->>
-> 
-> 
-> Even better, someone should write a coding style document, so people get it
-> right from the outset.
 
-I thought that was tried several years back -- I noticed you still
-do it manually, so I just assumed that the style document scheme
-hadn't worked.
+> > +/*
+> > + * Calculate BITMAP_SIZE.
+> > + *  The bitmask holds MAX_PRIO bits + 1 for the delimiter.
+>
+> + * Calculation is to find the minimum number of longs that holds MAX_PRIO+1 bits:
+> + *  size-in-chars = ceiling((MAX_PRIO+1) / CHAR_BITS)
+> + *  size-in-longs = ceiling(size-in-chars / sizeof(long))
+>
+> > + */
+> >  #define BITMAP_SIZE ((((MAX_PRIO+1+7)/8)+sizeof(long)-1)/sizeof(long))
+> >
+>
 
-> 
-> Clever, aren't I?
-> 
+What do you think of the following comment, better?
 
-Yes... but I don't think it's your cleverness that's the problem ;)
+-- Steve
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+
+Index: linux-2.6.17-rc3-mm1/kernel/sched.c
+===================================================================
+--- linux-2.6.17-rc3-mm1.orig/kernel/sched.c	2006-05-12 04:02:32.000000000 -0400
++++ linux-2.6.17-rc3-mm1/kernel/sched.c	2006-05-13 10:50:44.000000000 -0400
+@@ -192,6 +192,13 @@ static inline unsigned int task_timeslic
+  * These are the runqueue data structures:
+  */
+
++/*
++ * Calculate BITMAP_SIZE.
++ *  The bitmask holds MAX_PRIO bits + 1 for the delimiter.
++ *  BITMAP_SIZE is the minimum number of longs that holds MAX_PRIO+1 bits:
++ *   size-in-bytes = ceiling((MAX_PRIO+1) / BITS_PER_BYTE)
++ *   size-in-longs = ceiling(size-in-bytes / sizeof(long))
++ */
+ #define BITMAP_SIZE ((((MAX_PRIO+1+7)/8)+sizeof(long)-1)/sizeof(long))
+
+ typedef struct runqueue runqueue_t;

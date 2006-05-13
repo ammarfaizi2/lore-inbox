@@ -1,77 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWEMXG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbWEMXJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751048AbWEMXG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 19:06:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWEMXG2
+	id S964788AbWEMXJp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 19:09:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964789AbWEMXJp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 19:06:28 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:19371 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750996AbWEMXG1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 19:06:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=RKGIk6f1198Jun4Wldyah9Ixc5Ft4M4Lq+xQ1xW6R36eWibNkv5WRiOCiT/Fd2ieI5QrXtWkiJ9PM/HE5xH6TI1LZwEAIRUuRYlEenqJIG+QvFHyx5UkGTbovWjm7HdnK9A4/d1H3Jhqfl2b6fBr3ol7nrQViBfOuQWOr4wNPh4=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] mtd: fix memory leaks in phram_setup
-Date: Sun, 14 May 2006 01:07:18 +0200
-User-Agent: KMail/1.9.1
-Cc: Jochen =?iso-8859-1?q?Sch=E4uble?= <psionic@psionic.de>,
-       =?iso-8859-1?q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Jesper Juhl <jesper.juhl@gmail.com>
+	Sat, 13 May 2006 19:09:45 -0400
+Received: from mx2.suse.de ([195.135.220.15]:17874 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964788AbWEMXJp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 19:09:45 -0400
+To: Thomas Zehetbauer <thomasz@hostmaster.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: No DPMS for Console on x86_64
+References: <20060513180158.GB2795@localhost.localdomain>
+From: Andi Kleen <ak@suse.de>
+Date: 14 May 2006 01:09:41 +0200
+In-Reply-To: <20060513180158.GB2795@localhost.localdomain>
+Message-ID: <p73y7x55xoq.fsf@bragg.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605140107.18293.jesper.juhl@gmail.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thomas Zehetbauer <thomasz@hostmaster.org> writes:
+> 
+> I wonder how difficult it would be, to port APM to the x86_64
 
-There are two code paths in drivers/mtd/devices/phram.c::phram_setup() that
-will leak memory.
-Memory is allocated to the variable 'name' with kmalloc() by the 
-parse_name() function, but if we leave by way of the parse_err() macro, 
-then that memory is never kfree()'d, nor is it ever used with 
-register_device() so it won't be freed later either - leak.
+Modern systems generally don't have working APM anymore.
+There are replacement ACPI video options, but they seem to 
+be rarely implemented because the system vendors assume the
+video driver will do the job.
 
-Found by the Coverity checker as #593 - simple fix below.
+Also even if they had it wouldn't be implemented in the 64bit
+kernel.
 
+> architecture or to provide DPMS support in the FBDev drivers.
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+There is some code from PPC for that, but it is generally very 
+PPC specific. Backlight control also varies a lot so it would
+likely need tweaks for most laptops.
 
+Or just run a X server. It also doesn't get this right always, but
+at least sometimes.
 
- drivers/mtd/devices/phram.c |    8 ++++++--
- 1 files changed, 6 insertions(+), 2 deletions(-)
-
-
---- linux-2.6.17-rc4-git2-orig/drivers/mtd/devices/phram.c	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6.17-rc4-git2/drivers/mtd/devices/phram.c	2006-05-14 01:05:27.000000000 +0200
-@@ -266,12 +266,16 @@ static int phram_setup(const char *val, 
- 		return 0;
- 
- 	ret = parse_num32(&start, token[1]);
--	if (ret)
-+	if (ret) {
-+		kfree(name);
- 		parse_err("illegal start address\n");
-+	}
- 
- 	ret = parse_num32(&len, token[2]);
--	if (ret)
-+	if (ret) {
-+		kfree(name);
- 		parse_err("illegal device length\n");
-+	}
- 
- 	register_device(name, start, len);
- 
-
-
-
-
+-Andi

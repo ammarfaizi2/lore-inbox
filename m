@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWENHb6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbWENHi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751365AbWENHb6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 03:31:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWENHb6
+	id S1751369AbWENHi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 03:38:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWENHi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 03:31:58 -0400
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:38025 "EHLO
-	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1751365AbWENHb5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 03:31:57 -0400
-Message-ID: <4466DCE9.7010906@gmail.com>
-Date: Sun, 14 May 2006 08:31:53 +0100
-From: Catalin Marinas <catalin.marinas@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.17-rc4 6/6] Remove some of the kmemleak false positives
-References: <20060513155757.8848.11980.stgit@localhost.localdomain>	 <20060513160625.8848.76947.stgit@localhost.localdomain> <9a8748490605131221nbadedf4p8904d9627f61f425@mail.gmail.com>
-In-Reply-To: <9a8748490605131221nbadedf4p8904d9627f61f425@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Sun, 14 May 2006 03:38:27 -0400
+Received: from mail.gmx.net ([213.165.64.20]:11186 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751369AbWENHi0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 May 2006 03:38:26 -0400
+X-Authenticated: #14349625
+Subject: Re: rt20 scheduling latency testcase and failure data
+From: Mike Galbraith <efault@gmx.de>
+To: Darren Hart <dvhltc@us.ibm.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, lkml <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <200605140004.30307.dvhltc@us.ibm.com>
+References: <200605121924.53917.dvhltc@us.ibm.com>
+	 <1147578414.7738.11.camel@homer> <1147585718.9372.15.camel@homer>
+	 <200605140004.30307.dvhltc@us.ibm.com>
+Content-Type: text/plain
+Date: Sun, 14 May 2006 09:38:42 +0200
+Message-Id: <1147592323.7564.23.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> On 13/05/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
->> +#ifdef CONFIG_DEBUG_MEMLEAK
->> +               /* avoid a false alarm. That's not a memory leak */
->> +               memleak_free(out);
->> +#endif
+On Sun, 2006-05-14 at 00:04 -0700, Darren Hart wrote:
+> > > > On Saturday 13 May 2006 11:21, Lee Revell wrote:
+> > > If you disable printf + fflush in iterations loop, problem goes away?
 > 
-> 
-> Hmm, so eventually we are going to end up with a bunch of ussgly #ifdef
-> CONFIG_DEBUG_MEMLEAK's all over the place?
-> 
-> Wouldn't it be better to just make memleak_free() an empty stub in the
-> !CONFIG_DEBUG_MEMLEAK case?
+> Unfortunately not, after disabling the printf and fflush, my very first run 
+> resulted in:
 
-Yes, I'll make empty stubs (Paul suggested this as well).
+Drat.
 
-Catalin
+> What is it about this dump that made you suspect the printf?  Or was it just 
+> that printing the trace seemed to trigger a failure - so it seemed reasonable 
+> that the process may have been blocked on writing to the console?
+
+Yeah, realtime task in D state.
+
+	-Mike
+

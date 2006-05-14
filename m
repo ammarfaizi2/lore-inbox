@@ -1,68 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWENBMA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWENBij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932435AbWENBMA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 21:12:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWENBMA
+	id S932256AbWENBij (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 21:38:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750973AbWENBij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 21:12:00 -0400
-Received: from nz-out-0102.google.com ([64.233.162.202]:5324 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932435AbWENBL7 convert rfc822-to-8bit (ORCPT
+	Sat, 13 May 2006 21:38:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:34274 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750762AbWENBii (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 21:11:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LSWhQNOA65ojC2rjR6ExRglOslEZSn1uuXqHnw7N+g8B/bxo2AhRwbG4Ch4mNzz+ovcWGxhQESnxew6Rlt5xxvTAB0baxmLtDcvs6whY8gKN+5d/EomADI/sJfECkPMP7C49UMq06hEk3GyauwE+O0qnGzmKX8ztKw45rRjX/rk=
-Message-ID: <9e4733910605131811r1a4482d7u6508655e9d3ac376@mail.gmail.com>
-Date: Sat, 13 May 2006 21:11:49 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Patrick McFarland" <diablod3@gmail.com>
-Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace (Xorg) to enable devices without doing foul direct access
-Cc: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-       "Peter Jones" <pjones@redhat.com>, "Martin Mares" <mj@ucw.cz>,
-       "Matthew Garrett" <mgarrett@chiark.greenend.org.uk>,
-       "Bjorn Helgaas" <bjorn.helgaas@hp.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, "Dave Airlie" <airlied@linux.ie>,
-       "Andrew Morton" <akpm@osdl.org>, greg@kroah.com,
-       linux-kernel@vger.kernel.org,
-       "Arjan van de Ven" <arjan@linux.intel.com>
-In-Reply-To: <200605132057.42773.diablod3@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1146300385.3125.3.camel@laptopd505.fenrus.org>
-	 <1146778197.27727.26.camel@localhost.localdomain>
-	 <1147566572.21291.30.camel@localhost.localdomain>
-	 <200605132057.42773.diablod3@gmail.com>
+	Sat, 13 May 2006 21:38:38 -0400
+Date: Sat, 13 May 2006 18:35:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: ak@suse.de, hch@infradead.org, chrisw@sous-sol.org,
+       linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
+       xen-devel@lists.xensource.com
+Subject: Re: [RFC PATCH 00/35] Xen i386 paravirtualization support
+Message-Id: <20060513183520.79a0d44e.akpm@osdl.org>
+In-Reply-To: <20060509152240.GA17837@infradead.org>
+References: <20060509084945.373541000@sous-sol.org>
+	<4460AC01.5020503@mbligh.org>
+	<20060509150701.GA14050@infradead.org>
+	<p73k68v4444.fsf@bragg.suse.de>
+	<20060509152240.GA17837@infradead.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/13/06, Patrick McFarland <diablod3@gmail.com> wrote:
-> On Saturday 13 May 2006 20:29, Benjamin Herrenschmidt wrote:
-> > a long post.
+Christoph Hellwig <hch@infradead.org> wrote:
 >
-> So, why do we insist on keeping legacy hardware around? I mean, serial and
-> parallel ports are basically dead, as are ps/2 ports (USB killed them all).
-> VGA basically died out when DVI came around. Traditional IA32 is now dying
-> out thanks to x86-64. The basic internals have been surplanted by APIC. We
-> have a power management API, ACPI, which was unheard of on x86 15 years ago.
+> On Tue, May 09, 2006 at 05:20:11PM +0200, Andi Kleen wrote:
+> > > It's also wrong.  There's more than one hypervisor and Xen shouldn't just
+> > > grab this namespace.  make it xen_ or xenhv_.
+> > 
+> > You should reject the recent "hypervisor file system" with the same
+> > argument then.
+> 
+> I prefer it would become lparfs or something like that indeed.
 
-Because it is the only video interface we have documentation for.
-Almost all of the video hardware can run in non-VGA mode but we don't
-have the docs to do this on NVidia/ATI.
+Yes, it did get renamed to something s390-specific.
 
-It is also a universal interface supported by all video cards. You can
-get things like GRUB and the BIOS up on it with minimal code that will
-work on all video cards.
+Also, note
 
-To get rid of it the video hardware manufacturers would have to come
-together and define a new, open standard. That doesn't look likely to
-happen so we are stuck with it. I do agree that it is extremely messy
-to work with.
+	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-01-driver/driver-core-add-sys-hypervisor-when-needed.patch
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+which creates the /sys/hypervisor directory.  With the expectation that
+_all_ hypervisorish subsystems will base their sysfs trees in there.
+

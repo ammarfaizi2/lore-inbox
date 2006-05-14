@@ -1,34 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWENRC3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWENRIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750897AbWENRC3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 13:02:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbWENRC3
+	id S1750861AbWENRIa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 13:08:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751013AbWENRIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 13:02:29 -0400
-Received: from wx-out-0102.google.com ([66.249.82.202]:28035 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750824AbWENRC3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 13:02:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=fLjJP86vNuSuRA8X3E0mF2T+nCSxg2tz3wuxX5PGxhNglGP78504YA5+Ih30veJRH57ENwzdqRsiU9IZUXb/0pr01KjlSoKH7ATuUbTP4J4pr44urEADfR1d9rYq8ralaxi60Esj0y+3OVR7+CPmgF26vPNI+E8jxOwcYOb8r9c=
-Message-ID: <4467629F.3000808@gmail.com>
-Date: Sun, 14 May 2006 20:02:23 +0300
-From: Sherif Elian <sherif.elian@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: RPC in kernel space
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 14 May 2006 13:08:30 -0400
+Received: from ftp.linux-mips.org ([194.74.144.162]:49336 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1750861AbWENRI3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 May 2006 13:08:29 -0400
+Date: Sun, 14 May 2006 18:08:27 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Frederic Rible <frible@teaser.fr>,
+       Jean-Paul Roubelat <jpr@f6fbb.org>, linux-hams@vger.kernel.org
+Subject: Re: [PATCH] fix potential NULL pointer dereference in yam
+Message-ID: <20060514170827.GA24169@linux-mips.org>
+References: <200605141512.50923.jesper.juhl@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200605141512.50923.jesper.juhl@gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi ,
-i just want to make an RPC call from a kernel module
-i tried Sun RPC but i failed as i simply cann't understand the 
-parameteres of the functions :(
+On Sun, May 14, 2006 at 03:12:50PM +0200, Jesper Juhl wrote:
 
-so can anybody help me in this task
-thanks alot
+> Testing a pointer for NULL after it has already been dereferenced is not
+> very safe.
+> Patch below to rework yam_open() so that `dev' is not dereferenced until
+> after it has been tested for NULL.
+
+It may not obvious and that itself is some sort of bug bug netdev_priv()
+assumes that the private part of struct netdev has been allocated
+immediately following struct netdev, so the macro will compile into just
+pointer arithmetic.  So no possible NULL pointer dereference here.
+
+  Ralf

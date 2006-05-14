@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWENOlH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbWENOpt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751428AbWENOlH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 10:41:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWENOlH
+	id S1751429AbWENOpt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 10:45:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWENOpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 10:41:07 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:55046 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751428AbWENOlG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 10:41:06 -0400
-Date: Sun, 14 May 2006 16:40:54 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       perex@suse.cz
-Subject: Re: [PATCH] fix potential NULL pointer deref in snd_sb8dsp_midi_interrupt()
-Message-ID: <20060514144054.GM11191@w.ods.org>
-References: <200605140420.52710.jesper.juhl@gmail.com> <20060514142409.GC23387@mipter.zuzino.mipt.ru>
+	Sun, 14 May 2006 10:45:49 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:43978 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751429AbWENOps (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 May 2006 10:45:48 -0400
+Date: Sun, 14 May 2006 22:45:50 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH -mm, resend] de_thread: fix lockless do_each_thread
+Message-ID: <20060514184550.GA89@oleg>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060514142409.GC23387@mipter.zuzino.mipt.ru>
-User-Agent: Mutt/1.5.10i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 14, 2006 at 06:24:09PM +0400, Alexey Dobriyan wrote:
-> On Sun, May 14, 2006 at 04:20:52AM +0200, Jesper Juhl wrote:
-> > First testing if a pointer is NULL and if it is (or might be), proceeding
-> > with code that dereferences that same pointer is clearly a mistake.
-> > This happens in sound/isa/sb/sb8_midi.c::snd_sb8dsp_midi_interrupt()
-> > The patch below reworks the code so this unfortunate case doesn't happen.
-> 
-> All callers of snd_sb8dsp_midi_interrupt() dereference "chip" right
-> before calling.
+We should keep the value of old_leader->tasks.next in de_thread,
+otherwise we can't do for_each_process/do_each_thread without
+tasklist_lock held.
 
-So the "if (chip == NULL)" part should be removed to avoid confusion.
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-> 
-> > --- linux-2.6.17-rc4-git2-orig/sound/isa/sb/sb8_midi.c
-> > +++ linux-2.6.17-rc4-git2/sound/isa/sb/sb8_midi.c
-> > -irqreturn_t snd_sb8dsp_midi_interrupt(struct snd_sb * chip)
-> > +irqreturn_t snd_sb8dsp_midi_interrupt(struct snd_sb *chip)
-> >  {
-> >  	struct snd_rawmidi *rmidi;
-> >  	int max = 64;
-> >  	char byte;
-> >  
-> > -	if (chip == NULL || (rmidi = chip->rmidi) == NULL) {
-> > +	if (!chip)
-> > +		return IRQ_NONE;
-> > +	
-> > +	rmidi = chip->rmidi;
-> > +	if (!rmidi) {
-> >  		inb(SBP(chip, DATA_AVAIL));	/* ack interrupt */
-> >  		return IRQ_NONE;
-> >  	}
-
-Willy
+--- MM/fs/exec.c~3_RCU	2006-05-14 22:14:42.000000000 +0400
++++ MM/fs/exec.c	2006-05-14 22:32:13.000000000 +0400
+@@ -706,7 +706,7 @@ static int de_thread(struct task_struct 
+ 		attach_pid(current, PIDTYPE_PID,  current->pid);
+ 		attach_pid(current, PIDTYPE_PGID, current->signal->pgrp);
+ 		attach_pid(current, PIDTYPE_SID,  current->signal->session);
+-		list_add_tail_rcu(&current->tasks, &init_task.tasks);
++		list_replace_rcu(&leader->tasks, &current->tasks);
+ 
+ 		current->group_leader = current;
+ 		leader->group_leader = current;
+@@ -714,7 +714,6 @@ static int de_thread(struct task_struct 
+ 		/* Reduce leader to a thread */
+ 		detach_pid(leader, PIDTYPE_PGID);
+ 		detach_pid(leader, PIDTYPE_SID);
+-		list_del_init(&leader->tasks);
+ 
+ 		current->exit_signal = SIGCHLD;
+ 
 

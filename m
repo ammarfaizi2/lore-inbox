@@ -1,52 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWENGhi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWENHEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbWENGhi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 02:37:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWENGhh
+	id S1751326AbWENHEm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 03:04:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWENHEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 02:37:37 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:41399 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1751124AbWENGhh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 02:37:37 -0400
-Date: Sun, 14 May 2006 08:37:31 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       Jochen =?iso-8859-1?Q?Sch=E4uble?= <psionic@psionic.de>,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH] mtd: fix memory leaks in phram_setup
-Message-ID: <20060514063731.GA22033@wohnheim.fh-wedel.de>
-References: <200605140107.18293.jesper.juhl@gmail.com> <1147562300.12379.1.camel@pmac.infradead.org> <9a8748490605131634w73b8d40ax278fac343602123b@mail.gmail.com> <1147563643.16761.1.camel@shinybook.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sun, 14 May 2006 03:04:42 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:31895 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751326AbWENHEl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 May 2006 03:04:41 -0400
+From: Darren Hart <dvhltc@us.ibm.com>
+Organization: IBM Linux Technology Center
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: rt20 scheduling latency testcase and failure data
+Date: Sun, 14 May 2006 00:04:29 -0700
+User-Agent: KMail/1.9.1
+Cc: Lee Revell <rlrevell@joe-job.com>, lkml <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+References: <200605121924.53917.dvhltc@us.ibm.com> <1147578414.7738.11.camel@homer> <1147585718.9372.15.camel@homer>
+In-Reply-To: <1147585718.9372.15.camel@homer>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1147563643.16761.1.camel@shinybook.infradead.org>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200605140004.30307.dvhltc@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 May 2006 00:40:42 +0100, David Woodhouse wrote:
-> >
-> > Want me to fix the macro and the users of it?
-> 
-> Well, the exclamation was intended to provoke Jörn or Jochen into fixing
-> it for themselves, but if you get there first that'd be great too :)
+> > > On Saturday 13 May 2006 11:21, Lee Revell wrote:
+> > If you disable printf + fflush in iterations loop, problem goes away?
 
-The only question is: does it make the code better?  The code has
-seven printk/return combinations.  Each of them would chew up 2 more
-lines without the macro.  So phram_setup would grow from 44 to 58
-lines, not nice either.
+Unfortunately not, after disabling the printf and fflush, my very first run 
+resulted in:
 
-What bugs me more is the hidden allocation in parse_name.  Looks like
-that should return a pointer or ERR_PTR(foo), not an int.
+ITERATION 0
+-------------------------------
+Scheduling Latency
+-------------------------------
 
-Jörn
+Running 10000 iterations with a period of 5 ms
+Expected running time: 50 s
+
+ITERATION DELAY(US) MAX_DELAY(US) FAILURES
+--------- --------- ------------- --------
+
+
+PERIOD MISSED!
+     scheduled delta:     4078 us
+        actual delta:    14213 us
+             latency:    10135 us
+---------------------------------------
+      previous start: 42050139 us
+                 now: 42051059 us
+     scheduled start: 42045000 us
+next scheduled start is in the past!
+
+
+Start Latency:   99 us: PASS
+Min Latency:      8 us: PASS
+Avg Latency:      8 us: PASS
+Max Latency:   10139 us: FAIL
+
+
+> P.S.
+>
+> I think it probably will, because...
+>
+> sched_latency [ea53a0b0]D 00000001     0  8261   7858                8260
+> (NOTLB) e29a0e70 e29a0e58 00000008 00000001 df6158e0 00000000 623266f4
+> 0000017d b23d45c4 efd53870 dfcb8dc0 efd53870 00000000 000011e6 ea53a1e8
+> ea53a0b0 efdf0d30 b2454560 623e5018 0000017d 00000001 efdf0d30 00000100
+> 00000000 Call Trace:
+>  [<b1038454>] __rt_mutex_adjust_prio+0x1f/0x24 (112)
+>  [<b1038ad8>] task_blocks_on_rt_mutex+0x1b6/0x1c9 (16)
+>  [<b13bfeb1>] schedule+0x34/0x10b (24)
+>  [<b13c0963>] rt_mutex_slowlock+0xc7/0x258 (28)
+>  [<b13c0bb6>] rt_mutex_lock+0x3f/0x43 (100)
+>  [<b1039075>] rt_down+0x12/0x32 (20)
+>  [<b13c14a7>] lock_kernel+0x1d/0x23 (16)
+>  [<b1228246>] tty_write+0x119/0x21b (12)
+>  [<b122b758>] write_chan+0x0/0x338 (24)
+>  [<b10352bd>] hrtimer_wakeup+0x0/0x1c (20)
+>  [<b10671f0>] vfs_write+0xc1/0x19b (24)
+>  [<b1067bfa>] sys_write+0x4b/0x74 (40)
+>  [<b1002eeb>] sysenter_past_esp+0x54/0x75 (40)
+>
+
+What is it about this dump that made you suspect the printf?  Or was it just 
+that printing the trace seemed to trigger a failure - so it seemed reasonable 
+that the process may have been blocked on writing to the console?  I could 
+see that causing a failure like the one below, but not like the one I posted 
+above.  (The one above has no printfs between the time measurements 
+surrounding the clock_nanosleep() call and it overslept by 10ms).  Also, 
+shouldn't I have seen something in the oprofile reports I posted earlier if 
+the printf was causing the latencies?
+
+Thanks for the comments, thoughts, and suggestions.
+
+> ...generated via SysRq-T, induces...
+>
+> PERIOD MISSED!
+>      scheduled delta:     4964 us
+>         actual delta:     4974 us
+>              latency:       10 us
+> ---------------------------------------
+>       previous start:  1750012 us
+>                  now: 13122245 us
+>      scheduled start:  1755000 us
+> next scheduled start is in the past!
 
 -- 
-There are two ways of constructing a software design: one way is to make
-it so simple that there are obviously no deficiencies, and the other is
-to make it so complicated that there are no obvious deficiencies.
--- C. A. R. Hoare
+Darren Hart
+IBM Linux Technology Center
+Realtime Linux Team

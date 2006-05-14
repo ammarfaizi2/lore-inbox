@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWENRdE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751495AbWENRfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751348AbWENRdE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 13:33:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbWENRdD
+	id S1751495AbWENRfL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 13:35:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751496AbWENRfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 13:33:03 -0400
-Received: from [63.81.120.158] ([63.81.120.158]:50403 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1751348AbWENRdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 13:33:02 -0400
-Subject: Re: [PATCH -rt] scheduling while atomic in fs/file.c
-From: Daniel Walker <dwalker@mvista.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0605141241320.25158@gandalf.stny.rr.com>
-References: <200605141545.k4EFj6Cv001901@dwalker1.mvista.com>
-	 <Pine.LNX.4.58.0605141241320.25158@gandalf.stny.rr.com>
-Content-Type: text/plain
-Date: Sun, 14 May 2006 10:32:55 -0700
-Message-Id: <1147627976.15392.39.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 14 May 2006 13:35:11 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:42209 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751495AbWENRfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 May 2006 13:35:10 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Catalin Marinas <catalin.marinas@gmail.com>
+Subject: Re: [PATCH 2.6.17-rc4 1/6] Base support for kmemleak
+Date: Sun, 14 May 2006 19:32:10 +0200
+User-Agent: KMail/1.9.1
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+References: <20060513155757.8848.11980.stgit@localhost.localdomain> <9a8748490605131042w3214a7b8lb9a862798e3131d4@mail.gmail.com> <4466DB13.5090104@gmail.com>
+In-Reply-To: <4466DB13.5090104@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605141932.10799.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-05-14 at 12:44 -0400, Steven Rostedt wrote:
-> On Sun, 14 May 2006, Daniel Walker wrote:
+Hi Catalin,
+
+On Sunday, 14. May 2006 09:24, Catalin Marinas wrote:
+> >> +#if 0
+> >> +       /* make some orphan pointers for testing */
+> >> +       kmalloc(32, GFP_KERNEL);
+> >> +       kmalloc(32, GFP_KERNEL);
+> >> +       kmem_cache_alloc(pointer_cache, GFP_ATOMIC);
+> >> +       kmem_cache_alloc(pointer_cache, GFP_ATOMIC);
+> >> +       vmalloc(64);
+> >> +       vmalloc(64);
+> >> +#endif
+> > 
+> > Stuff for testing is nice, but do we have to add it to the kernel? - I
+> > assume you are done testing :-)
+> > We have waay too much code already in the kernel inside  #if 0
 > 
-> > Quite the smp_processor_id() wanrings. I don't see any SMP
-> > concerns here . It just adds to a percpu list, so it shouldn't
-> > matter if it switches after sampling fdtable_defer_list .
-> 
-> I'm not so sure that there isn't SMP concerns here. I have to catch a
-> train in a few minutes, otherwise I would look deeper into this. But this
-> might be a candidate to turn fdtable_defer_list into a per_cpu_locked.
+> The best would be to test it using a loadable module but I did most of
+> the work on an embedded ARM platform where it was much easier to add
+> some code directly. The code will be cleaned up in subsequent versions.
 
-I reviewed it again, and it looks like these percpu structures have a
-spinlock to protect the list from being emptied by a work queue while
-things are being added to the list . The lock appears to be used
-properly .  The work queue frees struct fdtable pointers added to the
-list , the only place these structures are added is in the block I've
-modified .
+Fair enough. Just put it in a seperate file, 
+add a Kconfig "TEST_MEMLEAK_DETECTOR" tristate option,
+depending on "DEBUG_MEMLEAK" and adjust the Makefile accordingly.
 
-I think making this a locked percpu would just be overkill ..
+That way we can activate it from time to time by loading that module
+and you can test it by compiling a new kernel.
 
-Daniel
+RCU and CRYPTO have similiar features.
 
+
+Regards
+
+Ingo Oeser

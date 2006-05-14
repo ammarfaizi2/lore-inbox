@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbWENHi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbWENHqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751369AbWENHi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 03:38:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWENHi1
+	id S1751370AbWENHqi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 03:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWENHqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 03:38:27 -0400
-Received: from mail.gmx.net ([213.165.64.20]:11186 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751369AbWENHi0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 03:38:26 -0400
-X-Authenticated: #14349625
-Subject: Re: rt20 scheduling latency testcase and failure data
-From: Mike Galbraith <efault@gmx.de>
-To: Darren Hart <dvhltc@us.ibm.com>
-Cc: Lee Revell <rlrevell@joe-job.com>, lkml <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-In-Reply-To: <200605140004.30307.dvhltc@us.ibm.com>
-References: <200605121924.53917.dvhltc@us.ibm.com>
-	 <1147578414.7738.11.camel@homer> <1147585718.9372.15.camel@homer>
-	 <200605140004.30307.dvhltc@us.ibm.com>
-Content-Type: text/plain
-Date: Sun, 14 May 2006 09:38:42 +0200
-Message-Id: <1147592323.7564.23.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Sun, 14 May 2006 03:46:38 -0400
+Received: from dze141s31.ae.poznan.pl.220.254.150.in-addr.arpa ([150.254.220.184]:12468
+	"EHLO dns.toxicfilms.tv") by vger.kernel.org with ESMTP
+	id S1751370AbWENHqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 May 2006 03:46:37 -0400
+X-Spam-Report: SA TESTS
+ -1.7 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+ -2.3 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                             [score: 0.0000]
+  0.6 AWL                    AWL: From: address is in the auto white-list
+X-QSS-TOXIC-Mail-From: solt2@dns.toxicfilms.tv via dns
+X-QSS-TOXIC: 1.25st (Clear:RC:1(85.221.144.160):SA:0(-3.3/3.0):. Processed in 0.90464 secs Process 29286)
+Date: Sun, 14 May 2006 09:46:39 +0200
+From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Priority: 3 (Normal)
+Message-ID: <9510556356.20060514094639@dns.toxicfilms.tv>
+To: Greg KH <greg@kroah.com>
+CC: Adrian Bunk <bunk@stusta.de>, Ingo Oeser <ioe-lkml@rameria.de>,
+       Chris Wright <chrisw@sous-sol.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.16.16
+In-Reply-To: <20060514035937.GA6498@kroah.com>
+References: <20060511022547.GE25010@moss.sous-sol.org> <296295514.20060511123419@dns.toxicfilms.tv> <20060511173312.GI25010@moss.sous-sol.org> <200605131735.20062.ioe-lkml@rameria.de> <20060513155610.GB6931@stusta.de> <7c3341450605131029l194174f3v7339dce0e234b555@mail.gmail.com> <20060514035937.GA6498@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-05-14 at 00:04 -0700, Darren Hart wrote:
-> > > > On Saturday 13 May 2006 11:21, Lee Revell wrote:
-> > > If you disable printf + fflush in iterations loop, problem goes away?
-> 
-> Unfortunately not, after disabling the printf and fflush, my very first run 
-> resulted in:
+Hello Greg,
 
-Drat.
+Sunday, May 14, 2006, 5:59:37 AM, you wrote:
+> To be fair, the extra work of writing out a detailed exploit, complete
+> with example code, for every security update, would just take way too
+> long.
+Well, I think what we meant is just a one-liner hint from a wise developer
+suggesting some action, meaning something like: "This one I recommend to all"
+or "Use this if you use SCTP" or "X can do nasty things, you should upgrade
+if you are using it". If the patch title is "Fix a buffer overflow in foo"
+everybody knows what to do, but when it says "Fix foo so that baz stays barred"
+an additional hint would be nice, because it's ambiguous for someone
+just tracking stable releases and not being knowledgible enough to decide
+whether baz is a function or system call that they are using.
 
-> What is it about this dump that made you suspect the printf?  Or was it just 
-> that printing the trace seemed to trigger a failure - so it seemed reasonable 
-> that the process may have been blocked on writing to the console?
+I was not suggesting full detailed reports, I know the developers have better
+things to do, just some hints :-)
 
-Yeah, realtime task in D state.
+-- 
+Best regards,
+Maciej
 
-	-Mike
 

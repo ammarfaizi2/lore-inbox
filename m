@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWENXWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbWENXnm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751396AbWENXWk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 19:22:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWENXWj
+	id S1751400AbWENXnm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 19:43:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbWENXnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 19:22:39 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:3120 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751396AbWENXWj convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 19:22:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pDNjEe6xwjO4zU/GW2MspknlSJ5jXSG9u3VYm9P/hIvXvIb/ZZUxIjSJCSSpvJ7lxuJP5t75NO4qdrMVBdmpjOc8XV8mTIlGKKeQ+njJBTsoHl15W9KptMYCRKomm/qetUVvpS7ddlWOuGQ8bbm7ABYCsmwYX4RWiS5ViX8+DFo=
-Message-ID: <70066d530605141622o30c9497dp8f571b575b2a706e@mail.gmail.com>
-Date: Mon, 15 May 2006 07:22:37 +0800
-From: "Jaya Kumar" <jayakumar.video@gmail.com>
-To: "Oliver Neukum" <oliver@neukum.org>
-Subject: Re: [PATCH/RFC 2.6.16.5 1/1] usb/media/quickcam_messenger driver
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <200605141812.29333.oliver@neukum.org>
+	Sun, 14 May 2006 19:43:42 -0400
+Received: from liaag1af.mx.compuserve.com ([149.174.40.32]:58263 "EHLO
+	liaag1af.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751400AbWENXnl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 May 2006 19:43:41 -0400
+Date: Sun, 14 May 2006 19:36:38 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch 2.7.17-rc4] i386: remove junk from stack dump
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Message-ID: <200605141939_MC3-1-BFC1-F4C3@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-References: <200605141411.k4EEBaO4022817@localhost.localdomain>
-	 <200605141812.29333.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/15/06, Oliver Neukum <oliver@neukum.org> wrote:
-> Am Sonntag, 14. Mai 2006 16:11 schrieb jayakumar.video@gmail.com:
-> > +static int qcm_setup_on_open(struct uvd *uvd)
-> > +{
-> > +qcm_sensor_set_gains(uvd, uvd->vpic.hue,
-> > +uvd->vpic.colour, uvd->vpic.contrast);
-> > +qcm_sensor_set_exposure(uvd, uvd->vpic.brightness);
-> > +qcm_sensor_set_shutter(uvd, uvd->vpic.whiteness);
-> > +qcm_set_camera_size(uvd);
-> > +qcm_camera_on(uvd);
-> > +return 0;
-> > +}
->
-> This function can generate IO errors. You should not simply drop them.
+i386 stack dump has a "<0>" in the middle of the line and an extra space
+between columns in multicolumn mode.  Remove those and also remove an
+extra blank line of source code.
 
-You are right. I was lazy about that. I'll put in a macro like
-CHECK_RET(qcm_camera_on) for all the calls that do IO.
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
-Thanks,
-jaya
+---
+
+Can we get this in 2.6.17-final?
+
+--- 2.6.17-rc4-d4.orig/arch/i386/kernel/traps.c
++++ 2.6.17-rc4-d4/arch/i386/kernel/traps.c
+@@ -130,9 +130,8 @@ static inline int print_addr_and_symbol(
+ 	print_symbol("%s", addr);
+ 
+ 	printed = (printed + 1) % CONFIG_STACK_BACKTRACE_COLS;
+-
+ 	if (printed)
+-		printk("  ");
++		printk(" ");
+ 	else
+ 		printk("\n");
+ 
+@@ -212,7 +211,6 @@ static void show_stack_log_lvl(struct ta
+ 	}
+ 
+ 	stack = esp;
+-	printk(log_lvl);
+ 	for(i = 0; i < kstack_depth_to_print; i++) {
+ 		if (kstack_end(stack))
+ 			break;
+-- 
+Chuck
+
+"The x86 isn't all that complex -- it just doesn't make a lot of sense."
+                                                        -- Mike Johnson

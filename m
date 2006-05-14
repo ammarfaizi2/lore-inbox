@@ -1,87 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbWENFVB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbWENFsT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750959AbWENFVB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 01:21:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbWENFVB
+	id S1751041AbWENFsT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 01:48:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWENFsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 01:21:01 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:27155 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1750706AbWENFVB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 01:21:01 -0400
-Date: Sun, 14 May 2006 07:17:29 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Greg KH <greg@kroah.com>
-Cc: nick@linicks.net, Adrian Bunk <bunk@stusta.de>,
-       Ingo Oeser <ioe-lkml@rameria.de>, Chris Wright <chrisw@sous-sol.org>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.16.16
-Message-ID: <20060514051729.GL11191@w.ods.org>
-References: <20060511022547.GE25010@moss.sous-sol.org> <296295514.20060511123419@dns.toxicfilms.tv> <20060511173312.GI25010@moss.sous-sol.org> <200605131735.20062.ioe-lkml@rameria.de> <20060513155610.GB6931@stusta.de> <7c3341450605131029l194174f3v7339dce0e234b555@mail.gmail.com> <20060514035937.GA6498@kroah.com>
+	Sun, 14 May 2006 01:48:19 -0400
+Received: from mail.gmx.de ([213.165.64.20]:57570 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751041AbWENFsT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 May 2006 01:48:19 -0400
+X-Authenticated: #14349625
+Subject: Re: rt20 scheduling latency testcase and failure data
+From: Mike Galbraith <efault@gmx.de>
+To: Darren Hart <dvhltc@us.ibm.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, lkml <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <1147578414.7738.11.camel@homer>
+References: <200605121924.53917.dvhltc@us.ibm.com>
+	 <200605131106.16864.dvhltc@us.ibm.com> <1147544472.6535.294.camel@mindpipe>
+	 <200605131601.31880.dvhltc@us.ibm.com>  <1147578414.7738.11.camel@homer>
+Content-Type: text/plain
+Date: Sun, 14 May 2006 07:48:38 +0200
+Message-Id: <1147585718.9372.15.camel@homer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060514035937.GA6498@kroah.com>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
-
-On Sat, May 13, 2006 at 08:59:37PM -0700, Greg KH wrote:
-> On Sat, May 13, 2006 at 06:29:25PM +0100, Nick Warne wrote:
-> > On 13/05/06, Adrian Bunk <bunk@stusta.de> wrote:
-> > >The CVE should be enough for easily getting all information you
-> > >requested.
+On Sun, 2006-05-14 at 05:47 +0200, Mike Galbraith wrote:
+> On Sat, 2006-05-13 at 16:01 -0700, Darren Hart wrote:
+> > On Saturday 13 May 2006 11:21, Lee Revell wrote:
+> > > On Sat, 2006-05-13 at 11:06 -0700, Darren Hart wrote:
+> > > >      1 [softirq-timer/0]
 > > >
-> > >Information whether it's a DoS or a root exploit is helpful, but any
-> > >qualified person doing risk management will anyways lookup the CVE.
+> > > What happens if you set the softirq-timer threads to 99?
+> > >
 > > 
-> > Well, yes, but some people do *actually* use the latest kernel at home
-> > and not in labs (et al), and as Maciej asked, we are not sure whether
-> > the (whatever) latest patch is needed or not on whatever our current
-> > config is the way the latest stable fixes are announced.
-> > 
-> > "    [PATCH] fs/locks.c: Fix lease_init (CVE-2006-1860)
-> > 
-> >    It is insane to be giving lease_init() the task of freeing the lock it is
-> >    supposed to initialise, given that the lock is not guaranteed to be
-> >    allocated on the stack. This causes lockups in fcntl_setlease().
-> >    Problem diagnosed by Daniel Hokka Zakrisson <daniel@hozac.com>
-> > 
-> >    Also fix a slab leak in __setlease() due to an uninitialised return 
-> >    value.
-> >    Problem diagnosed by Bj????rn Steinbrink.
-> > "
-> > 
-> > OK, great.  But what does it mean?
-> > 
-> > It would be nice to have a short explanation of what the fix is for in
-> > real world terms.
+> > After setting all 4 softirq-timer threads to prio 99 I seemed to get only 2 
+> > failures in 100 runs.
 > 
-> To be fair, the extra work of writing out a detailed exploit, complete
-> with example code, for every security update, would just take way too
-> long.  If you look for where this patch was discussed on lkml, you will
-> see a full description of the problem, and how to hit it.
+> If you disable printf + fflush in iterations loop, problem goes away?
 
-I second this. I try to write detailed changes or at least to compact
-the original explanations for patches that go into 2.4 hotfixes, and
-sometimes I wonder if I don't do too much. It takes nearly 1/3 of the
-time to get the patches in and compile the kernel, and 2/3 of the time
-to write things that I sometimes think very few people will read. I
-think that if i still do it, it's because I release far less often than
-you and Chris do. Otherwise I would have given up.
+P.S.
 
-One compromise might be to post the full changelog in the announcement
-in addition to the shortlog. But I agree that security fixes are rarely
-well documented by their authors, and CVE descriptions are sometimes
-rather obscure :-(
+I think it probably will, because...
 
-> thanks,
-> 
-> greg k-h
+sched_latency [ea53a0b0]D 00000001     0  8261   7858                8260 (NOTLB)
+e29a0e70 e29a0e58 00000008 00000001 df6158e0 00000000 623266f4 0000017d 
+       b23d45c4 efd53870 dfcb8dc0 efd53870 00000000 000011e6 ea53a1e8 ea53a0b0 
+       efdf0d30 b2454560 623e5018 0000017d 00000001 efdf0d30 00000100 00000000 
+Call Trace:
+ [<b1038454>] __rt_mutex_adjust_prio+0x1f/0x24 (112)
+ [<b1038ad8>] task_blocks_on_rt_mutex+0x1b6/0x1c9 (16)
+ [<b13bfeb1>] schedule+0x34/0x10b (24)
+ [<b13c0963>] rt_mutex_slowlock+0xc7/0x258 (28)
+ [<b13c0bb6>] rt_mutex_lock+0x3f/0x43 (100)
+ [<b1039075>] rt_down+0x12/0x32 (20)
+ [<b13c14a7>] lock_kernel+0x1d/0x23 (16)
+ [<b1228246>] tty_write+0x119/0x21b (12)
+ [<b122b758>] write_chan+0x0/0x338 (24)
+ [<b10352bd>] hrtimer_wakeup+0x0/0x1c (20)
+ [<b10671f0>] vfs_write+0xc1/0x19b (24)
+ [<b1067bfa>] sys_write+0x4b/0x74 (40)
+ [<b1002eeb>] sysenter_past_esp+0x54/0x75 (40)
 
-Regards,
-Willy
+...generated via SysRq-T, induces...
+
+PERIOD MISSED!
+     scheduled delta:     4964 us
+        actual delta:     4974 us
+             latency:       10 us
+---------------------------------------
+      previous start:  1750012 us
+                 now: 13122245 us
+     scheduled start:  1755000 us
+next scheduled start is in the past!
+
 

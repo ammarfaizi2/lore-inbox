@@ -1,62 +1,218 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750955AbWENNLW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWENNQD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750955AbWENNLW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 09:11:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWENNLW
+	id S1751186AbWENNQD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 09:16:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWENNQB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 09:11:22 -0400
-Received: from touchdown.wvpn.de ([212.227.64.97]:23017 "EHLO mail.wvpn.de")
-	by vger.kernel.org with ESMTP id S1750955AbWENNLV (ORCPT
+	Sun, 14 May 2006 09:16:01 -0400
+Received: from touchdown.wvpn.de ([212.227.64.97]:16866 "EHLO mail.wvpn.de")
+	by vger.kernel.org with ESMTP id S1751186AbWENNQB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 09:11:21 -0400
-Message-ID: <44672C94.6090408@maintech.de>
-Date: Sun, 14 May 2006 15:11:48 +0200
+	Sun, 14 May 2006 09:16:01 -0400
+Message-ID: <44672DAE.6060302@maintech.de>
+Date: Sun, 14 May 2006 15:16:30 +0200
 From: "Thomas Kleffel (maintech GmbH)" <tk@maintech.de>
 User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060508)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Iain Barker <ibarker@aastra.com>
-CC: David Vrabel <dvrabel@cantab.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
+To: linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Iain Barker <ibarker@aastra.com>,
+       David Vrabel <dvrabel@cantab.net>
 Subject: Re: [PATCH] ide_cs: Make ide_cs work with the memory space of CF-Cards
- if IO space is not available (2nd revision)
-References: <ABD6885665C7C74DA65B21A1DB4E4A2FB825D9@bilmail.aastra.com>
-In-Reply-To: <ABD6885665C7C74DA65B21A1DB4E4A2FB825D9@bilmail.aastra.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+ if IO space is not available (4rd revision)
+References: <44629D10.80803@maintech.de> <1147362779.26130.45.camel@localhost.localdomain>
+In-Reply-To: <1147362779.26130.45.camel@localhost.localdomain>
+Content-Type: multipart/mixed;
+ boundary="------------030209070200050802030702"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------030209070200050802030702
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
->Thomas Kleffel (maintech GmbH) wrote:
->  
->
->>+    if(is_mmio) 
->>+    	my_outb = outb_mem;
->>+    else
->>+    	my_outb = outb_io;
->>    
->>
->
->David Vrabel wrote:
->  
->
->>Shouldn't you convert ide_cs to use iowrite8 (and friends) instead of
->>doing this?
->>    
->>
->
->
->Actually, I think even better to use the primitives from ide-iops.c ?
->  
->
-They're declared static in ide-iops.c and I can't get them out of the 
-ide_hwif_t struct as it is initialized after I need the primitives.
+From: Thomas Kleffel <tk@maintech.de>
 
-I think the simplest way is to use my own primitives.
+this patch enables ide_cs to access CF-cards via their common memory
+rather than via their IO space.
+
+Signed-off-by: Thomas Kleffel <tk@maintech.de>
+---
+
+This patch is against 2.6.17-rc3
+
+The reason why this patch makes sense is that it is pretty easy to build
+a CF-Interface out of a simple address/data-bus if you only use common
+and attribute memory. Adding the capability to access IO space makes
+things more complicated.
+
+If you just want to use CF-Storage cards, access to common and attribute
+memory is enough as the IDE registers are available there, as well.
+
+I have submitted a patch to RMK which enables the AT91RM9200's CF
+interface to work in that mode.
+
+I made some changes based on the feedback from Alan Cox and Iain Barker.
+
+The window size was changed from 16 to 0 (autodetect) on suggestion from
+Iain Barker. 16 didn't work with one of his cards.
+
+Detection of slave drives works with mmio, now.
 
 Thomas
 
 
 
+
+
+--------------030209070200050802030702
+Content-Type: text/x-patch;
+ name="ide_cs.mem.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide_cs.mem.patch"
+
+diff -uprN a/drivers/ide/legacy/ide-cs.c b/drivers/ide/legacy/ide-cs.c
+--- a/drivers/ide/legacy/ide-cs.c	2006-05-14 14:58:21.000000000 +0200
++++ b/drivers/ide/legacy/ide-cs.c	2006-05-14 15:03:56.000000000 +0200
+@@ -146,7 +146,16 @@ static void ide_detach(struct pcmcia_dev
+     kfree(link->priv);
+ } /* ide_detach */
+ 
+-static int idecs_register(unsigned long io, unsigned long ctl, unsigned long irq, struct pcmcia_device *handle)
++static void idecs_mmio_fixup(ide_hwif_t *hwif)
++{
++	default_hwif_mmiops(hwif);
++	hwif->mmio = 2;
++	
++	ide_undecoded_slave(hwif);
++}
++
++static int idecs_register(unsigned long io, unsigned long ctl, 
++	unsigned long irq, struct pcmcia_device *handle, int is_mmio)
+ {
+     hw_regs_t hw;
+     memset(&hw, 0, sizeof(hw));
+@@ -154,7 +163,19 @@ static int idecs_register(unsigned long 
+     hw.irq = irq;
+     hw.chipset = ide_pci;
+     hw.dev = &handle->dev;
+-    return ide_register_hw_with_fixup(&hw, NULL, ide_undecoded_slave);
++    
++    if(is_mmio)
++    	return ide_register_hw_with_fixup(&hw, NULL, idecs_mmio_fixup);
++    else
++        return ide_register_hw_with_fixup(&hw, NULL, ide_undecoded_slave);
++}
++
++void outb_io(unsigned char value, unsigned long port) {
++	outb(value, port);
++}
++
++void outb_mem(unsigned char value, unsigned long port) {
++	writeb(value, (void __iomem *) port);
+ }
+ 
+ /*======================================================================
+@@ -180,7 +201,8 @@ static int ide_config(struct pcmcia_devi
+     } *stk = NULL;
+     cistpl_cftable_entry_t *cfg;
+     int i, pass, last_ret = 0, last_fn = 0, hd, is_kme = 0;
+-    unsigned long io_base, ctl_base;
++    unsigned long io_base, ctl_base, is_mmio, try_slave;
++    void (*my_outb)(unsigned char, unsigned long);
+ 
+     DEBUG(0, "ide_config(0x%p)\n", link);
+ 
+@@ -210,7 +232,7 @@ static int ide_config(struct pcmcia_devi
+     /* Not sure if this is right... look up the current Vcc */
+     CS_CHECK(GetConfigurationInfo, pcmcia_get_configuration_info(link, &stk->conf));
+ 
+-    pass = io_base = ctl_base = 0;
++    pass = io_base = ctl_base = is_mmio = try_slave = 0;
+     tuple.DesiredTuple = CISTPL_CFTABLE_ENTRY;
+     tuple.Attributes = 0;
+     CS_CHECK(GetFirstTuple, pcmcia_get_first_tuple(link, &tuple));
+@@ -258,11 +280,45 @@ static int ide_config(struct pcmcia_devi
+ 			goto next_entry;
+ 		io_base = link->io.BasePort1;
+ 		ctl_base = link->io.BasePort1 + 0x0e;
++		
++		if (io->win[0].len >= 0x20)
++			try_slave = 1;
++		
+ 	    } else goto next_entry;
+ 	    /* If we've got this far, we're done */
+ 	    break;
+ 	}
+ 
++	if ((cfg->mem.nwin > 0) || (stk->dflt.mem.nwin > 0)) {
++	    win_req_t req;
++	    memreq_t map;
++	    cistpl_mem_t *mem = (cfg->mem.nwin) ? &cfg->mem : &stk->dflt.mem;
++	    
++	    if (mem->win[0].len < 16) 
++	    	goto next_entry;
++	    
++	    req.Attributes = WIN_DATA_WIDTH_16|WIN_MEMORY_TYPE_CM;
++	    req.Attributes |= WIN_ENABLE;
++	    req.Base = mem->win[0].host_addr;
++	    req.Size = 0;
++
++	    req.AccessSpeed = 0;
++	    if (pcmcia_request_window(&link, &req, &link->win) != 0)
++		goto next_entry;
++	    map.Page = 0; map.CardOffset = mem->win[0].card_addr;
++	    if (pcmcia_map_mem_page(link->win, &map) != 0)
++		goto next_entry;
++
++      	    io_base = (unsigned long) ioremap(req.Base, req.Size);
++    	    ctl_base = io_base + 0x0e;
++    	    is_mmio = 1;
++    	    
++    	    if (mem->win[0].len >= 0x20)
++    	    	try_slave = 1;
++
++	    break;
++	}
++
+     next_entry:
+ 	if (cfg->flags & CISTPL_CFTABLE_DEFAULT)
+ 	    memcpy(&stk->dflt, cfg, sizeof(stk->dflt));
+@@ -277,22 +333,27 @@ static int ide_config(struct pcmcia_devi
+ 
+     CS_CHECK(RequestIRQ, pcmcia_request_irq(link, &link->irq));
+     CS_CHECK(RequestConfiguration, pcmcia_request_configuration(link, &link->conf));
++    
++    if(is_mmio) 
++    	my_outb = outb_mem;
++    else
++    	my_outb = outb_io;
+ 
+     /* disable drive interrupts during IDE probe */
+-    outb(0x02, ctl_base);
++    my_outb(0x02, ctl_base);
+ 
+     /* special setup for KXLC005 card */
+     if (is_kme)
+-	outb(0x81, ctl_base+1);
++	my_outb(0x81, ctl_base+1);
+ 
+     /* retry registration in case device is still spinning up */
+     for (hd = -1, i = 0; i < 10; i++) {
+-	hd = idecs_register(io_base, ctl_base, link->irq.AssignedIRQ, link);
++	hd = idecs_register(io_base, ctl_base, link->irq.AssignedIRQ, link, is_mmio);
+ 	if (hd >= 0) break;
+-	if (link->io.NumPorts1 == 0x20) {
+-	    outb(0x02, ctl_base + 0x10);
++	if (try_slave) {
++	    my_outb(0x02, ctl_base + 0x10);
+ 	    hd = idecs_register(io_base + 0x10, ctl_base + 0x10,
+-				link->irq.AssignedIRQ, link);
++				link->irq.AssignedIRQ, link, is_mmio);
+ 	    if (hd >= 0) {
+ 		io_base += 0x10;
+ 		ctl_base += 0x10;
+
+--------------030209070200050802030702--

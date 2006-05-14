@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbWENQXW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbWENQYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751485AbWENQXW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 12:23:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWENQXW
+	id S1751490AbWENQYy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 12:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWENQYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 12:23:22 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32914 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751485AbWENQXW (ORCPT
+	Sun, 14 May 2006 12:24:54 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:23222 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751490AbWENQYx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 12:23:22 -0400
-Date: Sun, 14 May 2006 18:22:37 +0200
+	Sun, 14 May 2006 12:24:53 -0400
+Date: Sun, 14 May 2006 18:24:10 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: David Brownell <david-b@pacbell.net>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-pm@lists.osdl.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [linux-pm] Re: [PATCH/rfc] schedule /sys/device/.../power for removal
-Message-ID: <20060514162236.GF2438@elf.ucw.cz>
-References: <20060512100544.GA29010@elf.ucw.cz> <200605120652.55658.david-b@pacbell.net> <1147565632.21291.15.camel@localhost.localdomain> <200605140851.29221.david-b@pacbell.net>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: MMC drivers for 2.6 collie
+Message-ID: <20060514162410.GG2438@elf.ucw.cz>
+References: <20060514145325.GA3205@elf.ucw.cz> <1147619440.5531.167.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200605140851.29221.david-b@pacbell.net>
+In-Reply-To: <1147619440.5531.167.camel@localhost.localdomain>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Ne 14-05-06 08:51:26, David Brownell wrote:
-> On Saturday 13 May 2006 5:13 pm, Benjamin Herrenschmidt wrote:
-> > On Fri, 2006-05-12 at 06:52 -0700, David Brownell wrote:
-> > > On Friday 12 May 2006 3:11 am, Andrew Morton wrote:
-> > > > 
-> > > > What will be impacted by this?
-> > > 
-> > > Driver suspend/resume testing ... impact is strongly negative.
-> > > ...
-> > > Which IMO makes removing this a Bad Thing.  It needs to have some
-> > > kind of replacement in place before the "magic numbers" go away.
-> > 
-> > And that's why Pavel is not proposing to remove it right away... but to
-> > schedule it's removal so that developpers know right now that building a
-> > whole new kernel<->user interface based on that is not the smartest
-> > thing to do.
+Hi!
+
+> > I've tried searching sharp patches for MMC support, but could not find
+> > it. Or should MMC_ARMMMCI work on collie?
 > 
-> How could we schedule the removal before we have even had a couple
-> releases to fine-tune its replacement, and verify that the main issues
-> with the current thing are fully resolved?
-> 
-> ... plus, removing the whole power/* directory is clearly wrong.  The
-> issue that's been acknowledged is only with the contents of a single
-> file, power/state, not the whole directory.
+> Sharp's 2.4 MMC/SD drivers were binary only for all Zaurus models. Since
+> we have documentation on the PXA, a 2.6 driver exists and works for all
+> PXA models as we could guess the power controls and GPIOs. Collie
+> (SA1100 based) used some kind of SPI interface through the LOCOMO chip
+> (as far as I know) which we have no documentation on.
 
-Sorry, I meant only ../state file. Fixed locally.
+I thought we had completely open-source version at one point?
 
-> There may be a bit of a gap in the process here.  "July 2007" is a
-> date that's not backed up by anything more than agreement that the
-> current approach is a lose.  Deprecation is not the same as removal.
-
-Maybe date will need to be shifted...
 								Pavel
 -- 
 (english) http://www.livejournal.com/~pavelmachek

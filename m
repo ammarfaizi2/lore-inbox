@@ -1,73 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWEODiw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWEOEKw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751387AbWEODiw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 23:38:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWEODiw
+	id S1751393AbWEOEKw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 00:10:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbWEOEKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 23:38:52 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:65451 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751387AbWEODiw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 23:38:52 -0400
-Date: Sun, 14 May 2006 23:39:19 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Alberto Bertogli <albertito@gmail.com>
-Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] [UML] Problems building and running 2.6.17-rc4 on x86-64
-Message-ID: <20060515033919.GD21383@ccure.user-mode-linux.org>
-References: <20060514182541.GA4980@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060514182541.GA4980@gmail.com>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 15 May 2006 00:10:51 -0400
+Received: from hqemgate02.nvidia.com ([216.228.112.143]:21557 "EHLO
+	HQEMGATE02.nvidia.com") by vger.kernel.org with ESMTP
+	id S1751393AbWEOEKv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 00:10:51 -0400
+Message-ID: <4466E2E8.7090801@nvidia.com>
+Date: Sun, 14 May 2006 03:57:28 -0400
+From: Ayaz Abdulla <aabdulla@nvidia.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       jeff@garzik.org, netdev@vger.kernel.org,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: Linux v2.6.17-rc4
+References: <Pine.LNX.4.64.0605111640010.3866@g5.osdl.org> <200605122219.37626.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200605122219.37626.s0348365@sms.ed.ac.uk>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 May 2006 04:10:18.0796 (UTC) FILETIME=[7A2A26C0:01C677D5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 14, 2006 at 03:25:41PM -0300, Alberto Bertogli wrote:
-> So I copied them from sysdeps/x86_64/jmpbuf-offsets.h, and building went
-> on. Probably, the same happens under i386.
 
-The current patch for this is http://user-mode-linux.sourceforge.net/work/current/2.6/2.6.17-rc4/patches/jmpbuf
 
-I need to redo it, but that works for now.
-
-> Then, it built fine, but at the end several errors showed up:
->   MODPOST
-> WARNING: vmlinux - Section mismatch: reference to .init.text:do_mount_root from .bss between '__guard@@GLIBC_2.3.2' (at offset 0x603c5688) and 'stdout@@GLIBC_2.2.5'
-
-I have no idea what these mean, but they seem not to affect the
-viability of the resulting kernel.
-
-> It begins to boot, but panics right after mounting root:
+Alistair John Strachan wrote:
+> On Friday 12 May 2006 00:44, Linus Torvalds wrote:
 > 
-> [42949373.800000] kjournald starting.  Commit interval 5 seconds
-> [42949373.800000] EXT3-fs: mounted filesystem with ordered data mode.
-> [42949373.800000] VFS: Mounted root (ext3 filesystem) readonly.
-> [42949373.800000] Kernel panic - not syncing: handle_trap - failed to wait at end of syscall, errno = 0, status = 2943
+>>Ok, I've let the release time between -rc's slide a bit too much again,
+>>but -rc4 is out there, and this is the time to hunker down for 2.6.17.
+>>
+>>If you know of any regressions, please holler now, so that we don't miss
+>>them.
+>>
+>>-rc4 itself is mainly random driver fixes (sound, infiniband, scsi,
+>>network drivers), but some splice fixes too and some arch (arm, powerpc,
+>>mips) updates. Shortlog follows,
+> 
+> 
+> Linus,
+> 
+> I've got an oops in the forcedeth driver on shutdown. Sorry for the crappy 
+> camera phone pictures, this board doesn't have RS232 ports:
+> 
+> http://devzero.co.uk/~alistair/oops-20060512/
+> 
+> It was initially difficult to reproduce, but I found I could do so reliably if 
+> I ssh'ed into the box and halted it remotely, then it would always oops on 
+> shutdown. I assume this is because the driver is still active when something 
+> happens to it during halt.
+> 
+> There's been just a single commit since -rc3:
+> 
+> forcedeth: fix multi irq issues
+> ebf34c9b6fcd22338ef764b039b3ac55ed0e297b
+> 
+> However, it could have just been hidden since before -rc3, so I'll try to work 
+> backwards if nobody has any immediate ideas..
+> 
 
-This is a segfault happening when it shouldn't.
+The interrupt handler could be called during the same time (on different 
+cpu) the dev->stop function is clearing out the rings (nv_txrx_reset).
 
-Can you disassemble stub_segv_handler and send me the output?  If
-you're unfamiliar with gdb, it works like this:
-
-	% gdb linux
-	GNU gdb Red Hat Linux (6.3.0.0-1.122rh)
-	Copyright 2004 Free Software Foundation, Inc.
-	GDB is free software, covered by the GNU General Public License, and you are
-	welcome to change it and/or distribute copies of it under certain conditions.
-	Type "show copying" to see the conditions.
-	`There is absolutely no warranty for GDB.  Type "show warranty" for details.
-	This GDB was configured as "x86_64-redhat-linux-gnu"...Using host libthread_db library "/lib64/libthread_db.so.1".
-	
-	(gdb) disas stub_segv_handler
-	Dump of assembler code for function stub_segv_handler:
-	0x00000000601610c8 <stub_segv_handler+0>:       push   %rbp
-	0x00000000601610c9 <stub_segv_handler+1>:       mov    %rsp,%rbp
-	0x00000000601610cc <stub_segv_handler+4>:       mov    %rdx,%r8
-	...
-
-There was a bug like this a month or so ago, but it has been in
-mainline for a while, so this should be something different.
-
-				Jeff

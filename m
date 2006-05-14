@@ -1,197 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWENJby@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWENJlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751384AbWENJby (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 05:31:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWENJby
+	id S1751190AbWENJlt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 05:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWENJlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 05:31:54 -0400
-Received: from outmx019.isp.belgacom.be ([195.238.4.200]:15019 "EHLO
-	outmx019.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S1751384AbWENJby (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 05:31:54 -0400
-Date: Sun, 14 May 2006 11:31:38 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [WATCHDOG] patches to be included for the 2.6.17 release
-Message-ID: <20060514093138.GA15468@infomag.infomag.iguana.be>
+	Sun, 14 May 2006 05:41:49 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39622 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751190AbWENJls (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 May 2006 05:41:48 -0400
+Date: Sun, 14 May 2006 02:38:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, ambx1@neo.rr.com, jesper.juhl@gmail.com
+Subject: Re: [PATCH][resend] fix resource leak in pnp card_probe()
+Message-Id: <20060514023833.649fde1d.akpm@osdl.org>
+In-Reply-To: <200605132235.42338.jesper.juhl@gmail.com>
+References: <200605132235.42338.jesper.juhl@gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+Jesper Juhl <jesper.juhl@gmail.com> wrote:
+>
+> (resend of patch already send once on 23/03-2006 
+>   - still applies cleanly to latest -git)
+> 
+> 
+> We can leak `clink' in drivers/pnp/card.c::card_probe()
+> 
+> 
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> ---
+> 
+>  drivers/pnp/card.c |    4 +++-
+>  1 files changed, 3 insertions(+), 1 deletion(-)
+> 
+> --- linux-2.6.16-mm1-orig/drivers/pnp/card.c	2006-03-26 13:43:38.000000000 +0200
+> +++ linux-2.6.16-mm1/drivers/pnp/card.c	2006-03-26 15:45:00.000000000 +0200
+> @@ -81,8 +81,10 @@ static int card_probe(struct pnp_card * 
+>  				}
+>  				kfree(clink);
+>  			}
+> -		} else
+> +		} else {
+> +			kfree(clink);
+>  			return 1;
+> +		}
+>  	}
+>  	return 0;
+>  }
 
-I'm going to prepare the below patches for inclusion into
-the linux-2.6-watchdog tree so that they can be included
-into the kernel by Linus. Are there still any remarks/issues
-that you are aware of or do you signed them off as they are?
-(They have been 5 to 3 weeks into the -mm tree).
+If !drv->probe then there's not much point in doing the kmalloc and then
+immediately freeing it again.
 
-Thanks,
-Wim.
+Like this?
 
-Differences::
-
- Documentation/watchdog/watchdog-api.txt |    3 +++
- drivers/char/watchdog/i8xx_tco.c        |   16 +++++-----------
- drivers/char/watchdog/s3c2410_wdt.c     |    6 ++++++
- drivers/char/watchdog/sc1200wdt.c       |    2 +-
- 4 files changed, 15 insertions(+), 12 deletions(-)
-
-Changes:
-
-Author: Ben Dooks <ben-linux@fluff.org>
-Date:   Wed Apr 19 23:02:56 2006 +0100
-
-    [WATCHDOG] s3c2410_wdt.c stop watchdog after boot
-    
-    If the s3c2410 watchdog timer is not enabled by
-    the driver at startup, ensure that it is stopped
-    in-case the boot process has enabled it.
-    
-    Signed-off-by: Ben Dooks <ben-linux@fluff.org>
-
-Author: Wim Van Sebroeck <wim@iguana.be>
-Date:   Sun Apr 16 12:52:35 2006 +0200
-
-    [WATCHDOG] i8xx_tco.c - remove support for ICH6 + ICH7
-    
-    Temporary remove support for ICH6 + ICH7. In these newer TCO's
-    the watchdog timer has changed: the TCO_TMR register is not at
-    the TCOBASE+0x1 offset, but changed it's place to TCOBASE+0x12
-    and became 10 bit long [0:9]. (Kernel BUG 6031).
-    
-    ICH6 + ICH7 support will be added in a new driver. Code is
-    under test.
-    
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-Author: Randy Dunlap <rdunlap@xenotime.net>
-Date:   Tue Apr 4 20:17:26 2006 -0700
-
-    [WATCHDOG] Documentation/watchdog/watchdog-api.txt - fix watchdog daemon
-    
-    Fix the simple watchdog daemon program in Doc/watchdog/watchdog-api.txt
-    to build cleanly.
-    
-    Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-Author: Dave Jones <davej@redhat.com>
-Date:   Mon Apr 3 16:04:48 2006 -0700
-
-    [WATCHDOG] sc1200wdt.c printk fix
-    
-    Fix printk output.
-    
-    sc1200wdt: build 20020303<3>sc1200wdt: io parameter must be specified
-    
-    Signed-off-by: Dave Jones <davej@redhat.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-    Signed-off-by: Andrew Morton <akpm@osdl.org>
-
-
-The Changes can also be looked at on:
-	http://www.kernel.org/git/?p=linux/kernel/git/wim/linux-2.6-watchdog-mm.git;a=summary
-
-For completeness, I added the overal diff below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff --git a/Documentation/watchdog/watchdog-api.txt b/Documentation/watchdog/watchdog-api.txt
-index c5beb54..21ed511 100644
---- a/Documentation/watchdog/watchdog-api.txt
-+++ b/Documentation/watchdog/watchdog-api.txt
-@@ -36,6 +36,9 @@ timeout or margin.  The simplest way to 
- some data to the device.  So a very simple watchdog daemon would look
- like this:
+--- devel/drivers/pnp/card.c~pnp-card_probe-fix-memory-leak	2006-05-14 02:30:25.000000000 -0700
++++ devel-akpm/drivers/pnp/card.c	2006-05-14 02:36:24.000000000 -0700
+@@ -60,30 +60,34 @@ static void card_remove_first(struct pnp
+ 	card_remove(dev);
+ }
  
-+#include <stdlib.h>
-+#include <fcntl.h>
-+
- int main(int argc, const char *argv[]) {
- 	int fd=open("/dev/watchdog",O_WRONLY);
- 	if (fd==-1) {
-diff --git a/drivers/char/watchdog/i8xx_tco.c b/drivers/char/watchdog/i8xx_tco.c
-index a13395e..fa2ba9e 100644
---- a/drivers/char/watchdog/i8xx_tco.c
-+++ b/drivers/char/watchdog/i8xx_tco.c
-@@ -33,11 +33,6 @@
-  *	82801E   (C-ICH)  : document number 273599-001, 273645-002,
-  *	82801EB  (ICH5)   : document number 252516-001, 252517-003,
-  *	82801ER  (ICH5R)  : document number 252516-001, 252517-003,
-- *	82801FB  (ICH6)   : document number 301473-002, 301474-007,
-- *	82801FR  (ICH6R)  : document number 301473-002, 301474-007,
-- *	82801FBM (ICH6-M) : document number 301473-002, 301474-007,
-- *	82801FW  (ICH6W)  : document number 301473-001, 301474-007,
-- *	82801FRW (ICH6RW) : document number 301473-001, 301474-007
-  *
-  *  20000710 Nils Faerber
-  *	Initial Version 0.01
-@@ -66,6 +61,10 @@
-  *  20050807 Wim Van Sebroeck <wim@iguana.be>
-  *	0.08 Make sure that the watchdog is only "armed" when started.
-  *	     (Kernel Bug 4251)
-+ *  20060416 Wim Van Sebroeck <wim@iguana.be>
-+ *	0.09 Remove support for the ICH6, ICH6R, ICH6-M, ICH6W and ICH6RW and
-+ *	     ICH7 chipsets. (See Kernel Bug 6031 - other code will support these
-+ *	     chipsets)
-  */
- 
- /*
-@@ -90,7 +89,7 @@
- #include "i8xx_tco.h"
- 
- /* Module and version information */
--#define TCO_VERSION "0.08"
-+#define TCO_VERSION "0.09"
- #define TCO_MODULE_NAME "i8xx TCO timer"
- #define TCO_DRIVER_NAME   TCO_MODULE_NAME ", v" TCO_VERSION
- #define PFX TCO_MODULE_NAME ": "
-@@ -391,11 +390,6 @@ static struct pci_device_id i8xx_tco_pci
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_12,	PCI_ANY_ID, PCI_ANY_ID, },
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801E_0,	PCI_ANY_ID, PCI_ANY_ID, },
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801EB_0,	PCI_ANY_ID, PCI_ANY_ID, },
--	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_0,	PCI_ANY_ID, PCI_ANY_ID, },
--	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_1,	PCI_ANY_ID, PCI_ANY_ID, },
--	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_2,	PCI_ANY_ID, PCI_ANY_ID, },
--	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH7_0,	PCI_ANY_ID, PCI_ANY_ID, },
--	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH7_1,	PCI_ANY_ID, PCI_ANY_ID, },
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ESB_1,	PCI_ANY_ID, PCI_ANY_ID, },
- 	{ 0, },			/* End of list */
- };
-diff --git a/drivers/char/watchdog/s3c2410_wdt.c b/drivers/char/watchdog/s3c2410_wdt.c
-index 9dc5473..1ea04e9 100644
---- a/drivers/char/watchdog/s3c2410_wdt.c
-+++ b/drivers/char/watchdog/s3c2410_wdt.c
-@@ -423,6 +423,12 @@ static int s3c2410wdt_probe(struct platf
- 	if (tmr_atboot && started == 0) {
- 		printk(KERN_INFO PFX "Starting Watchdog Timer\n");
- 		s3c2410wdt_start();
-+	} else if (!tmr_atboot) {
-+		/* if we're not enabling the watchdog, then ensure it is
-+		 * disabled if it has been left running from the bootloader
-+		 * or other source */
-+
-+		s3c2410wdt_stop();
- 	}
- 
- 	return 0;
-diff --git a/drivers/char/watchdog/sc1200wdt.c b/drivers/char/watchdog/sc1200wdt.c
-index 515ce75..20b88f9 100644
---- a/drivers/char/watchdog/sc1200wdt.c
-+++ b/drivers/char/watchdog/sc1200wdt.c
-@@ -377,7 +377,7 @@ static int __init sc1200wdt_init(void)
+-static int card_probe(struct pnp_card * card, struct pnp_card_driver * drv)
++static int card_probe(struct pnp_card *card, struct pnp_card_driver *drv)
  {
- 	int ret;
+-	const struct pnp_card_device_id *id = match_card(drv,card);
+-	if (id) {
+-		struct pnp_card_link * clink = pnp_alloc(sizeof(struct pnp_card_link));
+-		if (!clink)
+-			return 0;
+-		clink->card = card;
+-		clink->driver = drv;
+-		clink->pm_state = PMSG_ON;
+-		if (drv->probe) {
+-			if (drv->probe(clink, id)>=0)
+-				return 1;
+-			else {
+-				struct pnp_dev * dev;
+-				card_for_each_dev(card, dev) {
+-					if (dev->card_link == clink)
+-						pnp_release_card_device(dev);
+-				}
+-				kfree(clink);
+-			}
+-		} else
+-			return 1;
++	const struct pnp_card_device_id *id;
++	struct pnp_card_link *clink;
++	struct pnp_dev *dev;
++
++	if (!drv->probe)
++		return 0;
++	id = match_card(drv,card);
++	if (!id)
++		return 0;
++
++	clink = pnp_alloc(sizeof(*clink));
++	if (!clink)
++		return 0;
++	clink->card = card;
++	clink->driver = drv;
++	clink->pm_state = PMSG_ON;
++
++	if (drv->probe(clink, id) >= 0)
++		return 1;
++
++	/* Recovery */
++	card_for_each_dev(card, dev) {
++		if (dev->card_link == clink)
++			pnp_release_card_device(dev);
+ 	}
++	kfree(clink);
+ 	return 0;
+ }
  
--	printk(banner);
-+	printk("%s\n", banner);
- 
- 	spin_lock_init(&sc1200wdt_lock);
- 	sema_init(&open_sem, 1);
+_
+

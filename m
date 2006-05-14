@@ -1,41 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWENOzs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWENPKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751437AbWENOzs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 10:55:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWENOzs
+	id S1751443AbWENPKy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 11:10:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWENPKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 10:55:48 -0400
-Received: from wr-out-0506.google.com ([64.233.184.231]:62549 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751437AbWENOzr convert rfc822-to-8bit (ORCPT
+	Sun, 14 May 2006 11:10:54 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:56546 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1751443AbWENPKx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 10:55:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=UZBi+JR0Qa9mYbgzkphl6FHvSIATyn8s5xSgERCxiAiakEZgyySVAtGQ1V7uBbnZa+XV+Yk1oRL0FqR5v02IEn+KKkgCJjBTA0M9WGWALf9+ijLE+coaqZNijFzD6QiRrSAWMq77Fa6WnXeKysdkrn31kjKSCrUUKFtG5O2grRI=
-Message-ID: <84144f020605140755w4c64dc14o8beda9f5bbb68b9c@mail.gmail.com>
-Date: Sun, 14 May 2006 17:55:46 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Catalin Marinas" <catalin.marinas@gmail.com>
-Subject: Re: [PATCH 2.6.17-rc4 6/6] Remove some of the kmemleak false positives
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060513160625.8848.76947.stgit@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060513155757.8848.11980.stgit@localhost.localdomain>
-	 <20060513160625.8848.76947.stgit@localhost.localdomain>
-X-Google-Sender-Auth: 0c13789dceeaf487
+	Sun, 14 May 2006 11:10:53 -0400
+Subject: Re: MMC drivers for 2.6 collie
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060514145325.GA3205@elf.ucw.cz>
+References: <20060514145325.GA3205@elf.ucw.cz>
+Content-Type: text/plain
+Date: Sun, 14 May 2006 16:10:40 +0100
+Message-Id: <1147619440.5531.167.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/13/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> There are allocations for which the main pointer cannot be found but they
-> are not memory leaks. This patch fixes some of them.
+On Sun, 2006-05-14 at 16:53 +0200, Pavel Machek wrote:
+> I've tried searching sharp patches for MMC support, but could not find
+> it. Or should MMC_ARMMMCI work on collie?
 
-Why can't they be found? How many false positives are you expecting?
+Sharp's 2.4 MMC/SD drivers were binary only for all Zaurus models. Since
+we have documentation on the PXA, a 2.6 driver exists and works for all
+PXA models as we could guess the power controls and GPIOs. Collie
+(SA1100 based) used some kind of SPI interface through the LOCOMO chip
+(as far as I know) which we have no documentation on.
 
-                                       Pekka
+-- 
+Richard
+

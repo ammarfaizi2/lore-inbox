@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbWENOpt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751431AbWENOtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751429AbWENOpt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 10:45:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWENOpt
+	id S1751431AbWENOtc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 10:49:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWENOtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 10:45:49 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:43978 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1751429AbWENOps (ORCPT
+	Sun, 14 May 2006 10:49:32 -0400
+Received: from wr-out-0506.google.com ([64.233.184.229]:49489 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751431AbWENOtb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 10:45:48 -0400
-Date: Sun, 14 May 2006 22:45:50 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>
+	Sun, 14 May 2006 10:49:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=RE2CGWyBGwRYnKINlub8jVItRdCPlG0c7nGIc66p1soAR7gXUlFtJPZ6B6zVCbDMHVeRIl3XQKLxFib/7Q4QrZXVm4uQanLp4gXxrnCUIaZ2ZpR0gakDR9oXzQ65nC1d3MHi2xqr0S27L3ti42Jr2w+vau667T0HTQRYbvNvidM=
+Message-ID: <84144f020605140749k5dec66f3gb72cb9a3a2dea510@mail.gmail.com>
+Date: Sun, 14 May 2006 17:49:30 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Catalin Marinas" <catalin.marinas@gmail.com>
+Subject: Re: [PATCH 2.6.17-rc4 3/6] Add the memory allocation/freeing hooks for kmemleak
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH -mm, resend] de_thread: fix lockless do_each_thread
-Message-ID: <20060514184550.GA89@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20060513160605.8848.57802.stgit@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+References: <20060513155757.8848.11980.stgit@localhost.localdomain>
+	 <20060513160605.8848.57802.stgit@localhost.localdomain>
+X-Google-Sender-Auth: 0850a32c73a90fbd
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We should keep the value of old_leader->tasks.next in de_thread,
-otherwise we can't do for_each_process/do_each_thread without
-tasklist_lock held.
+On 5/13/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> From: Catalin Marinas <catalin.marinas@arm.com>
+>
+> This patch adds the callbacks to memleak_(alloc|free) functions from
+> kmalloc/kree, kmem_cache_(alloc|free), vmalloc/vfree etc.
+>
+> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+Way too many #ifdefs. Instead, please make memleak_alloc() and
+memleak_free() empty static inline functions for the
+non-CONFIG_DEBUG_MEMLEAK case.
 
---- MM/fs/exec.c~3_RCU	2006-05-14 22:14:42.000000000 +0400
-+++ MM/fs/exec.c	2006-05-14 22:32:13.000000000 +0400
-@@ -706,7 +706,7 @@ static int de_thread(struct task_struct 
- 		attach_pid(current, PIDTYPE_PID,  current->pid);
- 		attach_pid(current, PIDTYPE_PGID, current->signal->pgrp);
- 		attach_pid(current, PIDTYPE_SID,  current->signal->session);
--		list_add_tail_rcu(&current->tasks, &init_task.tasks);
-+		list_replace_rcu(&leader->tasks, &current->tasks);
- 
- 		current->group_leader = current;
- 		leader->group_leader = current;
-@@ -714,7 +714,6 @@ static int de_thread(struct task_struct 
- 		/* Reduce leader to a thread */
- 		detach_pid(leader, PIDTYPE_PGID);
- 		detach_pid(leader, PIDTYPE_SID);
--		list_del_init(&leader->tasks);
- 
- 		current->exit_signal = SIGCHLD;
- 
-
+                                                        Pekka

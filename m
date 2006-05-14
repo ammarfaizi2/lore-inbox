@@ -1,144 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbWENEmV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbWENFVB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932368AbWENEmV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 00:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWENEmU
+	id S1750959AbWENFVB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 01:21:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbWENFVB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 00:42:20 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:27014 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932368AbWENEmU convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 00:42:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=aytcnyieyVNaJZY8OM9MImU4jJb4CGKgXLmxsxCqnq9jboQZo7jHtw3aPIO2XVxwBce1QL7/sJAgtzHvfOmonuO646Fbi2r0NunTshfGLEGyStl2PsUOFgwVtNEvGwM3Em/Mo3E92322HHU6LXUyCzfxHjPVe2rZsIoNyPHmjoc=
-Message-ID: <305c16960605132142o6b4dd67er6cdeb623c2d65ec9@mail.gmail.com>
-Date: Sun, 14 May 2006 01:42:18 -0300
-From: "Matheus Izvekov" <mizvekov@gmail.com>
-To: "kernel list" <linux-kernel@vger.kernel.org>
-Subject: [RFC][PATCH] hid-core: Implement generic framework for descriptor patching
-Cc: "Vojtech Pavlik" <vojtech@suse.cz>, dtor_core@ameritech.net
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+	Sun, 14 May 2006 01:21:01 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:27155 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1750706AbWENFVB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 May 2006 01:21:01 -0400
+Date: Sun, 14 May 2006 07:17:29 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Greg KH <greg@kroah.com>
+Cc: nick@linicks.net, Adrian Bunk <bunk@stusta.de>,
+       Ingo Oeser <ioe-lkml@rameria.de>, Chris Wright <chrisw@sous-sol.org>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.16.16
+Message-ID: <20060514051729.GL11191@w.ods.org>
+References: <20060511022547.GE25010@moss.sous-sol.org> <296295514.20060511123419@dns.toxicfilms.tv> <20060511173312.GI25010@moss.sous-sol.org> <200605131735.20062.ioe-lkml@rameria.de> <20060513155610.GB6931@stusta.de> <7c3341450605131029l194174f3v7339dce0e234b555@mail.gmail.com> <20060514035937.GA6498@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060514035937.GA6498@kroah.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The motivation for this is that the quirks framework doesnt scale
-well. Currently there is only one device needing the descriptor table
-to be patched, but as soon as something like this gets accepted, im
-going to implement a fixup for my own crappy keyboard, and over time
-others will follow.
+Hi Greg,
 
-The reason i decided to pass struct usb_device as a parameter to the
-fixup function is that some hardware has multiple input channels, so
-just the vendor and product id arent enough to decide if we patch it
-or not. I specially need feedback on this, before i add a function
-that will need to fixup just one of the channels of my keyboard/mouse
-combo.
+On Sat, May 13, 2006 at 08:59:37PM -0700, Greg KH wrote:
+> On Sat, May 13, 2006 at 06:29:25PM +0100, Nick Warne wrote:
+> > On 13/05/06, Adrian Bunk <bunk@stusta.de> wrote:
+> > >The CVE should be enough for easily getting all information you
+> > >requested.
+> > >
+> > >Information whether it's a DoS or a root exploit is helpful, but any
+> > >qualified person doing risk management will anyways lookup the CVE.
+> > 
+> > Well, yes, but some people do *actually* use the latest kernel at home
+> > and not in labs (et al), and as Maciej asked, we are not sure whether
+> > the (whatever) latest patch is needed or not on whatever our current
+> > config is the way the latest stable fixes are announced.
+> > 
+> > "    [PATCH] fs/locks.c: Fix lease_init (CVE-2006-1860)
+> > 
+> >    It is insane to be giving lease_init() the task of freeing the lock it is
+> >    supposed to initialise, given that the lock is not guaranteed to be
+> >    allocated on the stack. This causes lockups in fcntl_setlease().
+> >    Problem diagnosed by Daniel Hokka Zakrisson <daniel@hozac.com>
+> > 
+> >    Also fix a slab leak in __setlease() due to an uninitialised return 
+> >    value.
+> >    Problem diagnosed by Bj????rn Steinbrink.
+> > "
+> > 
+> > OK, great.  But what does it mean?
+> > 
+> > It would be nice to have a short explanation of what the fix is for in
+> > real world terms.
+> 
+> To be fair, the extra work of writing out a detailed exploit, complete
+> with example code, for every security update, would just take way too
+> long.  If you look for where this patch was discussed on lkml, you will
+> see a full description of the problem, and how to hit it.
 
-Thanks to Vojtech Pavlik for the sugestion.
+I second this. I try to write detailed changes or at least to compact
+the original explanations for patches that go into 2.4 hotfixes, and
+sometimes I wonder if I don't do too much. It takes nearly 1/3 of the
+time to get the patches in and compile the kernel, and 2/3 of the time
+to write things that I sometimes think very few people will read. I
+think that if i still do it, it's because I release far less often than
+you and Chris do. Otherwise I would have given up.
 
+One compromise might be to post the full changelog in the announcement
+in addition to the shortlog. But I agree that security fixes are rarely
+well documented by their authors, and CVE descriptions are sometimes
+rather obscure :-(
 
-Signed-off-by: Matheus Izvekov <mizvekov@gmail.com>
+> thanks,
+> 
+> greg k-h
 
-diff --git a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
-index 7724780..dfad1a5 100644
---- a/drivers/usb/input/hid-core.c
-+++ b/drivers/usb/input/hid-core.c
-@@ -1593,8 +1593,6 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD, HID_QUIRK_BADPAD },
- 	{ USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD, HID_QUIRK_BADPAD },
+Regards,
+Willy
 
--	{ USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_CYMOTION, HID_QUIRK_CYMOTION },
--
- 	{ USB_VENDOR_ID_APPLE, 0x020E, HID_QUIRK_POWERBOOK_HAS_FN },
- 	{ USB_VENDOR_ID_APPLE, 0x020F, HID_QUIRK_POWERBOOK_HAS_FN },
- 	{ USB_VENDOR_ID_APPLE, 0x0214, HID_QUIRK_POWERBOOK_HAS_FN },
-@@ -1607,6 +1605,31 @@ static const struct hid_blacklist {
- };
-
- /*
-+ * Cherry Cymotion keyboard have an invalid HID report descriptor,
-+ * that needs fixing before we can parse it.
-+ */
-+
-+static void hid_fixup_cymotion_descriptor(char *rdesc, int rsize,
-struct usb_device *dev)
-+{
-+	if (rsize >= 17 && rdesc[11] == 0x3c && rdesc[12] == 0x02) {
-+		info("Fixing up Cherry Cymotion report descriptor");
-+		rdesc[11] = rdesc[16] = 0xff;
-+		rdesc[12] = rdesc[17] = 0x03;
-+	}
-+}
-+
-+static const struct hid_desc_fixup_list {
-+	__u16 idVendor;
-+	__u16 idProduct;
-+	void (*fixup)(char *rdesc, int rsize, struct usb_device *dev);
-+} hid_desc_fixup_list[] = {
-+
-+	{ USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_CYMOTION,
-hid_fixup_cymotion_descriptor},
-+
-+	{ 0, 0 }
-+};
-+
-+/*
-  * Traverse the supplied list of reports and find the longest
-  */
- static void hid_find_max_report(struct hid_device *hid, unsigned int
-type, int *max)
-@@ -1649,20 +1672,6 @@ static void hid_free_buffers(struct usb_
- 		usb_buffer_free(dev, hid->bufsize, hid->ctrlbuf, hid->ctrlbuf_dma);
- }
-
--/*
-- * Cherry Cymotion keyboard have an invalid HID report descriptor,
-- * that needs fixing before we can parse it.
-- */
--
--static void hid_fixup_cymotion_descriptor(char *rdesc, int rsize)
--{
--	if (rsize >= 17 && rdesc[11] == 0x3c && rdesc[12] == 0x02) {
--		info("Fixing up Cherry Cymotion report descriptor");
--		rdesc[11] = rdesc[16] = 0xff;
--		rdesc[12] = rdesc[17] = 0x03;
--	}
--}
--
- static struct hid_device *usb_hid_configure(struct usb_interface *intf)
- {
- 	struct usb_host_interface *interface = intf->cur_altsetting;
-@@ -1710,8 +1719,10 @@ static struct hid_device *usb_hid_config
- 		return NULL;
- 	}
-
--	if ((quirks & HID_QUIRK_CYMOTION))
--		hid_fixup_cymotion_descriptor(rdesc, rsize);
-+	for (n = 0; hid_desc_fixup_list[n].idVendor; n++)
-+		if ((hid_desc_fixup_list[n].idVendor ==
-le16_to_cpu(dev->descriptor.idVendor)) &&
-+			(hid_desc_fixup_list[n].idProduct ==
-le16_to_cpu(dev->descriptor.idProduct)))
-+				hid_desc_fixup_list[n].fixup(rdesc, rsize, dev);
-
- #ifdef DEBUG_DATA
- 	printk(KERN_DEBUG __FILE__ ": report descriptor (size %u, read %d) =
-", rsize, n);
-diff --git a/drivers/usb/input/hid.h b/drivers/usb/input/hid.h
-index 8b0d434..570116a 100644
---- a/drivers/usb/input/hid.h
-+++ b/drivers/usb/input/hid.h
-@@ -246,7 +246,6 @@ #define HID_QUIRK_2WHEEL_MOUSE_HACK_7		0
- #define HID_QUIRK_2WHEEL_MOUSE_HACK_5		0x00000100
- #define HID_QUIRK_2WHEEL_MOUSE_HACK_ON		0x00000200
- #define HID_QUIRK_2WHEEL_POWERMOUSE		0x00000400
--#define HID_QUIRK_CYMOTION			0x00000800
- #define HID_QUIRK_POWERBOOK_HAS_FN		0x00001000
- #define HID_QUIRK_POWERBOOK_FN_ON		0x00002000

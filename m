@@ -1,128 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbWENRYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWENRdE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751288AbWENRYX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 13:24:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWENRYX
+	id S1751348AbWENRdE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 13:33:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbWENRdD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 13:24:23 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63631 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751288AbWENRYW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 13:24:22 -0400
-Date: Sun, 14 May 2006 19:23:31 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Cleanups to Doc*/SubmittingPatches
-Message-ID: <20060514172330.GH2438@elf.ucw.cz>
-References: <20060514143037.GA2886@elf.ucw.cz> <20060514101254.f731daf1.rdunlap@xenotime.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060514101254.f731daf1.rdunlap@xenotime.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sun, 14 May 2006 13:33:03 -0400
+Received: from [63.81.120.158] ([63.81.120.158]:50403 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1751348AbWENRdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 May 2006 13:33:02 -0400
+Subject: Re: [PATCH -rt] scheduling while atomic in fs/file.c
+From: Daniel Walker <dwalker@mvista.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0605141241320.25158@gandalf.stny.rr.com>
+References: <200605141545.k4EFj6Cv001901@dwalker1.mvista.com>
+	 <Pine.LNX.4.58.0605141241320.25158@gandalf.stny.rr.com>
+Content-Type: text/plain
+Date: Sun, 14 May 2006 10:32:55 -0700
+Message-Id: <1147627976.15392.39.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > This cleans up Submitting patches a bit. Missing/inconsistent full
-> > stops, mostly.
+On Sun, 2006-05-14 at 12:44 -0400, Steven Rostedt wrote:
+> On Sun, 14 May 2006, Daniel Walker wrote:
 > 
-> Incomplete sentences (fragments) don't need full stops, but they
-> should be consistent.
+> > Quite the smp_processor_id() wanrings. I don't see any SMP
+> > concerns here . It just adds to a percpu list, so it shouldn't
+> > matter if it switches after sampling fdtable_defer_list .
 > 
-> > diff --git a/Documentation/SubmittingPatches b/Documentation/SubmittingPatches
-> > index c2c85bc..07b87ce 100644
-> > --- a/Documentation/SubmittingPatches
-> > +++ b/Documentation/SubmittingPatches
-> > @@ -173,17 +173,17 @@ copy the maintainer when you change thei
-> >  For small patches you may want to CC the Trivial Patch Monkey
-> >  trivial@kernel.org managed by Adrian Bunk; which collects "trivial"
-> >  patches. Trivial patches must qualify for one of the following rules:
-> > - Spelling fixes in documentation
-> > + Spelling fixes in documentation.
-> >   Spelling fixes which could break grep(1).
-> 
-> I would just remove that '.' above and skip the rest of the
-> changes in this section.
+> I'm not so sure that there isn't SMP concerns here. I have to catch a
+> train in a few minutes, otherwise I would look deeper into this. But this
+> might be a candidate to turn fdtable_defer_list into a per_cpu_locked.
 
-Does this look better? (Sorry, english is my 2nd language).
-								Pavel
+I reviewed it again, and it looks like these percpu structures have a
+spinlock to protect the list from being emptied by a work queue while
+things are being added to the list . The lock appears to be used
+properly .  The work queue frees struct fdtable pointers added to the
+list , the only place these structures are added is in the block I've
+modified .
 
-diff --git a/Documentation/SubmittingPatches b/Documentation/SubmittingPatches
-index c2c85bc..6f873e5 100644
---- a/Documentation/SubmittingPatches
-+++ b/Documentation/SubmittingPatches
-@@ -174,15 +174,15 @@ For small patches you may want to CC the
- trivial@kernel.org managed by Adrian Bunk; which collects "trivial"
- patches. Trivial patches must qualify for one of the following rules:
-  Spelling fixes in documentation
-- Spelling fixes which could break grep(1).
-+ Spelling fixes which could break grep(1)
-  Warning fixes (cluttering with useless warnings is bad)
-  Compilation fixes (only if they are actually correct)
-  Runtime fixes (only if they actually fix things)
-- Removing use of deprecated functions/macros (eg. check_region).
-+ Removing use of deprecated functions/macros (eg. check_region)
-  Contact detail and documentation fixes
-  Non-portable code replaced by portable code (even in arch-specific,
-  since people copy, as long as it's trivial)
-- Any fix by the author/maintainer of the file. (ie. patch monkey
-+ Any fix by the author/maintainer of the file (ie. patch monkey
-  in re-transmission mode)
- URL: <http://www.kernel.org/pub/linux/kernel/people/bunk/trivial/>
- 
-@@ -246,13 +246,13 @@ updated change.
- It is quite common for Linus to "drop" your patch without comment.
- That's the nature of the system.  If he drops your patch, it could be
- due to
--* Your patch did not apply cleanly to the latest kernel version
-+* Your patch did not apply cleanly to the latest kernel version.
- * Your patch was not sufficiently discussed on linux-kernel.
--* A style issue (see section 2),
--* An e-mail formatting issue (re-read this section)
--* A technical problem with your change
--* He gets tons of e-mail, and yours got lost in the shuffle
--* You are being annoying (See Figure 1)
-+* A style issue (see section 2).
-+* An e-mail formatting issue (re-read this section).
-+* A technical problem with your change.
-+* He gets tons of e-mail, and yours got lost in the shuffle.
-+* You are being annoying.
- 
- When in doubt, solicit comments on linux-kernel mailing list.
- 
-@@ -475,22 +475,22 @@ SECTION 3 - REFERENCES
- Andrew Morton, "The perfect patch" (tpp).
-   <http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt>
- 
--Jeff Garzik, "Linux kernel patch submission format."
-+Jeff Garzik, "Linux kernel patch submission format".
-   <http://linux.yyz.us/patch-format.html>
- 
--Greg Kroah-Hartman "How to piss off a kernel subsystem maintainer".
-+Greg Kroah-Hartman, "How to piss off a kernel subsystem maintainer".
-   <http://www.kroah.com/log/2005/03/31/>
-   <http://www.kroah.com/log/2005/07/08/>
-   <http://www.kroah.com/log/2005/10/19/>
-   <http://www.kroah.com/log/2006/01/11/>
- 
--NO!!!! No more huge patch bombs to linux-kernel@vger.kernel.org people!.
-+NO!!!! No more huge patch bombs to linux-kernel@vger.kernel.org people!
-   <http://marc.theaimsgroup.com/?l=linux-kernel&m=112112749912944&w=2>
- 
--Kernel Documentation/CodingStyle
-+Kernel Documentation/CodingStyle:
-   <http://sosdg.org/~coywolf/lxr/source/Documentation/CodingStyle>
- 
--Linus Torvald's mail on the canonical patch format:
-+Linus Torvalds's mail on the canonical patch format:
-   <http://lkml.org/lkml/2005/4/7/183>
- --
- Last updated on 17 Nov 2005.
+I think making this a locked percpu would just be overkill ..
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Daniel
+

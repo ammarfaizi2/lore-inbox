@@ -1,39 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWENLsH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbWENL6J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751401AbWENLsH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 07:48:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbWENLsG
+	id S1751405AbWENL6J (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 07:58:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751406AbWENL6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 07:48:06 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:42229 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751401AbWENLsF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 07:48:05 -0400
-Message-ID: <4467189F.8070508@online.de>
-Date: Sun, 14 May 2006 13:46:39 +0200
-From: Thomas Ilgner <thomas.ilgner@online.de>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: rmk+lkml@arm.linux.org.uk
-Subject: card reader and misformatting >=2Gbyte
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:ef1d774c42e09778a3a6a5a7fbab7cb7
+	Sun, 14 May 2006 07:58:09 -0400
+Received: from mx2.mail.ru ([194.67.23.122]:59407 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S1751405AbWENL6H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 May 2006 07:58:07 -0400
+Date: Sun, 14 May 2006 16:01:13 +0400
+From: Evgeniy Dushistov <dushistov@mail.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC] [PATCH 3/3] ufs: change b_blocknr
+Message-ID: <20060514120113.GB6215@rain.homenetwork>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+References: <20060514100235.GA21341@rain.homenetwork> <20060514035801.4cb79d2c.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060514035801.4cb79d2c.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
+On Sun, May 14, 2006 at 03:58:01AM -0700, Andrew Morton wrote:
+> Evgeniy Dushistov <dushistov@mail.ru> wrote:
+> >
+> > Because of ufs's layout, code which works with UFS should
+> > time to time change such map "online":
+> > physical location<-->logical inode block
+> 
+> It does?  You mean that certain parts of a file will get moved from one set
+> of disk blocks to another?
+> 
+In short file: consist of several blocks and fragments.
+sizeof(block)=8*sizeof(fragment),
+fragments used to prevent unwanted waste of space.
 
-i've got a problem with my 2Gbyte Sd-Card. It's an Ricoh R5C822 device included in my Samsung X20.
-When I put in the card, dmesg shows up the following  error:
+When file is growing and we occupy 8 fragments in tail of it,
+we should allocate whole block and move all 8 fragments to it.
 
-mmcblk0: mmc0:0002       1954816KiB
-mmcblk0: unknown partition table
+In 2.2 I suppose such code works fine:
+bh = sb_bread
+bh->b_blocknr=newvalue
+mark_buffer_dirty
 
-I've already formated the card to fat. And the same card with 1Gbyte works very well. BTW the manufactor is Extrememory. 
-I've heard, there is a problem with USB card readers misformatting cards >= 2GB. How's the current status?
+I doubt that it is normal for 2.4,
+and this was completely wrong for 2.6.
 
-Bye 
-Thomas
+-- 
+/Evgeniy
 

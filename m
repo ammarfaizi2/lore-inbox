@@ -1,123 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWENX4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751415AbWENX62@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751413AbWENX4b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 19:56:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWENX4b
+	id S1751415AbWENX62 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 19:58:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWENX62
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 19:56:31 -0400
-Received: from gate.crashing.org ([63.228.1.57]:50609 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751413AbWENX4b (ORCPT
+	Sun, 14 May 2006 19:58:28 -0400
+Received: from gate.crashing.org ([63.228.1.57]:57009 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751415AbWENX62 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 19:56:31 -0400
-Subject: Re: [linux-pm] Re: [PATCH/rfc] schedule /sys/device/.../power for
-	removal
+	Sun, 14 May 2006 19:58:28 -0400
+Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow
+	userspace (Xorg) to enable devices without doing foul direct access
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-pm@lists.osdl.org, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <200605141048.08424.david-b@pacbell.net>
-References: <20060512100544.GA29010@elf.ucw.cz>
-	 <200605120652.55658.david-b@pacbell.net>
-	 <1147566116.21291.25.camel@localhost.localdomain>
-	 <200605141048.08424.david-b@pacbell.net>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Peter Jones <pjones@redhat.com>, Martin Mares <mj@ucw.cz>,
+       Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Dave Airlie <airlied@linux.ie>,
+       Andrew Morton <akpm@osdl.org>, greg@kroah.com,
+       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@linux.intel.com>
+In-Reply-To: <9e4733910605131756q50ad5686n4ca8d5a8d1f9e3e1@mail.gmail.com>
+References: <1146300385.3125.3.camel@laptopd505.fenrus.org>
+	 <200605041309.53910.bjorn.helgaas@hp.com>
+	 <445A51F1.9040500@linux.intel.com>
+	 <200605041326.36518.bjorn.helgaas@hp.com>
+	 <E1FbjiL-0001B9-00@chiark.greenend.org.uk>
+	 <9e4733910605041340r65d47209h2da079d9cf8fceae@mail.gmail.com>
+	 <1146776736.27727.11.camel@localhost.localdomain>
+	 <mj+md-20060504.211425.25445.atrey@ucw.cz>
+	 <1146778197.27727.26.camel@localhost.localdomain>
+	 <1147566572.21291.30.camel@localhost.localdomain>
+	 <9e4733910605131756q50ad5686n4ca8d5a8d1f9e3e1@mail.gmail.com>
 Content-Type: text/plain
-Date: Mon, 15 May 2006 09:56:15 +1000
-Message-Id: <1147650975.21291.60.camel@localhost.localdomain>
+Date: Mon, 15 May 2006 09:57:49 +1000
+Message-Id: <1147651069.21291.63.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> My disagreement is with the assumption that none of those states
-> will ever map directly to bus states.  (For those busses which define
-> them; not all do, but PCI does.)  Or perhaps with the assumption
-> that the driver must not name its states after the bus states they
-> use, even in common scenarios without one-to-many confusions.
-
-I'm not saying hey won't map on bus states ever... I'm saying they
-sometimes will or not, it's not a 1:1 relationchip, thus they are not
-_directly_ related. This is why there is the whole issue of describing
-the power state dependency that I talked about later in my mail.
-
-> Well certainly if the device doesn't implement PCI_D1 in hardware, then
-> that name shouldn't be used for a driver state.  But if it has only one
-> driver state that uses PCI_D2, why rule out calling that state PCI_D2?
-
-Because "PCI_D2" Means nothing from a device function point of view
-imho. "Clock stopped" would make much more sense (provided it's what the
-device does when in D2 mode, there is a definitive lack of consistency
-three as D states have never been properly defined except for D3 cold :)
-
-> Lots of PCI drivers don't even try to subdivide the PCI states, so every
-> driver state directly corresponds to one PCI state.
-
-Which is mostly bogus, and probably due to driver writers not even
-bothering looking at what the device is actually doing when put into a
-given Dx state... I suppose a lot of dumb devices also only really
-handle D0 and some kind of Dx (where X can be 1...3 and that are about
-equivalent).
-
-> The PCI state semantics are well enough defined
-
-No they are not. Historically, they were pretty much undefined.
-Recently, Intel/PCISIG updated the PCI PM specification (that I suspect
-pretty much no device vendor read) that provides _some_ clues as to what
-states might actually mean, mostly that their semantic is essentially
-specific to a given class (which is as good as being undefined as far as
-the generic code is concerned). The only "sure" thing is that D0 is full
-on and D3 is the max power management... In addition, there is this
-optional mecanism for a device to report it's power consumption in the
-various states, but that's pretty much it.
-
-The only thing that has (finally) been properly defined are the bus
-states (B0...B3).
-
-Thus I still think that the PCI D state is an implementation detail to
-be known by the driver only and doesn't have anything to do with a user
-interface.
-
-> , but as I recall you want
-> device-specific details going beyond what the spec covers.  That is a
-> rather different issue.
-
-No, I want some reasonably defined semantics.
-
-> > However, it's whatever 
-> > functional states that device/driver supports that shall be exposed.
-> > Those can be "idle" and "suspended" for example, or there could be
-> > several levels of "suspended".
+On Sat, 2006-05-13 at 20:56 -0400, Jon Smirl wrote:
+> On 5/13/06, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> > There are reasons why you may have to read the image at c0000... There's
+> > a bunch of laptops where it's in fact the only way to get to the video
+> > BIOS as it doesn't have a ROM attached to the video chip (it's burried
+> > in the main BIOS which thankfully copied it to c0000 when running it).
+> > In some cases, the BISO ROM self-modifies it's c0000 and it's that
+> > modified copy that the X (or fbdev) driver should get. Remeber that
+> > drivers needs access to the ROM for more than just POSTing the chip...
 > 
-> And it would be less confusing to name those "suspended" levels with
-> names that make sense on multiple levels, like "PCI_D2" etc, than to
-> needlessly proliferate other names for those states.
+> Whenever klibc gets merged it would probably be good to add a
+> libemu86. Did you get one put together that you're happy with?
 
-I disagree there....
+No, not so far yet. Haven't had much time though. Did some expriments
+based on what you sent me back then, got it to work with loads of hacks,
+but I never properly cleaned it up.
 
-> > Now of course, there is the problem that while such descriptive names
-> > might have a sense to a user (and even then, only in one language,
-> > english) they aren't very useful to some automated power management
-> > mecanism.
-> 
-> Depends on the mechanism, surely.  And "PCI_D2" is already in that
-> language-neutral "doesn't get translation" category anyway.  Regardless,
-> userspace tools should just compare tokens.
+> Between the ROM attribute, klibc and libemu86 there will then be
+> enough support to write a tiny POST program that POSTs secondary and
+> non-x86 primary cards at boot. It will still need a little support in
+> sysfs for PCI bus VGA routing but we're almost there.
 
-etc...
-
-> > That's the whole problem that needs solving, possibly by exposing as
-> > much as the state dependencies as possible, along eventually with
-> > informations such as can the device automatically trigger a transition
-> > out of this state, eventually informations relative to max power
-> > consumed in this state 
-> 
-> I consider all those issues orthogonal to the issues addressed by
-> the /sys/devices/.../power/state files:  (a) reporting the power
-> state the driver is currently maintaining, and (b) changing that
-> to another state supported by that driver.
-
-And handling the dependencies...
+And we need to "capture" the resulting BIOS image after POST and have a
+away to give that to the drivers as it will contain useful tables that
+the driver will need as well...
 
 Ben.
 

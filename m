@@ -1,76 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbWENA2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbWENA2H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964829AbWENA2J (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 20:28:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbWENA2J
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 20:28:09 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:54051 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964825AbWENA2H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S964823AbWENA2H (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 13 May 2006 20:28:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=VI8T59UQaZ0kuZ8Icc5CI07Aukxya3XRx9O+f3mzO8TymrRd56DtQHTgJzXVkSWxw4/saF/jFIVK2r0khOuuh1l/I3J/IMOm1oCFo34ILH7dfg2BETuifUHR2EfCxaH/HLBWUXWmBRQ5wm8sa2g2Hj5/WgtEA7WCDRy7QhUSn4o=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] mem-leak fix for acpi_thermal_write_trip_points()
-Date: Sun, 14 May 2006 02:28:58 +0200
-User-Agent: KMail/1.9.1
-Cc: Andy Grover <andrew.grover@intel.com>,
-       Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>,
-       Len Brown <len.brown@intel.com>, linux-acpi@vger.kernel.org,
-       Jesper Juhl <jesper.juhl@gmail.com>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbWENA2H
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sat, 13 May 2006 20:28:07 -0400
+Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:14473 "HELO
+	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S964823AbWENA2F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 20:28:05 -0400
+Message-ID: <446679DF.7000806@sbcglobal.net>
+Date: Sat, 13 May 2006 19:29:19 -0500
+From: Matthew Frost <artusemrys@sbcglobal.net>
+Reply-To: artusemrys@sbcglobal.net
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>, linux-kernel@vger.kernel.org
+Subject: Re: http://advogato.org/article/888.html
+References: <20060513235613.GF12213@lkcl.net>
+In-Reply-To: <20060513235613.GF12213@lkcl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605140228.58460.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's a memory leak in
- drivers/acpi/thermal.c::acpi_thermal_write_trip_points()
-found by the Coverity checker as bug #1243
+(sorry; reply all)
+Luke Kenneth Casson Leighton wrote:
+>> Feel free to rewrite linux as a micro kernel. Let us know how that goes
+>> for you.
+> 
+>> // Stefan
+> 
+> dear stefan,
+> 
+> fortunately for you and me both, it's already been done, and is
+> a major (functional) research project of the universities of karlsruhe
+> and southern australia:
+> 
+> 	http://l4linux.org
+> 
+> as i have insufficient time or resources to dedicate to such a project
+> , i would be both unable to spend sufficient time replicating their work,
+> but not only that i would definitely not have enough time, resources or
+> energy to convince the key people that such work undertaken by was a
+> viable project.
+> 
 
-The problem is simply that if the allocation of 'active' fails, then we'll
-return from the function without freeing the memory previously allocated 
-to 'limit_string'.
+You seem to be SOL.  It's sad that you cannot make time or learn enough
+to scratch your itch.  It is sad that you seem not to have even started
+to try.  I weep.  When someone calls me on the phone and asks me to hire
+them because their bills and debts are so large that they must get a
+job, but can present me with no valid reasons to hire them, I'll think
+of you from now on.  Oh, wait, did that sound bitter?
 
-One fix would have been the insertion of kfree(limit_string); just before
-the return_VALUE(-ENOMEM); call, but I chose a different fix.
-Except for this one return the function only has a single exit point at 
-the end: label, and there it does proper cleanup of everything. So even 
-though setting the return value (the 'count' variable) and jumping there 
-results in a pointless kfree(NULL) call (since 'active' will be NULL), I 
-thought this was a small price to pay for the bennefit of having just a 
-single exit path for the function.
+> my expertise appears to be, however, in ferretting out such archaic
+> and esoteric technology, and in advocating it.  okay.  the finding
+> i am good at.  the advocating i still need lessons in, because i
+> tend to ROYALLY piss people off.
+> 
 
+It's also sad that you have no apparent teambuilding or advocacy skills.
+  If the technology is archaic and esoteric, then why should anyone
+care?  If you cannot help but piss people off, you need to change tactics.
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+<mindtrick> You want to go home and rethink your life. </mindtrick>
 
- drivers/acpi/thermal.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
+> *beam* :)
 
+And, cheerfully pissing people off does in no way redeem you.
 
---- linux-2.6.17-rc4-git2-orig/drivers/acpi/thermal.c	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6.17-rc4-git2/drivers/acpi/thermal.c	2006-05-14 02:18:30.000000000 +0200
-@@ -942,8 +942,10 @@ acpi_thermal_write_trip_points(struct fi
- 	memset(limit_string, 0, ACPI_THERMAL_MAX_LIMIT_STR_LEN);
- 
- 	active = kmalloc(ACPI_THERMAL_MAX_ACTIVE * sizeof(int), GFP_KERNEL);
--	if (!active)
--		return_VALUE(-ENOMEM);
-+	if (!active) {
-+		count = -ENOMEM;
-+		goto end;
-+	}
- 
- 	if (!tz || (count > ACPI_THERMAL_MAX_LIMIT_STR_LEN - 1)) {
- 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Invalid argument\n"));
-
+> 
+> l.
+> 
 
 

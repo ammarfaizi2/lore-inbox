@@ -1,118 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWENHEm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWENHGm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751326AbWENHEm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 03:04:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWENHEm
+	id S1751357AbWENHGm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 03:06:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWENHGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 03:04:42 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:31895 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751326AbWENHEl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 03:04:41 -0400
-From: Darren Hart <dvhltc@us.ibm.com>
-Organization: IBM Linux Technology Center
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: rt20 scheduling latency testcase and failure data
-Date: Sun, 14 May 2006 00:04:29 -0700
-User-Agent: KMail/1.9.1
-Cc: Lee Revell <rlrevell@joe-job.com>, lkml <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-References: <200605121924.53917.dvhltc@us.ibm.com> <1147578414.7738.11.camel@homer> <1147585718.9372.15.camel@homer>
-In-Reply-To: <1147585718.9372.15.camel@homer>
+	Sun, 14 May 2006 03:06:42 -0400
+Received: from wr-out-0506.google.com ([64.233.184.225]:48695 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751357AbWENHGl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 May 2006 03:06:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=t9DXhpuh6UU/tXUY7zfKV4dpAGy7Ch0xrAqbOmYevXefvwK2+4l/aFsTL9cDOVts85+hAhIBRaUsETvg8wNx2v3JSPCKG3eoObLUieb8ybG6+5aji0Z62pgg7FZ39G9eBd1Qp3FJ86RQY42Y86rp6w1T9V88lITSOdci4+huibA=
+Message-ID: <4466D6FB.1040603@gmail.com>
+Date: Sun, 14 May 2006 16:06:35 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Mail/News 1.5 (X11/20060318)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Jan Wagner <jwagner@kurp.hut.fi>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: support for sata7 Streaming Feature Set?
+References: <Pine.LNX.4.58.0605051547410.7359@kurp.hut.fi>
+In-Reply-To: <Pine.LNX.4.58.0605051547410.7359@kurp.hut.fi>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605140004.30307.dvhltc@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > On Saturday 13 May 2006 11:21, Lee Revell wrote:
-> > If you disable printf + fflush in iterations loop, problem goes away?
+Jan Wagner wrote:
+> Hi,
+> 
+> anyone know if the now already somewhat old Streaming Feature Set of
+> ATA/ATAPI 7 is going to be implemented in the kernel ata functions?
+> 
+> According to one web site that contains hdreg.h
+> http://www.koders.com/c/fidCD7293464D782E48F93EEF8A71192F1BF28FC205.aspx
+> there's at least some kind of mention in that include file about streaming
+> feature set, kernel 2.6.10. However in 2.6.16 it seems to be gone again.
+> Any ideas if this will be implemented, or how to use it with e.g. hdparm
+> right now?
+> 
 
-Unfortunately not, after disabling the printf and fflush, my very first run 
-resulted in:
-
-ITERATION 0
--------------------------------
-Scheduling Latency
--------------------------------
-
-Running 10000 iterations with a period of 5 ms
-Expected running time: 50 s
-
-ITERATION DELAY(US) MAX_DELAY(US) FAILURES
---------- --------- ------------- --------
-
-
-PERIOD MISSED!
-     scheduled delta:     4078 us
-        actual delta:    14213 us
-             latency:    10135 us
----------------------------------------
-      previous start: 42050139 us
-                 now: 42051059 us
-     scheduled start: 42045000 us
-next scheduled start is in the past!
-
-
-Start Latency:   99 us: PASS
-Min Latency:      8 us: PASS
-Avg Latency:      8 us: PASS
-Max Latency:   10139 us: FAIL
-
-
-> P.S.
->
-> I think it probably will, because...
->
-> sched_latency [ea53a0b0]D 00000001     0  8261   7858                8260
-> (NOTLB) e29a0e70 e29a0e58 00000008 00000001 df6158e0 00000000 623266f4
-> 0000017d b23d45c4 efd53870 dfcb8dc0 efd53870 00000000 000011e6 ea53a1e8
-> ea53a0b0 efdf0d30 b2454560 623e5018 0000017d 00000001 efdf0d30 00000100
-> 00000000 Call Trace:
->  [<b1038454>] __rt_mutex_adjust_prio+0x1f/0x24 (112)
->  [<b1038ad8>] task_blocks_on_rt_mutex+0x1b6/0x1c9 (16)
->  [<b13bfeb1>] schedule+0x34/0x10b (24)
->  [<b13c0963>] rt_mutex_slowlock+0xc7/0x258 (28)
->  [<b13c0bb6>] rt_mutex_lock+0x3f/0x43 (100)
->  [<b1039075>] rt_down+0x12/0x32 (20)
->  [<b13c14a7>] lock_kernel+0x1d/0x23 (16)
->  [<b1228246>] tty_write+0x119/0x21b (12)
->  [<b122b758>] write_chan+0x0/0x338 (24)
->  [<b10352bd>] hrtimer_wakeup+0x0/0x1c (20)
->  [<b10671f0>] vfs_write+0xc1/0x19b (24)
->  [<b1067bfa>] sys_write+0x4b/0x74 (40)
->  [<b1002eeb>] sysenter_past_esp+0x54/0x75 (40)
->
-
-What is it about this dump that made you suspect the printf?  Or was it just 
-that printing the trace seemed to trigger a failure - so it seemed reasonable 
-that the process may have been blocked on writing to the console?  I could 
-see that causing a failure like the one below, but not like the one I posted 
-above.  (The one above has no printfs between the time measurements 
-surrounding the clock_nanosleep() call and it overslept by 10ms).  Also, 
-shouldn't I have seen something in the oprofile reports I posted earlier if 
-the printf was causing the latencies?
-
-Thanks for the comments, thoughts, and suggestions.
-
-> ...generated via SysRq-T, induces...
->
-> PERIOD MISSED!
->      scheduled delta:     4964 us
->         actual delta:     4974 us
->              latency:       10 us
-> ---------------------------------------
->       previous start:  1750012 us
->                  now: 13122245 us
->      scheduled start:  1755000 us
-> next scheduled start is in the past!
+I don't think streaming feature set is something to be supported at 
+kernel driver level.  The usage model doesn't fit with block interface. 
+  If you want to use it, the best way would be issuing commands directly 
+using sg.  What are you gonna use it for?
 
 -- 
-Darren Hart
-IBM Linux Technology Center
-Realtime Linux Team
+tejun

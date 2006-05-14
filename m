@@ -1,52 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWENEiO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbWENEmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750975AbWENEiO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 00:38:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbWENEiO
+	id S932368AbWENEmV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 00:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWENEmU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 00:38:14 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:62181 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750921AbWENEiO (ORCPT
+	Sun, 14 May 2006 00:42:20 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:27014 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932368AbWENEmU convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 00:38:14 -0400
-Date: Sun, 14 May 2006 00:37:55 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, jak@isp2dial.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: + deprecate-smbfs-in-favour-of-cifs.patch added to -mm tree
-Message-ID: <20060514043755.GA2984@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-	jak@isp2dial.com, linux-kernel@vger.kernel.org
-References: <200605110717.k4B7HuVW006999@shell0.pdx.osdl.net> <20060511175143.GH25646@redhat.com> <Pine.LNX.4.61.0605121243460.9918@yvahk01.tjqt.qr> <200605121619.k4CGJCtR004972@isp2dial.com> <Pine.LNX.4.58.0605121222070.5579@gandalf.stny.rr.com> <200605121630.k4CGUuiU005025@isp2dial.com> <Pine.LNX.4.64.0605120949060.3866@g5.osdl.org> <20060513201144.4891ef17.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 14 May 2006 00:42:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=aytcnyieyVNaJZY8OM9MImU4jJb4CGKgXLmxsxCqnq9jboQZo7jHtw3aPIO2XVxwBce1QL7/sJAgtzHvfOmonuO646Fbi2r0NunTshfGLEGyStl2PsUOFgwVtNEvGwM3Em/Mo3E92322HHU6LXUyCzfxHjPVe2rZsIoNyPHmjoc=
+Message-ID: <305c16960605132142o6b4dd67er6cdeb623c2d65ec9@mail.gmail.com>
+Date: Sun, 14 May 2006 01:42:18 -0300
+From: "Matheus Izvekov" <mizvekov@gmail.com>
+To: "kernel list" <linux-kernel@vger.kernel.org>
+Subject: [RFC][PATCH] hid-core: Implement generic framework for descriptor patching
+Cc: "Vojtech Pavlik" <vojtech@suse.cz>, dtor_core@ameritech.net
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060513201144.4891ef17.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 13, 2006 at 08:11:44PM -0700, Andrew Morton wrote:
+The motivation for this is that the quirks framework doesnt scale
+well. Currently there is only one device needing the descriptor table
+to be patched, but as soon as something like this gets accepted, im
+going to implement a fixup for my own crappy keyboard, and over time
+others will follow.
 
- > So at this stage, 2.6.18 still appears to be a good time to start pushing
- > people toward cifs, and December looks like an appropriate time to mark
- > smbfs as broken.  Subject to, of course, feedback-from-the-field.
+The reason i decided to pass struct usb_device as a parameter to the
+fixup function is that some hardware has multiple input channels, so
+just the vendor and product id arent enough to decide if we patch it
+or not. I specially need feedback on this, before i add a function
+that will need to fixup just one of the channels of my keyboard/mouse
+combo.
 
-I'm surprised that other vendors are actually still shipping it[1].
-(Not only that, some vendors have actually been sitting on smbfs
- patches for well over a year).
+Thanks to Vojtech Pavlik for the sugestion.
 
-Given that it's clearly abandoned, moving to cifs seems to be the
-only sensible thing to do, and anything that can be done to ease
-that transition should be done.
 
-		Dave
+Signed-off-by: Matheus Izvekov <mizvekov@gmail.com>
 
-[1] Especially after the recent security problem where smbfs stayed
-vulnerable for a week or so after CIFS got fixed.  How many bad guys
-thought "Hmm, wonder if smbfs has the same bug" in that week?
+diff --git a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
+index 7724780..dfad1a5 100644
+--- a/drivers/usb/input/hid-core.c
++++ b/drivers/usb/input/hid-core.c
+@@ -1593,8 +1593,6 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD, HID_QUIRK_BADPAD },
+ 	{ USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD, HID_QUIRK_BADPAD },
 
--- 
-http://www.codemonkey.org.uk
+-	{ USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_CYMOTION, HID_QUIRK_CYMOTION },
+-
+ 	{ USB_VENDOR_ID_APPLE, 0x020E, HID_QUIRK_POWERBOOK_HAS_FN },
+ 	{ USB_VENDOR_ID_APPLE, 0x020F, HID_QUIRK_POWERBOOK_HAS_FN },
+ 	{ USB_VENDOR_ID_APPLE, 0x0214, HID_QUIRK_POWERBOOK_HAS_FN },
+@@ -1607,6 +1605,31 @@ static const struct hid_blacklist {
+ };
+
+ /*
++ * Cherry Cymotion keyboard have an invalid HID report descriptor,
++ * that needs fixing before we can parse it.
++ */
++
++static void hid_fixup_cymotion_descriptor(char *rdesc, int rsize,
+struct usb_device *dev)
++{
++	if (rsize >= 17 && rdesc[11] == 0x3c && rdesc[12] == 0x02) {
++		info("Fixing up Cherry Cymotion report descriptor");
++		rdesc[11] = rdesc[16] = 0xff;
++		rdesc[12] = rdesc[17] = 0x03;
++	}
++}
++
++static const struct hid_desc_fixup_list {
++	__u16 idVendor;
++	__u16 idProduct;
++	void (*fixup)(char *rdesc, int rsize, struct usb_device *dev);
++} hid_desc_fixup_list[] = {
++
++	{ USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_CYMOTION,
+hid_fixup_cymotion_descriptor},
++
++	{ 0, 0 }
++};
++
++/*
+  * Traverse the supplied list of reports and find the longest
+  */
+ static void hid_find_max_report(struct hid_device *hid, unsigned int
+type, int *max)
+@@ -1649,20 +1672,6 @@ static void hid_free_buffers(struct usb_
+ 		usb_buffer_free(dev, hid->bufsize, hid->ctrlbuf, hid->ctrlbuf_dma);
+ }
+
+-/*
+- * Cherry Cymotion keyboard have an invalid HID report descriptor,
+- * that needs fixing before we can parse it.
+- */
+-
+-static void hid_fixup_cymotion_descriptor(char *rdesc, int rsize)
+-{
+-	if (rsize >= 17 && rdesc[11] == 0x3c && rdesc[12] == 0x02) {
+-		info("Fixing up Cherry Cymotion report descriptor");
+-		rdesc[11] = rdesc[16] = 0xff;
+-		rdesc[12] = rdesc[17] = 0x03;
+-	}
+-}
+-
+ static struct hid_device *usb_hid_configure(struct usb_interface *intf)
+ {
+ 	struct usb_host_interface *interface = intf->cur_altsetting;
+@@ -1710,8 +1719,10 @@ static struct hid_device *usb_hid_config
+ 		return NULL;
+ 	}
+
+-	if ((quirks & HID_QUIRK_CYMOTION))
+-		hid_fixup_cymotion_descriptor(rdesc, rsize);
++	for (n = 0; hid_desc_fixup_list[n].idVendor; n++)
++		if ((hid_desc_fixup_list[n].idVendor ==
+le16_to_cpu(dev->descriptor.idVendor)) &&
++			(hid_desc_fixup_list[n].idProduct ==
+le16_to_cpu(dev->descriptor.idProduct)))
++				hid_desc_fixup_list[n].fixup(rdesc, rsize, dev);
+
+ #ifdef DEBUG_DATA
+ 	printk(KERN_DEBUG __FILE__ ": report descriptor (size %u, read %d) =
+", rsize, n);
+diff --git a/drivers/usb/input/hid.h b/drivers/usb/input/hid.h
+index 8b0d434..570116a 100644
+--- a/drivers/usb/input/hid.h
++++ b/drivers/usb/input/hid.h
+@@ -246,7 +246,6 @@ #define HID_QUIRK_2WHEEL_MOUSE_HACK_7		0
+ #define HID_QUIRK_2WHEEL_MOUSE_HACK_5		0x00000100
+ #define HID_QUIRK_2WHEEL_MOUSE_HACK_ON		0x00000200
+ #define HID_QUIRK_2WHEEL_POWERMOUSE		0x00000400
+-#define HID_QUIRK_CYMOTION			0x00000800
+ #define HID_QUIRK_POWERBOOK_HAS_FN		0x00001000
+ #define HID_QUIRK_POWERBOOK_FN_ON		0x00002000

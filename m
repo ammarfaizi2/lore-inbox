@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbWENEBv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWENEiO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964808AbWENEBv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 00:01:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWENEBv
+	id S1750975AbWENEiO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 00:38:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbWENEiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 00:01:51 -0400
-Received: from ns2.suse.de ([195.135.220.15]:39145 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964808AbWENEBu (ORCPT
+	Sun, 14 May 2006 00:38:14 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62181 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750921AbWENEiO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 00:01:50 -0400
-Date: Sat, 13 May 2006 20:59:37 -0700
-From: Greg KH <greg@kroah.com>
-To: nick@linicks.net
-Cc: Adrian Bunk <bunk@stusta.de>, Ingo Oeser <ioe-lkml@rameria.de>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+	Sun, 14 May 2006 00:38:14 -0400
+Date: Sun, 14 May 2006 00:37:55 -0400
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, jak@isp2dial.com,
        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.16.16
-Message-ID: <20060514035937.GA6498@kroah.com>
-References: <20060511022547.GE25010@moss.sous-sol.org> <296295514.20060511123419@dns.toxicfilms.tv> <20060511173312.GI25010@moss.sous-sol.org> <200605131735.20062.ioe-lkml@rameria.de> <20060513155610.GB6931@stusta.de> <7c3341450605131029l194174f3v7339dce0e234b555@mail.gmail.com>
+Subject: Re: + deprecate-smbfs-in-favour-of-cifs.patch added to -mm tree
+Message-ID: <20060514043755.GA2984@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	jak@isp2dial.com, linux-kernel@vger.kernel.org
+References: <200605110717.k4B7HuVW006999@shell0.pdx.osdl.net> <20060511175143.GH25646@redhat.com> <Pine.LNX.4.61.0605121243460.9918@yvahk01.tjqt.qr> <200605121619.k4CGJCtR004972@isp2dial.com> <Pine.LNX.4.58.0605121222070.5579@gandalf.stny.rr.com> <200605121630.k4CGUuiU005025@isp2dial.com> <Pine.LNX.4.64.0605120949060.3866@g5.osdl.org> <20060513201144.4891ef17.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <7c3341450605131029l194174f3v7339dce0e234b555@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060513201144.4891ef17.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 13, 2006 at 06:29:25PM +0100, Nick Warne wrote:
-> On 13/05/06, Adrian Bunk <bunk@stusta.de> wrote:
-> >The CVE should be enough for easily getting all information you
-> >requested.
-> >
-> >Information whether it's a DoS or a root exploit is helpful, but any
-> >qualified person doing risk management will anyways lookup the CVE.
-> 
-> Well, yes, but some people do *actually* use the latest kernel at home
-> and not in labs (et al), and as Maciej asked, we are not sure whether
-> the (whatever) latest patch is needed or not on whatever our current
-> config is the way the latest stable fixes are announced.
-> 
-> "    [PATCH] fs/locks.c: Fix lease_init (CVE-2006-1860)
-> 
->    It is insane to be giving lease_init() the task of freeing the lock it is
->    supposed to initialise, given that the lock is not guaranteed to be
->    allocated on the stack. This causes lockups in fcntl_setlease().
->    Problem diagnosed by Daniel Hokka Zakrisson <daniel@hozac.com>
-> 
->    Also fix a slab leak in __setlease() due to an uninitialised return 
->    value.
->    Problem diagnosed by Bj????rn Steinbrink.
-> "
-> 
-> OK, great.  But what does it mean?
-> 
-> It would be nice to have a short explanation of what the fix is for in
-> real world terms.
+On Sat, May 13, 2006 at 08:11:44PM -0700, Andrew Morton wrote:
 
-To be fair, the extra work of writing out a detailed exploit, complete
-with example code, for every security update, would just take way too
-long.  If you look for where this patch was discussed on lkml, you will
-see a full description of the problem, and how to hit it.
+ > So at this stage, 2.6.18 still appears to be a good time to start pushing
+ > people toward cifs, and December looks like an appropriate time to mark
+ > smbfs as broken.  Subject to, of course, feedback-from-the-field.
 
-thanks,
+I'm surprised that other vendors are actually still shipping it[1].
+(Not only that, some vendors have actually been sitting on smbfs
+ patches for well over a year).
 
-greg k-h
+Given that it's clearly abandoned, moving to cifs seems to be the
+only sensible thing to do, and anything that can be done to ease
+that transition should be done.
+
+		Dave
+
+[1] Especially after the recent security problem where smbfs stayed
+vulnerable for a week or so after CIFS got fixed.  How many bad guys
+thought "Hmm, wonder if smbfs has the same bug" in that week?
+
+-- 
+http://www.codemonkey.org.uk

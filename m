@@ -1,96 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWENKNp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWENKmZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932406AbWENKNp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 06:13:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWENKNp
+	id S932419AbWENKmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 06:42:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWENKmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 06:13:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:37580 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932390AbWENKNo (ORCPT
+	Sun, 14 May 2006 06:42:25 -0400
+Received: from wr-out-0506.google.com ([64.233.184.234]:35256 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932419AbWENKmZ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 06:13:44 -0400
-Date: Sun, 14 May 2006 03:10:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ranjit Manomohan <ranjitm@google.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH] tcpdump may trace some outbound packets twice.
-Message-Id: <20060514031034.5d0396e7.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.56.0605101315380.8735@ranjit.corp.google.com>
-References: <Pine.LNX.4.56.0605101315380.8735@ranjit.corp.google.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 14 May 2006 06:42:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LSp9OihtvgojUvBnvlYKDBy1T9ZNt/wrlSJ/92ZPrT88VfdZnHgzGubtJ1IFhYdKGMf/Eu9XBo4xggApRDwO2M4rg6weQ5cpa+TwRxX6m4x+JsU+em1Mq6nPvOJ2rF6uf8bts00gBdT8WCjP2HOUM/7d3dtEWSHNMg+Q7cDQ0P4=
+Message-ID: <9a8748490605140342t7fc9acb7n77dbccb2a96e09e4@mail.gmail.com>
+Date: Sun, 14 May 2006 12:42:24 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [PATCH][resend] fix resource leak in pnp card_probe()
+Cc: linux-kernel@vger.kernel.org, ambx1@neo.rr.com
+In-Reply-To: <20060514023833.649fde1d.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200605132235.42338.jesper.juhl@gmail.com>
+	 <20060514023833.649fde1d.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ranjit Manomohan <ranjitm@google.com> wrote:
+On 14/05/06, Andrew Morton <akpm@osdl.org> wrote:
+> Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> >
+> > (resend of patch already send once on 23/03-2006
+> >   - still applies cleanly to latest -git)
+> >
+> >
+> > We can leak `clink' in drivers/pnp/card.c::card_probe()
+> >
+[snip]
 >
-> This patch fixes the problem where tcpdump shows duplicate packets
-> while tracing outbound packets on drivers which support lockless
-> transmit. The patch changes the current behaviour to tracing the
-> packets only on a successful transmit.
-> 
+> If !drv->probe then there's not much point in doing the kmalloc and then
+> immediately freeing it again.
+>
+True. It was simply the simplest and least intrusive fix I could make.
 
-There was no feedback on this one?
+> Like this?
+>
+Looks good to me, thanks.
 
-> 
-> --- linux-2.6/net/sched/sch_generic.c	2006-05-10 12:34:52.000000000 -0700
-> +++ linux/net/sched/sch_generic.c	2006-05-10 12:39:38.000000000 -0700
-> @@ -136,8 +136,12 @@
->  
->  			if (!netif_queue_stopped(dev)) {
->  				int ret;
-> +				struct sk_buff *skbc = NULL;
-> +				/* Clone the skb so that we hold a reference
-> +				 * to its data and we can trace it after a
-> +				 * successful transmit. */
-
-Like this:
-
-				/*
-				 * Clone the skb so that we hold a reference to
-				 * its data and we can trace it after a
-				 * successful transmit
-				 */
-
->  				if (netdev_nit)
-> -					dev_queue_xmit_nit(skb, dev);
-> +					skbc = skb_clone(skb, GFP_ATOMIC);
->  
->  				ret = dev->hard_start_xmit(skb, dev);
->  				if (ret == NETDEV_TX_OK) { 
-> @@ -145,6 +149,15 @@
->  						dev->xmit_lock_owner = -1;
->  						spin_unlock(&dev->xmit_lock);
->  					}
-> +					if(skbc) {
-
-Like this:
-					if (skbc)
-
-> +						/* transmit succeeded, 
-> +						 * trace the clone. */
-> +						dev_queue_xmit_nit(skbc,dev);
-> +						kfree_skb(skbc);
-> +					}
-> +					/* Free clone if it exists */
-> +					if(skbc)
-
-					if (skbc)
-
-> +						kfree_skb(skbc);
-
-We don't need to test for skbc==NULL - kfree_skb(NULL) is legal.
-
-This code will end up running kfree_skb(skbc) twice.  Unless
-dev_queue_xmit_nit() takes an additional ref on the skb (I don't think it
-does), this will cause corruption of freed memory.
+[snip neater version of fix]
 
 
->  					spin_lock(&dev->queue_lock);
->  					return -1;
->  				}
-
-dev_queue_xmit_nit() already clones the skb.  It's a bit sad to be taking a
-clone of a clone like this.  Avoidable?
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,143 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbWENV2o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWENWXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751404AbWENV2o (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 17:28:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbWENV2o
+	id S1751189AbWENWXG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 18:23:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWENWXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 17:28:44 -0400
-Received: from usea-naimss1.unisys.com ([192.61.61.103]:57351 "EHLO
-	usea-naimss1.unisys.com") by vger.kernel.org with ESMTP
-	id S1751404AbWENV2n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 17:28:43 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C6779D.55F170DE"
-Subject: RE: [PATCH 0/10] bulk cpu removal support
-Date: Sun, 14 May 2006 16:28:26 -0500
-Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0BEF@USRV-EXCH4.na.uis.unisys.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 0/10] bulk cpu removal support
-Thread-Index: AcZ1V/ViTjJ/kowOSJCa8g0DxVCvwACPk1FgAAGyRtA=
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Nathan Lynch" <ntl@pobox.com>, "Ashok Raj" <ashok.raj@intel.com>
-Cc: "Martin Bligh" <mbligh@mbligh.org>, "Andrew Morton" <akpm@osdl.org>,
-       <shaohua.li@intel.com>, <linux-kernel@vger.kernel.org>,
-       <zwane@linuxpower.ca>, <vatsa@in.ibm.com>, <nickpiggin@yahoo.com.au>
-X-OriginalArrivalTime: 14 May 2006 21:28:26.0764 (UTC) FILETIME=[56460CC0:01C6779D]
+	Sun, 14 May 2006 18:23:05 -0400
+Received: from wr-out-0506.google.com ([64.233.184.231]:9862 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751189AbWENWXD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 May 2006 18:23:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=TP+3ardWnYMJt40lK1NdBfh/TuQGX7tnvtNCd2sNXBEOnswcGDF6j4kuNp7QvbNtjTtOgZpkGAJf2S4axliYe7dbda1Yzkkm9GtirWu7JyO/HVOi37oudvXAbuZRVyFRek5OXnM9m1horggVMkjeZNF7NNwVqOR3Yekjoxql2IU=
+Date: Sun, 14 May 2006 19:23:24 -0300
+From: Matheus Izvekov <mizvekov@gmail.com>
+To: kernel list <linux-kernel@vger.kernel.org>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, dtor_core@ameritech.net,
+       linux-usb-devel@lists.sourceforge.net
+Subject: [RFC][PATCH][RESEND] usbhid: Implement generic framework for
+ descriptor patching
+Message-ID: <20060514192324.58740d0c@localhost>
+X-Mailer: Sylpheed-Claws 2.2.0 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+The motivation for this is that the quirks framework doesnt scale
+well. Currently there is only one device needing the descriptor table
+to be patched, but as soon as something like this gets accepted, im
+going to implement a fixup for my own crappy keyboard, and over time
+others will follow.
 
-------_=_NextPart_001_01C6779D.55F170DE
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Matheus Izvekov <mizvekov@gmail.com>
+---
 
-> Per Ashok's request here is some data on offlining with=20
-> cpu_bulk_remove vs. sequentially with a shell script.
-> I had 64x system (physical CPU) and 128 (those 64=20
-> hyperthreaded). The system was idle.=20
-> Elapsed times are not strikingly different but system/user times are:
->=20
->                 64 CPU                                       =20
->   128 CPU
-> (64 physical hyperthreaded)
->                 cpu_bulk_remove         shell script
-> cpu_bulk_remove         shell script
-> all offline     real    0m11.231s       real    0m10.775s       real
-> 0m26.973s       real    0m16.484s
->                 user    0m0.000s        user    0m0.056         user
-> 0m0.000s        user    0m0.068s
->                 sys     0m0.072s        sys     0m0.448         sys
-> 0m0.132s        sys     0m1.312s
->=20
->                 real    0m11.977s       real    0m10.550s       real
-> 0m28.978s       real    0m14.259s
->                 user    0m0.000s        user    0m0.064s        user
-> 0m0.000s        user    0m0.060s
->                 sys     0m0.032s        sys     0m0.464s        sys
-> 0m0.152s        sys     0m1.432s
->=20
-> 32 offline      real    0m1.320s        real    0m2.422s        real
-> 0m1.647s        real    0m1.896s
->                 user    0m0.000s        user    0m0.000s        user
-> 0m0.000s        user    0m0.020s
->                 sys     0m0.076s        sys     0m0.232s        sys
-> 0m0.096s        sys     0m0.456s
->=20
->                 real    0m1.407s        real    0m3.348s        real
-> 0m0.418s        real    0m1.198s
->                 user    0m0.000s        user    0m0.012s        user
-> 0m0.000s        user    0m0.008s
->                 sys     0m0.072s        sys     0m0.276s        sys
-> 0m0.044s        sys     0m0.244s
->=20
-> groups of 16    real 0m5.877s           real 0m11.403s
->                 user 0m0.000s           user 0m0.024s
->                 sys 0m0.140s            sys 0m0.408s
->=20
-> groups of 8     real 0m8.847s           real 0m12.078s          real
-> 0m12.311s       real    0m12.736s
->                 user 0m0.004s           user 0m0.028s           user
-> 0m0.004s        user    0m0.076s
->                 sys 0m0.232s            sys 0m0.536s            sys
-> 0m0.448s        sys     0m1.448s
->=20
->                                                                 real
-> 0m11.968s       real    0m14.314s
->                                                                 user
-> 0m0.008s        user    0m0.084s
->                                                                 sys
-> 0m0.400s        sys     0m1.492s
->=20
-> With smaller "bulks" cpu_bulk_remove is always better, but=20
-> with large ones shell script mostly wins, especially with=20
-> hyperthreading (despite of much better system and user times!)
->=20
-Oops it all wrapped :O=20
-I'm attaching the data file instead, sorry about that.
+The difference from the previous submission is that now instead of passing
+usb_device as a parameter to the patching function, im using
+usb_device_descriptor (ddesc) and usb_interface_descriptor (idesc),
+as i think it was too generic, most users would be interested just in ddesc
+and idesc.
+The reason for passing idesc is that i will need to do
+if (idesc.bInterfaceNumber == 1)
+in a patching function, in order to patch just the mouse part of my
+mouse/keyboard combo.
+The reason for passing ddesc is to make it possible to reuse one function
+to patch several devices with different manufacturer and product ids.
 
---Natalie
->=20
+Maybe im still too generic here, and passing just idVendor, idProduct and
+bInterfaceNumber will be enough for everybody in the future, hence my
+request for comments.
 
-------_=_NextPart_001_01C6779D.55F170DE
-Content-Type: application/octet-stream;
-	name="cpu_data"
-Content-Transfer-Encoding: base64
-Content-Description: cpu_data
-Content-Disposition: attachment;
-	filename="cpu_data"
+Thanks to Vojtech Pavlik for the sugestion of starting this work.
 
-CQk2NCBDUFUJCQkJCQkxMjggQ1BVICg2NCBwaHlzaWNhbCBoeXBlcnRocmVhZGVkKQkJCgkJY3B1
-X2J1bGtfcmVtb3ZlCQlzaGVsbCBzY3JpcHQJCWNwdV9idWxrX3JlbW92ZQkJc2hlbGwgc2NyaXB0
-CmFsbCBvZmZsaW5lCXJlYWwgICAgMG0xMS4yMzFzCXJlYWwgICAgMG0xMC43NzVzCXJlYWwgICAg
-MG0yNi45NzNzCXJlYWwgICAgMG0xNi40ODRzCgkJdXNlciAgICAwbTAuMDAwcwl1c2VyICAgIDBt
-MC4wNTYJCXVzZXIgICAgMG0wLjAwMHMJdXNlciAgICAwbTAuMDY4cwoJCXN5cyAgICAgMG0wLjA3
-MnMJc3lzICAgICAwbTAuNDQ4CQlzeXMgICAgIDBtMC4xMzJzCXN5cyAgICAgMG0xLjMxMnMKCQkJ
-CQoJCXJlYWwgICAgMG0xMS45NzdzCXJlYWwgICAgMG0xMC41NTBzCXJlYWwgICAgMG0yOC45Nzhz
-CXJlYWwgICAgMG0xNC4yNTlzCgkJdXNlciAgICAwbTAuMDAwcwl1c2VyICAgIDBtMC4wNjRzCXVz
-ZXIgICAgMG0wLjAwMHMJdXNlciAgICAwbTAuMDYwcwoJCXN5cyAgICAgMG0wLjAzMnMJc3lzICAg
-ICAwbTAuNDY0cwlzeXMgICAgIDBtMC4xNTJzCXN5cyAgICAgMG0xLjQzMnMKCQkJCjMyIG9mZmxp
-bmUJcmVhbCAgICAwbTEuMzIwcwlyZWFsICAgIDBtMi40MjJzCXJlYWwgICAgMG0xLjY0N3MJcmVh
-bCAgICAwbTEuODk2cwoJCXVzZXIgICAgMG0wLjAwMHMJdXNlciAgICAwbTAuMDAwcwl1c2VyICAg
-IDBtMC4wMDBzCXVzZXIgICAgMG0wLjAyMHMKCQlzeXMgICAgIDBtMC4wNzZzCXN5cyAgICAgMG0w
-LjIzMnMJc3lzICAgICAwbTAuMDk2cwlzeXMgICAgIDBtMC40NTZzCgkJCQkJCQoJCXJlYWwgICAg
-MG0xLjQwN3MJcmVhbCAgICAwbTMuMzQ4cwlyZWFsICAgIDBtMC40MThzCXJlYWwgICAgMG0xLjE5
-OHMKCQl1c2VyICAgIDBtMC4wMDBzCXVzZXIgICAgMG0wLjAxMnMJdXNlciAgICAwbTAuMDAwcwl1
-c2VyICAgIDBtMC4wMDhzCgkJc3lzICAgICAwbTAuMDcycwlzeXMgICAgIDBtMC4yNzZzCXN5cyAg
-ICAgMG0wLjA0NHMJc3lzICAgICAwbTAuMjQ0cwkKCmdyb3VwcyBvZiAxNglyZWFsIDBtNS44Nzdz
-CQlyZWFsIDBtMTEuNDAzcwkJCQkJCgkJdXNlciAwbTAuMDAwcwkJdXNlciAwbTAuMDI0cwkJCQkJ
-CgkJc3lzIDBtMC4xNDBzCQlzeXMgMG0wLjQwOHMJCQkJCQoJCQkJCQkJCmdyb3VwcyBvZiA4CXJl
-YWwgMG04Ljg0N3MJCXJlYWwgMG0xMi4wNzhzCQlyZWFsICAgIDBtMTIuMzExcwlyZWFsICAgIDBt
-MTIuNzM2cwkKCQl1c2VyIDBtMC4wMDRzCQl1c2VyIDBtMC4wMjhzCQl1c2VyICAgIDBtMC4wMDRz
-CXVzZXIgICAgMG0wLjA3NnMJCgkJc3lzIDBtMC4yMzJzCQlzeXMgMG0wLjUzNnMJCXN5cyAgICAg
-MG0wLjQ0OHMJc3lzICAgICAwbTEuNDQ4cwkKCQkJCQkJCgkJCQkJCQkJcmVhbCAgICAwbTExLjk2
-OHMJcmVhbCAgICAwbTE0LjMxNHMJCgkJCQkJCQkJdXNlciAgICAwbTAuMDA4cwl1c2VyICAgIDBt
-MC4wODRzCQoJCQkJCQkJCXN5cyAgICAgMG0wLjQwMHMJc3lzICAgICAwbTEuNDkycwkKCg==
-
-------_=_NextPart_001_01C6779D.55F170DE--
+diff --git a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
+index 7724780..a25ecbb 100644
+--- a/drivers/usb/input/hid-core.c
++++ b/drivers/usb/input/hid-core.c
+@@ -1593,8 +1593,6 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD, HID_QUIRK_BADPAD },
+ 	{ USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD, HID_QUIRK_BADPAD },
+ 
+-	{ USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_CYMOTION, HID_QUIRK_CYMOTION },
+-
+ 	{ USB_VENDOR_ID_APPLE, 0x020E, HID_QUIRK_POWERBOOK_HAS_FN },
+ 	{ USB_VENDOR_ID_APPLE, 0x020F, HID_QUIRK_POWERBOOK_HAS_FN },
+ 	{ USB_VENDOR_ID_APPLE, 0x0214, HID_QUIRK_POWERBOOK_HAS_FN },
+@@ -1607,6 +1605,35 @@ static const struct hid_blacklist {
+ };
+ 
+ /*
++ * Cherry Cymotion keyboard have an invalid HID report descriptor,
++ * that needs fixing before we can parse it.
++ */
++
++static void hid_fixup_cymotion_descriptor(char *rdesc, int rsize,
++					struct usb_device_descriptor *ddesc,
++					struct usb_interface_descriptor *idesc)
++{
++	if (rsize >= 17 && rdesc[11] == 0x3c && rdesc[12] == 0x02) {
++		info("Fixing up Cherry Cymotion report descriptor");
++		rdesc[11] = rdesc[16] = 0xff;
++		rdesc[12] = rdesc[17] = 0x03;
++	}
++}
++
++static const struct hid_desc_fixup_list {
++	__u16 idVendor;
++	__u16 idProduct;
++	void (*fixup)(char *rdesc, int rsize,
++			struct usb_device_descriptor *ddesc,
++			struct usb_interface_descriptor *idesc);
++} hid_desc_fixup_list[] = {
++
++	{ USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_CYMOTION,  hid_fixup_cymotion_descriptor},
++
++	{ 0, 0 }
++};
++
++/*
+  * Traverse the supplied list of reports and find the longest
+  */
+ static void hid_find_max_report(struct hid_device *hid, unsigned int type, int *max)
+@@ -1649,20 +1676,6 @@ static void hid_free_buffers(struct usb_
+ 		usb_buffer_free(dev, hid->bufsize, hid->ctrlbuf, hid->ctrlbuf_dma);
+ }
+ 
+-/*
+- * Cherry Cymotion keyboard have an invalid HID report descriptor,
+- * that needs fixing before we can parse it.
+- */
+-
+-static void hid_fixup_cymotion_descriptor(char *rdesc, int rsize)
+-{
+-	if (rsize >= 17 && rdesc[11] == 0x3c && rdesc[12] == 0x02) {
+-		info("Fixing up Cherry Cymotion report descriptor");
+-		rdesc[11] = rdesc[16] = 0xff;
+-		rdesc[12] = rdesc[17] = 0x03;
+-	}
+-}
+-
+ static struct hid_device *usb_hid_configure(struct usb_interface *intf)
+ {
+ 	struct usb_host_interface *interface = intf->cur_altsetting;
+@@ -1710,8 +1723,10 @@ static struct hid_device *usb_hid_config
+ 		return NULL;
+ 	}
+ 
+-	if ((quirks & HID_QUIRK_CYMOTION))
+-		hid_fixup_cymotion_descriptor(rdesc, rsize);
++	for (n = 0; hid_desc_fixup_list[n].idVendor; n++)
++		if ((hid_desc_fixup_list[n].idVendor == le16_to_cpu(dev->descriptor.idVendor)) &&
++			(hid_desc_fixup_list[n].idProduct == le16_to_cpu(dev->descriptor.idProduct)))
++				hid_desc_fixup_list[n].fixup(rdesc, rsize, &dev->descriptor, &interface->desc);
+ 
+ #ifdef DEBUG_DATA
+ 	printk(KERN_DEBUG __FILE__ ": report descriptor (size %u, read %d) = ", rsize, n);
+diff --git a/drivers/usb/input/hid.h b/drivers/usb/input/hid.h
+index 8b0d434..570116a 100644
+--- a/drivers/usb/input/hid.h
++++ b/drivers/usb/input/hid.h
+@@ -246,7 +246,6 @@ #define HID_QUIRK_2WHEEL_MOUSE_HACK_7		0
+ #define HID_QUIRK_2WHEEL_MOUSE_HACK_5		0x00000100
+ #define HID_QUIRK_2WHEEL_MOUSE_HACK_ON		0x00000200
+ #define HID_QUIRK_2WHEEL_POWERMOUSE		0x00000400
+-#define HID_QUIRK_CYMOTION			0x00000800
+ #define HID_QUIRK_POWERBOOK_HAS_FN		0x00001000
+ #define HID_QUIRK_POWERBOOK_FN_ON		0x00002000
+ 

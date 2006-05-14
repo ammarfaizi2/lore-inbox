@@ -1,39 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWENPKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751455AbWENPbS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751443AbWENPKy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 11:10:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWENPKy
+	id S1751455AbWENPbS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 11:31:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWENPbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 11:10:54 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:56546 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1751443AbWENPKx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 11:10:53 -0400
-Subject: Re: MMC drivers for 2.6 collie
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060514145325.GA3205@elf.ucw.cz>
-References: <20060514145325.GA3205@elf.ucw.cz>
-Content-Type: text/plain
-Date: Sun, 14 May 2006 16:10:40 +0100
-Message-Id: <1147619440.5531.167.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sun, 14 May 2006 11:31:18 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:20660 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751455AbWENPbR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 May 2006 11:31:17 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH -mm] update comment in rtmutex.c and friends
+Date: Sun, 14 May 2006 17:28:03 +0200
+User-Agent: KMail/1.9.1
+Cc: akpm@osdl.org, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0605131846250.2208@gandalf.stny.rr.com>
+In-Reply-To: <Pine.LNX.4.58.0605131846250.2208@gandalf.stny.rr.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605141728.05752.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-05-14 at 16:53 +0200, Pavel Machek wrote:
-> I've tried searching sharp patches for MMC support, but could not find
-> it. Or should MMC_ARMMMCI work on collie?
+Hi Steven,
 
-Sharp's 2.4 MMC/SD drivers were binary only for all Zaurus models. Since
-we have documentation on the PXA, a 2.6 driver exists and works for all
-PXA models as we could guess the power controls and GPIOs. Collie
-(SA1100 based) used some kind of SPI interface through the LOCOMO chip
-(as far as I know) which we have no documentation on.
+On Sunday, 14. May 2006 01:34, Steven Rostedt wrote:
+> @@ -46,9 +46,15 @@
+>   *
+>   * The fast atomic compare exchange based acquire and release is only
+>   * possible when bit 0 and 1 of lock->owner are 0.
+> + *
+> + * (*) There's a small time where the owner can be NULL and the
+> + * "lock has waiters" bit is set.  This can happen when grabbing the lock.
+> + * To prevent a cmpxchg of the owner releasing the lock, we need to set this
+> + * bit before looking at the lock, hence the reason this is a transitional
+> + * state.
+>   */
+> 
+> -static void
+> +static vid
 
--- 
-Richard
+Typo here.
 
+>  rt_mutex_set_owner(struct rt_mutex *lock, struct task_struct *owner,
+>  		   unsigned long mask)
+>  {
+> @@ -365,6 +371,7 @@ static int try_to_take_rt_mutex(struct r
+
+PS: Compile testing ANY changes to *.c and *.h files
+	will catch most obvious brown paper bag typos for you :-)
+
+Regards
+
+Ingo Oeser

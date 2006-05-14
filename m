@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWENRI7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWENRK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751227AbWENRI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 13:08:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWENRI6
+	id S1751029AbWENRK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 13:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWENRK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 13:08:58 -0400
-Received: from mga01.intel.com ([192.55.52.88]:4876 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751227AbWENRI5 convert rfc822-to-8bit (ORCPT
+	Sun, 14 May 2006 13:10:29 -0400
+Received: from xenotime.net ([66.160.160.81]:10925 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751029AbWENRK3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 13:08:57 -0400
-X-IronPort-AV: i="4.05,126,1146466800"; 
-   d="scan'208"; a="37017588:sNHT14906528"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: please git pull ACPI for 2.6.17
-Date: Sun, 14 May 2006 13:08:54 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB670F3C4@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: please git pull ACPI for 2.6.17
-Thread-Index: AcZ3YHjsKf/KIZHRSIOaupp33pWhBQAF0pEg
-From: "Brown, Len" <len.brown@intel.com>
-To: "Jiri Slaby" <jirislaby@gmail.com>
-Cc: <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 14 May 2006 17:08:55.0176 (UTC) FILETIME=[14E24880:01C67779]
+	Sun, 14 May 2006 13:10:29 -0400
+Date: Sun, 14 May 2006 10:12:54 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Cleanups to Doc*/SubmittingPatches
+Message-Id: <20060514101254.f731daf1.rdunlap@xenotime.net>
+In-Reply-To: <20060514143037.GA2886@elf.ucw.cz>
+References: <20060514143037.GA2886@elf.ucw.cz>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->is it possible to do so now, still before .17 release?
+On Sun, 14 May 2006 16:30:38 +0200 Pavel Machek wrote:
 
-I think that on April 3rd this was appropriate.
-But now 6 weeks later in the release cycle I don't think it is
-appropriate to do such a large pull.
+> This cleans up Submitting patches a bit. Missing/inconsistent full
+> stops, mostly.
 
-I'm assuming this tree will not be pulled until the start of .18.
+Incomplete sentences (fragments) don't need full stops, but they
+should be consistent.
 
-Jiri,
-Is there a specific individual patch that you are wanting to have in
-.17?
+> diff --git a/Documentation/SubmittingPatches b/Documentation/SubmittingPatches
+> index c2c85bc..07b87ce 100644
+> --- a/Documentation/SubmittingPatches
+> +++ b/Documentation/SubmittingPatches
+> @@ -173,17 +173,17 @@ copy the maintainer when you change thei
+>  For small patches you may want to CC the Trivial Patch Monkey
+>  trivial@kernel.org managed by Adrian Bunk; which collects "trivial"
+>  patches. Trivial patches must qualify for one of the following rules:
+> - Spelling fixes in documentation
+> + Spelling fixes in documentation.
+>   Spelling fixes which could break grep(1).
 
-thanks,
--Len
+I would just remove that '.' above and skip the rest of the
+changes in this section.
+
+> - Warning fixes (cluttering with useless warnings is bad)
+> - Compilation fixes (only if they are actually correct)
+> - Runtime fixes (only if they actually fix things)
+> + Warning fixes (cluttering with useless warnings is bad).
+> + Compilation fixes (only if they are actually correct).
+> + Runtime fixes (only if they actually fix things).
+>   Removing use of deprecated functions/macros (eg. check_region).
+> - Contact detail and documentation fixes
+> + Contact detail and documentation fixes.
+>   Non-portable code replaced by portable code (even in arch-specific,
+> - since people copy, as long as it's trivial)
+> - Any fix by the author/maintainer of the file. (ie. patch monkey
+> - in re-transmission mode)
+> + since people copy, as long as it's trivial).
+> + Any fix by the author/maintainer of the file (ie. patch monkey
+> + in re-transmission mode).
+>  URL: <http://www.kernel.org/pub/linux/kernel/people/bunk/trivial/>
+
+---
+~Randy

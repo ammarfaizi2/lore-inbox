@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751455AbWENPbS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751454AbWENPaJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751455AbWENPbS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 11:31:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWENPbS
+	id S1751454AbWENPaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 11:30:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWENPaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 11:31:18 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:20660 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751455AbWENPbR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 11:31:17 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH -mm] update comment in rtmutex.c and friends
-Date: Sun, 14 May 2006 17:28:03 +0200
-User-Agent: KMail/1.9.1
-Cc: akpm@osdl.org, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0605131846250.2208@gandalf.stny.rr.com>
-In-Reply-To: <Pine.LNX.4.58.0605131846250.2208@gandalf.stny.rr.com>
+	Sun, 14 May 2006 11:30:09 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:35579 "EHLO
+	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1751454AbWENPaI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 May 2006 11:30:08 -0400
+Message-ID: <44674CFC.5050706@gmail.com>
+Date: Sun, 14 May 2006 16:30:04 +0100
+From: Catalin Marinas <catalin.marinas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.17-rc4 1/6] Base support for kmemleak
+References: <20060513155757.8848.11980.stgit@localhost.localdomain>	 <20060513160541.8848.2113.stgit@localhost.localdomain> <84144f020605140753t67f10c3fmf754581aa74b39f5@mail.gmail.com>
+In-Reply-To: <84144f020605140753t67f10c3fmf754581aa74b39f5@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605141728.05752.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Steven,
-
-On Sunday, 14. May 2006 01:34, Steven Rostedt wrote:
-> @@ -46,9 +46,15 @@
->   *
->   * The fast atomic compare exchange based acquire and release is only
->   * possible when bit 0 and 1 of lock->owner are 0.
-> + *
-> + * (*) There's a small time where the owner can be NULL and the
-> + * "lock has waiters" bit is set.  This can happen when grabbing the lock.
-> + * To prevent a cmpxchg of the owner releasing the lock, we need to set this
-> + * bit before looking at the lock, hence the reason this is a transitional
-> + * state.
->   */
+Pekka Enberg wrote:
+> On 5/13/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+>> This patch adds the base support for the kernel memory leak detector. It
+>> traces the memory allocation/freeing in a way similar to the Boehm's
+>> conservative garbage collector, the difference being that the orphan
+>> pointers are not freed but only shown in /proc/memleak. Enabling this
+>> feature would introduce an overhead to memory allocations.
 > 
-> -static void
-> +static vid
+> Hmm. How much is the overhead anyway? I am guessing lots so can we
+> reasonably expect anyone to run such kernel?
 
-Typo here.
+The overhead is probably high since an allocated pointer needs to be
+inserted in a radix tree, together with its aliases. However, no-one
+should enable this feature for a production kernel, but only for
+debugging (as with Valgrind for user-space, there isn't anyone using
+those libraries for production versions).
 
->  rt_mutex_set_owner(struct rt_mutex *lock, struct task_struct *owner,
->  		   unsigned long mask)
->  {
-> @@ -365,6 +371,7 @@ static int try_to_take_rt_mutex(struct r
+> Why isn't DEBUG_SLAB_LEAK
+> enough for us?
 
-PS: Compile testing ANY changes to *.c and *.h files
-	will catch most obvious brown paper bag typos for you :-)
+I haven't looked at DEBUG_SLAB_LEAK in detail but it looks to me like it
+only shows the calling address of whoever allocated the object. Kmemleak
+detects whether the object is still refered (tracing garbage collection).
 
-Regards
+So, DEBUG_SLAB_LEAK should be enough if you suspect a memory leak. If
+you don't, some leaks might go unnoticed.
 
-Ingo Oeser
+Catalin

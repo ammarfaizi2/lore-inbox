@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWENXTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWENXWk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbWENXTV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 19:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWENXTV
+	id S1751396AbWENXWk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 19:22:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWENXWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 19:19:21 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:5675 "EHLO
+	Sun, 14 May 2006 19:22:39 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:3120 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751386AbWENXTV convert rfc822-to-8bit (ORCPT
+	id S1751396AbWENXWj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 19:19:21 -0400
+	Sun, 14 May 2006 19:22:39 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=uZlU3Olg04HFF8EJvHuuLRkfF0xyWMmvw4y/I0H3isaNviUTYVhvch5VX+q2hA3nx3HJnX39wGm3cB9OGisjc358AgdpkBNnk+UPZDtasXLamAcWk7ODPZGIMQZrOyLYHpzbQNUSHwUz2tW7D5QbI/wOcYgzefP27ILFaavhjcc=
-Message-ID: <70066d530605141619p40ca79c0uaa047918c11c37bb@mail.gmail.com>
-Date: Mon, 15 May 2006 07:19:19 +0800
+        b=pDNjEe6xwjO4zU/GW2MspknlSJ5jXSG9u3VYm9P/hIvXvIb/ZZUxIjSJCSSpvJ7lxuJP5t75NO4qdrMVBdmpjOc8XV8mTIlGKKeQ+njJBTsoHl15W9KptMYCRKomm/qetUVvpS7ddlWOuGQ8bbm7ABYCsmwYX4RWiS5ViX8+DFo=
+Message-ID: <70066d530605141622o30c9497dp8f571b575b2a706e@mail.gmail.com>
+Date: Mon, 15 May 2006 07:22:37 +0800
 From: "Jaya Kumar" <jayakumar.video@gmail.com>
 To: "Oliver Neukum" <oliver@neukum.org>
 Subject: Re: [PATCH/RFC 2.6.16.5 1/1] usb/media/quickcam_messenger driver
 Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <200605141824.28161.oliver@neukum.org>
+In-Reply-To: <200605141812.29333.oliver@neukum.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII;
 	format=flowed
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
 References: <200605141411.k4EEBaO4022817@localhost.localdomain>
-	 <200605141824.28161.oliver@neukum.org>
+	 <200605141812.29333.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On 5/15/06, Oliver Neukum <oliver@neukum.org> wrote:
-> Building this data structure on the stack is a shooting offense.
+> Am Sonntag, 14. Mai 2006 16:11 schrieb jayakumar.video@gmail.com:
+> > +static int qcm_setup_on_open(struct uvd *uvd)
+> > +{
+> > +qcm_sensor_set_gains(uvd, uvd->vpic.hue,
+> > +uvd->vpic.colour, uvd->vpic.contrast);
+> > +qcm_sensor_set_exposure(uvd, uvd->vpic.brightness);
+> > +qcm_sensor_set_shutter(uvd, uvd->vpic.whiteness);
+> > +qcm_set_camera_size(uvd);
+> > +qcm_camera_on(uvd);
+> > +return 0;
+> > +}
+>
+> This function can generate IO errors. You should not simply drop them.
 
-I completely agree with you (except for the shooting part :-). I'll
-make the corrections. In my defense, I copied that from the konicawc
-code.
+You are right. I was lazy about that. I'll put in a macro like
+CHECK_RET(qcm_camera_on) for all the calls that do IO.
 
-drivers/usb/media/konicawc.c
-
-921 static int __init konicawc_init(void)
-922 {
-923         struct usbvideo_cb cbTbl;
-924         info(DRIVER_DESC " " DRIVER_VERSION);
-925         memset(&cbTbl, 0, sizeof(cbTbl));
-926         cbTbl.probe = konicawc_probe;
-927         cbTbl.setupOnOpen = konicawc_setup_on_open;
-928         cbTbl.processData = konicawc_process_isoc;
-929         cbTbl.getFPS = konicawc_calculate_fps;
-930         cbTbl.setVideoMode = konicawc_set_video_mode;
-931         cbTbl.startDataPump = konicawc_start_data;
+Thanks,
+jaya

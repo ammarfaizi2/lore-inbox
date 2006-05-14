@@ -1,65 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWENA0x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbWENA2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964818AbWENA0x (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 May 2006 20:26:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbWENA0x
+	id S964829AbWENA2J (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 May 2006 20:28:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbWENA2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 May 2006 20:26:53 -0400
-Received: from smtp111.sbc.mail.re2.yahoo.com ([68.142.229.94]:21132 "HELO
-	smtp111.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S964818AbWENA0w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 May 2006 20:26:52 -0400
-Message-ID: <44667996.6090009@sbcglobal.net>
-Date: Sat, 13 May 2006 19:28:06 -0500
-From: Matthew Frost <artusemrys@sbcglobal.net>
-Reply-To: artusemrys@sbcglobal.net
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+	Sat, 13 May 2006 20:28:09 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:54051 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S964825AbWENA2H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 May 2006 20:28:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=VI8T59UQaZ0kuZ8Icc5CI07Aukxya3XRx9O+f3mzO8TymrRd56DtQHTgJzXVkSWxw4/saF/jFIVK2r0khOuuh1l/I3J/IMOm1oCFo34ILH7dfg2BETuifUHR2EfCxaH/HLBWUXWmBRQ5wm8sa2g2Hj5/WgtEA7WCDRy7QhUSn4o=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] mem-leak fix for acpi_thermal_write_trip_points()
+Date: Sun, 14 May 2006 02:28:58 +0200
+User-Agent: KMail/1.9.1
+Cc: Andy Grover <andrew.grover@intel.com>,
+       Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>,
+       Len Brown <len.brown@intel.com>, linux-acpi@vger.kernel.org,
+       Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>, linux-kernel@vger.kernel.org
-Subject: Re: http://advogato.org/article/888.html
-References: <20060513230206.GC12213@lkcl.net>
-In-Reply-To: <20060513230206.GC12213@lkcl.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605140228.58460.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(sorry; reply-all)
-Luke Kenneth Casson Leighton wrote:
-> "Recently there has been a fuss over monolithic and micro kernels -
->  specifically the direction of the Linux Kernel development. Free
->  Software is about "freedom of choice", and we should be able to choose
->  to compile the Linux Kernel as either a monolith or a microkernel. "
-> 
->  ...
-> 
+There's a memory leak in
+ drivers/acpi/thermal.c::acpi_thermal_write_trip_points()
+found by the Coverity checker as bug #1243
 
-I love your tasteful choice of writing your diatribe on your site and
-sending us a URL we can ignore.  Didn't you cause this fuss last time?
-Does that actually qualify as recently?
+The problem is simply that if the allocation of 'active' fails, then we'll
+return from the function without freeing the memory previously allocated 
+to 'limit_string'.
 
-http://lkml.org/lkml/2005/10/2/89
+One fix would have been the insertion of kfree(limit_string); just before
+the return_VALUE(-ENOMEM); call, but I chose a different fix.
+Except for this one return the function only has a single exit point at 
+the end: label, and there it does proper cleanup of everything. So even 
+though setting the return value (the 'count' variable) and jumping there 
+results in a pointless kfree(NULL) call (since 'active' will be NULL), I 
+thought this was a small price to pay for the bennefit of having just a 
+single exit path for the function.
 
-You want another flame war?
 
-This sounds suspiciously like the kind of 'freedom' where you say you
-want something, and expect someone else to do the heavy lifting for you
-to get it.
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
 
-Read up on the actual freedoms involved in Free Software.  They do not
-cover "Freedom to Be Provided With The Kernel Binary Design of Your Choice".
+ drivers/acpi/thermal.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
-You have the freedom to do with the kernel source what you wish, as long
-as everyone after you keeps like freedom.  You want a linux-like
-microkernel, go for it.  You have sufficient freedom, and sufficient
-coding ability if we believe your CV, to make it happen.  Scratch your
-own itch.
 
-You don't have the freedom to dictate development practice to an
-existing development community with a longstanding project.  This is not
-an itch Linus wishes to scratch, and, as you acknowledge, it is not the
-kind of change which will merge into mainline nicely.
+--- linux-2.6.17-rc4-git2-orig/drivers/acpi/thermal.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6.17-rc4-git2/drivers/acpi/thermal.c	2006-05-14 02:18:30.000000000 +0200
+@@ -942,8 +942,10 @@ acpi_thermal_write_trip_points(struct fi
+ 	memset(limit_string, 0, ACPI_THERMAL_MAX_LIMIT_STR_LEN);
+ 
+ 	active = kmalloc(ACPI_THERMAL_MAX_ACTIVE * sizeof(int), GFP_KERNEL);
+-	if (!active)
+-		return_VALUE(-ENOMEM);
++	if (!active) {
++		count = -ENOMEM;
++		goto end;
++	}
+ 
+ 	if (!tz || (count > ACPI_THERMAL_MAX_LIMIT_STR_LEN - 1)) {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Invalid argument\n"));
 
-Quit complaining and do the work, or help other people do the work,
-since you know l4linux exists.  No more diatribes.
+
 

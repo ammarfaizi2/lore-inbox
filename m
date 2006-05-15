@@ -1,16 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbWEOMwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWEOMvt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751462AbWEOMwW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 08:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWEOMwW
+	id S1750801AbWEOMvt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 08:51:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbWEOMvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 08:52:22 -0400
-Received: from relay1.mentorg.com ([192.94.38.131]:63939 "EHLO
-	relay1.mentorg.com") by vger.kernel.org with ESMTP id S1751453AbWEOMwV
+	Mon, 15 May 2006 08:51:49 -0400
+Received: from smtp10.wanadoo.fr ([193.252.22.21]:31706 "EHLO
+	smtp10.wanadoo.fr") by vger.kernel.org with ESMTP id S1750801AbWEOMvs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 08:52:21 -0400
+	Mon, 15 May 2006 08:51:48 -0400
+X-ME-UUID: 20060515125148497.0C1B724001BD@mwinf1012.wanadoo.fr
 Subject: RE: GPL and NON GPL version modules
-From: Xavier Bestel <Xavier_Bestel@mentor.com>
+From: Xavier Bestel <xavier.bestel@free.fr>
 To: "Nutan C." <nutanc@esntechnologies.co.in>
 Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
        linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>,
@@ -18,33 +19,28 @@ Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
        "Mukund JB." <mukundjb@esntechnologies.co.in>, gauravd.chd@gmail.com,
        bulb@ucw.cz, greg@kroah.com, Shakthi Kannan <cyborg4k@yahoo.com>,
        "Srinivas G." <srinivasg@esntechnologies.co.in>
-In-Reply-To: <1147697493.25330.77.camel@capoeira>
+In-Reply-To: <AF63F67E8D577C4390B25443CBE3B9F7092931@esnmail.esntechnologies.co.in>
 References: <AF63F67E8D577C4390B25443CBE3B9F7092931@esnmail.esntechnologies.co.in>
-	 <1147697493.25330.77.camel@capoeira>
 Content-Type: text/plain
-Organization: Mentor Graphics
-Message-Id: <1147697533.25330.79.camel@capoeira>
+Message-Id: <1147697493.25330.77.camel@capoeira>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Mon, 15 May 2006 14:52:13 +0200
+Date: Mon, 15 May 2006 14:51:33 +0200
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 May 2006 12:52:14.0063 (UTC) FILETIME=[6384AFF0:01C6781E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-15 at 14:51, Xavier Bestel wrote:
-> On Mon, 2006-05-15 at 14:12, Nutan C. wrote:
-> > Hi Jan,
-> > 
-> > So, if the proprietary code exposes an interface and if the code within
-> > the GPL makes a call to that interface, will the proprietary code become
-> > part of GPL. Please suggest
+On Mon, 2006-05-15 at 14:12, Nutan C. wrote:
+> Hi Jan,
 > 
-> No, but you don't have permission to redistribute the resulting kernel
-> unless the whole code is GPL.
-> In short, you can make it but you can't ship it.
+> So, if the proprietary code exposes an interface and if the code within
+> the GPL makes a call to that interface, will the proprietary code become
+> part of GPL. Please suggest
 
-BTW, for a real advice consult a real lawyer.
+No, but you don't have permission to redistribute the resulting kernel
+unless the whole code is GPL.
+In short, you can make it but you can't ship it.
 
 	Xav
+
 

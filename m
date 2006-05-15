@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWEONEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbWEONEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932403AbWEONEN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 09:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWEONEN
+	id S932409AbWEONEm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 09:04:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbWEONEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 09:04:13 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:11214 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S932403AbWEONEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 09:04:12 -0400
-Date: Mon, 15 May 2006 09:04:11 -0400
-To: Krishna Chaitanya <lnxctnya@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux for Asymmetric Multi Processing Systems.
-Message-ID: <20060515130411.GD23931@csclub.uwaterloo.ca>
-References: <ae649ba00605112354k5b91cb0cwb5e67723f6560720@mail.gmail.com> <20060512185426.GC2837@csclub.uwaterloo.ca> <ae649ba00605130510p6435e756h86f310f814c14b66@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 15 May 2006 09:04:42 -0400
+Received: from wr-out-0506.google.com ([64.233.184.235]:60523 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932409AbWEONEl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 09:04:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lDKDESjYDqJCZwcypwqEevSmUtpYbgbiwwWJFoG0z4Q6iaTwpMum6NHR3vRtkehHOJouDpLwKbbW0gm91XzdYfNvrjViUx9KfQXNyDCCdVCBmxkxZdU3UvxYNaoB//UdecvVV4a/pPKZgjkdET7LREvO1bzvri6b9XcBE9XlJSs=
+Message-ID: <9a8748490605150604x508861b5o211fe751aba7d608@mail.gmail.com>
+Date: Mon, 15 May 2006 15:04:41 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "=?ISO-8859-1?Q?J=F6rn_Engel?=" <joern@wohnheim.fh-wedel.de>
+Subject: Re: [PATCH] fix dangerous pointer derefs and remove pointless casts in MOXA driver
+Cc: "Alexey Dobriyan" <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
+       "Moxa Technologies" <support@moxa.com.tw>, "Alan Cox" <alan@redhat.com>,
+       "Martin Mares" <mj@ucw.cz>
+In-Reply-To: <20060515123545.GB26656@wohnheim.fh-wedel.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <ae649ba00605130510p6435e756h86f310f814c14b66@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+References: <200605140349.36122.jesper.juhl@gmail.com>
+	 <20060514141845.GB23387@mipter.zuzino.mipt.ru>
+	 <9a8748490605150253u3c69f030wd59f0619550d2060@mail.gmail.com>
+	 <20060515123545.GB26656@wohnheim.fh-wedel.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 13, 2006 at 05:40:54PM +0530, Krishna Chaitanya wrote:
-> Each Processor has its own RAM and the main ARM9 processor can access
-> the ARM7 Memory Map through a _Shared RAM_.
-> 
-> In other words, the Memory Map of ARM7 processors is visible to ARM9 
-> processor.
-> 
-> Finally there are 3 RAMs:
-> 1) System RAM (ARM9)
-> 2) Shared RAM (the Common Memory)
-> 3) Local RAM for ARM7s.
-> 
-> Basically, this is a _flexible_ mechanism to control the _visibility_
-> of Each Processor.
-> 
-> And the Memory Controller can do either _cached_ or _non-cached_ operations.
+On 15/05/06, Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
+> On Mon, 15 May 2006 11:53:07 +0200, Jesper Juhl wrote:
+> > On 14/05/06, Alexey Dobriyan <adobriyan@gmail.com> wrote:
+> > >
+> > >Please, don't make unrelated changes, ever.
+> > >
+> > Sorry about that.
+> > I know that's the general rule, but I guess I've been spoiled by
+> > having some of my recent patches merged that did a few trivial things
+> > all in one patch and people didn't seem to mind. I'll try to get out
+> > of that habbit again.
+>
+> I _did_ mind.  Just not enough to complain. :)
+>
+Heh, fair enough. I know I'm the one who's in the wrong and I'll get
+back in the "one change per patch file only" habbit - promise :)
 
-Sounds like a neat system.  I am not sure I would know what to do with
-one. :)
-
-It does however sound like the methods used for the Cell based systems
-might apply reasonably to it.  The main OS runs on the main CPU, and
-executes tasks on the other processors by transfering the task to them
-and retreiving the results later when it is ready.
-
-Len Sorensen
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

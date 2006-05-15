@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964999AbWEOTrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWEOTwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964999AbWEOTrI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 15:47:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWEOTrI
+	id S1751225AbWEOTwO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 15:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWEOTwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 15:47:08 -0400
-Received: from ns.suse.de ([195.135.220.2]:42961 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964999AbWEOTrG (ORCPT
+	Mon, 15 May 2006 15:52:14 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:16100 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751225AbWEOTwN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 15:47:06 -0400
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] x86 NUMA panic compile error
-Date: Mon, 15 May 2006 21:47:01 +0200
+	Mon, 15 May 2006 15:52:13 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCH -mm] swsusp: support creating bigger images (rev. 2)
+Date: Mon, 15 May 2006 21:52:10 +0200
 User-Agent: KMail/1.9.1
-Cc: Ingo Molnar <mingo@elte.hu>, haveblue@us.ibm.com, apw@shadowen.org,
-       linux-kernel@vger.kernel.org
-References: <20060515005637.00b54560.akpm@osdl.org> <20060515192614.GA24887@elte.hu> <20060515123929.76b9b693.akpm@osdl.org>
-In-Reply-To: <20060515123929.76b9b693.akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>,
+       Nigel Cunningham <ncunningham@cyclades.com>,
+       Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au
+References: <200605021200.37424.rjw@sisk.pl> <200605140033.14967.rjw@sisk.pl> <200605151948.45345.kernel@kolivas.org>
+In-Reply-To: <200605151948.45345.kernel@kolivas.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200605152147.02232.ak@suse.de>
+Message-Id: <200605152152.12194.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-[... feels the love ...]
-
-On Monday 15 May 2006 21:39, Andrew Morton wrote:
-> Ingo Molnar <mingo@elte.hu> wrote:
+On Monday 15 May 2006 11:48, Con Kolivas wrote:
+> On Sunday 14 May 2006 08:33, Rafael J. Wysocki wrote:
+> > On Friday 12 May 2006 12:30, Pavel Machek wrote:
+> > > > Please also remember that you are introducing complexity in other ways,
+> > > > with that swap prefetching code and so on. Any comparison in speed
+> > > > should include the time to fault back in pages that have been
+> > > > discarded.
+> > >
+> > > Well, swap prefetching is useful for other workloads, too; so it gets
+> > > developed/tested outside swsusp.
 > >
-> > Nevertheless for hard-to-debug bugs i prefer if they can be reproduced 
-> > and debugged on 32-bit too, because x86_64 debugging is still quite a 
-> > PITA and wastes alot of time: for example it has no support for exact 
-> > kernel stacktraces. Also, the printout of the backtrace is butt-ugly and 
-> > as un-ergonomic to the human eye as it gets
+> > Still my experience indicates that it doesn't play very nice with swsusp
+> > and unfortunately it hogs the I/O.
 > 
-> Yes, I find x86_64 traces significantly harder to follow.  And I miss the
-> display of the length of the functions (do_md_run+1208 instead of
-> do_md_run+1208/2043).  The latter form makes it easier to work out
-> whereabouts in the function things happened.
-> 
-> That, plus the mix of hex and decimal numbers..
-> 
-> > who came up with that 
-> > "two-maybe-one function entries per-line" nonsense? [Whoever did it he 
-> > never had to look at (and make sense of) hundreds of stacktraces in a 
-> > row.]
-> 
-> Plus they're wide enough to get usefully wordwrapped when someone mails
-> them to you.
+> There is no swap prefetching code linked in any way to swsusp suspend or 
+> resume on mainline or -mm. It was a preliminary experiment and Rafael lost 
+> interest in it so I never bothered pursuing it.
 
-Hmm, I didn't realize they were _that_ unpopular. If you got the i386 
-like space wasting backtraces would you guys all switch your development machines
-to x86-64 ? @)
+I'm referring to the code currently in -mm, where kprefetchd sometimes starts
+prefetching like mad after resume which hurts the disk I/O really badly (unless
+I set /proc/sys/vm/swap_prefetch to 0, that is).
 
--Andi
+I think the problem is related to the fact that swsusp tends to leave quite a lot
+of pages in the swap, if they had to be swapped out before suspend, and that
+makes kprefetchd believe it should get these pages back into RAM, which
+usually is not the greatest idea.
+
+The above is only a speculation, however, and I'd have to investigate it a bit
+more to say something more certain.  Anyway, my experience indicates
+that it usually is better to set /proc/sys/vm/swap_prefetch to 0 after resume,
+but YMMV.
+
+Greetings,
+Rafael

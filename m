@@ -1,83 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965222AbWEOVDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965225AbWEOVHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965222AbWEOVDn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 17:03:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965223AbWEOVDn
+	id S965225AbWEOVHA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 17:07:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965227AbWEOVG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 17:03:43 -0400
-Received: from kenobi.snowman.net ([70.84.9.186]:12766 "EHLO
-	kenobi.snowman.net") by vger.kernel.org with ESMTP id S965222AbWEOVDn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 17:03:43 -0400
-Date: Mon, 15 May 2006 17:03:42 -0400
-From: Stephen Frost <sfrost@snowman.net>
-To: Patrick McHardy <kaber@trash.net>, Amin Azez <azez@ufomechanic.net>,
-       "David S. Miller" <davem@davemloft.net>, willy@w.ods.org,
-       gcoady.lk@gmail.com, laforge@netfilter.org,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-       marcelo@kvack.org
-Subject: Re: [PATCH] fix mem-leak in netfilter
-Message-ID: <20060515210342.GP7774@kenobi.snowman.net>
-Mail-Followup-To: Patrick McHardy <kaber@trash.net>,
-	Amin Azez <azez@ufomechanic.net>,
-	"David S. Miller" <davem@davemloft.net>, willy@w.ods.org,
-	gcoady.lk@gmail.com, laforge@netfilter.org,
-	netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-	marcelo@kvack.org
-References: <44643BFD.3040708@trash.net> <9a8748490605120409x3851ca4fn14fc9c52500701e4@mail.gmail.com> <44647280.1030602@trash.net> <446490BB.10801@ufomechanic.net> <44683AFF.4070200@trash.net> <20060515142834.GL7774@kenobi.snowman.net> <4468CD3C.3000908@trash.net> <20060515192738.GN7774@kenobi.snowman.net> <4468DFF6.5020304@trash.net> <20060515204142.GO7774@kenobi.snowman.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JF+ytOk7PH04NsRm"
-Content-Disposition: inline
-In-Reply-To: <20060515204142.GO7774@kenobi.snowman.net>
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snowman.net
-X-Operating-System: Linux/2.6.16-1-vserver-686 (i686)
-X-Uptime: 16:58:28 up 7 days, 14:53, 22 users,  load average: 2.45, 3.40, 3.14
-User-Agent: Mutt/1.5.11+cvs20060403
+	Mon, 15 May 2006 17:06:59 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:14724 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S965225AbWEOVG7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 17:06:59 -0400
+Subject: Re: [PATCH 4 of 53] ipath - cap number of PDs that can be allocated
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+In-Reply-To: <adapsifuw9e.fsf@cisco.com>
+References: <300f0aa6f034eec6a806.1147477369@eng-12.pathscale.com>
+	 <adapsifuw9e.fsf@cisco.com>
+Content-Type: text/plain
+Date: Mon, 15 May 2006 14:06:57 -0700
+Message-Id: <1147727217.2773.6.camel@chalcedony.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-05-15 at 08:45 -0700, Roland Dreier wrote:
 
---JF+ytOk7PH04NsRm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Would it make more sense to fix the stress test?
 
-* Stephen Frost (sfrost@snowman.net) wrote:
-> * Patrick McHardy (kaber@trash.net) wrote:
-> > This is the updated patch, it changes the eviction strategy
-> > to LRU and fixes a bug related to TTL handling, the TTL stored
-> > in the entry should only be overwritten if the IPT_RECENT_TTL
-> > flag is set.
->=20
-> I thought that I had convinced myself that the TTL handling was okay and
-> that where it was overwritten wasn't harmful.  Oh well.
+I don't think so.  Without some kind of limits, it is simple for an
+unprivileged user process to cause the kernel to allocate huge wads of
+memory and thereby DoS or accidentally OOM the machine.
 
-Looking at this again...  The ttl isn't copied into 'ttl' unless the
-check_set has TTL turned on.  This means that the overwritting was fine,
-if you accept that you can only ever match on TTL, or never match on it.
-That doesn't seem right to me.  The TTL in the table should always be
-kept up-to-date and the only question is if the current rule requires it
-for a match or not.  This isn't a huge change, just set the local
-variable always but check for if it's asked to match before calling the
-lookup.  Or you could move it into an if/else block.
+The test in question should probably be fixed, but this is a much more
+fundamental problem.  I don't have any specific opinions on what should
+be done about it, other than "something".
 
-	Thanks,
+	<b
 
-		Stephen
-
---JF+ytOk7PH04NsRm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQFEaOyurzgMPqB3kigRAi9bAJ9Lt/Uly96YMfbc9aqLM7xv6ZhalACcD3CW
-9rxaHkBEipDLz6NEXEjSiJY=
-=iT1a
------END PGP SIGNATURE-----
-
---JF+ytOk7PH04NsRm--

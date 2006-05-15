@@ -1,55 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965038AbWEOSRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965075AbWEOSWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965038AbWEOSRU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 14:17:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965075AbWEOSRU
+	id S965075AbWEOSWa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 14:22:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965116AbWEOSWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 14:17:20 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:31940 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965038AbWEOSRT (ORCPT
+	Mon, 15 May 2006 14:22:30 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13952 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965075AbWEOSW3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 14:17:19 -0400
-Message-ID: <4468C5AC.5020103@garzik.org>
-Date: Mon, 15 May 2006 14:17:16 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Sven-Haegar Koch <haegar@sdinet.de>
-CC: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: SATA status report updated
-References: <44689C39.70902@garzik.org> <Pine.LNX.4.64.0605151901060.25784@mercury.sdinet.de>
-In-Reply-To: <Pine.LNX.4.64.0605151901060.25784@mercury.sdinet.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 15 May 2006 14:22:29 -0400
+Date: Mon, 15 May 2006 11:24:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH] x86 NUMA panic compile error
+Message-Id: <20060515112456.0624d498.akpm@osdl.org>
+In-Reply-To: <4468C3B8.8090502@shadowen.org>
+References: <20060515005637.00b54560.akpm@osdl.org>
+	<20060515140811.GA23750@shadowen.org>
+	<20060515175306.GA18185@elte.hu>
+	<20060515110814.11c74d70.akpm@osdl.org>
+	<4468C3B8.8090502@shadowen.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.1 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sven-Haegar Koch wrote:
-> On Mon, 15 May 2006, Jeff Garzik wrote:
+Andy Whitcroft <apw@shadowen.org> wrote:
+>
+> > So it is perhaps reasonable to do this panic, but only if !CONFIG_EMBEDDED? 
+> > (It really is time to start renaming CONFIG_EMBEDDED to CONFIG_DONT_DO_THIS
+> > or something).
 > 
->> I've updated the http://linux-ata.org/ status pages with the recent 
->> work by Tejun Heo and others.
-> 
-> Thanks for your list, but I'm missing the SATA chipset that our 
-> Asus-Boxes got:
-> 
-> 0000:00:14.1 IDE interface: ATI Technologies Inc ATI Dual Channel Bus 
-> Master PCI IDE Controller
-> (PCI-ID 1002:4349)
-> 
-> Or is this something different like an IDE chipset with included SATA 
-> bridges or so?
-> 
-> It is supported through the atiixp ide driver, but only really slow 
-> (10mb/s) - the same disks attached to an Intel SATA port give 30-40mb/s.
+> How about CONFIG_EXPERIMENTAL?
 
-Should be ahci or sata_sil driver?
-
-	Jeff
-
-
-
+Probably CONFIG_ADVANCED would be closer.

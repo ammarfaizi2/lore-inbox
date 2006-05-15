@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964916AbWEORMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964991AbWEORNe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964916AbWEORMy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 13:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964989AbWEORMx
+	id S964991AbWEORNe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 13:13:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbWEORNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 13:12:53 -0400
-Received: from fwstl1-1.wul.qc.ec.gc.ca ([205.211.132.24]:58706 "EHLO
-	ecstlaurent8.quebec.int.ec.gc.ca") by vger.kernel.org with ESMTP
-	id S964916AbWEORMx convert rfc822-to-8bit (ORCPT
+	Mon, 15 May 2006 13:13:34 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:4290 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964991AbWEORNd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 13:12:53 -0400
-content-class: urn:content-classes:message
+	Mon, 15 May 2006 13:13:33 -0400
+Message-ID: <4468B6BA.3080405@garzik.org>
+Date: Mon, 15 May 2006 13:13:30 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-Subject: RE: ASUS A8V Deluxe, x86_64
-Date: Mon, 15 May 2006 13:12:50 -0400
-Message-ID: <8E8F647D7835334B985D069AE964A4F7028FDBF5@ECQCMTLMAIL1.quebec.int.ec.gc.ca>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ASUS A8V Deluxe, x86_64
-Thread-Index: AcZ4QbFpTs3EztA7QcOLv+eJoWledgAAM5iw
-From: "Fortier,Vincent [Montreal]" <Vincent.Fortier1@EC.GC.CA>
-To: "Greg KH" <greg@kroah.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 15 May 2006 17:12:52.0297 (UTC) FILETIME=[CCA1D390:01C67842]
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       torvalds@osdl.org
+Subject: Re: [RFT] major libata update
+References: <20060515170006.GA29555@havoc.gtf.org> <1147713568.26686.79.camel@localhost.localdomain>
+In-Reply-To: <1147713568.26686.79.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.0 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.0 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > nvidia: module license 'NVIDIA' taints kernel.
+Alan Cox wrote:
+> On Llu, 2006-05-15 at 13:00 -0400, Jeff Garzik wrote:
+>> * PIO-based I/O is now IRQ-driven by default, rather than polled
+>>   in a kernel thread.  The polling path will continue to exist for
+>>   controllers that need it, and other special cases. (Albert Lee)
 > 
-> Do any of these problems happen without the nvidia driver 
-> loaded?  If so, please send us the logs for that.
-> 
+> How will this be selected ? Passing ->irq = 0 ?
 
-I'll give it a try tonight using the nv driver instead...
+It is selected at runtime by passing a polling flag to ata_taskfile.
 
-I will also let a memtest running all night to make sure memory is not
-involved in any of the other problems I have.
+That flag, in turn can be set by anything -- driver flags (for 
+controllers that always require polling), user variable requested at 
+runtime, whatever.
 
-Thnx
 
-- vin
+> For ata_piix given you've destabilized it a bit would now be a good time
+> to submit the patches to fix the timing, register scribble and incorrect
+> ATAPI caching ?
+
+Sure.
+
+	Jeff
+
+

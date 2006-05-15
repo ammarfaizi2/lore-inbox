@@ -1,134 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWEODfm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWEODiw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750808AbWEODfm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 23:35:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWEODfm
+	id S1751387AbWEODiw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 23:38:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWEODiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 23:35:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:40911 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750808AbWEODfl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 23:35:41 -0400
-Date: Sun, 14 May 2006 20:31:58 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mel Gorman <mel@csn.ul.ie>, Andy Whitcroft <apw@shadowen.org>
-Cc: davej@codemonkey.org.uk, tony.luck@intel.com, mel@csn.ul.ie,
-       linux-kernel@vger.kernel.org, bob.picco@hp.com, ak@suse.de,
-       linux-mm@kvack.org, linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH 5/6] Have ia64 use add_active_range() and
- free_area_init_nodes
-Message-Id: <20060514203158.216a966e.akpm@osdl.org>
-In-Reply-To: <20060508141211.26912.48278.sendpatchset@skynet>
-References: <20060508141030.26912.93090.sendpatchset@skynet>
-	<20060508141211.26912.48278.sendpatchset@skynet>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 14 May 2006 23:38:52 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:65451 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751387AbWEODiw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 May 2006 23:38:52 -0400
+Date: Sun, 14 May 2006 23:39:19 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Alberto Bertogli <albertito@gmail.com>
+Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] [UML] Problems building and running 2.6.17-rc4 on x86-64
+Message-ID: <20060515033919.GD21383@ccure.user-mode-linux.org>
+References: <20060514182541.GA4980@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060514182541.GA4980@gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mel Gorman <mel@csn.ul.ie> wrote:
->
-> Size zones and holes in an architecture independent manner for ia64.
+On Sun, May 14, 2006 at 03:25:41PM -0300, Alberto Bertogli wrote:
+> So I copied them from sysdeps/x86_64/jmpbuf-offsets.h, and building went
+> on. Probably, the same happens under i386.
+
+The current patch for this is http://user-mode-linux.sourceforge.net/work/current/2.6/2.6.17-rc4/patches/jmpbuf
+
+I need to redo it, but that works for now.
+
+> Then, it built fine, but at the end several errors showed up:
+>   MODPOST
+> WARNING: vmlinux - Section mismatch: reference to .init.text:do_mount_root from .bss between '__guard@@GLIBC_2.3.2' (at offset 0x603c5688) and 'stdout@@GLIBC_2.2.5'
+
+I have no idea what these mean, but they seem not to affect the
+viability of the resulting kernel.
+
+> It begins to boot, but panics right after mounting root:
 > 
+> [42949373.800000] kjournald starting.  Commit interval 5 seconds
+> [42949373.800000] EXT3-fs: mounted filesystem with ordered data mode.
+> [42949373.800000] VFS: Mounted root (ext3 filesystem) readonly.
+> [42949373.800000] Kernel panic - not syncing: handle_trap - failed to wait at end of syscall, errno = 0, status = 2943
 
-This one makes my ia64 die very early in boot.   The trace is pretty useless.
+This is a segfault happening when it shouldn't.
 
-config at http://www.zip.com.au/~akpm/linux/patches/stuff/config-ia64
+Can you disassemble stub_segv_handler and send me the output?  If
+you're unfamiliar with gdb, it works like this:
 
-EFI v1.10 by INTEL: SALsystab=0x3fe4c8c0 ACPI=0x3ff84000 ACPI 2.0=0x3ff83000 MP0
-Early serial console at I/O port 0x2f8 (options '9600n8')
-SAL 3.1: Intel Corp                       SR870BN4                         vers0
-SAL Platform features: BusLock IRQ_Redirection
-SAL: AP wakeup using external interrupt vector 0xf0
-No logical to physical processor mapping available
-iosapic_system_init: Disabling PC-AT compatible 8259 interrupts
-ACPI: Local APIC address c0000000fee00000
-PLATFORM int CPEI (0x3): GSI 22 (level, low) -> CPU 0 (0xc618) vector 30
-register_intr: changing vector 39 from IO-SAPIC-edge to IO-SAPIC-level
-4 CPUs available, 4 CPUs total
-MCA related initialization done
-node 0 zone DMA missaligned start pfn, enable UNALIGNED_ZONE_BOUNDRIES
-node 0 zone DMA32 missaligned start pfn, enable UNALIGNED_ZONE_BOUNDRIES
-node 0 zone Normal missaligned start pfn, enable UNALIGNED_ZONE_BOUNDRIES
-node 0 zone HighMem missaligned start pfn, enable UNALIGNED_ZONE_BOUNDRIES
-SMP: Allowing 4 CPUs, 0 hotplug CPUs
-Built 1 zonelists
-Kernel command line: BOOT_IMAGE=scsi0:\EFI\redhat\vmlinuz-2.6.17-rc4-mm1 root=/o
-PID hash table entries: 4096 (order: 12, 32768 bytes)
-Console: colour VGA+ 80x25
-Dentry cache hash table entries: 131072 (order: 6, 1048576 bytes)
-Inode-cache hash table entries: 65536 (order: 5, 524288 bytes)
-Placing software IO TLB between 0x4a30000 - 0x8a30000
-Unable to handle kernel NULL pointer dereference (address 0000000000000008)
-swapper[0]: Oops 8813272891392 [1]
-Modules linked in:
+	% gdb linux
+	GNU gdb Red Hat Linux (6.3.0.0-1.122rh)
+	Copyright 2004 Free Software Foundation, Inc.
+	GDB is free software, covered by the GNU General Public License, and you are
+	welcome to change it and/or distribute copies of it under certain conditions.
+	Type "show copying" to see the conditions.
+	`There is absolutely no warranty for GDB.  Type "show warranty" for details.
+	This GDB was configured as "x86_64-redhat-linux-gnu"...Using host libthread_db library "/lib64/libthread_db.so.1".
+	
+	(gdb) disas stub_segv_handler
+	Dump of assembler code for function stub_segv_handler:
+	0x00000000601610c8 <stub_segv_handler+0>:       push   %rbp
+	0x00000000601610c9 <stub_segv_handler+1>:       mov    %rsp,%rbp
+	0x00000000601610cc <stub_segv_handler+4>:       mov    %rdx,%r8
+	...
 
-Pid: 0, CPU 0, comm:              swapper
-psr : 00001010084a6010 ifs : 800000000000060f ip  : [<a0000001000e6750>]    Notd
-ip is at __free_pages_ok+0x190/0x3c0
-unat: 0000000000000000 pfs : 000000000000060f rsc : 0000000000000003
-rnat: 0000000000ffffff bsps: 00000000000002f9 pr  : 80000000afb5956b
-ldrs: 0000000000000000 ccv : 0000000000000000 fpsr: 0009804c8a70433f
-csd : 0930ffff00090000 ssd : 0930ffff00090000
-b0  : a0000001000e6660 b6  : e00000003fe52940 b7  : a000000100790120
-f6  : 1003e6db6db6db6db6db7 f7  : 1003e000000000006dec0
-f8  : 1003e000000000000fb80 f9  : 1003e000000000006e080
-f10 : 1003e000000000000fb40 f11 : 1003e000000000006dec0
-r1  : a000000100af2db0 r2  : 0000000000000001 r3  : 0000000000000000
-r8  : a0000001008f3d38 r9  : 0000000000004000 r10 : 0000000000370400
-r11 : 0000000000004000 r12 : a0000001007b7e10 r13 : a0000001007b0000
-r14 : 0000000000000001 r15 : 0000000100000001 r16 : 0000000100000001
-r17 : 0000000100000001 r18 : 0000000000001041 r19 : 0000000000000000
-r20 : e00000000149df00 r21 : 0000000100000000 r22 : 0000000055555155
-r23 : 00000000ffffffff r24 : e00000000149df08 r25 : 1555555555555155
-r26 : 0000000000000032 r27 : 0000000000000000 r28 : 0000000000000008
-r29 : 0000000000001041 r30 : 0000000000001041 r31 : 0000000000000001
-Unable to handle kernel NULL pointer dereference (address 0000000000000000)
-swapper[0]: Oops 8813272891392 [2]
-Modules linked in:
+There was a bug like this a month or so ago, but it has been in
+mainline for a while, so this should be something different.
 
-Pid: 0, CPU 0, comm:              swapper
-psr : 0000101008022018 ifs : 8000000000000287 ip  : [<a0000001001236c0>]    Notd
-ip is at kmem_cache_alloc+0x40/0x100
-unat: 0000000000000000 pfs : 0000000000000712 rsc : 0000000000000003
-rnat: 0000000000000000 bsps: 0000000000000000 pr  : 80000000afb59967
-ldrs: 0000000000000000 ccv : 0000000000000000 fpsr: 0009804c8a70033f
-csd : 0930ffff00090000 ssd : 0930ffff00090000
-b0  : a00000010003e450 b6  : a000000100001b50 b7  : a00000010003f320
-f6  : 1003e9e3779b97f4a7c16 f7  : 0ffdb8000000000000000
-f8  : 1003e000000000000007f f9  : 1003e0000000000000379
-f10 : 1003e6db6db6db6db6db7 f11 : 1003e000000000000007f
-r1  : a000000100af2db0 r2  : 0000000000000000 r3  : 0000000000000000
-r8  : 0000000000000000 r9  : 0000000000000000 r10 : a0000001007b0f24
-r11 : 0000000000000000 r12 : a0000001007b7280 r13 : a0000001007b0000
-r14 : 0000000000000000 r15 : 0000000000000000 r16 : a0000001007b7310
-r17 : 0000000000000000 r18 : a0000001007b7478 r19 : 0000000000000000
-r20 : 0000000000000000 r21 : 0000000000000018 r22 : 0000000000000000
-r23 : 0000000000000000 r24 : 0000000000000000 r25 : a0000001007b7308
-r26 : 000000007fffffff r27 : a000000100825520 r28 : a0000001008f3c40
-r29 : a000000100816ca8 r30 : 0000000000000018 r31 : 0000000000000018
-
-
-
-(gdb) l *0xa0000001000e6750
-0xa0000001000e6750 is in __free_pages_ok (mm.h:324).
-319     extern void FASTCALL(__page_cache_release(struct page *));
-320     
-321     static inline int page_count(struct page *page)
-322     {
-323             if (unlikely(PageCompound(page)))
-324                     page = (struct page *)page_private(page);
-325             return atomic_read(&page->_count);
-326     }
-327     
-328     static inline void get_page(struct page *page)
-
-
-Note the misaligned pfns.
-
-Andy's (misspelled) CONFIG_UNALIGNED_ZONE_BOUNDRIES patch didn't actually
-include an update to any Kconfig files.  But hacking that in by hand didn't
-help.
-
+				Jeff

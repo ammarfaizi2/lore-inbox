@@ -1,54 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965258AbWEOVqF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965245AbWEOVrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965258AbWEOVqF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 17:46:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965259AbWEOVqF
+	id S965245AbWEOVrk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 17:47:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965259AbWEOVrk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 17:46:05 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:26570 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965258AbWEOVqE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 17:46:04 -0400
-Date: Mon, 15 May 2006 14:48:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Kdump maintainer info update
-Message-Id: <20060515144844.1a791909.akpm@osdl.org>
-In-Reply-To: <20060515142805.GA6517@in.ibm.com>
-References: <20060515142805.GA6517@in.ibm.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 15 May 2006 17:47:40 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:16277 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S965245AbWEOVrj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 17:47:39 -0400
+Date: Mon, 15 May 2006 14:47:27 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Roland Dreier <rdreier@cisco.com>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       "akpm@osdl.org Linux Kernel Mailing List" 
+	<linux-kernel@vger.kernel.org>,
+       openib-general@openib.org, Or Gerlitz <ogerlitz@voltaire.com>,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH] slab: Fix kmem_cache_destroy() on NUMA
+In-Reply-To: <adaves7rv0j.fsf_-_@cisco.com>
+Message-ID: <Pine.LNX.4.64.0605151446340.835@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0605111640010.3866@g5.osdl.org>
+ <Pine.LNX.4.44.0605141306240.29880-100000@zuben> <adaves7rv0j.fsf_-_@cisco.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> wrote:
->
-> diff -puN MAINTAINERS~kdump-maintainers-update MAINTAINERS
-> --- linux-2.6.17-rc4-1M/MAINTAINERS~kdump-maintainers-update	2006-05-15 10:05:45.000000000 -0400
-> +++ linux-2.6.17-rc4-1M-vivek/MAINTAINERS	2006-05-15 10:21:20.000000000 -0400
-> @@ -1536,6 +1536,16 @@ M:	zippel@linux-m68k.org
->  L:	kbuild-devel@lists.sourceforge.net
->  S:	Maintained
->  
-> +KDUMP
-> +P:	Vivek Goyal
-> +M:	vgoyal@in.ibm.com
-> +P:	Haren Myneni
-> +M:	hbabu@us.ibm.com
+On Mon, 15 May 2006, Roland Dreier wrote:
 
-btw, I'm thinking it would be sensible to convert the MAINTAINERS file into the
-form:
+> This patch fixes this by having drain_cpu_caches() do 
+> drain_alien_cache() on every node before it does drain_array() on the 
+> nodes' shared array_caches.
 
-P: Vivek Goyal <vgoyal@in.ibm.com>
-P: Haren Myneni <hbabu@us.ibm.com>
-
-And remove the "M:" lines.
-
-This is more compact, saner for pasting into email clients, saner for
-pasting into patch changelogs and would save me, oh, 45 seconds per day.
-
-
-Is there any reason not to do this?  Such as tools which are parsing the
-current format?
+Correct. That is the fix that I suggested earlier. The alien caches needs 
+to be drained first.

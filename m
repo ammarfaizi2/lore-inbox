@@ -1,114 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbWEOT1l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbWEOT2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751394AbWEOT1l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 15:27:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbWEOT1l
+	id S1751210AbWEOT2i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 15:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbWEOT2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 15:27:41 -0400
-Received: from kenobi.snowman.net ([70.84.9.186]:9115 "EHLO kenobi.snowman.net")
-	by vger.kernel.org with ESMTP id S1751394AbWEOT1j (ORCPT
+	Mon, 15 May 2006 15:28:38 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:8414 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751210AbWEOT2h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 15:27:39 -0400
-Date: Mon, 15 May 2006 15:27:38 -0400
-From: Stephen Frost <sfrost@snowman.net>
-To: Patrick McHardy <kaber@trash.net>
-Cc: Amin Azez <azez@ufomechanic.net>, "David S. Miller" <davem@davemloft.net>,
-       willy@w.ods.org, gcoady.lk@gmail.com, laforge@netfilter.org,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-       marcelo@kvack.org
-Subject: Re: [PATCH] fix mem-leak in netfilter
-Message-ID: <20060515192738.GN7774@kenobi.snowman.net>
-Mail-Followup-To: Patrick McHardy <kaber@trash.net>,
-	Amin Azez <azez@ufomechanic.net>,
-	"David S. Miller" <davem@davemloft.net>, willy@w.ods.org,
-	gcoady.lk@gmail.com, laforge@netfilter.org,
-	netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-	marcelo@kvack.org
-References: <egts52hm2epfu4g1b9kqkm4s9cdiv3tvt9@4ax.com> <20060508050748.GA11495@w.ods.org> <20060507.224339.48487003.davem@davemloft.net> <44643BFD.3040708@trash.net> <9a8748490605120409x3851ca4fn14fc9c52500701e4@mail.gmail.com> <44647280.1030602@trash.net> <446490BB.10801@ufomechanic.net> <44683AFF.4070200@trash.net> <20060515142834.GL7774@kenobi.snowman.net> <4468CD3C.3000908@trash.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DH4/xewco2zMcht6"
+	Mon, 15 May 2006 15:28:37 -0400
+Date: Mon, 15 May 2006 21:28:27 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>
+Subject: Re: 2.6.17-rc4-mm1
+Message-ID: <20060515192827.GA25066@elte.hu>
+References: <20060515005637.00b54560.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4468CD3C.3000908@trash.net>
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snowman.net
-X-Operating-System: Linux/2.6.16-1-vserver-686 (i686)
-X-Uptime: 14:56:56 up 7 days, 12:52, 23 users,  load average: 1.61, 1.81, 1.66
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <20060515005637.00b54560.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---DH4/xewco2zMcht6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+* Andrew Morton <akpm@osdl.org> wrote:
 
-* Patrick McHardy (kaber@trash.net) wrote:
-> I wasn't sure whether eviction was happening intentional in the old code
-> at all - still not able to locate the code where this happens, just
-> noticed that it does do eviction when I manually tried to trigger
-> a table overflow by adding entries through /proc. Anyway, it should
-> be easy to fix by keeping an additional lru list. I'll post
-> an updated patch soon.
+>   - The cachefs patches are back (local-disk-based caching of network
+>     filesystem files) (David Howells)
 
-It was always done intentionally; as I mentioned, it was originally
-written with the expectation of the table always being full.  That was
-also why I used one large malloc'd table and the hash chaining that I
-did- I always knew ahead of time exactly how much memory I'd be using as
-a running-set and never needed to do any allocation during operation.
-In hindsight I can see that the additional complexity from it was
-perhaps not worth the benefit that I saw from it.
+the blind hacks below are needed to make CONFIG_CACHEFILES build.
 
-The eviction is handled through the 'time_info_list'.  This is basically
-just an always-ordered (by time) array of positions into the main table.
-Line 504 (from stock 2.6.16) is where the list is used to add a new
-entry at the end of the list (replacing the oldest address).  'time_pos'
-points to the oldest entry.  The 'position' is then used to clear out
-the entry associated with this address from the hash table and the main
-table.  These are then replaced with the new address information and the
-time_pos is adjusted accordingly.  This didn't help the complexity as it
-meant I was tracking through different systems the position of each
-address in the time_info_list, the main table, and the hash table.
-Using the lists might make this a bit easier to implement though.
+	Ingo
 
-Then on line 566, if a new packet has come in for an existing address,
-we have to move that address up to the top of the time_info_list as it
-is now the 'most recent'.  As someone else mentioned, this might have
-been better done using 'memmove' but I wasn't sure about its use or
-performance in the kernel.  This is done again on line 617 when removing
-an address, which is expected to be a somewhat rare event (where an
-address is explicitly removed instead of just expiring).  One issue I
-was concerned about was that I really didn't want the system to become
-unhappy if a huge number of different addresses suddenly came in (more
-than the list could support and/or more than would be sensible to try to
-allocate memory to track).
-
-I'm really not sure why I didn't break out this code into more
-functions.  It certainly would have made things much clearer/simpler.  I
-think I was (without any particular reason for it) concerned about
-adding too many functions or calling things from the match() function.
-As for why I didn't use existing kernel structures, well, I wasn't aware
-of them in part and when I was asking about things I was asking about
-more complicated things (such as a generic storage/hashing system) than
-really made sense.  I'm not sure I would have used the lists anyway
-since I liked the general idea of just having the one 'main' table but
-it does seem to make things cleaner.
-
-	Thanks,
-
-		Stephen
-
---DH4/xewco2zMcht6
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQFEaNYprzgMPqB3kigRAqcrAJ934BXRthinvzj/v3ed6TonHwwH2ACgnRru
-b8iaT2XAcJ95fMQ6zqwMb3M=
-=ZrRl
------END PGP SIGNATURE-----
-
---DH4/xewco2zMcht6--
+Index: linux/fs/cachefiles/cf-namei.c
+===================================================================
+--- linux.orig/fs/cachefiles/cf-namei.c
++++ linux/fs/cachefiles/cf-namei.c
+@@ -124,31 +124,31 @@ try_again:
+ 	}
+ 
+ 	/* do the multiway lock magic */
+-	trap = lock_rename(cache->graveyard, dir);
++	trap = lock_rename(cache->graveyard, dir, 0);
+ 
+ 	/* do some checks before getting the grave dentry */
+ 	if (rep->d_parent != dir) {
+ 		/* the entry was probably culled when we dropped the parent dir
+ 		 * lock */
+-		unlock_rename(cache->graveyard, dir);
++		unlock_rename(cache->graveyard, dir, 0);
+ 		_leave(" = 0 [culled?]");
+ 		return 0;
+ 	}
+ 
+ 	if (!S_ISDIR(cache->graveyard->d_inode->i_mode)) {
+-		unlock_rename(cache->graveyard, dir);
++		unlock_rename(cache->graveyard, dir, 0);
+ 		cachefiles_io_error(cache, "Graveyard no longer a directory");
+ 		return -EIO;
+ 	}
+ 
+ 	if (trap == rep) {
+-		unlock_rename(cache->graveyard, dir);
++		unlock_rename(cache->graveyard, dir, 0);
+ 		cachefiles_io_error(cache, "May not make directory loop");
+ 		return -EIO;
+ 	}
+ 
+ 	if (d_mountpoint(rep)) {
+-		unlock_rename(cache->graveyard, dir);
++		unlock_rename(cache->graveyard, dir, 0);
+ 		cachefiles_io_error(cache, "Mountpoint in cache");
+ 		return -EIO;
+ 	}
+@@ -160,7 +160,7 @@ try_again:
+ 
+ 		grave = d_alloc(cache->graveyard, &name);
+ 		if (!grave) {
+-			unlock_rename(cache->graveyard, dir);
++			unlock_rename(cache->graveyard, dir, 0);
+ 			_leave(" = -ENOMEM");
+ 			return -ENOMEM;
+ 		}
+@@ -168,7 +168,7 @@ try_again:
+ 		alt = cache->graveyard->d_inode->i_op->lookup(
+ 			cache->graveyard->d_inode, grave, NULL);
+ 		if (IS_ERR(alt)) {
+-			unlock_rename(cache->graveyard, dir);
++			unlock_rename(cache->graveyard, dir, 0);
+ 			dput(grave);
+ 
+ 			if (PTR_ERR(alt) == -ENOMEM) {
+@@ -188,7 +188,7 @@ try_again:
+ 	}
+ 
+ 	if (grave->d_inode) {
+-		unlock_rename(cache->graveyard, dir);
++		unlock_rename(cache->graveyard, dir, 0);
+ 		dput(grave);
+ 		grave = NULL;
+ 		cond_resched();
+@@ -196,7 +196,7 @@ try_again:
+ 	}
+ 
+ 	if (d_mountpoint(grave)) {
+-		unlock_rename(cache->graveyard, dir);
++		unlock_rename(cache->graveyard, dir, 0);
+ 		dput(grave);
+ 		cachefiles_io_error(cache, "Mountpoint in graveyard");
+ 		return -EIO;
+@@ -204,7 +204,7 @@ try_again:
+ 
+ 	/* target should not be an ancestor of source */
+ 	if (trap == grave) {
+-		unlock_rename(cache->graveyard, dir);
++		unlock_rename(cache->graveyard, dir, 0);
+ 		dput(grave);
+ 		cachefiles_io_error(cache, "May not make directory loop");
+ 		return -EIO;
+@@ -231,7 +231,7 @@ try_again:
+ 
+ 	fsnotify_oldname_free(old_name);
+ 
+-	unlock_rename(cache->graveyard, dir);
++	unlock_rename(cache->graveyard, dir, 0);
+ 	dput(grave);
+ 	_leave(" = 0");
+ 	return 0;

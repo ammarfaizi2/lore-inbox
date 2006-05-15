@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWEOJfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbWEOJmp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932318AbWEOJfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 05:35:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWEOJfZ
+	id S932372AbWEOJmp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 05:42:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWEOJmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 05:35:25 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36484 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932318AbWEOJfZ (ORCPT
+	Mon, 15 May 2006 05:42:45 -0400
+Received: from mail-a02.ithnet.com ([217.64.83.97]:60571 "HELO ithnet.com")
+	by vger.kernel.org with SMTP id S932348AbWEOJmp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 05:35:25 -0400
-Date: Mon, 15 May 2006 05:34:57 -0400
-From: Alan Cox <alan@redhat.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Moxa Technologies <support@moxa.com.tw>,
-       Alan Cox <alan@redhat.com>, Martin Mares <mj@ucw.cz>
-Subject: Re: [PATCH] fix dangerous pointer derefs and remove pointless casts in MOXA driver
-Message-ID: <20060515093457.GA9780@devserv.devel.redhat.com>
-References: <200605140349.36122.jesper.juhl@gmail.com>
+	Mon, 15 May 2006 05:42:45 -0400
+X-Sender-Authentication: net64
+Date: Mon, 15 May 2006 11:42:43 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel@vger.kernel.org
+Subject: mcelog ?
+Message-Id: <20060515114243.8ccaa9aa.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605140349.36122.jesper.juhl@gmail.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 14, 2006 at 03:49:35AM +0200, Jesper Juhl wrote:
-> If mxser_write() gets called with a NULL 'tty' pointer, then the initial
-> assignment of tty->driver_data to info will explode.
+Hello,
 
-If mxser_write gets called with a NULL pointer then you've already got such
-serious problems it isn't worth checking
+can some kind soul please shortly explain what this message tells me:
 
-> Please consider for inclusion.
+HARDWARE ERROR
+CPU 1: Machine Check Exception:                4 Bank 4: b60a200170080813
+TSC 89cfb4725b17 ADDR 1025cb3f0 
+This is not a software problem!
+Run through mcelog --ascii to decode and contact your hardware vendor
+Kernel panic - not syncing: Machine check
 
-Just delete the checks.  Also the little cast cleanup looks good so submit
-that as a separate patch too.
 
-Alan
 
+Of course I ran mcelog but I don't quite understand how the additional info
+helps me finding the problem.
+Is this a problem with RAM? And if, which one?
+
+The box is a dual opteron with two banks of mem (4 sockets each), each socket
+holding a 1 GB mem module.
+
+Thanks for any hints.
+-- 
+Regards,
+Stephan
 

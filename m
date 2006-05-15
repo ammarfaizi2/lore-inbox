@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965132AbWEOS1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965121AbWEOS1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965132AbWEOS1u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 14:27:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965134AbWEOS1u
+	id S965121AbWEOS1b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 14:27:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965124AbWEOS1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 14:27:50 -0400
-Received: from rtsoft2.corbina.net ([85.21.88.2]:7076 "HELO mail.dev.rtsoft.ru")
-	by vger.kernel.org with SMTP id S965130AbWEOS1s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 14:27:48 -0400
-Message-ID: <4468C7DF.7090603@ru.mvista.com>
-Date: Mon, 15 May 2006 22:26:39 +0400
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Assorted bugs in the PIIX drivers
-References: <1132929808.3298.18.camel@localhost.localdomain>	 <44689A54.4020307@ru.mvista.com> <1147708783.26686.69.camel@localhost.localdomain>
-In-Reply-To: <1147708783.26686.69.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 15 May 2006 14:27:31 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:57216 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S965121AbWEOS1a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 14:27:30 -0400
+Date: Mon, 15 May 2006 11:30:18 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       ian.pratt@xensource.com, Christian.Limpach@cl.cam.ac.uk
+Subject: Re: [RFC PATCH 16/35] subarch support for interrupt and exception gates
+Message-ID: <20060515183018.GW25010@moss.sous-sol.org>
+References: <20060509084945.373541000@sous-sol.org> <20060509085154.441800000@sous-sol.org> <20060513052740.54d8cbff.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060513052740.54d8cbff.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+* Andrew Morton (akpm@osdl.org) wrote:
+> On Tue, 09 May 2006 00:00:16 -0700
+> Chris Wright <chrisw@sous-sol.org> wrote:
+> 
+> > --- linus-2.6.orig/include/asm-i386/mach-xen/setup_arch_pre.h
+> > +++ linus-2.6/include/asm-i386/mach-xen/setup_arch_pre.h
+> > @@ -5,6 +5,8 @@
+> >  struct start_info *xen_start_info;
+> >  EXPORT_SYMBOL(xen_start_info);
+> >  
+> > +struct trap_info xen_trap_table[257];
+> > +
+> >  /*
+> >   * Point at the empty zero page to start with. We map the real shared_info
+> >   * page as soon as fixmap is up and running.
+> 
+> Is there any particular reason why things-which-should-be-in-a-C-file are
+> present in a .h file?
 
-Alan Cox wrote:
-
-> On Llu, 2006-05-15 at 19:12 +0400, Sergei Shtylyov wrote:
-
->>    For PIO2+ actually, according to Intel's PRM (29860004.pdf), and it's said
->> to have no effect in the lower modes. This is actually not very correct since
->> when one issues Set Transfer Mode ATA command with the value (8 + PIOn), this
->> means select PIO _flow control_ mode n, so -IORDY is assumed to be in use.
-
-> PIO2 depends on the drive (there is a drive parameter telling you the
-> highest timing clock you can do with/without IORDY
-
-    Yes. But when you're setting any _explicit_ PIO mode with Set Features
-command, you're tell the drive to use -IORDY at the same time.
-
->>> I'm also not clear if the "no MWDMA0" list has been updated correctly
->>> for the newer chipsets.
-
->>    What is/was the point for keeping MW DMA 0 support anyway? On PIIX, it's
->> greatly slowed down (600 vs 480 ns cycle) and was never "offically" supported
->> by Intel.
-
-> Some old old drives only do MWDMA0. The Intel docs I have here don't
-> describe it in any way as "unsupported",
-
-    They just don't describe it, period. :-)
-
-> merely broken on some ICH variants.
-
-    ICH errata #55: "Note that DMA Mode-0 is an unsupported mode of the ICH."
-
-> Alan
-
-MBR, Sergei
-
-
+It's following direction of current subarch interaction with setup.c
+(namely the setup_arch_post.h).  It's definitely not so nice.

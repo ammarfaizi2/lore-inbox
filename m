@@ -1,74 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWEOUcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWEOUlp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbWEOUcM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 16:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWEOUcM
+	id S1751498AbWEOUlp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 16:41:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWEOUlp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 16:32:12 -0400
-Received: from build.arklinux.osuosl.org ([140.211.166.26]:60583 "EHLO
-	mail.arklinux.org") by vger.kernel.org with ESMTP id S1751341AbWEOUcK
+	Mon, 15 May 2006 16:41:45 -0400
+Received: from kenobi.snowman.net ([70.84.9.186]:56533 "EHLO
+	kenobi.snowman.net") by vger.kernel.org with ESMTP id S1751498AbWEOUlo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 16:32:10 -0400
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-To: linux-kernel@vger.kernel.org
-Subject: [FIXED] Re: Total machine lockup w/ current kernels while installing from CD
-Date: Mon, 15 May 2006 22:32:03 +0200
-User-Agent: KMail/1.9.1
-References: <200605110322.14774.bero@arklinux.org>
-In-Reply-To: <200605110322.14774.bero@arklinux.org>
+	Mon, 15 May 2006 16:41:44 -0400
+Date: Mon, 15 May 2006 16:41:43 -0400
+From: Stephen Frost <sfrost@snowman.net>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Amin Azez <azez@ufomechanic.net>, "David S. Miller" <davem@davemloft.net>,
+       willy@w.ods.org, gcoady.lk@gmail.com, laforge@netfilter.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       marcelo@kvack.org
+Subject: Re: [PATCH] fix mem-leak in netfilter
+Message-ID: <20060515204142.GO7774@kenobi.snowman.net>
+Mail-Followup-To: Patrick McHardy <kaber@trash.net>,
+	Amin Azez <azez@ufomechanic.net>,
+	"David S. Miller" <davem@davemloft.net>, willy@w.ods.org,
+	gcoady.lk@gmail.com, laforge@netfilter.org,
+	netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+	marcelo@kvack.org
+References: <20060507.224339.48487003.davem@davemloft.net> <44643BFD.3040708@trash.net> <9a8748490605120409x3851ca4fn14fc9c52500701e4@mail.gmail.com> <44647280.1030602@trash.net> <446490BB.10801@ufomechanic.net> <44683AFF.4070200@trash.net> <20060515142834.GL7774@kenobi.snowman.net> <4468CD3C.3000908@trash.net> <20060515192738.GN7774@kenobi.snowman.net> <4468DFF6.5020304@trash.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rZHzn+A9B7nBTGyj"
 Content-Disposition: inline
-Message-Id: <200605152232.04304.bero@arklinux.org>
+In-Reply-To: <4468DFF6.5020304@trash.net>
+X-Editor: Vim http://www.vim.org/
+X-Info: http://www.snowman.net
+X-Operating-System: Linux/2.6.16-1-vserver-686 (i686)
+X-Uptime: 16:32:26 up 7 days, 14:27, 22 users,  load average: 2.39, 1.77, 1.84
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 11. May 2006 03:22, Bernhard Rosenkraenzer wrote:
-> Hi,
-> I've built a CD that installs a customized system
-> [... crash at a random point ...]
-> BUG: soft lockup detected on CPU#0!
->
-> Pid: 421, comm: kjournald
-> EIP: 0060:[<b01a2f52>] CPU: 0
-> EIP is at journal_commit_transaction+0x92e/0xfcc
-> EFLAGS: 00000297 Not tainted (2.6.16-rc6 #1)
-> EAX: 00000001 EBX: c2d34788 ECX: 00000001 EDX: c785e000
-> ESI: b3ff8d04 EDI: 000000f0 EBP: b683b840 DS: 007b ES: 007b
-> CR0: 8005003b CR2: 0841f7fc CR3: 17217000 CR4: 000006d0
->  [<b02bd52e>] schedule+0x2ee/0x5b6
->  [<b01a6a88>] kjournald+0x201/0x213
->  [<b0111089>] smp_apic_timer_interrupt+0x32/0x49
->  [<b01a6937>] kjournald+0xb0/0x213
->  [<b01a5ffa>] commit_timeout+0x0/0x9
->  [<b012a789>] autoremove_wake_function+0x0/0x4b
->  [<b01a6887>] kjournald+0x0/0x213
->  [<b0101005>] kernel_thread_helper+0x5/0xb
 
-After backing out lots of changes, I've figured out the problem is caused by 
-this bit of 2.6.16-rc6:
+--rZHzn+A9B7nBTGyj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff -urN linux-2.6.16-rc5/kernel/sched.c linux-2.6.16-rc6/kernel/sched.c
---- linux-2.6.16-rc5/kernel/sched.c	2006-05-11 20:04:18.000000000 +0200
-+++ linux-2.6.16-rc6/kernel/sched.c	2006-05-11 20:00:00.000000000 +0200
-@@ -4028,6 +4021,8 @@
- 	 */
- 	if (unlikely(preempt_count()))
- 		return;
-+	if (unlikely(system_state != SYSTEM_RUNNING))
-+		return;
- 	do {
- 		add_preempt_count(PREEMPT_ACTIVE);
- 		schedule();
+* Patrick McHardy (kaber@trash.net) wrote:
+> This is the updated patch, it changes the eviction strategy
+> to LRU and fixes a bug related to TTL handling, the TTL stored
+> in the entry should only be overwritten if the IPT_RECENT_TTL
+> flag is set.
 
+This looks like least-recently-added as opposed to least-recently-used
+(or, really, least-recently-updated).  Not sure how you move an entry in
+the lru list (perhaps just delete/add?) but I'm pretty sure
+recent_entry_update() needs to be modified to move the updated entry to
+the end of the list for correct operation.
 
-The problem is that (to save a couple of bits of space), my simple installer 
-was running inside an initrd -- and system_state isn't set to SYSTEM_RUNNING 
-before linuxrc is executed --> scheduler breakage causes the oops.
+You also don't appear to check if 't' (the table following the
+recent_table_lookup() call) is valid in the 'match' (around
+line 191).  recent_entry_lookup() doesn't check that either.  It seems
+like you should be guarenteed to always get a table back but it might be
+prudent to check anyway.
 
-Since initrds are deprecated anyway, I've used this opportunity to update the 
-installer to use initramfs instead, and as expected, the problem went away -- 
-nevertheless [unless initrds are being removed in 2.6.18 anyway] we should 
-probably fix this or at least document it somewhe.
+I thought that I had convinced myself that the TTL handling was okay and
+that where it was overwritten wasn't harmful.  Oh well.
+
+	Thanks,
+
+		Stephen
+
+--rZHzn+A9B7nBTGyj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQFEaOeGrzgMPqB3kigRAhCgAJ4vQmH4EAxUjmwQGpMqcWpB2bbZ8ACeJq+3
+9+1+gF86/BKd/lFH3a+EwCA=
+=oyAT
+-----END PGP SIGNATURE-----
+
+--rZHzn+A9B7nBTGyj--

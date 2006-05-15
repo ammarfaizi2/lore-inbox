@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965114AbWEOSX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965110AbWEOSYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965114AbWEOSX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 14:23:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965118AbWEOSX2
+	id S965110AbWEOSYh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 14:24:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965116AbWEOSYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 14:23:28 -0400
-Received: from fwstl1-1.wul.qc.ec.gc.ca ([205.211.132.24]:22115 "EHLO
-	ecstlaurent8.quebec.int.ec.gc.ca") by vger.kernel.org with ESMTP
-	id S965114AbWEOSX1 convert rfc822-to-8bit (ORCPT
+	Mon, 15 May 2006 14:24:37 -0400
+Received: from mx2.suse.de ([195.135.220.15]:33499 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965110AbWEOSYg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 14:23:27 -0400
-content-class: urn:content-classes:message
+	Mon, 15 May 2006 14:24:36 -0400
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] x86 NUMA panic compile error
+Date: Mon, 15 May 2006 20:24:31 +0200
+User-Agent: KMail/1.9.1
+Cc: Andy Whitcroft <apw@shadowen.org>, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+References: <20060515005637.00b54560.akpm@osdl.org> <4468C3B8.8090502@shadowen.org> <20060515112456.0624d498.akpm@osdl.org>
+In-Reply-To: <20060515112456.0624d498.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-Subject: RE: ASUS A8V Deluxe, x86_64
-Date: Mon, 15 May 2006 14:23:25 -0400
-Message-ID: <8E8F647D7835334B985D069AE964A4F7028FDBFE@ECQCMTLMAIL1.quebec.int.ec.gc.ca>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ASUS A8V Deluxe, x86_64
-Thread-Index: AcZ4SoF3msdK/KGHTQSajUek6Py2GgAAgLEw
-From: "Fortier,Vincent [Montreal]" <Vincent.Fortier1@EC.GC.CA>
-To: "Marko Macek" <Marko.Macek@gmx.net>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 15 May 2006 18:23:26.0245 (UTC) FILETIME=[A8430550:01C6784C]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605152024.31844.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I also have A8V Deluxe.
+On Monday 15 May 2006 20:24, Andrew Morton wrote:
+> Andy Whitcroft <apw@shadowen.org> wrote:
+> >
+> > > So it is perhaps reasonable to do this panic, but only if !CONFIG_EMBEDDED? 
+> > > (It really is time to start renaming CONFIG_EMBEDDED to CONFIG_DONT_DO_THIS
+> > > or something).
+> > 
+> > How about CONFIG_EXPERIMENTAL?
 > 
-> No real problems with single core A64 3000.
-> 
-> But now with and X2 dual core CPU, I needed to disable 
-> irqbalance to get any stability.
+> Probably CONFIG_ADVANCED would be closer.
 
-Hein? Via xconfig?
- 
-> (also look at tsc vs pmtmr if you have any problems with clock).
+Most people who recompile kernels probably think of themselves as advanced.
+This doesn't mean they will get these things right.
 
-What is tsc vs pmtmr
-
-Thnx!
-
-- vin
+-Andi

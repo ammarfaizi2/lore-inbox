@@ -1,63 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWEOXck@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWEOXeR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbWEOXck (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 19:32:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWEOXcj
+	id S1750773AbWEOXeR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 19:34:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbWEOXeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 19:32:39 -0400
-Received: from wx-out-0102.google.com ([66.249.82.198]:11784 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750772AbWEOXci (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 19:32:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=uAs3Ju7ATxtX7YEsDzq8cxl7DY5Q5Aa1ZP+msp6nvzDV0YLF9/jPF9GXMxRjdryvPOeSk9nAt6QRm//YJRyNUgcrI8DiO5hjsUPXUyVJ4SlevlfEFVXeDX3gb8yx9FThFs2VjBcofXFGJSXsW2/+Ups3Ch0M7L26NaRTgVkOjsw=
-Message-ID: <44690F91.2070206@gmail.com>
-Date: Tue, 16 May 2006 08:32:33 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFT] major libata update
-References: <20060515170006.GA29555@havoc.gtf.org> <20060515182919.GA16070@irc.pl> <4468CBC7.2030900@garzik.org>
-In-Reply-To: <4468CBC7.2030900@garzik.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 15 May 2006 19:34:17 -0400
+Received: from pat.uio.no ([129.240.10.4]:53951 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1750773AbWEOXeR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 19:34:17 -0400
+Subject: Re: umount error: device is busy after nfs + lock
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: wang dengyi <dy_wang@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060515185940.16459.qmail@web51912.mail.yahoo.com>
+References: <20060515185940.16459.qmail@web51912.mail.yahoo.com>
+Content-Type: text/plain
+Date: Mon, 15 May 2006 18:32:30 -0500
+Message-Id: <1147735950.8772.60.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-4.838, required 12,
+	autolearn=disabled, AWL -0.03, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Tomasz Torcz wrote:
->> On Mon, May 15, 2006 at 01:00:06PM -0400, Jeff Garzik wrote:
->>> After much development and review, I merged a massive pile of libata
->>> patches from Tejun Heo and Albert Lee.  This update contains the
->>> following major libata
->>
->>   Any plans to merge http://home-tj.org/wiki/index.php/Sil_m15w ? Or
->> maybe it's merged already?
->>   Seagate firmware update seems to be available only for OEMs, so this
->> quirk is pretty helpful for end users.
+On Mon, 2006-05-15 at 11:59 -0700, wang dengyi wrote:
+> Hello,
 > 
-> Its a question of staging.  This still lives in the 'sii-m15w' branch of 
-> libata-dev.git, but if we throw too many _classes_ of changes into the 
-> same big lump, then it becomes much more difficult to discern which 
-> changes caused which failures.
+> When I ran ltp test case:tlocklfs, I met a old problem
+> with the kernel:2.6.9. I can not umount a file system
+> after nfs and lock using it. Here is the steps.
+
+Kernel 2.6.9 is almost 2 years old, and the NFS locking has changed a
+_lot_ since then. Can you reproduce this with a recent kernel?
+
+Cheers,
+  Trond
+
+>  1) mount /dev/sda3 /xyz
+>  2) export /xyz
+>  3) restart nfs
+>  4) mount 127.0.0.1:/xyz /mnt/nfs_xyz
+>  5) run the special lock test program: "tlocklfs -t 7
+> /mnt/nfs_xyz
+>  6) umount /mnt/nfs_xyz
+>  7) stop nfs
+>  8) umount /xyz
+> Then I got the error: "umount /xyz: device is busy".
+> And the error displays twice. 
 > 
-> Since sata_sil has seen several changes, and since the sii-m15w problems 
-> are so difficult to diagnose properly, its easier to separate that out.
+> If I run the different lock test case for the step 5,
+> the umount works fine. It only failed on the test case
+> 7 from tlocklfs. 
+> 
+> There are 2 processes in this special test case.
+> First, the parent process "setlk" for a file from nfs
+> file system. Then the child process "setlkw". At the
+> end, the parent and the child process unlock the file.
+> 
+> 
+> With some debug line in the code, I found the file
+> system's "mnt_count" is 3 instead of 2 before
+> umounting it. I traced back the problem and I'm lost
+> in linux/net/sunrpc/sched.c. Could anyone give me some
+> hint? Thank you very much.
+> 
+> Best regard
+> 
+> Dengyi Wang
+>   
+> 
+> __________________________________________________
+> Do You Yahoo!?
+> Tired of spam?  Yahoo! Mail has the best spam
+> protection around 
+> http://mail.yahoo.com 
+> 
+> __________________________________________________
+> Do You Yahoo!?
+> Tired of spam?  Yahoo! Mail has the best spam protection around 
+> http://mail.yahoo.com 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Are you planning on merging sil_m15w workaround?
-
-FYI, from the first time it was submitted (last summer) till 2.6.16, it 
-took very little effort to maintain it.  The current big update would 
-necessitate some changes to it but I don't think it will be too much 
-work.  My experience says m15w doesn't add too much maintenance overhead.
-
-Also, what's the merge plan for hotplug/PM?  Together into 2.6.18?  Or 
-are we looking further down?
-
--- 
-tejun

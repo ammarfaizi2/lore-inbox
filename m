@@ -1,81 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbWEOK20@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWEOKfT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964869AbWEOK20 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 06:28:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWEOK20
+	id S964871AbWEOKfT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 06:35:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbWEOKfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 06:28:26 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:11398 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S964869AbWEOK2Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 06:28:25 -0400
-Date: Mon, 15 May 2006 19:29:18 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: nickpiggin@yahoo.com.au, akpm@osdl.org, mel@csn.ul.ie,
-       davej@codemonkey.org.uk, tony.luck@intel.com,
-       linux-kernel@vger.kernel.org, bob.picco@hp.com, ak@suse.de,
-       linux-mm@kvack.org, linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH 5/6] Have ia64 use add_active_range() and
- free_area_init_nodes
-Message-Id: <20060515192918.c3e2e895.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <446855AF.1090100@shadowen.org>
-References: <20060508141030.26912.93090.sendpatchset@skynet>
-	<20060508141211.26912.48278.sendpatchset@skynet>
-	<20060514203158.216a966e.akpm@osdl.org>
-	<44683A09.2060404@shadowen.org>
-	<44685123.7040501@yahoo.com.au>
-	<446855AF.1090100@shadowen.org>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 15 May 2006 06:35:19 -0400
+Received: from natsluvver.rzone.de ([81.169.145.176]:20193 "EHLO
+	natsluvver.rzone.de") by vger.kernel.org with ESMTP id S964871AbWEOKfR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 06:35:17 -0400
+From: Oliver Neukum <oliver@neukum.name>
+To: jayakumar.video@gmail.com
+Subject: Re: [PATCH/RFC 2.6.16.5 1/1] usb/media/quickcam_messenger driver v2
+Date: Mon, 15 May 2006 12:35:10 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+References: <200605150849.k4F8nXDb031881@localhost.localdomain>
+In-Reply-To: <200605150849.k4F8nXDb031881@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200605151235.10690.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 May 2006 11:19:27 +0100
-Andy Whitcroft <apw@shadowen.org> wrote:
+Am Montag, 15. Mai 2006 10:49 schrieb jayakumar.video@gmail.com:
+> +       urb->status = 0;
+> +       urb->actual_length = 0;
 
-> Nick Piggin wrote:
-> > Andy Whitcroft wrote:
-> > 
-> >> Interesting.  You are correct there was no config component, at the time
-> >> I didn't have direct evidence that any architecture needed it, only that
-> >> we had an unchecked requirement on zones, a requirement that had only
-> >> recently arrived with the changes to free buddy detection.  I note that
-> > 
-> > 
-> > Recently arrived? Over a year ago with the no-buddy-bitmap patches,
-> > right? Just checking because I that's what I'm assuming broke it...
-> 
-> Yep, sorry I forget I was out of the game for 6 months!  And yes that
-> was when the requirements were altered.
-> 
-When no-bitmap-buddy patches was included,
+These are not needed. Indeed you should never write to those fields.
 
-1. bad_range() is not covered by CONFIG_VM_DEBUG. It always worked.
-==
-static int bad_range(struct zone *zone, struct page *page)
-{
-        if (page_to_pfn(page) >= zone->zone_start_pfn + zone->spanned_pages)
-                return 1;
-        if (page_to_pfn(page) < zone->zone_start_pfn)
-                return 1;
-==
-And , this code
-==
-                buddy = __page_find_buddy(page, page_idx, order);
-
-                if (bad_range(zone, buddy))
-                        break;
-==
-
-checked whether buddy is in zone and guarantees it to have page struct.
-
-
-But clean-up/speed-up codes vanished these checks. (I don't know when this occurs)
-Sorry for misses these things.
-
--Kame
-
+	Regards
+		Oliver

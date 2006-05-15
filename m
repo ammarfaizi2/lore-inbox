@@ -1,109 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWEOGpy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbWEOGqA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932344AbWEOGpy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 02:45:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWEOGpy
+	id S932346AbWEOGqA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 02:46:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWEOGqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 02:45:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:41357 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932344AbWEOGpx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 02:45:53 -0400
-Date: Sun, 14 May 2006 23:44:18 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       Christian.Limpach@cl.cam.ac.uk, xen-devel@lists.xensource.com,
-       ian.pratt@xensource.com, zaitcev@redhat.com
-Subject: Re: [RFC PATCH 08/35] Add Xen-specific memory management
- definitions
-Message-Id: <20060514234418.65656de9.zaitcev@redhat.com>
-In-Reply-To: <20060509085151.047254000@sous-sol.org>
-References: <20060509084945.373541000@sous-sol.org>
-	<20060509085151.047254000@sous-sol.org>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 15 May 2006 02:46:00 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:25245 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932346AbWEOGp7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 02:45:59 -0400
+Date: Mon, 15 May 2006 02:43:52 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Daniel Walker <dwalker@mvista.com>
+cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -rt] scheduling while atomic in fs/file.c
+In-Reply-To: <1147627976.15392.39.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+Message-ID: <Pine.LNX.4.58.0605150239570.6512@gandalf.stny.rr.com>
+References: <200605141545.k4EFj6Cv001901@dwalker1.mvista.com> 
+ <Pine.LNX.4.58.0605141241320.25158@gandalf.stny.rr.com>
+ <1147627976.15392.39.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 09 May 2006 00:00:08 -0700, Chris Wright <chrisw@sous-sol.org> wrote:
 
-I'm a little concerned with the code below being entirely too smart:
 
-> +static inline unsigned long mfn_to_pfn(unsigned long mfn)
-> +{
-> +#ifndef CONFIG_XEN_SHADOW_MODE
-> +	unsigned long pfn;
-> +
-> +	if (xen_feature(XENFEAT_auto_translated_physmap))
-> +		return mfn;
-> +
-> +	/*
-> +	 * The array access can fail (e.g., device space beyond end of RAM).
-> +	 * In such cases it doesn't matter what we return (we return garbage),
-> +	 * but we must handle the fault without crashing!
-> +	 */
-> +	asm (
-> +		"1:	movl %1,%0\n"
-> +		"2:\n"
-> +		".section __ex_table,\"a\"\n"
-> +		"	.align 4\n"
-> +		"	.long 1b,2b\n"
-> +		".previous"
-> +		: "=r" (pfn) : "m" (machine_to_phys_mapping[mfn]) );
-> +
-> +	return pfn;
-> +#else
-> +	return mfn;
-> +#endif
-> +}
+On Sun, 14 May 2006, Daniel Walker wrote:
 
-I found that if someone tries to use this too early, hypervisor terminates
-the domain with a message like this:
+> On Sun, 2006-05-14 at 12:44 -0400, Steven Rostedt wrote:
+> > On Sun, 14 May 2006, Daniel Walker wrote:
+> >
+> > > Quite the smp_processor_id() wanrings. I don't see any SMP
+> > > concerns here . It just adds to a percpu list, so it shouldn't
+> > > matter if it switches after sampling fdtable_defer_list .
+> >
+> > I'm not so sure that there isn't SMP concerns here. I have to catch a
+> > train in a few minutes, otherwise I would look deeper into this. But this
+> > might be a candidate to turn fdtable_defer_list into a per_cpu_locked.
+>
+> I reviewed it again, and it looks like these percpu structures have a
+> spinlock to protect the list from being emptied by a work queue while
+> things are being added to the list . The lock appears to be used
+> properly .  The work queue frees struct fdtable pointers added to the
+> list , the only place these structures are added is in the block I've
+> modified .
+>
+> I think making this a locked percpu would just be overkill ..
+>
 
-(XEN) DOM0: (file=mm.c, line=486) Non-privileged attempt to map I/O space 000fec00
+It seems that the timer is percpu. So it has a timer for each cpu.  If you
+switch CPUs after the put, the modtimer might put the fddef->timer onto
+another CPU, and thus have more than one going off on the same CPU.
 
-Why can't we use something like this, only a proper number of machine
-pages:
+-- Steve
 
-diff -urp -X dontdiff linux-2.6.15-1.2054_FC5/include/asm-x86_64/mach-xen/asm/page.h linux-2.6.15-1.2054_FC5.z3/include/asm-x86_64/mach-xen/asm/page.h
---- linux-2.6.15-1.2054_FC5/include/asm-x86_64/mach-xen/asm/page.h	2006-03-17 17:52:38.000000000 -0800
-+++ linux-2.6.15-1.2054_FC5.z3/include/asm-x86_64/mach-xen/asm/page.h	2006-05-11 20:36:16.000000000 -0700
-@@ -101,26 +101,11 @@ static inline int phys_to_machine_mappin
- 
- static inline unsigned long mfn_to_pfn(unsigned long mfn)
- {
--	unsigned long pfn;
--
- 	if (xen_feature(XENFEAT_auto_translated_physmap))
- 		return mfn;
--
--	/*
--	 * The array access can fail (e.g., device space beyond end of RAM).
--	 * In such cases it doesn't matter what we return (we return garbage),
--	 * but we must handle the fault without crashing!
--	 */
--	asm (
--		"1:	movq %1,%0\n"
--		"2:\n"
--		".section __ex_table,\"a\"\n"
--		"	.align 8\n"
--		"	.quad 1b,2b\n"
--		".previous"
--		: "=r" (pfn) : "m" (machine_to_phys_mapping[mfn]) );
--
--	return pfn;
-+	if (mfn >= 1048576)	/* 4GB _machine_ RAM. XXX How to find out? */
-+		return ~0;
-+	return machine_to_phys_mapping[mfn];
- }
- 
- /*
-
-I'm sure you considered this, but decided to be tricky. Why?
-No way to find the safe number of machine pages in a guest?
-
--- Pete

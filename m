@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964858AbWEOVjX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbWEOVj6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964858AbWEOVjX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 17:39:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbWEOVjX
+	id S964862AbWEOVj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 17:39:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbWEOVj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 17:39:23 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:5794 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964858AbWEOVjW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 17:39:22 -0400
-Subject: send(), sendmsg(), sendto() not thread-safe
+	Mon, 15 May 2006 17:39:57 -0400
+Received: from web31508.mail.mud.yahoo.com ([68.142.198.137]:54443 "HELO
+	web31508.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964862AbWEOVj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 17:39:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=l2b8k4CB53EP3ADpNKAo0MMhyjWi7o2Si63bfUj0uiWKK/S581zBsibjD6PnKMHeRcSG+ZGM1KDM95bv+MWrnCt7zY03OxHXwzNWhvorEYio/Q+XrMSTpypQftr4bwAsshhFaoHBcNzfeVyysYU+3Om5Mxv5bMjEZ74ol/Whf8w=  ;
+Message-ID: <20060515213956.31627.qmail@web31508.mail.mud.yahoo.com>
+Date: Mon, 15 May 2006 14:39:56 -0700 (PDT)
+From: Jonathan Day <imipak@yahoo.com>
+Subject: /dev/random on Linux
 To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 7.0 HF85 November 04, 2005
-Message-ID: <OFE8460E54.0C8D85D8-ON8525716F.0074F22F-8825716F.0076D537@us.ibm.com>
-From: Mark A Smith <mark1smi@us.ibm.com>
-Date: Mon, 15 May 2006 14:39:06 -0700
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Release 7.0.1HF123 | April 14, 2006) at
- 05/15/2006 17:39:21
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-I discovered that in some cases, send(), sendmsg(), and sendto() are not
-thread-safe. Although the man page for these functions does not specify
-whether these functions are supposed to be thread-safe, my reading of the
-POSIX/SUSv3 specification tells me that they should be. I traced the
-problem to tcp_sendmsg(). I was very curious about this issue, so I wrote
-up a small page to describe in more detail my findings. You can find it at:
-http://www.almaden.ibm.com/cs/people/marksmith/sendmsg.html .
+For the three people who don't monitor the security
+websites, there are claims that Linux' random number
+generator has problems that could potentially be
+exploited by an attacker to compromise encryption
+algorithms, etc.
 
-Thanks,
-Mark A. Smith
+http://www.securiteam.com/unixfocus/5RP0E0AIKK.html
 
-PS. I am using the term "thread" in the general sense, this is a problem
-independent of pthreads, etc. The problem occurs when two processes
-(whether or not they share an address space) send on the same socket (and
-some other low-resource conditions exist).
+(Just because something is claimed does not make it
+so, but it's usually worth checking.)
 
+I know there have been patches around for ages to
+improve the entropy of the random number generator,
+but how active is work on this section of the code?
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

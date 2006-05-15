@@ -1,70 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964919AbWEOQxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbWEOQ4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964919AbWEOQxX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 12:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbWEOQxX
+	id S964844AbWEOQ4l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 12:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbWEOQ4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 12:53:23 -0400
-Received: from mxfep02.bredband.com ([195.54.107.73]:22270 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S964892AbWEOQxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 12:53:22 -0400
-Message-ID: <4468B1FB.3020007@stesmi.com>
-Date: Mon, 15 May 2006 18:53:15 +0200
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
-X-Accept-Language: en-us, en
+	Mon, 15 May 2006 12:56:41 -0400
+Received: from mga02.intel.com ([134.134.136.20]:34714 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964844AbWEOQ4l convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 12:56:41 -0400
+X-IronPort-AV: i="4.05,130,1146466800"; 
+   d="scan'208"; a="36488099:sNHT5181764847"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "Randy.Dunlap" <rdunlap@xenotime.net>, Tejun Heo <htejun@gmail.com>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [ANNOUNCE] libata: new EH, NCQ, hotplug and PM patches against
- stable kernel
-References: <20060512132437.GB4219@htj.dyndns.org>	 <20060512122116.152fbe80.rdunlap@xenotime.net>	 <4464E079.1070307@stesmi.com> <1147703159.26686.33.camel@localhost.localdomain>
-In-Reply-To: <1147703159.26686.33.camel@localhost.localdomain>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/signed; micalg=pgp-ripemd160;
- protocol="application/pgp-signature";
- boundary="------------enig9A9DA24F7D1368D296F2E095"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH for 2.6.17] [3/5] i386/x86_64: Force pci=noacpi on HP  XW9300
+Date: Mon, 15 May 2006 12:47:31 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB670FA6C@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH for 2.6.17] [3/5] i386/x86_64: Force pci=noacpi on HP  XW9300
+Thread-Index: AcZ4PDGsVr6RFR0MQ7Cr981Tiz8fxgAAoRrg
+From: "Brown, Len" <len.brown@intel.com>
+To: <ak@suse.de>, <torvalds@osdl.org>
+Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>, <gregkh@suse.de>
+X-OriginalArrivalTime: 15 May 2006 16:47:32.0046 (UTC) FILETIME=[427DEEE0:01C6783F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig9A9DA24F7D1368D296F2E095
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
-Alan Cox wrote:
-> On Gwe, 2006-05-12 at 21:22 +0200, Stefan Smietanowski wrote:
-> 
->>Ok, maybe not PMS ?
->>
->>Can you imagine a bug report from someone that "has problem with PMS"?
->>:)
-> 
-> We've had a driver for the pms card for many years and nobody over the
-> age of about 18 has afaik found it amusing.
+>The system has multiple PCI segments and we don't handle that properly
+>yet in PCI and ACPI. Short term before this is fixed blacklist it to
+>pci=noacpi.
 
-Depends, I never heard of the pms card but I do have this tingling
-feeling that some actually will hear of and/or use port multipliers
-for SATA meaning that "not many heard of the pms card so not many
-over the age of 18 found it amusing" but not the same is true
-for port multipliers.
+I'm okay with the patch, but it makes me wonder...
 
-// Stefan
+Is this the 1st/only system Linux has run on with multiple PCI segments?
+What are your expectations for where "short-term" ends and "long-term"
+begins?
 
---------------enig9A9DA24F7D1368D296F2E095
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFEaLH/Brn2kJu9P78RA8hVAKCFkmtbuRPxEAJ2TIdUEDU/NTUZ2gCdEd+B
-PB0rB+uSu8kp8hStdGG/yJI=
-=6is0
------END PGP SIGNATURE-----
-
---------------enig9A9DA24F7D1368D296F2E095--
+thanks,
+-Len

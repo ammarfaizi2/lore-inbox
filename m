@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965227AbWEOVJ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965223AbWEOVKs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965227AbWEOVJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 17:09:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965229AbWEOVJ4
+	id S965223AbWEOVKs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 17:10:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbWEOVKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 17:09:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27582 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965227AbWEOVJ4 (ORCPT
+	Mon, 15 May 2006 17:10:48 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:39300 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S965223AbWEOVKr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 17:09:56 -0400
-Date: Mon, 15 May 2006 14:12:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Bernhard Rosenkraenzer <bero@arklinux.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [FIXED] Re: Total machine lockup w/ current kernels while
- installing from CD
-Message-Id: <20060515141226.794f3b7f.akpm@osdl.org>
-In-Reply-To: <200605152253.02638.bero@arklinux.org>
-References: <200605110322.14774.bero@arklinux.org>
-	<200605152232.04304.bero@arklinux.org>
-	<20060515134537.78e117dc.akpm@osdl.org>
-	<200605152253.02638.bero@arklinux.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 15 May 2006 17:10:47 -0400
+Subject: Re: [PATCH 53 of 53] ipath - add memory barrier when waiting for
+	writes
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org,
+       Ralphc@pathscale.com
+In-Reply-To: <adazmhjth56.fsf@cisco.com>
+References: <f8ebb8c1e43635081b73.1147477418@eng-12.pathscale.com>
+	 <adazmhjth56.fsf@cisco.com>
+Content-Type: text/plain
+Date: Mon, 15 May 2006 14:10:47 -0700
+Message-Id: <1147727447.2773.14.camel@chalcedony.pathscale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernhard Rosenkraenzer <bero@arklinux.org> wrote:
->
-> On Monday, 15. May 2006 22:45, Andrew Morton wrote:
-> > It's odd that we'll run initrds in a !SYSTEM_RUNNING state.
+On Mon, 2006-05-15 at 08:57 -0700, Roland Dreier wrote:
+>  >  static void i2c_wait_for_writes(struct ipath_devdata *dd)
+>  >  {
+>  > +	mb();
+>  >  	(void)ipath_read_kreg32(dd, dd->ipath_kregs->kr_scratch);
+>  >  }
 > 
-> True, especially because we run initramfs in SYSTEM_RUNNING state.
-> 
-> > It's not an oops - it's sort-of a warning.  Did the system actually
-> > continue to run and boot up OK?
-> 
-> No, it was a lockup and the system just hung at the point forever, so the 
-> lockup detection was right.
+> This needs a comment explaining why it's needed.  A memory barrier
+> before a readl() looks very strange since readl() should be ordered anyway.
 
-This is odd.  Your machine hangs if cond_resched() is a no-op.  This should
-not happen.
+Yeah.  It's actually working around what appears to be a gcc bug if the
+kernel is compiled with -Os.  Ralph knows the details; he can give a
+more complete answer.
 
-What does `grep PREEMPT .config' say?
+	<b
 

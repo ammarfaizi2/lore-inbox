@@ -1,86 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964995AbWEORR1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965004AbWEORVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964995AbWEORR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 13:17:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbWEORR1
+	id S965004AbWEORVu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 13:21:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbWEORVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 13:17:27 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:17090 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964995AbWEORR0 (ORCPT
+	Mon, 15 May 2006 13:21:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:36057 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964999AbWEORVt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 13:17:26 -0400
-Message-ID: <4468B7A0.2040309@pobox.com>
-Date: Mon, 15 May 2006 13:17:20 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: "Brown, Len" <len.brown@intel.com>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: [PATCH for 2.6.17] [3/5] i386/x86_64: Force pci=noacpi on HP
-  XW9300
-References: <CFF307C98FEABE47A452B27C06B85BB670FA6C@hdsmsx411.amr.corp.intel.com> <200605151905.42105.ak@suse.de>
-In-Reply-To: <200605151905.42105.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 15 May 2006 13:21:49 -0400
+Date: Mon, 15 May 2006 10:18:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [RFT] major libata update
+Message-Id: <20060515101831.0e38d131.akpm@osdl.org>
+In-Reply-To: <20060515170006.GA29555@havoc.gtf.org>
+References: <20060515170006.GA29555@havoc.gtf.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.0 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.0 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Monday 15 May 2006 18:47, Brown, Len wrote:
->>> The system has multiple PCI segments and we don't handle that properly
->>> yet in PCI and ACPI. Short term before this is fixed blacklist it to
->>> pci=noacpi.
->> I'm okay with the patch, but it makes me wonder...
->>
->> Is this the 1st/only system 
+Jeff Garzik <jeff@garzik.org> wrote:
+>
 > 
-> x86-
+> After much development and review, I merged a massive pile of libata
+> patches from Tejun Heo and Albert Lee.  This update contains the
+> following major libata
 > 
-> IA64/PA-RISC support subdomains successfully
+> CHANGES:
+> * Rewritten error handling. This is a major piece of work, even
+>   though it will be rarely seen.  The new libata EH provides the
+>   foundation for not only improved error handling, but also new features
+>   such as device hotplug or command queueing. (Tejun Heo)
 > 
->> Linux has run on with multiple PCI segments? 
+> * PIO-based I/O is now IRQ-driven by default, rather than polled
+>   in a kernel thread.  The polling path will continue to exist for
+>   controllers that need it, and other special cases. (Albert Lee)
 > 
-> I think IBM summit somehow uses it too.
+> * Core support for command queueing (Jens Axboe, Tejun Heo)
 > 
-> And there is a patch from Jeff Garzik I think to make the xw9300 subdomains 
-> work (or rather implement subdomain support in arch/i386/pci/*), but it 
-> breaks the Summit and possibly other non x86 systems. Greg 
-> should know details about that.
+> * Support for NCQ-style command queueing (Jens Axboe, Tejun Heo)
 > 
-> As usual the systems usually boot even without this patch, but you can't 
-> reach all PCI devices.
+> * Increase max-sectors dramatically, for LBA48 devices (Tejun Heo?)
 > 
->> What are your expectations for where "short-term" ends and "long-term"
->> begins?
+> * Other minor changes, from myself and others.
 > 
-> I think Greg has Jeff's patch still queued somewhere, but it needs
-> to be debugged to work everywhere. After that is done we can drop the blacklist 
-> entry. Hopefully for 2.6.19?
+> IMPACT:
+> * If all goes well, this update should improve error handling,
+>   solve several outstanding, difficult-to-solve bugs, and provide a good
+>   foundation for adding some nifty features in the future.
 > 
-> For 2.6.17 I don't see any alternative to blacklisting.
+> TESTING:
+> * Although most drivers by count received few operational changes, the
+> common probe path was updated, so all drivers need fresh "yes, it sees
+> all my disks" regression testing.
 > 
-> -Andi
+> * ahci and sata_sil24 were touched a lot, and so need additional
+> testing.
 > 
-> 
+> * sata_sil and ata_piix also need healthy re-testing of all basic
+> functionality.
 
+Lots of goodies.
 
-FWIW I also maintain this "PCI domain support for x86" stuff in a 
-separate branch, which I keep up to date:
+> FEEDBACK:
+> * Please CC linux-ide@vger.kernel.org on all emails and bug reports.
+> 
+> MERGE STATUS:
+> * Barring major problems in testing, will submit during 2.6.18 merge window.
 
-'pciseg' branch of
-  git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git
+I'd be a little concerned with that merge plan at this time - we have a lot
+of sata bug reports banked up and afaict a pretty low fixup rate.  Then
+again, these patches might fix some of those bugs...
 
-Haven't done anything substantive since the original implementation, 
-just kept up with recent kernels.
+I guess if we can get it all in early (which is only a couple of weeks
+away!) and you and Tejun will have time set aside to work on problems then
+OK.  But....
 
-The xw9300 continues to be my primary workstation (2x2 Opteron), but 
-haven't found time to mess with PCI domains in a while.  The BIOS gives 
-me the option to disable PCI domains, so I took the slack way out :)
-
-	Jeff
-
+http://bugzilla.kernel.org/show_bug.cgi?id=4920
+http://bugzilla.kernel.org/show_bug.cgi?id=5533
+http://bugzilla.kernel.org/show_bug.cgi?id=5586
+http://bugzilla.kernel.org/show_bug.cgi?id=5589
+http://bugzilla.kernel.org/show_bug.cgi?id=5798
+http://bugzilla.kernel.org/show_bug.cgi?id=5863
+http://bugzilla.kernel.org/show_bug.cgi?id=4968
+http://bugzilla.kernel.org/show_bug.cgi?id=5047
+http://bugzilla.kernel.org/show_bug.cgi?id=5905
+http://bugzilla.kernel.org/show_bug.cgi?id=5596
+http://bugzilla.kernel.org/show_bug.cgi?id=5654
+http://bugzilla.kernel.org/show_bug.cgi?id=5664
+http://bugzilla.kernel.org/show_bug.cgi?id=5700
+http://bugzilla.kernel.org/show_bug.cgi?id=5709
+http://bugzilla.kernel.org/show_bug.cgi?id=5721
+http://bugzilla.kernel.org/show_bug.cgi?id=5722
+http://bugzilla.kernel.org/show_bug.cgi?id=5922
+http://bugzilla.kernel.org/show_bug.cgi?id=5789
+http://bugzilla.kernel.org/show_bug.cgi?id=5931
+http://bugzilla.kernel.org/show_bug.cgi?id=5969
+http://bugzilla.kernel.org/show_bug.cgi?id=5948
+http://bugzilla.kernel.org/show_bug.cgi?id=5987
+http://bugzilla.kernel.org/show_bug.cgi?id=5995
+http://bugzilla.kernel.org/show_bug.cgi?id=6173
+http://bugzilla.kernel.org/show_bug.cgi?id=6207
+http://bugzilla.kernel.org/show_bug.cgi?id=6240
+http://bugzilla.kernel.org/show_bug.cgi?id=6253
+http://bugzilla.kernel.org/show_bug.cgi?id=6260
+http://bugzilla.kernel.org/show_bug.cgi?id=6272
+http://bugzilla.kernel.org/show_bug.cgi?id=6283
+http://bugzilla.kernel.org/show_bug.cgi?id=6311
+http://bugzilla.kernel.org/show_bug.cgi?id=6317
+http://bugzilla.kernel.org/show_bug.cgi?id=6346
+http://bugzilla.kernel.org/show_bug.cgi?id=6470
+http://bugzilla.kernel.org/show_bug.cgi?id=6056
+http://bugzilla.kernel.org/show_bug.cgi?id=6494
+http://bugzilla.kernel.org/show_bug.cgi?id=6516
+http://bugzilla.kernel.org/show_bug.cgi?id=6521
 

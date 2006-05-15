@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbWEOOIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbWEOOI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964932AbWEOOIG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 10:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbWEOOIF
+	id S964928AbWEOOI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 10:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbWEOOI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 10:08:05 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:31117 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964928AbWEOOIE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 10:08:04 -0400
-Subject: Re: how to set this in the future
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Stephen.Clark@seclark.us
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4466437C.1070306@seclark.us>
-References: <4466437C.1070306@seclark.us>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 15 May 2006 15:20:48 +0100
-Message-Id: <1147702848.26686.29.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Mon, 15 May 2006 10:08:29 -0400
+Received: from 81-178-210-147.dsl.pipex.com ([81.178.210.147]:63969 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S964928AbWEOOI2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 10:08:28 -0400
+Date: Mon, 15 May 2006 15:08:11 +0100
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] x86 NUMA panic compile error
+Message-ID: <20060515140811.GA23750@shadowen.org>
+References: <20060515005637.00b54560.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+InReply-To: <20060515005637.00b54560.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
+From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2006-05-13 at 16:37 -0400, Stephen Clark wrote:
-> Hello List,
-> 
-> I need to use ide0=ata66 but I get the following:
-> 
-> ide_setup: ide0=ata66 -- OBSOLETE OPTION, WILL BE REMOVED SOON!
-> 
-> what will replace this option?
+Is this check now needed given we have the zone alignment patches in
+this -mm also?  I think we want to make it at least possible to
+boot such a kernel on a 'flat' machine.
 
-drivers/scsi/libata .. if I have anything to do with it 8)
+-apw
 
-Why do you need to use ide0=ata66. What is the hardware requirement that
-causes this ?
+=== 8< ===
+x86 NUMA panic compile error
 
-Alan
+Seem we have a syntax error rising from the the new panic added
+to let people know NUMA didn't work on physically non-numa hardware.
 
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+---
+ srat.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+diff -upN reference/arch/i386/kernel/srat.c current/arch/i386/kernel/srat.c
+--- reference/arch/i386/kernel/srat.c
++++ current/arch/i386/kernel/srat.c
+@@ -269,7 +269,7 @@ int __init get_memcfg_from_srat(void)
+ 	extern int use_cyclone;
+ 	if (use_cyclone == 0) {
+ 		/* Make sure user sees something */
+-		static const char s[] __initdata = "Not an IBM x440/NUMAQ. Don't use i386 CONFIG_NUMA anywhere else."
++		static const char s[] __initdata = "Not an IBM x440/NUMAQ. Don't use i386 CONFIG_NUMA anywhere else.";
+ 		early_printk(s);
+ 		panic(s);
+ 	}

@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWEOVlV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965009AbWEOVlz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbWEOVlV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 17:41:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbWEOVlV
+	id S965009AbWEOVlz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 17:41:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965007AbWEOVlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 17:41:21 -0400
-Received: from smtpq1.tilbu1.nb.home.nl ([213.51.146.200]:3804 "EHLO
-	smtpq1.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
-	id S964898AbWEOVlU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 17:41:20 -0400
-Message-ID: <4468F58E.8050903@keyaccess.nl>
-Date: Mon, 15 May 2006 23:41:34 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+	Mon, 15 May 2006 17:41:55 -0400
+Received: from stinky.trash.net ([213.144.137.162]:29655 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S964920AbWEOVlx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 17:41:53 -0400
+Message-ID: <4468F5A0.3040404@trash.net>
+Date: Mon, 15 May 2006 23:41:52 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Gerd Hoffmann <kraxel@suse.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] SMP alternatives: skip with UP kernels.
-References: <4461341B.7050602@keyaccess.nl> <4461B24A.7050805@suse.de> <4461D16A.3000301@keyaccess.nl> <44632A62.2020505@suse.de> <4463A78F.5030703@keyaccess.nl> <44647454.3050800@suse.de>
-In-Reply-To: <44647454.3050800@suse.de>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+To: "David S. Miller" <davem@davemloft.net>
+CC: ranjitm@google.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [PATCH] tcpdump may trace some outbound packets twice.
+References: <20060514031034.5d0396e7.akpm@osdl.org>	<20060514.134231.101346572.davem@davemloft.net>	<Pine.LNX.4.56.0605151409110.25064@ranjit.corp.google.com> <20060515.142645.94689626.davem@davemloft.net>
+In-Reply-To: <20060515.142645.94689626.davem@davemloft.net>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Hoffmann wrote:
-
->> Yes, the #ifdef in arch/i386/kernel/module.c is a bit clumsy.
+David S. Miller wrote:
+> From: Ranjit Manomohan <ranjitm@google.com>
+> Date: Mon, 15 May 2006 14:19:06 -0700 (PDT)
 > 
-> Yep, thats why.  I wanted avoid exactly that.  Having some code need to
-> know that function foobar() is only available with CONFIG_BAZ is set is
-> really ugly ...
 > 
-> The attached patch hides the magic in alternative.h and provides some
-> dummy inline functions for the UP case (gcc should manage to optimize
-> away these calls).  No changes in module.c.
+>>Heres a new version which does a copy instead of the clone to avoid
+>>the double cloning issue.
+> 
+> 
+> I still very much dislike this patch because it is creating
+> 1 more clone per packet than is actually necessary and that
+> is very expensive.
+> 
+> dev_queue_xmit_nit() is going to clone whatever SKB you send into
+> there, so better to just bump the reference count (with skb_get())
+> instead of cloning or copying.
 
-Works for me; it doesn't easily get non-clumsy in module.c I see. Sure 
-you want to keep smp_alt_once outside the #ifdef? Seems to not be doing 
-anything other than being set to 1 for !SMP.
 
-Thanks,
-Rene.
+I think this would break the tc actions. Some actions call
+pskb_expand_head() on input, which BUGs on skb_shared(skb).
+They can't clone the skb instead because the functions
+doing that don't own it, the caller would continue with the
+old skb.

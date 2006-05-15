@@ -1,43 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWEONvm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964910AbWEON41@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964874AbWEONvm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 09:51:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbWEONvm
+	id S964910AbWEON41 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 09:56:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWEON41
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 09:51:42 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:42472 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S964874AbWEONvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 09:51:41 -0400
-Subject: Re: [PATCH -rt] scheduling while atomic in fs/file.c
-From: Daniel Walker <dwalker@mvista.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0605150254440.6512@gandalf.stny.rr.com>
-References: <200605141545.k4EFj6Cv001901@dwalker1.mvista.com>
-	 <Pine.LNX.4.58.0605141241320.25158@gandalf.stny.rr.com>
-	 <1147627976.15392.39.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-	 <Pine.LNX.4.58.0605150239570.6512@gandalf.stny.rr.com>
-	 <Pine.LNX.4.58.0605150254440.6512@gandalf.stny.rr.com>
+	Mon, 15 May 2006 09:56:27 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:41698 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932423AbWEON40
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 09:56:26 -0400
+Subject: Re: [PATCH] ide_dma_speed() fixes
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Cc: Andrew Morton <akpm@osdl.org>, bzolnier@gmail.com,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <446885BE.4090404@ru.mvista.com>
+References: <4463F4C8.9080608@ru.mvista.com>
+	 <20060514050548.5399e3f4.akpm@osdl.org>  <446885BE.4090404@ru.mvista.com>
 Content-Type: text/plain
-Date: Mon, 15 May 2006 06:51:37 -0700
-Message-Id: <1147701098.15392.49.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+Date: Mon, 15 May 2006 15:08:55 +0100
+Message-Id: <1147702135.26686.19.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-15 at 03:04 -0400, Steven Rostedt wrote:
+On Llu, 2006-05-15 at 17:44 +0400, Sergei Shtylyov wrote:
+>     That's what gcc thinks. The code is 100% correct -- it will never reach 
+> the switch statement with mode > 0 (in which case ultra_mask isn't used) and 
+> ultra_mask unitialized. I may add an explicit initializer in the declaration 
+> if you like...
 
-> 
-> Just to clarify, although fdtable_defer_list_init(int cpu) creates a timer
-> for each CPU but sets them to the same CPU.  The mod_timer in the changed
-> function is what is used to spread the timers out.
-
-Your right , it could migrate with my change only .. But I don't think
-that a problem .. It's probably better ..
-
-Daniel
+Please leave the warning, this was discussed recently in other threads
+and hiding warnings is very dangerous.
 

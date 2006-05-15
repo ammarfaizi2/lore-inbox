@@ -1,48 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbWEOKMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWEOKSg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964855AbWEOKMV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 06:12:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWEOKMV
+	id S964866AbWEOKSg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 06:18:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWEOKSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 06:12:21 -0400
-Received: from wx-out-0102.google.com ([66.249.82.196]:62856 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932364AbWEOKMT convert rfc822-to-8bit (ORCPT
+	Mon, 15 May 2006 06:18:36 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27295 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932387AbWEOKSf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 06:12:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jh5zDRYpdPFBxFwv9EJrDhYSEjpXC7yMBu4M/63FRMKwpkd/56dik3zr9fquHynEyqdTTm9R7VSEEwH6Jvfl4JXYTpqyj3tQfec4QDKjUJj80sUz1njQ9osvBzWDfPSx6tCUGSSJ/CJguWFDvb0C3Cskc+ak+jXQZlatShVq9pY=
-Message-ID: <b0943d9e0605150312m22559450p28c44a17d88b6325@mail.gmail.com>
-Date: Mon, 15 May 2006 11:12:18 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Ingo Oeser" <ioe-lkml@rameria.de>
-Subject: Re: [PATCH 2.6.17-rc4 6/6] Remove some of the kmemleak false positives
-Cc: "Pekka Enberg" <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-In-Reply-To: <200605141939.51288.ioe-lkml@rameria.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060513155757.8848.11980.stgit@localhost.localdomain>
-	 <84144f020605140755w4c64dc14o8beda9f5bbb68b9c@mail.gmail.com>
-	 <44674F17.2050606@gmail.com> <200605141939.51288.ioe-lkml@rameria.de>
+	Mon, 15 May 2006 06:18:35 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060513201341.63590cff.akpm@osdl.org> 
+References: <20060513201341.63590cff.akpm@osdl.org>  <20060513033742.GA18598@hellewell.homeip.net> <44655ECD.10404@yahoo.com.au> <afcef88a0605130921k7139da13k1b7232acb29140c1@mail.gmail.com> <44669D12.5050306@yahoo.com.au> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, michael.craig.thompson@gmail.com,
+       phillip@hellewell.homeip.net, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
+       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, toml@us.ibm.com,
+       yoder1@us.ibm.com, jmorris@namei.org, sct@redhat.com, ezk@cs.sunysb.edu,
+       dhowells@redhat.com
+Subject: Re: [PATCH 0/13: eCryptfs] eCryptfs Patch Set 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Mon, 15 May 2006 11:17:51 +0100
+Message-ID: <30035.1147688271@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14/05/06, Ingo Oeser <ioe-lkml@rameria.de> wrote:
-> While we are at it: How do you handle the encoding of
-> info into the lower bits of a pointer? For Boehm GC,
-> this was a major problem, AFAIR. At least the RT-Mutex code
-> does this. There are others, but I'm to lazy to grep now...
+Andrew Morton <akpm@osdl.org> wrote:
 
-I haven't looked at RT-Mutex but are more than the 2 bottom bits used
-for this? If not, they can be masked out before look-up. The slab
-allocator seems to always return blocks aligned to word size.
+> Nobody is going to include a half-applied filesystem in their .config while
+> performing git-bisection, so it can go in in any order.
 
-Thanks for pointing out.
+Apart from those who routinely attempt "make allyesconfig".
 
--- 
-Catalin
+David

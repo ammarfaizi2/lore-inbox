@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWEOXDu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWEOXHo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbWEOXDu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 19:03:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWEOXDu
+	id S1750734AbWEOXHo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 19:07:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWEOXHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 19:03:50 -0400
-Received: from ns1.suse.de ([195.135.220.2]:35718 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750729AbWEOXDs (ORCPT
+	Mon, 15 May 2006 19:07:44 -0400
+Received: from animx.eu.org ([216.98.75.249]:13978 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S1750734AbWEOXHn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 19:03:48 -0400
-From: Neil Brown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 16 May 2006 09:03:24 +1000
-MIME-Version: 1.0
+	Mon, 15 May 2006 19:07:43 -0400
+Date: Mon, 15 May 2006 19:13:04 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [RFT] major libata update
+Message-ID: <20060515231304.GC4699@animx.eu.org>
+Mail-Followup-To: Jeff Garzik <jeff@garzik.org>, linux-ide@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <20060515170006.GA29555@havoc.gtf.org> <20060515230256.GB4699@animx.eu.org> <4469081D.7080608@garzik.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17513.2236.102102.929378@cse.unsw.edu.au>
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-       paul.clements@steeleye.com
-Subject: Re: [PATCH 008 of 8] md/bitmap: Change md/bitmap file handling to
- use bmap to file blocks.
-In-Reply-To: message from Andrew Morton on Monday May 15
-References: <20060512160121.7872.patches@notabene>
-	<1060512060809.8099@suse.de>
-	<20060512104750.0f5cb10a.akpm@osdl.org>
-	<17509.22160.118149.49714@cse.unsw.edu.au>
-	<20060512235934.4f609019.akpm@osdl.org>
-	<17511.51907.537657.656420@cse.unsw.edu.au>
-	<20060515140457.18991c2e.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <4469081D.7080608@garzik.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday May 15, akpm@osdl.org wrote:
+Jeff Garzik wrote:
+> Wakko Warner wrote:
+> >How about PATA?  Specifically intel's IDE chip.  I have a machine that I 
+> >can
+> >blow the hard drive away if I want to.
 > 
-> Ho hum, I give up.
+> Always helpful.  ata_piix should support Intel PATA controllers, modulo 
+> some bugs that Alan is fixing / has fixed.  If your PCI ID isn't listed, 
+> you will have to add it, and an associated info entry.  Again, take a 
+> look at Alan's libata PATA patches for guidance.
 
-Thankyou :-)  I found our debate very valuable - it helped me clarify
-my understanding of some areas of linux filesystem semantics (and as I
-am trying to write a filesystem in my 'spare time', that will turn out
-to be very useful).  It also revealed some problems in the code!
+Do I need his patches as well?  If so, where do I retrieve them?  I lost the
+url for it.
 
->                     I don't think, in practice, this code fixes any
-> demonstrable bug though.
-
-I thought it was our job to kill the bugs *before* they were
-demonstrated :-)
-
-I'm still convinced that the previous code could lead to deadlocks or
-worse under sufficiently sustained high memory pressure and fs
-activity.
-
-I'll send a patch shortly that fixes the known problems and
-awkwardnesses in the new code.
-
-Thanks again,
-NeilBrown
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals
+ Got Gas???

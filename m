@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWEOXAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWEOXBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWEOXAs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 19:00:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWEOXAs
+	id S1750718AbWEOXBX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 19:01:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWEOXBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 19:00:48 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:64390 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1750701AbWEOXAr (ORCPT
+	Mon, 15 May 2006 19:01:23 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:3211 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1750734AbWEOXBV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 19:00:47 -0400
-Subject: Re: Updated libata PATA patch
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kevin Radloff <radsaq@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1147730929.26686.168.camel@localhost.localdomain>
-References: <1147196676.3172.133.camel@localhost.localdomain>
-	 <3b0ffc1f0605091848med1f37ua83c283a922ea682@mail.gmail.com>
-	 <1147270145.17886.42.camel@localhost.localdomain>
-	 <3b0ffc1f0605100905x18d07f76jda38d1807cf9e9d7@mail.gmail.com>
-	 <1147279198.19935.6.camel@localhost.localdomain>
-	 <3b0ffc1f0605100939r607ef30dya743a7f1a1dbe03f@mail.gmail.com>
-	 <1147730929.26686.168.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 16 May 2006 00:13:36 +0100
-Message-Id: <1147734817.26686.202.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Mon, 15 May 2006 19:01:21 -0400
+Message-ID: <60844.71.131.57.117.1147734080.squirrel@rocky.pathscale.com>
+In-Reply-To: <1147727447.2773.14.camel@chalcedony.pathscale.com>
+References: <f8ebb8c1e43635081b73.1147477418@eng-12.pathscale.com> 
+    <adazmhjth56.fsf@cisco.com>
+    <1147727447.2773.14.camel@chalcedony.pathscale.com>
+Date: Mon, 15 May 2006 16:01:20 -0700 (PDT)
+Subject: Re: [PATCH 53 of 53] ipath - add memory barrier when waiting for 
+     writes
+From: ralphc@pathscale.com
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: "Roland Dreier" <rdreier@cisco.com>, openib-general@openib.org,
+       linux-kernel@vger.kernel.org, ralphc@pathscale.com
+User-Agent: SquirrelMail/1.4.6
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-05-15 at 23:08 +0100, Alan Cox wrote:
-> On Mer, 2006-05-10 at 12:39 -0400, Kevin Radloff wrote:
-> > > I'll do some more digging, but putting printks into ata_qc_issue_prot to
-> > > see where it explodes is the next step I suspect.
-> > 
-> > Ah, I see.. I'll be waiting. :)
-> 
-> Much scratching of heads and tracing later it looks like a libata-core
-> bug rather than pata_pcmcia. Glad this blew up as its a nasty little bug
-> if I follow it right
+> On Mon, 2006-05-15 at 08:57 -0700, Roland Dreier wrote:
+>>  >  static void i2c_wait_for_writes(struct ipath_devdata *dd)
+>>  >  {
+>>  > +	mb();
+>>  >  	(void)ipath_read_kreg32(dd, dd->ipath_kregs->kr_scratch);
+>>  >  }
+>>
+>> This needs a comment explaining why it's needed.  A memory barrier
+>> before a readl() looks very strange since readl() should be ordered
+>> anyway.
+>
+> Yeah.  It's actually working around what appears to be a gcc bug if the
+> kernel is compiled with -Os.  Ralph knows the details; he can give a
+> more complete answer.
+>
+> 	<b
 
-Actually ignore that (well try it if you like) but it appears something
-far weirder is actually going on
+I don't have a lot to add to this other than I looked at the
+assembly code output for -Os and -O3 and both looked OK.
+I put the mb() in to be sure the writes were complete and
+I found this to work by experimentation.
+Without it, the driver fails to read the EEPROM correctly.
 

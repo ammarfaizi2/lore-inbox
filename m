@@ -1,49 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbWEOX3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWEOXa3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750769AbWEOX3r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 19:29:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWEOX3r
+	id S1750771AbWEOXa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 19:30:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWEOXa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 19:29:47 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:48289 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S1750769AbWEOX3q (ORCPT
+	Mon, 15 May 2006 19:30:29 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:30551 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750771AbWEOXa2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 19:29:46 -0400
-Date: Mon, 15 May 2006 16:30:49 -0700
-From: Grant Grundler <iod00d@hp.com>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: Grant Grundler <iod00d@hp.com>, "Bryan O'Sullivan" <bos@pathscale.com>,
-       Segher Boessenkool <segher@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH 21 of 53] ipath - use phys_to_virt instead of bus_to_virt
-Message-ID: <20060515233049.GM29082@esmail.cup.hp.com>
-References: <4e0a07d20868c6c4f038.1147477386@eng-12.pathscale.com> <adad5efuw1o.fsf@cisco.com> <1147728081.2773.25.camel@chalcedony.pathscale.com> <adar72vrn8y.fsf@cisco.com> <20060515231342.GK29082@esmail.cup.hp.com> <ada1wuuswte.fsf@cisco.com>
+	Mon, 15 May 2006 19:30:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Zu7ib7XmVbR5cQYLkb4hRi3qTr0z8+3ZTjAX608n29HAn8a4vxe9XVxsYRTxWwzUse7XaRDoFNUKf6N/hIgoKzydtkSvSulLWo2fQsHZ9yAnj8kgFQ/8Aaz5keDRTubTGQFCMZdv2Tvj86EkeX3MwXbuTnI+kevGM27O6vtq+LM=
+Message-ID: <3aa654a40605151630j53822ba1nbb1a2e3847a78025@mail.gmail.com>
+Date: Mon, 15 May 2006 16:30:26 -0700
+From: "Avuton Olrich" <avuton@gmail.com>
+To: "Jeff Garzik" <jeff@garzik.org>
+Subject: Re: [RFT] major libata update
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       torvalds@osdl.org
+In-Reply-To: <20060515170006.GA29555@havoc.gtf.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <ada1wuuswte.fsf@cisco.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+References: <20060515170006.GA29555@havoc.gtf.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 15, 2006 at 04:16:45PM -0700, Roland Dreier wrote:
->     Grant> Or figure out which openib.org interface has to change so
->     Grant> the original virt addresses that were registered/handed to
->     Grant> the ULP are passed down to the low level interface driver
->     Grant> too.  Seems like a more obvious way to fix the problem.
->     Grant> Someone did suggest this already, right?
-> 
-> It's been suggested many times, but no one ever comes up with a way to
-> handle the fact that RDMA means that addresses come from remote
-> systems as well as being passed in through an API.
+On 5/15/06, Jeff Garzik <jeff@garzik.org> wrote:
+> * sata_sil and ata_piix also need healthy re-testing of all basic
+> functionality.
 
-Aren't remote addresses handled differently than local ones?
-ULP has to map local addresses.
-We can't map remote ones (remote host maps it).
-The ULP must know the difference and can tell the lower level
-driver which is which.
+I'm testing it right now, but with 2.6.17-rc4-git2 I was getting:
 
-Sorry, I hope my ignorance of RDMA isn't getting in the way again.
+May 15 15:42:57 shapeshifter ata2: command 0x25 timeout, stat 0x58 host_stat 0x1
+May 15 15:42:57 shapeshifter ata2: translated ATA stat/err 0x58/00 to
+SCSI SK/ASC/ASCQ 0xb/47/00
+May 15 15:42:57 shapeshifter ata2: status=0x58 { DriveReady
+SeekComplete DataRequest }
+May 15 15:42:57 shapeshifter sd 1:0:0:0: SCSI error: return code = 0x8000002
+May 15 15:42:57 shapeshifter sda: Current: sense key=0xb
+May 15 15:42:57 shapeshifter ASC=0x47 ASCQ=0x0
+May 15 15:42:57 shapeshifter end_request: I/O error, dev sda, sector 974708575
 
-thanks,
-grant
+(sector varies)
+
+After large ssh transfers. I moved to 2.6.17-rc4-git2 because
+2.6.16.16 was doing the same. This is a new 500gb sata2 drive on
+sata_sil so I guess this could be hardware, but I wanted to make sure
+before I go returning this thing. After this obviously I have to sysrq
+sync, ro and reboot. This also causes(?) a NETDEV WATCHDOG: eth2:
+transmit timed out, sometimes this ata timeout doesn't yet occur and I
+just get the netdev watchdog. This has not yet happened with the new
+patch, though I'm only 1 hr into testing with it.
+
+
+If you want to take a peek at my config:
+http://olricha.homelinux.net:8080/ss.config
+-- 
+avuton
+--
+ Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

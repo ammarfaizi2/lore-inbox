@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbWEOVj6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWEOVlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964862AbWEOVj6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 17:39:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbWEOVj5
+	id S964898AbWEOVlV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 17:41:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbWEOVlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 17:39:57 -0400
-Received: from web31508.mail.mud.yahoo.com ([68.142.198.137]:54443 "HELO
-	web31508.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964862AbWEOVj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 17:39:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=l2b8k4CB53EP3ADpNKAo0MMhyjWi7o2Si63bfUj0uiWKK/S581zBsibjD6PnKMHeRcSG+ZGM1KDM95bv+MWrnCt7zY03OxHXwzNWhvorEYio/Q+XrMSTpypQftr4bwAsshhFaoHBcNzfeVyysYU+3Om5Mxv5bMjEZ74ol/Whf8w=  ;
-Message-ID: <20060515213956.31627.qmail@web31508.mail.mud.yahoo.com>
-Date: Mon, 15 May 2006 14:39:56 -0700 (PDT)
-From: Jonathan Day <imipak@yahoo.com>
-Subject: /dev/random on Linux
-To: linux-kernel@vger.kernel.org
+	Mon, 15 May 2006 17:41:21 -0400
+Received: from smtpq1.tilbu1.nb.home.nl ([213.51.146.200]:3804 "EHLO
+	smtpq1.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
+	id S964898AbWEOVlU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 17:41:20 -0400
+Message-ID: <4468F58E.8050903@keyaccess.nl>
+Date: Mon, 15 May 2006 23:41:34 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Gerd Hoffmann <kraxel@suse.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] SMP alternatives: skip with UP kernels.
+References: <4461341B.7050602@keyaccess.nl> <4461B24A.7050805@suse.de> <4461D16A.3000301@keyaccess.nl> <44632A62.2020505@suse.de> <4463A78F.5030703@keyaccess.nl> <44647454.3050800@suse.de>
+In-Reply-To: <44647454.3050800@suse.de>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Gerd Hoffmann wrote:
 
-For the three people who don't monitor the security
-websites, there are claims that Linux' random number
-generator has problems that could potentially be
-exploited by an attacker to compromise encryption
-algorithms, etc.
+>> Yes, the #ifdef in arch/i386/kernel/module.c is a bit clumsy.
+> 
+> Yep, thats why.  I wanted avoid exactly that.  Having some code need to
+> know that function foobar() is only available with CONFIG_BAZ is set is
+> really ugly ...
+> 
+> The attached patch hides the magic in alternative.h and provides some
+> dummy inline functions for the UP case (gcc should manage to optimize
+> away these calls).  No changes in module.c.
 
-http://www.securiteam.com/unixfocus/5RP0E0AIKK.html
+Works for me; it doesn't easily get non-clumsy in module.c I see. Sure 
+you want to keep smp_alt_once outside the #ifdef? Seems to not be doing 
+anything other than being set to 1 for !SMP.
 
-(Just because something is claimed does not make it
-so, but it's usually worth checking.)
-
-I know there have been patches around for ages to
-improve the entropy of the random number generator,
-but how active is work on this section of the code?
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Thanks,
+Rene.

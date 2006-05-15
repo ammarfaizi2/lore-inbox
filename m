@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWEOXAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWEOXAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbWEOXAu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 19:00:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWEOXAt
+	id S1750701AbWEOXAs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 19:00:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWEOXAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 19:00:49 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:45777 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750726AbWEOXAr (ORCPT
+	Mon, 15 May 2006 19:00:48 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:64390 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1750701AbWEOXAr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 15 May 2006 19:00:47 -0400
-Message-ID: <4469081D.7080608@garzik.org>
-Date: Mon, 15 May 2006 19:00:45 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [RFT] major libata update
-References: <20060515170006.GA29555@havoc.gtf.org> <20060515230256.GB4699@animx.eu.org>
-In-Reply-To: <20060515230256.GB4699@animx.eu.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Updated libata PATA patch
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kevin Radloff <radsaq@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1147730929.26686.168.camel@localhost.localdomain>
+References: <1147196676.3172.133.camel@localhost.localdomain>
+	 <3b0ffc1f0605091848med1f37ua83c283a922ea682@mail.gmail.com>
+	 <1147270145.17886.42.camel@localhost.localdomain>
+	 <3b0ffc1f0605100905x18d07f76jda38d1807cf9e9d7@mail.gmail.com>
+	 <1147279198.19935.6.camel@localhost.localdomain>
+	 <3b0ffc1f0605100939r607ef30dya743a7f1a1dbe03f@mail.gmail.com>
+	 <1147730929.26686.168.camel@localhost.localdomain>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.1 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.1 points, 5.0 required)
+Date: Tue, 16 May 2006 00:13:36 +0100
+Message-Id: <1147734817.26686.202.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wakko Warner wrote:
-> Jeff Garzik wrote:
->> After much development and review, I merged a massive pile of libata
->> patches from Tejun Heo and Albert Lee.  This update contains the
->> following major libata
->>
->> CHANGES:
->> * Rewritten error handling. This is a major piece of work, even
->>   though it will be rarely seen.  The new libata EH provides the
->>   foundation for not only improved error handling, but also new features
->>   such as device hotplug or command queueing. (Tejun Heo)
->>
->> * PIO-based I/O is now IRQ-driven by default, rather than polled
->>   in a kernel thread.  The polling path will continue to exist for
->>   controllers that need it, and other special cases. (Albert Lee)
->>
->> * Core support for command queueing (Jens Axboe, Tejun Heo)
->>
->> * Support for NCQ-style command queueing (Jens Axboe, Tejun Heo)
->>
->> * Increase max-sectors dramatically, for LBA48 devices (Tejun Heo?)
->>
->> * Other minor changes, from myself and others.
+On Llu, 2006-05-15 at 23:08 +0100, Alan Cox wrote:
+> On Mer, 2006-05-10 at 12:39 -0400, Kevin Radloff wrote:
+> > > I'll do some more digging, but putting printks into ata_qc_issue_prot to
+> > > see where it explodes is the next step I suspect.
+> > 
+> > Ah, I see.. I'll be waiting. :)
 > 
-> How about PATA?  Specifically intel's IDE chip.  I have a machine that I can
-> blow the hard drive away if I want to.
+> Much scratching of heads and tracing later it looks like a libata-core
+> bug rather than pata_pcmcia. Glad this blew up as its a nasty little bug
+> if I follow it right
 
-Always helpful.  ata_piix should support Intel PATA controllers, modulo 
-some bugs that Alan is fixing / has fixed.  If your PCI ID isn't listed, 
-you will have to add it, and an associated info entry.  Again, take a 
-look at Alan's libata PATA patches for guidance.
-
-	Jeff
-
-
+Actually ignore that (well try it if you like) but it appears something
+far weirder is actually going on
 

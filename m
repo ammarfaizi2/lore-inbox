@@ -1,39 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965035AbWEOWYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbWEOWYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965035AbWEOWYb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 18:24:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965041AbWEOWYb
+	id S965041AbWEOWYv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 18:24:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965266AbWEOWYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 18:24:31 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:6845 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965035AbWEOWYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 18:24:30 -0400
-Subject: Re: 2.6.17-rc4-mm1
-From: David Woodhouse <dwmw2@infradead.org>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <6bffcb0e0605151003x5d3518b9o70dae3b3349c4f9f@mail.gmail.com>
-References: <20060515005637.00b54560.akpm@osdl.org>
-	 <6bffcb0e0605151003x5d3518b9o70dae3b3349c4f9f@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 15 May 2006 23:24:21 +0100
-Message-Id: <1147731861.2571.8.camel@shinybook.infradead.org>
+	Mon, 15 May 2006 18:24:50 -0400
+Received: from hera.kernel.org ([140.211.167.34]:8147 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S965041AbWEOWYt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 18:24:49 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: send(), sendmsg(), sendto() not thread-safe
+Date: Mon, 15 May 2006 15:24:16 -0700 (PDT)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <e4av2g$ctj$1@terminus.zytor.com>
+References: <OFE8460E54.0C8D85D8-ON8525716F.0074F22F-8825716F.0076D537@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1147731856 13236 127.0.0.1 (15 May 2006 22:24:16 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Mon, 15 May 2006 22:24:16 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-15 at 19:03 +0200, Michal Piotrowski wrote:
-> make with O=/dir doesn't work. 
+Followup to:  <OFE8460E54.0C8D85D8-ON8525716F.0074F22F-8825716F.0076D537@us.ibm.com>
+By author:    Mark A Smith <mark1smi@us.ibm.com>
+In newsgroup: linux.dev.kernel
+>
+> I discovered that in some cases, send(), sendmsg(), and sendto() are not
+> thread-safe. Although the man page for these functions does not specify
+> whether these functions are supposed to be thread-safe, my reading of the
+> POSIX/SUSv3 specification tells me that they should be. I traced the
+> problem to tcp_sendmsg(). I was very curious about this issue, so I wrote
+> up a small page to describe in more detail my findings. You can find it at:
+> http://www.almaden.ibm.com/cs/people/marksmith/sendmsg.html .
+> 
+> Thanks,
+> Mark A. Smith
+> 
+> PS. I am using the term "thread" in the general sense, this is a problem
+> independent of pthreads, etc. The problem occurs when two processes
+> (whether or not they share an address space) send on the same socket (and
+> some other low-resource conditions exist).
+> 
 
-Thanks.
+User error.  Writes onto a streaming socket (or a pipe) are
+thread-safe, *but not necessarily atomic*, if the size exceeds PIPE_BUF.
 
-http://git.infradead.org/?p=hdrinstall-2.6.git;a=commitdiff;h=4090bed2af5e4b533a13b01ddbda0c9684cc669f
+If you want atomicity you either have to do your own locking, or use a
+DGRAM or SEQPACKET socket.
 
--- 
-dwmw2
+	-hpa
 

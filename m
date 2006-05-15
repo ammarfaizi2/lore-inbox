@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965016AbWEORsS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbWEORsv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965016AbWEORsS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 13:48:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965006AbWEORsS
+	id S965006AbWEORsv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 13:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965021AbWEORsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 13:48:18 -0400
-Received: from nz-out-0102.google.com ([64.233.162.192]:47528 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965016AbWEORsQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 13:48:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=r8Dupdqtg5YkivUId+6pwIyf1zZMUYD1IB578rwf/6SYz9HWM3bIKBaqztZiW6nUy+SJBsvBPdpPJrOR/537/VD/oGZE5q97h/LJZCg7xUiPbYDVH/6eW6HgnK8D7OUkwCzfj6DQewofKqdIeEDhavHOhjwyOKYgtmtDnV/XpVM=
-Message-ID: <6bffcb0e0605151048r314132cdvedf7c33b3c945c72@mail.gmail.com>
-Date: Mon, 15 May 2006 19:48:15 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.17-rc4-mm1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060515005637.00b54560.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+	Mon, 15 May 2006 13:48:51 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:45991 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S965006AbWEORst
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 13:48:49 -0400
+Date: Mon, 15 May 2006 13:48:35 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Morton Andrew Morton <akpm@osdl.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>
+Cc: Andi Kleen <ak@muc.de>, Don Zickus <dzickus@redhat.com>
+Subject: [PATCH] Kdump i386 nmi event notification fix
+Message-ID: <20060515174835.GA28981@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060515005637.00b54560.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On 15/05/06, Andrew Morton <akpm@osdl.org> wrote:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc4/2.6.17-rc4-mm1/
->
-> - This tree contains a large number of new bugs^H^H^H^Hpatches.
->
-[snip]
-> +kbuild-export-symbol-usage-report-generator.patch
 
-When I try make exportcheck with O=/dir I get this error
-[michal@ltg01-fedora linux-mm]$ make O=../linux-mm-obj/ exportcheck
-EXPORTFILE=../linux-mm-obj/export.dat
-  Using /usr/src/linux-mm as source for kernel
-[..]
-Can't open perl script
-"/usr/src/linux-mm-obj/scripts/export_report.pl": No such file or
-directory
-make[2]: *** [__modpost] Error 2
-make[1]: *** [modules] Error 2
-make: *** [exportcheck] Error 2
+o After a crash we should wait for NMI IPI event and not for external NMI
+  or NMI watchdog tick.
 
-Regards,
-Michal
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+ linux-2.6.17-rc4-1M-vivek/arch/i386/kernel/crash.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -puN arch/i386/kernel/crash.c~kdump-i386-nmi-event-notification-fix arch/i386/kernel/crash.c
+--- linux-2.6.17-rc4-1M/arch/i386/kernel/crash.c~kdump-i386-nmi-event-notification-fix	2006-05-15 12:08:21.000000000 -0400
++++ linux-2.6.17-rc4-1M-vivek/arch/i386/kernel/crash.c	2006-05-15 13:25:09.000000000 -0400
+@@ -102,7 +102,7 @@ static int crash_nmi_callback(struct not
+ 	struct pt_regs fixed_regs;
+ 	int cpu;
+ 
+-	if (val != DIE_NMI)
++	if (val != DIE_NMI_IPI)
+ 		return NOTIFY_OK;
+ 
+ 	regs = ((struct die_args *)data)->regs;
+@@ -113,7 +113,7 @@ static int crash_nmi_callback(struct not
+ 	 * an NMI if system was initially booted with nmi_watchdog parameter.
+ 	 */
+ 	if (cpu == crashing_cpu)
+-		return 1;
++		return NOTIFY_STOP;
+ 	local_irq_disable();
+ 
+ 	if (!user_mode_vm(regs)) {
+_

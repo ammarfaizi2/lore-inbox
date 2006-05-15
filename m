@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965228AbWEOVJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965227AbWEOVJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965228AbWEOVJU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 17:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965227AbWEOVJT
+	id S965227AbWEOVJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 17:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965229AbWEOVJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 17:09:19 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:28036 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S965228AbWEOVJT (ORCPT
+	Mon, 15 May 2006 17:09:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27582 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965227AbWEOVJ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 17:09:19 -0400
-Subject: Re: [openib-general] Re: [PATCH 0 of 53] ipath driver updates for
-	2.6.17-rc4
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Roger Heflin <rheflin@atipa.com>
-Cc: Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <4468E064.9060504@atipa.com>
-References: <patchbomb.1147477365@eng-12.pathscale.com>
-	 <adau07ruwb5.fsf@cisco.com> <4468A59C.2030400@atipa.com>
-	 <adamzdjtgtt.fsf@cisco.com>  <4468E064.9060504@atipa.com>
-Content-Type: text/plain
-Date: Mon, 15 May 2006 14:09:18 -0700
-Message-Id: <1147727358.2773.11.camel@chalcedony.pathscale.com>
+	Mon, 15 May 2006 17:09:56 -0400
+Date: Mon, 15 May 2006 14:12:26 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Bernhard Rosenkraenzer <bero@arklinux.org>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [FIXED] Re: Total machine lockup w/ current kernels while
+ installing from CD
+Message-Id: <20060515141226.794f3b7f.akpm@osdl.org>
+In-Reply-To: <200605152253.02638.bero@arklinux.org>
+References: <200605110322.14774.bero@arklinux.org>
+	<200605152232.04304.bero@arklinux.org>
+	<20060515134537.78e117dc.akpm@osdl.org>
+	<200605152253.02638.bero@arklinux.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-15 at 15:11 -0500, Roger Heflin wrote:
+Bernhard Rosenkraenzer <bero@arklinux.org> wrote:
+>
+> On Monday, 15. May 2006 22:45, Andrew Morton wrote:
+> > It's odd that we'll run initrds in a !SYSTEM_RUNNING state.
+> 
+> True, especially because we run initramfs in SYSTEM_RUNNING state.
+> 
+> > It's not an oops - it's sort-of a warning.  Did the system actually
+> > continue to run and boot up OK?
+> 
+> No, it was a lockup and the system just hung at the point forever, so the 
+> lockup detection was right.
 
-> I checked the rc4 -> git patches (there is only 1 ipath patch in it),
-> and I get a number of patch fails attempting to apply the patches,
+This is odd.  Your machine hangs if cond_resched() is a no-op.  This should
+not happen.
 
-I've been using a Mercurial mirror of the git tree, but it should be
-basically identical to the git tree.
-
-> I did attempt to resolve some of the funniness but there were things
-> that I appear to be missing (things in the context diff that I cannot
-> find exist in rc4 and I cannot find being added in any patch), so
-> I don't think I can even get everything to apply even with manual
-> adjusting.
-
-Please send me some more information off-list, and I'll try to help.
-
-	<b
+What does `grep PREEMPT .config' say?
 

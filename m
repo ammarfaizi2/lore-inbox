@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWEOWrs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWEOWto@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbWEOWrs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 18:47:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbWEOWrs
+	id S1750708AbWEOWto (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 18:49:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbWEOWto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 18:47:48 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:11931 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750707AbWEOWrr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 18:47:47 -0400
-Subject: Re: pcmcia oops on 2.6.17-rc[12]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Andreas Mohr <andi@rhlx01.fht-esslingen.de>, florin@iucha.net,
-       linux-kernel@vger.kernel.org, linux@dominikbrodowski.net
-In-Reply-To: <Pine.LNX.4.64.0605151459140.3866@g5.osdl.org>
-References: <20060423192251.GD8896@iucha.net>
-	 <20060423150206.546b7483.akpm@osdl.org>
-	 <20060508145609.GA3983@rhlx01.fht-esslingen.de>
-	 <20060508084301.5025b25d.akpm@osdl.org>
-	 <20060508163453.GB19040@flint.arm.linux.org.uk>
-	 <1147730828.26686.165.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0605151459140.3866@g5.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 16 May 2006 00:00:26 +0100
-Message-Id: <1147734026.26686.200.camel@localhost.localdomain>
+	Mon, 15 May 2006 18:49:44 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:9617
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750708AbWEOWtn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 18:49:43 -0400
+Date: Mon, 15 May 2006 15:49:39 -0700 (PDT)
+Message-Id: <20060515.154939.28171388.davem@davemloft.net>
+To: mark1smi@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: send(), sendmsg(), sendto() not thread-safe
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <OFE8460E54.0C8D85D8-ON8525716F.0074F22F-8825716F.0076D537@us.ibm.com>
+References: <OFE8460E54.0C8D85D8-ON8525716F.0074F22F-8825716F.0076D537@us.ibm.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-05-15 at 15:02 -0700, Linus Torvalds wrote:
-> Note that some PCMCIA architectures simply _will_not_ give you a private 
-> IRQ. Ever. They may not have any ISA interrupts to give, even to old 
-> 16-bit cards. So the choice may be "shared irq or nothing".
+From: Mark A Smith <mark1smi@us.ibm.com>
+Date: Mon, 15 May 2006 14:39:06 -0700
 
-Yes I realise that, the test patches in my tree will hand back a shared
-one but hand back the status so you know you asked for exclusive, got
-shared and need to decide.
+> I discovered that in some cases, send(), sendmsg(), and sendto() are not
+> thread-safe. Although the man page for these functions does not specify
+> whether these functions are supposed to be thread-safe, my reading of the
+> POSIX/SUSv3 specification tells me that they should be. I traced the
+> problem to tcp_sendmsg(). I was very curious about this issue, so I wrote
+> up a small page to describe in more detail my findings. You can find it at:
+> http://www.almaden.ibm.com/cs/people/marksmith/sendmsg.html .
 
-> So I would strongly argue that any driver that depends on getting an 
-> exclusive IRQ is buggy, not the PCMCIA layer itself, and that it would be 
-> a lot more productive to try to fix those drivers.
+I don't understand why the desire is so high to ensure that
+individual threads get "atomic" writes, you can't even ensure
+that in the general case.
 
-It would certainly be a lot cleaner than this sort of code in the pcmcia
-core right now. Want me to send a patch which only allows for SA_SHIRQ
-and WARN_ON()'s for any driver not asking for shared IRQ ?
+Only sloppy programs that don't do their own internal locking hit into
+issues in this area.
+
+>From your findings, the vast majority of systems you investigated do
+not provide "atomic" thread safe write semantics over TCP sockets.
+And frankly, BSD defines BSD socket semantics here not some wording in
+the POSIX standards.
+
+Finally, this discussion belongs on the networking development mailing
+list, netdev@vger.kernel.org, not linux-kernel.

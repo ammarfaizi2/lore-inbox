@@ -1,65 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbWEOSBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965034AbWEOSCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965028AbWEOSBo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 14:01:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965030AbWEOSBo
+	id S965034AbWEOSCx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 14:02:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbWEOSCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 14:01:44 -0400
-Received: from ns2.suse.de ([195.135.220.15]:19673 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965028AbWEOSBn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 14:01:43 -0400
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] x86 NUMA panic compile error
-Date: Mon, 15 May 2006 20:01:16 +0200
-User-Agent: KMail/1.9.1
-Cc: Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20060515005637.00b54560.akpm@osdl.org> <20060515140811.GA23750@shadowen.org> <20060515175306.GA18185@elte.hu>
-In-Reply-To: <20060515175306.GA18185@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 15 May 2006 14:02:53 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:35551 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965034AbWEOSCw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 14:02:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=D5uWUKQH+NHJMYSDR7IHrHkmxZeu6A1aG0ree7GcDmQz98g5a/D/Hu55XOLk4wiac67XVTSaPxvTB4hY6nYF6Dny0kd6Ej3FtKAMU97Af0GCy1Yvopi5BilYHabgEnONzBiZDGFFUe1LwCiTfI11hvM2zzObzj/KFVI3JDyHaxU=
+Date: Mon, 15 May 2006 22:01:39 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, phillip@hellewell.homeip.net,
+       Michael Halcrow <mhalcrow@us.ibm.com>,
+       David Howells <dhowells@redhat.com>
+Subject: Re: 2.6.17-rc4-mm1
+Message-ID: <20060515180139.GC10143@mipter.zuzino.mipt.ru>
+References: <20060515005637.00b54560.akpm@osdl.org> <20060515164938.GB10143@mipter.zuzino.mipt.ru> <20060515100144.0aff41b1.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605152001.16813.ak@suse.de>
+In-Reply-To: <20060515100144.0aff41b1.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 15 May 2006 19:53, Ingo Molnar wrote:
+On Mon, May 15, 2006 at 10:01:44AM -0700, Andrew Morton wrote:
+> Alexey Dobriyan <adobriyan@gmail.com> wrote:
+> >
+> > >   - Added the ecryptfs filesystem
+> > 
+> >   CC [M]  fs/ecryptfs/super.o
+> > fs/ecryptfs/super.c: In function `ecryptfs_statfs':
+> > fs/ecryptfs/super.c:129: warning: passing arg 1 of `vfs_statfs' from incompatible pointer type
+> > fs/ecryptfs/super.c: At top level:
+> > fs/ecryptfs/super.c:207: warning: initialization from incompatible pointer type
 > 
-> * Andy Whitcroft <apw@shadowen.org> wrote:
+> hm, I wonder why I didn't notice that.
 > 
-> >  	if (use_cyclone == 0) {
-> >  		/* Make sure user sees something */
-> > -		static const char s[] __initdata = "Not an IBM x440/NUMAQ. Don't use i386 CONFIG_NUMA anywhere else."
-> > +		static const char s[] __initdata = "Not an IBM x440/NUMAQ. Don't use i386 CONFIG_NUMA anywhere else.";
-> >  		early_printk(s);
-> >  		panic(s);
-> >  	}
+> > * ->statfs wants vfsmount as first argument
+> > * ecryptfs_statfs() is inlined
 > 
-> i still strongly oppose the original Andi hack... numerous reasons were 
-> given not to apply it (it's nice to simulate/trigger rarer features on 
-> mainstream hardware too, and this ability to boot NUMA on my flat x86 
-> testbox found at least one other NUMA bug already). Furthermore, the 
-> crash i reported was fixed by the NUMA patchset. Andrew, please drop:
-
-The problem is that it's not regularly used on a wide range
-of boxes so it will eventually break again. We had this cycle several
-times already.
-
-It's also missing a lot of the workarounds for broken SRATs that
-are needed for many of the existing NUMA systems.
-
-If there's consensus i386 NUMA is useful I can drop it, but I predict
-it will just eventually break again.
-
->   x86_64-mm-i386-numa-summit-check.patch
+> yup.  Fixed a bunch of those, let one slip through.
 > 
-> (which has nothing to do with x86_64 anyway)
+> I don't immediately see how to fix this one, actually:
+> 
+> static inline int ecryptfs_statfs(struct super_block *sb, struct kstatfs *buf)
+> {
+> 	return vfs_statfs(ecryptfs_superblock_to_lower(sb), buf);
+> }
+> 
+> Once we've run ecryptfs_superblock_to_lower() to get the "lower
+> superblock", we need to turn that back into a vfsmount for vfs_statfs()..
+> 
+> (and that function needn't have been inlined - it's only ever called
+> indirectly)
+> 
+> I think I'll be dropping the fs-cache patches (again) fairly soon.  They're
+> intrusive, quite some effort to carry, they're not getting adequate review
+> (afaict) and there doesn't seem to be a lot of demand for them, sorry.
 
-I have a lot of i386 or combined i386/x86-64 patches in my tree - just Andrew's 
-merge script doesn't pick that up.
+Silly me. GFS2 is guilty too
 
--Andi
+fs/gfs2/ops_super.c:371: warning: initialization from incompatible pointer type
+
+	static int gfs2_statfs(struct super_block *sb, struct kstatfs *buf)
+

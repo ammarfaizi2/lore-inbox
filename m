@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751578AbWEORgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751617AbWEORkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751578AbWEORgb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 13:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751563AbWEORgb
+	id S1751617AbWEORkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 13:40:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751620AbWEORkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 13:36:31 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:38039 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751578AbWEORgb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 13:36:31 -0400
-Subject: Re: Linux v2.6.17-rc4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0605111640010.3866@g5.osdl.org>
-References: <Pine.LNX.4.64.0605111640010.3866@g5.osdl.org>
-Content-Type: text/plain
+	Mon, 15 May 2006 13:40:09 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:2964 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S1751615AbWEORkH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 13:40:07 -0400
+Message-ID: <4468BCE3.3010005@myri.com>
+Date: Mon, 15 May 2006 19:39:47 +0200
+From: Brice Goglin <brice@myri.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Francois Romieu <romieu@fr.zoreil.com>, netdev@vger.kernel.org,
+       LKML <linux-kernel@vger.kernel.org>,
+       "Andrew J. Gallatin" <gallatin@myri.com>
+Subject: Re: [PATCH 4/6] myri10ge - First half of the driver
+References: <446259A0.8050504@myri.com>	 <Pine.GSO.4.44.0605101438410.498-100000@adel.myri.com>	 <20060510231347.GC25334@electric-eye.fr.zoreil.com>	 <4463CE88.20301@myri.com> <1147712555.27252.269.camel@mindpipe>
+In-Reply-To: <1147712555.27252.269.camel@mindpipe>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Mon, 15 May 2006 18:49:16 +0100
-Message-Id: <1147715356.26686.87.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2006-05-11 at 16:44 -0700, Linus Torvalds wrote:
-> Ok, I've let the release time between -rc's slide a bit too much again, 
-> but -rc4 is out there, and this is the time to hunker down for 2.6.17.
-> 
-> If you know of any regressions, please holler now, so that we don't miss 
-> them. 
+Lee Revell wrote:
+> On Fri, 2006-05-12 at 01:53 +0200, Brice Goglin wrote:
+>   
+>> Francois Romieu wrote:
+>>     
+>>>> +	spin_lock(&mgp->cmd_lock);
+>>>> +	response->result = 0xffffffff;
+>>>> +	mb();
+>>>> +	myri10ge_pio_copy((void __iomem *) cmd_addr, buf, sizeof (*buf));
+>>>> +
+>>>> +	/* wait up to 2 seconds */
+>>>>     
+>>>>         
+>>> You must not hold a spinlock for up to 2 seconds.
+>>>   
+>>>       
+>> We are working on reducing the delay to about 15ms. It only occurs when
+>> the driver is loaded or the link brought up.
+>>     
+>
+> I think 15ms is quite a long time to hold a spinlock also - most
+> spinlocks in the kernel are held for less than 500 microseconds.
+>
+> Can't you use a mutex?
+>   
 
-PCMCIA is the obvious one I'm hitting here. The pcmcia core code as well
-as being somewhat unreadable will happily hand out shared IRQs to
-drivers that ask for an exclusive one leading to setup_irq errors and
-non-working devices.
+It looks like rtnl_lock protects us here. We are working on it.
 
-The main problem seems to be that the kernel will hand back the shared
-PCI IRQ for a pcmcia port even when ExclusiveIRQ is requested. I've got
-a patch here to clean this up a bit, but it changes the API to pass back
-the fact the available IRQ is shared rather than force it, so may not be
-a good candidate close to 2.6.17
+Brice
 

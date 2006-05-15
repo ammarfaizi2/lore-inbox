@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWEOTwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751631AbWEOT4e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751225AbWEOTwO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 15:52:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWEOTwO
+	id S1751631AbWEOT4e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 15:56:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751629AbWEOT4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 15:52:14 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:16100 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751225AbWEOTwN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 15:52:13 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH -mm] swsusp: support creating bigger images (rev. 2)
-Date: Mon, 15 May 2006 21:52:10 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>,
-       Nigel Cunningham <ncunningham@cyclades.com>,
-       Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au
-References: <200605021200.37424.rjw@sisk.pl> <200605140033.14967.rjw@sisk.pl> <200605151948.45345.kernel@kolivas.org>
-In-Reply-To: <200605151948.45345.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 15 May 2006 15:56:34 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:235 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751498AbWEOT4d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 15:56:33 -0400
+Subject: Re: Segfault on the i386 enter instruction
+From: Lee Revell <rlrevell@joe-job.com>
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: Andi Kleen <ak@muc.de>, Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4468D8CA.6070702@aknet.ru>
+References: <44676F42.7080907@aknet.ru> <20060515074019.GA33242@muc.de>
+	 <4468B733.7010101@aknet.ru> <20060515184401.GA89194@muc.de>
+	 <4468D8CA.6070702@aknet.ru>
+Content-Type: text/plain
+Date: Mon, 15 May 2006 15:56:30 -0400
+Message-Id: <1147722991.13948.19.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605152152.12194.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2006-05-15 at 23:38 +0400, Stas Sergeev wrote:
 
-On Monday 15 May 2006 11:48, Con Kolivas wrote:
-> On Sunday 14 May 2006 08:33, Rafael J. Wysocki wrote:
-> > On Friday 12 May 2006 12:30, Pavel Machek wrote:
-> > > > Please also remember that you are introducing complexity in other ways,
-> > > > with that swap prefetching code and so on. Any comparison in speed
-> > > > should include the time to fault back in pages that have been
-> > > > discarded.
-> > >
-> > > Well, swap prefetching is useful for other workloads, too; so it gets
-> > > developed/tested outside swsusp.
-> >
-> > Still my experience indicates that it doesn't play very nice with swsusp
-> > and unfortunately it hogs the I/O.
-> 
-> There is no swap prefetching code linked in any way to swsusp suspend or 
-> resume on mainline or -mm. It was a preliminary experiment and Rafael lost 
-> interest in it so I never bothered pursuing it.
+> > It is set by a few distributions (for use with flexmmap) in PAM, but
+> > not by all. The kernel defaults don't have it.
+> That might explain why I get
+> $ ulimit -s
+> 8192
+> on fedora core.
+> Thanks for explanations.
 
-I'm referring to the code currently in -mm, where kprefetchd sometimes starts
-prefetching like mad after resume which hurts the disk I/O really badly (unless
-I set /proc/sys/vm/swap_prefetch to 0, that is).
+Just FYI, this does actually have an important effect on multithreaded
+programs - glibc will allocate RLIMIT_STACK for each thread stack.  If
+mlockall() is used this can eat quite a bit of memory.  It's a real
+world problem for some pro audio apps.
 
-I think the problem is related to the fact that swsusp tends to leave quite a lot
-of pages in the swap, if they had to be swapped out before suspend, and that
-makes kprefetchd believe it should get these pages back into RAM, which
-usually is not the greatest idea.
+Lee
 
-The above is only a speculation, however, and I'd have to investigate it a bit
-more to say something more certain.  Anyway, my experience indicates
-that it usually is better to set /proc/sys/vm/swap_prefetch to 0 after resume,
-but YMMV.
-
-Greetings,
-Rafael

@@ -1,72 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWEOEKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751389AbWEOERz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbWEOEKw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 00:10:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbWEOEKv
+	id S1751389AbWEOERz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 00:17:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbWEOERz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 00:10:51 -0400
-Received: from hqemgate02.nvidia.com ([216.228.112.143]:21557 "EHLO
-	HQEMGATE02.nvidia.com") by vger.kernel.org with ESMTP
-	id S1751393AbWEOEKv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 00:10:51 -0400
-Message-ID: <4466E2E8.7090801@nvidia.com>
-Date: Sun, 14 May 2006 03:57:28 -0400
-From: Ayaz Abdulla <aabdulla@nvidia.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jeff@garzik.org, netdev@vger.kernel.org,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: Linux v2.6.17-rc4
-References: <Pine.LNX.4.64.0605111640010.3866@g5.osdl.org> <200605122219.37626.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200605122219.37626.s0348365@sms.ed.ac.uk>
-X-NVConfidentiality: public
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 15 May 2006 00:17:55 -0400
+Received: from smtpout.mac.com ([17.250.248.185]:28365 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751389AbWEOERy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 00:17:54 -0400
+In-Reply-To: <200605142008.39420.rob@landley.net>
+References: <200605121421.00044.rob@landley.net> <F68E5CEA-AB95-4E1C-9923-0882394AE16E@mac.com> <200605142008.39420.rob@landley.net>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <6BCF90AC-FF8B-48BC-8659-DBE0DD00E270@mac.com>
+Cc: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 May 2006 04:10:18.0796 (UTC) FILETIME=[7A2A26C0:01C677D5]
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Which process context does /sbin/hotplug run in?
+Date: Mon, 15 May 2006 00:17:44 -0400
+To: Rob Landley <rob@landley.net>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Alistair John Strachan wrote:
-> On Friday 12 May 2006 00:44, Linus Torvalds wrote:
-> 
->>Ok, I've let the release time between -rc's slide a bit too much again,
->>but -rc4 is out there, and this is the time to hunker down for 2.6.17.
+On May 14, 2006, at 20:08, Rob Landley wrote:
+> On Saturday 13 May 2006 3:24 am, Kyle Moffett wrote:
+>> /
+>>    /var
+>>      /var/sub
+>>      /var/sub2
+>>        /var/sub2/sub
+>>        /var/sub2/sub2
 >>
->>If you know of any regressions, please holler now, so that we don't miss
->>them.
->>
->>-rc4 itself is mainly random driver fixes (sound, infiniband, scsi,
->>network drivers), but some splice fixes too and some arch (arm, powerpc,
->>mips) updates. Shortlog follows,
-> 
-> 
-> Linus,
-> 
-> I've got an oops in the forcedeth driver on shutdown. Sorry for the crappy 
-> camera phone pictures, this board doesn't have RS232 ports:
-> 
-> http://devzero.co.uk/~alistair/oops-20060512/
-> 
-> It was initially difficult to reproduce, but I found I could do so reliably if 
-> I ssh'ed into the box and halted it remotely, then it would always oops on 
-> shutdown. I assume this is because the driver is still active when something 
-> happens to it during halt.
-> 
-> There's been just a single commit since -rc3:
-> 
-> forcedeth: fix multi irq issues
-> ebf34c9b6fcd22338ef764b039b3ac55ed0e297b
-> 
-> However, it could have just been hidden since before -rc3, so I'll try to work 
-> backwards if nobody has any immediate ideas..
-> 
+>> The recursion ends there.  Basically with the first bind mount you  
+>> attach the same instance of tmpfs to /tmp and /var, then you move  
+>> the tmpfs from /tmp to the "/sub2" directory in the "/var" tmpfs  
+>> _mountpoint_.  It's kind of confusing behavior; but the directory  
+>> tree and the mount tree are basically kind of separate entities in  
+>> a sense.
+>
+> I can CD into them endlessly, and both "ls -lR" and "find ." report  
+> cycles in the tree, which surprised me that they had a specific  
+> error message for that, actually.  Good enough for me. :)
 
-The interrupt handler could be called during the same time (on different 
-cpu) the dev->stop function is clearing out the rings (nv_txrx_reset).
+Odd, I'm unable to replicate that behavior here.  If I run "ls /var/ 
+sub2/sub2" I don't get any entries.  Find and ls -lR have error  
+messages of that because it can occasionally be triggered with  
+symlinks and such.
+
+> And I'm not _complaining_ about it.  Just fiddling around with fun  
+> stuff.  If I get really bored I'll figure a way to split the tree  
+> so there are two completely unconnected mount trees in different  
+> processes.  (Get a private  namespace that's chrooted into  
+> something that somebody else does a umount -l on from their space.   
+> Or without using umount -l, just have two processes chroot into  
+> other mount points which should theoretically garbage collect the  
+> old root if no processes still references it, which presumably  
+> means one of the processes is init...)
+
+Well, actually, it isn't that hard.  Just run something like this:
+
+#! /bin/sh
+mkdir /a
+mkdir /b
+mount -t tmpfs tmpfs /a
+mount -t tmpfs tmpfs /b
+mkdir /a/old
+mkdir /b/old
+tool_to_fork_in_new_namespace sh -c "pivot_root /a /a/old && umount - 
+l /a/old && read"
+pivot_root /b /b/old && umount -l /b/old && read
+
+All you need to write is tool_to_fork_in_new_namespace which does  
+clone(CLONE_NEWNS) followed by exec().
+
+Cheers,
+Kyle Moffett
+
+--
+Simple things should be simple and complex things should be possible
+   -- Alan Kay
+
+
 

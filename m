@@ -1,76 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965178AbWEOTGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965179AbWEOTHd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965178AbWEOTGx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 15:06:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965162AbWEOTGx
+	id S965179AbWEOTHd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 15:07:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965162AbWEOTHb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 15:06:53 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:60599 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932343AbWEOTGv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 15:06:51 -0400
-Date: Mon, 15 May 2006 21:06:45 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Mon, 15 May 2006 15:07:31 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:16516 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932453AbWEOTH0 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 15:07:26 -0400
+Message-Id: <200605151907.k4FJ7Olk006598@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
 To: Andrew Morton <akpm@osdl.org>
-Cc: apw@shadowen.org, linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH] x86 NUMA panic compile error
-Message-ID: <20060515190645.GA21899@elte.hu>
-References: <20060515005637.00b54560.akpm@osdl.org> <20060515140811.GA23750@shadowen.org> <20060515175306.GA18185@elte.hu> <20060515110814.11c74d70.akpm@osdl.org> <20060515182855.GB18652@elte.hu> <20060515115208.57a11dcb.akpm@osdl.org> <20060515185657.GA19888@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.17-rc4-mm1 klibc build misbehavior
+From: Valdis.Kletnieks@vt.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060515185657.GA19888@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: multipart/signed; boundary="==_Exmh_1147720043_2500P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 15 May 2006 15:07:24 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1147720043_2500P
+Content-Type: text/plain; charset=us-ascii
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+Why does touching scripts/mod/modpost.c end up rebuilding all of klibc?
 
-> updated patch below. Or lets drop the original patch that adds the 
-> panic?
+Oddly enough, it *didn't* force a rebuild of all the *.ko files.
 
-another update: s/KERN_WARN/KERN_WARNING ...
 
-	Ingo
 
----
 
-re-enable dummy NUMA on i386.
+--==_Exmh_1147720043_2500P
+Content-Type: application/pgp-signature
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
- arch/i386/kernel/srat.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+iD8DBQFEaNFrcC3lWbTT17ARAjpoAKCUTH5Krt4WPysBg9GVDgmRQsLmkwCeMUXf
+/GQ2W2aO/FnohN93EZbgS3A=
+=ZX3s
+-----END PGP SIGNATURE-----
 
-Index: linux/arch/i386/kernel/srat.c
-===================================================================
---- linux.orig/arch/i386/kernel/srat.c
-+++ linux/arch/i386/kernel/srat.c
-@@ -266,13 +266,12 @@ int __init get_memcfg_from_srat(void)
- 	int tables = 0;
- 	int i = 0;
- 
-+#ifdef CONFIG_X86_CYCLONE_TIMER
- 	extern int use_cyclone;
--	if (use_cyclone == 0) {
--		/* Make sure user sees something */
--		static const char s[] __initdata = "Not an IBM x440/NUMAQ. Don't use i386 CONFIG_NUMA anywhere else."
--		early_printk(s);
--		panic(s);
--	}
-+	/* Make sure user sees something */
-+	if (use_cyclone == 0)
-+#endif
-+		printk(KERN_WARNING "WARNING: Not an IBM x440/NUMAQ and CONFIG_NUMA enabled!\n");
- 
- 	if (ACPI_FAILURE(acpi_find_root_pointer(ACPI_PHYSICAL_ADDRESSING,
- 						rsdp_address))) {
+--==_Exmh_1147720043_2500P--

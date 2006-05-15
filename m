@@ -1,61 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWEOOJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbWEOOMQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbWEOOJU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 10:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbWEOOJU
+	id S964934AbWEOOMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 10:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbWEOOMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 10:09:20 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:17871 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S964930AbWEOOJT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 10:09:19 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: "Jaya Kumar" <jayakumar.video@gmail.com>
-Subject: Re: [PATCH/RFC 2.6.16.5 1/1] usb/media/quickcam_messenger driver v2
-Date: Mon, 15 May 2006 16:09:47 +0200
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-References: <200605150849.k4F8nXDb031881@localhost.localdomain> <200605151235.10690.oliver@neukum.name> <70066d530605150550q55deb127w1ab2a4451b065a54@mail.gmail.com>
-In-Reply-To: <70066d530605150550q55deb127w1ab2a4451b065a54@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 15 May 2006 10:12:16 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:35207 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964934AbWEOOMP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 10:12:15 -0400
+Subject: Re: Nee guidance for bug report on LKML
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: 101551.753@compuserve.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200605122128.24633.it21@arcor.de>
+References: <200605122128.24633.it21@arcor.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605151609.48217.oliver@neukum.org>
+Date: Mon, 15 May 2006 15:25:00 +0100
+Message-Id: <1147703100.26686.31.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 15. Mai 2006 14:50 schrieb Jaya Kumar:
-> On 5/15/06, Oliver Neukum <oliver@neukum.name> wrote:
-> > Am Montag, 15. Mai 2006 10:49 schrieb jayakumar.video@gmail.com:
-> > > +urb->status = 0;
-> > > +urb->actual_length = 0;
-> >
-> > These are not needed. Indeed you should never write to those fields.
-> >
-> >         Regards
-> >                 Oliver
-> >
+On Gwe, 2006-05-12 at 21:28 +0200, Foli Ayivoh wrote:
+> Hi,
 > 
-> I see. Good point. I ought to have actually looked at usb_submit_urb
-> and seen that it initializes status and actual_length. I'll make the
-> change.
-> 
-> To reduce my embarrassment, I'll point out that several other media
-> drivers also do this:
-> 
-> drivers/usb/media % egrep "urb->status.*=" *.c
-> <snip>
-> konicawc.c:        urb->status = 0;
-> se401.c:        urb->status=0;
-> stv680.c:       urb->status = 0;
-> usbvideo.c:     urb->status = 0;
-> w9968cf.c:      urb->status = 0;
-> 
-> In most of the above cases, it appears to be just before resubmitting the urb.
+> have a problem with HighPoint HPT372A/N IDE controller at boot time (kernel oops/panic).
+>  (On Fedora Core 5 with Kernel 2.6.15-1.2054_FC5)
+> To whom should I send an bug report?
 
-There's your opportunity to remove even more unnecessary kernel code.
+If you are using the Fedora supplied kernel then please send it to the
+Fedora bugzilla.
 
-	Regards
-		Oliver
+Alan
+

@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbWEOV2u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751645AbWEOVaB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964875AbWEOV2u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 17:28:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965259AbWEOV2u
+	id S1751645AbWEOVaB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 17:30:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751644AbWEOVaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 17:28:50 -0400
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:4116 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S964875AbWEOV2t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 17:28:49 -0400
-X-IronPort-AV: i="4.05,130,1146466800"; 
-   d="scan'208"; a="1806595731:sNHT61712736"
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: openib-general@openib.org, linux-kernel@vger.kernel.org,
-       Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [PATCH 21 of 53] ipath - use phys_to_virt instead of bus_to_virt
-X-Message-Flag: Warning: May contain useful information
-References: <4e0a07d20868c6c4f038.1147477386@eng-12.pathscale.com>
-	<adad5efuw1o.fsf@cisco.com>
-	<1147728081.2773.25.camel@chalcedony.pathscale.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 15 May 2006 14:28:45 -0700
-In-Reply-To: <1147728081.2773.25.camel@chalcedony.pathscale.com> (Bryan O'Sullivan's message of "Mon, 15 May 2006 14:21:21 -0700")
-Message-ID: <adar72vrn8y.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
+	Mon, 15 May 2006 17:30:00 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:5385 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S964817AbWEOVaA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 17:30:00 -0400
+Date: Mon, 15 May 2006 23:29:51 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Andrew Morton <akpm@osdl.org>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc4-mm1 klibc build misbehavior
+Message-ID: <20060515212951.GA1329@mars.ravnborg.org>
+References: <200605151907.k4FJ7Olk006598@turing-police.cc.vt.edu> <20060515121630.2a91235b.akpm@osdl.org> <4468E4C7.9040701@zytor.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 15 May 2006 21:28:48.0215 (UTC) FILETIME=[8D78F670:01C67866]
-Authentication-Results: sj-dkim-4.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+Content-Disposition: inline
+In-Reply-To: <4468E4C7.9040701@zytor.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Bryan> As Segher mentioned, bus_to_virt is unportable, so it's
-    Bryan> definitely the wrong thing to use.
+On Mon, May 15, 2006 at 01:29:59PM -0700, H. Peter Anvin wrote:
+> Andrew Morton wrote:
+> >Valdis.Kletnieks@vt.edu wrote:
+> >>Why does touching scripts/mod/modpost.c end up rebuilding all of klibc?
+> >>
+> >>Oddly enough, it *didn't* force a rebuild of all the *.ko files.
+> >>
+> >cc added.
+> 
+> Added Sam as well.
+Cannot reproduce it here.
+x86_64 if that matters.
 
-Yes, but at least it says what you're trying to do.  asm-powerpc's
-io.h has this for phys_to_virt:
+Please post output of make V=1 after touching modpost.c
 
- *	This function does not handle bus mappings for DMA transfers. In
- *	almost all conceivable cases a device driver should not be using
- *	this function
-
-so replacing bus_to_virt with that is not a step forward.
-
-    Bryan> Any ideas?  Should this turn from a one-liner into a
-    Bryan> big-refactor-for-2.6.18 patch?
-
-I don't think there's a quick way to fix this.  What you really want
-to do is override the DMA mapping functions for your device so that
-you can keep track of the kernel mapping.  powerpc can already do this
-(cf the ehca driver), and I think patches to do it on x86-64 are
-floating around as part of the "Calgary IOMMU" work.
-
- - R.
+	Sam

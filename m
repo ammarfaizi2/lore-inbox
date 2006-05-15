@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWEOJKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbWEOJNm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWEOJKF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 05:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWEOJKF
+	id S1751330AbWEOJNm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 05:13:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWEOJNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 05:10:05 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:50933 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751173AbWEOJKE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 05:10:04 -0400
-Date: Mon, 15 May 2006 05:09:47 -0400 (EDT)
+	Mon, 15 May 2006 05:13:42 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:27272 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751330AbWEOJNl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 05:13:41 -0400
+Date: Mon, 15 May 2006 05:13:28 -0400 (EDT)
 From: Steven Rostedt <rostedt@goodmis.org>
 X-X-Sender: rostedt@gandalf.stny.rr.com
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-cc: mingo@elte.hu, akpm@osdl.org, tglx@linutronix.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Document futex PI design
-In-Reply-To: <Pine.LNX.4.58.0605150318110.6512@gandalf.stny.rr.com>
-Message-ID: <Pine.LNX.4.58.0605150508090.12114@gandalf.stny.rr.com>
-References: <Pine.LNX.4.58.0605090954150.7007@gandalf.stny.rr.com>
- <Pine.LNX.4.58.0605100331290.31598@gandalf.stny.rr.com>
- <Pine.LNX.4.58.0605100429220.436@gandalf.stny.rr.com> <20060510101729.GB31504@elte.hu>
- <Pine.LNX.4.58.0605100657510.2485@gandalf.stny.rr.com>
- <20060513201402.68c2b205.rdunlap@xenotime.net> <Pine.LNX.4.58.0605150318110.6512@gandalf.stny.rr.com>
+To: akpm@osdl.org
+cc: LKML <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Ingo Molnar <mingo@elte.hu>, "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: [PATCH -mm 03/02] Update rt-mutex-design.txt per Randy Dunlap
+In-Reply-To: <Pine.LNX.4.58.0605150431190.12114@gandalf.stny.rr.com>
+Message-ID: <Pine.LNX.4.58.0605150511440.12114@gandalf.stny.rr.com>
+References: <Pine.LNX.4.58.0605150431190.12114@gandalf.stny.rr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 15 May 2006, Steven Rostedt wrote:
+Add blank line under index 1) in rt-mutex-design.txt.
 
-> On Sat, 13 May 2006, Randy.Dunlap wrote:
->
-> > > +
-> > > +
-> > > +1) Has owner that is pending
-> > > +----------------------------
-> > * insert blank line to be consistent
-> >
->
-> I didn't see this comment before.  I purposely didn't add a blank line
-> here, because it's not a new section.  It's an index for the three cases
-> that can happen.  I didn't want to add the two blank lines so that people
-> notice that its an index, but I still used the '-' to make it stand out.
->
-> Have another idea on how to make these three stand out without making them
-> look like new sections?
->
-> Should I put a two or three space indent for the three?
->
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-Oh, damn, I just notice that 1) didn't have a blank line at all and that
-is what you were talking about. OK, will add, but I still like the
-indentation better, so I'm glad I misunderstood you  ;)
+Index: linux-2.6.17-rc3-mm1/Documentation/rt-mutex-design.txt
+===================================================================
+--- linux-2.6.17-rc3-mm1.orig/Documentation/rt-mutex-design.txt	2006-05-15 05:10:22.000000000 -0400
++++ linux-2.6.17-rc3-mm1/Documentation/rt-mutex-design.txt	2006-05-15 05:10:25.000000000 -0400
+@@ -598,6 +598,7 @@ owner.  Let's look at the situations we
 
--- Steve
-
+   1) Has owner that is pending
+   ----------------------------
++
+   The mutex has a owner, but it hasn't woken up and the mutex flag
+   "Pending Owner" is set.  The first check is to see if the owner isn't the
+   current task.  This is because this function is also used for the pending

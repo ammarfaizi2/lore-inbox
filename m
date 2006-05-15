@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWEOITt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbWEOIXe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWEOITt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 04:19:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWEOITt
+	id S964805AbWEOIXe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 04:23:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbWEOIXe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 04:19:49 -0400
-Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:19671 "EHLO mta2.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S964791AbWEOITt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 04:19:49 -0400
-Date: Mon, 15 May 2006 09:19:37 +0100
-From: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       ian.pratt@xensource.com
-Subject: Re: [RFC PATCH 08/35] Add Xen-specific memory management definitions
-Message-ID: <20060515081937.GB10042@cl.cam.ac.uk>
-References: <20060509084945.373541000@sous-sol.org> <20060509085151.047254000@sous-sol.org> <20060514234418.65656de9.zaitcev@redhat.com>
-Mime-Version: 1.0
+	Mon, 15 May 2006 04:23:34 -0400
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:1745 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S964805AbWEOIXd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 04:23:33 -0400
+Date: Mon, 15 May 2006 10:23:20 +0200
+From: Sander <sander@humilis.net>
+To: Michael Robak <mrobak@Omneon.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sata_mv module fails to load properly with 3 Supermicro AOC-SAT2-MV8 cards
+Message-ID: <20060515082319.GB13061@favonius>
+Reply-To: sander@humilis.net
+References: <F0E8D0B1F8999D479196DA72521D954A87FBAB@snv-exh1.omneon.local>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060514234418.65656de9.zaitcev@redhat.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <F0E8D0B1F8999D479196DA72521D954A87FBAB@snv-exh1.omneon.local>
+X-Uptime: 08:26:46 up 6 days, 23:15, 34 users,  load average: 3.71, 3.40, 3.14
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 14, 2006 at 11:44:18PM -0700, Pete Zaitcev wrote:
-> I'm sure you considered this, but decided to be tricky. Why?
-> No way to find the safe number of machine pages in a guest?
+Michael Robak wrote (ao):
+> Problem:
+>   sata_mv module fails to load properly with 3 Supermicro AOC-SAT2-MV8
+>   cards
 
-In addition to wanting to support holes, the number of machine
-pages will usually change when you move it to another machine.
+I've reported more or less the same to the current maintainer. The third
+card fails to work properly. In my case it seems to be because the first
+two PCI-X slots are 133MHz and the third is 100MHz (Tyan K8SE).
 
-    christian
+Does that fit your case?
 
+	With kind regards, Sander
+
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

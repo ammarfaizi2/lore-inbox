@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965223AbWEOVKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965230AbWEOVLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965223AbWEOVKs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 17:10:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbWEOVKs
+	id S965230AbWEOVLw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 17:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965232AbWEOVLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 17:10:48 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:39300 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S965223AbWEOVKr (ORCPT
+	Mon, 15 May 2006 17:11:52 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:1707 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S965231AbWEOVLw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 17:10:47 -0400
-Subject: Re: [PATCH 53 of 53] ipath - add memory barrier when waiting for
-	writes
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: openib-general@openib.org, linux-kernel@vger.kernel.org,
-       Ralphc@pathscale.com
-In-Reply-To: <adazmhjth56.fsf@cisco.com>
-References: <f8ebb8c1e43635081b73.1147477418@eng-12.pathscale.com>
-	 <adazmhjth56.fsf@cisco.com>
-Content-Type: text/plain
-Date: Mon, 15 May 2006 14:10:47 -0700
-Message-Id: <1147727447.2773.14.camel@chalcedony.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+	Mon, 15 May 2006 17:11:52 -0400
+Message-ID: <4468EE85.4000500@myri.com>
+Date: Mon, 15 May 2006 23:11:33 +0200
+From: Brice Goglin <brice@myri.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: AMD 8131 MSI quirk called too late, bus_flags not inherited ?
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-15 at 08:57 -0700, Roland Dreier wrote:
->  >  static void i2c_wait_for_writes(struct ipath_devdata *dd)
->  >  {
->  > +	mb();
->  >  	(void)ipath_read_kreg32(dd, dd->ipath_kregs->kr_scratch);
->  >  }
-> 
-> This needs a comment explaining why it's needed.  A memory barrier
-> before a readl() looks very strange since readl() should be ordered anyway.
+Hi Greg,
 
-Yeah.  It's actually working around what appears to be a gcc bug if the
-kernel is compiled with -Os.  Ralph knows the details; he can give a
-more complete answer.
+While looking at the MSI detection, I noticed that the AMD 8131 quirk
+(quirk_amd_8131_ioapic) is defined as FINAL and thus executed after the
+PCI hierarchy is scanned. So it looks like the bus_flags won't be
+inherited at all. If there's a bridge behind the 8131, then the devices
+behind this bridge won't see the bus flags and thus might try to enable
+MSI anyway.
+I tried to change the AMD 8131 quirk to HEADER so that it is executed
+during PCI scanning. But, I don't get its message in dmesg anymore. Any
+idea?
 
-	<b
+Thanks,
+Brice
 

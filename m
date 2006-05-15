@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWEOSoG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbWEOSoM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbWEOSoG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 14:44:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbWEOSoF
+	id S1751403AbWEOSoM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 14:44:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751531AbWEOSoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 14:44:05 -0400
-Received: from colin.muc.de ([193.149.48.1]:4624 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S1750723AbWEOSoE (ORCPT
+	Mon, 15 May 2006 14:44:11 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:47045 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751403AbWEOSoJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 14:44:04 -0400
-Date: 15 May 2006 20:44:01 +0200
-Date: Mon, 15 May 2006 20:44:01 +0200
-From: Andi Kleen <ak@muc.de>
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Segfault on the i386 enter instruction
-Message-ID: <20060515184401.GA89194@muc.de>
-References: <44676F42.7080907@aknet.ru> <20060515074019.GA33242@muc.de> <4468B733.7010101@aknet.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4468B733.7010101@aknet.ru>
-User-Agent: Mutt/1.4.1i
+	Mon, 15 May 2006 14:44:09 -0400
+Message-ID: <4468CBF7.7080102@garzik.org>
+Date: Mon, 15 May 2006 14:44:07 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [RFT] major libata update
+References: <20060515170006.GA29555@havoc.gtf.org>	<20060515101831.0e38d131.akpm@osdl.org>	<4468C530.6080409@garzik.org> <20060515112738.5df30c19.akpm@osdl.org>
+In-Reply-To: <20060515112738.5df30c19.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.1 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 15, 2006 at 09:15:31PM +0400, Stas Sergeev wrote:
-> Hi.
+Andrew Morton wrote:
+> ok, thanks.
 > 
-> Andi Kleen wrote:
-> >>Aren't the rlimit and the other checks of acct_stack_growth()
-> >>not enough, or am I missing something obvious?
-> >Traditionally Linux doesn't have a stack ulimit.
-> That clarifies the roots of this %esp check, as without
-> the stack ulimit and without the proper memory accounting
-> (the case of 2.4?) such a check is the "last hope" - I've
-> got the point. But are there the reasons to still keep it
-> in 2.6, considering also the false-positives? It seems to
-> have the STACK_RLIMIT and it seems to get the memory accounting
-> right, and not too many arches seem to have such a check even.
+> Next -mm I'll suck up the libata changes, drop a pile of the hairier stuff
+> and I'll ask each originator to test that patchset.
 
-Linux doesn't have a STACK_RLIMIT by default no.
-It is set by a few distributions (for use with flexmmap) in PAM, but
-not by all. The kernel defaults don't have it.
+Cool.  FWIW this stuff can be found in libata-dev.git#ALL as usual.
 
--Andi
+	Jeff
+
+

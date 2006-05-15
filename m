@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWEOWrX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWEOWrs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbWEOWrX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 18:47:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbWEOWrX
+	id S1750707AbWEOWrs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 18:47:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbWEOWrs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 18:47:23 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:4048 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750707AbWEOWrW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 18:47:22 -0400
-Message-ID: <446904F3.3010601@us.ibm.com>
-Date: Mon, 15 May 2006 15:47:15 -0700
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Nathan Scott <nathans@sgi.com>
-CC: akpm@osdl.org, christoph <hch@lst.de>, Benjamin LaHaise <bcrl@kvack.org>,
-       cel@citi.umich.edu, Zach Brown <zach.brown@oracle.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 4/4] Streamline generic_file_* interfaces and filemap cleanups
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com> <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com> <1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com> <1147727945.20568.53.camel@dyn9047017100.beaverton.ibm.com> <1147728206.6181.7.camel@dyn9047017100.beaverton.ibm.com> <20060516082804.F5598@wobbly.melbourne.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 15 May 2006 18:47:48 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:11931 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750707AbWEOWrr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 18:47:47 -0400
+Subject: Re: pcmcia oops on 2.6.17-rc[12]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>, florin@iucha.net,
+       linux-kernel@vger.kernel.org, linux@dominikbrodowski.net
+In-Reply-To: <Pine.LNX.4.64.0605151459140.3866@g5.osdl.org>
+References: <20060423192251.GD8896@iucha.net>
+	 <20060423150206.546b7483.akpm@osdl.org>
+	 <20060508145609.GA3983@rhlx01.fht-esslingen.de>
+	 <20060508084301.5025b25d.akpm@osdl.org>
+	 <20060508163453.GB19040@flint.arm.linux.org.uk>
+	 <1147730828.26686.165.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0605151459140.3866@g5.osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Tue, 16 May 2006 00:00:26 +0100
+Message-Id: <1147734026.26686.200.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Llu, 2006-05-15 at 15:02 -0700, Linus Torvalds wrote:
+> Note that some PCMCIA architectures simply _will_not_ give you a private 
+> IRQ. Ever. They may not have any ISA interrupts to give, even to old 
+> 16-bit cards. So the choice may be "shared irq or nothing".
 
+Yes I realise that, the test patches in my tree will hand back a shared
+one but hand back the status so you know you asked for exclusive, got
+shared and need to decide.
 
-Nathan Scott wrote:
+> So I would strongly argue that any driver that depends on getting an 
+> exclusive IRQ is buggy, not the PCMCIA layer itself, and that it would be 
+> a lot more productive to try to fix those drivers.
 
->Hi Badari,
->
->On Mon, May 15, 2006 at 02:23:26PM -0700, Badari Pulavarty wrote:
->
->>This patch cleans up generic_file_*_read/write() interfaces.
->>Christoph Hellwig gave me the idea for this clean ups.
->>
->>In a nutshell, all filesystems should set .aio_read/.aio_write
->>methods and use do_sync_read/ do_sync_write() as their .read/.write 
->>
->
->I know its not something you're introducing here, but the naming
->convention do_sync_read/do_sync_write is pretty confused (with it
->not actually being a sync write and all, in the usual case).
->Any chance that could be renamed to something thats a bit clearer,
->maybe generic_file_non_aio_read and generic_file_non_aio_write?
->There don't seem to be many callsites (so not a huge change) and
->it'd seem a good time to do it, alongside these other changes.
->
-
-You  mean "left-in-pagecache-not-really-written-to-disk" synchronous ? 
-Yeah. I see it..
-I prefer, generic_file_aio_read_and_wait(), 
-generic_file_aio_write_and_wait() - but
-its ugly also :(
-
-I also have a small issue with the current do_sync_*() routines - if 
-some one calls it
-without setting their ->aio_read()/->aio_write(), we panic. May be we 
-should add a BUG_ON(), but again I don't want to slow things down..
-
-Thanks,
-Badari
-
-
-
+It would certainly be a lot cleaner than this sort of code in the pcmcia
+core right now. Want me to send a patch which only allows for SA_SHIRQ
+and WARN_ON()'s for any driver not asking for shared IRQ ?

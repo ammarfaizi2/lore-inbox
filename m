@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWEOXpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWEOXrs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750822AbWEOXpj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 19:45:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbWEOXpi
+	id S1750806AbWEOXrs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 19:47:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbWEOXrs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 19:45:38 -0400
-Received: from mail12.syd.optusnet.com.au ([211.29.132.193]:32411 "EHLO
-	mail12.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750822AbWEOXpg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 19:45:36 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Subject: Re: Regression seen for patch "sched:dont decrease idle sleep avg"
-Date: Tue, 16 May 2006 09:45:12 +1000
-User-Agent: KMail/1.9.1
-Cc: tim.c.chen@linux.intel.com, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       "Andrew Morton" <akpm@osdl.org>
-References: <4t16i2$12rqnu@orsmga001.jf.intel.com>
-In-Reply-To: <4t16i2$12rqnu@orsmga001.jf.intel.com>
+	Mon, 15 May 2006 19:47:48 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:27066 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S1750806AbWEOXrr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 19:47:47 -0400
+X-IronPort-AV: i="4.05,131,1146466800"; 
+   d="scan'208"; a="277215701:sNHT1761662948"
+To: ralphc@pathscale.com
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH 53 of 53] ipath - add memory  barrier when waiting for writes
+X-Message-Flag: Warning: May contain useful information
+References: <f8ebb8c1e43635081b73.1147477418@eng-12.pathscale.com>
+	<adazmhjth56.fsf@cisco.com>
+	<1147727447.2773.14.camel@chalcedony.pathscale.com>
+	<60844.71.131.57.117.1147734080.squirrel@rocky.pathscale.com>
+	<ada64k6sx7w.fsf@cisco.com>
+	<40771.71.131.57.117.1147735500.squirrel@rocky.pathscale.com>
+	<adaslnarhpv.fsf@cisco.com>
+	<53739.71.131.57.117.1147736281.squirrel@rocky.pathscale.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 15 May 2006 16:47:41 -0700
+In-Reply-To: <53739.71.131.57.117.1147736281.squirrel@rocky.pathscale.com> (ralphc@pathscale.com's message of "Mon, 15 May 2006 16:38:01 -0700 (PDT)")
+Message-ID: <adafyjargte.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605160945.13157.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 15 May 2006 23:47:42.0666 (UTC) FILETIME=[F53142A0:01C67879]
+Authentication-Results: sj-dkim-1.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 May 2006 05:01, Chen, Kenneth W wrote:
-> Con Kolivas wrote on Sunday, May 14, 2006 9:03 AM
->
-> > There would be no difference if the priority boost is done lower. The if
-> > and else blocks both end up equating to the same amount of priority
-> > boost, with the former having a ceiling on it, so yes it is the intent.
-> > You'll see that the amount of sleep required to jump from lowest priority
-> > to MAX_SLEEP_AVG - DEF_TIMESLICE is INTERACTIVE_SLEEP.
->
-> I don't think the if and the else block is doing the same thing. In the if
-> block, the p->sleep_avg is unconditionally boosted to ceiling for all
-> tasks, though it will not reduce sleep_avg for tasks that already exceed
-> the ceiling. Bumping up sleep_avg will then translate into priority boost
-> of MAX_BONUS-1, which potentially can be too high.
+    ralphc> I didn't try calling barrier() so I don't know the answer.
+    ralphc> When power is restored, I can try it.  My guess is that
+    ralphc> it's a timing issue and not a code reordering issue.
 
-Yes it's only designed to detect something that has been asleep for an 
-arbitrary long time and "categorised as idle"; it is not supposed to be a 
-priority stepping stone for everything, in this case at MAX_BONUS-1. Mike 
-proposed doing this instead, but it was never my intent. Your comment is not 
-quite correct as it just happens to be MAX_BONUS-1 at nice 0, and not any 
-other nice value.
-
-> But that's fine if it is the intent. At minimum, the comment in the source
-> code should say so instead of fooling people who don't actually read the
-> code.
-
-Feel free to update it to how you understand it now :) I have this feeling 
-we'll be seeing quite some action here soon...
-
-> [patch] sched: update comments in priority calculation w.r.t.
-> implementation.
-
--- 
--ck
+Hmm, then we really better understand what's going on, because
+otherwise you're just going to have trouble again if someone makes a
+CPU with a faster mfence instruction...

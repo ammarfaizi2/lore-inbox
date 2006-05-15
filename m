@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbWEOJNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWEOJPd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751330AbWEOJNm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 05:13:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWEOJNm
+	id S1751345AbWEOJPd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 05:15:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWEOJPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 05:13:42 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:27272 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751330AbWEOJNl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 05:13:41 -0400
-Date: Mon, 15 May 2006 05:13:28 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: akpm@osdl.org
-cc: LKML <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Ingo Molnar <mingo@elte.hu>, "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: [PATCH -mm 03/02] Update rt-mutex-design.txt per Randy Dunlap
-In-Reply-To: <Pine.LNX.4.58.0605150431190.12114@gandalf.stny.rr.com>
-Message-ID: <Pine.LNX.4.58.0605150511440.12114@gandalf.stny.rr.com>
-References: <Pine.LNX.4.58.0605150431190.12114@gandalf.stny.rr.com>
+	Mon, 15 May 2006 05:15:33 -0400
+Received: from mx2.suse.de ([195.135.220.15]:31127 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751345AbWEOJPd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 05:15:33 -0400
+From: Andi Kleen <ak@suse.de>
+To: Catalin Marinas <catalin.marinas@gmail.com>
+Subject: Re: [PATCH 2.6.17-rc4 1/6] Base support for kmemleak
+Date: Mon, 15 May 2006 11:15:28 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <20060513155757.8848.11980.stgit@localhost.localdomain> <p73u07t5x6f.fsf@bragg.suse.de> <4466E80F.4010907@gmail.com>
+In-Reply-To: <4466E80F.4010907@gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Message-Id: <200605151115.28298.ak@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> For example, it should be able to detect
+> leaks similar to those fixed recently by Jesper:
 
-Add blank line under index 1) in rt-mutex-design.txt.
+Does it or does it not?
 
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+> > What looks a bit dubious is how objects reuse is handled. You can't
+> > distingush an reused object from an old leaked pointer.
+> 
+> The reused objects are not reported as leaks as long as the tool finds a
+> pointer to their address (or alias). The memleak_alloc hook is called in
+> kmem_cache_alloc after the object was actually allocated by
+> __cache_alloc. An object cannot be reused as long as it hasn't been
+> previously freed via kmem_cache_free (and the corresponding hook,
+> memleak_free, called). Kmemleak only reports allocated objects for which
+> there is no way to determine their address that can later be used in a
+> kmem_cache_free call.
 
-Index: linux-2.6.17-rc3-mm1/Documentation/rt-mutex-design.txt
-===================================================================
---- linux-2.6.17-rc3-mm1.orig/Documentation/rt-mutex-design.txt	2006-05-15 05:10:22.000000000 -0400
-+++ linux-2.6.17-rc3-mm1/Documentation/rt-mutex-design.txt	2006-05-15 05:10:25.000000000 -0400
-@@ -598,6 +598,7 @@ owner.  Let's look at the situations we
+My point was that if you changed slab to be a queue and not
+reuse objects that quickly you could likely find many more leaks with 
+your patch. It would make the patch more intrusive though and
+slow slab down, so it would need to be ifdefed.
 
-   1) Has owner that is pending
-   ----------------------------
-+
-   The mutex has a owner, but it hasn't woken up and the mutex flag
-   "Pending Owner" is set.  The first check is to see if the owner isn't the
-   current task.  This is because this function is also used for the pending
+Another possibly less intrusive approach would be to use ioremap()
+for all slab objects and hack __pa/__va to resolve it. Then you
+would get unique addresses. You might need to increase the vmalloc
+space on 32bit though. And ioremap again would need to be changed
+to cycle through the address space, not reuse quickly (but it is
+much simpler than slab and wouldn't be very difficult)
+
+Using ioremap like this also has the advantage that use-after-free can 
+be easily detected.
+
+-Andi

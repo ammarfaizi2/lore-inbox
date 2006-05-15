@@ -1,56 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWEOXiE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWEOXlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750789AbWEOXiE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 19:38:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWEOXiE
+	id S1750809AbWEOXlL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 19:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWEOXlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 19:38:04 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:15246 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1750789AbWEOXiB (ORCPT
+	Mon, 15 May 2006 19:41:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:64490 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750798AbWEOXlI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 19:38:01 -0400
-Message-ID: <53739.71.131.57.117.1147736281.squirrel@rocky.pathscale.com>
-In-Reply-To: <adaslnarhpv.fsf@cisco.com>
-References: <f8ebb8c1e43635081b73.1147477418@eng-12.pathscale.com>
-    <adazmhjth56.fsf@cisco.com>
-    <1147727447.2773.14.camel@chalcedony.pathscale.com>
-    <60844.71.131.57.117.1147734080.squirrel@rocky.pathscale.com>
-    <ada64k6sx7w.fsf@cisco.com>
-    <40771.71.131.57.117.1147735500.squirrel@rocky.pathscale.com>
-    <adaslnarhpv.fsf@cisco.com>
-Date: Mon, 15 May 2006 16:38:01 -0700 (PDT)
-Subject: Re: [openib-general] Re: [PATCH 53 of 53] ipath - add memory 
-     barrier when waiting for writes
-From: ralphc@pathscale.com
-To: "Roland Dreier" <rdreier@cisco.com>
-Cc: ralphc@pathscale.com, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-User-Agent: SquirrelMail/1.4.6
-MIME-Version: 1.0
+	Mon, 15 May 2006 19:41:08 -0400
+Date: Mon, 15 May 2006 16:41:01 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Ranjit Manomohan <ranjitm@google.com>
+Cc: "David S. Miller" <davem@davemloft.net>, ranjitm@google.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH] tcpdump may trace some outbound packets twice.
+Message-ID: <20060515164101.054afa29@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.56.0605151602330.29636@ranjit.corp.google.com>
+References: <20060514031034.5d0396e7.akpm@osdl.org>
+	<20060514.134231.101346572.davem@davemloft.net>
+	<Pine.LNX.4.56.0605151409110.25064@ranjit.corp.google.com>
+	<20060515.142645.94689626.davem@davemloft.net>
+	<Pine.LNX.4.56.0605151602330.29636@ranjit.corp.google.com>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     ralphc> We had a power failure here so I'm not able to reproduce
->     ralphc> the assembly code at the moment.  What I remember from
->     ralphc> looking at the code is that the code for
->     ralphc> ipath_read_kreg32() was present in i2c_wait_for_writes()
->     ralphc> when compiled -Os so it didn't look like a compiler bug.
->     ralphc> I probably could put the mb() at the end of i2c_gpio_set()
->     ralphc> if that makes you more comfortable.  The mb() is
->     ralphc> definitely needed though.
->
-> Is it the mb()?  Or is just a barrier() enough?  In other words do you
-> really need the mfence, or do you just need to stop the compiler from
-> reordering things?
->
->  - R.
+On Mon, 15 May 2006 16:11:05 -0700 (PDT)
+Ranjit Manomohan <ranjitm@google.com> wrote:
 
-I didn't try calling barrier() so I don't know the answer.
-When power is restored, I can try it.
-My guess is that it's a timing issue and not a code reordering
-issue.
+> On Mon, 15 May 2006, David S. Miller wrote:
+> 
+> > From: Ranjit Manomohan <ranjitm@google.com>
+> > Date: Mon, 15 May 2006 14:19:06 -0700 (PDT)
+> > 
+> > > Heres a new version which does a copy instead of the clone to avoid
+> > > the double cloning issue.
+> > 
+> > I still very much dislike this patch because it is creating
+> > 1 more clone per packet than is actually necessary and that
+> > is very expensive.
+> > 
+> > dev_queue_xmit_nit() is going to clone whatever SKB you send into
+> > there, so better to just bump the reference count (with skb_get())
+> > instead of cloning or copying.
+> > 
+> 
+> I was a bit apprehensive about just incrementing the refcnt but that works 
+> too. Attached is the modified version.
+> 
+> -Thanks,
+> Ranjit
+> 
+> --- linux-2.6/net/sched/sch_generic.c	2006-05-10 12:34:52.000000000 -0700
+> +++ linux/net/sched/sch_generic.c	2006-05-15 15:48:03.000000000 -0700
+> @@ -136,8 +136,12 @@
+>  
+>  			if (!netif_queue_stopped(dev)) {
+>  				int ret;
+> +				struct sk_buff *skbc = NULL;
+> +				/* Increment the reference count on the skb so
+> +				 * that we can use it after a successful xmit.
+> +				 */
+>  				if (netdev_nit)
+> -					dev_queue_xmit_nit(skb, dev);
+> +					skbc = skb_get(skb);
+
+				skbc = netdev_nit ? skb_get(skb) : NULL;
+>  
+>  				ret = dev->hard_start_xmit(skb, dev);
+>  				if (ret == NETDEV_TX_OK) { 
+> @@ -145,9 +149,20 @@
+>  						dev->xmit_lock_owner = -1;
+>  						spin_unlock(&dev->xmit_lock);
+>  					}
+> +					if (skbc) {
+> +						/* transmit succeeded, 
+> +						 * trace the buffer. */
+> +						dev_queue_xmit_nit(skbc,dev);
+> +						kfree_skb(skbc);
+> +					}
+>  					spin_lock(&dev->queue_lock);
+>  					return -1;
+>  				}
+> +
+> +				/* Call free in case we incremented refcnt */
+> +				if (skbc)
+> +					kfree_skb(skbc);
+
+kfree_skb(NULL) is legal so the conditional here is unneeded.
+
+But the increased calls to kfree_skb(NULL) would probably bring the
+"unlikely()" hordes descending on kfree_skb, so maybe:
+
+				if (unlikely(netdev_nit))
+					kfree_skb(skbc);
+
 

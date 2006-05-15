@@ -1,66 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWEOKJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbWEOKLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751451AbWEOKJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 06:09:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWEOKJ3
+	id S964848AbWEOKLu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 06:11:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWEOKLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 06:09:29 -0400
-Received: from smtp8.wanadoo.fr ([193.252.22.23]:32810 "EHLO smtp8.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S1751451AbWEOKJ2 (ORCPT
+	Mon, 15 May 2006 06:11:50 -0400
+Received: from mx04.stofanet.dk ([212.10.10.14]:56974 "EHLO mx04.stofanet.dk")
+	by vger.kernel.org with ESMTP id S932348AbWEOKLt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 06:09:28 -0400
-X-ME-UUID: 20060515100926722.B04431C0027E@mwinf0802.wanadoo.fr
-Message-ID: <4468534A.3060604@cosmosbay.com>
-Date: Mon, 15 May 2006 12:09:14 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc4-mm1
-References: <20060515005637.00b54560.akpm@osdl.org>
-In-Reply-To: <20060515005637.00b54560.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 15 May 2006 06:11:49 -0400
+Date: Mon, 15 May 2006 12:10:20 +0200
+From: Jens Axboe <axboe@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: mason@suse.com
+Subject: Re: [PATCH] fcache: a remapping boot cache
+Message-ID: <20060515101019.GA4068@suse.de>
+References: <20060515091806.GA4110@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060515091806.GA4110@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew
+On Mon, May 15 2006, Jens Axboe wrote:
+> o Trying it on my notebook brought the time from the kernel starts
+>   loading to kde has fully auto-logged in down from 50 seconds to 38
+>   seconds. The primed boot took 61 seconds. The notebook is about 4
+>   months old and the file system is very fresh, so better results should
+>   be seen on more fragmented installs.
 
-It seems latest kernels have a problem in kmem_cache_destroy()
+Update - the above numbers were with an older version and with the cache
+partition located at the very end of the drive (hence being a lot slower
+than the root partition at the front). The fcache boot takes 33 seconds
+now, from the kernel starts loading to the kde login has finished.
+Probably 5 seconds of that time is device probe and network setup (dunno
+why the latter is still sleeping so much, I disabled dhcp for this test
+to avoid waits (for both fcache and normal boot, of course)).
 
-On a dual opteron machine (NUMA), its quite easy do trigger the bug : 
-doing a oprofile session like :
-
-opcontrol --setup --event=CPU_CLK_UNHALTED:100000 
---vmlinux=/usr/src/linux-2.6.17-rc4-mm1/vmlinux
-...
-opcontrol --dump
-...
-opcontrol --deinit    <<<-- Triggers the bug
-
-slab error in kmem_cache_destroy(): cache `dcookie_cache': Can't free 
-all objects
-
-Call Trace: <ffffffff80278aa4>{kmem_cache_destroy+212}
-       <ffffffff802bc559>{dcookie_unregister+345} 
-<ffffffff803bbe7a>{event_buffer_release+26}
-       <ffffffff8027cee2>{__fput+98} <ffffffff80279ecd>{filp_close+93}
-       <ffffffff8023003e>{put_files_struct+110} 
-<ffffffff8023143a>{do_exit+650}
-       <ffffffff802f58f1>{__up_write+33} 
-<ffffffff80231bb8>{do_group_exit+200}
-       <ffffffff802097ce>{system_call+126}
-
-# grep dcookie_cache /proc/slabinfo
-dcookie_cache          0      0     32  101    1 : tunables  120   60    
-8 : slabdata      0      0      0
-
-
-This problem is annoying, because in the oprofile case, we must reboot 
-the machine to be able to start a new profile session.
-
-Eric
-
-
+-- 
+Jens Axboe
 

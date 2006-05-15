@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965008AbWEORmv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964989AbWEORmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965008AbWEORmv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 13:42:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbWEORmj
+	id S964989AbWEORmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 13:42:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751659AbWEORlx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 13:42:39 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:49099 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S965008AbWEORm1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 13:42:27 -0400
-Message-ID: <4468BD99.5050505@de.ibm.com>
-Date: Mon, 15 May 2006 19:42:49 +0200
+	Mon, 15 May 2006 13:41:53 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:30121 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751641AbWEORll (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 13:41:41 -0400
+Message-ID: <4468BD6B.6090200@de.ibm.com>
+Date: Mon, 15 May 2006 19:42:03 +0200
 From: Heiko J Schick <schihei@de.ibm.com>
 User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
 X-Accept-Language: en-us, en
@@ -19,7 +19,7 @@ To: openib-general@openib.org, Christoph Raisch <RAISCH@de.ibm.com>,
        Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>,
        schihei@de.ibm.com, linux-kernel@vger.kernel.org,
        linuxppc-dev@ozlabs.org
-Subject: [PATCH 12/16] ehca: firmware InfiniBand interface
+Subject: [PATCH 07/16] ehca: memory region
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,24 +28,22 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Signed-off-by: Heiko J Schick <schickhj@de.ibm.com>
 
 
-  drivers/infiniband/hw/ehca/hcp_if.c | 1476 ++++++++++++++++++++++++++++++++++++
-  drivers/infiniband/hw/ehca/hcp_if.h |  330 ++++++++
-  2 files changed, 1806 insertions(+)
+  drivers/infiniband/hw/ehca/ehca_mrmw.c | 2474 +++++++++++++++++++++++++++++++++
+  drivers/infiniband/hw/ehca/ehca_mrmw.h |  143 +
+  2 files changed, 2617 insertions(+)
 
 
 
---- linux-2.6.17-rc2-orig/drivers/infiniband/hw/ehca/hcp_if.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.17-rc2/drivers/infiniband/hw/ehca/hcp_if.h	2006-05-12 12:48:21.000000000 +0200
-@@ -0,0 +1,330 @@
+--- linux-2.6.17-rc2-orig/drivers/infiniband/hw/ehca/ehca_mrmw.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.17-rc2/drivers/infiniband/hw/ehca/ehca_mrmw.h	2006-04-28 15:18:05.000000000 +0200
+@@ -0,0 +1,143 @@
 +/*
 + *  IBM eServer eHCA Infiniband device driver for Linux on POWER
 + *
-+ *  Firmware Infiniband Interface code for POWER
++ *  MR/MW declarations and inline functions
 + *
-+ *  Authors: Christoph Raisch <raisch@de.ibm.com>
-+ *           Hoang-Nam Nguyen <hnguyen@de.ibm.com>
-+ *           Gerd Bayer <gerd.bayer@de.ibm.com>
-+ *           Waleri Fomin <fomin@de.ibm.com>
++ *  Authors: Dietmar Decker <ddecker@de.ibm.com>
++ *           Christoph Raisch <raisch@de.ibm.com>
 + *
 + *  Copyright (c) 2005 IBM Corporation
 + *
@@ -80,1771 +78,2584 @@ Signed-off-by: Heiko J Schick <schickhj@de.ibm.com>
 + * POSSIBILITY OF SUCH DAMAGE.
 + */
 +
-+#ifndef __HCP_IF_H__
-+#define __HCP_IF_H__
++#ifndef _EHCA_MRMW_H_
++#define _EHCA_MRMW_H_
 +
-+#include "ehca_classes.h"
-+#include "ehca_tools.h"
++#undef DEB_PREFIX
++#define DEB_PREFIX "mrmw"
++
++int ehca_reg_mr(struct ehca_shca *shca,
++		struct ehca_mr *e_mr,
++		u64 *iova_start,
++		u64 size,
++		int acl,
++		struct ehca_pd *e_pd,
++		struct ehca_mr_pginfo *pginfo,
++		u32 *lkey,
++		u32 *rkey);
++
++int ehca_reg_mr_rpages(struct ehca_shca *shca,
++		       struct ehca_mr *e_mr,
++		       struct ehca_mr_pginfo *pginfo);
++
++int ehca_rereg_mr(struct ehca_shca *shca,
++		  struct ehca_mr *e_mr,
++		  u64 *iova_start,
++		  u64 size,
++		  int mr_access_flags,
++		  struct ehca_pd *e_pd,
++		  struct ehca_mr_pginfo *pginfo,
++		  u32 *lkey,
++		  u32 *rkey);
++
++int ehca_unmap_one_fmr(struct ehca_shca *shca,
++		       struct ehca_mr *e_fmr);
++
++int ehca_reg_smr(struct ehca_shca *shca,
++		 struct ehca_mr *e_origmr,
++		 struct ehca_mr *e_newmr,
++		 u64 *iova_start,
++		 int acl,
++		 struct ehca_pd *e_pd,
++		 u32 *lkey,
++		 u32 *rkey);
++
++int ehca_reg_internal_maxmr(struct ehca_shca *shca,
++			    struct ehca_pd *e_pd,
++			    struct ehca_mr **maxmr);
++
++int ehca_reg_maxmr(struct ehca_shca *shca,
++		   struct ehca_mr *e_newmr,
++		   u64 *iova_start,
++		   int acl,
++		   struct ehca_pd *e_pd,
++		   u32 *lkey,
++		   u32 *rkey);
++
++int ehca_dereg_internal_maxmr(struct ehca_shca *shca);
++
++int ehca_mr_chk_buf_and_calc_size(struct ib_phys_buf *phys_buf_array,
++				  int num_phys_buf,
++				  u64 *iova_start,
++				  u64 *size);
++
++int ehca_fmr_check_page_list(struct ehca_mr *e_fmr,
++			     u64 *page_list,
++			     int list_len);
++
++int ehca_set_pagebuf(struct ehca_mr *e_mr,
++		     struct ehca_mr_pginfo *pginfo,
++		     u32 number,
++		     u64 *kpage);
++
++int ehca_set_pagebuf_1(struct ehca_mr *e_mr,
++		       struct ehca_mr_pginfo *pginfo,
++		       u64 *rpage);
++
++int ehca_mr_is_maxmr(u64 size,
++		     u64 *iova_start);
++
++void ehca_mrmw_map_acl(int ib_acl,
++		       u32 *hipz_acl);
++
++void ehca_mrmw_set_pgsize_hipz_acl(u32 *hipz_acl);
++
++void ehca_mrmw_reverse_map_acl(const u32 *hipz_acl,
++			       int *ib_acl);
++
++int ehca_mrmw_map_hrc_alloc(const u64 hipz_rc);
++
++int ehca_mrmw_map_hrc_rrpg_last(const u64 hipz_rc);
++
++int ehca_mrmw_map_hrc_rrpg_notlast(const u64 hipz_rc);
++
++int ehca_mrmw_map_hrc_query_mr(const u64 hipz_rc);
++
++int ehca_mrmw_map_hrc_free_mr(const u64 hipz_rc);
++
++int ehca_mrmw_map_hrc_free_mw(const u64 hipz_rc);
++
++int ehca_mrmw_map_hrc_reg_smr(const u64 hipz_rc);
++
++void ehca_mr_deletenew(struct ehca_mr *mr);
++
++#endif  /*_EHCA_MRMW_H_*/
+--- linux-2.6.17-rc2-orig/drivers/infiniband/hw/ehca/ehca_mrmw.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.17-rc2/drivers/infiniband/hw/ehca/ehca_mrmw.c	2006-05-15 15:43:31.000000000 +0200
+@@ -0,0 +1,2474 @@
++/*
++ *  IBM eServer eHCA Infiniband device driver for Linux on POWER
++ *
++ *  MR/MW functions
++ *
++ *  Authors: Dietmar Decker <ddecker@de.ibm.com>
++ *           Christoph Raisch <raisch@de.ibm.com>
++ *
++ *  Copyright (c) 2005 IBM Corporation
++ *
++ *  All rights reserved.
++ *
++ *  This source code is distributed under a dual license of GPL v2.0 and OpenIB
++ *  BSD.
++ *
++ * OpenIB BSD License
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *
++ * Redistributions of source code must retain the above copyright notice, this
++ * list of conditions and the following disclaimer.
++ *
++ * Redistributions in binary form must reproduce the above copyright notice,
++ * this list of conditions and the following disclaimer in the documentation
++ * and/or other materials
++ * provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
++ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
++ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#undef DEB_PREFIX
++#define DEB_PREFIX "mrmw"
++
++#include <asm/current.h>
++
++#include "ehca_iverbs.h"
++#include "ehca_mrmw.h"
++#include "hcp_if.h"
 +#include "hipz_hw.h"
 +
-+/**
-+ * hipz_h_alloc_resource_eq - Allocate EQ resources in HW and FW, initalize
-+ * resources, create the empty EQPT (ring).
-+ *
-+ * @eq_handle:         eq handle for this queue
-+ * @act_nr_of_entries: actual number of queue entries
-+ * @act_pages:         actual number of queue pages
-+ * @eq_ist:            used by hcp_H_XIRR() call
-+ */
-+u64 hipz_h_alloc_resource_eq(const struct ipz_adapter_handle adapter_handle,
-+			     struct ehca_pfeq *pfeq,
-+			     const u32 neq_control,
-+			     const u32 number_of_entries,
-+			     struct ipz_eq_handle *eq_handle,
-+			     u32 * act_nr_of_entries,
-+			     u32 * act_pages,
-+			     u32 * eq_ist);
++extern int ehca_use_hp_mr;
 +
-+u64 hipz_h_reset_event(const struct ipz_adapter_handle adapter_handle,
-+		       struct ipz_eq_handle eq_handle,
-+		       const u64 event_mask);
-+/**
-+ * hipz_h_allocate_resource_cq - Allocate CQ resources in HW and FW, initialize
-+ * resources, create the empty CQPT (ring).
-+ *
-+ * @eq_handle:         eq handle to use for this cq
-+ * @cq_handle:         cq handle for this queue
-+ * @act_nr_of_entries: actual number of queue entries
-+ * @act_pages:         actual number of queue pages
-+ * @galpas:            contain logical adress of priv. storage and
-+ *                     log_user_storage
-+ */
-+u64 hipz_h_alloc_resource_cq(const struct ipz_adapter_handle adapter_handle,
-+			     struct ehca_cq *cq,
-+			     struct ehca_alloc_cq_parms *param);
-+
-+
-+/**
-+ * hipz_h_alloc_resource_qp - Allocate QP resources in HW and FW,
-+ * initialize resources, create empty QPPTs (2 rings).
-+ *
-+ * @h_galpas to access HCA resident QP attributes
-+ */
-+u64 hipz_h_alloc_resource_qp(const struct ipz_adapter_handle adapter_handle,
-+			     struct ehca_qp *qp,
-+			     struct ehca_alloc_qp_parms *parms);
-+
-+u64 hipz_h_query_port(const struct ipz_adapter_handle adapter_handle,
-+		      const u8 port_id,
-+		      struct hipz_query_port *query_port_response_block);
-+
-+u64 hipz_h_query_hca(const struct ipz_adapter_handle adapter_handle,
-+		     struct hipz_query_hca *query_hca_rblock);
-+
-+/**
-+ * hipz_h_register_rpage - hcp_if.h internal function for all
-+ * hcp_H_REGISTER_RPAGE calls.
-+ *
-+ * @logical_address_of_page: kv transformation to GX address in this routine
-+ */
-+u64 hipz_h_register_rpage(const struct ipz_adapter_handle adapter_handle,
-+			  const u8 pagesize,
-+			  const u8 queue_type,
-+			  const u64 resource_handle,
-+			  const u64 logical_address_of_page,
-+			  u64 count);
-+
-+u64 hipz_h_register_rpage_eq(const struct ipz_adapter_handle adapter_handle,
-+			     const struct ipz_eq_handle eq_handle,
-+			     struct ehca_pfeq *pfeq,
-+			     const u8 pagesize,
-+			     const u8 queue_type,
-+			     const u64 logical_address_of_page,
-+			     const u64 count);
-+
-+u32 hipz_h_query_int_state(const struct ipz_adapter_handle
-+			   hcp_adapter_handle,
-+			   u32 ist);
-+
-+u64 hipz_h_register_rpage_cq(const struct ipz_adapter_handle adapter_handle,
-+			     const struct ipz_cq_handle cq_handle,
-+			     struct ehca_pfcq *pfcq,
-+			     const u8 pagesize,
-+			     const u8 queue_type,
-+			     const u64 logical_address_of_page,
-+			     const u64 count,
-+			     const struct h_galpa gal);
-+
-+u64 hipz_h_register_rpage_qp(const struct ipz_adapter_handle adapter_handle,
-+			     const struct ipz_qp_handle qp_handle,
-+			     struct ehca_pfqp *pfqp,
-+			     const u8 pagesize,
-+			     const u8 queue_type,
-+			     const u64 logical_address_of_page,
-+			     const u64 count,
-+			     const struct h_galpa galpa);
-+
-+u64 hipz_h_disable_and_get_wqe(const struct ipz_adapter_handle adapter_handle,
-+			       const struct ipz_qp_handle qp_handle,
-+			       struct ehca_pfqp *pfqp,
-+			       void **log_addr_next_sq_wqe_tb_processed,
-+			       void **log_addr_next_rq_wqe_tb_processed,
-+			       int dis_and_get_function_code);
-+enum hcall_sigt {
-+	HCALL_SIGT_NO_CQE = 0,
-+	HCALL_SIGT_BY_WQE = 1,
-+	HCALL_SIGT_EVERY = 2
-+};
-+
-+u64 hipz_h_modify_qp(const struct ipz_adapter_handle adapter_handle,
-+		     const struct ipz_qp_handle qp_handle,
-+		     struct ehca_pfqp *pfqp,
-+		     const u64 update_mask,
-+		     struct hcp_modify_qp_control_block *mqpcb,
-+		     struct h_galpa gal);
-+
-+u64 hipz_h_query_qp(const struct ipz_adapter_handle adapter_handle,
-+		    const struct ipz_qp_handle qp_handle,
-+		    struct ehca_pfqp *pfqp,
-+		    struct hcp_modify_qp_control_block *qqpcb,
-+		    struct h_galpa gal);
-+
-+u64 hipz_h_destroy_qp(const struct ipz_adapter_handle adapter_handle,
-+		      struct ehca_qp *qp);
-+
-+u64 hipz_h_define_aqp0(const struct ipz_adapter_handle adapter_handle,
-+		       const struct ipz_qp_handle qp_handle,
-+		       struct h_galpa gal,
-+		       u32 port);
-+
-+u64 hipz_h_define_aqp1(const struct ipz_adapter_handle adapter_handle,
-+		       const struct ipz_qp_handle qp_handle,
-+		       struct h_galpa gal,
-+		       u32 port, u32 * pma_qp_nr,
-+		       u32 * bma_qp_nr);
-+
-+u64 hipz_h_attach_mcqp(const struct ipz_adapter_handle adapter_handle,
-+		       const struct ipz_qp_handle qp_handle,
-+		       struct h_galpa gal,
-+		       u16 mcg_dlid,
-+		       u64 subnet_prefix, u64 interface_id);
-+
-+u64 hipz_h_detach_mcqp(const struct ipz_adapter_handle adapter_handle,
-+		       const struct ipz_qp_handle qp_handle,
-+		       struct h_galpa gal,
-+		       u16 mcg_dlid,
-+		       u64 subnet_prefix, u64 interface_id);
-+
-+u64 hipz_h_destroy_cq(const struct ipz_adapter_handle adapter_handle,
-+		      struct ehca_cq *cq,
-+		      u8 force_flag);
-+
-+u64 hipz_h_destroy_eq(const struct ipz_adapter_handle adapter_handle,
-+		      struct ehca_eq *eq);
-+
-+/**
-+ * hipz_h_alloc_resource_mr - Allocate MR resources in HW and FW, initialize
-+ * resources.
-+ *
-+ * @mr:          ehca MR
-+ * @vaddr:       Memory Region I/O Virtual Address
-+ * @length:      Memory Region Length
-+ * @access_ctrl: Memory Region Access Controls
-+ * @pd:          Protection Domain
-+ * @outparms:    output parameters
-+ */
-+u64 hipz_h_alloc_resource_mr(const struct ipz_adapter_handle adapter_handle,
-+			     const struct ehca_mr *mr,
-+			     const u64 vaddr,
-+			     const u64 length,
-+			     const u32 access_ctrl,
-+			     const struct ipz_pd pd,
-+			     struct ehca_mr_hipzout_parms *outparms);
-+
-+/**
-+ * hipz_h_register_rpage_mr - Register MR resource page in HW and FW .
-+ *
-+ * @mr:         ehca MR
-+ * @queue_type: must be zero for MR
-+ */
-+u64 hipz_h_register_rpage_mr(const struct ipz_adapter_handle adapter_handle,
-+			     const struct ehca_mr *mr,
-+			     const u8 pagesize,
-+			     const u8 queue_type,
-+			     const u64 logical_address_of_page,
-+			     const u64 count);
-+
-+/**
-+ * hipz_h_query_mr - Query MR in HW and FW.
-+ *
-+ * @mr:       ehca MR
-+ * @outparms: output parameters
-+ */
-+u64 hipz_h_query_mr(const struct ipz_adapter_handle adapter_handle,
-+		    const struct ehca_mr *mr,
-+		    struct ehca_mr_hipzout_parms *outparms);
-+
-+/**
-+ * hipz_h_free_resource_mr - Free MR resources in HW and FW.
-+ *
-+ * @mr: ehca MR
-+ */
-+u64 hipz_h_free_resource_mr(const struct ipz_adapter_handle adapter_handle,
-+			    const struct ehca_mr *mr);
-+
-+/**
-+ * hipz_h_reregister_pmr - Reregister MR in HW and FW.
-+ *
-+ * @mr:          ehca MR
-+ * @vaddr_in:    Memory Region I/O Virtual Address
-+ * @length:      Memory Region Length
-+ * @access_ctrl: Memory Region Access Controls
-+ * @pd:          Protection Domain
-+ * @mr_addr_cb:  Logical Address of MR Control Block
-+ * @outparms:    output parameters
-+ */
-+u64 hipz_h_reregister_pmr(const struct ipz_adapter_handle adapter_handle,
-+			  const struct ehca_mr *mr,
-+			  const u64 vaddr_in,
-+			  const u64 length,
-+			  const u32 access_ctrl,
-+			  const struct ipz_pd pd,
-+			  const u64 mr_addr_cb,
-+			  struct ehca_mr_hipzout_parms *outparms);
-+
-+/**
-+ * hipz_h_register_smr - Register shared MR in HW and FW.
-+ *
-+ * @mr:          ehca MR
-+ * @orig_mr:     original ehca MR
-+ * @vaddr_in:    Memory Region I/O Virtual Address of new shared MR
-+ * @access_ctrl: Memory Region Access Controls of new shared MR
-+ * @pd:          Protection Domain of new shared MR
-+ * @outparms:    output parameters
-+ */
-+u64 hipz_h_register_smr(const struct ipz_adapter_handle adapter_handle,
-+			const struct ehca_mr *mr,
-+			const struct ehca_mr *orig_mr,
-+			const u64 vaddr_in,
-+			const u32 access_ctrl,
-+			const struct ipz_pd pd,
-+			struct ehca_mr_hipzout_parms *outparms);
-+
-+/**
-+ * hipz_h_alloc_resource_mw - Allocate MR resources in HW and FW, initialize
-+ * resources.
-+ *
-+ * @mw:       ehca MW
-+ * @pd:       Protection Domain
-+ * @outparms: output parameters
-+ */
-+u64 hipz_h_alloc_resource_mw(const struct ipz_adapter_handle adapter_handle,
-+			     const struct ehca_mw *mw,
-+			     const struct ipz_pd pd,
-+			     struct ehca_mw_hipzout_parms *outparms);
-+
-+/**
-+ * hipz_h_query_mw - Query MW in HW and FW.
-+ *
-+ * @mw:       ehca MW
-+ * @outparms: output parameters
-+ */
-+u64 hipz_h_query_mw(const struct ipz_adapter_handle adapter_handle,
-+		    const struct ehca_mw *mw,
-+		    struct ehca_mw_hipzout_parms *outparms);
-+
-+/**
-+ * hipz_h_free_resource_mw - Free MW resources in HW and FW.
-+ *
-+ * @mw: ehca MW
-+ */
-+u64 hipz_h_free_resource_mw(const struct ipz_adapter_handle adapter_handle,
-+			    const struct ehca_mw *mw);
-+
-+u64 hipz_h_error_data(const struct ipz_adapter_handle adapter_handle,
-+		      const u64 ressource_handle,
-+		      void *rblock,
-+		      unsigned long *byte_count);
-+
-+#endif /* __HCP_IF_H__ */
---- linux-2.6.17-rc2-orig/drivers/infiniband/hw/ehca/hcp_if.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.17-rc2/drivers/infiniband/hw/ehca/hcp_if.c	2006-05-15 15:43:31.000000000 +0200
-@@ -0,0 +1,1476 @@
-+/*
-+ *  IBM eServer eHCA Infiniband device driver for Linux on POWER
-+ *
-+ *  Firmware Infiniband Interface code for POWER
-+ *
-+ *  Authors: Christoph Raisch <raisch@de.ibm.com>
-+ *           Hoang-Nam Nguyen <hnguyen@de.ibm.com>
-+ *           Gerd Bayer <gerd.bayer@de.ibm.com>
-+ *           Waleri Fomin <fomin@de.ibm.com>
-+ *
-+ *  Copyright (c) 2005 IBM Corporation
-+ *
-+ *  All rights reserved.
-+ *
-+ *  This source code is distributed under a dual license of GPL v2.0 and OpenIB
-+ *  BSD.
-+ *
-+ * OpenIB BSD License
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions are met:
-+ *
-+ * Redistributions of source code must retain the above copyright notice, this
-+ * list of conditions and the following disclaimer.
-+ *
-+ * Redistributions in binary form must reproduce the above copyright notice,
-+ * this list of conditions and the following disclaimer in the documentation
-+ * and/or other materials
-+ * provided with the distribution.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-+ * POSSIBILITY OF SUCH DAMAGE.
-+ */
-+
-+#define DEB_PREFIX "hcpi"
-+
-+#include <asm/hvcall.h>
-+#include "ehca_tools.h"
-+#include "hcp_if.h"
-+#include "hcp_phyp.h"
-+#include "hipz_fns.h"
-+
-+#define H_ALL_RES_QP_ENHANCED_OPS       EHCA_BMASK_IBM(9,11)
-+#define H_ALL_RES_QP_PTE_PIN            EHCA_BMASK_IBM(12,12)
-+#define H_ALL_RES_QP_SERVICE_TYPE       EHCA_BMASK_IBM(13,15)
-+#define H_ALL_RES_QP_LL_RQ_CQE_POSTING  EHCA_BMASK_IBM(18,18)
-+#define H_ALL_RES_QP_LL_SQ_CQE_POSTING  EHCA_BMASK_IBM(19,21)
-+#define H_ALL_RES_QP_SIGNALING_TYPE     EHCA_BMASK_IBM(22,23)
-+#define H_ALL_RES_QP_UD_AV_LKEY_CTRL    EHCA_BMASK_IBM(31,31)
-+#define H_ALL_RES_QP_RESOURCE_TYPE      EHCA_BMASK_IBM(56,63)
-+
-+#define H_ALL_RES_QP_MAX_OUTST_SEND_WR  EHCA_BMASK_IBM(0,15)
-+#define H_ALL_RES_QP_MAX_OUTST_RECV_WR  EHCA_BMASK_IBM(16,31)
-+#define H_ALL_RES_QP_MAX_SEND_SGE       EHCA_BMASK_IBM(32,39)
-+#define H_ALL_RES_QP_MAX_RECV_SGE       EHCA_BMASK_IBM(40,47)
-+
-+#define H_ALL_RES_QP_ACT_OUTST_SEND_WR  EHCA_BMASK_IBM(16,31)
-+#define H_ALL_RES_QP_ACT_OUTST_RECV_WR  EHCA_BMASK_IBM(48,63)
-+#define H_ALL_RES_QP_ACT_SEND_SGE       EHCA_BMASK_IBM(8,15)
-+#define H_ALL_RES_QP_ACT_RECV_SGE       EHCA_BMASK_IBM(24,31)
-+
-+#define H_ALL_RES_QP_SQUEUE_SIZE_PAGES  EHCA_BMASK_IBM(0,31)
-+#define H_ALL_RES_QP_RQUEUE_SIZE_PAGES  EHCA_BMASK_IBM(32,63)
-+
-+/* direct access qp controls */
-+#define DAQP_CTRL_ENABLE    0x01
-+#define DAQP_CTRL_SEND_COMP 0x20
-+#define DAQP_CTRL_RECV_COMP 0x40
-+
-+static u32 get_longbusy_msecs(int longbusy_rc)
++static struct ehca_mr *ehca_mr_new(void)
 +{
-+	switch (longbusy_rc) {
-+	case H_LONG_BUSY_ORDER_1_MSEC:
-+		return 1;
-+	case H_LONG_BUSY_ORDER_10_MSEC:
-+		return 10;
-+	case H_LONG_BUSY_ORDER_100_MSEC:
-+		return 100;
-+	case H_LONG_BUSY_ORDER_1_SEC:
-+		return 1000;
-+	case H_LONG_BUSY_ORDER_10_SEC:
-+		return 10000;
-+	case H_LONG_BUSY_ORDER_100_SEC:
-+		return 100000;
-+	default:
-+		return 1;
++	extern struct ehca_module ehca_module;
++	struct ehca_mr *me;
++
++	me = kmem_cache_alloc(ehca_module.cache_mr, SLAB_KERNEL);
++	if (me) {
++		memset(me, 0, sizeof(struct ehca_mr));
++		spin_lock_init(&me->mrlock);
++		EDEB_EX(7, "ehca_mr=%p sizeof(ehca_mr_t)=%x", me,
++			(u32) sizeof(struct ehca_mr));
++	} else {
++		EDEB_ERR(3, "alloc failed");
 +	}
++
++	return me;
 +}
 +
-+static long ehca_hcall_7arg_7ret(unsigned long opcode,
-+				 unsigned long arg1,
-+				 unsigned long arg2,
-+				 unsigned long arg3,
-+				 unsigned long arg4,
-+				 unsigned long arg5,
-+				 unsigned long arg6,
-+				 unsigned long arg7,
-+				 unsigned long *out1,
-+				 unsigned long *out2,
-+				 unsigned long *out3,
-+				 unsigned long *out4,
-+				 unsigned long *out5,
-+				 unsigned long *out6,
-+				 unsigned long *out7)
++static void ehca_mr_delete(struct ehca_mr *me)
 +{
-+	long ret = H_SUCCESS;
-+	int i, sleep_msecs;
++	extern struct ehca_module ehca_module;
 +
-+	EDEB_EN(7, "opcode=%lx arg1=%lx arg2=%lx arg3=%lx arg4=%lx arg5=%lx"
-+	        " arg6=%lx arg7=%lx", opcode, arg1, arg2, arg3, arg4, arg5,
-+		arg6, arg7);
++	kmem_cache_free(ehca_module.cache_mr, me);
++}
 +
-+	for (i = 0; i < 5; i++) {
-+		ret = plpar_hcall_7arg_7ret(opcode,
-+					    arg1, arg2, arg3, arg4,
-+					    arg5, arg6, arg7,
-+					    out1, out2, out3, out4,
-+					    out5, out6,out7);
++static struct ehca_mw *ehca_mw_new(void)
++{
++	extern struct ehca_module ehca_module;
++	struct ehca_mw *me;
 +
-+		if (H_IS_LONG_BUSY(ret)) {
-+			sleep_msecs = get_longbusy_msecs(ret);
-+			msleep_interruptible(sleep_msecs);
-+			continue;
++	me = kmem_cache_alloc(ehca_module.cache_mw, SLAB_KERNEL);
++	if (me) {
++		memset(me, 0, sizeof(struct ehca_mw));
++		spin_lock_init(&me->mwlock);
++		EDEB_EX(7, "ehca_mw=%p sizeof(ehca_mw_t)=%x", me,
++			(u32) sizeof(struct ehca_mw));
++	} else {
++		EDEB_ERR(3, "alloc failed");
++	}
++
++	return me;
++}
++
++static void ehca_mw_delete(struct ehca_mw *me)
++{
++	extern struct ehca_module ehca_module;
++
++	kmem_cache_free(ehca_module.cache_mw, me);
++}
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++struct ib_mr *ehca_get_dma_mr(struct ib_pd *pd, int mr_access_flags)
++{
++	struct ib_mr *ib_mr = NULL;
++	int ret = 0;
++	struct ehca_mr *e_maxmr = NULL;
++	struct ehca_pd *e_pd = NULL;
++	struct ehca_shca *shca = NULL;
++
++	EDEB_EN(7, "pd=%p mr_access_flags=%x", pd, mr_access_flags);
++
++	EHCA_CHECK_PD_P(pd);
++	e_pd = container_of(pd, struct ehca_pd, ib_pd);
++	shca = container_of(pd->device, struct ehca_shca, ib_device);
++
++	if (shca->maxmr) {
++		e_maxmr = ehca_mr_new();
++		if (!e_maxmr) {
++			EDEB_ERR(4, "out of memory");
++			ib_mr = ERR_PTR(-ENOMEM);
++			goto get_dma_mr_exit0;
 +		}
 +
-+		if (ret < H_SUCCESS)
-+			EDEB_ERR(4, "opcode=%lx ret=%lx"
-+				 " arg1=%lx arg2=%lx arg3=%lx arg4=%lx"
-+				 " arg5=%lx arg6=%lx arg7=%lx"
-+				 " out1=%lx out2=%lx out3=%lx out4=%lx"
-+				 " out5=%lx out6=%lx out7=%lx",
-+				 opcode, ret,
-+				 arg1, arg2, arg3, arg4,
-+				 arg5, arg6, arg7,
-+				 *out1, *out2, *out3, *out4,
-+				 *out5, *out6, *out7);
-+
-+		EDEB_EX(7, "opcode=%lx ret=%lx out1=%lx out2=%lx out3=%lx "
-+			"out4=%lx out5=%lx out6=%lx out7=%lx",
-+			opcode, ret, *out1, *out2, *out3, *out4, *out5,
-+			*out6, *out7);
-+		return ret;
++		ret = ehca_reg_maxmr(shca, e_maxmr, (u64*)KERNELBASE,
++				     mr_access_flags, e_pd,
++				     &e_maxmr->ib.ib_mr.lkey,
++				     &e_maxmr->ib.ib_mr.rkey);
++		if (ret) {
++			ib_mr = ERR_PTR(ret);
++			goto get_dma_mr_exit0;
++		}
++		ib_mr = &e_maxmr->ib.ib_mr;
++	} else {
++		EDEB_ERR(4, "no internal max-MR exist!");
++		ib_mr = ERR_PTR(-EINVAL);
++		goto get_dma_mr_exit0;
 +	}
 +
-+	EDEB_EX(7, "opcode=%lx ret=H_BUSY", opcode);
++get_dma_mr_exit0:
++	if (IS_ERR(ib_mr))
++		EDEB_EX(4, "rc=%lx pd=%p mr_access_flags=%x ",
++			PTR_ERR(ib_mr), pd, mr_access_flags);
++	else
++		EDEB_EX(7, "ib_mr=%p lkey=%x rkey=%x",
++			ib_mr, ib_mr->lkey, ib_mr->rkey);
++	return ib_mr;
++} /* end ehca_get_dma_mr() */
 +
-+	return H_BUSY;
-+}
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
 +
-+static long ehca_hcall_9arg_9ret(unsigned long opcode,
-+				 unsigned long arg1,
-+				 unsigned long arg2,
-+				 unsigned long arg3,
-+				 unsigned long arg4,
-+				 unsigned long arg5,
-+				 unsigned long arg6,
-+				 unsigned long arg7,
-+				 unsigned long arg8,
-+				 unsigned long arg9,
-+				 unsigned long *out1,
-+				 unsigned long *out2,
-+				 unsigned long *out3,
-+				 unsigned long *out4,
-+				 unsigned long *out5,
-+				 unsigned long *out6,
-+				 unsigned long *out7,
-+				 unsigned long *out8,
-+				 unsigned long *out9)
++struct ib_mr *ehca_reg_phys_mr(struct ib_pd *pd,
++			       struct ib_phys_buf *phys_buf_array,
++			       int num_phys_buf,
++			       int mr_access_flags,
++			       u64 *iova_start)
 +{
-+	long ret = H_SUCCESS;
-+	int i, sleep_msecs;
++	struct ib_mr *ib_mr = NULL;
++	int ret = 0;
++	struct ehca_mr *e_mr = NULL;
++	struct ehca_shca *shca = NULL;
++	struct ehca_pd *e_pd = NULL;
++	u64 size = 0;
++	struct ehca_mr_pginfo pginfo={0,0,0,0,0,0,0,NULL,0,NULL,NULL,0,NULL,0};
++	u32 num_pages_mr = 0;
++	u32 num_pages_4k = 0; /* 4k portion "pages" */
 +
-+	EDEB_EN(7, "opcode=%lx arg1=%lx arg2=%lx arg3=%lx arg4=%lx "
-+		"arg5=%lx arg6=%lx arg7=%lx arg8=%lx arg9=%lx",
-+		opcode, arg1, arg2, arg3, arg4, arg5, arg6, arg7,
-+		arg8, arg9);
++	EDEB_EN(7, "pd=%p phys_buf_array=%p num_phys_buf=%x "
++		"mr_access_flags=%x iova_start=%p", pd, phys_buf_array,
++		num_phys_buf, mr_access_flags, iova_start);
 +
++	EHCA_CHECK_PD_P(pd);
++	if ((num_phys_buf <= 0) || ehca_adr_bad(phys_buf_array)) {
++		EDEB_ERR(4, "bad input values: num_phys_buf=%x "
++			 "phys_buf_array=%p", num_phys_buf, phys_buf_array);
++		ib_mr = ERR_PTR(-EINVAL);
++		goto reg_phys_mr_exit0;
++	}
++	if (((mr_access_flags & IB_ACCESS_REMOTE_WRITE) &&
++	     !(mr_access_flags & IB_ACCESS_LOCAL_WRITE)) ||
++	    ((mr_access_flags & IB_ACCESS_REMOTE_ATOMIC) &&
++	     !(mr_access_flags & IB_ACCESS_LOCAL_WRITE))) {
++		/* Remote Write Access requires Local Write Access */
++		/* Remote Atomic Access requires Local Write Access */
++		EDEB_ERR(4, "bad input values: mr_access_flags=%x",
++			 mr_access_flags);
++		ib_mr = ERR_PTR(-EINVAL);
++		goto reg_phys_mr_exit0;
++	}
 +
-+	for (i = 0; i < 5; i++) {
-+		ret = plpar_hcall_9arg_9ret(opcode,
-+					    arg1, arg2, arg3, arg4,
-+					    arg5, arg6, arg7, arg8,
-+					    arg9,
-+					    out1, out2, out3, out4,
-+					    out5, out6, out7, out8,
-+					    out9);
++	/* check physical buffer list and calculate size */
++	ret = ehca_mr_chk_buf_and_calc_size(phys_buf_array, num_phys_buf,
++					    iova_start, &size);
++	if (ret) {
++		ib_mr = ERR_PTR(ret);
++		goto reg_phys_mr_exit0;
++	}
++	if ((size == 0) ||
++	    (((u64)iova_start + size) < (u64)iova_start)) {
++		EDEB_ERR(4, "bad input values: size=%lx iova_start=%p",
++			 size, iova_start);
++		ib_mr = ERR_PTR(-EINVAL);
++		goto reg_phys_mr_exit0;
++	}
 +
-+		if (H_IS_LONG_BUSY(ret)) {
-+			sleep_msecs = get_longbusy_msecs(ret);
-+			msleep_interruptible(sleep_msecs);
-+			continue;
++	e_pd = container_of(pd, struct ehca_pd, ib_pd);
++	shca = container_of(pd->device, struct ehca_shca, ib_device);
++
++	e_mr = ehca_mr_new();
++	if (!e_mr) {
++		EDEB_ERR(4, "out of memory");
++		ib_mr = ERR_PTR(-ENOMEM);
++		goto reg_phys_mr_exit0;
++	}
++
++	/* determine number of MR pages */
++	num_pages_mr = ((((u64)iova_start % PAGE_SIZE) + size +
++			 PAGE_SIZE - 1) / PAGE_SIZE);
++	num_pages_4k = ((((u64)iova_start % EHCA_PAGESIZE) + size +
++			 EHCA_PAGESIZE - 1) / EHCA_PAGESIZE);
++
++	/* register MR on HCA */
++	if (ehca_mr_is_maxmr(size, iova_start)) {
++		e_mr->flags |= EHCA_MR_FLAG_MAXMR;
++		ret = ehca_reg_maxmr(shca, e_mr, iova_start, mr_access_flags,
++				     e_pd, &e_mr->ib.ib_mr.lkey,
++				     &e_mr->ib.ib_mr.rkey);
++		if (ret) {
++			ib_mr = ERR_PTR(ret);
++			goto reg_phys_mr_exit1;
++		}
++	} else {
++		pginfo.type           = EHCA_MR_PGI_PHYS;
++		pginfo.num_pages      = num_pages_mr;
++		pginfo.num_4k         = num_pages_4k;
++		pginfo.num_phys_buf   = num_phys_buf;
++		pginfo.phys_buf_array = phys_buf_array;
++		pginfo.next_4k        = (((u64)iova_start & ~PAGE_MASK) /
++					 EHCA_PAGESIZE);
++
++		ret = ehca_reg_mr(shca, e_mr, iova_start, size, mr_access_flags,
++				  e_pd, &pginfo, &e_mr->ib.ib_mr.lkey,
++				  &e_mr->ib.ib_mr.rkey);
++		if (ret) {
++			ib_mr = ERR_PTR(ret);
++			goto reg_phys_mr_exit1;
++		}
++	}
++
++	/* successful registration of all pages */
++	ib_mr = &e_mr->ib.ib_mr;
++	goto reg_phys_mr_exit0;
++
++reg_phys_mr_exit1:
++	ehca_mr_delete(e_mr);
++reg_phys_mr_exit0:
++	if (IS_ERR(ib_mr))
++		EDEB_EX(4, "rc=%lx pd=%p phys_buf_array=%p "
++			"num_phys_buf=%x mr_access_flags=%x iova_start=%p",
++			PTR_ERR(ib_mr), pd, phys_buf_array,
++			num_phys_buf, mr_access_flags, iova_start);
++	else
++		EDEB_EX(7, "ib_mr=%p lkey=%x rkey=%x",
++			ib_mr, ib_mr->lkey, ib_mr->rkey);
++	return ib_mr;
++} /* end ehca_reg_phys_mr() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++struct ib_mr *ehca_reg_user_mr(struct ib_pd *pd,
++			       struct ib_umem *region,
++			       int mr_access_flags,
++			       struct ib_udata *udata)
++{
++	struct ib_mr *ib_mr = NULL;
++	struct ehca_mr *e_mr = NULL;
++	struct ehca_shca *shca = NULL;
++	struct ehca_pd *e_pd = NULL;
++	struct ehca_mr_pginfo pginfo={0,0,0,0,0,0,0,NULL,0,NULL,NULL,0,NULL,0};
++	int ret = 0;
++	u32 num_pages_mr = 0;
++	u32 num_pages_4k = 0; /* 4k portion "pages" */
++
++	EDEB_EN(7, "pd=%p region=%p mr_access_flags=%x udata=%p",
++		pd, region, mr_access_flags, udata);
++
++	EHCA_CHECK_PD_P(pd);
++	if (ehca_adr_bad(region)) {
++		EDEB_ERR(4, "bad input values: region=%p", region);
++		ib_mr = ERR_PTR(-EINVAL);
++		goto reg_user_mr_exit0;
++	}
++	if (((mr_access_flags & IB_ACCESS_REMOTE_WRITE) &&
++	     !(mr_access_flags & IB_ACCESS_LOCAL_WRITE)) ||
++	    ((mr_access_flags & IB_ACCESS_REMOTE_ATOMIC) &&
++	     !(mr_access_flags & IB_ACCESS_LOCAL_WRITE))) {
++		/* Remote Write Access requires Local Write Access */
++		/* Remote Atomic Access requires Local Write Access */
++		EDEB_ERR(4, "bad input values: mr_access_flags=%x",
++			 mr_access_flags);
++		ib_mr = ERR_PTR(-EINVAL);
++		goto reg_user_mr_exit0;
++	}
++	EDEB(7, "user_base=%lx virt_base=%lx length=%lx offset=%x page_size=%x "
++	     "chunk_list.next=%p",
++	     region->user_base, region->virt_base, region->length,
++	     region->offset, region->page_size, region->chunk_list.next);
++	if (region->page_size != PAGE_SIZE) {
++		EDEB_ERR(4, "page size not supported, region->page_size=%x",
++			 region->page_size);
++		ib_mr = ERR_PTR(-EINVAL);
++		goto reg_user_mr_exit0;
++	}
++
++	if ((region->length == 0) ||
++	    ((region->virt_base + region->length) < region->virt_base)) {
++		EDEB_ERR(4, "bad input values: length=%lx virt_base=%lx",
++			 region->length, region->virt_base);
++		ib_mr = ERR_PTR(-EINVAL);
++		goto reg_user_mr_exit0;
++	}
++
++	e_pd = container_of(pd, struct ehca_pd, ib_pd);
++	shca = container_of(pd->device, struct ehca_shca, ib_device);
++
++	e_mr = ehca_mr_new();
++	if (!e_mr) {
++		EDEB_ERR(4, "out of memory");
++		ib_mr = ERR_PTR(-ENOMEM);
++		goto reg_user_mr_exit0;
++	}
++
++	/* determine number of MR pages */
++	num_pages_mr = (((region->virt_base % PAGE_SIZE) + region->length +
++			 PAGE_SIZE - 1) / PAGE_SIZE);
++	num_pages_4k = (((region->virt_base % EHCA_PAGESIZE) + region->length +
++			 EHCA_PAGESIZE - 1) / EHCA_PAGESIZE);
++
++	/* register MR on HCA */
++	pginfo.type       = EHCA_MR_PGI_USER;
++	pginfo.num_pages  = num_pages_mr;
++	pginfo.num_4k     = num_pages_4k;
++	pginfo.region     = region;
++	pginfo.next_4k	  = region->offset / EHCA_PAGESIZE;
++	pginfo.next_chunk = list_prepare_entry(pginfo.next_chunk,
++					       (&region->chunk_list),
++					       list);
++
++	ret = ehca_reg_mr(shca, e_mr, (u64*)region->virt_base,
++			  region->length, mr_access_flags, e_pd, &pginfo,
++			  &e_mr->ib.ib_mr.lkey, &e_mr->ib.ib_mr.rkey);
++	if (ret) {
++		ib_mr = ERR_PTR(ret);
++		goto reg_user_mr_exit1;
++	}
++
++	/* successful registration of all pages */
++	ib_mr = &e_mr->ib.ib_mr;
++	goto reg_user_mr_exit0;
++
++reg_user_mr_exit1:
++	ehca_mr_delete(e_mr);
++reg_user_mr_exit0:
++	if (IS_ERR(ib_mr))
++		EDEB_EX(4, "rc=%lx pd=%p region=%p mr_access_flags=%x "
++			"udata=%p",
++			PTR_ERR(ib_mr), pd, region, mr_access_flags, udata);
++	else
++		EDEB_EX(7, "ib_mr=%p lkey=%x rkey=%x",
++			ib_mr, ib_mr->lkey, ib_mr->rkey);
++	return ib_mr;
++} /* end ehca_reg_user_mr() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++int ehca_rereg_phys_mr(struct ib_mr *mr,
++		       int mr_rereg_mask,
++		       struct ib_pd *pd,
++		       struct ib_phys_buf *phys_buf_array,
++		       int num_phys_buf,
++		       int mr_access_flags,
++		       u64 *iova_start)
++{
++	int ret = 0;
++	struct ehca_shca *shca = NULL;
++	struct ehca_mr *e_mr = NULL;
++	u64 new_size = 0;
++	u64 *new_start = NULL;
++	u32 new_acl = 0;
++	struct ehca_pd *new_pd = NULL;
++	u32 tmp_lkey = 0;
++	u32 tmp_rkey = 0;
++	unsigned long sl_flags;
++	u32 num_pages_mr = 0;
++	u32 num_pages_4k = 0; /* 4k portion "pages" */
++	struct ehca_mr_pginfo pginfo={0,0,0,0,0,0,0,NULL,0,NULL,NULL,0,NULL,0};
++	struct ehca_pd *my_pd = NULL;
++	u32 cur_pid = current->tgid;
++
++	EDEB_EN(7, "mr=%p mr_rereg_mask=%x pd=%p phys_buf_array=%p "
++		"num_phys_buf=%x mr_access_flags=%x iova_start=%p",
++		mr, mr_rereg_mask, pd, phys_buf_array, num_phys_buf,
++		mr_access_flags, iova_start);
++
++	EHCA_CHECK_MR(mr);
++	my_pd = container_of(mr->pd, struct ehca_pd, ib_pd);
++	if (my_pd->ib_pd.uobject && my_pd->ib_pd.uobject->context &&
++	    (my_pd->ownpid != cur_pid)) {
++		EDEB_ERR(4, "Invalid caller pid=%x ownpid=%x",
++			 cur_pid, my_pd->ownpid);
++		ret = -EINVAL;
++		goto rereg_phys_mr_exit0;
++	}
++
++	if (!(mr_rereg_mask & IB_MR_REREG_TRANS)) {
++		/* TODO not supported, because PHYP rereg hCall needs pages*/
++		/* TODO: We will follow this with Tom ....*/
++		EDEB_ERR(4, "rereg without IB_MR_REREG_TRANS not supported yet,"
++			 " mr_rereg_mask=%x", mr_rereg_mask);
++		ret = -EINVAL;
++		goto rereg_phys_mr_exit0;
++	}
++
++	e_mr = container_of(mr, struct ehca_mr, ib.ib_mr);
++	if (mr_rereg_mask & IB_MR_REREG_PD) {
++		EHCA_CHECK_PD(pd);
++	}
++
++	if ((mr_rereg_mask &
++	     ~(IB_MR_REREG_TRANS | IB_MR_REREG_PD | IB_MR_REREG_ACCESS)) ||
++	    (mr_rereg_mask == 0)) {
++		ret = -EINVAL;
++		goto rereg_phys_mr_exit0;
++	}
++
++	shca = container_of(mr->device, struct ehca_shca, ib_device);
++
++	/* check other parameters */
++	if (e_mr == shca->maxmr) {
++		/* should be impossible, however reject to be sure */
++		EDEB_ERR(3, "rereg internal max-MR impossible, mr=%p "
++			 "shca->maxmr=%p mr->lkey=%x",
++			 mr, shca->maxmr, mr->lkey);
++		ret = -EINVAL;
++		goto rereg_phys_mr_exit0;
++	}
++	if (mr_rereg_mask & IB_MR_REREG_TRANS) { /* transl., i.e. addr/size */
++		if (e_mr->flags & EHCA_MR_FLAG_FMR) {
++			EDEB_ERR(4, "not supported for FMR, mr=%p flags=%x",
++				 mr, e_mr->flags);
++			ret = -EINVAL;
++			goto rereg_phys_mr_exit0;
++		}
++		if (ehca_adr_bad(phys_buf_array) || num_phys_buf <= 0) {
++			EDEB_ERR(4, "bad input values: mr_rereg_mask=%x "
++				 "phys_buf_array=%p num_phys_buf=%x",
++				 mr_rereg_mask, phys_buf_array, num_phys_buf);
++			ret = -EINVAL;
++			goto rereg_phys_mr_exit0;
++		}
++	}
++	if ((mr_rereg_mask & IB_MR_REREG_ACCESS) &&	/* change ACL */
++	    (((mr_access_flags & IB_ACCESS_REMOTE_WRITE) &&
++	      !(mr_access_flags & IB_ACCESS_LOCAL_WRITE)) ||
++	     ((mr_access_flags & IB_ACCESS_REMOTE_ATOMIC) &&
++	      !(mr_access_flags & IB_ACCESS_LOCAL_WRITE)))) {
++		/* Remote Write Access requires Local Write Access */
++		/* Remote Atomic Access requires Local Write Access */
++		EDEB_ERR(4, "bad input values: mr_rereg_mask=%x "
++			 "mr_access_flags=%x", mr_rereg_mask, mr_access_flags);
++		ret = -EINVAL;
++		goto rereg_phys_mr_exit0;
++	}
++
++	/* set requested values dependent on rereg request */
++	spin_lock_irqsave(&e_mr->mrlock, sl_flags);
++	new_start = e_mr->start;  /* new == old address */
++	new_size  = e_mr->size;	  /* new == old length */
++	new_acl   = e_mr->acl;	  /* new == old access control */
++	new_pd    = container_of(mr->pd,struct ehca_pd,ib_pd); /*new == old PD*/
++
++	if (mr_rereg_mask & IB_MR_REREG_TRANS) {
++		new_start = iova_start;	/* change address */
++		/* check physical buffer list and calculate size */
++		ret = ehca_mr_chk_buf_and_calc_size(phys_buf_array,
++						    num_phys_buf, iova_start,
++						    &new_size);
++		if (ret)
++			goto rereg_phys_mr_exit1;
++		if ((new_size == 0) ||
++		    (((u64)iova_start + new_size) < (u64)iova_start)) {
++			EDEB_ERR(4, "bad input values: new_size=%lx "
++				 "iova_start=%p", new_size, iova_start);
++			ret = -EINVAL;
++			goto rereg_phys_mr_exit1;
++		}
++		num_pages_mr = ((((u64)new_start % PAGE_SIZE) + new_size +
++				 PAGE_SIZE - 1) / PAGE_SIZE);
++		num_pages_4k = ((((u64)new_start % EHCA_PAGESIZE) + new_size +
++				 EHCA_PAGESIZE - 1) / EHCA_PAGESIZE);
++		pginfo.type           = EHCA_MR_PGI_PHYS;
++		pginfo.num_pages      = num_pages_mr;
++		pginfo.num_4k         = num_pages_4k;
++		pginfo.num_phys_buf   = num_phys_buf;
++		pginfo.phys_buf_array = phys_buf_array;
++		pginfo.next_4k        = (((u64)iova_start & ~PAGE_MASK) /
++					 EHCA_PAGESIZE);
++	}
++	if (mr_rereg_mask & IB_MR_REREG_ACCESS)
++		new_acl = mr_access_flags;
++	if (mr_rereg_mask & IB_MR_REREG_PD)
++		new_pd = container_of(pd, struct ehca_pd, ib_pd);
++
++	EDEB(7, "mr=%p new_start=%p new_size=%lx new_acl=%x new_pd=%p "
++	     "num_pages_mr=%x num_pages_4k=%x", e_mr, new_start, new_size,
++	     new_acl, new_pd, num_pages_mr, num_pages_4k);
++
++	ret = ehca_rereg_mr(shca, e_mr, new_start, new_size, new_acl,
++			    new_pd, &pginfo, &tmp_lkey, &tmp_rkey);
++	if (ret)
++		goto rereg_phys_mr_exit1;
++
++	/* successful reregistration */
++	if (mr_rereg_mask & IB_MR_REREG_PD)
++		mr->pd = pd;
++	mr->lkey = tmp_lkey;
++	mr->rkey = tmp_rkey;
++
++rereg_phys_mr_exit1:
++	spin_unlock_irqrestore(&e_mr->mrlock, sl_flags);
++rereg_phys_mr_exit0:
++	if (ret)
++		EDEB_EX(4, "ret=%x mr=%p mr_rereg_mask=%x pd=%p "
++			"phys_buf_array=%p num_phys_buf=%x mr_access_flags=%x "
++			"iova_start=%p",
++			ret, mr, mr_rereg_mask, pd, phys_buf_array,
++			num_phys_buf, mr_access_flags, iova_start);
++	else
++		EDEB_EX(7, "mr=%p mr_rereg_mask=%x pd=%p phys_buf_array=%p "
++			"num_phys_buf=%x mr_access_flags=%x iova_start=%p",
++			mr, mr_rereg_mask, pd, phys_buf_array, num_phys_buf,
++			mr_access_flags, iova_start);
++
++	return ret;
++} /* end ehca_rereg_phys_mr() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++int ehca_query_mr(struct ib_mr *mr, struct ib_mr_attr *mr_attr)
++{
++	int ret = 0;
++	u64 h_ret = H_SUCCESS;
++	struct ehca_shca *shca = NULL;
++	struct ehca_mr *e_mr = NULL;
++	struct ehca_pd *my_pd = NULL;
++	u32 cur_pid = current->tgid;
++	unsigned long sl_flags;
++	struct ehca_mr_hipzout_parms hipzout = {{0},0,0,0,0,0};
++
++	EDEB_EN(7, "mr=%p mr_attr=%p", mr, mr_attr);
++
++	EHCA_CHECK_MR(mr);
++
++	my_pd = container_of(mr->pd, struct ehca_pd, ib_pd);
++	if (my_pd->ib_pd.uobject && my_pd->ib_pd.uobject->context &&
++	    (my_pd->ownpid != cur_pid)) {
++		EDEB_ERR(4, "Invalid caller pid=%x ownpid=%x",
++			 cur_pid, my_pd->ownpid);
++		ret = -EINVAL;
++		goto query_mr_exit0;
++	}
++
++	e_mr = container_of(mr, struct ehca_mr, ib.ib_mr);
++	if (ehca_adr_bad(mr_attr)) {
++		EDEB_ERR(4, "bad input values: mr_attr=%p", mr_attr);
++		ret = -EINVAL;
++		goto query_mr_exit0;
++	}
++	if ((e_mr->flags & EHCA_MR_FLAG_FMR)) {
++		EDEB_ERR(4, "not supported for FMR, mr=%p e_mr=%p "
++			 "e_mr->flags=%x", mr, e_mr, e_mr->flags);
++		ret = -EINVAL;
++		goto query_mr_exit0;
++	}
++
++	shca = container_of(mr->device, struct ehca_shca, ib_device);
++	memset(mr_attr, 0, sizeof(struct ib_mr_attr));
++	spin_lock_irqsave(&e_mr->mrlock, sl_flags);
++
++	h_ret = hipz_h_query_mr(shca->ipz_hca_handle, e_mr, &hipzout);
++	if (h_ret != H_SUCCESS) {
++		EDEB_ERR(4, "hipz_mr_query failed, h_ret=%lx mr=%p "
++			 "hca_hndl=%lx mr_hndl=%lx lkey=%x",
++			 h_ret, mr, shca->ipz_hca_handle.handle,
++			 e_mr->ipz_mr_handle.handle, mr->lkey);
++		ret = ehca_mrmw_map_hrc_query_mr(h_ret);
++		goto query_mr_exit1;
++	}
++	mr_attr->pd               = mr->pd;
++	mr_attr->device_virt_addr = hipzout.vaddr;
++	mr_attr->size             = hipzout.len;
++	mr_attr->lkey             = hipzout.lkey;
++	mr_attr->rkey             = hipzout.rkey;
++	ehca_mrmw_reverse_map_acl(&hipzout.acl, &mr_attr->mr_access_flags);
++
++query_mr_exit1:
++	spin_unlock_irqrestore(&e_mr->mrlock, sl_flags);
++query_mr_exit0:
++	if (ret)
++		EDEB_EX(4, "ret=%x mr=%p mr_attr=%p", ret, mr, mr_attr);
++	else
++		EDEB_EX(7, "pd=%p device_virt_addr=%lx size=%lx "
++			"mr_access_flags=%x lkey=%x rkey=%x",
++			mr_attr->pd, mr_attr->device_virt_addr,
++			mr_attr->size, mr_attr->mr_access_flags,
++			mr_attr->lkey, mr_attr->rkey);
++	return ret;
++} /* end ehca_query_mr() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++int ehca_dereg_mr(struct ib_mr *mr)
++{
++	int ret = 0;
++	u64 h_ret = H_SUCCESS;
++	struct ehca_shca *shca = NULL;
++	struct ehca_mr *e_mr = NULL;
++	struct ehca_pd *my_pd = NULL;
++	u32 cur_pid = current->tgid;
++
++	EDEB_EN(7, "mr=%p", mr);
++
++	EHCA_CHECK_MR(mr);
++	my_pd = container_of(mr->pd, struct ehca_pd, ib_pd);
++	if (my_pd->ib_pd.uobject && my_pd->ib_pd.uobject->context &&
++	    (my_pd->ownpid != cur_pid)) {
++		EDEB_ERR(4, "Invalid caller pid=%x ownpid=%x",
++			 cur_pid, my_pd->ownpid);
++		ret = -EINVAL;
++		goto dereg_mr_exit0;
++	}
++
++	e_mr = container_of(mr, struct ehca_mr, ib.ib_mr);
++	shca = container_of(mr->device, struct ehca_shca, ib_device);
++
++	if ((e_mr->flags & EHCA_MR_FLAG_FMR)) {
++		EDEB_ERR(4, "not supported for FMR, mr=%p e_mr=%p "
++			 "e_mr->flags=%x", mr, e_mr, e_mr->flags);
++		ret = -EINVAL;
++		goto dereg_mr_exit0;
++	} else if (e_mr == shca->maxmr) {
++		/* should be impossible, however reject to be sure */
++		EDEB_ERR(3, "dereg internal max-MR impossible, mr=%p "
++			 "shca->maxmr=%p mr->lkey=%x",
++			 mr, shca->maxmr, mr->lkey);
++		ret = -EINVAL;
++		goto dereg_mr_exit0;
++	}
++
++	/* TODO: BUSY: MR still has bound window(s) */
++	h_ret = hipz_h_free_resource_mr(shca->ipz_hca_handle, e_mr);
++	if (h_ret != H_SUCCESS) {
++		EDEB_ERR(4, "hipz_free_mr failed, h_ret=%lx shca=%p e_mr=%p"
++			 " hca_hndl=%lx mr_hndl=%lx mr->lkey=%x",
++			 h_ret, shca, e_mr, shca->ipz_hca_handle.handle,
++			 e_mr->ipz_mr_handle.handle, mr->lkey);
++		ret = ehca_mrmw_map_hrc_free_mr(h_ret);
++		goto dereg_mr_exit0;
++	}
++
++	/* successful deregistration */
++	ehca_mr_delete(e_mr);
++
++dereg_mr_exit0:
++	if (ret)
++		EDEB_EX(4, "ret=%x mr=%p", ret, mr);
++	else
++		EDEB_EX(7, "");
++	return ret;
++} /* end ehca_dereg_mr() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++struct ib_mw *ehca_alloc_mw(struct ib_pd *pd)
++{
++	struct ib_mw *ib_mw = NULL;
++	u64 h_ret = H_SUCCESS;
++	struct ehca_shca *shca = NULL;
++	struct ehca_mw *e_mw = NULL;
++	struct ehca_pd *e_pd = NULL;
++	struct ehca_mw_hipzout_parms hipzout = {{0},0};
++
++	EDEB_EN(7, "pd=%p", pd);
++
++	EHCA_CHECK_PD_P(pd);
++	e_pd = container_of(pd, struct ehca_pd, ib_pd);
++	shca = container_of(pd->device, struct ehca_shca, ib_device);
++
++	e_mw = ehca_mw_new();
++	if (!e_mw) {
++		ib_mw = ERR_PTR(-ENOMEM);
++		goto alloc_mw_exit0;
++	}
++
++	h_ret = hipz_h_alloc_resource_mw(shca->ipz_hca_handle, e_mw,
++					 e_pd->fw_pd, &hipzout);
++	if (h_ret != H_SUCCESS) {
++		EDEB_ERR(4, "hipz_mw_allocate failed, h_ret=%lx shca=%p "
++			 "hca_hndl=%lx mw=%p", h_ret, shca,
++			 shca->ipz_hca_handle.handle, e_mw);
++		ib_mw = ERR_PTR(ehca_mrmw_map_hrc_alloc(h_ret));
++		goto alloc_mw_exit1;
++	}
++	/* successful MW allocation */
++	e_mw->ipz_mw_handle = hipzout.handle;
++	e_mw->ib_mw.rkey    = hipzout.rkey;
++	ib_mw = &e_mw->ib_mw;
++	goto alloc_mw_exit0;
++
++alloc_mw_exit1:
++	ehca_mw_delete(e_mw);
++alloc_mw_exit0:
++	if (IS_ERR(ib_mw))
++		EDEB_EX(4, "rc=%lx pd=%p", PTR_ERR(ib_mw), pd);
++	else
++		EDEB_EX(7, "ib_mw=%p rkey=%x", ib_mw, ib_mw->rkey);
++	return ib_mw;
++} /* end ehca_alloc_mw() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++int ehca_bind_mw(struct ib_qp *qp,
++		 struct ib_mw *mw,
++		 struct ib_mw_bind *mw_bind)
++{
++	int ret = 0;
++
++	/* TODO: not supported up to now */
++	EDEB_ERR(4, "bind MW currently not supported by HCAD");
++	ret = -EPERM;
++	goto bind_mw_exit0;
++
++bind_mw_exit0:
++	if (ret)
++		EDEB_EX(4, "ret=%x qp=%p mw=%p mw_bind=%p",
++			ret, qp, mw, mw_bind);
++	else
++		EDEB_EX(7, "qp=%p mw=%p mw_bind=%p", qp, mw, mw_bind);
++	return ret;
++} /* end ehca_bind_mw() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++int ehca_dealloc_mw(struct ib_mw *mw)
++{
++	int ret = 0;
++	u64 h_ret = H_SUCCESS;
++	struct ehca_shca *shca = NULL;
++	struct ehca_mw *e_mw = NULL;
++
++	EDEB_EN(7, "mw=%p", mw);
++
++	EHCA_CHECK_MW(mw);
++	e_mw = container_of(mw, struct ehca_mw, ib_mw);
++	shca = container_of(mw->device, struct ehca_shca, ib_device);
++
++	h_ret = hipz_h_free_resource_mw(shca->ipz_hca_handle, e_mw);
++	if (h_ret != H_SUCCESS) {
++		EDEB_ERR(4, "hipz_free_mw failed, h_ret=%lx shca=%p mw=%p "
++			 "rkey=%x hca_hndl=%lx mw_hndl=%lx",
++			 h_ret, shca, mw, mw->rkey, shca->ipz_hca_handle.handle,
++			 e_mw->ipz_mw_handle.handle);
++		ret = ehca_mrmw_map_hrc_free_mw(h_ret);
++		goto dealloc_mw_exit0;
++	}
++	/* successful deallocation */
++	ehca_mw_delete(e_mw);
++
++dealloc_mw_exit0:
++	if (ret)
++		EDEB_EX(4, "ret=%x mw=%p", ret, mw);
++	else
++		EDEB_EX(7, "");
++	return ret;
++} /* end ehca_dealloc_mw() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++struct ib_fmr *ehca_alloc_fmr(struct ib_pd *pd,
++			      int mr_access_flags,
++			      struct ib_fmr_attr *fmr_attr)
++{
++	struct ib_fmr *ib_fmr = NULL;
++	struct ehca_shca *shca = NULL;
++	struct ehca_mr *e_fmr = NULL;
++	int ret = 0;
++	struct ehca_pd *e_pd = NULL;
++	u32 tmp_lkey = 0;
++	u32 tmp_rkey = 0;
++	struct ehca_mr_pginfo pginfo={0,0,0,0,0,0,0,NULL,0,NULL,NULL,0,NULL,0};
++
++	EDEB_EN(7, "pd=%p mr_access_flags=%x fmr_attr=%p",
++		pd, mr_access_flags, fmr_attr);
++
++	EHCA_CHECK_PD_P(pd);
++	if (ehca_adr_bad(fmr_attr)) {
++		EDEB_ERR(4, "bad input values: fmr_attr=%p", fmr_attr);
++		ib_fmr = ERR_PTR(-EINVAL);
++		goto alloc_fmr_exit0;
++	}
++
++	EDEB(7, "max_pages=%x max_maps=%x page_shift=%x",
++	     fmr_attr->max_pages, fmr_attr->max_maps, fmr_attr->page_shift);
++
++	/* check other parameters */
++	if (((mr_access_flags & IB_ACCESS_REMOTE_WRITE) &&
++	     !(mr_access_flags & IB_ACCESS_LOCAL_WRITE)) ||
++	    ((mr_access_flags & IB_ACCESS_REMOTE_ATOMIC) &&
++	     !(mr_access_flags & IB_ACCESS_LOCAL_WRITE))) {
++		/* Remote Write Access requires Local Write Access */
++		/* Remote Atomic Access requires Local Write Access */
++		EDEB_ERR(4, "bad input values: mr_access_flags=%x",
++			 mr_access_flags);
++		ib_fmr = ERR_PTR(-EINVAL);
++		goto alloc_fmr_exit0;
++	}
++	if (mr_access_flags & IB_ACCESS_MW_BIND) {
++		EDEB_ERR(4, "bad input values: mr_access_flags=%x",
++			 mr_access_flags);
++		ib_fmr = ERR_PTR(-EINVAL);
++		goto alloc_fmr_exit0;
++	}
++	if ((fmr_attr->max_pages == 0) || (fmr_attr->max_maps == 0)) {
++		EDEB_ERR(4, "bad input values: fmr_attr->max_pages=%x "
++			 "fmr_attr->max_maps=%x fmr_attr->page_shift=%x",
++			 fmr_attr->max_pages, fmr_attr->max_maps,
++			 fmr_attr->page_shift);
++		ib_fmr = ERR_PTR(-EINVAL);
++		goto alloc_fmr_exit0;
++	}
++	if (((1 << fmr_attr->page_shift) != EHCA_PAGESIZE) &&
++	    ((1 << fmr_attr->page_shift) != PAGE_SIZE)) {
++		EDEB_ERR(4, "unsupported fmr_attr->page_shift=%x",
++			 fmr_attr->page_shift);
++		ib_fmr = ERR_PTR(-EINVAL);
++		goto alloc_fmr_exit0;
++	}
++
++	e_pd = container_of(pd, struct ehca_pd, ib_pd);
++	shca = container_of(pd->device, struct ehca_shca, ib_device);
++
++	e_fmr = ehca_mr_new();
++	if (!e_fmr) {
++		ib_fmr = ERR_PTR(-ENOMEM);
++		goto alloc_fmr_exit0;
++	}
++	e_fmr->flags |= EHCA_MR_FLAG_FMR;
++
++	/* register MR on HCA */
++	ret = ehca_reg_mr(shca, e_fmr, NULL,
++			  fmr_attr->max_pages * (1 << fmr_attr->page_shift),
++			  mr_access_flags, e_pd, &pginfo,
++			  &tmp_lkey, &tmp_rkey);
++	if (ret) {
++		ib_fmr = ERR_PTR(ret);
++		goto alloc_fmr_exit1;
++	}
++
++	/* successful */
++	e_fmr->fmr_page_size = 1 << fmr_attr->page_shift;
++	e_fmr->fmr_max_pages = fmr_attr->max_pages;
++	e_fmr->fmr_max_maps = fmr_attr->max_maps;
++	e_fmr->fmr_map_cnt = 0;
++	ib_fmr = &e_fmr->ib.ib_fmr;
++	goto alloc_fmr_exit0;
++
++alloc_fmr_exit1:
++	ehca_mr_delete(e_fmr);
++alloc_fmr_exit0:
++	if (IS_ERR(ib_fmr))
++		EDEB_EX(4, "rc=%lx pd=%p mr_access_flags=%x "
++			"fmr_attr=%p", PTR_ERR(ib_fmr), pd,
++			mr_access_flags, fmr_attr);
++	else
++		EDEB_EX(7, "ib_fmr=%p tmp_lkey=%x tmp_rkey=%x",
++			ib_fmr, tmp_lkey, tmp_rkey);
++	return ib_fmr;
++} /* end ehca_alloc_fmr() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++int ehca_map_phys_fmr(struct ib_fmr *fmr,
++		      u64 *page_list,
++		      int list_len,
++		      u64 iova)
++{
++	int ret = 0;
++	struct ehca_shca *shca = NULL;
++	struct ehca_mr *e_fmr = NULL;
++	struct ehca_pd *e_pd = NULL;
++	struct ehca_mr_pginfo pginfo={0,0,0,0,0,0,0,NULL,0,NULL,NULL,0,NULL,0};
++	u32 tmp_lkey = 0;
++	u32 tmp_rkey = 0;
++
++	EDEB_EN(7, "fmr=%p page_list=%p list_len=%x iova=%lx",
++		fmr, page_list, list_len, iova);
++
++	EHCA_CHECK_FMR(fmr);
++	e_fmr = container_of(fmr, struct ehca_mr, ib.ib_fmr);
++	shca = container_of(fmr->device, struct ehca_shca, ib_device);
++	e_pd = container_of(fmr->pd, struct ehca_pd, ib_pd);
++
++	if (!(e_fmr->flags & EHCA_MR_FLAG_FMR)) {
++		EDEB_ERR(4, "not a FMR, e_fmr=%p e_fmr->flags=%x",
++			 e_fmr, e_fmr->flags);
++		ret = -EINVAL;
++		goto map_phys_fmr_exit0;
++	}
++	ret = ehca_fmr_check_page_list(e_fmr, page_list, list_len);
++	if (ret)
++		goto map_phys_fmr_exit0;
++	if (iova % e_fmr->fmr_page_size) {
++		/* only whole-numbered pages */
++		EDEB_ERR(4, "bad iova, iova=%lx fmr_page_size=%x",
++			 iova, e_fmr->fmr_page_size);
++		ret = -EINVAL;
++		goto map_phys_fmr_exit0;
++	}
++	if (e_fmr->fmr_map_cnt >= e_fmr->fmr_max_maps) {
++		/* HCAD does not limit the maps, however trace this anyway */
++		EDEB(6, "map limit exceeded, fmr=%p e_fmr->fmr_map_cnt=%x "
++		     "e_fmr->fmr_max_maps=%x",
++		     fmr, e_fmr->fmr_map_cnt, e_fmr->fmr_max_maps);
++	}
++
++	pginfo.type      = EHCA_MR_PGI_FMR;
++	pginfo.num_pages = list_len;
++	pginfo.page_list = page_list;
++	pginfo.next_4k   = ((iova & (e_fmr->fmr_page_size-1)) /
++			    EHCA_PAGESIZE);
++
++	ret = ehca_rereg_mr(shca, e_fmr, (u64*)iova,
++			    list_len * e_fmr->fmr_page_size,
++			    e_fmr->acl, e_pd, &pginfo, &tmp_lkey, &tmp_rkey);
++	if (ret)
++		goto map_phys_fmr_exit0;
++
++	/* successful reregistration */
++	e_fmr->fmr_map_cnt++;
++	e_fmr->ib.ib_fmr.lkey = tmp_lkey;
++	e_fmr->ib.ib_fmr.rkey = tmp_rkey;
++
++map_phys_fmr_exit0:
++	if (ret)
++		EDEB_EX(4, "ret=%x fmr=%p page_list=%p list_len=%x iova=%lx",
++			ret, fmr, page_list, list_len, iova);
++	else
++		EDEB_EX(7, "lkey=%x rkey=%x",
++			e_fmr->ib.ib_fmr.lkey, e_fmr->ib.ib_fmr.rkey);
++	return ret;
++} /* end ehca_map_phys_fmr() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++int ehca_unmap_fmr(struct list_head *fmr_list)
++{
++	int ret = 0;
++	struct ib_fmr *ib_fmr = NULL;
++	struct ehca_shca *shca = NULL;
++	struct ehca_shca *prev_shca = NULL;
++	struct ehca_mr *e_fmr = NULL;
++	u32 num_fmr = 0;
++	u32 unmap_fmr_cnt = 0;
++
++	EDEB_EN(7, "fmr_list=%p", fmr_list);
++
++	/* check all FMR belong to same SHCA, and check internal flag */
++	list_for_each_entry(ib_fmr, fmr_list, list) {
++		prev_shca = shca;
++		shca = container_of(ib_fmr->device, struct ehca_shca,
++				    ib_device);
++		EHCA_CHECK_FMR(ib_fmr);
++		e_fmr = container_of(ib_fmr, struct ehca_mr, ib.ib_fmr);
++		if ((shca != prev_shca) && prev_shca) {
++			EDEB_ERR(4, "SHCA mismatch, shca=%p prev_shca=%p "
++				 "e_fmr=%p", shca, prev_shca, e_fmr);
++			ret = -EINVAL;
++			goto unmap_fmr_exit0;
++		}
++		if (!(e_fmr->flags & EHCA_MR_FLAG_FMR)) {
++			EDEB_ERR(4, "not a FMR, e_fmr=%p e_fmr->flags=%x",
++				 e_fmr, e_fmr->flags);
++			ret = -EINVAL;
++			goto unmap_fmr_exit0;
++		}
++		num_fmr++;
++	}
++
++	/* loop over all FMRs to unmap */
++	list_for_each_entry(ib_fmr, fmr_list, list) {
++		unmap_fmr_cnt++;
++		e_fmr = container_of(ib_fmr, struct ehca_mr, ib.ib_fmr);
++		shca = container_of(ib_fmr->device, struct ehca_shca,
++				    ib_device);
++		ret = ehca_unmap_one_fmr(shca, e_fmr);
++		if (ret) {
++			/* unmap failed, stop unmapping of rest of FMRs */
++			EDEB_ERR(4, "unmap of one FMR failed, stop rest, "
++				 "e_fmr=%p num_fmr=%x unmap_fmr_cnt=%x lkey=%x",
++				 e_fmr, num_fmr, unmap_fmr_cnt,
++				 e_fmr->ib.ib_fmr.lkey);
++			goto unmap_fmr_exit0;
++		}
++	}
++
++unmap_fmr_exit0:
++	if (ret)
++		EDEB_EX(4, "ret=%x fmr_list=%p num_fmr=%x unmap_fmr_cnt=%x",
++			ret, fmr_list, num_fmr, unmap_fmr_cnt);
++	else
++		EDEB_EX(7, "num_fmr=%x", num_fmr);
++	return ret;
++} /* end ehca_unmap_fmr() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++int ehca_dealloc_fmr(struct ib_fmr *fmr)
++{
++	int ret = 0;
++	u64 h_ret = H_SUCCESS;
++	struct ehca_shca *shca = NULL;
++	struct ehca_mr *e_fmr = NULL;
++
++	EDEB_EN(7, "fmr=%p", fmr);
++
++	EHCA_CHECK_FMR(fmr);
++	e_fmr = container_of(fmr, struct ehca_mr, ib.ib_fmr);
++	shca = container_of(fmr->device, struct ehca_shca, ib_device);
++
++	if (!(e_fmr->flags & EHCA_MR_FLAG_FMR)) {
++		EDEB_ERR(4, "not a FMR, e_fmr=%p e_fmr->flags=%x",
++			 e_fmr, e_fmr->flags);
++		ret = -EINVAL;
++		goto free_fmr_exit0;
++	}
++
++	h_ret = hipz_h_free_resource_mr(shca->ipz_hca_handle, e_fmr);
++	if (h_ret != H_SUCCESS) {
++		EDEB_ERR(4, "hipz_free_mr failed, h_ret=%lx e_fmr=%p "
++			 "hca_hndl=%lx fmr_hndl=%lx fmr->lkey=%x",
++			 h_ret, e_fmr, shca->ipz_hca_handle.handle,
++			 e_fmr->ipz_mr_handle.handle, fmr->lkey);
++		ehca_mrmw_map_hrc_free_mr(h_ret);
++		goto free_fmr_exit0;
++	}
++	/* successful deregistration */
++	ehca_mr_delete(e_fmr);
++
++free_fmr_exit0:
++	if (ret)
++		EDEB_EX(4, "ret=%x fmr=%p", ret, fmr);
++	else
++		EDEB_EX(7, "");
++	return ret;
++} /* end ehca_dealloc_fmr() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++int ehca_reg_mr(struct ehca_shca *shca,
++		struct ehca_mr *e_mr,
++		u64 *iova_start,
++		u64 size,
++		int acl,
++		struct ehca_pd *e_pd,
++		struct ehca_mr_pginfo *pginfo,
++		u32 *lkey, /*OUT*/
++		u32 *rkey) /*OUT*/
++{
++	int ret = 0;
++	u64 h_ret = H_SUCCESS;
++	u32 hipz_acl = 0;
++	struct ehca_mr_hipzout_parms hipzout = {{0},0,0,0,0,0};
++
++	EDEB_EN(7, "shca=%p e_mr=%p iova_start=%p size=%lx acl=%x e_pd=%p "
++		"pginfo=%p num_pages=%lx num_4k=%lx", shca, e_mr, iova_start,
++		size, acl, e_pd, pginfo, pginfo->num_pages, pginfo->num_4k);
++
++	ehca_mrmw_map_acl(acl, &hipz_acl);
++	ehca_mrmw_set_pgsize_hipz_acl(&hipz_acl);
++	if (ehca_use_hp_mr == 1)
++	        hipz_acl |= 0x00000001;
++
++	h_ret = hipz_h_alloc_resource_mr(shca->ipz_hca_handle, e_mr,
++					 (u64)iova_start, size, hipz_acl,
++					 e_pd->fw_pd, &hipzout);
++	if (h_ret != H_SUCCESS) {
++		EDEB_ERR(4, "hipz_alloc_mr failed, h_ret=%lx hca_hndl=%lx",
++			 h_ret, shca->ipz_hca_handle.handle);
++		ret = ehca_mrmw_map_hrc_alloc(h_ret);
++		goto ehca_reg_mr_exit0;
++	}
++
++	e_mr->ipz_mr_handle = hipzout.handle;
++
++	ret = ehca_reg_mr_rpages(shca, e_mr, pginfo);
++	if (ret)
++		goto ehca_reg_mr_exit1;
++
++	/* successful registration */
++	e_mr->num_pages = pginfo->num_pages;
++	e_mr->num_4k    = pginfo->num_4k;
++	e_mr->start     = iova_start;
++	e_mr->size      = size;
++	e_mr->acl       = acl;
++	*lkey = hipzout.lkey;
++	*rkey = hipzout.rkey;
++	goto ehca_reg_mr_exit0;
++
++ehca_reg_mr_exit1:
++	h_ret = hipz_h_free_resource_mr(shca->ipz_hca_handle, e_mr);
++	if (h_ret != H_SUCCESS) {
++		EDEB_ERR(1, "h_ret=%lx shca=%p e_mr=%p iova_start=%p "
++			 "size=%lx acl=%x e_pd=%p lkey=%x pginfo=%p "
++			 "num_pages=%lx num_4k=%lx ret=%x", h_ret, shca, e_mr,
++			 iova_start, size, acl, e_pd, hipzout.lkey, pginfo,
++			 pginfo->num_pages, pginfo->num_4k, ret);
++		EDEB_ERR(1, "internal error in ehca_reg_mr, not recoverable");
++	}
++ehca_reg_mr_exit0:
++	if (ret)
++		EDEB_EX(4, "ret=%x shca=%p e_mr=%p iova_start=%p size=%lx "
++			"acl=%x e_pd=%p pginfo=%p num_pages=%lx num_4k=%lx",
++			ret, shca, e_mr, iova_start, size, acl, e_pd, pginfo,
++			pginfo->num_pages, pginfo->num_4k);
++	else
++		EDEB_EX(7, "ret=%x lkey=%x rkey=%x", ret, *lkey, *rkey);
++	return ret;
++} /* end ehca_reg_mr() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++int ehca_reg_mr_rpages(struct ehca_shca *shca,
++		       struct ehca_mr *e_mr,
++		       struct ehca_mr_pginfo *pginfo)
++{
++	int ret = 0;
++	u64 h_ret = H_SUCCESS;
++	u32 rnum = 0;
++	u64 rpage = 0;
++	u32 i;
++	u64 *kpage = NULL;
++
++	EDEB_EN(7, "shca=%p e_mr=%p pginfo=%p num_pages=%lx num_4k=%lx",
++		shca, e_mr, pginfo, pginfo->num_pages, pginfo->num_4k);
++
++	kpage = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
++	if (!kpage) {
++		EDEB_ERR(4, "kpage alloc failed");
++		ret = -ENOMEM;
++		goto ehca_reg_mr_rpages_exit0;
++	}
++
++	/* max 512 pages per shot */
++	for (i = 0; i < ((pginfo->num_4k + 512 - 1) / 512); i++) {
++
++		if (i == ((pginfo->num_4k + 512 - 1) / 512) - 1) {
++			rnum = pginfo->num_4k % 512; /* last shot */
++			if (rnum == 0)
++				rnum = 512;      /* last shot is full */
++		} else
++			rnum = 512;
++
++		if (rnum > 1) {
++			ret = ehca_set_pagebuf(e_mr, pginfo, rnum, kpage);
++			if (ret) {
++				EDEB_ERR(4, "ehca_set_pagebuf bad rc, ret=%x "
++					 "rnum=%x kpage=%p", ret, rnum, kpage);
++				ret = -EFAULT;
++				goto ehca_reg_mr_rpages_exit1;
++			}
++			rpage = virt_to_abs(kpage);
++			if (!rpage) {
++				EDEB_ERR(4, "kpage=%p i=%x", kpage, i);
++				ret = -EFAULT;
++				goto ehca_reg_mr_rpages_exit1;
++			}
++		} else {  /* rnum==1 */
++			ret = ehca_set_pagebuf_1(e_mr, pginfo, &rpage);
++			if (ret) {
++				EDEB_ERR(4, "ehca_set_pagebuf_1 bad rc, "
++					 "ret=%x i=%x", ret, i);
++				ret = -EFAULT;
++				goto ehca_reg_mr_rpages_exit1;
++			}
 +		}
 +
-+		if (ret < H_SUCCESS)
-+			EDEB_ERR(4, "opcode=%lx ret=%lx"
-+				 " arg1=%lx arg2=%lx arg3=%lx arg4=%lx"
-+				 " arg5=%lx arg6=%lx arg7=%lx arg8=%lx"
-+				 " arg9=%lx"
-+				 " out1=%lx out2=%lx out3=%lx out4=%lx"
-+				 " out5=%lx out6=%lx out7=%lx out8=%lx"
-+				 " out9=%lx",
-+				 opcode, ret,
-+				 arg1, arg2, arg3, arg4,
-+				 arg5, arg6, arg7, arg8,
-+				 arg9,
-+				 *out1, *out2, *out3, *out4,
-+				 *out5, *out6, *out7, *out8,
-+				 *out9);
++		EDEB(9, "i=%x rnum=%x rpage=%lx", i, rnum, rpage);
 +
-+		EDEB_EX(7, "opcode=%lx ret=%lx out1=%lx out2=%lx out3=%lx "
-+			"out4=%lx out5=%lx out6=%lx out7=%lx out8=%lx out9=%lx",
-+			opcode, ret,*out1, *out2, *out3, *out4, *out5, *out6,
-+			*out7, *out8, *out9);
-+		return ret;
++		h_ret = hipz_h_register_rpage_mr(shca->ipz_hca_handle, e_mr,
++						 0, /* pagesize 4k */
++						 0, rpage, rnum);
 +
++		if (i == ((pginfo->num_4k + 512 - 1) / 512) - 1) {
++			/* check for 'registration complete'==H_SUCCESS */
++			/* and for 'page registered'==H_PAGE_REGISTERED */
++			if (h_ret != H_SUCCESS) {
++				EDEB_ERR(4, "last hipz_reg_rpage_mr failed, "
++					 "h_ret=%lx e_mr=%p i=%x hca_hndl=%lx "
++					 "mr_hndl=%lx lkey=%x", h_ret, e_mr, i,
++					 shca->ipz_hca_handle.handle,
++					 e_mr->ipz_mr_handle.handle,
++					 e_mr->ib.ib_mr.lkey);
++				ret = ehca_mrmw_map_hrc_rrpg_last(h_ret);
++				break;
++			} else
++				ret = 0;
++		} else if (h_ret != H_PAGE_REGISTERED) {
++			EDEB_ERR(4, "hipz_reg_rpage_mr failed, h_ret=%lx "
++				 "e_mr=%p i=%x lkey=%x hca_hndl=%lx "
++				 "mr_hndl=%lx", h_ret, e_mr, i,
++				 e_mr->ib.ib_mr.lkey,
++				 shca->ipz_hca_handle.handle,
++				 e_mr->ipz_mr_handle.handle);
++			ret = ehca_mrmw_map_hrc_rrpg_notlast(h_ret);
++			break;
++		} else
++			ret = 0;
++	} /* end for(i) */
++
++
++ehca_reg_mr_rpages_exit1:
++	kfree(kpage);
++ehca_reg_mr_rpages_exit0:
++	if (ret)
++		EDEB_EX(4, "ret=%x shca=%p e_mr=%p pginfo=%p num_pages=%lx "
++			"num_4k=%lx", ret, shca, e_mr, pginfo,
++			pginfo->num_pages, pginfo->num_4k);
++	else
++		EDEB_EX(7, "ret=%x", ret);
++	return ret;
++} /* end ehca_reg_mr_rpages() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++inline int ehca_rereg_mr_rereg1(struct ehca_shca *shca,
++				struct ehca_mr *e_mr,
++				u64 *iova_start,
++				u64 size,
++				u32 acl,
++				struct ehca_pd *e_pd,
++				struct ehca_mr_pginfo *pginfo,
++				u32 *lkey, /*OUT*/
++				u32 *rkey) /*OUT*/
++{
++	int ret = 0;
++	u64 h_ret = H_SUCCESS;
++	u32 hipz_acl = 0;
++	u64 *kpage = NULL;
++	u64 rpage = 0;
++	struct ehca_mr_pginfo pginfo_save;
++	struct ehca_mr_hipzout_parms hipzout = {{0},0,0,0,0,0};
++
++	EDEB_EN(7, "shca=%p e_mr=%p iova_start=%p size=%lx acl=%x "
++		"e_pd=%p pginfo=%p num_pages=%lx num_4k=%lx", shca, e_mr,
++		iova_start, size, acl, e_pd, pginfo, pginfo->num_pages,
++		pginfo->num_4k);
++
++	ehca_mrmw_map_acl(acl, &hipz_acl);
++	ehca_mrmw_set_pgsize_hipz_acl(&hipz_acl);
++
++	kpage = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
++	if (!kpage) {
++		EDEB_ERR(4, "kpage alloc failed");
++		ret = -ENOMEM;
++		goto ehca_rereg_mr_rereg1_exit0;
 +	}
 +
-+	EDEB_EX(7, "opcode=%lx ret=H_BUSY", opcode);
-+	return H_BUSY;
-+}
-+
-+u64 hipz_h_alloc_resource_eq(const struct ipz_adapter_handle adapter_handle,
-+			     struct ehca_pfeq *pfeq,
-+			     const u32 neq_control,
-+			     const u32 number_of_entries,
-+			     struct ipz_eq_handle *eq_handle,
-+			     u32 * act_nr_of_entries,
-+			     u32 * act_pages,
-+			     u32 * eq_ist)
-+{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+	u64 act_nr_of_entries_out = 0;
-+	u64 act_pages_out         = 0;
-+	u64 eq_ist_out            = 0;
-+	u64 allocate_controls     = 0;
-+	u32 x = (u64)(&x);
-+
-+	EDEB_EN(7, "pfeq=%p adapter_handle=%lx  new_control=%x"
-+		" number_of_entries=%x",
-+		pfeq, adapter_handle.handle, neq_control,
-+		number_of_entries);
-+
-+	/* resource type */
-+	allocate_controls = 3ULL;
-+
-+	/* ISN is associated */
-+	if (neq_control != 1)
-+		allocate_controls = (1ULL << (63 - 7)) | allocate_controls;
-+	else /* notification event queue */
-+		allocate_controls = (1ULL << 63) | allocate_controls;
-+
-+	ret = ehca_hcall_7arg_7ret(H_ALLOC_RESOURCE,
-+				   adapter_handle.handle,  /* r4 */
-+				   allocate_controls,      /* r5 */
-+				   number_of_entries,      /* r6 */
-+				   0, 0, 0, 0,
-+				   &eq_handle->handle,     /* r4 */
-+				   &dummy,	           /* r5 */
-+				   &dummy,	           /* r6 */
-+				   &act_nr_of_entries_out, /* r7 */
-+				   &act_pages_out,	   /* r8 */
-+				   &eq_ist_out,            /* r8 */
-+				   &dummy);
-+
-+	*act_nr_of_entries = (u32)act_nr_of_entries_out;
-+	*act_pages         = (u32)act_pages_out;
-+	*eq_ist            = (u32)eq_ist_out;
-+
-+	if (ret == H_NOT_ENOUGH_RESOURCES)
-+		EDEB_ERR(4, "Not enough resource - ret=%lx ", ret);
-+
-+	EDEB_EX(7, "act_nr_of_entries=%x act_pages=%x eq_ist=%x",
-+		*act_nr_of_entries, *act_pages, *eq_ist);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_reset_event(const struct ipz_adapter_handle adapter_handle,
-+		       struct ipz_eq_handle eq_handle,
-+		       const u64 event_mask)
-+{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+
-+	EDEB_EN(7, "eq_handle=%lx, adapter_handle=%lx  event_mask=%lx",
-+		eq_handle.handle, adapter_handle.handle, event_mask);
-+
-+	ret = ehca_hcall_7arg_7ret(H_RESET_EVENTS,
-+				   adapter_handle.handle, /* r4 */
-+				   eq_handle.handle,      /* r5 */
-+				   event_mask,	          /* r6 */
-+				   0, 0, 0, 0,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
-+
-+	EDEB(7, "ret=%lx", ret);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_alloc_resource_cq(const struct ipz_adapter_handle adapter_handle,
-+			     struct ehca_cq *cq,
-+			     struct ehca_alloc_cq_parms *param)
-+{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+	u64 act_nr_of_entries_out;
-+	u64 act_pages_out;
-+	u64 g_la_privileged_out;
-+	u64 g_la_user_out;
-+
-+	EDEB_EN(7, "Adapter_handle=%lx eq_handle=%lx cq_token=%x"
-+		" cq_number_of_entries=%x",
-+		adapter_handle.handle, param->eq_handle.handle,
-+		cq->token, param->nr_cqe);
-+
-+	ret = ehca_hcall_7arg_7ret(H_ALLOC_RESOURCE,
-+				   adapter_handle.handle,     /* r4  */
-+				   2,	                      /* r5  */
-+				   param->eq_handle.handle,   /* r6  */
-+				   cq->token,	              /* r7  */
-+				   param->nr_cqe,             /* r8  */
-+				   0, 0,
-+				   &cq->ipz_cq_handle.handle, /* r4  */
-+				   &dummy,	              /* r5  */
-+				   &dummy,	              /* r6  */
-+				   &act_nr_of_entries_out,    /* r7  */
-+				   &act_pages_out,	      /* r8  */
-+				   &g_la_privileged_out,      /* r9  */
-+				   &g_la_user_out);           /* r10 */
-+
-+	param->act_nr_of_entries = (u32)act_nr_of_entries_out;
-+	param->act_pages = (u32)act_pages_out;
-+
-+	if (ret == H_SUCCESS)
-+		hcp_galpas_ctor(&cq->galpas, g_la_privileged_out, g_la_user_out);
-+
-+	if (ret == H_NOT_ENOUGH_RESOURCES)
-+		EDEB_ERR(4, "Not enough resources. ret=%lx", ret);
-+
-+	EDEB_EX(7, "cq_handle=%lx act_nr_of_entries=%x act_pages=%x",
-+		cq->ipz_cq_handle.handle, param->act_nr_of_entries, param->act_pages);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_alloc_resource_qp(const struct ipz_adapter_handle adapter_handle,
-+			     struct ehca_qp *qp,
-+			     struct ehca_alloc_qp_parms *parms)
-+{
-+	u64 ret = H_SUCCESS;
-+	u64 allocate_controls;
-+	u64 max_r10_reg;
-+	u64 dummy         = 0;
-+	u64 qp_nr_out     = 0;
-+	u64 r6_out        = 0;
-+	u64 r7_out        = 0;
-+	u64 r8_out        = 0;
-+	u64 g_la_user_out = 0;
-+	u64 r11_out       = 0;
-+	u16 max_nr_receive_wqes = qp->init_attr.cap.max_recv_wr + 1;
-+	u16 max_nr_send_wqes = qp->init_attr.cap.max_send_wr + 1;
-+	int daqp_ctrl = parms->daqp_ctrl;
-+
-+	EDEB_EN(7, "Adapter_handle=%lx servicetype=%x signalingtype=%x"
-+		" ud_av_l_key=%x send_cq_handle=%lx receive_cq_handle=%lx"
-+		" async_eq_handle=%lx qp_token=%x pd=%x max_nr_send_wqes=%x"
-+		" max_nr_receive_wqes=%x max_nr_send_sges=%x"
-+		" max_nr_receive_sges=%x ud_av_l_key=%x galpa.pid=%x",
-+		adapter_handle.handle, parms->servicetype, parms->sigtype,
-+		parms->ud_av_l_key_ctl, qp->send_cq->ipz_cq_handle.handle,
-+		qp->recv_cq->ipz_cq_handle.handle, parms->ipz_eq_handle.handle,
-+		qp->token, parms->pd.value, max_nr_send_wqes,
-+		max_nr_receive_wqes, parms->max_send_sge, parms->max_recv_sge,
-+		parms->ud_av_l_key_ctl, qp->galpas.pid);
-+
-+	allocate_controls =
-+		EHCA_BMASK_SET(H_ALL_RES_QP_ENHANCED_OPS,
-+			       (daqp_ctrl & DAQP_CTRL_ENABLE) ? 1 : 0)
-+		| EHCA_BMASK_SET(H_ALL_RES_QP_PTE_PIN, 0)
-+		| EHCA_BMASK_SET(H_ALL_RES_QP_SERVICE_TYPE, parms->servicetype)
-+		| EHCA_BMASK_SET(H_ALL_RES_QP_SIGNALING_TYPE, parms->sigtype)
-+		| EHCA_BMASK_SET(H_ALL_RES_QP_LL_RQ_CQE_POSTING,
-+				 (daqp_ctrl & DAQP_CTRL_RECV_COMP) ? 1 : 0)
-+		| EHCA_BMASK_SET(H_ALL_RES_QP_LL_SQ_CQE_POSTING,
-+				 (daqp_ctrl & DAQP_CTRL_SEND_COMP) ? 1 : 0)
-+		| EHCA_BMASK_SET(H_ALL_RES_QP_UD_AV_LKEY_CTRL,
-+				 parms->ud_av_l_key_ctl)
-+		| EHCA_BMASK_SET(H_ALL_RES_QP_RESOURCE_TYPE, 1);
-+
-+	max_r10_reg =
-+		EHCA_BMASK_SET(H_ALL_RES_QP_MAX_OUTST_SEND_WR,
-+			       max_nr_send_wqes)
-+		| EHCA_BMASK_SET(H_ALL_RES_QP_MAX_OUTST_RECV_WR,
-+				 max_nr_receive_wqes)
-+		| EHCA_BMASK_SET(H_ALL_RES_QP_MAX_SEND_SGE,
-+				 parms->max_send_sge)
-+		| EHCA_BMASK_SET(H_ALL_RES_QP_MAX_RECV_SGE,
-+				 parms->max_recv_sge);
-+
-+
-+	ret = ehca_hcall_9arg_9ret(H_ALLOC_RESOURCE,
-+				   adapter_handle.handle,	      /* r4  */
-+				   allocate_controls,	              /* r5  */
-+				   qp->send_cq->ipz_cq_handle.handle,
-+				   qp->recv_cq->ipz_cq_handle.handle,
-+				   parms->ipz_eq_handle.handle,
-+				   ((u64)qp->token << 32) | parms->pd.value,
-+				   max_r10_reg,	                      /* r10 */
-+				   parms->ud_av_l_key_ctl,            /* r11 */
-+				   0,
-+				   &qp->ipz_qp_handle.handle,
-+				   &qp_nr_out,	                      /* r5  */
-+				   &r6_out,	                      /* r6  */
-+				   &r7_out,	                      /* r7  */
-+				   &r8_out,	                      /* r8  */
-+				   &dummy,	                      /* r9  */
-+				   &g_la_user_out,	              /* r10 */
-+				   &r11_out,
-+				   &dummy);
-+
-+	/* extract outputs */
-+	qp->real_qp_num = (u32)qp_nr_out;
-+
-+	parms->act_nr_send_sges =
-+		(u16)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_OUTST_SEND_WR, r6_out);
-+	parms->act_nr_recv_wqes =
-+		(u16)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_OUTST_RECV_WR, r6_out);
-+	parms->act_nr_send_sges =
-+		(u8)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_SEND_SGE, r7_out);
-+	parms->act_nr_recv_sges =
-+		(u8)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_RECV_SGE, r7_out);
-+	parms->nr_sq_pages =
-+		(u32)EHCA_BMASK_GET(H_ALL_RES_QP_SQUEUE_SIZE_PAGES, r8_out);
-+	parms->nr_rq_pages =
-+		(u32)EHCA_BMASK_GET(H_ALL_RES_QP_RQUEUE_SIZE_PAGES, r8_out);
-+
-+	if (ret == H_SUCCESS)
-+		hcp_galpas_ctor(&qp->galpas, g_la_user_out, g_la_user_out);
-+
-+	if (ret == H_NOT_ENOUGH_RESOURCES)
-+		EDEB_ERR(4, "Not enough resources. ret=%lx",ret);
-+
-+	EDEB_EX(7, "qp_nr=%x act_nr_send_wqes=%x"
-+		" act_nr_receive_wqes=%x act_nr_send_sges=%x"
-+		" act_nr_receive_sges=%x nr_sq_pages=%x"
-+		" nr_rq_pages=%x galpa.user=%lx galpa.kernel=%lx",
-+		qp->real_qp_num, parms->act_nr_send_wqes,
-+		parms->act_nr_recv_wqes, parms->act_nr_send_sges,
-+		parms->act_nr_recv_sges, parms->nr_sq_pages,
-+		parms->nr_rq_pages, qp->galpas.user.fw_handle,
-+		qp->galpas.kernel.fw_handle);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_query_port(const struct ipz_adapter_handle adapter_handle,
-+		      const u8 port_id,
-+		      struct hipz_query_port *query_port_response_block)
-+{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+	u64 r_cb;
-+
-+	EDEB_EN(7, "adapter_handle=%lx port_id %x",
-+		adapter_handle.handle, port_id);
-+
-+	if (((u64)query_port_response_block) & 0xfff) {
-+		EDEB_ERR(4, "response block not page aligned");
-+		ret = H_PARAMETER;
-+		return ret;
-+	}
-+
-+	r_cb = virt_to_abs(query_port_response_block);
-+
-+	ret = ehca_hcall_7arg_7ret(H_QUERY_PORT,
-+				   adapter_handle.handle, /* r4 */
-+				   port_id,	          /* r5 */
-+				   r_cb,	          /* r6 */
-+				   0, 0, 0, 0,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
-+
-+	EDEB_DMP(7, query_port_response_block, 64, "query_port_response_block");
-+	EDEB(7, "offset31=%x offset35=%x offset36=%x",
-+	     ((u32*)query_port_response_block)[32],
-+	     ((u32*)query_port_response_block)[36],
-+	     ((u32*)query_port_response_block)[37]);
-+	EDEB(7, "offset200=%x offset201=%x offset202=%x "
-+	     "offset203=%x",
-+	     ((u32*)query_port_response_block)[0x200],
-+	     ((u32*)query_port_response_block)[0x201],
-+	     ((u32*)query_port_response_block)[0x202],
-+	     ((u32*)query_port_response_block)[0x203]);
-+
-+	EDEB_EX(7, "ret=%lx", ret);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_query_hca(const struct ipz_adapter_handle adapter_handle,
-+		     struct hipz_query_hca *query_hca_rblock)
-+{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+	u64 r_cb;
-+	EDEB_EN(7, "adapter_handle=%lx", adapter_handle.handle);
-+
-+	if (((u64)query_hca_rblock) & 0xfff) {
-+		EDEB_ERR(4, "response block not page aligned");
-+		ret = H_PARAMETER;
-+		return ret;
-+	}
-+
-+	r_cb = virt_to_abs(query_hca_rblock);
-+
-+	ret = ehca_hcall_7arg_7ret(H_QUERY_HCA,
-+				   adapter_handle.handle, /* r4 */
-+				   r_cb,                  /* r5 */
-+				   0, 0, 0, 0, 0,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
-+
-+	EDEB(7, "offset0=%x offset1=%x offset2=%x offset3=%x",
-+	     ((u32*)query_hca_rblock)[0],
-+	     ((u32*)query_hca_rblock)[1],
-+	     ((u32*)query_hca_rblock)[2], ((u32*)query_hca_rblock)[3]);
-+	EDEB(7, "offset4=%x offset5=%x offset6=%x offset7=%x",
-+	     ((u32*)query_hca_rblock)[4],
-+	     ((u32*)query_hca_rblock)[5],
-+	     ((u32*)query_hca_rblock)[6], ((u32*)query_hca_rblock)[7]);
-+	EDEB(7, "offset8=%x offset9=%x offseta=%x offsetb=%x",
-+	     ((u32*)query_hca_rblock)[8],
-+	     ((u32*)query_hca_rblock)[9],
-+	     ((u32*)query_hca_rblock)[10], ((u32*)query_hca_rblock)[11]);
-+	EDEB(7, "offsetc=%x offsetd=%x offsete=%x offsetf=%x",
-+	     ((u32*)query_hca_rblock)[12],
-+	     ((u32*)query_hca_rblock)[13],
-+	     ((u32*)query_hca_rblock)[14], ((u32*)query_hca_rblock)[15]);
-+	EDEB(7, "offset136=%x offset192=%x offset204=%x",
-+	     ((u32*)query_hca_rblock)[32],
-+	     ((u32*)query_hca_rblock)[48], ((u32*)query_hca_rblock)[51]);
-+	EDEB(7, "offset231=%x offset235=%x",
-+	     ((u32*)query_hca_rblock)[57], ((u32*)query_hca_rblock)[58]);
-+	EDEB(7, "offset200=%x offset201=%x offset202=%x offset203=%x",
-+	     ((u32*)query_hca_rblock)[0x201],
-+	     ((u32*)query_hca_rblock)[0x202],
-+	     ((u32*)query_hca_rblock)[0x203],
-+	     ((u32*)query_hca_rblock)[0x204]);
-+
-+	EDEB_EX(7, "ret=%lx adapter_handle=%lx",
-+		ret, adapter_handle.handle);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_register_rpage(const struct ipz_adapter_handle adapter_handle,
-+			  const u8 pagesize,
-+			  const u8 queue_type,
-+			  const u64 resource_handle,
-+			  const u64 logical_address_of_page,
-+			  u64 count)
-+{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+
-+	EDEB_EN(7, "adapter_handle=%lx pagesize=%x queue_type=%x"
-+		" resource_handle=%lx logical_address_of_page=%lx count=%lx",
-+		adapter_handle.handle, pagesize, queue_type,
-+		resource_handle, logical_address_of_page, count);
-+
-+	ret = ehca_hcall_7arg_7ret(H_REGISTER_RPAGES,
-+				   adapter_handle.handle,      /* r4  */
-+				   queue_type | pagesize << 8, /* r5  */
-+				   resource_handle,	       /* r6  */
-+				   logical_address_of_page,    /* r7  */
-+				   count,	               /* r8  */
-+				   0, 0,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
-+
-+	EDEB_EX(7, "ret=%lx", ret);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_register_rpage_eq(const struct ipz_adapter_handle adapter_handle,
-+			     const struct ipz_eq_handle eq_handle,
-+			     struct ehca_pfeq *pfeq,
-+			     const u8 pagesize,
-+			     const u8 queue_type,
-+			     const u64 logical_address_of_page,
-+			     const u64 count)
-+{
-+	u64 ret = H_SUCCESS;
-+
-+	EDEB_EN(7, "pfeq=%p adapter_handle=%lx eq_handle=%lx pagesize=%x"
-+		" queue_type=%x logical_address_of_page=%lx count=%lx",
-+		pfeq, adapter_handle.handle, eq_handle.handle, pagesize,
-+		queue_type,logical_address_of_page, count);
-+
-+	if (count != 1) {
-+		EDEB_ERR(4, "Ppage counter=%lx", count);
-+		return H_PARAMETER;
-+	}
-+	ret = hipz_h_register_rpage(adapter_handle,
-+				    pagesize,
-+				    queue_type,
-+				    eq_handle.handle,
-+				    logical_address_of_page, count);
-+	EDEB_EX(7, "ret=%lx", ret);
-+
-+	return ret;
-+}
-+
-+u32 hipz_h_query_int_state(const struct ipz_adapter_handle adapter_handle,
-+			   u32 ist)
-+{
-+	u32 ret = H_SUCCESS;
-+	u64 dummy = 0;
-+
-+	EDEB_EN(7, "ist=%x", ist);
-+
-+	ret = ehca_hcall_7arg_7ret(H_QUERY_INT_STATE,
-+				   adapter_handle.handle, /* r4 */
-+				   ist,                   /* r5 */
-+				   0, 0, 0, 0, 0,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
-+
-+	if (ret != H_SUCCESS && ret != H_BUSY)
-+		EDEB_ERR(4, "Could not query interrupt state.");
-+
-+	EDEB_EX(7, "interrupt state: %x", ret);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_register_rpage_cq(const struct ipz_adapter_handle adapter_handle,
-+			     const struct ipz_cq_handle cq_handle,
-+			     struct ehca_pfcq *pfcq,
-+			     const u8 pagesize,
-+			     const u8 queue_type,
-+			     const u64 logical_address_of_page,
-+			     const u64 count,
-+			     const struct h_galpa gal)
-+{
-+	u64 ret = H_SUCCESS;
-+
-+	EDEB_EN(7, "pfcq=%p adapter_handle=%lx cq_handle=%lx pagesize=%x"
-+		" queue_type=%x logical_address_of_page=%lx count=%lx",
-+		pfcq, adapter_handle.handle, cq_handle.handle, pagesize,
-+		queue_type, logical_address_of_page, count);
-+
-+	if (count != 1) {
-+		EDEB_ERR(4, "Page counter=%lx", count);
-+		return H_PARAMETER;
-+	}
-+
-+	ret = hipz_h_register_rpage(adapter_handle, pagesize, queue_type,
-+				    cq_handle.handle, logical_address_of_page,
-+				    count);
-+	EDEB_EX(7, "ret=%lx", ret);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_register_rpage_qp(const struct ipz_adapter_handle adapter_handle,
-+			     const struct ipz_qp_handle qp_handle,
-+			     struct ehca_pfqp *pfqp,
-+			     const u8 pagesize,
-+			     const u8 queue_type,
-+			     const u64 logical_address_of_page,
-+			     const u64 count,
-+			     const struct h_galpa galpa)
-+{
-+	u64 ret = H_SUCCESS;
-+
-+	EDEB_EN(7, "pfqp=%p adapter_handle=%lx qp_handle=%lx pagesize=%x"
-+		" queue_type=%x logical_address_of_page=%lx count=%lx",
-+		pfqp, adapter_handle.handle, qp_handle.handle, pagesize,
-+		queue_type, logical_address_of_page, count);
-+
-+	if (count != 1) {
-+		EDEB_ERR(4, "Page counter=%lx", count);
-+		return H_PARAMETER;
-+	}
-+
-+	ret = hipz_h_register_rpage(adapter_handle,pagesize,queue_type,
-+				    qp_handle.handle,logical_address_of_page,
-+				    count);
-+	EDEB_EX(7, "ret=%lx", ret);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_disable_and_get_wqe(const struct ipz_adapter_handle adapter_handle,
-+			       const struct ipz_qp_handle qp_handle,
-+			       struct ehca_pfqp *pfqp,
-+			       void **log_addr_next_sq_wqe2processed,
-+			       void **log_addr_next_rq_wqe2processed,
-+			       int dis_and_get_function_code)
-+{
-+	u64 ret = H_SUCCESS;
-+	u8 function_code = 1;
-+	u64 dummy, dummy1, dummy2;
-+
-+	EDEB_EN(7, "pfqp=%p adapter_handle=%lx function=%x qp_handle=%lx",
-+		pfqp, adapter_handle.handle, function_code, qp_handle.handle);
-+
-+	if (!log_addr_next_sq_wqe2processed)
-+		log_addr_next_sq_wqe2processed = (void**)&dummy1;
-+	if (!log_addr_next_rq_wqe2processed)
-+		log_addr_next_rq_wqe2processed = (void**)&dummy2;
-+
-+	ret = ehca_hcall_7arg_7ret(H_DISABLE_AND_GETC,
-+				   adapter_handle.handle,     /* r4 */
-+				   dis_and_get_function_code, /* r5 */
-+				   qp_handle.handle,	      /* r6 */
-+				   0, 0, 0, 0,
-+				   (void*)log_addr_next_sq_wqe2processed,
-+				   (void*)log_addr_next_rq_wqe2processed,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
-+	EDEB_EX(7, "ret=%lx ladr_next_rq_wqe_out=%p"
-+		" ladr_next_sq_wqe_out=%p", ret,
-+		*log_addr_next_sq_wqe2processed,
-+		*log_addr_next_rq_wqe2processed);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_modify_qp(const struct ipz_adapter_handle adapter_handle,
-+		     const struct ipz_qp_handle qp_handle,
-+		     struct ehca_pfqp *pfqp,
-+		     const u64 update_mask,
-+		     struct hcp_modify_qp_control_block *mqpcb,
-+		     struct h_galpa gal)
-+{
-+	u64 ret = H_SUCCESS;
-+	u64 invalid_attribute_identifier = 0;
-+	u64 rc_attrib_mask = 0;
-+	u64 dummy;
-+	u64 r_cb;
-+	EDEB_EN(7, "pfqp=%p adapter_handle=%lx qp_handle=%lx"
-+		" update_mask=%lx qp_state=%x mqpcb=%p",
-+		pfqp, adapter_handle.handle, qp_handle.handle,
-+		update_mask, mqpcb->qp_state, mqpcb);
-+
-+	r_cb = virt_to_abs(mqpcb);
-+	ret = ehca_hcall_7arg_7ret(H_MODIFY_QP,
-+				   adapter_handle.handle,         /* r4 */
-+				   qp_handle.handle,	          /* r5 */
-+				   update_mask,	                  /* r6 */
-+				   r_cb,	                  /* r7 */
-+				   0, 0, 0,
-+				   &invalid_attribute_identifier, /* r4 */
-+				   &dummy,	                  /* r5 */
-+				   &dummy,	                  /* r6 */
-+				   &dummy,                        /* r7 */
-+				   &dummy,	                  /* r8 */
-+				   &rc_attrib_mask,               /* r9 */
-+				   &dummy);
-+	if (ret == H_NOT_ENOUGH_RESOURCES)
-+		EDEB_ERR(4, "Insufficient resources ret=%lx", ret);
-+
-+	EDEB_EX(7, "ret=%lx invalid_attribute_identifier=%lx"
-+		" invalid_attribute_MASK=%lx", ret,
-+		invalid_attribute_identifier, rc_attrib_mask);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_query_qp(const struct ipz_adapter_handle adapter_handle,
-+		    const struct ipz_qp_handle qp_handle,
-+		    struct ehca_pfqp *pfqp,
-+		    struct hcp_modify_qp_control_block *qqpcb,
-+		    struct h_galpa gal)
-+{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+	u64 r_cb;
-+	EDEB_EN(7, "adapter_handle=%lx qp_handle=%lx",
-+		adapter_handle.handle, qp_handle.handle);
-+
-+	r_cb = virt_to_abs(qqpcb);
-+	EDEB(7, "r_cb=%lx", r_cb);
-+
-+	ret = ehca_hcall_7arg_7ret(H_QUERY_QP,
-+				   adapter_handle.handle, /* r4 */
-+				   qp_handle.handle,      /* r5 */
-+				   r_cb,	          /* r6 */
-+				   0, 0, 0, 0,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
-+
-+	EDEB_EX(7, "ret=%lx", ret);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_destroy_qp(const struct ipz_adapter_handle adapter_handle,
-+		      struct ehca_qp *qp)
-+{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+	u64 ladr_next_sq_wqe_out;
-+	u64 ladr_next_rq_wqe_out;
-+
-+	EDEB_EN(7, "qp=%p ipz_qp_handle=%lx adapter_handle=%lx",
-+		qp, qp->ipz_qp_handle.handle, adapter_handle.handle);
-+
-+	ret = hcp_galpas_dtor(&qp->galpas);
++	pginfo_save = *pginfo;
++	ret = ehca_set_pagebuf(e_mr, pginfo, pginfo->num_4k, kpage);
 +	if (ret) {
-+		EDEB_ERR(4, "Could not destruct qp->galpas");
-+		return H_RESOURCE;
++		EDEB_ERR(4, "set pagebuf failed, e_mr=%p pginfo=%p type=%x "
++			 "num_pages=%lx num_4k=%lx kpage=%p", e_mr, pginfo,
++			 pginfo->type, pginfo->num_pages, pginfo->num_4k,kpage);
++		goto ehca_rereg_mr_rereg1_exit1;
 +	}
-+	ret = ehca_hcall_7arg_7ret(H_DISABLE_AND_GETC,
-+				   adapter_handle.handle,     /* r4 */
-+				   /* function code */
-+				   1,	                      /* r5 */
-+				   qp->ipz_qp_handle.handle,  /* r6 */
-+				   0, 0, 0, 0,
-+				   &ladr_next_sq_wqe_out,     /* r4 */
-+				   &ladr_next_rq_wqe_out,     /* r5 */
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
-+	if (ret == H_HARDWARE)
-+		EDEB_ERR(4, "HCA not operational. ret=%lx", ret);
++	rpage = virt_to_abs(kpage);
++	if (!rpage) {
++		EDEB_ERR(4, "kpage=%p", kpage);
++		ret = -EFAULT;
++		goto ehca_rereg_mr_rereg1_exit1;
++	}
++	h_ret = hipz_h_reregister_pmr(shca->ipz_hca_handle, e_mr,
++				      (u64)iova_start, size, hipz_acl,
++				      e_pd->fw_pd, rpage, &hipzout);
++	if (h_ret != H_SUCCESS) {
++		/* reregistration unsuccessful,                 */
++		/* try it again with the 3 hCalls,              */
++		/* e.g. this is required in case H_MR_CONDITION */
++		/* (MW bound or MR is shared)                   */
++		EDEB(6, "hipz_h_reregister_pmr failed (Rereg1), h_ret=%lx "
++		     "e_mr=%p", h_ret, e_mr);
++		*pginfo = pginfo_save;
++		ret = -EAGAIN;
++	} else if ((u64*)hipzout.vaddr != iova_start) {
++		EDEB_ERR(4, "PHYP changed iova_start in rereg_pmr, "
++			 "iova_start=%p iova_start_out=%lx e_mr=%p "
++			 "mr_handle=%lx lkey=%x lkey_out=%x", iova_start,
++			 hipzout.vaddr, e_mr, e_mr->ipz_mr_handle.handle,
++			 e_mr->ib.ib_mr.lkey, hipzout.lkey);
++		ret = -EFAULT;
++	} else {
++		/* successful reregistration */
++		/* note: start and start_out are identical for eServer HCAs */
++		e_mr->num_pages = pginfo->num_pages;
++		e_mr->num_4k    = pginfo->num_4k;
++		e_mr->start     = iova_start;
++		e_mr->size      = size;
++		e_mr->acl       = acl;
++		*lkey = hipzout.lkey;
++		*rkey = hipzout.rkey;
++	}
 +
-+	ret = ehca_hcall_7arg_7ret(H_FREE_RESOURCE,
-+				   adapter_handle.handle,     /* r4 */
-+				   qp->ipz_qp_handle.handle,  /* r5 */
-+				   0, 0, 0, 0, 0,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
++ehca_rereg_mr_rereg1_exit1:
++	kfree(kpage);
++ehca_rereg_mr_rereg1_exit0:
++	if ( ret && (ret != -EAGAIN) )
++		EDEB_EX(4, "ret=%x h_ret=%lx lkey=%x rkey=%x pginfo=%p "
++			"num_pages=%lx num_4k=%lx", ret, h_ret, *lkey, *rkey,
++			pginfo, pginfo->num_pages, pginfo->num_4k);
++	else
++		EDEB_EX(7, "ret=%x h_ret=%lx lkey=%x rkey=%x pginfo=%p "
++			"num_pages=%lx num_4k=%lx", ret, h_ret, *lkey, *rkey,
++			pginfo, pginfo->num_pages, pginfo->num_4k);
++	return ret;
++} /* end ehca_rereg_mr_rereg1() */
 +
-+	if (ret == H_RESOURCE)
-+		EDEB_ERR(4, "Resource still in use. ret=%lx", ret);
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
 +
-+	EDEB_EX(7, "ret=%lx", ret);
++int ehca_rereg_mr(struct ehca_shca *shca,
++		  struct ehca_mr *e_mr,
++		  u64 *iova_start,
++		  u64 size,
++		  int acl,
++		  struct ehca_pd *e_pd,
++		  struct ehca_mr_pginfo *pginfo,
++		  u32 *lkey,
++		  u32 *rkey)
++{
++	int ret = 0;
++	u64 h_ret = H_SUCCESS;
++	int rereg_1_hcall = 1; /* 1: use hipz_h_reregister_pmr directly */
++	int rereg_3_hcall = 0; /* 1: use 3 hipz calls for reregistration */
++
++	EDEB_EN(7, "shca=%p e_mr=%p iova_start=%p size=%lx acl=%x "
++		"e_pd=%p pginfo=%p num_pages=%lx num_4k=%lx", shca, e_mr,
++		iova_start, size, acl, e_pd, pginfo, pginfo->num_pages,
++		pginfo->num_4k);
++
++	/* first determine reregistration hCall(s) */
++	if ((pginfo->num_4k > 512) || (e_mr->num_4k > 512) ||
++	    (pginfo->num_4k > e_mr->num_4k)) {
++		EDEB(7, "Rereg3 case, pginfo->num_4k=%lx "
++		     "e_mr->num_4k=%x", pginfo->num_4k, e_mr->num_4k);
++		rereg_1_hcall = 0;
++		rereg_3_hcall = 1;
++	}
++
++	if (e_mr->flags & EHCA_MR_FLAG_MAXMR) {	/* check for max-MR */
++		rereg_1_hcall = 0;
++		rereg_3_hcall = 1;
++		e_mr->flags &= ~EHCA_MR_FLAG_MAXMR;
++		EDEB(4, "Rereg MR for max-MR! e_mr=%p", e_mr);
++	}
++
++	if (rereg_1_hcall) {
++		ret = ehca_rereg_mr_rereg1(shca, e_mr, iova_start, size,
++					   acl, e_pd, pginfo, lkey, rkey);
++		if (ret) {
++			if (ret == -EAGAIN)
++				rereg_3_hcall = 1;
++			else
++				goto ehca_rereg_mr_exit0;
++		}
++	}
++
++	if (rereg_3_hcall) {
++		struct ehca_mr save_mr;
++
++		/* first deregister old MR */
++		h_ret = hipz_h_free_resource_mr(shca->ipz_hca_handle, e_mr);
++		if (h_ret != H_SUCCESS) {
++			EDEB_ERR(4, "hipz_free_mr failed, h_ret=%lx e_mr=%p "
++				 "hca_hndl=%lx mr_hndl=%lx mr->lkey=%x",
++				 h_ret, e_mr, shca->ipz_hca_handle.handle,
++				 e_mr->ipz_mr_handle.handle,
++				 e_mr->ib.ib_mr.lkey);
++			ret = ehca_mrmw_map_hrc_free_mr(h_ret);
++			goto ehca_rereg_mr_exit0;
++		}
++		/* clean ehca_mr_t, without changing struct ib_mr and lock */
++		save_mr = *e_mr;
++		ehca_mr_deletenew(e_mr);
++
++		/* set some MR values */
++		e_mr->flags = save_mr.flags;
++		e_mr->fmr_page_size = save_mr.fmr_page_size;
++		e_mr->fmr_max_pages = save_mr.fmr_max_pages;
++		e_mr->fmr_max_maps = save_mr.fmr_max_maps;
++		e_mr->fmr_map_cnt = save_mr.fmr_map_cnt;
++
++		ret = ehca_reg_mr(shca, e_mr, iova_start, size, acl,
++				      e_pd, pginfo, lkey, rkey);
++		if (ret) {
++			u32 offset = (u64)(&e_mr->flags) - (u64)e_mr;
++			memcpy(&e_mr->flags, &(save_mr.flags),
++			       sizeof(struct ehca_mr) - offset);
++			goto ehca_rereg_mr_exit0;
++		}
++	}
++
++ehca_rereg_mr_exit0:
++	if (ret)
++		EDEB_EX(4, "ret=%x shca=%p e_mr=%p iova_start=%p size=%lx "
++			"acl=%x e_pd=%p pginfo=%p num_pages=%lx lkey=%x rkey=%x"
++			" rereg_1_hcall=%x rereg_3_hcall=%x", ret, shca, e_mr,
++			iova_start, size, acl, e_pd, pginfo, pginfo->num_pages,
++			*lkey, *rkey, rereg_1_hcall, rereg_3_hcall);
++	else
++		EDEB_EX(7, "ret=%x shca=%p e_mr=%p iova_start=%p size=%lx "
++			"acl=%x e_pd=%p pginfo=%p num_pages=%lx lkey=%x rkey=%x"
++			" rereg_1_hcall=%x rereg_3_hcall=%x", ret, shca, e_mr,
++			iova_start, size, acl, e_pd, pginfo, pginfo->num_pages,
++			*lkey, *rkey, rereg_1_hcall, rereg_3_hcall);
 +
 +	return ret;
-+}
++} /* end ehca_rereg_mr() */
 +
-+u64 hipz_h_define_aqp0(const struct ipz_adapter_handle adapter_handle,
-+		       const struct ipz_qp_handle qp_handle,
-+		       struct h_galpa gal,
-+		       u32 port)
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++int ehca_unmap_one_fmr(struct ehca_shca *shca,
++		       struct ehca_mr *e_fmr)
 +{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
++	int ret = 0;
++	u64 h_ret = H_SUCCESS;
++	int rereg_1_hcall = 1; /* 1: use hipz_mr_reregister directly */
++	int rereg_3_hcall = 0; /* 1: use 3 hipz calls for unmapping */
++	struct ehca_pd *e_pd = NULL;
++	struct ehca_mr save_fmr;
++	u32 tmp_lkey = 0;
++	u32 tmp_rkey = 0;
++	struct ehca_mr_pginfo pginfo={0,0,0,0,0,0,0,NULL,0,NULL,NULL,0,NULL,0};
++	struct ehca_mr_hipzout_parms hipzout = {{0},0,0,0,0,0};
 +
-+	EDEB_EN(7, "port=%x ipz_qp_handle=%lx adapter_handle=%lx",
-+		port, qp_handle.handle, adapter_handle.handle);
++	EDEB_EN(7, "shca=%p e_fmr=%p", shca, e_fmr);
 +
-+	ret = ehca_hcall_7arg_7ret(H_DEFINE_AQP0,
-+				   adapter_handle.handle, /* r4 */
-+				   qp_handle.handle,      /* r5 */
-+				   port,                  /* r6 */
-+				   0, 0, 0, 0,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
++	/* first check if reregistration hCall can be used for unmap */
++	if (e_fmr->fmr_max_pages > 512) {
++		rereg_1_hcall = 0;
++		rereg_3_hcall = 1;
++	}
 +
-+	EDEB_EX(7, "ret=%lx", ret);
++	e_pd = container_of(e_fmr->ib.ib_fmr.pd, struct ehca_pd, ib_pd);
 +
++	if (rereg_1_hcall) {
++		/* note: after using rereg hcall with len=0,            */
++		/* rereg hcall must be used again for registering pages */
++		h_ret = hipz_h_reregister_pmr(shca->ipz_hca_handle, e_fmr, 0,
++					      0, 0, e_pd->fw_pd, 0, &hipzout);
++		if (h_ret != H_SUCCESS) {
++			/* should not happen, because length checked above, */
++			/* FMRs are not shared and no MW bound to FMRs      */
++			EDEB_ERR(4, "hipz_reregister_pmr failed (Rereg1), "
++				 "h_ret=%lx e_fmr=%p hca_hndl=%lx mr_hndl=%lx "
++				 "lkey=%x lkey_out=%x", h_ret, e_fmr,
++				 shca->ipz_hca_handle.handle,
++				 e_fmr->ipz_mr_handle.handle,
++				 e_fmr->ib.ib_fmr.lkey, hipzout.lkey);
++			rereg_3_hcall = 1;
++		} else {
++			/* successful reregistration */
++			e_fmr->start = NULL;
++			e_fmr->size = 0;
++			tmp_lkey = hipzout.lkey;
++			tmp_rkey = hipzout.rkey;
++		}
++	}
++
++	if (rereg_3_hcall) {
++		struct ehca_mr save_mr;
++
++		/* first free old FMR */
++		h_ret = hipz_h_free_resource_mr(shca->ipz_hca_handle, e_fmr);
++		if (h_ret != H_SUCCESS) {
++			EDEB_ERR(4, "hipz_free_mr failed, h_ret=%lx e_fmr=%p "
++				 "hca_hndl=%lx mr_hndl=%lx lkey=%x", h_ret,
++				 e_fmr, shca->ipz_hca_handle.handle,
++				 e_fmr->ipz_mr_handle.handle,
++				 e_fmr->ib.ib_fmr.lkey);
++			ret = ehca_mrmw_map_hrc_free_mr(h_ret);
++			goto ehca_unmap_one_fmr_exit0;
++		}
++		/* clean ehca_mr_t, without changing lock */
++		save_fmr = *e_fmr;
++		ehca_mr_deletenew(e_fmr);
++
++		/* set some MR values */
++		e_fmr->flags = save_fmr.flags;
++		e_fmr->fmr_page_size = save_fmr.fmr_page_size;
++		e_fmr->fmr_max_pages = save_fmr.fmr_max_pages;
++		e_fmr->fmr_max_maps = save_fmr.fmr_max_maps;
++		e_fmr->fmr_map_cnt = save_fmr.fmr_map_cnt;
++		e_fmr->acl = save_fmr.acl;
++
++		pginfo.type      = EHCA_MR_PGI_FMR;
++		pginfo.num_pages = 0;
++		pginfo.num_4k    = 0;
++		ret = ehca_reg_mr(shca, e_fmr, NULL,
++				  (e_fmr->fmr_max_pages * e_fmr->fmr_page_size),
++				  e_fmr->acl, e_pd, &pginfo, &tmp_lkey,
++				  &tmp_rkey);
++		if (ret) {
++			u32 offset = (u64)(&e_fmr->flags) - (u64)e_fmr;
++			memcpy(&e_fmr->flags, &(save_mr.flags),
++			       sizeof(struct ehca_mr) - offset);
++			goto ehca_unmap_one_fmr_exit0;
++		}
++	}
++
++ehca_unmap_one_fmr_exit0:
++	EDEB_EX(7, "ret=%x tmp_lkey=%x tmp_rkey=%x fmr_max_pages=%x "
++		"rereg_1_hcall=%x rereg_3_hcall=%x", ret, tmp_lkey, tmp_rkey,
++		e_fmr->fmr_max_pages, rereg_1_hcall, rereg_3_hcall);
 +	return ret;
-+}
++} /* end ehca_unmap_one_fmr() */
 +
-+u64 hipz_h_define_aqp1(const struct ipz_adapter_handle adapter_handle,
-+		       const struct ipz_qp_handle qp_handle,
-+		       struct h_galpa gal,
-+		       u32 port, u32 * pma_qp_nr,
-+		       u32 * bma_qp_nr)
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++int ehca_reg_smr(struct ehca_shca *shca,
++		 struct ehca_mr *e_origmr,
++		 struct ehca_mr *e_newmr,
++		 u64 *iova_start,
++		 int acl,
++		 struct ehca_pd *e_pd,
++		 u32 *lkey, /*OUT*/
++		 u32 *rkey) /*OUT*/
 +{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+	u64 pma_qp_nr_out;
-+	u64 bma_qp_nr_out;
++	int ret = 0;
++	u64 h_ret = H_SUCCESS;
++	u32 hipz_acl = 0;
++	struct ehca_mr_hipzout_parms hipzout = {{0},0,0,0,0,0};
 +
-+	EDEB_EN(7, "port=%x qp_handle=%lx adapter_handle=%lx",
-+		port, qp_handle.handle, adapter_handle.handle);
++	EDEB_EN(7,"shca=%p e_origmr=%p e_newmr=%p iova_start=%p acl=%x e_pd=%p",
++		shca, e_origmr, e_newmr, iova_start, acl, e_pd);
 +
-+	ret = ehca_hcall_7arg_7ret(H_DEFINE_AQP1,
-+				   adapter_handle.handle, /* r4 */
-+				   qp_handle.handle,      /* r5 */
-+				   port,	          /* r6 */
-+				   0, 0, 0, 0,
-+				   &pma_qp_nr_out,        /* r4 */
-+				   &bma_qp_nr_out,        /* r5 */
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
++	ehca_mrmw_map_acl(acl, &hipz_acl);
++	ehca_mrmw_set_pgsize_hipz_acl(&hipz_acl);
 +
-+	*pma_qp_nr = (u32)pma_qp_nr_out;
-+	*bma_qp_nr = (u32)bma_qp_nr_out;
++	h_ret = hipz_h_register_smr(shca->ipz_hca_handle, e_newmr, e_origmr,
++				    (u64)iova_start, hipz_acl, e_pd->fw_pd,
++				    &hipzout);
++	if (h_ret != H_SUCCESS) {
++		EDEB_ERR(4, "hipz_reg_smr failed, h_ret=%lx shca=%p e_origmr=%p"
++			 " e_newmr=%p iova_start=%p acl=%x e_pd=%p hca_hndl=%lx"
++			 " mr_hndl=%lx lkey=%x", h_ret, shca, e_origmr, e_newmr,
++			 iova_start, acl, e_pd, shca->ipz_hca_handle.handle,
++			 e_origmr->ipz_mr_handle.handle,
++			 e_origmr->ib.ib_mr.lkey);
++		ret = ehca_mrmw_map_hrc_reg_smr(h_ret);
++		goto ehca_reg_smr_exit0;
++	}
++	/* successful registration */
++	e_newmr->num_pages     = e_origmr->num_pages;
++	e_newmr->num_4k        = e_origmr->num_4k;
++	e_newmr->start         = iova_start;
++	e_newmr->size          = e_origmr->size;
++	e_newmr->acl           = acl;
++	e_newmr->ipz_mr_handle = hipzout.handle;
++	*lkey = hipzout.lkey;
++	*rkey = hipzout.rkey;
++	goto ehca_reg_smr_exit0;
 +
-+	if (ret == H_ALIAS_EXIST)
-+		EDEB_ERR(4, "AQP1 already exists. ret=%lx", ret);
-+
-+	EDEB_EX(7, "ret=%lx pma_qp_nr=%i bma_qp_nr=%i",
-+		ret, (int)*pma_qp_nr, (int)*bma_qp_nr);
-+
++ehca_reg_smr_exit0:
++	if (ret)
++		EDEB_EX(4, "ret=%x shca=%p e_origmr=%p e_newmr=%p "
++			"iova_start=%p acl=%x e_pd=%p",
++			ret, shca, e_origmr, e_newmr, iova_start, acl, e_pd);
++	else
++		EDEB_EX(7, "ret=%x lkey=%x rkey=%x", ret, *lkey, *rkey);
 +	return ret;
-+}
++} /* end ehca_reg_smr() */
 +
-+u64 hipz_h_attach_mcqp(const struct ipz_adapter_handle adapter_handle,
-+		       const struct ipz_qp_handle qp_handle,
-+		       struct h_galpa gal,
-+		       u16 mcg_dlid,
-+		       u64 subnet_prefix, u64 interface_id)
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++/* register internal max-MR to internal SHCA */
++int ehca_reg_internal_maxmr(
++	struct ehca_shca *shca,
++	struct ehca_pd *e_pd,
++	struct ehca_mr **e_maxmr)  /*OUT*/
 +{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+	u8 *dgid_sp = (u8*)&subnet_prefix;
-+	u8 *dgid_ii = (u8*)&interface_id;
++	int ret = 0;
++	struct ehca_mr *e_mr = NULL;
++	u64 *iova_start = NULL;
++	u64 size_maxmr = 0;
++	struct ehca_mr_pginfo pginfo={0,0,0,0,0,0,0,NULL,0,NULL,NULL,0,NULL,0};
++	struct ib_phys_buf ib_pbuf;
++	u32 num_pages_mr = 0;
++	u32 num_pages_4k = 0; /* 4k portion "pages" */
 +
-+	EDEB_EN(7, "qp_handle=%lx adapter_handle=%lx\nMCG_DGID ="
-+		" %d.%d.%d.%d.%d.%d.%d.%d."
-+		" %d.%d.%d.%d.%d.%d.%d.%d",
-+		qp_handle.handle, adapter_handle.handle,
-+		dgid_sp[0], dgid_sp[1],
-+		dgid_sp[2], dgid_sp[3],
-+		dgid_sp[4], dgid_sp[5],
-+		dgid_sp[6], dgid_sp[7],
-+		dgid_ii[0], dgid_ii[1],
-+		dgid_ii[2], dgid_ii[3],
-+		dgid_ii[4], dgid_ii[5],
-+		dgid_ii[6], dgid_ii[7]);
++	EDEB_EN(7, "shca=%p e_pd=%p e_maxmr=%p", shca, e_pd, e_maxmr);
 +
-+	ret = ehca_hcall_7arg_7ret(H_ATTACH_MCQP,
-+				   adapter_handle.handle,     /* r4 */
-+				   qp_handle.handle,          /* r5 */
-+				   mcg_dlid,                  /* r6 */
-+				   interface_id,              /* r7 */
-+				   subnet_prefix,             /* r8 */
-+				   0, 0,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
++	if (ehca_adr_bad(shca) || ehca_adr_bad(e_pd) || ehca_adr_bad(e_maxmr)) {
++		EDEB_ERR(4, "bad input values: shca=%p e_pd=%p e_maxmr=%p",
++			 shca, e_pd, e_maxmr);
++		ret = -EINVAL;
++		goto ehca_reg_internal_maxmr_exit0;
++	}
 +
-+	if (ret == H_NOT_ENOUGH_RESOURCES)
-+		EDEB_ERR(4, "Not enough resources. ret=%lx", ret);
++	e_mr = ehca_mr_new();
++	if (!e_mr) {
++		EDEB_ERR(4, "out of memory");
++		ret = -ENOMEM;
++		goto ehca_reg_internal_maxmr_exit0;
++	}
++	e_mr->flags |= EHCA_MR_FLAG_MAXMR;
 +
-+	EDEB_EX(7, "ret=%lx", ret);
++	/* register internal max-MR on HCA */
++	size_maxmr = (u64)high_memory - PAGE_OFFSET;
++	EDEB(7, "high_memory=%p PAGE_OFFSET=%lx", high_memory, PAGE_OFFSET);
++	iova_start = (u64*)KERNELBASE;
++	ib_pbuf.addr = 0;
++	ib_pbuf.size = size_maxmr;
++	num_pages_mr = ((((u64)iova_start % PAGE_SIZE) + size_maxmr +
++			 PAGE_SIZE - 1) / PAGE_SIZE);
++	num_pages_4k = ((((u64)iova_start % EHCA_PAGESIZE) + size_maxmr +
++			 EHCA_PAGESIZE - 1) / EHCA_PAGESIZE);
 +
-+	return ret;
-+}
++	pginfo.type           = EHCA_MR_PGI_PHYS;
++	pginfo.num_pages      = num_pages_mr;
++	pginfo.num_4k         = num_pages_4k;
++	pginfo.num_phys_buf   = 1;
++	pginfo.phys_buf_array = &ib_pbuf;
 +
-+u64 hipz_h_detach_mcqp(const struct ipz_adapter_handle adapter_handle,
-+		       const struct ipz_qp_handle qp_handle,
-+		       struct h_galpa gal,
-+		       u16 mcg_dlid,
-+		       u64 subnet_prefix, u64 interface_id)
-+{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+	u8 *dgid_sp = (u8*)&subnet_prefix;
-+	u8 *dgid_ii = (u8*)&interface_id;
-+
-+	EDEB_EN(7, "qp_handle=%lx adapter_handle=%lx\nMCG_DGID ="
-+		" %d.%d.%d.%d.%d.%d.%d.%d."
-+		" %d.%d.%d.%d.%d.%d.%d.%d",
-+		qp_handle.handle, adapter_handle.handle,
-+		dgid_sp[0], dgid_sp[1],
-+		dgid_sp[2], dgid_sp[3],
-+		dgid_sp[4], dgid_sp[5],
-+		dgid_sp[6], dgid_sp[7],
-+		dgid_ii[0], dgid_ii[1],
-+		dgid_ii[2], dgid_ii[3],
-+		dgid_ii[4], dgid_ii[5],
-+		dgid_ii[6], dgid_ii[7]);
-+	ret = ehca_hcall_7arg_7ret(H_DETACH_MCQP,
-+				   adapter_handle.handle, /* r4 */
-+				   qp_handle.handle,	  /* r5 */
-+				   mcg_dlid,	          /* r6 */
-+				   interface_id,          /* r7 */
-+				   subnet_prefix,         /* r8 */
-+				   0, 0,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
-+
-+	EDEB(7, "ret=%lx", ret);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_destroy_cq(const struct ipz_adapter_handle adapter_handle,
-+		      struct ehca_cq *cq,
-+		      u8 force_flag)
-+{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+
-+	EDEB_EN(7, "cq->pf=%p cq=.%p ipz_cq_handle=%lx adapter_handle=%lx",
-+		&cq->pf, cq, cq->ipz_cq_handle.handle, adapter_handle.handle);
-+
-+	ret = hcp_galpas_dtor(&cq->galpas);
++	ret = ehca_reg_mr(shca, e_mr, iova_start, size_maxmr, 0, e_pd,
++			      &pginfo, &e_mr->ib.ib_mr.lkey,
++			      &e_mr->ib.ib_mr.rkey);
 +	if (ret) {
-+		EDEB_ERR(4, "Could not destruct cp->galpas");
-+		return H_RESOURCE;
++		EDEB_ERR(4, "reg of internal max MR failed, e_mr=%p "
++			 "iova_start=%p size_maxmr=%lx num_pages_mr=%x "
++			 "num_pages_4k=%x", e_mr, iova_start, size_maxmr,
++			 num_pages_mr, num_pages_4k);
++		goto ehca_reg_internal_maxmr_exit1;
 +	}
 +
-+	ret = ehca_hcall_7arg_7ret(H_FREE_RESOURCE,
-+				   adapter_handle.handle,     /* r4 */
-+				   cq->ipz_cq_handle.handle,  /* r5 */
-+				   force_flag != 0 ? 1L : 0L, /* r6 */
-+				   0, 0, 0, 0,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
++	/* successful registration of all pages */
++	e_mr->ib.ib_mr.device = e_pd->ib_pd.device;
++	e_mr->ib.ib_mr.pd = &e_pd->ib_pd;
++	e_mr->ib.ib_mr.uobject = NULL;
++	atomic_inc(&(e_pd->ib_pd.usecnt));
++	atomic_set(&(e_mr->ib.ib_mr.usecnt), 0);
++	*e_maxmr = e_mr;
++	goto ehca_reg_internal_maxmr_exit0;
 +
-+	if (ret == H_RESOURCE)
-+		EDEB(4, "ret=%lx ", ret);
-+
-+	EDEB_EX(7, "ret=%lx", ret);
-+
++ehca_reg_internal_maxmr_exit1:
++	ehca_mr_delete(e_mr);
++ehca_reg_internal_maxmr_exit0:
++	if (ret)
++		EDEB_EX(4, "ret=%x shca=%p e_pd=%p e_maxmr=%p",
++			ret, shca, e_pd, e_maxmr);
++	else
++		EDEB_EX(7, "*e_maxmr=%p lkey=%x rkey=%x",
++			*e_maxmr, (*e_maxmr)->ib.ib_mr.lkey,
++			(*e_maxmr)->ib.ib_mr.rkey);
 +	return ret;
-+}
++} /* end ehca_reg_internal_maxmr() */
 +
-+u64 hipz_h_destroy_eq(const struct ipz_adapter_handle adapter_handle,
-+		      struct ehca_eq *eq)
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++int ehca_reg_maxmr(struct ehca_shca *shca,
++		   struct ehca_mr *e_newmr,
++		   u64 *iova_start,
++		   int acl,
++		   struct ehca_pd *e_pd,
++		   u32 *lkey,
++		   u32 *rkey)
 +{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
++	int ret = 0;
++	u64 h_ret = H_SUCCESS;
++	struct ehca_mr *e_origmr = shca->maxmr;
++	u32 hipz_acl = 0;
++	struct ehca_mr_hipzout_parms hipzout = {{0},0,0,0,0,0};
 +
-+	EDEB_EN(7, "eq->pf=%p eq=%p ipz_eq_handle=%lx adapter_handle=%lx",
-+		&eq->pf, eq, eq->ipz_eq_handle.handle,
-+		adapter_handle.handle);
++	EDEB_EN(7,"shca=%p e_origmr=%p e_newmr=%p iova_start=%p acl=%x e_pd=%p",
++		shca, e_origmr, e_newmr, iova_start, acl, e_pd);
 +
-+	ret = hcp_galpas_dtor(&eq->galpas);
++	ehca_mrmw_map_acl(acl, &hipz_acl);
++	ehca_mrmw_set_pgsize_hipz_acl(&hipz_acl);
++
++	h_ret = hipz_h_register_smr(shca->ipz_hca_handle, e_newmr, e_origmr,
++				    (u64)iova_start, hipz_acl, e_pd->fw_pd,
++				    &hipzout);
++	if (h_ret != H_SUCCESS) {
++		EDEB_ERR(4, "hipz_reg_smr failed, h_ret=%lx e_origmr=%p "
++			 "hca_hndl=%lx mr_hndl=%lx lkey=%x",
++			 h_ret, e_origmr, shca->ipz_hca_handle.handle,
++			 e_origmr->ipz_mr_handle.handle,
++			 e_origmr->ib.ib_mr.lkey);
++		ret = ehca_mrmw_map_hrc_reg_smr(h_ret);
++		goto ehca_reg_maxmr_exit0;
++	}
++	/* successful registration */
++	e_newmr->num_pages     = e_origmr->num_pages;
++	e_newmr->num_4k        = e_origmr->num_4k;
++	e_newmr->start         = iova_start;
++	e_newmr->size          = e_origmr->size;
++	e_newmr->acl           = acl;
++	e_newmr->ipz_mr_handle = hipzout.handle;
++	*lkey = hipzout.lkey;
++	*rkey = hipzout.rkey;
++
++ehca_reg_maxmr_exit0:
++	EDEB_EX(7, "ret=%x lkey=%x rkey=%x", ret, *lkey, *rkey);
++	return ret;
++} /* end ehca_reg_maxmr() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++int ehca_dereg_internal_maxmr(struct ehca_shca *shca)
++{
++	int ret = 0;
++	struct ehca_mr *e_maxmr = NULL;
++	struct ib_pd *ib_pd = NULL;
++
++	EDEB_EN(7, "shca=%p shca->maxmr=%p", shca, shca->maxmr);
++
++	if (!shca->maxmr) {
++		EDEB_ERR(4, "bad call, shca=%p", shca);
++		ret = -EINVAL;
++		goto ehca_dereg_internal_maxmr_exit0;
++	}
++
++	e_maxmr = shca->maxmr;
++	ib_pd = e_maxmr->ib.ib_mr.pd;
++	shca->maxmr = NULL; /* remove internal max-MR indication from SHCA */
++
++	ret = ehca_dereg_mr(&e_maxmr->ib.ib_mr);
 +	if (ret) {
-+		EDEB_ERR(4, "Could not destruct eq->galpas");
-+		return H_RESOURCE;
++		EDEB_ERR(3, "dereg internal max-MR failed, "
++			 "ret=%x e_maxmr=%p shca=%p lkey=%x",
++			 ret, e_maxmr, shca, e_maxmr->ib.ib_mr.lkey);
++		shca->maxmr = e_maxmr;
++		goto ehca_dereg_internal_maxmr_exit0;
 +	}
 +
-+	ret = ehca_hcall_7arg_7ret(H_FREE_RESOURCE,
-+				   adapter_handle.handle,     /* r4 */
-+				   eq->ipz_eq_handle.handle,  /* r5 */
-+				   0, 0, 0, 0, 0,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
++	atomic_dec(&ib_pd->usecnt);
 +
-+
-+	if (ret == H_RESOURCE)
-+		EDEB_ERR(4, "Resource in use. ret=%lx ", ret);
-+
-+	EDEB_EX(7, "ret=%lx", ret);
-+
++ehca_dereg_internal_maxmr_exit0:
++	if (ret)
++		EDEB_EX(4, "ret=%x shca=%p shca->maxmr=%p",
++			ret, shca, shca->maxmr);
++	else
++		EDEB_EX(7, "");
 +	return ret;
-+}
++} /* end ehca_dereg_internal_maxmr() */
 +
-+u64 hipz_h_alloc_resource_mr(const struct ipz_adapter_handle adapter_handle,
-+			     const struct ehca_mr *mr,
-+			     const u64 vaddr,
-+			     const u64 length,
-+			     const u32 access_ctrl,
-+			     const struct ipz_pd pd,
-+			     struct ehca_mr_hipzout_parms *outparms)
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++/* check physical buffer array of MR verbs for validness and
++ * calculates MR size
++ */
++int ehca_mr_chk_buf_and_calc_size(struct ib_phys_buf *phys_buf_array,
++				  int num_phys_buf,
++				  u64 *iova_start,
++				  u64 *size)
 +{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+	u64 lkey_out;
-+	u64 rkey_out;
++	struct ib_phys_buf *pbuf = phys_buf_array;
++	u64 size_count = 0;
++	u32 i;
 +
-+	EDEB_EN(7, "adapter_handle=%lx mr=%p vaddr=%lx length=%lx"
-+		" access_ctrl=%x pd=%x",
-+		adapter_handle.handle, mr, vaddr, length, access_ctrl,
-+		pd.value);
++	if (num_phys_buf == 0) {
++		EDEB_ERR(4, "bad phys buf array len, num_phys_buf=0");
++		return -EINVAL;
++	}
++	/* check first buffer */
++	if (((u64)iova_start & ~PAGE_MASK) != (pbuf->addr & ~PAGE_MASK)) {
++		EDEB_ERR(4, "iova_start/addr mismatch, iova_start=%p "
++			 "pbuf->addr=%lx pbuf->size=%lx",
++			 iova_start, pbuf->addr, pbuf->size);
++		return -EINVAL;
++	}
++	if (((pbuf->addr + pbuf->size) % PAGE_SIZE) &&
++	    (num_phys_buf > 1)) {
++		EDEB_ERR(4, "addr/size mismatch in 1st buf, pbuf->addr=%lx "
++			 "pbuf->size=%lx", pbuf->addr, pbuf->size);
++		return -EINVAL;
++	}
 +
-+	ret = ehca_hcall_7arg_7ret(H_ALLOC_RESOURCE,
-+				   adapter_handle.handle,            /* r4 */
-+				   5,                                /* r5 */
-+				   vaddr,                            /* r6 */
-+				   length,                           /* r7 */
-+				   (((u64)access_ctrl) << 32ULL),    /* r8 */
-+				   pd.value,                         /* r9 */
-+				   0,
-+				   &(outparms->handle.handle),       /* r4 */
-+				   &dummy,                           /* r5 */
-+				   &lkey_out,                        /* r6 */
-+				   &rkey_out,                        /* r7 */
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
-+	outparms->lkey = (u32)lkey_out;
-+	outparms->rkey = (u32)rkey_out;
++	for (i = 0; i < num_phys_buf; i++) {
++		if ((i > 0) && (pbuf->addr % PAGE_SIZE)) {
++			EDEB_ERR(4, "bad address, i=%x pbuf->addr=%lx "
++				 "pbuf->size=%lx", i, pbuf->addr, pbuf->size);
++			return -EINVAL;
++		}
++		if (((i > 0) &&	/* not 1st */
++		     (i < (num_phys_buf - 1)) &&	/* not last */
++		     (pbuf->size % PAGE_SIZE)) || (pbuf->size == 0)) {
++			EDEB_ERR(4, "bad size, i=%x pbuf->size=%lx",
++				 i, pbuf->size);
++			return -EINVAL;
++		}
++		size_count += pbuf->size;
++		pbuf++;
++	}
 +
-+	EDEB_EX(7, "ret=%lx mr_handle=%lx lkey=%x rkey=%x",
-+		ret, outparms->handle.handle, outparms->lkey, outparms->rkey);
++	*size = size_count;
++	return 0;
++} /* end ehca_mr_chk_buf_and_calc_size() */
 +
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++/* check page list of map FMR verb for validness */
++int ehca_fmr_check_page_list(struct ehca_mr *e_fmr,
++			     u64 *page_list,
++			     int list_len)
++{
++	u32 i;
++	u64 *page = NULL;
++
++	if (ehca_adr_bad(page_list)) {
++		EDEB_ERR(4, "bad page_list, page_list=%p fmr=%p",
++			 page_list, e_fmr);
++		return -EINVAL;
++	}
++
++	if ((list_len == 0) || (list_len > e_fmr->fmr_max_pages)) {
++		EDEB_ERR(4, "bad list_len, list_len=%x e_fmr->fmr_max_pages=%x "
++			 "fmr=%p", list_len, e_fmr->fmr_max_pages, e_fmr);
++		return -EINVAL;
++	}
++
++	/* each page must be aligned */
++	page = page_list;
++	for (i = 0; i < list_len; i++) {
++		if (*page % e_fmr->fmr_page_size) {
++			EDEB_ERR(4, "bad page, i=%x *page=%lx page=%p "
++				 "fmr=%p fmr_page_size=%x",
++				 i, *page, page, e_fmr, e_fmr->fmr_page_size);
++			return -EINVAL;
++		}
++		page++;
++	}
++
++	return 0;
++} /* end ehca_fmr_check_page_list() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++/* setup page buffer from page info */
++int ehca_set_pagebuf(struct ehca_mr *e_mr,
++		     struct ehca_mr_pginfo *pginfo,
++		     u32 number,
++		     u64 *kpage)
++{
++	int ret = 0;
++	struct ib_umem_chunk *prev_chunk = NULL;
++	struct ib_umem_chunk *chunk      = NULL;
++	struct ib_phys_buf *pbuf         = NULL;
++	u64 *fmrlist = NULL;
++	u64 num4k  = 0;
++	u64 pgaddr = 0;
++	u64 offs4k = 0;
++	u32 i = 0;
++	u32 j = 0;
++
++	EDEB_EN(7, "pginfo=%p type=%x num_pages=%lx num_4k=%lx next_buf=%lx "
++		"next_4k=%lx number=%x kpage=%p page_cnt=%lx page_4k_cnt=%lx "
++		"next_listelem=%lx region=%p next_chunk=%p next_nmap=%lx",
++		pginfo, pginfo->type, pginfo->num_pages, pginfo->num_4k,
++		pginfo->next_buf, pginfo->next_4k, number, kpage,
++		pginfo->page_cnt, pginfo->page_4k_cnt, pginfo->next_listelem,
++		pginfo->region, pginfo->next_chunk, pginfo->next_nmap);
++
++	if (pginfo->type == EHCA_MR_PGI_PHYS) {
++		/* loop over desired phys_buf_array entries */
++		while (i < number) {
++			pbuf   = pginfo->phys_buf_array + pginfo->next_buf;
++			num4k  = ((pbuf->addr % EHCA_PAGESIZE) + pbuf->size +
++				  EHCA_PAGESIZE - 1) / EHCA_PAGESIZE;
++			offs4k = (pbuf->addr & ~PAGE_MASK) / EHCA_PAGESIZE;
++			while (pginfo->next_4k < offs4k + num4k) {
++				/* sanity check */
++				if ((pginfo->page_cnt >= pginfo->num_pages) ||
++				    (pginfo->page_4k_cnt >= pginfo->num_4k)) {
++					EDEB_ERR(4, "page_cnt >= num_pages, "
++						 "page_cnt=%lx num_pages=%lx "
++						 "page_4k_cnt=%lx num_4k=%lx "
++						 "i=%x", pginfo->page_cnt,
++						 pginfo->num_pages,
++						 pginfo->page_4k_cnt,
++						 pginfo->num_4k, i);
++					ret = -EFAULT;
++				}
++				*kpage = phys_to_abs(
++					(pbuf->addr & (EHCA_PAGESIZE-1))
++					+ (pginfo->next_4k * EHCA_PAGESIZE));
++				if ( !(*kpage) && pbuf->addr ) {
++					EDEB_ERR(4, "pbuf->addr=%lx "
++						 "pbuf->size=%lx next_4k=%lx",
++						 pbuf->addr, pbuf->size,
++						 pginfo->next_4k);
++					ret = -EFAULT;
++					goto ehca_set_pagebuf_exit0;
++				}
++				(pginfo->page_4k_cnt)++;
++				(pginfo->next_4k)++;
++				if(pginfo->next_4k >= PAGE_SIZE/EHCA_PAGESIZE)
++					(pginfo->page_cnt)++;
++				kpage++;
++				i++;
++				if (i >= number) break;
++			}
++			if (pginfo->next_4k >= offs4k + num4k) {
++				(pginfo->next_buf)++;
++				pginfo->next_4k = 0;
++			}
++		}
++	} else if (pginfo->type == EHCA_MR_PGI_USER) {
++		/* loop over desired chunk entries */
++		chunk      = pginfo->next_chunk;
++		prev_chunk = pginfo->next_chunk;
++		list_for_each_entry_continue(chunk,
++					     (&(pginfo->region->chunk_list)),
++					     list) {
++			EDEB(9, "chunk->page_list[0]=%lx",
++			     (u64)sg_dma_address(&chunk->page_list[0]));
++			for (i = pginfo->next_nmap; i < chunk->nmap; ) {
++				pgaddr = ( page_to_pfn(chunk->page_list[i].page)
++					   << PAGE_SHIFT );
++				*kpage = phys_to_abs(pgaddr +
++						     (pginfo->next_4k *
++						      EHCA_PAGESIZE));
++				EDEB(9,"pgaddr=%lx *kpage=%lx next_4k=%lx",
++				     pgaddr, *kpage, pginfo->next_4k);
++				if ( !(*kpage) ) {
++					EDEB_ERR(4, "pgaddr=%lx "
++						 "chunk->page_list[i]=%lx i=%x "
++						 "next_4k=%lx mr=%p", pgaddr,
++						 (u64)sg_dma_address(
++							 &chunk->page_list[i]),
++						 i, pginfo->next_4k, e_mr);
++					ret = -EFAULT;
++					goto ehca_set_pagebuf_exit0;
++				}
++				(pginfo->page_4k_cnt)++;
++				(pginfo->next_4k)++;
++				kpage++;
++				if (pginfo->next_4k >= PAGE_SIZE/EHCA_PAGESIZE) {
++					(pginfo->page_cnt)++;
++					(pginfo->next_nmap)++;
++					pginfo->next_4k = 0;
++					i++;
++				}
++				j++;
++				if (j >= number) break;
++			}
++			if ((pginfo->next_nmap >= chunk->nmap) &&
++			    (j >= number)) {
++				pginfo->next_nmap = 0;
++				prev_chunk = chunk;
++				break;
++			} else if (pginfo->next_nmap >= chunk->nmap) {
++				pginfo->next_nmap = 0;
++				prev_chunk = chunk;
++			} else if (j >= number)
++				break;
++			else
++				prev_chunk = chunk;
++		}
++		pginfo->next_chunk =
++			list_prepare_entry(prev_chunk,
++					   (&(pginfo->region->chunk_list)),
++					   list);
++	} else if (pginfo->type == EHCA_MR_PGI_FMR) {
++		/* loop over desired page_list entries */
++		fmrlist = pginfo->page_list + pginfo->next_listelem;
++		for (i = 0; i < number; i++) {
++			*kpage = phys_to_abs((*fmrlist  & (EHCA_PAGESIZE-1)) +
++					     pginfo->next_4k * EHCA_PAGESIZE);
++			if ( !(*kpage) ) {
++				EDEB_ERR(4, "*fmrlist=%lx fmrlist=%p "
++					 "next_listelem=%lx next_4k=%lx",
++					 *fmrlist, fmrlist,
++					 pginfo->next_listelem,pginfo->next_4k);
++				ret = -EFAULT;
++				goto ehca_set_pagebuf_exit0;
++			}
++			(pginfo->page_4k_cnt)++;
++			(pginfo->next_4k)++;
++			kpage++;
++			if ( pginfo->next_4k >=
++			     ((e_mr->fmr_page_size) / EHCA_PAGESIZE) ) {
++				(pginfo->page_cnt)++;
++				(pginfo->next_listelem)++;
++				fmrlist++;
++				pginfo->next_4k = 0;
++			}
++		}
++	} else {
++		EDEB_ERR(4, "bad pginfo->type=%x", pginfo->type);
++		ret = -EFAULT;
++		goto ehca_set_pagebuf_exit0;
++	}
++
++ehca_set_pagebuf_exit0:
++	if (ret)
++		EDEB_EX(4, "ret=%x e_mr=%p pginfo=%p type=%x num_pages=%lx "
++			"num_4k=%lx next_buf=%lx next_4k=%lx number=%x "
++			"kpage=%p page_cnt=%lx page_4k_cnt=%lx i=%x "
++			"next_listelem=%lx region=%p next_chunk=%p "
++			"next_nmap=%lx", ret, e_mr, pginfo, pginfo->type,
++			pginfo->num_pages, pginfo->num_4k, pginfo->next_buf,
++			pginfo->next_4k, number, kpage, pginfo->page_cnt,
++			pginfo->page_4k_cnt, i, pginfo->next_listelem,
++			pginfo->region, pginfo->next_chunk, pginfo->next_nmap);
++	else
++		EDEB_EX(7, "ret=%x e_mr=%p pginfo=%p type=%x num_pages=%lx "
++			"num_4k=%lx next_buf=%lx next_4k=%lx number=%x "
++			"kpage=%p page_cnt=%lx page_4k_cnt=%lx i=%x "
++			"next_listelem=%lx region=%p next_chunk=%p "
++			"next_nmap=%lx", ret, e_mr, pginfo, pginfo->type,
++			pginfo->num_pages, pginfo->num_4k, pginfo->next_buf,
++			pginfo->next_4k, number, kpage, pginfo->page_cnt,
++			pginfo->page_4k_cnt, i, pginfo->next_listelem,
++			pginfo->region, pginfo->next_chunk, pginfo->next_nmap);
 +	return ret;
-+}
++} /* end ehca_set_pagebuf() */
 +
-+u64 hipz_h_register_rpage_mr(const struct ipz_adapter_handle adapter_handle,
-+			     const struct ehca_mr *mr,
-+			     const u8 pagesize,
-+			     const u8 queue_type,
-+			     const u64 logical_address_of_page,
-+			     const u64 count)
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++/* setup 1 page from page info page buffer */
++int ehca_set_pagebuf_1(struct ehca_mr *e_mr,
++		       struct ehca_mr_pginfo *pginfo,
++		       u64 *rpage)
 +{
-+	u64 ret = H_SUCCESS;
++	int ret = 0;
++	struct ib_phys_buf *tmp_pbuf = NULL;
++	u64 *fmrlist = NULL;
++	struct ib_umem_chunk *chunk = NULL;
++	struct ib_umem_chunk *prev_chunk = NULL;
++	u64 pgaddr = 0;
++	u64 num4k = 0;
++	u64 offs4k = 0;
 +
-+	EDEB_EN(7, "adapter_handle=%lx mr=%p mr_handle=%lx pagesize=%x"
-+		" queue_type=%x logical_address_of_page=%lx count=%lx",
-+		adapter_handle.handle, mr, mr->ipz_mr_handle.handle, pagesize,
-+		queue_type, logical_address_of_page, count);
++	EDEB_EN(7, "pginfo=%p type=%x num_pages=%lx num_4k=%lx next_buf=%lx "
++		"next_4k=%lx rpage=%p page_cnt=%lx page_4k_cnt=%lx "
++		"next_listelem=%lx region=%p next_chunk=%p next_nmap=%lx",
++		pginfo, pginfo->type, pginfo->num_pages, pginfo->num_4k,
++		pginfo->next_buf, pginfo->next_4k, rpage, pginfo->page_cnt,
++		pginfo->page_4k_cnt, pginfo->next_listelem, pginfo->region,
++		pginfo->next_chunk, pginfo->next_nmap);
 +
-+	if ((count > 1) && (logical_address_of_page & 0xfff)) {
-+		EDEB_ERR(4, "logical_address_of_page not on a 4k boundary "
-+			 "adapter_handle=%lx mr=%p mr_handle=%lx "
-+			 "pagesize=%x queue_type=%x logical_address_of_page=%lx"
-+			 " count=%lx",
-+			 adapter_handle.handle, mr, mr->ipz_mr_handle.handle,
-+			 pagesize, queue_type, logical_address_of_page, count);
-+		ret = H_PARAMETER;
++	if (pginfo->type == EHCA_MR_PGI_PHYS) {
++		/* sanity check */
++		if ((pginfo->page_cnt >= pginfo->num_pages) ||
++		    (pginfo->page_4k_cnt >= pginfo->num_4k)) {
++			EDEB_ERR(4, "page_cnt >= num_pages, page_cnt=%lx "
++				 "num_pages=%lx page_4k_cnt=%lx num_4k=%lx",
++				 pginfo->page_cnt, pginfo->num_pages,
++				 pginfo->page_4k_cnt, pginfo->num_4k);
++			ret = -EFAULT;
++			goto ehca_set_pagebuf_1_exit0;
++		}
++		tmp_pbuf = pginfo->phys_buf_array + pginfo->next_buf;
++		num4k  = ((tmp_pbuf->addr % EHCA_PAGESIZE) + tmp_pbuf->size +
++			  EHCA_PAGESIZE - 1) / EHCA_PAGESIZE;
++		offs4k = (tmp_pbuf->addr & ~PAGE_MASK) / EHCA_PAGESIZE;
++		*rpage = phys_to_abs((tmp_pbuf->addr & (EHCA_PAGESIZE-1)) +
++				     (pginfo->next_4k * EHCA_PAGESIZE));
++		if ( !(*rpage) && tmp_pbuf->addr ) {
++			EDEB_ERR(4, "tmp_pbuf->addr=%lx"
++				 " tmp_pbuf->size=%lx next_4k=%lx",
++				 tmp_pbuf->addr, tmp_pbuf->size,
++				 pginfo->next_4k);
++			ret = -EFAULT;
++			goto ehca_set_pagebuf_1_exit0;
++		}
++		(pginfo->page_4k_cnt)++;
++		(pginfo->next_4k)++;
++		if(pginfo->next_4k >= PAGE_SIZE/EHCA_PAGESIZE)
++			(pginfo->page_cnt)++;
++		if (pginfo->next_4k >= offs4k + num4k) {
++			(pginfo->next_buf)++;
++			pginfo->next_4k = 0;
++		}
++	} else if (pginfo->type == EHCA_MR_PGI_USER) {
++		chunk      = pginfo->next_chunk;
++		prev_chunk = pginfo->next_chunk;
++		list_for_each_entry_continue(chunk,
++					     (&(pginfo->region->chunk_list)),
++					     list) {
++			pgaddr = ( page_to_pfn(chunk->page_list[
++						       pginfo->next_nmap].page)
++				   << PAGE_SHIFT);
++			*rpage = phys_to_abs(pgaddr +
++					     (pginfo->next_4k * EHCA_PAGESIZE));
++			EDEB(9,"pgaddr=%lx *rpage=%lx next_4k=%lx", pgaddr,
++			     *rpage, pginfo->next_4k);
++			if ( !(*rpage) ) {
++				EDEB_ERR(4, "pgaddr=%lx chunk->page_list[]=%lx "
++					 "next_nmap=%lx next_4k=%lx mr=%p",
++					 pgaddr, (u64)sg_dma_address(
++						 &chunk->page_list[
++							 pginfo->next_nmap]),
++					 pginfo->next_nmap, pginfo->next_4k,
++					 e_mr);
++				ret = -EFAULT;
++				goto ehca_set_pagebuf_1_exit0;
++			}
++			(pginfo->page_4k_cnt)++;
++			(pginfo->next_4k)++;
++			if (pginfo->next_4k >= PAGE_SIZE/EHCA_PAGESIZE) {
++				(pginfo->page_cnt)++;
++				(pginfo->next_nmap)++;
++				pginfo->next_4k = 0;
++			}
++			if (pginfo->next_nmap >= chunk->nmap) {
++				pginfo->next_nmap = 0;
++				prev_chunk = chunk;
++			}
++			break;
++		}
++		pginfo->next_chunk =
++			list_prepare_entry(prev_chunk,
++					   (&(pginfo->region->chunk_list)),
++					   list);
++	} else if (pginfo->type == EHCA_MR_PGI_FMR) {
++		fmrlist = pginfo->page_list + pginfo->next_listelem;
++		*rpage = phys_to_abs((*fmrlist  & (EHCA_PAGESIZE-1)) +
++				     pginfo->next_4k * EHCA_PAGESIZE);
++		if ( !(*rpage) ) {
++			EDEB_ERR(4, "*fmrlist=%lx fmrlist=%p next_listelem=%lx "
++				 "next_4k=%lx", *fmrlist, fmrlist,
++				 pginfo->next_listelem, pginfo->next_4k);
++			ret = -EFAULT;
++			goto ehca_set_pagebuf_1_exit0;
++		}
++		(pginfo->page_4k_cnt)++;
++		(pginfo->next_4k)++;
++		if (pginfo->next_4k >= (e_mr->fmr_page_size)/EHCA_PAGESIZE) {
++			(pginfo->page_cnt)++;
++			(pginfo->next_listelem)++;
++			pginfo->next_4k = 0;
++		}
++	} else {
++		EDEB_ERR(4, "bad pginfo->type=%x", pginfo->type);
++		ret = -EFAULT;
++		goto ehca_set_pagebuf_1_exit0;
++	}
++
++ehca_set_pagebuf_1_exit0:
++	if (ret)
++		EDEB_EX(4, "ret=%x e_mr=%p pginfo=%p type=%x num_pages=%lx "
++			"num_4k=%lx next_buf=%lx next_4k=%lx rpage=%p "
++			"page_cnt=%lx page_4k_cnt=%lx next_listelem=%lx "
++			"region=%p next_chunk=%p next_nmap=%lx", ret, e_mr,
++			pginfo, pginfo->type, pginfo->num_pages, pginfo->num_4k,
++			pginfo->next_buf, pginfo->next_4k, rpage,
++			pginfo->page_cnt, pginfo->page_4k_cnt,
++			pginfo->next_listelem, pginfo->region,
++			pginfo->next_chunk, pginfo->next_nmap);
++	else
++		EDEB_EX(7, "ret=%x e_mr=%p pginfo=%p type=%x num_pages=%lx "
++			"num_4k=%lx next_buf=%lx next_4k=%lx rpage=%p "
++			"page_cnt=%lx page_4k_cnt=%lx next_listelem=%lx "
++			"region=%p next_chunk=%p next_nmap=%lx", ret, e_mr,
++			pginfo, pginfo->type, pginfo->num_pages, pginfo->num_4k,
++			pginfo->next_buf, pginfo->next_4k, rpage,
++			pginfo->page_cnt, pginfo->page_4k_cnt,
++			pginfo->next_listelem, pginfo->region,
++			pginfo->next_chunk, pginfo->next_nmap);
++	return ret;
++} /* end ehca_set_pagebuf_1() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++/* check MR if it is a max-MR, i.e. uses whole memory
++ * in case it's a max-MR 1 is returned, else 0
++ */
++int ehca_mr_is_maxmr(u64 size,
++		     u64 *iova_start)
++{
++	/* a MR is treated as max-MR only if it fits following: */
++	if ((size == ((u64)high_memory - PAGE_OFFSET)) &&
++	    (iova_start == (void*)KERNELBASE)) {
++		EDEB(6, "this is a max-MR");
++		return 1;
 +	} else
-+		ret = hipz_h_register_rpage(adapter_handle, pagesize,
-+					    queue_type,
-+					    mr->ipz_mr_handle.handle,
-+					    logical_address_of_page, count);
-+	EDEB_EX(7, "ret=%lx", ret);
++		return 0;
++} /* end ehca_mr_is_maxmr() */
 +
-+	return ret;
-+}
-+
-+u64 hipz_h_query_mr(const struct ipz_adapter_handle adapter_handle,
-+		    const struct ehca_mr *mr,
-+		    struct ehca_mr_hipzout_parms *outparms)
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++/* map access control for MR/MW. This routine is used for MR and MW. */
++void ehca_mrmw_map_acl(int ib_acl,
++		       u32 *hipz_acl)
 +{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+	u64 remote_len_out;
-+	u64 remote_vaddr_out;
-+	u64 acc_ctrl_pd_out;
-+	u64 r9_out;
++	*hipz_acl = 0;
++	if (ib_acl & IB_ACCESS_REMOTE_READ)
++		*hipz_acl |= HIPZ_ACCESSCTRL_R_READ;
++	if (ib_acl & IB_ACCESS_REMOTE_WRITE)
++		*hipz_acl |= HIPZ_ACCESSCTRL_R_WRITE;
++	if (ib_acl & IB_ACCESS_REMOTE_ATOMIC)
++		*hipz_acl |= HIPZ_ACCESSCTRL_R_ATOMIC;
++	if (ib_acl & IB_ACCESS_LOCAL_WRITE)
++		*hipz_acl |= HIPZ_ACCESSCTRL_L_WRITE;
++	if (ib_acl & IB_ACCESS_MW_BIND)
++		*hipz_acl |= HIPZ_ACCESSCTRL_MW_BIND;
++} /* end ehca_mrmw_map_acl() */
 +
-+	EDEB_EN(7, "adapter_handle=%lx mr=%p mr_handle=%lx",
-+		adapter_handle.handle, mr, mr->ipz_mr_handle.handle);
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
 +
-+	ret = ehca_hcall_7arg_7ret(H_QUERY_MR,
-+				   adapter_handle.handle,     /* r4 */
-+				   mr->ipz_mr_handle.handle,  /* r5 */
-+				   0, 0, 0, 0, 0,
-+				   &outparms->len,            /* r4 */
-+				   &outparms->vaddr,          /* r5 */
-+				   &remote_len_out,           /* r6 */
-+				   &remote_vaddr_out,         /* r7 */
-+				   &acc_ctrl_pd_out,          /* r8 */
-+				   &r9_out,
-+				   &dummy);
-+
-+	outparms->acl  = acc_ctrl_pd_out >> 32;
-+	outparms->lkey = (u32)(r9_out >> 32);
-+	outparms->rkey = (u32)(r9_out & (0xffffffff));
-+
-+	EDEB_EX(7, "ret=%lx mr_local_length=%lx mr_local_vaddr=%lx "
-+		"mr_remote_length=%lx mr_remote_vaddr=%lx access_ctrl=%x "
-+		"pd=%x lkey=%x rkey=%x", ret, outparms->len,
-+		outparms->vaddr, remote_len_out, remote_vaddr_out,
-+		outparms->acl, outparms->acl, outparms->lkey, outparms->rkey);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_free_resource_mr(const struct ipz_adapter_handle adapter_handle,
-+			    const struct ehca_mr *mr)
++/* sets page size in hipz access control for MR/MW. */
++void ehca_mrmw_set_pgsize_hipz_acl(u32 *hipz_acl) /*INOUT*/
 +{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
++	return; /* HCA supports only 4k */
++} /* end ehca_mrmw_set_pgsize_hipz_acl() */
 +
-+	EDEB_EN(7, "adapter_handle=%lx mr=%p mr_handle=%lx",
-+		adapter_handle.handle, mr, mr->ipz_mr_handle.handle);
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
 +
-+	ret = ehca_hcall_7arg_7ret(H_FREE_RESOURCE,
-+				   adapter_handle.handle,    /* r4 */
-+				   mr->ipz_mr_handle.handle, /* r5 */
-+				   0, 0, 0, 0, 0,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
-+	EDEB_EX(7, "ret=%lx", ret);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_reregister_pmr(const struct ipz_adapter_handle adapter_handle,
-+			  const struct ehca_mr *mr,
-+			  const u64 vaddr_in,
-+			  const u64 length,
-+			  const u32 access_ctrl,
-+			  const struct ipz_pd pd,
-+			  const u64 mr_addr_cb,
-+			  struct ehca_mr_hipzout_parms *outparms)
++/* reverse map access control for MR/MW.
++ * This routine is used for MR and MW.
++ */
++void ehca_mrmw_reverse_map_acl(const u32 *hipz_acl,
++			       int *ib_acl) /*OUT*/
 +{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+	u64 lkey_out;
-+	u64 rkey_out;
++	*ib_acl = 0;
++	if (*hipz_acl & HIPZ_ACCESSCTRL_R_READ)
++		*ib_acl |= IB_ACCESS_REMOTE_READ;
++	if (*hipz_acl & HIPZ_ACCESSCTRL_R_WRITE)
++		*ib_acl |= IB_ACCESS_REMOTE_WRITE;
++	if (*hipz_acl & HIPZ_ACCESSCTRL_R_ATOMIC)
++		*ib_acl |= IB_ACCESS_REMOTE_ATOMIC;
++	if (*hipz_acl & HIPZ_ACCESSCTRL_L_WRITE)
++		*ib_acl |= IB_ACCESS_LOCAL_WRITE;
++	if (*hipz_acl & HIPZ_ACCESSCTRL_MW_BIND)
++		*ib_acl |= IB_ACCESS_MW_BIND;
++} /* end ehca_mrmw_reverse_map_acl() */
 +
-+	EDEB_EN(7, "adapter_handle=%lx mr=%p mr_handle=%lx vaddr_in=%lx "
-+		"length=%lx access_ctrl=%x pd=%x mr_addr_cb=%lx",
-+		adapter_handle.handle, mr, mr->ipz_mr_handle.handle, vaddr_in,
-+		length, access_ctrl, pd.value, mr_addr_cb);
 +
-+	ret = ehca_hcall_7arg_7ret(H_REREGISTER_PMR,
-+				   adapter_handle.handle,    /* r4 */
-+				   mr->ipz_mr_handle.handle, /* r5 */
-+				   vaddr_in,	             /* r6 */
-+				   length,                   /* r7 */
-+				   /* r8 */
-+				   ((((u64)access_ctrl) << 32ULL) | pd.value),
-+				   mr_addr_cb,               /* r9 */
-+				   0,
-+				   &dummy,                   /* r4 */
-+				   &outparms->vaddr,         /* r5 */
-+				   &lkey_out,                /* r6 */
-+				   &rkey_out,                /* r7 */
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
 +
-+	outparms->lkey = (u32)lkey_out;
-+	outparms->rkey = (u32)rkey_out;
-+
-+	EDEB_EX(7, "ret=%lx vaddr=%lx lkey=%x rkey=%x",
-+		ret, outparms->vaddr, outparms->lkey, outparms->rkey);
-+	return ret;
-+}
-+
-+u64 hipz_h_register_smr(const struct ipz_adapter_handle adapter_handle,
-+			const struct ehca_mr *mr,
-+			const struct ehca_mr *orig_mr,
-+			const u64 vaddr_in,
-+			const u32 access_ctrl,
-+			const struct ipz_pd pd,
-+			struct ehca_mr_hipzout_parms *outparms)
++/* map HIPZ rc to IB retcodes for MR/MW allocations
++ * Used for hipz_mr_reg_alloc and hipz_mw_alloc.
++ */
++int ehca_mrmw_map_hrc_alloc(const u64 hipz_rc)
 +{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+	u64 lkey_out;
-+	u64 rkey_out;
-+
-+	EDEB_EN(7, "adapter_handle=%lx orig_mr=%p orig_mr_handle=%lx "
-+		"vaddr_in=%lx access_ctrl=%x pd=%x", adapter_handle.handle,
-+		orig_mr, orig_mr->ipz_mr_handle.handle, vaddr_in, access_ctrl,
-+		pd.value);
-+
-+
-+	ret = ehca_hcall_7arg_7ret(H_REGISTER_SMR,
-+				   adapter_handle.handle,            /* r4 */
-+				   orig_mr->ipz_mr_handle.handle,    /* r5 */
-+				   vaddr_in,                         /* r6 */
-+				   (((u64)access_ctrl) << 32ULL),    /* r7 */
-+				   pd.value,                         /* r8 */
-+				   0, 0,
-+				   &(outparms->handle.handle),       /* r4 */
-+				   &dummy,                           /* r5 */
-+				   &lkey_out,                        /* r6 */
-+				   &rkey_out,                        /* r7 */
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
-+	outparms->lkey = (u32)lkey_out;
-+	outparms->rkey = (u32)rkey_out;
-+
-+	EDEB_EX(7, "ret=%lx mr_handle=%lx lkey=%x rkey=%x",
-+		ret, outparms->handle.handle, outparms->lkey, outparms->rkey);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_alloc_resource_mw(const struct ipz_adapter_handle adapter_handle,
-+			     const struct ehca_mw *mw,
-+			     const struct ipz_pd pd,
-+			     struct ehca_mw_hipzout_parms *outparms)
-+{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+	u64 rkey_out;
-+
-+	EDEB_EN(7, "adapter_handle=%lx mw=%p pd=%x",
-+		adapter_handle.handle, mw, pd.value);
-+
-+	ret = ehca_hcall_7arg_7ret(H_ALLOC_RESOURCE,
-+				   adapter_handle.handle,      /* r4 */
-+				   6,                          /* r5 */
-+				   pd.value,                   /* r6 */
-+				   0, 0, 0, 0,
-+				   &(outparms->handle.handle), /* r4 */
-+				   &dummy,                     /* r5 */
-+				   &dummy,                     /* r6 */
-+				   &rkey_out,                  /* r7 */
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
-+
-+	outparms->rkey = (u32)rkey_out;
-+
-+	EDEB_EX(7, "ret=%lx mw_handle=%lx rkey=%x",
-+		ret, outparms->handle.handle, outparms->rkey);
-+	return ret;
-+}
-+
-+u64 hipz_h_query_mw(const struct ipz_adapter_handle adapter_handle,
-+		    const struct ehca_mw *mw,
-+		    struct ehca_mw_hipzout_parms *outparms)
-+{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+	u64 pd_out;
-+	u64 rkey_out;
-+
-+	EDEB_EN(7, "adapter_handle=%lx mw=%p mw_handle=%lx",
-+		adapter_handle.handle, mw, mw->ipz_mw_handle.handle);
-+
-+	ret = ehca_hcall_7arg_7ret(H_QUERY_MW,
-+				   adapter_handle.handle,    /* r4 */
-+				   mw->ipz_mw_handle.handle, /* r5 */
-+				   0, 0, 0, 0, 0,
-+				   &dummy,                   /* r4 */
-+				   &dummy,                   /* r5 */
-+				   &dummy,                   /* r6 */
-+				   &rkey_out,                /* r7 */
-+				   &pd_out,                  /* r8 */
-+				   &dummy,
-+				   &dummy);
-+	outparms->rkey = (u32)rkey_out;
-+
-+	EDEB_EX(7, "ret=%lx rkey=%x pd=%lx", ret, outparms->rkey, pd_out);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_free_resource_mw(const struct ipz_adapter_handle adapter_handle,
-+			    const struct ehca_mw *mw)
-+{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+
-+	EDEB_EN(7, "adapter_handle=%lx mw=%p mw_handle=%lx",
-+		adapter_handle.handle, mw, mw->ipz_mw_handle.handle);
-+
-+	ret = ehca_hcall_7arg_7ret(H_FREE_RESOURCE,
-+				   adapter_handle.handle,    /* r4 */
-+				   mw->ipz_mw_handle.handle, /* r5 */
-+				   0, 0, 0, 0, 0,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
-+	EDEB_EX(7, "ret=%lx", ret);
-+
-+	return ret;
-+}
-+
-+u64 hipz_h_error_data(const struct ipz_adapter_handle adapter_handle,
-+		      const u64 ressource_handle,
-+		      void *rblock,
-+		      unsigned long *byte_count)
-+{
-+	u64 ret = H_SUCCESS;
-+	u64 dummy;
-+	u64 r_cb;
-+
-+	EDEB_EN(7, "adapter_handle=%lx ressource_handle=%lx rblock=%p",
-+		adapter_handle.handle, ressource_handle, rblock);
-+
-+	if (((u64)rblock) & 0xfff) {
-+		EDEB_ERR(4, "rblock not page aligned.");
-+		ret = H_PARAMETER;
-+		return ret;
++	switch (hipz_rc) {
++	case H_SUCCESS:	             /* successful completion */
++		return 0;
++	case H_ADAPTER_PARM:         /* invalid adapter handle */
++	case H_RT_PARM:              /* invalid resource type */
++	case H_NOT_ENOUGH_RESOURCES: /* insufficient resources */
++	case H_MLENGTH_PARM:         /* invalid memory length */
++	case H_MEM_ACCESS_PARM:      /* invalid access controls */
++	case H_CONSTRAINED:          /* resource constraint */
++		return -EINVAL;
++	case H_BUSY:                 /* long busy */
++		return -EBUSY;
++	default:
++		return -EINVAL;
 +	}
++} /* end ehca_mrmw_map_hrc_alloc() */
 +
-+	r_cb = virt_to_abs(rblock);
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
 +
-+	ret = ehca_hcall_7arg_7ret(H_ERROR_DATA,
-+				   adapter_handle.handle,
-+				   ressource_handle,
-+				   r_cb,
-+				   0, 0, 0, 0,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy,
-+				   &dummy);
++/* map HIPZ rc to IB retcodes for MR register rpage
++ * Used for hipz_h_register_rpage_mr at registering last page
++ */
++int ehca_mrmw_map_hrc_rrpg_last(const u64 hipz_rc)
++{
++	switch (hipz_rc) {
++	case H_SUCCESS:         /* registration complete */
++		return 0;
++	case H_PAGE_REGISTERED:	/* page registered */
++	case H_ADAPTER_PARM:    /* invalid adapter handle */
++	case H_RH_PARM:         /* invalid resource handle */
++/*	case H_QT_PARM:            invalid queue type */
++	case H_PARAMETER:       /* invalid logical address, */
++		                /* or count zero or greater 512 */
++	case H_TABLE_FULL:      /* page table full */
++	case H_HARDWARE:        /* HCA not operational */
++		return -EINVAL;
++	case H_BUSY:            /* long busy */
++		return -EBUSY;
++	default:
++		return -EINVAL;
++	}
++} /* end ehca_mrmw_map_hrc_rrpg_last() */
 +
-+	EDEB_EX(7, "ret=%lx", ret);
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
 +
-+	return ret;
-+}
++/* map HIPZ rc to IB retcodes for MR register rpage
++ * Used for hipz_h_register_rpage_mr at registering one page, but not last page
++ */
++int ehca_mrmw_map_hrc_rrpg_notlast(const u64 hipz_rc)
++{
++	switch (hipz_rc) {
++	case H_PAGE_REGISTERED:	/* page registered */
++		return 0;
++	case H_SUCCESS:         /* registration complete */
++	case H_ADAPTER_PARM:    /* invalid adapter handle */
++	case H_RH_PARM:         /* invalid resource handle */
++/*	case H_QT_PARM:            invalid queue type */
++	case H_PARAMETER:       /* invalid logical address, */
++		                /* or count zero or greater 512 */
++	case H_TABLE_FULL:      /* page table full */
++	case H_HARDWARE:        /* HCA not operational */
++		return -EINVAL;
++	case H_BUSY:            /* long busy */
++		return -EBUSY;
++	default:
++		return -EINVAL;
++	}
++} /* end ehca_mrmw_map_hrc_rrpg_notlast() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++/* map HIPZ rc to IB retcodes for MR query. Used for hipz_mr_query. */
++int ehca_mrmw_map_hrc_query_mr(const u64 hipz_rc)
++{
++	switch (hipz_rc) {
++	case H_SUCCESS:	             /* successful completion */
++		return 0;
++	case H_ADAPTER_PARM:         /* invalid adapter handle */
++	case H_RH_PARM:              /* invalid resource handle */
++		return -EINVAL;
++	case H_BUSY:                 /* long busy */
++		return -EBUSY;
++	default:
++		return -EINVAL;
++	}
++} /* end ehca_mrmw_map_hrc_query_mr() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++/* map HIPZ rc to IB retcodes for freeing MR resource
++ * Used for hipz_h_free_resource_mr
++ */
++int ehca_mrmw_map_hrc_free_mr(const u64 hipz_rc)
++{
++	switch (hipz_rc) {
++	case H_SUCCESS:     /* resource freed */
++		return 0;
++	case H_ADAPTER_PARM: /* invalid adapter handle */
++	case H_RH_PARM:      /* invalid resource handle */
++	case H_R_STATE:      /* invalid resource state */
++	case H_HARDWARE:     /* HCA not operational */
++		return -EINVAL;
++	case H_RESOURCE:     /* Resource in use */
++	case H_BUSY:         /* long busy */
++		return -EBUSY;
++	default:
++		return -EINVAL;
++	}
++} /* end ehca_mrmw_map_hrc_free_mr() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++/* map HIPZ rc to IB retcodes for freeing MW resource
++ * Used for hipz_h_free_resource_mw
++ */
++int ehca_mrmw_map_hrc_free_mw(const u64 hipz_rc)
++{
++	switch (hipz_rc) {
++	case H_SUCCESS:	     /* resource freed */
++		return 0;
++	case H_ADAPTER_PARM: /* invalid adapter handle */
++	case H_RH_PARM:      /* invalid resource handle */
++	case H_R_STATE:      /* invalid resource state */
++	case H_HARDWARE:     /* HCA not operational */
++		return -EINVAL;
++	case H_RESOURCE:     /* Resource in use */
++	case H_BUSY:         /* long busy */
++		return -EBUSY;
++	default:
++		return -EINVAL;
++	}
++} /* end ehca_mrmw_map_hrc_free_mw() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++/* map HIPZ rc to IB retcodes for SMR registrations
++ * Used for hipz_h_register_smr.
++ */
++int ehca_mrmw_map_hrc_reg_smr(const u64 hipz_rc)
++{
++	switch (hipz_rc) {
++	case H_SUCCESS:	             /* successful completion */
++		return 0;
++	case H_ADAPTER_PARM:         /* invalid adapter handle */
++	case H_RH_PARM:              /* invalid resource handle */
++	case H_MEM_PARM:             /* invalid MR virtual address */
++	case H_MEM_ACCESS_PARM:      /* invalid access controls */
++	case H_NOT_ENOUGH_RESOURCES: /* insufficient resources */
++		return -EINVAL;
++	case H_BUSY:                 /* long busy */
++		return -EBUSY;
++	default:
++		return -EINVAL;
++	}
++} /* end ehca_mrmw_map_hrc_reg_smr() */
++
++/*----------------------------------------------------------------------*/
++/*----------------------------------------------------------------------*/
++
++/* MR destructor and constructor
++ * used in Reregister MR verb, sets all fields in ehca_mr_t to 0,
++ * except struct ib_mr and spinlock
++ */
++void ehca_mr_deletenew(struct ehca_mr *mr)
++{
++	mr->flags         = 0;
++	mr->num_pages     = 0;
++	mr->num_4k        = 0;
++	mr->acl           = 0;
++	mr->start         = NULL;
++	mr->fmr_page_size = 0;
++	mr->fmr_max_pages = 0;
++	mr->fmr_max_maps  = 0;
++	mr->fmr_map_cnt   = 0;
++	memset(&mr->ipz_mr_handle, 0, sizeof(mr->ipz_mr_handle));
++	memset(&mr->galpas, 0, sizeof(mr->galpas));
++	mr->nr_of_pages   = 0;
++	mr->pagearray     = NULL;
++	memset(&mr->pf, 0, sizeof(mr->pf));
++} /* end ehca_mr_deletenew() */
 
 

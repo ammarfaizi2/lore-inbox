@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965267AbWEOWDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbWEOWIn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965267AbWEOWDG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 18:03:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965268AbWEOWDG
+	id S964921AbWEOWIn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 18:08:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbWEOWIn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 18:03:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:977 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965267AbWEOWDE (ORCPT
+	Mon, 15 May 2006 18:08:43 -0400
+Received: from wr-out-0506.google.com ([64.233.184.228]:59710 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S964921AbWEOWIm convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 18:03:04 -0400
-Date: Mon, 15 May 2006 15:02:42 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Andreas Mohr <andi@rhlx01.fht-esslingen.de>, florin@iucha.net,
-       linux-kernel@vger.kernel.org, linux@dominikbrodowski.net
-Subject: Re: pcmcia oops on 2.6.17-rc[12]
-In-Reply-To: <1147730828.26686.165.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0605151459140.3866@g5.osdl.org>
-References: <20060423192251.GD8896@iucha.net>  <20060423150206.546b7483.akpm@osdl.org>
-  <20060508145609.GA3983@rhlx01.fht-esslingen.de>  <20060508084301.5025b25d.akpm@osdl.org>
-  <20060508163453.GB19040@flint.arm.linux.org.uk> <1147730828.26686.165.camel@localhost.localdomain>
+	Mon, 15 May 2006 18:08:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jQ6nNUI6i1ZbDC16RB1aw+G5BEQM3M5/l7k3qBQskUET0QmxLs7+0LA/cPU6bi671xhM8Tlhaiuq83whPGfPSsKEOKui4LlA2llBxeWGW1GYVBaTUoRQOFjrH0U7C+yARdJbtYH/g9ltea8r2/7L9eXUO8pxcqp6AM92FKoWkuA=
+Message-ID: <9a8748490605151508r4d9da784ib459a1f43fa52d49@mail.gmail.com>
+Date: Tue, 16 May 2006 00:08:41 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Alan Cox" <alan@redhat.com>
+Subject: Re: [PATCH 2/3] moxa: remove pointless check of 'tty' argument vs NULL
+Cc: linux-kernel@vger.kernel.org, "Moxa Technologies" <support@moxa.com.tw>,
+       "Martin Mares" <mj@ucw.cz>, "Alexey Dobriyan" <adobriyan@gmail.com>,
+       "Jesper Juhl" <jesper.juhl@gmail.com>
+In-Reply-To: <20060515215901.GB16994@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200605152357.36018.jesper.juhl@gmail.com>
+	 <20060515215901.GB16994@devserv.devel.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 15/05/06, Alan Cox <alan@redhat.com> wrote:
+> On Mon, May 15, 2006 at 11:57:35PM +0200, Jesper Juhl wrote:
+> > Remove pointless check of 'tty' argument vs NULL from moxa driver.
+>
+> Can you leave those in for the moment but change them to BUG_ON() because
+> I've seen the pop up once or twice. They may be fixed but Im not 100% sure
+> yet.
+>
 
+I could, but would that really make sense?
 
-On Mon, 15 May 2006, Alan Cox wrote:
+As Alexey pointed out in the previous thread :
 
-> On Llu, 2006-05-08 at 17:34 +0100, Russell King wrote:
-> > > So 8250 is requesting an IRQ for non-sharing mode and it's actually
-> > > failing, because something else is already using that IRQ.  The difference
-> > > is that the kernel now generates a warning when this happens.
-> > 
-> > Maybe someone is clearing the UPF_SHARE_IRQ flag?  Which port is this?
-> 
-> Its a bug in the PCMCIA code. Its the one I hit with the IDE code.
-> Asking for a private IRQ is not always honoured. 
+  >  ->write() is called via
+  >
+  >         tty->driver->write(tty, ...);
+  >
+  >  See? tty was already dereferenced.
 
-Note that some PCMCIA architectures simply _will_not_ give you a private 
-IRQ. Ever. They may not have any ISA interrupts to give, even to old 
-16-bit cards. So the choice may be "shared irq or nothing".
+And besides, we wouldn't ever get to the BUG_ON() because even if the
+function did manage to get called it would then explode in the
+  struct mxser_struct *info = tty->driver_data;
+assignment, before it ever got to the BUG_ON() (that assignment could
+ofcourse be moved as I did in my original patch, but that still leaves
+Alexeys point in place).
 
-So I would strongly argue that any driver that depends on getting an 
-exclusive IRQ is buggy, not the PCMCIA layer itself, and that it would be 
-a lot more productive to try to fix those drivers.
-
-Especially since exclusive irq's are clearly a dying breed, and have been 
-for the last decade or two. Why try to keep that braindamage alive?
-
-			Linus
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

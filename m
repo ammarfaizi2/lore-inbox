@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbWEOOTM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964945AbWEOOUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964926AbWEOOTM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 10:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbWEOOTM
+	id S964945AbWEOOUg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 10:20:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbWEOOUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 10:19:12 -0400
-Received: from mailhost.tue.nl ([131.155.2.19]:61174 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S964926AbWEOOTK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 10:19:10 -0400
-Message-ID: <44688DDC.3020605@etpmod.phys.tue.nl>
-Date: Mon, 15 May 2006 16:19:08 +0200
-From: Bart Hartgers <bart@etpmod.phys.tue.nl>
-User-Agent: Thunderbird 1.5 (X11/20060111)
-MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Tomasz Malesinski <tmal@mimuw.edu.pl>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Segfault on the i386 enter instruction
-References: <20060512131654.GB2994@duch.mimuw.edu.pl> <p734pzv73oj.fsf@bragg.suse.de> <20060512153139.GA4852@duch.mimuw.edu.pl> <446867C4.3070108@etpmod.phys.tue.nl> <Pine.LNX.4.61.0605150933060.22830@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0605150933060.22830@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 15 May 2006 10:20:36 -0400
+Received: from tayrelbas04.tay.hp.com ([161.114.80.247]:53960 "EHLO
+	tayrelbas04.tay.hp.com") by vger.kernel.org with ESMTP
+	id S964941AbWEOOUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 10:20:35 -0400
+Date: Mon, 15 May 2006 07:14:07 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: perfmon@napali.hpl.hp.com
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       perfctr-devel@lists.sourceforge.net,
+       oprofile-list@lists.sourceforge.net
+Subject: libpf+pfmon CVS available
+Message-ID: <20060515141407.GC8933@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
-> On Mon, 15 May 2006, Bart Hartgers wrote:
-> 
->> Tomasz Malesinski wrote:
->>> On Fri, May 12, 2006 at 03:50:20PM +0200, Andi Kleen wrote:
->>>> Handling it like you expect would require to disassemble
->>>> the function in the page fault handler and it's probably not
->>>> worth doing that for this weird case.
->>> Does it mean that the ENTER instruction should not be used to create
->>> stack frames in Linux programs?
->>>
->> Basically, yes. Here is a link to a relevant discussion in the 2.2.7 era:
->>
->> http://groups.google.co.nz/groups?selm=7i86ni%24b7n%241%40palladium.transmeta.com
->>
->> And perhaps x86-64 is handled different because of the red zone (some
->> memory below the stack-pointer that can be accessed legally)?
->>
->> Groeten,
->> Bart
-> 
-> The enter instruction works perfectly fine. The processors were
-> designed to use both enter and leave. There are no prohibitions
-> against their use. It's just that if you play games with assembly
-> so you create a stack-pointer wrap situation, you can get a
-> bounds error.
+Hello,
 
-No. The assembly is fine. Also enter does what it is supposed to do. The
-problem is that enter can cause a pagefault on an address (far) below
-the %esp, and Linu[xs] considers that an error (for good reasons).
+As promised, SF.net restarted CVS support over the week-end. I was
+able to update the CVS tree for libpfm to include all the releases
+since 3.2-060405. It now includes up to 3.2-060512 + the latest
+updates.
 
-Groeten,
-Bart
+I have also added pfmon to the CVS repository. The tree currently
+includes release 3.2-060426.
+
+The infomation to use to checkout:
+
+	pfmon modulename: pfmon
+	libpfm modulename: libpfm
+
+Careful, as the CVS site name has changed as part of SF.net upgrade.
+Make sure you follow the instructions at:
+	http://sourceforge.net/cvs/?group_id=144822
+
+Thanks for your patience.
+
+Enjoy,
+
 -- 
-Bart Hartgers - TUE Eindhoven - http://plasimo.phys.tue.nl/bart/contact/
+-Stephane

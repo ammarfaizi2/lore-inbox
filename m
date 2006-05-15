@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964943AbWEOTlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751430AbWEOTpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964943AbWEOTlm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 15:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbWEOTlm
+	id S1751430AbWEOTpT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 15:45:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWEOTpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 15:41:42 -0400
-Received: from ns.suse.de ([195.135.220.2]:35536 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964943AbWEOTll (ORCPT
+	Mon, 15 May 2006 15:45:18 -0400
+Received: from dvhart.com ([64.146.134.43]:28903 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1751430AbWEOTpQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 15:41:41 -0400
-From: Andi Kleen <ak@suse.de>
-To: Marko Macek <Marko.Macek@gmx.net>
-Subject: Re: ASUS A8V Deluxe, x86_64
-Date: Mon, 15 May 2006 21:41:36 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <8E8F647D7835334B985D069AE964A4F7028FDBFE@ECQCMTLMAIL1.quebec.int.ec.gc.ca> <p738xp35co4.fsf@bragg.suse.de> <4468D53F.9090507@gmx.net>
-In-Reply-To: <4468D53F.9090507@gmx.net>
+	Mon, 15 May 2006 15:45:16 -0400
+Message-ID: <4468DA46.2030109@mbligh.org>
+Date: Mon, 15 May 2006 12:45:10 -0700
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andy Whitcroft <apw@shadowen.org>, mingo@elte.hu,
+       linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH] x86 NUMA panic compile error
+References: <20060515005637.00b54560.akpm@osdl.org>	<20060515140811.GA23750@shadowen.org>	<20060515175306.GA18185@elte.hu>	<20060515110814.11c74d70.akpm@osdl.org>	<4468C3B8.8090502@shadowen.org> <20060515112456.0624d498.akpm@osdl.org>
+In-Reply-To: <20060515112456.0624d498.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605152141.36452.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 15 May 2006 21:23, Marko Macek wrote:
-> Andi Kleen wrote:
-> > "Fortier,Vincent [Montreal]" <Vincent.Fortier1@EC.GC.CA> writes:
-> > 
-> >>> I also have A8V Deluxe.
-> >>>
-> >>> No real problems with single core A64 3000.
-> >>>
-> >>> But now with and X2 dual core CPU, I needed to disable 
-> >>> irqbalance to get any stability.
-> >> Hein? Via xconfig?
-> > 
-> > I cant't see the parent message (did you mess up the cc?) of the
-> > person with irqbalanced troubles, but most likely he has a SIS chipset, right? 
+Andrew Morton wrote:
+> Andy Whitcroft <apw@shadowen.org> wrote:
 > 
-> No, VIA A8V Deluxe.
+>>>So it is perhaps reasonable to do this panic, but only if !CONFIG_EMBEDDED? 
+>>>(It really is time to start renaming CONFIG_EMBEDDED to CONFIG_DONT_DO_THIS
+>>>or something).
+>>
+>>How about CONFIG_EXPERIMENTAL?
 > 
-> See for example:
 > 
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=182618
+> Probably CONFIG_ADVANCED would be closer.
 
-Ok, that's new. We knew that SIS didn't like setting interrupt
-affinity on IRQ 0. Maybe VIA forgot to validate one of these cases too.
+It defaults to off already - people have to explicitly enable it.
 
-On SUSE it was workarounded in irqbalanced user space but since other 
-distributions seem to be lazy to pick that fix up we should probably
-do a kernel side fix. I'll put it on my todo list.
+Plus the original point was to be able to build one kernel that'd work
+across NUMA and non-NUMA boxes.
 
--Andi
-
+M.

@@ -1,36 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWEOKSg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbWEOKVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964866AbWEOKSg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 06:18:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWEOKSg
+	id S964860AbWEOKVG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 06:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbWEOKVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 06:18:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:27295 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932387AbWEOKSf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 06:18:35 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060513201341.63590cff.akpm@osdl.org> 
-References: <20060513201341.63590cff.akpm@osdl.org>  <20060513033742.GA18598@hellewell.homeip.net> <44655ECD.10404@yahoo.com.au> <afcef88a0605130921k7139da13k1b7232acb29140c1@mail.gmail.com> <44669D12.5050306@yahoo.com.au> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, michael.craig.thompson@gmail.com,
-       phillip@hellewell.homeip.net, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
-       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, toml@us.ibm.com,
-       yoder1@us.ibm.com, jmorris@namei.org, sct@redhat.com, ezk@cs.sunysb.edu,
-       dhowells@redhat.com
-Subject: Re: [PATCH 0/13: eCryptfs] eCryptfs Patch Set 
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Mon, 15 May 2006 11:17:51 +0100
-Message-ID: <30035.1147688271@warthog.cambridge.redhat.com>
+	Mon, 15 May 2006 06:21:06 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:27146 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S964860AbWEOKVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 06:21:05 -0400
+Message-ID: <446855AF.1090100@shadowen.org>
+Date: Mon, 15 May 2006 11:19:27 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Andrew Morton <akpm@osdl.org>, Mel Gorman <mel@csn.ul.ie>,
+       davej@codemonkey.org.uk, tony.luck@intel.com,
+       linux-kernel@vger.kernel.org, bob.picco@hp.com, ak@suse.de,
+       linux-mm@kvack.org, linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH 5/6] Have ia64 use add_active_range() and free_area_init_nodes
+References: <20060508141030.26912.93090.sendpatchset@skynet>	<20060508141211.26912.48278.sendpatchset@skynet> <20060514203158.216a966e.akpm@osdl.org> <44683A09.2060404@shadowen.org> <44685123.7040501@yahoo.com.au>
+In-Reply-To: <44685123.7040501@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+Nick Piggin wrote:
+> Andy Whitcroft wrote:
+> 
+>> Interesting.  You are correct there was no config component, at the time
+>> I didn't have direct evidence that any architecture needed it, only that
+>> we had an unchecked requirement on zones, a requirement that had only
+>> recently arrived with the changes to free buddy detection.  I note that
+> 
+> 
+> Recently arrived? Over a year ago with the no-buddy-bitmap patches,
+> right? Just checking because I that's what I'm assuming broke it...
 
-> Nobody is going to include a half-applied filesystem in their .config while
-> performing git-bisection, so it can go in in any order.
+Yep, sorry I forget I was out of the game for 6 months!  And yes that
+was when the requirements were altered.
 
-Apart from those who routinely attempt "make allyesconfig".
-
-David
+-apw

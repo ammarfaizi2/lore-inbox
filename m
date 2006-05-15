@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWEOTA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965150AbWEOTBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932443AbWEOTA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 15:00:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932502AbWEOTA2
+	id S965150AbWEOTBg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 15:01:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbWEOTBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 15:00:28 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:990 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932443AbWEOS7t (ORCPT
+	Mon, 15 May 2006 15:01:35 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:51167 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965150AbWEOTBc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 14:59:49 -0400
-Date: Mon, 15 May 2006 20:59:46 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, apw@shadowen.org,
+	Mon, 15 May 2006 15:01:32 -0400
+To: <ravinandan.arakali@neterion.com>
+Cc: "Peter. Phan" <peter.phan@neterion.com>,
+       "Leonid Grossman" <Leonid.Grossman@neterion.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 NUMA panic compile error
-Message-ID: <20060515185945.GA20215@elte.hu>
-References: <20060515005637.00b54560.akpm@osdl.org> <20060515182855.GB18652@elte.hu> <20060515115208.57a11dcb.akpm@osdl.org> <200605152056.27702.ak@suse.de>
-Mime-Version: 1.0
+Subject: Re: MSI-X support on AMD 8132 platforms ?
+References: <MAEEKMLDLDFEGKHNIJHIOECKCEAA.ravinandan.arakali@neterion.com>
+	<MAEEKMLDLDFEGKHNIJHIKEIMCEAA.ravinandan.arakali@neterion.com>
+From: Andi Kleen <ak@suse.de>
+Date: 15 May 2006 21:01:21 +0200
+In-Reply-To: <MAEEKMLDLDFEGKHNIJHIKEIMCEAA.ravinandan.arakali@neterion.com>
+Message-ID: <p73hd3r5czi.fsf@bragg.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605152056.27702.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Ravinandan Arakali" <ravinandan.arakali@neterion.com> writes:
 
-* Andi Kleen <ak@suse.de> wrote:
+> I was wondering if anybody has got MSI-X going on AMD 8132 platforms.
+> Our network card and driver support MSI-X and the combination works
+> fine on IA64 and xeon platforms. But on the 8132, the MSI-X vectors are
+> assigned(pci_enable_msix succeeds) but no interrupts get generated.
 
-> 
-> > But still, referencing a variable which is implemented in
-> > arch/i386/kernel/timers/timer_cyclone.c from within arch/i386/kernel/srat.c
-> > is asking for trouble, no?
-> 
-> Probably, but where would you define it instead? It kind of belongs 
-> into timer_cyclone.c
+See erratum #78 in the AMD 8132 Specification update.
+It doesn't support the MSI capability and there are no plans to fix that.
 
-there should be a asm-i386/cyclone.h that properly defines this. (and to 
-make things more consistent, it could make it 0 even if 
-!CONFIG_X86_CYCLONE_TIMER)
+AFAIK the only way to get MSI on Opteron is on PCI Express.
 
-	Ingo
+> Note that with a different OS, MSI-X does work on 8132.
+
+Are you sure?
+
+-Andi

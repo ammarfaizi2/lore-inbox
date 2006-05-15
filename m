@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWEOI3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964820AbWEOIgQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964810AbWEOI3j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 04:29:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbWEOI3j
+	id S964820AbWEOIgQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 04:36:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWEOIgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 04:29:39 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:43915 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S964810AbWEOI3i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 04:29:38 -0400
-Subject: Re: [PATCH] add raw driver Kconfig entry for s390
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Olaf Hering <olh@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060513115255.GA11955@suse.de>
-References: <20060513115255.GA11955@suse.de>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Mon, 15 May 2006 10:30:00 +0200
-Message-Id: <1147681800.5306.13.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 15 May 2006 04:36:16 -0400
+Received: from smtp15.clb.oleane.net ([213.56.31.158]:65152 "EHLO
+	smtp15.clb.oleane.net") by vger.kernel.org with ESMTP
+	id S964820AbWEOIgQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 04:36:16 -0400
+Message-ID: <44683D61.7000405@sej.fr>
+Date: Mon, 15 May 2006 10:35:45 +0200
+From: sej <sej@sej.fr>
+Reply-To: sej@sej.fr
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+MIME-Version: 1.0
+To: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org
+Subject: Re: mlock into kernel module
+References: <6bHKI-6a8-9@gated-at.bofh.it> <6bLbw-344-3@gated-at.bofh.it>
+In-Reply-To: <6bLbw-344-3@gated-at.bofh.it>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-05-13 at 13:52 +0200, Olaf Hering wrote:
-> From: Ihno Krumreich <ihno@suse.de>
+Chris Wright a écrit :
+> * sej.kernel (sej.kernel@gmail.com) wrote:
+>> I need to use mlock and munlock function into a kernel module. How so
+>> I call this system call from my module ?
 > 
-> The raw module is not enabled on s390/s390x
-> During SLES9 and SLES10 development IBM filed bugs about the missing raw
-> driver. Avoid that for SLES11 by adding it to the other char driver
-> entries.
+> You shouldn't.
 > 
-> Signed-off-by: Olaf Hering <olh@suse.de>
+>> I need to do this because I must use mlock in my software, but I can't
+>> use root or suser to start it. So mlock alwaays fail.
+> 
+> You should be using rlimits for this.
+> 
+> thanks,
+> -chris
 
-NACK. The raw device driver is obsolete and we should not add it to the
-s390 kconfig. I know that it is needed in SLES10 for compatability to
-SLES9 but given that the option is supposed to vanish I prefer to keep
-it out of the upstream tree.
-
--- 
-blue skies,
-  Martin.
-
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-"Reality continues to ruin my life." - Calvin.
-
-
+So how to set rlimits ?
+My program is in user mode and has to allocate about 128MB to 512MB of 
+non swappable memory. Maybe I can change the rlimits rights into my 
+kernel module ?
+Do you know how to do this and where to find informations ?
+Regards,
+sej

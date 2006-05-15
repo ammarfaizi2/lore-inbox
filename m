@@ -1,471 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbWEORpl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751628AbWEORql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965045AbWEORpl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 13:45:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965001AbWEORmK
+	id S1751628AbWEORql (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 13:46:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751625AbWEORqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 13:42:10 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:47051 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751660AbWEORmG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 13:42:06 -0400
-Message-ID: <4468BD85.8090805@de.ibm.com>
-Date: Mon, 15 May 2006 19:42:29 +0200
-From: Heiko J Schick <schihei@de.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
+	Mon, 15 May 2006 13:46:39 -0400
+Received: from mail.unixshell.com ([207.210.106.37]:61877 "EHLO
+	mail.unixshell.com") by vger.kernel.org with ESMTP id S965021AbWEORqf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 13:46:35 -0400
+Message-ID: <4468BE70.7030802@tektonic.net>
+Date: Mon, 15 May 2006 13:46:24 -0400
+From: Matt Ayres <matta@tektonic.net>
+Organization: TekTonic
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
 MIME-Version: 1.0
-To: openib-general@openib.org, Christoph Raisch <RAISCH@de.ibm.com>,
-       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>,
-       schihei@de.ibm.com, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-Subject: [PATCH 10/16] ehca: completion queue
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Panic in ipt_do_table with 2.6.16.13-xen
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Heiko J Schick <schickhj@de.ibm.com>
+I have been noticing this same problem dozens of times and have finally 
+caught a full trace.  I have run it through ksymoops, but there is no 
+/proc/ksyms.  Is there a better method for getting information out of 
+the Code line than using ksymoops in 2.6 kernels?
+
+The kernel is for Xen, but it does not appear to be related to Xen.
+
+ksymoops run:
+
+# ksymoops -m System.map -k /proc/kallsyms </root/xen-oops.log
+ksymoops 2.4.9 on i686 2.6.16.13-xen.  Options used
+      -V (default)
+      -k /proc/kallsyms (specified)
+      -l /proc/modules (default)
+      -o /lib/modules/2.6.16.13-xen/ (default)
+      -m System.map (specified)
+
+Warning (read_ksyms): no kernel symbols in ksyms, is /proc/kallsyms a 
+valid ksyms file?
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+Unable to handle kernel paging request at virtual addr
+c03d96a9
+008c2000 -> *pde = 00000001:aeead001
+00e1f000 -> *pme = 00000000:eb2ef067
+0faef000 -> *pte = 00000000:00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0061:[<c03d96a9>]    Not tainted VLI
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286   (2.6.16.13-xen #1)
+eax: 00000002   ebx: cfcc6020   ecx: cfcc6020   edx: 00000000
+esi: d1320000   edi: 00004000   ebp: d1324a00   esp: c0517d8c
+ds: 007b   es: 007b   ss: 0069
+Stack: <0>c04d056c 00000000 cfcc6020 00000000 cffa8000 c7f4fc00 d1320000 
+0000000
+00000001 00000000 c0517e2c 80000000 c03acc04 c7f4fc00 c03da724 c0517e70
+00000002 cffa8000 c7f4fc00 c04d0540 00000000 c03a2e50 00000002 c0517e70
+Call Trace:
+[<c03acc04>] ip_forward_finish+0x0/0x36
+[<c03da724>] ipt_hook+0x1c/0x20
+[<c03a2e50>] nf_iterate+0x2c/0x5e
+[<c03acc04>] ip_forward_finish+0x0/0x36
+[<c03acc04>] ip_forward_finish+0x0/0x36
+[<c03a2f4b>] nf_hook_slow+0x3c/0xc3
+[<c03acc04>] ip_forward_finish+0x0/0x36
+[<c03acdd8>] ip_forward+0x19e/0x22e
+[<c03acc04>] ip_forward_finish+0x0/0x36
+[<c03abcf7>] ip_rcv+0x40e/0x48f
+[<c037dcb5>] netif_receive_skb+0x255/0x294
+[<c02e82e6>] tg3_poll+0x532/0x76c
+[<c037bd82>] net_rx_action+0xaa/0x17c
+[<c011ea17>] __do_softirq+0x73/0xf0
+[<c011ead4>] do_softirq+0x40/0x64
+[<c010606b>] do_IRQ+0x1f/0x25
+[<c02fc87f>] evtchn_do_upcall+0x60/0x96
+[<c0104a2c>] hypervisor_callback+0x2c/0x34
+[<c010342e>] xen_idle+0x5e/0x7d
+[<c0103509>] cpu_idle+0xbc/0xd5
+[<c05184e0>] start_kernel+0x344/0x34b
+Code: 89 44 24 18 89 c6 8b 44 24 40 8b 6c 24 18 03 74 83 0c 03 6c 83 20 
+c7 44 24
 
 
-  drivers/infiniband/hw/ehca/ehca_cq.c |  431 +++++++++++++++++++++++++++++++++++
-  1 file changed, 431 insertions(+)
+ >>EIP; c03d96a9 <ipt_do_table+ad/2d0>   <=====
+
+ >>esp; c0517d8c <init_thread_union+1d8c/2000>
+
+Trace; c03acc04 <ip_forward_finish+0/36>
+Trace; c03da724 <ipt_hook+1c/20>
+Trace; c03a2e50 <nf_iterate+2c/5e>
+Trace; c03acc04 <ip_forward_finish+0/36>
+Trace; c03acc04 <ip_forward_finish+0/36>
+Trace; c03a2f4b <nf_hook_slow+3c/c3>
+Trace; c03acc04 <ip_forward_finish+0/36>
+Trace; c03acdd8 <ip_forward+19e/22e>
+Trace; c03acc04 <ip_forward_finish+0/36>
+Trace; c03abcf7 <ip_rcv+40e/48f>
+Trace; c037dcb5 <netif_receive_skb+255/294>
+Trace; c02e82e6 <tg3_poll+532/76c>
+Trace; c037bd82 <net_rx_action+aa/17c>
+Trace; c011ea17 <__do_softirq+73/f0>
+Trace; c011ead4 <do_softirq+40/64>
+Trace; c010606b <do_IRQ+1f/25>
+Trace; c02fc87f <evtchn_do_upcall+60/96>
+Trace; c0104a2c <hypervisor_callback+2c/34>
+Trace; c010342e <xen_idle+5e/7d>
+Trace; c0103509 <cpu_idle+bc/d5>
+Trace; c05184e0 <start_kernel+344/34b>
+
+Code;  c03d96a9 <ipt_do_table+ad/2d0>
+00000000 <_EIP>:
+Code;  c03d96a9 <ipt_do_table+ad/2d0>   <=====
+    0:   89 44 24 18               mov    %eax,0x18(%esp)   <=====
+Code;  c03d96ad <ipt_do_table+b1/2d0>
+    4:   89 c6                     mov    %eax,%esi
+Code;  c03d96af <ipt_do_table+b3/2d0>
+    6:   8b 44 24 40               mov    0x40(%esp),%eax
+Code;  c03d96b3 <ipt_do_table+b7/2d0>
+    a:   8b 6c 24 18               mov    0x18(%esp),%ebp
+Code;  c03d96b7 <ipt_do_table+bb/2d0>
+    e:   03 74 83 0c               add    0xc(%ebx,%eax,4),%esi
+Code;  c03d96bb <ipt_do_table+bf/2d0>
+   12:   03 6c 83 20               add    0x20(%ebx,%eax,4),%ebp
+Code;  c03d96bf <ipt_do_table+c3/2d0>
+   16:   c7 44 24 00 00 00 00      movl   $0x0,0x0(%esp)
+Code;  c03d96c6 <ipt_do_table+ca/2d0>
+   1d:   00
 
 
-
---- linux-2.6.17-rc2-orig/drivers/infiniband/hw/ehca/ehca_cq.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.17-rc2/drivers/infiniband/hw/ehca/ehca_cq.c	2006-05-15 14:56:34.000000000 +0200
-@@ -0,0 +1,431 @@
-+/*
-+ *  IBM eServer eHCA Infiniband device driver for Linux on POWER
-+ *
-+ *  Completion queue handling
-+ *
-+ *  Authors: Waleri Fomin <fomin@de.ibm.com>
-+ *           Khadija Souissi <souissi@de.ibm.com>
-+ *           Reinhard Ernst <rernst@de.ibm.com>
-+ *           Heiko J Schick <schickhj@de.ibm.com>
-+ *           Hoang-Nam Nguyen <hnguyen@de.ibm.com>
-+ *
-+ *
-+ *  Copyright (c) 2005 IBM Corporation
-+ *
-+ *  All rights reserved.
-+ *
-+ *  This source code is distributed under a dual license of GPL v2.0 and OpenIB
-+ *  BSD.
-+ *
-+ * OpenIB BSD License
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions are met:
-+ *
-+ * Redistributions of source code must retain the above copyright notice, this
-+ * list of conditions and the following disclaimer.
-+ *
-+ * Redistributions in binary form must reproduce the above copyright notice,
-+ * this list of conditions and the following disclaimer in the documentation
-+ * and/or other materials
-+ * provided with the distribution.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-+ * POSSIBILITY OF SUCH DAMAGE.
-+ */
-+
-+#define DEB_PREFIX "e_cq"
-+
-+#include <asm/current.h>
-+
-+#include "ehca_iverbs.h"
-+#include "ehca_classes.h"
-+#include "ehca_irq.h"
-+#include "hcp_if.h"
-+
-+int ehca_cq_assign_qp(struct ehca_cq *cq, struct ehca_qp *qp)
-+{
-+	unsigned int qp_num = qp->real_qp_num;
-+	unsigned int key = qp_num & (QP_HASHTAB_LEN-1);
-+	unsigned long spl_flags = 0;
-+
-+	spin_lock_irqsave(&cq->spinlock, spl_flags);
-+	hlist_add_head(&qp->list_entries, &cq->qp_hashtab[key]);
-+	spin_unlock_irqrestore(&cq->spinlock, spl_flags);
-+
-+	EDEB(7, "cq_num=%x real_qp_num=%x", cq->cq_number, qp_num);
-+
-+	return 0;
-+}
-+
-+int ehca_cq_unassign_qp(struct ehca_cq *cq, unsigned int real_qp_num)
-+{
-+	int ret = -EINVAL;
-+	unsigned int key = real_qp_num & (QP_HASHTAB_LEN-1);
-+	struct hlist_node *iter = NULL;
-+	struct ehca_qp *qp = NULL;
-+	unsigned long spl_flags = 0;
-+
-+	spin_lock_irqsave(&cq->spinlock, spl_flags);
-+	hlist_for_each(iter, &cq->qp_hashtab[key]) {
-+		qp = hlist_entry(iter, struct ehca_qp, list_entries);
-+		if (qp->real_qp_num == real_qp_num) {
-+			hlist_del(iter);
-+			EDEB(7, "removed qp from cq .cq_num=%x real_qp_num=%x",
-+			     cq->cq_number, real_qp_num);
-+			ret = 0;
-+			break;
-+		}
-+	}
-+	spin_unlock_irqrestore(&cq->spinlock, spl_flags);
-+	if (ret) {
-+		EDEB_ERR(4, "qp not found cq_num=%x real_qp_num=%x",
-+			 cq->cq_number, real_qp_num);
-+	}
-+
-+	return ret;
-+}
-+
-+struct ehca_qp* ehca_cq_get_qp(struct ehca_cq *cq, int real_qp_num)
-+{
-+	struct ehca_qp *ret = NULL;
-+	unsigned int key = real_qp_num & (QP_HASHTAB_LEN-1);
-+	struct hlist_node *iter = NULL;
-+	struct ehca_qp *qp = NULL;
-+	hlist_for_each(iter, &cq->qp_hashtab[key]) {
-+		qp = hlist_entry(iter, struct ehca_qp, list_entries);
-+		if (qp->real_qp_num == real_qp_num) {
-+			ret = qp;
-+			break;
-+		}
-+	}
-+	return ret;
-+}
-+
-+struct ib_cq *ehca_create_cq(struct ib_device *device, int cqe,
-+			     struct ib_ucontext *context,
-+			     struct ib_udata *udata)
-+{
-+	extern struct ehca_module ehca_module;
-+	struct ib_cq *cq = NULL;
-+	struct ehca_cq *my_cq = NULL;
-+	struct ehca_shca *shca = NULL;
-+	struct ipz_adapter_handle adapter_handle;
-+	/* h_call's out parameters */
-+	struct ehca_alloc_cq_parms param;
-+	u32 counter = 0;
-+	void *vpage = NULL;
-+	u64 rpage = 0;
-+	struct h_galpa gal;
-+	u64 cqx_fec = 0;
-+	u64 h_ret = 0;
-+	int ipz_rc = 0;
-+	int ret = 0;
-+	const u32 additional_cqe=20;
-+	int i= 0;
-+	unsigned long flags;
-+
-+	EHCA_CHECK_DEVICE_P(device);
-+	EDEB_EN(7,  "device=%p cqe=%x context=%p", device, cqe, context);
-+
-+	if (cqe >= 0xFFFFFFFF - 64 - additional_cqe)
-+		return ERR_PTR(-EINVAL);
-+
-+	my_cq = kmem_cache_alloc(ehca_module.cache_cq, SLAB_KERNEL);
-+	if (!my_cq) {
-+		cq = ERR_PTR(-ENOMEM);
-+		EDEB_ERR(4, "Out of memory for ehca_cq struct device=%p",
-+			 device);
-+		goto create_cq_exit0;
-+	}
-+
-+	memset(my_cq, 0, sizeof(struct ehca_cq));
-+	memset(&param, 0, sizeof(struct ehca_alloc_cq_parms));
-+
-+	spin_lock_init(&my_cq->spinlock);
-+	spin_lock_init(&my_cq->cb_lock);
-+	spin_lock_init(&my_cq->task_lock);
-+	my_cq->ownpid = current->tgid;
-+
-+	cq = &my_cq->ib_cq;
-+
-+	shca = container_of(device, struct ehca_shca, ib_device);
-+	adapter_handle = shca->ipz_hca_handle;
-+	param.eq_handle = shca->eq.ipz_eq_handle;
-+
-+
-+	do {
-+		if (!idr_pre_get(&ehca_cq_idr, GFP_KERNEL)) {
-+			cq = ERR_PTR(-ENOMEM);
-+			EDEB_ERR(4,
-+				 "Can't reserve idr resources. "
-+				 "device=%p", device);
-+			goto create_cq_exit1;
-+		}
-+
-+		spin_lock_irqsave(&ehca_cq_idr_lock, flags);
-+		ret = idr_get_new(&ehca_cq_idr, my_cq, &my_cq->token);
-+		spin_unlock_irqrestore(&ehca_cq_idr_lock, flags);
-+
-+	} while (ret == -EAGAIN);
-+
-+	if (ret) {
-+		cq = ERR_PTR(-ENOMEM);
-+		EDEB_ERR(4,
-+			 "Can't allocate new idr entry. "
-+			 "device=%p", device);
-+		goto create_cq_exit1;
-+	}
-+
-+	/* CQs maximum depth is 4GB-64, but we need additional 20 as buffer
-+	 * for receiving errors CQEs.
-+	 */
-+	param.nr_cqe = cqe + additional_cqe;
-+	h_ret = hipz_h_alloc_resource_cq(adapter_handle, my_cq, &param);
-+
-+	if (h_ret != H_SUCCESS) {
-+		EDEB_ERR(4,"hipz_h_alloc_resource_cq() failed "
-+			 "h_ret=%lx device=%p", h_ret, device);
-+		cq = ERR_PTR(ehca2ib_return_code(h_ret));
-+		goto create_cq_exit2;
-+	}
-+
-+	ipz_rc = ipz_queue_ctor(&my_cq->ipz_queue, param.act_pages,
-+				EHCA_PAGESIZE, sizeof(struct ehca_cqe), 0);
-+	if (!ipz_rc) {
-+		EDEB_ERR(4,
-+			 "ipz_queue_ctor() failed "
-+			 "ipz_rc=%x device=%p", ipz_rc, device);
-+		cq = ERR_PTR(-EINVAL);
-+		goto create_cq_exit3;
-+	}
-+
-+	for (counter = 0; counter < param.act_pages; counter++) {
-+		vpage = ipz_qpageit_get_inc(&my_cq->ipz_queue);
-+		if (!vpage) {
-+			EDEB_ERR(4, "ipz_qpageit_get_inc() "
-+				 "returns NULL device=%p", device);
-+			cq = ERR_PTR(-EAGAIN);
-+			goto create_cq_exit4;
-+		}
-+		rpage = virt_to_abs(vpage);
-+
-+		h_ret = hipz_h_register_rpage_cq(adapter_handle,
-+						 my_cq->ipz_cq_handle,
-+						 &my_cq->pf,
-+						 0,
-+						 0,
-+						 rpage,
-+						 1,
-+						 my_cq->galpas.
-+						 kernel);
-+
-+		if (h_ret < H_SUCCESS) {
-+			EDEB_ERR(4, "hipz_h_register_rpage_cq() failed "
-+				 "ehca_cq=%p cq_num=%x h_ret=%lx "
-+				 "counter=%i act_pages=%i",
-+				 my_cq, my_cq->cq_number,
-+				 h_ret, counter, param.act_pages);
-+			cq = ERR_PTR(-EINVAL);
-+			goto create_cq_exit4;
-+		}
-+
-+		if (counter == (param.act_pages - 1)) {
-+			vpage = ipz_qpageit_get_inc(&my_cq->ipz_queue);
-+			if ((h_ret != H_SUCCESS) || vpage) {
-+				EDEB_ERR(4, "Registration of pages not "
-+					 "complete ehca_cq=%p cq_num=%x "
-+					 "h_ret=%lx",
-+					 my_cq, my_cq->cq_number, h_ret);
-+				cq = ERR_PTR(-EAGAIN);
-+				goto create_cq_exit4;
-+			}
-+		} else {
-+			if (h_ret != H_PAGE_REGISTERED) {
-+				EDEB_ERR(4, "Registration of page failed "
-+					 "ehca_cq=%p cq_num=%x h_ret=%lx"
-+					 "counter=%i act_pages=%i",
-+					 my_cq, my_cq->cq_number,
-+					 h_ret, counter, param.act_pages);
-+				cq = ERR_PTR(-ENOMEM);
-+				goto create_cq_exit4;
-+			}
-+		}
-+	}
-+
-+	ipz_qeit_reset(&my_cq->ipz_queue);
-+
-+	gal = my_cq->galpas.kernel;
-+	cqx_fec = hipz_galpa_load(gal, CQTEMM_OFFSET(cqx_fec));
-+	EDEB(8, "ehca_cq=%p cq_num=%x CQX_FEC=%lx",
-+	     my_cq, my_cq->cq_number, cqx_fec);
-+
-+	my_cq->ib_cq.cqe = my_cq->nr_of_entries =
-+		param.act_nr_of_entries - additional_cqe;
-+	my_cq->cq_number = (my_cq->ipz_cq_handle.handle) & 0xffff;
-+
-+	for (i = 0; i < QP_HASHTAB_LEN; i++)
-+		INIT_HLIST_HEAD(&my_cq->qp_hashtab[i]);
-+
-+	if (context) {
-+		struct ipz_queue *ipz_queue = &my_cq->ipz_queue;
-+		struct ehca_create_cq_resp resp;
-+		struct vm_area_struct *vma = NULL;
-+		memset(&resp, 0, sizeof(resp));
-+		resp.cq_number = my_cq->cq_number;
-+		resp.token = my_cq->token;
-+		resp.ipz_queue.qe_size = ipz_queue->qe_size;
-+		resp.ipz_queue.act_nr_of_sg = ipz_queue->act_nr_of_sg;
-+		resp.ipz_queue.queue_length = ipz_queue->queue_length;
-+		resp.ipz_queue.pagesize = ipz_queue->pagesize;
-+		resp.ipz_queue.toggle_state = ipz_queue->toggle_state;
-+		ehca_mmap_nopage(((u64) (my_cq->token) << 32) | 0x12000000,
-+				 ipz_queue->queue_length,
-+				 ((void**)&resp.ipz_queue.queue),
-+				 &vma);
-+		my_cq->uspace_queue = resp.ipz_queue.queue;
-+		resp.galpas = my_cq->galpas;
-+		ehca_mmap_register(my_cq->galpas.user.fw_handle,
-+				   ((void**)&resp.galpas.kernel.fw_handle),
-+				   &vma);
-+		my_cq->uspace_fwh = (u64)resp.galpas.kernel.fw_handle;
-+		if (ib_copy_to_udata(udata, &resp, sizeof(resp))) {
-+			EDEB_ERR(4,  "Copy to udata failed.");
-+			goto create_cq_exit4;
-+		}
-+	}
-+
-+	EDEB_EX(7,"retcode=%p ehca_cq=%p cq_num=%x cq_size=%x",
-+		cq, my_cq, my_cq->cq_number, param.act_nr_of_entries);
-+	return cq;
-+
-+create_cq_exit4:
-+	ipz_queue_dtor(&my_cq->ipz_queue);
-+
-+create_cq_exit3:
-+	h_ret = hipz_h_destroy_cq(adapter_handle, my_cq, 1);
-+	EDEB(3, "hipz_h_destroy_cq() failed ehca_cq=%p cq_num=%x h_ret=%lx",
-+	     my_cq, my_cq->cq_number, h_ret);
-+
-+create_cq_exit2:
-+	spin_lock_irqsave(&ehca_cq_idr_lock, flags);
-+	idr_remove(&ehca_cq_idr, my_cq->token);
-+	spin_unlock_irqrestore(&ehca_cq_idr_lock, flags);
-+
-+create_cq_exit1:
-+	kmem_cache_free(ehca_module.cache_cq, my_cq);
-+
-+create_cq_exit0:
-+	EDEB_EX(7,  "An error has occured retcode=%p ", cq);
-+	return cq;
-+}
-+
-+int ehca_destroy_cq(struct ib_cq *cq)
-+{
-+	extern struct ehca_module ehca_module;
-+	u64 h_ret = 0;
-+	int ret = 0;
-+	struct ehca_cq *my_cq = NULL;
-+	int cq_num = 0;
-+	struct ib_device *device = NULL;
-+	struct ehca_shca *shca = NULL;
-+	struct ipz_adapter_handle adapter_handle;
-+	u32 cur_pid = current->tgid;
-+	unsigned long flags;
-+
-+	EHCA_CHECK_CQ(cq);
-+	my_cq = container_of(cq, struct ehca_cq, ib_cq);
-+	cq_num = my_cq->cq_number;
-+	device = cq->device;
-+	EHCA_CHECK_DEVICE(device);
-+	shca = container_of(device, struct ehca_shca, ib_device);
-+	adapter_handle = shca->ipz_hca_handle;
-+	EDEB_EN(7, "ehca_cq=%p cq_num=%x",
-+		my_cq, my_cq->cq_number);
-+
-+	spin_lock_irqsave(&ehca_cq_idr_lock, flags);
-+	while (my_cq->nr_callbacks)
-+		yield();
-+
-+	idr_remove(&ehca_cq_idr, my_cq->token);
-+	spin_unlock_irqrestore(&ehca_cq_idr_lock, flags);
-+
-+	if (my_cq->uspace_queue && my_cq->ownpid != cur_pid) {
-+		EDEB_ERR(4, "Invalid caller pid=%x ownpid=%x",
-+			 cur_pid, my_cq->ownpid);
-+		return -EINVAL;
-+	}
-+
-+	/* un-mmap if vma alloc */
-+	if (my_cq->uspace_queue ) {
-+		ret = ehca_munmap(my_cq->uspace_queue,
-+				      my_cq->ipz_queue.queue_length);
-+		ret = ehca_munmap(my_cq->uspace_fwh, 4096);
-+	}
-+
-+	h_ret = hipz_h_destroy_cq(adapter_handle, my_cq, 0);
-+	if (h_ret == H_R_STATE) {
-+		/* cq in err: read err data and destroy it forcibly */
-+		EDEB(4, "ehca_cq=%p cq_num=%x ressource=%lx in err state. "
-+		     "Try to delete it forcibly.",
-+		     my_cq, my_cq->cq_number, my_cq->ipz_cq_handle.handle);
-+		ehca_error_data(shca, my_cq, my_cq->ipz_cq_handle.handle);
-+		h_ret = hipz_h_destroy_cq(adapter_handle, my_cq, 1);
-+		if (h_ret == H_SUCCESS)
-+			EDEB(4, "ehca_cq=%p cq_num=%x deleted successfully.",
-+			     my_cq, my_cq->cq_number);
-+	}
-+	if (h_ret != H_SUCCESS) {
-+		EDEB_ERR(4,"hipz_h_destroy_cq() failed "
-+			 "h_ret=%lx ehca_cq=%p cq_num=%x",
-+			 h_ret, my_cq, my_cq->cq_number);
-+		ret = ehca2ib_return_code(h_ret);
-+		goto destroy_cq_exit0;
-+	}
-+	ipz_queue_dtor(&my_cq->ipz_queue);
-+	kmem_cache_free(ehca_module.cache_cq, my_cq);
-+
-+destroy_cq_exit0:
-+	EDEB_EX(7, "ehca_cq=%p cq_num=%x ret=%x ",
-+		my_cq, cq_num, ret);
-+	return ret;
-+}
-+
-+int ehca_resize_cq(struct ib_cq *cq, int cqe, struct ib_udata *udata)
-+{
-+	int ret = 0;
-+	struct ehca_cq *my_cq = NULL;
-+	u32 cur_pid = current->tgid;
-+
-+	if (unlikely(!cq)) {
-+		EDEB_ERR(4, "cq is NULL");
-+		return -EFAULT;
-+	}
-+
-+	my_cq = container_of(cq, struct ehca_cq, ib_cq);
-+	EDEB_EN(7, "ehca_cq=%p cq_num=%x",
-+		my_cq, my_cq->cq_number);
-+
-+	if (my_cq->uspace_queue && my_cq->ownpid != cur_pid) {
-+		EDEB_ERR(4, "Invalid caller pid=%x ownpid=%x",
-+			 cur_pid, my_cq->ownpid);
-+		return -EINVAL;
-+	}
-+
-+	/* TODO: proper resize needs to be done */
-+	ret = -EFAULT;
-+	EDEB_ERR(4, "not implemented yet");
-+
-+	EDEB_EX(7, "ehca_cq=%p cq_num=%x",
-+		my_cq, my_cq->cq_number);
-+	return ret;
-+}
-
-
+1 warning issued.  Results may not be reliable.

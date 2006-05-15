@@ -1,34 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965172AbWEOTNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751627AbWEOTOp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965172AbWEOTNt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 15:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751631AbWEOTNt
+	id S1751627AbWEOTOp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 15:14:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751634AbWEOTOp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 15:13:49 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5523 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751625AbWEOTNs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 15:13:48 -0400
-Date: Mon, 15 May 2006 12:16:30 -0700
-From: Andrew Morton <akpm@osdl.org>
+	Mon, 15 May 2006 15:14:45 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:54179 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751627AbWEOTOo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 15:14:44 -0400
+Subject: Re: [PATCH] 2.6.17-rc4-mm1 - kbuild wierdness with
+	EXPORT_SYMBOL_GPL
+From: Ram Pai <linuxram@us.ibm.com>
 To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: 2.6.17-rc4-mm1 klibc build misbehavior
-Message-Id: <20060515121630.2a91235b.akpm@osdl.org>
-In-Reply-To: <200605151907.k4FJ7Olk006598@turing-police.cc.vt.edu>
-References: <200605151907.k4FJ7Olk006598@turing-police.cc.vt.edu>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200605151900.k4FJ0ktD006410@turing-police.cc.vt.edu>
+References: <200605151900.k4FJ0ktD006410@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Organization: IBM 
+Date: Mon, 15 May 2006 12:14:38 -0700
+Message-Id: <1147720478.4884.74.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
->
-> Why does touching scripts/mod/modpost.c end up rebuilding all of klibc?
+On Mon, 2006-05-15 at 15:00 -0400, Valdis.Kletnieks@vt.edu wrote:
+> It looks like a buggy comparison down in the guts of
+> kbuild-export-type-enhancement-to-modpostc.patch - it's doing
+> something really odd when it hits a EXPORT_SYMBOL_GPL.
 > 
-> Oddly enough, it *didn't* force a rebuild of all the *.ko files.
+> Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
+> ---
+> Proposed fix (with an added debugging warning Just In Case:
+> 
+> --- linux-2.6.17-rc4-mm1/scripts/mod/modpost.c.whatdied	2006-05-15 13:50:13.000000000 -0400
+> +++ linux-2.6.17-rc4-mm1/scripts/mod/modpost.c	2006-05-15 14:52:13.000000000 -0400
+> @@ -1194,12 +1194,14 @@
+>  					*d != '\0')
+>  			goto fail;
+>  
+> -		if ((strcmp(export, "EXPORT_SYMBOL_GPL")))
+> +		if ((strcmp(export, "EXPORT_SYMBOL_GPL") == 0))
+
+Yes my mistake.  Error while merging in Andreas's fix. :(
+
+Andrew, can apply this patch on top of the other patches?
+RP
+
+
+
+>  			export_type = 1;
+>  		else if(strcmp(export, "EXPORT_SYMBOL") == 0)
+>  			export_type = 0;
+> -		else
+> +		else {
+> +			warn("Odd symbol export=%s symname=%s modname=%s\n",export,symname,modname);
+>  			goto fail;
+> +		}
+>  
+>  		if (!(mod = find_module(modname))) {
+>  			if (is_vmlinux(modname)) {
+> 
 > 
 
-cc added.

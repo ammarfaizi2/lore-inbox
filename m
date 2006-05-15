@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbWEOSlx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWEOSnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750978AbWEOSlx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 14:41:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWEOSlx
+	id S1751308AbWEOSnY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 14:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWEOSnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 14:41:53 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:10251 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750978AbWEOSlw convert rfc822-to-8bit (ORCPT
+	Mon, 15 May 2006 14:43:24 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:43205 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750723AbWEOSnX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 14:41:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=hYhbEObXeckZIa7nRUr1DIlRq/8NSOFmNexRjM+XpN+1jYsPtDVluHYqecuyT0Sqoo5AA++i6MJ77GKnoPjWdL0dmu0yWRbBcd40fXD1p9seek0eQKc10UYth0Kw9kN/nyTDbSvl6nTjlC1whj8kTiiI3edjg0HPji6oEWUKmRg=
-Message-ID: <91740af30605151141j1241bd62q925cd7c1f858d75b@mail.gmail.com>
-Date: Mon, 15 May 2006 14:41:51 -0400
-From: "Rohan Mutagi" <rohan208@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: netdump netpoll bug?
+	Mon, 15 May 2006 14:43:23 -0400
+Message-ID: <4468CBC7.2030900@garzik.org>
+Date: Mon, 15 May 2006 14:43:19 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: Jeff Garzik <jeff@garzik.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFT] major libata update
+References: <20060515170006.GA29555@havoc.gtf.org> <20060515182919.GA16070@irc.pl>
+In-Reply-To: <20060515182919.GA16070@irc.pl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.1 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Every time my system panics and  my client is dumping the vmcore to
-the netdump-server, I get error "netpoll_start_netdump: called
-recursively. rebooting". and my client reboots. And I get a
-vmcore-incomplete file. I did a fresh install of Linux RHEL4-WS and
-still get the same problem. Any ideas how to proceed?
+Tomasz Torcz wrote:
+> On Mon, May 15, 2006 at 01:00:06PM -0400, Jeff Garzik wrote:
+>> After much development and review, I merged a massive pile of libata
+>> patches from Tejun Heo and Albert Lee.  This update contains the
+>> following major libata
+> 
+>   Any plans to merge http://home-tj.org/wiki/index.php/Sil_m15w ? Or
+> maybe it's merged already?
+>   Seagate firmware update seems to be available only for OEMs, so this
+> quirk is pretty helpful for end users.
 
-google search for "netpoll_start_netdump" .. "netdump bug recursively"
-etc dint return any perceivable results.. any leads would be
-appreciated..
+Its a question of staging.  This still lives in the 'sii-m15w' branch of 
+libata-dev.git, but if we throw too many _classes_ of changes into the 
+same big lump, then it becomes much more difficult to discern which 
+changes caused which failures.
 
-also if this is the wrong place to post, I would appriciate it if i
-coudl know the right place to post this message?
+Since sata_sil has seen several changes, and since the sii-m15w problems 
+are so difficult to diagnose properly, its easier to separate that out.
+
+	Jeff
 
 
-Thanks a lot,
-Rohan Mutagi
+

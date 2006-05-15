@@ -1,45 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbWEOOVj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbWEOO2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964939AbWEOOVj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 10:21:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbWEOOVj
+	id S964843AbWEOO2d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 10:28:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWEOO2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 10:21:39 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:21894 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964939AbWEOOVi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 10:21:38 -0400
-Subject: Re: [RFC] Hugetlb demotion for x86
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Adam Litke <agl@us.ibm.com>
-Cc: Christoph Lameter <christoph@engr.sgi.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1147363859.24029.134.camel@localhost.localdomain>
-References: <1147287400.24029.81.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0605101633140.7639@schroedinger.engr.sgi.com>
-	 <1147363859.24029.134.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 15 May 2006 07:20:17 -0700
-Message-Id: <1147702817.6623.27.camel@localhost.localdomain>
+	Mon, 15 May 2006 10:28:33 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:60892 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964843AbWEOO2c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 10:28:32 -0400
+Date: Mon, 15 May 2006 10:28:05 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>
+Cc: Morton Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Kdump maintainer info update
+Message-ID: <20060515142805.GA6517@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-05-11 at 11:10 -0500, Adam Litke wrote:
-> Yes, the SIGBUS issues are "fixed".  Now the application is killed
-> directly via VM_FAULT_OOM so it is not possible to handle the fault from
-> userspace.  For my libhugetlbfs-based fallback approach, I needed to
-> patch the kernel so that SIGBUS was delivered to the process like in the
-> days of old.
+Andrew mentioned that it is confusing who is maintaining kdump and some
+update to MAINTAINERS regarding kdump is required.
 
-Maybe this could be off-by-default behavior that can be enabled with a
-special mmap flag or madvise, or something similar.  It seems that apps
-don't want to get SIGBUS for low memory.  But, if they have _asked_ for
-it, perhaps they'd be a bit more willing.
+o Updating MAINTAINERS file for info regarding kdump maintainership.
 
-(BTW, I fixed the bogus linux-mm cc, finally ;)
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
 
--- Dave
+ linux-2.6.17-rc4-1M-vivek/MAINTAINERS |   10 ++++++++++
+ 1 files changed, 10 insertions(+)
 
+diff -puN MAINTAINERS~kdump-maintainers-update MAINTAINERS
+--- linux-2.6.17-rc4-1M/MAINTAINERS~kdump-maintainers-update	2006-05-15 10:05:45.000000000 -0400
++++ linux-2.6.17-rc4-1M-vivek/MAINTAINERS	2006-05-15 10:21:20.000000000 -0400
+@@ -1536,6 +1536,16 @@ M:	zippel@linux-m68k.org
+ L:	kbuild-devel@lists.sourceforge.net
+ S:	Maintained
+ 
++KDUMP
++P:	Vivek Goyal
++M:	vgoyal@in.ibm.com
++P:	Haren Myneni
++M:	hbabu@us.ibm.com
++L:	fastboot@lists.osdl.org
++L:	linux-kernel@vger.kernel.org
++W:	http://lse.sourceforge.net/kdump/
++S:	Maintained
++
+ KERNEL AUTOMOUNTER (AUTOFS)
+ P:	H. Peter Anvin
+ M:	hpa@zytor.com
+_

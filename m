@@ -1,45 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbWEOQwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964919AbWEOQxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964879AbWEOQwb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 12:52:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbWEOQwb
+	id S964919AbWEOQxX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 12:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbWEOQxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 12:52:31 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:35033 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964879AbWEOQwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 12:52:30 -0400
-Subject: Re: rt20 scheduling latency testcase and failure data
-From: Lee Revell <rlrevell@joe-job.com>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Darren Hart <dvhltc@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-In-Reply-To: <1147671821.7633.13.camel@homer>
-References: <200605121924.53917.dvhltc@us.ibm.com>
-	 <20060513112039.41536fb5@mango.fruits>
-	 <200605131106.16864.dvhltc@us.ibm.com>  <1147671821.7633.13.camel@homer>
-Content-Type: text/plain
-Date: Mon, 15 May 2006 12:52:27 -0400
-Message-Id: <1147711948.27252.266.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 15 May 2006 12:53:23 -0400
+Received: from mxfep02.bredband.com ([195.54.107.73]:22270 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S964892AbWEOQxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 12:53:22 -0400
+Message-ID: <4468B1FB.3020007@stesmi.com>
+Date: Mon, 15 May 2006 18:53:15 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "Randy.Dunlap" <rdunlap@xenotime.net>, Tejun Heo <htejun@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: [ANNOUNCE] libata: new EH, NCQ, hotplug and PM patches against
+ stable kernel
+References: <20060512132437.GB4219@htj.dyndns.org>	 <20060512122116.152fbe80.rdunlap@xenotime.net>	 <4464E079.1070307@stesmi.com> <1147703159.26686.33.camel@localhost.localdomain>
+In-Reply-To: <1147703159.26686.33.camel@localhost.localdomain>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-ripemd160;
+ protocol="application/pgp-signature";
+ boundary="------------enig9A9DA24F7D1368D296F2E095"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-15 at 07:43 +0200, Mike Galbraith wrote:
-> On Sat, 2006-05-13 at 11:06 -0700, Darren Hart wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig9A9DA24F7D1368D296F2E095
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Alan Cox wrote:
+> On Gwe, 2006-05-12 at 21:22 +0200, Stefan Smietanowski wrote:
 > 
-> > I haven't yet tried running with the RT Latency / Trace tools.  I can try 
-> > those if folks they think they will be useful.
+>>Ok, maybe not PMS ?
+>>
+>>Can you imagine a bug report from someone that "has problem with PMS"?
+>>:)
 > 
-> FWIW, enabling tracing made the 10ms failure variant fairly repeatable
-> here.
+> We've had a driver for the pms card for many years and nobody over the
+> age of about 18 has afaik found it amusing.
 
-Make sure you're not reading /proc/latency_trace during the test - it
-will reliably cause missed deadlines.
+Depends, I never heard of the pms card but I do have this tingling
+feeling that some actually will hear of and/or use port multipliers
+for SATA meaning that "not many heard of the pms card so not many
+over the age of 18 found it amusing" but not the same is true
+for port multipliers.
 
-Lee
+// Stefan
 
+--------------enig9A9DA24F7D1368D296F2E095
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFEaLH/Brn2kJu9P78RA8hVAKCFkmtbuRPxEAJ2TIdUEDU/NTUZ2gCdEd+B
+PB0rB+uSu8kp8hStdGG/yJI=
+=6is0
+-----END PGP SIGNATURE-----
+
+--------------enig9A9DA24F7D1368D296F2E095--

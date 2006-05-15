@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWEOJcA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWEOJff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbWEOJcA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 05:32:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWEOJcA
+	id S932347AbWEOJff (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 05:35:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWEOJff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 05:32:00 -0400
-Received: from [202.125.80.34] ([202.125.80.34]:55835 "EHLO
-	esnmail.esntechnologies.co.in") by vger.kernel.org with ESMTP
-	id S932301AbWEOJb7 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 05:31:59 -0400
-Subject: GPL and NON GPL version modules
+	Mon, 15 May 2006 05:35:35 -0400
+Received: from moutng.kundenserver.de ([212.227.126.183]:10454 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932347AbWEOJff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 05:35:35 -0400
+Message-ID: <44684B60.1070705@am-anger-1.de>
+Date: Mon, 15 May 2006 11:35:28 +0200
+From: Heiko Gerstung <heiko@am-anger-1.de>
+User-Agent: Mail/News 1.5 (X11/20060322)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Date: Mon, 15 May 2006 15:01:47 +0530
-Message-ID: <AF63F67E8D577C4390B25443CBE3B9F70928DE@esnmail.esntechnologies.co.in>
-Content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: GPL and NON GPL version modules
-thread-index: AcZ4AmMn6A3GX7qyQ76gWH4oEWSHbA==
-From: "Srinivas G." <srinivasg@esntechnologies.co.in>
-To: "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
-Cc: "Fawad Lateef" <fawadlateef@gmail.com>, <jjoy@novell.com>,
-       "Nutan C." <nutanc@esntechnologies.co.in>,
-       "Mukund JB." <mukundjb@esntechnologies.co.in>, <gauravd.chd@gmail.com>,
-       <bulb@ucw.cz>, <greg@kroah.com>, "Shakthi Kannan" <cyborg4k@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Subject: Bug related to bonding
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:25672344472c4ac2bbe53bd9833f99fb
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear All,
+Hi!
 
-I have a small doubt about the GPL and NON GPL version modules.
+I am at a total loss with this one.  My vanilla 2.4.32 crashes when I
+try to use bonding together with my rtl8150 based (USB-Ethernet) NICs.
+If this is a known error, I apologize for bothering the list and would
+appreciate any pointers to a working solution/workaround.
 
-If I have a module called module A which uses the GPL code and module B
-uses the NON GPL (proprietary) code. If the module A depends on module
-B, is it possible to load these modules?
+Reproduce:
+# modprobe bonding mode=1 miimon=100 maxbonds=4
+# ifconfig bond0 172.16.10.111 netmask 255.255.255.0 up
+# ifenslave bond0 eth1 eth2
+Ethernet Channel Bonding Driver: v2.6.0 (January 14, 2004)
+bonding: MII link monitoring set to 100 ms
+00:60:6E:30:07:Scheduling in interrupt
+kernel BUG at sched.c:564!
+invalid operand: 0000
+CPU:     0
+EIP:      0010:[<c011461d>]    Not tainted
+EFLAGS:  00010282
+...(following the CPU registers and Call Trace)....
 
-Will it be violating any GPL Rules?
+Please let me know which details I have to provide from the bug message
+(I have to type it in manually, no copy'n'paste possible:-)).
 
-Regards,
-Srinivas G
+It is not clear to me whether this is a bug in the bonding module, in
+the network driver or in the kernel itself.
+All 2.6.x kernels I tried worked fine, but I am currently bound to a
+2.4.x kernel and all 2.4.x kernels I tried (2.4.20, 2.4.29) showed
+similiar problems when activating bonding.
+
+Thank you in advance,
+kind regards,
+Heiko
+

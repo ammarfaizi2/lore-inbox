@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWEOXBX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWEOXDu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbWEOXBX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 19:01:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWEOXBX
+	id S1750735AbWEOXDu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 19:03:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWEOXDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 19:01:23 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:3211 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1750734AbWEOXBV (ORCPT
+	Mon, 15 May 2006 19:03:50 -0400
+Received: from ns1.suse.de ([195.135.220.2]:35718 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750729AbWEOXDs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 19:01:21 -0400
-Message-ID: <60844.71.131.57.117.1147734080.squirrel@rocky.pathscale.com>
-In-Reply-To: <1147727447.2773.14.camel@chalcedony.pathscale.com>
-References: <f8ebb8c1e43635081b73.1147477418@eng-12.pathscale.com> 
-    <adazmhjth56.fsf@cisco.com>
-    <1147727447.2773.14.camel@chalcedony.pathscale.com>
-Date: Mon, 15 May 2006 16:01:20 -0700 (PDT)
-Subject: Re: [PATCH 53 of 53] ipath - add memory barrier when waiting for 
-     writes
-From: ralphc@pathscale.com
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: "Roland Dreier" <rdreier@cisco.com>, openib-general@openib.org,
-       linux-kernel@vger.kernel.org, ralphc@pathscale.com
-User-Agent: SquirrelMail/1.4.6
+	Mon, 15 May 2006 19:03:48 -0400
+From: Neil Brown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Tue, 16 May 2006 09:03:24 +1000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17513.2236.102102.929378@cse.unsw.edu.au>
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+       paul.clements@steeleye.com
+Subject: Re: [PATCH 008 of 8] md/bitmap: Change md/bitmap file handling to
+ use bmap to file blocks.
+In-Reply-To: message from Andrew Morton on Monday May 15
+References: <20060512160121.7872.patches@notabene>
+	<1060512060809.8099@suse.de>
+	<20060512104750.0f5cb10a.akpm@osdl.org>
+	<17509.22160.118149.49714@cse.unsw.edu.au>
+	<20060512235934.4f609019.akpm@osdl.org>
+	<17511.51907.537657.656420@cse.unsw.edu.au>
+	<20060515140457.18991c2e.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 2006-05-15 at 08:57 -0700, Roland Dreier wrote:
->>  >  static void i2c_wait_for_writes(struct ipath_devdata *dd)
->>  >  {
->>  > +	mb();
->>  >  	(void)ipath_read_kreg32(dd, dd->ipath_kregs->kr_scratch);
->>  >  }
->>
->> This needs a comment explaining why it's needed.  A memory barrier
->> before a readl() looks very strange since readl() should be ordered
->> anyway.
->
-> Yeah.  It's actually working around what appears to be a gcc bug if the
-> kernel is compiled with -Os.  Ralph knows the details; he can give a
-> more complete answer.
->
-> 	<b
+On Monday May 15, akpm@osdl.org wrote:
+> 
+> Ho hum, I give up.
 
-I don't have a lot to add to this other than I looked at the
-assembly code output for -Os and -O3 and both looked OK.
-I put the mb() in to be sure the writes were complete and
-I found this to work by experimentation.
-Without it, the driver fails to read the EEPROM correctly.
+Thankyou :-)  I found our debate very valuable - it helped me clarify
+my understanding of some areas of linux filesystem semantics (and as I
+am trying to write a filesystem in my 'spare time', that will turn out
+to be very useful).  It also revealed some problems in the code!
 
+>                     I don't think, in practice, this code fixes any
+> demonstrable bug though.
+
+I thought it was our job to kill the bugs *before* they were
+demonstrated :-)
+
+I'm still convinced that the previous code could lead to deadlocks or
+worse under sufficiently sustained high memory pressure and fs
+activity.
+
+I'll send a patch shortly that fixes the known problems and
+awkwardnesses in the new code.
+
+Thanks again,
+NeilBrown

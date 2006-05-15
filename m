@@ -1,67 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965215AbWEOURi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965217AbWEOUSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965215AbWEOURi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 16:17:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965220AbWEOURh
+	id S965217AbWEOUSp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 16:18:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965220AbWEOUSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 16:17:37 -0400
-Received: from nz-out-0102.google.com ([64.233.162.198]:16746 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965215AbWEOURh convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 16:17:37 -0400
+	Mon, 15 May 2006 16:18:45 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:11891 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965217AbWEOUSo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 16:18:44 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=S/xZE9TZQ0VtawnL4pTeYxZljlbU5/ALXTO6RC1yulQvoe5w29A6tCcaM+afAGievapCL1+odoN79PU7PFW/f3KnoBpjpLdQtFiKsjKU1aAfF5Xtutz6eRAIzX2rTHz3b7DIHxjC8W3iEMAcFD9PxrvyhodJ6S4RodXTdW6HkIw=
-Message-ID: <6bffcb0e0605151317u51bbf67ey124b808fad920d36@mail.gmail.com>
-Date: Mon, 15 May 2006 22:17:36 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.17-rc4-mm1
-Cc: linux-kernel@vger.kernel.org, gregkh@suse.de,
-       "Jean Delvare" <khali@linux-fr.org>,
-       "Kumar Gala" <galak@kernel.crashing.org>
-In-Reply-To: <20060515122613.32661c02.akpm@osdl.org>
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=QaRRG7bC1csxjCbYTPa+K2mpG6pwMuFlByEL5g7q8eJvEjUXlYpxvzCZWgMUmgm1VbTRDZ4jZ8C0TMykMpdWckIYSl6fSNK6TZgxcjQFmlMdnqAwxqK5Ai03YXEcMB6j1/Xz2i73cW6QES96vqGOwGgxWkYqCrpquaKuSfoOiaQ=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH] fix potential NULL pointer dereference in yam
+Date: Mon, 15 May 2006 22:19:36 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Frederic Rible <frible@teaser.fr>,
+       Jean-Paul Roubelat <jpr@f6fbb.org>, linux-hams@vger.kernel.org,
+       Ralf Baechle <ralf@linux-mips.org>, Jesper Juhl <jesper.juhl@gmail.com>
+References: <200605141512.50923.jesper.juhl@gmail.com> <20060514140946.GA23387@mipter.zuzino.mipt.ru>
+In-Reply-To: <20060514140946.GA23387@mipter.zuzino.mipt.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060515005637.00b54560.akpm@osdl.org>
-	 <6bffcb0e0605151137v25496700k39b15a40fa02a375@mail.gmail.com>
-	 <20060515115302.5abe7e7e.akpm@osdl.org>
-	 <6bffcb0e0605151210x21eb0d24g96366ce9c121c26c@mail.gmail.com>
-	 <20060515122613.32661c02.akpm@osdl.org>
+Message-Id: <200605152219.37265.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15/05/06, Andrew Morton <akpm@osdl.org> wrote:
-> Great, thanks.   Here's the relevant part:
->
-> modprobe      D 00000019  2740  2163   2129                     (NOTLB)
->        f0915e60 f1d7b694 8422805f 00000019 f0915e08 c10819a3 f1d7b694 f0915e18
->        00000007 f7e5f374 f7e5f250 f7f0f110 c741cf00 8429b934 00000019 000738d5
->        00000001 f1e6ac54 c101732e f0915e48 c10168d4 f887dba0 00000246 00000001
-> Call Trace:
->  <c11d768e> wait_for_completion+0x8e/0x108   <c1180fae> i2c_del_adapter_nolock+0x255/0x277
->  <c1180fe7> i2c_del_adapter+0x17/0x28   <f887c023> i801_remove+0xd/0x2f [i2c_i801]
->  <c10eeb69> pci_device_remove+0x19/0x2c   <c11395a7> __device_release_driver+0x63/0x79
->  <c1139889> driver_detach+0x94/0xc4   <c1138d58> bus_remove_driver+0x5d/0x79
->  <c11399a2> driver_unregister+0xb/0x18   <c10eecd4> pci_unregister_driver+0x13/0xa5
->  <f887c9a5> i2c_i801_exit+0xd/0xf [i2c_i801]   <c103d3a8> sys_delete_module+0x19e/0x1d6
->  <c11dab67> sysenter_past_esp+0x54/0x75
->
-> I'd assume that Kumar's i2c-add-support-for-virtual-i2c-adapters.patch is
-> the culprit.
+On Sunday 14 May 2006 16:09, Alexey Dobriyan wrote:
+> On Sun, May 14, 2006 at 03:12:50PM +0200, Jesper Juhl wrote:
+> > Testing a pointer for NULL after it has already been dereferenced is not
+> > very safe.
+> > Patch below to rework yam_open() so that `dev' is not dereferenced until
+> > after it has been tested for NULL.
+> 
+> > Found by coverity checker as #787
+> 
+> > --- linux-2.6.17-rc4-git2-orig/drivers/net/hamradio/yam.c
+> > +++ linux-2.6.17-rc4-git2/drivers/net/hamradio/yam.c
+> > @@ -845,15 +845,25 @@ static struct net_device_stats *yam_get_
+> >  
+> >  static int yam_open(struct net_device *dev)
+> >  {
+> > -	struct yam_port *yp = netdev_priv(dev);
+> > +	struct yam_port *yp;
+> >  	enum uart u;
+> >  	int i;
+> > -	int ret=0;
+> > +	int ret = 0;
+> 
+> Please, don't make unrelated changes.
+> 
+Sorry.
 
-Unfortunately it's not this patch.
-I'll check all Kumar's patches.
 
-Regards,
-Michal
+> > -	printk(KERN_INFO "Trying %s at iobase 0x%lx irq %u\n", dev->name, dev->base_addr, dev->irq);
+> > +	if (!dev) {
+> > +		printk(KERN_ERR "yam_open() called without device\n");
+> > +		return -ENXIO;
+> > +	}
+> 
+> How can it be NULL here? The whole array of valid net_devices was
+> allocated at module init time.
+> 
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+It cannot. You are right, I'm wrong.
+I guess removing the check makes sense then ?
+
+
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+--- linux-2.6.17-rc4-mm1-orig/drivers/net/hamradio/yam.c	2006-05-13 21:28:27.000000000 +0200
++++ linux-2.6.17-rc4-mm1/drivers/net/hamradio/yam.c	2006-05-15 22:16:32.000000000 +0200
+@@ -852,7 +852,7 @@ static int yam_open(struct net_device *d
+ 
+ 	printk(KERN_INFO "Trying %s at iobase 0x%lx irq %u\n", dev->name, dev->base_addr, dev->irq);
+ 
+-	if (!dev || !yp->bitrate)
++	if (!yp->bitrate)
+ 		return -ENXIO;
+ 	if (!dev->base_addr || dev->base_addr > 0x1000 - YAM_EXTENT ||
+ 		dev->irq < 2 || dev->irq > 15) {
+
+

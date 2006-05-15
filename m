@@ -1,49 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbWEOPCg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbWEOPET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751477AbWEOPCg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 11:02:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWEOPCg
+	id S964852AbWEOPET (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 11:04:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWEOPES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 11:02:36 -0400
-Received: from EXCHG2003.microtech-ks.com ([24.124.14.122]:15367 "EHLO
-	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
-	id S1751477AbWEOPCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 11:02:35 -0400
-Message-ID: <4468980D.3000704@atipa.com>
-Date: Mon, 15 May 2006 10:02:37 -0500
-From: Roger Heflin <rheflin@atipa.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-CC: rdreier@cisco.com, linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [openib-general] [PATCH 0 of 53] ipath driver updates for 2.6.17-rc4
-References: <patchbomb.1147477365@eng-12.pathscale.com>
-In-Reply-To: <patchbomb.1147477365@eng-12.pathscale.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 15 May 2006 11:04:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55466 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751471AbWEOPER (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 11:04:17 -0400
+Date: Mon, 15 May 2006 08:00:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Cc: bzolnier@gmail.com, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ide_dma_speed() fixes
+Message-Id: <20060515080053.296c4c55.akpm@osdl.org>
+In-Reply-To: <446885BE.4090404@ru.mvista.com>
+References: <4463F4C8.9080608@ru.mvista.com>
+	<20060514050548.5399e3f4.akpm@osdl.org>
+	<446885BE.4090404@ru.mvista.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 May 2006 14:54:11.0498 (UTC) FILETIME=[6D0CA8A0:01C6782F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bryan O'Sullivan wrote:
-> Hi, Roland -
+Sergei Shtylyov <sshtylyov@ru.mvista.com> wrote:
+>
+> Hello.
 > 
-> Here is a series of patches to bring the ipath driver up to date.  I
-> believe you may already have two of them (but I've included them just
-> in case), but the others should all be new.
+> Andrew Morton wrote:
 > 
-> They apply on top of Linus's current -git.
+> >>    ide_dma_speed() fails to actually honor the IDE drivers' mode support 
+> >> masks) because of the bogus checks -- thus, selecting the DMA transfer mode 
+> >> that the driver explicitly refuses to support is possible. Additionally, there 
+> >> is no check for validity of the UltraDMA mode data in the drive ID, and the 
+> >> function is misdocumented.
 > 
-> Cheers,
+> > drivers/ide/ide-lib.c: In function `ide_dma_speed':
+> > drivers/ide/ide-lib.c:86: warning: `ultra_mask' might be used uninitialized in this function
 > 
-> 	<b
+> > Looks like a real bug to me - it depends up on the values of `mode' and
+> > id->field_value.
+> 
+> > Anyway, I'll drop it, please review and fix.  I assume that warning was
+> > occurring for you as well - please spend more time over these things. 
+> > Especially when working on IDE, where bugs are slow to show themselves and
+> > have particularly bad consequences.
+> 
+>     That's what gcc thinks. The code is 100% correct -- it will never reach 
+> the switch statement with mode > 0 (in which case ultra_mask isn't used) and 
+> ultra_mask unitialized.
 
+hm, OK.
 
-Bryan,
+> I may add an explicit initializer in the declaration if you like...
 
-I notice there are several patches in 1-53 that appear to be missing, or
-at least I did not get them on the openib list.
+Opinions vary.  I think that's less bad than spitting a warning at all
+developers for all time.
 
-They are: 3, 11, 12, 17, 27, 35, 36, 38, 41, 43, 46, 52.
+But we can redo things like below and save a little code in the process. 
+Look OK?
 
-                                Roger
+--- devel/drivers/ide/ide-lib.c~ide_dma_speed-fixes-warning-fix	2006-05-15 07:56:28.000000000 -0700
++++ devel-akpm/drivers/ide/ide-lib.c	2006-05-15 08:00:12.000000000 -0700
+@@ -90,9 +90,9 @@ u8 ide_dma_speed(ide_drive_t *drive, u8 
+ 		return 0;
+ 
+ 	/* Capable of UltraDMA modes? */
+-	if (id->field_valid & 4)
+-		ultra_mask = id->dma_ultra & hwif->ultra_mask;
+-	else
++	ultra_mask = id->dma_ultra & hwif->ultra_mask;
++
++	if (!(id->field_valid & 4))
+ 		mode = 0;	/* fallback to MW/SW DMA if no UltraDMA */
+ 
+ 	switch (mode) {
+_
+

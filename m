@@ -1,61 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751536AbWEOPuJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751533AbWEOPuf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751536AbWEOPuJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 11:50:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751517AbWEOPuI
+	id S1751533AbWEOPuf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 11:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751550AbWEOPuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 11:50:08 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:62135 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751533AbWEOPuG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 11:50:06 -0400
-Date: Mon, 15 May 2006 11:49:17 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Greg KH <greg@kroah.com>
-cc: "Srinivas G." <srinivasg@esntechnologies.co.in>,
-       linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>,
-       Fawad Lateef <fawadlateef@gmail.com>, jjoy@novell.com,
-       "Nutan C." <nutanc@esntechnologies.co.in>,
-       "Mukund JB." <mukundjb@esntechnologies.co.in>, gauravd.chd@gmail.com,
-       bulb@ucw.cz, Shakthi Kannan <cyborg4k@yahoo.com>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: GPL and NON GPL version modules
-In-Reply-To: <20060515150810.GA13905@kroah.com>
-Message-ID: <Pine.LNX.4.58.0605151142140.19841@gandalf.stny.rr.com>
-References: <AF63F67E8D577C4390B25443CBE3B9F70928E8@esnmail.esntechnologies.co.in>
- <20060515150810.GA13905@kroah.com>
+	Mon, 15 May 2006 11:50:35 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:55164 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S1751517AbWEOPue (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 11:50:34 -0400
+X-IronPort-AV: i="4.05,130,1146466800"; 
+   d="scan'208"; a="276824547:sNHT7776899824"
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 21 of 53] ipath - use phys_to_virt instead of bus_to_virt
+X-Message-Flag: Warning: May contain useful information
+References: <4e0a07d20868c6c4f038.1147477386@eng-12.pathscale.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 15 May 2006 08:50:27 -0700
+In-Reply-To: <4e0a07d20868c6c4f038.1147477386@eng-12.pathscale.com> (Bryan O'Sullivan's message of "Fri, 12 May 2006 16:43:06 -0700")
+Message-ID: <adad5efuw1o.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 15 May 2006 15:50:28.0793 (UTC) FILETIME=[4A12FA90:01C67837]
+Authentication-Results: sj-dkim-4.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ > I think Roland already has this patch.
 
+ >  	 * This is a bit of a hack since we rely on dma_map_single()
+ > -	 * being reversible by calling bus_to_virt().
+ > +	 * being reversible by calling phys_to_virt().
 
-On Mon, 15 May 2006, Greg KH wrote:
+Actually I NAK'ed this patch.  It compiles the same thing on x86_64
+but makes the source code wrong -- dma_map_single() returns a bus
+address, not a physical address.
 
-> On Mon, May 15, 2006 at 03:23:30PM +0530, Srinivas G. wrote:
-> >
-> > Will it be violating any GPL Rules?
->
-> Contact a lawyer, a technical mailing list can not give legal advice.
->
-
-Sure we can! but you'd be a fool to follow it ;)
-
-Actually, his real question was pretty straight forward that you don't
-even need to be a lawyer to answer.
-
-He was wondering if he wrote a priority module for a priority OS and
-someone else that he didn't know wrote a GPL interface to his module,
-would he be responsible to release his code under the GPL.
-
-So he's not distributing any GPL, but someone else did without his
-knowledge.  This is pretty easy to answer.  He's not responsible, but the
-one who wrote the GPL code and used it with his module is. He was just a
-bit paranoid that someone else can cause him problems.
-
-Issue's solved, he knows he's OK.
-
--- Steve
-
+ - R.

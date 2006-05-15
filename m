@@ -1,67 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751627AbWEOTOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965191AbWEOTPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751627AbWEOTOp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 15:14:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751634AbWEOTOp
+	id S965191AbWEOTPO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 15:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965195AbWEOTPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 15:14:45 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:54179 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751627AbWEOTOo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 15:14:44 -0400
-Subject: Re: [PATCH] 2.6.17-rc4-mm1 - kbuild wierdness with
-	EXPORT_SYMBOL_GPL
-From: Ram Pai <linuxram@us.ibm.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200605151900.k4FJ0ktD006410@turing-police.cc.vt.edu>
-References: <200605151900.k4FJ0ktD006410@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Organization: IBM 
-Date: Mon, 15 May 2006 12:14:38 -0700
-Message-Id: <1147720478.4884.74.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Mon, 15 May 2006 15:15:13 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:28615 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965187AbWEOTPL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 15:15:11 -0400
+Message-ID: <4468D33D.3070504@garzik.org>
+Date: Mon, 15 May 2006 15:15:09 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: linux-ide@vger.kernel.org
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+Subject: Re: [RFT] major libata update
+References: <20060515170006.GA29555@havoc.gtf.org>
+In-Reply-To: <20060515170006.GA29555@havoc.gtf.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.1 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-15 at 15:00 -0400, Valdis.Kletnieks@vt.edu wrote:
-> It looks like a buggy comparison down in the guts of
-> kbuild-export-type-enhancement-to-modpostc.patch - it's doing
-> something really odd when it hits a EXPORT_SYMBOL_GPL.
-> 
-> Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
-> ---
-> Proposed fix (with an added debugging warning Just In Case:
-> 
-> --- linux-2.6.17-rc4-mm1/scripts/mod/modpost.c.whatdied	2006-05-15 13:50:13.000000000 -0400
-> +++ linux-2.6.17-rc4-mm1/scripts/mod/modpost.c	2006-05-15 14:52:13.000000000 -0400
-> @@ -1194,12 +1194,14 @@
->  					*d != '\0')
->  			goto fail;
->  
-> -		if ((strcmp(export, "EXPORT_SYMBOL_GPL")))
-> +		if ((strcmp(export, "EXPORT_SYMBOL_GPL") == 0))
+Also, a re-reminder:
 
-Yes my mistake.  Error while merging in Andreas's fix. :(
+At some convenient point, I'm going to move libata core and drivers to 
+new directory drivers/ata.
 
-Andrew, can apply this patch on top of the other patches?
-RP
+The other noticeable change coming down the pipe is iomap support, which 
+will kill those annoying warnings you see on every build (in addition to 
+shrinking the driver a bit).
+
+Speak up now if there are complaints...
+
+	Jeff
 
 
-
->  			export_type = 1;
->  		else if(strcmp(export, "EXPORT_SYMBOL") == 0)
->  			export_type = 0;
-> -		else
-> +		else {
-> +			warn("Odd symbol export=%s symname=%s modname=%s\n",export,symname,modname);
->  			goto fail;
-> +		}
->  
->  		if (!(mod = find_module(modname))) {
->  			if (is_vmlinux(modname)) {
-> 
-> 
 

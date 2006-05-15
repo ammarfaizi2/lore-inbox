@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbWEOQvO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbWEOQwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964849AbWEOQvO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 12:51:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWEOQvO
+	id S964879AbWEOQwb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 12:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbWEOQwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 12:51:14 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:14359 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964849AbWEOQvN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 12:51:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=jY8brxmZ2CEDAK7fywVW4YEzDlWgOa16j5zs8tibAqlQ87BH4Z/UdPh2y3ZpDBiYT5W6qeFuQzcpuOy9bQ9STERd5W4CM3RRUiKtA8Cj3qBGQb2jY7/EydQKWniA5tfawYWORZt7F7SCX83uO5mEQGsnLuweG1COTIPjr3Zvs/M=
-Date: Mon, 15 May 2006 20:49:38 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org,
-       Phillip Hellewell <phillip@hellewell.homeip.net>
-Subject: Re: 2.6.17-rc4-mm1
-Message-ID: <20060515164938.GB10143@mipter.zuzino.mipt.ru>
-References: <20060515005637.00b54560.akpm@osdl.org>
+	Mon, 15 May 2006 12:52:31 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:35033 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964879AbWEOQwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 12:52:30 -0400
+Subject: Re: rt20 scheduling latency testcase and failure data
+From: Lee Revell <rlrevell@joe-job.com>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Darren Hart <dvhltc@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <1147671821.7633.13.camel@homer>
+References: <200605121924.53917.dvhltc@us.ibm.com>
+	 <20060513112039.41536fb5@mango.fruits>
+	 <200605131106.16864.dvhltc@us.ibm.com>  <1147671821.7633.13.camel@homer>
+Content-Type: text/plain
+Date: Mon, 15 May 2006 12:52:27 -0400
+Message-Id: <1147711948.27252.266.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060515005637.00b54560.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   - Added the ecryptfs filesystem
+On Mon, 2006-05-15 at 07:43 +0200, Mike Galbraith wrote:
+> On Sat, 2006-05-13 at 11:06 -0700, Darren Hart wrote:
+> 
+> > I haven't yet tried running with the RT Latency / Trace tools.  I can try 
+> > those if folks they think they will be useful.
+> 
+> FWIW, enabling tracing made the 10ms failure variant fairly repeatable
+> here.
 
-  CC [M]  fs/ecryptfs/super.o
-fs/ecryptfs/super.c: In function `ecryptfs_statfs':
-fs/ecryptfs/super.c:129: warning: passing arg 1 of `vfs_statfs' from incompatible pointer type
-fs/ecryptfs/super.c: At top level:
-fs/ecryptfs/super.c:207: warning: initialization from incompatible pointer type
+Make sure you're not reading /proc/latency_trace during the test - it
+will reliably cause missed deadlines.
 
-* ->statfs wants vfsmount as first argument
-* ecryptfs_statfs() is inlined
+Lee
 

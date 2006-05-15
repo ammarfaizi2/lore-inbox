@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWEOQYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbWEOQZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932249AbWEOQYK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 12:24:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWEOQYK
+	id S932361AbWEOQZp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 12:25:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWEOQZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 12:24:10 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:60370 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932249AbWEOQYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 12:24:08 -0400
-Subject: Re: Rlimit
-From: Lee Revell <rlrevell@joe-job.com>
-To: sej@sej.fr
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4468A4D7.10603@gmail.com>
-References: <6cN1B-3ky-5@gated-at.bofh.it> <6cN1B-3ky-3@gated-at.bofh.it>
-	 <4468A4D7.10603@gmail.com>
-Content-Type: text/plain
-Date: Mon, 15 May 2006 12:24:06 -0400
-Message-Id: <1147710246.27252.258.camel@mindpipe>
+	Mon, 15 May 2006 12:25:45 -0400
+Received: from xenotime.net ([66.160.160.81]:1421 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932361AbWEOQZo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 12:25:44 -0400
+Date: Mon, 15 May 2006 09:28:10 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, tglx@linutronix.de,
+       mingo@elte.hu
+Subject: Re: [PATCH -mm 01/02] Update rt-mutex-design.txt per Randy Dunlap
+Message-Id: <20060515092810.004cfb63.rdunlap@xenotime.net>
+In-Reply-To: <Pine.LNX.4.58.0605150437110.12114@gandalf.stny.rr.com>
+References: <Pine.LNX.4.58.0605150431190.12114@gandalf.stny.rr.com>
+	<Pine.LNX.4.58.0605150437110.12114@gandalf.stny.rr.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-15 at 17:57 +0200, sej.kernel wrote:
-> Of course !!
-> But if you want to increase mlock size you can't do it !
-> setrlimit can only decrease process limits !
-> I repeat my question : How to set mlock process for non-root process ?
-> sej
+On Mon, 15 May 2006 04:38:29 -0400 (EDT) Steven Rostedt wrote:
 
-Add to /etc/security/limits.conf:
+> @@ -160,12 +160,12 @@ Here we show both chains:
+>                   F->L5-+
+> 
+>  For PI to work, the processes at the right end of these chains (or we may
+> -also call the Top of the chain), must be equal to or higher in priority
+> +also call the Top of the chain) must be equal to or higher in priority
+   also call it the Top of the chain),
 
-*               memlock hard    unlimited
+>  than the processes to the left or below in the chain.
 
-or whatever
+Only that one small nit.  Otherwise looks nice.  Thanks.
 
-Lee
-
+---
+~Randy

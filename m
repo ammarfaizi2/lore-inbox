@@ -1,85 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWEOXww@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWEOXyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbWEOXww (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 19:52:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWEOXww
+	id S1750831AbWEOXyv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 19:54:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWEOXyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 19:52:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39041 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750827AbWEOXwv (ORCPT
+	Mon, 15 May 2006 19:54:51 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:4052 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750831AbWEOXyu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 19:52:51 -0400
-Date: Mon, 15 May 2006 16:52:36 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Andreas Mohr <andi@rhlx01.fht-esslingen.de>, florin@iucha.net,
-       linux-kernel@vger.kernel.org, linux@dominikbrodowski.net
-Subject: Re: pcmcia oops on 2.6.17-rc[12]
-In-Reply-To: <Pine.LNX.4.64.0605151629350.3866@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0605151644090.3866@g5.osdl.org>
-References: <20060423192251.GD8896@iucha.net>  <20060423150206.546b7483.akpm@osdl.org>
-  <20060508145609.GA3983@rhlx01.fht-esslingen.de>  <20060508084301.5025b25d.akpm@osdl.org>
-  <20060508163453.GB19040@flint.arm.linux.org.uk> 
- <1147730828.26686.165.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0605151459140.3866@g5.osdl.org> <1147734026.26686.200.camel@localhost.localdomain>
- <Pine.LNX.4.64.0605151629350.3866@g5.osdl.org>
+	Mon, 15 May 2006 19:54:50 -0400
+Message-ID: <446914C7.1030702@garzik.org>
+Date: Mon, 15 May 2006 19:54:47 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Avuton Olrich <avuton@gmail.com>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       torvalds@osdl.org
+Subject: Re: [RFT] major libata update
+References: <20060515170006.GA29555@havoc.gtf.org> <3aa654a40605151630j53822ba1nbb1a2e3847a78025@mail.gmail.com>
+In-Reply-To: <3aa654a40605151630j53822ba1nbb1a2e3847a78025@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.1 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 15 May 2006, Linus Torvalds wrote:
+Avuton Olrich wrote:
+> On 5/15/06, Jeff Garzik <jeff@garzik.org> wrote:
+>> * sata_sil and ata_piix also need healthy re-testing of all basic
+>> functionality.
 > 
-> On Tue, 16 May 2006, Alan Cox wrote:
-> > 
-> > It would certainly be a lot cleaner than this sort of code in the 
-> > pcmcia core right now. Want me to send a patch which only allows for 
-> > SA_SHIRQ and WARN_ON()'s for any driver not asking for shared IRQ ?
+> I'm testing it right now, but with 2.6.17-rc4-git2 I was getting:
+
+Testing what?  sata_sil?  Please provide full dmesg, there's a lot of 
+missing information.
+
+
+> May 15 15:42:57 shapeshifter ata2: command 0x25 timeout, stat 0x58 
+> host_stat 0x1
+> May 15 15:42:57 shapeshifter ata2: translated ATA stat/err 0x58/00 to
+> SCSI SK/ASC/ASCQ 0xb/47/00
+> May 15 15:42:57 shapeshifter ata2: status=0x58 { DriveReady
+> SeekComplete DataRequest }
+> May 15 15:42:57 shapeshifter sd 1:0:0:0: SCSI error: return code = 
+> 0x8000002
+> May 15 15:42:57 shapeshifter sda: Current: sense key=0xb
+> May 15 15:42:57 shapeshifter ASC=0x47 ASCQ=0x0
+> May 15 15:42:57 shapeshifter end_request: I/O error, dev sda, sector 
+> 974708575
 > 
-> I think it's too late for that in the current series, but yes, we could do 
-> it for 2.6.18.
+> (sector varies)
+> 
+> After large ssh transfers. I moved to 2.6.17-rc4-git2 because
+> 2.6.16.16 was doing the same. This is a new 500gb sata2 drive on
+> sata_sil so I guess this could be hardware, but I wanted to make sure
+> before I go returning this thing. After this obviously I have to sysrq
+> sync, ro and reboot. This also causes(?) a NETDEV WATCHDOG: eth2:
+> transmit timed out, sometimes this ata timeout doesn't yet occur and I
+> just get the netdev watchdog. This has not yet happened with the new
+> patch, though I'm only 1 hr into testing with it.
 
-Actually, thinking about it some more, what we _should_ do is to just make 
-any code that simply doesn't _work_ with shared interrupts have to use 
-SA_EXCLUSIVE.
+Yes, its entirely possible that the new patch will address this.  Please 
+do keep us posted.
 
-And then, for a while, warn if we see a "request_irq()" call that has 
-neither SA_SHIRQ nor SA_EXCLUSIVE set. But this would be a pretty mild 
-warning, along the lines of
+Thanks,
 
- "%s getting non-SHIRQ irq. It _may_ or may not be shared in the future"
+	Jeff
 
-and eventually just stop caring, and making SA_SHIRQ have no meaning. It's 
-kind of pointless to ask all drivers to use SA_SHIRQ, when it really 
-should be the default.
 
-Even the ISA drivers that currently do not have SA_SHIRQ won't generally 
-_break_ when/if they were to get a shared interrupt. The reason they don't 
-have SA_SHIRQ isn't generally that they really really want an exclusive 
-interrupt, but simply because they never had a reason to say SA_SHIRQ.
 
-So a lack of SA_SHIRQ doesn't generally mean "I _need_ an exclusive 
-interrupt". It could equally well mean "I never bothered to even think 
-about whether I could share interrupts or not".
-
-Making it an error to pass in 0 would be silly, because for old ISA 
-devices, most of the time they really just don't care.
-
-What think you?
-
-The SA_EXCLUSIVE flag is still needed, but it would be used by things that 
-literally cannot handle anything but an exclusive interrupt (eg vm86 mode 
-irq access), exactly because they do things like disable that particular 
-irq for long times, or because they don't have a status register to read 
-(eg, on x86, the timer interrupt really _is_ exclusive for that reason).
-
-Most ISA drivers probably wouldn't care at all one way or the other, I 
-suspect. And it would be a waste of time to add SA_SHIRQ to them for no 
-actual real gain.
-
-Comments?
-
-		Linus

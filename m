@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751430AbWEOTpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964999AbWEOTrI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751430AbWEOTpT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 15:45:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWEOTpS
+	id S964999AbWEOTrI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 15:47:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWEOTrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 15:45:18 -0400
-Received: from dvhart.com ([64.146.134.43]:28903 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1751430AbWEOTpQ (ORCPT
+	Mon, 15 May 2006 15:47:08 -0400
+Received: from ns.suse.de ([195.135.220.2]:42961 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964999AbWEOTrG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 15:45:16 -0400
-Message-ID: <4468DA46.2030109@mbligh.org>
-Date: Mon, 15 May 2006 12:45:10 -0700
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Mon, 15 May 2006 15:47:06 -0400
+From: Andi Kleen <ak@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Andy Whitcroft <apw@shadowen.org>, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, ak@suse.de
 Subject: Re: [PATCH] x86 NUMA panic compile error
-References: <20060515005637.00b54560.akpm@osdl.org>	<20060515140811.GA23750@shadowen.org>	<20060515175306.GA18185@elte.hu>	<20060515110814.11c74d70.akpm@osdl.org>	<4468C3B8.8090502@shadowen.org> <20060515112456.0624d498.akpm@osdl.org>
-In-Reply-To: <20060515112456.0624d498.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Mon, 15 May 2006 21:47:01 +0200
+User-Agent: KMail/1.9.1
+Cc: Ingo Molnar <mingo@elte.hu>, haveblue@us.ibm.com, apw@shadowen.org,
+       linux-kernel@vger.kernel.org
+References: <20060515005637.00b54560.akpm@osdl.org> <20060515192614.GA24887@elte.hu> <20060515123929.76b9b693.akpm@osdl.org>
+In-Reply-To: <20060515123929.76b9b693.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605152147.02232.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Andy Whitcroft <apw@shadowen.org> wrote:
-> 
->>>So it is perhaps reasonable to do this panic, but only if !CONFIG_EMBEDDED? 
->>>(It really is time to start renaming CONFIG_EMBEDDED to CONFIG_DONT_DO_THIS
->>>or something).
->>
->>How about CONFIG_EXPERIMENTAL?
-> 
-> 
-> Probably CONFIG_ADVANCED would be closer.
 
-It defaults to off already - people have to explicitly enable it.
+[... feels the love ...]
 
-Plus the original point was to be able to build one kernel that'd work
-across NUMA and non-NUMA boxes.
+On Monday 15 May 2006 21:39, Andrew Morton wrote:
+> Ingo Molnar <mingo@elte.hu> wrote:
+> >
+> > Nevertheless for hard-to-debug bugs i prefer if they can be reproduced 
+> > and debugged on 32-bit too, because x86_64 debugging is still quite a 
+> > PITA and wastes alot of time: for example it has no support for exact 
+> > kernel stacktraces. Also, the printout of the backtrace is butt-ugly and 
+> > as un-ergonomic to the human eye as it gets
+> 
+> Yes, I find x86_64 traces significantly harder to follow.  And I miss the
+> display of the length of the functions (do_md_run+1208 instead of
+> do_md_run+1208/2043).  The latter form makes it easier to work out
+> whereabouts in the function things happened.
+> 
+> That, plus the mix of hex and decimal numbers..
+> 
+> > who came up with that 
+> > "two-maybe-one function entries per-line" nonsense? [Whoever did it he 
+> > never had to look at (and make sense of) hundreds of stacktraces in a 
+> > row.]
+> 
+> Plus they're wide enough to get usefully wordwrapped when someone mails
+> them to you.
 
-M.
+Hmm, I didn't realize they were _that_ unpopular. If you got the i386 
+like space wasting backtraces would you guys all switch your development machines
+to x86-64 ? @)
+
+-Andi

@@ -1,65 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965098AbWEOScR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965123AbWEOSfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965098AbWEOScR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 14:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbWEOScR
+	id S965123AbWEOSfg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 14:35:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965135AbWEOSfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 14:32:17 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24707 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965098AbWEOScQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 14:32:16 -0400
-Date: Mon, 15 May 2006 11:34:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: mingo@elte.hu, apw@shadowen.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 NUMA panic compile error
-Message-Id: <20060515113439.457f5809.akpm@osdl.org>
-In-Reply-To: <200605152013.53728.ak@suse.de>
-References: <20060515005637.00b54560.akpm@osdl.org>
-	<20060515175306.GA18185@elte.hu>
-	<20060515110814.11c74d70.akpm@osdl.org>
-	<200605152013.53728.ak@suse.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 15 May 2006 14:35:36 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:7391 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S965123AbWEOSff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 14:35:35 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: "Catalin Marinas" <catalin.marinas@gmail.com>
+Subject: Re: [PATCH 2.6.17-rc4 6/6] Remove some of the kmemleak false positives
+Date: Mon, 15 May 2006 20:32:26 +0200
+User-Agent: KMail/1.9.1
+Cc: "Pekka Enberg" <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
+References: <20060513155757.8848.11980.stgit@localhost.localdomain> <200605141939.51288.ioe-lkml@rameria.de> <b0943d9e0605150312m22559450p28c44a17d88b6325@mail.gmail.com>
+In-Reply-To: <b0943d9e0605150312m22559450p28c44a17d88b6325@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605152032.26974.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> > 
-> > I'll be darned.  I never knew it was even possible to run x86 numa kernels
-> > on non-numa boxen.  I'd have tested about 1000000 of Christoph Lameter's
-> > patches if someone had told me.  Yes, it's useful.
-> 
-> If you want to use it for that I would suggest to port the numa emulation
-> code at least - two or four nodes tends to find more problems than a single
-> node.
-> 
-> But testing on a 64bit box - even with numa emulation - would be much
-> better because on 32bit ZONE_NORMAL often is node 0 only and you won't 
-> get much numaness for kernel objects.
+On Monday, 15. May 2006 12:12, Catalin Marinas wrote:
+> I haven't looked at RT-Mutex but are more than the 2 bottom bits used
+> for this? 
 
-That's an excellent point - most developers who are likely to want to test
-NUMA have x86_64 boxes and x86_64 has NUMA-emulation-on-SMP.  I'd
-semi-forgotten that it existed.
+No. Only 2 bits.
 
-This rather weakens the reasons for retaining support for
-NUMA-on-non-summit-x86.  Ingo?
+> If not, they can be masked out before look-up. 
 
-> > I guess the concern here is that we don't want people building these
-> > frankenkernels and then sending us bug reports against them.
-> 
-> Well it will still increase the bug numbers you care so much about.
+Yes, just do it that way, if it is possible.
 
-Not really.  If a bug affects something we don't care about (like this)
-I'll just ignore it.  I care about the number of busted machines out there,
-not the bug counts...
 
-> Another reason I don't like it is that it's ugly and reimplements
-> parts of ACPI on its own for no reason.
+Regards
 
-So shouldn't such a patch remove that code rather than panicing?
-
+Ingo Oeser

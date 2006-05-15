@@ -1,87 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965216AbWEOUMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965215AbWEOURi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965216AbWEOUMa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 16:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965215AbWEOUM3
+	id S965215AbWEOURi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 16:17:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965220AbWEOURh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 16:12:29 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:47762 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S965214AbWEOUM2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 16:12:28 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Mon, 15 May 2006 22:09:46 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 4/4 resend] ohci1394, sbp2: fix "scsi_add_device failed" with
- PL-3507 based devices
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Jody McIntyre <scjody@modernduck.com>,
-       Ben Collins <bcollins@ubuntu.com>
-In-Reply-To: <tkrat.621eda7433bd0a08@s5r6.in-berlin.de>
-Message-ID: <tkrat.5d7ad5dbf48e0f08@s5r6.in-berlin.de>
-References: <tkrat.7fdbc058e06f117a@s5r6.in-berlin.de>
- <tkrat.c18c8124a53a8d1d@s5r6.in-berlin.de>
- <tkrat.7e87b6d07dda409e@s5r6.in-berlin.de>
- <tkrat.621eda7433bd0a08@s5r6.in-berlin.de>
+	Mon, 15 May 2006 16:17:37 -0400
+Received: from nz-out-0102.google.com ([64.233.162.198]:16746 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S965215AbWEOURh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 16:17:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=S/xZE9TZQ0VtawnL4pTeYxZljlbU5/ALXTO6RC1yulQvoe5w29A6tCcaM+afAGievapCL1+odoN79PU7PFW/f3KnoBpjpLdQtFiKsjKU1aAfF5Xtutz6eRAIzX2rTHz3b7DIHxjC8W3iEMAcFD9PxrvyhodJ6S4RodXTdW6HkIw=
+Message-ID: <6bffcb0e0605151317u51bbf67ey124b808fad920d36@mail.gmail.com>
+Date: Mon, 15 May 2006 22:17:36 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.17-rc4-mm1
+Cc: linux-kernel@vger.kernel.org, gregkh@suse.de,
+       "Jean Delvare" <khali@linux-fr.org>,
+       "Kumar Gala" <galak@kernel.crashing.org>
+In-Reply-To: <20060515122613.32661c02.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
-X-Spam-Score: (0.877) AWL,BAYES_50
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060515005637.00b54560.akpm@osdl.org>
+	 <6bffcb0e0605151137v25496700k39b15a40fa02a375@mail.gmail.com>
+	 <20060515115302.5abe7e7e.akpm@osdl.org>
+	 <6bffcb0e0605151210x21eb0d24g96366ce9c121c26c@mail.gmail.com>
+	 <20060515122613.32661c02.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Re-enable posted writes for status FIFO.
-Besides bringing back a very minor bandwidth tweak from Linux 2.6.15.x
-and older, this also fixes an interoperability regression since 2.6.16:
-http://bugzilla.kernel.org/show_bug.cgi?id=6356
-(sbp2: scsi_add_device failed. IEEE1394 HD is not working anymore.)
+On 15/05/06, Andrew Morton <akpm@osdl.org> wrote:
+> Great, thanks.   Here's the relevant part:
+>
+> modprobe      D 00000019  2740  2163   2129                     (NOTLB)
+>        f0915e60 f1d7b694 8422805f 00000019 f0915e08 c10819a3 f1d7b694 f0915e18
+>        00000007 f7e5f374 f7e5f250 f7f0f110 c741cf00 8429b934 00000019 000738d5
+>        00000001 f1e6ac54 c101732e f0915e48 c10168d4 f887dba0 00000246 00000001
+> Call Trace:
+>  <c11d768e> wait_for_completion+0x8e/0x108   <c1180fae> i2c_del_adapter_nolock+0x255/0x277
+>  <c1180fe7> i2c_del_adapter+0x17/0x28   <f887c023> i801_remove+0xd/0x2f [i2c_i801]
+>  <c10eeb69> pci_device_remove+0x19/0x2c   <c11395a7> __device_release_driver+0x63/0x79
+>  <c1139889> driver_detach+0x94/0xc4   <c1138d58> bus_remove_driver+0x5d/0x79
+>  <c11399a2> driver_unregister+0xb/0x18   <c10eecd4> pci_unregister_driver+0x13/0xa5
+>  <f887c9a5> i2c_i801_exit+0xd/0xf [i2c_i801]   <c103d3a8> sys_delete_module+0x19e/0x1d6
+>  <c11dab67> sysenter_past_esp+0x54/0x75
+>
+> I'd assume that Kumar's i2c-add-support-for-virtual-i2c-adapters.patch is
+> the culprit.
 
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Tested-by: Vanei Heidemann <linux@javanei.com.br>
-Tested-by: Martin Putzlocher <mputzi@gmx.de> (chip type unconfirmed)
----
-The ugly hardwired PhyUpperBound which this patch (re-)introduces into
-sbp2 will be eliminated by a subsequent patchset which has already been
-sent to linux1394-devel.
+Unfortunately it's not this patch.
+I'll check all Kumar's patches.
 
-First posted on 2006-04-23.
+Regards,
+Michal
 
-Index: linux-2.6.17-rc4/drivers/ieee1394/ohci1394.c
-===================================================================
---- linux-2.6.17-rc4.orig/drivers/ieee1394/ohci1394.c	2006-05-15 21:27:04.000000000 +0200
-+++ linux-2.6.17-rc4/drivers/ieee1394/ohci1394.c	2006-05-15 21:52:42.000000000 +0200
-@@ -553,7 +553,7 @@ static void ohci_initialize(struct ti_oh
- 	 * register content.
- 	 * To actually enable physical responses is the job of our interrupt
- 	 * handler which programs the physical request filter. */
--	reg_write(ohci, OHCI1394_PhyUpperBound, 0xffff0000);
-+	reg_write(ohci, OHCI1394_PhyUpperBound, 0x01000000);
- 
- 	DBGMSG("physUpperBoundOffset=%08x",
- 	       reg_read(ohci, OHCI1394_PhyUpperBound));
-Index: linux-2.6.17-rc4/drivers/ieee1394/sbp2.c
-===================================================================
---- linux-2.6.17-rc4.orig/drivers/ieee1394/sbp2.c	2006-05-15 21:52:18.000000000 +0200
-+++ linux-2.6.17-rc4/drivers/ieee1394/sbp2.c	2006-05-15 21:52:42.000000000 +0200
-@@ -835,11 +835,16 @@ static struct scsi_id_instance_data *sbp
- 
- 	/* Register the status FIFO address range. We could use the same FIFO
- 	 * for targets at different nodes. However we need different FIFOs per
--	 * target in order to support multi-unit devices. */
-+	 * target in order to support multi-unit devices.
-+	 * The FIFO is located out of the local host controller's physical range
-+	 * but, if possible, within the posted write area. Status writes will
-+	 * then be performed as unified transactions. This slightly reduces
-+	 * bandwidth usage, and some Prolific based devices seem to require it.
-+	 */
- 	scsi_id->status_fifo_addr = hpsb_allocate_and_register_addrspace(
- 			&sbp2_highlevel, ud->ne->host, &sbp2_ops,
- 			sizeof(struct sbp2_status_block), sizeof(quadlet_t),
--			~0ULL, ~0ULL);
-+			0x010000000000ULL, CSR1212_ALL_SPACE_END);
- 	if (!scsi_id->status_fifo_addr) {
- 		SBP2_ERR("failed to allocate status FIFO address range");
- 		goto failed_alloc;
-
-
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

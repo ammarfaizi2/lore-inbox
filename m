@@ -1,45 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965150AbWEOTBg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbWEOTBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965150AbWEOTBg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 15:01:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbWEOTBf
+	id S932447AbWEOTBX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 15:01:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932498AbWEOTBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 15:01:35 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:51167 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965150AbWEOTBc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 15:01:32 -0400
-To: <ravinandan.arakali@neterion.com>
-Cc: "Peter. Phan" <peter.phan@neterion.com>,
-       "Leonid Grossman" <Leonid.Grossman@neterion.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: MSI-X support on AMD 8132 platforms ?
-References: <MAEEKMLDLDFEGKHNIJHIOECKCEAA.ravinandan.arakali@neterion.com>
-	<MAEEKMLDLDFEGKHNIJHIKEIMCEAA.ravinandan.arakali@neterion.com>
-From: Andi Kleen <ak@suse.de>
-Date: 15 May 2006 21:01:21 +0200
-In-Reply-To: <MAEEKMLDLDFEGKHNIJHIKEIMCEAA.ravinandan.arakali@neterion.com>
-Message-ID: <p73hd3r5czi.fsf@bragg.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 15 May 2006 15:01:22 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:12478 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932447AbWEOTAx (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 15:00:53 -0400
+Message-Id: <200605151900.k4FJ0ktD006410@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Andrew Morton <akpm@osdl.org>, Ram Pai <linuxram@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.17-rc4-mm1 - kbuild wierdness with EXPORT_SYMBOL_GPL
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1147719646_2500P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 15 May 2006 15:00:46 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Ravinandan Arakali" <ravinandan.arakali@neterion.com> writes:
+--==_Exmh_1147719646_2500P
+Content-Type: text/plain; charset=us-ascii
 
-> I was wondering if anybody has got MSI-X going on AMD 8132 platforms.
-> Our network card and driver support MSI-X and the combination works
-> fine on IA64 and xeon platforms. But on the 8132, the MSI-X vectors are
-> assigned(pci_enable_msix succeeds) but no interrupts get generated.
+It looks like a buggy comparison down in the guts of
+kbuild-export-type-enhancement-to-modpostc.patch - it's doing
+something really odd when it hits a EXPORT_SYMBOL_GPL.
 
-See erratum #78 in the AMD 8132 Specification update.
-It doesn't support the MSI capability and there are no plans to fix that.
+Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
+---
+Proposed fix (with an added debugging warning Just In Case:
 
-AFAIK the only way to get MSI on Opteron is on PCI Express.
+--- linux-2.6.17-rc4-mm1/scripts/mod/modpost.c.whatdied	2006-05-15 13:50:13.000000000 -0400
++++ linux-2.6.17-rc4-mm1/scripts/mod/modpost.c	2006-05-15 14:52:13.000000000 -0400
+@@ -1194,12 +1194,14 @@
+ 					*d != '\0')
+ 			goto fail;
+ 
+-		if ((strcmp(export, "EXPORT_SYMBOL_GPL")))
++		if ((strcmp(export, "EXPORT_SYMBOL_GPL") == 0))
+ 			export_type = 1;
+ 		else if(strcmp(export, "EXPORT_SYMBOL") == 0)
+ 			export_type = 0;
+-		else
++		else {
++			warn("Odd symbol export=%s symname=%s modname=%s\n",export,symname,modname);
+ 			goto fail;
++		}
+ 
+ 		if (!(mod = find_module(modname))) {
+ 			if (is_vmlinux(modname)) {
 
-> Note that with a different OS, MSI-X does work on 8132.
 
-Are you sure?
 
--Andi
+--==_Exmh_1147719646_2500P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEaM/ecC3lWbTT17ARAjssAKDOWQbHVzLoE+xPXcx41yOwpXbfyACgqDKo
+WGAyB2KW+qi/wHeSvhjcPQ8=
+=R8FM
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1147719646_2500P--

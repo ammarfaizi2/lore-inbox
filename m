@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbWEOWKS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964998AbWEOWS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964957AbWEOWKS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 18:10:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbWEOWKS
+	id S964998AbWEOWS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 18:18:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbWEOWSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 18:10:18 -0400
-Received: from mx1.suse.de ([195.135.220.2]:37356 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964957AbWEOWKQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 18:10:16 -0400
-From: Neil Brown <neilb@suse.de>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Date: Tue, 16 May 2006 08:09:57 +1000
+	Mon, 15 May 2006 18:18:55 -0400
+Received: from adsl-71-140-189-62.dsl.pltn13.pacbell.net ([71.140.189.62]:25755
+	"EHLO aexorsyst.com") by vger.kernel.org with ESMTP id S964998AbWEOWSy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 18:18:54 -0400
+From: "John Z. Bohach" <jzb@aexorsyst.com>
+Reply-To: jzb@aexorsyst.com
+To: linux-kernel@vger.kernel.org
+Subject: Linux porting issue/question...
+Date: Mon, 15 May 2006 15:18:53 -0700
+User-Agent: KMail/1.5.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17512.64565.927868.819865@cse.unsw.edu.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc4-mm1
-In-Reply-To: message from Reuben Farrelly on Tuesday May 16
-References: <20060515005637.00b54560.akpm@osdl.org>
-	<44687E48.5050107@reub.net>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+Message-Id: <200605151518.53533.jzb@aexorsyst.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday May 16, reuben-lkml@reub.net wrote:
-> 
-> 
-> On 15/05/2006 7:56 p.m., Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc4/2.6.17-rc4-mm1/
-> > 
-> > - This tree contains a large number of new bugs^H^H^H^Hpatches.
-> 
-> Indeed.  This is the first -mm in a fair while that has crapped itself on boot 
-> on my box.
-> 
-> NeilB - is this yours?
+I'm in the process of porting the linux kernel to a totally new h/w, and have
+gotten most of the stuff to work.
 
-Uhmmm. yes.  I have a patch that I was going to send of a little later
-today.  Just give me an hour or two...
+However, I've run into a porting issue, and don't know where else to turn.
+There is no gdb, no ICE, not much of anything available at the moment
+on this h/w...
 
-NeilBrown
+Attempting to run a standard 'ls' on a file or device node works fine, even
+'ls -al' dumps good values.
+
+However, running 'ls {somedir}' on a directory, any directory, always
+returns the error code for "EFAULT" (Bad address), at the user level.
+
+I've been able to trace the code execution into the 'vfs_stat()' kernel call,
+but it gets a bit tricky trying to trace the __user_path_walk() function, and
+there are some indirect function calls as well, dealing with pulling the inode
+information from the fs, etc...BTW, the parameters passed into vfs_stat() do appear
+correct.
+
+The one thing that I did fix earlier was the 'struct stat64' structure that the
+kernel was using from its 'asm/stat.h' file was grotesquely mismatched with
+the 'struct stat64' structure in the glibc-2.3.6's bits/stat.h file, and once I fixed that
+mismatch, the major/minor numbers of an 'ls -al /dev/{somedev}' started showing
+up correctly.  I had hoped that this would have fixed the EFAULT on 'ls {somedir}
+as well, but it did not make any difference.  I've also verified that the 'struct stat'
+in the kernel's asm/stat.h is also synonymous with its counterpart in glibc.
+
+Could anyone point me in a direction that might help debug this somewhat difficult
+issue?
+
+Thanks,
+John
+

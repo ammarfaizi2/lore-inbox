@@ -1,50 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWEOXuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbWEOXvL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750794AbWEOXuY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 19:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWEOXuX
+	id S1750821AbWEOXvL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 19:51:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWEOXvL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 19:50:23 -0400
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:18087 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S1750821AbWEOXuW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 19:50:22 -0400
-X-IronPort-AV: i="4.05,131,1146466800"; 
-   d="scan'208"; a="277217853:sNHT2753304328"
-To: "Caitlin Bestler" <caitlinb@broadcom.com>
-Cc: "Grant Grundler" <iod00d@hp.com>, openib-general@openib.org,
-       linux-kernel@vger.kernel.org,
-       "Segher Boessenkool" <segher@kernel.crashing.org>
-Subject: Re: [openib-general] Re: [PATCH 21 of 53] ipath - use phys_to_virt instead of bus_to_virt
-X-Message-Flag: Warning: May contain useful information
-References: <54AD0F12E08D1541B826BE97C98F99F149F34B@NT-SJCA-0751.brcm.ad.broadcom.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 15 May 2006 16:50:11 -0700
-In-Reply-To: <54AD0F12E08D1541B826BE97C98F99F149F34B@NT-SJCA-0751.brcm.ad.broadcom.com> (Caitlin Bestler's message of "Mon, 15 May 2006 16:40:35 -0700")
-Message-ID: <adabqtyrgp8.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Mon, 15 May 2006 19:51:11 -0400
+Received: from mail13.syd.optusnet.com.au ([211.29.132.194]:38284 "EHLO
+	mail13.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750821AbWEOXvJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 19:51:09 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [PATCH -mm] swsusp: support creating bigger images (rev. 2)
+Date: Tue, 16 May 2006 09:50:19 +1000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>,
+       Nigel Cunningham <ncunningham@cyclades.com>,
+       Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au
+References: <200605021200.37424.rjw@sisk.pl> <200605151948.45345.kernel@kolivas.org> <200605152152.12194.rjw@sisk.pl>
+In-Reply-To: <200605152152.12194.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 15 May 2006 23:50:12.0653 (UTC) FILETIME=[4E9775D0:01C6787A]
-Authentication-Results: sj-dkim-4.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605160950.19639.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Caitlin> True, but how does that constrain the local interfaces by
-    Caitlin> which the driver is informed of the set of pages that
-    Caitlin> back a given memory region? The driver must still
-    Caitlin> ultimately provide dma accessible addresses to the
-    Caitlin> device. RDMA just changes the timing of the steps, albeit
-    Caitlin> radically, but not what the steps are.
+On Tuesday 16 May 2006 05:52, Rafael J. Wysocki wrote:
+> Hi,
+>
+> On Monday 15 May 2006 11:48, Con Kolivas wrote:
+> > On Sunday 14 May 2006 08:33, Rafael J. Wysocki wrote:
+> > > On Friday 12 May 2006 12:30, Pavel Machek wrote:
+> > > > > Please also remember that you are introducing complexity in other
+> > > > > ways, with that swap prefetching code and so on. Any comparison in
+> > > > > speed should include the time to fault back in pages that have been
+> > > > > discarded.
+> > > >
+> > > > Well, swap prefetching is useful for other workloads, too; so it gets
+> > > > developed/tested outside swsusp.
+> > >
+> > > Still my experience indicates that it doesn't play very nice with
+> > > swsusp and unfortunately it hogs the I/O.
+> >
+> > There is no swap prefetching code linked in any way to swsusp suspend or
+> > resume on mainline or -mm. It was a preliminary experiment and Rafael
+> > lost interest in it so I never bothered pursuing it.
+>
+> I'm referring to the code currently in -mm, where kprefetchd sometimes
+> starts prefetching like mad after resume which hurts the disk I/O really
+> badly (unless I set /proc/sys/vm/swap_prefetch to 0, that is).
 
-It's only a problem for "reserved L_Key" types of things, where the
-device is supposed to just use the address given in a work request
-without translating it.  No translation means that work requests have
-to contain "bus addresses" -- addresses that are what the device would
-put on the bus to access memory.  But if a device needs to simulate
-DMA in software, then it really needs a kernel virtual address, not a
-bus address.  But it's pretty ugly to have to put that knowledge in
-every consumer.
+Not my experience. It does lots of disk I/O after resume because as you say 
+yourself there is heaps in swap, but I haven't seen that I/O hurt as it 
+simply stops the instant I do anything with the machine even as trivial as 
+moving the mouse.
 
- - R.
+> I think the problem is related to the fact that swsusp tends to leave quite
+> a lot of pages in the swap, if they had to be swapped out before suspend,
+> and that makes kprefetchd believe it should get these pages back into RAM,
+> which usually is not the greatest idea.
+>
+> The above is only a speculation, however, and I'd have to investigate it a
+> bit more to say something more certain.  Anyway, my experience indicates
+> that it usually is better to set /proc/sys/vm/swap_prefetch to 0 after
+> resume, but YMMV.
+
+My mileage definitely varies here. I don't concentrate on examining the fact 
+that the machine is doing any I/O, but how usable the machine is and it's my 
+experience that it is much better as about 1/3 of my applications are not 
+floundering entirely on swap. Fortunately there's a tunable there and it 
+allows you to set and unset it how you see fit.
+
+Anyway the original point of my response was to point out to Nigel that there 
+is no added complexity on behalf of swsusp in the swap prefetch code.
+
+-- 
+-ck

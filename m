@@ -1,71 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751415AbWENX62@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWEOAHg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751415AbWENX62 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 May 2006 19:58:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWENX62
+	id S1751416AbWEOAHg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 May 2006 20:07:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWEOAHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 May 2006 19:58:28 -0400
-Received: from gate.crashing.org ([63.228.1.57]:57009 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751415AbWENX62 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 May 2006 19:58:28 -0400
-Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow
-	userspace (Xorg) to enable devices without doing foul direct access
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Peter Jones <pjones@redhat.com>, Martin Mares <mj@ucw.cz>,
-       Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Dave Airlie <airlied@linux.ie>,
-       Andrew Morton <akpm@osdl.org>, greg@kroah.com,
-       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@linux.intel.com>
-In-Reply-To: <9e4733910605131756q50ad5686n4ca8d5a8d1f9e3e1@mail.gmail.com>
-References: <1146300385.3125.3.camel@laptopd505.fenrus.org>
-	 <200605041309.53910.bjorn.helgaas@hp.com>
-	 <445A51F1.9040500@linux.intel.com>
-	 <200605041326.36518.bjorn.helgaas@hp.com>
-	 <E1FbjiL-0001B9-00@chiark.greenend.org.uk>
-	 <9e4733910605041340r65d47209h2da079d9cf8fceae@mail.gmail.com>
-	 <1146776736.27727.11.camel@localhost.localdomain>
-	 <mj+md-20060504.211425.25445.atrey@ucw.cz>
-	 <1146778197.27727.26.camel@localhost.localdomain>
-	 <1147566572.21291.30.camel@localhost.localdomain>
-	 <9e4733910605131756q50ad5686n4ca8d5a8d1f9e3e1@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 15 May 2006 09:57:49 +1000
-Message-Id: <1147651069.21291.63.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sun, 14 May 2006 20:07:36 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:18315
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1751416AbWEOAHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 May 2006 20:07:35 -0400
+From: Rob Landley <rob@landley.net>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Which process context does /sbin/hotplug run in?
+Date: Sun, 14 May 2006 20:08:39 -0400
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org
+References: <200605121421.00044.rob@landley.net> <F68E5CEA-AB95-4E1C-9923-0882394AE16E@mac.com>
+In-Reply-To: <F68E5CEA-AB95-4E1C-9923-0882394AE16E@mac.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605142008.39420.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-05-13 at 20:56 -0400, Jon Smirl wrote:
-> On 5/13/06, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> > There are reasons why you may have to read the image at c0000... There's
-> > a bunch of laptops where it's in fact the only way to get to the video
-> > BIOS as it doesn't have a ROM attached to the video chip (it's burried
-> > in the main BIOS which thankfully copied it to c0000 when running it).
-> > In some cases, the BISO ROM self-modifies it's c0000 and it's that
-> > modified copy that the X (or fbdev) driver should get. Remeber that
-> > drivers needs access to the ROM for more than just POSTing the chip...
-> 
-> Whenever klibc gets merged it would probably be good to add a
-> libemu86. Did you get one put together that you're happy with?
+On Saturday 13 May 2006 3:24 am, Kyle Moffett wrote:
+> /
+>    /var
+>      /var/sub
+>      /var/sub2
+>        /var/sub2/sub
+>        /var/sub2/sub2
+>
+> The recursion ends there.  Basically with the first bind mount you
+> attach the same instance of tmpfs to /tmp and /var, then you move the
+> tmpfs from /tmp to the "/sub2" directory in the "/var" tmpfs
+> _mountpoint_.  It's kind of confusing behavior; but the directory
+> tree and the mount tree are basically kind of separate entities in a
+> sense.
 
-No, not so far yet. Haven't had much time though. Did some expriments
-based on what you sent me back then, got it to work with loads of hacks,
-but I never properly cleaned it up.
+I can CD into them endlessly, and both "ls -lR" and "find ." report cycles in 
+the tree, which surprised me that they had a specific error message for that, 
+actually.  Good enough for me. :)
 
-> Between the ROM attribute, klibc and libemu86 there will then be
-> enough support to write a tiny POST program that POSTs secondary and
-> non-x86 primary cards at boot. It will still need a little support in
-> sysfs for PCI bus VGA routing but we're almost there.
+And I'm not _complaining_ about it.  Just fiddling around with fun stuff.  If 
+I get really bored I'll figure a way to split the tree so there are two 
+completely unconnected mount trees in different processes.  (Get a private 
+namespace that's chrooted into something that somebody else does a umount -l 
+on from their space.  Or without using umount -l, just have two processes 
+chroot into other mount points which should theoretically garbage collect the 
+old root if no processes still references it, which presumably means one of 
+the processes is init...)
 
-And we need to "capture" the resulting BIOS image after POST and have a
-away to give that to the drivers as it will contain useful tables that
-the driver will need as well...
+Don't mind me, I do this for fun.
 
-Ben.
-
-
+Rob
+-- 
+Never bet against the cheap plastic solution.

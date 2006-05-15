@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751582AbWEOPzk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751586AbWEOP4v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751582AbWEOPzk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 11:55:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751583AbWEOPzk
+	id S1751586AbWEOP4v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 11:56:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751589AbWEOP4v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 11:55:40 -0400
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:32656 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S1751581AbWEOPzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 11:55:39 -0400
-X-IronPort-AV: i="4.05,130,1146466800"; 
-   d="scan'208"; a="276828638:sNHT224656582"
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 41 of 53] ipath - disable interrupts while holding spinlock in RWQE get
-X-Message-Flag: Warning: May contain useful information
-References: <83f1832c601594846868.1147477406@eng-12.pathscale.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 15 May 2006 08:55:37 -0700
-In-Reply-To: <83f1832c601594846868.1147477406@eng-12.pathscale.com> (Bryan O'Sullivan's message of "Fri, 12 May 2006 16:43:26 -0700")
-Message-ID: <ada4pzruvt2.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Mon, 15 May 2006 11:56:51 -0400
+Received: from wr-out-0506.google.com ([64.233.184.229]:2134 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751586AbWEOP4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 11:56:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=n3IwUBfqLp6gdurb1j/h+6XSraO1COuXIoM7IDKHCyW98ZSKecVCTfW7EvLHfOcofCgzyndhLv5qfKdU4AqgMO0zXN0D0lech8lh76tiF+yECHGyChIKlz/cj1d0hi34FsiC2aC3Nz1MxpZRnPUO9GCbh7eWl/yV2R0e67x29Z0=
+Message-ID: <4468A450.9000908@gmail.com>
+Date: Mon, 15 May 2006 11:54:56 -0400
+From: Florin Malita <fmalita@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 15 May 2006 15:55:38.0127 (UTC) FILETIME=[027399F0:01C67838]
-Authentication-Results: sj-dkim-1.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+To: dwmw2@infradead.org
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] jffs2: memory leak in jffs2_scan_medium()
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > @@ -171,12 +171,13 @@ int ipath_get_rwqe(struct ipath_qp *qp, 
- >  			n = rq->head - rq->tail;
- >  		if (n < srq->limit) {
- >  			srq->limit = 0;
- > -			spin_unlock(&rq->lock);
- > +			spin_unlock_irqrestore(&rq->lock, flags);
- >  			ev.device = qp->ibqp.device;
- >  			ev.element.srq = qp->ibqp.srq;
- >  			ev.event = IB_EVENT_SRQ_LIMIT_REACHED;
- >  			srq->ibsrq.event_handler(&ev,
- >  						 srq->ibsrq.srq_context);
- > +			spin_lock_irqsave(&rq->lock, flags);
+If jffs2_scan_eraseblock() fails and the exit path is taken, 's' is not
+being deallocated.
 
-ipath_get_rwqe() in the kernel now doesn't even have a flags
-variable.  So this looks like a bug introduced earlier in this patch
-series.  Please roll the fix up into the place where you added the bug.
+Reported by Coverity, CID: 1258.
 
- - R.
+Signed-off-by: Florin Malita <fmalita@gmail.com>
+---
+
+diff --git a/fs/jffs2/scan.c b/fs/jffs2/scan.c
+index cf55b22..27a7021 100644
+--- a/fs/jffs2/scan.c
++++ b/fs/jffs2/scan.c
+@@ -222,9 +222,6 @@ #endif
+ 		}
+ 	}
+ 
+-	if (jffs2_sum_active() && s)
+-		kfree(s);
+-
+ 	/* Nextblock dirty is always seen as wasted, because we cannot recycle it now */
+ 	if (c->nextblock && (c->nextblock->dirty_size)) {
+ 		c->nextblock->wasted_size += c->nextblock->dirty_size;
+@@ -266,6 +263,8 @@ #ifndef __ECOS
+ 	else
+ 		c->mtd->unpoint(c->mtd, flashbuf, 0, c->mtd->size);
+ #endif
++	kfree(s);
++	
+ 	return ret;
+ }
+ 
+
+

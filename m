@@ -1,45 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWEOXrs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbWEOXtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbWEOXrs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 19:47:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbWEOXrs
+	id S1750814AbWEOXtm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 19:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWEOXtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 19:47:48 -0400
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:27066 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S1750806AbWEOXrr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 19:47:47 -0400
-X-IronPort-AV: i="4.05,131,1146466800"; 
-   d="scan'208"; a="277215701:sNHT1761662948"
-To: ralphc@pathscale.com
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH 53 of 53] ipath - add memory  barrier when waiting for writes
-X-Message-Flag: Warning: May contain useful information
-References: <f8ebb8c1e43635081b73.1147477418@eng-12.pathscale.com>
-	<adazmhjth56.fsf@cisco.com>
-	<1147727447.2773.14.camel@chalcedony.pathscale.com>
-	<60844.71.131.57.117.1147734080.squirrel@rocky.pathscale.com>
-	<ada64k6sx7w.fsf@cisco.com>
-	<40771.71.131.57.117.1147735500.squirrel@rocky.pathscale.com>
-	<adaslnarhpv.fsf@cisco.com>
-	<53739.71.131.57.117.1147736281.squirrel@rocky.pathscale.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 15 May 2006 16:47:41 -0700
-In-Reply-To: <53739.71.131.57.117.1147736281.squirrel@rocky.pathscale.com> (ralphc@pathscale.com's message of "Mon, 15 May 2006 16:38:01 -0700 (PDT)")
-Message-ID: <adafyjargte.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Mon, 15 May 2006 19:49:42 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:59347 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750821AbWEOXtl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 19:49:41 -0400
+Message-ID: <44691392.2030906@garzik.org>
+Date: Mon, 15 May 2006 19:49:38 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 15 May 2006 23:47:42.0666 (UTC) FILETIME=[F53142A0:01C67879]
-Authentication-Results: sj-dkim-1.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+To: Tejun Heo <htejun@gmail.com>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFT] major libata update
+References: <20060515170006.GA29555@havoc.gtf.org> <20060515182919.GA16070@irc.pl> <4468CBC7.2030900@garzik.org> <44690F91.2070206@gmail.com>
+In-Reply-To: <44690F91.2070206@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.1 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    ralphc> I didn't try calling barrier() so I don't know the answer.
-    ralphc> When power is restored, I can try it.  My guess is that
-    ralphc> it's a timing issue and not a code reordering issue.
+Tejun Heo wrote:
+> Jeff Garzik wrote:
+>> Tomasz Torcz wrote:
+>>> On Mon, May 15, 2006 at 01:00:06PM -0400, Jeff Garzik wrote:
+>>>> After much development and review, I merged a massive pile of libata
+>>>> patches from Tejun Heo and Albert Lee.  This update contains the
+>>>> following major libata
+>>>
+>>>   Any plans to merge http://home-tj.org/wiki/index.php/Sil_m15w ? Or
+>>> maybe it's merged already?
+>>>   Seagate firmware update seems to be available only for OEMs, so this
+>>> quirk is pretty helpful for end users.
+>>
+>> Its a question of staging.  This still lives in the 'sii-m15w' branch 
+>> of libata-dev.git, but if we throw too many _classes_ of changes into 
+>> the same big lump, then it becomes much more difficult to discern 
+>> which changes caused which failures.
+>>
+>> Since sata_sil has seen several changes, and since the sii-m15w 
+>> problems are so difficult to diagnose properly, its easier to separate 
+>> that out.
+> 
+> Are you planning on merging sil_m15w workaround?
 
-Hmm, then we really better understand what's going on, because
-otherwise you're just going to have trouble again if someone makes a
-CPU with a faster mfence instruction...
+Yes, but after 2.6.18.
+
+
+> FYI, from the first time it was submitted (last summer) till 2.6.16, it 
+> took very little effort to maintain it.  The current big update would 
+> necessitate some changes to it but I don't think it will be too much 
+> work.  My experience says m15w doesn't add too much maintenance overhead.
+
+Its actively maintained in the 'sii-m15w' branch of libata-dev.git.
+
+
+> Also, what's the merge plan for hotplug/PM?  Together into 2.6.18?  Or 
+> are we looking further down?
+
+Hotplug is reasonable for 2.6.18, but after that its getting a bit much. 
+  We need to have some reasonable testing points in the midst of all 
+this development :)  I'm happy to maintain an upstream-2.6.19 branch for 
+such things, though.  I use tiered branches anyway.
+
+	Jeff
+
+
+

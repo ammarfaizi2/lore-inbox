@@ -1,73 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbWEOTEI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965157AbWEOTG1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965151AbWEOTEI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 15:04:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWEOTEH
+	id S965157AbWEOTG1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 15:06:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbWEOTG1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 15:04:07 -0400
-Received: from mga02.intel.com ([134.134.136.20]:26012 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932317AbWEOTEF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 15:04:05 -0400
-Message-Id: <4t16i2$12rqnu@orsmga001.jf.intel.com>
-X-IronPort-AV: i="4.05,130,1146466800"; 
-   d="scan'208"; a="36563710:sNHT7341033294"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Con Kolivas'" <kernel@kolivas.org>
-Cc: <tim.c.chen@linux.intel.com>, <linux-kernel@vger.kernel.org>,
-       <mingo@elte.hu>, "Andrew Morton" <akpm@osdl.org>
-Subject: RE: Regression seen for patch "sched:dont decrease idle sleep avg"
-Date: Mon, 15 May 2006 12:01:06 -0700
+	Mon, 15 May 2006 15:06:27 -0400
+Received: from outgoing2.smtp.agnat.pl ([193.239.44.84]:43023 "EHLO
+	outgoing2.smtp.agnat.pl") by vger.kernel.org with ESMTP
+	id S932317AbWEOTG0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 15:06:26 -0400
+From: Arkadiusz Miskiewicz <arekm@maven.pl>
+Organization: SelfOrganizing
+To: Jeff Garzik <jeff@garzik.org>
+Subject: Re: [RFT] major libata update
+Date: Mon, 15 May 2006 21:06:08 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <20060515170006.GA29555@havoc.gtf.org> <20060515101831.0e38d131.akpm@osdl.org> <4468C33F.7070905@garzik.org>
+In-Reply-To: <4468C33F.7070905@garzik.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZ3cDNbvUN9Jw1lT32tJEio0WrB2AA3CMIg
-In-Reply-To: <200605150203.13633.kernel@kolivas.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200605152106.08239.arekm@maven.pl>
+X-Authenticated-Id: arekm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote on Sunday, May 14, 2006 9:03 AM
-> There would be no difference if the priority boost is done lower. The if and 
-> else blocks both end up equating to the same amount of priority boost, with 
-> the former having a ceiling on it, so yes it is the intent. You'll see that 
-> the amount of sleep required to jump from lowest priority to MAX_SLEEP_AVG - 
-> DEF_TIMESLICE is INTERACTIVE_SLEEP.
+On Monday 15 May 2006 20:06, Jeff Garzik wrote:
 
-I don't think the if and the else block is doing the same thing. In the if
-block, the p->sleep_avg is unconditionally boosted to ceiling for all tasks,
-though it will not reduce sleep_avg for tasks that already exceed the ceiling.
-Bumping up sleep_avg will then translate into priority boost of MAX_BONUS-1,
-which potentially can be too high.
+> > http://bugzilla.kernel.org/show_bug.cgi?id=6260
+>
+> waiting on SATA ACPI merge.
+Is this really a case?
 
-But that's fine if it is the intent. At minimum, the comment in the source
-code should say so instead of fooling people who don't actually read the code.
+The one (layering breaking; discussed already) patch cures the problem and 
+nothing sata acpi related is needed, so something else is problematic here I 
+guess.
 
+--- 2.6.17-rc2/drivers/scsi/libata-core.c       2006-04-19 09:14:11.000000000 
++0100 
++++ linux/drivers/scsi/libata-core.c    2006-04-21 20:55:48.000000000 +0100 
+@@ -4288,6 +4288,7 @@ int ata_device_resume(struct ata_port *a 
+ { 
+        if (ap->flags & ATA_FLAG_SUSPENDED) { 
+                ap->flags &= ~ATA_FLAG_SUSPENDED; 
++               ata_busy_sleep(ap, ATA_TMOUT_BOOT_QUICK, ATA_TMOUT_BOOT); 
+                ata_set_mode(ap); 
+        } 
+        if (!ata_dev_present(dev))
 
-[patch] sched: update comments in priority calculation w.r.t. implementation.
-
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
-
---- ./kernel/sched.c.orig	2006-05-15 12:24:02.000000000 -0700
-+++ ./kernel/sched.c	2006-05-15 12:37:16.000000000 -0700
-@@ -746,10 +746,12 @@ static int recalc_task_prio(task_t *p, u
- 	if (likely(sleep_time > 0)) {
- 		/*
- 		 * User tasks that sleep a long time are categorised as
--		 * idle. They will only have their sleep_avg increased to a
--		 * level that makes them just interactive priority to stay
--		 * active yet prevent them suddenly becoming cpu hogs and
--		 * starving other processes.
-+		 * idle. If they sleep longer than INTERACTIVE_SLEEP, it
-+		 * will have its priority boosted to minimum MAX_BONUS-1.
-+		 * For short sleep, they will only have their sleep_avg
-+		 * increased to a level that makes them just interactive
-+		 * priority to stay active yet prevent them suddenly becoming
-+		 * cpu hogs and starving other processes.
- 		 */
- 		if (p->mm && sleep_time > INTERACTIVE_SLEEP(p)) {
- 				unsigned long ceiling;
-
-
+-- 
+Arkadiusz Mi¶kiewicz        PLD/Linux Team
+arekm / maven.pl            http://ftp.pld-linux.org/

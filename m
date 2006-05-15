@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWEOUxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbWEOUyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932072AbWEOUxM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 16:53:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWEOUxM
+	id S964777AbWEOUyM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 16:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWEOUyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 16:53:12 -0400
-Received: from build.arklinux.osuosl.org ([140.211.166.26]:5561 "EHLO
-	mail.arklinux.org") by vger.kernel.org with ESMTP id S932072AbWEOUxK
+	Mon, 15 May 2006 16:54:12 -0400
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:64445 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S964777AbWEOUyL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 16:53:10 -0400
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [FIXED] Re: Total machine lockup w/ current kernels while installing from CD
-Date: Mon, 15 May 2006 22:53:02 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-References: <200605110322.14774.bero@arklinux.org> <200605152232.04304.bero@arklinux.org> <20060515134537.78e117dc.akpm@osdl.org>
-In-Reply-To: <20060515134537.78e117dc.akpm@osdl.org>
+	Mon, 15 May 2006 16:54:11 -0400
+Message-ID: <4468EA58.8040805@tmr.com>
+Date: Mon, 15 May 2006 16:53:44 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.2) Gecko/20060409 SeaMonkey/1.0.1
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Segfault on the i386 enter instruction
+References: <20060512131654.GB2994@duch.mimuw.edu.pl> <Pine.LNX.4.61.0605121003450.9012@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0605121003450.9012@chaos.analogic.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605152253.02638.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 15. May 2006 22:45, Andrew Morton wrote:
-> It's odd that we'll run initrds in a !SYSTEM_RUNNING state.
+linux-os (Dick Johnson) wrote:
+> On Fri, 12 May 2006, Tomasz Malesinski wrote:
+> 
+>> The code attached below segfaults on the enter instruction. It works
+>> when a stack frame is created by the three commented out
+>> instructions and also when the first operand of the enter instruction
+>> is small (less than about 6500 on my system).
+>>
+>> AFAIK, the only difference between creating a stack frame with the
+>> enter instruction or push/mov/sub is that enter checks if the new
+>> value of esp is inside the stack segment limit.
+>>
+>> I tested it on a vanilla kernel 2.4.26 on Intel Celeron and also on
+>> probably non-vanilla 2.6.16.13 running on 3 dual core AMD Opteron,
+>> quite busy, server. It is working in 32-bit mode. Interestingly, on
+>> the second machine sometimes the program worked correctly.
+>>
+>> I am not subscribed to the list. Please cc replies to me.
+>>
+>>
+>> 	.file	"a.c"
+>> 	.version	"01.01"
+>> gcc2_compiled.:
+>> .section	.rodata
+>> .LC0:
+>> 	.string	"asdf\n"
+>> .text
+>> 	.align 4
+>> .globl main
+>> 	.type	 main,@function
+>> main:
+>> 	enter $10008, $0
+>> #	pushl %ebp
+>> #	movl %esp,%ebp
+>> #	subl $10008,%esp
+>> 	addl $-12,%esp
+>          ^^^^^^^^^^^^^^____________ WTF
+>          adding a negative number is subtracting that positive value.
+Right, adding -12 is the same as subtracting 12. I have no idea what 
+you're getting at with the next two lines.
+>          You just subtracted 0xfffffff3 (on a 32-bit machine) from
+>          the stack pointer. It damn-well better seg-fault!
+No, we subtracted 12. I'm not sure where that number came from, it's the 
+1's complement of 12 but I'm dead sure Linux code isn't running on any 
+1's comp machines.
 
-True, especially because we run initramfs in SYSTEM_RUNNING state.
-
-> It's not an oops - it's sort-of a warning.  Did the system actually
-> continue to run and boot up OK?
-
-No, it was a lockup and the system just hung at the point forever, so the 
-lockup detection was right.
-
-> If so, I'd assume that the ext3 filesystem was mounted on a very slow
-> device - perhaps an IDE disk in PIO mode?
-
-That too - happened with a pretty stupid 5-liner installation script that just 
-formats the disk and installs a set of customized rpms from CD.
-
-The hw we installed this on is Asus Pundit-R boxes, which means, basically, 
-weird IDE setup (no secondary IDE --> harddisk on hda, CD drive on hdb) on an 
-ATI IGP chipset, not exactly the fastest out there.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

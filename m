@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbWEORFj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbWEORHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbWEORFj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 13:05:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbWEORFj
+	id S964984AbWEORHK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 13:07:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWEORHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 13:05:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:33235 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964851AbWEORFi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 13:05:38 -0400
-Date: Mon, 15 May 2006 10:01:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-kernel@vger.kernel.org, phillip@hellewell.homeip.net,
-       Michael Halcrow <mhalcrow@us.ibm.com>,
-       David Howells <dhowells@redhat.com>
-Subject: Re: 2.6.17-rc4-mm1
-Message-Id: <20060515100144.0aff41b1.akpm@osdl.org>
-In-Reply-To: <20060515164938.GB10143@mipter.zuzino.mipt.ru>
-References: <20060515005637.00b54560.akpm@osdl.org>
-	<20060515164938.GB10143@mipter.zuzino.mipt.ru>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 15 May 2006 13:07:10 -0400
+Received: from mercury.sdinet.de ([193.103.161.30]:1433 "EHLO
+	mercury.sdinet.de") by vger.kernel.org with ESMTP id S964981AbWEORHI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 13:07:08 -0400
+Date: Mon, 15 May 2006 19:07:07 +0200 (CEST)
+From: Sven-Haegar Koch <haegar@sdinet.de>
+To: Jeff Garzik <jeff@garzik.org>
+cc: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SATA status report updated
+In-Reply-To: <44689C39.70902@garzik.org>
+Message-ID: <Pine.LNX.4.64.0605151901060.25784@mercury.sdinet.de>
+References: <44689C39.70902@garzik.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan <adobriyan@gmail.com> wrote:
->
-> >   - Added the ecryptfs filesystem
-> 
->   CC [M]  fs/ecryptfs/super.o
-> fs/ecryptfs/super.c: In function `ecryptfs_statfs':
-> fs/ecryptfs/super.c:129: warning: passing arg 1 of `vfs_statfs' from incompatible pointer type
-> fs/ecryptfs/super.c: At top level:
-> fs/ecryptfs/super.c:207: warning: initialization from incompatible pointer type
+On Mon, 15 May 2006, Jeff Garzik wrote:
 
-hm, I wonder why I didn't notice that.
+> I've updated the http://linux-ata.org/ status pages with the recent work by 
+> Tejun Heo and others.
 
-> * ->statfs wants vfsmount as first argument
-> * ecryptfs_statfs() is inlined
+Thanks for your list, but I'm missing the SATA chipset that our Asus-Boxes 
+got:
 
-yup.  Fixed a bunch of those, let one slip through.
+0000:00:14.1 IDE interface: ATI Technologies Inc ATI Dual Channel Bus 
+Master PCI IDE Controller
+(PCI-ID 1002:4349)
 
-I don't immediately see how to fix this one, actually:
+Or is this something different like an IDE chipset with included SATA 
+bridges or so?
 
-static inline int ecryptfs_statfs(struct super_block *sb, struct kstatfs *buf)
-{
-	return vfs_statfs(ecryptfs_superblock_to_lower(sb), buf);
-}
+It is supported through the atiixp ide driver, but only really slow 
+(10mb/s) - the same disks attached to an Intel SATA port give 30-40mb/s.
 
-Once we've run ecryptfs_superblock_to_lower() to get the "lower
-superblock", we need to turn that back into a vfsmount for vfs_statfs()..
+c'ya
+sven
 
-(and that function needn't have been inlined - it's only ever called
-indirectly)
+-- 
 
-I think I'll be dropping the fs-cache patches (again) fairly soon.  They're
-intrusive, quite some effort to carry, they're not getting adequate review
-(afaict) and there doesn't seem to be a lot of demand for them, sorry.
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)

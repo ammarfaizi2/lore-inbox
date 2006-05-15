@@ -1,72 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965030AbWEOSEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965052AbWEOSFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965030AbWEOSEW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 14:04:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbWEOSEW
+	id S965052AbWEOSFs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 14:05:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965063AbWEOSFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 14:04:22 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:52451 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965030AbWEOSEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 14:04:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=JlhZxJyACudbZjdoa/EPNmp/UejqA0wGS3T/H4xQrNSMtd+Wr8SMfZHBytNtOP13ngjkuhCeq78sCEWYQTTk3vQrXpCe9RhNWKEKTuKxn1IcvxaD57/ZtpZMjRVexocEkLGm57cY9bbxvL8IdYc1jVFrGXDBSuvn5nYa8SLaFnc=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.17-rc4-mm1
-Date: Mon, 15 May 2006 20:05:14 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
+	Mon, 15 May 2006 14:05:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30441 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965052AbWEOSFr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 14:05:47 -0400
+Date: Mon, 15 May 2006 11:08:14 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: apw@shadowen.org, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH] x86 NUMA panic compile error
+Message-Id: <20060515110814.11c74d70.akpm@osdl.org>
+In-Reply-To: <20060515175306.GA18185@elte.hu>
 References: <20060515005637.00b54560.akpm@osdl.org>
-In-Reply-To: <20060515005637.00b54560.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	<20060515140811.GA23750@shadowen.org>
+	<20060515175306.GA18185@elte.hu>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605152005.14519.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 15 May 2006 09:56, Andrew Morton wrote:
+Ingo Molnar <mingo@elte.hu> wrote:
+>
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc4/2.6.17-rc4-mm1/
+> * Andy Whitcroft <apw@shadowen.org> wrote:
 > 
-Hi Andrew,
+> >  	if (use_cyclone == 0) {
+> >  		/* Make sure user sees something */
+> > -		static const char s[] __initdata = "Not an IBM x440/NUMAQ. Don't use i386 CONFIG_NUMA anywhere else."
+> > +		static const char s[] __initdata = "Not an IBM x440/NUMAQ. Don't use i386 CONFIG_NUMA anywhere else.";
+> >  		early_printk(s);
+> >  		panic(s);
+> >  	}
+> 
+> i still strongly oppose the original Andi hack... numerous reasons were 
+> given not to apply it (it's nice to simulate/trigger rarer features on 
+> mainstream hardware too, and this ability to boot NUMA on my flat x86 
+> testbox found at least one other NUMA bug already). Furthermore, the 
+> crash i reported was fixed by the NUMA patchset.
 
-While going through my patches currently in -mm I noticed a problem.
-I have to hang my head i shame and admit to introducing a bug in what should 
-have been a bugFIX patch :-(
+I'll be darned.  I never knew it was even possible to run x86 numa kernels
+on non-numa boxen.  I'd have tested about 1000000 of Christoph Lameter's
+patches if someone had told me.  Yes, it's useful.
 
-In the 
-isdn-unsafe-interaction-between-isdn_write-and-isdn_writebuf_stub.patch 
-patch, which is currently in -mm there's a bug.
+> Andrew, please drop:
+> 
+>   x86_64-mm-i386-numa-summit-check.patch
 
-This bit :
- -       copy_from_user(skb_put(skb, len), buf, len);
- +       if (!copy_from_user(skb_put(skb, len), buf, len))
-should really be :
- -       copy_from_user(skb_put(skb, len), buf, len);
- +       if (copy_from_user(skb_put(skb, len), buf, len))
-Somehow a stray "!" crept in there.
+bang.
 
-Sorry about that. Here's a tiny fix-it-up patch to be applied on top : 
+> (which has nothing to do with x86_64 anyway)
 
+True.
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+I guess the concern here is that we don't want people building these
+frankenkernels and then sending us bug reports against them.
 
---- linux-2.6.17-rc4-mm1-orig/drivers/isdn/i4l/isdn_common.c	2006-05-15 19:43:06.000000000 +0200
-+++ linux-2.6.17-rc4-mm1/drivers/isdn/i4l/isdn_common.c	2006-05-15 19:58:26.000000000 +0200
-@@ -1952,7 +1952,7 @@ isdn_writebuf_stub(int drvidx, int chan,
- 	if (!skb)
- 		return -ENOMEM;
- 	skb_reserve(skb, hl);
--	if (!copy_from_user(skb_put(skb, len), buf, len))
-+	if (copy_from_user(skb_put(skb, len), buf, len))
- 		return -EFAULT;
- 	ret = dev->drv[drvidx]->interface->writebuf_skb(drvidx, chan, 1, skb);
- 	if (ret <= 0)
-
+So it is perhaps reasonable to do this panic, but only if !CONFIG_EMBEDDED? 
+(It really is time to start renaming CONFIG_EMBEDDED to CONFIG_DONT_DO_THIS
+or something).
 

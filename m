@@ -1,93 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWEOXLZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWEOXMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750740AbWEOXLZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 19:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbWEOXLZ
+	id S1750741AbWEOXMv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 19:12:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWEOXMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 19:11:25 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:34072 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1750717AbWEOXLY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 19:11:24 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:date:from:to:cc:subject:in-reply-to:message-id:
-	references:mime-version:content-type;
-	b=jhjicABIkdA63YKJrUClbGJoSfrNY0bkGA7/j/ueG6Cg1SNvHFpmiEkUQSAhimSmU
-	8ANjEcUpUPPCTeskC3DEA==
-Date: Mon, 15 May 2006 16:11:05 -0700 (PDT)
-From: Ranjit Manomohan <ranjitm@google.com>
-To: "David S. Miller" <davem@davemloft.net>
-cc: ranjitm@google.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH] tcpdump may trace some outbound packets twice.
-In-Reply-To: <20060515.142645.94689626.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.56.0605151602330.29636@ranjit.corp.google.com>
-References: <20060514031034.5d0396e7.akpm@osdl.org>
- <20060514.134231.101346572.davem@davemloft.net>
- <Pine.LNX.4.56.0605151409110.25064@ranjit.corp.google.com>
- <20060515.142645.94689626.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 May 2006 19:12:51 -0400
+Received: from hera.kernel.org ([140.211.167.34]:49830 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750741AbWEOXMu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 19:12:50 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] x86 NUMA panic compile error
+Date: Mon, 15 May 2006 16:06:18 -0700 (PDT)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <e4b1ha$e1b$1@terminus.zytor.com>
+References: <20060515005637.00b54560.akpm@osdl.org> <200605152037.54242.ak@suse.de> <1147719901.6623.78.camel@localhost.localdomain> <200605152111.20693.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1147734378 14380 127.0.0.1 (15 May 2006 23:06:18 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Mon, 15 May 2006 23:06:18 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 May 2006, David S. Miller wrote:
-
-> From: Ranjit Manomohan <ranjitm@google.com>
-> Date: Mon, 15 May 2006 14:19:06 -0700 (PDT)
+Followup to:  <200605152111.20693.ak@suse.de>
+By author:    Andi Kleen <ak@suse.de>
+In newsgroup: linux.dev.kernel
 > 
-> > Heres a new version which does a copy instead of the clone to avoid
-> > the double cloning issue.
-> 
-> I still very much dislike this patch because it is creating
-> 1 more clone per packet than is actually necessary and that
-> is very expensive.
-> 
-> dev_queue_xmit_nit() is going to clone whatever SKB you send into
-> there, so better to just bump the reference count (with skb_get())
-> instead of cloning or copying.
+> > x86 is a legacy architecture now anyway, right? ;)
+> I wish everybody would agree on that @)
 > 
 
-I was a bit apprehensive about just incrementing the refcnt but that works 
-too. Attached is the modified version.
+It's going to live on for a very long time, though.  Intel is still
+shipping some very fast 64-bit-deficient silicon.  Once that's gone,
+it's going to live on for decades in the embedded world.
 
--Thanks,
-Ranjit
-
---- linux-2.6/net/sched/sch_generic.c	2006-05-10 12:34:52.000000000 -0700
-+++ linux/net/sched/sch_generic.c	2006-05-15 15:48:03.000000000 -0700
-@@ -136,8 +136,12 @@
- 
- 			if (!netif_queue_stopped(dev)) {
- 				int ret;
-+				struct sk_buff *skbc = NULL;
-+				/* Increment the reference count on the skb so
-+				 * that we can use it after a successful xmit.
-+				 */
- 				if (netdev_nit)
--					dev_queue_xmit_nit(skb, dev);
-+					skbc = skb_get(skb);
- 
- 				ret = dev->hard_start_xmit(skb, dev);
- 				if (ret == NETDEV_TX_OK) { 
-@@ -145,9 +149,20 @@
- 						dev->xmit_lock_owner = -1;
- 						spin_unlock(&dev->xmit_lock);
- 					}
-+					if (skbc) {
-+						/* transmit succeeded, 
-+						 * trace the buffer. */
-+						dev_queue_xmit_nit(skbc,dev);
-+						kfree_skb(skbc);
-+					}
- 					spin_lock(&dev->queue_lock);
- 					return -1;
- 				}
-+
-+				/* Call free in case we incremented refcnt */
-+				if (skbc)
-+					kfree_skb(skbc);
-+
- 				if (ret == NETDEV_TX_LOCKED && nolock) {
- 					spin_lock(&dev->queue_lock);
- 					goto collision; 
+	-hpa

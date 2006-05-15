@@ -1,76 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWEOS5H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbWEOS7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbWEOS5H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 14:57:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932439AbWEOS5H
+	id S932439AbWEOS7m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 14:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWEOS7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 14:57:07 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:44694 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932342AbWEOS5F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 14:57:05 -0400
-Date: Mon, 15 May 2006 20:56:57 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: apw@shadowen.org, linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH] x86 NUMA panic compile error
-Message-ID: <20060515185657.GA19888@elte.hu>
-References: <20060515005637.00b54560.akpm@osdl.org> <20060515140811.GA23750@shadowen.org> <20060515175306.GA18185@elte.hu> <20060515110814.11c74d70.akpm@osdl.org> <20060515182855.GB18652@elte.hu> <20060515115208.57a11dcb.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060515115208.57a11dcb.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Mon, 15 May 2006 14:59:42 -0400
+Received: from web51912.mail.yahoo.com ([206.190.48.75]:61887 "HELO
+	web51912.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932439AbWEOS7l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 14:59:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=DYrdvNKd0etplf2XH+W455qCiwiFm7sr+W6a3romd6b1C+RimKGaqRJZ2aHguz58m+EeHAglILbk4SXlKY9Ngq0rjff1b9/ldkf0GNu8qFpOEVIQUdBCLexkaTn8t0r1rSjjqqrDmWG8+lui13OzNG2ZPC2uJkszJvzrzAQ/gNk=  ;
+Message-ID: <20060515185940.16459.qmail@web51912.mail.yahoo.com>
+Date: Mon, 15 May 2006 11:59:40 -0700 (PDT)
+From: wang dengyi <dy_wang@yahoo.com>
+Subject: umount error: device is busy after nfs + lock
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-* Andrew Morton <akpm@osdl.org> wrote:
+When I ran ltp test case:tlocklfs, I met a old problem
+with the kernel:2.6.9. I can not umount a file system
+after nfs and lock using it. Here is the steps.
+ 1) mount /dev/sda3 /xyz
+ 2) export /xyz
+ 3) restart nfs
+ 4) mount 127.0.0.1:/xyz /mnt/nfs_xyz
+ 5) run the special lock test program: "tlocklfs -t 7
+/mnt/nfs_xyz
+ 6) umount /mnt/nfs_xyz
+ 7) stop nfs
+ 8) umount /xyz
+Then I got the error: "umount /xyz: device is busy".
+And the error displays twice. 
 
-> If we didn't do this lazy-ass put-the-declaration-in-the-C-file thing, 
-> we'd have noticed that the declaration of use_cyclone is in 
-> include/asm-i386/mach-summit/mach_mpparse.h.
+If I run the different lock test case for the step 5,
+the umount works fine. It only failed on the test case
+7 from tlocklfs. 
 
-updated patch below. Or lets drop the original patch that adds the 
-panic?
+There are 2 processes in this special test case.
+First, the parent process "setlk" for a file from nfs
+file system. Then the child process "setlkw". At the
+end, the parent and the child process unlock the file.
 
-	Ingo
 
----
+With some debug line in the code, I found the file
+system's "mnt_count" is 3 instead of 2 before
+umounting it. I traced back the problem and I'm lost
+in linux/net/sunrpc/sched.c. Could anyone give me some
+hint? Thank you very much.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Best regard
 
- arch/i386/kernel/srat.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+Dengyi Wang
+  
 
-Index: linux/arch/i386/kernel/srat.c
-===================================================================
---- linux.orig/arch/i386/kernel/srat.c
-+++ linux/arch/i386/kernel/srat.c
-@@ -266,13 +266,12 @@ int __init get_memcfg_from_srat(void)
- 	int tables = 0;
- 	int i = 0;
- 
-+#ifdef CONFIG_X86_CYCLONE_TIMER
- 	extern int use_cyclone;
--	if (use_cyclone == 0) {
--		/* Make sure user sees something */
--		static const char s[] __initdata = "Not an IBM x440/NUMAQ. Don't use i386 CONFIG_NUMA anywhere else."
--		early_printk(s);
--		panic(s);
--	}
-+	/* Make sure user sees something */
-+	if (use_cyclone == 0)
-+#endif
-+		printk(KERN_WARN "WARNING: Not an IBM x440/NUMAQ and CONFIG_NUMA enabled!\n");
- 
- 	if (ACPI_FAILURE(acpi_find_root_pointer(ACPI_PHYSICAL_ADDRESSING,
- 						rsdp_address))) {
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam
+protection around 
+http://mail.yahoo.com 
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

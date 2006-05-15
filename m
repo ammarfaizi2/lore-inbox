@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964846AbWEOQk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbWEOQvO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964846AbWEOQk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 12:40:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWEOQk0
+	id S964849AbWEOQvO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 12:51:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWEOQvO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 12:40:26 -0400
-Received: from nz-out-0102.google.com ([64.233.162.192]:24093 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S964846AbWEOQkZ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 12:40:25 -0400
+	Mon, 15 May 2006 12:51:14 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:14359 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S964849AbWEOQvN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 12:51:13 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=o/c8k3j+AiDwX3nAYdM9Ou2YN34Xk51WuIkcMs2DLhF79yvP6dIdlOS3p/Zy1jPPh2tG/KrEXEOgJzQZdQqeqc96Qp3SJLaALRMbODLK9JC24OaOueaCD7NyFnm4b+/KJAnZuDDL7LMdizSgKYQIoSwQx/gI00jWCrSnLkp+j+A=
-Message-ID: <6bffcb0e0605150940l647273f0jf4e1b9d5737bbd2@mail.gmail.com>
-Date: Mon, 15 May 2006 18:40:24 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=jY8brxmZ2CEDAK7fywVW4YEzDlWgOa16j5zs8tibAqlQ87BH4Z/UdPh2y3ZpDBiYT5W6qeFuQzcpuOy9bQ9STERd5W4CM3RRUiKtA8Cj3qBGQb2jY7/EydQKWniA5tfawYWORZt7F7SCX83uO5mEQGsnLuweG1COTIPjr3Zvs/M=
+Date: Mon, 15 May 2006 20:49:38 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org,
+       Phillip Hellewell <phillip@hellewell.homeip.net>
 Subject: Re: 2.6.17-rc4-mm1
-Cc: perex@suse.cz, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060515005637.00b54560.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Message-ID: <20060515164938.GB10143@mipter.zuzino.mipt.ru>
 References: <20060515005637.00b54560.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060515005637.00b54560.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>   - Added the ecryptfs filesystem
 
-On 15/05/06, Andrew Morton <akpm@osdl.org> wrote:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc4/2.6.17-rc4-mm1/
->
-> - This tree contains a large number of new bugs^H^H^H^Hpatches.
-[snip]
->  git-alsa.patch
+  CC [M]  fs/ecryptfs/super.o
+fs/ecryptfs/super.c: In function `ecryptfs_statfs':
+fs/ecryptfs/super.c:129: warning: passing arg 1 of `vfs_statfs' from incompatible pointer type
+fs/ecryptfs/super.c: At top level:
+fs/ecryptfs/super.c:207: warning: initialization from incompatible pointer type
 
-BUG: sleeping function called from invalid context at
-/usr/src/linux-mm/sound/core/info.c:117
-in_atomic():1, irqs_disabled():0
- <c1003ef9> show_trace+0xd/0xf   <c100440c> dump_stack+0x17/0x19
-  <c10178ce> __might_sleep+0x93/0x9d   <f988eeb5> snd_iprintf+0x1b/0x84 [snd]
-  <f988d808> snd_card_module_info_read+0x34/0x4e [snd]   <f988f197>
-snd_info_entry_open+0x20f/0x2cc [snd]
- <c1067a17> __dentry_open+0x133/0x260   <c1067bb7> nameidata_to_filp+0x1c/0x2e
- <c1067bf7> do_filp_open+0x2e/0x35   <c1068bf2> do_sys_open+0x54/0xd7
- <c1068ca1> sys_open+0x16/0x18   <c11dab67> sysenter_past_esp+0x54/0x75
-Non-volatile memory driver v1.2
+* ->statfs wants vfsmount as first argument
+* ecryptfs_statfs() is inlined
 
-Here is dmesg http://www.stardust.webpages.pl/files/mm/2.6.17-rc4-mm1/mm-dmesg
-Here is config http://www.stardust.webpages.pl/files/mm/2.6.17-rc4-mm1/mm-config
-
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)

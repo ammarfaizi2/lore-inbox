@@ -1,96 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbWEOW2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965096AbWEOW26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965025AbWEOW2S (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 18:28:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965040AbWEOW2S
+	id S965096AbWEOW26 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 18:28:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965072AbWEOW26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 18:28:18 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:10384 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965025AbWEOW2R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 18:28:17 -0400
-Subject: Re: /dev/random on Linux
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jonathan Day <imipak@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060515213956.31627.qmail@web31508.mail.mud.yahoo.com>
-References: <20060515213956.31627.qmail@web31508.mail.mud.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 15 May 2006 23:41:07 +0100
-Message-Id: <1147732867.26686.188.camel@localhost.localdomain>
+	Mon, 15 May 2006 18:28:58 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:47245 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965268AbWEOW25 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 18:28:57 -0400
+Date: Tue, 16 May 2006 08:28:04 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: akpm@osdl.org, christoph <hch@lst.de>, Benjamin LaHaise <bcrl@kvack.org>,
+       cel@citi.umich.edu, Zach Brown <zach.brown@oracle.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 4/4] Streamline generic_file_* interfaces and filemap cleanups
+Message-ID: <20060516082804.F5598@wobbly.melbourne.sgi.com>
+References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com> <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com> <1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com> <1147727945.20568.53.camel@dyn9047017100.beaverton.ibm.com> <1147728206.6181.7.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1147728206.6181.7.camel@dyn9047017100.beaverton.ibm.com>; from pbadari@us.ibm.com on Mon, May 15, 2006 at 02:23:26PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-05-15 at 14:39 -0700, Jonathan Day wrote:
-> http://www.securiteam.com/unixfocus/5RP0E0AIKK.html
+Hi Badari,
+
+On Mon, May 15, 2006 at 02:23:26PM -0700, Badari Pulavarty wrote:
+> This patch cleans up generic_file_*_read/write() interfaces.
+> Christoph Hellwig gave me the idea for this clean ups.
 > 
-> (Just because something is claimed does not make it
-> so, but it's usually worth checking.)
+> In a nutshell, all filesystems should set .aio_read/.aio_write
+> methods and use do_sync_read/ do_sync_write() as their .read/.write 
 
-"Holes in the Linux Random Number Generator"
+I know its not something you're introducing here, but the naming
+convention do_sync_read/do_sync_write is pretty confused (with it
+not actually being a sync write and all, in the usual case).
+Any chance that could be renamed to something thats a bit clearer,
+maybe generic_file_non_aio_read and generic_file_non_aio_write?
+There don't seem to be many callsites (so not a huge change) and
+it'd seem a good time to do it, alongside these other changes.
 
-[I would cc the authors but they seem to have forgotten to include their
-email addresses. I've cc'd the IEEE instead, especially as the paper
-gets a trademark incorrect and that wants fixing before printing.]
+> methods. This allows us to cleanup all variants of generic_file_*
+> routines.
+> 
+> Final available interfaces:
+> 
+> generic_file_aio_read() - read handler
+> generic_file_aio_write() - write handler
+> generic_file_aio_write_nolock() - no lock write handler
 
-Indeed. 
+thanks!
 
-A paper by people who can't work out how to mail linux-kernel or
-vendor-sec, or follow "REPORTING-BUGS" in the source, and think the
-person found in a file called MAINTAINERS is in fact a "moderator"
-doesn't initial inspire confidence. The also got the "Red Hat" name
-wrong. It is "Red Hat" and it is a registered trademark.
-
-Certainly there are lot of errors in the background but then their
-expertise appears to be random numbers and that part of the material
-looks much more solid.
-
-> I know there have been patches around for ages to
-> improve the entropy of the random number generator,
-> but how active is work on this section of the code?
-
-Going through the claims
-
-I would dismiss 2.2 for the cases of things like Knoppix because CDs
-introduce significant randomness because each time you boot the CD is
-subtly differently positioned. The OpenWRT case seems more credible. The
-hard disk patching one is basically irrelevant, at that point you
-already own the box and its game over since you can just do a
-virtualisation attack or patch the OS to record anything you want.
-
-2.3 Collecting Entropy
-
-Appears to misdescribe the behaviour of get_random_bytes. The authors
-description is incorrect. The case where cycle times are not available
-is processors lacking TSC support (pre pentium). This is of course more
-relevant for some embedded platforms which do lack cycle times and thus
-show the behaviour described. There are some platforms that therefore
-show the properties they are commenting on so it is still a relevant
-discussion in those cases.
-
-3.4 Security Engineering
-
-The denial of service when no true entropy exists is intentional and
-long discussed. User consumption of entropy can be controlled by
-conventional file permissions, acls and SELinux already, or by a policy
-daemon or combinations thereof. It is clearly better to refuse to give
-out entropy to people than to give false entropy.
-
-Unix/Linux philosophy is "policy belongs outside the kernel", therefore
-a daemon is the correct implementation if required. The paper perhaps
-makes an interesting case for this.
-
-
-Generally
-
-The random number mathematics involved is not for me to comment on,
-several of the points raised are certainly good, and I will forward the
-paper URL on to vendor-sec to ensure other relevant folk see it.
-
-Thanks for forwarding it.
-
-Alan
-
+--
+Nathan

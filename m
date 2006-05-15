@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965231AbWEOVMB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965235AbWEOVP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965231AbWEOVMB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 17:12:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965232AbWEOVMB
+	id S965235AbWEOVP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 17:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965234AbWEOVP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 17:12:01 -0400
-Received: from xenotime.net ([66.160.160.81]:32721 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S965231AbWEOVMA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 17:12:00 -0400
-Date: Mon, 15 May 2006 14:14:28 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Heiko J Schick <schihei@de.ibm.com>
-Cc: openib-general@openib.org, RAISCH@de.ibm.com, HNGUYEN@de.ibm.com,
-       MEDER@de.ibm.com, schihei@de.ibm.com, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH 01/16] ehca: module infrastructure
-Message-Id: <20060515141428.03800e3e.rdunlap@xenotime.net>
-In-Reply-To: <4468BD39.3010008@de.ibm.com>
-References: <4468BD39.3010008@de.ibm.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 15 May 2006 17:15:29 -0400
+Received: from pne-smtpout4-sn2.hy.skanova.net ([81.228.8.154]:54438 "EHLO
+	pne-smtpout4-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S965235AbWEOVP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 17:15:28 -0400
+Message-Id: <20060515211506.272519000@gmail.com>
+References: <20060515211229.521198000@gmail.com>
+User-Agent: quilt/0.44-1
+Date: Tue, 16 May 2006 00:12:31 +0300
+From: Anssi Hannula <anssi.hannula@gmail.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: [patch 02/11] input: fix accuracy of fixp-arith.h
+Content-Disposition: inline; filename=ff-refactoring-fixp-arith-accuracy.diff
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 May 2006 19:41:13 +0200 Heiko J Schick wrote:
+Add the value of cos(90) = 0 to the table. This also moves the results so that
+sin(x) == sin(180-x) is true as expected.
 
-> Signed-off-by: Heiko J Schick <schickhj@de.ibm.com>
-> 
-> 
->   drivers/infiniband/hw/ehca/ehca_main.c |  966 +++++++++++++++++++++++++++++++++
->   1 file changed, 966 insertions(+)
-> 
-> 
-> 
-> --- linux-2.6.17-rc2-orig/drivers/infiniband/hw/ehca/ehca_main.c	1970-01-01 01:00:00.000000000 +0100
-> +++ linux-2.6.17-rc2/drivers/infiniband/hw/ehca/ehca_main.c	2006-05-15 19:17:26.000000000 +0200
-
-> @@ -0,0 +1,966 @@
-
-> +int ehca_open_aqp1     = 0;
-> +int ehca_debug_level   = -1;
-> +int ehca_hw_level      = 0;
-> +int ehca_nr_ports      = 2;
-> +int ehca_use_hp_mr     = 0;
-> +int ehca_port_act_time = 30;
-> +int ehca_poll_all_eqs  = 1;
-> +int ehca_static_rate   = -1;
-
-Don't need to init globals to 0.
+Signed-off-by: Anssi Hannula <anssi.hannula@gmail.com>
 
 ---
-~Randy
+ drivers/input/fixp-arith.h |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+Index: linux-2.6.16-git20/drivers/input/fixp-arith.h
+===================================================================
+--- linux-2.6.16-git20.orig/drivers/input/fixp-arith.h	2006-04-10 21:02:50.000000000 +0300
++++ linux-2.6.16-git20/drivers/input/fixp-arith.h	2006-04-10 21:03:45.000000000 +0300
+@@ -38,13 +38,13 @@ typedef s16 fixp_t;
+ #define FRAC_MASK ((1<<FRAC_N)-1)
+ 
+ // Not to be used directly. Use fixp_{cos,sin}
+-static const fixp_t cos_table[45] = {
++static const fixp_t cos_table[46] = {
+ 	0x0100,	0x00FF,	0x00FF,	0x00FE,	0x00FD,	0x00FC,	0x00FA,	0x00F8,
+ 	0x00F6,	0x00F3,	0x00F0,	0x00ED,	0x00E9,	0x00E6,	0x00E2,	0x00DD,
+ 	0x00D9,	0x00D4,	0x00CF,	0x00C9,	0x00C4,	0x00BE,	0x00B8,	0x00B1,
+ 	0x00AB,	0x00A4,	0x009D,	0x0096,	0x008F,	0x0087,	0x0080,	0x0078,
+ 	0x0070,	0x0068,	0x005F,	0x0057,	0x004F,	0x0046,	0x003D,	0x0035,
+-	0x002C,	0x0023,	0x001A,	0x0011,	0x0008
++	0x002C,	0x0023,	0x001A,	0x0011,	0x0008, 0x0000
+ };
+ 
+ 
+@@ -69,7 +69,7 @@ static inline fixp_t fixp_cos(unsigned i
+ 	unsigned int i = degrees % 90;
+ 
+ 	if (quadrant == 1 || quadrant == 3) {
+-		i = 89 - i;
++		i = 90 - i;
+ 	}
+ 
+ 	i >>= 1;
+
+--
+Anssi Hannula

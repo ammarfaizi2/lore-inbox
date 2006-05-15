@@ -1,88 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWEOGWb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWEOGYO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbWEOGWb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 02:22:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWEOGWb
+	id S932310AbWEOGYO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 02:24:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWEOGYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 02:22:31 -0400
-Received: from stats.hypersurf.com ([209.237.0.12]:24839 "EHLO
-	stats.hypersurf.com") by vger.kernel.org with ESMTP id S932114AbWEOGWa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 02:22:30 -0400
-Message-ID: <041901c677e7$fdd9fbf0$1200a8c0@GMM>
-From: "HighPoint Linux Team" <linux@highpoint-tech.com>
-To: "\"Arjan van de Ven\"" <arjan@infradead.org>
-Cc: "Andrew Morton" <akpm@osdl.org>, <linux-scsi@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-References: <200605122209.k4CM95oW014664@mail.hypersurf.com>
-Subject: Re: [PATCH] hptiop: HighPoint RocketRAID 3xxx controller driver
-Date: Mon, 15 May 2006 14:22:44 +0800
+	Mon, 15 May 2006 02:24:14 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:18074 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S932310AbWEOGYN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 02:24:13 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: [PATCH/RFC 2.6.16.5 1/1] usb/media/quickcam_messenger driver
+Date: Mon, 15 May 2006 08:24:41 +0200
+User-Agent: KMail/1.8
+Cc: "Jaya Kumar" <jayakumar.video@gmail.com>, linux-kernel@vger.kernel.org
+References: <200605141411.k4EEBaO4022817@localhost.localdomain> <200605141824.28161.oliver@neukum.org> <70066d530605141619p40ca79c0uaa047918c11c37bb@mail.gmail.com>
+In-Reply-To: <70066d530605141619p40ca79c0uaa047918c11c37bb@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+Content-Disposition: inline
+Message-Id: <200605150824.41289.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Montag, 15. Mai 2006 01:19 schrieb Jaya Kumar:
+> On 5/15/06, Oliver Neukum <oliver@neukum.org> wrote:
+> > Building this data structure on the stack is a shooting offense.
+> 
+> I completely agree with you (except for the shooting part :-). I'll
+> make the corrections. In my defense, I copied that from the konicawc
+> code.
 
-Could you give more explanation about pci posting flush? When (and why) do we need it?
-In an old posting (http://lkml.org/lkml/2003/5/8/278) said pci posting flush is unnecessary - is it correct?
+Then you have two drivers to fix.
 
-Thanks.
-
->
->> + }
->> +
->> + if (req != IOPMU_QUEUE_EMPTY) {
-> +  writel(req, &iop->outbound_queue);
->
->does this need a PCI posting flush?
->
->> +
->> +static int iop_send_sync_msg(struct hptiop_hba * hba, u32 msg, u32 
->> +millisec) {
->> + u32 i;
->> +
->> + hba->msg_done = 0;
->> +
->> + writel(msg, &hba->iop->inbound_msgaddr0);
->> +
->> + for (i = 0; i < millisec; i++) {
->> +  __iop_intr(hba);
->> +  if (hba->msg_done)
->> +   break;
->> +  mdelay(1);
->> + }
->>
->>and here, but here you're very clearly missing a pci posting flush
->>
->> + else
->> +  arg->result = HPT_IOCTL_RESULT_FAILED;
->> +
->> + arg->done(arg);
->> + writel(tag, &hba->iop->outbound_queue); }
->
->this looks like it needs a posting flush again
->
->> + memcpy(req->cdb, scp->cmnd, sizeof(req->cdb));
->> +
->> + writel(IOPMU_QUEUE_ADDR_HOST_BIT | _req->req_shifted_phy,
->> +   &hba->iop->inbound_queue);
->
->this needs pci posting flush
->
->> +
->> +static int hptiop_reset_hba(struct hptiop_hba * hba) {  if 
->> +(atomic_xchg(&hba->resetting, 1) == 0) {
->> +  atomic_inc(&hba->reset_count);
->> +  writel(IOPMU_INBOUND_MSG0_RESET,
->> +    &hba->iop->outbound_msgaddr0);
->> + }
->
->this needs a pci posting flush
-
-
+	Regards
+		Oliver

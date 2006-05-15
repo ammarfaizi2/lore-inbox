@@ -1,70 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWEONty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWEONvm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932398AbWEONty (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 09:49:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWEONty
+	id S964874AbWEONvm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 09:51:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbWEONvm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 09:49:54 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:2506 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932398AbWEONtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 09:49:53 -0400
-Date: Mon, 15 May 2006 09:49:19 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: "Nutan C." <nutanc@esntechnologies.co.in>
-cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>,
-       Fawad Lateef <fawadlateef@gmail.com>, jjoy@novell.com,
-       "Mukund JB." <mukundjb@esntechnologies.co.in>, gauravd.chd@gmail.com,
-       bulb@ucw.cz, greg@kroah.com, Shakthi Kannan <cyborg4k@yahoo.com>,
-       "Srinivas G." <srinivasg@esntechnologies.co.in>
-Subject: RE: GPL and NON GPL version modules
-In-Reply-To: <Pine.LNX.4.58.0605150937190.16618@gandalf.stny.rr.com>
-Message-ID: <Pine.LNX.4.58.0605150946340.16618@gandalf.stny.rr.com>
-References: <AF63F67E8D577C4390B25443CBE3B9F7092952@esnmail.esntechnologies.co.in>
- <Pine.LNX.4.58.0605150937190.16618@gandalf.stny.rr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 May 2006 09:51:42 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:42472 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S964874AbWEONvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 09:51:41 -0400
+Subject: Re: [PATCH -rt] scheduling while atomic in fs/file.c
+From: Daniel Walker <dwalker@mvista.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0605150254440.6512@gandalf.stny.rr.com>
+References: <200605141545.k4EFj6Cv001901@dwalker1.mvista.com>
+	 <Pine.LNX.4.58.0605141241320.25158@gandalf.stny.rr.com>
+	 <1147627976.15392.39.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <Pine.LNX.4.58.0605150239570.6512@gandalf.stny.rr.com>
+	 <Pine.LNX.4.58.0605150254440.6512@gandalf.stny.rr.com>
+Content-Type: text/plain
+Date: Mon, 15 May 2006 06:51:37 -0700
+Message-Id: <1147701098.15392.49.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-05-15 at 03:04 -0400, Steven Rostedt wrote:
 
-On Mon, 15 May 2006, Steven Rostedt wrote:
+> 
+> Just to clarify, although fdtable_defer_list_init(int cpu) creates a timer
+> for each CPU but sets them to the same CPU.  The mod_timer in the changed
+> function is what is used to spread the timers out.
 
->
-> On Mon, 15 May 2006, Nutan C. wrote:
->
-> > Ok, so now, I have a new doubt :-) Forgive me, if I am asking a lot, but
-> > I really don't want to move ahead with the development, until and unless
-> > I am sure I am not violating GPL. So, please bear with me. Here's the
-> > question:
-> >
-> > 1. I developed a code which interfaces well with a proprietary OS. Now,
-> > somebody else feels to use the same module in his Linux Kernel. So, he
-> > comes up with a patch, which interfaces and talks to my module with my
-> > interfaces and then makes a release with the patch. And, I would have no
-> > idea of my module being really compatible/used in Linux Kernel. One fine
-> > day, I would get a mail saying that I need to make my code open source.
-> > What would be my reply?
-> >
->
-> Big fat answer is No!  You are not distributing GPL code.  Just because
-> someone made GPL code that interacts with your module, doesn't make you
-> responsible for it. (OK now for a IANAL disclaimer)  I'm not a lawyer, but
-> I would bet my career on this one (at least in the US).
->
-> You cant be held responsible for someone else's actions.
->
-> So your reply is simple:
->
-> I'm sorry, but I don't distribute GPL code, please see your distributor.
+Your right , it could migrate with my change only .. But I don't think
+that a problem .. It's probably better ..
 
-
-One more note.  The person that distributed the GPL code with your module
-may be the one in the "grey area". But then again, how can your module be
-a derived work if the author didn't even intend on having it work with
-Linux?
-
--- Steve
+Daniel
 

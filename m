@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbWEOOI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWEOOJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964928AbWEOOI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 10:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbWEOOI3
+	id S964930AbWEOOJU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 10:09:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbWEOOJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 10:08:29 -0400
-Received: from 81-178-210-147.dsl.pipex.com ([81.178.210.147]:63969 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S964928AbWEOOI2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 10:08:28 -0400
-Date: Mon, 15 May 2006 15:08:11 +0100
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] x86 NUMA panic compile error
-Message-ID: <20060515140811.GA23750@shadowen.org>
-References: <20060515005637.00b54560.akpm@osdl.org>
+	Mon, 15 May 2006 10:09:20 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:17871 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S964930AbWEOOJT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 10:09:19 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: "Jaya Kumar" <jayakumar.video@gmail.com>
+Subject: Re: [PATCH/RFC 2.6.16.5 1/1] usb/media/quickcam_messenger driver v2
+Date: Mon, 15 May 2006 16:09:47 +0200
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+References: <200605150849.k4F8nXDb031881@localhost.localdomain> <200605151235.10690.oliver@neukum.name> <70066d530605150550q55deb127w1ab2a4451b065a54@mail.gmail.com>
+In-Reply-To: <70066d530605150550q55deb127w1ab2a4451b065a54@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-InReply-To: <20060515005637.00b54560.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Andy Whitcroft <apw@shadowen.org>
+Message-Id: <200605151609.48217.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is this check now needed given we have the zone alignment patches in
-this -mm also?  I think we want to make it at least possible to
-boot such a kernel on a 'flat' machine.
+Am Montag, 15. Mai 2006 14:50 schrieb Jaya Kumar:
+> On 5/15/06, Oliver Neukum <oliver@neukum.name> wrote:
+> > Am Montag, 15. Mai 2006 10:49 schrieb jayakumar.video@gmail.com:
+> > > +urb->status = 0;
+> > > +urb->actual_length = 0;
+> >
+> > These are not needed. Indeed you should never write to those fields.
+> >
+> >         Regards
+> >                 Oliver
+> >
+> 
+> I see. Good point. I ought to have actually looked at usb_submit_urb
+> and seen that it initializes status and actual_length. I'll make the
+> change.
+> 
+> To reduce my embarrassment, I'll point out that several other media
+> drivers also do this:
+> 
+> drivers/usb/media % egrep "urb->status.*=" *.c
+> <snip>
+> konicawc.c:        urb->status = 0;
+> se401.c:        urb->status=0;
+> stv680.c:       urb->status = 0;
+> usbvideo.c:     urb->status = 0;
+> w9968cf.c:      urb->status = 0;
+> 
+> In most of the above cases, it appears to be just before resubmitting the urb.
 
--apw
+There's your opportunity to remove even more unnecessary kernel code.
 
-=== 8< ===
-x86 NUMA panic compile error
-
-Seem we have a syntax error rising from the the new panic added
-to let people know NUMA didn't work on physically non-numa hardware.
-
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
----
- srat.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-diff -upN reference/arch/i386/kernel/srat.c current/arch/i386/kernel/srat.c
---- reference/arch/i386/kernel/srat.c
-+++ current/arch/i386/kernel/srat.c
-@@ -269,7 +269,7 @@ int __init get_memcfg_from_srat(void)
- 	extern int use_cyclone;
- 	if (use_cyclone == 0) {
- 		/* Make sure user sees something */
--		static const char s[] __initdata = "Not an IBM x440/NUMAQ. Don't use i386 CONFIG_NUMA anywhere else."
-+		static const char s[] __initdata = "Not an IBM x440/NUMAQ. Don't use i386 CONFIG_NUMA anywhere else.";
- 		early_printk(s);
- 		panic(s);
- 	}
+	Regards
+		Oliver

@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751474AbWEOPAM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbWEOPCg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751474AbWEOPAM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 11:00:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751471AbWEOPAM
+	id S1751477AbWEOPCg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 11:02:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWEOPCg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 11:00:12 -0400
-Received: from e-nvb.com ([69.27.17.200]:49796 "EHLO e-nvb.com")
-	by vger.kernel.org with ESMTP id S1751450AbWEOPAK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 11:00:10 -0400
-Subject: Re: [PATCH] hptiop: HighPoint RocketRAID 3xxx controller driver
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: HighPoint Linux Team <linux@highpoint-tech.com>,
-       Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <44682CDB.9080804@garzik.org>
-References: <200605122209.k4CM95oW014664@mail.hypersurf.com>
-	 <041901c677e7$fdd9fbf0$1200a8c0@GMM>
-	 <1147676215.3121.2.camel@laptopd505.fenrus.org>
-	 <44682CDB.9080804@garzik.org>
-Content-Type: text/plain
-Date: Mon, 15 May 2006 16:59:28 +0200
-Message-Id: <1147705188.3013.0.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 15 May 2006 11:02:36 -0400
+Received: from EXCHG2003.microtech-ks.com ([24.124.14.122]:15367 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S1751477AbWEOPCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 11:02:35 -0400
+Message-ID: <4468980D.3000704@atipa.com>
+Date: Mon, 15 May 2006 10:02:37 -0500
+From: Roger Heflin <rheflin@atipa.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+CC: rdreier@cisco.com, linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [openib-general] [PATCH 0 of 53] ipath driver updates for 2.6.17-rc4
+References: <patchbomb.1147477365@eng-12.pathscale.com>
+In-Reply-To: <patchbomb.1147477365@eng-12.pathscale.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 May 2006 14:54:11.0498 (UTC) FILETIME=[6D0CA8A0:01C6782F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-15 at 03:25 -0400, Jeff Garzik wrote:
-> Arjan van de Ven wrote:
-> > On Mon, 2006-05-15 at 14:22 +0800, HighPoint Linux Team wrote:
-> >> Could you give more explanation about pci posting flush? When (and why) do we need it?
-> > 
-> > pci posting is where the chipset internally delays (posts) writes (as
-> > done by writel and such) to see if more writes will come that can then
-> > be combined into one burst. While in practice these queues are finite
-> > (and often have a timeout) it's bad practice to depend on that. The
-> > simplest way to flush out this posting is to do a (dummy) readl() from
-> > the same device. (alternative is to do dma from the device to ram, but
-> > readl() is a lot easier ;)
-> > 
-> >> In an old posting (http://lkml.org/lkml/2003/5/8/278) said pci posting flush is unnecessary - is it correct?
-> > 
-> > no not really, not as a general statement.
+Bryan O'Sullivan wrote:
+> Hi, Roland -
 > 
-> ACK.
+> Here is a series of patches to bring the ipath driver up to date.  I
+> believe you may already have two of them (but I've included them just
+> in case), but the others should all be new.
 > 
-> Generally speaking, readl() is the best way to ensure that all writes 
-> have been flushed across various layers of PCI bridges, etc.
+> They apply on top of Linus's current -git.
 > 
-> It is particularly important to get this right if you are issuing a 
-> delay (i.e. udelay) after a write.  If the write is not guaranteed to be 
-> flushed at the time the delay begins, then you are no longer truly 
-> delaying for the time requested.
-
-another typical case is at io submission or when you disable irqs in the
-hardware..
+> Cheers,
+> 
+> 	<b
 
 
+Bryan,
+
+I notice there are several patches in 1-53 that appear to be missing, or
+at least I did not get them on the openib list.
+
+They are: 3, 11, 12, 17, 27, 35, 36, 38, 41, 43, 46, 52.
+
+                                Roger

@@ -1,34 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751471AbWEOPpK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751510AbWEOPpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751471AbWEOPpK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 11:45:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751500AbWEOPpJ
+	id S1751510AbWEOPpw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 11:45:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWEOPpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 11:45:09 -0400
-Received: from mx2.suse.de ([195.135.220.15]:48323 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751471AbWEOPpH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 11:45:07 -0400
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mcelog ?
-References: <20060515114243.8ccaa9aa.skraw@ithnet.com>
-From: Andi Kleen <ak@suse.de>
-Date: 15 May 2006 17:45:04 +0200
-In-Reply-To: <20060515114243.8ccaa9aa.skraw@ithnet.com>
-Message-ID: <p73psif5m2n.fsf@bragg.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Mon, 15 May 2006 11:45:52 -0400
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:35888 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S1751510AbWEOPpv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 11:45:51 -0400
+X-IronPort-AV: i="4.05,130,1146466800"; 
+   d="scan'208"; a="1806303880:sNHT29589284"
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4 of 53] ipath - cap number of PDs that can be allocated
+X-Message-Flag: Warning: May contain useful information
+References: <300f0aa6f034eec6a806.1147477369@eng-12.pathscale.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 15 May 2006 08:45:49 -0700
+In-Reply-To: <300f0aa6f034eec6a806.1147477369@eng-12.pathscale.com> (Bryan O'Sullivan's message of "Fri, 12 May 2006 16:42:49 -0700")
+Message-ID: <adapsifuw9e.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 15 May 2006 15:45:49.0909 (UTC) FILETIME=[A3D8A850:01C67836]
+Authentication-Results: sj-dkim-4.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski <skraw@ithnet.com> writes:
+ > Put an arbitrary cap on the maximum number of PDs that can be allocated
+ > for a device.  This is arbitrary because the number we support
+ > is constrained only by system memory and what kmalloc can give us.
+ > Nevertheless, if we don't have a limit, some third-party  OpenIB stress
+ > tests fail.  The limit can be changed on the fly using a module parameter.
 
-> This is not a software problem!
-> Run through mcelog --ascii to decode and contact your hardware vendor
+Would it make more sense to fix the stress test?
 
-Since when is linux-kernel your hardware vendor?
-Would it help if the message was written all upper case?
-
--Andi
+ - R.

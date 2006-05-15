@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWEOWon@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWEOWrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbWEOWon (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 18:44:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbWEOWon
+	id S1750704AbWEOWrX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 18:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbWEOWrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 18:44:43 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:53208 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1750702AbWEOWom (ORCPT
+	Mon, 15 May 2006 18:47:23 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:4048 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750707AbWEOWrW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 18:44:42 -0400
-Date: Mon, 15 May 2006 23:44:35 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andy Whitcroft <apw@shadowen.org>, davej@codemonkey.org.uk,
-       tony.luck@intel.com, linux-kernel@vger.kernel.org, bob.picco@hp.com,
-       ak@suse.de, linux-mm@kvack.org, linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH 5/6] Have ia64 use add_active_range() and free_area_init_nodes
-In-Reply-To: <20060515122728.GA29253@skynet.ie>
-Message-ID: <Pine.LNX.4.64.0605152342520.30476@skynet.skynet.ie>
-References: <20060508141030.26912.93090.sendpatchset@skynet>
- <20060508141211.26912.48278.sendpatchset@skynet> <20060514203158.216a966e.akpm@osdl.org>
- <20060515122728.GA29253@skynet.ie>
+	Mon, 15 May 2006 18:47:22 -0400
+Message-ID: <446904F3.3010601@us.ibm.com>
+Date: Mon, 15 May 2006 15:47:15 -0700
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Nathan Scott <nathans@sgi.com>
+CC: akpm@osdl.org, christoph <hch@lst.de>, Benjamin LaHaise <bcrl@kvack.org>,
+       cel@citi.umich.edu, Zach Brown <zach.brown@oracle.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 4/4] Streamline generic_file_* interfaces and filemap cleanups
+References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com> <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com> <1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com> <1147727945.20568.53.camel@dyn9047017100.beaverton.ibm.com> <1147728206.6181.7.camel@dyn9047017100.beaverton.ibm.com> <20060516082804.F5598@wobbly.melbourne.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc4-mm4-clean/mm/page_alloc.c linux-2.6.17-rc4-mm4-ia64_force_alignment/mm/page_alloc.c
-> --- linux-2.6.17-rc4-mm4-clean/mm/page_alloc.c	2006-05-15 10:37:55.000000000 +0100
-> +++ linux-2.6.17-rc4-mm4-ia64_force_alignment/mm/page_alloc.c	2006-05-15 13:10:42.000000000 +0100
-> @@ -2640,14 +2640,20 @@ void __init free_area_init_nodes(unsigne
-> {
-> 	unsigned long nid;
-> 	int zone_index;
-> +	unsigned long lowest_pfn = find_min_pfn_with_active_regions();
-> +
-> +	lowest_pfn = zone_boundary_align_pfn(lowest_pfn);
-> +	arch_max_dma_pfn = zone_boundary_align_pfn(arch_max_dma_pfn);
-> +	arch_max_dma32_pfn = zone_boundary_align_pfn(arch_max_dma32_pfn);
-> +	arch_max_low_pfn = zone_boundary_align_pfn(arch_max_low_pfn);
-> +	arch_max_high_pfn = zone_boundary_align_pfn(arch_max_high_pfn);
+
+
+Nathan Scott wrote:
+
+>Hi Badari,
 >
-> 	/* Record where the zone boundaries are */
-> 	memset(arch_zone_lowest_possible_pfn, 0,
-> 				sizeof(arch_zone_lowest_possible_pfn));
-> 	memset(arch_zone_highest_possible_pfn, 0,
-> 				sizeof(arch_zone_highest_possible_pfn));
-> -	arch_zone_lowest_possible_pfn[ZONE_DMA] =
-> -					find_min_pfn_with_active_regions();
-> +	arch_zone_lowest_possible_pfn[ZONE_DMA] = lowest_pfn;
-> 	arch_zone_highest_possible_pfn[ZONE_DMA] = arch_max_dma_pfn;
-> 	arch_zone_highest_possible_pfn[ZONE_DMA32] = arch_max_dma32_pfn;
-> 	arch_zone_highest_possible_pfn[ZONE_NORMAL] = arch_max_low_pfn;
+>On Mon, May 15, 2006 at 02:23:26PM -0700, Badari Pulavarty wrote:
+>
+>>This patch cleans up generic_file_*_read/write() interfaces.
+>>Christoph Hellwig gave me the idea for this clean ups.
+>>
+>>In a nutshell, all filesystems should set .aio_read/.aio_write
+>>methods and use do_sync_read/ do_sync_write() as their .read/.write 
+>>
+>
+>I know its not something you're introducing here, but the naming
+>convention do_sync_read/do_sync_write is pretty confused (with it
+>not actually being a sync write and all, in the usual case).
+>Any chance that could be renamed to something thats a bit clearer,
+>maybe generic_file_non_aio_read and generic_file_non_aio_write?
+>There don't seem to be many callsites (so not a huge change) and
+>it'd seem a good time to do it, alongside these other changes.
 >
 
-Ok, this patch is broken in a number of ways. It doesn't help the IA64 
-problem at all and two other machine configurations failed with the patch 
-applied during regression testing. Please drop and I'll figure out what 
-the correct solution is to your IA64 machine not booting.
+You  mean "left-in-pagecache-not-really-written-to-disk" synchronous ? 
+Yeah. I see it..
+I prefer, generic_file_aio_read_and_wait(), 
+generic_file_aio_write_and_wait() - but
+its ugly also :(
 
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+I also have a small issue with the current do_sync_*() routines - if 
+some one calls it
+without setting their ->aio_read()/->aio_write(), we panic. May be we 
+should add a BUG_ON(), but again I don't want to slow things down..
+
+Thanks,
+Badari
+
+
+

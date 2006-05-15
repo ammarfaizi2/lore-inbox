@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbWEOHZY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWEOHdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751420AbWEOHZY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 03:25:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWEOHZY
+	id S964785AbWEOHdA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 03:33:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWEOHdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 03:25:24 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:25009 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751214AbWEOHZX (ORCPT
+	Mon, 15 May 2006 03:33:00 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:30383 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751433AbWEOHc7 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 03:25:23 -0400
-Message-ID: <44682CDB.9080804@garzik.org>
-Date: Mon, 15 May 2006 03:25:15 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Mon, 15 May 2006 03:32:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QCsjlfshd0L5nK+U9JKbSw6v+SAUhNNigUIGUKviVEkn4SXDBTVSfwEJ790a+l3hHwMwZ6rKi/F27sh1FAUa4mOMLoWVEm9+38JidG3X22uauPXKnf1v5N4DvV7pTqpvQeGsD6HG9YsVoAlwOOK/dr8lhYxEZ8LgF83Lwxerogc=
+Message-ID: <67029b170605150032x686f1c5ek4bdf1087ca2a7cf9@mail.gmail.com>
+Date: Mon, 15 May 2006 15:32:58 +0800
+From: "Zhou Yingchao" <yingchao.zhou@gmail.com>
+To: "Krishna Chaitanya" <lnxctnya@gmail.com>
+Subject: Re: Linux for Asymmetric Multi Processing Systems.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <ae649ba00605112354k5b91cb0cwb5e67723f6560720@mail.gmail.com>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: HighPoint Linux Team <linux@highpoint-tech.com>,
-       Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] hptiop: HighPoint RocketRAID 3xxx controller driver
-References: <200605122209.k4CM95oW014664@mail.hypersurf.com>	 <041901c677e7$fdd9fbf0$1200a8c0@GMM> <1147676215.3121.2.camel@laptopd505.fenrus.org>
-In-Reply-To: <1147676215.3121.2.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.0 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.0 points, 5.0 required)
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <ae649ba00605112354k5b91cb0cwb5e67723f6560720@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Mon, 2006-05-15 at 14:22 +0800, HighPoint Linux Team wrote:
->> Could you give more explanation about pci posting flush? When (and why) do we need it?
-> 
-> pci posting is where the chipset internally delays (posts) writes (as
-> done by writel and such) to see if more writes will come that can then
-> be combined into one burst. While in practice these queues are finite
-> (and often have a timeout) it's bad practice to depend on that. The
-> simplest way to flush out this posting is to do a (dummy) readl() from
-> the same device. (alternative is to do dma from the device to ram, but
-> readl() is a lot easier ;)
-> 
->> In an old posting (http://lkml.org/lkml/2003/5/8/278) said pci posting flush is unnecessary - is it correct?
-> 
-> no not really, not as a general statement.
+Your architecture is much like ours. Nowadays we are involing a
+project named cluster_on_board, on which there are 4~16 cpus on a
+board, these cpus can be the same and also can be different, and all
+cpus can see all the memory. We are trying let each cpu running one
+instance of kernel image(same or different), and communicate through
+tcp/ip on a virtual Ethernet.  Of course, modifications are needed.
 
-ACK.
+ I think you can do it in the same way. Or any more exciting ideas?
 
-Generally speaking, readl() is the best way to ensure that all writes 
-have been flushed across various layers of PCI bridges, etc.
+2006/5/12, Krishna Chaitanya <lnxctnya@gmail.com>:
+> Hi All!
+>
+> I am working on a project where the hardware is Asymmetric Multi
+> Processing Systems(ASMP).
+>
+> In my system I have one ARM9,  four ARM7s'.
+>
+> 1. Can I use one Linux Kernel for all the CPUs in an ASMP system. (or)
+>    Should I use One Linux Kernel for ARM9 and RTOSes for ARM7.
+> 2. If my hardware would come up in future with another ARM7 does linux
+> scale for the new CPU.
+>
+> Can anyone please direct me to the source/docs how to use Linux for
+> ASMP systems.
+>
+> Thanks,
+> krs
 
-It is particularly important to get this right if you are issuing a 
-delay (i.e. udelay) after a write.  If the write is not guaranteed to be 
-flushed at the time the delay begins, then you are no longer truly 
-delaying for the time requested.
-
-	Jeff
 
 
-
+-- 
+Yingchao Zhou
+***********************************************
+ Institute Of Computing Technology
+ Chinese Academy of Sciences
+ Tel(O) : 010-62613792-28
+***********************************************

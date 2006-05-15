@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965026AbWEOR56@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbWEOSBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965026AbWEOR56 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 13:57:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965028AbWEOR55
+	id S965028AbWEOSBo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 14:01:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965030AbWEOSBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 13:57:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:65255 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965026AbWEOR55 (ORCPT
+	Mon, 15 May 2006 14:01:44 -0400
+Received: from ns2.suse.de ([195.135.220.15]:19673 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965028AbWEOSBn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 13:57:57 -0400
-Date: Mon, 15 May 2006 11:00:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Ram Pai <linuxram@us.ibm.com>
-Subject: Re: 2.6.17-rc4-mm1
-Message-Id: <20060515110023.0ee5e7ad.akpm@osdl.org>
-In-Reply-To: <6bffcb0e0605151048r314132cdvedf7c33b3c945c72@mail.gmail.com>
-References: <20060515005637.00b54560.akpm@osdl.org>
-	<6bffcb0e0605151048r314132cdvedf7c33b3c945c72@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 15 May 2006 14:01:43 -0400
+From: Andi Kleen <ak@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] x86 NUMA panic compile error
+Date: Mon, 15 May 2006 20:01:16 +0200
+User-Agent: KMail/1.9.1
+Cc: Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20060515005637.00b54560.akpm@osdl.org> <20060515140811.GA23750@shadowen.org> <20060515175306.GA18185@elte.hu>
+In-Reply-To: <20060515175306.GA18185@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605152001.16813.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
->
-> Hi,
+On Monday 15 May 2006 19:53, Ingo Molnar wrote:
 > 
-> On 15/05/06, Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc4/2.6.17-rc4-mm1/
-> >
-> > - This tree contains a large number of new bugs^H^H^H^Hpatches.
-> >
-> [snip]
-> > +kbuild-export-symbol-usage-report-generator.patch
+> * Andy Whitcroft <apw@shadowen.org> wrote:
 > 
-> When I try make exportcheck with O=/dir I get this error
-> [michal@ltg01-fedora linux-mm]$ make O=../linux-mm-obj/ exportcheck
-> EXPORTFILE=../linux-mm-obj/export.dat
->   Using /usr/src/linux-mm as source for kernel
-> [..]
-> Can't open perl script
-> "/usr/src/linux-mm-obj/scripts/export_report.pl": No such file or
-> directory
-> make[2]: *** [__modpost] Error 2
-> make[1]: *** [modules] Error 2
-> make: *** [exportcheck] Error 2
+> >  	if (use_cyclone == 0) {
+> >  		/* Make sure user sees something */
+> > -		static const char s[] __initdata = "Not an IBM x440/NUMAQ. Don't use i386 CONFIG_NUMA anywhere else."
+> > +		static const char s[] __initdata = "Not an IBM x440/NUMAQ. Don't use i386 CONFIG_NUMA anywhere else.";
+> >  		early_printk(s);
+> >  		panic(s);
+> >  	}
 > 
-> Regards,
-> Michal
-> 
+> i still strongly oppose the original Andi hack... numerous reasons were 
+> given not to apply it (it's nice to simulate/trigger rarer features on 
+> mainstream hardware too, and this ability to boot NUMA on my flat x86 
+> testbox found at least one other NUMA bug already). Furthermore, the 
+> crash i reported was fixed by the NUMA patchset. Andrew, please drop:
 
-cc added.
+The problem is that it's not regularly used on a wide range
+of boxes so it will eventually break again. We had this cycle several
+times already.
+
+It's also missing a lot of the workarounds for broken SRATs that
+are needed for many of the existing NUMA systems.
+
+If there's consensus i386 NUMA is useful I can drop it, but I predict
+it will just eventually break again.
+
+>   x86_64-mm-i386-numa-summit-check.patch
+> 
+> (which has nothing to do with x86_64 anyway)
+
+I have a lot of i386 or combined i386/x86-64 patches in my tree - just Andrew's 
+merge script doesn't pick that up.
+
+-Andi

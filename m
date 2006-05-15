@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964910AbWEON41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWEON7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964910AbWEON41 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 09:56:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWEON41
+	id S964911AbWEON7a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 09:59:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964914AbWEON7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 09:56:27 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:41698 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932423AbWEON40
+	Mon, 15 May 2006 09:59:30 -0400
+Received: from addr-213-139-163-144.baananet.fi ([213.139.163.144]:52621 "EHLO
+	asalmela.iki.fi") by vger.kernel.org with ESMTP id S964911AbWEON73
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 09:56:26 -0400
-Subject: Re: [PATCH] ide_dma_speed() fixes
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Cc: Andrew Morton <akpm@osdl.org>, bzolnier@gmail.com,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <446885BE.4090404@ru.mvista.com>
-References: <4463F4C8.9080608@ru.mvista.com>
-	 <20060514050548.5399e3f4.akpm@osdl.org>  <446885BE.4090404@ru.mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 15 May 2006 15:08:55 +0100
-Message-Id: <1147702135.26686.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Mon, 15 May 2006 09:59:29 -0400
+Date: Mon, 15 May 2006 16:59:27 +0300
+From: Antti Salmela <asalmela@iki.fi>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel BUG at mm/vmscan.c:428 (2.6.17-rc4-git2, Dualcore AMD x86-64)
+Message-ID: <20060515135926.GA13151@asalmela.iki.fi>
+References: <20060515082508.GA6950@asalmela.iki.fi> <44683F05.5050709@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44683F05.5050709@yahoo.com.au>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-05-15 at 17:44 +0400, Sergei Shtylyov wrote:
->     That's what gcc thinks. The code is 100% correct -- it will never reach 
-> the switch statement with mode > 0 (in which case ultra_mask isn't used) and 
-> ultra_mask unitialized. I may add an explicit initializer in the declaration 
-> if you like...
+On Mon, May 15, 2006 at 06:42:45PM +1000, Nick Piggin wrote:
+> Either you have an active page on the inactive list, or your hardware has
+> flipped a bit in page->flags. I was going to say the latter is more likely,
+> however -- AFAIKS, the first oops should cause that page to be lost from the
+> LRU list, so the second oops shouldn't happen if the flip a single bad bit,
+> and should be pretty unlikely if it is a random error.
 
-Please leave the warning, this was discussed recently in other threads
-and hiding warnings is very dangerous.
+Thanks, I thought I had run memtest86 long enough when I bought the
+system, but now it found one stuck bit almost immediately. 
 
+-- 
+Antti Salmela

@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWEOXHo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWEOXIH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbWEOXHo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 19:07:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWEOXHo
+	id S1750737AbWEOXIH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 19:08:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWEOXIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 19:07:44 -0400
-Received: from animx.eu.org ([216.98.75.249]:13978 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S1750734AbWEOXHn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 19:07:43 -0400
-Date: Mon, 15 May 2006 19:13:04 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [RFT] major libata update
-Message-ID: <20060515231304.GC4699@animx.eu.org>
-Mail-Followup-To: Jeff Garzik <jeff@garzik.org>, linux-ide@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <20060515170006.GA29555@havoc.gtf.org> <20060515230256.GB4699@animx.eu.org> <4469081D.7080608@garzik.org>
-Mime-Version: 1.0
+	Mon, 15 May 2006 19:08:06 -0400
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:43127 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S1750737AbWEOXIE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 19:08:04 -0400
+X-IronPort-AV: i="4.05,131,1146466800"; 
+   d="scan'208"; a="322314138:sNHT29403828"
+To: ralphc@pathscale.com
+Cc: "Bryan O'Sullivan" <bos@pathscale.com>, openib-general@openib.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 53 of 53] ipath - add memory barrier when waiting for  writes
+X-Message-Flag: Warning: May contain useful information
+References: <f8ebb8c1e43635081b73.1147477418@eng-12.pathscale.com>
+	<adazmhjth56.fsf@cisco.com>
+	<1147727447.2773.14.camel@chalcedony.pathscale.com>
+	<60844.71.131.57.117.1147734080.squirrel@rocky.pathscale.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 15 May 2006 16:08:03 -0700
+In-Reply-To: <60844.71.131.57.117.1147734080.squirrel@rocky.pathscale.com> (ralphc@pathscale.com's message of "Mon, 15 May 2006 16:01:20 -0700 (PDT)")
+Message-ID: <ada64k6sx7w.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4469081D.7080608@garzik.org>
-User-Agent: Mutt/1.5.6+20040907i
+X-OriginalArrivalTime: 15 May 2006 23:08:04.0043 (UTC) FILETIME=[6B6C31B0:01C67874]
+Authentication-Results: sj-dkim-3.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Wakko Warner wrote:
-> >How about PATA?  Specifically intel's IDE chip.  I have a machine that I 
-> >can
-> >blow the hard drive away if I want to.
-> 
-> Always helpful.  ata_piix should support Intel PATA controllers, modulo 
-> some bugs that Alan is fixing / has fixed.  If your PCI ID isn't listed, 
-> you will have to add it, and an associated info entry.  Again, take a 
-> look at Alan's libata PATA patches for guidance.
+    ralphc> I don't have a lot to add to this other than I looked at
+    ralphc> the assembly code output for -Os and -O3 and both looked
+    ralphc> OK.  I put the mb() in to be sure the writes were complete
+    ralphc> and I found this to work by experimentation.  Without it,
+    ralphc> the driver fails to read the EEPROM correctly.
 
-Do I need his patches as well?  If so, where do I retrieve them?  I lost the
-url for it.
+Hmm, that doesn't give me a warm fuzzy feeling.  Basically on x86-64
+you're adding an unneeded mfence instruction to work around
+miscompilation?
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
- Got Gas???
+Is i2c_wait_for_writes miscompiled without the mb() with -Os?  What
+does the bad assembly look like?
+
+ - R.

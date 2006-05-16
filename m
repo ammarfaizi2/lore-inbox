@@ -1,110 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751623AbWEPSsx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752027AbWEPTFN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751623AbWEPSsx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 14:48:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751879AbWEPSsx
+	id S1752027AbWEPTFN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 15:05:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752026AbWEPTFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 14:48:53 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:61704 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751623AbWEPSsx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 14:48:53 -0400
-Date: Tue, 16 May 2006 20:48:50 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] fs/bio.c: possible cleanups
-Message-ID: <20060516184850.GR10077@stusta.de>
+	Tue, 16 May 2006 15:05:12 -0400
+Received: from ns2.suse.de ([195.135.220.15]:31905 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1752443AbWEPTEY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 15:04:24 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Deguara, Joachim" <joachim.deguara@amd.com>
+Subject: Re: [PATCH] i386/x86_64: Force pci=noacpi on HP XW9300
+Date: Tue, 16 May 2006 21:04:15 +0200
+User-Agent: KMail/1.9.1
+Cc: "Jeff Garzik" <jeff@garzik.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>
+References: <2B2475CC03BBA543AF1B9A19AF46443111FFED@sefsexmb1.amd.com>
+In-Reply-To: <2B2475CC03BBA543AF1B9A19AF46443111FFED@sefsexmb1.amd.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+Message-Id: <200605162104.16275.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make the follwing needlessly global function static:
-  - __bio_clone()
-- don't mark the following _global_ functions as inline:
-  - bio_phys_segments()
-  - bio_hw_segments()
-- remove the following unused EXPORT_SYMBOL's:
-  - bio_phys_segments
-  - bio_hw_segments
-  - bio_map_kern
-  - bio_copy_user
-  - bio_uncopy_user
+On Tuesday 16 May 2006 20:33, Deguara, Joachim wrote:
+> > -----Original Message-----
+> > From: Jeff Garzik [mailto:jeff@garzik.org] 
+> > Sent: 16 May 2006 19:25
+> > To: Andi Kleen
+> > Cc: Deguara, Joachim; Linux Kernel Mailing List; Linus 
+> > Torvalds; Andrew Morton
+> > Subject: Re: [PATCH] i386/x86_64: Force pci=noacpi on HP XW9300
+> > 
+> > Andi Kleen wrote:
+> > > On Tuesday 16 May 2006 19:12, Jeff Garzik wrote:
+> > >> Andi Kleen wrote:
+> > >>> Did you test that? I had two persons with that 
+> > workstation test all 
+> > >>> combinations and it worked for them.
+> > >> Not yet, it's queued for my next test run.
+> > > 
+> > > You complained without testing anything? 
+> > 
+> > When I first got the box, pci=noacpi made mmconfig space go 
+> > away, or some other breakage.  If your patch forces that, 
+> > then logically that condition should reappear by default.
+> > 
+> > 	Jeff
+> > 
+> 
+> The fix worked for me.  But as I noted, the lspci output changed and
+> going back I see the PCI-X bridge went AWOL, though the the SCSI
+> controller (part of that bug) is PCI-X non-bridge anyway.  Also I tested
+> this with the SLES kernel which IIRC has mmconfig off by default.  So
+> Jeff, I am interested to hear how your testing goes.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+But PCI-X reappears when you disable the PCI segmentation in the BIOS
+right?
 
----
-
-This patch was already sent on:
-- 23 Apr 2006
-
- fs/bio.c            |   12 +++---------
- include/linux/bio.h |    1 -
- 2 files changed, 3 insertions(+), 10 deletions(-)
-
---- linux-2.6.17-rc1-mm3-full/include/linux/bio.h.old	2006-04-23 12:02:44.000000000 +0200
-+++ linux-2.6.17-rc1-mm3-full/include/linux/bio.h	2006-04-23 12:02:50.000000000 +0200
-@@ -286,7 +286,6 @@
- extern int bio_phys_segments(struct request_queue *, struct bio *);
- extern int bio_hw_segments(struct request_queue *, struct bio *);
- 
--extern void __bio_clone(struct bio *, struct bio *);
- extern struct bio *bio_clone(struct bio *, gfp_t);
- 
- extern void bio_init(struct bio *);
---- linux-2.6.17-rc1-mm3-full/fs/bio.c.old	2006-04-23 12:02:57.000000000 +0200
-+++ linux-2.6.17-rc1-mm3-full/fs/bio.c	2006-04-23 12:06:04.000000000 +0200
-@@ -229,7 +229,7 @@
- 	}
- }
- 
--inline int bio_phys_segments(request_queue_t *q, struct bio *bio)
-+int bio_phys_segments(request_queue_t *q, struct bio *bio)
- {
- 	if (unlikely(!bio_flagged(bio, BIO_SEG_VALID)))
- 		blk_recount_segments(q, bio);
-@@ -237,7 +237,7 @@
- 	return bio->bi_phys_segments;
- }
- 
--inline int bio_hw_segments(request_queue_t *q, struct bio *bio)
-+int bio_hw_segments(request_queue_t *q, struct bio *bio)
- {
- 	if (unlikely(!bio_flagged(bio, BIO_SEG_VALID)))
- 		blk_recount_segments(q, bio);
-@@ -254,7 +254,7 @@
-  *	the actual data it points to. Reference count of returned
-  * 	bio will be one.
-  */
--void __bio_clone(struct bio *bio, struct bio *bio_src)
-+static void __bio_clone(struct bio *bio, struct bio *bio_src)
- {
- 	request_queue_t *q = bdev_get_queue(bio_src->bi_bdev);
- 
-@@ -1243,21 +1243,15 @@
- EXPORT_SYMBOL(bio_free);
- EXPORT_SYMBOL(bio_endio);
- EXPORT_SYMBOL(bio_init);
--EXPORT_SYMBOL(__bio_clone);
- EXPORT_SYMBOL(bio_clone);
--EXPORT_SYMBOL(bio_phys_segments);
--EXPORT_SYMBOL(bio_hw_segments);
- EXPORT_SYMBOL(bio_add_page);
- EXPORT_SYMBOL(bio_add_pc_page);
- EXPORT_SYMBOL(bio_get_nr_vecs);
- EXPORT_SYMBOL(bio_map_user);
- EXPORT_SYMBOL(bio_unmap_user);
--EXPORT_SYMBOL(bio_map_kern);
- EXPORT_SYMBOL(bio_pair_release);
- EXPORT_SYMBOL(bio_split);
- EXPORT_SYMBOL(bio_split_pool);
--EXPORT_SYMBOL(bio_copy_user);
--EXPORT_SYMBOL(bio_uncopy_user);
- EXPORT_SYMBOL(bioset_create);
- EXPORT_SYMBOL(bioset_free);
- EXPORT_SYMBOL(bio_alloc_bioset);
+-Andi
 

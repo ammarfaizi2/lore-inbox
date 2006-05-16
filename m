@@ -1,141 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWEPOWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWEPO3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751143AbWEPOWW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 10:22:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWEPOWW
+	id S1751148AbWEPO3N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 10:29:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWEPO3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 10:22:22 -0400
-Received: from [195.159.148.250] ([195.159.148.250]:38386 "EHLO zulu.barmen.nu")
-	by vger.kernel.org with ESMTP id S1751143AbWEPOWV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 10:22:21 -0400
-From: "Stian B. Barmen" <stian@barmen.nu>
-To: "'Andrew Morton'" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: PROBLEM: ide hdma dma_timer_expiry
-Date: Tue, 16 May 2006 16:22:26 +0200
-MIME-Version: 1.0
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <20060516071541.1072c360.akpm@osdl.org>
-Content-Type: multipart/signed;
-	boundary="----=_NextPart_000_015B_01C67904.EB56C440";
-	protocol="application/x-pkcs7-signature";
-	micalg=SHA1
-thread-index: AcZ47ZKsqXI14xTARTSKAV2EberEAQABjGHQ
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Message-ID: <ZULUfWoqFXfyY0QUUBP00000043@zulu.barmen.nu>
-X-OriginalArrivalTime: 16 May 2006 13:38:33.0125 (UTC) FILETIME=[0661A550:01C678EE]
+	Tue, 16 May 2006 10:29:12 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:44726 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751148AbWEPO3M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 10:29:12 -0400
+Subject: PATCH: Fix broken PIO with libata
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org, Tejun Heo <htejun@gmail.com>,
+       jgarzik@pobox.com, torvalds@osdl.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 16 May 2006 15:39:53 +0100
+Message-Id: <1147790393.2151.62.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+The revaldiation in 2.6.17-rc has broken support for PIO only devices.
+This is fairly unusual in the SATA world but showed up rather more
+promptly with the added PATA drivers.
 
-------=_NextPart_000_015B_01C67904.EB56C440
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+The patch fixes two specific problem cases
 
-> Can I confirm that 2.6.16.15 is bad and 2.6.16.4 is OK?  Or 
-> did you mean
-> 2.6.15.4 there?
-> 
+#1	If you issue a DMA command via pass through the libata core blindly
+issues a DMA command and calls DMA methods that are not present on PIO
+only controllers causing an Oops. The patch does a simple check and
+reject of a DMA command in PIO only cases.
 
-Yes, 2.6.16.4 i OK and working, the problem is on 2.6.16.15 and I mean that
-I had the same problem on an earlier 2.6.16 kernel aswell, but I am not
-certain about the version. 
+#2	The core sets ATA_DFLAG_PIO to indicate PIO commands should be used
+on this channel. This same information is available in dev->dma_mode but
+for some reason we get two sources of the info. The ATA_DFLAG_PIO is set
+once during setup and then cleared but not re-computed by the revalidate
+function. This causes DMA commands to be issued when PIO would be and
+usually an Oops or hang
 
-For now I have to reboot to 2.6.16.4 because we have holiday in Norway
-tomorrow and I cannot guard the server. 
+Also contains a related bracketing fix
 
-Best regards
-Stian B. Barmen
 
-------=_NextPart_000_015B_01C67904.EB56C440
-Content-Type: application/x-pkcs7-signature;
-	name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="smime.p7s"
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIOSDCCBHAw
-ggNYoAMCAQICEB+0zZj6uUmxQ2K5VZ1P12EwDQYJKoZIhvcNAQEFBQAwga4xCzAJBgNVBAYTAlVT
-MQswCQYDVQQIEwJVVDEXMBUGA1UEBxMOU2FsdCBMYWtlIENpdHkxHjAcBgNVBAoTFVRoZSBVU0VS
-VFJVU1QgTmV0d29yazEhMB8GA1UECxMYaHR0cDovL3d3dy51c2VydHJ1c3QuY29tMTYwNAYDVQQD
-Ey1VVE4tVVNFUkZpcnN0LUNsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgRW1haWwwHhcNMDUwNjA3
-MDgwOTEwWhcNMTkwNzA5MTczNjU4WjBlMQswCQYDVQQGEwJTRTEUMBIGA1UEChMLQWRkVHJ1c3Qg
-QUIxHTAbBgNVBAsTFEFkZFRydXN0IFRUUCBOZXR3b3JrMSEwHwYDVQQDExhBZGRUcnVzdCBDbGFz
-cyAxIENBIFJvb3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCWltQhSWDia+hBBwze
-xODcEyPNwTXH+9ZOEQpnXvUGW2ulCDtbKRY654eyNAbFvAWlA3yCyykQruGIgb3WntP+LVbBFc7j
-Jp0VLhD7Bo8wBN6ntGO0/7Gcrjyvd7ZWxbWroulpOj0OM3kyP3CCkplhbY0wCI9xP6ZIVxn4JdxL
-ZlyldI+Yrsj5wAYi56xz36Uu+1LcsRVlIPo1Zmne3yzxbrww2ywkEtvrNTVokMsAsJchPXQhI2U0
-K7t4WaPW4XY5mqRJjox0r26kmqPZm9I4XJuiGMx1I4S+6+JNM3GOGvDC+Mcdoq0Dlyz4zyXG9rgk
-MbFjXZJ/Y/AlyVMuH79NAgMBAAGjgdEwgc4wHwYDVR0jBBgwFoAUiYJnfcSdJnAAS7RQSHzePa4E
-bn0wHQYDVR0OBBYEFJWxtPCUtr3H2tERCSG+wa9J/RB7MA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMB
-Af8EBTADAQH/MBEGCWCGSAGG+EIBAQQEAwIAATBYBgNVHR8EUTBPME2gS6BJhkdodHRwOi8vY3Js
-LnVzZXJ0cnVzdC5jb20vVVROLVVTRVJGaXJzdC1DbGllbnRBdXRoZW50aWNhdGlvbmFuZEVtYWls
-LmNybDANBgkqhkiG9w0BAQUFAAOCAQEAaenDt4Gwt0ps0AgcIC5PrbDFLtmGHU116Z2Ok+MEWh9p
-Lgv/mvP50iMHmRqHMGGiIngTqsioHxNL64GxQF6EfG7tEpPCUr6dj4iW4XZvYFF0nT7/3AoLtP27
-1e7/k+Dh7/LJxMN9flJEjrQZF5vTiDM1G5g5EMXVLk31lpzXfbxMV6X2iD9BrSNLmk7bZ69/EsDz
-W7Y44lu6XPYCWRWdZAuSfoopDa0AdQxf1MzGzSfdlSTlOEV9Y81qezrb2rXVR4y3DQPhCxjzImQo
-KXoyoBzj+hY78e3nhaNU4eI8IfyjqXjrzFTM9B8aFinNgbqmbMWOnmDn/WFJQN50NCXR9TCCBKIw
-ggOKoAMCAQICEES+DItQACS0EdM2JSVnyYkwDQYJKoZIhvcNAQEFBQAwga4xCzAJBgNVBAYTAlVT
-MQswCQYDVQQIEwJVVDEXMBUGA1UEBxMOU2FsdCBMYWtlIENpdHkxHjAcBgNVBAoTFVRoZSBVU0VS
-VFJVU1QgTmV0d29yazEhMB8GA1UECxMYaHR0cDovL3d3dy51c2VydHJ1c3QuY29tMTYwNAYDVQQD
-Ey1VVE4tVVNFUkZpcnN0LUNsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgRW1haWwwHhcNOTkwNzA5
-MTcyODUwWhcNMTkwNzA5MTczNjU4WjCBrjELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAlVUMRcwFQYD
-VQQHEw5TYWx0IExha2UgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3JrMSEwHwYD
-VQQLExhodHRwOi8vd3d3LnVzZXJ0cnVzdC5jb20xNjA0BgNVBAMTLVVUTi1VU0VSRmlyc3QtQ2xp
-ZW50IEF1dGhlbnRpY2F0aW9uIGFuZCBFbWFpbDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoC
-ggEBALI5haTyfatBO2JGN67NwWB1vDll+UoaR6K5zEjMapjVTTUZuaRC5c5J4oovHnzSMQfHTrSD
-ZJ0uKdWiZMSFvYVRNXmkTmiQexx6pJKoF/KYFfKTzMmkMpW7DE8wvZigC4vlbhuiRvp4vKJvq1le
-pS/Pytptqi/rrKGzaqq3Lmc1i3nhHmmI4uZGzaCl6r4LznY6eg6b6vzaJ1s9cx8i5khhxkzzabGo
-Lhu21DEgLLyCio6kDqXXiUP8FlqvHXHXEVnauocNr/rz4cLwpMVnjNbWVDreCqS6A3ezZcj9HtN0
-YqoYymiTHqGFfvVHZcv4TVcodNI0/zC27vZiMBSMLOsCAwEAAaOBuTCBtjALBgNVHQ8EBAMCAcYw
-DwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUiYJnfcSdJnAAS7RQSHzePa4Ebn0wWAYDVR0fBFEw
-TzBNoEugSYZHaHR0cDovL2NybC51c2VydHJ1c3QuY29tL1VUTi1VU0VSRmlyc3QtQ2xpZW50QXV0
-aGVudGljYXRpb25hbmRFbWFpbC5jcmwwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMEMA0G
-CSqGSIb3DQEBBQUAA4IBAQCxbWFdphp/fKtK5DD8U28lJMbK7eIxXCsO7u5hVW8EPs853sUbSZTk
-6yBMtOaeUC5y2Y31qqOzStpWHGCXgNyCoq1KvYor/wsJtMbXIARF5M2AAbq6K27OqteS/uSv6/Qm
-HRYqf2wwlTcvMxKsf93H0RGMUZiy0KOR0K32n56Dkx4dQrhGr2tm8Jt/6uMDAuUCUcGq1TWdckAD
-iboxHcUQaFKe36KFxVwIpnjmU0+x6LfTFJ6TpsNk46x+cc28n+kDG8z76awxwa98FXQCmcOyR6bC
-MmHXx29IJFEnodWHVfJ7j5g9Fp7udbb40I7y88auKFun8PM2F/zDBdPKA0pUMIIFKjCCBBKgAwIB
-AgIRAI4Kp7vwJ39Dcr7RpNaqobcwDQYJKoZIhvcNAQEFBQAwZTELMAkGA1UEBhMCU0UxFDASBgNV
-BAoTC0FkZFRydXN0IEFCMR0wGwYDVQQLExRBZGRUcnVzdCBUVFAgTmV0d29yazEhMB8GA1UEAxMY
-QWRkVHJ1c3QgQ2xhc3MgMSBDQSBSb290MB4XDTA2MDIwOTAwMDAwMFoXDTA3MDIwOTIzNTk1OVow
-gd8xNTAzBgNVBAsTLENvbW9kbyBUcnVzdCBOZXR3b3JrIC0gUEVSU09OQSBOT1QgVkFMSURBVEVE
-MUYwRAYDVQQLEz1UZXJtcyBhbmQgQ29uZGl0aW9ucyBvZiB1c2U6IGh0dHA6Ly93d3cuY29tb2Rv
-Lm5ldC9yZXBvc2l0b3J5MR8wHQYDVQQLExYoYykyMDAzIENvbW9kbyBMaW1pdGVkMR0wGwYDVQQD
-ExRTdGlhbiBCcmVpdmlrIEJhcm1lbjEeMBwGCSqGSIb3DQEJARYPc3RpYW5AYmFybWVuLm51MIGf
-MA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDB022vCAja+fE4pkQSW4ZiwosUSjq5+m7QKMWBfRRJ
-jtw4o6l+/YJBNtB+Mb5TsbAgNX+2FHw1gaSak2464UXaM3ALdSIZWtlqY1PJPla8oN5YA0uBA22/
-pfCjExHsYXeFI/juU81f075XXfnDePOefXzhgCuBPhs0VAjAv/ZEGwIDAQABo4IB3DCCAdgwHQYD
-VR0OBBYEFAFKeatr9fKETjjqRPrRh76bvxKbMA4GA1UdDwEB/wQEAwIFoDAMBgNVHRMBAf8EAjAA
-MCAGA1UdJQQZMBcGCCsGAQUFBwMEBgsrBgEEAbIxAQMFAjARBglghkgBhvhCAQEEBAMCBSAwRgYD
-VR0gBD8wPTA7BgwrBgEEAbIxAQIBAQEwKzApBggrBgEFBQcCARYdaHR0cHM6Ly9zZWN1cmUuY29t
-b2RvLm5ldC9DUFMwdwYDVR0fBHAwbjA2oDSgMoYwaHR0cDovL2NybC5jb21vZG9jYS5jb20vQWRk
-VHJ1c3RDbGFzczFDQVJvb3QuY3JsMDSgMqAwhi5odHRwOi8vY3JsLmNvbW9kby5uZXQvQWRkVHJ1
-c3RDbGFzczFDQVJvb3QuY3JsMIGGBggrBgEFBQcBAQR6MHgwOwYIKwYBBQUHMAKGL2h0dHA6Ly9j
-cnQuY29tb2RvY2EuY29tL0FkZFRydXN0VVROQ2xpZW50Q0EuY3J0MDkGCCsGAQUFBzAChi1odHRw
-Oi8vY3J0LmNvbW9kby5uZXQvQWRkVHJ1c3RVVE5DbGllbnRDQS5jcnQwGgYDVR0RBBMwEYEPc3Rp
-YW5AYmFybWVuLm51MA0GCSqGSIb3DQEBBQUAA4IBAQBJmQJ8950aKJwavm774C+qd36h0nCzqgVz
-OHeLnHiHYfuEF7W4gt46gE19YYgUiN+aXcrduaPlGdXLP++9lP7+TegfVngMO5lONJMEZfSyxEWx
-pTiccB6SsBiLYSJTQAdhlZFIgaTqblY1dHQ45s0i9lHN/LOJ5kQsTKEVUqAh9wPGD/KW8ktloSfA
-AFltqk/975DSjtdCLwNQXXzma8cpvraes8+e/UZZ3b9IPU8BaiZXpV1rUufig2cvVDOAUwe2WVCi
-hluzHwNcETx5S0Jd/78K8skHiJHAcq/OKGSMt/n2O1OZeLI8PTN3p68WSd2MqlaPOAlMpbGkFaGk
-lTFXMYIDBDCCAwACAQEwejBlMQswCQYDVQQGEwJTRTEUMBIGA1UEChMLQWRkVHJ1c3QgQUIxHTAb
-BgNVBAsTFEFkZFRydXN0IFRUUCBOZXR3b3JrMSEwHwYDVQQDExhBZGRUcnVzdCBDbGFzcyAxIENB
-IFJvb3QCEQCOCqe78Cd/Q3K+0aTWqqG3MAkGBSsOAwIaBQCgggHgMBgGCSqGSIb3DQEJAzELBgkq
-hkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTA2MDUxNjE0MjIyNlowIwYJKoZIhvcNAQkEMRYEFM/y
-U0U5aXEFG939ujQg3wYs8u+qMGcGCSqGSIb3DQEJDzFaMFgwCgYIKoZIhvcNAwcwDgYIKoZIhvcN
-AwICAgCAMA0GCCqGSIb3DQMCAgFAMAcGBSsOAwIHMA0GCCqGSIb3DQMCAgEoMAcGBSsOAwIaMAoG
-CCqGSIb3DQIFMIGJBgkrBgEEAYI3EAQxfDB6MGUxCzAJBgNVBAYTAlNFMRQwEgYDVQQKEwtBZGRU
-cnVzdCBBQjEdMBsGA1UECxMUQWRkVHJ1c3QgVFRQIE5ldHdvcmsxITAfBgNVBAMTGEFkZFRydXN0
-IENsYXNzIDEgQ0EgUm9vdAIRAI4Kp7vwJ39Dcr7RpNaqobcwgYsGCyqGSIb3DQEJEAILMXygejBl
-MQswCQYDVQQGEwJTRTEUMBIGA1UEChMLQWRkVHJ1c3QgQUIxHTAbBgNVBAsTFEFkZFRydXN0IFRU
-UCBOZXR3b3JrMSEwHwYDVQQDExhBZGRUcnVzdCBDbGFzcyAxIENBIFJvb3QCEQCOCqe78Cd/Q3K+
-0aTWqqG3MA0GCSqGSIb3DQEBAQUABIGAgZzqPJh0KMxhOgxVpVCYJyC9QUronpdO/j7vCUifjh5R
-b2eU/HhAZlet+KQM4A+M7KDvXFTE802qK2O+nnml1RuJ5Q0tBrD3Kyjk2wFVv3wU63zYG3nYtQZj
-3RaPR/zHHwWiGwQxiEnRMMUhR8VdfKsJ1kWPI0mQIFXElyA0p4YAAAAAAAA=
-
-------=_NextPart_000_015B_01C67904.EB56C440--
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.17-rc4/drivers/scsi/libata-core.c linux-2.6.17-rc4/drivers/scsi/libata-core.c
+--- linux.vanilla-2.6.17-rc4/drivers/scsi/libata-core.c	2006-05-15 15:46:04.000000000 +0100
++++ linux-2.6.17-rc4/drivers/scsi/libata-core.c	2006-05-16 14:52:17.459504416 +0100
+@@ -1757,6 +1763,10 @@
+ 		return rc;
+ 	}
+ 
++	/* This is cleared by the revalidation */
++	if (dev->xfer_shift == ATA_SHIFT_PIO)
++		dev->flags |= ATA_DFLAG_PIO;
++
+ 	DPRINTK("xfer_shift=%u, xfer_mode=0x%x\n",
+ 		dev->xfer_shift, (int)dev->xfer_mode);
+ 
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.17-rc4/drivers/scsi/libata-scsi.c linux-2.6.17-rc4/drivers/scsi/libata-scsi.c
+--- linux.vanilla-2.6.17-rc4/drivers/scsi/libata-scsi.c	2006-05-15 15:46:04.000000000 +0100
++++ linux-2.6.17-rc4/drivers/scsi/libata-scsi.c	2006-05-16 12:56:06.212295080 +0100
+@@ -1944,7 +1944,7 @@
+ 		return 0;
+ 
+ 	dpofua = 0;
+-	if (ata_dev_supports_fua(args->id) && dev->flags & ATA_DFLAG_LBA48 &&
++	if (ata_dev_supports_fua(args->id) && (dev->flags & ATA_DFLAG_LBA48) &&
+ 	    (!(dev->flags & ATA_DFLAG_PIO) || dev->multi_count))
+ 		dpofua = 1 << 4;
+ 
+@@ -2414,9 +2414,15 @@
+ {
+ 	struct ata_taskfile *tf = &(qc->tf);
+ 	struct scsi_cmnd *cmd = qc->scsicmd;
++	struct ata_device *dev = qc->dev;
++	struct ata_port *ap = qc->ap;
+ 
+ 	if ((tf->protocol = ata_scsi_map_proto(scsicmd[1])) == ATA_PROT_UNKNOWN)
+ 		goto invalid_fld;
++		
++	/* We may not issue DMA commands if no DMA mode is set */
++	if (tf->protocol == ATA_PROT_DMA && dev->dma_mode == 0)
++		goto invalid_fld;
+ 
+ 	if (scsicmd[1] & 0xe0)
+ 		/* PIO multi not supported yet */
 

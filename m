@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751858AbWEPQoQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751864AbWEPQrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751858AbWEPQoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 12:44:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751867AbWEPQoP
+	id S1751864AbWEPQrp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 12:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751871AbWEPQrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 12:44:15 -0400
-Received: from relay00.pair.com ([209.68.5.9]:24333 "HELO relay00.pair.com")
-	by vger.kernel.org with SMTP id S1751858AbWEPQoP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 12:44:15 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Tue, 16 May 2006 11:44:13 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: Stas Sergeev <stsp@aknet.ru>
-cc: Andrew Morton <akpm@osdl.org>, dtor_core@ameritech.net, vojtech@suse.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] add input_enable_device()
-In-Reply-To: <4469FDF0.3020403@aknet.ru>
-Message-ID: <Pine.LNX.4.64.0605161142160.32181@turbotaz.ourhouse>
-References: <44670446.7080409@aknet.ru> <20060515143119.54b5aff8.akpm@osdl.org>
- <4469F709.4040605@aknet.ru> <20060516090324.66ea0ea6.akpm@osdl.org>
- <4469FDF0.3020403@aknet.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 16 May 2006 12:47:45 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:34006 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1751864AbWEPQro (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 12:47:44 -0400
+Date: Tue, 16 May 2006 18:47:43 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Valerie Henson <val_henson@linux.intel.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ulrich Drepper <drepper@redhat.com>,
+       Blaisorblade <blaisorblade@yahoo.it>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Val Henson <val.henson@intel.com>
+Subject: Re: [patch 00/14] remap_file_pages protection support
+Message-ID: <20060516164743.GA23893@rhlx01.fht-esslingen.de>
+References: <20060430172953.409399000@zion.home.lan> <4456D5ED.2040202@yahoo.com.au> <200605030225.54598.blaisorblade@yahoo.it> <445CC949.7050900@redhat.com> <445D75EB.5030909@yahoo.com.au> <4465E981.60302@yahoo.com.au> <20060513181945.GC9612@goober> <4469D3F8.8020305@yahoo.com.au> <20060516135135.GA28995@rhlx01.fht-esslingen.de> <20060516163111.GK9612@goober>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060516163111.GK9612@goober>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 May 2006, Stas Sergeev wrote:
+Hi,
 
-> Hello.
->
-> Andrew Morton wrote:
->>  iirc it had to do with the pc-speaker driver, but I don't seem to be able
->>  to locate the original email.
-> OK, sorry, I haven't realized its important.
->
-> ---
-> The patch below adds input_enable_device() and input_disable_device()
-> to the input subsystem, that allows to enable and disable the input
-> devices. The reason to have it, is the snd-pcsp PC-Speaker driver in
-> an ALSA tree that needs an ability to disable the pcspkr driver.
->
-> Signed-off-by: Stas Sergeev <stsp@aknet.ru>
-> CC:  Dmitry Torokhov <dtor_core@ameritech.net>
-> CC:  Vojtech Pavlik <vojtech@suse.cz>
->
->
+On Tue, May 16, 2006 at 09:31:12AM -0700, Valerie Henson wrote:
+> On Tue, May 16, 2006 at 03:51:35PM +0200, Andreas Mohr wrote:
+> > 
+> > I cannot offer much other than some random confirmation that from my own
+> > oprofiling, whatever I did (often running a load test script consisting of
+> > launching 30 big apps at the same time), find_vma basically always showed up
+> > very prominently in the list of vmlinux-based code (always ranking within the
+> > top 4 or 5 kernel hotspots, such as timer interrupts, ACPI idle I/O etc.pp.).
+> > call-tracing showed it originating from mmap syscalls etc., and AFAIR quite
+> > some find_vma activity from oprofile itself.
+> 
+> This is important: Which kernel?
 
-> --- a/include/linux/input.h	2006-04-05 17:10:01.000000000 +0400
-> +++ b/include/linux/input.h	2006-04-05 17:36:49.000000000 +0400
-> @@ -878,7 +878,7 @@
->
->  	struct pt_regs *regs;
->  	int state;
-> -
-> +	int disabled;
->  	int sync;
->
->  	int abs[ABS_MAX + 1];
+I had some traces still showing find_vma prominently during a profiling run
+just yesterday, with a very fresh 2.6.17-rc4-ck1 (IOW, basically 2.6.17-rc4).
+I added some cache prefetching in the list traversal a while ago, and IIRC
+that improved profiling times there, but cache prefetching is very often
+a bandaid in search for a real solution: a better data-handling algorithm.
 
-Why eat an entire word here? It seems we already have a "dynalloc" 
-boolean/int... perhaps some of these things could be rolled up into a 
-bitfield.
-
-Cheers,
-Chase
+Andreas Mohr

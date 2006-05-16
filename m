@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751545AbWEPGrA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751546AbWEPGrd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751545AbWEPGrA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 02:47:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751551AbWEPGq7
+	id S1751546AbWEPGrd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 02:47:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751551AbWEPGrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 02:46:59 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:11368 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751545AbWEPGq7 convert rfc822-to-8bit (ORCPT
+	Tue, 16 May 2006 02:47:33 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:17837 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751544AbWEPGrc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 02:46:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ADgZt+Yyas2uYIhfFgrff6eij9CjP0L7a9bzCXCm7o8xuxSao/7TkzbOy/4proas92Dlf6Ncmp5TBPmZr29KErKJTQd/4nHFAo+eeLKYKMX23p7wY6Mn9gjWuS31nG1X2Ut40sxjrrtDcumWSRWD7fmlmmwB18qmvKVXsjlBIlw=
-Message-ID: <8bf247760605152346m72a8b43ci325cc0bb7d68b576@mail.gmail.com>
-Date: Mon, 15 May 2006 23:46:58 -0700
-From: Ram <vshrirama@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: SDIO - crc check of previous command failed
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+	Tue, 16 May 2006 02:47:32 -0400
+Date: Tue, 16 May 2006 08:47:23 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       virtualization <virtualization@lists.osdl.org>,
+       Gerd Hoffmann <kraxel@suse.de>, Zachary Amsden <zach@vmware.com>
+Subject: Re: [PATCH] Gerd Hoffman's move-vsyscall-into-user-address-range patch
+Message-ID: <20060516064723.GA14121@elte.hu>
+References: <1147759423.5492.102.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1147759423.5492.102.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   I am trying to write an sdio driver.
 
-   I have sent command 52 with argument of 0x00001000 to get the block size.
+* Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-   In return i get an response of 0x00001000 which indicates that the
-CRC Check of the previous   command failed.
+> AFAICT we'll pay one extra TLB entry for this patch.  Zach had a patch 
+> which left the vsyscall page at the top of memory (minus hole for 
+> hypervisor) and patched the ELF header at boot.
 
-   The last command i sent was command 7 and it returned success.
+i'd suggest the solution from exec-shield (which has been there for a 
+long time), which also randomizes the vsyscall vma. Exploits are already 
+starting to use the vsyscall page (with predictable addresses) to 
+circumvent randomization, it provides 'interesting' instructions to act 
+as a syscall-functionality building block. Moving that address to 
+another predictable place solves the virtualization problem, but doesnt 
+solve the address-space randomization problem.
 
-
-   Any clues where the problem could be?.
-
-
-Regards,
-sriram
+	Ingo

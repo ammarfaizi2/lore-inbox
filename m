@@ -1,67 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWEPPMX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWEPPOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbWEPPMX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 11:12:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWEPPMX
+	id S932079AbWEPPOV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 11:14:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWEPPOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 11:12:23 -0400
-Received: from xenotime.net ([66.160.160.81]:39621 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932073AbWEPPMW (ORCPT
+	Tue, 16 May 2006 11:14:21 -0400
+Received: from mail.gmx.net ([213.165.64.20]:22183 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932079AbWEPPOU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 11:12:22 -0400
-Date: Tue, 16 May 2006 08:14:42 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: George Nychis <gnychis@cmu.edu>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: problem booting 2.4.32, unknown symbol
-Message-Id: <20060516081442.579d3c12.rdunlap@xenotime.net>
-In-Reply-To: <4469E839.3090806@cmu.edu>
-References: <4469E51E.80103@cmu.edu>
-	<20060516075340.8d387ddb.rdunlap@xenotime.net>
-	<4469E839.3090806@cmu.edu>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 16 May 2006 11:14:20 -0400
+X-Authenticated: #13243522
+Message-ID: <4469EC4A.30908@gmx.de>
+Date: Tue, 16 May 2006 17:14:18 +0200
+From: Michael Schierl <schierlm@gmx.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.8) Gecko/20051201 Thunderbird/1.5 Mnenhy/0.7.3.0
+MIME-Version: 1.0
+To: Jeff Garzik <jeff@garzik.org>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: [ANNOUNCE] libata: new EH, NCQ, hotplug and PM patches against
+ stable kernel
+References: <20060512132437.GB4219@htj.dyndns.org> <e4coc8$onk$1@sea.gmane.org> <4469E8CF.9030506@garzik.org>
+In-Reply-To: <4469E8CF.9030506@garzik.org>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=58B48CDD
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 May 2006 10:56:57 -0400 George Nychis wrote:
-
+Jeff Garzik schrieb:
+> Michael Schierl wrote:
 > 
+>> On Fri, 12 May 2006 22:24:37 +0900, Tejun Heo wrote:
+>>
+>>> ahci:        new EH, irq-pio, NCQ, hotplug
+>>
+>> Should suspend-to-RAM work now on AHCI?
 > 
-> Randy.Dunlap wrote:
-> > On Tue, 16 May 2006 10:43:42 -0400 George Nychis wrote:
-> > 
-> >> Hi,
-> >>
-> >> I am trying to boot 2.4.32 with FC3, whenever i try to boot i get the
-> >> following errors:
-> >>
-> >> insmod: error inserting `/lib/scsi_mod.o': -1 Unknown symbol in module
-> >> ERROR /bin/insmod excited abnormally!
-> >> insmod: error inserting `/lib/sd_mod.o': -1 Unknown symbol in module
-> >>
-> >> I get the same error for libata.o, ata_piix.o, and lvm-mod.o
-> >>
-> >> then i get failed to create /edv/ide/host0/bus0/target0/lun0/disc
-> >>
-> >> So my guess is trying to fix the top most first
-> >>
-> >> Anyone have any ideas?
-> > 
-> > I don't know the problem, but dmesg should show you/us the
-> > actual symbol that is wanted and missing, so please provide that.
-> > 
-> > ---
-> > ~Randy
-> > 
-> 
-> If the system doesn't boot, how can i get the dmesg?
+> It probably still needs Hannes' AHCI patch, and possibly the SATA ACPI
+> patches too.
 
-aha, my bad, sorry.
-I'll have to defer to someone who knows about FC3.
+hmm. ok. Hannes' patch was the one in http://lkml.org/lkml/2006/3/6/47 ?
 
----
-~Randy
+I never found a kernel where I could apply that one and still compile
+without errors :(
+
+I am no C guru, so I had no success to fix this patch without even
+knowing where to apply against... (and I don't know anything about
+kernel programming or even ACHI low-level programming).
+
+Is there a newer version available of that patch somewhere?
+
+And - what SATA ACPI patches?
+
+I have quite alot of patches related to sata and/or acpi (collected from
+different mailing lists) here on hard disk but don't know which ones are
+broken, outdated, etc. Most only apply on a 2.6.15 or 2.6.14-rc kernel...
+
+If more recent patches are only available via git, I'd need some good
+GIT tutorial first...
+
+TIA, and sorry for stealing your time,
+
+Michael

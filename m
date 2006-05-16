@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWEPBNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbWEPBSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750961AbWEPBNx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 21:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbWEPBNj
+	id S1750962AbWEPBSE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 21:18:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750970AbWEPBSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 21:13:39 -0400
-Received: from cantor.suse.de ([195.135.220.2]:52885 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750939AbWEPBNY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 21:13:24 -0400
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 16 May 2006 11:13:07 +1000
-Message-Id: <1060516011307.2723@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 002 of 3] md: Fix inverted test for 'repair' directive.
-References: <20060516111036.2649.patches@notabene>
+	Mon, 15 May 2006 21:18:04 -0400
+Received: from stinky.trash.net ([213.144.137.162]:33256 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S1750962AbWEPBSB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 21:18:01 -0400
+Message-ID: <44692847.4080100@trash.net>
+Date: Tue, 16 May 2006 03:17:59 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: "David S. Miller" <davem@davemloft.net>, shemminger@osdl.org,
+       ranjitm@google.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [PATCH] tcpdump may trace some outbound packets twice.
+References: <E1FfnZP-0003St-00@gondolin.me.apana.org.au>
+In-Reply-To: <E1FfnZP-0003St-00@gondolin.me.apana.org.au>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Herbert Xu wrote:
+> David S. Miller <davem@davemloft.net> wrote:
+> 
+>>Other implementation possibility suggestions welcome :-)
+> 
+> 
+> I see two possibilities:
+> 
+> 1) Move the af_packet hook into the NIC driver.
+> 2) Rethink the lockless tx setup.  If all NICs followed the tg3 and
+>    replaced spin_lock_irqsave with spin_lock then we should be able
+>    to go back to just using the xmit_lock.
 
-We should be able to write 'repair' to /sys/block/mdX/md/sync_action,
-however due to and inverted test, that always given EINVAL.
+3) Clone the skb and have dev_queue_xmit_nit() consume it.
 
-Signed-off-by: Neil Brown <neilb@suse.de>
-
-### Diffstat output
- ./drivers/md/md.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff ./drivers/md/md.c~current~ ./drivers/md/md.c
---- ./drivers/md/md.c~current~	2006-05-16 11:09:25.000000000 +1000
-+++ ./drivers/md/md.c	2006-05-16 11:09:41.000000000 +1000
-@@ -2318,7 +2318,7 @@ action_store(mddev_t *mddev, const char 
- 	} else {
- 		if (cmd_match(page, "check"))
- 			set_bit(MD_RECOVERY_CHECK, &mddev->recovery);
--		else if (cmd_match(page, "repair"))
-+		else if (!cmd_match(page, "repair"))
- 			return -EINVAL;
- 		set_bit(MD_RECOVERY_REQUESTED, &mddev->recovery);
- 		set_bit(MD_RECOVERY_SYNC, &mddev->recovery);
+That should actually be pretty easy.

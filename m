@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbWEPBVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbWEPBWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750980AbWEPBVE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 21:21:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWEPBVE
+	id S1750983AbWEPBWE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 21:22:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbWEPBWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 21:21:04 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:57355 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1750970AbWEPBVC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 21:21:02 -0400
-Date: Tue, 16 May 2006 11:20:46 +1000
-To: Patrick McHardy <kaber@trash.net>
-Cc: "David S. Miller" <davem@davemloft.net>, shemminger@osdl.org,
-       ranjitm@google.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH] tcpdump may trace some outbound packets twice.
-Message-ID: <20060516012045.GA13574@gondor.apana.org.au>
-References: <E1FfnZP-0003St-00@gondolin.me.apana.org.au> <44692847.4080100@trash.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 15 May 2006 21:22:04 -0400
+Received: from mail28.syd.optusnet.com.au ([211.29.133.169]:5263 "EHLO
+	mail28.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750983AbWEPBWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 21:22:02 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: unknown io writes in 2.6.16
+Date: Tue, 16 May 2006 11:21:50 +1000
+User-Agent: KMail/1.9.1
+Cc: Mark Hedges <hedges@ucsd.edu>, dean gaudet <dean@arctic.org>
+References: <20060510135100.F26270@network.ucsd.edu> <Pine.LNX.4.64.0605121012230.7292@twinlark.arctic.org> <20060515170943.P3338@network.ucsd.edu>
+In-Reply-To: <20060515170943.P3338@network.ucsd.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44692847.4080100@trash.net>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Message-Id: <200605161121.50981.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 16, 2006 at 03:17:59AM +0200, Patrick McHardy wrote:
->
-> 3) Clone the skb and have dev_queue_xmit_nit() consume it.
-> 
-> That should actually be pretty easy.
+On Tuesday 16 May 2006 10:12, Mark Hedges wrote:
+> Cool, thanks, I'll check this out.  It's actually about 12k
+> every 5 seconds, not 12 bytes. Seems excessive for atime
+> updates.
 
-Unfortunately that would mean an unconditional copy for all TSO packets
-on NICs such as tg3/e1000.  These drivers have to modify the data area
-of the skb.
+That just sounds like the journal updating... the default journal time is 5 
+seconds. Try transiently disabling the journal to see if that's it:
 
-Cheers,
+mount -o remount,noload /mountpoint
+
+Don't forget to re-enable it afterwards.
+
+You could set laptop mode if the writeouts are too frequent for your liking:
+
+echo 1 > /proc/sys/vm/laptop_mode
+
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+-ck

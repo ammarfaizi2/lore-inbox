@@ -1,38 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWEPO5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWEPO5q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751172AbWEPO5s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 10:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWEPO5r
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 10:57:47 -0400
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:46034 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S1751172AbWEPO5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1751174AbWEPO5q (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 16 May 2006 10:57:46 -0400
-Message-ID: <4469E86D.70107@t-online.de>
-Date: Tue, 16 May 2006 16:57:49 +0200
-From: Bernd Schmidt <bernds_cb1@t-online.de>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWEPO5q
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 16 May 2006 10:57:46 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16033 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750792AbWEPO5p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 10:57:45 -0400
+Date: Tue, 16 May 2006 07:57:36 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Avuton Olrich <avuton@gmail.com>
+cc: Jeff Garzik <jeff@garzik.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [RFT] major libata update
+In-Reply-To: <3aa654a40605152133x516581f9w62c7cb7709864fb0@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0605160755170.3866@g5.osdl.org>
+References: <20060515170006.GA29555@havoc.gtf.org> 
+ <3aa654a40605151630j53822ba1nbb1a2e3847a78025@mail.gmail.com> 
+ <446914C7.1030702@garzik.org>  <3aa654a40605152036h40fa1cd0x8edd81431c1bd22d@mail.gmail.com>
+  <44694C4F.3000008@garzik.org> <3aa654a40605152133x516581f9w62c7cb7709864fb0@mail.gmail.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, torvalds@osdl.org, luke.yang@analog.com,
-       gerg@snapgear.com
-Subject: Re: Please revert git commit 1ad3dcc0
-References: <4469B63B.6000502@t-online.de>	<20060516065848.13028f9f.akpm@osdl.org>	<4469E1AF.7040908@t-online.de> <20060516075016.036f6cf5.akpm@osdl.org>
-In-Reply-To: <20060516075016.036f6cf5.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ID: Ttif8QZeZeZ+nvW7t20SPozUC8goClidwFhTj-hRP32r5PZzGDzY6y
-X-TOI-MSGID: 0d62cad7-e768-4a08-ae43-dd0c17ac0f4c
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-
-> It'd be nice not to lose the coding cleanups which that patch needed.  Can
-> you review-n-test this form of reversion?
-
-I'll give it a spin.  Thanks.
 
 
-Bernd
+On Mon, 15 May 2006, Avuton Olrich wrote:
+> On 5/15/06, Jeff Garzik <jeff@garzik.org> wrote:
+>
+> > Can you configure your interrupts so that ethernet and SATA are not on
+> > the same irq?
+> 
+> Sorry, need a little hand holding here. I'm unsure how to do such a
+> thing, and can't really google that.
+
+Before you do that, try this patch (that I suggested to Neil Brown in a 
+totally unrelated thread) just for fun.
+
+		Linus
+
+----
+diff --git a/arch/i386/pci/irq.c b/arch/i386/pci/irq.c
+index 06dab00..49b9fea 100644
+--- a/arch/i386/pci/irq.c
++++ b/arch/i386/pci/irq.c
+@@ -880,6 +880,7 @@ static int pcibios_lookup_irq(struct pci
+ 	((!(pci_probe & PCI_USE_PIRQ_MASK)) || ((1 << irq) & mask)) ) {
+ 		DBG(" -> got IRQ %d\n", irq);
+ 		msg = "Found";
++		eisa_set_level_irq(irq);
+ 	} else if (newirq && r->set && (dev->class >> 8) != PCI_CLASS_DISPLAY_VGA) {
+ 		DBG(" -> assigning IRQ %d", newirq);
+ 		if (r->set(pirq_router_dev, dev, pirq, newirq)) {

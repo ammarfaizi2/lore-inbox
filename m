@@ -1,96 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbWEPNaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWEPNtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751074AbWEPNaj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 09:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751830AbWEPNaj
+	id S1751095AbWEPNtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 09:49:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWEPNtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 09:30:39 -0400
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:58789 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751075AbWEPNai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 09:30:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=e60vwHyMiSNW/3FVSInyEKUJybf8Tsc2D+YsPGe+d8f48XslCD9t7XFzwggayCgIwcNYNyGsoh4tjNa58aIM2xBLbli0sWo0MnyoOQXbDIlXSjS7WiNaVAwCcFbSbsZUbYJVyiUR7ojQwjUHScNw/CVsNLhKDgulgKLu/DWR9j0=  ;
-Message-ID: <4469D3F8.8020305@yahoo.com.au>
-Date: Tue, 16 May 2006 23:30:32 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Tue, 16 May 2006 09:49:16 -0400
+Received: from mail.unixshell.com ([207.210.106.37]:36034 "EHLO
+	mail.unixshell.com") by vger.kernel.org with ESMTP id S1751095AbWEPNtP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 09:49:15 -0400
+Message-ID: <4469D84F.8080709@tektonic.net>
+Date: Tue, 16 May 2006 09:49:03 -0400
+From: Matt Ayres <matta@tektonic.net>
+Organization: TekTonic
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
 MIME-Version: 1.0
-To: Valerie Henson <val_henson@linux.intel.com>
-CC: Ulrich Drepper <drepper@redhat.com>, Blaisorblade <blaisorblade@yahoo.it>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Val Henson <val.henson@intel.com>
-Subject: Re: [patch 00/14] remap_file_pages protection support
-References: <20060430172953.409399000@zion.home.lan> <4456D5ED.2040202@yahoo.com.au> <200605030225.54598.blaisorblade@yahoo.it> <445CC949.7050900@redhat.com> <445D75EB.5030909@yahoo.com.au> <4465E981.60302@yahoo.com.au> <20060513181945.GC9612@goober>
-In-Reply-To: <20060513181945.GC9612@goober>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: James Morris <jmorris@namei.org>
+CC: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>,
+       Patrick McHardy <kaber@trash.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Xen-devel] Re: Panic in ipt_do_table with 2.6.16.13-xen
+References: <4468BE70.7030802@tektonic.net> <4468D613.20309@trash.net>	<44691669.4080903@tektonic.net> <Pine.LNX.4.64.0605152331140.10964@d.namei>
+In-Reply-To: <Pine.LNX.4.64.0605152331140.10964@d.namei>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valerie Henson wrote:
-> On Sun, May 14, 2006 at 12:13:21AM +1000, Nick Piggin wrote:
+
+
+James Morris wrote:
+> On Mon, 15 May 2006, Matt Ayres wrote:
 > 
->>OK, I got interested again, but can't get Val's ebizzy to give me
->>a find_vma constrained workload yet (though the numbers back up
->>my assertion that the vma cache is crap for threaded apps).
+>> I had initially sent my traces to the Xen guys.  They have not stated it is
+>> NOT specific to Xen, just that's it's unlikely.  I did not experience the
+>> problem with kernel 2.6.12, just with 2.6.16 (up to .13 bugfix release).  I
+>> have completely disabled all support for SCTP (protocol/netfilter/conntrack)
+>> as I know it is still quite buggy.  I know Xen touches the network code a lot,
+>> but nothing specific to iptables.  I had contacted them twice before LKML as I
+>> didn't want to post patch specific problems here.  I have no other patches
+>> applied besides the Xen patch.
+>>
+>> My ruleset is pretty bland.  2 rules in the raw table to tell the system to
+>> only track my forwarded ports, 2 rules in the nat table for forwarding
+>> (intercepting) 2 ports, and then in the FORWARD tables 2 rules per VM to just
+>> account traffic.
 > 
-> 
-> Hey Nick,
-> 
-> Glad to see you're using it!  There are (at least) two ways to do what
-> you want:
-> 
-> 1. Increase the number of threads - this gives you two vma's per
->    thread, one for stack, one for guard page:
-> 
->    $ ./ebizzy -t 100
-> 
-> 2. Apply the patch at the end of this email and use -p "prevent
->    coalescing", -m "always mmap" and appropriate number of chunks,
->    size, and records to search - this works for me:
-> 
->    $ ./ebizzy -p -m -n 10000 -s 4096 -r 100000
-> 
-> The original program mmapped everything with the same permissions and
-> no alignment restrictions, so all the mmaps were coalesced into one.
-> This version alternates PROT_WRITE permissions on the mmap'd areas
-> after they are written, so you get lots of vma's:
-> 
-> val@goober:~/ebizzy$ ./ebizzy -p -m -n 10000 -s 4096 -r 100000
-> 
-> [2]+  Stopped                 ./ebizzy -p -m -n 10000 -s 4096 -r 100000
-> val@goober:~/ebizzy$ wc -l /proc/`pgrep ebizzy`/maps
-> 10019 /proc/10917/maps
-> 
-> I haven't profiled to see if this brings find_vma to the top, though.
+> Can you try using a different NIC?
 > 
 
-Hi Val,
+This happens on 30 different hosts.  Using the same kernel I get varying 
+uptime of "hasn't crashed since the upgrade to 2.6.16" to "crashes every 
+day".  All are Tyan S2882D boards w/ integrated Tigon3.  The trace I 
+posted to this thread indicate tg3, but in many other traces I have the 
+trace doesn't include any driver calls.  They all panic in ipt_do_table. 
+  I would have pasted the others, but I didn't save the System.map for 
+either of them and they are all pretty similar.
 
-Thanks, I've tried with your most recent ebizzy and with 256 threads and
-50,000 vmas (which gives really poor mmap_cache hits), I'm still unable
-to get find_vma above a few % of kernel time.
+Here is another that just crashed:
 
-With 50,000 vmas, my per-thread vma cache is much less effective, I guess
-because access is pretty random (hopefully more realistic patterns would
-get a bigger improvement).
+ >>EIP; c03d96a9 <ipt_do_table+ad/2d0>   <=====
 
-I also tried running kbuild under UML, and could not make find_vma take
-much time either [in this case, the per-thread vma cache patch roughly
-doubles the number of hits, from about 15%->30% (in the host)].
+ >>esp; c0517d8c <init_thread_union+1d8c/2000>
 
-So I guess it's time to go back into my hole. If anyone does come across
-a find_vma constrained workload (especially with threads), I'd be very
-interested.
+Trace; c03acc04 <ip_forward_finish+0/36>
+Trace; c03da724 <ipt_hook+1c/20>
+Trace; c03a2e50 <nf_iterate+2c/5e>
+Trace; c03acc04 <ip_forward_finish+0/36>
+Trace; c03acc04 <ip_forward_finish+0/36>
+Trace; c03a2f4b <nf_hook_slow+3c/c3>
+Trace; c03acc04 <ip_forward_finish+0/36>
+Trace; c03acdd8 <ip_forward+19e/22e>
+Trace; c03acc04 <ip_forward_finish+0/36>
+Trace; c03abcf7 <ip_rcv+40e/48f>
+Trace; c037dcb5 <netif_receive_skb+255/294>
+Trace; c02e82e6 <tg3_poll+532/76c>
+Trace; c037bd82 <net_rx_action+aa/17c>
+Trace; c011ea17 <__do_softirq+73/f0>
+Trace; c011ead4 <do_softirq+40/64>
+Trace; c010606b <do_IRQ+1f/25>
+Trace; c02fc87f <evtchn_do_upcall+60/96>
+Trace; c0104a2c <hypervisor_callback+2c/34>
+Trace; c010342e <xen_idle+5e/7d>
+Trace; c0103509 <cpu_idle+bc/d5>
+Trace; c05184e0 <start_kernel+344/34b>
+
+Code;  c03d96a9 <ipt_do_table+ad/2d0>
+00000000 <_EIP>:
+Code;  c03d96a9 <ipt_do_table+ad/2d0>   <=====
+    0:   89 44 24 18               mov    %eax,0x18(%esp)   <=====
+Code;  c03d96ad <ipt_do_table+b1/2d0>
+    4:   89 c6                     mov    %eax,%esi
+Code;  c03d96af <ipt_do_table+b3/2d0>
+    6:   8b 44 24 40               mov    0x40(%esp),%eax
+Code;  c03d96b3 <ipt_do_table+b7/2d0>
+    a:   8b 6c 24 18               mov    0x18(%esp),%ebp
+Code;  c03d96b7 <ipt_do_table+bb/2d0>
+    e:   03 74 83 0c               add    0xc(%ebx,%eax,4),%esi
+Code;  c03d96bb <ipt_do_table+bf/2d0>
+   12:   03 6c 83 20               add    0x20(%ebx,%eax,4),%ebp
+Code;  c03d96bf <ipt_do_table+c3/2d0>
+   16:   c7 44 24 00 00 00 00      movl   $0x0,0x0(%esp)
+Code;  c03d96c6 <ipt_do_table+ca/2d0>
+   1d:   00
+
+  <0>Kernel panic - not syncing: Fatal exception in interrupt 
+
+
 
 Thanks,
-Nick
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Matt Ayres

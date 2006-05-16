@@ -1,62 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWEPWTS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWEPWXf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbWEPWTS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 18:19:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWEPWTS
+	id S932213AbWEPWXf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 18:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWEPWXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 18:19:18 -0400
-Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:1442 "EHLO
-	clueserver.org") by vger.kernel.org with ESMTP id S932211AbWEPWTR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 18:19:17 -0400
-Date: Tue, 16 May 2006 15:19:16 -0700 (PDT)
-From: alan <alan@clueserver.org>
-X-X-Sender: alan@blackbox.fnordora.org
-To: linux cbon <linuxcbon@yahoo.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: replacing X Window System !
-In-Reply-To: <20060516214148.14432.qmail@web26611.mail.ukl.yahoo.com>
-Message-ID: <Pine.LNX.4.64.0605161513590.24814@blackbox.fnordora.org>
-References: <20060516214148.14432.qmail@web26611.mail.ukl.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 16 May 2006 18:23:35 -0400
+Received: from hera.kernel.org ([140.211.167.34]:64130 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932214AbWEPWXd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 18:23:33 -0400
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: events/0 eats 100% cpu on core duo laptop
+Date: Tue, 16 May 2006 15:22:56 -0700
+Organization: OSDL
+Message-ID: <20060516152256.34c2feea@localhost.localdomain>
+References: <Pine.LNX.4.64.0605162002150.9606@tassadar.physics.auth.gr>
+	<20060516122303.48b14dc1.akpm@osdl.org>
+	<Pine.LNX.4.64.0605170041570.16352@tassadar.physics.auth.gr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1147818176 29304 10.8.0.54 (16 May 2006 22:22:56 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Tue, 16 May 2006 22:22:56 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 2.1.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 May 2006, linux cbon wrote:
+On Wed, 17 May 2006 00:49:09 +0300 (EEST)
+Dimitris Zilaskos <dzila@tassadar.physics.auth.gr> wrote:
 
-> hi,
->
-> I know it may not be the best place, sorry for that.
->
-> X Window System is old, not optimized, slow, not
-> secure (uses root much), accesses the video hardware
-> directly (thats the kernel's job !), it cannot do VNC,
-> etc.
->
-> The question is : what are your ideas to make a system
-> remplacing X Window System ?
->
-> I think that linux kernel should contain a very basic
-> and universal Window System module (which could also
-> work on Unixes and BSDs) to replace X, X.org etc.
->
-> What do you think about this ?
+> 
+> 
+>  	It seems that the issue occurs as soon as the nic is brought up:
+> 
+> Pid: 6, comm:             events/0
+> EIP: 0060:[<c02e9e6f>] CPU: 0
+> EIP is at __gm_phy_read+0x42/0x7b
+>   EFLAGS: 00000293    Not tainted  (2.6.16.16 #1)
+> EAX: 000004e8 EBX: 00002884 ECX: 7a7cd340 EDX: e0030000
+> ESI: 00000003 EDI: 00002880 EBP: c1617340 DS: 007b ES: 007b
+> CR0: 8005003b CR2: b7fd6ccb CR3: 005b4000 CR4: 000006d0
+>   [<c02e9ed8>] gm_phy_read+0x30/0x5b
+>   [<c02ec704>] sky2_phy_task+0x31/0x129
+>   [<c012dffc>] run_workqueue+0x76/0xea
+>   [<c02ec6d3>] sky2_phy_task+0x0/0x129
+>   [<c012e1b2>] worker_thread+0x142/0x164
+>   [<c0118fe0>] default_wake_function+0x0/0x12
+>   [<c0118fe0>] default_wake_function+0x0/0x12
+>   [<c012e070>] worker_thread+0x0/0x164
+>   [<c01317b9>] kthread+0xb7/0xbd
+>   [<c0131702>] kthread+0x0/0xbd
+>   [<c01011a1>] kernel_thread_helper+0x5/0xb
+> 
+>  	The nic was not working properly at bootup (it was unable to 
+> detect link,gain ip from dhcp) but I have discovered that adding an ifconfig
+> eth0 up prior to launching dhcp worked:
+> 
+> sky2 eth0: enabling interface
+> sky2 eth0: Link is up at 100 Mbps, full duplex, flow control tx
+> sky2 eth0: disabling interface
+> sky2 eth0: phy read timeout
+> sky2 eth0: enabling interface
+> sky2 eth0: phy read timeout
+> sky2 eth0: speed/duplex mismatch<6>sky2 eth0: Link is up at 100 Mbps, full 
+> duplex, flow control tx
+> 
+>  	Also when I shutdown/reboot sky2 eth0: phy read timeout messages flood
+>   the console for a few seconds. The nic is detected as :
+> 
+> sky2 v0.15 addr 0xf0000000 irq 19 Yukon-EC Ultra(0xb4) rev 2
+> 
+>  	Best regards,
 
-This is a topic that comes up every year or so.  Every year the result is 
-the same.  It is not going to happen.
+That's my driver.  I put a lot of fixes in for 2.6.17, one of which changes
+the setup of the chip type used in this machine. The driver is significantly
+changed from 2.6.16 so best bet is to just take the 2.6.17 latest version
+and compile it on 2.6.16 (or update to 2.6.17). I got reports from Fujitsu E610
+user that it now works fine.
 
-First of all, your assumptions are incorrect.  Modern versions of X are 
-not old, unoptimised, will do remote sessions, etc.
-
-There are a couple of very hard problems here.
-
-First you have to come up with a design that is better than X.  That is 
-pretty hard.  Next you have to convince all the programmers to port their 
-code over to use your new spiffy API.  That is even harder.
-
-Until you have a working model, or at least a design, you can blue-sky all 
-you want.  It won't get anywhere and just waste other people's electrons.
-
--- 
-"Waiter! This lambchop tastes like an old sock!" - Sheri Lewis
+Unfortunately, I don't have the hardware (or full specs for the chip) used
+in that machine.  Maybe I need to get a MacBook.

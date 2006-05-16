@@ -1,30 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751596AbWEPQBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751836AbWEPQCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751596AbWEPQBV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 12:01:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751832AbWEPQBU
+	id S1751836AbWEPQCx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 12:02:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751828AbWEPQCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 12:01:20 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:61599 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751596AbWEPQBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 12:01:00 -0400
-Subject: libata PATA updated patch
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 16 May 2006 17:13:57 +0100
-Message-Id: <1147796037.2151.83.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Tue, 16 May 2006 12:02:53 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9990 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751834AbWEPQCw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 12:02:52 -0400
+Date: Tue, 16 May 2006 18:02:50 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Matt Mackall <mpm@selenic.com>
+Cc: akpm@osdl.org, B.Zolnierkiewicz@elka.pw.edu.pl, liux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make number of IDE interfaces configurable
+Message-ID: <20060516160250.GE5677@stusta.de>
+References: <20060512222952.GQ6616@waste.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060512222952.GQ6616@waste.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've put a patch versus -rc4 in the usual place. This should sort out
-the PIO problems and a few other glitches
+On Fri, May 12, 2006 at 05:29:52PM -0500, Matt Mackall wrote:
+>...
+> --- 2.6.orig/include/linux/ide.h	2006-05-11 15:07:32.000000000 -0500
+> +++ 2.6/include/linux/ide.h	2006-05-12 14:01:53.000000000 -0500
+> @@ -252,7 +252,8 @@ static inline void ide_std_init_ports(hw
+>  
+>  #include <asm/ide.h>
+>  
+> -#ifndef MAX_HWIFS
+> +#if !defined(MAX_HWIFS) || defined(CONFIG_EMBEDDED)
+> +#undef MAX_HWIFS
+>  #define MAX_HWIFS	CONFIG_IDE_MAX_HWIFS
+>  #endif
 
-Alan
+Why do you need this?
 
-http://zeniv.linux.org.uk/~alan/IDE
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,74 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbWEPNPQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751826AbWEPNYJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751060AbWEPNPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 09:15:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751823AbWEPNPQ
+	id S1751826AbWEPNYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 09:24:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751829AbWEPNYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 09:15:16 -0400
-Received: from mail21.syd.optusnet.com.au ([211.29.133.158]:33983 "EHLO
-	mail21.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751060AbWEPNPO convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 09:15:14 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux-kernel@vger.kernel.org, "Pekka Enberg" <penberg@cs.helsinki.fi>
-Subject: [PATCH] mm: cleanup swap unused warning
-Date: Tue, 16 May 2006 23:14:35 +1000
-User-Agent: KMail/1.9.1
-Cc: Christoph Lameter <clameter@sgi.com>, linux-mm@kvack.org,
-       Andrew Morton <akpm@osdl.org>
-References: <200605102132.41217.kernel@kolivas.org> <Pine.LNX.4.64.0605101604330.7472@schroedinger.engr.sgi.com> <200605162055.36957.kernel@kolivas.org>
-In-Reply-To: <200605162055.36957.kernel@kolivas.org>
+	Tue, 16 May 2006 09:24:09 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:35076 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751826AbWEPNYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 09:24:08 -0400
+Date: Tue, 16 May 2006 15:24:05 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, dzickus <dzickus@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: [-mm patch] arch/i386/oprofile/: make functions static
+Message-ID: <20060516132405.GU6931@stusta.de>
+References: <20060515005637.00b54560.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605162314.36059.kernel@kolivas.org>
+In-Reply-To: <20060515005637.00b54560.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 May 2006 20:55, Con Kolivas wrote:
-> Ok so if we fix it by making swp_entry_t __attribute__((__unused__) we
-> break swap migration code?
->
-> If we make swap_free() an empty static inline function then gcc compiles in
-> the variable needlessly and we won't know it.
+On Mon, May 15, 2006 at 12:56:37AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.17-rc3-mm1:
+>...
+> +x86_64-mm-remove-un-set_nmi_callback-and-reserve-release_lapic_nmi-functions.patch
+>...
+>  x86_64 tree updates
+>...
 
-Rather than assume I checked the generated code and I was wrong (which is
-something I'm getting good at being).
 
-The variable is not compiled in so the empty static inline as suggested by
-Pekka suffices to silence this warning.
+This patch makes the following needlessly global functions static:
+- nmi_int.c: profile_exceptions_notify()
+- nmi_timer_int.c: profile_timer_exceptions_notify()
 
----
-if CONFIG_SWAP is not defined we get:
-
-mm/vmscan.c: In function ‘remove_mapping’:
-mm/vmscan.c:387: warning: unused variable ‘swap’
-
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
- include/linux/swap.h |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
 
-Index: linux-2.6.17-rc4/include/linux/swap.h
-===================================================================
---- linux-2.6.17-rc4.orig/include/linux/swap.h	2006-05-16 23:07:35.000000000 +1000
-+++ linux-2.6.17-rc4/include/linux/swap.h	2006-05-16 23:08:08.000000000 +1000
-@@ -292,7 +292,10 @@ static inline void disable_swap_token(vo
- #define show_swap_cache_info()			/*NOTHING*/
- #define free_swap_and_cache(swp)		/*NOTHING*/
- #define swap_duplicate(swp)			/*NOTHING*/
--#define swap_free(swp)				/*NOTHING*/
-+static inline void swap_free(swp_entry_t swp)
-+{
-+}
-+
- #define read_swap_cache_async(swp,vma,addr)	NULL
- #define lookup_swap_cache(swp)			NULL
- #define valid_swaphandles(swp, off)		0
+ arch/i386/oprofile/nmi_int.c       |    4 ++--
+ arch/i386/oprofile/nmi_timer_int.c |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
--- 
--ck
+--- linux-2.6.17-rc4-mm1-full/arch/i386/oprofile/nmi_int.c.old	2006-05-16 12:32:15.000000000 +0200
++++ linux-2.6.17-rc4-mm1-full/arch/i386/oprofile/nmi_int.c	2006-05-16 12:32:34.000000000 +0200
+@@ -82,8 +82,8 @@
+ #define exit_driverfs() do { } while (0)
+ #endif /* CONFIG_PM */
+ 
+-int profile_exceptions_notify(struct notifier_block *self,
+-				unsigned long val, void *data)
++static int profile_exceptions_notify(struct notifier_block *self,
++				     unsigned long val, void *data)
+ {
+ 	struct die_args *args = (struct die_args *)data;
+ 	int ret = NOTIFY_DONE;
+--- linux-2.6.17-rc4-mm1-full/arch/i386/oprofile/nmi_timer_int.c.old	2006-05-16 12:32:55.000000000 +0200
++++ linux-2.6.17-rc4-mm1-full/arch/i386/oprofile/nmi_timer_int.c	2006-05-16 12:33:04.000000000 +0200
+@@ -19,8 +19,8 @@
+ #include <asm/ptrace.h>
+ #include <asm/kdebug.h>
+  
+-int profile_timer_exceptions_notify(struct notifier_block *self,
+-				unsigned long val, void *data)
++static int profile_timer_exceptions_notify(struct notifier_block *self,
++					   unsigned long val, void *data)
+ {
+ 	struct die_args *args = (struct die_args *)data;
+ 	int ret = NOTIFY_DONE;
+

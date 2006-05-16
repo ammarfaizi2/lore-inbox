@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWEPTtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbWEPTvZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbWEPTtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 15:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750864AbWEPTtY
+	id S1750886AbWEPTvZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 15:51:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750883AbWEPTvZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 15:49:24 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:39435 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750800AbWEPTtX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 15:49:23 -0400
-Date: Mon, 8 May 2006 23:47:23 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: marekw1977@yahoo.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: acpi4asus
-Message-ID: <20060508234723.GB4349@ucw.cz>
-References: <20060511130743.GG15876@mail.muni.cz> <20060511073211.1da40329.akpm@osdl.org> <200605121116.11930.marekw1977@yahoo.com.au> <44649A2E.4070803@tmr.com>
+	Tue, 16 May 2006 15:51:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:5533 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750800AbWEPTvY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 15:51:24 -0400
+Date: Tue, 16 May 2006 12:50:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] fs/jbd/journal.c: possible cleanups
+Message-Id: <20060516125053.03dc1d8f.akpm@osdl.org>
+In-Reply-To: <20060516193956.GS10077@stusta.de>
+References: <20060516174413.GI10077@stusta.de>
+	<20060516122731.6ecbdeeb.akpm@osdl.org>
+	<20060516193956.GS10077@stusta.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44649A2E.4070803@tmr.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Adrian Bunk <bunk@stusta.de> wrote:
+>
+> On Tue, May 16, 2006 at 12:27:31PM -0700, Andrew Morton wrote:
+> > Adrian Bunk <bunk@stusta.de> wrote:
+> > >
+> > > - remove the following unused EXPORT_SYMBOL's:
+> > >   - journal_set_features
+> > >   - journal_update_superblock
+> > 
+> > These might be used by lustre - dunno.
+> 
+> I don't see this.
 
-> >I am far from qualified to comment on this, but from a 
-> >users point of view, is it possible to not have laptop 
-> >specific code in the kernel?
-> >I have had two Linux laptops and with both I had ACPI 
-> >issues.
-> >The vendors of both laptops (Toshiba Tecra S1 and now 
-> >an Asus W3V) don't seem to be following standards. With 
-> >both I seem to need to patch ACPI to get various 
-> >functions of the laptop to work.
-> >I would love to see laptop specific functionality 
-> >definitions exist outside the kernel.
-> >
-> I don't think that forcing laptop users to have their 
-> own code outside the kernel is really the best approach 
-> for either the developers or the users. Most users will 
+Lustre doesn't use these?
 
-No, we don't want that. But we do not want ibm-acpi, toshiba-acpi,
-asus-acpi, etc, when they really only differ in string constants used.
+Still, the jbd API is exported for other filesystems to use.  If these
+functions are considered part of that API (they are) then I'd suggest that
+they should be exported.
 
-We want userland to tell kernel 'mail led is controlled by AML routine
-foo', instead of having gazillion *-acpi modules.
+> > But I'm ducking all patches which alter exports, as usual.  If you can get
+> > them through the subsystem maintainer then good luck.
+> >...
+> 
+> Since you replied to this patch:
+> Who is the subsystem maintainer for jbd?
 
-
--- 
-Thanks for all the (sleeping) penguins.
+A few people, including me..

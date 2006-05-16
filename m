@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbWEPOjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWEPOkq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751154AbWEPOjr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 10:39:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWEPOjr
+	id S1751160AbWEPOkq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 10:40:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWEPOkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 10:39:47 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:48528 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751154AbWEPOjr (ORCPT
+	Tue, 16 May 2006 10:40:46 -0400
+Received: from unthought.net ([212.97.129.88]:40465 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S1751160AbWEPOkp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 10:39:47 -0400
-Date: Tue, 16 May 2006 16:39:37 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jan Beulich <jbeulich@novell.com>
-Cc: Andreas Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/3] reliable stack trace support
-Message-ID: <20060516143937.GA10760@elte.hu>
-References: <4469FC07.76E4.0078.0@novell.com>
+	Tue, 16 May 2006 10:40:45 -0400
+Date: Tue, 16 May 2006 16:40:44 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
+Subject: Re: Wiretapping Linux?
+Message-ID: <20060516144044.GJ15032@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Steven Rostedt <rostedt@goodmis.org>, Marc Perkel <marc@perkel.com>,
+	linux-kernel@vger.kernel.org
+References: <4469D296.8060908@perkel.com> <Pine.LNX.4.58.0605160939290.10890@gandalf.stny.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4469FC07.76E4.0078.0@novell.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <Pine.LNX.4.58.0605160939290.10890@gandalf.stny.rr.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 16, 2006 at 09:48:25AM -0400, Steven Rostedt wrote:
+...
+> > So what about Linux? With thousands of people working on the Kernel if
+> > someone from the NSA wanted to slip a back door into the Kernel, could
+> > the do that?
+> 
+> Well, yes and no.
+> 
+...
+> There's so much free stuff out there, that people download and install
+> blindly, that I'm sure if someone wanted to really badly, they could get
+> it on some boxes.  If they were slime and added something to a binary,
+> and supplied the source without the backdoor, that might last a while.
+> Unless you compile everything yourself, it's not easy to make sure that
+> all binaries came from the source you have.
 
-* Jan Beulich <jbeulich@novell.com> wrote:
+Read "Reflections on Trusting Trust" to see why compiling things from
+source gets you absolutely *zero* extra security in this regard.
 
-> These are the generic bits needed to enable reliable stack traces 
-> based on Dwarf2-like (.eh_frame) unwind information. Subsequent 
-> patches will enable x86-64 and i386 to make use of this.
+http://www.acm.org/classics/sep95/
 
-really nice!
+-- 
 
-> +config STACK_UNWIND
-> +	bool "Stack unwind support"
-> +	depends on UNWIND_INFO
-> +	depends on n
+ / jakob
 
-'depends on n' ? Also, i think this should be 'default y'. The code is 
-very clean. Curious: how much testing has it seen?
-
-	Ingo

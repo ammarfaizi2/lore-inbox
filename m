@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751734AbWEPKJh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751739AbWEPKLX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751734AbWEPKJh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 06:09:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751735AbWEPKJh
+	id S1751739AbWEPKLX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 06:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751740AbWEPKLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 06:09:37 -0400
-Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:32189 "HELO
-	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751707AbWEPKJh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 06:09:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=AQZqaqnp11nH37YjU6NGWdSwJfhH1XzNzIKHFSgpHCjKmyAS/oTPJF+05313SCdTh9xOrGszW50mrZEz9cp35lMKS26+q0mUdwLDvbI1ackoDktV8UJIp+Uw+JvhSvKv5OhmXcIq/QPaWh1QGeFSdiUmk0oN2E53Go1k3fmQlGA=  ;
-Message-ID: <4469A4DA.1040305@yahoo.com.au>
-Date: Tue, 16 May 2006 20:09:30 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Antti Salmela <asalmela@iki.fi>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel BUG at mm/vmscan.c:428 (2.6.17-rc4-git2, Dualcore AMD
- x86-64)
-References: <20060515082508.GA6950@asalmela.iki.fi> <44683F05.5050709@yahoo.com.au> <20060515135926.GA13151@asalmela.iki.fi>
-In-Reply-To: <20060515135926.GA13151@asalmela.iki.fi>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 16 May 2006 06:11:23 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:33705 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751735AbWEPKLW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 06:11:22 -0400
+Subject: Re: /dev/random on Linux
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Muli Ben-Yehuda <muli@il.ibm.com>, Jonathan Day <imipak@yahoo.com>,
+       linux-kernel@vger.kernel.org, Zvika Gutterman <zvi@safend.com>
+In-Reply-To: <B2E79864-3AC6-4B72-B97B-222FEDA136A1@mac.com>
+References: <20060515213956.31627.qmail@web31508.mail.mud.yahoo.com>
+	 <1147732867.26686.188.camel@localhost.localdomain>
+	 <20060516025003.GC18645@rhun.haifa.ibm.com>
+	 <B2E79864-3AC6-4B72-B97B-222FEDA136A1@mac.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Tue, 16 May 2006 11:24:04 +0100
+Message-Id: <1147775045.2151.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Antti Salmela wrote:
-> On Mon, May 15, 2006 at 06:42:45PM +1000, Nick Piggin wrote:
+On Maw, 2006-05-16 at 04:15 -0400, Kyle Moffett wrote:
+> > Zvi did contact Matt Mackall, the current /dev/random maintainer,  
+> > and was very keen on discussing the paper with him. I don't think  
+> > he got any response.
 > 
->>Either you have an active page on the inactive list, or your hardware has
->>flipped a bit in page->flags. I was going to say the latter is more likely,
->>however -- AFAIKS, the first oops should cause that page to be lost from the
->>LRU list, so the second oops shouldn't happen if the flip a single bad bit,
->>and should be pretty unlikely if it is a random error.
-> 
-> 
-> Thanks, I thought I had run memtest86 long enough when I bought the
-> system, but now it found one stuck bit almost immediately. 
-> 
+> So he's demanding that one person spend time responding to his  
+> paper? 
 
-No problem. Thanks anyway for testing and reporting.
+Relying on email to one person getting through is a bit bogus, but I
+don't see a single demand from anyone that someone respond to the paper.
+I'm very glad the work was done, it would have been nicer to have known
+up front but it didn't work out.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Also if the maintainer doesn't respond and the paper authors didn't know
+where to go next that in itself needs addressing because the same may be
+true for others finding problems.
+
+Don't blame the messenger when it might be useful to think about whether
+the MAINTAINERS file could do with an extra paragraph or two...
+
+Alan

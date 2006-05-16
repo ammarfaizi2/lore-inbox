@@ -1,143 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932504AbWEPSfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751576AbWEPSoz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932504AbWEPSfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 14:35:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932507AbWEPSfZ
+	id S1751576AbWEPSoz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 14:44:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbWEPSoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 14:35:25 -0400
-Received: from relay00.pair.com ([209.68.5.9]:28173 "HELO relay00.pair.com")
-	by vger.kernel.org with SMTP id S932504AbWEPSfY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 14:35:24 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Tue, 16 May 2006 13:35:12 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: Martin Peschke <mp3@de.ibm.com>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de, hch@infradead.org,
-       arjan@infradead.org, James.Smart@Emulex.Com,
-       James.Bottomley@SteelEye.com
-Subject: Re: [RFC] [Patch 2/8] statistics infrastructure - prerequisite:
- parser enhancement
-In-Reply-To: <446A0FBE.2030105@de.ibm.com>
-Message-ID: <Pine.LNX.4.64.0605161332270.32181@turbotaz.ourhouse>
-References: <446A0FBE.2030105@de.ibm.com>
+	Tue, 16 May 2006 14:44:55 -0400
+Received: from barracuda.s2io.com ([72.1.205.138]:2026 "EHLO
+	barracuda.mail.s2io.com") by vger.kernel.org with ESMTP
+	id S1750748AbWEPSoy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 14:44:54 -0400
+X-ASG-Debug-ID: 1147805090-26230-25-0
+X-Barracuda-URL: http://72.1.205.138:8000/cgi-bin/mark.cgi
+X-ASG-Whitelist: Client
+Reply-To: <ravinandan.arakali@neterion.com>
+From: "Ravinandan Arakali" <ravinandan.arakali@neterion.com>
+To: "Petr Vandrovec" <vandrove@vc.cvut.cz>, "Andi Kleen" <ak@suse.de>
+Cc: "Peter. Phan" <peter.phan@neterion.com>,
+       "Leonid Grossman" <Leonid.Grossman@neterion.com>,
+       <linux-kernel@vger.kernel.org>
+X-ASG-Orig-Subj: RE: MSI-X support on AMD 8132 platforms ?
+Subject: RE: MSI-X support on AMD 8132 platforms ?
+Date: Tue, 16 May 2006 11:44:59 -0700
+Message-ID: <MAEEKMLDLDFEGKHNIJHICEKBCEAA.ravinandan.arakali@neterion.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Importance: Normal
+In-Reply-To: <4469E936.1020804@vc.cvut.cz>
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=3.5 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=7.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 May 2006, Martin Peschke wrote:
+Hi Petr,
+Thanks for the suggestion.
+What you pointed out was the source of the problem. After
+enabling the  MSI-to-HTInterrupts(the value at offset 0xF6),
+I now see interrupts and can ping in both MSI and MSI-X modes.
 
-> This patch adds two match_* derivates for 64 bit operands to the parser
-> library.
+Ravi
+
+-----Original Message-----
+From: Petr Vandrovec [mailto:vandrove@vc.cvut.cz]
+Sent: Tuesday, May 16, 2006 8:01 AM
+To: Andi Kleen
+Cc: ravinandan.arakali@neterion.com; Peter. Phan; Leonid Grossman;
+linux-kernel@vger.kernel.org
+Subject: Re: MSI-X support on AMD 8132 platforms ?
+
+
+Andi Kleen wrote:
+> "Ravinandan Arakali" <ravinandan.arakali@neterion.com> writes:
 >
-> Signed-off-by: Martin Peschke <mp3@de.ibm.com>
-> ---
 >
->  include/linux/parser.h |    2 +
->  lib/parser.c           |   60
->  +++++++++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 62 insertions(+)
+>>I was wondering if anybody has got MSI-X going on AMD 8132 platforms.
+>>Our network card and driver support MSI-X and the combination works
+>>fine on IA64 and xeon platforms. But on the 8132, the MSI-X vectors are
+>>assigned(pci_enable_msix succeeds) but no interrupts get generated.
 >
-> diff -Nurp a/include/linux/parser.h b/include/linux/parser.h
-> --- a/include/linux/parser.h	2006-03-20 06:53:29.000000000 +0100
-> +++ b/include/linux/parser.h	2006-05-15 17:56:25.000000000 +0200
-> @@ -31,3 +31,5 @@ int match_octal(substring_t *, int *resu
->  int match_hex(substring_t *, int *result);
->  void match_strcpy(char *, substring_t *);
->  char *match_strdup(substring_t *);
-> +int match_u64(substring_t *, u64 *result, int);
-> +int match_s64(substring_t *, s64 *result, int);
-> diff -Nurp a/lib/parser.c b/lib/parser.c
-> --- a/lib/parser.c	2006-03-20 06:53:29.000000000 +0100
-> +++ b/lib/parser.c	2006-05-15 17:56:25.000000000 +0200
-> @@ -140,6 +140,64 @@ static int match_number(substring_t *s,
->  }
 >
-> /**
-> + * match_u64: scan a number in the given base from a substring_t
-> + * @s: substring to be scanned
-> + * @result: resulting integer on success
-> + * @base: base to use when converting string
-> + *
-> + * Description: Given a &substring_t and a base, attempts to parse the 
-> substring
-> + * as a number in that base. On success, sets @result to the u64 represented
-> + * by the string and returns 0. Returns either -ENOMEM or -EINVAL on 
-> failure.
-> + */
-> +int match_u64(substring_t *s, u64 *result, int base)
-> +{
-> +	char *endp;
-> +	char *buf;
-> +	int ret;
-> +
-> +	buf = kmalloc(s->to - s->from + 1, GFP_KERNEL);
-> +	if (!buf)
-> +		return -ENOMEM;
-> +	memcpy(buf, s->from, s->to - s->from);
-> +	buf[s->to - s->from] = '\0';
+> See erratum #78 in the AMD 8132 Specification update.
+> It doesn't support the MSI capability and there are no plans to fix that.
+>
+> AFAIK the only way to get MSI on Opteron is on PCI Express.
 
-Why not match_strdup:
+I do not think that erratum #78 is related to this - it is related to tunnel
+itself generating MSI - which is not needed in this case.
 
- 	buf = match_strdup(s);
- 	if (unlikely(!buf))
- 		return -ENOMEM;
+>>Note that with a different OS, MSI-X does work on 8132.
+>
+> Are you sure?
 
-> +	*result = simple_strtoull(buf, &endp, base);
-> +	ret = 0;
-> +	if (endp == buf)
-> +		ret = -EINVAL;
-> +	kfree(buf);
-> +	return ret;
-> +}
-> +
-> +/**
-> + * match_s64: scan a number in the given base from a substring_t
-> + * @s: substring to be scanned
-> + * @result: resulting integer on success
-> + * @base: base to use when converting string
-> + *
-> + * Description: Given a &substring_t and a base, attempts to parse the 
-> substring
-> + * as a number in that base. On success, sets @result to the s64 represented
-> + * by the string and returns 0. Returns either -ENOMEM or -EINVAL on 
-> failure.
-> + */
-> +int match_s64(substring_t *s, s64 *result, int base)
-> +{
-> +	char *endp;
-> +	char *buf;
-> +	int ret;
-> +
-> +	buf = kmalloc(s->to - s->from + 1, GFP_KERNEL);
-> +	if (!buf)
-> +		return -ENOMEM;
-> +	memcpy(buf, s->from, s->to - s->from);
-> +	buf[s->to - s->from] = '\0';
+Can you provide 'lspci -vvvxxx' output from AMD8132 bridge?  (esp. bytes
+0xF4-0xFF from config space of 1022:7458 devices)  By default dword at 0xF4
+is
+0xA8000008, disabling MSI/MSI-X mapping -> hypertransport interrupts.
+Changing
+this to 0xA8010008 should enable this translation (iff qword at 0xF8 is
+0x0000FEE00000), allowing MSI to work on respective secondary/subordinate
+busses.  Unfortunately kernel ignores these HT capabilities...
+								Petr
 
-Same story here.
 
-> +	*result = simple_strtoll(buf, &endp, base);
-> +	ret = 0;
-> +	if (endp == buf)
-> +		ret = -EINVAL;
-> +	kfree(buf);
-> +	return ret;
-> +}
-> +
-> +/**
->   * match_int: - scan a decimal representation of an integer from a
->   substring_t
->   * @s: substring_t to be scanned
->   * @result: resulting integer on success
-> @@ -218,3 +276,5 @@ EXPORT_SYMBOL(match_octal);
->  EXPORT_SYMBOL(match_hex);
->  EXPORT_SYMBOL(match_strcpy);
->  EXPORT_SYMBOL(match_strdup);
-> +EXPORT_SYMBOL(match_u64);
-> +EXPORT_SYMBOL(match_s64);
-
-Thanks,
-Chase

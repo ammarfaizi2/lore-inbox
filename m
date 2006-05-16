@@ -1,68 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWEPPgU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbWEPPkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbWEPPgU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 11:36:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWEPPgU
+	id S1751269AbWEPPkT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 11:40:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWEPPkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 11:36:20 -0400
-Received: from wr-out-0506.google.com ([64.233.184.228]:4179 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751265AbWEPPgS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 11:36:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=hCoAI3He42fwVq/4r7pj6hriLoIddlCj2cp9MUgB3IRMNZHA/mztd1gI9KXAFvu/CUoWYSLV3vC/2ieLwYfQ5NTsZgbgDICqbudYJYcuRhXM1+qkWyM8MWkqcmftI8gBaFwEAWIPnVbnKOGlURNlsz1cGIRCB3dACVbvnqBRf98=
-Message-ID: <4469F169.2050708@gmail.com>
-Date: Wed, 17 May 2006 00:36:09 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org, jgarzik@pobox.com, torvalds@osdl.org
+	Tue, 16 May 2006 11:40:18 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:35504 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751269AbWEPPkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 11:40:17 -0400
 Subject: Re: PATCH: Fix broken PIO with libata
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kevin Radloff <radsaq@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3b0ffc1f0605160833k5f6355c5n3f2a9ab1b211a95@mail.gmail.com>
 References: <1147790393.2151.62.camel@localhost.localdomain>
-In-Reply-To: <1147790393.2151.62.camel@localhost.localdomain>
-Content-Type: text/plain; charset=EUC-KR
+	 <3b0ffc1f0605160833k5f6355c5n3f2a9ab1b211a95@mail.gmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Tue, 16 May 2006 16:53:11 +0100
+Message-Id: <1147794791.2151.71.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> #2	The core sets ATA_DFLAG_PIO to indicate PIO commands should be used
-> on this channel. This same information is available in dev->dma_mode but
-> for some reason we get two sources of the info. The ATA_DFLAG_PIO is set
-> once during setup and then cleared but not re-computed by the revalidate
-> function. This causes DMA commands to be issued when PIO would be and
-> usually an Oops or hang
+On Maw, 2006-05-16 at 11:33 -0400, Kevin Radloff wrote:
+> However, I still have a problem with pata_pcmcia (that I actually
+> experienced also with the ide-cs driver) where sustained reading or
+> writing to the CF card spikes the CPU with nearly 100% system time.
 
-Hmmm... I tried to fix this problem in the following commit.  With it,
-ATA_DFLAG_PIO isn't cleared over ata_dev_configure().  Only
-ata_dev_set_mode() is allowed to diddle with it and does about the same
-thing as your patch does.
+That is normal. The PCMCIA devices don't support DMA. As a result of
+this the processor has to fetch each byte itself over the ISA speed
+PCMCIA bus link.
 
-diff-tree ea1dd4e13010eb9dd5ffb4bfabbb472bc238bebb (from
-198e0fed9e59461fc1890dd
-Author: Tejun Heo <htejun@gmail.com>
-Date:   Sun Apr 2 18:51:53 2006 +0900
+Alan
 
-    [PATCH] libata: clear only affected flags during ata_dev_configure()
-
-    ata_dev_configure() should not clear dynamic device flags determined
-    elsewhere.  Lower eight bits are reserved for feature flags, define
-    ATA_DFLAG_CFG_MASK and clear only those bits before configuring
-    device.  Without this patch, ATA_DFLAG_PIO gets turned off during
-    revalidation making PIO mode unuseable.
-
-    Signed-off-by: Tejun Heo <htejun@gmail.com>
-    Signed-off-by: Jeff Garzik <jeff@garzik.org>
-
-> Also contains a related bracketing fix
-
-Is this agreed upon?  I tend to omit almost all unnecessary (by operator
-precedence) parenthesis, so in new EH and all other stuff, the "a && b &
-c" sort of lines are abundant.  If this is something that's agreed upon,
-I can do a clean sweep over those.
-
--- 
-tejun

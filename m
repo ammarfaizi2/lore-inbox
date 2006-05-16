@@ -1,72 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751822AbWEPNPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbWEPNPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751822AbWEPNPS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 09:15:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751062AbWEPNPR
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 09:15:17 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26504 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751822AbWEPNPQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S1751060AbWEPNPQ (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 16 May 2006 09:15:16 -0400
-Date: Tue, 16 May 2006 14:46:37 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Muli Ben-Yehuda <muli@il.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jonathan Day <imipak@yahoo.com>, linux-kernel@vger.kernel.org,
-       Zvika Gutterman <zvi@safend.com>
-Subject: Re: /dev/random on Linux
-Message-ID: <20060516124637.GB6654@elf.ucw.cz>
-References: <20060515213956.31627.qmail@web31508.mail.mud.yahoo.com> <1147732867.26686.188.camel@localhost.localdomain> <20060516025003.GC18645@rhun.haifa.ibm.com> <B2E79864-3AC6-4B72-B97B-222FEDA136A1@mac.com>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751823AbWEPNPQ
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 16 May 2006 09:15:16 -0400
+Received: from mail21.syd.optusnet.com.au ([211.29.133.158]:33983 "EHLO
+	mail21.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751060AbWEPNPO convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 09:15:14 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org, "Pekka Enberg" <penberg@cs.helsinki.fi>
+Subject: [PATCH] mm: cleanup swap unused warning
+Date: Tue, 16 May 2006 23:14:35 +1000
+User-Agent: KMail/1.9.1
+Cc: Christoph Lameter <clameter@sgi.com>, linux-mm@kvack.org,
+       Andrew Morton <akpm@osdl.org>
+References: <200605102132.41217.kernel@kolivas.org> <Pine.LNX.4.64.0605101604330.7472@schroedinger.engr.sgi.com> <200605162055.36957.kernel@kolivas.org>
+In-Reply-To: <200605162055.36957.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <B2E79864-3AC6-4B72-B97B-222FEDA136A1@mac.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200605162314.36059.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tuesday 16 May 2006 20:55, Con Kolivas wrote:
+> Ok so if we fix it by making swp_entry_t __attribute__((__unused__) we
+> break swap migration code?
+>
+> If we make swap_free() an empty static inline function then gcc compiles in
+> the variable needlessly and we won't know it.
 
-> >>I would dismiss 2.2 for the cases of things like Knoppix because  
-> >>CDs introduce significant randomness because each time you boot  
-> >>the CD is subtly differently positioned. The OpenWRT case seems  
-> >>more credible. The hard disk patching one is basically irrelevant,  
-> >>at that point you already own the box and its game over since you  
-> >>can just do a virtualization attack or patch the OS to record  
-> >>anything you want.
-> 
-> Any system with a cycle counter has a vast amount of entropy  
-> available by the time the system even gets through the BIOS.  Various  
-> things like memory timing, power initialization, BIOS tests, etc are  
-> all sufficiently variable in terms of CPU clock cycles that the value  
-> of the cycle counter at the first bootloader instruction executed has  
-> several bits of randomness.  By the time the bootloader has  
-> optionally waited for user input and loaded the kernel off the disk,  
-> chaotic variability in the disk access for HDDs, CDROMs, etc will  
-> make many bits of the cycle counter sufficiently random.  At that  
-> point there's a decently random seed, especially once you start  
-> getting further-randomized cycle-counter-based disk interrupts.  I  
-> believe there was a paper that discussed how air turbulence in a disk  
-> drive was sufficient on a several hundered MHz CPU to provide lots of  
-> entropy per interrupt from the cycle counter alone.
-> 
-> This is totally untrue for an embedded flash-based system; but for  
-> such a system the only way to get any kind of entropy at all is with  
-> a hardware RNG anyways, so I don't really see this as being a problem.
-> 
-> I was unsure about the purported forward-security-breakage claims  
-> because I don't know how to validate those, but I seem to recall  
-> (from personal knowledge and the paper) that the kernel does an SHA1  
-> hash of the contents of the pool and the current cycle-counter when  
-> reading, uses that as input for the next pool state and returns it  
-> as /dev/random output.  Since the exact cycle-counter value is never  
-> exposed outside the kernel and only a small window of the previous  
+Rather than assume I checked the generated code and I was wrong (which is
+something I'm getting good at being).
 
-Are you sure? For vsyscalls to work, rdtsc has to be available from
-userspace, no?
-								Pavel
+The variable is not compiled in so the empty static inline as suggested by
+Pekka suffices to silence this warning.
+
+---
+if CONFIG_SWAP is not defined we get:
+
+mm/vmscan.c: In function ‘remove_mapping’:
+mm/vmscan.c:387: warning: unused variable ‘swap’
+
+Signed-off-by: Con Kolivas <kernel@kolivas.org>
+
+---
+ include/linux/swap.h |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletion(-)
+
+Index: linux-2.6.17-rc4/include/linux/swap.h
+===================================================================
+--- linux-2.6.17-rc4.orig/include/linux/swap.h	2006-05-16 23:07:35.000000000 +1000
++++ linux-2.6.17-rc4/include/linux/swap.h	2006-05-16 23:08:08.000000000 +1000
+@@ -292,7 +292,10 @@ static inline void disable_swap_token(vo
+ #define show_swap_cache_info()			/*NOTHING*/
+ #define free_swap_and_cache(swp)		/*NOTHING*/
+ #define swap_duplicate(swp)			/*NOTHING*/
+-#define swap_free(swp)				/*NOTHING*/
++static inline void swap_free(swp_entry_t swp)
++{
++}
++
+ #define read_swap_cache_async(swp,vma,addr)	NULL
+ #define lookup_swap_cache(swp)			NULL
+ #define valid_swaphandles(swp, off)		0
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+-ck

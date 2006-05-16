@@ -1,72 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751537AbWEPGix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751545AbWEPGrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751537AbWEPGix (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 02:38:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751540AbWEPGiw
+	id S1751545AbWEPGrA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 02:47:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751551AbWEPGq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 02:38:52 -0400
-Received: from mga03.intel.com ([143.182.124.21]:49790 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751535AbWEPGiv convert rfc822-to-8bit (ORCPT
+	Tue, 16 May 2006 02:46:59 -0400
+Received: from py-out-1112.google.com ([64.233.166.179]:11368 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751545AbWEPGq7 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 02:38:51 -0400
-X-IronPort-AV: i="4.05,132,1146466800"; 
-   d="scan'208"; a="37012346:sNHT15724254"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Tue, 16 May 2006 02:46:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=ADgZt+Yyas2uYIhfFgrff6eij9CjP0L7a9bzCXCm7o8xuxSao/7TkzbOy/4proas92Dlf6Ncmp5TBPmZr29KErKJTQd/4nHFAo+eeLKYKMX23p7wY6Mn9gjWuS31nG1X2Ut40sxjrrtDcumWSRWD7fmlmmwB18qmvKVXsjlBIlw=
+Message-ID: <8bf247760605152346m72a8b43ci325cc0bb7d68b576@mail.gmail.com>
+Date: Mon, 15 May 2006 23:46:58 -0700
+From: Ram <vshrirama@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: SDIO - crc check of previous command failed
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: acpi_power_off doesn't
-Date: Tue, 16 May 2006 02:38:47 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB675ABCD@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: acpi_power_off doesn't
-Thread-Index: AcZ4p3j3Y5ejkm3hSpKNCwTMw8KrWgAC3Zyw
-From: "Brown, Len" <len.brown@intel.com>
-To: "Harald Dunkel" <harald.dunkel@t-online.de>
-Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 16 May 2006 06:38:48.0505 (UTC) FILETIME=[632D9A90:01C678B3]
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Sometimes when I run 'halt' my PC does not go off. Last
->>> words are
->>>
->>> 	acpi_power_off called
->>>
->>> But the PC stays on.
->>>
->>> What is the story here? I've seen this problem come up
->>> several times, but without solution, as it seems. Any
->>> hint would be very helpfull.
->> 
->> Does this happen all the time, or just some of the time?
->> Has this always failed on box X, or did it used to
->> work in some release Y, and broke in some release Z?
->> 
->> Please supply X, Y, Z.
+Hi,
+   I am trying to write an sdio driver.
+
+   I have sent command 52 with argument of 0x00001000 to get the block size.
+
+   In return i get an response of 0x00001000 which indicates that the
+CRC Check of the previous   command failed.
+
+   The last command i sent was command 7 and it returned success.
 
 
->The problem does not exist, if I boot my PC and then
->halt it immediately. If I login and use it for some
->time, then acpi_power_off does not work.
->
->Box 'X' is an Aopen MZ-915M, CPU is a 2 GHz Pentium
->M. It is running Debian Sid, kernel is vanilla
->
->Linux bugs 2.6.17-rc4 #1 PREEMPT Sat May 13 16:22:54 CEST 2006 
->i686 GNU/Linux
->
->Old kernels don't work on this PC due to missing
->hardware support. The first vanilla kernel that worked
->reliably on this box (except for acpi_power_off) was 2.6.16.
+   Any clues where the problem could be?.
 
-If you append a "3" to the cmdline and boot without a GUI,
-does the system still halt properly (even after you log in
-and use it for a while)?  There may be some interaction
-between X and the video hardware and system shutdown.
 
--Len
+Regards,
+sriram

@@ -1,31 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbWEPFar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWEPFeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751385AbWEPFar (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 01:30:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbWEPFar
+	id S1751395AbWEPFeT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 01:34:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbWEPFeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 01:30:47 -0400
-Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:62893 "HELO
-	smtp101.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751309AbWEPFaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 01:30:46 -0400
-Date: Mon, 15 May 2006 21:31:07 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: Re: HELP! vfs_readv() issue
-Message-ID: <20060516043107.GA5321@taniwha.stupidest.org>
-References: <4ae3c140605151657m152c0e7bl7f52e2a2def0aeca@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4ae3c140605151657m152c0e7bl7f52e2a2def0aeca@mail.gmail.com>
+	Tue, 16 May 2006 01:34:19 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:13623 "EHLO
+	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751395AbWEPFeS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 01:34:18 -0400
+Date: Mon, 15 May 2006 23:33:35 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [RFT] major libata update
+In-reply-to: <6cZvL-4Vb-1@gated-at.bofh.it>
+To: Avuton Olrich <avuton@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <4469642F.4040000@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <6cOK9-5WZ-21@gated-at.bofh.it> <6cUPu-6Dh-5@gated-at.bofh.it>
+ <6cV8V-71t-3@gated-at.bofh.it> <6cYzI-3yr-3@gated-at.bofh.it>
+ <6cYT8-3Vy-7@gated-at.bofh.it> <6cZvL-4Vb-1@gated-at.bofh.it>
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 15, 2006 at 07:57:21PM -0400, Xin Zhao wrote:
+Avuton Olrich wrote:
+> On 5/15/06, Jeff Garzik <jeff@garzik.org> wrote:
+> 
+>> Can you configure your interrupts so that ethernet and SATA are not on
+>> the same irq?
+> 
+> Sorry, need a little hand holding here. I'm unsure how to do such a
+> thing, and can't really google that.
 
-> I am writing a file system, but vfs_read() sometimes return 0. What
-> could cause this problem?
+If they are both onboard devices, there is probably no way to do this. 
+However, from the lspci output it doesn't appear they are on the same 
+IRQ anyway.
 
-EOF?
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

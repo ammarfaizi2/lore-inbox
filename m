@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWEPL5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbWEPMGF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750781AbWEPL5L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 07:57:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750904AbWEPL5L
+	id S1750928AbWEPMGF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 08:06:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbWEPMGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 07:57:11 -0400
-Received: from taurus.voltaire.com ([193.47.165.240]:35342 "EHLO
-	taurus.voltaire.com") by vger.kernel.org with ESMTP
-	id S1750781AbWEPL5L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 07:57:11 -0400
-Message-ID: <4469BE0E.9080205@voltaire.com>
-Date: Tue, 16 May 2006 14:57:02 +0300
-From: Or Gerlitz <ogerlitz@voltaire.com>
-User-Agent: Thunderbird 1.4.1 (Windows/20051006)
+	Tue, 16 May 2006 08:06:04 -0400
+Received: from wr-out-0506.google.com ([64.233.184.237]:26943 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750904AbWEPMGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 08:06:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=pUEwEYY12ynItD2xy+HVy4gdAl1SQMQbCDM3wobJ3C1iNNDPeh5WDTuz6rDSWviKIZgKMbZc3ZdoXTHS6IadJch3VmOI5oryEcKdpzy0IfngA2AwzZ68NIfbb3DUBN6heqen4Z3AyVfZ5eH9Wtrh7EDRNEmQfxxWCDiyspHEZpc=
+Message-ID: <4469C024.3030506@gmail.com>
+Date: Tue, 16 May 2006 21:05:56 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Roland Dreier <rdreier@cisco.com>
-CC: "akpm@osdl.org Linux Kernel Mailing List" 
-	<linux-kernel@vger.kernel.org>,
-       openib-general@openib.org, Christoph Lameter <clameter@sgi.com>,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [PATCH] slab: Fix kmem_cache_destroy() on NUMA
-References: <Pine.LNX.4.64.0605111640010.3866@g5.osdl.org> <Pine.LNX.4.44.0605141306240.29880-100000@zuben> <adaves7rv0j.fsf_-_@cisco.com>
-In-Reply-To: <adaves7rv0j.fsf_-_@cisco.com>
+To: "Fortier,Vincent [Montreal]" <Vincent.Fortier1@EC.GC.CA>
+CC: Andi Kleen <ak@suse.de>, Marko Macek <Marko.Macek@gmx.net>,
+       Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: ASUS A8V Deluxe, x86_64
+References: <8E8F647D7835334B985D069AE964A4F702463F@ECQCMTLMAIL1.quebec.int.ec.gc.ca>
+In-Reply-To: <8E8F647D7835334B985D069AE964A4F702463F@ECQCMTLMAIL1.quebec.int.ec.gc.ca>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 May 2006 11:57:09.0248 (UTC) FILETIME=[DC1BB000:01C678DF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
-> With CONFIG_NUMA set, kmem_cache_destroy() may fail and say "Can't
-> free all objects."  The problem is caused by sequences such as the
-> following (suppose we are on a NUMA machine with two nodes, 0 and 1):
+Fortier,Vincent [Montreal] wrote:
+>>> Now I'm having an ASUS A8V Deluxe.... and sadly a lot of problems:
+>>>
+>>> - My SATA Controller make my Linux crash when connecting a 
+>>> Plextor 716SA CD-DVD-R 
+>>> (http://bugzilla.kernel.org/show_bug.cgi?id=5533)
 > 
->  * Allocate an object from cache on node 0.
->  * Free the object on node 1.  The object is put into node 1's alien
->    array_cache for node 0.
->  * Call kmem_cache_destroy(), which ultimately ends up in __cache_shrink().
->  * __cache_shrink() does drain_cpu_caches(), which loops through all nodes.
->    For each node it drains the shared array_cache and then handles the
->    alien array_cache for the other node.
+>> Patch:
+>>
+> http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.17-rc4-
+> git2-libata1.patch.bz2
+>> (diff'd against 2.6.17-rc4-git2, but should apply to most recent
+> 2.6.17-rcX[-gitY] kernels)
 > 
-> However this means that node 0's shared array_cache will be drained,
-> and then node 1 will move the contents of its alien[0] array_cache
-> into that same shared array_cache.  node 0's shared array_cache is
-> never looked at again, so the objects left there will appear to be in
-> use when __cache_shrink() calls __node_shrink() for node 0.  So
-> __node_shrink() will return 1 and kmem_cache_destroy() will fail.
+> I gave a try at the latest ata patches announced yesterday by Jeff and
+> it completelly solved my SATA ATAPI bug.. I even been able to burn my
+> first DVD using my Plextor 716SA on my Linux!!!  Really nice and much
+> anticipated work!  Thnx a lot!
 > 
-> This patch fixes this by having drain_cpu_caches() do
-> drain_alien_cache() on every node before it does drain_array() on the
-> nodes' shared array_caches.
+> I have already marked bug 5533 as resolved and I'll wait until inclusion
+> into 2.6.18 to close it.  I've also marked bug 6317 has closed since
+> that did not occur since around rc2 or rc3 of 2.6.17.
 > 
-> The problem was originally reported by Or Gerlitz <ogerlitz@voltaire.com>.
-> 
-> Cc: Christoph Lameter <clameter@sgi.com>
-> Cc: Pekka Enberg <penberg@cs.helsinki.fi>
 
-OK, Indeed i have CONFIG_NUMA and yes, the patch fixes my problem, 
-thanks a lot for working on that!
+Jeff, do you know what fixed this one?  I've been following the bug and 
+thought it was one of those via-ATAPI-have-no-idea bugs.  How come the 
+update fix this one?  Have I missed something?
 
-Or.
-
+-- 
+tejun

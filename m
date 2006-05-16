@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWEPVAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWEPVCc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbWEPVAR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 17:00:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWEPVAR
+	id S1750825AbWEPVCc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 17:02:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWEPVCc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 17:00:17 -0400
-Received: from relay03.pair.com ([209.68.5.17]:53772 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S1750798AbWEPVAP (ORCPT
+	Tue, 16 May 2006 17:02:32 -0400
+Received: from main.gmane.org ([80.91.229.2]:13262 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750825AbWEPVCc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 17:00:15 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Tue, 16 May 2006 16:00:14 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org
-Subject: Re: Help: strange messages from kernel on IA64 platform
-In-Reply-To: <890BF3111FB9484E9526987D912B261901BD84@NAMAIL3.ad.lsil.com>
-Message-ID: <Pine.LNX.4.64.0605161558200.32181@turbotaz.ourhouse>
-References: <890BF3111FB9484E9526987D912B261901BD84@NAMAIL3.ad.lsil.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 16 May 2006 17:02:32 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: Wiretapping Linux?
+Date: Tue, 16 May 2006 22:01:36 +0100
+Message-ID: <yw1xfyj91y6n.fsf@agrajag.inprovide.com>
+References: <4469D296.8060908@perkel.com> <20060516200313.GO11191@w.ods.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: agrajag.inprovide.com
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through Obscurity, linux)
+Cancel-Lock: sha1:/42a2pA+XvzQXQZaX9CQwmZ2tEs=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 May 2006, Ju, Seokmann wrote:
+Willy Tarreau <willy@w.ods.org> writes:
 
-> Hi,
+> On Tue, May 16, 2006 at 06:24:38AM -0700, Marc Perkel wrote:
+>> As most of you know the United States is tapping you telephone calls and 
+>> tracking every call you make. The next logical step is to start tapping 
+>> your computer implanting spyware into operating systems. Since Windows 
+>> and OS-X are proprietary this can be done more easilly with the 
+>> cooperation of Microsoft and Apple.
+>> 
+>> So what about Linux? With thousands of people working on the Kernel if 
+>> someone from the NSA wanted to slip a back door into the Kernel, could 
+>> the do that? I know it's open source and it could be found if anyone 
+>> looks but is anyone looking? Is this something that would get noticed if 
+>> someone tried to do it? I'd like to think it would, but I'm going to ask 
+>> anyway just to make sure.
 >
-> During communication in between application and megaraid driver via
-> IOCTL, the system displays messages which are not easy to track down.
-> Following is one of the messages and same messages with different values
-> are poping up regularly.
-> ---
-> Kernel unaligned access to 0xe00000007f3d80dc ip=0xa0000002000373b1
-> ---
->
-> I understand the kernel is complaining about the address which is not
-> aligned and, found the message is coming from function
-> 'ia64_handle_unaligned()' in the arch/ia64/kernel/unaligned.c.
-> But, I couldn't find who is calling this function and further details of
-> reasons.
->
-> Where should I start to figure out it?
+> There is no warranty that this cannot happen. Indeed, it has already
+> happened and will probably do again. A backdoor was found in some code
+> introduced in the bitkeeper repository, but it was noticed almost
+> immediately.
 
-It's a trap, which means the CPU is effectively calling that function. My 
-best suggestion is to figure out what data is at 0xe00000007f3d80dc and 
-what instructions are at 0xa0000002000373b1.
+The code was not added to the bitkeeper repository, but to a CVS
+mirror of it.  It was spotted quickly thanks to rigorous checksumming
+done by the CVS exporter in BK.
 
-> Thank you,
->
-> Seokmann
+One of the current trends in version control software is toward
+cryptographically signed changesets, meaning that sneaking something
+in without access to a trusted private key is about as close to
+impossible as you can get.
 
-Thanks,
-Chase
+There is still the question of who you can *really* trust of course.
+After all, how do we know that Dave Miller (who was "credited" for the
+mentioned backdoor attempt) isn't really a bad guy?
+
+-- 
+Måns Rullgård
+mru@inprovide.com
+

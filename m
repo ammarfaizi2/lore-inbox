@@ -1,70 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751846AbWEPQPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751852AbWEPQRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751846AbWEPQPT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 12:15:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751850AbWEPQPS
+	id S1751852AbWEPQRq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 12:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751661AbWEPQRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 12:15:18 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:31960 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751846AbWEPQPR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 12:15:17 -0400
-Date: Tue, 16 May 2006 12:14:58 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Jakob Oestergaard <jakob@unthought.net>
-cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Wiretapping Linux?
-In-Reply-To: <20060516144044.GJ15032@unthought.net>
-Message-ID: <Pine.LNX.4.58.0605161153080.13832@gandalf.stny.rr.com>
-References: <4469D296.8060908@perkel.com> <Pine.LNX.4.58.0605160939290.10890@gandalf.stny.rr.com>
- <20060516144044.GJ15032@unthought.net>
+	Tue, 16 May 2006 12:17:46 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:7300 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751657AbWEPQRp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 12:17:45 -0400
+Message-ID: <4469FB26.5070605@garzik.org>
+Date: Tue, 16 May 2006 12:17:42 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] i386/x86_64: Force pci=noacpi on HP XW9300
+References: <200605161559.k4GFx3Mi017163@hera.kernel.org>
+In-Reply-To: <200605161559.k4GFx3Mi017163@hera.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.1 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linux Kernel Mailing List wrote:
+> commit 5491d0f3e206beb95eeb506510d62a1dab462df1
+> tree 5c4aadcfb4a93535e2f6e0f5977e930ccacec0e9
+> parent f0fdabf8bf187c9aafeb139a828c530ef45cf022
+> author Andi Kleen <ak@suse.de> Mon, 15 May 2006 18:19:41 +0200
+> committer Linus Torvalds <torvalds@g5.osdl.org> Tue, 16 May 2006 21:59:31 -0700
+> 
+> [PATCH] i386/x86_64: Force pci=noacpi on HP XW9300
+> 
+> This is needed to see all devices.
+> 
+> The system has multiple PCI segments and we don't handle that properly
+> yet in PCI and ACPI. Short term before this is fixed blacklist it to
+> pci=noacpi.
+> 
+> Acked-by: len.brown@intel.com
+> Cc: gregkh@suse.de
+> Signed-off-by: Andi Kleen <ak@suse.de>
+> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> 
+>  arch/i386/kernel/acpi/boot.c |    8 ++++++++
+>  1 files changed, 8 insertions(+)
+> 
+> diff --git a/arch/i386/kernel/acpi/boot.c b/arch/i386/kernel/acpi/boot.c
+> index 40e5aba..daee695 100644
+> --- a/arch/i386/kernel/acpi/boot.c
+> +++ b/arch/i386/kernel/acpi/boot.c
+> @@ -1066,6 +1066,14 @@ static struct dmi_system_id __initdata a
+>  		     DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 360"),
+>  		     },
+>  	 },
+> +	{
+> +	 .callback = disable_acpi_pci,
+> +	 .ident = "HP xw9300",
+> +	 .matches = {
+> +		    DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
+> +		    DMI_MATCH(DMI_PRODUCT_NAME, "HP xw9300 Workstation"),
 
-On Tue, 16 May 2006, Jakob Oestergaard wrote:
+Strong NAK.  Please revert.  This majorly screws my primary workstation, 
+and many other users with this workstation.
 
->
-> Read "Reflections on Trusting Trust" to see why compiling things from
-> source gets you absolutely *zero* extra security in this regard.
->
-> http://www.acm.org/classics/sep95/
->
+At a minimum, you should test to see if the BIOS has activated PCI 
+domain support first!
 
-Interesting article, and thanks for the link.  In your *zero* extra
-security comment, I still disagree.
+	Jeff
 
-Nothing is secure, but having the soure at least stops those that are not
-as capable as Ken Thompson and Dennis Ritchie.  OK, I'm sure lesser
-programmers could also do it.  But it limits the script kiddies that can
-do easy and obvious stuff if they had access to modify the source of
-closed source software.
-
-But the source does help when lots of users are using it and seeing it.
-So when a bug happens, anyone can fix it.  In this act, the backdoor can
-be discovered.  Where close source doesn't have that luxury, since the one
-who put the backdoor in would probably be the same programmer to fix the
-bug.
-
-Now, to bring up Marc's point about the NSA.  They do have very clever
-people.  But usually the open source projects are a community of people,
-and you have to first get trusted in what you do before it gets submitted
-into the code.  And if someone discovers that you planted a backdoor, that
-would discredit you quite badly.
-
-I also do lots of sniffing of my networks to see if suspicious packets are
-floating around, as well as nmapping my computers to know that all ports
-that are open are open to tools that I know about.  And there has been
-times I didn't like what I saw from the program and looked at the source
-to see what was up, and then discovered it was nothing.
-
-Again, this is not perfect, and I can still be fooled, but I trust it
-_more_ than I would if I didn't have access to the source.  So, I agree
-that open source is still not secure. I still think it's more secure than
-close source, just because it's harder to get things by people.
-
--- Steve
 

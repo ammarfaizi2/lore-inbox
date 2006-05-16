@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWEPUaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWEPUhh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750713AbWEPUaO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 16:30:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWEPUaO
+	id S1750757AbWEPUhh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 16:37:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbWEPUhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 16:30:14 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.81]:40847 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id S1750713AbWEPUaN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 16:30:13 -0400
-Message-ID: <446A36B8.1060707@cmu.edu>
-Date: Tue, 16 May 2006 16:31:52 -0400
-From: George Nychis <gnychis@cmu.edu>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060503)
+	Tue, 16 May 2006 16:37:37 -0400
+Received: from relay03.pair.com ([209.68.5.17]:23057 "HELO relay03.pair.com")
+	by vger.kernel.org with SMTP id S1750757AbWEPUhh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 16:37:37 -0400
+X-pair-Authenticated: 71.197.50.189
+Date: Tue, 16 May 2006 15:37:35 -0500 (CDT)
+From: Chase Venters <chase.venters@clientec.com>
+X-X-Sender: root@turbotaz.ourhouse
+To: Theodore Tso <tytso@mit.edu>
+cc: Zvi Gutterman <zvi@safend.com>, "'Muli Ben-Yehuda'" <muli@il.ibm.com>,
+       "'Kyle Moffett'" <mrmacman_g4@mac.com>,
+       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'Jonathan Day'" <imipak@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: /dev/random on Linux
+In-Reply-To: <20060516201749.GA10077@thunk.org>
+Message-ID: <Pine.LNX.4.64.0605161534140.32181@turbotaz.ourhouse>
+References: <20060516082859.GD18645@rhun.haifa.ibm.com>
+ <00fc01c678f0$30c77520$2c02a8c0@Safend.com> <20060516201749.GA10077@thunk.org>
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: need help booting from SATA in 2.4.32
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 16 May 2006, Theodore Tso wrote:
+B>
+> 3) Investigate the possibility of adding quotas to /dev/random.  This
+> is actually much more trickier that the paper suggests, since you want
+> to allow the user to be able to extract enough entropy to create a
+> 2048 bit (or at least a 1024-bit) RSA key.  The problem is that's a
+> lot of entropy!  Maybe it would be OK to only allow a 1024-bit RSA key
+> to be generated every 12 or 24 hours, but suppose someone is
+> experimenting with GPG and screws up (say they forget their
+> passphrase); do you tell them that sorry, you can't generating another
+> key until tomorrow?  So now we have to have an interface so the root
+> user can reset the user's entropy quota....  And even with a 24-hour
+> limit, on a diskless system, you don't get a lot of entropy, so even a
+> 1024-bit RSA key could seriously deplete your supply of entropy.
 
-I've booted from a SATA drive in 2.4.32 before, but for some reason
-2.4.32 will not recognize this disk.  It is recognized when I boot 2.6.9
-though.
+#3 is fine if it's out of the kernel. This isn't just policy - it's 
+complicated policy, as you point out quite well.
 
-It uses the ata_piix module in both kernels.  Whenever I boot 2.6.9 I see:
-----------------------------------------------------------------------
- SCSI subsystem initialized
- ACPI: PCI interrupt 0000:00:1f.2[B] -> GSI 7 (level, low) -> IRQ 7
- ata: 0x170 IDE port busy
- ata1: SATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xBFA0 irq 14
- ata1: dev 0 ATA, max UDMA/100, 78140160 sectors:
- ata1(0): applying bridge limits
- ata1: dev 0 configured for UDMA/100
- scsi0 : ata_piix
-   Vendor: ATA       Model: FUJITSU MHV2040A  Rev: 0000
-   Type:   Direct-Access                      ANSI SCSI revision: 05
- SCSI device sda: 78140160 512-byte hdwr sectors (40008 MB)
- SCSI device sda: drive cache: write back
-  sda: sda1 sda2 sda3 sda4 < sda5 >
- Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
- device-mapper: 4.1.0-ioctl (2003-12-10) initialised: dm@uk.sistina.com
-------------------------------------------------------------------------
+> This last point is a good example of the concerns one faces when
+> trying to design a working system in the real word, as opposed to the
+> concerns of academicians, where the presence or lack of forward
+> security in the event of a pool compromise is issue of massive urgency
+> and oh-my-goodness-we-can-only-tell-the-maintainer-because-it's-such-a-
+> critical-security-hole attitude.  Where as my attitude is, "yeah, we
+> should fix it, but I doubt anyone has actually been harmed by this in
+> real life", which puts it in a different category than a buffer
+> overrun attack which is accessible from a publically available network
+> service.
+>
 
-However in 2.4.32 all i see is:
-----------------------------
- SCSI subsystem initialized
-----------------------------
+Slashdot headline about Linux's weak-ass rng should be up shortly, next to 
+the news post discussing what Linus had for breakfast this morning.
 
-I am positive that my 2.4.32 has been compiled with ata_piix as a
-module, and it does reside in /lib/modules/2.4.32/kernel/driver/scsi/
+> 						- Ted
 
-Any clues?
-
-Thanks!
-George
-
+Thanks,
+Chase

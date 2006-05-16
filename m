@@ -1,108 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWEPVlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWEPVmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbWEPVlI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 17:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWEPVkm
+	id S932191AbWEPVmT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 17:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbWEPVlO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 17:40:42 -0400
-Received: from mail.kroah.org ([69.55.234.183]:29870 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932179AbWEPVkl (ORCPT
+	Tue, 16 May 2006 17:41:14 -0400
+Received: from mail.kroah.org ([69.55.234.183]:34222 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932187AbWEPVkp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 17:40:41 -0400
+	Tue, 16 May 2006 17:40:45 -0400
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
 Cc: David Brownell <david-b@pacbell.net>,
        David Brownell <dbrownell@users.sourceforge.net>,
        Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 07/10] SPI: devices can require LSB-first encodings
+Subject: [PATCH 03/10] SPI: spi whitespace fixes
 Reply-To: Greg KH <greg@kroah.com>
-Date: Tue, 16 May 2006 14:38:35 -0700
-Message-Id: <11478155182487-git-send-email-greg@kroah.com>
+Date: Tue, 16 May 2006 14:38:31 -0700
+Message-Id: <11478155181381-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.3.2
-In-Reply-To: <11478155182854-git-send-email-greg@kroah.com>
+In-Reply-To: <11478155183773-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Brownell <david-b@pacbell.net>
 
-Add spi_device hook for LSB-first word encoding, and update all the
-(in-tree) controller drivers to reject such devices.  Eventually,
-some controller drivers will be updated to support lsb-first encodings
-on the wire; no current drivers need this.
+This removes superfluous whitespace in the <linux/spi/spi.h> header.
 
 Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
 
- drivers/spi/spi_bitbang.c |   11 ++++++++++-
- include/linux/spi/spi.h   |    7 +++++--
- 2 files changed, 15 insertions(+), 3 deletions(-)
+ include/linux/spi/spi.h |   24 ++++++++++++------------
+ 1 files changed, 12 insertions(+), 12 deletions(-)
 
-ccf77cc4af5b048e20cfd9327fcc286cb69c34cc
-diff --git a/drivers/spi/spi_bitbang.c b/drivers/spi/spi_bitbang.c
-index 6c3da64..0f7f5c6 100644
---- a/drivers/spi/spi_bitbang.c
-+++ b/drivers/spi/spi_bitbang.c
-@@ -187,13 +187,22 @@ int spi_bitbang_setup(struct spi_device 
- 	if (!spi->max_speed_hz)
- 		return -EINVAL;
- 
-+	bitbang = spi_master_get_devdata(spi->master);
-+
-+	/* REVISIT: some systems will want to support devices using lsb-first
-+	 * bit encodings on the wire.  In pure software that would be trivial,
-+	 * just bitbang_txrx_le_cphaX() routines shifting the other way, and
-+	 * some hardware controllers also have this support.
-+	 */
-+	if ((spi->mode & SPI_LSB_FIRST) != 0)
-+		return -EINVAL;
-+
- 	if (!cs) {
- 		cs = kzalloc(sizeof *cs, SLAB_KERNEL);
- 		if (!cs)
- 			return -ENOMEM;
- 		spi->controller_state = cs;
- 	}
--	bitbang = spi_master_get_devdata(spi->master);
- 
- 	if (!spi->bits_per_word)
- 		spi->bits_per_word = 8;
+747d844ee9a183ff3067bb1181f2a25c50649538
 diff --git a/include/linux/spi/spi.h b/include/linux/spi/spi.h
-index 0820067..77add90 100644
+index caa4665..0820067 100644
 --- a/include/linux/spi/spi.h
 +++ b/include/linux/spi/spi.h
-@@ -35,10 +35,13 @@ extern struct bus_type spi_bus_type;
-  * @chip-select: Chipselect, distinguishing chips handled by "master".
+@@ -36,15 +36,15 @@ extern struct bus_type spi_bus_type;
   * @mode: The spi mode defines how data is clocked out and in.
   *	This may be changed by the device's driver.
-+ *	The "active low" default for chipselect mode can be overridden,
-+ *	as can the "MSB first" default for each word in a transfer.
   * @bits_per_word: Data transfers involve one or more words; word sizes
-  *	like eight or 12 bits are common.  In-memory wordsizes are
+- * 	like eight or 12 bits are common.  In-memory wordsizes are
++ *	like eight or 12 bits are common.  In-memory wordsizes are
   *	powers of two bytes (e.g. 20 bit samples use 32 bits).
-- *	This may be changed by the device's driver.
-+ *	This may be changed by the device's driver, or left at the
-+ *	default (0) indicating protocol words are eight bit bytes.
+  *	This may be changed by the device's driver.
   *	The spi_transfer.bits_per_word can override this for each transfer.
   * @irq: Negative, or the number passed to request_irq() to receive
-  *	interrupts from this device.
-@@ -67,6 +70,7 @@ #define	SPI_MODE_1	(0|SPI_CPHA)
- #define	SPI_MODE_2	(SPI_CPOL|0)
- #define	SPI_MODE_3	(SPI_CPOL|SPI_CPHA)
- #define	SPI_CS_HIGH	0x04			/* chipselect active high? */
-+#define	SPI_LSB_FIRST	0x08			/* per-word bits-on-wire */
- 	u8			bits_per_word;
- 	int			irq;
- 	void			*controller_state;
-@@ -75,7 +79,6 @@ #define	SPI_CS_HIGH	0x04			/* chipselect
+- * 	interrupts from this device.
++ *	interrupts from this device.
+  * @controller_state: Controller's runtime state
+  * @controller_data: Board-specific definitions for controller, such as
+- * 	FIFO initialization parameters; from board_info.controller_data
++ *	FIFO initialization parameters; from board_info.controller_data
+  *
+  * An spi_device is used to interchange data between an SPI slave
+  * (usually a discrete chip) and CPU memory.
+@@ -145,13 +145,13 @@ static inline void spi_unregister_driver
+  * struct spi_master - interface to SPI master controller
+  * @cdev: class interface to this driver
+  * @bus_num: board-specific (and often SOC-specific) identifier for a
+- * 	given SPI controller.
++ *	given SPI controller.
+  * @num_chipselect: chipselects are used to distinguish individual
+- * 	SPI slaves, and are numbered from zero to num_chipselects.
+- * 	each slave has a chipselect signal, but it's common that not
+- * 	every chipselect is connected to a slave.
++ *	SPI slaves, and are numbered from zero to num_chipselects.
++ *	each slave has a chipselect signal, but it's common that not
++ *	every chipselect is connected to a slave.
+  * @setup: updates the device mode and clocking records used by a
+- * 	device's SPI controller; protocol code may call this.
++ *	device's SPI controller; protocol code may call this.
+  * @transfer: adds a message to the controller's transfer queue.
+  * @cleanup: frees controller-specific state
+  *
+@@ -276,8 +276,8 @@ extern struct spi_master *spi_busnum_to_
+  *      for this transfer. If 0 the default (from spi_device) is used.
+  * @cs_change: affects chipselect after this transfer completes
+  * @delay_usecs: microseconds to delay after this transfer before
+- * 	(optionally) changing the chipselect status, then starting
+- * 	the next transfer or completing this spi_message.
++ *	(optionally) changing the chipselect status, then starting
++ *	the next transfer or completing this spi_message.
+  * @transfer_list: transfers are sequenced through spi_message.transfers
+  *
+  * SPI transfers always write the same number of bytes as they read.
+@@ -364,7 +364,7 @@ struct spi_transfer {
+  * and its transfers, ignore them until its completion callback.
+  */
+ struct spi_message {
+-	struct list_head 	transfers;
++	struct list_head	transfers;
  
- 	// likely need more hooks for more protocol options affecting how
- 	// the controller talks to each chip, like:
--	//  - bit order (default is wordwise msb-first)
- 	//  - memory packing (12 bit samples into low bits, others zeroed)
- 	//  - priority
- 	//  - drop chipselect after each word
+ 	struct spi_device	*spi;
+ 
+@@ -382,7 +382,7 @@ struct spi_message {
+ 	 */
+ 
+ 	/* completion is reported through a callback */
+-	void 			(*complete)(void *context);
++	void			(*complete)(void *context);
+ 	void			*context;
+ 	unsigned		actual_length;
+ 	int			status;
 -- 
 1.3.2
 

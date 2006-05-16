@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWEPWnD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWEPWoq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932254AbWEPWnD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 18:43:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWEPWnB
+	id S932256AbWEPWoq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 18:44:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWEPWoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 18:43:01 -0400
-Received: from pool-71-254-71-216.ronkva.east.verizon.net ([71.254.71.216]:32707
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932254AbWEPWnA (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 18:43:00 -0400
-Message-Id: <200605162242.k4GMgriX005985@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: alan <alan@clueserver.org>
-Cc: linux cbon <linuxcbon@yahoo.fr>, linux-kernel@vger.kernel.org
-Subject: Re: replacing X Window System !
-In-Reply-To: Your message of "Tue, 16 May 2006 15:19:16 PDT."
-             <Pine.LNX.4.64.0605161513590.24814@blackbox.fnordora.org>
-From: Valdis.Kletnieks@vt.edu
-References: <20060516214148.14432.qmail@web26611.mail.ukl.yahoo.com>
-            <Pine.LNX.4.64.0605161513590.24814@blackbox.fnordora.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1147819372_4166P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 16 May 2006 18:44:46 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:20355 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932256AbWEPWop (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 18:44:45 -0400
+Message-ID: <446A55D1.3090100@ichips.intel.com>
+Date: Tue, 16 May 2006 15:44:33 -0700
+From: Arlin Davis <ardavis@ichips.intel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+CC: rdreier@cisco.com, linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [openib-general] [PATCH 15 of 53] ipath - make some maximum values
+ more sane
+References: <480ceff18a886d7504a5.1147477380@eng-12.pathscale.com>
+In-Reply-To: <480ceff18a886d7504a5.1147477380@eng-12.pathscale.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 16 May 2006 18:42:52 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1147819372_4166P
-Content-Type: text/plain; charset=us-ascii
+Bryan O'Sullivan wrote:
 
-On Tue, 16 May 2006 15:19:16 PDT, alan said:
+>Increase the limits on some maximum values.
+>
+>  
+>
+I noticed a rdma/message max size limitation of 4096 the last time I ran 
+some dapl tests. Are there plans to increase or did I miss it somewhere 
+in all the patches?
 
-> First of all, your assumptions are incorrect.  Modern versions of X are 
-> not old, unoptimised, will do remote sessions, etc.
+Here are the max values returned from the ipath ibv_query_device:
 
-Remote sessions have been there as long as the DISPLAY environment variable - I
-think even X10.4, 2 decades and more ago, could do that.  I know that it worked
-just fine 18 years ago with X11R1 (aah... building that from source on a 25mz
-Sun3 took a little while). (Anybody know when the first instance of
-pointing 'xmelt' at another user's machine for amusement was? :)
+query_hca: (ver=20401) ep 65535 ep_q 65535 evd 65535 evd_q 65535
+query_hca: msg 4096 rdma 4096 iov 255 lmr 65535 rmr 0
+query_hca:  dto 65535 iov 255 rdma i1,o1
 
-It's interesting that almost every attempt to devise something "better than X"
-always seems to get as far as an Xterm-alike, an XClock-alike, a primitive
-window manager, and 2 or 3 toy demo programs.  Then, unless you're Microsoft
-or Apple, you discover that doing a complete window system is *hard*.....
+Thanks,
 
---==_Exmh_1147819372_4166P
-Content-Type: application/pgp-signature
+-arlin
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFEalVscC3lWbTT17ARAt+kAJ0UYkoDhSMEOl1CBuvNeV/sI+LOnQCgoSZO
-4w1jmdd9TzWaodsYr2ZJo8E=
-=O2EQ
------END PGP SIGNATURE-----
-
---==_Exmh_1147819372_4166P--

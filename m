@@ -1,46 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751814AbWEPMzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751816AbWEPM5Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751814AbWEPMzL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 08:55:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751817AbWEPMzK
+	id S1751816AbWEPM5Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 08:57:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751817AbWEPM5Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 08:55:10 -0400
-Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:267 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751814AbWEPMzJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 08:55:09 -0400
-Date: Tue, 16 May 2006 14:55:17 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>,
-       Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: 2.6.17-rc4-mm1
-Message-Id: <20060516145517.2c2d4fe4.khali@linux-fr.org>
-In-Reply-To: <20060516103930.0c0d5d33.khali@linux-fr.org>
-References: <20060515005637.00b54560.akpm@osdl.org>
-	<6bffcb0e0605151137v25496700k39b15a40fa02a375@mail.gmail.com>
-	<20060515115302.5abe7e7e.akpm@osdl.org>
-	<6bffcb0e0605151210x21eb0d24g96366ce9c121c26c@mail.gmail.com>
-	<20060515122613.32661c02.akpm@osdl.org>
-	<6bffcb0e0605151317u51bbf67ey124b808fad920d36@mail.gmail.com>
-	<20060516103930.0c0d5d33.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 16 May 2006 08:57:25 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:1979 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751816AbWEPM5Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 08:57:24 -0400
+Message-ID: <4469CC22.1010500@tw.ibm.com>
+Date: Tue, 16 May 2006 20:57:06 +0800
+From: Albert Lee <albertcc@tw.ibm.com>
+Reply-To: albertl@mail.com
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tejun Heo <htejun@gmail.com>
+CC: "Fortier,Vincent [Montreal]" <Vincent.Fortier1@EC.GC.CA>,
+       Andi Kleen <ak@suse.de>, Marko Macek <Marko.Macek@gmx.net>,
+       Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org,
+       =?ISO-8859-1?Q?Reinhard_Brandst=E4dter?= <r.brandstaedter@gmx.at>
+Subject: Re: ASUS A8V Deluxe, x86_64
+References: <8E8F647D7835334B985D069AE964A4F702463F@ECQCMTLMAIL1.quebec.int.ec.gc.ca> <4469C024.3030506@gmail.com>
+In-Reply-To: <4469C024.3030506@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting myself:
+Tejun Heo wrote:
+> Fortier,Vincent [Montreal] wrote:
+> 
+>>>> Now I'm having an ASUS A8V Deluxe.... and sadly a lot of problems:
+>>>>
+>>>> - My SATA Controller make my Linux crash when connecting a Plextor
+>>>> 716SA CD-DVD-R (http://bugzilla.kernel.org/show_bug.cgi?id=5533)
+>>
+>>
+>>> Patch:
+>>>
+>> http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.17-rc4-
+>> git2-libata1.patch.bz2
+>>
+>>> (diff'd against 2.6.17-rc4-git2, but should apply to most recent
+>>
+>> 2.6.17-rcX[-gitY] kernels)
+>>
+>> I gave a try at the latest ata patches announced yesterday by Jeff and
+>> it completelly solved my SATA ATAPI bug.. I even been able to burn my
+>> first DVD using my Plextor 716SA on my Linux!!!  Really nice and much
+>> anticipated work!  Thnx a lot!
+>>
+>> I have already marked bug 5533 as resolved and I'll wait until inclusion
+>> into 2.6.18 to close it.  I've also marked bug 6317 has closed since
+>> that did not occur since around rc2 or rc3 of 2.6.17.
+>>
+> 
+> Jeff, do you know what fixed this one?  I've been following the bug and
+> thought it was one of those via-ATAPI-have-no-idea bugs.  How come the
+> update fix this one?  Have I missed something?
+> 
 
-> I'll try to reproduce the bug here.
+I'm also curious how the svia-atapi problem got fixed.
 
-I can reproduce it, with both i2c-i801 and i2c-parport, so it's not
-related to a specific driver. I'm currently performing a bisection on
-2.6.17-rc4-mm1 to try and isolate the culprit. It seems to point to
-gregkh-driver-*. i2c patches are innocent for sure, including Kumar's
-ones.
+Reinhard has a Plextor PX-712SA + svia.
+Maybe he can also help to check whether the patch fixes the problem on his box.
 
--- 
-Jean Delvare
+--
+albert
+

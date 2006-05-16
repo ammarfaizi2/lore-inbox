@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWEPPYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWEPPZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751205AbWEPPYX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 11:24:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWEPPYX
+	id S1751224AbWEPPZP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 11:25:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWEPPZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 11:24:23 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:31004 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751205AbWEPPYW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 11:24:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=BfJpSSKe4xiwZvRrwi8KC5QD74z+V0BzS8lE4akSd4ZK0O4ZVL3lc3Ek77/zcPAjwFWW+GL9gOa6y7DT7PMq+aGV72lUvTB7/HhCwuhrfr/ttpVzDJ6TLPMvewUzrTp/DWnyrOndWWGgBszId+NO/M5XN5JrS/RGM8CR1YpfWik=
-Date: Tue, 16 May 2006 19:23:05 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
-       James Morris <jmorris@namei.org>
-Subject: [PATCH] selinux: endian fix
-Message-ID: <20060516152305.GI10143@mipter.zuzino.mipt.ru>
+	Tue, 16 May 2006 11:25:15 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:62656 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751224AbWEPPZM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 11:25:12 -0400
+Date: Tue, 16 May 2006 17:25:08 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Jan Beulich <jbeulich@novell.com>
+Cc: Andrew Morton <akpm@osdl.org>, Andreas Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: [PATCH 1/3] reliable stack trace support
+Message-ID: <20060516152508.GA14174@elte.hu>
+References: <4469FC07.76E4.0078.0@novell.com> <20060516143937.GA10760@elte.hu> <446A0A57.76E4.0078.0@novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <446A0A57.76E4.0078.0@novell.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
 
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3231,7 +3231,7 @@ static int selinux_socket_sock_rcv_skb(s
- 		goto out;
- 
- 	/* Handle mapped IPv4 packets arriving via IPv6 sockets */
--	if (family == PF_INET6 && skb->protocol == ntohs(ETH_P_IP))
-+	if (family == PF_INET6 && skb->protocol == htons(ETH_P_IP))
- 		family = PF_INET;
- 
-  	read_lock_bh(&sk->sk_callback_lock);
+* Jan Beulich <jbeulich@novell.com> wrote:
 
+> >>> Ingo Molnar <mingo@elte.hu> 16.05.06 16:39 >>>
+> >> +config STACK_UNWIND
+> >> +	bool "Stack unwind support"
+> >> +	depends on UNWIND_INFO
+> >> +	depends on n
+> >
+> >'depends on n' ? Also, i think this should be 'default y'. The code is 
+> 
+> Subsequent patches then change it to X86_64 and then X86. This is just 
+> so the patch can be used standalone.
+
+ok.
+
+	Ingo

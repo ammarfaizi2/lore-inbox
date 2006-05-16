@@ -1,89 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751576AbWEPSoz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751623AbWEPSsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751576AbWEPSoz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 14:44:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbWEPSoz
+	id S1751623AbWEPSsx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 14:48:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751879AbWEPSsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 14:44:55 -0400
-Received: from barracuda.s2io.com ([72.1.205.138]:2026 "EHLO
-	barracuda.mail.s2io.com") by vger.kernel.org with ESMTP
-	id S1750748AbWEPSoy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 14:44:54 -0400
-X-ASG-Debug-ID: 1147805090-26230-25-0
-X-Barracuda-URL: http://72.1.205.138:8000/cgi-bin/mark.cgi
-X-ASG-Whitelist: Client
-Reply-To: <ravinandan.arakali@neterion.com>
-From: "Ravinandan Arakali" <ravinandan.arakali@neterion.com>
-To: "Petr Vandrovec" <vandrove@vc.cvut.cz>, "Andi Kleen" <ak@suse.de>
-Cc: "Peter. Phan" <peter.phan@neterion.com>,
-       "Leonid Grossman" <Leonid.Grossman@neterion.com>,
-       <linux-kernel@vger.kernel.org>
-X-ASG-Orig-Subj: RE: MSI-X support on AMD 8132 platforms ?
-Subject: RE: MSI-X support on AMD 8132 platforms ?
-Date: Tue, 16 May 2006 11:44:59 -0700
-Message-ID: <MAEEKMLDLDFEGKHNIJHICEKBCEAA.ravinandan.arakali@neterion.com>
+	Tue, 16 May 2006 14:48:53 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:61704 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751623AbWEPSsx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 14:48:53 -0400
+Date: Tue, 16 May 2006 20:48:50 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] fs/bio.c: possible cleanups
+Message-ID: <20060516184850.GR10077@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Importance: Normal
-In-Reply-To: <4469E936.1020804@vc.cvut.cz>
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=3.5 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=7.0 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Petr,
-Thanks for the suggestion.
-What you pointed out was the source of the problem. After
-enabling the  MSI-to-HTInterrupts(the value at offset 0xF6),
-I now see interrupts and can ping in both MSI and MSI-X modes.
+This patch contains the following possible cleanups:
+- make the follwing needlessly global function static:
+  - __bio_clone()
+- don't mark the following _global_ functions as inline:
+  - bio_phys_segments()
+  - bio_hw_segments()
+- remove the following unused EXPORT_SYMBOL's:
+  - bio_phys_segments
+  - bio_hw_segments
+  - bio_map_kern
+  - bio_copy_user
+  - bio_uncopy_user
 
-Ravi
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
------Original Message-----
-From: Petr Vandrovec [mailto:vandrove@vc.cvut.cz]
-Sent: Tuesday, May 16, 2006 8:01 AM
-To: Andi Kleen
-Cc: ravinandan.arakali@neterion.com; Peter. Phan; Leonid Grossman;
-linux-kernel@vger.kernel.org
-Subject: Re: MSI-X support on AMD 8132 platforms ?
+---
 
+This patch was already sent on:
+- 23 Apr 2006
 
-Andi Kleen wrote:
-> "Ravinandan Arakali" <ravinandan.arakali@neterion.com> writes:
->
->
->>I was wondering if anybody has got MSI-X going on AMD 8132 platforms.
->>Our network card and driver support MSI-X and the combination works
->>fine on IA64 and xeon platforms. But on the 8132, the MSI-X vectors are
->>assigned(pci_enable_msix succeeds) but no interrupts get generated.
->
->
-> See erratum #78 in the AMD 8132 Specification update.
-> It doesn't support the MSI capability and there are no plans to fix that.
->
-> AFAIK the only way to get MSI on Opteron is on PCI Express.
+ fs/bio.c            |   12 +++---------
+ include/linux/bio.h |    1 -
+ 2 files changed, 3 insertions(+), 10 deletions(-)
 
-I do not think that erratum #78 is related to this - it is related to tunnel
-itself generating MSI - which is not needed in this case.
-
->>Note that with a different OS, MSI-X does work on 8132.
->
-> Are you sure?
-
-Can you provide 'lspci -vvvxxx' output from AMD8132 bridge?  (esp. bytes
-0xF4-0xFF from config space of 1022:7458 devices)  By default dword at 0xF4
-is
-0xA8000008, disabling MSI/MSI-X mapping -> hypertransport interrupts.
-Changing
-this to 0xA8010008 should enable this translation (iff qword at 0xF8 is
-0x0000FEE00000), allowing MSI to work on respective secondary/subordinate
-busses.  Unfortunately kernel ignores these HT capabilities...
-								Petr
-
+--- linux-2.6.17-rc1-mm3-full/include/linux/bio.h.old	2006-04-23 12:02:44.000000000 +0200
++++ linux-2.6.17-rc1-mm3-full/include/linux/bio.h	2006-04-23 12:02:50.000000000 +0200
+@@ -286,7 +286,6 @@
+ extern int bio_phys_segments(struct request_queue *, struct bio *);
+ extern int bio_hw_segments(struct request_queue *, struct bio *);
+ 
+-extern void __bio_clone(struct bio *, struct bio *);
+ extern struct bio *bio_clone(struct bio *, gfp_t);
+ 
+ extern void bio_init(struct bio *);
+--- linux-2.6.17-rc1-mm3-full/fs/bio.c.old	2006-04-23 12:02:57.000000000 +0200
++++ linux-2.6.17-rc1-mm3-full/fs/bio.c	2006-04-23 12:06:04.000000000 +0200
+@@ -229,7 +229,7 @@
+ 	}
+ }
+ 
+-inline int bio_phys_segments(request_queue_t *q, struct bio *bio)
++int bio_phys_segments(request_queue_t *q, struct bio *bio)
+ {
+ 	if (unlikely(!bio_flagged(bio, BIO_SEG_VALID)))
+ 		blk_recount_segments(q, bio);
+@@ -237,7 +237,7 @@
+ 	return bio->bi_phys_segments;
+ }
+ 
+-inline int bio_hw_segments(request_queue_t *q, struct bio *bio)
++int bio_hw_segments(request_queue_t *q, struct bio *bio)
+ {
+ 	if (unlikely(!bio_flagged(bio, BIO_SEG_VALID)))
+ 		blk_recount_segments(q, bio);
+@@ -254,7 +254,7 @@
+  *	the actual data it points to. Reference count of returned
+  * 	bio will be one.
+  */
+-void __bio_clone(struct bio *bio, struct bio *bio_src)
++static void __bio_clone(struct bio *bio, struct bio *bio_src)
+ {
+ 	request_queue_t *q = bdev_get_queue(bio_src->bi_bdev);
+ 
+@@ -1243,21 +1243,15 @@
+ EXPORT_SYMBOL(bio_free);
+ EXPORT_SYMBOL(bio_endio);
+ EXPORT_SYMBOL(bio_init);
+-EXPORT_SYMBOL(__bio_clone);
+ EXPORT_SYMBOL(bio_clone);
+-EXPORT_SYMBOL(bio_phys_segments);
+-EXPORT_SYMBOL(bio_hw_segments);
+ EXPORT_SYMBOL(bio_add_page);
+ EXPORT_SYMBOL(bio_add_pc_page);
+ EXPORT_SYMBOL(bio_get_nr_vecs);
+ EXPORT_SYMBOL(bio_map_user);
+ EXPORT_SYMBOL(bio_unmap_user);
+-EXPORT_SYMBOL(bio_map_kern);
+ EXPORT_SYMBOL(bio_pair_release);
+ EXPORT_SYMBOL(bio_split);
+ EXPORT_SYMBOL(bio_split_pool);
+-EXPORT_SYMBOL(bio_copy_user);
+-EXPORT_SYMBOL(bio_uncopy_user);
+ EXPORT_SYMBOL(bioset_create);
+ EXPORT_SYMBOL(bioset_free);
+ EXPORT_SYMBOL(bio_alloc_bioset);
 

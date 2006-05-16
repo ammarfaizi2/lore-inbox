@@ -1,57 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751710AbWEPJca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWEPJhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751710AbWEPJca (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 05:32:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751715AbWEPJca
+	id S1750747AbWEPJhF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 05:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751717AbWEPJhE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 05:32:30 -0400
-Received: from ns1.suse.de ([195.135.220.2]:58570 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751710AbWEPJc3 (ORCPT
+	Tue, 16 May 2006 05:37:04 -0400
+Received: from mail-a01.ithnet.com ([217.64.83.96]:29343 "HELO ithnet.com")
+	by vger.kernel.org with SMTP id S1750747AbWEPJhC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 05:32:29 -0400
-From: Andi Kleen <ak@suse.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Segfault on the i386 enter instruction
-Date: Tue, 16 May 2006 11:32:18 +0200
-User-Agent: KMail/1.9.1
-Cc: Stas Sergeev <stsp@aknet.ru>, linux-kernel <linux-kernel@vger.kernel.org>
-References: <200605152231_MC3-1-BFDF-12B4@compuserve.com>
-In-Reply-To: <200605152231_MC3-1-BFDF-12B4@compuserve.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 16 May 2006 05:37:02 -0400
+X-Sender-Authentication: net64
+Date: Tue, 16 May 2006 11:37:00 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: thockin@hockin.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mcelog ?
+Message-Id: <20060516113700.15733892.skraw@ithnet.com>
+In-Reply-To: <20060515152008.GA25367@hockin.org>
+References: <20060515114243.8ccaa9aa.skraw@ithnet.com>
+	<20060515152008.GA25367@hockin.org>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605161132.18610.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 May 2006 04:29, Chuck Ebbert wrote:
-> In-Reply-To: <44676F42.7080907@aknet.ru>
+On Mon, 15 May 2006 08:20:08 -0700
+thockin@hockin.org wrote:
+
+> On Mon, May 15, 2006 at 11:42:43AM +0200, Stephan von Krawczynski wrote:
+> > HARDWARE ERROR
+> > CPU 1: Machine Check Exception:                4 Bank 4: b60a200170080813
+> > TSC 89cfb4725b17 ADDR 1025cb3f0 
+> > This is not a software problem!
+> > Run through mcelog --ascii to decode and contact your hardware vendor
+> > Kernel panic - not syncing: Machine check
+> > 
+> > Of course I ran mcelog but I don't quite understand how the additional info
+> > helps me finding the problem.
+> > Is this a problem with RAM? And if, which one?
 > 
-> On Sun, 14 May 2006 21:56:18 +0400, Stas Sergeev wrote:
-> 
-> > Andi Kleen wrote:
-> > > Handling it like you expect would require to disassemble 
-> > > the function in the page fault handler and it's probably not 
-> > > worth doing that for this weird case.
-> > Just wondering, is this case really that weird?
-> > In fact, the check against %esp that the kernel
-> > does, looks strange. I realize that it can catch a
-> > (very rare) user-space bug of accessing below %esp, but
-> > other than that it looks redundant (IMHO) and as soon as
-> > it triggers the false-positives, what is it really good for?
-> 
-> I can't get a SIGSEGV on any native i386 kernel, not even when
-> running on AMD64.  It only happens on native x86_64 kernels.
+> It sounds like a memory error, but there are some other bank4 errors that
+> can crop up.  What does mcedecode say?
 
-I reproduced the original SIGSEGV on several i386 kernels.
+Well, here it is:
 
-> Intel says nothing about a write check.  Is that a mistake in the manual
-> or is that something only AMD64 does, and then only in long mode?
+HARDWARE ERROR
+CPU 1 4 northbridge TSC 89cfb4725b17 
+  Northbridge Chipkill ECC error
+  Chipkill ECC syndrome = 7014
+       bit32 = err cpu0
+       bit45 = uncorrected ecc error
+       bit57 = processor context corrupt
+       bit61 = error uncorrected
+  bus error 'local node origin, request didn't time out
+      generic read mem transaction
+      memory access, level generic'
+STATUS b60a200170080813 MCGSTATUS 4
+This is not a software problem!
 
-In 98+% of all cases when Intel and AMD documentation differ
-in subtle detail it's a documentation bug.
-
--Andi
  
+Is this some sort of mem error?
+
+Thank you for your help
+-- 
+Regards,
+Stephan

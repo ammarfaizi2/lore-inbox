@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWEPXDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWEPXF1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932253AbWEPXDM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 19:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbWEPXDM
+	id S932271AbWEPXF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 19:05:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbWEPXF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 19:03:12 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:31188 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932253AbWEPXDL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 19:03:11 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Martin Peschke <mp3@de.ibm.com>
-Subject: Re: [RFC] [Patch 7/8] statistics infrastructure - exploitation prerequisite
-Date: Wed, 17 May 2006 01:03:08 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de,
-       hch@infradead.org, arjan@infradead.org, James.Smart@emulex.com,
-       James.Bottomley@steeleye.com
-References: <446A1023.6020108@de.ibm.com> <20060516112824.39b49563.akpm@osdl.org> <446A53DE.6060400@de.ibm.com>
-In-Reply-To: <446A53DE.6060400@de.ibm.com>
+	Tue, 16 May 2006 19:05:27 -0400
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:10975 "EHLO
+	clueserver.org") by vger.kernel.org with ESMTP id S932271AbWEPXF0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 19:05:26 -0400
+Date: Tue, 16 May 2006 16:05:25 -0700 (PDT)
+From: alan <alan@clueserver.org>
+X-X-Sender: alan@blackbox.fnordora.org
+To: Valdis.Kletnieks@vt.edu
+cc: linux cbon <linuxcbon@yahoo.fr>, linux-kernel@vger.kernel.org
+Subject: Re: replacing X Window System !
+In-Reply-To: <200605162242.k4GMgriX005985@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.64.0605161603220.25132@blackbox.fnordora.org>
+References: <20060516214148.14432.qmail@web26611.mail.ukl.yahoo.com>       
+     <Pine.LNX.4.64.0605161513590.24814@blackbox.fnordora.org>
+ <200605162242.k4GMgriX005985@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605170103.08917.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Wednesday 17 May 2006 00:36 schrieb Martin Peschke:
-> Any other hints on how to replace my sched_clock() calls are welcome.
-> (I want to measure elapsed times in units that are understandable to
-> users without hardware manuals and calculator, such as milliseconds.)
+On Tue, 16 May 2006, Valdis.Kletnieks@vt.edu wrote:
 
-There are a number of APIs that allow you to get the time:
+> On Tue, 16 May 2006 15:19:16 PDT, alan said:
+>
+>> First of all, your assumptions are incorrect.  Modern versions of X are
+>> not old, unoptimised, will do remote sessions, etc.
+>
+> Remote sessions have been there as long as the DISPLAY environment variable - I
+> think even X10.4, 2 decades and more ago, could do that.  I know that it worked
+> just fine 18 years ago with X11R1 (aah... building that from source on a 25mz
+> Sun3 took a little while). (Anybody know when the first instance of
+> pointing 'xmelt' at another user's machine for amusement was? :)
 
-- do_gettimeofday
-  potentially slow, reliable TOD clock, microsecond resolution
-- ktime_get_ts
-  monotonic clock, nanosecond resolution
-- getnstimeofday
-  reliable, nanosecond TOD clock
-- xtime
-  jiffie accurate TOD clock, with fast reads
-- xtime + wall_to_monotonic
-  jiffie accurate monotonic clock, almost as fast
-- get_cycles
-  highest supported resolution and accuracy, highly
-  HW-specific behaviour, may overflow.
+Yep. I know. Most people don't seem to know that X was designed to do 
+remote connections very early on.
 
-	Arnd <><
+> It's interesting that almost every attempt to devise something "better than X"
+> always seems to get as far as an Xterm-alike, an XClock-alike, a primitive
+> window manager, and 2 or 3 toy demo programs.  Then, unless you're Microsoft
+> or Apple, you discover that doing a complete window system is *hard*.....
+
+"Those who do not learn the lessons of X are doomed to reimpliment them 
+badly."
+
+-- 
+"Waiter! This lambchop tastes like an old sock!" - Sheri Lewis

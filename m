@@ -1,326 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWEPVqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWEPVt2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932174AbWEPVqU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 17:46:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWEPVqT
+	id S932180AbWEPVt2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 17:49:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWEPVt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 17:46:19 -0400
-Received: from sccrmhc13.comcast.net ([204.127.200.83]:61373 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S932174AbWEPVqT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 17:46:19 -0400
-Date: Tue, 16 May 2006 14:48:13 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Alessandro Zummo <alessandro.zummo@towertech.it>,
-       Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
-Subject: [PATCH] Add driver for ARM AMBA PL031 RTC
-Message-ID: <20060516214813.GA28414@plexity.net>
-Reply-To: dsaxena@plexity.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.9i
+	Tue, 16 May 2006 17:49:28 -0400
+Received: from tassadar.physics.auth.gr ([155.207.123.25]:65202 "EHLO
+	tassadar.physics.auth.gr") by vger.kernel.org with ESMTP
+	id S932180AbWEPVt1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 17:49:27 -0400
+Date: Wed, 17 May 2006 00:49:09 +0300 (EEST)
+From: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: events/0 eats 100% cpu on core duo laptop
+In-Reply-To: <20060516122303.48b14dc1.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0605170041570.16352@tassadar.physics.auth.gr>
+References: <Pine.LNX.4.64.0605162002150.9606@tassadar.physics.auth.gr>
+ <20060516122303.48b14dc1.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch adds a driver for the ARM PL031 RTC found on some ARM SOCs.
-The driver is fairly trivial as the RTC only provides a read/write and
-alarm capability.
 
-Signed-off-by: Deepak <dsaxena@plexity.net>
+ 	It seems that the issue occurs as soon as the nic is brought up:
 
----
+Pid: 6, comm:             events/0
+EIP: 0060:[<c02e9e6f>] CPU: 0
+EIP is at __gm_phy_read+0x42/0x7b
+  EFLAGS: 00000293    Not tainted  (2.6.16.16 #1)
+EAX: 000004e8 EBX: 00002884 ECX: 7a7cd340 EDX: e0030000
+ESI: 00000003 EDI: 00002880 EBP: c1617340 DS: 007b ES: 007b
+CR0: 8005003b CR2: b7fd6ccb CR3: 005b4000 CR4: 000006d0
+  [<c02e9ed8>] gm_phy_read+0x30/0x5b
+  [<c02ec704>] sky2_phy_task+0x31/0x129
+  [<c012dffc>] run_workqueue+0x76/0xea
+  [<c02ec6d3>] sky2_phy_task+0x0/0x129
+  [<c012e1b2>] worker_thread+0x142/0x164
+  [<c0118fe0>] default_wake_function+0x0/0x12
+  [<c0118fe0>] default_wake_function+0x0/0x12
+  [<c012e070>] worker_thread+0x0/0x164
+  [<c01317b9>] kthread+0xb7/0xbd
+  [<c0131702>] kthread+0x0/0xbd
+  [<c01011a1>] kernel_thread_helper+0x5/0xb
 
-Alessandro: What userland tool do I use to test alarm capability?
+ 	The nic was not working properly at bootup (it was unable to 
+detect link,gain ip from dhcp) but I have discovered that adding an ifconfig
+eth0 up prior to launching dhcp worked:
 
- drivers/rtc/Kconfig     |   10 ++
- drivers/rtc/Makefile    |    1 
- drivers/rtc/rtc-pl031.c |  245 +++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 256 insertions(+), 0 deletions(-)
- create mode 100644 drivers/rtc/rtc-pl031.c
+sky2 eth0: enabling interface
+sky2 eth0: Link is up at 100 Mbps, full duplex, flow control tx
+sky2 eth0: disabling interface
+sky2 eth0: phy read timeout
+sky2 eth0: enabling interface
+sky2 eth0: phy read timeout
+sky2 eth0: speed/duplex mismatch<6>sky2 eth0: Link is up at 100 Mbps, full 
+duplex, flow control tx
 
-4b821f9e1daffb15e4d102bab44660c3debe46e9
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 65d090d..875ff5e 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -157,6 +157,16 @@ config RTC_DRV_VR41XX
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called rtc-vr41xx.
- 
-+config RTC_DRV_PL031
-+	tristate "ARM AMBA PL031 RTC"
-+	depends on RTC_CLASS && ARM_AMBA
-+	help
-+	  If you say Y here you will get access to ARM AMBA
-+	  PrimeCell PL031 RTC found on certain ARM SOCs.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called rtc-pl031.
-+
- config RTC_DRV_TEST
- 	tristate "Test driver/device"
- 	depends on RTC_CLASS
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index a9ca0f1..1b3f32e 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -20,3 +20,4 @@ obj-$(CONFIG_RTC_DRV_M48T86)	+= rtc-m48t
- obj-$(CONFIG_RTC_DRV_EP93XX)	+= rtc-ep93xx.o
- obj-$(CONFIG_RTC_DRV_SA1100)	+= rtc-sa1100.o
- obj-$(CONFIG_RTC_DRV_VR41XX)	+= rtc-vr41xx.o
-+obj-$(CONFIG_RTC_DRV_PL031)	+= rtc-pl031.o
-diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
-new file mode 100644
-index 0000000..022ea36
---- /dev/null
-+++ b/drivers/rtc/rtc-pl031.c
-@@ -0,0 +1,245 @@
-+/*
-+ * drivers/rtc/rtc-pl031.c
-+ *
-+ * Real Time Clock interface for ARM AMBA PrimeCell 031 RTC
-+ *
-+ * Author: Deepak Saxena <dsaxena@plexity.net>
-+ *
-+ * Copyright 2006 (c) MontaVista Software, Inc. 
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+#include <linux/platform_device.h>
-+#include <linux/module.h>
-+#include <linux/rtc.h>
-+#include <linux/init.h>
-+#include <linux/fs.h>
-+#include <linux/interrupt.h>
-+#include <linux/string.h>
-+#include <linux/pm.h>
-+
-+#include <linux/amba/bus.h>
-+
-+#include <asm/io.h>
-+#include <asm/bitops.h>
-+#include <asm/hardware.h>
-+#include <asm/irq.h>
-+#include <asm/rtc.h>
-+
-+/*
-+ * Register definitions
-+ */
-+#define	RTC_DR		0x00	/* Data read register */
-+#define	RTC_MR		0x04	/* Match register */
-+#define	RTC_LR		0x08	/* Data load register */
-+#define	RTC_CR		0x0c	/* Control register */
-+#define	RTC_IMSC	0x10	/* Interrupt mask and set register */
-+#define	RTC_RIS		0x14	/* Raw interrupt status register */
-+#define	RTC_MIS		0x18	/* Masked interrupt status register */
-+#define	RTC_ICR		0x1c	/* Interrupt clear register */
-+
-+struct pl031_local {
-+	struct rtc_device *rtc;
-+	void __iomem *base;
-+};
-+
-+static irqreturn_t pl031_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	struct rtc_device *rtc = (struct rtc_device *)dev_id;
-+
-+	rtc_update_irq(&rtc->class_dev, 1, RTC_AF);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int pl031_read_callback(struct device *dev, int data)
-+{
-+	return data;
-+}
-+
-+static int pl031_open(struct device *dev)
-+{
-+	/*
-+	 * We request IRQ in pl031_probe, so nothing to do here...
-+	 */
-+	return 0;
-+}
-+
-+static void pl031_release(struct device *dev)
-+{
-+}
-+
-+static int pl031_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
-+{
-+	struct pl031_local *ldata = dev_get_drvdata(dev);
-+
-+	switch (cmd) {
-+	case RTC_AIE_OFF:
-+		__raw_writel(1, ldata->base + RTC_MIS);
-+		return 0;
-+	case RTC_AIE_ON:
-+		__raw_writel(0, ldata->base + RTC_MIS);
-+		return 0;
-+	}
-+
-+	return -EINVAL;
-+}
-+
-+static int pl031_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct pl031_local *ldata = dev_get_drvdata(dev);
-+
-+	rtc_time_to_tm(__raw_readl(ldata->base + RTC_DR), tm);
-+
-+	return 0;
-+}
-+
-+static int pl031_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	unsigned long time;
-+	struct pl031_local *ldata = dev_get_drvdata(dev);
-+
-+	rtc_tm_to_time(tm, &time);
-+	__raw_writel(time, ldata->base + RTC_LR);
-+
-+	return 0;
-+}
-+
-+static int pl031_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
-+{
-+	struct pl031_local *ldata = dev_get_drvdata(dev);
-+
-+	rtc_time_to_tm(__raw_readl(ldata->base + RTC_MR), &alarm->time);
-+	alarm->pending = __raw_readl(ldata->base + RTC_RIS);
-+	alarm->enabled = __raw_readl(ldata->base + RTC_IMSC);
-+
-+	return 0;
-+}
-+
-+static int pl031_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
-+{
-+	struct pl031_local *ldata = dev_get_drvdata(dev);
-+	unsigned long time;
-+
-+	rtc_tm_to_time(&alarm->time, &time);
-+
-+	__raw_writel(time, ldata->base + RTC_MR);
-+	__raw_writel(!alarm->enabled, ldata->base + RTC_MIS);
-+
-+	return 0;
-+}
-+
-+static int pl031_proc(struct device *dev, struct seq_file *seq)
-+{
-+	return 0;
-+}
-+
-+static struct rtc_class_ops pl031_ops = {
-+	.open = pl031_open,
-+	.read_callback = pl031_read_callback,
-+	.release = pl031_release,
-+	.ioctl = pl031_ioctl,
-+	.read_time = pl031_read_time,
-+	.set_time = pl031_set_time,
-+	.read_alarm = pl031_read_alarm,
-+	.set_alarm = pl031_set_alarm,
-+	.proc = pl031_proc,
-+};
-+
-+static int pl031_remove(struct amba_device *adev)
-+{
-+	struct pl031_local *ldata = dev_get_drvdata(&adev->dev);
-+
-+	if (ldata) {
-+		dev_set_drvdata(&adev->dev, NULL);
-+		free_irq(adev->irq[0], ldata->rtc);
-+		rtc_device_unregister(ldata->rtc);
-+		iounmap(ldata->base);
-+		kfree(ldata);
-+	}
-+
-+	return 0;
-+}
-+
-+static int pl031_probe(struct amba_device *adev, void *id)
-+{
-+	int ret;
-+	struct pl031_local *ldata;
-+
-+
-+	ldata = kmalloc(sizeof(struct pl031_local), GFP_KERNEL);
-+	if (!ldata) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+	dev_set_drvdata(&adev->dev, ldata);
-+
-+	ldata->base = ioremap(adev->res.start, 
-+			      adev->res.end - adev->res.start + 1);
-+	if (!ldata->base) {
-+		ret = -ENOMEM;
-+		goto out_no_remap;
-+	}
-+
-+	if (request_irq(adev->irq[0], pl031_interrupt, SA_INTERRUPT,
-+			"rtc-pl031", ldata->rtc)) {
-+		ret = -EIO;
-+		goto out_no_irq;
-+	}
-+
-+	ldata->rtc = rtc_device_register("pl031", &adev->dev, &pl031_ops, 
-+					 THIS_MODULE);
-+	if (IS_ERR(ldata->rtc)) {
-+		ret = PTR_ERR(ldata->rtc);
-+		goto out_no_rtc;
-+	}
-+
-+	return 0;
-+
-+out_no_rtc:
-+	free_irq(adev->irq[0], ldata->rtc);
-+out_no_irq:
-+	iounmap(ldata->base);
-+out_no_remap:
-+	dev_set_drvdata(&adev->dev, NULL);
-+	kfree(ldata);
-+out:
-+	return ret;
-+}
-+
-+static struct amba_id pl031_ids[] __initdata = {
-+	{
-+		 .id = 0x00041031,
-+	 	.mask = 0x000fffff, },
-+	{0, 0},
-+};
-+
-+static struct amba_driver pl031_driver = {
-+	.drv = {
-+		.name = "rtc-pl031",
-+	},
-+	.id_table = pl031_ids,
-+	.probe = pl031_probe,
-+	.remove = pl031_remove,
-+};
-+
-+static int __init pl031_init(void)
-+{
-+	return amba_driver_register(&pl031_driver);
-+}
-+
-+static void __exit pl031_exit(void)
-+{
-+	amba_driver_unregister(&pl031_driver);
-+}
-+
-+module_init(pl031_init);
-+module_exit(pl031_exit);
-+
-+MODULE_AUTHOR("Deepak Saxena <dsaxena@plexity.net");
-+MODULE_DESCRIPTION("ARM AMBA PL031 RTC Driver");
-+MODULE_LICENSE("GPL");
+ 	Also when I shutdown/reboot sky2 eth0: phy read timeout messages flood
+  the console for a few seconds. The nic is detected as :
+
+sky2 v0.15 addr 0xf0000000 irq 19 Yukon-EC Ultra(0xb4) rev 2
+
+ 	Best regards,
+
+--
+============================================================================
+
+Dimitris Zilaskos
+
+Department of Physics @ Aristotle University of Thessaloniki , Greece
+PGP key : http://tassadar.physics.auth.gr/~dzila/pgp_public_key.asc
+ 	  http://egnatia.ee.auth.gr/~dzila/pgp_public_key.asc
+MD5sum  : de2bd8f73d545f0e4caf3096894ad83f  pgp_public_key.asc
+============================================================================

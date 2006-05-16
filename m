@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751176AbWEPOyW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWEPOzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751176AbWEPOyW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 10:54:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWEPOyV
+	id S1751175AbWEPOzG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 10:55:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWEPOzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 10:54:21 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:38560 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751174AbWEPOyU (ORCPT
+	Tue, 16 May 2006 10:55:06 -0400
+Received: from main.gmane.org ([80.91.229.2]:29358 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751175AbWEPOzE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 10:54:20 -0400
-Date: Tue, 16 May 2006 07:54:11 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Bernd Schmidt <bernds_cb1@t-online.de>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       luke.yang@analog.com, gerg@snapgear.com
-Subject: Re: Please revert git commit 1ad3dcc0
-In-Reply-To: <4469E1AF.7040908@t-online.de>
-Message-ID: <Pine.LNX.4.64.0605160740070.3866@g5.osdl.org>
-References: <4469B63B.6000502@t-online.de> <20060516065848.13028f9f.akpm@osdl.org>
- <4469E1AF.7040908@t-online.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 16 May 2006 10:55:04 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Michael Schierl <schierlm-usenet@gmx.de>
+Subject: Re: [ANNOUNCE] libata: new EH, NCQ, hotplug and PM patches against stable kernel
+Date: Tue, 16 May 2006 16:42:18 +0200
+Message-ID: <e4coc8$onk$1@sea.gmane.org>
+References: <20060512132437.GB4219@htj.dyndns.org>
+Reply-To: schierlm@gmx.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: p549bc5d5.dip0.t-ipconnect.de
+User-Agent: 40tude_Dialog/2.0.14.1
+Posted-And-Mailed: yes
+Cc: linux-ide@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 12 May 2006 22:24:37 +0900, Tejun Heo wrote:
 
+> ahci:		new EH, irq-pio, NCQ, hotplug
 
-On Tue, 16 May 2006, Bernd Schmidt wrote:
-> 
-> It's not the get_file that's the problem, it's the get_unused_fd and
-> fd_install.  These files are now open while the process lives and consume file
-> descriptors. 
+Should suspend-to-RAM work now on AHCI? It produces lots of messages now
+but does not work either now.
 
-Side note: this would be a valid argument, except it's not always true. 
-I'm not sure why Luke wanted the fd in the first place, though, and 
-whether we want it.
+# ls
+ata1.00: exception Emask 0x10 SAct 0x1 SEra 0x4050000 action 0x3 frozen
+ata1.00 tag 0 cmd 0x60 Emask 0x14 stat 0x40 err 0x0 (ATA bus error)
+ata1: soft resetting port
+ata1: softreset failed (1st FIS failed)
+ata1: softreset failed, retrying in 5 secs
+ata1: hard resettinq port
+ata1: port is slow to respond, please be patient
+ata1: port failed to respond (30 secs)
+ata1: COMRESET failed (device not ready)
+ata1: hardreset failed, retrying in 5 secs
+ata1: hard resettinq port
+ata1: port is slow to respond, please be patient
+ata1: port failed to respond (30 secs)
+ata1: COMRESET failed (device not ready)
+ata1: reset failed, giving up
+ata1.00: disabled
+ata1: EH complete
+sd 0:0:0:0: SCSI error: return code = 0x40000
+...
 
-Some loaders may actually want the fd value, see for example themisc 
-loader and MISC_FMT_OPEN_BINARY, and the ELF loader _does_ actually do it 
-for the (interpreter_type == INTERPRETER_AOUT) case.
+It produces lots of more SCSI errors (I did not want to write all those
+down...) but no ata1-errors any more.
 
-So it's certainly not a new concept, and other loaders do the exact same 
-thing. 
+Michael
 
-Whether the flat loader should do it (or under what circumstances it 
-should do it), I just can't make any judgement. More information needed.
-
-> Before the change, we didn't allocate or install a file descriptor, hence
-> there wasn't any reason to return EMFILE.  The spec at
->   http://www.opengroup.org/onlinepubs/009695399/functions/exec.html
-> doesn't list EMFILE as a possible error.
-
-Totally irrelevant.
-
-A lot of system calls will return errors other than the ones listed. The 
-text says "shall fail if", which just means that those errors are 
-_required_ to happen under the circumstances listed (and you can't use 
-other errors _for_those_particular_circumstances_).
-
-See
-
-	http://www.opengroup.org/onlinepubs/009695399/functions/xsh_chap02_03.html#tag_02_03
-
-  "Implementations may support additional errors not included in this 
-   list, may generate errors included in this list under circumstances 
-   other than those described here, or may contain extensions or 
-   limitations that prevent some errors from occurring. The ERRORS section 
-   on each reference page specifies whether an error shall be returned, or 
-   whether it may be returned. Implementations shall not generate a 
-   different error number from the ones described here for error 
-   conditions described in this volume of IEEE Std 1003.1-2001, but may 
-   generate additional errors unless explicitly disallowed for a 
-   particular function."
-
-for more.
-
-		Linus

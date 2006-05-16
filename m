@@ -1,71 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbWEPCM5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbWEPCPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751055AbWEPCM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 22:12:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWEPCM5
+	id S1751059AbWEPCPU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 22:15:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751063AbWEPCPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 22:12:57 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:18594 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751054AbWEPCM4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 22:12:56 -0400
-Subject: [-rt potential bug?] Bad error path in futex_wake
-From: john stultz <johnstul@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Thomas Gleixner <tglx@linutronix.de>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Dinakar Guniguntala <dino@in.ibm.com>
-Content-Type: text/plain
-Date: Mon, 15 May 2006 19:12:30 -0700
-Message-Id: <1147745550.10707.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Mon, 15 May 2006 22:15:20 -0400
+Received: from nz-out-0102.google.com ([64.233.162.202]:30950 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751058AbWEPCPT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 22:15:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=KfVQSzxW+YeagJyky1lOXEVMN1tQv3hWt9/HVyqDU03FIPjEpNIKABXL4H3GmVGqOQMWFApF4N7U/CC1tDrCljMLCNkk+BCMAN+N+sgSSvPkZlNhM4PzQLGRo6IbVVK/+dLyVykS1BuEU8PPgLVDV3qEDJsKi6I+n7GIU37e8Jc=
+Message-ID: <446935AF.5030904@gmail.com>
+Date: Tue, 16 May 2006 11:15:11 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Jeff Garzik <jeff@garzik.org>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFT] major libata update
+References: <20060515170006.GA29555@havoc.gtf.org> <20060515182919.GA16070@irc.pl> <4468CBC7.2030900@garzik.org> <44690F91.2070206@gmail.com> <44691392.2030906@garzik.org> <44691700.3020903@gmail.com>
+In-Reply-To: <44691700.3020903@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey Ingo,
-	I've been trying to help Dinakar chase down a futex bug where
-lookup_pi_state oopses due to this->pi_state being NULL
-(kernel/futex.c:480).
+Tejun Heo wrote:
+> Jeff Garzik wrote:
+>> Tejun Heo wrote:
+>>> Jeff Garzik wrote:
+>>>> Tomasz Torcz wrote:
+>>>>> On Mon, May 15, 2006 at 01:00:06PM -0400, Jeff Garzik wrote:
+>>>>>> After much development and review, I merged a massive pile of libata
+>>>>>> patches from Tejun Heo and Albert Lee.  This update contains the
+>>>>>> following major libata
+>>>>>
+>>>>>   Any plans to merge http://home-tj.org/wiki/index.php/Sil_m15w ? Or
+>>>>> maybe it's merged already?
+>>>>>   Seagate firmware update seems to be available only for OEMs, so this
+>>>>> quirk is pretty helpful for end users.
+>>>>
+>>>> Its a question of staging.  This still lives in the 'sii-m15w' 
+>>>> branch of libata-dev.git, but if we throw too many _classes_ of 
+>>>> changes into the same big lump, then it becomes much more difficult 
+>>>> to discern which changes caused which failures.
+>>>>
+>>>> Since sata_sil has seen several changes, and since the sii-m15w 
+>>>> problems are so difficult to diagnose properly, its easier to 
+>>>> separate that out.
+>>>
+>>> Are you planning on merging sil_m15w workaround?
+>>
+>> Yes, but after 2.6.18.
+> 
+> Cool.
+> 
+>>> FYI, from the first time it was submitted (last summer) till 2.6.16, 
+>>> it took very little effort to maintain it.  The current big update 
+>>> would necessitate some changes to it but I don't think it will be too 
+>>> much work.  My experience says m15w doesn't add too much maintenance 
+>>> overhead.
+>>
+>> Its actively maintained in the 'sii-m15w' branch of libata-dev.git.
+>>
+> 
+> I have been maintaining my own.  :)  BTW, with 2.6.16, m15_cxt has to 
+> move from qc->private_data to ap->private_data.
 
-No clue on why yet, but looking over the code, I noticed the following
-odd error path:
+Okay, we've been talking about different things.  You're talking about 
+excluding non-affected drives from m15w blacklist while I'm talking 
+about the handle-large-writes-by-qc-rewrite m15w workaround.  The URL 
+Tomasz Torcz wrote contains the workaround.
 
-static int futex_wake(u32 __user *uaddr, int nr_wake)
-{
-        [snip]
-	down_read(&current->mm->mmap_sem);
-
-	ret = get_futex_key(uaddr, &key);
-	if (unlikely(ret != 0))
-		goto out;
-
-	hb = hash_futex(&key);
-	spin_lock(&hb->lock);
-	head = &hb->chain;
-
-	list_for_each_entry_safe(this, next, head, list) {
-		if (match_futex (&this->key, &key)) {
-			if (this->pi_state)
-!!!!------>			return -EINVAL;
-			wake_futex(this);
-			if (++ret >= nr_wake)
-				break;
-		}
-	}
-
-	spin_unlock(&hb->lock);
-out:
-	up_read(&current->mm->mmap_sem);
-	return ret;
-}
-
-I'm not very familiar w/ the futex code, so this might be the right
-thing, but it sure looks wrong.
-
-Thoughts?
-
-thanks
--john
-
+-- 
+tejun

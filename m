@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWEPRKx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWEPRNA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932158AbWEPRKx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 13:10:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbWEPRKx
+	id S932156AbWEPRNA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 13:13:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbWEPRNA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 13:10:53 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:39558 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932158AbWEPRKw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 13:10:52 -0400
-Message-ID: <446A0796.5030606@pobox.com>
-Date: Tue, 16 May 2006 13:10:46 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Tue, 16 May 2006 13:13:00 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:61083 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932156AbWEPRM7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 13:12:59 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Subject: Re: Wiretapping Linux?
+Date: Tue, 16 May 2006 19:09:46 +0200
+User-Agent: KMail/1.9.1
+Cc: "Marc Perkel" <marc@perkel.com>, linux-kernel@vger.kernel.org
+References: <4469D296.8060908@perkel.com> <Pine.LNX.4.61.0605161100590.27707@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0605161100590.27707@chaos.analogic.com>
 MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: PATCH: Fix broken PIO with libata
-References: <1147790393.2151.62.camel@localhost.localdomain> <4469F169.2050708@gmail.com>
-In-Reply-To: <4469F169.2050708@gmail.com>
-Content-Type: text/plain; charset=EUC-KR
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.0 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.0 points, 5.0 required)
+Content-Disposition: inline
+Message-Id: <200605161909.47110.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> Alan Cox wrote:
->> #2	The core sets ATA_DFLAG_PIO to indicate PIO commands should be used
->> on this channel. This same information is available in dev->dma_mode but
->> for some reason we get two sources of the info. The ATA_DFLAG_PIO is set
->> once during setup and then cleared but not re-computed by the revalidate
->> function. This causes DMA commands to be issued when PIO would be and
->> usually an Oops or hang
-> 
-> Hmmm... I tried to fix this problem in the following commit.  With it,
-> ATA_DFLAG_PIO isn't cleared over ata_dev_configure().  Only
-> ata_dev_set_mode() is allowed to diddle with it and does about the same
-> thing as your patch does.
+Hi,
 
-I presume he's looking at what users will hit when 2.6.17 is released...
+On Tuesday, 16. May 2006 17:05, linux-os (Dick Johnson) wrote:
+> It's hard to find Windows products that don't contain
+> such spyware. As Linux becomes more prevalent on the
+> desktop, you can expect to find such spyware there
+> too.
 
-	Jeff
+Recent examples: 
+- Update availability checkers (e.g. Adept).
+- Installation routines of a certain distribution 
+  calling all a predefined NTP server instead of pool.ntp.org on first start.
+
+The NTP variant is a clever idea with low traffic and tells
+you first usage and usage at all.
 
 
+Regards
 
+Ingo Oeser

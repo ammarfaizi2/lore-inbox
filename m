@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWEPASx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWEPAVe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbWEPASx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 20:18:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750875AbWEPASx
+	id S1750884AbWEPAVe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 20:21:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750875AbWEPAVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 20:18:53 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:45449 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750871AbWEPASx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 20:18:53 -0400
-Date: Mon, 15 May 2006 17:18:28 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Andreas Mohr <andi@rhlx01.fht-esslingen.de>, florin@iucha.net,
-       linux-kernel@vger.kernel.org, linux@dominikbrodowski.net
-Subject: Re: pcmcia oops on 2.6.17-rc[12]
-In-Reply-To: <1147738680.26686.231.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0605151715290.3866@g5.osdl.org>
-References: <20060423192251.GD8896@iucha.net>  <20060423150206.546b7483.akpm@osdl.org>
-  <20060508145609.GA3983@rhlx01.fht-esslingen.de>  <20060508084301.5025b25d.akpm@osdl.org>
-  <20060508163453.GB19040@flint.arm.linux.org.uk> 
- <1147730828.26686.165.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0605151459140.3866@g5.osdl.org>  <1147734026.26686.200.camel@localhost.localdomain>
-  <Pine.LNX.4.64.0605151629350.3866@g5.osdl.org>  <Pine.LNX.4.64.0605151644090.3866@g5.osdl.org>
- <1147738680.26686.231.camel@localhost.localdomain>
+	Mon, 15 May 2006 20:21:34 -0400
+Received: from stinky.trash.net ([213.144.137.162]:13796 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S1750871AbWEPAVd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 20:21:33 -0400
+Message-ID: <44691B07.6070003@trash.net>
+Date: Tue, 16 May 2006 02:21:27 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@davemloft.net>
+CC: shemminger@osdl.org, ranjitm@google.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH] tcpdump may trace some outbound packets twice.
+References: <20060515.142645.94689626.davem@davemloft.net>	<Pine.LNX.4.56.0605151602330.29636@ranjit.corp.google.com>	<20060515164101.054afa29@localhost.localdomain> <20060515.170835.126804002.davem@davemloft.net>
+In-Reply-To: <20060515.170835.126804002.davem@davemloft.net>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 16 May 2006, Alan Cox wrote:
+David S. Miller wrote:
+> From: Stephen Hemminger <shemminger@osdl.org>
+> Date: Mon, 15 May 2006 16:41:01 -0700
 > 
-> The reason they do it is also however because the ISA bus IRQ allocation
-> scheme and IRQ probing scheme they use for auto detection relies upon
-> other users marking the IRQ as exclusively used. The same is true for
-> things like setserial and ISA ports.
+> 
+>>kfree_skb(NULL) is legal so the conditional here is unneeded.
+>>
+>>But the increased calls to kfree_skb(NULL) would probably bring the
+>>"unlikely()" hordes descending on kfree_skb, so maybe:
+> 
+> 
+> And unfortunately as Patrick McHardy states, we can't use
+> this trick here because things like tc actions can do stuff
+> like pskb_expand_head() which cannot handle shared SKBs.
+> 
+> We need another solution to this problem, because cloning an
+> extra SKB is just rediculious overhead so isn't something we
+> can seriously consider to solve this problem.
+> 
+> Another option is to say this anomaly doesn't matter enough
+> to justify the complexity we're looking at here just to fix
+> this glitch.
+> 
+> Other implementation possibility suggestions welcome :-)
 
-The irq auto-detection should work with shared interrupts, but yes, it 
-won't _detect_ them if they are already in use (but it's ok with them 
-becoming shared later).
 
-That said, true ISA cards obviously won't ever have a shared irq, in any 
-normal circumstances.
-
-Which is one reason why I think it would be silly to force such a driver 
-to use a SA_SHIRQ flag, and would prefer to do it the other way instead 
-(ie make drivers that fundamentally _require_ - as opposed to "in 
-practice use" - an exclusive interrupt say so).
-
-> PCMCIA doesn't seem to have too many offenders, and the number of
-> drivers is low so it won't take long to go over them.
-
-Yeah. 
-
-		Linus
+We could just mark the skb to make sure its only passed to taps
+on the first transmission attempt. Since we have the timestamp
+optimization there shouldn't be any visible change besides
+the desired effect.

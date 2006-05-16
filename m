@@ -1,92 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbWEPXDF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWEPXDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932258AbWEPXDF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 19:03:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWEPXDF
+	id S932253AbWEPXDM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 19:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbWEPXDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 19:03:05 -0400
-Received: from mx0.towertech.it ([213.215.222.73]:18365 "HELO mx0.towertech.it")
-	by vger.kernel.org with SMTP id S932269AbWEPXDD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 19:03:03 -0400
-Date: Wed, 17 May 2006 01:02:59 +0200
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-To: dsaxena@plexity.net
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       rmk@arm.linux.org.uk
-Subject: Re: [PATCH] Add driver for ARM AMBA PL031 RTC
-Message-ID: <20060517010259.5a035b20@inspiron>
-In-Reply-To: <20060516214813.GA28414@plexity.net>
-References: <20060516214813.GA28414@plexity.net>
-Organization: Tower Technologies
-X-Mailer: Sylpheed
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 16 May 2006 19:03:12 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:31188 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932253AbWEPXDL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 19:03:11 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Martin Peschke <mp3@de.ibm.com>
+Subject: Re: [RFC] [Patch 7/8] statistics infrastructure - exploitation prerequisite
+Date: Wed, 17 May 2006 01:03:08 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de,
+       hch@infradead.org, arjan@infradead.org, James.Smart@emulex.com,
+       James.Bottomley@steeleye.com
+References: <446A1023.6020108@de.ibm.com> <20060516112824.39b49563.akpm@osdl.org> <446A53DE.6060400@de.ibm.com>
+In-Reply-To: <446A53DE.6060400@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605170103.08917.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 May 2006 14:48:13 -0700
-Deepak Saxena <dsaxena@plexity.net> wrote:
+Am Wednesday 17 May 2006 00:36 schrieb Martin Peschke:
+> Any other hints on how to replace my sched_clock() calls are welcome.
+> (I want to measure elapsed times in units that are understandable to
+> users without hardware manuals and calculator, such as milliseconds.)
 
-> 
-> This patch adds a driver for the ARM PL031 RTC found on some ARM SOCs.
-> The driver is fairly trivial as the RTC only provides a read/write and
-> alarm capability.
-> 
-> Signed-off-by: Deepak <dsaxena@plexity.net>
+There are a number of APIs that allow you to get the time:
 
-> Alessandro: What userland tool do I use to test alarm capability?
+- do_gettimeofday
+  potentially slow, reliable TOD clock, microsecond resolution
+- ktime_get_ts
+  monotonic clock, nanosecond resolution
+- getnstimeofday
+  reliable, nanosecond TOD clock
+- xtime
+  jiffie accurate TOD clock, with fast reads
+- xtime + wall_to_monotonic
+  jiffie accurate monotonic clock, almost as fast
+- get_cycles
+  highest supported resolution and accuracy, highly
+  HW-specific behaviour, may overflow.
 
- There's the source code of a test program in Documentation/rtc.txt .
- I'm not so sure the alarm capability is used nowadays.
-
-
-you can avoid including this one if it is a no-op:
-
-> +static int pl031_read_callback(struct device *dev, int data)
-> +{
-> +	return data;
-> +}
-
- 
-
-> +static int pl031_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
-> +{
-> +	struct pl031_local *ldata = dev_get_drvdata(dev);
-> +
-> +	switch (cmd) {
-> +	case RTC_AIE_OFF:
-> +		__raw_writel(1, ldata->base + RTC_MIS);
-> +		return 0;
-> +	case RTC_AIE_ON:
-> +		__raw_writel(0, ldata->base + RTC_MIS);
-> +		return 0;
-> +	}
-> +
-> +	return -EINVAL;
-> +}
-
- pleasew return -ENOIOCTLCMD instead of -EINVAL . I know, I will have
-to fix the other drivers to do the same.
-
-
- no op:
-
-> +static int pl031_proc(struct device *dev, struct seq_file *seq)
-> +{
-> +	return 0;
-> +}
-> +
-
-
-
--- 
-
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Turin, Italy
-
-  http://www.towertech.it
-
+	Arnd <><

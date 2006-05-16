@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWEQABu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWEQAES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932296AbWEQABu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 20:01:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbWEQABu
+	id S1750975AbWEQAES (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 20:04:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbWEQAES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 20:01:50 -0400
-Received: from mail.siegenia-aubi.com ([217.5.180.129]:18830 "EHLO
-	alg-1.siegenia-aubi.com") by vger.kernel.org with ESMTP
-	id S1750973AbWEQABt convert rfc822-to-8bit (ORCPT
+	Tue, 16 May 2006 20:04:18 -0400
+Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:22020 "EHLO
+	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1750975AbWEQAER convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 20:01:49 -0400
-Message-ID: <FC7F4950D2B3B845901C3CE3A1CA6766012A9E6F@mxnd200-9.si-aubi.siegenia-aubi.com>
-From: =?iso-8859-1?Q?=22D=F6hr=2C_Markus_ICC-H=22?= 
-	<Markus.Doehr@siegenia-aubi.com>
-To: "'Valdis.Kletnieks@vt.edu'" <Valdis.Kletnieks@vt.edu>
+	Tue, 16 May 2006 20:04:17 -0400
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: replacing X Window System !
+Date: Wed, 17 May 2006 00:23:55 +0100
+User-Agent: KMail/1.9.1
 Cc: linux-kernel@vger.kernel.org
-Subject: RE: replacing X Window System !
-Date: Wed, 17 May 2006 02:01:45 +0200
+References: <20060516214148.14432.qmail@web26611.mail.ukl.yahoo.com> <yw1xbqtx1vlb.fsf@agrajag.inprovide.com>
+In-Reply-To: <yw1xbqtx1vlb.fsf@agrajag.inprovide.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200605170023.55792.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > First of all, your assumptions are incorrect.  Modern versions of X 
-> > are not old, unoptimised, will do remote sessions, etc.
-> 
-> Remote sessions have been there as long as the DISPLAY 
-> environment variable - I think even X10.4, 2 decades and more 
-> ago, could do that.  I know that it worked just fine 18 years 
-> ago with X11R1 (aah... building that from source on a 25mz
-> Sun3 took a little while). (Anybody know when the first 
-> instance of pointing 'xmelt' at another user's machine for 
-> amusement was? :)
-[...]
+On Tuesday 16 May 2006 22:57, Måns Rullgård wrote:
+> linux cbon <linuxcbon@yahoo.fr> writes:
+[snip]
+>
+> > it cannot do VNC, etc.
+>
+> Most programs can't do VNC.
 
-Although one has to admit that working with remote X terminals over a
-SSH/WAN/VPN-connection is far from usefull, Microsoft´s RDP protocol does a
-much better job there. However, there´s NX (http://www.nomachine.com/) and
-other products but out of the box X11 it´s quite slow over higher latency
-connections.
+I must also note that this is wrong. Many VNC implementations come with the 
+Xvnc server (a drop-in replacement for X, headless) and there's the xf4vnc 
+project which provides a few pseudo-devices for a regular X session and hooks 
+into the video updates (which are then sent via VNC as well as directly to 
+your video hardware).
 
+-- 
+Cheers,
+Alistair.
 
-Just my EUR 0.02
-
-
-SIEGENIA-AUBI KG
-Informationswesen
- 
-i.A.
- 
-Markus Döhr
-SAP-CC/BC, SAPDB-DBA
-
-Tel.:	 +49 6503 917-152
-Fax:	 +49 6503 917-7152
-E-Mail: markus.doehr@siegenia-aubi.com
-Internet: http://www.siegenia-aubi.com 
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

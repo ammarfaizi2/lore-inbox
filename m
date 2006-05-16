@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWEPRbf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWEPRfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932167AbWEPRbf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 13:31:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWEPRbf
+	id S932230AbWEPRfr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 13:35:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWEPRfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 13:31:35 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:28298 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932167AbWEPRbf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 13:31:35 -0400
-Message-ID: <446A0C68.20604@zytor.com>
-Date: Tue, 16 May 2006 10:31:20 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Leopold Gouverneur <lgouv@tele2.be>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc4-mm1 panic on boot
-References: <20060516001501.GA7528@localhost> <e4c3fi$utm$1@terminus.zytor.com> <20060516165054.GA8192@localhost>
-In-Reply-To: <20060516165054.GA8192@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 16 May 2006 13:35:46 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:4569 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932178AbWEPRfp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 13:35:45 -0400
+Subject: Re: [PATCH] typo in i386/init.c [BugMe #6538]
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nishanth Aravamudan <nacc@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Yasunori Goto <y-goto@jp.fujitsu.com>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060516102427.2c50d469.akpm@osdl.org>
+References: <20060516165040.GA4341@us.ibm.com>
+	 <20060516102427.2c50d469.akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 16 May 2006 10:34:15 -0700
+Message-Id: <1147800855.6623.111.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Leopold Gouverneur wrote:
->
->> This means kinit couldn't find a name-to-number mapping for the string
->> /dev/hda8.  However, you said you tried vanilla rc4 with the same
->> result, and vanilla rc4 doesn't use klibc.
-> Sorry for my silliness, actually rc4 boot OK
->> This means hda8 simply isn't discovered on your system, which probably
->> means hda isn't discovered.  This typically is an issue with your
->> kernel configuration, but it's not always.
-> yes that was my problem: rc4-mm1 need CONFIG_SCSI_PATA_AMD=y
-> which -rc4 don't for my nForce2 ide controller.
-> 
+On Tue, 2006-05-16 at 10:24 -0700, Andrew Morton wrote:
+> And partly because, well, just look at the patch.  It will give the kernel
+> new global symbols add_memory() and remove_memory().  So how come it links
+> OK at present?
 
-Excellent, glad to hear that it was that simple.
+It links OK now with normal configurations, because nobody references
+add/remove_memory() unless MEMORY_HOTPLUG is enabled.  The user in the
+bug report
 
-	-hpa
+	http://bugme.osdl.org/show_bug.cgi?id=6538
+
+managed to enable sparsemem and memory hotplug.  The generic hotplug
+code referenced those symbols, and they got a link error.
+
+-- Dave
 

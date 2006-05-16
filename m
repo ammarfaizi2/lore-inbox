@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWEPPPZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWEPPSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932086AbWEPPPZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 11:15:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWEPPPY
+	id S932075AbWEPPSj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 11:18:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWEPPSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 11:15:24 -0400
-Received: from ns2.suse.de ([195.135.220.15]:132 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932086AbWEPPPV (ORCPT
+	Tue, 16 May 2006 11:18:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41127 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932075AbWEPPSi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 11:15:21 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <jbeulich@novell.com>
-Subject: Re: [PATCH 2/3] reliable stack trace support (x86-64)
-Date: Tue, 16 May 2006 17:13:39 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-References: <4469FC22.76E4.0078.0@novell.com>
-In-Reply-To: <4469FC22.76E4.0078.0@novell.com>
+	Tue, 16 May 2006 11:18:38 -0400
+Message-ID: <4469ED32.9070002@osdl.org>
+Date: Tue, 16 May 2006 08:18:10 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+User-Agent: Mail/News 1.5 (X11/20060309)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jean Delvare <khali@linux-fr.org>
+CC: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.17-rc4-mm1
+References: <20060515005637.00b54560.akpm@osdl.org>	<6bffcb0e0605151137v25496700k39b15a40fa02a375@mail.gmail.com>	<20060515115302.5abe7e7e.akpm@osdl.org>	<6bffcb0e0605151210x21eb0d24g96366ce9c121c26c@mail.gmail.com>	<20060515122613.32661c02.akpm@osdl.org>	<6bffcb0e0605151317u51bbf67ey124b808fad920d36@mail.gmail.com>	<20060516103930.0c0d5d33.khali@linux-fr.org>	<20060516145517.2c2d4fe4.khali@linux-fr.org> <20060516164846.4d42ed11.khali@linux-fr.org>
+In-Reply-To: <20060516164846.4d42ed11.khali@linux-fr.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605161713.39575.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 May 2006 16:21, Jan Beulich wrote:
-> These are the x86_64-specific pieces to enable reliable stack traces. The
-> only restriction with this is that it currently cannot unwind across the
-> interrupt->normal stack boundary, as that transition is lacking proper
-> annotation.
+Jean Delvare wrote:
+> Michal Piotrowski reported:
+>   
+>>> When I try to "modprobe -r i2c_i801" modprobe hangs
+>>>       
+>
+> Quoting myself:
+>   
+>> I can reproduce it, with both i2c-i801 and i2c-parport, so it's not
+>> related to a specific driver. I'm currently performing a bisection on
+>> 2.6.17-rc4-mm1 to try and isolate the culprit. It seems to point to
+>> gregkh-driver-*. i2c patches are innocent for sure, including Kumar's
+>> ones.
+>>     
+>
+> And the winner is...
+> gregkh-driver-driver-core-class_device_add-needs-error-checks.patch
+>
+> Stephen, Greg?
+>
+>   
+Look at the error return from class_device_register. I bet
+it was working before because the class_device_register wasn't
+checking something, now it is and that exposes a bug that has
+existed in i2c since sysfs support was added.
 
-It would be nice if you could submit a patch to fix that.
-
-
->  
-> +#ifdef CONFIG_STACK_UNWIND
-> +  . = ALIGN(8);
-> +  .eh_frame : AT(ADDR(.eh_frame) - LOAD_OFFSET) {
-> +	__start_unwind = .;
-> +  	*(.eh_frame)
-> +	__end_unwind = .;
-> +  }
-> +#endif
-
-Ah ok - it's there. Ignore my earlier question then.
-
-
-
-> +#define UNW_PC(frame) (frame)->regs.rip
-> +#define UNW_SP(frame) (frame)->regs.rsp
-
-I think we alreay have instruction_pointer(). Better add a stack_pointer() 
-in ptrace.h too.
-
--Andi
+I can make up a more verbose version if that helps

@@ -1,317 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbWEPGDu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751511AbWEPGLM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751491AbWEPGDu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 02:03:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbWEPGDu
+	id S1751511AbWEPGLM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 02:11:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbWEPGLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 02:03:50 -0400
-Received: from ozlabs.org ([203.10.76.45]:22958 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751491AbWEPGDt (ORCPT
+	Tue, 16 May 2006 02:11:12 -0400
+Received: from mail.gmx.net ([213.165.64.20]:13724 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751511AbWEPGLL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 02:03:49 -0400
-Subject: [PATCH] Gerd Hoffman's move-vsyscall-into-user-address-range patch
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       virtualization <virtualization@lists.osdl.org>,
-       Gerd Hoffmann <kraxel@suse.de>, Zachary Amsden <zach@vmware.com>
-Content-Type: text/plain
-Date: Tue, 16 May 2006 16:03:43 +1000
-Message-Id: <1147759423.5492.102.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 16 May 2006 02:11:11 -0400
+X-Authenticated: #21330363
+From: "Sven Schnelle" <svens@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: ifIndex allocation
+Organization: private
+Date: Tue, 16 May 2006 08:11:01 +0200
+Message-ID: <86r72uh53e.fsf@deprecated.bitebene.org>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/22.0.50
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AFAICT we'll pay one extra TLB entry for this patch.  Zach had a patch
-which left the vsyscall page at the top of memory (minus hole for
-hypervisor) and patched the ELF header at boot.
+--=-=-=
 
-Thoughts welcome,
-Rusty.
+Hi List,
 
-Name: Move vsyscall page out of fixmap, above stack
-Author: Gerd Hoffmann <kraxel@suse.de>
+investigating a problem with an snmp software for linux, i was wondering
+why the kernel allocates a new ifindex Number, even if the old one is still
+available. For example, if i unload a network driver module, and reload
+it, it has a different ifindex.
 
-Hypervisors want to use memory at the top of the address space
-(eg. 64MB for Xen, or 168MB for Xen w/ PAE).  Creating this hole means
-moving the vsyscall page away from 0xffffe000.
+Looking at the function dev_new_index (line 2620 in net/core/dev.c)
+there is a line 'static int ifindex'. Is there any special reason why
+this variable is static, and the list is not traversed from the
+beginning, so that the first free ifindex will be used?
 
-If we create this hole statically with a config option, we give up,
-say, 256MB of lowmem for the case where a hypervisor-capable kernel is
-actually running on native hardware.
 
-If we create this hole dynamically and leave the vsyscall page at the
-top of kernel memory, we would have to patch up the vsyscall elf
-header at boot time to reflect where we put it.
+Best regards,
 
-Instead, this patch moves the vsyscall page into the user address
-region, just below PAGE_OFFSET: it's still at a fixed address, but
-it's not where the hypervisor wants to be, so resizing the hole is
-trivial.
+Sven.
 
-Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+--=-=-=
+Content-Type: application/pgp-signature
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.17-rc4/arch/i386/kernel/asm-offsets.c working-2.6.17-rc4-vsyscall-above-stack/arch/i386/kernel/asm-offsets.c
---- linux-2.6.17-rc4/arch/i386/kernel/asm-offsets.c	2005-07-15 04:38:36.000000000 +1000
-+++ working-2.6.17-rc4-vsyscall-above-stack/arch/i386/kernel/asm-offsets.c	2006-05-16 14:24:00.000000000 +1000
-@@ -13,6 +13,7 @@
- #include <asm/fixmap.h>
- #include <asm/processor.h>
- #include <asm/thread_info.h>
-+#include <asm/elf.h>
- 
- #define DEFINE(sym, val) \
-         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
-@@ -68,5 +69,5 @@ void foo(void)
- 		 sizeof(struct tss_struct));
- 
- 	DEFINE(PAGE_SIZE_asm, PAGE_SIZE);
--	DEFINE(VSYSCALL_BASE, __fix_to_virt(FIX_VSYSCALL));
-+	DEFINE(VSYSCALL_BASE, VSYSCALL_BASE);
- }
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.17-rc4/arch/i386/kernel/sysenter.c working-2.6.17-rc4-vsyscall-above-stack/arch/i386/kernel/sysenter.c
---- linux-2.6.17-rc4/arch/i386/kernel/sysenter.c	2006-03-23 12:42:01.000000000 +1100
-+++ working-2.6.17-rc4-vsyscall-above-stack/arch/i386/kernel/sysenter.c	2006-05-16 14:27:05.000000000 +1000
-@@ -13,6 +13,7 @@
- #include <linux/gfp.h>
- #include <linux/string.h>
- #include <linux/elf.h>
-+#include <linux/mm.h>
- 
- #include <asm/cpufeature.h>
- #include <asm/msr.h>
-@@ -45,23 +46,88 @@ void enable_sep_cpu(void)
-  */
- extern const char vsyscall_int80_start, vsyscall_int80_end;
- extern const char vsyscall_sysenter_start, vsyscall_sysenter_end;
-+static void *syscall_page;
- 
- int __init sysenter_setup(void)
- {
--	void *page = (void *)get_zeroed_page(GFP_ATOMIC);
--
--	__set_fixmap(FIX_VSYSCALL, __pa(page), PAGE_READONLY_EXEC);
-+	syscall_page = (void *)get_zeroed_page(GFP_ATOMIC);
- 
- 	if (!boot_cpu_has(X86_FEATURE_SEP)) {
--		memcpy(page,
-+		memcpy(syscall_page,
- 		       &vsyscall_int80_start,
- 		       &vsyscall_int80_end - &vsyscall_int80_start);
- 		return 0;
- 	}
- 
--	memcpy(page,
-+	memcpy(syscall_page,
- 	       &vsyscall_sysenter_start,
- 	       &vsyscall_sysenter_end - &vsyscall_sysenter_start);
- 
- 	return 0;
- }
-+
-+static struct page*
-+syscall_nopage(struct vm_area_struct *vma, unsigned long adr, int *type)
-+{
-+	struct page *p = virt_to_page(adr - vma->vm_start + syscall_page);
-+	get_page(p);
-+	return p;
-+}
-+
-+/* Prevent VMA merging */
-+static void syscall_vma_close(struct vm_area_struct *vma)
-+{
-+}
-+
-+static struct vm_operations_struct syscall_vm_ops = {
-+	.close = syscall_vma_close,
-+	.nopage = syscall_nopage,
-+};
-+
-+/* Setup a VMA at program startup for the vsyscall page */
-+int arch_setup_additional_pages(struct linux_binprm *bprm, int exstack)
-+{
-+	struct vm_area_struct *vma;
-+	struct mm_struct *mm = current->mm;
-+	int ret;
-+
-+	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
-+	if (!vma)
-+		return -ENOMEM;
-+
-+	memset(vma, 0, sizeof(struct vm_area_struct));
-+	/* Could randomize here */
-+	vma->vm_start = VSYSCALL_BASE;
-+	vma->vm_end = VSYSCALL_BASE + PAGE_SIZE;
-+	/* MAYWRITE to allow gdb to COW and set breakpoints */
-+	vma->vm_flags = VM_READ|VM_EXEC|VM_MAYREAD|VM_MAYEXEC|VM_MAYWRITE;
-+	vma->vm_flags |= mm->def_flags;
-+	vma->vm_page_prot = protection_map[vma->vm_flags & 7];
-+	vma->vm_ops = &syscall_vm_ops;
-+	vma->vm_mm = mm;
-+
-+	down_write(&mm->mmap_sem);
-+	if ((ret = insert_vm_struct(mm, vma))) {
-+		up_write(&mm->mmap_sem);
-+		kmem_cache_free(vm_area_cachep, vma);
-+		return ret;
-+	}
-+	mm->total_vm++;
-+	up_write(&mm->mmap_sem);
-+	return 0;
-+}
-+
-+struct vm_area_struct *get_gate_vma(struct task_struct *tsk)
-+{
-+	return NULL;
-+}
-+
-+int in_gate_area(struct task_struct *task, unsigned long addr)
-+{
-+	return 0;
-+}
-+
-+int in_gate_area_no_task(unsigned long addr)
-+{
-+	return 0;
-+}
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.17-rc4/arch/i386/mm/pgtable.c working-2.6.17-rc4-vsyscall-above-stack/arch/i386/mm/pgtable.c
---- linux-2.6.17-rc4/arch/i386/mm/pgtable.c	2006-05-16 10:50:48.000000000 +1000
-+++ working-2.6.17-rc4-vsyscall-above-stack/arch/i386/mm/pgtable.c	2006-05-16 14:24:47.000000000 +1000
-@@ -13,6 +13,7 @@
- #include <linux/slab.h>
- #include <linux/pagemap.h>
- #include <linux/spinlock.h>
-+#include <linux/module.h>
- 
- #include <asm/system.h>
- #include <asm/pgtable.h>
-@@ -138,6 +139,10 @@ void set_pmd_pfn(unsigned long vaddr, un
- 	__flush_tlb_one(vaddr);
- }
- 
-+static int nr_fixmaps = 0;
-+unsigned long __FIXADDR_TOP = 0xfffff000;
-+EXPORT_SYMBOL(__FIXADDR_TOP);
-+
- void __set_fixmap (enum fixed_addresses idx, unsigned long phys, pgprot_t flags)
- {
- 	unsigned long address = __fix_to_virt(idx);
-@@ -147,6 +152,13 @@ void __set_fixmap (enum fixed_addresses 
- 		return;
- 	}
- 	set_pte_pfn(address, phys >> PAGE_SHIFT, flags);
-+	nr_fixmaps++;
-+}
-+
-+void set_fixaddr_top(unsigned long top)
-+{
-+	BUG_ON(nr_fixmaps > 0);
-+	__FIXADDR_TOP = top - PAGE_SIZE;
- }
- 
- pte_t *pte_alloc_one_kernel(struct mm_struct *mm, unsigned long address)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.17-rc4/include/asm-i386/a.out.h working-2.6.17-rc4-vsyscall-above-stack/include/asm-i386/a.out.h
---- linux-2.6.17-rc4/include/asm-i386/a.out.h	2004-02-04 14:43:43.000000000 +1100
-+++ working-2.6.17-rc4-vsyscall-above-stack/include/asm-i386/a.out.h	2006-05-16 14:24:47.000000000 +1000
-@@ -19,7 +19,7 @@ struct exec
- 
- #ifdef __KERNEL__
- 
--#define STACK_TOP	TASK_SIZE
-+#define STACK_TOP	(TASK_SIZE - 3*PAGE_SIZE)
- 
- #endif
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.17-rc4/include/asm-i386/elf.h working-2.6.17-rc4-vsyscall-above-stack/include/asm-i386/elf.h
---- linux-2.6.17-rc4/include/asm-i386/elf.h	2006-03-23 12:44:01.000000000 +1100
-+++ working-2.6.17-rc4-vsyscall-above-stack/include/asm-i386/elf.h	2006-05-16 14:24:47.000000000 +1000
-@@ -129,11 +129,16 @@ extern int dump_task_extended_fpu (struc
- #define ELF_CORE_COPY_FPREGS(tsk, elf_fpregs) dump_task_fpu(tsk, elf_fpregs)
- #define ELF_CORE_COPY_XFPREGS(tsk, elf_xfpregs) dump_task_extended_fpu(tsk, elf_xfpregs)
- 
--#define VSYSCALL_BASE	(__fix_to_virt(FIX_VSYSCALL))
-+#define VSYSCALL_BASE	(PAGE_OFFSET - 2*PAGE_SIZE)
- #define VSYSCALL_EHDR	((const struct elfhdr *) VSYSCALL_BASE)
- #define VSYSCALL_ENTRY	((unsigned long) &__kernel_vsyscall)
- extern void __kernel_vsyscall;
- 
-+#define ARCH_HAS_SETUP_ADDITIONAL_PAGES
-+struct linux_binprm;
-+extern int arch_setup_additional_pages(struct linux_binprm *bprm,
-+                                       int executable_stack);
-+
- #define ARCH_DLINFO						\
- do {								\
- 		NEW_AUX_ENT(AT_SYSINFO,	VSYSCALL_ENTRY);	\
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.17-rc4/include/asm-i386/fixmap.h working-2.6.17-rc4-vsyscall-above-stack/include/asm-i386/fixmap.h
---- linux-2.6.17-rc4/include/asm-i386/fixmap.h	2006-03-23 12:43:10.000000000 +1100
-+++ working-2.6.17-rc4-vsyscall-above-stack/include/asm-i386/fixmap.h	2006-05-16 14:24:47.000000000 +1000
-@@ -20,7 +20,7 @@
-  * Leave one empty page between vmalloc'ed areas and
-  * the start of the fixmap.
-  */
--#define __FIXADDR_TOP	0xfffff000
-+extern unsigned long __FIXADDR_TOP;
- 
- #ifndef __ASSEMBLY__
- #include <linux/kernel.h>
-@@ -52,7 +52,6 @@
-  */
- enum fixed_addresses {
- 	FIX_HOLE,
--	FIX_VSYSCALL,
- #ifdef CONFIG_X86_LOCAL_APIC
- 	FIX_APIC_BASE,	/* local (CPU) APIC) -- required for SMP or not */
- #endif
-@@ -95,6 +94,8 @@ enum fixed_addresses {
- extern void __set_fixmap (enum fixed_addresses idx,
- 					unsigned long phys, pgprot_t flags);
- 
-+extern void set_fixaddr_top(unsigned long top);
-+
- #define set_fixmap(idx, phys) \
- 		__set_fixmap(idx, phys, PAGE_KERNEL)
- /*
-@@ -116,14 +117,6 @@ extern void __set_fixmap (enum fixed_add
- #define __fix_to_virt(x)	(FIXADDR_TOP - ((x) << PAGE_SHIFT))
- #define __virt_to_fix(x)	((FIXADDR_TOP - ((x)&PAGE_MASK)) >> PAGE_SHIFT)
- 
--/*
-- * This is the range that is readable by user mode, and things
-- * acting like user mode such as get_user_pages.
-- */
--#define FIXADDR_USER_START	(__fix_to_virt(FIX_VSYSCALL))
--#define FIXADDR_USER_END	(FIXADDR_USER_START + PAGE_SIZE)
--
--
- extern void __this_fixmap_does_not_exist(void);
- 
- /*
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.17-rc4/include/asm-i386/page.h working-2.6.17-rc4-vsyscall-above-stack/include/asm-i386/page.h
---- linux-2.6.17-rc4/include/asm-i386/page.h	2006-05-16 10:51:38.000000000 +1000
-+++ working-2.6.17-rc4-vsyscall-above-stack/include/asm-i386/page.h	2006-05-16 14:24:47.000000000 +1000
-@@ -121,7 +121,7 @@ extern int page_is_ram(unsigned long pag
- 
- #define PAGE_OFFSET		((unsigned long)__PAGE_OFFSET)
- #define VMALLOC_RESERVE		((unsigned long)__VMALLOC_RESERVE)
--#define MAXMEM			(-__PAGE_OFFSET-__VMALLOC_RESERVE)
-+#define MAXMEM			(__FIXADDR_TOP-__PAGE_OFFSET-__VMALLOC_RESERVE)
- #define __pa(x)			((unsigned long)(x)-PAGE_OFFSET)
- #define __va(x)			((void *)((unsigned long)(x)+PAGE_OFFSET))
- #define pfn_to_kaddr(pfn)      __va((pfn) << PAGE_SHIFT)
-@@ -137,6 +137,8 @@ extern int page_is_ram(unsigned long pag
- 	((current->personality & READ_IMPLIES_EXEC) ? VM_EXEC : 0 ) | \
- 		 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
- 
-+#define __HAVE_ARCH_GATE_AREA 1
-+
- #endif /* __KERNEL__ */
- 
- #include <asm-generic/memory_model.h>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
 
--- 
- ccontrol: http://ccontrol.ozlabs.org
-
+iD8DBQBEaWz386MdxiXaIbERAhknAKCaZDLbDTNb+aFfkB184HT/d9G9LgCgx/er
+AzWJylxlmYGs9omX+q2H3w4=
+=6fV9
+-----END PGP SIGNATURE-----
+--=-=-=--

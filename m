@@ -1,38 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbWEPRvC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbWEPRvQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932478AbWEPRvC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 13:51:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932490AbWEPRvA
+	id S932492AbWEPRvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 13:51:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWEPRvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 13:51:00 -0400
-Received: from mx1.suse.de ([195.135.220.2]:8624 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932480AbWEPRu5 (ORCPT
+	Tue, 16 May 2006 13:51:15 -0400
+Received: from mx2.suse.de ([195.135.220.15]:23448 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932462AbWEPRu1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 13:50:57 -0400
-Date: Tue, 16 May 2006 19:50:47 +0200
-From: Olaf Hering <olh@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Ihno Krumreich <ihno@suse.de>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [2.6 patch] the overdue removal of the obsolete raw driver
-Message-ID: <20060516175047.GA14495@suse.de>
-References: <20060515005637.00b54560.akpm@osdl.org> <20060516161228.GF5677@stusta.de> <20060516163726.GA13798@suse.de> <20060516174430.GN10077@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20060516174430.GN10077@stusta.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Tue, 16 May 2006 13:50:27 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: James Morris <jmorris@namei.org>, Alexey Dobriyan <adobriyan@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] selinux: endian fix
+References: <20060516152305.GI10143@mipter.zuzino.mipt.ru>
+	<Pine.LNX.4.64.0605161149540.16379@d.namei>
+	<jeiro6sztd.fsf@sykes.suse.de>
+	<Pine.LNX.4.61.0605161941360.26842@yvahk01.tjqt.qr>
+X-Yow: An Italian is COMBING his hair in suburban DES MOINES!
+Date: Tue, 16 May 2006 19:50:25 +0200
+In-Reply-To: <Pine.LNX.4.61.0605161941360.26842@yvahk01.tjqt.qr> (Jan
+	Engelhardt's message of "Tue, 16 May 2006 19:42:05 +0200 (MEST)")
+Message-ID: <jebqtxuae6.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Tue, May 16, Adrian Bunk wrote:
+Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
 
+>>>> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+>>>
+>>> Hmm, I'm certain this was tested (perhaps on a BE machine, though).
+>>
+>>ntohs and htons are identical operations.  Either you swap or you don't,
+>>but there is only one way to swap a short.
+>>
+> ...unless PDPs start to get attractive again. :>
 
-> -When:	December 2005
+No.  There are only two ways to order two bytes.
 
-Dude, you really screwed it up. ;-)
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,129 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWEPPJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWEPPJ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbWEPPJp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 11:09:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWEPPJo
+	id S932082AbWEPPJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 11:09:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWEPPJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 11:09:44 -0400
-Received: from moutng.kundenserver.de ([212.227.126.187]:22748 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932070AbWEPPJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 11:09:43 -0400
-Message-ID: <4469EB32.80806@am-anger-1.de>
-Date: Tue, 16 May 2006 17:09:38 +0200
-From: Heiko Gerstung <heiko@am-anger-1.de>
-User-Agent: Mail/News 1.5 (X11/20060322)
-MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Bug related to bonding
-References: <44684B60.1070705@am-anger-1.de> <20060516045332.GN11191@w.ods.org> <44695D2A.9080705@am-anger-1.de> <20060516123351.GA22040@w.ods.org>
-In-Reply-To: <20060516123351.GA22040@w.ods.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:25672344472c4ac2bbe53bd9833f99fb
+	Tue, 16 May 2006 11:09:56 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:37004 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S932077AbWEPPJt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 11:09:49 -0400
+Date: Tue, 16 May 2006 17:09:28 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: David Brownell <david-b@pacbell.net>
+Cc: jffs-dev@axis.com, dwmw2@infradead.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-mtd@lists.infradead.org
+Subject: Re: jffs2 build fixes
+Message-ID: <20060516150928.GC11656@wohnheim.fh-wedel.de>
+References: <200604010831.57875.david-b@pacbell.net> <200605160755.38606.david-b@pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200605160755.38606.david-b@pacbell.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Willy:
+On Tue, 16 May 2006 07:55:37 -0700, David Brownell wrote:
+> On Saturday 01 April 2006 8:31 am, David Brownell wrote:
+> > against today's GIT; there's a section error and
+> > several printk format warnings.  x86_64.
+> 
+> I see that Andrew also got tired of such printk warnings, so his
+> fix is now in the kernel.org tree ... here's a resend of this
+> patch, updated against today's GIT by removing two of the printk
+> warning fixes.
 
-Willy Tarreau wrote:
-> So I think that the rtl8150 driver is simply buggy, or at least does not
-> expect to be used this way.
->
->   
-Yes, the original author (Petko) confirmed a few minutes ago that this
-is the case.
->> Anyone here who can tell me how to handle this (or point me to a driver
->> which already does that)?
->>     
->
-> May be you can try to change the 2 usb_control_msg() calls for a
-> combination of FILL_CONTROL_URB() + usb_submit_urb ? Hmmm reading the
-> code, it looks like nearly everything is already provided. In
-> rtl8150_ethtool_ioctl(), you should try to replaces occurences of
-> get_registers() by async_get_registers() that you will write by
-> comparing set_registers() with async_set_registers().
->   
-I tried that and it seems that it segfaults now when trying to execute
-the following line:
+jffs-dev@axis.com is practically dead.  Iirc, the list was used for
+the old jffs[1] code.  Jffs2 is usually discussed on
+linux-mtd@lists.infradead.org (added to Cc:).
 
-dev->ctrl_urb->transfer_buffer_length = size;
+> Resolve some JFFS2 build problems:
+>   (a) section mismatch error
+>   (b) wrong printk format warnings
+> 
+> The section mismatch issue was fixed by making a few more routines as
+> belonging in init or exit sections, but there are more routines that
+> could (should!) get such annotations.
 
-with the following panic message:
+Patch looks sane.  Does it still apply against dwmw2's latest tree?
+http://git.infradead.org/?p=mtd-2.6.git
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000028
-printing eip:
-c48a229a
-*pde = 00000000
-Oops: 0002
-CPU: 0
-EIP: 0010:[<c48a229a>] Not tainted
-EFLAGS: 00010286
-eax: 00000000 ebx: c3aae000 ecx: 00000001 edx: 00000001
-esi: 0000012e edi: 00000001 ebp: 00000001 esp: c3b3fe28
-ds: 0018 es: 0018 ss: 0018
-Process modprobe.old (pid: 55, stackpage=c3b3f000)
-Stack: c48a3b05 c48a3af5 c48a3ae5 c3aae08c c030b1e0 00000064 c3b3fe63
-c3aae000
-00000000 c48a2575 c3aae000 0000012e 00000001 c3b3fe63 10000000 c3aae000
-c10e3200 c10e3000 c48a3399 c3aae000 c39af220 c0286a00 c02e03c8 00001708
-Call Trace: [<c48a3b05>] [<c48a3af5>] [<c48a3ae5>] [<c48a2575>] [<c48a3399>]
-[<c48a3ce0>] [<c48a3d60>] [<c01c7339>] [<c48a3ce0>] [<c48a3d40>]
-[<c01c7044>]
-[<c01c7066>] [<c01c6691>] [<c48a3d40>] [<c01c6635>] [<c48a34a4>]
-[<c48a3d40>]
-[<c48a3aa0>] [<c0117ce2>] [<c48a2060>] [<c0108903>]
+[ Patch kept for the benefit of linux-mtd ]
 
-Code: 89 78 28 68 15 3b 8a c4 e8 69 4c 87 fb 8b 43 04 8b 93 88 00
-/etc/myscript: line 43: 55 Segmentation fault modprobe rtl8150 >
-/dev/null 2>&1
-
-(wow! hand copying that was what I needed at the end of a working day :-))
-
-Please find below the complete async_get_registers function I set up, I
-hope it's OK to post it here. A kernel hacker will immediately spot the
-error, no? :-)
-
-Kind regards,
-Heiko
-
-
-static int get_registers(rtl8150_t * dev, u16 indx, u16 size, void *data)
-{
-int ret;
-char *buffer;
-
-printk("get_registers dev=%08X dev->dr=%08X indx=%d size=%d\n",(unsigned
-long) dev, (unsigned long) &dev->dr, indx,size);
-buffer = kmalloc(size, GFP_DMA);
-if (!buffer) {
-warn("%s: looks like we're out of memory", __FUNCTION__);
-return -ENOMEM;
-}
-
-
-if (test_bit(RX_REG_SET, &dev->flags))
-return -EAGAIN;
-
-dev->dr.bRequestType = RTL8150_REQT_READ;
-dev->dr.bRequest = RTL8150_REQ_GET_REGS;
-dev->dr.wValue = cpu_to_le16(indx);
-dev->dr.wIndex = cpu_to_le16p(&indx);
-dev->dr.wLength = cpu_to_le16p(&size);
-
-dev->ctrl_urb->transfer_buffer_length = size;
-
-FILL_CONTROL_URB(dev->ctrl_urb, dev->udev,
-usb_rcvctrlpipe(dev->udev, 0), (char *) &dev->dr,
-buffer, size, ctrl_callback, dev);
-
-if ((ret = usb_submit_urb(dev->ctrl_urb)))
-err("control request submission failed: %d", ret);
-
-return ret;
-}
-
+> Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+> 
+> Index: g26/fs/jffs2/compr.c
+> ===================================================================
+> --- g26.orig/fs/jffs2/compr.c	2006-05-12 18:48:21.000000000 -0700
+> +++ g26/fs/jffs2/compr.c	2006-05-12 19:40:08.000000000 -0700
+> @@ -412,7 +412,7 @@ void jffs2_free_comprbuf(unsigned char *
+>                  kfree(comprbuf);
+>  }
+>  
+> -int jffs2_compressors_init(void)
+> +int __init jffs2_compressors_init(void)
+>  {
+>  /* Registering compressors */
+>  #ifdef CONFIG_JFFS2_ZLIB
+> @@ -440,7 +440,7 @@ int jffs2_compressors_init(void)
+>          return 0;
+>  }
+>  
+> -int jffs2_compressors_exit(void)
+> +int __exit jffs2_compressors_exit(void)
+>  {
+>  /* Unregistering compressors */
+>  #ifdef CONFIG_JFFS2_RUBIN
+> Index: g26/fs/jffs2/compr_zlib.c
+> ===================================================================
+> --- g26.orig/fs/jffs2/compr_zlib.c	2006-05-12 18:48:21.000000000 -0700
+> +++ g26/fs/jffs2/compr_zlib.c	2006-05-12 19:40:08.000000000 -0700
+> @@ -60,7 +60,7 @@ static int __init alloc_workspaces(void)
+>  	return 0;
+>  }
+>  
+> -static void free_workspaces(void)
+> +static void __exit free_workspaces(void)
+>  {
+>  	vfree(def_strm.workspace);
+>  	vfree(inf_strm.workspace);
+> @@ -216,7 +216,7 @@ int __init jffs2_zlib_init(void)
+>      return ret;
+>  }
+>  
+> -void jffs2_zlib_exit(void)
+> +void __exit jffs2_zlib_exit(void)
+>  {
+>      jffs2_unregister_compressor(&jffs2_zlib_comp);
+>      free_workspaces();
+> Index: g26/fs/jffs2/readinode.c
+> ===================================================================
+> --- g26.orig/fs/jffs2/readinode.c	2006-05-12 18:48:21.000000000 -0700
+> +++ g26/fs/jffs2/readinode.c	2006-05-12 19:40:08.000000000 -0700
+> @@ -204,7 +204,7 @@ static inline int read_dnode(struct jffs
+>  
+>  	tn = jffs2_alloc_tmp_dnode_info();
+>  	if (!tn) {
+> -		JFFS2_ERROR("failed to allocate tn (%d bytes).\n", sizeof(*tn));
+> +		JFFS2_ERROR("failed to allocate tn (%zd bytes).\n", sizeof(*tn));
+>  		return -ENOMEM;
+>  	}
+>  
+> @@ -434,7 +434,7 @@ static int read_more(struct jffs2_sb_inf
+>  	}
+>  
+>  	if (retlen < len) {
+> -		JFFS2_ERROR("short read at %#08x: %d instead of %d.\n",
+> +		JFFS2_ERROR("short read at %#08x: %zu instead of %d.\n",
+>  				offs, retlen, len);
+>  		return -EIO;
+>  	}
+> @@ -542,7 +542,8 @@ static int jffs2_get_inode_nodes(struct 
+>  		}
+>  
+>  		if (retlen < len) {
+> -			JFFS2_ERROR("short read at %#08x: %d instead of %d.\n", ref_offset(ref), retlen, len);
+> +			JFFS2_ERROR("short read at %#08x: %zd instead of %d.\n",
+> +					ref_offset(ref), retlen, len);
+>  			err = -EIO;
+>  			goto free_out;
+>  		}
 
 
+Jörn
 
+-- 
+They laughed at Galileo.  They laughed at Copernicus.  They laughed at
+Columbus. But remember, they also laughed at Bozo the Clown.
+-- unknown

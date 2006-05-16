@@ -1,111 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751621AbWEPHGa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751629AbWEPHSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751621AbWEPHGa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 03:06:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751629AbWEPHGa
+	id S1751629AbWEPHSk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 03:18:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751655AbWEPHSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 03:06:30 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:27601 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751616AbWEPHGa (ORCPT
+	Tue, 16 May 2006 03:18:40 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:36500 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1751559AbWEPHSk convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 03:06:30 -0400
-Date: Tue, 16 May 2006 09:06:12 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       apw@shadowen.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 NUMA panic compile error
-Message-ID: <20060516070612.GA14317@elte.hu>
-References: <20060515005637.00b54560.akpm@osdl.org> <200605152111.20693.ak@suse.de> <20060515192614.GA24887@elte.hu> <200605152138.57347.ak@suse.de>
+	Tue, 16 May 2006 03:18:40 -0400
+Subject: Re: rt20 scheduling latency testcase and failure data
+From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+To: Darren Hart <dvhltc@us.ibm.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>, Mike Galbraith <efault@gmx.de>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <200605151830.23544.dvhltc@us.ibm.com>
+References: <200605121924.53917.dvhltc@us.ibm.com>
+	 <200605131601.31880.dvhltc@us.ibm.com> <20060515081341.GB24523@elte.hu>
+	 <200605151830.23544.dvhltc@us.ibm.com>
+Date: Tue, 16 May 2006 09:22:55 +0200
+Message-Id: <1147764175.3970.33.camel@frecb000686>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605152138.57347.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.4.2.1 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 16/05/2006 09:21:38,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 16/05/2006 09:21:44,
+	Serialize complete at 16/05/2006 09:21:44
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andi Kleen <ak@suse.de> wrote:
-
-> > Nevertheless for hard-to-debug bugs i prefer if they can be reproduced 
-> > and debugged on 32-bit too, because x86_64 debugging is still quite a 
-> > PITA and wastes alot of time: for example it has no support for exact 
-> > kernel stacktraces.
+On Mon, 2006-05-15 at 18:30 -0700, Darren Hart wrote:
+> Following Ingo's example I have included the modified test case (please see 
+> the original mail for librt.h) that starts the trace before each sleep and 
+> disables it after we wake up.  If we have missed a period, we print the 
+> trace.
 > 
-> Hopefully soon.
+ <snip>
+>   The very first run 
+> failed, (I've noticed that the first iteration seems to always hit PERIOD 
+> MISSED! while the second usually passes fine).
 
-i've already implemented it for FRAME_POINTERS (i really needed it to 
-not go insane when looking at lock validator output).
+  I've noticed also that, on some occasions, the first run would fail,
+but subsequent runs would be fine. Strange!
 
-As you suggested a few weeks ago the real solution would be a dwarf 
-parser. Maybe ia64's could be taken? Will post the patch for the 
-FRAME_POINTERS solution soon. Sample output:
+  I finally managed to hit a missed period under heavy heavy load:
 
-     [<ffffffff8020af4c>] __show_trace+0x3a/0x66
-     [<ffffffff8020b36b>] show_trace+0x17/0x1a
-     [<ffffffff80207e36>] show_regs+0x36/0x3c
-     [<ffffffff80207e75>] smp_show_regs+0x39/0x52
-     [<ffffffff8021559e>] smp_nmi_callback+0x6a/0x85
-     [<ffffffff802163f2>] do_nmi+0x69/0x91
-     [<ffffffff80601dca>] nmi+0x7e/0x85
-     [<ffffffffffffffff>] 0xffffffffffffffff
-     [<ffffffff80601ad0>] _spin_unlock_irqrestore+0x3e/0x47
-     [<ffffffff8024424c>] prepare_to_wait+0x63/0x6d
-     [<ffffffff8022ff0c>] do_syslog+0xf1/0x3ca
-     [<ffffffff802ba3ed>] kmsg_read+0x3a/0x46
-     [<ffffffff8027db72>] vfs_read+0xe6/0x191
-     [<ffffffff8027e79d>] sys_read+0x44/0x82
-     [<ffffffff80209b11>] system_call+0x7d/0x83
-     [<ffffffffffffffff>] 0xffffffffffffffff
+Running 100000 iterations with a period of 5 ms
+Expected running time: 500 s
 
-(and it works fine across irq/exception stacks too.)
+ITERATION DELAY(US) MAX_DELAY(US) FAILURES
+--------- --------- ------------- --------
+      211        70            97        0
 
-> I think i386 only gained it very recently, so it can't be _that_ big a 
-> problem.
+PERIOD MISSED!
+     scheduled delta:     3128 us
+        actual delta:     3191 us
+             latency:       62 us
+---------------------------------------
+      previous start:  1055070 us
+                 now:  1060172 us
+     scheduled start:  1060000 us
+next scheduled start is in the past!
 
-i certainly used exact backtraces on i386 for many many years. Not sure 
-whether those patches were all upstream though. It's also the 
-combination of effects that makes the difference between i386 and x86_64 
-so striking.
 
-furthermore, the kernel's debugging infrastructure improved 
-significantly, and we get more and more stackdumps to interpret [instead 
-of hard to debug corruptions, etc.].
+Start Latency:  198 us: FAIL
+Min Latency:      6 us: PASS
+Avg Latency:      0 us: PASS
+Max Latency:     97 us: PASS
+Failed Iterations: 0
 
-> The real issue is too deeply nested code like the callback hell we 
-> have in some subsystems. Better would be to eliminate that. 2.4 was 
-> much nicer in this regard and there has been quite a lot of 
-> unnecessary complications in this area when the kernel went to 2.6.
 
-i have no problems with interpreting occasional non-exact backtraces, 
-but it is certainly non-obvious, and when you are looking at backtraces 
-en masse, the unnecessary repetitive task can get really distracting and 
-frustrating.
+  I'll try to trace it now.
 
-Exact backtraces on the other hand almost immediately create a unique 
-and reliable "visual fingerprint", and if you have looked at enough of 
-them, you almost recognize them just from looking at the shape of them. 
-It's a completely different 'experience'. (and userspace developers will 
-laugh out loud at us now i suspect ...)
-
-> > Also, the printout of the backtrace is butt-ugly and as un-ergonomic 
-> > to the human eye as it gets - who came up with that "two-maybe-one 
-> > function entries per-line" nonsense? [Whoever did it he never had to 
-> > look at (and make sense of) hundreds of stacktraces in a row.]
+>   It's still running a 1M 
+> iteration run with no more failures so far (100K so far).
 > 
-> The original goal was to make it fit as much as possible on the screen 
-> when you don't have a serial/net/fireconsole. But arguably it's less 
-> and less useful because the kernel has gotten so huge that most 
-> backtraces are very long and scroll away anyways.
+> The latency tracer is a very interesting tool.  I have a few 
+> questions/assumptions I'd like to run by you to make sure I understand the 
+> output of the latency trace:
+> 
+> o ! in the delay column means there is a long latency here?
 
-yeah.
+  ! means latency > 100 us
 
-	Ingo
+> o + in the delay column means there is a > 1us latency here?
+
+  + means latency > 1 us
+
+> o > means entering the kernel from a sys_call?
+
+  yep
+
+> o < means returning from the sys_call?
+
+  or from interrupt
+
+> o : is not < or >
+
+  yep
+
+
+  Sébastien.
+

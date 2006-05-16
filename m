@@ -1,330 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWEPOVg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWEPOWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751132AbWEPOVg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 10:21:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbWEPOVg
+	id S1751143AbWEPOWW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 10:22:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWEPOWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 10:21:36 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:25788
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1751136AbWEPOVf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 10:21:35 -0400
-Message-Id: <4469FC41.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
-Date: Tue, 16 May 2006 16:22:25 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Andreas Kleen" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
-Subject: [PATCH 3/3] reliable stack trace support (i386)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Tue, 16 May 2006 10:22:22 -0400
+Received: from [195.159.148.250] ([195.159.148.250]:38386 "EHLO zulu.barmen.nu")
+	by vger.kernel.org with ESMTP id S1751143AbWEPOWV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 10:22:21 -0400
+From: "Stian B. Barmen" <stian@barmen.nu>
+To: "'Andrew Morton'" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: PROBLEM: ide hdma dma_timer_expiry
+Date: Tue, 16 May 2006 16:22:26 +0200
+MIME-Version: 1.0
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+In-Reply-To: <20060516071541.1072c360.akpm@osdl.org>
+Content-Type: multipart/signed;
+	boundary="----=_NextPart_000_015B_01C67904.EB56C440";
+	protocol="application/x-pkcs7-signature";
+	micalg=SHA1
+thread-index: AcZ47ZKsqXI14xTARTSKAV2EberEAQABjGHQ
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Message-ID: <ZULUfWoqFXfyY0QUUBP00000043@zulu.barmen.nu>
+X-OriginalArrivalTime: 16 May 2006 13:38:33.0125 (UTC) FILETIME=[0661A550:01C678EE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These are the i386-specific pieces to enable reliable stack traces. This is
-going to be even more useful once CFI annotations get added to he assembly
-code, namely to entry.S (a patch for that had been submitted several times).
+This is a multi-part message in MIME format.
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
+------=_NextPart_000_015B_01C67904.EB56C440
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 
---- linux-2.6.17-rc4/arch/i386/kernel/entry.S	2006-05-16 15:15:29.000000000 +0200
-+++ 2.6.17-rc4-unwind-i386/arch/i386/kernel/entry.S	2006-05-16 15:16:46.000000000 +0200
-@@ -663,6 +663,35 @@ ENTRY(spurious_interrupt_bug)
- 	pushl $do_spurious_interrupt_bug
- 	jmp error_code
- 
-+#ifdef CONFIG_STACK_UNWIND
-+ENTRY(arch_unwind_init_running)
-+	movl	4(%esp), %edx
-+	movl	(%esp), %ecx
-+	leal	4(%esp), %eax
-+	movl	%ebx, EBX(%edx)
-+	xorl	%ebx, %ebx
-+	movl	%ebx, ECX(%edx)
-+	movl	%ebx, EDX(%edx)
-+	movl	%esi, ESI(%edx)
-+	movl	%edi, EDI(%edx)
-+	movl	%ebp, EBP(%edx)
-+	movl	%ebx, EAX(%edx)
-+	movl	$__USER_DS, DS(%edx)
-+	movl	$__USER_DS, ES(%edx)
-+	movl	%ebx, ORIG_EAX(%edx)
-+	movl	%ecx, EIP(%edx)
-+	movl	12(%esp), %ecx
-+	movl	$__KERNEL_CS, CS(%edx)
-+	movl	%ebx, EFLAGS(%edx)
-+	movl	%eax, OLDESP(%edx)
-+	movl	8(%esp), %eax
-+	movl	%ecx, 8(%esp)
-+	movl	EBX(%edx), %ebx
-+	movl	$__KERNEL_DS, OLDSS(%edx)
-+	jmpl	*%eax
-+ENDPROC(arch_unwind_init_running)
-+#endif
-+
- .section .rodata,"a"
- #include "syscall_table.S"
- 
---- linux-2.6.17-rc4/arch/i386/kernel/process.c	2006-05-16 15:15:29.000000000 +0200
-+++ 2.6.17-rc4-unwind-i386/arch/i386/kernel/process.c	2006-05-16 15:16:46.000000000 +0200
-@@ -312,7 +312,7 @@ void show_regs(struct pt_regs * regs)
- 	cr3 = read_cr3();
- 	cr4 = read_cr4_safe();
- 	printk("CR0: %08lx CR2: %08lx CR3: %08lx CR4: %08lx\n", cr0, cr2, cr3, cr4);
--	show_trace(NULL, &regs->esp);
-+	show_trace(NULL, regs, &regs->esp);
- }
- 
- /*
---- linux-2.6.17-rc4/arch/i386/kernel/traps.c	2006-05-16 15:15:29.000000000 +0200
-+++ 2.6.17-rc4-unwind-i386/arch/i386/kernel/traps.c	2006-05-16 15:42:38.000000000 +0200
-@@ -47,7 +47,7 @@
- #include <asm/desc.h>
- #include <asm/i387.h>
- #include <asm/nmi.h>
--
-+#include <asm/unwind.h>
- #include <asm/smp.h>
- #include <asm/arch_hooks.h>
- #include <asm/kdebug.h>
-@@ -165,14 +165,43 @@ static inline unsigned long print_contex
- 	return ebp;
- }
- 
--static void show_trace_log_lvl(struct task_struct *task,
-+static asmlinkage void show_trace_unwind(struct unwind_frame_info *info, void *log_lvl)
-+{
-+	int printed = 0; /* nr of entries already printed on current line */
-+
-+	while (unwind(info) == 0 && UNW_PC(info)) {
-+		printed = print_addr_and_symbol(UNW_PC(info), log_lvl, printed);
-+		if (arch_unw_user_mode(info))
-+			break;
-+	}
-+	if (printed)
-+		printk("\n");
-+}
-+
-+static void show_trace_log_lvl(struct task_struct *task, struct pt_regs *regs,
- 			       unsigned long *stack, char *log_lvl)
- {
- 	unsigned long ebp;
-+	struct unwind_frame_info info;
- 
- 	if (!task)
- 		task = current;
- 
-+	if (regs) {
-+		if (unwind_init_frame_info(&info, task, regs) == 0) {
-+			show_trace_unwind(&info, log_lvl);
-+			return;
-+		}
-+	} else if (task == current) {
-+		if (unwind_init_running(&info, show_trace_unwind, log_lvl) == 0)
-+			return;
-+	} else {
-+		if (unwind_init_blocked(&info, task) == 0) {
-+			show_trace_unwind(&info, log_lvl);
-+			return;
-+		}
-+	}
-+
- 	if (task == current) {
- 		/* Grab ebp right from our regs */
- 		asm ("movl %%ebp, %0" : "=r" (ebp) : );
-@@ -193,13 +222,13 @@ static void show_trace_log_lvl(struct ta
- 	}
- }
- 
--void show_trace(struct task_struct *task, unsigned long * stack)
-+void show_trace(struct task_struct *task, struct pt_regs *regs, unsigned long * stack)
- {
--	show_trace_log_lvl(task, stack, "");
-+	show_trace_log_lvl(task, regs, stack, "");
- }
- 
--static void show_stack_log_lvl(struct task_struct *task, unsigned long *esp,
--			       char *log_lvl)
-+static void show_stack_log_lvl(struct task_struct *task, struct pt_regs *regs,
-+			       unsigned long *esp, char *log_lvl)
- {
- 	unsigned long *stack;
- 	int i;
-@@ -221,13 +250,13 @@ static void show_stack_log_lvl(struct ta
- 		printk("%08lx ", *stack++);
- 	}
- 	printk("\n%sCall Trace:\n", log_lvl);
--	show_trace_log_lvl(task, esp, log_lvl);
-+	show_trace_log_lvl(task, regs, esp, log_lvl);
- }
- 
- void show_stack(struct task_struct *task, unsigned long *esp)
- {
- 	printk("       ");
--	show_stack_log_lvl(task, esp, "");
-+	show_stack_log_lvl(task, NULL, esp, "");
- }
- 
- /*
-@@ -237,7 +266,7 @@ void dump_stack(void)
- {
- 	unsigned long stack;
- 
--	show_trace(current, &stack);
-+	show_trace(current, NULL, &stack);
- }
- 
- EXPORT_SYMBOL(dump_stack);
-@@ -280,7 +309,7 @@ void show_registers(struct pt_regs *regs
- 		u8 __user *eip;
- 
- 		printk("\n" KERN_EMERG "Stack: ");
--		show_stack_log_lvl(NULL, (unsigned long *)esp, KERN_EMERG);
-+		show_stack_log_lvl(NULL, regs, (unsigned long *)esp, KERN_EMERG);
- 
- 		printk(KERN_EMERG "Code: ");
- 
---- linux-2.6.17-rc4/arch/i386/kernel/vmlinux.lds.S	2006-05-16 15:15:29.000000000 +0200
-+++ 2.6.17-rc4-unwind-i386/arch/i386/kernel/vmlinux.lds.S	2006-05-16 15:16:46.000000000 +0200
-@@ -64,6 +64,15 @@ SECTIONS
-   .data.read_mostly : AT(ADDR(.data.read_mostly) - LOAD_OFFSET) { *(.data.read_mostly) }
-   _edata = .;			/* End of data section */
- 
-+#ifdef CONFIG_STACK_UNWIND
-+  . = ALIGN(4);
-+  .eh_frame : AT(ADDR(.eh_frame) - LOAD_OFFSET) {
-+	__start_unwind = .;
-+  	*(.eh_frame)
-+	__end_unwind = .;
-+  }
-+#endif
-+
-   . = ALIGN(THREAD_SIZE);	/* init_task */
-   .data.init_task : AT(ADDR(.data.init_task) - LOAD_OFFSET) {
- 	*(.data.init_task)
---- linux-2.6.17-rc4/include/asm-i386/processor.h	2006-05-16 15:15:47.000000000 +0200
-+++ 2.6.17-rc4-unwind-i386/include/asm-i386/processor.h	2006-05-16 15:16:46.000000000 +0200
-@@ -555,7 +555,7 @@ extern void prepare_to_copy(struct task_
- extern int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
- 
- extern unsigned long thread_saved_pc(struct task_struct *tsk);
--void show_trace(struct task_struct *task, unsigned long *stack);
-+void show_trace(struct task_struct *task, struct pt_regs *regs, unsigned long *stack);
- 
- unsigned long get_wchan(struct task_struct *p);
- 
---- linux-2.6.17-rc4/include/asm-i386/unwind.h	1970-01-01 01:00:00.000000000 +0100
-+++ 2.6.17-rc4-unwind-i386/include/asm-i386/unwind.h	2006-05-16 15:47:41.000000000 +0200
-@@ -0,0 +1,97 @@
-+#ifndef _ASM_I386_UNWIND_H
-+#define _ASM_I386_UNWIND_H
-+
-+/*
-+ * Copyright (C) 2002-2006 Novell, Inc.
-+ *	Jan Beulich <jbeulich@novell.com>
-+ */
-+
-+#include <linux/config.h>
-+
-+#ifdef CONFIG_STACK_UNWIND
-+
-+#include <asm/ptrace.h>
-+#include <asm/uaccess.h>
-+
-+struct unwind_frame_info {
-+	struct pt_regs regs;
-+	struct task_struct *task;
-+};
-+
-+#define UNW_PC(frame) (frame)->regs.eip
-+#define UNW_SP(frame) (frame)->regs.esp
-+#ifdef CONFIG_FRAME_POINTER
-+#define UNW_FP(frame) (frame)->regs.ebp
-+#define FRAME_RETADDR_OFFSET 4
-+#define FRAME_LINK_OFFSET 0
-+#define STACK_BOTTOM(tsk) (((tsk)->thread.esp0 - 1) & ~(THREAD_SIZE - 1))
-+#define STACK_TOP(tsk) ((tsk)->thread.esp0)
-+#endif
-+
-+#define UNW_REGISTER_INFO \
-+	PTREGS_INFO(eax), \
-+	PTREGS_INFO(ecx), \
-+	PTREGS_INFO(edx), \
-+	PTREGS_INFO(ebx), \
-+	PTREGS_INFO(esp), \
-+	PTREGS_INFO(ebp), \
-+	PTREGS_INFO(esi), \
-+	PTREGS_INFO(edi), \
-+	PTREGS_INFO(eip)
-+
-+static inline void
-+arch_unw_init_frame_info(struct unwind_frame_info *info, /*const*/ struct pt_regs *regs)
-+{
-+	if (user_mode_vm(regs))
-+		info->regs = *regs;
-+	else {
-+		memcpy(&info->regs, regs, offsetof(struct pt_regs, esp));
-+		info->regs.esp = (unsigned long)&regs->esp;
-+		info->regs.xss = __KERNEL_DS;
-+	}
-+}
-+
-+static inline void
-+arch_unw_init_blocked(struct unwind_frame_info *info)
-+{
-+	memset(&info->regs, 0, sizeof(info->regs));
-+	info->regs.eip = info->task->thread.eip;
-+	info->regs.xcs = __KERNEL_CS;
-+	__get_user(info->regs.ebp, (long *)info->task->thread.esp);
-+	info->regs.esp = info->task->thread.esp;
-+	info->regs.xss = __KERNEL_DS;
-+	info->regs.xds = __USER_DS;
-+	info->regs.xes = __USER_DS;
-+}
-+
-+extern asmlinkage void
-+arch_unwind_init_running(struct unwind_frame_info *,
-+                         asmlinkage void (*callback)(struct unwind_frame_info *, void *arg),
-+                         void *arg);
-+
-+static inline int
-+arch_unw_user_mode(const struct unwind_frame_info *info)
-+{
-+#if 0 /* This can only work when selector register and EFLAGS saves/restores
-+         are properly annotated (and tracked in UNW_REGISTER_INFO). */
-+	return user_mode_vm(&info->regs);
-+#else
-+	return info->regs.eip < PAGE_OFFSET;
-+#endif
-+}
-+
-+#else
-+
-+#define UNW_PC(frame) ((void)(frame), 0)
-+
-+static inline int
-+arch_unw_user_mode(const void *info)
-+{
-+	return 0;
-+}
-+
-+#endif
-+
-+#include <asm-generic/unwind.h>
-+
-+#endif /* _ASM_I386_UNWIND_H */
---- linux-2.6.17-rc4/lib/Kconfig.debug	2006-05-16 15:15:49.000000000 +0200
-+++ 2.6.17-rc4-unwind-i386/lib/Kconfig.debug	2006-05-16 15:16:46.000000000 +0200
-@@ -199,7 +199,7 @@ config UNWIND_INFO
- config STACK_UNWIND
- 	bool "Stack unwind support"
- 	depends on UNWIND_INFO
--	depends on X86_64
-+	depends on X86
- 	help
- 	  This enables more precise stack traces, omitting all unrelated
- 	  occurrences of pointers into kernel code from the dump.
+> Can I confirm that 2.6.16.15 is bad and 2.6.16.4 is OK?  Or 
+> did you mean
+> 2.6.15.4 there?
+> 
 
+Yes, 2.6.16.4 i OK and working, the problem is on 2.6.16.15 and I mean that
+I had the same problem on an earlier 2.6.16 kernel aswell, but I am not
+certain about the version. 
+
+For now I have to reboot to 2.6.16.4 because we have holiday in Norway
+tomorrow and I cannot guard the server. 
+
+Best regards
+Stian B. Barmen
+
+------=_NextPart_000_015B_01C67904.EB56C440
+Content-Type: application/x-pkcs7-signature;
+	name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="smime.p7s"
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIOSDCCBHAw
+ggNYoAMCAQICEB+0zZj6uUmxQ2K5VZ1P12EwDQYJKoZIhvcNAQEFBQAwga4xCzAJBgNVBAYTAlVT
+MQswCQYDVQQIEwJVVDEXMBUGA1UEBxMOU2FsdCBMYWtlIENpdHkxHjAcBgNVBAoTFVRoZSBVU0VS
+VFJVU1QgTmV0d29yazEhMB8GA1UECxMYaHR0cDovL3d3dy51c2VydHJ1c3QuY29tMTYwNAYDVQQD
+Ey1VVE4tVVNFUkZpcnN0LUNsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgRW1haWwwHhcNMDUwNjA3
+MDgwOTEwWhcNMTkwNzA5MTczNjU4WjBlMQswCQYDVQQGEwJTRTEUMBIGA1UEChMLQWRkVHJ1c3Qg
+QUIxHTAbBgNVBAsTFEFkZFRydXN0IFRUUCBOZXR3b3JrMSEwHwYDVQQDExhBZGRUcnVzdCBDbGFz
+cyAxIENBIFJvb3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCWltQhSWDia+hBBwze
+xODcEyPNwTXH+9ZOEQpnXvUGW2ulCDtbKRY654eyNAbFvAWlA3yCyykQruGIgb3WntP+LVbBFc7j
+Jp0VLhD7Bo8wBN6ntGO0/7Gcrjyvd7ZWxbWroulpOj0OM3kyP3CCkplhbY0wCI9xP6ZIVxn4JdxL
+ZlyldI+Yrsj5wAYi56xz36Uu+1LcsRVlIPo1Zmne3yzxbrww2ywkEtvrNTVokMsAsJchPXQhI2U0
+K7t4WaPW4XY5mqRJjox0r26kmqPZm9I4XJuiGMx1I4S+6+JNM3GOGvDC+Mcdoq0Dlyz4zyXG9rgk
+MbFjXZJ/Y/AlyVMuH79NAgMBAAGjgdEwgc4wHwYDVR0jBBgwFoAUiYJnfcSdJnAAS7RQSHzePa4E
+bn0wHQYDVR0OBBYEFJWxtPCUtr3H2tERCSG+wa9J/RB7MA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMB
+Af8EBTADAQH/MBEGCWCGSAGG+EIBAQQEAwIAATBYBgNVHR8EUTBPME2gS6BJhkdodHRwOi8vY3Js
+LnVzZXJ0cnVzdC5jb20vVVROLVVTRVJGaXJzdC1DbGllbnRBdXRoZW50aWNhdGlvbmFuZEVtYWls
+LmNybDANBgkqhkiG9w0BAQUFAAOCAQEAaenDt4Gwt0ps0AgcIC5PrbDFLtmGHU116Z2Ok+MEWh9p
+Lgv/mvP50iMHmRqHMGGiIngTqsioHxNL64GxQF6EfG7tEpPCUr6dj4iW4XZvYFF0nT7/3AoLtP27
+1e7/k+Dh7/LJxMN9flJEjrQZF5vTiDM1G5g5EMXVLk31lpzXfbxMV6X2iD9BrSNLmk7bZ69/EsDz
+W7Y44lu6XPYCWRWdZAuSfoopDa0AdQxf1MzGzSfdlSTlOEV9Y81qezrb2rXVR4y3DQPhCxjzImQo
+KXoyoBzj+hY78e3nhaNU4eI8IfyjqXjrzFTM9B8aFinNgbqmbMWOnmDn/WFJQN50NCXR9TCCBKIw
+ggOKoAMCAQICEES+DItQACS0EdM2JSVnyYkwDQYJKoZIhvcNAQEFBQAwga4xCzAJBgNVBAYTAlVT
+MQswCQYDVQQIEwJVVDEXMBUGA1UEBxMOU2FsdCBMYWtlIENpdHkxHjAcBgNVBAoTFVRoZSBVU0VS
+VFJVU1QgTmV0d29yazEhMB8GA1UECxMYaHR0cDovL3d3dy51c2VydHJ1c3QuY29tMTYwNAYDVQQD
+Ey1VVE4tVVNFUkZpcnN0LUNsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgRW1haWwwHhcNOTkwNzA5
+MTcyODUwWhcNMTkwNzA5MTczNjU4WjCBrjELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAlVUMRcwFQYD
+VQQHEw5TYWx0IExha2UgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3JrMSEwHwYD
+VQQLExhodHRwOi8vd3d3LnVzZXJ0cnVzdC5jb20xNjA0BgNVBAMTLVVUTi1VU0VSRmlyc3QtQ2xp
+ZW50IEF1dGhlbnRpY2F0aW9uIGFuZCBFbWFpbDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoC
+ggEBALI5haTyfatBO2JGN67NwWB1vDll+UoaR6K5zEjMapjVTTUZuaRC5c5J4oovHnzSMQfHTrSD
+ZJ0uKdWiZMSFvYVRNXmkTmiQexx6pJKoF/KYFfKTzMmkMpW7DE8wvZigC4vlbhuiRvp4vKJvq1le
+pS/Pytptqi/rrKGzaqq3Lmc1i3nhHmmI4uZGzaCl6r4LznY6eg6b6vzaJ1s9cx8i5khhxkzzabGo
+Lhu21DEgLLyCio6kDqXXiUP8FlqvHXHXEVnauocNr/rz4cLwpMVnjNbWVDreCqS6A3ezZcj9HtN0
+YqoYymiTHqGFfvVHZcv4TVcodNI0/zC27vZiMBSMLOsCAwEAAaOBuTCBtjALBgNVHQ8EBAMCAcYw
+DwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUiYJnfcSdJnAAS7RQSHzePa4Ebn0wWAYDVR0fBFEw
+TzBNoEugSYZHaHR0cDovL2NybC51c2VydHJ1c3QuY29tL1VUTi1VU0VSRmlyc3QtQ2xpZW50QXV0
+aGVudGljYXRpb25hbmRFbWFpbC5jcmwwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMEMA0G
+CSqGSIb3DQEBBQUAA4IBAQCxbWFdphp/fKtK5DD8U28lJMbK7eIxXCsO7u5hVW8EPs853sUbSZTk
+6yBMtOaeUC5y2Y31qqOzStpWHGCXgNyCoq1KvYor/wsJtMbXIARF5M2AAbq6K27OqteS/uSv6/Qm
+HRYqf2wwlTcvMxKsf93H0RGMUZiy0KOR0K32n56Dkx4dQrhGr2tm8Jt/6uMDAuUCUcGq1TWdckAD
+iboxHcUQaFKe36KFxVwIpnjmU0+x6LfTFJ6TpsNk46x+cc28n+kDG8z76awxwa98FXQCmcOyR6bC
+MmHXx29IJFEnodWHVfJ7j5g9Fp7udbb40I7y88auKFun8PM2F/zDBdPKA0pUMIIFKjCCBBKgAwIB
+AgIRAI4Kp7vwJ39Dcr7RpNaqobcwDQYJKoZIhvcNAQEFBQAwZTELMAkGA1UEBhMCU0UxFDASBgNV
+BAoTC0FkZFRydXN0IEFCMR0wGwYDVQQLExRBZGRUcnVzdCBUVFAgTmV0d29yazEhMB8GA1UEAxMY
+QWRkVHJ1c3QgQ2xhc3MgMSBDQSBSb290MB4XDTA2MDIwOTAwMDAwMFoXDTA3MDIwOTIzNTk1OVow
+gd8xNTAzBgNVBAsTLENvbW9kbyBUcnVzdCBOZXR3b3JrIC0gUEVSU09OQSBOT1QgVkFMSURBVEVE
+MUYwRAYDVQQLEz1UZXJtcyBhbmQgQ29uZGl0aW9ucyBvZiB1c2U6IGh0dHA6Ly93d3cuY29tb2Rv
+Lm5ldC9yZXBvc2l0b3J5MR8wHQYDVQQLExYoYykyMDAzIENvbW9kbyBMaW1pdGVkMR0wGwYDVQQD
+ExRTdGlhbiBCcmVpdmlrIEJhcm1lbjEeMBwGCSqGSIb3DQEJARYPc3RpYW5AYmFybWVuLm51MIGf
+MA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDB022vCAja+fE4pkQSW4ZiwosUSjq5+m7QKMWBfRRJ
+jtw4o6l+/YJBNtB+Mb5TsbAgNX+2FHw1gaSak2464UXaM3ALdSIZWtlqY1PJPla8oN5YA0uBA22/
+pfCjExHsYXeFI/juU81f075XXfnDePOefXzhgCuBPhs0VAjAv/ZEGwIDAQABo4IB3DCCAdgwHQYD
+VR0OBBYEFAFKeatr9fKETjjqRPrRh76bvxKbMA4GA1UdDwEB/wQEAwIFoDAMBgNVHRMBAf8EAjAA
+MCAGA1UdJQQZMBcGCCsGAQUFBwMEBgsrBgEEAbIxAQMFAjARBglghkgBhvhCAQEEBAMCBSAwRgYD
+VR0gBD8wPTA7BgwrBgEEAbIxAQIBAQEwKzApBggrBgEFBQcCARYdaHR0cHM6Ly9zZWN1cmUuY29t
+b2RvLm5ldC9DUFMwdwYDVR0fBHAwbjA2oDSgMoYwaHR0cDovL2NybC5jb21vZG9jYS5jb20vQWRk
+VHJ1c3RDbGFzczFDQVJvb3QuY3JsMDSgMqAwhi5odHRwOi8vY3JsLmNvbW9kby5uZXQvQWRkVHJ1
+c3RDbGFzczFDQVJvb3QuY3JsMIGGBggrBgEFBQcBAQR6MHgwOwYIKwYBBQUHMAKGL2h0dHA6Ly9j
+cnQuY29tb2RvY2EuY29tL0FkZFRydXN0VVROQ2xpZW50Q0EuY3J0MDkGCCsGAQUFBzAChi1odHRw
+Oi8vY3J0LmNvbW9kby5uZXQvQWRkVHJ1c3RVVE5DbGllbnRDQS5jcnQwGgYDVR0RBBMwEYEPc3Rp
+YW5AYmFybWVuLm51MA0GCSqGSIb3DQEBBQUAA4IBAQBJmQJ8950aKJwavm774C+qd36h0nCzqgVz
+OHeLnHiHYfuEF7W4gt46gE19YYgUiN+aXcrduaPlGdXLP++9lP7+TegfVngMO5lONJMEZfSyxEWx
+pTiccB6SsBiLYSJTQAdhlZFIgaTqblY1dHQ45s0i9lHN/LOJ5kQsTKEVUqAh9wPGD/KW8ktloSfA
+AFltqk/975DSjtdCLwNQXXzma8cpvraes8+e/UZZ3b9IPU8BaiZXpV1rUufig2cvVDOAUwe2WVCi
+hluzHwNcETx5S0Jd/78K8skHiJHAcq/OKGSMt/n2O1OZeLI8PTN3p68WSd2MqlaPOAlMpbGkFaGk
+lTFXMYIDBDCCAwACAQEwejBlMQswCQYDVQQGEwJTRTEUMBIGA1UEChMLQWRkVHJ1c3QgQUIxHTAb
+BgNVBAsTFEFkZFRydXN0IFRUUCBOZXR3b3JrMSEwHwYDVQQDExhBZGRUcnVzdCBDbGFzcyAxIENB
+IFJvb3QCEQCOCqe78Cd/Q3K+0aTWqqG3MAkGBSsOAwIaBQCgggHgMBgGCSqGSIb3DQEJAzELBgkq
+hkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTA2MDUxNjE0MjIyNlowIwYJKoZIhvcNAQkEMRYEFM/y
+U0U5aXEFG939ujQg3wYs8u+qMGcGCSqGSIb3DQEJDzFaMFgwCgYIKoZIhvcNAwcwDgYIKoZIhvcN
+AwICAgCAMA0GCCqGSIb3DQMCAgFAMAcGBSsOAwIHMA0GCCqGSIb3DQMCAgEoMAcGBSsOAwIaMAoG
+CCqGSIb3DQIFMIGJBgkrBgEEAYI3EAQxfDB6MGUxCzAJBgNVBAYTAlNFMRQwEgYDVQQKEwtBZGRU
+cnVzdCBBQjEdMBsGA1UECxMUQWRkVHJ1c3QgVFRQIE5ldHdvcmsxITAfBgNVBAMTGEFkZFRydXN0
+IENsYXNzIDEgQ0EgUm9vdAIRAI4Kp7vwJ39Dcr7RpNaqobcwgYsGCyqGSIb3DQEJEAILMXygejBl
+MQswCQYDVQQGEwJTRTEUMBIGA1UEChMLQWRkVHJ1c3QgQUIxHTAbBgNVBAsTFEFkZFRydXN0IFRU
+UCBOZXR3b3JrMSEwHwYDVQQDExhBZGRUcnVzdCBDbGFzcyAxIENBIFJvb3QCEQCOCqe78Cd/Q3K+
+0aTWqqG3MA0GCSqGSIb3DQEBAQUABIGAgZzqPJh0KMxhOgxVpVCYJyC9QUronpdO/j7vCUifjh5R
+b2eU/HhAZlet+KQM4A+M7KDvXFTE802qK2O+nnml1RuJ5Q0tBrD3Kyjk2wFVv3wU63zYG3nYtQZj
+3RaPR/zHHwWiGwQxiEnRMMUhR8VdfKsJ1kWPI0mQIFXElyA0p4YAAAAAAAA=
+
+------=_NextPart_000_015B_01C67904.EB56C440--
 

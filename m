@@ -1,116 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWEPPEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWEPPF7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbWEPPEM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 11:04:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbWEPPEM
+	id S1751204AbWEPPF7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 11:05:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWEPPF7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 11:04:12 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:18897 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932068AbWEPPEK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 11:04:10 -0400
-Subject: Re: pcmcia oops on 2.6.17-rc[12]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Andreas Mohr <andi@rhlx01.fht-esslingen.de>, florin@iucha.net,
-       linux-kernel@vger.kernel.org, linux@dominikbrodowski.net
-In-Reply-To: <Pine.LNX.4.64.0605151629350.3866@g5.osdl.org>
-References: <20060423192251.GD8896@iucha.net>
-	 <20060423150206.546b7483.akpm@osdl.org>
-	 <20060508145609.GA3983@rhlx01.fht-esslingen.de>
-	 <20060508084301.5025b25d.akpm@osdl.org>
-	 <20060508163453.GB19040@flint.arm.linux.org.uk>
-	 <1147730828.26686.165.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0605151459140.3866@g5.osdl.org>
-	 <1147734026.26686.200.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0605151629350.3866@g5.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 16 May 2006 16:16:44 +0100
-Message-Id: <1147792604.2151.66.camel@localhost.localdomain>
+	Tue, 16 May 2006 11:05:59 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:40081 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751204AbWEPPF5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 11:05:57 -0400
+Date: Tue, 16 May 2006 17:05:55 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Jan Beulich <jbeulich@novell.com>
+Cc: Andreas Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org
+Subject: Re: [PATCH 1/3] reliable stack trace support
+Message-ID: <20060516150555.GB10760@elte.hu>
+References: <4469FC07.76E4.0078.0@novell.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4469FC07.76E4.0078.0@novell.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-05-15 at 16:37 -0700, Linus Torvalds wrote:
-> ISA design. And PCMCIA is no longer an excuse, exactly because of some 
-> systems that will route even the 16-bit interrupts through a PCI irq.
+* Jan Beulich <jbeulich@novell.com> wrote:
 
-The patch below cleans up the pcmcia code a bit on the IRQ side (I did
-this while debugging the problem just so I could read wtf it was doing),
-and also adds a warning and passes back the correct information when a
-device asks for exclusive but gets given shared. This at least means the
-dmesg dump of a problem triggered by this will have a signature to find.
+> These are the generic bits needed to enable reliable stack traces 
+> based on Dwarf2-like (.eh_frame) unwind information. Subsequent 
+> patches will enable x86-64 and i386 to make use of this.
 
-Alan
+some more detailed review:
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+> +#ifdef CONFIG_STACK_UNWIND
+> +#include <asm/unwind.h>
+> +#else
+> +#include <asm-generic/unwind.h>
+> +#endif
 
+this wants to become include/linux/unwind.h?
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.17-rc4/drivers/pcmcia/pcmcia_resource.c linux-2.6.17-rc4/drivers/pcmcia/pcmcia_resource.c
---- linux.vanilla-2.6.17-rc4/drivers/pcmcia/pcmcia_resource.c	2006-05-15 15:46:04.000000000 +0100
-+++ linux-2.6.17-rc4/drivers/pcmcia/pcmcia_resource.c	2006-05-16 14:59:42.000000000 +0100
-@@ -788,6 +788,7 @@
- 	struct pcmcia_socket *s = p_dev->socket;
- 	config_t *c;
- 	int ret = CS_IN_USE, irq = 0;
-+	int type;
- 
- 	if (!(s->state & SOCKET_PRESENT))
- 		return CS_NO_CARD;
-@@ -797,6 +798,13 @@
- 	if (c->state & CONFIG_IRQ_REQ)
- 		return CS_IN_USE;
- 
-+	/* Decide what type of interrupt we are registering */
-+	type = 0;
-+	if (s->functions > 1)		/* All of this ought to be handled higher up */
-+		type = SA_SHIRQ;
-+	if (req->Attributes & IRQ_TYPE_DYNAMIC_SHARING)
-+		type = SA_SHIRQ;
-+	
- #ifdef CONFIG_PCMCIA_PROBE
- 	if (s->irq.AssignedIRQ != 0) {
- 		/* If the interrupt is already assigned, it must be the same */
-@@ -822,9 +830,7 @@
- 			 * marked as used by the kernel resource management core */
- 			ret = request_irq(irq,
- 					  (req->Attributes & IRQ_HANDLE_PRESENT) ? req->Handler : test_action,
--					  ((req->Attributes & IRQ_TYPE_DYNAMIC_SHARING) ||
--					   (s->functions > 1) ||
--					   (irq == s->pci_irq)) ? SA_SHIRQ : 0,
-+					  type, 
- 					  p_dev->devname,
- 					  (req->Attributes & IRQ_HANDLE_PRESENT) ? req->Instance : data);
- 			if (!ret) {
-@@ -839,18 +845,21 @@
- 	if (ret && !s->irq.AssignedIRQ) {
- 		if (!s->pci_irq)
- 			return ret;
-+		type = SA_SHIRQ;
- 		irq = s->pci_irq;
- 	}
- 
--	if (ret && req->Attributes & IRQ_HANDLE_PRESENT) {
--		if (request_irq(irq, req->Handler,
--				((req->Attributes & IRQ_TYPE_DYNAMIC_SHARING) ||
--				 (s->functions > 1) ||
--				 (irq == s->pci_irq)) ? SA_SHIRQ : 0,
--				p_dev->devname, req->Instance))
-+	if (ret && (req->Attributes & IRQ_HANDLE_PRESENT)) {
-+		if (request_irq(irq, req->Handler, type,  p_dev->devname, req->Instance))
- 			return CS_IN_USE;
- 	}
- 
-+	/* Make sure the fact the request type was overridden is passed back */
-+	if (type == SA_SHIRQ && !(req->Attributes & IRQ_TYPE_DYNAMIC_SHARING)) {
-+		req->Attributes |= IRQ_TYPE_DYNAMIC_SHARING;
-+		printk(KERN_WARNING "pcmcia: request for exclusive IRQ could not be fulfilled.\n");
-+		printk(KERN_WARNING "pcmcia: the driver needs updating to supported shared IRQ lines.\n");
-+	}
- 	c->irq.Attributes = req->Attributes;
- 	s->irq.AssignedIRQ = req->AssignedIRQ = irq;
- 	s->irq.Config++;
+> +#ifdef MODULE_UNWIND_INFO
+> +#include <asm/unwind.h>
+> +#endif
 
+this too could then include <linux/unwind.h>
+
+> +DEFINE_SPINLOCK(table_lock);
+
+static?
+
+> +static struct unwind_table *
+> +find_table(unsigned long pc)
+> +{
+> +	int old_removals;
+> +	struct unwind_table *table = NULL;
+> +
+> +	do {
+> +		if (table)
+> +				atomic_dec(&table->users);
+> +		old_removals = atomic_read(&removals);
+
+racy? wants to become rcu?
+
+> +	spin_lock(&table_lock);
+
+spin_lock_irq?
+
+> +	if (init_only && table == last_table) {
+> +		table->init.pc = 0;
+> +		table->init.range = 0;
+> +		return;
+> +	}
+
+SMP and PREEMPT unsafe.
+
+> +	spin_lock(&table_lock);
+
+spin_lock_irq().
+
+> +	if (table) {
+> +		while (atomic_read(&table->users) || atomic_read(&lookups))
+> +			msleep(1);
+> +		kfree(table);
+> +	}
+
+ugh!
+
+> +//todo			case DW_CFA_def_cfa_expression:
+> +//todo			case DW_CFA_expression:
+> +//todo			case DW_CFA_val_expression:
+
+hm?
+
+> +{
+> +	info->task = current;
+> +	arch_unwind_init_running(info, callback, arg);
+> +	return 0;
+
+newline before the return. (this happens in a couple of other places 
+too)
+
+	Ingo

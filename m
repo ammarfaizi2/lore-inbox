@@ -1,90 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWEPVM4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbWEPVOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750835AbWEPVM4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 17:12:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWEPVM4
+	id S1750856AbWEPVOq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 17:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbWEPVOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 17:12:56 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:15338 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S1750835AbWEPVMz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 17:12:55 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Tue, 16 May 2006 17:14:46 -0400
+Received: from thunk.org ([69.25.196.29]:44477 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1750855AbWEPVOp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 17:14:45 -0400
+Date: Tue, 16 May 2006 17:14:30 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] fs/jbd/journal.c: possible cleanups
+Message-ID: <20060516211430.GA9571@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20060516174413.GI10077@stusta.de> <20060516122731.6ecbdeeb.akpm@osdl.org> <20060516193956.GS10077@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: Help: strange messages from kernel on IA64 platform
-Date: Tue, 16 May 2006 15:12:51 -0600
-Message-ID: <890BF3111FB9484E9526987D912B261901BD86@NAMAIL3.ad.lsil.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Help: strange messages from kernel on IA64 platform
-Thread-Index: AcZ5K7zvpC6zXIW4ShqByfERQdSNcAAASG9w
-From: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
-To: "Chase Venters" <chase.venters@clientec.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <linux-scsi@vger.kernel.org>
-X-OriginalArrivalTime: 16 May 2006 21:12:52.0192 (UTC) FILETIME=[7E0D2E00:01C6792D]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060516193956.GS10077@stusta.de>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, May 16, 2006 at 09:39:56PM +0200, Adrian Bunk wrote:
+> Since you replied to this patch:
+> Who is the subsystem maintainer for jbd?
 
-Tuesday, May 16, 2006 5:00 PM, Chase Venters wrote:
-> It's a trap, which means the CPU is effectively calling that 
-> function.
-O.K, that's why...
-Then, Is there anyway to look up trap table that the CPU has?
-> My best suggestion is to figure out what data is at 
-> 0xe00000007f3d80dc and 
-> what instructions are at 0xa0000002000373b1.
-I will try as you suggested.
-Thank you very much for comment.
+I'd suggest sending mail to ext2-devel@lists.sourceforge.net.  There's
+actually a lot of work going on right now with both ext3 and jbd right
+now, including finally getting the 64-bit support for jbd merged in.
 
-Regards,
-
-> -----Original Message-----
-> From: Chase Venters [mailto:chase.venters@clientec.com] 
-> Sent: Tuesday, May 16, 2006 5:00 PM
-> To: Ju, Seokmann
-> Cc: Linux Kernel Mailing List; linux-scsi@vger.kernel.org
-> Subject: Re: Help: strange messages from kernel on IA64 platform
-> 
-> On Tue, 16 May 2006, Ju, Seokmann wrote:
-> 
-> > Hi,
-> >
-> > During communication in between application and megaraid driver via
-> > IOCTL, the system displays messages which are not easy to 
-> track down.
-> > Following is one of the messages and same messages with 
-> different values
-> > are poping up regularly.
-> > ---
-> > Kernel unaligned access to 0xe00000007f3d80dc ip=0xa0000002000373b1
-> > ---
-> >
-> > I understand the kernel is complaining about the address 
-> which is not
-> > aligned and, found the message is coming from function
-> > 'ia64_handle_unaligned()' in the arch/ia64/kernel/unaligned.c.
-> > But, I couldn't find who is calling this function and 
-> further details of
-> > reasons.
-> >
-> > Where should I start to figure out it?
-> 
-> It's a trap, which means the CPU is effectively calling that 
-> function. My 
-> best suggestion is to figure out what data is at 
-> 0xe00000007f3d80dc and 
-> what instructions are at 0xa0000002000373b1.
-> 
-> > Thank you,
-> >
-> > Seokmann
-> 
-> Thanks,
-> Chase
-> 
+						- Ted

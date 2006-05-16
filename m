@@ -1,46 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbWEPTyg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbWEPTyz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750899AbWEPTyg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 15:54:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750908AbWEPTyg
+	id S1750922AbWEPTyz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 15:54:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbWEPTyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 15:54:36 -0400
-Received: from bayc1-pasmtp11.bayc1.hotmail.com ([65.54.191.171]:23261 "EHLO
-	BAYC1-PASMTP11.BAYC1.HOTMAIL.COM") by vger.kernel.org with ESMTP
-	id S1750888AbWEPTyg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 15:54:36 -0400
-Message-ID: <BAYC1-PASMTP11E93E051D25687C02443DB9A00@CEZ.ICE>
-X-Originating-IP: [67.71.148.17]
-X-Originating-Email: [johnmccuthan@sympatico.ca]
-Subject: Re: [PATCH] fix race in inotify_release
-From: John McCutchan <john@johnmccutchan.com>
-Reply-To: john@johnmccutchan.com
-To: Amy Griffis <amy.griffis@hp.com>
-Cc: linux-kernel@vger.kernel.org, Robert Love <rlove@rlove.org>
-In-Reply-To: <20060516193941.GA27045@zk3.dec.com>
-References: <20060516193941.GA27045@zk3.dec.com>
-Content-Type: text/plain
+	Tue, 16 May 2006 15:54:55 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:62482 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1750915AbWEPTyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 15:54:54 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: <xavier.bestel@free.fr>
+Cc: "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
+Subject: RE: GPL and NON GPL version modules
+Date: Tue, 16 May 2006 12:54:03 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKGEEDLPAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Tue, 16 May 2006 15:54:40 -0400
-Message-Id: <1147809280.2752.0.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-X-OriginalArrivalTime: 16 May 2006 19:59:18.0093 (UTC) FILETIME=[370B1FD0:01C67923]
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <1147769525.25330.137.camel@capoeira>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Tue, 16 May 2006 12:50:02 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Tue, 16 May 2006 12:50:05 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-16 at 15:39 -0400, Amy Griffis wrote:
-> While doing some inotify stress testing, I hit the following race.  In
-> inotify_release(), it's possible for a watch to be removed from the
-> lists in between dropping dev->mutex and taking inode->inotify_mutex.
-> The reference we hold prevents the watch from being freed, but not
-> from being removed.
-> 
-> Checking the dev's idr mapping will prevent a double list_del of the
-> same watch.
 
-Looks good. Thanks for the patch and stress testing inotify!
+> Unless the "someone else will release a GPL wrapper to my proprietary
+> module" accident is planned from the start.
+>
+> 	Xav
+
+	There certainly does seem to be some reason for suspicion.
+
+	I would say that this doesn't matter so long as the two works are separate.
+That is, two people could plan this from the start, act in concert, and
+still be okay. However, they would have to make sure that nothing about the
+GPL wrapper contaminates the proprietary module. That is, the proprietary
+module must not in any way be designed to accomondate the GPL wrapper,
+except perhaps in the form of generic accomodation for any wrapper.
+
+	If the proprietary module contains any code that is designed specifically
+to accomodate the GPL wrapper, the line is crossed. Whether or not that
+consitutes a legal violation, however, is a complicated question.
+
+	So long as the proprietary module was not designed to work with GPL'd code
+(more than it's generically designed to work with other code of the same
+type) and contains no GPL'd code, you should be okay. However, as soon as
+any of the design of the proprietary code is intended to facilitate
+interoperation with specific GPL'd code, you could start to get into
+trouble.
+
+	You should definitely consult a lawyer, but prepared for the answer,
+"nobody really knows". They can chart out what is almost definitely safe and
+what is almost definitely illegal, but there is a huge space in-between.
+
+	DS
 
 
--- 
-John McCutchan <john@johnmccutchan.com>

@@ -1,46 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751525AbWEPG2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751537AbWEPGix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751525AbWEPG2n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 02:28:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751526AbWEPG2n
+	id S1751537AbWEPGix (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 02:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751540AbWEPGiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 02:28:43 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:40858 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751524AbWEPG2n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 02:28:43 -0400
-Date: Tue, 16 May 2006 02:28:27 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: akpm@osdl.org
-cc: LKML <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Ingo Molnar <mingo@elte.hu>, "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: [PATCH -mm 04/02] Update rt-mutex-design.txt per Randy Dunlap
-In-Reply-To: <Pine.LNX.4.58.0605150511440.12114@gandalf.stny.rr.com>
-Message-ID: <Pine.LNX.4.58.0605160226420.4283@gandalf.stny.rr.com>
-References: <Pine.LNX.4.58.0605150431190.12114@gandalf.stny.rr.com>
- <Pine.LNX.4.58.0605150511440.12114@gandalf.stny.rr.com>
+	Tue, 16 May 2006 02:38:52 -0400
+Received: from mga03.intel.com ([143.182.124.21]:49790 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1751535AbWEPGiv convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 02:38:51 -0400
+X-IronPort-AV: i="4.05,132,1146466800"; 
+   d="scan'208"; a="37012346:sNHT15724254"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: acpi_power_off doesn't
+Date: Tue, 16 May 2006 02:38:47 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB675ABCD@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: acpi_power_off doesn't
+Thread-Index: AcZ4p3j3Y5ejkm3hSpKNCwTMw8KrWgAC3Zyw
+From: "Brown, Len" <len.brown@intel.com>
+To: "Harald Dunkel" <harald.dunkel@t-online.de>
+Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 16 May 2006 06:38:48.0505 (UTC) FILETIME=[632D9A90:01C678B3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>> Sometimes when I run 'halt' my PC does not go off. Last
+>>> words are
+>>>
+>>> 	acpi_power_off called
+>>>
+>>> But the PC stays on.
+>>>
+>>> What is the story here? I've seen this problem come up
+>>> several times, but without solution, as it seems. Any
+>>> hint would be very helpfull.
+>> 
+>> Does this happen all the time, or just some of the time?
+>> Has this always failed on box X, or did it used to
+>> work in some release Y, and broke in some release Z?
+>> 
+>> Please supply X, Y, Z.
 
-Small grammar fix.
 
-From: Randy.Dunlap <rdunlap@xenotime.net>
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+>The problem does not exist, if I boot my PC and then
+>halt it immediately. If I login and use it for some
+>time, then acpi_power_off does not work.
+>
+>Box 'X' is an Aopen MZ-915M, CPU is a 2 GHz Pentium
+>M. It is running Debian Sid, kernel is vanilla
+>
+>Linux bugs 2.6.17-rc4 #1 PREEMPT Sat May 13 16:22:54 CEST 2006 
+>i686 GNU/Linux
+>
+>Old kernels don't work on this PC due to missing
+>hardware support. The first vanilla kernel that worked
+>reliably on this box (except for acpi_power_off) was 2.6.16.
 
-Index: linux-2.6.17-rc3-mm1/Documentation/rt-mutex-design.txt
-===================================================================
---- linux-2.6.17-rc3-mm1.orig/Documentation/rt-mutex-design.txt	2006-05-16 02:23:49.000000000 -0400
-+++ linux-2.6.17-rc3-mm1/Documentation/rt-mutex-design.txt	2006-05-16 02:24:25.000000000 -0400
-@@ -160,7 +160,7 @@ Here we show both chains:
-                  F->L5-+
+If you append a "3" to the cmdline and boot without a GUI,
+does the system still halt properly (even after you log in
+and use it for a while)?  There may be some interaction
+between X and the video hardware and system shutdown.
 
- For PI to work, the processes at the right end of these chains (or we may
--also call the Top of the chain) must be equal to or higher in priority
-+also call it the Top of the chain) must be equal to or higher in priority
- than the processes to the left or below in the chain.
-
- Also since a mutex may have more than one process blocked on it, we can
+-Len

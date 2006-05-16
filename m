@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751696AbWEPIh4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751703AbWEPIja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751696AbWEPIh4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 04:37:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751697AbWEPIh4
+	id S1751703AbWEPIja (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 04:39:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751704AbWEPIja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 04:37:56 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:45186 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751694AbWEPIhz
+	Tue, 16 May 2006 04:39:30 -0400
+Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:38405 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751700AbWEPIja
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 04:37:55 -0400
-Date: Tue, 16 May 2006 01:40:47 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Rusty Russell <rusty@rustcorp.com.au>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       virtualization <virtualization@lists.osdl.org>,
-       Gerd Hoffmann <kraxel@suse.de>
-Subject: Re: [PATCH] Gerd Hoffman's move-vsyscall-into-user-address-range patch
-Message-ID: <20060516084047.GH2697@moss.sous-sol.org>
-References: <1147759423.5492.102.camel@localhost.localdomain> <20060516064723.GA14121@elte.hu> <44698A74.3090400@vmware.com>
+	Tue, 16 May 2006 04:39:30 -0400
+Date: Tue, 16 May 2006 10:39:30 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Greg KH <gregkh@suse.de>, Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: 2.6.17-rc4-mm1
+Message-Id: <20060516103930.0c0d5d33.khali@linux-fr.org>
+In-Reply-To: <6bffcb0e0605151317u51bbf67ey124b808fad920d36@mail.gmail.com>
+References: <20060515005637.00b54560.akpm@osdl.org>
+	<6bffcb0e0605151137v25496700k39b15a40fa02a375@mail.gmail.com>
+	<20060515115302.5abe7e7e.akpm@osdl.org>
+	<6bffcb0e0605151210x21eb0d24g96366ce9c121c26c@mail.gmail.com>
+	<20060515122613.32661c02.akpm@osdl.org>
+	<6bffcb0e0605151317u51bbf67ey124b808fad920d36@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44698A74.3090400@vmware.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Zachary Amsden (zach@vmware.com) wrote:
-> Let's dive into it.  How do you get the randomization without 
-> sacrificing syscall performance?  Do you randomize on boot, dynamically, 
-> or on a per-process level?
+> > I'd assume that Kumar's i2c-add-support-for-virtual-i2c-adapters.patch is
+> > the culprit.
+> 
+> Unfortunately it's not this patch.
+> I'll check all Kumar's patches.
 
-The latter, on exec.
+There are no differences in i2c patches between 2.6.17-rc3-mm1 and
+2.6.17-rc4-mm1. As you said the bug is new in 2.6.17-rc4-mm1, this
+suggests that the bug is not in the i2c patches. Could be that these
+patches need to be updated to reflect a recent change in another tree
+though.
 
-> Because I can see some issues with 
-> per-process randomization that will certainly cost some amount of cycles 
-> on the system call path.  Marginal perhaps, but that is exactly where 
-> you don't want to shed cycles unnecessarily, and the complexity of the 
-> whole thing will go up quite a bit I think.
+I'll try to reproduce the bug here.
 
-The crux is here:
-
-+       OFFSET(TI_sysenter_return, thread_info, sysenter_return);
-...
-
--       pushl $SYSENTER_RETURN
--
-+       /*
-+        * Push current_thread_info()->sysenter_return to the stack.
-+        * A tiny bit of offset fixup is necessary - 4*4 means the 4 words
-+        * pushed above; +8 corresponds to copy_thread's esp0 setting.
-+        */
-+       pushl (TI_sysenter_return-THREAD_SIZE+8+4*4)(%esp)
-
-...
-
-and in binfmt_elf during exec thread_info->sysenter_return is setup
-based on the randomized mapping it does for vdso
-
-+               ti->sysenter_return = &SYSENTER_RETURN_OFFSET + addr;
-
-
-I think it's not so bad, but I can't say I've benchmarked the cost.
-
-thanks,
--chris
+-- 
+Jean Delvare

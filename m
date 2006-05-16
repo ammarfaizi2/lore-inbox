@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWEPQkQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWEPQle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932134AbWEPQkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 12:40:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWEPQkP
+	id S932136AbWEPQle (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 12:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWEPQle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 12:40:15 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:44806 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932133AbWEPQkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 12:40:13 -0400
-Date: Tue, 16 May 2006 18:40:11 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Matt Mackall <mpm@selenic.com>
-Cc: akpm@osdl.org, B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make number of IDE interfaces configurable
-Message-ID: <20060516164011.GH5677@stusta.de>
-References: <20060512222952.GQ6616@waste.org> <20060516160250.GE5677@stusta.de> <20060516162934.GR24227@waste.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060516162934.GR24227@waste.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+	Tue, 16 May 2006 12:41:34 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:45014 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932136AbWEPQld (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 12:41:33 -0400
+Subject: Funnies with remap_pfn_range, x86_64, > 4GB RAM, kernels < 2.6.16
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, Discuss@x86-64.org
+Content-Type: text/plain
+Date: Tue, 16 May 2006 09:41:46 -0700
+Message-Id: <1147797706.3801.40.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 16, 2006 at 11:29:34AM -0500, Matt Mackall wrote:
-> On Tue, May 16, 2006 at 06:02:50PM +0200, Adrian Bunk wrote:
-> > On Fri, May 12, 2006 at 05:29:52PM -0500, Matt Mackall wrote:
-> > >...
-> > > --- 2.6.orig/include/linux/ide.h	2006-05-11 15:07:32.000000000 -0500
-> > > +++ 2.6/include/linux/ide.h	2006-05-12 14:01:53.000000000 -0500
-> > > @@ -252,7 +252,8 @@ static inline void ide_std_init_ports(hw
-> > >  
-> > >  #include <asm/ide.h>
-> > >  
-> > > -#ifndef MAX_HWIFS
-> > > +#if !defined(MAX_HWIFS) || defined(CONFIG_EMBEDDED)
-> > > +#undef MAX_HWIFS
-> > >  #define MAX_HWIFS	CONFIG_IDE_MAX_HWIFS
-> > >  #endif
-> > 
-> > Why do you need this?
-> 
-> Doesn't work without it?
-> 
-> Most platforms define MAX_HWIFS.
+As I was preparing the ipath driver for submission, I got rid of our
+accursed vmops->nopage routine and replaced it with the much simpler use
+of remap_pfn_range.
 
-OK, now I got it.
+Unfortunately, we've recently been testing this code on machines with
+more than 4GB of memory, and found that it is not working reliably on
+kernels older than 2.6.16.  As far as I can tell, every prior kernel
+back to 2.6.9 is affected.
 
-Setting this value is sometimes done in heder files and sometimes 
-done in the Kconfig file.
+The symptom occurs when we use remap_pfn_range to map some driver memory
+(allocated with dma_alloc_coherent) into userspace, and get the hardware
+to DMA into that memory range.  The physical and virtual addresses all
+look OK; the DMA from the hardware appears to succeed; but the pages
+written to do not show any changes, most of the time (occasionally it
+works, but we don't know why).
 
-That is extremely ugly.
+These problems do not occur with 2.6.16, so this looks like a kernel bug
+that got fixed somewhere.  What I'm wondering is (a) does anyone
+remember fixing this, because I can't see anything obvious in the myriad
+of likely contenders, and (b) has anyone else been faced with this
+problem and found a workaround for older kernels?
 
-Bart, would you accept a patch to set in in the Kconfig file on all 
-architectures?
+Thanks,
 
-cu
-Adrian
+	<b
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Bryan O'Sullivan <bos@pathscale.com>
 

@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWEPDnF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWEPDvs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751109AbWEPDnF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 23:43:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWEPDnE
+	id S1751246AbWEPDvs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 23:51:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbWEPDvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 23:43:04 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:51725 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1751109AbWEPDnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 23:43:02 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Steven Rostedt" <rostedt@goodmis.org>
-Cc: "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
-Subject: RE: GPL and NON GPL version modules
-Date: Mon, 15 May 2006 20:42:12 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKCEPGLOAB.davids@webmaster.com>
+	Mon, 15 May 2006 23:51:48 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:61402 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751239AbWEPDvr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 23:51:47 -0400
+Message-ID: <44694C4F.3000008@garzik.org>
+Date: Mon, 15 May 2006 23:51:43 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Avuton Olrich <avuton@gmail.com>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       torvalds@osdl.org
+Subject: Re: [RFT] major libata update
+References: <20060515170006.GA29555@havoc.gtf.org>	 <3aa654a40605151630j53822ba1nbb1a2e3847a78025@mail.gmail.com>	 <446914C7.1030702@garzik.org> <3aa654a40605152036h40fa1cd0x8edd81431c1bd22d@mail.gmail.com>
+In-Reply-To: <3aa654a40605152036h40fa1cd0x8edd81431c1bd22d@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <AF63F67E8D577C4390B25443CBE3B9F7092952@esnmail.esntechnologies.co.in>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Mon, 15 May 2006 20:37:59 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Mon, 15 May 2006 20:38:00 -0700
+X-Spam-Score: -4.1 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Avuton Olrich wrote:
+> On 5/15/06, Jeff Garzik <jeff@garzik.org> wrote:
+>> Avuton Olrich wrote:
+>> > On 5/15/06, Jeff Garzik <jeff@garzik.org> wrote:
+>> >> * sata_sil and ata_piix also need healthy re-testing of all basic
+>> >> functionality.
+>> >
+>> > I'm testing it right now, but with 2.6.17-rc4-git2 I was getting:
+>>
+>> Testing what?  sata_sil?  Please provide full dmesg, there's a lot of
+>> missing information.
+> 
+> More followup, it did finally error out on me:
+> 
+> Not sure if it helps any, but this is a sata2 disk with a sata
+> interface. This is rc4-git2 with the libata patch from the beginning
+> of this thread, using sata_sil.
 
-> 1. I developed a code which interfaces well with a proprietary OS. Now,
-> somebody else feels to use the same module in his Linux Kernel. So, he
-> comes up with a patch, which interfaces and talks to my module with my
-> interfaces and then makes a release with the patch. And, I would have no
-> idea of my module being really compatible/used in Linux Kernel. One fine
-> day, I would get a mail saying that I need to make my code open source.
-> What would be my reply?
+Can you configure your interrupts so that ethernet and SATA are not on 
+the same irq?
 
-	When you say "makes a release with the patch", what are you talking about?
-A release of what? It sounds like all you need to do is include a note in
-your license that you prohibit combining your code with GPL'd code and
-distributing the result. Talk to a lawyer about the right wording, but you
-want to impose complying with any GPL obligations on the person who chooses
-to combine your code with GPL'd code. Then it's not your problem.
+Also, please provide _full_ dmesg and _full_ lspci, not just the 
+SATA-related stuff.  This looks motherboard- or hardware-related.
 
-	However, I don't see how it's your problem anyway. This sounds way outside
-the scope of the GPL or any copyright license. Since your module is not a
-derivative work of any GPL'd work, it should be well outside the scope of
-the GPL. Nothing anyone else can do could change the status of your work.
+	Jeff
 
-	DS
 
 

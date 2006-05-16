@@ -1,49 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWEPRM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWEPRPq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932155AbWEPRM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 13:12:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbWEPRM6
+	id S932161AbWEPRPq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 13:15:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWEPRPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 13:12:58 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:42630 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932155AbWEPRM6 (ORCPT
+	Tue, 16 May 2006 13:15:46 -0400
+Received: from 213-140-2-72.ip.fastwebnet.it ([213.140.2.72]:49075 "EHLO
+	aa005msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S932161AbWEPRPp convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 13:12:58 -0400
-Message-ID: <446A0817.2000406@garzik.org>
-Date: Tue, 16 May 2006 13:12:55 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Tue, 16 May 2006 13:15:45 -0400
+Date: Tue, 16 May 2006 19:15:42 +0200
+Message-ID: <443CC7420003BDBB@ms003msg.mail.fw>
+From: maurizio.gladioro@fastwebnet.it
+Subject: Dropped packets with bridge + ip_conntrack module
+To: linux-kernel@vger.kernel.org
+Cc: maurizio.gladioro@fastwebnet.it
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: "Deguara, Joachim" <joachim.deguara@amd.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] i386/x86_64: Force pci=noacpi on HP XW9300
-References: <200605161559.k4GFx3Mi017163@hera.kernel.org> <4469FB26.5070605@garzik.org> <200605161907.42826.ak@suse.de>
-In-Reply-To: <200605161907.42826.ak@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.1 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.1 points, 5.0 required)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Did you test that? I had two persons with that workstation test all combinations
-> and it worked for them. 
+	
+Hello,
 
-Not yet, it's queued for my next test run.
+I'm using netfilter with the l7-filter patch, and a 2.6.13 kernel.
+
+I had to create a bridge interface in order to enable the listening
+interface in promiscous mode and to classify the traffic mirrored to
+that (I touch eth1 to br1 interface).
+
+So, the problem is that I'm seeing many dropped packets on the bridge,
+and I cannot understand why.
+
+If I don't add the ip_conntrack module, the whole traffic going through
+the ethernet interface eth1 is passed to the bridge; but, if I add
+ip_conntrack some packets don't cross the bridge interface.
+
+Following, I show you the output of "netstat -i":
+  without module ip_conntrack (before sending packets)
+Kernel Interface table
+Iface MTU Met RX-OK RX-ERR RX-DRP RX-OVR TX-OK TX-ERR TX-DRP TX-OVR
+Flg
+br1 1500 0 6576580 0 0 0 5 0 0 0
+BMRU
+eth1 1500 0 16105342 25606 0 25606 13 0 0 0
+
+  after sending packets
+olmo:/home/maurizio# netstat -i
+Kernel Interface table
+Iface MTU Met RX-OK RX-ERR RX-DRP RX-OVR TX-OK TX-ERR TX-DRP TX-OVR
+Flg
+br1 1500 0 8220973 0 0 0 5 0 0 0
+BMPRU
+eth1 1500 0 17749735 25606 0 25606 13 0 0 0
+BMPRU
 
 
-> Wait - you have a engineering sample haven't you? I don't think i care about
-> those. Maybe they behave differently. Use pci=acpi
-> 
-> [Don't try to update the BIOS either - it can be deadly]
+difference eth1 1644393
+difference br1 1644393
+than NO DROPPED PACKETS
 
-Well, its a free sample of a production machine, not a pre-production 
-machine.  And the BIOS updates just fine :)
+with ip_conntrack (before sending packets)
 
-	Jeff
+Kernel Interface table
+Iface MTU Met RX-OK RX-ERR RX-DRP RX-OVR TX-OK TX-ERR TX-DRP TX-OVR
+Flg
+br1 1500 0 4932660 0 0 0 5 0 0 0
+BMPRU
+eth1 1500 0 14460948 25606 0 25606 13 0 0 0
+BMPRU
+
+
+  with ip_conntrack (after sending packets)
+olmo:/home/maurizio# netstat -i
+Kernel Interface table
+Iface MTU Met RX-OK RX-ERR RX-DRP RX-OVR TX-OK TX-ERR TX-DRP TX-OVR
+Flg
+br1 1500 0 6576579 0 0 0 5 0 0 0
+BMPRU
+
+eth1 1500 0 16105341 25606 0 25606 13 0 0 0
+BMPRU
+
+
+difference eth1 1644393
+difference br1 1643919
+than there are 474 DROPPED PACKETS
+
+May be someone can help me?
+I have read about some similar problems with Kernel 2.6.16 and
+fragmented IP packets.
+
+Thank you very much, regards,
+	
 
 

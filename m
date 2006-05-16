@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWEPTj7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWEPTjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbWEPTj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 15:39:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750717AbWEPTj7
+	id S1750710AbWEPTjn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 15:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWEPTjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 15:39:59 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:41993 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750716AbWEPTj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 15:39:58 -0400
-Date: Tue, 16 May 2006 21:39:56 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] fs/jbd/journal.c: possible cleanups
-Message-ID: <20060516193956.GS10077@stusta.de>
-References: <20060516174413.GI10077@stusta.de> <20060516122731.6ecbdeeb.akpm@osdl.org>
-MIME-Version: 1.0
+	Tue, 16 May 2006 15:39:43 -0400
+Received: from tayrelbas01.tay.hp.com ([161.114.80.244]:51083 "EHLO
+	tayrelbas01.tay.hp.com") by vger.kernel.org with ESMTP
+	id S1750710AbWEPTjm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 15:39:42 -0400
+Date: Tue, 16 May 2006 15:39:41 -0400
+From: Amy Griffis <amy.griffis@hp.com>
+To: linux-kernel@vger.kernel.org
+Cc: John McCutchan <john@johnmccutchan.com>, Robert Love <rlove@rlove.org>
+Subject: [PATCH] fix race in inotify_release
+Message-ID: <20060516193941.GA27045@zk3.dec.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060516122731.6ecbdeeb.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+X-Mailer: Mutt http://www.mutt.org/
+X-Editor: Vim http://www.vim.org/
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 16, 2006 at 12:27:31PM -0700, Andrew Morton wrote:
-> Adrian Bunk <bunk@stusta.de> wrote:
-> >
-> > - remove the following unused EXPORT_SYMBOL's:
-> >   - journal_set_features
-> >   - journal_update_superblock
-> 
-> These might be used by lustre - dunno.
+While doing some inotify stress testing, I hit the following race.  In
+inotify_release(), it's possible for a watch to be removed from the
+lists in between dropping dev->mutex and taking inode->inotify_mutex.
+The reference we hold prevents the watch from being freed, but not
+from being removed.
 
-I don't see this.
+Checking the dev's idr mapping will prevent a double list_del of the
+same watch.
 
-> But I'm ducking all patches which alter exports, as usual.  If you can get
-> them through the subsystem maintainer then good luck.
->...
+Signed-off-by: Amy Griffis <amy.griffis@hp.com>
 
-Since you replied to this patch:
-Who is the subsystem maintainer for jbd?
+diff --git a/fs/inotify.c b/fs/inotify.c
+index 1f50302..7d57253 100644
+--- a/fs/inotify.c
++++ b/fs/inotify.c
+@@ -848,7 +848,11 @@ static int inotify_release(struct inode 
+ 		inode = watch->inode;
+ 		mutex_lock(&inode->inotify_mutex);
+ 		mutex_lock(&dev->mutex);
+-		remove_watch_no_event(watch, dev);
++
++		/* make sure we didn't race with another list removal */
++		if (likely(idr_find(&dev->idr, watch->wd)))
++			remove_watch_no_event(watch, dev);
++
+ 		mutex_unlock(&dev->mutex);
+ 		mutex_unlock(&inode->inotify_mutex);
+ 		put_inotify_watch(watch);
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

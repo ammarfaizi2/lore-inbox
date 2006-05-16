@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbWEPSQD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbWEPSQl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932480AbWEPSQD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 14:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbWEPSQD
+	id S932483AbWEPSQl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 14:16:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWEPSQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 14:16:03 -0400
-Received: from colin.muc.de ([193.149.48.1]:11012 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S932480AbWEPSQB (ORCPT
+	Tue, 16 May 2006 14:16:41 -0400
+Received: from ns.suse.de ([195.135.220.2]:27059 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932483AbWEPSQk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 14:16:01 -0400
-Date: 16 May 2006 20:15:59 +0200
-Date: Tue, 16 May 2006 20:15:59 +0200
-From: Andi Kleen <ak@muc.de>
-To: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: Morton Andrew Morton <akpm@osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       Don Zickus <dzickus@redhat.com>
-Subject: Re: [PATCH] Kdump i386 nmi event notification fix
-Message-ID: <20060516181559.GA16113@muc.de>
-References: <20060515174835.GA28981@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 16 May 2006 14:16:40 -0400
+From: Andi Kleen <ak@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [-mm patch] arch/i386/oprofile/: make functions static
+Date: Tue, 16 May 2006 20:16:34 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, dzickus <dzickus@redhat.com>,
+       linux-kernel@vger.kernel.org
+References: <20060515005637.00b54560.akpm@osdl.org> <20060516132405.GU6931@stusta.de>
+In-Reply-To: <20060516132405.GU6931@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060515174835.GA28981@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200605162016.35036.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 15, 2006 at 01:48:35PM -0400, Vivek Goyal wrote:
+On Tuesday 16 May 2006 15:24, Adrian Bunk wrote:
+> On Mon, May 15, 2006 at 12:56:37AM -0700, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.17-rc3-mm1:
+> >...
+> > +x86_64-mm-remove-un-set_nmi_callback-and-reserve-release_lapic_nmi-functions.patch
+> >...
+> >  x86_64 tree updates
+> >...
 > 
 > 
-> o After a crash we should wait for NMI IPI event and not for external NMI
->   or NMI watchdog tick.
+> This patch makes the following needlessly global functions static:
+> - nmi_int.c: profile_exceptions_notify()
+> - nmi_timer_int.c: profile_timer_exceptions_notify()
 
-The two patches don't apply anymore after Don's big NMI rework.
-Can you forward port and retest/resend please?  
+Merged. Thanks
+
 -Andi

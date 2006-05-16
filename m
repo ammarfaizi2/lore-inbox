@@ -1,122 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbWEPTTG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWEPTUb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750986AbWEPTTG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 15:19:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWEPTTF
+	id S1751079AbWEPTUb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 15:20:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbWEPTUb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 15:19:05 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:20658 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751001AbWEPTTE (ORCPT
+	Tue, 16 May 2006 15:20:31 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:25522 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751079AbWEPTUa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 15:19:04 -0400
-Date: Tue, 16 May 2006 21:19:04 +0200 (MEST)
+	Tue, 16 May 2006 15:20:30 -0400
+Date: Tue, 16 May 2006 21:20:29 +0200 (MEST)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2/3] openpromfs: remove unnecessary casts
-Message-ID: <Pine.LNX.4.61.0605162118350.26647@yvahk01.tjqt.qr>
+Subject: [PATCH 3/3] openpromfs: factorize out
+Message-ID: <Pine.LNX.4.61.0605162119060.26647@yvahk01.tjqt.qr>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Remove unnecessary casts in fs/openpromfs/inode.c
+"Move" "common code" out to PTR_NOD, which does the conversion from private 
+pointer to node number. This is to reduce potential casting/conversion 
+errors due to redundancy. (The naming PTR_NOD follows PTR_ERR, turning a 
+pointer into xyz.)
 
 Signed-off-by: Jan Engelhardt <jengelh@gmx.de>
 
 diff --fast -Ndpru linux-2.6.17-rc4~/fs/openpromfs/inode.c linux-2.6.17-rc4+/fs/openpromfs/inode.c
---- linux-2.6.17-rc4~/fs/openpromfs/inode.c	2006-05-16 20:57:32.000000000 +0200
-+++ linux-2.6.17-rc4+/fs/openpromfs/inode.c	2006-05-16 20:58:37.085807000 +0200
-@@ -72,7 +72,7 @@ static ssize_t nodenum_read(struct file 
- 	
- 	if (count < 0 || !inode->u.generic_ip)
- 		return -EINVAL;
--	sprintf (buffer, "%8.8x\n", (u32)(long)(inode->u.generic_ip));
-+	sprintf (buffer, "%8.8lx\n", (long)inode->u.generic_ip);
- 	if (file->f_pos >= 9)
- 		return 0;
- 	if (count > 9 - file->f_pos)
-@@ -123,7 +123,7 @@ static ssize_t property_read(struct file
- 					      GFP_KERNEL);
- 		if (!filp->private_data)
- 			return -ENOMEM;
--		op = (openprom_property *)filp->private_data;
-+		op = filp->private_data;
- 		op->flag = 0;
- 		op->alloclen = 2 * i;
- 		strcpy (op->name, p);
-@@ -163,7 +163,7 @@ static ssize_t property_read(struct file
- 				op->len--;
- 		}
- 	} else
--		op = (openprom_property *)filp->private_data;
-+		op = filp->private_data;
- 	if (!count || !(op->len || (op->flag & OPP_ASCIIZ)))
- 		return 0;
- 	if (*ppos >= 0xffffff || count >= 0xffffff)
-@@ -335,7 +335,7 @@ static ssize_t property_write(struct fil
- 			return i;
- 	}
- 	k = *ppos;
--	op = (openprom_property *)filp->private_data;
-+	op = filp->private_data;
- 	if (!(op->flag & OPP_STRING)) {
- 		u32 *first, *last;
- 		int first_off, last_cnt;
-@@ -388,13 +388,13 @@ static ssize_t property_write(struct fil
- 			memcpy (b, filp->private_data,
- 				sizeof (openprom_property)
- 				+ strlen (op->name) + op->alloclen);
--			memset (((char *)b) + sizeof (openprom_property)
-+			memset (b + sizeof (openprom_property)
- 				+ strlen (op->name) + op->alloclen, 
- 				0, 2 * i - op->alloclen);
--			op = (openprom_property *)b;
-+			op = b;
- 			op->alloclen = 2*i;
- 			b = filp->private_data;
--			filp->private_data = (void *)op;
-+			filp->private_data = op;
- 			kfree (b);
- 		}
- 		first = ((u32 *)op->value) + (k / 9);
-@@ -498,13 +498,13 @@ write_try_string:
- 			memcpy (b, filp->private_data,
- 				sizeof (openprom_property)
- 				+ strlen (op->name) + op->alloclen);
--			memset (((char *)b) + sizeof (openprom_property)
-+			memset (b + sizeof (openprom_property)
- 				+ strlen (op->name) + op->alloclen, 
- 				0, 2*(count - *ppos) - op->alloclen);
--			op = (openprom_property *)b;
-+			op = b;
- 			op->alloclen = 2*(count + *ppos);
- 			b = filp->private_data;
--			filp->private_data = (void *)op;
-+			filp->private_data = op;
- 			kfree (b);
- 		}
- 		p = op->value + *ppos - ((op->flag & OPP_QUOTED) ? 1 : 0);
-@@ -533,7 +533,7 @@ write_try_string:
+--- linux-2.6.17-rc4~/fs/openpromfs/inode.c	2006-05-16 21:00:09.445807000 +0200
++++ linux-2.6.17-rc4+/fs/openpromfs/inode.c	2006-05-16 20:59:53.845807000 +0200
+@@ -64,6 +64,10 @@ static int openpromfs_readdir(struct fil
+ static struct dentry *openpromfs_lookup(struct inode *, struct dentry *dentry, struct nameidata *nd);
+ static int openpromfs_unlink (struct inode *, struct dentry *dentry);
  
- int property_release (struct inode *inode, struct file *filp)
++static inline u16 PTR_NOD(void *p) {
++    return (long)p & 0xFFFF;
++}
++
+ static ssize_t nodenum_read(struct file *file, char __user *buf,
+ 			    size_t count, loff_t *ppos)
  {
--	openprom_property *op = (openprom_property *)filp->private_data;
-+	openprom_property *op = filp->private_data;
- 	int error;
- 	u32 node;
+@@ -95,9 +99,9 @@ static ssize_t property_read(struct file
+ 	char buffer[64];
  	
-@@ -932,7 +932,7 @@ static int __init check_space (u16 n)
- 			return -1;
- 
- 		if (nodes) {
--			memcpy ((char *)pages, (char *)nodes,
-+			memcpy ((char *)pages, nodes,
- 				(1 << alloced) * PAGE_SIZE);
- 			free_pages ((unsigned long)nodes, alloced);
- 		}
+ 	if (!filp->private_data) {
+-		node = nodes[(u16)((long)inode->u.generic_ip)].node;
++		node = nodes[PTR_NOD(inode->u.generic_ip)].node;
+ 		i = ((u32)(long)inode->u.generic_ip) >> 16;
+-		if ((u16)((long)inode->u.generic_ip) == aliases) {
++		if (PTR_NOD(inode->u.generic_ip) == aliases) {
+ 			if (i >= aliases_nodes)
+ 				p = NULL;
+ 			else
+@@ -111,7 +115,7 @@ static ssize_t property_read(struct file
+ 			return -EIO;
+ 		i = prom_getproplen (node, p);
+ 		if (i < 0) {
+-			if ((u16)((long)inode->u.generic_ip) == aliases)
++			if (PTR_NOD(inode->u.generic_ip) == aliases)
+ 				i = 0;
+ 			else
+ 				return -EIO;
+@@ -540,8 +544,8 @@ int property_release (struct inode *inod
+ 	if (!op)
+ 		return 0;
+ 	lock_kernel();
+-	node = nodes[(u16)((long)inode->u.generic_ip)].node;
+-	if ((u16)((long)inode->u.generic_ip) == aliases) {
++	node = nodes[PTR_NOD(inode->u.generic_ip)].node;
++	if (PTR_NOD(inode->u.generic_ip) == aliases) {
+ 		if ((op->flag & OPP_DIRTY) && (op->flag & OPP_STRING)) {
+ 			char *p = op->name;
+ 			int i = (op->value - op->name) - strlen (op->name) - 1;
 #<<eof>>
-
 
 Jan Engelhardt
 -- 

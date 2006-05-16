@@ -1,54 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWEPXYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbWEPXah@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbWEPXYq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 19:24:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWEPXYq
+	id S932280AbWEPXah (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 19:30:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbWEPXah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 19:24:46 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:27301 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S932279AbWEPXYq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 19:24:46 -0400
-Date: Tue, 16 May 2006 19:24:43 -0400
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: linux-kernel@vger.kernel.org
-Subject: swapper_space export
-Message-ID: <20060516232443.GA10762@filer.fsl.cs.sunysb.edu>
+	Tue, 16 May 2006 19:30:37 -0400
+Received: from mx0.towertech.it ([213.215.222.73]:6278 "HELO mx0.towertech.it")
+	by vger.kernel.org with SMTP id S932280AbWEPXag (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 19:30:36 -0400
+Date: Wed, 17 May 2006 01:30:33 +0200
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc subsystem, use ENOIOCTLCMD where appropriate
+Message-ID: <20060517013033.10d08a8f@inspiron>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was trying to compile the Unionfs[1] to get it up to sync it up with
-the kernel developments from the past few months. Anyway, long story
-short...swapper_space (defined in mm/swap_state.c) is not exported
-anymore (git commit: 4936967374c1ad0eb3b734f24875e2484c3786cc). This
-apparently is not an issue for most modules. Troubles arise when the
-modules include mm.h or any of its relatives.
-
-One simply gets a linker error about swapper_space not being defined.
-The problem is that it is used in mm.h.
-
-I included a reverse patch to export the symbol again.
-
-Josef "Jeff" Sipek.
-
-[1] http://unionfs.filesystems.org
 
 
-Export swapper_space because several include files reference it.
+Appropriately use -ENOIOCTLCMD when
+the ioctl is not implemented by a driver.
 
-Signed-off-by: Josef Sipek <jsipek@cs.sunysb.edu>
+Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
 
---- a/mm/swap_state.c.orig	2006-05-16 18:23:38.000000000 -0400
-+++ b/mm/swap_state.c		2006-05-16 18:22:57.000000000 -0400
-@@ -43,6 +43,7 @@
- 	.i_mmap_nonlinear = LIST_HEAD_INIT(swapper_space.i_mmap_nonlinear),
- 	.backing_dev_info = &swap_backing_dev_info,
- };
-+EXPORT_SYMBOL(swapper_space);
+---
+ drivers/rtc/rtc-dev.c    |    6 +++---
+ drivers/rtc/rtc-sa1100.c |    2 +-
+ drivers/rtc/rtc-test.c   |    2 +-
+ drivers/rtc/rtc-vr41xx.c |    2 +-
+ 4 files changed, 6 insertions(+), 6 deletions(-)
+
+--- linux-rtc.orig/drivers/rtc/rtc-test.c	2006-05-17 01:21:35.000000000 +0200
++++ linux-rtc/drivers/rtc/rtc-test.c	2006-05-17 01:22:39.000000000 +0200
+@@ -71,7 +71,7 @@ static int test_rtc_ioctl(struct device 
+ 		return 0;
  
- #define INC_CACHE_INFO(x)	do { swap_cache_info.x++; } while (0)
+ 	default:
+-		return -EINVAL;
++		return -ENOIOCTLCMD;
+ 	}
+ }
+ 
+--- linux-rtc.orig/drivers/rtc/rtc-vr41xx.c	2006-05-17 01:21:59.000000000 +0200
++++ linux-rtc/drivers/rtc/rtc-vr41xx.c	2006-05-17 01:22:29.000000000 +0200
+@@ -270,7 +270,7 @@ static int vr41xx_rtc_ioctl(struct devic
+ 		epoch = arg;
+ 		break;
+ 	default:
+-		return -EINVAL;
++		return -ENOIOCTLCMD;
+ 	}
+ 
+ 	return 0;
+--- linux-rtc.orig/drivers/rtc/rtc-sa1100.c	2006-05-17 01:18:19.000000000 +0200
++++ linux-rtc/drivers/rtc/rtc-sa1100.c	2006-05-17 01:23:26.000000000 +0200
+@@ -247,7 +247,7 @@ static int sa1100_rtc_ioctl(struct devic
+ 		rtc_freq = arg;
+ 		return 0;
+ 	}
+-	return -EINVAL;
++	return -ENOIOCTLCMD;
+ }
+ 
+ static int sa1100_rtc_read_time(struct device *dev, struct rtc_time *tm)
+--- linux-rtc.orig/drivers/rtc/rtc-dev.c	2006-05-17 01:18:19.000000000 +0200
++++ linux-rtc/drivers/rtc/rtc-dev.c	2006-05-17 01:26:01.000000000 +0200
+@@ -141,13 +141,13 @@ static int rtc_dev_ioctl(struct inode *i
+ 	/* try the driver's ioctl interface */
+ 	if (ops->ioctl) {
+ 		err = ops->ioctl(class_dev->dev, cmd, arg);
+-		if (err != -EINVAL)
++		if (err != -ENOIOCTLCMD)
+ 			return err;
+ 	}
+ 
+ 	/* if the driver does not provide the ioctl interface
+ 	 * or if that particular ioctl was not implemented
+-	 * (-EINVAL), we will try to emulate here.
++	 * (-ENOIOCTLCMD), we will try to emulate here.
+ 	 */
+ 
+ 	switch (cmd) {
+@@ -233,7 +233,7 @@ static int rtc_dev_ioctl(struct inode *i
+ 		break;
+ 
+ 	default:
+-		err = -EINVAL;
++		err = -ENOIOCTLCMD;
+ 		break;
+ 	}
  

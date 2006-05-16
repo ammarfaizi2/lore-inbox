@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWEPVnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWEPVmf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbWEPVnM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 17:43:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWEPVnL
+	id S932194AbWEPVmf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 17:42:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWEPVmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 17:43:11 -0400
-Received: from mail.kroah.org ([69.55.234.183]:31918 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932181AbWEPVkm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 17:40:42 -0400
-From: Greg KH <greg@kroah.com>
+	Tue, 16 May 2006 17:42:21 -0400
+Received: from web26611.mail.ukl.yahoo.com ([217.146.177.63]:43874 "HELO
+	web26611.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932187AbWEPVlt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 17:41:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=eyYdcpYtthont7wK9NUbLx5Z9ki21ai3f34jvpl6pqKG+D0myQp8h6TvBmMDyTEDI4ieCGon2lxOmwU6xKp/76FHOd5SBRj5GyZlLyyw27Z5pjiV1glQ/r/yVWx/KYybYO1+mJYd4EiA/qY06siSeN69wpTuftIPvUAFKuhiATA=  ;
+Message-ID: <20060516214148.14432.qmail@web26611.mail.ukl.yahoo.com>
+Date: Tue, 16 May 2006 23:41:48 +0200 (CEST)
+From: linux cbon <linuxcbon@yahoo.fr>
+Subject: replacing X Window System !
 To: linux-kernel@vger.kernel.org
-Cc: David Brownell <david-b@pacbell.net>,
-       David Brownell <dbrownell@users.sourceforge.net>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 04/10] SPI: spi bounce buffer has a minimum length
-Reply-To: Greg KH <greg@kroah.com>
-Date: Tue, 16 May 2006 14:38:32 -0700
-Message-Id: <1147815518897-git-send-email-greg@kroah.com>
-X-Mailer: git-send-email 1.3.2
-In-Reply-To: <11478155181381-git-send-email-greg@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Brownell <david-b@pacbell.net>
+hi,
 
-Make sure that spi_write_then_read() can always handle at least 32 bytes
-of transfer (total, both directions), minimizing one portability issue.
+I know it may not be the best place, sorry for that.
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+X Window System is old, not optimized, slow, not
+secure (uses root much), accesses the video hardware
+directly (thats the kernel's job !), it cannot do VNC,
+etc.
 
----
+The question is : what are your ideas to make a system
+remplacing X Window System ?
 
- drivers/spi/spi.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+I think that linux kernel should contain a very basic
+and universal Window System module (which could also
+work on Unixes and BSDs) to replace X, X.org etc.
 
-a9948b6194b46e489aa3b4d111d6dfd786c39c4b
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 94f5e8e..1168ef0 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -522,7 +522,8 @@ int spi_sync(struct spi_device *spi, str
- }
- EXPORT_SYMBOL_GPL(spi_sync);
- 
--#define	SPI_BUFSIZ	(SMP_CACHE_BYTES)
-+/* portable code must never pass more than 32 bytes */
-+#define	SPI_BUFSIZ	max(32,SMP_CACHE_BYTES)
- 
- static u8	*buf;
- 
--- 
-1.3.2
+What do you think about this ?
 
+Thanks
+
+
+
+
+
+
+
+
+
+	
+
+	
+		
+___________________________________________________________________________ 
+Faites de Yahoo! votre page d'accueil sur le web pour retrouver directement vos services préférés : vérifiez vos nouveaux mails, lancez vos recherches et suivez l'actualité en temps réel. 
+Rendez-vous sur http://fr.yahoo.com/set

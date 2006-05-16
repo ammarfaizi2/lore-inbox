@@ -1,112 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWEPPF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbWEPPFx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751204AbWEPPF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 11:05:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWEPPF7
+	id S1751193AbWEPPFx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 11:05:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWEPPFx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 11:05:59 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:40081 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751204AbWEPPF5 (ORCPT
+	Tue, 16 May 2006 11:05:53 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:10 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1751193AbWEPPFw convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 11:05:57 -0400
-Date: Tue, 16 May 2006 17:05:55 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jan Beulich <jbeulich@novell.com>
-Cc: Andreas Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org
-Subject: Re: [PATCH 1/3] reliable stack trace support
-Message-ID: <20060516150555.GB10760@elte.hu>
-References: <4469FC07.76E4.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4469FC07.76E4.0078.0@novell.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 16 May 2006 11:05:52 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 16 May 2006 15:05:38.0530 (UTC) FILETIME=[30F72C20:01C678FA]
+Content-class: urn:content-classes:message
+Subject: Re: Wiretapping Linux?
+Date: Tue, 16 May 2006 11:05:38 -0400
+Message-ID: <Pine.LNX.4.61.0605161100590.27707@chaos.analogic.com>
+In-Reply-To: <4469D296.8060908@perkel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Wiretapping Linux?
+Thread-Index: AcZ4+jD+HBFn0+0CSkOLCsSRCEOuGg==
+References: <4469D296.8060908@perkel.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Marc Perkel" <marc@perkel.com>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jan Beulich <jbeulich@novell.com> wrote:
 
-> These are the generic bits needed to enable reliable stack traces 
-> based on Dwarf2-like (.eh_frame) unwind information. Subsequent 
-> patches will enable x86-64 and i386 to make use of this.
+On Tue, 16 May 2006, Marc Perkel wrote:
 
-some more detailed review:
+> As most of you know the United States is tapping you telephone calls and
+> tracking every call you make. The next logical step is to start tapping
+> your computer implanting spyware into operating systems. Since Windows
+> and OS-X are proprietary this can be done more easilly with the
+> cooperation of Microsoft and Apple.
+>
+> So what about Linux? With thousands of people working on the Kernel if
+> someone from the NSA wanted to slip a back door into the Kernel, could
+> the do that? I know it's open source and it could be found if anyone
+> looks but is anyone looking? Is this something that would get noticed if
+> someone tried to do it? I'd like to think it would, but I'm going to ask
+> anyway just to make sure.
+>
+> Conversely, if Microsoft or Apple cooperated with the US government
+> could they implant sptware without packets or hidden files being noticed?
+>
+> I'm in the process of writing some articles about it and want to raise
+> the issue of US government implanted spyware everywhere. I know some
+> people might think this a little off topic but I'd rather be safe than
+> sorry. Who better to ask this question of than those who develop the kernel?
+>
+> Thanks in advance.
 
-> +#ifdef CONFIG_STACK_UNWIND
-> +#include <asm/unwind.h>
-> +#else
-> +#include <asm-generic/unwind.h>
-> +#endif
 
-this wants to become include/linux/unwind.h?
+The United States Government already implants
+spy-ware into the Windows Operating System.
+It's called "Magic Lantern" and it was part
+of the settlement that the government made
+with Microsoft when it had been charged with
+restraint of trade and other federal law
+violations. The settlement was made when
+most persons' attention was diverted after
+9/11.
 
-> +#ifdef MODULE_UNWIND_INFO
-> +#include <asm/unwind.h>
-> +#endif
+Since most firewalls are open for the mail
+port and the http port, rumor has it that
+Microsoft networking looks at spare bits in
+the header (where the ECN bits are), and
+if it sees a certain combination, the packet
+is not a real mail or http packet, but an
+instruction for Magic Lantern. Presumably,
+the OS answers any request using the same
+method.
 
-this too could then include <linux/unwind.h>
+ 	http://www.wired.com/0,2100,48648,00.html
 
-> +DEFINE_SPINLOCK(table_lock);
+Putting such a method into Linux would not
+be difficult now that networking is done
+as a separate issue. An evil network-code
+maintainer could duplicate the protocol.
+However, there are certain implementation
+details that would certainly attract the
+attention of other kernel developers.
 
-static?
+The most likely scenario would be for an
+application to answer queries from the
+outside world and send along private
+information. Any distributor could do
+this, even Red Hat!
 
-> +static struct unwind_table *
-> +find_table(unsigned long pc)
-> +{
-> +	int old_removals;
-> +	struct unwind_table *table = NULL;
-> +
-> +	do {
-> +		if (table)
-> +				atomic_dec(&table->users);
-> +		old_removals = atomic_read(&removals);
+FI, do you truly __know__ what all this stuff does?
 
-racy? wants to become rcu?
+   PID TTY      STAT   TIME COMMAND
+     1 ?        S      0:00 init [5]
+     2 ?        SW     0:00 [migration/0]
+     3 ?        SWN    0:01 [ksoftirqd/0]
+     4 ?        SW<    0:02 [events/0]
+[SNIPPED 85 lines...]
+24006 tty1     S      0:00 /sbin/mingetty tty1
+26778 ?        SW     0:00 [pdflush]
+27253 tty2     S      0:00 -bash
+27656 tty2     R      0:00 ps ax
 
-> +	spin_lock(&table_lock);
+That's the stuff that's running on my "typical" system.
+How many Trojans are running? Maybe none, but don't
+bet your job on it. Just don't ever use any computer
+for anything you wouldn't want to be caught doing.
+It's just that simple!
 
-spin_lock_irq?
+Many Windows "drivers" periodically "call home." Hewlett
+Packard printer drivers report how much ink is being used,
+etc. They use a something called "backweb".
 
-> +	if (init_only && table == last_table) {
-> +		table->init.pc = 0;
-> +		table->init.range = 0;
-> +		return;
-> +	}
+ 	http://www.cexx.org/dlgli.htm
 
-SMP and PREEMPT unsafe.
+Backweb is spyware, deliberately introduced into products
+so that manufacturers can keep track of product usage.
+They don't tell you that they are spying on you. They
+just do it.
 
-> +	spin_lock(&table_lock);
+It's hard to find Windows products that don't contain
+such spyware. As Linux becomes more prevalent on the
+desktop, you can expect to find such spyware there
+too.
 
-spin_lock_irq().
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
+New book: http://www.lymanschool.com
+_
+
 
-> +	if (table) {
-> +		while (atomic_read(&table->users) || atomic_read(&lookups))
-> +			msleep(1);
-> +		kfree(table);
-> +	}
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-ugh!
-
-> +//todo			case DW_CFA_def_cfa_expression:
-> +//todo			case DW_CFA_expression:
-> +//todo			case DW_CFA_val_expression:
-
-hm?
-
-> +{
-> +	info->task = current;
-> +	arch_unwind_init_running(info, callback, arg);
-> +	return 0;
-
-newline before the return. (this happens in a couple of other places 
-too)
-
-	Ingo
+Thank you.

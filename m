@@ -1,60 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbWEPAMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWEPAPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750867AbWEPAMk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 20:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750868AbWEPAMk
+	id S1750868AbWEPAPE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 20:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbWEPAPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 20:12:40 -0400
-Received: from network.ucsd.edu ([132.239.1.195]:17161 "EHLO network.ucsd.edu")
-	by vger.kernel.org with ESMTP id S1750854AbWEPAMk (ORCPT
+	Mon, 15 May 2006 20:15:04 -0400
+Received: from mailfe10.swipnet.se ([212.247.155.33]:55974 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S1750868AbWEPAPD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 20:12:40 -0400
-Date: Mon, 15 May 2006 17:12:38 -0700 (PDT)
-From: Mark Hedges <hedges@ucsd.edu>
-To: dean gaudet <dean@arctic.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: unknown io writes in 2.6.16
-In-Reply-To: <Pine.LNX.4.64.0605121012230.7292@twinlark.arctic.org>
-Message-ID: <20060515170943.P3338@network.ucsd.edu>
-References: <20060510135100.F26270@network.ucsd.edu>
- <72dbd3150605101442o52a62d79va730314bf96dcfdd@mail.gmail.com>
- <20060510225112.T31828@network.ucsd.edu> <Pine.LNX.4.64.0605121012230.7292@twinlark.arctic.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 May 2006 20:15:03 -0400
+X-T2-Posting-ID: 6GBUGr3zkYYCG9T7x2Ik0yQrRuFhZLxyP+8apJj5Sjg=
+X-Cloudmark-Score: 0.000000 []
+From: lgouv@tele2.be
+Date: Tue, 16 May 2006 02:15:01 +0200
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.17-rc4-mm1 panic on boot
+Message-ID: <20060516001501.GA7528@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Just upgraded from rc3-mm4.
+Panic on boot with this message (copied by hand ):
+	kinit:do_mount
+	kinit: name_to_dev_t(/dev/hda8) = dev (0,0)
+	kinit:rot_dev = dev (0,0)
+	kinit root_dev = dev (0,0)
+	kinit trying to mount /dev/root on /root
+	...........
+/dev/hda8 is my root partition but I suppose dev (0,0) is the first
+partition on hda which is FAT.
+I tried vanilla rc4 with the same result.
 
 
-On Fri, 12 May 2006, dean gaudet wrote:
-> On Wed, 10 May 2006, Mark Hedges wrote:
-> 
-> > Just a wishlist that process IO could be monitored.  I hate to 
-> > say it but ctl-alt-esc in W2K can monitor io by process, and 
-> > that's really useful.  (I will never go back though.)
-> 
-> /etc/init.d/klogd stop
-> echo 1 >/proc/sys/vm/block_dump
-> /sbin/klogd -n -f -
-> 
-> watch lots of spew
-> 
-> ^C
-> echo 0 >/proc/sys/vm/block_dump
-> /etc/init.d/klogd start
-> 
-> that will tell you a lot of stuff.  it will probably lead you to a process 
-> or two as culprits... use strace(8) to attach to those and get more 
-> specific information.
-> 
-> now... share with me how to do this on windoze?  :)  i'm trying to get rid 
-> of the last write or two on my laptop...
-
-Cool, thanks, I'll check this out.  It's actually about 12k 
-every 5 seconds, not 12 bytes. Seems excessive for atime 
-updates.
-
-In W2K at any rate, ctl-shift-esc to get the task manager.  
-Processes tab. View Menu > Select Columns.  Sort by column.
-
-Mark

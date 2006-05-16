@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWEPQgG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWEPQhl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWEPQgG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 12:36:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWEPQgF
+	id S932116AbWEPQhl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 12:37:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbWEPQhk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 12:36:05 -0400
-Received: from waste.org ([64.81.244.121]:64904 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932113AbWEPQgE (ORCPT
+	Tue, 16 May 2006 12:37:40 -0400
+Received: from cantor.suse.de ([195.135.220.2]:21924 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932116AbWEPQhk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 12:36:04 -0400
-Date: Tue, 16 May 2006 11:29:34 -0500
-From: Matt Mackall <mpm@selenic.com>
+	Tue, 16 May 2006 12:37:40 -0400
+Date: Tue, 16 May 2006 18:37:26 +0200
+From: Olaf Hering <olh@suse.de>
 To: Adrian Bunk <bunk@stusta.de>
-Cc: akpm@osdl.org, B.Zolnierkiewicz@elka.pw.edu.pl, liux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make number of IDE interfaces configurable
-Message-ID: <20060516162934.GR24227@waste.org>
-References: <20060512222952.GQ6616@waste.org> <20060516160250.GE5677@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Ihno Krumreich <ihno@suse.de>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: 2.6.17-rc4-mm1: please drop add-raw-driver-kconfig-entry-for-s390.patch
+Message-ID: <20060516163726.GA13798@suse.de>
+References: <20060515005637.00b54560.akpm@osdl.org> <20060516161228.GF5677@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20060516160250.GE5677@stusta.de>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060516161228.GF5677@stusta.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 16, 2006 at 06:02:50PM +0200, Adrian Bunk wrote:
-> On Fri, May 12, 2006 at 05:29:52PM -0500, Matt Mackall wrote:
-> >...
-> > --- 2.6.orig/include/linux/ide.h	2006-05-11 15:07:32.000000000 -0500
-> > +++ 2.6/include/linux/ide.h	2006-05-12 14:01:53.000000000 -0500
-> > @@ -252,7 +252,8 @@ static inline void ide_std_init_ports(hw
-> >  
-> >  #include <asm/ide.h>
-> >  
-> > -#ifndef MAX_HWIFS
-> > +#if !defined(MAX_HWIFS) || defined(CONFIG_EMBEDDED)
-> > +#undef MAX_HWIFS
-> >  #define MAX_HWIFS	CONFIG_IDE_MAX_HWIFS
-> >  #endif
-> 
-> Why do you need this?
+ On Tue, May 16, Adrian Bunk wrote:
 
-Doesn't work without it?
+> This driver is declared obsolete since more than two years, and while 
+> it's worth a discussion how long to keep it for legacy users, merging a 
+> patch offering an obsolete driver for even more users is silly.
 
-Most platforms define MAX_HWIFS.
-
--- 
-Mathematics is the supreme nostalgia of our time.
+If it is so deprecated, just drop it for 2.6.17. I mean, no major distro
+that counts will be based on 2.6.17, so noone will miss it from now on.
+nails with heads and stuff...

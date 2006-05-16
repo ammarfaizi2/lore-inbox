@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWEPLwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWEPL5L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751397AbWEPLwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 07:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWEPLwQ
+	id S1750781AbWEPL5L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 07:57:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750904AbWEPL5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 07:52:16 -0400
-Received: from mout2.freenet.de ([194.97.50.155]:10944 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S1750781AbWEPLwP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 07:52:15 -0400
-From: Joachim Fritschi <jfritschi@freenet.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 1/2] Twofish cipher i586-asm optimized
-Date: Tue, 16 May 2006 13:52:12 +0200
-User-Agent: KMail/1.8.3
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-crypto@vger.kernel.org
-References: <200605071156.57844.jfritschi@freenet.de> <200605072247.46655.jfritschi@freenet.de> <20060516074424.GA17773@gondor.apana.org.au>
-In-Reply-To: <20060516074424.GA17773@gondor.apana.org.au>
+	Tue, 16 May 2006 07:57:11 -0400
+Received: from taurus.voltaire.com ([193.47.165.240]:35342 "EHLO
+	taurus.voltaire.com") by vger.kernel.org with ESMTP
+	id S1750781AbWEPL5L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 07:57:11 -0400
+Message-ID: <4469BE0E.9080205@voltaire.com>
+Date: Tue, 16 May 2006 14:57:02 +0300
+From: Or Gerlitz <ogerlitz@voltaire.com>
+User-Agent: Thunderbird 1.4.1 (Windows/20051006)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Roland Dreier <rdreier@cisco.com>
+CC: "akpm@osdl.org Linux Kernel Mailing List" 
+	<linux-kernel@vger.kernel.org>,
+       openib-general@openib.org, Christoph Lameter <clameter@sgi.com>,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH] slab: Fix kmem_cache_destroy() on NUMA
+References: <Pine.LNX.4.64.0605111640010.3866@g5.osdl.org> <Pine.LNX.4.44.0605141306240.29880-100000@zuben> <adaves7rv0j.fsf_-_@cisco.com>
+In-Reply-To: <adaves7rv0j.fsf_-_@cisco.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605161352.12308.jfritschi@freenet.de>
+X-OriginalArrivalTime: 16 May 2006 11:57:09.0248 (UTC) FILETIME=[DC1BB000:01C678DF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 May 2006 09:44, Herbert Xu wrote:
-> On Sun, May 07, 2006 at 08:47:46PM +0000, Joachim Fritschi wrote:
-> > After going over my patch again, i realized i missed the .cra_priority
-> > and .cra_driver_name setting in the crypto api struct. Here is an updated
-> > version of my patch:
-> >
-> > http://homepages.tu-darmstadt.de/~fritschi/twofish/twofish-i586-asm-2.6.1
-> >7-2.diff
->
-> Thanks for doing this Joachim.  I like the result.
->
-> But the duplicate key code is a bit too much.  The fact that AES does
-> it should only serve as a reminder for us to fix it, not to create even
-> more duplication.
->
-> So could you please move the key generation code into a separate file,
-> say crypto/twofish-common.c which can then be shared by all twofish
-> implementations?
-Sure, i will resubmit the patches in a few days.
->
-> BTW, please include the actual patches the next time you submit them
-> along with Signed-off-by lines.  You should consult the file
-> Documentation/SubmittingPatches for detailed instructions.
-Seems like i referred to the wrong documentation then. I read the faq on 
-kernel.org ( http://www.kernel.org/pub/linux/docs/lkml/#s4-1 ) and tried to 
-follow the instructions :/. Sorry about that.
+Roland Dreier wrote:
+> With CONFIG_NUMA set, kmem_cache_destroy() may fail and say "Can't
+> free all objects."  The problem is caused by sequences such as the
+> following (suppose we are on a NUMA machine with two nodes, 0 and 1):
+> 
+>  * Allocate an object from cache on node 0.
+>  * Free the object on node 1.  The object is put into node 1's alien
+>    array_cache for node 0.
+>  * Call kmem_cache_destroy(), which ultimately ends up in __cache_shrink().
+>  * __cache_shrink() does drain_cpu_caches(), which loops through all nodes.
+>    For each node it drains the shared array_cache and then handles the
+>    alien array_cache for the other node.
+> 
+> However this means that node 0's shared array_cache will be drained,
+> and then node 1 will move the contents of its alien[0] array_cache
+> into that same shared array_cache.  node 0's shared array_cache is
+> never looked at again, so the objects left there will appear to be in
+> use when __cache_shrink() calls __node_shrink() for node 0.  So
+> __node_shrink() will return 1 and kmem_cache_destroy() will fail.
+> 
+> This patch fixes this by having drain_cpu_caches() do
+> drain_alien_cache() on every node before it does drain_array() on the
+> nodes' shared array_caches.
+> 
+> The problem was originally reported by Or Gerlitz <ogerlitz@voltaire.com>.
+> 
+> Cc: Christoph Lameter <clameter@sgi.com>
+> Cc: Pekka Enberg <penberg@cs.helsinki.fi>
 
-Regards,
-Joachim
+OK, Indeed i have CONFIG_NUMA and yes, the patch fixes my problem, 
+thanks a lot for working on that!
+
+Or.
+

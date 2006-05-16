@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751763AbWEPKfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751758AbWEPKg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751763AbWEPKfA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 06:35:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751762AbWEPKfA
+	id S1751758AbWEPKg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 06:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751759AbWEPKg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 06:35:00 -0400
-Received: from baldrick.bootc.net ([83.142.228.48]:47025 "EHLO
-	baldrick.fusednetworks.co.uk") by vger.kernel.org with ESMTP
-	id S1751760AbWEPKe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 06:34:59 -0400
-Mime-Version: 1.0 (Apple Message framework v750)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <EA629E23-98F8-4CB0-96B0-259C2A30BDFF@bootc.net>
-Cc: grsecurity@grsecurity.net
-Content-Transfer-Encoding: 7bit
-From: Chris Boot <bootc@bootc.net>
-Subject: 
-Date: Tue, 16 May 2006 11:34:54 +0100
-To: kernel list <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-X-Mailer: Apple Mail (2.750)
+	Tue, 16 May 2006 06:36:58 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:10166 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751758AbWEPKg5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 06:36:57 -0400
+Date: Tue, 16 May 2006 06:36:44 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Sebastien Dugue <sebastien.dugue@bull.net>
+Cc: tglx@linutronix.de, Ingo Molnar <mingo@elte.hu>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [RFC][PATCH RT 0/2] futex priority based wakeup
+Message-ID: <20060516103644.GH25570@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20060510112651.24a36e7b@frecb000686> <20060510100858.GA31504@elte.hu> <1147266235.3969.31.camel@frecb000686> <1147271536.27820.288.camel@localhost.localdomain> <20060510150140.GR14147@devserv.devel.redhat.com> <1147280521.27820.329.camel@localhost.localdomain> <1147337817.3969.46.camel@frecb000686>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1147337817.3969.46.camel@frecb000686>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, May 11, 2006 at 10:56:57AM +0200, S?bastien Dugu? wrote:
+>   Hm, I wonder what would be the effect of having the external mutex
+> and __data.__lock use a PI futex and __data.__futex use a regular
+> futex when the waiters on __data.__futex are requeued on the external
+> mutex during a broadcast.
 
-I've just seen the following assertions pop out of one of my servers  
-running 2.6.16.9 with grsecurity. I've searched the archives of LKML  
-and netdev and I've only found posts relating to 2.6.9, after which  
-some related bugs were fixed... It looks like these bugs are related  
-to e1000, which is the driver I'm using. The system was running 24  
-days before these appeared and it's still running absolutely fine.
+Well, either glibc can stop using requeue if the mutex is PI mutex (and use
+the slower fallback), or kernel would need to handle requeueing from normal to
+PI futex.
 
-May 16 09:15:12 baldrick kernel: [6442250.504000] KERNEL: assertion (! 
-sk->sk_forward_alloc) failed at net/core/stream.c (283)
-May 16 09:15:12 baldrick kernel: [6442250.513000] KERNEL: assertion (! 
-sk->sk_forward_alloc) failed at net/ipv4/af_inet.c (150)
+> > > But, there is a problem here - pthread_cond_{signal,broadcast} don't
+> > > have any associated mutexes, so you often don't know which type
+> > > of protocol you want to use for the internal condvar lock.
+> 
+>   Just a wild guess here, but in the broadcast or signal path, couldn't
+> __data.__mutex be looked up to determine what protocol to use for the
+> __data.__futex?
 
-baldrick bootc # ethtool -k eth0
-Offload parameters for eth0:
-rx-checksumming: on
-tx-checksumming: on
-scatter-gather: on
-tcp segmentation offload: on
+Not always.
+Say if you do:
+thread1	(low prio)	thread2 (very high prio)		thread3 (mid prio)
+pthread_cond_signal (&cv)
+# first use of cv in the program, no mutex has been ever used with this
+# condvar
+lll_mutex_lock (&cv->__data.__lock)
+			pthread_cond_wait (&cv, &pi_mutex)
+			lll_mutex_lock (&cv->__data.__lock)
+								use_all_CPU
+			# Then thread2 is stuck, waiting on thread1 which waits on thread3
 
-Many thanks,
-Chris
+At pthread_cond_signal enter time you don't know the type of associated
+mutex, so you don't know which kind of internal lock to use.
+It doesn't have to be the first use of cv in the program, similarly it can
+be any pthread_cond_{signal,broadcast} called while there are no threads
+in pthread_cond_*wait on that cv.
 
-PS: I'm not subscribed to netdev.
-
--- 
-Chris Boot
-bootc@bootc.net
-http://www.bootc.net/
-
+	Jakub

@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbWEPETr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWEPEWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751261AbWEPETr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 00:19:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbWEPETr
+	id S1751260AbWEPEWM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 00:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWEPEWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 00:19:47 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:4807
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751243AbWEPETq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 00:19:46 -0400
-Date: Mon, 15 May 2006 21:18:43 -0700 (PDT)
-Message-Id: <20060515.211843.82450846.davem@davemloft.net>
-To: kaber@trash.net
-Cc: herbert@gondor.apana.org.au, shemminger@osdl.org, ranjitm@google.com,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH] tcpdump may trace some outbound packets twice.
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <4469294D.6010509@trash.net>
-References: <E1FfnZP-0003St-00@gondolin.me.apana.org.au>
-	<44692847.4080100@trash.net>
-	<4469294D.6010509@trash.net>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 16 May 2006 00:22:12 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:30650 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1751260AbWEPEWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 00:22:11 -0400
+Subject: Re: [PATCH] slab: Fix kmem_cache_destroy() on NUMA
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Roland Dreier <rdreier@cisco.com>, Linus Torvalds <torvalds@osdl.org>,
+       "akpm@osdl.org Linux Kernel Mailing List" 
+	<linux-kernel@vger.kernel.org>,
+       openib-general@openib.org, Or Gerlitz <ogerlitz@voltaire.com>
+In-Reply-To: <Pine.LNX.4.64.0605151446340.835@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0605111640010.3866@g5.osdl.org>
+	 <Pine.LNX.4.44.0605141306240.29880-100000@zuben>
+	 <adaves7rv0j.fsf_-_@cisco.com>
+	 <Pine.LNX.4.64.0605151446340.835@schroedinger.engr.sgi.com>
+Date: Tue, 16 May 2006 07:22:07 +0300
+Message-Id: <1147753327.11271.0.camel@localhost>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Patrick McHardy <kaber@trash.net>
-Date: Tue, 16 May 2006 03:22:21 +0200
+On Mon, 15 May 2006, Roland Dreier wrote:
+> > This patch fixes this by having drain_cpu_caches() do 
+> > drain_alien_cache() on every node before it does drain_array() on the 
+> > nodes' shared array_caches.
 
-> Patrick McHardy wrote:
-> > 3) Clone the skb and have dev_queue_xmit_nit() consume it.
-> > 
-> > That should actually be pretty easy.
-> 
-> On second thought, thats not so great either. netdev_nit
-> just globally signals that there are some taps, but we
-> don't know if they're interested in a specific packet.
+On Mon, 2006-05-15 at 14:47 -0700, Christoph Lameter wrote:
+> Correct. That is the fix that I suggested earlier. The alien caches needs 
+> to be drained first.
 
-Yes, and all of these issues coming up are why we do the
-dev_queue_xmit_nit() before not after we try to give it to the device.
+Yeah, looks good to me too. Thanks Roland!
 
-Even the "NIT done" bit doesn't work, for cases like ICMP replies
-which can reuse the SKB received, over loopback.  Sure we can try to
-forcefully clear the bit everywhere we reuse buffers for replies like
-that, but I wish anyone trying to implement that the best of luck
-finding all spots successfully.
+			Pekka
 
-To be honest, I don't think this bug is worth all the energy we are
-trying to put into fixing it.
-
-We get a double packet when the spinlock is hit, big deal.

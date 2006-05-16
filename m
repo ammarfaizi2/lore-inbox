@@ -1,84 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbWEPRqG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932448AbWEPRpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932343AbWEPRqG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 13:46:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWEPRog
+	id S932448AbWEPRpT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 13:45:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWEPRpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 13:44:36 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4104 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932330AbWEPRoP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 13:44:15 -0400
-Date: Tue, 16 May 2006 19:44:13 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] fs/jbd/journal.c: possible cleanups
-Message-ID: <20060516174413.GI10077@stusta.de>
+	Tue, 16 May 2006 13:45:13 -0400
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:30214 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S932323AbWEPRot
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 13:44:49 -0400
+Message-ID: <446A0F86.9070806@de.ibm.com>
+Date: Tue, 16 May 2006 19:44:38 +0200
+From: Martin Peschke <mp3@de.ibm.com>
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+To: linux-kernel@vger.kernel.org
+CC: akpm@osdl.org, ak@suse.de, hch@infradead.org, arjan@infradead.org,
+       James.Smart@Emulex.Com, James.Bottomley@SteelEye.com
+Subject: [RFC] [Patch 1/8] statistics infrastructure - prerequisite: list
+ operation
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make the following needlessly global function static:
-  - journal_check_used_features()
-- remove the following unused EXPORT_SYMBOL's:
-  - journal_set_features
-  - journal_update_superblock
+This patch adds another list_for_each_* derivate. I can't work around it
+because there is a list that I need to search both ways.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
+Signed-off-by: Martin Peschke <mp3@de.ibm.com>
 ---
 
-This patch was already sent on:
-- 1 May 2006
-- 23 Apr 2006
+  list.h |   12 ++++++++++++
+  1 files changed, 12 insertions(+)
 
- fs/jbd/journal.c    |    9 ++++-----
- include/linux/jbd.h |    2 --
- 2 files changed, 4 insertions(+), 7 deletions(-)
+diff -Nurp a/include/linux/list.h b/include/linux/list.h
+--- a/include/linux/list.h	2006-05-15 12:42:12.000000000 +0200
++++ b/include/linux/list.h	2006-05-15 17:26:16.000000000 +0200
+@@ -411,6 +411,18 @@ static inline void list_splice_init(stru
+  	     pos = list_entry(pos->member.next, typeof(*pos), member))
 
---- linux-2.6.17-rc1-mm3-full/include/linux/jbd.h.old	2006-04-23 13:29:20.000000000 +0200
-+++ linux-2.6.17-rc1-mm3-full/include/linux/jbd.h	2006-04-23 13:29:35.000000000 +0200
-@@ -908,8 +908,6 @@
- 				int start, int len, int bsize);
- extern journal_t * journal_init_inode (struct inode *);
- extern int	   journal_update_format (journal_t *);
--extern int	   journal_check_used_features 
--		   (journal_t *, unsigned long, unsigned long, unsigned long);
- extern int	   journal_check_available_features 
- 		   (journal_t *, unsigned long, unsigned long, unsigned long);
- extern int	   journal_set_features 
---- linux-2.6.17-rc1-mm3-full/fs/jbd/journal.c.old	2006-04-23 13:29:42.000000000 +0200
-+++ linux-2.6.17-rc1-mm3-full/fs/jbd/journal.c	2006-04-23 13:30:37.000000000 +0200
-@@ -62,13 +62,10 @@
- EXPORT_SYMBOL(journal_init_dev);
- EXPORT_SYMBOL(journal_init_inode);
- EXPORT_SYMBOL(journal_update_format);
--EXPORT_SYMBOL(journal_check_used_features);
- EXPORT_SYMBOL(journal_check_available_features);
--EXPORT_SYMBOL(journal_set_features);
- EXPORT_SYMBOL(journal_create);
- EXPORT_SYMBOL(journal_load);
- EXPORT_SYMBOL(journal_destroy);
--EXPORT_SYMBOL(journal_update_superblock);
- EXPORT_SYMBOL(journal_abort);
- EXPORT_SYMBOL(journal_errno);
- EXPORT_SYMBOL(journal_ack_err);
-@@ -1169,8 +1166,10 @@
-  * features.  Return true (non-zero) if it does. 
-  **/
- 
--int journal_check_used_features (journal_t *journal, unsigned long compat,
--				 unsigned long ro, unsigned long incompat)
-+static int journal_check_used_features(journal_t *journal,
-+				       unsigned long compat,
-+				       unsigned long ro,
-+				       unsigned long incompat)
- {
- 	journal_superblock_t *sb;
- 
+  /**
++ * list_for_each_entry_continue_reverse -	iterate backwards over list
++ *			of given type continuing before existing point
++ * @pos:	the type * to use as a loop counter.
++ * @head:	the head for your list.
++ * @member:	the name of the list_struct within the struct.
++ */
++#define list_for_each_entry_continue_reverse(pos, head, member) 	\
++	for (pos = list_entry(pos->member.prev, typeof(*pos), member);	\
++	     prefetch(pos->member.prev), &pos->member != (head);	\
++	     pos = list_entry(pos->member.prev, typeof(*pos), member))
++
++/**
+   * list_for_each_entry_from -	iterate over list of given type
+   *			continuing from existing point
+   * @pos:	the type * to use as a loop counter.
+
 

@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWEPPax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWEPPdm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbWEPPax (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 11:30:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWEPPax
+	id S1751234AbWEPPdm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 11:33:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWEPPdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 11:30:53 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:48389 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932093AbWEPPaw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 11:30:52 -0400
-Date: Tue, 16 May 2006 17:30:50 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Ananda Raju <ananda.raju@neterion.com>,
-       jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: [-mm patch] drivers/net/s2io.c: make bus_speed[] static
-Message-ID: <20060516153050.GC5677@stusta.de>
-References: <20060515005637.00b54560.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 16 May 2006 11:33:41 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:60048 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1751234AbWEPPdk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 11:33:40 -0400
+Date: Tue, 16 May 2006 17:33:18 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: David Brownell <david-b@pacbell.net>
+Cc: jffs-dev@axis.com, dwmw2@infradead.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-mtd@lists.infradead.org
+Subject: Re: jffs2 build fixes
+Message-ID: <20060516153318.GE11656@wohnheim.fh-wedel.de>
+References: <200604010831.57875.david-b@pacbell.net> <200605160755.38606.david-b@pacbell.net> <20060516150928.GC11656@wohnheim.fh-wedel.de> <200605160825.54972.david-b@pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060515005637.00b54560.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200605160825.54972.david-b@pacbell.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 15, 2006 at 12:56:37AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.17-rc3-mm1:
->...
->  git-netdev-all.patch
->...
->  git trees
->...
+On Tue, 16 May 2006 08:25:52 -0700, David Brownell wrote:
+> On Tuesday 16 May 2006 8:09 am, Jörn Engel wrote:
+> 
+> > jffs-dev@axis.com is practically dead.  Iirc, the list was used for
+> > the old jffs[1] code.  Jffs2 is usually discussed on
+> > linux-mtd@lists.infradead.org (added to Cc:).
+> 
+> Then it's overdue for the MAINTAINERS file to be updated ... it
+> seems wrong that the official "where to go" listing for JFFS2
+> points at a black hole.
 
+Ouch!  Yes, you are correct.
 
-This patch makes the needlessly global bus_speed[] static.
+Can you send a patch to dwmw2?
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Jörn
 
---- linux-2.6.17-rc4-mm1-full/drivers/net/s2io.c.old	2006-05-16 13:06:58.000000000 +0200
-+++ linux-2.6.17-rc4-mm1-full/drivers/net/s2io.c	2006-05-16 13:07:08.000000000 +0200
-@@ -852,7 +852,7 @@
- 	return 0;
- }
- 
--int bus_speed[8] = {33, 133, 133, 200, 266, 133, 200, 266};
-+static int bus_speed[8] = {33, 133, 133, 200, 266, 133, 200, 266};
- /**
-  * s2io_print_pci_mode -
-  */
-
+-- 
+Write programs that do one thing and do it well. Write programs to work
+together. Write programs to handle text streams, because that is a
+universal interface. 
+-- Doug MacIlroy

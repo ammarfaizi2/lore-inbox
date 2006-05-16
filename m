@@ -1,50 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751825AbWEPQBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751596AbWEPQBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751825AbWEPQBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 12:01:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751611AbWEPQBY
+	id S1751596AbWEPQBV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 12:01:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751832AbWEPQBU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 12:01:24 -0400
-Received: from xenotime.net ([66.160.160.81]:13442 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932108AbWEPQAv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 12:00:51 -0400
-Date: Tue, 16 May 2006 09:03:15 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: PATCH: Clarify maintainers and include linux-security info
-Message-Id: <20060516090315.421e5166.rdunlap@xenotime.net>
-In-Reply-To: <1147795421.2151.80.camel@localhost.localdomain>
-References: <1147795421.2151.80.camel@localhost.localdomain>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 16 May 2006 12:01:20 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:61599 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751596AbWEPQBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 12:01:00 -0400
+Subject: libata PATA updated patch
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Tue, 16 May 2006 17:13:57 +0100
+Message-Id: <1147796037.2151.83.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 May 2006 17:03:41 +0100 Alan Cox wrote:
+I've put a patch versus -rc4 in the usual place. This should sort out
+the PIO problems and a few other glitches
 
-> Signed-off-by: Alan Cox <alan@redhat.com>
-> 
-> --- linux-2.6.17-rc4/MAINTAINERS~	2006-05-16 16:38:42.034901424 +0100
-> +++ linux-2.6.17-rc4/MAINTAINERS	2006-05-16 16:38:42.034901424 +0100
-> @@ -44,7 +44,11 @@
->  	do changes at work you may find your employer owns the patch
->  	not you.
->  
-> -7.	Happy hacking.
-> +7.	When sending security related changes or reports to a maintainer
-> +	please Cc: linux-security@kernel.org, especially if the maintainer
-> +	does not respond.
+Alan
 
-It's just security@kernel.org according to MAINTAINERS.
+http://zeniv.linux.org.uk/~alan/IDE
 
-> +8.	Happy hacking.
-
-
-
----
-~Randy

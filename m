@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWEPUaS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWEPUaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbWEPUaS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 16:30:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWEPUaS
+	id S1750713AbWEPUaO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 16:30:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWEPUaO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 16:30:18 -0400
-Received: from main.gmane.org ([80.91.229.2]:5571 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750728AbWEPUaR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 16:30:17 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: Wiretapping Linux?
-Date: Tue, 16 May 2006 21:29:59 +0100
-Message-ID: <yw1xodxx1znc.fsf@agrajag.inprovide.com>
-References: <4469D296.8060908@perkel.com> <Pine.LNX.4.61.0605161100590.27707@chaos.analogic.com> <Pine.LNX.4.64.0605161052120.32181@turbotaz.ourhouse>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: agrajag.inprovide.com
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through Obscurity, linux)
-Cancel-Lock: sha1:NpRZgGzlTGBmtEMn/L+h3hYXvlA=
+	Tue, 16 May 2006 16:30:14 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.81]:40847 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id S1750713AbWEPUaN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 16:30:13 -0400
+Message-ID: <446A36B8.1060707@cmu.edu>
+Date: Tue, 16 May 2006 16:31:52 -0400
+From: George Nychis <gnychis@cmu.edu>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060503)
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: need help booting from SATA in 2.4.32
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chase Venters <chase.venters@clientec.com> writes:
+Hi,
 
-> The thing is that there is enough peer review in the open source world
-> that not only would it be *difficult* to slip in some intentionally
-> malicious code (and I don't think any malicious code of much potential
-> would be likely to make it past LKML, especially if it doesn't closely
-> adhere to CodingStyle :P) but it would not be long before someone
-> noticed it.
+I've booted from a SATA drive in 2.4.32 before, but for some reason
+2.4.32 will not recognize this disk.  It is recognized when I boot 2.6.9
+though.
 
-Some details on a real attempt: http://kerneltrap.org/node/1584
+It uses the ata_piix module in both kernels.  Whenever I boot 2.6.9 I see:
+----------------------------------------------------------------------
+ SCSI subsystem initialized
+ ACPI: PCI interrupt 0000:00:1f.2[B] -> GSI 7 (level, low) -> IRQ 7
+ ata: 0x170 IDE port busy
+ ata1: SATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xBFA0 irq 14
+ ata1: dev 0 ATA, max UDMA/100, 78140160 sectors:
+ ata1(0): applying bridge limits
+ ata1: dev 0 configured for UDMA/100
+ scsi0 : ata_piix
+   Vendor: ATA       Model: FUJITSU MHV2040A  Rev: 0000
+   Type:   Direct-Access                      ANSI SCSI revision: 05
+ SCSI device sda: 78140160 512-byte hdwr sectors (40008 MB)
+ SCSI device sda: drive cache: write back
+  sda: sda1 sda2 sda3 sda4 < sda5 >
+ Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+ device-mapper: 4.1.0-ioctl (2003-12-10) initialised: dm@uk.sistina.com
+------------------------------------------------------------------------
 
--- 
-Måns Rullgård
-mru@inprovide.com
+However in 2.4.32 all i see is:
+----------------------------
+ SCSI subsystem initialized
+----------------------------
+
+I am positive that my 2.4.32 has been compiled with ata_piix as a
+module, and it does reside in /lib/modules/2.4.32/kernel/driver/scsi/
+
+Any clues?
+
+Thanks!
+George
 

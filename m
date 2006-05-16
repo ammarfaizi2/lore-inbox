@@ -1,63 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbWEPNsZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751782AbWEPNuQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751086AbWEPNsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 09:48:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWEPNsZ
+	id S1751782AbWEPNuQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 09:50:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751830AbWEPNuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 09:48:25 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:48289 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751086AbWEPNsZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 09:48:25 -0400
-Date: Tue, 16 May 2006 15:47:28 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: John Lenz <lenz@cs.wisc.edu>
-Cc: Richard Purdie <rpurdie@rpsys.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: MMC drivers for 2.6 collie
-Message-ID: <20060516134728.GE5439@elf.ucw.cz>
-References: <20060514145325.GA3205@elf.ucw.cz> <1147619440.5531.167.camel@localhost.localdomain> <20060514162410.GG2438@elf.ucw.cz> <1147657069.5525.12.camel@hydra.domain.actdsltmp>
+	Tue, 16 May 2006 09:50:15 -0400
+Received: from host70.simplicato.com ([207.99.47.70]:46305 "EHLO
+	mail11.simplicato.com") by vger.kernel.org with ESMTP
+	id S1751782AbWEPNuN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 09:50:13 -0400
+From: "Zvi Gutterman" <zvi@safend.com>
+To: "'Muli Ben-Yehuda'" <muli@il.ibm.com>,
+       "'Kyle Moffett'" <mrmacman_g4@mac.com>
+Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'Jonathan Day'" <imipak@yahoo.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: /dev/random on Linux
+Date: Tue, 16 May 2006 16:54:00 +0300
+Message-ID: <00fc01c678f0$30c77520$2c02a8c0@Safend.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1147657069.5525.12.camel@hydra.domain.actdsltmp>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+In-Reply-To: <20060516082859.GD18645@rhun.haifa.ibm.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Thread-Index: AcZ4w5Mw9zwAhXKKTkOxawfwLPgMlQAKoqfw
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Ne 14-05-06 20:37:49, John Lenz wrote:
-> On Sun, 2006-05-14 at 18:24 +0200, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > > I've tried searching sharp patches for MMC support, but could not find
-> > > > it. Or should MMC_ARMMMCI work on collie?
-> > > 
-> > > Sharp's 2.4 MMC/SD drivers were binary only for all Zaurus models. Since
-> > > we have documentation on the PXA, a 2.6 driver exists and works for all
-> > > PXA models as we could guess the power controls and GPIOs. Collie
-> > > (SA1100 based) used some kind of SPI interface through the LOCOMO chip
-> > > (as far as I know) which we have no documentation on.
-> > 
-> > I thought we had completely open-source version at one point?
-> 
-> No, not for the MMC on collie.  At least, the patch to the 2.4 kernel
-> which I based my 2.6 code on did not have any MMC parts, and the
-> openzaurus distro at the time still included the binary module in the
-> rom.  
-> 
-> IIRC, Chris Larson signed a NDA and got the specs for the MMC device on
-> collie to develop it for 2.6, but I don't think anything ever came of
-> it.  I also might be remembering he signed a NDA for some other
-> component, but I think it was the MMC device.  Also, the poodle and
-> collie used different device controllers, so the work will not transfer
-> over.  :(
 
-Bad... I need CF slot for bluetooth card, and 14MB is not really
-enough memory. I guess there's no reasonable way to "split" CF slot in
-two?
+Hello All,
 
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+I did not get any answer from Matt and was sure that it was of no interest.
+This was my mistake, sorry for not sending it earlier to more people.
+ 
+I will be very happy to discuss any aspect of the paper and we do suggest
+ways we think can improve the /dev/random security (a very simple issue for
+example is implementing quotas on the consumption of random numbers)
+
+Thanks,
+
+Zvi
+ 
+
+-----Original Message-----
+From: Muli Ben-Yehuda [mailto:muli@il.ibm.com] 
+Sent: Tuesday, May 16, 2006 11:29 AM
+To: Kyle Moffett
+Cc: Alan Cox; Jonathan Day; linux-kernel@vger.kernel.org; Zvika Gutterman
+Subject: Re: /dev/random on Linux
+
+On Tue, May 16, 2006 at 04:15:19AM -0400, Kyle Moffett wrote:
+> On May 15, 2006, at 22:50, Muli Ben-Yehuda wrote:
+> >On Mon, May 15, 2006 at 11:41:07PM +0100, Alan Cox wrote:
+> >>A paper by people who can't work out how to mail linux-kernel or  
+> >>vendor-sec, or follow "REPORTING-BUGS" in the source,
+> >
+> >Zvi did contact Matt Mackall, the current /dev/random maintainer,  
+> >and was very keen on discussing the paper with him. I don't think  
+> >he got any response.
+> 
+> So he's demanding that one person spend time responding to his  
+> paper? 
+
+Who said anything about demanding? he wanted to discuss the paper. He
+received no response (AFAIK). Please don't read more into it.
+
+> The "maintainer" for any given piece of the kernel is the  
+> entry in MAINTAINERS *and* linux-kernel@vger.kernel.org *and* the  
+> appropriate sub-mailing-list.
+
+For security related information, it is sometimes best not to tell the
+whole world about it immediately (although you should definitely tell
+the whole world about it eventually). It should've probably been
+posted to lkml when mpm didn't respond, I agree. I'll take the blame
+for not suggesting that to Zvi.
+
+Cheers,
+Muli
+
+

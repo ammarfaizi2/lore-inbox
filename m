@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751774AbWEPK4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751779AbWEPLBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751774AbWEPK4A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 06:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751776AbWEPK4A
+	id S1751779AbWEPLBd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 07:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751776AbWEPLBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 06:56:00 -0400
-Received: from mail14.syd.optusnet.com.au ([211.29.132.195]:14803 "EHLO
-	mail14.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751774AbWEPKz7 convert rfc822-to-8bit (ORCPT
+	Tue, 16 May 2006 07:01:33 -0400
+Received: from mail.axxeo.de ([82.100.226.146]:44204 "EHLO mail.axxeo.de")
+	by vger.kernel.org with ESMTP id S1751771AbWEPLBc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 06:55:59 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Christoph Lameter <clameter@sgi.com>
-Subject: Re: [PATCH] mm: cleanup swap unused warning
-Date: Tue, 16 May 2006 20:55:36 +1000
+	Tue, 16 May 2006 07:01:32 -0400
+From: Ingo Oeser <netdev@axxeo.de>
+Organization: Axxeo GmbH
+To: Chris Boot <bootc@bootc.net>
+Subject: Re: KERNEL: assertion (!sk->sk_forward_alloc) failed at net/* (again)
+Date: Tue, 16 May 2006 13:01:45 +0200
 User-Agent: KMail/1.9.1
-Cc: linux list <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Andrew Morton <akpm@osdl.org>
-References: <200605102132.41217.kernel@kolivas.org> <Pine.LNX.4.64.0605101604330.7472@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0605101604330.7472@schroedinger.engr.sgi.com>
+References: <16537920-30DB-4FF7-BD51-DC8517BF4321@bootc.net>
+In-Reply-To: <16537920-30DB-4FF7-BD51-DC8517BF4321@bootc.net>
+Cc: kernel list <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
+       grsecurity@grsecurity.net
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200605162055.36957.kernel@kolivas.org>
+Message-Id: <200605161301.46030.netdev@axxeo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 May 2006 09:04, Christoph Lameter wrote:
-> On Wed, 10 May 2006, Con Kolivas wrote:
-> > Are there any users of swp_entry_t when CONFIG_SWAP is not defined?
->
-> Yes, a migration entry is a form of swap entry.
+Hi Chris,
 
-mm/vmscan.c: In function ‘remove_mapping’:
-mm/vmscan.c:387: warning: unused variable ‘swap’
+here are some steps to narrow it down.
 
-Ok so if we fix it by making swp_entry_t __attribute__((__unused__) we break 
-swap migration code?
+1. try the latest kernel first (2.6.16.16). This BUG should be fixed there.
+2. try without grsecurity patch 
+3. if it still persists:
 
-If we make swap_free() an empty static inline function then gcc compiles in 
-the variable needlessly and we won't know it.
+	Please provide more information about your setup before
+	submitting a bug.
 
-For the moment let's continue putting up with the warning.
+	lspci -vvv and your .config would be the minimum
+	some ethtool outputs (ethtool -k ethX) would help here.
 
--- 
--ck
+4. If you like to have it resolved very fast, please try git-bisect.
+    This can take a lot of time (several recompiles and reboots needed!).
+
+Happy Bug hunting!
+
+Regards
+
+Ingo Oeser

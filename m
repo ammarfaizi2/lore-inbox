@@ -1,122 +1,263 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWEPWKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWEPWRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbWEPWKT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 18:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWEPWKT
+	id S932207AbWEPWRR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 18:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWEPWRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 18:10:19 -0400
-Received: from mail.gmx.net ([213.165.64.20]:52140 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932202AbWEPWKR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 18:10:17 -0400
-Date: Wed, 17 May 2006 00:10:16 +0200 (MEST)
-From: "Michael Kerrisk" <mtk-manpages@gmx.net>
-To: linux-kernel@vger.kernel.org
+	Tue, 16 May 2006 18:17:17 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:8716 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932196AbWEPWRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 18:17:16 -0400
+Date: Wed, 17 May 2006 00:17:14 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: James.Bottomley@SteelEye.com
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/scsi/advansys.c: cleanups
+Message-ID: <20060516221714.GU10077@stusta.de>
 MIME-Version: 1.0
-References: <29907.1146481443@www049.gmx.net>
-Subject: man-pages-2.32 is released
-X-Priority: 3 (Normal)
-X-Authenticated: #24879014
-Message-ID: <21942.1147817416@www019.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gidday,
+This patch contains the following cleanups:
+- remove the unneeded advansys.h
+- remove the unused advansys_setup()
+- make needlessly global functions static
 
-I recently released man-pages-2.32, which can be found at the 
-location in the .sig.  
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Changes in this release that may be of interest to readers
-of this list include the following:
+---
 
-New pages
----------
+ drivers/scsi/advansys.c |  101 +++-------------------------------------
+ drivers/scsi/advansys.h |   36 --------------
+ 2 files changed, 8 insertions(+), 129 deletions(-)
 
-faccessat.2
-    mtk
-        New page for faccessat(2), new in 2.6.16.
-
-fchmodat.2
-    mtk
-        New page for fchmodat(2), new in 2.6.16.
-
-fchownat.2
-    mtk
-        New page for fchownat(2), new in 2.6.16.
-
-futimesat.2
-    mtk
-        New page for futimesat(2), new in 2.6.16.
-
-Changes to individual pages
----------------------------
-
-capabilities.7
-    mtk
-        Reworded to reflect that capabilities are per-thread.
-        Add ioprio_set() to list of operations permitted by
-        CAP_SYS_NICE.
-        Add ioprio_set() IOPRIO_CLASS_RT and IOPRIO_CLASS_IDLE
-        scheduling classes to list of operations permitted by
-        CAP_SYS_ADMIN.
-        Note effects of CAP_SYS_NICE for migrate_pages().
-
-
-==========
-
-The man-pages set contains sections 2, 3, 4, 5, and 7 of
-the manual pages.  These sections describe the following:
-
-2: (Linux) system calls
-3: (libc) library functions
-4: Devices
-5: File formats and protocols
-7: Overview pages, conventions, etc.
-
-As far as this list is concerned the most relevant parts are:
-all of sections 2 and 4, which describe kernel-userland interfaces;
-in section 5, the proc(5) manual page, which attempts (it's always
-catching up) to be a comprehensive description of /proc; and
-various pages in section 7, some of which are overview pages of
-kernel features (e.g., networking protocols).
-
-If you make a change to a kernel-userland interface, or observe 
-a discrepancy between the manual pages and reality, would you 
-please send me (at mtk-manpages@gmx.net ) one of the following
-(in decreasing order of preference):
-
-1. An in-line "diff -u" patch with text changes for the
-   corresponding manual page.  (The most up-to-date version
-   of the manual pages can always be found at
-   ftp://ftp.win.tue.nl/pub/linux-local/manpages or
-   ftp://ftp.kernel.org/pub/linux/docs/manpages .)
-
-2. Some raw text describing the changes, which I can then
-   integrate into the appropriate manual page.
-
-3. A message alerting me that some part of the manual pages
-   does not correspond to reality.  Eventually, I will try to
-   remedy the situation.
-
-Obviously, as we get further down this list, more of my time
-is required, and things may go slower, especially when the
-changes concern some part of the kernel that I am ignorant
-about and I can't find someone to assist.
-
-Cheers,
-
-Michael
-
--- 
-Michael Kerrisk
-maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
-
-Want to help with man page maintenance?  
-Grab the latest tarball at
-ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
-read the HOWTOHELP file and grep the source 
-files for 'FIXME'.
+--- linux-2.6.17-rc2-mm1-full/drivers/scsi/advansys.h	2006-04-27 17:41:44.000000000 +0200
++++ /dev/null	2006-04-23 00:42:46.000000000 +0200
+@@ -1,36 +0,0 @@
+-/*
+- * advansys.h - Linux Host Driver for AdvanSys SCSI Adapters
+- * 
+- * Copyright (c) 1995-2000 Advanced System Products, Inc.
+- * Copyright (c) 2000-2001 ConnectCom Solutions, Inc.
+- * All Rights Reserved.
+- *
+- * Redistribution and use in source and binary forms, with or without
+- * modification, are permitted provided that redistributions of source
+- * code retain the above copyright notice and this comment without
+- * modification.
+- *
+- * As of March 8, 2000 Advanced System Products, Inc. (AdvanSys)
+- * changed its name to ConnectCom Solutions, Inc.
+- *
+- */
+-
+-#ifndef _ADVANSYS_H
+-#define _ADVANSYS_H
+-
+-/*
+- * struct scsi_host_template function prototypes.
+- */
+-int advansys_detect(struct scsi_host_template *);
+-int advansys_release(struct Scsi_Host *);
+-const char *advansys_info(struct Scsi_Host *);
+-int advansys_queuecommand(struct scsi_cmnd *, void (* done)(struct scsi_cmnd *));
+-int advansys_reset(struct scsi_cmnd *);
+-int advansys_biosparam(struct scsi_device *, struct block_device *,
+-		sector_t, int[]);
+-static int advansys_slave_configure(struct scsi_device *);
+-
+-/* init/main.c setup function */
+-void advansys_setup(char *, int *);
+-
+-#endif /* _ADVANSYS_H */
+--- linux-2.6.17-rc4-mm1-full/drivers/scsi/advansys.c.old	2006-05-16 21:09:59.000000000 +0200
++++ linux-2.6.17-rc4-mm1-full/drivers/scsi/advansys.c	2006-05-16 21:10:45.000000000 +0200
+@@ -799,7 +799,6 @@
+ #include <scsi/scsi_tcq.h>
+ #include <scsi/scsi.h>
+ #include <scsi/scsi_host.h>
+-#include "advansys.h"
+ #ifdef CONFIG_PCI
+ #include <linux/pci.h>
+ #endif /* CONFIG_PCI */
+@@ -2013,7 +2012,7 @@
+ STATIC void      AscEnableIsaDma(uchar);
+ #endif /* CONFIG_ISA */
+ STATIC ASC_DCNT  AscGetMaxDmaCount(ushort);
+-
++static const char *advansys_info(struct Scsi_Host *shp);
+ 
+ /*
+  * --- Adv Library Constants and Macros
+@@ -3982,10 +3981,6 @@
+     ASC_IS_PCI,
+ };
+ 
+-/*
+- * Used with the LILO 'advansys' option to eliminate or
+- * limit I/O port probing at boot time, cf. advansys_setup().
+- */
+ STATIC int asc_iopflag = ASC_FALSE;
+ STATIC int asc_ioport[ASC_NUM_IOPORT_PROBE] = { 0, 0, 0, 0 };
+ 
+@@ -4067,10 +4062,6 @@
+ #endif /* ADVANSYS_DEBUG */
+ 
+ 
+-/*
+- * --- Linux 'struct scsi_host_template' and advansys_setup() Functions
+- */
+-
+ #ifdef CONFIG_PROC_FS
+ /*
+  * advansys_proc_info() - /proc/scsi/advansys/[0-(ASC_NUM_BOARD_SUPPORTED-1)]
+@@ -4092,7 +4083,7 @@
+  * if 'prtbuf' is too small it will not be overwritten. Instead the
+  * user just won't get all the available statistics.
+  */
+-int
++static int
+ advansys_proc_info(struct Scsi_Host *shost, char *buffer, char **start,
+ 		off_t offset, int length, int inout)
+ {
+@@ -4308,7 +4299,7 @@
+  * it must not call SCSI mid-level functions including scsi_malloc()
+  * and scsi_free().
+  */
+-int __init
++static int __init
+ advansys_detect(struct scsi_host_template *tpnt)
+ {
+     static int          detect_called = ASC_FALSE;
+@@ -5440,7 +5431,7 @@
+  *
+  * Release resources allocated for a single AdvanSys adapter.
+  */
+-int
++static int
+ advansys_release(struct Scsi_Host *shp)
+ {
+     asc_board_t    *boardp;
+@@ -5487,7 +5478,7 @@
+  * Note: The information line should not exceed ASC_INFO_SIZE bytes,
+  * otherwise the static 'info' array will be overrun.
+  */
+-const char *
++static const char *
+ advansys_info(struct Scsi_Host *shp)
+ {
+     static char     info[ASC_INFO_SIZE];
+@@ -5580,7 +5571,7 @@
+  * This function always returns 0. Command return status is saved
+  * in the 'scp' result field.
+  */
+-int
++static int
+ advansys_queuecommand(struct scsi_cmnd *scp, void (*done)(struct scsi_cmnd *))
+ {
+     struct Scsi_Host    *shp;
+@@ -5668,7 +5659,7 @@
+  * sleeping is allowed and no locking other than for host structures is
+  * required. Returns SUCCESS or FAILED.
+  */
+-int
++static int
+ advansys_reset(struct scsi_cmnd *scp)
+ {
+     struct Scsi_Host     *shp;
+@@ -5853,7 +5844,7 @@
+  * ip[1]: sectors
+  * ip[2]: cylinders
+  */
+-int
++static int
+ advansys_biosparam(struct scsi_device *sdev, struct block_device *bdev,
+ 		sector_t capacity, int ip[])
+ {
+@@ -5887,82 +5878,6 @@
+ }
+ 
+ /*
+- * advansys_setup()
+- *
+- * This function is called from init/main.c at boot time.
+- * It it passed LILO parameters that can be set from the
+- * LILO command line or in /etc/lilo.conf.
+- *
+- * It is used by the AdvanSys driver to either disable I/O
+- * port scanning or to limit scanning to 1 - 4 I/O ports.
+- * Regardless of the option setting EISA and PCI boards
+- * will still be searched for and detected. This option
+- * only affects searching for ISA and VL boards.
+- *
+- * If ADVANSYS_DEBUG is defined the driver debug level may
+- * be set using the 5th (ASC_NUM_IOPORT_PROBE + 1) I/O Port.
+- *
+- * Examples:
+- * 1. Eliminate I/O port scanning:
+- *         boot: linux advansys=
+- *       or
+- *         boot: linux advansys=0x0
+- * 2. Limit I/O port scanning to one I/O port:
+- *        boot: linux advansys=0x110
+- * 3. Limit I/O port scanning to four I/O ports:
+- *        boot: linux advansys=0x110,0x210,0x230,0x330
+- * 4. If ADVANSYS_DEBUG, limit I/O port scanning to four I/O ports and
+- *    set the driver debug level to 2.
+- *        boot: linux advansys=0x110,0x210,0x230,0x330,0xdeb2
+- *
+- * ints[0] - number of arguments
+- * ints[1] - first argument
+- * ints[2] - second argument
+- * ...
+- */
+-void __init
+-advansys_setup(char *str, int *ints)
+-{
+-    int    i;
+-
+-    if (asc_iopflag == ASC_TRUE) {
+-        printk("AdvanSys SCSI: 'advansys' LILO option may appear only once\n");
+-        return;
+-    }
+-
+-    asc_iopflag = ASC_TRUE;
+-
+-    if (ints[0] > ASC_NUM_IOPORT_PROBE) {
+-#ifdef ADVANSYS_DEBUG
+-        if ((ints[0] == ASC_NUM_IOPORT_PROBE + 1) &&
+-            (ints[ASC_NUM_IOPORT_PROBE + 1] >> 4 == 0xdeb)) {
+-            asc_dbglvl = ints[ASC_NUM_IOPORT_PROBE + 1] & 0xf;
+-        } else {
+-#endif /* ADVANSYS_DEBUG */
+-            printk("AdvanSys SCSI: only %d I/O ports accepted\n",
+-                ASC_NUM_IOPORT_PROBE);
+-#ifdef ADVANSYS_DEBUG
+-        }
+-#endif /* ADVANSYS_DEBUG */
+-    }
+-
+-#ifdef ADVANSYS_DEBUG
+-    ASC_DBG1(1, "advansys_setup: ints[0] %d\n", ints[0]);
+-    for (i = 1; i < ints[0]; i++) {
+-        ASC_DBG2(1, " ints[%d] 0x%x", i, ints[i]);
+-    }
+-    ASC_DBG(1, "\n");
+-#endif /* ADVANSYS_DEBUG */
+-
+-    for (i = 1; i <= ints[0] && i <= ASC_NUM_IOPORT_PROBE; i++) {
+-        asc_ioport[i-1] = ints[i];
+-        ASC_DBG2(1, "advansys_setup: asc_ioport[%d] 0x%x\n",
+-            i - 1, asc_ioport[i-1]);
+-    }
+-}
+-
+-
+-/*
+  * --- Loadable Driver Support
+  */
+ 

@@ -1,91 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWEPUKL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWEPUNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbWEPUKL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 16:10:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbWEPUKL
+	id S1750730AbWEPUNN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 16:13:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbWEPUNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 16:10:11 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:42508 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1750717AbWEPUKJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 16:10:09 -0400
-Date: Tue, 16 May 2006 22:10:02 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: George Nychis <gnychis@cmu.edu>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: problem booting 2.4.32, unknown symbol
-Message-ID: <20060516201002.GP11191@w.ods.org>
-References: <4469E51E.80103@cmu.edu> <20060516075340.8d387ddb.rdunlap@xenotime.net> <4469E839.3090806@cmu.edu> <20060516081442.579d3c12.rdunlap@xenotime.net> <4469EF6F.7050801@cmu.edu>
+	Tue, 16 May 2006 16:13:13 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:24301 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750730AbWEPUNM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 16:13:12 -0400
+Date: Tue, 16 May 2006 13:06:32 -0700
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Andy Whitcroft <apw@shadowen.org>,
+       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH] SPARSEMEM incorrectly calculates section number
+Message-ID: <20060516200631.GA9362@w-mikek2.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4469EF6F.7050801@cmu.edu>
-User-Agent: Mutt/1.5.10i
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 16, 2006 at 11:27:43AM -0400, George Nychis wrote:
-> 
-> 
-> Randy.Dunlap wrote:
-> > On Tue, 16 May 2006 10:56:57 -0400 George Nychis wrote:
-> > 
-> >>
-> >> Randy.Dunlap wrote:
-> >>> On Tue, 16 May 2006 10:43:42 -0400 George Nychis wrote:
-> >>>
-> >>>> Hi,
-> >>>>
-> >>>> I am trying to boot 2.4.32 with FC3, whenever i try to boot i get the
-> >>>> following errors:
-> >>>>
-> >>>> insmod: error inserting `/lib/scsi_mod.o': -1 Unknown symbol in module
-> >>>> ERROR /bin/insmod excited abnormally!
-> >>>> insmod: error inserting `/lib/sd_mod.o': -1 Unknown symbol in module
-> >>>>
-> >>>> I get the same error for libata.o, ata_piix.o, and lvm-mod.o
-> >>>>
-> >>>> then i get failed to create /edv/ide/host0/bus0/target0/lun0/disc
-> >>>>
-> >>>> So my guess is trying to fix the top most first
-> >>>>
-> >>>> Anyone have any ideas?
-> >>> I don't know the problem, but dmesg should show you/us the
-> >>> actual symbol that is wanted and missing, so please provide that.
-> >>>
-> >>> ---
-> >>> ~Randy
-> >>>
-> >> If the system doesn't boot, how can i get the dmesg?
-> > 
-> > aha, my bad, sorry.
-> > I'll have to defer to someone who knows about FC3.
-> > 
-> > ---
-> > ~Randy
-> > 
-> 
-> Some more info, my bottom most errors:
-> 
-> ERROR: failed in exec of vgscan
-> ERROR: failed in exec of vgchange
-> mount: error 6 mounting ext3
-> pivotroot: pivot_root(/sysroot,/sysroot/initrd) failed: 2
-> umount /initrd/proc failed: 2
-> ERROR: vchange exited abnormally!
-> mkrootdev: mknod failed: 17
-> ...
-> ...
-> Kernel panic: No init found.  Try passing init= option to kernel
+A bad calculation/loop in __section_nr() could result in incorrect section
+information being put into sysfs memory entries.  This primarily impacts
+memory add operations as the sysfs information is used while onlining new
+memory.
 
-Are you really sure this combination is supported at all ? Your distro
-might be heavily relying on 2.6 extensions not present in 2.4 (lvm2, ...).
-For instance, I remember that a time ago, some distros installed with
-the DIRINDEX option enabled on all EXT2/EXT3 filesystems, which could
-not be mounted by unpatched kernels because this option was not in
-mainline.
+Fix suggested by Dave Hansen.
 
-> - George
+Note that the bug may not be obvious from the patch.  It actually occurs
+in the function's return statement:
 
-Willy
+	return (root_nr * SECTIONS_PER_ROOT) + (ms - root);
 
+In the existing code, root_nr has already been multiplied by SECTIONS_PER_ROOT.
+
+Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
+
+diff -Naupr linux-2.6.17-rc4-mm1/mm/sparse.c linux-2.6.17-rc4-mm1.work/mm/sparse.c
+--- linux-2.6.17-rc4-mm1/mm/sparse.c	2006-05-16 18:56:44.000000000 +0000
++++ linux-2.6.17-rc4-mm1.work/mm/sparse.c	2006-05-16 19:10:37.000000000 +0000
+@@ -87,11 +87,8 @@ int __section_nr(struct mem_section* ms)
+ 	unsigned long root_nr;
+ 	struct mem_section* root;
+ 
+-	for (root_nr = 0;
+-	     root_nr < NR_MEM_SECTIONS;
+-	     root_nr += SECTIONS_PER_ROOT) {
+-		root = __nr_to_section(root_nr);
+-
++	for (root_nr = 0; root_nr < NR_SECTION_ROOTS; root_nr++) {
++		root = __nr_to_section(root_nr * SECTIONS_PER_ROOT);
+ 		if (!root)
+ 			continue;
+ 

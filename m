@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbWEPP5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWEPP6V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751265AbWEPP5a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 11:57:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWEPP53
+	id S1751286AbWEPP6V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 11:58:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWEPP6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 11:57:29 -0400
-Received: from wr-out-0506.google.com ([64.233.184.238]:51311 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751286AbWEPP53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 11:57:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=LbxgOjI1zpFi9/DuSZq9ZT+/9C7/BmHc92Na5xrbXBZtmCBPtf1Wi6YL5kb1bzYZ1U1qgJUVnOhUCNOzjieVxOYVZPG8Kt6BfxJvA7YB4gpGcxEoSrs6wioeCnTkxudsHkwUZjdFNVkGzMksLppYUv4aulUPrKVKFyOc2oh6WDI=
-Message-ID: <4469F662.6000407@gmail.com>
-Date: Wed, 17 May 2006 00:57:22 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Tue, 16 May 2006 11:58:21 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:59273 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751286AbWEPP6U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 11:58:20 -0400
+Date: Tue, 16 May 2006 08:58:11 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Con Kolivas <kernel@kolivas.org>
+cc: linux list <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] mm: cleanup swap unused warning
+In-Reply-To: <200605162055.36957.kernel@kolivas.org>
+Message-ID: <Pine.LNX.4.64.0605160853330.6065@schroedinger.engr.sgi.com>
+References: <200605102132.41217.kernel@kolivas.org>
+ <Pine.LNX.4.64.0605101604330.7472@schroedinger.engr.sgi.com>
+ <200605162055.36957.kernel@kolivas.org>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: PATCH: Fix broken PIO with libata
-References: <1147790393.2151.62.camel@localhost.localdomain> <4469F169.2050708@gmail.com> <4469F43C.3080406@pobox.com>
-In-Reply-To: <4469F43C.3080406@pobox.com>
-Content-Type: text/plain; charset=EUC-KR
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1700579579-186910767-1147795091=:6065"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Tejun Heo wrote:
->> Is this agreed upon?  I tend to omit almost all unnecessary (by operator
->> precedence) parenthesis, so in new EH and all other stuff, the "a && b &
->> c" sort of lines are abundant.  If this is something that's agreed upon,
->> I can do a clean sweep over those.
-> 
-> 
-> More parens == easier to review.  So
-> 	a && b & c
-> should be
-> 	a && (b & c)
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Understood.  Usually, my rule is something like doing the least
-maximizes consistency (style-wise) thus increasing readability in the
-end, but rules usually suck, don't they?  What fits the most eyes is the
-best, I guess.
+---1700579579-186910767-1147795091=:6065
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-> to clearly delineate the separate expressions to the human eye, and also
-> make it clear to the reader that the '&' is intended, and not a typo
-> that should have been '&&'.
-> 
-> Anytime you see a long string of 'if' conditions, and the operators
-> vary, add parents for readability.
-> 
+On Tue, 16 May 2006, Con Kolivas wrote:
 
-Yeap, will do, from now on.
+> On Thursday 11 May 2006 09:04, Christoph Lameter wrote:
+> > On Wed, 10 May 2006, Con Kolivas wrote:
+> > > Are there any users of swp_entry_t when CONFIG_SWAP is not defined?
+> >
+> > Yes, a migration entry is a form of swap entry.
+>=20
+> mm/vmscan.c: In function =FF=FFremove_mapping=FF=FF:
+> mm/vmscan.c:387: warning: unused variable =FF=FFswap=FF=FF
+>=20
+> Ok so if we fix it by making swp_entry_t __attribute__((__unused__) we br=
+eak=20
+> swap migration code?
 
--- 
-tejun
+This will generally break page migration in mm.
+=20
+> If we make swap_free() an empty static inline function then gcc compiles =
+in=20
+> the variable needlessly and we won't know it.
+
+PageSwapCache() returns false if CONFIG_SWAP is not set and therefore no=20
+code is generated.
+
+---1700579579-186910767-1147795091=:6065--

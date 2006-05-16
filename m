@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbWEPTbw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWEPTj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751298AbWEPTbw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 15:31:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWEPTbw
+	id S1750716AbWEPTj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 15:39:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750717AbWEPTj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 15:31:52 -0400
-Received: from mail.physik.uni-muenchen.de ([192.54.42.129]:53203 "EHLO
-	mail.physik.uni-muenchen.de") by vger.kernel.org with ESMTP
-	id S1751298AbWEPTbv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 15:31:51 -0400
-Subject: running only 1 process on 1 cpu
-From: fritzsch <fritzsch@cip.physik.uni-muenchen.de>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Tue, 16 May 2006 21:31:42 +0200
-Message-Id: <1147807902.6647.12.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 16 May 2006 15:39:59 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:41993 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750716AbWEPTj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 15:39:58 -0400
+Date: Tue, 16 May 2006 21:39:56 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] fs/jbd/journal.c: possible cleanups
+Message-ID: <20060516193956.GS10077@stusta.de>
+References: <20060516174413.GI10077@stusta.de> <20060516122731.6ecbdeeb.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060516122731.6ecbdeeb.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
-i have one process, which i want to run on a cpu (> CPU0). The special
-thing here is, that this process is very time critical and  should NOT
-be interrupted by anything (cpusets/cpus_allowed would not be enough).
-(the process is not doing any system calls and is communicating to the
-world by shared memory).
-so i wanted to run the process on a CPU1, when all irqs are disabled and
-so the process could not be interrupted.
+On Tue, May 16, 2006 at 12:27:31PM -0700, Andrew Morton wrote:
+> Adrian Bunk <bunk@stusta.de> wrote:
+> >
+> > - remove the following unused EXPORT_SYMBOL's:
+> >   - journal_set_features
+> >   - journal_update_superblock
+> 
+> These might be used by lustre - dunno.
 
+I don't see this.
 
-I tried very simple to 
+> But I'm ducking all patches which alter exports, as usual.  If you can get
+> them through the subsystem maintainer then good luck.
+>...
 
-(1) migrate all processes to CPU0 by cpu_set_allowed
-(2) gave my process (running on CPU1) the highest priority
-(3) run schedule and make sure that the irqs are disables
-(disable_irqs()) 
-...
+Since you replied to this patch:
+Who is the subsystem maintainer for jbd?
 
-but well, it didnt work ...
-actually i wanted to ask if this could work and if there is maybe sth
-like this already somewhere implemented (or easily adaptable).
-thx
-patrick
+cu
+Adrian
 
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

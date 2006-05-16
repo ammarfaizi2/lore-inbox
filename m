@@ -1,104 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750907AbWEPTM2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWEPTNl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750907AbWEPTM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 15:12:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWEPTM2
+	id S1750929AbWEPTNl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 15:13:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbWEPTNl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 15:12:28 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:61119 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1750823AbWEPTM2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 15:12:28 -0400
-Date: Tue, 16 May 2006 15:12:44 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Alberto Bertogli <albertito@gmail.com>
-Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] [UML] Problems building and running 2.6.17-rc4 on x86-64
-Message-ID: <20060516191244.GB6337@ccure.user-mode-linux.org>
-References: <20060514182541.GA4980@gmail.com> <20060515033919.GD21383@ccure.user-mode-linux.org> <20060515152958.GA4553@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 16 May 2006 15:13:41 -0400
+Received: from wr-out-0506.google.com ([64.233.184.228]:63077 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750910AbWEPTNj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 15:13:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aaMT01qpa4Dgn5v8HLNu8y7t2JJY0xZ483TgdH/janhVcU0dKzdA5Y3Y3EsSrjLoz4lNT8edOaggM2pMf8RpcEbcMRPknrQrIaMMyL6scOHRwobl4wlO8ZuxjzyMOTZHUTKPPC0KTOukwrA5iPyJatbm2Up0gV4cApahJCxY1Hg=
+Message-ID: <7c3341450605161213vc23ee70r6d9809c1bafdbc17@mail.gmail.com>
+Date: Tue, 16 May 2006 20:13:37 +0100
+From: "Nick Warne" <nick.warne@gmail.com>
+Reply-To: nick@linicks.net
+To: "Adrian Bunk" <bunk@stusta.de>
+Subject: Re: Make number of IDE interfaces configurable
+Cc: "Matt Mackall" <mpm@selenic.com>, akpm@osdl.org,
+       B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060516164011.GH5677@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060515152958.GA4553@gmail.com>
-User-Agent: Mutt/1.4.2.1i
+References: <20060512222952.GQ6616@waste.org> <20060516160250.GE5677@stusta.de>
+	 <20060516162934.GR24227@waste.org> <20060516164011.GH5677@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 15, 2006 at 12:29:58PM -0300, Alberto Bertogli wrote:
-> Sure, here it is:
-> (gdb) disas stub_segv_handler
+I submitted a patch ages ago similar (but differnet ;-) ) to this:
 
-Sorry, I misread the error message and asked for the wrong thing.
-Your UML is seeing a process segfault during a system call, before the
-SIGTRAP expected at the end of the system call.  I don't know what's
-happening there.
+http://lkml.org/lkml/2005/6/25/69
 
-Can you apply the following patch, which will just give you a register
-dump of the process, and send me the output?
+I couldn't/don't see why I get six ide probes when I know I have only
+2 IDE interfaces - I thought it would be better to stick to default
+_unless_ the kernel builder knew otherwise and specified the amount.
 
-Index: linux-2.6.16/arch/um/os-Linux/skas/process.c
-===================================================================
---- linux-2.6.16.orig/arch/um/os-Linux/skas/process.c
-+++ linux-2.6.16/arch/um/os-Linux/skas/process.c
-@@ -45,6 +45,22 @@ int is_skas_winch(int pid, int fd, void 
- 	return(1);
- }
- 
-+static int ptrace_dump_regs(int pid)
-+{
-+        unsigned long regs[HOST_FRAME_SIZE];
-+        int i;
-+
-+        if(ptrace(PTRACE_GETREGS, pid, 0, regs) < 0)
-+                return -errno;
-+        else {
-+                printk("Stub registers -\n");
-+                for(i = 0; i < HOST_FRAME_SIZE; i++)
-+                        printk("\t%d - %lx\n", i, regs[i]);
-+        }
-+
-+        return 0;
-+}
-+
- void wait_stub_done(int pid, int sig, char * fname)
- {
- 	int n, status, err;
-@@ -68,18 +84,10 @@ void wait_stub_done(int pid, int sig, ch
- 
- 	if((n < 0) || !WIFSTOPPED(status) ||
- 	   (WSTOPSIG(status) != SIGUSR1 && WSTOPSIG(status) != SIGTRAP)){
--		unsigned long regs[HOST_FRAME_SIZE];
--
--		if(ptrace(PTRACE_GETREGS, pid, 0, regs) < 0)
--			printk("Failed to get registers from stub, "
--			       "errno = %d\n", errno);
--		else {
--			int i;
--
--			printk("Stub registers -\n");
--			for(i = 0; i < HOST_FRAME_SIZE; i++)
--				printk("\t%d - %lx\n", i, regs[i]);
--		}
-+                err = ptrace_dump_regs(pid);
-+                if(err)
-+                        printk("Failed to get registers from stub, "
-+                               "errno = %d\n", -err);
- 		panic("%s : failed to wait for SIGUSR1/SIGTRAP, "
- 		      "pid = %d, n = %d, errno = %d, status = 0x%x\n",
- 		      fname, pid, n, errno, status);
-@@ -146,9 +154,14 @@ static void handle_trap(int pid, union u
- 
- 		CATCH_EINTR(err = waitpid(pid, &status, WUNTRACED));
- 		if((err < 0) || !WIFSTOPPED(status) ||
--		   (WSTOPSIG(status) != SIGTRAP + 0x80))
-+		   (WSTOPSIG(status) != SIGTRAP + 0x80)){
-+                        err = ptrace_dump_regs(pid);
-+                        if(err)
-+                                printk("Failed to get registers from process, "
-+                                       "errno = %d\n", -err);
- 			panic("handle_trap - failed to wait at end of syscall, "
- 			      "errno = %d, status = %d\n", errno, status);
-+                }
- 	}
- 
- 	handle_syscall(regs);
+Alan Cox didn't like it as it introduces more config unnecessary config options.
+
+But it would be nice though if this could be included with that enhancement too.
+
+Nick
+
+On 16/05/06, Adrian Bunk <bunk@stusta.de> wrote:
+> On Tue, May 16, 2006 at 11:29:34AM -0500, Matt Mackall wrote:
+> > On Tue, May 16, 2006 at 06:02:50PM +0200, Adrian Bunk wrote:
+> > > On Fri, May 12, 2006 at 05:29:52PM -0500, Matt Mackall wrote:
+> > > >...
+> > > > --- 2.6.orig/include/linux/ide.h	2006-05-11 15:07:32.000000000 -0500
+> > > > +++ 2.6/include/linux/ide.h	2006-05-12 14:01:53.000000000 -0500
+> > > > @@ -252,7 +252,8 @@ static inline void ide_std_init_ports(hw
+> > > >
+> > > >  #include <asm/ide.h>
+> > > >
+> > > > -#ifndef MAX_HWIFS
+> > > > +#if !defined(MAX_HWIFS) || defined(CONFIG_EMBEDDED)
+> > > > +#undef MAX_HWIFS
+> > > >  #define MAX_HWIFS	CONFIG_IDE_MAX_HWIFS
+> > > >  #endif
+> > >
+> > > Why do you need this?
+> >
+> > Doesn't work without it?
+> >
+> > Most platforms define MAX_HWIFS.
+>
+> OK, now I got it.
+>
+> Setting this value is sometimes done in heder files and sometimes
+> done in the Kconfig file.
+>
+> That is extremely ugly.
+>
+> Bart, would you accept a patch to set in in the Kconfig file on all
+> architectures?
+>
+> cu
+> Adrian
+>
+> --
+>
+>        "Is there not promise of rain?" Ling Tan asked suddenly out
+>         of the darkness. There had been need of rain for many days.
+>        "Only a promise," Lao Er said.
+>                                        Pearl S. Buck - Dragon Seed
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

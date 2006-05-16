@@ -1,67 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbWEPEhy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWEPEty@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751268AbWEPEhy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 00:37:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWEPEhy
+	id S1751287AbWEPEty (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 00:49:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWEPEty
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 00:37:54 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:51399 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751268AbWEPEhx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 00:37:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=j501rcHG4sTob4D8n7PN50xPbrvEybcJ/CEhRvfGQ4+Qk2cJn8UDhAGfNpzA8X0+H/5h/FPjsN9NFvqzB6y6bzuRCbVsTLVdordr+kYpm7VG8Dc6iV3r+1R21XZb5UnXCbFlEpfPA30trIojQccd+42DtjKlPXuA80cldXQMFmg=
-Message-ID: <3aa654a40605152137j549ec085l6a5cccf01c1ed6e2@mail.gmail.com>
-Date: Mon, 15 May 2006 21:37:52 -0700
-From: "Avuton Olrich" <avuton@gmail.com>
-To: "Tejun Heo" <htejun@gmail.com>
-Subject: Re: [RFT] major libata update
-Cc: "Jeff Garzik" <jeff@garzik.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
-In-Reply-To: <44694D47.4090204@gmail.com>
+	Tue, 16 May 2006 00:49:54 -0400
+Received: from fed1rmmtao03.cox.net ([68.230.241.36]:29839 "EHLO
+	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
+	id S1751281AbWEPEtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 00:49:53 -0400
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: [ANNOUNCE] GIT 1.3.3
+cc: linux-kernel@vger.kernel.org
+Date: Mon, 15 May 2006 21:49:50 -0700
+Message-ID: <7vk68mfua9.fsf@assigned-by-dhcp.cox.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060515170006.GA29555@havoc.gtf.org>
-	 <3aa654a40605151630j53822ba1nbb1a2e3847a78025@mail.gmail.com>
-	 <446914C7.1030702@garzik.org>
-	 <3aa654a40605152036h40fa1cd0x8edd81431c1bd22d@mail.gmail.com>
-	 <44694D47.4090204@gmail.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/15/06, Tejun Heo <htejun@gmail.com> wrote:
-> Avuton Olrich wrote:
+The latest maintenance release GIT 1.3.3 is available at the
+usual places:
 
-> Are those timeouts back-to-back?  Can you post dmesg w/ timestamp
-> (either turn on kernel message timestamping or simply post relevant part
-> from /var/log/kern.log).  The drive thinks the command is complete.  You
-> might be losing interrupts (you might want to diddle with acpi/irq
-> routing stuff) or it could be some other hardware problem.
+	http://www.kernel.org/pub/software/scm/git/
 
-here's the kern log for the last 24 hours or so:
-http://olricha.homelinux.net:8080/dump/kern.log
+	git-1.3.3.tar.{gz,bz2}			(tarball)
+	RPMS/$arch/git-*-1.3.3-1.$arch.rpm	(RPM)
 
-As I told Jeff, I'm not sure how to diddle with the irq stuff, pointers?
+This contains two notable non-fixes:
 
-> Does the drive + controller work okay on Windows?  I know people don't
-> like this question so much but it's a great way to isolate hardware
-> problems as they use completely different driver stack.
+ (1) Future-proofing configuration file syntax by Linus.
+     Nothing in 1.3.X series takes advantage of it, but it is
+     there so 1.3.3 would not barf in a repository that you
+     previously used later versions of git to manipulate its
+     configuration file.
 
-Sorry, I haven't owned a copy of Windows in >5 yrs, I would be willing
-to try otherwise. This computer worked with a 2 160gb sata drives,
-when I traded 2 160gb drives with 2 500gb sata2 drives and started
-making heavy use of them this happened, although I haven't had any
-issue with the other hard drive yet (I don't think, I need to look
-over the logs again to make sure I'm not saying that in err).
+ (2) core.prefersymlinkrefs configuration can be set in the
+     configuration file while bisecting a project that wants to
+     use .git/HEAD symbolic link in its historical version
+     (notably Linux kernel around January this year).
 
-...snipped more stuff way above my head...
--- 
-avuton
---
- Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+----------------------------------------------------------------
+
+Changes since v1.3.2 are as follows:
+
+Ben Clifford:
+      include header to define uint32_t, necessary on Mac OS X
+
+Dennis Stosberg:
+      Fix git-pack-objects for 64-bit platforms
+      Fix compilation on newer NetBSD systems
+
+Dmitry V. Levin:
+      Separate object name errors from usage errors
+
+Eric Wong:
+      apply: fix infinite loop with multiple patches with --index
+      Install git-send-email by default
+
+Johannes Schindelin:
+      repo-config: trim white-space before comment
+
+Junio C Hamano:
+      core.prefersymlinkrefs: use symlinks for .git/HEAD
+      repo-config: document what value_regexp does a bit more clearly.
+      Fix repo-config set-multivar error return path.
+      Documentation: {caret} fixes (git-rev-list.txt)
+      checkout: use --aggressive when running a 3-way merge (-m).
+      Fix pack-index issue on 64-bit platforms a bit more portably.
+
+Linus Torvalds:
+      Fix "git diff --stat" with long filenames
+      revert/cherry-pick: use aggressive merge.
+      git config syntax updates
+
+Martin Waitz:
+      clone: keep --reference even with -l -s
+      repack: honor -d even when no new pack was created
+
+Matthias Lederhofer:
+      core-tutorial.txt: escape asterisk
+
+Pavel Roskin:
+      Release config lock if the regex is invalid
+
+Sean Estabrooks:
+      Fix for config file section parsing.
+      Another config file parsing fix.
+      Ensure author & committer before asking for commit message.
+
+Yakov Lerner:
+      read-cache.c: use xcalloc() not calloc()
+
+

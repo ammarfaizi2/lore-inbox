@@ -1,34 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751843AbWEPQG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751844AbWEPQKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751843AbWEPQG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 12:06:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751841AbWEPQG4
+	id S1751844AbWEPQKk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 12:10:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751845AbWEPQKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 12:06:56 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:12243
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1751843AbWEPQGz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 12:06:55 -0400
-Message-Id: <446A14F3.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
-Date: Tue, 16 May 2006 18:07:47 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
-Subject: Re: [PATCH 3/3] reliable stack trace support (i386)
-References: <4469FC41.76E4.0078.0@novell.com> <200605161715.11405.ak@suse.de>
-In-Reply-To: <200605161715.11405.ak@suse.de>
+	Tue, 16 May 2006 12:10:40 -0400
+Received: from mx1.suse.de ([195.135.220.2]:5280 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751844AbWEPQKj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 12:10:39 -0400
+Date: Tue, 16 May 2006 09:08:42 -0700
+From: Greg KH <gregkh@suse.de>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.17-rc4-mm1
+Message-ID: <20060516160842.GA13497@suse.de>
+References: <20060515005637.00b54560.akpm@osdl.org> <6bffcb0e0605151137v25496700k39b15a40fa02a375@mail.gmail.com> <20060515115302.5abe7e7e.akpm@osdl.org> <6bffcb0e0605151210x21eb0d24g96366ce9c121c26c@mail.gmail.com> <20060515122613.32661c02.akpm@osdl.org> <6bffcb0e0605151317u51bbf67ey124b808fad920d36@mail.gmail.com> <20060516103930.0c0d5d33.khali@linux-fr.org> <20060516145517.2c2d4fe4.khali@linux-fr.org> <20060516164846.4d42ed11.khali@linux-fr.org> <20060516172346.b729da01.khali@linux-fr.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060516172346.b729da01.khali@linux-fr.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> +static asmlinkage void show_trace_unwind(struct unwind_frame_info *info, void *log_lvl)
->
->static asmlinkage ?
+On Tue, May 16, 2006 at 05:23:46PM +0200, Jean Delvare wrote:
+> Quoting myself:
+> > And the winner is...
+> > gregkh-driver-driver-core-class_device_add-needs-error-checks.patch
+> > 
+> > Stephen, Greg?
+> 
+> Indeed this patch breaks class_device_add in the success case...
+> 
+> Andrew, maybe you want to put this in the hot-fixes directory for
+> 2.6.17-rc1-mm4, as the problem hits all drivers which register with a
+> class.
+> 
+> Fix class_device_add success case after
+> gregkh-driver-driver-core-class_device_add-needs-error-checks.patch
+> broke it. class_dev was no more put and class_name was no more freed
+> before leaving. The former caused locks on driver removal (class_dev
+> usage count could never be 0.)
+> 
+> This fix should be folded into
+> gregkh-driver-driver-core-class_device_add-needs-error-checks.patch
+> 
+> Signed-off-by: Jean Delvare <khali@linux-fr.org>
+> ---
+>  drivers/base/class.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> --- linux-2.6.17-rc4-mm1.orig/drivers/base/class.c	2006-05-16 16:38:02.000000000 +0200
+> +++ linux-2.6.17-rc4-mm1/drivers/base/class.c	2006-05-16 17:00:24.000000000 +0200
+> @@ -620,7 +620,7 @@
+>  	}
+>  	up(&parent_class->sem);
+>  
+> -	return 0;
+> +	goto out1;
+>  
 
-Yes, as it's being used as a callback from assembly.
+Thanks for catching this.  I've merged this with Stephen's original
+patch.
 
-Jan
+thanks again,
+
+greg k-h

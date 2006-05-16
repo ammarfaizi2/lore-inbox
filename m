@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751726AbWEPJ5p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751734AbWEPKJh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751726AbWEPJ5p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 05:57:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751720AbWEPJ5o
+	id S1751734AbWEPKJh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 06:09:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751735AbWEPKJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 05:57:44 -0400
-Received: from ftp.linux-mips.org ([194.74.144.162]:1479 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1750727AbWEPJ5o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 05:57:44 -0400
-Date: Tue, 16 May 2006 10:57:37 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
-       Frederic Rible <frible@teaser.fr>, Jean-Paul Roubelat <jpr@f6fbb.org>,
-       linux-hams@vger.kernel.org
-Subject: Re: [PATCH] fix potential NULL pointer dereference in yam
-Message-ID: <20060516095737.GA23397@linux-mips.org>
-References: <200605141512.50923.jesper.juhl@gmail.com> <20060514140946.GA23387@mipter.zuzino.mipt.ru> <200605152219.37265.jesper.juhl@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605152219.37265.jesper.juhl@gmail.com>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 16 May 2006 06:09:37 -0400
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:32189 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751707AbWEPKJh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 06:09:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=AQZqaqnp11nH37YjU6NGWdSwJfhH1XzNzIKHFSgpHCjKmyAS/oTPJF+05313SCdTh9xOrGszW50mrZEz9cp35lMKS26+q0mUdwLDvbI1ackoDktV8UJIp+Uw+JvhSvKv5OhmXcIq/QPaWh1QGeFSdiUmk0oN2E53Go1k3fmQlGA=  ;
+Message-ID: <4469A4DA.1040305@yahoo.com.au>
+Date: Tue, 16 May 2006 20:09:30 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Antti Salmela <asalmela@iki.fi>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernel BUG at mm/vmscan.c:428 (2.6.17-rc4-git2, Dualcore AMD
+ x86-64)
+References: <20060515082508.GA6950@asalmela.iki.fi> <44683F05.5050709@yahoo.com.au> <20060515135926.GA13151@asalmela.iki.fi>
+In-Reply-To: <20060515135926.GA13151@asalmela.iki.fi>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 15, 2006 at 10:19:36PM +0200, Jesper Juhl wrote:
-
-> > How can it be NULL here? The whole array of valid net_devices was
-> > allocated at module init time.
-> > 
+Antti Salmela wrote:
+> On Mon, May 15, 2006 at 06:42:45PM +1000, Nick Piggin wrote:
 > 
-> It cannot. You are right, I'm wrong.
-> I guess removing the check makes sense then ?
-
-Yes.
-
-Acked-by: Ralf Baechle <ralf@linux-mips.org>
-
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-> ---
+>>Either you have an active page on the inactive list, or your hardware has
+>>flipped a bit in page->flags. I was going to say the latter is more likely,
+>>however -- AFAIKS, the first oops should cause that page to be lost from the
+>>LRU list, so the second oops shouldn't happen if the flip a single bad bit,
+>>and should be pretty unlikely if it is a random error.
 > 
-> --- linux-2.6.17-rc4-mm1-orig/drivers/net/hamradio/yam.c	2006-05-13 21:28:27.000000000 +0200
-> +++ linux-2.6.17-rc4-mm1/drivers/net/hamradio/yam.c	2006-05-15 22:16:32.000000000 +0200
-> @@ -852,7 +852,7 @@ static int yam_open(struct net_device *d
->  
->  	printk(KERN_INFO "Trying %s at iobase 0x%lx irq %u\n", dev->name, dev->base_addr, dev->irq);
->  
-> -	if (!dev || !yp->bitrate)
-> +	if (!yp->bitrate)
->  		return -ENXIO;
->  	if (!dev->base_addr || dev->base_addr > 0x1000 - YAM_EXTENT ||
->  		dev->irq < 2 || dev->irq > 15) {
+> 
+> Thanks, I thought I had run memtest86 long enough when I bought the
+> system, but now it found one stuck bit almost immediately. 
 > 
 
-73 de DL5RB op Ralf
+No problem. Thanks anyway for testing and reporting.
 
---
-Loc. JN47BS / CQ 14 / ITU 28 / DOK A21
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

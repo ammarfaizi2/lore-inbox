@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751663AbWEPQsl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751872AbWEPQus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751663AbWEPQsl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 12:48:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751870AbWEPQsk
+	id S1751872AbWEPQus (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 12:50:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751873AbWEPQus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 12:48:40 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:29609 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751663AbWEPQsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 12:48:40 -0400
-Date: Tue, 16 May 2006 12:48:34 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: LKML <linux-kernel@vger.kernel.org>
-cc: Suspend2-users@lists.suspend2.net
-Subject: Re: Over-heating CPU on 2.6.16 with Thinkpad G41
-In-Reply-To: <Pine.LNX.4.58.0605160339340.5333@gandalf.stny.rr.com>
-Message-ID: <Pine.LNX.4.58.0605161246220.14877@gandalf.stny.rr.com>
-References: <Pine.LNX.4.58.0605160253010.4283@gandalf.stny.rr.com>
- <Pine.LNX.4.58.0605160339340.5333@gandalf.stny.rr.com>
+	Tue, 16 May 2006 12:50:48 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:53736 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751872AbWEPQuq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 12:50:46 -0400
+Date: Tue, 16 May 2006 09:50:40 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: akpm@osdl.org
+Cc: haveblue@us.ibm.com, LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] typo in i386/init.c [BugMe #6538]
+Message-ID: <20060516165040.GA4341@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrew,
 
-On Tue, 16 May 2006, Steven Rostedt wrote:
+Resending, since I haven't heard anything back yet.
 
->
-> On Tue, 16 May 2006, Steven Rostedt wrote:
->
-> >
-> > Hmm, could this be the "acpi_sleep=s3_bios" that Suspend2 asks for?
-> > I haven't removed that option yet.
->
-> OK, removing this option seems to make my machine run cool again.  So I
-> guess my bios doesn't support s3 very well.
->
+Description: Fix a small typo in arch/i386/mm/init.c. Confirmed to fix
+BugMe #6538.
 
-Darn, I just booted with the Suspend2 patches back in (without the
-"s3_bios" option) and my machine is again overheating. Pulled out the
-patches again, rebooted and my laptop is fine.
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 
-Looks like I can't use Suspend2 with this laptop.  Too bad.
+diff -urpN 2.6.17-rc4/arch/i386/mm/init.c 2.6.17-rc4-dev/arch/i386/mm/init.c
+--- 2.6.17-rc4/arch/i386/mm/init.c	2006-05-12 10:26:59.000000000 -0700
++++ 2.6.17-rc4-dev/arch/i386/mm/init.c	2006-05-12 13:49:38.000000000 -0700
+@@ -651,7 +651,7 @@ void __init mem_init(void)
+  * Specifically, in the case of x86, we will always add
+  * memory to the highmem for now.
+  */
+-#ifdef CONFIG_HOTPLUG_MEMORY
++#ifdef CONFIG_MEMORY_HOTPLUG
+ #ifndef CONFIG_NEED_MULTIPLE_NODES
+ int add_memory(u64 start, u64 size)
+ {
 
--- Steve
-
+-- 
+Nishanth Aravamudan <nacc@us.ibm.com>
+IBM Linux Technology Center

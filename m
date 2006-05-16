@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWEPO5q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWEPO7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751174AbWEPO5q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 10:57:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWEPO5q
+	id S1751179AbWEPO7A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 10:59:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWEPO7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 10:57:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:16033 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750792AbWEPO5p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 10:57:45 -0400
-Date: Tue, 16 May 2006 07:57:36 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Avuton Olrich <avuton@gmail.com>
-cc: Jeff Garzik <jeff@garzik.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [RFT] major libata update
-In-Reply-To: <3aa654a40605152133x516581f9w62c7cb7709864fb0@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0605160755170.3866@g5.osdl.org>
-References: <20060515170006.GA29555@havoc.gtf.org> 
- <3aa654a40605151630j53822ba1nbb1a2e3847a78025@mail.gmail.com> 
- <446914C7.1030702@garzik.org>  <3aa654a40605152036h40fa1cd0x8edd81431c1bd22d@mail.gmail.com>
-  <44694C4F.3000008@garzik.org> <3aa654a40605152133x516581f9w62c7cb7709864fb0@mail.gmail.com>
+	Tue, 16 May 2006 10:59:00 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:12479
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751179AbWEPO67
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 10:58:59 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Kyle Moffett <mrmacman_g4@mac.com>,
+       Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: /dev/random on Linux
+Date: Tue, 16 May 2006 16:58:33 +0200
+User-Agent: KMail/1.9.1
+References: <20060515213956.31627.qmail@web31508.mail.mud.yahoo.com> <20060516025003.GC18645@rhun.haifa.ibm.com> <B2E79864-3AC6-4B72-B97B-222FEDA136A1@mac.com>
+In-Reply-To: <B2E79864-3AC6-4B72-B97B-222FEDA136A1@mac.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jonathan Day <imipak@yahoo.com>,
+       linux-kernel@vger.kernel.org, Zvika Gutterman <zvi@safend.com>,
+       Muli Ben-Yehuda <muli@il.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Message-Id: <200605161658.33855.mb@bu3sch.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 16 May 2006 10:15, you wrote:
+> >> I would dismiss 2.2 for the cases of things like Knoppix because  
+> >> CDs introduce significant randomness because each time you boot  
+> >> the CD is subtly differently positioned. The OpenWRT case seems  
+> >> more credible.
 
-
-On Mon, 15 May 2006, Avuton Olrich wrote:
-> On 5/15/06, Jeff Garzik <jeff@garzik.org> wrote:
->
-> > Can you configure your interrupts so that ethernet and SATA are not on
-> > the same irq?
-> 
-> Sorry, need a little hand holding here. I'm unsure how to do such a
-> thing, and can't really google that.
-
-Before you do that, try this patch (that I suggested to Neil Brown in a 
-totally unrelated thread) just for fun.
-
-		Linus
-
-----
-diff --git a/arch/i386/pci/irq.c b/arch/i386/pci/irq.c
-index 06dab00..49b9fea 100644
---- a/arch/i386/pci/irq.c
-+++ b/arch/i386/pci/irq.c
-@@ -880,6 +880,7 @@ static int pcibios_lookup_irq(struct pci
- 	((!(pci_probe & PCI_USE_PIRQ_MASK)) || ((1 << irq) & mask)) ) {
- 		DBG(" -> got IRQ %d\n", irq);
- 		msg = "Found";
-+		eisa_set_level_irq(irq);
- 	} else if (newirq && r->set && (dev->class >> 8) != PCI_CLASS_DISPLAY_VGA) {
- 		DBG(" -> assigning IRQ %d", newirq);
- 		if (r->set(pirq_router_dev, dev, pirq, newirq)) {
+I think most (all?) of the machines, OpenWRT runs on, are running
+a bcm43xx wireless chip. This chip has a hardware random number
+generator. patches to utilize it recently went into -mm.
+But I must admit, we don't know how it generates random numbers.
+But someone did some RNG tests on it in the past (I think it was
+Johannes).

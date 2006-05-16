@@ -1,52 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWEPPZP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWEPP0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751224AbWEPPZP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 11:25:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWEPPZP
+	id S932091AbWEPP0F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 11:26:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWEPP0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 11:25:15 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:62656 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751224AbWEPPZM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 11:25:12 -0400
-Date: Tue, 16 May 2006 17:25:08 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jan Beulich <jbeulich@novell.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andreas Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: [PATCH 1/3] reliable stack trace support
-Message-ID: <20060516152508.GA14174@elte.hu>
-References: <4469FC07.76E4.0078.0@novell.com> <20060516143937.GA10760@elte.hu> <446A0A57.76E4.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <446A0A57.76E4.0078.0@novell.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 16 May 2006 11:26:05 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.81]:33741 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S932093AbWEPP0D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 11:26:03 -0400
+Message-ID: <4469EF6F.7050801@cmu.edu>
+Date: Tue, 16 May 2006 11:27:43 -0400
+From: George Nychis <gnychis@cmu.edu>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060503)
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: problem booting 2.4.32, unknown symbol
+References: <4469E51E.80103@cmu.edu>	<20060516075340.8d387ddb.rdunlap@xenotime.net>	<4469E839.3090806@cmu.edu> <20060516081442.579d3c12.rdunlap@xenotime.net>
+In-Reply-To: <20060516081442.579d3c12.rdunlap@xenotime.net>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Jan Beulich <jbeulich@novell.com> wrote:
 
-> >>> Ingo Molnar <mingo@elte.hu> 16.05.06 16:39 >>>
-> >> +config STACK_UNWIND
-> >> +	bool "Stack unwind support"
-> >> +	depends on UNWIND_INFO
-> >> +	depends on n
-> >
-> >'depends on n' ? Also, i think this should be 'default y'. The code is 
+Randy.Dunlap wrote:
+> On Tue, 16 May 2006 10:56:57 -0400 George Nychis wrote:
 > 
-> Subsequent patches then change it to X86_64 and then X86. This is just 
-> so the patch can be used standalone.
+>>
+>> Randy.Dunlap wrote:
+>>> On Tue, 16 May 2006 10:43:42 -0400 George Nychis wrote:
+>>>
+>>>> Hi,
+>>>>
+>>>> I am trying to boot 2.4.32 with FC3, whenever i try to boot i get the
+>>>> following errors:
+>>>>
+>>>> insmod: error inserting `/lib/scsi_mod.o': -1 Unknown symbol in module
+>>>> ERROR /bin/insmod excited abnormally!
+>>>> insmod: error inserting `/lib/sd_mod.o': -1 Unknown symbol in module
+>>>>
+>>>> I get the same error for libata.o, ata_piix.o, and lvm-mod.o
+>>>>
+>>>> then i get failed to create /edv/ide/host0/bus0/target0/lun0/disc
+>>>>
+>>>> So my guess is trying to fix the top most first
+>>>>
+>>>> Anyone have any ideas?
+>>> I don't know the problem, but dmesg should show you/us the
+>>> actual symbol that is wanted and missing, so please provide that.
+>>>
+>>> ---
+>>> ~Randy
+>>>
+>> If the system doesn't boot, how can i get the dmesg?
+> 
+> aha, my bad, sorry.
+> I'll have to defer to someone who knows about FC3.
+> 
+> ---
+> ~Randy
+> 
 
-ok.
+Some more info, my bottom most errors:
 
-	Ingo
+ERROR: failed in exec of vgscan
+ERROR: failed in exec of vgchange
+mount: error 6 mounting ext3
+pivotroot: pivot_root(/sysroot,/sysroot/initrd) failed: 2
+umount /initrd/proc failed: 2
+ERROR: vchange exited abnormally!
+mkrootdev: mknod failed: 17
+...
+...
+Kernel panic: No init found.  Try passing init= option to kernel
+
+- George

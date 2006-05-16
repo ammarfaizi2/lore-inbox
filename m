@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751681AbWEPIX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751685AbWEPI3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751681AbWEPIX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 04:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751682AbWEPIX5
+	id S1751685AbWEPI3E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 04:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751687AbWEPI3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 04:23:57 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:10000 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751680AbWEPIX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 04:23:57 -0400
-Message-ID: <44698A74.3090400@vmware.com>
-Date: Tue, 16 May 2006 01:16:52 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       virtualization <virtualization@lists.osdl.org>,
-       Gerd Hoffmann <kraxel@suse.de>
-Subject: Re: [PATCH] Gerd Hoffman's move-vsyscall-into-user-address-range
- patch
-References: <1147759423.5492.102.camel@localhost.localdomain> <20060516064723.GA14121@elte.hu>
-In-Reply-To: <20060516064723.GA14121@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 16 May 2006 04:29:04 -0400
+Received: from mtagate4.uk.ibm.com ([195.212.29.137]:38268 "EHLO
+	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751685AbWEPI3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 04:29:03 -0400
+Date: Tue, 16 May 2006 11:28:59 +0300
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jonathan Day <imipak@yahoo.com>,
+       linux-kernel@vger.kernel.org, Zvika Gutterman <zvi@safend.com>
+Subject: Re: /dev/random on Linux
+Message-ID: <20060516082859.GD18645@rhun.haifa.ibm.com>
+References: <20060515213956.31627.qmail@web31508.mail.mud.yahoo.com> <1147732867.26686.188.camel@localhost.localdomain> <20060516025003.GC18645@rhun.haifa.ibm.com> <B2E79864-3AC6-4B72-B97B-222FEDA136A1@mac.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <B2E79864-3AC6-4B72-B97B-222FEDA136A1@mac.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Rusty Russell <rusty@rustcorp.com.au> wrote:
->
->   
->> AFAICT we'll pay one extra TLB entry for this patch.  Zach had a patch 
->> which left the vsyscall page at the top of memory (minus hole for 
->> hypervisor) and patched the ELF header at boot.
->>     
->
-> i'd suggest the solution from exec-shield (which has been there for a 
-> long time), which also randomizes the vsyscall vma. Exploits are already 
-> starting to use the vsyscall page (with predictable addresses) to 
-> circumvent randomization, it provides 'interesting' instructions to act 
-> as a syscall-functionality building block. Moving that address to 
-> another predictable place solves the virtualization problem, but doesnt 
-> solve the address-space randomization problem.
->   
+On Tue, May 16, 2006 at 04:15:19AM -0400, Kyle Moffett wrote:
+> On May 15, 2006, at 22:50, Muli Ben-Yehuda wrote:
+> >On Mon, May 15, 2006 at 11:41:07PM +0100, Alan Cox wrote:
+> >>A paper by people who can't work out how to mail linux-kernel or  
+> >>vendor-sec, or follow "REPORTING-BUGS" in the source,
+> >
+> >Zvi did contact Matt Mackall, the current /dev/random maintainer,  
+> >and was very keen on discussing the paper with him. I don't think  
+> >he got any response.
+> 
+> So he's demanding that one person spend time responding to his  
+> paper? 
 
-Let's dive into it.  How do you get the randomization without 
-sacrificing syscall performance?  Do you randomize on boot, dynamically, 
-or on a per-process level?  Because I can see some issues with 
-per-process randomization that will certainly cost some amount of cycles 
-on the system call path.  Marginal perhaps, but that is exactly where 
-you don't want to shed cycles unnecessarily, and the complexity of the 
-whole thing will go up quite a bit I think.
+Who said anything about demanding? he wanted to discuss the paper. He
+received no response (AFAIK). Please don't read more into it.
 
-Zach
+> The "maintainer" for any given piece of the kernel is the  
+> entry in MAINTAINERS *and* linux-kernel@vger.kernel.org *and* the  
+> appropriate sub-mailing-list.
+
+For security related information, it is sometimes best not to tell the
+whole world about it immediately (although you should definitely tell
+the whole world about it eventually). It should've probably been
+posted to lkml when mpm didn't respond, I agree. I'll take the blame
+for not suggesting that to Zvi.
+
+Cheers,
+Muli

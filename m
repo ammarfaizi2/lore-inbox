@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWEPQfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWEPQgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932112AbWEPQfF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 12:35:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWEPQfF
+	id S932113AbWEPQgG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 12:36:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWEPQgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 12:35:05 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:62370 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932112AbWEPQfC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 12:35:02 -0400
-Date: Tue, 16 May 2006 09:33:39 -0700
-From: Valerie Henson <val_henson@linux.intel.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Ulrich Drepper <drepper@redhat.com>, Blaisorblade <blaisorblade@yahoo.it>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [patch 00/14] remap_file_pages protection support
-Message-ID: <20060516163339.GL9612@goober>
-References: <20060430172953.409399000@zion.home.lan> <4456D5ED.2040202@yahoo.com.au> <200605030225.54598.blaisorblade@yahoo.it> <445CC949.7050900@redhat.com> <445D75EB.5030909@yahoo.com.au> <4465E981.60302@yahoo.com.au> <20060513181945.GC9612@goober> <4469D3F8.8020305@yahoo.com.au>
+	Tue, 16 May 2006 12:36:05 -0400
+Received: from waste.org ([64.81.244.121]:64904 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S932113AbWEPQgE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 12:36:04 -0400
+Date: Tue, 16 May 2006 11:29:34 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: akpm@osdl.org, B.Zolnierkiewicz@elka.pw.edu.pl, liux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make number of IDE interfaces configurable
+Message-ID: <20060516162934.GR24227@waste.org>
+References: <20060512222952.GQ6616@waste.org> <20060516160250.GE5677@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4469D3F8.8020305@yahoo.com.au>
+In-Reply-To: <20060516160250.GE5677@stusta.de>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 16, 2006 at 11:30:32PM +1000, Nick Piggin wrote:
+On Tue, May 16, 2006 at 06:02:50PM +0200, Adrian Bunk wrote:
+> On Fri, May 12, 2006 at 05:29:52PM -0500, Matt Mackall wrote:
+> >...
+> > --- 2.6.orig/include/linux/ide.h	2006-05-11 15:07:32.000000000 -0500
+> > +++ 2.6/include/linux/ide.h	2006-05-12 14:01:53.000000000 -0500
+> > @@ -252,7 +252,8 @@ static inline void ide_std_init_ports(hw
+> >  
+> >  #include <asm/ide.h>
+> >  
+> > -#ifndef MAX_HWIFS
+> > +#if !defined(MAX_HWIFS) || defined(CONFIG_EMBEDDED)
+> > +#undef MAX_HWIFS
+> >  #define MAX_HWIFS	CONFIG_IDE_MAX_HWIFS
+> >  #endif
 > 
-> Hi Val,
-> 
-> Thanks, I've tried with your most recent ebizzy and with 256 threads and
-> 50,000 vmas (which gives really poor mmap_cache hits), I'm still unable
-> to get find_vma above a few % of kernel time.
+> Why do you need this?
 
-How excellent!  Sometimes negative results are worth publishing. :)
+Doesn't work without it?
 
--VAL
+Most platforms define MAX_HWIFS.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,44 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751612AbWEPHFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751621AbWEPHGa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751612AbWEPHFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 03:05:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751614AbWEPHFJ
+	id S1751621AbWEPHGa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 03:06:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751629AbWEPHGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 03:05:09 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:35286 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751612AbWEPHFI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 03:05:08 -0400
-Date: Tue, 16 May 2006 03:05:06 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Over-heating CPU on 2.6.16 with Thinkpad G41
-Message-ID: <Pine.LNX.4.58.0605160253010.4283@gandalf.stny.rr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 16 May 2006 03:06:30 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:27601 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751616AbWEPHGa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 03:06:30 -0400
+Date: Tue, 16 May 2006 09:06:12 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       apw@shadowen.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 NUMA panic compile error
+Message-ID: <20060516070612.GA14317@elte.hu>
+References: <20060515005637.00b54560.akpm@osdl.org> <200605152111.20693.ak@suse.de> <20060515192614.GA24887@elte.hu> <200605152138.57347.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200605152138.57347.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Last night compiling kernels in my hotel, my CPUs kept over-heating.
+* Andi Kleen <ak@suse.de> wrote:
 
-I have a IBM Thinkpad G41 which has a pentium 4 HT.
+> > Nevertheless for hard-to-debug bugs i prefer if they can be reproduced 
+> > and debugged on 32-bit too, because x86_64 debugging is still quite a 
+> > PITA and wastes alot of time: for example it has no support for exact 
+> > kernel stacktraces.
+> 
+> Hopefully soon.
 
-Before compiling, my CPU temp would start at 65C and go up to 82 before I
-kill the compile. At 80 it warns me.  I rebooted a few times, but it would
-always happen.  Thinking this might be bad hardware, I rebooted into
-2.6.12, and saw that the CPU temperature would be at 52C??  I had no more
-problems compiling.
+i've already implemented it for FRAME_POINTERS (i really needed it to 
+not go insane when looking at lock validator output).
 
-I recently added the Suspend2 patch and that might be the culprit, But I
-just booted, a version of 2.6.16 that doesn't have the patch, and it too
-seems to be runnig hot.
+As you suggested a few weeks ago the real solution would be a dwarf 
+parser. Maybe ia64's could be taken? Will post the patch for the 
+FRAME_POINTERS solution soon. Sample output:
 
-Hmm, could this be the "acpi_sleep=s3_bios" that Suspend2 asks for?
-I haven't removed that option yet.
+     [<ffffffff8020af4c>] __show_trace+0x3a/0x66
+     [<ffffffff8020b36b>] show_trace+0x17/0x1a
+     [<ffffffff80207e36>] show_regs+0x36/0x3c
+     [<ffffffff80207e75>] smp_show_regs+0x39/0x52
+     [<ffffffff8021559e>] smp_nmi_callback+0x6a/0x85
+     [<ffffffff802163f2>] do_nmi+0x69/0x91
+     [<ffffffff80601dca>] nmi+0x7e/0x85
+     [<ffffffffffffffff>] 0xffffffffffffffff
+     [<ffffffff80601ad0>] _spin_unlock_irqrestore+0x3e/0x47
+     [<ffffffff8024424c>] prepare_to_wait+0x63/0x6d
+     [<ffffffff8022ff0c>] do_syslog+0xf1/0x3ca
+     [<ffffffff802ba3ed>] kmsg_read+0x3a/0x46
+     [<ffffffff8027db72>] vfs_read+0xe6/0x191
+     [<ffffffff8027e79d>] sys_read+0x44/0x82
+     [<ffffffff80209b11>] system_call+0x7d/0x83
+     [<ffffffffffffffff>] 0xffffffffffffffff
 
-Anyone else seen this problem?
+(and it works fine across irq/exception stacks too.)
 
--- Steve
+> I think i386 only gained it very recently, so it can't be _that_ big a 
+> problem.
 
+i certainly used exact backtraces on i386 for many many years. Not sure 
+whether those patches were all upstream though. It's also the 
+combination of effects that makes the difference between i386 and x86_64 
+so striking.
+
+furthermore, the kernel's debugging infrastructure improved 
+significantly, and we get more and more stackdumps to interpret [instead 
+of hard to debug corruptions, etc.].
+
+> The real issue is too deeply nested code like the callback hell we 
+> have in some subsystems. Better would be to eliminate that. 2.4 was 
+> much nicer in this regard and there has been quite a lot of 
+> unnecessary complications in this area when the kernel went to 2.6.
+
+i have no problems with interpreting occasional non-exact backtraces, 
+but it is certainly non-obvious, and when you are looking at backtraces 
+en masse, the unnecessary repetitive task can get really distracting and 
+frustrating.
+
+Exact backtraces on the other hand almost immediately create a unique 
+and reliable "visual fingerprint", and if you have looked at enough of 
+them, you almost recognize them just from looking at the shape of them. 
+It's a completely different 'experience'. (and userspace developers will 
+laugh out loud at us now i suspect ...)
+
+> > Also, the printout of the backtrace is butt-ugly and as un-ergonomic 
+> > to the human eye as it gets - who came up with that "two-maybe-one 
+> > function entries per-line" nonsense? [Whoever did it he never had to 
+> > look at (and make sense of) hundreds of stacktraces in a row.]
+> 
+> The original goal was to make it fit as much as possible on the screen 
+> when you don't have a serial/net/fireconsole. But arguably it's less 
+> and less useful because the kernel has gotten so huge that most 
+> backtraces are very long and scroll away anyways.
+
+yeah.
+
+	Ingo

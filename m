@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbWEPRTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbWEPRTR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932118AbWEPRTN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 13:19:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbWEPRTM
+	id S932160AbWEPRTR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 13:19:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWEPRTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 13:19:12 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:47920 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932118AbWEPRTL convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 13:19:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lJHWi4vRIWah4pKsaP6SsjXxBJ+sjeZtO1USUAViBcPpevoT4cwIqm9WxYclId+SmvWmkb1SrsOV8yg/GhY3cF9KuWU2gQQ79Fwx5WZ+SDybVdbKzi520n8ezwp/2ovDC0vGNsp86/n2/NJQMngFUcyfpb4yMfYyFqtfSs16iyY=
-Message-ID: <3b0ffc1f0605161019j7149f72bv309db19eb9d12dd8@mail.gmail.com>
-Date: Tue, 16 May 2006 13:19:11 -0400
-From: "Kevin Radloff" <radsaq@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PATCH: Fix broken PIO with libata
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1147794791.2151.71.camel@localhost.localdomain>
+	Tue, 16 May 2006 13:19:17 -0400
+Received: from EXCHG2003.microtech-ks.com ([24.124.14.122]:42905 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S932160AbWEPRTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 13:19:17 -0400
+Message-ID: <446A0996.50709@atipa.com>
+Date: Tue, 16 May 2006 12:19:18 -0500
+From: Roger Heflin <rheflin@atipa.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1147790393.2151.62.camel@localhost.localdomain>
-	 <3b0ffc1f0605160833k5f6355c5n3f2a9ab1b211a95@mail.gmail.com>
-	 <1147794791.2151.71.camel@localhost.localdomain>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>, openib-general@openib.org
+Subject: Heads-up for anyone using certain thunderbird message filter features
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 May 2006 17:10:51.0873 (UTC) FILETIME=[AF445510:01C6790B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/16/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Maw, 2006-05-16 at 11:33 -0400, Kevin Radloff wrote:
-> > However, I still have a problem with pata_pcmcia (that I actually
-> > experienced also with the ide-cs driver) where sustained reading or
-> > writing to the CF card spikes the CPU with nearly 100% system time.
->
-> That is normal. The PCMCIA devices don't support DMA. As a result of
-> this the processor has to fetch each byte itself over the ISA speed
-> PCMCIA bus link.
+Off topic - but probably very important to people using
+thunderbird as an email client.
 
-Hrm, as I recall that only started happening with ide-cs sometime in
-the single digits of 2.6.x.. And note that it's only maxing out at
-about 1.5MB/s. Should that saturate my laptop's 1.1GHz Pentium M
-processor?
+I am using certain thunderbird message filter features - mainly
+move to folder and then delete from pop server (this is done
+as a single step).
 
--- 
-Kevin 'radsaq' Radloff
-radsaq@gmail.com
-http://thesaq.com/
+I am on 2 mailing lists that received the same patch set, of the
+54 patches emails, 15 patches when to one folder (kernel), 41
+patches when to the other folder (openib), and 3 went to both.
+
+So anyone using this should watch as the filter does act odd, I suspect
+that it may be that since the message id is the same that, that may be
+what it is using to delete the message and may cause it to get both
+messages, the emails that I got both copies of were delayed by quote
+a bit and very likely came in on different email downloads, so
+the other email were not there to delete.
+
+                               Roger

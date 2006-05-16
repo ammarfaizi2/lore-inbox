@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750848AbWEPOnL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbWEPOsd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750848AbWEPOnL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 10:43:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWEPOnL
+	id S1750879AbWEPOsd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 10:48:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbWEPOsd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 10:43:11 -0400
-Received: from fwstl1-1.wul.qc.ec.gc.ca ([205.211.132.24]:42481 "EHLO
-	ecstlaurent8.quebec.int.ec.gc.ca") by vger.kernel.org with ESMTP
-	id S1750725AbWEPOnI convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 10:43:08 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Tue, 16 May 2006 10:48:33 -0400
+Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:18703 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1750879AbWEPOsc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 10:48:32 -0400
+Date: Tue, 16 May 2006 16:48:46 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>,
+       Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, Stephen Hemminger <shemminger@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.17-rc4-mm1
+Message-Id: <20060516164846.4d42ed11.khali@linux-fr.org>
+In-Reply-To: <20060516145517.2c2d4fe4.khali@linux-fr.org>
+References: <20060515005637.00b54560.akpm@osdl.org>
+	<6bffcb0e0605151137v25496700k39b15a40fa02a375@mail.gmail.com>
+	<20060515115302.5abe7e7e.akpm@osdl.org>
+	<6bffcb0e0605151210x21eb0d24g96366ce9c121c26c@mail.gmail.com>
+	<20060515122613.32661c02.akpm@osdl.org>
+	<6bffcb0e0605151317u51bbf67ey124b808fad920d36@mail.gmail.com>
+	<20060516103930.0c0d5d33.khali@linux-fr.org>
+	<20060516145517.2c2d4fe4.khali@linux-fr.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-Subject: RE: ASUS A8V Deluxe, x86_64
-Date: Tue, 16 May 2006 10:43:07 -0400
-Message-ID: <8E8F647D7835334B985D069AE964A4F7028FDC0C@ECQCMTLMAIL1.quebec.int.ec.gc.ca>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ASUS A8V Deluxe, x86_64
-Thread-Index: AcZ46kyWkHFTawMqQ3ygTVY8KBpXWQADJrJw
-From: "Fortier,Vincent [Montreal]" <Vincent.Fortier1@EC.GC.CA>
-To: "Tejun Heo" <htejun@gmail.com>, <albertl@mail.com>
-Cc: "Andi Kleen" <ak@suse.de>, "Marko Macek" <Marko.Macek@gmx.net>,
-       "Jeff Garzik" <jeff@garzik.org>, <linux-kernel@vger.kernel.org>,
-       <linux-ide@vger.kernel.org>,
-       =?iso-8859-1?Q?Reinhard_Brandst=E4dter?= <r.brandstaedter@gmx.at>
-X-OriginalArrivalTime: 16 May 2006 14:43:07.0751 (UTC) FILETIME=[0BD6A770:01C678F7]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Fortier, can you please post full boot dmesg?
+Michal Piotrowski reported:
+> > When I try to "modprobe -r i2c_i801" modprobe hangs
 
-Sure.. Tonight when I`ll come back home.
+Quoting myself:
+> I can reproduce it, with both i2c-i801 and i2c-parport, so it's not
+> related to a specific driver. I'm currently performing a bisection on
+> 2.6.17-rc4-mm1 to try and isolate the culprit. It seems to point to
+> gregkh-driver-*. i2c patches are innocent for sure, including Kumar's
+> ones.
 
-BTW, you can use vincent instead :)
+And the winner is...
+gregkh-driver-driver-core-class_device_add-needs-error-checks.patch
+
+Stephen, Greg?
+
+-- 
+Jean Delvare

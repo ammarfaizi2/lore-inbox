@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751685AbWEPI3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751688AbWEPIgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751685AbWEPI3E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 04:29:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751687AbWEPI3E
+	id S1751688AbWEPIgM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 04:36:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751690AbWEPIgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 04:29:04 -0400
-Received: from mtagate4.uk.ibm.com ([195.212.29.137]:38268 "EHLO
-	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1751685AbWEPI3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 04:29:03 -0400
-Date: Tue, 16 May 2006 11:28:59 +0300
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jonathan Day <imipak@yahoo.com>,
-       linux-kernel@vger.kernel.org, Zvika Gutterman <zvi@safend.com>
-Subject: Re: /dev/random on Linux
-Message-ID: <20060516082859.GD18645@rhun.haifa.ibm.com>
-References: <20060515213956.31627.qmail@web31508.mail.mud.yahoo.com> <1147732867.26686.188.camel@localhost.localdomain> <20060516025003.GC18645@rhun.haifa.ibm.com> <B2E79864-3AC6-4B72-B97B-222FEDA136A1@mac.com>
+	Tue, 16 May 2006 04:36:12 -0400
+Received: from mail.gmx.net ([213.165.64.20]:23496 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751682AbWEPIgM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 04:36:12 -0400
+X-Authenticated: #704063
+Date: Tue, 16 May 2006 10:36:06 +0200
+From: Eric Sesterhenn / Snakebyte <snakebyte@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: [Patch] Overrun in isdn_tty.c
+Message-ID: <20060516083606.GB15781@alice>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <B2E79864-3AC6-4B72-B97B-222FEDA136A1@mac.com>
+X-Editor: Vim http://www.vim.org/
+X-Info: http://www.snake-basket.de
+X-Operating-System: Linux/2.6.17-rc4 (i686)
+X-Uptime: 10:34:02 up  1:27,  5 users,  load average: 0.45, 0.47, 0.60
 User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 16, 2006 at 04:15:19AM -0400, Kyle Moffett wrote:
-> On May 15, 2006, at 22:50, Muli Ben-Yehuda wrote:
-> >On Mon, May 15, 2006 at 11:41:07PM +0100, Alan Cox wrote:
-> >>A paper by people who can't work out how to mail linux-kernel or  
-> >>vendor-sec, or follow "REPORTING-BUGS" in the source,
-> >
-> >Zvi did contact Matt Mackall, the current /dev/random maintainer,  
-> >and was very keen on discussing the paper with him. I don't think  
-> >he got any response.
-> 
-> So he's demanding that one person spend time responding to his  
-> paper? 
+hi,
 
-Who said anything about demanding? he wanted to discuss the paper. He
-received no response (AFAIK). Please don't read more into it.
+this fixes coverity bug id #1237. After the while loop,
+it is possible for i == ISDN_LMSNLEN. If this happens
+the terminating '\0' is written after the end of the array.
 
-> The "maintainer" for any given piece of the kernel is the  
-> entry in MAINTAINERS *and* linux-kernel@vger.kernel.org *and* the  
-> appropriate sub-mailing-list.
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
 
-For security related information, it is sometimes best not to tell the
-whole world about it immediately (although you should definitely tell
-the whole world about it eventually). It should've probably been
-posted to lkml when mpm didn't respond, I agree. I'll take the blame
-for not suggesting that to Zvi.
 
-Cheers,
-Muli
+--- linux-2.6.17-rc4-git2/drivers/isdn/i4l/isdn_tty.c.orig	2006-05-16 10:27:29.000000000 +0200
++++ linux-2.6.17-rc4-git2/drivers/isdn/i4l/isdn_tty.c	2006-05-16 10:27:50.000000000 +0200
+@@ -2880,7 +2880,7 @@ isdn_tty_cmd_ATand(char **p, modem_info 
+ 			p[0]++;
+ 			i = 0;
+ 			while (*p[0] && (strchr("0123456789,-*[]?;", *p[0])) &&
+-			       (i < ISDN_LMSNLEN))
++			       (i < ISDN_LMSNLEN - 1))
+ 				m->lmsn[i++] = *p[0]++;
+ 			m->lmsn[i] = '\0';
+ 			break;
+

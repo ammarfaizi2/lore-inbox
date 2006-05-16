@@ -1,128 +1,317 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751460AbWEPFrN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbWEPGDu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751460AbWEPFrN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 01:47:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbWEPFrN
+	id S1751491AbWEPGDu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 02:03:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbWEPGDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 01:47:13 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:60679 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751460AbWEPFrN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 01:47:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=fradkt3S/MSNtU6nqJTHQ5LQWHoRHxu/4UIzRaeGvU/RIFVIGgBbgqrRgkSwsOpU4L/xfJV+gB1BbFMO4rwa9zWWPdFXzcEfycFASMjoWeBLwQuiOyDEj1qlMpyRO2GhI3BwdnlyRONh6OR3is66OpJqKCqXEYqsWd1B6IG0ftc=
-Message-ID: <4469675E.7050803@gmail.com>
-Date: Mon, 15 May 2006 23:47:10 -0600
-From: Jim Cromie <jim.cromie@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
-MIME-Version: 1.0
-CC: Linux kernel <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: 2.6.17-rc4-mm1 nfsroot build err, looks related to klibc
-References: <44692CA1.5000903@gmail.com>
-In-Reply-To: <44692CA1.5000903@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 16 May 2006 02:03:50 -0400
+Received: from ozlabs.org ([203.10.76.45]:22958 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751491AbWEPGDt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 02:03:49 -0400
+Subject: [PATCH] Gerd Hoffman's move-vsyscall-into-user-address-range patch
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       virtualization <virtualization@lists.osdl.org>,
+       Gerd Hoffmann <kraxel@suse.de>, Zachary Amsden <zach@vmware.com>
+Content-Type: text/plain
+Date: Tue, 16 May 2006 16:03:43 +1000
+Message-Id: <1147759423.5492.102.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Cromie wrote:
->
-> Im getting nfsroot build error on 2 configs, both carried forward
-> from good rc4 and from rc3-mm1 builds.
-> turning off nfsroot fixes the err.
->
-> A little digging suggests the problem is in here:
->
-> git-klibc.patch:
+AFAICT we'll pay one extra TLB entry for this patch.  Zach had a patch
+which left the vsyscall page at the top of memory (minus hole for
+hypervisor) and patched the ELF header at boot.
 
-I backed out these:
+Thoughts welcome,
+Rusty.
 
-[jimc@harpo lxbuild]$ diff broken-out/series broken-out/nfsroot-fix-series
-229,231c229,231
-< git-klibc.patch
-< git-klibc-alpha-fixes.patch
-< git-klibc-ident-fix.patch
----
- > # git-klibc.patch
- > # git-klibc-alpha-fixes.patch
- > # git-klibc-ident-fix.patch
+Name: Move vsyscall page out of fixmap, above stack
+Author: Gerd Hoffmann <kraxel@suse.de>
 
-with this it compiled cleanly, but broke on boot
+Hypervisors want to use memory at the top of the address space
+(eg. 64MB for Xen, or 168MB for Xen w/ PAE).  Creating this hole means
+moving the vsyscall page away from 0xffffe000.
 
-[   23.133338] eth0: Setting full-duplex based on negotiated link 
-capability.
-[   23.151837] IP-Config: Complete:
-[   23.155028]       device=eth0, addr=192.168.42.100, 
-mask=255.255.255.0, gw=192.168.42.1,
-[   23.163329]      host=soekris, domain=, nis-domain=(none),
-[   23.168943]      bootserver=192.168.42.1, rootserver=192.168.42.1, 
-rootpath=
-[   23.181928] Looking up port of RPC 100003/2 on 192.168.42.1
-[   23.193280] Looking up port of RPC 100005/1 on 192.168.42.1
-[   23.295101] TSC appears to be running slowly. Marking it as unstable
-[   20.564000] Time: pit clocksource has been installed.
-[   42.836000] portmap: server localhost not responding, timed out
-[   42.840000] RPC: failed to contact portmap (errno -5).
-[   77.852000] portmap: server localhost not responding, timed out
-[   77.856000] RPC: failed to contact portmap (errno -5).
-[  112.864000] portmap: server localhost not responding, timed out
-[  112.868000] RPC: failed to contact portmap (errno -5).
-[  112.876000] BUG: unable to handle kernel NULL pointer dereference at 
-virtual address 00000000
-[  112.884000]  printing eip:
-[  112.888000] c01d4523
-[  112.888000] *pde = 00000000
-[  112.892000] Oops: 0000 [#1]
-[  112.892000] last sysfs file:
-[  112.892000] Modules linked in:
-[  112.892000] CPU:    0
-[  112.892000] EIP:    0060:[<c01d4523>]    Not tainted VLI
-[  112.892000] EFLAGS: 00010286   (2.6.17-rc4-mm1-sk #1)
-[  112.892000] EIP is at _atomic_dec_and_lock+0xf/0x44
-[  112.892000] eax: c02fc508   ebx: 00000000   ecx: 00000000   edx: 000000c0
-[  112.892000] esi: fffffff4   edi: fffffff4   ebp: c113bcec   esp: c113bce8
-[  112.892000] ds: 007b   es: 007b   ss: 0068
-[  112.892000] Process idle (pid: 1, threadinfo=c113a000 task=c11395b0)
-[  112.892000] Stack: <0>00000000 c113bd00 c0199545 00000000 c02fc508 
-c12c2c14 c113bd10 c0199a21
-[  112.892000]        00000000 c113bd66 c113bd40 c019a56a c12c2c14 
-c12c2c14 c112b4d0 c113bd44
-[  112.892000]        c015bfa0 00000004 00000001 c113bd66 00000060 
-c113bde8 c113bdf4 c01a0162
-[  112.892000] Call Trace:
-[  112.892000]  <c0102fe2> show_stack_log_lvl+0x8b/0x95   <c010315f> 
-show_registers+0x124/0x18a
-[  112.892000]  <c0103420> die+0x14d/0x20f   <c010c76d> 
-do_page_fault+0x438/0x52e
-[  112.892000]  <c0102b7f> error_code+0x4f/0x60   <c0199545> 
-nfs_put_client+0x2a/0x9f
-[  112.892000]  <c0199a21> nfs_free_server+0xae/0xd4   <c019a56a> 
-nfs_create_server+0x46e/0x47d
-[  112.892000]  <c01a0162> nfs_get_sb+0x458/0x475   <c014cb4d> 
-vfs_kern_mount+0x34/0x95
-[  112.892000]  <c014cbea> do_kern_mount+0x28/0x3c   <c015fef2> 
-do_mount+0x5d7/0x621
-[  112.892000]  <c015ffa8> sys_mount+0x6c/0xa6   <c036a6be> 
-do_mount_root+0x13/0x8c
-[  112.892000]  <c036a92e> mount_root+0x6d/0xd9   <c036aa1c> 
-prepare_namespace+0x82/0xae
-[  112.892000]  <c01003d9> init+0x13a/0x1ed   <c0101005> 
-kernel_thread_helper+0x5/0xb
-[  112.892000] Code: d1 0a c1 e2 0a 8d 43 01 0f a4 d1 0a c1 e2 0a 89 06 
-8d 65 f8 89 d0 89 ca 5b 5e 5d c3 55 89 e5 53 8b 5d 08 8b 45 0c e8 8f dd 
-0c 00 <8b> 03 85 c0 75 10 68 d4 56 2b c0 e8 7d d8 f3 ff e8 e9 ea f2 ff
-[  112.892000] EIP: [<c01d4523>] _atomic_dec_and_lock+0xf/0x44 SS:ESP 
-0068:c113bce8
-[  112.892000]  <0>Kernel panic - not syncing: Attempted to kill init!
-[  112.900000]  <0>Rebooting in 5 seconds..
+If we create this hole statically with a config option, we give up,
+say, 256MB of lowmem for the case where a hypervisor-capable kernel is
+actually running on native hardware.
 
-POST: 0123456789bcefghipajklnopq,,,tvwxy
+If we create this hole dynamically and leave the vsyscall page at the
+top of kernel memory, we would have to patch up the vsyscall elf
+header at boot time to reflect where we put it.
 
-If theres more I should try, send, etc, please let me know.
+Instead, this patch moves the vsyscall page into the user address
+region, just below PAGE_OFFSET: it's still at a fixed address, but
+it's not where the hypervisor wants to be, so resizing the hole is
+trivial.
 
-thanks
-Jim Cromie
+Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.17-rc4/arch/i386/kernel/asm-offsets.c working-2.6.17-rc4-vsyscall-above-stack/arch/i386/kernel/asm-offsets.c
+--- linux-2.6.17-rc4/arch/i386/kernel/asm-offsets.c	2005-07-15 04:38:36.000000000 +1000
++++ working-2.6.17-rc4-vsyscall-above-stack/arch/i386/kernel/asm-offsets.c	2006-05-16 14:24:00.000000000 +1000
+@@ -13,6 +13,7 @@
+ #include <asm/fixmap.h>
+ #include <asm/processor.h>
+ #include <asm/thread_info.h>
++#include <asm/elf.h>
+ 
+ #define DEFINE(sym, val) \
+         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
+@@ -68,5 +69,5 @@ void foo(void)
+ 		 sizeof(struct tss_struct));
+ 
+ 	DEFINE(PAGE_SIZE_asm, PAGE_SIZE);
+-	DEFINE(VSYSCALL_BASE, __fix_to_virt(FIX_VSYSCALL));
++	DEFINE(VSYSCALL_BASE, VSYSCALL_BASE);
+ }
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.17-rc4/arch/i386/kernel/sysenter.c working-2.6.17-rc4-vsyscall-above-stack/arch/i386/kernel/sysenter.c
+--- linux-2.6.17-rc4/arch/i386/kernel/sysenter.c	2006-03-23 12:42:01.000000000 +1100
++++ working-2.6.17-rc4-vsyscall-above-stack/arch/i386/kernel/sysenter.c	2006-05-16 14:27:05.000000000 +1000
+@@ -13,6 +13,7 @@
+ #include <linux/gfp.h>
+ #include <linux/string.h>
+ #include <linux/elf.h>
++#include <linux/mm.h>
+ 
+ #include <asm/cpufeature.h>
+ #include <asm/msr.h>
+@@ -45,23 +46,88 @@ void enable_sep_cpu(void)
+  */
+ extern const char vsyscall_int80_start, vsyscall_int80_end;
+ extern const char vsyscall_sysenter_start, vsyscall_sysenter_end;
++static void *syscall_page;
+ 
+ int __init sysenter_setup(void)
+ {
+-	void *page = (void *)get_zeroed_page(GFP_ATOMIC);
+-
+-	__set_fixmap(FIX_VSYSCALL, __pa(page), PAGE_READONLY_EXEC);
++	syscall_page = (void *)get_zeroed_page(GFP_ATOMIC);
+ 
+ 	if (!boot_cpu_has(X86_FEATURE_SEP)) {
+-		memcpy(page,
++		memcpy(syscall_page,
+ 		       &vsyscall_int80_start,
+ 		       &vsyscall_int80_end - &vsyscall_int80_start);
+ 		return 0;
+ 	}
+ 
+-	memcpy(page,
++	memcpy(syscall_page,
+ 	       &vsyscall_sysenter_start,
+ 	       &vsyscall_sysenter_end - &vsyscall_sysenter_start);
+ 
+ 	return 0;
+ }
++
++static struct page*
++syscall_nopage(struct vm_area_struct *vma, unsigned long adr, int *type)
++{
++	struct page *p = virt_to_page(adr - vma->vm_start + syscall_page);
++	get_page(p);
++	return p;
++}
++
++/* Prevent VMA merging */
++static void syscall_vma_close(struct vm_area_struct *vma)
++{
++}
++
++static struct vm_operations_struct syscall_vm_ops = {
++	.close = syscall_vma_close,
++	.nopage = syscall_nopage,
++};
++
++/* Setup a VMA at program startup for the vsyscall page */
++int arch_setup_additional_pages(struct linux_binprm *bprm, int exstack)
++{
++	struct vm_area_struct *vma;
++	struct mm_struct *mm = current->mm;
++	int ret;
++
++	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
++	if (!vma)
++		return -ENOMEM;
++
++	memset(vma, 0, sizeof(struct vm_area_struct));
++	/* Could randomize here */
++	vma->vm_start = VSYSCALL_BASE;
++	vma->vm_end = VSYSCALL_BASE + PAGE_SIZE;
++	/* MAYWRITE to allow gdb to COW and set breakpoints */
++	vma->vm_flags = VM_READ|VM_EXEC|VM_MAYREAD|VM_MAYEXEC|VM_MAYWRITE;
++	vma->vm_flags |= mm->def_flags;
++	vma->vm_page_prot = protection_map[vma->vm_flags & 7];
++	vma->vm_ops = &syscall_vm_ops;
++	vma->vm_mm = mm;
++
++	down_write(&mm->mmap_sem);
++	if ((ret = insert_vm_struct(mm, vma))) {
++		up_write(&mm->mmap_sem);
++		kmem_cache_free(vm_area_cachep, vma);
++		return ret;
++	}
++	mm->total_vm++;
++	up_write(&mm->mmap_sem);
++	return 0;
++}
++
++struct vm_area_struct *get_gate_vma(struct task_struct *tsk)
++{
++	return NULL;
++}
++
++int in_gate_area(struct task_struct *task, unsigned long addr)
++{
++	return 0;
++}
++
++int in_gate_area_no_task(unsigned long addr)
++{
++	return 0;
++}
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.17-rc4/arch/i386/mm/pgtable.c working-2.6.17-rc4-vsyscall-above-stack/arch/i386/mm/pgtable.c
+--- linux-2.6.17-rc4/arch/i386/mm/pgtable.c	2006-05-16 10:50:48.000000000 +1000
++++ working-2.6.17-rc4-vsyscall-above-stack/arch/i386/mm/pgtable.c	2006-05-16 14:24:47.000000000 +1000
+@@ -13,6 +13,7 @@
+ #include <linux/slab.h>
+ #include <linux/pagemap.h>
+ #include <linux/spinlock.h>
++#include <linux/module.h>
+ 
+ #include <asm/system.h>
+ #include <asm/pgtable.h>
+@@ -138,6 +139,10 @@ void set_pmd_pfn(unsigned long vaddr, un
+ 	__flush_tlb_one(vaddr);
+ }
+ 
++static int nr_fixmaps = 0;
++unsigned long __FIXADDR_TOP = 0xfffff000;
++EXPORT_SYMBOL(__FIXADDR_TOP);
++
+ void __set_fixmap (enum fixed_addresses idx, unsigned long phys, pgprot_t flags)
+ {
+ 	unsigned long address = __fix_to_virt(idx);
+@@ -147,6 +152,13 @@ void __set_fixmap (enum fixed_addresses 
+ 		return;
+ 	}
+ 	set_pte_pfn(address, phys >> PAGE_SHIFT, flags);
++	nr_fixmaps++;
++}
++
++void set_fixaddr_top(unsigned long top)
++{
++	BUG_ON(nr_fixmaps > 0);
++	__FIXADDR_TOP = top - PAGE_SIZE;
+ }
+ 
+ pte_t *pte_alloc_one_kernel(struct mm_struct *mm, unsigned long address)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.17-rc4/include/asm-i386/a.out.h working-2.6.17-rc4-vsyscall-above-stack/include/asm-i386/a.out.h
+--- linux-2.6.17-rc4/include/asm-i386/a.out.h	2004-02-04 14:43:43.000000000 +1100
++++ working-2.6.17-rc4-vsyscall-above-stack/include/asm-i386/a.out.h	2006-05-16 14:24:47.000000000 +1000
+@@ -19,7 +19,7 @@ struct exec
+ 
+ #ifdef __KERNEL__
+ 
+-#define STACK_TOP	TASK_SIZE
++#define STACK_TOP	(TASK_SIZE - 3*PAGE_SIZE)
+ 
+ #endif
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.17-rc4/include/asm-i386/elf.h working-2.6.17-rc4-vsyscall-above-stack/include/asm-i386/elf.h
+--- linux-2.6.17-rc4/include/asm-i386/elf.h	2006-03-23 12:44:01.000000000 +1100
++++ working-2.6.17-rc4-vsyscall-above-stack/include/asm-i386/elf.h	2006-05-16 14:24:47.000000000 +1000
+@@ -129,11 +129,16 @@ extern int dump_task_extended_fpu (struc
+ #define ELF_CORE_COPY_FPREGS(tsk, elf_fpregs) dump_task_fpu(tsk, elf_fpregs)
+ #define ELF_CORE_COPY_XFPREGS(tsk, elf_xfpregs) dump_task_extended_fpu(tsk, elf_xfpregs)
+ 
+-#define VSYSCALL_BASE	(__fix_to_virt(FIX_VSYSCALL))
++#define VSYSCALL_BASE	(PAGE_OFFSET - 2*PAGE_SIZE)
+ #define VSYSCALL_EHDR	((const struct elfhdr *) VSYSCALL_BASE)
+ #define VSYSCALL_ENTRY	((unsigned long) &__kernel_vsyscall)
+ extern void __kernel_vsyscall;
+ 
++#define ARCH_HAS_SETUP_ADDITIONAL_PAGES
++struct linux_binprm;
++extern int arch_setup_additional_pages(struct linux_binprm *bprm,
++                                       int executable_stack);
++
+ #define ARCH_DLINFO						\
+ do {								\
+ 		NEW_AUX_ENT(AT_SYSINFO,	VSYSCALL_ENTRY);	\
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.17-rc4/include/asm-i386/fixmap.h working-2.6.17-rc4-vsyscall-above-stack/include/asm-i386/fixmap.h
+--- linux-2.6.17-rc4/include/asm-i386/fixmap.h	2006-03-23 12:43:10.000000000 +1100
++++ working-2.6.17-rc4-vsyscall-above-stack/include/asm-i386/fixmap.h	2006-05-16 14:24:47.000000000 +1000
+@@ -20,7 +20,7 @@
+  * Leave one empty page between vmalloc'ed areas and
+  * the start of the fixmap.
+  */
+-#define __FIXADDR_TOP	0xfffff000
++extern unsigned long __FIXADDR_TOP;
+ 
+ #ifndef __ASSEMBLY__
+ #include <linux/kernel.h>
+@@ -52,7 +52,6 @@
+  */
+ enum fixed_addresses {
+ 	FIX_HOLE,
+-	FIX_VSYSCALL,
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 	FIX_APIC_BASE,	/* local (CPU) APIC) -- required for SMP or not */
+ #endif
+@@ -95,6 +94,8 @@ enum fixed_addresses {
+ extern void __set_fixmap (enum fixed_addresses idx,
+ 					unsigned long phys, pgprot_t flags);
+ 
++extern void set_fixaddr_top(unsigned long top);
++
+ #define set_fixmap(idx, phys) \
+ 		__set_fixmap(idx, phys, PAGE_KERNEL)
+ /*
+@@ -116,14 +117,6 @@ extern void __set_fixmap (enum fixed_add
+ #define __fix_to_virt(x)	(FIXADDR_TOP - ((x) << PAGE_SHIFT))
+ #define __virt_to_fix(x)	((FIXADDR_TOP - ((x)&PAGE_MASK)) >> PAGE_SHIFT)
+ 
+-/*
+- * This is the range that is readable by user mode, and things
+- * acting like user mode such as get_user_pages.
+- */
+-#define FIXADDR_USER_START	(__fix_to_virt(FIX_VSYSCALL))
+-#define FIXADDR_USER_END	(FIXADDR_USER_START + PAGE_SIZE)
+-
+-
+ extern void __this_fixmap_does_not_exist(void);
+ 
+ /*
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.17-rc4/include/asm-i386/page.h working-2.6.17-rc4-vsyscall-above-stack/include/asm-i386/page.h
+--- linux-2.6.17-rc4/include/asm-i386/page.h	2006-05-16 10:51:38.000000000 +1000
++++ working-2.6.17-rc4-vsyscall-above-stack/include/asm-i386/page.h	2006-05-16 14:24:47.000000000 +1000
+@@ -121,7 +121,7 @@ extern int page_is_ram(unsigned long pag
+ 
+ #define PAGE_OFFSET		((unsigned long)__PAGE_OFFSET)
+ #define VMALLOC_RESERVE		((unsigned long)__VMALLOC_RESERVE)
+-#define MAXMEM			(-__PAGE_OFFSET-__VMALLOC_RESERVE)
++#define MAXMEM			(__FIXADDR_TOP-__PAGE_OFFSET-__VMALLOC_RESERVE)
+ #define __pa(x)			((unsigned long)(x)-PAGE_OFFSET)
+ #define __va(x)			((void *)((unsigned long)(x)+PAGE_OFFSET))
+ #define pfn_to_kaddr(pfn)      __va((pfn) << PAGE_SHIFT)
+@@ -137,6 +137,8 @@ extern int page_is_ram(unsigned long pag
+ 	((current->personality & READ_IMPLIES_EXEC) ? VM_EXEC : 0 ) | \
+ 		 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
+ 
++#define __HAVE_ARCH_GATE_AREA 1
++
+ #endif /* __KERNEL__ */
+ 
+ #include <asm-generic/memory_model.h>
+
+-- 
+ ccontrol: http://ccontrol.ozlabs.org
+

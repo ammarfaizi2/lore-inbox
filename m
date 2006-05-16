@@ -1,74 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751821AbWEPNLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751822AbWEPNPS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751821AbWEPNLt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 09:11:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751822AbWEPNLt
+	id S1751822AbWEPNPS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 09:15:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751062AbWEPNPR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 09:11:49 -0400
-Received: from wr-out-0506.google.com ([64.233.184.227]:34439 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751820AbWEPNLs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 09:11:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=BnhuBM9KtbQcB+nHEnWWgWCjC65clRdZzMoKtR8onasjgWYSq3bt+G892FG94+iC1HknbYk+sX9j421u/FRrMAfNcabSbyRncHnaJAUMhps07w3dromuT52ydMEnc9TM7v2oroFvFAKPZtk65vcsN0pymXFZcfgTkAy9uke0BL0=
-Message-ID: <4469CF8D.9080908@gmail.com>
-Date: Tue, 16 May 2006 22:11:41 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Tue, 16 May 2006 09:15:17 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26504 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751822AbWEPNPQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 09:15:16 -0400
+Date: Tue, 16 May 2006 14:46:37 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Muli Ben-Yehuda <muli@il.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jonathan Day <imipak@yahoo.com>, linux-kernel@vger.kernel.org,
+       Zvika Gutterman <zvi@safend.com>
+Subject: Re: /dev/random on Linux
+Message-ID: <20060516124637.GB6654@elf.ucw.cz>
+References: <20060515213956.31627.qmail@web31508.mail.mud.yahoo.com> <1147732867.26686.188.camel@localhost.localdomain> <20060516025003.GC18645@rhun.haifa.ibm.com> <B2E79864-3AC6-4B72-B97B-222FEDA136A1@mac.com>
 MIME-Version: 1.0
-To: albertl@mail.com
-CC: "Fortier,Vincent [Montreal]" <Vincent.Fortier1@EC.GC.CA>,
-       Andi Kleen <ak@suse.de>, Marko Macek <Marko.Macek@gmx.net>,
-       Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org,
-       =?ISO-8859-1?Q?Reinhard_Brandst=E4dter?= <r.brandstaedter@gmx.at>
-Subject: Re: ASUS A8V Deluxe, x86_64
-References: <8E8F647D7835334B985D069AE964A4F702463F@ECQCMTLMAIL1.quebec.int.ec.gc.ca> <4469C024.3030506@gmail.com> <4469CC22.1010500@tw.ibm.com>
-In-Reply-To: <4469CC22.1010500@tw.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <B2E79864-3AC6-4B72-B97B-222FEDA136A1@mac.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Lee wrote:
-> Tejun Heo wrote:
->> Fortier,Vincent [Montreal] wrote:
->>
->>>>> Now I'm having an ASUS A8V Deluxe.... and sadly a lot of problems:
->>>>>
->>>>> - My SATA Controller make my Linux crash when connecting a Plextor
->>>>> 716SA CD-DVD-R (http://bugzilla.kernel.org/show_bug.cgi?id=5533)
->>>
->>>> Patch:
->>>>
->>> http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.17-rc4-
->>> git2-libata1.patch.bz2
->>>
->>>> (diff'd against 2.6.17-rc4-git2, but should apply to most recent
->>> 2.6.17-rcX[-gitY] kernels)
->>>
->>> I gave a try at the latest ata patches announced yesterday by Jeff and
->>> it completelly solved my SATA ATAPI bug.. I even been able to burn my
->>> first DVD using my Plextor 716SA on my Linux!!!  Really nice and much
->>> anticipated work!  Thnx a lot!
->>>
->>> I have already marked bug 5533 as resolved and I'll wait until inclusion
->>> into 2.6.18 to close it.  I've also marked bug 6317 has closed since
->>> that did not occur since around rc2 or rc3 of 2.6.17.
->>>
->> Jeff, do you know what fixed this one?  I've been following the bug and
->> thought it was one of those via-ATAPI-have-no-idea bugs.  How come the
->> update fix this one?  Have I missed something?
->>
+Hi!
+
+> >>I would dismiss 2.2 for the cases of things like Knoppix because  
+> >>CDs introduce significant randomness because each time you boot  
+> >>the CD is subtly differently positioned. The OpenWRT case seems  
+> >>more credible. The hard disk patching one is basically irrelevant,  
+> >>at that point you already own the box and its game over since you  
+> >>can just do a virtualization attack or patch the OS to record  
+> >>anything you want.
 > 
-> I'm also curious how the svia-atapi problem got fixed.
+> Any system with a cycle counter has a vast amount of entropy  
+> available by the time the system even gets through the BIOS.  Various  
+> things like memory timing, power initialization, BIOS tests, etc are  
+> all sufficiently variable in terms of CPU clock cycles that the value  
+> of the cycle counter at the first bootloader instruction executed has  
+> several bits of randomness.  By the time the bootloader has  
+> optionally waited for user input and loaded the kernel off the disk,  
+> chaotic variability in the disk access for HDDs, CDROMs, etc will  
+> make many bits of the cycle counter sufficiently random.  At that  
+> point there's a decently random seed, especially once you start  
+> getting further-randomized cycle-counter-based disk interrupts.  I  
+> believe there was a paper that discussed how air turbulence in a disk  
+> drive was sufficient on a several hundered MHz CPU to provide lots of  
+> entropy per interrupt from the cycle counter alone.
+> 
+> This is totally untrue for an embedded flash-based system; but for  
+> such a system the only way to get any kind of entropy at all is with  
+> a hardware RNG anyways, so I don't really see this as being a problem.
+> 
+> I was unsure about the purported forward-security-breakage claims  
+> because I don't know how to validate those, but I seem to recall  
+> (from personal knowledge and the paper) that the kernel does an SHA1  
+> hash of the contents of the pool and the current cycle-counter when  
+> reading, uses that as input for the next pool state and returns it  
+> as /dev/random output.  Since the exact cycle-counter value is never  
+> exposed outside the kernel and only a small window of the previous  
 
-This is funny.  I thought you would know.  We're just a bunch of 
-clueless people, aren't we?  :-)
-
-Fortier, can you please post full boot dmesg?
-
+Are you sure? For vsyscalls to work, rdtsc has to be available from
+userspace, no?
+								Pavel
 -- 
-tejun
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,70 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWEPJhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751715AbWEPJnD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWEPJhF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 05:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751717AbWEPJhE
+	id S1751715AbWEPJnD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 05:43:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751718AbWEPJnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 05:37:04 -0400
-Received: from mail-a01.ithnet.com ([217.64.83.96]:29343 "HELO ithnet.com")
-	by vger.kernel.org with SMTP id S1750747AbWEPJhC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 05:37:02 -0400
-X-Sender-Authentication: net64
-Date: Tue, 16 May 2006 11:37:00 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: thockin@hockin.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mcelog ?
-Message-Id: <20060516113700.15733892.skraw@ithnet.com>
-In-Reply-To: <20060515152008.GA25367@hockin.org>
-References: <20060515114243.8ccaa9aa.skraw@ithnet.com>
-	<20060515152008.GA25367@hockin.org>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 16 May 2006 05:43:03 -0400
+Received: from mga01.intel.com ([192.55.52.88]:44069 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751715AbWEPJnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 05:43:02 -0400
+X-IronPort-AV: i="4.05,132,1146466800"; 
+   d="scan'208"; a="37917008:sNHT50872997"
+Message-ID: <44699E8C.2070002@intel.com>
+Date: Tue, 16 May 2006 17:42:36 +0800
+From: "bibo,mao" <bibo.mao@intel.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, "bibo,mao" <bibo.mao@intel.com>,
+       jbeulich@novell.com, anil.s.keshavamurthy@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]x86_64 debug_stack nested patch (again)
+References: <200605101726.08338.bibo.mao@intel.com> <20060511041700.49c3bab0.akpm@osdl.org> <200605111328.45244.ak@suse.de>
+In-Reply-To: <200605111328.45244.ak@suse.de>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 May 2006 08:20:08 -0700
-thockin@hockin.org wrote:
+Sorry for late reply, interrupt is disabled when int3/int1 trap happens 
+and NMI is not permitted for kprobe in x86_64 platform,nest level of kprobe 
+is 2 at most. So that will work well if DEBUG_STACK is set to 8K when CONFIG_KPROBE
+option is set.
 
-> On Mon, May 15, 2006 at 11:42:43AM +0200, Stephan von Krawczynski wrote:
-> > HARDWARE ERROR
-> > CPU 1: Machine Check Exception:                4 Bank 4: b60a200170080813
-> > TSC 89cfb4725b17 ADDR 1025cb3f0 
-> > This is not a software problem!
-> > Run through mcelog --ascii to decode and contact your hardware vendor
-> > Kernel panic - not syncing: Machine check
-> > 
-> > Of course I ran mcelog but I don't quite understand how the additional info
-> > helps me finding the problem.
-> > Is this a problem with RAM? And if, which one?
+Thanks
+bibo,mao
+
+Andi Kleen wrote:
+> On Thursday 11 May 2006 13:17, Andrew Morton wrote:
+>> "bibo,mao" <bibo.mao@intel.com> wrote:
+>>> Hi,
+>>> In x86_64 platform, INT1 and INT3 trap stack is IST stack called DEBUG_STACK,
+>>> when INT1/INT3 trap happens, system will switch to DEBUG_STACK by hardware. 
+>>> Current DEBUG_STACK size is 4K, when int1/int3 trap happens, kernel will 
+>>> minus current DEBUG_STACK IST value by 4k. But if int3/int1 trap is nested, 
+>>> it will destroy other vector's IST stack. This patch modifies this, it sets 
+>>> DEBUG_STACK size as 8K and allows two level of nested int1/int3 trap.
+>>>
+>>> Kprobe DEBUG_STACK may be nested, because kprobe hanlder may be probed 
+>>> by other kprobes. This patch is against 2.6.17-rc3. Thanks jbeulich for pointing out error in the first patch.
+>>>
+>>> Signed-Off-By: bibo, mao <bibo.mao@intel.com>
+>>>
+>>> --- 2.6.17-rc3.org/include/asm-x86_64/page.h	2006-05-10 12:07:18.000000000 +0800
+>>> +++ 2.6.17-rc3/include/asm-x86_64/page.h	2006-05-10 12:19:24.000000000 +0800
+>>> @@ -20,7 +20,7 @@
+>>>  #define EXCEPTION_STACK_ORDER 0
+>>>  #define EXCEPTION_STKSZ (PAGE_SIZE << EXCEPTION_STACK_ORDER)
+>>>  
+>>> -#define DEBUG_STACK_ORDER EXCEPTION_STACK_ORDER
+>>> +#define DEBUG_STACK_ORDER (EXCEPTION_STACK_ORDER + 1)
+>>>  #define DEBUG_STKSZ (PAGE_SIZE << DEBUG_STACK_ORDER)
+>>>  
+>>>  #define IRQSTACK_ORDER 2
+>> So....   why not do it this way?
 > 
-> It sounds like a memory error, but there are some other bank4 errors that
-> can crop up.  What does mcedecode say?
-
-Well, here it is:
-
-HARDWARE ERROR
-CPU 1 4 northbridge TSC 89cfb4725b17 
-  Northbridge Chipkill ECC error
-  Chipkill ECC syndrome = 7014
-       bit32 = err cpu0
-       bit45 = uncorrected ecc error
-       bit57 = processor context corrupt
-       bit61 = error uncorrected
-  bus error 'local node origin, request didn't time out
-      generic read mem transaction
-      memory access, level generic'
-STATUS b60a200170080813 MCGSTATUS 4
-This is not a software problem!
-
- 
-Is this some sort of mem error?
-
-Thank you for your help
--- 
-Regards,
-Stephan
+> Last time we discussed this I was told it could nest upto 3 or 4 times
+> So that still wouldn't work.
+> 
+> If anything they should decrease the int3/debug stack to 2K, then 8K 
+> might be enough.
+> 
+> Or even better would be to fix kprobes to not do that.
+> 
+> I think paranoidentry would need to be fixed for that too.
+> 
+> -Andi
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

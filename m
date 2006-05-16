@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWEPWiU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWEPWjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbWEPWiU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 18:38:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWEPWiU
+	id S932233AbWEPWjY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 18:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWEPWjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 18:38:20 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:6827 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932228AbWEPWiT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 18:38:19 -0400
-Subject: Re: PATCH: Fix broken PIO with libata
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kevin Radloff <radsaq@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3b0ffc1f0605161019j7149f72bv309db19eb9d12dd8@mail.gmail.com>
-References: <1147790393.2151.62.camel@localhost.localdomain>
-	 <3b0ffc1f0605160833k5f6355c5n3f2a9ab1b211a95@mail.gmail.com>
-	 <1147794791.2151.71.camel@localhost.localdomain>
-	 <3b0ffc1f0605161019j7149f72bv309db19eb9d12dd8@mail.gmail.com>
+	Tue, 16 May 2006 18:39:23 -0400
+Received: from gate.crashing.org ([63.228.1.57]:58328 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932233AbWEPWjX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 18:39:23 -0400
+Subject: Re: ppc: bogomips at 73 when CPU is at 1GHz
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Junichi Uekawa <dancer@netfort.gr.jp>
+Cc: linux-kernel@vger.kernel.org, debian-powerpc@lists.debian.org
+In-Reply-To: <87ac9hzn1g.dancerj%dancer@netfort.gr.jp>
+References: <87ac9hzn1g.dancerj%dancer@netfort.gr.jp>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 16 May 2006 23:51:15 +0100
-Message-Id: <1147819875.6169.0.camel@localhost.localdomain>
+Date: Wed, 17 May 2006 08:37:13 +1000
+Message-Id: <1147819034.6753.17.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-05-16 at 13:19 -0400, Kevin Radloff wrote:
-> Hrm, as I recall that only started happening with ide-cs sometime in
-> the single digits of 2.6.x.. And note that it's only maxing out at
-> about 1.5MB/s. Should that saturate my laptop's 1.1GHz Pentium M
-> processor?
+On Wed, 2006-05-17 at 06:18 +0900, Junichi Uekawa wrote:
+> Hi,
+> 
+> I've noticed the very log value on bogomips on self-compiled 2.6.16.16
+> on iBook G4.
 
-Yes. It is possible that adding 32bit I/O support will boost this a
-little but not much, and it may not work on all cards. The PCMCIA bus is
-ISA speed, 1.5MB/sec is pretty much flat out
+ .../...
 
+Normal. We don't use CPU bogo loops for short timings, we use the CPU
+timebase instead, thus you now get bogomips derived from the timebae
+frequency of the machine.
 
-Alan
+Ben.
+ 
 

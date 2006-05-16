@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWEPP2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWEPP2A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWEPP2e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 11:28:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWEPP2e
+	id S932102AbWEPP2A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 11:28:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWEPP2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 11:28:34 -0400
-Received: from mail7.sea5.speakeasy.net ([69.17.117.9]:18381 "EHLO
-	mail7.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S932095AbWEPP2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 11:28:32 -0400
-Date: Tue, 16 May 2006 11:28:28 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: Matt Ayres <matta@tektonic.net>
-cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>,
-       Patrick McHardy <kaber@trash.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Xen-devel] Re: Panic in ipt_do_table with 2.6.16.13-xen
-In-Reply-To: <4469D84F.8080709@tektonic.net>
-Message-ID: <Pine.LNX.4.64.0605161127030.16379@d.namei>
-References: <4468BE70.7030802@tektonic.net> <4468D613.20309@trash.net>
- <44691669.4080903@tektonic.net> <Pine.LNX.4.64.0605152331140.10964@d.namei>
- <4469D84F.8080709@tektonic.net>
+	Tue, 16 May 2006 11:28:00 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:46597 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932096AbWEPP17 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 11:27:59 -0400
+Date: Tue, 16 May 2006 17:27:57 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: reiserfs-dev@namesys.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] make fs/reiser4/super_ops.c:reiser4_get_sb() static
+Message-ID: <20060516152757.GB5677@stusta.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 May 2006, Matt Ayres wrote:
+This patch makes the needlessly global reiser4_get_sb() static.
 
-> > > My ruleset is pretty bland.  2 rules in the raw table to tell the system
-> > > to
-> > > only track my forwarded ports, 2 rules in the nat table for forwarding
-> > > (intercepting) 2 ports, and then in the FORWARD tables 2 rules per VM to
-> > > just
-> > > account traffic.
-> > 
-> > Can you try using a different NIC?
-> > 
-> 
-> This happens on 30 different hosts.  Using the same kernel I get varying
-> uptime of "hasn't crashed since the upgrade to 2.6.16" to "crashes every day".
-> All are Tyan S2882D boards w/ integrated Tigon3.  The trace I posted to this
-> thread indicate tg3, but in many other traces I have the trace doesn't include
-> any driver calls.  They all panic in ipt_do_table.  I would have pasted the
-> others, but I didn't save the System.map for either of them and they are all
-> pretty similar.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I'm trying to suggest eliminating this driver & possible interaction with 
-Xen network changes as a cause.  If you can find a different type of NIC 
-to plug in and use, or even try and change all of the params for the tg3 
-with ethtool, it'll help.
+--- linux-2.6.17-rc4-mm1-full/fs/reiser4/super_ops.c.old	2006-05-16 13:19:25.000000000 +0200
++++ linux-2.6.17-rc4-mm1-full/fs/reiser4/super_ops.c	2006-05-16 13:19:45.000000000 +0200
+@@ -549,8 +549,9 @@
+  *
+  * Reiser4 mount entry.
+  */
+-int reiser4_get_sb(struct file_system_type *fs_type, int flags,
+-			const char *dev_name, void *data, struct vfsmount *mnt)
++static int reiser4_get_sb(struct file_system_type *fs_type, int flags,
++			  const char *dev_name, void *data,
++			  struct vfsmount *mnt)
+ {
+ 	return get_sb_bdev(fs_type, flags, dev_name, data, fill_super, mnt);
+ }
 
--- 
-James Morris
-<jmorris@namei.org>

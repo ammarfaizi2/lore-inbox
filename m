@@ -1,53 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751805AbWEPMaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751809AbWEPMch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751805AbWEPMaz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 08:30:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751807AbWEPMay
+	id S1751809AbWEPMch (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 08:32:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751811AbWEPMch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 08:30:54 -0400
-Received: from usmimesweeper.bluearc.com ([63.203.197.133]:53509 "EHLO
-	us-mimesweeper.terastack.bluearc.com") by vger.kernel.org with ESMTP
-	id S1751805AbWEPMay convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 08:30:54 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 16 May 2006 08:32:37 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:772 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751808AbWEPMcg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 08:32:36 -0400
+Date: Tue, 16 May 2006 14:32:34 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, hpa@zytor.com
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com, neilb@cse.unsw.edu.au,
+       linux-raid@vger.kernel.org
+Subject: [-mm patch] make variables static after klibc merge
+Message-ID: <20060516123234.GR6931@stusta.de>
+References: <20060515005637.00b54560.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: EDAC MC0: UE page 0x1fffa, offset 0x0, grain 4096, row 0, labels ":": i82875p UE
-Date: Tue, 16 May 2006 13:30:08 +0100
-Message-ID: <89E85E0168AD994693B574C80EDB9C2703F774F6@uk-email.terastack.bluearc.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: EDAC MC0: UE page 0x1fffa, offset 0x0, grain 4096, row 0, labels ":": i82875p UE
-Thread-Index: AcZ4xoY7aoOih3OoQumlqSQQrI70GwAHPBLA
-From: "Andy Chittenden" <AChittenden@bluearc.com>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060515005637.00b54560.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Every one of our ASUS P4C800-E and ASUS P4C800 based machines 
-> that I've installed a 2.6.16 smp based kernel on is logging 
-> messages of the form:
+On Mon, May 15, 2006 at 12:56:37AM -0700, Andrew Morton wrote:
 > 
-> EDAC MC0: UE page 0x1fffa, offset 0x0, grain 4096, row 0, 
-> labels ":": i82875p UE
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc4/2.6.17-rc4-mm1/
 > 
-> every second or so. So I've downgraded them back to 2.6.15. I 
-> believe the message is moaning that the ECC memory has 
-> unrecoverable errors. However, the memory in the machines 
-> I've tried passes memtest. And I'd've expected system hangs 
-> which we don't get.
+> - This tree contains a large number of new bugs^H^H^H^Hpatches.
+> 
+>   - klibc (Kernel libc), as git-klibc.patch (Peter Anvin)
+>...
+> Changes since 2.6.17-rc3-mm1:
+>...
+>  git-klibc.patch
+>...
+>  git trees
+>...
 
-Well, memtest passes if I don't enable ECC in memtest. However, if I do,
-it fails. So it looks like we've got a memory/memory controller issue
-(the fact that it's happening on all machines with these motherboards
-implies to me that's a controller/bios issue rather than a memory
-issue). If I update the AGP aperture in the BIOS to 256Mb (from 64Mb),
-memtest with ECC enabled passes but linux then boots up extremely
-slowly. So is this also going to be motherboard/bios issue?
+We can now make the following variables static:
+- drivers/md/md.c: mdp_major
+- init/main.c: envp_init[]
 
--- 
-Andy, BlueArc Engineering
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ drivers/md/md.c |    2 +-
+ init/main.c     |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+--- linux-2.6.17-rc4-mm1-full/drivers/md/md.c.old	2006-05-16 12:49:59.000000000 +0200
++++ linux-2.6.17-rc4-mm1-full/drivers/md/md.c	2006-05-16 12:50:17.000000000 +0200
+@@ -2563,7 +2563,7 @@
+ 	.default_attrs	= md_default_attrs,
+ };
+ 
+-int mdp_major = 0;
++static int mdp_major = 0;
+ 
+ static struct kobject *md_probe(dev_t dev, int *part, void *data)
+ {
+--- linux-2.6.17-rc4-mm1-full/init/main.c.old	2006-05-16 13:20:22.000000000 +0200
++++ linux-2.6.17-rc4-mm1-full/init/main.c	2006-05-16 13:20:43.000000000 +0200
+@@ -161,7 +161,7 @@
+ __setup("maxcpus=", maxcpus);
+ 
+ static char * argv_init[MAX_INIT_ARGS+2] = { "init", NULL, };
+-char * envp_init[MAX_INIT_ENVS+2] = { "HOME=/", "TERM=linux", NULL, };
++static char * envp_init[MAX_INIT_ENVS+2] = { "HOME=/", "TERM=linux", NULL, };
+ static const char *panic_later, *panic_param;
+ 
+ extern struct obs_kernel_param __setup_start[], __setup_end[];
+

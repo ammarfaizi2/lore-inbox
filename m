@@ -1,82 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751782AbWEPNuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWEPNvh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751782AbWEPNuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 09:50:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751830AbWEPNuP
+	id S1751098AbWEPNvh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 09:51:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWEPNvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 09:50:15 -0400
-Received: from host70.simplicato.com ([207.99.47.70]:46305 "EHLO
-	mail11.simplicato.com") by vger.kernel.org with ESMTP
-	id S1751782AbWEPNuN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 09:50:13 -0400
-From: "Zvi Gutterman" <zvi@safend.com>
-To: "'Muli Ben-Yehuda'" <muli@il.ibm.com>,
-       "'Kyle Moffett'" <mrmacman_g4@mac.com>
-Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "'Jonathan Day'" <imipak@yahoo.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: /dev/random on Linux
-Date: Tue, 16 May 2006 16:54:00 +0300
-Message-ID: <00fc01c678f0$30c77520$2c02a8c0@Safend.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-In-Reply-To: <20060516082859.GD18645@rhun.haifa.ibm.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Thread-Index: AcZ4w5Mw9zwAhXKKTkOxawfwLPgMlQAKoqfw
+	Tue, 16 May 2006 09:51:37 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:60890 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1751098AbWEPNvh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 09:51:37 -0400
+Date: Tue, 16 May 2006 15:51:35 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Valerie Henson <val_henson@linux.intel.com>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Blaisorblade <blaisorblade@yahoo.it>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Val Henson <val.henson@intel.com>
+Subject: Re: [patch 00/14] remap_file_pages protection support
+Message-ID: <20060516135135.GA28995@rhlx01.fht-esslingen.de>
+References: <20060430172953.409399000@zion.home.lan> <4456D5ED.2040202@yahoo.com.au> <200605030225.54598.blaisorblade@yahoo.it> <445CC949.7050900@redhat.com> <445D75EB.5030909@yahoo.com.au> <4465E981.60302@yahoo.com.au> <20060513181945.GC9612@goober> <4469D3F8.8020305@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4469D3F8.8020305@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Hello All,
-
-I did not get any answer from Matt and was sure that it was of no interest.
-This was my mistake, sorry for not sending it earlier to more people.
- 
-I will be very happy to discuss any aspect of the paper and we do suggest
-ways we think can improve the /dev/random security (a very simple issue for
-example is implementing quotas on the consumption of random numbers)
-
-Thanks,
-
-Zvi
- 
-
------Original Message-----
-From: Muli Ben-Yehuda [mailto:muli@il.ibm.com] 
-Sent: Tuesday, May 16, 2006 11:29 AM
-To: Kyle Moffett
-Cc: Alan Cox; Jonathan Day; linux-kernel@vger.kernel.org; Zvika Gutterman
-Subject: Re: /dev/random on Linux
-
-On Tue, May 16, 2006 at 04:15:19AM -0400, Kyle Moffett wrote:
-> On May 15, 2006, at 22:50, Muli Ben-Yehuda wrote:
-> >On Mon, May 15, 2006 at 11:41:07PM +0100, Alan Cox wrote:
-> >>A paper by people who can't work out how to mail linux-kernel or  
-> >>vendor-sec, or follow "REPORTING-BUGS" in the source,
-> >
-> >Zvi did contact Matt Mackall, the current /dev/random maintainer,  
-> >and was very keen on discussing the paper with him. I don't think  
-> >he got any response.
+On Tue, May 16, 2006 at 11:30:32PM +1000, Nick Piggin wrote:
+> I also tried running kbuild under UML, and could not make find_vma take
+> much time either [in this case, the per-thread vma cache patch roughly
+> doubles the number of hits, from about 15%->30% (in the host)].
 > 
-> So he's demanding that one person spend time responding to his  
-> paper? 
+> So I guess it's time to go back into my hole. If anyone does come across
+> a find_vma constrained workload (especially with threads), I'd be very
+> interested.
 
-Who said anything about demanding? he wanted to discuss the paper. He
-received no response (AFAIK). Please don't read more into it.
+I cannot offer much other than some random confirmation that from my own
+oprofiling, whatever I did (often running a load test script consisting of
+launching 30 big apps at the same time), find_vma basically always showed up
+very prominently in the list of vmlinux-based code (always ranking within the
+top 4 or 5 kernel hotspots, such as timer interrupts, ACPI idle I/O etc.pp.).
+call-tracing showed it originating from mmap syscalls etc., and AFAIR quite
+some find_vma activity from oprofile itself.
+Profiling done on 512MB UP Athlon and P3/700, 2.6.16ish, current Debian.
+Sorry for the foggy report, I don't have those logs here right now.
 
-> The "maintainer" for any given piece of the kernel is the  
-> entry in MAINTAINERS *and* linux-kernel@vger.kernel.org *and* the  
-> appropriate sub-mailing-list.
+So yes, improving that part should help in general, but I cannot quite
+say that my machines are "constrained" by it.
 
-For security related information, it is sometimes best not to tell the
-whole world about it immediately (although you should definitely tell
-the whole world about it eventually). It should've probably been
-posted to lkml when mpm didn't respond, I agree. I'll take the blame
-for not suggesting that to Zvi.
+But you probably knew that already, otherwise you wouldn't have poked
+in there... ;)
 
-Cheers,
-Muli
-
-
+Andreas Mohr

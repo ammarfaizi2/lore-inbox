@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751801AbWEPLsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWEPLwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751801AbWEPLsb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 07:48:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751799AbWEPLsb
+	id S1751397AbWEPLwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 07:52:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWEPLwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 07:48:31 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:8723 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751801AbWEPLsb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 07:48:31 -0400
-Date: Tue, 16 May 2006 13:48:29 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, v4l-dvb-maintainer@linuxtv.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] make dvb/b2c2/flexcop-fe-tuner.c:alps_tdee4_stv0297_tuner_set_params() static
-Message-ID: <20060516114829.GO6931@stusta.de>
-References: <20060515005637.00b54560.akpm@osdl.org>
+	Tue, 16 May 2006 07:52:16 -0400
+Received: from mout2.freenet.de ([194.97.50.155]:10944 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S1750781AbWEPLwP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 07:52:15 -0400
+From: Joachim Fritschi <jfritschi@freenet.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 1/2] Twofish cipher i586-asm optimized
+Date: Tue, 16 May 2006 13:52:12 +0200
+User-Agent: KMail/1.8.3
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-crypto@vger.kernel.org
+References: <200605071156.57844.jfritschi@freenet.de> <200605072247.46655.jfritschi@freenet.de> <20060516074424.GA17773@gondor.apana.org.au>
+In-Reply-To: <20060516074424.GA17773@gondor.apana.org.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060515005637.00b54560.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+Message-Id: <200605161352.12308.jfritschi@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 15, 2006 at 12:56:37AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.17-rc3-mm1:
->...
->  git-dvb.patch
->...
->  git trees
->...
+On Tuesday 16 May 2006 09:44, Herbert Xu wrote:
+> On Sun, May 07, 2006 at 08:47:46PM +0000, Joachim Fritschi wrote:
+> > After going over my patch again, i realized i missed the .cra_priority
+> > and .cra_driver_name setting in the crypto api struct. Here is an updated
+> > version of my patch:
+> >
+> > http://homepages.tu-darmstadt.de/~fritschi/twofish/twofish-i586-asm-2.6.1
+> >7-2.diff
+>
+> Thanks for doing this Joachim.  I like the result.
+>
+> But the duplicate key code is a bit too much.  The fact that AES does
+> it should only serve as a reminder for us to fix it, not to create even
+> more duplication.
+>
+> So could you please move the key generation code into a separate file,
+> say crypto/twofish-common.c which can then be shared by all twofish
+> implementations?
+Sure, i will resubmit the patches in a few days.
+>
+> BTW, please include the actual patches the next time you submit them
+> along with Signed-off-by lines.  You should consult the file
+> Documentation/SubmittingPatches for detailed instructions.
+Seems like i referred to the wrong documentation then. I read the faq on 
+kernel.org ( http://www.kernel.org/pub/linux/docs/lkml/#s4-1 ) and tried to 
+follow the instructions :/. Sorry about that.
 
-This patch makes the needlessly global 
-alps_tdee4_stv0297_tuner_set_params() static.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.17-rc4-mm1-full/drivers/media/dvb/b2c2/flexcop-fe-tuner.c.old	2006-05-16 12:50:54.000000000 +0200
-+++ linux-2.6.17-rc4-mm1-full/drivers/media/dvb/b2c2/flexcop-fe-tuner.c	2006-05-16 12:51:08.000000000 +0200
-@@ -354,7 +354,8 @@
- 	.demod_address = 0x0e,
- };
- 
--int alps_tdee4_stv0297_tuner_set_params (struct dvb_frontend* fe, struct dvb_frontend_parameters *fep)
-+static int alps_tdee4_stv0297_tuner_set_params(struct dvb_frontend* fe,
-+					       struct dvb_frontend_parameters *fep)
- {
- 	struct flexcop_device *fc = fe->dvb->priv;
- 	u8 buf[4];
+Regards,
+Joachim

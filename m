@@ -1,41 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWEPRmD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWEPRmW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbWEPRmD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 13:42:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWEPRmB
+	id S932246AbWEPRmW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 13:42:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWEPRmW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 13:42:01 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:14225 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932178AbWEPRmA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 13:42:00 -0400
-Subject: Re: [PATCH] typo in i386/init.c [BugMe #6538]
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Yasunori Goto <y-goto@jp.fujitsu.com>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060516173421.GB4341@us.ibm.com>
-References: <20060516165040.GA4341@us.ibm.com>
-	 <20060516102427.2c50d469.akpm@osdl.org>  <20060516173421.GB4341@us.ibm.com>
-Content-Type: text/plain
-Date: Tue, 16 May 2006 10:40:16 -0700
-Message-Id: <1147801216.6623.114.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 16 May 2006 13:42:22 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:17026 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932246AbWEPRmU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 13:42:20 -0400
+Date: Tue, 16 May 2006 19:42:05 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Andreas Schwab <schwab@suse.de>
+cc: James Morris <jmorris@namei.org>, Alexey Dobriyan <adobriyan@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] selinux: endian fix
+In-Reply-To: <jeiro6sztd.fsf@sykes.suse.de>
+Message-ID: <Pine.LNX.4.61.0605161941360.26842@yvahk01.tjqt.qr>
+References: <20060516152305.GI10143@mipter.zuzino.mipt.ru>
+ <Pine.LNX.4.64.0605161149540.16379@d.namei> <jeiro6sztd.fsf@sykes.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-16 at 10:34 -0700, Nishanth Aravamudan wrote:
-> > So there's something fishy going on here.
-> 
-> I won't deny that :)
+>>> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+>>
+>> Hmm, I'm certain this was tested (perhaps on a BE machine, though).
+>
+>ntohs and htons are identical operations.  Either you swap or you don't,
+>but there is only one way to swap a short.
+>
+...unless PDPs start to get attractive again. :>
 
-I think the fishiness probably comes from the apparent fact that nobody
-besides me ever enabled sparsemem, then memory hotplug on x86.  I never
-caught or hit it because I never tried that config without the other
-patches that make "fake hotplug" work on x86.  
 
--- Dave
-
+Jan Engelhardt
+-- 

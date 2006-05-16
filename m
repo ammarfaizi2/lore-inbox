@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWEPPdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWEPPd3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751234AbWEPPdm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 11:33:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWEPPdl
+	id S1751233AbWEPPd3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 11:33:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWEPPd3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 11:33:41 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:60048 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1751234AbWEPPdk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 11:33:40 -0400
-Date: Tue, 16 May 2006 17:33:18 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: David Brownell <david-b@pacbell.net>
-Cc: jffs-dev@axis.com, dwmw2@infradead.org,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-mtd@lists.infradead.org
-Subject: Re: jffs2 build fixes
-Message-ID: <20060516153318.GE11656@wohnheim.fh-wedel.de>
-References: <200604010831.57875.david-b@pacbell.net> <200605160755.38606.david-b@pacbell.net> <20060516150928.GC11656@wohnheim.fh-wedel.de> <200605160825.54972.david-b@pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Tue, 16 May 2006 11:33:29 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:65243 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751233AbWEPPd2 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 11:33:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=sLlRAsSs4Kb50o11GU+4lrgxkKw879wzKv2ToFVCLwZktBVAr5qByUIyj+d1YgMJTbfmWlDoM/Kzl/zbOJtNbT+sONgDCabHS8Pxrz/NVUpi0PI117aJ8ErU6pYDhLBdYyAcfV25MXaVrXiYRoe/4TIR3icoPtpKhnGkvWSP+Mc=
+Message-ID: <3b0ffc1f0605160833k5f6355c5n3f2a9ab1b211a95@mail.gmail.com>
+Date: Tue, 16 May 2006 11:33:27 -0400
+From: "Kevin Radloff" <radsaq@gmail.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PATCH: Fix broken PIO with libata
+Cc: linux-kernel@vger.kernel.org, "Tejun Heo" <htejun@gmail.com>,
+       jgarzik@pobox.com, torvalds@osdl.org
+In-Reply-To: <1147790393.2151.62.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200605160825.54972.david-b@pacbell.net>
-User-Agent: Mutt/1.5.9i
+References: <1147790393.2151.62.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 May 2006 08:25:52 -0700, David Brownell wrote:
-> On Tuesday 16 May 2006 8:09 am, Jörn Engel wrote:
-> 
-> > jffs-dev@axis.com is practically dead.  Iirc, the list was used for
-> > the old jffs[1] code.  Jffs2 is usually discussed on
-> > linux-mtd@lists.infradead.org (added to Cc:).
-> 
-> Then it's overdue for the MAINTAINERS file to be updated ... it
-> seems wrong that the official "where to go" listing for JFFS2
-> points at a black hole.
+On 5/16/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> The revaldiation in 2.6.17-rc has broken support for PIO only devices.
+> This is fairly unusual in the SATA world but showed up rather more
+> promptly with the added PATA drivers.
 
-Ouch!  Yes, you are correct.
+Excellent; this seems to have solved my oops on CF card insertion problem. :)
 
-Can you send a patch to dwmw2?
+However, I still have a problem with pata_pcmcia (that I actually
+experienced also with the ide-cs driver) where sustained reading or
+writing to the CF card spikes the CPU with nearly 100% system time.
+Here's a few seconds of 'vmstat 5' with a 'cat /dev/sdb > /dev/null'
+in the middle of it:
 
-Jörn
+procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+ 1  1      0 502608  13304 254740    0    0   164    42 1089   618  7  2 85  5
+ 1  1      0 495440  20472 254740    0    0  1434     7 1078  1079  1 95  0  4
+ 1  1      0 487264  28664 254740    0    0  1638     8 1073  1063  1 95  0  4
+ 1  1      0 479940  35832 254740    0    0  1434    50 1077  1087  1 95  0  4
+ 1  1      0 472320  43000 254740    0    0  1434    15 1078  1093 10 86  0  4
+ 1  1      0 465104  50168 254740    0    0  1434    56 1077  1053  6 90  0  4
+ 1  1      0 456944  58360 254740    0    0  1638     8 1072  1063  1 94  0  5
+ 1  1      0 449744  65528 254740    0    0  1434     3 1073  1069  1 94  0  5
+ 1  1      0 441600  73720 254740    0    0  1638     5 1072  1071  1 95  0  4
+ 1  1      0 434020  80888 254740    0    0  1434     0 1074  1087 11 85  0  4
+ 0  0      0 428896  86008 254740    0    0  1024     3 1184  1313  4 83 11  3
+ 0  0      0 428896  86008 254740    0    0     0     5 1105  1057  1  0 98  0
+
 
 -- 
-Write programs that do one thing and do it well. Write programs to work
-together. Write programs to handle text streams, because that is a
-universal interface. 
--- Doug MacIlroy
+Kevin 'radsaq' Radloff
+radsaq@gmail.com
+http://thesaq.com/

@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWEPO7A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWEPO7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751179AbWEPO7A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 10:59:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWEPO7A
+	id S1751197AbWEPO7c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 10:59:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbWEPO7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 10:59:00 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:12479
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751179AbWEPO67
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 10:58:59 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Kyle Moffett <mrmacman_g4@mac.com>,
-       Johannes Berg <johannes@sipsolutions.net>
-Subject: Re: /dev/random on Linux
-Date: Tue, 16 May 2006 16:58:33 +0200
-User-Agent: KMail/1.9.1
-References: <20060515213956.31627.qmail@web31508.mail.mud.yahoo.com> <20060516025003.GC18645@rhun.haifa.ibm.com> <B2E79864-3AC6-4B72-B97B-222FEDA136A1@mac.com>
-In-Reply-To: <B2E79864-3AC6-4B72-B97B-222FEDA136A1@mac.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jonathan Day <imipak@yahoo.com>,
-       linux-kernel@vger.kernel.org, Zvika Gutterman <zvi@safend.com>,
-       Muli Ben-Yehuda <muli@il.ibm.com>
+	Tue, 16 May 2006 10:59:31 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:14720 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751191AbWEPO7a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 10:59:30 -0400
+Message-ID: <4469E8CF.9030506@garzik.org>
+Date: Tue, 16 May 2006 10:59:27 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200605161658.33855.mb@bu3sch.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: schierlm@gmx.de
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: [ANNOUNCE] libata: new EH, NCQ, hotplug and PM patches against
+ stable kernel
+References: <20060512132437.GB4219@htj.dyndns.org> <e4coc8$onk$1@sea.gmane.org>
+In-Reply-To: <e4coc8$onk$1@sea.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.1 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 May 2006 10:15, you wrote:
-> >> I would dismiss 2.2 for the cases of things like Knoppix because  
-> >> CDs introduce significant randomness because each time you boot  
-> >> the CD is subtly differently positioned. The OpenWRT case seems  
-> >> more credible.
+Michael Schierl wrote:
 
-I think most (all?) of the machines, OpenWRT runs on, are running
-a bcm43xx wireless chip. This chip has a hardware random number
-generator. patches to utilize it recently went into -mm.
-But I must admit, we don't know how it generates random numbers.
-But someone did some RNG tests on it in the past (I think it was
-Johannes).
+> On Fri, 12 May 2006 22:24:37 +0900, Tejun Heo wrote:
+> 
+>> ahci:		new EH, irq-pio, NCQ, hotplug
+> 
+> Should suspend-to-RAM work now on AHCI?
+
+It probably still needs Hannes' AHCI patch, and possibly the SATA ACPI 
+patches too.
+
+	Jeff
+
+

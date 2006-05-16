@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751784AbWEPLY3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751781AbWEPLYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751784AbWEPLY3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 07:24:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbWEPLY3
+	id S1751781AbWEPLYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 07:24:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751784AbWEPLYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 07:24:29 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:32429 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751784AbWEPLY2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 07:24:28 -0400
-Date: Tue, 16 May 2006 13:24:22 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Con Kolivas <kernel@kolivas.org>
-cc: linux list <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] mm: cleanup swap unused warning
-In-Reply-To: <200605102132.41217.kernel@kolivas.org>
-Message-ID: <Pine.LNX.4.64.0605161322110.17704@scrub.home>
-References: <200605102132.41217.kernel@kolivas.org>
+	Tue, 16 May 2006 07:24:25 -0400
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:8170 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S1751781AbWEPLYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 07:24:24 -0400
+Message-ID: <4469B63B.6000502@t-online.de>
+Date: Tue, 16 May 2006 13:23:39 +0200
+From: Bernd Schmidt <bernds_cb1@t-online.de>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811837-1682810690-1147778662=:17704"
+To: linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       "Luke.Yang" <luke.yang@analog.com>, Greg Ungerer <gerg@snapgear.com>
+Subject: Please revert git commit 1ad3dcc0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ID: rPbV0uZlre1lNCdHKEW6eY1ihTmM5wZNW+rShenEg1w+0ttjkEAls1
+X-TOI-MSGID: e58cc0ef-b338-4fa0-b1bc-73019cb0a9d1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Linus, Andrew,
 
----1463811837-1682810690-1147778662=:17704
-Content-Type: TEXT/PLAIN; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+please revert 1ad3dcc0.  That was a patch to the binfmt_flat loader, 
+which was motivated by an LTP testcase which checks that execve returns 
+EMFILE when the file descriptor table is full.
 
-Hi,
+The patch is buggy: the code now keeps file descriptors open for the 
+executable and its libraries, which has confused at least one 
+application.  It's also unnecessary, since there is no code that uses 
+the file descriptor, so the new EMFILE error return is totally artificial.
 
-On Wed, 10 May 2006, Con Kolivas wrote:
+The reversion is
+Signed-off-by: Bernd Schmidt <bernd.schmidt@analog.com>
+Signed-off-by: Greg Ungerer <gerg@uclinux.org>
+and I think Luke had no objections either.
 
-> Are there any users of swp_entry_t when CONFIG_SWAP is not defined?
->=20
-> This patch fixes a warning for !CONFIG_SWAP for me.
->=20
-> ---
-> if CONFIG_SWAP is not defined we get:
->=20
-> mm/vmscan.c: In function =E2=80=98remove_mapping=E2=80=99:
-> mm/vmscan.c:387: warning: unused variable =E2=80=98swap=E2=80=99
 
-In similiar cases (e.g. spinlocks) we usually do something like this:
-
-#define swap_free(swp)=09((void)(swp))
-
-bye, Roman
----1463811837-1682810690-1147778662=:17704--
+Bernd

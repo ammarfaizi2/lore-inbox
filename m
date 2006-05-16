@@ -1,73 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751816AbWEPM5Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWEPM7S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751816AbWEPM5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 08:57:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751817AbWEPM5Z
+	id S1751025AbWEPM7S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 08:59:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751812AbWEPM7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 08:57:25 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:1979 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751816AbWEPM5Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 08:57:24 -0400
-Message-ID: <4469CC22.1010500@tw.ibm.com>
-Date: Tue, 16 May 2006 20:57:06 +0800
-From: Albert Lee <albertcc@tw.ibm.com>
-Reply-To: albertl@mail.com
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
+	Tue, 16 May 2006 08:59:18 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:40582
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751025AbWEPM7R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 08:59:17 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 2/9] Add new generic HW RNG core
+Date: Tue, 16 May 2006 14:56:44 +0200
+User-Agent: KMail/1.9.1
+References: <20060515145243.905923000@bu3sch.de> <20060515145316.089681000@bu3sch.de> <20060515150202.0835232d.akpm@osdl.org>
+In-Reply-To: <20060515150202.0835232d.akpm@osdl.org>
+Cc: dsaxena@plexity.net, bcm43xx-dev@lists.berlios.de,
+       linux-kernel@vger.kernel.org, vsu@altlinux.ru
 MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: "Fortier,Vincent [Montreal]" <Vincent.Fortier1@EC.GC.CA>,
-       Andi Kleen <ak@suse.de>, Marko Macek <Marko.Macek@gmx.net>,
-       Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org,
-       =?ISO-8859-1?Q?Reinhard_Brandst=E4dter?= <r.brandstaedter@gmx.at>
-Subject: Re: ASUS A8V Deluxe, x86_64
-References: <8E8F647D7835334B985D069AE964A4F702463F@ECQCMTLMAIL1.quebec.int.ec.gc.ca> <4469C024.3030506@gmail.com>
-In-Reply-To: <4469C024.3030506@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605161456.45279.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> Fortier,Vincent [Montreal] wrote:
-> 
->>>> Now I'm having an ASUS A8V Deluxe.... and sadly a lot of problems:
->>>>
->>>> - My SATA Controller make my Linux crash when connecting a Plextor
->>>> 716SA CD-DVD-R (http://bugzilla.kernel.org/show_bug.cgi?id=5533)
->>
->>
->>> Patch:
->>>
->> http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.17-rc4-
->> git2-libata1.patch.bz2
->>
->>> (diff'd against 2.6.17-rc4-git2, but should apply to most recent
->>
->> 2.6.17-rcX[-gitY] kernels)
->>
->> I gave a try at the latest ata patches announced yesterday by Jeff and
->> it completelly solved my SATA ATAPI bug.. I even been able to burn my
->> first DVD using my Plextor 716SA on my Linux!!!  Really nice and much
->> anticipated work!  Thnx a lot!
->>
->> I have already marked bug 5533 as resolved and I'll wait until inclusion
->> into 2.6.18 to close it.  I've also marked bug 6317 has closed since
->> that did not occur since around rc2 or rc3 of 2.6.17.
->>
-> 
-> Jeff, do you know what fixed this one?  I've been following the bug and
-> thought it was one of those via-ATAPI-have-no-idea bugs.  How come the
-> update fix this one?  Have I missed something?
-> 
+I will send patches for the following stuff, on top
+of your current -mm, which has my previous patches applied.
 
-I'm also curious how the svia-atapi problem got fixed.
+On Tuesday 16 May 2006 00:02, you wrote:
+> Michael Buesch <mb@bu3sch.de> wrote:
+> > +static inline
+> > +int hwrng_init(struct hwrng *rng)
+> > +static inline
+> > +void hwrng_cleanup(struct hwrng *rng)
+> > +static inline
+> > +int hwrng_data_present(struct hwrng *rng)
+> > +static inline
+> > +int hwrng_data_read(struct hwrng *rng, u32 *data)
+> 
+> Lose the newlines, please.
 
-Reinhard has a Plextor PX-712SA + svia.
-Maybe he can also help to check whether the patch fixes the problem on his box.
+No problem.
 
---
-albert
+> What's going on with the need_resched() tricks in there?  (Unobvious, needs
+> a comment).  From my reading, it'll cause a caller to this function to hang
+> for arbitrary periods of time if something if causing heavy scheduling
+> pressure.
+
+Yeah, it was like this in the old RNG driver. I would also like to
+drop it, as I don't see a real advantage from it. But I don't
+like to drop the hwrng_data_present() polling bit of it, because...
+
+> What's the polling of hwrng_data_present() doing in here?  (Unobvious,
+> needs a comment).
+
+Some HW RNG might require some time between data_reads to gather
+new entropy. The short polling here makes sure we don't return too
+early from the syscall. So it reduces syscall overhead. Imagine a
+device which needs 20usecs between reads to gather new entropy.
+The first read will succeed and probably only return one byte of
+entropy. The next attempt to data_present in the while loop will
+fail and the syscall will return with one byte read. userspace will
+need to call the syscall for every byte (in this case).
+
+We could, of course, add a variable to struct hwrng that indicates the
+average needed time a device needs to gather new entropy in most cases.
+So we could poll for this time instead of the rather random 200usecs. 
+
+> > +static ssize_t hwrng_attr_current_store(struct class_device *class,
+> > +					const char *buf, size_t len)
+> > +{
+> > +	int err;
+> > +	struct hwrng *rng;
+> > +
+> > +	if (!capable(CAP_SYS_ADMIN))
+> > +		return -EPERM;
+> 
+> Are the sysfs permissions not adequate?
+
+Will drop this.
+
+> > +MODULE_AUTHOR("The Linux Kernel team");
+> 
+> Mutter.  Might as well remove this.
+
+Sure. Leftover from the old driver.
+
+> A MAINTAINERS record would be nice.
+
+Yes, sir.
 

@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWEPWkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWEPWnD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932248AbWEPWkr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 18:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWEPWkq
+	id S932254AbWEPWnD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 18:43:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWEPWnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 18:40:46 -0400
-Received: from gra-lx1.iram.es ([150.214.224.41]:47297 "EHLO gra-lx1.iram.es")
-	by vger.kernel.org with ESMTP id S932248AbWEPWko (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 18:40:44 -0400
-From: Gabriel Paubert <paubert@iram.es>
-Date: Wed, 17 May 2006 00:40:22 +0200
-To: Junichi Uekawa <dancer@netfort.gr.jp>
-Cc: linux-kernel@vger.kernel.org, debian-powerpc@lists.debian.org
-Subject: Re: ppc: bogomips at 73 when CPU is at 1GHz
-Message-ID: <20060516224022.GA27945@iram.es>
-References: <87ac9hzn1g.dancerj%dancer@netfort.gr.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87ac9hzn1g.dancerj%dancer@netfort.gr.jp>
-User-Agent: Mutt/1.5.11+cvs20060403
+	Tue, 16 May 2006 18:43:01 -0400
+Received: from pool-71-254-71-216.ronkva.east.verizon.net ([71.254.71.216]:32707
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932254AbWEPWnA (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 18:43:00 -0400
+Message-Id: <200605162242.k4GMgriX005985@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: alan <alan@clueserver.org>
+Cc: linux cbon <linuxcbon@yahoo.fr>, linux-kernel@vger.kernel.org
+Subject: Re: replacing X Window System !
+In-Reply-To: Your message of "Tue, 16 May 2006 15:19:16 PDT."
+             <Pine.LNX.4.64.0605161513590.24814@blackbox.fnordora.org>
+From: Valdis.Kletnieks@vt.edu
+References: <20060516214148.14432.qmail@web26611.mail.ukl.yahoo.com>
+            <Pine.LNX.4.64.0605161513590.24814@blackbox.fnordora.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1147819372_4166P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 16 May 2006 18:42:52 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 17, 2006 at 06:18:19AM +0900, Junichi Uekawa wrote:
-> Hi,
-> 
-> I've noticed the very log value on bogomips on self-compiled 2.6.16.16
-> on iBook G4.
-> 
-> [06:12:59]ibookg4:~> cat /proc/cpuinfo
-> processor       : 0
-> cpu             : 7447A, altivec supported
-> clock           : 1066.666000MHz
-> revision        : 0.1 (pvr 8003 0101)
-> bogomips        : 73.47
-> timebase        : 18432000
-> machine         : PowerBook6,5
-> motherboard     : PowerBook6,5 MacRISC3 Power Macintosh
-> detected as     : 287 (iBook G4)
-> pmac flags      : 0000001b
-> L2 cache        : 512K unified
-> pmac-generation : NewWorld
-> 
-> 
-> It was somewhat higher on 2.6.14.
-> 
-> 
-> Apparently I'm not the only person who noticed something similar; 
-> but I can't really read spanish:
+--==_Exmh_1147819372_4166P
+Content-Type: text/plain; charset=us-ascii
 
-Well I can (I'm not a from Spain, but been living here
-since 1986).
+On Tue, 16 May 2006 15:19:16 PDT, alan said:
 
-> 
-> https://listas.hispalinux.es/pipermail/linux-ppc-es/2006-May/000820.html
-> 
-> 
-> Am I missing something or is everyone seeing this?
+> First of all, your assumptions are incorrect.  Modern versions of X are 
+> not old, unoptimised, will do remote sessions, etc.
 
-Don't worry, bogomips are bogus. Now on PPC they are related to
-the processor timebase frequency, which on G3 and G4 processor
-is the bus frequency divided by 4.
+Remote sessions have been there as long as the DISPLAY environment variable - I
+think even X10.4, 2 decades and more ago, could do that.  I know that it worked
+just fine 18 years ago with X11R1 (aah... building that from source on a 25mz
+Sun3 took a little while). (Anybody know when the first instance of
+pointing 'xmelt' at another user's machine for amusement was? :)
 
-	Regards,
-	Gabriel
+It's interesting that almost every attempt to devise something "better than X"
+always seems to get as far as an Xterm-alike, an XClock-alike, a primitive
+window manager, and 2 or 3 toy demo programs.  Then, unless you're Microsoft
+or Apple, you discover that doing a complete window system is *hard*.....
+
+--==_Exmh_1147819372_4166P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEalVscC3lWbTT17ARAt+kAJ0UYkoDhSMEOl1CBuvNeV/sI+LOnQCgoSZO
+4w1jmdd9TzWaodsYr2ZJo8E=
+=O2EQ
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1147819372_4166P--

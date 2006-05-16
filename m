@@ -1,211 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932444AbWEPRrW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWEPRtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932444AbWEPRrW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 13:47:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWEPRrV
+	id S932449AbWEPRtc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 13:49:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbWEPRoe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 13:47:21 -0400
-Received: from mtagate4.uk.ibm.com ([195.212.29.137]:20065 "EHLO
-	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP id S932453AbWEPRrQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 13:47:16 -0400
-Message-ID: <446A1018.4040503@de.ibm.com>
-Date: Tue, 16 May 2006 19:47:04 +0200
-From: Martin Peschke <mp3@de.ibm.com>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+	Tue, 16 May 2006 13:44:34 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:5128 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932343AbWEPRoT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 13:44:19 -0400
+Date: Tue, 16 May 2006 19:44:17 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] fs/namei.c: unexport __user_walk
+Message-ID: <20060516174417.GK10077@stusta.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: akpm@osdl.org, ak@suse.de, hch@infradead.org, arjan@infradead.org,
-       James.Smart@Emulex.Com, James.Bottomley@SteelEye.com
-Subject: [RFC] [Patch 6/8] statistics infrastructure - exploitation: zfcp
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch instruments the zfcp driver and makes it feed statistics data
-into the statistics infrastructure.
+This patch removes the unused EXPORT_SYMBOL(__user_walk).
 
-Signed-off-by: Martin Peschke <mp3@de.ibm.com>
-Acked-by: Andreas Herrmann <aherrman@de.ibm.com>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
 ---
 
-  zfcp_ccw.c  |   24 ++++++++++++++++++++++++
-  zfcp_def.h  |   10 ++++++++++
-  zfcp_erp.c  |    2 ++
-  zfcp_fsf.c  |   13 ++++++++++---
-  zfcp_qdio.c |    4 ++++
-  5 files changed, 50 insertions(+), 3 deletions(-)
+This patch was already sent on:
+- 1 May 2006
+- 23 Apr 2006
 
-diff -Nurp a/drivers/s390/scsi/zfcp_ccw.c b/drivers/s390/scsi/zfcp_ccw.c
---- a/drivers/s390/scsi/zfcp_ccw.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/drivers/s390/scsi/zfcp_ccw.c	2006-05-15 16:43:21.000000000 +0200
-@@ -140,6 +140,17 @@ zfcp_ccw_remove(struct ccw_device *ccw_d
-  	up(&zfcp_data.config_sema);
-  }
-
-+static struct statistic_info zfcp_statinfo_a[] = {
-+	{ /* ZFCP_STAT_A_QOF */
-+	  "qdio_outb_full", "sbals_left", "", 0, "type=counter_inc" },
-+	{ /* ZFCP_STAT_A_QO */
-+	  "qdio_outb", "sbals_used", "", 0, "type=utilisation" },
-+	{ /* ZFCP_STAT_A_QI */
-+	  "qdio_inb", "sbals_used", "", 0, "type=utilisation" },
-+	{ /* ZFCP_STAT_A_ERP */
-+	  "erp", "", "", 0, "type=counter_inc" }
-+};
-+
-  /**
-   * zfcp_ccw_set_online - set_online function of zfcp driver
-   * @ccw_device: pointer to belonging ccw device
-@@ -153,6 +164,7 @@ static int
-  zfcp_ccw_set_online(struct ccw_device *ccw_device)
-  {
-  	struct zfcp_adapter *adapter;
-+	char name[14];
-  	int retval;
-
-  	down(&zfcp_data.config_sema);
-@@ -161,6 +173,15 @@ zfcp_ccw_set_online(struct ccw_device *c
-  	retval = zfcp_adapter_debug_register(adapter);
-  	if (retval)
-  		goto out;
-+
-+	sprintf(name, "zfcp-%s", zfcp_get_busid_by_adapter(adapter));
-+	adapter->stat_if.stat = adapter->stat;
-+	adapter->stat_if.info = zfcp_statinfo_a;
-+	adapter->stat_if.number = _ZFCP_STAT_A_NUMBER;
-+	retval = statistic_create(&adapter->stat_if, name);
-+	if (retval)
-+		goto out_stat_create;
-+
-  	retval = zfcp_erp_thread_setup(adapter);
-  	if (retval) {
-  		ZFCP_LOG_INFO("error: start of error recovery thread for "
-@@ -181,6 +202,8 @@ zfcp_ccw_set_online(struct ccw_device *c
-   out_scsi_register:
-  	zfcp_erp_thread_kill(adapter);
-   out_erp_thread:
-+	statistic_remove(&adapter->stat_if);
-+ out_stat_create:
-  	zfcp_adapter_debug_unregister(adapter);
-   out:
-  	up(&zfcp_data.config_sema);
-@@ -207,6 +230,7 @@ zfcp_ccw_set_offline(struct ccw_device *
-  	zfcp_erp_wait(adapter);
-  	zfcp_adapter_scsi_unregister(adapter);
-  	zfcp_erp_thread_kill(adapter);
-+	statistic_remove(&adapter->stat_if);
-  	zfcp_adapter_debug_unregister(adapter);
-  	up(&zfcp_data.config_sema);
-  	return 0;
-diff -Nurp a/drivers/s390/scsi/zfcp_def.h b/drivers/s390/scsi/zfcp_def.h
---- a/drivers/s390/scsi/zfcp_def.h	2006-03-20 06:53:29.000000000 +0100
-+++ b/drivers/s390/scsi/zfcp_def.h	2006-05-15 16:47:34.000000000 +0200
-@@ -56,6 +56,7 @@
-  #include <asm/qdio.h>
-  #include <asm/debug.h>
-  #include <asm/ebcdic.h>
-+#include <linux/statistic.h>
-  #include <linux/mempool.h>
-  #include <linux/syscalls.h>
-  #include <linux/ioctl.h>
-@@ -898,6 +899,13 @@ struct zfcp_erp_action {
-  	struct timer_list timer;
-  };
-
-+enum zfcp_adapter_stats {
-+	ZFCP_STAT_A_QOF,
-+	ZFCP_STAT_A_QO,
-+	ZFCP_STAT_A_QI,
-+	ZFCP_STAT_A_ERP,
-+	_ZFCP_STAT_A_NUMBER,
-+};
-
-  struct zfcp_adapter {
-  	struct list_head	list;              /* list of adapters */
-@@ -968,6 +976,8 @@ struct zfcp_adapter {
-  	struct fc_host_statistics *fc_stats;
-  	struct fsf_qtcb_bottom_port *stats_reset_data;
-  	unsigned long		stats_reset;
-+	struct statistic_interface stat_if;
-+	struct statistic stat[_ZFCP_STAT_A_NUMBER];
-  };
-
-  /*
-diff -Nurp a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
---- a/drivers/s390/scsi/zfcp_erp.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/drivers/s390/scsi/zfcp_erp.c	2006-05-15 16:52:03.000000000 +0200
-@@ -1693,10 +1693,12 @@ zfcp_erp_strategy_check_adapter(struct z
-  	switch (result) {
-  	case ZFCP_ERP_SUCCEEDED :
-  		atomic_set(&adapter->erp_counter, 0);
-+		statistic_inc(adapter->stat, ZFCP_STAT_A_ERP, 1);
-  		zfcp_erp_adapter_unblock(adapter);
-  		break;
-  	case ZFCP_ERP_FAILED :
-  		atomic_inc(&adapter->erp_counter);
-+		statistic_inc(adapter->stat, ZFCP_STAT_A_ERP, -1);
-  		if (atomic_read(&adapter->erp_counter) > ZFCP_MAX_ERPS)
-  			zfcp_erp_adapter_failed(adapter);
-  		break;
-diff -Nurp a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
---- a/drivers/s390/scsi/zfcp_fsf.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/drivers/s390/scsi/zfcp_fsf.c	2006-05-15 16:55:08.000000000 +0200
-@@ -4647,10 +4647,14 @@ zfcp_fsf_req_sbal_get(struct zfcp_adapte
-  						       ZFCP_SBAL_TIMEOUT);
-  		if (ret < 0)
-  			return ret;
--		if (!ret)
-+		if (!ret) {
-+			statistic_inc(adapter->stat, ZFCP_STAT_A_QOF, 1);
-  			return -EIO;
--        } else if (!zfcp_fsf_req_sbal_check(lock_flags, req_queue, 1))
-+		}
-+        } else if (!zfcp_fsf_req_sbal_check(lock_flags, req_queue, 1)) {
-+		statistic_inc(adapter->stat, ZFCP_STAT_A_QOF, 1);
-                  return -EIO;
-+	}
-
-          return 0;
-  }
-@@ -4816,12 +4820,15 @@ zfcp_fsf_req_send(struct zfcp_fsf_req *f
-  	 * position of first one
-  	 */
-  	atomic_sub(fsf_req->sbal_number, &req_queue->free_count);
-+	statistic_inc(adapter->stat, ZFCP_STAT_A_QO,
-+		      QDIO_MAX_BUFFERS_PER_Q -
-+		      atomic_read(&req_queue->free_count));
-  	ZFCP_LOG_TRACE("free_count=%d\n", atomic_read(&req_queue->free_count));
-  	req_queue->free_index += fsf_req->sbal_number;	  /* increase */
-  	req_queue->free_index %= QDIO_MAX_BUFFERS_PER_Q;  /* wrap if needed */
-  	new_distance_from_int = zfcp_qdio_determine_pci(req_queue, fsf_req);
-
--	fsf_req->issued = get_clock();
-+	fsf_req->issued = sched_clock();
-
-  	retval = do_QDIO(adapter->ccw_device,
-  			 QDIO_FLAG_SYNC_OUTPUT,
-diff -Nurp a/drivers/s390/scsi/zfcp_qdio.c b/drivers/s390/scsi/zfcp_qdio.c
---- a/drivers/s390/scsi/zfcp_qdio.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/drivers/s390/scsi/zfcp_qdio.c	2006-05-15 16:57:56.000000000 +0200
-@@ -416,6 +416,7 @@ zfcp_qdio_response_handler(struct ccw_de
-  	} else {
-  		queue->free_index += count;
-  		queue->free_index %= QDIO_MAX_BUFFERS_PER_Q;
-+		statistic_inc(adapter->stat, ZFCP_STAT_A_QI, count);
-  		atomic_set(&queue->free_count, 0);
-  		ZFCP_LOG_TRACE("%i buffers enqueued to response "
-  			       "queue at position %i\n", count, start);
-@@ -660,6 +661,9 @@ zfcp_qdio_sbals_from_segment(struct zfcp
-  		/* get next free SBALE for new piece */
-  		if (NULL == zfcp_qdio_sbale_next(fsf_req, sbtype)) {
-  			/* no SBALE left, clean up and leave */
-+			statistic_inc(fsf_req->adapter->stat, ZFCP_STAT_A_QOF,
-+				      atomic_read(
-+				 &fsf_req->adapter->request_queue.free_count));
-  			zfcp_qdio_sbals_wipe(fsf_req);
-  			return -EINVAL;
-  		}
-
+--- linux-2.6.17-rc1-mm3-full/fs/namei.c.old	2006-04-23 13:57:07.000000000 +0200
++++ linux-2.6.17-rc1-mm3-full/fs/namei.c	2006-04-23 13:57:16.000000000 +0200
+@@ -2689,7 +2689,6 @@
+ 	.put_link	= page_put_link,
+ };
+ 
+-EXPORT_SYMBOL(__user_walk);
+ EXPORT_SYMBOL(__user_walk_fd);
+ EXPORT_SYMBOL(follow_down);
+ EXPORT_SYMBOL(follow_up);
 

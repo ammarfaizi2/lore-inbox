@@ -1,63 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWEPOzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWEPOzp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751175AbWEPOzG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 10:55:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWEPOzG
+	id S1751178AbWEPOzp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 10:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbWEPOzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 10:55:06 -0400
-Received: from main.gmane.org ([80.91.229.2]:29358 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751175AbWEPOzE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 10:55:04 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Michael Schierl <schierlm-usenet@gmx.de>
-Subject: Re: [ANNOUNCE] libata: new EH, NCQ, hotplug and PM patches against stable kernel
-Date: Tue, 16 May 2006 16:42:18 +0200
-Message-ID: <e4coc8$onk$1@sea.gmane.org>
-References: <20060512132437.GB4219@htj.dyndns.org>
-Reply-To: schierlm@gmx.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: p549bc5d5.dip0.t-ipconnect.de
-User-Agent: 40tude_Dialog/2.0.14.1
-Posted-And-Mailed: yes
-Cc: linux-ide@vger.kernel.org
+	Tue, 16 May 2006 10:55:44 -0400
+Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:34942 "HELO
+	smtp105.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751191AbWEPOzn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 10:55:43 -0400
+From: David Brownell <david-b@pacbell.net>
+To: jffs-dev@axis.com
+Subject: Re: jffs2 build fixes
+Date: Tue, 16 May 2006 07:55:37 -0700
+User-Agent: KMail/1.7.1
+Cc: dwmw2@infradead.org, Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <200604010831.57875.david-b@pacbell.net>
+In-Reply-To: <200604010831.57875.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_qfeaEOgeNL2PDx3"
+Message-Id: <200605160755.38606.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 May 2006 22:24:37 +0900, Tejun Heo wrote:
+--Boundary-00=_qfeaEOgeNL2PDx3
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> ahci:		new EH, irq-pio, NCQ, hotplug
+On Saturday 01 April 2006 8:31 am, David Brownell wrote:
+> against today's GIT; there's a section error and
+> several printk format warnings.  x86_64.
 
-Should suspend-to-RAM work now on AHCI? It produces lots of messages now
-but does not work either now.
+I see that Andrew also got tired of such printk warnings, so his
+fix is now in the kernel.org tree ... here's a resend of this
+patch, updated against today's GIT by removing two of the printk
+warning fixes.
 
-# ls
-ata1.00: exception Emask 0x10 SAct 0x1 SEra 0x4050000 action 0x3 frozen
-ata1.00 tag 0 cmd 0x60 Emask 0x14 stat 0x40 err 0x0 (ATA bus error)
-ata1: soft resetting port
-ata1: softreset failed (1st FIS failed)
-ata1: softreset failed, retrying in 5 secs
-ata1: hard resettinq port
-ata1: port is slow to respond, please be patient
-ata1: port failed to respond (30 secs)
-ata1: COMRESET failed (device not ready)
-ata1: hardreset failed, retrying in 5 secs
-ata1: hard resettinq port
-ata1: port is slow to respond, please be patient
-ata1: port failed to respond (30 secs)
-ata1: COMRESET failed (device not ready)
-ata1: reset failed, giving up
-ata1.00: disabled
-ata1: EH complete
-sd 0:0:0:0: SCSI error: return code = 0x40000
-...
+- Dave
 
-It produces lots of more SCSI errors (I did not want to write all those
-down...) but no ata1-errors any more.
 
-Michael
+--Boundary-00=_qfeaEOgeNL2PDx3
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="build.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="build.patch"
 
+Resolve some JFFS2 build problems:
+  (a) section mismatch error
+  (b) wrong printk format warnings
+
+The section mismatch issue was fixed by making a few more routines as
+belonging in init or exit sections, but there are more routines that
+could (should!) get such annotations.
+
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+
+Index: g26/fs/jffs2/compr.c
+===================================================================
+--- g26.orig/fs/jffs2/compr.c	2006-05-12 18:48:21.000000000 -0700
++++ g26/fs/jffs2/compr.c	2006-05-12 19:40:08.000000000 -0700
+@@ -412,7 +412,7 @@ void jffs2_free_comprbuf(unsigned char *
+                 kfree(comprbuf);
+ }
+ 
+-int jffs2_compressors_init(void)
++int __init jffs2_compressors_init(void)
+ {
+ /* Registering compressors */
+ #ifdef CONFIG_JFFS2_ZLIB
+@@ -440,7 +440,7 @@ int jffs2_compressors_init(void)
+         return 0;
+ }
+ 
+-int jffs2_compressors_exit(void)
++int __exit jffs2_compressors_exit(void)
+ {
+ /* Unregistering compressors */
+ #ifdef CONFIG_JFFS2_RUBIN
+Index: g26/fs/jffs2/compr_zlib.c
+===================================================================
+--- g26.orig/fs/jffs2/compr_zlib.c	2006-05-12 18:48:21.000000000 -0700
++++ g26/fs/jffs2/compr_zlib.c	2006-05-12 19:40:08.000000000 -0700
+@@ -60,7 +60,7 @@ static int __init alloc_workspaces(void)
+ 	return 0;
+ }
+ 
+-static void free_workspaces(void)
++static void __exit free_workspaces(void)
+ {
+ 	vfree(def_strm.workspace);
+ 	vfree(inf_strm.workspace);
+@@ -216,7 +216,7 @@ int __init jffs2_zlib_init(void)
+     return ret;
+ }
+ 
+-void jffs2_zlib_exit(void)
++void __exit jffs2_zlib_exit(void)
+ {
+     jffs2_unregister_compressor(&jffs2_zlib_comp);
+     free_workspaces();
+Index: g26/fs/jffs2/readinode.c
+===================================================================
+--- g26.orig/fs/jffs2/readinode.c	2006-05-12 18:48:21.000000000 -0700
++++ g26/fs/jffs2/readinode.c	2006-05-12 19:40:08.000000000 -0700
+@@ -204,7 +204,7 @@ static inline int read_dnode(struct jffs
+ 
+ 	tn = jffs2_alloc_tmp_dnode_info();
+ 	if (!tn) {
+-		JFFS2_ERROR("failed to allocate tn (%d bytes).\n", sizeof(*tn));
++		JFFS2_ERROR("failed to allocate tn (%zd bytes).\n", sizeof(*tn));
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -434,7 +434,7 @@ static int read_more(struct jffs2_sb_inf
+ 	}
+ 
+ 	if (retlen < len) {
+-		JFFS2_ERROR("short read at %#08x: %d instead of %d.\n",
++		JFFS2_ERROR("short read at %#08x: %zu instead of %d.\n",
+ 				offs, retlen, len);
+ 		return -EIO;
+ 	}
+@@ -542,7 +542,8 @@ static int jffs2_get_inode_nodes(struct 
+ 		}
+ 
+ 		if (retlen < len) {
+-			JFFS2_ERROR("short read at %#08x: %d instead of %d.\n", ref_offset(ref), retlen, len);
++			JFFS2_ERROR("short read at %#08x: %zd instead of %d.\n",
++					ref_offset(ref), retlen, len);
+ 			err = -EIO;
+ 			goto free_out;
+ 		}
+
+--Boundary-00=_qfeaEOgeNL2PDx3--

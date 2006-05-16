@@ -1,59 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWEPP6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751558AbWEPQAR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751286AbWEPP6V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 11:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWEPP6V
+	id S1751558AbWEPQAR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 12:00:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751828AbWEPQAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 11:58:21 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:59273 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751286AbWEPP6U (ORCPT
+	Tue, 16 May 2006 12:00:17 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:13582 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S1751558AbWEPQAP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 11:58:20 -0400
-Date: Tue, 16 May 2006 08:58:11 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Con Kolivas <kernel@kolivas.org>
-cc: linux list <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] mm: cleanup swap unused warning
-In-Reply-To: <200605162055.36957.kernel@kolivas.org>
-Message-ID: <Pine.LNX.4.64.0605160853330.6065@schroedinger.engr.sgi.com>
-References: <200605102132.41217.kernel@kolivas.org>
- <Pine.LNX.4.64.0605101604330.7472@schroedinger.engr.sgi.com>
- <200605162055.36957.kernel@kolivas.org>
+	Tue, 16 May 2006 12:00:15 -0400
+Message-ID: <4469F709.4040605@aknet.ru>
+Date: Tue, 16 May 2006 20:00:09 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1700579579-186910767-1147795091=:6065"
+To: Andrew Morton <akpm@osdl.org>
+Cc: dtor_core@ameritech.net, vojtech@suse.cz,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] add input_enable_device()
+References: <44670446.7080409@aknet.ru> <20060515143119.54b5aff8.akpm@osdl.org>
+In-Reply-To: <20060515143119.54b5aff8.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------090009080909020808080606"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+This is a multi-part message in MIME format.
+--------------090009080909020808080606
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
----1700579579-186910767-1147795091=:6065
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Hello.
 
-On Tue, 16 May 2006, Con Kolivas wrote:
+Andrew Morton wrote:
+> Separate functions input_enable_device(struct input_handle *handle) and
+> input_disable_device(struct input_handle *handle) would be preferred.
+Right, and here it goes.
 
-> On Thursday 11 May 2006 09:04, Christoph Lameter wrote:
-> > On Wed, 10 May 2006, Con Kolivas wrote:
-> > > Are there any users of swp_entry_t when CONFIG_SWAP is not defined?
-> >
-> > Yes, a migration entry is a form of swap entry.
->=20
-> mm/vmscan.c: In function =FF=FFremove_mapping=FF=FF:
-> mm/vmscan.c:387: warning: unused variable =FF=FFswap=FF=FF
->=20
-> Ok so if we fix it by making swp_entry_t __attribute__((__unused__) we br=
-eak=20
-> swap migration code?
+---
+add input_enable_device() and input_disable_device()
 
-This will generally break page migration in mm.
-=20
-> If we make swap_free() an empty static inline function then gcc compiles =
-in=20
-> the variable needlessly and we won't know it.
+Signed-off-by: Stas Sergeev <stsp@aknet.ru>
+CC: Dmitry Torokhov <dtor_core@ameritech.net>
+CC: Vojtech Pavlik <vojtech@suse.cz>
 
-PageSwapCache() returns false if CONFIG_SWAP is not set and therefore no=20
-code is generated.
 
----1700579579-186910767-1147795091=:6065--
+
+--------------090009080909020808080606
+Content-Type: text/x-patch;
+ name="input_en2.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="input_en2.diff"
+
+--- a/include/linux/input.h	2006-04-05 17:10:01.000000000 +0400
++++ b/include/linux/input.h	2006-04-05 17:36:49.000000000 +0400
+@@ -878,7 +878,7 @@
+ 
+ 	struct pt_regs *regs;
+ 	int state;
+-
++	int disabled;
+ 	int sync;
+ 
+ 	int abs[ABS_MAX + 1];
+@@ -1038,6 +1038,9 @@
+ int input_open_device(struct input_handle *);
+ void input_close_device(struct input_handle *);
+ 
++void input_enable_device(struct input_handle *handle);
++void input_disable_device(struct input_handle *handle);
++
+ int input_accept_process(struct input_handle *handle, struct file *file);
+ int input_flush_device(struct input_handle* handle, struct file* file);
+ 
+--- a/drivers/input/input.c	2006-01-12 11:23:09.000000000 +0300
++++ b/drivers/input/input.c	2006-04-05 17:51:27.000000000 +0400
+@@ -37,6 +37,8 @@
+ EXPORT_SYMBOL(input_release_device);
+ EXPORT_SYMBOL(input_open_device);
+ EXPORT_SYMBOL(input_close_device);
++EXPORT_SYMBOL(input_enable_device);
++EXPORT_SYMBOL(input_disable_device);
+ EXPORT_SYMBOL(input_accept_process);
+ EXPORT_SYMBOL(input_flush_device);
+ EXPORT_SYMBOL(input_event);
+@@ -53,7 +55,7 @@
+ {
+ 	struct input_handle *handle;
+ 
+-	if (type > EV_MAX || !test_bit(type, dev->evbit))
++	if (type > EV_MAX || !test_bit(type, dev->evbit) || dev->disabled)
+ 		return;
+ 
+ 	add_input_randomness(type, code, value);
+@@ -269,6 +271,16 @@
+ 	mutex_unlock(&dev->mutex);
+ }
+ 
++void input_enable_device(struct input_handle *handle)
++{
++	handle->dev->disabled = 0;
++}
++
++void input_disable_device(struct input_handle *handle)
++{
++	handle->dev->disabled = 1;
++}
++
+ static void input_link_handle(struct input_handle *handle)
+ {
+ 	list_add_tail(&handle->d_node, &handle->dev->h_list);
+
+--------------090009080909020808080606--

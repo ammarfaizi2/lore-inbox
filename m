@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbWEPPkT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWEPPks@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751269AbWEPPkT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 11:40:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWEPPkS
+	id S1751278AbWEPPks (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 11:40:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWEPPks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 11:40:18 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:35504 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751269AbWEPPkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 11:40:17 -0400
-Subject: Re: PATCH: Fix broken PIO with libata
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kevin Radloff <radsaq@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3b0ffc1f0605160833k5f6355c5n3f2a9ab1b211a95@mail.gmail.com>
-References: <1147790393.2151.62.camel@localhost.localdomain>
-	 <3b0ffc1f0605160833k5f6355c5n3f2a9ab1b211a95@mail.gmail.com>
-Content-Type: text/plain
+	Tue, 16 May 2006 11:40:48 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:23285 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751270AbWEPPkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 11:40:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=fHeyQoO53h1IfMOgp7Bj/pkkKuQSqlqSElZwPxkDwByktwasA7Yhs1hGwlXX1aZ2kKD+ZzNcTt6wdyXwzeAz/AACUPzxUz1MGDZ41wDtqAoDLn1AJriqQs5tcIYvIb03ThJvkHkl4oUlC9VQXfhDNqscZvwwI6UUOtHEJE3J2Zs=
+Message-ID: <4469F275.6070804@gmail.com>
+Date: Wed, 17 May 2006 00:40:37 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: "Fortier,Vincent [Montreal]" <Vincent.Fortier1@EC.GC.CA>
+CC: albertl@mail.com, Andi Kleen <ak@suse.de>,
+       Marko Macek <Marko.Macek@gmx.net>, Jeff Garzik <jeff@garzik.org>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       =?ISO-8859-1?Q?Reinhard_Brandst=E4dter?= <r.brandstaedter@gmx.at>
+Subject: Re: ASUS A8V Deluxe, x86_64
+References: <8E8F647D7835334B985D069AE964A4F7028FDC0C@ECQCMTLMAIL1.quebec.int.ec.gc.ca>
+In-Reply-To: <8E8F647D7835334B985D069AE964A4F7028FDC0C@ECQCMTLMAIL1.quebec.int.ec.gc.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 16 May 2006 16:53:11 +0100
-Message-Id: <1147794791.2151.71.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-05-16 at 11:33 -0400, Kevin Radloff wrote:
-> However, I still have a problem with pata_pcmcia (that I actually
-> experienced also with the ide-cs driver) where sustained reading or
-> writing to the CF card spikes the CPU with nearly 100% system time.
+Fortier,Vincent [Montreal] wrote:
+>> Fortier, can you please post full boot dmesg?
+> 
+> Sure.. Tonight when I`ll come back home.
+> 
+> BTW, you can use vincent instead :)
+> 
 
-That is normal. The PCMCIA devices don't support DMA. As a result of
-this the processor has to fetch each byte itself over the ISA speed
-PCMCIA bus link.
+Yeap, Vincent.  :-)
 
-Alan
+As bisecting patches is painful, let's postpone it until it can't be 
+anymore.  If the boot log doesn't show much, I think I can insert codes 
+disabling some of the new features such that full bisecting isn't necessary.
 
+-- 
+tejun

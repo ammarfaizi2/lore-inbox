@@ -1,77 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751852AbWEPQRq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751668AbWEPQYT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751852AbWEPQRq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 12:17:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751661AbWEPQRq
+	id S1751668AbWEPQYT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 12:24:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751669AbWEPQYS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 12:17:46 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:7300 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751657AbWEPQRp (ORCPT
+	Tue, 16 May 2006 12:24:18 -0400
+Received: from mx1.suse.de ([195.135.220.2]:10146 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751663AbWEPQYS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 12:17:45 -0400
-Message-ID: <4469FB26.5070605@garzik.org>
-Date: Tue, 16 May 2006 12:17:42 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Tue, 16 May 2006 12:24:18 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: James Morris <jmorris@namei.org>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] selinux: endian fix
+References: <20060516152305.GI10143@mipter.zuzino.mipt.ru>
+	<Pine.LNX.4.64.0605161149540.16379@d.namei>
+X-Yow: It's so OBVIOUS!!
+Date: Tue, 16 May 2006 18:24:14 +0200
+In-Reply-To: <Pine.LNX.4.64.0605161149540.16379@d.namei> (James Morris's
+	message of "Tue, 16 May 2006 11:54:04 -0400 (EDT)")
+Message-ID: <jeiro6sztd.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] i386/x86_64: Force pci=noacpi on HP XW9300
-References: <200605161559.k4GFx3Mi017163@hera.kernel.org>
-In-Reply-To: <200605161559.k4GFx3Mi017163@hera.kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.1 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.1 points, 5.0 required)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List wrote:
-> commit 5491d0f3e206beb95eeb506510d62a1dab462df1
-> tree 5c4aadcfb4a93535e2f6e0f5977e930ccacec0e9
-> parent f0fdabf8bf187c9aafeb139a828c530ef45cf022
-> author Andi Kleen <ak@suse.de> Mon, 15 May 2006 18:19:41 +0200
-> committer Linus Torvalds <torvalds@g5.osdl.org> Tue, 16 May 2006 21:59:31 -0700
-> 
-> [PATCH] i386/x86_64: Force pci=noacpi on HP XW9300
-> 
-> This is needed to see all devices.
-> 
-> The system has multiple PCI segments and we don't handle that properly
-> yet in PCI and ACPI. Short term before this is fixed blacklist it to
-> pci=noacpi.
-> 
-> Acked-by: len.brown@intel.com
-> Cc: gregkh@suse.de
-> Signed-off-by: Andi Kleen <ak@suse.de>
-> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-> 
->  arch/i386/kernel/acpi/boot.c |    8 ++++++++
->  1 files changed, 8 insertions(+)
-> 
-> diff --git a/arch/i386/kernel/acpi/boot.c b/arch/i386/kernel/acpi/boot.c
-> index 40e5aba..daee695 100644
-> --- a/arch/i386/kernel/acpi/boot.c
-> +++ b/arch/i386/kernel/acpi/boot.c
-> @@ -1066,6 +1066,14 @@ static struct dmi_system_id __initdata a
->  		     DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 360"),
->  		     },
->  	 },
-> +	{
-> +	 .callback = disable_acpi_pci,
-> +	 .ident = "HP xw9300",
-> +	 .matches = {
-> +		    DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-> +		    DMI_MATCH(DMI_PRODUCT_NAME, "HP xw9300 Workstation"),
+James Morris <jmorris@namei.org> writes:
 
-Strong NAK.  Please revert.  This majorly screws my primary workstation, 
-and many other users with this workstation.
+> On Tue, 16 May 2006, Alexey Dobriyan wrote:
+>
+>> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+>
+> Hmm, I'm certain this was tested (perhaps on a BE machine, though).
 
-At a minimum, you should test to see if the BIOS has activated PCI 
-domain support first!
+ntohs and htons are identical operations.  Either you swap or you don't,
+but there is only one way to swap a short.
 
-	Jeff
+Andreas.
 
-
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

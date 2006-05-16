@@ -1,75 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWEPOaK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWEPOcS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751150AbWEPOaK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 10:30:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWEPOaK
+	id S1751152AbWEPOcS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 10:32:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbWEPOcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 10:30:10 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:2710 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S1751147AbWEPOaI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 10:30:08 -0400
-Message-ID: <4469E1AF.7040908@t-online.de>
-Date: Tue, 16 May 2006 16:29:03 +0200
-From: Bernd Schmidt <bernds_cb1@t-online.de>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+	Tue, 16 May 2006 10:32:18 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:36589 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751149AbWEPOcR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 10:32:17 -0400
+Message-ID: <4469E26A.50108@garzik.org>
+Date: Tue, 16 May 2006 10:32:10 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, torvalds@osdl.org, luke.yang@analog.com,
-       gerg@snapgear.com
-Subject: Re: Please revert git commit 1ad3dcc0
-References: <4469B63B.6000502@t-online.de> <20060516065848.13028f9f.akpm@osdl.org>
-In-Reply-To: <20060516065848.13028f9f.akpm@osdl.org>
+To: Tejun Heo <htejun@gmail.com>
+CC: "Fortier,Vincent [Montreal]" <Vincent.Fortier1@EC.GC.CA>,
+       Andi Kleen <ak@suse.de>, Marko Macek <Marko.Macek@gmx.net>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: ASUS A8V Deluxe, x86_64
+References: <8E8F647D7835334B985D069AE964A4F702463F@ECQCMTLMAIL1.quebec.int.ec.gc.ca> <4469C024.3030506@gmail.com>
+In-Reply-To: <4469C024.3030506@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-ID: ZqavgkZcYeTIJCnBsBNufjBihAnUS5T4-o6dvvChhRqoo0t8Uj6tcp
-X-TOI-MSGID: 50c8b0ff-5f6b-4663-8e89-16a714690250
+X-Spam-Score: -4.1 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Bernd Schmidt <bernds_cb1@t-online.de> wrote:
->> please revert 1ad3dcc0.  That was a patch to the binfmt_flat loader, 
->> which was motivated by an LTP testcase which checks that execve returns 
->> EMFILE when the file descriptor table is full.
+Tejun Heo wrote:
+> Fortier,Vincent [Montreal] wrote:
+>>>> Now I'm having an ASUS A8V Deluxe.... and sadly a lot of problems:
+>>>>
+>>>> - My SATA Controller make my Linux crash when connecting a Plextor 
+>>>> 716SA CD-DVD-R (http://bugzilla.kernel.org/show_bug.cgi?id=5533)
 >>
->> The patch is buggy: the code now keeps file descriptors open for the 
->> executable and its libraries, which has confused at least one 
->> application.  It's also unnecessary, since there is no code that uses 
->> the file descriptor, so the new EMFILE error return is totally artificial.
-
-> I don't get it.  The substance of the patch is
+>>> Patch:
+>>>
+>> http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.17-rc4-
+>> git2-libata1.patch.bz2
+>>> (diff'd against 2.6.17-rc4-git2, but should apply to most recent
+>> 2.6.17-rcX[-gitY] kernels)
+>>
+>> I gave a try at the latest ata patches announced yesterday by Jeff and
+>> it completelly solved my SATA ATAPI bug.. I even been able to burn my
+>> first DVD using my Plextor 716SA on my Linux!!!  Really nice and much
+>> anticipated work!  Thnx a lot!
+>>
+>> I have already marked bug 5533 as resolved and I'll wait until inclusion
+>> into 2.6.18 to close it.  I've also marked bug 6317 has closed since
+>> that did not occur since around rc2 or rc3 of 2.6.17.
+>>
 > 
-> +	/* check file descriptor */
-> +	exec_fileno = get_unused_fd();
-> +	if (exec_fileno < 0) {
-> +		ret = -EMFILE;
-> +		goto err;
-> +	}
-> +	get_file(bprm->file);
-> +	fd_install(exec_fileno, bprm->file);
-> 
-> and that get_file() will be undone by exit().  Without this change we'll
-> forget to do file limit checking.
+> Jeff, do you know what fixed this one?  I've been following the bug and 
+> thought it was one of those via-ATAPI-have-no-idea bugs.  How come the 
+> update fix this one?  Have I missed something?
 
-It's not the get_file that's the problem, it's the get_unused_fd and 
-fd_install.  These files are now open while the process lives and 
-consume file descriptors.  This does not happen with the ELF loader, 
-which does
+No idea :)
 
-         if (interpreter_type != INTERPRETER_AOUT)
-                 sys_close(elf_exec_fileno);
+Though this update should solve several classes of longstanding bugs.
 
-before transferring control to the application.  So, fewer file 
-descriptors are available for the app, and they start at a higher number.
+* irq-pio is much friendlier to the controller, and should eliminate 
+several screaming interrupt problems, particularly on sata_sil.
 
-Before the change, we didn't allocate or install a file descriptor, 
-hence there wasn't any reason to return EMFILE.  The spec at
-   http://www.opengroup.org/onlinepubs/009695399/functions/exec.html
-doesn't list EMFILE as a possible error.
+* The better EH should allow recovery from problems we couldn't recover 
+from before.
 
-If you're unconvinced, then at the very least we need to add a sys_close 
-call in the success path.
+* The removal of assert()s (or, removal of conditions that caused 
+asserts) that triggered in earlier kernels will also eliminate the 
+associated forced oopsen.
+
+But in the via+ATAPI case, the only thing I can think of is that VIA 
+AHCI support is included in the update.  Other than that... <shrug>
+
+	Jeff
 
 
-Bernd

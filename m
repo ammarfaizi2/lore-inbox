@@ -1,115 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWEPSJQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWEPSNg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750807AbWEPSJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 14:09:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWEPSJQ
+	id S932479AbWEPSNg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 14:13:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932490AbWEPSNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 14:09:16 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12513 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750807AbWEPSJP (ORCPT
+	Tue, 16 May 2006 14:13:35 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:27833 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932479AbWEPSNf convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 14:09:15 -0400
-Date: Tue, 16 May 2006 11:11:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Peschke <mp3@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, hch@infradead.org,
-       arjan@infradead.org, James.Smart@Emulex.Com,
-       James.Bottomley@SteelEye.com
-Subject: Re: [RFC] [Patch 2/8] statistics infrastructure - prerequisite:
- parser enhancement
-Message-Id: <20060516111141.1cff68e9.akpm@osdl.org>
-In-Reply-To: <446A0FBE.2030105@de.ibm.com>
-References: <446A0FBE.2030105@de.ibm.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 16 May 2006 14:13:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cKa9HS5eLBBHoKFqDPDljjlvPDVeKRx3sX/OwW+YXT83mLwKRo0dpN7Kz3X/oOHAOveHN3IM6MDu0InaQMuzizVK5fdtrGy9eDtcuxWF7MZKyV8GVpaKklkMV4iVazlDaJovhc4elyM6FxhxItG/GlR75rM/1xDsYnqNYfpU/OI=
+Message-ID: <3b0ffc1f0605161113j321e1e36l9de8bf6eacbc0b49@mail.gmail.com>
+Date: Tue, 16 May 2006 14:13:31 -0400
+From: "Kevin Radloff" <radsaq@gmail.com>
+To: "Tejun Heo" <htejun@gmail.com>
+Subject: Re: PATCH: Fix broken PIO with libata
+Cc: "Jeff Garzik" <jeff@garzik.org>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <446A0E36.5060505@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1147790393.2151.62.camel@localhost.localdomain>
+	 <3b0ffc1f0605160833k5f6355c5n3f2a9ab1b211a95@mail.gmail.com>
+	 <1147794791.2151.71.camel@localhost.localdomain>
+	 <3b0ffc1f0605161019j7149f72bv309db19eb9d12dd8@mail.gmail.com>
+	 <446A0B6C.8050901@garzik.org> <446A0E36.5060505@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Peschke <mp3@de.ibm.com> wrote:
+On 5/16/06, Tejun Heo <htejun@gmail.com> wrote:
+> Jeff Garzik wrote:
+> > Kevin Radloff wrote:
+> >> On 5/16/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> >>> On Maw, 2006-05-16 at 11:33 -0400, Kevin Radloff wrote:
+> >>> > However, I still have a problem with pata_pcmcia (that I actually
+> >>> > experienced also with the ide-cs driver) where sustained reading or
+> >>> > writing to the CF card spikes the CPU with nearly 100% system time.
+> >>>
+> >>> That is normal. The PCMCIA devices don't support DMA. As a result of
+> >>> this the processor has to fetch each byte itself over the ISA speed
+> >>> PCMCIA bus link.
+> >>
+> >> Hrm, as I recall that only started happening with ide-cs sometime in
+> >> the single digits of 2.6.x.. And note that it's only maxing out at
+> >> about 1.5MB/s. Should that saturate my laptop's 1.1GHz Pentium M
+> >> processor?
+> >
+> > Doing data xfer using PIO rather than DMA definitely eats tons of CPU
+> > cycles.
 >
-> This patch adds two match_* derivates for 64 bit operands to the parser
-> library.
-> 
->   void match_strcpy(char *, substring_t *);
->   char *match_strdup(substring_t *);
-> +int match_u64(substring_t *, u64 *result, int);
-> +int match_s64(substring_t *, s64 *result, int);
+> Yeap, in addition, if doing real PIO (unbuffered by the HBA), the time
+> it takes is soley determined by what PIO mode is in use.  It doesn't
+> matter how fast the CPU is.  Faster CPUs only end up wasting more
+> cycles.  :-(
 
-Your email client does space-stuffing, so this won't apply (ok, it might
-apply if my email client knew how to space-unstuff, but it doesn't).
+(oops, hit 'reply', but given the incredible importance of my response... ;P)
 
-> diff -Nurp a/lib/parser.c b/lib/parser.c
-> --- a/lib/parser.c	2006-03-20 06:53:29.000000000 +0100
-> +++ b/lib/parser.c	2006-05-15 17:56:25.000000000 +0200
-> @@ -140,6 +140,64 @@ static int match_number(substring_t *s,
->   }
-> 
->   /**
-> + * match_u64: scan a number in the given base from a substring_t
-> + * @s: substring to be scanned
-> + * @result: resulting integer on success
-> + * @base: base to use when converting string
-> + *
-> + * Description: Given a &substring_t and a base, attempts to parse the substring
-> + * as a number in that base. On success, sets @result to the u64 represented
-> + * by the string and returns 0. Returns either -ENOMEM or -EINVAL on failure.
-> + */
-> +int match_u64(substring_t *s, u64 *result, int base)
-> +{
-> +	char *endp;
-> +	char *buf;
-> +	int ret;
-> +
-> +	buf = kmalloc(s->to - s->from + 1, GFP_KERNEL);
-> +	if (!buf)
-> +		return -ENOMEM;
-> +	memcpy(buf, s->from, s->to - s->from);
-> +	buf[s->to - s->from] = '\0';
-> +	*result = simple_strtoull(buf, &endp, base);
-> +	ret = 0;
-> +	if (endp == buf)
-> +		ret = -EINVAL;
-> +	kfree(buf);
-> +	return ret;
-> +}
-> +
-> +/**
-> + * match_s64: scan a number in the given base from a substring_t
-> + * @s: substring to be scanned
-> + * @result: resulting integer on success
-> + * @base: base to use when converting string
-> + *
-> + * Description: Given a &substring_t and a base, attempts to parse the substring
-> + * as a number in that base. On success, sets @result to the s64 represented
-> + * by the string and returns 0. Returns either -ENOMEM or -EINVAL on failure.
-> + */
-> +int match_s64(substring_t *s, s64 *result, int base)
-> +{
-> +	char *endp;
-> +	char *buf;
-> +	int ret;
-> +
-> +	buf = kmalloc(s->to - s->from + 1, GFP_KERNEL);
-> +	if (!buf)
-> +		return -ENOMEM;
-> +	memcpy(buf, s->from, s->to - s->from);
-> +	buf[s->to - s->from] = '\0';
-> +	*result = simple_strtoll(buf, &endp, base);
-> +	ret = 0;
-> +	if (endp == buf)
-> +		ret = -EINVAL;
-> +	kfree(buf);
-> +	return ret;
-> +}
+Ah, well then never mind. ;) I just have a dim memory of it being
+different a long time ago. At least it works now. :D
 
-These are identical.  If we _really_ need one for signed and one for
-unsigned then we could at least do
-
-match_s64(..., s64 *result, ...)
-{
-	return match_u64(..., (u64 *)result, ...);
-}
-
-That's if we do need one for signed and one for unsigned..
+-- 
+Kevin 'radsaq' Radloff
+radsaq@gmail.com
+http://thesaq.com/

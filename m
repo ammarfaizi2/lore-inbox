@@ -1,363 +1,198 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932457AbWEPRsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWEPRob@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932457AbWEPRsM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 13:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbWEPRrj
+	id S932320AbWEPRob (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 13:44:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbWEPRoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 13:47:39 -0400
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:1617 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP id S932453AbWEPRr0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 13:47:26 -0400
-Message-ID: <446A1023.6020108@de.ibm.com>
-Date: Tue, 16 May 2006 19:47:15 +0200
-From: Martin Peschke <mp3@de.ibm.com>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+	Tue, 16 May 2006 13:44:30 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:6152 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932360AbWEPRoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 13:44:23 -0400
+Date: Tue, 16 May 2006 19:44:21 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] block/ll_rw_blk.c: possible cleanups
+Message-ID: <20060516174421.GM10077@stusta.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de, hch@infradead.org,
-       arjan@infradead.org, James.Smart@Emulex.Com,
-       James.Bottomley@SteelEye.com
-Subject: [RFC] [Patch 7/8] statistics infrastructure - exploitation prerequisite
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-need sched_clock for latency statistics
+This patch contains the following possible cleanups:
+- proper prototype for the following function:
+  - blk_dev_init()
+- #if 0 the following unused global function:
+  - blk_queue_invalidate_tags()
+- make the following needlessly global functions static:
+  - blk_alloc_queue_node()
+  - current_io_context()
+- remove the following unused EXPORT_SYMBOL's:
+  - blk_put_queue
+  - blk_get_queue
+  - blk_rq_map_user_iov
 
-Signed-off-by: Martin Peschke <mp3@de.ibm.com>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
 ---
 
-  alpha/kernel/time.c            |    1 +
-  arm/kernel/time.c              |    1 +
-  arm/mach-omap1/time.c          |    1 +
-  arm/mach-realview/core.c       |    1 +
-  arm/mach-sa1100/generic.c      |    1 +
-  arm/mach-versatile/core.c      |    1 +
-  arm/plat-omap/timer32k.c       |    1 +
-  arm26/kernel/time.c            |    1 +
-  cris/kernel/time.c             |    1 +
-  frv/kernel/time.c              |    1 +
-  h8300/kernel/time.c            |    3 ++-
-  i386/kernel/timers/timer_tsc.c |    1 +
-  m32r/kernel/time.c             |    1 +
-  m68k/kernel/time.c             |    2 +-
-  m68knommu/kernel/time.c        |    4 +++-
-  mips/kernel/time.c             |    1 +
-  parisc/kernel/time.c           |    1 +
-  powerpc/kernel/time.c          |    1 +
-  ppc/kernel/time.c              |    1 +
-  s390/kernel/time.c             |    1 +
-  sh/kernel/time.c               |    1 +
-  sh64/kernel/time.c             |    2 +-
-  sparc/kernel/time.c            |    1 +
-  sparc64/kernel/time.c          |    1 +
-  um/kernel/time_kern.c          |    1 +
-  v850/kernel/time.c             |    1 +
-  x86_64/kernel/time.c           |    1 +
-  xtensa/kernel/time.c           |    1 +
-  28 files changed, 31 insertions(+), 4 deletions(-)
+This patch was already sent on:
+- 21 Apr 2006
 
-diff -Nurp a/arch/alpha/kernel/time.c b/arch/alpha/kernel/time.c
---- a/arch/alpha/kernel/time.c	2006-05-15 12:42:07.000000000 +0200
-+++ b/arch/alpha/kernel/time.c	2006-05-15 17:36:14.000000000 +0200
-@@ -101,6 +101,7 @@ unsigned long long sched_clock(void)
-  {
-          return (unsigned long long)jiffies * (1000000000 / HZ);
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
+ block/genhd.c          |    2 --
+ block/ll_rw_blk.c      |   27 +++++++++++----------------
+ include/linux/blkdev.h |    5 ++---
+ 3 files changed, 13 insertions(+), 21 deletions(-)
 
-
-  /*
-diff -Nurp a/arch/arm/kernel/time.c b/arch/arm/kernel/time.c
---- a/arch/arm/kernel/time.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/arch/arm/kernel/time.c	2006-05-15 17:36:51.000000000 +0200
-@@ -84,6 +84,7 @@ unsigned long long __attribute__((weak))
-  {
-  	return (unsigned long long)jiffies * (1000000000 / HZ);
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-  static unsigned long next_rtc_update;
-
-diff -Nurp a/arch/arm/mach-omap1/time.c b/arch/arm/mach-omap1/time.c
---- a/arch/arm/mach-omap1/time.c	2006-05-15 12:42:07.000000000 +0200
-+++ b/arch/arm/mach-omap1/time.c	2006-05-15 17:37:24.000000000 +0200
-@@ -220,6 +220,7 @@ unsigned long long sched_clock(void)
-
-  	return cycles_2_ns(ticks64);
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-  /*
-   * ---------------------------------------------------------------------------
-diff -Nurp a/arch/arm/mach-realview/core.c b/arch/arm/mach-realview/core.c
---- a/arch/arm/mach-realview/core.c	2006-05-15 12:42:07.000000000 +0200
-+++ b/arch/arm/mach-realview/core.c	2006-05-15 17:38:47.000000000 +0200
-@@ -62,6 +62,7 @@ unsigned long long sched_clock(void)
-
-  	return v;
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-
-  #define REALVIEW_FLASHCTRL    (__io_address(REALVIEW_SYS_BASE) + 
-REALVIEW_SYS_FLASH_OFFSET)
-diff -Nurp a/arch/arm/mach-sa1100/generic.c b/arch/arm/mach-sa1100/generic.c
---- a/arch/arm/mach-sa1100/generic.c	2006-05-15 12:42:07.000000000 +0200
-+++ b/arch/arm/mach-sa1100/generic.c	2006-05-15 17:39:43.000000000 +0200
-@@ -131,6 +131,7 @@ unsigned long long sched_clock(void)
-
-  	return v;
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-  /*
-   * Default power-off for SA1100
-diff -Nurp a/arch/arm/mach-versatile/core.c b/arch/arm/mach-versatile/core.c
---- a/arch/arm/mach-versatile/core.c	2006-05-15 12:42:07.000000000 +0200
-+++ b/arch/arm/mach-versatile/core.c	2006-05-15 17:40:17.000000000 +0200
-@@ -239,6 +239,7 @@ unsigned long long sched_clock(void)
-
-  	return v;
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-
-  #define VERSATILE_FLASHCTRL    (__io_address(VERSATILE_SYS_BASE) + 
-VERSATILE_SYS_FLASH_OFFSET)
-diff -Nurp a/arch/arm/plat-omap/timer32k.c b/arch/arm/plat-omap/timer32k.c
---- a/arch/arm/plat-omap/timer32k.c	2006-05-15 12:42:07.000000000 +0200
-+++ b/arch/arm/plat-omap/timer32k.c	2006-05-15 17:41:02.000000000 +0200
-@@ -188,6 +188,7 @@ unsigned long long sched_clock(void)
-  {
-  	return omap_32k_ticks_to_nsecs(omap_32k_sync_timer_read());
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-  /*
-   * Timer interrupt for 32KHz timer. When dynamic tick is enabled, this
-diff -Nurp a/arch/arm26/kernel/time.c b/arch/arm26/kernel/time.c
---- a/arch/arm26/kernel/time.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/arch/arm26/kernel/time.c	2006-05-15 17:41:39.000000000 +0200
-@@ -99,6 +99,7 @@ unsigned long long sched_clock(void)
-  {
-  	return (unsigned long long)jiffies * (1000000000 / HZ);
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-  static unsigned long next_rtc_update;
-
-diff -Nurp a/arch/cris/kernel/time.c b/arch/cris/kernel/time.c
---- a/arch/cris/kernel/time.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/arch/cris/kernel/time.c	2006-05-15 17:42:25.000000000 +0200
-@@ -231,6 +231,7 @@ unsigned long long sched_clock(void)
-  {
-  	return (unsigned long long)jiffies * (1000000000 / HZ);
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-  static int
-  __init init_udelay(void)
-diff -Nurp a/arch/frv/kernel/time.c b/arch/frv/kernel/time.c
---- a/arch/frv/kernel/time.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/arch/frv/kernel/time.c	2006-05-15 17:42:56.000000000 +0200
-@@ -230,3 +230,4 @@ unsigned long long sched_clock(void)
-  {
-  	return jiffies_64 * (1000000000 / HZ);
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-diff -Nurp a/arch/h8300/kernel/time.c b/arch/h8300/kernel/time.c
---- a/arch/h8300/kernel/time.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/arch/h8300/kernel/time.c	2006-05-15 17:43:40.000000000 +0200
-@@ -123,5 +123,6 @@ EXPORT_SYMBOL(do_settimeofday);
-  unsigned long long sched_clock(void)
-  {
-  	return (unsigned long long)jiffies * (1000000000 / HZ);
--
-  }
+--- linux-2.6.17-rc1-mm3-full/include/linux/blkdev.h.old	2006-04-20 22:57:41.000000000 +0200
++++ linux-2.6.17-rc1-mm3-full/include/linux/blkdev.h	2006-04-20 23:09:31.000000000 +0200
+@@ -105,7 +105,6 @@
+ 
+ void put_io_context(struct io_context *ioc);
+ void exit_io_context(void);
+-struct io_context *current_io_context(gfp_t gfp_flags);
+ struct io_context *get_io_context(gfp_t gfp_flags);
+ void copy_io_context(struct io_context **pdst, struct io_context **psrc);
+ void swap_io_context(struct io_context **ioc1, struct io_context **ioc2);
+@@ -599,6 +598,8 @@
+ 	unsigned block_size_bits;
+ };
+ 
++int blk_dev_init(void);
 +
-+EXPORT_SYMBOL_GPL(sched_clock);
-diff -Nurp a/arch/i386/kernel/timers/timer_tsc.c 
-b/arch/i386/kernel/timers/timer_tsc.c
---- a/arch/i386/kernel/timers/timer_tsc.c	2006-05-15 12:42:07.000000000 +0200
-+++ b/arch/i386/kernel/timers/timer_tsc.c	2006-05-15 17:44:11.000000000 +0200
-@@ -167,6 +167,7 @@ unsigned long long sched_clock(void)
-  	/* return the value in ns */
-  	return cycles_2_ns(this_offset);
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-  static void delay_tsc(unsigned long loops)
-  {
-diff -Nurp a/arch/m32r/kernel/time.c b/arch/m32r/kernel/time.c
---- a/arch/m32r/kernel/time.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/arch/m32r/kernel/time.c	2006-05-15 17:44:58.000000000 +0200
-@@ -304,3 +304,4 @@ unsigned long long sched_clock(void)
-  {
-  	return (unsigned long long)jiffies * (1000000000 / HZ);
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-diff -Nurp a/arch/m68k/kernel/time.c b/arch/m68k/kernel/time.c
---- a/arch/m68k/kernel/time.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/arch/m68k/kernel/time.c	2006-05-15 17:45:29.000000000 +0200
-@@ -177,4 +177,4 @@ unsigned long long sched_clock(void)
-  {
-         return (unsigned long long)jiffies*(1000000000/HZ);
-  }
+ extern int blk_register_queue(struct gendisk *disk);
+ extern void blk_unregister_queue(struct gendisk *disk);
+ extern void register_disk(struct gendisk *dev);
+@@ -738,7 +739,6 @@
+ 
+ int blk_get_queue(request_queue_t *);
+ request_queue_t *blk_alloc_queue(gfp_t);
+-request_queue_t *blk_alloc_queue_node(gfp_t, int);
+ extern void blk_put_queue(request_queue_t *);
+ 
+ /*
+@@ -753,7 +753,6 @@
+ extern int blk_queue_init_tags(request_queue_t *, int, struct blk_queue_tag *);
+ extern void blk_queue_free_tags(request_queue_t *);
+ extern int blk_queue_resize_tags(request_queue_t *, int);
+-extern void blk_queue_invalidate_tags(request_queue_t *);
+ extern long blk_congestion_wait(int rw, long timeout);
+ 
+ extern void blk_rq_bio_prep(request_queue_t *, struct request *, struct bio *);
+--- linux-2.6.17-rc1-mm3-full/block/ll_rw_blk.c.old	2006-04-20 22:58:01.000000000 +0200
++++ linux-2.6.17-rc1-mm3-full/block/ll_rw_blk.c	2006-04-20 23:08:04.000000000 +0200
+@@ -40,6 +40,7 @@
+ static void drive_stat_acct(struct request *rq, int nr_sectors, int new_io);
+ static void init_request_from_bio(struct request *req, struct bio *bio);
+ static int __make_request(request_queue_t *q, struct bio *bio);
++static struct io_context *current_io_context(gfp_t gfp_flags);
+ 
+ /*
+  * For the allocated request tables
+@@ -1119,6 +1120,7 @@
+ 
+ EXPORT_SYMBOL(blk_queue_start_tag);
+ 
++#if 0
+ /**
+  * blk_queue_invalidate_tags - invalidate all pending tags
+  * @q:  the request queue for the device
+@@ -1152,8 +1154,8 @@
+ 		__elv_add_request(q, rq, ELEVATOR_INSERT_BACK, 0);
+ 	}
+ }
 -
-+EXPORT_SYMBOL_GPL(sched_clock);
-diff -Nurp a/arch/m68knommu/kernel/time.c b/arch/m68knommu/kernel/time.c
---- a/arch/m68knommu/kernel/time.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/arch/m68knommu/kernel/time.c	2006-05-15 17:46:26.000000000 +0200
-@@ -180,6 +180,8 @@ int do_settimeofday(struct timespec *tv)
-  	return 0;
-  }
-
-+EXPORT_SYMBOL(do_settimeofday);
+ EXPORT_SYMBOL(blk_queue_invalidate_tags);
++#endif  /*  0  */
+ 
+ static const char * const rq_flags[] = {
+ 	"REQ_RW",
+@@ -1777,7 +1779,6 @@
+ {
+ 	kobject_put(&q->kobj);
+ }
+-EXPORT_SYMBOL(blk_put_queue);
+ 
+ void blk_cleanup_queue(request_queue_t * q)
+ {
+@@ -1812,15 +1813,9 @@
+ 	return 0;
+ }
+ 
+-request_queue_t *blk_alloc_queue(gfp_t gfp_mask)
+-{
+-	return blk_alloc_queue_node(gfp_mask, -1);
+-}
+-EXPORT_SYMBOL(blk_alloc_queue);
+-
+ static struct kobj_type queue_ktype;
+ 
+-request_queue_t *blk_alloc_queue_node(gfp_t gfp_mask, int node_id)
++static request_queue_t *blk_alloc_queue_node(gfp_t gfp_mask, int node_id)
+ {
+ 	request_queue_t *q;
+ 
+@@ -1842,7 +1837,12 @@
+ 
+ 	return q;
+ }
+-EXPORT_SYMBOL(blk_alloc_queue_node);
 +
-  /*
-   * Scheduler clock - returns current time in nanosec units.
-   */
-@@ -188,4 +190,4 @@ unsigned long long sched_clock(void)
-  	return (unsigned long long)jiffies * (1000000000 / HZ);
-  }
-
--EXPORT_SYMBOL(do_settimeofday);
-+EXPORT_SYMBOL_GPL(sched_clock);
-diff -Nurp a/arch/mips/kernel/time.c b/arch/mips/kernel/time.c
---- a/arch/mips/kernel/time.c	2006-05-15 12:42:07.000000000 +0200
-+++ b/arch/mips/kernel/time.c	2006-05-15 17:47:00.000000000 +0200
-@@ -778,3 +778,4 @@ unsigned long long sched_clock(void)
-  {
-  	return (unsigned long long)jiffies*(1000000000/HZ);
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-diff -Nurp a/arch/parisc/kernel/time.c b/arch/parisc/kernel/time.c
---- a/arch/parisc/kernel/time.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/arch/parisc/kernel/time.c	2006-05-15 17:47:34.000000000 +0200
-@@ -211,6 +211,7 @@ unsigned long long sched_clock(void)
-  {
-  	return (unsigned long long)jiffies * (1000000000 / HZ);
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-
-  void __init time_init(void)
-diff -Nurp a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
---- a/arch/powerpc/kernel/time.c	2006-05-15 12:42:07.000000000 +0200
-+++ b/arch/powerpc/kernel/time.c	2006-05-15 17:48:03.000000000 +0200
-@@ -781,6 +781,7 @@ unsigned long long sched_clock(void)
-  		return get_rtc();
-  	return mulhdu(get_tb(), tb_to_ns_scale) << tb_to_ns_shift;
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-  int do_settimeofday(struct timespec *tv)
-  {
-diff -Nurp a/arch/ppc/kernel/time.c b/arch/ppc/kernel/time.c
---- a/arch/ppc/kernel/time.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/arch/ppc/kernel/time.c	2006-05-15 17:48:38.000000000 +0200
-@@ -445,3 +445,4 @@ unsigned long long sched_clock(void)
-  	}
-  	return tb;
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-diff -Nurp a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
---- a/arch/s390/kernel/time.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/arch/s390/kernel/time.c	2006-05-15 17:49:11.000000000 +0200
-@@ -63,6 +63,7 @@ unsigned long long sched_clock(void)
-  {
-  	return ((get_clock() - jiffies_timer_cc) * 125) >> 9;
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-  /*
-   * Monotonic_clock - returns # of nanoseconds passed since time_init()
-diff -Nurp a/arch/sh/kernel/time.c b/arch/sh/kernel/time.c
---- a/arch/sh/kernel/time.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/arch/sh/kernel/time.c	2006-05-15 17:49:42.000000000 +0200
-@@ -44,6 +44,7 @@ unsigned long long __attribute__ ((weak)
-  {
-  	return (unsigned long long)jiffies * (1000000000 / HZ);
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-  void do_gettimeofday(struct timeval *tv)
-  {
-diff -Nurp a/arch/sh64/kernel/time.c b/arch/sh64/kernel/time.c
---- a/arch/sh64/kernel/time.c	2006-05-15 12:42:08.000000000 +0200
-+++ b/arch/sh64/kernel/time.c	2006-05-15 17:50:09.000000000 +0200
-@@ -598,4 +598,4 @@ unsigned long long sched_clock(void)
-  {
-  	return (unsigned long long)jiffies * (1000000000 / HZ);
-  }
++request_queue_t *blk_alloc_queue(gfp_t gfp_mask)
++{
++	return blk_alloc_queue_node(gfp_mask, -1);
++}
++EXPORT_SYMBOL(blk_alloc_queue);
+ 
+ /**
+  * blk_init_queue  - prepare a request queue for use with a block device
+@@ -1945,8 +1945,6 @@
+ 	return 1;
+ }
+ 
+-EXPORT_SYMBOL(blk_get_queue);
 -
-+EXPORT_SYMBOL_GPL(sched_clock);
-diff -Nurp a/arch/sparc/kernel/time.c b/arch/sparc/kernel/time.c
---- a/arch/sparc/kernel/time.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/arch/sparc/kernel/time.c	2006-05-15 17:50:42.000000000 +0200
-@@ -466,6 +466,7 @@ unsigned long long sched_clock(void)
-  {
-  	return (unsigned long long)jiffies * (1000000000 / HZ);
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-  /* Ok, my cute asm atomicity trick doesn't work anymore.
-   * There are just too many variables that need to be protected
-diff -Nurp a/arch/sparc64/kernel/time.c b/arch/sparc64/kernel/time.c
---- a/arch/sparc64/kernel/time.c	2006-05-15 12:42:08.000000000 +0200
-+++ b/arch/sparc64/kernel/time.c	2006-05-15 17:51:19.000000000 +0200
-@@ -1135,6 +1135,7 @@ unsigned long long sched_clock(void)
-  	return (ticks * timer_ticks_per_nsec_quotient)
-  		>> SPARC64_NSEC_PER_CYC_SHIFT;
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-  static int set_rtc_mmss(unsigned long nowtime)
-  {
-diff -Nurp a/arch/um/kernel/time_kern.c b/arch/um/kernel/time_kern.c
---- a/arch/um/kernel/time_kern.c	2006-05-15 12:42:08.000000000 +0200
-+++ b/arch/um/kernel/time_kern.c	2006-05-15 17:51:46.000000000 +0200
-@@ -34,6 +34,7 @@ unsigned long long sched_clock(void)
-  {
-  	return (unsigned long long)jiffies_64 * (1000000000 / HZ);
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-  /* Changed at early boot */
-  int timer_irq_inited = 0;
-diff -Nurp a/arch/v850/kernel/time.c b/arch/v850/kernel/time.c
---- a/arch/v850/kernel/time.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/arch/v850/kernel/time.c	2006-05-15 17:52:11.000000000 +0200
-@@ -35,6 +35,7 @@ unsigned long long sched_clock(void)
-  {
-  	return (unsigned long long)jiffies * (1000000000 / HZ);
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-  /*
-   * timer_interrupt() needs to keep up the real-time clock,
-diff -Nurp a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
---- a/arch/x86_64/kernel/time.c	2006-05-15 12:42:08.000000000 +0200
-+++ b/arch/x86_64/kernel/time.c	2006-05-15 17:52:39.000000000 +0200
-@@ -501,6 +501,7 @@ unsigned long long sched_clock(void)
-  	rdtscll(a);
-  	return cycles_2_ns(a);
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-  static unsigned long get_cmos_time(void)
-  {
-diff -Nurp a/arch/xtensa/kernel/time.c b/arch/xtensa/kernel/time.c
---- a/arch/xtensa/kernel/time.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/arch/xtensa/kernel/time.c	2006-05-15 17:53:03.000000000 +0200
-@@ -49,6 +49,7 @@ unsigned long long sched_clock(void)
-  {
-  	return (unsigned long long)jiffies * (1000000000 / HZ);
-  }
-+EXPORT_SYMBOL_GPL(sched_clock);
-
-  static irqreturn_t timer_interrupt(int irq, void *dev_id, struct pt_regs *regs);
-  static struct irqaction timer_irqaction = {
+ static inline void blk_free_request(request_queue_t *q, struct request *rq)
+ {
+ 	if (rq->flags & REQ_ELVPRIV)
+@@ -2405,8 +2403,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(blk_rq_map_user_iov);
+-
+ /**
+  * blk_rq_unmap_user - unmap a request with user data
+  * @bio:	bio to be unmapped
+@@ -3642,7 +3638,7 @@
+  * but since the current task itself holds a reference, the context can be
+  * used in general code, so long as it stays within `current` context.
+  */
+-struct io_context *current_io_context(gfp_t gfp_flags)
++static struct io_context *current_io_context(gfp_t gfp_flags)
+ {
+ 	struct task_struct *tsk = current;
+ 	struct io_context *ret;
+@@ -3665,7 +3661,6 @@
+ 
+ 	return ret;
+ }
+-EXPORT_SYMBOL(current_io_context);
+ 
+ /*
+  * If the current task has no IO context then create one and initialise it.
+--- linux-2.6.17-rc1-mm3-full/block/genhd.c.old	2006-04-20 23:09:42.000000000 +0200
++++ linux-2.6.17-rc1-mm3-full/block/genhd.c	2006-04-20 23:09:51.000000000 +0200
+@@ -285,8 +285,6 @@
+ #endif
+ 
+ 
+-extern int blk_dev_init(void);
+-
+ static struct kobject *base_probe(dev_t dev, int *part, void *data)
+ {
+ 	if (request_module("block-major-%d-%d", MAJOR(dev), MINOR(dev)) > 0)
 

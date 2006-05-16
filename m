@@ -1,123 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWEPQAq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWEPQAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932109AbWEPQAq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 12:00:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWEPQAp
+	id S932105AbWEPQAr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 12:00:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbWEPQAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 12:00:45 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:52689
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S932109AbWEPQAl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 12:00:41 -0400
-Message-Id: <446A137B.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
-Date: Tue, 16 May 2006 18:01:31 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: "Andreas Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>,
-       <discuss@x86-64.org>
-Subject: Re: [PATCH 1/3] reliable stack trace support
-References: <4469FC07.76E4.0078.0@novell.com> <20060516150555.GB10760@elte.hu>
-In-Reply-To: <20060516150555.GB10760@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 16 May 2006 12:00:46 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:8198 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932108AbWEPQAZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 12:00:25 -0400
+Date: Tue, 16 May 2006 18:00:23 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] remove dead entry in net wan Kconfig
+Message-ID: <20060516160022.GD5677@stusta.de>
+References: <1147446494.10079.5.camel@amdx2.microgate.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1147446494.10079.5.camel@amdx2.microgate.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Ingo Molnar <mingo@elte.hu> 16.05.06 17:05 >>>
->* Jan Beulich <jbeulich@novell.com> wrote:
->> +#ifdef CONFIG_STACK_UNWIND
->> +#include <asm/unwind.h>
->> +#else
->> +#include <asm-generic/unwind.h>
->> +#endif
->
->this wants to become include/linux/unwind.h?
+On Fri, May 12, 2006 at 10:08:14AM -0500, Paul Fulghum wrote:
 
-Not really, at least not until IA64 and PARISC get adopted to the same (architecture independent) interface.
+> Remove dead entry from net wan Kconfig.
+> This entry is left over from 2.4 where synclink
+> used syncppp driver directly. synclink drivers
+> now use generic HDLC
 
->> +#ifdef MODULE_UNWIND_INFO
->> +#include <asm/unwind.h>
->> +#endif
->
->this too could then include <linux/unwind.h>
 
-As above.
+What about also removing the entry for this option in the Makefile?
 
->> +DEFINE_SPINLOCK(table_lock);
->
->static?
 
-Oh, yes.
+> Signed-off-by: Paul Fulghum <paulkf@microgate.com>
+> 
+> --- linux-2.6.16/drivers/net/wan/Kconfig	2006-03-19 23:53:29.000000000 -0600
+> +++ b/drivers/net/wan/Kconfig	2006-05-12 09:17:03.000000000 -0500
+> @@ -134,18 +134,6 @@
+>  	  The driver will be compiled as a module: the
+>  	  module will be called sealevel.
+>  
+> -config SYNCLINK_SYNCPPP
+> -	tristate "SyncLink HDLC/SYNCPPP support"
+> -	depends on WAN
+> -	help
+> -	  Enables HDLC/SYNCPPP support for the SyncLink WAN driver.
+> -
+> -	  Normally the SyncLink WAN driver works with the main PPP driver
+> -	  <file:drivers/net/ppp_generic.c> and pppd program.
+> -	  HDLC/SYNCPPP support allows use of the Cisco HDLC/PPP driver
+> -	  <file:drivers/net/wan/syncppp.c>. The SyncLink WAN driver (in
+> -	  character devices) must also be enabled.
+> -
+>  # Generic HDLC
+>  config HDLC
+>  	tristate "Generic HDLC layer"
 
->> +static struct unwind_table *
->> +find_table(unsigned long pc)
->> +{
->> +	int old_removals;
->> +	struct unwind_table *table = NULL;
->> +
->> +	do {
->> +		if (table)
->> +				atomic_dec(&table->users);
->> +		old_removals = atomic_read(&removals);
->
->racy? wants to become rcu?
+cu
+Adrian
 
-I don't think so. As far as I can tell, this isn't going to be a problem, it may just result in an extra, normally
-unneeded, re-run of the loop.
+-- 
 
->> +	spin_lock(&table_lock);
->
->spin_lock_irq?
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-Why?
-
->> +	if (init_only && table == last_table) {
->> +		table->init.pc = 0;
->> +		table->init.range = 0;
->> +		return;
->> +	}
->
->SMP and PREEMPT unsafe.
-
-I don't think so, given that this can be called only from the module loader. As Andi pointed out elsewhere, it may even
-be unnecessary to do the locking at all.
-
->> +	spin_lock(&table_lock);
->
->spin_lock_irq().
-
-Again, why?
-
->> +	if (table) {
->> +		while (atomic_read(&table->users) || atomic_read(&lookups))
->> +			msleep(1);
->> +		kfree(table);
->> +	}
->
->ugh!
-
-???
-
->> +//todo			case DW_CFA_def_cfa_expression:
->> +//todo			case DW_CFA_expression:
->> +//todo			case DW_CFA_val_expression:
->
->hm?
-
-This means what it says - it needs to be done, and I have no clear understanding of how these expressions are to be
-treated, as I've never seen them in use anywhere.
-
->> +{
->> +	info->task = current;
->> +	arch_unwind_init_running(info, callback, arg);
->> +	return 0;
->
->newline before the return. (this happens in a couple of other places 
->too)
-
-Surely can do that, although I don't see why this should be needed in functions this small.
-
-Jan

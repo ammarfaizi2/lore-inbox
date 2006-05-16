@@ -1,116 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751558AbWEPQAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWEPQAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751558AbWEPQAR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 12:00:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751828AbWEPQAR
+	id S932109AbWEPQAq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 12:00:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWEPQAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 12:00:17 -0400
-Received: from mail.aknet.ru ([82.179.72.26]:13582 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S1751558AbWEPQAP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 12:00:15 -0400
-Message-ID: <4469F709.4040605@aknet.ru>
-Date: Tue, 16 May 2006 20:00:09 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: dtor_core@ameritech.net, vojtech@suse.cz,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] add input_enable_device()
-References: <44670446.7080409@aknet.ru> <20060515143119.54b5aff8.akpm@osdl.org>
-In-Reply-To: <20060515143119.54b5aff8.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------090009080909020808080606"
+	Tue, 16 May 2006 12:00:45 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:52689
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S932109AbWEPQAl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 12:00:41 -0400
+Message-Id: <446A137B.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
+Date: Tue, 16 May 2006 18:01:31 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: "Andreas Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>,
+       <discuss@x86-64.org>
+Subject: Re: [PATCH 1/3] reliable stack trace support
+References: <4469FC07.76E4.0078.0@novell.com> <20060516150555.GB10760@elte.hu>
+In-Reply-To: <20060516150555.GB10760@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090009080909020808080606
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+>>> Ingo Molnar <mingo@elte.hu> 16.05.06 17:05 >>>
+>* Jan Beulich <jbeulich@novell.com> wrote:
+>> +#ifdef CONFIG_STACK_UNWIND
+>> +#include <asm/unwind.h>
+>> +#else
+>> +#include <asm-generic/unwind.h>
+>> +#endif
+>
+>this wants to become include/linux/unwind.h?
 
-Hello.
+Not really, at least not until IA64 and PARISC get adopted to the same (architecture independent) interface.
 
-Andrew Morton wrote:
-> Separate functions input_enable_device(struct input_handle *handle) and
-> input_disable_device(struct input_handle *handle) would be preferred.
-Right, and here it goes.
+>> +#ifdef MODULE_UNWIND_INFO
+>> +#include <asm/unwind.h>
+>> +#endif
+>
+>this too could then include <linux/unwind.h>
 
----
-add input_enable_device() and input_disable_device()
+As above.
 
-Signed-off-by: Stas Sergeev <stsp@aknet.ru>
-CC: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: Vojtech Pavlik <vojtech@suse.cz>
+>> +DEFINE_SPINLOCK(table_lock);
+>
+>static?
 
+Oh, yes.
 
+>> +static struct unwind_table *
+>> +find_table(unsigned long pc)
+>> +{
+>> +	int old_removals;
+>> +	struct unwind_table *table = NULL;
+>> +
+>> +	do {
+>> +		if (table)
+>> +				atomic_dec(&table->users);
+>> +		old_removals = atomic_read(&removals);
+>
+>racy? wants to become rcu?
 
---------------090009080909020808080606
-Content-Type: text/x-patch;
- name="input_en2.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="input_en2.diff"
+I don't think so. As far as I can tell, this isn't going to be a problem, it may just result in an extra, normally
+unneeded, re-run of the loop.
 
---- a/include/linux/input.h	2006-04-05 17:10:01.000000000 +0400
-+++ b/include/linux/input.h	2006-04-05 17:36:49.000000000 +0400
-@@ -878,7 +878,7 @@
- 
- 	struct pt_regs *regs;
- 	int state;
--
-+	int disabled;
- 	int sync;
- 
- 	int abs[ABS_MAX + 1];
-@@ -1038,6 +1038,9 @@
- int input_open_device(struct input_handle *);
- void input_close_device(struct input_handle *);
- 
-+void input_enable_device(struct input_handle *handle);
-+void input_disable_device(struct input_handle *handle);
-+
- int input_accept_process(struct input_handle *handle, struct file *file);
- int input_flush_device(struct input_handle* handle, struct file* file);
- 
---- a/drivers/input/input.c	2006-01-12 11:23:09.000000000 +0300
-+++ b/drivers/input/input.c	2006-04-05 17:51:27.000000000 +0400
-@@ -37,6 +37,8 @@
- EXPORT_SYMBOL(input_release_device);
- EXPORT_SYMBOL(input_open_device);
- EXPORT_SYMBOL(input_close_device);
-+EXPORT_SYMBOL(input_enable_device);
-+EXPORT_SYMBOL(input_disable_device);
- EXPORT_SYMBOL(input_accept_process);
- EXPORT_SYMBOL(input_flush_device);
- EXPORT_SYMBOL(input_event);
-@@ -53,7 +55,7 @@
- {
- 	struct input_handle *handle;
- 
--	if (type > EV_MAX || !test_bit(type, dev->evbit))
-+	if (type > EV_MAX || !test_bit(type, dev->evbit) || dev->disabled)
- 		return;
- 
- 	add_input_randomness(type, code, value);
-@@ -269,6 +271,16 @@
- 	mutex_unlock(&dev->mutex);
- }
- 
-+void input_enable_device(struct input_handle *handle)
-+{
-+	handle->dev->disabled = 0;
-+}
-+
-+void input_disable_device(struct input_handle *handle)
-+{
-+	handle->dev->disabled = 1;
-+}
-+
- static void input_link_handle(struct input_handle *handle)
- {
- 	list_add_tail(&handle->d_node, &handle->dev->h_list);
+>> +	spin_lock(&table_lock);
+>
+>spin_lock_irq?
 
---------------090009080909020808080606--
+Why?
+
+>> +	if (init_only && table == last_table) {
+>> +		table->init.pc = 0;
+>> +		table->init.range = 0;
+>> +		return;
+>> +	}
+>
+>SMP and PREEMPT unsafe.
+
+I don't think so, given that this can be called only from the module loader. As Andi pointed out elsewhere, it may even
+be unnecessary to do the locking at all.
+
+>> +	spin_lock(&table_lock);
+>
+>spin_lock_irq().
+
+Again, why?
+
+>> +	if (table) {
+>> +		while (atomic_read(&table->users) || atomic_read(&lookups))
+>> +			msleep(1);
+>> +		kfree(table);
+>> +	}
+>
+>ugh!
+
+???
+
+>> +//todo			case DW_CFA_def_cfa_expression:
+>> +//todo			case DW_CFA_expression:
+>> +//todo			case DW_CFA_val_expression:
+>
+>hm?
+
+This means what it says - it needs to be done, and I have no clear understanding of how these expressions are to be
+treated, as I've never seen them in use anywhere.
+
+>> +{
+>> +	info->task = current;
+>> +	arch_unwind_init_running(info, callback, arg);
+>> +	return 0;
+>
+>newline before the return. (this happens in a couple of other places 
+>too)
+
+Surely can do that, although I don't see why this should be needed in functions this small.
+
+Jan

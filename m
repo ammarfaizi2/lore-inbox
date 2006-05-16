@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbWEPAsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbWEPBFS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750892AbWEPAsc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 20:48:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbWEPAsc
+	id S1750916AbWEPBFS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 21:05:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbWEPBFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 20:48:32 -0400
-Received: from twinlark.arctic.org ([207.7.145.18]:49567 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id S1750891AbWEPAsb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 20:48:31 -0400
-Date: Mon, 15 May 2006 17:48:30 -0700 (PDT)
-From: dean gaudet <dean@arctic.org>
-To: Mark Hedges <hedges@ucsd.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: unknown io writes in 2.6.16
-In-Reply-To: <20060515170943.P3338@network.ucsd.edu>
-Message-ID: <Pine.LNX.4.64.0605151741320.954@twinlark.arctic.org>
-References: <20060510135100.F26270@network.ucsd.edu>
- <72dbd3150605101442o52a62d79va730314bf96dcfdd@mail.gmail.com>
- <20060510225112.T31828@network.ucsd.edu> <Pine.LNX.4.64.0605121012230.7292@twinlark.arctic.org>
- <20060515170943.P3338@network.ucsd.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 May 2006 21:05:18 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:34196 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750916AbWEPBFQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 21:05:16 -0400
+Subject: Re: Linux porting issue/question...
+From: David Woodhouse <dwmw2@infradead.org>
+To: jzb@aexorsyst.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200605151518.53533.jzb@aexorsyst.com>
+References: <200605151518.53533.jzb@aexorsyst.com>
+Content-Type: text/plain
+Date: Tue, 16 May 2006 02:05:14 +0100
+Message-Id: <1147741515.24328.3.camel@shinybook.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 May 2006, Mark Hedges wrote:
+On Mon, 2006-05-15 at 15:18 -0700, John Z. Bohach wrote:
+> However, running 'ls {somedir}' on a directory, any directory, always
+> returns the error code for "EFAULT" (Bad address), at the user level.
 
-> In W2K at any rate, ctl-shift-esc to get the task manager.  
-> Processes tab. View Menu > Select Columns.  Sort by column.
+Hack your copy_to_user() to printk and/or backtrace when it faults.
+If that doesn't catch it, find any _other_ place where that call path
+can return -EFAULT.
 
-heh i already know about that... it's fairly useless though when the disk 
-writes are due to logged events going through the same services dll... i 
-was looking for something a little more detailed... like the block_dump + 
-strace.
+-- 
+dwmw2
 
--dean

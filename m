@@ -1,39 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbWEPBWY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWEPBW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750992AbWEPBWY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 May 2006 21:22:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbWEPBWY
+	id S1750995AbWEPBW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 May 2006 21:22:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbWEPBW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 May 2006 21:22:24 -0400
-Received: from stinky.trash.net ([213.144.137.162]:55272 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S1750988AbWEPBWX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 May 2006 21:22:23 -0400
-Message-ID: <4469294D.6010509@trash.net>
-Date: Tue, 16 May 2006 03:22:21 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
+	Mon, 15 May 2006 21:22:26 -0400
+Received: from mga02.intel.com ([134.134.136.20]:17569 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750997AbWEPBWZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 May 2006 21:22:25 -0400
+Message-Id: <4t16i2$13154k@orsmga001.jf.intel.com>
+X-IronPort-AV: i="4.05,131,1146466800"; 
+   d="scan'208"; a="36738196:sNHT14419272"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Con Kolivas'" <kernel@kolivas.org>
+Cc: <tim.c.chen@linux.intel.com>, <linux-kernel@vger.kernel.org>,
+       <mingo@elte.hu>, "Andrew Morton" <akpm@osdl.org>
+Subject: RE: Regression seen for patch "sched:dont decrease idle sleep avg"
+Date: Mon, 15 May 2006 18:22:24 -0700
 MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-CC: "David S. Miller" <davem@davemloft.net>, shemminger@osdl.org,
-       ranjitm@google.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH] tcpdump may trace some outbound packets twice.
-References: <E1FfnZP-0003St-00@gondolin.me.apana.org.au> <44692847.4080100@trash.net>
-In-Reply-To: <44692847.4080100@trash.net>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcZ4eaTBRAuBdrtjRUuDyKrPi9nXWAADMAuA
+In-Reply-To: <200605160945.13157.kernel@kolivas.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McHardy wrote:
-> 3) Clone the skb and have dev_queue_xmit_nit() consume it.
+Con Kolivas wrote on Monday, May 15, 2006 4:45 PM
+> On Tuesday 16 May 2006 05:01, Chen, Kenneth W wrote:
+> > I don't think the if and the else block is doing the same thing. In the if
+> > block, the p->sleep_avg is unconditionally boosted to ceiling for all
+> > tasks, though it will not reduce sleep_avg for tasks that already exceed
+> > the ceiling. Bumping up sleep_avg will then translate into priority boost
+> > of MAX_BONUS-1, which potentially can be too high.
 > 
-> That should actually be pretty easy.
+> Yes it's only designed to detect something that has been asleep for an 
+> arbitrary long time and "categorised as idle"; it is not supposed to be a 
+> priority stepping stone for everything, in this case at MAX_BONUS-1. Mike 
+> proposed doing this instead, but it was never my intent. Your comment is not 
+> quite correct as it just happens to be MAX_BONUS-1 at nice 0, and not any 
+> other nice value.
 
-On second thought, thats not so great either. netdev_nit
-just globally signals that there are some taps, but we
-don't know if they're interested in a specific packet.
+Huh??
 
+sleep_avg is set at constant:
+p->sleep_avg = JIFFIES_TO_NS(MAX_SLEEP_AVG - DEF_TIMESLICE);
+
+
+The bonus calculation is:
+
+#define CURRENT_BONUS(p) \
+        (NS_TO_JIFFIES((p)->sleep_avg) * MAX_BONUS / MAX_SLEEP_AVG)
+
+bonus = CURRENT_BONUS(p) - MAX_BONUS / 2;
+
+None of the calculation that I see uses nice value.  Did I miss something?
+
+- Ken

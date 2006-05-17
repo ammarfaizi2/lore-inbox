@@ -1,121 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWEQQUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWEQQVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbWEQQUF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 12:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWEQQUF
+	id S1750810AbWEQQVR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 12:21:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbWEQQVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 12:20:05 -0400
-Received: from mba.ocn.ne.jp ([210.190.142.172]:45306 "EHLO smtp.mba.ocn.ne.jp")
-	by vger.kernel.org with ESMTP id S1750806AbWEQQUD (ORCPT
+	Wed, 17 May 2006 12:21:16 -0400
+Received: from xenotime.net ([66.160.160.81]:44987 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750810AbWEQQVQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 12:20:03 -0400
-Date: Thu, 18 May 2006 01:20:48 +0900 (JST)
-Message-Id: <20060518.012048.107255562.anemo@mba.ocn.ne.jp>
-To: linux-kernel@vger.kernel.org
-Cc: sam@ravnborg.org, ralf@linux-mips.org
-Subject: [PATCH 2/2] kbuild: fix modpost segfault for 64bit mipsel kernel
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 17 May 2006 12:21:16 -0400
+Date: Wed, 17 May 2006 09:23:42 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, tglx@linutronix.de, benh@kernel.crashing.org,
+       rmk@arm.linux.org.uk, akpm@osdl.org, hch@infradead.org,
+       linux-arm-kernel@lists.arm.linux.org.uk
+Subject: Re: [patch 15/50] genirq: doc: add design documentation
+Message-Id: <20060517092342.f6076d27.rdunlap@xenotime.net>
+In-Reply-To: <20060517001623.GP12877@elte.hu>
+References: <20060517001623.GP12877@elte.hu>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is an updated r_info layout fix.  Please apply "check SHT_REL
-sections" patch before this.
+On Wed, 17 May 2006 02:16:23 +0200 Ingo Molnar wrote:
+
+> From: Thomas Gleixner <tglx@linutronix.de>
+> 
+> Add docbook file - includes API documentation.
+
+Thanks. :)
+
+> Index: linux-genirq.q/Documentation/DocBook/genericirq.tmpl
+> ===================================================================
+> --- /dev/null
+> +++ linux-genirq.q/Documentation/DocBook/genericirq.tmpl
+> @@ -0,0 +1,453 @@
+
+> +  <chapter id="rationale">
+> +    <title>Rationale</title>
+> +	<para>
+> +	The original implementation of interrupt handling in Linux is using
+> +	the __do_IRQ() super-handler, which is able to deal with every
+> +	type of interrupt logic.
+> +	</para>
+> +	<para>
+> +	Originally, Russell King identified different types of handlers to
+> +	build a quite universal set for the ARM interrupt handler
+> +	implementation in Linux 2.5/2.6. He distiguished between:
+distinguished
+
+> +	<para>
+> +	The original general IRQ implementation used hw_interrupt_type
+> +	structures and their ->ack(), ->end() [etc.] callbcks to
+> +	differentiate the flow control in the super-handler. This leads to
+> +	a mix of flow logic and lowlevel hardware logic, and it also leads
+> +	to unnecessary code duplication: for example in i386, there is a
+> +	ioapic_level_irq and a ioapic_edge_irq irq-type which share many
+> +	of the lowlevel details but have different flow handling.
+> +	</para>
+> +	<para>
+> +	A more natural abstraction is the clean seperation of the
+separation (multiple locations)
+(or as my wife says, "there's 'a rat' in separate.")
+
+> +	'irq flow' and the 'chip details'.
+> +	</para>
+> +	<para>
+> +	Analysing a couple of architecture's IRQ subsystem implementations
+> +	reveals that most of them can use a generic set of 'irq flow'
+> +	methods and only need to add the chip level specific code.
+> +	The seperation is also valuable for (sub)architectures
+> +	which need specific quirks in the irq flow itself but not in the
+> +	chip-details - and thus provides a more transparent IRQ subsystem
+> +	design.
+> +	</para>
+> +	<para>
+> +	Each interrupt descriptor has assigned its own highlevel flow
+s/has/is/
+
+> +	handler, which is normally one of the generic
+> +	implementations. (This highlevel flow handler implementation also
+> +	makes it simple to provide demultiplexing handlers which can be
+> +	found in embedded platforms on various architectures.)
+> +	</para>
+> +	<para>
+> +	The seperation makes the generic interrupt handling layer more
+> +	flexible and extensible. For example, an (sub)architecture can
+> +	use a generic irq-flow implementation for 'level type' interrupts
+> +	and add a (sub)architecture specific 'edge type' implementation.
+> +	</para>
+> +	<para>
+> +	To make the transition to the new model easier and prevent the
+> +	breakage of existing implementations the __do_IRQ() super-handler
+add comma after "implementations"
+
+> +	is still available. This leads to a kind of duality for the time
+> +	being. Over time the new model should be used in more and more
+> +	architectures, as it enables smaller and cleaner IRQ subsystems.
+> +	</para>
+> +  </chapter>
+> +  <chapter id="bugs">
+> +    <title>Known Bugs And Assumptions</title>
+> +    <para>
+> +	None (knock on wood).
+> +    </para>
+> +  </chapter>
+> +
+
+> +	<sect2>
+> +	<title>Default flow implementations</title>
+> +	    <sect3>
+> +	 	<title>Helper functions</title>
+> +		<para>
+> +		The helper functions call the chip primitives and
+> +		are used by the default flow implementations.
+> +		Following helper functions are implemented (simplified excerpt):
+The following ... (multiple locations)
 
 
-64bit mips has different r_info layout.  This patch fixes modpost
-segfault for 64bit little endian mips kernel.
+> +	    <sect3>
+> +	 	<title>Default Edge IRQ flow handler</title>
+> +		<para>
+> +		handle_edge_irq provides a generic implementation
+> +		for edge interrupts.
+edge-triggered interrupts. (IMO)
 
-Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+> +  <chapter id="doirq">
+> +     <title>__do_IRQ entry point</title>
+> +     <para>
+> + 	The original implementation __do_IRQ() is an alternative entry
+> +	point for all types of interrupts.
+> +     </para>
+> +     <para>
+> +	This handler turned out to be not suitable for all
+> +	interrupt hardware and was therefor reimplemented with split
+therefore
 
-diff -u linux/scripts/mod/modpost.c linux-mips/scripts/mod/modpost.c
---- linux/scripts/mod/modpost.c	2006-05-18 00:27:05.439421552 +0900
-+++ linux-mips/scripts/mod/modpost.c	2006-05-18 01:01:43.584495480 +0900
-@@ -700,6 +700,7 @@
- 		const char *name = secstrings + sechdrs[i].sh_name;
- 		const char *secname;
- 		Elf_Rela r;
-+		unsigned int r_sym;
- 		/* We want to process only relocation sections and not .init */
- 		if (sechdrs[i].sh_type == SHT_RELA) {
- 			Elf_Rela *rela;
-@@ -711,9 +712,20 @@
- 
- 			for (rela = start; rela < stop; rela++) {
- 				r.r_offset = TO_NATIVE(rela->r_offset);
--				r.r_info   = TO_NATIVE(rela->r_info);
-+#if KERNEL_ELFCLASS == ELFCLASS64
-+				if (hdr->e_machine == EM_MIPS) {
-+					r_sym = ELF64_MIPS_R_SYM(rela->r_info);
-+					r_sym = TO_NATIVE(r_sym);
-+				} else {
-+					r.r_info = TO_NATIVE(rela->r_info);
-+					r_sym = ELF_R_SYM(r.r_info);
-+				}
-+#else
-+				r.r_info = TO_NATIVE(rela->r_info);
-+				r_sym = ELF_R_SYM(r.r_info);
-+#endif
- 				r.r_addend = TO_NATIVE(rela->r_addend);
--				sym = elf->symtab_start + ELF_R_SYM(r.r_info);
-+				sym = elf->symtab_start + r_sym;
- 				/* Skip special sections */
- 				if (sym->st_shndx >= SHN_LORESERVE)
- 					continue;
-@@ -734,9 +746,20 @@
- 
- 			for (rel = start; rel < stop; rel++) {
- 				r.r_offset = TO_NATIVE(rel->r_offset);
--				r.r_info   = TO_NATIVE(rel->r_info);
-+#if KERNEL_ELFCLASS == ELFCLASS64
-+				if (hdr->e_machine == EM_MIPS) {
-+					r_sym = ELF64_MIPS_R_SYM(rel->r_info);
-+					r_sym = TO_NATIVE(r_sym);
-+				} else {
-+					r.r_info = TO_NATIVE(rel->r_info);
-+					r_sym = ELF_R_SYM(r.r_info);
-+				}
-+#else
-+				r.r_info = TO_NATIVE(rel->r_info);
-+				r_sym = ELF_R_SYM(r.r_info);
-+#endif
- 				r.r_addend = 0;
--				sym = elf->symtab_start + ELF_R_SYM(r.r_info);
-+				sym = elf->symtab_start + r_sym;
- 				/* Skip special sections */
- 				if (sym->st_shndx >= SHN_LORESERVE)
- 					continue;
-diff -u linux/scripts/mod/modpost.h linux-mips/scripts/mod/modpost.h
---- linux/scripts/mod/modpost.h	2006-05-18 00:18:14.222178848 +0900
-+++ linux-mips/scripts/mod/modpost.h	2006-05-17 23:47:21.581822992 +0900
-@@ -41,6 +41,25 @@
- #define ELF_R_TYPE  ELF64_R_TYPE
- #endif
- 
-+/* The 64-bit MIPS ELF ABI uses an unusual reloc format. */
-+typedef struct
-+{
-+  Elf32_Word    r_sym;		/* Symbol index */
-+  unsigned char r_ssym;		/* Special symbol for 2nd relocation */
-+  unsigned char r_type3;	/* 3rd relocation type */
-+  unsigned char r_type2;	/* 2nd relocation type */
-+  unsigned char r_type1;	/* 1st relocation type */
-+} _Elf64_Mips_R_Info;
-+
-+typedef union
-+{
-+  Elf64_Xword	r_info_number;
-+  _Elf64_Mips_R_Info r_info_fields;
-+} _Elf64_Mips_R_Info_union;
-+
-+#define ELF64_MIPS_R_SYM(i) \
-+  ((__extension__ (_Elf64_Mips_R_Info_union)(i)).r_info_fields.r_sym)
-+
- #if KERNEL_ELFDATA != HOST_ELFDATA
- 
- static inline void __endian(const void *src, void *dest, unsigned int size)
+> +	functionality for egde/level/simple/percpu interrupts. This is not
+> +	only a functional optimization. It also shortenes code pathes for
+shortens code paths
+
+> +	interrupts.
+
+HTH.
+---
+~Randy

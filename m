@@ -1,73 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbWEQTNX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbWEQTYS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750994AbWEQTNX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 15:13:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWEQTNX
+	id S1751013AbWEQTYS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 15:24:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbWEQTYS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 15:13:23 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:35051 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S1750992AbWEQTNX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 15:13:23 -0400
-Date: Wed, 17 May 2006 15:12:12 -0400
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: swapper_space export
-Message-ID: <20060517191212.GA23038@filer.fsl.cs.sunysb.edu>
-References: <20060516232443.GA10762@filer.fsl.cs.sunysb.edu> <1147864721.3051.17.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0605171626460.6711@blonde.wat.veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0605171626460.6711@blonde.wat.veritas.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 17 May 2006 15:24:18 -0400
+Received: from gold.veritas.com ([143.127.12.110]:55476 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751010AbWEQTYR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 15:24:17 -0400
+X-IronPort-AV: i="4.05,138,1146466800"; 
+   d="scan'208"; a="59610491:sNHT29321528"
+Date: Wed, 17 May 2006 20:24:13 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Peter Staubach <staubach@redhat.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] memory mapped files not updating timestamps
+In-Reply-To: <446B3E5D.1030301@redhat.com>
+Message-ID: <Pine.LNX.4.64.0605171954010.16979@blonde.wat.veritas.com>
+References: <446B3E5D.1030301@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 17 May 2006 19:24:16.0006 (UTC) FILETIME=[7C83DA60:01C679E7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 17, 2006 at 04:52:36PM +0100, Hugh Dickins wrote:
-> On Wed, 17 May 2006, Arjan van de Ven wrote:
-> > On Tue, 2006-05-16 at 19:24 -0400, Josef Sipek wrote:
-> > > I was trying to compile the Unionfs[1] to get it up to sync it up with
-> > > the kernel developments from the past few months. Anyway, long story
-> > > short...swapper_space (defined in mm/swap_state.c) is not exported
-> > > anymore (git commit: 4936967374c1ad0eb3b734f24875e2484c3786cc). This
-> > > apparently is not an issue for most modules. Troubles arise when the
-> > > modules include mm.h or any of its relatives.
-> > > 
-> > > One simply gets a linker error about swapper_space not being defined.
-> > > The problem is that it is used in mm.h.
-> > 
-> > don't you think it's really suspect that no other filesystem, in fact no
-> > other driver in the kernel needs this? Could it just be that unionfs is 
-> > using a wrong API ? Because if that's the case you're patch is just the
-> > wrong thing. Maybe the unionfs people should try to submit their code
-> > for review etc......
->
-> I see no reference to page_mapping() in the unionfs source (and at
-> present there's no other justifiable modular use of swapper_space);
-> but my guess would be that Jeff is being more conscientious than is
-> called for in getting it to sync up with the kernel -
+On Wed, 17 May 2006, Peter Staubach wrote:
+> 
+> Attached are some changes to address the problem that modifications to
+> the contents of a file, made via an mmap'd region, do not cause the
+> modification time on the file to be updated.  This lack can cause corruption
+> by allowing backup software to not detect files which should be backed up.
+> This also represents a potential security hole because it allows a file to be
+> modified with no corresponding change in the file modification or change
+> time fields.
 
-That's what happens when one is trying to get ready to send the code to
-linux-kernel & fs-devel :)
+It would be grand to fix this (it's, umm, three years since I promised to
+do so a few days later), but I'm not quite satisfied by your patch as is.
 
-> The unionfs source does contain its own inline "sync_page" which
-> comments that it "is copied verbatim from mm/filemap.c".  I'm
-> guessing Jeff has noticed that it's no longer a verbatim copy,
-> has made it so, and is thereby involving page_mapping().
+> The changes add support to detect when the modification time needs to be
+> updated by placing a hook in __set_pages_dirty_buffers and
+> __set_pages_dirty_nobuffers.  One of these two routines will be invoked
+> when the dirty bit is detected in the pte.  The hook sets a new bit in the
+> address_space mapping struct indicating that the file which is associated
+> with that part of the address space needs to have its modification and
+> change time attributes updated.
 
-Good guess, exactly what happened.
+You're adding a little overhead to every set_page_dirty, when the vast
+majority (ordinary writes) don't need it: their mctime update is already
+well taken care of.  (Or should we be deleting the code that does that?
+I think I'd rather not dare.)
 
-> Just use page->mapping as before.
+Perhaps it's so little overhead that it's not worth worrying about.
+But writes to a file which happens to be mapped readonly at that time
+are liable to end up with too late a last mctime on the file, aren't
+they (if the readonly mapping is unmapped later)?
 
-Thanks for the advice.
+I think you'd do better to target those places where set_page_dirty is
+called on a mapped page - and do the file_update_time at that point -
+or as near to that point as is sensible/permitted given the locking
+(vma->vm_file gives you the file without needing inode_update_time).
 
-> (But I notice that unionfs better not have a tmpfs in its union:
-> the unionfs use of grab_cache_page is not strictly compatible with
-> the way tmpfs pages are swapped out under memory pressure.)
+Calling your inode_update_time from unmap_file_vma is probably unwise:
+at present we may have preemption disabled there, and it's not clear
+what ->dirty_inode might get up to.  Calling it from the vm_file case
+of remove_vma would be safer.
 
-We have some tmpfs nastiness reported in the bugzilla - I guess this is
-a good starting point - thanks!
+Peter Zijlstra has patches relating to dirty mmaps in the -mm tree
+at present: I need to take a look at those, and I'll see if it would
+make sense to factor in this mctime issue on top of those - you may
+want to do the same.
 
-Thanks all,
-Josef "Jeff" Sipek.
+In the course of trying that, I'm likely to discover exactly why you
+made the decisions you did, and arrive at commending your solution.
+
+Hugh

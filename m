@@ -1,87 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWEQRaM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWEQRfI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbWEQRaM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 13:30:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWEQRaM
+	id S1750757AbWEQRfI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 13:35:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWEQRfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 13:30:12 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:27333 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750776AbWEQRaL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 13:30:11 -0400
-Subject: PATCH: Clarify maintainers and include security info (Version 2)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
-In-Reply-To: <20060516090315.421e5166.rdunlap@xenotime.net>
-References: <1147795421.2151.80.camel@localhost.localdomain>
-	 <20060516090315.421e5166.rdunlap@xenotime.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 17 May 2006 18:43:07 +0100
-Message-Id: <1147887787.10470.58.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Wed, 17 May 2006 13:35:08 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44692 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750757AbWEQRfG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 13:35:06 -0400
+Date: Wed, 17 May 2006 19:06:02 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Over-heating CPU on 2.6.16 with Thinkpad G41
+Message-ID: <20060517170601.GA9459@elf.ucw.cz>
+References: <Pine.LNX.4.58.0605160253010.4283@gandalf.stny.rr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0605160253010.4283@gandalf.stny.rr.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This version has the advanced new feature of including the correct email
-address (duh sorry), and also another hint about the Signed-off-by:
-bits. It goes on top of the original patch. Below this is a second diff
-if the first wrong change was not applied.
+On Út 16-05-06 03:05:06, Steven Rostedt wrote:
+> 
+> Last night compiling kernels in my hotel, my CPUs kept over-heating.
+> 
+> I have a IBM Thinkpad G41 which has a pentium 4 HT.
+> 
+> Before compiling, my CPU temp would start at 65C and go up to 82 before I
+> kill the compile. At 80 it warns me.  I rebooted a few times, but it would
+> always happen.  Thinking this might be bad hardware, I rebooted into
+> 2.6.12, and saw that the CPU temperature would be at 52C??  I had no more
+> problems compiling.
 
+Temperatures up-to 95C are okay on many machines.
 
-Signed-off-by: Alan Cox <alan@redhat.com) (or is that Screwed-up-by: ..)
+> I recently added the Suspend2 patch and that might be the culprit, But I
+> just booted, a version of 2.6.16 that doesn't have the patch, and it too
+> seems to be runnig hot.
 
+Ask nigel if you suspenct that patch. But from your description it
+screams "random overheating".
 
---- linux-2.6.17-rc4/MAINTAINERS~	2006-05-17 13:06:37.922464048 +0100
-+++ linux-2.6.17-rc4/MAINTAINERS	2006-05-17 13:06:37.923463896 +0100
-@@ -40,12 +40,17 @@
- 	PLEASE document known bugs. If it doesn't work for everything
- 	or does something very odd once a month document it.
- 
-+	PLEASE remember that submissions must be made under the terms
-+	of the OSDL certificate of contribution
-+	(http://www.osdl.org/newsroom/press_releases/2004/2004_05_24_dco.html)
-+	and should include a Signed-off-by: line.
-+
- 6.	Make sure you have the right to send any changes you make. If you
- 	do changes at work you may find your employer owns the patch
- 	not you.
- 
- 7.	When sending security related changes or reports to a maintainer
--	please Cc: linux-security@kernel.org, especially if the maintainer
-+	please Cc: security@kernel.org, especially if the maintainer
- 	does not respond.
- 
- 8.	Happy hacking.
+> Hmm, could this be the "acpi_sleep=s3_bios" that Suspend2 asks for?
+> I haven't removed that option yet.
 
+This option has 0 effect until you suspend to RAM.
+									Pavel
 
-
-or alternatively:
-
---- linux.vanilla-2.6.17-rc4/MAINTAINERS	2006-05-15 15:46:01.000000000 +0100
-+++ linux-2.6.17-rc4/MAINTAINERS	2006-05-17 13:06:37.923463896 +0100
-@@ -40,11 +40,20 @@
- 	PLEASE document known bugs. If it doesn't work for everything
- 	or does something very odd once a month document it.
- 
-+	PLEASE remember that submissions must be made under the terms
-+	of the OSDL certificate of contribution
-+	(http://www.osdl.org/newsroom/press_releases/2004/2004_05_24_dco.html)
-+	and should include a Signed-off-by: line.
-+
- 6.	Make sure you have the right to send any changes you make. If you
- 	do changes at work you may find your employer owns the patch
- 	not you.
- 
--7.	Happy hacking.
-+7.	When sending security related changes or reports to a maintainer
-+	please Cc: security@kernel.org, especially if the maintainer
-+	does not respond.
-+
-+8.	Happy hacking.
- 
-  		-----------------------------------
- 
-
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

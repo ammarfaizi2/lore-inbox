@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbWEQKC6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932507AbWEQKCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932521AbWEQKC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 06:02:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932528AbWEQKC5
+	id S932507AbWEQKCs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 06:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbWEQKCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 06:02:57 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:53961 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932521AbWEQKC4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 06:02:56 -0400
-Date: Wed, 17 May 2006 06:01:26 -0400 (EDT)
+	Wed, 17 May 2006 06:02:47 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:25855 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932525AbWEQKCq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 06:02:46 -0400
+Date: Wed, 17 May 2006 06:01:57 -0400 (EDT)
 From: Steven Rostedt <rostedt@goodmis.org>
 X-X-Sender: rostedt@gandalf.stny.rr.com
 To: LKML <linux-kernel@vger.kernel.org>
@@ -29,39 +29,30 @@ cc: Rusty Russell <rusty@rustcorp.com.au>, Paul Mackerras <paulus@samba.org>,
        linux390@de.ibm.com, davem@davemloft.net, arnd@arndb.de,
        kenneth.w.chen@intel.com, sam@ravnborg.org, clameter@sgi.com,
        kiran@scalex86.org
-Subject: [RFC PATCH 08/09] robust VM per_cpu i386 header
+Subject: [RFC PATCH 09/09] robust VM per_cpu i386 Kconfig update
 In-Reply-To: <Pine.LNX.4.58.0605170547490.8408@gandalf.stny.rr.com>
-Message-ID: <Pine.LNX.4.58.0605170601090.8408@gandalf.stny.rr.com>
+Message-ID: <Pine.LNX.4.58.0605170601330.8408@gandalf.stny.rr.com>
 References: <Pine.LNX.4.58.0605170547490.8408@gandalf.stny.rr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds the __ARCH_HAS_VM_PERCPU to i386 and defines
-the PERCPU_START macro.
+This patch forces the CONFIG_HAS_VM_PERCU to be defined for i386.
 
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-Index: linux-2.6.16-test/include/asm-i386/percpu.h
+Index: linux-2.6.16-test/arch/i386/Kconfig
 ===================================================================
---- linux-2.6.16-test.orig/include/asm-i386/percpu.h	2006-05-17 04:32:27.000000000 -0400
-+++ linux-2.6.16-test/include/asm-i386/percpu.h	2006-05-17 05:00:00.000000000 -0400
-@@ -1,6 +1,16 @@
- #ifndef __ARCH_I386_PERCPU__
- #define __ARCH_I386_PERCPU__
-
-+#ifdef CONFIG_HAS_VM_PERCPU
-+#define  __ARCH_HAS_VM_PERCPU
-+#include <asm/fixmap.h>
+--- linux-2.6.16-test.orig/arch/i386/Kconfig	2006-05-17 04:32:27.000000000 -0400
++++ linux-2.6.16-test/arch/i386/Kconfig	2006-05-17 05:00:10.000000000 -0400
+@@ -1116,3 +1116,7 @@ config X86_TRAMPOLINE
+ config KTIME_SCALAR
+ 	bool
+ 	default y
 +
-+/*
-+ * Virtual address space for the percpu area.
-+ */
-+#define PERCPU_START (__fix_to_virt(FIX_PERCPU_END))
-+#endif /* CONFIG_HAS_VM_PERCPU */
-+
- #include <asm-generic/percpu.h>
-
- #endif /* __ARCH_I386_PERCPU__ */
++config HAS_VM_PERCPU
++	bool
++	default y
+\ No newline at end of file
 

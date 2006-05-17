@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbWEQTJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbWEQTNX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750990AbWEQTJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 15:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbWEQTJ7
+	id S1750994AbWEQTNX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 15:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWEQTNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 15:09:59 -0400
-Received: from main.gmane.org ([80.91.229.2]:58284 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750986AbWEQTJ7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 15:09:59 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthieu CASTET <castet.matthieu@free.fr>
-Subject: Re: libata PATA updated patch
-Date: Wed, 17 May 2006 21:09:19 +0200
-Message-ID: <pan.2006.05.17.19.09.14.685473@free.fr>
-References: <1147796037.2151.83.camel@localhost.localdomain>
+	Wed, 17 May 2006 15:13:23 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:35051 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S1750992AbWEQTNX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 15:13:23 -0400
+Date: Wed, 17 May 2006 15:12:12 -0400
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: swapper_space export
+Message-ID: <20060517191212.GA23038@filer.fsl.cs.sunysb.edu>
+References: <20060516232443.GA10762@filer.fsl.cs.sunysb.edu> <1147864721.3051.17.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0605171626460.6711@blonde.wat.veritas.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0605171626460.6711@blonde.wat.veritas.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Tue, 16 May 2006 17:13:57 +0100, Alan Cox a écrit :
+On Wed, May 17, 2006 at 04:52:36PM +0100, Hugh Dickins wrote:
+> On Wed, 17 May 2006, Arjan van de Ven wrote:
+> > On Tue, 2006-05-16 at 19:24 -0400, Josef Sipek wrote:
+> > > I was trying to compile the Unionfs[1] to get it up to sync it up with
+> > > the kernel developments from the past few months. Anyway, long story
+> > > short...swapper_space (defined in mm/swap_state.c) is not exported
+> > > anymore (git commit: 4936967374c1ad0eb3b734f24875e2484c3786cc). This
+> > > apparently is not an issue for most modules. Troubles arise when the
+> > > modules include mm.h or any of its relatives.
+> > > 
+> > > One simply gets a linker error about swapper_space not being defined.
+> > > The problem is that it is used in mm.h.
+> > 
+> > don't you think it's really suspect that no other filesystem, in fact no
+> > other driver in the kernel needs this? Could it just be that unionfs is 
+> > using a wrong API ? Because if that's the case you're patch is just the
+> > wrong thing. Maybe the unionfs people should try to submit their code
+> > for review etc......
+>
+> I see no reference to page_mapping() in the unionfs source (and at
+> present there's no other justifiable modular use of swapper_space);
+> but my guess would be that Jeff is being more conscientious than is
+> called for in getting it to sync up with the kernel -
 
-> I've put a patch versus -rc4 in the usual place. This should sort out
-> the PIO problems and a few other glitches
-> 
-> Alan
-> 
-> http://zeniv.linux.org.uk/~alan/IDE
-Ok the via timing are ok now.
+That's what happens when one is trying to get ready to send the code to
+linux-kernel & fs-devel :)
 
-If I had in ata_host_intr someting like [1] for checking the altstatus, my
-ATAPI drive works.
-It report "ata_altstatus take 3us", for driver that wasn't worked before.
+> The unionfs source does contain its own inline "sync_page" which
+> comments that it "is copied verbatim from mm/filemap.c".  I'm
+> guessing Jeff has noticed that it's no longer a verbatim copy,
+> has made it so, and is thereby involving page_mapping().
 
-I don't know if it is a correct fix and where it should be putted (in
-libata-core or in the pata_via check_altstatus callback).
-I don't know if it should be used only for ATA_CMD_SET_FEATURES &&
-SETFEATURES_XFER.
+Good guess, exactly what happened.
 
-Now real testing could begging.
+> Just use page->mapping as before.
 
-Matthieu
+Thanks for the advice.
 
+> (But I notice that unionfs better not have a tmpfs in its union:
+> the unionfs use of grab_cache_page is not strictly compatible with
+> the way tmpfs pages are swapped out under memory pressure.)
 
+We have some tmpfs nastiness reported in the bugzilla - I guess this is
+a good starting point - thanks!
 
-[1]
-		for (i=0; ata_altstatus(ap) & ATA_BUSY; i++) {
-                        if (i > 10)
-                                goto idle_irq;
-                udelay(1);
-                }
-                if (i)
-                        printk("ata_altstatus take %dus\n", i);
-
+Thanks all,
+Josef "Jeff" Sipek.

@@ -1,50 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932554AbWEQNqc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932557AbWEQN4D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932554AbWEQNqc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 09:46:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbWEQNqc
+	id S932557AbWEQN4D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 09:56:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbWEQN4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 09:46:32 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:59540 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932554AbWEQNqb convert rfc822-to-8bit (ORCPT
+	Wed, 17 May 2006 09:56:03 -0400
+Received: from ns1.suse.de ([195.135.220.2]:53728 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932557AbWEQN4B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 09:46:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=rADtVaJaMPVgGunSMPdf6pphJ/MEqT778W2IwKeVLduH9madAzg+Jvkh8ItPchKjiAd/JVHDnMnt3ceXbyjLqbwHmks40Cw2U8eww5Ea3LVZ6uEagIOWux4Kpqi/2gE9dc+rr/rbGeFcteSmchm+WrGNbGOcj2NHvDzMasRF53c=
-Message-ID: <b6c5339f0605170646ya421b70w9354544b3390e74b@mail.gmail.com>
-Date: Wed, 17 May 2006 09:46:30 -0400
-From: "Bob Copeland" <me@bobcopeland.com>
-To: "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>
-Subject: Re: replacing X Window System !
-Cc: "linux cbon" <linuxcbon@yahoo.fr>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060517132403.GB23933@csclub.uwaterloo.ca>
+	Wed, 17 May 2006 09:56:01 -0400
+To: Ganesan Rajagopal <rganesan@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Van Jacobson Channels - Earlier Work
+References: <xkvhves495x9.fsf@grajagop-lnx.cisco.com>
+From: Andi Kleen <ak@suse.de>
+Date: 17 May 2006 15:55:59 +0200
+In-Reply-To: <xkvhves495x9.fsf@grajagop-lnx.cisco.com>
+Message-ID: <p737j4k4uxc.fsf@bragg.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200605171218.k4HCIt4L013978@turing-police.cc.vt.edu>
-	 <20060517123937.75295.qmail@web26605.mail.ukl.yahoo.com>
-	 <20060517132403.GB23933@csclub.uwaterloo.ca>
-X-Google-Sender-Auth: 26d41cdfbcd2637c
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/17/06, Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
-> On Wed, May 17, 2006 at 02:39:37PM +0200, linux cbon wrote:
-> > If we have a new window system, shall all applications
-> > be rewritten ?
->
-> Unless you make your new system compatible with X, then all X
-> applications must be rewritten.
+Ganesan Rajagopal <rganesan@debian.org> writes:
 
-True for things written directly with Xlib, but hardly anything new is
-written without a toolkit these days.  E.g. someone could port GDK to
-the new windowing system of the week and all GTK+ applications would
-work.  Though I won't disagree that the idea is pointless.
+> Hi,
+> 
+> A colleague at work pointed me to a 10 year old paper OSDI paper called Lazy
+> Receiver Processing (See http://www.cs.rice.edu/CS/Systems/LRP/). The work
+> appears similar to what Van Jacobson is proposing in his paper.
 
-Bob
+Linux has been implementing user context UDP/TCP (which is afaik the main core
+feature of LRP) for many years now. netchannels has much more ideas though.
+
+-Andi

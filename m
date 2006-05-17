@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932507AbWEQKCs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbWEQKPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932507AbWEQKCs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 06:02:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbWEQKCr
+	id S1750855AbWEQKPr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 06:15:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWEQKPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 06:02:47 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:25855 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932525AbWEQKCq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 06:02:46 -0400
-Date: Wed, 17 May 2006 06:01:57 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: LKML <linux-kernel@vger.kernel.org>
-cc: Rusty Russell <rusty@rustcorp.com.au>, Paul Mackerras <paulus@samba.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
-       Martin Mares <mj@atrey.karlin.mff.cuni.cz>, bjornw@axis.com,
-       schwidefsky@de.ibm.com, benedict.gaster@superh.com, lethal@linux-sh.org,
-       Chris Zankel <chris@zankel.net>, Marc Gauthier <marc@tensilica.com>,
-       Joe Taylor <joe@tensilica.com>,
-       David Mosberger-Tang <davidm@hpl.hp.com>, rth@twiddle.net,
-       spyro@f2s.com, starvik@axis.com, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org, ralf@linux-mips.org,
-       linux-mips@linux-mips.org, grundler@parisc-linux.org,
-       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
-       linux390@de.ibm.com, davem@davemloft.net, arnd@arndb.de,
-       kenneth.w.chen@intel.com, sam@ravnborg.org, clameter@sgi.com,
-       kiran@scalex86.org
-Subject: [RFC PATCH 09/09] robust VM per_cpu i386 Kconfig update
-In-Reply-To: <Pine.LNX.4.58.0605170547490.8408@gandalf.stny.rr.com>
-Message-ID: <Pine.LNX.4.58.0605170601330.8408@gandalf.stny.rr.com>
-References: <Pine.LNX.4.58.0605170547490.8408@gandalf.stny.rr.com>
+	Wed, 17 May 2006 06:15:46 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:62992 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750855AbWEQKPq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 06:15:46 -0400
+Date: Wed, 17 May 2006 12:15:44 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: swapper_space export
+Message-ID: <20060517101544.GW10077@stusta.de>
+References: <20060516232443.GA10762@filer.fsl.cs.sunysb.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060516232443.GA10762@filer.fsl.cs.sunysb.edu>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch forces the CONFIG_HAS_VM_PERCU to be defined for i386.
+On Tue, May 16, 2006 at 07:24:43PM -0400, Josef Sipek wrote:
+> I was trying to compile the Unionfs[1] to get it up to sync it up with
+> the kernel developments from the past few months. Anyway, long story
+> short...swapper_space (defined in mm/swap_state.c) is not exported
+> anymore (git commit: 4936967374c1ad0eb3b734f24875e2484c3786cc). This
+> apparently is not an issue for most modules. Troubles arise when the
+> modules include mm.h or any of its relatives.
+> 
+> One simply gets a linker error about swapper_space not being defined.
+> The problem is that it is used in mm.h.
+> 
+> I included a reverse patch to export the symbol again.
 
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Can we discuss this patch when Unionfs gets submitted for inclusion into 
+the kernel?
 
-Index: linux-2.6.16-test/arch/i386/Kconfig
-===================================================================
---- linux-2.6.16-test.orig/arch/i386/Kconfig	2006-05-17 04:32:27.000000000 -0400
-+++ linux-2.6.16-test/arch/i386/Kconfig	2006-05-17 05:00:10.000000000 -0400
-@@ -1116,3 +1116,7 @@ config X86_TRAMPOLINE
- config KTIME_SCALAR
- 	bool
- 	default y
-+
-+config HAS_VM_PERCPU
-+	bool
-+	default y
-\ No newline at end of file
+It's in fact a good thing if you and other people regularly notice that 
+external modules do not longer work here or there since it creates 
+pressure towards getting external modules submitted for inclusion into 
+the kernel.
+
+> Josef "Jeff" Sipek.
+>...
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

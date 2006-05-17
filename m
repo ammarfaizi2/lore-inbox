@@ -1,36 +1,40 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751489AbWEPSJh (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 16 May 2006 14:09:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbWEPSJh
+	id S932150AbWEQFkU (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 17 May 2006 01:40:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWEQFkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 14:09:37 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:8408 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S1751470AbWEPSJf (ORCPT
+	Wed, 17 May 2006 01:40:20 -0400
+Received: from ppp-jt2-b.telkom.net.id ([61.5.8.200]:17159 "HELO 61.5.8.129")
+	by vger.kernel.org with SMTP id S932150AbWEQFkT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 14:09:35 -0400
-Message-ID: <602115DC.2C05E9D@arsenal.co.uk>
-Date: Tue, 16 May 2006 09:42:26 -0900
-From: "Luke" <oxwacpp@arsenal.co.uk>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us
+	Wed, 17 May 2006 01:40:19 -0400
+Message-ID: <F7FEBE37.9808684@reports.bluesecurity.com>
+Date: Wed, 17 May 2006 12:40:29 +0700
+From: Gregory <Gregory@reports.bluesecurity.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: <git@vger.kernel.org>, <2b2890@vger.kernel.org>,
-	<1932@vger.kernel.org>, <2b11789@vger.kernel.org>,
-	<2890@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-raid-owner@vger.kernel.org>, <36@vger.kernel.org>
-Subject: let's meet
-Content-Type: text/plain;
-	charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: tralia !
+Content-Type: text/plain; charset=windows-1251; format=flowed
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751489AbWEPSJh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932150AbWEQFkU@vger.kernel.org>
 
-Hire,
-i am here sittiang in the internet caffe. Found your email a!nd
-decided to write. I might be coming to your p!lace in 14 days, 
-so I decided to email you. May be we ca!n meet? I am 25 y.o.
-girl. I have a picture if you want. No need to reply here as 
-this is not my email. Write me at ex@datetodayy.com
+Dear Sir/ Madam,
+
+More than 200 people are working with us, but we are still looking for
+more business partners all over the world. Please, take 5 minutes and
+check our website for open vacancies. We have home work programs and
+everyone can participate in it. Use your free time to earn extra money
+or become our full-time employee.
+This work does not require any special education. This work is accessible
+to everyone. You see that it is an easy work and it does not require many forces
+and energy.
+If you are interested, we shall be glad to cooperate
+with you. You will need no money to start.
+If you are interested in our offer, please visit us
+http://www.open-vacancies.com
 
 

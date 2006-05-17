@@ -1,207 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWEQWDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWEQWDt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751178AbWEQWDd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 18:03:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWEQWDd
+	id S1751187AbWEQWDt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 18:03:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWEQWDt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 18:03:33 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:16801 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751178AbWEQWDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 18:03:33 -0400
-Subject: [Fwd: [PATCH 2.6.17-rc4 1/1] usbvideo misc cleanup]
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Linux and Kernel Video <video4linux-list@redhat.com>
-Cc: Simon Evans <spse@secret.org.uk>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, jayakumar.video@gmail.com,
-       Dmitri <dmitri@users.sourceforge.net>
-Content-Type: text/plain
-Date: Wed, 17 May 2006 19:02:30 -0300
-Message-Id: <1147903350.30469.16.camel@praia>
+	Wed, 17 May 2006 18:03:49 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:52896 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S1751187AbWEQWDr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 18:03:47 -0400
+Date: Wed, 17 May 2006 18:03:46 -0400
+From: Brice Goglin <brice@myri.com>
+To: netdev@vger.kernel.org
+Cc: gallatin@myri.com, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/4] myri10ge - Revive pci_find_ext_capability
+Message-ID: <20060517220345.GB13411@myri.com>
+References: <20060517220218.GA13411@myri.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1-2mdk 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060517220218.GA13411@myri.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm... It seems that those drivers are without any current maintainer.
-At least, from my research, I didn't noticed any patch from a maintainer
-at 2.6 git tree.
+[PATCH 1/4] myri10ge - Revive pci_find_ext_capability
 
-Anyway, let's copy both Dmitri and Simon.
+This patch revives pci_find_ext_capability (has been disabled a couple month
+ago since it was not used anywhere. See http://lkml.org/lkml/2006/1/20/247).
+It will now be used by the myri10ge driver.
 
-I dunno who were the authors for ibmcam and usbvideo.
+Signed-off-by: Brice Goglin <brice@myri.com>
+Signed-off-by: Andrew J. Gallatin <gallatin@myri.com>
 
+ drivers/pci/pci.c   |    3 +--
+ include/linux/pci.h |    2 ++
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
--------- Mensagem encaminhada --------
-De: jayakumar.video@gmail.com
-Para: linux-kernel@vger.kernel.org,
-linux-usb-devel@lists.sourceforge.net
-Assunto: [PATCH 2.6.17-rc4 1/1] usbvideo misc cleanup
-Data: 	Wed, 17 May 2006 12:13:54 +0800
-
-Hi Greg KH, USB folk, kernel folk,
-
-I've appended a small patch to cleanup some of the usbvideo drivers 
-as per Oliver Neukum's feedback and the response in the following 
-threads:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114770240416519&w=2
-[ unneccessary urb initialization of .status ]
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114767440903341&w=2 
-[ shouldn't build the cbTbl structs on the stack ]
-
-I hope it's okay with the respective authors.
-
-Thanks,
-Jaya Kumar
-
-Signed-off-by: Jaya Kumar <jayakumar.video@gmail.com>
-
----
-
- ibmcam.c   |   25 ++++++++++++++-----------
- konicawc.c |   30 +++++++++++++-----------------
- usbvideo.c |    5 -----
- 3 files changed, 27 insertions(+), 33 deletions(-)
-
----
-
-diff -X linux-2.6.17-rc4-vidcleanup/Documentation/dontdiff -uprN linux-2.6.17-rc4-vanilla/drivers/media/video/usbvideo/ibmcam.c linux-2.6.17-rc4-vidcleanup/drivers/media/video/usbvideo/ibmcam.c
---- linux-2.6.17-rc4-vanilla/drivers/media/video/usbvideo/ibmcam.c	2006-05-17 08:11:36.000000000 +0800
-+++ linux-2.6.17-rc4-vidcleanup/drivers/media/video/usbvideo/ibmcam.c	2006-05-17 11:19:14.000000000 +0800
-@@ -3899,24 +3899,27 @@ static struct usb_device_id id_table[] =
-  * 1/27/00  Reworked to use statically allocated ibmcam structures.
-  * 21/10/00 Completely redesigned to use usbvideo services.
-  */
-+
-+static struct usbvideo_cb ibmcam_driver = {
-+	.probe = 		ibmcam_probe,
-+	.setupOnOpen = 		ibmcam_setup_on_open,
-+	.videoStart = 		ibmcam_video_start,
-+	.videoStop = 		ibmcam_video_stop,
-+	.processData = 		ibmcam_ProcessIsocData,
-+	.postProcess = 		usbvideo_DeinterlaceFrame,
-+	.adjustPicture = 	ibmcam_adjust_picture,
-+	.getFPS = 		ibmcam_calculate_fps
-+};
-+
-+
- static int __init ibmcam_init(void)
- {
--	struct usbvideo_cb cbTbl;
--	memset(&cbTbl, 0, sizeof(cbTbl));
--	cbTbl.probe = ibmcam_probe;
--	cbTbl.setupOnOpen = ibmcam_setup_on_open;
--	cbTbl.videoStart = ibmcam_video_start;
--	cbTbl.videoStop = ibmcam_video_stop;
--	cbTbl.processData = ibmcam_ProcessIsocData;
--	cbTbl.postProcess = usbvideo_DeinterlaceFrame;
--	cbTbl.adjustPicture = ibmcam_adjust_picture;
--	cbTbl.getFPS = ibmcam_calculate_fps;
- 	return usbvideo_register(
- 		&cams,
- 		MAX_IBMCAM,
- 		sizeof(ibmcam_t),
- 		"ibmcam",
--		&cbTbl,
-+		&ibmcam_driver,
- 		THIS_MODULE,
- 		id_table);
+--- linux-mm/drivers/pci/pci.c.old
++++ linux-mm/drivers/pci/pci.c
+@@ -164,7 +164,6 @@ int pci_bus_find_capability(struct pci_b
+ 	return __pci_bus_find_cap(bus, devfn, hdr_type & 0x7f, cap);
  }
-diff -X linux-2.6.17-rc4-vidcleanup/Documentation/dontdiff -uprN linux-2.6.17-rc4-vanilla/drivers/media/video/usbvideo/konicawc.c linux-2.6.17-rc4-vidcleanup/drivers/media/video/usbvideo/konicawc.c
---- linux-2.6.17-rc4-vanilla/drivers/media/video/usbvideo/konicawc.c	2006-05-17 08:11:36.000000000 +0800
-+++ linux-2.6.17-rc4-vidcleanup/drivers/media/video/usbvideo/konicawc.c	2006-05-17 11:22:41.000000000 +0800
-@@ -53,6 +53,7 @@ enum frame_sizes {
- #define MAX_FRAME_SIZE	SIZE_320X240
  
- static struct usbvideo *cams;
-+static unsigned char marker[] = { 0, 0xff, 0, 0x00 };
+-#if 0
+ /**
+  * pci_find_ext_capability - Find an extended capability
+  * @dev: PCI device to query
+@@ -212,7 +211,7 @@ int pci_find_ext_capability(struct pci_d
  
- #ifdef CONFIG_USB_DEBUG
- static int debug;
-@@ -344,7 +345,6 @@ static int konicawc_compress_iso(struct 
- 
- 		keep++;
- 		if(sts & 0x80) { /* frame start */
--			unsigned char marker[] = { 0, 0xff, 0, 0x00 };
- 
- 			if(cam->lastframe == -2) {
- 				DEBUG(2, "found initial image");
-@@ -368,11 +368,7 @@ static int konicawc_compress_iso(struct 
- static void resubmit_urb(struct uvd *uvd, struct urb *urb)
- {
- 	int i, ret;
--	for (i = 0; i < FRAMES_PER_DESC; i++) {
--		urb->iso_frame_desc[i].status = 0;
--	}
- 	urb->dev = uvd->dev;
--	urb->status = 0;
- 	ret = usb_submit_urb(urb, GFP_ATOMIC);
- 	DEBUG(3, "submitting urb of length %d", urb->transfer_buffer_length);
- 	if(ret)
-@@ -917,27 +913,27 @@ static struct usb_device_id id_table[] =
- 	{ }  /* Terminating entry */
- };
- 
-+static struct usbvideo_cb konicawc_driver = {
-+	.probe = 		konicawc_probe,
-+	.setupOnOpen = 		konicawc_setup_on_open,
-+	.processData = 		konicawc_process_isoc,
-+	.getFPS = 		konicawc_calculate_fps,
-+	.setVideoMode = 	konicawc_set_video_mode,
-+	.startDataPump = 	konicawc_start_data,
-+	.stopDataPump = 	konicawc_stop_data,
-+	.adjustPicture = 	konicawc_adjust_picture,
-+	.userFree = 		konicawc_free_uvd
-+};
- 
- static int __init konicawc_init(void)
- {
--	struct usbvideo_cb cbTbl;
- 	info(DRIVER_DESC " " DRIVER_VERSION);
--	memset(&cbTbl, 0, sizeof(cbTbl));
--	cbTbl.probe = konicawc_probe;
--	cbTbl.setupOnOpen = konicawc_setup_on_open;
--	cbTbl.processData = konicawc_process_isoc;
--	cbTbl.getFPS = konicawc_calculate_fps;
--	cbTbl.setVideoMode = konicawc_set_video_mode;
--	cbTbl.startDataPump = konicawc_start_data;
--	cbTbl.stopDataPump = konicawc_stop_data;
--	cbTbl.adjustPicture = konicawc_adjust_picture;
--	cbTbl.userFree = konicawc_free_uvd;
- 	return usbvideo_register(
- 		&cams,
- 		MAX_CAMERAS,
- 		sizeof(struct konicawc),
- 		"konicawc",
--		&cbTbl,
-+		&konicawc_driver,
- 		THIS_MODULE,
- 		id_table);
+ 	return 0;
  }
-diff -X linux-2.6.17-rc4-vidcleanup/Documentation/dontdiff -uprN linux-2.6.17-rc4-vanilla/drivers/media/video/usbvideo/usbvideo.c linux-2.6.17-rc4-vidcleanup/drivers/media/video/usbvideo/usbvideo.c
---- linux-2.6.17-rc4-vanilla/drivers/media/video/usbvideo/usbvideo.c	2006-05-17 08:11:36.000000000 +0800
-+++ linux-2.6.17-rc4-vidcleanup/drivers/media/video/usbvideo/usbvideo.c	2006-05-17 10:46:21.000000000 +0800
-@@ -1720,11 +1720,6 @@ static void usbvideo_IsocIrq(struct urb 
- 	RingQueue_WakeUpInterruptible(&uvd->dp);
+-#endif  /*  0  */
++EXPORT_SYMBOL_GPL(pci_find_ext_capability);
  
- urb_done_with:
--	for (i = 0; i < FRAMES_PER_DESC; i++) {
--		urb->iso_frame_desc[i].status = 0;
--		urb->iso_frame_desc[i].actual_length = 0;
--	}
--	urb->status = 0;
- 	urb->dev = uvd->dev;
- 	ret = usb_submit_urb (urb, GFP_KERNEL);
- 	if(ret)
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-Cheers, 
-Mauro.
-
+ /**
+  * pci_find_parent_resource - return resource region of parent bus of given region
+--- linux-mm/include/linux/pci.h.old
++++ linux-mm/include/linux/pci.h
+@@ -443,6 +443,7 @@ struct pci_dev *pci_find_device_reverse 
+ struct pci_dev *pci_find_slot (unsigned int bus, unsigned int devfn);
+ int pci_find_capability (struct pci_dev *dev, int cap);
+ int pci_find_next_capability (struct pci_dev *dev, u8 pos, int cap);
++int pci_find_ext_capability (struct pci_dev *dev, int cap);
+ struct pci_bus * pci_find_next_bus(const struct pci_bus *from);
+ 
+ struct pci_dev *pci_get_device (unsigned int vendor, unsigned int device, struct pci_dev *from);
+@@ -670,6 +671,7 @@ static inline int pci_register_driver(st
+ static inline void pci_unregister_driver(struct pci_driver *drv) { }
+ static inline int pci_find_capability (struct pci_dev *dev, int cap) {return 0; }
+ static inline int pci_find_next_capability (struct pci_dev *dev, u8 post, int cap) { return 0; }
++static inline int pci_find_ext_capability (struct pci_dev *dev, int cap) {return 0; }
+ static inline const struct pci_device_id *pci_match_device(const struct pci_device_id *ids, const struct pci_dev *dev) { return NULL; }
+ 
+ /* Power management related routines */

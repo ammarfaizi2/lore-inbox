@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbWEQARc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbWEQA3A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932312AbWEQARc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 20:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWEQAQ4
+	id S932327AbWEQA3A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 20:29:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWEQARg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 20:16:56 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:59548 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932297AbWEQAQe (ORCPT
+	Tue, 16 May 2006 20:17:36 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:57296 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932334AbWEQARW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 20:16:34 -0400
-Date: Wed, 17 May 2006 02:16:18 +0200
+	Tue, 16 May 2006 20:17:22 -0400
+Date: Wed, 17 May 2006 02:17:11 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
 Cc: Thomas Gleixner <tglx@linutronix.de>,
@@ -17,17 +17,18 @@ Cc: Thomas Gleixner <tglx@linutronix.de>,
        Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
        Christoph Hellwig <hch@infradead.org>,
        linux-arm-kernel@lists.arm.linux.org.uk
-Subject: [patch 14/50] genirq: cleanup: no_irq_type cleanups
-Message-ID: <20060517001618.GO12877@elte.hu>
+Subject: [patch 25/50] genirq: cleanup: no_irq_type -> no_irq_chip rename
+Message-ID: <20060517001711.GZ12877@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
+X-ELTE-SpamScore: -2.8
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
 	0.0 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
@@ -35,67 +36,60 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Ingo Molnar <mingo@elte.hu>
 
-clean up no_irq_type: share the NOP functions where possible,
-and properly name the ack_bad() function.
+rename no_irq_type to no_irq_chip.
 
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- kernel/irq/handle.c |   38 ++++++++++++++++++--------------------
- 1 file changed, 18 insertions(+), 20 deletions(-)
+ kernel/irq/handle.c |    4 ++--
+ kernel/irq/manage.c |    2 +-
+ kernel/irq/proc.c   |    2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
 Index: linux-genirq.q/kernel/irq/handle.c
 ===================================================================
 --- linux-genirq.q.orig/kernel/irq/handle.c
 +++ linux-genirq.q/kernel/irq/handle.c
-@@ -40,32 +40,30 @@ struct irq_desc irq_desc[NR_IRQS] __cach
- };
- 
+@@ -47,7 +47,7 @@ handle_bad_irq(unsigned int irq, struct 
+ struct irq_desc irq_desc[NR_IRQS] __cacheline_aligned = {
+ 	[0 ... NR_IRQS-1] = {
+ 		.status = IRQ_DISABLED,
+-		.handler = &no_irq_type,
++		.handler = &no_irq_chip,
+ 		.handle = handle_bad_irq,
+ 		.lock = SPIN_LOCK_UNLOCKED,
+ 		.depth = 1,
+@@ -76,7 +76,7 @@ static void noop(unsigned int irq)
  /*
-- * Generic 'no controller' code
-+ * What should we do if we get a hw irq event on an illegal vector?
-+ * Each architecture has to answer this themself.
+  * Generic no controller implementation
   */
--static void end_none(unsigned int irq) { }
--static void enable_none(unsigned int irq) { }
--static void disable_none(unsigned int irq) { }
--static void shutdown_none(unsigned int irq) { }
--static unsigned int startup_none(unsigned int irq) { return 0; }
--
--static void ack_none(unsigned int irq)
-+static void ack_bad(unsigned int irq)
- {
--	/*
--	 * 'what should we do if we get a hw irq event on an illegal vector'.
--	 * each architecture has to answer this themself.
--	 */
- 	ack_bad_irq(irq);
- }
+-struct hw_interrupt_type no_irq_type = {
++struct irq_chip no_irq_chip = {
+ 	.typename =	"none",
+ 	.enable =	noop,
+ 	.disable =	noop,
+Index: linux-genirq.q/kernel/irq/manage.c
+===================================================================
+--- linux-genirq.q.orig/kernel/irq/manage.c
++++ linux-genirq.q/kernel/irq/manage.c
+@@ -188,7 +188,7 @@ int setup_irq(unsigned int irq, struct i
+ 	if (irq >= NR_IRQS)
+ 		return -EINVAL;
  
-+/*
-+ * NOP functions
-+ */
-+static void noop(unsigned int irq)
-+{
-+}
-+
-+/*
-+ * Generic no controller implementation
-+ */
- struct hw_interrupt_type no_irq_type = {
--	.typename = 	"none",
--	.startup = 	startup_none,
--	.shutdown = 	shutdown_none,
--	.enable = 	enable_none,
--	.disable = 	disable_none,
--	.ack = 		ack_none,
--	.end = 		end_none,
--	.set_affinity = NULL
-+	.typename =	"none",
-+	.enable =	noop,
-+	.disable =	noop,
-+	.ack =		ack_bad,
-+	.end =		noop,
- };
+-	if (desc->handler == &no_irq_type)
++	if (desc->handler == &no_irq_chip)
+ 		return -ENOSYS;
+ 	/*
+ 	 * Some drivers like serial.c use request_irq() heavily,
+Index: linux-genirq.q/kernel/irq/proc.c
+===================================================================
+--- linux-genirq.q.orig/kernel/irq/proc.c
++++ linux-genirq.q/kernel/irq/proc.c
+@@ -119,7 +119,7 @@ void register_irq_proc(unsigned int irq)
+ 	char name [MAX_NAMELEN];
  
- /*
+ 	if (!root_irq_dir ||
+-		(irq_desc[irq].handler == &no_irq_type) ||
++		(irq_desc[irq].handler == &no_irq_chip) ||
+ 			irq_dir[irq])
+ 		return;
+ 

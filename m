@@ -1,39 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbWEQIgY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932498AbWEQIhN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932488AbWEQIgY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 04:36:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932490AbWEQIgY
+	id S932498AbWEQIhN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 04:37:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbWEQIhM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 04:36:24 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:43747 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S932488AbWEQIgX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 04:36:23 -0400
-Date: Wed, 17 May 2006 10:36:22 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Olaf Hering <olh@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ignore partition table on disks with AIX label
-Message-ID: <20060517083622.GA15627@rhlx01.fht-esslingen.de>
-References: <20060517081314.GA20415@suse.de>
+	Wed, 17 May 2006 04:37:12 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:17837 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932491AbWEQIhK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 04:37:10 -0400
+Date: Wed, 17 May 2006 10:36:59 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       linux-arm-kernel@lists.arm.linux.org.uk
+Subject: Re: [patch 39/50] genirq: ARM: Convert omap1 to generic irq handling
+Message-ID: <20060517083659.GA26576@elte.hu>
+References: <20060517001814.GN12877@elte.hu> <1147834516.17117.10.camel@c-67-180-134-207.hsd1.ca.comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060517081314.GA20415@suse.de>
+In-Reply-To: <1147834516.17117.10.camel@c-67-180-134-207.hsd1.ca.comcast.net>
 User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, May 17, 2006 at 10:13:14AM +0200, Olaf Hering wrote:
-> +/* Value is EBCIDIC 'IBMA' */
+* Daniel Walker <dwalker@mvista.com> wrote:
 
-Google "EBCIDIC EBCDIC"
---> http://burks.bton.ac.uk/burks/foldoc/18/36.htm
+> The set_wake member in irq_chip structure must have changed ..
+> 
+> In -v3 it's
+> 
+> int             (*set_wake)(unsigned int irq, int on);
+> 
+> and in arch/arm/mach-omap1/irq.c that member gets set to
+> 
+> static int omap_wake_irq(unsigned int irq, unsigned int enable)
+> 
+> this is from 2.6.17-rc4 so it's likely in some level of flux either in 
+> the generic irq patch or the omap tree ..
 
-99.999% of all people have never ever heard of this important encoding anyway,
-so better don't confuse them additionally ;)
+indeed - it's flux from -v4 cleanups. I have changed it back to 
+'unsigned int on'.
 
-Andreas Mohr
+	Ingo

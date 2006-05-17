@@ -1,71 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWEQPwk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWEQPx1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbWEQPwk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 11:52:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWEQPwk
+	id S1750734AbWEQPx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 11:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWEQPx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 11:52:40 -0400
-Received: from gold.veritas.com ([143.127.12.110]:56702 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1750738AbWEQPwk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 11:52:40 -0400
-X-IronPort-AV: i="4.05,138,1146466800"; 
-   d="scan'208"; a="59601783:sNHT30676772"
-Date: Wed, 17 May 2006 16:52:36 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Josef Sipek <jsipek@fsl.cs.sunysb.edu>, linux-kernel@vger.kernel.org
-Subject: Re: swapper_space export
-In-Reply-To: <1147864721.3051.17.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.64.0605171626460.6711@blonde.wat.veritas.com>
-References: <20060516232443.GA10762@filer.fsl.cs.sunysb.edu>
- <1147864721.3051.17.camel@laptopd505.fenrus.org>
+	Wed, 17 May 2006 11:53:27 -0400
+Received: from web26604.mail.ukl.yahoo.com ([217.146.176.54]:51548 "HELO
+	web26604.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1750734AbWEQPx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 11:53:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=n0/nmZwEhn/Rn0A3qOWVxapXt458ng73CuxL5QPAzV4+Nqdm9eAlYW9tIEnz5fRBrgoL5OEav03GC5n4uVJyWeWGJ31cr6gGLpU2IMR9x+fcJv8QRPkcueUyvwOUVIVaEkIjzFvA6/1IATC1PaZaZvdVTzBgyWRm53vJcNB+3UQ=  ;
+Message-ID: <20060517155325.68734.qmail@web26604.mail.ukl.yahoo.com>
+Date: Wed, 17 May 2006 17:53:25 +0200 (CEST)
+From: linux cbon <linuxcbon@yahoo.fr>
+Subject: Re: replacing X Window System !
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200605171514.k4HFEPKq020058@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 17 May 2006 15:52:39.0737 (UTC) FILETIME=[ECF2F290:01C679C9]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 May 2006, Arjan van de Ven wrote:
-> On Tue, 2006-05-16 at 19:24 -0400, Josef Sipek wrote:
-> > I was trying to compile the Unionfs[1] to get it up to sync it up with
-> > the kernel developments from the past few months. Anyway, long story
-> > short...swapper_space (defined in mm/swap_state.c) is not exported
-> > anymore (git commit: 4936967374c1ad0eb3b734f24875e2484c3786cc). This
-> > apparently is not an issue for most modules. Troubles arise when the
-> > modules include mm.h or any of its relatives.
-> > 
-> > One simply gets a linker error about swapper_space not being defined.
-> > The problem is that it is used in mm.h.
+ --- Valdis.Kletnieks@vt.edu a écrit : 
+> On Wed, 17 May 2006 11:09:38 EDT,
+> Valdis.Kletnieks@vt.edu said:
 > 
-> don't you think it's really suspect that no other filesystem, in fact no
-> other driver in the kernel needs this? Could it just be that unionfs is 
-> using a wrong API ? Because if that's the case you're patch is just the
-> wrong thing. Maybe the unionfs people should try to submit their code
-> for review etc......
+> > > But that would greatly simplify the whole
+> system.
+> 
+> > Yeah, adding 124 meg to a 4.2M kernel will
+> simplify it...
+> 
+> Still quadruples the size and even worse on
+> complexity...
 
-Much as I'd love to side with Jeff against you and Adrian ;)
-I think you're right.
 
-I see no reference to page_mapping() in the unionfs source (and at
-present there's no other justifiable modular use of swapper_space);
-but my guess would be that Jeff is being more conscientious than is
-called for in getting it to sync up with the kernel -
+Are all those 124 meg *really* usefull ?
+Thats why it should be rewritten from scratch or
+better, redesigned...
 
-The unionfs source does contain its own inline "sync_page" which
-comments that it "is copied verbatim from mm/filemap.c".  I'm
-guessing Jeff has noticed that it's no longer a verbatim copy,
-has made it so, and is thereby involving page_mapping().
 
-No need for that here (nor for the smp_mb nor for the io_schedule):
-unionfs's sync_page is working on a locked pagecache page of the
-lower-level filesystem, that's not going to be a PageSwapCache page
-nor a PageAnon page (nor even a truncated page with NULL mapping:
-page lock is held).  Just use page->mapping as before.
 
-(But I notice that unionfs better not have a tmpfs in its union:
-the unionfs use of grab_cache_page is not strictly compatible with
-the way tmpfs pages are swapped out under memory pressure.)
 
-Hugh
+
+
+
+	
+
+	
+		
+___________________________________________________________________________ 
+Faites de Yahoo! votre page d'accueil sur le web pour retrouver directement vos services préférés : vérifiez vos nouveaux mails, lancez vos recherches et suivez l'actualité en temps réel. 
+Rendez-vous sur http://fr.yahoo.com/set

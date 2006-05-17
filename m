@@ -1,38 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWEQNZ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWEQNY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932274AbWEQNZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 09:25:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWEQNZ2
+	id S932266AbWEQNY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 09:24:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWEQNY6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 09:25:28 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:58019 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932274AbWEQNZO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 09:25:14 -0400
-Subject: Re: libata PATA updated patch
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kevin Radloff <radsaq@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3b0ffc1f0605170558h5072b407pa4127abe3743553f@mail.gmail.com>
-References: <1147796037.2151.83.camel@localhost.localdomain>
-	 <3b0ffc1f0605161303paabdbfk56fe91e4156fe085@mail.gmail.com>
-	 <3b0ffc1f0605170558h5072b407pa4127abe3743553f@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 17 May 2006 14:38:16 +0100
-Message-Id: <1147873096.10470.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Wed, 17 May 2006 09:24:58 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24754 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932266AbWEQNY5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 09:24:57 -0400
+Date: Wed, 17 May 2006 15:24:08 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: marekw1977@yahoo.com.au,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: acpi4asus
+Message-ID: <20060517132408.GD8065@elf.ucw.cz>
+References: <20060511130743.GG15876@mail.muni.cz> <20060511073211.1da40329.akpm@osdl.org> <200605121116.11930.marekw1977@yahoo.com.au> <44649A2E.4070803@tmr.com> <20060508234723.GB4349@ucw.cz> <446A9AD0.6030509@tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <446A9AD0.6030509@tmr.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2006-05-17 at 08:58 -0400, Kevin Radloff wrote:
-> Okay, I was wrong. :( Sometimes the IDE adapter doesn't resume after
-> unsuspending (suspend to RAM) or something like that. Whatever is
-> happening the disks are inaccessible though, so it's hard to get the
-> exact details.
+On Út 16-05-06 23:38:56, Bill Davidsen wrote:
+> Pavel Machek wrote:
+> 
+> >Hi!
+> >
+> > 
+> >
+> >>>I am far from qualified to comment on this, but from a 
+> >>>users point of view, is it possible to not have laptop 
+> >>>specific code in the kernel?
+> >>>I have had two Linux laptops and with both I had ACPI 
+> >>>issues.
+> >>>The vendors of both laptops (Toshiba Tecra S1 and now 
+> >>>an Asus W3V) don't seem to be following standards. With 
+> >>>both I seem to need to patch ACPI to get various 
+> >>>functions of the laptop to work.
+> >>>I would love to see laptop specific functionality 
+> >>>definitions exist outside the kernel.
+> >>>
+> >>>     
+> >>>
+> >>I don't think that forcing laptop users to have their 
+> >>own code outside the kernel is really the best approach 
+> >>for either the developers or the users. Most users will 
+> >>   
+> >>
+> >
+> >No, we don't want that. But we do not want ibm-acpi, toshiba-acpi,
+> >asus-acpi, etc, when they really only differ in string constants used.
+> >
+> >We want userland to tell kernel 'mail led is controlled by AML routine
+> >foo', instead of having gazillion *-acpi modules.
+> >
+> >
+> > 
+> >
+> I see no reason why an interface to that couldn't be included in the 
+> kernel, with just a small table for each hardware instead of a whole 
+> module. Kind of a white list with detail.
 
-Linux does not support suspend/resume with any kind of IDE disk, PATA or
-SATA. It happens to work for many cases. Full suspend/resume support is
-on its way and some of it should be in 2.6.18 or so.
-
+I guess that would be acceptable solution.
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

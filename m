@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWEQNkz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932552AbWEQNoA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932288AbWEQNkz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 09:40:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbWEQNkz
+	id S932552AbWEQNoA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 09:44:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbWEQNoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 09:40:55 -0400
-Received: from mail.gmx.net ([213.165.64.20]:60039 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932288AbWEQNky (ORCPT
+	Wed, 17 May 2006 09:44:00 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:19342 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932552AbWEQNn7 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 09:40:54 -0400
-X-Authenticated: #14349625
-Subject: Re: Regression seen for patch "sched:dont decrease idle sleep avg"
-From: Mike Galbraith <efault@gmx.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org, tim.c.chen@linux.intel.com,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, mingo@elte.hu,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200605172246.39444.kernel@kolivas.org>
-References: <4t16i2$12rqnu@orsmga001.jf.intel.com>
-	 <200605172025.22626.kernel@kolivas.org> <1147866161.7676.31.camel@homer>
-	 <200605172246.39444.kernel@kolivas.org>
-Content-Type: text/plain
-Date: Wed, 17 May 2006 15:41:34 +0200
-Message-Id: <1147873294.7596.13.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Wed, 17 May 2006 09:43:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lJryaaIgm/2W/zggwYan0oiOOiFWocLyUVYbSBCQ3QhF4GoKSsAD/0gGZQPJ/2EXhlFWbxnylFg+OsE26WJ31taWprjB5kUXde5OV/1QF8Ik/Fhn7XRR2iVpYwdQOzYU4ZfukXmQ46RgF13qiOpIVORuYHRrn1Nas8kL/on+cOI=
+Message-ID: <3b0ffc1f0605170643t4558386ex35c02de169b5b205@mail.gmail.com>
+Date: Wed, 17 May 2006 09:43:58 -0400
+From: "Kevin Radloff" <radsaq@gmail.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: libata PATA updated patch
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1147873096.10470.19.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1147796037.2151.83.camel@localhost.localdomain>
+	 <3b0ffc1f0605161303paabdbfk56fe91e4156fe085@mail.gmail.com>
+	 <3b0ffc1f0605170558h5072b407pa4127abe3743553f@mail.gmail.com>
+	 <1147873096.10470.19.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-17 at 22:46 +1000, Con Kolivas wrote:
-> On Wednesday 17 May 2006 21:42, Mike Galbraith wrote:
-> > Fair?  I said interactivity wise.  But what the heck, if we're talking
-> > fairness, I can say the same thing about I/O bound tasks.  Heck, it's
-> > not fair to stop any task from reaching the top, and it's certainly not
-> > fair to let them have (for all practical purposes) all the cpu they want
-> > once they sleep enough.
-> 
-> Toss out the I/O bound thing and we turn into a steaming dripping pile of dog 
-> doo whenever anything does disk I/O. And damned if there aren't a lot of pcs 
-> that have hard disks...
+On 5/17/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Mer, 2006-05-17 at 08:58 -0400, Kevin Radloff wrote:
+> > Okay, I was wrong. :( Sometimes the IDE adapter doesn't resume after
+> > unsuspending (suspend to RAM) or something like that. Whatever is
+> > happening the disks are inaccessible though, so it's hard to get the
+> > exact details.
+>
+> Linux does not support suspend/resume with any kind of IDE disk, PATA or
+> SATA. It happens to work for many cases. Full suspend/resume support is
+> on its way and some of it should be in 2.6.18 or so.
 
-(you should have tried my patch set)
+Ah.. Should I not bother investigating the regression and just wait instead? :)
 
-> Spits and stutters are not starvation. Luckily it gets no worse with this 
-> patch.
-
-Ok, I'll accept that.  Spits and stutters _are_ interactivity issues
-though yes?.  Knowing full well that plunking long sleepers into the
-queue you are plunking them into causes spits and stutters, why do you
-insist on doing so?
-
-Oh well, we're well on the way to agreeing to disagree again, so let's
-just get it over with.  I hereby agree to disagree.
-
-	Cheers,
-
-	-Mike
-
+-- 
+Kevin 'radsaq' Radloff
+radsaq@gmail.com
+http://thesaq.com/

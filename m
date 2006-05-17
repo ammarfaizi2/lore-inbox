@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWEQSGG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWEQSIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbWEQSGG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 14:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbWEQSGG
+	id S1750835AbWEQSIM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 14:08:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWEQSIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 14:06:06 -0400
-Received: from ns2.suse.de ([195.135.220.15]:34503 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750834AbWEQSGF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 14:06:05 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Frank Ch. Eigler" <fche@redhat.com>
-Subject: Re: [RFC] [Patch 0/8] statistics infrastructure
-Date: Wed, 17 May 2006 20:05:43 +0200
-User-Agent: KMail/1.9.1
-Cc: Martin Peschke <mp3@de.ibm.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, hch@infradead.org, arjan@infradead.org,
-       James.Smart@emulex.com, James.Bottomley@steeleye.com,
-       ltt-dev@shafik.org
-References: <446A0F77.70202@de.ibm.com> <y0msln8wooo.fsf@ton.toronto.redhat.com>
-In-Reply-To: <y0msln8wooo.fsf@ton.toronto.redhat.com>
+	Wed, 17 May 2006 14:08:12 -0400
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:58893 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S1750835AbWEQSIL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 14:08:11 -0400
+X-IronPort-AV: i="4.05,138,1146466800"; 
+   d="scan'208"; a="1807996892:sNHT30805856"
+To: Dave Olson <olson@unixfolk.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH 35 of 53] ipath - some interrelated stability and cleanliness fixes
+X-Message-Flag: Warning: May contain useful information
+References: <fa.2ho1QSA8Kf7L8EFqp3rLsB7NE9s@ifi.uio.no>
+	<fa.yXZlqXBzNi9Gq/4Q6Wc9H6bw+lU@ifi.uio.no>
+	<Pine.LNX.4.61.0605170944570.22323@osa.unixfolk.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 17 May 2006 11:08:09 -0700
+In-Reply-To: <Pine.LNX.4.61.0605170944570.22323@osa.unixfolk.com> (Dave Olson's message of "Wed, 17 May 2006 09:47:59 -0700 (PDT)")
+Message-ID: <ada4pzo5xti.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200605172005.44588.ak@suse.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 17 May 2006 18:08:09.0752 (UTC) FILETIME=[DAD0C980:01C679DC]
+Authentication-Results: sj-dkim-1.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 17 May 2006 19:23, Frank Ch. Eigler wrote:
-> 
-> Martin Peschke <mp3@de.ibm.com> writes:
-> 
-> > My patch series is a proposal for a generic implementation of statistics.
-> > Envisioned exploiters include device drivers, and any other component.
-> > [...]
-> > Good places to start reading code are:
-> >    statistic_create(), statistic_remove()
-> >    statistic_add(), statistic_inc()
-> > [...]
-> 
-> It is interesting how many solutions pop up for this sort of problem.
-> The many tracing tools/patches, systemtap, and now this, all share
-> some goals and should ideally share some of the technology.
+    Dave> We are seeing a bug (with both our driver native MPI
+    Dave> processes and mthca mvapic), where when 8 processes using
+    Dave> "simultaneously exit", we get watchdogs and/or hangs in the
+    Dave> close routines.  Moving the freeing outside the mutex was an
+    Dave> attempt to see if we were running into some VM issues by
+    Dave> doing lots of page unlocking and freeing with the mutex
+    Dave> held.  It seemed to help somewhat, but not to solve the
+    Dave> problem.
 
-I disagree. They often have very different requirements - and a one-size-fits-all
-solution will be likely too heavyweight for most users.
+Am I understanding correctly that you see a hang or watchdog timeout
+even with the mthca driver?
 
-The passing to user space can be unified, but we already have solutions
-for that (seq_*, relayfs). But the actual data gathering is better custom
-tailored.
+Is there any possibility of posting the test case to reproduce this?
+It doesn't seem likely that ipath changes are going to fix a generic
+bug like this...
 
--Andi
+ - R.

@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbWEQEph@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWEQEtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750911AbWEQEph (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 00:45:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWEQEpg
+	id S1751249AbWEQEtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 00:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWEQEtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 00:45:36 -0400
-Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:51872 "EHLO
-	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1750911AbWEQEpg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 00:45:36 -0400
-Message-ID: <446AAA6D.9080401@bigpond.net.au>
-Date: Wed, 17 May 2006 14:45:33 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
+	Wed, 17 May 2006 00:49:08 -0400
+Received: from nz-out-0102.google.com ([64.233.162.197]:52339 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751256AbWEQEtG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 00:49:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=P8n6SvjWmnDFo60+aWIVU3STqtaaEIN5ZIWRl/WPxpGg+3WYmLvHUZx21Tl4Qmzf6UXIJmAMFg1QI3FrbHZmgwk/CIAYbfa8kSf145iPyTVkr0UBTKlkv0ZEA3NTfJXPz153Zjne46ZRTEFeYpVHyYNNpGY2UAN7elMnEGWhkE8=
+Message-ID: <446AAB3C.6050303@gmail.com>
+Date: Wed, 17 May 2006 13:49:00 +0900
+From: Tejun Heo <htejun@gmail.com>
 User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: tim.c.chen@linux.intel.com, Con Kolivas <kernel@kolivas.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       linux-kernel@vger.kernel.org, mingo@elte.hu,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Regression seen for patch "sched:dont decrease idle sleep avg"
-References: <4t16i2$12rqnu@orsmga001.jf.intel.com>	 <200605160945.13157.kernel@kolivas.org>	 <1147822331.4859.37.camel@localhost.localdomain> <1147839913.8335.35.camel@homer>
-In-Reply-To: <1147839913.8335.35.camel@homer>
+To: Andrew Morton <akpm@osdl.org>
+CC: Jeff Garzik <jeff@garzik.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [RFT] major libata update
+References: <20060515170006.GA29555@havoc.gtf.org> <20060516190507.35c1260f.akpm@osdl.org>
+In-Reply-To: <20060516190507.35c1260f.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 17 May 2006 04:45:34 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> On Tue, 2006-05-16 at 16:32 -0700, Tim Chen wrote:
->> On Tue, 2006-05-16 at 09:45 +1000, Con Kolivas wrote:
->>
->>> Yes it's only designed to detect something that has been asleep for an 
->>> arbitrary long time and "categorised as idle"; it is not supposed to be a 
->>> priority stepping stone for everything, in this case at MAX_BONUS-1. Mike 
->>> proposed doing this instead, but it was never my intent. 
->> It seems like just one sleep longer than INTERACTIVE_SLEEP is needed
->> kick the priority of a process all the way to MAX_BONUS-1 and boost the
->> sleep_avg, regardless of what the prior sleep_avg was.
->>
->> So if there is a cpu hog that has long sleeps occasionally, once it woke
->> up, its priority will get boosted close to maximum, likely starving out
->> other processes for a while till its sleep_avg gets reduced.  This
->> behavior seems like something to avoid according to the original code
->> comment.  Are we boosting the priority too quickly?  
-> 
-> The answer to that is, sometimes yes, and when it bites, it bites hard.
-> Happily, most hogs don't sleep much, and we don't generally have lots of
-> bursty sleepers.
-> 
+Hello, Andrew.
 
-But it's easy for a malicious user to exploit.  Yes?
+Andrew Morton wrote:
+[--snip--]
+> [   44.719422] ata2.00: cfg 49:0f00 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000 88:101f
+> [   44.719425] ata2.00: ATAPI, max UDMA/66
+> [   44.765263] ata2.00: applying bridge limits
+> [   74.928836] ata2.01: qc timeout (cmd 0xa1)
+> [   74.977811] ata2.01: failed to IDENTIFY (I/O error, err_mask=0x4)
+> [   75.468853] ata2.00: cfg 49:0f00 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000 88:101f
+> [   75.468856] ata2.00: ATAPI, max UDMA/66
+> [   75.514678] ata2.00: applying bridge limits
+> [  105.674130] ata2.01: qc timeout (cmd 0xa1)
 
-Peter
+Did this device work with previous versions of kernel?
+
+libata used to give up on the first failure during probe, so the boot 
+time would have been shorter in failure cases.  I think controlled 
+retries during boot probe is a good thing, but the timeout of 30s for 
+IDENTIFY commands can be shortened, I guess.
+
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+tejun

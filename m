@@ -1,101 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbWEQTeI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWEQTod@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750991AbWEQTeI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 15:34:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbWEQTeI
+	id S1751048AbWEQTod (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 15:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbWEQTod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 15:34:08 -0400
-Received: from mga02.intel.com ([134.134.136.20]:654 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750991AbWEQTeH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 15:34:07 -0400
-Message-Id: <4t16i2$13uiu1@orsmga001.jf.intel.com>
-X-IronPort-AV: i="4.05,138,1146466800"; 
-   d="scan'208"; a="37702593:sNHT2751033768"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Con Kolivas'" <kernel@kolivas.org>, <tim.c.chen@linux.intel.com>
-Cc: <linux-kernel@vger.kernel.org>, <mingo@elte.hu>,
-       "Andrew Morton" <akpm@osdl.org>, "Mike Galbraith" <efault@gmx.de>
-Subject: RE: Regression seen for patch "sched:dont decrease idle sleep avg"
-Date: Wed, 17 May 2006 12:33:34 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 17 May 2006 15:44:33 -0400
+Received: from pool-71-254-71-216.ronkva.east.verizon.net ([71.254.71.216]:58054
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751041AbWEQTod (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 15:44:33 -0400
+Message-Id: <200605171944.k4HJiELo030480@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Olaf Hering <olh@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ignore partition table on disks with AIX label
+In-Reply-To: Your message of "Wed, 17 May 2006 21:03:26 +0200."
+             <20060517190326.GA29017@suse.de>
+From: Valdis.Kletnieks@vt.edu
+References: <20060517081314.GA20415@suse.de> <200605170853.k4H8rn8K009466@turing-police.cc.vt.edu> <20060517091056.GA21219@suse.de> <200605171014.k4HAETHT011371@turing-police.cc.vt.edu> <20060517183710.GA28931@suse.de> <1147892187.10470.70.camel@localhost.localdomain>
+            <20060517190326.GA29017@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1147895053_4166P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZ5izUXH+TOC/oMQ/icRq+53D7FwgAW0wcA
-In-Reply-To: <200605171823.24476.kernel@kolivas.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Date: Wed, 17 May 2006 15:44:13 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote on Wednesday, May 17, 2006 1:23 AM
-> On Wednesday 17 May 2006 09:32, Tim Chen wrote:
-> > It seems like just one sleep longer than INTERACTIVE_SLEEP is needed
-> > kick the priority of a process all the way to MAX_BONUS-1 and boost the
-> > sleep_avg, regardless of what the prior sleep_avg was.
-> >
-> > So if there is a cpu hog that has long sleeps occasionally, once it woke
-> > up, its priority will get boosted close to maximum, likely starving out
-> > other processes for a while till its sleep_avg gets reduced.  This
-> > behavior seems like something to avoid according to the original code
-> > comment.  Are we boosting the priority too quickly?
-> 
-> Two things strike me here. I'll explain them in the patch below.
-> 
-> How's this look?
-> ---
-> The relationship between INTERACTIVE_SLEEP and the ceiling is not perfect
-> and not explicit enough. The sleep boost is not supposed to be any larger
-> than without this code and the comment is not clear enough about what exactly
-> it does, just the reason it does it.
-> 
-> There is a ceiling to the priority beyond which tasks that only ever sleep
-> for very long periods cannot surpass.
+--==_Exmh_1147895053_4166P
+Content-Type: text/plain; charset=us-ascii
+
+On Wed, 17 May 2006 21:03:26 +0200, Olaf Hering said:
+>  On Wed, May 17, Alan Cox wrote:
+> > All we want to know initially is how to correctly spot AIX volumes. As I
+> I dont have any more info about the layout.
+
+I'm looking at the IBM header files on our AIX box.  Incidentally,
+whoever "corrected" the spelling of EBCDIC should note that the same
+exact typo is in the AIX /usr/include/sys/bootrecord.h I'm looking at. :)
+
+As far as I can tell, the boot ROM snarfs up the first 512 byte block, and then
+looks for the 'IBMA' magic cookie, then looks at offset 0x1BE for a
+bog-standard 4-entry partition table, and a 0x55AA at offset 0x1FE.
+
+Additionally, there will be an *ASCII* '_LVM' in the first 4 bytes of physical
+512-byte block 7, denoting the start of the LVM control record.
+
+I'd say if you find both the IBMA *and* _LVM cookies intact, you declare it
+an AIX volume.
 
 
-It looks bad.  I don't like it. The priority boost is even more peculiar
-in this patch.
 
+--==_Exmh_1147895053_4166P
+Content-Type: application/pgp-signature
 
-> --- linux-2.6.17-rc4-mm1.orig/kernel/sched.c	2006-05-17 15:57:49.000000000 +1000
-> +++ linux-2.6.17-rc4-mm1/kernel/sched.c	2006-05-17 18:19:29.000000000 +1000
-> @@ -904,20 +904,14 @@ static int recalc_task_prio(task_t *p, u
->  	}
->  
->  	if (likely(sleep_time > 0)) {
-> -		/*
-> -		 * User tasks that sleep a long time are categorised as
-> -		 * idle. They will only have their sleep_avg increased to a
-> -		 * level that makes them just interactive priority to stay
-> -		 * active yet prevent them suddenly becoming cpu hogs and
-> -		 * starving other processes.
-> -		 */
-> -		if (p->mm && sleep_time > INTERACTIVE_SLEEP(p)) {
-> -				unsigned long ceiling;
-> +		unsigned long ceiling = INTERACTIVE_SLEEP(p);
->  
-> -				ceiling = JIFFIES_TO_NS(MAX_SLEEP_AVG -
-> -					DEF_TIMESLICE);
-> -				if (p->sleep_avg < ceiling)
-> -					p->sleep_avg = ceiling;
-> +		if (p->mm && sleep_time > ceiling && p->sleep_avg < ceiling) {
-> +			/*
-> +			 * Prevents user tasks from achieving best priority
-> +			 * with one single large enough sleep.
-> +			 */
-> +			p->sleep_avg = ceiling;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFEa30NcC3lWbTT17ARAqEvAJ9j2COSSa5tdlHW8PmONG+wS/vugQCgnfIp
+NF/KXVWDHdLtuu5prfNkTos=
+=nHr0
+-----END PGP SIGNATURE-----
 
-The assignment of p->sleep_avg = ceiling doesn't make much logical sense.
-Because INTERACTIVE_SLEEP is scaled proportionally with nice value, e.g.
-the lower the nice value, the lower the interactive_sleep.  However, priority
-calculation is inverse of p->sleep_avg, e.g. the smaller the sleep_avg, the
-smaller the bonus, thus the higher dynamic priority.
-
-Take one concrete example: for a prolonged sleep, say 1 second, nice(-10)
-will have a priority boost of 4 while nice(0) will have a priority boost of
-9. The ceiling algorithm looks like is reversed. I would think kernel should
-at least enforce same ceiling value independent of nice value.
-
-- Ken
+--==_Exmh_1147895053_4166P--

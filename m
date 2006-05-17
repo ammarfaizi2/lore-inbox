@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWEQPx1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWEQPxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbWEQPx1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 11:53:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWEQPx1
+	id S1750747AbWEQPxi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 11:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWEQPxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 11:53:27 -0400
-Received: from web26604.mail.ukl.yahoo.com ([217.146.176.54]:51548 "HELO
-	web26604.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750734AbWEQPx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 11:53:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=n0/nmZwEhn/Rn0A3qOWVxapXt458ng73CuxL5QPAzV4+Nqdm9eAlYW9tIEnz5fRBrgoL5OEav03GC5n4uVJyWeWGJ31cr6gGLpU2IMR9x+fcJv8QRPkcueUyvwOUVIVaEkIjzFvA6/1IATC1PaZaZvdVTzBgyWRm53vJcNB+3UQ=  ;
-Message-ID: <20060517155325.68734.qmail@web26604.mail.ukl.yahoo.com>
-Date: Wed, 17 May 2006 17:53:25 +0200 (CEST)
-From: linux cbon <linuxcbon@yahoo.fr>
-Subject: Re: replacing X Window System !
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200605171514.k4HFEPKq020058@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 17 May 2006 11:53:38 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:51591 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1750741AbWEQPxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 11:53:37 -0400
+Date: Wed, 17 May 2006 11:53:35 -0400
+To: George Nychis <gnychis@cmu.edu>
+Cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org,
+       linux-lvm@redhat.com
+Subject: Re: need help booting from SATA in 2.4.32
+Message-ID: <20060517155335.GF23933@csclub.uwaterloo.ca>
+References: <446A36B8.1060707@cmu.edu> <20060516203917.GQ11191@w.ods.org> <446A418E.3070307@cmu.edu> <20060517034814.GA25818@w.ods.org> <446B2523.1040800@cmu.edu> <20060517133456.GD23933@csclub.uwaterloo.ca> <446B27E4.7040509@cmu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <446B27E4.7040509@cmu.edu>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- Valdis.Kletnieks@vt.edu a écrit : 
-> On Wed, 17 May 2006 11:09:38 EDT,
-> Valdis.Kletnieks@vt.edu said:
+On Wed, May 17, 2006 at 09:40:52AM -0400, George Nychis wrote:
+> Because it does......
 > 
-> > > But that would greatly simplify the whole
-> system.
+> on bootup the *same* exact drive in 2.4.32 shows up as /dev/hda
 > 
-> > Yeah, adding 124 meg to a 4.2M kernel will
-> simplify it...
-> 
-> Still quadruples the size and even worse on
-> complexity...
+> It has the exact same volume information as my drive that shows up in
+> 2.6.9 as /dev/sda
 
+Yes I do remember a few sata controllers had some support in 2.4, which
+was dropped from 2.6 early on when libata came in.
 
-Are all those 124 meg *really* usefull ?
-Thats why it should be rewritten from scratch or
-better, redesigned...
+It is very unlikely you will ever see that again in the future.
 
-
-
-
-
-
-
-	
-
-	
-		
-___________________________________________________________________________ 
-Faites de Yahoo! votre page d'accueil sur le web pour retrouver directement vos services préférés : vérifiez vos nouveaux mails, lancez vos recherches et suivez l'actualité en temps réel. 
-Rendez-vous sur http://fr.yahoo.com/set
+Len Sorensen

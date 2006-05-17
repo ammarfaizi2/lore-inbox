@@ -1,68 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWEQMFK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWEQMHW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbWEQMFK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 08:05:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWEQMFK
+	id S932214AbWEQMHW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 08:07:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWEQMHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 08:05:10 -0400
-Received: from tornado.reub.net ([202.89.145.182]:59576 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S932199AbWEQMFI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 08:05:08 -0400
-Message-ID: <446B1158.8030608@reub.net>
-Date: Thu, 18 May 2006 00:04:40 +1200
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Thunderbird 3.0a1 (Windows/20060516)
+	Wed, 17 May 2006 08:07:22 -0400
+Received: from mail.electro-mechanical.com ([216.184.71.30]:28096 "EHLO
+	mail.electro-mechanical.com") by vger.kernel.org with ESMTP
+	id S932214AbWEQMHV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 08:07:21 -0400
+Date: Wed, 17 May 2006 08:07:18 -0400
+From: William Thompson <wt@electro-mechanical.com>
+To: linux-kernel@vger.kernel.org
+Subject: Targus USB2 port replicator on 2.6.12+
+Message-ID: <20060517120718.GN18746@electro-mechanical.com>
 MIME-Version: 1.0
-To: NeilBrown <neilb@suse.de>
-CC: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 000 of 3] md: Introduction - 3 bugfixs for -mm
-References: <20060516111036.2649.patches@notabene>
-In-Reply-To: <20060516111036.2649.patches@notabene>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16/05/2006 1:12 p.m., NeilBrown wrote:
-> The first of these fixes issues with the new bmap based bitmap file
-> access code, and possibly should be an -mm hotfix, and without it,
-> 'internal' bitmaps don't work any more :-(
-> 
-> Others are minor and unrelated.
-> 
-> Thanks,
-> NeilBrown
-> 
-> 
->  [PATCH 001 of 3] md: Change md/bitmap file handling to use bmap to file blocks-fix
->  [PATCH 002 of 3] md: Fix inverted test for 'repair' directive.
->  [PATCH 003 of 3] md: Calculate correct array size for raid10 in new offset mode.
+I tested a Targus PA095 with 2.6.12, 2.6.14 and 2.6.17-rc4 with the same
+results.
 
-Patch 1 fixes the problems I was having with RAID-1 arrays not able to start up 
-on 2.6.17-rc4-mm1.  Thanks for that.
+Problem: The ethernet (driven by pegasus) does not work and spews error
+messages.
 
-However things appear still not quite right on boot, as each mount works but 
-displays as though it didn't work, ie:
+The message:
+May 17 08:01:43 potato kernel: [1384852.200880] pegasus 1-1.3.5:1.0: ctrl_callback, status -71
+<repeats over 700 times in 1 second>
 
-md: considering sdc2 ...
-md:  adding sdc2 ...
-md:  adding sda2 ...
-md: created md0
-md: bind<sda2>
-md: bind<sdc2>
-md: running: <sdc2><sda2>
-raid1: raid set md0 active with 0 out of 2 mirrors
+This did work with 2.6.10.  I do not know about 2.6.11.
 
-0 out of 2 ?
+Tested on 2 entirely different machines with the same result.
 
-cat /proc/mdstats  shows that everything does in fact seem to be working:
-
-md0 : active raid1 sdc2[1] sda2[0]
-       24410688 blocks [2/2] [UU]
-       bitmap: 21/187 pages [84KB], 64KB chunk
-
-The array otherwise seems to be fine.  I guess it's just a visual glitch.
-
-reuben
+I also attempted to use the 2.6.10 pegasus.[ch] in 2.6.14 with the same
+result.

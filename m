@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbWEQEaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbWEQEph@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbWEQEaU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 00:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbWEQEaU
+	id S1750911AbWEQEph (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 00:45:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWEQEpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 00:30:20 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:28357 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1751242AbWEQEaT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 00:30:19 -0400
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@ocs.com.au>
-To: Martin Peschke <mp3@de.ibm.com>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de, hch@infradead.org,
-       arjan@infradead.org, James.Smart@Emulex.Com,
-       James.Bottomley@SteelEye.com
-Subject: Re: [RFC] [Patch 5/8] statistics infrastructure 
-In-reply-to: Your message of "Tue, 16 May 2006 19:46:38 +0200."
-             <446A0FFE.70707@de.ibm.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 17 May 2006 14:29:07 +1000
-Message-ID: <17193.1147840147@ocs3>
+	Wed, 17 May 2006 00:45:36 -0400
+Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:51872 "EHLO
+	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750911AbWEQEpg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 00:45:36 -0400
+Message-ID: <446AAA6D.9080401@bigpond.net.au>
+Date: Wed, 17 May 2006 14:45:33 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Mike Galbraith <efault@gmx.de>
+CC: tim.c.chen@linux.intel.com, Con Kolivas <kernel@kolivas.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       linux-kernel@vger.kernel.org, mingo@elte.hu,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Regression seen for patch "sched:dont decrease idle sleep avg"
+References: <4t16i2$12rqnu@orsmga001.jf.intel.com>	 <200605160945.13157.kernel@kolivas.org>	 <1147822331.4859.37.camel@localhost.localdomain> <1147839913.8335.35.camel@homer>
+In-Reply-To: <1147839913.8335.35.camel@homer>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 17 May 2006 04:45:34 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Peschke (on Tue, 16 May 2006 19:46:38 +0200) wrote:
->+static inline void statistic_add(struct statistic *stat, int i,
->+				 s64 value, u64 incr)
->+{
->+	int cpu;
->+	unsigned long flags;
->+
->+	if (stat[i].state == statistic_state_on) {
->+		cpu = get_cpu();
->+		local_irq_save(flags);
->+		stat[i].add(&stat[i], cpu, value, incr);
->+		local_irq_restore(flags);
->+		put_cpu();
->+	}
->+}
+Mike Galbraith wrote:
+> On Tue, 2006-05-16 at 16:32 -0700, Tim Chen wrote:
+>> On Tue, 2006-05-16 at 09:45 +1000, Con Kolivas wrote:
+>>
+>>> Yes it's only designed to detect something that has been asleep for an 
+>>> arbitrary long time and "categorised as idle"; it is not supposed to be a 
+>>> priority stepping stone for everything, in this case at MAX_BONUS-1. Mike 
+>>> proposed doing this instead, but it was never my intent. 
+>> It seems like just one sleep longer than INTERACTIVE_SLEEP is needed
+>> kick the priority of a process all the way to MAX_BONUS-1 and boost the
+>> sleep_avg, regardless of what the prior sleep_avg was.
+>>
+>> So if there is a cpu hog that has long sleeps occasionally, once it woke
+>> up, its priority will get boosted close to maximum, likely starving out
+>> other processes for a while till its sleep_avg gets reduced.  This
+>> behavior seems like something to avoid according to the original code
+>> comment.  Are we boosting the priority too quickly?  
+> 
+> The answer to that is, sometimes yes, and when it bites, it bites hard.
+> Happily, most hogs don't sleep much, and we don't generally have lots of
+> bursty sleepers.
+> 
 
-Using get_cpu()/put_cpu() is pure overhead when you are disabling
-interrupts as well.
+But it's easy for a malicious user to exploit.  Yes?
 
-	if (stat[i].state == statistic_state_on) {
-		local_irq_save(flags);
-		stat[i].add(&stat[i], smp_processor_id(), value, incr);
-		local_irq_restore(flags);
-	}
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

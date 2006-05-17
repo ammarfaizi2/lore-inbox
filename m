@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWEQFf3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWEQFt1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbWEQFf3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 01:35:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWEQFf3
+	id S932111AbWEQFt1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 01:49:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWEQFt1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 01:35:29 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:62347 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932146AbWEQFf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 01:35:29 -0400
-Date: Wed, 17 May 2006 14:37:37 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+	Wed, 17 May 2006 01:49:27 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:24459 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932111AbWEQFt1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 01:49:27 -0400
+Date: Wed, 17 May 2006 14:48:41 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
 To: Dave Hansen <haveblue@us.ibm.com>
-Cc: nacc@us.ibm.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       y-goto@jp.fujitsu.com
-Subject: Re: [PATCH] typo in i386/init.c [BugMe #6538]
-Message-Id: <20060517143737.09498464.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <1147801216.6623.114.camel@localhost.localdomain>
-References: <20060516165040.GA4341@us.ibm.com>
-	<20060516102427.2c50d469.akpm@osdl.org>
-	<20060516173421.GB4341@us.ibm.com>
-	<1147801216.6623.114.camel@localhost.localdomain>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: Re: [PATCH] Register sysfs file for hotpluged new node
+Cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1147791091.6623.93.camel@localhost.localdomain>
+References: <20060516210608.A3E5.Y-GOTO@jp.fujitsu.com> <1147791091.6623.93.camel@localhost.localdomain>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060517111236.21AC.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 May 2006 10:40:16 -0700
-Dave Hansen <haveblue@us.ibm.com> wrote:
-
-> On Tue, 2006-05-16 at 10:34 -0700, Nishanth Aravamudan wrote:
-> > > So there's something fishy going on here.
-> > 
-> > I won't deny that :)
+> On Tue, 2006-05-16 at 21:23 +0900, Yasunori Goto wrote:
+> > +       /*
+> > +        * register this node to sysfs.
+> > +        * this is depends on topology. So each arch has its own.
+> > +        */
+> > +       if (new_pgdat){
+> > +               ret = arch_register_node(nid);
+> > +               BUG_ON(ret);
+> > +       } 
 > 
-> I think the fishiness probably comes from the apparent fact that nobody
-> besides me ever enabled sparsemem, then memory hotplug on x86.  
+> Please don't do BUG_ON()s for things like this.  Memory hotplug _should_
+> handle failures from top to bottom and not screw you over.  It isn't a
+> crime or a bug to be out of memory.  
 
-I usually enable CONFIG_MEMORY_HOTPLUG + CONFIG_SPARSEMEM and test it. 
-Then I sent a patch in past ;)
+Basically, I would like to agree. 
+But, there is no way to roll back from here now.
+If online_node_map is set once, then new pgdat might be touched.
+There is no way to disable them.
 
-But I wonder usual x86 men will never use memory hot-add until memory
-hot-remove is implemented. 
--Kame
+And I suppose it is not good thing that creating sysfs file of new node
+before setting online_node_map. It means user interface is shown
+before system initialization completion.
+
+(In addition, remove_memory() is not yet....)
+
+If return code of arch_register_node is ignored, 
+cpu hotplug will work without new node's file.
+When we tried cpu hotplug on it, it was cause of stack dump at last.
+
+> Have you run this past the ppc maintainers?
+
+Nope. I just tried cross compile.
+I want powerpc box for test....
+
+
+Thanks.
+
+-- 
+Yasunori Goto 
 
 

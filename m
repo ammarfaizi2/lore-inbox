@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWEQRhs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWEQRmh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbWEQRhs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 13:37:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbWEQRhr
+	id S1750794AbWEQRmh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 13:42:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWEQRmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 13:37:47 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:4112 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1750786AbWEQRhr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 13:37:47 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: replacing X Window System !
-Date: Wed, 17 May 2006 10:37:01 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKEEJJLPAB.davids@webmaster.com>
+	Wed, 17 May 2006 13:42:37 -0400
+Received: from silver.veritas.com ([143.127.12.111]:1335 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1750794AbWEQRmg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 13:42:36 -0400
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="4.05,138,1146466800"; 
+   d="scan'208"; a="38255344:sNHT21434272"
+Date: Wed, 17 May 2006 18:42:32 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Eric Paris <eparis@redhat.com>
+cc: linux-kernel@vger.kernel.org, wli@holomorphy.com, discuss@x86-64.org,
+       linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH] Fix do_mlock so page alignment is to hugepage boundries
+ when needed
+In-Reply-To: <1147885316.26468.15.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0605171840310.14529@blonde.wat.veritas.com>
+References: <1147885316.26468.15.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20060517132741.GC23933@csclub.uwaterloo.ca>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Wed, 17 May 2006 10:32:54 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Wed, 17 May 2006 10:32:56 -0700
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 17 May 2006 17:42:36.0027 (UTC) FILETIME=[48A4ECB0:01C679D9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 17 May 2006, Eric Paris wrote:
+> sys_m{,un}lock and do_mlock all align memory references and the length
+> of the mlock given by userspace to page boundaries.  If the page being
+> mlocked is a hugepage instead of a normal page the start and finish of
+> the mlock will still only be aligned to normal page boundaries.
+> Ultimately upon the process exiting we will eventually call unmap_vmas
+> which will call unmap_hugepage_range for all of the ranges.
+> unmap_hugepage_range checks to make sure the beginning and the end of
+> the range are actually hugepage aligned and if not will BUG().  Since we
+> only aligned to a normal page boundary the end of the first range and
+> the beginning of the second will likely (unless userspace passed of
+> values already hugepage aligned) not be hugepage aligned and thus we
+> bomb.
 
-> Would a pentium class machine even run firefox on windows?
->
-> I think there is something very wrong with how firefox manages it's page
-> rendering and scrolling.  It certainly eats a ton of ram with whatever
-> it is doing.
+When did you test this?  It should have been fixed in 2.6.11 onwards
+by split_vma()'s simple:
 
-	My sister can testify that it's possible but there's really no point. She
-has a P60 with 128MB of RAM (the max her mobo can take) and it takes about 2
-minutes to launch firefox. She uses gmail, and it's basically unusable on
-her machine. Almost once every day I send her another configuration for a
-machine I recommend she should buy to end her suffering. She says she uses
-her machine so little it's not worth it. I point out that she uses it so
-little because it is useful for so little.
+	if (is_vm_hugetlb_page(vma) && (addr & ~HPAGE_MASK))
+		return -EINVAL;
 
-	DS
-
-
+Hugh

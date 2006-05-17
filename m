@@ -1,28 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751033AbWEQA6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWEQBJA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751033AbWEQA6M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 20:58:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751035AbWEQA6L
+	id S1751045AbWEQBJA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 21:09:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbWEQBJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 20:58:11 -0400
-Received: from mail10.syd.optusnet.com.au ([211.29.132.191]:25003 "EHLO
-	mail10.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751028AbWEQA6K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 20:58:10 -0400
+	Tue, 16 May 2006 21:09:00 -0400
+Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:42448 "EHLO
+	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751037AbWEQBI7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 21:08:59 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17514.29957.186767.679657@wombat.chubb.wattle.id.au>
-Date: Wed, 17 May 2006 10:57:41 +1000
+Message-ID: <17514.30622.22763.24688@wombat.chubb.wattle.id.au>
+Date: Wed, 17 May 2006 11:08:46 +1000
 From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>,
-       "Marc Perkel" <marc@perkel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Wiretapping Linux?
-In-Reply-To: <200605161909.47110.ioe-lkml@rameria.de>
-References: <4469D296.8060908@perkel.com>
-	<Pine.LNX.4.61.0605161100590.27707@chaos.analogic.com>
-	<200605161909.47110.ioe-lkml@rameria.de>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Ju, Seokmann'" <Seokmann.Ju@lsil.com>,
+       "Chase Venters" <chase.venters@clientec.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       <linux-scsi@vger.kernel.org>
+Subject: RE: Help: strange messages from kernel on IA64 platform
+In-Reply-To: <4t153d$13ldvv@azsmga001.ch.intel.com>
+References: <890BF3111FB9484E9526987D912B261901BD86@NAMAIL3.ad.lsil.com>
+	<4t153d$13ldvv@azsmga001.ch.intel.com>
 X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
 Comments: Hyperbole mail buttons accepted, v04.18.
 X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
@@ -31,20 +32,19 @@ X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Ingo" == Ingo Oeser <ioe-lkml@rameria.de> writes:
+>>>>> "Kenneth" == Kenneth W Chen <Chen> writes:
 
-Ingo> Hi, On Tuesday, 16. May 2006 17:05, linux-os (Dick Johnson)
-Ingo> wrote:
->> It's hard to find Windows products that don't contain such
->> spyware. As Linux becomes more prevalent on the desktop, you can
->> expect to find such spyware there too.
+Kenneth> Ju, Seokmann wrote on Tuesday, May 16, 2006 2:13 PM
+>> Tuesday, May 16, 2006 5:00 PM, Chase Venters wrote: > It's a trap,
+>> which means the CPU is effectively calling that function.  O.K,
+>> that's why...  Then, Is there anyway to look up trap table that the
+>> CPU has?
 
-Ingo> Recent examples: - Update availability checkers (e.g. Adept).  -
-Ingo> Installation routines of a certain distribution calling all a
-Ingo> predefined NTP server instead of pool.ntp.org on first start.
+Kenneth> By looking at the instruction address that triggered the
+Kenneth> unaligned fault, it is coming from a kernel module.
 
-For that matter, the Debian `popularity' package is spyware.  But at
-least youi have the choice whether to install it or not.
+General details for tracking down unaligned access problems in IA64
+linux at http://www.gelato.unsw.edu.au/IA64wiki/UnalignedAccesses
 -- 
 Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
 http://www.ertos.nicta.com.au           ERTOS within National ICT Australia

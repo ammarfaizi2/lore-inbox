@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWEQRmM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbWEQRqj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbWEQRmM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 13:42:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWEQRmM
+	id S1750814AbWEQRqj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 13:46:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWEQRqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 13:42:12 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:62104 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750800AbWEQRmK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 13:42:10 -0400
-Date: Wed, 17 May 2006 10:40:04 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-cc: LKML <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>,
-       Paul Mackerras <paulus@samba.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
-       Martin Mares <mj@atrey.karlin.mff.cuni.cz>, bjornw@axis.com,
-       schwidefsky@de.ibm.com, benedict.gaster@superh.com, lethal@linux-sh.org,
-       Chris Zankel <chris@zankel.net>, Marc Gauthier <marc@tensilica.com>,
-       Joe Taylor <joe@tensilica.com>,
-       David Mosberger-Tang <davidm@hpl.hp.com>, rth@twiddle.net,
-       spyro@f2s.com, starvik@axis.com, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org, ralf@linux-mips.org,
-       linux-mips@linux-mips.org, grundler@parisc-linux.org,
-       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
-       linux390@de.ibm.com, davem@davemloft.net, arnd@arndb.de,
-       kenneth.w.chen@intel.com, sam@ravnborg.org, kiran@scalex86.org
-Subject: Re: [RFC PATCH 00/09] robust VM per_cpu variables
-In-Reply-To: <Pine.LNX.4.58.0605171152190.15798@gandalf.stny.rr.com>
-Message-ID: <Pine.LNX.4.64.0605171038160.13767@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0605170547490.8408@gandalf.stny.rr.com>
- <Pine.LNX.4.64.0605170744360.13021@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0605171104100.13160@gandalf.stny.rr.com>
- <Pine.LNX.4.64.0605170846190.13337@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0605171152190.15798@gandalf.stny.rr.com>
+	Wed, 17 May 2006 13:46:39 -0400
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:63181 "EHLO
+	clueserver.org") by vger.kernel.org with ESMTP id S1750814AbWEQRqi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 13:46:38 -0400
+Date: Wed, 17 May 2006 10:46:29 -0700 (PDT)
+From: alan <alan@clueserver.org>
+X-X-Sender: alan@blackbox.fnordora.org
+To: David Schwartz <davids@webmaster.com>
+cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: replacing X Window System !
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEEJJLPAB.davids@webmaster.com>
+Message-ID: <Pine.LNX.4.64.0605171043140.3584@blackbox.fnordora.org>
+References: <MDEHLPKNGKAHNMBLJOLKEEJJLPAB.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 May 2006, Steven Rostedt wrote:
+On Wed, 17 May 2006, David Schwartz wrote:
 
-> > Well I'd like to see a comprehensive solution including a fix for the
-> > problems with allocper_cpu() allocations (allocper_cpu has to allocate
-> > memory for potential processors... which could be a lot on
-> > some types of systems and its allocated somewhere not on the nodes of the
-> > processor since they may not yet be online).
-> 
-> OK, now you're beyond what I'm working with ;)  No hot plug CPUs for me.
-> Well, at least not yet!
+>
+>> Would a pentium class machine even run firefox on windows?
+>>
+>> I think there is something very wrong with how firefox manages it's page
+>> rendering and scrolling.  It certainly eats a ton of ram with whatever
+>> it is doing.
+>
+> 	My sister can testify that it's possible but there's really no point. She
+> has a P60 with 128MB of RAM (the max her mobo can take) and it takes about 2
+> minutes to launch firefox. She uses gmail, and it's basically unusable on
+> her machine. Almost once every day I send her another configuration for a
+> machine I recommend she should buy to end her suffering. She says she uses
+> her machine so little it's not worth it. I point out that she uses it so
+> little because it is useful for so little.
 
-You need to at least consider how this could be handled by the per_cpu 
-memory manangement. The VM thingie with dynamic per cpu memory would allow 
-a fixup of allocpercpu.
+The P60s are just bad to begin with.  That is the one where the floating 
+point error appeared.
 
+Gmail requires a current browser.  To support it you need a machine made 
+in this century, not the last.
+
+Just because Linux will run on that machine does not mean it is a good 
+idea.
+
+But we have gone WAY off topic for the kernel list.
+
+-- 
+"Waiter! This lambchop tastes like an old sock!" - Sheri Lewis

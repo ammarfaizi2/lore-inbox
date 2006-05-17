@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWEQPXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWEQPZw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbWEQPXO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 11:23:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750702AbWEQPXO
+	id S1750702AbWEQPZw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 11:25:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWEQPZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 11:23:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:65188 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750707AbWEQPXO (ORCPT
+	Wed, 17 May 2006 11:25:52 -0400
+Received: from mail.parknet.jp ([210.171.160.80]:23813 "EHLO parknet.jp")
+	by vger.kernel.org with ESMTP id S1750700AbWEQPZv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 11:23:14 -0400
-Date: Wed, 17 May 2006 08:22:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: jsipek@fsl.cs.sunysb.edu, linux-kernel@vger.kernel.org
-Subject: Re: swapper_space export
-Message-Id: <20060517082252.47c75004.akpm@osdl.org>
-In-Reply-To: <1147864721.3051.17.camel@laptopd505.fenrus.org>
-References: <20060516232443.GA10762@filer.fsl.cs.sunysb.edu>
-	<1147864721.3051.17.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 17 May 2006 11:25:51 -0400
+X-AuthUser: hirofumi@parknet.jp
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Avuton Olrich <avuton@gmail.com>, Jeff Garzik <jeff@garzik.org>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [RFT] major libata update
+References: <20060515170006.GA29555@havoc.gtf.org>
+	<3aa654a40605151630j53822ba1nbb1a2e3847a78025@mail.gmail.com>
+	<446914C7.1030702@garzik.org>
+	<3aa654a40605152036h40fa1cd0x8edd81431c1bd22d@mail.gmail.com>
+	<44694C4F.3000008@garzik.org>
+	<3aa654a40605152133x516581f9w62c7cb7709864fb0@mail.gmail.com>
+	<Pine.LNX.4.64.0605160755170.3866@g5.osdl.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Thu, 18 May 2006 00:25:43 +0900
+In-Reply-To: <Pine.LNX.4.64.0605160755170.3866@g5.osdl.org> (Linus Torvalds's message of "Tue, 16 May 2006 07:57:36 -0700 (PDT)")
+Message-ID: <87ves44qrs.fsf@duaron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@infradead.org> wrote:
+Linus Torvalds <torvalds@osdl.org> writes:
+
+> On Mon, 15 May 2006, Avuton Olrich wrote:
 >
-> On Tue, 2006-05-16 at 19:24 -0400, Josef Sipek wrote:
-> > I was trying to compile the Unionfs[1] to get it up to sync it up with
-> > the kernel developments from the past few months. Anyway, long story
-> > short...swapper_space (defined in mm/swap_state.c) is not exported
-> > anymore (git commit: 4936967374c1ad0eb3b734f24875e2484c3786cc). This
-> > apparently is not an issue for most modules. Troubles arise when the
-> > modules include mm.h or any of its relatives.
-> > 
-> > One simply gets a linker error about swapper_space not being defined.
-> > The problem is that it is used in mm.h.
-> 
-> 
-> don't you think it's really suspect that no other filesystem, in fact no
-> other driver in the kernel needs this? Could it just be that unionfs is 
-> using a wrong API ? Because if that's the case you're patch is just the
-> wrong thing. Maybe the unionfs people should try to submit their code
-> for review etc......
+> diff --git a/arch/i386/pci/irq.c b/arch/i386/pci/irq.c
+> index 06dab00..49b9fea 100644
+> --- a/arch/i386/pci/irq.c
+> +++ b/arch/i386/pci/irq.c
+> @@ -880,6 +880,7 @@ static int pcibios_lookup_irq(struct pci
+>  	((!(pci_probe & PCI_USE_PIRQ_MASK)) || ((1 << irq) & mask)) ) {
+>  		DBG(" -> got IRQ %d\n", irq);
+>  		msg = "Found";
+> +		eisa_set_level_irq(irq);
+>  	} else if (newirq && r->set && (dev->class >> 8) != PCI_CLASS_DISPLAY_VGA) {
+>  		DBG(" -> assigning IRQ %d", newirq);
+>  		if (r->set(pirq_router_dev, dev, pirq, newirq)) {
 
-They're probably just using page_mapping(), which is a reasonable thing to so.
-
-Probably it's sufficient to use page->mapping.  It depends how they got
-hold of the page.  If it's know to be in filesystem pagecache then
-page->mapping will be OK.
-
-
+I like it. I'd like to put this type stuff (fixes setting of 8259,
+APIC, chipset, etc.) into pci...
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

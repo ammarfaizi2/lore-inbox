@@ -1,84 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbWEQINS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWEQIXv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932472AbWEQINS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 04:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWEQINS
+	id S932481AbWEQIXv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 04:23:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWEQIXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 04:13:18 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:41857 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932472AbWEQINQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 04:13:16 -0400
-Date: Wed, 17 May 2006 10:13:14 +0200
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] ignore partition table on disks with AIX label
-Message-ID: <20060517081314.GA20415@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Wed, 17 May 2006 04:23:51 -0400
+Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:693 "EHLO
+	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932481AbWEQIXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 04:23:50 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: tim.c.chen@linux.intel.com
+Subject: Re: Regression seen for patch "sched:dont decrease idle sleep avg"
+Date: Wed, 17 May 2006 18:23:23 +1000
+User-Agent: KMail/1.9.1
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, Andrew Morton <akpm@osdl.org>,
+       Mike Galbraith <efault@gmx.de>
+References: <4t16i2$12rqnu@orsmga001.jf.intel.com> <200605160945.13157.kernel@kolivas.org> <1147822331.4859.37.camel@localhost.localdomain>
+In-Reply-To: <1147822331.4859.37.camel@localhost.localdomain>
+MIME-Version: 1.0
 Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+X-Length: 2156
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200605171823.24476.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 17 May 2006 09:32, Tim Chen wrote:
+> On Tue, 2006-05-16 at 09:45 +1000, Con Kolivas wrote:
+> > Yes it's only designed to detect something that has been asleep for an
+> > arbitrary long time and "categorised as idle"; it is not supposed to be a
+> > priority stepping stone for everything, in this case at MAX_BONUS-1. Mike
+> > proposed doing this instead, but it was never my intent.
+>
+> It seems like just one sleep longer than INTERACTIVE_SLEEP is needed
+> kick the priority of a process all the way to MAX_BONUS-1 and boost the
+> sleep_avg, regardless of what the prior sleep_avg was.
+>
+> So if there is a cpu hog that has long sleeps occasionally, once it woke
+> up, its priority will get boosted close to maximum, likely starving out
+> other processes for a while till its sleep_avg gets reduced.  This
+> behavior seems like something to avoid according to the original code
+> comment.  Are we boosting the priority too quickly?
 
-The on-disk data structures from AIX are not known, also the filesystem
-layout is not known. There is a msdos partition signature at the end of
-the first block, and the kernel recognizes 3 small (and overlapping) partitions.
-But they are not usable. Maybe the firmware uses it to find the bootloader
-for AIX, but AIX boots also if the first block is cleared.
+Two things strike me here. I'll explain them in the patch below.
 
-Handle the whole disk as empty disk.
-This fixes also YaST who compares the output from parted (and formerly fdisk)
-with /proc/partitions. fdisk recognizes the AIX label since a long time,
-SuSE has a patch for parted to handle the disk label as unknown.
+How's this look?
+---
+The relationship between INTERACTIVE_SLEEP and the ceiling is not perfect
+and not explicit enough. The sleep boost is not supposed to be any larger
+than without this code and the comment is not clear enough about what exactly
+it does, just the reason it does it.
 
-dmesg will look like this:
- sda: [AIX]  unknown partition table
+There is a ceiling to the priority beyond which tasks that only ever sleep
+for very long periods cannot surpass.
 
+Opportunity to micro-optimise and re-use the ceiling variable.
 
-Signed-off-by: Olaf Hering <olh@suse.de>
+Signed-off-by: Con Kolivas <kernel@kolivas.org>
 
 ---
- fs/partitions/msdos.c |   19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ kernel/sched.c |   28 +++++++++++-----------------
+ 1 files changed, 11 insertions(+), 17 deletions(-)
 
-Index: linux-2.6.16/fs/partitions/msdos.c
+Index: linux-2.6.17-rc4-mm1/kernel/sched.c
 ===================================================================
---- linux-2.6.16.orig/fs/partitions/msdos.c
-+++ linux-2.6.16/fs/partitions/msdos.c
-@@ -59,6 +59,19 @@ msdos_magic_present(unsigned char *p)
- 	return (p[0] == MSDOS_LABEL_MAGIC1 && p[1] == MSDOS_LABEL_MAGIC2);
- }
- 
-+/* Value is EBCIDIC 'IBMA' */
-+#define AIX_LABEL_MAGIC1	0xC9
-+#define AIX_LABEL_MAGIC2	0xC2
-+#define AIX_LABEL_MAGIC3	0xD4
-+#define AIX_LABEL_MAGIC4	0xC1
-+static int aix_magic_present(unsigned char *p)
-+{
-+	return (p[0] == AIX_LABEL_MAGIC1 &&
-+		p[1] == AIX_LABEL_MAGIC2 &&
-+		p[2] == AIX_LABEL_MAGIC3 &&
-+		p[3] == AIX_LABEL_MAGIC4);
-+}
-+
- /*
-  * Create devices for each logical partition in an extended partition.
-  * The logical partitions form a linked list, with each entry being
-@@ -394,6 +407,12 @@ int msdos_partition(struct parsed_partit
- 		return 0;
+--- linux-2.6.17-rc4-mm1.orig/kernel/sched.c	2006-05-17 15:57:49.000000000 +1000
++++ linux-2.6.17-rc4-mm1/kernel/sched.c	2006-05-17 18:19:29.000000000 +1000
+@@ -904,20 +904,14 @@ static int recalc_task_prio(task_t *p, u
  	}
  
-+	if (aix_magic_present(data)) {
-+		put_dev_sector(sect);
-+		printk( " [AIX]");
-+		return 0;
-+	}
-+
- 	/*
- 	 * Now that the 55aa signature is present, this is probably
- 	 * either the boot sector of a FAT filesystem or a DOS-type
+ 	if (likely(sleep_time > 0)) {
+-		/*
+-		 * User tasks that sleep a long time are categorised as
+-		 * idle. They will only have their sleep_avg increased to a
+-		 * level that makes them just interactive priority to stay
+-		 * active yet prevent them suddenly becoming cpu hogs and
+-		 * starving other processes.
+-		 */
+-		if (p->mm && sleep_time > INTERACTIVE_SLEEP(p)) {
+-				unsigned long ceiling;
++		unsigned long ceiling = INTERACTIVE_SLEEP(p);
+ 
+-				ceiling = JIFFIES_TO_NS(MAX_SLEEP_AVG -
+-					DEF_TIMESLICE);
+-				if (p->sleep_avg < ceiling)
+-					p->sleep_avg = ceiling;
++		if (p->mm && sleep_time > ceiling && p->sleep_avg < ceiling) {
++			/*
++			 * Prevents user tasks from achieving best priority
++			 * with one single large enough sleep.
++			 */
++			p->sleep_avg = ceiling;
+ 		} else {
+ 			/*
+ 			 * Tasks waking from uninterruptible sleep are
+@@ -925,12 +919,12 @@ static int recalc_task_prio(task_t *p, u
+ 			 * are likely to be waiting on I/O
+ 			 */
+ 			if (p->sleep_type == SLEEP_NONINTERACTIVE && p->mm) {
+-				if (p->sleep_avg >= INTERACTIVE_SLEEP(p))
++				if (p->sleep_avg >= ceiling)
+ 					sleep_time = 0;
+ 				else if (p->sleep_avg + sleep_time >=
+-						INTERACTIVE_SLEEP(p)) {
+-					p->sleep_avg = INTERACTIVE_SLEEP(p);
+-					sleep_time = 0;
++					 ceiling) {
++						p->sleep_avg = ceiling;
++						sleep_time = 0;
+ 				}
+ 			}
+ 
+-- 
+-ck

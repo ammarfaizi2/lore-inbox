@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbWEQTD3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbWEQTJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750919AbWEQTD3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 15:03:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbWEQTD3
+	id S1750990AbWEQTJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 15:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbWEQTJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 15:03:29 -0400
-Received: from mx2.suse.de ([195.135.220.15]:23758 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750976AbWEQTD2 (ORCPT
+	Wed, 17 May 2006 15:09:59 -0400
+Received: from main.gmane.org ([80.91.229.2]:58284 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750986AbWEQTJ7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 15:03:28 -0400
-Date: Wed, 17 May 2006 21:03:26 +0200
-From: Olaf Hering <olh@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ignore partition table on disks with AIX label
-Message-ID: <20060517190326.GA29017@suse.de>
-References: <20060517081314.GA20415@suse.de> <200605170853.k4H8rn8K009466@turing-police.cc.vt.edu> <20060517091056.GA21219@suse.de> <200605171014.k4HAETHT011371@turing-police.cc.vt.edu> <20060517183710.GA28931@suse.de> <1147892187.10470.70.camel@localhost.localdomain>
+	Wed, 17 May 2006 15:09:59 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthieu CASTET <castet.matthieu@free.fr>
+Subject: Re: libata PATA updated patch
+Date: Wed, 17 May 2006 21:09:19 +0200
+Message-ID: <pan.2006.05.17.19.09.14.685473@free.fr>
+References: <1147796037.2151.83.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <1147892187.10470.70.camel@localhost.localdomain>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Wed, May 17, Alan Cox wrote:
+Le Tue, 16 May 2006 17:13:57 +0100, Alan Cox a écrit :
 
-> On Mer, 2006-05-17 at 20:37 +0200, Olaf Hering wrote:
-> > A big company who is all hot about Linux expressed no interrest so far
-> > to make AIX volumes readable in Linux.
+> I've put a patch versus -rc4 in the usual place. This should sort out
+> the PIO problems and a few other glitches
 > 
-> All we want to know initially is how to correctly spot AIX volumes. As I
+> Alan
+> 
+> http://zeniv.linux.org.uk/~alan/IDE
+Ok the via timing are ok now.
 
-I dont have any more info about the layout.
-The code for AIX in fdisk was added around 1999-03-20. So if anyone had
-any trouble with matching the 4 byte at the beginning of the disks,
-fdisk would do more or different checks before rejecting such a disk.
-I'm not sure if fdisk was always the tool of choice, but its a good
-measure.
+If I had in ata_host_intr someting like [1] for checking the altstatus, my
+ATAPI drive works.
+It report "ata_altstatus take 3us", for driver that wasn't worked before.
+
+I don't know if it is a correct fix and where it should be putted (in
+libata-core or in the pata_via check_altstatus callback).
+I don't know if it should be used only for ATA_CMD_SET_FEATURES &&
+SETFEATURES_XFER.
+
+Now real testing could begging.
+
+Matthieu
+
+
+
+[1]
+		for (i=0; ata_altstatus(ap) & ATA_BUSY; i++) {
+                        if (i > 10)
+                                goto idle_irq;
+                udelay(1);
+                }
+                if (i)
+                        printk("ata_altstatus take %dus\n", i);
+

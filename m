@@ -1,119 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWEQIXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbWEQIZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932481AbWEQIXv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 04:23:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWEQIXv
+	id S932484AbWEQIZT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 04:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbWEQIZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 04:23:51 -0400
-Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:693 "EHLO
-	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932481AbWEQIXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 04:23:50 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: tim.c.chen@linux.intel.com
-Subject: Re: Regression seen for patch "sched:dont decrease idle sleep avg"
-Date: Wed, 17 May 2006 18:23:23 +1000
-User-Agent: KMail/1.9.1
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, Andrew Morton <akpm@osdl.org>,
-       Mike Galbraith <efault@gmx.de>
-References: <4t16i2$12rqnu@orsmga001.jf.intel.com> <200605160945.13157.kernel@kolivas.org> <1147822331.4859.37.camel@localhost.localdomain>
-In-Reply-To: <1147822331.4859.37.camel@localhost.localdomain>
+	Wed, 17 May 2006 04:25:19 -0400
+Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:61377 "EHLO
+	liaag2aa.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932484AbWEQIZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 04:25:17 -0400
+Date: Wed, 17 May 2006 04:20:00 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Segfault on the i386 enter instruction
+To: Andi Kleen <ak@suse.de>
+Cc: Tomasz Malesinski <tmal@mimuw.edu.pl>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Stas Sergeev <stsp@aknet.ru>, Denis Vlasenko <vda@ilport.com.ua>
+Message-ID: <200605170423_MC3-1-C007-8857@compuserve.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-X-Length: 2156
-Content-Type: text/plain;
-  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200605171823.24476.kernel@kolivas.org>
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 17 May 2006 09:32, Tim Chen wrote:
-> On Tue, 2006-05-16 at 09:45 +1000, Con Kolivas wrote:
-> > Yes it's only designed to detect something that has been asleep for an
-> > arbitrary long time and "categorised as idle"; it is not supposed to be a
-> > priority stepping stone for everything, in this case at MAX_BONUS-1. Mike
-> > proposed doing this instead, but it was never my intent.
->
-> It seems like just one sleep longer than INTERACTIVE_SLEEP is needed
-> kick the priority of a process all the way to MAX_BONUS-1 and boost the
-> sleep_avg, regardless of what the prior sleep_avg was.
->
-> So if there is a cpu hog that has long sleeps occasionally, once it woke
-> up, its priority will get boosted close to maximum, likely starving out
-> other processes for a while till its sleep_avg gets reduced.  This
-> behavior seems like something to avoid according to the original code
-> comment.  Are we boosting the priority too quickly?
+In-Reply-To: <200605161132.18610.ak@suse.de>
 
-Two things strike me here. I'll explain them in the patch below.
+On Tue, 16 May 2006 11:32:18 +0200, Andi Kleen wrote:
 
-How's this look?
----
-The relationship between INTERACTIVE_SLEEP and the ceiling is not perfect
-and not explicit enough. The sleep boost is not supposed to be any larger
-than without this code and the comment is not clear enough about what exactly
-it does, just the reason it does it.
+> On Tuesday 16 May 2006 04:29, Chuck Ebbert wrote:
+> > In-Reply-To: <44676F42.7080907@aknet.ru>
+> > 
+> > On Sun, 14 May 2006 21:56:18 +0400, Stas Sergeev wrote:
+> > 
+> > > Andi Kleen wrote:
+> > > > Handling it like you expect would require to disassemble 
+> > > > the function in the page fault handler and it's probably not 
+> > > > worth doing that for this weird case.
+> > > Just wondering, is this case really that weird?
+> > > In fact, the check against %esp that the kernel
+> > > does, looks strange. I realize that it can catch a
+> > > (very rare) user-space bug of accessing below %esp, but
+> > > other than that it looks redundant (IMHO) and as soon as
+> > > it triggers the false-positives, what is it really good for?
+> > 
+> > I can't get a SIGSEGV on any native i386 kernel, not even when
+> > running on AMD64.  It only happens on native x86_64 kernels.
+> 
+> I reproduced the original SIGSEGV on several i386 kernels.
 
-There is a ceiling to the priority beyond which tasks that only ever sleep
-for very long periods cannot surpass.
-
-Opportunity to micro-optimise and re-use the ceiling variable.
-
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
-
----
- kernel/sched.c |   28 +++++++++++-----------------
- 1 files changed, 11 insertions(+), 17 deletions(-)
-
-Index: linux-2.6.17-rc4-mm1/kernel/sched.c
-===================================================================
---- linux-2.6.17-rc4-mm1.orig/kernel/sched.c	2006-05-17 15:57:49.000000000 +1000
-+++ linux-2.6.17-rc4-mm1/kernel/sched.c	2006-05-17 18:19:29.000000000 +1000
-@@ -904,20 +904,14 @@ static int recalc_task_prio(task_t *p, u
- 	}
+OK, I got SIGSEGV on a 2.6.9 i386 kernel in addition to ia32 mode on x86_64.
+But it doesn't happen on any recent 2.6, even with "enter $65535,$0".
+Digging, I found the stack vma is 22 pages (88k) on recent i386
+kernels while it's only 8k on 2.6.9 and 12k in x86_64 ia32 emulation.
+So you have to go deeper into the stack before you will hit this on
+recent i386 kernels.
  
- 	if (likely(sleep_time > 0)) {
--		/*
--		 * User tasks that sleep a long time are categorised as
--		 * idle. They will only have their sleep_avg increased to a
--		 * level that makes them just interactive priority to stay
--		 * active yet prevent them suddenly becoming cpu hogs and
--		 * starving other processes.
--		 */
--		if (p->mm && sleep_time > INTERACTIVE_SLEEP(p)) {
--				unsigned long ceiling;
-+		unsigned long ceiling = INTERACTIVE_SLEEP(p);
- 
--				ceiling = JIFFIES_TO_NS(MAX_SLEEP_AVG -
--					DEF_TIMESLICE);
--				if (p->sleep_avg < ceiling)
--					p->sleep_avg = ceiling;
-+		if (p->mm && sleep_time > ceiling && p->sleep_avg < ceiling) {
-+			/*
-+			 * Prevents user tasks from achieving best priority
-+			 * with one single large enough sleep.
-+			 */
-+			p->sleep_avg = ceiling;
- 		} else {
- 			/*
- 			 * Tasks waking from uninterruptible sleep are
-@@ -925,12 +919,12 @@ static int recalc_task_prio(task_t *p, u
- 			 * are likely to be waiting on I/O
- 			 */
- 			if (p->sleep_type == SLEEP_NONINTERACTIVE && p->mm) {
--				if (p->sleep_avg >= INTERACTIVE_SLEEP(p))
-+				if (p->sleep_avg >= ceiling)
- 					sleep_time = 0;
- 				else if (p->sleep_avg + sleep_time >=
--						INTERACTIVE_SLEEP(p)) {
--					p->sleep_avg = INTERACTIVE_SLEEP(p);
--					sleep_time = 0;
-+					 ceiling) {
-+						p->sleep_avg = ceiling;
-+						sleep_time = 0;
- 				}
- 			}
- 
+> > Intel says nothing about a write check.  Is that a mistake in the manual
+> > or is that something only AMD64 does, and then only in long mode?
+> 
+> In 98+% of all cases when Intel and AMD documentation differ
+> in subtle detail it's a documentation bug.
+
+Yeah, that's why it's good to have both on hand.  But sometimes it can be
+hard to tell which one is wrong. :)
+
+
+BTW one easy way to fix this bug would be to enlarge the window for
+access below the stack pointer to allow for the largest possible enter
+instruction, i.e. "enter $65535,$31".  On x86_64 that would be 65536+256
+instead of the current 128 bytes.
+
 -- 
--ck
+Chuck
+"The x86 isn't all that complex -- it just doesn't make a lot of sense."
+                                                        -- Mike Johnson

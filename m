@@ -1,74 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWEQNY6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWEQN1n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932266AbWEQNY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 09:24:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWEQNY6
+	id S932244AbWEQN1n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 09:27:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWEQN1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 09:24:58 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24754 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932266AbWEQNY5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 09:24:57 -0400
-Date: Wed, 17 May 2006 15:24:08 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: marekw1977@yahoo.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: acpi4asus
-Message-ID: <20060517132408.GD8065@elf.ucw.cz>
-References: <20060511130743.GG15876@mail.muni.cz> <20060511073211.1da40329.akpm@osdl.org> <200605121116.11930.marekw1977@yahoo.com.au> <44649A2E.4070803@tmr.com> <20060508234723.GB4349@ucw.cz> <446A9AD0.6030509@tmr.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 17 May 2006 09:27:42 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:37841 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S932244AbWEQN1m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 09:27:42 -0400
+Date: Wed, 17 May 2006 09:27:41 -0400
+To: Ondrej Zary <linux@rainbow-software.org>
+Cc: Felipe Alfaro Solana <felipe.alfaro@gmail.com>,
+       linux cbon <linuxcbon@yahoo.fr>, linux-kernel@vger.kernel.org
+Subject: Re: replacing X Window System !
+Message-ID: <20060517132741.GC23933@csclub.uwaterloo.ca>
+References: <20060516214148.14432.qmail@web26611.mail.ukl.yahoo.com> <6f6293f10605161610p28358fb6p35c85a30c9a2c1f4@mail.gmail.com> <446AE301.3060302@rainbow-software.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <446A9AD0.6030509@tmr.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <446AE301.3060302@rainbow-software.org>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Út 16-05-06 23:38:56, Bill Davidsen wrote:
-> Pavel Machek wrote:
-> 
-> >Hi!
-> >
-> > 
-> >
-> >>>I am far from qualified to comment on this, but from a 
-> >>>users point of view, is it possible to not have laptop 
-> >>>specific code in the kernel?
-> >>>I have had two Linux laptops and with both I had ACPI 
-> >>>issues.
-> >>>The vendors of both laptops (Toshiba Tecra S1 and now 
-> >>>an Asus W3V) don't seem to be following standards. With 
-> >>>both I seem to need to patch ACPI to get various 
-> >>>functions of the laptop to work.
-> >>>I would love to see laptop specific functionality 
-> >>>definitions exist outside the kernel.
-> >>>
-> >>>     
-> >>>
-> >>I don't think that forcing laptop users to have their 
-> >>own code outside the kernel is really the best approach 
-> >>for either the developers or the users. Most users will 
-> >>   
-> >>
-> >
-> >No, we don't want that. But we do not want ibm-acpi, toshiba-acpi,
-> >asus-acpi, etc, when they really only differ in string constants used.
-> >
-> >We want userland to tell kernel 'mail led is controlled by AML routine
-> >foo', instead of having gazillion *-acpi modules.
-> >
-> >
-> > 
-> >
-> I see no reason why an interface to that couldn't be included in the 
-> kernel, with just a small table for each hardware instead of a whole 
-> module. Kind of a white list with detail.
+On Wed, May 17, 2006 at 10:46:57AM +0200, Ondrej Zary wrote:
+> It is slow. Just take any older machine (Pentium class), open any longer 
+> web page in Firefox and scroll it up and down. Or open some other 
+> window, move it around the screen on top of the Firefox window and see 
+> how "fast" it really is. Then repeat the same in Windows.
+> How can Xgl help here?
 
-I guess that would be acceptable solution.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Would a pentium class machine even run firefox on windows?
+
+I think there is something very wrong with how firefox manages it's page
+rendering and scrolling.  It certainly eats a ton of ram with whatever
+it is doing.
+
+Len Sorensen

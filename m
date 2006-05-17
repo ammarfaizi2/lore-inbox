@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWEQJss@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbWEQJzQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750758AbWEQJss (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 05:48:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbWEQJss
+	id S932490AbWEQJzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 05:55:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932507AbWEQJzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 05:48:48 -0400
-Received: from mail.gmx.de ([213.165.64.20]:22450 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750758AbWEQJss (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 05:48:48 -0400
-X-Authenticated: #14349625
-Subject: Re: Regression seen for patch "sched:dont decrease idle sleep avg"
-From: Mike Galbraith <efault@gmx.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: tim.c.chen@linux.intel.com, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       linux-kernel@vger.kernel.org, mingo@elte.hu,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200605171823.24476.kernel@kolivas.org>
-References: <4t16i2$12rqnu@orsmga001.jf.intel.com>
-	 <200605160945.13157.kernel@kolivas.org>
-	 <1147822331.4859.37.camel@localhost.localdomain>
-	 <200605171823.24476.kernel@kolivas.org>
-Content-Type: text/plain
-Date: Wed, 17 May 2006 11:49:23 +0200
-Message-Id: <1147859363.8813.41.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Wed, 17 May 2006 05:55:16 -0400
+Received: from [85.101.13.100] ([85.101.13.100]:17167 "HELO computer.local")
+	by vger.kernel.org with SMTP id S932490AbWEQJzO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 05:55:14 -0400
+Reply-To: oettinger34@gmail.com
+Message-ID: <2d116bdb70e6f6b88e19e2f115a29242@gmail.com>
+From: "oettinger34@gmail.com" <oettinger34@gmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: =?iso-8859-9?B?YWxtYW4gYmlyYXP9IG9ldHRpbmdlciB0/HJraXllZGU=?=
+Date: Wed, 17 May 2006 12:53:55 +0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-9"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-17 at 18:23 +1000, Con Kolivas wrote:
+ALMANYANIN ENÇOK ÝÇÝLEN BÝRALARINDAN BÝRÝ OLAN     OETTÝNGER BÝRASI TÜRKÝYE' YE GELDÝ
+                                
+              ORJÝNAL  ALMAN  BÝRASI   OETTÝNGER          
 
-> There is a ceiling to the priority beyond which tasks that only ever sleep
-> for very long periods cannot surpass.
+ DENEMEDÝNÝZ MÝ ?
+             
+DENEYÝN 270 YILDIR ÝÇÝLEN BÝR TAT
 
-(Hmm.  The intent is more clear, ie reserve the top for low latency
-tasks,... but that sounds a bit like xmms protection.) 
+BU BÝRAYI BEDAVA  DENEMEK   ÝSTERMÝSÝNÝZ?
 
-The main problem I see with this ceiling, solely from the interactivity
-viewpoint, is that interactive tasks which have started burning cpu
-and/or freshly forked interactive tasks land in the same spot.  Thud.c
-demonstrates this problem quite well.  You don't want a few copies of
-thud in the same queue with your interactive task, much less above it if
-it's used enough cpu to drop a notch or two.  Much pain ensues.
+EVET ÝSE BÝZE BULUNDUÐUNUZ SEMTÝ VE ALMAK ALDIÐINIZ TEKEL BAYÝNÝN ADINI YAZIN SÝZÝN ADINIZA OETTÝNGER BÝRANIZI BIRAKALIM
 
-	-Mike
+
+ÝSTANBUL ANADOLU BAÞBAYÝ
+
 

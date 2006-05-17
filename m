@@ -1,77 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWEQOxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbWEQOy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750771AbWEQOxh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 10:53:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWEQOxh
+	id S1750852AbWEQOy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 10:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWEQOy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 10:53:37 -0400
-Received: from web26611.mail.ukl.yahoo.com ([217.146.177.63]:43355 "HELO
-	web26611.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750771AbWEQOxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 10:53:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=IKMPnHdaPOaXXjw8fVcWVi+qSoW+zwG12UUp7rD0nED3q3v5gxMw+tDjeKB2z+QqtLIdXGyVJl9p1zfTJp8aC+1Fx7HoADWEFziK72mOAlGlfOBQ9aNDmuygvBe+vO0EjLYnURqHkHnVfmxEWIrd2Np8jgHTmWWItZK8s1sa+sM=  ;
-Message-ID: <20060517145335.36079.qmail@web26611.mail.ukl.yahoo.com>
-Date: Wed, 17 May 2006 16:53:35 +0200 (CEST)
-From: linux cbon <linuxcbon@yahoo.fr>
-Subject: Re: replacing X Window System !
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9a8748490605170639n12fde7c9i836599f02a30fd51@mail.gmail.com>
+	Wed, 17 May 2006 10:54:58 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38067 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750831AbWEQOy5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 10:54:57 -0400
+Date: Wed, 17 May 2006 07:52:38 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: LKML <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       Paul Mackerras <paulus@samba.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
+       Martin Mares <mj@atrey.karlin.mff.cuni.cz>, bjornw@axis.com,
+       schwidefsky@de.ibm.com, benedict.gaster@superh.com, lethal@linux-sh.org,
+       Chris Zankel <chris@zankel.net>, Marc Gauthier <marc@tensilica.com>,
+       Joe Taylor <joe@tensilica.com>,
+       David Mosberger-Tang <davidm@hpl.hp.com>, rth@twiddle.net,
+       spyro@f2s.com, starvik@axis.com, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org, ralf@linux-mips.org,
+       linux-mips@linux-mips.org, grundler@parisc-linux.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, davem@davemloft.net, arnd@arndb.de,
+       kenneth.w.chen@intel.com, sam@ravnborg.org, kiran@scalex86.org
+Subject: Re: [RFC PATCH 00/09] robust VM per_cpu variables
+In-Reply-To: <Pine.LNX.4.58.0605170547490.8408@gandalf.stny.rr.com>
+Message-ID: <Pine.LNX.4.64.0605170744360.13021@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0605170547490.8408@gandalf.stny.rr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- Jesper Juhl <jesper.juhl@gmail.com> a écrit : 
-> And when the windowing system crashes it'll take the
-> kernel down with it - ouch.
+On Wed, 17 May 2006, Steven Rostedt wrote:
 
-It is already happening today with X, because :
-X runs as root - ouch.
-X can write into kernel memory - ouch.
-X can mess with clocks - ouch.
-X can mess with PCI bus - ouch.
-etc.  - ouch.
+> My first attempt to fix this introduced another dereference, to allow
+> for modules to allocate their own memory.  This was quickly shot down,
+> and for good reason, because dereferences kill performance, and don't
+> play nice with large SMP systems that depend on per_cpu being fast.
 
+> I now place the per_cpu variables into VM, such that the pages are
+> only allocated when needed. All the architecture needs to do is
+> supply a VM address range, size for each CPU to use (note this
+> implementation expects all the VM CPU areas to be together), and
+> three functions to allow for allocating page tables at bootup.
 
-> And if I want to run a headless server without a
-> graphical display I
-> can't simply stop the windowing system I'd have to
-> rebuild a kernel
-> without the windowing system in it - yuck.
+So now instead of an explicit indirection we use an implicit one 
+through the page tables for this. This happens during early boot which 
+requires additional page table functions? And it requires the use of an 
+additional TLB entry? I guess that the additional TLB pressure alone will 
+result in a performance drop of 3%?
 
-Is it so difficult to disable a module ? - yuck.
-
-
-> What we have now is a nicely decoupled system - it
-> would be even
-> better if X was even more decoupled from the kernel,
-> but lets not put
-> the windowing system in kernel space.
-
-We dont need 2 kernels like today.
-All "dangerous code" should be in kernel.
-
-
-> Do you really want to put all that complexity into
-> the kernel?
-
-Kernel is already complex, that wouldnt affect it.
-But that would greatly simplify the whole system.
+See http://www.gelato.unsw.edu.au/archives/linux-ia64/0602/17311.html
 
 
 
-
-
-
-
-	
-	
-		
-___________________________________________________________________________ 
-Nouveau : téléphonez moins cher avec Yahoo! Messenger. Appelez le monde entier à partir de 0,012 €/minute ! 
-Téléchargez sur http://fr.messenger.yahoo.com

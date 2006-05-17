@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWEQAS5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbWEQATq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbWEQAS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 20:18:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbWEQASa
+	id S932382AbWEQATq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 20:19:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWEQATS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 20:18:30 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:11729 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932365AbWEQASQ (ORCPT
+	Tue, 16 May 2006 20:19:18 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:17617 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932340AbWEQAS2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 20:18:16 -0400
-Date: Wed, 17 May 2006 02:18:10 +0200
+	Tue, 16 May 2006 20:18:28 -0400
+Date: Wed, 17 May 2006 02:18:23 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
 Cc: Thomas Gleixner <tglx@linutronix.de>,
@@ -17,8 +17,8 @@ Cc: Thomas Gleixner <tglx@linutronix.de>,
        Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
        Christoph Hellwig <hch@infradead.org>,
        linux-arm-kernel@lists.arm.linux.org.uk
-Subject: [patch 38/50] genirq: ARM: Convert lh7a40x to generic irq handling
-Message-ID: <20060517001810.GM12877@elte.hu>
+Subject: [patch 41/50] genirq: ARM: Convert s3c2410 to generic irq handling
+Message-ID: <20060517001823.GP12877@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -41,49 +41,60 @@ Fixup the conversion to generic irq subsystem.
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 ---
- arch/arm/mach-lh7a40x/arch-lpd7a40x.c |    5 +++--
- arch/arm/mach-lh7a40x/time.c          |    1 +
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ arch/arm/mach-s3c2410/bast-irq.c |   10 +++++-----
+ arch/arm/mach-s3c2410/time.c     |    1 +
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-Index: linux-genirq.q/arch/arm/mach-lh7a40x/arch-lpd7a40x.c
+Index: linux-genirq.q/arch/arm/mach-s3c2410/bast-irq.c
 ===================================================================
---- linux-genirq.q.orig/arch/arm/mach-lh7a40x/arch-lpd7a40x.c
-+++ linux-genirq.q/arch/arm/mach-lh7a40x/arch-lpd7a40x.c
-@@ -12,6 +12,7 @@
- #include <linux/init.h>
- #include <linux/platform_device.h>
- #include <linux/interrupt.h>
-+#include <linux/irq.h>
+--- linux-genirq.q.orig/arch/arm/mach-s3c2410/bast-irq.c
++++ linux-genirq.q/arch/arm/mach-s3c2410/bast-irq.c
+@@ -95,7 +95,7 @@ bast_pc104_maskack(unsigned int irqno)
+ 	struct irqdesc *desc = irq_desc + IRQ_ISA;
  
- #include <asm/hardware.h>
- #include <asm/setup.h>
-@@ -162,7 +163,7 @@ static void lpd7a40x_cpld_handler (unsig
- {
- 	unsigned int mask = CPLD_INTERRUPTS;
- 
--	desc->chip->ack (irq);
-+	desc->handler->ack (irq);
- 
- 	if ((mask & 0x1) == 0)	/* WLAN */
- 		IRQ_DISPATCH (IRQ_LPD7A40X_ETH_INT);
-@@ -170,7 +171,7 @@ static void lpd7a40x_cpld_handler (unsig
- 	if ((mask & 0x2) == 0)	/* Touch */
- 		IRQ_DISPATCH (IRQ_LPD7A400_TS);
- 
--	desc->chip->unmask (irq); /* Level-triggered need this */
-+	desc->handler->unmask (irq); /* Level-triggered need this */
+ 	bast_pc104_mask(irqno);
+-	desc->chip->ack(IRQ_ISA);
++	desc->handler->ack(IRQ_ISA);
  }
  
+ static void
+@@ -129,15 +129,15 @@ bast_irq_pc104_demux(unsigned int irq,
+ 		/* ack if we get an irq with nothing (ie, startup) */
  
-Index: linux-genirq.q/arch/arm/mach-lh7a40x/time.c
+ 		desc = irq_desc + IRQ_ISA;
+-		desc->chip->ack(IRQ_ISA);
++		desc->handler->ack(IRQ_ISA);
+ 	} else {
+ 		/* handle the IRQ */
+ 
+ 		for (i = 0; stat != 0; i++, stat >>= 1) {
+ 			if (stat & 1) {
+ 				irqno = bast_pc104_irqs[i];
+-
+-				desc_handle_irq(irqno, irq_desc + irqno, regs);
++				desc = irq_desc + irqno;
++				desc_handle_irq(irqno, desc, regs);
+ 			}
+ 		}
+ 	}
+@@ -156,7 +156,7 @@ static __init int bast_irq_init(void)
+ 
+ 		set_irq_chained_handler(IRQ_ISA, bast_irq_pc104_demux);
+ 
+-		/* reigster our IRQs */
++		/* register our IRQs */
+ 
+ 		for (i = 0; i < 4; i++) {
+ 			unsigned int irqno = bast_pc104_irqs[i];
+Index: linux-genirq.q/arch/arm/mach-s3c2410/time.c
 ===================================================================
---- linux-genirq.q.orig/arch/arm/mach-lh7a40x/time.c
-+++ linux-genirq.q/arch/arm/mach-lh7a40x/time.c
-@@ -12,6 +12,7 @@
- #include <linux/module.h>
- #include <linux/kernel.h>
+--- linux-genirq.q.orig/arch/arm/mach-s3c2410/time.c
++++ linux-genirq.q/arch/arm/mach-s3c2410/time.c
+@@ -23,6 +23,7 @@
+ #include <linux/sched.h>
+ #include <linux/init.h>
  #include <linux/interrupt.h>
 +#include <linux/irq.h>
- #include <linux/time.h>
+ #include <linux/err.h>
+ #include <linux/clk.h>
  
- #include <asm/hardware.h>

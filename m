@@ -1,29 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWEQBJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWEQBPH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751045AbWEQBJA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 21:09:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbWEQBJA
+	id S932405AbWEQBPH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 21:15:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWEQBPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 21:09:00 -0400
-Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:42448 "EHLO
-	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751037AbWEQBI7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 21:08:59 -0400
+	Tue, 16 May 2006 21:15:06 -0400
+Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:17854 "EHLO
+	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932405AbWEQBPF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 21:15:05 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17514.30622.22763.24688@wombat.chubb.wattle.id.au>
-Date: Wed, 17 May 2006 11:08:46 +1000
+Message-ID: <17514.30904.648888.894039@wombat.chubb.wattle.id.au>
+Date: Wed, 17 May 2006 11:13:28 +1000
 From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Ju, Seokmann'" <Seokmann.Ju@lsil.com>,
-       "Chase Venters" <chase.venters@clientec.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <linux-scsi@vger.kernel.org>
-Subject: RE: Help: strange messages from kernel on IA64 platform
-In-Reply-To: <4t153d$13ldvv@azsmga001.ch.intel.com>
-References: <890BF3111FB9484E9526987D912B261901BD86@NAMAIL3.ad.lsil.com>
-	<4t153d$13ldvv@azsmga001.ch.intel.com>
+To: Martin Peschke <mp3@de.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de,
+       hch@infradead.org, arjan@infradead.org, James.Smart@emulex.com,
+       James.Bottomley@steeleye.com
+Subject: Re: [RFC] [Patch 7/8] statistics infrastructure - exploitation prerequisite
+In-Reply-To: <446A53DE.6060400@de.ibm.com>
+References: <446A1023.6020108@de.ibm.com>
+	<20060516112824.39b49563.akpm@osdl.org>
+	<446A53DE.6060400@de.ibm.com>
 X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
 Comments: Hyperbole mail buttons accepted, v04.18.
 X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
@@ -32,19 +32,29 @@ X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Kenneth" == Kenneth W Chen <Chen> writes:
+>>>>> "Martin" == Martin Peschke <mp3@de.ibm.com> writes:
 
-Kenneth> Ju, Seokmann wrote on Tuesday, May 16, 2006 2:13 PM
->> Tuesday, May 16, 2006 5:00 PM, Chase Venters wrote: > It's a trap,
->> which means the CPU is effectively calling that function.  O.K,
->> that's why...  Then, Is there anyway to look up trap table that the
->> CPU has?
 
-Kenneth> By looking at the instruction address that triggered the
-Kenneth> unaligned fault, it is coming from a kernel module.
+Martin> I would be happy to exploit an API that may result from that
+Martin> discussion.  I would plead for exporting such an API to
+Martin> modules. I don't see how to implement statistics for
+Martin> latencies, otherwise.
 
-General details for tracking down unaligned access problems in IA64
-linux at http://www.gelato.unsw.edu.au/IA64wiki/UnalignedAccesses
+Martin> Any other hints on how to replace my sched_clock() calls are
+Martin> welcome.  (I want to measure elapsed times in units that are
+Martin> understandable to users without hardware manuals and
+Martin> calculator, such as milliseconds.)
+
+You may wish to look at the microstate accounting patches at
+http://www.gelato.unsw.edu.au/cgi-bin/viewcvs.cgi/cvs/kernel/microstate/
+I made the clock source configurable.
+
+It's acually rather difficult to find a reliable cross-platform
+monotonic clock with good resolution.  And different statistics may
+want different clocks; for my purposes a cycle counter is best
+(because I'm running on a machine that varies the clock speed for
+power management reasons), other people may want nanoseconds.
+
 -- 
 Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
 http://www.ertos.nicta.com.au           ERTOS within National ICT Australia

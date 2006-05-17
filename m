@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWEQPxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWEQPxr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWEQPxi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 11:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWEQPxi
+	id S1750750AbWEQPxr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 11:53:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWEQPxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 11:53:38 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:51591 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1750741AbWEQPxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 11:53:37 -0400
-Date: Wed, 17 May 2006 11:53:35 -0400
-To: George Nychis <gnychis@cmu.edu>
-Cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org,
-       linux-lvm@redhat.com
-Subject: Re: need help booting from SATA in 2.4.32
-Message-ID: <20060517155335.GF23933@csclub.uwaterloo.ca>
-References: <446A36B8.1060707@cmu.edu> <20060516203917.GQ11191@w.ods.org> <446A418E.3070307@cmu.edu> <20060517034814.GA25818@w.ods.org> <446B2523.1040800@cmu.edu> <20060517133456.GD23933@csclub.uwaterloo.ca> <446B27E4.7040509@cmu.edu>
+	Wed, 17 May 2006 11:53:47 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:27967 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1750741AbWEQPxk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 11:53:40 -0400
+Subject: Re: [RFC] [Patch 5/8] statistics infrastructure
+From: Martin Peschke <mp3@de.ibm.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de, hch@infradead.org,
+       arjan@infradead.org, James.Smart@Emulex.Com,
+       James.Bottomley@SteelEye.com
+In-Reply-To: <17193.1147840147@ocs3>
+References: <17193.1147840147@ocs3>
+Content-Type: text/plain
+Date: Wed, 17 May 2006 17:53:28 +0200
+Message-Id: <1147881208.6361.22.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <446B27E4.7040509@cmu.edu>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 17, 2006 at 09:40:52AM -0400, George Nychis wrote:
-> Because it does......
+On Wed, 2006-05-17 at 14:29 +1000, Keith Owens wrote:
+> Martin Peschke (on Tue, 16 May 2006 19:46:38 +0200) wrote:
+> >+static inline void statistic_add(struct statistic *stat, int i,
+> >+				 s64 value, u64 incr)
+> >+{
+> >+	int cpu;
+> >+	unsigned long flags;
+> >+
+> >+	if (stat[i].state == statistic_state_on) {
+> >+		cpu = get_cpu();
+> >+		local_irq_save(flags);
+> >+		stat[i].add(&stat[i], cpu, value, incr);
+> >+		local_irq_restore(flags);
+> >+		put_cpu();
+> >+	}
+> >+}
 > 
-> on bootup the *same* exact drive in 2.4.32 shows up as /dev/hda
+> Using get_cpu()/put_cpu() is pure overhead when you are disabling
+> interrupts as well.
 > 
-> It has the exact same volume information as my drive that shows up in
-> 2.6.9 as /dev/sda
+> 	if (stat[i].state == statistic_state_on) {
+> 		local_irq_save(flags);
+> 		stat[i].add(&stat[i], smp_processor_id(), value, incr);
+> 		local_irq_restore(flags);
+> 	}
+> 
 
-Yes I do remember a few sata controllers had some support in 2.4, which
-was dropped from 2.6 early on when libata came in.
+Ouch. Fixed it. Thank you.
 
-It is very unlikely you will ever see that again in the future.
-
-Len Sorensen

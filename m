@@ -1,49 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWEQS20@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbWEQSbZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750866AbWEQS20 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 14:28:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWEQS20
+	id S1750867AbWEQSbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 14:31:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750877AbWEQSbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 14:28:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:33685 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750866AbWEQS2Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 14:28:25 -0400
-Date: Wed, 17 May 2006 14:28:08 -0400
-From: "Frank Ch. Eigler" <fche@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Martin Peschke <mp3@de.ibm.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, hch@infradead.org, arjan@infradead.org,
-       James.Smart@emulex.com, James.Bottomley@steeleye.com,
-       ltt-dev@shafik.org
-Subject: Re: [RFC] [Patch 0/8] statistics infrastructure
-Message-ID: <20060517182808.GL17707@redhat.com>
-References: <446A0F77.70202@de.ibm.com> <y0msln8wooo.fsf@ton.toronto.redhat.com> <200605172005.44588.ak@suse.de>
-Mime-Version: 1.0
+	Wed, 17 May 2006 14:31:25 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:46079 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750868AbWEQSbZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 14:31:25 -0400
+Message-ID: <446B6BF8.5050208@am-anger-1.de>
+Date: Wed, 17 May 2006 20:31:20 +0200
+From: Heiko Gerstung <heiko@am-anger-1.de>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060509)
+MIME-Version: 1.0
+To: Willy Tarreau <willy@w.ods.org>
+CC: linux-kernel@vger.kernel.org
+Subject: USB net driver hacker wanted (was Re: Bug related to bonding)
+References: <44684B60.1070705@am-anger-1.de> <20060516045332.GN11191@w.ods.org> <44695D2A.9080705@am-anger-1.de> <20060516123351.GA22040@w.ods.org> <4469EB32.80806@am-anger-1.de> <20060516182324.GA23413@w.ods.org>
+In-Reply-To: <20060516182324.GA23413@w.ods.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605172005.44588.ak@suse.de>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:25672344472c4ac2bbe53bd9833f99fb
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi -
+Hi List!
 
-On Wed, May 17, 2006 at 08:05:43PM +0200, Andi Kleen wrote:
-> [...]
-> > It is interesting how many solutions pop up for this sort of problem.
-> > The many tracing tools/patches, systemtap, and now this, all share
-> > some goals and should ideally share some of the technology.
+I am still having problems with rtl8150.c on Linux 2.4.32 ...
+
+Willy Tarreau wrote:
+>> Please find below the complete async_get_registers function I set up, I
+>> hope it's OK to post it here. A kernel hacker will immediately spot the
+>> error, no? :-)
+>>     
+> Just a guess : I suspect that dev->ctrl_urb is NULL. I don't know how you
+> are supposed to initialize it though.
+>   
+You were right :-) It was a question of how things get initialized.
+My current state is that I am able to load the module but using my
+async_get_register function does not succeed due to timeouts. I am no
+kernel hacker and therefore it is like running through the darkest night
+with my sunglasses on :-) ... I sincerely hope, the maintainer of the
+driver helps me out...
+
+It is interesting to see that with a 2.4.20 kernel I have no problems
+with loading the driver, it only crashes when I run net-snmp on it and
+then fire up an snmpwalk (which, I guess, queries the driver for some
+interface statistics or something like that).
+
+Deadline is coming and still no hope, yet. We'll see...
+
+
+Kind regards,
+Heiko
+
+
+>   
+>> Kind regards,
+>> Heiko
+>>     
 >
-> I disagree. They often have very different requirements - and a
-> one-size-fits-all solution will be likely too heavyweight for most
-> users.
+> Regards,
+> Willy
+>
+>   
+>> static int get_registers(rtl8150_t * dev, u16 indx, u16 size, void *data)
+>> {
+>> int ret;
+>> char *buffer;
+>>
+>> printk("get_registers dev=%08X dev->dr=%08X indx=%d size=%d\n",(unsigned
+>> long) dev, (unsigned long) &dev->dr, indx,size);
+>> buffer = kmalloc(size, GFP_DMA);
+>> if (!buffer) {
+>> warn("%s: looks like we're out of memory", __FUNCTION__);
+>> return -ENOMEM;
+>> }
+>>
+>>
+>> if (test_bit(RX_REG_SET, &dev->flags))
+>> return -EAGAIN;
+>>
+>> dev->dr.bRequestType = RTL8150_REQT_READ;
+>> dev->dr.bRequest = RTL8150_REQ_GET_REGS;
+>> dev->dr.wValue = cpu_to_le16(indx);
+>> dev->dr.wIndex = cpu_to_le16p(&indx);
+>> dev->dr.wLength = cpu_to_le16p(&size);
+>>
+>> dev->ctrl_urb->transfer_buffer_length = size;
+>>
+>> FILL_CONTROL_URB(dev->ctrl_urb, dev->udev,
+>> usb_rcvctrlpipe(dev->udev, 0), (char *) &dev->dr,
+>> buffer, size, ctrl_callback, dev);
+>>
+>> if ((ret = usb_submit_urb(dev->ctrl_urb)))
+>> err("control request submission failed: %d", ret);
+>>
+>> return ret;
+>> }
+>>
+>>     
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>   
 
-I am not suggesting a single solution for all needs.  I wanted to
-focus only one aspect: the marking of those points in the kernel where
-something probeworthy occurs with hooks.  The different tools would
-still gather and disseminate their data in their own favorite.  The
-main difference from the status quo is agreeing on and reusing a
-common pool of hooks.
-
-- FChE

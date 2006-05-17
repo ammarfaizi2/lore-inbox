@@ -1,20 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWEQXEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWEQXGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751136AbWEQXEa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 19:04:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWEQXEa
+	id S1750780AbWEQXGc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 19:06:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWEQXGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 19:04:30 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:32015 "EHLO
+	Wed, 17 May 2006 19:06:31 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:39695 "EHLO
 	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751139AbWEQXEa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 19:04:30 -0400
-Date: Wed, 17 May 2006 16:04:28 -0700
+	id S1750780AbWEQXGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 19:06:31 -0400
+Date: Wed, 17 May 2006 16:06:29 -0700
 From: Tim Mann <mann@vmware.com>
 To: linux-kernel@vger.kernel.org
-Cc: mann@vmware.com, john stultz <johnstul@us.ibm.com>
-Subject: Fix time going backward with clock=pit [1/2]
-Message-ID: <20060517160428.62022efd@mann-lx.eng.vmware.com>
+Cc: Tim Mann <mann@vmware.com>, john stultz <johnstul@us.ibm.com>
+Subject: Fix time going backward with clock=pit [2/2]
+Message-ID: <20060517160629.5f9dbab9@mann-lx.eng.vmware.com>
+In-Reply-To: <20060517160428.62022efd@mann-lx.eng.vmware.com>
+References: <20060517160428.62022efd@mann-lx.eng.vmware.com>
 Organization: VMware, Inc.
 X-Mailer: Sylpheed-Claws 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -23,140 +25,164 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is patch 1 of a 2-patch series.  The diff is against the
-2.6.17-rc3-git17 snapshot.
+This is patch 2 of a 2-patch series.  The diff is against the
+2.6.17-rc3-git17 snapshot.  It nukes some code that is dead after the
+first patch.
 
 * * *
 
-Currently, if you boot with clock=pit on the kernel command line and
-run a program that loops calling gettimeofday, on many machines you'll
-observe that time frequently goes backward by about one jiffy.  This
-patch fixes that symptom and also some other related bugs.
+do_timer_overflow is no longer used now; nuke it.
 
-Bugs and fixes:
+(By the way, the comment "It means that a timer tick interrupt came
+along while the previous one was pending, thus a tick was missed" in
+do_timer_overflow was wrong.  The code was meant to handle the easier
+and more common case where the PIT counter wrapped just before we read
+it and the tick interrupt that that caused was still pending.)
 
-1) get_offset_pit was assuming that jiffies could not change because
-   the read side of xtime_lock is held by its caller, do_gettimeofday.
-   But xtime_lock is a seqlock now, so jiffies can change; the seqlock
-   only ensures that get_offset_pit will be retried if jiffies
-   changes. This matters because get_offset_pit has side effects on
-   internal state that are not undone in the retry case; in
-   particular, it remembers the last values of jiffies and count.  If
-   events occur in this order:
+Note: There is some other code in the kernel that was meant to support
+what do_timer_overflow was doing here.  See the "Subtle..." comments
+in do_timer_interrupt and check_timer.  Unfortunately I don't know how
+much of that code (if any) can be cleaned out now, as I don't
+understand the stuff about "NMI lines for the watchdog if run on an
+82489DX-based system" or all the details of check_timer.
 
-    * get_offset_pit latches the PIT count
-    * the PIT counter overflows
-    * the resulting interrupt is handled and jiffies is incremented
-    * get_offset_pit reads jiffies
+ include/asm-i386/mach-default/do_timer.h |   52 -------------------------------
+ include/asm-i386/mach-visws/do_timer.h   |   26 ---------------
+ include/asm-i386/mach-voyager/do_timer.h |   13 -------
+ 3 files changed, 91 deletions(-)
 
-   ...then the resulting (jiffies, count) pair is about 1 jiffy ahead
-   of real time.  Although do_gettimeofday's seqlock loop will discard
-   this bogus value and call get_offset_pit again, that doesn't help,
-   because get_offset_pit saved the bogus value in (jiffies_p,
-   count_p).
-
-   I fixed this by reading jiffies before latching the count, so we
-   only have to deal with the case where jiffies is older than the
-   count, never the case where it's newer.  (We always have to handle
-   the case of jiffies being older, because events can happen in this
-   order:)
-
-     * the PIT counter overflows
-     * get_offset_pit latches the count and reads jiffies (either order)
-     * the PIT interrupt is handled and jiffies is incremented
-
-2) do_timer_overflow was trying to detect the case where the counter
-   has wrapped since jiffies was incremented by checking whether the
-   timer interrupt is still pending in the PIC.  This is bogus for a
-   couple of reasons: (a) There is a window between the point where
-   the PIC interrupt is acknowledged and jiffies is incremented.  
-   (b) Most systems use the IOAPIC for interrupt routing now.  The
-   kernel has code that tries to also route the timer interrupt to the
-   PIC and acknowledge it there, but this does not appear to work; in
-   my testing on a couple of IOAPIC systems, do_timer_overflow always
-   thought a timer interrupt was pending.  Also, this code has the
-   same window as in (a).
-
-   I fixed this by not calling do_timer_overflow, instead going with
-   the simple solution of preventing count from going in the wrong
-   direction within a jiffy.
-
- arch/i386/kernel/timers/timer_pit.c |   57 +++++++++++++++++++-----------------
- 1 files changed, 31 insertions(+), 26 deletions(-)
-
-Index: linux-2.6.17-rc3-git17/arch/i386/kernel/timers/timer_pit.c
+Index: linux-2.6.17-rc3-git17/include/asm-i386/mach-default/do_timer.h
 ===================================================================
---- linux-2.6.17-rc3-git17.orig/arch/i386/kernel/timers/timer_pit.c
-+++ linux-2.6.17-rc3-git17/arch/i386/kernel/timers/timer_pit.c
-@@ -93,24 +93,25 @@ static unsigned long get_offset_pit(void
- 	int count;
- 	unsigned long flags;
- 	static unsigned long jiffies_p = 0;
+--- linux-2.6.17-rc3-git17.orig/include/asm-i386/mach-default/do_timer.h
++++ linux-2.6.17-rc3-git17/include/asm-i386/mach-default/do_timer.h
+@@ -32,55 +32,3 @@ static inline void do_timer_interrupt_ho
+ 		smp_local_timer_interrupt(regs);
+ #endif
+ }
 -
+-
+-/* you can safely undefine this if you don't have the Neptune chipset */
+-
+-#define BUGGY_NEPTUN_TIMER
+-
+-/**
+- * do_timer_overflow - process a detected timer overflow condition
+- * @count:	hardware timer interrupt count on overflow
+- *
+- * Description:
+- *	This call is invoked when the jiffies count has not incremented but
+- *	the hardware timer interrupt has.  It means that a timer tick interrupt
+- *	came along while the previous one was pending, thus a tick was missed
+- **/
+-static inline int do_timer_overflow(int count)
+-{
+-	int i;
+-
+-	spin_lock(&i8259A_lock);
 -	/*
--	 * cache volatile jiffies temporarily; we have xtime_lock. 
+-	 * This is tricky when I/O APICs are used;
+-	 * see do_timer_interrupt().
 -	 */
- 	unsigned long jiffies_t;
+-	i = inb(0x20);
+-	spin_unlock(&i8259A_lock);
+-	
+-	/* assumption about timer being IRQ0 */
+-	if (i & 0x01) {
+-		/*
+-		 * We cannot detect lost timer interrupts ... 
+-		 * well, that's why we call them lost, don't we? :)
+-		 * [hmm, on the Pentium and Alpha we can ... sort of]
+-		 */
+-		count -= LATCH;
+-	} else {
+-#ifdef BUGGY_NEPTUN_TIMER
+-		/*
+-		 * for the Neptun bug we know that the 'latch'
+-		 * command doesn't latch the high and low value
+-		 * of the counter atomically. Thus we have to 
+-		 * substract 256 from the counter 
+-		 * ... funny, isnt it? :)
+-		 */
+-		
+-		count -= 256;
+-#else
+-		printk("do_slow_gettimeoffset(): hardware timer problem?\n");
+-#endif
+-	}
+-	return count;
+-}
+Index: linux-2.6.17-rc3-git17/include/asm-i386/mach-visws/do_timer.h
+===================================================================
+--- linux-2.6.17-rc3-git17.orig/include/asm-i386/mach-visws/do_timer.h
++++ linux-2.6.17-rc3-git17/include/asm-i386/mach-visws/do_timer.h
+@@ -25,29 +25,3 @@ static inline void do_timer_interrupt_ho
+ 		smp_local_timer_interrupt(regs);
+ #endif
+ }
+-
+-static inline int do_timer_overflow(int count)
+-{
+-	int i;
+-
+-	spin_lock(&i8259A_lock);
+-	/*
+-	 * This is tricky when I/O APICs are used;
+-	 * see do_timer_interrupt().
+-	 */
+-	i = inb(0x20);
+-	spin_unlock(&i8259A_lock);
+-	
+-	/* assumption about timer being IRQ0 */
+-	if (i & 0x01) {
+-		/*
+-		 * We cannot detect lost timer interrupts ... 
+-		 * well, that's why we call them lost, don't we? :)
+-		 * [hmm, on the Pentium and Alpha we can ... sort of]
+-		 */
+-		count -= LATCH;
+-	} else {
+-		printk("do_slow_gettimeoffset(): hardware timer problem?\n");
+-	}
+-	return count;
+-}
+Index: linux-2.6.17-rc3-git17/include/asm-i386/mach-voyager/do_timer.h
+===================================================================
+--- linux-2.6.17-rc3-git17.orig/include/asm-i386/mach-voyager/do_timer.h
++++ linux-2.6.17-rc3-git17/include/asm-i386/mach-voyager/do_timer.h
+@@ -10,16 +10,3 @@ static inline void do_timer_interrupt_ho
  
- 	spin_lock_irqsave(&i8253_lock, flags);
--	/* timer count may underflow right here */
--	outb_p(0x00, PIT_MODE);	/* latch the count ASAP */
+ 	voyager_timer_interrupt(regs);
+ }
 -
--	count = inb_p(PIT_CH0);	/* read the latched count */
+-static inline int do_timer_overflow(int count)
+-{
+-	/* can't read the ISR, just assume 1 tick
+-	   overflow */
+-	if(count > LATCH || count < 0) {
+-		printk(KERN_ERR "VOYAGER PROBLEM: count is %d, latch is %d\n", count, LATCH);
+-		count = LATCH;
+-	}
+-	count -= LATCH;
 -
- 	/*
--	 * We do this guaranteed double memory access instead of a _p 
--	 * postfix in the previous port access. Wheee, hackady hack
-+	 * Although our caller has the read side of xtime_lock, this
-+	 * is now a seqlock, and we are cheating in this routine by
-+	 * having side effects on state that we cannot undo if
-+	 * there is a collision on the seqlock and our caller has to
-+	 * retry.  (Namely, jiffies_p and count_p.)  So we must treat
-+	 * jiffies as volatile despite the lock.  We read jiffies
-+	 * before latching the timer count to guarantee that although
-+	 * the jiffies value might be older than the count (that is,
-+	 * the counter may underflow between the last point where
-+	 * jiffies was incremented and the point where we latch the
-+	 * count), it cannot be newer.
- 	 */
-- 	jiffies_t = jiffies;
--
-+	jiffies_t = jiffies;
-+	outb_p(0x00, PIT_MODE);	/* latch the count */
-+	count = inb_p(PIT_CH0);	/* read the latched count */
- 	count |= inb_p(PIT_CH0) << 8;
- 	
-         /* VIA686a test code... reset the latch if count > max + 1 */
-@@ -122,18 +123,22 @@ static unsigned long get_offset_pit(void
-         }
- 	
- 	/*
--	 * avoiding timer inconsistencies (they are rare, but they happen)...
--	 * there are two kinds of problems that must be avoided here:
--	 *  1. the timer counter underflows
--	 *  2. hardware problem with the timer, not giving us continuous time,
--	 *     the counter does small "jumps" upwards on some Pentium systems,
--	 *     (see c't 95/10 page 335 for Neptun bug.)
-+	 * There are two kinds of problems that may occur here:
-+	 * 1. The timer counter underflowed between the point
-+	 *     where jiffies was last incremented and the point
-+	 *     where we latched the counter above.
-+	 *  2. Hardware problem with the timer, not giving us
-+	 *     continuous time. The counter does small "jumps" upwards
-+	 *     on some Pentium systems (see c't 95/10 page 335 for
-+	 *     Neptun bug).
-+	 * Past attempts to distinguish these cases have been buggy, so we
-+	 * do the simple thing: just don't allow time to go backward.
- 	 */
- 
- 	if( jiffies_t == jiffies_p ) {
- 		if( count > count_p ) {
- 			/* the nutcase */
--			count = do_timer_overflow(count);
-+			count = count_p;
- 		}
- 	} else
- 		jiffies_p = jiffies_t;
+-	return count;
+-}
+Index: linux-2.6.17-rc3-git17/arch/i386/kernel/time.c
+===================================================================
+--- linux-2.6.17-rc3-git17.orig/arch/i386/kernel/time.c
++++ linux-2.6.17-rc3-git17/arch/i386/kernel/time.c
+@@ -254,6 +254,12 @@ static inline void do_timer_interrupt(in
+ 		 * manually to reset the IRR bit for do_slow_gettimeoffset().
+ 		 * This will also deassert NMI lines for the watchdog if run
+ 		 * on an 82489DX-based system.
++		 *
++		 * XXX The code that formerly looked at the IRR bit in
++		 * do_slow_gettimeoffset no longer exists.  Can we
++		 * remove the "timer_ack" code here and the
++		 * corresponding setup in check_timer, or do NMI
++		 * watchdogs still need this?
+ 		 */
+ 		spin_lock(&i8259A_lock);
+ 		outb(0x0c, PIC_MASTER_OCW3);
 
 
 -- 

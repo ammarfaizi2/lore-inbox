@@ -1,66 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWEQPt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWEQPvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbWEQPt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 11:49:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWEQPt2
+	id S1750732AbWEQPvW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 11:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWEQPvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 11:49:28 -0400
-Received: from web26606.mail.ukl.yahoo.com ([217.146.176.56]:58254 "HELO
-	web26606.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750723AbWEQPt1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 11:49:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=2OZaVtESauXmGqNcvLekfnmrJwYz6VKXEAG6JylnesoUpRXcTPdSqlhHynhoPHjcyHx3s6sAjq+UOGB9frmUePVLerFM163wZS91N6gblwd/0v3L7wyTH+VRJeaI0qDDGyLqyX2Orchex4TUVYBPS/phsLU6FswEOqoNl39W4/c=  ;
-Message-ID: <20060517154926.35649.qmail@web26606.mail.ukl.yahoo.com>
-Date: Wed, 17 May 2006 17:49:26 +0200 (CEST)
-From: linux cbon <linuxcbon@yahoo.fr>
-Subject: Re: replacing X Window System !
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1147879010.10470.27.camel@localhost.localdomain>
+	Wed, 17 May 2006 11:51:22 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:33420 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750732AbWEQPvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 11:51:21 -0400
+Date: Wed, 17 May 2006 08:49:08 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: LKML <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       Paul Mackerras <paulus@samba.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
+       Martin Mares <mj@atrey.karlin.mff.cuni.cz>, bjornw@axis.com,
+       schwidefsky@de.ibm.com, benedict.gaster@superh.com, lethal@linux-sh.org,
+       Chris Zankel <chris@zankel.net>, Marc Gauthier <marc@tensilica.com>,
+       Joe Taylor <joe@tensilica.com>,
+       David Mosberger-Tang <davidm@hpl.hp.com>, rth@twiddle.net,
+       spyro@f2s.com, starvik@axis.com, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org, ralf@linux-mips.org,
+       linux-mips@linux-mips.org, grundler@parisc-linux.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, davem@davemloft.net, arnd@arndb.de,
+       kenneth.w.chen@intel.com, sam@ravnborg.org, kiran@scalex86.org
+Subject: Re: [RFC PATCH 00/09] robust VM per_cpu variables
+In-Reply-To: <Pine.LNX.4.58.0605171104100.13160@gandalf.stny.rr.com>
+Message-ID: <Pine.LNX.4.64.0605170846190.13337@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0605170547490.8408@gandalf.stny.rr.com>
+ <Pine.LNX.4.64.0605170744360.13021@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0605171104100.13160@gandalf.stny.rr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- Alan Cox <alan@lxorguk.ukuu.org.uk> a écrit : 
-> On Mer, 2006-05-17 at 16:53 +0200, linux cbon wrote:
-> > We dont need 2 kernels like today.
-> > All "dangerous code" should be in kernel.
-> 
-> The kernel is even more privileged than the X server
-> so putting
-> dangerous code there is counterproductive. Security
-> comes about through
-> intelligent design decisions, compartmentalisation,
-> isolation of
-> security critical code segments and the like. If you
-> merely put shit in
-> a different bucket you still have a bad smell.
+On Wed, 17 May 2006, Steven Rostedt wrote:
 
+> OK, now I'm just rambling. I don't know,  have any other ideas on making
+> this more robust?  Or is this all in vain, and I should spend my evenings
+> walking around this beautiful town of Karlsruhe ;)
 
-With "dangerous code" I meant : code which *could be
-potentially dangerous* like accessing directly the
-hardware etc.
-That code should be only in the kernel.
+Well I'd like to see a comprehensive solution including a fix for the 
+problems with allocper_cpu() allocations (allocper_cpu has to allocate 
+memory for potential processors... which could be a lot on 
+some types of systems and its allocated somewhere not on the nodes of the 
+processor since they may not yet be online).
 
+Wish I could be back home in Germany to talk a walk with you. Are you 
+coming to the OLS?
 
-
-
-
-
-
-
-
-
-
-	
-
-	
-		
-___________________________________________________________________________ 
-Faites de Yahoo! votre page d'accueil sur le web pour retrouver directement vos services préférés : vérifiez vos nouveaux mails, lancez vos recherches et suivez l'actualité en temps réel. 
-Rendez-vous sur http://fr.yahoo.com/set

@@ -1,88 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbWEQLrY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWEQLta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750872AbWEQLrY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 07:47:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbWEQLrY
+	id S932196AbWEQLta (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 07:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWEQLt3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 07:47:24 -0400
-Received: from web26603.mail.ukl.yahoo.com ([217.146.176.53]:53616 "HELO
-	web26603.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750872AbWEQLrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 07:47:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=Wp8XmT6XaR9J79nt6iZjedLoiCUcZVd6CZ7FUh2SjtTJJlhtLxaYlrYHgCLcIjYd9E6gguVCaRUXoTTNhPmlrbZBP7e1Tg+kA2btptFPNaGs6/WaXL13Fnybli9/U0ZrdW1ksdRn5WFylCvGDsthdinF5pkMrMezngi5mQ4z+Jk=  ;
-Message-ID: <20060517114722.90648.qmail@web26603.mail.ukl.yahoo.com>
-Date: Wed, 17 May 2006 13:47:22 +0200 (CEST)
-From: linux cbon <linuxcbon@yahoo.fr>
-Subject: Re: replacing X Window System !
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0605161513590.24814@blackbox.fnordora.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 17 May 2006 07:49:29 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:43408 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751296AbWEQLt3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 07:49:29 -0400
+Subject: Re: libata PATA updated patch
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: John Stoffel <john@stoffel.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <17514.11859.976557.532929@smtp.charter.net>
+References: <1147796037.2151.83.camel@localhost.localdomain>
+	 <17514.11859.976557.532929@smtp.charter.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 17 May 2006 13:02:27 +0100
+Message-Id: <1147867347.10470.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Maw, 2006-05-16 at 15:56 -0400, John Stoffel wrote:
+> Alan> I've put a patch versus -rc4 in the usual place. This should
+> Alan> sort out the PIO problems and a few other glitches
+> 
+> Should I bother testing this on my HPT302 box?  I didn't see any
+> response to my earlier bug reports, just checking to make sure I'm
+> doing a usefull service here.
 
-X Window System has many problems affecting directly
-the kernel.
+I've not attacked the HPT3xx hardware again yet. For one the fact that
+Sergei Shtylyov is rewriting the "old style" driver for it to knock a
+lot of the problems out means much of that stuff will want porting again
+once he is finished
 
-http://en.wikipedia.org/wiki/X_Window_System#Limitations_and_criticisms_of_X
--Many current implementations of X manipulate the
-video hardware directly.
--X deliberately contains no specification as to user
-interface or most inter-application communication.
--The X protocol provides no facilities for handling
-sound,
--Until recently, X did not include a good solution to
-print screen-displays. 
--One cannot currently detach an X client or session
-from one server and reattach it to another.
+Sergei may well appreciate testers however.
 
-I would add :
--X needs to be root so it opens many security holes.
--X has more code than the kernel and it is almost an
-OS in itself.
--if a "closed-source" graphical card driver has
-security holes, what do you do ?
-etc.
+Thanks for the testing so far
 
-Some people are working on replacement like Y windows
-:
-http://www.doc.ic.ac.uk/teaching/projects/Distinguished03/MarkThomas.pdf
-http://www.y-windows.org/
+Alan
 
-There are some questions like :
-- should the next generation window versions Y,Z etc.
-remain backward compatible with X ?
-I think they should start something better and simpler
-from scratch and not backward compatible.
-- should the kernel remain pure "shell" or include
-some basic universal graphical universal window system
-?
-I think second answer.
-
-
-Regards.
-
-
-
-
-
-
-
-
-
-
-
-
-	
-
-	
-		
-___________________________________________________________________________ 
-Faites de Yahoo! votre page d'accueil sur le web pour retrouver directement vos services préférés : vérifiez vos nouveaux mails, lancez vos recherches et suivez l'actualité en temps réel. 
-Rendez-vous sur http://fr.yahoo.com/set

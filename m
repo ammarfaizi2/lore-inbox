@@ -1,187 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWEQWQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbWEQWR6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbWEQWQq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 18:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWEQWQD
+	id S1751243AbWEQWR6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 18:17:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWEQWMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 18:16:03 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:54750 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751244AbWEQWPq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 18:15:46 -0400
-Date: Thu, 18 May 2006 00:15:36 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: [patchset] Generic IRQ Subsystem: -V4
-Message-ID: <20060517221536.GA13444@elte.hu>
-References: <20060517001310.GA12877@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 17 May 2006 18:12:09 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:54912 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751235AbWEQWME
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 18:12:04 -0400
+Message-Id: <20060517221353.982476000@sous-sol.org>
+References: <20060517221312.227391000@sous-sol.org>
+Date: Wed, 17 May 2006 00:00:04 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Trond Myklebust <Trond.Myklebust@netapp.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 04/22] [PATCH] fs/locks.c: Fix sys_flock() race
+Content-Disposition: inline; filename=fs-locks.c-Fix-sys_flock-race.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is Version 4 of the genirq patch-queue, against 2.6.17-rc4. This 
-patch-queue improves the generic IRQ layer to be truly generic, by 
-adding various abstractions and features to it, without impacting 
-existing functionality.
+-stable review patch.  If anyone has any objections, please let us know.
+------------------
 
-The number of patches has increased to 56 and the total patchsize has 
-increased to 294K, so we wont be sending the patches to lkml. The full 
-patch-queue can be downloaded from:
+sys_flock() currently has a race which can result in a double free in the
+multi-thread case.
 
-  http://redhat.com/~mingo/generic-irq-subsystem/
+Thread 1			Thread 2
 
-The split-out queue is at:
+sys_flock(file, LOCK_EX)
+				sys_flock(file, LOCK_UN)
 
-  http://redhat.com/~mingo/generic-irq-subsystem/patches/
+If Thread 2 removes the lock from inode->i_lock before Thread 1 tests for
+list_empty(&lock->fl_link) at the end of sys_flock, then both threads will
+end up calling locks_free_lock for the same lock.
 
-In -V4 there are lots of changes all around the map. The most 
-significant one is the conversion of the i386 and the x86_64 
-architectures to a fully irq-chip based IRQ handling model.
+Fix is to make flock_lock_file() do the same as posix_lock_file(), namely
+to make a copy of the request, so that the caller can always free the lock.
 
-This brought nice simplifications for these architectures:
+This also has the side-effect of fixing up a reference problem in the
+lockd handling of flock.
 
-$ diffstat patches/genirq-i386-irqchip.patch
+Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
-  arch/i386/kernel/i8259.c   |   45 +++--------
-  arch/i386/kernel/io_apic.c |  171 ++++++++++++++-------------------------------
-  arch/i386/kernel/irq.c     |   19 ++---
-  include/asm-i386/hw_irq.h  |    2
-  4 files changed, 80 insertions(+), 157 deletions(-)
+---
+ fs/locks.c |   30 ++++++++++++++++--------------
+ 1 file changed, 16 insertions(+), 14 deletions(-)
 
-$ diffstat patches/genirq-x86_64-irqchip.patch
+--- linux-2.6.16.16.orig/fs/locks.c
++++ linux-2.6.16.16/fs/locks.c
+@@ -714,8 +714,9 @@ EXPORT_SYMBOL(posix_locks_deadlock);
+  * at the head of the list, but that's secret knowledge known only to
+  * flock_lock_file and posix_lock_file.
+  */
+-static int flock_lock_file(struct file *filp, struct file_lock *new_fl)
++static int flock_lock_file(struct file *filp, struct file_lock *request)
+ {
++	struct file_lock *new_fl = NULL;
+ 	struct file_lock **before;
+ 	struct inode * inode = filp->f_dentry->d_inode;
+ 	int error = 0;
+@@ -730,17 +731,19 @@ static int flock_lock_file(struct file *
+ 			continue;
+ 		if (filp != fl->fl_file)
+ 			continue;
+-		if (new_fl->fl_type == fl->fl_type)
++		if (request->fl_type == fl->fl_type)
+ 			goto out;
+ 		found = 1;
+ 		locks_delete_lock(before);
+ 		break;
+ 	}
+-	unlock_kernel();
+ 
+-	if (new_fl->fl_type == F_UNLCK)
+-		return 0;
++	if (request->fl_type == F_UNLCK)
++		goto out;
+ 
++	new_fl = locks_alloc_lock();
++	if (new_fl == NULL)
++		goto out;
+ 	/*
+ 	 * If a higher-priority process was blocked on the old file lock,
+ 	 * give it the opportunity to lock the file.
+@@ -748,26 +751,27 @@ static int flock_lock_file(struct file *
+ 	if (found)
+ 		cond_resched();
+ 
+-	lock_kernel();
+ 	for_each_lock(inode, before) {
+ 		struct file_lock *fl = *before;
+ 		if (IS_POSIX(fl))
+ 			break;
+ 		if (IS_LEASE(fl))
+ 			continue;
+-		if (!flock_locks_conflict(new_fl, fl))
++		if (!flock_locks_conflict(request, fl))
+ 			continue;
+ 		error = -EAGAIN;
+-		if (new_fl->fl_flags & FL_SLEEP) {
+-			locks_insert_block(fl, new_fl);
+-		}
++		if (request->fl_flags & FL_SLEEP)
++			locks_insert_block(fl, request);
+ 		goto out;
+ 	}
++	locks_copy_lock(new_fl, request);
+ 	locks_insert_lock(&inode->i_flock, new_fl);
+-	error = 0;
++	new_fl = NULL;
+ 
+ out:
+ 	unlock_kernel();
++	if (new_fl)
++		locks_free_lock(new_fl);
+ 	return error;
+ }
+ 
+@@ -1532,9 +1536,7 @@ asmlinkage long sys_flock(unsigned int f
+ 		error = flock_lock_file_wait(filp, lock);
+ 
+  out_free:
+-	if (list_empty(&lock->fl_link)) {
+-		locks_free_lock(lock);
+-	}
++	locks_free_lock(lock);
+ 
+  out_putf:
+ 	fput(filp);
 
- arch/x86_64/kernel/i8259.c   |   50 +++----------
- arch/x86_64/kernel/io_apic.c |  165 ++++++++++---------------------------------
- arch/x86_64/kernel/irq.c     |    7 +
- include/asm-x86_64/hw_irq.h  |    2 
- 4 files changed, 60 insertions(+), 164 deletions(-)
-
-the IRQ handling hotpath for the most optimal flow got faster and 
-leaner. The number of functions called in a typical IRQ decreased too. 
-The irqchip implementations have become short and sweet:
-
- static struct irq_chip ioapic_chip __read_mostly = {
-         .name           = "IO-APIC",
-         .startup        = startup_ioapic_vector,
-         .mask           = mask_ioapic_vector,
-         .unmask         = unmask_ioapic_vector,
-         .ack            = ack_apic,
- #ifdef CONFIG_SMP
-         .set_affinity   = set_ioapic_affinity_vector,
- #endif
-         .retrigger      = ioapic_retrigger_vector,
- };
-
- static struct irq_chip lapic_chip __read_mostly = {
-         .name           = "local-APIC-edge",
-         .mask           = mask_lapic_irq,
-         .unmask         = unmask_lapic_irq,
-         .ack            = ack_apic,
- };
-
- static struct irq_chip i8259A_chip = {
-         .name           = "XT-PIC",
-         .mask           = disable_8259A_irq,
-         .unmask         = enable_8259A_irq,
-         .mask_ack       = mask_and_ack_8259A,
- };
-
-see the split-out patches at:
-
- http://redhat.com/~mingo/generic-irq-subsystem/patches/genirq-i386-irqchip.patch
- http://redhat.com/~mingo/generic-irq-subsystem/patches/genirq-x86_64-irqchip.patch
-
-Another new feature is the handle_level_irq_fastack() highlevel irq-flow 
-handler, which allows faster IRQ handling without masking/unmasking. 
-This is current used by the new i386 and x86_64 IO-APIC code, but it 
-could also be useful to most optimally support transparent ACK sequences 
-in OpenPIC/MPIC controllers.
-
-There were also extensive renames done to make the irq_chip and irq_desc 
-fields clearer.
-
-All changes since -V3:
-
-- fixed set_wake prototype bug (reported by Daniel Walker)
-
-- documentation fixes (Randy Dunlap)
-
-- call desc->handle_irq() highlevel irq-flow handlers from __do_IRQ() 
-  too, allowing gradual transition from a __do_IRQ() based model to an 
-  irq-chips model. This was used for the i386 and x86_64 transition with 
-  great success.
-
-- ARM updates
-
-- More size reduction:
-
-      text    data     bss     dec     hex filename
-   3430374  985464 1325080 5740918  579976 vmlinux-x64.orig
-   3434234  982216 1321240 5737690  578cda vmlinux-x64.genirq
-
-  while .text got larger, .data and .bss got smaller, so it's a net
-  size reduction of ~4K.
-
-- better debugging info from spurious interrupts.
-
-- truly remove the irq_dir[] and smp_affinity_entry[] arrays. (this 
-  change was announced in -V3 but went MIA)
-
-- introduced the handle_level_irq_fastack() highlevel flow handler, for 
-  fast IO-APIC interrupt handling. This should enable the most optimal 
-  flow for transparent-ACK IRQ controllers too. (such as OpenPIC/MPIC)
-
-- pushed desc->lock handling into the highlevel flow handlers. This 
-  unified and simplified the arch-level call sites.
-
-- sem2mutex: kernel/irq/autoprobe.c probe_sem => probe_lock mutex 
-  conversion.
-
-- changed the desc->handle_irq() handlers to be explicit fastcalls, to 
-  keep the 4K_STACKS assembly code simpler.
-
-- removed desc->affinity_entry - nothing uses it
-
-- added chip->name as the primary field - chip->typename is still 
-  kept for compatibility purposes.
-
-- probe_irq() related fix in drivers/mfd/ucb1x00-core.c
-
-- include flow information in /proc/interrupts for irq-chip based 
-  architectures too.
-
-- genirq-i386-irqchip.patch: change the i386 architecture to be irqchip 
-  based.
-
-- genirq-x86_64-irqchip.patch: change the x86_64 architecture to be 
-  irqchip based.
-
-- renamed 'desc->handler' to 'desc->chip' - the code got much cleaner 
-  due to this.
-
-- retrigger fix on i386 and x86_64, it is now MSI-vector aware.
-
-- renamed 'desc->handle' to 'desc->handle_irq'
-
-- moved the set_irq_handler() method of setting desc->handle_irq() from 
-  ARM into the generic code.
-
--V4 has been build-tested with allyesconfig, and booted on x86, x86_64 
-and various ARM platforms. Nevertheless the new i386 and x86_64 IRQ code 
-is experimental and has been tested only on a limited number of systems.
-
-	Ingo, Thomas
+--

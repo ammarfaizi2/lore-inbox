@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWEQSph@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbWEQSrO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbWEQSph (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 14:45:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbWEQSph
+	id S1750930AbWEQSrO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 14:47:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbWEQSrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 14:45:37 -0400
-Received: from pool-71-254-71-216.ronkva.east.verizon.net ([71.254.71.216]:31942
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750909AbWEQSph (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 14:45:37 -0400
-Message-Id: <200605171844.k4HIiPd1028516@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: "Frank Ch. Eigler" <fche@redhat.com>
-Cc: Andi Kleen <ak@suse.de>, Martin Peschke <mp3@de.ibm.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, hch@infradead.org,
-       arjan@infradead.org, James.Smart@emulex.com,
-       James.Bottomley@steeleye.com, ltt-dev@shafik.org
-Subject: Re: [RFC] [Patch 0/8] statistics infrastructure
-In-Reply-To: Your message of "Wed, 17 May 2006 14:28:08 EDT."
-             <20060517182808.GL17707@redhat.com>
-From: Valdis.Kletnieks@vt.edu
-References: <446A0F77.70202@de.ibm.com> <y0msln8wooo.fsf@ton.toronto.redhat.com> <200605172005.44588.ak@suse.de>
-            <20060517182808.GL17707@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1147891464_4166P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 17 May 2006 14:44:24 -0400
+	Wed, 17 May 2006 14:47:14 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:981 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750926AbWEQSrN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 14:47:13 -0400
+Date: Wed, 17 May 2006 20:47:08 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Avi Kivity <avi@argo.co.il>
+cc: Joerg Pommnitz <pommnitz@yahoo.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Wiretapping Linux?
+In-Reply-To: <446B3082.1000200@argo.co.il>
+Message-ID: <Pine.LNX.4.61.0605172045390.5095@yvahk01.tjqt.qr>
+References: <20060517132503.79272.qmail@web51410.mail.yahoo.com>
+ <446B3082.1000200@argo.co.il>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1147891464_4166P
-Content-Type: text/plain; charset=us-ascii
+>> > A pci device can read system RAM and other memory-mapped PCI devices
+>> > (such as display framebuffers) using DMA. In addition, a pci (but not
+>> > pci-express) device can snoop on pci bus traffic to other devices.
+>> > Typically, however, hard drive controllers will be integrated into the
+>> > chipset so the data is not on the bus.
+>> 
+>> Thanks for providing this information. This makes the binary firmware
+>> required for peripherals even more interesting for security conscious
+>> people.
+>
+> Note that some machines have IOMMUs so it may be possible to prevent a device
+> from reading main memory, perhaps at a performance cost.
+>
+> My AMD machine disables the IOMMU on startup.
+>
+> If you don't trust your hardware there are only two solutions: keep it off the
+> net or keep it off.
 
-On Wed, 17 May 2006 14:28:08 EDT, "Frank Ch. Eigler" said:
-> I am not suggesting a single solution for all needs.  I wanted to
-> focus only one aspect: the marking of those points in the kernel where
-> something probeworthy occurs with hooks.  The different tools would
-> still gather and disseminate their data in their own favorite.  The
-> main difference from the status quo is agreeing on and reusing a
-> common pool of hooks.
-
-The problem is that the "common pool" ends up being a very wide swamp
-very fast.  The last few times I've needed any instrumentation in the
-kernel, I was chasing slab leaks, and didn't need precise timing or
-latency measurements.  On the other hand, the RT guys probably don't
-care all that much about slab events, but need timing and latency.
-Then there's other guys that don't care about slab, timing, or latency,
-but do care about some other events.
-
-So under your plan, all 3 groups now use a "common pool" that includes
-slap, timing, latency, and other stuff - and nobody's using more than
-1/3 of it, but paying the performance penalty for the 2/3 unused hooks....
-
+It gets even more complex with remote management solutions, ranging from 
+simple PCI boards that can reset the machine to fully-integrated [like 
+Sun's RSC] processors that can poke anything.
 
 
---==_Exmh_1147891464_4166P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEa28IcC3lWbTT17ARAuSJAJ4v4MX1Ty0Rz8/ptuTZWk32VFPfrQCeK/CE
-RLg32TUjv8vWSvmcUN2IGOI=
-=AL5b
------END PGP SIGNATURE-----
-
---==_Exmh_1147891464_4166P--
+Jan Engelhardt
+-- 

@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbWEQKPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932526AbWEQKSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750842AbWEQKPO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 06:15:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbWEQKPO
+	id S932526AbWEQKSp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 06:18:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWEQKSo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 06:15:14 -0400
-Received: from pool-71-254-71-216.ronkva.east.verizon.net ([71.254.71.216]:62406
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750842AbWEQKPM (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 06:15:12 -0400
-Message-Id: <200605171014.k4HAETHT011371@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Olaf Hering <olh@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ignore partition table on disks with AIX label
-In-Reply-To: Your message of "Wed, 17 May 2006 11:10:56 +0200."
-             <20060517091056.GA21219@suse.de>
-From: Valdis.Kletnieks@vt.edu
-References: <20060517081314.GA20415@suse.de> <200605170853.k4H8rn8K009466@turing-police.cc.vt.edu>
-            <20060517091056.GA21219@suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1147860865_4166P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Wed, 17 May 2006 06:18:44 -0400
+Received: from ns.suse.de ([195.135.220.2]:15299 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932115AbWEQKSn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 06:18:43 -0400
+From: Andi Kleen <ak@suse.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [RFC PATCH 01/09] robust VM per_cpu core
+Date: Wed, 17 May 2006 11:17:04 +0200
+User-Agent: KMail/1.8
+Cc: LKML <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       Paul Mackerras <paulus@samba.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Martin Mares <mj@atrey.karlin.mff.cuni.cz>, bjornw@axis.com,
+       schwidefsky@de.ibm.com, benedict.gaster@superh.com, lethal@linux-sh.org,
+       Chris Zankel <chris@zankel.net>, Marc Gauthier <marc@tensilica.com>,
+       Joe Taylor <joe@tensilica.com>,
+       David Mosberger-Tang <davidm@hpl.hp.com>, rth@twiddle.net,
+       spyro@f2s.com, starvik@axis.com, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org, ralf@linux-mips.org,
+       linux-mips@linux-mips.org, grundler@parisc-linux.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, davem@davemloft.net, arnd@arndb.de,
+       kenneth.w.chen@intel.com, sam@ravnborg.org, clameter@sgi.com,
+       kiran@scalex86.org
+References: <Pine.LNX.4.58.0605170547490.8408@gandalf.stny.rr.com> <Pine.LNX.4.58.0605170555190.8408@gandalf.stny.rr.com>
+In-Reply-To: <Pine.LNX.4.58.0605170555190.8408@gandalf.stny.rr.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Wed, 17 May 2006 06:14:26 -0400
+Content-Disposition: inline
+Message-Id: <200605171117.06060.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1147860865_4166P
-Content-Type: text/plain; charset=us-ascii
 
-On Wed, 17 May 2006 11:10:56 +0200, Olaf Hering said:
->  On Wed, May 17, Valdis.Kletnieks@vt.edu wrote:
-> > One has to wonder if it might not be better to treat this case as
-> > "one partition covering the entire disk", or even better, decode the AIX LVM
-> > info and see if there's any LVM segments present on the disk, so as to limit
-> > the chances of accidentally splatting live data.
-> The check can go once someone has implemented proper support to read the
-> drives. Up to now the bogus partitions cause only confusion and practical
-> doesnt help anyone. So let it go.
+> As well as the following three functions:
+>
+> pud_t *pud_boot_alloc(struct mm_struct *mm, pgd_t *pgd, unsigned long addr,
+>                      int cpu);
+> pmd_t *pmd_boot_alloc(struct mm_struct *mm, pud_t *pud, unsigned long addr,
+>                      int cpu);
+> pte_t *pte_boot_alloc(struct mm_struct *mm, pmd_t *pmd, unsigned long addr,
+>                      int cpu);
 
-Is there any interest in being able to deal with AIX's LVM and/or JFS/JFS2
-(probably only read-only)?  If so, what level of support would be needed
-to make it useful?
+I'm not sure you can just put them like this into generic code. Some 
+architectures are doing strange things with them.
 
-(Personally, being able to deal with it on a read-only basis for forensics
-work would be useful - currently there's no really good way to deal with
-an AIX system in a forensically sound manner, because 'importvg' and
-friends have a tendency to scribble on the disks....)
+And we already have boot_ioremap on some architectures. Why is that not 
+enough? 
 
-Sanest way to approach it would probably be a mostly-userspace that
-grovels out the LVM data and creates a device-mapper target.  ISTR there
-was such a beast for the EVMS code, but I haven't gone digging for it yet.
-
---==_Exmh_1147860865_4166P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEaveBcC3lWbTT17ARAjpHAKDwiSgA8lh9yt0pxDhEXQaXcaSGwQCff+XD
-YiUw/pgO3hmwk03cCmchSCc=
-=94X7
------END PGP SIGNATURE-----
-
---==_Exmh_1147860865_4166P--
+-Andi

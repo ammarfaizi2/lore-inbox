@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWEQWZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWEQW1e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751254AbWEQWZw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 18:25:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWEQWZw
+	id S1751287AbWEQW1e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 18:27:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbWEQW1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 18:25:52 -0400
-Received: from xenotime.net ([66.160.160.81]:35494 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751286AbWEQWZv (ORCPT
+	Wed, 17 May 2006 18:27:34 -0400
+Received: from ns2.suse.de ([195.135.220.15]:57059 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751287AbWEQW1d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 18:25:51 -0400
-Date: Wed, 17 May 2006 15:28:17 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Brice Goglin <brice@myri.com>
-Cc: netdev@vger.kernel.org, gallatin@myri.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/4] myri10ge - Driver header files
-Message-Id: <20060517152817.58a6d8bc.rdunlap@xenotime.net>
-In-Reply-To: <20060517220434.GC13411@myri.com>
-References: <20060517220218.GA13411@myri.com>
-	<20060517220434.GC13411@myri.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Wed, 17 May 2006 18:27:33 -0400
+Date: Wed, 17 May 2006 15:25:22 -0700
+From: Greg KH <gregkh@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       len.brown@intel.com
+Subject: Re: [PATCH 17/22] [PATCH] i386/x86_64: Force pci=noacpi on HP XW9300
+Message-ID: <20060517222522.GA23124@suse.de>
+References: <20060517221312.227391000@sous-sol.org> <20060517221412.058186000@sous-sol.org> <200605180016.05127.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200605180016.05127.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 May 2006 18:04:35 -0400 Brice Goglin wrote:
-
-> [PATCH 2/4] myri10ge - Driver header files
+On Thu, May 18, 2006 at 12:16:04AM +0200, Andi Kleen wrote:
+> On Wednesday 17 May 2006 09:00, Chris Wright wrote:
+> > -stable review patch.  If anyone has any objections, please let us know.
+> > ------------------
 > 
->  myri10ge_mcp.h            |  205 ++++++++++++++++++++++++++++++++++++++++++++++
->  myri10ge_mcp_gen_header.h |   58 +++++++++++++
+> Who submitted that? I didn't
 
-Please use "diffstat -p 1 -w 70" is documented in
-Documentation/SubmittingPatches.
+I did.
 
->  2 files changed, 263 insertions(+)
-> 
-> --- /dev/null	2006-05-16 20:08:50.920483500 +0200
-> +++ linux-tmp//drivers/net/myri10ge/myri10ge_mcp.h	2006-05-17 11:02:48.000000000 +0200
-> @@ -0,0 +1,205 @@
-> +#ifndef __MYRI10GE_MCP_H__
-> +#define __MYRI10GE_MCP_H__
-> +
-> +#define MYRI10GE_MCP_VERSION_MAJOR	1
-> +#define MYRI10GE_MCP_VERSION_MINOR	4
-> +
-> +/* 16 Bytes */
+> There seems to be some controversy about this patch so better not put 
+> it into stable for now.
 
-What is 16 bytes here?
+Ok, that's fine, I'll go drop it, I thought it fixed some machines so I
+added it.
 
-> +struct mcp_slot {
-> +	u16 checksum;
-> +	u16 length;
-> +};
+thanks,
 
-
----
-~Randy
+greg k-h

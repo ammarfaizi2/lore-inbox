@@ -1,69 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWEQFt1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWEQF5D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932111AbWEQFt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 01:49:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWEQFt1
+	id S932435AbWEQF5D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 01:57:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWEQF5C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 01:49:27 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:24459 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932111AbWEQFt1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 01:49:27 -0400
-Date: Wed, 17 May 2006 14:48:41 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH] Register sysfs file for hotpluged new node
-Cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1147791091.6623.93.camel@localhost.localdomain>
-References: <20060516210608.A3E5.Y-GOTO@jp.fujitsu.com> <1147791091.6623.93.camel@localhost.localdomain>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060517111236.21AC.Y-GOTO@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
+	Wed, 17 May 2006 01:57:02 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:36618 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932430AbWEQF5A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 01:57:00 -0400
+Date: Wed, 17 May 2006 07:56:50 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       linux-arm-kernel@lists.arm.linux.org.uk
+Subject: Re: [patch 01/50] genirq: cleanup: merge irq_affinity[] into irq_desc[]
+Message-ID: <20060517055650.GA19785@mars.ravnborg.org>
+References: <20060517001323.GB12877@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060517001323.GB12877@elte.hu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, 2006-05-16 at 21:23 +0900, Yasunori Goto wrote:
-> > +       /*
-> > +        * register this node to sysfs.
-> > +        * this is depends on topology. So each arch has its own.
-> > +        */
-> > +       if (new_pgdat){
-> > +               ret = arch_register_node(nid);
-> > +               BUG_ON(ret);
-> > +       } 
+On Wed, May 17, 2006 at 02:13:24AM +0200, Ingo Molnar wrote:
+> From: Ingo Molnar <mingo@elte.hu>
 > 
-> Please don't do BUG_ON()s for things like this.  Memory hotplug _should_
-> handle failures from top to bottom and not screw you over.  It isn't a
-> crime or a bug to be out of memory.  
+> consolidation: remove the irq_affinity[NR_IRQS] array and move it
+> into the irq_desc[NR_IRQS].affinity field.
+> 
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> ---
 
-Basically, I would like to agree. 
-But, there is no way to roll back from here now.
-If online_node_map is set once, then new pgdat might be touched.
-There is no way to disable them.
+> Index: linux-genirq.q/arch/powerpc/platforms/pseries/xics.c
+> ===================================================================
+> --- linux-genirq.q.orig/arch/powerpc/platforms/pseries/xics.c
+> +++ linux-genirq.q/arch/powerpc/platforms/pseries/xics.c
+> @@ -238,7 +238,7 @@ static int get_irq_server(unsigned int i
+>  {
+>  	unsigned int server;
+>  	/* For the moment only implement delivery to all cpus or one cpu */
+> -	cpumask_t cpumask = irq_affinity[irq];
+> +	cpumask_t cpumask = irq_desc[irq].affinity;
+>  	cpumask_t tmp = CPU_MASK_NONE;
+>  
+>  	if (!distribute_irqs)
 
-And I suppose it is not good thing that creating sysfs file of new node
-before setting online_node_map. It means user interface is shown
-before system initialization completion.
+Assigned unconditionally - outside CONFIG_SMP as I read the code but..
 
-(In addition, remove_memory() is not yet....)
+> Index: linux-genirq.q/include/linux/irq.h
+> ===================================================================
+> --- linux-genirq.q.orig/include/linux/irq.h
+> +++ linux-genirq.q/include/linux/irq.h
+> @@ -77,6 +77,9 @@ typedef struct irq_desc {
+>  	unsigned int irq_count;		/* For detecting broken interrupts */
+>  	unsigned int irqs_unhandled;
+>  	spinlock_t lock;
+> +#ifdef CONFIG_SMP
+> +	cpumask_t affinity;
+> +#endif
 
-If return code of arch_register_node is ignored, 
-cpu hotplug will work without new node's file.
-When we tried cpu hotplug on it, it was cause of stack dump at last.
+But defined only for SMP.
+Looks wrong at first look.
 
-> Have you run this past the ppc maintainers?
-
-Nope. I just tried cross compile.
-I want powerpc box for test....
-
-
-Thanks.
-
--- 
-Yasunori Goto 
-
-
+	Sam

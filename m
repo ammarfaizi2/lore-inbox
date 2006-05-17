@@ -1,70 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751058AbWEQT7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbWEQUDS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751058AbWEQT7j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 15:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751062AbWEQT7j
+	id S1751078AbWEQUDS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 16:03:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbWEQUDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 15:59:39 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:30439 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751058AbWEQT7j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 15:59:39 -0400
-Subject: Re: [PATCH] Fix do_mlock so page alignment is to hugepage
-	boundries when needed
-From: Eric Paris <eparis@redhat.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel@vger.kernel.org, wli@holomorphy.com, discuss@x86-64.org,
-       linuxppc-dev@ozlabs.org
-In-Reply-To: <Pine.LNX.4.64.0605171840310.14529@blonde.wat.veritas.com>
-References: <1147885316.26468.15.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0605171840310.14529@blonde.wat.veritas.com>
-Content-Type: text/plain
-Date: Wed, 17 May 2006 15:59:24 -0400
-Message-Id: <1147895964.26468.35.camel@localhost.localdomain>
+	Wed, 17 May 2006 16:03:17 -0400
+Received: from pool-71-254-71-216.ronkva.east.verizon.net ([71.254.71.216]:2503
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751069AbWEQUDR (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 16:03:17 -0400
+Message-Id: <200605172003.k4HK33Wh031483@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+Cc: Olaf Hering <olh@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ignore partition table on disks with AIX label
+In-Reply-To: Your message of "Wed, 17 May 2006 15:44:13 EDT."
+             <200605171944.k4HJiELo030480@turing-police.cc.vt.edu>
+From: Valdis.Kletnieks@vt.edu
+References: <20060517081314.GA20415@suse.de> <200605170853.k4H8rn8K009466@turing-police.cc.vt.edu> <20060517091056.GA21219@suse.de> <200605171014.k4HAETHT011371@turing-police.cc.vt.edu> <20060517183710.GA28931@suse.de> <1147892187.10470.70.camel@localhost.localdomain> <20060517190326.GA29017@suse.de>
+            <200605171944.k4HJiELo030480@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Type: multipart/signed; boundary="==_Exmh_1147896183_4166P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 17 May 2006 16:03:03 -0400
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-17 at 18:42 +0100, Hugh Dickins wrote:
-> On Wed, 17 May 2006, Eric Paris wrote:
-> > sys_m{,un}lock and do_mlock all align memory references and the length
-> > of the mlock given by userspace to page boundaries.  If the page being
-> > mlocked is a hugepage instead of a normal page the start and finish of
-> > the mlock will still only be aligned to normal page boundaries.
-> > Ultimately upon the process exiting we will eventually call unmap_vmas
-> > which will call unmap_hugepage_range for all of the ranges.
-> > unmap_hugepage_range checks to make sure the beginning and the end of
-> > the range are actually hugepage aligned and if not will BUG().  Since we
-> > only aligned to a normal page boundary the end of the first range and
-> > the beginning of the second will likely (unless userspace passed of
-> > values already hugepage aligned) not be hugepage aligned and thus we
-> > bomb.
+--==_Exmh_1147896183_4166P
+Content-Type: text/plain; charset=us-ascii
+
+On Wed, 17 May 2006 15:44:13 EDT, Valdis.Kletnieks@vt.edu said:
+
+> As far as I can tell, the boot ROM snarfs up the first 512 byte block, and then
+> looks for the 'IBMA' magic cookie, then looks at offset 0x1BE for a
+> bog-standard 4-entry partition table, and a 0x55AA at offset 0x1FE.
 > 
-> When did you test this?  It should have been fixed in 2.6.11 onwards
-> by split_vma()'s simple:
+> Additionally, there will be an *ASCII* '_LVM' in the first 4 bytes of physical
+> 512-byte block 7, denoting the start of the LVM control record.
 > 
-> 	if (is_vm_hugetlb_page(vma) && (addr & ~HPAGE_MASK))
-> 		return -EINVAL;
-> 
-> Hugh
+> I'd say if you find both the IBMA *and* _LVM cookies intact, you declare it
+> an AIX volume.
 
-You're right.  My initial BUG() problem was on pre 2.6.11.  I wrote this
-patch and tested that it worked on 2.6.16 to allow the test program I
-described to run successfully.  Admittedly this is the first time I
-tested on unpatched 2.6.16 and as you said the mlock will fail with
-"Invalid Argument" instead of BUG().  So the panic is gone post 2.6.11,
-but the problem remains.  We still are rounding incorrectly for
-hugepages in the sys_mlock and do_mlock functions.
+Oh, one other check - the partition type(s) are set to 0x08 or 0x09 (AIX
+boot and data partition flags).  Other things use those 2 values as well,
+but they won't have the _LVM cookie.
 
-This patch still solves the problem of the kernel currently being more
-restrictive on what we accept from userspace for the length of the mlock
-if it is a hugepage rather than a regular page.  With a regular page we
-will round the value from userspace and happily go about our business of
-mlocking.  For a hugepage it just rejects it if userspace doesn't align
-it themselves.  This allows the kernel to do the same work for hugepages
-that it does for normal pages.
+--==_Exmh_1147896183_4166P
+Content-Type: application/pgp-signature
 
--Eric
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFEa4F3cC3lWbTT17ARAqvhAKDPBw+S1U70xgkcWBnFpt4HbFmsogCgmnPN
+KA6Gwl1bmMKesHqvls1jD4w=
+=5tu7
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1147896183_4166P--

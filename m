@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbWEQAdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWEQAdH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932305AbWEQAdG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 20:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWEQAdB
+	id S932294AbWEQAdH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 20:33:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWEQAcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 20:33:01 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:29904 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932305AbWEQAQP (ORCPT
+	Tue, 16 May 2006 20:32:54 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:31440 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932302AbWEQAQU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 20:16:15 -0400
-Date: Wed, 17 May 2006 02:16:06 +0200
+	Tue, 16 May 2006 20:16:20 -0400
+Date: Wed, 17 May 2006 02:16:11 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
 Cc: Thomas Gleixner <tglx@linutronix.de>,
@@ -17,8 +17,8 @@ Cc: Thomas Gleixner <tglx@linutronix.de>,
        Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
        Christoph Hellwig <hch@infradead.org>,
        linux-arm-kernel@lists.arm.linux.org.uk
-Subject: [patch 12/50] genirq: doc: comment include/linux/irq.h structures
-Message-ID: <20060517001606.GM12877@elte.hu>
+Subject: [patch 13/50] genirq: doc: handle_IRQ_event() and __do_IRQ() comments
+Message-ID: <20060517001611.GN12877@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -36,73 +36,51 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Ingo Molnar <mingo@elte.hu>
 
-better document the hw_interrupt_type and irq_desc structures.
+document handle_IRQ_event() and __do_IRQ().
 
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- include/linux/irq.h |   44 +++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 37 insertions(+), 7 deletions(-)
+ kernel/irq/handle.c |   20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-Index: linux-genirq.q/include/linux/irq.h
+Index: linux-genirq.q/kernel/irq/handle.c
 ===================================================================
---- linux-genirq.q.orig/include/linux/irq.h
-+++ linux-genirq.q/include/linux/irq.h
-@@ -40,9 +40,27 @@
- # define CHECK_IRQ_PER_CPU(var) 0
- #endif
+--- linux-genirq.q.orig/kernel/irq/handle.c
++++ linux-genirq.q/kernel/irq/handle.c
+@@ -76,8 +76,13 @@ irqreturn_t no_action(int cpl, void *dev
+ 	return IRQ_NONE;
+ }
  
 -/*
-- * Interrupt controller descriptor. This is all we need
-- * to describe about the low-level hardware. 
+- * Have got an event to handle:
 +/**
-+ * struct hw_interrupt_type - hardware interrupt type descriptor
++ * handle_IRQ_event - irq action chain handler
++ * @irq:	the interrupt number
++ * @regs:	pointer to a register structure
++ * @action:	the interrupt action chain for this irq
 + *
-+ * @name:		name for /proc/interrupts
-+ * @startup:		start up the interrupt (defaults to ->enable if NULL)
-+ * @shutdown:		shut down the interrupt (defaults to ->disable if NULL)
-+ * @enable:		enable the interrupt (defaults to chip->unmask if NULL)
-+ * @disable:		disable the interrupt (defaults to chip->mask if NULL)
-+ * @handle_irq:		irq flow handler called from the arch IRQ glue code
-+ * @ack:		start of a new interrupt
-+ * @mask:		mask an interrupt source
-+ * @mask_ack:		ack and mask an interrupt source
-+ * @unmask:		unmask an interrupt source
-+ * @hold:		same interrupt while the handler is running
-+ * @end:		end of interrupt
-+ * @set_affinity:	set the CPU affinity on SMP machines
-+ * @retrigger:		resend an IRQ to the CPU
-+ * @set_type:		set the flow type (IRQ_TYPE_LEVEL/etc.) of an IRQ
-+ * @set_wake:		enable/disable power-management wake-on of an IRQ
-+ *
-+ * @release:		release function solely used by UML
++ * Handles the action chain of an irq event
   */
- struct hw_interrupt_type {
- 	const char	*typename;
-@@ -65,10 +83,22 @@ typedef struct hw_interrupt_type  hw_irq
- 
- struct proc_dir_entry;
+ int handle_IRQ_event(unsigned int irq, struct pt_regs *regs,
+ 		     struct irqaction *action)
+@@ -102,10 +107,17 @@ int handle_IRQ_event(unsigned int irq, s
+ 	return retval;
+ }
  
 -/*
-- * This is the "IRQ descriptor", which contains various information
-- * about the irq, including what kind of hardware handling it has,
-- * whether it is disabled etc etc.
+- * do_IRQ handles all normal device IRQ's (the special
 +/**
-+ * struct irq_desc - interrupt descriptor
++ * __do_IRQ - original all in one highlevel IRQ handler
++ * @irq:	the interrupt number
++ * @regs:	pointer to a register structure
 + *
-+ * @handler:		interrupt type dependent handler functions
-+ * @handler_data:	data for the type handlers
-+ * @action:		the irq action chain
-+ * @status:		status information
-+ * @depth:		disable-depth, for nested irq_disable() calls
-+ * @irq_count:		stats field to detect stalled irqs
-+ * @irqs_unhandled:	stats field for spurious unhandled interrupts
-+ * @lock:		locking for SMP
-+ * @affinity:		IRQ affinity on SMP
-+ * @pending_mask:	pending rebalanced interrupts
-+ * @move_irq:		need to re-target IRQ destination
-+ * @dir:		/proc/irq/ procfs entry
-+ * @affinity_entry:	/proc/irq/smp_affinity procfs entry on SMP
-  *
-  * Pad this out to 32 bytes for cache and indexing reasons.
++ * __do_IRQ handles all normal device IRQ's (the special
+  * SMP cross-CPU interrupts have their own specific
+  * handlers).
++ *
++ * This is the original x86 implementation which is used for every
++ * interrupt type.
   */
+ fastcall unsigned int __do_IRQ(unsigned int irq, struct pt_regs *regs)
+ {

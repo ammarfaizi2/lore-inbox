@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWEQBok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbWEQBrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932415AbWEQBok (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 21:44:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWEQBoj
+	id S932421AbWEQBrW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 21:47:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWEQBrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 21:44:39 -0400
-Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:18873 "EHLO
-	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932415AbWEQBoj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 21:44:39 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 16 May 2006 21:47:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:18838 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932421AbWEQBrV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 21:47:21 -0400
+Date: Tue, 16 May 2006 18:40:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: bunk@stusta.de, linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] fs/jbd/journal.c: possible cleanups
+Message-Id: <20060516184042.2e292ad9.akpm@osdl.org>
+In-Reply-To: <1147829611.3051.5.camel@laptopd505.fenrus.org>
+References: <20060516174413.GI10077@stusta.de>
+	<20060516122731.6ecbdeeb.akpm@osdl.org>
+	<1147829611.3051.5.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <17514.32708.282431.544415@wombat.chubb.wattle.id.au>
-Date: Wed, 17 May 2006 11:43:32 +1000
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: Andi Kleen <ak@suse.de>
-Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, Arnd Bergmann <arnd@arndb.de>,
-       Martin Peschke <mp3@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, hch@infradead.org, arjan@infradead.org,
-       James.Smart@emulex.com, James.Bottomley@steeleye.com
-Subject: Re: [RFC] [Patch 7/8] statistics infrastructure - exploitation prerequisite
-In-Reply-To: <200605170327.52605.ak@suse.de>
-References: <446A1023.6020108@de.ibm.com>
-	<200605170103.08917.arnd@arndb.de>
-	<17514.31511.386806.484792@wombat.chubb.wattle.id.au>
-	<200605170327.52605.ak@suse.de>
-X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Andi" == Andi Kleen <ak@suse.de> writes:
+Arjan van de Ven <arjan@infradead.org> wrote:
+>
+> On Tue, 2006-05-16 at 12:27 -0700, Andrew Morton wrote:
+> > Adrian Bunk <bunk@stusta.de> wrote:
+> > >
+> > > - remove the following unused EXPORT_SYMBOL's:
+> > >   - journal_set_features
+> > >   - journal_update_superblock
+> > 
+> > These might be used by lustre - dunno.
+> > 
+> > But I'm ducking all patches which alter exports, as usual.  If you can get
+> > them through the subsystem maintainer then good luck.
+> > 
+> > I'd suggest that we pursue the approach of getting the module loader to
+> > spit a warning when someone uses a going-away-soon export.
+> > 
+> > Arjan had a patch which did that, but he removed basically _every_
+> > presently-unused export.  
+> 
+> NOT IN THE SAME PATCH!
 
-Anrd> - do_gettimeofday potentially slow, reliable TOD clock,
-Anrd> microsecond resolution
->>  Slow, not necessarily safe to call in IRQ context.
+I noticed.
 
-Andi> It's only slow if the platform can't do better. On good hardware
-Andi> it is fast. And yes it is safe to call in IRQ
-Andi> context. Networking does that all the time.
+> I made the infrastructure a very nicely separate patch.... and I thought
+> I explained that to you as well ;(
 
-Thanks for the clarification.
+You did.  I was referring to the EXPORT_SYMBOL patches.
 
-I measured do_gettimeofday on IA64 at around 120 cycles (mind you that
-was some time ago now, before the last lot of time function revisions
-in the kernel).  Whether that's slow or not depends on your application.
+I don't think we should take the scattergun approach here.  Get the
+infrastructure merged, then methodically work the EXPORT_SYMBOL patches
+with the various maintainers.
 
--- 
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-http://www.ertos.nicta.com.au           ERTOS within National ICT Australia

@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbWEQWMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWEQWP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751256AbWEQWMk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 18:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWEQWML
+	id S1751260AbWEQWP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 18:15:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWEQWMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 18:12:11 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:7552 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751236AbWEQWME
+	Wed, 17 May 2006 18:12:40 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:56451 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751259AbWEQWM0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 18:12:04 -0400
-Message-Id: <20060517221408.232432000@sous-sol.org>
+	Wed, 17 May 2006 18:12:26 -0400
+Message-Id: <20060517221403.630773000@sous-sol.org>
 References: <20060517221312.227391000@sous-sol.org>
-Date: Wed, 17 May 2006 00:00:13 -0700
+Date: Wed, 17 May 2006 00:00:10 -0700
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -19,93 +19,58 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Jens Axboe <axboe@suse.de>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 13/22] [PATCH] [BLOCK] limit request_fn recursion
-Content-Disposition: inline; filename=BLOCK-limit-request_fn-recursion.patch
+       Karsten Keil <kkeil@suse.de>, Michael Chan <mchan@broadcom.com>,
+       "David S. Miller" <davem@davemloft.net>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 10/22] [PATCH] TG3: ethtool always report port is TP.
+Content-Disposition: inline; filename=tg3-ethtool-always-report-port-is-tp.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-Don't recurse back into the driver even if the unplug threshold is met,
-when the driver asks for a requeue. This is both silly from a logical
-point of view (requeues typically happen due to driver/hardware
-shortage), and also dangerous since we could hit an endless request_fn
--> requeue -> unplug -> request_fn loop and crash on stack overrun.
+Even with fiber cards ethtool reports that the connected port is TP,
+the patch fix this.
 
-Also limit blk_run_queue() to one level of recursion, similar to how
-blk_start_queue() works.
-
-This patch fixed a real problem with SLES10 and lpfc, and it could hit
-any SCSI lld that returns non-zero from it's ->queuecommand() handler.
-
-Signed-off-by: Jens Axboe <axboe@suse.de>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Signed-off-by: Karsten Keil <kkeil@suse.de>
+Acked-by: Michael Chan <mchan@broadcom.com>
+Signed-off-by: "David S. Miller" <davem@davemloft.net>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- block/elevator.c  |    8 +++++++-
- block/ll_rw_blk.c |   17 +++++++++++++++--
- 2 files changed, 22 insertions(+), 3 deletions(-)
 
---- linux-2.6.16.16.orig/block/elevator.c
-+++ linux-2.6.16.16/block/elevator.c
-@@ -314,6 +314,7 @@ void elv_insert(request_queue_t *q, stru
- {
- 	struct list_head *pos;
- 	unsigned ordseq;
-+	int unplug_it = 1;
+ drivers/net/tg3.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+--- linux-2.6.16.16.orig/drivers/net/tg3.c
++++ linux-2.6.16.16/drivers/net/tg3.c
+@@ -7368,21 +7368,23 @@ static int tg3_get_settings(struct net_d
+ 		cmd->supported |= (SUPPORTED_1000baseT_Half |
+ 				   SUPPORTED_1000baseT_Full);
  
- 	rq->q = q;
- 
-@@ -378,6 +379,11 @@ void elv_insert(request_queue_t *q, stru
- 		}
- 
- 		list_add_tail(&rq->queuelist, pos);
-+		/*
-+		 * most requeues happen because of a busy condition, don't
-+		 * force unplug of the queue for that case.
-+		 */
-+		unplug_it = 0;
- 		break;
- 
- 	default:
-@@ -386,7 +392,7 @@ void elv_insert(request_queue_t *q, stru
- 		BUG();
- 	}
- 
--	if (blk_queue_plugged(q)) {
-+	if (unplug_it && blk_queue_plugged(q)) {
- 		int nrq = q->rq.count[READ] + q->rq.count[WRITE]
- 			- q->in_flight;
- 
---- linux-2.6.16.16.orig/block/ll_rw_blk.c
-+++ linux-2.6.16.16/block/ll_rw_blk.c
-@@ -1719,8 +1719,21 @@ void blk_run_queue(struct request_queue 
- 
- 	spin_lock_irqsave(q->queue_lock, flags);
- 	blk_remove_plug(q);
--	if (!elv_queue_empty(q))
--		q->request_fn(q);
-+
-+	/*
-+	 * Only recurse once to avoid overrunning the stack, let the unplug
-+	 * handling reinvoke the handler shortly if we already got there.
-+	 */
-+	if (!elv_queue_empty(q)) {
-+		if (!test_and_set_bit(QUEUE_FLAG_REENTER, &q->queue_flags)) {
-+			q->request_fn(q);
-+			clear_bit(QUEUE_FLAG_REENTER, &q->queue_flags);
-+		} else {
-+			blk_plug_device(q);
-+			kblockd_schedule_work(&q->unplug_work);
-+		}
+-	if (!(tp->tg3_flags2 & TG3_FLG2_ANY_SERDES))
++	if (!(tp->tg3_flags2 & TG3_FLG2_ANY_SERDES)) {
+ 		cmd->supported |= (SUPPORTED_100baseT_Half |
+ 				  SUPPORTED_100baseT_Full |
+ 				  SUPPORTED_10baseT_Half |
+ 				  SUPPORTED_10baseT_Full |
+ 				  SUPPORTED_MII);
+-	else
++		cmd->port = PORT_TP;
++	} else {
+ 		cmd->supported |= SUPPORTED_FIBRE;
++		cmd->port = PORT_FIBRE;
 +	}
-+
- 	spin_unlock_irqrestore(q->queue_lock, flags);
- }
- EXPORT_SYMBOL(blk_run_queue);
+   
+ 	cmd->advertising = tp->link_config.advertising;
+ 	if (netif_running(dev)) {
+ 		cmd->speed = tp->link_config.active_speed;
+ 		cmd->duplex = tp->link_config.active_duplex;
+ 	}
+-	cmd->port = 0;
+ 	cmd->phy_address = PHY_ADDR;
+ 	cmd->transceiver = 0;
+ 	cmd->autoneg = tp->link_config.autoneg;
 
 --

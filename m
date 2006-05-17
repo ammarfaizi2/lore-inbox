@@ -1,310 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbWEPX7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWEQABu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbWEPX7z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 19:59:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbWEPX7y
+	id S932296AbWEQABu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 20:01:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbWEQABu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 19:59:54 -0400
-Received: from sccrmhc11.comcast.net ([63.240.77.81]:34758 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1750944AbWEPX7y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 19:59:54 -0400
-Date: Tue, 16 May 2006 17:01:42 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Alessandro Zummo <alessandro.zummo@towertech.it>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       rmk@arm.linux.org.uk
-Subject: Re: [PATCH] Add driver for ARM AMBA PL031 RTC
-Message-ID: <20060517000142.GA23236@plexity.net>
-Reply-To: dsaxena@plexity.net
-References: <20060516214813.GA28414@plexity.net> <20060517010259.5a035b20@inspiron>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060517010259.5a035b20@inspiron>
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.9i
+	Tue, 16 May 2006 20:01:50 -0400
+Received: from mail.siegenia-aubi.com ([217.5.180.129]:18830 "EHLO
+	alg-1.siegenia-aubi.com") by vger.kernel.org with ESMTP
+	id S1750973AbWEQABt convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 20:01:49 -0400
+Message-ID: <FC7F4950D2B3B845901C3CE3A1CA6766012A9E6F@mxnd200-9.si-aubi.siegenia-aubi.com>
+From: =?iso-8859-1?Q?=22D=F6hr=2C_Markus_ICC-H=22?= 
+	<Markus.Doehr@siegenia-aubi.com>
+To: "'Valdis.Kletnieks@vt.edu'" <Valdis.Kletnieks@vt.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: replacing X Window System !
+Date: Wed, 17 May 2006 02:01:45 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > First of all, your assumptions are incorrect.  Modern versions of X 
+> > are not old, unoptimised, will do remote sessions, etc.
+> 
+> Remote sessions have been there as long as the DISPLAY 
+> environment variable - I think even X10.4, 2 decades and more 
+> ago, could do that.  I know that it worked just fine 18 years 
+> ago with X11R1 (aah... building that from source on a 25mz
+> Sun3 took a little while). (Anybody know when the first 
+> instance of pointing 'xmelt' at another user's machine for 
+> amusement was? :)
+[...]
 
-Updated patch follows:
+Although one has to admit that working with remote X terminals over a
+SSH/WAN/VPN-connection is far from usefull, Microsoft´s RDP protocol does a
+much better job there. However, there´s NX (http://www.nomachine.com/) and
+other products but out of the box X11 it´s quite slow over higher latency
+connections.
 
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 65d090d..875ff5e 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -157,6 +157,16 @@ config RTC_DRV_VR41XX
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called rtc-vr41xx.
+Just my EUR 0.02
+
+
+SIEGENIA-AUBI KG
+Informationswesen
  
-+config RTC_DRV_PL031
-+	tristate "ARM AMBA PL031 RTC"
-+	depends on RTC_CLASS && ARM_AMBA
-+	help
-+	  If you say Y here you will get access to ARM AMBA
-+	  PrimeCell PL031 UART found on certain ARM SOCs.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called rtc-pl031.
-+
- config RTC_DRV_TEST
- 	tristate "Test driver/device"
- 	depends on RTC_CLASS
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index a9ca0f1..1b3f32e 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -20,3 +20,4 @@ obj-$(CONFIG_RTC_DRV_M48T86)	+= rtc-m48t
- obj-$(CONFIG_RTC_DRV_EP93XX)	+= rtc-ep93xx.o
- obj-$(CONFIG_RTC_DRV_SA1100)	+= rtc-sa1100.o
- obj-$(CONFIG_RTC_DRV_VR41XX)	+= rtc-vr41xx.o
-+obj-$(CONFIG_RTC_DRV_PL031)	+= rtc-pl031.o
-diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
-new file mode 100644
-index 0000000..3598df9
---- /dev/null
-+++ b/drivers/rtc/rtc-pl031.c
-@@ -0,0 +1,233 @@
-+/*
-+ * drivers/rtc/rtc-pl031.c
-+ *
-+ * Real Time Clock interface for ARM AMBA PrimeCell 031 RTC
-+ *
-+ * Author: Deepak Saxena <dsaxena@plexity.net>
-+ *
-+ * Copyright 2006 (c) MontaVista Software, Inc. 
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+#include <linux/platform_device.h>
-+#include <linux/module.h>
-+#include <linux/rtc.h>
-+#include <linux/init.h>
-+#include <linux/fs.h>
-+#include <linux/interrupt.h>
-+#include <linux/string.h>
-+#include <linux/pm.h>
-+
-+#include <linux/amba/bus.h>
-+
-+#include <asm/io.h>
-+#include <asm/bitops.h>
-+#include <asm/hardware.h>
-+#include <asm/irq.h>
-+#include <asm/rtc.h>
-+
-+/*
-+ * Register definitions
-+ */
-+#define	RTC_DR		0x00	/* Data read register */
-+#define	RTC_MR		0x04	/* Match register */
-+#define	RTC_LR		0x08	/* Data load register */
-+#define	RTC_CR		0x0c	/* Control register */
-+#define	RTC_IMSC	0x10	/* Interrupt mask and set register */
-+#define	RTC_RIS		0x14	/* Raw interrupt status register */
-+#define	RTC_MIS		0x18	/* Masked interrupt status register */
-+#define	RTC_ICR		0x1c	/* Interrupt clear register */
-+
-+struct pl031_local {
-+	struct rtc_device *rtc;
-+	void __iomem *base;
-+};
-+
-+static irqreturn_t pl031_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	struct rtc_device *rtc = (struct rtc_device *)dev_id;
-+
-+	rtc_update_irq(&rtc->class_dev, 1, RTC_AF);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int pl031_open(struct device *dev)
-+{
-+	/*
-+	 * We request IRQ in pl031_probe, so nothing to do here...
-+	 */
-+	return 0;
-+}
-+
-+static void pl031_release(struct device *dev)
-+{
-+}
-+
-+static int pl031_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
-+{
-+	struct pl031_local *ldata = dev_get_drvdata(dev);
-+
-+	switch (cmd) {
-+	case RTC_AIE_OFF:
-+		__raw_writel(1, ldata->base + RTC_MIS);
-+		return 0;
-+	case RTC_AIE_ON:
-+		__raw_writel(0, ldata->base + RTC_MIS);
-+		return 0;
-+	}
-+
-+	return -ENOIOCNTLCMD;
-+}
-+
-+static int pl031_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct pl031_local *ldata = dev_get_drvdata(dev);
-+
-+	rtc_time_to_tm(__raw_readl(ldata->base + RTC_DR), tm);
-+
-+	return 0;
-+}
-+
-+static int pl031_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	unsigned long time;
-+	struct pl031_local *ldata = dev_get_drvdata(dev);
-+
-+	rtc_tm_to_time(tm, &time);
-+	__raw_writel(time, ldata->base + RTC_LR);
-+
-+	return 0;
-+}
-+
-+static int pl031_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
-+{
-+	struct pl031_local *ldata = dev_get_drvdata(dev);
-+
-+	rtc_time_to_tm(__raw_readl(ldata->base + RTC_MR), &alarm->time);
-+	alarm->pending = __raw_readl(ldata->base + RTC_RIS);
-+	alarm->enabled = __raw_readl(ldata->base + RTC_IMSC);
-+
-+	return 0;
-+}
-+
-+static int pl031_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
-+{
-+	struct pl031_local *ldata = dev_get_drvdata(dev);
-+	unsigned long time;
-+
-+	rtc_tm_to_time(&alarm->time, &time);
-+
-+	__raw_writel(time, ldata->base + RTC_MR);
-+	__raw_writel(!alarm->enabled, ldata->base + RTC_MIS);
-+
-+	return 0;
-+}
-+
-+static struct rtc_class_ops pl031_ops = {
-+	.open = pl031_open,
-+	.release = pl031_release,
-+	.ioctl = pl031_ioctl,
-+	.read_time = pl031_read_time,
-+	.set_time = pl031_set_time,
-+	.read_alarm = pl031_read_alarm,
-+	.set_alarm = pl031_set_alarm,
-+};
-+
-+static int pl031_remove(struct amba_device *adev)
-+{
-+	struct pl031_local *ldata = dev_get_drvdata(&adev->dev);
-+
-+	if (ldata) {
-+		dev_set_drvdata(&adev->dev, NULL);
-+		free_irq(adev->irq[0], ldata->rtc);
-+		rtc_device_unregister(ldata->rtc);
-+		iounmap(ldata->base);
-+		kfree(ldata);
-+	}
-+
-+	return 0;
-+}
-+
-+static int pl031_probe(struct amba_device *adev, void *id)
-+{
-+	int ret;
-+	struct pl031_local *ldata;
-+
-+
-+	ldata = kmalloc(sizeof(struct pl031_local), GFP_KERNEL);
-+	if (!ldata) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+	dev_set_drvdata(&adev->dev, ldata);
-+
-+	ldata->base = ioremap(adev->res.start, 
-+			      adev->res.end - adev->res.start + 1);
-+	if (!ldata->base) {
-+		ret = -ENOMEM;
-+		goto out_no_remap;
-+	}
-+
-+	if (request_irq(adev->irq[0], pl031_interrupt, SA_INTERRUPT,
-+			"rtc-pl031", ldata->rtc)) {
-+		ret = -EIO;
-+		goto out_no_irq;
-+	}
-+
-+	ldata->rtc = rtc_device_register("pl031", &adev->dev, &pl031_ops, 
-+					 THIS_MODULE);
-+	if (IS_ERR(ldata->rtc)) {
-+		ret = PTR_ERR(ldata->rtc);
-+		goto out_no_rtc;
-+	}
-+
-+	return 0;
-+
-+out_no_rtc:
-+	free_irq(adev->irq[0], ldata->rtc);
-+out_no_irq:
-+	iounmap(ldata->base);
-+out_no_remap:
-+	dev_set_drvdata(&adev->dev, NULL);
-+	kfree(ldata);
-+out:
-+	return ret;
-+}
-+
-+static struct amba_id pl031_ids[] __initdata = {
-+	{
-+		 .id = 0x00041031,
-+	 	.mask = 0x000fffff, },
-+	{0, 0},
-+};
-+
-+static struct amba_driver pl031_driver = {
-+	.drv = {
-+		.name = "rtc-pl031",
-+	},
-+	.id_table = pl031_ids,
-+	.probe = pl031_probe,
-+	.remove = pl031_remove,
-+};
-+
-+static int __init pl031_init(void)
-+{
-+	return amba_driver_register(&pl031_driver);
-+}
-+
-+static void __exit pl031_exit(void)
-+{
-+	amba_driver_unregister(&pl031_driver);
-+}
-+
-+module_init(pl031_init);
-+module_exit(pl031_exit);
-+
-+MODULE_AUTHOR("Deepak Saxena <dsaxena@plexity.net");
-+MODULE_DESCRIPTION("ARM AMBA PL031 RTC Driver");
-+MODULE_LICENSE("GPL");
+i.A.
+ 
+Markus Döhr
+SAP-CC/BC, SAPDB-DBA
 
--- 
-Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
-
-I am not a consumer. My existence on this planet is not defined by my
-relationship to a producer of goods.  I was not put on this planet to
-consume goods from a company for their profit. - Michael W.
+Tel.:	 +49 6503 917-152
+Fax:	 +49 6503 917-7152
+E-Mail: markus.doehr@siegenia-aubi.com
+Internet: http://www.siegenia-aubi.com 

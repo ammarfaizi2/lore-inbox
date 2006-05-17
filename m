@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbWEQAQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbWEQARc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932311AbWEQAQz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 20:16:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWEQAQt
+	id S932312AbWEQARc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 20:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWEQAQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 20:16:49 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:61596 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932303AbWEQAQm (ORCPT
+	Tue, 16 May 2006 20:16:56 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:59548 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932297AbWEQAQe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 20:16:42 -0400
-Date: Wed, 17 May 2006 02:16:33 +0200
+	Tue, 16 May 2006 20:16:34 -0400
+Date: Wed, 17 May 2006 02:16:18 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
 Cc: Thomas Gleixner <tglx@linutronix.de>,
@@ -17,8 +17,8 @@ Cc: Thomas Gleixner <tglx@linutronix.de>,
        Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
        Christoph Hellwig <hch@infradead.org>,
        linux-arm-kernel@lists.arm.linux.org.uk
-Subject: [patch 17/50] genirq: add IRQ_NOPROBE support
-Message-ID: <20060517001633.GR12877@elte.hu>
+Subject: [patch 14/50] genirq: cleanup: no_irq_type cleanups
+Message-ID: <20060517001618.GO12877@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -33,64 +33,69 @@ X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Ingo Molnar <mingo@elte.hu>
 
-introduce IRQ_NOPROBE: enables platforms to control chip-probing.
+clean up no_irq_type: share the NOP functions where possible,
+and properly name the ack_bad() function.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- include/linux/irq.h    |    1 +
- kernel/irq/autoprobe.c |    4 ++--
- kernel/irq/manage.c    |    4 ++++
- 3 files changed, 7 insertions(+), 2 deletions(-)
+ kernel/irq/handle.c |   38 ++++++++++++++++++--------------------
+ 1 file changed, 18 insertions(+), 20 deletions(-)
 
-Index: linux-genirq.q/include/linux/irq.h
+Index: linux-genirq.q/kernel/irq/handle.c
 ===================================================================
---- linux-genirq.q.orig/include/linux/irq.h
-+++ linux-genirq.q/include/linux/irq.h
-@@ -40,6 +40,7 @@
- # define CHECK_IRQ_PER_CPU(var) 0
- #endif
+--- linux-genirq.q.orig/kernel/irq/handle.c
++++ linux-genirq.q/kernel/irq/handle.c
+@@ -40,32 +40,30 @@ struct irq_desc irq_desc[NR_IRQS] __cach
+ };
  
-+#define IRQ_NOPROBE	512	/* IRQ is not valid for probing */
- /**
-  * struct hw_interrupt_type - hardware interrupt type descriptor
-  *
-Index: linux-genirq.q/kernel/irq/autoprobe.c
-===================================================================
---- linux-genirq.q.orig/kernel/irq/autoprobe.c
-+++ linux-genirq.q/kernel/irq/autoprobe.c
-@@ -40,7 +40,7 @@ unsigned long probe_irq_on(void)
- 		desc = irq_desc + i;
+ /*
+- * Generic 'no controller' code
++ * What should we do if we get a hw irq event on an illegal vector?
++ * Each architecture has to answer this themself.
+  */
+-static void end_none(unsigned int irq) { }
+-static void enable_none(unsigned int irq) { }
+-static void disable_none(unsigned int irq) { }
+-static void shutdown_none(unsigned int irq) { }
+-static unsigned int startup_none(unsigned int irq) { return 0; }
+-
+-static void ack_none(unsigned int irq)
++static void ack_bad(unsigned int irq)
+ {
+-	/*
+-	 * 'what should we do if we get a hw irq event on an illegal vector'.
+-	 * each architecture has to answer this themself.
+-	 */
+ 	ack_bad_irq(irq);
+ }
  
- 		spin_lock_irq(&desc->lock);
--		if (!desc->action)
-+		if (!desc->action && !(desc->status & IRQ_NOPROBE))
- 			desc->handler->startup(i);
- 		spin_unlock_irq(&desc->lock);
- 	}
-@@ -57,7 +57,7 @@ unsigned long probe_irq_on(void)
- 		desc = irq_desc + i;
- 
- 		spin_lock_irq(&desc->lock);
--		if (!desc->action) {
-+		if (!desc->action && !(desc->status & IRQ_NOPROBE)) {
- 			desc->status |= IRQ_AUTODETECT | IRQ_WAITING;
- 			if (desc->handler->startup(i))
- 				desc->status |= IRQ_PENDING;
-Index: linux-genirq.q/kernel/irq/manage.c
-===================================================================
---- linux-genirq.q.orig/kernel/irq/manage.c
-+++ linux-genirq.q/kernel/irq/manage.c
-@@ -118,6 +118,10 @@ void enable_irq(unsigned int irq)
- 		WARN_ON(1);
- 		break;
- 	case 1: {
-+		unsigned int status = desc->status & ~IRQ_DISABLED;
++/*
++ * NOP functions
++ */
++static void noop(unsigned int irq)
++{
++}
 +
-+		/* Prevent probing on this irq: */
-+		desc->status = status | IRQ_NOPROBE;
- 		check_irq_resend(desc, irq);
- 		/* fall-through */
- 	}
++/*
++ * Generic no controller implementation
++ */
+ struct hw_interrupt_type no_irq_type = {
+-	.typename = 	"none",
+-	.startup = 	startup_none,
+-	.shutdown = 	shutdown_none,
+-	.enable = 	enable_none,
+-	.disable = 	disable_none,
+-	.ack = 		ack_none,
+-	.end = 		end_none,
+-	.set_affinity = NULL
++	.typename =	"none",
++	.enable =	noop,
++	.disable =	noop,
++	.ack =		ack_bad,
++	.end =		noop,
+ };
+ 
+ /*

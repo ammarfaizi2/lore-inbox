@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750850AbWEQWYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWEQWZw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750850AbWEQWYi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 18:24:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWEQWYh
+	id S1751254AbWEQWZw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 18:25:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWEQWZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 18:24:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60358 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750850AbWEQWYh (ORCPT
+	Wed, 17 May 2006 18:25:52 -0400
+Received: from xenotime.net ([66.160.160.81]:35494 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751286AbWEQWZv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 18:24:37 -0400
-Date: Wed, 17 May 2006 15:23:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Chris Wright <chrisw@sous-sol.org>
-cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH 00/22] -stable review
-In-Reply-To: <20060517221312.227391000@sous-sol.org>
-Message-ID: <Pine.LNX.4.64.0605171522050.10823@g5.osdl.org>
-References: <20060517221312.227391000@sous-sol.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 17 May 2006 18:25:51 -0400
+Date: Wed, 17 May 2006 15:28:17 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Brice Goglin <brice@myri.com>
+Cc: netdev@vger.kernel.org, gallatin@myri.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/4] myri10ge - Driver header files
+Message-Id: <20060517152817.58a6d8bc.rdunlap@xenotime.net>
+In-Reply-To: <20060517220434.GC13411@myri.com>
+References: <20060517220218.GA13411@myri.com>
+	<20060517220434.GC13411@myri.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 17 May 2006 18:04:35 -0400 Brice Goglin wrote:
+
+> [PATCH 2/4] myri10ge - Driver header files
+> 
+>  myri10ge_mcp.h            |  205 ++++++++++++++++++++++++++++++++++++++++++++++
+>  myri10ge_mcp_gen_header.h |   58 +++++++++++++
+
+Please use "diffstat -p 1 -w 70" is documented in
+Documentation/SubmittingPatches.
+
+>  2 files changed, 263 insertions(+)
+> 
+> --- /dev/null	2006-05-16 20:08:50.920483500 +0200
+> +++ linux-tmp//drivers/net/myri10ge/myri10ge_mcp.h	2006-05-17 11:02:48.000000000 +0200
+> @@ -0,0 +1,205 @@
+> +#ifndef __MYRI10GE_MCP_H__
+> +#define __MYRI10GE_MCP_H__
+> +
+> +#define MYRI10GE_MCP_VERSION_MAJOR	1
+> +#define MYRI10GE_MCP_VERSION_MINOR	4
+> +
+> +/* 16 Bytes */
+
+What is 16 bytes here?
+
+> +struct mcp_slot {
+> +	u16 checksum;
+> +	u16 length;
+> +};
 
 
-On Wed, 17 May 2006, Chris Wright wrote:
->
-> This is the start of the stable review cycle for the 2.6.16.17 release.
-> There are 22 patches in this series, all will be posted as a response to
-> this one.
-
-I notice that none of the patches have authorship information.
-
-Has that always been true and I just never noticed before?
-
-Could you make your review script add the proper "From:" to the top of the 
-body of the email so that that is visible during review too?
-
-		Linus
+---
+~Randy

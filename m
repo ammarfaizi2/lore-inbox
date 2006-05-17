@@ -1,394 +1,208 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWEQXI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWEQXZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751216AbWEQXI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 19:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbWEQXI3
+	id S1750709AbWEQXZa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 19:25:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbWEQXZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 19:08:29 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:31437 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751142AbWEQXI1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 19:08:27 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Brice Goglin <brice@myri.com>
-Subject: Re: [PATCH 3/4] myri10ge - Driver core
-Date: Thu, 18 May 2006 01:08:32 +0200
-User-Agent: KMail/1.9.1
-Cc: netdev@vger.kernel.org, gallatin@myri.com, linux-kernel@vger.kernel.org
-References: <20060517220218.GA13411@myri.com> <20060517220608.GD13411@myri.com>
-In-Reply-To: <20060517220608.GD13411@myri.com>
+	Wed, 17 May 2006 19:25:30 -0400
+Received: from nz-out-0102.google.com ([64.233.162.202]:36222 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750709AbWEQXZ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 19:25:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type;
+        b=fWY/MJRTEXDshM8h6OqWN13Uqk1cWjBf3PbZ3rzmk6TgnBGBQo/MdyrrCpISGsD+Z2dowOsrPOco9iK1tD6LDMTs9pn8bolZMe23NiwLdi777D1/lXxQ0Nr3WwlEWX5GNmRqtfVogeK1HYuhn4CwPRuM0dn14HOyBvGp0W2OnUs=
+Message-ID: <446BB0E5.50003@gmail.com>
+Date: Wed, 17 May 2006 17:25:25 -0600
+From: Jim Cromie <jim.cromie@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605180108.32949.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: Adrian Bunk <bunk@stusta.de>, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.17-rc4-mm1 nfsroot build err, looks related to klibc
+References: <44692CA1.5000903@gmail.com> <446950E3.4060601@zytor.com> <20060516101838.GK6931@stusta.de> <446A2243.6050109@zytor.com> <446ACCCF.1030406@gmail.com> <446B4BDD.9090208@zytor.com> <446B5AB0.8050703@gmail.com> <446B5BC7.7080105@zytor.com>
+In-Reply-To: <446B5BC7.7080105@zytor.com>
+Content-Type: multipart/mixed;
+ boundary="------------030908070207070003060308"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Thursday 18 May 2006 00:06 schrieb Brice Goglin:
-
-> +static char *myri10ge_fw_name = NULL;
-> +static char *myri10ge_fw_unaligned = "myri10ge_ethp_z8e.dat";
-> +static char *myri10ge_fw_aligned = "myri10ge_eth_z8e.dat";
-> +static int myri10ge_ecrc_enable = 1;
-> +static int myri10ge_max_intr_slots = 1024;
-> +static int myri10ge_small_bytes = -1;	/* -1 == auto */
-> +static int myri10ge_msi = 1;	/* enable msi by default */
-> +static int myri10ge_intr_coal_delay = 25;
-> +static int myri10ge_flow_control = 1;
-> +static int myri10ge_deassert_wait = 1;
-> +static int myri10ge_force_firmware = 0;
-> +static int myri10ge_skb_cross_4k = 0;
-> +static int myri10ge_initial_mtu = MYRI10GE_MAX_ETHER_MTU - ETH_HLEN;
-> +static int myri10ge_napi_weight = 64;
-> +static int myri10ge_watchdog_timeout = 1;
-> +static int myri10ge_max_irq_loops = 1048576;
-> +
-> +module_param(myri10ge_fw_name, charp, S_IRUGO | S_IWUSR);
-> +MODULE_PARM_DESC(myri10ge_fw_name, "Firmware image name\n");
-> +module_param(myri10ge_max_intr_slots, int, S_IRUGO);
-> +MODULE_PARM_DESC(myri10ge_max_intr_slots, "Interrupt queue slots\n");
-> +module_param(myri10ge_small_bytes, int, S_IRUGO | S_IWUSR);
-> +MODULE_PARM_DESC(myri10ge_small_bytes, "Threshold of small packets\n");
-> +module_param(myri10ge_msi, int, S_IRUGO);
-> +MODULE_PARM_DESC(myri10ge_msi, "Enable Message Signalled Interrupts\n");
-> +module_param(myri10ge_intr_coal_delay, int, S_IRUGO);
-> +MODULE_PARM_DESC(myri10ge_intr_coal_delay, "Interrupt coalescing
-> delay\n"); +module_param(myri10ge_ecrc_enable, int, S_IRUGO);
-> +MODULE_PARM_DESC(myri10ge_ecrc_enable, "Enable Extended CRC on PCI-E\n");
-> +module_param(myri10ge_flow_control, int, S_IRUGO);
-> +MODULE_PARM_DESC(myri10ge_flow_control, "Pause parameter\n");
-> +module_param(myri10ge_deassert_wait, int, S_IRUGO | S_IWUSR);
-> +MODULE_PARM_DESC(myri10ge_deassert_wait,
-> +		 "Wait when deasserting legacy interrupts\n");
-> +module_param(myri10ge_force_firmware, int, S_IRUGO);
-> +MODULE_PARM_DESC(myri10ge_force_firmware,
-> +		 "Force firmware to assume aligned completions\n");
-> +module_param(myri10ge_skb_cross_4k, int, S_IRUGO | S_IWUSR);
-> +MODULE_PARM_DESC(myri10ge_skb_cross_4k,
-> +		 "Can a small skb cross a 4KB boundary?\n");
-> +module_param(myri10ge_initial_mtu, int, S_IRUGO);
-> +MODULE_PARM_DESC(myri10ge_initial_mtu, "Initial MTU\n");
-> +module_param(myri10ge_napi_weight, int, S_IRUGO);
-> +MODULE_PARM_DESC(myri10ge_napi_weight, "Set NAPI weight\n");
-> +module_param(myri10ge_watchdog_timeout, int, S_IRUGO);
-> +MODULE_PARM_DESC(myri10ge_watchdog_timeout, "Set watchdog timeout\n");
-> +module_param(myri10ge_max_irq_loops, int, S_IRUGO);
-> +MODULE_PARM_DESC(myri10ge_max_irq_loops,
-> +		 "Set stuck legacy IRQ detection threshold\n");
-
-How about writing the module_param() and MODULE_PARM_DESC() calls
-directly after each declaration? That would make it clearer
-that they are all parameters.
-
-> +	response->result = 0xffffffff;
-
-0xffffffff appears throughout your code as a return value. maybe
-use a named constant for it?
-
-> +	for (sleep_total = 0;
-> +	     sleep_total < (15 * 1000) && response->result == 0xffffffff;
-> +	     sleep_total += 10) {
-> +		udelay(10);
-> +	}
-
-udelay does not sleep. If you want to sleep, use msleep instead.
-
-> +
-> +	myri10ge_pio_copy((void __iomem *)submit, &buf, sizeof(buf));
-> +	for (i = 0; *confirm != 0xffffffff && i < 20; i++)
-> +		udelay(1000);
-> +	if (*confirm != 0xffffffff) {
-> +		dev_err(&mgp->pdev->dev, "dummy rdma %s failed\n",
-> +			(enable ? "enable" : "disable"));
-> +	}
-> +}
-
-Can you use msleep here instead of udelay?
-
-> +static int myri10ge_load_firmware(struct myri10ge_priv *mgp)
-> +{
-> +	volatile u32 *confirm;
-> +	volatile char __iomem *submit;
-
-The __iomem variable need not be volatile.
-
-> +	myri10ge_pio_copy((void __iomem *)submit, &buf, sizeof(buf));
-> +	mb();
-> +	udelay(1000);
-> +	mb();
-
-can't you use msleep(1) instead? 
-
-> +static inline void
-> +myri10ge_submit_8rx(struct mcp_kreq_ether_recv __iomem * dst,
-> +		    struct mcp_kreq_ether_recv *src)
-> +{
-> +	u32 low;
-> +
-> +	low = src->addr_low;
-> +	src->addr_low = DMA_32BIT_MASK;
-> +	myri10ge_pio_copy(dst, src, 8 * sizeof(*src));
-> +	mb();
-> +	src->addr_low = low;
-> +	*(u32 __force *) & dst->addr_low = src->addr_low;
-> +	mb();
-> +}
-
-The __force dereference seems fishy.
-
-> +	if (unlikely(((end >> 12) != (data >> 12)) && (data & 4095UL))) {
-> +		printk
-> +		    ("myri10ge_alloc_small: small skb crossed 4KB boundary\n");
-
-Printk level is missing.
+This is a multi-part message in MIME format.
+--------------030908070207070003060308
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
-> +static int myri10ge_open(struct net_device *dev)
+some of the argument processing in nfsmount/main.c is looks broken,
+where hostname gets pulled from argv[optind].  I changed it to [1]
+and things worked better.
 
-This function is too long to read easily.
+tweaks and debug patch attached, presumably it explains it clearly, if 
+wrongly.
 
-> +	/* allocate the host shadow rings */
-> +
-> +	bytes = 8 + (MYRI10GE_MCP_ETHER_MAX_SEND_DESC_TSO + 4)
-> +	    * sizeof(*mgp->tx.req_list);
-> +	mgp->tx.req_bytes = kmalloc(bytes, GFP_KERNEL);
-> +	if (mgp->tx.req_bytes == NULL)
-> +		goto abort_with_nothing;
-> +	memset(mgp->tx.req_bytes, 0, bytes);
-> +
-> +	/* ensure req_list entries are aligned to 8 bytes */
-> +	mgp->tx.req_list = (struct mcp_kreq_ether_send *)
-> +	    ALIGN((unsigned long)mgp->tx.req_bytes, 8);
-> +
-> +	bytes = rx_ring_entries * sizeof(*mgp->rx_small.shadow);
-> +	mgp->rx_small.shadow = kmalloc(bytes, GFP_KERNEL);
-> +	if (mgp->rx_small.shadow == NULL)
-> +		goto abort_with_tx_req_bytes;
-> +	memset(mgp->rx_small.shadow, 0, bytes);
-> +
-> +	bytes = rx_ring_entries * sizeof(*mgp->rx_big.shadow);
-> +	mgp->rx_big.shadow = kmalloc(bytes, GFP_KERNEL);
-> +	if (mgp->rx_big.shadow == NULL)
-> +		goto abort_with_rx_small_shadow;
-> +	memset(mgp->rx_big.shadow, 0, bytes);
-> +
-> +	/* allocate the host info rings */
-> +
-> +	bytes = tx_ring_entries * sizeof(*mgp->tx.info);
-> +	mgp->tx.info = kmalloc(bytes, GFP_KERNEL);
-> +	if (mgp->tx.info == NULL)
-> +		goto abort_with_rx_big_shadow;
-> +	memset(mgp->tx.info, 0, bytes);
-> +
-> +	bytes = rx_ring_entries * sizeof(*mgp->rx_small.info);
-> +	mgp->rx_small.info = kmalloc(bytes, GFP_KERNEL);
-> +	if (mgp->rx_small.info == NULL)
-> +		goto abort_with_tx_info;
-> +	memset(mgp->rx_small.info, 0, bytes);
-> +
-> +	bytes = rx_ring_entries * sizeof(*mgp->rx_big.info);
-> +	mgp->rx_big.info = kmalloc(bytes, GFP_KERNEL);
-> +	if (mgp->rx_big.info == NULL)
-> +		goto abort_with_rx_small_info;
-> +	memset(mgp->rx_big.info, 0, bytes);
-> +
+heres several loops-of { add printfs, rebuild, look at output }
+I did along the way:
 
-Can you do all these allocations at once? Maybe you can even
-move them into the size passed to alloc_etherdev.
+IP-Config: eth0 guessed nameserver address 192.168.42.1
+IP-Config: eth0 complete (from 192.168.42.1):
+ address: 192.168.42.100   broadcast: 192.168.42.255   netmask: 
+255.255.255.0
+ gateway: 0.0.0.0          dns0     : 192.168.42.1     dns1   : 0.0.0.0
+ rootserver: 192.168.42.1 rootpath: /nfshost/truck
+eth0: state = 4
+kinit: do_mounts
+kinit: name_to_dev_t(/dev/nfs) = dev(0,255)
+kinit: root_dev = dev(0,255)
+NFS-Root: mounting 192.168.42.1:/nfshost/truck on /root with options 'none'
+arg 0: NFS-Mount'
+[   22.656000] Kernel panic - not syncing: Attempted to kill init!
+arg 1: 192.168.4[   22.660000]  2.1:/nfshost/tru<0>Rebooting in 5 
+seconds..ck'
+arg 2: /root'
+kinit options done: args remaining: 2
+arg 0: NFS-Mount
+arg 1: 192.168.42.1:/nfshost/truck
+arg 2: /root
+rem_name: 192.168.42.1:/nfshost/truck rem_path: /nfshost/truck
+server 0 hostname 192.168.42.1
+server 12aa8c0 hostname 192.168.42.1
+path /nfs_root
+stat: No such file or directory
 
-If you need separate allocations, using kzalloc simplifies
-your code.
 
-> +	/* re-write the last 32-bits with the valid flags */
-> +	src->flags = last_flags;
-> +	src_ints = (u32 *) src;
-> +	src_ints += 3;
-> +	dst_ints = (u32 __iomem *) dst;
-> +	dst_ints += 3;
-> +	*(u32 __force *) dst_ints = *src_ints;
-> +	tx->req += cnt;
-> +	mb();
-> +}
+the last 2 lines bothers me - since its the local path, on a 
+as-yet-umounted root,
+I dont know what it means to 'stat' such a path.
 
-All these casts indicate that you do something wrong here.
-In particular, dereferencing an __iomem pointer should
-not be done in a device driver.
+So I //d it, and resumed.  I got farther this time..
 
-> +		/* Break the SKB or Fragment up into pieces which
-> +		 * do not cross mgp->tx.boundary */
-> +		low = MYRI10GE_LOWPART_TO_U32(bus);
-> +		high_swapped = htonl(MYRI10GE_HIGHPART_TO_U32(bus));
-> +		while (len) {
-> +			u8 flags_next;
-> +			int cum_len_next;
-> +
-> +			if (unlikely(count == max_segments))
-> +				goto abort_linearize;
-> +
-> +			boundary = (low + tx->boundary) & ~(tx->boundary - 1);
-> +			seglen = boundary - low;
-> +			if (seglen > len)
-> +				seglen = len;
-> +			flags_next = flags & ~MYRI10GE_MCP_ETHER_FLAGS_FIRST;
-> +			cum_len_next = cum_len + seglen;
-> +#ifdef NETIF_F_TSO
-> +			if (mss) {	/* TSO */
-> +				(req - rdma_count)->rdma_count = rdma_count + 1;
-> +
-> +				if (likely(cum_len >= 0)) {	/* payload */
-> +					int next_is_first, chop;
-> +
-> +					chop = (cum_len_next > mss);
-> +					cum_len_next = cum_len_next % mss;
-> +					next_is_first = (cum_len_next == 0);
-> +					flags |= chop *
-> +					    MYRI10GE_MCP_ETHER_FLAGS_TSO_CHOP;
-> +					flags_next |= next_is_first *
-> +					    MYRI10GE_MCP_ETHER_FLAGS_FIRST;
-> +					rdma_count |= -(chop | next_is_first);
-> +					rdma_count += chop & !next_is_first;
-> +				} else if (likely(cum_len_next >= 0)) {	/* header ends */
-> +					int small;
-> +
-> +					rdma_count = -1;
-> +					cum_len_next = 0;
-> +					seglen = -cum_len;
-> +					small =
-> +					    (mss <=
-> +					     MYRI10GE_MCP_ETHER_SEND_SMALL_SIZE);
-> +					flags_next =
-> +					    MYRI10GE_MCP_ETHER_FLAGS_TSO_PLD |
-> +					    MYRI10GE_MCP_ETHER_FLAGS_FIRST |
-> +					    (small *
-> +					     MYRI10GE_MCP_ETHER_FLAGS_SMALL);
-> +				}
-> +			}
+path /nfs_root
+nfs_mount: rem_name 192.168.42.1:/nfshost/truck, hostname 192.168.42.1, 
+server 12aa8c0, rem_path /nfshost/truck, path /nfs_root
+connect: Network is unreachable
+connect: Network is unreachable
+Port for 100003/3[tcp]: 0
+NFS over TCP not available from 192.168.42.1
+Checking for init: /sbin/init
+Checking for init: /bin/init
+Checking for init: /etc/init
+Checking for init: /bin/sh
+kinit: init not found!
 
-100 characters per line are too much, as are six levels of intentation,
-or the number of lines in this function.
-You should try to split into into smaller ones.
 
->
-> +	if ((new_mtu < 68) || (ETH_HLEN + new_mtu > MYRI10GE_MAX_ETHER_MTU)) {
-> +		printk(KERN_ERR "myri10ge: %s: new mtu (%d) is not valid\n",
-> +		       dev->name, new_mtu);
-> +		return -EINVAL;
-> +	}
-> +	printk("%s: changing mtu from %d to %d\n",
-> +	       dev->name, dev->mtu, new_mtu);
+I repeated with the laptop firewall down, same result.
+ netstat -tl agrees.
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address               Foreign 
+Address             State
+tcp        0      0 *:nfs                       
+*:*                         LISTEN
 
-You shouldn't use printk as a basic feedback mechanism to user space.
-The return code already contains the information.
-Also the printk misses a message level.
 
-> +	pci_set_power_state(pdev, 0);	/* zeros conf space as a side effect */
-> +	udelay(5000);		/* give card time to respond */
-> +	pci_read_config_word(mgp->pdev, PCI_VENDOR_ID, &vendor);
+the eth0 driver is builtin.
 
-5000 is a long time for udelay. If you can't convert this to msleep,
-use at least mdelay.
+So, Im stuck for a clue.  Older kernels run fine
 
-> +		printk(KERN_ERR "myri10ge: %s: device timeout, resetting\n",
-> +		       mgp->dev->name);
-> +		printk("myri10ge: %s: %d %d %d %d %d\n", mgp->dev->name,
-> +		       mgp->tx.req, mgp->tx.done, mgp->tx.pkt_start,
-> +		       mgp->tx.pkt_done,
-> +		       (int)ntohl(mgp->fw_stats->send_done_count));
-> +		set_current_state(TASK_UNINTERRUPTIBLE);
-> +		schedule_timeout(HZ * 2);
-> +		set_current_state(TASK_RUNNING);
-> +		printk("myri10ge: %s: %d %d %d %d %d\n", mgp->dev->name,
-> +		       mgp->tx.req, mgp->tx.done, mgp->tx.pkt_start,
-> +		       mgp->tx.pkt_done,
-> +		       (int)ntohl(mgp->fw_stats->send_done_count));
+tia
+-jimc
 
-missing printk levels here.
+--------------030908070207070003060308
+Content-Type: text/plain;
+ name="diff.linux-2.6.17-rc4-mm1-ska.20060517.165919"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff.linux-2.6.17-rc4-mm1-ska.20060517.165919"
 
-instead of schedule_timeout, you probably want to use msleep().
+diff -ruNp -X dontdiff -X exclude-diffs linux-2.6.17-rc4-mm1/usr/kinit/nfsmount/main.c linux-2.6.17-rc4-mm1-ska/usr/kinit/nfsmount/main.c
+--- linux-2.6.17-rc4-mm1/usr/kinit/nfsmount/main.c	2006-05-17 14:57:55.000000000 -0600
++++ linux-2.6.17-rc4-mm1-ska/usr/kinit/nfsmount/main.c	2006-05-17 16:47:59.000000000 -0600
+@@ -203,13 +203,19 @@ int nfsmount_main(int argc, char *argv[]
+ 			return 1;
+ 		}
+ 	}
++	fprintf(stderr, "%s options done: args remaining: %d\n",
++		progname, optind);
++	for (c=0; argv[c]; c++)
++		fprintf(stderr, "arg %d: %s\n", c, argv[c]);
++
++	// optind++; // remove the 'NFS-Mount'
+ 
+ 	if (optind == argc) {
+ 		fprintf(stderr, "%s: need a path\n", progname);
+ 		return 1;
+ 	}
+-
+-	hostname = rem_path = argv[optind];
++	c = 1;
++	hostname = rem_path = argv[c]; //optind];
+ 
+ 	if ((rem_name = strdup(rem_path)) == NULL) {
+ 		perror("strdup");
+@@ -217,25 +223,30 @@ int nfsmount_main(int argc, char *argv[]
+ 	}
+ 
+ 	if ((rem_path = strchr(rem_path, ':')) == NULL) {
+-		fprintf(stderr, "%s: need a server\n", progname);
++		fprintf(stderr, "%s: need a server address: (%s) ng\n",
++			progname, hostname);
+ 		return 1;
+ 	}
+ 
+ 	*rem_path++ = '\0';
++	fprintf(stderr, "rem_name: %s rem_path: %s\n", rem_name, rem_path);
+ 
+ 	if (*rem_path != '/') {
+-		fprintf(stderr, "%s: need a path\n", progname);
++		fprintf(stderr, "%s: now need a path\n", progname);
+ 		return 1;
+ 	}
+ 
++	fprintf(stderr, "server %x hostname %s\n", server, hostname);
+ 	server = parse_addr(hostname);
++	fprintf(stderr, "server %x hostname %s\n", server, hostname);
+ 
+ 	if (optind <= argc - 2)
+ 		path = argv[optind + 1];
+ 	else
+ 		path = "/nfs_root";
+ 
+-	check_path(path);
++	fprintf(stderr, "path %s\n", path);
++	//check_path(path);
+ 
+ #if! _KLIBC_NO_MMU
+ 	/* Note: uClinux can't fork(), so the spoof portmapper is not
+@@ -247,6 +258,10 @@ int nfsmount_main(int argc, char *argv[]
+ 		return 1;
+ #endif
+ 
++	fprintf(stderr,"nfs_mount: "
++	       "rem_name %s, hostname %s, server %x, rem_path %s, path %s\n",
++	       rem_name, hostname, server, rem_path, path);
++
+ 	if (nfs_mount(rem_name, hostname, server, rem_path, path,
+ 		      &mount_data) != 0)
+ 		return 1;
+diff -ruNp -X dontdiff -X exclude-diffs linux-2.6.17-rc4-mm1/usr/kinit/nfsroot.c linux-2.6.17-rc4-mm1-ska/usr/kinit/nfsroot.c
+--- linux-2.6.17-rc4-mm1/usr/kinit/nfsroot.c	2006-05-17 14:57:55.000000000 -0600
++++ linux-2.6.17-rc4-mm1-ska/usr/kinit/nfsroot.c	2006-05-17 15:41:33.000000000 -0600
+@@ -97,12 +97,15 @@ int mount_nfs_root(int argc, char *argv[
+ 	}
+ 
+ 	DEBUG(("NFS-Root: mounting %s on %s with options '%s'\n",
+-	       argv[a - 1], mtpt, opts ? opts : "none"));
++	       nfs_argv[1], mtpt, opts ? opts : "none"));
+ 
+ 	nfs_argv[a++] = mtpt;
+ 	nfs_argv[a] = NULL;
+ 	assert(a <= NFS_ARGC);
+ 
++	for (ret = 0; ret<a; ret++)
++		DEBUG(("arg %d: %s'\n", ret, nfs_argv[ret]));
++
+ 	if ((ret = nfsmount_main(a, nfs_argv)) != 0) {
+ 		ret = -1;
+ 		goto done;
 
-> +	if (status != 0) {
-> +		printk(KERN_ERR "myri10ge: %s: failed to load firmware\n",
-> +		       mgp->dev->name);
-
-dev_err?
-
-> +	for (i = 0; i < ETH_ALEN; i++) {
-> +		netdev->dev_addr[i] = mgp->mac_addr[i];
-> +	}
-
-Don't need the curly braces here.
-
-> +
-> +	printk("myri10ge: %s: %s IRQ %d, tx bndry %d, fw %s, WC %s\n",
-> +	       netdev->name, (mgp->msi_enabled ? "MSI" : "xPIC"),
-> +	       pdev->irq, mgp->tx.boundary, mgp->fw_name,
-> +	       (mgp->mtrr >= 0 ? "Enabled" : "Disabled"));
-> +
-
-missing printk level (KERN_DEBUG?). Could probably use dev_printk.
-
-> +      abort_with_irq:
-> +	free_irq(pdev->irq, mgp);
-> +	if (mgp->msi_enabled)
-> +		pci_disable_msi(pdev);
-> +
-> +      abort_with_firmware:
-> +	myri10ge_dummy_rdma(mgp, 0);
-> +
-> +      abort_with_rx_done:
-> +	bytes = myri10ge_max_intr_slots * sizeof(*mgp->rx_done.entry);
-> +	pci_free_consistent(pdev, bytes, mgp->rx_done.entry, mgp->rx_done.bus);
-> +
-> +      abort_with_ioremap:
-> +	iounmap((void __iomem *)mgp->sram);
-> +
-> +      abort_with_wc:
-> +#ifdef CONFIG_MTRR
-> +	if (mgp->mtrr >= 0)
-> +		mtrr_del(mgp->mtrr, mgp->iomem_base, mgp->board_span);
-> +#endif
-> +	pci_free_consistent(pdev, sizeof(*mgp->fw_stats),
-> +			    mgp->fw_stats, mgp->fw_stats_bus);
-> +
-> +      abort_with_cmd:
-> +	pci_free_consistent(pdev, sizeof(*mgp->cmd), mgp->cmd, mgp->cmd_bus);
-> +
-> +      abort_with_netdev:
-> +
-> +	free_netdev(netdev);
-> +	return status;
-> +}
-
-Goto labels are conventionally indented all the way
-to the left. Yes, lindent/indent gets this wrong.
-
-> +	iounmap((void __iomem *)mgp->sram);
-
-unnecessary cast.
-
-> +
-> +#define MYRI10GE_PCI_VENDOR_MYRICOM 	0x14c1
-> +#define MYRI10GE_PCI_DEVICE_Z8E 	0x0008
-
-Shouldn't the vendor ID go to pci_ids.h?
-
-> +
-> +static __init int myri10ge_init_module(void)
-> +{
-> +	printk("%s: Version %s\n", myri10ge_driver.name, MYRI10GE_VERSION_STR);
-> +	return pci_register_driver(&myri10ge_driver);
-> +}
-> +
-> +static __exit void myri10ge_cleanup_module(void)
-> +{
-> +	pci_unregister_driver(&myri10ge_driver);
-> +}
-> +
-> +module_init(myri10ge_init_module);
-
-This line should go right under the function it refers to.
-
-	Arnd <><
+--------------030908070207070003060308--

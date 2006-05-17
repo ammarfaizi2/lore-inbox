@@ -1,84 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbWEQTr7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751058AbWEQT7j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751053AbWEQTr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 15:47:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWEQTr6
+	id S1751058AbWEQT7j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 15:59:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751062AbWEQT7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 15:47:58 -0400
-Received: from web81101.mail.mud.yahoo.com ([68.142.199.93]:51552 "HELO
-	web81101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751051AbWEQTr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 15:47:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=ameritech.net;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=56cYSUGBkYT+gF5ziAixzccmAxkLdOaOm+/igijdUZHUUsxMmL2IPoESTeKBxSeMsXy4FI493joG60qiS6TbjmQ9prMiFA8bHWs2lpD07xS4EqLazz8AkEj6cuTrTC+dXaZc8VJnuMzEhL5GfxDUuFFuxDqKA4/ubYjMHfVgwEI=  ;
-Message-ID: <20060517194757.6566.qmail@web81101.mail.mud.yahoo.com>
-Date: Wed, 17 May 2006 12:47:57 -0700 (PDT)
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: [patch] add input_enable_device()
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: Andrew Morton <akpm@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <446B58F5.4020501@aknet.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 17 May 2006 15:59:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30439 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751058AbWEQT7j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 15:59:39 -0400
+Subject: Re: [PATCH] Fix do_mlock so page alignment is to hugepage
+	boundries when needed
+From: Eric Paris <eparis@redhat.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org, wli@holomorphy.com, discuss@x86-64.org,
+       linuxppc-dev@ozlabs.org
+In-Reply-To: <Pine.LNX.4.64.0605171840310.14529@blonde.wat.veritas.com>
+References: <1147885316.26468.15.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0605171840310.14529@blonde.wat.veritas.com>
+Content-Type: text/plain
+Date: Wed, 17 May 2006 15:59:24 -0400
+Message-Id: <1147895964.26468.35.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Stas Sergeev <stsp@aknet.ru> wrote:
-
-> Hello.
+On Wed, 2006-05-17 at 18:42 +0100, Hugh Dickins wrote:
+> On Wed, 17 May 2006, Eric Paris wrote:
+> > sys_m{,un}lock and do_mlock all align memory references and the length
+> > of the mlock given by userspace to page boundaries.  If the page being
+> > mlocked is a hugepage instead of a normal page the start and finish of
+> > the mlock will still only be aligned to normal page boundaries.
+> > Ultimately upon the process exiting we will eventually call unmap_vmas
+> > which will call unmap_hugepage_range for all of the ranges.
+> > unmap_hugepage_range checks to make sure the beginning and the end of
+> > the range are actually hugepage aligned and if not will BUG().  Since we
+> > only aligned to a normal page boundary the end of the first range and
+> > the beginning of the second will likely (unless userspace passed of
+> > values already hugepage aligned) not be hugepage aligned and thus we
+> > bomb.
 > 
-> Dmitry Torokhov wrote:
-> > I really believe that instead of shoving this into input core you need to
-> > split pcspkr driver to allow concurrent access to the hardware.
-> I split pcspkr and someone else will say that there is
-> already enough of the midlayers to handle the like things,
-> to not introduce another one just for the particular driver.
-> Besides, I don't beleive people will be happy with having
-> 2 modules for just handling the terminal beeps.
-> The input midlayer looks like the best solution. It allows
-> to deal with the modules as soon as they are loaded. It has
-> enough of the information needed to precisely identify the
-> module (I now use INPUT_DEVICE_ID_MATCH_BUS). The pcspkr *is*
-> an "input driver" after all, so why not to deal with it via
-> an input API?
+> When did you test this?  It should have been fixed in 2.6.11 onwards
+> by split_vma()'s simple:
+> 
+> 	if (is_vm_hugetlb_page(vma) && (addr & ~HPAGE_MASK))
+> 		return -EINVAL;
+> 
+> Hugh
 
-pcspkr is still an input driver. Now you are adding another
-driver to drive the same piece of hardware and you need
-to mediate access to that hardware. It is not responsibility
-of the input layer to do that. Like input core does not handle
-PS/2 ports or USB hardware directly it should not do that for
-the speaker either. Also, even now pcspkr implementation is
-deficient - issuing SND_BELL will kill SND_TONE going at the
-moment.
+You're right.  My initial BUG() problem was on pre 2.6.11.  I wrote this
+patch and tested that it worked on 2.6.16 to allow the test program I
+described to run successfully.  Admittedly this is the first time I
+tested on unpatched 2.6.16 and as you said the mlock will fail with
+"Invalid Argument" instead of BUG().  So the panic is gone post 2.6.11,
+but the problem remains.  We still are rounding incorrectly for
+hugepages in the sys_mlock and do_mlock functions.
 
-> If the input should not be used for anything
-> related to the port IO,
+This patch still solves the problem of the kernel currently being more
+restrictive on what we accept from userspace for the length of the mlock
+if it is a hugepage rather than a regular page.  With a regular page we
+will round the value from userspace and happily go about our business of
+mlocking.  For a hugepage it just rejects it if userspace doesn't align
+it themselves.  This allows the kernel to do the same work for hugepages
+that it does for normal pages.
 
-Input core itself should not. It is positioned not at physical
-device level. It gets and propagates events from individual
-drivers which talk to hardware, maybe via port IO. 
-  
->  then why it carries the information
-> about the ports and the bus that are used by the device?
-> Why does it have the INPUT_DEVICE_ID_MATCH_BUS after all?
+-Eric
 
-For userspace benefits.
-
-> The input API only lacks a very small piece of the functionality -
-> disabling the device, which can easily be used by anything else
-> in the future. Is there a reason not to include that functionality
-> only because the snd-pcsp is going to use it, or is there any *other*
-> reason?
->
-
-See above. Your module wants to access hardware concurrently with
-another module so implement it properly. While you are fine with
-disabling beeps while music is playing otherpeoplr might still want
-to hear them.
- 
---
-Dmitry

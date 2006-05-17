@@ -1,82 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWEQWHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWEQWMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751204AbWEQWHF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 18:07:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWEQWHF
+	id S1751205AbWEQWMA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 18:12:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbWEQWMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 18:07:05 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:13729 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1751204AbWEQWHD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 18:07:03 -0400
-Date: Wed, 17 May 2006 18:07:01 -0400
-From: Brice Goglin <brice@myri.com>
-To: netdev@vger.kernel.org
-Cc: gallatin@myri.com, linux-kernel@vger.kernel.org
-Subject: [PATCH 4/4] myri10ge - Kconfig and Makefile
-Message-ID: <20060517220700.GE13411@myri.com>
-References: <20060517220218.GA13411@myri.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060517220218.GA13411@myri.com>
-User-Agent: Mutt/1.5.9i
+	Wed, 17 May 2006 18:12:00 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:39043 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751205AbWEQWL7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 18:11:59 -0400
+Message-Id: <20060517221312.227391000@sous-sol.org>
+Date: Wed, 17 May 2006 15:13:12 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: [PATCH 00/22] -stable review
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 4/4] myri10ge - Kconfig and Makefile
+This is the start of the stable review cycle for the 2.6.16.17 release.
+There are 22 patches in this series, all will be posted as a response to
+this one.  If anyone has any issues with these being applied, please let
+us know.  If anyone is a maintainer of the proper subsystem, and wants
+to add a Signed-off-by: line to the patch, please respond with it.
 
-Add Kconfig and Makefile support for the myri10ge driver.
+These patches are sent out with a number of different people on the
+Cc: line.  If you wish to be a reviewer, please email stable@kernel.org
+to add your name to the list.  If you want to be off the reviewer list,
+also email us.
 
-Signed-off-by: Brice Goglin <brice@myri.com>
-Signed-off-by: Andrew J. Gallatin <gallatin@myri.com>
+Responses should be made by Fri, May 19 22:00 UTC.  Anything received
+after that time, might be too late.
 
- Kconfig           |   16 ++++++++++++++++
- Makefile          |    1 +
- myri10ge/Makefile |    5 +++++
- 3 files changed, 22 insertions(+)
+thanks,
 
---- linux-mm/drivers/net/Kconfig.old	2006-04-10 03:44:01.000000000 -0700
-+++ linux-mm/drivers/net/Kconfig	2006-04-18 03:49:11.000000000 -0700
-@@ -2327,6 +2327,23 @@ config S2IO_NAPI
- 
- 	  If in doubt, say N.
- 
-+config MYRI10GE
-+	tristate "Myricom Myri-10G Ethernet support"
-+	depends on PCI
-+	select FW_LOADER
-+	select CRC32
-+	---help---
-+	  This driver supports Myricom Myri-10G Dual Protocol interface in
-+	  Ethernet mode. If the eeprom on your board is not recent enough,
-+	  you will need a newer firmware image.
-+	  You may get this image or more information, at:
-+
-+	  <http://www.myri.com/Myri-10G/>
-+
-+	  To compile this driver as a module, choose M here and read
-+	  <file:Documentation/networking/net-modules.txt>.  The module
-+	  will be called myri10ge.
-+
- endmenu
- 
- source "drivers/net/tokenring/Kconfig"
---- linux-mm/drivers/net/Makefile.old	2006-04-08 04:49:53.000000000 -0700
-+++ linux-mm/drivers/net/Makefile	2006-04-21 08:10:27.000000000 -0700
-@@ -192,6 +192,7 @@ obj-$(CONFIG_R8169) += r8169.o
- obj-$(CONFIG_AMD8111_ETH) += amd8111e.o
- obj-$(CONFIG_IBMVETH) += ibmveth.o
- obj-$(CONFIG_S2IO) += s2io.o
-+obj-$(CONFIG_MYRI10GE) += myri10ge/
- obj-$(CONFIG_SMC91X) += smc91x.o
- obj-$(CONFIG_SMC911X) += smc911x.o
- obj-$(CONFIG_DM9000) += dm9000.o
---- /dev/null	2006-04-21 00:45:09.064430000 -0700
-+++ linux-mm/drivers/net/myri10ge/Makefile	2006-04-21 08:14:21.000000000 -0700
-@@ -0,0 +1,5 @@
-+#
-+# Makefile for the Myricom Myri-10G ethernet driver
-+#
-+
-+obj-$(CONFIG_MYRI10GE) += myri10ge.o
+the -stable release team

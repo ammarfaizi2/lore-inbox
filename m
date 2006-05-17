@@ -1,79 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbWEQMb2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932541AbWEQMjj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932540AbWEQMb2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 08:31:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932541AbWEQMb2
+	id S932541AbWEQMjj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 08:39:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbWEQMjj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 08:31:28 -0400
-Received: from fwstl1-1.wul.qc.ec.gc.ca ([205.211.132.24]:29089 "EHLO
-	ecstlaurent8.quebec.int.ec.gc.ca") by vger.kernel.org with ESMTP
-	id S932540AbWEQMb1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 08:31:27 -0400
-content-class: urn:content-classes:message
+	Wed, 17 May 2006 08:39:39 -0400
+Received: from web26605.mail.ukl.yahoo.com ([217.146.176.55]:20851 "HELO
+	web26605.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932541AbWEQMji (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 08:39:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=cfcW5LSEqcrLVCRdtiOkwARUMDXCKac1Pl2xvAIjoHe9VFXSJKIrQMWzSPYW5Y/b5romfaJDuA/qG/wJaNOkEIy65/vEgRI7aTpm3CCgXRJhz+EEROwwWTAywt/YWbpbemgDrNcfRkLU0qe1oyyKrTFYwzYcvztvdnD5SsuHpZA=  ;
+Message-ID: <20060517123937.75295.qmail@web26605.mail.ukl.yahoo.com>
+Date: Wed, 17 May 2006 14:39:37 +0200 (CEST)
+From: linux cbon <linuxcbon@yahoo.fr>
+Subject: Re: replacing X Window System !
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200605171218.k4HCIt4L013978@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-Subject: Kernel vs drivers releases?
-Date: Wed, 17 May 2006 08:31:27 -0400
-Message-ID: <8E8F647D7835334B985D069AE964A4F7024640@ECQCMTLMAIL1.quebec.int.ec.gc.ca>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Kernel vs drivers releases?
-Thread-Index: AcZ5ct6jeF6VeHGPSFy+BAFxNPoufAANp4GQ
-From: "Fortier,Vincent [Montreal]" <Vincent.Fortier1@EC.GC.CA>
-To: "LKML" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 17 May 2006 12:31:27.0122 (UTC) FILETIME=[D11C1720:01C679AD]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ --- Valdis.Kletnieks@vt.edu a écrit : 
+> On Wed, 17 May 2006 13:47:22 +0200, linux cbon said:
+> 
+> If it isn't backward compatible, people won't use
+> it.  X may suck,
+> but it doesn't suck hard enough that people will
+> abandon all their
+> currently mostly-working software.
 
-I woke up this morning with an idea and I tought I could ask what people
-think about it...  I might be completely wrong but anyway..
+If we have a new window system, shall all applications
+be rewritten ?
 
-I've read a lot of stuff on linux 2.6 development model which makes
-either people happy or unhappy of it's really fast development speed (I
-love lwn.net kernel readings... keep up the good work!).
 
-To make the stable branch more "stable" there is even now a 2.6.x.y set
-of patches which seems to be making a really nice jobs on fixing
-critical (or really important) stuff (again, keep up the good work!)
+> Actually, you've proved the opposite.  Consider if
+> the kernel had *already*
+> included some universal window system (we'll call it
+> W). At that point, you
+> can't easily write an X, Y, or Z if you don't like
+> W.  If anything, the
+> *current* W (which happens to be called X11) is
+> *too* friendly with the kernel
+> already - witness all the headaches dealing with DRM
+> and 'enable' attributes
+> and other hoops things have to jump through.
+> 
+> If anything, there should be even *less* kernel
+> support for graphics.
+> That way, writing a Y or Z (or improving X) is
+> easier to do without
+> destabilizing the kernel.
 
-One thing that I've heard most was that, using this fast development
-model a lot of newer hardware gets supported quickly (also a lot of new
-features...)
+My idea is that the kernel should include universal
+graphical support.
+And then we would NOT need ANY window system AT ALL.
+We wouldnt have 2 os (kernel and X) at the same time
+like now.
+It would be faster, simpler, easier to manage etc.
 
-On the other hand many people want's to get a full stabilisation of the
-actual API... Maybie even get back to a fully independant stable vs dev
-tree like it used to (2.6 vs 2.7) ?  This might have been partially
-addressed by the new 2.6.x.y scheme although I don't get a feeling that
-everybody is totally happy with it.
 
-This morning I tought of another approach... Maybie somebody already
-suggested that earlier?
 
-Why not completely separate the kernel part from the driver part?
 
-We could get a bit slower development cycle on the kernel side (maybie
-2-4 kernel / years) and get a really fast development cycle for the
-driver set (1 / month)?
 
-This would:
-- Make people feel that the kernel API is more "stable"
-- Keep the 2.6.x.y scheme running the same way to make the kernel API
-even more stable
-- Make new hardware supported even more rapidly
 
-End-users could eventually simply upgrade their driver set without
-updating the whole kernel ... Simplifying a lot (at least I think) the
-"update" process for both the end-user and the Linux distributor.
+	
 
-A new 3.0 kernel could be started using this scheme with it's associated
-driver set?  Then a dev 3.1 for 3 to 6 months to finally get to a stable
-3.2 kernel with it's associated driver set?
-
-Am I completely wrong?
-
-- vin
+	
+		
+___________________________________________________________________________ 
+Faites de Yahoo! votre page d'accueil sur le web pour retrouver directement vos services préférés : vérifiez vos nouveaux mails, lancez vos recherches et suivez l'actualité en temps réel. 
+Rendez-vous sur http://fr.yahoo.com/set

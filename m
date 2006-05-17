@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWEQQM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWEQQPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbWEQQM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 12:12:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbWEQQM0
+	id S1750783AbWEQQPV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 12:15:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbWEQQPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 12:12:26 -0400
-Received: from speedy.tutby.com ([195.137.160.40]:55686 "EHLO tut.by")
-	by vger.kernel.org with ESMTP id S1750790AbWEQQMZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 12:12:25 -0400
-Message-ID: <446B4B60.9070307@tut.by>
-Date: Wed, 17 May 2006 19:12:16 +0300
-From: Stas Myasnikov <myst@tut.by>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+	Wed, 17 May 2006 12:15:21 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:3021 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750783AbWEQQPV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 12:15:21 -0400
+Message-ID: <446B4BF9.4000800@zytor.com>
+Date: Wed, 17 May 2006 09:14:49 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: linux cbon <linuxcbon@yahoo.fr>
-CC: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: replacing X Window System !
-References: <20060517155325.68734.qmail@web26604.mail.ukl.yahoo.com>
-In-Reply-To: <20060517155325.68734.qmail@web26604.mail.ukl.yahoo.com>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+To: Miklos Szeredi <miklos@szeredi.hu>
+CC: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       akpm@osdl.org
+Subject: Re: klibc build broken on UML
+References: <E1FgNkr-00024G-00@dorka.pomaz.szeredi.hu>
+In-Reply-To: <E1FgNkr-00024G-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
->>>> But that would greatly simplify the whole
->> system.
->>
->>> Yeah, adding 124 meg to a 4.2M kernel will
->> simplify it...
->>
->> Still quadruples the size and even worse on
->> complexity...
+Miklos Szeredi wrote:
+> [resent because prev. post bounced on hpa and akpm due to mail problems here]
 > 
+> I get this on 2.6.17-rc4-mm1:
 > 
-> Are all those 124 meg *really* usefull ?
-> Thats why it should be rewritten from scratch or
-> better, redesigned...
+>   CHK     include/linux/compile.h
+> /usr/src/quilt/linux/scripts/Kbuild.klibc:60: /usr/src/quilt/linux/usr/klibc/arch/um/MCONFIG: No such file or directory
+> usr/klibc/Kbuild:71: usr/klibc/arch/um/Makefile.inc: No such file or directory
+> make[2]: *** No rule to make target `usr/klibc/arch/um/Makefile.inc'.  Stop.
+> make[1]: *** [_usr_klibc] Error 2
+> make: *** [usr] Error 2
+> 
+> Miklos
 
-So, do it :-)
+Known and fixed in my git tree already.
 
-Stas
+	-hpa

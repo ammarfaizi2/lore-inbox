@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932552AbWEQNoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932554AbWEQNqc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932552AbWEQNoA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 09:44:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbWEQNoA
+	id S932554AbWEQNqc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 09:46:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbWEQNqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 09:44:00 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:19342 "EHLO
+	Wed, 17 May 2006 09:46:32 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:59540 "EHLO
 	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932552AbWEQNn7 convert rfc822-to-8bit (ORCPT
+	id S932554AbWEQNqb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 09:43:59 -0400
+	Wed, 17 May 2006 09:46:31 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lJryaaIgm/2W/zggwYan0oiOOiFWocLyUVYbSBCQ3QhF4GoKSsAD/0gGZQPJ/2EXhlFWbxnylFg+OsE26WJ31taWprjB5kUXde5OV/1QF8Ik/Fhn7XRR2iVpYwdQOzYU4ZfukXmQ46RgF13qiOpIVORuYHRrn1Nas8kL/on+cOI=
-Message-ID: <3b0ffc1f0605170643t4558386ex35c02de169b5b205@mail.gmail.com>
-Date: Wed, 17 May 2006 09:43:58 -0400
-From: "Kevin Radloff" <radsaq@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: libata PATA updated patch
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1147873096.10470.19.camel@localhost.localdomain>
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=rADtVaJaMPVgGunSMPdf6pphJ/MEqT778W2IwKeVLduH9madAzg+Jvkh8ItPchKjiAd/JVHDnMnt3ceXbyjLqbwHmks40Cw2U8eww5Ea3LVZ6uEagIOWux4Kpqi/2gE9dc+rr/rbGeFcteSmchm+WrGNbGOcj2NHvDzMasRF53c=
+Message-ID: <b6c5339f0605170646ya421b70w9354544b3390e74b@mail.gmail.com>
+Date: Wed, 17 May 2006 09:46:30 -0400
+From: "Bob Copeland" <me@bobcopeland.com>
+To: "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>
+Subject: Re: replacing X Window System !
+Cc: "linux cbon" <linuxcbon@yahoo.fr>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060517132403.GB23933@csclub.uwaterloo.ca>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII;
 	format=flowed
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <1147796037.2151.83.camel@localhost.localdomain>
-	 <3b0ffc1f0605161303paabdbfk56fe91e4156fe085@mail.gmail.com>
-	 <3b0ffc1f0605170558h5072b407pa4127abe3743553f@mail.gmail.com>
-	 <1147873096.10470.19.camel@localhost.localdomain>
+References: <200605171218.k4HCIt4L013978@turing-police.cc.vt.edu>
+	 <20060517123937.75295.qmail@web26605.mail.ukl.yahoo.com>
+	 <20060517132403.GB23933@csclub.uwaterloo.ca>
+X-Google-Sender-Auth: 26d41cdfbcd2637c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/17/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Mer, 2006-05-17 at 08:58 -0400, Kevin Radloff wrote:
-> > Okay, I was wrong. :( Sometimes the IDE adapter doesn't resume after
-> > unsuspending (suspend to RAM) or something like that. Whatever is
-> > happening the disks are inaccessible though, so it's hard to get the
-> > exact details.
+On 5/17/06, Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
+> On Wed, May 17, 2006 at 02:39:37PM +0200, linux cbon wrote:
+> > If we have a new window system, shall all applications
+> > be rewritten ?
 >
-> Linux does not support suspend/resume with any kind of IDE disk, PATA or
-> SATA. It happens to work for many cases. Full suspend/resume support is
-> on its way and some of it should be in 2.6.18 or so.
+> Unless you make your new system compatible with X, then all X
+> applications must be rewritten.
 
-Ah.. Should I not bother investigating the regression and just wait instead? :)
+True for things written directly with Xlib, but hardly anything new is
+written without a toolkit these days.  E.g. someone could port GDK to
+the new windowing system of the week and all GTK+ applications would
+work.  Though I won't disagree that the idea is pointless.
 
--- 
-Kevin 'radsaq' Radloff
-radsaq@gmail.com
-http://thesaq.com/
+Bob

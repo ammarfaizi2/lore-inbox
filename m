@@ -1,79 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWEQQgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWEQQsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWEQQgb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 12:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbWEQQgb
+	id S1750711AbWEQQsG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 12:48:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWEQQsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 12:36:31 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:32387 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750703AbWEQQgb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 12:36:31 -0400
-Subject: Re: [linux-usb-devel] [PATCH/RFC 2.6.17-rc4 1/1]
-	usbvideo/quickcam_messenger driver v4
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Jaya Kumar <jayakumar.video@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       video4linux-list@redhat.com
-In-Reply-To: <70066d530605162314o5281a0b7yb933a1f405bc747c@mail.gmail.com>
-References: <200605170236.k4H2avIu014840@localhost.localdomain>
-	 <70066d530605162314o5281a0b7yb933a1f405bc747c@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Wed, 17 May 2006 13:35:29 -0300
-Message-Id: <1147883729.19297.1.camel@praia>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1-2mdk 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 17 May 2006 12:48:05 -0400
+Received: from osa.unixfolk.com ([209.204.179.118]:25300 "EHLO
+	osa.unixfolk.com") by vger.kernel.org with ESMTP id S1750711AbWEQQsD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 12:48:03 -0400
+Date: Wed, 17 May 2006 09:47:59 -0700 (PDT)
+From: Dave Olson <olson@unixfolk.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: "Bryan O'Sullivan" <bos@pathscale.com>, openib-general@openib.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 35 of 53] ipath - some interrelated stability and
+ cleanliness fixes
+In-Reply-To: <fa.yXZlqXBzNi9Gq/4Q6Wc9H6bw+lU@ifi.uio.no>
+Message-ID: <Pine.LNX.4.61.0605170944570.22323@osa.unixfolk.com>
+References: <fa.2ho1QSA8Kf7L8EFqp3rLsB7NE9s@ifi.uio.no>
+ <fa.yXZlqXBzNi9Gq/4Q6Wc9H6bw+lU@ifi.uio.no>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Jaya,
+On Mon, 15 May 2006, Roland Dreier wrote:
 
+| This looks like a pastiche of several patches.  Why can't it be split
+| up into logical pieces?
+| 
+|  > Call dma_free_coherent without ipath_mutex held.
+| 
+| Why?  Doesn't freeing work with the mutex held?
 
-Please send the patches again. All arrived here with a "> " before every
-patch line.
+Sure, that's the way the previous code worked.
 
-Cheers,
-Mauro.
+We are seeing a bug (with both our driver native MPI processes and mthca mvapic),
+where when 8 processes using "simultaneously exit", we get watchdogs and/or hangs
+in the close routines.   Moving the freeing outside the mutex was an attempt
+to see if we were running into some VM issues by doing lots of page unlocking
+and freeing with the mutex held.   It seemed to help somewhat, but not to solve
+the problem.
 
-Em Qua, 2006-05-17 às 14:14 +0800, Jaya Kumar escreveu:
-> [ My apologies again. Adding Mauro and video4linux-list to CC list. ]
-> 
-> On 5/17/06, jayakumar.video@gmail.com <jayakumar.video@gmail.com> wrote:
-> > [ sorry, bungled the l-u-devel list address and subject in prev email ]
-> >
-> > Hi Greg KH, USB folk, kernel folk,
-> >
-> > Appended is v4 of my patch adding a usbvideo driver for the Logitech
-> > Quickcam Messenger USB webcam. This patch has been rebased against
-> > 2.6.17-rc4 as per Greg's feedback.
-> >
-> > Please let me know if it looks okay and if you have any feedback
-> > or suggestions.
-> >
-> > Thanks,
-> > Jaya Kumar
-> >
-> > Signed-off-by: Jaya Kumar <jayakumar.video@gmail.com>
-> >
-> > ---
-> >
-> >  Kconfig              |   12
-> >  Makefile             |    1
-> >  quickcam_messenger.c | 1120 +++++++++++++++++++++++++++++++++++++++++++++++++++
-> >  quickcam_messenger.h |  126 +++++
-> >  4 files changed, 1259 insertions(+)
-> >
-> > ---
-> >
-> > diff -X linux-2.6.17-rc4/Documentation/dontdiff -uprN linux-2.6.17-rc4-vanilla/drivers/media/video/usbvideo/Kconfig linux-2.6.17-rc4/drivers/media/video/usbvideo/Kconfig
-> > --- linux-2.6.17-rc4-vanilla/drivers/media/video/usbvideo/Kconfig       2006-05-17 08:11:36.000000000 +0800
-> > +++ linux-2.6.17-rc4/drivers/media/video/usbvideo/Kconfig       2006-05-17 08:39:51.674492008 +0800
-> > @@ -36,3 +36,15 @@ config USB_KONICAWC
-> >
-> >          To compile this driver as a module, choose M here: the
-> >          module will be called konicawc.
+It also allows other processes to open and close in a somewhat more timely
+fashion.
 
-
+Dave Olson
+olson@unixfolk.com
+http://www.unixfolk.com/dave

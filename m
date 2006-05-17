@@ -1,37 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWEQFVT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWEQFYH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbWEQFVT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 01:21:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWEQFVS
+	id S932132AbWEQFYH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 01:24:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbWEQFYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 01:21:18 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:3267 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S932131AbWEQFVS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 01:21:18 -0400
-Message-Id: <200605170521.k4H5L22g031335@zeus1.kernel.org>
-From: "Mrs.Amina.A Bello." <amina_abello01@she.com>
-Reply-To: amina_abello01@she.com
-To: linux-kernel@vger.kernel.org
-Date: Wed, 17 May 2006 12:21:20 +0700
-Subject: KIND UNDERSTANING FROM MRS AMINA BELLO
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+	Wed, 17 May 2006 01:24:07 -0400
+Received: from mail.gmx.de ([213.165.64.20]:441 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932132AbWEQFYG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 01:24:06 -0400
+X-Authenticated: #14349625
+Subject: Re: Regression seen for patch "sched:dont decrease idle sleep avg"
+From: Mike Galbraith <efault@gmx.de>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: tim.c.chen@linux.intel.com, Con Kolivas <kernel@kolivas.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       linux-kernel@vger.kernel.org, mingo@elte.hu,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <446AAA6D.9080401@bigpond.net.au>
+References: <4t16i2$12rqnu@orsmga001.jf.intel.com>
+	 <200605160945.13157.kernel@kolivas.org>
+	 <1147822331.4859.37.camel@localhost.localdomain>
+	 <1147839913.8335.35.camel@homer>  <446AAA6D.9080401@bigpond.net.au>
+Content-Type: text/plain
+Date: Wed, 17 May 2006 07:24:41 +0200
+Message-Id: <1147843481.8335.53.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please reply to my private email address
-From: Mrs.Amina.A Bello. 
-Private Email:amina_abello01@she.com 
-Attn:The Managing Director 
-Before I proceed, may I humbly introduce myself to your goodself, My Name is Mrs. Amina.A.Bello, an Iraqi refugee ,my husband was until recently, one of the personal aid to the president of Iraq who was formerly overthrown out of power by American Government . 
-Prior to this last serious crisis that is still ravaging in my country,which recently led to misfortune of our government and my late husband position as the personal aid to the president, we were able to come over here in Thailand ,we inherited the sum of US11 million.The funds were originally gotten from my late husband proceeds. My late husband was able to safe guard the fund with a very good diplomatic contact from my Country. 
-I have decided to contact you because I am interested in investing in your country which is investment friendly. Please kindly guide and assist me in making the right investment since I am also interested in buying a residential property as I will be moving my family over there as soon as every thing regarding technical and logictics details is worked out and ascertained to our respective satisfaction. In view of your participation,I am ready to give you a good negotiable percentage for your assistance,or better still commit it into viable Joint venture projects,be assured that you stand no risk of any kind as the funds belong to me and my only survived son. As soon as I get your consent, we will quickly move this fund to your country for investment . 
-However, upon your acceptance to work as my partner, you can contact me with my private telephone number or e-mail for more details. 
-I am here with my only surviving son Musa, I strongly believe that associating with you to embark on this and other business ventures will derive a huge success here after, please include your private contact telephone number and private e-mail when replying. 
-Yours Sincerely. 
-Mrs.Amina.A.Bello. 
+On Wed, 2006-05-17 at 14:45 +1000, Peter Williams wrote:
+> Mike Galbraith wrote:
+> > On Tue, 2006-05-16 at 16:32 -0700, Tim Chen wrote:
+> >> On Tue, 2006-05-16 at 09:45 +1000, Con Kolivas wrote:
+> >>
+> >>> Yes it's only designed to detect something that has been asleep for an 
+> >>> arbitrary long time and "categorised as idle"; it is not supposed to be a 
+> >>> priority stepping stone for everything, in this case at MAX_BONUS-1. Mike 
+> >>> proposed doing this instead, but it was never my intent. 
+> >> It seems like just one sleep longer than INTERACTIVE_SLEEP is needed
+> >> kick the priority of a process all the way to MAX_BONUS-1 and boost the
+> >> sleep_avg, regardless of what the prior sleep_avg was.
+> >>
+> >> So if there is a cpu hog that has long sleeps occasionally, once it woke
+> >> up, its priority will get boosted close to maximum, likely starving out
+> >> other processes for a while till its sleep_avg gets reduced.  This
+> >> behavior seems like something to avoid according to the original code
+> >> comment.  Are we boosting the priority too quickly?  
+> > 
+> > The answer to that is, sometimes yes, and when it bites, it bites hard.
+> > Happily, most hogs don't sleep much, and we don't generally have lots of
+> > bursty sleepers.
+> > 
+> 
+> But it's easy for a malicious user to exploit.  Yes?
 
+Without limits, sure.  Burn malicious idiot's library card :)  The real
+pain begins when you start examining legitimate loads.  It _can_ get
+really and truly fugly.  Generally doesn't.
+
+	-Mike
 

@@ -1,67 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbWEQMrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbWEQMsa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932542AbWEQMrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 08:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbWEQMrJ
+	id S932546AbWEQMsa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 08:48:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbWEQMsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 08:47:09 -0400
-Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:9417 "EHLO
-	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932542AbWEQMrI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 08:47:08 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Regression seen for patch "sched:dont decrease idle sleep avg"
-Date: Wed, 17 May 2006 22:46:37 +1000
-User-Agent: KMail/1.9.1
-Cc: Mike Galbraith <efault@gmx.de>, tim.c.chen@linux.intel.com,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, mingo@elte.hu,
-       Andrew Morton <akpm@osdl.org>
-References: <4t16i2$12rqnu@orsmga001.jf.intel.com> <200605172025.22626.kernel@kolivas.org> <1147866161.7676.31.camel@homer>
-In-Reply-To: <1147866161.7676.31.camel@homer>
+	Wed, 17 May 2006 08:48:30 -0400
+Received: from mail.gmx.de ([213.165.64.20]:16586 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932546AbWEQMs3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 08:48:29 -0400
+X-Authenticated: #13243522
+Message-ID: <446B1B9C.5090003@gmx.de>
+Date: Wed, 17 May 2006 14:48:28 +0200
+From: Michael Schierl <schierlm@gmx.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.8) Gecko/20051201 Thunderbird/1.5 Mnenhy/0.7.3.0
 MIME-Version: 1.0
-Content-Disposition: inline
-X-Length: 2731
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "zhao, forrest" <forrest.zhao@intel.com>
+CC: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: AHCI suspend works for me! (was: [ANNOUNCE] libata: new EH, NCQ,
+ hotplug and PM patches against stable kernel)
+References: <20060512132437.GB4219@htj.dyndns.org>	 <e4coc8$onk$1@sea.gmane.org> <4469E8CF.9030506@garzik.org>	 <4469EC4A.30908@gmx.de> <1147829339.7273.97.camel@forrest26.sh.intel.com>
+In-Reply-To: <1147829339.7273.97.camel@forrest26.sh.intel.com>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=58B48CDD
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-Message-Id: <200605172246.39444.kernel@kolivas.org>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 17 May 2006 21:42, Mike Galbraith wrote:
-> Fair?  I said interactivity wise.  But what the heck, if we're talking
-> fairness, I can say the same thing about I/O bound tasks.  Heck, it's
-> not fair to stop any task from reaching the top, and it's certainly not
-> fair to let them have (for all practical purposes) all the cpu they want
-> once they sleep enough.
+zhao, forrest schrieb:
+>> And - what SATA ACPI patches?
+>>
+>> I have quite alot of patches related to sata and/or acpi (collected from
+>> different mailing lists) here on hard disk but don't know which ones are
+>> broken, outdated, etc. Most only apply on a 2.6.15 or 2.6.14-rc kernel...
+>>
+>> If more recent patches are only available via git, I'd need some good
+>> GIT tutorial first...
+>>
+>> TIA, and sorry for stealing your time,
+>>
+>> Michael
+> Michael,
+> 
+> I ported a patch from OpenSUSE for AHCI suspend/resume. You may find the
+> patch at:
+> y
 
-Toss out the I/O bound thing and we turn into a steaming dripping pile of dog 
-doo whenever anything does disk I/O. And damned if there aren't a lot of pcs 
-that have hard disks... 
+I cannot see any patch in this mail...
 
-> Shoot, the scheduler is unfair even without any 
-> interactivity code.  Long term, it splits tasks into two groups... those
-> that sleep for more than 50% of the time... yack yack yack... zzzzz
->
-> Let's stick to the interactivity side :)
+However, the patch linked there "indirectly",
 
-It's a deal.
+http://www.spinnaker.de/linux/c1320/sata-resume-2.6.16.5.patch
 
-> > only ever sleeps for long sleeps to prevent it getting as good priority
-> > as anything else that uses only 1% cpu. I've noticed that 'top' suffers
-> > this fate for example. The problem I've had all along with thud as a test
-> > case is that while it causes a pause on the system for potentially a few
-> > seconds, it does this by raising the load transiently to a load of 50 (or
-> > whatever you set it to). I have no problem with a system having a hiccup
-> > when the load is 50, provided the system eventually recovers and isn't
-> > starved forever (which it isn't). There are other means to prevent one
-> > user having that many running tasks if so desired.
->
-> Three of the little buggers are enough to cause plenty of pain.
+applies well on vanilla 2.6.16 (although not on top of the "new EH"
+patch) and is the first one that really works (as far as I tested it).
 
-Spits and stutters are not starvation. Luckily it gets no worse with this 
-patch.
+I tested it on a minimal kernel (no network no sound no nothing); I'll
+build a new "non-minimal" kernel now :) If I run into any problems; I'll
+tell you.
 
--- 
--ck
+Thank you.
+
+Michael

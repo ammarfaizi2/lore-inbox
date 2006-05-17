@@ -1,106 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932550AbWEQMw0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWEQMys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932550AbWEQMw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 08:52:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbWEQMw0
+	id S932261AbWEQMys (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 08:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbWEQMys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 08:52:26 -0400
-Received: from cernmx05.cern.ch ([137.138.166.161]:64602 "EHLO
-	cernmxlb.cern.ch") by vger.kernel.org with ESMTP id S932548AbWEQMwZ
+	Wed, 17 May 2006 08:54:48 -0400
+Received: from mtagate4.uk.ibm.com ([195.212.29.137]:19010 "EHLO
+	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP id S932261AbWEQMys
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 08:52:25 -0400
-Keywords: CERN SpamKiller Note: -49 Charset: west-latin
-X-Filter: CERNMX05 CERN MX v2.0 051012.1312 Release
-Mime-Version: 1.0 (Apple Message framework v749.3)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-27--88054423"
-Message-Id: <52856E4D-6645-4FB1-A8E8-56CA62C9B9AC@e18.physik.tu-muenchen.de>
+	Wed, 17 May 2006 08:54:48 -0400
+Subject: Re: [RFC] [Patch 2/8] statistics infrastructure - prerequisite:
+	parser enhancement
+From: Martin Peschke <mp3@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060516111141.1cff68e9.akpm@osdl.org>
+References: <446A0FBE.2030105@de.ibm.com>
+	 <20060516111141.1cff68e9.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 17 May 2006 14:54:36 +0200
+Message-Id: <1147870476.6361.20.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-Subject: crash below shrink_dcache_memory
-Date: Wed, 17 May 2006 14:52:33 +0200
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-X-Pgp-Agent: GPGMail 1.1 (Tiger)
-X-Mailer: Apple Mail (2.749.3)
-X-OriginalArrivalTime: 17 May 2006 12:52:22.0019 (UTC) FILETIME=[BD162D30:01C679B0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2006-05-16 at 11:11 -0700, Andrew Morton wrote:
+> Your email client does space-stuffing, so this won't apply (ok, it might
+> apply if my email client knew how to space-unstuff, but it doesn't).
 
---Apple-Mail-27--88054423
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Okay, I got rid of my email client's space-stuffing (and of my former
+email client, for that matter). I will resend my patches.
 
-Hi!
+> > diff -Nurp a/lib/parser.c b/lib/parser.c
+> > --- a/lib/parser.c	2006-03-20 06:53:29.000000000 +0100
+> > +++ b/lib/parser.c	2006-05-15 17:56:25.000000000 +0200
+> > @@ -140,6 +140,64 @@ static int match_number(substring_t *s,
+> >   }
+> > 
+> >   /**
+> > + * match_u64: scan a number in the given base from a substring_t
+> > + * @s: substring to be scanned
+> > + * @result: resulting integer on success
+> > + * @base: base to use when converting string
+> > + *
+> > + * Description: Given a &substring_t and a base, attempts to parse the substring
+> > + * as a number in that base. On success, sets @result to the u64 represented
+> > + * by the string and returns 0. Returns either -ENOMEM or -EINVAL on failure.
+> > + */
+> > +int match_u64(substring_t *s, u64 *result, int base)
+> > +{
+> > +	char *endp;
+> > +	char *buf;
+> > +	int ret;
+> > +
+> > +	buf = kmalloc(s->to - s->from + 1, GFP_KERNEL);
+> > +	if (!buf)
+> > +		return -ENOMEM;
+> > +	memcpy(buf, s->from, s->to - s->from);
+> > +	buf[s->to - s->from] = '\0';
+> > +	*result = simple_strtoull(buf, &endp, base);
+> > +	ret = 0;
+> > +	if (endp == buf)
+> > +		ret = -EINVAL;
+> > +	kfree(buf);
+> > +	return ret;
+> > +}
+> > +
+> > +/**
+> > + * match_s64: scan a number in the given base from a substring_t
+> > + * @s: substring to be scanned
+> > + * @result: resulting integer on success
+> > + * @base: base to use when converting string
+> > + *
+> > + * Description: Given a &substring_t and a base, attempts to parse the substring
+> > + * as a number in that base. On success, sets @result to the s64 represented
+> > + * by the string and returns 0. Returns either -ENOMEM or -EINVAL on failure.
+> > + */
+> > +int match_s64(substring_t *s, s64 *result, int base)
+> > +{
+> > +	char *endp;
+> > +	char *buf;
+> > +	int ret;
+> > +
+> > +	buf = kmalloc(s->to - s->from + 1, GFP_KERNEL);
+> > +	if (!buf)
+> > +		return -ENOMEM;
+> > +	memcpy(buf, s->from, s->to - s->from);
+> > +	buf[s->to - s->from] = '\0';
+> > +	*result = simple_strtoll(buf, &endp, base);
+> > +	ret = 0;
+> > +	if (endp == buf)
+> > +		ret = -EINVAL;
+> > +	kfree(buf);
+> > +	return ret;
+> > +}
+> 
+> These are identical.  If we _really_ need one for signed and one for
+> unsigned then we could at least do
 
-We're having trouble here with our data acquisition systems when  
-recording some 10MB/s from a PCI card to a file on NFS, using write 
-()'s of about 8kB. I thought is was connected to running X at the  
-same time, but without X it also happened and I got part of a backtrace:
+I am going to remove match_u64. My code doesn't use it anymore.
 
-[scrolled off]
-kdb
-die
-vprintk
-do_page_fault
-do_page_fault
-iput
-load_balance_newidle
-schedule
-do_page_fault
-error_code
-nfs_dentry_iput
-iput
-nfs_dentry_iput
-prune_dcache
-shrink_dcache_memory
-shrink_slab
-balance_pgdat
-prepare_to_wait
-kswapd
-[...]
-
-The system is Scientific Linux CERN 4.3, based on RHEL4, kernel  
-2.6.9-34.EL.cernsmp, running on a two-way Xeon. What I'd like to know  
-is whether a page fault can legally happen while shrinking the  
-dcache; this sounds a bit counterintuitive to me. If anyone has an  
-idea where to look for the cause of the crash, you're welcome.
-
-Ciao,
-                     Roland
-
---
-TU Muenchen, Physik-Department E18, James-Franck-Str., 85748 Garching
-Telefon 089/289-12575; Telefax 089/289-12570
---
-CERN office: 892-1-D23 phone: +41 22 7676540 mobile: +41 76 487 4482
---
-UNIX was not designed to stop you from doing stupid things, because that
-would also stop you from doing clever things.
-	-Doug Gwyn
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GS/CS/M/MU d-(++) s:+ a-> C+++ UL++++ P+++ L+++ E(+) W+ !N K- w--- M 
-+ !V Y+
-PGP++ t+(++) 5 R+ tv-- b+ DI++ e+++>++++ h---- y+++
-------END GEEK CODE BLOCK------
-
-
-
-
-
---Apple-Mail-27--88054423
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (Darwin)
-
-iD8DBQFEaxycI4MWO8QIRP0RAo5bAJ9qHLgC0NDi5ENAl7D0YgW7mwBlzQCgsjsf
-jq/pdIdsfL+290JnkA8P3l0=
-=luPU
------END PGP SIGNATURE-----
-
---Apple-Mail-27--88054423--

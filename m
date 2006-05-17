@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932566AbWEQONd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932567AbWEQORm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932566AbWEQONd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 10:13:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbWEQONd
+	id S932567AbWEQORm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 10:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932568AbWEQORm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 10:13:33 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63668 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932566AbWEQONd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 10:13:33 -0400
-Date: Wed, 17 May 2006 10:13:07 -0400
-From: Alan Cox <alan@redhat.com>
-To: Linux and Kernel Video <video4linux-list@redhat.com>
-Cc: Alan Cox <alan@redhat.com>, linux-usb-devel@lists.sourceforge.net,
-       usb-storage@lists.one-eyed-alien.net, linux-kernel@vger.kernel.org,
-       "'Mauro Carvalho Chehab'" <mchehab@infradead.org>,
-       v4l-dvb-maintainer@linuxtv.org, mdharm-usb@one-eyed-alien.net
-Subject: Re: [usb-storage] Re: [v4l-dvb-maintainer] 2.6.16-rc: saa7134 + u sb-storage = freeze
-Message-ID: <20060517141307.GB23095@devserv.devel.redhat.com>
-References: <820212CF2FD63647B52A8F64B35352B20B942298@essomaexc1.essvote.com> <20060315234421.GB4414@devserv.devel.redhat.com> <20060315234918.GJ4454@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060315234918.GJ4454@stusta.de>
-User-Agent: Mutt/1.4.1i
+	Wed, 17 May 2006 10:17:42 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:48900 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S932567AbWEQORl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 10:17:41 -0400
+Message-ID: <446B3082.1000200@argo.co.il>
+Date: Wed, 17 May 2006 17:17:38 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Joerg Pommnitz <pommnitz@yahoo.com>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Wiretapping Linux?
+References: <20060517132503.79272.qmail@web51410.mail.yahoo.com>
+In-Reply-To: <20060517132503.79272.qmail@web51410.mail.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 May 2006 14:17:39.0481 (UTC) FILETIME=[A754E890:01C679BC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 16, 2006 at 12:49:18AM +0100, Adrian Bunk wrote:
-> > A lot of this is BIOS dependant and if we can isolate cases where one
-> > BIOS works and another doesn't an lspci -vvxxx would be helpful so we
-> > can look for chipset pokery
-> 
-> It's below.
+Joerg Pommnitz wrote:
+> --- Avi Kivity schrieb:
+>   
+>> A pci device can read system RAM and other memory-mapped PCI devices 
+>> (such as display framebuffers) using DMA. In addition, a pci (but not 
+>> pci-express) device can snoop on pci bus traffic to other devices. 
+>> Typically, however, hard drive controllers will be integrated into the 
+>> chipset so the data is not on the bus.
+>>     
+>
+> Thanks for providing this information. This makes the binary firmware
+> required for peripherals even more interesting for security conscious
+> people.
+>   
 
-Vendor fix went to the ide maintainer and to me for the libata ALi driver
-so ATA/ATAPI should all work now. Not clear if that also fixes the non IDE
-cases but would be useful to know
+Note that some machines have IOMMUs so it may be possible to prevent a 
+device from reading main memory, perhaps at a performance cost.
+
+My AMD machine disables the IOMMU on startup.
+
+If you don't trust your hardware there are only two solutions: keep it 
+off the net or keep it off.
+
+-- 
+error compiling committee.c: too many arguments to function
 

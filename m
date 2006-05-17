@@ -1,80 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWEQE7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWEQE5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932097AbWEQE7r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 00:59:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWEQE7r
+	id S1751276AbWEQE5T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 00:57:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWEQE5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 00:59:47 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:41151 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751259AbWEQE7q (ORCPT
+	Wed, 17 May 2006 00:57:19 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:64197 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S1751271AbWEQE5T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 00:59:46 -0400
-Date: Tue, 16 May 2006 21:56:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Tejun Heo <htejun@gmail.com>
-Cc: jeff@garzik.org, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [RFT] major libata update
-Message-Id: <20060516215610.2b822c00.akpm@osdl.org>
-In-Reply-To: <446AAB3C.6050303@gmail.com>
-References: <20060515170006.GA29555@havoc.gtf.org>
-	<20060516190507.35c1260f.akpm@osdl.org>
-	<446AAB3C.6050303@gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 17 May 2006 00:57:19 -0400
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@ocs.com.au>
+To: Drew Moseley <dmoseley@mvista.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Unnecessary warnings in smp_send_stop on i386 arch. 
+In-reply-to: Your message of "Tue, 16 May 2006 19:43:05 MST."
+             <200605161943.06024.dmoseley@mvista.com> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Date: Wed, 17 May 2006 14:56:06 +1000
+Message-ID: <17725.1147841766@ocs3>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo <htejun@gmail.com> wrote:
+Drew Moseley (on Tue, 16 May 2006 19:43:05 -0700) wrote:
+>I noticed a scenario where an i386 kernel would print warning messages
+>about smp_send_stop() being called with interrupts off.  This can happen
+>both from panic() and from machine_restart in arch/i386/kernel/reboot.c
+>if called from an interrupt handler.  To reproduce I added a sysrq handler
+>that simply called panic().
 >
-> Hello, Andrew.
-> 
-> Andrew Morton wrote:
-> [--snip--]
-> > [   44.719422] ata2.00: cfg 49:0f00 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000 88:101f
-> > [   44.719425] ata2.00: ATAPI, max UDMA/66
-> > [   44.765263] ata2.00: applying bridge limits
-> > [   74.928836] ata2.01: qc timeout (cmd 0xa1)
-> > [   74.977811] ata2.01: failed to IDENTIFY (I/O error, err_mask=0x4)
-> > [   75.468853] ata2.00: cfg 49:0f00 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000 88:101f
-> > [   75.468856] ata2.00: ATAPI, max UDMA/66
-> > [   75.514678] ata2.00: applying bridge limits
-> > [  105.674130] ata2.01: qc timeout (cmd 0xa1)
-> 
-> Did this device work with previous versions of kernel?
+>I noticed that the same behavior did not occur on the x86_64 architecture.
+>In investigating the differences between the architectures, I found the
+>patch with commit ID e6e7c2a9222016f41613d2389d230b03a36c9f20 during the
+>2.6.12-rc2 timeframe which addressed this issue for the x86_64 architecture.
+>
+>I modified the i386/kernel/smp.c file to be functionally equivalent to the
+>x86_64/kernel/smp.c file to address this issue.
+>
+>Comments?
+>
+>Drew
+>
+>
+>
+>
+>
+>
+>Signed-off-by: Drew Moseley <dmoseley@mvista.com>
+>Description:
+>    Make arch/i386/kernel/smp.c functionally equivalent to 
+>arch/x86_64/kernel/smp.c
+>    This allows for the case of calling smp_send_stop when interrupts are 
+>disabled
+>    in a few isolated cases.
+>
+>Index: linux-2.6.10/arch/i386/kernel/smp.c
+>===================================================================
+>--- linux-2.6.10.orig/arch/i386/kernel/smp.c
+>+++ linux-2.6.10/arch/i386/kernel/smp.c
+>@@ -560,30 +560,14 @@ void dump_send_ipi(void)
+>  * this function sends a 'generic call function' IPI to all other CPUs
+>  * in the system.
+>  */
+>-
+>-int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
+>-                       int wait)
+>-/*
+>- * [SUMMARY] Run a function on all other CPUs.
+>- * <func> The function to run. This must be fast and non-blocking.
+>- * <info> An arbitrary pointer to pass to the function.
+>- * <nonatomic> currently unused.
+>- * <wait> If true, wait (atomically) until function has completed on other 
+>CPUs.
+>- * [RETURNS] 0 on success, else a negative status code. Does not return until
+>- * remote CPUs are nearly ready to execute <<func>> or are or have executed.
+>- *
+>- * You must not call this function with disabled interrupts or from a
+>- * hardware interrupt handler or from a bottom half handler.
+>- */
+>+static void __smp_call_function (void (*func) (void *info), void *info,
+>+                               int nonatomic, int wait)
+> {
+>        struct call_data_struct data;
+>        int cpus = num_online_cpus()-1;
+> 
+>        if (!cpus)
+>-               return 0;
+>-
+>-       /* Can deadlock when called with interrupts disabled */
+>-       WARN_ON(irqs_disabled());
+>+               return;
+> 
+>        data.func = func;
+>        data.info = info;
+>@@ -592,7 +576,6 @@ int smp_call_function (void (*func) (voi
+>        if (wait)
+>                atomic_set(&data.finished, 0);
+> 
+>-       spin_lock(&call_lock);
+>        call_data = &data;
+>        mb();
+>        
+>@@ -603,11 +586,32 @@ int smp_call_function (void (*func) (voi
+>        while (atomic_read(&data.started) != cpus)
+>                cpu_relax();
+> 
+>-       if (wait)
+>-               while (atomic_read(&data.finished) != cpus)
+>-                       cpu_relax();
+>-       spin_unlock(&call_lock);
+>+       if (!wait)
+>+               return;
+>+
+>+       while (atomic_read(&data.finished) != cpus)
+>+               cpu_relax();
+>+}
+> 
+>+/*
+>+ * [SUMMARY] Run a function on all other CPUs.
+>+ * <func> The function to run. This must be fast and non-blocking.
+>+ * <info> An arbitrary pointer to pass to the function.
+>+ * <nonatomic> currently unused.
+>+ * <wait> If true, wait (atomically) until function has completed on other 
+>CPUs.
+>+ * [RETURNS] 0 on success, else a negative status code. Does not return until
+>+ * remote CPUs are nearly ready to execute <<func>> or are or have executed.
+>+ *
+>+ * You must not call this function with disabled interrupts or from a
+>+ * hardware interrupt handler or from a bottom half handler.
+>+ * Actually there are a few legal cases, like panic.
+>+ */
+>+int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
+>+                       int wait)
+>+{
+>+       spin_lock(&call_lock);
+>+       __smp_call_function(func,info,nonatomic,wait);
+>+       spin_unlock(&call_lock);
+>        return 0;
+> }
+> 
+>@@ -630,7 +634,15 @@ void stop_this_cpu (void * dummy)
+> 
+> void smp_send_stop(void)
+> {
+>-       smp_call_function(stop_this_cpu, NULL, 1, 0);
+>+       int nolock = 0;
+>+       /* Don't deadlock on the call lock in panic */
+>+       if (!spin_trylock(&call_lock)) {
+>+               /* ignore locking because we have paniced anyways */
+>+               nolock = 1;
+>+       }
+>+       __smp_call_function(stop_this_cpu, NULL, 0, 0);
+>+       if (!nolock)
+>+               spin_unlock(&call_lock);
+> 
+>        local_irq_disable();
+>        disable_local_APIC();
 
-No.  In fact, it doesn't even work with the 2.6.17-rc4-mm1 lineup plus the
-latest git-libata-all.  It needs this tweak:
+NAK this patch.  There is a real potential deadlock if you call
+smp_call_function() with interrupts disabled, it has caused kernel
+hangs in the past.  This patch removes the check for the potential
+deadlock and will allow bad code to creep back into the kernel.  See
+http://lkml.org/lkml/2004/5/2/116.  I find it quite disturbing that
+x86_64 has removed that check :(
 
---- devel/drivers/scsi/ata_piix.c~2.6.17-rc4-mm1-ich8-fix	2006-05-16 18:36:12.000000000 -0700
-+++ devel-akpm/drivers/scsi/ata_piix.c	2006-05-16 18:36:12.000000000 -0700
-@@ -542,6 +542,14 @@ static unsigned int piix_sata_probe (str
- 		port = map[base + i];
- 		if (port < 0)
- 			continue;
-+		if (ap->flags & PIIX_FLAG_AHCI) {
-+			/* FIXME: Port status of AHCI controllers
-+			 * should be accessed in AHCI memory space.  */
-+			if (pcs & 1 << port)
-+				present_mask |= 1 << i;
-+			else
-+				pcs &= ~(1 << port);
-+		}
- 		if (ap->flags & PIIX_FLAG_IGNORE_PCS || pcs & 1 << (4 + port))
- 			present_mask |= 1 << i;
- 		else
-_
-
-
-> libata used to give up on the first failure during probe, so the boot 
-> time would have been shorter in failure cases.
-
-I don't recall anyone complaining?
-
->  I think controlled 
-> retries during boot probe is a good thing, but the timeout of 30s for 
-> IDENTIFY commands can be shortened, I guess.
-
-We should do something, please.  It'll hurt kernel developers the most.

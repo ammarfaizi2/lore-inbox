@@ -1,95 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbWEQWPL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbWEQWOl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751268AbWEQWPL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 18:15:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWEQWMo
+	id S1751274AbWEQWOl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 18:14:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbWEQWMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 18:12:44 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:20864 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751244AbWEQWMS
+	Wed, 17 May 2006 18:12:49 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:21632 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751258AbWEQWMN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 18:12:18 -0400
-Message-Id: <20060517221351.578107000@sous-sol.org>
+	Wed, 17 May 2006 18:12:13 -0400
+Message-Id: <20060517221408.810930000@sous-sol.org>
 References: <20060517221312.227391000@sous-sol.org>
-Date: Wed, 17 May 2006 00:00:02 -0700
+Date: Wed, 17 May 2006 00:00:14 -0700
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org,
-       git-commits-head@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Craig Brind <craigbrind@gmail.com>, Roger Luethi <rl@hellgate.ch>,
-       Jeff Garzik <jeff@garzik.org>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 02/22] [PATCH] via-rhine: zero pad short packets on Rhine I ethernet cards
-Content-Disposition: inline; filename=via-rhine-zero-pad-short-packets-on-rhine-i-ethernet-cards.patch
+       Harald Welte <laforge@gnumonks.org>,
+       Harald Welte <laforge@netfilter.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 14/22] [PATCH] [Cardman 40x0] Fix udev device creation
+Content-Disposition: inline; filename=Cardman-40x0-Fix-udev-device-creation.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-[PATCH] via-rhine: zero pad short packets on Rhine I ethernet cards
+This patch corrects the order of the calls to register_chrdev() and
+pcmcia_register_driver().  Now udev correctly creates userspace device
+files /dev/cmmN and /dev/cmxN respectively.
 
-Fixes Rhine I cards disclosing fragments of previously transmitted frames
-in new transmissions.
+Based on an earlier patch by Jan Niehusmann <jan@gondor.com>.
 
-Before transmission, any socket buffer (skb) shorter than the ethernet
-minimum length of 60 bytes was zero-padded.  On Rhine I cards the data can
-later be copied into an aligned transmission buffer without copying this
-padding.  This resulted in the transmission of the frame with the extra
-bytes beyond the provided content leaking the previous contents of this
-buffer on to the network.
-
-Now zero-padding is repeated in the local aligned buffer if one is used.
-
-Following a suggestion from the via-rhine maintainer, no attempt is made
-here to avoid the duplicated effort of padding the skb if it is known that
-an aligned buffer will definitely be used.  This is to make the change
-"obviously correct" and allow it to be applied to a stable kernel if
-necessary.  There is no change to the flow of control and the changes are
-only to the Rhine I code path.
-
-The patch has run on an in-service Rhine-I host without incident.  Frames
-shorter than 60 bytes are now correctly zero-padded when captured on a
-separate host.  I see no unusual stats reported by ifconfig, and no unusual
-log messages.
-
-Signed-off-by: Craig Brind <craigbrind@gmail.com>
-Signed-off-by: Roger Luethi <rl@hellgate.ch>
-Cc: Jeff Garzik <jeff@garzik.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
+Signed-off-by: Harald Welte <laforge@netfilter.org>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
 ---
- drivers/net/via-rhine.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/char/pcmcia/cm4000_cs.c |   10 ++++++----
+ drivers/char/pcmcia/cm4040_cs.c |   11 +++++++----
+ 2 files changed, 13 insertions(+), 8 deletions(-)
 
---- linux-2.6.16.16.orig/drivers/net/via-rhine.c
-+++ linux-2.6.16.16/drivers/net/via-rhine.c
-@@ -129,6 +129,7 @@
- 	- Massive clean-up
- 	- Rewrite PHY, media handling (remove options, full_duplex, backoff)
- 	- Fix Tx engine race for good
-+	- Craig Brind: Zero padded aligned buffers for short packets.
+--- linux-2.6.16.16.orig/drivers/char/pcmcia/cm4000_cs.c
++++ linux-2.6.16.16/drivers/char/pcmcia/cm4000_cs.c
+@@ -2010,10 +2010,6 @@ static int __init cmm_init(void)
+ 	if (!cmm_class)
+ 		return -1;
  
- */
+-	rc = pcmcia_register_driver(&cm4000_driver);
+-	if (rc < 0)
+-		return rc;
+-
+ 	major = register_chrdev(0, DEVICE_NAME, &cm4000_fops);
+ 	if (major < 0) {
+ 		printk(KERN_WARNING MODULE_NAME
+@@ -2021,6 +2017,12 @@ static int __init cmm_init(void)
+ 		return -1;
+ 	}
  
-@@ -1306,7 +1307,12 @@ static int rhine_start_tx(struct sk_buff
- 			rp->stats.tx_dropped++;
- 			return 0;
- 		}
++	rc = pcmcia_register_driver(&cm4000_driver);
++	if (rc < 0) {
++		unregister_chrdev(major, DEVICE_NAME);
++		return rc;
++	}
 +
-+		/* Padding is not copied and so must be redone. */
- 		skb_copy_and_csum_dev(skb, rp->tx_buf[entry]);
-+		if (skb->len < ETH_ZLEN)
-+			memset(rp->tx_buf[entry] + skb->len, 0,
-+			       ETH_ZLEN - skb->len);
- 		rp->tx_skbuff_dma[entry] = 0;
- 		rp->tx_ring[entry].addr = cpu_to_le32(rp->tx_bufs_dma +
- 						      (rp->tx_buf[entry] -
+ 	return 0;
+ }
+ 
+--- linux-2.6.16.16.orig/drivers/char/pcmcia/cm4040_cs.c
++++ linux-2.6.16.16/drivers/char/pcmcia/cm4040_cs.c
+@@ -769,16 +769,19 @@ static int __init cm4040_init(void)
+ 	if (!cmx_class)
+ 		return -1;
+ 
+-	rc = pcmcia_register_driver(&reader_driver);
+-	if (rc < 0)
+-		return rc;
+-
+ 	major = register_chrdev(0, DEVICE_NAME, &reader_fops);
+ 	if (major < 0) {
+ 		printk(KERN_WARNING MODULE_NAME
+ 			": could not get major number\n");
+ 		return -1;
+ 	}
++
++	rc = pcmcia_register_driver(&reader_driver);
++	if (rc < 0) {
++		unregister_chrdev(major, DEVICE_NAME);
++		return rc;
++	}
++
+ 	return 0;
+ }
+ 
 
 --

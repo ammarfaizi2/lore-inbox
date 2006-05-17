@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWEQOid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbWEQOqu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964781AbWEQOid (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 10:38:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbWEQOid
+	id S1750904AbWEQOqu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 10:46:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750902AbWEQOqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 10:38:33 -0400
-Received: from p1128-ipbf215kobeminato.hyogo.ocn.ne.jp ([60.44.150.128]:777
-	"EHLO concentric.net") by vger.kernel.org with ESMTP
-	id S964774AbWEQOib (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 10:38:31 -0400
-Date: Wed, 17 May 2006 07:34:38 -0600
-Reply-To: "Darren Dye" <darrendyehq@mailcity.com>
-Subject: Yours loan is approved tlv0x
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-From: "Darren Dye" <darrendyehq@mailcity.com>
-In-Reply-To: <591301c6763e$2e89a1c0$7b9f5c48@b45hoy3>
-Message-ID: <a3a801c679b6$f3e96565$648d730f@xhe0222>
+	Wed, 17 May 2006 10:46:50 -0400
+Received: from wr-out-0506.google.com ([64.233.184.228]:37131 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750735AbWEQOqt convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 10:46:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=XFh/YdMM8dgPJ+0FXNtfmj2AfT7ZTkeQG9XG+3rFp4AlUxwuZ6c1T4tCR36NimdQlnyCQzqmXTX0CQuIeRa6ma96vOcaWISUwFKiawBQMXIlPIoFNVeSUzpoTmzYMYDtbjNq3ExBBQ54ZNw8qX+gmrM/c2RfAx2k7DvM08JdWck=
+Message-ID: <b6c5339f0605170746u10fb7c32y8b8526feb9c9528b@mail.gmail.com>
+Date: Wed, 17 May 2006 10:46:48 -0400
+From: "Bob Copeland" <me@bobcopeland.com>
+To: "Olivier Galibert" <galibert@pobox.com>,
+       "Panagiotis Issaris" <takis@lumumba.uhasselt.be>,
+       Valdis.Kletnieks@vt.edu, "linux cbon" <linuxcbon@yahoo.fr>,
+       linux-kernel@vger.kernel.org
+Subject: Re: replacing X Window System !
+In-Reply-To: <20060517142338.GB54677@dspnet.fr.eu.org>
 MIME-Version: 1.0
-To: <autoanswer@vger.kernel.org>
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060517123937.75295.qmail@web26605.mail.ukl.yahoo.com>
+	 <200605171319.k4HDJwhv015404@turing-police.cc.vt.edu>
+	 <446B2EDE.7060000@lumumba.uhasselt.be>
+	 <20060517142338.GB54677@dspnet.fr.eu.org>
+X-Google-Sender-Auth: 52a832c9a38721a3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Homeowner,  
-autoanswer@vger.kernel.org
+On 5/17/06, Olivier Galibert <galibert@pobox.com> wrote:
+> So in practice it is a better idea to have a libX11-compatible API
+> (and if possible ABI), which will give you gdk/gtk/Qt/Motif for "free"
+> (not GL/SDL though), and then change gtk/Qt where appropriate to use
+> your own features.
 
-http://joerate.com/goodstep
+If only there was a way to get all of that for free without doing any
+work at all :)
 
-You have been approved for a $ 646,688 house loan (2.9 fixed)
-This offer is being presented to you right now!. Your credit history is in no way a factor.
-To take advantage of this Limited Time Opportunity,
-please take a minute and confirm your curiosity or intention to accept this loan, at the following web-site:
-
-http://joerate.com/goodstep
-
-Best Regards
-Don Nut
-Loan Manager
-
-http://joerate.com/lit.html
-autoanswer@vger.kernel.org wrote:
-> We can approve yours loan
-3fkv2i3zh9
-
-
+Bob

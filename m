@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWEQBPH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWEQBVo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932405AbWEQBPH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 21:15:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWEQBPG
+	id S932407AbWEQBVo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 21:21:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbWEQBVo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 21:15:06 -0400
-Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:17854 "EHLO
-	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932405AbWEQBPF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 21:15:05 -0400
+	Tue, 16 May 2006 21:21:44 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:50364 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932407AbWEQBVo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 21:21:44 -0400
+Message-ID: <446A7A93.7000601@zytor.com>
+Date: Tue, 16 May 2006 18:21:23 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Dave Jones <davej@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 NUMA panic compile error
+References: <20060515005637.00b54560.akpm@osdl.org> <200605152037.54242.ak@suse.de> <1147719901.6623.78.camel@localhost.localdomain> <200605152111.20693.ak@suse.de> <e4b1ha$e1b$1@terminus.zytor.com> <20060517003927.GA13465@redhat.com>
+In-Reply-To: <20060517003927.GA13465@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17514.30904.648888.894039@wombat.chubb.wattle.id.au>
-Date: Wed, 17 May 2006 11:13:28 +1000
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: Martin Peschke <mp3@de.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de,
-       hch@infradead.org, arjan@infradead.org, James.Smart@emulex.com,
-       James.Bottomley@steeleye.com
-Subject: Re: [RFC] [Patch 7/8] statistics infrastructure - exploitation prerequisite
-In-Reply-To: <446A53DE.6060400@de.ibm.com>
-References: <446A1023.6020108@de.ibm.com>
-	<20060516112824.39b49563.akpm@osdl.org>
-	<446A53DE.6060400@de.ibm.com>
-X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Martin" == Martin Peschke <mp3@de.ibm.com> writes:
+Dave Jones wrote:
+> On Mon, May 15, 2006 at 04:06:18PM -0700, H. Peter Anvin wrote:
+>  > Followup to:  <200605152111.20693.ak@suse.de>
+>  > By author:    Andi Kleen <ak@suse.de>
+>  > In newsgroup: linux.dev.kernel
+>  > > 
+>  > > > x86 is a legacy architecture now anyway, right? ;)
+>  > > I wish everybody would agree on that @)
+>  > > 
+>  > 
+>  > It's going to live on for a very long time, though.  Intel is still
+>  > shipping some very fast 64-bit-deficient silicon.  Once that's gone,
+>  > it's going to live on for decades in the embedded world.
+> 
+> There's also a surprising number of people still running
+> their shiny new x86-64's in 32 bit mode.  (I suspect because
+> they're reliant upon applications that aren't 64-bit clean
+> that for whatever reason don't run in 32-bit emulation).
+> 
+> I'd be surprised if any of the major distros stopped shipping
+> a 32-bit x86 release for several years.
+> 
 
+Yup.  In fact, I wish Fedora had the 32-bit Firefox, at least as an option.  I keep having 
+to add the 32-bit repos for that reason alone :(
 
-Martin> I would be happy to exploit an API that may result from that
-Martin> discussion.  I would plead for exporting such an API to
-Martin> modules. I don't see how to implement statistics for
-Martin> latencies, otherwise.
-
-Martin> Any other hints on how to replace my sched_clock() calls are
-Martin> welcome.  (I want to measure elapsed times in units that are
-Martin> understandable to users without hardware manuals and
-Martin> calculator, such as milliseconds.)
-
-You may wish to look at the microstate accounting patches at
-http://www.gelato.unsw.edu.au/cgi-bin/viewcvs.cgi/cvs/kernel/microstate/
-I made the clock source configurable.
-
-It's acually rather difficult to find a reliable cross-platform
-monotonic clock with good resolution.  And different statistics may
-want different clocks; for my purposes a cycle counter is best
-(because I'm running on a machine that varies the clock speed for
-power management reasons), other people may want nanoseconds.
-
--- 
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-http://www.ertos.nicta.com.au           ERTOS within National ICT Australia
+	-hpa

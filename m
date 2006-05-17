@@ -1,105 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWEQCjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbWEQCnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751121AbWEQCjt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 22:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWEQCjt
+	id S1751162AbWEQCnP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 22:43:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWEQCnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 22:39:49 -0400
-Received: from wx-out-0102.google.com ([66.249.82.192]:39394 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751121AbWEQCjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 22:39:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=B0tHe+Sgny6F0deFHLBWU52obMemrwXYhShT1VBV03amuKIBrCHaFiCray0WpKcX9ZgyCJl0eNHx/cZoCGPstGbo6V7YqGak4jVvIkQygHpmOjr48ZYFwNl1uhHBIODMx/sLtlumbfqnQhr1olxtyZ+ygdBjk/KG/KtxPrZKd/M=
-Date: Tue, 16 May 2006 23:39:42 -0300
-From: Alberto Bertogli <albertito@gmail.com>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] [UML] Problems building and running 2.6.17-rc4 on x86-64ync-mailbox><next-undeleted><enter-command>set editor=vim
-Message-ID: <20060517023942.GI9066@gmail.com>
-References: <20060514182541.GA4980@gmail.com> <20060515033919.GD21383@ccure.user-mode-linux.org> <20060515152958.GA4553@gmail.com> <20060516191244.GB6337@ccure.user-mode-linux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 16 May 2006 22:43:14 -0400
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:60859 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S1751162AbWEQCnO convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 22:43:14 -0400
+From: Drew Moseley <dmoseley@mvista.com>
+To: linux-kernel@vger.kernel.org
+Subject: Unnecessary warnings in smp_send_stop on i386 arch.
+Date: Tue, 16 May 2006 19:43:05 -0700
+User-Agent: KMail/1.9.1
+Organization: Monta Vista Software
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20060516191244.GB6337@ccure.user-mode-linux.org>
-User-Agent: Mutt/1.5.11
+Message-Id: <200605161943.06024.dmoseley@mvista.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 16, 2006 at 03:12:44PM -0400, Jeff Dike wrote:
-> On Mon, May 15, 2006 at 12:29:58PM -0300, Alberto Bertogli wrote:
-> > Sure, here it is:
-> > (gdb) disas stub_segv_handler
-> 
-> Sorry, I misread the error message and asked for the wrong thing.
-> Your UML is seeing a process segfault during a system call, before the
-> SIGTRAP expected at the end of the system call.  I don't know what's
-> happening there.
-> 
-> Can you apply the following patch, which will just give you a register
-> dump of the process, and send me the output?
+Hi,
 
-Here it is. While the patch worked, it was for 2.6.16, and I'm using
-2.6.17-rc4, I hope that's not a problem.
+I noticed a scenario where an i386 kernel would print warning messages
+about smp_send_stop() being called with interrupts off.  This can happen
+both from panic() and from machine_restart in arch/i386/kernel/reboot.c
+if called from an interrupt handler.  To reproduce I added a sysrq handler
+that simply called panic().
 
+I noticed that the same behavior did not occur on the x86_64 architecture.
+In investigating the differences between the architectures, I found the
+patch with commit ID e6e7c2a9222016f41613d2389d230b03a36c9f20 during the
+2.6.12-rc2 timeframe which addressed this issue for the x86_64 architecture.
 
-[42949373.940000] EXT3-fs: mounted filesystem with ordered data mode.
-[42949373.940000] VFS: Mounted root (ext3 filesystem) readonly.
-[42949374.050000] Stub registers -
-[42949374.050000]       0 - 8
-[42949374.050000]       1 - 400040
-[42949374.050000]       2 - 40001530
-[42949374.050000]       3 - 2
-[42949374.050000]       4 - fffffffd
-[42949374.050000]       5 - 7
-[42949374.050000]       6 - 5
-[42949374.050000]       7 - 37
-[42949374.050000]       8 - 3
-[42949374.050000]       9 - 20611
-[42949374.050000]       10 - 0
-[42949374.050000]       11 - 2d
-[42949374.050000]       12 - 11
-[42949374.050000]       13 - 7f7f8d4539
-[42949374.050000]       14 - 0
-[42949374.050000]       15 - ffffffffffffffff
-[42949374.050000]       16 - 4000eae0
-[42949374.050000]       17 - 33
-[42949374.050000]       18 - 10246
-[42949374.050000]       19 - 7f7f8d4498
-[42949374.050000]       20 - 2b
-[42949374.050000] Kernel panic - not syncing: Kernel mode fault at addr 0x0, ip 0x4000f349
-[42949374.050000]
-[42949374.050000] Modules linked in:
-[42949374.050000] Pid: 1, comm: init Not tainted 2.6.17-rc4
-[42949374.050000] RIP: 0033:[<000000004000f349>]
-[42949374.050000] RSP: 0000007f7f8d4498  EFLAGS: 00000246
-[42949374.050000] RAX: 0000000000000000 RBX: 0000007f7f8d44b0 RCX: ffffffffffffffff
-[42949374.050000] RDX: 0000007f7f8d4770 RSI: 0000000040010900 RDI: 0000007f7f8d44b0
-[42949374.050000] RBP: 0000000000402240 R08: 0000000000000000 R09: 0000000000000000
-[42949374.050000] R10: 0000000000000064 R11: 0000000000000246 R12: 0000007f7f8d4640
-[42949374.050000] R13: 0000000040001530 R14: 0000000000400040 R15: 0000000000000008
-[42949374.050000] Call Trace:
-[42949374.050000] 60433888:  [<6001a10a>] panic_exit+0x2a/0x50
-[42949374.050000] 60433898:  [<60044acc>] notifier_call_chain+0x1c/0x30
-[42949374.050000] 604338b8:  [<600348cf>] panic+0xcf/0x170
-[42949374.050000] 60433918:  [<600285b4>] set_signals+0x14/0x30
-[42949374.050000] 60433928:  [<6001947b>] handle_page_fault+0x1bb/0x270
-[42949374.050000] 60433998:  [<600197b8>] segv+0x208/0x300
-[42949374.050000] 60433a80:  [<60019530>] segv_handler+0x0/0x80
-[42949374.050000] 60433a98:  [<600195ab>] segv_handler+0x7b/0x80
-[42949374.050000] 60433ab8:  [<6002ca18>] sig_handler_common_skas+0xe8/0x140
-[42949374.050000] 60433ae8:  [<6002873f>] sig_handler+0x5f/0x80
-[42949374.050000] 60433c20:  [<6001b450>] copy_chunk_to_user+0x0/0x40
-[42949374.050000] 60433c88:  [<6002b877>] ptrace_dump_regs+0x47/0x70
-[42949374.050000] 60433dc0:  [<60014010>] init+0x0/0x170
-[42949374.050000] 60433dd8:  [<6001a7a2>] new_thread_handler+0x102/0x140
-[42949374.050000]
+I modified the i386/kernel/smp.c file to be functionally equivalent to the
+x86_64/kernel/smp.c file to address this issue.
 
-Please let me know if there's anything else you want me to try.
+Comments?
 
-Thanks,
-		Alberto
+Drew
 
 
+
+
+
+
+Signed-off-by: Drew Moseley <dmoseley@mvista.com>
+Description:
+    Make arch/i386/kernel/smp.c functionally equivalent to 
+arch/x86_64/kernel/smp.c
+    This allows for the case of calling smp_send_stop when interrupts are 
+disabled
+    in a few isolated cases.
+
+Index: linux-2.6.10/arch/i386/kernel/smp.c
+===================================================================
+--- linux-2.6.10.orig/arch/i386/kernel/smp.c
++++ linux-2.6.10/arch/i386/kernel/smp.c
+@@ -560,30 +560,14 @@ void dump_send_ipi(void)
+  * this function sends a 'generic call function' IPI to all other CPUs
+  * in the system.
+  */
+-
+-int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
+-                       int wait)
+-/*
+- * [SUMMARY] Run a function on all other CPUs.
+- * <func> The function to run. This must be fast and non-blocking.
+- * <info> An arbitrary pointer to pass to the function.
+- * <nonatomic> currently unused.
+- * <wait> If true, wait (atomically) until function has completed on other 
+CPUs.
+- * [RETURNS] 0 on success, else a negative status code. Does not return until
+- * remote CPUs are nearly ready to execute <<func>> or are or have executed.
+- *
+- * You must not call this function with disabled interrupts or from a
+- * hardware interrupt handler or from a bottom half handler.
+- */
++static void __smp_call_function (void (*func) (void *info), void *info,
++                               int nonatomic, int wait)
+ {
+        struct call_data_struct data;
+        int cpus = num_online_cpus()-1;
+ 
+        if (!cpus)
+-               return 0;
+-
+-       /* Can deadlock when called with interrupts disabled */
+-       WARN_ON(irqs_disabled());
++               return;
+ 
+        data.func = func;
+        data.info = info;
+@@ -592,7 +576,6 @@ int smp_call_function (void (*func) (voi
+        if (wait)
+                atomic_set(&data.finished, 0);
+ 
+-       spin_lock(&call_lock);
+        call_data = &data;
+        mb();
+        
+@@ -603,11 +586,32 @@ int smp_call_function (void (*func) (voi
+        while (atomic_read(&data.started) != cpus)
+                cpu_relax();
+ 
+-       if (wait)
+-               while (atomic_read(&data.finished) != cpus)
+-                       cpu_relax();
+-       spin_unlock(&call_lock);
++       if (!wait)
++               return;
++
++       while (atomic_read(&data.finished) != cpus)
++               cpu_relax();
++}
+ 
++/*
++ * [SUMMARY] Run a function on all other CPUs.
++ * <func> The function to run. This must be fast and non-blocking.
++ * <info> An arbitrary pointer to pass to the function.
++ * <nonatomic> currently unused.
++ * <wait> If true, wait (atomically) until function has completed on other 
+CPUs.
++ * [RETURNS] 0 on success, else a negative status code. Does not return until
++ * remote CPUs are nearly ready to execute <<func>> or are or have executed.
++ *
++ * You must not call this function with disabled interrupts or from a
++ * hardware interrupt handler or from a bottom half handler.
++ * Actually there are a few legal cases, like panic.
++ */
++int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
++                       int wait)
++{
++       spin_lock(&call_lock);
++       __smp_call_function(func,info,nonatomic,wait);
++       spin_unlock(&call_lock);
+        return 0;
+ }
+ 
+@@ -630,7 +634,15 @@ void stop_this_cpu (void * dummy)
+ 
+ void smp_send_stop(void)
+ {
+-       smp_call_function(stop_this_cpu, NULL, 1, 0);
++       int nolock = 0;
++       /* Don't deadlock on the call lock in panic */
++       if (!spin_trylock(&call_lock)) {
++               /* ignore locking because we have paniced anyways */
++               nolock = 1;
++       }
++       __smp_call_function(stop_this_cpu, NULL, 0, 0);
++       if (!nolock)
++               spin_unlock(&call_lock);
+ 
+        local_irq_disable();
+        disable_local_APIC();

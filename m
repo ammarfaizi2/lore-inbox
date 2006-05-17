@@ -1,109 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbWEQNU1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWEQNUQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932264AbWEQNU1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 09:20:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWEQNU1
+	id S932263AbWEQNUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 09:20:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWEQNUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 09:20:27 -0400
-Received: from pool-71-254-71-216.ronkva.east.verizon.net ([71.254.71.216]:56771
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932264AbWEQNU0 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 09:20:26 -0400
-Message-Id: <200605171319.k4HDJwhv015404@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+	Wed, 17 May 2006 09:20:15 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:63183 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S932263AbWEQNUO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 09:20:14 -0400
+Date: Wed, 17 May 2006 09:20:13 -0400
 To: linux cbon <linuxcbon@yahoo.fr>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: replacing X Window System !
-In-Reply-To: Your message of "Wed, 17 May 2006 14:39:37 +0200."
-             <20060517123937.75295.qmail@web26605.mail.ukl.yahoo.com>
-From: Valdis.Kletnieks@vt.edu
-References: <20060517123937.75295.qmail@web26605.mail.ukl.yahoo.com>
+Message-ID: <20060517132013.GA23933@csclub.uwaterloo.ca>
+References: <Pine.LNX.4.64.0605161513590.24814@blackbox.fnordora.org> <20060517114722.90648.qmail@web26603.mail.ukl.yahoo.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1147871986_4166P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 17 May 2006 09:19:46 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060517114722.90648.qmail@web26603.mail.ukl.yahoo.com>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1147871986_4166P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Wed, May 17, 2006 at 01:47:22PM +0200, linux cbon wrote:
+> X Window System has many problems affecting directly
+> the kernel.
+> 
+> http://en.wikipedia.org/wiki/X_Window_System#Limitations_and_criticisms_of_X
+> -Many current implementations of X manipulate the
+> video hardware directly.
 
-On Wed, 17 May 2006 14:39:37 +0200, linux cbon said:
+Not a problem with X, just with some implementations.
 
-> If we have a new window system, shall all applications
-> be rewritten ?
+> -X deliberately contains no specification as to user
+> interface or most inter-application communication.
 
-No.  /bin/cat and /bin/ls will survive unscathed.  However, if you
-have a graphical application, it will need reworking.  That's a LOT
-of code.
+Why should it?  Let someone else deal with that.  X has no business
+getting involved in applications talking to each other.
 
-> My idea is that the kernel should include universal
-> graphical support.
+> -The X protocol provides no facilities for handling
+> sound,
 
-And if we discover the API is wrong, or there's a bug, what then?
+True.  It is a display/input protocol.  There are other protocols
+that handle remote sound.  There isn't really a reason they need to
+be combined.  X is event driven.  Audio tends to require streams.  Very
+different tasks.
 
-Or if you just want to try a different window manager?
+> -Until recently, X did not include a good solution to
+> print screen-displays. 
 
-> And then we would NOT need ANY window system AT ALL.
+Hmm, I guess I never noticed.  Was this missed by anyone?  Screen
+captures were just fine as far as I can tell.
 
-And if Gnome is in the kernel, what do all the KDE and Enlightenment
-users supposed to do?
+> -One cannot currently detach an X client or session
+> from one server and reattach it to another.
 
-> It would be faster, simpler, easier to manage etc.
+Some people have worked on ways to do that.  Given things like DGA and
+shared memory and such, some applications simply can't be detached
+unless the application was written to support some kind of shutdown the
+gui and then go connect to another X server and start the gui again.
 
-It wouldn't be faster, and it wouldn't be simpler, and it wouldn't be
-easier to manage.
+> I would add :
+> -X needs to be root so it opens many security holes.
 
-Come back when you've examined all the code in libX11 (that's just *one*
-of the libraries), and identified *all* the locking issues, put in
-schedule() calls at all the right places to allow pre-emption, and conver=
-ted
-it to use only 16K of stack space (that's *generous* - if it were in the
-kernel, it would have a lot less than 16K available).
+Some implementations need to be root.  I think it may be possible to run
+a framebuffer based X without root, although you would also have to do
+something about the keyboard and mouse drivers I imagine.
 
-And consider that currently, you can update your kernel and usually not
-need to make much change to your Xorg source tree, and vice versa.  A bug=
+> -X has more code than the kernel and it is almost an
+> OS in itself.
 
-in Xorg doesn't force a kernel upgrade.  Now imagine that you hit a bug
-in Xorg that's fixed in the 2.6.28 kernel - but releases after 2.6.26 don=
-'t
-boot on your hardware because of a bug with the SATA disk controller you
-have.
+So?  That doesn't make it bad, it just has a lot of features and
+includes a lot of utilities.
 
-And if my X server dies on me, I don't usually need to wait for the
-entire system to reboot.  If it was in the kernel, it just became a
-panic/reboot rather than =22init respawns gdm and life goes on=22.
+> -if a "closed-source" graphical card driver has
+> security holes, what do you do ?
+> etc.
 
-I'm idly wondering how many years of actual system kernel hacking and
-sysadmin experience you have - I know for a fact that I've been doing it
-for a living since well before many frequent posters to this list were
-even born (Hi, Kyle=21 :)  And the single most important point I've learn=
-ed
-in almost 30 years of making a living at it is:
+Same as with anything else closed source.  This is not a flaw in X.
 
-There is *nothing* that ruins a sysadmin's entire week as badly as a
-lengthy pre-req chain.  =22We need to upgrade A, but that requires a new
-release of B, which means we need to upgrade C as well, but the next
-release of C won't work with hardware J of ours...=22.   People who
-complain about Red Hat systems having =22pre-req hell=22 with RPMs are
-wimps - I've *never* seen a pre-req chain since Red Hat 7.0 that was more=
+> Some people are working on replacement like Y windows
+> :
+> http://www.doc.ic.ac.uk/teaching/projects/Distinguished03/MarkThomas.pdf
+> http://www.y-windows.org/
+> 
+> There are some questions like :
+> - should the next generation window versions Y,Z etc.
+> remain backward compatible with X ?
+> I think they should start something better and simpler
+> from scratch and not backward compatible.
 
-than 5 or 7 RPM's deep.  IBM's AIX 3 often had pre-req chains over
-100 deep - I once had a *single* bugfix against one /etc script replace
-*literally* over 3/4 of /usr....)
+Lack of application support (which requires backwards compatibility) is
+what dooms projects.  If you don't want to be backwards compatible (just
+through emulation is fine) then don't bother.  Other than a fun hobby it
+won't go anywhere ever.  I think ALSA might have been doomed had it not
+emulated OSS.  By allowing emulation it slowly has gained support from
+applications as they were ready to start taking advantages of the new
+and improved interface.  Linux evolves, which is why it's still here.
+Starting from scratch almost never succeeds.
 
---==_Exmh_1147871986_4166P
-Content-Type: application/pgp-signature
+> - should the kernel remain pure "shell" or include
+> some basic universal graphical universal window system
+> ?
+> I think second answer.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+It should very much stay purely text based.  Lots of systems have no
+graphics abilities at all, and run linux very well.  The simpler the
+better for the kernel interface.  The less special hardware support it
+needs to show stuff to the user the easier it is to fix problems.
 
-iD8DBQFEayLycC3lWbTT17ARAhrGAJ9FvFKXzb6H8REDhdzVhqFNJkIowwCggqUB
-fFTRL5NXzPNEGQS3lsVTldI=
-=c02K
------END PGP SIGNATURE-----
+Windows is majorly annoying and broken that way.  You can't really fix
+anything if you can't boot as far as starting the GUI.
 
---==_Exmh_1147871986_4166P--
+Len Sorensen

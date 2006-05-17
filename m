@@ -1,49 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWEQBj6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWEQBkB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbWEQBj6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 21:39:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbWEQBj6
+	id S1751104AbWEQBkB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 21:40:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWEQBkB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 21:39:58 -0400
-Received: from rgminet01.oracle.com ([148.87.113.118]:11430 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1751080AbWEQBj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 21:39:57 -0400
-Date: Tue, 16 May 2006 18:36:28 -0700
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, kurt.hackel@oracle.com,
-       linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com
-Subject: Re: [-mm patch] fs/ocfs2/dlm/: cleanups
-Message-ID: <20060517013628.GR21588@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <20060515005637.00b54560.akpm@osdl.org> <20060516152641.GA5677@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060516152641.GA5677@stusta.de>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Tue, 16 May 2006 21:40:01 -0400
+Received: from mga02.intel.com ([134.134.136.20]:60522 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751084AbWEQBj7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 21:39:59 -0400
+X-IronPort-AV: i="4.05,135,1146466800"; 
+   d="scan'208"; a="37307901:sNHT15058498"
+Subject: Re: [ANNOUNCE] libata: new EH, NCQ, hotplug and PM patches against
+	stable kernel
+From: "zhao, forrest" <forrest.zhao@intel.com>
+To: Michael Schierl <schierlm@gmx.de>
+Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+In-Reply-To: <4469EC4A.30908@gmx.de>
+References: <20060512132437.GB4219@htj.dyndns.org>
+	 <e4coc8$onk$1@sea.gmane.org> <4469E8CF.9030506@garzik.org>
+	 <4469EC4A.30908@gmx.de>
+Content-Type: text/plain
+Date: Wed, 17 May 2006 09:28:59 +0800
+Message-Id: <1147829339.7273.97.camel@forrest26.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.9.2 (1.5.9.2-1) 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 May 2006 01:39:56.0271 (UTC) FILETIME=[CD2597F0:01C67952]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
-
-On Tue, May 16, 2006 at 05:26:41PM +0200, Adrian Bunk wrote:
-> This patch #if 0's the no longer used dlm_dump_lock_resources().
+On Tue, 2006-05-16 at 17:14 +0200, Michael Schierl wrote:
+> hmm. ok. Hannes' patch was the one in http://lkml.org/lkml/2006/3/6/47 ?
 > 
-> Since this makes dlmdebug.h empty, this patch also removes this header.
+> I never found a kernel where I could apply that one and still compile
+> without errors :(
 > 
-> Additionally, the needlessly global dlm_is_node_recovered() is made 
-> static.
-Yeah, that all looks good - thanks for the patch!
-	--Mark
+> I am no C guru, so I had no success to fix this patch without even
+> knowing where to apply against... (and I don't know anything about
+> kernel programming or even ACHI low-level programming).
+> 
+> Is there a newer version available of that patch somewhere?
+> 
+> And - what SATA ACPI patches?
+> 
+> I have quite alot of patches related to sata and/or acpi (collected from
+> different mailing lists) here on hard disk but don't know which ones are
+> broken, outdated, etc. Most only apply on a 2.6.15 or 2.6.14-rc kernel...
+> 
+> If more recent patches are only available via git, I'd need some good
+> GIT tutorial first...
+> 
+> TIA, and sorry for stealing your time,
+> 
+> Michael
+Michael,
 
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com
+I ported a patch from OpenSUSE for AHCI suspend/resume. You may find the
+patch at:
+http://marc.theaimsgroup.com/?l=linux-ide&m=114774543416039&w=2
+
+Jeff,
+If Michael have a successful AHCI suspend/resume with this patch, I'm
+glad to port the patch to current libata-dev #upstream for the second
+time to push it into stock kernel. How do you think?
+
+Thanks,
+Forrest
+

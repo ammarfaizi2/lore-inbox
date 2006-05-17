@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWEQNaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbWEQNe6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbWEQNaL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 09:30:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbWEQNaL
+	id S1750893AbWEQNe6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 09:34:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWEQNe6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 09:30:11 -0400
-Received: from web81101.mail.mud.yahoo.com ([68.142.199.93]:1881 "HELO
-	web81101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932281AbWEQNaK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 09:30:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=ameritech.net;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=ZDlbB8m8xsyTDC29OpDw+u/SESYaMgHWozfDXys5NOkD1TtdIyGzqDOV3rR90K8GCj6cDq+xgfTqs0fFg+C+Fw9cVpdEv1DRigolkU6kCfuTCU5R6z3+sMM1Iyck7edb+oVGd9QMXi7OC0TzZsBExo0RFeXWlWnXpKObVhStq68=  ;
-Message-ID: <20060517133009.53886.qmail@web81101.mail.mud.yahoo.com>
-Date: Wed, 17 May 2006 06:30:09 -0700 (PDT)
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: [patch 00/11] input: force feedback updates
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-In-Reply-To: <20060515211229.521198000@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 17 May 2006 09:34:58 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:2259 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1750828AbWEQNe6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 09:34:58 -0400
+Date: Wed, 17 May 2006 09:34:56 -0400
+To: George Nychis <gnychis@cmu.edu>
+Cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org,
+       linux-lvm@redhat.com
+Subject: Re: need help booting from SATA in 2.4.32
+Message-ID: <20060517133456.GD23933@csclub.uwaterloo.ca>
+References: <446A36B8.1060707@cmu.edu> <20060516203917.GQ11191@w.ods.org> <446A418E.3070307@cmu.edu> <20060517034814.GA25818@w.ods.org> <446B2523.1040800@cmu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <446B2523.1040800@cmu.edu>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Anssi Hannula <anssi.hannula@gmail.com> wrote:
-
-> Major update for the force feedback support, including a new force feedback
-> driver interface and two new HID ff drivers. 
+On Wed, May 17, 2006 at 09:29:07AM -0400, George Nychis wrote:
+> Good suggestion on disabling IDE, it does not show up as SATA, it simply
+> doesn't show up... after some googling, it seems as though no one has
+> gotten it as SATA in 2.4:
+> http://wip.powerblogs.com/posts/1124302626.shtml
+> http://www.linuxquestions.org/questions/showthread.php?t=400521
 > 
+> Ok so, lets just assume we can't get SATA, and lets just try to get it
+> to boot as /dev/hda ... so now i know nothing about LVM, can anyone
+> provide me any insight on how to get this to boot with LVM?
+> 
+> So in 2.6.9, it loads VolGroup00/LogVol00 from /dev/sda5 which shows up
+> in fdisk as LVM.  How can i get this to load from /dev/hda5 instead?
 
-Hi Anssi,
+You don't.  SATA is using scsi style interface now, and with Alan Cox's
+current work, IDE drives soon will too.  It will all go through libata
+and show up as scsi disks.
 
-Thank you for the patches. I should finish settling down and setting up my
-connection by the end of this week and then I should be able to review the
-patches.
+It will be nice to have everything nice and consistent (except for the
+few oddball raid cards that insist on being completely different) for
+accessing disks.
 
---
-Dmitry
+SATA is not IDE, so why expect it to show up as an old style IDE disk?
 
+Len Sorensen

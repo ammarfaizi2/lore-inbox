@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWEQRYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWEQRYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbWEQRYf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 13:24:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWEQRYf
+	id S1750748AbWEQRYU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 13:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWEQRYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 13:24:35 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:25749 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750753AbWEQRY1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 13:24:27 -0400
-Message-ID: <446B5BC7.7080105@zytor.com>
-Date: Wed, 17 May 2006 10:22:15 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Wed, 17 May 2006 13:24:20 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8150 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750748AbWEQRYT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 13:24:19 -0400
+To: Martin Peschke <mp3@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de, hch@infradead.org,
+       arjan@infradead.org, James.Smart@Emulex.Com,
+       James.Bottomley@SteelEye.com, ltt-dev@shafik.org
+Subject: Re: [RFC] [Patch 0/8] statistics infrastructure
+References: <446A0F77.70202@de.ibm.com>
+From: fche@redhat.com (Frank Ch. Eigler)
+Date: 17 May 2006 13:23:19 -0400
+In-Reply-To: <446A0F77.70202@de.ibm.com>
+Message-ID: <y0msln8wooo.fsf@ton.toronto.redhat.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.3
 MIME-Version: 1.0
-To: Jim Cromie <jim.cromie@gmail.com>
-CC: Adrian Bunk <bunk@stusta.de>, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.17-rc4-mm1 nfsroot build err, looks related to klibc
-References: <44692CA1.5000903@gmail.com> <446950E3.4060601@zytor.com> <20060516101838.GK6931@stusta.de> <446A2243.6050109@zytor.com> <446ACCCF.1030406@gmail.com> <446B4BDD.9090208@zytor.com> <446B5AB0.8050703@gmail.com>
-In-Reply-To: <446B5AB0.8050703@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Cromie wrote:
-> H. Peter Anvin wrote:
->> Jim Cromie wrote:
->>>>
->>> Ok, it built clean, but broke on boot.
->>>
->>
->> What does the full command line look like?
->>
->>     -hpa
->>
-> I presume you mean the kernel boot-line, since last post included the 
-> 'Running ipconfig'
-> 
-> Ive been banging at the kernel with permutations of the following 
-> pxelinux stanza.
-> 
-> LABEL   I 2.6.17-rc4-mm1-sk
->  MENU LABEL    ^i.  2.6.17-rc4-mm1-sk
->  KERNEL        vmlinuz-2.6.17-rc4-mm1-sk
->  APPEND        console=ttyS0,115200n81 root=/dev/nfs 
-> nfsroot=/nfshost/truck 
-> ip=192.168.42.100:192.168.42.1:192.168.42.1:255.255.255.0:soekris:eth0 
-> panic=5
-> 
-> I think the problem lies with picking up a decent 'rootpath', since that
-> part of the output is always empty, for all variations tried so far..
-> 
 
-Okay, this is probably a result of specifying the NFS server in the ip= 
-option and the nfsroot not having a server.  I will try to debug this 
-and straighten it out.
+Martin Peschke <mp3@de.ibm.com> writes:
 
-	-hpa
+> My patch series is a proposal for a generic implementation of statistics.
+> Envisioned exploiters include device drivers, and any other component.
+> [...]
+> Good places to start reading code are:
+>    statistic_create(), statistic_remove()
+>    statistic_add(), statistic_inc()
+> [...]
+
+It is interesting how many solutions pop up for this sort of problem.
+The many tracing tools/patches, systemtap, and now this, all share
+some goals and should ideally share some of the technology.
+
+In particular, one of the common points is the designation of points
+where significant events take place, and passing their parameters.  In
+your case, these are the statitistic_add/inc() calls.  In LTT, these
+are macros or inline functions expanding to tracing calls.  In
+systemtap, ignoring the slower dynamic kprobes, we now have prototype
+support for "markers" are generic statically placed hooks that may be
+bound to arbitrary instrumentation code.  (I will be talking more
+about this at OLS.)
+<http://sourceware.org/ml/systemtap/2006-q1/msg00901.html>
+
+It would be nice if we found a way to agree on one single hooking
+mechanism, one that could be accepted here upstream, and used by all
+these various projects for their own tracing, probing, or
+statistics-collecting backends.
+
+- FChE

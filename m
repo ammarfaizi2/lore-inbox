@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932541AbWEQMjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbWEQMrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932541AbWEQMjj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 08:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbWEQMjj
+	id S932542AbWEQMrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 08:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbWEQMrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 08:39:39 -0400
-Received: from web26605.mail.ukl.yahoo.com ([217.146.176.55]:20851 "HELO
-	web26605.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932541AbWEQMji (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 08:39:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=cfcW5LSEqcrLVCRdtiOkwARUMDXCKac1Pl2xvAIjoHe9VFXSJKIrQMWzSPYW5Y/b5romfaJDuA/qG/wJaNOkEIy65/vEgRI7aTpm3CCgXRJhz+EEROwwWTAywt/YWbpbemgDrNcfRkLU0qe1oyyKrTFYwzYcvztvdnD5SsuHpZA=  ;
-Message-ID: <20060517123937.75295.qmail@web26605.mail.ukl.yahoo.com>
-Date: Wed, 17 May 2006 14:39:37 +0200 (CEST)
-From: linux cbon <linuxcbon@yahoo.fr>
-Subject: Re: replacing X Window System !
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200605171218.k4HCIt4L013978@turing-police.cc.vt.edu>
+	Wed, 17 May 2006 08:47:09 -0400
+Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:9417 "EHLO
+	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932542AbWEQMrI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 08:47:08 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Regression seen for patch "sched:dont decrease idle sleep avg"
+Date: Wed, 17 May 2006 22:46:37 +1000
+User-Agent: KMail/1.9.1
+Cc: Mike Galbraith <efault@gmx.de>, tim.c.chen@linux.intel.com,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, mingo@elte.hu,
+       Andrew Morton <akpm@osdl.org>
+References: <4t16i2$12rqnu@orsmga001.jf.intel.com> <200605172025.22626.kernel@kolivas.org> <1147866161.7676.31.camel@homer>
+In-Reply-To: <1147866161.7676.31.camel@homer>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+X-Length: 2731
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200605172246.39444.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- Valdis.Kletnieks@vt.edu a écrit : 
-> On Wed, 17 May 2006 13:47:22 +0200, linux cbon said:
-> 
-> If it isn't backward compatible, people won't use
-> it.  X may suck,
-> but it doesn't suck hard enough that people will
-> abandon all their
-> currently mostly-working software.
+On Wednesday 17 May 2006 21:42, Mike Galbraith wrote:
+> Fair?  I said interactivity wise.  But what the heck, if we're talking
+> fairness, I can say the same thing about I/O bound tasks.  Heck, it's
+> not fair to stop any task from reaching the top, and it's certainly not
+> fair to let them have (for all practical purposes) all the cpu they want
+> once they sleep enough.
 
-If we have a new window system, shall all applications
-be rewritten ?
+Toss out the I/O bound thing and we turn into a steaming dripping pile of dog 
+doo whenever anything does disk I/O. And damned if there aren't a lot of pcs 
+that have hard disks... 
 
+> Shoot, the scheduler is unfair even without any 
+> interactivity code.  Long term, it splits tasks into two groups... those
+> that sleep for more than 50% of the time... yack yack yack... zzzzz
+>
+> Let's stick to the interactivity side :)
 
-> Actually, you've proved the opposite.  Consider if
-> the kernel had *already*
-> included some universal window system (we'll call it
-> W). At that point, you
-> can't easily write an X, Y, or Z if you don't like
-> W.  If anything, the
-> *current* W (which happens to be called X11) is
-> *too* friendly with the kernel
-> already - witness all the headaches dealing with DRM
-> and 'enable' attributes
-> and other hoops things have to jump through.
-> 
-> If anything, there should be even *less* kernel
-> support for graphics.
-> That way, writing a Y or Z (or improving X) is
-> easier to do without
-> destabilizing the kernel.
+It's a deal.
 
-My idea is that the kernel should include universal
-graphical support.
-And then we would NOT need ANY window system AT ALL.
-We wouldnt have 2 os (kernel and X) at the same time
-like now.
-It would be faster, simpler, easier to manage etc.
+> > only ever sleeps for long sleeps to prevent it getting as good priority
+> > as anything else that uses only 1% cpu. I've noticed that 'top' suffers
+> > this fate for example. The problem I've had all along with thud as a test
+> > case is that while it causes a pause on the system for potentially a few
+> > seconds, it does this by raising the load transiently to a load of 50 (or
+> > whatever you set it to). I have no problem with a system having a hiccup
+> > when the load is 50, provided the system eventually recovers and isn't
+> > starved forever (which it isn't). There are other means to prevent one
+> > user having that many running tasks if so desired.
+>
+> Three of the little buggers are enough to cause plenty of pain.
 
+Spits and stutters are not starvation. Luckily it gets no worse with this 
+patch.
 
-
-
-
-
-	
-
-	
-		
-___________________________________________________________________________ 
-Faites de Yahoo! votre page d'accueil sur le web pour retrouver directement vos services préférés : vérifiez vos nouveaux mails, lancez vos recherches et suivez l'actualité en temps réel. 
-Rendez-vous sur http://fr.yahoo.com/set
+-- 
+-ck

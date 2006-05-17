@@ -1,130 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750887AbWEQDsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWEQEVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750887AbWEQDsV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 23:48:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWEQDsU
+	id S1751223AbWEQEVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 00:21:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbWEQEVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 23:48:20 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:41488 "EHLO
+	Wed, 17 May 2006 00:21:25 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:61200 "EHLO
 	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1750887AbWEQDsU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 23:48:20 -0400
-Date: Wed, 17 May 2006 05:48:14 +0200
+	id S1751223AbWEQEVY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 00:21:24 -0400
+Date: Wed, 17 May 2006 06:21:16 +0200
 From: Willy Tarreau <willy@w.ods.org>
-To: George Nychis <gnychis@cmu.edu>
+To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: need help booting from SATA in 2.4.32
-Message-ID: <20060517034814.GA25818@w.ods.org>
-References: <446A36B8.1060707@cmu.edu> <20060516203917.GQ11191@w.ods.org> <446A418E.3070307@cmu.edu>
+Subject: Re: Wiretapping Linux?
+Message-ID: <20060517042116.GR11191@w.ods.org>
+References: <4469D296.8060908@perkel.com> <20060516200313.GO11191@w.ods.org> <yw1xfyj91y6n.fsf@agrajag.inprovide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <446A418E.3070307@cmu.edu>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <yw1xfyj91y6n.fsf@agrajag.inprovide.com>
 User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 16, 2006 at 05:18:06PM -0400, George Nychis wrote:
+On Tue, May 16, 2006 at 10:01:36PM +0100, Måns Rullgård wrote:
+> Willy Tarreau <willy@w.ods.org> writes:
 > 
+> > On Tue, May 16, 2006 at 06:24:38AM -0700, Marc Perkel wrote:
+> >> As most of you know the United States is tapping you telephone calls and 
+> >> tracking every call you make. The next logical step is to start tapping 
+> >> your computer implanting spyware into operating systems. Since Windows 
+> >> and OS-X are proprietary this can be done more easilly with the 
+> >> cooperation of Microsoft and Apple.
+> >> 
+> >> So what about Linux? With thousands of people working on the Kernel if 
+> >> someone from the NSA wanted to slip a back door into the Kernel, could 
+> >> the do that? I know it's open source and it could be found if anyone 
+> >> looks but is anyone looking? Is this something that would get noticed if 
+> >> someone tried to do it? I'd like to think it would, but I'm going to ask 
+> >> anyway just to make sure.
+> >
+> > There is no warranty that this cannot happen. Indeed, it has already
+> > happened and will probably do again. A backdoor was found in some code
+> > introduced in the bitkeeper repository, but it was noticed almost
+> > immediately.
 > 
-> Willy Tarreau wrote:
-> > On Tue, May 16, 2006 at 04:31:52PM -0400, George Nychis wrote:
-> >> Hi,
-> >>
-> >> I've booted from a SATA drive in 2.4.32 before, but for some reason
-> >> 2.4.32 will not recognize this disk.  It is recognized when I boot 2.6.9
-> >> though.
-> >>
-> >> It uses the ata_piix module in both kernels.  Whenever I boot 2.6.9 I see:
-> >> ----------------------------------------------------------------------
-> >>  SCSI subsystem initialized
-> >>  ACPI: PCI interrupt 0000:00:1f.2[B] -> GSI 7 (level, low) -> IRQ 7
-> >>  ata: 0x170 IDE port busy
-> >>  ata1: SATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xBFA0 irq 14
-> >>  ata1: dev 0 ATA, max UDMA/100, 78140160 sectors:
-> >>  ata1(0): applying bridge limits
-> >>  ata1: dev 0 configured for UDMA/100
-> >>  scsi0 : ata_piix
-> >>    Vendor: ATA       Model: FUJITSU MHV2040A  Rev: 0000
-> >>    Type:   Direct-Access                      ANSI SCSI revision: 05
-> >>  SCSI device sda: 78140160 512-byte hdwr sectors (40008 MB)
-> >>  SCSI device sda: drive cache: write back
-> >>   sda: sda1 sda2 sda3 sda4 < sda5 >
-> >>  Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-> >>  device-mapper: 4.1.0-ioctl (2003-12-10) initialised: dm@uk.sistina.com
-> >> ------------------------------------------------------------------------
-> >>
-> >> However in 2.4.32 all i see is:
-> >> ----------------------------
-> >>  SCSI subsystem initialized
-> >> ----------------------------
-> >>
-> >> I am positive that my 2.4.32 has been compiled with ata_piix as a
-> >> module, and it does reside in /lib/modules/2.4.32/kernel/driver/scsi/
-> >>
-> >> Any clues?
-> > 
-> > Could you retry with it statically linked in the kernel ? I vaguely
-> > remember that if the original PIIX4 driver registers the device first,
-> > then ata_piix cannot get it. You could also ensure that you have
-> > properly removed CONFIG_IDE_PIIX4 (I believe it's called like this).
-> > 
-> >> Thanks!
-> >> George
-> > 
-> > Regards,
-> > Willy
-> > 
-> > 
+> The code was not added to the bitkeeper repository, but to a CVS
+> mirror of it.  It was spotted quickly thanks to rigorous checksumming
+> done by the CVS exporter in BK.
 > 
-> Thanks for the help Willy,
+> One of the current trends in version control software is toward
+> cryptographically signed changesets, meaning that sneaking something
+> in without access to a trusted private key is about as close to
+> impossible as you can get.
 > 
-> I think you're on to something.  I noticed this during the 2.4.32 kernel
-> bootup:
-> -----------------------------------------------------------------
-> hda: FUJITSU MHV2040AH, ATA DISK drive
-> hda: attached ide-disk driver.
-> hda: host protected area => 1
-> hda: 78140160 sectors (40008 MB) w/8192KiB Cache, CHS=4864/255/63
-> -----------------------------------------------------------------
-> 
-> However i can't find CONFIG_IDE_PIIX4 in .config anyhwere.  I did find
-> CONFIG_BLK_DEV_PIIX so i tried disabling it, but the device still
-> registered under hda.
+> There is still the question of who you can *really* trust of course.
+> After all, how do we know that Dave Miller (who was "credited" for the
+> mentioned backdoor attempt) isn't really a bad guy?
 
-OK, you correctly removed the one I was thinking about. You should also
-remove other CONFIG_BLK_DEB_IDE* and CONFIG_IDEDMA*, because there is
-also a generic PCI support for IDE controllers. Most probably your
-drive has been detected on a generic PCI controller. At least, just for
-a test, completely disable IDE to be sure, and enable ata_piix. As long
-as you'll not see your disk as sda, it will not work.
+That's true, and even for all other people, those who design the code
+and make choices. At one moment, you have to decide whether you trust
+those people and their code or whether you prefer to switch back to
+closed commercial code with the same risk of backdoors but without a
+way to detect them. I decided to trust them as well as some people
+trust me for the hotfixes I release from time to time. And when
+someone does crap, he's not trusted anymore. That's very simple.
 
-> If i build it statically, i get this error trying to boot:
-> ----------------------------------------------------------------------
-> kmod: failed to exec /sbin/modprobe -s -k scsi_hostadapter, errno = 2
-> Kernel panic: VFS: Unable to mount root fs on 00:00
-> ----------------------------------------------------------------------
-> 
-> AND it still finds the drive as /dev/hda
-> 
-> Therefore I built it as a module and put "alias scsi_hostadapter
-> ata_piix" in /etc/modules.conf" to atleast eliminate the
-> scsi_hostadapter thing
-> 
-> This is FC3, and my root is actually an LVM, so i get:
-> NVS: Cannot open root device "VolGroup00/LogVol00" or 00:00
-> 
-> So i'm thinking once the drive shows up as /dev/sda, the LVM will be
-> proper, and VolGroup00/LogVol00 will show up.
-
-I don't know, I'm a terrible loser when it comes to LVM unfortunately.
-I just hope you're right :-)
-
-> Any more ideas?
-> 
-> Thanks!
-> George
+> -- 
+> Måns Rullgård
+> mru@inprovide.com
 
 Regards,
-willy
+Willy
 

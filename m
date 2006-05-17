@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWEQQGi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWEQQI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750760AbWEQQGi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 12:06:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWEQQGi
+	id S1750775AbWEQQI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 12:08:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWEQQI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 12:06:38 -0400
-Received: from xenotime.net ([66.160.160.81]:15790 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750760AbWEQQGi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 12:06:38 -0400
-Date: Wed, 17 May 2006 09:09:04 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: linux cbon <linuxcbon@yahoo.fr>
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: replacing X Window System !
-Message-Id: <20060517090904.5012c535.rdunlap@xenotime.net>
-In-Reply-To: <20060517155325.68734.qmail@web26604.mail.ukl.yahoo.com>
-References: <200605171514.k4HFEPKq020058@turing-police.cc.vt.edu>
-	<20060517155325.68734.qmail@web26604.mail.ukl.yahoo.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Wed, 17 May 2006 12:08:26 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:29603 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750775AbWEQQI0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 12:08:26 -0400
+Date: Wed, 17 May 2006 09:06:45 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
+       Christian.Limpach@cl.cam.ac.uk, xen-devel@lists.xensource.com,
+       ian.pratt@xensource.com, zaitcev@redhat.com
+Subject: Re: [RFC PATCH 08/35] Add Xen-specific memory management
+ definitions
+Message-Id: <20060517090645.0b72bd2d.zaitcev@redhat.com>
+In-Reply-To: <20060509085151.047254000@sous-sol.org>
+References: <20060509084945.373541000@sous-sol.org>
+	<20060509085151.047254000@sous-sol.org>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 May 2006 17:53:25 +0200 (CEST) linux cbon wrote:
+On Tue, 09 May 2006 00:00:08 -0700, Chris Wright <chrisw@sous-sol.org> wrote:
 
->  --- Valdis.Kletnieks@vt.edu a écrit : 
-> > On Wed, 17 May 2006 11:09:38 EDT,
-> > Valdis.Kletnieks@vt.edu said:
-> > 
-> > > > But that would greatly simplify the whole
-> > system.
-> > 
-> > > Yeah, adding 124 meg to a 4.2M kernel will
-> > simplify it...
-> > 
-> > Still quadruples the size and even worse on
-> > complexity...
-> 
-> 
-> Are all those 124 meg *really* usefull ?
-> Thats why it should be rewritten from scratch or
-> better, redesigned...
+> +static inline unsigned long pfn_to_mfn(unsigned long pfn)
+> +{
+> +#ifndef CONFIG_XEN_SHADOW_MODE
+> +	if (xen_feature(XENFEAT_auto_translated_physmap))
+> +		return pfn;
+> +	return phys_to_machine_mapping[(unsigned int)(pfn)] &
+> +		~FOREIGN_FRAME_BIT;
+> +#else
+> +	return pfn;
+> +#endif
+> +}
 
-so you should get started soon.
+Why do we need several modes in Linux guests?
 
----
-~Randy
+If a significant tradeoff exists (for example, between performance
+and maximum addressable memory), then we need to think about the
+real issue instead of throwing config options into the pot.
+
+-- Pete

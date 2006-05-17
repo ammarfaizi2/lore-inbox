@@ -1,126 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbWEQGfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbWEQGgn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932442AbWEQGfP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 02:35:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWEQGfO
+	id S932441AbWEQGgn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 02:36:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWEQGgn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 02:35:14 -0400
-Received: from wx-out-0102.google.com ([66.249.82.193]:25138 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932442AbWEQGfM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 02:35:12 -0400
+	Wed, 17 May 2006 02:36:43 -0400
+Received: from smtp006.mail.ukl.yahoo.com ([217.12.11.95]:31407 "HELO
+	smtp006.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932441AbWEQGgm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 02:36:42 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=KRpdXDJ4yEgmGsRl4T0VhYg/k5FPthkjLP8Ti8/JE1wJquS01s7KMaXmMMo3YO6MXAeXzKX0TAwz6UBsVFc5yf0KLlmmDn3fT8chdHv2sR6vkn+L907siPbBXvji8mOVaL1O9MepW0eDZofzk7AX6bc187SjZnKok8v5lOokGkg=
-Message-ID: <446AC418.4070704@gmail.com>
-Date: Wed, 17 May 2006 15:35:04 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=U4Qb0DtXT0iJSGRQBjXb8N2m2GBl4E8vIfT/3nfhUVf/AIYaNAyfgGHk9m7Fg2Q+7poThMlvNI3jpJNDdvmTeu4Z4+sDSN/Lz9h4xbmp34XG56Ok9DktlEhwhqSB7ghjH1Gn5n7ccaG71B39sxk0T7jPQV0XEJzX7dOWBSpGcys=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] [UML] Problems building and running 2.6.17-rc4 on x86-64ync-mailbox><next-undeleted><enter-command>set editor=vim
+Date: Wed, 17 May 2006 08:36:40 +0200
+User-Agent: KMail/1.8.3
+Cc: Alberto Bertogli <albertito@gmail.com>, Jeff Dike <jdike@addtoit.com>,
+       linux-kernel@vger.kernel.org
+References: <20060514182541.GA4980@gmail.com> <20060516191244.GB6337@ccure.user-mode-linux.org> <20060517023942.GI9066@gmail.com>
+In-Reply-To: <20060517023942.GI9066@gmail.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: jeff@garzik.org, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [RFT] major libata update
-References: <20060515170006.GA29555@havoc.gtf.org>	<20060516190507.35c1260f.akpm@osdl.org>	<446AAB3C.6050303@gmail.com> <20060516215610.2b822c00.akpm@osdl.org> <446AB12C.10001@gmail.com>
-In-Reply-To: <446AB12C.10001@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605170836.41009.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> Andrew Morton wrote:
->> No.  In fact, it doesn't even work with the 2.6.17-rc4-mm1 lineup plus 
->> the
->> latest git-libata-all.  It needs this tweak:
->>
->> --- devel/drivers/scsi/ata_piix.c~2.6.17-rc4-mm1-ich8-fix    
->> 2006-05-16 18:36:12.000000000 -0700
->> +++ devel-akpm/drivers/scsi/ata_piix.c    2006-05-16 
->> 18:36:12.000000000 -0700
->> @@ -542,6 +542,14 @@ static unsigned int piix_sata_probe (str
->>          port = map[base + i];
->>          if (port < 0)
->>              continue;
->> +        if (ap->flags & PIIX_FLAG_AHCI) {
->> +            /* FIXME: Port status of AHCI controllers
->> +             * should be accessed in AHCI memory space.  */
->> +            if (pcs & 1 << port)
->> +                present_mask |= 1 << i;
->> +            else
->> +                pcs &= ~(1 << port);
->> +        }
->>          if (ap->flags & PIIX_FLAG_IGNORE_PCS || pcs & 1 << (4 + port))
->>              present_mask |= 1 << i;
->>          else
+On Wednesday 17 May 2006 04:39, Alberto Bertogli wrote:
+> On Tue, May 16, 2006 at 03:12:44PM -0400, Jeff Dike wrote:
+> > On Mon, May 15, 2006 at 12:29:58PM -0300, Alberto Bertogli wrote:
+> > > Sure, here it is:
+> > > (gdb) disas stub_segv_handler
+> >
+> > Sorry, I misread the error message and asked for the wrong thing.
+> > Your UML is seeing a process segfault during a system call, before the
+> > SIGTRAP expected at the end of the system call.  I don't know what's
+> > happening there.
+> >
+> > Can you apply the following patch, which will just give you a register
+> > dump of the process, and send me the output?
+>
+> Here it is. While the patch worked, it was for 2.6.16, and I'm using
+> 2.6.17-rc4, I hope that's not a problem.
 
-The above patch doesn't do anything.  The only effect it has is setting 
-present_mask according to enabled bits instead of present bits.  I think 
-this patch might have helped with probing before the MAP tables for 
-ICH6/7 are fixed.
+Guess not - I'll test this patch soon because I have the same problem, however 
+are you running a 2.6.16 host?
 
-I've done further testing.
-
-* Symptom
-
-ata_piix tries to probe non-existing slave device resulting in timeouts 
-during boot probing.  This problem is aggravated by new probing updates 
-as it retries two more times before giving up.
-
-* Test results
-
-PATA never has any problem with device detection via signature.  Only 
-SATA is affected and interestingly only ATAPI device.  The following is 
-the test result on my machine (ICH7R + PX716SA).
-
-   1. combined mode : MAP [IDE IDE P1 P3]
-
-	P1		P3
-	-----------------------------
-	PX716-SA	empty		P3 ghosted as ATAPI device
-	empty		PX716-SA	okay
-	PX716-SA	HDD		okay
-	HDD		PX716-SA	okay
-
-   2. SATA-only mode : MAP [P0 P2 P1 P3]
-
-	P0		P2
-	-----------------------------
-	PX716-SA	empty		P2 ghosted as ATAPI device
-	empty		PX716-SA	okay
-	PX716-SA	HDD		okay
-	HDD		PX716-SA	okay
-
-	P1		P3
-	-----------------------------
-	Identical to #1.
-
-To sum up, it happens when the master slot is occupied by an ATAPI 
-device and the corresponding slave slot is empty.  The slave slot 
-reports ATAPI signature (probably duplicated from the master) and passes 
-all legacy presence test thus resulting in timeout on IDENTIFY.
-
-In all above cases, the PCS register reported correct presence masks.
-
-* Proposed solution
-
-It seems that the only solution is to make use of the PCS presence bits 
-somehow.  It is know that 6300ESB family of controllers have flaky 
-presence bits (ata_piix marks them with PIIX_FLAG_IGNORE_PCS), but I 
-couldn't find any document/errata for PCS bits for any other 
-controllers.  So, we can use PCS for all !PIIX_FLAG_IGNORE_PCS 
-controllers or take a conservative approach and make use of it only on 
-cases where ghosting problem is reported (ICH7 and 8, I guess.  Can 
-anyone test 6?).
-
-Please note that we already use some use of the PCS value when probing 
-SATA port.  If its value is zero, we skip the port.  It's done this way 
-mainly due to historical reasons - until recently ata_piix didn't have 
-MAP tables to map PM/PS/SM/SS to specific ports thus used the PCS values 
-in rougher form.
-
-Jeff, what do you think?
-
+If so, can you verify whether on a 2.6.15 host kernel the same binary runs 
+fine (as is the case for me)?
 -- 
-tejun
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
+
+	
+	
+		
+___________________________________ 
+Yahoo! Messenger with Voice: chiama da PC a telefono a tariffe esclusive 
+http://it.messenger.yahoo.com

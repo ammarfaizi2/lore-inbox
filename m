@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWEQCY5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbWEQCct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbWEQCY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 22:24:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWEQCY5
+	id S1750829AbWEQCct (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 22:32:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWEQCcs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 22:24:57 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:974 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751114AbWEQCY5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 22:24:57 -0400
-Date: Tue, 16 May 2006 19:24:19 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-cc: Andi Kleen <ak@suse.de>, Arnd Bergmann <arnd@arndb.de>,
-       Martin Peschke <mp3@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, hch@infradead.org, arjan@infradead.org,
-       James.Smart@emulex.com, James.Bottomley@steeleye.com
-Subject: Re: [RFC] [Patch 7/8] statistics infrastructure - exploitation
- prerequisite
-In-Reply-To: <17514.32708.282431.544415@wombat.chubb.wattle.id.au>
-Message-ID: <Pine.LNX.4.64.0605161916280.10371@schroedinger.engr.sgi.com>
-References: <446A1023.6020108@de.ibm.com> <200605170103.08917.arnd@arndb.de>
- <17514.31511.386806.484792@wombat.chubb.wattle.id.au> <200605170327.52605.ak@suse.de>
- <17514.32708.282431.544415@wombat.chubb.wattle.id.au>
+	Tue, 16 May 2006 22:32:48 -0400
+Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:60583 "HELO
+	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750829AbWEQCcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 May 2006 22:32:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=hTOXqRM6iRecMHhMPzXgH+uWS4DcAEo+/znmlHJNvW1lCOs5ZFb6QtzplY4cIFidZJ6O6fxI1xREQjv/aCBRtg62vLssiZFvKmEUhM9WC6+Y3/kTme6uZJ6aiSo+4BteOJbC4tFDYXsq6aIWhxxu/4xtZLAIQPMRSCbPBkj5Jjo=  ;
+Message-ID: <446A8B48.5060107@yahoo.com.au>
+Date: Wed, 17 May 2006 12:32:40 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: Martin Peschke <mp3@de.ibm.com>, linux-kernel@vger.kernel.org, ak@suse.de,
+       hch@infradead.org, arjan@infradead.org, James.Smart@Emulex.Com,
+       James.Bottomley@SteelEye.com, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [RFC] [Patch 7/8] statistics infrastructure - exploitation prerequisite
+References: <446A1023.6020108@de.ibm.com> <20060516112824.39b49563.akpm@osdl.org>
+In-Reply-To: <20060516112824.39b49563.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 May 2006, Peter Chubb wrote:
+Andrew Morton wrote:
 
-> I measured do_gettimeofday on IA64 at around 120 cycles (mind you that
-> was some time ago now, before the last lot of time function revisions
-> in the kernel).  Whether that's slow or not depends on your application.
+>Martin Peschke <mp3@de.ibm.com> wrote:
+>
+>>need sched_clock for latency statistics
+>>
+>
+>sched_clock() probably isn't suitable for this application.  It's a
+>scheduler thing and has a number of accuracy problems.
+>
+>But I thought we discussed this last time around?  Maybe not.
+>
+>Maybe you've considered sched_clock()'s drawbacks and you've decided
+>they're all acceptable.  If so, the changelog should have described the
+>reasoning.
+>
 
-What I did for time critical statistics in core vm paths is to use 
-get_cycles() but associate each cycle value with a processor id when the 
-measurements starts. If the processor id has changed when we end the 
-measurement then discard the measurement and just note that we missed one.
+Yeah; please, no more users of sched_clock(). Definitely don't export.
 
-Here is a piece of a description for a patch that I have used in the past 
-for these statistics:
+Even if it is what you want today (which it probably isn't), the scheduler
+might want the ability to change it at short notice, depending on new
+algorithms / new hardware etc. in future.
 
-----
+Make a new function if none of the suggested alternatives work.
 
-The patch puts three performance counters into critical kernel paths to 
-show how its done.
+--
 
-The measurements will show up in /proc/perf/all. Processor specific 
-statistics may be obtained via /proc/perf/<nr-of-processor>. Writing to 
-/proc/perf/reset
-will reset all counters. F.e.
-
-echo >/proc/perf/reset
-
-Sample output:
-
-AllocPages               786882 (+  0) 9.9s(223ns/12.6us/48.6us) 12.9gb(16.4kb/16.4kb/32.8kb)
-FaultTime                786855 (+192) 10.4s(198ns/13.2us/323.6us)
-PrepZeroPage             786765 (+  0) 9.2s(549ns/11.7us/48.1us) 12.9gb(16.4kb/16.4kb/16.4kb)
-
-The first countr is the number of times that the time measurement was 
-performed.(+ xx) is the number of samples that were thrown away since the 
-processor on which the process is running changed. Cycle counters are not 
-consistent across different processors.
-
-Then follows the sum of the time spend in the code segment followed in 
-parenthesesby the minimum / average / maximum time spent there. The 
-second block are the sizes of data processed. In this sample 12.9 GB was 
-allocated via AllocPages. Most allocations were 16k = 1 page although 
-there were also 32K (2 page) allocations.
-
-
+Send instant messages to your online friends http://au.messenger.yahoo.com 

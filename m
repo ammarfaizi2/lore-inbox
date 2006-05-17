@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWEQLta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWEQMCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbWEQLta (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 07:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWEQLt3
+	id S1750871AbWEQMCH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 08:02:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWEQMCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 07:49:29 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:43408 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751296AbWEQLt3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 07:49:29 -0400
-Subject: Re: libata PATA updated patch
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Stoffel <john@stoffel.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <17514.11859.976557.532929@smtp.charter.net>
-References: <1147796037.2151.83.camel@localhost.localdomain>
-	 <17514.11859.976557.532929@smtp.charter.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 17 May 2006 13:02:27 +0100
-Message-Id: <1147867347.10470.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Wed, 17 May 2006 08:02:07 -0400
+Received: from web51406.mail.yahoo.com ([206.190.38.185]:51115 "HELO
+	web51406.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1750871AbWEQMCG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 08:02:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=w/mFx5gxMHr3lbkBUGTxRI65Tf9kzSoxZ+OZHp8KGltb7uAw2zzNO25HP8K8Flzp3eR6Mi2V/KbkdgVGZZ7Ckn1zxpTwWJCPqc9b59jtJmh+OK+vrfGlw7FyCqB2A1RjIOcpur4EGucH2qLZvNUb7+H4wI1B5kOyBvTOb+0q40E=  ;
+Message-ID: <20060517120205.68976.qmail@web51406.mail.yahoo.com>
+Date: Wed, 17 May 2006 14:02:05 +0200 (CEST)
+From: Joerg Pommnitz <pommnitz@yahoo.com>
+Subject: Re: Wiretapping Linux?
+To: Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0605170618210.31079@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-05-16 at 15:56 -0400, John Stoffel wrote:
-> Alan> I've put a patch versus -rc4 in the usual place. This should
-> Alan> sort out the PIO problems and a few other glitches
+--- "linux-os (Dick Johnson)" wrote:
 > 
-> Should I bother testing this on my HPT302 box?  I didn't see any
-> response to my earlier bug reports, just checking to make sure I'm
-> doing a usefull service here.
+> CPUs inside network cards (if any) don't run in the same address-space
+> as your host CPU, memory, etc. Data is DMAed (set up on the host-CPU
+> side) to/from this private bus, using the PCI bus. You would need
+> very extensive cooperative code running on the host CPU (in the
+> driver) to do anything useful. If you are going to write such
+> driver code, you don't need the CPU inside the controller card
+> at all because you are already running with high privileges on
+> the correct bus.
 
-I've not attacked the HPT3xx hardware again yet. For one the fact that
-Sergei Shtylyov is rewriting the "old style" driver for it to knock a
-lot of the problems out means much of that stuff will want porting again
-once he is finished
+Wiretapping is about listening in on communication. Network cards are the 
+means this communication is carried out and see all the traffic somebody 
+might want to tap into. This clearly makes it at least theoretically 
+possible to use them as a listening device (and it sees all the other 
+traffic on its network segment, too).
 
-Sergei may well appreciate testers however.
+Additionally its listening on the system bus. Question: Can it tap into 
+data addressed to another peripheral (say the hd controller)? If so, then 
+only the system RAM is outside its scope.
 
-Thanks for the testing so far
+Regards
+  Joerg
 
-Alan
 
+	
+
+	
+		
+___________________________________________________________ 
+Telefonate ohne weitere Kosten vom PC zum PC: http://messenger.yahoo.de

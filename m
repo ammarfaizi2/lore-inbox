@@ -1,100 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWEQVIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbWEQVWn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751128AbWEQVIx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 17:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbWEQVIx
+	id S1751135AbWEQVWn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 17:22:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWEQVWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 17:08:53 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:53399 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751128AbWEQVIw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 17:08:52 -0400
-Subject: [RFC][-rt PATCH] Try to safely error out when mixing pi/non-pi
-	futex operations on the same futex.
-From: john stultz <johnstul@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Thomas Gleixner <tglx@linutronix.de>,
-       mingo@redhat.com, lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Wed, 17 May 2006 14:08:49 -0700
-Message-Id: <1147900129.9363.7.camel@localhost.localdomain>
+	Wed, 17 May 2006 17:22:43 -0400
+Received: from xenotime.net ([66.160.160.81]:21996 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751135AbWEQVWm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 17:22:42 -0400
+Date: Wed, 17 May 2006 14:25:10 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Alessandro Zummo <alessandro.zummo@towertech.it>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc subsystem, use ENOIOCTLCMD where appropriate
+Message-Id: <20060517142510.b3fcfb7d.rdunlap@xenotime.net>
+In-Reply-To: <20060517013033.10d08a8f@inspiron>
+References: <20060517013033.10d08a8f@inspiron>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo,
-	We've been seeing some oopses because there are waiters on pi futexes
-that do not have pi_states. This seems to be because they were used w/
-futex_wait in one path and futex_lock_pi in another. 
+On Wed, 17 May 2006 01:30:33 +0200 Alessandro Zummo wrote:
 
-I'm told this shouldn't ever happen, but if it did, the kernel should
-safely error out, instead of oopsing or never releasing a lock.
+> 
+> 
+> Appropriately use -ENOIOCTLCMD when
+> the ioctl is not implemented by a driver.
 
-Not sure if this is a solid fix (it does build and boot), but hopefully
-it will stir up some discussion.
+so this return value does not go back to userspace?
+Comment in linux/errno.h says:
+/* Should never be seen by user programs */
 
-thanks
--john
+and ENOTTY is the return value for "Inappropriate ioctl for device":
 
-
-Try to handle odd cases where a futex is used w/ both the pi and non-pi methods.
-
-Signed-off-by: John Stultz <johnstul@us.ibm.com>
-
-Index: futex-test/kernel/futex.c
-===================================================================
---- futex-test.orig/kernel/futex.c	2006-05-17 13:44:41.000000000 -0500
-+++ futex-test/kernel/futex.c	2006-05-17 15:48:45.000000000 -0500
-@@ -472,11 +472,17 @@
- 
- 	list_for_each_entry_safe(this, next, head, list) {
- 		if (match_futex (&this->key, &me->key)) {
--			/*
--			 * Another waiter already exists - bump up
--			 * the refcount and return its pi_state:
--			 */
-+			/* Another waiter already exists */
- 			pi_state = this->pi_state;
-+
-+			/* make sure its a PI waiter: */
-+			if (!pi_state) {
-+				printk("BUG: %s/%d: Mixing pi and non pi"
-+					" futexes!\n", current->comm,
-+						current->pid);
-+				return -EINVAL;
-+			}
-+			/* bump up the refcount and return its pi_state: */
- 			atomic_inc(&pi_state->refcount);
- 			me->pi_state = pi_state;
- 			pr_debug("Waiter found: %d\n",
-@@ -638,8 +644,14 @@
- 
- 	list_for_each_entry_safe(this, next, head, list) {
- 		if (match_futex (&this->key, &key)) {
--			if (this->pi_state)
--				return -EINVAL;
-+			/* XXX - this might cause odd behavior
-+			 * as we may have already woken some futexes
-+			 * before we return -EINVAL -johnstul@us.ibm.com
-+			 */
-+			if (this->pi_state) {
-+				ret = -EINVAL;
-+				break;
-+			}
- 			wake_futex(this);
- 			if (++ret >= nr_wake)
- 				break;
-@@ -1200,6 +1212,9 @@
- 	ret = lookup_pi_state(uval, hb, &q);
- 
- 	if (unlikely(ret)) {
-+		/* Handle pi/non-pi mixups: */
-+		if (ret == -EINVAL)
-+			goto out_unlock_release_sem;
- 		/*
- 		 * There were no waiters and the owner task lookup
- 		 * failed. When the OWNER_DIED bit is set, then we
+http://marc.theaimsgroup.com/?l=linux-fsdevel&m=106739260707476&w=2
+http://marc.theaimsgroup.com/?l=lustre-devel&m=106737825024915&w=2
 
 
+
+> Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
+> 
+> ---
+>  drivers/rtc/rtc-dev.c    |    6 +++---
+>  drivers/rtc/rtc-sa1100.c |    2 +-
+>  drivers/rtc/rtc-test.c   |    2 +-
+>  drivers/rtc/rtc-vr41xx.c |    2 +-
+>  4 files changed, 6 insertions(+), 6 deletions(-)
+> 
+> --- linux-rtc.orig/drivers/rtc/rtc-test.c	2006-05-17 01:21:35.000000000 +0200
+> +++ linux-rtc/drivers/rtc/rtc-test.c	2006-05-17 01:22:39.000000000 +0200
+> @@ -71,7 +71,7 @@ static int test_rtc_ioctl(struct device 
+>  		return 0;
+>  
+>  	default:
+> -		return -EINVAL;
+> +		return -ENOIOCTLCMD;
+>  	}
+>  }
+>  
+> --- linux-rtc.orig/drivers/rtc/rtc-vr41xx.c	2006-05-17 01:21:59.000000000 +0200
+> +++ linux-rtc/drivers/rtc/rtc-vr41xx.c	2006-05-17 01:22:29.000000000 +0200
+> @@ -270,7 +270,7 @@ static int vr41xx_rtc_ioctl(struct devic
+>  		epoch = arg;
+>  		break;
+>  	default:
+> -		return -EINVAL;
+> +		return -ENOIOCTLCMD;
+>  	}
+>  
+>  	return 0;
+> --- linux-rtc.orig/drivers/rtc/rtc-sa1100.c	2006-05-17 01:18:19.000000000 +0200
+> +++ linux-rtc/drivers/rtc/rtc-sa1100.c	2006-05-17 01:23:26.000000000 +0200
+> @@ -247,7 +247,7 @@ static int sa1100_rtc_ioctl(struct devic
+>  		rtc_freq = arg;
+>  		return 0;
+>  	}
+> -	return -EINVAL;
+> +	return -ENOIOCTLCMD;
+>  }
+>  
+>  static int sa1100_rtc_read_time(struct device *dev, struct rtc_time *tm)
+> --- linux-rtc.orig/drivers/rtc/rtc-dev.c	2006-05-17 01:18:19.000000000 +0200
+> +++ linux-rtc/drivers/rtc/rtc-dev.c	2006-05-17 01:26:01.000000000 +0200
+> @@ -141,13 +141,13 @@ static int rtc_dev_ioctl(struct inode *i
+>  	/* try the driver's ioctl interface */
+>  	if (ops->ioctl) {
+>  		err = ops->ioctl(class_dev->dev, cmd, arg);
+> -		if (err != -EINVAL)
+> +		if (err != -ENOIOCTLCMD)
+>  			return err;
+>  	}
+>  
+>  	/* if the driver does not provide the ioctl interface
+>  	 * or if that particular ioctl was not implemented
+> -	 * (-EINVAL), we will try to emulate here.
+> +	 * (-ENOIOCTLCMD), we will try to emulate here.
+>  	 */
+>  
+>  	switch (cmd) {
+> @@ -233,7 +233,7 @@ static int rtc_dev_ioctl(struct inode *i
+>  		break;
+>  
+>  	default:
+> -		err = -EINVAL;
+> +		err = -ENOIOCTLCMD;
+>  		break;
+>  	}
+>  
+> -
+
+---
+~Randy

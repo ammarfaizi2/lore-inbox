@@ -1,75 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWEQIcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbWEQIcr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbWEQIcM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 04:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWEQIcM
+	id S1750925AbWEQIcr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 04:32:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWEQIcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 04:32:12 -0400
-Received: from smtp-3.hut.fi ([130.233.228.93]:54471 "EHLO smtp-3.hut.fi")
-	by vger.kernel.org with ESMTP id S1750724AbWEQIcL (ORCPT
+	Wed, 17 May 2006 04:32:46 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:5784 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751042AbWEQIcq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 04:32:11 -0400
-Date: Wed, 17 May 2006 11:30:55 +0300 (EEST)
-From: Jan Wagner <jwagner@kurp.hut.fi>
-To: Tejun Heo <htejun@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: support for sata7 Streaming Feature Set?
-In-Reply-To: <4466D6FB.1040603@gmail.com>
-Message-ID: <Pine.LNX.4.58.0605162126520.31191@kurp.hut.fi>
-References: <Pine.LNX.4.58.0605051547410.7359@kurp.hut.fi> <4466D6FB.1040603@gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-TKK-Virus-Scanned: by amavisd-new-2.1.2-hutcc at putosiko.hut.fi
+	Wed, 17 May 2006 04:32:46 -0400
+Date: Wed, 17 May 2006 10:32:10 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       linux-arm-kernel@lists.arm.linux.org.uk
+Subject: Re: [patch 01/50] genirq: cleanup: merge irq_affinity[] into irq_desc[]
+Message-ID: <20060517083210.GA26456@elte.hu>
+References: <20060517001323.GB12877@elte.hu> <20060517055650.GA19785@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060517055650.GA19785@mars.ravnborg.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi and thanks for your response,
 
-On Sun, 14 May 2006, Tejun Heo wrote:
-> > anyone know if the now already somewhat old Streaming Feature Set of
-> > ATA/ATAPI 7 is going to be implemented in the kernel ata functions?
-> >
-> > According to one web site that contains hdreg.h
-> > http://www.koders.com/c/fidCD7293464D782E48F93EEF8A71192F1BF28FC205.aspx
-> > there's at least some kind of mention in that include file about streaming
-> > feature set, kernel 2.6.10. However in 2.6.16 it seems to be gone again.
-> > Any ideas if this will be implemented, or how to use it with e.g. hdparm
-> > right now?
->
-> I don't think streaming feature set is something to be supported at
-> kernel driver level.  The usage model doesn't fit with block interface.
+* Sam Ravnborg <sam@ravnborg.org> wrote:
 
-I'm definitely not a kernel guru or into its internals, but IMHO ATA/ATAPI
-specifications should all also be supported in the kernel or kernel
-module, for compliance, or?
+> > +++ linux-genirq.q/arch/powerpc/platforms/pseries/xics.c
+> > @@ -238,7 +238,7 @@ static int get_irq_server(unsigned int i
+> >  {
+> >  	unsigned int server;
+> >  	/* For the moment only implement delivery to all cpus or one cpu */
+> > -	cpumask_t cpumask = irq_affinity[irq];
+> > +	cpumask_t cpumask = irq_desc[irq].affinity;
+> >  	cpumask_t tmp = CPU_MASK_NONE;
+> >  
+> >  	if (!distribute_irqs)
+> 
+> Assigned unconditionally - outside CONFIG_SMP as I read the code but..
 
-The block device's ioctl could have a "data reliability setting"
-extension, specifying either the error recovery time limits or for
-enabling continuous read/write control (used to return/use partially
-correct data) which are part of the ATA Streaming Feature Set.
+> > +#ifdef CONFIG_SMP
+> > +	cpumask_t affinity;
+> > +#endif
 
-I.e. an adjustable minimum acceptable data reliability level for block
-devices, which can e.g. be relaxed down from a default 100%.
+> But defined only for SMP. Looks wrong at first look.
 
->   If you want to use it, the best way would be issuing commands directly
-> using sg.
+but the original array was under SMP too:
 
-Maybe yes, that, or hdparm, but it seems like a horrible hack :) And sg
-being for generic SCSI, I'm not sure how well ATA-7 fits in. At least,
-the current debian sg-tools, and commands like 'sg_opcodes /dev/sda'
-return "Fixed format, current;  Sense key: Illegal Request", "Additional
-sense: Invalid command operation code" for those SATA disks I tried.
-Doesn't look good for sg useability, AFAICT.
+ --- linux-genirq.q.orig/kernel/irq/manage.c
+ +++ linux-genirq.q/kernel/irq/manage.c
+ @@ -16,8 +16,6 @@
 
-> What are you gonna use it for?
+  #ifdef CONFIG_SMP
 
-To record or play back real-time continuous streamed data that is not
-error-critical but delay critical, from/to a bidirectional data
-aquisition card at ~1Gbit/s over longer time spans.
+ -cpumask_t irq_affinity[NR_IRQS] = { [0 ... NR_IRQS-1] = CPU_MASK_ALL };
 
-Direct kernel device support for the feature set could also be very useful
-for linux projects like the Digital Video Recorder and Video Disk
-Recorder. And seek/stutter free video playback from DVD/ATAPI (scratched
-disks, for example) or video editing. Etc.
+so if then this is a powerpc bug. (probably pseries is rarely built 
+without SMP support)
 
- - Jan
+	Ingo

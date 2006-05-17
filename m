@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWEQVn7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWEQVoK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751158AbWEQVn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 17:43:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWEQVn7
+	id S1751164AbWEQVoK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 17:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWEQVoK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 17:43:59 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:3003 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1751158AbWEQVn6 (ORCPT
+	Wed, 17 May 2006 17:44:10 -0400
+Received: from wr-out-0506.google.com ([64.233.184.224]:22549 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751161AbWEQVoI convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 17:43:58 -0400
-Date: Thu, 18 May 2006 05:44:00 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: akpm@osdl.org
-Cc: porpoise.chiang@gmail.com, mpm@selenic.com, linux-kernel@vger.kernel.org
-Subject: [PATCH -mm] cascade: use list_replace_init()
-Message-ID: <20060518014400.GA896@oleg>
-References: <200605152130.k4FLUQTe018341@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 17 May 2006 17:44:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aN0qEERS0KCR0X4Bf51EiePb8wQr4vmGKG222Iyvj0gKjF5X6MU9awmIlNjJMSVyIAM/Fdy5lqekcppyfbPqb6tlpDyUg7lPqRe1+3scRiQSByhNG64DykF6hi9P+yoxuJdu/uDdyLsSo1UVXrI6tqKlBskqHq+nzWjtlZp+23A=
+Message-ID: <4ae3c140605171444o66de4caqdbe38e028aed94bf@mail.gmail.com>
+Date: Wed, 17 May 2006 17:44:07 -0400
+From: "Xin Zhao" <uszhaoxin@gmail.com>
+To: "Chris Wedgwood" <cw@f00f.org>
+Subject: Re: HELP! vfs_readv() issue
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+In-Reply-To: <20060516043107.GA5321@taniwha.stupidest.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200605152130.k4FLUQTe018341@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.11
+References: <4ae3c140605151657m152c0e7bl7f52e2a2def0aeca@mail.gmail.com>
+	 <20060516043107.GA5321@taniwha.stupidest.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On top of Porpoise's
-	when-config_base_samll=1-the-kernel-261611-cascade-in-kernel-timerc-may-enter-the-infinite-loop.patch
+Thank you for your care. What I am trying to do is to rewrite NFS in
+the virtual machine environment so that network communication can be
+replaced with inter-VM communication.
 
-Microoptimization, cascade() can use list_replace_init()
-instead of list_splice_init().
+But after I remove the original rpc stuff, I ran into some strange
+problem, including this one.  Interesting thing is that I noticed that
+even with standard NFS implementation, it is still possible that
+nfsd_read() return resp->count to be 0. At this time, eof is also
+equal to 1. This seems to be right since NFSD already reach the end of
+the file. But question is since 0 byte is read this time, NFS should
+detect EOF in previous read. Why need one more read?
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+Xin
 
---- MM/kernel/timer.c~	2006-05-15 00:03:53.000000000 +0400
-+++ MM/kernel/timer.c	2006-05-18 05:12:35.000000000 +0400
-@@ -385,9 +385,9 @@ static int cascade(tvec_base_t *base, tv
- {
- 	/* cascade all the timers from tv up one level */
- 	struct timer_list *timer, *tmp;
--	LIST_HEAD(tv_list);
-+	struct list_head tv_list;
- 
--	list_splice_init(tv->vec + index, &tv_list);
-+	list_replace_init(tv->vec + index, &tv_list);
- 
- 	/*
- 	 * We are removing _all_ timers from the list, so we
-
+On 5/16/06, Chris Wedgwood <cw@f00f.org> wrote:
+> On Mon, May 15, 2006 at 07:57:21PM -0400, Xin Zhao wrote:
+>
+> > I am writing a file system, but vfs_read() sometimes return 0. What
+> > could cause this problem?
+>
+> EOF?
+>

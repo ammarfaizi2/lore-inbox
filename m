@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWEQRfI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWEQRhs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750757AbWEQRfI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 13:35:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWEQRfI
+	id S1750786AbWEQRhs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 13:37:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbWEQRhr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 13:35:08 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44692 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750757AbWEQRfG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 13:35:06 -0400
-Date: Wed, 17 May 2006 19:06:02 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Over-heating CPU on 2.6.16 with Thinkpad G41
-Message-ID: <20060517170601.GA9459@elf.ucw.cz>
-References: <Pine.LNX.4.58.0605160253010.4283@gandalf.stny.rr.com>
+	Wed, 17 May 2006 13:37:47 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:4112 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1750786AbWEQRhr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 13:37:47 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: replacing X Window System !
+Date: Wed, 17 May 2006 10:37:01 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKEEJJLPAB.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0605160253010.4283@gandalf.stny.rr.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20060517132741.GC23933@csclub.uwaterloo.ca>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Wed, 17 May 2006 10:32:54 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Wed, 17 May 2006 10:32:56 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Út 16-05-06 03:05:06, Steven Rostedt wrote:
-> 
-> Last night compiling kernels in my hotel, my CPUs kept over-heating.
-> 
-> I have a IBM Thinkpad G41 which has a pentium 4 HT.
-> 
-> Before compiling, my CPU temp would start at 65C and go up to 82 before I
-> kill the compile. At 80 it warns me.  I rebooted a few times, but it would
-> always happen.  Thinking this might be bad hardware, I rebooted into
-> 2.6.12, and saw that the CPU temperature would be at 52C??  I had no more
-> problems compiling.
 
-Temperatures up-to 95C are okay on many machines.
+> Would a pentium class machine even run firefox on windows?
+>
+> I think there is something very wrong with how firefox manages it's page
+> rendering and scrolling.  It certainly eats a ton of ram with whatever
+> it is doing.
 
-> I recently added the Suspend2 patch and that might be the culprit, But I
-> just booted, a version of 2.6.16 that doesn't have the patch, and it too
-> seems to be runnig hot.
+	My sister can testify that it's possible but there's really no point. She
+has a P60 with 128MB of RAM (the max her mobo can take) and it takes about 2
+minutes to launch firefox. She uses gmail, and it's basically unusable on
+her machine. Almost once every day I send her another configuration for a
+machine I recommend she should buy to end her suffering. She says she uses
+her machine so little it's not worth it. I point out that she uses it so
+little because it is useful for so little.
 
-Ask nigel if you suspenct that patch. But from your description it
-screams "random overheating".
+	DS
 
-> Hmm, could this be the "acpi_sleep=s3_bios" that Suspend2 asks for?
-> I haven't removed that option yet.
 
-This option has 0 effect until you suspend to RAM.
-									Pavel
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

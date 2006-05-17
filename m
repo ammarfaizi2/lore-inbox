@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWEQAbX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWEQAQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932401AbWEQAbX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 May 2006 20:31:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWEQAQr
+	id S932298AbWEQAQp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 May 2006 20:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWEQAQV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 May 2006 20:16:47 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:60828 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932311AbWEQAQj (ORCPT
+	Tue, 16 May 2006 20:16:21 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:11472 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932297AbWEQAPo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 May 2006 20:16:39 -0400
-Date: Wed, 17 May 2006 02:16:28 +0200
+	Tue, 16 May 2006 20:15:44 -0400
+Date: Wed, 17 May 2006 02:15:30 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
 Cc: Thomas Gleixner <tglx@linutronix.de>,
@@ -17,163 +17,223 @@ Cc: Thomas Gleixner <tglx@linutronix.de>,
        Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
        Christoph Hellwig <hch@infradead.org>,
        linux-arm-kernel@lists.arm.linux.org.uk
-Subject: [patch 16/50] genirq: add genirq sw IRQ-retrigger
-Message-ID: <20060517001628.GQ12877@elte.hu>
+Subject: [patch 05/50] genirq: cleanup: reduce irq_desc_t use, mark it obsolete
+Message-ID: <20060517001530.GF12877@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
+X-ELTE-SpamScore: -2.8
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
 	0.0 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Ingo Molnar <mingo@elte.hu>
 
-enable platforms that do not have a hardware-assisted hardirq-resend
-mechanism to resend them via a softirq-driven IRQ emulation mechanism.
+cleanup: remove irq_desc_t use from the generic IRQ code, and mark it
+obsolete.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- include/linux/irq.h |    3 +
- kernel/irq/Makefile |    2 -
- kernel/irq/manage.c |   10 ------
- kernel/irq/resend.c |   79 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 84 insertions(+), 10 deletions(-)
+ include/linux/irq.h    |   18 +++++++++++++-----
+ kernel/irq/autoprobe.c |    6 +++---
+ kernel/irq/handle.c    |    4 ++--
+ kernel/irq/manage.c    |    6 +++---
+ kernel/irq/migration.c |    4 ++--
+ kernel/irq/spurious.c  |    9 +++++----
+ 6 files changed, 28 insertions(+), 19 deletions(-)
 
 Index: linux-genirq.q/include/linux/irq.h
 ===================================================================
 --- linux-genirq.q.orig/include/linux/irq.h
 +++ linux-genirq.q/include/linux/irq.h
-@@ -242,6 +242,9 @@ extern void note_interrupt(unsigned int 
+@@ -68,7 +68,7 @@ typedef struct hw_interrupt_type  hw_irq
+  *
+  * Pad this out to 32 bytes for cache and indexing reasons.
+  */
+-typedef struct irq_desc {
++struct irq_desc {
+ 	hw_irq_controller *handler;
+ 	void *handler_data;
+ 	struct irqaction *action;	/* IRQ action list */
+@@ -83,11 +83,19 @@ typedef struct irq_desc {
+ #if defined(CONFIG_GENERIC_PENDING_IRQ) || defined(CONFIG_IRQBALANCE)
+ 	unsigned int move_irq;		/* Flag need to re-target intr dest*/
+ #endif
+-} ____cacheline_aligned irq_desc_t;
++} ____cacheline_aligned;
+ 
+-extern irq_desc_t irq_desc [NR_IRQS];
++extern struct irq_desc irq_desc[NR_IRQS];
+ 
+-#include <asm/hw_irq.h> /* the arch dependent stuff */
++/*
++ * Migration helpers for obsolete names, they will go away:
++ */
++typedef struct irq_desc		irq_desc_t;
++
++/*
++ * Pick up the arch-dependent methods:
++ */
++#include <asm/hw_irq.h>
+ 
+ extern int setup_irq(unsigned int irq, struct irqaction *new);
+ 
+@@ -181,7 +189,7 @@ extern int handle_IRQ_event(unsigned int
+  */
+ extern fastcall unsigned int __do_IRQ(unsigned int irq, struct pt_regs *regs);
+ 
+-extern void note_interrupt(unsigned int irq, irq_desc_t *desc,
++extern void note_interrupt(unsigned int irq, struct irq_desc *desc,
  			   int action_ret, struct pt_regs *regs);
  extern int can_request_irq(unsigned int irq, unsigned long irqflags);
  
-+/* Resending of interrupts :*/
-+void check_irq_resend(struct irq_desc *desc, unsigned int irq);
-+
- extern void init_irq_proc(void);
- 
- #endif /* CONFIG_GENERIC_HARDIRQS */
-Index: linux-genirq.q/kernel/irq/Makefile
+Index: linux-genirq.q/kernel/irq/autoprobe.c
 ===================================================================
---- linux-genirq.q.orig/kernel/irq/Makefile
-+++ linux-genirq.q/kernel/irq/Makefile
-@@ -1,5 +1,5 @@
+--- linux-genirq.q.orig/kernel/irq/autoprobe.c
++++ linux-genirq.q/kernel/irq/autoprobe.c
+@@ -27,8 +27,8 @@ static DECLARE_MUTEX(probe_sem);
+  */
+ unsigned long probe_irq_on(void)
+ {
++	struct irq_desc *desc;
+ 	unsigned long mask;
+-	irq_desc_t *desc;
+ 	unsigned int i;
  
--obj-y := handle.o manage.o spurious.o
-+obj-y := handle.o manage.o spurious.o resend.o
- obj-$(CONFIG_GENERIC_IRQ_PROBE) += autoprobe.o
- obj-$(CONFIG_PROC_FS) += proc.o
- obj-$(CONFIG_GENERIC_PENDING_IRQ) += migration.o
+ 	down(&probe_sem);
+@@ -116,7 +116,7 @@ unsigned int probe_irq_mask(unsigned lon
+ 
+ 	mask = 0;
+ 	for (i = 0; i < NR_IRQS; i++) {
+-		irq_desc_t *desc = irq_desc + i;
++		struct irq_desc *desc = irq_desc + i;
+ 		unsigned int status;
+ 
+ 		spin_lock_irq(&desc->lock);
+@@ -159,7 +159,7 @@ int probe_irq_off(unsigned long val)
+ 	int i, irq_found = 0, nr_irqs = 0;
+ 
+ 	for (i = 0; i < NR_IRQS; i++) {
+-		irq_desc_t *desc = irq_desc + i;
++		struct irq_desc *desc = irq_desc + i;
+ 		unsigned int status;
+ 
+ 		spin_lock_irq(&desc->lock);
+Index: linux-genirq.q/kernel/irq/handle.c
+===================================================================
+--- linux-genirq.q.orig/kernel/irq/handle.c
++++ linux-genirq.q/kernel/irq/handle.c
+@@ -28,7 +28,7 @@
+  *
+  * Controller mappings for all interrupt sources:
+  */
+-irq_desc_t irq_desc[NR_IRQS] __cacheline_aligned = {
++struct irq_desc irq_desc[NR_IRQS] __cacheline_aligned = {
+ 	[0 ... NR_IRQS-1] = {
+ 		.status = IRQ_DISABLED,
+ 		.handler = &no_irq_type,
+@@ -109,7 +109,7 @@ int handle_IRQ_event(unsigned int irq, s
+  */
+ fastcall unsigned int __do_IRQ(unsigned int irq, struct pt_regs *regs)
+ {
+-	irq_desc_t *desc = irq_desc + irq;
++	struct irq_desc *desc = irq_desc + irq;
+ 	struct irqaction *action;
+ 	unsigned int status;
+ 
 Index: linux-genirq.q/kernel/irq/manage.c
 ===================================================================
 --- linux-genirq.q.orig/kernel/irq/manage.c
 +++ linux-genirq.q/kernel/irq/manage.c
-@@ -118,15 +118,7 @@ void enable_irq(unsigned int irq)
- 		WARN_ON(1);
- 		break;
- 	case 1: {
--		unsigned int status = desc->status & ~IRQ_DISABLED;
--
--		desc->status = status;
--		if ((status & (IRQ_PENDING | IRQ_REPLAY)) == IRQ_PENDING) {
--			desc->status = status | IRQ_REPLAY;
--			if (desc->handler && desc->handler->retrigger)
--				desc->handler->retrigger(irq);
--		}
--		desc->handler->enable(irq);
-+		check_irq_resend(desc, irq);
- 		/* fall-through */
- 	}
- 	default:
-Index: linux-genirq.q/kernel/irq/resend.c
+@@ -57,7 +57,7 @@ EXPORT_SYMBOL(synchronize_irq);
+  */
+ void disable_irq_nosync(unsigned int irq)
+ {
+-	irq_desc_t *desc = irq_desc + irq;
++	struct irq_desc *desc = irq_desc + irq;
+ 	unsigned long flags;
+ 
+ 	if (irq >= NR_IRQS)
+@@ -86,7 +86,7 @@ EXPORT_SYMBOL(disable_irq_nosync);
+  */
+ void disable_irq(unsigned int irq)
+ {
+-	irq_desc_t *desc = irq_desc + irq;
++	struct irq_desc *desc = irq_desc + irq;
+ 
+ 	if (irq >= NR_IRQS)
+ 		return;
+@@ -109,7 +109,7 @@ EXPORT_SYMBOL(disable_irq);
+  */
+ void enable_irq(unsigned int irq)
+ {
+-	irq_desc_t *desc = irq_desc + irq;
++	struct irq_desc *desc = irq_desc + irq;
+ 	unsigned long flags;
+ 
+ 	if (irq >= NR_IRQS)
+Index: linux-genirq.q/kernel/irq/migration.c
 ===================================================================
---- /dev/null
-+++ linux-genirq.q/kernel/irq/resend.c
-@@ -0,0 +1,79 @@
-+/*
-+ * linux/kernel/irq/resend.c
-+ *
-+ * Copyright (C) 1992, 1998-2006 Linus Torvalds, Ingo Molnar
-+ * Copyright (C) 2005-2006, Thomas Gleixner
-+ *
-+ * This file contains the IRQ-resend code
-+ *
-+ * If the interrupt is waiting to be processed, we try to re-run it.
-+ * We can't directly run it from here since the caller might be in an
-+ * interrupt-protected region. Not all irq controller chips can
-+ * retrigger interrupts at the hardware level, so in those cases
-+ * we allow the resending of IRQs via a tasklet.
-+ */
-+
-+#include <linux/irq.h>
-+#include <linux/module.h>
-+#include <linux/random.h>
-+#include <linux/interrupt.h>
-+
-+#include "internals.h"
-+
-+#ifdef CONFIG_HARDIRQS_SW_RESEND
-+
-+/* Bitmap to handle software resend of interrupts: */
-+static DECLARE_BITMAP(irqs_resend, NR_IRQS);
-+
-+/*
-+ * Run software resends of IRQ's
-+ */
-+static void resend_irqs(unsigned long arg)
-+{
-+	struct irq_desc *desc;
-+	unsigned long flags;
-+	int irq;
-+
-+	while (!bitmap_empty(irqs_resend, NR_IRQS)) {
-+		irq = find_first_bit(irqs_resend, NR_IRQS);
-+		clear_bit(irq, irqs_resend);
-+		desc = irq_desc + irq;
-+		spin_lock_irqsave(&desc->lock, flags);
-+		desc->handle(irq, desc, NULL);
-+		spin_unlock_irqrestore(&desc->lock, flags);
-+	}
-+}
-+
-+/* Tasklet to handle resend: */
-+static DECLARE_TASKLET(resend_tasklet, resend_irqs, 0);
-+
-+#endif
-+
-+/*
-+ * IRQ resend
-+ *
-+ * Is called with interrupts disabled and desc->lock held.
-+ */
-+void check_irq_resend(struct irq_desc *desc, unsigned int irq)
-+{
-+	unsigned int status = desc->status;
-+
-+	/*
-+	 * Make sure the interrupt is enabled, before resending it:
-+	 */
-+	desc->handler->enable(irq);
-+
-+	if ((status & (IRQ_PENDING | IRQ_REPLAY)) == IRQ_PENDING) {
-+		desc->status &= ~IRQ_PENDING;
-+		desc->status = status | IRQ_REPLAY;
-+
-+		if (!desc->handler || !desc->handler->retrigger ||
-+					!desc->handler->retrigger(irq)) {
-+#ifdef CONFIG_HARDIRQS_SW_RESEND
-+			/* Set it pending and activate the softirq: */
-+			set_bit(irq, irqs_resend);
-+			tasklet_schedule(&resend_tasklet);
-+#endif
-+		}
-+	}
-+}
+--- linux-genirq.q.orig/kernel/irq/migration.c
++++ linux-genirq.q/kernel/irq/migration.c
+@@ -3,7 +3,7 @@
+ 
+ void set_pending_irq(unsigned int irq, cpumask_t mask)
+ {
+-	irq_desc_t *desc = irq_desc + irq;
++	struct irq_desc *desc = irq_desc + irq;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&desc->lock, flags);
+@@ -14,8 +14,8 @@ void set_pending_irq(unsigned int irq, c
+ 
+ void move_native_irq(int irq)
+ {
++	struct irq_desc *desc = irq_desc + irq;
+ 	cpumask_t tmp;
+-	irq_desc_t *desc = irq_desc + irq;
+ 
+ 	if (likely(!desc->move_irq))
+ 		return;
+Index: linux-genirq.q/kernel/irq/spurious.c
+===================================================================
+--- linux-genirq.q.orig/kernel/irq/spurious.c
++++ linux-genirq.q/kernel/irq/spurious.c
+@@ -97,7 +97,8 @@ static int misrouted_irq(int irq, struct
+  */
+ 
+ static void
+-__report_bad_irq(unsigned int irq, irq_desc_t *desc, irqreturn_t action_ret)
++__report_bad_irq(unsigned int irq, struct irq_desc *desc,
++		 irqreturn_t action_ret)
+ {
+ 	struct irqaction *action;
+ 
+@@ -122,7 +123,7 @@ __report_bad_irq(unsigned int irq, irq_d
+ }
+ 
+ static void
+-report_bad_irq(unsigned int irq, irq_desc_t *desc, irqreturn_t action_ret)
++report_bad_irq(unsigned int irq, struct irq_desc *desc, irqreturn_t action_ret)
+ {
+ 	static int count = 100;
+ 
+@@ -132,8 +133,8 @@ report_bad_irq(unsigned int irq, irq_des
+ 	}
+ }
+ 
+-void note_interrupt(unsigned int irq, irq_desc_t *desc, irqreturn_t action_ret,
+-		    struct pt_regs *regs)
++void note_interrupt(unsigned int irq, struct irq_desc *desc,
++		    irqreturn_t action_ret, struct pt_regs *regs)
+ {
+ 	if (action_ret != IRQ_HANDLED) {
+ 		desc->irqs_unhandled++;

@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWERIkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWERIjs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750807AbWERIkB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 04:40:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbWERIkA
+	id S1750803AbWERIjs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 04:39:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWERIjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 04:40:00 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:51334 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1751037AbWERIj7 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 04:39:59 -0400
-Subject: Re: rt20 scheduling latency testcase and failure data
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: Darren Hart <dvhltc@us.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>, Mike Galbraith <efault@gmx.de>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-In-Reply-To: <200605151830.23544.dvhltc@us.ibm.com>
-References: <200605121924.53917.dvhltc@us.ibm.com>
-	 <200605131601.31880.dvhltc@us.ibm.com> <20060515081341.GB24523@elte.hu>
-	 <200605151830.23544.dvhltc@us.ibm.com>
-Date: Thu, 18 May 2006 10:44:22 +0200
-Message-Id: <1147941862.4996.15.camel@frecb000686>
+	Thu, 18 May 2006 04:39:47 -0400
+Received: from mga02.intel.com ([134.134.136.20]:47550 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750803AbWERIjr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 04:39:47 -0400
+X-IronPort-AV: i="4.05,139,1146466800"; 
+   d="scan'208"; a="37975295:sNHT15017142"
+Subject: Re: [PATCH] don't use flush_tlb_all in suspend time
+From: Shaohua Li <shaohua.li@intel.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060518083146.GA12724@elf.ucw.cz>
+References: <1146367462.21486.10.camel@sli10-desk.sh.intel.com>
+	 <20060430064505.GA5091@ucw.cz>
+	 <1146379596.8456.4.camel@sli10-desk.sh.intel.com>
+	 <20060429235721.1d081ea5.akpm@osdl.org> <20060430120421.GA30024@elf.ucw.cz>
+	 <1147922973.32046.13.camel@sli10-desk.sh.intel.com>
+	 <20060518083146.GA12724@elf.ucw.cz>
+Content-Type: text/plain
+Date: Thu, 18 May 2006 16:38:21 +0800
+Message-Id: <1147941501.32046.18.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 18/05/2006 10:43:06,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 18/05/2006 10:43:08,
-	Serialize complete at 18/05/2006 10:43:08
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-15
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Darren,
-
-On Mon, 2006-05-15 at 18:30 -0700, Darren Hart wrote:
-> Following Ingo's example I have included the modified test case (please see 
-> the original mail for librt.h) that starts the trace before each sleep and 
-> disables it after we wake up.  If we have missed a period, we print the 
-> trace.
+On Thu, 2006-05-18 at 10:31 +0200, Pavel Machek wrote:
+> Hi!
 > 
+> > > > In which case, how's about this?
+> > > 
+> > > Certainly better, I'd say.
+> > > 
+> > > > @@ -420,7 +421,14 @@ void zap_low_mappings (void)
+> > > >  #else
+> > > >  		set_pgd(swapper_pg_dir+i, __pgd(0));
+> > > >  #endif
+> > > > -	if (cpus_weight(cpu_online_map) == 1)
+> > > > +	/*
+> > > > +	 * We can be called at suspend/resume time, with local interrupts
+> > > > +	 * disabled.  But flush_tlb_all() requires that local interrupts be
+> > > > +	 * enabled.
+> > > > +	 *
+> > > > +	 * Happily, the APs are not yet started, so we can use local_flush_tlb()	 * in that case
+> > > > +	 */
+> > > > +	if (num_online_cpus() == 1)
+> > > >  		local_flush_tlb();
+> > > >  	else
+> > > >  		flush_tlb_all();
+> > > 
+> > > But this still scares. It means calling convention is "may enable
+> > > interrupts with >1 cpu, may not with == 1 cpu". 
+> > Below patch should make things clean. How do you think?
+> 
+> Nice...
+> 
+> Could we perhaps reuse swsusp_pg_dir (just make it used for swsusp &
+> suspend-to-ram) to save a bit more code? It is in arch/i386/mm/init.c
+Sure. But it's under CONFIG_SOFTWARE_SUSPEND. That part needs cleanup I
+think and it's a little strange to me (why should we simply copy
+swapper_pg_dir to swsusp_pg_dir, instead do it in zap_low_mappings?).
 
-  Your test program fails (at least on my box) as the overhead of 
-starting and stopping the trace in the 5 ms period is just too high.
-
-  By moving the latency_trace_start() at the start of the thread 
-function and latency_trace_stop() at the end, everything runs fine.
-I did not have any period missed even under heavy load.
-
-  Sébastien.
-
-  
-
+Thanks,
+Shaohua

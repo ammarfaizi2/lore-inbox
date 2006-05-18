@@ -1,49 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750955AbWERW2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbWERWdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750955AbWERW2M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 18:28:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbWERW2M
+	id S1750854AbWERWdM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 18:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWERWdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 18:28:12 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:23170 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1750899AbWERW2M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 18:28:12 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patchset] Generic IRQ Subsystem: -V4
-Date: Fri, 19 May 2006 00:24:52 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>
-References: <20060517001310.GA12877@elte.hu> <20060517221536.GA13444@elte.hu>
-In-Reply-To: <20060517221536.GA13444@elte.hu>
+	Thu, 18 May 2006 18:33:12 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.81]:53149 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id S1750740AbWERWdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 18:33:11 -0400
+Message-ID: <446CF65A.6040006@cmu.edu>
+Date: Thu, 18 May 2006 18:34:02 -0400
+From: George Nychis <gnychis@cmu.edu>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060503)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: how to view dmesg during initrd?
+References: <446CD6C1.6030705@cmu.edu>
+In-Reply-To: <446CD6C1.6030705@cmu.edu>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605190024.53879.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+Hi,
 
-just a minor nit.
+I am trying to load a module with initrd and insmod, however insmod
+simply says "unresolved external symbols!" and puts the rest in dmesg,
+is there any way to find out these symbols if my kernel panics, and
+never boots, therefore i can't see the dmesg?
 
-On Thursday, 18. May 2006 00:15, Ingo Molnar wrote:
-> - sem2mutex: kernel/irq/autoprobe.c probe_sem => probe_lock mutex 
->   conversion.
-
-Please call this probe_mutex. probe_lock would suggest, 
-that this is a spin_lock() when people talk about it.
-
-Didn't look at the actual patch, so maybe you just have a bug
-in this list here :-)
-
-
-Regards
-
-Ingo Oeser
+Thanks!
+George

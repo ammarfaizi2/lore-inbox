@@ -1,73 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbWERXRY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWERXSt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750973AbWERXRY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 19:17:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbWERXRY
+	id S1750993AbWERXSt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 19:18:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750996AbWERXSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 19:17:24 -0400
-Received: from mga03.intel.com ([143.182.124.21]:57199 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1750944AbWERXRX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 19:17:23 -0400
-Message-Id: <4t153d$14oruq@azsmga001.ch.intel.com>
-X-IronPort-AV: i="4.05,143,1146466800"; 
-   d="scan'208"; a="38563802:sNHT67113186"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Con Kolivas'" <kernel@kolivas.org>, "Mike Galbraith" <efault@gmx.de>
-Cc: <tim.c.chen@linux.intel.com>, <linux-kernel@vger.kernel.org>,
-       <mingo@elte.hu>, "Andrew Morton" <akpm@osdl.org>
-Subject: RE: Regression seen for patch "sched:dont decrease idle sleep avg"
-Date: Thu, 18 May 2006 16:17:21 -0700
+	Thu, 18 May 2006 19:18:49 -0400
+Received: from py-out-1112.google.com ([64.233.166.181]:29484 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750989AbWERXSs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 19:18:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=B7NsjRpMct6k2Fho4mKfccMQZUoqnt6KIkjLjYhUFMxM3rLRctOV38THWOWSXPIhj1IFPCfSKMSypr9hWBhhuxtagj3vSZnYVpQOLL6s3VGl1NTIJUSP0g0UnX5DsmWF+ZGydZs2iosFwc+opCAhjhosOdfrC39l3bAVUZJexUg=
+Message-ID: <446D00D5.2040006@gmail.com>
+Date: Fri, 19 May 2006 08:18:45 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Jeff Garzik <jeff@garzik.org>
+CC: Mark Lord <lkml@rtr.ca>, Jan Wagner <jwagner@kurp.hut.fi>,
+       linux-kernel@vger.kernel.org
+Subject: Re: support for sata7 Streaming Feature Set?
+References: <Pine.LNX.4.58.0605051547410.7359@kurp.hut.fi> <4466D6FB.1040603@gmail.com> <Pine.LNX.4.58.0605162126520.31191@kurp.hut.fi> <446BD8F2.10509@gmail.com> <446C7435.2040809@rtr.ca> <446C9503.1020609@garzik.org>
+In-Reply-To: <446C9503.1020609@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZ6P0Qi6Fn7PLXdSiCeH7Qyo7JTxgAkNJ9A
-In-Reply-To: <200605181552.19868.kernel@kolivas.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote on Wednesday, May 17, 2006 10:52 PM
-> The relationship between INTERACTIVE_SLEEP and the ceiling is not perfect
-> and not explicit enough. The sleep boost is not supposed to be any larger
-> than without this code and the comment is not clear enough about what exactly
-> it does, just the reason it does it.
+Jeff Garzik wrote:
+> Mark Lord wrote:
+>> The device driver has to know about it, at a minimum so that it can
+>> select a different EH protocol for the streams.  Which in turn means
+>> that the streaming commands should be known to the driver as well.
 > 
-> There is a ceiling to the priority beyond which tasks that only ever sleep
-> for very long periods cannot surpass.
+> Different taskfile protocol, you mean?
+
+I haven't checked all the docs and codes thoroughly but I don't see a 
+need for new protocol or anything.  When a streaming command fails due 
+to failing to meet timing constraints, it fails w/ device error.  sg can 
+adjust retry count and the device error will be reported without much 
+recovery action (only revalidation).  If the device fails due to some 
+other reasons (say HSM violation), it needs full EH no matter what. 
+Without full EH, it becomes completely unusable.
+
+>> But how to handle it all nicely is the real question.
+>> A new block driver, if libata cannot handle it?
 > 
-> Opportunity to micro-optimise and re-use the ceiling variable.
+> I seriously doubt writing a whole new ATA driver subsystem will fly :)
 
+All I can see are little extensions to sg interface and maybe libata.  I 
+don't think it needs full-blown in-kernel driver.  However, to use this 
+feature with a filesystem, we would need to build a block map of the 
+file to use.  I think such feature is already provided and used by 
+LILO/GRUB kinds of things.
 
-More opportunity to micro-optimize: now that you've put the clamp code of
-p->sleep_avg in the common path, there is no need to clamp sleep_time at
-the beginning of that function.  Just let the calculation go through and
-clamp the final value of p->sleep_avg to NS_MAX_SLEEP_AVG at the end.
-
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
-
---- ./kernel/sched.c.orig	2006-05-18 12:51:45.000000000 -0700
-+++ ./kernel/sched.c	2006-05-18 14:53:47.000000000 -0700
-@@ -731,17 +731,10 @@
- static int recalc_task_prio(task_t *p, unsigned long long now)
- {
- 	/* Caller must always ensure 'now >= p->timestamp' */
--	unsigned long long __sleep_time = now - p->timestamp;
--	unsigned long sleep_time;
-+	unsigned long sleep_time = now - p->timestamp;
- 
- 	if (batch_task(p))
- 		sleep_time = 0;
--	else {
--		if (__sleep_time > NS_MAX_SLEEP_AVG)
--			sleep_time = NS_MAX_SLEEP_AVG;
--		else
--			sleep_time = (unsigned long)__sleep_time;
--	}
- 
- 	if (likely(sleep_time > 0)) {
- 		/*
-
-
+-- 
+tejun

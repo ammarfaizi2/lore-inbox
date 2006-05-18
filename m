@@ -1,74 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWERIr1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWERIrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbWERIr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 04:47:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWERIr0
+	id S1751197AbWERIrp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 04:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWERIrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 04:47:26 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:36251 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751138AbWERIr0 (ORCPT
+	Thu, 18 May 2006 04:47:45 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:17610 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751197AbWERIrn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 04:47:26 -0400
-Date: Thu, 18 May 2006 10:46:32 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] don't use flush_tlb_all in suspend time
-Message-ID: <20060518084631.GB12724@elf.ucw.cz>
-References: <1146367462.21486.10.camel@sli10-desk.sh.intel.com> <20060430064505.GA5091@ucw.cz> <1146379596.8456.4.camel@sli10-desk.sh.intel.com> <20060429235721.1d081ea5.akpm@osdl.org> <20060430120421.GA30024@elf.ucw.cz> <1147922973.32046.13.camel@sli10-desk.sh.intel.com> <20060518083146.GA12724@elf.ucw.cz> <1147941501.32046.18.camel@sli10-desk.sh.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Thu, 18 May 2006 04:47:43 -0400
+Date: Thu, 18 May 2006 10:47:22 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: =?iso-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+Cc: Darren Hart <dvhltc@us.ibm.com>, Lee Revell <rlrevell@joe-job.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>, Mike Galbraith <efault@gmx.de>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+Subject: Re: rt20 scheduling latency testcase and failure data
+Message-ID: <20060518084722.GA3343@elte.hu>
+References: <200605121924.53917.dvhltc@us.ibm.com> <200605131601.31880.dvhltc@us.ibm.com> <20060515081341.GB24523@elte.hu> <200605151830.23544.dvhltc@us.ibm.com> <1147941862.4996.15.camel@frecb000686>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1147941501.32046.18.camel@sli10-desk.sh.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <1147941862.4996.15.camel@frecb000686>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On ÄŒt 18-05-06 16:38:21, Shaohua Li wrote:
-> On Thu, 2006-05-18 at 10:31 +0200, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > > > In which case, how's about this?
-> > > > 
-> > > > Certainly better, I'd say.
-> > > > 
-> > > > > @@ -420,7 +421,14 @@ void zap_low_mappings (void)
-> > > > >  #else
-> > > > >  		set_pgd(swapper_pg_dir+i, __pgd(0));
-> > > > >  #endif
-> > > > > -	if (cpus_weight(cpu_online_map) == 1)
-> > > > > +	/*
-> > > > > +	 * We can be called at suspend/resume time, with local interrupts
-> > > > > +	 * disabled.  But flush_tlb_all() requires that local interrupts be
-> > > > > +	 * enabled.
-> > > > > +	 *
-> > > > > +	 * Happily, the APs are not yet started, so we can use local_flush_tlb()	 * in that case
-> > > > > +	 */
-> > > > > +	if (num_online_cpus() == 1)
-> > > > >  		local_flush_tlb();
-> > > > >  	else
-> > > > >  		flush_tlb_all();
-> > > > 
-> > > > But this still scares. It means calling convention is "may enable
-> > > > interrupts with >1 cpu, may not with == 1 cpu". 
-> > > Below patch should make things clean. How do you think?
-> > 
-> > Nice...
-> > 
-> > Could we perhaps reuse swsusp_pg_dir (just make it used for swsusp &
-> > suspend-to-ram) to save a bit more code? It is in arch/i386/mm/init.c
-> Sure. But it's under CONFIG_SOFTWARE_SUSPEND. 
 
-Yes, #ifdef definitely does need to change there.
+* Sébastien Dugué <sebastien.dugue@bull.net> wrote:
 
-> That part needs cleanup I
-> think and it's a little strange to me (why should we simply copy
-> swapper_pg_dir to swsusp_pg_dir, instead do it in zap_low_mappings?).
+>   Darren,
+> 
+> On Mon, 2006-05-15 at 18:30 -0700, Darren Hart wrote:
+> > Following Ingo's example I have included the modified test case (please see 
+> > the original mail for librt.h) that starts the trace before each sleep and 
+> > disables it after we wake up.  If we have missed a period, we print the 
+> > trace.
+> > 
+> 
+>   Your test program fails (at least on my box) as the overhead of 
+> starting and stopping the trace in the 5 ms period is just too high.
+> 
+>   By moving the latency_trace_start() at the start of the thread 
+> function and latency_trace_stop() at the end, everything runs fine. I 
+> did not have any period missed even under heavy load.
 
-?? Sorry, I do not understand. "instead of doing"?
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+could you send us the fixed testcase?
+
+thanks for tracking this down. FYI, the latency of stopping the trace is 
+that expensive because we are copying large amounts of trace data 
+around, to ensure that /proc/latency_trace is always consistent and is 
+updated atomically, and to make sure that we can update the trace from 
+interrupt contexts too - without /proc/latency_trace accesses blocking 
+them. The latency of stopping the trace is hidden from the tracer itself 
+- but it cannot prevent indirect effects such as your app from missing 
+periods, if the periods are in the 5msec range.
+
+	Ingo

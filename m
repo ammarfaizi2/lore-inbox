@@ -1,47 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbWERPis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbWERPla@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750933AbWERPis (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 11:38:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWERPis
+	id S1750939AbWERPla (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 11:41:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWERPla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 11:38:48 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:15747 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750933AbWERPir (ORCPT
+	Thu, 18 May 2006 11:41:30 -0400
+Received: from ozlabs.org ([203.10.76.45]:7129 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750939AbWERPl3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 11:38:47 -0400
-Message-ID: <446C9503.1020609@garzik.org>
-Date: Thu, 18 May 2006 11:38:43 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Mark Lord <lkml@rtr.ca>
-CC: Tejun Heo <htejun@gmail.com>, Jan Wagner <jwagner@kurp.hut.fi>,
-       linux-kernel@vger.kernel.org
-Subject: Re: support for sata7 Streaming Feature Set?
-References: <Pine.LNX.4.58.0605051547410.7359@kurp.hut.fi> <4466D6FB.1040603@gmail.com> <Pine.LNX.4.58.0605162126520.31191@kurp.hut.fi> <446BD8F2.10509@gmail.com> <446C7435.2040809@rtr.ca>
-In-Reply-To: <446C7435.2040809@rtr.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.1 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.1 points, 5.0 required)
+	Thu, 18 May 2006 11:41:29 -0400
+Subject: Re: [RFC/PATCH] Make printk work for really early debugging
+From: Michael Ellerman <michael@ellerman.id.au>
+Reply-To: michael@ellerman.id.au
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+In-Reply-To: <p73y7wz30a1.fsf@bragg.suse.de>
+References: <20060518091410.CC527679F4@ozlabs.org>
+	 <p73y7wz30a1.fsf@bragg.suse.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-CRU89BgDb8w2A+yF/d7d"
+Date: Fri, 19 May 2006 01:41:26 +1000
+Message-Id: <1147966886.8469.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> The device driver has to know about it, at a minimum so that it can
-> select a different EH protocol for the streams.  Which in turn means
-> that the streaming commands should be known to the driver as well.
 
-Different taskfile protocol, you mean?
+--=-CRU89BgDb8w2A+yF/d7d
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Thu, 2006-05-18 at 15:55 +0200, Andi Kleen wrote:
+> Michael Ellerman <michael@ellerman.id.au> writes:
+>=20
+> > Currently printk is no use for early debugging because it refuses to ac=
+tually
+> > print anything to the console unless cpu_online(smp_processor_id()) is =
+true.
+>=20
+> On x86-64 this is simply solved by setting the boot processor online very=
+ early.
 
-> But how to handle it all nicely is the real question.
-> A new block driver, if libata cannot handle it?
+Yeah, someone suggested that. Unfortunately it doesn't work, we actually
+want to call printk before we even know which cpu we're on :D
 
-I seriously doubt writing a whole new ATA driver subsystem will fly :)
+cheers
 
-	Jeff
+--=20
+Michael Ellerman
+IBM OzLabs
 
+wwweb: http://michael.ellerman.id.au
+phone: +61 2 6212 1183 (tie line 70 21183)
 
+We do not inherit the earth from our ancestors,
+we borrow it from our children. - S.M.A.R.T Person
+
+--=-CRU89BgDb8w2A+yF/d7d
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBEbJWmdSjSd0sB4dIRAmokAJsEBg3xT4JXZiiQlkddEVHWaSNOiwCfZkCj
+5W5AN5mPNFGbsfE9vtToU90=
+=BvwF
+-----END PGP SIGNATURE-----
+
+--=-CRU89BgDb8w2A+yF/d7d--
 

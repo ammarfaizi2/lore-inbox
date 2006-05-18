@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbWERSmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWERSmU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751378AbWERSmT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 14:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWERSmT
+	id S932126AbWERSmU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 14:42:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWERSmU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 18 May 2006 14:42:20 -0400
+Received: from mailhost.terra.es ([213.4.149.12]:7891 "EHLO
+	csmtpout3.frontal.correo") by vger.kernel.org with ESMTP
+	id S1751340AbWERSmT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 18 May 2006 14:42:19 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:37834 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751340AbWERSmS (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 14:42:18 -0400
-Message-Id: <200605181842.k4IIgF1D012325@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: linux cbon <linuxcbon@yahoo.fr>
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>, linux-kernel@vger.kernel.org
+Date: Thu, 18 May 2006 20:40:04 +0200 (added by postmaster@terra.es)
+From: grundig <grundig@teleline.es>
+To: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+Cc: felipe.alfaro@gmail.com, jesper.juhl@gmail.com, linuxcbon@yahoo.fr,
+       Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
 Subject: Re: replacing X Window System !
-In-Reply-To: Your message of "Thu, 18 May 2006 19:28:27 +0200."
-             <20060518172827.73908.qmail@web26601.mail.ukl.yahoo.com>
-From: Valdis.Kletnieks@vt.edu
-References: <20060518172827.73908.qmail@web26601.mail.ukl.yahoo.com>
+Message-Id: <20060518204131.3a87a27d.grundig@teleline.es>
+In-Reply-To: <20060518154215.GG23933@csclub.uwaterloo.ca>
+References: <200605171218.k4HCIt4L013978@turing-police.cc.vt.edu>
+	<20060517123937.75295.qmail@web26605.mail.ukl.yahoo.com>
+	<9a8748490605170639n12fde7c9i836599f02a30fd51@mail.gmail.com>
+	<6f6293f10605171017y106565ev62683f04b353a2f5@mail.gmail.com>
+	<20060517194438.1df682aa.grundig@teleline.es>
+	<20060518154215.GG23933@csclub.uwaterloo.ca>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1147977735_2381P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 18 May 2006 14:42:15 -0400
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1147977735_2381P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+El Thu, 18 May 2006 11:42:15 -0400,
+lsorense@csclub.uwaterloo.ca (Lennart Sorensen) escribió:
 
-On Thu, 18 May 2006 19:28:27 +0200, linux cbon said:
+> Wasn't it back in NT4 they moved it into kernel space to speed things
+> up? :)
 
-> Why dont we have =22good=22 3D support in X ?
+I suspect that moving everything back to userspace is not something that
+they do because it's "The Right Thing", but because they need it. The
+graphic subsystems that are people is starting to finish and that will
+be used in the next years need to allow a huge amount of "personalization"
+done by toolkits. XP already has some problems - you can only use "signed"
+themes, themes probably have to be uploaded in the kernel and it's a
+requeriment.
 
-Because people are too busy actually using total crap like OpenGL
-to put any time into =22good=22 3D support.
 
-Either that, or maybe there *is* already good 3D support, but you're
-just so unfamiliar with X that you don't know what you're talking about.
+I wouldn't say that putting the graphic subsystem to speed things up was
+an error - it had good sides. It _really_ speed up things, and it wasn't
+that unstable - look at how high uptimes you can get with win2k/xp. In
+Linux we also have a TCP/IP stack, filesystem, VT100 emulation...
 
---==_Exmh_1147977735_2381P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEbMAHcC3lWbTT17ARAnMFAJkB8WmxTkSzyuYNOKtmyd56h7gbNwCg7CvO
-Hqqr+VSuTilNsczC7u4UsI4=
-=Prxo
------END PGP SIGNATURE-----
-
---==_Exmh_1147977735_2381P--
+It's certainly an error to do that today, but at that time it wasn't the
+end of the world.

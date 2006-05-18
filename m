@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWERKmA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWERK5q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750987AbWERKmA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 06:42:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbWERKmA
+	id S1751281AbWERK5q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 06:57:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWERK5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 06:42:00 -0400
-Received: from mail.tm.informatik.uni-frankfurt.de ([141.2.4.18]:29633 "EHLO
-	mail.tm.informatik.uni-frankfurt.de") by vger.kernel.org with ESMTP
-	id S1750830AbWERKmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 06:42:00 -0400
-Subject: Re: How should Touchscreen Input Drives behave (OpenEZX pcap_ts)
-From: "Michael 'Mickey' Lauer" <mickey@tm.informatik.uni-frankfurt.de>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: Harald Welte <laforge@gnumonks.org>, openezx-devel@lists.gnumonks.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1147945947.20943.22.camel@localhost.localdomain>
-References: <20060518070700.GT17897@sunbeam.de.gnumonks.org>
-	 <1147945947.20943.22.camel@localhost.localdomain>
+	Thu, 18 May 2006 06:57:46 -0400
+Received: from [213.46.243.16] ([213.46.243.16]:40318 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1751281AbWERK5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 06:57:45 -0400
+Subject: Re: [PATCH] memory mapped files not updating timestamps
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Peter Staubach <staubach@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0605171954010.16979@blonde.wat.veritas.com>
+References: <446B3E5D.1030301@redhat.com>
+	 <Pine.LNX.4.64.0605171954010.16979@blonde.wat.veritas.com>
 Content-Type: text/plain
-Organization: Institute of Computer Science, University of Frankfurt
-Date: Thu, 18 May 2006 14:44:33 +0200
-Message-Id: <1147956274.9429.27.camel@gandalf.tm.informatik.uni-frankfurt.de>
+Date: Thu, 18 May 2006 12:52:22 +0200
+Message-Id: <1147949542.21805.4.camel@lappy>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-3mdk 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, den 18.05.2006, 10:52 +0100 schrieb Richard Purdie:
-> Just send the raw data to userspace. Any translations needed can be
-> handled in userspace by the calibration program. You probably want to
-> have a look at tslib: http://cvs.arm.linux.org.uk/cgi/viewcvs.cgi/tslib/
+On Wed, 2006-05-17 at 20:24 +0100, Hugh Dickins wrote:
+> On Wed, 17 May 2006, Peter Staubach wrote:
 
-Right. We have very good experience with tslib. The kdrive xserver
-supports it and we recently added tslib support to Qt/Embedded (Opie)
-and to Evas (EFL).
+> > The changes add support to detect when the modification time needs to be
+> > updated by placing a hook in __set_pages_dirty_buffers and
+> > __set_pages_dirty_nobuffers.  One of these two routines will be invoked
+> > when the dirty bit is detected in the pte.  The hook sets a new bit in the
+> > address_space mapping struct indicating that the file which is associated
+> > with that part of the address space needs to have its modification and
+> > change time attributes updated.
+> 
+> You're adding a little overhead to every set_page_dirty, when the vast
+> majority (ordinary writes) don't need it: their mctime update is already
+> well taken care of.  (Or should we be deleting the code that does that?
+> I think I'd rather not dare.)
 
-> Calibration happens in userspace and tslib stores the result
-> in /etc/pointercal. If you device has this data stored in hardware, you
-> could have a userspace app translate that data into such a file,
-> otherwise, you can run a calibration program such as ts_calibrate (from
-> tslib) or something like xtscal.
+It would make the code more symetric.
 
-ts_calibrate does a good job. It's pretty easy to use the calibration
-API and we have added customized calibration utilities in Opie, GPE and
-E to make the calibration phase match the look and feel with the main
-GUI.
+> I think you'd do better to target those places where set_page_dirty is
+> called on a mapped page - and do the file_update_time at that point -
+> or as near to that point as is sensible/permitted given the locking
+> (vma->vm_file gives you the file without needing inode_update_time).
 
-> I'm told you're thinking about using OpenEmbedded and would highly
-> recommend it. It should easily be able to provide a known working
-> userspace with tslib and these tools in.
+> Peter Zijlstra has patches relating to dirty mmaps in the -mm tree
+> at present: I need to take a look at those, and I'll see if it would
+> make sense to factor in this mctime issue on top of those - you may
+> want to do the same.
 
-I agree.
+Look for the callsites of set_page_dirty_balance(), those two points are
+where writable file pages are dirtied.
 
--- 
-Regards,
-
-Mickey.
-------------------------------------------------------------------
-Dipl.-Inf. Michael 'Mickey' Lauer <mickey@tm.cs.uni-frankfurt.de>
-------------------------------------------------------------------
-
+PeterZ
 

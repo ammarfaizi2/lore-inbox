@@ -1,114 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWERUyP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWERU5f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751396AbWERUyP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 16:54:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbWERUyO
+	id S1751291AbWERU5f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 16:57:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWERU5f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 16:54:14 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:28676 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751396AbWERUyN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 16:54:13 -0400
-Message-ID: <446CDDAE.1070908@vmware.com>
-Date: Thu, 18 May 2006 13:48:46 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, schwidefsky@de.ibm.com,
-       george@mvista.com, Xen-devel <xen-devel@lists.xensource.com>
-Subject: [PATCH] Fix a NO_IDLE_HZ timer bug
-Content-Type: multipart/mixed;
- boundary="------------080705030004080500090309"
+	Thu, 18 May 2006 16:57:35 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:24803 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751291AbWERU5e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 16:57:34 -0400
+Date: Thu, 18 May 2006 16:57:26 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org
+Subject: Re: [PATCH] i386 kdump boot cpu physical apicid fix
+Message-ID: <20060518205726.GC20121@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060518163542.GA20121@in.ibm.com> <20060518123655.7057e20e.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060518123655.7057e20e.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080705030004080500090309
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, May 18, 2006 at 12:36:55PM -0700, Andrew Morton wrote:
+> > 
+> > diff -puN arch/i386/kernel/apic.c~kdump-i386-boot-cpu-physical-apicid-fix arch/i386/kernel/apic.c
+> > --- linux-2.6.17-rc4-16M/arch/i386/kernel/apic.c~kdump-i386-boot-cpu-physical-apicid-fix	2006-05-17 13:27:44.000000000 -0400
+> > +++ linux-2.6.17-rc4-16M-root/arch/i386/kernel/apic.c	2006-05-18 05:11:44.000000000 -0400
+> > @@ -860,12 +860,7 @@ void __init init_apic_mappings(void)
+> >  	printk(KERN_DEBUG "mapped APIC to %08lx (%08lx)\n", APIC_BASE,
+> >  	       apic_phys);
+> >  
+> > -	/*
+> > -	 * Fetch the APIC ID of the BSP in case we have a
+> > -	 * default configuration (or the MP table is broken).
+> > -	 */
+> > -	if (boot_cpu_physical_apicid == -1U)
+> > -		boot_cpu_physical_apicid = GET_APIC_ID(apic_read(APIC_ID));
+> > +	boot_cpu_physical_apicid = GET_APIC_ID(apic_read(APIC_ID));
+> >  
+> 
+> I just don't think we can do this sort of thing.  The workaround for broken
+> MP tables is one of those nasty things we've gained through many years of
+> hard-won real-world experience.
+> 
+> If we just go and toss it away like this, all those machines which used to
+> work will break and there'll be a sad little dribble of regression reports
+> which everyone cheerily ignores as usual.
+> 
+> So, sorry, nope.  Please find a way to fix kdump while retaining the
+> broken-MP-table workaround.
 
-This bug affects at least s390, Xen, and occurred during testing of 
-NO_IDLE_HZ with our VMI patches.  The bug is rather subtle and rare.  
-Jiffies can be advanced by other CPUs, but if the current CPU has not 
-processed timer softirqs in a while, the timer wheel can be behind 
-jiffies, causing an overflow when comparing the next timer wheel 
-expiration with the default high resolution timeout (no timeout), which 
-is relative to jiffies.
-
-It also looks like s390 has another bug.  When compiling the 32-bit 
-kernel, doesn't this computation overflow:
-
-arch/s390/kernel/time.c, stop_hz_timer:274
-
-        /*
-         * This cpu is going really idle. Set up the clock comparator
-         * for the next event.
-         */
-        next = next_timer_interrupt();
-        do {
-                seq = read_seqbegin_irqsave(&xtime_lock, flags);
-                timer = (__u64)(next - jiffies) + jiffies_64;
-        } while (read_seqretry_irqrestore(&xtime_lock, seq, flags));
+Ok. I thought if overriding MP tables works in SMP case then it should work
+in UP case too. But anyway, here is the take2. This one is little ugly and
+hackish but limits the impact to only UP kernels and that too if CRASH_DUMP
+is enabled. 
 
 
-Since jiffies can advance between next_timer_interrupt and the read 
-under xtime lock, next-jiffies could be negative.  I would think you 
-want to cast that to signed long instead of __u64, but I'm not totally 
-qualified to talk about s390.
 
-Zach
 
---------------080705030004080500090309
-Content-Type: text/plain;
- name="no-idle-hz-timer-race"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="no-idle-hz-timer-race"
+o Kdump second kernel boot fails after a system crash if second kernel
+  is UP and acpi=off and if crash occurred on a non-boot cpu. 
 
-Under certain timing conditions, a race during boot occurs where timer ticks
-are being processed on remote CPUs.  The remote timer ticks can increment
-jiffies, and if this happens during a window when a timeout is very close to
-expiring but a local tick has not yet been delivered, you can end up with
+o Issue here is that MP tables report boot cpu lapic id as 0 but second
+  kernel is booting on a different processor and MP table data is stale
+  in this context. Hence apic_id_registered() check fails in setup_local_APIC()
+  when called from APIC_init_uniprocessor(). 
 
-1) No softirq pending
-2) A local timer wheel which is not synced to jiffies
-3) No high resolution timer active
-4) A local timer which is supposed to fire before the current jiffies value.
+o Problem is not seen if ACPI is enabled as in that case
+  boot_cpu_physical_apicid is read from the LAPIC.
 
-In this circumstance, the comparison in next_timer_interrupt overflows, because
-the base of the comparison for high resolution timers is jiffies, but for the
-softirq timer wheel, it is relative the the current base of the wheel
-(jiffies_base).
+o Problem is not seen with SMP kernels as well because in this case also
+  boot_cpu_physical_apicid is read from LAPIC. (smp_boot_cpus()).
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
+o The problem is fixed by reading boot_cpu_physical_apicid from LAPIC 
+  if it is a UP kernel and CRASH_DUMP is enabled.
 
-Index: linux-2.6.17-rc/kernel/timer.c
-===================================================================
---- linux-2.6.17-rc.orig/kernel/timer.c	2006-05-18 13:32:22.000000000 -0700
-+++ linux-2.6.17-rc/kernel/timer.c	2006-05-18 13:34:59.000000000 -0700
-@@ -541,6 +541,22 @@ found:
- 	}
- 	spin_unlock(&base->lock);
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
+
+ arch/i386/kernel/apic.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff -puN arch/i386/kernel/apic.c~kdump-i386-boot-cpu-physical-apicid-fix-take2 arch/i386/kernel/apic.c
+--- linux-2.6.17-rc4-16M/arch/i386/kernel/apic.c~kdump-i386-boot-cpu-physical-apicid-fix-take2	2006-05-18 11:26:45.000000000 -0400
++++ linux-2.6.17-rc4-16M-root/arch/i386/kernel/apic.c	2006-05-18 11:26:45.000000000 -0400
+@@ -1341,6 +1341,14 @@ int __init APIC_init_uniprocessor (void)
+ 
+ 	connect_bsp_APIC();
  
 +	/*
-+	 * It can happen that other CPUs service timer IRQs and increment
-+	 * jiffies, but we have not yet got a local timer tick to process
-+	 * the timer wheels.  In that case, the expiry time can be before
-+	 * jiffies, but since the high-resolution timer here is relative to
-+	 * jiffies, the default expression when high-resolution timers are
-+	 * not active,
-+	 *
-+	 *   time_before(MAX_JIFFY_OFFSET + jiffies, expires)
-+	 *
-+	 * would falsely evaluate to true.  If that is the case, just
-+	 * return jiffies so that we can immediately fire the local timer
++	 * Hack: In case of kdump, after a crash, kernel might be booting
++	 * on a cpu with non-zero lapic id. But boot_cpu_physical_apicid
++	 * might be zero if read from MP tables. Get it from LAPIC.
 +	 */
-+	if (time_before(expires, jiffies))
-+		return jiffies;
-+
- 	if (time_before(hr_expires, expires))
- 		return hr_expires;
++#ifdef CONFIG_CRASH_DUMP
++	boot_cpu_physical_apicid = GET_APIC_ID(apic_read(APIC_ID));
++#endif
+ 	phys_cpu_present_map = physid_mask_of_physid(boot_cpu_physical_apicid);
  
-
---------------080705030004080500090309--
+ 	setup_local_APIC();
+_

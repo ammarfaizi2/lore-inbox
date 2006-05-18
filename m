@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWERHV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWERHVx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbWERHV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 03:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWERHV0
+	id S1750870AbWERHVx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 03:21:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750858AbWERHVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 03:21:26 -0400
-Received: from mga01.intel.com ([192.55.52.88]:19998 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750809AbWERHV0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 03:21:26 -0400
-X-IronPort-AV: i="4.05,139,1146466800"; 
-   d="scan'208"; a="39016839:sNHT18271904"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Thu, 18 May 2006 03:21:53 -0400
+Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:228 "EHLO
+	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750839AbWERHVw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 03:21:52 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH] mm: limit lowmem_reserve
+Date: Thu, 18 May 2006 17:21:38 +1000
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, ck@vds.kolivas.org,
+       linux list <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+References: <200604021401.13331.kernel@kolivas.org> <200605180011.43216.kernel@kolivas.org> <446C1E25.4080408@yahoo.com.au>
+In-Reply-To: <446C1E25.4080408@yahoo.com.au>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Over-heating CPU on 2.6.16 with Thinkpad G41
-Date: Thu, 18 May 2006 03:21:16 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB679C373@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Over-heating CPU on 2.6.16 with Thinkpad G41
-Thread-Index: AcZ6SvQ7Prz5DTWoRtiYNBIAboYoEwAAFSLA
-From: "Brown, Len" <len.brown@intel.com>
-To: "Steven Rostedt" <rostedt@goodmis.org>, "Pavel Machek" <pavel@ucw.cz>
-Cc: "LKML" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 May 2006 07:21:17.0640 (UTC) FILETIME=[A7683C80:01C67A4B]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605181721.38735.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > I have a IBM Thinkpad G41 which has a pentium 4 HT.
+On Thursday 18 May 2006 17:11, Nick Piggin wrote:
+> If we're under memory pressure, kswapd will try to free up any candidate
+> zone, yes.
+>
+> > On my test case this indeed happens and my ZONE_DMA never goes below 3000
+> > pages free. If I lower the reserve even further my pages free gets stuck
+> > at 3208 and can't free any more, and doesn't ever drop below that either.
+> >
+> > Here is the patch I was proposing
+>
+> What problem does that fix though?
 
-This system will have no P-states and no deep C-states,
-so the thing to watch is the idle/busy time.  It may be
-that something in the patch you applied is keeping the
-processor busy 100% and not allowing it to get into
-idle (disk wait time that you'll see when building
-that kernel counts as idle here) where it can save some power.
+It's a generic concern and I honestly don't know how significant it is which 
+is why I'm asking if it needs attention. That concern being that any time 
+we're under any sort of memory pressure, ZONE_DMA will undergo intense 
+reclaim even though there may not really be anything specifically going on in 
+ZONE_DMA. It just seems a waste of cycles doing that.
 
--Len
+-- 
+-ck

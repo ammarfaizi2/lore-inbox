@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWEROBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWEROJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbWEROBP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 10:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbWEROBP
+	id S1750798AbWEROJw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 10:09:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWEROJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 10:01:15 -0400
-Received: from mail.visionpro.com ([63.91.95.13]:6037 "EHLO
-	chicken.machinevisionproducts.com") by vger.kernel.org with ESMTP
-	id S932079AbWEROBO convert rfc822-to-8bit (ORCPT
+	Thu, 18 May 2006 10:09:52 -0400
+Received: from math.ut.ee ([193.40.36.2]:55251 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S1750798AbWEROJw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 10:01:14 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 18 May 2006 10:09:52 -0400
+Date: Thu, 18 May 2006 17:09:47 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: How to enable bios-disabled soundcard?
+Message-ID: <Pine.SOC.4.61.0605181650080.4469@math.ut.ee>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Invalid module format?
-Date: Thu, 18 May 2006 07:01:13 -0700
-Message-ID: <14CFC56C96D8554AA0B8969DB825FEA0012B321D@chicken.machinevisionproducts.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Invalid module format?
-Thread-Index: AcZ6g4W7XJmJbmb5Q46RoGd5CEiErQ==
-From: "Brian D. McGrew" <brian@visionpro.com>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have two device drivers for two separate PCI cards.
+Context: IBM X20 laptop with integrated PCI CS4281 soundcard. Loading 
+snd_cs4281 gives these messages and registers no alsa device:
 
-Using the 2.6.15.6 I can compile and insert both of these drivers.
+ACPI: PCI interrupt for device 0000:00:0b.0 disabled
+CS4281: probe of 0000:00:0b.0 failed with error -5
 
-I copy my sources to my 2.6.16.16 tree and recompile them.  One driver
-inserts just fine (and works) and the other gives me this:
+Error -5 seems to be -EIO.
 
-FATAL: Error inserting ibb
-(/lib/modules/2.6.16.16/kernel/drivers/mvp/ibb.ko): Invalid module
-format
+There is no option ib bios to enable/disable the soundcard and the bios 
+is almost the latest (2.23, latest 2.25 fixes only unrelated things by 
+changelog).
 
-The same source file between both kernels and I get no errors at compile
-time.
+lspci identifies the card as follows (pci ID is the same as in the 
+driver):
+0000:00:0b.0 Multimedia audio controller: Cirrus Logic Crystal CS4281 PCI Audio (rev 01)
 
-This is a Fedora Core 3 system running on a Dell PE1800.
+I tried pci=routeirq. It distributed the interrupts differently but this 
+problem did remain.
 
-:b!
+I tried acpi=ogg and the ACPI line disappeared but probe failure stayed.
 
-Brian D. McGrew { brian@visionpro.com || brian@doubledimension.com }
---
-> This is a test.  This is only a test!
-  Had this been an actual emergency, you would have been
-  told to cancel this test and seek professional assistance!
+So how can I enable the soundcard?
 
+-- 
+Meelis Roos (mroos@linux.ee)

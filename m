@@ -1,89 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWERWMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWERWPH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750725AbWERWMV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 18:12:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWERWMV
+	id S1750795AbWERWPH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 18:15:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbWERWPH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 18:12:21 -0400
-Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:2019 "EHLO
-	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1750725AbWERWMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 18:12:20 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Thu, 18 May 2006 23:12:03 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Andreas Dilger <adilger@clusterfs.com>,
-       "Stephen C. Tweedie" <sct@redhat.com>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sector_t overflow in block layer
-In-Reply-To: <Pine.LNX.4.64.0605181403550.10823@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0605182307540.16178@hermes-1.csi.cam.ac.uk>
-References: <1147849273.16827.27.camel@localhost.localdomain>
- <m3odxxukcp.fsf@bzzz.home.net> <1147884610.16827.44.camel@localhost.localdomain>
- <m34pzo36d4.fsf@bzzz.home.net> <1147888715.12067.38.camel@dyn9047017100.beaverton.ibm.com>
- <m364k4zfor.fsf@bzzz.home.net> <20060517235804.GA5731@schatzie.adilger.int>
- <1147947803.5464.19.camel@sisko.sctweedie.blueyonder.co.uk>
- <20060518185955.GK5964@schatzie.adilger.int> <Pine.LNX.4.64.0605181403550.10823@g5.osdl.org>
+	Thu, 18 May 2006 18:15:07 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8105 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750795AbWERWPF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 18:15:05 -0400
+Message-ID: <446CF1A2.1090703@redhat.com>
+Date: Thu, 18 May 2006 18:13:54 -0400
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.8-1.4.1 (X11/20060420)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+CC: Hugh Dickins <hugh@veritas.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] memory mapped files not updating timestamps
+References: <446B3E5D.1030301@redhat.com>	 <Pine.LNX.4.64.0605171954010.16979@blonde.wat.veritas.com> <1147949542.21805.4.camel@lappy>
+In-Reply-To: <1147949542.21805.4.camel@lappy>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 May 2006, Linus Torvalds wrote:
-> On Thu, 18 May 2006, Andreas Dilger wrote:
-> >  	struct bio *bio;
-> > +	unsigned long long sector;
-> >  	int ret = 0;
-> >  
-> >  	BUG_ON(!buffer_locked(bh));
-> >  	BUG_ON(!buffer_mapped(bh));
-> >  	BUG_ON(!bh->b_end_io);
-> >  
-> > +	/* Check if we overflow sector_t when computing the sector offset.  */
-> > +	sector = (unsigned long long)bh->b_blocknr * (bh->b_size >> 9);
-> 
-> Ok so far, looks fine.
-> 
-> But what the heck is this:
-> 
-> > +#if !defined(CONFIG_LBD) && BITS_PER_LONG == 32
-> > +	if (unlikely(sector != (sector_t)sector))
-> > +#else
-> > +	if (unlikely(((bh->b_blocknr >> 32) * (bh->b_size >> 9)) >=
-> > +		     0xffffffff00000000ULL))
-> > +#endif
-> 
-> I don't understand the #ifdef at all.
-> 
-> Why isn't that just a 
-> 
-> 	if (unlikely(sector != (sector_t)sector))
-> 
-> and that's it? What does this have to do with CONFIG_LBD or BITS_PER_LONG, 
-> or anything at all?
-> 
-> If the sector number fits in a sector_t, we're all good.
+Peter Zijlstra wrote:
 
-I think you missed that Andrewas said he is worried about 64-bit overflows 
-as well.  And you would not catch those with the sector != 
-(sector_t)sector test because you would be comparing two 64-bit values 
-together so they always match...
+>On Wed, 2006-05-17 at 20:24 +0100, Hugh Dickins wrote:
+>  
+>
+>>On Wed, 17 May 2006, Peter Staubach wrote:
+>>    
+>>
+>
+>  
+>
+>>>The changes add support to detect when the modification time needs to be
+>>>updated by placing a hook in __set_pages_dirty_buffers and
+>>>__set_pages_dirty_nobuffers.  One of these two routines will be invoked
+>>>when the dirty bit is detected in the pte.  The hook sets a new bit in the
+>>>address_space mapping struct indicating that the file which is associated
+>>>with that part of the address space needs to have its modification and
+>>>change time attributes updated.
+>>>      
+>>>
+>>You're adding a little overhead to every set_page_dirty, when the vast
+>>majority (ordinary writes) don't need it: their mctime update is already
+>>well taken care of.  (Or should we be deleting the code that does that?
+>>I think I'd rather not dare.)
+>>    
+>>
+>
+>It would make the code more symetric.
+>
+>  
+>
 
-Hence why he shifts the value right by 32 bits then multiplies and tests 
-the result for overflowing 32-bits which if it does it means it would 
-overflow the 64-bit multiplication, too therefor your "sector" is 
-truncated.
+It might, but I think that it might upset the guarantees that the system
+already makes about timely mtime/ctime updates when a file is written to.
+Those requirements are much tighter than the requirements for when those
+time fields get updated for a modified mmap'd file.  With the exception
+of msync, really the only requirement for updating mtime and ctime for
+an mmap'd file is that these time fields change, at some time.
 
-Makes sense to me in a some very convoluted sickening way...  (-;
+    Thanx...
 
-Best regards,
+       ps
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer, http://www.linux-ntfs.org/
+>>I think you'd do better to target those places where set_page_dirty is
+>>called on a mapped page - and do the file_update_time at that point -
+>>or as near to that point as is sensible/permitted given the locking
+>>(vma->vm_file gives you the file without needing inode_update_time).
+>>    
+>>
+>
+>  
+>
+>>Peter Zijlstra has patches relating to dirty mmaps in the -mm tree
+>>at present: I need to take a look at those, and I'll see if it would
+>>make sense to factor in this mctime issue on top of those - you may
+>>want to do the same.
+>>    
+>>
+>
+>Look for the callsites of set_page_dirty_balance(), those two points are
+>where writable file pages are dirtied.
+>
+>PeterZ
+>
+>  
+>
+

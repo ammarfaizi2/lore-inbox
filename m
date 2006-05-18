@@ -1,112 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWERRl3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWERRmi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932102AbWERRl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 13:41:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWERRl3
+	id S932105AbWERRmi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 13:42:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWERRmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 13:41:29 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:32940 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932102AbWERRl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 13:41:29 -0400
-Date: Thu, 18 May 2006 19:41:12 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Heiko J Schick <schihei@de.ibm.com>
-Cc: openib-general@openib.org, Christoph Raisch <RAISCH@de.ibm.com>,
-       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH 01/16] ehca: module infrastructure
-Message-ID: <20060518174112.GB26113@wohnheim.fh-wedel.de>
-References: <4468BD39.3010008@de.ibm.com>
+	Thu, 18 May 2006 13:42:38 -0400
+Received: from ns2.suse.de ([195.135.220.15]:50918 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932105AbWERRmh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 13:42:37 -0400
+Date: Thu, 18 May 2006 10:40:32 -0700
+From: Greg KH <greg@kroah.com>
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: [stable] Re: [PATCH 00/22] -stable review
+Message-ID: <20060518174032.GA31837@kroah.com>
+References: <20060517221312.227391000@sous-sol.org> <Pine.LNX.4.64.0605171522050.10823@g5.osdl.org> <20060517223601.GI2697@moss.sous-sol.org> <20060517224124.GA23967@kroah.com> <446C3B3C.1050301@tls.msk.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4468BD39.3010008@de.ibm.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <446C3B3C.1050301@tls.msk.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 May 2006 19:41:13 +0200, Heiko J Schick wrote:
-> + *  This source code is distributed under a dual license of GPL v2.0 and 
-> OpenIB
+On Thu, May 18, 2006 at 01:15:40PM +0400, Michael Tokarev wrote:
+> Greg KH wrote:
+> > On Wed, May 17, 2006 at 03:36:01PM -0700, Chris Wright wrote:
+> >> * Linus Torvalds (torvalds@osdl.org) wrote:
+> >>>
+> >>> On Wed, 17 May 2006, Chris Wright wrote:
+> >>>> This is the start of the stable review cycle for the 2.6.16.17 release.
+> >>>> There are 22 patches in this series, all will be posted as a response to
+> >>>> this one.
+> >>> I notice that none of the patches have authorship information.
+> >>>
+> >>> Has that always been true and I just never noticed before?
+> >> It has always been that way with my script, I think Greg's as well.  Of
+> >> course, it's in the patch, and goes into git with proper authorship.
+> > 
+> > The original versions of the patches do have the proper authorship
+> > information, it's just that quilt strips it off when generating emails
+> > like this.
+> > 
+> > When applying them to the git tree, everything comes out properly and
+> > they get the correct authorship information.  And the git tools know to
+> > properly create the emails with the right From: lines, maybe I should
+> > play around with quilt to add that to it too...
+> 
+> While we're on it.. Just another small nitpick.  Random patch from this 00/22
+> series:
+> 
+>  Subject: [PATCH 05/22] [PATCH] smbfs: Fix slab corruption in samba error path
+> 
+> Can the 2nd "[PATCH]" tag be removed as well? ;)
 
-Your mailer is still mangling long lines, it seems.  If you need a
-quick solution, I could offer you a gmail invite.
+Oops, sorry about that.  I've fixed that up for all of the patches now,
+I forgot to do that this time around.
 
-> +
-> +	EDEB_EX(7, "ret=%x", ret);
-> +
-> +	return ret;
-> +
-> +create_aqp1:
-> +	ib_destroy_cq(sport->ibcq_aqp1);
-> +
-> +	EDEB_EX(7, "ret=%x", ret);
-> +
-> +	return ret;
-> +}
+thanks,
 
-Those two cases could be combined with a goto.  Saves a tiny amount of
-rodata.
-
-> +#define EHCA_RESOURCE_ATTR(name)                                           
-> \
-> +static ssize_t  ehca_show_##name(struct device *dev,                       
-> \
-
-You have spaces instead of tabs in the lines the mailer mangled.
-
-> +                                                                           
-> \
-> +	data = rblock->name;                                               \
-> +	kfree(rblock);                                                     \
-> +									   \
-> +	if ((strcmp(#name, "num_ports") == 0) && (ehca_nr_ports == 1))	   \
-> +		return snprintf(buf, 256, "1\n");			   \
-> +	else								   \
-> +		return snprintf(buf, 256, "%d\n", data);		   \
-> +									   \
-
-Is rblock->num_ports uninitialized when (ehca_nr_ports == 1)?  Looks
-rather odd.
-
-> +	shca = (struct ehca_shca *)ib_alloc_device(sizeof(*shca));
-
-A quick grep showed that every single return value of
-ib_alloc_device() has a cast.
-Roland, can't you just change ib_alloc_device() to return void*?
-
-> +static struct of_device_id ehca_device_table[] =
-> +{
-> +	{
-> +		.name       = "lhca",
-> +		.compatible = "IBM,lhca",
-> +	},
-> +	{},
-> +};
-
-Is the extra element needed?
-
-> +	if ((ret = ehca_create_slab_caches(&ehca_module))) {
-> +		EDEB_ERR(4, "Cannot create SLAB caches");
-> +		ret = -ENOMEM;
-> +		goto module_init1;
-> +	}
-
-	ret = try_something()
-	if (ret) {
-		...
-	}
-
-> +	ehca_module.timer.data = (unsigned long)(void*)&ehca_module;
-
-Why the double cast?
-
-Jörn
-
--- 
-Fancy algorithms are slow when n is small, and n is usually small.
-Fancy algorithms have big constants. Until you know that n is
-frequently going to be big, don't get fancy.
--- Rob Pike
+greg k-h

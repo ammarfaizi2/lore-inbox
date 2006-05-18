@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWEROJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbWEROXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbWEROJw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 10:09:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWEROJw
+	id S1750778AbWEROXE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 10:23:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWEROXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 10:09:52 -0400
-Received: from math.ut.ee ([193.40.36.2]:55251 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S1750798AbWEROJw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 10:09:52 -0400
-Date: Thu, 18 May 2006 17:09:47 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: How to enable bios-disabled soundcard?
-Message-ID: <Pine.SOC.4.61.0605181650080.4469@math.ut.ee>
+	Thu, 18 May 2006 10:23:04 -0400
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:20135
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1750778AbWEROXD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 10:23:03 -0400
+Date: Thu, 18 May 2006 15:21:04 +0100
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andy Whitcroft <apw@shadowen.org>, nickpiggin@yahoo.com.au,
+       haveblue@us.ibm.com, bob.picco@hp.com, mingo@elte.hu, mbligh@mbligh.org,
+       ak@suse.de, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: [PATCH 1/2] zone init check and report unaligned zone boundaries fix
+Message-ID: <20060518142104.GA9407@shadowen.org>
+References: <exportbomb.1147962048@pinky>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+InReply-To: <exportbomb.1147962048@pinky>
+User-Agent: Mutt/1.5.11+cvs20060403
+From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Context: IBM X20 laptop with integrated PCI CS4281 soundcard. Loading 
-snd_cs4281 gives these messages and registers no alsa device:
+zone init check and report unaligned zone boundaries fix
 
-ACPI: PCI interrupt for device 0000:00:0b.0 disabled
-CS4281: probe of 0000:00:0b.0 failed with error -5
+We are reporting bad boundaries for the first zone which is allowed
+to be missaligned because nodes are not allowed to be missaligned,
+and zones which have zero size.  Cull them.
 
-Error -5 seems to be -EIO.
-
-There is no option ib bios to enable/disable the soundcard and the bios 
-is almost the latest (2.23, latest 2.25 fixes only unrelated things by 
-changelog).
-
-lspci identifies the card as follows (pci ID is the same as in the 
-driver):
-0000:00:0b.0 Multimedia audio controller: Cirrus Logic Crystal CS4281 PCI Audio (rev 01)
-
-I tried pci=routeirq. It distributed the interrupts differently but this 
-problem did remain.
-
-I tried acpi=ogg and the ACPI line disappeared but probe failure stayed.
-
-So how can I enable the soundcard?
-
--- 
-Meelis Roos (mroos@linux.ee)
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+---
+ page_alloc.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+diff -upN reference/mm/page_alloc.c current/mm/page_alloc.c
+--- reference/mm/page_alloc.c
++++ current/mm/page_alloc.c
+@@ -2223,7 +2223,8 @@ static void __meminit free_area_init_cor
+ 		struct zone *zone = pgdat->node_zones + j;
+ 		unsigned long size, realsize;
+ 
+-		if (zone_boundary_align_pfn(zone_start_pfn) != zone_start_pfn)
++		if (zone_boundary_align_pfn(zone_start_pfn) !=
++					zone_start_pfn && j != 0 && size != 0)
+ 			printk(KERN_CRIT "node %d zone %s missaligned "
+ 					"start pfn\n", nid, zone_names[j]);
+ 

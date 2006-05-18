@@ -1,24 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWERPg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbWERPis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750737AbWERPg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 11:36:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbWERPg5
+	id S1750933AbWERPis (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 11:38:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWERPis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 11:36:57 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:12675 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750737AbWERPg4 (ORCPT
+	Thu, 18 May 2006 11:38:48 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:15747 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750933AbWERPir (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 11:36:56 -0400
-Message-ID: <446C9492.2040704@garzik.org>
-Date: Thu, 18 May 2006 11:36:50 -0400
+	Thu, 18 May 2006 11:38:47 -0400
+Message-ID: <446C9503.1020609@garzik.org>
+Date: Thu, 18 May 2006 11:38:43 -0400
 From: Jeff Garzik <jeff@garzik.org>
 User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: Jan Wagner <jwagner@kurp.hut.fi>, linux-kernel@vger.kernel.org
+To: Mark Lord <lkml@rtr.ca>
+CC: Tejun Heo <htejun@gmail.com>, Jan Wagner <jwagner@kurp.hut.fi>,
+       linux-kernel@vger.kernel.org
 Subject: Re: support for sata7 Streaming Feature Set?
-References: <Pine.LNX.4.58.0605051547410.7359@kurp.hut.fi> <4466D6FB.1040603@gmail.com> <Pine.LNX.4.58.0605162126520.31191@kurp.hut.fi> <446BD8F2.10509@gmail.com>
-In-Reply-To: <446BD8F2.10509@gmail.com>
+References: <Pine.LNX.4.58.0605051547410.7359@kurp.hut.fi> <4466D6FB.1040603@gmail.com> <Pine.LNX.4.58.0605162126520.31191@kurp.hut.fi> <446BD8F2.10509@gmail.com> <446C7435.2040809@rtr.ca>
+In-Reply-To: <446C7435.2040809@rtr.ca>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: -4.1 (----)
@@ -27,17 +28,20 @@ X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> One thing to think about before supporting streaming from/to harddisks 
-> from userland is how to make data flow efficiently from userland to 
-> kernel and back.  But, no matter what, kernel <-> userland usually 
-> involves one data copy, so I don't think making sg similarly efficient 
-> would be too difficult (it might be already).
+Mark Lord wrote:
+> The device driver has to know about it, at a minimum so that it can
+> select a different EH protocol for the streams.  Which in turn means
+> that the streaming commands should be known to the driver as well.
 
-Actually, the kernel usually maps userland pages, eliminating the need 
-for a copy.  write(2) may have copied data into that page originally, 
-but mmap(2) need not have.
+Different taskfile protocol, you mean?
+
+
+> But how to handle it all nicely is the real question.
+> A new block driver, if libata cannot handle it?
+
+I seriously doubt writing a whole new ATA driver subsystem will fly :)
 
 	Jeff
+
 
 

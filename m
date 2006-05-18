@@ -1,68 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWERLQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWERLRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750721AbWERLQE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 07:16:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWERLQE
+	id S932072AbWERLRL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 07:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbWERLRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 07:16:04 -0400
-Received: from smtp2.int-evry.fr ([157.159.10.45]:19912 "EHLO
-	smtp2.int-evry.fr") by vger.kernel.org with ESMTP id S1750721AbWERLQC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 07:16:02 -0400
-Message-ID: <446C5780.7050608@int-evry.fr>
-Date: Thu, 18 May 2006 13:16:16 +0200
-From: Florent Thiery <Florent.Thiery@int-evry.fr>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+	Thu, 18 May 2006 07:17:11 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:39836 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932069AbWERLRK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 07:17:10 -0400
+Date: Thu, 18 May 2006 13:16:26 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Jan Beulich <jbeulich@novell.com>
+Cc: Andreas Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org
+Subject: Re: [PATCH 1/3] reliable stack trace support
+Message-ID: <20060518111625.GA2026@elf.ucw.cz>
+References: <4469FC07.76E4.0078.0@novell.com>
 MIME-Version: 1.0
-To: Harald Welte <laforge@gnumonks.org>
-Cc: openezx-devel@lists.gnumonks.org, linux-kernel@vger.kernel.org
-Subject: Re: How should Touchscreen Input Drives behave (OpenEZX pcap_ts)
-References: <20060518070700.GT17897@sunbeam.de.gnumonks.org>
-In-Reply-To: <20060518070700.GT17897@sunbeam.de.gnumonks.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-INT-MailScanner-Information: Please contact the ISP for more information
-X-INT-MailScanner: Found to be clean
-X-INT-MailScanner-SpamCheck: 
-X-MailScanner-From: florent.thiery@int-evry.fr
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4469FC07.76E4.0078.0@novell.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Út 16-05-06 16:21:27, Jan Beulich wrote:
+> These are the generic bits needed to enable reliable stack traces based
+> on Dwarf2-like (.eh_frame) unwind information. Subsequent patches will
+> enable x86-64 and i386 to make use of this.
+> 
+> Signed-off-by: Jan Beulich <jbeulich@novell.com>
+> 
+> --- linux-2.6.17-rc4/include/asm-generic/unwind.h	1970-01-01 01:00:00.000000000 +0100
+> +++ 2.6.17-rc4-unwind-generic/include/asm-generic/unwind.h	2006-05-16 14:36:21.000000000 +0200
+> @@ -0,0 +1,119 @@
+> +#ifndef _ASM_GENERIC_UNWIND_H
+> +#define _ASM_GENERIC_UNWIND_H
+> +
+> +/*
+> + * Copyright (C) 2002-2006 Novell, Inc.
+> + *	Jan Beulich <jbeulich@novell.com>
+> + *
+> + * A simple API for unwinding kernel stacks.  This is used for
+> + * debugging and error reporting purposes.  The kernel doesn't need
+> + * full-blown stack unwinding with all the bells and whistles, so there
+> + * is not much point in implementing the full Dwarf2 unwind API.
 
->  As of now, I return
->    X_ABS, Y_ABS and PRESSURE values between 0 and 1000 (each).
->
->   
-Are you kidding ??? Does the touchscreen support pressure sensitivity? 
-Normally it wouldn't, you'd have only two values... Because sensitivity 
-touchscreens really are rare... That's why wacom does use the pen to 
-report pressure info on their tablets
-> 1) where does touchscreen calibration happen?  The EZX phones (like many
->    other devices, I believe) only contain resistive touchscreens that
->    appear pretty uncalibrated.   I'm sure the factory-set calibration
->    data must be stored somewhere in flash, but it's definitely handled
->    in the proprietary EZX userland, since their old kernel driver
->    doesn't have any calibration related bits.
->   
-I would say touchscreen calibration = scaling (to resolution) + 
-reference points
-> 2) what about the 'button' event.  In addition to the pressure (which is
->    about 300 for regular stylus use, > 400 if you press hard and > 600 if
->    you use yourfinger), some existing TS drivers return a button press.
->    Is it up to me to decide after which pressure level to consider the
->    button to be pressed / released?
->   
-I would say the best would be to watch pressure evolution.... If it 
-springs from 0 to 400 in less than sotg like 200 ms, then you got the 
-"button" event. Is it feasable?
+Missing GPL?
 
-I got a question: does stylus usage on original A780 show the pressure 
-sensitivity?
+> --- linux-2.6.17-rc4/kernel/unwind.c	1970-01-01 01:00:00.000000000 +0100
+> +++ 2.6.17-rc4-unwind-generic/kernel/unwind.c	2006-05-16 14:36:08.000000000 +0200
+> @@ -0,0 +1,876 @@
+> +/*
+> + * Copyright (C) 2002-2006 Novell, Inc.
+> + *	Jan Beulich <jbeulich@novell.com>
+> + *
+> + * A simple API for unwinding kernel stacks.  This is used for
+> + * debugging and error reporting purposes.  The kernel doesn't need
+> + * full-blown stack unwinding with all the bells and whistles, so there
+> + * is not much point in implementing the full Dwarf2 unwind API.
+> + */
 
-Another one: you say you're workin on building X-e. Are you talking 
-about kdrive?
-
-
-Regards,
-
-Florent
+...more than once, I'd say.
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

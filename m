@@ -1,55 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbWERWHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWERWMV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750860AbWERWHA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 18:07:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbWERWHA
+	id S1750725AbWERWMV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 18:12:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWERWMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 18:07:00 -0400
-Received: from ns.firmix.at ([62.141.48.66]:21472 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1750715AbWERWG7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 18:06:59 -0400
-Subject: Re: Nvidia legal to use by end-users?
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Don Bedsole <dbedsole@carolina.rr.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200605181650.52537.dbedsole@carolina.rr.com>
-References: <200605181650.52537.dbedsole@carolina.rr.com>
-Content-Type: text/plain
-Organization: http://www.firmix.at/
-Date: Fri, 19 May 2006 00:04:31 +0200
-Message-Id: <1147989871.3017.3.camel@gimli.at.home>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.246 () AWL,BAYES_00,FORGED_RCVD_HELO
+	Thu, 18 May 2006 18:12:21 -0400
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:2019 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1750725AbWERWMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 18:12:20 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Thu, 18 May 2006 23:12:03 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Andreas Dilger <adilger@clusterfs.com>,
+       "Stephen C. Tweedie" <sct@redhat.com>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sector_t overflow in block layer
+In-Reply-To: <Pine.LNX.4.64.0605181403550.10823@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0605182307540.16178@hermes-1.csi.cam.ac.uk>
+References: <1147849273.16827.27.camel@localhost.localdomain>
+ <m3odxxukcp.fsf@bzzz.home.net> <1147884610.16827.44.camel@localhost.localdomain>
+ <m34pzo36d4.fsf@bzzz.home.net> <1147888715.12067.38.camel@dyn9047017100.beaverton.ibm.com>
+ <m364k4zfor.fsf@bzzz.home.net> <20060517235804.GA5731@schatzie.adilger.int>
+ <1147947803.5464.19.camel@sisko.sctweedie.blueyonder.co.uk>
+ <20060518185955.GK5964@schatzie.adilger.int> <Pine.LNX.4.64.0605181403550.10823@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-05-18 at 16:50 -0400, Don Bedsole wrote:
-[...]
-> Question: If I download and install the Nvidia graphics card drivers from 
-> their site, am I violating the GPL as an end-user?  I was thinking the the 
+On Thu, 18 May 2006, Linus Torvalds wrote:
+> On Thu, 18 May 2006, Andreas Dilger wrote:
+> >  	struct bio *bio;
+> > +	unsigned long long sector;
+> >  	int ret = 0;
+> >  
+> >  	BUG_ON(!buffer_locked(bh));
+> >  	BUG_ON(!buffer_mapped(bh));
+> >  	BUG_ON(!bh->b_end_io);
+> >  
+> > +	/* Check if we overflow sector_t when computing the sector offset.  */
+> > +	sector = (unsigned long long)bh->b_blocknr * (bh->b_size >> 9);
+> 
+> Ok so far, looks fine.
+> 
+> But what the heck is this:
+> 
+> > +#if !defined(CONFIG_LBD) && BITS_PER_LONG == 32
+> > +	if (unlikely(sector != (sector_t)sector))
+> > +#else
+> > +	if (unlikely(((bh->b_blocknr >> 32) * (bh->b_size >> 9)) >=
+> > +		     0xffffffff00000000ULL))
+> > +#endif
+> 
+> I don't understand the #ifdef at all.
+> 
+> Why isn't that just a 
+> 
+> 	if (unlikely(sector != (sector_t)sector))
+> 
+> and that's it? What does this have to do with CONFIG_LBD or BITS_PER_LONG, 
+> or anything at all?
+> 
+> If the sector number fits in a sector_t, we're all good.
 
-No (if you only download, use and/or change it).
+I think you missed that Andrewas said he is worried about 64-bit overflows 
+as well.  And you would not catch those with the sector != 
+(sector_t)sector test because you would be comparing two 64-bit values 
+together so they always match...
 
-> GPL mainly covered what you are allowed or not allowed to do if you 
-> distribute software.  I ask because I saw on the OpenSuse site a statement to 
+Hence why he shifts the value right by 32 bits then multiplies and tests 
+the result for overflowing 32-bits which if it does it means it would 
+overflow the 64-bit multiplication, too therefor your "sector" is 
+truncated.
 
-Exactly. Which is the proof that an end-user (which per definition
-doesn't distribute sofwtare) cannot violate the GPL.
+Makes sense to me in a some very convoluted sickening way...  (-;
 
-> the effect that OpenSuse would not ship Nvidia, Ati drivers because some 
-> kernel developers consider them a violation of their copyrights.
+Best regards,
 
-OpenSuse is obviously not an enduser and - as a "software distributor" -
-must care about the GPL.
-JftSoC: This doesn't state any opinion about OpenSuse violating the
-license if they distribute said drivers from Nvidia.
-
-	Bernd
+	Anton
 -- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer, http://www.linux-ntfs.org/

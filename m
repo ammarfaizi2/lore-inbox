@@ -1,80 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWERQ5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWERRGn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751367AbWERQ5m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 12:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751374AbWERQ5m
+	id S1751034AbWERRGn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 13:06:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbWERRGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 12:57:42 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:43679 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1751367AbWERQ5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 12:57:41 -0400
-Date: Thu, 18 May 2006 18:57:28 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Jonathan McDowell <noodles@earth.li>
-Cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add Amstrad Delta NAND support.
-Message-ID: <20060518165728.GA26113@wohnheim.fh-wedel.de>
-References: <20060518160940.GS7570@earth.li>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060518160940.GS7570@earth.li>
-User-Agent: Mutt/1.5.9i
+	Thu, 18 May 2006 13:06:43 -0400
+Received: from mournblade.cat.pdx.edu ([131.252.208.27]:50368 "EHLO
+	mournblade.cat.pdx.edu") by vger.kernel.org with ESMTP
+	id S1750831AbWERRGm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 13:06:42 -0400
+Date: Thu, 18 May 2006 10:06:24 -0700 (PDT)
+From: Suzanne Wood <suzannew@cs.pdx.edu>
+Message-Id: <200605181706.k4IH6ObD000595@murzim.cs.pdx.edu>
+To: dipankar@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com
+Subject: Re: commit of [PATCH] Fix file lookup without ref
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 May 2006 17:09:41 +0100, Jonathan McDowell wrote:
->
-> +static struct mtd_info *ams_delta_mtd = NULL;
+ > From Suzanne Wood Tue May  9 23:53:03 2006
+ > In studying proc_readfd() of fs/proc/base.c, I'd looked back
+ > at the linux-2.5.60 version which was prior to the conversion
+ > to RCU and noticed that rather than straight spin_lock() as 
+ > introduced in this patch, proc_fd_link() and proc_lookupfd() 
+ > used read_lock(&files->file_lock).  Similarly, for __do_SAK() 
+ > in drivers/char/tty_io.c
 
+In include/linux/file.h, a change between linux-2.5.60 and
+linux-2.6.17 was rwlock_t file_lock to spinlock_t file_lock.
 
+In http://marc.theaimsgroup.com/?l=lse-tech&m=98235007317770&w=2
+John Hawkes apparently explains this in Finding #3, 
+"Because clone'd threads share the identical files_struct, we have
+hundreds of threads doing the read_lock() on the same
+(rwlock_t)file_lock.  This does not cause overt lock contention (because
+with this test load there is no writer-owner of the file_lock), but it
+does mean that each read_lock() and each read_unlock() dirties the
+file_lock word, which produces that cacheblock ping-pong effect when
+another thread on another CPU accesses that same file_lock word."
+as referenced by
+  http://lwn.net/2001/0412/a/fd-management.php3
 
-> +	switch(cmd){
-              ^    ^
-Add spaces
+Thanks.
+Suzanne
 
-> +	omap_writew(0, (OMAP_MPUIO_BASE + OMAP_MPUIO_IO_CNTL));
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Could that be done in a macro?
-
-> +	udelay(0.04);
-
-Floating point in the kernel?
-
-> +	ams_delta_mtd = kmalloc (sizeof(struct mtd_info) +
-                               ^
-> +					sizeof (struct nand_chip), GFP_KERNEL);
-
-Remove space
-
-And please create a structure containing both struct mtd_info and
-struct nand_chip.  Then use sizeof(that structure)...
-
-> +	/* Get pointer to private data */
-> +	this = (struct nand_chip *) (&ams_delta_mtd[1]);
-
-...and remove this cast.
-
-> +	/* Initialize structures */
-> +	memset((char *) ams_delta_mtd, 0, sizeof(struct mtd_info));
-> +	memset((char *) this, 0, sizeof(struct nand_chip));
-
-And those as well, while you're at it.
-
-> +	if (nand_scan (ams_delta_mtd, 1)) {
-                     ^
-> +	kfree (ams_delta_mtd);
-             ^
-> +static void __exit ams_delta_cleanup (void)
-                                       ^
-> +	nand_release (ams_delta_mtd);
-                    ^
-> +	kfree (ams_delta_mtd);
-             ^
-Jörn
-
--- 
-Happiness isn't having what you want, it's wanting what you have.
--- unknown
+ > > List:       git-commits-head
+ > > Subject:    [PATCH] Fix file lookup without ref
+ > > From:       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+ > > Date:       2006-04-19 17:00:12
+ > > 
+ > > commit ca99c1da080345e227cfb083c330a184d42e27f3
+ > > tree e417b4c456ae31dc1dde8027b6be44a1a9f19395
+ > > parent fb30d64568fd8f6a21afef987f11852a109723da
+ > > author Dipankar Sarma <dipankar@in.ibm.com> Wed, 19 Apr 2006 12:21:46 -0700
+ > > committer Linus Torvalds <torvalds@g5.osdl.org> Wed, 19 Apr 2006 23:13:51 -0700
+ > > 
+ > > [PATCH] Fix file lookup without ref

@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbWERJPp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbWERJe5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750978AbWERJPp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 05:15:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWERJPp
+	id S1750847AbWERJe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 05:34:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbWERJe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 05:15:45 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:61784 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S1750978AbWERJPo (ORCPT
+	Thu, 18 May 2006 05:34:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15259 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750847AbWERJe4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 05:15:44 -0400
-Message-ID: <446C3B3C.1050301@tls.msk.ru>
-Date: Thu, 18 May 2006 13:15:40 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Mail/News 1.5 (X11/20060318)
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: [stable] Re: [PATCH 00/22] -stable review
-References: <20060517221312.227391000@sous-sol.org> <Pine.LNX.4.64.0605171522050.10823@g5.osdl.org> <20060517223601.GI2697@moss.sous-sol.org> <20060517224124.GA23967@kroah.com>
-In-Reply-To: <20060517224124.GA23967@kroah.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 18 May 2006 05:34:56 -0400
+Date: Thu, 18 May 2006 02:34:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Michael Ellerman <michael@ellerman.id.au>
+Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+Subject: Re: [RFC/PATCH] Make printk work for really early debugging
+Message-Id: <20060518023449.4e697b96.akpm@osdl.org>
+In-Reply-To: <20060518091410.CC527679F4@ozlabs.org>
+References: <20060518091410.CC527679F4@ozlabs.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Wed, May 17, 2006 at 03:36:01PM -0700, Chris Wright wrote:
->> * Linus Torvalds (torvalds@osdl.org) wrote:
->>>
->>> On Wed, 17 May 2006, Chris Wright wrote:
->>>> This is the start of the stable review cycle for the 2.6.16.17 release.
->>>> There are 22 patches in this series, all will be posted as a response to
->>>> this one.
->>> I notice that none of the patches have authorship information.
->>>
->>> Has that always been true and I just never noticed before?
->> It has always been that way with my script, I think Greg's as well.  Of
->> course, it's in the patch, and goes into git with proper authorship.
+Michael Ellerman <michael@ellerman.id.au> wrote:
+>
+> Currently printk is no use for early debugging because it refuses to actually
+>  print anything to the console unless cpu_online(smp_processor_id()) is true.
 > 
-> The original versions of the patches do have the proper authorship
-> information, it's just that quilt strips it off when generating emails
-> like this.
+>  The stated explanation is that console drivers may require per-cpu resources,
+>  or otherwise barf, because the system is not yet setup correctly. Fair enough.
 > 
-> When applying them to the git tree, everything comes out properly and
-> they get the correct authorship information.  And the git tools know to
-> properly create the emails with the right From: lines, maybe I should
-> play around with quilt to add that to it too...
+>  However some console drivers might be quite happy running early during boot,
+>  in fact we have one, and so it'd be nice if printk understood that.
+> 
+>  So I add a flag (which I would have called CON_BOOT, but that's taken) called
+>  CON_ANYTIME, which indicates that a console is happy to be called anytime,
+>  even if the cpu is not yet online.
+> 
+>  Tested on a Power 5 machine, with both a CON_ANYTIME driver and a bogus
+>  console driver that BUG()s if called while offline. No problems AFAICT.
+>  Built for i386 UP & SMP.
 
-While we're on it.. Just another small nitpick.  Random patch from this 00/22
-series:
+hm, OK.  But iirc is was just one silly ia64 console driver which had this
+problem.  It might be better to make the new behaviour be the default and mark
+the ia64 driver CON_NEEDS_CPU_ONLINE or something.
 
- Subject: [PATCH 05/22] [PATCH] smbfs: Fix slab corruption in samba error path
+No?
 
-Can the 2nd "[PATCH]" tag be removed as well? ;)
-
-/mjt
+Or go through and audit the drivers and sprinkle CON_ANYTIME in all the
+safe ones, maybe.

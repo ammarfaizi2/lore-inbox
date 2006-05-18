@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWERIUX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbWERI0L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750768AbWERIUX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 04:20:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbWERIUX
+	id S1750823AbWERI0L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 04:26:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbWERI0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 04:20:23 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:48390 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750768AbWERIUW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 04:20:22 -0400
-Message-ID: <446C2E31.1010104@de.ibm.com>
-Date: Thu, 18 May 2006 10:20:01 +0200
-From: Martin Peschke <mp3@de.ibm.com>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+	Thu, 18 May 2006 04:26:11 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:54234 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1750823AbWERI0J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 04:26:09 -0400
+Message-ID: <446C2F89.5020300@bull.net>
+Date: Thu, 18 May 2006 10:25:45 +0200
+From: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en, fr, hu
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <clameter@sgi.com>,
-       "Frank Ch. Eigler" <fche@redhat.com>,
-       Peter Chubb <peterc@gelato.unsw.edu.au>,
-       "hch@infradead.org" <hch@infradead.org>,
-       "arjan@infradead.org" <arjan@infradead.org>, "ak@suse.de" <ak@suse.de>
-Subject: Re: [RFC] [Patch 5/6] statistics infrastructure
-References: <3741.1147913845@ocs3>
-In-Reply-To: <3741.1147913845@ocs3>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: jack@suse.cz, sct@redhat.com, linux-kernel@vger.kernel.org
+Subject: re: [PATCH] Change ll_rw_block() calls in JBD
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 18/05/2006 10:29:03,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 18/05/2006 10:29:13,
+	Serialize complete at 18/05/2006 10:29:13
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> Martin Peschke (on Wed, 17 May 2006 20:56:20 +0200) wrote:
->> This patch adds statistics infrastructure as common code.
->> +static int __devinit statistic_hotcpu(struct notifier_block *notifier,
->> +				      unsigned long action, void *__cpu)
-> 
-> __cpuinit for hotplug cpu, not __devinit.
-> 
+> We must be sure that the current data in buffer are sent to disk.
+> Hence we have to call ll_rw_block() with SWRITE.
 
-Fixed. Thank you.
+Let's consider the following case:
 
-Actually, I kernel/profile.c made me think __devinit was okay.
-Anyone going to fix that one?
+	while (commit_transaction->t_sync_datalist) {
+		...
+
+		// Assume a "bh" got locked before starting this loop
+
+		if (buffer_locked(bh)) {
+			...
+			__journal_temp_unlink_buffer(jh);
+			__journal_file_buffer(jh, commit_transaction, BJ_Locked);
+		} else ...
+	}
+	...
+	while (commit_transaction->t_locked_list) {
+		...
+
+		// Assume our "bh" is not locked any more
+		// Nothing has happened to this "bh", someone just wanted
+		// to look at it in a safe way
+
+		if (buffer_jbd(bh) && jh->b_jlist == BJ_Locked) {
+			__journal_unfile_buffer(jh);
+			jbd_unlock_bh_state(bh);
+			journal_remove_journal_head(bh);
+			put_bh(bh);
+		} else ...
+	}
+
+I.e. having an already locked "bh", it is missed out from the log.
+
+Regards,
+
+Zoltan Menyhart
 

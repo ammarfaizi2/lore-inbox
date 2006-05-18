@@ -1,43 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWERVhI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbWERVic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751401AbWERVhI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 17:37:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWERVhH
+	id S1750799AbWERVic (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 17:38:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWERVic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 17:37:07 -0400
-Received: from rtr.ca ([64.26.128.89]:23243 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1751401AbWERVhG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 17:37:06 -0400
-Message-ID: <446CE900.9070802@rtr.ca>
-Date: Thu, 18 May 2006 17:37:04 -0400
-From: Mark Lord <liml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Zang Roy-r61911 <tie-fei.zang@freescale.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Alexandre.Bounine@tundra.com,
-       Yang Xin-Xin-r48390 <Xin-Xin.Yang@freescale.com>,
-       Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [PATCH/2.6.17-rc4 10/10]  bugs fix for marvell SATA on powerp
- c pl atform
-References: <9FCDBA58F226D911B202000BDBAD46730626DE6E@zch01exm40.ap.freescale.net> <1147935734.17679.93.camel@localhost.localdomain> <446C9219.4080300@pobox.com> <446CDE26.8090504@rtr.ca> <446CE217.2070703@pobox.com>
-In-Reply-To: <446CE217.2070703@pobox.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Thu, 18 May 2006 17:38:32 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:12215 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1750799AbWERVib (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 17:38:31 -0400
+Message-Id: <200605182138.k4ILcTAA018105@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Don Bedsole <dbedsole@carolina.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Nvidia legal to use by end-users?
+In-Reply-To: Your message of "Thu, 18 May 2006 16:50:52 EDT."
+             <200605181650.52537.dbedsole@carolina.rr.com>
+From: Valdis.Kletnieks@vt.edu
+References: <200605181650.52537.dbedsole@carolina.rr.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1147988308_16719P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Thu, 18 May 2006 17:38:28 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
->
-> I'm happy that you have an updated internal driver, but that helps no 
-> one else.
+--==_Exmh_1147988308_16719P
+Content-Type: text/plain; charset=us-ascii
 
-Yikes!  Mine own words, echoed back at me!
+On Thu, 18 May 2006 16:50:52 EDT, Don Bedsole said:
+> Question: If I download and install the Nvidia graphics card drivers from
+> their site, am I violating the GPL as an end-user?  I was thinking the the
+> GPL mainly covered what you are allowed or not allowed to do if you
+> distribute software.  I ask because I saw on the OpenSuse site a statement to
+> the effect that OpenSuse would not ship Nvidia, Ati drivers because some
+> kernel developers consider them a violation of their copyrights.
 
-I'll organize some patches for you Friday.
+Users, in general, can't violate the GPL.  You're free to do whatever you
+want to your own system.  As long as you don't further give the drivers to
+others, you're in the clear.
 
-Cheers
+The reason OpenSuse won't ship it is because they *would* be giving the
+drivers to others.  And one of these days NVidia may have to address the
+status of the binary blobs they distribute (their non-Linux blob and
+open shim layer isn't obviously illegal, but it isn't obviously legal either).
+
+But if you download an NVidia driver for use on *your* system, and never
+redistribute it, NVidia may have a problem for distributing it to *you*,
+but you're in the clear.
+
+--==_Exmh_1147988308_16719P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEbOlUcC3lWbTT17ARAoKUAKDJWJP9vfKw/6uYIWGs2lUkZ9961gCbBXwv
+tacafgx0sI/GwHwv99Nyfiw=
+=Edqn
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1147988308_16719P--

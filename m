@@ -1,340 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWERFUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWERF0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbWERFUk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 01:20:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWERFUj
+	id S1751212AbWERF0e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 01:26:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbWERF0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 01:20:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:43978 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751161AbWERFUj (ORCPT
+	Thu, 18 May 2006 01:26:34 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:18593 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751212AbWERF0d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 01:20:39 -0400
-Date: Wed, 17 May 2006 22:20:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: dtor_core@ameritech.net, linux-joystick@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 03/11] input: new force feedback interface
-Message-Id: <20060517222007.2b606b1b.akpm@osdl.org>
-In-Reply-To: <20060515211506.783939000@gmail.com>
-References: <20060515211229.521198000@gmail.com>
-	<20060515211506.783939000@gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 18 May 2006 01:26:33 -0400
+Date: Wed, 17 May 2006 22:26:32 -0700 (PDT)
+From: Dave Olson <olson@pathscale.com>
+Reply-To: olson@pathscale.com
+To: Roland Dreier <rdreier@cisco.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH 35 of 53] ipath - some interrelated
+ stability and cleanliness fixes
+In-Reply-To: <Pine.LNX.4.61.0605172113480.23165@osa.unixfolk.com>
+Message-ID: <Pine.LNX.4.64.0605172219490.17570@topaz.pathscale.com>
+References: <fa.2ho1QSA8Kf7L8EFqp3rLsB7NE9s@ifi.uio.no>
+ <fa.yXZlqXBzNi9Gq/4Q6Wc9H6bw+lU@ifi.uio.no> <Pine.LNX.4.61.0605170944570.22323@osa.unixfolk.com>
+ <ada4pzo5xti.fsf@cisco.com> <Pine.LNX.4.61.0605172113480.23165@osa.unixfolk.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anssi Hannula <anssi.hannula@gmail.com> wrote:
->
-> Implement a new force feedback interface, in which all non-driver-specific
-> operations are separated to a common module. This module handles effect type
-> validations, effect timers, locking, etc.
-> 
-> As a result, support is added for gain and envelope for memoryless devices,
-> periodic => rumble conversion for memoryless devices and rumble => periodic
-> conversion for devices with periodic support instead of rumble support. Also
-> the effect memory of devices is not emptied if the root user opens and closes
-> the device while another user is using effects. This module also obsoletes
-> some flawed locking and timer code in few ff drivers.
-> 
-> The module is named ff-effects. If INPUT_FF_EFFECTS is enabled, the force
-> feedback drivers and interfaces (evdev) will be depending on it.
-> 
-> Userspace interface is left unaltered.
-> 
+On Wed, 17 May 2006, Dave Olson wrote:
 
-Nice-looking patches.
+| On Wed, 17 May 2006, Roland Dreier wrote:
+| 
+| | Am I understanding correctly that you see a hang or watchdog timeout
+| | even with the mthca driver?
+| 
+| Yes.   That is, the symptoms are the same, although the cause
+| may be different.
+| 
+| | Is there any possibility of posting the test case to reproduce this?
+| 
+| It's the MPI job mpi_multibw (based on the OSU osu_bw, but changed
+| to do messaging rate), running 8 copies per dual-core 4-socket opteron,
+| both on InfiniPath MPI, and MVAPICH (built for gen2).
 
->
-> +#define spin_ff_cond_lock(_ff, _flags)					  \
-> +	do {								  \
-> +		if (!_ff->driver->playback)				  \
-> +			spin_lock_irqsave(&_ff->atomiclock, _flags);	  \
-> +	} while (0);
-> +
-> +#define spin_ff_cond_unlock(_ff, _flags)					  \
-> +	do {								  \
-> +		if (!_ff->driver->playback)				  \
-> +			spin_unlock_irqrestore(&_ff->atomiclock, _flags); \
-> +	} while (0);
+Here's the typical case where the watchdog fires (with infinipath MPI),
+on FC4 2.6.16 2108 (without kprobes, with kprobes things are slightly
+different, but not much; I'm running without since we were often in
+the kprobes code from the exit code, but I think that's just a red-herring).
 
-Making these static inline functions would deuglify them a bit.
+The sysrq p was some seconds prior to the watchdog.  It's almost as
+though something is looping far too many times during the close cleanup.
 
-> +static int input_ff_effect_access(struct input_dev *dev, int id, int override)
-> +{
-> +	struct ff_device *ff = dev->ff;
-> +	if (id < dev->ff_effects_max && id >= 0 && test_bit(FF_EFFECT_USED, ff->effects[id].flags))
+The other 7 exitting processes are typically in
+	sys_exit_group -> do_exit -> __up_red --> __spin_lock_irqsave -> __up_read (or __down_read)
+(from what sysrq t prints).  They are all runnable on the other 7
+processors.  
 
-Kernel does have an 80-columns rule, but input seems to have always spurned it.
+The infinipath driver does mmap both memory and device pages for each of
+these processes.
 
-> +static int input_ff_envelope_time(struct ff_effect_status *effect, struct ff_envelope *envelope, unsigned long *event_time)
-> +{
-> +	unsigned long fade_start;
-> +	if (!envelope)
-> +		return 0;
-> +
-> +	if (envelope->attack_length && time_after(effect->play_at + msecs_to_jiffies(envelope->attack_length), effect->adj_at)) {
+SysRq : Show Regs
+CPU 0:           
+Modules linked in: ib_sdp(U) ib_cm(U) ib_umad(U) ib_uverbs(U) ib_ipath(U) ib_ipoib(U) ib_sa(U) ib_mad(U) ib_core(U) ipath_core(U) nfs(U) nfsd(U) exportfs(U) lockd(U) nfs_acl(U) ipv6(U) autofs4(U) sunrpc(U) video(U) button(U) battery(U) ac(U) i2c_nforce2(U) i2c_core(U) e1000(U) floppy(U) sg(U) dm_snapshot(U) dm_zero(U) dm_mirror(U) ext3(U) jbd(U) dm_mod(U) sata_nv(U) libata(U) aic79xx(U) scsi_transport_spi(U) sd_mod(U) scsi_mod(U)
+Pid: 23788, comm: mpi_multibw Not tainted 2.6.16-1.2108_FC4.rootsmp #1           
+RIP: 0010:[<ffffffff8013c50e>] <ffffffff8013c50e>{__do_softirq+81}    
+RSP: 0018:ffffffff8048d368  EFLAGS: 00000206                      
+RAX: 0000000000000022 RBX: 0000000000000022 RCX: 0000000000000080
+RDX: 0000000000000000 RSI: 00000000000000c0 RDI: ffff81007f1fd0c0
+RBP: ffffffff80528f80 R08: 0000000000000200 R09: 0000000000000002
+R10: ffffffff804a6a38 R11: 0000000000000000 R12: ffffffff80577c80
+R13: 0000000000000000 R14: 000000000000000a R15: 00002aaabba6c000
+FS:  00002aaaab32ffa0(0000) GS:ffffffff80511000(0000) knlGS:00000000f7fc86c0
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b                           
+CR2: 000055555565ebe8 CR3: 000000007ac6d000 CR4: 00000000000006e0
+                                                                 
+Call Trace: <IRQ> <ffffffff8010c076>{call_softirq+30}
+       <ffffffff8010d82c>{do_softirq+44} <ffffffff8010b9d0>{apic_timer_interrupt+132} <EOI>
+       <ffffffff80355226>{_write_unlock_irq+14} <ffffffff801659d9>{__set_page_dirty_nobuffers+183}
+       <ffffffff8016cc80>{unmap_vmas+1042} <ffffffff8016fa78>{exit_mmap+124}
+       <ffffffff80133f17>{mmput+37} <ffffffff80139783>{do_exit+584}         
+       <ffffffff80142aec>{__dequeue_signal+459} <ffffffff80139f00>{sys_exit_group+0}
+       <ffffffff80143f03>{get_signal_to_deliver+1568} <ffffffff8010a37a>{do_signal+116}
+       <ffffffff80197151>{__pollwait+0} <ffffffff80197e9c>{sys_select+934}             
+       <ffffffff8010acb7>{sysret_signal+28} <ffffffff8010afa3>{ptregscall_common+103}
 
-Try using an 80-column wondow for a while ;)
+[ perhaps 20 or 30 seconds later, NMI fires; we had already been sort of
+stuck for 60 seconds or so when I did the sysrq p above ]
 
-> +		return value;
-> +	}
-> +
-> +	difference = abs(value) - envelope_level;
-> +
-> +	debug("difference = %d", difference);
-> +	debug("time_from_level = 0x%x", time_from_level);
-> +	debug("time_of_envelope = 0x%x", time_of_envelope);
-> +	if (difference < 0)
-> +		difference = -((-difference) * time_from_level / time_of_envelope);
-> +	else
-> +		difference = difference * time_from_level / time_of_envelope;
-
-You've checked there's no possibility of divide-by-zero here?
-
-> +
-> +static int input_ff_safe_sum(int a, int b, int limit) {
-
-The opening brace goes in column zero, please.
-
-> +	int c;
-> +	if (!a)
-> +		return b;
-> +	c = a + b;
-> +	if (c > limit)
-> +		return limit;
-> +	return c;
-> +}
-> +
-> +static s8 input_ff_s8_sum(int a, int b) {
-
-dittoes.
-
-> +	int c;
-> +	c = input_ff_safe_sum(a, b, 0x7f);
-> +	if (c < -0x80)
-> +		return -0x80;
-> +	return c;
-> +}
->
-> ...
->
-> +static void input_ff_timer(unsigned long timer_data)
-> +{
-> +	struct input_dev *dev = (struct input_dev *) timer_data;
-> +	struct ff_device *ff = dev->ff;
-> +	struct ff_effect effect;
-> +	int i;
-> +	unsigned long flags;
-> +	int effects_pending;
-> +	unsigned long effect_handled[NBITS(FF_EFFECTS_MAX)];
-
-DECLARE_BITMAP would be more usual.  (Yes, it should have been called
-DEFINE_BITMAP).
-
-> +	int effect_type;
-> +	int safety;
-> +
-> +	debug("timer: updating effects");
-> +
-> +	spin_lock_irqsave(&ff->atomiclock, flags);
-> +
-> +	memset(effect_handled, 0, sizeof(effect_handled));
-
-You could take the lock after the memset.
-
-> +int input_ff_erase(struct input_dev *dev, int id)
-> +{
-> +	struct ff_device *ff;
-> +	unsigned long flags = 0;
-> +	int ret;
-> +	if (!test_bit(EV_FF, dev->evbit))
-> +		return -EINVAL;
-> +	mutex_lock(&dev->ff_lock);
-> +	ff = dev->ff;
-> +	if (!ff) {
-> +		mutex_unlock(&dev->ff_lock);
-> +		return -ENODEV;
-> +	}
-> +	spin_ff_cond_lock(ff, flags);
-> +	ret = _input_ff_erase(dev, id, current->pid == 0);
-> +	spin_ff_cond_unlock(ff, flags);
-> +
-> +	mutex_unlock(&dev->ff_lock);
-> +	return ret;
-> +}
-
-Perhaps you meant `current->uid == 0' here.  There's no way in which pid
-0 will call this code.
-
-What's happening here anyway?  Why does this code need to know about pids?
-
-Checking for uid==0 woud be a fishy thing to do as well.
-
-> +static int input_ff_flush(struct input_dev *dev, struct file *file)
-> +{
-> +	struct ff_device *ff;
-> +	unsigned long flags = 0;
-> +	int i;
-> +	debug("flushing now");
-> +	mutex_lock(&dev->ff_lock);
-> +	ff = dev->ff;
-> +	if (!ff) {
-> +		mutex_unlock(&dev->ff_lock);
-> +		return -ENODEV;
-> +	}
-> +	spin_ff_cond_lock(ff, flags);
-> +	for (i = 0; i < dev->ff_effects_max; i++) {
-> +		_input_ff_erase(dev, i, 0);
-> +	}
-
-Unneeded braces.
-
-> +	spin_ff_cond_unlock(ff, flags);
-> +	mutex_unlock(&dev->ff_lock);
-> +	return 0;
-> +}
-> +
-> +
-> +		ff->effects[id].flags[0] = 0;
-> +		ff->effects[id].effect = *effect;
-> +
-> +		if (ff->driver->playback) {
-> +			if (!test_bit(effect->type, ff->flags))
-> +				input_ff_convert_effect(dev, effect);
-> +			ret = ff->driver->upload(dev, effect, NULL);
-> +			if (!ret)
-> +				set_bit(FF_EFFECT_USED, ff->effects[id].flags);
-> +			mutex_unlock(&dev->ff_lock);
-> +			return ret;
-> +		}
-> +		set_bit(FF_EFFECT_USED, ff->effects[id].flags);
-> +
-> +	} else {
-> +		id = effect->id;
-> +
-> +		ret = input_ff_effect_access(dev, id, 1);
-> +		if (ret) {
-> +			spin_ff_cond_unlock(ff, flags);
-> +			mutex_unlock(&dev->ff_lock);
-> +			return ret;
-> +		}
-> +
-> +		if (effect->type != ff->effects[id].effect.type ||
-> +				  (effect->type == FF_PERIODIC && effect->u.periodic.waveform !=
-> +				  ff->effects[id].effect.u.periodic.waveform)) {
-> +			spin_ff_cond_unlock(ff, flags);
-> +			mutex_unlock(&dev->ff_lock);
-> +			return -EINVAL;
-> +		}
-> +
-> +		if (ff->driver->playback) {
-> +			if (!test_bit(effect->type, ff->flags))
-> +				input_ff_convert_effect(dev, effect);
-> +			ret = ff->driver->upload(dev, effect, &ff->effects[id].effect);
-> +			ff->effects[id].effect = *effect;
-> +			mutex_unlock(&dev->ff_lock);
-> +			return ret;
-
-I think we're missing a spin_ff_cond_unlock() here?
-
-> +		}
-> +		ff->effects[id].effect = *effect;
-> +		clear_bit(FF_EFFECT_PLAYING, ff->effects[id].flags);
-> +
-> +	}
-> +
-> +	spin_unlock_irqrestore(&ff->atomiclock, flags);
-> +	mutex_unlock(&dev->ff_lock);
-> +	return ret;
-> +}
-
-And here we have spin_unlock_irqrestore() instead of spin_ff_cond_unlock().
-
-It would be best to convert this function to have a single return point. 
-That tends to prevent problems like this from happening, and from creeping
-in later on.
-
-> +int input_ff_allocate(struct input_dev *dev)
-> +{
-> +	debug("allocating device");
-> +	mutex_lock(&dev->ff_lock);
-> +	if (dev->ff)
-> +		printk(KERN_ERR "ff-effects: allocating to non-NULL pointer\n");
-> +	dev->ff = kzalloc(sizeof(*dev->ff), GFP_KERNEL);
-> +	if (!dev->ff) {
-> +		mutex_unlock(&dev->ff_lock);
-> +		return -ENOMEM;
-> +	}
-> +	spin_lock_init(&dev->ff->atomiclock);
-> +	init_timer(&dev->ff->timer);
-> +	dev->ff->timer.function = input_ff_timer;
-> +	dev->ff->timer.data = (unsigned long) dev;
-> +	dev->ff->event = input_ff_event;
-
-setup_timer()
-
-> +	mutex_unlock(&dev->ff_lock);
-> +	debug("ff allocated");
-> +	return 0;
-> +}
-> +
->
-> ...
->
-> Index: linux-2.6.17-rc4-git1/drivers/input/Kconfig
-> ===================================================================
-> --- linux-2.6.17-rc4-git1.orig/drivers/input/Kconfig	2006-03-20 07:53:29.000000000 +0200
-> +++ linux-2.6.17-rc4-git1/drivers/input/Kconfig	2006-05-14 02:28:42.000000000 +0300
-> @@ -24,6 +24,14 @@ config INPUT
->  
->  if INPUT
->  
-> +config INPUT_FF_EFFECTS
-> +	tristate "Force feedback effects"
-> +	help
-> +	  Say Y here if you want to be able to play force feedback effects.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called ff-effects.
-
-hm.  I'd have expected more dependencies than this.
-
->  comment "Userland interfaces"
->  
->  config INPUT_MOUSEDEV
-> @@ -110,6 +118,7 @@ config INPUT_TSDEV_SCREEN_Y
->  
->  config INPUT_EVDEV
->  	tristate "Event interface"
-> +	depends on INPUT_FF_EFFECTS || INPUT_FF_EFFECTS=n
-
-Isn't that always true?
-
-> +
-> +struct ff_effect_status {
-> +	pid_t owner;
-
-This code is almost devoid of comments.  Those which it does have tend to
-cover little low-level implementation details.  But it's the *big* things
-which a reader is not able to learn from the implementation, and which
-should be commented.  Like: why on earth does this code need to know about
-pids?
-
-> +#if defined(CONFIG_INPUT_FF_EFFECTS_MODULE) || defined(CONFIG_INPUT_FF_EFFECTS)
-
-No, we shouldn't use CONFIG_FOO_MODULE.  We just don't know at compile-time
-whether the user will later compile and insert a particular module.
-
-> +		mutex_lock(&dev->ff_lock);
-> +		del_timer_sync(&ff->timer);
-> +		dev->flush = NULL;
-> +		dev->ff = NULL;
-> +		kfree(ff);
-> +		mutex_unlock(&dev->ff_lock);
-
-The kfree can be moved outside the lock.
-
-
+NMI Watchdog detected LOCKUP on CPU 1                                                
+CPU 1                                
+Modules linked in: ib_sdp(U) ib_cm(U) ib_umad(U) ib_uverbs(U) ib_ipath(U) ib_ipoib(U) ib_sa(U) ib_mad(U) ib_core(U) ipath_core(U) nfs(U) nfsd(U) exportfs(U) lockd(U) nfs_acl(U) ipv6(U) autofs4(U) sunrpc(U) video(U) button(U) battery(U) ac(U) i2c_nforce2(U) i2c_core(U) e1000(U) floppy(U) sg(U) dm_snapshot(U) dm_zero(U) dm_mirror(U) ext3(U) jbd(U) dm_mod(U) sata_nv(U) libata(U) aic79xx(U) scsi_transport_spi(U) sd_mod(U) scsi_mod(U)
+Pid: 23789, comm: mpi_multibw Not tainted 2.6.16-1.2108_FC4.rootsmp #1           
+RIP: 0010:[<ffffffff80214bd0>] <ffffffff80214bd0>{_raw_write_lock+161}
+RSP: 0018:ffff81007c5b5c18  EFLAGS: 00000086                          
+RAX: 000000008f02e600 RBX: ffff810037cec680 RCX: 00000000002c2671
+RDX: 0000000000927190 RSI: 0000000000000001 RDI: ffff810037cec680
+RBP: ffff810037cec668 R08: ffff810002d6b500 R09: 00000000fffffffa
+R10: 0000000000000003 R11: ffffffff80165922 R12: ffff810037cec680
+R13: 00002aaaac200000 R14: ffff810002d6b540 R15: 00002aaabba6c000
+FS:  00002aaaaaae6080(0000) GS:ffff81011fc466c0(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b                           
+CR2: 00000033f38bdaf0 CR3: 000000007c296000 CR4: 00000000000006e0
+Process mpi_multibw (pid: 23789, threadinfo ffff81007c5b4000, task ffff8100030557a0)
+Stack: ffff810002d6b540 ffffffff8016596b 0000000075ad5067 00002aaaac1b4000          
+       ffff81007d451da0 ffffffff8016cc80 0000000000000000 ffff81007c5b5d38 
+       ffffffffffffffff 0000000000000000                                   
+Call Trace: <ffffffff8016596b>{__set_page_dirty_nobuffers+73}
+       <ffffffff8016cc80>{unmap_vmas+1042} <ffffffff8016fa78>{exit_mmap+124}
+       <ffffffff80133f17>{mmput+37} <ffffffff80139783>{do_exit+584}         
+       <ffffffff80142aec>{__dequeue_signal+459} <ffffffff80139f00>{sys_exit_group+0}
+       <ffffffff80143f03>{get_signal_to_deliver+1568} <ffffffff8010a37a>{do_signal+116}
+       <ffffffff80197151>{__pollwait+0} <ffffffff80197e9c>{sys_select+934}             
+       <ffffffff8010acb7>{sysret_signal+28} <ffffffff8010afa3>{ptregscall_common+103}
+                                                                                     
+Code: 84 c0 75 7f f0 81 03 00 00 00 01 f3 90 48 83 c1 01 48 8b 15 
+Kernel panic - not syncing: nmi watchdog    

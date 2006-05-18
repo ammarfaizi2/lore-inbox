@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWERSFx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWERSGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932114AbWERSFx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 14:05:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWERSFx
+	id S932109AbWERSGO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 14:06:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbWERSGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 14:05:53 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:56032 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S932110AbWERSFw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 14:05:52 -0400
-Subject: Re: HELP! vfs_readv() issue
-From: Avishay Traeger <atraeger@cs.sunysb.edu>
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: Chris Wedgwood <cw@f00f.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <4ae3c140605171444o66de4caqdbe38e028aed94bf@mail.gmail.com>
-References: <4ae3c140605151657m152c0e7bl7f52e2a2def0aeca@mail.gmail.com>
-	 <20060516043107.GA5321@taniwha.stupidest.org>
-	 <4ae3c140605171444o66de4caqdbe38e028aed94bf@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 18 May 2006 21:00:57 +0300
-Message-Id: <1147975279.3073.4.camel@85.65.211.169.dynamic.barak-online.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 18 May 2006 14:06:14 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:61825 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S932109AbWERSGM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 14:06:12 -0400
+Message-ID: <446CB791.5030304@vc.cvut.cz>
+Date: Thu, 18 May 2006 20:06:09 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.7.12) Gecko/20060205 Debian/1.7.12-1.1
+X-Accept-Language: cs, en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@linux.intel.com>
+CC: Konrad Rzeszutek <konradr@us.ibm.com>, linux-kernel@vger.kernel.org,
+       konradr@redhat.com
+Subject: Re: [patch] Ignore MCFG if the mmconfig area isn't reserved in the
+ e820 table.
+References: <200605172153.35878.konradr@us.ibm.com> <446C70A8.5050909@linux.intel.com> <20060518155642.GC7617@andromeda.dapyr.net> <446CA4D3.80105@linux.intel.com>
+In-Reply-To: <446CA4D3.80105@linux.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-17 at 17:44 -0400, Xin Zhao wrote:
-> Thank you for your care. What I am trying to do is to rewrite NFS in
-> the virtual machine environment so that network communication can be
-> replaced with inter-VM communication.
+Arjan van de Ven wrote:
+> Konrad Rzeszutek wrote:
 > 
-> But after I remove the original rpc stuff, I ran into some strange
-> problem, including this one.  Interesting thing is that I noticed that
-> even with standard NFS implementation, it is still possible that
-> nfsd_read() return resp->count to be 0. At this time, eof is also
-> equal to 1. This seems to be right since NFSD already reach the end of
-> the file. But question is since 0 byte is read this time, NFS should
-> detect EOF in previous read. Why need one more read?
+>> That is definitely a problem - and the "sanity-check" can definitly bail
+>> out on those BIOSes and not crash Linux. The other side of the coin is 
+>> that BIOSes that do implement the MCFG/E820 correctly are penalized:
 > 
-> Xin
+> I hereby contest that it's implemented correctly if it's not marked 
+> reserved...
 
-How are you reading the file?  Some programs (I believe 'cat' is one of
-them) will read a file until 0 is returned.  Try writing a small C
-program to read a file until EOF and see if the behavior changes.
+PCI Firmware Specification 3.0 
+(http://www.pcisig.com/members/downloads/specifications/conventional/pcifw_r3.0.pdf), 
+page 42, notes for table 4-2, paragraph 2 says that firmware must report MCFG as 
+reserved region.  Last sentence of same paragraph says that resources may be 
+optionally marked reserved by E820 or EFIGetMemoryMap, but must be always 
+reported as motherboard resources through ACPI  (for exact citation please see 
+document itself, it is not freely available so I'm not going to copy-paste text 
+from it without written permission from pcisig...).
 
-Avishay Traeger
-http://www.fsl.cs.sunysb.edu/~avishay/
+So it seems to me that BIOS not reporting MMCONFIG as reserved through E820 is 
+compliant, and what matters is that MMCONFIG must be reported as ACPI 
+motherboard resource.
+								Petr
 

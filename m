@@ -1,54 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbWERP0I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWERP1p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750891AbWERP0I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 11:26:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWERP0I
+	id S932066AbWERP1p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 11:27:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932068AbWERP1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 11:26:08 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:48197 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1750891AbWERP0G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 11:26:06 -0400
-Date: Thu, 18 May 2006 11:26:06 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [PATCH -rt 2/2] arm update
-In-reply-to: <1147962452.17117.25.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-X-X-Sender: nico@localhost.localdomain
-To: Daniel Walker <dwalker@mvista.com>
-Cc: mingo@elte.hu, tglx@linutronix.de, lkml <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.64.0605181115490.18071@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <200605141557.k4EFv5Sd004979@dwalker1.mvista.com>
- <Pine.LNX.4.64.0605180947180.18071@localhost.localdomain>
- <1147962452.17117.25.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	Thu, 18 May 2006 11:27:45 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:62850 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932066AbWERP1o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 11:27:44 -0400
+Message-ID: <446C926A.7020404@garzik.org>
+Date: Thu, 18 May 2006 11:27:38 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: "zhao, forrest" <forrest.zhao@intel.com>
+CC: Michael Schierl <schierlm@gmx.de>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [ANNOUNCE] libata: new EH, NCQ, hotplug and PM patches against
+ stable kernel
+References: <20060512132437.GB4219@htj.dyndns.org>	 <e4coc8$onk$1@sea.gmane.org> <4469E8CF.9030506@garzik.org>	 <4469EC4A.30908@gmx.de> <1147829339.7273.97.camel@forrest26.sh.intel.com>
+In-Reply-To: <1147829339.7273.97.camel@forrest26.sh.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.1 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 May 2006, Daniel Walker wrote:
-
-> On Thu, 2006-05-18 at 09:53 -0400, Nicolas Pitre wrote:
-> > >  - adds a new NR_syscalls macro, converts the old one into __NR_syscalls for
-> > >    calculating the table padding .
-> > 
-> > Why?
-> > 
+zhao, forrest wrote:
+> On Tue, 2006-05-16 at 17:14 +0200, Michael Schierl wrote:
+>> hmm. ok. Hannes' patch was the one in http://lkml.org/lkml/2006/3/6/47 ?
+>>
+>> I never found a kernel where I could apply that one and still compile
+>> without errors :(
+>>
+>> I am no C guru, so I had no success to fix this patch without even
+>> knowing where to apply against... (and I don't know anything about
+>> kernel programming or even ACHI low-level programming).
+>>
+>> Is there a newer version available of that patch somewhere?
+>>
+>> And - what SATA ACPI patches?
+>>
+>> I have quite alot of patches related to sata and/or acpi (collected from
+>> different mailing lists) here on hard disk but don't know which ones are
+>> broken, outdated, etc. Most only apply on a 2.6.15 or 2.6.14-rc kernel...
+>>
+>> If more recent patches are only available via git, I'd need some good
+>> GIT tutorial first...
+>>
+>> TIA, and sorry for stealing your time,
+>>
+>> Michael
+> Michael,
 > 
-> > And no NR_syscalls definition should be present in asm-arm/unistd.h at 
-> > all.
-> > 
+> I ported a patch from OpenSUSE for AHCI suspend/resume. You may find the
+> patch at:
+> http://marc.theaimsgroup.com/?l=linux-ide&m=114774543416039&w=2
 > 
-> Right , it's not normally needed .. In RT we size an array by
-> NR_syscalls for latency tracing (kernel/latency.c) . So we need some way
-> to determine the the number of syscalls .. Do you know of another way we
-> can get that number of syscalls on ARM ? 
+> Jeff,
+> If Michael have a successful AHCI suspend/resume with this patch, I'm
+> glad to port the patch to current libata-dev #upstream for the second
+> time to push it into stock kernel. How do you think?
 
-Just do the same as in entry-common.S: define the CALL() macro and 
-include calls.S.
+All reasonable patches accepted...
 
-Or declare a global variable in entry-common.S and assign it the 
-NR_syscalls value.
+	Jeff
 
 
-Nicolas
+

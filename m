@@ -1,71 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWERLRL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWERLVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932072AbWERLRL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 07:17:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbWERLRL
+	id S932069AbWERLVk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 07:21:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWERLVj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 07:17:11 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:39836 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932069AbWERLRK (ORCPT
+	Thu, 18 May 2006 07:21:39 -0400
+Received: from mail.suse.de ([195.135.220.2]:30630 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751338AbWERLVj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 07:17:10 -0400
-Date: Thu, 18 May 2006 13:16:26 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jan Beulich <jbeulich@novell.com>
-Cc: Andreas Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org
-Subject: Re: [PATCH 1/3] reliable stack trace support
-Message-ID: <20060518111625.GA2026@elf.ucw.cz>
-References: <4469FC07.76E4.0078.0@novell.com>
+	Thu, 18 May 2006 07:21:39 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Jan Beulich" <jbeulich@novell.com>
+Subject: Re: [discuss] Re: [PATCH 2/3] reliable stack trace support (x86-64)
+Date: Thu, 18 May 2006 12:20:45 +0200
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+References: <4469FC22.76E4.0078.0@novell.com> <200605161905.11907.ak@suse.de> <446C5C6E.76E4.0078.0@novell.com>
+In-Reply-To: <446C5C6E.76E4.0078.0@novell.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4469FC07.76E4.0078.0@novell.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200605181220.46037.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Út 16-05-06 16:21:27, Jan Beulich wrote:
-> These are the generic bits needed to enable reliable stack traces based
-> on Dwarf2-like (.eh_frame) unwind information. Subsequent patches will
-> enable x86-64 and i386 to make use of this.
-> 
-> Signed-off-by: Jan Beulich <jbeulich@novell.com>
-> 
-> --- linux-2.6.17-rc4/include/asm-generic/unwind.h	1970-01-01 01:00:00.000000000 +0100
-> +++ 2.6.17-rc4-unwind-generic/include/asm-generic/unwind.h	2006-05-16 14:36:21.000000000 +0200
-> @@ -0,0 +1,119 @@
-> +#ifndef _ASM_GENERIC_UNWIND_H
-> +#define _ASM_GENERIC_UNWIND_H
-> +
-> +/*
-> + * Copyright (C) 2002-2006 Novell, Inc.
-> + *	Jan Beulich <jbeulich@novell.com>
-> + *
-> + * A simple API for unwinding kernel stacks.  This is used for
-> + * debugging and error reporting purposes.  The kernel doesn't need
-> + * full-blown stack unwinding with all the bells and whistles, so there
-> + * is not much point in implementing the full Dwarf2 unwind API.
+On Thursday 18 May 2006 11:37, Jan Beulich wrote:
+> >>> Andi Kleen <ak@suse.de> 16.05.06 19:05 >>>
+> >
+> >On Tuesday 16 May 2006 18:06, Jan Beulich wrote:
+> >> >>> Andi Kleen <ak@suse.de> 16.05.06 17:13 >>>
+> >>
+> >> On Tuesday 16 May 2006 16:21, Jan Beulich wrote:
+> >> >> These are the x86_64-specific pieces to enable reliable stack traces.
+> >> >> The only restriction with this is that it currently cannot unwind
+> >> >> across the interrupt->normal stack boundary, as that transition is
+> >> >> lacking proper annotation.
+> >> >
+> >> >It would be nice if you could submit a patch to fix that.
+> >>
+> >> But I don't know how to fix it. See my other mail
+> >
+> >which mail?
+>
+> Reply to Ingo (with you on cc) regarding patch 1/3. Just saying that I
+> don't know much about expressions here.
+>
 
-Missing GPL?
+Hmm, maybe we can find somebody who does. But then they would
+first need to be implemented in the unwinder anyways, I guess.
+Could be nasty agreed.
 
-> --- linux-2.6.17-rc4/kernel/unwind.c	1970-01-01 01:00:00.000000000 +0100
-> +++ 2.6.17-rc4-unwind-generic/kernel/unwind.c	2006-05-16 14:36:08.000000000 +0200
-> @@ -0,0 +1,876 @@
-> +/*
-> + * Copyright (C) 2002-2006 Novell, Inc.
-> + *	Jan Beulich <jbeulich@novell.com>
-> + *
-> + * A simple API for unwinding kernel stacks.  This is used for
-> + * debugging and error reporting purposes.  The kernel doesn't need
-> + * full-blown stack unwinding with all the bells and whistles, so there
-> + * is not much point in implementing the full Dwarf2 unwind API.
-> + */
+> >> - I have no experience with expressions, nor have I ever seen them in
+> >> use.
+> >
+> >I remember Jim Houston used a hack of just loading the old stack into a
+> > register and defining that as a base register in CFI. I guess i would be
+> > willing to trade a few moves for that (should be pretty much free on a
+> > OOO CPU anyways) You think that trick would work?
+>
+> I don't think that would, because without CONFIG_DEBUG_INFO none of the
+> preserved registers get saved, hence there's no register to use for this.
+> Thus the price would not only be a move, but also a save/push and a  
+> reload/pop.
 
-...more than once, I'd say.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Three instructions?  We might be still able to afford that.
+
+push/pop is probably not needed because the stack frame will be already
+set up (ok possibly after a few instructions, but a small window might be 
+tolerable)
+
+> >> >> +#define UNW_PC(frame) (frame)->regs.rip
+> >> >> +#define UNW_SP(frame) (frame)->regs.rsp
+> >> >
+> >> >I think we alreay have instruction_pointer(). Better add a
+> >> > stack_pointer() in ptrace.h too.
+> >>
+> >> I could do that, but the macros will have to remain, as they don't
+> >> access pt_regs dierectly, so I guess it'd be pointless to change it.
+> >
+> >UNW_PC() is instruction_pointer(&frame->regs), isn't it?
+>
+> Yes. But the intention is that the user of UNW_PC doesn't need to know any
+> details of what fields frame has (i.e. the parameter of UNW_PC must only be
+> frame), so you can't replace it with instruction_pointer().
+
+Maybe I'm dense but I still don't get - frame has a pt_regs so why 
+isn't the caller allowed to know about that fact?
+
+-Andi

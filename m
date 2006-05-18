@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWERHzy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWERH6T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751005AbWERHzy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 03:55:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWERHzy
+	id S1751160AbWERH6T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 03:58:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWERH6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 03:55:54 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:57054 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751005AbWERHzw (ORCPT
+	Thu, 18 May 2006 03:58:19 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:4002 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751160AbWERH6S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 03:55:52 -0400
-Date: Thu, 18 May 2006 09:55:48 +0200
+	Thu, 18 May 2006 03:58:18 -0400
+Date: Thu, 18 May 2006 09:58:10 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: rostedt@goodmis.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -rt] scheduling while atomic in fs/file.c
-Message-ID: <20060518075548.GA30387@elte.hu>
-References: <200605161628.k4GGSID1004173@dwalker1.mvista.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Thomas Gleixner <tglx@linutronix.de>,
+       mingo@redhat.com, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][-rt PATCH] Try to safely error out when mixing pi/non-pi futex operations on the same futex.
+Message-ID: <20060518075810.GB30387@elte.hu>
+References: <1147900129.9363.7.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200605161628.k4GGSID1004173@dwalker1.mvista.com>
+In-Reply-To: <1147900129.9363.7.camel@localhost.localdomain>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
+X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
 	0.0 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Daniel Walker <dwalker@mvista.com> wrote:
+* john stultz <johnstul@us.ibm.com> wrote:
 
-> Quite the smp_processor_id() warnings. The timer was pinned before, 
-> but the spinlock protection is such that the timer can migrate with 
-> out issues. Allowing the timers to migrate (although not often) will 
-> allow them to move off busy cpu's , and potentially follow the work 
-> queue that they wake up.
+> Ingo,
+> 	We've been seeing some oopses because there are waiters on pi 
+> futexes that do not have pi_states. This seems to be because they were 
+> used w/ futex_wait in one path and futex_lock_pi in another.
 
-thanks, applied.
+indeed, that's a bug.
+
+> I'm told this shouldn't ever happen, but if it did, the kernel should 
+> safely error out, instead of oopsing or never releasing a lock.
+> 
+> Not sure if this is a solid fix (it does build and boot), but 
+> hopefully it will stir up some discussion.
+
+applied. I made some small fixes: i made the printk rate-limited and 
+dependent on CONFIG_DEBUG_RT_MUTEXES. The right thing is indeed to 
+-EINVAL.
 
 	Ingo

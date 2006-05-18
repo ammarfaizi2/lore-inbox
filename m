@@ -1,65 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbWERUeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751391AbWERUuN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750923AbWERUeY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 16:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWERUeY
+	id S1751391AbWERUuN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 16:50:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWERUuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 16:34:24 -0400
-Received: from smtpq1.groni1.gr.home.nl ([213.51.130.200]:16553 "EHLO
-	smtpq1.groni1.gr.home.nl") by vger.kernel.org with ESMTP
-	id S1750923AbWERUeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 16:34:23 -0400
-Message-ID: <446CDA6E.7000400@keyaccess.nl>
-Date: Thu, 18 May 2006 22:34:54 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+	Thu, 18 May 2006 16:50:12 -0400
+Received: from ms-smtp-01.southeast.rr.com ([24.25.9.100]:13001 "EHLO
+	ms-smtp-01.southeast.rr.com") by vger.kernel.org with ESMTP
+	id S1751391AbWERUuL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 16:50:11 -0400
+From: Don Bedsole <dbedsole@carolina.rr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Nvidia legal to use by end-users?
+Date: Thu, 18 May 2006 16:50:52 -0400
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [TRIVIAL] missing newline in scsi/st.c
-Content-Type: multipart/mixed;
- boundary="------------040308060606020505010307"
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605181650.52537.dbedsole@carolina.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040308060606020505010307
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi,
+Question: If I download and install the Nvidia graphics card drivers from 
+their site, am I violating the GPL as an end-user?  I was thinking the the 
+GPL mainly covered what you are allowed or not allowed to do if you 
+distribute software.  I ask because I saw on the OpenSuse site a statement to 
+the effect that OpenSuse would not ship Nvidia, Ati drivers because some 
+kernel developers consider them a violation of their copyrights.
 
-Hi Andrew.
+Please CC any replies to dbedsole@carolina.rr.com
 
-Missing closing \n:
-
-===
-st: Version 20050830, fixed bufsize 32768, s/g segs 256
-st 0:0:6:0: Attached scsi tape st0<4>st0: try direct i/o: yes (alignment 
-512 B)
-===
-
-Rene.
-
---------------040308060606020505010307
-Content-Type: text/plain;
- name="st_newline.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="st_newline.diff"
-
-Index: local/drivers/scsi/st.c
-===================================================================
---- local.orig/drivers/scsi/st.c	2006-05-08 20:47:03.000000000 +0200
-+++ local/drivers/scsi/st.c	2006-05-18 22:10:19.000000000 +0200
-@@ -4054,7 +4054,7 @@ static int st_probe(struct device *dev)
- 	}
- 
- 	sdev_printk(KERN_WARNING, SDp,
--		    "Attached scsi tape %s", tape_name(tpnt));
-+		    "Attached scsi tape %s\n", tape_name(tpnt));
- 	printk(KERN_WARNING "%s: try direct i/o: %s (alignment %d B)\n",
- 	       tape_name(tpnt), tpnt->try_dio ? "yes" : "no",
- 	       queue_dma_alignment(SDp->request_queue) + 1);
-
---------------040308060606020505010307--
+Thank you.

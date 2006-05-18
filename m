@@ -1,84 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWERQq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWERQ5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932100AbWERQq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 12:46:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751374AbWERQq0
+	id S1751367AbWERQ5m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 12:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751374AbWERQ5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 12:46:26 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:57783 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751375AbWERQqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 12:46:25 -0400
-Message-ID: <446CA4D3.80105@linux.intel.com>
-Date: Thu, 18 May 2006 09:46:11 -0700
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Konrad Rzeszutek <konradr@us.ibm.com>
-CC: linux-kernel@vger.kernel.org, konradr@redhat.com
-Subject: Re: [patch] Ignore MCFG if the mmconfig area isn't reserved in the
- e820 table.
-References: <200605172153.35878.konradr@us.ibm.com> <446C70A8.5050909@linux.intel.com> <20060518155642.GC7617@andromeda.dapyr.net>
-In-Reply-To: <20060518155642.GC7617@andromeda.dapyr.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 18 May 2006 12:57:42 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:43679 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1751367AbWERQ5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 12:57:41 -0400
+Date: Thu, 18 May 2006 18:57:28 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Jonathan McDowell <noodles@earth.li>
+Cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add Amstrad Delta NAND support.
+Message-ID: <20060518165728.GA26113@wohnheim.fh-wedel.de>
+References: <20060518160940.GS7570@earth.li>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060518160940.GS7570@earth.li>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Konrad Rzeszutek wrote:
->>> Also the ACPI spec v3.0 (pg 405 of PDF, section 14.2, titled:
->>> "E820 Assumptions and Limitations") agrees with this:
->>>
->>> "The BIOS does not return a range description for the memory mapping
->>> of PCI devices, ISA Option ROMs, and the ISA PNP cards because the OS
->>> has mechanisms available to detect them."
->> MCFG is none of these...
-> 
-> This is a bit of gray area. 
-
-How? The segment you quoted basically says "no need to put any "MEM" resources
-into E820 because the OS will know about those from its PCI scan".
-And for an OS to map pci devices like cardbus or hotplug PCI anywhere, it obviously
-needs to know about PCI so this is entirely a fair assumption.
-
-MCFG is new. It's not traditional and it generally isn't a MEM region on any
-PCI device. The result is that OSes that do not know about MCFG (like Windows XP)
-do not at all know that there is something there already in the address space.
-Neither the wording of the spec pieces you quoted nor common sense can lead to
-a "but it doesn't have to be marked reserved" interpretation... the OS just has
-to know what address space is free for mapping things into, via one way or another.
+On Thu, 18 May 2006 17:09:41 +0100, Jonathan McDowell wrote:
+>
+> +static struct mtd_info *ams_delta_mtd = NULL;
 
 
-> If the MMCONFIG falls in that assumed memory mapped 256MB - then 
-> the quote from section 14.2 can apply to that particular situation 
-> "The BIOS does not return a range for the memory mapping of PCI devices ...";
 
-yes this is the MEM BARs. Different animal.
+> +	switch(cmd){
+              ^    ^
+Add spaces
 
-> 
->>> If this is not a specification issue, I was wondering if perhaps for the 
->>> machines you refer to, their BIOS bug is that the E820 have memory ranges
->>> which also encompass what MMCONF points to?
->> no their bug is mostly that MCFG is garbage in those bioses. It points 
->> plain to
->> the wrong place. They even reserved the correct range, just pointed mcfg at 
->> the
->> wrong place.
->>
-> 
-> That is definitely a problem - and the "sanity-check" can definitly bail
-> out on those BIOSes and not crash Linux. The other side of the coin is that 
-> BIOSes that do implement the MCFG/E820 correctly are penalized:
+> +	omap_writew(0, (OMAP_MPUIO_BASE + OMAP_MPUIO_IO_CNTL));
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Could that be done in a macro?
 
-I hereby contest that it's implemented correctly if it's not marked reserved...
+> +	udelay(0.04);
 
-> the 
-> MMCONFIG capability on those machines is turned off when using Linux
-> 2.6.17. 
-> 
-> Could you provide more details on the BIOS? Did the vendor released an updated BIOS? 
+Floating point in the kernel?
 
-there were several, some I can't talk about.
-Let me ask you a counter question: could you provide more details on the opposite case, and did the
-vendor release an updated, fixed BIOS ?
+> +	ams_delta_mtd = kmalloc (sizeof(struct mtd_info) +
+                               ^
+> +					sizeof (struct nand_chip), GFP_KERNEL);
 
+Remove space
+
+And please create a structure containing both struct mtd_info and
+struct nand_chip.  Then use sizeof(that structure)...
+
+> +	/* Get pointer to private data */
+> +	this = (struct nand_chip *) (&ams_delta_mtd[1]);
+
+...and remove this cast.
+
+> +	/* Initialize structures */
+> +	memset((char *) ams_delta_mtd, 0, sizeof(struct mtd_info));
+> +	memset((char *) this, 0, sizeof(struct nand_chip));
+
+And those as well, while you're at it.
+
+> +	if (nand_scan (ams_delta_mtd, 1)) {
+                     ^
+> +	kfree (ams_delta_mtd);
+             ^
+> +static void __exit ams_delta_cleanup (void)
+                                       ^
+> +	nand_release (ams_delta_mtd);
+                    ^
+> +	kfree (ams_delta_mtd);
+             ^
+Jörn
+
+-- 
+Happiness isn't having what you want, it's wanting what you have.
+-- unknown

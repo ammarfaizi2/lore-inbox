@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWERUM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWERURQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbWERUM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 16:12:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750799AbWERUM6
+	id S932142AbWERURQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 16:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWERURQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 16:12:58 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:58886 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751394AbWERUM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 16:12:57 -0400
-Date: Thu, 18 May 2006 22:12:55 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux cbon <linuxcbon@yahoo.fr>
-Cc: Thierry Vignaud <tvignaud@mandriva.com>, helge.hafting@aitel.hist.no,
-       Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: replacing X Window System !
-Message-ID: <20060518201255.GZ10077@stusta.de>
-References: <m2odxvdv2o.fsf@vador2.mandriva.com> <20060518193108.23173.qmail@web26601.mail.ukl.yahoo.com>
+	Thu, 18 May 2006 16:17:16 -0400
+Received: from ns2.suse.de ([195.135.220.15]:61064 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751392AbWERURQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 16:17:16 -0400
+To: renzo@cs.unibo.it (Renzo Davoli)
+Cc: osd@cs.unibo.it, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2-ptrace_multi
+References: <20060518155337.GA17498@cs.unibo.it>
+	<20060518155848.GC17498@cs.unibo.it>
+From: Andi Kleen <ak@suse.de>
+Date: 18 May 2006 22:17:08 +0200
+In-Reply-To: <20060518155848.GC17498@cs.unibo.it>
+Message-ID: <p73sln72im3.fsf@bragg.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060518193108.23173.qmail@web26601.mail.ukl.yahoo.com>
-User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 18, 2006 at 09:31:08PM +0200, linux cbon wrote:
+renzo@cs.unibo.it (Renzo Davoli) writes:
+
+> ptmulti kernel patch inserts a new useful option for ptrace() call, 
+> adding a new request type to ptrace() syscall.
 > 
-> What do you think about this :
+> With PTRACE_MULTI option you can send multiple ptrace requests with a 
+> single system call: commonly a process that uses ptrace() needs
+> several PTRACE_PEEKDATA for getting some useful, even small pieces of data.
+> It is useful for these programs to run several ptrace
+> operations while limiting the number of context switches.
+
+What context switches do you mean?  System calls? Linux is in general
+designed to have very cheap system calls and they shouldn't be more tha
+a few hundred cycles. 
+
 > 
-> http://marc.theaimsgroup.com/?l=openbsd-misc&m=114738577123893&w=2
->...
-> and this
-> 
-> http://marc.theaimsgroup.com/?l=openbsd-misc&m=114233317926101&w=2
->...
+> Debuggers and virtual machines (like User Mode Linux) and many other 
+> applications that are based on ptrace can get great 
+> performance improvements by PTRACE_MULTI: the number of system
+> calls (and context switches) decreases significantly.
 
-If you want to hear negative things about X11 or Linux, you might find 
-quotes from Theo.
+You forgot to add numbers? 
 
-If you want to hear negative things about BSD, you might find quotes 
-from Linus.
-
-> If I am a troll, then who are Theo or Linus ?
-
-Theo and Linus are people who sometimes have controversal views, but who 
-also have significantely contributed to open source software.
-
-That's the difference between them and you.
-
-It seems you are a troll.
-If you want to prove me wrong, simply send an implementation of your 
-ideas and there will be a basis for a technical discussion.
-
-> Thanks
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-Andi

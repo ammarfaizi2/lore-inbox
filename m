@@ -1,83 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWERVwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWERWDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbWERVwR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 17:52:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWERVwQ
+	id S932162AbWERWDG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 18:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWERWDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 17:52:16 -0400
-Received: from mail.gmx.net ([213.165.64.20]:18607 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932156AbWERVwQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 17:52:16 -0400
-X-Authenticated: #1424900
-Message-ID: <446CEC8B.5070809@gmx.de>
-Date: Thu, 18 May 2006 23:52:11 +0200
-From: Eduard Warkentin <eduard.warkentin@gmx.de>
-User-Agent: Thunderbird 1.5 (X11/20060113)
+	Thu, 18 May 2006 18:03:06 -0400
+Received: from web26603.mail.ukl.yahoo.com ([217.146.176.53]:2414 "HELO
+	web26603.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932162AbWERWDF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 18:03:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=l8/NP98eA1BbqdylH5r7aTlhj9zhKtIFZLA0rHduwR3OSdj9BKYyrZKPoFMuPK8cdzLUYML8Q9KO2BcKK7EGLgbBMpV+nuxYCQqOUcSRpE+lMcKwjoA903difpTgIUqJ+AzY0LGd+SRCYHAlULIQ+oPvOOjy5pEqDuSSOjPNn/A=  ;
+Message-ID: <20060518220304.74222.qmail@web26603.mail.ukl.yahoo.com>
+Date: Fri, 19 May 2006 00:03:04 +0200 (CEST)
+From: linux cbon <linuxcbon@yahoo.fr>
+Subject: Re: replacing X Window System !
+To: Valdis.Kletnieks@vt.edu
+Cc: tvignaud@mandriva.com, helge.hafting@aitel.hist.no,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200605182147.k4ILl3P5018445@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Phil Chang <pchang23@sbcglobal.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] added support for ASIX 88178 chipset USB Gigabit Ethernet
- adaptor
-References: <e4gbbs$d37$1@sea.gmane.org> <20060517235902.GA8060@kroah.com>
-In-Reply-To: <20060517235902.GA8060@kroah.com>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=32217597
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: RIPEMD160
+ --- Valdis.Kletnieks@vt.edu a écrit : 
+> I think it adequately demonstrates that you're
+> unable to distinguish
+> between problems that *a specific implementation of
+> X* has, and problems
+> that *the X system as a design* has.  If one
+> particular X server has
+> a misfeature, the correct fix is to fix the server
+> software.
 
-Hi Greg!
+Didnt I already write about all this before ?
+We should fix X.org (root, hardware access) problems.
+But fixing only X.org is not enough.
 
-First of all, i hope you arent angry about having me sent this reply
-as CC to the current maintainer and to the mailing list. If so, I
-apologize, and it wont happen in future.
+X implementations problems :
+http://en.wikipedia.org/wiki/X_Window_System#Limitations_and_criticisms_of_X
+http://www.std.org/~msm/common/protocol.pdf
+http://archives.neohapsis.com/archives/openbsd/2006-03/0987.html
+http://cbbrowne.com/info/xbloat.html
 
-> Hm, your tabs and spaces are messed up :(
-I reviewed the original file again, and the lines just above mine
-indeed have spare leading whitespaces. Shall  I include changing them
-in my patch? I really dont know wether it just will ok, or will make
-it harder to identify what i actually did in patch.  I have to excuse
-myself for asking about those details, but this is my very first
-kernel patch ever. (For now, I left the whitespaces as I found them in
-the source file. Please, clue me on how to deal with those, wehen i
-encounter them again.)
 
-So, here's my corrected patch again:
+> So if you want to fix the *problem*, go learn enough
+> about graphics to
+> actually help design an open, non-evil chipset. 
+> That's the *real* problem,
+> not whatever fantasized shortcomings of X itself
+> you're trolling about.
 
-FROM: Eduard Warkentin <eduard.warkentin@gmx.de>
+One example : Tech Source company is trying to do an
+open-source graphic cards.
+http://lists.duskglow.com/mailman/listinfo/open-graphics
 
-Added support for detetcion an dworking with a ASIX 88178 based
-USB-Gigabit
-adaptor. With the patch, it is detected and handled correctly by the asix
-module.
+I would be happy that Nvidia or ATI open their
+drivers.
 
-Signed-off-by: Eduard Warkentin <eduard.warkentin@gmx.de>
 
-- --- ./drivers/usb/net/asix.c.orig 2006-03-20 06:53:29.000000000 +0100
-+++ ./drivers/usb/net/asix.c  2006-05-18 01:18:52.000000000 +0200
-@@ -913,6 +913,10 @@ static const struct usb_device_id  produc
-         USB_DEVICE (0x0b95, 0x7720),
-         .driver_info = (unsigned long) &ax88772_info,
- }, {
-+  // ASIX AX88178 10/100/1000
-+  USB_DEVICE (0x0b95, 0x1780),
-+  .driver_info = (unsigned long) &ax88772_info,
-+}, {
-  // Linksys USB200M Rev 2
-  USB_DEVICE (0x13b1, 0x0018),
-  .driver_info = (unsigned long) &ax88772_info,
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Regards
 
-iD8DBQFEbOyK0HvYPTIhdZcRA+rAAKCAChGPNe3lCaPcZUNkJujYJmmUZgCgq6tc
-bTotPl6JBMbch/DpS9O0DEQ=
-=1BCn
------END PGP SIGNATURE-----
 
+
+
+
+
+	
+
+	
+		
+___________________________________________________________________________ 
+Faites de Yahoo! votre page d'accueil sur le web pour retrouver directement vos services préférés : vérifiez vos nouveaux mails, lancez vos recherches et suivez l'actualité en temps réel. 
+Rendez-vous sur http://fr.yahoo.com/set

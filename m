@@ -1,96 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWERRff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWERRl3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932101AbWERRff (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 13:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWERRff
+	id S932102AbWERRl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 13:41:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWERRl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 13:35:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:17333 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932101AbWERRfe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 13:35:34 -0400
-Date: Thu, 18 May 2006 10:34:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, dev@sw.ru, herbert@13thfloor.at,
-       devel@openvz.org, sam@vilain.net, ebiederm@xmission.com, xemul@sw.ru,
-       haveblue@us.ibm.com, clg@fr.ibm.com, serue@us.ibm.com
-Subject: Re: [PATCH 0/9] namespaces: Introduction
-Message-Id: <20060518103430.080e3523.akpm@osdl.org>
-In-Reply-To: <20060518154700.GA28344@sergelap.austin.ibm.com>
-References: <20060518154700.GA28344@sergelap.austin.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 18 May 2006 13:41:29 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:32940 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S932102AbWERRl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 13:41:29 -0400
+Date: Thu, 18 May 2006 19:41:12 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Heiko J Schick <schihei@de.ibm.com>
+Cc: openib-general@openib.org, Christoph Raisch <RAISCH@de.ibm.com>,
+       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>,
+       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH 01/16] ehca: module infrastructure
+Message-ID: <20060518174112.GB26113@wohnheim.fh-wedel.de>
+References: <4468BD39.3010008@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4468BD39.3010008@de.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Serge E. Hallyn" <serue@us.ibm.com> wrote:
->
-> This patchset introduces a per-process utsname namespace.  These can
->  be used by openvz, vserver, and application migration to virtualize and
->  isolate utsname info (i.e. hostname).  More resources will follow, until
->  hopefully most or all vserver and openvz functionality can be implemented
->  by controlling resource namespaces from userspace.
-> 
+On Mon, 15 May 2006 19:41:13 +0200, Heiko J Schick wrote:
+> + *  This source code is distributed under a dual license of GPL v2.0 and 
+> OpenIB
 
-Generally, I think that the whole approach of virtualising the OS so it can
-run multiple independent instances of userspace is a good one.  It's an
-extension and a strengthening of things which Linux is already doing and
-it pushes further along a path we've been taking for many years.  If done
-right, it's even possible that each of these featurettes could improve the
-kernel in its own right - better layering, separation, etc.
+Your mailer is still mangling long lines, it seems.  If you need a
+quick solution, I could offer you a gmail invite.
 
-The approach which you appear to be taking is to separate the bits of
-functionality apart and to present them as separate works each of which is
-reviewed-by, acceptable-to and will-be-used-by all of the interested
-projects.  That's ideal, and is very much appreciated.
+> +
+> +	EDEB_EX(7, "ret=%x", ret);
+> +
+> +	return ret;
+> +
+> +create_aqp1:
+> +	ib_destroy_cq(sport->ibcq_aqp1);
+> +
+> +	EDEB_EX(7, "ret=%x", ret);
+> +
+> +	return ret;
+> +}
 
+Those two cases could be combined with a goto.  Saves a tiny amount of
+rodata.
 
-All of which begs the question "now what?".
+> +#define EHCA_RESOURCE_ATTR(name)                                           
+> \
+> +static ssize_t  ehca_show_##name(struct device *dev,                       
+> \
 
-What we do _not_ want to do is to merge up a pile of infrastructural stuff
-which never gets used.  On the other hand, we don't want to be in a
-position where nothing is merged into mainline until the entirety of
-vserver &&/|| openvs is ready to be merged.
+You have spaces instead of tabs in the lines the mailer mangled.
 
-I see two ways of justifying a mainline merge of things such as this
+> +                                                                           
+> \
+> +	data = rblock->name;                                               \
+> +	kfree(rblock);                                                     \
+> +									   \
+> +	if ((strcmp(#name, "num_ports") == 0) && (ehca_nr_ports == 1))	   \
+> +		return snprintf(buf, 256, "1\n");			   \
+> +	else								   \
+> +		return snprintf(buf, 256, "%d\n", data);		   \
+> +									   \
 
-a) We make an up-front decision that Linux _will_ have OS-virtualisation
-   capability in the future and just start putting in place the pieces for
-   that, even if some of them are not immediately useful.
+Is rblock->num_ports uninitialized when (ehca_nr_ports == 1)?  Looks
+rather odd.
 
-   I suspect that'd be acceptable, although I worry that we'd get
-   partway through and some issues would come up which are irreconcilable
-   amongst the various groups.
+> +	shca = (struct ehca_shca *)ib_alloc_device(sizeof(*shca));
 
-   It would help set minds at ease if someone could produce a
-   bullet-point list of what features the kernel will need to get it to the
-   stage where "most or all vserver and openvz functionality can be
-   implemented by controlling resource namespaces from userspace." Then we
-   can discuss that list, make sure that everyone's pretty much in
-   agreement.
+A quick grep showed that every single return value of
+ib_alloc_device() has a cast.
+Roland, can't you just change ib_alloc_device() to return void*?
 
-   It would be good if that list were to identify which features are
-   useful to Linux in their own right, and which ones only make sense within
-   a whole virtualise-the-OS setup.
+> +static struct of_device_id ehca_device_table[] =
+> +{
+> +	{
+> +		.name       = "lhca",
+> +		.compatible = "IBM,lhca",
+> +	},
+> +	{},
+> +};
 
-b) Only merge into mainline those feature which make sense in a
-   standalone fashion.  eg, we don't merge this patchset unless the
-   "per-process utsname namespace" feature is useful to and usable by a
-   sufficiently broad group of existing Linux users.
+Is the extra element needed?
 
-   I suspect this will be a difficult approach.
+> +	if ((ret = ehca_create_slab_caches(&ehca_module))) {
+> +		EDEB_ERR(4, "Cannot create SLAB caches");
+> +		ret = -ENOMEM;
+> +		goto module_init1;
+> +	}
 
-The third way would be to buffer it all up in -mm until everything is
-sufficiently in place and then slam it all in.  That might not be feasible
-for various reasons - please advise..
+	ret = try_something()
+	if (ret) {
+		...
+	}
 
-A fourth way would be for someone over there to run a git tree - you all
-happily work away, I redistribute it in -mm for testing and one day it's
-all ready to merge.  I don't really like this approach.  It ends up meaning
-that nobody else reviews the new code, nobody else understands what it's
-doing, etc.  It's generally subversive of the way we do things.
+> +	ehca_module.timer.data = (unsigned long)(void*)&ehca_module;
 
-Eric, Kirill, Herbert: let us know your thoughts, please.
+Why the double cast?
+
+Jörn
+
+-- 
+Fancy algorithms are slow when n is small, and n is usually small.
+Fancy algorithms have big constants. Until you know that n is
+frequently going to be big, don't get fancy.
+-- Rob Pike

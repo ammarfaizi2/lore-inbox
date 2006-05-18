@@ -1,81 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbWERX4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWERX6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751230AbWERX4g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 19:56:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbWERX4g
+	id S1751232AbWERX6k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 19:58:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWERX6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 19:56:36 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:44200 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1751230AbWERX4f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 19:56:35 -0400
-Message-ID: <446D0994.8090103@myri.com>
-Date: Fri, 19 May 2006 01:56:04 +0200
-From: Brice Goglin <brice@myri.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+	Thu, 18 May 2006 19:58:40 -0400
+Received: from mail.unixshell.com ([207.210.106.37]:25025 "EHLO
+	mail.unixshell.com") by vger.kernel.org with ESMTP id S1751232AbWERX6k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 19:58:40 -0400
+Message-ID: <446D0A0D.5090608@tektonic.net>
+Date: Thu, 18 May 2006 19:58:05 -0400
+From: Matt Ayres <matta@tektonic.net>
+Organization: TekTonic
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
 MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: netdev@vger.kernel.org, gallatin@myri.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/4] myri10ge - Driver core
-References: <20060517220218.GA13411@myri.com> <20060517220608.GD13411@myri.com> <200605180108.32949.arnd@arndb.de>
-In-Reply-To: <200605180108.32949.arnd@arndb.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: James Morris <jmorris@namei.org>
+CC: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>,
+       Patrick McHardy <kaber@trash.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Xen-devel] Re: Panic in ipt_do_table with 2.6.16.13-xen
+References: <4468BE70.7030802@tektonic.net> <4468D613.20309@trash.net>	<44691669.4080903@tektonic.net>	<Pine.LNX.4.64.0605152331140.10964@d.namei>	<4469D84F.8080709@tektonic.net> <Pine.LNX.4.64.0605161127030.16379@d.namei>
+In-Reply-To: <Pine.LNX.4.64.0605161127030.16379@d.namei>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
->> +	for (sleep_total = 0;
->> +	     sleep_total < (15 * 1000) && response->result == 0xffffffff;
->> +	     sleep_total += 10) {
->> +		udelay(10);
->> +	}
->>     
->
-> udelay does not sleep. If you want to sleep, use msleep instead.
->   
-
-This place is actually the only one where we don't want to use msleep.
-This function (myri10ge_send_cmd) might be called from various context
-(spinlocked or not) and pass orders to the NIC whose processing time
-depends a lot on the command. Of course, we don't have any place where a
-long operation is passed from a spinlocked context :) But, we need the
-tiny udelay granularity for the spinlocked case, and the long loop for
-operations that are long to process in the NIC.
-
-Concerning all the other places where you suggested to use msleep, you
-were right.
-
-> The __iomem variable need not be volatile.
-
-As Roland pointed out, there was too many volatile in this code. We are
-reworking this together with the sparse annotations.
-
->> +	printk("myri10ge: %s: %s IRQ %d, tx bndry %d, fw %s, WC %s\n",
->> +	       netdev->name, (mgp->msi_enabled ? "MSI" : "xPIC"),
->> +	       pdev->irq, mgp->tx.boundary, mgp->fw_name,
->> +	       (mgp->mtrr >= 0 ? "Enabled" : "Disabled"));
->> +
->>     
->
-> missing printk level (KERN_DEBUG?). Could probably use dev_printk.
->   
-
-When are we supposed to call dev_printk or not in such a driver ?
-
->> +#define MYRI10GE_PCI_VENDOR_MYRICOM 	0x14c1
->> +#define MYRI10GE_PCI_DEVICE_Z8E 	0x0008
->>     
->
-> Shouldn't the vendor ID go to pci_ids.h?
->   
-
-That's what I thought but i was told that the fashion these days is to
-keep the IDs with the driver that uses them. I'll happy to move as long
-as everybody agrees :)
 
 
-Thanks a lot for all your comments,
-Brice
+James Morris wrote:
+> On Tue, 16 May 2006, Matt Ayres wrote:
+> 
+>>>> My ruleset is pretty bland.  2 rules in the raw table to tell the system
+>>>> to
+>>>> only track my forwarded ports, 2 rules in the nat table for forwarding
+>>>> (intercepting) 2 ports, and then in the FORWARD tables 2 rules per VM to
+>>>> just
+>>>> account traffic.
+>>> Can you try using a different NIC?
+>>>
+>> This happens on 30 different hosts.  Using the same kernel I get varying
+>> uptime of "hasn't crashed since the upgrade to 2.6.16" to "crashes every day".
+>> All are Tyan S2882D boards w/ integrated Tigon3.  The trace I posted to this
+>> thread indicate tg3, but in many other traces I have the trace doesn't include
+>> any driver calls.  They all panic in ipt_do_table.  I would have pasted the
+>> others, but I didn't save the System.map for either of them and they are all
+>> pretty similar.
+> 
+> I'm trying to suggest eliminating this driver & possible interaction with 
+> Xen network changes as a cause.  If you can find a different type of NIC 
+> to plug in and use, or even try and change all of the params for the tg3 
+> with ethtool, it'll help.
+> 
 
+Hi,
+
+Thank you for the assistance. Which parameters do you suggest changing? 
+  TSO/flow control off?
+
+Here is my ruleset for those interested:
+
+# iptables -t raw -L -v
+Chain OUTPUT (policy ACCEPT 27441 packets, 4832K bytes)
+  pkts bytes target     prot opt in     out     source 
+destination
+
+Chain PREROUTING (policy ACCEPT 195M packets, 156G bytes)
+  pkts bytes target     prot opt in     out     source 
+destination
+1332K  144M NOTRACK   !tcp  --  any    any     anywhere 
+anywhere
+    54  5293 ACCEPT     tcp  --  any    any     anywhere 
+anywhere            tcp dpt:7373
+  4564  223K ACCEPT     tcp  --  any    any     anywhere 
+anywhere            tcp dpt:7322
+  194M  156G NOTRACK    tcp  --  any    any     anywhere 
+anywhere            tcp dpt:!7373
+  194M  156G NOTRACK    tcp  --  any    any     anywhere 
+anywhere            tcp dpt:!7322
+
+# iptables -t nat -L -v
+Chain OUTPUT (policy ACCEPT 2114 packets, 155K bytes)
+  pkts bytes target     prot opt in     out     source 
+destination
+
+Chain POSTROUTING (policy ACCEPT 2114 packets, 155K bytes)
+  pkts bytes target     prot opt in     out     source 
+destination
+
+Chain PREROUTING (policy ACCEPT 0 packets, 0 bytes)
+  pkts bytes target     prot opt in     out     source 
+destination
+     6   344 DNAT       tcp  --  eth0   any     anywhere 
+anywhere            tcp dpt:7373 to:host.ip.address:443
+     8   408 DNAT       tcp  --  eth0   any     anywhere 
+anywhere            tcp dpt:7322 to:host.ip.address:22
+
+
+iptables -L -v just shows 2 rules per Virtual Machine for accounting. 
+This averages about 100 rules in the FORWARD chain.  Example:
+
+# iptables -L -v
+Chain FORWARD (policy ACCEPT 195M packets, 156G bytes)
+  pkts bytes target     prot opt in     out     source 
+destination
+     0     0            all  --  any    any     xx.xx.xx.xx 
+  anywhere
+     0     0            all  --  any    any     anywhere 
+xx.xx.xx.xx

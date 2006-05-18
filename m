@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbWERPPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbWERPVE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751362AbWERPPX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 11:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWERPPX
+	id S1751363AbWERPVE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 11:21:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWERPVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 11:15:23 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:54464 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1751362AbWERPPW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 11:15:22 -0400
-Date: Thu, 18 May 2006 17:15:20 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       alsa-devel@lists.sourceforge.net
-Subject: Re: How to enable bios-disabled soundcard?
-Message-ID: <20060518151520.GA32572@rhlx01.fht-esslingen.de>
-References: <Pine.SOC.4.61.0605181650080.4469@math.ut.ee>
+	Thu, 18 May 2006 11:21:04 -0400
+Received: from onyx.ip.pt ([195.23.92.252]:49096 "EHLO mail.isp.novis.pt")
+	by vger.kernel.org with ESMTP id S1751363AbWERPVD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 11:21:03 -0400
+Subject: Re: [v4l-dvb-maintainer] [RFC: 2.6 patch]
+	drivers/media/video/bt8xx/: possible cleanups
+From: Ricardo Cerqueira <rmcc@linuxtv.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060516221729.GV10077@stusta.de>
+References: <20060516221729.GV10077@stusta.de>
+Content-Type: text/plain
+Organization: video4linux
+Date: Thu, 18 May 2006 16:21:01 +0100
+Message-Id: <1147965661.5418.23.camel@frolic>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SOC.4.61.0605181650080.4469@math.ut.ee>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2006-05-17 at 00:17 +0200, Adrian Bunk wrote:
 
-[CC'ing ALSA list]
+[snip]
 
-On Thu, May 18, 2006 at 05:09:47PM +0300, Meelis Roos wrote:
-> Context: IBM X20 laptop with integrated PCI CS4281 soundcard. Loading 
-> snd_cs4281 gives these messages and registers no alsa device:
-> 
-> ACPI: PCI interrupt for device 0000:00:0b.0 disabled
-> CS4281: probe of 0000:00:0b.0 failed with error -5
-> 
-> Error -5 seems to be -EIO.
-> 
-> There is no option ib bios to enable/disable the soundcard and the bios 
-> is almost the latest (2.23, latest 2.25 fixes only unrelated things by 
-> changelog).
+> - #if 0 the following unused global function:
+>   - bttv-gpio.c: bttv_gpio_irq()
 
-The mail subject most likely is wrong, since the IRQ message above
-doesn't suggest a BIOS issue at all,
-since the message is most likely a result of calling snd_cs4281_free()
-in failure path, which disables this IRQ again.
+This can be cut out, along with gpio_irq in the bttv_sub_driver struct
+at bttv.h. 
+It was originally used by bttv's remote-control sub-driver, which ceased
+to exist a few months ago (the functionality was merged into the main
+driver for consistency with other v4l modules).
 
-> lspci identifies the card as follows (pci ID is the same as in the 
-> driver):
-> 0000:00:0b.0 Multimedia audio controller: Cirrus Logic Crystal CS4281 PCI 
-> Audio (rev 01)
-> 
-> I tried pci=routeirq. It distributed the interrupts differently but this 
-> problem did remain.
+Mauro, this is change 30d12f67fd01 at my repo. Pull at will.
 
-I believe that it's a simple hardware mismatch failure in the main probe
-function of this driver, nothing else.
+--
+RC
 
-> So how can I enable the soundcard?
-
-The best way to find out is to edit snd_cs4281_probe() and add snd_printk()s
-at all error paths to find the one which actually fails.
-
-Andreas Mohr

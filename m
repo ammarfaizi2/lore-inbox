@@ -1,58 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWERTLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWERTUH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbWERTLP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 15:11:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWERTLP
+	id S932129AbWERTUH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 15:20:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWERTUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 15:11:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:470 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751382AbWERTLO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 15:11:14 -0400
-Date: Thu, 18 May 2006 12:10:57 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: dtor_core@ameritech.net, linux-input@atrey.karlin.mff.cuni.cz,
-       vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: [patch] fix magic sysrq on strange keyboards
-Message-Id: <20060518121057.3d79779b.akpm@osdl.org>
-In-Reply-To: <20060518102354.GA1715@elf.ucw.cz>
-References: <20060518102354.GA1715@elf.ucw.cz>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 18 May 2006 15:20:06 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:64080 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751383AbWERTUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 15:20:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=MM74rVQNw97RzZ1kLMU+7R3GsU2cCgph4cF65vhxT+fJr9t4ulARbrv0iE+O95CQZVFZngKs8qpvic4AiL0aMmofi2ntykcv2fp3LlLoh09EDRDt+Tjq3ZSeBHXd4zxKHuBvVxeBPvMy8NB5NkXsgM2WPSiSx0TjdwdtpjCqhHg=
+Message-ID: <eada2a070605181220l2f038cddlfd7a243ac36cd4af@mail.gmail.com>
+Date: Thu, 18 May 2006 12:20:03 -0700
+From: "Tim Pepper" <lnxninja@us.ibm.com>
+To: viro@zeniv.linux.org.uk
+Subject: Re: Too many levels of symbolic links
+Cc: linux-kernel@vger.kernel.org, "Linda Walsh" <lkml@tlinx.org>,
+       "Brian D. McGrew" <brian@visionpro.com>,
+       "H. Peter Anvin" <hpa@zytor.com>
+In-Reply-To: <eada2a070605171358r1fea2c62u641b6308e78aa1e4@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <14CFC56C96D8554AA0B8969DB825FEA0012B309B@chicken.machinevisionproducts.com>
+	 <44580CF2.7070602@tlinx.org> <e3966u$dje$1@terminus.zytor.com>
+	 <eada2a070605171358r1fea2c62u641b6308e78aa1e4@mail.gmail.com>
+X-Google-Sender-Auth: a2f9a4ea41e33e8b
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> wrote:
->
-> Magic sysrq fails to work on many keyboards, particulary most of
->  notebook keyboards. This should help...
-> 
->  The idea is quite simple: Discard the SysRq break code if Alt is still
->  being held down. This way the broken keyboard can send the break code
->  (or the user with a normal keyboard can release the SysRq key) and the
->  kernel waits until the next key is pressed or the Alt key is released.
-> 
->  From: Fredrik Roubert <roubert@df.lth.se>
->  Signed-off-by: Pavel Machek <pavel@suse.cz>
-> 
+Nevermind..missed the subject changed follow up to this...
 
-What kernel are you patching here?
-
-
->  index 5d84839..4602cf3 100644
->  --- a/drivers/char/keyboard.c
->  +++ b/drivers/char/keyboard.c
->  @@ -149,7 +149,8 @@ unsigned char kbd_sysrq_xlate[KEY_MAX + 
->           "\206\207\210\211\212\000\000789-456+1"         /* 0x40 - 0x4f */
->           "230\177\000\000\213\214\000\000\000\000\000\000\000\000\000\000" /* 0x50 - 0x5f */
->           "\r\000/";                                      /* 0x60 - 0x6f */
->  -static int was_sysrq;
->  +static int sysrq_down;
->  +static int sysrq_alt_use;
-
-bix:/usr/src/linux-2.6.17-rc4> grep was_sysrq drivers/char/sysrq.c
-bix:/usr/src/linux-2.6.17-rc4> 
-
+Tim

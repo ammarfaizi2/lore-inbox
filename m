@@ -1,109 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbWERPL7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWERPNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751318AbWERPL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 11:11:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWERPL7
+	id S1751321AbWERPNS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 11:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWERPNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 11:11:59 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:39819 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1751318AbWERPL6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 11:11:58 -0400
-Message-ID: <446C8EB1.3090905@bull.net>
-Date: Thu, 18 May 2006 17:11:45 +0200
-From: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en, fr, hu
+	Thu, 18 May 2006 11:13:18 -0400
+Received: from fmmailgate01.web.de ([217.72.192.221]:46477 "EHLO
+	fmmailgate01.web.de") by vger.kernel.org with ESMTP
+	id S1751321AbWERPNR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 11:13:17 -0400
+Message-ID: <446C8BEE.2080807@web.de>
+Date: Thu, 18 May 2006 16:59:58 +0200
+From: "jens m. noedler" <noedler@web.de>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Jan Kara <jack@suse.cz>
-Cc: sct@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Change ll_rw_block() calls in JBD
-References: <446C2F89.5020300@bull.net> <20060518134533.GA20159@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20060518134533.GA20159@atrey.karlin.mff.cuni.cz>
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 18/05/2006 17:15:04,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 18/05/2006 17:15:08,
-	Serialize complete at 18/05/2006 17:15:08
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+CC: trivial@kernel.org, ipw2100-devel@lists.sourceforge.net
+Subject: [TRIVIAL] ipw2200: fix a gcc compile warning
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Getting better :-)
+Hi,
 
-> +		was_dirty = buffer_dirty(bh);
+If one compiles the ipw2200 module without having CONFIG_IPW2200_DEBUG
+set gcc will warn. This patch fixes the following warning and applies 
+to 2.6.17-rc4-git6.
 
-Why do not we use "buffer_jbddirty()"?
+  CC [M]  drivers/net/wireless/ipw2200.o
+drivers/net/wireless/ipw2200.c:50: Warnung: `debug' defined but not used
 
-> +		if (was_dirty && test_set_buffer_locked(bh)) {
-> +			BUFFER_TRACE(bh, "needs blocking lock");
-> +			get_bh(bh);
-
-Why do you need a "get_bh(bh)"?
-"bh" is attached to "jh".
-Can it go away while waiting for the buffer lock?
-("jh" in on "t_sync_datalist", it cannot go away.)
-
-> +			spin_unlock(&journal->j_list_lock);
-> +			lock_buffer(bh);
-> +			spin_lock(&journal->j_list_lock);
-> +			/* Someone already cleaned up the buffer? Restart. */
-> +			if (!buffer_jbd(bh) || jh->b_jlist != BJ_SyncData) {
-
-Who (else) can take away the journal head, remove our "jh" from the
-synch. data list?
-
-> +		else {
-> +			BUFFER_TRACE(bh, "needs writeout, submitting");
->  			__journal_temp_unlink_buffer(jh);
->  			__journal_file_buffer(jh, commit_transaction,
->  						BJ_Locked);
-
-A simple "__journal_file_buffer(...)" could be enough as it includes:
-
-	if (jh->b_transaction)
-		__journal_temp_unlink_buffer(jh);
+Kind regards, Jens Nödler
 
 
-Would not it be more easy to read like this?
+Signed-off-by: jens m. noedler <noedler@web.de>
 
-                if ((!was_dirty && buffer_locked(bh))
-                    || (was_dirty && test_clear_buffer_dirty(bh))) {
-                        BUFFER_TRACE(bh, "needs writeout, submitting");
-                        __journal_temp_unlink_buffer(jh);
-                        __journal_file_buffer(jh, commit_transaction,
-                                                BJ_Locked);
-                        jbd_unlock_bh_state(bh);
-                        if (was_dirty) {
-                                get_bh(bh);
-                                bh->b_end_io = end_buffer_write_sync;
-                                submit_bh(WRITE, bh);
-                        }
-                }
-                else {
+---
 
-                        BUFFER_TRACE(bh, "writeout complete: unfile");
-                        __journal_unfile_buffer(jh);
-                        jbd_unlock_bh_state(bh);
-                        journal_remove_journal_head(bh);
-                        if (was_dirty)
-                                unlock_buffer(bh);
-                        put_bh(bh);
-                }
+--- drivers/net/wireless/ipw2200.c.orig 2006-05-18 16:26:39.000000000 +0200
++++ drivers/net/wireless/ipw2200.c      2006-05-18 16:26:58.000000000 +0200
+@@ -45,8 +45,11 @@ MODULE_VERSION(DRV_VERSION);
+ MODULE_AUTHOR(DRV_COPYRIGHT);
+ MODULE_LICENSE("GPL");
+
+-static int cmdlog = 0;
++#ifdef CONFIG_IPW2200_DEBUG
+ static int debug = 0;
++#endif
++
++static int cmdlog = 0;
+ static int channel = 0;
+ static int mode = 0;
 
 
-As synch. data handling is a compact stuff, cannot it be moved out from
-"journal_commit_transaction()" as e.g. "journal_write_revoke_records()"?
-(Just for a better readability...)
-
-Thanks,
-
-Zoltan
-
-
-
-
-
-
-
+-- 
+jens m. noedler
+  noedler@web.de
+  pgp: 0x9f0920bb
+  http://noedler.de

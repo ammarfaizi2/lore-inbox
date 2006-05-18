@@ -1,79 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWERWDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbWERWHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932162AbWERWDG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 18:03:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWERWDG
+	id S1750860AbWERWHA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 18:07:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbWERWHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 18:03:06 -0400
-Received: from web26603.mail.ukl.yahoo.com ([217.146.176.53]:2414 "HELO
-	web26603.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932162AbWERWDF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 18:03:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=l8/NP98eA1BbqdylH5r7aTlhj9zhKtIFZLA0rHduwR3OSdj9BKYyrZKPoFMuPK8cdzLUYML8Q9KO2BcKK7EGLgbBMpV+nuxYCQqOUcSRpE+lMcKwjoA903difpTgIUqJ+AzY0LGd+SRCYHAlULIQ+oPvOOjy5pEqDuSSOjPNn/A=  ;
-Message-ID: <20060518220304.74222.qmail@web26603.mail.ukl.yahoo.com>
-Date: Fri, 19 May 2006 00:03:04 +0200 (CEST)
-From: linux cbon <linuxcbon@yahoo.fr>
-Subject: Re: replacing X Window System !
-To: Valdis.Kletnieks@vt.edu
-Cc: tvignaud@mandriva.com, helge.hafting@aitel.hist.no,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200605182147.k4ILl3P5018445@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 18 May 2006 18:07:00 -0400
+Received: from ns.firmix.at ([62.141.48.66]:21472 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1750715AbWERWG7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 18:06:59 -0400
+Subject: Re: Nvidia legal to use by end-users?
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Don Bedsole <dbedsole@carolina.rr.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200605181650.52537.dbedsole@carolina.rr.com>
+References: <200605181650.52537.dbedsole@carolina.rr.com>
+Content-Type: text/plain
+Organization: http://www.firmix.at/
+Date: Fri, 19 May 2006 00:04:31 +0200
+Message-Id: <1147989871.3017.3.camel@gimli.at.home>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.246 () AWL,BAYES_00,FORGED_RCVD_HELO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- Valdis.Kletnieks@vt.edu a écrit : 
-> I think it adequately demonstrates that you're
-> unable to distinguish
-> between problems that *a specific implementation of
-> X* has, and problems
-> that *the X system as a design* has.  If one
-> particular X server has
-> a misfeature, the correct fix is to fix the server
-> software.
+On Thu, 2006-05-18 at 16:50 -0400, Don Bedsole wrote:
+[...]
+> Question: If I download and install the Nvidia graphics card drivers from 
+> their site, am I violating the GPL as an end-user?  I was thinking the the 
 
-Didnt I already write about all this before ?
-We should fix X.org (root, hardware access) problems.
-But fixing only X.org is not enough.
+No (if you only download, use and/or change it).
 
-X implementations problems :
-http://en.wikipedia.org/wiki/X_Window_System#Limitations_and_criticisms_of_X
-http://www.std.org/~msm/common/protocol.pdf
-http://archives.neohapsis.com/archives/openbsd/2006-03/0987.html
-http://cbbrowne.com/info/xbloat.html
+> GPL mainly covered what you are allowed or not allowed to do if you 
+> distribute software.  I ask because I saw on the OpenSuse site a statement to 
 
+Exactly. Which is the proof that an end-user (which per definition
+doesn't distribute sofwtare) cannot violate the GPL.
 
-> So if you want to fix the *problem*, go learn enough
-> about graphics to
-> actually help design an open, non-evil chipset. 
-> That's the *real* problem,
-> not whatever fantasized shortcomings of X itself
-> you're trolling about.
+> the effect that OpenSuse would not ship Nvidia, Ati drivers because some 
+> kernel developers consider them a violation of their copyrights.
 
-One example : Tech Source company is trying to do an
-open-source graphic cards.
-http://lists.duskglow.com/mailman/listinfo/open-graphics
+OpenSuse is obviously not an enduser and - as a "software distributor" -
+must care about the GPL.
+JftSoC: This doesn't state any opinion about OpenSuse violating the
+license if they distribute said drivers from Nvidia.
 
-I would be happy that Nvidia or ATI open their
-drivers.
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-
-Regards
-
-
-
-
-
-
-	
-
-	
-		
-___________________________________________________________________________ 
-Faites de Yahoo! votre page d'accueil sur le web pour retrouver directement vos services préférés : vérifiez vos nouveaux mails, lancez vos recherches et suivez l'actualité en temps réel. 
-Rendez-vous sur http://fr.yahoo.com/set

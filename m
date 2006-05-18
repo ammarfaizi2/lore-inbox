@@ -1,79 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWERHPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbWERHSg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbWERHPS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 03:15:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbWERHPS
+	id S1750805AbWERHSg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 03:18:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWERHSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 03:15:18 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:57482 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751310AbWERHPR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 03:15:17 -0400
-Date: Thu, 18 May 2006 03:15:05 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Pavel Machek <pavel@ucw.cz>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Over-heating CPU on 2.6.16 with Thinkpad G41
-In-Reply-To: <20060517170601.GA9459@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.58.0605180307500.30044@gandalf.stny.rr.com>
-References: <Pine.LNX.4.58.0605160253010.4283@gandalf.stny.rr.com>
- <20060517170601.GA9459@elf.ucw.cz>
+	Thu, 18 May 2006 03:18:36 -0400
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:6530 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750805AbWERHSf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 03:18:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=SJndt5yRe0ZriaZWTRQBj4RELuHlXJ922byyT/mJLY5xK91vUh7us6AVpo8T2nCtuCndjJuJxKu0xW8vZ4ou0pWSOy2jwOt+5xjPXZrVhXhYkZXKf4+tQcrAroKvArFPL4MLbw9ri1ovo34qZMFumNDGqQO9+BqpTBoMU4z0hNk=  ;
+Message-ID: <446C1FC7.1020405@yahoo.com.au>
+Date: Thu, 18 May 2006 17:18:31 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] mm: swap prefetch fix lowmem reserve calc
+References: <200605181558.57777.kernel@kolivas.org>
+In-Reply-To: <200605181558.57777.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Con Kolivas wrote:
+> When examining the free limits in swap_prefetch we should ensure the largest
+> lowmem_reserve for each zone is free.
+> 
+> Signed-off-by: Con Kolivas <kernel@kolivas.org>
+> 
+> ---
+>  mm/swap_prefetch.c |   14 +++++++++++++-
+>  1 files changed, 13 insertions(+), 1 deletion(-)
+> 
+> Index: linux-2.6.17-rc4-mm1/mm/swap_prefetch.c
+> ===================================================================
+> --- linux-2.6.17-rc4-mm1.orig/mm/swap_prefetch.c	2006-05-18 15:48:22.000000000 +1000
+> +++ linux-2.6.17-rc4-mm1/mm/swap_prefetch.c	2006-05-18 15:52:42.000000000 +1000
+> @@ -258,6 +258,18 @@ static void clear_current_prefetch_free(
+>  	}
+>  }
+>  
+> +static inline unsigned long largest_lowmem_reserve(struct zone *z)
+> +{
+> +	unsigned long ret = 0;
+> +	unsigned int idx = zone_idx(z);
+> +
+> +	while (!is_highmem_idx(idx)) {
+> +		idx++;
+> +		ret = max(ret, z->lowmem_reserve[idx]);
+> +	}
+> +	return ret;
+> +}
+> +
+>  /*
+>   * This updates the high and low watermarks of amount of free ram in each
+>   * node used to start and stop prefetching. We prefetch from pages_high * 4
+> @@ -276,7 +288,7 @@ static void examine_free_limits(void)
+>  
+>  		ns = &sp_stat.node[z->zone_pgdat->node_id];
+>  		idx = zone_idx(z);
+> -		ns->lowfree[idx] = z->pages_high * 3 + z->lowmem_reserve[idx];
+> +		ns->lowfree[idx] = z->pages_high * 3 + largest_lowmem_reserve(z);
+>  		ns->highfree[idx] = ns->lowfree[idx] + z->pages_high;
 
-On Wed, 17 May 2006, Pavel Machek wrote:
+Anonymous memory is GFP_HIGHUSER, yeah? Anything wrong with
 
-> On Út 16-05-06 03:05:06, Steven Rostedt wrote:
-> >
-> > Last night compiling kernels in my hotel, my CPUs kept over-heating.
-> >
-> > I have a IBM Thinkpad G41 which has a pentium 4 HT.
-> >
-> > Before compiling, my CPU temp would start at 65C and go up to 82 before I
-> > kill the compile. At 80 it warns me.  I rebooted a few times, but it would
-> > always happen.  Thinking this might be bad hardware, I rebooted into
-> > 2.6.12, and saw that the CPU temperature would be at 52C??  I had no more
-> > problems compiling.
->
-> Temperatures up-to 95C are okay on many machines.
-
-Still scary on a laptop.  I'm not sure what else can be damaged in there.
-It's quite tight.
-
->
-> > I recently added the Suspend2 patch and that might be the culprit, But I
-> > just booted, a version of 2.6.16 that doesn't have the patch, and it too
-> > seems to be runnig hot.
->
-> Ask nigel if you suspenct that patch. But from your description it
-> screams "random overheating".
-
-I posted on the suspend2 mailing list, but I haven't had a response there.
-
->
-> > Hmm, could this be the "acpi_sleep=s3_bios" that Suspend2 asks for?
-> > I haven't removed that option yet.
->
-> This option has 0 effect until you suspend to RAM.
-
-Yeah, that probably is so.  I never let my system cool down before I
-rebooted, without the patch, so it was probably still hot.  It was the
-only thing that I saw. And when I removed it the temperature dropped. It
-probably had more to do with the time since running hot.
-
-I never had a problem before adding the suspend2 patch. Afterwards, I
-noticed that my battery life was shortening, and then suddenly I started
-to get warnings after compiling the kernel.  But it would take some time
-(sometimes hours) to get hot to scream.  But this only happened with the
-suspend2 patch.  I've been running without that patch for a few days now
-and the CPU runs very cool.  Right now it's at 44C. (I haven't started
-compiling kernels yet).
+-		ns->lowfree[idx] = z->pages_high * 3 + z->lowmem_reserve[idx];
++		ns->lowfree[idx] = z->pages_high * 3 + z->lowmem_reserve[ZONE_HIGHMEM];
 
 
--- Steve
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

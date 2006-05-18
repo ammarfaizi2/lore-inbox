@@ -1,123 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbWERK6q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWERLBz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751295AbWERK6q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 06:58:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbWERK6q
+	id S1751335AbWERLBz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 07:01:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWERLBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 06:58:46 -0400
-Received: from ganesha.gnumonks.org ([213.95.27.120]:48023 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S1751295AbWERK6p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 06:58:45 -0400
-Date: Thu, 18 May 2006 12:58:41 +0200
-From: Harald Welte <laforge@gnumonks.org>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: openezx-devel@lists.gnumonks.org, linux-kernel@vger.kernel.org,
-       "Michael 'Mickey' Lauer" <mickey@tm.informatik.uni-frankfurt.de>
-Subject: Re: How should Touchscreen Input Drives behave (OpenEZX pcap_ts)
-Message-ID: <20060518105841.GW17897@sunbeam.de.gnumonks.org>
-References: <20060518070700.GT17897@sunbeam.de.gnumonks.org> <1147945947.20943.22.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xnH/NIbSm9ew9GxF"
-Content-Disposition: inline
-In-Reply-To: <1147945947.20943.22.camel@localhost.localdomain>
-User-Agent: mutt-ng devel-20050619 (Debian)
+	Thu, 18 May 2006 07:01:55 -0400
+Received: from mexforward.lss.emc.com ([168.159.213.200]:38767 "EHLO
+	mexforward.lss.emc.com") by vger.kernel.org with ESMTP
+	id S1751252AbWERLBy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 07:01:54 -0400
+Message-ID: <446C621E.9060502@emc.com>
+Date: Thu, 18 May 2006 08:01:34 -0400
+From: Ric Wheeler <ric@emc.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Zang Roy-r61911 <tie-fei.zang@freescale.com>, Mark Lord <mlord@pobox.com>
+CC: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Paul Mackerras <paulus@samba.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Alexandre.Bounine@tundra.com,
+       Yang Xin-Xin-r48390 <Xin-Xin.Yang@freescale.com>,
+       Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [PATCH/2.6.17-rc4 10/10]  bugs fix for marvell SATA on powerp
+ c pl atform
+References: <9FCDBA58F226D911B202000BDBAD46730626DE6E@zch01exm40.ap.freescale.net>
+In-Reply-To: <9FCDBA58F226D911B202000BDBAD46730626DE6E@zch01exm40.ap.freescale.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.3.0.1, Antispam-Data: 2006.5.18.33113
+X-PerlMx-Spam: Gauge=, SPAM=2%, Reason='EMC_FROM_0+ -2, __CP_URI_IN_BODY 0, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HIGHBITS 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __STOCK_CRUFT 0, __USER_AGENT 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mark Lord has been actively working on the sata_mv driver recently,
 
---xnH/NIbSm9ew9GxF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ric
 
-Hi Richard,
 
-thanks for your prompt reply.
+Zang Roy-r61911 wrote:
 
-On Thu, May 18, 2006 at 10:52:27AM +0100, Richard Purdie wrote:
-> Hi,
->=20
-> On Thu, 2006-05-18 at 09:07 +0200, Harald Welte wrote:
-> > 0) What kind of X/Y/Pressure values should I return?  Are they supposed
-> >    to be scaled to the X/Y resolution of the LCD?  As of now, I return
-> >    X_ABS, Y_ABS and PRESSURE values between 0 and 1000 (each).
-> >=20
-> >    However, the coordinates are actually inverted, so '0,0' corresponds
-> >    to the lower right corner of the screen, whereas '1000,1000' is the
-> >    upper left corner.  Shall I invert them (i.e. return 1000-coord')?
->=20
-> Just send the raw data to userspace. Any translations needed can be
-> handled in userspace by the calibration program. You probably want to
-> have a look at tslib: http://cvs.arm.linux.org.uk/cgi/viewcvs.cgi/tslib/
-
-ok, I'll investigate. Thanks for the hint.
-
-> The range of the values also doesn't really matter and scaling would
-> again get handled in userspace.
-
-ok.
-
-> Calibration happens in userspace and tslib stores the result
-> in /etc/pointercal. If you device has this data stored in hardware, you
-> could have a userspace app translate that data into such a file,
-> otherwise, you can run a calibration program such as ts_calibrate (from
-> tslib) or something like xtscal.
-
-well, I guess re-calibrating using ts_calibrate will be easier than
-trying to understand the proprietary calibration data format.
-
-> If the user is pressing the screen at all, its a button event and
-> release is when they stop touching the screen. I'd try not to make it
-> depend upon pressure but it will depend on the hardware to a degree.
-
-ok.  I have observed that this specific  hardware sometimes indicates a
-pressure of '1' (out of a rage ~ 0...1000) even if the screen is not
-pressed.  So I think there should be some level (maybe 10/20), only
-after this level of pressure has been reached it should report a button
-press.
-=20
-> Admittedly, tslib doesn't do much with pressure information at the
-> moment but tslib would the the correct place to handle pressure rather
-> than have every kernel touchscreen driver doing it.
-
-ok, i see.  perfectly makes sense.
-
-> For debugging, I'd highly recommend the test tools in tslib (ts_print,
-> ts_calibrate and ts_test). Use them in that order, checking for sane
-> output with ts_print first, get a working calibration second and finally
-> prove its working with ts_test. I found them to be very useful when
-> developing corgi_ts.
-
-thanks again, will do so later today.
-
-> I'm told you're thinking about using OpenEmbedded and would highly
-> recommend it. It should easily be able to provide a known working
-> userspace with tslib and these tools in.
-
-yes, I've actually managed to do a full task-bootstrap and task-gpe for
-the device now (cross-compiled from my linuxppc64 quad-g5), and was
-quite amazed that it almost worked out of the box.
-
---=20
-- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-We all know Linux is great...it does infinite loops in 5 seconds. -- Linus
-
---xnH/NIbSm9ew9GxF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQFEbFNhXaXGVTD0i/8RAiBiAJ9YbBzjfwPVtt1a0TW1VYTrtcUCJACcCjZP
-5rfBvvQnSHQwH9vIKhjSi30=
-=+36j
------END PGP SIGNATURE-----
-
---xnH/NIbSm9ew9GxF--
+>-----Original Message-----
+>From: Kumar Gala [mailto:galak@kernel.crashing.org]
+>Sent: 2006年5月17日 21:28
+>To: Zang Roy-r61911
+>Cc: Paul Mackerras; linuxppc-dev list; Alexandre.Bounine@tundra.com; Yang Xin-Xin-r48390
+>Subject: Re: [PATCH/2.6.17-rc4 10/10] bugs fix for marvell SATA on powerpc pl atform
+>
+>
+>
+>On May 17, 2006, at 5:14 AM, Zang Roy-r61911 wrote:
+>
+>  
+>
+>>Fix Marvell SATA driver bugs on PowerPC platform:
+>>SATA device can't work for the problem on little-endian mode.
+>>U-Boot can't find SATA device after kernel reboots.
+>>
+>>Signed-off-by: Hongjun cheng	<hong-jun.chen@reescale.com>
+>>Signed-off-by: Roy Zang		<tie-fei.zang@freescale.com>
+>>
+>>    
+>>
+>>>From nobody Mon Sep 17 00:00:00 2001
+>>>      
+>>>
+>>From: roy zang <tie-fei.zang@freescale.com>
+>>Date: Tue May 16 15:25:23 2006 +0800
+>>Subject: [PATCH] Fix bugs on powerpc platform for mv sata driver
+>>    
+>>
+>
+>This needs to go to Jeff Garzik as SATA driver maintainer.
+>
+>- kumar
+>
+>  
+>
+>> drivers/scsi/sata_mv.c |   10 +++++++++-
+>> 1 files changed, 9 insertions(+), 1 deletions(-)
+>>
+>>d82ac19d259f8487a31105eaf844a93cbd9008e8
+>>diff --git a/drivers/scsi/sata_mv.c b/drivers/scsi/sata_mv.c
+>>index d5fdcb9..4166422 100644
+>>--- a/drivers/scsi/sata_mv.c
+>>+++ b/drivers/scsi/sata_mv.c
+>>@@ -1032,6 +1032,9 @@ static inline void mv_crqb_pack_cmd(u16
+>> {
+>> 	*cmdw = data | (addr << CRQB_CMD_ADDR_SHIFT) | CRQB_CMD_CS |
+>> 		(last ? CRQB_CMD_LAST : 0);
+>>+#ifdef CONFIG_PPC
+>>+	*cmdw = cpu_to_le16(*cmdw);
+>>+#endif
+>> }
+>>
+>> /**
+>>@@ -1567,13 +1570,18 @@ static void mv5_read_preamp(struct mv_ho
+>> static void mv5_enable_leds(struct mv_host_priv *hpriv, void  
+>>__iomem *mmio)
+>> {
+>> 	u32 tmp;
+>>-
+>>+#ifndef CONFIG_PPC
+>> 	writel(0, mmio + MV_GPIO_PORT_CTL);
+>>+#endif
+>>
+>> 	/* FIXME: handle MV_HP_ERRATA_50XXB2 errata */
+>>
+>> 	tmp = readl(mmio + MV_PCI_EXP_ROM_BAR_CTL);
+>>+#ifdef CONFIG_PPC
+>>+	tmp &= ~(1 << 0);
+>>+#else	
+>> 	tmp |= ~(1 << 0);
+>>+#endif
+>> 	writel(tmp, mmio + MV_PCI_EXP_ROM_BAR_CTL);
+>> }
+>>
+>>-- 
+>>1.3.0
+>>_______________________________________________
+>>Linuxppc-dev mailing list
+>>Linuxppc-dev@ozlabs.org
+>>https://ozlabs.org/mailman/listinfo/linuxppc-dev
+>>    
+>>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>

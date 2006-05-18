@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWERXM6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWERXQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbWERXM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 19:12:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWERXM6
+	id S1750975AbWERXQx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 19:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbWERXQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 19:12:58 -0400
-Received: from wx-out-0102.google.com ([66.249.82.203]:8871 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751163AbWERXM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 19:12:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=j2FV2Ot429hSLRIpqAirgI4OvYdK0RNeW/nMQoYBnzdcP1KJADZyfGEF3r8fowrV1cVTK/3+LnqiBfHbjC3EcTEJLB33lO7p/pFe0pZ13oAwgehtuQAndz2iBVrIh+xGJctOZssJXnHVNBdfou8MynpscJ9dcIe5NO/WltvvUqk=
-Message-ID: <446CFF77.9050008@gmail.com>
-Date: Fri, 19 May 2006 08:12:55 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Thu, 18 May 2006 19:16:53 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28837 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750973AbWERXQx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 19:16:53 -0400
+Date: Fri, 19 May 2006 01:16:13 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Harald Welte <laforge@gnumonks.org>
+Cc: Florent Thiery <Florent.Thiery@int-evry.fr>,
+       openezx-devel@lists.gnumonks.org, linux-kernel@vger.kernel.org
+Subject: Re: How should Touchscreen Input Drives behave (OpenEZX pcap_ts)
+Message-ID: <20060518231613.GA19731@elf.ucw.cz>
+References: <20060518070700.GT17897@sunbeam.de.gnumonks.org> <446C5780.7050608@int-evry.fr> <20060518143824.GC17897@sunbeam.de.gnumonks.org>
 MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-CC: Jan Wagner <jwagner@kurp.hut.fi>, linux-kernel@vger.kernel.org
-Subject: Re: support for sata7 Streaming Feature Set?
-References: <Pine.LNX.4.58.0605051547410.7359@kurp.hut.fi> <4466D6FB.1040603@gmail.com> <Pine.LNX.4.58.0605162126520.31191@kurp.hut.fi> <446BD8F2.10509@gmail.com> <446C9492.2040704@garzik.org>
-In-Reply-To: <446C9492.2040704@garzik.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060518143824.GC17897@sunbeam.de.gnumonks.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Tejun Heo wrote:
->> One thing to think about before supporting streaming from/to harddisks 
->> from userland is how to make data flow efficiently from userland to 
->> kernel and back.  But, no matter what, kernel <-> userland usually 
->> involves one data copy, so I don't think making sg similarly efficient 
->> would be too difficult (it might be already).
+Hi!
+
+> > Another one: you say you're workin on building X-e. Are you talking about kdrive?
 > 
-> Actually, the kernel usually maps userland pages, eliminating the need 
-> for a copy.  write(2) may have copied data into that page originally, 
-> but mmap(2) need not have.
+> I have no idea, just replaying the package names that OE uses ;)
+> 
+> I now have Xfbdev running on the A780.  Unfortunately due to some
+> strange black magic, the ts driver ceases to receive interrupts as soon
+> as X is started. reproducible.  The same happens with ts_test.
 
-Yeap, to achieve high streaming rate, it would be best to have 
-preallocated ring buffer and ring pointers.  If this high-bw streaming 
-thing becomes common, we can add it to sg, I guess.
+Just poll the touchscreen, then... I have similar problems with
+battery hardware and touchscreen sharing ADCs on collie... but
+hopefully Motorola did not do _that_ mistake.
 
+								Pavel
 -- 
-tejun
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

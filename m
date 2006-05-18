@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWERPNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbWERPPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbWERPNS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 11:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWERPNS
+	id S1751362AbWERPPX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 11:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWERPPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 11:13:18 -0400
-Received: from fmmailgate01.web.de ([217.72.192.221]:46477 "EHLO
-	fmmailgate01.web.de") by vger.kernel.org with ESMTP
-	id S1751321AbWERPNR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 11:13:17 -0400
-Message-ID: <446C8BEE.2080807@web.de>
-Date: Thu, 18 May 2006 16:59:58 +0200
-From: "jens m. noedler" <noedler@web.de>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: trivial@kernel.org, ipw2100-devel@lists.sourceforge.net
-Subject: [TRIVIAL] ipw2200: fix a gcc compile warning
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 18 May 2006 11:15:23 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:54464 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1751362AbWERPPW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 11:15:22 -0400
+Date: Thu, 18 May 2006 17:15:20 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Meelis Roos <mroos@linux.ee>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       alsa-devel@lists.sourceforge.net
+Subject: Re: How to enable bios-disabled soundcard?
+Message-ID: <20060518151520.GA32572@rhlx01.fht-esslingen.de>
+References: <Pine.SOC.4.61.0605181650080.4469@math.ut.ee>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.SOC.4.61.0605181650080.4469@math.ut.ee>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-If one compiles the ipw2200 module without having CONFIG_IPW2200_DEBUG
-set gcc will warn. This patch fixes the following warning and applies 
-to 2.6.17-rc4-git6.
+[CC'ing ALSA list]
 
-  CC [M]  drivers/net/wireless/ipw2200.o
-drivers/net/wireless/ipw2200.c:50: Warnung: `debug' defined but not used
+On Thu, May 18, 2006 at 05:09:47PM +0300, Meelis Roos wrote:
+> Context: IBM X20 laptop with integrated PCI CS4281 soundcard. Loading 
+> snd_cs4281 gives these messages and registers no alsa device:
+> 
+> ACPI: PCI interrupt for device 0000:00:0b.0 disabled
+> CS4281: probe of 0000:00:0b.0 failed with error -5
+> 
+> Error -5 seems to be -EIO.
+> 
+> There is no option ib bios to enable/disable the soundcard and the bios 
+> is almost the latest (2.23, latest 2.25 fixes only unrelated things by 
+> changelog).
 
-Kind regards, Jens Nödler
+The mail subject most likely is wrong, since the IRQ message above
+doesn't suggest a BIOS issue at all,
+since the message is most likely a result of calling snd_cs4281_free()
+in failure path, which disables this IRQ again.
 
+> lspci identifies the card as follows (pci ID is the same as in the 
+> driver):
+> 0000:00:0b.0 Multimedia audio controller: Cirrus Logic Crystal CS4281 PCI 
+> Audio (rev 01)
+> 
+> I tried pci=routeirq. It distributed the interrupts differently but this 
+> problem did remain.
 
-Signed-off-by: jens m. noedler <noedler@web.de>
+I believe that it's a simple hardware mismatch failure in the main probe
+function of this driver, nothing else.
 
----
+> So how can I enable the soundcard?
 
---- drivers/net/wireless/ipw2200.c.orig 2006-05-18 16:26:39.000000000 +0200
-+++ drivers/net/wireless/ipw2200.c      2006-05-18 16:26:58.000000000 +0200
-@@ -45,8 +45,11 @@ MODULE_VERSION(DRV_VERSION);
- MODULE_AUTHOR(DRV_COPYRIGHT);
- MODULE_LICENSE("GPL");
+The best way to find out is to edit snd_cs4281_probe() and add snd_printk()s
+at all error paths to find the one which actually fails.
 
--static int cmdlog = 0;
-+#ifdef CONFIG_IPW2200_DEBUG
- static int debug = 0;
-+#endif
-+
-+static int cmdlog = 0;
- static int channel = 0;
- static int mode = 0;
-
-
--- 
-jens m. noedler
-  noedler@web.de
-  pgp: 0x9f0920bb
-  http://noedler.de
+Andreas Mohr

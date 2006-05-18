@@ -1,87 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbWERXIV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWERXM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751149AbWERXIV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 19:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWERXIV
+	id S1751163AbWERXM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 19:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWERXM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 19:08:21 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:28343 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751143AbWERXIU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 19:08:20 -0400
-Date: Thu, 18 May 2006 16:07:58 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Tejun Heo <htejun@gmail.com>
-Cc: jeff@garzik.org, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [RFT] major libata update
-Message-Id: <20060518160758.5911e4b7.akpm@osdl.org>
-In-Reply-To: <446AC418.4070704@gmail.com>
-References: <20060515170006.GA29555@havoc.gtf.org>
-	<20060516190507.35c1260f.akpm@osdl.org>
-	<446AAB3C.6050303@gmail.com>
-	<20060516215610.2b822c00.akpm@osdl.org>
-	<446AB12C.10001@gmail.com>
-	<446AC418.4070704@gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 18 May 2006 19:12:58 -0400
+Received: from wx-out-0102.google.com ([66.249.82.203]:8871 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751163AbWERXM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 19:12:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=j2FV2Ot429hSLRIpqAirgI4OvYdK0RNeW/nMQoYBnzdcP1KJADZyfGEF3r8fowrV1cVTK/3+LnqiBfHbjC3EcTEJLB33lO7p/pFe0pZ13oAwgehtuQAndz2iBVrIh+xGJctOZssJXnHVNBdfou8MynpscJ9dcIe5NO/WltvvUqk=
+Message-ID: <446CFF77.9050008@gmail.com>
+Date: Fri, 19 May 2006 08:12:55 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Jeff Garzik <jeff@garzik.org>
+CC: Jan Wagner <jwagner@kurp.hut.fi>, linux-kernel@vger.kernel.org
+Subject: Re: support for sata7 Streaming Feature Set?
+References: <Pine.LNX.4.58.0605051547410.7359@kurp.hut.fi> <4466D6FB.1040603@gmail.com> <Pine.LNX.4.58.0605162126520.31191@kurp.hut.fi> <446BD8F2.10509@gmail.com> <446C9492.2040704@garzik.org>
+In-Reply-To: <446C9492.2040704@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo <htejun@gmail.com> wrote:
->
+Jeff Garzik wrote:
 > Tejun Heo wrote:
->  > Andrew Morton wrote:
->  >> No.  In fact, it doesn't even work with the 2.6.17-rc4-mm1 lineup plus 
->  >> the
->  >> latest git-libata-all.  It needs this tweak:
->  >>
->  >> --- devel/drivers/scsi/ata_piix.c~2.6.17-rc4-mm1-ich8-fix    
->  >> 2006-05-16 18:36:12.000000000 -0700
->  >> +++ devel-akpm/drivers/scsi/ata_piix.c    2006-05-16 
->  >> 18:36:12.000000000 -0700
->  >> @@ -542,6 +542,14 @@ static unsigned int piix_sata_probe (str
->  >>          port = map[base + i];
->  >>          if (port < 0)
->  >>              continue;
->  >> +        if (ap->flags & PIIX_FLAG_AHCI) {
->  >> +            /* FIXME: Port status of AHCI controllers
->  >> +             * should be accessed in AHCI memory space.  */
->  >> +            if (pcs & 1 << port)
->  >> +                present_mask |= 1 << i;
->  >> +            else
->  >> +                pcs &= ~(1 << port);
->  >> +        }
->  >>          if (ap->flags & PIIX_FLAG_IGNORE_PCS || pcs & 1 << (4 + port))
->  >>              present_mask |= 1 << i;
->  >>          else
+>> One thing to think about before supporting streaming from/to harddisks 
+>> from userland is how to make data flow efficiently from userland to 
+>> kernel and back.  But, no matter what, kernel <-> userland usually 
+>> involves one data copy, so I don't think making sg similarly efficient 
+>> would be too difficult (it might be already).
 > 
->  The above patch doesn't do anything.
+> Actually, the kernel usually maps userland pages, eliminating the need 
+> for a copy.  write(2) may have copied data into that page originally, 
+> but mmap(2) need not have.
 
-Yes it does.  I dropped it and got
+Yeap, to achieve high streaming rate, it would be best to have 
+preallocated ring buffer and ring pointers.  If this high-bw streaming 
+thing becomes common, we can add it to sg, I guess.
 
-SCSI subsystem initialized
-ata_piix 0000:00:1f.2: MAP [ P0 P2 P1 P3 ]
-ACPI (acpi_bus-0191): Device is not power manageable [20060310]
-ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 19 (level, low) -> IRQ 19
-ata1: SATA max UDMA/133 cmd 0x2148 ctl 0x217E bmdma 0x2110 irq 19
-ata2: SATA max UDMA/133 cmd 0x2140 ctl 0x217A bmdma 0x2118 irq 19
-ata1: SATA port has no device.
-
-Then I undropped it and got
-
-SCSI subsystem initialized
-ata_piix 0000:00:1f.2: MAP [ P0 P2 P1 P3 ]
-ACPI (acpi_bus-0191): Device is not power manageable [20060310]
-ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 19 (level, low) -> IRQ 19
-ata1: SATA max UDMA/133 cmd 0x2148 ctl 0x217E bmdma 0x2110 irq 19
-ata2: SATA max UDMA/133 cmd 0x2140 ctl 0x217A bmdma 0x2118 irq 19
-ata1.00: ATA-7, max UDMA/133, 321672960 sectors: LBA48 NCQ (depth 0/32)
-ata1.00: configured for UDMA/133
-scsi0 : ata_piix
-
-and a computer which boots.
-
-Look closer, please ;)
+-- 
+tejun

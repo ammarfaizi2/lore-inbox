@@ -1,62 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751349AbWERM3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWERMpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751349AbWERM3p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 08:29:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWERM3p
+	id S1750781AbWERMpF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 08:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWERMpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 08:29:45 -0400
-Received: from web81114.mail.mud.yahoo.com ([68.142.199.46]:29793 "HELO
-	web81114.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751349AbWERM3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 08:29:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=ameritech.net;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=wWFG8wiX4W2RRbxybenbZG6Al+oFk80sFO5nuGEE1GifwPWYWdefQgoytODd1NoVxGebe4vVZXBAUtylDR9EUB8B9iEYyLgbPWO7zMTPRTnfCTCHUIrhwqaG/mN7DPPvSkvjl0LEargA7nWxXZcmX69pq6ZGBnlPWS7XU7reGsE=  ;
-Message-ID: <20060518122944.66148.qmail@web81114.mail.mud.yahoo.com>
-Date: Thu, 18 May 2006 05:29:44 -0700 (PDT)
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: [patch] add input_enable_device()
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <446BFE01.7030103@aknet.ru>
+	Thu, 18 May 2006 08:45:04 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:1501 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750781AbWERMpC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 08:45:02 -0400
+Message-ID: <446C6B8D.1080805@aitel.hist.no>
+Date: Thu, 18 May 2006 14:41:49 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: Chase Venters <chase.venters@clientec.com>,
+       =?UTF-8?B?TcOlbnMgUnVsbGfDpQ==?= =?UTF-8?B?cmQ=?= 
+	<mru@inprovide.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Wiretapping Linux?
+References: <4469D296.8060908@perkel.com> <Pine.LNX.4.61.0605161100590.27707@chaos.analogic.com> <Pine.LNX.4.64.0605161052120.32181@turbotaz.ourhouse> <yw1xodxx1znc.fsf@agrajag.inprovide.com> <Pine.LNX.4.64.0605161541390.32181@turbotaz.ourhouse> <446C59B8.1060402@aitel.hist.no> <Pine.LNX.4.61.0605180741350.4006@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0605180741350.4006@chaos.analogic.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Stas Sergeev <stsp@aknet.ru> wrote:
+linux-os (Dick Johnson) wrote:
 
-> Dmitry Torokhov wrote:
-> >>>> Why does it have the INPUT_DEVICE_ID_MATCH_BUS after all?
-> >>> For userspace benefits.
-> >> How exactly does the userspace benefit from the
-> >> INPUT_DEVICE_ID_MATCH_BUS thing?
-> This is still not answered. If INPUT_DEVICE_ID_MATCH_BUS
-> is there, then I don't see the argument that the input
-> layer is not designed for the like things.
+>On Thu, 18 May 2006, Helge Hafting wrote:
+>
+>  
+>
+>>Chase Venters wrote:
+>>
+>>    
+>>
+>>>Yeah, so to wrap this malware conversation up -- the most effective
+>>>way to implant malicious code in Linux is to crack into developer
+>>>machines and sneak the changes in.
+>>>
+>>>And hope that someone doesn't notice.
+>>>      
+>>>
+>>The maintainer will.  Over and over, we see maintainers tell developers
+>>to fix their patch - often the problem is something as small as
+>>"bad withespace" or "stupid name for a variable".
+>>
+>>Now try to get a backdoor in, and see the maintainer get a fit over
+>>the changes that are clearly unrelated to the problem mentioned
+>>in the changelog.
+>>
+>>And if you succeed with the spyware anyway, then someone will notice
+>>the strange packets going out.  That you cannot prevent, and it will then
+>>be tracked down.  Or you get a backdoor in?  It will be found as soon as
+>>it sees some use, or likely earlier with all the more or less automated
+>>vulnerability chacking going on.
+>>
+>>Helge Haftinjg
+>>    
+>>
+>
+>Remember this back door?
+>
+>  
+>
+[attack snipped]
 
-Yes, you are right. INPUT_DEVICE_ID_MATCH_BUS will not likely
-benefit anyone. It is highly unlikely that we would have a handler
-for devices on specific bus or for devices made only by one vendor.
-When I mentioned userspace I was talk ing about exporting bus,
-product, vendor and version values to userspace which might be
-still benefitial. Although as we move along to sysfsifying the
-kernel bus information can be traced through sysfs instead.
+># exit
+>logout
+>Connection closed by foreign host. 
+>LINUX> exit
+>
+>Script done on Thu 18 May 2006 07:39:27 AM EDT
+>
+>Early sendmail went years with the wizard back-door and the
+>code wasn't obscured in any way.
+>  
+>
+Not a linux kernel backdoor.
+There sure are lots of software systems running on linux, some of them
+may be easy to mess up like that.  If you worry about that, go for
+sw with a good security record.  qmail for your mail, perhaps?
 
-> 
-> > You just do not want to implement proper access control for the
-> > hardware, that's it.
-> Depends on an answer to the question above, whether using
-> input is the proper way or not.
-> 
+Also, a nice thing with these application backdoors is that not
+everybody have them.  There are many mail packages to choose
+from, and there are many systems with none at all even. The same applies
+to almost every other app.  You probably find "bash" on just about every
+linux though.
 
-Consider this: pcspkr is broken at the moment as it does not
-handle several simultaneous events well. If you fix it do behave
-properly with SND_TONE and SND_BELL arriving at the same time
-then adding hooks to the speaker code for snd-pcsp should be
-pretty easy. See?
-
---
-Dmitry
+Helge Hafting

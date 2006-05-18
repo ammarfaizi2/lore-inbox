@@ -1,520 +1,320 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbWERQHy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWERQJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751369AbWERQHy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 12:07:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWERQHy
+	id S932082AbWERQJn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 12:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWERQJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 12:07:54 -0400
-Received: from lea.cs.unibo.it ([130.136.1.101]:34494 "EHLO lea.cs.unibo.it")
-	by vger.kernel.org with ESMTP id S1751369AbWERQHx (ORCPT
+	Thu, 18 May 2006 12:09:43 -0400
+Received: from the.earth.li ([193.201.200.66]:55255 "EHLO the.earth.li")
+	by vger.kernel.org with ESMTP id S1751370AbWERQJm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 12:07:53 -0400
-Date: Thu, 18 May 2006 18:07:51 +0200
-To: linux-kernel@vger.kernel.org
-Cc: osd@cs.unibo.it
-Subject: [PATCH] 3-ptrace_vm
-Message-ID: <20060518160751.GD17498@cs.unibo.it>
-References: <20060518155337.GA17498@cs.unibo.it>
+	Thu, 18 May 2006 12:09:42 -0400
+Date: Thu, 18 May 2006 17:09:41 +0100
+From: Jonathan McDowell <noodles@earth.li>
+To: linux-mtd@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Add Amstrad Delta NAND support.
+Message-ID: <20060518160940.GS7570@earth.li>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060518155337.GA17498@cs.unibo.it>
-User-Agent: Mutt/1.5.6+20040907i
-From: renzo@cs.unibo.it (Renzo Davoli)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PTRACE_SYSVM patch is a improvement for applications
-that use ptrace() for creating virtual machines, like User Mode Linux
-or UMview.
+The patch below adds support for the NAND device on the Amstrad Delta.
+This is a 32MB 8bit Toshiba device, with the data bus connected to the
+OMAP MPUIO pins and ALE, CLE, NCE, NRE, NWE and NWP all connected to the
+Delta's latch2 16bit latch.
 
-The concept is near to the SYSEMU patch introduced by UML: you can specify that
-a system call should not be executed by the underlying kernel.
+This is the same patch as submitted to linux-mtd for comments a month
+ago, with 3 changes:
 
-In PTRACE_SYSEMU there's a conceptual hole: you tell that _the_next_ system call
-won't be called, but sometimes is important to decide whether the system
-call has to be executed or not during the system call management, it is not
-possible to decide in advance. 
-User-Mode linux redefines all the system calls, but UM-ViewOS (for example)
-aims to redefine only some of them and under specifical conditions.
-(thus implementing Partial Virtual Machines).
-In this case a VM monitor need to run the uncatched system calls in the 
-ptraced process without any further interactions (which would be only a
-waste of time).
+ * Set ams_delta_mtd->owner = THIS_MODULE; before calling nand_scan()
+ * Remove spurious comment.
+ * Lower udelay length.
 
-Our patch is semantically much more general, in order to select between
-different behavior: with SYSVM you can decide to skip both the execution of the
-current system call and the upcall after the execution or just the
-"after syscall" upcall.
+Patch is against vanilla 2.6.17-rc4.
 
-We introduced PTRACE_SYSVM request, together with PTRACE_VM_SKIPCALL and
-PTRACE_VM_SKIPEXIT options that are specified inside the third parameter 
-of ptrace().
-PTRACE_SYSVM is intended to be used instead of PTRACE_SYSCALL during the
-upcall preceding the system call execution.
+Signed-Off-By: Jonathan McDowell <noodles@earth.li>
 
-PTRACE_VM_SKIPCALL skips the system call execution (by the ptraced prrocess). 
-PTRACE_VM_SKIPEXIT avoids the second upcall after the system call execution.
-
-With the PTRACE_SYSVM support a ptracing process (usually the virtual machine
-monitor for the ptraced process) can decide different behaviors:
-
-** ptrace(PTRACE_SYSVM,pid,0,0): it is completely equivalent to
-	ptrace(PTRACE_SYSCALL,pid,0,0)
-
-** ptrace(PTRACE_SYSVM,pid,PT_VM_SKIPEXIT,0): the syscall is executed and the
-results are returned to the process (pid). This is useful when the
-ptracing process does not need to virtualize the call.
-
-** ptrace(PTRACE_SYSVM,pid,PT_VM_SKIPCALL | PT_VM_SKIPEXIT,0): the syscall is
-*not* executed nor there is a further upcall. This possibility is used when
-the virtual machine need to virtualize the call, the return value, exit status
-etc. should be loaded in the process address space before this call (maybe
-using a PTRACE_MULTI call).
-
-(In theory it is also possible to use a call like 
-ptrace(PTRACE_SYSVM,pid,VM_SKIPCALL,0): in this case the system call is not
-executed but a second upcall takes place anyway. This is useless as 
-the second upcall takes place after the kernel has done nothing after the first
-one.
-We decided to use two flags for the sake of clearness and readability,
-and given that we needed three different behaviors we needed two bits anyway).
-
-That patch could completely replace PTRACE_SYSEMU: User Mode Linux could easily
-use our patch in place of SYSEMU. 
-
-The patch work on ppc, i386, and even um (usermodelinux) architecture.
-It has given a good speedup to Umview (from some rough tests it seems up to 
-1.8,1.85 on system call intensive programs like cp).
-
-Signed-off-by: renzo davoli <renzo@cs.unibo.it>
-
-diff -Naur linux-2.6.17-rc1-access/arch/i386/kernel/ptrace.c linux-2.6.17-rc1-pmulti-ptvm/arch/i386/kernel/ptrace.c
---- linux-2.6.17-rc1-access/arch/i386/kernel/ptrace.c	2006-04-03 05:22:10.000000000 +0200
-+++ linux-2.6.17-rc1-pmulti-ptvm/arch/i386/kernel/ptrace.c	2006-04-03 11:30:53.000000000 +0200
-@@ -477,15 +477,26 @@
- 		  }
- 		  break;
- 
-+	case PTRACE_SYSVM:
-+		  if (addr == PTRACE_VM_TEST) {
-+			  ret = PTRACE_VM_MASK;
-+			  break;
-+		  }
+-----
+diff -ruN linux-2.6.17-rc4/drivers/mtd/nand/ams-delta.c linux-2.6.17-rc4-e3-nand/drivers/mtd/nand/ams-delta.c
+--- linux-2.6.17-rc4/drivers/mtd/nand/ams-delta.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.17-rc4-e3-nand/drivers/mtd/nand/ams-delta.c	2006-05-18 17:02:00.000000000 +0100
+@@ -0,0 +1,239 @@
++/*
++ *  drivers/mtd/nand/ams-delta.c
++ *
++ *  Copyright (C) 2006 Jonathan McDowell <noodles@earth.li>
++ *
++ *  Derived from drivers/mtd/toto.c
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ *  Overview:
++ *   This is a device driver for the NAND flash device found on the
++ *   Amstrad E3 (Delta).
++ */
 +
- 	case PTRACE_SYSEMU: /* continue and stop at next syscall, which will not be executed */
- 	case PTRACE_SYSCALL:	/* continue and stop at next (return from) syscall */
- 	case PTRACE_CONT:	/* restart after signal. */
- 		ret = -EIO;
- 		if (!valid_signal(data))
- 			break;
-+		child->ptrace &= ~PT_VM_MASK;
- 		if (request == PTRACE_SYSEMU) {
- 			set_tsk_thread_flag(child, TIF_SYSCALL_EMU);
- 			clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
-+		} else if (request == PTRACE_SYSVM) {
-+			set_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
-+			clear_tsk_thread_flag(child, TIF_SYSCALL_EMU);
-+			child->ptrace |= (addr & PTRACE_VM_MASK) << 28;
- 		} else if (request == PTRACE_SYSCALL) {
- 			set_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
- 			clear_tsk_thread_flag(child, TIF_SYSCALL_EMU);
-@@ -690,6 +701,9 @@
- 	if (!(current->ptrace & PT_PTRACED))
- 		goto out;
- 
-+	if (entryexit && (current->ptrace & PT_VM_SKIPEXIT))
-+		return 0;
++#include <linux/slab.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/delay.h>
++#include <linux/mtd/mtd.h>
++#include <linux/mtd/nand.h>
++#include <linux/mtd/partitions.h>
++#include <asm/io.h>
++#include <asm/arch/hardware.h>
++#include <asm/sizes.h>
++#include <asm/arch/gpio.h>
++#include <asm/arch/board-ams-delta.h>
 +
- 	/* If a process stops on the 1st tracepoint with SYSCALL_TRACE
- 	 * and then is resumed with SYSEMU_SINGLESTEP, it will come in
- 	 * here. We have to check this and return */
-@@ -717,7 +731,7 @@
- 		send_sig(current->exit_code, current, 1);
- 		current->exit_code = 0;
- 	}
--	ret = is_sysemu;
-+	ret = (is_sysemu || (!entryexit && (current->ptrace & PT_VM_SKIPCALL)));
- out:
- 	if (unlikely(current->audit_context) && !entryexit)
- 		audit_syscall_entry(current, AUDIT_ARCH_I386, regs->orig_eax,
-diff -Naur linux-2.6.17-rc1-access/arch/powerpc/kernel/entry_32.S linux-2.6.17-rc1-pmulti-ptvm/arch/powerpc/kernel/entry_32.S
---- linux-2.6.17-rc1-access/arch/powerpc/kernel/entry_32.S	2006-04-03 05:22:10.000000000 +0200
-+++ linux-2.6.17-rc1-pmulti-ptvm/arch/powerpc/kernel/entry_32.S	2006-04-03 11:30:53.000000000 +0200
-@@ -279,6 +279,7 @@
- 	stw	r0,_TRAP(r1)
- 	addi	r3,r1,STACK_FRAME_OVERHEAD
- 	bl	do_syscall_trace_enter
-+	mr	r10,r3
- 	lwz	r0,GPR0(r1)	/* Restore original registers */
- 	lwz	r3,GPR3(r1)
- 	lwz	r4,GPR4(r1)
-@@ -287,6 +288,8 @@
- 	lwz	r7,GPR7(r1)
- 	lwz	r8,GPR8(r1)
- 	REST_NVGPRS(r1)
-+	cmpwi	r10,0
-+	bne-	ret_from_syscall
- 	b	syscall_dotrace_cont
- 
- syscall_exit_work:
-diff -Naur linux-2.6.17-rc1-access/arch/powerpc/kernel/entry_64.S linux-2.6.17-rc1-pmulti-ptvm/arch/powerpc/kernel/entry_64.S
---- linux-2.6.17-rc1-access/arch/powerpc/kernel/entry_64.S	2006-04-03 05:22:10.000000000 +0200
-+++ linux-2.6.17-rc1-pmulti-ptvm/arch/powerpc/kernel/entry_64.S	2006-04-03 11:30:53.000000000 +0200
-@@ -195,6 +195,7 @@
- 	bl	.save_nvgprs
- 	addi	r3,r1,STACK_FRAME_OVERHEAD
- 	bl	.do_syscall_trace_enter
-+	mr	r11,r3
- 	ld	r0,GPR0(r1)	/* Restore original registers */
- 	ld	r3,GPR3(r1)
- 	ld	r4,GPR4(r1)
-@@ -205,6 +206,8 @@
- 	addi	r9,r1,STACK_FRAME_OVERHEAD
- 	clrrdi	r10,r1,THREAD_SHIFT
- 	ld	r10,TI_FLAGS(r10)
-+	cmpwi	r11,0
-+	bne-	syscall_exit
- 	b	syscall_dotrace_cont
- 
- syscall_enosys:
-diff -Naur linux-2.6.17-rc1-access/arch/powerpc/kernel/ptrace.c linux-2.6.17-rc1-pmulti-ptvm/arch/powerpc/kernel/ptrace.c
---- linux-2.6.17-rc1-access/arch/powerpc/kernel/ptrace.c	2006-04-03 05:22:10.000000000 +0200
-+++ linux-2.6.17-rc1-pmulti-ptvm/arch/powerpc/kernel/ptrace.c	2006-04-03 11:30:53.000000000 +0200
-@@ -338,15 +338,28 @@
- 		break;
- 	}
- 
-+	case PTRACE_SYSVM: 
-+			     if (addr == PTRACE_VM_TEST) {
-+				     ret = PTRACE_VM_MASK;
-+				     break;
-+			     }
++/*
++ * MTD structure for E3 (Delta)
++ */
++static struct mtd_info *ams_delta_mtd = NULL;
 +
- 	case PTRACE_SYSCALL: /* continue and stop at next (return from) syscall */
- 	case PTRACE_CONT: { /* restart after signal. */
- 		ret = -EIO;
- 		if (!valid_signal(data))
- 			break;
--		if (request == PTRACE_SYSCALL)
--			set_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
--		else
-+		child->ptrace &= ~PT_VM_MASK;
-+		if (request == PTRACE_CONT)
- 			clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
-+		else {
-+			set_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
-+			if (request == PTRACE_SYSVM) {
-+				/* set PT_VM_SKIPCALL and PT_VM_SKIPEXIT by
-+				 * one operation */
-+				child->ptrace |= (addr & PTRACE_VM_MASK) << 28;
-+			}
-+		}
- 		child->exit_code = data;
- 		/* make sure the single step bit is not set. */
- 		clear_single_step(child);
-@@ -527,7 +540,7 @@
- 	}
- }
- 
--void do_syscall_trace_enter(struct pt_regs *regs)
-+int do_syscall_trace_enter(struct pt_regs *regs)
- {
- #ifdef CONFIG_PPC64
- 	secure_computing(regs->gpr[0]);
-@@ -547,6 +560,7 @@
- 				    regs->gpr[0],
- 				    regs->gpr[3], regs->gpr[4],
- 				    regs->gpr[5], regs->gpr[6]);
-+	return (current->ptrace & PT_VM_SKIPCALL);
- }
- 
- void do_syscall_trace_leave(struct pt_regs *regs)
-@@ -562,7 +576,8 @@
- 
- 	if ((test_thread_flag(TIF_SYSCALL_TRACE)
- 	     || test_thread_flag(TIF_SINGLESTEP))
--	    && (current->ptrace & PT_PTRACED))
-+	    && (current->ptrace & PT_PTRACED) && 
-+	    ((current->ptrace & PT_VM_SKIPEXIT)==0))
- 		do_syscall_trace();
- }
- 
-diff -Naur linux-2.6.17-rc1-access/arch/ppc/kernel/entry.S linux-2.6.17-rc1-pmulti-ptvm/arch/ppc/kernel/entry.S
---- linux-2.6.17-rc1-access/arch/ppc/kernel/entry.S	2006-04-03 05:22:10.000000000 +0200
-+++ linux-2.6.17-rc1-pmulti-ptvm/arch/ppc/kernel/entry.S	2006-04-03 11:30:53.000000000 +0200
-@@ -279,6 +279,7 @@
- 	stw	r0,TRAP(r1)
- 	addi	r3,r1,STACK_FRAME_OVERHEAD
- 	bl	do_syscall_trace_enter
-+	mr	r10,r3
- 	lwz	r0,GPR0(r1)	/* Restore original registers */
- 	lwz	r3,GPR3(r1)
- 	lwz	r4,GPR4(r1)
-@@ -287,6 +288,8 @@
- 	lwz	r7,GPR7(r1)
- 	lwz	r8,GPR8(r1)
- 	REST_NVGPRS(r1)
-+	cmpwi	r10,0
-+	bne-	ret_from_syscall
- 	b	syscall_dotrace_cont
- 
- syscall_exit_work:
-diff -Naur linux-2.6.17-rc1-access/arch/um/drivers/ubd_kern.c linux-2.6.17-rc1-pmulti-ptvm/arch/um/drivers/ubd_kern.c
---- linux-2.6.17-rc1-access/arch/um/drivers/ubd_kern.c	2006-04-03 05:22:10.000000000 +0200
-+++ linux-2.6.17-rc1-pmulti-ptvm/arch/um/drivers/ubd_kern.c	2006-04-03 11:30:53.000000000 +0200
-@@ -1064,6 +1064,7 @@
- 				       "errno = %d\n", -n);
- 		}
- 	}
++#define NAND_MASK (AMS_DELTA_LATCH2_NAND_NRE | AMS_DELTA_LATCH2_NAND_NWE | AMS_DELTA_LATCH2_NAND_CLE | AMS_DELTA_LATCH2_NAND_ALE | AMS_DELTA_LATCH2_NAND_NCE | AMS_DELTA_LATCH2_NAND_NWP)
++
++#define T_NAND_CTL_CLRALE(iob) ams_delta_latch2_write(AMS_DELTA_LATCH2_NAND_ALE, 0)
++#define T_NAND_CTL_SETALE(iob) ams_delta_latch2_write(AMS_DELTA_LATCH2_NAND_ALE, AMS_DELTA_LATCH2_NAND_ALE)
++#define T_NAND_CTL_CLRCLE(iob) ams_delta_latch2_write(AMS_DELTA_LATCH2_NAND_CLE, 0)
++#define T_NAND_CTL_SETCLE(iob) ams_delta_latch2_write(AMS_DELTA_LATCH2_NAND_CLE, AMS_DELTA_LATCH2_NAND_CLE)
++#define T_NAND_CTL_SETNCE(iob) ams_delta_latch2_write(AMS_DELTA_LATCH2_NAND_NCE, 0)
++#define T_NAND_CTL_CLRNCE(iob) ams_delta_latch2_write(AMS_DELTA_LATCH2_NAND_NCE, AMS_DELTA_LATCH2_NAND_NCE)
++
++/*
++ * Define partitions for flash devices
++ */
++
++static struct mtd_partition partition_info[] = {
++	{ .name		= "Kernel",
++	  .offset	= 0,
++	  .size		= 3 * SZ_1M + SZ_512K },
++	{ .name		= "u-boot",
++	  .offset	= 3 * SZ_1M + SZ_512K,
++	  .size		= SZ_256K },
++	{ .name		= "u-boot params",
++	  .offset	= 3 * SZ_1M + SZ_512K + SZ_256K,
++	  .size		= SZ_256K },
++	{ .name		= "Amstrad LDR",
++	  .offset	= 4 * SZ_1M,
++	  .size		= SZ_256K },
++	{ .name		= "File system",
++	  .offset	= 4 * SZ_1M + 1 * SZ_256K,
++	  .size		= 27 * SZ_1M },
++	{ .name		= "PBL reserved",
++	  .offset	= 32 * SZ_1M - 3 * SZ_256K,
++	  .size		=  3 * SZ_256K },
++};
++
++/*
++ *	hardware specific access to control-lines
++*/
++
++static void ams_delta_hwcontrol(struct mtd_info *mtd, int cmd)
++{
++	switch(cmd){
++
++		case NAND_CTL_SETCLE: T_NAND_CTL_SETCLE(cmd); break;
++		case NAND_CTL_CLRCLE: T_NAND_CTL_CLRCLE(cmd); break;
++
++		case NAND_CTL_SETALE: T_NAND_CTL_SETALE(cmd); break;
++		case NAND_CTL_CLRALE: T_NAND_CTL_CLRALE(cmd); break;
++
++		case NAND_CTL_SETNCE: T_NAND_CTL_SETNCE(cmd); break;
++		case NAND_CTL_CLRNCE: T_NAND_CTL_CLRNCE(cmd); break;
++	}
++}
++
++static void ams_delta_write_byte(struct mtd_info *mtd, u_char byte)
++{
++	struct nand_chip *this = mtd->priv;
++
++	omap_writew(0, (OMAP_MPUIO_BASE + OMAP_MPUIO_IO_CNTL));
++	omap_writew(byte, this->IO_ADDR_W);
++	ams_delta_latch2_write(AMS_DELTA_LATCH2_NAND_NWE, 0);
++	udelay(0.04);
++	ams_delta_latch2_write(AMS_DELTA_LATCH2_NAND_NWE,
++			AMS_DELTA_LATCH2_NAND_NWE);
++}
++
++static u_char ams_delta_read_byte(struct mtd_info *mtd)
++{
++	u_char res;
++	struct nand_chip *this = mtd->priv;
++
++	ams_delta_latch2_write(AMS_DELTA_LATCH2_NAND_NRE, 0);
++	udelay(0.04);
++	omap_writew(~0, (OMAP_MPUIO_BASE + OMAP_MPUIO_IO_CNTL));
++	res = omap_readw(this->IO_ADDR_R);
++	ams_delta_latch2_write(AMS_DELTA_LATCH2_NAND_NRE,
++			AMS_DELTA_LATCH2_NAND_NRE);
++
++	return res;
++}
++
++static void ams_delta_write_buf(struct mtd_info *mtd, const u_char *buf,
++		int len)
++{
++	int i;
++
++	for (i=0; i<len; i++)
++		ams_delta_write_byte(mtd, buf[i]);
++}
++
++static void ams_delta_read_buf(struct mtd_info *mtd, u_char *buf, int len)
++{
++	int i;
++
++	for (i=0; i<len; i++)
++		buf[i] = ams_delta_read_byte(mtd);
++}
++
++static int ams_delta_verify_buf(struct mtd_info *mtd, const u_char *buf,
++		int len)
++{
++	int i;
++
++	for (i=0; i<len; i++)
++		if (buf[i] != ams_delta_read_byte(mtd))
++			return -EFAULT;
++
 +	return 0;
- }
- 
- static int ubd_getgeo(struct block_device *bdev, struct hd_geometry *geo)
-diff -Naur linux-2.6.17-rc1-access/arch/um/include/kern_util.h linux-2.6.17-rc1-pmulti-ptvm/arch/um/include/kern_util.h
---- linux-2.6.17-rc1-access/arch/um/include/kern_util.h	2006-04-03 05:22:10.000000000 +0200
-+++ linux-2.6.17-rc1-pmulti-ptvm/arch/um/include/kern_util.h	2006-04-03 11:30:53.000000000 +0200
-@@ -70,7 +70,7 @@
- extern void paging_init(void);
- extern void init_flush_vm(void);
- extern void *syscall_sp(void *t);
--extern void syscall_trace(union uml_pt_regs *regs, int entryexit);
-+extern int syscall_trace(union uml_pt_regs *regs, int entryexit);
- extern int hz(void);
- extern void uml_idle_timer(void);
- extern unsigned int do_IRQ(int irq, union uml_pt_regs *regs);
-diff -Naur linux-2.6.17-rc1-access/arch/um/kernel/ptrace.c linux-2.6.17-rc1-pmulti-ptvm/arch/um/kernel/ptrace.c
---- linux-2.6.17-rc1-access/arch/um/kernel/ptrace.c	2006-04-03 05:22:10.000000000 +0200
-+++ linux-2.6.17-rc1-pmulti-ptvm/arch/um/kernel/ptrace.c	2006-04-03 11:30:53.000000000 +0200
-@@ -82,6 +82,12 @@
-                 ret = poke_user(child, addr, data);
-                 break;
- 
-+	case PTRACE_SYSVM:
-+		if (addr == PTRACE_VM_TEST) {
-+			ret = PTRACE_VM_MASK;
-+			break;
-+		}
++}
 +
- 	case PTRACE_SYSCALL: /* continue and stop at next (return from) syscall */
- 	case PTRACE_CONT: { /* restart after signal. */
- 		ret = -EIO;
-@@ -89,11 +95,17 @@
- 			break;
- 
-                 set_singlestepping(child, 0);
--		if (request == PTRACE_SYSCALL) {
--			set_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
-+		child->ptrace &= ~PT_VM_MASK;
-+		if (request == PTRACE_CONT) {
-+			clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
- 		}
- 		else {
--			clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
-+			set_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
-+			if (request == PTRACE_SYSVM) {
-+				/* set PT_VM_SKIPCALL and PT_VM_SKIPEXIT by
-+				 * one operation */
-+				child->ptrace |= (addr & PTRACE_VM_MASK) << 28;
-+			} 
- 		}
- 		child->exit_code = data;
- 		wake_up_process(child);
-@@ -268,7 +280,7 @@
- /* XXX Check PT_DTRACE vs TIF_SINGLESTEP for singlestepping check and
-  * PT_PTRACED vs TIF_SYSCALL_TRACE for syscall tracing check
-  */
--void syscall_trace(union uml_pt_regs *regs, int entryexit)
-+int syscall_trace(union uml_pt_regs *regs, int entryexit)
- {
- 	int is_singlestep = (current->ptrace & PT_DTRACE) && entryexit;
- 	int tracesysgood;
-@@ -292,10 +304,13 @@
- 		send_sigtrap(current, regs, 0);
- 
- 	if (!test_thread_flag(TIF_SYSCALL_TRACE))
--		return;
-+		return 0;
- 
- 	if (!(current->ptrace & PT_PTRACED))
--		return;
-+		return 0;
++static int ams_delta_nand_ready(struct mtd_info *mtd)
++{
++	return omap_get_gpio_datain(AMS_DELTA_GPIO_PIN_NAND_RB);
++}
 +
-+	if (entryexit && (current->ptrace & PT_VM_SKIPEXIT))
-+		return 0;
- 
- 	/* the 0x80 provides a way for the tracing parent to distinguish
- 	   between a syscall stop and SIGTRAP delivery */
-@@ -313,4 +328,8 @@
- 		send_sig(current->exit_code, current, 1);
- 		current->exit_code = 0;
- 	}
-+	if (!entryexit && (current->ptrace & PT_VM_SKIPCALL))
-+		return 1;
-+	else
-+		return 0;
- }
-diff -Naur linux-2.6.17-rc1-access/arch/um/kernel/skas/syscall.c linux-2.6.17-rc1-pmulti-ptvm/arch/um/kernel/skas/syscall.c
---- linux-2.6.17-rc1-access/arch/um/kernel/skas/syscall.c	2006-04-03 05:22:10.000000000 +0200
-+++ linux-2.6.17-rc1-pmulti-ptvm/arch/um/kernel/skas/syscall.c	2006-04-03 11:30:53.000000000 +0200
-@@ -18,12 +18,13 @@
- 	struct pt_regs *regs = container_of(r, struct pt_regs, regs);
- 	long result;
- 	int syscall;
-+	int skip_call;
- #ifdef UML_CONFIG_SYSCALL_DEBUG
-   	int index;
- 
-   	index = record_syscall_start(UPT_SYSCALL_NR(r));
- #endif
--	syscall_trace(r, 0);
-+	skip_call=syscall_trace(r, 0);
- 
- 	current->thread.nsyscalls++;
- 	nsyscalls++;
-@@ -36,12 +37,14 @@
- 	 *     gcc version 4.0.1 20050727 (Red Hat 4.0.1-5)
- 	 * in case it's a compiler bug.
- 	 */
-+	if (skip_call == 0) {
- 	syscall = UPT_SYSCALL_NR(r);
- 	if((syscall >= NR_syscalls) || (syscall < 0))
- 		result = -ENOSYS;
- 	else result = EXECUTE_SYSCALL(syscall, regs);
- 
- 	REGS_SET_SYSCALL_RETURN(r->skas.regs, result);
++/*
++ * Main initialization routine
++ */
++int __init ams_delta_init (void)
++{
++	struct nand_chip *this;
++	int err = 0;
++
++	/* Allocate memory for MTD device structure and private data */
++	ams_delta_mtd = kmalloc (sizeof(struct mtd_info) +
++					sizeof (struct nand_chip), GFP_KERNEL);
++	if (!ams_delta_mtd) {
++		printk (KERN_WARNING
++			"Unable to allocate E3 NAND MTD device structure.\n");
++		err = -ENOMEM;
++		goto out;
 +	}
- 
- 	syscall_trace(r, 1);
- #ifdef UML_CONFIG_SYSCALL_DEBUG
-diff -Naur linux-2.6.17-rc1-access/arch/um/kernel/tt/syscall_kern.c linux-2.6.17-rc1-pmulti-ptvm/arch/um/kernel/tt/syscall_kern.c
---- linux-2.6.17-rc1-access/arch/um/kernel/tt/syscall_kern.c	2006-04-03 05:22:10.000000000 +0200
-+++ linux-2.6.17-rc1-pmulti-ptvm/arch/um/kernel/tt/syscall_kern.c	2006-04-03 11:30:53.000000000 +0200
-@@ -21,6 +21,7 @@
- 	void *sc;
- 	long result;
- 	int syscall;
-+	int skip_call;
- #ifdef CONFIG_SYSCALL_DEBUG
- 	int index;
- #endif
-@@ -33,11 +34,13 @@
- 	index = record_syscall_start(syscall);
- #endif
- 
--	syscall_trace(&regs->regs, 0);
-+	skip_call=syscall_trace(&regs->regs, 0);
- 
- 	current->thread.nsyscalls++;
- 	nsyscalls++;
- 
-+	if (skip_call == 0) {
-+			
- 	if((syscall >= NR_syscalls) || (syscall < 0))
- 		result = -ENOSYS;
- 	else result = EXECUTE_SYSCALL(syscall, regs);
-@@ -49,6 +52,7 @@
- 
- 	SC_SET_SYSCALL_RETURN(sc, result);
- 
++
++	ams_delta_mtd->owner = THIS_MODULE;
++
++	/* Get pointer to private data */
++	this = (struct nand_chip *) (&ams_delta_mtd[1]);
++
++	/* Initialize structures */
++	memset((char *) ams_delta_mtd, 0, sizeof(struct mtd_info));
++	memset((char *) this, 0, sizeof(struct nand_chip));
++
++	/* Link the private data with the MTD structure */
++	ams_delta_mtd->priv = this;
++
++	/* Set address of NAND IO lines */
++	this->IO_ADDR_R = (OMAP_MPUIO_BASE + OMAP_MPUIO_INPUT_LATCH);
++	this->IO_ADDR_W = (OMAP_MPUIO_BASE + OMAP_MPUIO_OUTPUT);
++	this->read_byte = ams_delta_read_byte;
++	this->write_byte = ams_delta_write_byte;
++	this->write_buf = ams_delta_write_buf;
++	this->read_buf = ams_delta_read_buf;
++	this->verify_buf = ams_delta_verify_buf;
++	this->hwcontrol = ams_delta_hwcontrol;
++	if (!omap_request_gpio(AMS_DELTA_GPIO_PIN_NAND_RB)) {
++		this->dev_ready = ams_delta_nand_ready;
++	} else {
++		this->dev_ready = NULL;
++		printk(KERN_NOTICE
++			"Couldn't request gpio for Delta NAND ready.\n");
 +	}
- 	syscall_trace(&regs->regs, 1);
- #ifdef CONFIG_SYSCALL_DEBUG
-   	record_syscall_end(index, result);
-diff -Naur linux-2.6.17-rc1-access/include/linux/ptrace.h linux-2.6.17-rc1-pmulti-ptvm/include/linux/ptrace.h
---- linux-2.6.17-rc1-access/include/linux/ptrace.h	2006-04-05 10:23:15.000000000 +0200
-+++ linux-2.6.17-rc1-pmulti-ptvm/include/linux/ptrace.h	2006-04-04 08:59:36.000000000 +0200
-@@ -1,6 +1,7 @@
- #ifndef _LINUX_PTRACE_H
- #define _LINUX_PTRACE_H
- /* ptrace.h */
-+#include <linux/config.h>
- /* structs and defines to help the user use the ptrace system call. */
- 
- /* has the defines to get at the registers. */
-@@ -20,6 +21,7 @@
- #define PTRACE_DETACH		0x11
- 
- #define PTRACE_SYSCALL		  24
-+#define PTRACE_SYSVM		33
- 
- /* 0x4200-0x4300 are reserved for architecture-independent additions.  */
- #define PTRACE_SETOPTIONS	0x4200
-@@ -32,6 +34,10 @@
- #define PTRACE_POKECHARDATA     0x4302
- #define PTRACE_PEEKSTRINGDATA   0x4303
- 
-+#ifdef CONFIG_VIEWOS
-+#define PTRACE_VIEWOS		0x4000
-+#endif
++	/* 25 us command delay time */
++	this->chip_delay = 30;
++	this->eccmode = NAND_ECC_SOFT;
 +
- struct ptrace_multi {
- 	long request;
- 	long addr;
-@@ -58,6 +64,18 @@
- #define PTRACE_EVENT_VFORK_DONE	5
- #define PTRACE_EVENT_EXIT	6
- 
-+/* options for PTRACE_SYSVM */
-+#define PTRACE_VM_TEST		0x80000000
-+#define PTRACE_VM_SKIPCALL	1
-+#define PTRACE_VM_SKIPEXIT	2
-+#define PTRACE_VM_MASK		0x00000003
++	/* Set chip enabled, but  */
++	ams_delta_latch2_write(NAND_MASK, AMS_DELTA_LATCH2_NAND_NRE | \
++			AMS_DELTA_LATCH2_NAND_NWE | \
++			AMS_DELTA_LATCH2_NAND_NCE | AMS_DELTA_LATCH2_NAND_NWP);
 +
-+#ifdef CONFIG_VIEWOS
-+/* options fpr PTRACE_VIEWOS */
-+#define PT_VIEWOS_TEST		0x80000000
-+#define PT_VIEWOS_MASK		0x00000000
-+#endif
++        /* Scan to find existance of the device */
++	if (nand_scan (ams_delta_mtd, 1)) {
++		err = -ENXIO;
++		goto out_mtd;
++	}
 +
- #include <asm/ptrace.h>
- 
- #ifdef __KERNEL__
-@@ -77,6 +95,10 @@
- #define PT_TRACE_EXIT	0x00000200
- #define PT_ATTACHED	0x00000400	/* parent != real_parent */
- 
-+#define PT_VM_SKIPCALL  0x10000000
-+#define PT_VM_SKIPEXIT  0x20000000
-+#define PT_VM_MASK      0x30000000
++	/* Register the partitions */
++	add_mtd_partitions(ams_delta_mtd, partition_info,
++			ARRAY_SIZE(partition_info));
 +
- #define PT_TRACE_MASK	0x000003f4
++	goto out;
++
++out_mtd:
++	kfree (ams_delta_mtd);
++out:
++	return err;
++}
++
++module_init(ams_delta_init);
++
++/*
++ * Clean up routine
++ */
++static void __exit ams_delta_cleanup (void)
++{
++	/* Release resources, unregister device */
++	nand_release (ams_delta_mtd);
++
++	/* Free the MTD device structure */
++	kfree (ams_delta_mtd);
++}
++module_exit(ams_delta_cleanup);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Jonathan McDowell <noodles@earth.li>");
++MODULE_DESCRIPTION("Glue layer for NAND flash on Amstrad E3 (Delta)");
+diff -ruN linux-2.6.17-rc4/drivers/mtd/nand/Kconfig linux-2.6.17-rc4-e3-nand/drivers/mtd/nand/Kconfig
+--- linux-2.6.17-rc4/drivers/mtd/nand/Kconfig	2006-05-18 16:56:39.000000000 +0100
++++ linux-2.6.17-rc4-e3-nand/drivers/mtd/nand/Kconfig	2006-05-18 17:03:29.000000000 +0100
+@@ -49,6 +49,12 @@
+ 	help
+ 	  If you had to ask, you don't have one. Say 'N'.
  
- /* single stepping state bits (used on ARM and PA-RISC) */
-diff -Naur linux-2.6.17-rc1-access/init/Kconfig linux-2.6.17-rc1-pmulti-ptvm/init/Kconfig
---- linux-2.6.17-rc1-access/init/Kconfig	2006-04-03 05:22:10.000000000 +0200
-+++ linux-2.6.17-rc1-pmulti-ptvm/init/Kconfig	2006-04-03 11:30:53.000000000 +0200
-@@ -225,6 +225,13 @@
- 
- 	  If unsure, say N.
- 
-+config VIEWOS
-+	bool "ViewOS Support (EXPERIMENTAL)"
++config MTD_NAND_AMS_DELTA
++	tristate "NAND Flash device on Amstrad E3"
++	depends on MACH_AMS_DELTA && MTD_NAND
 +	help
-+	  This option will enable kernel support for ViewOS partial virtualization.
++	  Support for NAND flash on Amstrad E3 (Delta).
 +
-+	  Say N if unsure.
-+
- source "usr/Kconfig"
+ config MTD_NAND_TOTO
+ 	tristate "NAND Flash device on TOTO board"
+ 	depends on ARCH_OMAP && MTD_NAND
+diff -ruN linux-2.6.17-rc4/drivers/mtd/nand/Makefile linux-2.6.17-rc4-e3-nand/drivers/mtd/nand/Makefile
+--- linux-2.6.17-rc4/drivers/mtd/nand/Makefile	2006-01-03 03:21:10.000000000 +0000
++++ linux-2.6.17-rc4-e3-nand/drivers/mtd/nand/Makefile	2006-05-18 17:03:47.000000000 +0100
+@@ -7,6 +7,7 @@
+ obj-$(CONFIG_MTD_NAND_IDS)		+= nand_ids.o
  
- config UID16
-diff -Naur linux-2.6.17-rc1-access/kernel/ptrace.c linux-2.6.17-rc1-pmulti-ptvm/kernel/ptrace.c
---- linux-2.6.17-rc1-access/kernel/ptrace.c	2006-04-05 10:23:15.000000000 +0200
-+++ linux-2.6.17-rc1-pmulti-ptvm/kernel/ptrace.c	2006-04-03 11:30:53.000000000 +0200
-@@ -310,7 +310,7 @@
- 			if (string) {
- 				for (offset=0;offset<bytes;offset++)
- 					if (buf[offset]==0)
--						break;
-+				break;
- 				if (offset < bytes)
- 					bytes=len=offset+1;
- 		}
-@@ -595,3 +595,7 @@
- 	return ret;
- }
- #endif /* __ARCH_SYS_PTRACE */
-+
-+#ifdef CONFIG_VIEWOS
-+#warning VIEWOS support not implemented yet
-+#endif
+ obj-$(CONFIG_MTD_NAND_SPIA)		+= spia.o
++obj-$(CONFIG_MTD_NAND_AMS_DELTA)	+= ams-delta.o
+ obj-$(CONFIG_MTD_NAND_TOTO)		+= toto.o
+ obj-$(CONFIG_MTD_NAND_AUTCPU12)		+= autcpu12.o
+ obj-$(CONFIG_MTD_NAND_EDB7312)		+= edb7312.o
+-----
+
+J.
+
+-- 
+  Trust me, you wouldn't like us   |  .''`.  Debian GNU/Linux Developer
+         when we're angry.         | : :' :  Happy to accept PGP signed
+                                   | `. `'   or encrypted mail - RSA +
+                                   |   `-    DSA keys on the keyservers.

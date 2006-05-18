@@ -1,178 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWERDbD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWEREAw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751130AbWERDbD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 23:31:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWERDbB
+	id S1751012AbWEREAw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 00:00:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750908AbWEREAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 23:31:01 -0400
-Received: from mga02.intel.com ([134.134.136.20]:21398 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751130AbWERDbA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 23:31:00 -0400
-X-IronPort-AV: i="4.05,139,1146466800"; 
-   d="scan'208"; a="37879238:sNHT417691946"
-Subject: Re: [PATCH] don't use flush_tlb_all in suspend time
-From: Shaohua Li <shaohua.li@intel.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060430120421.GA30024@elf.ucw.cz>
-References: <1146367462.21486.10.camel@sli10-desk.sh.intel.com>
-	 <20060430064505.GA5091@ucw.cz>
-	 <1146379596.8456.4.camel@sli10-desk.sh.intel.com>
-	 <20060429235721.1d081ea5.akpm@osdl.org> <20060430120421.GA30024@elf.ucw.cz>
-Content-Type: text/plain
-Date: Thu, 18 May 2006 11:29:33 +0800
-Message-Id: <1147922973.32046.13.camel@sli10-desk.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+	Thu, 18 May 2006 00:00:52 -0400
+Received: from az33egw01.freescale.net ([192.88.158.102]:63701 "EHLO
+	az33egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S1750813AbWEREAv convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 00:00:51 -0400
+Message-ID: <9FCDBA58F226D911B202000BDBAD46730626DE5A@zch01exm40.ap.freescale.net>
+From: Zang Roy-r61911 <tie-fei.zang@freescale.com>
+To: rmk+serial@arm.linux.org.uk
+Cc: linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Paul Mackerras <paulus@samba.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Alexandre.Bounine@tundra.com,
+       Yang Xin-Xin-r48390 <Xin-Xin.Yang@freescale.com>,
+       Kumar Gala <galak@kernel.crashing.org>
+Subject: RE: [PATCH/2.6.17-rc4 8/10]  Add  tsi108 8250 serial support
+Date: Thu, 18 May 2006 12:00:43 +0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-04-30 at 14:04 +0200, Pavel Machek wrote:
-> On So 29-04-06 23:57:21, Andrew Morton wrote:
-> > Shaohua Li <shaohua.li@intel.com> wrote:
-> > >
-> > > On Sun, 2006-04-30 at 06:45 +0000, Pavel Machek wrote:
-> > > > Hi!
-> > > > 
-> > > > > flush_tlb_all uses on_each_cpu, which will disable/enable interrupt.
-> > > > > In suspend/resume time, this will make interrupt wrongly enabled.
-> > > > 
-> > > > > diff -puN arch/i386/mm/init.c~flush_tlb_all_check arch/i386/mm/init.c
-> > > > > --- linux-2.6.17-rc3/arch/i386/mm/init.c~flush_tlb_all_check	2006-04-29 08:47:05.000000000 +0800
-> > > > > +++ linux-2.6.17-rc3-root/arch/i386/mm/init.c	2006-04-29 08:48:15.000000000 +0800
-> > > > > @@ -420,7 +420,10 @@ void zap_low_mappings (void)
-> > > > >  #else
-> > > > >  		set_pgd(swapper_pg_dir+i, __pgd(0));
-> > > > >  #endif
-> > > > > -	flush_tlb_all();
-> > > > > +	if (cpus_weight(cpu_online_map) == 1)
-> > > > > +		local_flush_tlb();
-> > > > > +	else
-> > > > > +		flush_tlb_all();
-> > > > >  }
-> > > > >
-> > > > 
-> > > > Either it is okay to enable interrupts here -> unneccessary and ugly
-> > > > test, or it is not, and then we are broken in SMP case.
-> > > It's not broken in SMP case, APs are offlined here in suspend/resume.
-> > > 
-> > 
-> > In which case, how's about this?
-> 
-> Certainly better, I'd say.
-> 
-> > @@ -420,7 +421,14 @@ void zap_low_mappings (void)
-> >  #else
-> >  		set_pgd(swapper_pg_dir+i, __pgd(0));
-> >  #endif
-> > -	if (cpus_weight(cpu_online_map) == 1)
-> > +	/*
-> > +	 * We can be called at suspend/resume time, with local interrupts
-> > +	 * disabled.  But flush_tlb_all() requires that local interrupts be
-> > +	 * enabled.
-> > +	 *
-> > +	 * Happily, the APs are not yet started, so we can use local_flush_tlb()	 * in that case
-> > +	 */
-> > +	if (num_online_cpus() == 1)
-> >  		local_flush_tlb();
-> >  	else
-> >  		flush_tlb_all();
-> 
-> But this still scares. It means calling convention is "may enable
-> interrupts with >1 cpu, may not with == 1 cpu". 
-Below patch should make things clean. How do you think?
 
-Signed-off-by: Shaohua Li <shaohua.li@intel.com>
----
+-----Original Message-----
+From: Kumar Gala [mailto:galak@kernel.crashing.org]
+Sent: 2006年5月17日 21:26
+To: Zang Roy-r61911
+Cc: Paul Mackerras; linuxppc-dev list; Alexandre.Bounine@tundra.com; Yang Xin-Xin-r48390
+Subject: Re: [PATCH/2.6.17-rc4 8/10] Add tsi108 8250 serial support
 
- linux-2.6.17-rc4-mm1-root/arch/i386/kernel/acpi/sleep.c  |   10 +++-------
- linux-2.6.17-rc4-mm1-root/arch/i386/kernel/acpi/wakeup.S |    2 +-
- linux-2.6.17-rc4-mm1-root/arch/i386/mm/init.c            |   13 +------------
- 3 files changed, 5 insertions(+), 20 deletions(-)
 
-diff -puN arch/i386/kernel/acpi/wakeup.S~i386_direct_mapping arch/i386/kernel/acpi/wakeup.S
---- linux-2.6.17-rc4-mm1/arch/i386/kernel/acpi/wakeup.S~i386_direct_mapping	2006-05-16 14:52:37.000000000 +0800
-+++ linux-2.6.17-rc4-mm1-root/arch/i386/kernel/acpi/wakeup.S	2006-05-16 15:10:57.000000000 +0800
-@@ -56,7 +56,7 @@ wakeup_code:
- 1:
- 
- 	# set up page table
--	movl	$swapper_pg_dir-__PAGE_OFFSET, %eax
-+	movl	$sleep_pg_dir-__PAGE_OFFSET, %eax
- 	movl	%eax, %cr3
- 
- 	testl	$1, real_efer_save_restore - wakeup_code
-diff -puN arch/i386/kernel/acpi/sleep.c~i386_direct_mapping arch/i386/kernel/acpi/sleep.c
---- linux-2.6.17-rc4-mm1/arch/i386/kernel/acpi/sleep.c~i386_direct_mapping	2006-05-16 14:52:51.000000000 +0800
-+++ linux-2.6.17-rc4-mm1-root/arch/i386/kernel/acpi/sleep.c	2006-05-17 09:30:26.000000000 +0800
-@@ -11,16 +11,14 @@
- #include <linux/cpumask.h>
- 
- #include <asm/smp.h>
--#include <asm/tlbflush.h>
- 
- /* address in low memory of the wakeup routine. */
- unsigned long acpi_wakeup_address = 0;
- unsigned long acpi_video_flags;
- extern char wakeup_start, wakeup_end;
- 
--extern void zap_low_mappings(void);
--
- extern unsigned long FASTCALL(acpi_copy_wakeup_routine(unsigned long));
-+char sleep_pg_dir[PAGE_SIZE];
- 
- static void init_low_mapping(pgd_t * pgd, int pgd_limit)
- {
-@@ -31,8 +29,6 @@ static void init_low_mapping(pgd_t * pgd
- 		set_pgd(pgd, *(pgd + USER_PTRS_PER_PGD));
- 		pgd_ofs++, pgd++;
- 	}
--	WARN_ON(num_online_cpus() != 1);
--	local_flush_tlb();
- }
- 
- /**
-@@ -45,7 +41,8 @@ int acpi_save_state_mem(void)
- {
- 	if (!acpi_wakeup_address)
- 		return 1;
--	init_low_mapping(swapper_pg_dir, USER_PTRS_PER_PGD);
-+	memcpy(sleep_pg_dir, swapper_pg_dir, PAGE_SIZE);
-+	init_low_mapping((pgd_t *)sleep_pg_dir, USER_PTRS_PER_PGD);
- 	memcpy((void *)acpi_wakeup_address, &wakeup_start,
- 	       &wakeup_end - &wakeup_start);
- 	acpi_copy_wakeup_routine(acpi_wakeup_address);
-@@ -58,7 +55,6 @@ int acpi_save_state_mem(void)
-  */
- void acpi_restore_state_mem(void)
- {
--	zap_low_mappings();
- }
- 
- /**
-diff -puN arch/i386/mm/init.c~i386_direct_mapping arch/i386/mm/init.c
---- linux-2.6.17-rc4-mm1/arch/i386/mm/init.c~i386_direct_mapping	2006-05-17 09:03:39.000000000 +0800
-+++ linux-2.6.17-rc4-mm1-root/arch/i386/mm/init.c	2006-05-17 09:03:49.000000000 +0800
-@@ -422,18 +422,7 @@ void zap_low_mappings (void)
- #else
- 		set_pgd(swapper_pg_dir+i, __pgd(0));
- #endif
--	/*
--	 * We can be called at suspend/resume time, with local interrupts
--	 * disabled.  But flush_tlb_all() requires that local interrupts be
--	 * enabled.
--	 *
--	 * Happily, the APs are not yet started, so we can use local_flush_tlb()
--	 * in that case
--	 */
--	if (num_online_cpus() == 1)
--		local_flush_tlb();
--	else
--		flush_tlb_all();
-+	flush_tlb_all();
- }
- 
- static int disable_nx __initdata = 0;
-_
+
+On May 17, 2006, at 5:14 AM, Zang Roy-r61911 wrote:
+
+> This patch contains changes to the serial device driver specific  
+> for integrated
+> serial port in Tsi108 Host Bridge.
+>
+> Signed-off-by: Alexandre Bounine <alexandreb@tundra.com>
+> Signed-off-by: Roy Zang	<tie-fei.zang@freescale.com>
+>
+>> From nobody Mon Sep 17 00:00:00 2001
+> From: roy zang <tie-fei.zang@freescale.com>
+> Date: Tue May 16 15:26:02 2006 +0800
+> Subject: [PATCH] Add tsi108 serial support
+
+This patch needs to go to Russell King as uart/8250 driver maintainer.
+
+- kumar
+
+>
+> ---
+>
+>  drivers/serial/8250.c |   17 +++++++++++++++++
+>  1 files changed, 17 insertions(+), 0 deletions(-)
+>
+> 6cb950357e9970afa671d59f172dbc4b03f11560
+> diff --git a/drivers/serial/8250.c b/drivers/serial/8250.c
+> index bbf78aa..c12f516 100644
+> --- a/drivers/serial/8250.c
+> +++ b/drivers/serial/8250.c
+> @@ -723,7 +723,9 @@ static int broken_efr(struct uart_8250_p
+>  static void autoconfig_16550a(struct uart_8250_port *up)
+>  {
+>  	unsigned char status1, status2;
+> +#ifndef CONFIG_TSI108_BRIDGE
+>  	unsigned int iersave;
+> +#endif
+>
+>  	up->port.type = PORT_16550A;
+>  	up->capabilities |= UART_CAP_FIFO;
+> @@ -833,6 +835,7 @@ static void autoconfig_16550a(struct uar
+>  	 * trying to write and read a 1 just to make sure it's not
+>  	 * already a 1 and maybe locked there before we even start start.
+>  	 */
+> +#ifndef CONFIG_TSI108_BRIDGE
+>  	iersave = serial_in(up, UART_IER);
+>  	serial_outp(up, UART_IER, iersave & ~UART_IER_UUE);
+>  	if (!(serial_in(up, UART_IER) & UART_IER_UUE)) {
+> @@ -859,6 +862,7 @@ static void autoconfig_16550a(struct uar
+>  		DEBUG_AUTOCONF("Couldn't force IER_UUE to 0 ");
+>  	}
+>  	serial_outp(up, UART_IER, iersave);
+> +#endif
+>  }
+>
+>  /*
+> @@ -1348,7 +1352,12 @@ static irqreturn_t serial8250_interrupt(
+>
+>  		up = list_entry(l, struct uart_8250_port, list);
+>
+> +#ifdef CONFIG_TSI108_BRIDGE /* for TSI108_REV_Z1 errata U2 */
+> +		/* read IIR as part of 32-bit word */
+> +		iir = (in_be32((u32 *)(up->port.membase + UART_RX)) >> 8) & 0xff;
+> +#else
+>  		iir = serial_in(up, UART_IIR);
+> +#endif
+>  		if (!(iir & UART_IIR_NO_INT)) {
+>  			serial8250_handle_port(up, regs);
+>
+> @@ -1529,7 +1538,9 @@ static int serial8250_startup(struct uar
+>  {
+>  	struct uart_8250_port *up = (struct uart_8250_port *)port;
+>  	unsigned long flags;
+> +#ifndef CONFIG_TSI108_BRIDGE
+>  	unsigned char lsr, iir;
+> +#endif
+>  	int retval;
+>
+>  	up->capabilities = uart_config[up->port.type].flags;
+> @@ -1567,7 +1578,9 @@ #endif
+>  	 */
+>  	(void) serial_inp(up, UART_LSR);
+>  	(void) serial_inp(up, UART_RX);
+> +#ifndef CONFIG_TSI108_BRIDGE /* for TSI108_REV_Z1 errata U2 */
+>  	(void) serial_inp(up, UART_IIR);
+> +#endif
+>  	(void) serial_inp(up, UART_MSR);
+>
+>  	/*
+> @@ -1634,6 +1647,7 @@ #endif
+>
+>  	serial8250_set_mctrl(&up->port, up->port.mctrl);
+>
+> +#ifndef CONFIG_TSI108_BRIDGE
+>  	/*
+>  	 * Do a quick test to see if we receive an
+>  	 * interrupt when we enable the TX irq.
+> @@ -1652,6 +1666,7 @@ #endif
+>  	} else {
+>  		up->bugs &= ~UART_BUG_TXEN;
+>  	}
+> +#endif
+>
+>  	spin_unlock_irqrestore(&up->port.lock, flags);
+>
+> @@ -1678,7 +1693,9 @@ #endif
+>  	 */
+>  	(void) serial_inp(up, UART_LSR);
+>  	(void) serial_inp(up, UART_RX);
+> +#ifndef CONFIG_TSI108_BRIDGE /* for TSI108_REV_Z1 errata U2 */
+>  	(void) serial_inp(up, UART_IIR);
+> +#endif
+>  	(void) serial_inp(up, UART_MSR);
+>
+>  	return 0;
+> -- 
+> 1.3.0
+> _______________________________________________
+> Linuxppc-dev mailing list
+> Linuxppc-dev@ozlabs.org
+> https://ozlabs.org/mailman/listinfo/linuxppc-dev

@@ -1,113 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWERX6k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbWERX7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751232AbWERX6k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 19:58:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWERX6k
+	id S1751279AbWERX7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 19:59:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWERX7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 19:58:40 -0400
-Received: from mail.unixshell.com ([207.210.106.37]:25025 "EHLO
-	mail.unixshell.com") by vger.kernel.org with ESMTP id S1751232AbWERX6k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 19:58:40 -0400
-Message-ID: <446D0A0D.5090608@tektonic.net>
-Date: Thu, 18 May 2006 19:58:05 -0400
-From: Matt Ayres <matta@tektonic.net>
-Organization: TekTonic
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-MIME-Version: 1.0
-To: James Morris <jmorris@namei.org>
-CC: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>,
-       Patrick McHardy <kaber@trash.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Xen-devel] Re: Panic in ipt_do_table with 2.6.16.13-xen
-References: <4468BE70.7030802@tektonic.net> <4468D613.20309@trash.net>	<44691669.4080903@tektonic.net>	<Pine.LNX.4.64.0605152331140.10964@d.namei>	<4469D84F.8080709@tektonic.net> <Pine.LNX.4.64.0605161127030.16379@d.namei>
-In-Reply-To: <Pine.LNX.4.64.0605161127030.16379@d.namei>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 18 May 2006 19:59:15 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:51933 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751253AbWERX7P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 19:59:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=r2803Lqdo44KkQRrvqgSAKsbo8i2jAtMawN3nZ3rQlaRdmGo1pCGE7JLS/h8gCu6jARJDHw5FUe+sOL83PhY30WSK0WJqG7k647FkkzQQ7CuKyCa/PA3LHg5Ch1olfalTc1q7mN8O85ic5V2i3roSUzXX4jF5J/LPhyfswggb3E=
+Date: Fri, 19 May 2006 03:57:45 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Seiji Munetoh <seiji.munetoh@gmail.com>
+Cc: linux-kernel@vger.kernel.org, kjhall@us.ibm.com,
+       tpmdd-devel@lists.sourceforge.net
+Subject: Re: [PATCH 2/2] tpm: bios log parsing fixes
+Message-ID: <20060518235744.GB5566@mipter.zuzino.mipt.ru>
+References: <1147994947.14102.68.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1147994947.14102.68.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 19, 2006 at 08:29:07AM +0900, Seiji Munetoh wrote:
+> This patch fixes the BINARY output format to actual ACPI TCPA log
+> structure for any userland tool easily parse the binary data with
+> reference to TCG PC specification.
 
+Do you realize that you break backward compatibility? What was wrong
+with old format?
 
-James Morris wrote:
-> On Tue, 16 May 2006, Matt Ayres wrote:
-> 
->>>> My ruleset is pretty bland.  2 rules in the raw table to tell the system
->>>> to
->>>> only track my forwarded ports, 2 rules in the nat table for forwarding
->>>> (intercepting) 2 ports, and then in the FORWARD tables 2 rules per VM to
->>>> just
->>>> account traffic.
->>> Can you try using a different NIC?
->>>
->> This happens on 30 different hosts.  Using the same kernel I get varying
->> uptime of "hasn't crashed since the upgrade to 2.6.16" to "crashes every day".
->> All are Tyan S2882D boards w/ integrated Tigon3.  The trace I posted to this
->> thread indicate tg3, but in many other traces I have the trace doesn't include
->> any driver calls.  They all panic in ipt_do_table.  I would have pasted the
->> others, but I didn't save the System.map for either of them and they are all
->> pretty similar.
-> 
-> I'm trying to suggest eliminating this driver & possible interaction with 
-> Xen network changes as a cause.  If you can find a different type of NIC 
-> to plug in and use, or even try and change all of the params for the tg3 
-> with ethtool, it'll help.
-> 
+> --- linux-2.6.17-rc4/drivers/char/tpm/tpm_bios.c
+> +++ linux-2.6.17-rc4-tpm/drivers/char/tpm/tpm_bios.c
+> @@ -275,53 +285,13 @@ static int get_event_name(char *dest, st
+>  
+>  static int tpm_binary_bios_measurements_show(struct seq_file *m, void
+> *v)
+>  {
+> -
+> -	char *eventname;
+> -	char data[4];
+> -	u32 help;
+> -	int i, len;
+>  	struct tcpa_event *event = (struct tcpa_event *) v;
+> -	unsigned char *event_entry =
+> -	    (unsigned char *) (v + sizeof(struct tcpa_event));
+> -
+> -	eventname = kmalloc(MAX_TEXT_EVENT, GFP_KERNEL);
+> -	if (!eventname) {
+> -		printk(KERN_ERR "%s: ERROR - No Memory for event name\n ",
+> -		       __func__);
+> -		return -ENOMEM;
+> -	}
+> -
+> -	/* 1st: PCR used is in little-endian format (4 bytes) */
+> -	help = le32_to_cpu(event->pcr_index);
+> -	memcpy(data, &help, 4);
+> -	for (i = 0; i < 4; i++)
+> -		seq_putc(m, data[i]);
+> -
+> -	/* 2nd: SHA1 (20 bytes) */
+> -	for (i = 0; i < 20; i++)
+> -		seq_putc(m, event->pcr_value[i]);
+> +	char *data = (char *) v;
+> +	int i;
+>  
+> -	/* 3rd: event type identifier (4 bytes) */
+> -	help = le32_to_cpu(event->event_type);
+> -	memcpy(data, &help, 4);
+> -	for (i = 0; i < 4; i++)
+> +	for (i = 0;i < sizeof(struct tcpa_event) + event->event_size; i++)
+>  		seq_putc(m, data[i]);
+>  
+> -	len = 0;
+> -
+> -	len += get_event_name(eventname, event, event_entry);
+> -
+> -	/* 4th:  filename <= 255 + \'0' delimiter */
+> -	if (len > TCG_EVENT_NAME_LEN_MAX)
+> -		len = TCG_EVENT_NAME_LEN_MAX;
+> -
+> -	for (i = 0; i < len; i++)
+> -		seq_putc(m, eventname[i]);
+> -
+> -	/* 5th: delimiter */
+> -	seq_putc(m, '\0');
+> -
+> -	kfree(eventname);
+>  	return 0;
+>  }
 
-Hi,
-
-Thank you for the assistance. Which parameters do you suggest changing? 
-  TSO/flow control off?
-
-Here is my ruleset for those interested:
-
-# iptables -t raw -L -v
-Chain OUTPUT (policy ACCEPT 27441 packets, 4832K bytes)
-  pkts bytes target     prot opt in     out     source 
-destination
-
-Chain PREROUTING (policy ACCEPT 195M packets, 156G bytes)
-  pkts bytes target     prot opt in     out     source 
-destination
-1332K  144M NOTRACK   !tcp  --  any    any     anywhere 
-anywhere
-    54  5293 ACCEPT     tcp  --  any    any     anywhere 
-anywhere            tcp dpt:7373
-  4564  223K ACCEPT     tcp  --  any    any     anywhere 
-anywhere            tcp dpt:7322
-  194M  156G NOTRACK    tcp  --  any    any     anywhere 
-anywhere            tcp dpt:!7373
-  194M  156G NOTRACK    tcp  --  any    any     anywhere 
-anywhere            tcp dpt:!7322
-
-# iptables -t nat -L -v
-Chain OUTPUT (policy ACCEPT 2114 packets, 155K bytes)
-  pkts bytes target     prot opt in     out     source 
-destination
-
-Chain POSTROUTING (policy ACCEPT 2114 packets, 155K bytes)
-  pkts bytes target     prot opt in     out     source 
-destination
-
-Chain PREROUTING (policy ACCEPT 0 packets, 0 bytes)
-  pkts bytes target     prot opt in     out     source 
-destination
-     6   344 DNAT       tcp  --  eth0   any     anywhere 
-anywhere            tcp dpt:7373 to:host.ip.address:443
-     8   408 DNAT       tcp  --  eth0   any     anywhere 
-anywhere            tcp dpt:7322 to:host.ip.address:22
-
-
-iptables -L -v just shows 2 rules per Virtual Machine for accounting. 
-This averages about 100 rules in the FORWARD chain.  Example:
-
-# iptables -L -v
-Chain FORWARD (policy ACCEPT 195M packets, 156G bytes)
-  pkts bytes target     prot opt in     out     source 
-destination
-     0     0            all  --  any    any     xx.xx.xx.xx 
-  anywhere
-     0     0            all  --  any    any     anywhere 
-xx.xx.xx.xx

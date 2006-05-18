@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbWERL25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWERLdb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750946AbWERL25 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 07:28:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbWERL25
+	id S1751345AbWERLdb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 07:33:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWERLda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 07:28:57 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:13276 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750741AbWERL24
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 07:28:56 -0400
-Message-ID: <446C59B8.1060402@aitel.hist.no>
-Date: Thu, 18 May 2006 13:25:44 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Thu, 18 May 2006 07:33:30 -0400
+Received: from wr-out-0506.google.com ([64.233.184.232]:55898 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751345AbWERLd3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 07:33:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=V/RxpdhaQFDSGhOLg7lRI0hXCsQXlJZZgSnnbDOuJHT3QODu7XmgHDM5Bjhy9w4Pjl4Kbm+UL8OHSF1CVnIc+fwdAE+aT/Do40p++eGXvEhN0Zn7NpTf22ARANW6YzlR9Jh3KA43UyAzDtATRdC/FNdiWvyc0ac6S84u8DLQnrw=
+Message-ID: <446C5B83.9000305@gmail.com>
+Date: Thu, 18 May 2006 20:33:23 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Chase Venters <chase.venters@clientec.com>
-CC: =?UTF-8?B?TcOlbnMgUnVsbGfDpXJk?= <mru@inprovide.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Wiretapping Linux?
-References: <4469D296.8060908@perkel.com> <Pine.LNX.4.61.0605161100590.27707@chaos.analogic.com> <Pine.LNX.4.64.0605161052120.32181@turbotaz.ourhouse> <yw1xodxx1znc.fsf@agrajag.inprovide.com> <Pine.LNX.4.64.0605161541390.32181@turbotaz.ourhouse>
-In-Reply-To: <Pine.LNX.4.64.0605161541390.32181@turbotaz.ourhouse>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: albertl@mail.com
+CC: Andrew Morton <akpm@osdl.org>, jeff@garzik.org, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [RFT] major libata update
+References: <20060515170006.GA29555@havoc.gtf.org>	<20060516190507.35c1260f.akpm@osdl.org>	<446AAB3C.6050303@gmail.com> <20060516215610.2b822c00.akpm@osdl.org> <446AB12C.10001@gmail.com> <446AC418.4070704@gmail.com> <446C5957.9040404@tw.ibm.com>
+In-Reply-To: <446C5957.9040404@tw.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chase Venters wrote:
+Albert Lee wrote:
+>> To sum up, it happens when the master slot is occupied by an ATAPI
+>> device and the corresponding slave slot is empty.  The slave slot
+>> reports ATAPI signature (probably duplicated from the master) and passes
+>> all legacy presence test thus resulting in timeout on IDENTIFY.
+>>
+> 
+> This problem was seen with PATA Promise 20275 adapter + IBM DVD-RAM drive.
+> Single master device configuration, no slave device.
+> The master device acts as slave and creates a phantom slave device.
+> (http://marc.theaimsgroup.com/?l=linux-ide&m=113151315602979&w=2)
+> 
+> The problem was later fixed by Tejun's ata_exec_internal() patch:
+> (http://marc.theaimsgroup.com/?l=linux-ide&m=113455450809405&w=2)
+> After the patch, the phantom device is finally detected by ata_dev_identify().
+> 
+> Libata uses polling PIO for IDENTIFY DEVICE before this major update.
+> The polling PIO finds something wrong when it reads a 0x00 device status.
+> So, the phantom device is detected quite quickly.
+> 
+> With irq-driven PIO, maybe the phantom device is only detected after time-out.
+> So it takes longer (30 secs) to detect the phantom device.
+> 
+> No good idea how to fix this. Maybe read more registers to see whether the
+> phantom device can be detected early before the IDENTIFY DEVICE.
+> 
 
->
-> Yeah, so to wrap this malware conversation up -- the most effective 
-> way to implant malicious code in Linux is to crack into developer 
-> machines and sneak the changes in.
->
-> And hope that someone doesn't notice.
+Does the Promise controller show the ghosting problem again with the 
+recent updates?  ata_piix can be fixed by using PCS present bits.  I 
+don't know about Promise though.
 
-The maintainer will.  Over and over, we see maintainers tell developers
-to fix their patch - often the problem is something as small as
-"bad withespace" or "stupid name for a variable".
-
-Now try to get a backdoor in, and see the maintainer get a fit over
-the changes that are clearly unrelated to the problem mentioned
-in the changelog.
-
-And if you succeed with the spyware anyway, then someone will notice
-the strange packets going out.  That you cannot prevent, and it will then
-be tracked down.  Or you get a backdoor in?  It will be found as soon as
-it sees some use, or likely earlier with all the more or less automated
-vulnerability chacking going on.
-
-Helge Haftinjg
-
+-- 
+tejun

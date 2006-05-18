@@ -1,71 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWERF7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbWERGNc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750878AbWERF7I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 01:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbWERF7I
+	id S1750882AbWERGNc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 02:13:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWERGNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 01:59:08 -0400
-Received: from mail13.syd.optusnet.com.au ([211.29.132.194]:36025 "EHLO
-	mail13.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750878AbWERF7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 01:59:07 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck list <ck@vds.kolivas.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] mm: swap prefetch fix lowmem reserve calc
-Date: Thu, 18 May 2006 15:58:57 +1000
-User-Agent: KMail/1.9.1
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>
+	Thu, 18 May 2006 02:13:32 -0400
+Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:14215 "HELO
+	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750796AbWERGNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 02:13:32 -0400
+Message-ID: <446C10B0.6060602@sbcglobal.net>
+Date: Thu, 18 May 2006 01:14:08 -0500
+From: Matthew Frost <artusemrys@sbcglobal.net>
+Reply-To: artusemrys@sbcglobal.net
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Andrew Morton <akpm@osdl.org>
+CC: vgoyal@in.ibm.com, galak@kernel.crashing.org, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+Subject: Re: [RFC][PATCH 1/6] kconfigurable resources core changes
+References: <20060505172847.GC6450@in.ibm.com>	<2C184B1B-9F70-4175-B90B-A1CC5741A6DE@kernel.crashing.org>	<20060509200301.GA15891@in.ibm.com>	<446C03F4.20508@sbcglobal.net> <20060517224334.7d2bb5eb.akpm@osdl.org>
+In-Reply-To: <20060517224334.7d2bb5eb.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605181558.57777.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When examining the free limits in swap_prefetch we should ensure the largest
-lowmem_reserve for each zone is free.
+Andrew Morton wrote:
+> Matthew Frost <artusemrys@sbcglobal.net> wrote:
+>> This may sound like a dumb question, but aside from code bloat, what are 
+>>  the performance issues involved in running 64-bit resources on 32-bit 
+>>  systems?
+> 
+> Unmeasurably minor, I expect.
 
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
+Noted, with thanks.
 
----
- mm/swap_prefetch.c |   14 +++++++++++++-
- 1 files changed, 13 insertions(+), 1 deletion(-)
+> 
+> No sane software project would take on this (small) maintenance burden just
+> to save 50-60 kbytes.  We would though.
 
-Index: linux-2.6.17-rc4-mm1/mm/swap_prefetch.c
-===================================================================
---- linux-2.6.17-rc4-mm1.orig/mm/swap_prefetch.c	2006-05-18 15:48:22.000000000 +1000
-+++ linux-2.6.17-rc4-mm1/mm/swap_prefetch.c	2006-05-18 15:52:42.000000000 +1000
-@@ -258,6 +258,18 @@ static void clear_current_prefetch_free(
- 	}
- }
- 
-+static inline unsigned long largest_lowmem_reserve(struct zone *z)
-+{
-+	unsigned long ret = 0;
-+	unsigned int idx = zone_idx(z);
-+
-+	while (!is_highmem_idx(idx)) {
-+		idx++;
-+		ret = max(ret, z->lowmem_reserve[idx]);
-+	}
-+	return ret;
-+}
-+
- /*
-  * This updates the high and low watermarks of amount of free ram in each
-  * node used to start and stop prefetching. We prefetch from pages_high * 4
-@@ -276,7 +288,7 @@ static void examine_free_limits(void)
- 
- 		ns = &sp_stat.node[z->zone_pgdat->node_id];
- 		idx = zone_idx(z);
--		ns->lowfree[idx] = z->pages_high * 3 + z->lowmem_reserve[idx];
-+		ns->lowfree[idx] = z->pages_high * 3 + largest_lowmem_reserve(z);
- 		ns->highfree[idx] = ns->lowfree[idx] + z->pages_high;
- 
- 		if (z->free_pages > ns->highfree[idx]) {
+I'm aware of that, and I'm not complaining.  :)  It's one of the things 
+I love about this project.  It's a healthy insanity, enforced by the 
+squeaking of the wheels.  Besides, code bloat is cumulative.
 
--- 
--ck
+Matt

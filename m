@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWERWXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWERWZc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750822AbWERWXM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 18:23:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWERWXL
+	id S1750885AbWERWZc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 18:25:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbWERWZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 18:23:11 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:1949 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750822AbWERWXK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 18:23:10 -0400
-Date: Thu, 18 May 2006 23:23:06 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: linux cbon <linuxcbon@yahoo.fr>
-Cc: Valdis.Kletnieks@vt.edu, tvignaud@mandriva.com,
-       helge.hafting@aitel.hist.no, linux-kernel@vger.kernel.org
-Subject: Re: replacing X Window System !
-Message-ID: <20060518222306.GH27946@ftp.linux.org.uk>
-References: <200605182147.k4ILl3P5018445@turing-police.cc.vt.edu> <20060518220304.74222.qmail@web26603.mail.ukl.yahoo.com>
+	Thu, 18 May 2006 18:25:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:54958 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750885AbWERWZb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 18:25:31 -0400
+Subject: Re: [PATCH] Change ll_rw_block() calls in JBD
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
+Cc: Jan Kara <jack@suse.cz>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <446C8EB1.3090905@bull.net>
+References: <446C2F89.5020300@bull.net>
+	 <20060518134533.GA20159@atrey.karlin.mff.cuni.cz>
+	 <446C8EB1.3090905@bull.net>
+Content-Type: text/plain
+Date: Thu, 18 May 2006 23:25:17 +0100
+Message-Id: <1147991117.5464.124.camel@sisko.sctweedie.blueyonder.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060518220304.74222.qmail@web26603.mail.ukl.yahoo.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.2 (2.0.2-27) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Didnt I already write about all this before ?
-> We should fix X.org (root, hardware access) problems.
-> But fixing only X.org is not enough.
+Hi,
+
+On Thu, 2006-05-18 at 17:11 +0200, Zoltan Menyhart wrote:
+
+> > +		was_dirty = buffer_dirty(bh);
 > 
-> X implementations problems :
-> http://en.wikipedia.org/wiki/X_Window_System#Limitations_and_criticisms_of_X
-> http://www.std.org/~msm/common/protocol.pdf
-> http://archives.neohapsis.com/archives/openbsd/2006-03/0987.html
-> http://cbbrowne.com/info/xbloat.html
+> Why do not we use "buffer_jbddirty()"?
 
-<yawn>
+jbddirty is what we use for metadata that we don't want to get written
+to disk yet.
 
-	You do realize that this is not splashsnot, don't you?  Since you
-appear to be so fond of references, go and google for Kipling+Tomlinson...
+For journaling to work, we must ensure that the transaction's metadata
+gets written to and committed in the journal before it is allowed to be
+written back to main backing store.  If we don't, and writeback occurs
+early, then on a crash we can't rollback to the previous transaction.
+
+So when we mark metadata as dirty we set the jbddirty flag but do *not*
+set the normal dirty flag; so until the buffer is journaled, it is not
+eligible for normal writeback.
+
+This whole mechanism is only useful for metadata (plus data if we're in
+data=journal mode.)  For normal ordered data writes, we never use
+jbddirty because there's just no problem if the data is written before
+the transaction completes.
+
+--Stephen
+
+

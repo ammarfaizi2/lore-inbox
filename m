@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbWERO1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWERO1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750984AbWERO1W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 10:27:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbWERO1W
+	id S932078AbWERO1f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 10:27:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWERO1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 10:27:22 -0400
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:33955
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1750984AbWERO1V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 10:27:21 -0400
-Date: Thu, 18 May 2006 15:20:48 +0100
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andy Whitcroft <apw@shadowen.org>, nickpiggin@yahoo.com.au,
-       haveblue@us.ibm.com, bob.picco@hp.com, mingo@elte.hu, mbligh@mbligh.org,
-       ak@suse.de, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH 0/2] Zone boundary alignment fixes    cleanups
-Message-ID: <exportbomb.1147962048@pinky>
-References: <20060511005952.3d23897c.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-InReply-To: <20060511005952.3d23897c.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Andy Whitcroft <apw@shadowen.org>
+	Thu, 18 May 2006 10:27:35 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:49398 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1751092AbWERO1e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 10:27:34 -0400
+Subject: Re: [PATCH -rt 2/2] arm update
+From: Daniel Walker <dwalker@mvista.com>
+To: Nicolas Pitre <nico@cam.org>
+Cc: mingo@elte.hu, tglx@linutronix.de, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0605180947180.18071@localhost.localdomain>
+References: <200605141557.k4EFv5Sd004979@dwalker1.mvista.com>
+	 <Pine.LNX.4.64.0605180947180.18071@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 18 May 2006 07:27:31 -0700
+Message-Id: <1147962452.17117.25.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Sorry for the delay, we've been busy looking to see what is
-responsible for the ia64 issues with architecture independant
-zone sizing.]
+On Thu, 2006-05-18 at 09:53 -0400, Nicolas Pitre wrote:
+> >  - adds a new NR_syscalls macro, converts the old one into __NR_syscalls for
+> >    calculating the table padding .
+> 
+> Why?
+> 
 
-Following this email are two cleanup patches for the
-UNALIGNED_ZONE_BOUNDARIES support in -mm.
+> And no NR_syscalls definition should be present in asm-arm/unistd.h at 
+> all.
+> 
 
-zone-init-check-and-report-unaligned-zone-boundaries-fix --
-  we currently will pointlessly report zones as missaligned even
-  though they are empty and will report the first zone which can
-  never be missaligned assuming node_mem_map is aligned correctly.
+Right , it's not normally needed .. In RT we size an array by
+NR_syscalls for latency tracing (kernel/latency.c) . So we need some way
+to determine the the number of syscalls .. Do you know of another way we
+can get that number of syscalls on ARM ? 
 
-zone-allow-unaligned-zone-boundaries-spelling-fix -- when the
-  spelling errors in zone-allow-unaligned-zone-boundaries-spelling
-  were fixed the configuration options were not updated.
+Daniel
 
-Both of the above patches slot into the linux-2.6.17-rc4-mm1 patch
-set next to their main patches.  Amazingly, they will also apply
-on top of linux-2.6.17-rc4-mm1, I don't know what patch has been
-taking but it rocks.
-
--apw

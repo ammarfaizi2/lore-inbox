@@ -1,92 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWERLVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWERLYO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbWERLVk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 07:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWERLVj
+	id S1751341AbWERLYO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 07:24:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWERLYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 07:21:39 -0400
-Received: from mail.suse.de ([195.135.220.2]:30630 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751338AbWERLVj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 07:21:39 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <jbeulich@novell.com>
-Subject: Re: [discuss] Re: [PATCH 2/3] reliable stack trace support (x86-64)
-Date: Thu, 18 May 2006 12:20:45 +0200
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-References: <4469FC22.76E4.0078.0@novell.com> <200605161905.11907.ak@suse.de> <446C5C6E.76E4.0078.0@novell.com>
-In-Reply-To: <446C5C6E.76E4.0078.0@novell.com>
+	Thu, 18 May 2006 07:24:14 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:23724 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750713AbWERLYN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 07:24:13 -0400
+Message-ID: <446C5957.9040404@tw.ibm.com>
+Date: Thu, 18 May 2006 19:24:07 +0800
+From: Albert Lee <albertcc@tw.ibm.com>
+Reply-To: albertl@mail.com
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Tejun Heo <htejun@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, jeff@garzik.org, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [RFT] major libata update
+References: <20060515170006.GA29555@havoc.gtf.org>	<20060516190507.35c1260f.akpm@osdl.org>	<446AAB3C.6050303@gmail.com> <20060516215610.2b822c00.akpm@osdl.org> <446AB12C.10001@gmail.com> <446AC418.4070704@gmail.com>
+In-Reply-To: <446AC418.4070704@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605181220.46037.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 18 May 2006 11:37, Jan Beulich wrote:
-> >>> Andi Kleen <ak@suse.de> 16.05.06 19:05 >>>
-> >
-> >On Tuesday 16 May 2006 18:06, Jan Beulich wrote:
-> >> >>> Andi Kleen <ak@suse.de> 16.05.06 17:13 >>>
-> >>
-> >> On Tuesday 16 May 2006 16:21, Jan Beulich wrote:
-> >> >> These are the x86_64-specific pieces to enable reliable stack traces.
-> >> >> The only restriction with this is that it currently cannot unwind
-> >> >> across the interrupt->normal stack boundary, as that transition is
-> >> >> lacking proper annotation.
-> >> >
-> >> >It would be nice if you could submit a patch to fix that.
-> >>
-> >> But I don't know how to fix it. See my other mail
-> >
-> >which mail?
->
-> Reply to Ingo (with you on cc) regarding patch 1/3. Just saying that I
-> don't know much about expressions here.
->
+Tejun Heo wrote:
+> Tejun Heo wrote:
+> 
+>> Andrew Morton wrote:
+>>
+>>> No.  In fact, it doesn't even work with the 2.6.17-rc4-mm1 lineup
+>>> plus the
+>>> latest git-libata-all.  It needs this tweak:
+>>>
+>>> --- devel/drivers/scsi/ata_piix.c~2.6.17-rc4-mm1-ich8-fix   
+>>> 2006-05-16 18:36:12.000000000 -0700
+>>> +++ devel-akpm/drivers/scsi/ata_piix.c    2006-05-16
+>>> 18:36:12.000000000 -0700
+>>> @@ -542,6 +542,14 @@ static unsigned int piix_sata_probe (str
+>>>          port = map[base + i];
+>>>          if (port < 0)
+>>>              continue;
+>>> +        if (ap->flags & PIIX_FLAG_AHCI) {
+>>> +            /* FIXME: Port status of AHCI controllers
+>>> +             * should be accessed in AHCI memory space.  */
+>>> +            if (pcs & 1 << port)
+>>> +                present_mask |= 1 << i;
+>>> +            else
+>>> +                pcs &= ~(1 << port);
+>>> +        }
+>>>          if (ap->flags & PIIX_FLAG_IGNORE_PCS || pcs & 1 << (4 + port))
+>>>              present_mask |= 1 << i;
+>>>          else
+> 
+> 
+> The above patch doesn't do anything.  The only effect it has is setting
+> present_mask according to enabled bits instead of present bits.  I think
+> this patch might have helped with probing before the MAP tables for
+> ICH6/7 are fixed.
+> 
+> I've done further testing.
+> 
+> * Symptom
+> 
+> ata_piix tries to probe non-existing slave device resulting in timeouts
+> during boot probing.  This problem is aggravated by new probing updates
+> as it retries two more times before giving up.
+> 
+> * Test results
+> 
+> PATA never has any problem with device detection via signature.  Only
+> SATA is affected and interestingly only ATAPI device.  The following is
+> the test result on my machine (ICH7R + PX716SA).
+> 
+>   1. combined mode : MAP [IDE IDE P1 P3]
+> 
+>     P1        P3
+>     -----------------------------
+>     PX716-SA    empty        P3 ghosted as ATAPI device
+>     empty        PX716-SA    okay
+>     PX716-SA    HDD        okay
+>     HDD        PX716-SA    okay
+> 
+>   2. SATA-only mode : MAP [P0 P2 P1 P3]
+> 
+>     P0        P2
+>     -----------------------------
+>     PX716-SA    empty        P2 ghosted as ATAPI device
+>     empty        PX716-SA    okay
+>     PX716-SA    HDD        okay
+>     HDD        PX716-SA    okay
+> 
+>     P1        P3
+>     -----------------------------
+>     Identical to #1.
+> 
+> To sum up, it happens when the master slot is occupied by an ATAPI
+> device and the corresponding slave slot is empty.  The slave slot
+> reports ATAPI signature (probably duplicated from the master) and passes
+> all legacy presence test thus resulting in timeout on IDENTIFY.
+> 
 
-Hmm, maybe we can find somebody who does. But then they would
-first need to be implemented in the unwinder anyways, I guess.
-Could be nasty agreed.
+This problem was seen with PATA Promise 20275 adapter + IBM DVD-RAM drive.
+Single master device configuration, no slave device.
+The master device acts as slave and creates a phantom slave device.
+(http://marc.theaimsgroup.com/?l=linux-ide&m=113151315602979&w=2)
 
-> >> - I have no experience with expressions, nor have I ever seen them in
-> >> use.
-> >
-> >I remember Jim Houston used a hack of just loading the old stack into a
-> > register and defining that as a base register in CFI. I guess i would be
-> > willing to trade a few moves for that (should be pretty much free on a
-> > OOO CPU anyways) You think that trick would work?
->
-> I don't think that would, because without CONFIG_DEBUG_INFO none of the
-> preserved registers get saved, hence there's no register to use for this.
-> Thus the price would not only be a move, but also a save/push and a  
-> reload/pop.
+The problem was later fixed by Tejun's ata_exec_internal() patch:
+(http://marc.theaimsgroup.com/?l=linux-ide&m=113455450809405&w=2)
+After the patch, the phantom device is finally detected by ata_dev_identify().
 
-Three instructions?  We might be still able to afford that.
+Libata uses polling PIO for IDENTIFY DEVICE before this major update.
+The polling PIO finds something wrong when it reads a 0x00 device status.
+So, the phantom device is detected quite quickly.
 
-push/pop is probably not needed because the stack frame will be already
-set up (ok possibly after a few instructions, but a small window might be 
-tolerable)
+With irq-driven PIO, maybe the phantom device is only detected after time-out.
+So it takes longer (30 secs) to detect the phantom device.
 
-> >> >> +#define UNW_PC(frame) (frame)->regs.rip
-> >> >> +#define UNW_SP(frame) (frame)->regs.rsp
-> >> >
-> >> >I think we alreay have instruction_pointer(). Better add a
-> >> > stack_pointer() in ptrace.h too.
-> >>
-> >> I could do that, but the macros will have to remain, as they don't
-> >> access pt_regs dierectly, so I guess it'd be pointless to change it.
-> >
-> >UNW_PC() is instruction_pointer(&frame->regs), isn't it?
->
-> Yes. But the intention is that the user of UNW_PC doesn't need to know any
-> details of what fields frame has (i.e. the parameter of UNW_PC must only be
-> frame), so you can't replace it with instruction_pointer().
+No good idea how to fix this. Maybe read more registers to see whether the
+phantom device can be detected early before the IDENTIFY DEVICE.
 
-Maybe I'm dense but I still don't get - frame has a pt_regs so why 
-isn't the caller allowed to know about that fact?
+--
+albert
 
--Andi
+
+> In all above cases, the PCS register reported correct presence masks.
+> 
+> * Proposed solution
+> 
+> It seems that the only solution is to make use of the PCS presence bits
+> somehow.  It is know that 6300ESB family of controllers have flaky
+> presence bits (ata_piix marks them with PIIX_FLAG_IGNORE_PCS), but I
+> couldn't find any document/errata for PCS bits for any other
+> controllers.  So, we can use PCS for all !PIIX_FLAG_IGNORE_PCS
+> controllers or take a conservative approach and make use of it only on
+> cases where ghosting problem is reported (ICH7 and 8, I guess.  Can
+> anyone test 6?).
+> 
+> Please note that we already use some use of the PCS value when probing
+> SATA port.  If its value is zero, we skip the port.  It's done this way
+> mainly due to historical reasons - until recently ata_piix didn't have
+> MAP tables to map PM/PS/SM/SS to specific ports thus used the PCS values
+> in rougher form.
+> 
+> Jeff, what do you think?
+> 
+
+

@@ -1,81 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWERJj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbWERJwr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbWERJj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 05:39:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWERJj2
+	id S1750940AbWERJwr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 05:52:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWERJwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 05:39:28 -0400
-Received: from gate.crashing.org ([63.228.1.57]:50564 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751152AbWERJj1 (ORCPT
+	Thu, 18 May 2006 05:52:47 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:28290 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1750940AbWERJwq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 05:39:27 -0400
-Subject: Re: [patch 00/50] genirq: -V3
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       linux-arm-kernel@lists.arm.linux.org.uk,
-       Paul Mackerras <paulus@samba.org>
-In-Reply-To: <20060518073853.GA27687@flint.arm.linux.org.uk>
-References: <20060517001310.GA12877@elte.hu>
-	 <1147846317.4025.18.camel@localhost.localdomain>
-	 <20060517222734.GC30073@flint.arm.linux.org.uk>
-	 <1147912361.10703.40.camel@localhost.localdomain>
-	 <20060518073853.GA27687@flint.arm.linux.org.uk>
+	Thu, 18 May 2006 05:52:46 -0400
+Subject: Re: How should Touchscreen Input Drives behave (OpenEZX pcap_ts)
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Harald Welte <laforge@gnumonks.org>
+Cc: openezx-devel@lists.gnumonks.org, linux-kernel@vger.kernel.org,
+       "Michael 'Mickey' Lauer" <mickey@tm.informatik.uni-frankfurt.de>
+In-Reply-To: <20060518070700.GT17897@sunbeam.de.gnumonks.org>
+References: <20060518070700.GT17897@sunbeam.de.gnumonks.org>
 Content-Type: text/plain
-Date: Thu, 18 May 2006 19:33:37 +1000
-Message-Id: <1147944818.5192.7.camel@localhost.localdomain>
+Date: Thu, 18 May 2006 10:52:27 +0100
+Message-Id: <1147945947.20943.22.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russell !
+Hi,
 
-> That is incredibly wasteful for level interrupts - what you're suggesting
-> means that to service a level interrupt, you take an interrupt exception,
-> start processing it, take another interrupt exception, disable the source,
-> return from that interrupt and continue to service it.  No thanks.
+On Thu, 2006-05-18 at 09:07 +0200, Harald Welte wrote:
+> 0) What kind of X/Y/Pressure values should I return?  Are they supposed
+>    to be scaled to the X/Y resolution of the LCD?  As of now, I return
+>    X_ABS, Y_ABS and PRESSURE values between 0 and 1000 (each).
+> 
+>    However, the coordinates are actually inverted, so '0,0' corresponds
+>    to the lower right corner of the screen, whereas '1000,1000' is the
+>    upper left corner.  Shall I invert them (i.e. return 1000-coord')?
 
-Oh no, that's not what I mean... I've come to agree with having several
-flow handlers and thus the level flow handler would mask & ack, then
-handle, then unmask is it should be for a level interrupt... What I
-meant is that disable_irq could do soft-disable in all cases like it
-seems to happen right now in the ARM code but not in Thomas patch.
+Just send the raw data to userspace. Any translations needed can be
+handled in userspace by the calibration program. You probably want to
+have a look at tslib: http://cvs.arm.linux.org.uk/cgi/viewcvs.cgi/tslib/
 
-> I thought you were the one concerned about interrupt handling overhead
-> (about the overhead introduced by function pointer calls.) but that
-> idea _far_ outweighs function pointer overheads.
+The range of the values also doesn't really matter and scaling would
+again get handled in userspace.
 
-I think you misunderstood what I meant by soft-disable :) Basically
-bring in more of what ARM does in disable_irq/enable_irq.
+> 1) where does touchscreen calibration happen?  The EZX phones (like many
+>    other devices, I believe) only contain resistive touchscreens that
+>    appear pretty uncalibrated.   I'm sure the factory-set calibration
+>    data must be stored somewhere in flash, but it's definitely handled
+>    in the proprietary EZX userland, since their old kernel driver
+>    doesn't have any calibration related bits.
 
-> Sigh, I'm not teaching you to suck eggs - I was trying to justify
-> clearly _why_ we have these different "flow" handlers on ARM and why
-> they are important by contrasting the differences between them.
+Calibration happens in userspace and tslib stores the result
+in /etc/pointercal. If you device has this data stored in hardware, you
+could have a userspace app translate that data into such a file,
+otherwise, you can run a calibration program such as ts_calibrate (from
+tslib) or something like xtscal.
 
-Yup, and I've finally been convinced, and Thomas patch _does_ have
-different flow handlers. However, it doesn't do soft-disable or
-lazy-disable as your prefer for disable_irq which means that you'll
-still lose edge irqs on ARM. There are 2 ways out:
+> 2) what about the 'button' event.  In addition to the pressure (which is
+>    about 300 for regular stylus use, > 400 if you press hard and > 600 if
+>    you use yourfinger), some existing TS drivers return a button press.
+>    Is it up to me to decide after which pressure level to consider the
+>    button to be pressed / released?
 
-make disable_irq/enable_irq go through a specific implementation by the
-flow handler or just ... generically have disable_irq just mark the
-interrupt as disabled in the descriptor, and only actually disable it if
-it happens to occur while it was marked disabled (in which case it can
-be marked "pending" and possibly re-triggered on enable_irq if the
-controller doesn't latch). I even had an idea of how to avoid the
-re-trigger on controllers that _do_ latch properly easily: by having
-chip->unmask return wether it needs re-emitting or not.
+If the user is pressing the screen at all, its a button event and
+release is when they stop touching the screen. I'd try not to make it
+depend upon pressure but it will depend on the hardware to a degree.
 
-> Obviously, I should've just ignored your email since you know everything
-> already.
+Admittedly, tslib doesn't do much with pressure information at the
+moment but tslib would the the correct place to handle pressure rather
+than have every kernel touchscreen driver doing it.
 
-Bah, don't take it that way please ! I was making a joke ...
+For debugging, I'd highly recommend the test tools in tslib (ts_print,
+ts_calibrate and ts_test). Use them in that order, checking for sane
+output with ts_print first, get a working calibration second and finally
+prove its working with ts_test. I found them to be very useful when
+developing corgi_ts.
 
-Cheers,
-Ben.
+I'm told you're thinking about using OpenEmbedded and would highly
+recommend it. It should easily be able to provide a known working
+userspace with tslib and these tools in.
+
+Regards,
+
+Richard
+
 
 

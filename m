@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWERXiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbWERXnj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbWERXiq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 19:38:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWERXiq
+	id S1751219AbWERXnj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 19:43:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWERXnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 19:38:46 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:26791 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1751167AbWERXip (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 19:38:45 -0400
-Message-ID: <446D0573.4050204@myri.com>
-Date: Fri, 19 May 2006 01:38:27 +0200
-From: Brice Goglin <brice@myri.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+	Thu, 18 May 2006 19:43:39 -0400
+Received: from watts.utsl.gen.nz ([202.78.240.73]:33424 "EHLO
+	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S1751219AbWERXni
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 19:43:38 -0400
+Message-ID: <446D069E.8060706@vilain.net>
+Date: Fri, 19 May 2006 11:43:26 +1200
+From: Sam Vilain <sam@vilain.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Roland Dreier <rdreier@cisco.com>
-CC: netdev@vger.kernel.org, gallatin@myri.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/4] myri10ge - Driver core
-References: <20060517220218.GA13411@myri.com>	<20060517220608.GD13411@myri.com> <adairo446u3.fsf@cisco.com>
-In-Reply-To: <adairo446u3.fsf@cisco.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Sam Vilain <sam@vilain.net>
+Cc: Andrew Morton <akpm@osdl.org>, "Serge E. Hallyn" <serue@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/9] namespaces: Introduction
+References: <20060518154700.GA28344@sergelap.austin.ibm.com> <20060518103430.080e3523.akpm@osdl.org> <446D0333.1020503@vilain.net>
+In-Reply-To: <446D0333.1020503@vilain.net>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
-> Still some suspicious uses of volatile here.
->
-> For example:
->
->   
->> +struct myri10ge_priv {
->>     
->  ...
->   
->> +	volatile u8 __iomem *sram;
->>     
->
-> as far as I can see this is always used with proper __iomem accessors,
-> often with casts to strip the volatile anyway.  So why is volatile needed?
->
-> I would suggest an audit of all uses of volatile in the driver, since
-> "volatile" in drivers really should be read "there's probably a bug
-> here, and if not something very tricky is going on."  If there are any
-> valid uses of volatile then a comment should explain why, so that
-> future reviewers don't have to try and puzzle out which of the
-> two possible translations of volatile is correct.
->   
+Sam Vilain wrote:
 
-You are right, we audited the code and it looks like we don't need any
-volatile.
+>whatever people are happy with. I'll continue to track submissions in
+>the utsl.gen.nz repository:
+>
+>http://utsl.gen.nz/gitweb/?p=vserver
+>
+>I'll import Serge's new submission there now.
+>  
+>
 
-Thanks,
-Brice
+Ok, that's done. Applies cleanly against 2.6.17-rc4
 
+Sam.

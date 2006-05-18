@@ -1,74 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWEREOD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWEREbX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751052AbWEREOD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 00:14:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWEREOD
+	id S1750700AbWEREbX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 00:31:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbWEREbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 00:14:03 -0400
-Received: from osa.unixfolk.com ([209.204.179.118]:45186 "EHLO
-	osa.unixfolk.com") by vger.kernel.org with ESMTP id S1751052AbWEREOC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 00:14:02 -0400
-Date: Wed, 17 May 2006 21:13:59 -0700 (PDT)
-From: Dave Olson <olson@unixfolk.com>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH 35 of 53] ipath - some interrelated
- stability and cleanliness fixes
-In-Reply-To: <ada4pzo5xti.fsf@cisco.com>
-Message-ID: <Pine.LNX.4.61.0605172113480.23165@osa.unixfolk.com>
-References: <fa.2ho1QSA8Kf7L8EFqp3rLsB7NE9s@ifi.uio.no>
- <fa.yXZlqXBzNi9Gq/4Q6Wc9H6bw+lU@ifi.uio.no> <Pine.LNX.4.61.0605170944570.22323@osa.unixfolk.com>
- <ada4pzo5xti.fsf@cisco.com>
+	Thu, 18 May 2006 00:31:23 -0400
+Received: from web81108.mail.mud.yahoo.com ([68.142.199.100]:2145 "HELO
+	web81108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750700AbWEREbW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 00:31:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=ameritech.net;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=q4SovUJ/csStWJTa1F09x34rf1U+10rtBXAOzzP+2c4ZsjSlWIT3ruqbw7qxNxwbTco80hoicCgR4wSwF5H35Br5qaGMd7oc6HTGi1HELrTreShcP5SkhyByFl/wTA15/tM+959tgBGNyCOejWiXWC5EvKoIl1Z8+Wa6wBmDu0U=  ;
+Message-ID: <20060518043121.39140.qmail@web81108.mail.mud.yahoo.com>
+Date: Wed, 17 May 2006 21:31:21 -0700 (PDT)
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: [patch] add input_enable_device()
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <446BF398.80507@aknet.ru>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 May 2006, Roland Dreier wrote:
+--- Stas Sergeev <stsp@aknet.ru> wrote:
 
-|     Dave> We are seeing a bug (with both our driver native MPI
-|     Dave> processes and mthca mvapic), where when 8 processes using
-|     Dave> "simultaneously exit", we get watchdogs and/or hangs in the
-|     Dave> close routines.  Moving the freeing outside the mutex was an
-|     Dave> attempt to see if we were running into some VM issues by
-|     Dave> doing lots of page unlocking and freeing with the mutex
-|     Dave> held.  It seemed to help somewhat, but not to solve the
-|     Dave> problem.
-| 
-| Am I understanding correctly that you see a hang or watchdog timeout
-| even with the mthca driver?
+> Dmitry Torokhov wrote:
+> >> Why does it have the INPUT_DEVICE_ID_MATCH_BUS after all?
+> > For userspace benefits.
+> How exactly does the userspace benefit from the
+> INPUT_DEVICE_ID_MATCH_BUS thing?
+> And, by the way, why doesn't the input have the
+> capability of disabling/enabling the device?
+> 
 
-Yes.   That is, the symptoms are the same, although the cause
-may be different.
+What for? If you do not want to get events form a device do not
+read it. Or do not compile/load the driver. You can do a lot of
+things from userspace.
 
-| Is there any possibility of posting the test case to reproduce this?
+Your problem is that you want to one piece of kernel to take over
+another kernel piece instead of making it work together. With
+your enable/disable scheme what happens where there is 3rd module
+that wants to do stuff with speaker? Does it also disable snd-pcsp?
 
-It's the MPI job mpi_multibw (based on the OSU osu_bw, but changed
-to do messaging rate), running 8 copies per dual-core 4-socket opteron,
-both on InfiniPath MPI, and MVAPICH (built for gen2).
+> > While you are fine with
+> > disabling beeps while music is playing otherpeoplr might still want
+> > to hear them.
+> The only possibility to do this, was to have the grabbing
+> capability *in input layer*, which you already rejected too.
+> With this, it was possible to have such a behaviour run-time
+> configurable, but now my best bet would be to resort to the
+> Kconfig games, making a note for users that the uinput is now
+> an only possibility to route the terminal beeps to the snd-pcsp.
+> 
 
-We ship the source with our upcoming release, and will probably make
-it available outside our release.
+You just do not want to implement proper access control for the
+hardware, that's it. 
 
-We did discover one possible problem today, which is shared between
-our device code and the core openib code, and that's doing some 
-memory freeing and accounting from a work thread (updating mm->locked_vm
-and cleaning up from earlier get_user_pages); the code in our driver
-was copied from the openib core code, it's not literally shared.
-
-I have a strong suspicion that at least sometimes, it's executing after
-the current->mm has gone away.   I'm looking at that more right now.
-
-| It doesn't seem likely that ipath changes are going to fix a generic
-| bug like this...
-
-It wasn't an attempt to fix it, so much as to work around it, while
-I worked on other higher priority stuff.   As I mentioned, it also helps
-a bit in allowing multiple processes to be in the open and close code
-simultaneously, when you have multiple cpus, so even on that basis,
-I'd probably leave it as it now is.
-
-Dave Olson
-olson@unixfolk.com
-http://www.unixfolk.com/dave
+--
+Dmitry

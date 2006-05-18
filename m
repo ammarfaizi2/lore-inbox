@@ -1,94 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWERUw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWERUyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbWERUw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 16:52:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWERUw6
+	id S1751396AbWERUyP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 16:54:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbWERUyO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 16:52:58 -0400
-Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:15378 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751198AbWERUw6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 16:52:58 -0400
-Date: Thu, 18 May 2006 22:53:10 +0200
-From: Jean Delvare <jdelvare@nerim.net>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Linus Torvalds <torvalds@osdl.org>,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       akpm@osdl.org, alan@lxorguk.ukuu
-Subject: Re: [PATCH 07/22] [PATCH] smbus unhiding kills thermal management
-Message-Id: <20060518225310.eea9b93d.jdelvare@nerim.net>
-In-Reply-To: <20060517221358.617565000@sous-sol.org>
-References: <20060517221312.227391000@sous-sol.org>
-	<20060517221358.617565000@sous-sol.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 18 May 2006 16:54:14 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:28676 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751396AbWERUyN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 16:54:13 -0400
+Message-ID: <446CDDAE.1070908@vmware.com>
+Date: Thu, 18 May 2006 13:48:46 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, schwidefsky@de.ibm.com,
+       george@mvista.com, Xen-devel <xen-devel@lists.xensource.com>
+Subject: [PATCH] Fix a NO_IDLE_HZ timer bug
+Content-Type: multipart/mixed;
+ boundary="------------080705030004080500090309"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -stable review patch.  If anyone has any objections, please let us know.
-> ------------------
-> 
-> Do not enable the SMBus device on Asus boards if suspend is used.  We do
-> not reenable the device on resume, leading to all sorts of undesirable
-> effects, the worst being a total fan failure after resume on Samsung P35
-> laptop.
-> 
-> Signed-off-by: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-> Signed-off-by: Pavel Machek <pavel@suse.cz>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+This is a multi-part message in MIME format.
+--------------080705030004080500090309
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-As the i2c and hwmon maintainer, I wish to thank Carl-Daniel for his
-good work on this, and this patch is
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+This bug affects at least s390, Xen, and occurred during testing of 
+NO_IDLE_HZ with our VMI patches.  The bug is rather subtle and rare.  
+Jiffies can be advanced by other CPUs, but if the current CPU has not 
+processed timer softirqs in a while, the timer wheel can be behind 
+jiffies, causing an overflow when comparing the next timer wheel 
+expiration with the default high resolution timeout (no timeout), which 
+is relative to jiffies.
 
-Note that this patch should fix bug #6449.
+It also looks like s390 has another bug.  When compiling the 32-bit 
+kernel, doesn't this computation overflow:
 
-> ---
-> 
->  drivers/pci/quirks.c |    9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
-> 
-> --- linux-2.6.16.16.orig/drivers/pci/quirks.c
-> +++ linux-2.6.16.16/drivers/pci/quirks.c
-> @@ -861,6 +861,7 @@ static void __init quirk_eisa_bridge(str
->  }
->  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82375,	quirk_eisa_bridge );
->  
-> +#ifndef CONFIG_ACPI_SLEEP
->  /*
->   * On ASUS P4B boards, the SMBus PCI Device within the ICH2/4 southbridge
->   * is not activated. The myth is that Asus said that they do not want the
-> @@ -872,8 +873,12 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_I
->   * bridge. Unfortunately, this device has no subvendor/subdevice ID. So it 
->   * becomes necessary to do this tweak in two steps -- I've chosen the Host
->   * bridge as trigger.
-> + *
-> + * Actually, leaving it unhidden and not redoing the quirk over suspend2ram
-> + * will cause thermal management to break down, and causing machine to
-> + * overheat.
->   */
-> -static int __initdata asus_hides_smbus = 0;
-> +static int __initdata asus_hides_smbus;
->  
->  static void __init asus_hides_smbus_hostbridge(struct pci_dev *dev)
->  {
-> @@ -1008,6 +1013,8 @@ static void __init asus_hides_smbus_lpc_
->  }
->  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH6_1,	asus_hides_smbus_lpc_ich6 );
->  
-> +#endif
-> +
->  /*
->   * SiS 96x south bridge: BIOS typically hides SMBus device...
->   */
+arch/s390/kernel/time.c, stop_hz_timer:274
 
--- 
-Jean Delvare
+        /*
+         * This cpu is going really idle. Set up the clock comparator
+         * for the next event.
+         */
+        next = next_timer_interrupt();
+        do {
+                seq = read_seqbegin_irqsave(&xtime_lock, flags);
+                timer = (__u64)(next - jiffies) + jiffies_64;
+        } while (read_seqretry_irqrestore(&xtime_lock, seq, flags));
+
+
+Since jiffies can advance between next_timer_interrupt and the read 
+under xtime lock, next-jiffies could be negative.  I would think you 
+want to cast that to signed long instead of __u64, but I'm not totally 
+qualified to talk about s390.
+
+Zach
+
+--------------080705030004080500090309
+Content-Type: text/plain;
+ name="no-idle-hz-timer-race"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="no-idle-hz-timer-race"
+
+Under certain timing conditions, a race during boot occurs where timer ticks
+are being processed on remote CPUs.  The remote timer ticks can increment
+jiffies, and if this happens during a window when a timeout is very close to
+expiring but a local tick has not yet been delivered, you can end up with
+
+1) No softirq pending
+2) A local timer wheel which is not synced to jiffies
+3) No high resolution timer active
+4) A local timer which is supposed to fire before the current jiffies value.
+
+In this circumstance, the comparison in next_timer_interrupt overflows, because
+the base of the comparison for high resolution timers is jiffies, but for the
+softirq timer wheel, it is relative the the current base of the wheel
+(jiffies_base).
+
+Signed-off-by: Zachary Amsden <zach@vmware.com>
+
+Index: linux-2.6.17-rc/kernel/timer.c
+===================================================================
+--- linux-2.6.17-rc.orig/kernel/timer.c	2006-05-18 13:32:22.000000000 -0700
++++ linux-2.6.17-rc/kernel/timer.c	2006-05-18 13:34:59.000000000 -0700
+@@ -541,6 +541,22 @@ found:
+ 	}
+ 	spin_unlock(&base->lock);
+ 
++	/*
++	 * It can happen that other CPUs service timer IRQs and increment
++	 * jiffies, but we have not yet got a local timer tick to process
++	 * the timer wheels.  In that case, the expiry time can be before
++	 * jiffies, but since the high-resolution timer here is relative to
++	 * jiffies, the default expression when high-resolution timers are
++	 * not active,
++	 *
++	 *   time_before(MAX_JIFFY_OFFSET + jiffies, expires)
++	 *
++	 * would falsely evaluate to true.  If that is the case, just
++	 * return jiffies so that we can immediately fire the local timer
++	 */
++	if (time_before(expires, jiffies))
++		return jiffies;
++
+ 	if (time_before(hr_expires, expires))
+ 		return hr_expires;
+ 
+
+--------------080705030004080500090309--

@@ -1,60 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWERXSt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWERXX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750993AbWERXSt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 19:18:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750996AbWERXSt
+	id S1750988AbWERXX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 19:23:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbWERXX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 19:18:49 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:29484 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750989AbWERXSs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 19:18:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=B7NsjRpMct6k2Fho4mKfccMQZUoqnt6KIkjLjYhUFMxM3rLRctOV38THWOWSXPIhj1IFPCfSKMSypr9hWBhhuxtagj3vSZnYVpQOLL6s3VGl1NTIJUSP0g0UnX5DsmWF+ZGydZs2iosFwc+opCAhjhosOdfrC39l3bAVUZJexUg=
-Message-ID: <446D00D5.2040006@gmail.com>
-Date: Fri, 19 May 2006 08:18:45 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-CC: Mark Lord <lkml@rtr.ca>, Jan Wagner <jwagner@kurp.hut.fi>,
-       linux-kernel@vger.kernel.org
-Subject: Re: support for sata7 Streaming Feature Set?
-References: <Pine.LNX.4.58.0605051547410.7359@kurp.hut.fi> <4466D6FB.1040603@gmail.com> <Pine.LNX.4.58.0605162126520.31191@kurp.hut.fi> <446BD8F2.10509@gmail.com> <446C7435.2040809@rtr.ca> <446C9503.1020609@garzik.org>
-In-Reply-To: <446C9503.1020609@garzik.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 18 May 2006 19:23:26 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:1224 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1750960AbWERXX0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 19:23:26 -0400
+Date: Thu, 18 May 2006 17:23:24 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>,
+       "Stephen C. Tweedie" <sct@redhat.com>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sector_t overflow in block layer
+Message-ID: <20060518232324.GW5964@schatzie.adilger.int>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Anton Altaparmakov <aia21@cam.ac.uk>,
+	"Stephen C. Tweedie" <sct@redhat.com>,
+	"ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <1147884610.16827.44.camel@localhost.localdomain> <m34pzo36d4.fsf@bzzz.home.net> <1147888715.12067.38.camel@dyn9047017100.beaverton.ibm.com> <m364k4zfor.fsf@bzzz.home.net> <20060517235804.GA5731@schatzie.adilger.int> <1147947803.5464.19.camel@sisko.sctweedie.blueyonder.co.uk> <20060518185955.GK5964@schatzie.adilger.int> <Pine.LNX.4.64.0605181403550.10823@g5.osdl.org> <Pine.LNX.4.64.0605182307540.16178@hermes-1.csi.cam.ac.uk> <Pine.LNX.4.64.0605181526240.10823@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0605181526240.10823@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Mark Lord wrote:
->> The device driver has to know about it, at a minimum so that it can
->> select a different EH protocol for the streams.  Which in turn means
->> that the streaming commands should be known to the driver as well.
+On May 18, 2006  15:41 -0700, Linus Torvalds wrote:
+> On Thu, 18 May 2006, Anton Altaparmakov wrote:
+> > I think you missed that Andreas said he is worried about 64-bit overflows 
+> > as well.
 > 
-> Different taskfile protocol, you mean?
-
-I haven't checked all the docs and codes thoroughly but I don't see a 
-need for new protocol or anything.  When a streaming command fails due 
-to failing to meet timing constraints, it fails w/ device error.  sg can 
-adjust retry count and the device error will be reported without much 
-recovery action (only revalidation).  If the device fails due to some 
-other reasons (say HSM violation), it needs full EH no matter what. 
-Without full EH, it becomes completely unusable.
-
->> But how to handle it all nicely is the real question.
->> A new block driver, if libata cannot handle it?
+> Ahh. Ok. However, then the test _really_ should be something like
 > 
-> I seriously doubt writing a whole new ATA driver subsystem will fly :)
+> 	sector_t maxsector, sector;
+> 	int sector_shift = get_sector_shift(bh->b_size);
+> 
+> 	maxsector = (~(sector_t)0) >> sector_shift;
+> 	if (unshifted_value > maxsector)
+> 		return -EIO;
+> 	sector = (sector_t) unshifted_value << sector_shift;
+> 
+> which is a lot clearer, and likely faster too, with a proper 
+> get_sector_shift.
 
-All I can see are little extensions to sg interface and maybe libata.  I 
-don't think it needs full-blown in-kernel driver.  However, to use this 
-feature with a filesystem, we would need to build a block map of the 
-file to use.  I think such feature is already provided and used by 
-LILO/GRUB kinds of things.
+I looked at that also, but it isn't clear from the use of "b_size" here
+that there is any constraint that b_size is a power of two, only that it
+is a multiple of 512.  Granted, I don't know whether there are any users
+of such a crazy thing, but the fact that this is in bytes instead of a
+shift made me think twice.
 
--- 
-tejun
+> Something like this:
+> 
+> 	/*
+> 	 * What it the shift required to turn a bh of size
+> 	 * "size" into a 512-byte sector count?
+> 	 */
+> 	static inline int get_sector_shift(unsigned int size)
+> 	{
+> 		int shift = -1;
+> 		unsigned int n = 256;
+> 
+> 		do {
+> 			shift++;
+> 		} while ((n += n) < size);
+> 		return shift;
+> 	}
+> 
+> which should generate good code on just about any architecture (it avoids 
+> actually using shifts on purpose), and I think the end result will end up 
+> being more readable (I'm not claiming that the "get_sector_shift()" 
+> implementation is readable, I'm claiming that the _users_ will be more 
+> readable).
+
+This in fact exists virtually identically in blkdev.h::blksize_bits()
+which I had a look at, but worried a bit about b_size != 2^n and also
+the fact that this has branches and/or loop unwinding vs. the fixed
+shift operations.
+
+> Of course, even better would be to not have "b_size" at all, but use 
+> "b_shift", but we don't have that.
+
+I was thinking exactly the same thing myself.
+
+> And the sector shift calculation might be fast enough that it's even
+> a win (turning a 64-bit multiply into a shift _tends_ to be better)
+
+My thought was that the gratuitous 64-bit multiply in the 32-bit case
+was offset by the fact that the comparison is easy.  In the 64-bit case
+we are already doing a 64-bit multiply so the goal is to make the
+comparison as cheap as possible.
+
+In the end, I don't really care about the exact mechanics of the check...
+
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
+

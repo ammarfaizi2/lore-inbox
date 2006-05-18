@@ -1,97 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWERKYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWERKmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbWERKYh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 06:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWERKYh
+	id S1750987AbWERKmA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 06:42:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbWERKmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 06:24:37 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28347 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750710AbWERKYh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 06:24:37 -0400
-Date: Thu, 18 May 2006 12:23:54 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: dtor_core@ameritech.net, linux-input@atrey.karlin.mff.cuni.cz,
-       vojtech@suse.cz, Andrew Morton <akpm@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: [patch] fix magic sysrq on strange keyboards
-Message-ID: <20060518102354.GA1715@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 18 May 2006 06:42:00 -0400
+Received: from mail.tm.informatik.uni-frankfurt.de ([141.2.4.18]:29633 "EHLO
+	mail.tm.informatik.uni-frankfurt.de") by vger.kernel.org with ESMTP
+	id S1750830AbWERKmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 06:42:00 -0400
+Subject: Re: How should Touchscreen Input Drives behave (OpenEZX pcap_ts)
+From: "Michael 'Mickey' Lauer" <mickey@tm.informatik.uni-frankfurt.de>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: Harald Welte <laforge@gnumonks.org>, openezx-devel@lists.gnumonks.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1147945947.20943.22.camel@localhost.localdomain>
+References: <20060518070700.GT17897@sunbeam.de.gnumonks.org>
+	 <1147945947.20943.22.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Institute of Computer Science, University of Frankfurt
+Date: Thu, 18 May 2006 14:44:33 +0200
+Message-Id: <1147956274.9429.27.camel@gandalf.tm.informatik.uni-frankfurt.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1-3mdk 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Magic sysrq fails to work on many keyboards, particulary most of
-notebook keyboards. This should help...
+Am Donnerstag, den 18.05.2006, 10:52 +0100 schrieb Richard Purdie:
+> Just send the raw data to userspace. Any translations needed can be
+> handled in userspace by the calibration program. You probably want to
+> have a look at tslib: http://cvs.arm.linux.org.uk/cgi/viewcvs.cgi/tslib/
 
-The idea is quite simple: Discard the SysRq break code if Alt is still
-being held down. This way the broken keyboard can send the break code
-(or the user with a normal keyboard can release the SysRq key) and the
-kernel waits until the next key is pressed or the Alt key is released.
+Right. We have very good experience with tslib. The kdrive xserver
+supports it and we recently added tslib support to Qt/Embedded (Opie)
+and to Evas (EFL).
 
-From: Fredrik Roubert <roubert@df.lth.se>
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+> Calibration happens in userspace and tslib stores the result
+> in /etc/pointercal. If you device has this data stored in hardware, you
+> could have a userspace app translate that data into such a file,
+> otherwise, you can run a calibration program such as ts_calibrate (from
+> tslib) or something like xtscal.
 
----
-commit 81a95636a6fa97678b744785ddb33f987d934d99
-tree 41bde7eb3767e087bbcda90430b5a1777aa3c3c8
-parent 103baf40aa229f40933f1eab736158875bf01484
-author <pavel@amd.ucw.cz> Thu, 18 May 2006 12:21:43 +0200
-committer <pavel@amd.ucw.cz> Thu, 18 May 2006 12:21:43 +0200
+ts_calibrate does a good job. It's pretty easy to use the calibration
+API and we have added customized calibration utilities in Opie, GPE and
+E to make the calibration phase match the look and feel with the main
+GUI.
 
- drivers/char/keyboard.c |   19 ++++++++++++-------
- 1 files changed, 12 insertions(+), 7 deletions(-)
+> I'm told you're thinking about using OpenEmbedded and would highly
+> recommend it. It should easily be able to provide a known working
+> userspace with tslib and these tools in.
 
-diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
-index 5d84839..4602cf3 100644
---- a/drivers/char/keyboard.c
-+++ b/drivers/char/keyboard.c
-@@ -149,7 +149,8 @@ unsigned char kbd_sysrq_xlate[KEY_MAX + 
-         "\206\207\210\211\212\000\000789-456+1"         /* 0x40 - 0x4f */
-         "230\177\000\000\213\214\000\000\000\000\000\000\000\000\000\000" /* 0x50 - 0x5f */
-         "\r\000/";                                      /* 0x60 - 0x6f */
--static int was_sysrq;
-+static int sysrq_down;
-+static int sysrq_alt_use;
- #endif
- static int sysrq_alt;
- 
-@@ -1142,7 +1143,7 @@ static void kbd_keycode(unsigned int key
- 	kbd = kbd_table + fg_console;
- 
- 	if (keycode == KEY_LEFTALT || keycode == KEY_RIGHTALT)
--		sysrq_alt = down;
-+		sysrq_alt = down ? keycode : 0;
- #ifdef CONFIG_SPARC
- 	if (keycode == KEY_STOP)
- 		sparc_l1_a_state = down;
-@@ -1161,13 +1162,17 @@ static void kbd_keycode(unsigned int key
- 				printk(KERN_WARNING "keyboard.c: can't emulate rawmode for keycode %d\n", keycode);
- 
- #ifdef CONFIG_MAGIC_SYSRQ	       /* Handle the SysRq Hack */
--	if ((keycode == KEY_SYSRQ) && down) {
--		printk(KERN_CRIT "Sysrq: press a key to do something\n");
--		was_sysrq = 1;
-+	if (keycode == KEY_SYSRQ && (sysrq_down || (down == 1 && sysrq_alt))) {
-+		if (!sysrq_down) {
-+			sysrq_down = down;
-+			sysrq_alt_use = sysrq_alt;
-+		}
-+		return;
- 	}
--	if (was_sysrq && down && !rep) {
-+	if (sysrq_down && !down && keycode == sysrq_alt_use)
-+		sysrq_down = 0;
-+	if (sysrq_down && down && !rep) {
- 		handle_sysrq(kbd_sysrq_xlate[keycode], regs, tty);
--		was_sysrq = 0;
- 		return;
- 	}
- #endif
+I agree.
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Regards,
+
+Mickey.
+------------------------------------------------------------------
+Dipl.-Inf. Michael 'Mickey' Lauer <mickey@tm.cs.uni-frankfurt.de>
+------------------------------------------------------------------
+
+

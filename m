@@ -1,71 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWERJih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWERJj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbWERJih (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 05:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWERJih
+	id S1751152AbWERJj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 05:39:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWERJj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 05:38:37 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:40645 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751129AbWERJig convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 05:38:36 -0400
-From: Darren Hart <dvhltc@us.ibm.com>
-Organization: IBM Linux Technology Center
-To: =?iso-8859-15?q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-Subject: Re: rt20 scheduling latency testcase and failure data
-Date: Thu, 18 May 2006 02:38:32 -0700
-User-Agent: KMail/1.9.1
-Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>, Mike Galbraith <efault@gmx.de>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-References: <200605121924.53917.dvhltc@us.ibm.com> <20060518084722.GA3343@elte.hu> <1147942687.4996.28.camel@frecb000686>
-In-Reply-To: <1147942687.4996.28.camel@frecb000686>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200605180238.33044.dvhltc@us.ibm.com>
+	Thu, 18 May 2006 05:39:28 -0400
+Received: from gate.crashing.org ([63.228.1.57]:50564 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751152AbWERJj1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 05:39:27 -0400
+Subject: Re: [patch 00/50] genirq: -V3
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       linux-arm-kernel@lists.arm.linux.org.uk,
+       Paul Mackerras <paulus@samba.org>
+In-Reply-To: <20060518073853.GA27687@flint.arm.linux.org.uk>
+References: <20060517001310.GA12877@elte.hu>
+	 <1147846317.4025.18.camel@localhost.localdomain>
+	 <20060517222734.GC30073@flint.arm.linux.org.uk>
+	 <1147912361.10703.40.camel@localhost.localdomain>
+	 <20060518073853.GA27687@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Thu, 18 May 2006 19:33:37 +1000
+Message-Id: <1147944818.5192.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 18 May 2006 01:58, Sébastien Dugué wrote:
-> On Thu, 2006-05-18 at 10:47 +0200, Ingo Molnar wrote:
-> > * Sébastien Dugué <sebastien.dugue@bull.net> wrote:
-> > >   Darren,
-> > >
-> > > On Mon, 2006-05-15 at 18:30 -0700, Darren Hart wrote:
-> > > > Following Ingo's example I have included the modified test case
-> > > > (please see the original mail for librt.h) that starts the trace
-> > > > before each sleep and disables it after we wake up.  If we have
-> > > > missed a period, we print the trace.
-> > >
-> > >   Your test program fails (at least on my box) as the overhead of
-> > > starting and stopping the trace in the 5 ms period is just too high.
-> > >
-> > >   By moving the latency_trace_start() at the start of the thread
-> > > function and latency_trace_stop() at the end, everything runs fine. I
-> > > did not have any period missed even under heavy load.
-> >
-> > could you send us the fixed testcase?
->
->   No problem, see attachment.
+Hi Russell !
 
-I found several similar problems in my original test case, please see my 
-earlier mail from today where I included a completely rewritten test case 
-with buffered output and new periodic logic.
+> That is incredibly wasteful for level interrupts - what you're suggesting
+> means that to service a level interrupt, you take an interrupt exception,
+> start processing it, take another interrupt exception, disable the source,
+> return from that interrupt and continue to service it.  No thanks.
 
-The case attached here seems to try to print the trace without first stopping 
-it.  I don't think that will result in the desired output.  My new test case 
-addresses that issue as well.
+Oh no, that's not what I mean... I've come to agree with having several
+flow handlers and thus the level flow handler would mask & ack, then
+handle, then unmask is it should be for a level interrupt... What I
+meant is that disable_irq could do soft-disable in all cases like it
+seems to happen right now in the ARM code but not in Thomas patch.
 
-I'd appreciate any feedback, thanks.
+> I thought you were the one concerned about interrupt handling overhead
+> (about the overhead introduced by function pointer calls.) but that
+> idea _far_ outweighs function pointer overheads.
 
--- 
-Darren Hart
-IBM Linux Technology Center
-Realtime Linux Team
-Phone: 503 578 3185
-  T/L: 775 3185
+I think you misunderstood what I meant by soft-disable :) Basically
+bring in more of what ARM does in disable_irq/enable_irq.
+
+> Sigh, I'm not teaching you to suck eggs - I was trying to justify
+> clearly _why_ we have these different "flow" handlers on ARM and why
+> they are important by contrasting the differences between them.
+
+Yup, and I've finally been convinced, and Thomas patch _does_ have
+different flow handlers. However, it doesn't do soft-disable or
+lazy-disable as your prefer for disable_irq which means that you'll
+still lose edge irqs on ARM. There are 2 ways out:
+
+make disable_irq/enable_irq go through a specific implementation by the
+flow handler or just ... generically have disable_irq just mark the
+interrupt as disabled in the descriptor, and only actually disable it if
+it happens to occur while it was marked disabled (in which case it can
+be marked "pending" and possibly re-triggered on enable_irq if the
+controller doesn't latch). I even had an idea of how to avoid the
+re-trigger on controllers that _do_ latch properly easily: by having
+chip->unmask return wether it needs re-emitting or not.
+
+> Obviously, I should've just ignored your email since you know everything
+> already.
+
+Bah, don't take it that way please ! I was making a joke ...
+
+Cheers,
+Ben.
+
+

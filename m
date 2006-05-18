@@ -1,94 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWERMpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWERM6L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750781AbWERMpF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 08:45:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWERMpE
+	id S1751320AbWERM6L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 08:58:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWERM6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 08:45:04 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:1501 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750781AbWERMpC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 08:45:02 -0400
-Message-ID: <446C6B8D.1080805@aitel.hist.no>
-Date: Thu, 18 May 2006 14:41:49 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: Chase Venters <chase.venters@clientec.com>,
-       =?UTF-8?B?TcOlbnMgUnVsbGfDpQ==?= =?UTF-8?B?cmQ=?= 
-	<mru@inprovide.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Wiretapping Linux?
-References: <4469D296.8060908@perkel.com> <Pine.LNX.4.61.0605161100590.27707@chaos.analogic.com> <Pine.LNX.4.64.0605161052120.32181@turbotaz.ourhouse> <yw1xodxx1znc.fsf@agrajag.inprovide.com> <Pine.LNX.4.64.0605161541390.32181@turbotaz.ourhouse> <446C59B8.1060402@aitel.hist.no> <Pine.LNX.4.61.0605180741350.4006@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0605180741350.4006@chaos.analogic.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Thu, 18 May 2006 08:58:11 -0400
+Received: from mail.gmx.net ([213.165.64.20]:38305 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751320AbWERM6K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 08:58:10 -0400
+X-Authenticated: #14349625
+Subject: Re: Regression seen for patch "sched:dont decrease idle sleep avg"
+From: Mike Galbraith <efault@gmx.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, tim.c.chen@linux.intel.com,
+       linux-kernel@vger.kernel.org, mingo@elte.hu,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1147935878.7481.20.camel@homer>
+References: <4t16i2$142pji@orsmga001.jf.intel.com>
+	 <200605181138.26399.kernel@kolivas.org> <1147931064.7514.39.camel@homer>
+	 <200605181552.19868.kernel@kolivas.org>  <1147935878.7481.20.camel@homer>
+Content-Type: text/plain
+Date: Thu, 18 May 2006 14:59:03 +0200
+Message-Id: <1147957143.7632.8.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
+On Thu, 2006-05-18 at 09:04 +0200, Mike Galbraith wrote:
 
->On Thu, 18 May 2006, Helge Hafting wrote:
->
->  
->
->>Chase Venters wrote:
->>
->>    
->>
->>>Yeah, so to wrap this malware conversation up -- the most effective
->>>way to implant malicious code in Linux is to crack into developer
->>>machines and sneak the changes in.
->>>
->>>And hope that someone doesn't notice.
->>>      
->>>
->>The maintainer will.  Over and over, we see maintainers tell developers
->>to fix their patch - often the problem is something as small as
->>"bad withespace" or "stupid name for a variable".
->>
->>Now try to get a backdoor in, and see the maintainer get a fit over
->>the changes that are clearly unrelated to the problem mentioned
->>in the changelog.
->>
->>And if you succeed with the spyware anyway, then someone will notice
->>the strange packets going out.  That you cannot prevent, and it will then
->>be tracked down.  Or you get a backdoor in?  It will be found as soon as
->>it sees some use, or likely earlier with all the more or less automated
->>vulnerability chacking going on.
->>
->>Helge Haftinjg
->>    
->>
->
->Remember this back door?
->
->  
->
-[attack snipped]
+> OK, after some brief testing, I think this is a step in the right
+> direct, but there is another problem.  In the case where the queue isn't
+> empty, the stated intent is utterly defeated by the on runqueue bonus.
 
-># exit
->logout
->Connection closed by foreign host. 
->LINUX> exit
->
->Script done on Thu 18 May 2006 07:39:27 AM EDT
->
->Early sendmail went years with the wizard back-door and the
->code wasn't obscured in any way.
->  
->
-Not a linux kernel backdoor.
-There sure are lots of software systems running on linux, some of them
-may be easy to mess up like that.  If you worry about that, go for
-sw with a good security record.  qmail for your mail, perhaps?
+The overly verbose one liner below could serve as a minimal ~fix.
 
-Also, a nice thing with these application backdoors is that not
-everybody have them.  There are many mail packages to choose
-from, and there are many systems with none at all even. The same applies
-to almost every other app.  You probably find "bash" on just about every
-linux though.
+Prevent the on-runqueue bonus logic from defeating the idle sleep logic.
 
-Helge Hafting
+Signed-off-by: Mike Galbraith <efault@gmx.de>
+
+--- linux-2.6.17-rc4-mm1/kernel/sched.c.org	2006-05-18 08:38:13.000000000 +0200
++++ linux-2.6.17-rc4-mm1/kernel/sched.c	2006-05-18 14:47:09.000000000 +0200
+@@ -917,6 +917,16 @@ static int recalc_task_prio(task_t *p, u
+ 			 * with one single large enough sleep.
+ 			 */
+ 			p->sleep_avg = ceiling;
++			/*
++			 * Using INTERACTIVE_SLEEP() as a ceiling places a
++			 * nice(0) task 1ms sleep away from promotion, and
++			 * gives it 700ms to round-robin with no chance of
++			 * being demoted.  This is more than generous, so
++			 * mark this sleep as non-interactive to prevent the
++			 * on-runqueue bonus logic from intervening should
++			 * this task not receive cpu immediately.
++			 */
++			p->sleep_type = SLEEP_NONINTERACTIVE;
+ 		} else {
+ 			/*
+ 			 * Tasks waking from uninterruptible sleep are
+
+

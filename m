@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWERWeL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWERWfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbWERWeL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 18:34:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWERWeK
+	id S1750789AbWERWfg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 18:35:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWERWfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 18:34:10 -0400
-Received: from mail.gmx.net ([213.165.64.20]:25826 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750764AbWERWeJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 18:34:09 -0400
-X-Authenticated: #1424900
-Message-ID: <446CF65C.5070501@gmx.de>
-Date: Fri, 19 May 2006 00:34:04 +0200
-From: Eduard Warkentin <eduard.warkentin@gmx.de>
-User-Agent: Thunderbird 1.5 (X11/20060113)
+	Thu, 18 May 2006 18:35:36 -0400
+Received: from smtprelay05.ispgateway.de ([80.67.18.43]:8408 "EHLO
+	smtprelay05.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1750789AbWERWff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 18:35:35 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] rtc subsystem, use ENOIOCTLCMD where appropriate
+Date: Fri, 19 May 2006 00:32:25 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org,
+       Alessandro Zummo <alessandro.zummo@towertech.it>
+References: <20060517013033.10d08a8f@inspiron> <20060517232742.2ac4ccaa@inspiron> <e4ilgb$f10$1@terminus.zytor.com>
+In-Reply-To: <e4ilgb$f10$1@terminus.zytor.com>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Phil Chang <pchang23@sbcglobal.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] added support for ASIX 88178 chipset USB Gigabit Ethernet
- adaptor
-References: <e4gbbs$d37$1@sea.gmane.org> <20060517235902.GA8060@kroah.com> <446CEC8B.5070809@gmx.de>
-In-Reply-To: <446CEC8B.5070809@gmx.de>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=32217597
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Disposition: inline
+Message-Id: <200605190032.25796.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: RIPEMD160
+Hi Hans Peter,
 
-Hi!
+H. Peter Anvin wrote
+> ENOIOCTLCMD is right here, *except* in the very last hunk, because
+> it's a request to the upper layers to emulate the operation:
 
-On to a third try ... carefully watched the tabs this time ...
+So would a patch like this be welcome and clear this up?
 
-FROM: Eduard Warkentin <eduard.warkentin@gmx.de>
+diff --git a/include/linux/errno.h b/include/linux/errno.h
+index d90b80f..d33ae4b 100644
+--- a/include/linux/errno.h
++++ b/include/linux/errno.h
+@@ -9,7 +9,7 @@
+ #define ERESTARTSYS	512
+ #define ERESTARTNOINTR	513
+ #define ERESTARTNOHAND	514	/* restart if no handler.. */
+-#define ENOIOCTLCMD	515	/* No ioctl command */
++#define ENOIOCTLCMD	515	/* No ioctl command, upper layer please emulate or pass ENOTTY to user space */
+ #define ERESTART_RESTARTBLOCK 516 /* restart by calling sys_restart_syscall */
+ 
+ /* Defined for the NFSv3 protocol */
 
-Added support for detetcion an dworking with a ASIX 88178 based
-USB-Gigabit adaptor. With the patch, it is detected and handled
-correctly by the asix module.
 
-Signed-off-by: Eduard Warkentin <eduard.warkentin@gmx.de>
+Regards
 
-- --- ./drivers/usb/net/asix.c.orig 2006-03-20 06:53:29.000000000 +0100
-+++ ./drivers/usb/net/asix.c  2006-05-18 01:18:52.000000000 +0200
-@@ -913,6 +913,10 @@ static const struct usb_device_id  produc
-         USB_DEVICE (0x0b95, 0x7720),
-         .driver_info = (unsigned long) &ax88772_info,
- }, {
-+  // ASIX AX88178 10/100/1000
-+  USB_DEVICE (0x0b95, 0x1780),
-+  .driver_info = (unsigned long) &ax88772_info,
-+}, {
-  // Linksys USB200M Rev 2
-  USB_DEVICE (0x13b1, 0x0018),
-  .driver_info = (unsigned long) &ax88772_info,
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEbPZb0HvYPTIhdZcRAwmvAKDA3mf8PBDfVEj+Wz+B5sa+q60+wwCgxge9
-KQ5NIjhZRo3toc6DSW3R01o=
-=WG4A
------END PGP SIGNATURE-----
-
+Ingo Oeser

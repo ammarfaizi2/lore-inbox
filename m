@@ -1,96 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWERMEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWERMBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbWERMEK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 08:04:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWERMEJ
+	id S932073AbWERMBE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 08:01:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWERMBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 08:04:09 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:41692 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932074AbWERMEH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 08:04:07 -0400
-Message-ID: <446C61F8.7080406@aitel.hist.no>
-Date: Thu, 18 May 2006 14:00:56 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux cbon <linuxcbon@yahoo.fr>
-CC: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: replacing X Window System !
-References: <20060517123937.75295.qmail@web26605.mail.ukl.yahoo.com>
-In-Reply-To: <20060517123937.75295.qmail@web26605.mail.ukl.yahoo.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 18 May 2006 08:01:03 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:11700
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1750869AbWERMBB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 08:01:01 -0400
+Message-Id: <446C7E61.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
+Date: Thu, 18 May 2006 14:02:09 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
+Subject: Re: [discuss] Re: [PATCH 2/3] reliable stack trace support
+	(x86-64)
+References: <4469FC22.76E4.0078.0@novell.com> <200605161905.11907.ak@suse.de> <446C5C6E.76E4.0078.0@novell.com> <200605181220.46037.ak@suse.de>
+In-Reply-To: <200605181220.46037.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux cbon wrote:
-
-> --- Valdis.Kletnieks@vt.edu a écrit : 
->  
+>Three instructions?  We might be still able to afford that.
 >
->>On Wed, 17 May 2006 13:47:22 +0200, linux cbon said:
->>
->>If it isn't backward compatible, people won't use
->>it.  X may suck,
->>but it doesn't suck hard enough that people will
->>abandon all their
->>currently mostly-working software.
->>    
->>
->
->If we have a new window system, shall all applications
->be rewritten ?
->  
->
-All graphical applications - sure.
+>push/pop is probably not needed because the stack frame will be already
+>set up (ok possibly after a few instructions, but a small window might be 
+>tolerable)
 
->My idea is that the kernel should include universal
->graphical support.
->  
->
-You contradict yourself here.  You complained that
-X runs too many things as root, and is therefore unsafe.
+Okay, then I'll prepare a patch to that effect during the next couple of days.
 
-Now you want to move graphichs into the kernel???
+>Maybe I'm dense but I still don't get - frame has a pt_regs so why 
+>isn't the caller allowed to know about that fact?
 
-Don't you know that the kernel is even more privileged than
-root, so anything running in the kernel is way more
-dangerous than a program running as the root user?
+Because the fact that there is a regs fields and the PC is accessible through it is architecture specific, yet the
+caller (kernel/unwind.c) ought to be architecture independent.
 
-
-Also note that windows runs its graphics in the kernel,
-and have exactly this problem. An error in the windows
-graphichs system can therefore crash the machine.
-
-X has a harder time crashing the machine because it
-is not in the kernel, but of course the root privilege
-is still somewhat dangerous as you mentioned.
-
-The real security fix would be to run X as a non-root
-user, except for a hw acceleration library that
-should be in a kernel driver.  This can be done without
-changing the apps too - wether it is doable without
-performance loss is another issue.
-
->And then we would NOT need ANY window system AT ALL.
->We wouldnt have 2 os (kernel and X) at the same time
->like now.
->It would be faster, simpler, easier to manage etc.
->
-Your solution does not mean "no window system at all"
-You still got one, except now it is in the kernel and
-therefore more dangerous.  We do not have 2 os now,
-because X is _not_ an os.  Please look up what an os _is_,
-and you'll see that. 
-
-Also, please tell why this would be faster, simpler, or
-easier to manage.  Stuff in the kernel is generally
-harder to manage than userspace stuff, and definitely
-not simpler.  Kernel code lives with all sorts of requirements
-and limitations that an application programmer would hate
-to have to worry about. 
-
-Helge Hafting
-
+Jan

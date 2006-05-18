@@ -1,95 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWERWPH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWERWRA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750795AbWERWPH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 18:15:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbWERWPH
+	id S1750819AbWERWRA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 18:17:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbWERWRA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 18:15:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8105 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750795AbWERWPF (ORCPT
+	Thu, 18 May 2006 18:17:00 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:41619 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750819AbWERWRA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 18:15:05 -0400
-Message-ID: <446CF1A2.1090703@redhat.com>
-Date: Thu, 18 May 2006 18:13:54 -0400
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.4.1 (X11/20060420)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-CC: Hugh Dickins <hugh@veritas.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] memory mapped files not updating timestamps
-References: <446B3E5D.1030301@redhat.com>	 <Pine.LNX.4.64.0605171954010.16979@blonde.wat.veritas.com> <1147949542.21805.4.camel@lappy>
-In-Reply-To: <1147949542.21805.4.camel@lappy>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 18 May 2006 18:17:00 -0400
+Date: Thu, 18 May 2006 15:14:55 -0700
+From: Greg KH <greg@kroah.com>
+To: Eduard Warkentin <eduard.warkentin@gmx.de>
+Cc: Phil Chang <pchang23@sbcglobal.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] added support for ASIX 88178 chipset USB Gigabit Ethernet adaptor
+Message-ID: <20060518221455.GA32549@kroah.com>
+References: <e4gbbs$d37$1@sea.gmane.org> <20060517235902.GA8060@kroah.com> <446CEC8B.5070809@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <446CEC8B.5070809@gmx.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Zijlstra wrote:
+On Thu, May 18, 2006 at 11:52:11PM +0200, Eduard Warkentin wrote:
+> Hi Greg!
+> 
+> First of all, i hope you arent angry about having me sent this reply
+> as CC to the current maintainer and to the mailing list. If so, I
+> apologize, and it wont happen in future.
+> 
+> > Hm, your tabs and spaces are messed up :(
+> I reviewed the original file again, and the lines just above mine
+> indeed have spare leading whitespaces. Shall  I include changing them
+> in my patch?
 
->On Wed, 2006-05-17 at 20:24 +0100, Hugh Dickins wrote:
->  
->
->>On Wed, 17 May 2006, Peter Staubach wrote:
->>    
->>
->
->  
->
->>>The changes add support to detect when the modification time needs to be
->>>updated by placing a hook in __set_pages_dirty_buffers and
->>>__set_pages_dirty_nobuffers.  One of these two routines will be invoked
->>>when the dirty bit is detected in the pte.  The hook sets a new bit in the
->>>address_space mapping struct indicating that the file which is associated
->>>with that part of the address space needs to have its modification and
->>>change time attributes updated.
->>>      
->>>
->>You're adding a little overhead to every set_page_dirty, when the vast
->>majority (ordinary writes) don't need it: their mctime update is already
->>well taken care of.  (Or should we be deleting the code that does that?
->>I think I'd rather not dare.)
->>    
->>
->
->It would make the code more symetric.
->
->  
->
+No, your tabs got eaten by your email client, and it happened again:
 
-It might, but I think that it might upset the guarantees that the system
-already makes about timely mtime/ctime updates when a file is written to.
-Those requirements are much tighter than the requirements for when those
-time fields get updated for a modified mmap'd file.  With the exception
-of msync, really the only requirement for updating mtime and ctime for
-an mmap'd file is that these time fields change, at some time.
+> --- ./drivers/usb/net/asix.c.orig 2006-03-20 06:53:29.000000000 +0100
+> +++ ./drivers/usb/net/asix.c  2006-05-18 01:18:52.000000000 +0200
+> @@ -913,6 +913,10 @@ static const struct usb_device_id  produc
+>          USB_DEVICE (0x0b95, 0x7720),
+>          .driver_info = (unsigned long) &ax88772_info,
+>  }, {
+> +  // ASIX AX88178 10/100/1000
+> +  USB_DEVICE (0x0b95, 0x1780),
+> +  .driver_info = (unsigned long) &ax88772_info,
+> +}, {
+>   // Linksys USB200M Rev 2
+>   USB_DEVICE (0x13b1, 0x0018),
+>   .driver_info = (unsigned long) &ax88772_info,
 
-    Thanx...
+See, tabs converted to spaces, not good :(
 
-       ps
+Care for a third try?
 
->>I think you'd do better to target those places where set_page_dirty is
->>called on a mapped page - and do the file_update_time at that point -
->>or as near to that point as is sensible/permitted given the locking
->>(vma->vm_file gives you the file without needing inode_update_time).
->>    
->>
->
->  
->
->>Peter Zijlstra has patches relating to dirty mmaps in the -mm tree
->>at present: I need to take a look at those, and I'll see if it would
->>make sense to factor in this mctime issue on top of those - you may
->>want to do the same.
->>    
->>
->
->Look for the callsites of set_page_dirty_balance(), those two points are
->where writable file pages are dirtied.
->
->PeterZ
->
->  
->
+thanks,
 
+greg k-h

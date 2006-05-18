@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbWERPe5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWERPg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751368AbWERPe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 11:34:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWERPe5
+	id S1750737AbWERPg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 11:36:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbWERPg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 11:34:57 -0400
-Received: from smtp2.int-evry.fr ([157.159.10.45]:37341 "EHLO
-	smtp2.int-evry.fr") by vger.kernel.org with ESMTP id S1751368AbWERPe4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 11:34:56 -0400
-Message-ID: <446C9434.9010701@int-evry.fr>
-Date: Thu, 18 May 2006 17:35:16 +0200
-From: Florent Thiery <Florent.Thiery@int-evry.fr>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+	Thu, 18 May 2006 11:36:57 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:12675 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750737AbWERPg4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 11:36:56 -0400
+Message-ID: <446C9492.2040704@garzik.org>
+Date: Thu, 18 May 2006 11:36:50 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Harald Welte <laforge@gnumonks.org>
-Cc: openezx-devel@lists.gnumonks.org, linux-kernel@vger.kernel.org
-Subject: Re: How should Touchscreen Input Drives behave (OpenEZX pcap_ts)
-References: <20060518070700.GT17897@sunbeam.de.gnumonks.org> <446C5780.7050608@int-evry.fr> <20060518143824.GC17897@sunbeam.de.gnumonks.org>
-In-Reply-To: <20060518143824.GC17897@sunbeam.de.gnumonks.org>
+To: Tejun Heo <htejun@gmail.com>
+CC: Jan Wagner <jwagner@kurp.hut.fi>, linux-kernel@vger.kernel.org
+Subject: Re: support for sata7 Streaming Feature Set?
+References: <Pine.LNX.4.58.0605051547410.7359@kurp.hut.fi> <4466D6FB.1040603@gmail.com> <Pine.LNX.4.58.0605162126520.31191@kurp.hut.fi> <446BD8F2.10509@gmail.com>
+In-Reply-To: <446BD8F2.10509@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-INT-MailScanner-Information: Please contact the ISP for more information
-X-INT-MailScanner: Found to be clean
-X-INT-MailScanner-SpamCheck: 
-X-MailScanner-From: florent.thiery@int-evry.fr
+X-Spam-Score: -4.1 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tejun Heo wrote:
+> One thing to think about before supporting streaming from/to harddisks 
+> from userland is how to make data flow efficiently from userland to 
+> kernel and back.  But, no matter what, kernel <-> userland usually 
+> involves one data copy, so I don't think making sg similarly efficient 
+> would be too difficult (it might be already).
 
-> No, this touchscreen actually has fairly reasonable pressure reporting.
-> I know that this is unusual.  But I get reproducible numbers when trying
-> soft stylus press, hard stylus press.  And things like finger touching.
-> Also I can actually distinguish a thumb from an index finger press ;)
->
->   
-This is GREAT !!! because:
-- with some embedded drawing app, you can paint !!! (this is interesting 
-for me)
-- we can have a "finger" detection feature, which could allow do trigger 
-the switch to "finger mode" (bigger buttons etc)
-> not that I've ever noted.  But Motorola ignores many of the hardwares
-> capability..
->
->   
-That's the purpose of openezx (and open source in general) to unleash 
-them :) What other hardware features could be improved?
+Actually, the kernel usually maps userland pages, eliminating the need 
+for a copy.  write(2) may have copied data into that page originally, 
+but mmap(2) need not have.
 
-Florent
+	Jeff
+
+

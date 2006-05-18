@@ -1,57 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWERSSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWERSid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932121AbWERSSL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 14:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbWERSSL
+	id S1751306AbWERSid (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 14:38:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWERSid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 14:18:11 -0400
-Received: from mail.suse.de ([195.135.220.2]:15078 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932121AbWERSSK (ORCPT
+	Thu, 18 May 2006 14:38:33 -0400
+Received: from [222.173.69.199] ([222.173.69.199]:24335 "HELO sundaeisland.com")
+	by vger.kernel.org with SMTP id S1751306AbWERSid (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 14:18:10 -0400
-Date: Thu, 18 May 2006 11:16:03 -0700
-From: Greg Kroah-Hartman <gregkh@suse.de>
-To: torvalds@osdl.org
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] kobject: quiet errors in kobject_add
-Message-ID: <20060518181603.GA27767@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Thu, 18 May 2006 14:38:33 -0400
+Message-ID: <0083A161.CB1B895@sundaeisland.com>
+Date: Thu, 18 May 2006 10:24:46 -0900
+Reply-To: "Tommie Sousa" <GregorioMartiniere8@sundaeisland.com>
+From: "Tommie Sousa" <GregorioMartiniere8@sundaeisland.com>
+User-Agent: Mozilla/4.75 [en]C-CCK-MCD (WinNT; U)
+MIME-Version: 1.0
+To: <linux-kernel@vger.kernel.org>, <majordomo@vger.kernel.org>
+Subject: Offer of Experian Company Results
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-People don't like released kernels yelling at them, no matter how real
-the error might be.  So only report it if CONFIG_KOBJECT_DEBUG is
-enabled.
+How are you,
 
-Sent on request of Andrew Morton.
+An rare situation has come to our attention concerning your home and we  
+positively feel you will be concerned in learning about our situation. 
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+http://kaedness.com/10r
 
----
- lib/kobject.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Even with a negative credit rating, it won't be a problem if you validate 
+with us by the end of the day.  
 
---- gregkh-2.6.orig/lib/kobject.c
-+++ gregkh-2.6/lib/kobject.c
-@@ -198,14 +198,14 @@ int kobject_add(struct kobject * kobj)
- 
- 		/* be noisy on error issues */
- 		if (error == -EEXIST)
--			printk("kobject_add failed for %s with -EEXIST, "
-+			pr_debug("kobject_add failed for %s with -EEXIST, "
- 			       "don't try to register things with the "
- 			       "same name in the same directory.\n",
- 			       kobject_name(kobj));
- 		else
--			printk("kobject_add failed for %s (%d)\n",
-+			pr_debug("kobject_add failed for %s (%d)\n",
- 			       kobject_name(kobj), error);
--		dump_stack();
-+		/* dump_stack(); */
- 	}
- 
- 	return error;
+Be quick, my companyonly has a small number of offers open.
+
+Regards,
+Tommie Sousa
 

@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWERLN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWERLQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751336AbWERLN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 07:13:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWERLNz
+	id S1750721AbWERLQE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 07:16:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWERLQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 07:13:55 -0400
-Received: from gold.veritas.com ([143.127.12.110]:38980 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1751336AbWERLNz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 07:13:55 -0400
-X-IronPort-AV: i="4.05,140,1146466800"; 
-   d="scan'208"; a="59631556:sNHT28705828"
-Date: Thu, 18 May 2006 12:13:50 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Eric Paris <eparis@redhat.com>
-cc: linux-kernel@vger.kernel.org, wli@holomorphy.com, discuss@x86-64.org,
-       linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH] Fix do_mlock so page alignment is to hugepage boundries
- when needed
-In-Reply-To: <1147895964.26468.35.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0605181151120.6559@blonde.wat.veritas.com>
-References: <1147885316.26468.15.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0605171840310.14529@blonde.wat.veritas.com>
- <1147895964.26468.35.camel@localhost.localdomain>
+	Thu, 18 May 2006 07:16:04 -0400
+Received: from smtp2.int-evry.fr ([157.159.10.45]:19912 "EHLO
+	smtp2.int-evry.fr") by vger.kernel.org with ESMTP id S1750721AbWERLQC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 07:16:02 -0400
+Message-ID: <446C5780.7050608@int-evry.fr>
+Date: Thu, 18 May 2006 13:16:16 +0200
+From: Florent Thiery <Florent.Thiery@int-evry.fr>
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 18 May 2006 11:13:55.0061 (UTC) FILETIME=[26ADAA50:01C67A6C]
+To: Harald Welte <laforge@gnumonks.org>
+Cc: openezx-devel@lists.gnumonks.org, linux-kernel@vger.kernel.org
+Subject: Re: How should Touchscreen Input Drives behave (OpenEZX pcap_ts)
+References: <20060518070700.GT17897@sunbeam.de.gnumonks.org>
+In-Reply-To: <20060518070700.GT17897@sunbeam.de.gnumonks.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-INT-MailScanner-Information: Please contact the ISP for more information
+X-INT-MailScanner: Found to be clean
+X-INT-MailScanner-SpamCheck: 
+X-MailScanner-From: florent.thiery@int-evry.fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 May 2006, Eric Paris wrote:
-> 
-> This patch still solves the problem of the kernel currently being more
-> restrictive on what we accept from userspace for the length of the mlock
-> if it is a hugepage rather than a regular page.  With a regular page we
-> will round the value from userspace and happily go about our business of
-> mlocking.  For a hugepage it just rejects it if userspace doesn't align
-> it themselves.  This allows the kernel to do the same work for hugepages
-> that it does for normal pages.
 
-You do have a point that there's an inconsistency there.  But we could
-argue a long time what's inconsistent with what - I'd say it's mlock
-being inconsistent with mprotect, munmap, msync, madvise, etc.  I
-don't see an outright reason to change from the current behaviour.
+>  As of now, I return
+>    X_ABS, Y_ABS and PRESSURE values between 0 and 1000 (each).
+>
+>   
+Are you kidding ??? Does the touchscreen support pressure sensitivity? 
+Normally it wouldn't, you'd have only two values... Because sensitivity 
+touchscreens really are rare... That's why wacom does use the pen to 
+report pressure info on their tablets
+> 1) where does touchscreen calibration happen?  The EZX phones (like many
+>    other devices, I believe) only contain resistive touchscreens that
+>    appear pretty uncalibrated.   I'm sure the factory-set calibration
+>    data must be stored somewhere in flash, but it's definitely handled
+>    in the proprietary EZX userland, since their old kernel driver
+>    doesn't have any calibration related bits.
+>   
+I would say touchscreen calibration = scaling (to resolution) + 
+reference points
+> 2) what about the 'button' event.  In addition to the pressure (which is
+>    about 300 for regular stylus use, > 400 if you press hard and > 600 if
+>    you use yourfinger), some existing TS drivers return a button press.
+>    Is it up to me to decide after which pressure level to consider the
+>    button to be pressed / released?
+>   
+I would say the best would be to watch pressure evolution.... If it 
+springs from 0 to 400 in less than sotg like 200 ms, then you got the 
+"button" event. Is it feasable?
 
-You do realize that there's almost no point in mlocking a hugepage area
-anyway?  (I wrote that first without the "almost", but now with hugepage
-faulting, it does provide another way to fault in all the pages at once.)
+I got a question: does stylus usage on original A780 show the pressure 
+sensitivity?
 
-Hugh
+Another one: you say you're workin on building X-e. Are you talking 
+about kdrive?
+
+
+Regards,
+
+Florent

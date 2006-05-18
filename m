@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWERBKP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWERBgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbWERBKP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 21:10:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWERBKP
+	id S1751174AbWERBgf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 21:36:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWERBgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 21:10:15 -0400
-Received: from mga02.intel.com ([134.134.136.20]:7311 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750817AbWERBKO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 21:10:14 -0400
-Message-Id: <4t16i2$142pji@orsmga001.jf.intel.com>
-X-IronPort-AV: i="4.05,139,1146466800"; 
-   d="scan'208"; a="37840498:sNHT14291459"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Con Kolivas'" <kernel@kolivas.org>
-Cc: <tim.c.chen@linux.intel.com>, <linux-kernel@vger.kernel.org>,
-       <mingo@elte.hu>, "Andrew Morton" <akpm@osdl.org>,
-       "Mike Galbraith" <efault@gmx.de>
-Subject: RE: Regression seen for patch "sched:dont decrease idle sleep avg"
-Date: Wed, 17 May 2006 18:10:13 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 17 May 2006 21:36:35 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:10382 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751082AbWERBge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 21:36:34 -0400
+Subject: Re: [RFT] major libata update
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Avuton Olrich <avuton@gmail.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <446BB64E.1060509@garzik.org>
+References: <20060515170006.GA29555@havoc.gtf.org>
+	 <3aa654a40605151630j53822ba1nbb1a2e3847a78025@mail.gmail.com>
+	 <446914C7.1030702@garzik.org>
+	 <3aa654a40605152036h40fa1cd0x8edd81431c1bd22d@mail.gmail.com>
+	 <44694C4F.3000008@garzik.org>
+	 <3aa654a40605152133x516581f9w62c7cb7709864fb0@mail.gmail.com>
+	 <Pine.LNX.4.64.0605160755170.3866@g5.osdl.org>
+	 <87ves44qrs.fsf@duaron.myhome.or.jp>
+	 <Pine.LNX.4.64.0605171632340.10823@g5.osdl.org>
+	 <446BB64E.1060509@garzik.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZ6EvrFXQvuS1SKQR+W/A1ShecKxQAA2pVg
-In-Reply-To: <200605181035.15142.kernel@kolivas.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Date: Thu, 18 May 2006 02:48:48 +0100
+Message-Id: <1147916929.10470.140.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote on Wednesday, May 17, 2006 5:35 PM
-> What is missing 
-> from the comment is to say that it is also designed to stop them at the 
-> lowest possible priority that still keeps them in the interactive reinsertion 
-> class.
+On Mer, 2006-05-17 at 19:48 -0400, Jeff Garzik wrote:
+> Many BIOS ACPI tables from years ago simply _assumed_ that you have 
+> hardcoded irq 14/15, even...  Their irq descriptors for 14/15 would be 
+> absent or completely non-functional.
 
-> Using a constant ceiling value irrespective of nice will not guarantee 
-> that tasks fall into the active reinsertion class dependant on their nice 
-> value.
+For $PIR this is correct the IRQ 14/15 from the IDE controllers in
+legacy mode is an ISA IRQ not a PCI one. Welcome to the happy fun
+compatibility factory.
 
-If I may ask, how does it work right now?  Ceiling is set at constant value
-irrespective to nice value.  Are you saying current code is broken as well?
-
-
-        ceiling = JIFFIES_TO_NS(MAX_SLEEP_AVG -
-                  DEF_TIMESLICE);
-        if (p->sleep_avg < ceiling)
-                  p->sleep_avg = ceiling;
-
-
-We maybe also misunderstand each other.  I'm not arguing of removing the
-ceiling. Having a ceiling is the right thing to do here.  What I don't like
-is that 2.6.17-rc4 has the ceiling set too high, and your patch also does
-an inversion of the ceiling value w.r.t nice value.  So it's the detail of
-what's the right value for priority boost that I'm uncomfortable with.
-
-- Ken

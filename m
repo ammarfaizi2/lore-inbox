@@ -1,63 +1,240 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWERRmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWERRvd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWERRmi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 13:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWERRmi
+	id S932106AbWERRvd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 13:51:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWERRvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 13:42:38 -0400
-Received: from ns2.suse.de ([195.135.220.15]:50918 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932105AbWERRmh (ORCPT
+	Thu, 18 May 2006 13:51:33 -0400
+Received: from xenotime.net ([66.160.160.81]:61656 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932106AbWERRvc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 13:42:37 -0400
-Date: Thu, 18 May 2006 10:40:32 -0700
-From: Greg KH <greg@kroah.com>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: [stable] Re: [PATCH 00/22] -stable review
-Message-ID: <20060518174032.GA31837@kroah.com>
-References: <20060517221312.227391000@sous-sol.org> <Pine.LNX.4.64.0605171522050.10823@g5.osdl.org> <20060517223601.GI2697@moss.sous-sol.org> <20060517224124.GA23967@kroah.com> <446C3B3C.1050301@tls.msk.ru>
+	Thu, 18 May 2006 13:51:32 -0400
+Date: Thu, 18 May 2006 10:54:00 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH 2/2] list.h doc: change "counter" to "control"
+Message-Id: <20060518105400.2aac9f44.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <446C3B3C.1050301@tls.msk.ru>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 18, 2006 at 01:15:40PM +0400, Michael Tokarev wrote:
-> Greg KH wrote:
-> > On Wed, May 17, 2006 at 03:36:01PM -0700, Chris Wright wrote:
-> >> * Linus Torvalds (torvalds@osdl.org) wrote:
-> >>>
-> >>> On Wed, 17 May 2006, Chris Wright wrote:
-> >>>> This is the start of the stable review cycle for the 2.6.16.17 release.
-> >>>> There are 22 patches in this series, all will be posted as a response to
-> >>>> this one.
-> >>> I notice that none of the patches have authorship information.
-> >>>
-> >>> Has that always been true and I just never noticed before?
-> >> It has always been that way with my script, I think Greg's as well.  Of
-> >> course, it's in the patch, and goes into git with proper authorship.
-> > 
-> > The original versions of the patches do have the proper authorship
-> > information, it's just that quilt strips it off when generating emails
-> > like this.
-> > 
-> > When applying them to the git tree, everything comes out properly and
-> > they get the correct authorship information.  And the git tools know to
-> > properly create the emails with the right From: lines, maybe I should
-> > play around with quilt to add that to it too...
-> 
-> While we're on it.. Just another small nitpick.  Random patch from this 00/22
-> series:
-> 
->  Subject: [PATCH 05/22] [PATCH] smbfs: Fix slab corruption in samba error path
-> 
-> Can the 2nd "[PATCH]" tag be removed as well? ;)
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Oops, sorry about that.  I've fixed that up for all of the patches now,
-I forgot to do that this time around.
+Use loop "control" instead of loop "counter" for list iterator
+descriptions.  They are not counters, they are controls or
+pointers or positions.
 
-thanks,
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ include/linux/list.h |   52 +++++++++++++++++++++++++--------------------------
+ 1 files changed, 26 insertions(+), 26 deletions(-)
 
-greg k-h
+--- linux-2617-rc4g6.orig/include/linux/list.h
++++ linux-2617-rc4g6/include/linux/list.h
+@@ -328,7 +328,7 @@ static inline void list_splice_init(stru
+ 
+ /**
+  * list_for_each	-	iterate over a list
+- * @pos:	the &struct list_head to use as a loop counter.
++ * @pos:	the &struct list_head to use as a loop control.
+  * @head:	the head for your list.
+  */
+ #define list_for_each(pos, head) \
+@@ -337,7 +337,7 @@ static inline void list_splice_init(stru
+ 
+ /**
+  * __list_for_each	-	iterate over a list
+- * @pos:	the &struct list_head to use as a loop counter.
++ * @pos:	the &struct list_head to use as a loop control.
+  * @head:	the head for your list.
+  *
+  * This variant differs from list_for_each() in that it's the
+@@ -350,7 +350,7 @@ static inline void list_splice_init(stru
+ 
+ /**
+  * list_for_each_prev	-	iterate over a list backwards
+- * @pos:	the &struct list_head to use as a loop counter.
++ * @pos:	the &struct list_head to use as a loop control.
+  * @head:	the head for your list.
+  */
+ #define list_for_each_prev(pos, head) \
+@@ -359,7 +359,7 @@ static inline void list_splice_init(stru
+ 
+ /**
+  * list_for_each_safe - iterate over a list safe against removal of list entry
+- * @pos:	the &struct list_head to use as a loop counter.
++ * @pos:	the &struct list_head to use as a loop control.
+  * @n:		another &struct list_head to use as temporary storage
+  * @head:	the head for your list.
+  */
+@@ -369,7 +369,7 @@ static inline void list_splice_init(stru
+ 
+ /**
+  * list_for_each_entry	-	iterate over list of given type
+- * @pos:	the type * to use as a loop counter.
++ * @pos:	the type * to use as a loop control.
+  * @head:	the head for your list.
+  * @member:	the name of the list_struct within the struct.
+  */
+@@ -380,7 +380,7 @@ static inline void list_splice_init(stru
+ 
+ /**
+  * list_for_each_entry_reverse - iterate backwards over list of given type.
+- * @pos:	the type * to use as a loop counter.
++ * @pos:	the type * to use as a loop control.
+  * @head:	the head for your list.
+  * @member:	the name of the list_struct within the struct.
+  */
+@@ -402,7 +402,7 @@ static inline void list_splice_init(stru
+ 
+ /**
+  * list_for_each_entry_continue - continue iteration over list of given type
+- * @pos:	the type * to use as a loop counter.
++ * @pos:	the type * to use as a loop control.
+  * @head:	the head for your list.
+  * @member:	the name of the list_struct within the struct.
+  *
+@@ -416,7 +416,7 @@ static inline void list_splice_init(stru
+ 
+ /**
+  * list_for_each_entry_from - iterate over list of given type from the current point
+- * @pos:	the type * to use as a loop counter.
++ * @pos:	the type * to use as a loop control.
+  * @head:	the head for your list.
+  * @member:	the name of the list_struct within the struct.
+  *
+@@ -428,7 +428,7 @@ static inline void list_splice_init(stru
+ 
+ /**
+  * list_for_each_entry_safe - iterate over list of given type safe against removal of list entry
+- * @pos:	the type * to use as a loop counter.
++ * @pos:	the type * to use as a loop control.
+  * @n:		another type * to use as temporary storage
+  * @head:	the head for your list.
+  * @member:	the name of the list_struct within the struct.
+@@ -441,7 +441,7 @@ static inline void list_splice_init(stru
+ 
+ /**
+  * list_for_each_entry_safe_continue
+- * @pos:	the type * to use as a loop counter.
++ * @pos:	the type * to use as a loop control.
+  * @n:		another type * to use as temporary storage
+  * @head:	the head for your list.
+  * @member:	the name of the list_struct within the struct.
+@@ -457,7 +457,7 @@ static inline void list_splice_init(stru
+ 
+ /**
+  * list_for_each_entry_safe_from
+- * @pos:	the type * to use as a loop counter.
++ * @pos:	the type * to use as a loop control.
+  * @n:		another type * to use as temporary storage
+  * @head:	the head for your list.
+  * @member:	the name of the list_struct within the struct.
+@@ -472,7 +472,7 @@ static inline void list_splice_init(stru
+ 
+ /**
+  * list_for_each_entry_safe_reverse
+- * @pos:	the type * to use as a loop counter.
++ * @pos:	the type * to use as a loop control.
+  * @n:		another type * to use as temporary storage
+  * @head:	the head for your list.
+  * @member:	the name of the list_struct within the struct.
+@@ -488,7 +488,7 @@ static inline void list_splice_init(stru
+ 
+ /**
+  * list_for_each_rcu	-	iterate over an rcu-protected list
+- * @pos:	the &struct list_head to use as a loop counter.
++ * @pos:	the &struct list_head to use as a loop control.
+  * @head:	the head for your list.
+  *
+  * This list-traversal primitive may safely run concurrently with
+@@ -507,7 +507,7 @@ static inline void list_splice_init(stru
+ 
+ /**
+  * list_for_each_safe_rcu
+- * @pos:	the &struct list_head to use as a loop counter.
++ * @pos:	the &struct list_head to use as a loop control.
+  * @n:		another &struct list_head to use as temporary storage
+  * @head:	the head for your list.
+  *
+@@ -524,7 +524,7 @@ static inline void list_splice_init(stru
+ 
+ /**
+  * list_for_each_entry_rcu	-	iterate over rcu list of given type
+- * @pos:	the type * to use as a loop counter.
++ * @pos:	the type * to use as a loop control.
+  * @head:	the head for your list.
+  * @member:	the name of the list_struct within the struct.
+  *
+@@ -541,7 +541,7 @@ static inline void list_splice_init(stru
+ 
+ /**
+  * list_for_each_continue_rcu
+- * @pos:	the &struct list_head to use as a loop counter.
++ * @pos:	the &struct list_head to use as a loop control.
+  * @head:	the head for your list.
+  *
+  * Iterate over an rcu-protected list, continuing after current point.
+@@ -791,8 +791,8 @@ static inline void hlist_add_after_rcu(s
+ 
+ /**
+  * hlist_for_each_entry	- iterate over list of given type
+- * @tpos:	the type * to use as a loop counter.
+- * @pos:	the &struct hlist_node to use as a loop counter.
++ * @tpos:	the type * to use as a loop control.
++ * @pos:	the &struct hlist_node to use as a loop control.
+  * @head:	the head for your list.
+  * @member:	the name of the hlist_node within the struct.
+  */
+@@ -804,8 +804,8 @@ static inline void hlist_add_after_rcu(s
+ 
+ /**
+  * hlist_for_each_entry_continue - iterate over a hlist continuing after current point
+- * @tpos:	the type * to use as a loop counter.
+- * @pos:	the &struct hlist_node to use as a loop counter.
++ * @tpos:	the type * to use as a loop control.
++ * @pos:	the &struct hlist_node to use as a loop control.
+  * @member:	the name of the hlist_node within the struct.
+  */
+ #define hlist_for_each_entry_continue(tpos, pos, member)		 \
+@@ -816,8 +816,8 @@ static inline void hlist_add_after_rcu(s
+ 
+ /**
+  * hlist_for_each_entry_from - iterate over a hlist continuing from current point
+- * @tpos:	the type * to use as a loop counter.
+- * @pos:	the &struct hlist_node to use as a loop counter.
++ * @tpos:	the type * to use as a loop control.
++ * @pos:	the &struct hlist_node to use as a loop control.
+  * @member:	the name of the hlist_node within the struct.
+  */
+ #define hlist_for_each_entry_from(tpos, pos, member)			 \
+@@ -827,8 +827,8 @@ static inline void hlist_add_after_rcu(s
+ 
+ /**
+  * hlist_for_each_entry_safe - iterate over list of given type safe against removal of list entry
+- * @tpos:	the type * to use as a loop counter.
+- * @pos:	the &struct hlist_node to use as a loop counter.
++ * @tpos:	the type * to use as a loop control.
++ * @pos:	the &struct hlist_node to use as a loop control.
+  * @n:		another &struct hlist_node to use as temporary storage
+  * @head:	the head for your list.
+  * @member:	the name of the hlist_node within the struct.
+@@ -841,8 +841,8 @@ static inline void hlist_add_after_rcu(s
+ 
+ /**
+  * hlist_for_each_entry_rcu - iterate over rcu list of given type
+- * @tpos:	the type * to use as a loop counter.
+- * @pos:	the &struct hlist_node to use as a loop counter.
++ * @tpos:	the type * to use as a loop control.
++ * @pos:	the &struct hlist_node to use as a loop control.
+  * @head:	the head for your list.
+  * @member:	the name of the hlist_node within the struct.
+  *
+
+
+---

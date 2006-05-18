@@ -1,70 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWERJgT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWERJih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751139AbWERJgT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 05:36:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbWERJgT
+	id S1751129AbWERJih (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 05:38:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWERJih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 05:36:19 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:37014
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1751139AbWERJgS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 05:36:18 -0400
-Message-Id: <446C5C6E.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
-Date: Thu, 18 May 2006 11:37:18 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
-Subject: Re: [discuss] Re: [PATCH 2/3] reliable stack trace support
-	(x86-64)
-References: <4469FC22.76E4.0078.0@novell.com> <200605161713.39575.ak@suse.de> <446A14B7.76E4.0078.0@novell.com> <200605161905.11907.ak@suse.de>
-In-Reply-To: <200605161905.11907.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 18 May 2006 05:38:37 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:40645 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751129AbWERJig convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 05:38:36 -0400
+From: Darren Hart <dvhltc@us.ibm.com>
+Organization: IBM Linux Technology Center
+To: =?iso-8859-15?q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+Subject: Re: rt20 scheduling latency testcase and failure data
+Date: Thu, 18 May 2006 02:38:32 -0700
+User-Agent: KMail/1.9.1
+Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>, Mike Galbraith <efault@gmx.de>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+References: <200605121924.53917.dvhltc@us.ibm.com> <20060518084722.GA3343@elte.hu> <1147942687.4996.28.camel@frecb000686>
+In-Reply-To: <1147942687.4996.28.camel@frecb000686>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
+Message-Id: <200605180238.33044.dvhltc@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Andi Kleen <ak@suse.de> 16.05.06 19:05 >>>
->On Tuesday 16 May 2006 18:06, Jan Beulich wrote:
->> >>> Andi Kleen <ak@suse.de> 16.05.06 17:13 >>>
->> On Tuesday 16 May 2006 16:21, Jan Beulich wrote:
->> >> These are the x86_64-specific pieces to enable reliable stack traces. The
->> >> only restriction with this is that it currently cannot unwind across the
->> >> interrupt->normal stack boundary, as that transition is lacking proper
->> >> annotation.
->> >
->> >It would be nice if you could submit a patch to fix that.
->> 
->> But I don't know how to fix it. See my other mail 
->which mail?
-
-Reply to Ingo (with you on cc) regarding patch 1/3. Just saying that I don't know much about expressions here.
-
->> - I have no experience with expressions, nor have I ever seen them in 
->> use.
+On Thursday 18 May 2006 01:58, Sébastien Dugué wrote:
+> On Thu, 2006-05-18 at 10:47 +0200, Ingo Molnar wrote:
+> > * Sébastien Dugué <sebastien.dugue@bull.net> wrote:
+> > >   Darren,
+> > >
+> > > On Mon, 2006-05-15 at 18:30 -0700, Darren Hart wrote:
+> > > > Following Ingo's example I have included the modified test case
+> > > > (please see the original mail for librt.h) that starts the trace
+> > > > before each sleep and disables it after we wake up.  If we have
+> > > > missed a period, we print the trace.
+> > >
+> > >   Your test program fails (at least on my box) as the overhead of
+> > > starting and stopping the trace in the 5 ms period is just too high.
+> > >
+> > >   By moving the latency_trace_start() at the start of the thread
+> > > function and latency_trace_stop() at the end, everything runs fine. I
+> > > did not have any period missed even under heavy load.
+> >
+> > could you send us the fixed testcase?
 >
->I remember Jim Houston used a hack of just loading the old stack into a register
->and defining that as a base register in CFI. I guess i would be willing 
->to trade a few moves for that (should be pretty much free on a OOO CPU anyways) 
->You think that trick would work?
+>   No problem, see attachment.
 
-I don't think that would, because without CONFIG_DEBUG_INFO none of the preserved registers get saved, hence there's no
-register to use for this. Thus the price would not only be a move, but also a save/push and a reload/pop.
- 
->> >> +#define UNW_PC(frame) (frame)->regs.rip
->> >> +#define UNW_SP(frame) (frame)->regs.rsp
->> >
->> >I think we alreay have instruction_pointer(). Better add a stack_pointer() 
->> >in ptrace.h too.
->> 
->> I could do that, but the macros will have to remain, as they don't access pt_regs directly, so I guess it'd be
->> pointless to change it.
->
->UNW_PC() is instruction_pointer(&frame->regs), isn't it?
+I found several similar problems in my original test case, please see my 
+earlier mail from today where I included a completely rewritten test case 
+with buffered output and new periodic logic.
 
-Yes. But the intention is that the user of UNW_PC doesn't need to know any details of what fields frame has (i.e. the
-parameter of UNW_PC must only be frame), so you can't replace it with instruction_pointer().
+The case attached here seems to try to print the trace without first stopping 
+it.  I don't think that will result in the desired output.  My new test case 
+addresses that issue as well.
 
-Jan
+I'd appreciate any feedback, thanks.
+
+-- 
+Darren Hart
+IBM Linux Technology Center
+Realtime Linux Team
+Phone: 503 578 3185
+  T/L: 775 3185

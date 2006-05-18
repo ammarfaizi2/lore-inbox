@@ -1,85 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWERJf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWERJgT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751126AbWERJf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 05:35:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWERJfZ
+	id S1751139AbWERJgT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 05:36:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbWERJgT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 05:35:25 -0400
-Received: from smtp-1.hut.fi ([130.233.228.91]:25790 "EHLO smtp-1.hut.fi")
-	by vger.kernel.org with ESMTP id S1751129AbWERJfX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 05:35:23 -0400
-Date: Thu, 18 May 2006 12:33:53 +0300 (EEST)
-From: Jan Wagner <jwagner@kurp.hut.fi>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-cc: Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: support for sata7 Streaming Feature Set?
-In-Reply-To: <20060517134003.GE23933@csclub.uwaterloo.ca>
-Message-ID: <Pine.LNX.4.58.0605181009020.9544@kurp.hut.fi>
-References: <Pine.LNX.4.58.0605051547410.7359@kurp.hut.fi> <4466D6FB.1040603@gmail.com>
- <Pine.LNX.4.58.0605162126520.31191@kurp.hut.fi> <20060517134003.GE23933@csclub.uwaterloo.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-TKK-Virus-Scanned: by amavisd-new-2.1.2-hutcc at katosiko.hut.fi
+	Thu, 18 May 2006 05:36:19 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:37014
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751139AbWERJgS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 05:36:18 -0400
+Message-Id: <446C5C6E.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
+Date: Thu, 18 May 2006 11:37:18 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
+Subject: Re: [discuss] Re: [PATCH 2/3] reliable stack trace support
+	(x86-64)
+References: <4469FC22.76E4.0078.0@novell.com> <200605161713.39575.ak@suse.de> <446A14B7.76E4.0078.0@novell.com> <200605161905.11907.ak@suse.de>
+In-Reply-To: <200605161905.11907.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>> Andi Kleen <ak@suse.de> 16.05.06 19:05 >>>
+>On Tuesday 16 May 2006 18:06, Jan Beulich wrote:
+>> >>> Andi Kleen <ak@suse.de> 16.05.06 17:13 >>>
+>> On Tuesday 16 May 2006 16:21, Jan Beulich wrote:
+>> >> These are the x86_64-specific pieces to enable reliable stack traces. The
+>> >> only restriction with this is that it currently cannot unwind across the
+>> >> interrupt->normal stack boundary, as that transition is lacking proper
+>> >> annotation.
+>> >
+>> >It would be nice if you could submit a patch to fix that.
+>> 
+>> But I don't know how to fix it. See my other mail 
+>which mail?
 
-On Wed, 17 May 2006, Lennart Sorensen wrote:
-> > To record or play back real-time continuous streamed data that is not
-> > error-critical but delay critical, from/to a bidirectional data
-> > aquisition card at ~1Gbit/s over longer time spans.
+Reply to Ingo (with you on cc) regarding patch 1/3. Just saying that I don't know much about expressions here.
+
+>> - I have no experience with expressions, nor have I ever seen them in 
+>> use.
 >
-> Do you know of a disk that can handle 1Gbit/s to the platter?  Or are
-> you planning to stripe this across multiple disks?
-> I would think a controller on a fast enough bus (plain PCI isn't going
-> to handle it), with enough drives in a raid setup of the right type
-> should probably handle it.  Might need to do a filesystem specially
-> designed for the streaming needs rather than general purpose file
-> storage.
+>I remember Jim Houston used a hack of just loading the old stack into a register
+>and defining that as a base register in CFI. I guess i would be willing 
+>to trade a few moves for that (should be pretty much free on a OOO CPU anyways) 
+>You think that trick would work?
 
-Yes, multiple disks striped in RAID-0, 4 x DiamondMax 10 300GB, ext2 fs.
-On a cheapish Dell OptiPlex GX620 that uses Intel 945G. 1.6Gbit/s write
-to disk while reading PCI(-X) goes just fine, though of course gets
-slower near disk ends.
-
-Streaming filesystems, yes, that's what I'd like to evaluate next vs
-ext2 once the Samsung SP2504C disks with Streaming Feature Set support
-arrive.
-
-> > Direct kernel device support for the feature set could also be very useful
-> > for linux projects like the Digital Video Recorder and Video Disk
-> > Recorder. And seek/stutter free video playback from DVD/ATAPI (scratched
-> > disks, for example) or video editing. Etc.
+I don't think that would, because without CONFIG_DEBUG_INFO none of the preserved registers get saved, hence there's no
+register to use for this. Thus the price would not only be a move, but also a save/push and a reload/pop.
+ 
+>> >> +#define UNW_PC(frame) (frame)->regs.rip
+>> >> +#define UNW_SP(frame) (frame)->regs.rsp
+>> >
+>> >I think we alreay have instruction_pointer(). Better add a stack_pointer() 
+>> >in ptrace.h too.
+>> 
+>> I could do that, but the macros will have to remain, as they don't access pt_regs directly, so I guess it'd be
+>> pointless to change it.
 >
-> Can you tell a DVD drive to stop retrying?  Perhaps you can.  I know
-> some of the retries are in software.
+>UNW_PC() is instruction_pointer(&frame->regs), isn't it?
 
-Ok, probably yes, this is also something to be done outside of kernel.
+Yes. But the intention is that the user of UNW_PC doesn't need to know any details of what fields frame has (i.e. the
+parameter of UNW_PC must only be frame), so you can't replace it with instruction_pointer().
 
-However this guy over here
- http://www.ussg.iu.edu/hypermail/linux/kernel/0411.3/0338.html
-has written speedcontrol.c for SET STREAMING (linked pdf there, page
-457), which is somewhat similar to the commands in the Streaming feature
-set. One quote: "In my opinion it would make sence to also enhance the
-kernel function cdrom_select_speed (linux/drivers/ide/ide-cd.c), so that
-this function works also for "newer" DVD-drives." etc
-
-But OTOH also Tejun's points about that this Streaming set should be
-implemented in userland are quite valid. And I don't know where exactly
-such functionality could be added to the kernel i.e. where I would propose
-such a feature to be added; it was a thought there might be some suitable
-place and people here would know where to add ;-))
-
-But actually after googling more, XFS file system seems to have something
-like Streaming feature set support, or at least provisions for adding such
-commands, as it has a guaranteed-rate I/O feature
-  http://en.wikipedia.org/wiki/XFS#Guaranteed_rate_I.2FO
-
-So I guess XFS code is the better place to start thinking about Streaming
-feature set implementation.
-
-Many thanks for your input! :-))
-
- - Jan
+Jan

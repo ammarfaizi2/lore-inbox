@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWERA6o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWERBDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751150AbWERA6o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 20:58:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbWERA6n
+	id S1751089AbWERBDg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 21:03:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWERBDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 20:58:43 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:58820 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1751150AbWERA6n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 20:58:43 -0400
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@ocs.com.au>
-To: Martin Peschke <mp3@de.ibm.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <clameter@sgi.com>,
-       "Frank Ch. Eigler" <fche@redhat.com>,
-       Peter Chubb <peterc@gelato.unsw.edu.au>,
-       "hch@infradead.org" <hch@infradead.org>,
-       "arjan@infradead.org" <arjan@infradead.org>, "ak@suse.de" <ak@suse.de>
-Subject: Re: [RFC] [Patch 5/6] statistics infrastructure 
-In-reply-to: Your message of "Wed, 17 May 2006 20:56:20 +0200."
-             <1147892180.3076.23.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> 
+	Wed, 17 May 2006 21:03:36 -0400
+Received: from spooner.celestial.com ([192.136.111.35]:46505 "EHLO
+	spooner.celestial.com") by vger.kernel.org with ESMTP
+	id S1751089AbWERBDf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 21:03:35 -0400
+Date: Wed, 17 May 2006 21:03:35 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: http://advogato.org/article/888.html
+Message-ID: <20060518010335.GI5446@kurtwerks.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060513230206.GC12213@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 18 May 2006 10:57:25 +1000
-Message-ID: <3741.1147913845@ocs3>
+Content-Disposition: inline
+In-Reply-To: <20060513230206.GC12213@lkcl.net>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.17-rc2krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Peschke (on Wed, 17 May 2006 20:56:20 +0200) wrote:
->This patch adds statistics infrastructure as common code.
->+static int __devinit statistic_hotcpu(struct notifier_block *notifier,
->+				      unsigned long action, void *__cpu)
+On Sun, May 14, 2006 at 12:02:06AM +0100, Luke Kenneth Casson Leighton took 16 lines to write:
+> "Recently there has been a fuss over monolithic and micro kernels -
+>  specifically the direction of the Linux Kernel development. Free
+>  Software is about "freedom of choice", and we should be able to choose
+>  to compile the Linux Kernel as either a monolith or a microkernel. "
 
-__cpuinit for hotplug cpu, not __devinit.
+Good luck with that.
 
+Kurt
+-- 
+Any sufficiently advanced technology is indistinguishable from magic.
+		-- Arthur C. Clarke

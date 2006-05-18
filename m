@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbWERJPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbWERJPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750983AbWERJPj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 05:15:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbWERJPj
+	id S1750978AbWERJPp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 05:15:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWERJPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 05:15:39 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:46541 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1750983AbWERJPi convert rfc822-to-8bit (ORCPT
+	Thu, 18 May 2006 05:15:45 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:61784 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1750978AbWERJPo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 05:15:38 -0400
-Subject: Re: rt20 scheduling latency testcase and failure data
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Darren Hart <dvhltc@us.ibm.com>, Lee Revell <rlrevell@joe-job.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>, Mike Galbraith <efault@gmx.de>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-In-Reply-To: <20060518085640.GA5171@elte.hu>
-References: <200605121924.53917.dvhltc@us.ibm.com>
-	 <200605131601.31880.dvhltc@us.ibm.com> <20060515081341.GB24523@elte.hu>
-	 <200605151830.23544.dvhltc@us.ibm.com>
-	 <1147941862.4996.15.camel@frecb000686> <20060518084722.GA3343@elte.hu>
-	 <1147942687.4996.28.camel@frecb000686>  <20060518085640.GA5171@elte.hu>
-Date: Thu, 18 May 2006 11:18:09 +0200
-Message-Id: <1147943890.4996.31.camel@frecb000686>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 18/05/2006 11:16:54,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 18/05/2006 11:18:47,
-	Serialize complete at 18/05/2006 11:18:47
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-15
+	Thu, 18 May 2006 05:15:44 -0400
+Message-ID: <446C3B3C.1050301@tls.msk.ru>
+Date: Thu, 18 May 2006 13:15:40 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Mail/News 1.5 (X11/20060318)
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: [stable] Re: [PATCH 00/22] -stable review
+References: <20060517221312.227391000@sous-sol.org> <Pine.LNX.4.64.0605171522050.10823@g5.osdl.org> <20060517223601.GI2697@moss.sous-sol.org> <20060517224124.GA23967@kroah.com>
+In-Reply-To: <20060517224124.GA23967@kroah.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-05-18 at 10:56 +0200, Ingo Molnar wrote:
-> * Sébastien Dugué <sebastien.dugue@bull.net> wrote:
+Greg KH wrote:
+> On Wed, May 17, 2006 at 03:36:01PM -0700, Chris Wright wrote:
+>> * Linus Torvalds (torvalds@osdl.org) wrote:
+>>>
+>>> On Wed, 17 May 2006, Chris Wright wrote:
+>>>> This is the start of the stable review cycle for the 2.6.16.17 release.
+>>>> There are 22 patches in this series, all will be posted as a response to
+>>>> this one.
+>>> I notice that none of the patches have authorship information.
+>>>
+>>> Has that always been true and I just never noticed before?
+>> It has always been that way with my script, I think Greg's as well.  Of
+>> course, it's in the patch, and goes into git with proper authorship.
 > 
-> > > thanks for tracking this down. FYI, the latency of stopping the trace is 
-> > > that expensive because we are copying large amounts of trace data 
-> > > around, to ensure that /proc/latency_trace is always consistent and is 
-> > > updated atomically, and to make sure that we can update the trace from 
-> > > interrupt contexts too - without /proc/latency_trace accesses blocking 
-> > > them. The latency of stopping the trace is hidden from the tracer itself 
-> > > - but it cannot prevent indirect effects such as your app from missing 
-> > > periods, if the periods are in the 5msec range.
-> > > 
-> > 
-> >   Thanks for the explanation, will have to look deeper into the code 
-> > to understand how it works though.
+> The original versions of the patches do have the proper authorship
+> information, it's just that quilt strips it off when generating emails
+> like this.
 > 
-> there's another complexity on SMP: if trace_all_cpus is set then the 
-> per-cpu trace buffers are sorted chronologically as well while the 
-> copying into the current-max-trace-buffer, to produce easier to read 
-> latency_trace output.
-> 
-  Well, that's not the case here, but thanks for the info.
+> When applying them to the git tree, everything comes out properly and
+> they get the correct authorship information.  And the git tools know to
+> properly create the emails with the right From: lines, maybe I should
+> play around with quilt to add that to it too...
 
-  Sébastien.
+While we're on it.. Just another small nitpick.  Random patch from this 00/22
+series:
 
+ Subject: [PATCH 05/22] [PATCH] smbfs: Fix slab corruption in samba error path
+
+Can the 2nd "[PATCH]" tag be removed as well? ;)
+
+/mjt

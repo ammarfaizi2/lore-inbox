@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWERILU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbWERINE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751283AbWERILU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 04:11:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWERILU
+	id S1751259AbWERINE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 04:13:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWERINE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 04:11:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60037 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751283AbWERILU (ORCPT
+	Thu, 18 May 2006 04:13:04 -0400
+Received: from mx0.towertech.it ([213.215.222.73]:19618 "HELO mx0.towertech.it")
+	by vger.kernel.org with SMTP id S1751259AbWERIND (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 04:11:20 -0400
-Date: Thu, 18 May 2006 01:11:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Tim Mann <mann@vmware.com>
-Cc: linux-kernel@vger.kernel.org, mann@vmware.com, johnstul@us.ibm.com
-Subject: Re: Fix time going backward with clock=pit [1/2]
-Message-Id: <20060518011116.68055275.akpm@osdl.org>
-In-Reply-To: <20060517160428.62022efd@mann-lx.eng.vmware.com>
-References: <20060517160428.62022efd@mann-lx.eng.vmware.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 18 May 2006 04:13:03 -0400
+Date: Thu, 18 May 2006 10:12:55 +0200
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc subsystem, fix capability checks in kernel
+ interface
+Message-ID: <20060518101255.50fad256@inspiron>
+In-Reply-To: <20060517235740.757f69a1.akpm@osdl.org>
+References: <20060517021156.34cce7c9@inspiron>
+	<20060517235740.757f69a1.akpm@osdl.org>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Mann <mann@vmware.com> wrote:
->
->  Currently, if you boot with clock=pit on the kernel command line and
->  run a program that loops calling gettimeofday, on many machines you'll
->  observe that time frequently goes backward by about one jiffy.  This
->  patch fixes that symptom and also some other related bugs.
+On Wed, 17 May 2006 23:57:40 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-It might be a bit late to get this into 2.6.17.  Although it does look
-pretty safe and simple.  
+> Alessandro Zummo <alessandro.zummo@towertech.it> wrote:
+> >
+> > 
+> >  Remove CAP_SYS_XXX checks from the in kernel interface. Those
+> >  functions are meant to be used in-kernel only.
 
-Are many people hitting this problem?
+> The changelog and the patch don't have much correlation.
+> 
+> Are you sure this was the right patch?
 
-And for 2.6.18 we're hoping to get John's x86 timer rework merged up. 
-John, do those patches address this bug?
+ I should have said "remove commented capability checks and
+ add some others" :(
 
-So if we decide these two patches are not-for-2.6.17 then I'll sit on them
-until we decide whether or not to merge John's patches.  If we do, and if
-those patches fix this problem then your two patches aren't needed.  If
-John's patches don't get merged then I'll need to merge these two.
+-- 
 
-Hope that all makes sense ;)
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
+

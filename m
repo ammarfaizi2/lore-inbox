@@ -1,94 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932603AbWEXOEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWEXOFy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932603AbWEXOEY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 10:04:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932630AbWEXOEX
+	id S1750804AbWEXOFy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 10:05:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWEXOFx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 10:04:23 -0400
-Received: from wmp-pc40.wavecom.fr ([81.80.89.162]:32007 "EHLO
-	domino.wavecom.fr") by vger.kernel.org with ESMTP id S932603AbWEXOEX
+	Wed, 24 May 2006 10:05:53 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46346 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750804AbWEXOFx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 10:04:23 -0400
-In-Reply-To: <1148475334.24623.45.camel@localhost.localdomain>
-Subject: Re: Ingo's  realtime_preempt patch causes kernel oops
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       linux-kernel-owner@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>
-X-Mailer: Lotus Notes Release 6.5.1 January 21, 2004
-Message-ID: <OFAE8CA8AC.BA068378-ONC1257178.004C53F7-C1257178.004D4D22@wavecom.fr>
-From: Yann.LEPROVOST@wavecom.fr
-Date: Wed, 24 May 2006 15:58:18 +0200
-X-MIMETrack: Serialize by Router on domino/wavecom(Release 6.5.4|March 27, 2005) at 05/24/2006
- 03:58:20 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Wed, 24 May 2006 10:05:53 -0400
+Date: Thu, 18 May 2006 19:17:00 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Don Zickus <dzickus@redhat.com>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH] Allow users to force a panic on NMI
+Message-ID: <20060518191700.GC5846@ucw.cz>
+References: <20060511214933.GU16561@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060511214933.GU16561@redhat.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yeah, I'm using minicom to log in through the serial debug unit, meaning
-that there are probably many incoming intterrupts corresponding to input
-characters...
+Hi!
 
-Yann
+> To quote Alan Cox:
+> 
+> The default Linux behaviour on an NMI of either memory or unknown is to
+> continue operation. For many environments such as scientific computing
+> it is preferable that the box is taken out and the error dealt with than
+> an uncorrected parity/ECC error get propogated.
 
+> This is just a refreshed post of Alan's original patch
+> <http://www.ussg.iu.edu/hypermail/linux/kernel/0510.2/1208.html>, with
+> hopes this time it sticks. :)
+> 
+> It applies cleanly on top of my other nmi patches.  
 
+> Index: linux-don/arch/i386/kernel/traps.c
+> ===================================================================
+> --- linux-don.orig/arch/i386/kernel/traps.c
+> +++ linux-don/arch/i386/kernel/traps.c
+> @@ -602,6 +602,8 @@ static void mem_parity_error(unsigned ch
+>  			"to continue\n");
+>  	printk(KERN_EMERG "You probably have a hardware problem with your RAM "
+>  			"chips\n");
+> +	if (panic_on_unrecovered_nmi)
+> +                panic("NMI: Not continuing");
+>  
+>  	/* Clear and disable the memory parity error line. */
+>  	clear_mem_error(reason);
+> @@ -637,6 +639,10 @@ static void unknown_nmi_error(unsigned c
+>  		reason, smp_processor_id());
+>  	printk("Dazed and confused, but trying to continue\n");
 
-                                                                           
-             Steven Rostedt                                                
-             <rostedt@goodmis.                                             
-             org>                                                       To 
-                                       Yann.LEPROVOST@wavecom.fr           
-             24/05/2006 14:55                                           cc 
-                                       Daniel Walker <dwalker@mvista.com>, 
-                                       linux-kernel@vger.kernel.org,       
-                                       linux-kernel-owner@vger.kernel.org, 
-                                       Ingo Molnar <mingo@elte.hu>, Thomas 
-                                       Gleixner <tglx@linutronix.de>       
-                                                                   Subject 
-                                       Re: Ingo's  realtime_preempt patch  
-                                       causes kernel oops                  
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-                                                                           
+'Trying to contninue'
 
+>  	printk("Do you have a strange power saving mode enabled?\n");
+> +
+> +	if (panic_on_unrecovered_nmi)
+> +                panic("NMI: Not continuing");
+> +
 
+'not really'. Move printks around so it makes sense...
 
+> Index: linux-don/arch/x86_64/kernel/traps.c
+> ===================================================================
+> --- linux-don.orig/arch/x86_64/kernel/traps.c
+> +++ linux-don/arch/x86_64/kernel/traps.c
+> @@ -608,6 +608,8 @@ mem_parity_error(unsigned char reason, s
+>  {
+>  	printk("Uhhuh. NMI received. Dazed and confused, but trying to continue\n");
+>  	printk("You probably have a hardware problem with your RAM chips\n");
+> +	if (panic_on_unrecovered_nmi)
+> +               panic("NMI: Not continuing");
+>  
+>  	/* Clear and disable the memory parity error line. */
 
-On Wed, 2006-05-24 at 10:06 +0200, Yann.LEPROVOST@wavecom.fr wrote:
-> The debug serial unit is part of the mainline kernel, this is the common
-> link to work with the CSB637 Cogent board.
-> I don't know about others AT91RM9200 based board.
->
-> AT91RM9200 also have others USART, but there are no available output
-> connectors on the CSB637 board.
->
+same here.
 
-Hi Yann,
+> @@ -633,6 +635,10 @@ unknown_nmi_error(unsigned char reason, 
+>  {	printk("Uhhuh. NMI received for unknown reason %02x.\n", reason);
+>  	printk("Dazed and confused, but trying to continue\n");
+>  	printk("Do you have a strange power saving mode enabled?\n");
+> +
+> +	if (panic_on_unrecovered_nmi)
+> +                panic("NMI: Not continuing");
+> +
+>  }
+>  
 
-OK, do you only get the prints from the serial? If so than that is OK,
-but if you also log in through the serial, then that is a problem.  In
-other words, do you have something like mgetty running to log in through
-the serial?
+and here.
 
-Looking at the at91_interrupt it can call mutex spin_locks if receiving
-data. So this needs care.
-
-Thomas or Ingo,
-
-Maybe the handling of IRQs needs to handle the case that shared irq can
-have both a NODELAY and a thread.  The irq descriptor could have a
-NODELAY set if any of the actions are NODELAY, but before calling the
-interrupt handler (in interrupt context), check if the action is NODELAY
-or not, and if not, wake up the thread if not done so already.
-
-thoughts?
-
--- Steve
-
-
-
-
+-- 
+Thanks for all the (sleeping) penguins.

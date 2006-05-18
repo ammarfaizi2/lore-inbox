@@ -1,84 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbWERVct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWERVhI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751400AbWERVct (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 17:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWERVct
+	id S1751401AbWERVhI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 17:37:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWERVhH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 17:32:49 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:22672 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751400AbWERVcs (ORCPT
+	Thu, 18 May 2006 17:37:07 -0400
+Received: from rtr.ca ([64.26.128.89]:23243 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751401AbWERVhG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 17:32:48 -0400
-Message-ID: <446CE7E2.8050302@redhat.com>
-Date: Thu, 18 May 2006 17:32:18 -0400
-From: Satoshi Oshima <soshima@redhat.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Thu, 18 May 2006 17:37:06 -0400
+Message-ID: <446CE900.9070802@rtr.ca>
+Date: Thu, 18 May 2006 17:37:04 -0400
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, systemtap@sources.redhat.com,
-       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>,
-       Ananth N Mavinakayanahalli <mananth@in.ibm.com>,
-       Jim Keniston <jkenisto@us.ibm.com>,
-       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
-       "Hideo AOKI@redhat" <haoki@redhat.com>,
-       Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>,
-       sugita <sugita@sdl.hitachi.co.jp>
-Subject: [PATCH] kprobes: bad manupilation of 2 byte opcode on x86_64
-Content-Type: text/plain; charset=ISO-2022-JP
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Zang Roy-r61911 <tie-fei.zang@freescale.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Alexandre.Bounine@tundra.com,
+       Yang Xin-Xin-r48390 <Xin-Xin.Yang@freescale.com>,
+       Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [PATCH/2.6.17-rc4 10/10]  bugs fix for marvell SATA on powerp
+ c pl atform
+References: <9FCDBA58F226D911B202000BDBAD46730626DE6E@zch01exm40.ap.freescale.net> <1147935734.17679.93.camel@localhost.localdomain> <446C9219.4080300@pobox.com> <446CDE26.8090504@rtr.ca> <446CE217.2070703@pobox.com>
+In-Reply-To: <446CE217.2070703@pobox.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi and Andrew,
+Jeff Garzik wrote:
+>
+> I'm happy that you have an updated internal driver, but that helps no 
+> one else.
 
-I found a bug of kprobes on x86_64.
-I attached the fix of this bug.
+Yikes!  Mine own words, echoed back at me!
 
+I'll organize some patches for you Friday.
 
-Problem:
-
-If we put a probe onto a callq instruction and the probe
-is executed, kernel panic of Bad RIP value occurs.
-
-Root cause:
-
-If resume_execution() found 0xff at first byte of 
-p->ainsn.insn, it must check the _second_ byte.
-But current resume_execution check _first_ byte again.
-
-
-I changed it checks second byte of p->ainsn.insn.
-
-Kprobes on i386 don't have this problem, because
-the implementation is a little bit different from
-x86_64.
-
-
-Regards,
-
-Satoshi Oshima
-Hitachi Computer Product (America) Inc.
-
-----------------------------------------------
-
-diff -Narup linux-2.6.17-rc3-mm1.orig/arch/x86_64/kernel/kprobes.c x86_64_bugifx/arch/x86_64/kernel/kprobes.c
---- linux-2.6.17-rc3-mm1.orig/arch/x86_64/kernel/kprobes.c	2006-05-04 12:34:44.000000000 -0400
-+++ x86_64_bugifx/arch/x86_64/kernel/kprobes.c	2006-05-12 16:02:35.000000000 -0400
-@@ -514,13 +514,13 @@ static void __kprobes resume_execution(s
- 		*tos = orig_rip + (*tos - copy_rip);
- 		break;
- 	case 0xff:
--		if ((*insn & 0x30) == 0x10) {
-+		if ((insn[1] & 0x30) == 0x10) {
- 			/* call absolute, indirect */
- 			/* Fix return addr; rip is correct. */
- 			next_rip = regs->rip;
- 			*tos = orig_rip + (*tos - copy_rip);
--		} else if (((*insn & 0x31) == 0x20) ||	/* jmp near, absolute indirect */
--			   ((*insn & 0x31) == 0x21)) {	/* jmp far, absolute indirect */
-+		} else if (((insn[1] & 0x31) == 0x20) ||	/* jmp near, absolute indirect */
-+			   ((insn[1] & 0x31) == 0x21)) {	/* jmp far, absolute indirect */
- 			/* rip is correct. */
- 			next_rip = regs->rip;
- 		}
-
+Cheers

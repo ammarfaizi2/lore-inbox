@@ -1,38 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWERTUH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWERTZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbWERTUH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 15:20:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWERTUG
+	id S1751384AbWERTZL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 15:25:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWERTZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 15:20:06 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:64080 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751383AbWERTUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 15:20:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=MM74rVQNw97RzZ1kLMU+7R3GsU2cCgph4cF65vhxT+fJr9t4ulARbrv0iE+O95CQZVFZngKs8qpvic4AiL0aMmofi2ntykcv2fp3LlLoh09EDRDt+Tjq3ZSeBHXd4zxKHuBvVxeBPvMy8NB5NkXsgM2WPSiSx0TjdwdtpjCqhHg=
-Message-ID: <eada2a070605181220l2f038cddlfd7a243ac36cd4af@mail.gmail.com>
-Date: Thu, 18 May 2006 12:20:03 -0700
-From: "Tim Pepper" <lnxninja@us.ibm.com>
-To: viro@zeniv.linux.org.uk
-Subject: Re: Too many levels of symbolic links
-Cc: linux-kernel@vger.kernel.org, "Linda Walsh" <lkml@tlinx.org>,
-       "Brian D. McGrew" <brian@visionpro.com>,
-       "H. Peter Anvin" <hpa@zytor.com>
-In-Reply-To: <eada2a070605171358r1fea2c62u641b6308e78aa1e4@mail.gmail.com>
+	Thu, 18 May 2006 15:25:11 -0400
+Received: from jacks.isp2dial.com ([64.142.120.55]:4868 "EHLO
+	jacks.isp2dial.com") by vger.kernel.org with ESMTP id S1751384AbWERTZK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 15:25:10 -0400
+From: John Kelly <jak@isp2dial.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       dev@sw.ru, herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
+       ebiederm@xmission.com, xemul@sw.ru, haveblue@us.ibm.com, clg@fr.ibm.com,
+       serue@us.ibm.com
+Subject: Re: [PATCH 0/9] namespaces: Introduction
+Date: Thu, 18 May 2006 15:23:20 -0400
+Message-ID: <200605181923.k4IJNL5a007645@isp2dial.com>
+References: <20060518154700.GA28344@sergelap.austin.ibm.com> <20060518103430.080e3523.akpm@osdl.org>
+In-Reply-To: <20060518103430.080e3523.akpm@osdl.org>
+X-Mailer: Forte Agent 1.93/32.576 English (American)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <14CFC56C96D8554AA0B8969DB825FEA0012B309B@chicken.machinevisionproducts.com>
-	 <44580CF2.7070602@tlinx.org> <e3966u$dje$1@terminus.zytor.com>
-	 <eada2a070605171358r1fea2c62u641b6308e78aa1e4@mail.gmail.com>
-X-Google-Sender-Auth: a2f9a4ea41e33e8b
+X-Hard2Crack: 0.001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nevermind..missed the subject changed follow up to this...
+On Thu, 18 May 2006 10:34:30 -0700, Andrew Morton <akpm@osdl.org>
+wrote:
 
-Tim
+>I see two ways of justifying a mainline merge of things such as this
+
+>a) We make an up-front decision that Linux _will_ have OS-virtualisation
+>   capability in the future
+
+After using OpenVZ for a short time, I wonder how I ever managed
+without it.  For application development and testing, having a little
+sandbox with only a few PIDs running makes it easier to debug things.
+
+
+> and just start putting in place the pieces for that, even if some
+> of them are not immediately useful.  I suspect that'd be acceptable,
+> although I worry that we'd get partway through and some issues would
+> come up which are irreconcilable amongst the various groups.
+
+>From a user's POV, I want it ASAP.  As for conflicts, why not cross
+that bridge when you come to it?
+
+

@@ -1,88 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbWERJwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbWERJxu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750940AbWERJwr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 05:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWERJwr
+	id S1751324AbWERJxu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 05:53:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWERJxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 05:52:47 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:28290 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1750940AbWERJwq (ORCPT
+	Thu, 18 May 2006 05:53:50 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:5291 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1751324AbWERJxt convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 05:52:46 -0400
-Subject: Re: How should Touchscreen Input Drives behave (OpenEZX pcap_ts)
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Harald Welte <laforge@gnumonks.org>
-Cc: openezx-devel@lists.gnumonks.org, linux-kernel@vger.kernel.org,
-       "Michael 'Mickey' Lauer" <mickey@tm.informatik.uni-frankfurt.de>
-In-Reply-To: <20060518070700.GT17897@sunbeam.de.gnumonks.org>
-References: <20060518070700.GT17897@sunbeam.de.gnumonks.org>
-Content-Type: text/plain
-Date: Thu, 18 May 2006 10:52:27 +0100
-Message-Id: <1147945947.20943.22.camel@localhost.localdomain>
+	Thu, 18 May 2006 05:53:49 -0400
+Subject: Re: rt20 scheduling latency testcase and failure data
+From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+To: Darren Hart <dvhltc@us.ibm.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>, Mike Galbraith <efault@gmx.de>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <200605180238.33044.dvhltc@us.ibm.com>
+References: <200605121924.53917.dvhltc@us.ibm.com>
+	 <20060518084722.GA3343@elte.hu> <1147942687.4996.28.camel@frecb000686>
+	 <200605180238.33044.dvhltc@us.ibm.com>
+Date: Thu, 18 May 2006 11:58:10 +0200
+Message-Id: <1147946290.4996.33.camel@frecb000686>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.2.1 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 18/05/2006 11:56:55,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 18/05/2006 11:56:58,
+	Serialize complete at 18/05/2006 11:56:58
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thu, 2006-05-18 at 09:07 +0200, Harald Welte wrote:
-> 0) What kind of X/Y/Pressure values should I return?  Are they supposed
->    to be scaled to the X/Y resolution of the LCD?  As of now, I return
->    X_ABS, Y_ABS and PRESSURE values between 0 and 1000 (each).
+On Thu, 2006-05-18 at 02:38 -0700, Darren Hart wrote:
+> On Thursday 18 May 2006 01:58, Sébastien Dugué wrote:
+> > On Thu, 2006-05-18 at 10:47 +0200, Ingo Molnar wrote:
+> > > * Sébastien Dugué <sebastien.dugue@bull.net> wrote:
+> > > >   Darren,
+> > > >
+> > > > On Mon, 2006-05-15 at 18:30 -0700, Darren Hart wrote:
+> > > > > Following Ingo's example I have included the modified test case
+> > > > > (please see the original mail for librt.h) that starts the trace
+> > > > > before each sleep and disables it after we wake up.  If we have
+> > > > > missed a period, we print the trace.
+> > > >
+> > > >   Your test program fails (at least on my box) as the overhead of
+> > > > starting and stopping the trace in the 5 ms period is just too high.
+> > > >
+> > > >   By moving the latency_trace_start() at the start of the thread
+> > > > function and latency_trace_stop() at the end, everything runs fine. I
+> > > > did not have any period missed even under heavy load.
+> > >
+> > > could you send us the fixed testcase?
+> >
+> >   No problem, see attachment.
 > 
->    However, the coordinates are actually inverted, so '0,0' corresponds
->    to the lower right corner of the screen, whereas '1000,1000' is the
->    upper left corner.  Shall I invert them (i.e. return 1000-coord')?
+> I found several similar problems in my original test case, please see my 
+> earlier mail from today where I included a completely rewritten test case 
+> with buffered output and new periodic logic.
+> 
+> The case attached here seems to try to print the trace without first stopping 
+> it.  I don't think that will result in the desired output.  My new test case 
+> addresses that issue as well.
+> 
+> I'd appreciate any feedback, thanks.
+> 
 
-Just send the raw data to userspace. Any translations needed can be
-handled in userspace by the calibration program. You probably want to
-have a look at tslib: http://cvs.arm.linux.org.uk/cgi/viewcvs.cgi/tslib/
+  Just saw your post, testing now...
 
-The range of the values also doesn't really matter and scaling would
-again get handled in userspace.
-
-> 1) where does touchscreen calibration happen?  The EZX phones (like many
->    other devices, I believe) only contain resistive touchscreens that
->    appear pretty uncalibrated.   I'm sure the factory-set calibration
->    data must be stored somewhere in flash, but it's definitely handled
->    in the proprietary EZX userland, since their old kernel driver
->    doesn't have any calibration related bits.
-
-Calibration happens in userspace and tslib stores the result
-in /etc/pointercal. If you device has this data stored in hardware, you
-could have a userspace app translate that data into such a file,
-otherwise, you can run a calibration program such as ts_calibrate (from
-tslib) or something like xtscal.
-
-> 2) what about the 'button' event.  In addition to the pressure (which is
->    about 300 for regular stylus use, > 400 if you press hard and > 600 if
->    you use yourfinger), some existing TS drivers return a button press.
->    Is it up to me to decide after which pressure level to consider the
->    button to be pressed / released?
-
-If the user is pressing the screen at all, its a button event and
-release is when they stop touching the screen. I'd try not to make it
-depend upon pressure but it will depend on the hardware to a degree.
-
-Admittedly, tslib doesn't do much with pressure information at the
-moment but tslib would the the correct place to handle pressure rather
-than have every kernel touchscreen driver doing it.
-
-For debugging, I'd highly recommend the test tools in tslib (ts_print,
-ts_calibrate and ts_test). Use them in that order, checking for sane
-output with ts_print first, get a working calibration second and finally
-prove its working with ts_test. I found them to be very useful when
-developing corgi_ts.
-
-I'm told you're thinking about using OpenEmbedded and would highly
-recommend it. It should easily be able to provide a known working
-userspace with tslib and these tools in.
-
-Regards,
-
-Richard
-
-
+  Sébastien.
 

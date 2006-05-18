@@ -1,105 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWERCeH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWERCx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbWERCeH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 May 2006 22:34:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWERCeH
+	id S1750785AbWERCx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 May 2006 22:53:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbWERCx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 May 2006 22:34:07 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:16569 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751213AbWERCeF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 May 2006 22:34:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=ikowvbkXGYEpkQMl3OXuAsXxrMMpnCbyEACeR1DavfofUXxnPOG7UdN4+hS+rcQs7NL9wyLRKZZV3PaeCXeGz4CCHaAf6E2NgYyBdadOFG14REwPRDvvLDTEaVw+rHRmhTxqOLdvhpHSuazptKa5Slbc4Y3WpD59h8IenABjbxc=
-Message-ID: <446BD8F2.10509@gmail.com>
-Date: Thu, 18 May 2006 11:16:18 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Wed, 17 May 2006 22:53:56 -0400
+Received: from andromeda.dapyr.net ([69.45.6.104]:63169 "EHLO
+	andromeda.dapyr.net") by vger.kernel.org with ESMTP
+	id S1750785AbWERCxz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 May 2006 22:53:55 -0400
+From: Konrad Rzeszutek <konradr@us.ibm.com>
+Reply-To: konradr@us.ibm.com
+To: linux-kernel@vger.kernel.org, konradr@redhat.com, konradr@us.ibm.com,
+       arjan@linux.intel.com
+Subject: Re: [patch] Ignore MCFG if the mmconfig area isn't reserved in the e820 table.
+Date: Wed, 17 May 2006 21:53:35 -0500
+User-Agent: KMail/1.8.1
+Organization: IBM Corp
 MIME-Version: 1.0
-To: Jan Wagner <jwagner@kurp.hut.fi>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: support for sata7 Streaming Feature Set?
-References: <Pine.LNX.4.58.0605051547410.7359@kurp.hut.fi> <4466D6FB.1040603@gmail.com> <Pine.LNX.4.58.0605162126520.31191@kurp.hut.fi>
-In-Reply-To: <Pine.LNX.4.58.0605162126520.31191@kurp.hut.fi>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605172153.35878.konradr@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Wagner wrote:
-> Hi and thanks for your response,
-> 
-> On Sun, 14 May 2006, Tejun Heo wrote:
->>> anyone know if the now already somewhat old Streaming Feature Set of
->>> ATA/ATAPI 7 is going to be implemented in the kernel ata functions?
->>>
->>> According to one web site that contains hdreg.h
->>> http://www.koders.com/c/fidCD7293464D782E48F93EEF8A71192F1BF28FC205.aspx
->>> there's at least some kind of mention in that include file about streaming
->>> feature set, kernel 2.6.10. However in 2.6.16 it seems to be gone again.
->>> Any ideas if this will be implemented, or how to use it with e.g. hdparm
->>> right now?
->> I don't think streaming feature set is something to be supported at
->> kernel driver level.  The usage model doesn't fit with block interface.
-> 
-> I'm definitely not a kernel guru or into its internals, but IMHO ATA/ATAPI
-> specifications should all also be supported in the kernel or kernel
-> module, for compliance, or?
+> Hi,
+> There have been several machines that don't have a working MMCONFIG,
+> often because of a buggy MCFG table in the ACPI bios. This patch adds a
+> simple sanity check that detects a whole bunch of these cases, and when
+> it detects it, linux now boots rather than crash-and-burns. 
+> [snip]
 
-No, not really.  If things can be done outside of kernel, we like to 
-keep them there.  e.g.  SMART is implemented in the userland and it fits 
-there.  Kernel only has to provide mechanisms to enable such implementation.
+Arjan,
 
-> The block device's ioctl could have a "data reliability setting"
-> extension, specifying either the error recovery time limits or for
-> enabling continuous read/write control (used to return/use partially
-> correct data) which are part of the ATA Streaming Feature Set.
-> 
-> I.e. an adjustable minimum acceptable data reliability level for block
-> devices, which can e.g. be relaxed down from a default 100%.
+I am not sure if your analysis and your solution to the problem is correct. 
+It was my understanding that any memory NOT defined in the E820 tables 
+is NOT considered system memory. Therefore memory addresses defined in the 
+ACPI MCFG table do not have to show up in the E820 table.
 
-Streaming / relaxed reliablity is a very specialized feature requiring 
-very specialized software to drive it.  I can't think of much use in the 
-generic vm/fs/block framework.  So, I don't see it happening in the kernel.
+Also the ACPI spec v3.0 (pg 405 of PDF, section 14.2, titled:
+"E820 Assumptions and Limitations") agrees with this:
 
->>   If you want to use it, the best way would be issuing commands directly
->> using sg.
-> 
-> Maybe yes, that, or hdparm, but it seems like a horrible hack :) And sg
-> being for generic SCSI, I'm not sure how well ATA-7 fits in. At least,
-> the current debian sg-tools, and commands like 'sg_opcodes /dev/sda'
-> return "Fixed format, current;  Sense key: Illegal Request", "Additional
-> sense: Invalid command operation code" for those SATA disks I tried.
-> Doesn't look good for sg useability, AFAICT.
+"The BIOS does not return a range description for the memory mapping
+of PCI devices, ISA Option ROMs, and the ISA PNP cards because the OS
+has mechanisms available to detect them."
 
-No, it's not a horrible hack.  Again, no one thinks smartd is a horrible 
-hack.  Even core things like irqbalancing and CPU speeding down are 
-controlled from userland.  Being in the userland is a good thing - it's 
-much safer & more convenient/flexible out there.
+(The ACPI v2.0c spec has this in section 15.2).
 
->> What are you gonna use it for?
-> 
-> To record or play back real-time continuous streamed data that is not
-> error-critical but delay critical, from/to a bidirectional data
-> aquisition card at ~1Gbit/s over longer time spans.
+Obviously specifications are sometimes outdated, or assumptions are made in
+some specifications which are not in other specification, so I was wondering 
+if you could tell me which specification defines that the memory addresses 
+in ACPI MCFG table have to be reserved in the E820 tables?
 
-One thing to think about before supporting streaming from/to harddisks 
-from userland is how to make data flow efficiently from userland to 
-kernel and back.  But, no matter what, kernel <-> userland usually 
-involves one data copy, so I don't think making sg similarly efficient 
-would be too difficult (it might be already).
+If this is not a specification issue, I was wondering if perhaps for the 
+machines you refer to, their BIOS bug is that the E820 have memory ranges
+which also encompass what MMCONF points to?
 
-> Direct kernel device support for the feature set could also be very useful
-> for linux projects like the Digital Video Recorder and Video Disk
-> Recorder. And seek/stutter free video playback from DVD/ATAPI (scratched
-> disks, for example) or video editing. Etc.
+Thanks!
 
-Why direct kernel device support necessary for such things?  What kind 
-of interface are you proposing?  I can't think of anything better than 
-libatastreaming (or whatever, just focus on the leading 'lib'), which 
-uses sg to issue commands and manage everything.
-
--- 
-tejun
+Konrad Rzeszutek
+IBM, (617)-693-1718

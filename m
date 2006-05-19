@@ -1,64 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWESKKJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWESKTF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932248AbWESKKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 06:10:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWESKKJ
+	id S932255AbWESKTF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 06:19:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWESKTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 06:10:09 -0400
-Received: from z2.cat.iki.fi ([212.16.98.133]:23509 "EHLO z2.cat.iki.fi")
-	by vger.kernel.org with ESMTP id S932248AbWESKKH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 06:10:07 -0400
-Date: Fri, 19 May 2006 13:10:06 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Stealing ur megahurts (no, really)
-Message-ID: <20060519101006.GL8304@mea-ext.zmailer.org>
-References: <446D61EE.4010900@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <446D61EE.4010900@comcast.net>
+	Fri, 19 May 2006 06:19:05 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:52107 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932255AbWESKTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 06:19:04 -0400
+Date: Fri, 19 May 2006 19:18:20 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Register sysfs file for hotpluged new node take 2.
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, Dave Hansen <haveblue@us.ibm.com>
+In-Reply-To: <20060518143742.E2FB.Y-GOTO@jp.fujitsu.com>
+References: <20060518143742.E2FB.Y-GOTO@jp.fujitsu.com>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060519191327.9265.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 19, 2006 at 02:13:02AM -0400, John Richard Moser wrote:
-...
-> On Linux we have mem= to toy with memory, which I personally HAVE used
-> to evaluate how various distributions and releases of GNOME operate
-> under memory pressure.  This is a lot more convenient than pulling chips
-> and trying to find the right combination.  This option was, apparently,
-> designed for situations where actual system memory capacity is
-> mis-detected (mandrake 7.2 and its insistence that a 256M memory stick
-> is 255M....); but is very useful in this application too.
-> 
-> This brings the idea of a cpumhz= parameter to adjust CPU clock rate.
-> Obviously we can't do this directly, as convenient as this would be; but
-> the idea warrants some thought, and some thought I gave it.  What I came
-> up with was simple:  Adjust time slice length and place a delay between
-> time slices so they're evenly spaced.
-...
-> Questions?  Comments?  Particular ideas on what would happen?
+Andrew-san.
 
-Modern machines have ability to be "speed controlled" - Perhaps
-they can cut their speed by 1/3 or 1/2, but run slower anyway
-in the name of energy conservation.
+Sorry. I realize that I forgot to remove old sysfs structure of node for ia64
+in yesterday's patch. :-(
+
+Please apply this too.
+
+-------------
+
+Creating sysfs file for node is consolidated as generic code 
+by creating registrer_one_node() and node_devices[]. 
+But, ia64's boot time code remains old sysfs_nodes structure
+as an arch dependent code. This is to remove it.
+
+This patch is for 2.6.17-rc4-mm1 with 
+  + register-sysfs-file-for-hotpluged-new-node.patch
+
+I tested this on Tiger4 box with my multi nodes emulation.
+
+Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+
+-------------
+
+ arch/ia64/kernel/topology.c |   15 +++------------
+ 1 files changed, 3 insertions(+), 12 deletions(-)
+
+Index: pgdat14/arch/ia64/kernel/topology.c
+===================================================================
+--- pgdat14.orig/arch/ia64/kernel/topology.c	2006-05-19 14:54:37.000000000 +0900
++++ pgdat14/arch/ia64/kernel/topology.c	2006-05-19 15:16:09.000000000 +0900
+@@ -26,9 +26,6 @@
+ #include <asm/numa.h>
+ #include <asm/cpu.h>
+ 
+-#ifdef CONFIG_NUMA
+-static struct node *sysfs_nodes;
+-#endif
+ static struct ia64_cpu *sysfs_cpus;
+ 
+ int arch_register_cpu(int num)
+@@ -36,7 +33,7 @@ int arch_register_cpu(int num)
+ 	struct node *parent = NULL;
+ 	
+ #ifdef CONFIG_NUMA
+-	parent = &sysfs_nodes[cpu_to_node(num)];
++	parent = &node_devices[cpu_to_node(num)];
+ #endif /* CONFIG_NUMA */
+ 
+ #if defined (CONFIG_ACPI) && defined (CONFIG_HOTPLUG_CPU)
+@@ -59,7 +56,7 @@ void arch_unregister_cpu(int num)
+ 
+ #ifdef CONFIG_NUMA
+ 	int node = cpu_to_node(num);
+-	parent = &sysfs_nodes[node];
++	parent = &node_devices[node];
+ #endif /* CONFIG_NUMA */
+ 
+ 	return unregister_cpu(&sysfs_cpus[num].cpu, parent);
+@@ -74,17 +71,11 @@ static int __init topology_init(void)
+ 	int i, err = 0;
+ 
+ #ifdef CONFIG_NUMA
+-	sysfs_nodes = kzalloc(sizeof(struct node) * MAX_NUMNODES, GFP_KERNEL);
+-	if (!sysfs_nodes) {
+-		err = -ENOMEM;
+-		goto out;
+-	}
+-
+ 	/*
+ 	 * MCD - Do we want to register all ONLINE nodes, or all POSSIBLE nodes?
+ 	 */
+ 	for_each_online_node(i) {
+-		if ((err = register_node(&sysfs_nodes[i], i, 0)))
++		if ((err = register_one_node(i)))
+ 			goto out;
+ 	}
+ #endif
+
+-- 
+Yasunori Goto 
 
 
-Another approach (not thinking on multiprocessor systems now)
-is to somehow gobble up system performance into some "hoarder"
-(highest scheduling priority, eats up 90% of time slices doing
-excellent waste of CPU resources..)
-
-Combine that with internal timer ticking at 1000 or 1024 Hz, and
-you do get fairly good approximation of a machine running at 1/10
-of its real speed.
-
-Kernel IO tasks might skew statistics a bit, but that is another story.
-
-
-In multiprocessor systems similar hoarders do work combined with
-CPU Affinity - one hoarder for each processor.
-
-/Matti Aarnio

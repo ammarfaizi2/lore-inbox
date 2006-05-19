@@ -1,61 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbWESA6z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWESBII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932094AbWESA6z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 20:58:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWESA6z
+	id S932112AbWESBII (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 21:08:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932158AbWESBII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 20:58:55 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:54998 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932094AbWESA6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 20:58:55 -0400
-Date: Thu, 18 May 2006 17:58:38 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: dgc@sgi.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       nickpiggin@yahoo.com.au, clameter@sgi.com
-Subject: Re: [PATCH 01/03] Cpuset: might sleep checking zones allowed fix
-Message-Id: <20060518175838.1c287d60.pj@sgi.com>
-In-Reply-To: <20060517222543.600cb20a.akpm@osdl.org>
-References: <20060518043556.15898.73616.sendpatchset@jackhammer.engr.sgi.com>
-	<20060517222543.600cb20a.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 18 May 2006 21:08:08 -0400
+Received: from mail28.syd.optusnet.com.au ([211.29.133.169]:31973 "EHLO
+	mail28.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932112AbWESBIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 21:08:07 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Subject: Re: Regression seen for patch "sched:dont decrease idle sleep avg"
+Date: Fri, 19 May 2006 11:07:40 +1000
+User-Agent: KMail/1.9.1
+Cc: "Mike Galbraith" <efault@gmx.de>, tim.c.chen@linux.intel.com,
+       linux-kernel@vger.kernel.org, mingo@elte.hu,
+       "Andrew Morton" <akpm@osdl.org>
+References: <4t153d$14p68g@azsmga001.ch.intel.com>
+In-Reply-To: <4t153d$14p68g@azsmga001.ch.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605191107.40770.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
-> I'd have thought that if all the callers get their __GFP_HARDWALLS correct
-> then that fishy-looking in_interrupt() test in __cpuset_zone_allowed()
-> could be removed?
+On Friday 19 May 2006 09:34, Chen, Kenneth W wrote:
+> Con Kolivas wrote on Wednesday, May 17, 2006 10:52 PM
+>
+> > The relationship between INTERACTIVE_SLEEP and the ceiling is not perfect
+> > and not explicit enough. The sleep boost is not supposed to be any larger
+> > than without this code and the comment is not clear enough about what
+> > exactly it does, just the reason it does it.
+> >
+> > There is a ceiling to the priority beyond which tasks that only ever
+> > sleep for very long periods cannot surpass.
+> >
+> > Opportunity to micro-optimise and re-use the ceiling variable.
+> >
+> > --- linux-2.6.17-rc4-mm1.orig/kernel/sched.c	2006-05-17
+> > 15:57:49.000000000 +1000 +++
+> > linux-2.6.17-rc4-mm1/kernel/sched.c	2006-05-18 15:48:47.000000000 +1000
+> > @@ -925,12 +924,12 @@ static int recalc_task_prio(task_t *p, u
+> >  			 * are likely to be waiting on I/O
+> >  			 */
+> >  			if (p->sleep_type == SLEEP_NONINTERACTIVE && p->mm) {
+> > -				if (p->sleep_avg >= INTERACTIVE_SLEEP(p))
+> > +				if (p->sleep_avg >= ceiling)
+> >  					sleep_time = 0;
+> >  				else if (p->sleep_avg + sleep_time >=
+> > -						INTERACTIVE_SLEEP(p)) {
+> > -					p->sleep_avg = INTERACTIVE_SLEEP(p);
+> > -					sleep_time = 0;
+> > +					 ceiling) {
+> > +						p->sleep_avg = ceiling;
+> > +						sleep_time = 0;
+>
+> Watch for white space damage, last two lines has one extra tab on the
+> indentation.
 
-The in_interrupt() is needed because the cpuset code really does give a
-different answer for the two cases of being in an interrupt, and being
-in the current task context with __GFP_WAIT not set.
+Hmm a component of the if() is up to that tab so it seemed appropriate to 
+indent the body further to me.
 
-    Interrupts get any node they want, totally ignoring cpusets.
+> By the way, there is all kinds of non-linear behavior with priority boost
+> adjustment:
+>
+>         if (p->sleep_type == SLEEP_NONINTERACTIVE && p->mm) {
+>                 if (p->sleep_avg >= ceiling)
+>                         sleep_time = 0;
+>                 else if (p->sleep_avg + sleep_time >= ceiling) {
+>                         p->sleep_avg = ceiling;
+>                         sleep_time = 0;
+>                 }
+>         }
+>
+> For large p->sleep_avg, kernel don't clamp it to ceiling, yet clamp small
+> incremental sleep.  This all seems very fragile.
 
-    Context code with __GFP_WAIT not set tries every node within
-    the current tasks context, before giving up and allowing any
-    node.
-
-See my reply to Dave Chinner for a much more long winded answer.
-
-It may well be that this distinction between interrupt code and
-interrupts disabled code is not worth it, and should be simplified out,
-which would get rid of this fishy in_interrupt() check.
-
-If that's worth doing, it would be a (subtle) semantics change, and
-likely separate from this current PATCH's bug fix.
-
-My recommendation is to expedite this current PATCH fix, and allow any
-such (minor) design changes to follow along behind as a separate patch,
-on a more liesurely track.
+Yes it is. sleep_avg affecting priority in a linear fashion in the original 
+design was basically the reason interactivity was not flexible enough for a 
+wide range of workloads. I don't like it much myself any more either, and 
+have been maintaining a complete rewrite for some time. However the fact is 
+that the number of valid bug reports is very low, so tiny tweaks as issues 
+have come up have sufficed so far.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+-ck

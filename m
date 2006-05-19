@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbWESULo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWESUNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964807AbWESULo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 16:11:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWESULo
+	id S964806AbWESUNw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 16:13:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbWESUNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 16:11:44 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:34189 "EHLO
-	palinux.external.hp.com") by vger.kernel.org with ESMTP
-	id S964800AbWESULn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 16:11:43 -0400
-Date: Fri, 19 May 2006 14:11:42 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Patrick Mansfield <patmans@us.ibm.com>
-Cc: linux-scsi@vger.kernel.org, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: dev_printk output
-Message-ID: <20060519201142.GB2826@parisc-linux.org>
-References: <20060511150015.GJ12272@parisc-linux.org> <20060512170854.GA11215@us.ibm.com> <20060513050059.GR12272@parisc-linux.org> <20060518183652.GM1604@parisc-linux.org> <20060518200957.GA29200@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060518200957.GA29200@us.ibm.com>
-User-Agent: Mutt/1.5.9i
+	Fri, 19 May 2006 16:13:52 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:59277 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964806AbWESUNv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 16:13:51 -0400
+Message-ID: <446E26CE.6050409@redhat.com>
+Date: Fri, 19 May 2006 16:13:02 -0400
+From: Satoshi Oshima <soshima@redhat.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, systemtap@sources.redhat.com,
+       Ananth N Mavinakayanahalli <mananth@in.ibm.com>,
+       Jim Keniston <jkenisto@us.ibm.com>,
+       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
+       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>,
+       "Hideo AOKI@redhat" <haoki@redhat.com>,
+       sugita <sugita@sdl.hitachi.co.jp>,
+       Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
+Subject: [Patch] Kprobes: bugfix of kprobe-booster: reenable kprobe-booster
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 18, 2006 at 01:09:57PM -0700, Patrick Mansfield wrote:
-> Funky how loading sd after sg changes the output ... and using the driver
-> name as a prefix sometimes messes this up for scsi.
-> 
-> i.e. scan without sd_mod or sg loaded (and distro I'm using loads sg
-> before sd_mod via udev rules):
-> 
->  0:0:0:0: Attached scsi generic sg0 type 0
->  0:0:0:1: Attached scsi generic sg1 type 0
-> 
-> Then remove/add those devices, and sg lines become:
-> 
-> sd 1:0:0:0: Attached scsi generic sg0 type 0
-> sd 1:0:0:1: Attached scsi generic sg1 type 0
+Hi Andrew,
 
-I find that a bit confusing too.  Obviously, we should distinguish
-different kinds of bus_id from each other somehow -- but isn't the
-obvious thing to use the bus name?  That must already be unique as sysfs
-relies on it.  ie this patch:
+I found a bug of kprobes in i386.
 
-(seems that dev->bus isn't always set; I got a null ptr dereference when
-booting without that check).
+Kprobe-booster doesn't work if CONFIG_PREEMPT is not set.
+Because pre_preempt_count is always 0.
 
-Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+Boostability have been disabled when removing '#ifdef 
+CONFIG_PREEMPT' I think.
 
-Index: include/linux/device.h
-===================================================================
-RCS file: /var/cvs/linux-2.6/include/linux/device.h,v
-retrieving revision 1.25
-diff -u -p -r1.25 device.h
---- include/linux/device.h	13 May 2006 04:12:30 -0000	1.25
-+++ include/linux/device.h	19 May 2006 19:54:04 -0000
-@@ -412,7 +412,7 @@ extern void firmware_unregister(struct s
+This bug doesn't cause a kernel panic.
+
+Regards,
+
+Satoshi Oshima
+
+Signed-off-by: Satoshi Oshima <soshima@redhat.com>
+
+diff -Narup linux-2.6.17-rc3-mm1.orig/arch/i386/kernel/kprobes.c kprobes-i386-bugfix/arch/i386/kernel/kprobes.c
+--- linux-2.6.17-rc3-mm1.orig/arch/i386/kernel/kprobes.c	2006-05-04 12:34:46.000000000 -0400
++++ kprobes-i386-bugfix/arch/i386/kernel/kprobes.c	2006-05-12 15:41:23.000000000 -0400
+@@ -257,7 +257,11 @@ static int __kprobes kprobe_handler(stru
+ 	int ret = 0;
+ 	kprobe_opcode_t *addr;
+ 	struct kprobe_ctlblk *kcb;
++#ifdef CONFIG_PREEMPT
+ 	unsigned pre_preempt_count = preempt_count();
++#else
++	unsigned pre_preempt_count = 1;
++#endif
  
- /* debugging and troubleshooting/diagnostic helpers. */
- #define dev_printk(level, dev, format, arg...)	\
--	printk(level "%s %s: " format , (dev)->driver ? (dev)->driver->name : "" , (dev)->bus_id , ## arg)
-+	printk(level "%s %s: " format , (dev)->bus ? (dev)->bus->name : "", (dev)->bus_id , ## arg)
+ 	addr = (kprobe_opcode_t *)(regs->eip - sizeof(kprobe_opcode_t));
  
- #ifdef DEBUG
- #define dev_dbg(dev, format, arg...)		\
+

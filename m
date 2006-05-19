@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWESOYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbWESOZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932310AbWESOYu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 10:24:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbWESOYu
+	id S932311AbWESOZq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 10:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWESOZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 10:24:50 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:18961 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S932310AbWESOYu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 10:24:50 -0400
-Message-ID: <446DD4CA.30606@shadowen.org>
-Date: Fri, 19 May 2006 15:23:06 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Fri, 19 May 2006 10:25:45 -0400
+Received: from owa.omneon.com ([12.36.122.13]:43287 "EHLO
+	snv-exh1.omneon.local") by vger.kernel.org with ESMTP
+	id S932311AbWESOZo convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 10:25:44 -0400
+x-mimeole: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Mel Gorman <mel@csn.ul.ie>
-CC: Andrew Morton <akpm@osdl.org>, davej@codemonkey.org.uk,
-       tony.luck@intel.com, linux-kernel@vger.kernel.org, bob.picco@hp.com,
-       ak@suse.de, linux-mm@kvack.org, linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH 5/6] Have ia64 use add_active_range() and free_area_init_nodes
-References: <20060508141030.26912.93090.sendpatchset@skynet> <20060508141211.26912.48278.sendpatchset@skynet> <20060514203158.216a966e.akpm@osdl.org> <Pine.LNX.4.64.0605191447060.29077@skynet.skynet.ie>
-In-Reply-To: <Pine.LNX.4.64.0605191447060.29077@skynet.skynet.ie>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: sata_mv module fails to load properly with 3 Supermicro AOC-SAT2-MV8 cards
+Date: Fri, 19 May 2006 07:23:04 -0700
+Message-ID: <F0E8D0B1F8999D479196DA72521D954A7AD532@snv-exh1.omneon.local>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: sata_mv module fails to load properly with 3 Supermicro AOC-SAT2-MV8 cards
+Thread-Index: AcZ7MeNJNNQLX4aFR4248g89yrlxVQAHdrni
+References: <F0E8D0B1F8999D479196DA72521D954A8DA9FF@snv-exh1.omneon.local> <20060519104912.GA16598@favonius>
+From: "Michael Robak" <mrobak@Omneon.com>
+To: <sander@humilis.net>
+Cc: <sander@humilis.net>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mel Gorman wrote:
-> On Sun, 14 May 2006, Andrew Morton wrote:
-> 
->> Mel Gorman <mel@csn.ul.ie> wrote:
->>
->>>
->>> Size zones and holes in an architecture independent manner for ia64.
->>>
->>
->> This one makes my ia64 die very early in boot.   The trace is pretty
->> useless.
->>
->> config at http://www.zip.com.au/~akpm/linux/patches/stuff/config-ia64
->>
-> 
-> An indirect fix for this has been set out with a patchset with the
-> subject "[PATCH 0/2] Fixes for node alignment and flatmem assumptions" .
-> For arch-independent-zone-sizing, the issue was that FLATMEM assumes
-> that NODE_DATA(0)->node_start_pfn == 0. This is not the case with
-> arch-independent-zone-sizing and IA64. With
-> arch-independent-zone-sizing, a nodes node_start_pfn will be at the
-> first valid PFN.
-> 
->> <log snipped>
->>
->> Note the misaligned pfns.
->>
-> 
-> You will still get the message about misaligned PFNs on IA64. This is
-> because the lowest zone starts at the lowest available PFN which may not
-> be 0 or any other aligned number. It shouldn't make a different - or at
-> least I couldn't cause any problems.
+I tried out the 2.6.16.16 kernel yesterday and it seems to have solved my problem.  The signifigant changes to sata_mv make the driver much more stable.  
 
-With the updates I sent out to the zone alignment checks yesterday this
-should now be ignored correctly without comment.  The first zone is
-allowed to be misaligned because we expect alignment of the mem_map.
-With bob picco's patch from your set we ensure it is so.
+-Mike
+-----Original Message-----
+From: Sander [mailto:sander@humilis.net]
+Sent: Fri 5/19/2006 3:49 AM
+To: Michael Robak
+Cc: sander@humilis.net; linux-kernel@vger.kernel.org
+Subject: Re: sata_mv module fails to load properly with 3 Supermicro AOC-SAT2-MV8 cards
+ 
+Michael Robak wrote (ao):
+> It apears that having multiple bus speeds is not the cause of my issue.
+> I was able to get the sata_mv module initalization to hang even when I
+> had only 2 cards plugged into both of the 100 MHz slots. This issue is
+> extremely difficult to diagnose. Sometimes the sata_mv module will load
+> just fine and recognize 24 drives, others it will hang the system during
+> intalization, and others it will only fine 23 drives, but the
+> initalization completes.
+> 
+> Any help would be appreciated,
 
--apw
+I'm affraid I can't help you much. Mark Lord works on getting the driver
+stable on 2.6.16.x kernels. After that he wants to port forward the
+changes.
+
+FWIW, there is quite a big libata update which I assume goes into
+2.6.17-rc4-mm2. Maybe that helps?
+
+	With kind regards, Sander
+
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net
+

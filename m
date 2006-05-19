@@ -1,59 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWESNmr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbWESNnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932308AbWESNmr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 09:42:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbWESNmr
+	id S932312AbWESNnY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 09:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbWESNnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 09:42:47 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:56295 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S932312AbWESNmq (ORCPT
+	Fri, 19 May 2006 09:43:24 -0400
+Received: from holly.csn.ul.ie ([193.1.99.76]:4584 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S932312AbWESNnX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 09:42:46 -0400
+	Fri, 19 May 2006 09:43:23 -0400
 From: Mel Gorman <mel@csn.ul.ie>
 To: akpm@osdl.org
-Cc: Mel Gorman <mel@csn.ul.ie>, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org, haveblue@us.ibm.com, ak@suse.de,
-       bob.picco@hp.com, mbligh@mbligh.org, linux-mm@kvack.org,
-       apw@shadowen.org, mingo@elte.hu
-Message-Id: <20060519134241.29021.84756.sendpatchset@skynet>
-Subject: [PATCH 0/2] Fixes for node alignment and flatmem assumptions
-Date: Fri, 19 May 2006 14:42:41 +0100 (IST)
+Cc: Mel Gorman <mel@csn.ul.ie>, nickpiggin@yahoo.com.au, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, bob.picco@hp.com, ak@suse.de,
+       linux-mm@kvack.org, apw@shadowen.org, mingo@elte.hu, mbligh@mbligh.org
+Message-Id: <20060519134321.29021.99360.sendpatchset@skynet>
+In-Reply-To: <20060519134241.29021.84756.sendpatchset@skynet>
+References: <20060519134241.29021.84756.sendpatchset@skynet>
+Subject: [PATCH 2/2] FLATMEM relax requirement for memory to start at pfn 0
+Date: Fri, 19 May 2006 14:43:21 +0100 (IST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After almost 3 days of banging the head on the keyboard, it was discovered
-why arch-independent zone-sizing failed on IA64 for the configuration
-posted on http://www.zip.com.au/~akpm/linux/patches/stuff/config-ia64 .
 
-The two patches in this set address the following;
+From: Andy Whitcroft <apw@shadowen.org>
 
-1. The buddy allocator requires that the node_mem_map be aligned on
-   a MAX_ORDER boundary. Patch 1 from Bob Picco's patch aligns the
-   node_map_map correctly.
+The FLATMEM memory model assumes that memory is in one contigious area
+based at pfn 0.  If we initialise node 0 to start at any other offset we
+will incorrectly map pfn's to the wrong struct page *.  The key to the
+memory model is the contigious nature of the memory not the location of it.
+Relax the requirement for the area to start at 0.
 
-2. This is the one that was giving me keyboard face. The FLATMEM memory
-   model assumes that
 
-   mem_map[0] == NODE_DATA(0)->node_mem_map == PFN 0
+ page_alloc.c |   17 +++++++++++++----
+ 1 files changed, 13 insertions(+), 4 deletions(-)
 
-   This is not the case on IA64 with arch-independent zone sizing because
-   NODE_DATA(0)->node_mem_map starts where the first valid page frame is. On
-   my test machine, that is PFN 1025 but it probably varies.  Patch 2 from Andy
-   Whitcroft relaxes the assumption that NODE_DATA(0)->node_mem_map == PFN 0 .
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+Acked-by: Mel Gorman <mel@csn.ul.ie>
 
-These patches apply to 2.6.17-rc4-mm1 and are independent of
-architecture-independent zone sizing. Patch 1 in particular fixes a
-real problem that is just difficult to trigger. However, once applied,
-have-ia64-use-add_active_range-and-free_area_init_nodes.patch will work again.
-
-2.6.17-rc4-mm1 with this patchset have been boot-tested by me
-and verified that /proc/zoneinfo is ok on x86, ppc64, x86_64 and
-ia64 in a variety of configurations. Bob Picco also says that both
-patches passed a test with mem=750M and 4Gb on a rx2600 (ia64) with
-large memory holes. They have also been successfully tested with
-have-ia64-use-add_active_range-and-free_area_init_nodes.patch added back in.
--- 
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc4-mm1-101-bob-node-alignment/mm/page_alloc.c linux-2.6.17-rc4-mm1-102-FLATMEM-relax-requirement-for-memory-to-start-at-pfn-0/mm/page_alloc.c
+--- linux-2.6.17-rc4-mm1-101-bob-node-alignment/mm/page_alloc.c	2006-05-18 17:58:10.000000000 +0100
++++ linux-2.6.17-rc4-mm1-102-FLATMEM-relax-requirement-for-memory-to-start-at-pfn-0/mm/page_alloc.c	2006-05-18 19:14:44.000000000 +0100
+@@ -2477,15 +2477,16 @@ static void __meminit free_area_init_cor
+ 
+ static void __init alloc_node_mem_map(struct pglist_data *pgdat)
+ {
++#ifdef CONFIG_FLAT_NODE_MEM_MAP
++	struct page *map = pgdat->node_mem_map;
++
+ 	/* Skip empty nodes */
+ 	if (!pgdat->node_spanned_pages)
+ 		return;
+ 
+-#ifdef CONFIG_FLAT_NODE_MEM_MAP
+ 	/* ia64 gets its own node_mem_map, before this, without bootmem */
+-	if (!pgdat->node_mem_map) {
++	if (!map) {
+ 		unsigned long size, start, end;
+-		struct page *map;
+ 
+ 		/*
+ 		 * The zone's endpoints aren't required to be MAX_ORDER
+@@ -2500,13 +2501,21 @@ static void __init alloc_node_mem_map(st
+ 		if (!map)
+ 			map = alloc_bootmem_node(pgdat, size);
+ 		pgdat->node_mem_map = map + (pgdat->node_start_pfn - start);
++
++		/*
++		 * With FLATMEM the global mem_map is used.  This is assumed
++		 * to be based at pfn 0 such that 'pfn = page* - mem_map'
++		 * is true. Adjust map relative to node_mem_map to
++		 * maintain this relationship.
++		 */
++		map -= pgdat->node_start_pfn;
+ 	}
+ #ifdef CONFIG_FLATMEM
+ 	/*
+ 	 * With no DISCONTIG, the global mem_map is just set as node 0's
+ 	 */
+ 	if (pgdat == NODE_DATA(0))
+-		mem_map = NODE_DATA(0)->node_mem_map;
++		mem_map = map;
+ #endif
+ #endif /* CONFIG_FLAT_NODE_MEM_MAP */
+ }

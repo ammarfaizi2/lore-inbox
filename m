@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWESEjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWESFYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbWESEjU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 00:39:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbWESEjU
+	id S932225AbWESFYj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 01:24:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWESFYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 00:39:20 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:43176 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932228AbWESEjT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 00:39:19 -0400
-Message-ID: <446D4BF1.4090506@torque.net>
-Date: Fri, 19 May 2006 00:39:13 -0400
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-scsi@vger.kernel.org
-CC: linux-kernel@vger.kernel.org, tomfa@debian.org, kumba@gentoo.org
-Subject: [ANNOUNCE] sdparm 0.98
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 19 May 2006 01:24:39 -0400
+Received: from gate.crashing.org ([63.228.1.57]:28563 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932225AbWESFYi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 01:24:38 -0400
+Subject: pci-OF-bus-map deprecation
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 19 May 2006 15:24:28 +1000
+Message-Id: <1148016268.13249.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sdparm is a command line utility designed to get and set
-SCSI device parameters (cf hdparm for ATA disks). The
-parameters are held in mode pages. Apart from SCSI devices
-(e.g. disks, tapes and enclosures) sdparm can be used on
-any device that uses a SCSI command set. Virtually all CD/DVD
-drives use the SCSI MMC set irrespective of the transport.
-sdparm also can decode VPD pages including the device
-identification page. Commands to start and stop the media;
-load and unload removable media and some other housekeeping
-functions are supported. sdparm supports both the lk 2.4 and
-2.6 series.
+For 32 bits machines with Open Firmware, we used to create a
+pci-OF-bus-map property in the device-tree that provided a mapping
+between linux and Open Firmware PCI bus numbers (since on some platforms
+like PowerMac, we still renumber PCI busses).
 
-For more information and downloads see:
-http://www.torque.net/sg/sdparm.html
+This property is no longer necessary as
 
-Changelog:
-http://www.torque.net/sg/p/sdparm.ChangeLog
+ - Nowadays, we have sysfs and the PCI devices in there do have a full
+Open Firmware device path exposed as a "devspec" file in their sysfs
+directories
+ - I don't think anybody ever used that property in userland :)
 
-Doug Gilbert
+This mail is mostly to make sure of the later. I intend to get rid of it
+in 2.6.18 (that's early, but as I said, I think nobody uses it anyway. I
+intended to use it in some X stuff I never ended up actually
+implementing...)
+
+It only concerns 32 bits ppc machines with OF, and only the ones that
+renumber busses, which means basically only PowerMacs.
+
+Ben.
+
+

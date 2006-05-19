@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWESMeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWESMfv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932298AbWESMeY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 08:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWESMeY
+	id S932304AbWESMfv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 08:35:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbWESMfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 08:34:24 -0400
-Received: from ns.suse.de ([195.135.220.2]:32999 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932298AbWESMeX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 08:34:23 -0400
-From: Andi Kleen <ak@suse.de>
-To: Richard J Moore <richardj_moore@uk.ibm.com>
-Subject: Re: [PATCH] kprobes: bad manipulation of 2 byte opcode on x86_64
-Date: Fri, 19 May 2006 13:33:11 +0200
-User-Agent: KMail/1.8
-Cc: Satoshi Oshima <soshima@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>,
-       "Hideo AOKI@redhat" <haoki@redhat.com>,
-       Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>,
-       Jim Keniston <jkenisto@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Ananth N Mavinakayanahalli <mananth@in.ibm.com>,
-       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
-       sugita <sugita@sdl.hitachi.co.jp>, systemtap@sources.redhat.com,
-       systemtap-owner@sourceware.org
-References: <OFAED3DE10.BAEAFDF2-ON41257173.002E89ED-41257173.002E9AB6@uk.ibm.com>
-In-Reply-To: <OFAED3DE10.BAEAFDF2-ON41257173.002E89ED-41257173.002E9AB6@uk.ibm.com>
+	Fri, 19 May 2006 08:35:51 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:56986 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S932304AbWESMfv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 08:35:51 -0400
+Message-ID: <446DBB31.6010101@bull.net>
+Date: Fri, 19 May 2006 14:33:53 +0200
+From: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en, fr, hu
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jan Kara <jack@suse.cz>
+Cc: sct@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Change ll_rw_block() calls in JBD
+References: <446C2F89.5020300@bull.net> <20060518134533.GA20159@atrey.karlin.mff.cuni.cz> <446C8EB1.3090905@bull.net> <20060519013023.GA11424@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20060519013023.GA11424@atrey.karlin.mff.cuni.cz>
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 19/05/2006 14:37:12,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 19/05/2006 14:39:01,
+	Serialize complete at 19/05/2006 14:39:01
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605191333.11930.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 19 May 2006 10:29, Richard J Moore wrote:
-> Is there any possibility of a inducing a page fault when checking the
-> second byte?
+Jan Kara wrote:
 
-AFAIK instr is in the out of line instruction copy. Kernel would need
-to be pretty broken already if that page faulted.
+>>>+			if (!buffer_jbd(bh) || jh->b_jlist != BJ_SyncData) {
+>>
+>>Who (else) can take away the journal head, remove our "jh" from the
+>>synch. data list?
+> 
+>   For two of the above comments: Under memory pressure data buffers can
+> be written out earlier and then released by __journal_try_to_free_buffer()
+> as they are not dirty any more. The above checks protect us against this.
 
--Andi
+Assume "bh" has been set free in the mean time.
+Assume it is now used for another transaction (maybe for another file system).
+
+The first part of the test should verify not only if "bh" is used for _any_
+journal head but if it is exactly for our current one:
+
+	if (buffer_jbd(bh) != jh || ...
+
+Thanks,
+
+Zoltan
+
+

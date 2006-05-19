@@ -1,41 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751314AbWESJfO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWESJhy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751314AbWESJfO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 05:35:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWESJfO
+	id S1751323AbWESJhy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 05:37:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWESJhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 05:35:14 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:28860 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751314AbWESJfN (ORCPT
+	Fri, 19 May 2006 05:37:54 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:24512 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751323AbWESJhy convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 05:35:13 -0400
-Date: Fri, 19 May 2006 11:34:28 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: linux-xfs@oss.sgi.com
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: XFS write speed drop
-Message-ID: <Pine.LNX.4.61.0605190047430.23455@yvahk01.tjqt.qr>
+	Fri, 19 May 2006 05:37:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=TLKWxazpv2xb8J+X4Utpbr0KW6AGOJPk9ODmL1fz5F5L5eU4MOcYu9k4TShQA5o1PJEH7Fe7qxCyZnSzt4tp0r+KyVOTOT3epBTDtHFSHUrs2PrqlSR1cAPuUXzFMfz7hESBnMjS0+Lw/992bighlCLTZalwY/H7E2bNG5ViNbU=
+Message-ID: <e7aeb7c60605190237w3a8554adof6ec7f1ba7927ba7@mail.gmail.com>
+Date: Fri, 19 May 2006 11:37:52 +0200
+From: "Yitzchak Eidus" <ieidus@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: how stable are the BogoMIPS and the udelay functions on "dynamic clock speed change cpus"
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-
-I have noticed that after an upgrade from 2.6.16-rcX -> 2.6.17-rc4, writes 
-to one (hdc) xfs filesystem have become significantly slower (factor 6 to 
-8), like if -o sync (or funky journal options on ext3) was on. Also, reads 
-would stall until writes have completed. I would only expect such behavior 
-when /proc/sys/vm/dirty_* are set to high values (like 95%, like I do on a 
-notebook). hda remained fast.
-
-It eventually turned out that it are the log barriers; hda does not support 
-barriers and XFS gave a nice kernel message hint that pointed me to try out 
-a mount flag. -o nobarrier makes it fast again.
-
-
-
-
-Jan Engelhardt
--- 
+because udelay work on the principle that it know "how much work the
+cpu can do in a time" and it work by just doing a loop of nothing, how
+stable is it when the cpu clock rate is keep changing all the time?
+does it update its loops_per_jiffy varible each time the cpu clock is change?
+or does it have another solution to this problem?
+or since before the cpu enter to this udelay function it must do some
+work like entering the systemcall and so on , the cpu clock rate is
+jump to the original?

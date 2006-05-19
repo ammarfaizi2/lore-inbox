@@ -1,301 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWESCEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWESCGY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbWESCEU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 22:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWESCEU
+	id S932188AbWESCGY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 22:06:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWESCGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 22:04:20 -0400
-Received: from [202.75.186.170] ([202.75.186.170]:26889 "EHLO
-	ns1.clipsalportal.com") by vger.kernel.org with ESMTP
-	id S932178AbWESCET (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 22:04:19 -0400
-Date: Fri, 19 May 2006 09:53:32 +0800
-Message-Id: <200605190153.k4J1rW0U002537@localhost.localdomain>
-From: jayakumar.acpi@gmail.com
-Subject: [PATCH/RFC 2.6.17-rc4 1/1] ACPI: Atlas ACPI driver v2
-To: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+	Thu, 18 May 2006 22:06:24 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:33684 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932176AbWESCGX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 22:06:23 -0400
+Message-ID: <446D281B.2060605@garzik.org>
+Date: Thu, 18 May 2006 22:06:19 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Tejun Heo <htejun@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [RFT] major libata update
+References: <20060515170006.GA29555@havoc.gtf.org> <20060516190507.35c1260f.akpm@osdl.org> <446AAB3C.6050303@gmail.com> <20060516215610.2b822c00.akpm@osdl.org> <446AB12C.10001@gmail.com> <446AC418.4070704@gmail.com> <20060518160758.5911e4b7.akpm@osdl.org> <20060519011400.GA10058@htj.dyndns.org>
+In-Reply-To: <20060519011400.GA10058@htj.dyndns.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.1 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Len, ACPI, and kernel folk,
+Tejun Heo wrote:
+> On Thu, May 18, 2006 at 04:07:58PM -0700, Andrew Morton wrote:
+>> Yes it does.  I dropped it and got
+>>
+>> SCSI subsystem initialized
+>> ata_piix 0000:00:1f.2: MAP [ P0 P2 P1 P3 ]
+>> ACPI (acpi_bus-0191): Device is not power manageable [20060310]
+>> ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 19 (level, low) -> IRQ 19
+>> ata1: SATA max UDMA/133 cmd 0x2148 ctl 0x217E bmdma 0x2110 irq 19
+>> ata2: SATA max UDMA/133 cmd 0x2140 ctl 0x217A bmdma 0x2118 irq 19
+>> ata1: SATA port has no device.
+>>
+>> Then I undropped it and got
+>>
+>> SCSI subsystem initialized
+>> ata_piix 0000:00:1f.2: MAP [ P0 P2 P1 P3 ]
+>> ACPI (acpi_bus-0191): Device is not power manageable [20060310]
+>> ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 19 (level, low) -> IRQ 19
+>> ata1: SATA max UDMA/133 cmd 0x2148 ctl 0x217E bmdma 0x2110 irq 19
+>> ata2: SATA max UDMA/133 cmd 0x2140 ctl 0x217A bmdma 0x2118 irq 19
+>> ata1.00: ATA-7, max UDMA/133, 321672960 sectors: LBA48 NCQ (depth 0/32)
+>> ata1.00: configured for UDMA/133
+>> scsi0 : ata_piix
+>>
+>> and a computer which boots.
+>>
+>> Look closer, please ;)
+> 
+> Hello, Andrew.
+> 
+> I see.  It seems that you're reporting two separate problems - your
+> PCS register doesn't report presence properly && the TF registers
+> report ghost device if the first device is ATAPI.  I can reproduce the
+> second here, but AFAIK the only controller which had problem with PCS
+> persence bits was ESB6300 until now.
+> 
+> Can you post the result of 'lspci -n' and ata_piix boot probing
+> messages with the following patch applied?  It would be helpful if you
+> tell us how devices are actually connected.  Also, where did the patch
+> come from?  With what comment?
 
-Appended is a refresh of my patch adding an ACPI driver for Atlas
-boards. I've done this patch against 2.6.17-rc4 and the only change
-from the previous version is addition of input support.
+At this point it may be relevant to note that Intel tells me that PCS 
+has changed on -every- chip.  So, ICH8 PCS register behaves differently 
+from ICH7 and prior.
 
-Last time around, I posted a patch containing this button driver and
-a patch to Luming's hotkey patch to add Atlas brightness control:
+	Jeff
 
-http://marc.theaimsgroup.com/?l=linux-acpi&m=114230435818457&w=2
 
-( fyi, the brightness control part of that patch depends on Luming's
-hotkey patch which I guess isn't in mainline. That patch is here at
-http://bugzilla.kernel.org/show_bug.cgi?id=5749 )
 
-That combined patch then got a sign off from Luming:
-
-http://marc.theaimsgroup.com/?l=linux-acpi&m=114308645502914&w=2
-
-After that I didn't do anything further and I guess nothing further
-happened with that. Then I noticed Matthew Garrett's patch adding
-input support to the acpi button driver.
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114547666722780&w=2
-
-That looks like a good idea and I think it would work well with
-evdev which makes application developers happy since they can do
-XEvent->type == KeyPress then XLookupString with X. So I decided
-to do something similar. That's what is in the patch below.
-I've dropped the brightness portion from this patch. I think I'll
-leave that for the future when Luming's hotkey stuff or Matthew's 
-backlight patches to asus acpi and others are in Len's tree or 
-mainline.
-
-Please let me know if it looks okay and if you have any feedback
-or suggestions.
-
-Thanks,
-Jaya Kumar
-
-Signed-off-by: Jaya Kumar <jayakumar.acpi@gmail.com>
-
----
-
- Kconfig      |   11 +++
- Makefile     |    1 
- atlas_acpi.c |  194 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 206 insertions(+)
-
----
-
-diff -X linux-2.6.17-rc4/Documentation/dontdiff -X excludevid -uprN linux-2.6.17-rc4-vanilla/drivers/acpi/atlas_acpi.c linux-2.6.17-rc4/drivers/acpi/atlas_acpi.c
---- linux-2.6.17-rc4-vanilla/drivers/acpi/atlas_acpi.c	1970-01-01 07:30:00.000000000 +0730
-+++ linux-2.6.17-rc4/drivers/acpi/atlas_acpi.c	2006-05-19 08:57:09.000000000 +0800
-@@ -0,0 +1,194 @@
-+/*
-+ *  atlas_acpi.c - Atlas Wallmount Touchscreen ACPI Extras
-+ *
-+ *  Copyright (C) 2006 Jaya Kumar
-+ *  Based on Toshiba ACPI by John Belmonte and ASUS ACPI
-+ *  This work was sponsored by CIS(M) Sdn Bhd.
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/input.h>
-+#include <linux/types.h>
-+#include <linux/proc_fs.h>
-+#include <asm/uaccess.h>
-+#include <acpi/acpi_drivers.h>
-+
-+#define PROC_ATLAS			"atlas"
-+#define ACPI_ATLAS_NAME			"Atlas ACPI"
-+#define ACPI_ATLAS_CLASS		"Atlas"
-+#define ACPI_ATLAS_BUTTON_HID		"ASIM0000"
-+
-+#ifdef CONFIG_INPUT
-+static struct input_dev *input_dev;
-+
-+static void atlas_input_report(u8 address)
-+{
-+	int keycode;
-+
-+	keycode = KEY_F1 + (address & 0x0F);
-+
-+	if (address & 0x10) 
-+		input_report_key(input_dev, keycode, 0);
-+	else
-+		input_report_key(input_dev, keycode, 1);
-+	input_sync(input_dev);
-+}
-+
-+static int atlas_setup_input(void)
-+{
-+	int err;
-+
-+	input_dev = input_allocate_device();
-+	if (!input_dev) {
-+		printk(KERN_ERR "atlas: insufficient mem to allocate input device\n");
-+		return -ENOMEM;
-+	}
-+
-+	input_dev->name = "Atlas ACPI button driver";
-+	input_dev->phys = "acpi/input0";
-+	input_dev->id.bustype = BUS_HOST;
-+	input_dev->evbit[LONG(EV_KEY)] = BIT(EV_KEY);
-+	set_bit(KEY_F1 ,input_dev->keybit);	
-+	set_bit(KEY_F2 ,input_dev->keybit);	
-+	set_bit(KEY_F3 ,input_dev->keybit);	
-+	set_bit(KEY_F4 ,input_dev->keybit);	
-+	set_bit(KEY_F5 ,input_dev->keybit);	
-+	set_bit(KEY_F6 ,input_dev->keybit);	
-+	set_bit(KEY_F7 ,input_dev->keybit);	
-+	set_bit(KEY_F8 ,input_dev->keybit);	
-+	set_bit(KEY_F9 ,input_dev->keybit);
-+
-+	err = input_register_device(input_dev);
-+	if (err) {
-+		printk(KERN_ERR "atlas: couldn't register input device\n");
-+		input_free_device(input_dev);
-+		return err;
-+	}
-+
-+	return 0;
-+}
-+
-+static void atlas_free_input(void)
-+{
-+	if (input_dev)
-+		input_unregister_device(input_dev);
-+
-+}
-+#else
-+#define atlas_free_input(...)
-+#define atlas_setup_input(...) 0
-+#define atlas_input_report(...) 
-+#endif
-+
-+/* button handling code */
-+static acpi_status acpi_atlas_button_setup(acpi_handle region_handle,
-+		    u32 function, void *handler_context, void **return_context)
-+{
-+	*return_context = 
-+		(function != ACPI_REGION_DEACTIVATE) ?  handler_context : NULL;
-+
-+	return AE_OK;
-+}
-+
-+static acpi_status acpi_atlas_button_handler(u32 function,
-+		      acpi_physical_address address,
-+		      u32 bit_width, acpi_integer * value,
-+		      void *handler_context, void *region_context)
-+{
-+	acpi_status status;
-+	struct acpi_device *dev;
-+
-+	dev = (struct acpi_device *) handler_context;
-+	if (function == ACPI_WRITE) {
-+		status = acpi_bus_generate_event(dev, 0x80, address);
-+		atlas_input_report((u8) address);
-+	} else {
-+		printk(KERN_WARNING "atlas: shrugged on unexpected function"
-+			":function=%x,address=%x,value=%x\n",
-+			function, (u32)address, (u32)*value);
-+		status = -EINVAL;
-+	}
-+
-+	return status ;
-+}
-+
-+static int atlas_acpi_button_add(struct acpi_device *device)
-+{
-+	int err;
-+
-+	err = atlas_setup_input();
-+	if (err)
-+		return err;
-+
-+	/* hookup button handler */
-+	return acpi_install_address_space_handler(device->handle,
-+				0x81, &acpi_atlas_button_handler,
-+				&acpi_atlas_button_setup, device);
-+}
-+
-+static int atlas_acpi_button_remove(struct acpi_device *device, int type)
-+{
-+	acpi_status status;
-+
-+	atlas_free_input();	
-+	status = acpi_remove_address_space_handler(device->handle,
-+				0x81, &acpi_atlas_button_handler);
-+	if (ACPI_FAILURE(status))
-+		printk(KERN_ERR "Atlas: Error removing addr spc handler\n");
-+
-+	return status;
-+}
-+
-+static struct acpi_driver atlas_acpi_driver = {
-+	.name 	= ACPI_ATLAS_NAME,
-+	.class 	= ACPI_ATLAS_CLASS,
-+	.ids 	= ACPI_ATLAS_BUTTON_HID, 
-+	.ops = {
-+		.add = atlas_acpi_button_add,
-+		.remove = atlas_acpi_button_remove,
-+		},
-+};
-+
-+static int atlas_acpi_init(void)
-+{
-+	int result;
-+
-+	result = acpi_bus_register_driver(&atlas_acpi_driver);
-+	if (result < 0) {
-+		printk(KERN_ERR "Atlas ACPI: Unable to register driver\n");
-+		return -ENODEV;
-+	}
-+
-+	return 0;
-+}
-+
-+static void atlas_acpi_exit(void)
-+{
-+	acpi_bus_unregister_driver(&atlas_acpi_driver);
-+}
-+
-+module_init(atlas_acpi_init);
-+module_exit(atlas_acpi_exit);
-+
-+MODULE_AUTHOR("Jaya Kumar");
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("Atlas ACPI");
-+MODULE_SUPPORTED_DEVICE("Atlas ACPI");
-+
-diff -X linux-2.6.17-rc4/Documentation/dontdiff -X excludevid -uprN linux-2.6.17-rc4-vanilla/drivers/acpi/Kconfig linux-2.6.17-rc4/drivers/acpi/Kconfig
---- linux-2.6.17-rc4-vanilla/drivers/acpi/Kconfig	2006-05-17 08:11:25.000000000 +0800
-+++ linux-2.6.17-rc4/drivers/acpi/Kconfig	2006-05-19 09:00:03.000000000 +0800
-@@ -192,7 +192,18 @@ config ACPI_ASUS
-           driver is still under development, so if your laptop is unsupported or
-           something works not quite as expected, please use the mailing list
-           available on the above page (acpi4asus-user@lists.sourceforge.net)
-+
-+config ACPI_ATLAS
-+	tristate "Atlas Wallmount Touchscreen Extras"
-+	depends on X86
-+	default n
-+         ---help---
-+          This driver is intended for Atlas wallmounted touchscreens. 
-+          The button events will show up in /proc/acpi/events and also
-+          as scancodes F1 through F9, and in X if you use evdev.
-           
-+          If you have an Atlas wallmounted touchscreen, say Y or M here. 
-+
- config ACPI_IBM
- 	tristate "IBM ThinkPad Laptop Extras"
- 	depends on X86
-diff -X linux-2.6.17-rc4/Documentation/dontdiff -X excludevid -uprN linux-2.6.17-rc4-vanilla/drivers/acpi/Makefile linux-2.6.17-rc4/drivers/acpi/Makefile
---- linux-2.6.17-rc4-vanilla/drivers/acpi/Makefile	2006-05-17 08:11:25.000000000 +0800
-+++ linux-2.6.17-rc4/drivers/acpi/Makefile	2006-05-18 13:06:05.000000000 +0800
-@@ -53,6 +53,7 @@ obj-$(CONFIG_ACPI_SYSTEM)	+= system.o ev
- obj-$(CONFIG_ACPI_DEBUG)	+= debug.o
- obj-$(CONFIG_ACPI_NUMA)		+= numa.o
- obj-$(CONFIG_ACPI_ASUS)		+= asus_acpi.o
-+obj-$(CONFIG_ACPI_ATLAS)	+= atlas_acpi.o
- obj-$(CONFIG_ACPI_IBM)		+= ibm_acpi.o
- obj-$(CONFIG_ACPI_TOSHIBA)	+= toshiba_acpi.o
- obj-y				+= scan.o motherboard.o

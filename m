@@ -1,65 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbWESOZq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbWESOeI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932311AbWESOZq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 10:25:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWESOZp
+	id S932316AbWESOeI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 10:34:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWESOeI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 10:25:45 -0400
-Received: from owa.omneon.com ([12.36.122.13]:43287 "EHLO
-	snv-exh1.omneon.local") by vger.kernel.org with ESMTP
-	id S932311AbWESOZo convert rfc822-to-8bit (ORCPT
+	Fri, 19 May 2006 10:34:08 -0400
+Received: from s2.ukfsn.org ([217.158.120.143]:16316 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S932316AbWESOeH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 10:25:44 -0400
-x-mimeole: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Fri, 19 May 2006 10:34:07 -0400
+Message-ID: <446DD75D.8050203@dgreaves.com>
+Date: Fri, 19 May 2006 15:34:05 +0100
+From: David Greaves <david@dgreaves.com>
+User-Agent: Mail/News 1.5 (X11/20060228)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: sata_mv module fails to load properly with 3 Supermicro AOC-SAT2-MV8 cards
-Date: Fri, 19 May 2006 07:23:04 -0700
-Message-ID: <F0E8D0B1F8999D479196DA72521D954A7AD532@snv-exh1.omneon.local>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: sata_mv module fails to load properly with 3 Supermicro AOC-SAT2-MV8 cards
-Thread-Index: AcZ7MeNJNNQLX4aFR4248g89yrlxVQAHdrni
-References: <F0E8D0B1F8999D479196DA72521D954A8DA9FF@snv-exh1.omneon.local> <20060519104912.GA16598@favonius>
-From: "Michael Robak" <mrobak@Omneon.com>
-To: <sander@humilis.net>
-Cc: <sander@humilis.net>, <linux-kernel@vger.kernel.org>
+To: Panagiotis Issaris <takis@lumumba.uhasselt.be>
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
+       linux cbon <linuxcbon@yahoo.fr>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: replacing X Window System !
+References: <20060518172827.73908.qmail@web26601.mail.ukl.yahoo.com> <446D8F36.3010201@aitel.hist.no> <446DA746.50506@lumumba.uhasselt.be>
+In-Reply-To: <446DA746.50506@lumumba.uhasselt.be>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried out the 2.6.16.16 kernel yesterday and it seems to have solved my problem.  The signifigant changes to sata_mv make the driver much more stable.  
+Panagiotis Issaris wrote:
+> Hi,
+>
+> Helge Hafting wrote:
+>
+>> [...]
+>> The problem with writing those 3D drivers is not complexity
+>> or "historic baggage" in the X codebase.  It is the fact that
+>> only the vendors know how the cards work, and most of them
+>> won't tell us.
+>>
+>> To which the solution is:  buy the cards that work, and screw the rest. 
+>
+> Just out of curiosity: Do you know any currently sold cards that support
+> XVideo, OpenGL and for which open source drivers are available?
+>
+> With friendly regards,
+> Takis
+Almost all ATI cards :)
 
--Mike
------Original Message-----
-From: Sander [mailto:sander@humilis.net]
-Sent: Fri 5/19/2006 3:49 AM
-To: Michael Robak
-Cc: sander@humilis.net; linux-kernel@vger.kernel.org
-Subject: Re: sata_mv module fails to load properly with 3 Supermicro AOC-SAT2-MV8 cards
- 
-Michael Robak wrote (ao):
-> It apears that having multiple bus speeds is not the cause of my issue.
-> I was able to get the sata_mv module initalization to hang even when I
-> had only 2 cards plugged into both of the 100 MHz slots. This issue is
-> extremely difficult to diagnose. Sometimes the sata_mv module will load
-> just fine and recognize 24 drives, others it will hang the system during
-> intalization, and others it will only fine 23 drives, but the
-> initalization completes.
-> 
-> Any help would be appreciated,
+What you mean is 'that use hardware acceleration to achieve useful
+results' (like playing NeverWinter Nights or watching MythTV).
 
-I'm affraid I can't help you much. Mark Lord works on getting the driver
-stable on 2.6.16.x kernels. After that he wants to port forward the
-changes.
+I think the ATI Radeon 9250 is the best graphics card still available
+that has an open source driver (X.org radeon r250/r280 driver). This
+works nicely with the 2.6.16 kernels. The 9250 isn't actually mentioned
+in Google results very much and it seems to be more widely available
+than the slightly older 9200.
 
-FWIW, there is quite a big libata update which I assume goes into
-2.6.17-rc4-mm2. Maybe that helps?
+I recently bought 2 for exactly this reason.
 
-	With kind regards, Sander
+Then one failed and the supplier kindly sent me an upgraded version, a
+9600 IIRC - but the r300 driver isn't out yet - in X.org 7 maybe - and
+it seems incomplete anyway - so I had to send it back and ask for a
+'downgrade' which confused them.
+
+HTH
+
+David
+
+PS My wife removed her shiny new (expensive) ATI 9800 card and replaced
+it with a 9250 and although the performance dropped she found that
+having a driver that let her machine run accelerated graphics for over 5
+minutes at a time was a serious benefit. The open source driver was
+simply *much* more stable.
+Anyone want a spare ATI 9800 :)
+(just kidding - I'll test the r300 driver as soon as I get the chance!)
 
 -- 
-Humilis IT Services and Solutions
-http://www.humilis.net
 

@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWESJcE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWESJck@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751313AbWESJcE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 05:32:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWESJcE
+	id S1751315AbWESJck (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 05:32:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWESJck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 05:32:04 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:9374 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751300AbWESJcC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 05:32:02 -0400
-Date: Fri, 19 May 2006 11:31:46 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [patchset] Generic IRQ Subsystem: -V4
-Message-ID: <20060519093146.GA8364@elte.hu>
-References: <20060517001310.GA12877@elte.hu> <20060517221536.GA13444@elte.hu> <200605190024.53879.ioe-lkml@rameria.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605190024.53879.ioe-lkml@rameria.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 19 May 2006 05:32:40 -0400
+Received: from webapps.arcom.com ([194.200.159.168]:11533 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S1751317AbWESJcj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 05:32:39 -0400
+Message-ID: <446D90B5.2090802@arcom.com>
+Date: Fri, 19 May 2006 10:32:37 +0100
+From: David Vrabel <dvrabel@arcom.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Jonathan McDowell <noodles@earth.li>
+CC: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add Amstrad Delta NAND support.
+References: <20060518160940.GS7570@earth.li>	<20060518165728.GA26113@wohnheim.fh-wedel.de> <20060519090142.GB7570@earth.li>
+In-Reply-To: <20060519090142.GB7570@earth.li>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-OriginalArrivalTime: 19 May 2006 09:32:37.0355 (UTC) FILETIME=[2A7F13B0:01C67B27]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Oeser <ioe-lkml@rameria.de> wrote:
-
-> Hi Ingo,
+Jonathan McDowell wrote:
+> On Thu, May 18, 2006 at 06:57:28PM +0200, Jörn Engel wrote:
+>> On Thu, 18 May 2006 17:09:41 +0100, Jonathan McDowell wrote:
+>>> +	omap_writew(0, (OMAP_MPUIO_BASE + OMAP_MPUIO_IO_CNTL));
+>>                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>> Could that be done in a macro?
 > 
-> just a minor nit.
+> Is there any benefit to doing so?
 > 
-> On Thursday, 18. May 2006 00:15, Ingo Molnar wrote:
-> > - sem2mutex: kernel/irq/autoprobe.c probe_sem => probe_lock mutex 
-> >   conversion.
+>>> +	udelay(0.04);
+>> Floating point in the kernel?
 > 
-> Please call this probe_mutex. probe_lock would suggest, that this is a 
-> spin_lock() when people talk about it.
+> Not quite. udelay is a macro on ARM so this ends up as an integer before
+> it ever hits a function call. In an ideal world I'd use "ndelay(40);"
+> but that would result in a delay of over 1µs as ARM doesn't have ndelay
+> defined so we hit the generic fallback.
 
-i renamed it to "probing_active", which describes its purpose even 
-better. Ok?
+Use instead:
 
-	Ingo
+/* delay for at least 40 ns */
+udelay(1);
+
+Or better yet provide an ndelay implementation for ARM.
+
+David Vrabel
+-- 
+David Vrabel, Design Engineer
+
+Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
+Cambridge CB1 7EA, UK         Web: http://www.arcom.com/

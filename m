@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWESXZs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbWESXa6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964780AbWESXZs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 19:25:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWESXZs
+	id S964784AbWESXa6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 19:30:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWESXa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 19:25:48 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:22453 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S964780AbWESXZr (ORCPT
+	Fri, 19 May 2006 19:30:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:46296 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964784AbWESXa5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 19:25:47 -0400
-Date: Sat, 20 May 2006 00:25:43 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Andrew Morton <akpm@osdl.org>
-Cc: nickpiggin@yahoo.com.au, haveblue@us.ibm.com, ak@suse.de, bob.picco@hp.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, apw@shadowen.org,
-       mingo@elte.hu, mbligh@mbligh.org
-Subject: Re: [PATCH 1/2] Align the node_mem_map endpoints to a MAX_ORDER
- boundary
-In-Reply-To: <20060519134948.10992ba1.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0605192358060.12335@skynet.skynet.ie>
-References: <20060519134241.29021.84756.sendpatchset@skynet>
- <20060519134301.29021.71137.sendpatchset@skynet> <20060519134948.10992ba1.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 19 May 2006 19:30:57 -0400
+Date: Fri, 19 May 2006 16:30:38 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: mel@csn.ul.ie (Mel Gorman)
+Cc: evil@g-house.de, linux-kernel@vger.kernel.org, apw@shadowen.org
+Subject: Re: SCSI ABORT with 2.6.17-rc4-mm1
+Message-Id: <20060519163038.7236c8e3.akpm@osdl.org>
+In-Reply-To: <20060519225746.GA11883@skynet.ie>
+References: <62331.192.18.1.5.1148071784.squirrel@housecafe.dyndns.org>
+	<20060519141032.23de6eee.akpm@osdl.org>
+	<20060519225746.GA11883@skynet.ie>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 May 2006, Andrew Morton wrote:
-
-> Mel Gorman <mel@csn.ul.ie> wrote:
->>
->> Andy added code to buddy allocator which does not require the zone's
->> endpoints to be aligned to MAX_ORDER. An issue is that the buddy
->> allocator requires the node_mem_map's endpoints to be MAX_ORDER aligned.
->> Otherwise __page_find_buddy could compute a buddy not in node_mem_map for
->> partial MAX_ORDER regions at zone's endpoints. page_is_buddy will detect
->> that these pages at endpoints are not PG_buddy (they were zeroed out by
->> bootmem allocator and not part of zone). Of course the negative here is
->> we could waste a little memory but the positive is eliminating all the
->> old checks for zone boundary conditions.
->>
->> SPARSEMEM won't encounter this issue because of MAX_ORDER size constraint
->> when SPARSEMEM is configured. ia64 VIRTUAL_MEM_MAP doesn't need the
->> logic either because the holes and endpoints are handled differently.
->> This leaves checking alloc_remap and other arches which privately allocate
->> for node_mem_map.
+mel@csn.ul.ie (Mel Gorman) wrote:
 >
-> Do we think we need this in 2.6.17?
->
+> I am struggling to see how the alignment patches or
+>  arch-independent-zone-sizing would clobber the mapping of the ACPI table :(
 
-I think so. Not all architectures are making sure their node_start_pfn is 
-aligned to a boundary. For example, x86_64 does, ia64 may align depending 
-on the value of MAX_ORDER and i386 does not appear to make any effort. No 
-one seems to be making any special effort to align the end of the zone at 
-all. This potentially means that the buddy allocator is checking portions 
-of memory as if they were struct page * when they are something totally 
-different. I suspect it's just luck that the memory outside of the mem_map 
-never looked like buddies.
+hm.  Well something did it ;)
 
-Anyone else care to comment?
+>  > I also managed to provoke "Too many memory regions,
+>  > truncating" out of it.
+>  >
+> 
+>  "Too many memory regions, truncating" is of concern because memory will be 
+>  effectively lost. Is this on x86_64 as well? If so, I need to submit a 
+>  patch that sets CONFIG_MAX_ACTIVE_REGIONS to 128 on x86_64 which is the 
+>  same value of E820MAX. This is similar to what PPC64 does for LMB regions 
+>  (see MAX_ACTIVE_REGIONS in arch/powerpc/Kconfig for example). If it's not 
+>  x86_64, what arch does it occur on?
 
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+Yes, it's x86_64.  It kind of went away though.  I seem to have been
+finding various .config combinations which cause x86_64 to die horridly -
+that was one.

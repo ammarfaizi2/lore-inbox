@@ -1,79 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbWESUI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbWESULo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964805AbWESUI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 16:08:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWESUI6
+	id S964807AbWESULo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 16:11:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWESULo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 16:08:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:22694 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964800AbWESUI5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 16:08:57 -0400
-Date: Fri, 19 May 2006 13:11:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: adilger@clusterfs.com, torvalds@osdl.org, aia21@cam.ac.uk,
-       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       sct@redhat.com
-Subject: Re: [PATCH] sector_t overflow in block layer
-Message-Id: <20060519131130.71c390d9.akpm@osdl.org>
-In-Reply-To: <1148067412.5156.65.camel@sisko.sctweedie.blueyonder.co.uk>
-References: <1147884610.16827.44.camel@localhost.localdomain>
-	<m34pzo36d4.fsf@bzzz.home.net>
-	<1147888715.12067.38.camel@dyn9047017100.beaverton.ibm.com>
-	<m364k4zfor.fsf@bzzz.home.net>
-	<20060517235804.GA5731@schatzie.adilger.int>
-	<1147947803.5464.19.camel@sisko.sctweedie.blueyonder.co.uk>
-	<20060518185955.GK5964@schatzie.adilger.int>
-	<Pine.LNX.4.64.0605181403550.10823@g5.osdl.org>
-	<Pine.LNX.4.64.0605182307540.16178@hermes-1.csi.cam.ac.uk>
-	<Pine.LNX.4.64.0605181526240.10823@g5.osdl.org>
-	<20060518232324.GW5964@schatzie.adilger.int>
-	<1148067412.5156.65.camel@sisko.sctweedie.blueyonder.co.uk>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 19 May 2006 16:11:44 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:34189 "EHLO
+	palinux.external.hp.com") by vger.kernel.org with ESMTP
+	id S964800AbWESULn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 16:11:43 -0400
+Date: Fri, 19 May 2006 14:11:42 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Patrick Mansfield <patmans@us.ibm.com>
+Cc: linux-scsi@vger.kernel.org, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: dev_printk output
+Message-ID: <20060519201142.GB2826@parisc-linux.org>
+References: <20060511150015.GJ12272@parisc-linux.org> <20060512170854.GA11215@us.ibm.com> <20060513050059.GR12272@parisc-linux.org> <20060518183652.GM1604@parisc-linux.org> <20060518200957.GA29200@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060518200957.GA29200@us.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" <sct@redhat.com> wrote:
->
-> Hi,
+On Thu, May 18, 2006 at 01:09:57PM -0700, Patrick Mansfield wrote:
+> Funky how loading sd after sg changes the output ... and using the driver
+> name as a prefix sometimes messes this up for scsi.
 > 
-> On Thu, 2006-05-18 at 17:23 -0600, Andreas Dilger wrote:
+> i.e. scan without sd_mod or sg loaded (and distro I'm using loads sg
+> before sd_mod via udev rules):
 > 
-> > I looked at that also, but it isn't clear from the use of "b_size" here
-> > that there is any constraint that b_size is a power of two, only that it
-> > is a multiple of 512.  Granted, I don't know whether there are any users
-> > of such a crazy thing, but the fact that this is in bytes instead of a
-> > shift made me think twice.
+>  0:0:0:0: Attached scsi generic sg0 type 0
+>  0:0:0:1: Attached scsi generic sg1 type 0
 > 
-> Yeah.  It was very strongly constrained to a power-of-two in the dim and
-> distant past, when buffer_heads were only ever used for true buffer-
-> cache data (the entire IO path had to be special-cased for IO that
-> wasn't from the buffer cache, such as swap IO.)  
+> Then remove/add those devices, and sg lines become:
 > 
-> But more recently it has been a lot more relaxed, and we've had patches
-> like Jens' "varyIO" patches on 2.4 which routinely generated odd-sized
-> b_size buffer_heads when doing raw/direct IO on unaligned disk offsets.
-> 
-> But in 2.6, I _think_ such paths should be going straight to bio, not
-> via submit_bh.  Direct IO certainly doesn't use bh's any more, and
-> pretty much any other normal disk IO paths are page-aligned.  I might be
-> missing something, though.
-> 
+> sd 1:0:0:0: Attached scsi generic sg0 type 0
+> sd 1:0:0:1: Attached scsi generic sg1 type 0
 
-We use various values of b_size when using a buffer_head for gathering a
-disk mapping.  See, for example, fs/direct-io.c:get_more_blocks().
+I find that a bit confusing too.  Obviously, we should distinguish
+different kinds of bus_id from each other somehow -- but isn't the
+obvious thing to use the bus name?  That must already be unique as sysfs
+relies on it.  ie this patch:
 
-I don't think we ever play such tricks when a bh is used as an IO
-container.  But we might - I see nothing in submit_bh() which would prevent
-it.
+(seems that dev->bus isn't always set; I got a null ptr dereference when
+booting without that check).
 
+Signed-off-by: Matthew Wilcox <matthew@wil.cx>
 
-
-btw, it seems odd to me that we're trying to handle the
-device-too-large-for-sector_t problem at the submit_bh() level.  What
-happens if someone uses submit_bio()?  Isn't it something we can check at
-mount time, or partition parsing, or...?
+Index: include/linux/device.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/linux/device.h,v
+retrieving revision 1.25
+diff -u -p -r1.25 device.h
+--- include/linux/device.h	13 May 2006 04:12:30 -0000	1.25
++++ include/linux/device.h	19 May 2006 19:54:04 -0000
+@@ -412,7 +412,7 @@ extern void firmware_unregister(struct s
+ 
+ /* debugging and troubleshooting/diagnostic helpers. */
+ #define dev_printk(level, dev, format, arg...)	\
+-	printk(level "%s %s: " format , (dev)->driver ? (dev)->driver->name : "" , (dev)->bus_id , ## arg)
++	printk(level "%s %s: " format , (dev)->bus ? (dev)->bus->name : "", (dev)->bus_id , ## arg)
+ 
+ #ifdef DEBUG
+ #define dev_dbg(dev, format, arg...)		\

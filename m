@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWESRRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWESRTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbWESRRE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 13:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWESRRD
+	id S1751382AbWESRTv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 13:19:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWESRTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 13:17:03 -0400
-Received: from xenotime.net ([66.160.160.81]:21634 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751386AbWESRRA (ORCPT
+	Fri, 19 May 2006 13:19:51 -0400
+Received: from [212.33.165.255] ([212.33.165.255]:24339 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1751382AbWESRTv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 13:17:00 -0400
-Date: Fri, 19 May 2006 10:19:25 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Brian D. McGrew" <brian@visionpro.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Invalid module format?
-Message-Id: <20060519101925.6f162cb5.rdunlap@xenotime.net>
-In-Reply-To: <14CFC56C96D8554AA0B8969DB825FEA0012B3262@chicken.machinevisionproducts.com>
-References: <14CFC56C96D8554AA0B8969DB825FEA0012B3262@chicken.machinevisionproducts.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 19 May 2006 13:19:51 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/9] namespaces: Introduction
+Date: Fri, 19 May 2006 20:17:32 +0300
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605192017.32401.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 May 2006 10:11:48 -0700 Brian D. McGrew wrote:
+Andrey Savochkin wrote:
+> I have a practical proposal.
+> We can start with presenting and merging the most interesting part,
+> network containers.  We discuss details, possible approaches, and related
+> subsystems, until networking is finished to its utmost detail.
+> This will create an example of virtualization of a non-trivial subsystem,
+> and we will have to agree on basic principles of virtualization of related
+> subsystems like proc.
+>
+> Virtualization of networking presents a lot of challenges and
+> decision-making points with respect to user-visible interfaces: proc,
+> sysctl, netlink events (and netlink sockets themselves), and so on.  This
+> code will also become immediately useful as an improvement over chroot.
+> I am sure that when we come to a mutually acceptable solution with respect
+> to networking, virtualization of all other subsystems can be implemented
+> and merged without many questions.
+>
+> What do people think about this plan?
 
-> My drivers are inline in this mail.  I'm still having this problem with
-> the 2.6.16 kernel as where I'm not having it with the 2.6.15 kernel --
-> and it's the same source code, compiled the same way.
-> 
-> Also, I'm still having difficulties getting this driver to work
-> correctly so any help would be great!
-> 
-> -->
-> /usr/src/redhat/BUILD/kernel-2.6.16.16/linux-2.6.16.16/drivers/mvp/mvp_r
-> tc.c
+Exactly what I thought too, and in general always the best way to move 
+forward, i.e: "slowly but surely" instead of "big bang".
 
-what Makefile do you use?
+This would of course imply, that even this subsystem should be kept as 
+minimalistic as possible, to avoid any side-effects and to just concentrate 
+on the crux of the problem.
 
----
-~Randy
+Thanks!
+
+--
+Al
+

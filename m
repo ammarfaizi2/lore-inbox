@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWESJBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWESJH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751207AbWESJBy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 05:01:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWESJBy
+	id S1751229AbWESJH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 05:07:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWESJH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 05:01:54 -0400
-Received: from the.earth.li ([193.201.200.66]:62185 "EHLO the.earth.li")
-	by vger.kernel.org with ESMTP id S1751207AbWESJBy (ORCPT
+	Fri, 19 May 2006 05:07:29 -0400
+Received: from lea.cs.unibo.it ([130.136.1.101]:63618 "EHLO lea.cs.unibo.it")
+	by vger.kernel.org with ESMTP id S1751229AbWESJH1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 05:01:54 -0400
-Date: Fri, 19 May 2006 10:01:42 +0100
-From: Jonathan McDowell <noodles@earth.li>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add Amstrad Delta NAND support.
-Message-ID: <20060519090142.GB7570@earth.li>
-References: <20060518160940.GS7570@earth.li> <20060518165728.GA26113@wohnheim.fh-wedel.de>
+	Fri, 19 May 2006 05:07:27 -0400
+Date: Fri, 19 May 2006 11:07:26 +0200
+To: Ulrich Drepper <drepper@gmail.com>
+Cc: Andi Kleen <ak@suse.de>, osd@cs.unibo.it, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2-ptrace_multi
+Message-ID: <20060519090726.GA11789@cs.unibo.it>
+References: <20060518155337.GA17498@cs.unibo.it> <20060518155848.GC17498@cs.unibo.it> <p73sln72im3.fsf@bragg.suse.de> <20060518211321.GC6806@cs.unibo.it> <a36005b50605181923k285b4d50y30d6b43baede95ca@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060518165728.GA26113@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <a36005b50605181923k285b4d50y30d6b43baede95ca@mail.gmail.com>
+User-Agent: Mutt/1.3.28i
+From: renzo@cs.unibo.it (Renzo Davoli)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 18, 2006 at 06:57:28PM +0200, Jörn Engel wrote:
-> On Thu, 18 May 2006 17:09:41 +0100, Jonathan McDowell wrote:
-> > +	omap_writew(0, (OMAP_MPUIO_BASE + OMAP_MPUIO_IO_CNTL));
->                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> Could that be done in a macro?
-
-Is there any benefit to doing so?
-
-> > +	udelay(0.04);
+On Thu, May 18, 2006 at 07:23:13PM -0700, Ulrich Drepper wrote:
+> On 5/18/06, Renzo Davoli <renzo@cs.unibo.it> wrote:
+> >e.g. To virtualize a write you'd have to call PTRACE_PEEKDATA for each
+> >word of the buffer, very many hundreds cycles lost.
 > 
-> Floating point in the kernel?
+> No, this is not how programs should do it.  Just open /proc/PID/mem
+> and use pread() with an offset corresponding to the address.  Now,
+> repeat your timings using this technique.
 
-Not quite. udelay is a macro on ARM so this ends up as an integer before
-it ever hits a function call. In an ideal world I'd use "ndelay(40);"
-but that would result in a delay of over 1µs as ARM doesn't have ndelay
-defined so we hit the generic fallback.
+That would be faster to access the memory but:
+- the manager has to keep one open file per controlled process
+- when the Virtual Machine manager has to access the ptraced memory and 
+access its registers and finally restart the process, needs three system 
+calls instead of just one. (one pread/pwrite to /proc/PID/mem + at least one
+ptrace PEEK/POKEUSR and a ptrace SYSCALL or SYSVM).
+For a Virtual Machine manager three syscalls instead of one makes the
+difference. The gap will be not so large with respect to the figures
+of my previous message but there will be for sure.
+- the read/write of several words of memory using ptrace do exist
+implemented in an horribly tricky way for sparc/sparc64 (addr2 is taken 
+out from a register as an extra argument which is not part of ptrace 
+definition, see arch/sparc/kernel/ptrace.c). Our proposal gives also a 
+clean and efficient and general interface for the same feature.
 
-> > +	ams_delta_mtd = kmalloc (sizeof(struct mtd_info) +
->                                ^
-> > +					sizeof (struct nand_chip), GFP_KERNEL);
-> 
-> Remove space
-> 
-> And please create a structure containing both struct mtd_info and
-> struct nand_chip.  Then use sizeof(that structure)...
-
-This format is used throughout the drivers/mtd/nand/ directory. I'd
-suggest it'd be more appropriate to have a separate patch that did this
-for all of them if it's desired, rather than having each driver do its
-own thing.
-
-Agreed on all the spacing comments you raised; hangovers from toto.c
-that I used as a base.
-
-J.
-
--- 
-I am a passenger.
+renzo

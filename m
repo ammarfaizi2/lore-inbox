@@ -1,70 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbWESTCc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbWESTPP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932464AbWESTCc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 15:02:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932469AbWESTCc
+	id S932469AbWESTPP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 15:15:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWESTPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 15:02:32 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:49809 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932464AbWESTCc convert rfc822-to-8bit (ORCPT
+	Fri, 19 May 2006 15:15:15 -0400
+Received: from lea.cs.unibo.it ([130.136.1.101]:34705 "EHLO lea.cs.unibo.it")
+	by vger.kernel.org with ESMTP id S932469AbWESTPO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 15:02:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rKegBmf5mWBDqu8LeRPhZe7ySroR6EjsuDsuiowfQ+WWwog2x4m4FlzkbwKZ1z7SAWttcloUTGspv/GiYs7YVplXJYTnYxgsuw2wOHQVZAphvgBx/gHcD2HCL11CKlDhs5JdzDIAOHIwo2n+N/1V9FZHSbaDACqLBg78S/NIpik=
-Message-ID: <661de9470605191202p5b46312bya129d59ea06041bf@mail.gmail.com>
-Date: Sat, 20 May 2006 00:32:31 +0530
-From: "Balbir Singh" <bsingharora@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: [Patch 0/6] statistics infrastructure
-Cc: "Martin Peschke" <mp3@de.ibm.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <661de9470605191159n75578d60qd1f3309e3a7e2234@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+	Fri, 19 May 2006 15:15:14 -0400
+Date: Fri, 19 May 2006 21:15:12 +0200
+To: Ulrich Drepper <drepper@gmail.com>, Andi Kleen <ak@suse.de>,
+       osd@cs.unibo.it, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2-ptrace_multi
+Message-ID: <20060519191512.GB22346@cs.unibo.it>
+References: <20060518155337.GA17498@cs.unibo.it> <20060518155848.GC17498@cs.unibo.it> <p73sln72im3.fsf@bragg.suse.de> <20060518211321.GC6806@cs.unibo.it> <a36005b50605181923k285b4d50y30d6b43baede95ca@mail.gmail.com> <20060519090726.GA11789@cs.unibo.it> <20060519130952.GA1242@nevyn.them.org> <20060519174534.GA22346@cs.unibo.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1148054876.2974.10.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
-	 <20060519092411.6b859b51.akpm@osdl.org>
-	 <661de9470605191159n75578d60qd1f3309e3a7e2234@mail.gmail.com>
+In-Reply-To: <20060519174534.GA22346@cs.unibo.it>
+User-Agent: Mutt/1.5.6+20040907i
+From: renzo@cs.unibo.it (Renzo Davoli)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/20/06, Balbir Singh <balbir@in.ibm.com> wrote:
->
-> On 5/19/06, Andrew Morton <akpm@osdl.org> wrote:
->
-> >  Martin Peschke <mp3@de.ibm.com> wrote:
-> > >
-> > > My patch series is a proposal for a generic implementation of statistics.
-> >
-> > This uses debugfs for the user interface, but the
-> > per-task-delay-accounting-*.patch series from Balbir creates an extensible
-> > netlink-based system for passing instrumentation results back to userspace.
-> >
-> > Can this code be converted to use those netlink interfaces, or is Balbir's
-> > approach unsuitable, or hasn't it even been considered, or what?
-> >
-> >
->
-Hi, Martin/Andrew,
+for the sake of completeness here are the numbers:
 
-I am resending this email, my mailer got crazy and sent out HTML (sorry!)
+This was the previous result.
+> (test computer=tibook G4 1Ghz)
+> Umview+unreal test module/NO PTRACE_MULTI/NO PTRACE_SYSVM
+> $ time cp /unreal/usr/src/linux-source-2.6.16.tar.bz2 /tmp
+> real    0m22.626s
+> user    0m0.000s
+> sys     0m0.448s
 
-I have seen the patches around, but I've had no time to review them. I
-was planning to do so this weekend.
+This operation cannot use /proc/<pid>/mem  as there is a "read" from
+the virtual file system that has to write the buffer value into the
+ptraced process ("cp") memory.
 
-The main difference I see, like you pointed out is the netlink
-interface vs debugfs. I think the netlink approach is more suitable
-(there is no need to mount a filesystem and create files followed by
-frequent open/read/close operations). Just one netlink socket should
-do the trick. The event subscription mechanism in netlink is very
-useful as well.
+Let us try the reverse op.
 
-Martin, could you please take a look at the taskstats interface and
-see if it is possible to make use of them?
+****OLD WAY
+Umview+unreal test module/NO PTRACE_MULTI/NO PTRACE_SYSVM (PTRACE, old
+way)
+$ time cp /usr/src/linux-source-2.6.16.tar.bz2 /unreal/tmp
+real    0m16.039s
+user    0m0.000s
+sys     0m0.208s
 
-Thanks,
-Balbir
+****YOUR PROPOSAL WITHOUT/WITH SYSVM (that patch is independent).
+Umview+unreal test module/NO PTRACE_MULTI/NO PTRACE_SYSVM (using
+/proc/<pid>/mem)
+$ time cp /usr/src/linux-source-2.6.16.tar.bz2 /unreal/tmp
+real    0m1.649s
+user    0m0.000s
+sys     0m0.172s
+
+Umview+unreal test module/NO_PTRACE_MULTI PTRACE_SYSVM (using
+/proc/<pid>/mem)
+$ time cp /usr/src/linux-source-2.6.16.tar.bz2 /unreal/tmp
+real    0m1.185s
+user    0m0.004s
+sys     0m0.188s
+
+****OUR PROPOSAL (PTRACE_MULTI instead of /proc/<pid>/mem (WO/W SYSVM)
+Umview+unreal test module PTRACE_MULTI/NO PTRACE_SYSVM
+$ time cp /usr/src/linux-source-2.6.16.tar.bz2 /unreal/tmp
+real    0m1.500s
+user    0m0.004s
+sys     0m0.244s
+
+Umview+unreal test module PTRACE_MULTI/PTRACE_SYSVM
+$ time cp /usr/src/linux-source-2.6.16.tar.bz2 /unreal/tmp
+real    0m0.983s
+user    0m0.008s
+sys     0m0.148s
+
+All the experiments have been done three times. This is the best time
+(always the third); the results would have had the same significance
+taking the first or the second run figures, the difference in time would have
+been a bit higher.
+
+Anyway I think I'll put this possibility (to use /proc/<pid>/mem) inside umview 
+source code.
+It is a speedup for umview on unpatched kernel, just a one way speedup,
+but it can help. Thank you for the hint.
+I think that our patch(es) would be useful anyway as the solution you
+propose is not a solution at all.
+In the best approximation this is a workaround that covers part of the
+problems with almost the same (a bit poorer) performance.
+
+renzo

@@ -1,255 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWESRZA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbWESRZs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751399AbWESRZA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 13:25:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWESRZA
+	id S932391AbWESRZs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 13:25:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWESRZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 13:25:00 -0400
-Received: from xenotime.net ([66.160.160.81]:63879 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751399AbWESRY7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 13:24:59 -0400
-Date: Fri, 19 May 2006 10:27:25 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Scott Preece" <sepreece@gmail.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] list.h doc: change "counter" to "control"
-Message-Id: <20060519102725.664c62d3.rdunlap@xenotime.net>
-In-Reply-To: <7b69d1470605191010o37b5aafeud18263214519456a@mail.gmail.com>
-References: <20060518105400.2aac9f44.rdunlap@xenotime.net>
-	<7b69d1470605190837o44f2c0f5o4aa9faa421dfb3f7@mail.gmail.com>
-	<20060519090236.ef9b5c81.rdunlap@xenotime.net>
-	<20060519090500.6a3958dd.akpm@osdl.org>
-	<7b69d1470605191010o37b5aafeud18263214519456a@mail.gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 19 May 2006 13:25:48 -0400
+Received: from rwcrmhc11.comcast.net ([216.148.227.151]:63722 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1751407AbWESRZr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 13:25:47 -0400
+Message-ID: <446DFE83.1030803@comcast.net>
+Date: Fri, 19 May 2006 13:21:07 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mail/News 1.5 (X11/20060309)
+MIME-Version: 1.0
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Stealing ur megahurts (no, really)
+References: <446D61EE.4010900@comcast.net> <20060519101006.GL8304@mea-ext.zmailer.org>
+In-Reply-To: <20060519101006.GL8304@mea-ext.zmailer.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 May 2006 12:10:12 -0500 Scott Preece wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> "cursor" is what I usually use in my own code...
+
+
+Matti Aarnio wrote:
+> On Fri, May 19, 2006 at 02:13:02AM -0400, John Richard Moser wrote:
+> ...
+>> On Linux we have mem= to toy with memory, which I personally HAVE used
+>> to evaluate how various distributions and releases of GNOME operate
+>> under memory pressure.  This is a lot more convenient than pulling chips
+>> and trying to find the right combination.  This option was, apparently,
+>> designed for situations where actual system memory capacity is
+>> mis-detected (mandrake 7.2 and its insistence that a 256M memory stick
+>> is 255M....); but is very useful in this application too.
+>>
+>> This brings the idea of a cpumhz= parameter to adjust CPU clock rate.
+>> Obviously we can't do this directly, as convenient as this would be; but
+>> the idea warrants some thought, and some thought I gave it.  What I came
+>> up with was simple:  Adjust time slice length and place a delay between
+>> time slices so they're evenly spaced.
+> ...
+>> Questions?  Comments?  Particular ideas on what would happen?
 > 
-> On 5/19/06, Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > "cursor"
+> Modern machines have ability to be "speed controlled" - Perhaps
+> they can cut their speed by 1/3 or 1/2, but run slower anyway
+> in the name of energy conservation.
+> 
 
-OK, here's a patch to replace the other one.
+Not fine grained enough.  1.8GHz desktop athlon 64 can run at 600MHz or
+1.8GHz.  A laptop CPU may run at 2.0GHz, 1.4GHz, 600MHz, and 400MHz.
 
+> 
+> Another approach (not thinking on multiprocessor systems now)
+> is to somehow gobble up system performance into some "hoarder"
+> (highest scheduling priority, eats up 90% of time slices doing
+> excellent waste of CPU resources..)
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+Possible, but could possibly create other issues.
 
-Use loop "cursor" instead of loop "counter" for list iterator
-descriptions.  They are not counters, they are cursors or
-pointers or positions or locations.
+> 
+> Combine that with internal timer ticking at 1000 or 1024 Hz, and
+> you do get fairly good approximation of a machine running at 1/10
+> of its real speed.
+> 
+> Kernel IO tasks might skew statistics a bit, but that is another story.
+> 
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- include/linux/list.h |   52 +++++++++++++++++++++++++--------------------------
- 1 files changed, 26 insertions(+), 26 deletions(-)
+Yeah, also a thought.  With my approach you still had interrupts to
+account for et al, since on a slow system we should still have <10uS
+response time there.
 
---- linux-2617-rc4g6.orig/include/linux/list.h
-+++ linux-2617-rc4g6/include/linux/list.h
-@@ -328,7 +328,7 @@ static inline void list_splice_init(stru
- 
- /**
-  * list_for_each	-	iterate over a list
-- * @pos:	the &struct list_head to use as a loop counter.
-+ * @pos:	the &struct list_head to use as a loop cursor.
-  * @head:	the head for your list.
-  */
- #define list_for_each(pos, head) \
-@@ -337,7 +337,7 @@ static inline void list_splice_init(stru
- 
- /**
-  * __list_for_each	-	iterate over a list
-- * @pos:	the &struct list_head to use as a loop counter.
-+ * @pos:	the &struct list_head to use as a loop cursor.
-  * @head:	the head for your list.
-  *
-  * This variant differs from list_for_each() in that it's the
-@@ -350,7 +350,7 @@ static inline void list_splice_init(stru
- 
- /**
-  * list_for_each_prev	-	iterate over a list backwards
-- * @pos:	the &struct list_head to use as a loop counter.
-+ * @pos:	the &struct list_head to use as a loop cursor.
-  * @head:	the head for your list.
-  */
- #define list_for_each_prev(pos, head) \
-@@ -359,7 +359,7 @@ static inline void list_splice_init(stru
- 
- /**
-  * list_for_each_safe - iterate over a list safe against removal of list entry
-- * @pos:	the &struct list_head to use as a loop counter.
-+ * @pos:	the &struct list_head to use as a loop cursor.
-  * @n:		another &struct list_head to use as temporary storage
-  * @head:	the head for your list.
-  */
-@@ -369,7 +369,7 @@ static inline void list_splice_init(stru
- 
- /**
-  * list_for_each_entry	-	iterate over list of given type
-- * @pos:	the type * to use as a loop counter.
-+ * @pos:	the type * to use as a loop cursor.
-  * @head:	the head for your list.
-  * @member:	the name of the list_struct within the struct.
-  */
-@@ -380,7 +380,7 @@ static inline void list_splice_init(stru
- 
- /**
-  * list_for_each_entry_reverse - iterate backwards over list of given type.
-- * @pos:	the type * to use as a loop counter.
-+ * @pos:	the type * to use as a loop cursor.
-  * @head:	the head for your list.
-  * @member:	the name of the list_struct within the struct.
-  */
-@@ -402,7 +402,7 @@ static inline void list_splice_init(stru
- 
- /**
-  * list_for_each_entry_continue - continue iteration over list of given type
-- * @pos:	the type * to use as a loop counter.
-+ * @pos:	the type * to use as a loop cursor.
-  * @head:	the head for your list.
-  * @member:	the name of the list_struct within the struct.
-  *
-@@ -416,7 +416,7 @@ static inline void list_splice_init(stru
- 
- /**
-  * list_for_each_entry_from - iterate over list of given type from the current point
-- * @pos:	the type * to use as a loop counter.
-+ * @pos:	the type * to use as a loop cursor.
-  * @head:	the head for your list.
-  * @member:	the name of the list_struct within the struct.
-  *
-@@ -428,7 +428,7 @@ static inline void list_splice_init(stru
- 
- /**
-  * list_for_each_entry_safe - iterate over list of given type safe against removal of list entry
-- * @pos:	the type * to use as a loop counter.
-+ * @pos:	the type * to use as a loop cursor.
-  * @n:		another type * to use as temporary storage
-  * @head:	the head for your list.
-  * @member:	the name of the list_struct within the struct.
-@@ -441,7 +441,7 @@ static inline void list_splice_init(stru
- 
- /**
-  * list_for_each_entry_safe_continue
-- * @pos:	the type * to use as a loop counter.
-+ * @pos:	the type * to use as a loop cursor.
-  * @n:		another type * to use as temporary storage
-  * @head:	the head for your list.
-  * @member:	the name of the list_struct within the struct.
-@@ -457,7 +457,7 @@ static inline void list_splice_init(stru
- 
- /**
-  * list_for_each_entry_safe_from
-- * @pos:	the type * to use as a loop counter.
-+ * @pos:	the type * to use as a loop cursor.
-  * @n:		another type * to use as temporary storage
-  * @head:	the head for your list.
-  * @member:	the name of the list_struct within the struct.
-@@ -472,7 +472,7 @@ static inline void list_splice_init(stru
- 
- /**
-  * list_for_each_entry_safe_reverse
-- * @pos:	the type * to use as a loop counter.
-+ * @pos:	the type * to use as a loop cursor.
-  * @n:		another type * to use as temporary storage
-  * @head:	the head for your list.
-  * @member:	the name of the list_struct within the struct.
-@@ -488,7 +488,7 @@ static inline void list_splice_init(stru
- 
- /**
-  * list_for_each_rcu	-	iterate over an rcu-protected list
-- * @pos:	the &struct list_head to use as a loop counter.
-+ * @pos:	the &struct list_head to use as a loop cursor.
-  * @head:	the head for your list.
-  *
-  * This list-traversal primitive may safely run concurrently with
-@@ -507,7 +507,7 @@ static inline void list_splice_init(stru
- 
- /**
-  * list_for_each_safe_rcu
-- * @pos:	the &struct list_head to use as a loop counter.
-+ * @pos:	the &struct list_head to use as a loop cursor.
-  * @n:		another &struct list_head to use as temporary storage
-  * @head:	the head for your list.
-  *
-@@ -524,7 +524,7 @@ static inline void list_splice_init(stru
- 
- /**
-  * list_for_each_entry_rcu	-	iterate over rcu list of given type
-- * @pos:	the type * to use as a loop counter.
-+ * @pos:	the type * to use as a loop cursor.
-  * @head:	the head for your list.
-  * @member:	the name of the list_struct within the struct.
-  *
-@@ -541,7 +541,7 @@ static inline void list_splice_init(stru
- 
- /**
-  * list_for_each_continue_rcu
-- * @pos:	the &struct list_head to use as a loop counter.
-+ * @pos:	the &struct list_head to use as a loop cursor.
-  * @head:	the head for your list.
-  *
-  * Iterate over an rcu-protected list, continuing after current point.
-@@ -791,8 +791,8 @@ static inline void hlist_add_after_rcu(s
- 
- /**
-  * hlist_for_each_entry	- iterate over list of given type
-- * @tpos:	the type * to use as a loop counter.
-- * @pos:	the &struct hlist_node to use as a loop counter.
-+ * @tpos:	the type * to use as a loop cursor.
-+ * @pos:	the &struct hlist_node to use as a loop cursor.
-  * @head:	the head for your list.
-  * @member:	the name of the hlist_node within the struct.
-  */
-@@ -804,8 +804,8 @@ static inline void hlist_add_after_rcu(s
- 
- /**
-  * hlist_for_each_entry_continue - iterate over a hlist continuing after current point
-- * @tpos:	the type * to use as a loop counter.
-- * @pos:	the &struct hlist_node to use as a loop counter.
-+ * @tpos:	the type * to use as a loop cursor.
-+ * @pos:	the &struct hlist_node to use as a loop cursor.
-  * @member:	the name of the hlist_node within the struct.
-  */
- #define hlist_for_each_entry_continue(tpos, pos, member)		 \
-@@ -816,8 +816,8 @@ static inline void hlist_add_after_rcu(s
- 
- /**
-  * hlist_for_each_entry_from - iterate over a hlist continuing from current point
-- * @tpos:	the type * to use as a loop counter.
-- * @pos:	the &struct hlist_node to use as a loop counter.
-+ * @tpos:	the type * to use as a loop cursor.
-+ * @pos:	the &struct hlist_node to use as a loop cursor.
-  * @member:	the name of the hlist_node within the struct.
-  */
- #define hlist_for_each_entry_from(tpos, pos, member)			 \
-@@ -827,8 +827,8 @@ static inline void hlist_add_after_rcu(s
- 
- /**
-  * hlist_for_each_entry_safe - iterate over list of given type safe against removal of list entry
-- * @tpos:	the type * to use as a loop counter.
-- * @pos:	the &struct hlist_node to use as a loop counter.
-+ * @tpos:	the type * to use as a loop cursor.
-+ * @pos:	the &struct hlist_node to use as a loop cursor.
-  * @n:		another &struct hlist_node to use as temporary storage
-  * @head:	the head for your list.
-  * @member:	the name of the hlist_node within the struct.
-@@ -841,8 +841,8 @@ static inline void hlist_add_after_rcu(s
- 
- /**
-  * hlist_for_each_entry_rcu - iterate over rcu list of given type
-- * @tpos:	the type * to use as a loop counter.
-- * @pos:	the &struct hlist_node to use as a loop counter.
-+ * @tpos:	the type * to use as a loop cursor.
-+ * @pos:	the &struct hlist_node to use as a loop cursor.
-  * @head:	the head for your list.
-  * @member:	the name of the hlist_node within the struct.
-  *
+> 
+> In multiprocessor systems similar hoarders do work combined with
+> CPU Affinity - one hoarder for each processor.
+> 
+> /Matti Aarnio
+> 
 
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+
+    We will enslave their women, eat their children and rape their
+    cattle!
+                  -- Bosc, Evil alien overlord from the fifth dimension
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iQIVAwUBRG3+gQs1xW0HCTEFAQKK0g/+OPCuhqnT+CC0hhcu3fEAcrW9KlAi1/P5
+W1zkx1R3zxIsnDmByNigcRSRKdDPQw/qczWtyiQFT3oAr1P2wrYJhv7IsAc1UQ5n
+v7xbQt9lXVIZMolpkoctP8Xdv2oINnHjQFbvKPyNINvigff7Ow5E9ADsi7igbfjG
+NmHVWe6a8DhEs9SP1Q6HLkHGvaNSS8S7KXGgT2UlwWtx4AlQL7OLq8nhIgHDWtZq
+ltw9NDDgLjG2CTeEW3TNMgDZ2QOE1nGRsk44b4En5+iGXW7d8cLa9HFkeDA6Skpz
+6wf3R8XRRpxD9dKB7n4ex6Qq4YK45z4xSvHRsLKQTnxh9UMmeZpCaTjrGm+0abak
+CLJXVmzvj20f3wB47J9kSOphdBAX5hQSso1d9V+YWh7WQ9Kkp0LSXyOWdZOAFzCX
+Hlgxv9djmNic85IOdnvd++zKf/EeqHBz2/Mk6Fpb5+Sh6YfYrcHnqlFswCn5guR8
+GxBXYR1toCT3eeDhbVJXD0oqgLSLh7SMwkDQhERj2nHTiBfmtUDO8er9NqZl6Yf/
+AH3/HibLFYYNIAkNGsCxVJ8exoA/sz283kwtYVgG+qJzoMGQaqcBqLeIwd7mp0XX
+CJYjENB3uGe6RoWUNHPYoAG68G7WgI9L9U2DRokXkAldX1Fc+u7Ed7GhWrgbisqK
+sEDXdtnkMbg=
+=FcTe
+-----END PGP SIGNATURE-----

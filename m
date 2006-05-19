@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWESSTr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932457AbWESSYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751351AbWESSTr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 14:19:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWESSTr
+	id S932457AbWESSYI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 14:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbWESSYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 14:19:47 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24453 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751351AbWESSTr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 14:19:47 -0400
-Date: Fri, 19 May 2006 11:22:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chuck Lever <cel@citi.umich.edu>
-Cc: cel@netapp.com, linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
+	Fri, 19 May 2006 14:24:08 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:60104 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932457AbWESSYH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 14:24:07 -0400
 Subject: Re: [PATCH 5/6] nfs: check all iov segments for correct memory
- access rights
-Message-Id: <20060519112231.5ed3d565.akpm@osdl.org>
+	access rights
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Chuck Lever <cel@citi.umich.edu>
+Cc: akpm@osdl.org, lkml <linux-kernel@vger.kernel.org>,
+       trond.myklebust@fys.uio.no
 In-Reply-To: <20060519180036.3244.70897.stgit@brahms.dsl.sfldmi.ameritech.net>
 References: <20060519175652.3244.7079.stgit@brahms.dsl.sfldmi.ameritech.net>
-	<20060519180036.3244.70897.stgit@brahms.dsl.sfldmi.ameritech.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	 <20060519180036.3244.70897.stgit@brahms.dsl.sfldmi.ameritech.net>
+Content-Type: text/plain
+Date: Fri, 19 May 2006 11:25:06 -0700
+Message-Id: <1148063106.7214.21.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Lever <cel@netapp.com> wrote:
->
+On Fri, 2006-05-19 at 14:00 -0400, Chuck Lever wrote:
+
+>  
 > +/*
 > + * Check:
 > + * 1.  All bytes in the user buffers are properly accessible
 > + * 2.  The resulting number of bytes won't overflow ssize_t
 > + */
-
-hm.
-
 > +static ssize_t check_access_ok(int type, const struct iovec *iov, unsigned long nr_segs)
 > +{
 > +	ssize_t count = 0;
@@ -48,18 +47,23 @@ hm.
 > +
 > +		if (len < 0)		/* size_t not fitting an ssize_t .. */
 > +			goto out;
-
-do_readv_writev() already checked for negative iov_len, and that's the more
-appropriate place to do it, rather than duplicating it in each filesystem
-(or forgetting to!)
-
-So is this check really needed?
-
 > +		if (unlikely(!access_ok(type, buf, len))) {
 > +			retval = -EFAULT;
 > +			goto out;
 > +		}
+> +		count += len;
+> +		if (count < 0)		/* math overflow on the ssize_t */
+> +			goto out;
+> +	}
+> +	retval = count;
+> +out:
+> +	return retval;
+> +}
+> +
 
-Now what's up here?  Why does NFS, at this level, care about the page's
-virtual address?  get_user_pages() will handle that?
+May be move this to fs/read_write.c and export it - since we do the same
+thing there also ?
+
+Thanks,
+Badari
 

@@ -1,92 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbWESWJJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWESWJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751122AbWESWJJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 18:09:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbWESWJJ
+	id S1751167AbWESWJv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 18:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWESWJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 18:09:09 -0400
-Received: from scl-ims.phoenix.com ([216.148.212.222]:64379 "EHLO
-	scl-exch2k.phoenix.com") by vger.kernel.org with ESMTP
-	id S1751122AbWESWJI convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 18:09:08 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Fri, 19 May 2006 18:09:51 -0400
+Received: from web26605.mail.ukl.yahoo.com ([217.146.176.55]:13171 "HELO
+	web26605.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751167AbWESWJv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 18:09:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=j7t+gjY9EAA5bZi/j+eFVv26KF7VcSW+yf3UTj582I3zs9lep1HT53DlWBKSjBwwfqBgr1Ezlc8UY7hrVjH/lw4LylAtjkhdjx2T3AxpP0+7UTQxRfyFTintoIx2v65/qtyxNXAZL+b/eIMtsIPDFM8mOErujZ2GjCZUkwjcH/g=  ;
+Message-ID: <20060519220949.41083.qmail@web26605.mail.ukl.yahoo.com>
+Date: Sat, 20 May 2006 00:09:49 +0200 (CEST)
+From: linux cbon <linuxcbon@yahoo.fr>
+Subject: Re: replacing X Window System !
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: Panagiotis Issaris <takis@lumumba.uhasselt.be>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org, David Greaves <david@dgreaves.com>
+In-Reply-To: <1148051890.26628.138.camel@capoeira>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: [PATCH] fix broken vm86 interrupt/signal handling
-Date: Fri, 19 May 2006 15:09:07 -0700
-Message-ID: <0EF82802ABAA22479BC1CE8E2F60E8C3EECE1B@scl-exch2k3.phoenix.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] fix broken vm86 interrupt/signal handling
-Thread-Index: AcZ7j9XOhbnxtff1TeCgB/QIa1gRPgAABn3A
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <roland@redhat.com>, <anemo@mba.ocn.ne.jp>, <mingo@elte.hu>,
-       "Andrew Morton" <akpm@osdl.org>
-X-OriginalArrivalTime: 19 May 2006 22:09:07.0459 (UTC) FILETIME=[D91B4D30:01C67B90]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ --- Xavier Bestel <xavier.bestel@free.fr> a écrit : 
+> On Fri, 2006-05-19 at 17:13, linux cbon wrote:
+> > Hi,
+> > 
+> > does DRI access hardware *directly* ?
+> 
+> Yes it does.
+> 
+> > How does DRI compare with other drivers ?
+> 
+> DRI is not finished for r300 cards (radeon 9600 =>
+> X700 IIRC), but it
+> kind of works. The only other driver I know for r300
+> is Xorg's radeon,
+> and it's dead slow.
+> 
+> 	Xav
 
-  This patch
-www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h
-=c3ff8ec31c1249d268cd11390649768a12bec1b9 has broken vm86
-interrupt/signal handling in case when vm86 is called from kernel space.
-In this scenario, if signal is pending because of vm86 interrupt,
-do_notify_resume/do_signal exits immediately due to user_mode() check,
-without processing any signals. Thus, resume_userspace handler is
-spinning in a tight loop with signal pending and TIF_SIGPENDING is set.
-Previously everything worked Ok.
 
-  The following patch fixes the issue
+Are "DRIs" the best available open-source drivers for
+old ATI cards ? Done by reverse engineering ?
+And not all functions are usable :-(.
+What about newer ATI or Nvidia cards ? A hope for
+something better ?
 
-Signed-off-by: Aleksey Gorelov <aleksey_gorelov@phoenix.com>
+What do you think of using binary drivers (blobs)
+instead ?
+I think thats sad to use them, in an open-source
+kernel like Linux.
 
---- linux-2.6.16/arch/i386/kernel/entry.S-old	2006-05-19
-14:31:41.000000000 -0700
-+++ linux-2.6.16/arch/i386/kernel/entry.S	2006-05-19
-14:33:31.000000000 -0700
-@@ -82,6 +82,12 @@
- #define resume_kernel		restore_nocheck
- #endif
- 
-+#ifdef CONFIG_VM86
-+#define resume_userspace_sig	check_userspace
-+#else
-+#define resume_userspace_sig	resume_userspace
-+#endif
-+
- #define SAVE_ALL \
- 	cld; \
- 	pushl %es; \
-@@ -143,6 +149,7 @@
- 	preempt_stop
- ret_from_intr:
- 	GET_THREAD_INFO(%ebp)
-+check_userspace:
- 	movl EFLAGS(%esp), %eax		# mix EFLAGS and CS
- 	movb CS(%esp), %al
- 	testl $(VM_MASK | 3), %eax
-@@ -319,7 +326,7 @@
- 					# vm86-space
- 	xorl %edx, %edx
- 	call do_notify_resume
--	jmp resume_userspace
-+	jmp resume_userspace_sig
- 
- 	ALIGN
- work_notifysig_v86:
-@@ -330,7 +337,7 @@
- 	movl %eax, %esp
- 	xorl %edx, %edx
- 	call do_notify_resume
--	jmp resume_userspace
-+	jmp resume_userspace_sig
- #endif
- 
- 	# perform syscall exit tracing
+By the way : did you know of this project about an
+"open source graphic card" ?
+Hardware specs are open, so no need of DNA and
+open-source drivers coding easier :
+http://opengraphics.gitk.com/open_graphics_spec.pdf
+http://lists.duskglow.com/mailman/listinfo/open-graphics
+(still a project).
+
+
+Regards
+
+
+
+
+
+
+
+	
+	
+		
+___________________________________________________________________________ 
+Nouveau : téléphonez moins cher avec Yahoo! Messenger. Appelez le monde entier à partir de 0,012 €/minute !
+Téléchargez sur http://fr.messenger.yahoo.com

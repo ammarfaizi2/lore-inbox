@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWESIwP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWESJBy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932245AbWESIwP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 04:52:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWESIwP
+	id S1751207AbWESJBy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 05:01:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWESJBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 04:52:15 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52647 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751102AbWESIwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 04:52:14 -0400
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, dev@sw.ru, herbert@13thfloor.at,
-       devel@openvz.org, sam@vilain.net, xemul@sw.ru,
-       Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Cedric Le Goater <clg@fr.ibm.com>
-Subject: Re: [PATCH 0/9] namespaces: Introduction
-References: <20060518154700.GA28344@sergelap.austin.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 19 May 2006 02:50:19 -0600
-In-Reply-To: <20060518154700.GA28344@sergelap.austin.ibm.com> (Serge E.
- Hallyn's message of "Thu, 18 May 2006 10:47:00 -0500")
-Message-ID: <m1sln61jqs.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 19 May 2006 05:01:54 -0400
+Received: from the.earth.li ([193.201.200.66]:62185 "EHLO the.earth.li")
+	by vger.kernel.org with ESMTP id S1751207AbWESJBy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 05:01:54 -0400
+Date: Fri, 19 May 2006 10:01:42 +0100
+From: Jonathan McDowell <noodles@earth.li>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add Amstrad Delta NAND support.
+Message-ID: <20060519090142.GB7570@earth.li>
+References: <20060518160940.GS7570@earth.li> <20060518165728.GA26113@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060518165728.GA26113@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Serge E. Hallyn" <serue@us.ibm.com> writes:
+On Thu, May 18, 2006 at 06:57:28PM +0200, Jörn Engel wrote:
+> On Thu, 18 May 2006 17:09:41 +0100, Jonathan McDowell wrote:
+> > +	omap_writew(0, (OMAP_MPUIO_BASE + OMAP_MPUIO_IO_CNTL));
+>                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> Could that be done in a macro?
 
-> This patchset introduces a per-process utsname namespace.  These can
-> be used by openvz, vserver, and application migration to virtualize and
-> isolate utsname info (i.e. hostname).  More resources will follow, until
-> hopefully most or all vserver and openvz functionality can be implemented
-> by controlling resource namespaces from userspace.
->
-> Previous utsname submissions placed a pointer to the utsname namespace
-> straight in the task_struct.  This patchset (and the last one) moves
-> it and the filesystem namespace pointer into struct nsproxy, which is
-> shared by processes sharing all namespaces.  The intent is to keep
-> the taskstruct smaller as the number of namespaces grows.
+Is there any benefit to doing so?
 
+> > +	udelay(0.04);
+> 
+> Floating point in the kernel?
 
-Previously you mentioned:
-> BTW - a first set of comparison results showed nsproxy to have better
-> dbench and tbench throughput, and worse kernbench performance.  Which
-> may make sense given that nsproxy results in lower memory usage but
-> likely increased cache misses due to extra pointer dereference.
+Not quite. udelay is a macro on ARM so this ends up as an integer before
+it ever hits a function call. In an ideal world I'd use "ndelay(40);"
+but that would result in a delay of over 1µs as ARM doesn't have ndelay
+defined so we hit the generic fallback.
 
-Is this still true?  Or did our final reference counting tweak fix
-the kernbench numbers?
+> > +	ams_delta_mtd = kmalloc (sizeof(struct mtd_info) +
+>                                ^
+> > +					sizeof (struct nand_chip), GFP_KERNEL);
+> 
+> Remove space
+> 
+> And please create a structure containing both struct mtd_info and
+> struct nand_chip.  Then use sizeof(that structure)...
 
-I just want to be certain that we don't add an optimization,
-that reduces performance.
+This format is used throughout the drivers/mtd/nand/ directory. I'd
+suggest it'd be more appropriate to have a separate patch that did this
+for all of them if it's desired, rather than having each driver do its
+own thing.
 
-> Changes:
-> 	- the reference count on fs namespace and uts namespace now
-> 	  refers to the number of nsproxies pointing to it
-> 	- some consolidation of namespace cloning and exit code to
-> 	  clean up kernel/{fork,exit}.c
-> 	- passed ltp and ltpstress on smp power, x86, and x86-64
-> 	  boxes.
+Agreed on all the spacing comments you raised; hangovers from toto.c
+that I used as a base.
 
-Nice.
+J.
 
-Eric
-
+-- 
+I am a passenger.

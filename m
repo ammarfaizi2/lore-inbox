@@ -1,100 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWESHJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWESHpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbWESHJH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 03:09:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbWESHJH
+	id S932117AbWESHpj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 03:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWESHpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 03:09:07 -0400
-Received: from mx0.towertech.it ([213.215.222.73]:49133 "HELO mx0.towertech.it")
-	by vger.kernel.org with SMTP id S1750863AbWESHJG (ORCPT
+	Fri, 19 May 2006 03:45:39 -0400
+Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:25797 "EHLO
+	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S932117AbWESHpi convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 03:09:06 -0400
-Date: Fri, 19 May 2006 09:08:58 +0200
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-       Ingo Oeser <ioe-lkml@rameria.de>, "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: [PATCH] rtc subsystem, use ENOIOCTLCMD and ENOTTY where appropriate
-Message-ID: <20060519090858.7008b79f@inspiron>
-Organization: Tower Technologies
-X-Mailer: Sylpheed
-Mime-Version: 1.0
+	Fri, 19 May 2006 03:45:38 -0400
+X-OB-Received: from unknown (192.168.9.232)
+  by 192.168.8.90; 19 May 2006 07:45:36 -0000
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+From: "Penshoppe Estrada" <penshoppe@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 19 May 2006 15:45:36 +0800
+Subject: Kernel compile Error
+X-Originating-Ip: 203.177.104.33
+X-Originating-Server: ws5-11.us4.outblaze.com
+Message-Id: <20060519074536.95542CA0A4@ws5-11.us4.outblaze.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+
+Good Day!
+
+Anyone could help me with this error. Thanks in advance.
 
 
-Appropriately use -ENOIOCTLCMD and -ENOTTY when
-the ioctl is not implemented by a driver.
+  CC      net/netfilter/xt_string.o
+  CC      net/netfilter/xt_tcpmss.o
+  LD      net/netfilter/built-in.o
+  CC      net/netlink/af_netlink.o
+net/netlink/af_netlink.c: In function `netlink_release':
+net/netlink/af_netlink.c:472: error: structure has no member named `protinfo'
+net/netlink/af_netlink.c:472: error: structure has no member named `protinfo'
+net/netlink/af_netlink.c:473: error: structure has no member named `protocol'
+net/netlink/af_netlink.c:474: error: structure has no member named `protinfo'
+net/netlink/af_netlink.c: At top level:
+net/netlink/af_netlink.c:562: error: redefinition of 'netlink_capable'
+net/netlink/af_netlink.c:521: error: previous definition of 'netlink_capable' was here
+net/netlink/af_netlink.c: In function `netlink_capable':
+net/netlink/af_netlink.c:563: error: structure has no member named `protocol'
+net/netlink/af_netlink.c: At top level:
+net/netlink/af_netlink.c:1298: error: redefinition of 'netlink_set_nonroot'
+net/netlink/af_netlink.c:1292: error: previous definition of 'netlink_set_nonroot' was here
+make[2]: *** [net/netlink/af_netlink.o] Error 1
+make[1]: *** [net/netlink] Error 2
+make: *** [net] Error 2
+[root@ja linux-2.6.16]#
 
-Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
 
----
- drivers/rtc/rtc-dev.c    |    6 +++---
- drivers/rtc/rtc-sa1100.c |    2 +-
- drivers/rtc/rtc-test.c   |    2 +-
- drivers/rtc/rtc-vr41xx.c |    2 +-
- 4 files changed, 6 insertions(+), 6 deletions(-)
+-- 
+_______________________________________________
+Check out the latest SMS services @ http://www.linuxmail.org
+This allows you to send and receive SMS through your mailbox.
 
---- linux-rtc.orig/drivers/rtc/rtc-test.c	2006-05-17 01:21:35.000000000 +0200
-+++ linux-rtc/drivers/rtc/rtc-test.c	2006-05-17 01:22:39.000000000 +0200
-@@ -71,7 +71,7 @@ static int test_rtc_ioctl(struct device 
- 		return 0;
- 
- 	default:
--		return -EINVAL;
-+		return -ENOIOCTLCMD;
- 	}
- }
- 
---- linux-rtc.orig/drivers/rtc/rtc-vr41xx.c	2006-05-17 01:21:59.000000000 +0200
-+++ linux-rtc/drivers/rtc/rtc-vr41xx.c	2006-05-19 09:05:03.000000000 +0200
-@@ -270,7 +270,7 @@ static int vr41xx_rtc_ioctl(struct devic
- 		epoch = arg;
- 		break;
- 	default:
--		return -EINVAL;
-+		return -ENOIOCTLCMD;
- 	}
- 
- 	return 0;
---- linux-rtc.orig/drivers/rtc/rtc-sa1100.c	2006-05-17 01:18:19.000000000 +0200
-+++ linux-rtc/drivers/rtc/rtc-sa1100.c	2006-05-19 09:05:03.000000000 +0200
-@@ -247,7 +247,7 @@ static int sa1100_rtc_ioctl(struct devic
- 		rtc_freq = arg;
- 		return 0;
- 	}
--	return -EINVAL;
-+	return -ENOIOCTLCMD;
- }
- 
- static int sa1100_rtc_read_time(struct device *dev, struct rtc_time *tm)
---- linux-rtc.orig/drivers/rtc/rtc-dev.c	2006-05-17 01:18:19.000000000 +0200
-+++ linux-rtc/drivers/rtc/rtc-dev.c	2006-05-19 09:06:00.000000000 +0200
-@@ -141,13 +141,13 @@ static int rtc_dev_ioctl(struct inode *i
- 	/* try the driver's ioctl interface */
- 	if (ops->ioctl) {
- 		err = ops->ioctl(class_dev->dev, cmd, arg);
--		if (err != -EINVAL)
-+		if (err != -ENOIOCTLCMD)
- 			return err;
- 	}
- 
- 	/* if the driver does not provide the ioctl interface
- 	 * or if that particular ioctl was not implemented
--	 * (-EINVAL), we will try to emulate here.
-+	 * (-ENOIOCTLCMD), we will try to emulate here.
- 	 */
- 
- 	switch (cmd) {
-@@ -233,7 +233,7 @@ static int rtc_dev_ioctl(struct inode *i
- 		break;
- 
- 	default:
--		err = -EINVAL;
-+		err = -ENOTTY;
- 		break;
- 	}
- 
+Powered by Outblaze

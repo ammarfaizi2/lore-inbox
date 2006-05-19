@@ -1,66 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbWESUGY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWESUEa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932473AbWESUGY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 16:06:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbWESUGY
+	id S932191AbWESUEa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 16:04:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbWESUEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 16:06:24 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:485 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932473AbWESUGY (ORCPT
+	Fri, 19 May 2006 16:04:30 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:22949 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932191AbWESUEa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 16:06:24 -0400
-Subject: Re: [PATCH 0/9] namespaces: Introduction
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Herbert Poetzl <herbert@13thfloor.at>, serue@us.ibm.com,
-       linux-kernel@vger.kernel.org, dev@sw.ru, devel@openvz.org,
-       sam@vilain.net, ebiederm@xmission.com, xemul@sw.ru, clg@fr.ibm.com
-In-Reply-To: <20060519081334.06ce452d.akpm@osdl.org>
-References: <20060518154700.GA28344@sergelap.austin.ibm.com>
-	 <20060518103430.080e3523.akpm@osdl.org>
-	 <20060519124235.GA32304@MAIL.13thfloor.at>
-	 <20060519081334.06ce452d.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 19 May 2006 13:04:49 -0700
-Message-Id: <1148069089.6623.197.camel@localhost.localdomain>
+	Fri, 19 May 2006 16:04:30 -0400
+Date: Fri, 19 May 2006 13:07:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: cel@citi.umich.edu
+Cc: cel@netapp.com, linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
+Subject: Re: [PATCH 5/6] nfs: check all iov segments for correct memory
+ access rights
+Message-Id: <20060519130712.01828395.akpm@osdl.org>
+In-Reply-To: <446E1E4D.7050800@citi.umich.edu>
+References: <20060519175652.3244.7079.stgit@brahms.dsl.sfldmi.ameritech.net>
+	<20060519180036.3244.70897.stgit@brahms.dsl.sfldmi.ameritech.net>
+	<20060519112231.5ed3d565.akpm@osdl.org>
+	<446E1E4D.7050800@citi.umich.edu>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-05-19 at 08:13 -0700, Andrew Morton wrote:
-> snapshot/restart/migration worry me.  If they require complete
-> serialisation of complex kernel data structures then we have a problem,
-> because it means that any time anyone changes such a structure they need to
-> update (and test) the serialisation.
+Chuck Lever <cel@citi.umich.edu> wrote:
+>
+> Andrew Morton wrote:
+> >> +		if (unlikely(!access_ok(type, buf, len))) {
+> >> +			retval = -EFAULT;
+> >> +			goto out;
+> >> +		}
+> > 
+> > Now what's up here?  Why does NFS, at this level, care about the page's
+> > virtual address?  get_user_pages() will handle that?
+> 
+> I guess I'm not clear on what behavior is desired for scatter/gather if 
+> one of the segments in an iov fails.
+> 
+> If one of the iov's will cause an EFAULT, how is that reported back to 
+> the application,
 
-The idea of actually serializing kernel data structures keeps me up at
-night.  This is especially true when we already have some method of
-exporting these structures to userspace.
+If nothing has yet been transferred to/from userspace, return -EFAULT.
 
-Take VMAs, for example.  Should we have a set of interfaces for saving
-and restoring VMAs, or should we just make any program which is doing
-checkpoint/restart use /proc/<pid>/maps on checkpoint and mmap() on
-restore?
+If something has been transferred, return the number of bytes transferred.
 
-It, of course, isn't that simple.  Any interface focused on VMAs inside
-the kernel will have the serialization issues you describe.  I think
-this is such an approach:
+> and what happens to the I/O being requested in the 
+> other segments of the vector?
 
-http://git.openvz.org/?p=linux-2.6-openvz;a=blob;f=kernel/cpt/cpt_mm.c
-http://git.openvz.org/?p=linux-2.6-openvz;a=blob;f=kernel/cpt/rst_mm.c
+The filesystem driver needs to handle it somehow.
 
-However, the proc-maps/mmap approach would require new interfaces to be
-implemented.  There are plenty of attributes not currently readily
-visible to userspace like VM_NONLINEAR, or resources which are normally
-inaccessible to userspace like deleted files.  Those would need extended
-user/kernel interfaces.
+>  When do we use an "all or nothing" 
+> semantic, and when is it OK for some segments to fail?
 
-I know of at least one in-kernel commercial checkpoint/restart product
-which was relatively well tested with "a certain large DB that uses
-remap_file_pages()" that never even noticed that it completely missed
-VM_NONLINEAR support until vm-savvy people saw the code.  Scary.
+Actually, fs/direct-io.c cheats and doesn't implement the correct
+semantics.  It returns either all-bytes-transferred or -EFOO.  The way I
+justify that is to point out that returning a partial transfer count
+doesn't make a lot of sense when the I/Os could complete in any order -
+yes, we know how much data got transferred, but we don't know whereabouts
+in the user's memory that data ended up.  So the user cannot trust _any_ of
+it.
 
--- Dave
+NFS direct-io can do the same.
+
+But access_ok() isn't sufficient.  All it tells you is that the virtual
+address is a legal one for an application.  But we could still get EFAULT
+when trying to access it.
 

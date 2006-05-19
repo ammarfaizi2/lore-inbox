@@ -1,99 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWESRhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751043AbWESRpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751406AbWESRhX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 13:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWESRhX
+	id S1751043AbWESRpm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 13:45:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWESRpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 13:37:23 -0400
-Received: from xenotime.net ([66.160.160.81]:7056 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751406AbWESRhX (ORCPT
+	Fri, 19 May 2006 13:45:41 -0400
+Received: from lea.cs.unibo.it ([130.136.1.101]:11242 "EHLO lea.cs.unibo.it")
+	by vger.kernel.org with ESMTP id S1751043AbWESRpl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 13:37:23 -0400
-Date: Fri, 19 May 2006 10:39:52 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: serue@us.ibm.com, linux-kernel@vger.kernel.org, dev@sw.ru,
-       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net, xemul@sw.ru,
-       haveblue@us.ibm.com, akpm@osdl.org, clg@fr.ibm.com
-Subject: Re: [PATCH 4/9] namespaces: utsname: switch to using uts namespaces
-Message-Id: <20060519103952.10cdae1e.rdunlap@xenotime.net>
-In-Reply-To: <m1lksy1j1o.fsf@ebiederm.dsl.xmission.com>
-References: <20060518154700.GA28344@sergelap.austin.ibm.com>
-	<20060518154936.GE28344@sergelap.austin.ibm.com>
-	<20060518170234.07c8fe4c.rdunlap@xenotime.net>
-	<m1lksy1j1o.fsf@ebiederm.dsl.xmission.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Fri, 19 May 2006 13:45:41 -0400
+Date: Fri, 19 May 2006 19:45:34 +0200
+To: Ulrich Drepper <drepper@gmail.com>, Andi Kleen <ak@suse.de>,
+       osd@cs.unibo.it, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2-ptrace_multi
+Message-ID: <20060519174534.GA22346@cs.unibo.it>
+References: <20060518155337.GA17498@cs.unibo.it> <20060518155848.GC17498@cs.unibo.it> <p73sln72im3.fsf@bragg.suse.de> <20060518211321.GC6806@cs.unibo.it> <a36005b50605181923k285b4d50y30d6b43baede95ca@mail.gmail.com> <20060519090726.GA11789@cs.unibo.it> <20060519130952.GA1242@nevyn.them.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060519130952.GA1242@nevyn.them.org>
+User-Agent: Mutt/1.5.6+20040907i
+From: renzo@cs.unibo.it (Renzo Davoli)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 May 2006 03:05:23 -0600 Eric W. Biederman wrote:
-
-> "Randy.Dunlap" <rdunlap@xenotime.net> writes:
+On Fri, May 19, 2006 at 09:09:52AM -0400, Daniel Jacobowitz wrote:
+> On Fri, May 19, 2006 at 11:07:26AM +0200, Renzo Davoli wrote:
+> > On Thu, May 18, 2006 at 07:23:13PM -0700, Ulrich Drepper wrote:
+> > > On 5/18/06, Renzo Davoli <renzo@cs.unibo.it> wrote:
+> > > >e.g. To virtualize a write you'd have to call PTRACE_PEEKDATA for each
+> > > >word of the buffer, very many hundreds cycles lost.
+> > > 
+> > > No, this is not how programs should do it.  Just open /proc/PID/mem
+> > > and use pread() with an offset corresponding to the address.  Now,
+> > > repeat your timings using this technique.
+> > 
+> > That would be faster to access the memory but:
+> > - the manager has to keep one open file per controlled process
 > 
-> > On Thu, 18 May 2006 10:49:36 -0500 Serge E. Hallyn wrote:
-> >
-> >> Replace references to system_utsname to the per-process uts namespace
-> >> where appropriate.  This includes things like uname.
-> >> 
-> >> Changes: Per Eric Biederman's comments, use the per-process uts namespace
-> >> 	for ELF_PLATFORM, sunrpc, and parts of net/ipv4/ipconfig.c
-> >> 
-> >> Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+> No, it doesn't.  It can open it as needed.  It can even maintain a
+> cache of open mem files.
 > 
-> >
-> > OK, here's my big comment/question.  I want to see <nodename> increased to
-> > 256 bytes (per current POSIX), so each field of struct <variant>_utsname
-> > needs be copied individually (I think) instead of doing a single
-> > struct copy.
+> GDB's been opening it as needed for years.  It works very well and is
+> drastically faster than PTRACE_PEEKDATA.
 > 
-> Where is it specified?  Looking at the spec as SUSV3 I don't see a size
-> specified for nodename.
+Over all I could speed up just half of the calls because I cannot write
+in /proc/<pid>/mem !
+You are proposing a solution which speeds up writes but not reads.
 
-It's actually for hostname.  It looks to me like they are used
-interchangeably.  yes/no?
+(from fs/proc/base.c)
+#define mem_write NULL
 
-gethostname:
-http://www.opengroup.org/onlinepubs/009695399/functions/gethostname.html
-sysconf:
-http://www.opengroup.org/onlinepubs/009695399/functions/sysconf.html
-unistd.h:
-http://www.opengroup.org/onlinepubs/009695399/basedefs/unistd.h.html
-limits.h:
-http://www.opengroup.org/onlinepubs/009695399/basedefs/limits.h.html
+#ifndef mem_write
+/* This is a security hazard */
+static ssize_t mem_write(struct file * file, const char * buf,
+       size_t count, loff_t *ppos)
+....
+#endif
 
->From the latter:
-{HOST_NAME_MAX}
-    Maximum length of a host name (not including the terminating null) as returned from the gethostname() function.
-    Minimum Acceptable Value: {_POSIX_HOST_NAME_MAX}
-(and)
-{_POSIX_HOST_NAME_MAX}
-    Maximum length of a host name (not including the terminating null) as returned from the gethostname() function.
-    Value: 255
+My proposals should not add any threats which is not already in 
+PTRACE_POKEDATA. Now, either the threat do currently exist and my
+proposed patch makes is exploitable in a faster way, or it did not
+exist and it still does not exist.
+PTRACE_MULTI just executes several ptrace requests in a single call.
 
+Other projects would benefit from a similar patch:
+see: www.cs.wisc.edu/condor/doc/parrot-agm2003.pdf 
+http://www.cse.nd.edu/~dthain/papers/ibox-sc05.pdf
+They had the very same problem.
 
-
-> > I've been working on this for the past few weeks (among other
-> > things).  Sorry about the timing.
-> > I could send patches for this against mainline in a few days,
-> > but I'll be glad to listen to how it would be easiest for all of us
-> > to handle.
-> >
-> > I'm probably a little over half done with my patches.
-> > They will end up adding a lib/utsname.c that has functions for:
-> >   put_oldold_uname()	// to user
-> >   put_old_uname()	// to user
-> >   put_new_uname()	// to user
-> >   put_posix_uname()	// to user
-> 
-> Sounds reasonable, if we really need a 256 byte nodename.
-> 
-> As long as they take a pointer to the appropriate utsname
-> structure these patches should not fundamentally conflict.
-
-
----
-~Randy
+	renzo

@@ -1,64 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWESHpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWESI3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWESHpj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 03:45:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWESHpj
+	id S932130AbWESI3J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 04:29:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbWESI3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 03:45:39 -0400
-Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:25797 "EHLO
-	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S932117AbWESHpi convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 03:45:38 -0400
-X-OB-Received: from unknown (192.168.9.232)
-  by 192.168.8.90; 19 May 2006 07:45:36 -0000
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 19 May 2006 04:29:09 -0400
+Received: from mtagate1.uk.ibm.com ([195.212.29.134]:58761 "EHLO
+	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP id S932130AbWESI3I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 04:29:08 -0400
+In-Reply-To: <446CE7E2.8050302@redhat.com>
+Subject: Re: [PATCH] kprobes: bad manipulation of 2 byte opcode on x86_64
+Sensitivity: 
+To: Satoshi Oshima <soshima@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>,
+       "Hideo AOKI@redhat" <haoki@redhat.com>,
+       Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>,
+       Jim Keniston <jkenisto@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Ananth N Mavinakayanahalli <mananth@in.ibm.com>,
+       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
+       sugita <sugita@sdl.hitachi.co.jp>, systemtap@sources.redhat.com,
+       systemtap-owner@sourceware.org
+X-Mailer: Lotus Notes Release 6.5.1IBM February 19, 2004
+Message-ID: <OFAED3DE10.BAEAFDF2-ON41257173.002E89ED-41257173.002E9AB6@uk.ibm.com>
+From: Richard J Moore <richardj_moore@uk.ibm.com>
+Date: Fri, 19 May 2006 09:29:02 +0100
+X-MIMETrack: Serialize by Router on D06ML065/06/M/IBM(Release 6.53HF247 | January 6, 2005) at
+ 19/05/2006 09:30:04
 MIME-Version: 1.0
-From: "Penshoppe Estrada" <penshoppe@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Fri, 19 May 2006 15:45:36 +0800
-Subject: Kernel compile Error
-X-Originating-Ip: 203.177.104.33
-X-Originating-Server: ws5-11.us4.outblaze.com
-Message-Id: <20060519074536.95542CA0A4@ws5-11.us4.outblaze.com>
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-Good Day!
-
-Anyone could help me with this error. Thanks in advance.
 
 
-  CC      net/netfilter/xt_string.o
-  CC      net/netfilter/xt_tcpmss.o
-  LD      net/netfilter/built-in.o
-  CC      net/netlink/af_netlink.o
-net/netlink/af_netlink.c: In function `netlink_release':
-net/netlink/af_netlink.c:472: error: structure has no member named `protinfo'
-net/netlink/af_netlink.c:472: error: structure has no member named `protinfo'
-net/netlink/af_netlink.c:473: error: structure has no member named `protocol'
-net/netlink/af_netlink.c:474: error: structure has no member named `protinfo'
-net/netlink/af_netlink.c: At top level:
-net/netlink/af_netlink.c:562: error: redefinition of 'netlink_capable'
-net/netlink/af_netlink.c:521: error: previous definition of 'netlink_capable' was here
-net/netlink/af_netlink.c: In function `netlink_capable':
-net/netlink/af_netlink.c:563: error: structure has no member named `protocol'
-net/netlink/af_netlink.c: At top level:
-net/netlink/af_netlink.c:1298: error: redefinition of 'netlink_set_nonroot'
-net/netlink/af_netlink.c:1292: error: previous definition of 'netlink_set_nonroot' was here
-make[2]: *** [net/netlink/af_netlink.o] Error 1
-make[1]: *** [net/netlink] Error 2
-make: *** [net] Error 2
-[root@ja linux-2.6.16]#
 
 
--- 
-_______________________________________________
-Check out the latest SMS services @ http://www.linuxmail.org
-This allows you to send and receive SMS through your mailbox.
+Is there any possibility of a inducing a page fault when checking the
+second byte?
+- -
+Richard J Moore
+IBM Advanced Linux Response Team - Linux Technology Centre
+MOBEX: 264807; Mobile (+44) (0)7739-875237
+Office: (+44) (0)1962-817072
 
-Powered by Outblaze
+
+                                                                           
+             Satoshi Oshima                                                
+             <soshima@redhat                                               
+             .com>                                                      To 
+             Sent by:                  Andi Kleen <ak@suse.de>, Andrew     
+             systemtap-owner           Morton <akpm@osdl.org>              
+             @sourceware.org                                            cc 
+                                       linux-kernel@vger.kernel.org,       
+                                       systemtap@sources.redhat.com,       
+             18/05/2006                "Keshavamurthy, Anil S"             
+             22:32                     <anil.s.keshavamurthy@intel.com>,   
+                                       Ananth N Mavinakayanahalli          
+                                       <mananth@in.ibm.com>, Jim Keniston  
+                                       <jkenisto@us.ibm.com>, Prasanna S   
+                                       Panchamukhi <prasanna@in.ibm.com>,  
+                                       "Hideo AOKI@redhat"                 
+                                       <haoki@redhat.com>, Masami          
+                                       Hiramatsu                           
+                                       <hiramatu@sdl.hitachi.co.jp>,       
+                                       sugita <sugita@sdl.hitachi.co.jp>   
+                                                                       bcc 
+                                                                           
+                                                                   Subject 
+                                       [PATCH] kprobes: bad manupilation   
+                                       of 2 byte opcode on x86_64          
+                                                                           
+                                                                           
+
+
+
+
+Hi Andi and Andrew,
+
+I found a bug of kprobes on x86_64.
+I attached the fix of this bug.
+
+
+Problem:
+
+If we put a probe onto a callq instruction and the probe
+is executed, kernel panic of Bad RIP value occurs.
+
+Root cause:
+
+If resume_execution() found 0xff at first byte of
+p->ainsn.insn, it must check the _second_ byte.
+But current resume_execution check _first_ byte again.
+
+
+I changed it checks second byte of p->ainsn.insn.
+
+Kprobes on i386 don't have this problem, because
+the implementation is a little bit different from
+x86_64.
+
+
+Regards,
+
+Satoshi Oshima
+Hitachi Computer Product (America) Inc.
+
+----------------------------------------------
+
+diff -Narup linux-2.6.17-rc3-mm1.orig/arch/x86_64/kernel/kprobes.c
+x86_64_bugifx/arch/x86_64/kernel/kprobes.c
+--- linux-2.6.17-rc3-mm1.orig/arch/x86_64/kernel/kprobes.c
+2006-05-04 12:34:44.000000000 -0400
++++ x86_64_bugifx/arch/x86_64/kernel/kprobes.c         2006-05-12
+16:02:35.000000000 -0400
+@@ -514,13 +514,13 @@ static void __kprobes resume_execution(s
+                         *tos = orig_rip + (*tos - copy_rip);
+                         break;
+             case 0xff:
+-                        if ((*insn & 0x30) == 0x10) {
++                        if ((insn[1] & 0x30) == 0x10) {
+                                     /* call absolute, indirect */
+                                     /* Fix return addr; rip is correct. */
+                                     next_rip = regs->rip;
+                                     *tos = orig_rip + (*tos - copy_rip);
+-                        } else if (((*insn & 0x31) == 0x20) ||          /*
+jmp near, absolute indirect */
+-                                       ((*insn & 0x31) == 0x21)) {
+ /* jmp far, absolute indirect */
++                        } else if (((insn[1] & 0x31) == 0x20) ||        /*
+jmp near, absolute indirect */
++                                       ((insn[1] & 0x31) == 0x21)) {
+ /* jmp far, absolute indirect */
+                                     /* rip is correct. */
+                                     next_rip = regs->rip;
+                         }
+
+
+

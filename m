@@ -1,49 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbWESUra@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWESUtx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964833AbWESUra (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 16:47:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbWESUr3
+	id S964836AbWESUtx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 16:49:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbWESUtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 16:47:29 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:16816 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964833AbWESUr3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 16:47:29 -0400
-Date: Fri, 19 May 2006 13:49:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: mel@csn.ul.ie, nickpiggin@yahoo.com.au, haveblue@us.ibm.com, ak@suse.de,
-       bob.picco@hp.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       apw@shadowen.org, mingo@elte.hu, mbligh@mbligh.org
-Subject: Re: [PATCH 1/2] Align the node_mem_map endpoints to a MAX_ORDER
- boundary
-Message-Id: <20060519134948.10992ba1.akpm@osdl.org>
-In-Reply-To: <20060519134301.29021.71137.sendpatchset@skynet>
-References: <20060519134241.29021.84756.sendpatchset@skynet>
-	<20060519134301.29021.71137.sendpatchset@skynet>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
+	Fri, 19 May 2006 16:49:53 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:63435 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S964836AbWESUtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 16:49:53 -0400
+Message-ID: <62331.192.18.1.5.1148071784.squirrel@housecafe.dyndns.org>
+Date: Fri, 19 May 2006 21:49:44 +0100 (BST)
+Subject: SCSI ABORT with 2.6.17-rc4-mm1
+From: "Christian Kujau" <evil@g-house.de>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+User-Agent: SquirrelMail/1.5.2 [CVS]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:f96d4aaab3db5f10cc75fadfe8b23b1e
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mel Gorman <mel@csn.ul.ie> wrote:
->
-> Andy added code to buddy allocator which does not require the zone's
-> endpoints to be aligned to MAX_ORDER. An issue is that the buddy
-> allocator requires the node_mem_map's endpoints to be MAX_ORDER aligned.
-> Otherwise __page_find_buddy could compute a buddy not in node_mem_map for
-> partial MAX_ORDER regions at zone's endpoints. page_is_buddy will detect
-> that these pages at endpoints are not PG_buddy (they were zeroed out by
-> bootmem allocator and not part of zone). Of course the negative here is
-> we could waste a little memory but the positive is eliminating all the
-> old checks for zone boundary conditions.
-> 
-> SPARSEMEM won't encounter this issue because of MAX_ORDER size constraint
-> when SPARSEMEM is configured. ia64 VIRTUAL_MEM_MAP doesn't need the
-> logic either because the holes and endpoints are handled differently.
-> This leaves checking alloc_remap and other arches which privately allocate
-> for node_mem_map.
+[sorry for repost, local MTA problems here...]
 
-Do we think we need this in 2.6.17?
+Hi list, Hi Andrew,
+
+I cannot boot 2.6.17-rc4-mm1 because my rootdisk is a scsi disk and upon
+scsi-init (SYM53C8XX_2) I'm getting:
+
+May 19 15:39:55 prinz sym0: <895> rev 0x1 at pci 0000:02:09.0 irq 161
+May 19 15:39:55 prinz sym0: Tekram NVRAM, ID 7, Fast-40, LVD, parity checking
+May 19 15:39:55 prinz sym0: SCSI BUS has been reset.
+May 19 15:39:55 prinz scsi0 : sym-2.2.3
+May 19 15:40:08 prinz 0:0:0:0: ABORT operation started.
+May 19 15:40:13 prinz 0:0:0:0: ABORT operation timed-out.
+May 19 15:40:13 prinz 0:0:0:0: DEVICE RESET operation started.
+May 19 15:40:18 prinz 0:0:0:0: DEVICE RESET operation timed-out.
+May 19 15:40:18 prinz 0:0:0:0: BUS RESET operation started.
+May 19 15:40:23 prinz 0:0:0:0: BUS RESET operation timed-out.
+May 19 15:40:23 prinz 0:0:0:0: HOST RESET operation started.
+May 19 15:40:23 prinz sym0: SCSI BUS has been reset.
+May 19 15:40:28 prinz 0:0:0:0: HOST RESET operation timed-out.
+May 19 15:40:28 prinz 0:0:0:0: scsi: Device offlined - not ready after
+error recovery
+May 19 15:40:33 prinz 0:0:1:0: ABORT operation started.
+May 19 15:40:38 prinz 0:0:1:0: ABORT operation timed-out.
+May 19 15:40:38 prinz 0:0:1:0: DEVICE RESET operation started.
+May 19 15:40:43 prinz 0:0:1:0: DEVICE RESET operation timed-out.
+May 19 15:40:43 prinz 0:0:1:0: BUS RESET operation started.
+
+I have backed out drivers-scsi-use-array_size-macro.patch, but to no
+avail. There are other scsi-related patches in the broken-out
+mm-directory, any hint which one to try first? Sometimes they're dependent
+on each other, so I find it not easy to just "patch -R" all "*scsi*.patch"
+files.
+
+Please see http://www.nerdbynature.de/bits/2.6.17-rc4-mm1/  for a
+netsconsole-dmesg for 2.6.17-rc4 (working fine) and a the -mm1.
+
+I've tried different .configs for -mm1, created with:
+
+- yes ''  | make oldconfig (config-2.6-mm.2.6.17-rc4-mm1.oldconfig_default)
+- yes 'N' | make oldconfig (config-2.6-mm.2.6.17-rc4-mm1.oldconfig_no)
+- make oldlconfig (interactive, config-2.6-mm.2.6.17-rc4-mm1.oldconfig_my)
+
+Thanks,
+Christian.
+-- 
+BOFH excuse #442:
+
+Trojan horse ran out of hay
+
+
+-- 
+BOFH excuse #442:
+
+Trojan horse ran out of hay
+

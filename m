@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWESLWY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWESLi3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932275AbWESLWY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 07:22:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbWESLWX
+	id S932289AbWESLi3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 07:38:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbWESLi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 07:22:23 -0400
-Received: from bigben2.bytemark.co.uk ([80.68.81.132]:16566 "EHLO
-	bigben2.bytemark.co.uk") by vger.kernel.org with ESMTP
-	id S932275AbWESLWX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 07:22:23 -0400
-Date: Fri, 19 May 2006 12:22:19 +0100
-From: "Dr. David Alan Gilbert" <linux@treblig.org>
+	Fri, 19 May 2006 07:38:29 -0400
+Received: from web52610.mail.yahoo.com ([206.190.48.213]:29074 "HELO
+	web52610.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932289AbWESLi2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 07:38:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=dviWSk4FMUlo8aaw1t0yxUKHBJP7nj/eMw2Rlxx5RfkYkPgwYg9U3Qp2b7s3OeHwAb118aYY0IVTbFKNu/MLanzzJzz6US1kRNTLWYiv/nVCYZl+x8KXwpJccDGwczDyjH6gKWsQB3t6ob6ibdL01LrhEewBKOD9BJT+IJZ819M=  ;
+Message-ID: <20060519113827.67113.qmail@web52610.mail.yahoo.com>
+Date: Fri, 19 May 2006 21:38:27 +1000 (EST)
+From: Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>
+Subject: Re: Multi-threaded Program & Strace Problem
 To: linux-kernel@vger.kernel.org
-Cc: John Richard Moser <nigelenki@comcast.net>
-Subject: Re: Stealing ur megahurts (no, really)
-Message-ID: <20060519112218.GE19673@gallifrey>
-References: <446D61EE.4010900@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <446D61EE.4010900@comcast.net>
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.4.32 (i686)
-X-Uptime: 12:13:59 up 10 days, 26 min,  1 user,  load average: 0.01, 0.12, 0.14
-User-Agent: Mutt/1.5.9i
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* John Richard Moser (nigelenki@comcast.net) wrote:
+[Sorry to reply to my own email, but there was a
+typo.]
 
-> Scrambling for an old machine is ridiculous.  Down-clocking makes sense
-> because you can adjust to varied levels; but it's difficult and usually
-> infeasible.  Pulling memory and mix and matching is not much better.
+--- Srihari Vijayaraghavan
+<sriharivijayaraghavan@yahoo.com.au> wrote:
+> 1. $ for seq `900`; do echo localhost >> hosts.txt;
+> done
 
-<...>
+Oops. It ought to read:
+$ for i in `seq 900`; do echo localhost >> hosts.txt;
+done
 
-> This brings the idea of a cpumhz= parameter to adjust CPU clock rate.
-> Obviously we can't do this directly, as convenient as this would be; but
-> the idea warrants some thought, and some thought I gave it.  What I came
-> up with was simple:  Adjust time slice length and place a delay between
-> time slices so they're evenly spaced.
+Rest remain the same.
 
-<...>
+Sorry for the trouble.
 
-Hi John,
-  While cpu downclocking helps a bit, it would be hopelessly inaccurate
-for figuring out if your app would run fast enough on the given
-ancient machine.  A lot else has happened to the world since the days
-of the 200MHz CPU:
-    * Faster memory
-    * Larger caches
-    * Faster PCI busses
-    * Instruction set additions (various more levels of SSE etc)
-    * Faster discs
-    * Changes to the CPU architecture/implementation
+Thanks
 
-Still, it would be interesting to see the difference in performance
-of a downclocked modern processor and its 10 year old clock equivalent.
 
-Dave
 
--- 
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+		
+____________________________________________________ 
+On Yahoo!7 
+Dating: It's free to join and check out our great singles! 
+http://www.yahoo7.com.au/personals

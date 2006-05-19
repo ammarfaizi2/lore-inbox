@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWESVMv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbWESV2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbWESVMv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 17:12:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbWESVMv
+	id S964853AbWESV2v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 17:28:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbWESV2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 17:12:51 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55991 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964845AbWESVMu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 17:12:50 -0400
-Date: Fri, 19 May 2006 14:15:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: sct@redhat.com, torvalds@osdl.org, aia21@cam.ac.uk,
-       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sector_t overflow in block layer
-Message-Id: <20060519141522.76c2938e.akpm@osdl.org>
-In-Reply-To: <20060519205550.GI5964@schatzie.adilger.int>
-References: <m364k4zfor.fsf@bzzz.home.net>
-	<20060517235804.GA5731@schatzie.adilger.int>
-	<1147947803.5464.19.camel@sisko.sctweedie.blueyonder.co.uk>
-	<20060518185955.GK5964@schatzie.adilger.int>
-	<Pine.LNX.4.64.0605181403550.10823@g5.osdl.org>
-	<Pine.LNX.4.64.0605182307540.16178@hermes-1.csi.cam.ac.uk>
-	<Pine.LNX.4.64.0605181526240.10823@g5.osdl.org>
-	<20060518232324.GW5964@schatzie.adilger.int>
-	<1148067412.5156.65.camel@sisko.sctweedie.blueyonder.co.uk>
-	<20060519131130.71c390d9.akpm@osdl.org>
-	<20060519205550.GI5964@schatzie.adilger.int>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 19 May 2006 17:28:49 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:58326 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S964849AbWESV2s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 17:28:48 -0400
+Subject: Re: [PATCH 1/1] scsi : megaraid_{mm,mbox}: a fix on 64-bit DMA
+	capability check
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
+Cc: Vasily Averin <vvs@sw.ru>, Andrew Morton <akpm@osdl.org>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <890BF3111FB9484E9526987D912B261901BD91@NAMAIL3.ad.lsil.com>
+References: <890BF3111FB9484E9526987D912B261901BD91@NAMAIL3.ad.lsil.com>
+Content-Type: text/plain
+Date: Fri, 19 May 2006 16:28:00 -0500
+Message-Id: <1148074080.3410.105.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger <adilger@clusterfs.com> wrote:
->
-> One extra suggestion that might be safe and acceptible all around is if
-> a device is larger than 2TB w/o a 64-bit sector_t that the block device
-> size itself be truncated in the kernel to 2TB-512.  This at least prevents
-> userspace tools from trying to e.g. format a 3TB filesystem on a device
-> that will just corrupt the filesystem.
+On Fri, 2006-05-19 at 09:09 -0600, Ju, Seokmann wrote:
 
-'twould be good if we could do something like that - doing it on every
-single IO submission in submit_bh() Just Feels Wrong.
+> +		adapter->pdev->device == PCI_DEVICE_ID_LINDSAY)) {
+> +		if (pci_set_dma_mask(adapter->pdev, DMA_64BIT_MASK) !=
+> 0) {
+> +			con_log(CL_ANN, (KERN_WARNING
+> +				"megaraid: could not set DMA mask for
+> 64-bit.\n"));
+>  
+> -		goto out_free_sysfs_res;
 
-Also, there's always the option (or enhancement) of emitting lots of scary
-warnings and then just proceeding.
+Well, this really isn't quite right.  There are 32 bit platforms which
+will refuse a 64 bit DMA mask on principle.  You need to retry with a 32
+bit mask before erroring out, exactly like you've done in megaraid_sas.c
+
+Also, it's a bit strange having a 32 bit mask set initially in probe_one
+and then being reset in init_mbox.  Why not just consolidate all the PCI
+register testing and mask setting in probe_one?
+
+James
+
+

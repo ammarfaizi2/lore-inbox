@@ -1,47 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWESUSl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWESUXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964811AbWESUSl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 16:18:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWESUSl
+	id S964817AbWESUXK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 16:23:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbWESUXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 16:18:41 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:3749 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964811AbWESUSk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 16:18:40 -0400
-Subject: Re: [PATCH 0/9] namespaces: Introduction
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, herbert@13thfloor.at,
-       serue@us.ibm.com, linux-kernel@vger.kernel.org, dev@sw.ru,
-       devel@openvz.org, sam@vilain.net, xemul@sw.ru, clg@fr.ibm.com,
-       Daniel Lezcano <dlezcano@fr.ibm.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-In-Reply-To: <20060519094047.425dced1.akpm@osdl.org>
-References: <20060518154700.GA28344@sergelap.austin.ibm.com>
-	 <20060518103430.080e3523.akpm@osdl.org>
-	 <20060519124235.GA32304@MAIL.13thfloor.at>
-	 <20060519081334.06ce452d.akpm@osdl.org>
-	 <m1iro2yo7f.fsf@ebiederm.dsl.xmission.com>
-	 <20060519094047.425dced1.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 19 May 2006 13:17:12 -0700
-Message-Id: <1148069832.6623.209.camel@localhost.localdomain>
+	Fri, 19 May 2006 16:23:10 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:49283 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S964817AbWESUXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 16:23:09 -0400
+Date: Fri, 19 May 2006 22:23:30 +0200
+From: Jan Kara <jack@suse.cz>
+To: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: write_out_data in JBD
+Message-ID: <20060519202330.GE14393@atrey.karlin.mff.cuni.cz>
+References: <446C3030.2040303@bull.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <446C3030.2040303@bull.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-05-19 at 09:40 -0700, Andrew Morton wrote:
-> Migration of currently-open sockets (for example) would require storing of
-> a lot of state, wouldn't it?
+  Hello,
 
-In a word, yes. :)
+> Stephen,
+  I'm not Stephen but I guess my answer would suffice ;)
 
-I don't think the networking guys from either the OpenVZ project or IBM
-were cc'd on this.  Alexey, Daniel, can you elaborate, or point us to
-any existing code?
+> Here is a code fragment starting at "write_out_data:" in
+> "journal_commit_transaction()":
+> 
+> Let's assume that there is a single "jh" on the list.
+  OK.
 
--- Dave
+> 
+>   while (commit_transaction->t_sync_datalist) {
+> 
+>       jh = commit_transaction->t_sync_datalist;
+>       commit_transaction->t_sync_datalist = jh->b_tnext;
+> 
+>       // "commit_transaction->t_sync_datalist" happens always
+>       // to point at our single "jh"
+> 
+>       bh = jh2bh(jh);
+> 
+>       // Assume not locked
+>       // Assume dirty
+> 
+>       if (buffer_dirty(bh)) {
+>           get_bh(bh);
+>           wbuf[bufs++] = bh;
+>           if (bufs == journal->j_wbufsize) {
+  Now this would not happen as j_wbufsize is larger than 1. But still
+even if it would happen ll_rw_block() would be called, that would clear
+a dirty bit and and the next time we see the buffer we take a different
+route.
+  But actually you are right that if we fail with
+bufs==journal->j_wbufsize we would go into the next iteration of the
+loop and queue the buffer again. Anyway we agreed to rewrite this code
+in another thread :). I just have to make sure we don't have a similar
+problem in the new version.
 
+>               ...
+>               goto write_out_data;
+>           }
+>       } else ...
+>   }
+> 
+> I think our single "jh" will be put on "wbuf[]" repeatedly
+> ("journal->j_wbufsize" times).
+
+
+								Honza
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

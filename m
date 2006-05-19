@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWESUbE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbWESUra@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964825AbWESUbE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 16:31:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWESUbE
+	id S964833AbWESUra (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 16:47:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbWESUr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 16:31:04 -0400
-Received: from ns.suse.de ([195.135.220.2]:9150 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964822AbWESUbB (ORCPT
+	Fri, 19 May 2006 16:47:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16816 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964833AbWESUr3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 16:31:01 -0400
-Date: Fri, 19 May 2006 13:28:47 -0700
-From: Greg KH <greg@kroah.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Patrick Mansfield <patmans@us.ibm.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: dev_printk output
-Message-ID: <20060519202847.GB8865@kroah.com>
-References: <20060511150015.GJ12272@parisc-linux.org> <20060512170854.GA11215@us.ibm.com> <20060513050059.GR12272@parisc-linux.org> <20060518183652.GM1604@parisc-linux.org> <20060518200957.GA29200@us.ibm.com> <20060519201142.GB2826@parisc-linux.org>
+	Fri, 19 May 2006 16:47:29 -0400
+Date: Fri, 19 May 2006 13:49:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: mel@csn.ul.ie, nickpiggin@yahoo.com.au, haveblue@us.ibm.com, ak@suse.de,
+       bob.picco@hp.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       apw@shadowen.org, mingo@elte.hu, mbligh@mbligh.org
+Subject: Re: [PATCH 1/2] Align the node_mem_map endpoints to a MAX_ORDER
+ boundary
+Message-Id: <20060519134948.10992ba1.akpm@osdl.org>
+In-Reply-To: <20060519134301.29021.71137.sendpatchset@skynet>
+References: <20060519134241.29021.84756.sendpatchset@skynet>
+	<20060519134301.29021.71137.sendpatchset@skynet>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060519201142.GB2826@parisc-linux.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 19, 2006 at 02:11:42PM -0600, Matthew Wilcox wrote:
-> On Thu, May 18, 2006 at 01:09:57PM -0700, Patrick Mansfield wrote:
-> > Funky how loading sd after sg changes the output ... and using the driver
-> > name as a prefix sometimes messes this up for scsi.
-> > 
-> > i.e. scan without sd_mod or sg loaded (and distro I'm using loads sg
-> > before sd_mod via udev rules):
-> > 
-> >  0:0:0:0: Attached scsi generic sg0 type 0
-> >  0:0:0:1: Attached scsi generic sg1 type 0
-> > 
-> > Then remove/add those devices, and sg lines become:
-> > 
-> > sd 1:0:0:0: Attached scsi generic sg0 type 0
-> > sd 1:0:0:1: Attached scsi generic sg1 type 0
+Mel Gorman <mel@csn.ul.ie> wrote:
+>
+> Andy added code to buddy allocator which does not require the zone's
+> endpoints to be aligned to MAX_ORDER. An issue is that the buddy
+> allocator requires the node_mem_map's endpoints to be MAX_ORDER aligned.
+> Otherwise __page_find_buddy could compute a buddy not in node_mem_map for
+> partial MAX_ORDER regions at zone's endpoints. page_is_buddy will detect
+> that these pages at endpoints are not PG_buddy (they were zeroed out by
+> bootmem allocator and not part of zone). Of course the negative here is
+> we could waste a little memory but the positive is eliminating all the
+> old checks for zone boundary conditions.
 > 
-> I find that a bit confusing too.  Obviously, we should distinguish
-> different kinds of bus_id from each other somehow -- but isn't the
-> obvious thing to use the bus name?  That must already be unique as sysfs
-> relies on it.  ie this patch:
-> 
-> (seems that dev->bus isn't always set; I got a null ptr dereference when
-> booting without that check).
+> SPARSEMEM won't encounter this issue because of MAX_ORDER size constraint
+> when SPARSEMEM is configured. ia64 VIRTUAL_MEM_MAP doesn't need the
+> logic either because the holes and endpoints are handled differently.
+> This leaves checking alloc_remap and other arches which privately allocate
+> for node_mem_map.
 
-Yes, not all devices are on a bus, so this will not work.  And we want
-to know the driver that controls the device too.  So how about adding
-the bus if it's not null?
-
-Something like (untested):
-	printk(level "%s %s %s: " format , (dev)->bus ? (dev)->bus->name : "", (dev)->driver ? (dev)->driver->name : "", (dev)->bus_id , ## arg)
-
-thanks,
-
-greg k-h
+Do we think we need this in 2.6.17?

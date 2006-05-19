@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbWESRwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbWESRwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751414AbWESRwi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 13:52:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWESRwi
+	id S932402AbWESRwt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 13:52:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWESRwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 13:52:38 -0400
-Received: from xenotime.net ([66.160.160.81]:12446 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751414AbWESRwi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 13:52:38 -0400
-Date: Fri, 19 May 2006 10:55:06 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Brian D. McGrew" <brian@visionpro.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Invalid module format?
-Message-Id: <20060519105506.1653d4ff.rdunlap@xenotime.net>
-In-Reply-To: <14CFC56C96D8554AA0B8969DB825FEA0012B3262@chicken.machinevisionproducts.com>
-References: <14CFC56C96D8554AA0B8969DB825FEA0012B3262@chicken.machinevisionproducts.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Fri, 19 May 2006 13:52:49 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:27876 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S932402AbWESRws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 13:52:48 -0400
+Date: Fri, 19 May 2006 13:52:08 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, "Serge E. Hallyn" <serue@us.ibm.com>,
+       linux-kernel@vger.kernel.org, dev@sw.ru, herbert@13thfloor.at,
+       devel@openvz.org, sam@vilain.net, xemul@sw.ru, haveblue@us.ibm.com,
+       clg@fr.ibm.com
+Subject: Re: [PATCH 0/9] namespaces: Introduction
+Message-ID: <20060519175208.GA4777@ccure.user-mode-linux.org>
+References: <20060518154700.GA28344@sergelap.austin.ibm.com> <20060518103430.080e3523.akpm@osdl.org> <m1ves2z1fq.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1ves2z1fq.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 May 2006 10:11:48 -0700 Brian D. McGrew wrote:
+On Fri, May 19, 2006 at 05:41:45AM -0600, Eric W. Biederman wrote:
+> I think I see a third way of justifying a mainline merge.  We make an
+> up-front decision that we will improve the existing chroot jail
+> functionality in Linux and start making improvements.  Even if some of
+> the improvements are quite small. 
 
-> My drivers are inline in this mail.  I'm still having this problem with
-> the 2.6.16 kernel as where I'm not having it with the 2.6.15 kernel --
-> and it's the same source code, compiled the same way.
-> 
-> Also, I'm still having difficulties getting this driver to work
-> correctly so any help would be great!
+FWIW, UML can use this stuff incrementally.  So, from my point of view,
+it's not an all-or-nothing thing.
 
-to work?  Does it even build?
-
-> #include "dev/rtc.h"
-> #include "rtcsoft.h"
-
-missing files.
-
----
-~Randy
+				Jeff

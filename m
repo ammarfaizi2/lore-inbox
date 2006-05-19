@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWESFYj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbWESFru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932225AbWESFYj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 01:24:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWESFYj
+	id S932228AbWESFru (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 01:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbWESFru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 01:24:39 -0400
-Received: from gate.crashing.org ([63.228.1.57]:28563 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932225AbWESFYi (ORCPT
+	Fri, 19 May 2006 01:47:50 -0400
+Received: from mail.gmx.net ([213.165.64.20]:8631 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932228AbWESFrt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 01:24:38 -0400
-Subject: pci-OF-bus-map deprecation
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
+	Fri, 19 May 2006 01:47:49 -0400
+X-Authenticated: #14349625
+Subject: Re: rt20 scheduling latency testcase and failure data
+From: Mike Galbraith <efault@gmx.de>
+To: Darren Hart <dvhltc@us.ibm.com>
+Cc: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
+       Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <200605180238.33044.dvhltc@us.ibm.com>
+References: <200605121924.53917.dvhltc@us.ibm.com>
+	 <20060518084722.GA3343@elte.hu> <1147942687.4996.28.camel@frecb000686>
+	 <200605180238.33044.dvhltc@us.ibm.com>
 Content-Type: text/plain
-Date: Fri, 19 May 2006 15:24:28 +1000
-Message-Id: <1148016268.13249.14.camel@localhost.localdomain>
+Date: Fri, 19 May 2006 07:48:43 +0200
+Message-Id: <1148017723.8515.6.camel@homer>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For 32 bits machines with Open Firmware, we used to create a
-pci-OF-bus-map property in the device-tree that provided a mapping
-between linux and Open Firmware PCI bus numbers (since on some platforms
-like PowerMac, we still renumber PCI busses).
+I just got a trace from rt23 that contains...
 
-This property is no longer necessary as
+sched_la-8326  0.... 4977us : hrtimer_cancel (do_nanosleep)
+...
+sched_la-8322  1.... 14358us : hrtimer_cancel (do_nanosleep)
 
- - Nowadays, we have sysfs and the PCI devices in there do have a full
-Open Firmware device path exposed as a "devspec" file in their sysfs
-directories
- - I don't think anybody ever used that property in userland :)
+...if anyone is interested.
 
-This mail is mostly to make sure of the later. I intend to get rid of it
-in 2.6.18 (that's early, but as I said, I think nobody uses it anyway. I
-intended to use it in some X stuff I never ended up actually
-implementing...)
-
-It only concerns 32 bits ppc machines with OF, and only the ones that
-renumber busses, which means basically only PowerMacs.
-
-Ben.
+	-Mike
 
 

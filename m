@@ -1,105 +1,173 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWESCVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWESCWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbWESCVY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 22:21:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWESCVY
+	id S932179AbWESCWU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 22:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWESCWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 22:21:24 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:18127 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932166AbWESCVY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 22:21:24 -0400
-Date: Thu, 18 May 2006 21:21:14 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       dev@sw.ru, herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
-       ebiederm@xmission.com, xemul@sw.ru, haveblue@us.ibm.com, akpm@osdl.org,
-       clg@fr.ibm.com
-Subject: Re: [PATCH 4/9] namespaces: utsname: switch to using uts namespaces
-Message-ID: <20060519022114.GB19373@sergelap.austin.ibm.com>
-References: <20060518154700.GA28344@sergelap.austin.ibm.com> <20060518154936.GE28344@sergelap.austin.ibm.com> <20060518170234.07c8fe4c.rdunlap@xenotime.net>
+	Thu, 18 May 2006 22:22:20 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:42215 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932179AbWESCWT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 22:22:19 -0400
+Date: Fri, 19 May 2006 12:21:44 +1000
+From: David Chinner <dgc@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: David Chinner <dgc@sgi.com>, akpm@osdl.org, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, clameter@sgi.com
+Subject: Re: [PATCH 01/03] Cpuset: might sleep checking zones allowed fix
+Message-ID: <20060519022144.GT1390195@melbourne.sgi.com>
+References: <20060518043556.15898.73616.sendpatchset@jackhammer.engr.sgi.com> <20060517222543.600cb20a.akpm@osdl.org> <20060518054750.GN1390195@melbourne.sgi.com> <20060518174800.f13e2c86.pj@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060518170234.07c8fe4c.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060518174800.f13e2c86.pj@sgi.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Randy.Dunlap (rdunlap@xenotime.net):
-> > --- a/arch/i386/kernel/sys_i386.c
-> > +++ b/arch/i386/kernel/sys_i386.c
-> > @@ -210,7 +210,7 @@ asmlinkage int sys_uname(struct old_utsn
-> >  	if (!name)
-> >  		return -EFAULT;
-> >  	down_read(&uts_sem);
-> > -	err=copy_to_user(name, &system_utsname, sizeof (*name));
-> > +	err=copy_to_user(name, utsname(), sizeof (*name));
+On Thu, May 18, 2006 at 05:48:00PM -0700, Paul Jackson wrote:
+> David wrote:
+> > I suggested to Paul that __cpuset_zone_allowed() should check for
+> > __GFP_WAIT and allow the allocation if it is not set. Any allocation
+> > from interrupt context has to be GFP_ATOMIC so that would kill
+> > the need for the in_interrupt() check as well.
+
+....
+
+> The current implementation of the cpuset hooks in __alloc_pages()
+> is designed to have the __GFP_WAIT check done in alloc_pages(), not
+> in cpuset_zone_allowed().
+
+Which results in complex and fragile logic in __alloc_pages().
+
+> Putting the check you suggest in cpuset_zone_allowed() would 'obviously'
+> fix this particular bug, but it would partially duplicate existing
+> checks on 'wait' in __alloc_pages().  Not good.
+
+But if cpuset_zone_allowed() did this check, then the logic
+in __alloc_pages() gets simpler because you don't have to juggle
+all these flags in just the right way to prevent cpuset_zone_allowed()
+from sleeping whenit shouldn't.
+
+> The second thing is that the current code is designed to distinguish
+> between the memory allocations requested in the following situations:
+>  [A] in interrupt,
+>  [B] GFP_ATOMIC (or !__GFP_WAIT, in general) in process context, and
+>  [C] __GFP_WAIT ok, in process context.
+
+.....
+
+> Your proposal above, Dave, and what I suspect Andrew's proposal
+> would be, if he bothered to waste more time thinking about this,
+> amount to changing the above design from the three cases [A], [B],
+> and [C], to just the two cases:
 > 
-> It would be really nice if you would fix spacing while you are here,
-> like a space a each side of '='.
+>  [D] __GFP_WAIT not ok, such as GFP_ATOMIC and/or in_interrupt, and
+>  [E] __GFP_WAIT ok.
 > 
-> and a space after ',' in the function calls below.
+> You're suggesting we ignore cpusets in [D], and honor them in [E].
 
-Ok.  Then in blocks like the following:
+Effectively. There are two atomic allocation cases - one is from
+interrupt where you want pages from the node local to the allocation
+request, and the other is from process/kthread context where we want
+pages as close to the node we are curently running on.
 
-> > -	error = __copy_to_user(&name->sysname,&system_utsname.sysname,__OLD_UTS_LEN);
-> > +	error = __copy_to_user(&name->sysname,&utsname()->sysname,__OLD_UTS_LEN);
-> >  	error |= __put_user(0,name->sysname+__OLD_UTS_LEN);
-> > -	error |= __copy_to_user(&name->nodename,&system_utsname.nodename,__OLD_UTS_LEN);
-> > +	error |= __copy_to_user(&name->nodename,&utsname()->nodename,__OLD_UTS_LEN);
-> >  	error |= __put_user(0,name->nodename+__OLD_UTS_LEN);
-> > -	error |= __copy_to_user(&name->release,&system_utsname.release,__OLD_UTS_LEN);
-> > +	error |= __copy_to_user(&name->release,&utsname()->release,__OLD_UTS_LEN);
-> >  	error |= __put_user(0,name->release+__OLD_UTS_LEN);
-> > -	error |= __copy_to_user(&name->version,&system_utsname.version,__OLD_UTS_LEN);
-> > +	error |= __copy_to_user(&name->version,&utsname()->version,__OLD_UTS_LEN);
-> >  	error |= __put_user(0,name->version+__OLD_UTS_LEN);
-> > -	error |= __copy_to_user(&name->machine,&system_utsname.machine,__OLD_UTS_LEN);
-> > +	error |= __copy_to_user(&name->machine,&utsname()->machine,__OLD_UTS_LEN);
-> >  	error |= __put_user(0,name->machine+__OLD_UTS_LEN);
+In the first case, cpusets simply don't apply.
 
-Should I leave it as is, to keep the consistent look?  Change just the
-lines I'm editing, making it inconsistent?  Or change the whole block,
-making my patch seem a bit larger than it really is, but giving the
-nicest end result?
+In the second case, we are typically already running on a cpu
+inside the cpuset we're trying to allocate in. If there's
+no memory inside the cpuset, we go outside it on the second
+attempt.
 
-I suppose I could insert a separate patchset fixing up the spacing in
-those blocks but making no real changes at all, then apply my patch on
-top of that...?
+That is, we fail the first get_page_from_freelist() due to __GFP_HARDWALL,
+then we wake kswapd, then we call get_page_from_freelist() without the
+__GFP_HARDWALL to allow allocation outside the cpuset.
 
-> > --- a/arch/mips/kernel/syscall.c
-> > +++ b/arch/mips/kernel/syscall.c
-> > @@ -232,7 +232,7 @@ out:
-> >   */
-> >  asmlinkage int sys_uname(struct old_utsname __user * name)
-> >  {
-> > -	if (name && !copy_to_user(name, &system_utsname, sizeof (*name)))
-> > +	if (name && !copy_to_user(name, utsname(), sizeof (*name)))
+This hunk of your patch:
+
+@@ -1057,7 +1057,8 @@ restart:
+                alloc_flags |= ALLOC_HARDER;
+        if (gfp_mask & __GFP_HIGH)
+                alloc_flags |= ALLOC_HIGH;
+-       alloc_flags |= ALLOC_CPUSET;
++       if (wait)
++               alloc_flags |= ALLOC_CPUSET;
+
+        /*
+         * Go through the zonelist again. Let __GFP_HIGH and allocations
+
+Effectively disables the cpuset checks on atomic allocations
+for the second call to get_page_from_freelist().
+
+So the semantics your patch introduces for the second case
+is:
+	- attempt allocation within the cpuset
+	- if that fails, allocate from anywhere
+
+Basically, Case B falls back to case A when the cpuset is
+full. So my question really is whether we need to attempt
+to allocaate within the cpuset for GFP_ATOMIC because
+most of the time the local node will be within the cpuset
+anyway....
+
+So that's what lead to me asking this - is there really a
+noticable distinction between A and B, or is it just
+cluttering up the code with needless complex logic?
+
+> One non-obvious (to me at least, for now) detail of such a design change
+> would be what do to with the __alloc_pages() code lines:
 > 
+>         do {
+>                 if (cpuset_zone_allowed(*z, gfp_mask|__GFP_HARDWALL))
+>                         wakeup_kswapd(*z, order);
+>         } while (*(++z));
 > 
-> OK, here's my big comment/question.  I want to see <nodename> increased to
-> 256 bytes (per current POSIX), so each field of struct <variant>_utsname
-> needs be copied individually (I think) instead of doing a single
-> struct copy.
+> If 'wait' is set, for allocations in the current task context that
+> can sleep, then it's obvious enough - just wake up the kswapd's on
+> the nodes in the current tasks cpuset.
 > 
-> I've been working on this for the past few weeks (among other
-> things).  Sorry about the timing.
-> I could send patches for this against mainline in a few days,
-> but I'll be glad to listen to how it would be easiest for all of us
-> to handle.
-> 
-> I'm probably a little over half done with my patches.
-> They will end up adding a lib/utsname.c that has functions for:
->   put_oldold_unmame()	// to user
->   put_old_uname()	// to user
->   put_new_uname()	// to user
->   put_posix_uname()	// to user
+> But what do we do if 'wait' is not set, such as when in interrupt or
+> for GFP_ATOMIC requests.  Calling cpuset_zone_allowed() is no longer
+> allowed in that case.
 
-Ok, so long as these functions accept a utsname, we should be able to
-just change what we pass in to these functions to being the namespace's
-utsname, right?  Or am I missing the really nasty part?
+Sorry, I don't follow why you'd think that this would be not
+allowed. Can you explain this further?
 
-thanks,
--serge
+> + * So to keep it simple here:
+> + *
+> + * ==> Don't call this routine from __alloc_pages() if __GFP_WAIT is
+> + *     not set in gfp_mask.  Don't call here from anywhere else if
+> + *     one can't sleep.  Just assume that the zone is allowed.
+
+Why not simply check this is __cpuset_zone_allowed() and return
+true? We shouldn't put the burden of getting this right on the
+callers when it is something internal to the cpuset workings....
+
+> @@ -916,7 +915,7 @@ int zone_watermark_ok(struct zone *z, in
+>   */
+>  static struct page *
+>  get_page_from_freelist(gfp_t gfp_mask, unsigned int order,
+> -		struct zonelist *zonelist, int alloc_flags)
+> +		struct zonelist *zonelist, int alloc_flags, int wait)
+>  {
+>  	struct zone **z = zonelist->zones;
+>  	struct page *page = NULL;
+> @@ -927,8 +926,7 @@ get_page_from_freelist(gfp_t gfp_mask, u
+>  	 * See also cpuset_zone_allowed() comment in kernel/cpuset.c.
+>  	 */
+>  	do {
+> -		if ((alloc_flags & ALLOC_CPUSET) &&
+> -				!cpuset_zone_allowed(*z, gfp_mask))
+> +		if (wait && !cpuset_zone_allowed(*z, gfp_mask))
+>  			continue;
+
+Why push another wait flag around when there's already one in the
+gfp_mask?
+
+Cheers,
+
+Dave.
+-- 
+Dave Chinner
+R&D Software Enginner
+SGI Australian Software Group

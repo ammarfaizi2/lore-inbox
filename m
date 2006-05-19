@@ -1,48 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWESD7f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWESEGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932206AbWESD7f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 23:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWESD7f
+	id S932223AbWESEGk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 00:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWESEGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 23:59:35 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8926 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932206AbWESD7e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 23:59:34 -0400
-Date: Thu, 18 May 2006 23:59:32 -0400
-From: Dave Jones <davej@redhat.com>
-To: Stephane Ouellette <ouellettes@videotron.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]   Compile warning because of an uninitialized variable
-Message-ID: <20060519035932.GA30894@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Stephane Ouellette <ouellettes@videotron.ca>,
-	linux-kernel@vger.kernel.org
-References: <446D4045.9090304@videotron.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <446D4045.9090304@videotron.ca>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 19 May 2006 00:06:40 -0400
+Received: from az33egw01.freescale.net ([192.88.158.102]:11914 "EHLO
+	az33egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S932218AbWESEGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 00:06:39 -0400
+Message-ID: <9FCDBA58F226D911B202000BDBAD46730631505A@zch01exm40.ap.freescale.net>
+From: Zang Roy-r61911 <tie-fei.zang@freescale.com>
+To: Mark Lord <liml@rtr.ca>, Jeff Garzik <jgarzik@pobox.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Paul Mackerras <paulus@samba.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Alexandre.Bounine@tundra.com,
+       Yang Xin-Xin-r48390 <Xin-Xin.Yang@freescale.com>,
+       Kumar Gala <galak@kernel.crashing.org>
+Subject: RE: [PATCH/2.6.17-rc4 10/10]  bugs fix for marvell SATA on powerp
+	 c pl atform
+Date: Fri, 19 May 2006 12:06:33 +0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="utf-8"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 18, 2006 at 11:49:25PM -0400, Stephane Ouellette wrote:
- > Folks,
- > 
- >    gcc generates a warning because of an uninitialized variable in 
- >    arch/i386/kernel/cpu/transmeta.c.
- > The variable "cpu_freq" is initialized by a call to cpuid(). The following 
- > patch fixes the warning.
-
-This is a gcc bug. The variable is passed by reference
-to a function where the assignment is made.
-The second time it's used, if that > 80860002 condition
-is satisfied, we *must* have satisfied the previous
-check where we made the assignment, as 'max' hasn't changed
-between the two checks.
-
-		Dave
-
--- 
-http://www.codemonkey.org.uk
+ 
+> Jeff Garzik wrote:
+> > Benjamin Herrenschmidt wrote:
+> >> On Thu, 2006-05-18 at 12:03 +0800, Zang Roy-r61911 wrote:
+> ..
+> >>> @@ -1567,13 +1570,18 @@ static void mv5_read_preamp(struct mv_ho
+> >>>  static void mv5_enable_leds(struct mv_host_priv *hpriv, 
+> void __iomem
+> >> *mmio)
+> >>>  {
+> >>>       u32 tmp;
+> >>> -
+> >>> +#ifndef CONFIG_PPC
+> >>>       writel(0, mmio + MV_GPIO_PORT_CTL);
+> >>> +#endif
+> >>
+> >> You'll have to do better here too... I don't wee why when 
+> compiled on
+> >> PPC, this driver should "magically" not clear those 
+> bits... At the very
+> >> least, you should test the machine type if you want to do something
+> >> specific to your platform, but first, you'll have to 
+> convince Jeff why
+> >> this change has to be done in the first place and if there 
+> is a better
+> >> way to handle it.
+> > 
+> > Correct...  it does seem some bugs were found, but #ifdef 
+> powerpc is 
+> > certainly out of the question.  We want the driver to work without 
+> > ifdefs on all platforms.
+> 
+> Yup.  I have a powerpc platform here with PCI-X, and a PCI-X 
+> Marvell card
+> to try in it.  So I'll pick up these changes and try to 
+> integrate them a
+> little more nicely in my internal updated driver, and then 
+> pass it on to Jeff.
+> 
+> Cheers
+> 

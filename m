@@ -1,28 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWESPFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbWESPHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbWESPFt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 11:05:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWESPFt
+	id S932332AbWESPHE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 11:07:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWESPHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 11:05:49 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:32921 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932336AbWESPFs (ORCPT
+	Fri, 19 May 2006 11:07:03 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16026 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932332AbWESPHB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 11:05:48 -0400
+	Fri, 19 May 2006 11:07:01 -0400
 Subject: Re: [PATCH] Change ll_rw_block() calls in JBD
 From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
-Cc: Jan Kara <jack@suse.cz>, linux-kernel <linux-kernel@vger.kernel.org>,
+To: Jan Kara <jack@suse.cz>
+Cc: Zoltan Menyhart <Zoltan.Menyhart@bull.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
        Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <446DBB31.6010101@bull.net>
+In-Reply-To: <20060518134533.GA20159@atrey.karlin.mff.cuni.cz>
 References: <446C2F89.5020300@bull.net>
 	 <20060518134533.GA20159@atrey.karlin.mff.cuni.cz>
-	 <446C8EB1.3090905@bull.net>
-	 <20060519013023.GA11424@atrey.karlin.mff.cuni.cz>
-	 <446DBB31.6010101@bull.net>
 Content-Type: text/plain
-Date: Fri, 19 May 2006 16:05:27 +0100
-Message-Id: <1148051127.5156.28.camel@sisko.sctweedie.blueyonder.co.uk>
+Date: Fri, 19 May 2006 16:06:48 +0100
+Message-Id: <1148051208.5156.31.camel@sisko.sctweedie.blueyonder.co.uk>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.2 (2.0.2-27) 
 Content-Transfer-Encoding: 7bit
@@ -31,21 +29,33 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Fri, 2006-05-19 at 14:33 +0200, Zoltan Menyhart wrote:
+On Thu, 2006-05-18 at 15:45 +0200, Jan Kara wrote:
 
-> >   For two of the above comments: Under memory pressure data buffers can
-> > be written out earlier and then released by __journal_try_to_free_buffer()
-> > as they are not dirty any more. The above checks protect us against this.
+>   Yes, I'm aware of this problem. Actually I wrote a patch (attached) for it
+> some time ago but as I'm checking current kernels it got lost somewhere on
+> the way. I'll rediff it and submit again. Thanks for spotting the
+> problem.
+
+...
 > 
-> Assume "bh" has been set free in the mean time.
-> Assume it is now used for another transaction (maybe for another file system).
+> +               was_dirty = buffer_dirty(bh);
+> +               if (was_dirty && test_set_buffer_locked(bh)) {
 
-I don't follow --- we already have a refcount to the bh, how can it be
-reused?  We took the j_list_lock first, then looked up the jh on this
-transaction's sync data list, then did the get_bh() without dropping
-j_list_lock; so by the time we take the refcount, the j_list_lock
-ensures it cannot have come off this transaction.  And subsequently, the
-refcount prevents reuse.
+The way was_dirty is used here seems confusing and hard to read; there
+are completely separate code paths for dirty and non-dirty, lockable and
+already-locked buffers, with all the paths interleaved to share a few
+common bits of locking.  It would be far more readable with any sharable
+locking code simply removed to a separate function (such as we already
+have for inverted_lock(), for example), and the different dirty/clean
+logic laid out separately.  Otherwise the code is littered with 
+
+> +                       if (was_dirty)
+> +                               unlock_buffer(bh);
+
+and it's not obvious at any point just what locks are held.
+
+Having said that, it looks like it should work --- it just took more
+effort than it should have to check!
 
 --Stephen
 

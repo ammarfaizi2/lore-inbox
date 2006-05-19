@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWESSFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWESSIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932373AbWESSFe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 14:05:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWESSFd
+	id S1751333AbWESSIM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 14:08:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbWESSIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 14:05:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:26497 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932373AbWESSFc (ORCPT
+	Fri, 19 May 2006 14:08:11 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12674 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751333AbWESSIL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 14:05:32 -0400
-Date: Fri, 19 May 2006 11:08:21 -0700
+	Fri, 19 May 2006 14:08:11 -0400
+Date: Fri, 19 May 2006 11:10:54 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Evgeniy Dushistov <dushistov@mail.ru>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 2/2] ufs: directory and page cache: from blocks to pages
-Message-Id: <20060519110821.7d033ee4.akpm@osdl.org>
-In-Reply-To: <20060519171833.GA28572@rain.homenetwork>
-References: <20060519171833.GA28572@rain.homenetwork>
+To: Chuck Lever <cel@citi.umich.edu>
+Cc: cel@netapp.com, linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
+Subject: Re: [PATCH 1/6] nfs: "open code" the NFS direct write rescheduler
+Message-Id: <20060519111054.1842ccfb.akpm@osdl.org>
+In-Reply-To: <20060519180020.3244.75979.stgit@brahms.dsl.sfldmi.ameritech.net>
+References: <20060519175652.3244.7079.stgit@brahms.dsl.sfldmi.ameritech.net>
+	<20060519180020.3244.75979.stgit@brahms.dsl.sfldmi.ameritech.net>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,21 +25,24 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Dushistov <dushistov@mail.ru> wrote:
+Chuck Lever <cel@netapp.com> wrote:
 >
-> This patch changes function in fs/ufs/dir.c and fs/ufs/namei.c
-> to work with pages instead of straight work with blocks.
+> +	 * Prevent I/O completion while we're still rescheduling
+> +	 */
+> +	dreq->outstanding++;
+> +
 
-Yeah, this is nice-looking stuff, thanks.
+No locking.
 
-Beware that the code which you've borrowed from ext2 has had several really
-subtle problems over the past few years.  Stress-testing of this new code
-(especially on small-blocksize filesystems and under memory pressure) might
-reveal defects.  Still, it could hardly be worse than the present situation.
+>  	dreq->count = 0;
+> +	list_for_each(pos, &dreq->rewrite_list) {
+> +		struct nfs_write_data *data =
+> +			list_entry(dreq->rewrite_list.next, struct nfs_write_data, pages);
+> +
+> +		spin_lock(&dreq->lock);
+> +		dreq->outstanding++;
+> +		spin_unlock(&dreq->lock);
 
+Locking.
 
-Does anyone know of a good way of creating UFS filesytems under Linux?  I
-had a go at porting BSD ufsutils a few years ago and nearly died.  There's
-http://ufs-linux.sourceforge.net/, but that hasn't been touched in a couple
-of years..
-
+Deliberate?

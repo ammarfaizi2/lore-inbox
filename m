@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWESEGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWESEMU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932223AbWESEGk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 00:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWESEGk
+	id S932220AbWESEMU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 00:12:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbWESEMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 00:06:40 -0400
-Received: from az33egw01.freescale.net ([192.88.158.102]:11914 "EHLO
-	az33egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S932218AbWESEGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 00:06:39 -0400
-Message-ID: <9FCDBA58F226D911B202000BDBAD46730631505A@zch01exm40.ap.freescale.net>
+	Fri, 19 May 2006 00:12:20 -0400
+Received: from az33egw02.freescale.net ([192.88.158.103]:47326 "EHLO
+	az33egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S932222AbWESEMT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 00:12:19 -0400
+Message-ID: <9FCDBA58F226D911B202000BDBAD467306315075@zch01exm40.ap.freescale.net>
 From: Zang Roy-r61911 <tie-fei.zang@freescale.com>
 To: Mark Lord <liml@rtr.ca>, Jeff Garzik <jgarzik@pobox.com>
 Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
@@ -21,7 +21,7 @@ Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
        Kumar Gala <galak@kernel.crashing.org>
 Subject: RE: [PATCH/2.6.17-rc4 10/10]  bugs fix for marvell SATA on powerp
 	 c pl atform
-Date: Fri, 19 May 2006 12:06:33 +0800
+Date: Fri, 19 May 2006 12:12:08 +0800
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2657.72)
 Content-Type: text/plain;
@@ -29,7 +29,6 @@ Content-Type: text/plain;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
 > Jeff Garzik wrote:
 > > Benjamin Herrenschmidt wrote:
 > >> On Thu, 2006-05-18 at 12:03 +0800, Zang Roy-r61911 wrote:
@@ -70,3 +69,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > 
 > Cheers
 > 
+
+The reason why I use "ifdef" is that I do not want to affect other platform. I do not 
+have other platform to verify. If you can verify my patch on your powerpc platform, 
+please help to integrate it into your driver.

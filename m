@@ -1,102 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751380AbWESWk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWESWns@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751380AbWESWk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 18:40:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWESWk6
+	id S1751377AbWESWns (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 18:43:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWESWns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 18:40:58 -0400
-Received: from web26611.mail.ukl.yahoo.com ([217.146.177.63]:18516 "HELO
-	web26611.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1751380AbWESWk5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 18:40:57 -0400
+	Fri, 19 May 2006 18:43:48 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:11070 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751377AbWESWnr convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 18:43:47 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=QAFfOP/9qS7XPMIBLuAGx48s9S1j8X7i6JUJiPqzWs9DALf2X3S1PDE5PD2b0sDqq5QEMaP7MUgkciX1mzegCYHPgrpmSCAi9gpQ51JWajvB3aI7JhDV4k+gAgvYMfIcZDXyqDLxRpp8/7C37PxGQ4tz6yWFKJyHvKdkW+vrrSQ=  ;
-Message-ID: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-Date: Sat, 20 May 2006 00:40:56 +0200 (CEST)
-From: linux cbon <linuxcbon@yahoo.fr>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lhqqY4q7EIBK3PmrzwCeIeUkhrOQrlkbQfvwWRwUu7sf53E8Qa+atzagmhQQw7StsVXB+KQkETfO3OlGM6h8bSnkdCwH1tFm3AJad6mNxOShS7IKErL3AdlUYP+hOk+p4nHvnPqfOiXAYPgHDXPhrrPjQbvb8Hdfomz8Ufnga1k=
+Message-ID: <7e90c9180605191543s28409521h4d59897d6bbdb643@mail.gmail.com>
+Date: Fri, 19 May 2006 15:43:45 -0700
+From: "Peter Gordon" <codergeek42@gmail.com>
+To: "=?ISO-8859-1?Q?D=F6hr,_Markus_ICC-H?=" 
+	<Markus.Doehr@siegenia-aubi.com>
 Subject: Re: replacing X Window System !
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-In-Reply-To: <446D8F36.3010201@aitel.hist.no>
+Cc: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <FC7F4950D2B3B845901C3CE3A1CA6766012A9E6F@mxnd200-9.si-aubi.siegenia-aubi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <FC7F4950D2B3B845901C3CE3A1CA6766012A9E6F@mxnd200-9.si-aubi.siegenia-aubi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- Helge Hafting <helge.hafting@aitel.hist.no> a
-écrit : 
+> Although one has to admit that working with remote X terminals over a
+> SSH/WAN/VPN-connection is far from usefull, [...]
+You can tunnel just about anything X11 over SSH/VPN/etc.; even things
+like a whole desktop GUI; not just plain X terminals.
 
->There is nothing "modern" about graphichs in the
-kernel.
-
-It depends on the meaning of graphics :
-If it is direct card access, then kernel job.
-If it is higher level like window system etc, then it
-can be discussed...
-
-
->The modern (and safe) approach
->is graphichs separated from the kernel.  This is one
-of the many
->things that unix got right from the very start.
-
-Unix was not designed for graphics.
-
-
->Second - who cares what is "modern" or
-"fashionable"???
->Nobody, except people buying clothes.  For computer
->software, we care about stability and performance.
-
-Is X so stable and performant ?
-For instance, X is not precise enough to make
-compatible implementations.
-X.free and X.org are not compatible.
-Some graphic drivers work only with special versions
-of X.org.
-Gnome and KDE are not compatible.
-etc.
-Other example : can X follow new graphic progress ?
-
-
->but then there is no reason to stick it in the
-kernel.
-
-Usual reasons : Reusability, portability, ease of
-maintenance, speed, etc.
-
-What do you think of solutions using framebuffers like
-directfb or fbui ?
-It is in the kernel, the hardw access is direct, it is
-fast and stable.
-
-Why X.Org puts so many layers between the hardware and
-the screen ? It adds complexity and slowness to the
-project.
-
-I think the discussion should move to X.Org ?
-
-
-Regards
-
-
-
-
-
-
-
-
-
-
-
-
-	
-
-	
-		
-___________________________________________________________________________ 
-Faites de Yahoo! votre page d'accueil sur le web pour retrouver directement vos services préférés : vérifiez vos nouveaux mails, lancez vos recherches et suivez l'actualité en temps réel. 
-Rendez-vous sur http://fr.yahoo.com/set
+> However, there´s NX (http://www.nomachine.com/) and
+> other products but out of the box X11 it´s quite slow over higher latency
+> connections.
+One good way to reduce latency (at least when using X11 over SSH) is
+to tell SSH to compress its connection tunnel ("ssh -C ...").

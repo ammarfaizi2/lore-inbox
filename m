@@ -1,91 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWESNnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWESNmr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbWESNnG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 09:43:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWESNnG
+	id S932308AbWESNmr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 09:42:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbWESNmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 09:43:06 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:64999 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S932317AbWESNnE (ORCPT
+	Fri, 19 May 2006 09:42:47 -0400
+Received: from holly.csn.ul.ie ([193.1.99.76]:56295 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S932312AbWESNmq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 09:43:04 -0400
+	Fri, 19 May 2006 09:42:46 -0400
 From: Mel Gorman <mel@csn.ul.ie>
 To: akpm@osdl.org
-Cc: Mel Gorman <mel@csn.ul.ie>, nickpiggin@yahoo.com.au, haveblue@us.ibm.com,
-       ak@suse.de, bob.picco@hp.com, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, apw@shadowen.org, mingo@elte.hu, mbligh@mbligh.org
-Message-Id: <20060519134301.29021.71137.sendpatchset@skynet>
-In-Reply-To: <20060519134241.29021.84756.sendpatchset@skynet>
-References: <20060519134241.29021.84756.sendpatchset@skynet>
-Subject: [PATCH 1/2] Align the node_mem_map endpoints to a MAX_ORDER boundary
-Date: Fri, 19 May 2006 14:43:01 +0100 (IST)
+Cc: Mel Gorman <mel@csn.ul.ie>, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org, haveblue@us.ibm.com, ak@suse.de,
+       bob.picco@hp.com, mbligh@mbligh.org, linux-mm@kvack.org,
+       apw@shadowen.org, mingo@elte.hu
+Message-Id: <20060519134241.29021.84756.sendpatchset@skynet>
+Subject: [PATCH 0/2] Fixes for node alignment and flatmem assumptions
+Date: Fri, 19 May 2006 14:42:41 +0100 (IST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+After almost 3 days of banging the head on the keyboard, it was discovered
+why arch-independent zone-sizing failed on IA64 for the configuration
+posted on http://www.zip.com.au/~akpm/linux/patches/stuff/config-ia64 .
 
-From: Bob Picco <bob.picco@hp.com>
+The two patches in this set address the following;
 
-Andy added code to buddy allocator which does not require the zone's
-endpoints to be aligned to MAX_ORDER. An issue is that the buddy
-allocator requires the node_mem_map's endpoints to be MAX_ORDER aligned.
-Otherwise __page_find_buddy could compute a buddy not in node_mem_map for
-partial MAX_ORDER regions at zone's endpoints. page_is_buddy will detect
-that these pages at endpoints are not PG_buddy (they were zeroed out by
-bootmem allocator and not part of zone). Of course the negative here is
-we could waste a little memory but the positive is eliminating all the
-old checks for zone boundary conditions.
+1. The buddy allocator requires that the node_mem_map be aligned on
+   a MAX_ORDER boundary. Patch 1 from Bob Picco's patch aligns the
+   node_map_map correctly.
 
-SPARSEMEM won't encounter this issue because of MAX_ORDER size constraint
-when SPARSEMEM is configured. ia64 VIRTUAL_MEM_MAP doesn't need the
-logic either because the holes and endpoints are handled differently.
-This leaves checking alloc_remap and other arches which privately allocate
-for node_mem_map.
+2. This is the one that was giving me keyboard face. The FLATMEM memory
+   model assumes that
 
+   mem_map[0] == NODE_DATA(0)->node_mem_map == PFN 0
 
- include/linux/mmzone.h |    1 +
- mm/page_alloc.c        |   14 +++++++++++---
- 2 files changed, 12 insertions(+), 3 deletions(-)
+   This is not the case on IA64 with arch-independent zone sizing because
+   NODE_DATA(0)->node_mem_map starts where the first valid page frame is. On
+   my test machine, that is PFN 1025 but it probably varies.  Patch 2 from Andy
+   Whitcroft relaxes the assumption that NODE_DATA(0)->node_mem_map == PFN 0 .
 
-Signed-off-by: Bob Picco <bob.picco@hp.com>
-Acked-by: Mel Gorman <mel@csn.ul.ie>
+These patches apply to 2.6.17-rc4-mm1 and are independent of
+architecture-independent zone sizing. Patch 1 in particular fixes a
+real problem that is just difficult to trigger. However, once applied,
+have-ia64-use-add_active_range-and-free_area_init_nodes.patch will work again.
 
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc4-mm1-clean/include/linux/mmzone.h linux-2.6.17-rc4-mm1-101-bob-node-alignment/include/linux/mmzone.h
---- linux-2.6.17-rc4-mm1-clean/include/linux/mmzone.h	2006-05-18 17:23:55.000000000 +0100
-+++ linux-2.6.17-rc4-mm1-101-bob-node-alignment/include/linux/mmzone.h	2006-05-18 17:52:13.000000000 +0100
-@@ -21,6 +21,7 @@
- #else
- #define MAX_ORDER CONFIG_FORCE_MAX_ZONEORDER
- #endif
-+#define MAX_ORDER_NR_PAGES (1 << (MAX_ORDER - 1))
- 
- struct free_area {
- 	struct list_head	free_list;
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc4-mm1-clean/mm/page_alloc.c linux-2.6.17-rc4-mm1-101-bob-node-alignment/mm/page_alloc.c
---- linux-2.6.17-rc4-mm1-clean/mm/page_alloc.c	2006-05-18 17:23:55.000000000 +0100
-+++ linux-2.6.17-rc4-mm1-101-bob-node-alignment/mm/page_alloc.c	2006-05-18 17:58:10.000000000 +0100
-@@ -2484,14 +2484,22 @@ static void __init alloc_node_mem_map(st
- #ifdef CONFIG_FLAT_NODE_MEM_MAP
- 	/* ia64 gets its own node_mem_map, before this, without bootmem */
- 	if (!pgdat->node_mem_map) {
--		unsigned long size;
-+		unsigned long size, start, end;
- 		struct page *map;
- 
--		size = (pgdat->node_spanned_pages + 1) * sizeof(struct page);
-+		/*
-+		 * The zone's endpoints aren't required to be MAX_ORDER
-+		 * aligned but the node_mem_map endpoints must be in order
-+		 * for the buddy allocator to function correctly.
-+		 */
-+		start = pgdat->node_start_pfn & ~(MAX_ORDER_NR_PAGES - 1);
-+		end = pgdat->node_start_pfn + pgdat->node_spanned_pages;
-+		end = ALIGN(end, MAX_ORDER_NR_PAGES);
-+		size =  (end - start) * sizeof(struct page);
- 		map = alloc_remap(pgdat->node_id, size);
- 		if (!map)
- 			map = alloc_bootmem_node(pgdat, size);
--		pgdat->node_mem_map = map;
-+		pgdat->node_mem_map = map + (pgdat->node_start_pfn - start);
- 	}
- #ifdef CONFIG_FLATMEM
- 	/*
+2.6.17-rc4-mm1 with this patchset have been boot-tested by me
+and verified that /proc/zoneinfo is ok on x86, ppc64, x86_64 and
+ia64 in a variety of configurations. Bob Picco also says that both
+patches passed a test with mem=750M and 4Gb on a rx2600 (ia64) with
+large memory holes. They have also been successfully tested with
+have-ia64-use-add_active_range-and-free_area_init_nodes.patch added back in.
+-- 
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

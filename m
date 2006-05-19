@@ -1,73 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWESUEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWESUIZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932191AbWESUEa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 16:04:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbWESUEa
+	id S964793AbWESUIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 16:08:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWESUIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 16:04:30 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:22949 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932191AbWESUEa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 16:04:30 -0400
-Date: Fri, 19 May 2006 13:07:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: cel@citi.umich.edu
-Cc: cel@netapp.com, linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
-Subject: Re: [PATCH 5/6] nfs: check all iov segments for correct memory
- access rights
-Message-Id: <20060519130712.01828395.akpm@osdl.org>
-In-Reply-To: <446E1E4D.7050800@citi.umich.edu>
-References: <20060519175652.3244.7079.stgit@brahms.dsl.sfldmi.ameritech.net>
-	<20060519180036.3244.70897.stgit@brahms.dsl.sfldmi.ameritech.net>
-	<20060519112231.5ed3d565.akpm@osdl.org>
-	<446E1E4D.7050800@citi.umich.edu>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 19 May 2006 16:08:25 -0400
+Received: from mserv2.uoregon.edu ([128.223.142.41]:42368 "EHLO
+	smtp.uoregon.edu") by vger.kernel.org with ESMTP id S964793AbWESUIY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 16:08:24 -0400
+Message-ID: <446DE6E9.9080707@uoregon.edu>
+Date: Fri, 19 May 2006 08:40:25 -0700
+From: Joel Jaeggli <joelja@uoregon.edu>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+CC: John Richard Moser <nigelenki@comcast.net>, linux-kernel@vger.kernel.org
+Subject: Re: Stealing ur megahurts (no, really)
+References: <446D61EE.4010900@comcast.net> <20060519101006.GL8304@mea-ext.zmailer.org>
+In-Reply-To: <20060519101006.GL8304@mea-ext.zmailer.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Lever <cel@citi.umich.edu> wrote:
->
-> Andrew Morton wrote:
-> >> +		if (unlikely(!access_ok(type, buf, len))) {
-> >> +			retval = -EFAULT;
-> >> +			goto out;
-> >> +		}
-> > 
-> > Now what's up here?  Why does NFS, at this level, care about the page's
-> > virtual address?  get_user_pages() will handle that?
+Matti Aarnio wrote:
+> On Fri, May 19, 2006 at 02:13:02AM -0400, John Richard Moser wrote:
+> ...
+>> On Linux we have mem= to toy with memory, which I personally HAVE used
+>> to evaluate how various distributions and releases of GNOME operate
+>> under memory pressure.  This is a lot more convenient than pulling chips
+>> and trying to find the right combination.  This option was, apparently,
+>> designed for situations where actual system memory capacity is
+>> mis-detected (mandrake 7.2 and its insistence that a 256M memory stick
+>> is 255M....); but is very useful in this application too.
+>>
+>> This brings the idea of a cpumhz= parameter to adjust CPU clock rate.
+>> Obviously we can't do this directly, as convenient as this would be; but
+>> the idea warrants some thought, and some thought I gave it.  What I came
+>> up with was simple:  Adjust time slice length and place a delay between
+>> time slices so they're evenly spaced.
+> ...
+>> Questions?  Comments?  Particular ideas on what would happen?
+
+The other thing  I would observe is that clock speed is only part of the
+equation, it's one thing to soak up some cpu cycles, but the cpu may be
+a lot more superscalar (pipelineing, simd instructions, multiple cores
+etc) than the one you're trying to simulate, probably it also has a lot
+more cache and much faster memory. So that while you can certainly soak
+up a lot of cpu pretty easily there are other considerations that might
+effect simulating the performance of say a 100mhz pentium on say an
+athlon 64x2.
+
+emulation would probably go a lot further as an approach
+
+> Modern machines have ability to be "speed controlled" - Perhaps
+> they can cut their speed by 1/3 or 1/2, but run slower anyway
+> in the name of energy conservation.
 > 
-> I guess I'm not clear on what behavior is desired for scatter/gather if 
-> one of the segments in an iov fails.
 > 
-> If one of the iov's will cause an EFAULT, how is that reported back to 
-> the application,
+> Another approach (not thinking on multiprocessor systems now)
+> is to somehow gobble up system performance into some "hoarder"
+> (highest scheduling priority, eats up 90% of time slices doing
+> excellent waste of CPU resources..)
+> 
 
-If nothing has yet been transferred to/from userspace, return -EFAULT.
+<snip>
 
-If something has been transferred, return the number of bytes transferred.
-
-> and what happens to the I/O being requested in the 
-> other segments of the vector?
-
-The filesystem driver needs to handle it somehow.
-
->  When do we use an "all or nothing" 
-> semantic, and when is it OK for some segments to fail?
-
-Actually, fs/direct-io.c cheats and doesn't implement the correct
-semantics.  It returns either all-bytes-transferred or -EFOO.  The way I
-justify that is to point out that returning a partial transfer count
-doesn't make a lot of sense when the I/Os could complete in any order -
-yes, we know how much data got transferred, but we don't know whereabouts
-in the user's memory that data ended up.  So the user cannot trust _any_ of
-it.
-
-NFS direct-io can do the same.
-
-But access_ok() isn't sufficient.  All it tells you is that the virtual
-address is a legal one for an application.  But we could still get EFAULT
-when trying to access it.
+-- 
+-------------------------------------------------
+Joel Jaeggli (joelja@uoregon.edu)
+GPG Key Fingerprint:
+5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
 

@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWESLI4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWESLJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbWESLI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 07:08:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWESLI4
+	id S932272AbWESLJo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 07:09:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWESLJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 07:08:56 -0400
-Received: from alpha.uhasselt.be ([193.190.2.30]:48811 "EHLO alpha.uhasselt.be")
-	by vger.kernel.org with ESMTP id S932271AbWESLIz (ORCPT
+	Fri, 19 May 2006 07:09:44 -0400
+Received: from cantor.suse.de ([195.135.220.2]:32733 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932272AbWESLJn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 07:08:55 -0400
-Message-ID: <446DA746.50506@lumumba.uhasselt.be>
-Date: Fri, 19 May 2006 13:08:54 +0200
-From: Panagiotis Issaris <takis@lumumba.uhasselt.be>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-CC: linux cbon <linuxcbon@yahoo.fr>, Valdis.Kletnieks@vt.edu,
+	Fri, 19 May 2006 07:09:43 -0400
+From: Andi Kleen <ak@suse.de>
+To: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 3/4] myri10ge - Driver core
+Date: Fri, 19 May 2006 13:09:30 +0200
+User-Agent: KMail/1.9.1
+Cc: Brice Goglin <brice@myri.com>, netdev@vger.kernel.org, gallatin@myri.com,
        linux-kernel@vger.kernel.org
-Subject: Re: replacing X Window System !
-References: <20060518172827.73908.qmail@web26601.mail.ukl.yahoo.com> <446D8F36.3010201@aitel.hist.no>
-In-Reply-To: <446D8F36.3010201@aitel.hist.no>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+References: <20060517220218.GA13411@myri.com> <446D2CA7.2070009@myri.com> <200605191200.47132.arnd@arndb.de>
+In-Reply-To: <200605191200.47132.arnd@arndb.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605191309.30992.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 19 May 2006 12:00, Arnd Bergmann wrote:
+> On Friday 19 May 2006 04:25, Brice Goglin wrote:
+> > dev_mc_upload() from net/core/dev_mcast.c does
+> > 
+> > spin_lock_bh(&dev->xmit_lock);
+> > __dev_mc_upload(dev);
+> > 
+> > which calls dev->set_multicast_list(), which is
+> > myri10ge_set_multicast_list()
+> > 
+> > which calls myri10ge_change_promisc
+> > 
+> > which calls myri10ge_send_cmd
+> 
+> Hmm, if that is the only path where you call it, it may be
+> helpful to change myri10ge_change_promisc to call a special
+> atomic version of myri10ge_send_cmd then, while all others
+> use the regular version, which you can then convert to
+> do msleep as well.
 
-Helge Hafting wrote:
+Or just drop the xmit lock while you do that. As long as you
+handle races with ->start_xmit yourself it's ok
 
-> [...]
-> The problem with writing those 3D drivers is not complexity
-> or "historic baggage" in the X codebase.  It is the fact that
-> only the vendors know how the cards work, and most of them
-> won't tell us.
->
-> To which the solution is:  buy the cards that work, and screw the rest. 
-
-Just out of curiosity: Do you know any currently sold cards that support
-XVideo, OpenGL and for which open source drivers are available?
-
-With friendly regards,
-Takis
+-Andi

@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWESSnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWESSqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWESSnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 14:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbWESSnY
+	id S964792AbWESSqd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 14:46:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbWESSqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 14:43:24 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:51085 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964791AbWESSnY (ORCPT
+	Fri, 19 May 2006 14:46:33 -0400
+Received: from citi.umich.edu ([141.211.133.111]:12990 "EHLO citi.umich.edu")
+	by vger.kernel.org with ESMTP id S964792AbWESSqd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 14:43:24 -0400
-Date: Fri, 19 May 2006 11:46:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: cel@citi.umich.edu
-Cc: cel@netapp.com, linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
-Subject: Re: [PATCH 1/6] nfs: "open code" the NFS direct write rescheduler
-Message-Id: <20060519114609.7b6d059d.akpm@osdl.org>
-In-Reply-To: <446E104F.3060900@citi.umich.edu>
-References: <20060519175652.3244.7079.stgit@brahms.dsl.sfldmi.ameritech.net>
-	<20060519180020.3244.75979.stgit@brahms.dsl.sfldmi.ameritech.net>
-	<20060519111054.1842ccfb.akpm@osdl.org>
-	<446E104F.3060900@citi.umich.edu>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 19 May 2006 14:46:33 -0400
+Message-ID: <446E1287.4070200@citi.umich.edu>
+Date: Fri, 19 May 2006 14:46:31 -0400
+From: Chuck Lever <cel@citi.umich.edu>
+Reply-To: cel@citi.umich.edu
+Organization: Center for Information Technology Integration
+User-Agent: Thunderbird 1.5.0.2 (Macintosh/20060308)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: cel@netapp.com, linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no,
+       Badari Pulavarty <pbadari@us.ibm.com>
+Subject: Re: [PATCH 5/6] nfs: check all iov segments for correct memory access
+ rights
+References: <20060519175652.3244.7079.stgit@brahms.dsl.sfldmi.ameritech.net>	<20060519180036.3244.70897.stgit@brahms.dsl.sfldmi.ameritech.net> <20060519112231.5ed3d565.akpm@osdl.org>
+In-Reply-To: <20060519112231.5ed3d565.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Lever <cel@citi.umich.edu> wrote:
->
-> Andrew Morton wrote:
-> > Chuck Lever <cel@netapp.com> wrote:
-> >> +	 * Prevent I/O completion while we're still rescheduling
-> >> +	 */
-> >> +	dreq->outstanding++;
-> >> +
-> > 
-> > No locking.
-> > 
-> >>  	dreq->count = 0;
-> >> +	list_for_each(pos, &dreq->rewrite_list) {
-> >> +		struct nfs_write_data *data =
-> >> +			list_entry(dreq->rewrite_list.next, struct nfs_write_data, pages);
-> >> +
-> >> +		spin_lock(&dreq->lock);
-> >> +		dreq->outstanding++;
-> >> +		spin_unlock(&dreq->lock);
-> > 
-> > Locking.
-> > 
-> > Deliberate?
+Andrew Morton wrote:
+> Chuck Lever <cel@netapp.com> wrote:
+>> +static ssize_t check_access_ok(int type, const struct iovec *iov, unsigned long nr_segs)
+>> +{
+>> +	ssize_t count = 0;
+>> +	ssize_t retval = -EINVAL;
+>> +	unsigned long seg;
+>> +
+>> +	for (seg = 0; seg < nr_segs; seg++) {
+>> +		void __user *buf = iov[seg].iov_base;
+>> +		ssize_t len = (ssize_t) iov[seg].iov_len;
+>> +
+>> +		if (len < 0)		/* size_t not fitting an ssize_t .. */
+>> +			goto out;
 > 
-> Yes.  At the top of the loop, there is no outstanding I/O, so no locking 
-> is needed while updating "outstanding."  Inside the loop, we've 
-> dispatched some I/O against "dreq" so locking is needed to ensure 
-> outstanding is updated properly.
+> do_readv_writev() already checked for negative iov_len, and that's the more
+> appropriate place to do it, rather than duplicating it in each filesystem
+> (or forgetting to!)
 > 
+> So is this check really needed?
 
-OK.  Well if I asked, then others will wonder about it.  A comment would
-cure that problem ;)
+Ok, didn't see that function before.  Badari, is this checking still needed?
+
+>> +		if (unlikely(!access_ok(type, buf, len))) {
+>> +			retval = -EFAULT;
+>> +			goto out;
+>> +		}
+> 
+> Now what's up here?  Why does NFS, at this level, care about the page's
+> virtual address?  get_user_pages() will handle that?
+
+Interesting point.  That may be a historical artifact that can be 
+removed.  I'll take a look.
+
+-- 
+corporate:	cel at netapp dot com
+personal:	chucklever at bigfoot dot com

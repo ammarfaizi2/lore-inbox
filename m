@@ -1,44 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbWESURs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbWESUSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964812AbWESURs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 16:17:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbWESURs
+	id S964813AbWESUSn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 16:18:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964814AbWESUSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 16:17:48 -0400
-Received: from ns2.suse.de ([195.135.220.15]:11420 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964813AbWESURs (ORCPT
+	Fri, 19 May 2006 16:18:42 -0400
+Received: from xenotime.net ([66.160.160.81]:61611 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964813AbWESUSm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 16:17:48 -0400
-From: Andi Kleen <ak@suse.de>
-To: Daniel Jacobowitz <dan@debian.org>
-Subject: Re: [PATCH] 2-ptrace_multi
-Date: Fri, 19 May 2006 22:17:30 +0200
-User-Agent: KMail/1.9.1
-Cc: Renzo Davoli <renzo@cs.unibo.it>, Ulrich Drepper <drepper@gmail.com>,
-       osd@cs.unibo.it, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-References: <20060518155337.GA17498@cs.unibo.it> <20060519174534.GA22346@cs.unibo.it> <20060519201509.GA13477@nevyn.them.org>
-In-Reply-To: <20060519201509.GA13477@nevyn.them.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 19 May 2006 16:18:42 -0400
+Date: Fri, 19 May 2006 13:21:08 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Brian D. McGrew" <brian@visionpro.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Invalid module format?
+Message-Id: <20060519132108.ab528a59.rdunlap@xenotime.net>
+In-Reply-To: <14CFC56C96D8554AA0B8969DB825FEA0012B3269@chicken.machinevisionproducts.com>
+References: <14CFC56C96D8554AA0B8969DB825FEA0012B3269@chicken.machinevisionproducts.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605192217.30518.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 19 May 2006 22:15, Daniel Jacobowitz wrote:
+On Fri, 19 May 2006 11:38:23 -0700 Brian D. McGrew wrote:
 
-> On Fri, May 19, 2006 at 07:45:34PM +0200, Renzo Davoli wrote:
-> > #ifndef mem_write
-> > /* This is a security hazard */
+> Seems my failure to post the complete set of files has caused great
+> confusion.  Is that a sign of stress or frustration or both???  
 > 
-> I believe the conclusion, when this was last discussed, was that this
-> is not true and could be fixed.
+> Here is a complete listing of all the files, including the Makefile.  I
+> think this is everything now.
+> 
+> I'm facing two problems.  First, the 2.6.16 kernel won't load this
+> driver; throws an invalid module format as where 2.6.15 loads it just
+> fine.
+> 
+> Secondly, the driver is supposed to allocate kernel memory that's
+> accessable from userspace.  If you see the function
+> alloc_ibb_user_shared(IbbSoftDev *) and the function
+> alloc_ibb_image_table_mem(IbbSoftDev *, int); you'll see where I've a
+> couple of attempts at calling __get_free_pages as well as a shot at
+> vmalloc.  I've narrowed it down to this one section that's killing me.  
+> 
+> If anyone can offer help, that would be great because I'm just stuck on
+> this and have been for six months!!!
 
-iirc the main problem was mmap of /proc/*/mem. write can be probably 
-enabled after some auditing.
+Are you running the hardware/kernel in 32-bit mode?  or 64-bit?
+(I don't know what a Dell PE1800 has/does.)
+I'm guessing 32-bit due to all of the warnings I see in x86_64 mode.
 
-Alan hacked on this iirc so he might comment.
+The problem could be something as simple as the modules don't have
+a MODULE_LICENSE() in them.  Are you running a RH/FC kernel or your
+own custom kernel?  I get this when I load them:
 
--Andi
+ibb: module license 'unspecified' taints kernel.
+
+I can load/unload both of them.
+
+---
+~Randy

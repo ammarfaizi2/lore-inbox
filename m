@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWESGZR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWESG2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932246AbWESGZR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 02:25:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWESGZQ
+	id S932241AbWESG2h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 02:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWESG2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 02:25:16 -0400
-Received: from mail.gmx.de ([213.165.64.20]:9928 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932246AbWESGZP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 02:25:15 -0400
-X-Authenticated: #14349625
-Subject: Re: rt20 scheduling latency testcase and failure data
-From: Mike Galbraith <efault@gmx.de>
-To: Darren Hart <dvhltc@us.ibm.com>
-Cc: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
-       Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-In-Reply-To: <1148017723.8515.6.camel@homer>
-References: <200605121924.53917.dvhltc@us.ibm.com>
-	 <20060518084722.GA3343@elte.hu> <1147942687.4996.28.camel@frecb000686>
-	 <200605180238.33044.dvhltc@us.ibm.com>  <1148017723.8515.6.camel@homer>
-Content-Type: text/plain
-Date: Fri, 19 May 2006 07:58:42 +0200
-Message-Id: <1148018322.8678.1.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Fri, 19 May 2006 02:28:37 -0400
+Received: from fed1rmmtao06.cox.net ([68.230.241.33]:31107 "EHLO
+	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
+	id S932241AbWESG2g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 02:28:36 -0400
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: FIXED: [WARNING] Please be careful when using "git add" from "next" branch
+References: <Pine.LNX.4.64.0605170927050.10823@g5.osdl.org>
+	<7vhd3ocvyy.fsf@assigned-by-dhcp.cox.net>
+	<Pine.LNX.4.64.0605171321020.10823@g5.osdl.org>
+	<7v64k3698l.fsf@assigned-by-dhcp.cox.net>
+	<7vwtcj4tp6.fsf@assigned-by-dhcp.cox.net>
+	<7vsln74sv7.fsf_-_@assigned-by-dhcp.cox.net>
+Date: Thu, 18 May 2006 23:28:34 -0700
+In-Reply-To: <7vsln74sv7.fsf_-_@assigned-by-dhcp.cox.net> (Junio C. Hamano's
+	message of "Thu, 18 May 2006 01:52:44 -0700")
+Message-ID: <7vy7wyil4d.fsf_-_@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-05-19 at 07:48 +0200, Mike Galbraith wrote:
-> I just got a trace from rt23 that contains...
-> 
-> sched_la-8326  0.... 4977us : hrtimer_cancel (do_nanosleep)
-> ...
-> sched_la-8322  1.... 14358us : hrtimer_cancel (do_nanosleep)
-> 
-> ...if anyone is interested.
+Junio C Hamano <junkio@cox.net> writes:
 
-Ahem.  Never mind.  I was too glued to usecs to notice pid :)
+> There is still a small breakage in the built-in "git add" on the
+> "next" branch that ends up creating nonsense tree objects.
+
+This was fixed this morning, in case I scared people.
+ 
 

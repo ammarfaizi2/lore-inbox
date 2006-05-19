@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbWESThN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWESTqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932471AbWESThN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 15:37:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbWESThN
+	id S932168AbWESTqy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 15:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWESTqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 15:37:13 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:35044 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932471AbWESThL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 15:37:11 -0400
-Subject: Re: [PATCH] sector_t overflow in block layer
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Anton Altaparmakov <aia21@cam.ac.uk>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20060518232324.GW5964@schatzie.adilger.int>
-References: <1147884610.16827.44.camel@localhost.localdomain>
-	 <m34pzo36d4.fsf@bzzz.home.net>
-	 <1147888715.12067.38.camel@dyn9047017100.beaverton.ibm.com>
-	 <m364k4zfor.fsf@bzzz.home.net> <20060517235804.GA5731@schatzie.adilger.int>
-	 <1147947803.5464.19.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20060518185955.GK5964@schatzie.adilger.int>
-	 <Pine.LNX.4.64.0605181403550.10823@g5.osdl.org>
-	 <Pine.LNX.4.64.0605182307540.16178@hermes-1.csi.cam.ac.uk>
-	 <Pine.LNX.4.64.0605181526240.10823@g5.osdl.org>
-	 <20060518232324.GW5964@schatzie.adilger.int>
-Content-Type: text/plain
-Date: Fri, 19 May 2006 20:36:52 +0100
-Message-Id: <1148067412.5156.65.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-27) 
+	Fri, 19 May 2006 15:46:54 -0400
+Received: from jacks.isp2dial.com ([64.142.120.55]:11268 "EHLO
+	jacks.isp2dial.com") by vger.kernel.org with ESMTP id S932168AbWESTqx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 15:46:53 -0400
+From: John Kelly <jak@isp2dial.com>
+To: "Hua Zhong" <hzhong@gmail.com>
+Cc: "'Eric W. Biederman'" <ebiederm@xmission.com>,
+       "'Andrew Morton'" <akpm@osdl.org>,
+       "'Herbert Poetzl'" <herbert@13thfloor.at>, <serue@us.ibm.com>,
+       <linux-kernel@vger.kernel.org>, <dev@sw.ru>, <devel@openvz.org>,
+       <sam@vilain.net>, <xemul@sw.ru>, <haveblue@us.ibm.com>,
+       <clg@fr.ibm.com>
+Subject: Re: [PATCH 0/9] namespaces: Introduction
+Date: Fri, 19 May 2006 15:45:43 -0400
+Message-ID: <200605191945.k4JJjguK012606@isp2dial.com>
+References: <m1iro2yo7f.fsf@ebiederm.dsl.xmission.com> <008201c67b71$fb938db0$493d010a@nuitysystems.com>
+In-Reply-To: <008201c67b71$fb938db0$493d010a@nuitysystems.com>
+X-Mailer: Forte Agent 1.93/32.576 English (American)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Hard2Crack: 0.001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 19 May 2006 11:28:08 -0700, "Hua Zhong" <hzhong@gmail.com>
+wrote:
 
-On Thu, 2006-05-18 at 17:23 -0600, Andreas Dilger wrote:
+> how many virtualization technologies Linux should support?
 
-> I looked at that also, but it isn't clear from the use of "b_size" here
-> that there is any constraint that b_size is a power of two, only that it
-> is a multiple of 512.  Granted, I don't know whether there are any users
-> of such a crazy thing, but the fact that this is in bytes instead of a
-> shift made me think twice.
+> Particularly, does it need to support both OS-level virtualization
 
-Yeah.  It was very strongly constrained to a power-of-two in the dim and
-distant past, when buffer_heads were only ever used for true buffer-
-cache data (the entire IO path had to be special-cased for IO that
-wasn't from the buffer cache, such as swap IO.)  
+If users want it.  I do.
 
-But more recently it has been a lot more relaxed, and we've had patches
-like Jens' "varyIO" patches on 2.4 which routinely generated odd-sized
-b_size buffer_heads when doing raw/direct IO on unaligned disk offsets.
 
-But in 2.6, I _think_ such paths should be going straight to bio, not
-via submit_bh.  Direct IO certainly doesn't use bh's any more, and
-pretty much any other normal disk IO paths are page-aligned.  I might be
-missing something, though.
+> It seems at least the VM approach is much less risky. It might be helpful
+> if someone could explain why we need both.
 
---Stephen
+A better question is, why can't we have both?
+
+I don't have unlimited memory and disk.  I need to conserve my
+resources as much as possible.
+
+The one-kernel approach saves memory, leaving more for applications.
+That's important to me.  I don't need to run multiple kernels, and I
+don't want to.  I only want multiple secure operating environments.
+
+The one-kernel approach also makes it easy to have all VPS in one disk
+partition, without the performance penalty of file backed I/O.
+
+If the VM approach is truly less risky, seems to me the Xen/VMware
+developers should be able to succeed independently, despite changes
+made for in-kernel virtualization.
+
+I'm glad someone asked a question I could answer.  :-)
 
 

@@ -1,104 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWESR23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWESRhc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751407AbWESR23 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 13:28:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWESR23
+	id S1751408AbWESRhc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 13:37:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbWESRhc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 13:28:29 -0400
-Received: from rwcrmhc14.comcast.net ([204.127.192.84]:59855 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1751407AbWESR23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 13:28:29 -0400
-Message-ID: <446DFF25.4020301@comcast.net>
-Date: Fri, 19 May 2006 13:23:49 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mail/News 1.5 (X11/20060309)
-MIME-Version: 1.0
-To: "Dr. David Alan Gilbert" <linux@treblig.org>
-CC: linux-kernel@vger.kernel.org
+	Fri, 19 May 2006 13:37:32 -0400
+Received: from tallyho.bytemark.co.uk ([80.68.81.166]:2692 "EHLO
+	tallyho.bytemark.co.uk") by vger.kernel.org with ESMTP
+	id S1751408AbWESRhb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 13:37:31 -0400
+Date: Fri, 19 May 2006 18:37:27 +0100
+From: "Dr. David Alan Gilbert" <linux@treblig.org>
+To: linux-kernel@vger.kernel.org
+Cc: John Richard Moser <nigelenki@comcast.net>
 Subject: Re: Stealing ur megahurts (no, really)
-References: <446D61EE.4010900@comcast.net> <20060519112218.GE19673@gallifrey>
-In-Reply-To: <20060519112218.GE19673@gallifrey>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Message-ID: <20060519173727.GA7947@gallifrey>
+References: <446D61EE.4010900@comcast.net> <20060519112218.GE19673@gallifrey> <446DFF25.4020301@comcast.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <446DFF25.4020301@comcast.net>
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.4.32 (i686)
+X-Uptime: 18:30:59 up 10 days,  6:43,  1 user,  load average: 0.30, 0.20, 0.10
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-
-
-Dr. David Alan Gilbert wrote:
-> * John Richard Moser (nigelenki@comcast.net) wrote:
+* John Richard Moser (nigelenki@comcast.net) wrote:
+  > That I wrote
+> > <...>
+> > 
+> > Hi John,
+> >   While cpu downclocking helps a bit, it would be hopelessly inaccurate
+> > for figuring out if your app would run fast enough on the given
+> > ancient machine.  A lot else has happened to the world since the days
+> > of the 200MHz CPU:
+> >     * Faster memory
+> >     * Larger caches
+> >     * Faster PCI busses
+> >     * Instruction set additions (various more levels of SSE etc)
+> >     * Faster discs
+> >     * Changes to the CPU architecture/implementation
+> > 
 > 
->> Scrambling for an old machine is ridiculous.  Down-clocking makes sense
->> because you can adjust to varied levels; but it's difficult and usually
->> infeasible.  Pulling memory and mix and matching is not much better.
-> 
-> <...>
-> 
->> This brings the idea of a cpumhz= parameter to adjust CPU clock rate.
->> Obviously we can't do this directly, as convenient as this would be; but
->> the idea warrants some thought, and some thought I gave it.  What I came
->> up with was simple:  Adjust time slice length and place a delay between
->> time slices so they're evenly spaced.
-> 
-> <...>
-> 
-> Hi John,
->   While cpu downclocking helps a bit, it would be hopelessly inaccurate
-> for figuring out if your app would run fast enough on the given
-> ancient machine.  A lot else has happened to the world since the days
-> of the 200MHz CPU:
->     * Faster memory
->     * Larger caches
->     * Faster PCI busses
->     * Instruction set additions (various more levels of SSE etc)
->     * Faster discs
->     * Changes to the CPU architecture/implementation
-> 
+> Skews and fuzz.  Imperfections, but at least we get a general idea.  ;)
 
-Skews and fuzz.  Imperfections, but at least we get a general idea.  ;)
+Really? I bet there is a factor of 2 at least in that lot when you
+put them together? (Depending on what you are running)
+Remember the reason you are scrabbling around for this ancient machine
+is to answer a question along the lines of 'is my program useable on a
+.....' ?
+Also you want to make sure you haven't made an assumption about an actual
+feature (you left a cmov in somewhere? You assumed AGP? LBA block addressing
+etc).
 
-> Still, it would be interesting to see the difference in performance
-> of a downclocked modern processor and its 10 year old clock equivalent.
-> 
-
-Yes.  Too bad CPUs can't be uniformly underclocked by design; they have
-at most 3-5 different levels of CPU frequency you can pick from at run time.
-
-> Dave
-> 
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
-
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iQIVAwUBRG3/Iws1xW0HCTEFAQIjJg//Z/IGDjhXqE9Cca7LCcnHBCcQ8Rts7moW
-L0e1sCb6zrNWBTWo5h6OrzAJh5aTzeeciKpDufkuvvR+BREchiCTIm61IxokHCCS
-2EQ8qfDJWD6ZkOi42tt4t/LftFaUbu7zxpalf5hA5qbCid1CjdqEiYZREDaDbqrf
-uPNVk/w8TTaK5B8/+xWAxSNCnslGW7LRsYkLoQw2eTM4xKcNf4L76rCj/0SXoMcm
-v56tx40CsfFtqzK5D+4y80hMzqGQ+ll3aenkgZIaD61rhcGL/QZPPAGC3F3rg+94
-2iyaimu9582m6P9sdFHVrYVfCqLg8AKOIammBFxwPPmFaqaLeIjmsoQ5T+QMJbLJ
-JZlsTFLG3FeeXuwGEOlO+dqZLKkF3ubfveFi3iUMkJkv7QnBbPAMRVwQL0Evl3WW
-Ltegi6b8QxriFhNrkNAVv9L4IlhQkhGe4sff3xQNj3ZBms1RW85QhDDDUBX5eNHo
-G8/Xdd9QcAVEBKt+welYsYcMS366dXir4STq9wANhks3S6sSWJUpEA5RrF8s2fN7
-aNCWvO14sl9dscI4+w1vGQB9eGFcfIYWf+M1doQyKJgtx+bVRiE+mEWW2SZoKPCT
-oTCEhPNOJenxVV6zqOsQT0wjyhRyONbwQJiv0sMr+9PLCe8A7u9VHUvOoQQ6bQOA
-oBFc3EGABK4=
-=dCD2
------END PGP SIGNATURE-----
+Dave
+-- 
+ -----Open up your eyes, open up your mind, open up your code -------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

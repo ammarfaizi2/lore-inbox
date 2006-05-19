@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWESNKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWESNar@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbWESNKy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 09:10:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWESNKy
+	id S932307AbWESNar (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 09:30:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWESNar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 09:10:54 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:11236 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751325AbWESNKx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 09:10:53 -0400
-Message-ID: <446DC31E.4080900@aitel.hist.no>
-Date: Fri, 19 May 2006 15:07:42 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Panagiotis Issaris <takis@lumumba.uhasselt.be>
-CC: linux cbon <linuxcbon@yahoo.fr>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: replacing X Window System !
-References: <20060518172827.73908.qmail@web26601.mail.ukl.yahoo.com> <446D8F36.3010201@aitel.hist.no> <446DA746.50506@lumumba.uhasselt.be>
-In-Reply-To: <446DA746.50506@lumumba.uhasselt.be>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 19 May 2006 09:30:47 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:52398 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932307AbWESNaq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 09:30:46 -0400
+Date: Fri, 19 May 2006 08:30:41 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       dev@sw.ru, herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
+       xemul@sw.ru, Dave Hansen <haveblue@us.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: [PATCH 0/9] namespaces: Introduction
+Message-ID: <20060519133041.GC14317@sergelap.austin.ibm.com>
+References: <20060518154700.GA28344@sergelap.austin.ibm.com> <m1sln61jqs.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1sln61jqs.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Panagiotis Issaris wrote:
+Quoting Eric W. Biederman (ebiederm@xmission.com):
+> "Serge E. Hallyn" <serue@us.ibm.com> writes:
+> 
+> > This patchset introduces a per-process utsname namespace.  These can
+> > be used by openvz, vserver, and application migration to virtualize and
+> > isolate utsname info (i.e. hostname).  More resources will follow, until
+> > hopefully most or all vserver and openvz functionality can be implemented
+> > by controlling resource namespaces from userspace.
+> >
+> > Previous utsname submissions placed a pointer to the utsname namespace
+> > straight in the task_struct.  This patchset (and the last one) moves
+> > it and the filesystem namespace pointer into struct nsproxy, which is
+> > shared by processes sharing all namespaces.  The intent is to keep
+> > the taskstruct smaller as the number of namespaces grows.
+> 
+> 
+> Previously you mentioned:
+> > BTW - a first set of comparison results showed nsproxy to have better
+> > dbench and tbench throughput, and worse kernbench performance.  Which
+> > may make sense given that nsproxy results in lower memory usage but
+> > likely increased cache misses due to extra pointer dereference.
+> 
+> Is this still true?  Or did our final reference counting tweak fix
+> the kernbench numbers?
 
-> Hi,
->
-> Helge Hafting wrote:
->
->> [...]
->> The problem with writing those 3D drivers is not complexity
->> or "historic baggage" in the X codebase.  It is the fact that
->> only the vendors know how the cards work, and most of them
->> won't tell us.
->>
->> To which the solution is:  buy the cards that work, and screw the rest. 
->
->
-> Just out of curiosity: Do you know any currently sold cards that support
-> XVideo, OpenGL and for which open source drivers are available?
+I haven't checked that.  I'll start a new set of runs later this
+morning, should get the results out saturday.
 
-I don't know much about XVideo.
-For DRI support, look at:
-http://dri.freedesktop.org/wiki/Status?action=highlight&value=CategoryHardware
-
-Many of the cards listed there are a few years old, but several of them
-are still available as cheap alternatives in shops.  I had no problem buying
-a radeon 9200 and a matrox G550 for example.
-
-Also, the VIA graphichs chips found on current mini-itx motherboards
-have both opengl and mpeg2-acceleration.  A mini-itx thing is hardly what
-you use as a power desktop machine, but the small size and fanless operation
-means they're popular for homemade media player/entertainment boxes.
-
-I got one in my car; mostly for playing CDs and gps navigation. But
-it will also play DVDs, play tuxracer using opengl, as well as
-the usual web surfing and word processing.
-
-Helge Hafting
-
-
+-serge

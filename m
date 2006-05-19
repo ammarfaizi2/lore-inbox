@@ -1,87 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWESIyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWESIwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751218AbWESIyp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 04:54:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWESIyp
+	id S932245AbWESIwP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 04:52:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWESIwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 04:54:45 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:17061 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932177AbWESIyo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 04:54:44 -0400
-Date: Fri, 19 May 2006 18:54:11 +1000
-From: David Chinner <dgc@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: David Chinner <dgc@sgi.com>, akpm@osdl.org, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, clameter@sgi.com
-Subject: Re: [PATCH 01/03] Cpuset: might sleep checking zones allowed fix
-Message-ID: <20060519085411.GU1390195@melbourne.sgi.com>
-References: <20060518043556.15898.73616.sendpatchset@jackhammer.engr.sgi.com> <20060517222543.600cb20a.akpm@osdl.org> <20060518054750.GN1390195@melbourne.sgi.com> <20060518174800.f13e2c86.pj@sgi.com> <20060519022144.GT1390195@melbourne.sgi.com> <20060518201207.87b6a244.pj@sgi.com>
-Mime-Version: 1.0
+	Fri, 19 May 2006 04:52:15 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52647 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751102AbWESIwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 04:52:14 -0400
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, dev@sw.ru, herbert@13thfloor.at,
+       devel@openvz.org, sam@vilain.net, xemul@sw.ru,
+       Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: [PATCH 0/9] namespaces: Introduction
+References: <20060518154700.GA28344@sergelap.austin.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 19 May 2006 02:50:19 -0600
+In-Reply-To: <20060518154700.GA28344@sergelap.austin.ibm.com> (Serge E.
+ Hallyn's message of "Thu, 18 May 2006 10:47:00 -0500")
+Message-ID: <m1sln61jqs.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060518201207.87b6a244.pj@sgi.com>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 18, 2006 at 08:12:07PM -0700, Paul Jackson wrote:
-> David wrote:
-> > Basically, Case B falls back to case A when the cpuset is
-> > full. So my question really is whether we need to attempt
-> > to allocaate within the cpuset for GFP_ATOMIC because
-> > most of the time the local node will be within the cpuset
-> > anyway....
-> > 
-> > So that's what lead to me asking this - is there really a
-> > noticable distinction between A and B, or is it just
-> > cluttering up the code with needless complex logic?
-> 
-> Perhaps I'm missing something, but that's what I thought you were
-> realized tVhat I thought I already recognized and responded to your
-> question, with an answer sympathetic to your concerns, and a possible
-> patch to address them.
+"Serge E. Hallyn" <serue@us.ibm.com> writes:
 
-Perhaps we both are :/
+> This patchset introduces a per-process utsname namespace.  These can
+> be used by openvz, vserver, and application migration to virtualize and
+> isolate utsname info (i.e. hostname).  More resources will follow, until
+> hopefully most or all vserver and openvz functionality can be implemented
+> by controlling resource namespaces from userspace.
+>
+> Previous utsname submissions placed a pointer to the utsname namespace
+> straight in the task_struct.  This patchset (and the last one) moves
+> it and the filesystem namespace pointer into struct nsproxy, which is
+> shared by processes sharing all namespaces.  The intent is to keep
+> the taskstruct smaller as the number of namespaces grows.
 
-email:
-	a communication medium where two people can agree
-	with each other but be unaware of this fact.
 
-;)
+Previously you mentioned:
+> BTW - a first set of comparison results showed nsproxy to have better
+> dbench and tbench throughput, and worse kernbench performance.  Which
+> may make sense given that nsproxy results in lower memory usage but
+> likely increased cache misses due to extra pointer dereference.
 
-FWIW, I don't play with cpusets much; I mostly come across them when
-a cpuset goes OOM and the I/O subsystem hangs somewhere in a
-filesystem, block or driver layer and they are typically due to
-problems with GFP_ATOMIC allocations. So my POV is probably
-different to yours.
+Is this still true?  Or did our final reference counting tweak fix
+the kernbench numbers?
 
-> David wrote:
-> > Why not simply check this is __cpuset_zone_allowed() and return
-> > true? We shouldn't put the burden of getting this right on the
-> > callers when it is something internal to the cpuset workings....
-> 
-> The callers are already conscious of whether or not they can wait.
-> For all of the callers of cpuset_zone_allowed() except __alloc_pages,
-> they can very well wait, and such a check is noise.
+I just want to be certain that we don't add an optimization,
+that reduces performance.
 
-5 of the 6 other callers use __GFP_HARDWALL so won't ever sleep.
-Given that 4 of the 5 are in memory reclaim paths, that's probably
-a good thing. To an outsider, this appears like __GFP_HARDWALL is
-being used to ensure we don't sleep (i.e. GFP_ATOMIC semantics),
-and this is one of the angles my reasoning comes from.
+> Changes:
+> 	- the reference count on fs namespace and uts namespace now
+> 	  refers to the number of nsproxies pointing to it
+> 	- some consolidation of namespace cloning and exit code to
+> 	  clean up kernel/{fork,exit}.c
+> 	- passed ltp and ltpstress on smp power, x86, and x86-64
+> 	  boxes.
 
-> In some programming contexts, I add redundancy for robustness, and
-> in some contexts I minimize redundancy for lean and mean code.  The
-> kernel tends to be the latter, especially on important code paths.  In
+Nice.
 
-I often wish for better robustness while deep in the guts of
-a crash dump from a machine that's gone OOM and hung.
+Eric
 
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-R&D Software Enginner
-SGI Australian Software Group

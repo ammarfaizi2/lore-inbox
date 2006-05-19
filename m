@@ -1,81 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWESUtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbWESUxh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbWESUtx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 16:49:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbWESUtx
+	id S964837AbWESUxh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 16:53:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964840AbWESUxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 16:49:53 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:63435 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S964836AbWESUtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 16:49:53 -0400
-Message-ID: <62331.192.18.1.5.1148071784.squirrel@housecafe.dyndns.org>
-Date: Fri, 19 May 2006 21:49:44 +0100 (BST)
-Subject: SCSI ABORT with 2.6.17-rc4-mm1
-From: "Christian Kujau" <evil@g-house.de>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-User-Agent: SquirrelMail/1.5.2 [CVS]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:f96d4aaab3db5f10cc75fadfe8b23b1e
+	Fri, 19 May 2006 16:53:37 -0400
+Received: from minus.inr.ac.ru ([194.67.69.97]:59362 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id S964837AbWESUxh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 16:53:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=ms2.inr.ac.ru;
+  b=iA2xKNKF7sZJDBnN/IC3EXKbyfSOmlcJdqyWqNEFWcOALLr0VAT1y+dsef+FlVSSNN1jGEu3yo9w9Zd3o2phA3w1AnyNWVCCgb+DFJ+uVdMMjr2udEXTvrNnhtaWD34KZbtD8XrFhcVu98Ztt6D2ku0wMFFA7jlLP++375aMTh4=;
+Date: Sat, 20 May 2006 00:52:47 +0400
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       herbert@13thfloor.at, serue@us.ibm.com, linux-kernel@vger.kernel.org,
+       dev@sw.ru, devel@openvz.org, sam@vilain.net, xemul@sw.ru,
+       clg@fr.ibm.com, Daniel Lezcano <dlezcano@fr.ibm.com>
+Subject: Re: [PATCH 0/9] namespaces: Introduction
+Message-ID: <20060519205247.GA7665@ms2.inr.ac.ru>
+References: <20060518154700.GA28344@sergelap.austin.ibm.com> <20060518103430.080e3523.akpm@osdl.org> <20060519124235.GA32304@MAIL.13thfloor.at> <20060519081334.06ce452d.akpm@osdl.org> <m1iro2yo7f.fsf@ebiederm.dsl.xmission.com> <20060519094047.425dced1.akpm@osdl.org> <1148069832.6623.209.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1148069832.6623.209.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[sorry for repost, local MTA problems here...]
+Hello!
 
-Hi list, Hi Andrew,
+> > Migration of currently-open sockets (for example) would require storing of
+> > a lot of state, wouldn't it?
+> 
+> In a word, yes. :)
 
-I cannot boot 2.6.17-rc4-mm1 because my rootdisk is a scsi disk and upon
-scsi-init (SYM53C8XX_2) I'm getting:
+Yes. But, actually, it is not "for example". Socket state is really far more
+complicated thing than all the rest. I would say, migration of another
+objects is mostly trivial thing.
 
-May 19 15:39:55 prinz sym0: <895> rev 0x1 at pci 0000:02:09.0 irq 161
-May 19 15:39:55 prinz sym0: Tekram NVRAM, ID 7, Fast-40, LVD, parity checking
-May 19 15:39:55 prinz sym0: SCSI BUS has been reset.
-May 19 15:39:55 prinz scsi0 : sym-2.2.3
-May 19 15:40:08 prinz 0:0:0:0: ABORT operation started.
-May 19 15:40:13 prinz 0:0:0:0: ABORT operation timed-out.
-May 19 15:40:13 prinz 0:0:0:0: DEVICE RESET operation started.
-May 19 15:40:18 prinz 0:0:0:0: DEVICE RESET operation timed-out.
-May 19 15:40:18 prinz 0:0:0:0: BUS RESET operation started.
-May 19 15:40:23 prinz 0:0:0:0: BUS RESET operation timed-out.
-May 19 15:40:23 prinz 0:0:0:0: HOST RESET operation started.
-May 19 15:40:23 prinz sym0: SCSI BUS has been reset.
-May 19 15:40:28 prinz 0:0:0:0: HOST RESET operation timed-out.
-May 19 15:40:28 prinz 0:0:0:0: scsi: Device offlined - not ready after
-error recovery
-May 19 15:40:33 prinz 0:0:1:0: ABORT operation started.
-May 19 15:40:38 prinz 0:0:1:0: ABORT operation timed-out.
-May 19 15:40:38 prinz 0:0:1:0: DEVICE RESET operation started.
-May 19 15:40:43 prinz 0:0:1:0: DEVICE RESET operation timed-out.
-May 19 15:40:43 prinz 0:0:1:0: BUS RESET operation started.
+Actually, what Andrew worried about:
 
-I have backed out drivers-scsi-use-array_size-macro.patch, but to no
-avail. There are other scsi-related patches in the broken-out
-mm-directory, any hint which one to try first? Sometimes they're dependent
-on each other, so I find it not easy to just "patch -R" all "*scsi*.patch"
-files.
+> snapshot/restart/migration worry me.  If they require complete
+> serialisation of complex kernel data structures then we have a problem,
+> because it means that any time anyone changes such a structure they need to
+> update (and test) the serialisation.
 
-Please see http://www.nerdbynature.de/bits/2.6.17-rc4-mm1/  for a
-netsconsole-dmesg for 2.6.17-rc4 (working fine) and a the -mm1.
+The answer is: after user space processes referring to objects are suspended,
+_surprizingly_, not so much of places, which have trouble with serialization
+remain. Actually, no serialization additional to existing one is required.
+Sockets are the most complicated, to suspend networking state, after
+processes are frozen, we have to:
 
-I've tried different .configs for -mm1, created with:
+1. Block access from network.
+2. Stop socket timers.
 
-- yes ''  | make oldconfig (config-2.6-mm.2.6.17-rc4-mm1.oldconfig_default)
-- yes 'N' | make oldconfig (config-2.6-mm.2.6.17-rc4-mm1.oldconfig_no)
-- make oldlconfig (interactive, config-2.6-mm.2.6.17-rc4-mm1.oldconfig_my)
-
-Thanks,
-Christian.
--- 
-BOFH excuse #442:
-
-Trojan horse ran out of hay
+Only after this we can make a coherent snapshot. But it is an exception,
+most of objects are in coherent state (all the VM, files etc. etc),
+when processes are frozen.
 
 
--- 
-BOFH excuse #442:
+> I don't think the networking guys from either the OpenVZ project or IBM
+> were cc'd on this.  Alexey, Daniel, can you elaborate, or point us to
+> any existing code?
 
-Trojan horse ran out of hay
+http://git.openvz.org
 
+linux-2.6-openvz/kernel/cpt/. Particularly, kernel/cpt/cpt_socket*.c.
+Hairy, but straighforward.
+
+Alexey

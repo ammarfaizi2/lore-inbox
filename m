@@ -1,69 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWESWvj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWESW5v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751416AbWESWvj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 18:51:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWESWvj
+	id S932399AbWESW5v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 18:57:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWESW5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 18:51:39 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:50243 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751416AbWESWvj convert rfc822-to-8bit (ORCPT
+	Fri, 19 May 2006 18:57:51 -0400
+Received: from holly.csn.ul.ie ([193.1.99.76]:14771 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1751425AbWESW5u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 18:51:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VMXLRFQw77aYUP6pAvBpW4E6dtGJMaDaP0W0YTvYe6a2I1eHs/H6cZ5R4ddHGi9bxPV9YSBLv3rD7mUePTS38Bstmsv10EdZ/Og8FcIPA2twEJsYY4sfiCW1nzCJKdMlDrKLtxcghiThGeEfqB9uLMDuKo/dWurLQM0ZX0LHt+4=
-Message-ID: <7e90c9180605191551n7193e597s552db3d67e76128b@mail.gmail.com>
-Date: Fri, 19 May 2006 15:51:37 -0700
-From: "Peter Gordon" <codergeek42@gmail.com>
-To: "linux cbon" <linuxcbon@yahoo.fr>
-Subject: Re: replacing X Window System !
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060519220949.41083.qmail@web26605.mail.ukl.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+	Fri, 19 May 2006 18:57:50 -0400
+Date: Fri, 19 May 2006 23:57:46 +0100
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christian Kujau <evil@g-house.de>, linux-kernel@vger.kernel.org,
+       Andy Whitcroft <apw@shadowen.org>
+Subject: Re: SCSI ABORT with 2.6.17-rc4-mm1
+Message-ID: <20060519225746.GA11883@skynet.ie>
+References: <62331.192.18.1.5.1148071784.squirrel@housecafe.dyndns.org> <20060519141032.23de6eee.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-References: <1148051890.26628.138.camel@capoeira>
-	 <20060519220949.41083.qmail@web26605.mail.ukl.yahoo.com>
+In-Reply-To: <20060519141032.23de6eee.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
+From: mel@csn.ul.ie (Mel Gorman)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/19/06, linux cbon <linuxcbon@yahoo.fr> wrote:
-> Are "DRIs" the best available open-source drivers for
-> old ATI cards ?
-Yes.
+> "Christian Kujau" <evil@g-house.de> wrote:
+>>
+>> [sorry for repost, local MTA problems here...]
+>>
+>> Hi list, Hi Andrew,
+>>
+>> I cannot boot 2.6.17-rc4-mm1 because my rootdisk is a scsi disk and upon
+>> scsi-init (SYM53C8XX_2) I'm getting:
+>>
+>> May 19 15:39:55 prinz sym0: <895> rev 0x1 at pci 0000:02:09.0 irq 161
+>> May 19 15:39:55 prinz sym0: Tekram NVRAM, ID 7, Fast-40, LVD, parity checking
+>> May 19 15:39:55 prinz sym0: SCSI BUS has been reset.
+>> May 19 15:39:55 prinz scsi0 : sym-2.2.3
+>> May 19 15:40:08 prinz 0:0:0:0: ABORT operation started.
+>> May 19 15:40:13 prinz 0:0:0:0: ABORT operation timed-out.
+>> May 19 15:40:13 prinz 0:0:0:0: DEVICE RESET operation started.
+>> May 19 15:40:18 prinz 0:0:0:0: DEVICE RESET operation timed-out.
+>> May 19 15:40:18 prinz 0:0:0:0: BUS RESET operation started.
+>> May 19 15:40:23 prinz 0:0:0:0: BUS RESET operation timed-out.
+>> May 19 15:40:23 prinz 0:0:0:0: HOST RESET operation started.
+>> May 19 15:40:23 prinz sym0: SCSI BUS has been reset.
+>> May 19 15:40:28 prinz 0:0:0:0: HOST RESET operation timed-out.
+>> May 19 15:40:28 prinz 0:0:0:0: scsi: Device offlined - not ready after
+>> error recovery
+>> May 19 15:40:33 prinz 0:0:1:0: ABORT operation started.
+>> May 19 15:40:38 prinz 0:0:1:0: ABORT operation timed-out.
+>> May 19 15:40:38 prinz 0:0:1:0: DEVICE RESET operation started.
+>> May 19 15:40:43 prinz 0:0:1:0: DEVICE RESET operation timed-out.
+>> May 19 15:40:43 prinz 0:0:1:0: BUS RESET operation started.
+>>
+>> I have backed out drivers-scsi-use-array_size-macro.patch, but to no
+>> avail. There are other scsi-related patches in the broken-out
+>> mm-directory, any hint which one to try first? Sometimes they're dependent
+>> on each other, so I find it not easy to just "patch -R" all "*scsi*.patch"
+>> files.
+>>
+>> Please see http://www.nerdbynature.de/bits/2.6.17-rc4-mm1/  for a
+>> netsconsole-dmesg for 2.6.17-rc4 (working fine) and a the -mm1.
+>>
+>> I've tried different .configs for -mm1, created with:
+>>
+>> - yes ''  | make oldconfig (config-2.6-mm.2.6.17-rc4-mm1.oldconfig_default)
+>> - yes 'N' | make oldconfig (config-2.6-mm.2.6.17-rc4-mm1.oldconfig_no)
+>> - make oldlconfig (interactive, config-2.6-mm.2.6.17-rc4-mm1.oldconfig_my)
+>>
+>
+> Thanks for the report, and thanks for testing.  The full demsg output
+> really helps.
+>
+>
+> It goes pear-shaped very early:
+>
+> --- prinz64-nc.2.6.17-rc4.log	Fri May 19 13:56:34 2006
+> +++ prinz64-nc.2.6.17-rc4-mm1.log	Fri May 19 13:56:58 2006
+> @@ -12,20 +12,17 @@
+> BIOS-e820: 00000000fefffc00 - 00000000ff000000 (reserved)
+> BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+> DMI 2.2 present.
+> +ACPI: Unable to map RSDT header
+> +node 0 zone Normal missaligned start pfn, enable UNALIGNED_ZONE_BOUNDRIES
+> +node 0 zone HighMem missaligned start pfn, enable UNALIGNED_ZONE_BOUNDRIES
+>
+>
+> And from then on, ACPI is kaput.  So your interrupts are kaput, as is the
+> disk controller.
+>
+> I had some of this happening too - it's due to some of the MM patches from
+> Mel and/or Andy.
 
-> Done by reverse engineering ?
-Nope. As I understand it, the R200 drivers and earlier are written
-from actual specs submitted to the X.org/Mesa/DRI hackers by ATi
-(under some NDAs).
-The R300/R400 stuff is being reverse-engineered.
+The warnings in this case is valid but I would think harmless.  ZONE_NORMAL
+on x86_64 begins at MAX_DMA32_PFN on the 4GiB boundary which is MAX_ORDER
+aligned. From the e820 map, I am guessing the machine has 1GiB of memory
+so the normal and highmem zones are empty. Andy's latest patches should
+catch that.
 
-> And not all functions are usable :-(.
-Most of it is there: hardware video scaling (XVideo), OpenGL hardware
-acceleration where available, DDC/I2C support, MergedFB/Xinerama
-(multi-head setups), Render acceleration (yay for EXA!) etc. The only
-major thing that isn't to my knowledge is the S3TC texture compression
-(due to patents?).
+The places where I now expect to see zone alignment error messages is
+where the lowest PFN in a node is not aligned so the zone appears to
+start unaligned. As the node_mem_map is aligned to the MAX_ORDER
+boundary, we will see the warning, but it'll be harmless again.
 
-> What about newer ATI or Nvidia cards ? A hope for
-> something better ?
-Intel's published specs and open source drivers for their integrated
-video chips (which can do cool things like XvMC, etc.). From speaking
-with a couple of X.org hackers, the GMA 900/950 stuff is supposed to
-have nearly equivalent performance to a Radeon 9500 or so. (Thanks,
-Intel!)
+I am struggling to see how the alignment patches or
+arch-independent-zone-sizing would clobber the mapping of the ACPI table :(
 
-> By the way : did you know of this project about an
-> "open source graphic card" ?
-> Hardware specs are open, so no need of [NDA] and
-> open-source drivers coding easier :
-> http://opengraphics.gitk.com/open_graphics_spec.pdf
-> http://lists.duskglow.com/mailman/listinfo/open-graphics
-> (still a project).
-I'm hoping to be able to buy one Real Soon Now(TM). :)
+> I also managed to provoke "Too many memory regions,
+> truncating" out of it.
+>
 
---Peter
+"Too many memory regions, truncating" is of concern because memory will be 
+effectively lost. Is this on x86_64 as well? If so, I need to submit a 
+patch that sets CONFIG_MAX_ACTIVE_REGIONS to 128 on x86_64 which is the 
+same value of E820MAX. This is similar to what PPC64 does for LMB regions 
+(see MAX_ACTIVE_REGIONS in arch/powerpc/Kconfig for example). If it's not 
+x86_64, what arch does it occur on?
+
+> I hope that's all sorted out now.  Please test next -mm (hopefully
+> tomorrow) and let us know?
+>
+> Or, if you're super-keen,
+> http://www.zip.com.au/~akpm/linux/patches/stuff/x.bz2 is my current rollup
+> (against 2.6.17-rc4).  It was compilable this morning, but I've since
+> merged stuff ;) It would be interesting to know if that has fixed the bug.
+>

@@ -1,102 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWESBgL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWESBvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbWESBgL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 21:36:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWESBgL
+	id S932187AbWESBvW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 21:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWESBvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 21:36:11 -0400
-Received: from e-nvb.com ([69.27.17.200]:19423 "EHLO e-nvb.com")
-	by vger.kernel.org with ESMTP id S932217AbWESBgK (ORCPT
+	Thu, 18 May 2006 21:51:22 -0400
+Received: from e-nvb.com ([69.27.17.200]:36536 "EHLO e-nvb.com")
+	by vger.kernel.org with ESMTP id S932187AbWESBvW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 21:36:10 -0400
-Subject: Re: + input-new-force-feedback-interface.patch added to -mm tree
+	Thu, 18 May 2006 21:51:22 -0400
+Subject: Re: Invalid module format?
 From: Arjan van de Ven <arjan@infradead.org>
-To: linux-kernel@vger.kernel.org
-Cc: anssi.hannula@gmail.com, dtor_core@ameritech.net
-In-Reply-To: <200605180446.k4I4kFxs007658@shell0.pdx.osdl.net>
-References: <200605180446.k4I4kFxs007658@shell0.pdx.osdl.net>
+To: "Brian D. McGrew" <brian@visionpro.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <14CFC56C96D8554AA0B8969DB825FEA0012B321D@chicken.machinevisionproducts.com>
+References: <14CFC56C96D8554AA0B8969DB825FEA0012B321D@chicken.machinevisionproducts.com>
 Content-Type: text/plain
-Date: Thu, 18 May 2006 16:44:01 +0200
-Message-Id: <1147963441.2866.5.camel@laptopd505.fenrus.org>
+Date: Fri, 19 May 2006 03:50:39 +0200
+Message-Id: <1148003459.2994.5.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-17 at 21:46 -0700, akpm@osdl.org wrote:
-> +
-> +#ifdef DEBUG
-> +#define debug(format, arg...) printk(KERN_DEBUG "ff-effects: " format "\n" , ## arg)
-> +#else
-> +#define debug(format, arg...) do {} while (0)
-> +#endif
+On Thu, 2006-05-18 at 07:01 -0700, Brian D. McGrew wrote:
+> I have two device drivers for two separate PCI cards.
+> 
+> Using the 2.6.15.6 I can compile and insert both of these drivers.
+> 
+> I copy my sources to my 2.6.16.16 tree and recompile them.  One driver
+> inserts just fine (and works) and the other gives me this:
+> 
+> FATAL: Error inserting ibb
+> (/lib/modules/2.6.16.16/kernel/drivers/mvp/ibb.ko): Invalid module
+> format
+> 
+> The same source file between both kernels and I get no errors at compile
+> time.
 
-please just use the existing prdebug() thing for this, no need to invent
-your own ;)
+you forgot to
+1) look into dmesg and give us the information that gets printed there
+   when modprobe returns this error
+2) point to the source of the driver
 
-> +
-> +EXPORT_SYMBOL(input_ff_allocate);
-> +EXPORT_SYMBOL(input_ff_register);
-> +EXPORT_SYMBOL(input_ff_upload);
-> +EXPORT_SYMBOL(input_ff_erase);
-
-should these be _GPL exports?
-
-
-> +
-> +#define spin_ff_cond_lock(_ff, _flags)					  \
-> +	do {								  \
-> +		if (!_ff->driver->playback)				  \
-> +			spin_lock_irqsave(&_ff->atomiclock, _flags);	  \
-> +	} while (0);
-> +
-> +#define spin_ff_cond_unlock(_ff, _flags)					  \
-> +	do {								  \
-> +		if (!_ff->driver->playback)				  \
-> +			spin_unlock_irqrestore(&_ff->atomiclock, _flags); \
-> +	} while (0);
-
-
-hmmm conditional locking like this always makes me very nervous... what
-is preventing ->playback from changing halfway a locked sequence?
-
-> +	if (!events) {
-> +		debug("no actions");
-> +		del_timer(&ff->timer);
-
-are you really sure you don't need del_timer_sync() here?
-
-
-
-> +static void input_ff_timer(unsigned long timer_data)
-> +{
-> +	struct input_dev *dev = (struct input_dev *) timer_data;
-> +	struct ff_device *ff = dev->ff;
-> +	struct ff_effect effect;
-> +	int i;
-> +	unsigned long flags;
-> +	int effects_pending;
-> +	unsigned long effect_handled[NBITS(FF_EFFECTS_MAX)];
-
-
-hmmm stack space?
-
-> +		} else {
-> +			ret = -ENOSYS;
-
-that is almost always a wrong return value
-> +	if (test_bit(FF_CONSTANT, dev->ff->flags))
-> +		set_bit(FF_CONSTANT, dev->ffbit);
-> +	if (test_bit(FF_SPRING, dev->ff->flags))
-> +		set_bit(FF_SPRING, dev->ffbit);
-> +	if (test_bit(FF_FRICTION, dev->ff->flags))
-> +		set_bit(FF_FRICTION, dev->ffbit);
-> +	if (test_bit(FF_DAMPER, dev->ff->flags))
-> +		set_bit(FF_DAMPER, dev->ffbit);
-> +	if (test_bit(FF_INERTIA, dev->ff->flags))
-
-are you really sure you need atomic set_bit()'s here??
-if so.. I think you have a race ;)
 
 

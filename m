@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWESRDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751376AbWESRDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751375AbWESRDM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 13:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbWESRDM
+	id S1751376AbWESRDo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 13:03:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWESRDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 13:03:12 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:12775 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751375AbWESRDL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 13:03:11 -0400
-Subject: Re: [PATCH] Register sysfs file for hotpluged new node take 2.
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-In-Reply-To: <20060518143742.E2FB.Y-GOTO@jp.fujitsu.com>
-References: <20060518143742.E2FB.Y-GOTO@jp.fujitsu.com>
-Content-Type: text/plain
-Date: Fri, 19 May 2006 10:01:47 -0700
-Message-Id: <1148058107.6623.160.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Fri, 19 May 2006 13:03:43 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:18837 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751376AbWESRDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 13:03:42 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patchset] Generic IRQ Subsystem: -V4
+Date: Fri, 19 May 2006 19:00:19 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>
+References: <20060517001310.GA12877@elte.hu> <200605190024.53879.ioe-lkml@rameria.de> <20060519093146.GA8364@elte.hu>
+In-Reply-To: <20060519093146.GA8364@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605191900.21345.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-05-18 at 14:50 +0900, Yasunori Goto wrote:
-> +       if (new_pgdat) {
-> +               ret = register_one_node(nid);
-> +               /*
-> +                * If sysfs file of new node can't create, cpu on the node
-> +                * can't be hot-added. There is no rollback way now.
-> +                * So, check by BUG_ON() to catch it reluctantly..
-> +                */
-> +               BUG_ON(ret);
-> +       } 
+Hi Ingo,
 
-How about we register the node in sysfs _before_ it is
-set_node_online()'d?  Effectively an empty node with no memory and no
-CPUs.  It might be a wee bit confusing to any user tools watching the
-NUMA sysfs stuff, but I think it beats a BUG().
+On Friday, 19. May 2006 11:31, Ingo Molnar wrote:
+> i renamed it to "probing_active", which describes its purpose even 
+> better. Ok?
 
--- Dave
+Ok.
 
+
+Regards
+
+Ingo Oeser

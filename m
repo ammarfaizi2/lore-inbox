@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWESR0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWESR23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751387AbWESR0k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 13:26:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWESR0k
+	id S1751407AbWESR23 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 13:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWESR23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 13:26:40 -0400
-Received: from rwcrmhc13.comcast.net ([216.148.227.153]:40185 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1751387AbWESR0k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 13:26:40 -0400
-Message-ID: <446DFEB8.8020302@comcast.net>
-Date: Fri, 19 May 2006 13:22:00 -0400
+	Fri, 19 May 2006 13:28:29 -0400
+Received: from rwcrmhc14.comcast.net ([204.127.192.84]:59855 "EHLO
+	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S1751407AbWESR23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 13:28:29 -0400
+Message-ID: <446DFF25.4020301@comcast.net>
+Date: Fri, 19 May 2006 13:23:49 -0400
 From: John Richard Moser <nigelenki@comcast.net>
 User-Agent: Mail/News 1.5 (X11/20060309)
 MIME-Version: 1.0
-To: Panagiotis Issaris <takis@lumumba.uhasselt.be>
+To: "Dr. David Alan Gilbert" <linux@treblig.org>
 CC: linux-kernel@vger.kernel.org
 Subject: Re: Stealing ur megahurts (no, really)
-References: <446D61EE.4010900@comcast.net> <446DA5B0.8020703@lumumba.uhasselt.be>
-In-Reply-To: <446DA5B0.8020703@lumumba.uhasselt.be>
+References: <446D61EE.4010900@comcast.net> <20060519112218.GE19673@gallifrey>
+In-Reply-To: <20060519112218.GE19673@gallifrey>
 X-Enigmail-Version: 0.94.0.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
@@ -30,45 +30,46 @@ Hash: SHA1
 
 
 
-Panagiotis Issaris wrote:
-> Hi,
+Dr. David Alan Gilbert wrote:
+> * John Richard Moser (nigelenki@comcast.net) wrote:
 > 
-> John Richard Moser wrote:
-> 
->> [...]
 >> Scrambling for an old machine is ridiculous.  Down-clocking makes sense
 >> because you can adjust to varied levels; but it's difficult and usually
 >> infeasible.  Pulling memory and mix and matching is not much better.
->>
->> On Linux we have mem= to toy with memory, which I personally HAVE used
->> to evaluate how various distributions and releases of GNOME operate
->> under memory pressure.  This is a lot more convenient than pulling chips
->> and trying to find the right combination.  This option was, apparently,
->> designed for situations where actual system memory capacity is
->> mis-detected (mandrake 7.2 and its insistence that a 256M memory stick
->> is 255M....); but is very useful in this application too.
->> [...]
->>  
->>
-> An easier way might be to use a system emulator like Qemu.
-> You can specify the amount of memory the emulated system has,
-> and if you do not use the kernel accelerating module (kqemu)
-> it slows down considerably.
+> 
+> <...>
+> 
+>> This brings the idea of a cpumhz= parameter to adjust CPU clock rate.
+>> Obviously we can't do this directly, as convenient as this would be; but
+>> the idea warrants some thought, and some thought I gave it.  What I came
+>> up with was simple:  Adjust time slice length and place a delay between
+>> time slices so they're evenly spaced.
+> 
+> <...>
+> 
+> Hi John,
+>   While cpu downclocking helps a bit, it would be hopelessly inaccurate
+> for figuring out if your app would run fast enough on the given
+> ancient machine.  A lot else has happened to the world since the days
+> of the 200MHz CPU:
+>     * Faster memory
+>     * Larger caches
+>     * Faster PCI busses
+>     * Instruction set additions (various more levels of SSE etc)
+>     * Faster discs
+>     * Changes to the CPU architecture/implementation
 > 
 
-Yes but it slows down to like a 25MHz system :)
+Skews and fuzz.  Imperfections, but at least we get a general idea.  ;)
 
-> Of course, it would be nicer if you could actually specify performance
-> levels and an issue with this approach is that it does not uniformly
-> scale down performance: I think IO emulation performance is a lot worse
-> then CPU emulation performance (in Qemu).
-
-Yep.
-
+> Still, it would be interesting to see the difference in performance
+> of a downclocked modern processor and its 10 year old clock equivalent.
 > 
-> With friendly regards,
-> Takis
-> 
+
+Yes.  Too bad CPUs can't be uniformly underclocked by design; they have
+at most 3-5 different levels of CPU frequency you can pick from at run time.
+
+> Dave
 > 
 
 - --
@@ -87,17 +88,17 @@ Public Domain, unless otherwise explicitly stated.
 Version: GnuPG v1.4.2.2 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iQIVAwUBRG3+tgs1xW0HCTEFAQJ2ow/+KOKJNdX5d1pSZ36u+lT6AIs8yN0LSbS5
-VVKFJLMrZWf0BfRgvxyGjazlEXbIaYeaSXYGr5+Gkbztr0cJ1/WyyO9dhEvVS8uq
-YJP9GAjfcsmrtLZT49jM/9XimK2xGgAFExmbxmEXFtGrcVanzFA/zvSiqbJmUMEt
-z+4BR7wKX/Q+iBKrSLibCTLlzpstI8YXhZxMVR2ZOfFU18nl7Pv5Y9sUB6EUKu2V
-6B1eT0pBQ+bLtKhsNbOIOvGUpzkpe/bHAqBzxYLugBclmyM3SFoncHDXpg08qoVm
-LIXJi0Y/QJQovQlbzRz+Xse0IibBCPd4+jGNjk6/fkIvVqZVvGsLFHrmb5S0v4W7
-qBB4atl7w7tb29J/gzPqAlqaqc/eNI3ZtNG/KEfvEqjaTHuc6mIXjs6OHyimXDgD
-WPvNZYrxwLoXhCCSkzlZ8BgEjL59DXtR8YZoEI3tSI9k9HnuKe4sv5dbCntsdsTR
-d0o5Kvcil6aZKJWx9St8BafOpcGff2D3YpzgcmBhUhYoX/Ni1+1fgnuha+Oo9W7i
-+TMOf8DwV+oUBV4hHbLXQzkDBu/dT60LrieYRANQxHx1uDh55S66Uk1pmhu74iw1
-NCxZbok20007Hzle3Se9qL6f7r4XdDQHI6bUcu5JgJyv+pVQcOdkLZSClVYAQkVn
-pwYsqzp/KJk=
-=Cmvr
+iQIVAwUBRG3/Iws1xW0HCTEFAQIjJg//Z/IGDjhXqE9Cca7LCcnHBCcQ8Rts7moW
+L0e1sCb6zrNWBTWo5h6OrzAJh5aTzeeciKpDufkuvvR+BREchiCTIm61IxokHCCS
+2EQ8qfDJWD6ZkOi42tt4t/LftFaUbu7zxpalf5hA5qbCid1CjdqEiYZREDaDbqrf
+uPNVk/w8TTaK5B8/+xWAxSNCnslGW7LRsYkLoQw2eTM4xKcNf4L76rCj/0SXoMcm
+v56tx40CsfFtqzK5D+4y80hMzqGQ+ll3aenkgZIaD61rhcGL/QZPPAGC3F3rg+94
+2iyaimu9582m6P9sdFHVrYVfCqLg8AKOIammBFxwPPmFaqaLeIjmsoQ5T+QMJbLJ
+JZlsTFLG3FeeXuwGEOlO+dqZLKkF3ubfveFi3iUMkJkv7QnBbPAMRVwQL0Evl3WW
+Ltegi6b8QxriFhNrkNAVv9L4IlhQkhGe4sff3xQNj3ZBms1RW85QhDDDUBX5eNHo
+G8/Xdd9QcAVEBKt+welYsYcMS366dXir4STq9wANhks3S6sSWJUpEA5RrF8s2fN7
+aNCWvO14sl9dscI4+w1vGQB9eGFcfIYWf+M1doQyKJgtx+bVRiE+mEWW2SZoKPCT
+oTCEhPNOJenxVV6zqOsQT0wjyhRyONbwQJiv0sMr+9PLCe8A7u9VHUvOoQQ6bQOA
+oBFc3EGABK4=
+=dCD2
 -----END PGP SIGNATURE-----

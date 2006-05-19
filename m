@@ -1,39 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbWESRwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbWESR5D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932402AbWESRwt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 13:52:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWESRwt
+	id S932408AbWESR5D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 13:57:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWESR5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 13:52:49 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:27876 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932402AbWESRws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 13:52:48 -0400
-Date: Fri, 19 May 2006 13:52:08 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       linux-kernel@vger.kernel.org, dev@sw.ru, herbert@13thfloor.at,
-       devel@openvz.org, sam@vilain.net, xemul@sw.ru, haveblue@us.ibm.com,
-       clg@fr.ibm.com
-Subject: Re: [PATCH 0/9] namespaces: Introduction
-Message-ID: <20060519175208.GA4777@ccure.user-mode-linux.org>
-References: <20060518154700.GA28344@sergelap.austin.ibm.com> <20060518103430.080e3523.akpm@osdl.org> <m1ves2z1fq.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1ves2z1fq.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 19 May 2006 13:57:03 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:62707 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S932408AbWESR5B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 13:57:01 -0400
+Date: Fri, 19 May 2006 10:56:55 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: "Dr. David Alan Gilbert" <linux@treblig.org>
+cc: linux-kernel@vger.kernel.org, John Richard Moser <nigelenki@comcast.net>
+Subject: Re: Stealing ur megahurts (no, really)
+In-Reply-To: <20060519173727.GA7947@gallifrey>
+Message-ID: <Pine.LNX.4.62.0605191053310.2828@qynat.qvtvafvgr.pbz>
+References: <446D61EE.4010900@comcast.net>  <20060519112218.GE19673@gallifrey>
+ <446DFF25.4020301@comcast.net> <20060519173727.GA7947@gallifrey>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 19, 2006 at 05:41:45AM -0600, Eric W. Biederman wrote:
-> I think I see a third way of justifying a mainline merge.  We make an
-> up-front decision that we will improve the existing chroot jail
-> functionality in Linux and start making improvements.  Even if some of
-> the improvements are quite small. 
+On Fri, 19 May 2006, Dr. David Alan Gilbert wrote:
 
-FWIW, UML can use this stuff incrementally.  So, from my point of view,
-it's not an all-or-nothing thing.
+>> Skews and fuzz.  Imperfections, but at least we get a general idea.  ;)
+>
+> Really? I bet there is a factor of 2 at least in that lot when you
+> put them together? (Depending on what you are running)
 
-				Jeff
+however, in most cases the difference between the native machine and the 
+thing you are testing for is a factor >20, so a fuzz factor of 2 still 
+gets you pretty close.
+
+> Remember the reason you are scrabbling around for this ancient machine
+> is to answer a question along the lines of 'is my program useable on a
+> .....' ?
+> Also you want to make sure you haven't made an assumption about an actual
+> feature (you left a cmov in somewhere? You assumed AGP? LBA block addressing
+> etc).
+
+if you need this level of detail you need the actual hardware or a 
+hardware emulator. however there's a lot of 'is the performance 
+reasonable' type testing that needs to be done (and useually needs to be 
+done repeatedly, either with different performance settings or with 
+after fixing performance issues) before you have to go to this step.
+
+David Lang
+
+
+
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare
+

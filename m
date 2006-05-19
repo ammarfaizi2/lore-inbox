@@ -1,65 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWESBzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWESCCV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbWESBzG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 May 2006 21:55:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWESBzG
+	id S932184AbWESCCV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 May 2006 22:02:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWESCCV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 May 2006 21:55:06 -0400
-Received: from moutng.kundenserver.de ([212.227.126.183]:20939 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932204AbWESBzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 May 2006 21:55:04 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Brice Goglin <brice@myri.com>
-Subject: Re: [PATCH 3/4] myri10ge - Driver core
-Date: Fri, 19 May 2006 03:55:10 +0200
-User-Agent: KMail/1.9.1
-Cc: netdev@vger.kernel.org, gallatin@myri.com, linux-kernel@vger.kernel.org
-References: <20060517220218.GA13411@myri.com> <200605180108.32949.arnd@arndb.de> <446D0994.8090103@myri.com>
-In-Reply-To: <446D0994.8090103@myri.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 18 May 2006 22:02:21 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:39184 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932184AbWESCCU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 May 2006 22:02:20 -0400
+Date: Thu, 18 May 2006 19:02:20 -0700
+From: Tim Mann <mann@vmware.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: mann@vmware.com, linux-kernel@vger.kernel.org,
+       john stultz <johnstul@us.ibm.com>
+Subject: Re: Fix time going backward with clock=pit [1/2]
+Message-ID: <20060518190220.2a9aa33e@mann-lx.eng.vmware.com>
+In-Reply-To: <Pine.LNX.4.64.0605190108010.32445@scrub.home>
+References: <20060517160428.62022efd@mann-lx.eng.vmware.com>
+	<Pine.LNX.4.64.0605181249020.17704@scrub.home>
+	<20060518115022.0561c24d@mann-lx.eng.vmware.com>
+	<Pine.LNX.4.64.0605190108010.32445@scrub.home>
+Organization: VMware, Inc.
+X-Mailer: Sylpheed-Claws 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605190355.11230.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Friday 19 May 2006 01:56 schrieb Brice Goglin:
-> This place is actually the only one where we don't want to use msleep.
-> This function (myri10ge_send_cmd) might be called from various context
-> (spinlocked or not) and pass orders to the NIC whose processing time
-> depends a lot on the command. Of course, we don't have any place where a
-> long operation is passed from a spinlocked context :) But, we need the
-> tiny udelay granularity for the spinlocked case, and the long loop for
-> operations that are long to process in the NIC.
+On Fri, 19 May 2006 02:09:29 +0200 (CEST), Roman Zippel <zippel@linux-m68k.org> wrote:
+> Hi,
+> 
+> On Thu, 18 May 2006, Tim Mann wrote:
+> 
+> > > I think the whole think should look 
+> > > something like this:
+> > > 
+> > > 	if (jiffies_t == jiffies_p) {
+> > > 		if (count > count_p) {
+> > > 			underflow or crappy timer;
+> > 
+> > What should the code do in this case?
+> 
+> Basically the current do_timer_overflow().
 
-I don't see any spinlocks in your code and the function does not
-seem to be called from the interrupt handler or the softirq either.
-Maybe I'm missed something, but where is this ever called in an
-atomic context?
+Oh, I see, you were also assuming there's a way to fix that.
 
-> > missing printk level (KERN_DEBUG?). Could probably use dev_printk.
+> > > 		}
+> > > 	} else {
+> > > 		jiffies_p = jiffies_t;
+> > > 		if (count > LATCH/2 && underflow)
+> > > 			count -= LATCH;
+> > 
+> > I think I see what you're aiming at here: in the case where we read
+> > count, then the counter wraps, then we read jiffies, you want to detect
+> > that and fix it.  Actually if you could detect that, the right way to
+> > fix it would be to set count = LATCH, since the old count is, well, old:
+> > the current time is right after the jiffy.
+> 
+> It's really "-= LATCH". :)
+
+Yeah.  :-)
+
+Tangentially, let me point out another thing: letting get_offset_pit
+return more than a jiffy is dangerous if we can ever lose a tick (due to
+interrupts being disabled for too long, etc.).  If that happens,
+get_offset_pit might advance time past the lost tick, but when the next
+non-lost tick comes in, jiffies is incremented by only 1 and count
+recycles again, so time effectively snaps backward to the point where
+the lost tick occurred.  Losing ticks is bad in itself, of course, but
+having that make time actually go backward by about a jiffy (rather than
+just stop for one jiffy) seems a bit worse.
+
+> > However, we don't really have a way to detect that this case happened --
+> > the "&& underflow" in your code is a handwave.
+> 
+> Ok, I'm not that familiar with Intel hardware (it must be crappier than I 
+> thought). Is there really no way to detect the pending interrupt (e.g. 
+> what do_timer_overflow() does)? Without that information one can really 
+> only guess the time.
 >
-> When are we supposed to call dev_printk or not in such a driver ?
+> It's not that important if it's not completely correct for SMP systems, 
+> they usually have other sources, but for the few systems there this is the 
+> only time source, we should at least make an effort to avoid the read 
+> error.
 
-Whenever you have a device associated with the message, it makes
-sense to use the dev_printk family of functions.
+Hmm.  If you don't care about SMP systems, that makes the problem
+tractable.  In that case get_offset_pit can assume that acknowledging
+the interrupt and incrementing jiffies happen atomically (since that's
+done at interrupt level), so checking whether there's an unacknowledged
+interrupt is a sound approach.  I'm definitely not expert enough to be
+sure how/if you can do that correctly, though.  The current code in
+do_timer_overflow may be correct for systems using PIC interrupt
+routing, but it doesn't seem to work in the APIC systems I've tried it
+on, and I don't have a suggestion for how to fix that case.  Maybe
+someone else does...?
 
-> >> +#define MYRI10GE_PCI_VENDOR_MYRICOM 	0x14c1
-> >> +#define MYRI10GE_PCI_DEVICE_Z8E 	0x0008
-> >
-> > Shouldn't the vendor ID go to pci_ids.h?
->
-> That's what I thought but i was told that the fashion these days is to
-> keep the IDs with the driver that uses them. I'll happy to move as long
-> as everybody agrees :)
+It also would be preferable to fix the SMP case so that at least time
+doesn't go backward there, in case someone tries to use the pit
+clocksource there.  It's quite easy to hit the window where one CPU
+calls gettimeofday while another one has ack'd a timer interrupt but
+hasn't incremented jiffies yet.  Or I suppose we could disable the pit
+clocksource for SMP systems, but that seems a bit draconian.
 
-My understanding is that vendor IDs should go to the common file
-because they are likely to be used by multiple drivers whereas
-device IDs only need to be present in the one device driver for
-that particular device.
-
-	Arnd <><
+-- 
+Tim Mann  work: mann@vmware.com  home: tim@tim-mann.org
+          http://www.vmware.com  http://tim-mann.org

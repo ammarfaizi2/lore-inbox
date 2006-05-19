@@ -1,76 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWESUIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbWESUI6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964793AbWESUIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 16:08:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWESUIZ
+	id S964805AbWESUI6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 16:08:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWESUI6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 16:08:25 -0400
-Received: from mserv2.uoregon.edu ([128.223.142.41]:42368 "EHLO
-	smtp.uoregon.edu") by vger.kernel.org with ESMTP id S964793AbWESUIY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 16:08:24 -0400
-Message-ID: <446DE6E9.9080707@uoregon.edu>
-Date: Fri, 19 May 2006 08:40:25 -0700
-From: Joel Jaeggli <joelja@uoregon.edu>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-CC: John Richard Moser <nigelenki@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: Stealing ur megahurts (no, really)
-References: <446D61EE.4010900@comcast.net> <20060519101006.GL8304@mea-ext.zmailer.org>
-In-Reply-To: <20060519101006.GL8304@mea-ext.zmailer.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 19 May 2006 16:08:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:22694 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964800AbWESUI5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 16:08:57 -0400
+Date: Fri, 19 May 2006 13:11:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: adilger@clusterfs.com, torvalds@osdl.org, aia21@cam.ac.uk,
+       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       sct@redhat.com
+Subject: Re: [PATCH] sector_t overflow in block layer
+Message-Id: <20060519131130.71c390d9.akpm@osdl.org>
+In-Reply-To: <1148067412.5156.65.camel@sisko.sctweedie.blueyonder.co.uk>
+References: <1147884610.16827.44.camel@localhost.localdomain>
+	<m34pzo36d4.fsf@bzzz.home.net>
+	<1147888715.12067.38.camel@dyn9047017100.beaverton.ibm.com>
+	<m364k4zfor.fsf@bzzz.home.net>
+	<20060517235804.GA5731@schatzie.adilger.int>
+	<1147947803.5464.19.camel@sisko.sctweedie.blueyonder.co.uk>
+	<20060518185955.GK5964@schatzie.adilger.int>
+	<Pine.LNX.4.64.0605181403550.10823@g5.osdl.org>
+	<Pine.LNX.4.64.0605182307540.16178@hermes-1.csi.cam.ac.uk>
+	<Pine.LNX.4.64.0605181526240.10823@g5.osdl.org>
+	<20060518232324.GW5964@schatzie.adilger.int>
+	<1148067412.5156.65.camel@sisko.sctweedie.blueyonder.co.uk>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matti Aarnio wrote:
-> On Fri, May 19, 2006 at 02:13:02AM -0400, John Richard Moser wrote:
-> ...
->> On Linux we have mem= to toy with memory, which I personally HAVE used
->> to evaluate how various distributions and releases of GNOME operate
->> under memory pressure.  This is a lot more convenient than pulling chips
->> and trying to find the right combination.  This option was, apparently,
->> designed for situations where actual system memory capacity is
->> mis-detected (mandrake 7.2 and its insistence that a 256M memory stick
->> is 255M....); but is very useful in this application too.
->>
->> This brings the idea of a cpumhz= parameter to adjust CPU clock rate.
->> Obviously we can't do this directly, as convenient as this would be; but
->> the idea warrants some thought, and some thought I gave it.  What I came
->> up with was simple:  Adjust time slice length and place a delay between
->> time slices so they're evenly spaced.
-> ...
->> Questions?  Comments?  Particular ideas on what would happen?
-
-The other thing  I would observe is that clock speed is only part of the
-equation, it's one thing to soak up some cpu cycles, but the cpu may be
-a lot more superscalar (pipelineing, simd instructions, multiple cores
-etc) than the one you're trying to simulate, probably it also has a lot
-more cache and much faster memory. So that while you can certainly soak
-up a lot of cpu pretty easily there are other considerations that might
-effect simulating the performance of say a 100mhz pentium on say an
-athlon 64x2.
-
-emulation would probably go a lot further as an approach
-
-> Modern machines have ability to be "speed controlled" - Perhaps
-> they can cut their speed by 1/3 or 1/2, but run slower anyway
-> in the name of energy conservation.
+"Stephen C. Tweedie" <sct@redhat.com> wrote:
+>
+> Hi,
 > 
+> On Thu, 2006-05-18 at 17:23 -0600, Andreas Dilger wrote:
 > 
-> Another approach (not thinking on multiprocessor systems now)
-> is to somehow gobble up system performance into some "hoarder"
-> (highest scheduling priority, eats up 90% of time slices doing
-> excellent waste of CPU resources..)
+> > I looked at that also, but it isn't clear from the use of "b_size" here
+> > that there is any constraint that b_size is a power of two, only that it
+> > is a multiple of 512.  Granted, I don't know whether there are any users
+> > of such a crazy thing, but the fact that this is in bytes instead of a
+> > shift made me think twice.
+> 
+> Yeah.  It was very strongly constrained to a power-of-two in the dim and
+> distant past, when buffer_heads were only ever used for true buffer-
+> cache data (the entire IO path had to be special-cased for IO that
+> wasn't from the buffer cache, such as swap IO.)  
+> 
+> But more recently it has been a lot more relaxed, and we've had patches
+> like Jens' "varyIO" patches on 2.4 which routinely generated odd-sized
+> b_size buffer_heads when doing raw/direct IO on unaligned disk offsets.
+> 
+> But in 2.6, I _think_ such paths should be going straight to bio, not
+> via submit_bh.  Direct IO certainly doesn't use bh's any more, and
+> pretty much any other normal disk IO paths are page-aligned.  I might be
+> missing something, though.
 > 
 
-<snip>
+We use various values of b_size when using a buffer_head for gathering a
+disk mapping.  See, for example, fs/direct-io.c:get_more_blocks().
 
--- 
--------------------------------------------------
-Joel Jaeggli (joelja@uoregon.edu)
-GPG Key Fingerprint:
-5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
+I don't think we ever play such tricks when a bh is used as an IO
+container.  But we might - I see nothing in submit_bh() which would prevent
+it.
 
+
+
+btw, it seems odd to me that we're trying to handle the
+device-too-large-for-sector_t problem at the submit_bh() level.  What
+happens if someone uses submit_bio()?  Isn't it something we can check at
+mount time, or partition parsing, or...?

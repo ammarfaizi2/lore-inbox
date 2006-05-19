@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbWESQFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbWESQIB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932421AbWESQFU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 12:05:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWESQFT
+	id S932363AbWESQIB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 12:08:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWESQIA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 12:05:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19919 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932421AbWESQFS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 12:05:18 -0400
-Date: Fri, 19 May 2006 09:05:00 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: sepreece@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] list.h doc: change "counter" to "control"
-Message-Id: <20060519090500.6a3958dd.akpm@osdl.org>
-In-Reply-To: <20060519090236.ef9b5c81.rdunlap@xenotime.net>
-References: <20060518105400.2aac9f44.rdunlap@xenotime.net>
-	<7b69d1470605190837o44f2c0f5o4aa9faa421dfb3f7@mail.gmail.com>
-	<20060519090236.ef9b5c81.rdunlap@xenotime.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 19 May 2006 12:08:00 -0400
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:58580 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S932363AbWESQIA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 12:08:00 -0400
+Subject: [Patch 0/6] statistics infrastructure
+From: Martin Peschke <mp3@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 19 May 2006 18:07:56 +0200
+Message-Id: <1148054876.2974.10.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
->
-> On Fri, 19 May 2006 10:37:28 -0500 Scott Preece wrote:
-> 
->  > I agree that "counter" is wrong, but "control" is still a little
->  > vague. How about:
->  > "the &struct list_head that tracks iteration over the list" or
->  > "the &struct list_head that tracks current location in list."
-> 
->  I considered "iterator" (but that's the macro itself I think),
->  "control", "variable", "pointer", and "position".
->  "current location" would be OK with me.
+Andrew, please apply.
 
-"cursor"
+Changes since I have posted these patches last time:
+
+- improvements as suggested on lkml
+  (documentation, comments, coding style, etc.)
+
+- fixed race in statistic_add()/statistic_inc()
+  with regard to releasing statistics
+
+
+
+My patch series is a proposal for a generic implementation of statistics.
+Envisioned exploiters include device drivers, and any other component.
+It provides both a unified programming interface for exploiters as well
+as a unified user interface. It comes with a set of disciplines that
+implement various ways of data processing, like counters and histograms.
+
+The recent rework addresses performance issues and memory footprint,
+straightens some concepts out, streamlines the programming interface,
+removes some weiredness from the user interface, reduces the amount of
+code, and moves the exploitation according to last time's feedback.
+
+A few more keywords for the reader's convenience:
+based on per-cpu data; spinlock-free protection of data; observes
+cpu-hot(un)plug for efficient memory use; tiny state machine for
+switching-on, switching-off, releasing data etc.; configurable by users
+at run-time; still sitting in debugfs; simple addition of other disciplines.
+
+Good places to start reading code are:
+
+   statistic_create(), statistic_remove()
+   statistic_add(), statistic_inc()
+   struct statistic_interface, struct statistic
+   struct statistic_discipline, statistic_*_counter()
+   statistic_transition()
+
+Martin
+
+
+

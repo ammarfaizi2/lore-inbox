@@ -1,72 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWESMAN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWESM1D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932292AbWESMAN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 08:00:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWESMAM
+	id S932299AbWESM1D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 08:27:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWESM1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 08:00:12 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5290 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932292AbWESMAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 08:00:11 -0400
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       dev@sw.ru, herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
-       xemul@sw.ru, haveblue@us.ibm.com, akpm@osdl.org, clg@fr.ibm.com
-Subject: Re: [PATCH 4/9] namespaces: utsname: switch to using uts namespaces
-References: <20060518154700.GA28344@sergelap.austin.ibm.com>
-	<20060518154936.GE28344@sergelap.austin.ibm.com>
-	<20060518170234.07c8fe4c.rdunlap@xenotime.net>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 19 May 2006 05:58:22 -0600
-In-Reply-To: <20060518170234.07c8fe4c.rdunlap@xenotime.net> (Randy Dunlap's
- message of "Thu, 18 May 2006 17:02:34 -0700")
-Message-ID: <m1r72qz0o1.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 19 May 2006 08:27:03 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:15512 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932299AbWESM1B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 08:27:01 -0400
+Subject: Re: [PATCH] Change ll_rw_block() calls in JBD
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
+Cc: Jan Kara <jack@suse.cz>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <446D977B.3030809@bull.net>
+References: <446C2F89.5020300@bull.net>
+	 <20060518134533.GA20159@atrey.karlin.mff.cuni.cz>
+	 <446C8EB1.3090905@bull.net>
+	 <1147991117.5464.124.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <446D977B.3030809@bull.net>
+Content-Type: text/plain
+Date: Fri, 19 May 2006 13:26:45 +0100
+Message-Id: <1148041606.5156.17.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-27) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rdunlap@xenotime.net> writes:
+Hi,
 
-> OK, here's my big comment/question.  I want to see <nodename> increased to
-> 256 bytes (per current POSIX), so each field of struct <variant>_utsname
-> needs be copied individually (I think) instead of doing a single
-> struct copy.
->
-> I've been working on this for the past few weeks (among other
-> things).  Sorry about the timing.
-> I could send patches for this against mainline in a few days,
-> but I'll be glad to listen to how it would be easiest for all of us
-> to handle.
->
-> I'm probably a little over half done with my patches.
-> They will end up adding a lib/utsname.c that has functions for:
->   put_oldold_unmame()	// to user
->   put_old_uname()	// to user
->   put_new_uname()	// to user
->   put_posix_uname()	// to user
+On Fri, 2006-05-19 at 12:01 +0200, Zoltan Menyhart wrote:
+> I'd like to take this opportunity to ask some questions
+> I always wanted to ask about committing a transaction(*)
+> but were afraid to ask :-)
+> 
+> We wait for several types of I/O-s:
+> - "Wait for all previously submitted IO to complete" (t_sync_datalist)
+> - wait_for_iobuf: (t_buffers)
+> - wait_for_ctlbuf: (t_log_list)
+> before "journal_write_commit_record()" gets invoked.
+> 
+> Why do not we wait for them at the very last moment in batch, is
+> it important that e.g. all the buffers from "t_buffers" be
+> completed before we start with the ones on "t_log_list"?
 
-Looking 256 at least makes sense to hold a dns fully qualified domain
-name.  So even if it isn't specified by posix is make sense.
+We don't.  We write the control and journaled metadata buffers first,
+recording them on the t_buffers and t_log_list lists.  We then wait on
+both of those lists, but there's no IO being submitted at that stage and
+the order in which we wait on them has no effect at all on the progress
+of the IO.
 
-Can we please make the structure we return to user space look something
-like:
+The sync_datalist writes could be waited for separately at the end if we
+wanted too.  That code was written a _long_ time ago but I vaguely
+recall some reasoning that we may have a lot more data than metadata, so
+it would be reasonable to cleanup the data writes as quickly as possible
+and to prevent data and metadata writes from getting submitted in
+parallel and potentially causing seeks between the two.  The elevator
+should prevent the latter effect, though, so it would be entirely
+reasonable to move that wait to later on in commit if we wanted to.
 
-struct long_utsname {
-	char *sysname;
-	char *nodename;
-	char *release;
-	char *version;
-	char *machine;
-        char *domainname;
-        char buf[0];
-}
+> If "JFS_BARRIER" is set, why do we wait for these I/O-s at all?
+> (The "ordered" attribute is set => all the previous I/O-s must have hit
+> the permanent storage before the commit record can do.)
 
-int sys_long_uname(char *buf, size_t bufsz);
+> Why do we let the EXT3 layer to decide, why do not we ask the "bio"
+> if the "ordered" attribute is supported and use it systematically?
 
-So we don't hard code the maximum length of these strings into the user
-interface, and can just return more by increasing our buffer size.
+It would be entirely reasonable to do that, sure.  It just hasn't been
+done yet.
 
-Eric
+> There is a comment in "journal_write_commit_record()":
+> 
+> 	/* is it possible for another commit to fail at roughly
+> 	 * the same time as this one?...
+> 
+> Another commit for the same journal?
+
+Not likely. :-)
+
+> If a barrier-based sync has failed on a device, does the actual
+> I/O start by itself (not caring for the ordering issue)?
+
+It fails with EOPNOTSUPP and must be retried, iirc.  
+
+--Stephen
+
+

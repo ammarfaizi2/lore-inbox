@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWESTgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932475AbWESTiT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932260AbWESTgr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 15:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbWESTgr
+	id S932475AbWESTiT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 15:38:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbWESTiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 15:36:47 -0400
-Received: from citi.umich.edu ([141.211.133.111]:38290 "EHLO citi.umich.edu")
-	by vger.kernel.org with ESMTP id S932260AbWESTgq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 15:36:46 -0400
-Message-ID: <446E1E4D.7050800@citi.umich.edu>
-Date: Fri, 19 May 2006 15:36:45 -0400
-From: Chuck Lever <cel@citi.umich.edu>
-Reply-To: cel@citi.umich.edu
-Organization: Center for Information Technology Integration
-User-Agent: Thunderbird 1.5.0.2 (Macintosh/20060308)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: cel@netapp.com, linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
-Subject: Re: [PATCH 5/6] nfs: check all iov segments for correct memory access
- rights
-References: <20060519175652.3244.7079.stgit@brahms.dsl.sfldmi.ameritech.net>	<20060519180036.3244.70897.stgit@brahms.dsl.sfldmi.ameritech.net> <20060519112231.5ed3d565.akpm@osdl.org>
-In-Reply-To: <20060519112231.5ed3d565.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 19 May 2006 15:38:19 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:38323 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932475AbWESTiT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 15:38:19 -0400
+Date: Fri, 19 May 2006 14:38:02 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Hua Zhong <hzhong@gmail.com>
+Cc: "'Eric W. Biederman'" <ebiederm@xmission.com>,
+       "'Andrew Morton'" <akpm@osdl.org>,
+       "'Herbert Poetzl'" <herbert@13thfloor.at>, serue@us.ibm.com,
+       linux-kernel@vger.kernel.org, dev@sw.ru, devel@openvz.org,
+       sam@vilain.net, xemul@sw.ru, haveblue@us.ibm.com, clg@fr.ibm.com
+Subject: Re: [PATCH 0/9] namespaces: Introduction
+Message-ID: <20060519193802.GB20129@sergelap.austin.ibm.com>
+References: <m1iro2yo7f.fsf@ebiederm.dsl.xmission.com> <008201c67b71$fb938db0$493d010a@nuitysystems.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <008201c67b71$fb938db0$493d010a@nuitysystems.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->> +		if (unlikely(!access_ok(type, buf, len))) {
->> +			retval = -EFAULT;
->> +			goto out;
->> +		}
+Quoting Hua Zhong (hzhong@gmail.com):
+> > snapshot/restart/migration worry me.  If they require 
+> > complete serialisation of complex kernel data structures then 
+> > we have a problem, because it means that any time anyone 
+> > changes such a structure they need to update (and test) the 
+> > serialisation.
 > 
-> Now what's up here?  Why does NFS, at this level, care about the page's
-> virtual address?  get_user_pages() will handle that?
+> Checkpoint/Restart/Migration could be very complicated if done at OS level (per process/process group/or any subset of an OS). But
+> it is much simpler if done on virtual machine level (VMWare/Xen) because there is a natural and clear boundary, and doesn't get
+> affected if the OS kernel internal changes.
+> 
+> It's good to see some progress in supporting virtualization in Linux, but as Andrew put it, some big decisions need to be made
+> up-front. One big question is actually how many virtualization technologies Linux should support? Particularly, does it need to
+> support both OS-level virtualization and VM-level virtualization? And why? And to what degree?
 
-I guess I'm not clear on what behavior is desired for scatter/gather if 
-one of the segments in an iov fails.
+Because migration can be used for more than one purpose.  One such
+purpose is load-balancing large numbers of jobs.  If you have large
+numbers of jobs, you do not want the resource overhead of a full OS for
+each migrateable job.
 
-If one of the iov's will cause an EFAULT, how is that reported back to 
-the application, and what happens to the I/O being requested in the 
-other segments of the vector?  When do we use an "all or nothing" 
-semantic, and when is it OK for some segments to fail?
+The reason it is deemed simpler at the vm level, as you point out, is
+that resources are naturally isolated.  The same work which will prepare
+the kernel for vserver/openvz functionality will isolate kernel resources
+between vserver/containers, making c/r and migration at that level level
+much simpler.
 
--- 
-corporate:	cel at netapp dot com
-personal:	chucklever at bigfoot dot com
+thanks,
+-serge

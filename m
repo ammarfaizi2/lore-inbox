@@ -1,271 +1,269 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWESPvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbWESQAN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932419AbWESPvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 11:51:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbWESPui
+	id S932416AbWESQAN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 12:00:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbWESQAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 11:50:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16057 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932369AbWESPrc (ORCPT
+	Fri, 19 May 2006 12:00:13 -0400
+Received: from xenotime.net ([66.160.160.81]:31673 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932416AbWESQAL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 11:47:32 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 08/14] FS-Cache: Add notification of page becoming writable to VMA ops [try #10]
-Date: Fri, 19 May 2006 16:47:01 +0100
-To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
-       trond.myklebust@fys.uio.no, aviro@redhat.com
-Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Message-Id: <20060519154701.11791.79880.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060519154640.11791.2928.stgit@warthog.cambridge.redhat.com>
-References: <20060519154640.11791.2928.stgit@warthog.cambridge.redhat.com>
+	Fri, 19 May 2006 12:00:11 -0400
+Date: Fri, 19 May 2006 09:02:36 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Scott Preece" <sepreece@gmail.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 2/2] list.h doc: change "counter" to "control"
+Message-Id: <20060519090236.ef9b5c81.rdunlap@xenotime.net>
+In-Reply-To: <7b69d1470605190837o44f2c0f5o4aa9faa421dfb3f7@mail.gmail.com>
+References: <20060518105400.2aac9f44.rdunlap@xenotime.net>
+	<7b69d1470605190837o44f2c0f5o4aa9faa421dfb3f7@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch adds a new VMA operation to notify a filesystem or other
-driver about the MMU generating a fault because userspace attempted to write
-to a page mapped through a read-only PTE.
+On Fri, 19 May 2006 10:37:28 -0500 Scott Preece wrote:
 
-This facility permits the filesystem or driver to:
+> I agree that "counter" is wrong, but "control" is still a little
+> vague. How about:
+> "the &struct list_head that tracks iteration over the list" or
+> "the &struct list_head that tracks current location in list."
 
- (*) Implement storage allocation/reservation on attempted write, and so to
-     deal with problems such as ENOSPC more gracefully (perhaps by generating
-     SIGBUS).
+I considered "iterator" (but that's the macro itself I think),
+"control", "variable", "pointer", and "position".
+"current location" would be OK with me.
 
- (*) Delay making the page writable until the contents have been written to a
-     backing cache. This is useful for NFS/AFS when using FS-Cache/CacheFS.
-     It permits the filesystem to have some guarantee about the state of the
-     cache.
 
- (*) Account and limit number of dirty pages. This is one piece of the puzzle
-     needed to make shared writable mapping work safely in FUSE.
+> scott
+> 
+> On 5/18/06, Randy.Dunlap <rdunlap@xenotime.net> wrote:
+> > From: Randy Dunlap <rdunlap@xenotime.net>
+> >
+> > Use loop "control" instead of loop "counter" for list iterator
+> > descriptions.  They are not counters, they are controls or
+> > pointers or positions.
+> >
+> > Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+> > ---
+> >  include/linux/list.h |   52 +++++++++++++++++++++++++--------------------------
+> >  1 files changed, 26 insertions(+), 26 deletions(-)
+> >
+> > --- linux-2617-rc4g6.orig/include/linux/list.h
+> > +++ linux-2617-rc4g6/include/linux/list.h
+> > @@ -328,7 +328,7 @@ static inline void list_splice_init(stru
+> >
+> >  /**
+> >   * list_for_each       -       iterate over a list
+> > - * @pos:       the &struct list_head to use as a loop counter.
+> > + * @pos:       the &struct list_head to use as a loop control.
+> >   * @head:      the head for your list.
+> >   */
+> >  #define list_for_each(pos, head) \
+> > @@ -337,7 +337,7 @@ static inline void list_splice_init(stru
+> >
+> >  /**
+> >   * __list_for_each     -       iterate over a list
+> > - * @pos:       the &struct list_head to use as a loop counter.
+> > + * @pos:       the &struct list_head to use as a loop control.
+> >   * @head:      the head for your list.
+> >   *
+> >   * This variant differs from list_for_each() in that it's the
+> > @@ -350,7 +350,7 @@ static inline void list_splice_init(stru
+> >
+> >  /**
+> >   * list_for_each_prev  -       iterate over a list backwards
+> > - * @pos:       the &struct list_head to use as a loop counter.
+> > + * @pos:       the &struct list_head to use as a loop control.
+> >   * @head:      the head for your list.
+> >   */
+> >  #define list_for_each_prev(pos, head) \
+> > @@ -359,7 +359,7 @@ static inline void list_splice_init(stru
+> >
+> >  /**
+> >   * list_for_each_safe - iterate over a list safe against removal of list entry
+> > - * @pos:       the &struct list_head to use as a loop counter.
+> > + * @pos:       the &struct list_head to use as a loop control.
+> >   * @n:         another &struct list_head to use as temporary storage
+> >   * @head:      the head for your list.
+> >   */
+> > @@ -369,7 +369,7 @@ static inline void list_splice_init(stru
+> >
+> >  /**
+> >   * list_for_each_entry -       iterate over list of given type
+> > - * @pos:       the type * to use as a loop counter.
+> > + * @pos:       the type * to use as a loop control.
+> >   * @head:      the head for your list.
+> >   * @member:    the name of the list_struct within the struct.
+> >   */
+> > @@ -380,7 +380,7 @@ static inline void list_splice_init(stru
+> >
+> >  /**
+> >   * list_for_each_entry_reverse - iterate backwards over list of given type.
+> > - * @pos:       the type * to use as a loop counter.
+> > + * @pos:       the type * to use as a loop control.
+> >   * @head:      the head for your list.
+> >   * @member:    the name of the list_struct within the struct.
+> >   */
+> > @@ -402,7 +402,7 @@ static inline void list_splice_init(stru
+> >
+> >  /**
+> >   * list_for_each_entry_continue - continue iteration over list of given type
+> > - * @pos:       the type * to use as a loop counter.
+> > + * @pos:       the type * to use as a loop control.
+> >   * @head:      the head for your list.
+> >   * @member:    the name of the list_struct within the struct.
+> >   *
+> > @@ -416,7 +416,7 @@ static inline void list_splice_init(stru
+> >
+> >  /**
+> >   * list_for_each_entry_from - iterate over list of given type from the current point
+> > - * @pos:       the type * to use as a loop counter.
+> > + * @pos:       the type * to use as a loop control.
+> >   * @head:      the head for your list.
+> >   * @member:    the name of the list_struct within the struct.
+> >   *
+> > @@ -428,7 +428,7 @@ static inline void list_splice_init(stru
+> >
+> >  /**
+> >   * list_for_each_entry_safe - iterate over list of given type safe against removal of list entry
+> > - * @pos:       the type * to use as a loop counter.
+> > + * @pos:       the type * to use as a loop control.
+> >   * @n:         another type * to use as temporary storage
+> >   * @head:      the head for your list.
+> >   * @member:    the name of the list_struct within the struct.
+> > @@ -441,7 +441,7 @@ static inline void list_splice_init(stru
+> >
+> >  /**
+> >   * list_for_each_entry_safe_continue
+> > - * @pos:       the type * to use as a loop counter.
+> > + * @pos:       the type * to use as a loop control.
+> >   * @n:         another type * to use as temporary storage
+> >   * @head:      the head for your list.
+> >   * @member:    the name of the list_struct within the struct.
+> > @@ -457,7 +457,7 @@ static inline void list_splice_init(stru
+> >
+> >  /**
+> >   * list_for_each_entry_safe_from
+> > - * @pos:       the type * to use as a loop counter.
+> > + * @pos:       the type * to use as a loop control.
+> >   * @n:         another type * to use as temporary storage
+> >   * @head:      the head for your list.
+> >   * @member:    the name of the list_struct within the struct.
+> > @@ -472,7 +472,7 @@ static inline void list_splice_init(stru
+> >
+> >  /**
+> >   * list_for_each_entry_safe_reverse
+> > - * @pos:       the type * to use as a loop counter.
+> > + * @pos:       the type * to use as a loop control.
+> >   * @n:         another type * to use as temporary storage
+> >   * @head:      the head for your list.
+> >   * @member:    the name of the list_struct within the struct.
+> > @@ -488,7 +488,7 @@ static inline void list_splice_init(stru
+> >
+> >  /**
+> >   * list_for_each_rcu   -       iterate over an rcu-protected list
+> > - * @pos:       the &struct list_head to use as a loop counter.
+> > + * @pos:       the &struct list_head to use as a loop control.
+> >   * @head:      the head for your list.
+> >   *
+> >   * This list-traversal primitive may safely run concurrently with
+> > @@ -507,7 +507,7 @@ static inline void list_splice_init(stru
+> >
+> >  /**
+> >   * list_for_each_safe_rcu
+> > - * @pos:       the &struct list_head to use as a loop counter.
+> > + * @pos:       the &struct list_head to use as a loop control.
+> >   * @n:         another &struct list_head to use as temporary storage
+> >   * @head:      the head for your list.
+> >   *
+> > @@ -524,7 +524,7 @@ static inline void list_splice_init(stru
+> >
+> >  /**
+> >   * list_for_each_entry_rcu     -       iterate over rcu list of given type
+> > - * @pos:       the type * to use as a loop counter.
+> > + * @pos:       the type * to use as a loop control.
+> >   * @head:      the head for your list.
+> >   * @member:    the name of the list_struct within the struct.
+> >   *
+> > @@ -541,7 +541,7 @@ static inline void list_splice_init(stru
+> >
+> >  /**
+> >   * list_for_each_continue_rcu
+> > - * @pos:       the &struct list_head to use as a loop counter.
+> > + * @pos:       the &struct list_head to use as a loop control.
+> >   * @head:      the head for your list.
+> >   *
+> >   * Iterate over an rcu-protected list, continuing after current point.
+> > @@ -791,8 +791,8 @@ static inline void hlist_add_after_rcu(s
+> >
+> >  /**
+> >   * hlist_for_each_entry        - iterate over list of given type
+> > - * @tpos:      the type * to use as a loop counter.
+> > - * @pos:       the &struct hlist_node to use as a loop counter.
+> > + * @tpos:      the type * to use as a loop control.
+> > + * @pos:       the &struct hlist_node to use as a loop control.
+> >   * @head:      the head for your list.
+> >   * @member:    the name of the hlist_node within the struct.
+> >   */
+> > @@ -804,8 +804,8 @@ static inline void hlist_add_after_rcu(s
+> >
+> >  /**
+> >   * hlist_for_each_entry_continue - iterate over a hlist continuing after current point
+> > - * @tpos:      the type * to use as a loop counter.
+> > - * @pos:       the &struct hlist_node to use as a loop counter.
+> > + * @tpos:      the type * to use as a loop control.
+> > + * @pos:       the &struct hlist_node to use as a loop control.
+> >   * @member:    the name of the hlist_node within the struct.
+> >   */
+> >  #define hlist_for_each_entry_continue(tpos, pos, member)                \
+> > @@ -816,8 +816,8 @@ static inline void hlist_add_after_rcu(s
+> >
+> >  /**
+> >   * hlist_for_each_entry_from - iterate over a hlist continuing from current point
+> > - * @tpos:      the type * to use as a loop counter.
+> > - * @pos:       the &struct hlist_node to use as a loop counter.
+> > + * @tpos:      the type * to use as a loop control.
+> > + * @pos:       the &struct hlist_node to use as a loop control.
+> >   * @member:    the name of the hlist_node within the struct.
+> >   */
+> >  #define hlist_for_each_entry_from(tpos, pos, member)                    \
+> > @@ -827,8 +827,8 @@ static inline void hlist_add_after_rcu(s
+> >
+> >  /**
+> >   * hlist_for_each_entry_safe - iterate over list of given type safe against removal of list entry
+> > - * @tpos:      the type * to use as a loop counter.
+> > - * @pos:       the &struct hlist_node to use as a loop counter.
+> > + * @tpos:      the type * to use as a loop control.
+> > + * @pos:       the &struct hlist_node to use as a loop control.
+> >   * @n:         another &struct hlist_node to use as temporary storage
+> >   * @head:      the head for your list.
+> >   * @member:    the name of the hlist_node within the struct.
+> > @@ -841,8 +841,8 @@ static inline void hlist_add_after_rcu(s
+> >
+> >  /**
+> >   * hlist_for_each_entry_rcu - iterate over rcu list of given type
+> > - * @tpos:      the type * to use as a loop counter.
+> > - * @pos:       the &struct hlist_node to use as a loop counter.
+> > + * @tpos:      the type * to use as a loop control.
+> > + * @pos:       the &struct hlist_node to use as a loop control.
+> >   * @head:      the head for your list.
+> >   * @member:    the name of the hlist_node within the struct.
+> >   *
+> >
+> >
+> > ---
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> 
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
+
 ---
-
- include/linux/mm.h |    4 ++
- mm/memory.c        |   99 +++++++++++++++++++++++++++++++++++++++-------------
- mm/mmap.c          |   12 +++++-
- mm/mprotect.c      |   11 +++++-
- 4 files changed, 98 insertions(+), 28 deletions(-)
-
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 1154684..cd3c2cf 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -200,6 +200,10 @@ struct vm_operations_struct {
- 	void (*close)(struct vm_area_struct * area);
- 	struct page * (*nopage)(struct vm_area_struct * area, unsigned long address, int *type);
- 	int (*populate)(struct vm_area_struct * area, unsigned long address, unsigned long len, pgprot_t prot, unsigned long pgoff, int nonblock);
-+
-+	/* notification that a previously read-only page is about to become
-+	 * writable, if an error is returned it will cause a SIGBUS */
-+	int (*page_mkwrite)(struct vm_area_struct *vma, struct page *page);
- #ifdef CONFIG_NUMA
- 	int (*set_policy)(struct vm_area_struct *vma, struct mempolicy *new);
- 	struct mempolicy *(*get_policy)(struct vm_area_struct *vma,
-diff --git a/mm/memory.c b/mm/memory.c
-index 0ec7bc6..6c6891e 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1445,25 +1445,59 @@ static int do_wp_page(struct mm_struct *
- {
- 	struct page *old_page, *new_page;
- 	pte_t entry;
--	int ret = VM_FAULT_MINOR;
-+	int reuse, ret = VM_FAULT_MINOR;
- 
- 	old_page = vm_normal_page(vma, address, orig_pte);
- 	if (!old_page)
- 		goto gotten;
- 
--	if (PageAnon(old_page) && !TestSetPageLocked(old_page)) {
--		int reuse = can_share_swap_page(old_page);
--		unlock_page(old_page);
--		if (reuse) {
--			flush_cache_page(vma, address, pte_pfn(orig_pte));
--			entry = pte_mkyoung(orig_pte);
--			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
--			ptep_set_access_flags(vma, address, page_table, entry, 1);
--			update_mmu_cache(vma, address, entry);
--			lazy_mmu_prot_update(entry);
--			ret |= VM_FAULT_WRITE;
--			goto unlock;
-+	if (unlikely(vma->vm_flags & VM_SHARED)) {
-+		if (vma->vm_ops && vma->vm_ops->page_mkwrite) {
-+			/*
-+			 * Notify the address space that the page is about to
-+			 * become writable so that it can prohibit this or wait
-+			 * for the page to get into an appropriate state.
-+			 *
-+			 * We do this without the lock held, so that it can
-+			 * sleep if it needs to.
-+			 */
-+			page_cache_get(old_page);
-+			pte_unmap_unlock(page_table, ptl);
-+
-+			if (vma->vm_ops->page_mkwrite(vma, old_page) < 0)
-+				goto unwritable_page;
-+
-+			page_cache_release(old_page);
-+
-+			/*
-+			 * Since we dropped the lock we need to revalidate
-+			 * the PTE as someone else may have changed it.  If
-+			 * they did, we just return, as we can count on the
-+			 * MMU to tell us if they didn't also make it writable.
-+			 */
-+			page_table = pte_offset_map_lock(mm, pmd, address,
-+							 &ptl);
-+			if (!pte_same(*page_table, orig_pte))
-+				goto unlock;
- 		}
-+
-+		reuse = 1;
-+	} else if (PageAnon(old_page) && !TestSetPageLocked(old_page)) {
-+		reuse = can_share_swap_page(old_page);
-+		unlock_page(old_page);
-+	} else {
-+		reuse = 0;
-+	}
-+
-+	if (reuse) {
-+		flush_cache_page(vma, address, pte_pfn(orig_pte));
-+		entry = pte_mkyoung(orig_pte);
-+		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
-+		ptep_set_access_flags(vma, address, page_table, entry, 1);
-+		update_mmu_cache(vma, address, entry);
-+		lazy_mmu_prot_update(entry);
-+		ret |= VM_FAULT_WRITE;
-+		goto unlock;
- 	}
- 
- 	/*
-@@ -1523,6 +1557,10 @@ oom:
- 	if (old_page)
- 		page_cache_release(old_page);
- 	return VM_FAULT_OOM;
-+
-+unwritable_page:
-+	page_cache_release(old_page);
-+	return VM_FAULT_SIGBUS;
- }
- 
- /*
-@@ -2074,18 +2112,31 @@ retry:
- 	/*
- 	 * Should we do an early C-O-W break?
- 	 */
--	if (write_access && !(vma->vm_flags & VM_SHARED)) {
--		struct page *page;
-+	if (write_access) {
-+		if (!(vma->vm_flags & VM_SHARED)) {
-+			struct page *page;
- 
--		if (unlikely(anon_vma_prepare(vma)))
--			goto oom;
--		page = alloc_page_vma(GFP_HIGHUSER, vma, address);
--		if (!page)
--			goto oom;
--		copy_user_highpage(page, new_page, address);
--		page_cache_release(new_page);
--		new_page = page;
--		anon = 1;
-+			if (unlikely(anon_vma_prepare(vma)))
-+				goto oom;
-+			page = alloc_page_vma(GFP_HIGHUSER, vma, address);
-+			if (!page)
-+				goto oom;
-+			copy_user_highpage(page, new_page, address);
-+			page_cache_release(new_page);
-+			new_page = page;
-+			anon = 1;
-+
-+		} else {
-+			/* if the page will be shareable, see if the backing
-+			 * address space wants to know that the page is about
-+			 * to become writable */
-+			if (vma->vm_ops->page_mkwrite &&
-+			    vma->vm_ops->page_mkwrite(vma, new_page) < 0
-+			    ) {
-+				page_cache_release(new_page);
-+				return VM_FAULT_SIGBUS;
-+			}
-+		}
- 	}
- 
- 	page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
-diff --git a/mm/mmap.c b/mm/mmap.c
-index e6ee123..6446c61 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -1065,7 +1065,8 @@ munmap_back:
- 	vma->vm_start = addr;
- 	vma->vm_end = addr + len;
- 	vma->vm_flags = vm_flags;
--	vma->vm_page_prot = protection_map[vm_flags & 0x0f];
-+	vma->vm_page_prot = protection_map[vm_flags &
-+				(VM_READ|VM_WRITE|VM_EXEC|VM_SHARED)];
- 	vma->vm_pgoff = pgoff;
- 
- 	if (file) {
-@@ -1089,6 +1090,12 @@ munmap_back:
- 			goto free_vma;
- 	}
- 
-+	/* Don't make the VMA automatically writable if it's shared, but the
-+	 * backer wishes to know when pages are first written to */
-+	if (vma->vm_ops && vma->vm_ops->page_mkwrite)
-+		vma->vm_page_prot =
-+			protection_map[vm_flags & (VM_READ|VM_WRITE|VM_EXEC)];
-+
- 	/* We set VM_ACCOUNT in a shared mapping's vm_flags, to inform
- 	 * shmem_zero_setup (perhaps called through /dev/zero's ->mmap)
- 	 * that memory reservation must be checked; but that reservation
-@@ -1921,7 +1928,8 @@ unsigned long do_brk(unsigned long addr,
- 	vma->vm_end = addr + len;
- 	vma->vm_pgoff = pgoff;
- 	vma->vm_flags = flags;
--	vma->vm_page_prot = protection_map[flags & 0x0f];
-+	vma->vm_page_prot = protection_map[flags &
-+				(VM_READ|VM_WRITE|VM_EXEC|VM_SHARED)];
- 	vma_link(mm, vma, prev, rb_link, rb_parent);
- out:
- 	mm->total_vm += len >> PAGE_SHIFT;
-diff --git a/mm/mprotect.c b/mm/mprotect.c
-index 4c14d42..2697abd 100644
---- a/mm/mprotect.c
-+++ b/mm/mprotect.c
-@@ -106,6 +106,7 @@ mprotect_fixup(struct vm_area_struct *vm
- 	unsigned long oldflags = vma->vm_flags;
- 	long nrpages = (end - start) >> PAGE_SHIFT;
- 	unsigned long charged = 0;
-+	unsigned int mask;
- 	pgprot_t newprot;
- 	pgoff_t pgoff;
- 	int error;
-@@ -132,8 +133,6 @@ mprotect_fixup(struct vm_area_struct *vm
- 		}
- 	}
- 
--	newprot = protection_map[newflags & 0xf];
--
- 	/*
- 	 * First try to merge with previous and/or next vma.
- 	 */
-@@ -160,6 +159,14 @@ mprotect_fixup(struct vm_area_struct *vm
- 	}
- 
- success:
-+	/* Don't make the VMA automatically writable if it's shared, but the
-+	 * backer wishes to know when pages are first written to */
-+	mask = VM_READ|VM_WRITE|VM_EXEC|VM_SHARED;
-+	if (vma->vm_ops && vma->vm_ops->page_mkwrite)
-+		mask &= ~VM_SHARED;
-+
-+	newprot = protection_map[newflags & mask];
-+
- 	/*
- 	 * vm_flags and vm_page_prot are protected by the mmap_sem
- 	 * held in write mode.
-
+~Randy

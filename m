@@ -1,23 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbWESVH4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWESVMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964843AbWESVH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 17:07:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWESVH4
+	id S964845AbWESVMv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 17:12:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbWESVMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 17:07:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39350 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964843AbWESVHz (ORCPT
+	Fri, 19 May 2006 17:12:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55991 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964845AbWESVMu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 17:07:55 -0400
-Date: Fri, 19 May 2006 14:10:32 -0700
+	Fri, 19 May 2006 17:12:50 -0400
+Date: Fri, 19 May 2006 14:15:22 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: "Christian Kujau" <evil@g-house.de>
-Cc: linux-kernel@vger.kernel.org, Mel Gorman <mel@csn.ul.ie>,
-       Andy Whitcroft <apw@shadowen.org>
-Subject: Re: SCSI ABORT with 2.6.17-rc4-mm1
-Message-Id: <20060519141032.23de6eee.akpm@osdl.org>
-In-Reply-To: <62331.192.18.1.5.1148071784.squirrel@housecafe.dyndns.org>
-References: <62331.192.18.1.5.1148071784.squirrel@housecafe.dyndns.org>
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: sct@redhat.com, torvalds@osdl.org, aia21@cam.ac.uk,
+       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sector_t overflow in block layer
+Message-Id: <20060519141522.76c2938e.akpm@osdl.org>
+In-Reply-To: <20060519205550.GI5964@schatzie.adilger.int>
+References: <m364k4zfor.fsf@bzzz.home.net>
+	<20060517235804.GA5731@schatzie.adilger.int>
+	<1147947803.5464.19.camel@sisko.sctweedie.blueyonder.co.uk>
+	<20060518185955.GK5964@schatzie.adilger.int>
+	<Pine.LNX.4.64.0605181403550.10823@g5.osdl.org>
+	<Pine.LNX.4.64.0605182307540.16178@hermes-1.csi.cam.ac.uk>
+	<Pine.LNX.4.64.0605181526240.10823@g5.osdl.org>
+	<20060518232324.GW5964@schatzie.adilger.int>
+	<1148067412.5156.65.camel@sisko.sctweedie.blueyonder.co.uk>
+	<20060519131130.71c390d9.akpm@osdl.org>
+	<20060519205550.GI5964@schatzie.adilger.int>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,81 +35,16 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Christian Kujau" <evil@g-house.de> wrote:
+Andreas Dilger <adilger@clusterfs.com> wrote:
 >
-> [sorry for repost, local MTA problems here...]
-> 
-> Hi list, Hi Andrew,
-> 
-> I cannot boot 2.6.17-rc4-mm1 because my rootdisk is a scsi disk and upon
-> scsi-init (SYM53C8XX_2) I'm getting:
-> 
-> May 19 15:39:55 prinz sym0: <895> rev 0x1 at pci 0000:02:09.0 irq 161
-> May 19 15:39:55 prinz sym0: Tekram NVRAM, ID 7, Fast-40, LVD, parity checking
-> May 19 15:39:55 prinz sym0: SCSI BUS has been reset.
-> May 19 15:39:55 prinz scsi0 : sym-2.2.3
-> May 19 15:40:08 prinz 0:0:0:0: ABORT operation started.
-> May 19 15:40:13 prinz 0:0:0:0: ABORT operation timed-out.
-> May 19 15:40:13 prinz 0:0:0:0: DEVICE RESET operation started.
-> May 19 15:40:18 prinz 0:0:0:0: DEVICE RESET operation timed-out.
-> May 19 15:40:18 prinz 0:0:0:0: BUS RESET operation started.
-> May 19 15:40:23 prinz 0:0:0:0: BUS RESET operation timed-out.
-> May 19 15:40:23 prinz 0:0:0:0: HOST RESET operation started.
-> May 19 15:40:23 prinz sym0: SCSI BUS has been reset.
-> May 19 15:40:28 prinz 0:0:0:0: HOST RESET operation timed-out.
-> May 19 15:40:28 prinz 0:0:0:0: scsi: Device offlined - not ready after
-> error recovery
-> May 19 15:40:33 prinz 0:0:1:0: ABORT operation started.
-> May 19 15:40:38 prinz 0:0:1:0: ABORT operation timed-out.
-> May 19 15:40:38 prinz 0:0:1:0: DEVICE RESET operation started.
-> May 19 15:40:43 prinz 0:0:1:0: DEVICE RESET operation timed-out.
-> May 19 15:40:43 prinz 0:0:1:0: BUS RESET operation started.
-> 
-> I have backed out drivers-scsi-use-array_size-macro.patch, but to no
-> avail. There are other scsi-related patches in the broken-out
-> mm-directory, any hint which one to try first? Sometimes they're dependent
-> on each other, so I find it not easy to just "patch -R" all "*scsi*.patch"
-> files.
-> 
-> Please see http://www.nerdbynature.de/bits/2.6.17-rc4-mm1/  for a
-> netsconsole-dmesg for 2.6.17-rc4 (working fine) and a the -mm1.
-> 
-> I've tried different .configs for -mm1, created with:
-> 
-> - yes ''  | make oldconfig (config-2.6-mm.2.6.17-rc4-mm1.oldconfig_default)
-> - yes 'N' | make oldconfig (config-2.6-mm.2.6.17-rc4-mm1.oldconfig_no)
-> - make oldlconfig (interactive, config-2.6-mm.2.6.17-rc4-mm1.oldconfig_my)
-> 
+> One extra suggestion that might be safe and acceptible all around is if
+> a device is larger than 2TB w/o a 64-bit sector_t that the block device
+> size itself be truncated in the kernel to 2TB-512.  This at least prevents
+> userspace tools from trying to e.g. format a 3TB filesystem on a device
+> that will just corrupt the filesystem.
 
-Thanks for the report, and thanks for testing.  The full demsg output
-really helps.
+'twould be good if we could do something like that - doing it on every
+single IO submission in submit_bh() Just Feels Wrong.
 
-
-It goes pear-shaped very early:
-
---- prinz64-nc.2.6.17-rc4.log	Fri May 19 13:56:34 2006
-+++ prinz64-nc.2.6.17-rc4-mm1.log	Fri May 19 13:56:58 2006
-@@ -12,20 +12,17 @@
- BIOS-e820: 00000000fefffc00 - 00000000ff000000 (reserved)
- BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
- DMI 2.2 present.
-+ACPI: Unable to map RSDT header
-+node 0 zone Normal missaligned start pfn, enable UNALIGNED_ZONE_BOUNDRIES
-+node 0 zone HighMem missaligned start pfn, enable UNALIGNED_ZONE_BOUNDRIES
-
-
-And from then on, ACPI is kaput.  So your interrupts are kaput, as is the
-disk controller.
-
-I had some of this happening too - it's due to some of the MM patches from
-Mel and/or Andy.  I also managed to provoke "Too many memory regions,
-truncating" out of it.
-
-
-I hope that's all sorted out now.  Please test next -mm (hopefully
-tomorrow) and let us know?
-
-Or, if you're super-keen,
-http://www.zip.com.au/~akpm/linux/patches/stuff/x.bz2 is my current rollup
-(against 2.6.17-rc4).  It was compilable this morning, but I've since
-merged stuff ;) It would be interesting to know if that has fixed the bug.
+Also, there's always the option (or enhancement) of emitting lots of scary
+warnings and then just proceeding.

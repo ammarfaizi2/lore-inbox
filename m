@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932475AbWESTiT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbWESThN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932475AbWESTiT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 15:38:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbWESTiT
+	id S932471AbWESThN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 15:37:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbWESThN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 15:38:19 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:38323 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932475AbWESTiT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 15:38:19 -0400
-Date: Fri, 19 May 2006 14:38:02 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Hua Zhong <hzhong@gmail.com>
-Cc: "'Eric W. Biederman'" <ebiederm@xmission.com>,
-       "'Andrew Morton'" <akpm@osdl.org>,
-       "'Herbert Poetzl'" <herbert@13thfloor.at>, serue@us.ibm.com,
-       linux-kernel@vger.kernel.org, dev@sw.ru, devel@openvz.org,
-       sam@vilain.net, xemul@sw.ru, haveblue@us.ibm.com, clg@fr.ibm.com
-Subject: Re: [PATCH 0/9] namespaces: Introduction
-Message-ID: <20060519193802.GB20129@sergelap.austin.ibm.com>
-References: <m1iro2yo7f.fsf@ebiederm.dsl.xmission.com> <008201c67b71$fb938db0$493d010a@nuitysystems.com>
+	Fri, 19 May 2006 15:37:13 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:35044 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932471AbWESThL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 15:37:11 -0400
+Subject: Re: [PATCH] sector_t overflow in block layer
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Anton Altaparmakov <aia21@cam.ac.uk>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20060518232324.GW5964@schatzie.adilger.int>
+References: <1147884610.16827.44.camel@localhost.localdomain>
+	 <m34pzo36d4.fsf@bzzz.home.net>
+	 <1147888715.12067.38.camel@dyn9047017100.beaverton.ibm.com>
+	 <m364k4zfor.fsf@bzzz.home.net> <20060517235804.GA5731@schatzie.adilger.int>
+	 <1147947803.5464.19.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <20060518185955.GK5964@schatzie.adilger.int>
+	 <Pine.LNX.4.64.0605181403550.10823@g5.osdl.org>
+	 <Pine.LNX.4.64.0605182307540.16178@hermes-1.csi.cam.ac.uk>
+	 <Pine.LNX.4.64.0605181526240.10823@g5.osdl.org>
+	 <20060518232324.GW5964@schatzie.adilger.int>
+Content-Type: text/plain
+Date: Fri, 19 May 2006 20:36:52 +0100
+Message-Id: <1148067412.5156.65.camel@sisko.sctweedie.blueyonder.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <008201c67b71$fb938db0$493d010a@nuitysystems.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.0.2 (2.0.2-27) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Hua Zhong (hzhong@gmail.com):
-> > snapshot/restart/migration worry me.  If they require 
-> > complete serialisation of complex kernel data structures then 
-> > we have a problem, because it means that any time anyone 
-> > changes such a structure they need to update (and test) the 
-> > serialisation.
-> 
-> Checkpoint/Restart/Migration could be very complicated if done at OS level (per process/process group/or any subset of an OS). But
-> it is much simpler if done on virtual machine level (VMWare/Xen) because there is a natural and clear boundary, and doesn't get
-> affected if the OS kernel internal changes.
-> 
-> It's good to see some progress in supporting virtualization in Linux, but as Andrew put it, some big decisions need to be made
-> up-front. One big question is actually how many virtualization technologies Linux should support? Particularly, does it need to
-> support both OS-level virtualization and VM-level virtualization? And why? And to what degree?
+Hi,
 
-Because migration can be used for more than one purpose.  One such
-purpose is load-balancing large numbers of jobs.  If you have large
-numbers of jobs, you do not want the resource overhead of a full OS for
-each migrateable job.
+On Thu, 2006-05-18 at 17:23 -0600, Andreas Dilger wrote:
 
-The reason it is deemed simpler at the vm level, as you point out, is
-that resources are naturally isolated.  The same work which will prepare
-the kernel for vserver/openvz functionality will isolate kernel resources
-between vserver/containers, making c/r and migration at that level level
-much simpler.
+> I looked at that also, but it isn't clear from the use of "b_size" here
+> that there is any constraint that b_size is a power of two, only that it
+> is a multiple of 512.  Granted, I don't know whether there are any users
+> of such a crazy thing, but the fact that this is in bytes instead of a
+> shift made me think twice.
 
-thanks,
--serge
+Yeah.  It was very strongly constrained to a power-of-two in the dim and
+distant past, when buffer_heads were only ever used for true buffer-
+cache data (the entire IO path had to be special-cased for IO that
+wasn't from the buffer cache, such as swap IO.)  
+
+But more recently it has been a lot more relaxed, and we've had patches
+like Jens' "varyIO" patches on 2.4 which routinely generated odd-sized
+b_size buffer_heads when doing raw/direct IO on unaligned disk offsets.
+
+But in 2.6, I _think_ such paths should be going straight to bio, not
+via submit_bh.  Direct IO certainly doesn't use bh's any more, and
+pretty much any other normal disk IO paths are page-aligned.  I might be
+missing something, though.
+
+--Stephen
+
+

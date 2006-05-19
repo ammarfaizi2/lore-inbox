@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbWESRZs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWESR0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932391AbWESRZs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 13:25:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWESRZs
+	id S1751387AbWESR0k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 13:26:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWESR0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 13:25:48 -0400
-Received: from rwcrmhc11.comcast.net ([216.148.227.151]:63722 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1751407AbWESRZr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 13:25:47 -0400
-Message-ID: <446DFE83.1030803@comcast.net>
-Date: Fri, 19 May 2006 13:21:07 -0400
+	Fri, 19 May 2006 13:26:40 -0400
+Received: from rwcrmhc13.comcast.net ([216.148.227.153]:40185 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S1751387AbWESR0k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 13:26:40 -0400
+Message-ID: <446DFEB8.8020302@comcast.net>
+Date: Fri, 19 May 2006 13:22:00 -0400
 From: John Richard Moser <nigelenki@comcast.net>
 User-Agent: Mail/News 1.5 (X11/20060309)
 MIME-Version: 1.0
-To: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Panagiotis Issaris <takis@lumumba.uhasselt.be>
 CC: linux-kernel@vger.kernel.org
 Subject: Re: Stealing ur megahurts (no, really)
-References: <446D61EE.4010900@comcast.net> <20060519101006.GL8304@mea-ext.zmailer.org>
-In-Reply-To: <20060519101006.GL8304@mea-ext.zmailer.org>
+References: <446D61EE.4010900@comcast.net> <446DA5B0.8020703@lumumba.uhasselt.be>
+In-Reply-To: <446DA5B0.8020703@lumumba.uhasselt.be>
 X-Enigmail-Version: 0.94.0.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
@@ -30,9 +30,16 @@ Hash: SHA1
 
 
 
-Matti Aarnio wrote:
-> On Fri, May 19, 2006 at 02:13:02AM -0400, John Richard Moser wrote:
-> ...
+Panagiotis Issaris wrote:
+> Hi,
+> 
+> John Richard Moser wrote:
+> 
+>> [...]
+>> Scrambling for an old machine is ridiculous.  Down-clocking makes sense
+>> because you can adjust to varied levels; but it's difficult and usually
+>> infeasible.  Pulling memory and mix and matching is not much better.
+>>
 >> On Linux we have mem= to toy with memory, which I personally HAVE used
 >> to evaluate how various distributions and releases of GNOME operate
 >> under memory pressure.  This is a lot more convenient than pulling chips
@@ -40,48 +47,28 @@ Matti Aarnio wrote:
 >> designed for situations where actual system memory capacity is
 >> mis-detected (mandrake 7.2 and its insistence that a 256M memory stick
 >> is 255M....); but is very useful in this application too.
+>> [...]
+>>  
 >>
->> This brings the idea of a cpumhz= parameter to adjust CPU clock rate.
->> Obviously we can't do this directly, as convenient as this would be; but
->> the idea warrants some thought, and some thought I gave it.  What I came
->> up with was simple:  Adjust time slice length and place a delay between
->> time slices so they're evenly spaced.
-> ...
->> Questions?  Comments?  Particular ideas on what would happen?
-> 
-> Modern machines have ability to be "speed controlled" - Perhaps
-> they can cut their speed by 1/3 or 1/2, but run slower anyway
-> in the name of energy conservation.
+> An easier way might be to use a system emulator like Qemu.
+> You can specify the amount of memory the emulated system has,
+> and if you do not use the kernel accelerating module (kqemu)
+> it slows down considerably.
 > 
 
-Not fine grained enough.  1.8GHz desktop athlon 64 can run at 600MHz or
-1.8GHz.  A laptop CPU may run at 2.0GHz, 1.4GHz, 600MHz, and 400MHz.
+Yes but it slows down to like a 25MHz system :)
+
+> Of course, it would be nicer if you could actually specify performance
+> levels and an issue with this approach is that it does not uniformly
+> scale down performance: I think IO emulation performance is a lot worse
+> then CPU emulation performance (in Qemu).
+
+Yep.
 
 > 
-> Another approach (not thinking on multiprocessor systems now)
-> is to somehow gobble up system performance into some "hoarder"
-> (highest scheduling priority, eats up 90% of time slices doing
-> excellent waste of CPU resources..)
-
-Possible, but could possibly create other issues.
-
+> With friendly regards,
+> Takis
 > 
-> Combine that with internal timer ticking at 1000 or 1024 Hz, and
-> you do get fairly good approximation of a machine running at 1/10
-> of its real speed.
-> 
-> Kernel IO tasks might skew statistics a bit, but that is another story.
-> 
-
-Yeah, also a thought.  With my approach you still had interrupts to
-account for et al, since on a slow system we should still have <10uS
-response time there.
-
-> 
-> In multiprocessor systems similar hoarders do work combined with
-> CPU Affinity - one hoarder for each processor.
-> 
-> /Matti Aarnio
 > 
 
 - --
@@ -100,17 +87,17 @@ Public Domain, unless otherwise explicitly stated.
 Version: GnuPG v1.4.2.2 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iQIVAwUBRG3+gQs1xW0HCTEFAQKK0g/+OPCuhqnT+CC0hhcu3fEAcrW9KlAi1/P5
-W1zkx1R3zxIsnDmByNigcRSRKdDPQw/qczWtyiQFT3oAr1P2wrYJhv7IsAc1UQ5n
-v7xbQt9lXVIZMolpkoctP8Xdv2oINnHjQFbvKPyNINvigff7Ow5E9ADsi7igbfjG
-NmHVWe6a8DhEs9SP1Q6HLkHGvaNSS8S7KXGgT2UlwWtx4AlQL7OLq8nhIgHDWtZq
-ltw9NDDgLjG2CTeEW3TNMgDZ2QOE1nGRsk44b4En5+iGXW7d8cLa9HFkeDA6Skpz
-6wf3R8XRRpxD9dKB7n4ex6Qq4YK45z4xSvHRsLKQTnxh9UMmeZpCaTjrGm+0abak
-CLJXVmzvj20f3wB47J9kSOphdBAX5hQSso1d9V+YWh7WQ9Kkp0LSXyOWdZOAFzCX
-Hlgxv9djmNic85IOdnvd++zKf/EeqHBz2/Mk6Fpb5+Sh6YfYrcHnqlFswCn5guR8
-GxBXYR1toCT3eeDhbVJXD0oqgLSLh7SMwkDQhERj2nHTiBfmtUDO8er9NqZl6Yf/
-AH3/HibLFYYNIAkNGsCxVJ8exoA/sz283kwtYVgG+qJzoMGQaqcBqLeIwd7mp0XX
-CJYjENB3uGe6RoWUNHPYoAG68G7WgI9L9U2DRokXkAldX1Fc+u7Ed7GhWrgbisqK
-sEDXdtnkMbg=
-=FcTe
+iQIVAwUBRG3+tgs1xW0HCTEFAQJ2ow/+KOKJNdX5d1pSZ36u+lT6AIs8yN0LSbS5
+VVKFJLMrZWf0BfRgvxyGjazlEXbIaYeaSXYGr5+Gkbztr0cJ1/WyyO9dhEvVS8uq
+YJP9GAjfcsmrtLZT49jM/9XimK2xGgAFExmbxmEXFtGrcVanzFA/zvSiqbJmUMEt
+z+4BR7wKX/Q+iBKrSLibCTLlzpstI8YXhZxMVR2ZOfFU18nl7Pv5Y9sUB6EUKu2V
+6B1eT0pBQ+bLtKhsNbOIOvGUpzkpe/bHAqBzxYLugBclmyM3SFoncHDXpg08qoVm
+LIXJi0Y/QJQovQlbzRz+Xse0IibBCPd4+jGNjk6/fkIvVqZVvGsLFHrmb5S0v4W7
+qBB4atl7w7tb29J/gzPqAlqaqc/eNI3ZtNG/KEfvEqjaTHuc6mIXjs6OHyimXDgD
+WPvNZYrxwLoXhCCSkzlZ8BgEjL59DXtR8YZoEI3tSI9k9HnuKe4sv5dbCntsdsTR
+d0o5Kvcil6aZKJWx9St8BafOpcGff2D3YpzgcmBhUhYoX/Ni1+1fgnuha+Oo9W7i
++TMOf8DwV+oUBV4hHbLXQzkDBu/dT60LrieYRANQxHx1uDh55S66Uk1pmhu74iw1
+NCxZbok20007Hzle3Se9qL6f7r4XdDQHI6bUcu5JgJyv+pVQcOdkLZSClVYAQkVn
+pwYsqzp/KJk=
+=Cmvr
 -----END PGP SIGNATURE-----

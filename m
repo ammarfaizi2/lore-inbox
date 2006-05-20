@@ -1,174 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWETXA6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbWETXGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbWETXA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 May 2006 19:00:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbWETXA6
+	id S964802AbWETXGx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 May 2006 19:06:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964815AbWETXGx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 May 2006 19:00:58 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:64405 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S964800AbWETXA5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 May 2006 19:00:57 -0400
-Message-ID: <446F6F46.9090605@m1k.net>
-Date: Sat, 20 May 2006 15:34:30 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: torvalds@osdl.org
-CC: mchehab@infradead.org, linux-kernel@vger.kernel.org,
-       linux-dvb-maintainer@linuxtv.org, akpm@osdl.org,
-       video4linux-list@redhat.com
-Subject: Re: [v4l-dvb-maintainer] [PATCH 00/33] V4L/DVB bug fixes
-References: <20060513094537.PS23916900000@infradead.org>
-In-Reply-To: <20060513094537.PS23916900000@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Sat, 20 May 2006 19:06:53 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:6531 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S964802AbWETXGw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 May 2006 19:06:52 -0400
+Date: Sat, 20 May 2006 16:09:13 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: torvalds@osdl.org
+Subject: Linux 2.6.16.17
+Message-ID: <20060520230912.GJ23243@moss.sous-sol.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mchehab@infradead.org wrote:
+We (the -stable team) are announcing the release of the 2.6.16.17
+kernel.  Couple security relevant patches in there, the SCTP patches
+came in post review cycle.
 
->Please pull these from master branch at:
->        kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git
->  
->
-Linus,
+The diffstat and short summary of the fixes are below.
 
-A week has gone by... Do you intend to merge these bug fixes into your tree?
+I'll also be replying to this message with a copy of the patch between
+2.6.16.16 and 2.6.16.17, as it is small enough to do so.
 
-These changesets fix a whole bunch of serious bugs that have been 
-introduced in 2.6.17, and a good many of these bugfixes have been 
-sitting around, waiting to be merged since 2.6.17-rc1, not to mention 
-the fixes that have already been merged much earlier in 2.6.16.y
+The updated 2.6.16.y git tree can be found at:
+ 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+and can be browsed at the normal kernel.org git web browser:
+	www.kernel.org/git/
 
-Please merge these before 2.6.17-rc5
+thanks,
+-chris
 
-We have already eliminated as many patches as we possibly could.  It all 
-comes down to these.  Everything else has been held back until the 
-2.6.18 merge window.
+--------
 
-If you are nacking these fixes, then I would have to call 2.6.17 a 
-broken kernel, when it comes to multimedia :-(
+ Makefile                        |    2 -
+ block/elevator.c                |    8 ++++-
+ block/ll_rw_blk.c               |   17 ++++++++++-
+ drivers/block/ub.c              |   18 ++++++------
+ drivers/char/pcmcia/cm4000_cs.c |   10 ++++--
+ drivers/char/pcmcia/cm4040_cs.c |   11 ++++---
+ drivers/i2c/busses/scx200_acb.c |    4 --
+ drivers/md/raid10.c             |    2 -
+ drivers/net/tg3.c               |    8 +++--
+ drivers/net/via-rhine.c         |    6 ++++
+ drivers/pci/pci-acpi.c          |   60 +++++++++++++++++++++++-----------------
+ drivers/pci/quirks.c            |   22 ++++++++++++--
+ fs/compat.c                     |    2 -
+ fs/locks.c                      |   30 ++++++++++----------
+ fs/smbfs/request.c              |    4 ++
+ include/net/sctp/sctp.h         |    6 ++--
+ kernel/ptrace.c                 |   57 ++++++++++++++++++++++++++------------
+ mm/mempolicy.c                  |    1 
+ mm/shmem.c                      |    1 
+ mm/vmscan.c                     |   11 +++++++
+ net/ipv4/netfilter/arp_tables.c |    2 -
+ net/ipv4/netfilter/ip_tables.c  |    2 -
+ net/ipv6/netfilter/ip6_tables.c |    2 -
+ net/sctp/sm_statefuns.c         |    6 ++++
+ security/selinux/ss/services.c  |    4 ++
+ 25 files changed, 200 insertions(+), 96 deletions(-)
 
-Please merge.
+Summary of changes from v2.6.16.16 to v2.6.16.17
+================================================
 
-Regards,
+Alexey Dobriyan:
+      fs/compat.c: fix 'if (a |= b )' typo
 
-Michael Krufky
+Carl-Daniel Hailfinger:
+      smbus unhiding kills thermal management
 
->Mostly are just small patches to fix bugs. The most changed driver is cx24123 
->frontend, since it had several precision loss at math operations, resulting on
->several digital TV stations not being seen (from my tests, without the patch, 
->only 8 TV stations were available, of a total of 28 ones with the patch).
->
->We are also including some changes at Multimedia Kconfig menu to allow disabling
->drivers based at V4L1 API. This api were used until kernel 2.4, without providing
->enough capability to handle all analog TV video/audio standards. The removal of this
->feature is marked to July/2006. We intend to keep for a while a compatibility layer, 
->already at V4L core, that converts V4L1 calls into V4L2 ones.
->
->This patch series contains the following stuff:
->
->   - Fix some errors on bttv_risc_overlay
->   - Fix mutex in dvb_register_device to work.
->   - Fix TT budget-ci 1.1 CI slots
->   - Kbuild: drivers/media/video/bt8xx: remove $(src) from include path
->   - Saa7134: Fix oops with disable_ir=1
->   - Fix oops in budget-av with CI
->   - Set tone/voltage again if the frontend was reinitialised
->   - Fix some more potential oopses
->   - Fix a bug at pluto2 Makefile
->   - Bug fix: Wrong tuner was used pcHDTV HD-3000 card
->   - Correct buffer size calculations in cx88-core.c
->   - fix Pvr350 tv out (saa7127)
->   - Create V4L1 config options
->   - Add VIVI Kconfig stuff
->   - Removed uneeded stuff from pwc Makefile
->   - Fix compilation with V4L1_COMPAT
->   - Use after free in drivers/media/video/em28xx/em28xx-video.c
->   - Kbuild: DVB_BT8XX must select DVB_ZL10353
->   - Fix for CX24123 & low symbol rates
->   - Add several debug messages to cx24123 code
->   - Always wait for diseqc queue to become ready before transmitting a diseqc message
->   - Various correctness fixes to tuning.
->   - Tweak bandselect setup fox cx24123
->   - Add support for TCL M2523_5N_E tuner.
->   - Cxusb-bluebird: bug-fix: power down corrupts frontend
->   - Remove broken 'fast firmware load' from cx25840.
->   - Saa7134: Missing 'break' in Terratec Cinergy 400 TV initialization
->   - Fix frequency values in the ranges structures of the LG TDVS H06xF tuners
->   - Get_dvb_firmware: download nxt2002 firmware from new driver location
->   - Sparc32 vivi fix
->   - Vivi build fix
->   - Bt8xx/bttv-cards.c: fix off-by-one errors
->   - Fix CONFIG_VIDEO_VIVI=y build bug
->
->Cheers,
->Mauro.
->
->V4L/DVB development is hosted at http://linuxtv.org
->---
->
-> Documentation/dvb/get_dvb_firmware                |    8 
-> drivers/media/Kconfig                             |   45 -
-> drivers/media/common/Kconfig                      |    1 
-> drivers/media/dvb/bt8xx/Kconfig                   |    1 
-> drivers/media/dvb/cinergyT2/cinergyT2.c           |    5 
-> drivers/media/dvb/dvb-core/dvb_frontend.c         |   12 
-> drivers/media/dvb/dvb-core/dvbdev.c               |    4 
-> drivers/media/dvb/dvb-usb/cxusb.c                 |   17 
-> drivers/media/dvb/frontends/cx24123.c             |  617 +++++++++-----
-> drivers/media/dvb/frontends/dvb-pll.c             |    4 
-> drivers/media/dvb/pluto2/Makefile                 |    2 
-> drivers/media/dvb/ttpci/Kconfig                   |   12 
-> drivers/media/dvb/ttpci/budget-av.c               |    6 
-> drivers/media/dvb/ttpci/budget-ci.c               |  105 +-
-> drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c |    6 
-> drivers/media/radio/Kconfig                       |   30 
-> drivers/media/video/Kconfig                       |   81 +
-> drivers/media/video/Makefile                      |    7 
-> drivers/media/video/bt8xx/Kconfig                 |    2 
-> drivers/media/video/bt8xx/Makefile                |    2 
-> drivers/media/video/bt8xx/bttv-cards.c            |    4 
-> drivers/media/video/bt8xx/bttv-risc.c             |   14 
-> drivers/media/video/cx25840/cx25840-firmware.c    |   49 -
-> drivers/media/video/cx88/cx88-cards.c             |    2 
-> drivers/media/video/cx88/cx88-core.c              |   16 
-> drivers/media/video/cx88/cx88-dvb.c               |    2 
-> drivers/media/video/cx88/cx88-video.c             |    2 
-> drivers/media/video/em28xx/Kconfig                |    2 
-> drivers/media/video/em28xx/em28xx-video.c         |   10 
-> drivers/media/video/et61x251/Kconfig              |    2 
-> drivers/media/video/pwc/Kconfig                   |    2 
-> drivers/media/video/pwc/Makefile                  |   17 
-> drivers/media/video/saa7127.c                     |    1 
-> drivers/media/video/saa7134/saa7134-cards.c       |    1 
-> drivers/media/video/saa7134/saa7134-core.c        |    6 
-> drivers/media/video/saa7134/saa7134-video.c       |    2 
-> drivers/media/video/sn9c102/Kconfig               |    2 
-> drivers/media/video/tuner-types.c                 |    4 
-> drivers/media/video/tveeprom.c                    |    2 
-> drivers/media/video/usbvideo/Kconfig              |    6 
-> drivers/media/video/vivi.c                        |    5 
-> drivers/media/video/zc0301/Kconfig                |    2 
-> include/linux/videodev2.h                         |    5 
-> 43 files changed, 729 insertions(+), 396 deletions(-)
->
->
->_______________________________________________
->v4l-dvb-maintainer mailing list
->v4l-dvb-maintainer@linuxtv.org
->http://www.linuxtv.org/cgi-bin/mailman/listinfo/v4l-dvb-maintainer
->  
->
+Chris Wedgwood:
+      PCI quirk: VIA IRQ fixup should only run for VIA southbridges
+      VIA quirk fixup, additional PCI IDs
 
+Chris Wright:
+      Netfilter: do_add_counters race, possible oops or info leak (CVE-2006-0039)
+      Linux 2.6.16.17
+
+Christoph Lameter:
+      Remove cond_resched in gather_stats()
+      page migration: Fix fallback behavior for dirty pages
+
+Craig Brind:
+      via-rhine: zero pad short packets on Rhine I ethernet cards
+
+Harald Welte:
+      Fix udev device creation
+
+Jan Niehusmann:
+      smbfs: Fix slab corruption in samba error path
+
+Jean Delvare:
+      scx200_acb: Fix resource name use after free
+
+Jens Axboe:
+      limit request_fn recursion
+
+Karsten Keil:
+      TG3: ethtool always report port is TP.
+
+Kristen Accardi:
+      PCI: correctly allocate return buffers for osc calls
+
+Lee Schermerhorn:
+      add migratepage address space op to shmem
+
+Linus Torvalds:
+      Fix ptrace_attach()/ptrace_traceme()/de_thread() race
+      ptrace_attach: fix possible deadlock schenario with irqs
+
+NeilBrown:
+      md: Avoid oops when attempting to fix read errors on raid10
+
+Pete Zaitcev:
+      USB: ub oops in block_uevent
+
+Serge E. Hallyn:
+      selinux: check for failed kmalloc in security_sid_to_context()
+
+Trond Myklebust:
+      fs/locks.c: Fix sys_flock() race
+
+Vladislav Yasevich:
+      SCTP: Respect the real chunk length when walking parameters (CVE-2006-1858)
+      SCTP: Validate the parameter length in HB-ACK chunk (CVE-2006-1857)
 

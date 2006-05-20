@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWETEf2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWETEpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751023AbWETEf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 May 2006 00:35:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWETEf2
+	id S1751104AbWETEpS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 May 2006 00:45:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbWETEpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 May 2006 00:35:28 -0400
-Received: from [213.184.169.100] ([213.184.169.100]:26628 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1751023AbWETEf1 (ORCPT
+	Sat, 20 May 2006 00:45:18 -0400
+Received: from xenotime.net ([66.160.160.81]:24283 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751104AbWETEpR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 May 2006 00:35:27 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: replacing X Window System !
-Date: Sat, 20 May 2006 07:33:08 +0300
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 20 May 2006 00:45:17 -0400
+Date: Fri, 19 May 2006 21:47:47 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: tali@admingilde.org, akpm <akpm@osdl.org>
+Subject: [PATCH 1/2] kernel-doc: drop leading space in sections
+Message-Id: <20060519214747.3d1be1d2.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200605200733.08757.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Sat, May 20, 2006 at 12:40:56AM +0200, linux cbon wrote:
-> > I think the discussion should move to X.Org ?
->
-> The whole discussion is pointless anywhere as long as you are not
-> writing the code to implement your proposal.
->
-> If you think you could send an idea and other people would implement it
-> you are misunderstanding how open source software works.
->
-> You have your idea.
->
-> It is YOUR job to write the code implementing your proposal.
->
-> Then there's a basis for a technical discussion of the advantages and
-> disadvantages of your ideas.
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Implementing an idea before discussing it's feasibility?
+Drop leading space of kernel-doc section contents.
 
-Kind of stupid, don't you think?
+"Section" data (contents) are split from the section header
+(e.g., Note: below is a section header:
+ * Note: list_empty on entry does not return true after this, the entry is
+ * in an undefined state.
+).
+Currently the data/contents begins with a space and is left
+that way, which causes it to look bad when printed (in text mode;
+see example below), so just remove the leading space.
 
-> Otherwise, you are only wasting your (and our) time since there's
-> exactly a 0% probability that someone else will implement your ideas.
+Note:
 
-Maybe not 0% exactly.
+ list_empty on entry does not return true after this, the entry is
+in an undefined state.
 
-Not that I would agree with the in-Kernel X idea per se, but it does raise 
-the issue of a stable API once more, as it would allow more freedom to 
-create a module against a version line w/o fear of being rejected.
 
-Thanks!
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ scripts/kernel-doc |    3 +++
+ 1 files changed, 3 insertions(+)
 
---
-Al
+--- linux-2617-rc4.orig/scripts/kernel-doc
++++ linux-2617-rc4/scripts/kernel-doc
+@@ -1762,6 +1762,9 @@ sub process_file($) {
+ 
+ 		$contents = $newcontents;
+ 		if ($contents ne "") {
++		    if (substr($contents, 0, 1) eq " ") {
++			$contents = substr($contents, 1);
++		    }
+ 		    $contents .= "\n";
+ 		}
+ 		$section = $newsection;
 
+
+---

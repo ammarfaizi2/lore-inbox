@@ -1,114 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbWETVY5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWETV1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932374AbWETVY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 May 2006 17:24:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWETVY5
+	id S932375AbWETV1m (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 May 2006 17:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWETV1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 May 2006 17:24:57 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.50]:2798 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S932374AbWETVY4 (ORCPT
+	Sat, 20 May 2006 17:27:42 -0400
+Received: from ns2.suse.de ([195.135.220.15]:50847 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932375AbWETV1l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 May 2006 17:24:56 -0400
-Date: Sat, 20 May 2006 23:24:55 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
+	Sat, 20 May 2006 17:27:41 -0400
+From: Andi Kleen <ak@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Andrey Savochkin <saw@sw.ru>, linux-kernel@vger.kernel.org, dev@sw.ru,
-       devel@openvz.org, sam@vilain.net, ebiederm@xmission.com, xemul@sw.ru,
-       haveblue@us.ibm.com, clg@fr.ibm.com, serue@us.ibm.com
-Subject: Re: [PATCH 0/9] namespaces: Introduction
-Message-ID: <20060520212455.GA27387@MAIL.13thfloor.at>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Andrey Savochkin <saw@sw.ru>, linux-kernel@vger.kernel.org,
-	dev@sw.ru, devel@openvz.org, sam@vilain.net, ebiederm@xmission.com,
-	xemul@sw.ru, haveblue@us.ibm.com, clg@fr.ibm.com, serue@us.ibm.com
-References: <20060518154700.GA28344@sergelap.austin.ibm.com> <20060518103430.080e3523.akpm@osdl.org> <20060519174757.A17609@castle.nmd.msu.ru> <20060519082516.26cea6c5.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [PATCH 4/6] Have x86_64 use add_active_range() and free_area_init_nodes
+Date: Sat, 20 May 2006 23:27:18 +0200
+User-Agent: KMail/1.9.1
+Cc: Mel Gorman <mel@csn.ul.ie>, davej@codemonkey.org.uk, tony.luck@intel.com,
+       bob.picco@hp.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       linux-mm@kvack.org
+References: <20060508141030.26912.93090.sendpatchset@skynet> <20060508141151.26912.15976.sendpatchset@skynet> <20060520135922.129a481d.akpm@osdl.org>
+In-Reply-To: <20060520135922.129a481d.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060519082516.26cea6c5.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200605202327.19606.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 19, 2006 at 08:25:16AM -0700, Andrew Morton wrote:
-> Andrey Savochkin <saw@sw.ru> wrote:
->>
->> I have a practical proposal. We can start with presenting and
->> merging the most interesting part, network containers. We discuss
->> details, possible approaches, and related subsystems, until
->> networking is finished to its utmost detail. This will create an
->> example of virtualization of a non-trivial subsystem, and we will
->> have to agree on basic principles of virtualization of related
->> subsystems like proc.
->>
->> Virtualization of networking presents a lot of challenges and
->> decision-making points with respect to user-visible interfaces:
->> proc, sysctl, netlink events (and netlink sockets themselves),
->> and so on. This code will also become immediately useful as an
->> improvement over chroot. I am sure that when we come to a mutually
->> acceptable solution with respect to networking, virtualization of
->> all other subsystems can be implemented and merged without many
->> questions.
->>
->> What do people think about this plan?
 
-well, I think it is interesting ...
+> Anyway.  From the implementation I can see what the code is doing.  But I
+> see no description of what it is _supposed_ to be doing.  (The process of
+> finding differences between these two things is known as "debugging").  I
+> could kludge things by setting MAX_ACTIVE_REGIONS to 1000000, but enough. 
+> I look forward to the next version ;)
 
-> It sounds like that feature might be the
-> most-likely-to-cause-maintainer-revolt one, in which case yes, 
-> it is absolutely definitely the one to start with.
+Or we could just keep the working old code.
 
-yes, I absolutely agree here, this will be one
-of the tougher nuts to crack, and therefore it
-might be an excellent candidate to proove that
-the different virtualization camps can find an
-acceptable solution .. together.
+Can somebody remind me what this patch kit was supposed to fix or improve again? 
 
-> Because if it ends up that an acceptable approach cannot be found,
-> and if this feature is compulsory for any sane virtualisation
-> implementation then that's it - game over. 
-
-this, OTOH is something I'm not convinced of,
-because looking at BSD jails, I see a very simple
-approach (only one IP, limiting binds) which seems
-to be sufficient for all the BSD jails out there
-
-this is probably something which does not meet the
-requirements of fully blown distro virtualizations
-but actually it might be more than sufficient for
-'mainline' linux jails
-
-> We want to discover such blockers as early in the process as 
-> possible.
-
-yes, I would also appreciate if we could get some
-support from the network folks, as I think, most 
-of them are already working into that direction
-(think Van Jacobson's net channels, routing tables)
-
-especially as the network virtualization brings up
-a number of questions, which are not easily answered
-like the following:
-
- - what policy will be applied inside guests?
-   + allow arbitrary packets/rules/routes
-   + have some generic limits/basic rules
-   + put policy into userspace
-
- - how to 'connect' the virtual interfaces to
-   the real network?
-   + via routing and bridging?
-     (means duplicate stack traversal and 
-     therefore twice the overhead)
-   + via split personality interfaces?
-     (less overhead, more complicated cases)
-   + directly (only by isolation)
-
- - at what level should the virtualization happen?
-   + ethernet level (all protocols)
-   + ip level (all ip based and control protocols)
-   + udp/tcp level
-
-best,
-Herbert
-
+-Andi

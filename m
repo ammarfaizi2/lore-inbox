@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbWETAnv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751450AbWETAn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751452AbWETAnv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 20:43:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbWETAnv
+	id S1751450AbWETAn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 20:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751452AbWETAn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 20:43:51 -0400
-Received: from nz-out-0102.google.com ([64.233.162.201]:56181 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751452AbWETAnu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 20:43:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=m+sc4AegTrgEkQ1zxuhAs0mKp4pVeYTfWuRreUwkZc73bwb5IOrTqMaI5jZqIIFiKUpIl0ay1DwSwpQbwgIy51nnVb+QD/gn7fycKdFTJxkCUgiyBYjn9hhVG2rbGoIuw7QShHkUxixbqJUnlc3hPf1TEDipgd81CIANRmZ/4NA=
-Message-ID: <446E6642.8030706@gmail.com>
-Date: Fri, 19 May 2006 17:43:46 -0700
-From: Jeff Carr <basilarchia@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Xavier Bestel <xavier.bestel@free.fr>
-CC: linux cbon <linuxcbon@yahoo.fr>,
-       Panagiotis Issaris <takis@lumumba.uhasselt.be>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, David Greaves <david@dgreaves.com>
-Subject: Re: replacing X Window System !
-References: <20060519151351.39838.qmail@web26608.mail.ukl.yahoo.com> <1148051890.26628.138.camel@capoeira>
-In-Reply-To: <1148051890.26628.138.camel@capoeira>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 19 May 2006 20:43:26 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:42727 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751450AbWETAnZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 20:43:25 -0400
+Date: Fri, 19 May 2006 17:43:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       virtualization@lists.osdl.org, kraxel@suse.de, zach@vmware.com
+Subject: Re: [PATCH] Gerd Hoffman's move-vsyscall-into-user-address-range
+ patch
+Message-Id: <20060519174303.5fd17d12.akpm@osdl.org>
+In-Reply-To: <1147852189.1749.28.camel@localhost.localdomain>
+References: <1147759423.5492.102.camel@localhost.localdomain>
+	<20060516064723.GA14121@elte.hu>
+	<1147852189.1749.28.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05/19/06 08:18, Xavier Bestel wrote:
+Rusty Russell <rusty@rustcorp.com.au> wrote:
+>
+> Name: Move vsyscall page out of fixmap into normal vma as per mmap
 
->>> See DRI homepage for more information.
+This causes mysterious hangs when starting init.
 
-That page should be wiki'fied as it doesn't seem to be keeping pace with
-the improvements in X.
+Distro is RH FC1, running SysVinit-2.85-5.
 
->> How does DRI compare with other drivers ?
-> 
-> DRI is not finished for r300 cards (radeon 9600 => X700 IIRC), but it
-> kind of works.
+dmesg, sysrq-T and .config are at
+http://www.zip.com.au/~akpm/linux/patches/stuff/log-vmm - nothing leaps
+out.
 
-3D acceleration is working well on my portable's ATI Technologies Inc
-RV350 [Mobility Radeon 9600 M10]. ppracer runs well. Lots of
-improvements have been made with xorg; a trend I'm sure everyone would
-like to see continue.
+This is the second time recently when a patch has caused this machine to
+oddly hang in init.  It's possible that there's a bug of some form in that
+version of init that we'll need to know about and take care of in some
+fashion.
 
-X Window System Version 7.0.0
-Release Date: 21 December 2005
-X Protocol Version 11, Revision 0, Release 7.0
-Build Operating System:Linux 2.6.12-1-686 i686
-Current Operating System: Linux jcarr 2.6.17-rc2-g6b426e78 #3 SMP Mon
-Apr 24 15:46:38 PDT 2006 i686
-Build Date: 16 March 2006
+
+(I verified the hang with just -linus+this, so it's not related to any
+other -mm things).
 

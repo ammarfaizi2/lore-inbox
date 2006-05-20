@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbWETAlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbWETAnv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751448AbWETAlL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 20:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWETAlL
+	id S1751452AbWETAnv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 20:43:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbWETAnv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 20:41:11 -0400
-Received: from ns2.g-housing.de ([81.169.133.75]:28874 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S1751448AbWETAlK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 20:41:10 -0400
-Date: Sat, 20 May 2006 01:40:24 +0100 (BST)
-From: Christian Kujau <evil@g-house.de>
-X-X-Sender: dummy@vaio.testbed.de
-To: Christian Kujau <evil@g-house.de>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Mel Gorman <mel@csn.ul.ie>, Andy Whitcroft <apw@shadowen.org>
-Subject: Re: SCSI ABORT with 2.6.17-rc4-mm1
-In-Reply-To: <Pine.NEB.4.64.0605200058040.4276@vaio.testbed.de>
-Message-ID: <Pine.NEB.4.64.0605200137230.4276@vaio.testbed.de>
-References: <62331.192.18.1.5.1148071784.squirrel@housecafe.dyndns.org>
- <20060519141032.23de6eee.akpm@osdl.org> <Pine.NEB.4.64.0605200058040.4276@vaio.testbed.de>
+	Fri, 19 May 2006 20:43:51 -0400
+Received: from nz-out-0102.google.com ([64.233.162.201]:56181 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751452AbWETAnu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 20:43:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=m+sc4AegTrgEkQ1zxuhAs0mKp4pVeYTfWuRreUwkZc73bwb5IOrTqMaI5jZqIIFiKUpIl0ay1DwSwpQbwgIy51nnVb+QD/gn7fycKdFTJxkCUgiyBYjn9hhVG2rbGoIuw7QShHkUxixbqJUnlc3hPf1TEDipgd81CIANRmZ/4NA=
+Message-ID: <446E6642.8030706@gmail.com>
+Date: Fri, 19 May 2006 17:43:46 -0700
+From: Jeff Carr <basilarchia@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Xavier Bestel <xavier.bestel@free.fr>
+CC: linux cbon <linuxcbon@yahoo.fr>,
+       Panagiotis Issaris <takis@lumumba.uhasselt.be>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org, David Greaves <david@dgreaves.com>
+Subject: Re: replacing X Window System !
+References: <20060519151351.39838.qmail@web26608.mail.ukl.yahoo.com> <1148051890.26628.138.camel@capoeira>
+In-Reply-To: <1148051890.26628.138.camel@capoeira>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 May 2006, Christian Kujau wrote:
-> I tried to be "super-keen" and applied x.bz2 to pristine 2.6.17-rc4, but the 
-> scsi error persists (logs, .config coming in a few minutes.)
+On 05/19/06 08:18, Xavier Bestel wrote:
 
-Please see .config and dmesgs here:
+>>> See DRI homepage for more information.
 
-http://www.nerdbynature.de/bits/2.6.17-rc4-mm2.x/
+That page should be wiki'fied as it doesn't seem to be keeping pace with
+the improvements in X.
 
-I'll try with ACPI disabled later on and let you know. If you have more 
-patches to test/back-out I'll be happy to test. What puzzles me: sym53c8xx 
-does not seem *too* exotic but I seem to be the only one whining...
+>> How does DRI compare with other drivers ?
+> 
+> DRI is not finished for r300 cards (radeon 9600 => X700 IIRC), but it
+> kind of works.
 
-Thanks,
-Christian.
--- 
-"The combination of a number of things to make existence worthwhile."
-"Yes, the philosophy of 'none,' meaning 'all.'"
- 		-- Spock and Lincoln, "The Savage Curtain", stardate 5906.4
+3D acceleration is working well on my portable's ATI Technologies Inc
+RV350 [Mobility Radeon 9600 M10]. ppracer runs well. Lots of
+improvements have been made with xorg; a trend I'm sure everyone would
+like to see continue.
+
+X Window System Version 7.0.0
+Release Date: 21 December 2005
+X Protocol Version 11, Revision 0, Release 7.0
+Build Operating System:Linux 2.6.12-1-686 i686
+Current Operating System: Linux jcarr 2.6.17-rc2-g6b426e78 #3 SMP Mon
+Apr 24 15:46:38 PDT 2006 i686
+Build Date: 16 March 2006
+

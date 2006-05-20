@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbWETUe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751484AbWETUvY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751480AbWETUe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 May 2006 16:34:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWETUe6
+	id S1751484AbWETUvY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 May 2006 16:51:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbWETUvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 May 2006 16:34:58 -0400
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:63148 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S1751482AbWETUe5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 May 2006 16:34:57 -0400
-DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=CheEfr0DcFDT7cB54Rx0L4R5Ab+bpBcOdHvCaxBJ6rg6zHSLqclRmDuOsWnY7lAUla+tqEy92vSnKOYnMTTn6xD4lHJd6xvqsipIJkntg9DlKXe/K4dd3LtmAyAeorSI;
-X-IronPort-AV: i="4.05,150,1146459600"; 
-   d="scan'208"; a="16967986:sNHT27182016"
-Date: Sat, 20 May 2006 15:34:59 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH (take #2)] EDD isn't EXPERIMENTAL anymore
-Message-ID: <20060520203459.GA30691@lists.us.dell.com>
-References: <20060520025255.GB9486@taniwha.stupidest.org> <20060520035310.GA28977@humbolt.us.dell.com> <20060520040620.GA11109@taniwha.stupidest.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060520040620.GA11109@taniwha.stupidest.org>
-User-Agent: Mutt/1.5.11
+	Sat, 20 May 2006 16:51:23 -0400
+Received: from imf18aec.mail.bellsouth.net ([205.152.59.66]:45711 "EHLO
+	imf18aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S1751484AbWETUvX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 May 2006 16:51:23 -0400
+Date: Sat, 20 May 2006 16:50:59 -0400 (EDT)
+From: Ameer Armaly <ameer@bellsouth.net>
+X-X-Sender: ameer@sg1
+To: linux-kernel@vger.kernel.org
+Subject: [patch] intialize cpu_freq in arch/i386/kernel/cpu/transmeta.c
+Message-ID: <Pine.LNX.4.61.0605201648430.18009@sg1>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 19, 2006 at 09:06:20PM -0700, Chris Wedgwood wrote:
-> Oops.
-> 
-> Resend with Kconfig comment change too.  It also occured to me that
-> !IA64 is a lousy check, EDD is really i386 and x86_64 only, it's
-> clearly not useful for ppc, alpha, etc.
-> 
-> Would anyone object to a chance for that too?
+Initializing cpu_freq to 0 in arch/i386/kernel/cpu/transmeta.c gets rid of 
+an unnecessary warning.
+Initialized cpu_freq in arch/i386/kernel/cpu/transmeta.c to suppress warning.
 
-No objection here.  I'm only aware of it working on i386 and x86_64.
+---
+commit 53121ea5e13e075e5239734bb26c3cae7ee84ee0
+tree 0eca3170380c610969118c6fa7700558b7232e5d
+parent 6566a3f8f3281497a81815dfe2b64eb54dafe05d
+author Ameer Armaly <ameer_armaly@hotmail.com> Sat, 20 May 2006 16:43:05 -0400
+committer Ameer Armaly <ameer@sg1.(none)> Sat, 20 May 2006 16:43:05 -0400
 
-Thanks,
-Matt
+  arch/i386/kernel/cpu/transmeta.c |    2 +-
+  1 files changed, 1 insertions(+), 1 deletions(-)
 
--- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+diff --git a/arch/i386/kernel/cpu/transmeta.c b/arch/i386/kernel/cpu/transmeta.c
+index 7214c9b..0737890 100644
+--- a/arch/i386/kernel/cpu/transmeta.c
++++ b/arch/i386/kernel/cpu/transmeta.c
+@@ -9,7 +9,7 @@ static void __init init_transmeta(struct
+  {
+  	unsigned int cap_mask, uk, max, dummy;
+  	unsigned int cms_rev1, cms_rev2;
+-	unsigned int cpu_rev, cpu_freq, cpu_flags, new_cpu_rev;
++	unsigned int cpu_rev, cpu_freq = 0, cpu_flags, new_cpu_rev;
+  	char cpu_info[65];
+
+  	get_model_name(c);	/* Same as AMD/Cyrix */

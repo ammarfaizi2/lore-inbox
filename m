@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWETPuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWETQCB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751300AbWETPuu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 May 2006 11:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbWETPut
+	id S1751329AbWETQCB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 May 2006 12:02:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbWETQCB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 May 2006 11:50:49 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29083 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751300AbWETPut (ORCPT
+	Sat, 20 May 2006 12:02:01 -0400
+Received: from dvhart.com ([64.146.134.43]:55433 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1751329AbWETQCA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 May 2006 11:50:49 -0400
-Date: Sat, 20 May 2006 17:50:07 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] don't use flush_tlb_all in suspend time
-Message-ID: <20060520155007.GC2946@elf.ucw.cz>
-References: <1146367462.21486.10.camel@sli10-desk.sh.intel.com> <20060430064505.GA5091@ucw.cz> <1146379596.8456.4.camel@sli10-desk.sh.intel.com> <20060429235721.1d081ea5.akpm@osdl.org> <20060430120421.GA30024@elf.ucw.cz> <1147922973.32046.13.camel@sli10-desk.sh.intel.com> <20060518083146.GA12724@elf.ucw.cz> <1148001335.32046.25.camel@sli10-desk.sh.intel.com>
+	Sat, 20 May 2006 12:02:00 -0400
+Message-ID: <446F3D6D.10704@mbligh.org>
+Date: Sat, 20 May 2006 09:01:49 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1148001335.32046.25.camel@sli10-desk.sh.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andy Whitcroft <apw@shadowen.org>
+Subject: 2.6.17-rc4-mm2
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Compile error on i386 NUMA (I thought Andy already fixed this one?)
+Deja Vu ...
 
-> > > > > @@ -420,7 +421,14 @@ void zap_low_mappings (void)
-> > > > >  #else
-> > > > >  		set_pgd(swapper_pg_dir+i, __pgd(0));
-> > > > >  #endif
-> > > > > -	if (cpus_weight(cpu_online_map) == 1)
-> > > > > +	/*
-> > > > > +	 * We can be called at suspend/resume time, with local interrupts
-> > > > > +	 * disabled.  But flush_tlb_all() requires that local interrupts be
-> > > > > +	 * enabled.
-> > > > > +	 *
-> > > > > +	 * Happily, the APs are not yet started, so we can use local_flush_tlb()	 * in that case
-> > > > > +	 */
-> > > > > +	if (num_online_cpus() == 1)
-> > > > >  		local_flush_tlb();
-> > > > >  	else
-> > > > >  		flush_tlb_all();
-> > > > 
-> > > > But this still scares. It means calling convention is "may enable
-> > > > interrupts with >1 cpu, may not with == 1 cpu". 
-> > > Below patch should make things clean. How do you think?
-> > 
-> > Nice...
-> > 
-> > Could we perhaps reuse swsusp_pg_dir (just make it used for swsusp &
-> > suspend-to-ram) to save a bit more code? It is in arch/i386/mm/init.c
-> Ok, I guess this is what you want.
+arch/i386/kernel/srat.c: In function `get_memcfg_from_srat':
+arch/i386/kernel/srat.c:273: error: parse error before "early_printk"
 
-Yes, thanks a lot for patience.
 
-> Signed-off-by: Shaohua Li <shaohua.li@intel.com>
+---------------------------------------------------
 
-Acked-by: Pavel Machek <pavel@suse.cz>
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Panic on boot on 2-way PPC64
+http://test.kernel.org/abat/32360/debug/console.log
+
+Bad page state in process 'idle'
+page:c0000000010c3100 flags:0x0003300000000000 mapping:0000000000000000 
+mapcount:0 count:0
+Trying to fix it up, but a reboot is needed
+Backtrace:
+Call Trace:
+[C0000000004CBB70] [C00000000000EEE8] .show_stack+0x74/0x1b4 (unreliable)
+[C0000000004CBC20] [C000000000098D04] .bad_page+0x80/0x134
+[C0000000004CBCB0] [C000000000099F28] .__free_pages_ok+0x134/0x280
+[C0000000004CBD70] [C00000000039C4F8] .free_all_bootmem_core+0x15c/0x320
+[C0000000004CBE50] [C0000000003923AC] .mem_init+0xc0/0x294
+[C0000000004CBEF0] [C000000000385700] .start_kernel+0x208/0x300
+[C0000000004CBF90] [C000000000008594] .start_here_common+0x88/0x8c
+Hexdump:
+000: c0 00 00 00 01 0c 30 b8 00 03 30 00 00 00 00 00
+010: 00 00 00 00 ff ff ff ff 00 00 00 00 00 00 00 00
+020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+030: c0 00 00 00 01 0c 30 f0 c0 00 00 00 01 0c 30 f0
+040: 00 03 30 00 00 00 00 00 00 00 00 00 ff ff ff ff
+050: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+060: 00 00 00 00 00 00 00 00 c0 00 00 00 01 0c 31 28
+070: c0 00 00 00 01 0c 31 28 00 03 30 00 00 00 00 00
+080: 00 00 00 00 ff ff ff ff 00 00 00 00 00 00 00 00
+090: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+0a0: c0 00 00 00 01 0c 31 60 c0 00 00 00 01 0c 31 60
+0b0: 00 03 30 00 00 00 00 00 00 00 00 00 ff ff ff ff
+
+-------------------------------------------------------------

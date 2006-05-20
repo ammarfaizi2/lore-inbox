@@ -1,58 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWETQIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbWETQWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751339AbWETQIl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 May 2006 12:08:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbWETQIl
+	id S1751423AbWETQWm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 May 2006 12:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWETQWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 May 2006 12:08:41 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.81]:55686 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id S1751339AbWETQIl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 May 2006 12:08:41 -0400
-Message-ID: <446F3F6A.9060004@cmu.edu>
-Date: Sat, 20 May 2006 12:10:18 -0400
-From: George Nychis <gnychis@cmu.edu>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060503)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: cannot load *any* modules with 2.4 kernel
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Sat, 20 May 2006 12:22:42 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:7095 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751420AbWETQWl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 May 2006 12:22:41 -0400
+Date: Sat, 20 May 2006 09:20:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: torvalds@osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [git patches] net driver updates
+Message-Id: <20060520092033.7d404315.akpm@osdl.org>
+In-Reply-To: <20060520042856.GA7218@havoc.gtf.org>
+References: <20060520042856.GA7218@havoc.gtf.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jeff Garzik <jeff@garzik.org> wrote:
+>
+> Andrew Morton:
+>        revert "forcedeth: fix multi irq issues"
 
-I boot two kernels, a 2.6.9 kernel and just recently built a 2.4.32 kernel
-
-In the 2.4.32 kernel I have =y for:
-CONFIG_MODULES
-CONFIG_MODVERSIONS
-CONFIG_KMOD
-
-I then build my kernel, with some modules, install the modules, and boot
-my 2.4.32 kernel successfully
-
-when i do lsmod, it is completely empty, no modules are loaded.  This
-only happens for my 2.4.32 kernel though, modules load fine in 2.6.9
-
-If i try to manually insert with insmod or modprobe, i get unresolved
-external symbols for things that I am sure should be resolved... for
-example, i get unresolved external symbol for printk
-
-I'll give some other common unresolved smybols and maybe someone can
-point me in the right direction of what else i need to specify to you
-guys so that you can help me out further.
-
-prinkt
-add_timer
-dev_mc_add
-CardServices
-kfree
-cpu_raise_softirq
-free_irq
-kmalloc
-
-Thanks!
-George
+Manfred just found the fix for this, so we should no longer need to revert.

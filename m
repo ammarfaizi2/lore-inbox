@@ -1,194 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWETJy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWETJ5q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964787AbWETJy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 May 2006 05:54:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWETJy1
+	id S964797AbWETJ5q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 May 2006 05:57:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbWETJ5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 May 2006 05:54:27 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:57485 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964787AbWETJy1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 May 2006 05:54:27 -0400
-Date: Sat, 20 May 2006 11:54:23 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, kraxel@suse.de, zach@vmware.com
-Subject: Re: [patch] i386, vdso=[0|1] boot option and /proc/sys/vm/vdso_enabled
-Message-ID: <20060520095423.GA660@elte.hu>
-References: <1147759423.5492.102.camel@localhost.localdomain> <20060516064723.GA14121@elte.hu> <1147852189.1749.28.camel@localhost.localdomain> <20060519174303.5fd17d12.akpm@osdl.org> <20060520010303.GA17858@elte.hu> <20060519181125.5c8e109e.akpm@osdl.org> <Pine.LNX.4.64.0605191813050.10823@g5.osdl.org> <20060520085351.GA28716@elte.hu> <20060520022650.46b048f8.akpm@osdl.org>
+	Sat, 20 May 2006 05:57:46 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:24288 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964785AbWETJ5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 May 2006 05:57:45 -0400
+Date: Sat, 20 May 2006 10:57:40 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Phillip Hellewell <phillip@hellewell.homeip.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
+       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, toml@us.ibm.com,
+       yoder1@us.ibm.com, James Morris <jmorris@namei.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>, Erez Zadok <ezk@cs.sunysb.edu>,
+       David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 0/13: eCryptfs] eCryptfs Patch Set
+Message-ID: <20060520095740.GA12237@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Phillip Hellewell <phillip@hellewell.homeip.net>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk,
+	mike@halcrow.us, mhalcrow@us.ibm.com, mcthomps@us.ibm.com,
+	toml@us.ibm.com, yoder1@us.ibm.com,
+	James Morris <jmorris@namei.org>,
+	"Stephen C. Tweedie" <sct@redhat.com>,
+	Erez Zadok <ezk@cs.sunysb.edu>, David Howells <dhowells@redhat.com>
+References: <20060513033742.GA18598@hellewell.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060520022650.46b048f8.akpm@osdl.org>
+In-Reply-To: <20060513033742.GA18598@hellewell.homeip.net>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I gave the code in -mm a quick look, and it still needs a lot of work.
 
-* Andrew Morton <akpm@osdl.org> wrote:
+ - please kill ASSERT and always use BUG_ON.
+ - you don't need semaphore.h anymore
+ - please always use <linux/scatterlist.h> instead of <asm/scatterlist.h>
+ - please kill ECRYPTFS_SET_FLAG, ECRYPTFS_CLEAR_FLAG and ECRYPTFS_CHECK_FLAG
+   and just opencode them, it'll make the code a whole lot more readable
+ - why are so many fields on your data structures signed?
+ - please kill the reaming uint*_t uses
+ - there's definitly too many ifndefs in ecryptfs_kernel.h.  Either
+   remove the or provide a good explanation why the macros could have
+   been defined already
+( - you need endianess annotations and conversion for your ondisk data
+   structure.  it's totally unacceptable a encrypted filesystem from a BE
+   machine can't be read on a LE one)
+ - pleaese get rid of the horrible (NULL == something) style, it makes
+   the code really hard to read
+ 
+ 
+ - in ecryptfs_d_revalidate just replacing the vfsmount/dentry in the
+   nameidata is dangerous, after that they aren't coherent with the
+   lookup data anymore.  Either find a way to get a real nameidata that's
+   valid for a lookup on your filesystem or find away to get rid of passing
+   down the nameidata everywhere and replace it by a real lookup intent
+   structure.  (or even better restructure the code to allow for a high-level
+   method replacing the lookup intents)
+   (ditto for various namespace operations in inode.c)
+ - please make sure touch_atime goes down to ->setattr for atime updates,
+   that way you don't need all that mess in your read/write.  and in -mm
+   those routines need update for vectored and aio support
+ - in read_inode_size_from_header please do the kmap after calling ->readpage.
+   that also allows to swwitch to the more efficien kmap_atomic.  also instead
+   of the memcpy just do 
 
-> >  arch/i386/kernel/sysenter.c |   21 +++++++++++++++++++++
-> >  include/linux/sysctl.h      |    1 +
-> >  kernel/sysctl.c             |   16 ++++++++++++++++
-> >  3 files changed, 38 insertions(+)
-> 
-> Documentation/kernel-parameters.txt, please.
+      u64  *data_size == kmap_atomic(page, ..)
 
-grumble. I had this done but quilt didnt pick it up.
+   as kmap_atomic returns a void * (and even if it didn't you could cast
+   the return value) also you don't need i_size_write there since the inode
+   isn't life yet.
 
-> > +unsigned int vdso_enabled = 1;
-> 
-> __read_mostly.
+ - ecryptfs_fsync is good sign for various issues all over the code:
 
-done. New patch attached.
+     o if the various _to_private methods could fail you have much worse
+       problems, they shouldn't return errors.
+     o the lower_* are too long and hurt the eye, just use l*
+     o file->f_op and inode->i_fop for a file instances of a file are
+       always the same, no need to duplicate all the code
+     o i_fop can't be NULL ever
+   
+   With all that fixed the code in this case should look something like:
 
-------
-Subject: i386, vdso=[0|1] boot option and /proc/sys/vm/vdso_enabled
-From: Ingo Molnar <mingo@elte.hu>
+----------------- snip -----------------
+static int
+stackfs_fsync(struct file *file, struct dentry *dentry, int datasync)
+{
+	struct file *lfile = file ? lower_file(file) : NULL;
+	struct dentry *ldentry = lower_dentry(dentry);
+	struct inode *linode = ldentry->d_inode;
+	int rc = -EINVAL;
 
-add the vdso=0 boot option and the /proc/sys/vm/vdso_enabled
-sysctl, on i386. VDSO defaults to enabled.
+	if (linode->i_fop->fsync) {
+		mutex_lock(&linode->i_mutex);
+		rc = linode->i_fop->fsync(lfile, ldentry, datasync);
+		mutex_unlock(&ldentry->d_inode->i_mutex);
+	}
 
- # cat /proc/self/maps | grep vdso
- b7f42000-b7f43000 r-xp b7f42000 00:00 0          [vdso]
- # echo 0 > /proc/sys/vm/vdso_enabled
- # cat /proc/self/maps | grep vdso
- # echo 1 > /proc/sys/vm/vdso_enabled
- # cat /proc/self/maps | grep vdso
- b7f05000-b7f06000 r-xp b7f05000 00:00 0          [vdso]
- #
+	return rc;
+}
+----------------- snip -----------------
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+ - NEVER EVER do things like copying locks_delete_block and
+   posix_lock_file_wait (as ecryptfs_posix_lock and based on a previous
+   version) to you code.  It will get stale and create a maintaince nightmare.
+   talk with the subsystem maintainers on how to make the core functionality
+   accesible to you.
+ - similarly ecryptfs_setlk is totally non-acceptable.  find a way with the
+   maintainer to reuse things from fcntl_setlk with a common helper
+ - copying things like lock_parent, unlock_parent and unlock_dir
 
----
- Documentation/kernel-parameters.txt |    4 ++++
- arch/i386/kernel/sysenter.c         |   21 +++++++++++++++++++++
- include/linux/sysctl.h              |    1 +
- kernel/sysctl.c                     |   16 ++++++++++++++++
- 4 files changed, 42 insertions(+)
+ - please split all the generic stackable filesystem passthorugh routines
+   into a separated stackfs layer, in a few files in fs/stackfs/ that
+   you depend on.  They'll get _GPL exported to all possible stackable
+   filesystem.  They'll need their own store underlying object helpers,
+   but that can be made to work by embedding the generic stackfs data
+   as first thing in the ecryptfs object.
 
-Index: linux-vdso-rand.q/Documentation/kernel-parameters.txt
-===================================================================
---- linux-vdso-rand.q.orig/Documentation/kernel-parameters.txt
-+++ linux-vdso-rand.q/Documentation/kernel-parameters.txt
-@@ -1646,6 +1646,10 @@ running once the system is up.
- 	usbhid.mousepoll=
- 			[USBHID] The interval which mice are to be polled at.
- 
-+	vdso=		[IA-32]
-+			vdso=1: enable VDSO (default)
-+			vdso=0: disable VDSO mapping
-+
- 	video=		[FB] Frame buffer configuration
- 			See Documentation/fb/modedb.txt.
- 
-Index: linux-vdso-rand.q/arch/i386/kernel/sysenter.c
-===================================================================
---- linux-vdso-rand.q.orig/arch/i386/kernel/sysenter.c
-+++ linux-vdso-rand.q/arch/i386/kernel/sysenter.c
-@@ -22,6 +22,21 @@
- #include <asm/pgtable.h>
- #include <asm/unistd.h>
- 
-+/*
-+ * Should the kernel map a VDSO page into processes and pass its
-+ * address down to glibc upon exec()?
-+ */
-+unsigned int __read_mostly vdso_enabled = 1;
-+
-+static int __init vdso_setup(char *s)
-+{
-+	vdso_enabled = simple_strtoul(s, NULL, 0);
-+
-+	return 1;
-+}
-+
-+__setup("vdso=", vdso_setup);
-+
- extern asmlinkage void sysenter_entry(void);
- 
- void enable_sep_cpu(void)
-@@ -97,6 +112,9 @@ int arch_setup_additional_pages(struct l
- 	unsigned long addr;
- 	int ret;
- 
-+	if (unlikely(!vdso_enabled))
-+		return 0;
-+
- 	down_write(&mm->mmap_sem);
- 	addr = get_unmapped_area(NULL, 0, PAGE_SIZE, 0, 0);
- 	if (IS_ERR_VALUE(addr)) {
-@@ -122,16 +140,19 @@ int arch_setup_additional_pages(struct l
- 	ret = insert_vm_struct(mm, vma);
- 	if (ret)
- 		goto free_vma;
-+
- 	current->mm->context.vdso = (void *)addr;
- 	current_thread_info()->sysenter_return = SYSENTER_RETURN_OFFSET + addr;
- 	mm->total_vm++;
- 	up_write(&mm->mmap_sem);
-+
- 	return 0;
- 
- free_vma:
- 	kmem_cache_free(vm_area_cachep, vma);
- up_fail:
- 	up_write(&mm->mmap_sem);
-+
- 	return ret;
- }
- 
-Index: linux-vdso-rand.q/include/linux/sysctl.h
-===================================================================
---- linux-vdso-rand.q.orig/include/linux/sysctl.h
-+++ linux-vdso-rand.q/include/linux/sysctl.h
-@@ -186,6 +186,7 @@ enum
- 	VM_PERCPU_PAGELIST_FRACTION=30,/* int: fraction of pages in each percpu_pagelist */
- 	VM_ZONE_RECLAIM_MODE=31, /* reclaim local zone memory before going off node */
- 	VM_ZONE_RECLAIM_INTERVAL=32, /* time period to wait after reclaim failure */
-+	VM_VDSO_ENABLED=33,	/* map VDSO into new processes? */
- };
- 
- 
-Index: linux-vdso-rand.q/kernel/sysctl.c
-===================================================================
---- linux-vdso-rand.q.orig/kernel/sysctl.c
-+++ linux-vdso-rand.q/kernel/sysctl.c
-@@ -158,6 +158,10 @@ extern ctl_table inotify_table[];
- int sysctl_legacy_va_layout;
- #endif
- 
-+#ifdef CONFIG_X86_32
-+extern int vdso_enabled;
-+#endif
-+
- /* /proc declarations: */
- 
- #ifdef CONFIG_PROC_FS
-@@ -915,6 +919,18 @@ static ctl_table vm_table[] = {
- 		.strategy	= &sysctl_jiffies,
- 	},
- #endif
-+#ifdef CONFIG_X86_32
-+	{
-+		.ctl_name	= VM_VDSO_ENABLED,
-+		.procname	= "vdso_enabled",
-+		.data		= &vdso_enabled,
-+		.maxlen		= sizeof(vdso_enabled),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+		.strategy	= &sysctl_intvec,
-+		.extra1		= &zero,
-+	},
-+#endif
- 	{ .ctl_name = 0 }
- };
- 
+that's how far I got today, that's not even half-through yet.

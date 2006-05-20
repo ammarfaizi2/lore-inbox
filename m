@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751457AbWETBCW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbWETBDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751457AbWETBCW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 21:02:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWETBCW
+	id S1751293AbWETBDM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 21:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751458AbWETBDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 21:02:22 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4356 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751457AbWETBCV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 21:02:21 -0400
-Date: Sat, 20 May 2006 03:02:20 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux cbon <linuxcbon@yahoo.fr>
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: replacing X Window System !
-Message-ID: <20060520010220.GG10077@stusta.de>
-References: <446D8F36.3010201@aitel.hist.no> <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-MIME-Version: 1.0
+	Fri, 19 May 2006 21:03:12 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:11441 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751293AbWETBDK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 21:03:10 -0400
+Date: Sat, 20 May 2006 03:03:03 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, virtualization@lists.osdl.org, kraxel@suse.de,
+       zach@vmware.com
+Subject: Re: [PATCH] Gerd Hoffman's move-vsyscall-into-user-address-range patch
+Message-ID: <20060520010303.GA17858@elte.hu>
+References: <1147759423.5492.102.camel@localhost.localdomain> <20060516064723.GA14121@elte.hu> <1147852189.1749.28.camel@localhost.localdomain> <20060519174303.5fd17d12.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <20060519174303.5fd17d12.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 20, 2006 at 12:40:56AM +0200, linux cbon wrote:
->...
-> I think the discussion should move to X.Org ?
 
-The whole discussion is pointless anywhere as long as you are not 
-writing the code to implement your proposal.
+* Andrew Morton <akpm@osdl.org> wrote:
 
-If you think you could send an idea and other people would implement it 
-you are misunderstanding how open source software works.
+> Rusty Russell <rusty@rustcorp.com.au> wrote:
+> >
+> > Name: Move vsyscall page out of fixmap into normal vma as per mmap
+> 
+> This causes mysterious hangs when starting init.
+> 
+> Distro is RH FC1, running SysVinit-2.85-5.
+> 
+> dmesg, sysrq-T and .config are at
+> http://www.zip.com.au/~akpm/linux/patches/stuff/log-vmm - nothing leaps
+> out.
+> 
+> This is the second time recently when a patch has caused this machine 
+> to oddly hang in init.  It's possible that there's a bug of some form 
+> in that version of init that we'll need to know about and take care of 
+> in some fashion.
 
-You have your idea.
+FC1 is like really ancient. I think there was a glibc bug that caused 
+vsyscall related init hangs like that. To nevertheless let people run 
+their old stuff there's a vdso=0 boot option in exec-shield.
 
-It is YOUR job to write the code implementing your proposal.
-
-Then there's a basis for a technical discussion of the advantages and 
-disadvantages of your ideas.
-
-Otherwise, you are only wasting your (and our) time since there's 
-exactly a 0% probability that someone else will implement your ideas.
-
-> Regards
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	Ingo

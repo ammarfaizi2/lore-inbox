@@ -1,82 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWETSaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWETSfp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932360AbWETSaW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 May 2006 14:30:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWETSaW
+	id S932354AbWETSfp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 May 2006 14:35:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWETSfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 May 2006 14:30:22 -0400
-Received: from lea.cs.unibo.it ([130.136.1.101]:22156 "EHLO lea.cs.unibo.it")
-	by vger.kernel.org with ESMTP id S932360AbWETSaW (ORCPT
+	Sat, 20 May 2006 14:35:45 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:3861 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932354AbWETSfp convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 May 2006 14:30:22 -0400
-Date: Sat, 20 May 2006 20:30:20 +0200
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@suse.de>, Daniel Jacobowitz <dan@debian.org>,
-       Ulrich Drepper <drepper@gmail.com>, osd@cs.unibo.it,
+	Sat, 20 May 2006 14:35:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HDpNGfg68Qz/JiIulYgW3n8IgDk0iD7URXTZaJLPJuERSH3KBPwhiwk08h4bGrb08b7f1mx6tuYKDXkRkPWX3cqVIHHM33h7jlEmlXNY6BfTmXXhUywwdOSbpoJH4AKBtzlYcyxm+PAQTAHi+K1G1mWZ2gmLwmTiMNtXDiz5KaE=
+Message-ID: <69304d110605201135v780ebf66p7c86269c07a9983@mail.gmail.com>
+Date: Sat, 20 May 2006 20:35:42 +0200
+From: "Antonio Vargas" <windenntw@gmail.com>
+To: "Joel Jaeggli" <joelja@uoregon.edu>
+Subject: Re: Stealing ur megahurts (no, really)
+Cc: "Matti Aarnio" <matti.aarnio@zmailer.org>,
+       "John Richard Moser" <nigelenki@comcast.net>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2-ptrace_multi
-Message-ID: <20060520183020.GC11648@cs.unibo.it>
-References: <20060518155337.GA17498@cs.unibo.it> <20060519174534.GA22346@cs.unibo.it> <20060519201509.GA13477@nevyn.them.org> <200605192217.30518.ak@suse.de> <1148135825.2085.33.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <446DE6E9.9080707@uoregon.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1148135825.2085.33.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
-From: renzo@cs.unibo.it (Renzo Davoli)
+References: <446D61EE.4010900@comcast.net>
+	 <20060519101006.GL8304@mea-ext.zmailer.org>
+	 <446DE6E9.9080707@uoregon.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To summarize the thread we have agreed that
-/proc/*/mem should be writable, at least with ptrace permissions.
+On 5/19/06, Joel Jaeggli <joelja@uoregon.edu> wrote:
+> Matti Aarnio wrote:
+> > On Fri, May 19, 2006 at 02:13:02AM -0400, John Richard Moser wrote:
+> > ...
+> >> On Linux we have mem= to toy with memory, which I personally HAVE used
+> >> to evaluate how various distributions and releases of GNOME operate
+> >> under memory pressure.  This is a lot more convenient than pulling chips
+> >> and trying to find the right combination.  This option was, apparently,
+> >> designed for situations where actual system memory capacity is
+> >> mis-detected (mandrake 7.2 and its insistence that a 256M memory stick
+> >> is 255M....); but is very useful in this application too.
+> >>
+> >> This brings the idea of a cpumhz= parameter to adjust CPU clock rate.
+> >> Obviously we can't do this directly, as convenient as this would be; but
+> >> the idea warrants some thought, and some thought I gave it.  What I came
+> >> up with was simple:  Adjust time slice length and place a delay between
+> >> time slices so they're evenly spaced.
+> > ...
+> >> Questions?  Comments?  Particular ideas on what would happen?
+>
+> The other thing  I would observe is that clock speed is only part of the
+> equation, it's one thing to soak up some cpu cycles, but the cpu may be
+> a lot more superscalar (pipelineing, simd instructions, multiple cores
+> etc) than the one you're trying to simulate, probably it also has a lot
+> more cache and much faster memory. So that while you can certainly soak
+> up a lot of cpu pretty easily there are other considerations that might
+> effect simulating the performance of say a 100mhz pentium on say an
+> athlon 64x2.
+>
+> emulation would probably go a lot further as an approach
+>
+> > Modern machines have ability to be "speed controlled" - Perhaps
+> > they can cut their speed by 1/3 or 1/2, but run slower anyway
+> > in the name of energy conservation.
+> >
+> >
+> > Another approach (not thinking on multiprocessor systems now)
+> > is to somehow gobble up system performance into some "hoarder"
+> > (highest scheduling priority, eats up 90% of time slices doing
+> > excellent waste of CPU resources..)
+> >
+>
+> <snip>
+>
 
-Even reading from /proc/*/mem does not currently have the same permissions of
-ptrace. E.g. when a setuid process is started under ptrace it runs
-without the setuid semantics, thus it is possible to get/put data
-using PTRACE_{PEEK,POKE}*.
-There are no security threats as the process is running in an
-unprivileged way, on the contrary this is a feature that allows
-virtual machines to run setuid code, e.g. we use this feature to
-run /bin/ping on virtual networks.
-Instead it is not possible to read the memory through /proc/*/mem
-in the same situation.
-(In UMview -- see our cvs if you like -- to manage this exception
-there is now a read from /proc/*/mem file and if the read fails it 
-rolls back to the standard PTRACE_PEEKDATA.)
+what is really needed is to be able to throttle the memory latency and
+bandwith.. even with +++Ghz processors if there is no memory speed all
+the rest lacks... this would enable better testing of memory intensive
+algorithms
 
-Let me point out that PTRACE_MULTI is not only related to memory access.
-We are using PTRACE_MULTI also to store the registers and restart the
-execution of the ptraced process with a single syscall.
-This is very effective when umview runs on a ppc32 architecture. In
-fact, PPC_PTRACE_{G,S}ETREGS do not exist for that architecture
-(IMHO there is no evident reason for that). Without PTRACE_MULTI each register
-must be read/written individually by a PTRACE_{PEEK,POKE}USER(*)
 
-PTRACE_MULTI can be also used to optimize many other virtualized calls,
-e.g. to read/write all the buffers for a readv/writev/recvmsg/sendmsg
-call at once.
+-- 
+Greetz, Antonio Vargas aka winden of network
 
-Therefore I feel that /proc/*/mem access can help but PTRACE_MULTI
-gives something more.
+http://wind.codepixel.com/
+windNOenSPAMntw@gmail.com
+thesameasabove@amigascne.org
 
-	renzo
-
-(*) two notes about PPC_PTRACE_{G,S}ETREGS for powerpc.
-It is not clear to me why the same calls are okay for ppc64 and forbidden
-for ppc32, all the statements inside this ifdef
-
-arch/powerpc/kernel/ptrace.c: 407  #ifdef CONFIG_PPC64
-arch/powerpc/kernel/ptrace.c: 408  case PPC_PTRACE_GETREGS: { /* Get GPRs 0 - 31. */
-...
-
-are meaningful for ppc32 too. I have not tested it yet, but maybe
-deleting the #ifdef is enough to provide PPC_PTRACE_{G,S}ETREGS to
-ppc32, too.
-There is another detail. IMVHO in ppc64 architecture the security control 
-that forbids to change the PT_ORIG_R3 register by PTRACE_POKEUSER
-
-arch/powerpc/kernel/ptrace.c: 329  if (index == PT_ORIG_R3)
-arch/powerpc/kernel/ptrace.c: 330    break;
-
-is circunvented by PPC_PTRACE_SETREGS that rewrites all the registers
-including PT_ORIG_R3. (Maybe I am wrong but I haven't seen any
-check about this).
+Every day, every year
+you have to work
+you have to study
+you have to scene.

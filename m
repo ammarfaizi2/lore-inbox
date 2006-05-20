@@ -1,97 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWETWvB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbWETWye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932216AbWETWvB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 May 2006 18:51:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWETWvB
+	id S964776AbWETWye (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 May 2006 18:54:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWETWye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 May 2006 18:51:01 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58520 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932216AbWETWvA (ORCPT
+	Sat, 20 May 2006 18:54:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35719 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964776AbWETWyd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 May 2006 18:51:00 -0400
-Date: Sun, 21 May 2006 00:50:18 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Peter Lundkvist <p.lundkvist@telia.com>, linux-kernel@vger.kernel.org,
-       "Rafael J.  Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH] Page writeback broken after resume: wb_timer lost
-Message-ID: <20060520225018.GC8490@elf.ucw.cz>
-References: <20060520130326.GA6092@localhost> <20060520103728.6f3b3798.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060520103728.6f3b3798.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sat, 20 May 2006 18:54:33 -0400
+Date: Sat, 20 May 2006 15:54:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: mel@csn.ul.ie, davej@codemonkey.org.uk, tony.luck@intel.com,
+       bob.picco@hp.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       linux-mm@kvack.org
+Subject: Re: [PATCH 4/6] Have x86_64 use add_active_range() and
+ free_area_init_nodes
+Message-Id: <20060520155401.3048be0d.akpm@osdl.org>
+In-Reply-To: <200605210017.59984.ak@suse.de>
+References: <20060508141030.26912.93090.sendpatchset@skynet>
+	<200605202327.19606.ak@suse.de>
+	<20060520144043.22f993b1.akpm@osdl.org>
+	<200605210017.59984.ak@suse.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > I have noticed for some time that nr_dirty never drops but
-> > increases except when VM pressure forces it down. This only
-> > occurs after a resume, never on a freshly booted system.
+Andi Kleen <ak@suse.de> wrote:
+>
+>  
+> > Well, it creates arch-neutral common code, teaches various architectures
+> > use it.  It's the sort of thing we do all the time.
 > > 
-> > It seems the wb_timer is lost when the timer function is
-> > trying to start a frozen pdflush thread, and this occurs
-> > during suspend or resume.
-> > 
-> > I have included a patch which work for me. Don't know if the
-> > test also should include a check for freezing to be safe, ie
-> >   if ( !frozen(..) && !freezing(..) )
-
-Yep, I have seen this too. Sync took *way* too long and I believe I
-lost some data because of this problem.
-
-> Maybe the code over in page-writeback.c should just rearm the timee within
-> the timer handler rather than waiting for a pdflush thread to do it.  I'll
-> think about that.
+> > These things are opportunities to eliminate crufty arch code which few
+> > people understand and replace them with new, clean common code which lots
+> > of people understand.  That's not a bad thing to be doing.
 > 
-> But the main questions is: what on earth is going on here?  We've taken a
-> kernel thread and we've done a wake_up_process() on it, but because it was
-> in a frozen state it just never gets to run, even after the resume. 
-> Presumably it goes back into interruptible sleep after the resume.  We took
-> it off the list (in the expectation that it'd run again) so we've lost
-> control of it.
+> I'm not fundamentally against that, but so far it seems to just generate lots of 
+> new bugs?  I'm not sure it's really worth the pain.
+> 
 
-I guess you should not try to wake up process while it is frozen. Such
-wakeups are likely to get lost. Should we add some BUG_ON() somewhere?
+It is a bit disproportionate.  But in some ways that's a commentary on the
+current code.   All this numa/sparse/flat/discontig/holes-in-zones/
+virt-memmap/ stuff is pretty hairy, especially in its initalisation.
 
-...we have to eat some wakeups, because we fake some.
-
-Or perhaps we should do WARN_ON(frozen(current)) just after schedule()
-below?
-
-> Pavel, Rafael: this amounts to a lost wakeup.  What's the story?
-
-								Pavel
-
-Refrigerator looks like this:
-
-/* Refrigerator is place where frozen processes are stored :-). */
-void refrigerator(void)
-{
-        /* Hmm, should we be allowed to suspend when there are
-realtime
-           processes around? */
-        long save;
-        save = current->state;
-        pr_debug("%s entered refrigerator\n", current->comm);
-        printk("=");
-
-        frozen_process(current);
-        spin_lock_irq(&current->sighand->siglock);
-        recalc_sigpending(); /* We sent fake signal, clean it up */
-        spin_unlock_irq(&current->sighand->siglock);
-
-        while (frozen(current)) {
-                current->state = TASK_UNINTERRUPTIBLE;
-                schedule();
-        }
-        pr_debug("%s left refrigerator\n", current->comm);
-        current->state = save;
-}
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+I'm willing to go through the pain if it ends up with something cleaner
+which more people understand a little bit.

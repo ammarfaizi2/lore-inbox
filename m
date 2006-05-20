@@ -1,80 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWETGgM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWETG6e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbWETGgM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 May 2006 02:36:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWETGgM
+	id S932138AbWETG6e (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 May 2006 02:58:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWETG6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 May 2006 02:36:12 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:21000 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751032AbWETGgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 May 2006 02:36:11 -0400
-Date: Sat, 20 May 2006 08:31:11 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+	Sat, 20 May 2006 02:58:34 -0400
+Received: from bsamwel.xs4all.nl ([82.92.179.183]:36572 "EHLO samwel.tk")
+	by vger.kernel.org with ESMTP id S932138AbWETG6e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 May 2006 02:58:34 -0400
+Message-ID: <446EBDB3.2050401@samwel.tk>
+Date: Sat, 20 May 2006 08:56:51 +0200
+From: Bart Samwel <bart@samwel.tk>
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+MIME-Version: 1.0
+To: David Lang <dlang@digitalinsight.com>
+CC: =?ISO-8859-1?Q?=22D=F6hr=2C_Markus_ICC-H=22?= 
+	<Markus.Doehr@siegenia-aubi.com>,
+       "'Peter Gordon'" <codergeek42@gmail.com>, Valdis.Kletnieks@vt.edu,
        linux-kernel@vger.kernel.org
 Subject: Re: replacing X Window System !
-Message-ID: <20060520063111.GS11191@w.ods.org>
-References: <446D8F36.3010201@aitel.hist.no> <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <20060520010220.GG10077@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060520010220.GG10077@stusta.de>
-User-Agent: Mutt/1.5.10i
+References: <FC7F4950D2B3B845901C3CE3A1CA6766333F93@mxnd200-9.si-aubi.siegenia-aubi.com> <Pine.LNX.4.62.0605191801020.2828@qynat.qvtvafvgr.pbz>
+In-Reply-To: <Pine.LNX.4.62.0605191801020.2828@qynat.qvtvafvgr.pbz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: bart@samwel.tk
+X-SA-Exim-Scanned: No (on samwel.tk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
-
-On Sat, May 20, 2006 at 03:02:20AM +0200, Adrian Bunk wrote:
-> On Sat, May 20, 2006 at 12:40:56AM +0200, linux cbon wrote:
-> >...
-> > I think the discussion should move to X.Org ?
+David Lang wrote:
+> On Sat, 20 May 2006, "Döhr, Markus ICC-H" wrote:
 > 
-> The whole discussion is pointless anywhere as long as you are not 
-> writing the code to implement your proposal.
+>> Date: Sat, 20 May 2006 02:57:55 +0200
+>> From: "\"Döhr, Markus ICC-H\"" <Markus.Doehr@siegenia-aubi.com>
+>> Did you actually do that? Starting Firefox over a 6 Mbit VPN takes 
+>> about 3
+>> minutes on a FAST machine. That´s not acceptable - our users want 
+>> (almost)
+>> immediate response to an application, to clicking and waiting 10 seconds
+>> until the app is doing something.
 > 
-> If you think you could send an idea and other people would implement it 
-> you are misunderstanding how open source software works.
-> 
-> You have your idea.
-> 
-> It is YOUR job to write the code implementing your proposal.
-> 
-> Then there's a basis for a technical discussion of the advantages and 
-> disadvantages of your ideas.
-> 
-> Otherwise, you are only wasting your (and our) time since there's 
-> exactly a 0% probability that someone else will implement your ideas.
+> this is due to the latency, not the speed (X by default requires many 
+> round-trips to startup). There is an extention that greatly reduces the 
+> number of round-trips nessasary, I'm willing to bet this will make a 
+> huge difference for your startup. Unfortunantly I don't remember what 
+> this is.
 
-I 100% agree with you. However, given the posts I've read from the same
-person on some french forums, I can assure you that we'll never see one
-line of code, not even any useful advice ! Since he's only wasting our
-time, we should stop feeding this troll.
+I think it's called "lbxproxy".
 
-
-         +-------------------+             .:\:\:/:/:.            
-         |                   |            :.:\:\:/:/:.:           
-         |   PLEASE DO NOT   |           :=.' -   - '.=:          
-         |                   |           '=(\ 9   9 /)='          
-         |  FEED THE TROLLS  |              (  (_)  )             
-         |                   |              /`-vvv-'\             
-         +-------------------+             /         \            
-                 |  |        @@@          / /|,,,,,|\ \           
-                 |  |        @@@         /_//  /^\  \\_\          
-   @x@@x@        |  |         |/         WW(  (   )  )WW          
-   \||||/        |  |        \|           __\,,\ /,,/__           
-    \||/         |  |         |          (______Y______)          
-/\/\/\/\/\/\/\/\//\/\\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
-==================================================================
-
-> > Regards
-> 
-> cu
-> Adrian
-
-Regards,
-Willy
-
+Cheers,
+Bart

@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751455AbWETA7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751457AbWETBCW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751455AbWETA7V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 20:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751457AbWETA7V
+	id S1751457AbWETBCW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 21:02:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWETBCW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 20:59:21 -0400
-Received: from watts.utsl.gen.nz ([202.78.240.73]:50320 "EHLO
-	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S1751455AbWETA7U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 20:59:20 -0400
-Subject: Re: [PATCH 0/9] namespaces: Introduction
-From: Sam Vilain <sam@vilain.net>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       linux-kernel@vger.kernel.org, dev@sw.ru, herbert@13thfloor.at,
-       devel@openvz.org, xemul@sw.ru, haveblue@us.ibm.com, clg@fr.ibm.com,
-       Jeff Dike <jdike@addtoit.com>
-In-Reply-To: <m1ves2z1fq.fsf@ebiederm.dsl.xmission.com>
-References: <20060518154700.GA28344@sergelap.austin.ibm.com>
-	 <20060518103430.080e3523.akpm@osdl.org>
-	 <m1ves2z1fq.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Date: Sat, 20 May 2006 12:16:11 +1200
-Message-Id: <1148084171.7103.16.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 19 May 2006 21:02:22 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4356 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751457AbWETBCV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 21:02:21 -0400
+Date: Sat, 20 May 2006 03:02:20 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: linux cbon <linuxcbon@yahoo.fr>
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: replacing X Window System !
+Message-ID: <20060520010220.GG10077@stusta.de>
+References: <446D8F36.3010201@aitel.hist.no> <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-05-19 at 05:41 -0600, Eric W. Biederman wrote:
-> >    It would help set minds at ease if someone could produce a
-> >    bullet-point list of what features the kernel will need to get it to the
-> >    stage where "most or all vserver and openvz functionality can be
-> >    implemented by controlling resource namespaces from userspace." Then we
-> >    can discuss that list, make sure that everyone's pretty much in
-> >    agreement.
-> So this is slightly the wrong question.  If you look at Sam's list you
+On Sat, May 20, 2006 at 12:40:56AM +0200, linux cbon wrote:
+>...
+> I think the discussion should move to X.Org ?
 
-Yes - the wrong question because it's too top down and encourages
-hacks :)  It's wrong for the purposes of planning an implementation, but
-ok for easing minds about what will be covered, I think.
+The whole discussion is pointless anywhere as long as you are not 
+writing the code to implement your proposal.
 
-> will see that there are several independent dimensions to the complete
-> solution.  Most of them dealing with the increase in the number of users
-> and the amount of work that is happening on a single kernel in this
-> context.
-> 
-> Basically we need to expect a lot of kernel tuning after we get the
-> basics working. 
-> 
-> The proper question is: What needs to happen before we can run separate
-> user space instances?
+If you think you could send an idea and other people would implement it 
+you are misunderstanding how open source software works.
 
-My guess would be most of the points under "isolation".  The others are
-really just fine tuning / resource partitioning and fixing various
-things that break under virtualisation because of their design (eg,
-quota).
+You have your idea.
 
-Sam.
+It is YOUR job to write the code implementing your proposal.
+
+Then there's a basis for a technical discussion of the advantages and 
+disadvantages of your ideas.
+
+Otherwise, you are only wasting your (and our) time since there's 
+exactly a 0% probability that someone else will implement your ideas.
+
+> Regards
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

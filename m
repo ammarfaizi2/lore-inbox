@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWETEfn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWETEf2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751180AbWETEfn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 May 2006 00:35:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWETEfm
+	id S1751023AbWETEf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 May 2006 00:35:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWETEf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 May 2006 00:35:42 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:63905 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751202AbWETEfl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 May 2006 00:35:41 -0400
-Message-ID: <446E9C8F.60905@zytor.com>
-Date: Fri, 19 May 2006 21:35:27 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Sat, 20 May 2006 00:35:28 -0400
+Received: from [213.184.169.100] ([213.184.169.100]:26628 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1751023AbWETEf1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 May 2006 00:35:27 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: replacing X Window System !
+Date: Sat, 20 May 2006 07:33:08 +0300
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [Kbuild] Proper syntax for initramfs dependencies
-Content-Type: multipart/mixed;
- boundary="------------070905090404070302030109"
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200605200733.08757.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070905090404070302030109
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Adrian Bunk wrote:
+> On Sat, May 20, 2006 at 12:40:56AM +0200, linux cbon wrote:
+> > I think the discussion should move to X.Org ?
+>
+> The whole discussion is pointless anywhere as long as you are not
+> writing the code to implement your proposal.
+>
+> If you think you could send an idea and other people would implement it
+> you are misunderstanding how open source software works.
+>
+> You have your idea.
+>
+> It is YOUR job to write the code implementing your proposal.
+>
+> Then there's a basis for a technical discussion of the advantages and
+> disadvantages of your ideas.
 
-This patch adjusts the generation of initramfs dependencies, so that the 
-syntax stays correct when there are multiple files.
+Implementing an idea before discussing it's feasibility?
 
-Signed-off-by: H. Peter Anvin <hpa@zytor.com>
+Kind of stupid, don't you think?
 
---------------070905090404070302030109
-Content-Type: text/plain;
- name="diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="diff"
+> Otherwise, you are only wasting your (and our) time since there's
+> exactly a 0% probability that someone else will implement your ideas.
 
-ZGlmZiAtLWdpdCBhL3NjcmlwdHMvZ2VuX2luaXRyYW1mc19saXN0LnNoIGIvc2NyaXB0cy9n
-ZW5faW5pdHJhbWZzX2xpc3Quc2gKaW5kZXggYjFlYmQ2NC4uMmFjOTQ5MCAxMDA2NDQKLS0t
-IGEvc2NyaXB0cy9nZW5faW5pdHJhbWZzX2xpc3Quc2gKKysrIGIvc2NyaXB0cy9nZW5faW5p
-dHJhbWZzX2xpc3Quc2gKQEAgLTE3OCw3ICsxNzgsNyBAQCBpbnB1dF9maWxlKCkgewogCQkJ
-cHJpbnRfbXRpbWUgIiQxIiA+PiAke291dHB1dH0KIAkJCWNhdCAiJDEiICAgICAgICAgPj4g
-JHtvdXRwdXR9CiAJCWVsc2UKLQkJCWdyZXAgXmZpbGUgIiQxIiB8IGN1dCAtZCAnICcgLWYg
-MworCQkJZ3JlcCBeZmlsZSAiJDEiIHwgY3V0IC1kICcgJyAtZiAzIHwgc2VkIC1lICdzLyQv
-IFxcLycKIAkJZmkKIAllbGlmIFsgLWQgIiQxIiBdOyB0aGVuCiAJCWRpcl9maWxlbGlzdCAi
-JDEiCg==
---------------070905090404070302030109--
+Maybe not 0% exactly.
+
+Not that I would agree with the in-Kernel X idea per se, but it does raise 
+the issue of a stable API once more, as it would allow more freedom to 
+create a module against a version line w/o fear of being rejected.
+
+Thanks!
+
+--
+Al
+

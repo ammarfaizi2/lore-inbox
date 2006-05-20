@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWETVlQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbWETVmy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932386AbWETVlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 May 2006 17:41:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWETVlP
+	id S932380AbWETVmy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 May 2006 17:42:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWETVmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 May 2006 17:41:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:1515 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932386AbWETVlO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 May 2006 17:41:14 -0400
-Date: Sat, 20 May 2006 14:40:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: mel@csn.ul.ie, davej@codemonkey.org.uk, tony.luck@intel.com,
-       bob.picco@hp.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       linux-mm@kvack.org
-Subject: Re: [PATCH 4/6] Have x86_64 use add_active_range() and
- free_area_init_nodes
-Message-Id: <20060520144043.22f993b1.akpm@osdl.org>
-In-Reply-To: <200605202327.19606.ak@suse.de>
-References: <20060508141030.26912.93090.sendpatchset@skynet>
-	<20060508141151.26912.15976.sendpatchset@skynet>
-	<20060520135922.129a481d.akpm@osdl.org>
-	<200605202327.19606.ak@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 20 May 2006 17:42:54 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:54657 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S932380AbWETVmy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 May 2006 17:42:54 -0400
+Date: Sat, 20 May 2006 17:39:59 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Renzo Davoli <renzo@cs.unibo.it>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
+       Daniel Jacobowitz <dan@debian.org>, Ulrich Drepper <drepper@gmail.com>,
+       osd@cs.unibo.it, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2-ptrace_multi
+Message-ID: <20060520213959.GA4229@ccure.user-mode-linux.org>
+References: <20060518155337.GA17498@cs.unibo.it> <20060519174534.GA22346@cs.unibo.it> <20060519201509.GA13477@nevyn.them.org> <200605192217.30518.ak@suse.de> <1148135825.2085.33.camel@localhost.localdomain> <20060520183020.GC11648@cs.unibo.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060520183020.GC11648@cs.unibo.it>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> 
-> > Anyway.  From the implementation I can see what the code is doing.  But I
-> > see no description of what it is _supposed_ to be doing.  (The process of
-> > finding differences between these two things is known as "debugging").  I
-> > could kludge things by setting MAX_ACTIVE_REGIONS to 1000000, but enough. 
-> > I look forward to the next version ;)
-> 
-> Or we could just keep the working old code.
-> 
-> Can somebody remind me what this patch kit was supposed to fix or improve again? 
-> 
+On Sat, May 20, 2006 at 08:30:20PM +0200, Renzo Davoli wrote:
+> Let me point out that PTRACE_MULTI is not only related to memory access.
+> We are using PTRACE_MULTI also to store the registers and restart the
+> execution of the ptraced process with a single syscall.
+> This is very effective when umview runs on a ppc32 architecture. In
+> fact, PPC_PTRACE_{G,S}ETREGS do not exist for that architecture
+> (IMHO there is no evident reason for that). Without PTRACE_MULTI each register
+> must be read/written individually by a PTRACE_{PEEK,POKE}USER(*)
 
-Well, it creates arch-neutral common code, teaches various architectures
-use it.  It's the sort of thing we do all the time.
+Wouldn't the obvious fix be to implement [GS]ETREGS for arches that don't
+have them?
 
-These things are opportunities to eliminate crufty arch code which few
-people understand and replace them with new, clean common code which lots
-of people understand.  That's not a bad thing to be doing.
+> PTRACE_MULTI can be also used to optimize many other virtualized calls,
+> e.g. to read/write all the buffers for a readv/writev/recvmsg/sendmsg
+> call at once.
+
+Here, I bet the data copying cost dominates the system call, and the
+syscall overhead is minimal.
+
+				Jeff

@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWETQCB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWETQIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751329AbWETQCB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 May 2006 12:02:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbWETQCB
+	id S1751339AbWETQIl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 May 2006 12:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbWETQIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 May 2006 12:02:01 -0400
-Received: from dvhart.com ([64.146.134.43]:55433 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1751329AbWETQCA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 May 2006 12:02:00 -0400
-Message-ID: <446F3D6D.10704@mbligh.org>
-Date: Sat, 20 May 2006 09:01:49 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Sat, 20 May 2006 12:08:41 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.81]:55686 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id S1751339AbWETQIl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 May 2006 12:08:41 -0400
+Message-ID: <446F3F6A.9060004@cmu.edu>
+Date: Sat, 20 May 2006 12:10:18 -0400
+From: George Nychis <gnychis@cmu.edu>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060503)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andy Whitcroft <apw@shadowen.org>
-Subject: 2.6.17-rc4-mm2
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: cannot load *any* modules with 2.4 kernel
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compile error on i386 NUMA (I thought Andy already fixed this one?)
-Deja Vu ...
+Hi,
 
-arch/i386/kernel/srat.c: In function `get_memcfg_from_srat':
-arch/i386/kernel/srat.c:273: error: parse error before "early_printk"
+I boot two kernels, a 2.6.9 kernel and just recently built a 2.4.32 kernel
 
+In the 2.4.32 kernel I have =y for:
+CONFIG_MODULES
+CONFIG_MODVERSIONS
+CONFIG_KMOD
 
----------------------------------------------------
+I then build my kernel, with some modules, install the modules, and boot
+my 2.4.32 kernel successfully
 
+when i do lsmod, it is completely empty, no modules are loaded.  This
+only happens for my 2.4.32 kernel though, modules load fine in 2.6.9
 
-Panic on boot on 2-way PPC64
-http://test.kernel.org/abat/32360/debug/console.log
+If i try to manually insert with insmod or modprobe, i get unresolved
+external symbols for things that I am sure should be resolved... for
+example, i get unresolved external symbol for printk
 
-Bad page state in process 'idle'
-page:c0000000010c3100 flags:0x0003300000000000 mapping:0000000000000000 
-mapcount:0 count:0
-Trying to fix it up, but a reboot is needed
-Backtrace:
-Call Trace:
-[C0000000004CBB70] [C00000000000EEE8] .show_stack+0x74/0x1b4 (unreliable)
-[C0000000004CBC20] [C000000000098D04] .bad_page+0x80/0x134
-[C0000000004CBCB0] [C000000000099F28] .__free_pages_ok+0x134/0x280
-[C0000000004CBD70] [C00000000039C4F8] .free_all_bootmem_core+0x15c/0x320
-[C0000000004CBE50] [C0000000003923AC] .mem_init+0xc0/0x294
-[C0000000004CBEF0] [C000000000385700] .start_kernel+0x208/0x300
-[C0000000004CBF90] [C000000000008594] .start_here_common+0x88/0x8c
-Hexdump:
-000: c0 00 00 00 01 0c 30 b8 00 03 30 00 00 00 00 00
-010: 00 00 00 00 ff ff ff ff 00 00 00 00 00 00 00 00
-020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-030: c0 00 00 00 01 0c 30 f0 c0 00 00 00 01 0c 30 f0
-040: 00 03 30 00 00 00 00 00 00 00 00 00 ff ff ff ff
-050: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-060: 00 00 00 00 00 00 00 00 c0 00 00 00 01 0c 31 28
-070: c0 00 00 00 01 0c 31 28 00 03 30 00 00 00 00 00
-080: 00 00 00 00 ff ff ff ff 00 00 00 00 00 00 00 00
-090: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-0a0: c0 00 00 00 01 0c 31 60 c0 00 00 00 01 0c 31 60
-0b0: 00 03 30 00 00 00 00 00 00 00 00 00 ff ff ff ff
+I'll give some other common unresolved smybols and maybe someone can
+point me in the right direction of what else i need to specify to you
+guys so that you can help me out further.
 
--------------------------------------------------------------
+prinkt
+add_timer
+dev_mc_add
+CardServices
+kfree
+cpu_raise_softirq
+free_irq
+kmalloc
+
+Thanks!
+George

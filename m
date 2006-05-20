@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbWETA6G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751454AbWETA7U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932476AbWETA6G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 20:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWETA6G
+	id S1751454AbWETA7U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 20:59:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751457AbWETA7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 20:58:06 -0400
-Received: from mail.siegenia-aubi.com ([217.5.180.129]:60561 "EHLO
-	alg-1.siegenia-aubi.com") by vger.kernel.org with ESMTP
-	id S1751454AbWETA6F convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 20:58:05 -0400
-Message-ID: <FC7F4950D2B3B845901C3CE3A1CA6766333F93@mxnd200-9.si-aubi.siegenia-aubi.com>
-From: =?iso-8859-1?Q?=22D=F6hr=2C_Markus_ICC-H=22?= 
-	<Markus.Doehr@siegenia-aubi.com>
-To: "'Peter Gordon'" <codergeek42@gmail.com>
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: RE: replacing X Window System !
-Date: Sat, 20 May 2006 02:57:55 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Fri, 19 May 2006 20:59:20 -0400
+Received: from watts.utsl.gen.nz ([202.78.240.73]:50064 "EHLO
+	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S1751454AbWETA7U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 20:59:20 -0400
+Subject: Re: [PATCH 0/9] namespaces: Introduction
+From: Sam Vilain <sam@vilain.net>
+To: Andrey Savochkin <saw@sw.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, dev@sw.ru,
+       herbert@13thfloor.at, devel@openvz.org, ebiederm@xmission.com,
+       xemul@sw.ru, haveblue@us.ibm.com, clg@fr.ibm.com,
+       "Serge E. Hallyn" <serue@us.ibm.com>
+In-Reply-To: <20060519174757.A17609@castle.nmd.msu.ru>
+References: <20060518154700.GA28344@sergelap.austin.ibm.com>
+	 <20060518103430.080e3523.akpm@osdl.org>
+	 <20060519174757.A17609@castle.nmd.msu.ru>
+Content-Type: text/plain
+Date: Sat, 20 May 2006 12:16:04 +1200
+Message-Id: <1148084165.7103.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Although one has to admit that working with remote X 
-> terminals over a
-> > SSH/WAN/VPN-connection is far from usefull, [...]
-> You can tunnel just about anything X11 over SSH/VPN/etc.; even things
-> like a whole desktop GUI; not just plain X terminals.
+On Fri, 2006-05-19 at 17:47 +0400, Andrey Savochkin wrote:
+> We can start with presenting and merging the most interesting part, network
+> containers.  We discuss details, possible approaches, and related subsystems,
+> until networking is finished to its utmost detail.
+> This will create an example of virtualization of a non-trivial subsystem,
+> and we will have to agree on basic principles of virtualization of related
+> subsystems like proc.
+[...]
+> What do people think about this plan?
 
-Did you actually do that? Starting Firefox over a 6 Mbit VPN takes about 3
-minutes on a FAST machine. That´s not acceptable - our users want (almost)
-immediate response to an application, to clicking and waiting 10 seconds
-until the app is doing something.
+Network is an interesting one because you have multiple solutions - the
+very simple approach of network binding (as used by Jacques Gelina's
+original IP vhost work from December 1997), and network virtualisation.
+That virtualisation itself can be broken down into providing merely
+virtual interfaces (so that, for instance, you can have independent lo
+interfaces in the virtual servers) as in Vserver 2.1.x, or providing a
+completely virtualised network stack, as in Vserver ngnet (and possibly
+OpenVZ?).
 
-> > However, there´s NX (http://www.nomachine.com/) and
-> > other products but out of the box X11 it´s quite slow over 
-> higher latency
-> > connections.
-> One good way to reduce latency (at least when using X11 over SSH) is
-> to tell SSH to compress its connection tunnel ("ssh -C ...").
-> 
+Each solution performs the virtualisation at a different level, and has
+incrementally higher orders of inefficiency and maintenance
+requirements.  Yet none of them are essentially better or worse than the
+others.
 
-Yes, this will start Firefox (as an example) down to 2 minutes 15 seconds
-and put additional compression/decompression load on the system. We go for
-AIP right now (Sun Secure Global Desktop), there you have the feeling as if
-you were sitting in front of the box.
+So, we might end up with all three eventually - but binding alone is the
+simplest and still extremely useful.
 
+Sam.
 
--- 
-Markus

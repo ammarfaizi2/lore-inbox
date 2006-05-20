@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751461AbWETBLU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbWETBLm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751461AbWETBLU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 21:11:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWETBLU
+	id S1751464AbWETBLm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 May 2006 21:11:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWETBLm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 21:11:20 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:54963 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1751461AbWETBLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 21:11:19 -0400
-Date: Fri, 19 May 2006 18:11:06 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: =?iso-8859-1?Q?=22D=F6hr=2C_Markus_ICC-H=22?= 
-	<Markus.Doehr@siegenia-aubi.com>
-cc: "'Peter Gordon'" <codergeek42@gmail.com>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: RE: replacing X Window System !
-In-Reply-To: <FC7F4950D2B3B845901C3CE3A1CA6766333F93@mxnd200-9.si-aubi.siegenia-aubi.com>
-Message-ID: <Pine.LNX.4.62.0605191801020.2828@qynat.qvtvafvgr.pbz>
-References: <FC7F4950D2B3B845901C3CE3A1CA6766333F93@mxnd200-9.si-aubi.siegenia-aubi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+	Fri, 19 May 2006 21:11:42 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52461 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751464AbWETBLl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 May 2006 21:11:41 -0400
+Date: Fri, 19 May 2006 18:11:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       virtualization@lists.osdl.org, kraxel@suse.de, zach@vmware.com
+Subject: Re: [PATCH] Gerd Hoffman's move-vsyscall-into-user-address-range
+ patch
+Message-Id: <20060519181125.5c8e109e.akpm@osdl.org>
+In-Reply-To: <20060520010303.GA17858@elte.hu>
+References: <1147759423.5492.102.camel@localhost.localdomain>
+	<20060516064723.GA14121@elte.hu>
+	<1147852189.1749.28.camel@localhost.localdomain>
+	<20060519174303.5fd17d12.akpm@osdl.org>
+	<20060520010303.GA17858@elte.hu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 May 2006, "Döhr, Markus ICC-H" wrote:
-
-> Date: Sat, 20 May 2006 02:57:55 +0200
-> From: "\"Döhr, Markus ICC-H\"" <Markus.Doehr@siegenia-aubi.com>
-> To: 'Peter Gordon' <codergeek42@gmail.com>
-> Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-> Subject: RE: replacing X Window System !
-> 
->>> Although one has to admit that working with remote X
->> terminals over a
->>> SSH/WAN/VPN-connection is far from usefull, [...]
->> You can tunnel just about anything X11 over SSH/VPN/etc.; even things
->> like a whole desktop GUI; not just plain X terminals.
+Ingo Molnar <mingo@elte.hu> wrote:
 >
-> Did you actually do that? Starting Firefox over a 6 Mbit VPN takes about 3
-> minutes on a FAST machine. That´s not acceptable - our users want (almost)
-> immediate response to an application, to clicking and waiting 10 seconds
-> until the app is doing something.
+> 
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > Rusty Russell <rusty@rustcorp.com.au> wrote:
+> > >
+> > > Name: Move vsyscall page out of fixmap into normal vma as per mmap
+> > 
+> > This causes mysterious hangs when starting init.
+> > 
+> > Distro is RH FC1, running SysVinit-2.85-5.
+> > 
+> > dmesg, sysrq-T and .config are at
+> > http://www.zip.com.au/~akpm/linux/patches/stuff/log-vmm - nothing leaps
+> > out.
+> > 
+> > This is the second time recently when a patch has caused this machine 
+> > to oddly hang in init.  It's possible that there's a bug of some form 
+> > in that version of init that we'll need to know about and take care of 
+> > in some fashion.
+> 
+> FC1 is like really ancient. I think there was a glibc bug that caused 
+> vsyscall related init hangs like that. To nevertheless let people run 
+> their old stuff there's a vdso=0 boot option in exec-shield.
+> 
 
-this is due to the latency, not the speed (X by default requires many 
-round-trips to startup). There is an extention that greatly reduces the 
-number of round-trips nessasary, I'm willing to bet this will make a huge 
-difference for your startup. Unfortunantly I don't remember what this is.
-
-however the huge delays on startup don't translate into a general slowdown 
-once the application is started.
-
-yes, this is an add-on, but the way that X evolves is for new 
-functionality to be initially available as an add-on, and then move into 
-the core distribution.
-
-David Lang
-
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
-
+Well that patch took a machine from working to non-working.  Pretty serious
+stuff.  We should get to the bottom of the problem so we can assess the
+risk and impact, no?

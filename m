@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWETWSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWETWX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932405AbWETWSO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 May 2006 18:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbWETWSO
+	id S1751331AbWETWX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 May 2006 18:23:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWETWX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 May 2006 18:18:14 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:43427 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932405AbWETWSN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 May 2006 18:18:13 -0400
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 4/6] Have x86_64 use add_active_range() and free_area_init_nodes
-Date: Sun, 21 May 2006 00:17:59 +0200
-User-Agent: KMail/1.9.1
-Cc: mel@csn.ul.ie, davej@codemonkey.org.uk, tony.luck@intel.com,
-       bob.picco@hp.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       linux-mm@kvack.org
-References: <20060508141030.26912.93090.sendpatchset@skynet> <200605202327.19606.ak@suse.de> <20060520144043.22f993b1.akpm@osdl.org>
-In-Reply-To: <20060520144043.22f993b1.akpm@osdl.org>
+	Sat, 20 May 2006 18:23:27 -0400
+Received: from wildsau.enemy.org ([193.170.194.34]:63386 "EHLO
+	wildsau.enemy.org") by vger.kernel.org with ESMTP id S1751331AbWETWX1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 May 2006 18:23:27 -0400
+From: Herbert Rosmanith <kernel@wildsau.enemy.org>
+Message-Id: <200605202218.k4KMIIUX007492@wildsau.enemy.org>
+Subject: Re: pktcdvd major contradicts <linux/Documentation/devices.txt>
+In-Reply-To: <20060520213506.GC7930@mipter.zuzino.mipt.ru>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Date: Sun, 21 May 2006 00:18:18 +0200 (MET DST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL100 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605210017.59984.ak@suse.de>
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> Well, it creates arch-neutral common code, teaches various architectures
-> use it.  It's the sort of thing we do all the time.
-> 
-> These things are opportunities to eliminate crufty arch code which few
-> people understand and replace them with new, clean common code which lots
-> of people understand.  That's not a bad thing to be doing.
 
-I'm not fundamentally against that, but so far it seems to just generate lots of 
-new bugs?  I'm not sure it's really worth the pain.
+> Fixed is in -git since Mon May 15 09:44:40 2006 -0700.
 
--Andi
+aha. I'm only working with 2.6.16.16.
+
+anyway. As I just started with the pkt-writing module, I noticed
+another strange behaviour (at least, it seems strange to me, but YMMV),
+and I wonder if this is has already been fixed in some -git or -mm
+prepatch or snapshot or subsubsub-release-canditate ...
+
+<linux/Documentation/cdrom/packet-writing.txt> says:
+
+- Setup your writer
+        # pktsetup dev_name /dev/hdc
+
+Therefore, I do "pktsetup node0 /dev/hdc", which gives:
+
+# pktsetup node0 /dev/hdc
+ctl open: Not a directory
+
+strace shows that pktsetup is trying to open /dev/pktcdvd/control,
+which it cannot, since /dev/pktcdvd is a char device obviously
+created upon "modprobe pktcdvd". The char device has major 10 minor
+63, which seems to be missing in devices.txt.
+
+Once I remove the char-device, pktsetup will work and create
+/dev/pktcdvd/control and /dev/pktcdvd/node0. Now I try to figure
+out how the rest of "packet-writing.txt" works ...
+
+kind regards,
+h.rosmanith
+

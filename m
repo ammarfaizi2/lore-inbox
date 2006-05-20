@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWETDzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbWETEGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964832AbWETDzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 May 2006 23:55:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbWETDzP
+	id S964838AbWETEGX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 May 2006 00:06:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbWETEGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 May 2006 23:55:15 -0400
-Received: from ns2.g-housing.de ([81.169.133.75]:32228 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S932495AbWETDzO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 May 2006 23:55:14 -0400
-Date: Sat, 20 May 2006 04:54:52 +0100 (BST)
-From: Christian Kujau <evil@g-house.de>
-X-X-Sender: dummy@vaio.testbed.de
-To: Mel Gorman <mel@csn.ul.ie>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       apw@shadowen.org
-Subject: Re: SCSI ABORT with 2.6.17-rc4-mm1
-In-Reply-To: <Pine.LNX.4.64.0605200133040.12335@skynet.skynet.ie>
-Message-ID: <Pine.NEB.4.64.0605200450290.4276@vaio.testbed.de>
-References: <62331.192.18.1.5.1148071784.squirrel@housecafe.dyndns.org>
- <20060519141032.23de6eee.akpm@osdl.org> <20060519225746.GA11883@skynet.ie>
- <20060519163038.7236c8e3.akpm@osdl.org> <Pine.LNX.4.64.0605200133040.12335@skynet.skynet.ie>
+	Sat, 20 May 2006 00:06:23 -0400
+Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:13454 "HELO
+	smtp110.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964838AbWETEGW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 May 2006 00:06:22 -0400
+Date: Fri, 19 May 2006 21:06:20 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH (take #2)] EDD isn't EXPERIMENTAL anymore
+Message-ID: <20060520040620.GA11109@taniwha.stupidest.org>
+References: <20060520025255.GB9486@taniwha.stupidest.org> <20060520035310.GA28977@humbolt.us.dell.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060520035310.GA28977@humbolt.us.dell.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 May 2006, Mel Gorman wrote:
-> Obviously. One option is to back out 
-> have-x86_64-use-add_active_range-and-free_area_init_nodes.patch and see what 
-> happens on Christian's machine.
+Oops.
 
-I've disabled CONFIG_PM and backed out above patch (from -rc4-mm1), but 
-sadly, the error persists:
+Resend with Kconfig comment change too.  It also occured to me that
+!IA64 is a lousy check, EDD is really i386 and x86_64 only, it's
+clearly not useful for ppc, alpha, etc.
 
-http://nerdbynature.de/bits/2.6.17-rc4-mm1/no-CONFIG_PM/
-http://nerdbynature.de/bits/2.6.17-rc4-mm2.x/no-CONFIG_PM/
-(the first one with the said patch backed out)
+Would anyone object to a chance for that too?
 
-Thanks for your ideas,
-Christian.
--- 
-There's another way to survive.  Mutual trust -- and help.
- 		-- Kirk, "Day of the Dove", stardate unknown
+---
+
+Lots of people use this.  Apparently RH has for over 18 months so lets
+drop EXPERIMENTAL.
+
+
+Signed-off-by: Chris Wedgwood <cw@f00f.org>
+
+Index: linux-2.6/drivers/firmware/Kconfig
+===================================================================
+--- linux-2.6.orig/drivers/firmware/Kconfig	2006-05-19 19:54:23.152351261 -0700
++++ linux-2.6/drivers/firmware/Kconfig	2006-05-19 21:03:56.515687951 -0700
+@@ -6,8 +6,7 @@
+ menu "Firmware Drivers"
+ 
+ config EDD
+-	tristate "BIOS Enhanced Disk Drive calls determine boot disk (EXPERIMENTAL)"
+-	depends on EXPERIMENTAL
++	tristate "BIOS Enhanced Disk Drive calls determine boot disk"
+ 	depends on !IA64
+ 	help
+ 	  Say Y or M here if you want to enable BIOS Enhanced Disk Drive

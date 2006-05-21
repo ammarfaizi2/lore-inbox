@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWEUGOm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWEUGQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751451AbWEUGOm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 02:14:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWEUGOm
+	id S1751483AbWEUGQw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 02:16:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWEUGQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 02:14:42 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:14014 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751451AbWEUGOm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 02:14:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=d3+YV0EmgHQTxm8MklatBKmSmrj/MOcLQQbg+pxdkvIYi+CNIlBmfjBJeuJEiQweixPgc4rwa8w/ZAyM2v0EtvpJ2+KOA3v6Q2pBLNrcDt7LaZgFb/nig7Q79omtMTIFghKYXHfuDHO67KJiMP6EcX9IQxWmOcsxfEg8vIayWLA=
-Message-ID: <661de9470605202314w59766946n8d77d2bb56904888@mail.gmail.com>
-Date: Sun, 21 May 2006 11:44:40 +0530
-From: "Balbir Singh" <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-To: "Liu haixiang" <liu.haixiang@gmail.com>
-Subject: Re: Oops in kthread
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <bf3792800605202306v4b65bcadk51be97e4762b9d0b@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <bf3792800605200537o2c9c8c47t9310321ae9205296@mail.gmail.com>
-	 <661de9470605200625x73929dbeme8fc487265ba66b7@mail.gmail.com>
-	 <bf3792800605202306v4b65bcadk51be97e4762b9d0b@mail.gmail.com>
-X-Google-Sender-Auth: 9367bdab715145b2
+	Sun, 21 May 2006 02:16:52 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:4567 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751483AbWEUGQv (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 02:16:51 -0400
+Message-Id: <200605210616.k4L6GmHe001933@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: linux cbon <linuxcbon@yahoo.fr>
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: replacing X Window System !
+In-Reply-To: Your message of "Sat, 20 May 2006 00:40:56 +0200."
+             <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+From: Valdis.Kletnieks@vt.edu
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1148192208_32020P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 21 May 2006 02:16:48 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/21/06, Liu haixiang <liu.haixiang@gmail.com> wrote:
-> Hi Balbir,
->
-> The FDMA is my coded module. And in my code, I didn't call kthread in
-> my code but only call kthread_run once to create one kernel thread
-> CallbackManager.
->
-> So I don't understand why there is Oops from kthread and called by my
-> CallbackManager.
->
-> Can anybody explain to me when kthread will be called by the kernel?
-> Then I can understand well why Oops happen.
->
-> best regards
->
-> Liu haixiang
->
+--==_Exmh_1148192208_32020P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Please post the source code, it is easier to help out, otherwise its
-like shooting in the dark.
+On Sat, 20 May 2006 00:40:56 +0200, linux cbon said:
 
-Balbir
-Linux Technology Center,
-India Software Labs,
-Bangalore
+> Unix was not designed for graphics.
+
+Rather amusing, given that Dennis Ritchie has a different memory of it:
+
+http://cm.bell-labs.com/cm/cs/who/dmr/hist.html
+
+He seems to think that one of the original motivating forces for Unix
+was to provide a development environment for a PDP-7, so that they
+could support the graphics terminal for a game called 'Space Travel'.
+
+So if anything, Unix was designed specifically *for* graphics.
+
+Now who should I believe here, dmr or an apparent troll?
+
+--==_Exmh_1148192208_32020P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEcAXQcC3lWbTT17ARAj3rAKDRptu+odTLwGAIey+pzm7BcGxlWQCfXfp0
+s1kppyD0i4WoE9nKCK4/x/A=
+=s5HU
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1148192208_32020P--

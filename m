@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751008AbWEUDxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbWEUE2G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751008AbWEUDxo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 May 2006 23:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWEUDxo
+	id S1751436AbWEUE2G (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 00:28:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWEUE2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 May 2006 23:53:44 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:43981 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751008AbWEUDxo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 May 2006 23:53:44 -0400
-Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT]
-From: Lee Revell <rlrevell@joe-job.com>
-To: Joshua Hudson <joshudson@gmail.com>
+	Sun, 21 May 2006 00:28:05 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:24289 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751436AbWEUE2E (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 00:28:04 -0400
+Message-Id: <200605210428.k4L4S0nv013532@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <bda6d13a0605201830x1aa4cb81m95a52bb91ab51ebb@mail.gmail.com>
-References: <E1FhbYy-0005jL-00@skye.ra.phy.cam.ac.uk>
-	 <446FB6F2.7040803@gmx.net>
-	 <bda6d13a0605201830x1aa4cb81m95a52bb91ab51ebb@mail.gmail.com>
-Content-Type: text/plain
-Date: Sat, 20 May 2006 23:53:40 -0400
-Message-Id: <1148183621.20472.57.camel@mindpipe>
+Subject: Re: 2.6.17-rc4-mm2
+In-Reply-To: Your message of "Sat, 20 May 2006 05:41:03 PDT."
+             <20060520054103.46a6edb5.akpm@osdl.org>
+From: Valdis.Kletnieks@vt.edu
+References: <20060520054103.46a6edb5.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: multipart/signed; boundary="==_Exmh_1148185680_32020P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Sun, 21 May 2006 00:28:00 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-05-20 at 18:30 -0700, Joshua Hudson wrote:
-> On 5/20/06, Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net> wrote:
-> > Please try kernel 2.6.16.17 (just released). It has the SMBus fix which
-> > may fix resume and fan behaviour.
+--==_Exmh_1148185680_32020P
+Content-Type: text/plain; charset=us-ascii
+
+On Sat, 20 May 2006 05:41:03 PDT, Andrew Morton said:
 > 
-> Am I the only person who read that as 2.6.17 the first time around?
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc4/2.6.17-rc4-mm2/
 
-I think it's evidence that the -stable process is working brilliantly.
-We have 17 point releases worth of bug fixes that would not have been
-available under the previous model.
+secmark-add-new-packet-controls-to-selinux.patch looks fishy:
 
-Lee
+--- devel/security/selinux/Kconfig~secmark-add-new-packet-controls-to-selinux   2006
+-05-18 03:04:58.000000000 -0700
++++ devel-akpm/security/selinux/Kconfig 2006-05-18 03:04:58.000000000 -0700
+@@ -1,6 +1,6 @@
+ config SECURITY_SELINUX
+        bool "NSA SELinux Support"
+-       depends on SECURITY_NETWORK && AUDIT && NET && INET
++       depends on SECURITY_NETWORK && AUDIT && NET && INET && NETWORK_SECMARK
+        default n
+        help
+          This selects NSA Security-Enhanced Linux (SELinux).
 
+Was it *really* intended that SELINUX not be selectable if NETWORK_SECMARK
+isn't present?
+
+
+--==_Exmh_1148185680_32020P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEb+xQcC3lWbTT17ARAmA7AJwOEJCXU0HmO+fYrlsXn7xH00F3mwCfVV56
+cfMZB8+7eP4xuQycDH2I1kY=
+=rVV+
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1148185680_32020P--

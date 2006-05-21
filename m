@@ -1,72 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbWEUCDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWEUCzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751419AbWEUCDy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 May 2006 22:03:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWEUCDy
+	id S1751004AbWEUCzY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 May 2006 22:55:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWEUCzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 May 2006 22:03:54 -0400
-Received: from koto.vergenet.net ([210.128.90.7]:31948 "EHLO koto.vergenet.net")
-	by vger.kernel.org with ESMTP id S1751419AbWEUCDx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 May 2006 22:03:53 -0400
-Date: Sat, 20 May 2006 11:09:19 +0900
-From: Horms <horms@verge.net.au>
-To: ebiederm@xmission.com, linux-kernel@vger.kernel.org, fastboot@osdl.org
-Subject: Re: [PATCH] kexec: typo in machine_kexec()
-Message-ID: <20060520020919.GA6802@verge.net.au>
-References: <20060404234806.GA25761@verge.net.au> <200604051310.55956.kernel@kolivas.org> <20060404234806.GA25761@verge.net.au> <20060404200557.1e95bdd8.rdunlap@xenotime.net> <20060405055754.GA3277@verge.net.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060405055754.GA3277@verge.net.au>
-X-Cluestick: seven
-User-Agent: Mutt/1.5.11+cvs20060403
+	Sat, 20 May 2006 22:55:24 -0400
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:16574 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751004AbWEUCzX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 May 2006 22:55:23 -0400
+Subject: Re: [v4l-dvb-maintainer] [PATCH 00/33] V4L/DVB bug fixes
+From: hermann pitton <hermann-pitton@arcor.de>
+To: Linux and Kernel Video <video4linux-list@redhat.com>
+Cc: torvalds@osdl.org, linux-dvb-maintainer@linuxtv.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <446F6F46.9090605@m1k.net>
+References: <20060513094537.PS23916900000@infradead.org>
+	 <446F6F46.9090605@m1k.net>
+Content-Type: text/plain
+Date: Sun, 21 May 2006 04:59:47 +0200
+Message-Id: <1148180387.4222.13.camel@pc08.localdom.local>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kexec: rework kexec_crash logic to make it a little less nested
+Am Samstag, den 20.05.2006, 15:34 -0400 schrieb Michael Krufky:
+> mchehab@infradead.org wrote:
+> 
+> >Please pull these from master branch at:
+> >        kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git
+> >  
+> >
+> Linus,
+> 
+> A week has gone by... Do you intend to merge these bug fixes into your tree?
+> 
+> These changesets fix a whole bunch of serious bugs that have been 
+> introduced in 2.6.17, and a good many of these bugfixes have been 
+> sitting around, waiting to be merged since 2.6.17-rc1, not to mention 
+> the fixes that have already been merged much earlier in 2.6.16.y
+> 
+> Please merge these before 2.6.17-rc5
+> 
+> We have already eliminated as many patches as we possibly could.  It all 
+> comes down to these.  Everything else has been held back until the 
+> 2.6.18 merge window.
+> 
+> If you are nacking these fixes, then I would have to call 2.6.17 a 
+> broken kernel, when it comes to multimedia :-(
+> 
+> Please merge.
+> 
+> Regards,
+> 
+> Michael Krufky
+> 
 
-Signed-Off-By: Simon Horman <horms@verge.net.au>
+Hi Mike,
 
- kernel/kexec.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+I can see you are concerned and you are right.
 
-6d28ed0c03ff2d9345a5b198a52f6ee3cc7dd424
-diff --git a/kernel/kexec.c b/kernel/kexec.c
-index bf39d28..281736f 100644
---- a/kernel/kexec.c
-+++ b/kernel/kexec.c
-@@ -1042,6 +1042,7 @@ #endif
- 
- void crash_kexec(struct pt_regs *regs)
- {
-+	struct pt_regs fixed_regs;
- 	struct kimage *image;
- 	int locked;
- 
-@@ -1055,16 +1056,15 @@ void crash_kexec(struct pt_regs *regs)
- 	 * sufficient.  But since I reuse the memory...
- 	 */
- 	locked = xchg(&kexec_lock, 1);
--	if (!locked) {
--		image = xchg(&kexec_crash_image, NULL);
--		if (image) {
--			struct pt_regs fixed_regs;
--			crash_setup_regs(&fixed_regs, regs);
--			machine_crash_shutdown(&fixed_regs);
--			machine_kexec(image);
--		}
--		xchg(&kexec_lock, 0);
-+	if (locked)
-+		return;
-+	image = xchg(&kexec_crash_image, NULL);
-+	if (image) {
-+		crash_setup_regs(&fixed_regs, regs);
-+		machine_crash_shutdown(&fixed_regs);
-+		machine_kexec(image);
- 	}
-+	xchg(&kexec_lock, 0);
- }
- 
- static int __init crash_notes_memory_init(void)
+OTOH we have some load currently and I wouldn't mind to go through what
+Andrew worked out for it so far. Especially as we never had much/any
+useful from those testers, but might change if it is employed long
+enough ;)
+
+At least, and thanks again for calming me down once, it is not about
+some white space only now.
+
+Cheers,
+Hermann
+
+> >Mostly are just small patches to fix bugs. The most changed driver is cx24123 
+> >frontend, since it had several precision loss at math operations, resulting on
+> >several digital TV stations not being seen (from my tests, without the patch, 
+> >only 8 TV stations were available, of a total of 28 ones with the patch).
+> >
+> >We are also including some changes at Multimedia Kconfig menu to allow disabling
+> >drivers based at V4L1 API. This api were used until kernel 2.4, without providing
+> >enough capability to handle all analog TV video/audio standards. The removal of this
+> >feature is marked to July/2006. We intend to keep for a while a compatibility layer, 
+> >already at V4L core, that converts V4L1 calls into V4L2 ones.
+> >
+> >This patch series contains the following stuff:
+> >
+> >   - Fix some errors on bttv_risc_overlay
+> >   - Fix mutex in dvb_register_device to work.
+> >   - Fix TT budget-ci 1.1 CI slots
+> >   - Kbuild: drivers/media/video/bt8xx: remove $(src) from include path
+> >   - Saa7134: Fix oops with disable_ir=1
+> >   - Fix oops in budget-av with CI
+> >   - Set tone/voltage again if the frontend was reinitialised
+> >   - Fix some more potential oopses
+> >   - Fix a bug at pluto2 Makefile
+> >   - Bug fix: Wrong tuner was used pcHDTV HD-3000 card
+> >   - Correct buffer size calculations in cx88-core.c
+> >   - fix Pvr350 tv out (saa7127)
+> >   - Create V4L1 config options
+> >   - Add VIVI Kconfig stuff
+> >   - Removed uneeded stuff from pwc Makefile
+> >   - Fix compilation with V4L1_COMPAT
+> >   - Use after free in drivers/media/video/em28xx/em28xx-video.c
+> >   - Kbuild: DVB_BT8XX must select DVB_ZL10353
+> >   - Fix for CX24123 & low symbol rates
+> >   - Add several debug messages to cx24123 code
+> >   - Always wait for diseqc queue to become ready before transmitting a diseqc message
+> >   - Various correctness fixes to tuning.
+> >   - Tweak bandselect setup fox cx24123
+> >   - Add support for TCL M2523_5N_E tuner.
+> >   - Cxusb-bluebird: bug-fix: power down corrupts frontend
+> >   - Remove broken 'fast firmware load' from cx25840.
+> >   - Saa7134: Missing 'break' in Terratec Cinergy 400 TV initialization
+> >   - Fix frequency values in the ranges structures of the LG TDVS H06xF tuners
+> >   - Get_dvb_firmware: download nxt2002 firmware from new driver location
+> >   - Sparc32 vivi fix
+> >   - Vivi build fix
+> >   - Bt8xx/bttv-cards.c: fix off-by-one errors
+> >   - Fix CONFIG_VIDEO_VIVI=y build bug
+> >
+> >Cheers,
+> >Mauro.
+> >
+> >V4L/DVB development is hosted at http://linuxtv.org
+> >---
+> >
+> > Documentation/dvb/get_dvb_firmware                |    8 
+> > drivers/media/Kconfig                             |   45 -
+> > drivers/media/common/Kconfig                      |    1 
+> > drivers/media/dvb/bt8xx/Kconfig                   |    1 
+> > drivers/media/dvb/cinergyT2/cinergyT2.c           |    5 
+> > drivers/media/dvb/dvb-core/dvb_frontend.c         |   12 
+> > drivers/media/dvb/dvb-core/dvbdev.c               |    4 
+> > drivers/media/dvb/dvb-usb/cxusb.c                 |   17 
+> > drivers/media/dvb/frontends/cx24123.c             |  617 +++++++++-----
+> > drivers/media/dvb/frontends/dvb-pll.c             |    4 
+> > drivers/media/dvb/pluto2/Makefile                 |    2 
+> > drivers/media/dvb/ttpci/Kconfig                   |   12 
+> > drivers/media/dvb/ttpci/budget-av.c               |    6 
+> > drivers/media/dvb/ttpci/budget-ci.c               |  105 +-
+> > drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c |    6 
+> > drivers/media/radio/Kconfig                       |   30 
+> > drivers/media/video/Kconfig                       |   81 +
+> > drivers/media/video/Makefile                      |    7 
+> > drivers/media/video/bt8xx/Kconfig                 |    2 
+> > drivers/media/video/bt8xx/Makefile                |    2 
+> > drivers/media/video/bt8xx/bttv-cards.c            |    4 
+> > drivers/media/video/bt8xx/bttv-risc.c             |   14 
+> > drivers/media/video/cx25840/cx25840-firmware.c    |   49 -
+> > drivers/media/video/cx88/cx88-cards.c             |    2 
+> > drivers/media/video/cx88/cx88-core.c              |   16 
+> > drivers/media/video/cx88/cx88-dvb.c               |    2 
+> > drivers/media/video/cx88/cx88-video.c             |    2 
+> > drivers/media/video/em28xx/Kconfig                |    2 
+> > drivers/media/video/em28xx/em28xx-video.c         |   10 
+> > drivers/media/video/et61x251/Kconfig              |    2 
+> > drivers/media/video/pwc/Kconfig                   |    2 
+> > drivers/media/video/pwc/Makefile                  |   17 
+> > drivers/media/video/saa7127.c                     |    1 
+> > drivers/media/video/saa7134/saa7134-cards.c       |    1 
+> > drivers/media/video/saa7134/saa7134-core.c        |    6 
+> > drivers/media/video/saa7134/saa7134-video.c       |    2 
+> > drivers/media/video/sn9c102/Kconfig               |    2 
+> > drivers/media/video/tuner-types.c                 |    4 
+> > drivers/media/video/tveeprom.c                    |    2 
+> > drivers/media/video/usbvideo/Kconfig              |    6 
+> > drivers/media/video/vivi.c                        |    5 
+> > drivers/media/video/zc0301/Kconfig                |    2 
+> > include/linux/videodev2.h                         |    5 
+> > 43 files changed, 729 insertions(+), 396 deletions(-)
+> >
+> >
+
 

@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751494AbWEUHXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWEUHcK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751494AbWEUHXj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 03:23:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWEUHXj
+	id S1751498AbWEUHcK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 03:32:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWEUHcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 03:23:39 -0400
-Received: from wr-out-0506.google.com ([64.233.184.237]:16337 "EHLO
+	Sun, 21 May 2006 03:32:10 -0400
+Received: from wr-out-0506.google.com ([64.233.184.234]:47317 "EHLO
 	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751494AbWEUHXi convert rfc822-to-8bit (ORCPT
+	id S1751498AbWEUHcJ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 03:23:38 -0400
+	Sun, 21 May 2006 03:32:09 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=SSktstiYLBOPfwkWEjgqefJoK8bJyNrN495n/LDvujTS0H8pj0LfXO4P1g9h7JEN28liDH3Q1fSiYB9ho88Gs1QaK9q4Y8AeitNyuQIyVKhnM1Y86LrjM9ff+47Hb958lHXJCKIZ/zsxLTC9sy3CCluyo3JF6mouANadK8WOSFo=
-Message-ID: <84144f020605210023r7333f6a9nb3dfe1d7a67f87fe@mail.gmail.com>
-Date: Sun, 21 May 2006 10:23:37 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "David Vrabel" <dvrabel@cantab.net>
-Subject: Re: [PATCH 2/2] ipg: redundancy with mii.h
-Cc: "Francois Romieu" <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, jesse@icplus.com.tw, david@pleyades.net
-In-Reply-To: <446F840E.3020808@cantab.net>
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=P0nnON7hBdRbwjFtZr/pG3oJyWhkBri4Z6aEVlFGPYZNP9kMjYCbQwAD6dbYrWzCUrS0kAFhyNEEOBiEbIMyuBGzSF+SUzYr2WEmVKGC/gfDev17B3o1NZFnfqCAJzOYkFXI8vXrJdnETpPF/ovF/LcMXlS9hIJm5lI6+Ftvczs=
+Message-ID: <7c3341450605210032j9eb3da6y5f307a3198957214@mail.gmail.com>
+Date: Sun, 21 May 2006 08:32:09 +0100
+From: "Nick Warne" <nick.warne@gmail.com>
+Reply-To: nick@linicks.net
+To: "George Nychis" <gnychis@cmu.edu>
+Subject: Re: cannot load *any* modules with 2.4 kernel
+Cc: "Willy Tarreau" <willy@w.ods.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <446FAEE3.6060003@cmu.edu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII;
 	format=flowed
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <44554ADE.8030200@cantab.net>
-	 <20060501231206.GD7419@electric-eye.fr.zoreil.com>
-	 <Pine.LNX.4.58.0605020945010.4066@sbz-30.cs.Helsinki.FI>
-	 <20060502214520.GC26357@electric-eye.fr.zoreil.com>
-	 <20060502215559.GA1119@electric-eye.fr.zoreil.com>
-	 <Pine.LNX.4.58.0605030913210.6032@sbz-30.cs.Helsinki.FI>
-	 <20060503233558.GA27232@electric-eye.fr.zoreil.com>
-	 <1146750276.11422.0.camel@localhost>
-	 <20060504235549.GA9128@electric-eye.fr.zoreil.com>
-	 <446F840E.3020808@cantab.net>
-X-Google-Sender-Auth: 5d457adc4e57da88
+References: <446F3F6A.9060004@cmu.edu> <20060520162529.GT11191@w.ods.org>
+	 <446FAEE3.6060003@cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+On 21/05/06, George Nychis <gnychis@cmu.edu> wrote:
+> Okay, so heres what I did.  I downloaded modutils version 2.4.27 and
+> extracted it to /usr/local/modutils
+>
+> Then in my 2.4.32 kernel's Makefile, I changed the DEPMOD variable to
+> point to /usr/local/modutils/sbin/depmod
+>
 
-On 5/21/06, David Vrabel <dvrabel@cantab.net> wrote:
-> Did anyone manage to get a response from IC Plus regarding the required
-> Signed-off-by line?
+Well thats a half-arsed way to do it.  The kernel makefile could be
+using the new /usr/local/sbin/depmod and the system the old
+/sbin/depmod /sbin/insmod /sbin/modprobe etc.
 
-The current IP1000A driver maintainer at IC Plus is
-jesse@icplus.com.tw.  I have no received confirmation if he can sign
-off or not yet.
+Just install the new modutils to /usr/local/ and then add
+/usr/local/sbin to your $PATH _before_  /sbin etc. so it is read
+first.
 
-                                         Pekka
+Nick

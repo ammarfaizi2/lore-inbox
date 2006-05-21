@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964906AbWEUTDV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbWEUTD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964906AbWEUTDV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 15:03:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbWEUTDV
+	id S964912AbWEUTD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 15:03:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbWEUTD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 15:03:21 -0400
-Received: from smtp.bulldogdsl.com ([212.158.248.7]:38917 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S964906AbWEUTDU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 15:03:20 -0400
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Subject: Re: Linux Kernel Source Compression
-Date: Sun, 21 May 2006 20:03:32 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, apiszcz@lucidpixels.com
-References: <Pine.LNX.4.64.0605211028100.4037@p34>
-In-Reply-To: <Pine.LNX.4.64.0605211028100.4037@p34>
+	Sun, 21 May 2006 15:03:57 -0400
+Received: from imf18aec.mail.bellsouth.net ([205.152.59.66]:57828 "EHLO
+	imf18aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S964912AbWEUTDy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 15:03:54 -0400
+Date: Sun, 21 May 2006 15:03:36 -0400 (EDT)
+From: Ameer Armaly <ameer@bellsouth.net>
+X-X-Sender: ameer@sg1
+To: linux-kernel@vger.kernel.org
+Subject: [patch] fs warning fixes
+Message-ID: <Pine.LNX.4.61.0605211502450.2255@sg1>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605212003.32063.s0348365@sms.ed.ac.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 May 2006 15:35, Justin Piszcz wrote:
-> Was curious as to which utilities would offer the best compression ratio
-> for the kernel source, I thought it'd be bzip2 or rar but lzma wins,
-> roughly 6 MiB smaller than bzip2.
->
-> $ du -sk * | sort -n
-> 33520   linux-2.6.16.17.tar.lzma
+This patch gets rid of two uninitialized variable warnings by initializing idx in fs/bio.c and fd in fs/eventpoll.c; both of these are initialized through pointers later on.
 
-Somebody needs to make lzma userspace tools (like p7zip) faster, not crash, 
-and behave like a regular UNIX program. Then we need a patch to GNU tar to 
-emerge, and for it to persist for at least 4 years. Then maybe people will 
-adopt this format..
+diff --git a/fs/bio.c b/fs/bio.c
+index eb8fbc5..c4deed9 100644
+--- a/fs/bio.c
++++ b/fs/bio.c
+@@ -166,7 +166,7 @@ struct bio *bio_alloc_bioset(gfp_t gfp_m
 
--- 
-Cheers,
-Alistair.
+  		bio_init(bio);
+  		if (likely(nr_iovecs)) {
+-			unsigned long idx;
++			unsigned long idx = 0;
 
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+  			bvl = bvec_alloc_bs(gfp_mask, nr_iovecs, &idx, bs);
+  			if (unlikely(!bvl)) {
+diff --git a/fs/eventpoll.c b/fs/eventpoll.c
+index 1b4491c..243c254 100644
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -497,7 +497,7 @@ void eventpoll_release_file(struct file
+   */
+  asmlinkage long sys_epoll_create(int size)
+  {
+-	int error, fd;
++	int error, fd = 0;
+  	struct eventpoll *ep;
+  	struct inode *inode;
+  	struct file *file;

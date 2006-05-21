@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWEUOlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964885AbWEUO4r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964878AbWEUOlr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 10:41:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964883AbWEUOlr
+	id S964885AbWEUO4r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 10:56:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWEUO4r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 10:41:47 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.83]:40588 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S964878AbWEUOlq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 10:41:46 -0400
-Message-ID: <44707C9D.1070606@cmu.edu>
-Date: Sun, 21 May 2006 10:43:41 -0400
-From: George Nychis <gnychis@cmu.edu>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060503)
+	Sun, 21 May 2006 10:56:47 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:6049 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S964881AbWEUO4q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 10:56:46 -0400
+Message-ID: <44707F8E.8010506@colorfullife.com>
+Date: Sun, 21 May 2006 16:56:14 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: nick@linicks.net
-CC: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org
-Subject: Re: cannot load *any* modules with 2.4 kernel
-References: <446F3F6A.9060004@cmu.edu> <20060520162529.GT11191@w.ods.org>	 <446FAEE3.6060003@cmu.edu> <7c3341450605210032j9eb3da6y5f307a3198957214@mail.gmail.com>
-In-Reply-To: <7c3341450605210032j9eb3da6y5f307a3198957214@mail.gmail.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Andreas Kleen <ak@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       jeff@garzik.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Ayaz Abdulla <aabdulla@nvidia.com>
+Subject: Re: [git patches] net driver updates
+References: <20060520042856.GA7218@havoc.gtf.org> <Pine.LNX.4.64.0605201035510.10823@g5.osdl.org> <20060520105547.220f2bea.akpm@osdl.org> <200605210015.15847.ak@suse.de> <447012B2.9050207@colorfullife.com> <4579880.1148217864672.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
+In-Reply-To: <4579880.1148217864672.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Before I build i do:
-PATH=/usr/local/modutils/sbin:$PATH
+Andreas Kleen wrote:
 
-Therefore it must be reading it first, sorry I should have mentioned
-this... just have done so much to try and get it to work I can't
-remember it all :)
-
-In response to Willy's post, yeah it was by hand, i can't get that comp
-on the network yet :(
-
-I will answer all your detailed questions and rebuild the kernel, but it
-didn't have any revisions after names, I'll rebuild with that exact
-.config i posted after a make clean mrproper to ensure its installing
-the new kernel.  Then I'll also try disabling modversion.
-
-Thanks!
-George
-
-
-Nick Warne wrote:
-> On 21/05/06, George Nychis <gnychis@cmu.edu> wrote:
->> Okay, so heres what I did.  I downloaded modutils version 2.4.27 and
->> extracted it to /usr/local/modutils
+>>No idea, but unlikely. The fix removes a duplicate request_irq call.
+>>Is
+>>it possible that the both instances run concurrently?
+>>    
 >>
->> Then in my 2.4.32 kernel's Makefile, I changed the DEPMOD variable to
->> point to /usr/local/modutils/sbin/depmod
->>
-> 
-> Well thats a half-arsed way to do it.  The kernel makefile could be
-> using the new /usr/local/sbin/depmod and the system the old
-> /sbin/depmod /sbin/insmod /sbin/modprobe etc.
-> 
-> Just install the new modutils to /usr/local/ and then add
-> /usr/local/sbin to your $PATH _before_  /sbin etc. so it is read
-> first.
-> 
-> Nick
-> 
+>
+>The system has two Forcedeth ports, but only one has a cable connected.
+>I don't think there is any parallelism. Just one connection with a lot
+>of data. It didn't happen with 2.6.16.
+>
+>  
+>
+You misunderstood me:
+Due to a broken patch, the driver did
+    request_irq(irqnum, handler,...)
+twice. Thus the irq handler was registered twice. The rx synchronization 
+assumes that the irq handler doesn't run concurrently. I'm not sure what 
+happens if the irq handler is registered twice: is it possible that it 
+runs twice at the same time, i.e. is the synchronization in the irq 
+subsystem irq number or registration call based?
+
+>If you don't have any other good ideas I will try to track it down.
+>
+>  
+>
+I don't have any good ideas, please try to figure out what's wrong. Is 
+there a debug switch for the network layer that forces the network layer 
+to verify the CHECKSUM_UNNECESSARY blocks?
+
+--
+    Manfred

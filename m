@@ -1,87 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751512AbWEUQ2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751548AbWEURNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751512AbWEUQ2E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 12:28:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWEUQ2E
+	id S1751548AbWEURNP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 13:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbWEURNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 12:28:04 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:8159 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751546AbWEUQ2C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 12:28:02 -0400
-Date: Sun, 21 May 2006 11:27:59 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       dev@sw.ru, herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
-       xemul@sw.ru, Dave Hansen <haveblue@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Cedric Le Goater <clg@fr.ibm.com>
-Subject: Re: [PATCH 0/9] namespaces: Introduction
-Message-ID: <20060521162759.GA19707@sergelap.austin.ibm.com>
-References: <20060518154700.GA28344@sergelap.austin.ibm.com> <m1sln61jqs.fsf@ebiederm.dsl.xmission.com>
+	Sun, 21 May 2006 13:13:15 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:59108 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1751548AbWEURNP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 13:13:15 -0400
+Subject: Re: [PATCH] Add Amstrad Delta NAND support.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Jonathan McDowell <noodles@earth.li>
+Cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060520141011.GJ7570@earth.li>
+References: <20060518160940.GS7570@earth.li>
+	 <20060520141011.GJ7570@earth.li>
+Content-Type: text/plain
+Date: Sun, 21 May 2006 18:12:58 +0100
+Message-Id: <1148231578.12285.5.camel@pmac.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1sln61jqs.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Eric W. Biederman (ebiederm@xmission.com):
-> "Serge E. Hallyn" <serue@us.ibm.com> writes:
+On Sat, 2006-05-20 at 15:10 +0100, Jonathan McDowell wrote:
+> Ok, taking the comments on board let's try again.
 > 
-> > This patchset introduces a per-process utsname namespace.  These can
-> > be used by openvz, vserver, and application migration to virtualize and
-> > isolate utsname info (i.e. hostname).  More resources will follow, until
-> > hopefully most or all vserver and openvz functionality can be implemented
-> > by controlling resource namespaces from userspace.
-> >
-> > Previous utsname submissions placed a pointer to the utsname namespace
-> > straight in the task_struct.  This patchset (and the last one) moves
-> > it and the filesystem namespace pointer into struct nsproxy, which is
-> > shared by processes sharing all namespaces.  The intent is to keep
-> > the taskstruct smaller as the number of namespaces grows.
-> 
-> 
-> Previously you mentioned:
-> > BTW - a first set of comparison results showed nsproxy to have better
-> > dbench and tbench throughput, and worse kernbench performance.  Which
-> > may make sense given that nsproxy results in lower memory usage but
-> > likely increased cache misses due to extra pointer dereference.
-> 
-> Is this still true?  Or did our final reference counting tweak fix
-> the kernbench numbers?
-> 
-> I just want to be certain that we don't add an optimization,
-> that reduces performance.
+>  * Use ndelay(40) instead of udelay(0.04). This will involve a longer
+>    delay, but works fine and will take advantage of ndelay once ARM
+>    stops using the generic fallback.
+>  * Fixup errant spacing.
+>  * Make ams_delta_init static.
 
-Here are the numbers with the basic patchsets.  But I guess I should
-do another round with adding 7 more void*'s to represent additional
-namespaces.
+Applied; thanks.
 
-(intervals are for 95% CI, tests were each run 15 times)
+-- 
+dwmw2
 
-           |  with nsproxy  |   without nsproxy |
-kernbench  | 68.90 +/- 0.21 |   69.06 +/- 0.22  |
-dbench     | 386.0 +/- 26.6 |   388.4 +/- 21.0  |
-tbench     | 391.6 +/- 8.00 |   389.4 +/- 10.95 |
-
-reaim with nsproxy
-1 115600.000000 5512.441557
-3 246985.712000 9375.780582
-5 272309.092000 8029.833742
-7 290020.000000 7288.367116
-9 298591.580000 5557.531915
-11 nan nan
-13 nan nan
-15 nan nan
-
-reaim without nsproxy
-1 110160.000000 5728.697311
-3 246985.712000 9375.780582
-5 262204.197333 11138.510652
-7 288660.000000 6880.898412
-9 300631.580000 4351.926692
-11 nan nan
-13 nan nan
-15 nan nan

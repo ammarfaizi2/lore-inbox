@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964938AbWEUVWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbWEUVav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964938AbWEUVWF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 17:22:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbWEUVWF
+	id S964940AbWEUVav (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 17:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964941AbWEUVau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 17:22:05 -0400
-Received: from smtp.bulldogdsl.com ([212.158.248.7]:44558 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S964938AbWEUVWE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 17:22:04 -0400
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Chris Wedgwood <cw@f00f.org>
-Subject: Re: Linux Kernel Source Compression
-Date: Sun, 21 May 2006 22:22:14 +0100
-User-Agent: KMail/1.9.1
-Cc: Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
-       apiszcz@lucidpixels.com
-References: <Pine.LNX.4.64.0605211028100.4037@p34> <200605212003.32063.s0348365@sms.ed.ac.uk> <20060521210056.GA3500@taniwha.stupidest.org>
-In-Reply-To: <20060521210056.GA3500@taniwha.stupidest.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 21 May 2006 17:30:50 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:48821 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964940AbWEUVau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 17:30:50 -0400
+Subject: Re: 2.6.17-rc2+ regression -- audio skipping
+From: Lee Revell <rlrevell@joe-job.com>
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <4470CC8F.9030706@keyaccess.nl>
+References: <4470CC8F.9030706@keyaccess.nl>
+Content-Type: text/plain
+Date: Sun, 21 May 2006 17:30:46 -0400
+Message-Id: <1148247047.20472.78.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605212222.14509.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 May 2006 22:00, Chris Wedgwood wrote:
-> On Sun, May 21, 2006 at 08:03:32PM +0100, Alistair John Strachan wrote:
-> > Somebody needs to make lzma userspace tools (like p7zip) faster, not
-> > crash, and behave like a regular UNIX program. Then we need a patch
-> > to GNU tar to emerge, and for it to persist for at least 4
-> > years. Then maybe people will adopt this format..
->
-> why?
->
-> the gains aren't that great
+On Sun, 2006-05-21 at 22:24 +0200, Rene Herman wrote:
+> Hi list.
+> 
+> 2.6.17-rc2 (and 3 and 4) make my audio skip. Audio player is ogg123 
+> running in an xterm. Browsing heavy sites (say, eBay) with Firefox 
+> 1.5.0.3 gets me audio underruns quickly. This does not happen on 
+> 2.6.17-rc1 and earlier (I just tested extensively; quite impossible to 
+> generate underruns on -rc1, quickly on -rc2 and later).
+> 
+> It's not ALSA; reverted */sound/* from the rc1-rc2 interdiff. It's also 
+> not cfq-iosched.c. Any likely culprits in there? (I'm not a GIT user).
+> 
 
-If it was less than 5%, I'd agree with you. The fact is, it's 17% better on a 
-regular kernel tarball (not exactly a contrived test), so there would be 
-reason to use it. It's also faster to decompress.
+I would suspect the scheduler interactivity patches.  Please confirm
+this by running ogg123 at nice -20 - do the underruns persist?
 
-http://tukaani.org/lzma/
+Lee
 
-This utility appears to address most of my original concerns (i.e., it works 
-with stream LZMA and has a bzip2/gzip-esque frontend). I could see LZMA 
-replacing bzip2, but not gzip, due to the compression performance issues.
-
--- 
-Cheers,
-Alistair.
-
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.

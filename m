@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbWEUV7l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964918AbWEUWDU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964944AbWEUV7l (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 17:59:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbWEUV7l
+	id S964918AbWEUWDU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 18:03:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbWEUWDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 17:59:41 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:7664 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964944AbWEUV7k convert rfc822-to-8bit (ORCPT
+	Sun, 21 May 2006 18:03:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9383 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964887AbWEUWDT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 17:59:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=eJkNOXZLQE8hnmu7m09sfBuYb5UPu0sWJCNJBdq3KC9xnAedjzpzjfpnBzQDSBKkpKA1brx8+0Y7L7B48UZGoA/FhUzqvk+Gezl0dDSPXgTLSOV8OftL6X8pMRVA3U47S8BYS/XMWzFfMmGP/Cm/qrCvf0dVEf2XwWvGoDIrl1w=
-Date: Sun, 21 May 2006 23:59:03 +0200
-From: Diego Calleja <diegocg@gmail.com>
-To: Sam Vilain <sam@vilain.net>
-Cc: cw@f00f.org, s0348365@sms.ed.ac.uk, jpiszcz@lucidpixels.com,
-       linux-kernel@vger.kernel.org, apiszcz@lucidpixels.com
-Subject: Re: Linux Kernel Source Compression
-Message-Id: <20060521235903.1a058b23.diegocg@gmail.com>
-In-Reply-To: <4470DEC4.6050308@vilain.net>
-References: <Pine.LNX.4.64.0605211028100.4037@p34>
-	<200605212003.32063.s0348365@sms.ed.ac.uk>
-	<20060521210056.GA3500@taniwha.stupidest.org>
-	<4470DEC4.6050308@vilain.net>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i486-pc-linux-gnu)
+	Sun, 21 May 2006 18:03:19 -0400
+Date: Sun, 21 May 2006 15:02:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: linux-kernel@vger.kernel.org, apw@shadowen.org
+Subject: Re: 2.6.17-rc4-mm2
+Message-Id: <20060521150259.3a1bdc9e.akpm@osdl.org>
+In-Reply-To: <446F3D6D.10704@mbligh.org>
+References: <446F3D6D.10704@mbligh.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Mon, 22 May 2006 09:42:28 +1200,
-Sam Vilain <sam@vilain.net> escribió:
+"Martin J. Bligh" <mbligh@mbligh.org> wrote:
+>
+> Panic on boot on 2-way PPC64
+>  http://test.kernel.org/abat/32360/debug/console.log
+> 
+>  Bad page state in process 'idle'
+>  page:c0000000010c3100 flags:0x0003300000000000 mapping:0000000000000000 
+>  mapcount:0 count:0
+>  Trying to fix it up, but a reboot is needed
+>  Backtrace:
+>  Call Trace:
+>  [C0000000004CBB70] [C00000000000EEE8] .show_stack+0x74/0x1b4 (unreliable)
+>  [C0000000004CBC20] [C000000000098D04] .bad_page+0x80/0x134
+>  [C0000000004CBCB0] [C000000000099F28] .__free_pages_ok+0x134/0x280
+>  [C0000000004CBD70] [C00000000039C4F8] .free_all_bootmem_core+0x15c/0x320
+>  [C0000000004CBE50] [C0000000003923AC] .mem_init+0xc0/0x294
+>  [C0000000004CBEF0] [C000000000385700] .start_kernel+0x208/0x300
+>  [C0000000004CBF90] [C000000000008594] .start_here_common+0x88/0x8c
 
-> it's currently faster for me to download and unpack a .gz than to wait
-> the extra time for bzip2 to decompress. I've always found it quicker
-
-
-For kernel patches and kernel releases it sure doesn't have a lot of
-sense to switch, you don't gain too much.
-
-LZMA has its gains, though. It's probably a interesting choice
-for packaging software: You may get some extra space in the CD thanks
-to the extra compression, and the faster decompressing could make
-installs a bit faster. While LZMA is slower as hell compressing in
-the "best compression" mode, is faster than bzip2 when compressing and
-decompressing at the same compression levels than bzip2 (according to
-the previous web). That pretty much means it's just better.
+I dunno, Martin.  I obviously need to resurrect the
+takes-seven-minutes-to-boot pseries machine here, but I need to get -mm3
+out without Mel's patches to see how much that fixes.  So if you could test
+-mm3 and if that fixes it then we have a likely culprit.

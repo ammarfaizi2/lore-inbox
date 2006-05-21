@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbWEUO5A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbWEUPHO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964883AbWEUO5A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 10:57:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbWEUO47
+	id S964884AbWEUPHO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 11:07:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbWEUPHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 10:56:59 -0400
-Received: from mxfep01.bredband.com ([195.54.107.70]:51629 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S964883AbWEUO47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 10:56:59 -0400
-Message-ID: <44707FB5.6020607@stesmi.com>
-Date: Sun, 21 May 2006 16:56:53 +0200
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux cbon <linuxcbon@yahoo.fr>
-CC: Thierry Vignaud <tvignaud@mandriva.com>, helge.hafting@aitel.hist.no,
-       Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: replacing X Window System !
-References: <20060518193108.23173.qmail@web26601.mail.ukl.yahoo.com>
-In-Reply-To: <20060518193108.23173.qmail@web26601.mail.ukl.yahoo.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/signed; micalg=pgp-ripemd160;
- protocol="application/pgp-signature";
- boundary="------------enigA9B081F65F457ADC14B04CF5"
+	Sun, 21 May 2006 11:07:14 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:44456 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964884AbWEUPHM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 11:07:12 -0400
+Date: Sun, 21 May 2006 10:07:07 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>,
+       linux-kernel@vger.kernel.org, Serge Hallyn <serue@us.ibm.com>,
+       Kirill Korotaev <dev@openvz.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Herbert Poetzl <herbert@13thfloor.at>, Andrey Savochkin <saw@sw.ru>
+Subject: Re: 2.6.17-rc4-mm2
+Message-ID: <20060521150707.GA24683@sergelap.austin.ibm.com>
+References: <446FBB52.1080402@gmx.net> <20060520183202.73e61a1e.akpm@osdl.org> <Pine.LNX.4.64.0605210450560.17704@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0605210450560.17704@scrub.home>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigA9B081F65F457ADC14B04CF5
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-Hi.
-
-> because what Microsoft did solved all these driver
-> security problems!
-
-Then why are MS moving it out of the kernel with Vista?
-
->>stop troll^h^h^h^h^h thread?
+Quoting Roman Zippel (zippel@linux-m68k.org):
+> Hi,
 > 
+> On Sat, 20 May 2006, Andrew Morton wrote:
 > 
-> If I am a troll, then who are Theo or Linus ?
+> > > kerncomp@p35:/sources/linux-2.6.17-rc4-mm2> make
+> > >   CHK     include/linux/version.h
+> > 
+> > We update the kernel version.
+> > 
+> > >   CHK     include/linux/compile.h
+> 
+> Actually this one is updated...
+> 
+> > >   CC      kernel/nsproxy.o
+> > >   CC      kernel/utsname.o
+> 
+> ... and these two unnecessarily include it.
+> So these two patches are to blame:
+> namespaces-add-nsproxy.patch
+> namespaces-utsname-implement-utsname-namespaces.patch
+> 
+> bye, Roman
 
-They're the guys that put their code where their
-mouth is instead of discussing stuff they have no
-clue about.
+Argh, I see, I must have taken that out of init/version.c when
+I first created kernel/utsname.c...  Sorry.
 
-// Stefan
-
---------------enigA9B081F65F457ADC14B04CF5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFEcH+5Brn2kJu9P78RA0/VAKCp2hdkSVdgoRfq75yroALHtyTtZwCgo0eW
-C2SV3CKZf1naQiXCP+wqKdE=
-=ChuW
------END PGP SIGNATURE-----
-
---------------enigA9B081F65F457ADC14B04CF5--
+thanks,
+-serge

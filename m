@@ -1,118 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWEUNYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbWEUNY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964866AbWEUNYW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 09:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbWEUNYW
+	id S964872AbWEUNY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 09:24:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWEUNY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 09:24:22 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:5291 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S964866AbWEUNYV (ORCPT
+	Sun, 21 May 2006 09:24:28 -0400
+Received: from mx2.suse.de ([195.135.220.15]:10476 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964867AbWEUNY1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 09:24:21 -0400
-Message-ID: <447069F7.1010407@myri.com>
-Date: Sun, 21 May 2006 15:24:07 +0200
-From: Brice Goglin <brice@myri.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
-MIME-Version: 1.0
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>, Greg KH <gregkh@suse.de>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: AMD 8131 MSI quirk called too late, bus_flags not inherited ?
-References: <4468EE85.4000500@myri.com> <20060518155441.GB13334@suse.de> <20060521101656.GM30211@mellanox.co.il> <447047F2.2070607@myri.com> <20060521121726.GQ30211@mellanox.co.il> <44705DA4.2020807@myri.com> <20060521131025.GR30211@mellanox.co.il>
-In-Reply-To: <20060521131025.GR30211@mellanox.co.il>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/mixed;
- boundary="------------050409090307040604070304"
+	Sun, 21 May 2006 09:24:27 -0400
+Message-ID: <4579880.1148217864672.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
+Date: Sun, 21 May 2006 15:24:24 +0200 (CEST)
+From: Andreas Kleen <ak@suse.de>
+To: Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: [git patches] net driver updates
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       jeff@garzik.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Ayaz Abdulla <aabdulla@nvidia.com>
+In-Reply-To: <447012B2.9050207@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (normal)
+X-Mailer: SuSE Linux Openexchange Server 4 - WebMail (Build 2.4160)
+X-Operating-System: Linux 2.4.21-304-smp i386 (JVM 1.3.1_18)
+Organization: SuSE Linux AG
+References: <20060520042856.GA7218@havoc.gtf.org> <Pine.LNX.4.64.0605201035510.10823@g5.osdl.org> <20060520105547.220f2bea.akpm@osdl.org> <200605210015.15847.ak@suse.de> <447012B2.9050207@colorfullife.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050409090307040604070304
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 
-Michael S. Tsirkin wrote:
->> @@ -925,8 +926,9 @@
->>  	if (dev->no_msi)
->>  		return status;
->>  
->> -	if (dev->bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
->> -		return -EINVAL;
->> +	for (bus = dev->bus; bus; bus = bus->parent)
->> +		if (bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
->> +			return -EINVAL;
->>  
->>  	temp = dev->irq;
->>     
->
-> It seems we must add this loop to pci_enable_msix as well.
->   
+> No idea, but unlikely. The fix removes a duplicate request_irq call.
+> Is
+> it possible that the both instances run concurrently?
 
-Right, thanks. Greg, what do you think of putting the attached patch in
-2.6.17 ?
+The system has two Forcedeth ports, but only one has a cable connected.
+I don't think there is any parallelism. Just one connection with a lot
+of data. It didn't happen with 2.6.16.
 
-By the way, do we need to check dev->no_msi in pci_enable_msix() too ?
+If you don't have any other good ideas I will try to track it down.
 
-For 2.6.18, I don't know what's the best. We could drop the fact that
-bus flags should be inherited and keep looking at parent busses. It
-might be good to add a pci_check_flag_in_parent_busses(dev, flag) to
-provide a generic way to do my for loop.
+-Andi
 
-thanks,
-Brice
-
-
-Signed-off-by: Brice Goglin <brice@myri.com>
-
-
---------------050409090307040604070304
-Content-Type: text/x-patch;
- name="look_at_parent_busses_flags.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="look_at_parent_busses_flags.patch"
-
-Index: linux-mm/drivers/pci/msi.c
-===================================================================
---- linux-mm.orig/drivers/pci/msi.c	2006-05-21 15:12:04.000000000 +0200
-+++ linux-mm/drivers/pci/msi.c	2006-05-21 15:15:34.000000000 +0200
-@@ -916,6 +916,7 @@
-  **/
- int pci_enable_msi(struct pci_dev* dev)
- {
-+	struct pci_bus *bus;
- 	int pos, temp, status = -EINVAL;
- 	u16 control;
- 
-@@ -925,8 +926,9 @@
- 	if (dev->no_msi)
- 		return status;
- 
--	if (dev->bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
--		return -EINVAL;
-+	for (bus = dev->bus; bus; bus = bus->parent)
-+		if (bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
-+			return -EINVAL;
- 
- 	temp = dev->irq;
- 
-@@ -1162,6 +1164,7 @@
-  **/
- int pci_enable_msix(struct pci_dev* dev, struct msix_entry *entries, int nvec)
- {
-+	struct pci_bus *bus;
- 	int status, pos, nr_entries, free_vectors;
- 	int i, j, temp;
- 	u16 control;
-@@ -1170,6 +1173,10 @@
- 	if (!pci_msi_enable || !dev || !entries)
-  		return -EINVAL;
- 
-+	for (bus = dev->bus; bus; bus = bus->parent)
-+		if (bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
-+			return -EINVAL;
-+
- 	status = msi_init();
- 	if (status < 0)
- 		return status;
-
---------------050409090307040604070304--

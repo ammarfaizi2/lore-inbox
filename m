@@ -1,43 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751521AbWEUKU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751506AbWEUKYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751521AbWEUKU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 06:20:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751517AbWEUKU3
+	id S1751506AbWEUKYL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 06:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751515AbWEUKYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 06:20:29 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:6299 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S1751515AbWEUKU2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 06:20:28 -0400
-Date: Sun, 21 May 2006 12:16:20 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: David Vrabel <dvrabel@cantab.net>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, david@pleyades.net, jesse@icplus.com.tw
-Subject: Re: [PATCH 2/2] ipg: redundancy with mii.h
-Message-ID: <20060521101620.GA28210@electric-eye.fr.zoreil.com>
-References: <1146506939.23931.2.camel@localhost> <20060501231206.GD7419@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605020945010.4066@sbz-30.cs.Helsinki.FI> <20060502214520.GC26357@electric-eye.fr.zoreil.com> <20060502215559.GA1119@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605030913210.6032@sbz-30.cs.Helsinki.FI> <20060503233558.GA27232@electric-eye.fr.zoreil.com> <1146750276.11422.0.camel@localhost> <20060504235549.GA9128@electric-eye.fr.zoreil.com> <446F840E.3020808@cantab.net>
-Mime-Version: 1.0
+	Sun, 21 May 2006 06:24:11 -0400
+Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:7548 "HELO
+	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751506AbWEUKYJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 06:24:09 -0400
+Date: Sun, 21 May 2006 03:24:07 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Haar J?nos <djani22@netcenter.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: swapper: page allocation failure.
+Message-ID: <20060521102407.GA5582@taniwha.stupidest.org>
+References: <00e901c67cad$fe9a9d90$1800a8c0@dcccs> <20060521081621.GA1151@taniwha.stupidest.org> <010801c67cb1$bc13fd00$1800a8c0@dcccs> <20060521084728.GA2535@taniwha.stupidest.org> <012201c67cb5$7a213800$1800a8c0@dcccs> <20060521091022.GA3468@taniwha.stupidest.org> <014601c67cb9$4f235f30$1800a8c0@dcccs>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <446F840E.3020808@cantab.net>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+In-Reply-To: <014601c67cb9$4f235f30$1800a8c0@dcccs>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Vrabel <dvrabel@cantab.net> :
-[...]
-> 0007-ipg-plug-leaks-in-the-error-path-of-ipg_nic_open.txt broke receive 
-> since it was skipping the initialization of the Rx buffers.  Patch attached.
+On Sun, May 21, 2006 at 11:31:12AM +0200, Haar J?nos wrote:
 
-Oops. Applied to branch netdev-ipg of
-git://electric-eye.fr.zoreil.com/home/romieu/linux-2.6.git
+> 1. why don't use highmem for caching?
+> 2. why can not allocate enough lowmem from shared-buffer for the e1000
+> driver if it needs some memory?
 
-(please include the '-p' option in future invocation of diff)
-
-I have put an updated patch against 2.6.17-rc4 for the whole driver at
-http://www.fr.zoreil.com/people/francois/misc/20060521-2.6.17-rc4-git-ip1000-test.patch
-
--- 
-Ueimor
+highmem can't be used as freely as lowmem, it has additional
+complexity and a slight over head that makes it hard or impossible to
+use in many places

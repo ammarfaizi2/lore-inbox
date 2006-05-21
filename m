@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWEUWUi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWEUWWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbWEUWUi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 18:20:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWEUWUi
+	id S932195AbWEUWWV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 18:22:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbWEUWWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 18:20:38 -0400
-Received: from ns.suse.de ([195.135.220.2]:25254 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932193AbWEUWUh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 18:20:37 -0400
-From: Andi Kleen <ak@suse.de>
-To: Dave Jones <davej@redhat.com>
-Subject: Re: IA32 syscall 311 not implemented on x86_64
-Date: Mon, 22 May 2006 00:19:08 +0200
-User-Agent: KMail/1.9.1
-Cc: Ulrich Drepper <drepper@gmail.com>, Chris Wedgwood <cw@f00f.org>,
-       dragoran <dragoran@feuerpokemon.de>, linux-kernel@vger.kernel.org
-References: <44702650.30507@feuerpokemon.de> <20060521185000.GB8250@redhat.com> <20060521185610.GC8250@redhat.com>
-In-Reply-To: <20060521185610.GC8250@redhat.com>
+	Sun, 21 May 2006 18:22:21 -0400
+Received: from watts.utsl.gen.nz ([202.78.240.73]:26001 "EHLO
+	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S932195AbWEUWWU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 18:22:20 -0400
+Message-ID: <4470E80D.3000902@vilain.net>
+Date: Mon, 22 May 2006 10:22:05 +1200
+From: Sam Vilain <sam@vilain.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Source Compression
+References: <Pine.LNX.4.64.0605211028100.4037@p34> <20060521210056.GA3500@taniwha.stupidest.org> <4470DEC4.6050308@vilain.net> <200605212257.10934.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200605212257.10934.s0348365@sms.ed.ac.uk>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605220019.08902.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 May 2006 20:56, Dave Jones wrote:
-> On Sun, May 21, 2006 at 02:50:00PM -0400, Dave Jones wrote:
->  > On Sun, May 21, 2006 at 11:35:12AM -0700, Ulrich Drepper wrote:
->  >  > On 5/21/06, Dave Jones <davej@redhat.com> wrote:
->  >  > >It's a glibc problem really.
->  >  > 
->  >  > It's not a glibc problem really.  The problem is this stupid error
->  >  > message in the kernel.  We rely in many dozens of places on the kernel
->  >  > returning ENOSYS in case a syscall is not implemented and we deal with
->  >  > it appropriately.  There is absolutely no justification to print these
->  >  > messages except perhaps in debug kernels.  IMO the sys32_ni_syscall
->  >  > functions should just return ENOSYS unless you select a special debug
->  >  > kernel.  One doesn't need the kernel to detect missing syscall
->  >  > implementations, strace can do this as well.
->  > 
->  > You make a good point.  In fact, given it's unthrottled, someone
->  > with too much time on their hands could easily fill up a /var
->  > just by calling unimplemented syscalls this way.
+Alistair John Strachan wrote:
 
-I never bought this argument because there are tons of printks in the kernel
-that can be triggered by everybody.
- 
-> Actually it is kinda throttled, but only on process name.
-> This patch just removes that stuff completely.
-> (Also removes a bunch of trailing whitespace)
+>>Exactly, and while I know my network connection isn't exactly
+>>representative of the general population of people building the kernel,
+>>it's currently faster for me to download and unpack a .gz than to wait
+>>the extra time for bzip2 to decompress. I've always found it quicker
+>>dealing with .gz's for incremental patches. I thought the speed issue is
+>>more of a speed / compression ratio trade-off, ie a caveat of
+>>compression in general.
+>>    
+>>
+>
+>Actually, you're making false assumptions about LZMA. It is in fact quicker to 
+>decompress than bzip2, which largely addresses this issue. Compression speeds 
+>are the problem, but the end user won't do a lot of that.
+>
 
-FF tree already has a different solution.
+Interesting.  Googling a bit;  from http://tukaani.org/lzma/benchmarks:
 
--Andi
+In terms of speed, gzip is the winner again. lzma comes right behind it
+two to three times slower than gzip. bzip2 is a lot slower taking
+usually two to six times more time than lzma, that is, four to twelve
+times more than gzip. One interesting thing is that gzip and lzma
+decompress the faster the smaller the compressed size is, while bzip2
+gets slower when the compression ratio gets better.
+[...]
+neither bzip2 nor lzma can compete with gzip in terms of speed or memory
+usage.
 
+Also this:
 
-> 
+"lzmash -8" and "lzmash -9" require lots of memory and are practical
+only on newer computers; the files compressed with them are probably a
+pain to decompress on systems with less than 32 MB or 64 MB of memory.
+[...]
+The files compressed with the default "lzmash -7" can still be
+decompressed, even on machines with only 16 MB of RAM
+
+Sam.

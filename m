@@ -1,100 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964916AbWEUWmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbWEUW6W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964916AbWEUWmN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 18:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751554AbWEUWmN
+	id S964935AbWEUW6W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 18:58:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751554AbWEUW6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 18:42:13 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:11474 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751542AbWEUWmL (ORCPT
+	Sun, 21 May 2006 18:58:22 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57570 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751486AbWEUW6W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 18:42:11 -0400
-Message-ID: <4470A475.7040106@m1k.net>
-Date: Sun, 21 May 2006 13:33:41 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
-X-Accept-Language: en-us, en
+	Sun, 21 May 2006 18:58:22 -0400
+Date: Mon, 22 May 2006 00:57:37 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Herbert Poetzl <herbert@13thfloor.at>, serue@us.ibm.com,
+       linux-kernel@vger.kernel.org, dev@sw.ru, devel@openvz.org,
+       sam@vilain.net, ebiederm@xmission.com, xemul@sw.ru, haveblue@us.ibm.com,
+       clg@fr.ibm.com
+Subject: Re: [PATCH 0/9] namespaces: Introduction
+Message-ID: <20060521225735.GA9048@elf.ucw.cz>
+References: <20060518154700.GA28344@sergelap.austin.ibm.com> <20060518103430.080e3523.akpm@osdl.org> <20060519124235.GA32304@MAIL.13thfloor.at> <20060519081334.06ce452d.akpm@osdl.org>
 MIME-Version: 1.0
-To: hermann pitton <hermann-pitton@arcor.de>
-CC: Linux and Kernel Video <video4linux-list@redhat.com>,
-       linux-dvb-maintainer@linuxtv.org, akpm@osdl.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [v4l-dvb-maintainer] [PATCH 00/33] V4L/DVB bug fixes
-References: <20060513094537.PS23916900000@infradead.org>	<446F6F46.9090605@m1k.net> <1148180387.4222.13.camel@pc08.localdom.local>
-In-Reply-To: <1148180387.4222.13.camel@pc08.localdom.local>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060519081334.06ce452d.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hermann pitton wrote:
+On Pá 19-05-06 08:13:34, Andrew Morton wrote:
+> Herbert Poetzl <herbert@13thfloor.at> wrote:
+> >
+> > let me
+> >  give a simple example here:
+> 
+> Examples are useful.
+> 
+> >   "pid virtualization"
+> > 
+> >   - Linux-VServer doesn't really need that right now.
+> >     we are perfectly fine with "pid isolation" here, we
+> >     only "virtualize" the init pid to make pstree happy
+> > 
+> >   - Snapshot/Restart and Migration will require "full"
+> >     pid virtualization (that's where Eric and OpenVZ
+> >     are heading towards)
+> 
+> snapshot/restart/migration worry me.  If they require complete
+> serialisation of complex kernel data structures then we have a problem,
+> because it means that any time anyone changes such a structure they need to
+> update (and test) the serialisation.
+> 
+> This may be a show-stopper, in which case maybe we only need to virtualise
+> pid #1.
 
->Am Samstag, den 20.05.2006, 15:34 -0400 schrieb Michael Krufky:
->  
->
->>mchehab@infradead.org wrote:
->>
->>>Please pull these from master branch at:
->>>       kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git
->>>
->>Linus,
->>
->>A week has gone by... Do you intend to merge these bug fixes into your tree?
->>
->>These changesets fix a whole bunch of serious bugs that have been 
->>introduced in 2.6.17, and a good many of these bugfixes have been 
->>sitting around, waiting to be merged since 2.6.17-rc1, not to mention 
->>the fixes that have already been merged much earlier in 2.6.16.y
->>
->>Please merge these before 2.6.17-rc5
->>
->>We have already eliminated as many patches as we possibly could.  It all 
->>comes down to these.  Everything else has been held back until the 
->>2.6.18 merge window.
->>
->Hi Mike,
->
->I can see you are concerned and you are right.
->
->OTOH we have some load currently and I wouldn't mind to go through what
->Andrew worked out for it so far. Especially as we never had much/any
->useful from those testers, but might change if it is employed long
->enough ;)
->  
->
-Hermann,
-
-The bugfixes that I am concerned about do not include the refactoring 
-changes from Andrew -- those are not even bugfixes at all, and they are 
-only accessible through our mercurial tree.  We do not plan to send 
-those upstream until 2.6.18  -- This has nothing at all to do with 
-Mauro's latest git-pull-request, or my email to Linus.
-
->At least, and thanks again for calming me down once, it is not about
->some white space only now.
->
-I'm not sure what you mean.  Sure, we do have some drastic changes 
-coming up for 2.6.18 ...  but this email is about bugfixes that HAVE in 
-fact been thoroughly tested.
-
-It sounds to me as if you may be getting the pending changesets in 
-Mauro's git tree confused with current changes in our mercurial 
-development repository.
-
-Just take a look at v4l-dvb.git ...   (or at the diffstat earlier in 
-this thread) ..  You will find that the drastic changes that you have 
-mentioned aren't there yet.  Those do need some more testing before 
-being sent upstream... I think they'll be ready in time for the 2.6.18 
-merge window, but this is not the issue right now.
-
-Thanks for your concern,
-
-Michael Krufky
+Well, if pid #1 virtualization is only needed for pstree, we may want
+to fix pstree instead :-).
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

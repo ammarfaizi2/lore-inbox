@@ -1,73 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWEUIC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWEUIDT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751500AbWEUIC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 04:02:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751496AbWEUIC0
+	id S964785AbWEUIDT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 04:03:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWEUIDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 04:02:26 -0400
-Received: from ganesha.gnumonks.org ([213.95.27.120]:15520 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S1751500AbWEUICZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 04:02:25 -0400
-Date: Sun, 21 May 2006 10:02:12 +0200
-From: Harald Welte <laforge@netfilter.org>
-To: Nix <nix@esperi.org.uk>
-Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       stable@kernel.org
-Subject: Re: Linux 2.6.16.17
-Message-ID: <20060521080212.GB5941@sunbeam.de.gnumonks.org>
-References: <20060520230912.GJ23243@moss.sous-sol.org> <87fyj4fc7h.fsf@hades.wkstn.nix>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="H+4ONPRPur6+Ovig"
-Content-Disposition: inline
-In-Reply-To: <87fyj4fc7h.fsf@hades.wkstn.nix>
-User-Agent: mutt-ng devel-20050619 (Debian)
+	Sun, 21 May 2006 04:03:18 -0400
+Received: from mail28.syd.optusnet.com.au ([211.29.133.169]:4268 "EHLO
+	mail28.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751496AbWEUIDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 04:03:17 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17520.7865.834016.118233@wombat.chubb.wattle.id.au>
+Date: Sun, 21 May 2006 18:03:05 +1000
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: renzo@cs.unibo.it (Renzo Davoli)
+Cc: linux-kernel@vger.kernel.org, osd@cs.unibo.it
+Subject: Re: ptrace enhancements for VM support (patch proposals follow in sep.msgs)
+In-Reply-To: <20060518155337.GA17498@cs.unibo.it>
+References: <20060518155337.GA17498@cs.unibo.it>
+X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Renzo" == Renzo Davoli <renzo@cs.unibo.it> writes:
 
---H+4ONPRPur6+Ovig
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Renzo> I am sending with three separate messages (as replies to this)
+Renzo> a set of proposed patches for a better support of virtual
+Renzo> machines through ptrace.
 
-On Sun, May 21, 2006 at 01:33:54AM +0100, Nix wrote:
-> On 21 May 2006, Chris Wright announced:
-> > Harald Welte:
-> >       Fix udev device creation
->=20
-> As an aside, patches Cc:ed to stable that concern only a few specific
-> drivers should probably mention the driver in the short changelog;
-> e.g. this is specific to cm4000_cs.
+Goody.  I'm working on a linux vritualisation project for IA64
+(Linux-on-Linux, or LoL for short ... yes the acronym is chosen
+deliberately).
 
-yes, I very much second that.  To the best of my knowledge, I didn't
-submit the patch to stable@ myself, but somebody else picked it up.  I
-wasn't really sure whether it really fits the stable@ policy,
+I also have some `ptrace improvement' patches.  some are the same as
+yours (the one-shot syscall stop, for example).
 
-Anyway, my original posting contained the driver name in the subject
-line.
+One other that I found very useful for this kind of virtual machine,
+is being able to specify an address range for the IP for syscalls to
+stop on.  So I can specify that the VM should stop only for syscalls
+in the virtual machine, not in the signal trampoline or in the
+hypervisro code.
 
---=20
-- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
+You can get my patches from
+http://www.ertos.nicta.com.au/software/virtualisation/lol.pml
 
---H+4ONPRPur6+Ovig
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
+They're not quite ready for prime time yet, but are getting pretty close.
 
-iD8DBQFEcB6EXaXGVTD0i/8RAjabAJ94HwvkLOfWUmigTexc862Wv0OVtwCgnJ4s
-CujtySRXyDeANnY2ZsBqANw=
-=rBv2
------END PGP SIGNATURE-----
-
---H+4ONPRPur6+Ovig--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+http://www.ertos.nicta.com.au           ERTOS within National ICT Australia

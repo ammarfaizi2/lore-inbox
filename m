@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbWEUXUr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWEUXaX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964892AbWEUXUr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 19:20:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbWEUXUr
+	id S932282AbWEUXaX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 19:30:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751560AbWEUXaX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 19:20:47 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:34775 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751422AbWEUXUr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 19:20:47 -0400
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, Herbert Poetzl <herbert@13thfloor.at>,
-       serue@us.ibm.com, linux-kernel@vger.kernel.org, dev@sw.ru,
-       devel@openvz.org, sam@vilain.net, xemul@sw.ru, haveblue@us.ibm.com,
-       clg@fr.ibm.com
-Subject: Re: [PATCH 0/9] namespaces: Introduction
-References: <20060518154700.GA28344@sergelap.austin.ibm.com>
-	<20060518103430.080e3523.akpm@osdl.org>
-	<20060519124235.GA32304@MAIL.13thfloor.at>
-	<20060519081334.06ce452d.akpm@osdl.org>
-	<20060521225735.GA9048@elf.ucw.cz>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Sun, 21 May 2006 17:18:50 -0600
-In-Reply-To: <20060521225735.GA9048@elf.ucw.cz> (Pavel Machek's message of
- "Mon, 22 May 2006 00:57:37 +0200")
-Message-ID: <m1ejynnezp.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Sun, 21 May 2006 19:30:23 -0400
+Received: from watts.utsl.gen.nz ([202.78.240.73]:28049 "EHLO
+	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S1751557AbWEUXaX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 19:30:23 -0400
+Message-ID: <4470F7FD.4030608@vilain.net>
+Date: Mon, 22 May 2006 11:30:05 +1200
+From: Sam Vilain <sam@vilain.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, dev@sw.ru, herbert@13thfloor.at,
+       devel@openvz.org, ebiederm@xmission.com, xemul@sw.ru,
+       Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: [PATCH 1/9] namespaces: add nsproxy
+References: <20060518154700.GA28344@sergelap.austin.ibm.com> <20060518154837.GB28344@sergelap.austin.ibm.com>
+In-Reply-To: <20060518154837.GB28344@sergelap.austin.ibm.com>
+X-Enigmail-Version: 0.92.1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> writes:
+Serge E. Hallyn wrote:
 
-> Well, if pid #1 virtualization is only needed for pstree, we may want
-> to fix pstree instead :-).
+>@@ -1585,7 +1591,15 @@ asmlinkage long sys_unshare(unsigned lon
+> 
+> 	if (new_fs || new_ns || new_sigh || new_mm || new_fd || new_ulist) {
+> 
+>+		old_nsproxy = current->nsproxy;
+>+		new_nsproxy = dup_namespaces(old_nsproxy);
+>+		if (!new_nsproxy) {
+>+			err = -ENOMEM;
+>+			goto bad_unshare_cleanup_semundo;
+>+		}
+>+
+> 		task_lock(current);
+>  
+>
 
-One thing that is not clear is if isolation by permission checks is any
-easier to implement than isolation with a namespace.
+We'll get lots of duplicate nsproxy structures before we move all of the
+pointers for those subsystems into it. Do we need to dup namespaces on
+all of those conditions?
 
-Isolation at permission checks may actually be more expensive in terms
-of execution time, and maintenance.
-
-Eric
+Sam.

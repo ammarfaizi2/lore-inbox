@@ -1,59 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbWEUQU6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751512AbWEUQ2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964895AbWEUQU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 12:20:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751546AbWEUQU6
+	id S1751512AbWEUQ2E (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 12:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWEUQ2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 12:20:58 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:16868 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1751512AbWEUQU5 (ORCPT
+	Sun, 21 May 2006 12:28:04 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:8159 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751546AbWEUQ2C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 12:20:57 -0400
-Date: Sun, 21 May 2006 17:20:53 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, davej@codemonkey.org.uk,
-       tony.luck@intel.com, bob.picco@hp.com, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, linux-mm@kvack.org
-Subject: Re: [PATCH 4/6] Have x86_64 use add_active_range() and free_area_init_nodes
-In-Reply-To: <200605202327.19606.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0605211709530.16327@skynet.skynet.ie>
-References: <20060508141030.26912.93090.sendpatchset@skynet>
- <20060508141151.26912.15976.sendpatchset@skynet> <20060520135922.129a481d.akpm@osdl.org>
- <200605202327.19606.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 21 May 2006 12:28:02 -0400
+Date: Sun, 21 May 2006 11:27:59 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       dev@sw.ru, herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
+       xemul@sw.ru, Dave Hansen <haveblue@us.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: [PATCH 0/9] namespaces: Introduction
+Message-ID: <20060521162759.GA19707@sergelap.austin.ibm.com>
+References: <20060518154700.GA28344@sergelap.austin.ibm.com> <m1sln61jqs.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1sln61jqs.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 May 2006, Andi Kleen wrote:
+Quoting Eric W. Biederman (ebiederm@xmission.com):
+> "Serge E. Hallyn" <serue@us.ibm.com> writes:
+> 
+> > This patchset introduces a per-process utsname namespace.  These can
+> > be used by openvz, vserver, and application migration to virtualize and
+> > isolate utsname info (i.e. hostname).  More resources will follow, until
+> > hopefully most or all vserver and openvz functionality can be implemented
+> > by controlling resource namespaces from userspace.
+> >
+> > Previous utsname submissions placed a pointer to the utsname namespace
+> > straight in the task_struct.  This patchset (and the last one) moves
+> > it and the filesystem namespace pointer into struct nsproxy, which is
+> > shared by processes sharing all namespaces.  The intent is to keep
+> > the taskstruct smaller as the number of namespaces grows.
+> 
+> 
+> Previously you mentioned:
+> > BTW - a first set of comparison results showed nsproxy to have better
+> > dbench and tbench throughput, and worse kernbench performance.  Which
+> > may make sense given that nsproxy results in lower memory usage but
+> > likely increased cache misses due to extra pointer dereference.
+> 
+> Is this still true?  Or did our final reference counting tweak fix
+> the kernbench numbers?
+> 
+> I just want to be certain that we don't add an optimization,
+> that reduces performance.
 
->
->> Anyway.  From the implementation I can see what the code is doing.  But I
->> see no description of what it is _supposed_ to be doing.  (The process of
->> finding differences between these two things is known as "debugging").  I
->> could kludge things by setting MAX_ACTIVE_REGIONS to 1000000, but enough.
->> I look forward to the next version ;)
->
-> Or we could just keep the working old code.
->
-> Can somebody remind me what this patch kit was supposed to fix or 
-> improve again?
->
+Here are the numbers with the basic patchsets.  But I guess I should
+do another round with adding 7 more void*'s to represent additional
+namespaces.
 
-The current code for discovering the zone sizes and holes is sometimes 
-very hairy despite there being some similaries in each arch. This patch 
-kit will eliminiate some of the uglier code and have one place where zones 
-and holes can be sized. To me, that is a good idea once the bugs are 
-rattled out.
+(intervals are for 95% CI, tests were each run 15 times)
 
-On a related note, parts of the current zone-based anti-fragmentation 
-implementation are an architecture-specific mess because changing how 
-zones are sized is tricky with the current code. With this patch kit, 
-sizing zones for easily reclaimable pages is relatively straight-forward.
+           |  with nsproxy  |   without nsproxy |
+kernbench  | 68.90 +/- 0.21 |   69.06 +/- 0.22  |
+dbench     | 386.0 +/- 26.6 |   388.4 +/- 21.0  |
+tbench     | 391.6 +/- 8.00 |   389.4 +/- 10.95 |
 
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+reaim with nsproxy
+1 115600.000000 5512.441557
+3 246985.712000 9375.780582
+5 272309.092000 8029.833742
+7 290020.000000 7288.367116
+9 298591.580000 5557.531915
+11 nan nan
+13 nan nan
+15 nan nan
+
+reaim without nsproxy
+1 110160.000000 5728.697311
+3 246985.712000 9375.780582
+5 262204.197333 11138.510652
+7 288660.000000 6880.898412
+9 300631.580000 4351.926692
+11 nan nan
+13 nan nan
+15 nan nan

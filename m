@@ -1,85 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751555AbWEUXGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbWEUXKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751555AbWEUXGT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 19:06:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751556AbWEUXGT
+	id S964939AbWEUXKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 19:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751558AbWEUXKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 19:06:19 -0400
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:25247 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751542AbWEUXGS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 19:06:18 -0400
-Subject: Re: [v4l-dvb-maintainer] [PATCH 00/33] V4L/DVB bug fixes
-From: hermann pitton <hermann-pitton@arcor.de>
-To: Michael Krufky <mkrufky@m1k.net>
-Cc: Linux and Kernel Video <video4linux-list@redhat.com>,
+	Sun, 21 May 2006 19:10:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:57521 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751556AbWEUXKZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 19:10:25 -0400
+Date: Sun, 21 May 2006 16:09:44 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: davej@redhat.com, drepper@gmail.com, cw@f00f.org, dragoran@feuerpokemon.de,
        linux-kernel@vger.kernel.org
-In-Reply-To: <4470A475.7040106@m1k.net>
-References: <20060513094537.PS23916900000@infradead.org>
-	 <446F6F46.9090605@m1k.net> <1148180387.4222.13.camel@pc08.localdom.local>
-	 <4470A475.7040106@m1k.net>
-Content-Type: text/plain
-Date: Mon, 22 May 2006 01:10:56 +0200
-Message-Id: <1148253056.4548.9.camel@pc08.localdom.local>
+Subject: Re: IA32 syscall 311 not implemented on x86_64
+Message-Id: <20060521160944.7172977a.akpm@osdl.org>
+In-Reply-To: <200605220019.08902.ak@suse.de>
+References: <44702650.30507@feuerpokemon.de>
+	<20060521185000.GB8250@redhat.com>
+	<20060521185610.GC8250@redhat.com>
+	<200605220019.08902.ak@suse.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, den 21.05.2006, 13:33 -0400 schrieb Michael Krufky:
-> hermann pitton wrote:
+Andi Kleen <ak@suse.de> wrote:
+>
+> On Sunday 21 May 2006 20:56, Dave Jones wrote:
+> > On Sun, May 21, 2006 at 02:50:00PM -0400, Dave Jones wrote:
+> >  > On Sun, May 21, 2006 at 11:35:12AM -0700, Ulrich Drepper wrote:
+> >  >  > On 5/21/06, Dave Jones <davej@redhat.com> wrote:
+> >  >  > >It's a glibc problem really.
+> >  >  > 
+> >  >  > It's not a glibc problem really.  The problem is this stupid error
+> >  >  > message in the kernel.  We rely in many dozens of places on the kernel
+> >  >  > returning ENOSYS in case a syscall is not implemented and we deal with
+> >  >  > it appropriately.  There is absolutely no justification to print these
+> >  >  > messages except perhaps in debug kernels.  IMO the sys32_ni_syscall
+> >  >  > functions should just return ENOSYS unless you select a special debug
+> >  >  > kernel.  One doesn't need the kernel to detect missing syscall
+> >  >  > implementations, strace can do this as well.
+> >  > 
+> >  > You make a good point.  In fact, given it's unthrottled, someone
+> >  > with too much time on their hands could easily fill up a /var
+> >  > just by calling unimplemented syscalls this way.
 > 
-> >Am Samstag, den 20.05.2006, 15:34 -0400 schrieb Michael Krufky:
-> >  
-> >
-> >>mchehab@infradead.org wrote:
-[...]
+> I never bought this argument because there are tons of printks in the kernel
+> that can be triggered by everybody.
+>  
 
-> >  
-> >
-> Hermann,
-> 
-> The bugfixes that I am concerned about do not include the refactoring 
-> changes from Andrew -- those are not even bugfixes at all, and they are 
-> only accessible through our mercurial tree.  We do not plan to send 
-> those upstream until 2.6.18  -- This has nothing at all to do with 
-> Mauro's latest git-pull-request, or my email to Linus.
-> 
-> >At least, and thanks again for calming me down once, it is not about
-> >some white space only now.
-> >
-> I'm not sure what you mean.  Sure, we do have some drastic changes 
-> coming up for 2.6.18 ...  but this email is about bugfixes that HAVE in 
-> fact been thoroughly tested.
-> 
-> It sounds to me as if you may be getting the pending changesets in 
-> Mauro's git tree confused with current changes in our mercurial 
-> development repository.
-> 
-> Just take a look at v4l-dvb.git ...   (or at the diffstat earlier in 
-> this thread) ..  You will find that the drastic changes that you have 
-> mentioned aren't there yet.  Those do need some more testing before 
-> being sent upstream... I think they'll be ready in time for the 2.6.18 
-> merge window, but this is not the issue right now.
-> 
-> Thanks for your concern,
-
-;)
-
-Mike,
-
-for some users it will really look like broken multimedia on 2.6.17 like
-you said. I don't worry to send them to something else then, but it
-would really be nice to get the obvious fixes in or a hint, why it is
-too late or so.
-
-The mixture of a for some broken 2.6.17 and a upcoming 2.6.18 with huge
-changes and a maybe too small testing base could become funny.
-
-But yes, as you said, it are only concerns for now.
-
-Cheers,
-Hermann
-
+Any time anyone identifies such a printk it gets instantly nuked.  So if
+you know of more, please tell.
 

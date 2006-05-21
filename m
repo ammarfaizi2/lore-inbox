@@ -1,52 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751499AbWEUH5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWEUIC0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751499AbWEUH5M (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 03:57:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751496AbWEUH5M
+	id S1751500AbWEUIC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 04:02:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751496AbWEUIC0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 03:57:12 -0400
-Received: from mx27.mail.ru ([194.67.23.63]:62575 "EHLO mx27.mail.ru")
-	by vger.kernel.org with ESMTP id S1751499AbWEUH5L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 03:57:11 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
+	Sun, 21 May 2006 04:02:26 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:15520 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S1751500AbWEUICZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 04:02:25 -0400
+Date: Sun, 21 May 2006 10:02:12 +0200
+From: Harald Welte <laforge@netfilter.org>
+To: Nix <nix@esperi.org.uk>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       stable@kernel.org
 Subject: Re: Linux 2.6.16.17
-Date: Sun, 21 May 2006 11:57:07 +0400
-User-Agent: KMail/1.9.1
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Message-ID: <20060521080212.GB5941@sunbeam.de.gnumonks.org>
+References: <20060520230912.GJ23243@moss.sous-sol.org> <87fyj4fc7h.fsf@hades.wkstn.nix>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="H+4ONPRPur6+Ovig"
 Content-Disposition: inline
-Message-Id: <200605211157.08709.arvidjaar@mail.ru>
+In-Reply-To: <87fyj4fc7h.fsf@hades.wkstn.nix>
+User-Agent: mutt-ng devel-20050619 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-> The updated 2.6.16.y git tree can be found at:
->        
-> git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+--H+4ONPRPur6+Ovig
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-when is it expected to hit repository?
+On Sun, May 21, 2006 at 01:33:54AM +0100, Nix wrote:
+> On 21 May 2006, Chris Wright announced:
+> > Harald Welte:
+> >       Fix udev device creation
+>=20
+> As an aside, patches Cc:ed to stable that concern only a few specific
+> drivers should probably mention the driver in the short changelog;
+> e.g. this is specific to cm4000_cs.
 
-{pts/2}% git rev-list --max-count=1 --pretty stable
-commit 22ddf44d54d0b2326f7b233e836e7155d45d3a7d
-Author: Chris Wright <chrisw@sous-sol.org>
-Date:   Wed May 10 18:56:24 2006 -0700
+yes, I very much second that.  To the best of my knowledge, I didn't
+submit the patch to stable@ myself, but somebody else picked it up.  I
+wasn't really sure whether it really fits the stable@ policy,
 
-    Linux 2.6.16.16
+Anyway, my original posting contained the driver name in the subject
+line.
 
-{pts/2}% git fetch stable
-* refs/heads/stable: same as branch 'master' of 
-git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y
+--=20
+- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
 
-- -andrey
+--H+4ONPRPur6+Ovig
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
+Version: GnuPG v1.4.3 (GNU/Linux)
 
-iD8DBQFEcB1UR6LMutpd94wRAp9cAJsGQlyzuUqtPz/TiDJ0Z/DPtloJ3QCffX3b
-Z39ErQOzKUXmdbLUnQpSWtc=
-=wERX
+iD8DBQFEcB6EXaXGVTD0i/8RAjabAJ94HwvkLOfWUmigTexc862Wv0OVtwCgnJ4s
+CujtySRXyDeANnY2ZsBqANw=
+=rBv2
 -----END PGP SIGNATURE-----
+
+--H+4ONPRPur6+Ovig--

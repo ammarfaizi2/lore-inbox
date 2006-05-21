@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964918AbWEUWDU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964994AbWEUWHm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964918AbWEUWDU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 18:03:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbWEUWDT
+	id S964994AbWEUWHm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 18:07:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbWEUWHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 18:03:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9383 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964887AbWEUWDT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 18:03:19 -0400
-Date: Sun, 21 May 2006 15:02:59 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: linux-kernel@vger.kernel.org, apw@shadowen.org
-Subject: Re: 2.6.17-rc4-mm2
-Message-Id: <20060521150259.3a1bdc9e.akpm@osdl.org>
-In-Reply-To: <446F3D6D.10704@mbligh.org>
-References: <446F3D6D.10704@mbligh.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 21 May 2006 18:07:41 -0400
+Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:11616 "HELO
+	smtp111.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964995AbWEUWHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 18:07:40 -0400
+Date: Sun, 21 May 2006 15:07:38 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Ameer Armaly <ameer@bellsouth.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] fs warning fixes
+Message-ID: <20060521220738.GA5564@taniwha.stupidest.org>
+References: <Pine.LNX.4.61.0605211502450.2255@sg1>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0605211502450.2255@sg1>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@mbligh.org> wrote:
->
-> Panic on boot on 2-way PPC64
->  http://test.kernel.org/abat/32360/debug/console.log
-> 
->  Bad page state in process 'idle'
->  page:c0000000010c3100 flags:0x0003300000000000 mapping:0000000000000000 
->  mapcount:0 count:0
->  Trying to fix it up, but a reboot is needed
->  Backtrace:
->  Call Trace:
->  [C0000000004CBB70] [C00000000000EEE8] .show_stack+0x74/0x1b4 (unreliable)
->  [C0000000004CBC20] [C000000000098D04] .bad_page+0x80/0x134
->  [C0000000004CBCB0] [C000000000099F28] .__free_pages_ok+0x134/0x280
->  [C0000000004CBD70] [C00000000039C4F8] .free_all_bootmem_core+0x15c/0x320
->  [C0000000004CBE50] [C0000000003923AC] .mem_init+0xc0/0x294
->  [C0000000004CBEF0] [C000000000385700] .start_kernel+0x208/0x300
->  [C0000000004CBF90] [C000000000008594] .start_here_common+0x88/0x8c
+On Sun, May 21, 2006 at 03:03:36PM -0400, Ameer Armaly wrote:
 
-I dunno, Martin.  I obviously need to resurrect the
-takes-seven-minutes-to-boot pseries machine here, but I need to get -mm3
-out without Mel's patches to see how much that fixes.  So if you could test
--mm3 and if that fixes it then we have a likely culprit.
+> This patch gets rid of two uninitialized variable warnings by
+> initializing idx in fs/bio.c and fd in fs/eventpoll.c; both of these
+> are initialized through pointers later on.
+
+> -			unsigned long idx;
+> +			unsigned long idx = 0;
+
+[...]
+
+> -	int error, fd;
+> +	int error, fd = 0;
+
+Please don't do this unless it really is fixing a bug.  gcc false
+warnings are not kernel bugs.

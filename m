@@ -1,62 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751474AbWEUW3h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWEUW31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751474AbWEUW3h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 18:29:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWEUW3h
+	id S932161AbWEUW31 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 18:29:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWEUW31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 18:29:37 -0400
-Received: from dvhart.com ([64.146.134.43]:30858 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1751474AbWEUW3g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 18:29:36 -0400
-Message-ID: <4470E9C5.3080206@mbligh.org>
-Date: Sun, 21 May 2006 15:29:25 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Sun, 21 May 2006 18:29:27 -0400
+Received: from mcr-smtp-001.bulldogdsl.com ([212.158.248.7]:58117 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1751474AbWEUW30 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 18:29:26 -0400
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Sam Vilain <sam@vilain.net>
+Subject: Re: Linux Kernel Source Compression
+Date: Sun, 21 May 2006 23:29:37 +0100
+User-Agent: KMail/1.9.1
+Cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.64.0605211028100.4037@p34> <200605212257.10934.s0348365@sms.ed.ac.uk> <4470E80D.3000902@vilain.net>
+In-Reply-To: <4470E80D.3000902@vilain.net>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, apw@shadowen.org
-Subject: Re: 2.6.17-rc4-mm2
-References: <446F3D6D.10704@mbligh.org> <20060521150259.3a1bdc9e.akpm@osdl.org>
-In-Reply-To: <20060521150259.3a1bdc9e.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605212329.37719.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
-> 
->>Panic on boot on 2-way PPC64
->> http://test.kernel.org/abat/32360/debug/console.log
->>
->> Bad page state in process 'idle'
->> page:c0000000010c3100 flags:0x0003300000000000 mapping:0000000000000000 
->> mapcount:0 count:0
->> Trying to fix it up, but a reboot is needed
->> Backtrace:
->> Call Trace:
->> [C0000000004CBB70] [C00000000000EEE8] .show_stack+0x74/0x1b4 (unreliable)
->> [C0000000004CBC20] [C000000000098D04] .bad_page+0x80/0x134
->> [C0000000004CBCB0] [C000000000099F28] .__free_pages_ok+0x134/0x280
->> [C0000000004CBD70] [C00000000039C4F8] .free_all_bootmem_core+0x15c/0x320
->> [C0000000004CBE50] [C0000000003923AC] .mem_init+0xc0/0x294
->> [C0000000004CBEF0] [C000000000385700] .start_kernel+0x208/0x300
->> [C0000000004CBF90] [C000000000008594] .start_here_common+0x88/0x8c
-> 
-> 
-> I dunno, Martin.  I obviously need to resurrect the
-> takes-seven-minutes-to-boot pseries machine here, but I need to get -mm3
+On Sunday 21 May 2006 23:22, Sam Vilain wrote:
+[snip]
+> Interesting.  Googling a bit;  from http://tukaani.org/lzma/benchmarks:
+>
+> In terms of speed, gzip is the winner again. lzma comes right behind it
+> two to three times slower than gzip. bzip2 is a lot slower taking
+> usually two to six times more time than lzma, that is, four to twelve
+> times more than gzip. One interesting thing is that gzip and lzma
+> decompress the faster the smaller the compressed size is, while bzip2
+> gets slower when the compression ratio gets better.
+> [...]
+> neither bzip2 nor lzma can compete with gzip in terms of speed or memory
+> usage.
+>
+> Also this:
+>
+> "lzmash -8" and "lzmash -9" require lots of memory and are practical
+> only on newer computers; the files compressed with them are probably a
+> pain to decompress on systems with less than 32 MB or 64 MB of memory.
+> [...]
+> The files compressed with the default "lzmash -7" can still be
+> decompressed, even on machines with only 16 MB of RAM
 
-Don't kill yourself over it - the blade seems to do it, but the p650
-(8x) doesn't, so it may not help.
+Interesting info. I agree that LZMA is not a replacement for gzip/zlib, 
+because gzip is extremely size/time efficient.
 
-> out without Mel's patches to see how much that fixes.  So if you could test
-> -mm3 and if that fixes it then we have a likely culprit.
+However, as noted in another thread, it is almost certainly a viable 
+replacement for bzip2, since people that use bzip2 are generally interested 
+in a size optimisation, not a compression speed one, and even if compression 
+speed is relevant, LZMA's options scale to be approximately as good (or as 
+bad??) as bzip2.
 
-Sure, no problem. I suppose I should really make this thing do automated
-bisection chopsearch ... I had that half-working when at IBM, but it'll
-have to wait for the next generation now ... shouldn't take all that long.
+This is all fairly academic. I think the issue still boils down to widespread 
+adoption; bzip2 took a while to get off the ground, people don't like messing 
+with new formats, and distributors have to pick up the tools.
 
-M.
+I think kernel.org switching formats would be one of the last things that 
+could, or indeed should, happen.
+
+-- 
+Cheers,
+Alistair.
+
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

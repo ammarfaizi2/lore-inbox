@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWEUGQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbWEUGiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751483AbWEUGQw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 02:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWEUGQw
+	id S1751485AbWEUGiL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 02:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWEUGiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 02:16:52 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:4567 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751483AbWEUGQv (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 02:16:51 -0400
-Message-Id: <200605210616.k4L6GmHe001933@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+	Sun, 21 May 2006 02:38:11 -0400
+Received: from wx-out-0102.google.com ([66.249.82.199]:36337 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751485AbWEUGiK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 02:38:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=QL5nbkppo5J/FhWlZja7yXVuS88fX+KF4B+MPQnsM3DHuBCl0I8iBaIVVE1Bo3g0DfTUsQ7e/8FPHppMmf2wMsMYh92Otqxfo3M7EqAtgFbPxTqpBb0L99y8ZQNrlzXcM8JyvGsK3P2JYAloHsafuSxcOQESQrqKVEXpzwoZ4Bo=
+Message-ID: <44700ACC.8070207@gmail.com>
+Date: Sun, 21 May 2006 10:38:04 +0400
+From: Manu Abraham <abraham.manu@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
 To: linux cbon <linuxcbon@yahoo.fr>
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>, linux-kernel@vger.kernel.org
+CC: Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
 Subject: Re: replacing X Window System !
-In-Reply-To: Your message of "Sat, 20 May 2006 00:40:56 +0200."
-             <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-From: Valdis.Kletnieks@vt.edu
 References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1148192208_32020P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+In-Reply-To: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Sun, 21 May 2006 02:16:48 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1148192208_32020P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+linux cbon wrote:
+> Usual reasons : Reusability, portability, ease of
+> maintenance, speed, etc.
+>
+> What do you think of solutions using framebuffers like
+> directfb or fbui ?
+>   
 
-On Sat, 20 May 2006 00:40:56 +0200, linux cbon said:
 
-> Unix was not designed for graphics.
 
-Rather amusing, given that Dennis Ritchie has a different memory of it:
+DirectFB is indeed a nice solution, the last i heard of it, many vendors 
+were looking at it in a very positive manner, for commercial products. 
+As usual, every project can use more hands. :-)
 
-http://cm.bell-labs.com/cm/cs/who/dmr/hist.html
 
-He seems to think that one of the original motivating forces for Unix
-was to provide a development environment for a PDP-7, so that they
-could support the graphics terminal for a game called 'Space Travel'.
 
-So if anything, Unix was designed specifically *for* graphics.
+Manu
 
-Now who should I believe here, dmr or an apparent troll?
-
---==_Exmh_1148192208_32020P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEcAXQcC3lWbTT17ARAj3rAKDRptu+odTLwGAIey+pzm7BcGxlWQCfXfp0
-s1kppyD0i4WoE9nKCK4/x/A=
-=s5HU
------END PGP SIGNATURE-----
-
---==_Exmh_1148192208_32020P--

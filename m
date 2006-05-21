@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964885AbWEUO4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbWEUO5A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964885AbWEUO4r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 10:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWEUO4r
+	id S964883AbWEUO5A (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 10:57:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbWEUO47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 10:56:47 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:6049 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S964881AbWEUO4q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 10:56:46 -0400
-Message-ID: <44707F8E.8010506@colorfullife.com>
-Date: Sun, 21 May 2006 16:56:14 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
+	Sun, 21 May 2006 10:56:59 -0400
+Received: from mxfep01.bredband.com ([195.54.107.70]:51629 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S964883AbWEUO47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 10:56:59 -0400
+Message-ID: <44707FB5.6020607@stesmi.com>
+Date: Sun, 21 May 2006 16:56:53 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andreas Kleen <ak@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       jeff@garzik.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Ayaz Abdulla <aabdulla@nvidia.com>
-Subject: Re: [git patches] net driver updates
-References: <20060520042856.GA7218@havoc.gtf.org> <Pine.LNX.4.64.0605201035510.10823@g5.osdl.org> <20060520105547.220f2bea.akpm@osdl.org> <200605210015.15847.ak@suse.de> <447012B2.9050207@colorfullife.com> <4579880.1148217864672.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
-In-Reply-To: <4579880.1148217864672.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux cbon <linuxcbon@yahoo.fr>
+CC: Thierry Vignaud <tvignaud@mandriva.com>, helge.hafting@aitel.hist.no,
+       Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+Subject: Re: replacing X Window System !
+References: <20060518193108.23173.qmail@web26601.mail.ukl.yahoo.com>
+In-Reply-To: <20060518193108.23173.qmail@web26601.mail.ukl.yahoo.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-ripemd160;
+ protocol="application/pgp-signature";
+ boundary="------------enigA9B081F65F457ADC14B04CF5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Kleen wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigA9B081F65F457ADC14B04CF5
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
->>No idea, but unlikely. The fix removes a duplicate request_irq call.
->>Is
->>it possible that the both instances run concurrently?
->>    
->>
->
->The system has two Forcedeth ports, but only one has a cable connected.
->I don't think there is any parallelism. Just one connection with a lot
->of data. It didn't happen with 2.6.16.
->
->  
->
-You misunderstood me:
-Due to a broken patch, the driver did
-    request_irq(irqnum, handler,...)
-twice. Thus the irq handler was registered twice. The rx synchronization 
-assumes that the irq handler doesn't run concurrently. I'm not sure what 
-happens if the irq handler is registered twice: is it possible that it 
-runs twice at the same time, i.e. is the synchronization in the irq 
-subsystem irq number or registration call based?
+Hi.
 
->If you don't have any other good ideas I will try to track it down.
->
->  
->
-I don't have any good ideas, please try to figure out what's wrong. Is 
-there a debug switch for the network layer that forces the network layer 
-to verify the CHECKSUM_UNNECESSARY blocks?
+> because what Microsoft did solved all these driver
+> security problems!
 
---
-    Manfred
+Then why are MS moving it out of the kernel with Vista?
+
+>>stop troll^h^h^h^h^h thread?
+> 
+> 
+> If I am a troll, then who are Theo or Linus ?
+
+They're the guys that put their code where their
+mouth is instead of discussing stuff they have no
+clue about.
+
+// Stefan
+
+--------------enigA9B081F65F457ADC14B04CF5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFEcH+5Brn2kJu9P78RA0/VAKCp2hdkSVdgoRfq75yroALHtyTtZwCgo0eW
+C2SV3CKZf1naQiXCP+wqKdE=
+=ChuW
+-----END PGP SIGNATURE-----
+
+--------------enigA9B081F65F457ADC14B04CF5--

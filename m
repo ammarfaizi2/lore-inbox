@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbWEUTVV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbWEUTTi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964917AbWEUTVV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 15:21:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964918AbWEUTVV
+	id S964914AbWEUTTi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 15:19:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbWEUTTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 15:21:21 -0400
-Received: from imf18aec.mail.bellsouth.net ([205.152.59.66]:28813 "EHLO
-	imf18aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S964916AbWEUTVU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 15:21:20 -0400
-Date: Sun, 21 May 2006 15:21:03 -0400 (EDT)
-From: Ameer Armaly <ameer@bellsouth.net>
-X-X-Sender: ameer@sg1
-To: Dave Jones <davej@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] initialize variables in fs/isofs/namei.c
-In-Reply-To: <20060521190806.GE8250@redhat.com>
-Message-ID: <Pine.LNX.4.61.0605211518350.10443@sg1>
-References: <Pine.LNX.4.61.0605211501150.2255@sg1> <20060521190806.GE8250@redhat.com>
+	Sun, 21 May 2006 15:19:38 -0400
+Received: from osa.unixfolk.com ([209.204.179.118]:20124 "EHLO
+	osa.unixfolk.com") by vger.kernel.org with ESMTP id S964914AbWEUTTh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 15:19:37 -0400
+Date: Sun, 21 May 2006 12:19:33 -0700 (PDT)
+From: Dave Olson <olson@unixfolk.com>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Greg KH <gregkh@suse.de>, Brice Goglin <brice@myri.com>,
+       Roland Dreier <rdreier@cisco.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: AMD 8131 MSI quirk called too late, bus_flags not inherited ?
+In-Reply-To: <fa.7RUPmW8q906KfAmuRItEvwbAUvg@ifi.uio.no>
+Message-ID: <Pine.LNX.4.61.0605211216510.7870@osa.unixfolk.com>
+References: <fa.WOQy7TVxeMkzxI+BbQP2Wqi34A0@ifi.uio.no>
+ <fa.7RUPmW8q906KfAmuRItEvwbAUvg@ifi.uio.no>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 21 May 2006, Michael S. Tsirkin wrote:
+| > Michael is the one who added that change, perhaps he can explain how he
+| > tested it?
+| 
+| Well, I just re-tested with 2.6.17-rc4 and it does not seem to work.  No idea
+| what did I do wrong when testing this patch before posting it :(. Oops.
+| I'm sorry.
+| 
+| Given that its late in -rc series, that its a clear regression from 2.6.16, that
+| disabling MSI is always safe, and that the patch was intended to enable MSI on
 
+Disabling MSI is not always safe.   The InfiniPath PCIe adapter has no
+other way to interrupt, for example.
 
-On Sun, 21 May 2006, Dave Jones wrote:
+The original patch (which you are proposing reverting to, or so it
+appears to me), causes our chip to not work at all on any motherboard
+which has both 8131 and PCIe slots (and there are at least 2 or 3 of
+those, including supermicro and HP), despite the fact that the 8131
+problem is irrelevant to PCIe on Nvidia or other root complexes.
 
-> On Sun, May 21, 2006 at 03:02:34PM -0400, Ameer Armaly wrote:
-> > This patch removes un-initialized variable warnings for block and offset in
-> > namei.c, which are later initialized through a call to isofs_find_entry().
->
-> Which indicates the problem lies with gcc, just like with the other patches
-> 'fixing' these warnings.
->
-I agree.  The compiler should be smart enough to at least consider the 
-possibility of initializing through pointers.
-> The warning is bogus.
->
-It is, but at the same it's clutter; in my opinion, readability is not 
-impacted by explicitly initializing variables that get initialized through 
-a pointer, and we reduce annoying make output.
-  > 		Dave
->
-> -- 
-> http://www.codemonkey.org.uk
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+We (PathScale/QLogic) are having to tell people to patch their
+kernels in order for the InfiniPath PCIe adapter to work, on such systems.
+
+Dave Olson
+olson@unixfolk.com
+http://www.unixfolk.com/dave

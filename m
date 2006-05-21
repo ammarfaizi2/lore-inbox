@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbWEUXKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbWEUXUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964939AbWEUXKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 19:10:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751558AbWEUXKZ
+	id S964892AbWEUXUr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 19:20:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbWEUXUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 19:10:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:57521 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751556AbWEUXKZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 19:10:25 -0400
-Date: Sun, 21 May 2006 16:09:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: davej@redhat.com, drepper@gmail.com, cw@f00f.org, dragoran@feuerpokemon.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: IA32 syscall 311 not implemented on x86_64
-Message-Id: <20060521160944.7172977a.akpm@osdl.org>
-In-Reply-To: <200605220019.08902.ak@suse.de>
-References: <44702650.30507@feuerpokemon.de>
-	<20060521185000.GB8250@redhat.com>
-	<20060521185610.GC8250@redhat.com>
-	<200605220019.08902.ak@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 21 May 2006 19:20:47 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:34775 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751422AbWEUXUr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 19:20:47 -0400
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, Herbert Poetzl <herbert@13thfloor.at>,
+       serue@us.ibm.com, linux-kernel@vger.kernel.org, dev@sw.ru,
+       devel@openvz.org, sam@vilain.net, xemul@sw.ru, haveblue@us.ibm.com,
+       clg@fr.ibm.com
+Subject: Re: [PATCH 0/9] namespaces: Introduction
+References: <20060518154700.GA28344@sergelap.austin.ibm.com>
+	<20060518103430.080e3523.akpm@osdl.org>
+	<20060519124235.GA32304@MAIL.13thfloor.at>
+	<20060519081334.06ce452d.akpm@osdl.org>
+	<20060521225735.GA9048@elf.ucw.cz>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sun, 21 May 2006 17:18:50 -0600
+In-Reply-To: <20060521225735.GA9048@elf.ucw.cz> (Pavel Machek's message of
+ "Mon, 22 May 2006 00:57:37 +0200")
+Message-ID: <m1ejynnezp.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> On Sunday 21 May 2006 20:56, Dave Jones wrote:
-> > On Sun, May 21, 2006 at 02:50:00PM -0400, Dave Jones wrote:
-> >  > On Sun, May 21, 2006 at 11:35:12AM -0700, Ulrich Drepper wrote:
-> >  >  > On 5/21/06, Dave Jones <davej@redhat.com> wrote:
-> >  >  > >It's a glibc problem really.
-> >  >  > 
-> >  >  > It's not a glibc problem really.  The problem is this stupid error
-> >  >  > message in the kernel.  We rely in many dozens of places on the kernel
-> >  >  > returning ENOSYS in case a syscall is not implemented and we deal with
-> >  >  > it appropriately.  There is absolutely no justification to print these
-> >  >  > messages except perhaps in debug kernels.  IMO the sys32_ni_syscall
-> >  >  > functions should just return ENOSYS unless you select a special debug
-> >  >  > kernel.  One doesn't need the kernel to detect missing syscall
-> >  >  > implementations, strace can do this as well.
-> >  > 
-> >  > You make a good point.  In fact, given it's unthrottled, someone
-> >  > with too much time on their hands could easily fill up a /var
-> >  > just by calling unimplemented syscalls this way.
-> 
-> I never bought this argument because there are tons of printks in the kernel
-> that can be triggered by everybody.
->  
+Pavel Machek <pavel@ucw.cz> writes:
 
-Any time anyone identifies such a printk it gets instantly nuked.  So if
-you know of more, please tell.
+> Well, if pid #1 virtualization is only needed for pstree, we may want
+> to fix pstree instead :-).
 
+One thing that is not clear is if isolation by permission checks is any
+easier to implement than isolation with a namespace.
+
+Isolation at permission checks may actually be more expensive in terms
+of execution time, and maintenance.
+
+Eric

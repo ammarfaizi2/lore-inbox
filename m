@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWEUAex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWEUAmK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964814AbWEUAex (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 May 2006 20:34:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWEUAex
+	id S964841AbWEUAmK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 May 2006 20:42:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964865AbWEUAmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 May 2006 20:34:53 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:7684 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932249AbWEUAex
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 May 2006 20:34:53 -0400
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Harald Welte <laforge@netfilter.org>
-Subject: Re: Linux 2.6.16.17
-References: <20060520230912.GJ23243@moss.sous-sol.org>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: ed  ::  20-megaton hydrogen bomb : firecracker
-Date: Sun, 21 May 2006 01:33:54 +0100
-In-Reply-To: <20060520230912.GJ23243@moss.sous-sol.org> (Chris Wright's message of "21 May 2006 00:07:25 +0100")
-Message-ID: <87fyj4fc7h.fsf@hades.wkstn.nix>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Sat, 20 May 2006 20:42:09 -0400
+Received: from mail.gmx.net ([213.165.64.20]:4317 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964856AbWEUAmH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 May 2006 20:42:07 -0400
+X-Authenticated: #31060655
+Message-ID: <446FB6F2.7040803@gmx.net>
+Date: Sun, 21 May 2006 02:40:18 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060316 SUSE/1.0-27 SeaMonkey/1.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+CC: trenn@suse.de, "Yu, Luming" <luming.yu@intel.com>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Tom Seeley <redhat@tomseeley.co.uk>,
+       Dave Jones <davej@redhat.com>, Jiri Slaby <jirislaby@gmail.com>,
+       michael@mihu.de, mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
+       video4linux-list@redhat.com, Brian Marete <bgmarete@gmail.com>,
+       Ryan Phillips <rphillips@gentoo.org>, gregkh@suse.de,
+       linux-usb-devel@lists.sourceforge.net,
+       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
+       Mark Lord <lkml@rtr.ca>, Randy Dunlap <rdunlap@xenotime.net>,
+       jgarzik@pobox.com, linux-ide@vger.kernel.org,
+       Duncan <1i5t5.duncan@cox.net>, Pavlik Vojtech <vojtech@suse.cz>,
+       linux-input@atrey.karlin.mff.cuni.cz, Meelis Roos <mroos@linux.ee>
+Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT]
+References: <E1FhbYy-0005jL-00@skye.ra.phy.cam.ac.uk>
+In-Reply-To: <E1FhbYy-0005jL-00@skye.ra.phy.cam.ac.uk>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 May 2006, Chris Wright announced:
-> Harald Welte:
->       Fix udev device creation
+Sanjoy Mahajan wrote:
+> That seems likely, thanks for the pointer: Besides the ACPI sleep
+> hangs, this machine (TP 600X) has fan troubles upon S3 resume.  The
+> problems don't do harm (the damn fan keeps turning on when it
+> shouldn't), but that's probably chance.  Various patches that I tested
+> for S3 resume hangs reversed this fan behavior, making the fan refuse
+> to turn on when it should have.  The same problem happened after
+> resume from swsusp (bugzilla #5000).
 
-As an aside, patches Cc:ed to stable that concern only a few specific
-drivers should probably mention the driver in the short changelog;
-e.g. this is specific to cm4000_cs.
+Please try kernel 2.6.16.17 (just released). It has the SMBus fix which
+may fix resume and fan behaviour.
 
-(Anyone who really cares about system stability and isn't running a
-distro kernel should probably be checking things at the review phase
-anyway, so this is rather pedantic of me and may not actually affect
-anyone. As a mere user I'm very impressed with the -stable process; many
-other projects could do with something like it.)
 
+Regards,
+Carl-Daniel
 -- 
-`On a scale of 1-10, X's "brokenness rating" is 1.1, but that's only
- because bringing Windows into the picture rescaled "brokenness" by
- a factor of 10.' --- Peter da Silva
+http://www.hailfinger.org/

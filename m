@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751526AbWEULd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751532AbWEUMDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751526AbWEULd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 07:33:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751527AbWEULd1
+	id S1751532AbWEUMDi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 08:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751531AbWEUMDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 07:33:27 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:32940 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751524AbWEULd1
+	Sun, 21 May 2006 08:03:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:7070 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751165AbWEUMDh convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 07:33:27 -0400
-Date: Sun, 21 May 2006 16:59:08 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: Martin Peschke <mp3@de.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch 0/6] statistics infrastructure
-Message-ID: <20060521112908.GA13773@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <1148054876.2974.10.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <20060519092411.6b859b51.akpm@osdl.org> <446E4ED6.6020000@de.ibm.com>
+	Sun, 21 May 2006 08:03:37 -0400
+Date: Sun, 21 May 2006 05:03:26 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Haar =?ISO-8859-1?B?SuFub3M=?= <djani22@netcenter.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: swapper: page allocation failure.
+Message-Id: <20060521050326.3bbbdf3a.akpm@osdl.org>
+In-Reply-To: <00e901c67cad$fe9a9d90$1800a8c0@dcccs>
+References: <00e901c67cad$fe9a9d90$1800a8c0@dcccs>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <446E4ED6.6020000@de.ibm.com>
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Andrew, Balbir,
-> 
-> I will read Balbir's patches. Probably, I won't manage it this weekend,
-> as a friend of mine is visiting.
-> 
-> Why doesn't come it as a surprise that the user interface appears to
-> restart the discussion ;-)
-> I can't comment on netlink yet. There are some thoughts on why I
-> chose debugfs in my documentation file.
-> 
-> Balbir, could you try to summarise briefly what the main issues are that
-> your patches solve?
+Haar János <djani22@netcenter.hu> wrote:
 >
+> I seriously gets this, and dont know why.
+>  This server have 2GB ram, and ~1.1G always free!
+>  Anybody have an idea?
+> 
+>  Thanks,
+>  Janos
+> 
+>  May 21 09:05:35 st-0003 kernel: swapper: page allocation failure. order:0,
+>  mode:0x20
+>  May 21 09:05:35 st-0003 kernel:  <c013c6ac> __alloc_pages+0x274/0x286
+>  <c014af1d> cache_alloc_refill+0x2a6/0x45c
+>  May 21 09:05:35 st-0003 kernel:  <c014b12b> __kmalloc+0x58/0x61   <c03d5bfc>
+>  __alloc_skb+0x49/0xf5
+>  May 21 09:05:35 st-0003 kernel:  <f88336b1>
+>  e1000_alloc_rx_buffers+0x5c/0x2e5 [e1000]   <f88315de>
 
-We collect statistics about the delays that are experienced by each task on
-the system. Note, that this information is per-task.
+e1000 gobbled up all your lowmem memory from interrupt context.
 
-The information collected provides us with information about the number of
-times the the task executed on the runqueue, the delay it encountered
-waiting for CPU (run_delay) and the total time it spent on the runqueue.
-Similar statistics are collected for block io and swapin block io.
-
-The statistics can be queried at any time (during the lifetime of the task)
-and user space can be notified of the statistics when the task exits.
-
-More detailed information can be found at
-http://lkml.org/lkml/2006/5/2/30
-
-and in the Documentation/accounting directory tree in -mm
-
-I hope this is the summary you were looking for.
-
-	Warm Regards,
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+Increasing /proc/sys/vm/min_free_kbytes will help.

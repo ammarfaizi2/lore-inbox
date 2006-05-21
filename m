@@ -1,32 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964927AbWEUTrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWEUTtS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964927AbWEUTrM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 15:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbWEUTrM
+	id S964930AbWEUTtS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 15:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWEUTtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 15:47:12 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:11735
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S964927AbWEUTrL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 15:47:11 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Pau Garcia i Quiles <pgquiles@elpauer.org>, linux-kernel@vger.kernel.org
-Subject: Re: [IDEA] Poor man's UPS
-Date: Sun, 21 May 2006 21:46:30 +0200
-User-Agent: KMail/1.9.1
-References: <200605212131.47860.pgquiles@elpauer.org> <20060521193803.GG8250@redhat.com>
-In-Reply-To: <20060521193803.GG8250@redhat.com>
+	Sun, 21 May 2006 15:49:18 -0400
+Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:16275 "HELO
+	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964930AbWEUTtR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 15:49:17 -0400
+Date: Sun, 21 May 2006 12:49:15 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, levon@movementarian.org,
+       phil.el@wanadoo.fr, Andrew Morton <akpm@osdl.org>
+Subject: Is OPROFILE actively maintained?
+Message-ID: <20060521194915.GA2153@taniwha.stupidest.org>
+References: <20060520025322.GD9486@taniwha.stupidest.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605212146.30342.mb@bu3sch.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20060520025322.GD9486@taniwha.stupidest.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > The "continuous hibernation" is some kind of memory snapshots taken, say, 
->  > every 5 minutes. The next time your system starts after a crash, it'd say "oh 
+On Fri, May 19, 2006 at 07:53:22PM -0700, Chris Wedgwood wrote:
 
-You really want a system, which freezes for 10-20 seconds every 5 minutes,
-and thaws again when the image is written?
+> oprofile isn't new and a lot of developers use it.  Drop the
+> EXPERIMENTAL.
+
+Some feedback claims this is not the case and that "it's unmaintained,
+rarely well-tested, and may still need changes for some forthcoming
+JVM stuff. and the tools aren't yet at 1.0".
+
+Given that it should probably stay EXPERIMENTAL for now.  I wonder if
+left unmaintained for much longer if it should be potentially marked
+BROKEN and/or scheduled for removal?
+
+MAINTAINERS claims it is maintained, if that is not long the case I'm
+happy post a trivial patch to change that.  Or perhaps we can find a
+new maintainer?

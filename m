@@ -1,79 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751529AbWEUMRp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751541AbWEUMbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751529AbWEUMRp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 08:17:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWEUMRp
+	id S1751541AbWEUMbx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 08:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751542AbWEUMbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 08:17:45 -0400
-Received: from web26603.mail.ukl.yahoo.com ([217.146.176.53]:105 "HELO
-	web26603.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1751529AbWEUMRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 08:17:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=wFDmEtSkYH5vEoi4mYlxZPc7eJUXDndoFtmKOqE//fcP5hWZkcKSTBDqrmE5ce+DocJ55LbpBGG5P2XZ2ozUDtbgLvzUZR0MQ8GK4NALfMtt4Lp4yLwYAqXlGuu1UIRVgcr6DiX2Tp9R7LyRL1Y1t4vcYMeg7Yy9JssZtf9kJkU=  ;
-Message-ID: <20060521121741.70459.qmail@web26603.mail.ukl.yahoo.com>
-Date: Sun, 21 May 2006 14:17:41 +0200 (CEST)
-From: linux cbon <linuxcbon@yahoo.fr>
-Subject: Re: replacing X Window System !
-To: Valdis.Kletnieks@vt.edu
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>, linux-kernel@vger.kernel.org
-In-Reply-To: <200605210616.k4L6GmHe001933@turing-police.cc.vt.edu>
+	Sun, 21 May 2006 08:31:53 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:56743 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S1751541AbWEUMbx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 08:31:53 -0400
+Message-ID: <44705DA4.2020807@myri.com>
+Date: Sun, 21 May 2006 14:31:32 +0200
+From: Brice Goglin <brice@myri.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+CC: Greg KH <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: AMD 8131 MSI quirk called too late, bus_flags not inherited ?
+References: <4468EE85.4000500@myri.com> <20060518155441.GB13334@suse.de> <20060521101656.GM30211@mellanox.co.il> <447047F2.2070607@myri.com> <20060521121726.GQ30211@mellanox.co.il>
+In-Reply-To: <20060521121726.GQ30211@mellanox.co.il>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/mixed;
+ boundary="------------050307000203030109040209"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- Valdis.Kletnieks@vt.edu a écrit : 
-> On Sat, 20 May 2006 00:40:56 +0200, linux cbon said:
-> 
-> > Unix was not designed for graphics.
-> 
-> Rather amusing, given that Dennis Ritchie has a
-> different memory of it:
-> 
-> http://cm.bell-labs.com/cm/cs/who/dmr/hist.html
-> 
-> He seems to think that one of the original
-> motivating forces for Unix
-> was to provide a development environment for a
-> PDP-7, so that they
-> could support the graphics terminal for a game
-> called 'Space Travel'.
-> 
-> So if anything, Unix was designed specifically *for*
-> graphics.
-> 
-> Now who should I believe here, dmr or an apparent
-> troll?
+This is a multi-part message in MIME format.
+--------------050307000203030109040209
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+Michael S. Tsirkin wrote:
+> MSI is an optional feature so things are supposed to work even without MSI - are
+> you getting that great a benefit from MSI?
+>   
+
+Not great, I would say small.
+
+> All mellanox PCI-X devices have a bridge inside them, so ...
+>   
+
+Ok so you really need something for 2.6.17. What about the attached
+patch to fix the fact that bus flags are not inherited ?
+
+Signed-off-by: Brice Goglin <brice@myri.com>
+
+> Doesn't seem to work for me:
+>
+> ib_mthca: Initializing 0000:04:00.0
+> GSI 18 sharing vector 0xB9 and IRQ 18
+> ACPI: PCI Interrupt 0000:04:00.0[A] -> GSI 29 (level, low) -> IRQ 185
+> ib_mthca 0000:04:00.0: NOP command failed to generate interrupt (IRQ 217),
+> aborting.
+> ib_mthca 0000:04:00.0: Try again with MSI/MSI-X disabled.
+> ACPI: PCI interrupt for device 0000:04:00.0 disabled
+> ib_mthca: probe of 0000:04:00.0 failed with error -16
+>   
+
+Ok. Do you at least see the quirk message ?
+
+Thanks,
+Brice
 
 
-hi,
+--------------050307000203030109040209
+Content-Type: text/x-patch;
+ name="look_at_parent_busses_flags.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="look_at_parent_busses_flags.patch"
 
-unix only provided the tools to write the game in
-assembly.
-No graphic system or environment.
-Guis were invented in Xerox PARC and not in Unix.
+Index: linux-mm/drivers/pci/msi.c
+===================================================================
+--- linux-mm.orig/drivers/pci/msi.c	2006-05-21 14:25:53.000000000 +0200
++++ linux-mm/drivers/pci/msi.c	2006-05-21 14:26:56.000000000 +0200
+@@ -916,6 +916,7 @@
+  **/
+ int pci_enable_msi(struct pci_dev* dev)
+ {
++	struct pci_bus *bus;
+ 	int pos, temp, status = -EINVAL;
+ 	u16 control;
+ 
+@@ -925,8 +926,9 @@
+ 	if (dev->no_msi)
+ 		return status;
+ 
+-	if (dev->bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
+-		return -EINVAL;
++	for (bus = dev->bus; bus; bus = bus->parent)
++		if (bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
++			return -EINVAL;
+ 
+ 	temp = dev->irq;
+ 
 
-Who wrote "The X server has to be the biggest program
-I've ever seen that doesn't do anything for you."
-
-Regards
-
-
-
-
-
-
-
-
-
-	
-
-	
-		
-___________________________________________________________________________ 
-Faites de Yahoo! votre page d'accueil sur le web pour retrouver directement vos services préférés : vérifiez vos nouveaux mails, lancez vos recherches et suivez l'actualité en temps réel. 
-Rendez-vous sur http://fr.yahoo.com/set
+--------------050307000203030109040209--

@@ -1,91 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751497AbWEUWkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964916AbWEUWmN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751497AbWEUWkW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 18:40:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751542AbWEUWkW
+	id S964916AbWEUWmN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 18:42:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751554AbWEUWmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 18:40:22 -0400
-Received: from mail.gmx.net ([213.165.64.20]:54227 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751497AbWEUWkW (ORCPT
+	Sun, 21 May 2006 18:42:13 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:11474 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751542AbWEUWmL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 18:40:22 -0400
-X-Authenticated: #2308221
-Date: Mon, 22 May 2006 00:40:12 +0200
-From: Christian Trefzer <ctrefzer@gmx.de>
-To: Pau Garcia i Quiles <pgquiles@elpauer.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [IDEA] Poor man's UPS
-Message-ID: <20060521224012.GB30855@hermes.uziel.local>
-References: <200605212131.47860.pgquiles@elpauer.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mJm6k4Vb/yFcL9ZU"
-Content-Disposition: inline
-In-Reply-To: <200605212131.47860.pgquiles@elpauer.org>
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+	Sun, 21 May 2006 18:42:11 -0400
+Message-ID: <4470A475.7040106@m1k.net>
+Date: Sun, 21 May 2006 13:33:41 -0400
+From: Michael Krufky <mkrufky@m1k.net>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: hermann pitton <hermann-pitton@arcor.de>
+CC: Linux and Kernel Video <video4linux-list@redhat.com>,
+       linux-dvb-maintainer@linuxtv.org, akpm@osdl.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [v4l-dvb-maintainer] [PATCH 00/33] V4L/DVB bug fixes
+References: <20060513094537.PS23916900000@infradead.org>	<446F6F46.9090605@m1k.net> <1148180387.4222.13.camel@pc08.localdom.local>
+In-Reply-To: <1148180387.4222.13.camel@pc08.localdom.local>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - m1k.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hermann pitton wrote:
 
---mJm6k4Vb/yFcL9ZU
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>Am Samstag, den 20.05.2006, 15:34 -0400 schrieb Michael Krufky:
+>  
+>
+>>mchehab@infradead.org wrote:
+>>
+>>>Please pull these from master branch at:
+>>>       kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git
+>>>
+>>Linus,
+>>
+>>A week has gone by... Do you intend to merge these bug fixes into your tree?
+>>
+>>These changesets fix a whole bunch of serious bugs that have been 
+>>introduced in 2.6.17, and a good many of these bugfixes have been 
+>>sitting around, waiting to be merged since 2.6.17-rc1, not to mention 
+>>the fixes that have already been merged much earlier in 2.6.16.y
+>>
+>>Please merge these before 2.6.17-rc5
+>>
+>>We have already eliminated as many patches as we possibly could.  It all 
+>>comes down to these.  Everything else has been held back until the 
+>>2.6.18 merge window.
+>>
+>Hi Mike,
+>
+>I can see you are concerned and you are right.
+>
+>OTOH we have some load currently and I wouldn't mind to go through what
+>Andrew worked out for it so far. Especially as we never had much/any
+>useful from those testers, but might change if it is employed long
+>enough ;)
+>  
+>
+Hermann,
 
-Hi there,
+The bugfixes that I am concerned about do not include the refactoring 
+changes from Andrew -- those are not even bugfixes at all, and they are 
+only accessible through our mercurial tree.  We do not plan to send 
+those upstream until 2.6.18  -- This has nothing at all to do with 
+Mauro's latest git-pull-request, or my email to Linus.
 
-On Sun, May 21, 2006 at 09:31:30PM +0200, Pau Garcia i Quiles wrote:
+>At least, and thanks again for calming me down once, it is not about
+>some white space only now.
+>
+I'm not sure what you mean.  Sure, we do have some drastic changes 
+coming up for 2.6.18 ...  but this email is about bugfixes that HAVE in 
+fact been thoroughly tested.
 
-> [interesting idea with complex implementational problems]
+It sounds to me as if you may be getting the pending changesets in 
+Mauro's git tree confused with current changes in our mercurial 
+development repository.
 
-I think it would be cheaper ("costs" for your solutin in terms of
-required I/O power and hard disk space) to use two or more lead
-batteries which are charged and discharged in a round-robin fashion,
-controlled by some smart home-brew circuitry, and connect the beast to
-some control/monitoring software via RS-232 ; )
+Just take a look at v4l-dvb.git ...   (or at the diffstat earlier in 
+this thread) ..  You will find that the drastic changes that you have 
+mentioned aren't there yet.  Those do need some more testing before 
+being sent upstream... I think they'll be ready in time for the 2.6.18 
+merge window, but this is not the issue right now.
 
-The logic should at least completely drain the battery before
-recharging, and maybe even do a quick-and-hot charge-discharge-charge
-cycle every now and then to reduce chemical byproducts at the cathode -
-or was it the anode? Well, one of them is dissolved over time, and the
-other one collects some sulfate or sulfide or something. If you want it
-really complicated and robust, you might want to monitor the electric
-parameters of the batteries at all times, to estimate the minimum
-remaining time once the power is cut. You'd then have to shut down, or
-better hibernate, the system cleanly within that time frame to be safe
-=66rom data loss.
+Thanks for your concern,
 
-I'd love to do something like that sort of in-between the PSU for a
-single machine, for this would avoid the need to go from AC to DC and
-back, but lacking the electrotechnical skills I'm not self-confident
-enough to try and waste my PSU. Anyway, this has gone way off-topic by
-now.
-
-Kind regards,
-Chris
-
---mJm6k4Vb/yFcL9ZU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iQIVAwUBRHDsS12m8MprmeOlAQK96Q//UYfr/UnLrwsGhurTLhkAh/Hn6gKOU0RO
-NOKeOGjBJQELq84wqeCjhUMC8Tg6JsysffLTsjPUQdCgISAP9WSRkw43N8oXXEcN
-qpQXBCkWRbT8f6CXbafO8DT277sEoOaRsFK2JvVaVXfUEwWmmUPVpUJaFBm/O7OR
-rr49zjcjTDe8H2bKTRNNEFCxaCyhvk3/G/JYDApyls55Gkw9lnVIuwGSkSwMehc0
-Fek3lzq/FsZOhvB0s5dPB2m314acc1WxVIj0kkZYc9LzNPSdVF0mi04TVNyPZs5N
-uXdJKLhgdIBSVNZgrJ/Ha44EZ6EcosJq33jMBOvGMjvKHjY2w+XFGN+5/6BHswfy
-j5N7sE8KHXwLQWjreD+3lAIrXffB4ZttkF4jdeYM/A19x2o4VPC2eKtGpH5n8UJ+
-xJ9pRxMlZiIiQzpBRhw5mGkM0hbnHltNM8e5/fssRJQB3Ne2M0OzG11F2/oz+D5i
-EMZXmZOvRI+1qdOnvRZM/tQkTZX16BhZMSt1KJ4+SFF1GPlN96cRK5akl27Y5d7c
-TTrGPJewOgRcVKN2QwKqt6WZwwolWcAhtMV8hzpSwNcZLOXoXktidC7Bdba7hT4N
-/H6zhm7cngo8SF6GSoERA44qWhZ3IZaQzeeJJacc0KCu/SAd88W+218Tx/XuGy/P
-HaJ+Qq6IElg=
-=/m2O
------END PGP SIGNATURE-----
-
---mJm6k4Vb/yFcL9ZU--
-
+Michael Krufky

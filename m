@@ -1,60 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWETX7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWEUAEH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932215AbWETX7k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 May 2006 19:59:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWETX7k
+	id S932231AbWEUAEH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 May 2006 20:04:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWEUAEH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 May 2006 19:59:40 -0400
-Received: from imf22aec.mail.bellsouth.net ([205.152.59.70]:56704 "EHLO
-	imf22aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S932215AbWETX7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 May 2006 19:59:39 -0400
-Date: Sat, 20 May 2006 19:59:17 -0400 (EDT)
-From: Ameer Armaly <ameer@bellsouth.net>
-X-X-Sender: ameer@sg1
-To: linux-kernel@vger.kernel.org
-Subject: [patch] i386 warning cleanups that work
-Message-ID: <Pine.LNX.4.61.0605201957070.3380@sg1>
+	Sat, 20 May 2006 20:04:07 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.82]:38381 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S932231AbWEUAEG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 May 2006 20:04:06 -0400
+Message-ID: <446FAEE3.6060003@cmu.edu>
+Date: Sat, 20 May 2006 20:05:55 -0400
+From: George Nychis <gnychis@cmu.edu>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060503)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Willy Tarreau <willy@w.ods.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: cannot load *any* modules with 2.4 kernel
+References: <446F3F6A.9060004@cmu.edu> <20060520162529.GT11191@w.ods.org>
+In-Reply-To: <20060520162529.GT11191@w.ods.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a version that works, without the efi stuff that caused all the problems, and which I assumed after making the cpu and apm stuff work would work just as easily; just goes to show the
-problems with lazyness.
+Okay, so heres what I did.  I downloaded modutils version 2.4.27 and
+extracted it to /usr/local/modutils
 
-diff --git a/arch/i386/kernel/apm.c b/arch/i386/kernel/apm.c
-index df0e174..fc34cf2 100644
---- a/arch/i386/kernel/apm.c
-+++ b/arch/i386/kernel/apm.c
-@@ -1063,7 +1063,7 @@ #if defined(CONFIG_APM_DISPLAY_BLANK) &&
+Then in my 2.4.32 kernel's Makefile, I changed the DEPMOD variable to
+point to /usr/local/modutils/sbin/depmod
 
-  static int apm_console_blank(int blank)
-  {
--	int error, i;
-+	int error = 0, i;
-  	u_short state;
-  	static const u_short dev[3] = { 0x100, 0x1FF, 0x101 };
+Then I build the kernel with:
+make dep && make bzImage modules modules_install && make install
 
-@@ -1282,7 +1282,7 @@ static void standby(void)
-  static apm_event_t get_event(void)
-  {
-  	int		error;
--	apm_event_t	event;
-+	apm_event_t	event = 0;
-  	apm_eventinfo_t	info;
+So then my initrd gets generated, I reboot to the 2.4.32 kernel, and
+thats where i'm at now.
 
-  	static int notified;
-diff --git a/arch/i386/kernel/cpu/transmeta.c b/arch/i386/kernel/cpu/transmeta.c
-index 7214c9b..0737890 100644
---- a/arch/i386/kernel/cpu/transmeta.c
-+++ b/arch/i386/kernel/cpu/transmeta.c
-@@ -9,7 +9,7 @@ static void __init init_transmeta(struct
-  {
-  	unsigned int cap_mask, uk, max, dummy;
-  	unsigned int cms_rev1, cms_rev2;
--	unsigned int cpu_rev, cpu_freq, cpu_flags, new_cpu_rev;
-+	unsigned int cpu_rev, cpu_freq = 0, cpu_flags, new_cpu_rev;
-  	char cpu_info[65];
+So then for instance I goto /lib/modules/2.4.32/net and do:
+/usr/local/modutils/sbin/insmod 8390.o
 
-  	get_model_name(c);	/* Same as AMD/Cyrix */
+and I see all those unresolved symbols
+
+So maybe now that you have more info, we can figure something out.
+
+Thanks!
+George
+
+
+Willy Tarreau wrote:
+> Hi,
+> 
+> On Sat, May 20, 2006 at 12:10:18PM -0400, George Nychis wrote:
+>> Hi,
+>>
+>> I boot two kernels, a 2.6.9 kernel and just recently built a 2.4.32 kernel
+>>
+>> In the 2.4.32 kernel I have =y for:
+>> CONFIG_MODULES
+>> CONFIG_MODVERSIONS
+>> CONFIG_KMOD
+>>
+>> I then build my kernel, with some modules, install the modules, and boot
+>> my 2.4.32 kernel successfully
+>>
+>> when i do lsmod, it is completely empty, no modules are loaded.  This
+>> only happens for my 2.4.32 kernel though, modules load fine in 2.6.9
+> 
+> What's your modutils version ?  -> lsmod -V
+> You must use modutils and not modules-utils under 2.4, and I suspect
+> that if you jumped back from 2.6 to 2.4, you might not have the right
+> package. Note that modules-utils contains a wrapper to call the right
+> modutils when you are running 2.4, so you should really do lsmod -V
+> when running 2.4.
+> 
+>> If i try to manually insert with insmod or modprobe, i get unresolved
+>> external symbols for things that I am sure should be resolved... for
+>> example, i get unresolved external symbol for printk
+>>
+>> I'll give some other common unresolved smybols and maybe someone can
+>> point me in the right direction of what else i need to specify to you
+>> guys so that you can help me out further.
+>>
+>> prinkt
+>> add_timer
+>> dev_mc_add
+>> CardServices
+>> kfree
+>> cpu_raise_softirq
+>> free_irq
+>> kmalloc
+>>
+>> Thanks!
+>> George
+> 
+> Regards,
+> Willy
+> 
+> 

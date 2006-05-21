@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbWEUW2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751474AbWEUW3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750927AbWEUW2n (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 18:28:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbWEUW2n
+	id S1751474AbWEUW3h (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 18:29:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWEUW3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 18:28:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54206 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750927AbWEUW2m (ORCPT
+	Sun, 21 May 2006 18:29:37 -0400
+Received: from dvhart.com ([64.146.134.43]:30858 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1751474AbWEUW3g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 18:28:42 -0400
-Date: Sun, 21 May 2006 18:28:31 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Ulrich Drepper <drepper@gmail.com>, Chris Wedgwood <cw@f00f.org>,
-       dragoran <dragoran@feuerpokemon.de>, linux-kernel@vger.kernel.org
-Subject: Re: IA32 syscall 311 not implemented on x86_64
-Message-ID: <20060521222831.GP8250@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
-	Ulrich Drepper <drepper@gmail.com>, Chris Wedgwood <cw@f00f.org>,
-	dragoran <dragoran@feuerpokemon.de>, linux-kernel@vger.kernel.org
-References: <44702650.30507@feuerpokemon.de> <20060521185000.GB8250@redhat.com> <20060521185610.GC8250@redhat.com> <200605220019.08902.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605220019.08902.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
+	Sun, 21 May 2006 18:29:36 -0400
+Message-ID: <4470E9C5.3080206@mbligh.org>
+Date: Sun, 21 May 2006 15:29:25 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, apw@shadowen.org
+Subject: Re: 2.6.17-rc4-mm2
+References: <446F3D6D.10704@mbligh.org> <20060521150259.3a1bdc9e.akpm@osdl.org>
+In-Reply-To: <20060521150259.3a1bdc9e.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 22, 2006 at 12:19:08AM +0200, Andi Kleen wrote:
+Andrew Morton wrote:
+> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
+> 
+>>Panic on boot on 2-way PPC64
+>> http://test.kernel.org/abat/32360/debug/console.log
+>>
+>> Bad page state in process 'idle'
+>> page:c0000000010c3100 flags:0x0003300000000000 mapping:0000000000000000 
+>> mapcount:0 count:0
+>> Trying to fix it up, but a reboot is needed
+>> Backtrace:
+>> Call Trace:
+>> [C0000000004CBB70] [C00000000000EEE8] .show_stack+0x74/0x1b4 (unreliable)
+>> [C0000000004CBC20] [C000000000098D04] .bad_page+0x80/0x134
+>> [C0000000004CBCB0] [C000000000099F28] .__free_pages_ok+0x134/0x280
+>> [C0000000004CBD70] [C00000000039C4F8] .free_all_bootmem_core+0x15c/0x320
+>> [C0000000004CBE50] [C0000000003923AC] .mem_init+0xc0/0x294
+>> [C0000000004CBEF0] [C000000000385700] .start_kernel+0x208/0x300
+>> [C0000000004CBF90] [C000000000008594] .start_here_common+0x88/0x8c
+> 
+> 
+> I dunno, Martin.  I obviously need to resurrect the
+> takes-seven-minutes-to-boot pseries machine here, but I need to get -mm3
 
- > >  > You make a good point.  In fact, given it's unthrottled, someone
- > >  > with too much time on their hands could easily fill up a /var
- > >  > just by calling unimplemented syscalls this way.
- > 
- > I never bought this argument because there are tons of printks in the kernel
- > that can be triggered by everybody.
+Don't kill yourself over it - the blade seems to do it, but the p650
+(8x) doesn't, so it may not help.
 
-Then they should also be either rate limited, or removed.
+> out without Mel's patches to see how much that fixes.  So if you could test
+> -mm3 and if that fixes it then we have a likely culprit.
 
- > > Actually it is kinda throttled, but only on process name.
- > > This patch just removes that stuff completely.
- > > (Also removes a bunch of trailing whitespace)
- > 
- > FF tree already has a different solution.
+Sure, no problem. I suppose I should really make this thing do automated
+bisection chopsearch ... I had that half-working when at IBM, but it'll
+have to wait for the next generation now ... shouldn't take all that long.
 
-Adding a sysctl ? That seems way overkill to me.
-What practical purpose does that printk solve ?
-
-		Dave
-
--- 
-http://www.codemonkey.org.uk
+M.

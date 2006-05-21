@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751544AbWEUMdc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751545AbWEUMiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751544AbWEUMdc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 08:33:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbWEUMdc
+	id S1751545AbWEUMiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 08:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751546AbWEUMiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 08:33:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13477 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751543AbWEUMdb (ORCPT
+	Sun, 21 May 2006 08:38:25 -0400
+Received: from fw5.argo.co.il ([194.90.79.130]:18693 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S1750964AbWEUMiY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 08:33:31 -0400
-Date: Sun, 21 May 2006 05:33:08 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: torvalds@osdl.org, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, kraxel@suse.de, zach@vmware.com
-Subject: Re: [patch] i386, vdso=[0|1] boot option and
- /proc/sys/vm/vdso_enabled
-Message-Id: <20060521053308.2dddc6f5.akpm@osdl.org>
-In-Reply-To: <20060521113858.GA25770@elte.hu>
-References: <1147759423.5492.102.camel@localhost.localdomain>
-	<20060516064723.GA14121@elte.hu>
-	<1147852189.1749.28.camel@localhost.localdomain>
-	<20060519174303.5fd17d12.akpm@osdl.org>
-	<20060520010303.GA17858@elte.hu>
-	<20060519181125.5c8e109e.akpm@osdl.org>
-	<Pine.LNX.4.64.0605191813050.10823@g5.osdl.org>
-	<20060520085351.GA28716@elte.hu>
-	<20060520022650.46b048f8.akpm@osdl.org>
-	<20060521110300.GB21117@elte.hu>
-	<20060521113858.GA25770@elte.hu>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 21 May 2006 08:38:24 -0400
+Message-ID: <44705F38.10905@argo.co.il>
+Date: Sun, 21 May 2006 15:38:16 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Jeff Dike <jdike@addtoit.com>
+CC: Renzo Davoli <renzo@cs.unibo.it>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andi Kleen <ak@suse.de>, Daniel Jacobowitz <dan@debian.org>,
+       Ulrich Drepper <drepper@gmail.com>, osd@cs.unibo.it,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2-ptrace_multi
+References: <20060518155337.GA17498@cs.unibo.it> <20060519174534.GA22346@cs.unibo.it> <20060519201509.GA13477@nevyn.them.org> <200605192217.30518.ak@suse.de> <1148135825.2085.33.camel@localhost.localdomain> <20060520183020.GC11648@cs.unibo.it> <20060520213959.GA4229@ccure.user-mode-linux.org>
+In-Reply-To: <20060520213959.GA4229@ccure.user-mode-linux.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 May 2006 12:38:18.0423 (UTC) FILETIME=[6FEAA470:01C67CD3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
+Jeff Dike wrote:
+>> PTRACE_MULTI can be also used to optimize many other virtualized calls,
+>> e.g. to read/write all the buffers for a readv/writev/recvmsg/sendmsg
+>> call at once.
+>>     
 >
-> 
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > > vmm:/home/akpm# echo 1 > /proc/sys/vm/vdso_enabled 
-> > > vmm:/home/akpm# 
-> > > vmm:/home/akpm> ls -l
-> > > zsh: segmentation fault  ls -l
-> > 
-> > Andrew, could you try the patch below, does your FC1 box work with it 
-> > applied and CONFIG_COMPAT_VDSO enabled? (no need to pass any boot 
-> > options)
-> 
-> in case this doesnt do the trick,
+> Here, I bet the data copying cost dominates the system call, and the
+> syscall overhead is minimal.	
 
-It doesn't do the trick.
+In addition, the aio API allows you to do that in two calls for an iovec 
+of any size.
 
-> could you also try booting with the 
-> norandmaps boot option?
+-- 
+error compiling committee.c: too many arguments to function
 
-Nor does that.

@@ -1,45 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751545AbWEUMiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWEUNJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751545AbWEUMiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 08:38:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751546AbWEUMiZ
+	id S964827AbWEUNJO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 09:09:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbWEUNJO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 08:38:25 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:18693 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S1750964AbWEUMiY (ORCPT
+	Sun, 21 May 2006 09:09:14 -0400
+Received: from [194.90.237.34] ([194.90.237.34]:18232 "EHLO mtlexch01.mtl.com")
+	by vger.kernel.org with ESMTP id S964827AbWEUNJN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 08:38:24 -0400
-Message-ID: <44705F38.10905@argo.co.il>
-Date: Sun, 21 May 2006 15:38:16 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Jeff Dike <jdike@addtoit.com>
-CC: Renzo Davoli <renzo@cs.unibo.it>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andi Kleen <ak@suse.de>, Daniel Jacobowitz <dan@debian.org>,
-       Ulrich Drepper <drepper@gmail.com>, osd@cs.unibo.it,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2-ptrace_multi
-References: <20060518155337.GA17498@cs.unibo.it> <20060519174534.GA22346@cs.unibo.it> <20060519201509.GA13477@nevyn.them.org> <200605192217.30518.ak@suse.de> <1148135825.2085.33.camel@localhost.localdomain> <20060520183020.GC11648@cs.unibo.it> <20060520213959.GA4229@ccure.user-mode-linux.org>
-In-Reply-To: <20060520213959.GA4229@ccure.user-mode-linux.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 May 2006 12:38:18.0423 (UTC) FILETIME=[6FEAA470:01C67CD3]
+	Sun, 21 May 2006 09:09:13 -0400
+Date: Sun, 21 May 2006 16:10:25 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Brice Goglin <brice@myri.com>
+Cc: Greg KH <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: AMD 8131 MSI quirk called too late, bus_flags not inherited ?
+Message-ID: <20060521131025.GR30211@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <4468EE85.4000500@myri.com> <20060518155441.GB13334@suse.de> <20060521101656.GM30211@mellanox.co.il> <447047F2.2070607@myri.com> <20060521121726.GQ30211@mellanox.co.il> <44705DA4.2020807@myri.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44705DA4.2020807@myri.com>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 21 May 2006 13:13:11.0859 (UTC) FILETIME=[4FB3A030:01C67CD8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike wrote:
->> PTRACE_MULTI can be also used to optimize many other virtualized calls,
->> e.g. to read/write all the buffers for a readv/writev/recvmsg/sendmsg
->> call at once.
->>     
->
-> Here, I bet the data copying cost dominates the system call, and the
-> syscall overhead is minimal.	
+Quoting r. Brice Goglin <brice@myri.com>:
+> Subject: Re: AMD 8131 MSI quirk called too late, bus_flags not inherited ?
+> 
+> Michael S. Tsirkin wrote:
+> > MSI is an optional feature so things are supposed to work even without MSI -
+> > are you getting that great a benefit from MSI?
+> >   
+> 
+> Not great, I would say small.
 
-In addition, the aio API allows you to do that in two calls for an iovec 
-of any size.
+Me too.
+
+> > All mellanox PCI-X devices have a bridge inside them, so ...
+> >   
+> 
+> Ok so you really need something for 2.6.17. What about the attached
+> patch to fix the fact that bus flags are not inherited ?
+> 
+> Signed-off-by: Brice Goglin <brice@myri.com>
+
+Seems to work for MSI but not for MSI-X. With MSI-X, I still see:
+
+ib_mthca 0000:04:00.0: NOP command failed to generate interrupt (IRQ 217),
+aborting.
+ib_mthca 0000:04:00.0: Try again with MSI/MSI-X disabled.
+
+
+> > Doesn't seem to work for me:
+> >
+> > ib_mthca: Initializing 0000:04:00.0
+> > GSI 18 sharing vector 0xB9 and IRQ 18
+> > ACPI: PCI Interrupt 0000:04:00.0[A] -> GSI 29 (level, low) -> IRQ 185
+> > ib_mthca 0000:04:00.0: NOP command failed to generate interrupt (IRQ 217),
+> > aborting.
+> > ib_mthca 0000:04:00.0: Try again with MSI/MSI-X disabled.
+> > ACPI: PCI interrupt for device 0000:04:00.0 disabled
+> > ib_mthca: probe of 0000:04:00.0 failed with error -16
+> >   
+> 
+> Ok. Do you at least see the quirk message ?
+
+Yes.
+
+> Thanks,
+> Brice
+> 
+> 
+> Index: linux-mm/drivers/pci/msi.c
+> ===================================================================
+> --- linux-mm.orig/drivers/pci/msi.c	2006-05-21 14:25:53.000000000 +0200
+> +++ linux-mm/drivers/pci/msi.c	2006-05-21 14:26:56.000000000 +0200
+> @@ -916,6 +916,7 @@
+>   **/
+>  int pci_enable_msi(struct pci_dev* dev)
+>  {
+> +	struct pci_bus *bus;
+>  	int pos, temp, status = -EINVAL;
+>  	u16 control;
+>  
+> @@ -925,8 +926,9 @@
+>  	if (dev->no_msi)
+>  		return status;
+>  
+> -	if (dev->bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
+> -		return -EINVAL;
+> +	for (bus = dev->bus; bus; bus = bus->parent)
+> +		if (bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
+> +			return -EINVAL;
+>  
+>  	temp = dev->irq;
+>  
+> 
+> 
+
+It seems we must add this loop to pci_enable_msix as well.
 
 -- 
-error compiling committee.c: too many arguments to function
-
+MST

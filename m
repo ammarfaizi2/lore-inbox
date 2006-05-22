@@ -1,111 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751556AbWEVFae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWEVFfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751556AbWEVFae (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 01:30:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbWEVFad
+	id S932111AbWEVFfg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 01:35:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWEVFfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 01:30:33 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:11981 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S1751556AbWEVFad convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 01:30:33 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [LINUX-KERNEL] Problem loading any custom driver
-Date: Sun, 21 May 2006 22:30:32 -0700
-Message-ID: <1FB1F81B4767FC48A2AF2278D735CE64038BFC5F@cacexc05.americas.cpqcorp.net>
-In-Reply-To: <1148271181.3902.59.camel@laptopd505.fenrus.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [LINUX-KERNEL] Problem loading any custom driver
-Thread-Index: AcZ9Vggd8zZSnJFeRl6unPFx0Hg6JwAChcqw
-From: "Libershteyn, Vladimir" <vladimir.libershteyn@hp.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 22 May 2006 05:30:32.0231 (UTC) FILETIME=[D8164B70:01C67D60]
+	Mon, 22 May 2006 01:35:36 -0400
+Received: from verein.lst.de ([213.95.11.210]:3735 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S932111AbWEVFfg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 01:35:36 -0400
+Date: Mon, 22 May 2006 07:34:50 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>, hch@lst.de, bcrl@kvack.org,
+       cel@citi.umich.edu, zach.brown@oracle.com, linux-kernel@vger.kernel.org,
+       Ian Kent <raven@themaw.net>
+Subject: Re: [PATCH 2/4] Remove readv/writev methods and use aio_read/aio_write instead
+Message-ID: <20060522053450.GA22210@lst.de>
+References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com> <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com> <1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com> <1147727945.20568.53.camel@dyn9047017100.beaverton.ibm.com> <1147728133.6181.2.camel@dyn9047017100.beaverton.ibm.com> <20060521180037.3c8f2847.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060521180037.3c8f2847.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So,
-in this case what kind of makefile I should have?
-Can you attach an example?
-Attached makefile is very similar what I found in the 2.6.9-34.EL-i686 source
-I also were thinking that some os includes are not the right ones
-
---------------------------------------------------
-
-/* Include Files */
-#ifdef MODULE
-#include <linux/module.h>
-#include <linux/version.h>
-#endif
-
-#include <linux/config.h>
-#include <linux/types.h>
-#include <linux/pci.h>
-#include <linux/kernel.h>
-#include <linux/sched.h>
-
-#include <linux/netdevice.h>
-#include <linux/etherdevice.h>
-#include <linux/init.h>
-#include <linux/skbuff.h>
-#include <linux/ethtool.h>
-
-#include <linux/mm.h>
-#include <linux/errno.h>
-#include <linux/ioport.h>
-
-#include <linux/delay.h>
-#include <linux/timer.h>
-#include <linux/slab.h>
-#include <linux/interrupt.h>
-#include <linux/version.h>
-#include <linux/inetdevice.h>
-#include <linux/bitops.h>
-
-#include <asm/uaccess.h>
-#include <linux/if_ether.h>
-#include <linux/if_arp.h>
-#include <net/arp.h>
-
-#include "atf.h"
-#include "atf_host.h"
-#include "atf_common.h"
-
--------------------------------------------------------------
-
------Original Message-----
-From: Arjan van de Ven [mailto:arjan@infradead.org]
-Sent: Sunday, May 21, 2006 9:13 PM
-To: Libershteyn, Vladimir
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: [LINUX-KERNEL] Problem loading any custom driver
-
-
-On Sun, 2006-05-21 at 21:05 -0700, Libershteyn, Vladimir wrote:
-> Here is a makefile
-> -------------------------------------------------
-> #
-> # Makefile for the Los Angeles PCI Adapter
-> # This file supports Red Hat Linux kernel 2.6(included) and above
-> #
-> HPATH := /usr/src/kernels/2.6.9-34.EL-i686/include
-> CFLAGS = -I$(HPATH) -Wall -O2 -fomit-frame-pointer -c
-> CFLAGS := $(CFLAGS) -DHOST_LITTLE_ENDIAN -DHOST_SIZE_32
+On Sun, May 21, 2006 at 06:00:37PM -0700, Andrew Morton wrote:
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> >
+> > This patch removes readv() and writev() methods and replaces
+> >  them with aio_read()/aio_write() methods.
 > 
-> obj-m += atf_host.o
+> And it breaks autofs4
+> 
+> autofs: pipe file descriptor does not contain proper ops
 
-this is buggy, you have to drop the CFLAGS lines!!!!!
+this comes because the autofs4 pipe fd doesn't have a write file
+operations.
 
+Badari do you remember any place in your patches where you didn't
+add do_sync_write for a file_operations instance?
 
-> Our group does not have ability to put files for outside access.
-> Can you specify what parts of the code you need me to attach?
-> Im not familiar with rules, is it allowed to attach source files?
-
-yeah that's fine if they're not gigantic (50Kb or so is a reasonable
-boundary for that)
-
+Ian, what kind of file is the autofs4 pipe?  is it a named pipe or
+a fifo or a "real" file?

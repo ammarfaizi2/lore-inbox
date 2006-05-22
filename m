@@ -1,76 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWEVJdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbWEVJgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbWEVJdm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 05:33:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWEVJdm
+	id S1750823AbWEVJgE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 05:36:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWEVJgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 05:33:42 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:56200 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750753AbWEVJdl (ORCPT
+	Mon, 22 May 2006 05:36:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:20686 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750800AbWEVJgB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 05:33:41 -0400
-Date: Mon, 22 May 2006 11:33:01 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: jayakumar.acpi@gmail.com
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: [PATCH/RFC 2.6.17-rc4 1/1] ACPI: Atlas ACPI driver v3
-Message-ID: <20060522093301.GB25624@elf.ucw.cz>
-References: <200605220333.k4M3Xkg6020638@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605220333.k4M3Xkg6020638@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 22 May 2006 05:36:01 -0400
+Date: Mon, 22 May 2006 02:35:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: hch@lst.de, pbadari@us.ibm.com, bcrl@kvack.org, cel@citi.umich.edu,
+       zach.brown@oracle.com, linux-kernel@vger.kernel.org, raven@themaw.net
+Subject: Re: [PATCH 2/4] Remove readv/writev methods and use
+ aio_read/aio_write instead
+Message-Id: <20060522023519.2541f082.akpm@osdl.org>
+In-Reply-To: <20060522022917.3e563261.akpm@osdl.org>
+References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>
+	<1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
+	<1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com>
+	<1147727945.20568.53.camel@dyn9047017100.beaverton.ibm.com>
+	<1147728133.6181.2.camel@dyn9047017100.beaverton.ibm.com>
+	<20060521180037.3c8f2847.akpm@osdl.org>
+	<20060522053450.GA22210@lst.de>
+	<20060522022917.3e563261.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 22-05-06 11:33:46, jayakumar.acpi@gmail.com wrote:
-> Hi Len, ACPI, and kernel folk,
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> Christoph Hellwig <hch@lst.de> wrote:
+> >
+> > On Sun, May 21, 2006 at 06:00:37PM -0700, Andrew Morton wrote:
+> > > Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> > > >
+> > > > This patch removes readv() and writev() methods and replaces
+> > > >  them with aio_read()/aio_write() methods.
+> > > 
+> > > And it breaks autofs4
+> > > 
+> > > autofs: pipe file descriptor does not contain proper ops
+> > 
+> > this comes because the autofs4 pipe fd doesn't have a write file
+> > operations.
+> > 
 > 
-> Appended is v3 after removing unused defines and whitespace 
-> cleanup. Thanks to Pavel Machek for the feedback.
-> 
-> Please let me know if it looks okay and if you have any feedback
-> or suggestions.
-> 
-> Thanks,
-> Jaya Kumar
-> 
-> Signed-off-by: Jaya Kumar <jayakumar.acpi@gmail.com>
+> Note that fs/autofs/inode.c does the same thing.
 
-ACK, but I guess you should cc Dmitry (input maintainer) and possibly
-Andrew Morton to get it in... Ok, few more nits.
-
-> +#else
-> +#define atlas_free_input(...)
-> +#define atlas_setup_input(...) 0
-> +#define atlas_input_report(...) 
-> +#endif
-
-Does the driver actually do anything useful in this case?
-
-> +	}
-> +
-> +	return status ;
-
-Extra " " before ;.
-
-> +static struct acpi_driver atlas_acpi_driver = {
-> +	.name = ACPI_ATLAS_NAME,
-> +	.class = ACPI_ATLAS_CLASS,
-> +	.ids = ACPI_ATLAS_BUTTON_HID,
-> +	.ops = {
-> +		.add = atlas_acpi_button_add,
-> +		.remove = atlas_acpi_button_remove,
-> +		},
-
-Extra tab before }.
-
-> +MODULE_SUPPORTED_DEVICE("Atlas ACPI");
-
-Are you sure this si good idea?
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+The loop driver plays with file_operations.write() also.  The code should
+be reviewed and tested against filesystems which use LO_FLAGS_USE_AOPS as
+well as against those which do not, please.

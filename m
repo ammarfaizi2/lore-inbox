@@ -1,225 +1,329 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbWEVFHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbWEVFXo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932440AbWEVFHN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 01:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWEVFHN
+	id S932455AbWEVFXo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 01:23:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWEVFXo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 01:07:13 -0400
-Received: from mx2.suse.de ([195.135.220.15]:4814 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751181AbWEVFHM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 01:07:12 -0400
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Mon, 22 May 2006 14:46:52 +1000
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <1060522044652.31268@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Subject: [PATCH 001 of 2] Prepare  for __copy_from_user_inatomic to not zero missed bytes.
-References: <20060522143524.25410.patches@notabene>
+	Mon, 22 May 2006 01:23:44 -0400
+Received: from godel.catalyst.net.nz ([202.78.240.40]:12014 "EHLO
+	mail1.catalyst.net.nz") by vger.kernel.org with ESMTP
+	id S1751242AbWEVFXn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 01:23:43 -0400
+From: Sam Vilain <sam.vilain@catalyst.net.nz>
+Subject: [PATCH] namespaces: uts_ns: make information visible via /proc/PID/uts directory
+Date: Mon, 22 May 2006 17:23:40 +1200
+To: linux-kernel@vger.kernel.org
+Message-Id: <20060522052340.27693.54208.stgit@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Sam Vilain <sam.vilain@catalyst.net.nz>
 
-There is a problem with __copy_from_user_inatomic zeroing the tail of
-the buffer in the case of an error.  As it is called in atomic
-context, the error may be transient, so it results in zeros being
-written where maybe they shouldn't be.
+Export the UTS information to a per-process directory /proc/PID/uts,
+that has individual nodes for hostname, ostype, etc - similar to
+those in /proc/sys/kernel
 
-In the usage in filemap, this opens a window for a well timed read to
-see data (zeros) which is not consistent with any ordering of reads
-and writes.
+This duplicates the approach used for /proc/PID/attr, which involves a
+lot of duplication of similar functions.  Much room for maintenance
+optimisation of both implementations remains.
+---
 
-Most cases where __copy_from_user_inatomic is called, a failure results
-in __copy_from_user being called immediately.  As long as the latter
-zeros the tail, the former doesn't need to.
-However in *copy_from_user_iovec implementations (in both filemap 
-and ntfs/file), it is assumed that copy_from_user_inatomic will zero the
-tail.
+ fs/proc/base.c |  236 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 236 insertions(+), 0 deletions(-)
 
-This patch removes that assumption, so that after this patch it will
-be safe for copy_from_user_inatomic to not zero the tail.
-
-This patch also adds some commentary to filemap.h and asm-i386/uaccess.h.
-
-After this patch, all architectures that might disable preempt when
-kmap_atomic is called need to have their __copy_from_user_inatomic* "fixed".
-This includes
- - powerpc
- - i386
- - mips
- - sparc
-
-Interestingly 'frv' disables preempt in kmap_atomic, but its
-copy_from_user doesn't expect faults and never zeros the tail...
-
-Signed-off-by: Neil Brown <neilb@suse.de>
-
-### Diffstat output
- ./fs/ntfs/file.c             |   26 ++++++++++++++------------
- ./include/asm-i386/uaccess.h |    6 ++++++
- ./mm/filemap.c               |    8 ++------
- ./mm/filemap.h               |   26 ++++++++++++++++++--------
- 4 files changed, 40 insertions(+), 26 deletions(-)
-
-diff ./fs/ntfs/file.c~current~ ./fs/ntfs/file.c
---- ./fs/ntfs/file.c~current~	2006-05-22 11:20:26.000000000 +1000
-+++ ./fs/ntfs/file.c	2006-05-22 11:20:26.000000000 +1000
-@@ -1358,7 +1358,7 @@ err_out:
- 	goto out;
- }
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 2031913..76f5acb 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -73,6 +73,7 @@ #include <linux/cpuset.h>
+ #include <linux/audit.h>
+ #include <linux/poll.h>
+ #include <linux/nsproxy.h>
++#include <linux/utsname.h>
+ #include "internal.h"
  
--static size_t __ntfs_copy_from_user_iovec(char *vaddr,
-+static size_t __ntfs_copy_from_user_iovec_inatomic(char *vaddr,
- 		const struct iovec *iov, size_t iov_ofs, size_t bytes)
- {
- 	size_t total = 0;
-@@ -1376,10 +1376,6 @@ static size_t __ntfs_copy_from_user_iove
- 		bytes -= len;
- 		vaddr += len;
- 		if (unlikely(left)) {
--			/*
--			 * Zero the rest of the target like __copy_from_user().
--			 */
--			memset(vaddr, 0, bytes);
- 			total -= left;
+ /* NOTE:
+@@ -179,6 +180,22 @@ #ifdef CONFIG_AUDITSYSCALL
+ #endif
+ 	PROC_TID_OOM_SCORE,
+ 	PROC_TID_OOM_ADJUST,
++#ifdef CONFIG_UTS_NS
++	PROC_TID_UTS,
++	PROC_TGID_UTS,
++	PROC_TGID_UTS_SYSNAME,
++	PROC_TGID_UTS_NODENAME,
++	PROC_TGID_UTS_RELEASE,
++	PROC_TGID_UTS_VERSION,
++	PROC_TGID_UTS_MACHINE,
++	PROC_TGID_UTS_DOMAINNAME,
++	PROC_TID_UTS_SYSNAME,
++	PROC_TID_UTS_NODENAME,
++	PROC_TID_UTS_RELEASE,
++	PROC_TID_UTS_VERSION,
++	PROC_TID_UTS_MACHINE,
++	PROC_TID_UTS_DOMAINNAME,
++#endif
+ 
+ 	/* Add new entries before this */
+ 	PROC_TID_FD_DIR = 0x8000,	/* 0x8000-0xffff */
+@@ -238,6 +255,9 @@ #endif
+ #ifdef CONFIG_AUDITSYSCALL
+ 	E(PROC_TGID_LOGINUID, "loginuid", S_IFREG|S_IWUSR|S_IRUGO),
+ #endif
++#ifdef CONFIG_UTS_NS
++	E(PROC_TGID_UTS,       "uts",    S_IFDIR|S_IRUGO|S_IXUGO),
++#endif
+ 	{0,0,NULL,0}
+ };
+ static struct pid_entry tid_base_stuff[] = {
+@@ -280,6 +300,9 @@ #endif
+ #ifdef CONFIG_AUDITSYSCALL
+ 	E(PROC_TID_LOGINUID, "loginuid", S_IFREG|S_IWUSR|S_IRUGO),
+ #endif
++#ifdef CONFIG_UTS_NS
++	E(PROC_TID_UTS,        "uts",     S_IFDIR|S_IRUGO|S_IXUGO),
++#endif
+ 	{0,0,NULL,0}
+ };
+ 
+@@ -300,6 +323,27 @@ static struct pid_entry tid_attr_stuff[]
+ };
+ #endif
+ 
++#ifdef CONFIG_UTS_NS
++static struct pid_entry tgid_uts_stuff[] = {
++	E(PROC_TGID_UTS_SYSNAME,    "sysname",    S_IFREG|S_IRUGO|S_IWUGO),
++	E(PROC_TGID_UTS_NODENAME,   "nodename",   S_IFREG|S_IRUGO|S_IWUGO),
++	E(PROC_TGID_UTS_RELEASE,    "release",    S_IFREG|S_IRUGO|S_IWUGO),
++	E(PROC_TGID_UTS_VERSION,    "version",    S_IFREG|S_IRUGO|S_IWUGO),
++	E(PROC_TGID_UTS_MACHINE,    "machine",    S_IFREG|S_IRUGO|S_IWUGO),
++	E(PROC_TGID_UTS_DOMAINNAME, "domainname", S_IFREG|S_IRUGO|S_IWUGO),
++	{0,0,NULL,0}
++};
++static struct pid_entry tid_uts_stuff[] = {
++	E(PROC_TID_UTS_SYSNAME,    "sysname",    S_IFREG|S_IRUGO|S_IWUGO),
++	E(PROC_TID_UTS_NODENAME,   "nodename",   S_IFREG|S_IRUGO|S_IWUGO),
++	E(PROC_TID_UTS_RELEASE,    "release",    S_IFREG|S_IRUGO|S_IWUGO),
++	E(PROC_TID_UTS_VERSION,    "version",    S_IFREG|S_IRUGO|S_IWUGO),
++	E(PROC_TID_UTS_MACHINE,    "machine",    S_IFREG|S_IRUGO|S_IWUGO),
++	E(PROC_TID_UTS_DOMAINNAME, "domainname", S_IFREG|S_IRUGO|S_IWUGO),
++	{0,0,NULL,0}
++};
++#endif
++
+ #undef E
+ 
+ static int proc_fd_link(struct inode *inode, struct dentry **dentry, struct vfsmount **mnt)
+@@ -1608,6 +1652,148 @@ static struct file_operations proc_tgid_
+ static struct inode_operations proc_tgid_attr_inode_operations;
+ #endif
+ 
++#ifdef CONFIG_UTS_NS
++static ssize_t proc_pid_uts_read(struct file * file, char __user * buf,
++				  size_t count, loff_t *ppos)
++{
++	struct inode * inode = file->f_dentry->d_inode;
++	ssize_t length;
++	loff_t __ppos = *ppos;
++	struct task_struct *task = get_proc_task(inode);
++	char __buf[__NEW_UTS_LEN+1];
++	char *which;
++
++	length = -ESRCH;
++	if (!task)
++		goto out_no_task;
++
++	switch (file->f_dentry->d_name.name[0]) {
++		case 's':
++			which = task->nsproxy->uts_ns->name.sysname;
++			break;
++		case 'n':
++			which = task->nsproxy->uts_ns->name.nodename;
++			break;
++		case 'r':
++			which = task->nsproxy->uts_ns->name.release;
++			break;
++		case 'v':
++			which = task->nsproxy->uts_ns->name.version;
++			break;
++		case 'm':
++			which = task->nsproxy->uts_ns->name.machine;
++			break;
++		case 'd':
++			which = task->nsproxy->uts_ns->name.domainname;
++			break;
++		default:
++			printk("procfs: impossible uts part '%s'",
++			       (char*)file->f_dentry->d_name.name);
++			length = -EINVAL;
++			goto out;
++	}
++		
++	length = strlen(which);
++	strcpy(__buf, which);
++	__buf[length++] = '\n';
++
++	if (__ppos >= length)
++		return 0;
++	if (count > length - __ppos)
++		count = length - __ppos;
++	if (copy_to_user(buf, __buf + __ppos, count))
++		return -EFAULT;
++
++out:
++	put_task_struct(task);
++out_no_task:
++	return length;
++}
++
++static ssize_t proc_pid_uts_write(struct file * file, const char __user * buf,
++				   size_t count, loff_t *ppos)
++{ 
++	struct inode * inode = file->f_dentry->d_inode;
++	ssize_t length; 
++	struct task_struct *task = get_proc_task(inode);
++	char *which;
++	char __buf[__NEW_UTS_LEN+1];
++
++	length = -ESRCH;
++	if (!task)
++		goto out_no_task;
++	if (count > PAGE_SIZE) 
++		count = PAGE_SIZE; 
++
++	/* No partial writes. */
++	length = -EINVAL;
++	if (*ppos != 0)
++		goto out;
++	if (count > __NEW_UTS_LEN)
++		goto out;
++		
++	length = -EPERM; 
++	if (!capable(CAP_SYS_ADMIN))
++		goto out;
++
++	length = -EFAULT; 
++	if (copy_from_user(__buf, buf, count)) 
++		goto out;
++
++	length = -EINVAL;
++	length = strnlen(__buf, count);
++	if (count != length)
++		goto out;
++
++	if (__buf[length-1] == '\n')
++		length = length - 1;
++	__buf[length] = '\0';
++
++	switch (file->f_dentry->d_name.name[0]) {
++		case 's':
++			which = task->nsproxy->uts_ns->name.sysname;
++			break;
++		case 'n':
++			which = task->nsproxy->uts_ns->name.nodename;
++			break;
++		case 'r':
++			which = task->nsproxy->uts_ns->name.release;
++			break;
++		case 'v':
++			which = task->nsproxy->uts_ns->name.version;
++			break;
++		case 'm':
++			which = task->nsproxy->uts_ns->name.machine;
++			break;
++		case 'd':
++			which = task->nsproxy->uts_ns->name.domainname;
++			break;
++		default:
++			printk("procfs: impossible uts part '%s'",
++			       (char*)file->f_dentry->d_name.name);
++			length = -EINVAL;
++			goto out;
++	}
++	
++	strcpy(which, __buf);
++
++out:
++	put_task_struct(task);
++out_no_task:
++	return length;
++} 
++
++static struct file_operations proc_pid_uts_operations = {
++	.read		= proc_pid_uts_read,
++	.write		= proc_pid_uts_write,
++};
++
++static struct file_operations proc_tid_uts_operations;
++static struct inode_operations proc_tid_uts_inode_operations;
++static struct file_operations proc_tgid_uts_operations;
++static struct inode_operations proc_tgid_uts_inode_operations;
++#endif
++
+ /* SMP-safe */
+ static struct dentry *proc_pident_lookup(struct inode *dir, 
+ 					 struct dentry *dentry,
+@@ -1760,6 +1946,30 @@ #ifdef CONFIG_SECURITY
+ 		case PROC_TGID_ATTR_FSCREATE:
+ 			inode->i_fop = &proc_pid_attr_operations;
  			break;
- 		}
-@@ -1420,11 +1416,13 @@ static inline void ntfs_set_next_iovec(c
-  * pages (out to offset + bytes), to emulate ntfs_copy_from_user()'s
-  * single-segment behaviour.
-  *
-- * We call the same helper (__ntfs_copy_from_user_iovec()) both when atomic and
-- * when not atomic.  This is ok because __ntfs_copy_from_user_iovec() calls
-- * __copy_from_user_inatomic() and it is ok to call this when non-atomic.  In
-- * fact, the only difference between __copy_from_user_inatomic() and
-- * __copy_from_user() is that the latter calls might_sleep().  And on many
-+ * We call the same helper (__ntfs_copy_from_user_iovec_inatomic()) both
-+ * when atomic and when not atomic.  This is ok because
-+ * __ntfs_copy_from_user_iovec_inatomic() calls __copy_from_user_inatomic()
-+ * and it is ok to call this when non-atomic.
-+ * Infact, the only difference between __copy_from_user_inatomic() and
-+ * __copy_from_user() is that the latter calls might_sleep() and the former
-+ * should not zero the tail of the buffer on error.  And on many
-  * architectures __copy_from_user_inatomic() is just defined to
-  * __copy_from_user() so it makes no difference at all on those architectures.
-  */
-@@ -1441,14 +1439,18 @@ static inline size_t ntfs_copy_from_user
- 		if (len > bytes)
- 			len = bytes;
- 		kaddr = kmap_atomic(*pages, KM_USER0);
--		copied = __ntfs_copy_from_user_iovec(kaddr + ofs,
-+		copied = __ntfs_copy_from_user_iovec_inatomic(kaddr + ofs,
- 				*iov, *iov_ofs, len);
- 		kunmap_atomic(kaddr, KM_USER0);
- 		if (unlikely(copied != len)) {
- 			/* Do it the slow way. */
- 			kaddr = kmap(*pages);
--			copied = __ntfs_copy_from_user_iovec(kaddr + ofs,
-+			copied = __ntfs_copy_from_user_iovec_inatomic(kaddr + ofs,
- 					*iov, *iov_ofs, len);
-+			/*
-+			 * Zero the rest of the target like __copy_from_user().
-+			 */
-+			memset(kaddr + ofs + copied, 0, len - copied);
- 			kunmap(*pages);
- 			if (unlikely(copied != len))
- 				goto err_out;
-
-diff ./include/asm-i386/uaccess.h~current~ ./include/asm-i386/uaccess.h
---- ./include/asm-i386/uaccess.h~current~	2006-05-22 11:20:26.000000000 +1000
-+++ ./include/asm-i386/uaccess.h	2006-05-22 11:20:26.000000000 +1000
-@@ -458,6 +458,12 @@ __copy_to_user(void __user *to, const vo
-  *
-  * If some data could not be copied, this function will pad the copied
-  * data to the requested size using zero bytes.
-+ *
-+ * An alternate version - __copy_from_user_inatomic() - may be called from
-+ * atomic context and will fail rather than sleep.  In this case the
-+ * uncopied bytes will *NOT* be padded with zeros.  See fs/filemap.h
-+ * for explanation of why this is needed.
-+ * FIXME this isn't implimented yet EMXIF
-  */
- static __always_inline unsigned long
- __copy_from_user_inatomic(void *to, const void __user *from, unsigned long n)
-
-diff ./mm/filemap.c~current~ ./mm/filemap.c
---- ./mm/filemap.c~current~	2006-05-22 11:20:26.000000000 +1000
-+++ ./mm/filemap.c	2006-05-22 11:20:26.000000000 +1000
-@@ -1804,7 +1804,7 @@ int remove_suid(struct dentry *dentry)
- EXPORT_SYMBOL(remove_suid);
++		case PROC_TID_UTS:
++			inode->i_nlink = 2;
++			inode->i_op = &proc_tid_uts_inode_operations;
++			inode->i_fop = &proc_tid_uts_operations;
++			break;
++		case PROC_TGID_UTS:
++			inode->i_nlink = 2;
++			inode->i_op = &proc_tgid_uts_inode_operations;
++			inode->i_fop = &proc_tgid_uts_operations;
++			break;
++		case PROC_TGID_UTS_SYSNAME:
++		case PROC_TGID_UTS_NODENAME:
++		case PROC_TGID_UTS_RELEASE:
++		case PROC_TGID_UTS_VERSION:
++		case PROC_TGID_UTS_MACHINE:
++		case PROC_TGID_UTS_DOMAINNAME:
++		case PROC_TID_UTS_SYSNAME:
++		case PROC_TID_UTS_NODENAME:
++		case PROC_TID_UTS_RELEASE:
++		case PROC_TID_UTS_VERSION:
++		case PROC_TID_UTS_MACHINE:
++		case PROC_TID_UTS_DOMAINNAME:
++			inode->i_fop = &proc_pid_uts_operations;
++			break;
+ #endif
+ #ifdef CONFIG_KALLSYMS
+ 		case PROC_TID_WCHAN:
+@@ -1889,6 +2099,32 @@ static struct inode_operations proc_tid_
+ };
+ #endif
  
- size_t
--__filemap_copy_from_user_iovec(char *vaddr, 
-+__filemap_copy_from_user_iovec_inatomic(char *vaddr,
- 			const struct iovec *iov, size_t base, size_t bytes)
- {
- 	size_t copied = 0, left = 0;
-@@ -1820,12 +1820,8 @@ __filemap_copy_from_user_iovec(char *vad
- 		vaddr += copy;
- 		iov++;
- 
--		if (unlikely(left)) {
--			/* zero the rest of the target like __copy_from_user */
--			if (bytes)
--				memset(vaddr, 0, bytes);
-+		if (unlikely(left))
- 			break;
--		}
- 	}
- 	return copied - left;
- }
-
-diff ./mm/filemap.h~current~ ./mm/filemap.h
---- ./mm/filemap.h~current~	2006-05-22 11:20:26.000000000 +1000
-+++ ./mm/filemap.h	2006-05-22 11:20:26.000000000 +1000
-@@ -16,15 +16,23 @@
- #include <linux/uaccess.h>
- 
- size_t
--__filemap_copy_from_user_iovec(char *vaddr,
--			       const struct iovec *iov,
--			       size_t base,
--			       size_t bytes);
-+__filemap_copy_from_user_iovec_inatomic(char *vaddr,
-+					const struct iovec *iov,
-+					size_t base,
-+					size_t bytes);
- 
++#ifdef CONFIG_UTS_NS
++static int proc_tgid_uts_readdir(struct file * filp,
++			     void * dirent, filldir_t filldir)
++{
++	return proc_pident_readdir(filp,dirent,filldir,
++				   tgid_uts_stuff,ARRAY_SIZE(tgid_uts_stuff));
++}
++
++static int proc_tid_uts_readdir(struct file * filp,
++			     void * dirent, filldir_t filldir)
++{
++	return proc_pident_readdir(filp,dirent,filldir,
++				   tid_uts_stuff,ARRAY_SIZE(tid_uts_stuff));
++}
++
++static struct file_operations proc_tgid_uts_operations = {
++	.read		= generic_read_dir,
++	.readdir	= proc_tgid_uts_readdir,
++};
++
++static struct file_operations proc_tid_uts_operations = {
++	.read		= generic_read_dir,
++	.readdir	= proc_tid_uts_readdir,
++};
++#endif
++
  /*
-  * Copy as much as we can into the page and return the number of bytes which
-  * were sucessfully copied.  If a fault is encountered then clear the page
-  * out to (offset+bytes) and return the number of bytes which were copied.
-+ *
-+ * NOTE: For this to work reliably we really want copy_from_user_inatomic_nocache
-+ * to *NOT* zero any tail of the buffer that it failed to copy.  If it does,
-+ * and if the following non-atomic copy succeeds, then there is a small window
-+ * where the target page contains neither the data before the write, nor the
-+ * data after the write (it contains zero).  A read at this time will see
-+ * data that is inconsistent with any ordering of the read and the write.
-+ * (This has been detected in practice).
+  * /proc/self:
   */
- static inline size_t
- filemap_copy_from_user(struct page *page, unsigned long offset,
-@@ -60,13 +68,15 @@ filemap_copy_from_user_iovec(struct page
- 	size_t copied;
- 
- 	kaddr = kmap_atomic(page, KM_USER0);
--	copied = __filemap_copy_from_user_iovec(kaddr + offset, iov,
--						base, bytes);
-+	copied = __filemap_copy_from_user_iovec_inatomic(kaddr + offset, iov,
-+							 base, bytes);
- 	kunmap_atomic(kaddr, KM_USER0);
- 	if (copied != bytes) {
- 		kaddr = kmap(page);
--		copied = __filemap_copy_from_user_iovec(kaddr + offset, iov,
--							base, bytes);
-+		copied = __filemap_copy_from_user_iovec_inatomic(kaddr + offset, iov,
-+								 base, bytes);
-+		if (bytes - copied)
-+			memset(kaddr + offset + copied, 0, bytes - copied);
- 		kunmap(page);
- 	}
- 	return copied;

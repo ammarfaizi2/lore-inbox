@@ -1,60 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWEVLAM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWEVLKs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750737AbWEVLAM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 07:00:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWEVLAM
+	id S1750746AbWEVLKs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 07:10:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWEVLKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 07:00:12 -0400
-Received: from main.gmane.org ([80.91.229.2]:48546 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750737AbWEVLAL (ORCPT
+	Mon, 22 May 2006 07:10:48 -0400
+Received: from wr-out-0506.google.com ([64.233.184.237]:2353 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750743AbWEVLKr convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 07:00:11 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Bernd Pfrommer <pfrommer@yahoo.com>
-Subject: Re: mcelog ?
-Date: Sat, 20 May 2006 22:46:11 +0000 (UTC)
-Message-ID: <loom.20060521T003831-723@post.gmane.org>
-References: <20060515114243.8ccaa9aa.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 69.120.44.180 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2)
+	Mon, 22 May 2006 07:10:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ItaH2O9Vm5m6M8L2+yEvi37zqiw32IodF8jhfpDayJHBn6j3wtJHtg990QNJDASHy9oc4TsCceWl94YT3fs+hsLDYM+vXHRfDoExOC6nxByFRDy64LLqKVEoTmmjz488o11f9XA5vpsGgmhnm4XeG/K7RyuIQpjJo+85EcDG4BQ=
+Message-ID: <756b48450605220410w4623fda3p23ddc4b38e64516b@mail.gmail.com>
+Date: Mon, 22 May 2006 07:10:46 -0400
+From: "Jaya Kumar" <jayakumar.acpi@gmail.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Subject: Re: [PATCH/RFC 2.6.17-rc4 1/1] ACPI: Atlas ACPI driver v3
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+In-Reply-To: <20060522093301.GB25624@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200605220333.k4M3Xkg6020638@localhost.localdomain>
+	 <20060522093301.GB25624@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski <skraw <at> ithnet.com> writes:
+On 5/22/06, Pavel Machek <pavel@ucw.cz> wrote:
+> ACK, but I guess you should cc Dmitry (input maintainer) and possibly
+> Andrew Morton to get it in... Ok, few more nits.
 
-> 
-> Hello,
-> 
-> can some kind soul please shortly explain what this message tells me:
-> 
-> HARDWARE ERROR
-> CPU 1: Machine Check Exception:                4 Bank 4: b60a200170080813
-> TSC 89cfb4725b17 ADDR 1025cb3f0 
-> This is not a software problem!
-> Run through mcelog --ascii to decode and contact your hardware vendor
-> Kernel panic - not syncing: Machine check
-> 
-> Of course I ran mcelog but I don't quite understand how the additional info
-> helps me finding the problem.
-> Is this a problem with RAM? And if, which one?
-> 
-> The box is a dual opteron with two banks of mem (4 sockets each), each socket
-> holding a 1 GB mem module.
-> 
-> Thanks for any hints.
+Will do.
 
+>
+> > +#else
+> > +#define atlas_free_input(...)
+> > +#define atlas_setup_input(...) 0
+> > +#define atlas_input_report(...)
+> > +#endif
+>
+> Does the driver actually do anything useful in this case?
 
-I got a very similar error on a supermicro H8QC8+ (4way dual-core opteron)
-during heavy disk writes. It only happened once so far. The error message also
-mentioned
-4 Bank 4: b608a00100000813 (strange that the last 4 digits agree).
+Depends on the application I guess. If CONFIG_INPUT is disabled, then
+only applications that read /proc/acpi/event will see the ASIM events.
 
-Bernd
+>
+> > +     }
+> > +
+> > +     return status ;
+>
+> Extra " " before ;.
 
+Sorry. Corrected.
 
+>
+> > +static struct acpi_driver atlas_acpi_driver = {
+> > +     .name = ACPI_ATLAS_NAME,
+> > +     .class = ACPI_ATLAS_CLASS,
+> > +     .ids = ACPI_ATLAS_BUTTON_HID,
+> > +     .ops = {
+> > +             .add = atlas_acpi_button_add,
+> > +             .remove = atlas_acpi_button_remove,
+> > +             },
+>
+> Extra tab before }.
+
+I hope I understood you correctly, the } on .ops after .remove should
+align with the . ops right?. I tried to conform with button.c and
+others. I will make the change I think you are suggesting anyway since
+it seems more natural.
+
+ 74 static struct acpi_driver acpi_button_driver = {
+ 75         .name = ACPI_BUTTON_DRIVER_NAME,
+ 76         .class = ACPI_BUTTON_CLASS,
+ 77         .ids = "ACPI_FPB,ACPI_FSB,PNP0C0D,PNP0C0C,PNP0C0E",
+ 78         .ops = {
+ 79                 .add = acpi_button_add,
+ 80                 .remove = acpi_button_remove,
+ 81                 },
+ 82 };
+
+ 71 static struct acpi_driver acpi_video_bus = {
+ 72         .name = ACPI_VIDEO_DRIVER_NAME,
+ 73         .class = ACPI_VIDEO_CLASS,
+ 74         .ops = {
+ 75                 .add = acpi_video_bus_add,
+ 76                 .remove = acpi_video_bus_remove,
+ 77                 .match = acpi_video_bus_match,
+ 78                 },
+ 79 };
+
+>
+> > +MODULE_SUPPORTED_DEVICE("Atlas ACPI");
+>
+> Are you sure this si good idea?
+
+You are right. It's a bad idea, none of the other drivers do it. I'll
+take it out.
+
+Thanks,
+jayakumar

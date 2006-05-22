@@ -1,87 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWEVLs0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWEVLtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbWEVLs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 07:48:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWEVLs0
+	id S1750765AbWEVLtp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 07:49:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWEVLtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 07:48:26 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:35597 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1750764AbWEVLsZ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 07:48:25 -0400
+	Mon, 22 May 2006 07:49:45 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:17350
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1750765AbWEVLtp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 07:49:45 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: 2.6.17-rc4-mm3
+Date: Mon, 22 May 2006 13:49:28 +0200
+User-Agent: KMail/1.9.1
+References: <20060522022709.633a7a7f.akpm@osdl.org> <200605221325.10761.mb@bu3sch.de> <200605221138.k4MBcgd2006492@turing-police.cc.vt.edu>
+In-Reply-To: <200605221138.k4MBcgd2006492@turing-police.cc.vt.edu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 22 May 2006 11:47:32.0502 (UTC) FILETIME=[82D1BB60:01C67D95]
-Content-class: urn:content-classes:message
-Subject: Re: [RFC PATCH (take #2)] i386: kill CONFIG_REGPARM completely
-Date: Mon, 22 May 2006 07:47:31 -0400
-Message-ID: <Pine.LNX.4.61.0605220739580.26623@chaos.analogic.com>
-In-Reply-To: <305c16960605201500s6153e1doad87e4b85f15b53f@mail.gmail.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC PATCH (take #2)] i386: kill CONFIG_REGPARM completely
-Thread-Index: AcZ9lYLbfWcAv6qoSaScna4wWJ0l2g==
-References: <20060520025353.GE9486@taniwha.stupidest.org> <20060520090614.GA9630@infradead.org> <20060520201357.GA32010@taniwha.stupidest.org> <20060520212049.GA11180@taniwha.stupidest.org> <305c16960605201500s6153e1doad87e4b85f15b53f@mail.gmail.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Matheus Izvekov" <mizvekov@gmail.com>
-Cc: "Chris Wedgwood" <cw@f00f.org>, "Christoph Hellwig" <hch@infradead.org>,
-       "LKML" <linux-kernel@vger.kernel.org>,
-       "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
-       "Dominik Brodowski" <linux@dominikbrodowski.net>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605221349.28329.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 22 May 2006 13:38, you wrote:
+> On Mon, 22 May 2006 13:25:10 +0200, Michael Buesch said:
+> > On Monday 22 May 2006 13:15, you wrote:
+> 
+> > > It looks to me line the old code stayed in a while() loop in rng_dev_read
+> > > until it had fulfilled the read request (including possibly multiple
+> > > calls to need_resched() and friends).  The new code will bail on an -EAGAIN
+> > > as soon as the *first* poll fails, rather than waiting until something
+> > > is available - even if it is NOT flagged O_NONBLOCK.
+> > 
+> > Yeah. That is how it works. I am wondering why userspace doesn't
+> > simply retry, if it receives an EAGAIN.
+> > Should we return ERESTARTSYS or something like that instead?
+> 
+> That's not the way it worked in previous kernels, and it's not the way that
+> the current rng-utils RPM in Fedora expects it to work.
+> 
+> Here's a patch that makes it work the way it used to.  Adding the test
+> for O_NONBLOCK is the biggie - the old code did a resched test at that
+> point in the loop, so I added it here too.
+> 
+> --- linux-2.6.17-rc4-mm3/drivers/char/hw_random/core.c.rnd_fix	2006-05-22 07:23:34.000000000 -0400
+> +++ linux-2.6.17-rc4-mm3/drivers/char/hw_random/core.c	2006-05-22 07:22:29.000000000 -0400
+> @@ -125,7 +125,7 @@ static ssize_t rng_dev_read(struct file 
+>  		mutex_unlock(&rng_mutex);
+>  
+>  		err = -EAGAIN;
+> -		if (!bytes_read)
+> +		if (filp->f_flags & O_NONBLOCK && !bytes_read)
+>  			goto out;
+>  
+>  		err = -EFAULT;
+> @@ -138,6 +138,9 @@ static ssize_t rng_dev_read(struct file 
+>  			data >>= 8;
+>  		}
+>  
+> +		if (need_resched())
+> +                        schedule_timeout_interruptible(1);
+> +
 
-On Sat, 20 May 2006, Matheus Izvekov wrote:
+Andrew's comment on this:
 
-> On 5/20/06, Chris Wedgwood <cw@f00f.org> wrote:
->> Take #2.
->>
->> Kill of CONFIG_REGPARM completely.
->>
->>
->> diff --git a/Documentation/stable_api_nonsense.txt b/Documentation/stable_api_nonsense.txt
->> index f39c9d7..ac11b81 100644
->> --- a/Documentation/stable_api_nonsense.txt
->> +++ b/Documentation/stable_api_nonsense.txt
->> @@ -62,9 +62,8 @@ consider the following facts about the L
->>        - different structures can contain different fields
->>        - Some functions may not be implemented at all, (i.e. some locks
->>         compile away to nothing for non-SMP builds.)
->> -      - Parameter passing of variables from function to function can be
->> -       done in different ways (the CONFIG_REGPARM option controls
->> -       this.)
->> +      - Parameter passing of variables from function to function can
->> +       be done in different ways.
->
-> Why not kill those 2 lines too? Now that non-regparm is gone, it
-> doesnt make sense to say there are different ways to pass parameters,
-> there is only regparm now, right?
->
+	What's going on with the need_resched() tricks in there?  (Unobvious, needs
+	a comment).  From my reading, it'll cause a caller to this function to hang
+	for arbitrary periods of time if something if causing heavy scheduling
+	pressure.
 
-On ix86 there are not enough registers to pass a significant parameter
-list all in registers! Like when you are printk()ing a dotted-quad IP
-address, etc. Registers ESI, EDI, and EBX are precious, that leaves
-EAX, ECX, EDX and possibly EBP for only 4 parameters. You need 5
-for the dotted quad IP address. If the compiler were to use the
-precious registers, the contents need to be saved on the stack.
-That negates any advantage to passing parameters in registers.
-
-This means that REGPARM will always remain a "hint" to the compiler,
-not some absolute order.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+So I decided to remove it and return -EAGAIN, so userspace can retry.
+But seems like it it does not. I thought glibc would handle that.

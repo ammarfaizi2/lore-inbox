@@ -1,32 +1,51 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932459AbWEVFXa (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 22 May 2006 01:23:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWEVFXa
+	id S1751053AbWEVRaM (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 22 May 2006 13:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbWEVRaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 01:23:30 -0400
-Received: from smtp8.libero.it ([193.70.192.92]:28051 "EHLO smtp8.libero.it")
-	by vger.kernel.org with ESMTP id S1751242AbWEVFX3 convert rfc822-to-8bit
+	Mon, 22 May 2006 13:30:12 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:11246 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S1751053AbWEVRaK convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 01:23:29 -0400
-Date: Mon, 22 May 2006 06:23:20 +0100
-Message-Id: <IZNIYW$6DF5FAC14E3E3FB1B927209D9BD9ABDD@libero.it>
-Subject: reply me
+	Mon, 22 May 2006 13:30:10 -0400
+Message-Id: <200605221730.k4MHTuhP023745@zeus2.kernel.org>
+From: =?ISO-8859-1?Q?=20=22Yal=FD?= Pansiyon" <y@superonline.com>
+Illegal-Object: Syntax error in From: address found on vger.kernel.org:
+	From:	Pansiyon
+				^-missing closing '"' in token
+Illegal-Object: Syntax error in From: address found on vger.kernel.org:
+	From:	Pansiyon
+				^-missing closing '"' in token
+Date: Mon, 22 May 2006 20:30:09 +0300
+Subject: Dikilide Tatil   www.yalipansiyon.com
+X-Mailer: Microsoft Outlook Express 5.00.2919.7000
 MIME-Version: 1.0
-X-Sensitivity: 3
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-From: "mark lambert" <marklambert@libero.it>
-X-XaM3-API-Version: 4.3 (R1) (B3pl17)
-X-SenderIP: 196.1.186.22
-X-Scanned: with antispam and antivirus automated system at libero.it
+Content-Type: text/plain; charset=windows-1254
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932459AbWEVFXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751053AbWEVRaM@vger.kernel.org>
 
-I have a proposal and am willing to give you detials if you are willing to assist.
+izmirin kuzey il=E7elerinden Dikili de Yal=FD Pansiyon i=E7in tatil tan=
+=FDt=FDm ama=E7l=FD mailimizdir
+Yal=FD pansiyon denize s=FDf=FDr =F6n=FC plaj butik otel nitelikli s=FD=
+cak ve kaliteli bir tesistir
 
-Regards
+detayl=FD bilgi  ve fotograf galerileri i=E7in l=FCtfen
+                          www.yalipansiyon.com
 
-Mark
+Yal=FD Pansiyon Dikili Kent Konseyi Turizm Komisyonu =FCyesi ve
+Dikili Turizm Giri=FEimcileri Kurucu =FCyesidir.
 
+0.232.671 99 22
+www.yalipansiyon.com
+yalipansiyon@superonline.com
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

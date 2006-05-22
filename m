@@ -1,61 +1,32 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750949AbWEUQOP (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 21 May 2006 12:14:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWEUQOP
+	id S932459AbWEVFXa (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 22 May 2006 01:23:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWEVFXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 12:14:15 -0400
-Received: from atacama.ehess.fr ([193.48.45.1]:45515 "EHLO atacama.ehess.fr")
-	by vger.kernel.org with ESMTP id S1750949AbWEUQOO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 12:14:14 -0400
-Message-Id: <200605211614.k4LGEBrn030012@atacama.ehess.fr>
-From: j-chkmail.atacama@ehess.fr
-To: cedric.durand@ehess.fr
-Subject: [NOTIFICATION DE NON REMISE DE MAIL]
-Date: Sun, 21 May 2006 18:14:23 +0200
+	Mon, 22 May 2006 01:23:30 -0400
+Received: from smtp8.libero.it ([193.70.192.92]:28051 "EHLO smtp8.libero.it")
+	by vger.kernel.org with ESMTP id S1751242AbWEVFX3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 01:23:29 -0400
+Date: Mon, 22 May 2006 06:23:20 +0100
+Message-Id: <IZNIYW$6DF5FAC14E3E3FB1B927209D9BD9ABDD@libero.it>
+Subject: reply me
 MIME-Version: 1.0
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-Miltered: at atacama with ID 447091D3.000 by Joe's j-chkmail (http://j-chkmail.ensmp.fr)!
+X-Sensitivity: 3
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+From: "mark lambert" <marklambert@libero.it>
+X-XaM3-API-Version: 4.3 (R1) (B3pl17)
+X-SenderIP: 196.1.186.22
+X-Scanned: with antispam and antivirus automated system at libero.it
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750949AbWEUQOP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932459AbWEVFXa@vger.kernel.org>
 
+I have a proposal and am willing to give you detials if you are willing to assist.
 
-Ce message a été vérifié par le système de filtrage de notre
-serveur mail
-(This message was verified by the filtering system of our mail
-server.)
+Regards
 
-Le message original a été remplacé par celui qui suit pour la
-raison suivante :
-(Original message was replaced by this one by the following
-reason )
-
-*** A virus was detected in your message
-
-  VIRUS FOUND : Worm.Mydoom.M
-
-Le message original avait le fichier attaché suivant :
-(Original message had the following attached files )
-
-  **** (CLEAN      ) : message.zip
-        TYPE         : application/octet-stream
-
-Ce message a été envoyé par :
-(Original message was sent by)
-
-  **** From : <linux-kernel@vger.kernel.org>
-
-Si vous avez des questions, vous pouvez contacter :
-(If you have any questions, you can contact )
-
-  postmaster@ehess.fr
-
-Cordialement,
-(Sincerely,)
-
-  postmaster@ehess.fr
-
+Mark
 

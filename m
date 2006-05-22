@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWEVTOX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbWEVTOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751088AbWEVTOX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 15:14:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbWEVTOX
+	id S1751135AbWEVTOw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 15:14:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWEVTOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 15:14:23 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:31502 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751088AbWEVTOX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 15:14:23 -0400
-Date: Mon, 22 May 2006 21:14:21 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Zachary Amsden <zach@vmware.com>, jakub@redhat.com,
-       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, kraxel@suse.de
-Subject: Re: [PATCH] Gerd Hoffman's move-vsyscall-into-user-address-range patch
-Message-ID: <20060522191421.GC9847@stusta.de>
-References: <1147759423.5492.102.camel@localhost.localdomain> <20060516064723.GA14121@elte.hu> <1147852189.1749.28.camel@localhost.localdomain> <20060519174303.5fd17d12.akpm@osdl.org> <20060522162949.GG30682@devserv.devel.redhat.com> <4471EA60.8080607@vmware.com> <20060522101454.52551222.akpm@osdl.org> <20060522172710.GA22823@elte.hu> <Pine.LNX.4.64.0605221045140.3697@g5.osdl.org>
+	Mon, 22 May 2006 15:14:51 -0400
+Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:45581 "EHLO
+	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1751135AbWEVTOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 15:14:51 -0400
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Linux Kernel Source Compression
+Date: Mon, 22 May 2006 20:15:01 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.64.0605211028100.4037@p34> <200605222007.19456.s0348365@sms.ed.ac.uk> <44720CB6.7010908@zytor.com>
+In-Reply-To: <44720CB6.7010908@zytor.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0605221045140.3697@g5.osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+Message-Id: <200605222015.01980.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 22, 2006 at 10:46:33AM -0700, Linus Torvalds wrote:
->...
-> > is it really a big problem to add "vdso=0" to the long list of 
-> > requirements you need to run a 2.6 kernel on an old distribution (or to 
-> > disable CONFIG_VDSO)? FC1 wasnt even 2.6-ready, it used a 2.4 kernel!
-> 
-> Backwards compatibility is absolutely paramount. Much more important than 
-> just about anything else.
+On Monday 22 May 2006 20:10, H. Peter Anvin wrote:
+> Alistair John Strachan wrote:
+> > On Monday 22 May 2006 19:58, H. Peter Anvin wrote:
+> > [snip]
+> >
+> >> Personally, I would like to suggest adding LZMA capability to gzip.
+> >> The gzip format already has support for multiple compression formats.
+> >
+> > Any idea why this wasn't done for bzip2?
+>
+> Yes, the bzip2 author I have been told was originally planning to do that,
+> but then thought it would be harder to deploy that way (because gzip is a
+> core utility, and people are nervous about making it larger.)
+>
+> You'd have to ask him for the details, though.
+>
+> It *is* true that there is a fair bit of code out there which sees a gzip
+> magic number and expects to call deflate functions on it, without ever
+> checking the compression type field. However, even if there is a need for a
+> new magic number, this can be done within the gzip code, or by forking
+> gzip.
 
-Unless I'm misunderstanding this issue, no official glibc release was 
-ever affected which makes the probability of other people being affected 
-pretty small.
+One trivial solution (that comes to mind) is by symlinking gunzip->unlzma (or 
+similar) and having gzip's defaults change according to argv[0].
 
-And this issue is about backwards compatibility only insofar, that it 
-works around a bug in some ancient cvs versions of glibc.
-
-Is it a new policy that the kernel mustn't break any buggy userspace 
-code?
-
-> 		Linus
-
-cu
-Adrian
+It's a bit of a shame bzip2 even exists, really. It really would be better if 
+there was one unified, pluggable archiver on UNIX (and portables).
 
 -- 
+Cheers,
+Alistair.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWEVVFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWEVVGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWEVVFU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 17:05:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWEVVFT
+	id S1751186AbWEVVGs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 17:06:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWEVVGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 17:05:19 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:28367 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750754AbWEVVFT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 17:05:19 -0400
-Message-ID: <44722756.5090902@zytor.com>
-Date: Mon, 22 May 2006 14:04:22 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Mon, 22 May 2006 17:06:48 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:60046 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S1750959AbWEVVGr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 17:06:47 -0400
+Message-ID: <447227D4.4050407@hp.com>
+Date: Mon, 22 May 2006 14:06:28 -0700
+From: Rick Jones <rick.jones2@hp.com>
+User-Agent: Mozilla/5.0 (X11; U; HP-UX 9000/785; en-US; rv:1.6) Gecko/20040304
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel Source Compression
-References: <Pine.LNX.4.64.0605211028100.4037@p34> <200605222015.01980.s0348365@sms.ed.ac.uk> <Pine.LNX.4.61.0605222220190.6816@yvahk01.tjqt.qr> <200605222200.18351.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200605222200.18351.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Vlad Yasevich <vladislav.yasevich@hp.com>,
+       Paul P Komkoff Jr <i@stingr.net>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Was change to ip_push_pending_frames intended to break	udp	(more
+ specifically, WCCP?)
+References: <20060520191153.GV3776@stingr.net>	<20060520140434.2139c31b.akpm@osdl.org>	<1148322152.15322.299.camel@galen.zko.hp.com> <4472078D.8010706@hp.com> <1148332293.17376.114.camel@localhost.localdomain>
+In-Reply-To: <1148332293.17376.114.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan wrote:
+Alan Cox wrote:
+> On Llu, 2006-05-22 at 11:48 -0700, Rick Jones wrote:
 > 
-> I would, but if it's a "valid concern" that gzip is a few hundred KB larger, 
-> and the community would not graciously receive such work, there's not much 
-> point, is there? :-)
+>>ID of zero again?  I thought that went away years ago?  Anyway, given 
+>>the number of "helpful" devices out there willing to clear the DF bit, 
+>>fragment and forward, perhaps always setting the IP ID to 0, even if DF 
+>>is set, isn't such a good idea?
 > 
-> Seriously, though, if I understand gzip correctly, it uses deflate/zlib 
-> internally. Why, in that case, does /bin/gzip not (dynamically) link against 
-> libz? If a first step was fixing that, a second could be linking dynamically 
-> against libbz2 and 'liblzma', and making it all compile-time configurable.
 > 
+> Any device that clears DF is so terminally broken that you've already
+> lost the battle the moment you bought it. 
 
-Because gzip predates zlib...
+Perhaps, but still, always setting the IP datagram ID to the same value 
+even with the DF bit set seems contrary to the "conservative in what we 
+send" that is so often brought-forth as a reason a stack behaves the way 
+it does.
 
-	-hpa
+rick jones

@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbWEVVqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbWEVVz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751219AbWEVVqU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 17:46:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWEVVqU
+	id S1751220AbWEVVz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 17:55:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWEVVz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 17:46:20 -0400
-Received: from mx2.suse.de ([195.135.220.15]:3537 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751219AbWEVVqU (ORCPT
+	Mon, 22 May 2006 17:55:59 -0400
+Received: from xenotime.net ([66.160.160.81]:21713 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751220AbWEVVz7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 17:46:20 -0400
-Date: Mon, 22 May 2006 14:44:03 -0700
-From: Greg KH <gregkh@suse.de>
-To: Frank Gevaerts <frank.gevaerts@fks.be>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: usb-serial ipaq kernel problem
-Message-ID: <20060522214403.GA7044@suse.de>
-References: <20060522143043.GA6408@fks.be>
+	Mon, 22 May 2006 17:55:59 -0400
+Date: Mon, 22 May 2006 14:58:32 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, wim@iguana.be
+Subject: Re: [PATCH 1/14/] Doc. sources: expose watchdog
+Message-Id: <20060522145832.ce45807a.rdunlap@xenotime.net>
+In-Reply-To: <20060522144347.07b08a8c.akpm@osdl.org>
+References: <20060521205810.64b631e2.rdunlap@xenotime.net>
+	<20060522144347.07b08a8c.akpm@osdl.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060522143043.GA6408@fks.be>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 22, 2006 at 04:30:48PM +0200, Frank Gevaerts wrote:
-> Hi, 
+On Mon, 22 May 2006 14:43:47 -0700 Andrew Morton wrote:
+
+> "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+> >
+> >  Documentation/watchdog/pcwd-watchdog.txt |   73 -------------------------------
+> >   Documentation/watchdog/watchdog-api.txt  |   17 -------
+> >   Documentation/watchdog/watchdog-simple.c |   15 ++++++
+> >   Documentation/watchdog/watchdog-test.c   |   68 ++++++++++++++++++++++++++++
+> >   Documentation/watchdog/watchdog.txt      |   23 ---------
 > 
-> We are having problems with the usb-serial ipaq driver in 2.6.16 (debian
-> backports 2.6.16-1-686, but also reproducible with self-compiled
-> kernel.org kernel)
-> 
-> Sometimes, we get the following on disconnect:
+> Wouldn't it be better to move all the .c files into a new directory? 
+> Documentation/src or something?
 
-<snip>
+I dunno.  I like using multiple subdirectories (like watchdog/,
+laptop/, block/, etc.) and not cluttering up Documentation/
+with them.
 
-Can you duplicate this on 2.6.17-rc4?  A number of tty changes went into
-that release that should have fixed this issue.
+Anybody else have preferences?
 
-thanks,
-
-greg k-h
-
+---
+~Randy

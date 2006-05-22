@@ -1,52 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWEVMSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWEVMTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750788AbWEVMSL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 08:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbWEVMSL
+	id S1750790AbWEVMTu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 08:19:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWEVMTu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 08:18:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5356 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750788AbWEVMSK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 08:18:10 -0400
-Subject: Re: [PATCH] Add user taint flag
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Stephen Tweedie <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <E1FhwyO-0001YQ-O1@candygram.thunk.org>
-References: <E1FhwyO-0001YQ-O1@candygram.thunk.org>
-Content-Type: text/plain
-Date: Mon, 22 May 2006 13:17:46 +0100
-Message-Id: <1148300267.5151.14.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-27) 
+	Mon, 22 May 2006 08:19:50 -0400
+Received: from euklides.vdsoft.org ([82.208.56.17]:22759 "EHLO
+	euklides.vdsoft.org") by vger.kernel.org with ESMTP
+	id S1750790AbWEVMTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 08:19:49 -0400
+Message-ID: <4471AC63.8060406@vdsoft.org>
+Date: Mon, 22 May 2006 14:19:47 +0200
+From: Vladimir Dvorak <dvorakv@vdsoft.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: APIC error on CPUx
+References: <44716A5F.3070208@vdsoft.org> <p73k68e71kd.fsf@verdi.suse.de> <4471A777.2020404@vdsoft.org> <200605221403.16464.ak@suse.de>
+In-Reply-To: <200605221403.16464.ak@suse.de>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andi Kleen wrote:
 
-On Sun, 2006-05-21 at 19:04 -0400, Theodore Ts'o wrote:
-> Allow taint flags to be set from userspace by writing to
-> /proc/sys/kernel/tainted, and add a new taint flag, TAINT_USER, to be
-> used when userspace is potentially doing something naughty that might
-> compromise the kernel.  This will allow support personnel to ask further
-> questions about what may have caused the user taint flag to have been
-> set.  (For example, by examining the logs of the JVM to determine what
-> evil things might have been lurking in the hearts of Java programs.  :-)
+>On Monday 22 May 2006 13:58, Vladimir Dvorak wrote:
+>  
+>
+>>Andi Kleen wrote:
+>>
+>>    
+>>
+>>>Vladimir Dvorak <dvorakv@vdsoft.org> writes:
+>>> 
+>>>
+>>>      
+>>>
+>>>>Linux requisities:
+>>>>Debian 3.1
+>>>>Linux mailserver 2.6.8-3-686-smp #1 SMP Thu Feb 9 07:05:39 UTC 2006 i686
+>>>>   
+>>>>
+>>>>        
+>>>>
+>>>That's an ancient kernel.
+>>> 
+>>>
+>>>      
+>>>
+>>Yes, I agree.
+>>
+>> ... but the latest in Debian/Sarge. :-)
+>>
+>>Do you, Andi,  thing that upgrade to latest vanilla one ( from
+>>kernel.org ) should solve this problem ?
+>>    
+>>
+>
+>Probably not.
+>
+>  
+>
+>>> 
+>>>
+>>>      
+>>>
+>>>>GNU/Linux
+>>>>
+>>>>Hardware:
+>>>>Intel SR1200
+>>>>   
+>>>>
+>>>>        
+>>>>
+>>>If it's an <=P3 class machine: most likely you have noise on the APIC bus.
+>>>
+>>>-Andi
+>>>
+>>> 
+>>>
+>>>      
+>>>
+>>Yes, you are right :
+>>
+>>cat /proc/cpuinfo
+>>...
+>>model name      : Intel(R) Pentium(R) III CPU family      1133MHz
+>>...
+>>
+>>
+>>"Noise on APIC bus" means - " a lot of interrupts from devices" ?
+>>    
+>>
+>
+>Usually a crappy/broken/misdesigned motherboard.
+>
+>-Andi
+> 
+>
+>  
+>
+And, probably, the latest question related to this topic:
 
-That's going to lead to a head-scratching fishing expedition from
-support people wondering just why this flag was set.
+Can "noapic" or "nolapic" solve this ? Does it mean ( with these
+parameters ) that devices will start to use 8259 interrupt controller
+instead APIC ?
 
-At the very least we should force the caller to supply a log message
-explaining *why* the taint flag is being set and printk it at KERN_ERR
-loglevel or higher; so the user API would be
+Is harmfull put "noapic" on "nolapic" to cmdline ?
 
-	echo $log > /proc/sys/kernel/taint
+Thank you.
 
-rather than manipulating the bit directly.
-
---Stephen
-
+Vladimir
 

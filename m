@@ -1,135 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbWEVLi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWEVLiv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750769AbWEVLi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 07:38:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWEVLi5
+	id S1750767AbWEVLiv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 07:38:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWEVLiv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 07:38:57 -0400
-Received: from mail.physik.uni-muenchen.de ([192.54.42.129]:24483 "EHLO
-	mail.physik.uni-muenchen.de") by vger.kernel.org with ESMTP
-	id S1750769AbWEVLi5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 07:38:57 -0400
-Message-ID: <4471A2CD.8070404@physik.uni-muenchen.de>
-Date: Mon, 22 May 2006 13:38:53 +0200
-From: Patrick Fritzsch <fritzsch@physik.uni-muenchen.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050908)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: strange latency problem with local_irqs_disabled in kernel mode.
-Content-Type: text/plain; charset=UTF-8
+	Mon, 22 May 2006 07:38:51 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:64705 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1750767AbWEVLiv (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 07:38:51 -0400
+Message-Id: <200605221138.k4MBcgd2006492@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Michael Buesch <mb@bu3sch.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc4-mm3
+In-Reply-To: Your message of "Mon, 22 May 2006 13:25:10 +0200."
+             <200605221325.10761.mb@bu3sch.de>
+From: Valdis.Kletnieks@vt.edu
+References: <20060522022709.633a7a7f.akpm@osdl.org> <200605221115.k4MBFq42013901@turing-police.cc.vt.edu>
+            <200605221325.10761.mb@bu3sch.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1148297922_6073P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 22 May 2006 07:38:42 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
+--==_Exmh_1148297922_6073P
+Content-Type: text/plain; charset=us-ascii
 
-I have a dual core CPU, where i made a linux kernel thread, which i
-wanted to run on CPU1 without interruption.
-so i disabled in a critical test-section the local IRQs and made some
-time accounting, to see how much time the CPU needs to do his work,
-which should be always the same. i moved all processes, which are not
-binded to CPU1, to CPU0 before this.
-I my theory there shouldnt be any interruption of the code....so the
-time needed for it should always be the same, but thats not really true.
+On Mon, 22 May 2006 13:25:10 +0200, Michael Buesch said:
+> On Monday 22 May 2006 13:15, you wrote:
 
-I have this (next paragraph) in my log, where the second big number is
-the amount of instructions the CPU needed to do his work (which should
-always be the same). The first is the current worst number. As you can
-see the actual work the CPU did is jumping around from 68719579672 to
-73014444248, but those 2 numbers seem to be quite, but not 100%, stable.
-I am sorry to bother you guys with this in such a loaded mailing list,
-but i think i have one (or maybe more?) basic missunterstaning in this
-matter (maybe in relation with the linux kernel/or in relation with the
-CPU), which someone perhaps could show me. Why is this number of
-instructions not always exactly the same?
+> > It looks to me line the old code stayed in a while() loop in rng_dev_read
+> > until it had fulfilled the read request (including possibly multiple
+> > calls to need_resched() and friends).  The new code will bail on an -EAGAIN
+> > as soon as the *first* poll fails, rather than waiting until something
+> > is available - even if it is NOT flagged O_NONBLOCK.
+> 
+> Yeah. That is how it works. I am wondering why userspace doesn't
+> simply retry, if it receives an EAGAIN.
+> Should we return ERESTARTSYS or something like that instead?
 
-=== log:
-May 17 20:31:29 localhost kernel: [  647.836400] New worst 68719579672
-68719579672 1
-May 17 20:31:50 localhost kernel: [  669.311268] New worst 68719579672
-68719477376 2
-May 17 20:32:13 localhost kernel: [  692.128314] New worst 73014444664
-73014444664 3
-May 17 20:32:36 localhost kernel: [  714.945358] New worst 73014444664
-73014444248 4
-May 17 20:32:59 localhost kernel: [  737.762401] New worst 73014444664
-73014444224 5
-May 17 20:33:20 localhost kernel: [  759.237266] New worst 73014444664
-68719476976 6
-May 17 20:34:48 localhost kernel: [  780.712130] New worst 73014444664
-68719476976 7
-May 17 20:34:48 localhost kernel: [  802.186996] New worst 73014444664
-68719476976 8
-May 17 20:34:48 localhost kernel: [  823.661861] New worst 73014444664
-68719476976 9
-May 17 20:34:48 localhost kernel: [  846.478903] New worst 73014444664
-73014444224 10
-===
+That's not the way it worked in previous kernels, and it's not the way that
+the current rng-utils RPM in Fedora expects it to work.
 
-I have all Power Management support (acpi/apm/cpu frequency code)
-disabled is my linux kernel
+Here's a patch that makes it work the way it used to.  Adding the test
+for O_NONBLOCK is the biggie - the old code did a resched test at that
+point in the loop, so I added it here too.
 
-cat /proc/version
-Linux version 2.6.15.1 (root@atknoll6) (gcc version 3.3.6 (Ubuntu
-1:3.3.6-8ubuntu1)) #13 SMP Wed May 17 20:13:33 CEST 2006
+--- linux-2.6.17-rc4-mm3/drivers/char/hw_random/core.c.rnd_fix	2006-05-22 07:23:34.000000000 -0400
++++ linux-2.6.17-rc4-mm3/drivers/char/hw_random/core.c	2006-05-22 07:22:29.000000000 -0400
+@@ -125,7 +125,7 @@ static ssize_t rng_dev_read(struct file 
+ 		mutex_unlock(&rng_mutex);
+ 
+ 		err = -EAGAIN;
+-		if (!bytes_read)
++		if (filp->f_flags & O_NONBLOCK && !bytes_read)
+ 			goto out;
+ 
+ 		err = -EFAULT;
+@@ -138,6 +138,9 @@ static ssize_t rng_dev_read(struct file 
+ 			data >>= 8;
+ 		}
+ 
++		if (need_resched())
++                        schedule_timeout_interruptible(1);
++
+ 		if (signal_pending(current))
+ 			goto out;
+ 	}
 
 
-Thats the code snipplet, running in a kthread binded on CPU1, creating
-the logs from above:
+--==_Exmh_1148297922_6073P
+Content-Type: application/pgp-signature
 
-#define RDTSC(X) __asm__ __volatile__("rdtsc":"=A" (X))
-[...]
- while (err < 10)
- {
-    err++;
-    i=1;
-    /* bad hack, that CPU0 doesnt expect CPU1 to respond to anything */
-    cpu_online_map = cpumask_of_cpu(0);
-    local_irq_disable();
-    RDTSC(ini);
-/* some work which should need always the same time */
-    while(i!=0)
-    {
-      i++; /* always +1 until we are overflowing */
-      if(i==0)
-      {
-        j++;
-      }
-    }
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-    RDTSC(end);
-    local_irq_enable();
-    cpu_online_map = tmp_cpumask;
-    now = end - ini;
-    if (now > worst)
-    {
-      worst = now;
-    }
-    printk("New worst %lli %lli %i %i %i\n", worst,now, j,
-           my_lug_test, my_lug_test2);
+iD8DBQFEcaLCcC3lWbTT17ARAtDgAJ0eN8mC5G3fA5OaILlyEPsqgdjFTwCg4gQB
+RWCvJAJ8ghzWTpx1h82kj54=
+=7onI
+-----END PGP SIGNATURE-----
 
-  }
-
-
-
-This is my CPU:
-cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 4
-model name      : Intel(R) Pentium(R) D CPU 3.20GHz
-stepping        : 4
-cpu MHz         : 3192.671
-cache size      : 1024 KB
-[...]
-which is a dual core CPU.
-
-The full (very simple and i guess very ugly, because fast hack) module
-code is uploaded here:
-http://www.cip.physik.uni-muenchen.de/~fritzsch/tmp/module2.tar.gz
-
-greetings & thx in advance for taking your time to read this and maybe
-giving some advice.
-patrick
+--==_Exmh_1148297922_6073P--

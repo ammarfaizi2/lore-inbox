@@ -1,344 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWEVF3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751556AbWEVFae@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751276AbWEVF3A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 01:29:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751556AbWEVF27
+	id S1751556AbWEVFae (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 01:30:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbWEVFad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 01:28:59 -0400
-Received: from watts.utsl.gen.nz ([202.78.240.73]:33937 "EHLO
-	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S1750917AbWEVF27
+	Mon, 22 May 2006 01:30:33 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:11981 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S1751556AbWEVFad convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 01:28:59 -0400
-From: Sam Vilain <sam@vilain.net>
-Subject: [PATCH] namespaces: uts_ns: make information visible via /proc/PID/uts directory
-Date: Mon, 22 May 2006 17:24:25 +1200
-To: linux-kernel@vger.kernel.org
-Cc: dev@sw.ru, herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
-       ebiederm@xmission.com, xemul@sw.ru, Dave Hansen <haveblue@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Cedric Le Goater <clg@fr.ibm.com>,
-       serue@us.ibm.com
-Message-Id: <20060522052425.27715.94562.stgit@localhost.localdomain>
+	Mon, 22 May 2006 01:30:33 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [LINUX-KERNEL] Problem loading any custom driver
+Date: Sun, 21 May 2006 22:30:32 -0700
+Message-ID: <1FB1F81B4767FC48A2AF2278D735CE64038BFC5F@cacexc05.americas.cpqcorp.net>
+In-Reply-To: <1148271181.3902.59.camel@laptopd505.fenrus.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [LINUX-KERNEL] Problem loading any custom driver
+Thread-Index: AcZ9Vggd8zZSnJFeRl6unPFx0Hg6JwAChcqw
+From: "Libershteyn, Vladimir" <vladimir.libershteyn@hp.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 22 May 2006 05:30:32.0231 (UTC) FILETIME=[D8164B70:01C67D60]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Sam Vilain <sam.vilain@catalyst.net.nz>
+So,
+in this case what kind of makefile I should have?
+Can you attach an example?
+Attached makefile is very similar what I found in the 2.6.9-34.EL-i686 source
+I also were thinking that some os includes are not the right ones
 
-Export the UTS information to a per-process directory /proc/PID/uts,
-that has individual nodes for hostname, ostype, etc - similar to
-those in /proc/sys/kernel
+--------------------------------------------------
 
-This duplicates the approach used for /proc/PID/attr, which involves a
-lot of duplication of similar functions.  Much room for maintenance
-optimisation of both implementations remains.
----
-Sorry for the duplication of this to the list, stuffed up the stgit
-command.
+/* Include Files */
+#ifdef MODULE
+#include <linux/module.h>
+#include <linux/version.h>
+#endif
 
-After doing this I noticed that the whole way this is done via sysctls
-in /proc/sys is much, much nicer.  I was going there to make
-/proc/sys/kernel/osname -> /proc/self/uts/sysname (etc), but it seems
-that symlinks from /proc/sys are not a done thing.
+#include <linux/config.h>
+#include <linux/types.h>
+#include <linux/pci.h>
+#include <linux/kernel.h>
+#include <linux/sched.h>
 
-Is there an argument here perhaps for some integration between the way
-this is done for /proc/sys and /proc/PID/xxx ?
+#include <linux/netdevice.h>
+#include <linux/etherdevice.h>
+#include <linux/init.h>
+#include <linux/skbuff.h>
+#include <linux/ethtool.h>
 
- fs/proc/base.c |  236 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 236 insertions(+), 0 deletions(-)
+#include <linux/mm.h>
+#include <linux/errno.h>
+#include <linux/ioport.h>
 
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 2031913..76f5acb 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -73,6 +73,7 @@ #include <linux/cpuset.h>
- #include <linux/audit.h>
- #include <linux/poll.h>
- #include <linux/nsproxy.h>
-+#include <linux/utsname.h>
- #include "internal.h"
- 
- /* NOTE:
-@@ -179,6 +180,22 @@ #ifdef CONFIG_AUDITSYSCALL
- #endif
- 	PROC_TID_OOM_SCORE,
- 	PROC_TID_OOM_ADJUST,
-+#ifdef CONFIG_UTS_NS
-+	PROC_TID_UTS,
-+	PROC_TGID_UTS,
-+	PROC_TGID_UTS_SYSNAME,
-+	PROC_TGID_UTS_NODENAME,
-+	PROC_TGID_UTS_RELEASE,
-+	PROC_TGID_UTS_VERSION,
-+	PROC_TGID_UTS_MACHINE,
-+	PROC_TGID_UTS_DOMAINNAME,
-+	PROC_TID_UTS_SYSNAME,
-+	PROC_TID_UTS_NODENAME,
-+	PROC_TID_UTS_RELEASE,
-+	PROC_TID_UTS_VERSION,
-+	PROC_TID_UTS_MACHINE,
-+	PROC_TID_UTS_DOMAINNAME,
-+#endif
- 
- 	/* Add new entries before this */
- 	PROC_TID_FD_DIR = 0x8000,	/* 0x8000-0xffff */
-@@ -238,6 +255,9 @@ #endif
- #ifdef CONFIG_AUDITSYSCALL
- 	E(PROC_TGID_LOGINUID, "loginuid", S_IFREG|S_IWUSR|S_IRUGO),
- #endif
-+#ifdef CONFIG_UTS_NS
-+	E(PROC_TGID_UTS,       "uts",    S_IFDIR|S_IRUGO|S_IXUGO),
-+#endif
- 	{0,0,NULL,0}
- };
- static struct pid_entry tid_base_stuff[] = {
-@@ -280,6 +300,9 @@ #endif
- #ifdef CONFIG_AUDITSYSCALL
- 	E(PROC_TID_LOGINUID, "loginuid", S_IFREG|S_IWUSR|S_IRUGO),
- #endif
-+#ifdef CONFIG_UTS_NS
-+	E(PROC_TID_UTS,        "uts",     S_IFDIR|S_IRUGO|S_IXUGO),
-+#endif
- 	{0,0,NULL,0}
- };
- 
-@@ -300,6 +323,27 @@ static struct pid_entry tid_attr_stuff[]
- };
- #endif
- 
-+#ifdef CONFIG_UTS_NS
-+static struct pid_entry tgid_uts_stuff[] = {
-+	E(PROC_TGID_UTS_SYSNAME,    "sysname",    S_IFREG|S_IRUGO|S_IWUGO),
-+	E(PROC_TGID_UTS_NODENAME,   "nodename",   S_IFREG|S_IRUGO|S_IWUGO),
-+	E(PROC_TGID_UTS_RELEASE,    "release",    S_IFREG|S_IRUGO|S_IWUGO),
-+	E(PROC_TGID_UTS_VERSION,    "version",    S_IFREG|S_IRUGO|S_IWUGO),
-+	E(PROC_TGID_UTS_MACHINE,    "machine",    S_IFREG|S_IRUGO|S_IWUGO),
-+	E(PROC_TGID_UTS_DOMAINNAME, "domainname", S_IFREG|S_IRUGO|S_IWUGO),
-+	{0,0,NULL,0}
-+};
-+static struct pid_entry tid_uts_stuff[] = {
-+	E(PROC_TID_UTS_SYSNAME,    "sysname",    S_IFREG|S_IRUGO|S_IWUGO),
-+	E(PROC_TID_UTS_NODENAME,   "nodename",   S_IFREG|S_IRUGO|S_IWUGO),
-+	E(PROC_TID_UTS_RELEASE,    "release",    S_IFREG|S_IRUGO|S_IWUGO),
-+	E(PROC_TID_UTS_VERSION,    "version",    S_IFREG|S_IRUGO|S_IWUGO),
-+	E(PROC_TID_UTS_MACHINE,    "machine",    S_IFREG|S_IRUGO|S_IWUGO),
-+	E(PROC_TID_UTS_DOMAINNAME, "domainname", S_IFREG|S_IRUGO|S_IWUGO),
-+	{0,0,NULL,0}
-+};
-+#endif
-+
- #undef E
- 
- static int proc_fd_link(struct inode *inode, struct dentry **dentry, struct vfsmount **mnt)
-@@ -1608,6 +1652,148 @@ static struct file_operations proc_tgid_
- static struct inode_operations proc_tgid_attr_inode_operations;
- #endif
- 
-+#ifdef CONFIG_UTS_NS
-+static ssize_t proc_pid_uts_read(struct file * file, char __user * buf,
-+				  size_t count, loff_t *ppos)
-+{
-+	struct inode * inode = file->f_dentry->d_inode;
-+	ssize_t length;
-+	loff_t __ppos = *ppos;
-+	struct task_struct *task = get_proc_task(inode);
-+	char __buf[__NEW_UTS_LEN+1];
-+	char *which;
-+
-+	length = -ESRCH;
-+	if (!task)
-+		goto out_no_task;
-+
-+	switch (file->f_dentry->d_name.name[0]) {
-+		case 's':
-+			which = task->nsproxy->uts_ns->name.sysname;
-+			break;
-+		case 'n':
-+			which = task->nsproxy->uts_ns->name.nodename;
-+			break;
-+		case 'r':
-+			which = task->nsproxy->uts_ns->name.release;
-+			break;
-+		case 'v':
-+			which = task->nsproxy->uts_ns->name.version;
-+			break;
-+		case 'm':
-+			which = task->nsproxy->uts_ns->name.machine;
-+			break;
-+		case 'd':
-+			which = task->nsproxy->uts_ns->name.domainname;
-+			break;
-+		default:
-+			printk("procfs: impossible uts part '%s'",
-+			       (char*)file->f_dentry->d_name.name);
-+			length = -EINVAL;
-+			goto out;
-+	}
-+		
-+	length = strlen(which);
-+	strcpy(__buf, which);
-+	__buf[length++] = '\n';
-+
-+	if (__ppos >= length)
-+		return 0;
-+	if (count > length - __ppos)
-+		count = length - __ppos;
-+	if (copy_to_user(buf, __buf + __ppos, count))
-+		return -EFAULT;
-+
-+out:
-+	put_task_struct(task);
-+out_no_task:
-+	return length;
-+}
-+
-+static ssize_t proc_pid_uts_write(struct file * file, const char __user * buf,
-+				   size_t count, loff_t *ppos)
-+{ 
-+	struct inode * inode = file->f_dentry->d_inode;
-+	ssize_t length; 
-+	struct task_struct *task = get_proc_task(inode);
-+	char *which;
-+	char __buf[__NEW_UTS_LEN+1];
-+
-+	length = -ESRCH;
-+	if (!task)
-+		goto out_no_task;
-+	if (count > PAGE_SIZE) 
-+		count = PAGE_SIZE; 
-+
-+	/* No partial writes. */
-+	length = -EINVAL;
-+	if (*ppos != 0)
-+		goto out;
-+	if (count > __NEW_UTS_LEN)
-+		goto out;
-+		
-+	length = -EPERM; 
-+	if (!capable(CAP_SYS_ADMIN))
-+		goto out;
-+
-+	length = -EFAULT; 
-+	if (copy_from_user(__buf, buf, count)) 
-+		goto out;
-+
-+	length = -EINVAL;
-+	length = strnlen(__buf, count);
-+	if (count != length)
-+		goto out;
-+
-+	if (__buf[length-1] == '\n')
-+		length = length - 1;
-+	__buf[length] = '\0';
-+
-+	switch (file->f_dentry->d_name.name[0]) {
-+		case 's':
-+			which = task->nsproxy->uts_ns->name.sysname;
-+			break;
-+		case 'n':
-+			which = task->nsproxy->uts_ns->name.nodename;
-+			break;
-+		case 'r':
-+			which = task->nsproxy->uts_ns->name.release;
-+			break;
-+		case 'v':
-+			which = task->nsproxy->uts_ns->name.version;
-+			break;
-+		case 'm':
-+			which = task->nsproxy->uts_ns->name.machine;
-+			break;
-+		case 'd':
-+			which = task->nsproxy->uts_ns->name.domainname;
-+			break;
-+		default:
-+			printk("procfs: impossible uts part '%s'",
-+			       (char*)file->f_dentry->d_name.name);
-+			length = -EINVAL;
-+			goto out;
-+	}
-+	
-+	strcpy(which, __buf);
-+
-+out:
-+	put_task_struct(task);
-+out_no_task:
-+	return length;
-+} 
-+
-+static struct file_operations proc_pid_uts_operations = {
-+	.read		= proc_pid_uts_read,
-+	.write		= proc_pid_uts_write,
-+};
-+
-+static struct file_operations proc_tid_uts_operations;
-+static struct inode_operations proc_tid_uts_inode_operations;
-+static struct file_operations proc_tgid_uts_operations;
-+static struct inode_operations proc_tgid_uts_inode_operations;
-+#endif
-+
- /* SMP-safe */
- static struct dentry *proc_pident_lookup(struct inode *dir, 
- 					 struct dentry *dentry,
-@@ -1760,6 +1946,30 @@ #ifdef CONFIG_SECURITY
- 		case PROC_TGID_ATTR_FSCREATE:
- 			inode->i_fop = &proc_pid_attr_operations;
- 			break;
-+		case PROC_TID_UTS:
-+			inode->i_nlink = 2;
-+			inode->i_op = &proc_tid_uts_inode_operations;
-+			inode->i_fop = &proc_tid_uts_operations;
-+			break;
-+		case PROC_TGID_UTS:
-+			inode->i_nlink = 2;
-+			inode->i_op = &proc_tgid_uts_inode_operations;
-+			inode->i_fop = &proc_tgid_uts_operations;
-+			break;
-+		case PROC_TGID_UTS_SYSNAME:
-+		case PROC_TGID_UTS_NODENAME:
-+		case PROC_TGID_UTS_RELEASE:
-+		case PROC_TGID_UTS_VERSION:
-+		case PROC_TGID_UTS_MACHINE:
-+		case PROC_TGID_UTS_DOMAINNAME:
-+		case PROC_TID_UTS_SYSNAME:
-+		case PROC_TID_UTS_NODENAME:
-+		case PROC_TID_UTS_RELEASE:
-+		case PROC_TID_UTS_VERSION:
-+		case PROC_TID_UTS_MACHINE:
-+		case PROC_TID_UTS_DOMAINNAME:
-+			inode->i_fop = &proc_pid_uts_operations;
-+			break;
- #endif
- #ifdef CONFIG_KALLSYMS
- 		case PROC_TID_WCHAN:
-@@ -1889,6 +2099,32 @@ static struct inode_operations proc_tid_
- };
- #endif
- 
-+#ifdef CONFIG_UTS_NS
-+static int proc_tgid_uts_readdir(struct file * filp,
-+			     void * dirent, filldir_t filldir)
-+{
-+	return proc_pident_readdir(filp,dirent,filldir,
-+				   tgid_uts_stuff,ARRAY_SIZE(tgid_uts_stuff));
-+}
-+
-+static int proc_tid_uts_readdir(struct file * filp,
-+			     void * dirent, filldir_t filldir)
-+{
-+	return proc_pident_readdir(filp,dirent,filldir,
-+				   tid_uts_stuff,ARRAY_SIZE(tid_uts_stuff));
-+}
-+
-+static struct file_operations proc_tgid_uts_operations = {
-+	.read		= generic_read_dir,
-+	.readdir	= proc_tgid_uts_readdir,
-+};
-+
-+static struct file_operations proc_tid_uts_operations = {
-+	.read		= generic_read_dir,
-+	.readdir	= proc_tid_uts_readdir,
-+};
-+#endif
-+
- /*
-  * /proc/self:
-  */
+#include <linux/delay.h>
+#include <linux/timer.h>
+#include <linux/slab.h>
+#include <linux/interrupt.h>
+#include <linux/version.h>
+#include <linux/inetdevice.h>
+#include <linux/bitops.h>
+
+#include <asm/uaccess.h>
+#include <linux/if_ether.h>
+#include <linux/if_arp.h>
+#include <net/arp.h>
+
+#include "atf.h"
+#include "atf_host.h"
+#include "atf_common.h"
+
+-------------------------------------------------------------
+
+-----Original Message-----
+From: Arjan van de Ven [mailto:arjan@infradead.org]
+Sent: Sunday, May 21, 2006 9:13 PM
+To: Libershteyn, Vladimir
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: [LINUX-KERNEL] Problem loading any custom driver
+
+
+On Sun, 2006-05-21 at 21:05 -0700, Libershteyn, Vladimir wrote:
+> Here is a makefile
+> -------------------------------------------------
+> #
+> # Makefile for the Los Angeles PCI Adapter
+> # This file supports Red Hat Linux kernel 2.6(included) and above
+> #
+> HPATH := /usr/src/kernels/2.6.9-34.EL-i686/include
+> CFLAGS = -I$(HPATH) -Wall -O2 -fomit-frame-pointer -c
+> CFLAGS := $(CFLAGS) -DHOST_LITTLE_ENDIAN -DHOST_SIZE_32
+> 
+> obj-m += atf_host.o
+
+this is buggy, you have to drop the CFLAGS lines!!!!!
+
+
+> Our group does not have ability to put files for outside access.
+> Can you specify what parts of the code you need me to attach?
+> Im not familiar with rules, is it allowed to attach source files?
+
+yeah that's fine if they're not gigantic (50Kb or so is a reasonable
+boundary for that)
 

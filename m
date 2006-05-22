@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbWEVDXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbWEVD0d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965006AbWEVDXA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 23:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWEVDXA
+	id S965002AbWEVD0d (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 23:26:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965004AbWEVD0c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 23:23:00 -0400
-Received: from msr22.hinet.net ([168.95.4.122]:26798 "EHLO msr22.hinet.net")
-	by vger.kernel.org with ESMTP id S965003AbWEVDW7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 23:22:59 -0400
-Message-ID: <004c01c67d4e$e6989c00$4964a8c0@icplus.com.tw>
-From: =?utf-8?B?amVzc2VcKOW7uuiIiFwp?= <jesse@icplus.com.tw>
-To: "Francois Romieu" <romieu@fr.zoreil.com>,
-       "David Vrabel" <dvrabel@cantab.net>
-Cc: "Pekka Enberg" <penberg@cs.helsinki.fi>, <linux-kernel@vger.kernel.org>,
-       <netdev@vger.kernel.org>, <david@pleyades.net>
-References: <1146506939.23931.2.camel@localhost> <20060501231206.GD7419@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605020945010.4066@sbz-30.cs.Helsinki.FI> <20060502214520.GC26357@electric-eye.fr.zoreil.com> <20060502215559.GA1119@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605030913210.6032@sbz-30.cs.Helsinki.FI> <20060503233558.GA27232@electric-eye.fr.zoreil.com> <1146750276.11422.0.camel@localhost> <20060504235549.GA9128@electric-eye.fr.zoreil.com> <446F840E.3020808@cantab.net> <20060521101620.GA28210@electric-eye.fr.zoreil.com>
-Subject: Re: [PATCH 2/2] ipg: redundancy with mii.h
-Date: Mon, 22 May 2006 11:22:04 +0800
+	Sun, 21 May 2006 23:26:32 -0400
+Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:4045 "EHLO
+	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S965002AbWEVD0c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 23:26:32 -0400
+Message-ID: <44712F65.2070704@bigpond.net.au>
+Date: Mon, 22 May 2006 13:26:29 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
+To: Con Kolivas <kernel@kolivas.org>
+CC: Mike Galbraith <efault@gmx.de>, Rene Herman <rene.herman@keyaccess.nl>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.17-rc2+ regression -- audio skipping
+References: <4470CC8F.9030706@keyaccess.nl> <200605221033.49153.kernel@kolivas.org> <1148264043.7643.15.camel@homer> <200605221243.54100.kernel@kolivas.org>
+In-Reply-To: <200605221243.54100.kernel@kolivas.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 22 May 2006 03:26:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Francois:
+Con Kolivas wrote:
+> On Monday 22 May 2006 12:14, Mike Galbraith wrote:
+>> In my tree, I don't use the expired array for anything except batch
+>> tasks any more for this very reason. The latency just hurts too bad.
+> 
+> So it's turning your tree into a single priority array design effectively just 
+> like staircase ;) ?
+> 
 
-Thanks for your help.
-I will try this patch and test it.
-http://www.fr.zoreil.com/people/francois/misc/20060521-2.6.17-rc4-git-ip1000-test.patch
+And the various SPA schedulers in plugsched. ;-)
 
-Jesse
-
------ Original Message ----- 
-From: "Francois Romieu" <romieu@fr.zoreil.com>
-To: "David Vrabel" <dvrabel@cantab.net>
-Cc: "Pekka Enberg" <penberg@cs.helsinki.fi>; <linux-kernel@vger.kernel.org>;
-<netdev@vger.kernel.org>; <david@pleyades.net>; <jesse@icplus.com.tw>
-Sent: Sunday, May 21, 2006 6:16 PM
-Subject: Re: [PATCH 2/2] ipg: redundancy with mii.h
-
-
-David Vrabel <dvrabel@cantab.net> :
-[...]
-> 0007-ipg-plug-leaks-in-the-error-path-of-ipg_nic_open.txt broke receive
-> since it was skipping the initialization of the Rx buffers.  Patch
-attached.
-
-Oops. Applied to branch netdev-ipg of
-git://electric-eye.fr.zoreil.com/home/romieu/linux-2.6.git
-
-(please include the '-p' option in future invocation of diff)
-
-I have put an updated patch against 2.6.17-rc4 for the whole driver at
-http://www.fr.zoreil.com/people/francois/misc/20060521-2.6.17-rc4-git-ip1000-test.patch
-
+Peter
 -- 
-Ueimor
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

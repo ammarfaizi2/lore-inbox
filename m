@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWEVSyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWEVS5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbWEVSyq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 14:54:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750877AbWEVSyq
+	id S1750869AbWEVS5M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 14:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750868AbWEVS5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 14:54:46 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:13184 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S1750754AbWEVSyp (ORCPT
+	Mon, 22 May 2006 14:57:12 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:948 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750813AbWEVS5M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 14:54:45 -0400
-Subject: Re: Was change to ip_push_pending_frames intended to break
-	udp	(more specifically, WCCP?)
-From: Vlad Yasevich <vladislav.yasevich@hp.com>
-To: Rick Jones <rick.jones2@hp.com>
-Cc: Paul P Komkoff Jr <i@stingr.net>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <4472078D.8010706@hp.com>
-References: <20060520191153.GV3776@stingr.net>
-	 <20060520140434.2139c31b.akpm@osdl.org>
-	 <1148322152.15322.299.camel@galen.zko.hp.com>  <4472078D.8010706@hp.com>
-Content-Type: text/plain
-Organization: Linux and Open Source Lab
-Date: Mon, 22 May 2006 14:54:43 -0400
-Message-Id: <1148324083.15323.325.camel@galen.zko.hp.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 22 May 2006 14:57:12 -0400
+Date: Mon, 22 May 2006 20:56:50 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Valdis.Kletnieks@vt.edu
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>, "Theodore Ts'o" <tytso@mit.edu>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add user taint flag
+In-Reply-To: <200605221429.k4METL5D011740@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.61.0605222055420.4309@yvahk01.tjqt.qr>
+References: <E1FhwyO-0001YQ-O1@candygram.thunk.org>
+ <1148307276.3902.71.camel@laptopd505.fenrus.org>           
+ <1148308548.17376.44.camel@localhost.localdomain>
+ <200605221429.k4METL5D011740@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-22 at 11:48 -0700, Rick Jones wrote:
-> > IP id is set to 0 on unconnected sockets when the DF bit is set (path
-> > mtu discovery is enabled).  Try issuing a connect() in your application
-> > and see if the ids are increasing again.
-> 
-> ID of zero again?  I thought that went away years ago?  Anyway, given 
-> the number of "helpful" devices out there willing to clear the DF bit, 
-> fragment and forward, perhaps always setting the IP ID to 0, even if DF 
-> is set, isn't such a good idea?
+>> > we should then patch the /dev/mem driver or something to set this :)
+>> > (well and possibly give it an exception for now for PCI space until the
+>> > X people fix their stuff to use the proper sysfs stuff)
+>> 
+>> /dev/mem is used for all sorts of sane things including DMIdecode.
+>> Tainting on it isn't terribly useful. Mind you this whole user taint
+>> patch seems bogus as it can only be set by root owned processes so
+>> doesn't appear to do the job it is intended for - perhaps Ted can
+>> explain ?
+>
+>Taint on write to /dev/mem, perhaps?  I don't think DMIdecode needs to
+>scribble on /dev/mem, does it?  (Figure if a userspace program runs OK
+>
+lm-sensors looks like it pokes (writes) to /dev/mem trying to figure out 
+some devices.
 
-Hey... I just report what I find... ;)
+>on a recent Fedora or RedHat kernel, it doesn't need to scribble on /dev/mem
+>too much, because the vast majority of it is lopped out via a patch....)
+>
+And what about /dev/port? That can also screw up things, so should probably 
+be included in the taint unless I am missing something.
 
-I had to look at this code a bit for some SCTP cases as well and this
-seems to be how it works.  Here a comment from the code for the case
-of the DF bit being set
-    /* This is only to work around buggy Windows95/2000
-     * VJ compression implementations.  If the ID field
-     * does not change, they drop every other packet in
-     * a TCP stream using header compression.
-     */
 
--vlad
 
-> 
-> rick jones
-> 
-
+Jan Engelhardt
+-- 

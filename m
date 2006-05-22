@@ -1,79 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbWEVAeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964968AbWEVAzp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964959AbWEVAeP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 20:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWEVAeP
+	id S964968AbWEVAzp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 20:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbWEVAzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 20:34:15 -0400
-Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:24998 "EHLO
-	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932287AbWEVAeO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 20:34:14 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Rene Herman <rene.herman@keyaccess.nl>
-Subject: Re: 2.6.17-rc2+ regression -- audio skipping
-Date: Mon, 22 May 2006 10:33:48 +1000
-User-Agent: KMail/1.9.1
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Mike Galbraith <efault@gmx.de>,
-       Ingo Molnar <mingo@elte.hu>
-References: <4470CC8F.9030706@keyaccess.nl> <1148247047.20472.78.camel@mindpipe> <44710162.3070406@keyaccess.nl>
-In-Reply-To: <44710162.3070406@keyaccess.nl>
+	Sun, 21 May 2006 20:55:44 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51143 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964968AbWEVAzo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 20:55:44 -0400
+Date: Mon, 22 May 2006 02:55:02 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: jayakumar.acpi@gmail.com
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: [PATCH/RFC 2.6.17-rc4 1/1] ACPI: Atlas ACPI driver v2
+Message-ID: <20060522005501.GA25434@elf.ucw.cz>
+References: <200605190153.k4J1rW0U002537@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605221033.49153.kernel@kolivas.org>
+In-Reply-To: <200605190153.k4J1rW0U002537@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 May 2006 10:10, Rene Herman wrote:
-> Lee Revell wrote:
-> > On Sun, 2006-05-21 at 22:24 +0200, Rene Herman wrote:
-> >> 2.6.17-rc2 (and 3 and 4) make my audio skip. Audio player is ogg123
-> >> running in an xterm. Browsing heavy sites (say, eBay) with Firefox
-> >> 1.5.0.3 gets me audio underruns quickly. This does not happen on
-> >> 2.6.17-rc1 and earlier (I just tested extensively; quite impossible to
-> >> generate underruns on -rc1, quickly on -rc2 and later).
-> >>
-> >> It's not ALSA; reverted */sound/* from the rc1-rc2 interdiff. It's also
-> >> not cfq-iosched.c. Any likely culprits in there? (I'm not a GIT user).
-> >
-> > I would suspect the scheduler interactivity patches.  Please confirm
-> > this by running ogg123 at nice -20 - do the underruns persist?
->
-> They do persist. Thanks for the hint though -- "sched: fix interactive
-> task starvation" is the culprit:
->
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=comm
->it;h=5ce74abe788a26698876e66b9c9ce7e7acc25413
+Hi!
 
-Good investigative work! Makes sense that falling on the expired array would 
-make for terrible latency for audio apps if your cpu was stretched just the 
-right amount.
+> +static int atlas_setup_input(void)
+> +{
+> +	int err;
+> +
+> +	input_dev = input_allocate_device();
+> +	if (!input_dev) {
+> +		printk(KERN_ERR "atlas: insufficient mem to allocate input device\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	input_dev->name = "Atlas ACPI button driver";
+> +	input_dev->phys = "acpi/input0";
+> +	input_dev->id.bustype = BUS_HOST;
+> +	input_dev->evbit[LONG(EV_KEY)] = BIT(EV_KEY);
+> +	set_bit(KEY_F1 ,input_dev->keybit);	
 
-> Added author and acked-by's to the CC. Mike, this patch is no good for
-> me. Audio underruns galore, with only ogg123 and firefox (browsing the
-> GIT tree online is also a nice trigger by the way).
->
-> If I back it out, everything is fine for me again. Back-out attached as
-> a patch against -rc4. This also backs out your follow-up "don't awaken
-> RT tasks on expired array" as it was dependant:
->
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=comm
->it;h=8a5bc075b8d8cf7a87b3f08fad2fba0f5d13295e
->
-> While looking at the patch I noticed there was +1 difference in the
-> "limit" value between the macro and the static inline version of
-> expired_starving() so I experimented with adding that back but that
-> wasn't it unfortunately.
->
-> I can test patches (preferably versus -rc4) although possibly not quickly.
+", " please... and are you sure you want it as a F1..F9 keys?
+> +/* button handling code */
+> +static acpi_status acpi_atlas_button_setup(acpi_handle region_handle,
+> +		    u32 function, void *handler_context, void **return_context)
+> +{
+> +	*return_context = 
+> +		(function != ACPI_REGION_DEACTIVATE) ?  handler_context : NULL;
 
-This close to 2.6.17 the safest thing we can and should do is simply back out 
-the patch.
+Too many spaces after ? I'd say.
 
+> +static struct acpi_driver atlas_acpi_driver = {
+> +	.name 	= ACPI_ATLAS_NAME,
+> +	.class 	= ACPI_ATLAS_CLASS,
+> +	.ids 	= ACPI_ATLAS_BUTTON_HID, 
+> +	.ops = {
+> +		.add = atlas_acpi_button_add,
+> +		.remove = atlas_acpi_button_remove,
+> +		},
+> +};
+
+Watch that whitespace...
+								Pavel
 -- 
--ck
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

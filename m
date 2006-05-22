@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbWEVOOI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWEVOWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750840AbWEVOOI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 10:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWEVOOI
+	id S1750853AbWEVOWa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 10:22:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWEVOWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 10:14:08 -0400
-Received: from mx2.suse.de ([195.135.220.15]:37787 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750840AbWEVOOD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 10:14:03 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <jbeulich@novell.com>
-Subject: Re: [PATCH 5/6, 2nd try] reliable stack trace support (i386)
-Date: Mon, 22 May 2006 16:13:56 +0200
-User-Agent: KMail/1.9.1
-Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org
-References: <4471D660.76E4.0078.0@novell.com>
-In-Reply-To: <4471D660.76E4.0078.0@novell.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200605221613.57000.ak@suse.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 22 May 2006 10:22:30 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:55530 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750853AbWEVOW3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 10:22:29 -0400
+Subject: Re: [PATCH] Add user taint flag
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1148307276.3902.71.camel@laptopd505.fenrus.org>
+References: <E1FhwyO-0001YQ-O1@candygram.thunk.org>
+	 <1148307276.3902.71.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Mon, 22 May 2006 15:35:48 +0100
+Message-Id: <1148308548.17376.44.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 May 2006 15:18, Jan Beulich wrote:
-> These are the i386-specific pieces to enable reliable stack traces. This is
-> going to be even more useful once CFI annotations get added to he assembly
-> code, namely to entry.S.
+On Llu, 2006-05-22 at 16:14 +0200, Arjan van de Ven wrote:
+> we should then patch the /dev/mem driver or something to set this :)
+> (well and possibly give it an exception for now for PCI space until the
+> X people fix their stuff to use the proper sysfs stuff)
 
-Also obsolete with 6/6? 
+/dev/mem is used for all sorts of sane things including DMIdecode.
+Tainting on it isn't terribly useful. Mind you this whole user taint
+patch seems bogus as it can only be set by root owned processes so
+doesn't appear to do the job it is intended for - perhaps Ted can
+explain ?
 
-> +#ifdef CONFIG_STACK_UNWIND
-> +  . = ALIGN(4);
-> +  .eh_frame : AT(ADDR(.eh_frame) - LOAD_OFFSET) {
-> +	__start_unwind = .;
-> +  	*(.eh_frame)
-> +	__end_unwind = .;
-> +  }
-> +#endif
+What X needs btw is mmap on PCI mmio bars, teach the X mapping code to
+use those instead of /dev/mem is a simple matter of coding as the right
+abstractions are in the tree already.
 
-Shouldn't this be CONFIG_UNWIND_INFO?  Seems a bit unsymmetric to x86-64
+It would need the kernel to also provide a /dev/isa mapping however.
 
-I merged the patches all up for now. Thanks.
+Alan
 
--Andi

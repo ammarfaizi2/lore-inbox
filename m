@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWEVD4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWEVD4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751191AbWEVD4W (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 23:56:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbWEVD4W
+	id S1751196AbWEVD4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 23:56:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWEVD4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 23:56:22 -0400
-Received: from xenotime.net ([66.160.160.81]:2263 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751191AbWEVD4V (ORCPT
+	Sun, 21 May 2006 23:56:24 -0400
+Received: from xenotime.net ([66.160.160.81]:5335 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751196AbWEVD4X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 23:56:21 -0400
-Date: Sun, 21 May 2006 20:57:32 -0700
+	Sun, 21 May 2006 23:56:23 -0400
+Date: Sun, 21 May 2006 20:57:40 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, wli@holomorphy.com
-Subject: [PATCH 2/14/] Doc. sources: expose vm/
-Message-Id: <20060521205732.cc824d73.rdunlap@xenotime.net>
+Cc: akpm <akpm@osdl.org>, schwidefsky@de.ibm.com
+Subject: [PATCH 5/14/] Doc. sources: expose s390/
+Message-Id: <20060521205740.4d1415b4.rdunlap@xenotime.net>
 In-Reply-To: <20060521203349.40b40930.rdunlap@xenotime.net>
 References: <20060521203349.40b40930.rdunlap@xenotime.net>
 Organization: YPO4
@@ -27,7 +27,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@xenotime.net>
 
-Documentation/vm/:
+Documentation/s390/:
 Expose example and tool source files in the Documentation/ directory in
 their own files instead of being buried (almost hidden) in readme/txt files.
 
@@ -41,338 +41,143 @@ they should be removed.
 
 Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
- Documentation/vm/hugepage-mmap.c |   73 ++++++++++++++++++
- Documentation/vm/hugepage-shm.c  |   69 +++++++++++++++++
- Documentation/vm/hugetlbpage.txt |  152 +--------------------------------------
- 3 files changed, 149 insertions(+), 145 deletions(-)
+ Documentation/s390/Debugging390.txt |   63 +-----------------------------------
+ Documentation/s390/hex2ascii.c      |   59 +++++++++++++++++++++++++++++++++
+ 2 files changed, 61 insertions(+), 61 deletions(-)
 
---- /dev/null
-+++ linux-2617-rc4g9-docsrc-split/Documentation/vm/hugepage-shm.c
-@@ -0,0 +1,69 @@
-+#include <stdlib.h>
-+#include <stdio.h>
-+#include <sys/types.h>
-+#include <sys/ipc.h>
-+#include <sys/shm.h>
-+#include <sys/mman.h>
-+
-+#ifndef SHM_HUGETLB
-+#define SHM_HUGETLB 04000
-+#endif
-+
-+#define LENGTH (256UL*1024*1024)
-+
-+#define dprintf(x)  printf(x)
-+
-+/* Only ia64 requires this */
-+#ifdef __ia64__
-+#define ADDR (void *)(0x8000000000000000UL)
-+#define SHMAT_FLAGS (SHM_RND)
-+#else
-+#define ADDR (void *)(0x0UL)
-+#define SHMAT_FLAGS (0)
-+#endif
-+
-+int main(void)
-+{
-+	int shmid;
-+	unsigned long i;
-+	char *shmaddr;
-+
-+	if ((shmid = shmget(2, LENGTH,
-+			    SHM_HUGETLB | IPC_CREAT | SHM_R | SHM_W)) < 0) {
-+		perror("shmget");
-+		exit(1);
-+	}
-+	printf("shmid: 0x%x\n", shmid);
-+
-+	shmaddr = shmat(shmid, ADDR, SHMAT_FLAGS);
-+	if (shmaddr == (char *)-1) {
-+		perror("Shared memory attach failure");
-+		shmctl(shmid, IPC_RMID, NULL);
-+		exit(2);
-+	}
-+	printf("shmaddr: %p\n", shmaddr);
-+
-+	dprintf("Starting the writes:\n");
-+	for (i = 0; i < LENGTH; i++) {
-+		shmaddr[i] = (char)(i);
-+		if (!(i % (1024 * 1024)))
-+			dprintf(".");
-+	}
-+	dprintf("\n");
-+
-+	dprintf("Starting the Check...");
-+	for (i = 0; i < LENGTH; i++)
-+		if (shmaddr[i] != (char)i)
-+			printf("\nIndex %lu mismatched\n", i);
-+	dprintf("Done.\n");
-+
-+	if (shmdt((const void *)shmaddr) != 0) {
-+		perror("Detach failure");
-+		shmctl(shmid, IPC_RMID, NULL);
-+		exit(3);
-+	}
-+
-+	shmctl(shmid, IPC_RMID, NULL);
-+
-+	return 0;
-+}
---- linux-2617-rc4g9-docsrc-split.orig/Documentation/vm/hugetlbpage.txt
-+++ linux-2617-rc4g9-docsrc-split/Documentation/vm/hugetlbpage.txt
-@@ -104,13 +104,15 @@ Also, it is important to note that no su
- applications are going to use only shmat/shmget system calls.  Users who
- wish to use hugetlb page via shared memory segment should be a member of
- a supplementary group and system admin needs to configure that gid into
--/proc/sys/vm/hugetlb_shm_group.  It is possible for same or different
--applications to use any combination of mmaps and shm* calls, though the
--mount of filesystem will be required for using mmap calls.
-+/proc/sys/vm/hugetlb_shm_group.  It is possible for one or different
-+applications to use any combination of mmaps and shm* calls, though a
-+hugetlbfs filesystem mount will be required for using mmaps.
+--- linux-2617-rc4g9-docsrc-split.orig/Documentation/s390/Debugging390.txt
++++ linux-2617-rc4g9-docsrc-split/Documentation/s390/Debugging390.txt
+@@ -1478,67 +1478,8 @@ outputs
+ Decoded Hex:=/ d e v / c o n s o l e 0x00 
+ We were opening the console device,
  
- *******************************************************************
- 
- /*
-+ * hugepage-shm:  see Documentation/vm/hugepage-shm.c
-+ *
-  * Example of using hugepage memory in a user application using Sys V shared
-  * memory system calls.  In this example the app is requesting 256MB of
-  * memory that is backed by huge pages.  The application uses the flag
-@@ -134,79 +136,12 @@ mount of filesystem will be required for
-  *
-  * echo 4194304 > /proc/sys/kernel/shmall
-  */
--#include <stdlib.h>
+-You can compile the code below yourself for practice :-),
+-/*
+- *    hex2ascii.c
+- *    a useful little tool for converting a hexadecimal command line to ascii
+- *
+- *    Author(s): Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com)
+- *    (C) 2000 IBM Deutschland Entwicklung GmbH, IBM Corporation.
+- */   
 -#include <stdio.h>
--#include <sys/types.h>
--#include <sys/ipc.h>
--#include <sys/shm.h>
--#include <sys/mman.h>
 -
--#ifndef SHM_HUGETLB
--#define SHM_HUGETLB 04000
--#endif
--
--#define LENGTH (256UL*1024*1024)
--
--#define dprintf(x)  printf(x)
--
--/* Only ia64 requires this */
--#ifdef __ia64__
--#define ADDR (void *)(0x8000000000000000UL)
--#define SHMAT_FLAGS (SHM_RND)
--#else
--#define ADDR (void *)(0x0UL)
--#define SHMAT_FLAGS (0)
--#endif
--
--int main(void)
+-int main(int argc,char *argv[])
 -{
--	int shmid;
--	unsigned long i;
--	char *shmaddr;
--
--	if ((shmid = shmget(2, LENGTH,
--			    SHM_HUGETLB | IPC_CREAT | SHM_R | SHM_W)) < 0) {
--		perror("shmget");
--		exit(1);
--	}
--	printf("shmid: 0x%x\n", shmid);
--
--	shmaddr = shmat(shmid, ADDR, SHMAT_FLAGS);
--	if (shmaddr == (char *)-1) {
--		perror("Shared memory attach failure");
--		shmctl(shmid, IPC_RMID, NULL);
--		exit(2);
--	}
--	printf("shmaddr: %p\n", shmaddr);
--
--	dprintf("Starting the writes:\n");
--	for (i = 0; i < LENGTH; i++) {
--		shmaddr[i] = (char)(i);
--		if (!(i % (1024 * 1024)))
--			dprintf(".");
--	}
--	dprintf("\n");
--
--	dprintf("Starting the Check...");
--	for (i = 0; i < LENGTH; i++)
--		if (shmaddr[i] != (char)i)
--			printf("\nIndex %lu mismatched\n", i);
--	dprintf("Done.\n");
--
--	if (shmdt((const void *)shmaddr) != 0) {
--		perror("Detach failure");
--		shmctl(shmid, IPC_RMID, NULL);
--		exit(3);
--	}
--
--	shmctl(shmid, IPC_RMID, NULL);
--
--	return 0;
+-  int cnt1,cnt2,len,toggle=0;
+-  int startcnt=1;
+-  unsigned char c,hex;
+-  
+-  if(argc>1&&(strcmp(argv[1],"-a")==0))
+-     startcnt=2;
+-  printf("Decoded Hex:=");
+-  for(cnt1=startcnt;cnt1<argc;cnt1++)
+-  {
+-    len=strlen(argv[cnt1]);
+-    for(cnt2=0;cnt2<len;cnt2++)
+-    {
+-       c=argv[cnt1][cnt2];
+-       if(c>='0'&&c<='9')
+-	  c=c-'0';
+-       if(c>='A'&&c<='F')
+-	  c=c-'A'+10;
+-       if(c>='a'&&c<='f')
+-	  c=c-'a'+10;
+-       switch(toggle)
+-       {
+-	  case 0:
+-	     hex=c<<4;
+-	     toggle=1;
+-	  break;
+-	  case 1:
+-	     hex+=c;
+-	     if(hex<32||hex>127)
+-	     {
+-		if(startcnt==1)
+-		   printf("0x%02X ",(int)hex);
+-		else
+-		   printf(".");
+-	     }
+-	     else
+-	     {
+-	       printf("%c",hex);
+-	       if(startcnt==1)
+-		  printf(" ");
+-	     }
+-	     toggle=0;
+-	  break;
+-       }
+-    }
+-  }
+-  printf("\n");
 -}
+-
+-
++You can compile the hex2ascii code yourself for practice :-),
++See Documentation/s390/hex2ascii.c
  
- *******************************************************************
  
- /*
-+ * hugepage-mmap:  see Documentation/vm/hugepage-mmap.c
-+ *
-  * Example of using hugepage memory in a user application using the mmap
-  * system call.  Before running this application, make sure that the
-  * administrator has mounted the hugetlbfs filesystem (on some directory
-@@ -219,76 +154,3 @@ int main(void)
-  * specified.  Specifying a fixed address is not required on ppc64, i386
-  * or x86_64.
-  */
--#include <stdlib.h>
--#include <stdio.h>
--#include <unistd.h>
--#include <sys/mman.h>
--#include <fcntl.h>
--
--#define FILE_NAME "/mnt/hugepagefile"
--#define LENGTH (256UL*1024*1024)
--#define PROTECTION (PROT_READ | PROT_WRITE)
--
--/* Only ia64 requires this */
--#ifdef __ia64__
--#define ADDR (void *)(0x8000000000000000UL)
--#define FLAGS (MAP_SHARED | MAP_FIXED)
--#else
--#define ADDR (void *)(0x0UL)
--#define FLAGS (MAP_SHARED)
--#endif
--
--void check_bytes(char *addr)
--{
--	printf("First hex is %x\n", *((unsigned int *)addr));
--}
--
--void write_bytes(char *addr)
--{
--	unsigned long i;
--
--	for (i = 0; i < LENGTH; i++)
--		*(addr + i) = (char)i;
--}
--
--void read_bytes(char *addr)
--{
--	unsigned long i;
--
--	check_bytes(addr);
--	for (i = 0; i < LENGTH; i++)
--		if (*(addr + i) != (char)i) {
--			printf("Mismatch at %lu\n", i);
--			break;
--		}
--}
--
--int main(void)
--{
--	void *addr;
--	int fd;
--
--	fd = open(FILE_NAME, O_CREAT | O_RDWR, 0755);
--	if (fd < 0) {
--		perror("Open failed");
--		exit(1);
--	}
--
--	addr = mmap(ADDR, LENGTH, PROTECTION, FLAGS, fd, 0);
--	if (addr == MAP_FAILED) {
--		perror("mmap");
--		unlink(FILE_NAME);
--		exit(1);
--	}
--
--	printf("Returned address is %p\n", addr);
--	check_bytes(addr);
--	write_bytes(addr);
--	read_bytes(addr);
--
--	munmap(addr, LENGTH);
--	close(fd);
--	unlink(FILE_NAME);
--
--	return 0;
--}
+ Stack tracing under VM
 --- /dev/null
-+++ linux-2617-rc4g9-docsrc-split/Documentation/vm/hugepage-mmap.c
-@@ -0,0 +1,73 @@
-+#include <stdlib.h>
++++ linux-2617-rc4g9-docsrc-split/Documentation/s390/hex2ascii.c
+@@ -0,0 +1,59 @@
++/*
++ *    hex2ascii.c
++ *    a useful little tool for converting a hexadecimal command line to ascii
++ *
++ *    Author(s): Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com)
++ *    (C) 2000 IBM Deutschland Entwicklung GmbH, IBM Corporation.
++ */
 +#include <stdio.h>
-+#include <unistd.h>
-+#include <sys/mman.h>
-+#include <fcntl.h>
++#include <string.h>
 +
-+#define FILE_NAME "/mnt/hugepagefile"
-+#define LENGTH (256UL*1024*1024)
-+#define PROTECTION (PROT_READ | PROT_WRITE)
-+
-+/* Only ia64 requires this */
-+#ifdef __ia64__
-+#define ADDR (void *)(0x8000000000000000UL)
-+#define FLAGS (MAP_SHARED | MAP_FIXED)
-+#else
-+#define ADDR (void *)(0x0UL)
-+#define FLAGS (MAP_SHARED)
-+#endif
-+
-+void check_bytes(char *addr)
++int main(int argc,char *argv[])
 +{
-+	printf("First hex is %x\n", *((unsigned int *)addr));
-+}
++  int cnt1,cnt2,len,toggle=0;
++  int startcnt=1;
++  unsigned char c,hex;
 +
-+void write_bytes(char *addr)
-+{
-+	unsigned long i;
-+
-+	for (i = 0; i < LENGTH; i++)
-+		*(addr + i) = (char)i;
-+}
-+
-+void read_bytes(char *addr)
-+{
-+	unsigned long i;
-+
-+	check_bytes(addr);
-+	for (i = 0; i < LENGTH; i++)
-+		if (*(addr + i) != (char)i) {
-+			printf("Mismatch at %lu\n", i);
-+			break;
-+		}
-+}
-+
-+int main(void)
-+{
-+	void *addr;
-+	int fd;
-+
-+	fd = open(FILE_NAME, O_CREAT | O_RDWR, 0755);
-+	if (fd < 0) {
-+		perror("Open failed");
-+		exit(1);
-+	}
-+
-+	addr = mmap(ADDR, LENGTH, PROTECTION, FLAGS, fd, 0);
-+	if (addr == MAP_FAILED) {
-+		perror("mmap");
-+		unlink(FILE_NAME);
-+		exit(1);
-+	}
-+
-+	printf("Returned address is %p\n", addr);
-+	check_bytes(addr);
-+	write_bytes(addr);
-+	read_bytes(addr);
-+
-+	munmap(addr, LENGTH);
-+	close(fd);
-+	unlink(FILE_NAME);
-+
-+	return 0;
++  if(argc>1&&(strcmp(argv[1],"-a")==0))
++     startcnt=2;
++  printf("Decoded Hex:=");
++  for(cnt1=startcnt;cnt1<argc;cnt1++)
++  {
++    len=strlen(argv[cnt1]);
++    for(cnt2=0;cnt2<len;cnt2++)
++    {
++       c=argv[cnt1][cnt2];
++       if(c>='0'&&c<='9')
++	  c=c-'0';
++       if(c>='A'&&c<='F')
++	  c=c-'A'+10;
++       if(c>='a'&&c<='f')
++	  c=c-'a'+10;
++       switch(toggle)
++       {
++	  case 0:
++	     hex=c<<4;
++	     toggle=1;
++	  break;
++	  case 1:
++	     hex+=c;
++	     if(hex<32||hex>127)
++	     {
++		if(startcnt==1)
++		   printf("0x%02X ",(int)hex);
++		else
++		   printf(".");
++	     }
++	     else
++	     {
++	       printf("%c",hex);
++	       if(startcnt==1)
++		  printf(" ");
++	     }
++	     toggle=0;
++	  break;
++       }
++    }
++  }
++  printf("\n");
 +}
 
 

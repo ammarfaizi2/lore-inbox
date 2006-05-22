@@ -1,55 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbWEVTL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWEVTMP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750952AbWEVTL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 15:11:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWEVTL2
+	id S1751085AbWEVTMP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 15:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWEVTMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 15:11:28 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:898 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1750952AbWEVTL1
+	Mon, 22 May 2006 15:12:15 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:23170 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751085AbWEVTMO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 15:11:27 -0400
-Date: Mon, 22 May 2006 12:13:46 -0700
+	Mon, 22 May 2006 15:12:14 -0400
+Date: Mon, 22 May 2006 12:14:35 -0700
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: torvalds@osdl.org
-Subject: Linux 2.6.16.18
-Message-ID: <20060522191346.GR23243@moss.sous-sol.org>
+Subject: Re: Linux 2.6.16.18
+Message-ID: <20060522191435.GS23243@moss.sous-sol.org>
+References: <20060522191346.GR23243@moss.sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060522191346.GR23243@moss.sous-sol.org>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We (the -stable team) are announcing the release of the 2.6.16.18
-kernel.  Fix for possible Netfilter SNMP NAT remote DoS (CVE-2006-2444).
-
-The diffstat and short summary of the fixes are below.
-
-I'll also be replying to this message with a copy of the patch between
-2.6.16.17 and 2.6.16.18, as it is small enough to do so.
-
-The updated 2.6.16.y git tree can be found at:
- 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
-and can be browsed at the normal kernel.org git web browser:
-	www.kernel.org/git/
-
-thanks,
--chris
-
---------
-
- Makefile                               |    2 +-
- net/ipv4/netfilter/ip_nat_snmp_basic.c |   15 +++++++--------
- 2 files changed, 8 insertions(+), 9 deletions(-)
-
-Summary of changes from v2.6.16.17 to v2.6.16.18
-================================================
-
-Chris Wright:
-      Linux 2.6.16.18
-
-Patrick McHardy:
-      NETFILTER: SNMP NAT: fix memory corruption (CVE-2006-2444)
-
+diff --git a/Makefile b/Makefile
+index ce59d4b..2567664 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ VERSION = 2
+ PATCHLEVEL = 6
+ SUBLEVEL = 16
+-EXTRAVERSION = .17
++EXTRAVERSION = .18
+ NAME=Sliding Snow Leopard
+ 
+ # *DOCUMENTATION*
+diff --git a/net/ipv4/netfilter/ip_nat_snmp_basic.c b/net/ipv4/netfilter/ip_nat_snmp_basic.c
+index 4f95d47..df57e7a 100644
+--- a/net/ipv4/netfilter/ip_nat_snmp_basic.c
++++ b/net/ipv4/netfilter/ip_nat_snmp_basic.c
+@@ -1000,12 +1000,12 @@ static unsigned char snmp_trap_decode(st
+ 		
+ 	return 1;
+ 
++err_addr_free:
++	kfree((unsigned long *)trap->ip_address);
++
+ err_id_free:
+ 	kfree(trap->id);
+ 
+-err_addr_free:
+-	kfree((unsigned long *)trap->ip_address);
+-	
+ 	return 0;
+ }
+ 
+@@ -1123,11 +1123,10 @@ static int snmp_parse_mangle(unsigned ch
+ 		struct snmp_v1_trap trap;
+ 		unsigned char ret = snmp_trap_decode(&ctx, &trap, map, check);
+ 		
+-		/* Discard trap allocations regardless */
+-		kfree(trap.id);
+-		kfree((unsigned long *)trap.ip_address);
+-		
+-		if (!ret)
++		if (ret) {
++			kfree(trap.id);
++			kfree((unsigned long *)trap.ip_address);
++		} else 
+ 			return ret;
+ 		
+ 	} else {

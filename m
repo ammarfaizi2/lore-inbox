@@ -1,57 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbWEVJgE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWEVJ4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbWEVJgE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 05:36:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWEVJgE
+	id S1751027AbWEVJ4b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 05:56:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWEVJ4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 05:36:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20686 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750800AbWEVJgB (ORCPT
+	Mon, 22 May 2006 05:56:31 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37344 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751018AbWEVJ4a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 05:36:01 -0400
-Date: Mon, 22 May 2006 02:35:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: hch@lst.de, pbadari@us.ibm.com, bcrl@kvack.org, cel@citi.umich.edu,
-       zach.brown@oracle.com, linux-kernel@vger.kernel.org, raven@themaw.net
-Subject: Re: [PATCH 2/4] Remove readv/writev methods and use
- aio_read/aio_write instead
-Message-Id: <20060522023519.2541f082.akpm@osdl.org>
-In-Reply-To: <20060522022917.3e563261.akpm@osdl.org>
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>
-	<1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
-	<1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com>
-	<1147727945.20568.53.camel@dyn9047017100.beaverton.ibm.com>
-	<1147728133.6181.2.camel@dyn9047017100.beaverton.ibm.com>
-	<20060521180037.3c8f2847.akpm@osdl.org>
-	<20060522053450.GA22210@lst.de>
-	<20060522022917.3e563261.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 22 May 2006 05:56:30 -0400
+Date: Mon, 22 May 2006 11:55:31 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Cc: trenn@suse.de, "Yu, Luming" <luming.yu@intel.com>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Tom Seeley <redhat@tomseeley.co.uk>,
+       Dave Jones <davej@redhat.com>, Jiri Slaby <jirislaby@gmail.com>,
+       michael@mihu.de, mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
+       video4linux-list@redhat.com, Brian Marete <bgmarete@gmail.com>,
+       Ryan Phillips <rphillips@gentoo.org>, gregkh@suse.de,
+       linux-usb-devel@lists.sourceforge.net,
+       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
+       Mark Lord <lkml@rtr.ca>, Randy Dunlap <rdunlap@xenotime.net>,
+       jgarzik@pobox.com, linux-ide@vger.kernel.org,
+       Duncan <1i5t5.duncan@cox.net>, Pavlik Vojtech <vojtech@suse.cz>,
+       linux-input@atrey.karlin.mff.cuni.cz, Meelis Roos <mroos@linux.ee>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
+Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT]
+Message-ID: <20060522095531.GC25624@elf.ucw.cz>
+References: <1148046258.9319.441.camel@queen.suse.de> <E1FhbYy-0005jL-00@skye.ra.phy.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1FhbYy-0005jL-00@skye.ra.phy.cam.ac.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> Christoph Hellwig <hch@lst.de> wrote:
-> >
-> > On Sun, May 21, 2006 at 06:00:37PM -0700, Andrew Morton wrote:
-> > > Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> > > >
-> > > > This patch removes readv() and writev() methods and replaces
-> > > >  them with aio_read()/aio_write() methods.
-> > > 
-> > > And it breaks autofs4
-> > > 
-> > > autofs: pipe file descriptor does not contain proper ops
-> > 
-> > this comes because the autofs4 pipe fd doesn't have a write file
-> > operations.
-> > 
-> 
-> Note that fs/autofs/inode.c does the same thing.
+Hi!
 
-The loop driver plays with file_operations.write() also.  The code should
-be reviewed and tested against filesystems which use LO_FLAGS_USE_AOPS as
-well as against those which do not, please.
+> > https://bugzilla.novell.com/show_bug.cgi?id=173420
+> 
+> >From Comment #30 at the above url: "The Linux ACPI code seems to
+> actively prevent the fan from running and that worries me."
+> 
+> I saw that as well, and found the following recipe would work around
+> the problem:
+> 
+> 1. Set the trip point to, say, 70 C -- well above the actual
+>    temperature.
+> 
+> 2. Then set the trip to anything reasonable that's under the current
+>    temperature (27 C always works).  Now the fan turns on, and behaves
+>    fine from then.
+> 
+> My explanation is that, before step 1, the fan is off but the OS
+> thinks it's on.  So the dialogue goes something like:
+> 
+> Hardware (from EC or BIOS?): Ack, I'm overheating, turn on the fan now!
+> OS: There, there, take it easy.  I've checked bit fields in my
+>      memory, and the fan is on.  So I don't have to do anything.
+> Hardware: Ack, ...
+> OS: There, there, ...
+> [Hence the 100% kacpid CPU usage]
+> 
+> Based on this explanation, I added a resume method to the fan driver.
+> It would turn on the fan and mark it as on.  So then the internal OS
+> state matched the actual state.  The fix didn't work for at least one
+> reason: ACPI drivers didn't have suspend/resume methods (though now
+> there are test patches to add those methods).
+
+Can you redo your patches with those methods?
+
+> Another fix, probably worth doing anyway, is to turn on the fan if the
+> BIOS asks for it, whether or not the OS thinks it's on.  The chance of
+> the two pieces of information getting out of synch, and the hardware
+> damage it can cause, is enough to make it worthwhile.  The reverse
+
+There should be 0% hardware damage chance. Fan failure means overheats
+mean emergency power cutoff. I even tested it with paper into fan
+blades several times. It mostly works.
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

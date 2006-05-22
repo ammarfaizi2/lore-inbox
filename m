@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWEVHBg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWEVHB2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932533AbWEVHBg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 03:01:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbWEVHBg
+	id S932523AbWEVHB2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 03:01:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932528AbWEVHB2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 03:01:36 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:57117 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932528AbWEVHBf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 03:01:35 -0400
-Date: Mon, 22 May 2006 09:02:50 +0200
-From: Jens Axboe <axboe@suse.de>
-To: NeilBrown <neilb@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Don Dupuis <dondster@gmail.com>
-Subject: Re: [PATCH 002 of 2] md: Make sure bi_max_vecs is set properly in bio_split
-Message-ID: <20060522070249.GC4216@suse.de>
-References: <20060522161259.2792.patches@notabene> <1060522061855.2861@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1060522061855.2861@suse.de>
+	Mon, 22 May 2006 03:01:28 -0400
+Received: from smtp1.internet-fr.net ([212.37.192.53]:35513 "EHLO
+	smtp1.internet-fr.net") by vger.kernel.org with ESMTP
+	id S932523AbWEVHB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 03:01:28 -0400
+From: "CEM INTERNATIONAL" <eric.baudouin3@libertysurf.fr>
+To: "Subscriber" <linux-kernel@vger.kernel.org>
+Reply-To: avenirexport@emailsalon.com
+Subject: 3 jours pour vous inscrire gratuitement au  =?ISO-8859-1?Q?=2018=E8me?= Salon AVENIR EXPORT AVENIR EXPAT
+Date: Mon, 22 May 2006 09:01:27 +0200
+Message-ID: <20060522-09012734-f64@winv2.adsphera.internet-fr.net>
+X-SID: 45304IDEND
+X-Mailing-Software: www.designerfreesolutions.com
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="--=5E9B3C2F5ADD4C2B96EC_37D8_DF86_1025"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 22 2006, NeilBrown wrote:
-> 
-> Else a subsequence bio_clone might make a mess.
-> 
-> Signed-off-by: Neil Brown <neilb@suse.de>
-> Cc: "Don Dupuis" <dondster@gmail.com>
-> Cc: Jens Axboe <axboe@suse.de>
-> ### Diffstat output
->  ./fs/bio.c |    3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff ./fs/bio.c~current~ ./fs/bio.c
-> --- ./fs/bio.c~current~	2006-05-22 16:12:46.000000000 +1000
-> +++ ./fs/bio.c	2006-05-22 16:12:16.000000000 +1000
-> @@ -1103,6 +1103,9 @@ struct bio_pair *bio_split(struct bio *b
->  	bp->bio1.bi_io_vec = &bp->bv1;
->  	bp->bio2.bi_io_vec = &bp->bv2;
->  
-> +	bp->bio1.bi_max_vecs = 1;
-> +	bp->bio2.bi_max_vecs = 1;
-> +
->  	bp->bio1.bi_end_io = bio_pair_end_1;
->  	bp->bio2.bi_end_io = bio_pair_end_2;
->  
+----=5E9B3C2F5ADD4C2B96EC_37D8_DF86_1025
+Content-Type: text/plain;charset="Windows-1251"
+Content-Transfer-Encoding: 7bit
 
-Obviously correct, thanks Neil.
+VOUS EXPORTEZ ? VOUS VOULEZ EXPORTER ?
+VOUS GEREZ DES EXPATRIES ?
+VOUS VOULEZ VIVRE A L'ETRANGER ?
 
--- 
-Jens Axboe
+Le Salon AVENIR INTERNATIONAL, Salon de l'Export et de l'Expatriation, ouvre ses portes du 30 mai au 1er juin au Cnit Paris La Defense.
+ 
+Inscription gratuite au salon : www.avenir-export.com (acces gratuit si pre inscription avant le 25 mai)
 
+Le salon en quelques chiffres :
+300 exposants sur 12 000 m2
+100 pays representes
+100 conferences (acces gratuit)
+Des rendez-vous experts organises pour vous gratuitement
+Nouveaute 2006: Le pavillon Produits Import Export : decouvrez des produits prets a faire le tour du monde...
+
+ATTENTION : Il vous reste 3 jours pour obtenir un badge gratuit.
+
+Vous souhaitez vous desabonner, cliquez ici : http://www.emailsalon.com/newsmanager/forms/optOut.asp?e=BABCB6C3CB75A2AAA4B4B0BA93BEB5B8BA65B097B8B9B3BF76BDC5AF&p=45304&l=13&a=2
+
+
+----=5E9B3C2F5ADD4C2B96EC_37D8_DF86_1025--

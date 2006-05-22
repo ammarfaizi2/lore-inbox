@@ -1,106 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWEVVHS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750910AbWEVVKV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbWEVVHS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 17:07:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWEVVHR
+	id S1750910AbWEVVKV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 17:10:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWEVVKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 17:07:17 -0400
-Received: from ns.dynamicweb.hu ([195.228.155.139]:53913 "EHLO dynamicweb.hu")
-	by vger.kernel.org with ESMTP id S1751188AbWEVVHP (ORCPT
+	Mon, 22 May 2006 17:10:20 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:61639 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S1750868AbWEVVKT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 17:07:15 -0400
-Message-ID: <047401c67de3$a05a52c0$1800a8c0@dcccs>
-From: =?iso-8859-1?Q?Haar_J=E1nos?= <djani22@netcenter.hu>
-To: "Con Kolivas" <kernel@kolivas.org>
-Cc: <nickpiggin@yahoo.com.au>, <cw@f00f.org>, <linux-kernel@vger.kernel.org>
-References: <00e901c67cad$fe9a9d90$1800a8c0@dcccs> <200605222117.27433.kernel@kolivas.org> <031001c67db1$a8c4a1e0$1800a8c0@dcccs> <200605230112.45564.kernel@kolivas.org>
-Subject: Re: swapper: page allocation failure. - random reboot problem
-Date: Mon, 22 May 2006 23:06:35 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+	Mon, 22 May 2006 17:10:19 -0400
+Subject: Re: Was change to ip_push_pending_frames intended to break
+	udp	(more specifically, WCCP?)
+From: Vlad Yasevich <vladislav.yasevich@hp.com>
+To: Paul P Komkoff Jr <i@stingr.net>
+Cc: Rick Jones <rick.jones2@hp.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+In-Reply-To: <20060522202113.GA8196@stingr.net>
+References: <20060520191153.GV3776@stingr.net>
+	 <20060520140434.2139c31b.akpm@osdl.org>
+	 <1148322152.15322.299.camel@galen.zko.hp.com> <4472078D.8010706@hp.com>
+	 <1148324083.15323.325.camel@galen.zko.hp.com>
+	 <20060522202113.GA8196@stingr.net>
+Content-Type: text/plain
+Organization: Linux and Open Source Lab
+Date: Mon, 22 May 2006 17:10:15 -0400
+Message-Id: <1148332215.15323.368.camel@galen.zko.hp.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2006-05-23 at 00:21 +0400, Paul P Komkoff Jr wrote:
+> Replying to Vlad Yasevich:
+> >     /* This is only to work around buggy Windows95/2000
+> >      * VJ compression implementations.  If the ID field
+> >      * does not change, they drop every other packet in
+> >      * a TCP stream using header compression.
+> >      */
+> 
+> Unfortunately, cisco IOS also complains that packets are "duplicate".
+> And, regarding to your previous message on how to fix this - IIRC, if
+> I do connect() on this socket, it will refuse to receive datagrams
+> from hosts other than specified in connect(), and I will be unable to
+> bind another socket to the same port on my side.
+> 
+> That said, the only solution which is close to what been before, will
+> be to keep one socket for receive, and create socket for each router I
+> am communicating with, right?
 
------ Original Message ----- 
-From: "Con Kolivas" <kernel@kolivas.org>
-To: "Haar János" <djani22@netcenter.hu>
-Cc: <nickpiggin@yahoo.com.au>; <cw@f00f.org>; <linux-kernel@vger.kernel.org>
-Sent: Monday, May 22, 2006 5:12 PM
-Subject: Re: swapper: page allocation failure.
+Yewwww...  I see you problem.
 
+To me this sounds like a bug in IOS.  I hope someone else would comment.
 
-> On Tuesday 23 May 2006 01:08, Haar János wrote:
-> > ----- Original Message -----
-> > From: "Con Kolivas" <kernel@kolivas.org>
-> > > Try with one of the alternative vmsplit options that gives you more
-> >
-> > lowmem?
-> >
-> > > That might break certain applications though.
-> >
-> >              total       used       free     shared    buffers
-cached
-> > Mem:       4049724    4021196      28528          0      16384
-3217288
-> > Low:       4049724    4021196      28528
-> > High:            0          0          0
-> > -/+ buffers/cache:     787524    3262200
-> > Swap:            0          0          0
-> >
-> > This is an 64 bit machine, the "concentrator".
-> >
-> > It looks like use all, the 4G ram as "lowmem".
-> > If i replace the cpu on my nodes to 64bit capable ones, i can use all
-the
-> > memory as buffer-cache? :-)
->
-> Heh yes indeed. It's only if you're stuck on 32bit for whatever reason
-that
-> you'd need a different vmsplit. There is no need for highmem when 64bit
-> allows bazillions of bytes of lowmem :)
+I did previously search a bunch of RFC and nowhere did a find a
+requirement that IDs should be non-zero when DF bit is set.  The only
+time IP IDs are mentioned is in the fragmentation and reassembly
+description. 
 
-OK, it is enough, to switch to 64bit, thanks!
-
-But i have a little problem.
-My node #3 reboots again.
-
-At this point i have run out of ideas. :-(
-
-This is checked already:
-
-- the complete hardware, except the 12 hdd. (smart reports, no errors at
-all, 4x ide + 8xSATA all 300GB.)
-- the SMP race. (checked with non-smp kernel)
-- APIC/ACPI (tested with non...  kernel)
-- the e1000 driver (tested with realtek gige adapter)
-- the complete filesystem, OS (NFS-ROOT, and copy between nodes.)
-- the memory allocation proble, (checked with debug-kernel, and rised
-min_free_kbytes)
-
-The systems only service is nbd. (nbd-server serving md0, raid4 array)
-
-Anybody have an idea?
-
-Please let me know!
-
-Thanks,
-Janos
-
-
-
->
-> -- 
-> -ck
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-vlad
 

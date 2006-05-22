@@ -1,167 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964979AbWEVBLp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964980AbWEVBT6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964979AbWEVBLp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 21:11:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWEVBLp
+	id S964980AbWEVBT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 21:19:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWEVBT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 21:11:45 -0400
-Received: from wr-out-0506.google.com ([64.233.184.238]:43629 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932384AbWEVBLo convert rfc822-to-8bit (ORCPT
+	Sun, 21 May 2006 21:19:58 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:34237 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932384AbWEVBT5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 21:11:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ayoeXqd8S/6bs5aIIN+GogKuf7fyzeQGMhOoI/zv53ODWN0jVyVb7Flwe/4lixus6/xxcN4qTIxQx0IjY5UgVSurhGajAqp+dtcqGnzdPJvzEGiGH3jIM5spDeSOYenS+I96KyLCN26rMBtQuwperIpZ0hmn/xNNDPhig4njJoA=
-Message-ID: <f02dbbe70605211811h10f5464aw377bf4c5069b25eb@mail.gmail.com>
-Date: Mon, 22 May 2006 10:11:43 +0900
-From: "Seiji Munetoh" <seiji.munetoh@gmail.com>
-To: "Alexey Dobriyan" <adobriyan@gmail.com>
-Subject: Re: [PATCH 1/2] tpm: bios log parsing fixes
-Cc: linux-kernel@vger.kernel.org, kjhall@us.ibm.com,
-       tpmdd-devel@lists.sourceforge.net
-In-Reply-To: <20060518235423.GA5566@mipter.zuzino.mipt.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1147994863.14102.65.camel@localhost.localdomain>
-	 <20060518235423.GA5566@mipter.zuzino.mipt.ru>
+	Sun, 21 May 2006 21:19:57 -0400
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Mon, 22 May 2006 11:19:32 +1000
+Message-Id: <1060522011932.2462@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Cc: "david m. richter" <richterd@citi.umich.edu>
+Subject: [PATCH] knfsd: Fix two problems that can cause rmmod nfsd to die.
+References: <20060522111746.2437.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/5/19, Alexey Dobriyan <adobriyan@gmail.com>:
-> On Fri, May 19, 2006 at 08:27:43AM +0900, Seiji Munetoh wrote:
-> > This patch fixes "tcpa_pc_event" misalignment between enum, strings and
-> > TCG PC spec and output of the event contains a hash data.
->
-> > --- linux-2.6.17-rc4/drivers/char/tpm/tpm_bios.c
-> > +++ linux-2.6.17-rc4-tpm/drivers/char/tpm/tpm_bios.c
-> > @@ -105,6 +105,12 @@ static const char* tcpa_event_type_strin
-> >       "Non-Host Info"
-> >  };
-> >
-> > +struct tcpa_pc_event {
-> > +     u32 event_id;
-> > +     u32 event_size;
-> > +     u8 event_data[0];
-> > +};
-> > +
-> >  enum tcpa_pc_event_ids {
-> >       SMBIOS = 1,
-> >       BIS_CERT,
-> > @@ -114,14 +120,16 @@ enum tcpa_pc_event_ids {
-> >       NVRAM,
-> >       OPTION_ROM_EXEC,
-> >       OPTION_ROM_CONFIG,
-> > +     UNUSED2,
->
-> Damn true. Comment, that it corresponds to "" before "Option ROM
-> microcode", should not harm.
->
-> Why aren't event_id's of proper type asking for removal every time
-> someone greps for tcpa_pc_event_ids?
+This patch applies to -mm and current -git and should go to Linus
+before 2.6.17
+Thanks.
+NeilBrown
 
-I hope this is the last fix.
+### Comments for Changeset
 
->
-> >       OPTION_ROM_MICROCODE,
-> >       S_CRTM_VERSION,
-> >       S_CRTM_CONTENTS,
-> >       POST_CONTENTS,
-> > +     HOST_TABLE_OF_DEVICES,
-> >  };
-> >
-> >  static const char* tcpa_pc_event_id_strings[] = {
-> > -     ""
-> > +     "",
-> >       "SMBIOS",
-> >       "BIS Certificate",
-> >       "POST BIOS ",
-> > @@ -130,11 +138,12 @@ static const char* tcpa_pc_event_id_stri
-> >       "NVRAM",
-> >       "Option ROM",
-> >       "Option ROM config",
-> > -     "Option ROM microcode",
-> > +     "",
-> > +     "Option ROM microcode ",
-> >       "S-CRTM Version",
-> > -     "S-CRTM Contents",
-> > -     "S-CRTM POST Contents",
-> > -     "POST Contents",
-> > +     "S-CRTM Contents ",
-> > +     "POST Contents ",
->                       ^
-> Seems gratious, really needed?
+Both cause the 'entries' count in the export cache to be non-zero
+at module removal time, so unregistering that cache fails and results
+in an oops.
 
-That is specified by the latest spec,  "TCG PC Client Specific Implementation
-Specification For Conventional BIOS v1.20". p79, 10.4.2.3.1.2.
-https://www.trustedcomputinggroup.org/groups/pc_client/TCG_PCClientImplementationforBIOS_1-20_1-00.pdf
+1/ exp_pseudoroot (used for NFSv4 only) leaks a reference to an export
+   entry.
+2/ sunrpc_cache_update doesn't increment the entries count when it adds
+   an entry.
 
-There are some minor changes between v1.1b to v1.2 and this patch
-supports v1.2.
+Thanks to "david m. richter" <richterd@citi.umich.edu> for triggering the
+problem and finding one of the bugs.
 
-Thanks
---
-Seiji Munetoh
+Cc: "david m. richter" <richterd@citi.umich.edu>
+Signed-off-by: Neil Brown <neilb@suse.de>
 
->
-> > +     "Table of Devices",
-> >  };
-> >
-> >  /* returns pointer to start of pos. entry of tcg log */
-> > @@ -206,7 +215,7 @@ static int get_event_name(char *dest, st
-> >       const char *name = "";
-> >       char data[40] = "";
-> >       int i, n_len = 0, d_len = 0;
-> > -     u32 event_id;
-> > +     struct tcpa_pc_event *pc_event;
-> >
-> >       switch(event->event_type) {
-> >       case PREBOOT:
-> > @@ -235,31 +244,32 @@ static int get_event_name(char *dest, st
-> >               }
-> >               break;
-> >       case EVENT_TAG:
-> > -             event_id = be32_to_cpu(*((u32 *)event_entry));
-> > +             pc_event = (struct tcpa_pc_event *)event_entry;
-> >
-> >               /* ToDo Row data -> Base64 */
-> >
-> > -             switch (event_id) {
-> > +             switch (pc_event->event_id) {
-> >               case SMBIOS:
-> >               case BIS_CERT:
-> >               case CMOS:
-> >               case NVRAM:
-> >               case OPTION_ROM_EXEC:
-> >               case OPTION_ROM_CONFIG:
-> > -             case OPTION_ROM_MICROCODE:
-> >               case S_CRTM_VERSION:
-> > -             case S_CRTM_CONTENTS:
-> > -             case POST_CONTENTS:
-> > -                     name = tcpa_pc_event_id_strings[event_id];
-> > +                     name = tcpa_pc_event_id_strings[pc_event->event_id];
-> >                       n_len = strlen(name);
-> >                       break;
-> > +             /* hash data */
-> >               case POST_BIOS_ROM:
-> >               case ESCD:
-> > -                     name = tcpa_pc_event_id_strings[event_id];
-> > +             case OPTION_ROM_MICROCODE:
-> > +             case S_CRTM_CONTENTS:
-> > +             case POST_CONTENTS:
-> > +                     name = tcpa_pc_event_id_strings[pc_event->event_id];
-> >                       n_len = strlen(name);
-> >                       for (i = 0; i < 20; i++)
-> > -                             d_len += sprintf(data, "%02x",
-> > -                                             event_entry[8 + i]);
-> > +                             d_len += sprintf(&data[2*i], "%02x",
-> > +                                             pc_event->event_data[i]);
-> >                       break;
-> >               default:
-> >                       break;
->
->
+### Diffstat output
+ ./fs/nfsd/export.c   |    4 +++-
+ ./net/sunrpc/cache.c |    1 +
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff ./fs/nfsd/export.c~current~ ./fs/nfsd/export.c
+--- ./fs/nfsd/export.c~current~	2006-05-22 10:55:44.000000000 +1000
++++ ./fs/nfsd/export.c	2006-05-22 10:59:40.000000000 +1000
+@@ -1066,9 +1066,11 @@ exp_pseudoroot(struct auth_domain *clp, 
+ 		rv = nfserr_perm;
+ 	else if (IS_ERR(exp))
+ 		rv = nfserrno(PTR_ERR(exp));
+-	else
++	else {
+ 		rv = fh_compose(fhp, exp,
+ 				fsid_key->ek_dentry, NULL);
++		exp_put(exp);
++	}
+ 	cache_put(&fsid_key->h, &svc_expkey_cache);
+ 	return rv;
+ }
+
+diff ./net/sunrpc/cache.c~current~ ./net/sunrpc/cache.c
+--- ./net/sunrpc/cache.c~current~	2006-05-22 11:02:46.000000000 +1000
++++ ./net/sunrpc/cache.c	2006-05-22 11:03:15.000000000 +1000
+@@ -159,6 +159,7 @@ struct cache_head *sunrpc_cache_update(s
+ 		detail->update(tmp, new);
+ 	tmp->next = *head;
+ 	*head = tmp;
++	detail->entries++;
+ 	cache_get(tmp);
+ 	is_new = cache_fresh_locked(tmp, new->expiry_time);
+ 	cache_fresh_locked(old, 0);

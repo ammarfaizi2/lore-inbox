@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWEVHB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932537AbWEVHG0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932523AbWEVHB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 03:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932528AbWEVHB2
+	id S932537AbWEVHG0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 03:06:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932539AbWEVHG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 03:01:28 -0400
-Received: from smtp1.internet-fr.net ([212.37.192.53]:35513 "EHLO
-	smtp1.internet-fr.net") by vger.kernel.org with ESMTP
-	id S932523AbWEVHB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 03:01:28 -0400
-From: "CEM INTERNATIONAL" <eric.baudouin3@libertysurf.fr>
-To: "Subscriber" <linux-kernel@vger.kernel.org>
-Reply-To: avenirexport@emailsalon.com
-Subject: 3 jours pour vous inscrire gratuitement au  =?ISO-8859-1?Q?=2018=E8me?= Salon AVENIR EXPORT AVENIR EXPAT
-Date: Mon, 22 May 2006 09:01:27 +0200
-Message-ID: <20060522-09012734-f64@winv2.adsphera.internet-fr.net>
-X-SID: 45304IDEND
-X-Mailing-Software: www.designerfreesolutions.com
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="--=5E9B3C2F5ADD4C2B96EC_37D8_DF86_1025"
+	Mon, 22 May 2006 03:06:26 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:19298 "EHLO
+	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S932537AbWEVHGZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 03:06:25 -0400
+Date: Mon, 22 May 2006 01:06:10 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: ACPI suspend problems revisited: USB & 1394 modules?
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <447162E2.7050803@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-----=5E9B3C2F5ADD4C2B96EC_37D8_DF86_1025
-Content-Type: text/plain;charset="Windows-1251"
-Content-Transfer-Encoding: 7bit
+I reported a problem with ACPI suspend on a Compaq Presario X1050 laptop 
+a while ago:
 
-VOUS EXPORTEZ ? VOUS VOULEZ EXPORTER ?
-VOUS GEREZ DES EXPATRIES ?
-VOUS VOULEZ VIVRE A L'ETRANGER ?
+http://bugzilla.kernel.org/show_bug.cgi?id=6075
 
-Le Salon AVENIR INTERNATIONAL, Salon de l'Export et de l'Expatriation, ouvre ses portes du 30 mai au 1er juin au Cnit Paris La Defense.
- 
-Inscription gratuite au salon : www.avenir-export.com (acces gratuit si pre inscription avant le 25 mai)
+Essentially when coming out of suspend I get ACPI execution errors like:
 
-Le salon en quelques chiffres :
-300 exposants sur 12 000 m2
-100 pays representes
-100 conferences (acces gratuit)
-Des rendez-vous experts organises pour vous gratuitement
-Nouveaute 2006: Le pavillon Produits Import Export : decouvrez des produits prets a faire le tour du monde...
+ACPI: read EC, IB not empty
+ACPI Exception (evregion-0409): AE_TIME, Returned by Handler for
+[EmbeddedControl] [20060127]
+ACPI Exception (dswexec-0458): AE_TIME, While resolving operands for
+[AE_NOT_CONFIGURED] [20060127]
+ACPI Error (psparse-0517): Method parse/execution failed
+[\_SB_.C046.C059.C0EA.C11D] (Node dfea0280), AE_TIME
+ACPI Error (psparse-0517): Method parse/execution failed [\_WAK] (Node
+c14dc500), AE_TIME
 
-ATTENTION : Il vous reste 3 jours pour obtenir un badge gratuit.
+After this point, the battery status is no longer reported, the keyboard 
+starts losing keypresses and the mouse pointer tends to freeze up for a 
+while and then unstick. What ACPI seems to be having problems with is 
+that the ACPI Embedded Controller seems to be in a wacked-out state 
+where it appears to not process its input. As well, the keyboard/PS2 
+controller is messed up and keeps losing sync. Since these are 
+apparently usually the same physical hardware, this isn't too surprising 
+to see both problems.
 
-Vous souhaitez vous desabonner, cliquez ici : http://www.emailsalon.com/newsmanager/forms/optOut.asp?e=BABCB6C3CB75A2AAA4B4B0BA93BEB5B8BA65B097B8B9B3BF76BDC5AF&p=45304&l=13&a=2
+Another user mentioned recently. that removing USB and IEEE1394 modules 
+prevented the problem on his HP laptop. For me, if the ohci_hcd, 
+ehci_hcd and ohci1394 modules are removed, suspend indeed appears to 
+work. I haven't tested all possible combinations, but it seems that if 
+any of those are loaded, the problem shows up. I've seen a number of 
+suspend scripts people have written that remove at least the USB modules 
+before suspend and reload them afterwards, but this seems like a rather 
+brutal hack.
 
+I can possibly imagine some BIOS SMM code causing problems on the USB 
+side, but I'm not sure how the 1394 module could be involved here..
 
-----=5E9B3C2F5ADD4C2B96EC_37D8_DF86_1025--
+Does anyone have any ideas as to how I could help debug this further?
+
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/

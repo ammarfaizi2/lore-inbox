@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWEVFfg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWEVFi0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932111AbWEVFfg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 01:35:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWEVFfg
+	id S932453AbWEVFi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 01:38:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbWEVFi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 01:35:36 -0400
-Received: from verein.lst.de ([213.95.11.210]:3735 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S932111AbWEVFfg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 01:35:36 -0400
-Date: Mon, 22 May 2006 07:34:50 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, hch@lst.de, bcrl@kvack.org,
-       cel@citi.umich.edu, zach.brown@oracle.com, linux-kernel@vger.kernel.org,
-       Ian Kent <raven@themaw.net>
-Subject: Re: [PATCH 2/4] Remove readv/writev methods and use aio_read/aio_write instead
-Message-ID: <20060522053450.GA22210@lst.de>
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com> <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com> <1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com> <1147727945.20568.53.camel@dyn9047017100.beaverton.ibm.com> <1147728133.6181.2.camel@dyn9047017100.beaverton.ibm.com> <20060521180037.3c8f2847.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060521180037.3c8f2847.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Mon, 22 May 2006 01:38:26 -0400
+Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:5445 "EHLO
+	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932453AbWEVFiZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 01:38:25 -0400
+Message-ID: <44714E4F.8000801@bigpond.net.au>
+Date: Mon, 22 May 2006 15:38:23 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Mike Galbraith <efault@gmx.de>
+CC: Con Kolivas <kernel@kolivas.org>, Rene Herman <rene.herman@keyaccess.nl>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.17-rc2+ regression -- audio skipping
+References: <4470CC8F.9030706@keyaccess.nl>	 <200605221033.49153.kernel@kolivas.org> <1148264043.7643.15.camel@homer>	 <200605221243.54100.kernel@kolivas.org> <1148267426.21765.15.camel@homer>	 <4471305F.40105@bigpond.net.au> <1148273580.9914.3.camel@homer>
+In-Reply-To: <1148273580.9914.3.camel@homer>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 22 May 2006 05:38:23 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 21, 2006 at 06:00:37PM -0700, Andrew Morton wrote:
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> >
-> > This patch removes readv() and writev() methods and replaces
-> >  them with aio_read()/aio_write() methods.
+Mike Galbraith wrote:
+> On Mon, 2006-05-22 at 13:30 +1000, Peter Williams wrote:
+>> What about the batch tasks?  How do you ensure that they don't get 
+>> starved?  Remember they're "batch" tasks not "background" tasks.
+>>
 > 
-> And it breaks autofs4
+> Here, batch means background.  To make them batch as in only static
+> priority, I'd just do away with the second array.  Batch as background
+> makes more sense to me, and since it's my ball and my playground... ;-)
 > 
-> autofs: pipe file descriptor does not contain proper ops
 
-this comes because the autofs4 pipe fd doesn't have a write file
-operations.
+In reality, both batch and background are useful distinct concepts.  I 
+think of a batch task as one that needs to be treated fairly (in 
+accordance with its nice value) but for which fairness shouldn't be 
+broken to give it a boost as you might for an interactive task or media 
+streamer.  I.e. doing useful work but not interactive or a media 
+streamer and the occasional long latency isn't a disaster.
 
-Badari do you remember any place in your patches where you didn't
-add do_sync_write for a file_operations instance?
+Background tasks are ones where you don't care if they ever get any cpu 
+:-) except as necessary to prevent priority inversion.
 
-Ian, what kind of file is the autofs4 pipe?  is it a named pipe or
-a fifo or a "real" file?
+In my schedulers I generalize background to "soft cpu rate caps" with a 
+cap of zero being the same as background.  I have patches to add both 
+soft and hard cpu rate caps to the standard scheduler but I'm sitting on 
+them until things settle down a bit.
+
+Anyway, schedulers based on single priority arrays (such as staircase) 
+are looking more attractive every day.  :-)
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

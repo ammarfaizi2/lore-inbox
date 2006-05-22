@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWEVJ35@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWEVJdm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750725AbWEVJ35 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 05:29:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWEVJ35
+	id S1750776AbWEVJdm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 05:33:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWEVJdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 05:29:57 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5858 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750725AbWEVJ34 (ORCPT
+	Mon, 22 May 2006 05:33:42 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:56200 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750753AbWEVJdl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 05:29:56 -0400
-Date: Mon, 22 May 2006 11:29:15 +0200
+	Mon, 22 May 2006 05:33:41 -0400
+Date: Mon, 22 May 2006 11:33:01 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Pau Garcia i Quiles <pgquiles@elpauer.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [IDEA] Poor man's UPS
-Message-ID: <20060522092915.GA25624@elf.ucw.cz>
-References: <200605212131.47860.pgquiles@elpauer.org>
+To: jayakumar.acpi@gmail.com
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: [PATCH/RFC 2.6.17-rc4 1/1] ACPI: Atlas ACPI driver v3
+Message-ID: <20060522093301.GB25624@elf.ucw.cz>
+References: <200605220333.k4M3Xkg6020638@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200605212131.47860.pgquiles@elpauer.org>
+In-Reply-To: <200605220333.k4M3Xkg6020638@localhost.localdomain>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Po 22-05-06 11:33:46, jayakumar.acpi@gmail.com wrote:
+> Hi Len, ACPI, and kernel folk,
+> 
+> Appended is v3 after removing unused defines and whitespace 
+> cleanup. Thanks to Pavel Machek for the feedback.
+> 
+> Please let me know if it looks okay and if you have any feedback
+> or suggestions.
+> 
+> Thanks,
+> Jaya Kumar
+> 
+> Signed-off-by: Jaya Kumar <jayakumar.acpi@gmail.com>
 
-> This is an idea a had some time ago. It might be a waste of time or it might 
-> be a good idea, you decide.
+ACK, but I guess you should cc Dmitry (input maintainer) and possibly
+Andrew Morton to get it in... Ok, few more nits.
 
-Well, it depends on "are you willing to work on it"?
+> +#else
+> +#define atlas_free_input(...)
+> +#define atlas_setup_input(...) 0
+> +#define atlas_input_report(...) 
+> +#endif
 
-> The "continuous hibernation" is some kind of memory snapshots taken, say, 
-> every 5 minutes. The next time your system starts after a crash, it'd say "oh 
-> oh, looks like something went wrong" and offer you a list of the last N (for 
-> instance, 4) snapshots and you can recover your system to the very same state 
-> it was before power went off or your dog unplugged your CPU. It might even 
-> ask you which individual applications you want to start from that snapshot:  
-> maybe you don't want to start Quake 3.
+Does the driver actually do anything useful in this case?
 
-See suspend.sf.net and probably dm snapshotting functionality. Most of
-what you want can be done today, and in userspace.
-									Pavel
+> +	}
+> +
+> +	return status ;
+
+Extra " " before ;.
+
+> +static struct acpi_driver atlas_acpi_driver = {
+> +	.name = ACPI_ATLAS_NAME,
+> +	.class = ACPI_ATLAS_CLASS,
+> +	.ids = ACPI_ATLAS_BUTTON_HID,
+> +	.ops = {
+> +		.add = atlas_acpi_button_add,
+> +		.remove = atlas_acpi_button_remove,
+> +		},
+
+Extra tab before }.
+
+> +MODULE_SUPPORTED_DEVICE("Atlas ACPI");
+
+Are you sure this si good idea?
+								Pavel
 -- 
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

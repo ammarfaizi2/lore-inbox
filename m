@@ -1,39 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWEVKdY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWEVKhP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbWEVKdY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 06:33:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbWEVKdY
+	id S1750728AbWEVKhP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 06:37:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWEVKhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 06:33:24 -0400
-Received: from verein.lst.de ([213.95.11.210]:22947 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1750732AbWEVKdX (ORCPT
+	Mon, 22 May 2006 06:37:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9180 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750728AbWEVKhN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 06:33:23 -0400
-Date: Mon, 22 May 2006 12:32:46 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: hch@lst.de, pbadari@us.ibm.com, bcrl@kvack.org, cel@citi.umich.edu,
-       zach.brown@oracle.com, linux-kernel@vger.kernel.org, raven@themaw.net
-Subject: Re: [PATCH 2/4] Remove readv/writev methods and use aio_read/aio_write instead
-Message-ID: <20060522103246.GA28133@lst.de>
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com> <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com> <1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com> <1147727945.20568.53.camel@dyn9047017100.beaverton.ibm.com> <1147728133.6181.2.camel@dyn9047017100.beaverton.ibm.com> <20060521180037.3c8f2847.akpm@osdl.org> <20060522053450.GA22210@lst.de> <20060522022917.3e563261.akpm@osdl.org> <20060522023519.2541f082.akpm@osdl.org>
+	Mon, 22 May 2006 06:37:13 -0400
+Date: Mon, 22 May 2006 03:36:44 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add user taint flag
+Message-Id: <20060522033644.26d47a00.akpm@osdl.org>
+In-Reply-To: <E1FhwyO-0001YQ-O1@candygram.thunk.org>
+References: <E1FhwyO-0001YQ-O1@candygram.thunk.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060522023519.2541f082.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 22, 2006 at 02:35:19AM -0700, Andrew Morton wrote:
-> The loop driver plays with file_operations.write() also.  The code should
-> be reviewed and tested against filesystems which use LO_FLAGS_USE_AOPS as
-> well as against those which do not, please.
+"Theodore Ts'o" <tytso@mit.edu> wrote:
+>
+> 
+> Allow taint flags to be set from userspace by writing to
+> /proc/sys/kernel/tainted, and add a new taint flag, TAINT_USER, to be
+> used when userspace is potentially doing something naughty that might
+> compromise the kernel.
 
-The LO_FLAGS_USE_AOPS stuff is broken, please drop it from -mm.  I
-explained to the RedHAt guy in detail on how to get it right.
+What sort of userspace actions are you thinking of here?
 
-That beeing said the bu isn't autofs using ->write directly which is
-done in a lot of places but the pipe code not setting it to
-do_sync_write.
+And how is other userspace to detect what the naughty userspace is doing?
+
+Someone's done something and you're not telling us what it was ;)
+
+> 
+> ...
+>
+> +/*
+> + *	Taint values can only be increased
+> + */
+> +int proc_dointvec_taint(ctl_table *table, int write, struct file *filp,
+> +			void __user *buffer, size_t *lenp, loff_t *ppos)
+> +{
+> +	int op;
+> +
+> +	if (!capable(CAP_SYS_ADMIN)) {
+> +		return -EPERM;
+> +	}
+
+Aren't the /proc file permissions sufficient?
+

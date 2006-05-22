@@ -1,76 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbWEVPHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbWEVPKD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750919AbWEVPHX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 11:07:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbWEVPHW
+	id S1750918AbWEVPKD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 11:10:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750922AbWEVPKD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 11:07:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12995 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750919AbWEVPHW (ORCPT
+	Mon, 22 May 2006 11:10:03 -0400
+Received: from ns.dynamicweb.hu ([195.228.155.139]:30422 "EHLO dynamicweb.hu")
+	by vger.kernel.org with ESMTP id S1750918AbWEVPKB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 11:07:22 -0400
-Date: Mon, 22 May 2006 08:06:51 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Andreas Mohr <andi@rhlx01.fht-esslingen.de>, florin@iucha.net,
-       linux-kernel@vger.kernel.org, linux@dominikbrodowski.net
-Subject: Re: pcmcia oops on 2.6.17-rc[12]
-In-Reply-To: <20060522115046.GA23074@bitwizard.nl>
-Message-ID: <Pine.LNX.4.64.0605220751380.3697@g5.osdl.org>
-References: <20060423192251.GD8896@iucha.net> <20060423150206.546b7483.akpm@osdl.org>
- <20060508145609.GA3983@rhlx01.fht-esslingen.de> <20060508084301.5025b25d.akpm@osdl.org>
- <20060508163453.GB19040@flint.arm.linux.org.uk> <1147730828.26686.165.camel@localhost.localdomain>
- <Pine.LNX.4.64.0605151459140.3866@g5.osdl.org> <1147734026.26686.200.camel@localhost.localdomain>
- <20060522115046.GA23074@bitwizard.nl>
+	Mon, 22 May 2006 11:10:01 -0400
+Message-ID: <031001c67db1$a8c4a1e0$1800a8c0@dcccs>
+From: =?iso-8859-1?Q?Haar_J=E1nos?= <djani22@netcenter.hu>
+To: "Con Kolivas" <kernel@kolivas.org>
+Cc: <nickpiggin@yahoo.com.au>, <cw@f00f.org>, <linux-kernel@vger.kernel.org>
+References: <00e901c67cad$fe9a9d90$1800a8c0@dcccs> <44710144.7090105@yahoo.com.au> <00d201c67d73$220d5d10$1800a8c0@dcccs> <200605222117.27433.kernel@kolivas.org>
+Subject: Re: swapper: page allocation failure.
+Date: Mon, 22 May 2006 17:08:58 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+----- Original Message ----- 
+From: "Con Kolivas" <kernel@kolivas.org>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Haar János" <djani22@netcenter.hu>; "Nick Piggin"
+<nickpiggin@yahoo.com.au>; <cw@f00f.org>
+Sent: Monday, May 22, 2006 1:17 PM
+Subject: Re: swapper: page allocation failure.
 
-On Mon, 22 May 2006, Rogier Wolff wrote:
-> 
-> The question I'm stuck with is: When is it valid to ask for a non-shared
-> IRQ, and get back a shared one. 
-> 
-> Drivers that know that they don't work well if they are called by the
-> "other" interrupt?
 
-No.
+> On Monday 22 May 2006 17:41, Haar János wrote:
+> > ----- Original Message -----
+> > From: "Nick Piggin" <nickpiggin@yahoo.com.au>
+> > > Yeah, as I said, block device's pagecache (aka buffercache) can't
+> > > use highmem. If nbd can export regular files as block devices, or
+> > > you use loop devices from regular files, that might help (or slow
+> > > things down :P).
+> >
+> > Hmm.
+> > That sounds bad.
+> > I think, if highmem is unreachable some times that makes lowmem more
+> > valuable!
+> > The kernel needs to keep (reserve) it free as much as possible.
+> > The buffer-cache is an unimportant thing next to keeping lowmem free,
+but
+> > it is blocks the performance and wastes the systems resources!
+> >
+> > It is possible any workaround?
+>
+> Try with one of the alternative vmsplit options that gives you more
+lowmem?
+> That might break certain applications though.
 
-For example, on certain 16-bit PCMCIA setups, the PCMCIA controller may 
-have just one interrupt. It may even have that interrupt exclusively, but 
-the point is, it has _one_. One interrupt shared for both doing not just 
-card interrupts, but also for PCMCIA CSC interrupts.
+             total       used       free     shared    buffers     cached
+Mem:       4049724    4021196      28528          0      16384    3217288
+Low:       4049724    4021196      28528
+High:            0          0          0
+-/+ buffers/cache:     787524    3262200
+Swap:            0          0          0
 
-In that situation, once the card has been inserted (and powerup etc has 
-happened), the only interrupts you'll get is actually the interrupts for 
-the card. So everything is fine.
+This is an 64 bit machine, the "concentrator".
 
-BUT A PCMCIA DRIVER STILL MUST NOT ASK FOR A NON-SHARED IRQ.
+It looks like use all, the 4G ram as "lowmem".
+If i replace the cpu on my nodes to 64bit capable ones, i can use all the
+memory as buffer-cache? :-)
 
-Because the irq will still be registered by the PCMCIA layer, and the 
-PCMCIA layer will check whether the interrupt was due to a CSC when the 
-card was removed, for example.
+Cheers,
+Janos
 
-So there's basically never any valid reason to ask for a nonshared irq.
 
-> I happen to know (ISA) hardware that CANNOT share an interrupt
 
-Not necessarily true, since ISA cards have been known to be able to share 
-an interrupt with the proper pull-down resistors. It was even common for 
-serial cards.
+>
+> -- 
+> -ck
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Perhaps more importantly, not relevant for PCMCIA.  There is no PCMCIA 
-hardware that cannot share an interrupt, for reasons outlines above.
-
-There might be really bad hardware that doesn't even have an interrupt 
-status register so you can't tell if an interrupt happened from that card 
-or not, making it hard to write a driver that can handle "spurious" 
-interrupts (in the case of real sharing), but that sounds pretty damn 
-unlikely.
-
-		Linus

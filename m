@@ -1,136 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWEVMjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbWEVMlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750794AbWEVMjY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 08:39:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWEVMjY
+	id S1750799AbWEVMlW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 08:41:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWEVMlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 08:39:24 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:42177 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750794AbWEVMjX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 08:39:23 -0400
-Date: Mon, 22 May 2006 07:39:19 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Sam Vilain <sam@vilain.net>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       linux-kernel@vger.kernel.org, dev@sw.ru, herbert@13thfloor.at,
-       devel@openvz.org, xemul@sw.ru, Dave Hansen <haveblue@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Cedric Le Goater <clg@fr.ibm.com>
-Subject: Re: [PATCH 1/9] namespaces: add nsproxy
-Message-ID: <20060522123919.GC6025@sergelap.austin.ibm.com>
-References: <20060518154700.GA28344@sergelap.austin.ibm.com> <20060518154837.GB28344@sergelap.austin.ibm.com> <4470F7FD.4030608@vilain.net> <m11wunne30.fsf@ebiederm.dsl.xmission.com>
+	Mon, 22 May 2006 08:41:22 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34190 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750799AbWEVMlV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 08:41:21 -0400
+Date: Mon, 22 May 2006 08:41:02 -0400
+From: Dave Jones <davej@redhat.com>
+To: dragoran <dragoran@feuerpokemon.de>
+Cc: Andi Kleen <ak@suse.de>, Ulrich Drepper <drepper@gmail.com>,
+       Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
+Subject: Re: IA32 syscall 311 not implemented on x86_64
+Message-ID: <20060522124102.GB3486@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	dragoran <dragoran@feuerpokemon.de>, Andi Kleen <ak@suse.de>,
+	Ulrich Drepper <drepper@gmail.com>, Chris Wedgwood <cw@f00f.org>,
+	linux-kernel@vger.kernel.org
+References: <44702650.30507@feuerpokemon.de> <200605220019.08902.ak@suse.de> <20060521222831.GP8250@redhat.com> <200605220037.58286.ak@suse.de> <20060521234821.GQ8250@redhat.com> <4471533C.2030605@feuerpokemon.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m11wunne30.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <4471533C.2030605@feuerpokemon.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Eric W. Biederman (ebiederm@xmission.com):
-> Sam Vilain <sam@vilain.net> writes:
-> 
-> > Serge E. Hallyn wrote:
-> >
-> >>@@ -1585,7 +1591,15 @@ asmlinkage long sys_unshare(unsigned lon
-> >> 
-> >> 	if (new_fs || new_ns || new_sigh || new_mm || new_fd || new_ulist) {
-> >> 
-> >>+		old_nsproxy = current->nsproxy;
-> >>+		new_nsproxy = dup_namespaces(old_nsproxy);
-> >>+		if (!new_nsproxy) {
-> >>+			err = -ENOMEM;
-> >>+			goto bad_unshare_cleanup_semundo;
-> >>+		}
-> >>+
-> >> 		task_lock(current);
-> >>  
-> >>
-> >
-> > We'll get lots of duplicate nsproxy structures before we move all of the
-> > pointers for those subsystems into it. Do we need to dup namespaces on
-> > all of those conditions?
-> 
-> Ugh.  Good catch.  The new nsproxy needs to be just for the fs and the uts
-> namespace.  
-> 
-> I guess that means that test should be moved up a few lines.
+On Mon, May 22, 2006 at 07:59:24AM +0200, dragoran wrote:
 
-Oh.  Yeah.  It didn't look odd to me bc it's about the number of
-namespaces we are *going* to have  :)
+ > >If a regular user can trip up debugging printks, yes, lets remove it.
+ > >Examples ?
+ > >
+ > allmost all selinux messages.
 
-Fix follows:
+I assume you mean AVC messages ? They indicate something that should be
+fixed in selinux policy (or that your filesystem is incorrectly labelled
+-- such as if you've booted with selinux=0 at any point).
 
-Subject: [PATCH] uts: copy nsproxy only when needed.
-From: Serge Hallyn <serue@us.ibm.com>
+They can also get filtered with the audit subsystem to /var/log/audit/, never
+hitting the dmesg ringbuffer.
 
-The nsproxy was being copied in unshare() when anything was being
-unshared, even if it was something not referenced from nsproxy.
-This should end up in some cases with far more memory usage than
-necessary.
+		Dave
 
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
-
----
-
- kernel/fork.c |   20 ++++++++++++++------
- 1 files changed, 14 insertions(+), 6 deletions(-)
-
-74d1068458c62302ac8ed38e38a57b692580662f
-diff --git a/kernel/fork.c b/kernel/fork.c
-index cdc549e..9278a68 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1559,7 +1559,7 @@ asmlinkage long sys_unshare(unsigned lon
- 	struct mm_struct *mm, *new_mm = NULL, *active_mm = NULL;
- 	struct files_struct *fd, *new_fd = NULL;
- 	struct sem_undo_list *new_ulist = NULL;
--	struct nsproxy *new_nsproxy, *old_nsproxy;
-+	struct nsproxy *new_nsproxy = NULL, *old_nsproxy = NULL;
- 	struct uts_namespace *uts, *new_uts = NULL;
- 
- 	check_unshare_flags(&unshare_flags);
-@@ -1587,18 +1587,24 @@ asmlinkage long sys_unshare(unsigned lon
- 	if ((err = unshare_utsname(unshare_flags, &new_uts)))
- 		goto bad_unshare_cleanup_semundo;
- 
--	if (new_fs || new_ns || new_sigh || new_mm || new_fd || new_ulist ||
--				new_uts) {
--
-+	if (new_ns || new_uts) {
- 		old_nsproxy = current->nsproxy;
- 		new_nsproxy = dup_namespaces(old_nsproxy);
- 		if (!new_nsproxy) {
- 			err = -ENOMEM;
- 			goto bad_unshare_cleanup_uts;
- 		}
-+	}
-+
-+	if (new_fs || new_ns || new_sigh || new_mm || new_fd || new_ulist ||
-+				new_uts) {
- 
- 		task_lock(current);
--		current->nsproxy = new_nsproxy;
-+
-+		if (new_nsproxy) {
-+			current->nsproxy = new_nsproxy;
-+			new_nsproxy = old_nsproxy;
-+		}
- 
- 		if (new_fs) {
- 			fs = current->fs;
-@@ -1640,9 +1646,11 @@ asmlinkage long sys_unshare(unsigned lon
- 		}
- 
- 		task_unlock(current);
--		put_nsproxy(old_nsproxy);
- 	}
- 
-+	if (new_nsproxy)
-+		put_nsproxy(new_nsproxy);
-+
- bad_unshare_cleanup_uts:
- 	if (new_uts)
- 		put_uts_ns(new_uts);
 -- 
-1.1.6
+http://www.codemonkey.org.uk

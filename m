@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbWEVIT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWEVITw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750821AbWEVIT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 04:19:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWEVIT6
+	id S1750808AbWEVITw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 04:19:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWEVITv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 04:19:58 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:29141 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750788AbWEVIT5 (ORCPT
+	Mon, 22 May 2006 04:19:51 -0400
+Received: from fw5.argo.co.il ([194.90.79.130]:54279 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S1750808AbWEVITv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 04:19:57 -0400
-Message-ID: <4471741A.1000804@themaw.net>
-Date: Mon, 22 May 2006 16:19:38 +0800
-From: Ian Kent <raven@themaw.net>
+	Mon, 22 May 2006 04:19:51 -0400
+Message-ID: <44717424.4020705@argo.co.il>
+Date: Mon, 22 May 2006 11:19:48 +0300
+From: Avi Kivity <avi@argo.co.il>
 User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@lst.de>
-CC: Andrew Morton <akpm@osdl.org>, Badari Pulavarty <pbadari@us.ibm.com>,
-       bcrl@kvack.org, cel@citi.umich.edu, zach.brown@oracle.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/4] Remove readv/writev methods and use aio_read/aio_write
- instead
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com> <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com> <1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com> <1147727945.20568.53.camel@dyn9047017100.beaverton.ibm.com> <1147728133.6181.2.camel@dyn9047017100.beaverton.ibm.com> <20060521180037.3c8f2847.akpm@osdl.org> <20060522053450.GA22210@lst.de>
-In-Reply-To: <20060522053450.GA22210@lst.de>
+To: Michael Buesch <mb@bu3sch.de>
+CC: Pau Garcia i Quiles <pgquiles@elpauer.org>, linux-kernel@vger.kernel.org
+Subject: Re: [IDEA] Poor man's UPS
+References: <200605212131.47860.pgquiles@elpauer.org> <20060521193803.GG8250@redhat.com> <200605212146.30342.mb@bu3sch.de>
+In-Reply-To: <200605212146.30342.mb@bu3sch.de>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 May 2006 08:19:49.0818 (UTC) FILETIME=[7E7B11A0:01C67D78]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Sun, May 21, 2006 at 06:00:37PM -0700, Andrew Morton wrote:
->> Badari Pulavarty <pbadari@us.ibm.com> wrote:
->>> This patch removes readv() and writev() methods and replaces
->>>  them with aio_read()/aio_write() methods.
->> And it breaks autofs4
->>
->> autofs: pipe file descriptor does not contain proper ops
-> 
-> this comes because the autofs4 pipe fd doesn't have a write file
-> operations.
-> 
-> Badari do you remember any place in your patches where you didn't
-> add do_sync_write for a file_operations instance?
-> 
-> Ian, what kind of file is the autofs4 pipe?  is it a named pipe or
-> a fifo or a "real" file?
+Michael Buesch wrote:
+>>  > The "continuous hibernation" is some kind of memory snapshots taken, say, 
+>>  > every 5 minutes. The next time your system starts after a crash, it'd say "oh 
+>>     
+>
+> You really want a system, which freezes for 10-20 seconds every 5 minutes,
+> and thaws again when the image is written?
+>   
 
-Ahh. Sorry missed the actual question.
-It's a FIFO created with pipe(2).
+The snapshot could be taken in the background, by marking all pages 
+read-only, starting a thread to write them to disk, and continuing 
+normal processing.
+
+Such systems have been implemented in the past, see for example 
+http://www.eros-os.org/.
+
+-- 
+error compiling committee.c: too many arguments to function
 

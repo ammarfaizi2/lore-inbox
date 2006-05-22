@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWEVU6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbWEVVAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbWEVU6A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 16:58:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWEVU6A
+	id S1750940AbWEVVAI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 17:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWEVVAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 16:58:00 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:39586 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750754AbWEVU57 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 16:57:59 -0400
-Subject: Re: Was change to ip_push_pending_frames intended to break
-	udp	(more specifically, WCCP?)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rick Jones <rick.jones2@hp.com>
-Cc: Vlad Yasevich <vladislav.yasevich@hp.com>,
-       Paul P Komkoff Jr <i@stingr.net>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <4472078D.8010706@hp.com>
-References: <20060520191153.GV3776@stingr.net>
-	 <20060520140434.2139c31b.akpm@osdl.org>
-	 <1148322152.15322.299.camel@galen.zko.hp.com>  <4472078D.8010706@hp.com>
-Content-Type: text/plain
+	Mon, 22 May 2006 17:00:08 -0400
+Received: from smtp.bulldogdsl.com ([212.158.248.7]:58384 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1750940AbWEVVAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 17:00:07 -0400
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: Linux Kernel Source Compression
+Date: Mon, 22 May 2006 22:00:18 +0100
+User-Agent: KMail/1.9.1
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.64.0605211028100.4037@p34> <200605222015.01980.s0348365@sms.ed.ac.uk> <Pine.LNX.4.61.0605222220190.6816@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0605222220190.6816@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Mon, 22 May 2006 22:11:33 +0100
-Message-Id: <1148332293.17376.114.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Disposition: inline
+Message-Id: <200605222200.18351.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-05-22 at 11:48 -0700, Rick Jones wrote:
-> ID of zero again?  I thought that went away years ago?  Anyway, given 
-> the number of "helpful" devices out there willing to clear the DF bit, 
-> fragment and forward, perhaps always setting the IP ID to 0, even if DF 
-> is set, isn't such a good idea?
+On Monday 22 May 2006 21:24, Jan Engelhardt wrote:
+> >> > Any idea why this wasn't done for bzip2?
+> >>
+> >> Yes, the bzip2 author I have been told was originally planning to do
+> >> that, but then thought it would be harder to deploy that way (because
+> >> gzip is a core utility, and people are nervous about making it larger.)
+>
+> I'd say that concern is valid.
+>
+> >It's a bit of a shame bzip2 even exists, really. It really would be better
+> > if there was one unified, pluggable archiver on UNIX (and portables).
+>
+> Would You Like To Contribute(tm)? :)
+> Whenever a program is missing, someone is there to write it.
 
-Any device that clears DF is so terminally broken that you've already
-lost the battle the moment you bought it. 
+I would, but if it's a "valid concern" that gzip is a few hundred KB larger, 
+and the community would not graciously receive such work, there's not much 
+point, is there? :-)
 
-Alan
+Seriously, though, if I understand gzip correctly, it uses deflate/zlib 
+internally. Why, in that case, does /bin/gzip not (dynamically) link against 
+libz? If a first step was fixing that, a second could be linking dynamically 
+against libbz2 and 'liblzma', and making it all compile-time configurable.
 
+That should keep everybody happy.
+
+-- 
+Cheers,
+Alistair.
+
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

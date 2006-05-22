@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWEVLuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWEVLvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750768AbWEVLuu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 07:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWEVLuu
+	id S1750773AbWEVLvR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 07:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbWEVLvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 07:50:50 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:30460 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1750768AbWEVLut (ORCPT
+	Mon, 22 May 2006 07:51:17 -0400
+Received: from mail.suse.de ([195.135.220.2]:43917 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750773AbWEVLvQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 07:50:49 -0400
-Date: Mon, 22 May 2006 13:50:46 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Andreas Mohr <andi@rhlx01.fht-esslingen.de>, florin@iucha.net,
-       linux-kernel@vger.kernel.org, linux@dominikbrodowski.net
-Subject: Re: pcmcia oops on 2.6.17-rc[12]
-Message-ID: <20060522115046.GA23074@bitwizard.nl>
-References: <20060423192251.GD8896@iucha.net> <20060423150206.546b7483.akpm@osdl.org> <20060508145609.GA3983@rhlx01.fht-esslingen.de> <20060508084301.5025b25d.akpm@osdl.org> <20060508163453.GB19040@flint.arm.linux.org.uk> <1147730828.26686.165.camel@localhost.localdomain> <Pine.LNX.4.64.0605151459140.3866@g5.osdl.org> <1147734026.26686.200.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Mon, 22 May 2006 07:51:16 -0400
+To: "Yitzchak Eidus" <ieidus@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: how stable are the BogoMIPS and the udelay functions on "dynamic clock speed change cpus"
+References: <e7aeb7c60605190237w3a8554adof6ec7f1ba7927ba7@mail.gmail.com>
+From: Andi Kleen <ak@suse.de>
+Date: 22 May 2006 13:32:34 +0200
+In-Reply-To: <e7aeb7c60605190237w3a8554adof6ec7f1ba7927ba7@mail.gmail.com>
+Message-ID: <p73very5m7h.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1147734026.26686.200.camel@localhost.localdomain>
-Organization: BitWizard.nl
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 16, 2006 at 12:00:26AM +0100, Alan Cox wrote:
-> > So I would strongly argue that any driver that depends on getting an 
-> > exclusive IRQ is buggy, not the PCMCIA layer itself, and that it would be 
-> > a lot more productive to try to fix those drivers.
-> 
-> It would certainly be a lot cleaner than this sort of code in the pcmcia
-> core right now. Want me to send a patch which only allows for SA_SHIRQ
-> and WARN_ON()'s for any driver not asking for shared IRQ ?
+"Yitzchak Eidus" <ieidus@gmail.com> writes:
 
-The question I'm stuck with is: When is it valid to ask for a non-shared
-IRQ, and get back a shared one. 
+> because udelay work on the principle that it know "how much work the
+> cpu can do in a time" and it work by just doing a loop of nothing, how
+> stable is it when the cpu clock rate is keep changing all the time?
+> does it update its loops_per_jiffy varible each time the cpu clock is change?
+> or does it have another solution to this problem?
+> or since before the cpu enter to this udelay function it must do some
+> work like entering the systemcall and so on , the cpu clock rate is
+> jump to the original?
 
-Drivers that know that they don't work well if they are called by the
-"other" interrupt?
+Only on very old systems (pre ACPI APM era) does cpu frequency change without
+the kernel knowing (ignoring Intel thermal throttling which is a different thing) 
 
-I happen to know (ISA) hardware that CANNOT share an interrupt: It
-drives the IRQ line either high or low, and has a driver that will
-overpower anything else on that line. This sounds like a good place to
-me to have the driver request no sharing (*), and to prevent the IRQ
-line drivers getting in eachothers way, it would be nice if the kernel
-refused "early on" (i.e. before the stronger driver asserts: No IRQ
-pending, and the weaker one keeps trying to assert: "YES, I have an
-IRQ", and the weaker one slowly burning out).
+When the kernel knows it fixes loops_per_jiffy and normally does the necessary
+synchronization over CPUs. 
 
-Or am I talking nonsense again?
+Obviously at least on multi core systems there are races with this.
 
-	Roger. 
+Modern Intel CPUs (Yonah, Prescott) completely avoid the problem
+because they have a constantly ticking TSC that is independent from
+the actual clock rate. And __delay uses the TSC to measure time.
 
-(*) The driver knows to allow sharing when it's talking to the PCI
-version of the card.
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-Q: It doesn't work. A: Look buddy, doesn't work is an ambiguous statement. 
-Does it sit on the couch all day? Is it unemployed? Please be specific! 
-Define 'it' and what it isn't doing. --------- Adapted from lxrbot FAQ
+-Andi

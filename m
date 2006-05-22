@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWEVRuc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWEVRv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751095AbWEVRuc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 13:50:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWEVRub
+	id S1751091AbWEVRv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 13:51:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWEVRv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 13:50:31 -0400
-Received: from agrajag.inprovide.com ([82.153.166.94]:3762 "EHLO
-	mail.inprovide.com") by vger.kernel.org with ESMTP id S1751095AbWEVRub convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 13:50:31 -0400
-To: John Levon <levon@movementarian.org>
-Cc: Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, phil.el@wanadoo.fr,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Is OPROFILE actively maintained?
-References: <20060520025322.GD9486@taniwha.stupidest.org>
-	<20060521194915.GA2153@taniwha.stupidest.org>
-	<1148298681.17376.23.camel@localhost.localdomain>
-	<20060522151528.GA20960@totally.trollied.org>
-From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Date: Mon, 22 May 2006 18:50:28 +0100
-In-Reply-To: <20060522151528.GA20960@totally.trollied.org> (John Levon's message of "Mon, 22 May 2006 16:15:28 +0100")
-Message-ID: <yw1xwtce0x0b.fsf@agrajag.inprovide.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 22 May 2006 13:51:56 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:50088 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751091AbWEVRv4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 13:51:56 -0400
+Date: Mon, 22 May 2006 13:55:27 -0400
+From: Don Zickus <dzickus@redhat.com>
+To: Markus Armbruster <armbru@redhat.com>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de,
+       oprofile-list@lists.sourceforge.net
+Subject: Re: [patch 5/8] Add SMP support on i386 to reservation framework
+Message-ID: <20060522175527.GD15669@redhat.com>
+References: <20060509205035.446349000@drseuss.boston.redhat.com> <20060509205957.466442000@drseuss.boston.redhat.com> <87mzdage4i.fsf@pike.pond.sub.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87mzdage4i.fsf@pike.pond.sub.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Levon <levon@movementarian.org> writes:
+On Mon, May 22, 2006 at 07:31:41PM +0200, Markus Armbruster wrote:
+> @@ -457,143 +434,312 @@ late_initcall(init_lapic_nmi_sysfs);
+> [...]
+>  static int setup_p6_watchdog(void)
+> [...]
+>  	apic_write(APIC_LVTPC, APIC_DM_NMI);
+> -	evntsel |= P6_EVNTSEL0_ENABLE;
+> -	wrmsr(MSR_P6_EVNTSEL0, evntsel, 0);
+> +	evntsel |= K7_EVNTSEL_ENABLE;
+> 
+> Me thinks you want P6_EVNTSEL0_ENABLE here, although the value is the
+> same.
 
-> On Mon, May 22, 2006 at 12:51:21PM +0100, Alan Cox wrote:
->
->> Be serious, oprofile is good working code, even if you have some
->> personal problem with it.
->
-> Does the opinion of the former mantainer count for nothing? If nothing
-> else, it should remain experimental on arches like Alpha, where there's
-> a whole bunch of events that can't possibly work.
+Yup, the downside of copying/pasting...
 
-Why should be marked experimental only because of architecture limits?
-If the parts that can work, work well, there's no reason to suggest
-otherwise.  (Speaking as an Alpha owner)
+Thanks.
 
--- 
-Måns Rullgård
-mru@inprovide.com
+

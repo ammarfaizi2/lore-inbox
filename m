@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWEVSJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbWEVSNM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751109AbWEVSJg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 14:09:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWEVSJg
+	id S1751112AbWEVSNM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 14:13:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWEVSNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 14:09:36 -0400
-Received: from mail8.fw-bc.sony.com ([160.33.98.75]:63380 "EHLO
-	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
-	id S1751109AbWEVSJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 14:09:35 -0400
-Message-ID: <4471FE52.8090107@am.sony.com>
-Date: Mon, 22 May 2006 11:09:22 -0700
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Mon, 22 May 2006 14:13:12 -0400
+Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:61265 "HELO
+	smtp112.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751112AbWEVSNL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 14:13:11 -0400
+Date: Mon, 22 May 2006 11:13:08 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: M?ns Rullg?rd <mru@inprovide.com>
+Cc: John Levon <levon@movementarian.org>, LKML <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, phil.el@wanadoo.fr,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Is OPROFILE actively maintained?
+Message-ID: <20060522181308.GA29972@taniwha.stupidest.org>
+References: <20060520025322.GD9486@taniwha.stupidest.org> <20060521194915.GA2153@taniwha.stupidest.org> <1148298681.17376.23.camel@localhost.localdomain> <20060522151528.GA20960@totally.trollied.org> <yw1xwtce0x0b.fsf@agrajag.inprovide.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Martin Peschke <mp3@de.ibm.com>, linux-kernel@vger.kernel.org,
-       Balbir Singh <balbir@in.ibm.com>
-Subject: netlink vs. debugfs (was Re: [Patch 0/6] statistics infrastructure)
-References: <1148054876.2974.10.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <20060519092411.6b859b51.akpm@osdl.org>
-In-Reply-To: <20060519092411.6b859b51.akpm@osdl.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yw1xwtce0x0b.fsf@agrajag.inprovide.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Martin Peschke <mp3@de.ibm.com> wrote:
->> My patch series is a proposal for a generic implementation of statistics.
-> 
-> This uses debugfs for the user interface, but the
-> per-task-delay-accounting-*.patch series from Balbir creates an extensible
-> netlink-based system for passing instrumentation results back to userspace.
-> 
-> Can this code be converted to use those netlink interfaces, or is Balbir's
-> approach unsuitable, or hasn't it even been considered, or what?
+On Mon, May 22, 2006 at 06:50:28PM +0100, M?ns Rullg?rd wrote:
 
-Can someone give me the 20-second elevator pitch on why
-netlink is preferred over debugfs?  I've heard of a
-number of debugfs/procfs users requested to switch over.
+> Why should be marked experimental only because of architecture
+> limits?  If the parts that can work, work well, there's no reason to
+> suggest otherwise.  (Speaking as an Alpha owner)
 
-Thanks,
- -- Tim
+The only conclusion I can draw from this is that EXPERIMENTAL has no
+well defined semantics and as such is essentially pointless.  Everyone
+interprets it differently.
 
-=============================
-Tim Bird
-Architecture Group Chair, CE Linux Forum
-Senior Staff Engineer, Sony Electronics
-=============================
+I think this is exactly what DaveJ was saying the other day.

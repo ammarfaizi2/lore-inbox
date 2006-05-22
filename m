@@ -1,65 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbWEVQlV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbWEVQn2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750981AbWEVQlV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 12:41:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbWEVQlV
+	id S1750983AbWEVQn2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 12:43:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbWEVQn1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 12:41:21 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52706 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750980AbWEVQlV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 12:41:21 -0400
-To: Sam Vilain <sam@vilain.net>
-Cc: linux-kernel@vger.kernel.org, dev@sw.ru, herbert@13thfloor.at,
-       devel@openvz.org, ebiederm@xmission.com, xemul@sw.ru,
-       Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Cedric Le Goater <clg@fr.ibm.com>, serue@us.ibm.com
-Subject: Re: [PATCH] namespaces: uts_ns: make information visible via
- /proc/PID/uts directory
-References: <20060522052425.27715.94562.stgit@localhost.localdomain>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 22 May 2006 10:39:08 -0600
-In-Reply-To: <20060522052425.27715.94562.stgit@localhost.localdomain> (Sam
- Vilain's message of "Mon, 22 May 2006 17:24:25 +1200")
-Message-ID: <m11wumm2tv.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Mon, 22 May 2006 12:43:27 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:8407 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1750983AbWEVQn1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 12:43:27 -0400
+Message-ID: <4471EA2C.4010401@oracle.com>
+Date: Mon, 22 May 2006 09:43:24 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: Re: [PATCH] kmap tracking
+References: <20060518155357.04066e9c.rdunlap@xenotime.net>
+In-Reply-To: <20060518155357.04066e9c.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Vilain <sam@vilain.net> writes:
+Randy.Dunlap wrote:
+> From: Randy Dunlap <rdunlap@xenotime.net>
+> 
+> Track kmap/kunmap call history, storing caller function address,
+> action, and time (jiffies), if CONFIG_DEBUG_KMAP is enabled.
+> Based on a patch to 2.4.21 by Zach Brown that was used successfully
+> at Oracle to track down some kmap/kunmap problems.
 
-> From: Sam Vilain <sam.vilain@catalyst.net.nz>
->
-> Export the UTS information to a per-process directory /proc/PID/uts,
-> that has individual nodes for hostname, ostype, etc - similar to
-> those in /proc/sys/kernel
->
-> This duplicates the approach used for /proc/PID/attr, which involves a
-> lot of duplication of similar functions.  Much room for maintenance
-> optimisation of both implementations remains.
-> ---
-> Sorry for the duplication of this to the list, stuffed up the stgit
-> command.
->
-> After doing this I noticed that the whole way this is done via sysctls
-> in /proc/sys is much, much nicer.  I was going there to make
-> /proc/sys/kernel/osname -> /proc/self/uts/sysname (etc), but it seems
-> that symlinks from /proc/sys are not a done thing.
->
-> Is there an argument here perhaps for some integration between the way
-> this is done for /proc/sys and /proc/PID/xxx ?
->
->  fs/proc/base.c |  236 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
->  1 files changed, 236 insertions(+), 0 deletions(-)
+Thanks for bringing this to 2.6.. sorry for the lag in reviewing.
 
-Good intentions :)
-But since this doesn't actually fix /proc/sys/kernel/osname and friends.
-I would call this implementation a failure.
+> +enum {
+> +	KMAP_FIRST = 1,
+> +	KMAP_ADDREF,
+> +	KMAP_DECREF,
+> +	KMAP_LAST,
+> +};
 
-Let's first fix /proc/sys/kernel/osname to be sensitive to the caller,
-and then see if we can make /proc/sys a symlink to /proc/<pid>/sys
+I trust you got rid of these in the most recent version :)
 
+> +#else
+> +#define kmap_record_action(nr, action, refcount, retaddr) do {} while (0)
+> +#endif
 
-Eric
+Make this an inline, please, so that we don't introduce unused var warnings.
+
+> +static __init int kmap_history_init(void)
+> +{
+> +	kmap_history_file = debugfs_create_file("kmap-history", 0644, NULL,
+> +			kh_running, &kmap_running_seq_fops);
+> +	if (!kmap_history_file)
+> +		goto out1;
+> +
+> +	return 0;
+> +
+> +out1:
+> +	return -ENOMEM;
+
+That seems noisy.. return -ENOMEM is probably fine for such a trivial
+funciton :).
+
+> +#define kmap(page)	__kmap(page, __builtin_return_address(0))
+> +#define kunmap(page)	__kunmap(page, __builtin_return_address(0))
+
+Hmm, I was hoping we wouldn't have to do this.  Can we use
+__builtin_return_address(1) from within the debug paths instead of
+passing down (0)?  Then we wouldn't have to ifdef around the declarations..
+
+- z

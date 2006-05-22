@@ -1,77 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWEVTNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWEVTOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751118AbWEVTNP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 15:13:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbWEVTNP
+	id S1751088AbWEVTOX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 15:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbWEVTOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 15:13:15 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12510 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751088AbWEVTNO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 15:13:14 -0400
-Date: Mon, 22 May 2006 21:12:30 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.16.16 Parameter-controlled mmap/stack randomization
-Message-ID: <20060522191230.GE2979@elf.ucw.cz>
-References: <1148132838.3041.3.camel@laptopd505.fenrus.org> <446F3483.40208@comcast.net> <20060522010606.GC25434@elf.ucw.cz> <44712605.4000001@comcast.net> <20060522083352.GA11923@elf.ucw.cz> <4471E77F.1010704@comcast.net> <20060522170036.GD1893@elf.ucw.cz> <4471FAD0.9060403@comcast.net> <20060522184003.GD2979@elf.ucw.cz> <44720ACB.7040808@comcast.net>
+	Mon, 22 May 2006 15:14:23 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:31502 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751088AbWEVTOX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 15:14:23 -0400
+Date: Mon, 22 May 2006 21:14:21 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Zachary Amsden <zach@vmware.com>, jakub@redhat.com,
+       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, kraxel@suse.de
+Subject: Re: [PATCH] Gerd Hoffman's move-vsyscall-into-user-address-range patch
+Message-ID: <20060522191421.GC9847@stusta.de>
+References: <1147759423.5492.102.camel@localhost.localdomain> <20060516064723.GA14121@elte.hu> <1147852189.1749.28.camel@localhost.localdomain> <20060519174303.5fd17d12.akpm@osdl.org> <20060522162949.GG30682@devserv.devel.redhat.com> <4471EA60.8080607@vmware.com> <20060522101454.52551222.akpm@osdl.org> <20060522172710.GA22823@elte.hu> <Pine.LNX.4.64.0605221045140.3697@g5.osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44720ACB.7040808@comcast.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <Pine.LNX.4.64.0605221045140.3697@g5.osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >>> Well, fix emacs then. We definitely do not want 10000 settable knobs
-> >>> that randomly break things. OTOH per-architecture different randomness
-> >>> seems like good idea. And if Oracle breaks, fix it.
-> >> Fix this, fix that.  In due time perhaps.  I'm pretty sure Linus isn't
-> >> going to break anything, esp. since his mail client breaks too.
-> > 
-> > Good. So fix emacs/oracle/pine, and year or so and some time after it
-> > is fixed, we can change kernel defaults. That's still less bad than
-> > having
-> > 
-> > [ ] Break emacs
-> > 
-> > in kernel config.
+On Mon, May 22, 2006 at 10:46:33AM -0700, Linus Torvalds wrote:
+>...
+> > is it really a big problem to add "vdso=0" to the long list of 
+> > requirements you need to run a 2.6 kernel on an old distribution (or to 
+> > disable CONFIG_VDSO)? FC1 wasnt even 2.6-ready, it used a 2.4 kernel!
 > 
-> Nobody is going to fix emacs/oracle/pine, they don't have to.  Nothing
-> is making them.  The kernel will wait for them so who cares.
+> Backwards compatibility is absolutely paramount. Much more important than 
+> just about anything else.
 
-No, _you_ have to fix emacs/oracle/pine. You claimed your patch is
-interesting for secure distros, so you obviously have manpower for
-that, right?
+Unless I'm misunderstanding this issue, no official glibc release was 
+ever affected which makes the probability of other people being affected 
+pretty small.
 
-> >> Why should it NOT be configurable anyway?  If you don't configure it,
-> >> then it behaves just like it would if it wasn't configurable at all.
-> >> This is called "having sane defaults."
-> > 
-> > Because if it is configurable, someone _will_ configure it wrong, and
-> > then ask us why it does not work.
-> 
-> Oh big deal.  People configure out ide drivers and ask why their kernel
-> doesn't boot all the time.  Distro maintainers do most of the work.
+And this issue is about backwards compatibility only insofar, that it 
+works around a bug in some ancient cvs versions of glibc.
 
-As you may have noticed, I'm at receiving end of those bug
-reports. And what you propose is actually *worse* than IDE, because at
-least you get relatively clear error message when misconfiguring IDE.
+Is it a new policy that the kernel mustn't break any buggy userspace 
+code?
 
-> > And if it is configurable, applications will not get fixed for
-> > basically forever.
-> 
-> FUD.  If it's not configurable, applications will not get fixed for
-> basically forever, and nobody will put the breaking code into mainline.
->  Linus is NOT giving 256M/256M randomization on mainline as default
-> ever.
+> 		Linus
 
-For x86-64... why not?
+cu
+Adrian
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

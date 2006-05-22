@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbWEVTOw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbWEVTPL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751135AbWEVTOw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 15:14:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWEVTOv
+	id S1751117AbWEVTPL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 15:15:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWEVTPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 15:14:51 -0400
-Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:45581 "EHLO
-	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1751135AbWEVTOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 15:14:51 -0400
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Linux Kernel Source Compression
-Date: Mon, 22 May 2006 20:15:01 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0605211028100.4037@p34> <200605222007.19456.s0348365@sms.ed.ac.uk> <44720CB6.7010908@zytor.com>
-In-Reply-To: <44720CB6.7010908@zytor.com>
+	Mon, 22 May 2006 15:15:10 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:46096 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1751117AbWEVTPJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 15:15:09 -0400
+Message-ID: <44720DB8.4060200@argo.co.il>
+Date: Mon, 22 May 2006 22:15:04 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: fitzboy <fitzboy@iparadigms.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: tuning for large files in xfs
+References: <447209A8.2040704@iparadigms.com>
+In-Reply-To: <447209A8.2040704@iparadigms.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605222015.01980.s0348365@sms.ed.ac.uk>
+X-OriginalArrivalTime: 22 May 2006 19:15:06.0781 (UTC) FILETIME=[093784D0:01C67DD4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 May 2006 20:10, H. Peter Anvin wrote:
-> Alistair John Strachan wrote:
-> > On Monday 22 May 2006 19:58, H. Peter Anvin wrote:
-> > [snip]
-> >
-> >> Personally, I would like to suggest adding LZMA capability to gzip.
-> >> The gzip format already has support for multiple compression formats.
-> >
-> > Any idea why this wasn't done for bzip2?
+fitzboy wrote:
 >
-> Yes, the bzip2 author I have been told was originally planning to do that,
-> but then thought it would be harder to deploy that way (because gzip is a
-> core utility, and people are nervous about making it larger.)
+> BUT... here is what I need to understand, the filesize has a drastic
+> effect on performance. If I am doing random reads from a 20GB file
+> (system only has 2GB ram, so caching is not a factor), I get
+> performance about where I want it to be: about 5.7 - 6ms per block. But
+> if that file is 2TB then the time almost doubles, to 11ms. Why is this?
+> No other factors changed, only the filesize.
 >
-> You'd have to ask him for the details, though.
->
-> It *is* true that there is a fair bit of code out there which sees a gzip
-> magic number and expects to call deflate functions on it, without ever
-> checking the compression type field. However, even if there is a need for a
-> new magic number, this can be done within the gzip code, or by forking
-> gzip.
 
-One trivial solution (that comes to mind) is by symlinking gunzip->unlzma (or 
-similar) and having gzip's defaults change according to argv[0].
+With the 20GB file, the disk head is seeking over 1% of the tracks. With 
+the 2TB file, it is seeking over 100% of the tracks.
 
-It's a bit of a shame bzip2 even exists, really. It really would be better if 
-there was one unified, pluggable archiver on UNIX (and portables).
+>
+> I am assuming that somewhere along the way, the kernel now has to do an
+> additional read from the disk for some metadata for xfs... perhaps the
+> btree for the file doesn't fit in the kernel's memory? so it actually
+> needs to do 2 seeks, one to find out where to go on disk then one to
+
+No, the btree should be completely cached fairly soon into the test.
+
+> get the data. Is that the case? If so, how can I remedy this? How can I
+> tell the kernel to keep all of the files xfs data in memory?
+
+Add more disks. If you're writing, use RAID 1.
 
 -- 
-Cheers,
-Alistair.
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.

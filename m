@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWEVWZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbWEVWal@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751278AbWEVWZI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 18:25:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbWEVWZI
+	id S1751274AbWEVWal (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 18:30:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWEVWal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 18:25:08 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:49851 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751279AbWEVWZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 18:25:07 -0400
-Subject: Re: pcmcia oops on 2.6.17-rc[12]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Andreas Mohr <andi@rhlx01.fht-esslingen.de>, florin@iucha.net,
-       linux-kernel@vger.kernel.org, linux@dominikbrodowski.net
-In-Reply-To: <20060522212724.GC9454@bitwizard.nl>
-References: <20060423192251.GD8896@iucha.net>
-	 <20060423150206.546b7483.akpm@osdl.org>
-	 <20060508145609.GA3983@rhlx01.fht-esslingen.de>
-	 <20060508084301.5025b25d.akpm@osdl.org>
-	 <20060508163453.GB19040@flint.arm.linux.org.uk>
-	 <1147730828.26686.165.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0605151459140.3866@g5.osdl.org>
-	 <1147734026.26686.200.camel@localhost.localdomain>
-	 <20060522115046.GA23074@bitwizard.nl>
-	 <1148299804.17376.34.camel@localhost.localdomain>
-	 <20060522212724.GC9454@bitwizard.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 22 May 2006 23:38:28 +0100
-Message-Id: <1148337508.17376.147.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Mon, 22 May 2006 18:30:41 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:49049 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751274AbWEVWak convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 18:30:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DHIdh43esEedCekXAJC5T7L3Xa6smpskS/I1Ti9JyRKAF5Ow2UBy5XUe6n33O4rrTTG7yqll/1Yl65acjLls2WoVPKFDIQCXPTtTDVpLK+2RsxyVIDaYhXNZQ8Fhbvk1qpmTs7WZshgIOEu+roxvkhTOGUJE9Qr1dXwKZKveZ7U=
+Message-ID: <305c16960605221530h68e8e3c5s849eb66f4881593e@mail.gmail.com>
+Date: Mon, 22 May 2006 19:30:37 -0300
+From: "Matheus Izvekov" <mizvekov@gmail.com>
+To: fitzboy <fitzboy@iparadigms.com>
+Subject: Re: tuning for large files in xfs
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <447209A8.2040704@iparadigms.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <447209A8.2040704@iparadigms.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-05-22 at 23:27 +0200, Rogier Wolff wrote:
-> Fine. I know hardware that /cannot/ share interrupts. So, my driver
-> requesting an interrupt, and getting: "Can't allocate interrupt" is an
-> indication of a hardware configuration error. Or software (you've been
-> telling one of the drivers the wrong interrupt line). If you force
-> "shared mode", my driver will cope (it works just great on the PCI
-> version of the card, no problem). But will the hardware?
+On 5/22/06, fitzboy <fitzboy@iparadigms.com> wrote:
+> I've got a very large (2TB) proprietary database that is kept on an XFS
+> partition under a debian 2.6.8 kernel. It seemed to work well, until I
+> recently did some of my own tests and found that the performance should
+> be better then it is...
+>
+> basically, treat the database as just a bunch of random seeks. The XFS
+> partition is sitting on top of a SCSI array (Dell PowerVault) which has
+> 13+1 disks in a RAID5, stripe size=64k. I have done a number of tests
+> that mimic my app's accesses and realized that I want the inode to be
+> as large as possible (which in an intel box is only 2k), played with su
+> and sw and got those to 64k and 13... and performance got better.
+>
+> BUT... here is what I need to understand, the filesize has a drastic
+> effect on performance. If I am doing random reads from a 20GB file
+> (system only has 2GB ram, so caching is not a factor), I get
+> performance about where I want it to be: about 5.7 - 6ms per block. But
+> if that file is 2TB then the time almost doubles, to 11ms. Why is this?
+> No other factors changed, only the filesize.
+>
+> Another note, on this partition there is no other file then this one
+> file.
+>
 
-Depends on the backplane
-
-> You guys maybe trying to fix very real problems in PCMCIA land, of
-> which I have very little knowledge. But changing what "not passing
-> SA_SHIRQ" means globlaly IMHO changes too much... 
-
-PCMCIA doesn't need any big changes. The rules are simple. PCMCIA IRQs
-today are shared, period. Because of the way the hardware works this
-isn't an electrical issue. Drivers that ask for an exclusive PCMCIA IRQ
-need to wake up and smell the coffee and get fixed.
-
-Alan
-
+Why use a flesystem with just one file?? Why not use the device node
+of the partition directly?

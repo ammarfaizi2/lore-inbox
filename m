@@ -1,80 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWEVPsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWEVPy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750733AbWEVPsp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 11:48:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWEVPsp
+	id S1750712AbWEVPy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 11:54:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWEVPy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 11:48:45 -0400
-Received: from mail.gmx.de ([213.165.64.20]:38590 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750733AbWEVPso (ORCPT
+	Mon, 22 May 2006 11:54:58 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:21508 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1750712AbWEVPy5 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 11:48:44 -0400
-X-Authenticated: #2308221
-Date: Mon, 22 May 2006 17:48:30 +0200
-From: Christian Trefzer <ctrefzer@gmx.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jan Knutar <jk-lkml@sci.fi>, Pau Garcia i Quiles <pgquiles@elpauer.org>,
-       linux-kernel@vger.kernel.org
+	Mon, 22 May 2006 11:54:57 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 22 May 2006 15:54:56.0664 (UTC) FILETIME=[12A11980:01C67DB8]
+Content-class: urn:content-classes:message
 Subject: Re: [IDEA] Poor man's UPS
-Message-ID: <20060522154830.GA5344@hermes.uziel.local>
-References: <200605212131.47860.pgquiles@elpauer.org> <20060521224012.GB30855@hermes.uziel.local> <200605221604.16043.jk-lkml@sci.fi> <20060522151303.GA4538@hermes.uziel.local> <1148312458.17376.54.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
-Content-Disposition: inline
-In-Reply-To: <1148312458.17376.54.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+Date: Mon, 22 May 2006 11:54:56 -0400
+Message-ID: <Pine.LNX.4.61.0605221139040.27175@chaos.analogic.com>
+In-Reply-To: <20060522152531.GB4538@hermes.uziel.local>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [IDEA] Poor man's UPS
+Thread-Index: AcZ9uBKqEGgHy8lQQlm86hOf4XAk/A==
+References: <200605212131.47860.pgquiles@elpauer.org> <20060521224012.GB30855@hermes.uziel.local> <200605221604.16043.jk-lkml@sci.fi> <Pine.LNX.4.61.0605220908580.26879@chaos.analogic.com> <20060522152531.GB4538@hermes.uziel.local>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Christian Trefzer" <ctrefzer@gmx.de>
+Cc: "Jan Knutar" <jk-lkml@sci.fi>,
+       "Pau Garcia i Quiles" <pgquiles@elpauer.org>,
+       <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---TB36FDmn/VVEgNH/
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, 22 May 2006, Christian Trefzer wrote:
 
-On Mon, May 22, 2006 at 04:40:58PM +0100, Alan Cox wrote:
->=20
-> Lead acid batteries should be kept well charged to avoid sulphation and
-> always full charged when recharging, preferably using a charger that
-> will do proper three step charging. "Cycling" a lead acid battery is a
-> great way to destroy it.
->=20
+> On Mon, May 22, 2006 at 09:29:58AM -0400, linux-os (Dick Johnson) wrote:
+>> On Mon, 22 May 2006, Jan Knutar wrote:
+>>> I thought deep discharge cycles were unhealthy for lead batteries?
+>>
+>> Yes. It's some of the more modern chemistries that need deep discharges
+>> because they tend to "remember".
+>
+> And if you truly deep discharge them, they drop dead and won't remember
+> they've been charged. Topping off won't do any good either. So there's
+> some security margin your daily e.g.  LiIon appliance in your cellphone
+> will force upon you, in order to keep the battery alive. You can turn
+> the thing on over and over, but it will shut down on you after seconds.
+> It just won't suck the thing dry. And the charging process will be
+> stopped slightly before the battery is entirely full, to avoid
+> overcharge.
+>
+>> Lead acid batteries, both wet cells and gel cells should be taken down
+>> to about 66 percent capacity and that's 66 percent capacity, not some
+>> arbitrary voltage. For instance, a 24 ampere-hour battery, fully
+>> charged at 25 degC, has a terminal voltage of 13.2 volts after the
+>> load is applied. Presumably it contains 13.2 * 24 * 3600 = 1,140,480
+>> joules (watt-seconds) of energy. You get to use 66 percent of this,
+>> i.e., 752,717 joules before it needs charging. You can't detect the
+>> charge state by looking at the terminal voltage! You need to actually
+>> measure the voltage and current during charge and discharge to
+>> maintain battery health. Otherwise, you just throw them away every
+>> year or so. The telephone company has lead-acid batteries that have
+>> been running for 50 years and they will be good "forever" because they
+>> carefully (automatically) maintain them.
+>
+> Except for the slow and irreversible chemical transformations at the
+> poles, I guess. Acid is corrosive, after all. So with careful handling,
+> those things last a long time, but not forever, unfortunately. But the
+> approximation is good enough, anyway.
+>
+> So it appears to me that those lead acid beasts make up a rather
+> constant source of DC - with other solutions the state can be measured
+> by means of voltage alone. But the circuitry might be a bit more
+> complicated for this exact reason. Do you by any chance know where I
+> might look for schematics of such circuitry? Any hint greatly
+> appreciated : )
+>
+> Kind regards,
+> Chris
+>
 
-So it is better to use only one battery (or an array thereof) which is
-sort of charged and discharged at the same time, or is this idea just as
-screwed..? I don't have a degree in electronics, mind you : )
+Telco used watt-meters and clocks to directly monitor the batteries.
+In the event that the batteries had been floating for a month (not used
+and trickle-charging), the timer would send them an equalizing charge
+of about 10 amperes for 10 minutes. That would blast away any surface
+corruption and bring the individual cells up to an equal terminal
+voltage.
 
-Might be easier to build something that keeps a battery well maintained
-and switches in case of power outage. With large enough condensors to
-bridge the gap, which would also iron out any peaks and stuff, this
-should work pretty well.
+Modern chargers just don't bother unless the batteries are used for
+medical equipment. In our portable CAT Scanners, we monitor current,
+voltage, and time using a uP. This guarantees that once you start
+a scan, the scan will complete (as required by regulatory agencies).
 
-Kind regards,
-Chris
+We also charge at a constant current until getting to the correct
+terminal voltage. In other words, the charger is current-limited
+until the voltage is correct, then it becomes voltage regulated.
+The regulated voltage depends upon temperature and you can get
+the numbers off from battery vendor's specifications. We don't
+set an "equalizing charge" as telco did. We found with our specific
+batteries it wasn't necessary.
 
---TB36FDmn/VVEgNH/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
 
-iQIVAwUBRHHdTV2m8MprmeOlAQLv7hAAoruJSr9tjowz7/TcSHz5PNFwqLerzPrP
-TW7+F7U3wdWSSxjt+ijNJUo2/MlSzxC7jBmzApY1U24z+U8q6zS5TVoU1ncBGjTP
-dqsRz+qFGzt5e5AqmZMDmVwETnA1Gg9Ev+d5h2y5I8Fpc2WnWyZ3eiRNn9AAjENR
-D2dD1HSq7X5fSAGfkypPqNzDihOeJfqJWmThGw6RKMl6lc8gA85tAd44Y8C09Gi+
-BUZupdw2MRQuTn0gnEawE2dV1bCSL1aud9y68XAAjUmLVm3wy7veLGo0ylq28nxN
-SlGwr5l7ksnRuBHqc7gU88fmsEQFzjDtolaDnalL8Uucxm3QkUnA4ls+je/rcFP9
-CGbA1QYlCm1ZqFUK/809ila2zmjLKdcbBoOmNH8gYWshJMyHfFNDKAEEqTOGias+
-hfBnRukDt4RjGj6YO8kxuebLqryWzz2xZG4OfPJe/qQSABYKwf4kOXf7DAbj35PR
-fkHIY+zu7IpsLkjOSaDAlAjUgWBeEWstZlKmPa9QOLdjmchdphSXXQzGmM6s1AkQ
-QSbWO10mPg8idb/klNvz0//rNO5j+BNlzIXGN3XNvVO0SP/oI3RxdTwmmGx1D9oa
-LBaRgfTwodwz8aT5WPKlgr+pCG5544KyRa3QOnAuchG2vwbQb70PSx0WwApWn+8+
-T8dGuz98nzQ=
-=FZ5l
------END PGP SIGNATURE-----
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
---TB36FDmn/VVEgNH/--
-
+Thank you.

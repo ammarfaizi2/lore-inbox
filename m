@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbWEVSJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWEVSJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751108AbWEVSJF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 14:09:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbWEVSJF
+	id S1751109AbWEVSJg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 14:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWEVSJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 14:09:05 -0400
-Received: from xenotime.net ([66.160.160.81]:16103 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751108AbWEVSJE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 14:09:04 -0400
-Date: Mon, 22 May 2006 11:11:36 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Zach Brown <zach.brown@oracle.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kmap tracking
-Message-Id: <20060522111136.2c2e5fd1.rdunlap@xenotime.net>
-In-Reply-To: <4471FBDE.8010506@oracle.com>
-References: <20060518155357.04066e9c.rdunlap@xenotime.net>
-	<4471EA2C.4010401@oracle.com>
-	<20060522103915.53e03867.akpm@osdl.org>
-	<4471FBDE.8010506@oracle.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 22 May 2006 14:09:36 -0400
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:63380 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S1751109AbWEVSJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 14:09:35 -0400
+Message-ID: <4471FE52.8090107@am.sony.com>
+Date: Mon, 22 May 2006 11:09:22 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Martin Peschke <mp3@de.ibm.com>, linux-kernel@vger.kernel.org,
+       Balbir Singh <balbir@in.ibm.com>
+Subject: netlink vs. debugfs (was Re: [Patch 0/6] statistics infrastructure)
+References: <1148054876.2974.10.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <20060519092411.6b859b51.akpm@osdl.org>
+In-Reply-To: <20060519092411.6b859b51.akpm@osdl.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 May 2006 10:58:54 -0700 Zach Brown wrote:
+Andrew Morton wrote:
+> Martin Peschke <mp3@de.ibm.com> wrote:
+>> My patch series is a proposal for a generic implementation of statistics.
+> 
+> This uses debugfs for the user interface, but the
+> per-task-delay-accounting-*.patch series from Balbir creates an extensible
+> netlink-based system for passing instrumentation results back to userspace.
+> 
+> Can this code be converted to use those netlink interfaces, or is Balbir's
+> approach unsuitable, or hasn't it even been considered, or what?
 
-> 
-> > I was scratching my head over this patch trying to think of any bug in
-> > recent years which it would have detected.  I failed.
-> 
-> 2.4 nfs used to require that it be able to kmap entire RPCs for them to
-> make forward progress.  Its file->write() required RPC forward progress
-> before it would return.  And some callers were holding kmaps across
-> file->write() calls.  So with enough concurrent callers doing that the
-> system would get stuck.
-> 
-> We used the patch to see who the callers were when the system got into
-> that state.
-> 
-> One of them was core dumping, believe it or not.  2.6 elf_core_dump()
-> still holds a kmap across file->write(), which seems unwise, but I
-> haven't gotten to seeing if it's worth worrying about or not.
-> 
-> So maybe these days the kmap story is less dreadful and it isn't as
-> helpful, but that's what we used it for.
+Can someone give me the 20-second elevator pitch on why
+netlink is preferred over debugfs?  I've heard of a
+number of debugfs/procfs users requested to switch over.
 
-I was planning to add kmap_atomic* variants to the patch.
-I could see it being useful for those callers, but maybe problems
-with them would be more obvious anyway and wouldn't need such
-a patch.
+Thanks,
+ -- Tim
 
----
-~Randy
+=============================
+Tim Bird
+Architecture Group Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+=============================

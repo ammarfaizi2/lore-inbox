@@ -1,64 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964964AbWEVATh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbWEVAW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964964AbWEVATh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 20:19:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbWEVATh
+	id S964965AbWEVAW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 20:22:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964966AbWEVAW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 20:19:37 -0400
-Received: from watts.utsl.gen.nz ([202.78.240.73]:31121 "EHLO
-	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S964964AbWEVATh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 20:19:37 -0400
-Message-ID: <44710388.2050909@vilain.net>
-Date: Mon, 22 May 2006 12:19:20 +1200
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Sun, 21 May 2006 20:22:59 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5764 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964965AbWEVAW6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 20:22:58 -0400
+Date: Mon, 22 May 2006 02:22:17 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Neil Brown <neilb@suse.de>
+Cc: Al Boldi <a1426z@gawab.com>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: replacing X Window System !
+Message-ID: <20060522002215.GC25184@elf.ucw.cz>
+References: <200605200733.08757.a1426z@gawab.com> <20060520102526.GH10077@stusta.de> <200605201419.55428.a1426z@gawab.com> <17519.1323.822630.868492@cse.unsw.edu.au>
 MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, dev@sw.ru, herbert@13thfloor.at,
-       devel@openvz.org, ebiederm@xmission.com, xemul@sw.ru,
-       Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Cedric Le Goater <clg@fr.ibm.com>
-Subject: Re: [PATCH 4/9] namespaces: utsname: switch to using uts namespaces
-References: <20060518154700.GA28344@sergelap.austin.ibm.com> <20060518154936.GE28344@sergelap.austin.ibm.com>
-In-Reply-To: <20060518154936.GE28344@sergelap.austin.ibm.com>
-X-Enigmail-Version: 0.92.1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <17519.1323.822630.868492@cse.unsw.edu.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serge E. Hallyn wrote:
 
->--- a/arch/alpha/kernel/osf_sys.c
->+++ b/arch/alpha/kernel/osf_sys.c
->@@ -402,15 +402,15 @@ osf_utsname(char __user *name)
+Hi!
+
+> > With a stable API, I can just implement whatever w/o caring whether it is 
+> > included into the kernel.  Now that's freedom!
+> > 
 > 
-> 	down_read(&uts_sem);
-> 	error = -EFAULT;
->-	if (copy_to_user(name + 0, system_utsname.sysname, 32))
->+	if (copy_to_user(name + 0, utsname()->sysname, 32))
-> 		goto out;
->diff --git a/arch/i386/kernel/sys_i386.c b/arch/i386/kernel/sys_i386.c
->index 8fdb1fb..4af731d 100644
->--- a/arch/i386/kernel/sys_i386.c
->+++ b/arch/i386/kernel/sys_i386.c
->@@ -210,7 +210,7 @@ asmlinkage int sys_uname(struct old_utsn
-> 	if (!name)
-> 		return -EFAULT;
-> 	down_read(&uts_sem);
->-	err=copy_to_user(name, &system_utsname, sizeof (*name));
->+	err=copy_to_user(name, utsname(), sizeof (*name));
-> 	up_read(&uts_sem);
-> 	return err?-EFAULT:0;
-> }
->  
->
+> That's userspace. 
+> 
+> Improve what is in the kernel so that it presents to userspace
+> whatever API you need, and write stuff in userspace to your hearts
+> content.  I'm sure that there is no need for the entire 'X' server to
+> be in the kernel, and I'm equally sure that there are advantages in
+> the kernel providing more services for an X server than it currently
+> does.  You need to find that balance.  It may be hard, but there are
+> people here who will help.  You add bits of functionality - people
+> will question them and require you to justify them. Some will make it,
+> some won't.  Bit by bit you will arrive at a workable solution.
+> 
+> As a sort of example: were I to start writing an NFS server for Linux
+> today, I wouldn't put it all in the kernel.  I would figure out the
+> minimum services I needed from the kernel and add them one at a time,
+> at each step modifying the userspace NFS server to use this
+> functionality.  Some of it would be quite tricky - particularly
+> achieving zero-copy reads and single-copy writes.  But I'm sure it is
+> possible, and I'm sure there are people here who would help point me
+> in the right direction.
 
-The semaphore (uts_sem) should be moved in the uts_ns structure, no?
+I'm sure it is still possible to rewrite knfsd into userspace
+:-). With splice & friends, maybe it is now easier to do 0-copy...
 
-It's probably low impact enough to keep it as it is, though. Just a tad
-untidy.
-
-Sam.
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

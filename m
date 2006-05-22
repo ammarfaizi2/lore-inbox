@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbWEVOcV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWEVOdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750860AbWEVOcV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 10:32:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbWEVOcV
+	id S1750861AbWEVOdo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 10:33:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWEVOdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 10:32:21 -0400
-Received: from mail.unixshell.com ([207.210.106.37]:19360 "EHLO
-	mail.unixshell.com") by vger.kernel.org with ESMTP id S1750857AbWEVOcU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 10:32:20 -0400
-Message-ID: <4471CB54.401@tektonic.net>
-Date: Mon, 22 May 2006 10:31:48 -0400
-From: Matt Ayres <matta@tektonic.net>
-Organization: TekTonic
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-MIME-Version: 1.0
-To: Patrick McHardy <kaber@trash.net>
-CC: James Morris <jmorris@namei.org>,
-       "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Xen-devel] Re: Panic in ipt_do_table with 2.6.16.13-xen
-References: <4468BE70.7030802@tektonic.net> <4468D613.20309@trash.net>	<44691669.4080903@tektonic.net>	<Pine.LNX.4.64.0605152331140.10964@d.namei>	<4469D84F.8080709@tektonic.net>	<Pine.LNX.4.64.0605161127030.16379@d.namei>	<446D0A0D.5090608@tektonic.net>	<Pine.LNX.4.64.0605182002330.6528@d.namei> <446D0E6D.2080600@tektonic.net> <446D151D.6030307@tektonic.net> <4470A6CD.5010501@trash.net>
-In-Reply-To: <4470A6CD.5010501@trash.net>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 22 May 2006 10:33:43 -0400
+Received: from minus.inr.ac.ru ([194.67.69.97]:65259 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id S1750858AbWEVOdn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 10:33:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=ms2.inr.ac.ru;
+  b=AD5vX5rGBkCEyHiUTBUMVR23ReYrbe8S3+4OsXOr8CMXbXe0leb+bp0AfV/TWJgrd8u3jtbRoa12ZM3YwsX8BCxb63Z4lPjCI3aS2F05dBfItXsFRHMnucyPgIKzeZpnYhJ+oCO8USA+gc4cbye7yrDsNDSSbf3HSl4dpETTZI8=;
+Date: Mon, 22 May 2006 18:32:54 +0400
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       torvalds@osdl.org, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, kraxel@suse.de, zach@vmware.com
+Subject: Re: [patch] i386, vdso=[0|1] boot option and /proc/sys/vm/vdso_enabled
+Message-ID: <20060522143254.GA28456@ms2.inr.ac.ru>
+References: <1147759423.5492.102.camel@localhost.localdomain> <20060516064723.GA14121@elte.hu> <1147852189.1749.28.camel@localhost.localdomain> <20060519174303.5fd17d12.akpm@osdl.org> <20060520010303.GA17858@elte.hu> <20060519181125.5c8e109e.akpm@osdl.org> <Pine.LNX.4.64.0605191813050.10823@g5.osdl.org> <20060520085351.GA28716@elte.hu> <20060520022650.46b048f8.akpm@osdl.org> <1148220651.3902.24.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1148220651.3902.24.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
+> any chance to get a coredump ?
 
-Patrick McHardy wrote:
-> Matt Ayres wrote:
->> I think I confirmed the NIC is not the source of the problem.  A few of
->> my servers have e100/tulip NIC's due to a bug with the chipset of the
->> on-board TG3 cards firmware and TSO.  These servers that use the
->> e100/tulip drivers also experience the ipt_do_table bug.
-> 
-> There is an identical report in the netfilter bugzilla, also crashes
-> (on x86_64) in ipt_do_table with Xen. I haven't heard anything of
-> similar crashes without Xen, so I doubt that the bug is in the
-> netfilter code.
-> 
-> https://bugzilla.netfilter.org/bugzilla/show_bug.cgi?id=478
+Been there... ld-linux in glibc-2.3.2 is broken: it does not understand
+relocatable VDSO. If vsyscall-sysenter.so is not absolute, which is
+the case with exec-shield patch, it dereferences not-relocated pointers
+in .dynamic and segfaults.
 
-Yep... too coincidental.  I'd say it has _something_ to do with Xen. 
-I've been doing different things on my side to try to reduce the 
-severity of the problem, but I'd really like to hear what the Xen guys 
-have to say about this now..
+BTW original Gerd Hoffman's patch as submitted by Rusty works
+with libc-2.3.2, it generates good absolute VDSO.
 
-Thanks,
-Matt
+Alexey

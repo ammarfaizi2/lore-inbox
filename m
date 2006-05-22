@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWEVOdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbWEVOiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750861AbWEVOdo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 10:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWEVOdn
+	id S1750872AbWEVOiM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 10:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWEVOiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 10:33:43 -0400
-Received: from minus.inr.ac.ru ([194.67.69.97]:65259 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id S1750858AbWEVOdn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 10:33:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=ms2.inr.ac.ru;
-  b=AD5vX5rGBkCEyHiUTBUMVR23ReYrbe8S3+4OsXOr8CMXbXe0leb+bp0AfV/TWJgrd8u3jtbRoa12ZM3YwsX8BCxb63Z4lPjCI3aS2F05dBfItXsFRHMnucyPgIKzeZpnYhJ+oCO8USA+gc4cbye7yrDsNDSSbf3HSl4dpETTZI8=;
-Date: Mon, 22 May 2006 18:32:54 +0400
-From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       torvalds@osdl.org, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, kraxel@suse.de, zach@vmware.com
-Subject: Re: [patch] i386, vdso=[0|1] boot option and /proc/sys/vm/vdso_enabled
-Message-ID: <20060522143254.GA28456@ms2.inr.ac.ru>
-References: <1147759423.5492.102.camel@localhost.localdomain> <20060516064723.GA14121@elte.hu> <1147852189.1749.28.camel@localhost.localdomain> <20060519174303.5fd17d12.akpm@osdl.org> <20060520010303.GA17858@elte.hu> <20060519181125.5c8e109e.akpm@osdl.org> <Pine.LNX.4.64.0605191813050.10823@g5.osdl.org> <20060520085351.GA28716@elte.hu> <20060520022650.46b048f8.akpm@osdl.org> <1148220651.3902.24.camel@laptopd505.fenrus.org>
+	Mon, 22 May 2006 10:38:12 -0400
+Received: from vbn.0050556.lodgenet.net ([216.142.194.234]:26831 "EHLO
+	vbn.0050556.lodgenet.net") by vger.kernel.org with ESMTP
+	id S1750871AbWEVOiM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 10:38:12 -0400
+Subject: Re: [PATCH] Add user taint flag
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1148308548.17376.44.camel@localhost.localdomain>
+References: <E1FhwyO-0001YQ-O1@candygram.thunk.org>
+	 <1148307276.3902.71.camel@laptopd505.fenrus.org>
+	 <1148308548.17376.44.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 22 May 2006 16:37:54 +0200
+Message-Id: <1148308674.3902.75.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1148220651.3902.24.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, 2006-05-22 at 15:35 +0100, Alan Cox wrote:
+> On Llu, 2006-05-22 at 16:14 +0200, Arjan van de Ven wrote:
+> > we should then patch the /dev/mem driver or something to set this :)
+> > (well and possibly give it an exception for now for PCI space until the
+> > X people fix their stuff to use the proper sysfs stuff)
+> 
+> /dev/mem is used for all sorts of sane things including DMIdecode.
+> Tainting on it isn't terribly useful.
 
-> any chance to get a coredump ?
+I meant taint-on-writable/write, dmi and others map it read only which
+is obviously different
 
-Been there... ld-linux in glibc-2.3.2 is broken: it does not understand
-relocatable VDSO. If vsyscall-sysenter.so is not absolute, which is
-the case with exec-shield patch, it dereferences not-relocated pointers
-in .dynamic and segfaults.
 
-BTW original Gerd Hoffman's patch as submitted by Rusty works
-with libc-2.3.2, it generates good absolute VDSO.
-
-Alexey

@@ -1,130 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWEVV4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWEVWF0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751221AbWEVV4x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 17:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWEVV4x
+	id S1751224AbWEVWF0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 18:05:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWEVWF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 17:56:53 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14564 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751221AbWEVV4w (ORCPT
+	Mon, 22 May 2006 18:05:26 -0400
+Received: from smtp1.xs4all.be ([195.144.64.135]:30361 "EHLO smtp1.xs4all.be")
+	by vger.kernel.org with ESMTP id S1751224AbWEVWF0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 17:56:52 -0400
-Date: Mon, 22 May 2006 14:56:35 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: __vmalloc with GFP_ATOMIC causes 'sleeping from invalid
- context'
-Message-Id: <20060522145635.252c71d4.akpm@osdl.org>
-In-Reply-To: <20060522065649.5C3E7EE9EE@wolfe.lmc.cs.sunysb.edu>
-References: <20060522013648.6FCEAEE9EE@wolfe.lmc.cs.sunysb.edu>
-	<447119B3.7000506@yahoo.com.au>
-	<20060522055852.63940EE9EE@wolfe.lmc.cs.sunysb.edu>
-	<4471551B.1070701@yahoo.com.au>
-	<447155E5.8060406@yahoo.com.au>
-	<20060522065649.5C3E7EE9EE@wolfe.lmc.cs.sunysb.edu>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 22 May 2006 18:05:26 -0400
+Date: Tue, 23 May 2006 00:04:59 +0200
+From: Frank Gevaerts <frank.gevaerts@fks.be>
+To: Greg KH <gregkh@suse.de>
+Cc: Frank Gevaerts <frank.gevaerts@fks.be>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: [PATCH] Re: usb-serial ipaq kernel problem
+Message-ID: <20060522220459.GA1910@fks.be>
+References: <20060522143043.GA6408@fks.be> <20060522214403.GA7044@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060522214403.GA7044@suse.de>
+User-Agent: Mutt/1.5.9i
+X-FKS-MailScanner: Found to be clean
+X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-104.72,
+	vereist 5, autolearn=not spam, ALL_TRUSTED -3.30, AWL -1.01,
+	BAYES_05 -0.41, USER_IN_WHITELIST -100.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giridhar Pemmasani <giri@lmc.cs.sunysb.edu> wrote:
->
-> diff -Naur linux.orig/include/linux/vmalloc.h linux/include/linux/vmalloc.h
->  --- linux.orig/include/linux/vmalloc.h	2006-05-22 02:45:23.000000000 -0400
->  +++ linux/include/linux/vmalloc.h	2006-05-22 02:45:38.000000000 -0400
->  @@ -3,6 +3,7 @@
->   
->   #include <linux/spinlock.h>
->   #include <asm/page.h>		/* pgprot_t */
->  +#include <linux/gfp.h>
->   
->   /* bits in vm_struct->flags */
->   #define VM_IOREMAP	0x00000001	/* ioremap() and friends */
->  @@ -52,8 +53,15 @@
->   extern struct vm_struct *get_vm_area(unsigned long size, unsigned long flags);
->   extern struct vm_struct *__get_vm_area(unsigned long size, unsigned long flags,
->   					unsigned long start, unsigned long end);
->  -extern struct vm_struct *get_vm_area_node(unsigned long size,
->  -					unsigned long flags, int node);
->  +extern struct vm_struct *get_vm_area_node_mask(unsigned long size,
->  +					       unsigned long flags, int node,
->  +					       gfp_t gfp_mask);
->  +static inline struct vm_struct *get_vm_area_node(unsigned long size,
->  +						 unsigned long flags, int node)
->  +{
->  +	return get_vm_area_node_mask(size, flags, node, GFP_KERNEL);
->  +}
->  +
->   extern struct vm_struct *remove_vm_area(void *addr);
->   extern struct vm_struct *__remove_vm_area(void *addr);
->   extern int map_vm_area(struct vm_struct *area, pgprot_t prot,
->  diff -Naur linux.orig/mm/vmalloc.c linux/mm/vmalloc.c
->  --- linux.orig/mm/vmalloc.c	2006-05-19 01:22:00.000000000 -0400
->  +++ linux/mm/vmalloc.c	2006-05-22 02:45:49.000000000 -0400
->  @@ -157,8 +157,9 @@
->   	return err;
->   }
->   
->  -struct vm_struct *__get_vm_area_node(unsigned long size, unsigned long flags,
->  -				unsigned long start, unsigned long end, int node)
->  +static struct vm_struct *__get_vm_area_node(unsigned long size, unsigned long flags,
->  +					    unsigned long start, unsigned long end,
->  +					    int node, gfp_t gfp_mask)
->   {
->   	struct vm_struct **p, *tmp, *area;
->   	unsigned long align = 1;
->  @@ -177,7 +178,7 @@
->   	addr = ALIGN(start, align);
->   	size = PAGE_ALIGN(size);
->   
->  -	area = kmalloc_node(sizeof(*area), GFP_KERNEL, node);
->  +	area = kmalloc_node(sizeof(*area), gfp_mask, node);
->   	if (unlikely(!area))
->   		return NULL;
->   
->  @@ -233,7 +234,7 @@
->   struct vm_struct *__get_vm_area(unsigned long size, unsigned long flags,
->   				unsigned long start, unsigned long end)
->   {
->  -	return __get_vm_area_node(size, flags, start, end, -1);
->  +	return __get_vm_area_node(size, flags, start, end, -1, GFP_KERNEL);
->   }
->   
->   /**
->  @@ -251,9 +252,11 @@
->   	return __get_vm_area(size, flags, VMALLOC_START, VMALLOC_END);
->   }
->   
->  -struct vm_struct *get_vm_area_node(unsigned long size, unsigned long flags, int node)
->  +struct vm_struct *get_vm_area_node_mask(unsigned long size, unsigned long flags,
->  +					int node, gfp_t gfp_mask)
->   {
->  -	return __get_vm_area_node(size, flags, VMALLOC_START, VMALLOC_END, node);
->  +	return __get_vm_area_node(size, flags, VMALLOC_START, VMALLOC_END, node,
->  +				  gfp_mask);
->   }
->   
->   /* Caller must hold vmlist_lock */
->  @@ -471,7 +474,7 @@
->   	if (!size || (size >> PAGE_SHIFT) > num_physpages)
->   		return NULL;
->   
->  -	area = get_vm_area_node(size, VM_ALLOC, node);
->  +	area = get_vm_area_node_mask(size, VM_ALLOC, node, gfp_mask);
->   	if (!area)
->   		return NULL;
->   
+On Mon, May 22, 2006 at 02:44:03PM -0700, Greg KH wrote:
+> On Mon, May 22, 2006 at 04:30:48PM +0200, Frank Gevaerts wrote:
+> > Hi, 
+> > 
+> > We are having problems with the usb-serial ipaq driver in 2.6.16 (debian
+> > backports 2.6.16-1-686, but also reproducible with self-compiled
+> > kernel.org kernel)
+> > 
+> > Sometimes, we get the following on disconnect:
+> 
+> <snip>
+> 
+> Can you duplicate this on 2.6.17-rc4?  A number of tty changes went into
+> that release that should have fixed this issue.
 
-It was wrong for get_vm_area_node() to have assumed that it could use
-GFP_KERNEL.
+I'll try it in the morning. In the meantime, we found some other
+problems in ipaq.c : apparently pocketpc accepts usb enumeration long
+before it accepts usb-serial commands (sometimes 50 or more seconds),
+which makes ipaq_open fail. When it fails, the read urb is not killed,
+while the associated structures are freed, which gives a panic when
+the urb completes. The following patch solves that :
+Since changing this, I also have not seen the original problem anymore,
+but I will do some more testing tomorrow.
 
-Please just change the top-level API of get_vm_area_node() to take a gfp_t
-and don't worry about the get_vm_area_node_mask() thing.
+Signed-off-by: Frank Gevaerts <frank.gevaerts@fks.be>
 
-The only callers of get_vm_area_node() are in vmalloc.c anyway.  We could
-in fact make it static, but I guess exposing it as an API call makes sense.
+--- linux-2.6.16/drivers/usb/serial/ipaq.c      2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6.16.ipaq/drivers/usb/serial/ipaq.c 2006-05-23 00:00:33.000000000 +0200
+@@ -59,7 +59,7 @@
+ #include "usb-serial.h"
+ #include "ipaq.h"
+ 
+-#define KP_RETRIES     100
++#define KP_RETRIES     1000
+ 
+ /*
+  * Version Information
+@@ -652,12 +652,6 @@
+                      usb_rcvbulkpipe(serial->dev, port->bulk_in_endpointAddress),
+                      port->read_urb->transfer_buffer, port->read_urb->transfer_buffer_length,
+                      ipaq_read_bulk_callback, port);
+-       result = usb_submit_urb(port->read_urb, GFP_KERNEL);
+-       if (result) {
+-               err("%s - failed submitting read urb, error %d", __FUNCTION__, result);
+-               goto error;
+-       }
+-
+        /*
+         * Send out control message observed in win98 sniffs. Not sure what
+         * it does, but from empirical observations, it seems that the device
+@@ -671,8 +665,15 @@
+                                usb_sndctrlpipe(serial->dev, 0), 0x22, 0x21,
+                                0x1, 0, NULL, 0, 100);
+                if (result == 0) {
++                       result = usb_submit_urb(port->read_urb, GFP_KERNEL);
++                       if (result) {
++                               err("%s - failed submitting read urb, error %d", __FUNCTION__, result);
++                               goto error;
++                       }
++
+                        return 0;
+                }
++                msleep(100);
+        }
+        err("%s - failed doing control urb, error %d", __FUNCTION__, result);
+        goto error;
 
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
+-- 
+Frank Gevaerts                                 frank.gevaerts@fks.be
+fks bvba - Formal and Knowledge Systems        http://www.fks.be/
+Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
+B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19

@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932474AbWEVGOH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbWEVGTi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932474AbWEVGOH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 02:14:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWEVGOH
+	id S932482AbWEVGTi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 02:19:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWEVGTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 02:14:07 -0400
-Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:59285 "HELO
-	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932474AbWEVGOF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 02:14:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=xBXT3Bqc6RF+6jhRCAJTGUYysZrsPOvMVyP7/T3QpZdvJP22cio5N7K6F/m5YdA1Lzq2Tn2CWyELTRVGEX+fpbAPy5Kk7yiquwWfhbBTsCM2GkrsydRdwWxZpXzL8oEdaTfdZGNmISutnF+FMihviyM5H/C8LPCH5rFu4luZTx4=  ;
-Message-ID: <447156AB.30909@yahoo.com.au>
-Date: Mon, 22 May 2006 16:14:03 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: __vmalloc with GFP_ATOMIC causes 'sleeping from invalid context'
-References: <20060522013648.6FCEAEE9EE@wolfe.lmc.cs.sunysb.edu>	<447119B3.7000506@yahoo.com.au> <20060522055852.63940EE9EE@wolfe.lmc.cs.sunysb.edu> <4471551B.1070701@yahoo.com.au> <447155E5.8060406@yahoo.com.au>
-In-Reply-To: <447155E5.8060406@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 22 May 2006 02:19:35 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:1747 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932482AbWEVGTU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 02:19:20 -0400
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Mon, 22 May 2006 16:18:55 +1000
+Message-Id: <1060522061855.2861@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: "Don Dupuis" <dondster@gmail.com>
+Cc: Jens Axboe <axboe@suse.de>
+Subject: [PATCH 002 of 2] md: Make sure bi_max_vecs is set properly in bio_split
+References: <20060522161259.2792.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
 
-> OTOH, it doesn't seem to be particularly wrong to allow __vmalloc
-> GFP_ATOMIC allocations. The correct fix is to pass the gfp_mask
-> to kmalloc: if you're worried about breaking the API, introduce a
-> new __get_vm_area_node_mask() and implement __get_vm_area_node()
-> as a simple wrapper that passes in GFP_KERNEL.
+Else a subsequence bio_clone might make a mess.
 
-Oh, and __get_vm_area_node{_mask} should BUG_ON(in_interrupt());
+Signed-off-by: Neil Brown <neilb@suse.de>
+Cc: "Don Dupuis" <dondster@gmail.com>
+Cc: Jens Axboe <axboe@suse.de>
+### Diffstat output
+ ./fs/bio.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+diff ./fs/bio.c~current~ ./fs/bio.c
+--- ./fs/bio.c~current~	2006-05-22 16:12:46.000000000 +1000
++++ ./fs/bio.c	2006-05-22 16:12:16.000000000 +1000
+@@ -1103,6 +1103,9 @@ struct bio_pair *bio_split(struct bio *b
+ 	bp->bio1.bi_io_vec = &bp->bv1;
+ 	bp->bio2.bi_io_vec = &bp->bv2;
+ 
++	bp->bio1.bi_max_vecs = 1;
++	bp->bio2.bi_max_vecs = 1;
++
+ 	bp->bio1.bi_end_io = bio_pair_end_1;
+ 	bp->bio2.bi_end_io = bio_pair_end_2;
+ 

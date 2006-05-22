@@ -1,69 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWEVSir@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbWEVSku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751025AbWEVSir (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 14:38:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbWEVSir
+	id S1751039AbWEVSku (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 14:40:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWEVSku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 14:38:47 -0400
-Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:46341 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751026AbWEVSiq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 14:38:46 -0400
-Date: Mon, 22 May 2006 20:38:46 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Dave Jones <davej@redhat.com>, Laurence Vanek <lvanek@charter.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>,
-       Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@sous-sol.org>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: Kernel 2.6.16-1.2122_FC5 & lmsensors
-Message-Id: <20060522203846.1142e34c.khali@linux-fr.org>
-In-Reply-To: <20060522174818.GA8016@redhat.com>
-References: <4471F028.4090803@charter.net>
-	<20060522174818.GA8016@redhat.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 22 May 2006 14:40:50 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10464 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751038AbWEVSkt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 14:40:49 -0400
+Date: Mon, 22 May 2006 20:40:04 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.16.16 Parameter-controlled mmap/stack randomization
+Message-ID: <20060522184003.GD2979@elf.ucw.cz>
+References: <446E6A3B.8060100@comcast.net> <1148132838.3041.3.camel@laptopd505.fenrus.org> <446F3483.40208@comcast.net> <20060522010606.GC25434@elf.ucw.cz> <44712605.4000001@comcast.net> <20060522083352.GA11923@elf.ucw.cz> <4471E77F.1010704@comcast.net> <20060522170036.GD1893@elf.ucw.cz> <4471FAD0.9060403@comcast.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4471FAD0.9060403@comcast.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, May 22, 2006 at 12:08:56PM -0500, Laurence Vanek wrote:
->  > Upon updating to the latest kernel (2.6.16-1.2122_FC5) & rebooting I 
->  > find that I no longer have lmsensors.  /var/log/messages gives this in 
->  > the suspect area:
->  > 
->  > ==========
->  > May 22 11:42:42 localhost kernel: i2c_adapter i2c-0: SMBus Quick command 
->  > not supported, can't probe for chips
->  > May 22 11:42:42 localhost kernel: i2c_adapter i2c-1: SMBus Quick command 
->  > not supported, can't probe for chips
->  > May 22 11:42:42 localhost kernel: i2c_adapter i2c-2: SMBus Quick command 
->  > not supported, can't probe for chips
->  > =========
->  > 
->  > something new in this release?
+Hi!
+
+> > Well, fix emacs then. We definitely do not want 10000 settable knobs
+> > that randomly break things. OTOH per-architecture different randomness
+> > seems like good idea. And if Oracle breaks, fix it.
 > 
-> Probably a side-effect of [PATCH] smbus unhiding kills thermal management
-> merged in 2.6.16.17.  Is this an ASUS board ?
+> Fix this, fix that.  In due time perhaps.  I'm pretty sure Linus isn't
+> going to break anything, esp. since his mail client breaks too.
 
-The fact that lm_sensors disappeared could indeed be caused by this
-patch if the system is based on one of the affected boards (which are
-NOT only Asus board, despite of some comments in the code). I _did_
-expect people to complain... There's nothing we can do for now though.
+Good. So fix emacs/oracle/pine, and year or so and some time after it
+is fixed, we can change kernel defaults. That's still less bad than
+having
 
-The error messages are definitely not related though. I suspect that
-they were already there before, or this is just a coincidence.
+[ ] Break emacs
 
-What does the following command return?
-cat /sys/class/i2c-adapter/i2c-*/device/name
+in kernel config.
 
-(Or even better "i2cdetect -l" if you have that installed.)
+> Why should it NOT be configurable anyway?  If you don't configure it,
+> then it behaves just like it would if it wasn't configurable at all.
+> This is called "having sane defaults."
 
-I'd guess that i2c-0, i2c-1 and i2c-2 are from either a framebuffer
-driver or a tv card driver. Anything like that on this system? Probably
-the eeprom driver (if you load it as I presume) is trying to probe
-these busses and they don't want to be probed.
+Because if it is configurable, someone _will_ configure it wrong, and
+then ask us why it does not work.
 
+And if it is configurable, applications will not get fixed for
+basically forever.
+
+> > Per-architecture ammount of randomness would be welcome, I
+> > believe. That will force Oracle to fix their code, but that's okay,
+> > and you can use disable PF_RANDOMIZE for Oracle in meantime.
+> 
+> No, this would leave Oracle shipping binaries with PF_RANDOMIZE
+> (PT_GNU_STACK still?) disabled.  Also if PF_RANDOMIZE is still connected
+> to PT_GNU_STACK, then this means that randomization is turned off BY
+> MAKING THE STACK EXECUTABLE.  You should notice the obvious problem
+> here.  You should also understand that as long as they can simply switch
+> randomization off, they're not going to fix it; and as long as it breaks
+> Oracle/Emacs/anything, Linus is not going to impose non-disablable,
+> non-adjustable randomization.
+
+I believe that Linus is going to apply this one even less likely.
+
+								Pavel
 -- 
-Jean Delvare
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

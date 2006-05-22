@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbWEVTLA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbWEVTL2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751073AbWEVTLA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 15:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbWEVTLA
+	id S1750952AbWEVTL2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 15:11:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWEVTL2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 15:11:00 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:14744 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750952AbWEVTK7
+	Mon, 22 May 2006 15:11:28 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:898 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1750952AbWEVTL1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 15:10:59 -0400
-Message-ID: <44720CB6.7010908@zytor.com>
-Date: Mon, 22 May 2006 12:10:46 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel Source Compression
-References: <Pine.LNX.4.64.0605211028100.4037@p34> <200605212003.32063.s0348365@sms.ed.ac.uk> <e4t1la$u3p$1@terminus.zytor.com> <200605222007.19456.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200605222007.19456.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 22 May 2006 15:11:27 -0400
+Date: Mon, 22 May 2006 12:13:46 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: torvalds@osdl.org
+Subject: Linux 2.6.16.18
+Message-ID: <20060522191346.GR23243@moss.sous-sol.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan wrote:
-> On Monday 22 May 2006 19:58, H. Peter Anvin wrote:
-> [snip]
->> Personally, I would like to suggest adding LZMA capability to gzip.
->> The gzip format already has support for multiple compression formats.
-> 
-> Any idea why this wasn't done for bzip2?
+We (the -stable team) are announcing the release of the 2.6.16.18
+kernel.  Fix for possible Netfilter SNMP NAT remote DoS (CVE-2006-2444).
 
-Yes, the bzip2 author I have been told was originally planning to do that, but then 
-thought it would be harder to deploy that way (because gzip is a core utility, and people 
-are nervous about making it larger.)
+The diffstat and short summary of the fixes are below.
 
-You'd have to ask him for the details, though.
+I'll also be replying to this message with a copy of the patch between
+2.6.16.17 and 2.6.16.18, as it is small enough to do so.
 
-It *is* true that there is a fair bit of code out there which sees a gzip magic number and 
-expects to call deflate functions on it, without ever checking the compression type field. 
-  However, even if there is a need for a new magic number, this can be done within the 
-gzip code, or by forking gzip.
+The updated 2.6.16.y git tree can be found at:
+ 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+and can be browsed at the normal kernel.org git web browser:
+	www.kernel.org/git/
 
-	-hpa
+thanks,
+-chris
+
+--------
+
+ Makefile                               |    2 +-
+ net/ipv4/netfilter/ip_nat_snmp_basic.c |   15 +++++++--------
+ 2 files changed, 8 insertions(+), 9 deletions(-)
+
+Summary of changes from v2.6.16.17 to v2.6.16.18
+================================================
+
+Chris Wright:
+      Linux 2.6.16.18
+
+Patrick McHardy:
+      NETFILTER: SNMP NAT: fix memory corruption (CVE-2006-2444)
+

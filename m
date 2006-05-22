@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbWEVEjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965011AbWEVErM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750903AbWEVEjh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 00:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWEVEjh
+	id S965011AbWEVErM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 00:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbWEVErM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 00:39:37 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:27052 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750903AbWEVEjg (ORCPT
+	Mon, 22 May 2006 00:47:12 -0400
+Received: from ns.suse.de ([195.135.220.2]:56008 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965011AbWEVErL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 00:39:36 -0400
-Message-ID: <44714080.6020303@us.ibm.com>
-Date: Sun, 21 May 2006 21:39:28 -0700
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	Mon, 22 May 2006 00:47:11 -0400
+From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-CC: hch@lst.de, bcrl@kvack.org, cel@citi.umich.edu, zach.brown@oracle.com,
-       linux-kernel@vger.kernel.org, Ian Kent <raven@themaw.net>
-Subject: Re: [PATCH 2/4] Remove readv/writev methods and use aio_read/aio_write instead
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>	<1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>	<1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com>	<1147727945.20568.53.camel@dyn9047017100.beaverton.ibm.com>	<1147728133.6181.2.camel@dyn9047017100.beaverton.ibm.com> <20060521180037.3c8f2847.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Mon, 22 May 2006 14:46:47 +1000
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH - RESEND - 000 of 2] Avoid subtle cache consistancy problem
+Message-ID: <20060522143524.25410.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a resend of a pair of patches that didn't get a lot of attention
+last time.
+I've cleaned up the second one a bit, as it had some ugliness that might
+have put some people off...
+
+The problem is that when we write to a file, the copy from userspace
+to pagecache is first done with preemption disabled, so if the source
+address is not immediately available the copy fails *and* *zeros*
+*the*  *destination*.
+
+This is a problem because a concurrent read (which admittedly is an
+odd thing to do) might see zeros rather that was there before the
+write, or what was there after, or some mixture of the two (any of
+these being a reasonable thing to see).
+
+If the copy did fail, it will immediately be retried with preemption
+re-enabled so any transient problem with accessing the source won't
+cause an error.
+
+The first copying does not need to zero any uncopied bytes, and doing
+so causes the problem.
+It uses copy_from_user_atomic rather than copy_from_user so the simple
+expedient is to change copy_from_user_atomic to *not* zero out bytes
+on failure.
+
+The first of these two patches prepares for the change by fixing two
+places which assume copy_from_user_atomic does zero the tail.  The
+two usages are very similar pieces of code which copy from
+a userspace iovec into one or more page-cache pages.  These are
+changed to remove the assumption.
+
+The second patch changes __copy_from_user_inatomic* to not zero the
+tail.
+Once these are accepted, I will look at similar patches of other
+architectures where this is important (ppc, mips and sparc being the
+ones I can find).
+
+Feedback very welcome.
+
+Thanks.
+NeilBrown
 
 
-Andrew Morton wrote:
-
->Badari Pulavarty <pbadari@us.ibm.com> wrote:
->
->>This patch removes readv() and writev() methods and replaces
->> them with aio_read()/aio_write() methods.
->>
->
->And it breaks autofs4
->
->autofs: pipe file descriptor does not contain proper ops
->
-
-Yuck. I will take a look. Unfortunately, I am travelling next week.
-It will have to wait for atleast 10 days or so. :(
-
-Thanks,
-Badari
-
->
-
-
+ [PATCH 001 of 2] Prepare  for __copy_from_user_inatomic to not zero missed bytes.
+ [PATCH 002 of 2] Make copy_from_user_inatomic NOT zero the tail on i386

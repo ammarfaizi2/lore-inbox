@@ -1,51 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964958AbWEVAOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964962AbWEVAQZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964958AbWEVAOq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 20:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbWEVAOq
+	id S964962AbWEVAQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 20:16:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964963AbWEVAQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 20:14:46 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:55513 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964958AbWEVAOq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 20:14:46 -0400
-Date: Mon, 22 May 2006 02:14:03 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andreas Dilger <adilger@clusterfs.com>,
-       "Stephen C. Tweedie" <sct@redhat.com>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sector_t overflow in block layer
-Message-ID: <20060522001402.GB25184@elf.ucw.cz>
-References: <m3odxxukcp.fsf@bzzz.home.net> <1147884610.16827.44.camel@localhost.localdomain> <m34pzo36d4.fsf@bzzz.home.net> <1147888715.12067.38.camel@dyn9047017100.beaverton.ibm.com> <m364k4zfor.fsf@bzzz.home.net> <20060517235804.GA5731@schatzie.adilger.int> <1147947803.5464.19.camel@sisko.sctweedie.blueyonder.co.uk> <20060518185955.GK5964@schatzie.adilger.int> <Pine.LNX.4.64.0605181403550.10823@g5.osdl.org> <Pine.LNX.4.64.0605182307540.16178@hermes-1.csi.cam.ac.uk>
+	Sun, 21 May 2006 20:16:25 -0400
+Received: from smtpq2.tilbu1.nb.home.nl ([213.51.146.201]:51870 "EHLO
+	smtpq2.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
+	id S964962AbWEVAQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 20:16:24 -0400
+Message-ID: <4471030B.9090008@keyaccess.nl>
+Date: Mon, 22 May 2006 02:17:15 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0605182307540.16178@hermes-1.csi.cam.ac.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Mike Galbraith <efault@gmx.de>,
+       Ingo Molnar <mingo@elte.hu>, Con Kolivas <kernel@kolivas.org>
+Subject: Re: 2.6.17-rc2+ regression -- audio skipping
+References: <4470CC8F.9030706@keyaccess.nl> <1148247047.20472.78.camel@mindpipe> <44710162.3070406@keyaccess.nl>
+In-Reply-To: <44710162.3070406@keyaccess.nl>
+Content-Type: multipart/mixed;
+ boundary="------------050203020409080403060003"
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is a multi-part message in MIME format.
+--------------050203020409080403060003
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> > Why isn't that just a 
-> > 
-> > 	if (unlikely(sector != (sector_t)sector))
-> > 
-> > and that's it? What does this have to do with CONFIG_LBD or BITS_PER_LONG, 
-> > or anything at all?
-> > 
-> > If the sector number fits in a sector_t, we're all good.
-> 
-> I think you missed that Andrewas said he is worried about 64-bit overflows 
-> as well.  And you would not catch those with the sector != 
+Rene Herman wrote:
 
-Can 64-bit really overflow? That's 16 000 Peta bytes, AFAICS. Does
-anyone really have disk array over 100 Peta bytes? How much space does
-Google have, for example?
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+> --------------020706010703030706070708
+ > Content-Type: text/plain;
+>  name="unfix_interactive_task_starvation.diff" 
+> Content-Transfer-Encoding: base64
+
+Crap! Sorry guys, this is a Thunderbird bug, where it sends everything 
+base64 encoded when text encoding is set to UTF-8. It for some reason 
+decided to set it to UTF-8 now, so it went out base64...
+
+
+--------------050203020409080403060003
+Content-Type: text/plain;
+ name="unfix_interactive_task_starvation.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="unfix_interactive_task_starvation.diff"
+
+Index: local/kernel/sched.c
+===================================================================
+--- local.orig/kernel/sched.c	2006-05-08 20:47:06.000000000 +0200
++++ local/kernel/sched.c	2006-05-22 01:03:12.000000000 +0200
+@@ -665,55 +665,13 @@ static int effective_prio(task_t *p)
+ }
+ 
+ /*
+- * We place interactive tasks back into the active array, if possible.
+- *
+- * To guarantee that this does not starve expired tasks we ignore the
+- * interactivity of a task if the first expired task had to wait more
+- * than a 'reasonable' amount of time. This deadline timeout is
+- * load-dependent, as the frequency of array switched decreases with
+- * increasing number of running tasks. We also ignore the interactivity
+- * if a better static_prio task has expired, and switch periodically
+- * regardless, to ensure that highly interactive tasks do not starve
+- * the less fortunate for unreasonably long periods.
+- */
+-static inline int expired_starving(runqueue_t *rq)
+-{
+-	int limit;
+-
+-	/*
+-	 * Arrays were recently switched, all is well
+-	 */
+-	if (!rq->expired_timestamp)
+-		return 0;
+-
+-	limit = STARVATION_LIMIT * rq->nr_running;
+-
+-	/*
+-	 * It's time to switch arrays
+-	 */
+-	if (jiffies - rq->expired_timestamp >= limit)
+-		return 1;
+-
+-	/*
+-	 * There's a better selection in the expired array
+-	 */
+-	if (rq->curr->static_prio > rq->best_expired_prio)
+-		return 1;
+-
+-	/*
+-	 * All is well
+-	 */
+-	return 0;
+-}
+-
+-/*
+  * __activate_task - move a task to the runqueue.
+  */
+ static void __activate_task(task_t *p, runqueue_t *rq)
+ {
+ 	prio_array_t *target = rq->active;
+ 
+-	if (unlikely(batch_task(p) || (expired_starving(rq) && !rt_task(p))))
++	if (batch_task(p))
+ 		target = rq->expired;
+ 	enqueue_task(p, target);
+ 	rq->nr_running++;
+@@ -2532,6 +2490,22 @@ unsigned long long current_sched_time(co
+ }
+ 
+ /*
++ * We place interactive tasks back into the active array, if possible.
++ *
++ * To guarantee that this does not starve expired tasks we ignore the
++ * interactivity of a task if the first expired task had to wait more
++ * than a 'reasonable' amount of time. This deadline timeout is
++ * load-dependent, as the frequency of array switched decreases with
++ * increasing number of running tasks. We also ignore the interactivity
++ * if a better static_prio task has expired:
++ */
++#define EXPIRED_STARVING(rq) \
++	((STARVATION_LIMIT && ((rq)->expired_timestamp && \
++		(jiffies - (rq)->expired_timestamp >= \
++			STARVATION_LIMIT * ((rq)->nr_running) + 1))) || \
++			((rq)->curr->static_prio > (rq)->best_expired_prio))
++
++/*
+  * Account user cpu time to a process.
+  * @p: the process that the cpu time gets accounted to
+  * @hardirq_offset: the offset to subtract from hardirq_count()
+@@ -2666,7 +2640,7 @@ void scheduler_tick(void)
+ 
+ 		if (!rq->expired_timestamp)
+ 			rq->expired_timestamp = jiffies;
+-		if (!TASK_INTERACTIVE(p) || expired_starving(rq)) {
++		if (!TASK_INTERACTIVE(p) || EXPIRED_STARVING(rq)) {
+ 			enqueue_task(p, rq->expired);
+ 			if (p->static_prio < rq->best_expired_prio)
+ 				rq->best_expired_prio = p->static_prio;
+
+--------------050203020409080403060003--

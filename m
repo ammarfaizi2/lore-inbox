@@ -1,93 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWEVMbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWEVMjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbWEVMbK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 08:31:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWEVMbK
+	id S1750794AbWEVMjY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 08:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWEVMjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 08:31:10 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:61131 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750791AbWEVMbJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 08:31:09 -0400
-Date: Mon, 22 May 2006 14:31:05 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Vladimir Dvorak <dvorakv@vdsoft.org>
-cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: APIC error on CPUx
-In-Reply-To: <4471AC63.8060406@vdsoft.org>
-Message-ID: <Pine.LNX.4.61.0605221427160.11108@yvahk01.tjqt.qr>
-References: <44716A5F.3070208@vdsoft.org> <p73k68e71kd.fsf@verdi.suse.de>
- <4471A777.2020404@vdsoft.org> <200605221403.16464.ak@suse.de>
- <4471AC63.8060406@vdsoft.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 22 May 2006 08:39:24 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:42177 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750794AbWEVMjX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 08:39:23 -0400
+Date: Mon, 22 May 2006 07:39:19 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Sam Vilain <sam@vilain.net>, "Serge E. Hallyn" <serue@us.ibm.com>,
+       linux-kernel@vger.kernel.org, dev@sw.ru, herbert@13thfloor.at,
+       devel@openvz.org, xemul@sw.ru, Dave Hansen <haveblue@us.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: [PATCH 1/9] namespaces: add nsproxy
+Message-ID: <20060522123919.GC6025@sergelap.austin.ibm.com>
+References: <20060518154700.GA28344@sergelap.austin.ibm.com> <20060518154837.GB28344@sergelap.austin.ibm.com> <4470F7FD.4030608@vilain.net> <m11wunne30.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m11wunne30.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Quoting Eric W. Biederman (ebiederm@xmission.com):
+> Sam Vilain <sam@vilain.net> writes:
+> 
+> > Serge E. Hallyn wrote:
+> >
+> >>@@ -1585,7 +1591,15 @@ asmlinkage long sys_unshare(unsigned lon
+> >> 
+> >> 	if (new_fs || new_ns || new_sigh || new_mm || new_fd || new_ulist) {
+> >> 
+> >>+		old_nsproxy = current->nsproxy;
+> >>+		new_nsproxy = dup_namespaces(old_nsproxy);
+> >>+		if (!new_nsproxy) {
+> >>+			err = -ENOMEM;
+> >>+			goto bad_unshare_cleanup_semundo;
+> >>+		}
+> >>+
+> >> 		task_lock(current);
+> >>  
+> >>
+> >
+> > We'll get lots of duplicate nsproxy structures before we move all of the
+> > pointers for those subsystems into it. Do we need to dup namespaces on
+> > all of those conditions?
+> 
+> Ugh.  Good catch.  The new nsproxy needs to be just for the fs and the uts
+> namespace.  
+> 
+> I guess that means that test should be moved up a few lines.
 
+Oh.  Yeah.  It didn't look odd to me bc it's about the number of
+namespaces we are *going* to have  :)
 
-I also have this [a similar] message; it is produced repeatedly between 2.5 
-and 5 seconds whenever the ISDN card is dialled in:
-May 22 14:28:18 shanghai kernel: APIC error on CPU0: 02(02)
+Fix follows:
 
-Linux shanghai 2.6.17-rc4 #1 Sat May 20 00:06:16 CEST 2006 i686 athlon 
-i386 GNU/Linux
+Subject: [PATCH] uts: copy nsproxy only when needed.
+From: Serge Hallyn <serue@us.ibm.com>
 
+The nsproxy was being copied in unshare() when anything was being
+unshared, even if it was something not referenced from nsproxy.
+This should end up in some cases with far more memory usage than
+necessary.
 
+Signed-off-by: Serge Hallyn <serue@us.ibm.com>
 
->>>>>Debian 3.1
->>>>>Linux mailserver 2.6.8-3-686-smp #1 SMP Thu Feb 9 07:05:39 UTC 2006 i686
->>>>That's an ancient kernel.
->>>Yes, I agree.
->>> ... but the latest in Debian/Sarge. :-)
->>>Do you, Andi,  thing that upgrade to latest vanilla one ( from
->>>kernel.org ) should solve this problem ?
->>Probably not.
->>>>
->>>>>GNU/Linux
->>>>>Hardware:
->>>>>Intel SR1200
->>>>>
->>>>If it's an <=P3 class machine: most likely you have noise on the APIC bus.
->>>>
->>>Yes, you are right :
->>>cat /proc/cpuinfo
->>>...
->>>model name      : Intel(R) Pentium(R) III CPU family      1133MHz
->>>...
->>>
->>>"Noise on APIC bus" means - " a lot of interrupts from devices" ?
+---
 
-Yep.
+ kernel/fork.c |   20 ++++++++++++++------
+ 1 files changed, 14 insertions(+), 6 deletions(-)
 
-14:29 shanghai:~ > (while :; do cat /proc/interrupts |grep -i hisax; sleep 
-1; done)
-193:    1111340   IO-APIC-level  SiS SI7012, HiSax
-193:    1113106   IO-APIC-level  SiS SI7012, HiSax
-193:    1114857   IO-APIC-level  SiS SI7012, HiSax
-193:    1116599   IO-APIC-level  SiS SI7012, HiSax
-193:    1118328   IO-APIC-level  SiS SI7012, HiSax
-193:    1120093   IO-APIC-level  SiS SI7012, HiSax
-193:    1121858   IO-APIC-level  SiS SI7012, HiSax
-193:    1123608   IO-APIC-level  SiS SI7012, HiSax
-(Hisax: CONFIG_HISAX_NETJET=y)
-
-The problem goes away with noapic or acpi=off, but of course that also 
-means you don't have IRQs > 15.
-
->>Usually a crappy/broken/misdesigned motherboard.
-
-Elitegroup L7S7A2 here.
-
->And, probably, the latest question related to this topic:
->
->Can "noapic" or "nolapic" solve this ? Does it mean ( with these
->parameters ) that devices will start to use 8259 interrupt controller
->instead APIC ?
->
->Is harmfull put "noapic" on "nolapic" to cmdline ?
-
-
-Jan Engelhardt
+74d1068458c62302ac8ed38e38a57b692580662f
+diff --git a/kernel/fork.c b/kernel/fork.c
+index cdc549e..9278a68 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1559,7 +1559,7 @@ asmlinkage long sys_unshare(unsigned lon
+ 	struct mm_struct *mm, *new_mm = NULL, *active_mm = NULL;
+ 	struct files_struct *fd, *new_fd = NULL;
+ 	struct sem_undo_list *new_ulist = NULL;
+-	struct nsproxy *new_nsproxy, *old_nsproxy;
++	struct nsproxy *new_nsproxy = NULL, *old_nsproxy = NULL;
+ 	struct uts_namespace *uts, *new_uts = NULL;
+ 
+ 	check_unshare_flags(&unshare_flags);
+@@ -1587,18 +1587,24 @@ asmlinkage long sys_unshare(unsigned lon
+ 	if ((err = unshare_utsname(unshare_flags, &new_uts)))
+ 		goto bad_unshare_cleanup_semundo;
+ 
+-	if (new_fs || new_ns || new_sigh || new_mm || new_fd || new_ulist ||
+-				new_uts) {
+-
++	if (new_ns || new_uts) {
+ 		old_nsproxy = current->nsproxy;
+ 		new_nsproxy = dup_namespaces(old_nsproxy);
+ 		if (!new_nsproxy) {
+ 			err = -ENOMEM;
+ 			goto bad_unshare_cleanup_uts;
+ 		}
++	}
++
++	if (new_fs || new_ns || new_sigh || new_mm || new_fd || new_ulist ||
++				new_uts) {
+ 
+ 		task_lock(current);
+-		current->nsproxy = new_nsproxy;
++
++		if (new_nsproxy) {
++			current->nsproxy = new_nsproxy;
++			new_nsproxy = old_nsproxy;
++		}
+ 
+ 		if (new_fs) {
+ 			fs = current->fs;
+@@ -1640,9 +1646,11 @@ asmlinkage long sys_unshare(unsigned lon
+ 		}
+ 
+ 		task_unlock(current);
+-		put_nsproxy(old_nsproxy);
+ 	}
+ 
++	if (new_nsproxy)
++		put_nsproxy(new_nsproxy);
++
+ bad_unshare_cleanup_uts:
+ 	if (new_uts)
+ 		put_uts_ns(new_uts);
 -- 
+1.1.6

@@ -1,84 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751024AbWEVSie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWEVSir@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751024AbWEVSie (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 14:38:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbWEVSie
+	id S1751025AbWEVSir (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 14:38:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbWEVSir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 14:38:34 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:47761 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751006AbWEVSid
+	Mon, 22 May 2006 14:38:47 -0400
+Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:46341 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751026AbWEVSiq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 14:38:33 -0400
-Date: Tue, 23 May 2006 00:04:00 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: Tim Bird <tim.bird@am.sony.com>
-Cc: Andrew Morton <akpm@osdl.org>, Martin Peschke <mp3@de.ibm.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: netlink vs. debugfs (was Re: [Patch 0/6] statistics infrastructure)
-Message-ID: <20060522183359.GA26551@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <1148054876.2974.10.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <20060519092411.6b859b51.akpm@osdl.org> <4471FE52.8090107@am.sony.com>
+	Mon, 22 May 2006 14:38:46 -0400
+Date: Mon, 22 May 2006 20:38:46 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Dave Jones <davej@redhat.com>, Laurence Vanek <lvanek@charter.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>,
+       Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: Kernel 2.6.16-1.2122_FC5 & lmsensors
+Message-Id: <20060522203846.1142e34c.khali@linux-fr.org>
+In-Reply-To: <20060522174818.GA8016@redhat.com>
+References: <4471F028.4090803@charter.net>
+	<20060522174818.GA8016@redhat.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4471FE52.8090107@am.sony.com>
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 22, 2006 at 11:09:22AM -0700, Tim Bird wrote:
-> Andrew Morton wrote:
-> > Martin Peschke <mp3@de.ibm.com> wrote:
-> >> My patch series is a proposal for a generic implementation of statistics.
-> > 
-> > This uses debugfs for the user interface, but the
-> > per-task-delay-accounting-*.patch series from Balbir creates an extensible
-> > netlink-based system for passing instrumentation results back to userspace.
-> > 
-> > Can this code be converted to use those netlink interfaces, or is Balbir's
-> > approach unsuitable, or hasn't it even been considered, or what?
+> On Mon, May 22, 2006 at 12:08:56PM -0500, Laurence Vanek wrote:
+>  > Upon updating to the latest kernel (2.6.16-1.2122_FC5) & rebooting I 
+>  > find that I no longer have lmsensors.  /var/log/messages gives this in 
+>  > the suspect area:
+>  > 
+>  > ==========
+>  > May 22 11:42:42 localhost kernel: i2c_adapter i2c-0: SMBus Quick command 
+>  > not supported, can't probe for chips
+>  > May 22 11:42:42 localhost kernel: i2c_adapter i2c-1: SMBus Quick command 
+>  > not supported, can't probe for chips
+>  > May 22 11:42:42 localhost kernel: i2c_adapter i2c-2: SMBus Quick command 
+>  > not supported, can't probe for chips
+>  > =========
+>  > 
+>  > something new in this release?
 > 
-> Can someone give me the 20-second elevator pitch on why
-> netlink is preferred over debugfs?  I've heard of a
-> number of debugfs/procfs users requested to switch over.
-> 
-> Thanks,
->  -- Tim
-> 
-> =============================
-> Tim Bird
-> Architecture Group Chair, CE Linux Forum
-> Senior Staff Engineer, Sony Electronics
-> =============================
+> Probably a side-effect of [PATCH] smbus unhiding kills thermal management
+> merged in 2.6.16.17.  Is this an ASUS board ?
 
-Hi, Tim,
+The fact that lm_sensors disappeared could indeed be caused by this
+patch if the system is based on one of the affected boards (which are
+NOT only Asus board, despite of some comments in the code). I _did_
+expect people to complain... There's nothing we can do for now though.
 
-I am no debugfs expert, I hope I can do justice to the comparison.
+The error messages are definitely not related though. I suspect that
+they were already there before, or this is just a coincidence.
 
-Debugfs						Netlink/Genetlink
+What does the following command return?
+cat /sys/class/i2c-adapter/i2c-*/device/name
 
-1. Filesystem based - requires creating		Several types of data can
-   files for each type of data passed		be multiplexed over one netlink
-   down						socket.
-2. Hard to determine record format/data		Contains metadata including
-						type of data and length
-						with each record
-3. Notifications are hard			Notifications are very easy
-   I think they can be done using inotify	good library support for
-						notifications. Data can
-						either be broadcast or
-						selectively mulitcast
-4. Requires several open/read/write/close	A single socket can be
-   operations					opened, data from kernel
-						space can be multiplexed
-						over it.
+(Or even better "i2cdetect -l" if you have that installed.)
 
-I don't think I did any justice to the advantages of debugfs. The only
-one I can think of is that it uses relayfs. Relayfs is efficient in the
-sense that it uses per-cpu buffers.
+I'd guess that i2c-0, i2c-1 and i2c-2 are from either a framebuffer
+driver or a tv card driver. Anything like that on this system? Probably
+the eeprom driver (if you load it as I presume) is trying to probe
+these busses and they don't want to be probed.
 
-Anybody else want to take a shot in comparing the two?
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+-- 
+Jean Delvare

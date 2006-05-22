@@ -1,99 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWEVV1l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbWEVV11@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751204AbWEVV1l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 17:27:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWEVV1k
+	id S1751203AbWEVV11 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 17:27:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWEVV11
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 17:27:40 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:23772 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751204AbWEVV1j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 17:27:39 -0400
-Subject: Re: 2.6.16-rt22/23 kernels hanging after registering IO schedulers
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Clark Williams <williams@redhat.com>,
-       Robert Crocombe <rwcrocombe@raytheon.com>
-In-Reply-To: <5bdc1c8b0605211410ld978047x3c4ad37ec79f5e8c@mail.gmail.com>
-References: <5bdc1c8b0605191022l7114707fjd6b3cdcfe68b97c7@mail.gmail.com>
-	 <Pine.LNX.4.58.0605211321400.28717@gandalf.stny.rr.com>
-	 <5bdc1c8b0605211410ld978047x3c4ad37ec79f5e8c@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 22 May 2006 17:27:17 -0400
-Message-Id: <1148333237.4997.7.camel@localhost.localdomain>
+	Mon, 22 May 2006 17:27:27 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:64750 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751203AbWEVV10 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 17:27:26 -0400
+Date: Mon, 22 May 2006 23:27:24 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Linus Torvalds <torvalds@osdl.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>, florin@iucha.net,
+       linux-kernel@vger.kernel.org, linux@dominikbrodowski.net
+Subject: Re: pcmcia oops on 2.6.17-rc[12]
+Message-ID: <20060522212724.GC9454@bitwizard.nl>
+References: <20060423192251.GD8896@iucha.net> <20060423150206.546b7483.akpm@osdl.org> <20060508145609.GA3983@rhlx01.fht-esslingen.de> <20060508084301.5025b25d.akpm@osdl.org> <20060508163453.GB19040@flint.arm.linux.org.uk> <1147730828.26686.165.camel@localhost.localdomain> <Pine.LNX.4.64.0605151459140.3866@g5.osdl.org> <1147734026.26686.200.camel@localhost.localdomain> <20060522115046.GA23074@bitwizard.nl> <1148299804.17376.34.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1148299804.17376.34.camel@localhost.localdomain>
+Organization: BitWizard.nl
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-05-21 at 14:10 -0700, Mark Knecht wrote:
-
-> Hi Steve,
->    It's good to hear from you and great if you can take a look at
-> this. I did some more ground work and now feel bad that I didn't
-> report back much earlier. It appears that the problems have started
-> with the very first revision of 2.6.16-rt support. I am currently
-> writing you from 2.6.16 from kernel.org which booted fine. However
-> 2.6.16-rt1 fails the same way as all the later kernels that I tried
-> with a hang right after registering the schedulers.
-
-You're getting farther than I am.  My system crashes in init_8259A right
-in the unlocking of the i8259A_lock.  It takes an exception in the
-local_irq_restore of the raw_spin_unlock_irqrestore.  I tried unlocking
-the lock and locking it again at the beginning of the function, and that
-seems to work fine.  But this function didn't change between the
-previous versions that do work.  So I think something is very wacky
-going on someplace else.
-
-Unfortunately, I'm very behind in the work that I get paid for, so I
-really don't have any more time to look into this.  Especially since my
-main developing machine happens to be my x86_64.
-
-Hopefully, Ingo can find something, or I catch up and can work on this
-again.
-
--- Steve
-
-Here's my dump:
-
-...
-IOAPIC[0]: apic_id 2, version 17, address 0xfec00000, GSI 0-23
-ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
-ACPI: INT_SRC_OVR (bus 0 bus_irq 14 global_irq 14 high edge)
-ACPI: INT_SRC_OVR (bus 0 bus_irq 15 global_irq 15 high edge)
-Setting APIC routing to flat
-Using ACPI (MADT) for SMP configuration information
-Allocating PCI resources starting at 80000000 (gap: 7ff00000:60100000)
-Real-Time Preemption Support (C) 2004-2006 Ingo Molnar
-Built 1 zonelists
-Kernel command line: root=/dev/md0 ro console=ttyS0,115200 console=tty0
-nmi_watm
-Initializing CPU#0
-WARNING: experimental RCU implementation.
-PANIC: early exception rip 10 error ffffffff8034d270 cr2 f0aeaa
-
-Call Trace:
-       <ffffffff8034d270>{_raw_spin_unlock_irqrestore+32}
-       <ffffffff80111582>{init_8259A+226}
-       <ffffffff8093a935>{init_ISA_irqs+21}
-       <ffffffff8093a9a2>{init_IRQ+18}
-       <ffffffff809327f5>{start_kernel+213}
-       <ffffffff80932293>{_sinittext+659}
-RIP 0x10
-
+On Mon, May 22, 2006 at 01:10:04PM +0100, Alan Cox wrote:
+> On Llu, 2006-05-22 at 13:50 +0200, Rogier Wolff wrote:
+> > I happen to know (ISA) hardware that CANNOT share an interrupt: It
+> > drives the IRQ line either high or low, and has a driver that will
 > 
->    To try finding a place where the problem started I also tried
-> 2.6.15-rt21 which was the last 2.6.15-rt kernel in the pro-audio
-> overlay. That kernel works fine also so it seems to be something right
-> at the beginning of the 2.6.16 series.
-> 
->    If this could possibly be something in my .config files let me know
-> and I'll try making changes directed by you or Ingo there.
-> 
->    I hope this info might help you get to the problem a little more quickly.
-> 
-> Cheers,
-> Mark
+> You happen to be wrong. Some ISA boards use the correct diodes and
+> pulldowns and can share an IRQ line although being edge triggered you
+> must take great care to get it right.
 
+I feel like I'm repeating myself... I happen to know (ISA) hardware
+that /cannot/ share an interrupt. It does /not/ use correct diodes and
+pulldowns. I have equipped the driver with the knowledge that it
+cannot share the interrupt.
+
+Linus' sugesstion that as an intermediate measure request that
+everybody explictly flag: shared is ok, or "NO WAY", sounds like a
+plan. In the meanwhile the infrastructure may warn about that driver
+so that some human thinks about it, and adds the right flag. Only after
+a while, (when there is no longer anybody using the default) can we
+change the default....
+
+Alan and Linus know (ISA) hardware that /can/ share interrupts.
+Fine. I know hardware that /cannot/ share interrupts. So, my driver
+requesting an interrupt, and getting: "Can't allocate interrupt" is an
+indication of a hardware configuration error. Or software (you've been
+telling one of the drivers the wrong interrupt line). If you force
+"shared mode", my driver will cope (it works just great on the PCI
+version of the card, no problem). But will the hardware?
+
+You guys maybe trying to fix very real problems in PCMCIA land, of
+which I have very little knowledge. But changing what "not passing
+SA_SHIRQ" means globlaly IMHO changes too much... 
+
+	Rogier. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+Q: It doesn't work. A: Look buddy, doesn't work is an ambiguous statement. 
+Does it sit on the couch all day? Is it unemployed? Please be specific! 
+Define 'it' and what it isn't doing. --------- Adapted from lxrbot FAQ

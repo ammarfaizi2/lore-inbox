@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbWEVRHO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWEVRPg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750998AbWEVRHO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 13:07:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbWEVRHO
+	id S1751034AbWEVRPg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 13:15:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbWEVRPg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 13:07:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3972 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750998AbWEVRHM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 13:07:12 -0400
-Date: Mon, 22 May 2006 10:06:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: hch@lst.de, bcrl@kvack.org, cel@citi.umich.edu, zach.brown@oracle.com,
-       linux-kernel@vger.kernel.org, raven@themaw.net
-Subject: Re: [PATCH 2/4] Remove readv/writev methods and use
- aio_read/aio_write instead
-Message-Id: <20060522100640.0710f7da.akpm@osdl.org>
-In-Reply-To: <1148310016.7214.26.camel@dyn9047017100.beaverton.ibm.com>
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>
-	<1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
-	<1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com>
-	<1147727945.20568.53.camel@dyn9047017100.beaverton.ibm.com>
-	<1147728133.6181.2.camel@dyn9047017100.beaverton.ibm.com>
-	<20060521180037.3c8f2847.akpm@osdl.org>
-	<1148310016.7214.26.camel@dyn9047017100.beaverton.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 22 May 2006 13:15:36 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:15886 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751016AbWEVRPf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 13:15:35 -0400
+Message-ID: <4471F1B7.7020203@vmware.com>
+Date: Mon, 22 May 2006 10:15:35 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       arturzaprzala@ownmail.net, Pavel Machek <pavel@ucw.cz>
+Subject: [PATCH] Fix typo in arch/i386/power/cpu.c
+Content-Type: multipart/mixed;
+ boundary="------------090500010408000309050202"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
->
-> On Sun, 2006-05-21 at 18:00 -0700, Andrew Morton wrote:
-> > Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> > >
-> > > This patch removes readv() and writev() methods and replaces
-> > >  them with aio_read()/aio_write() methods.
-> > 
-> > And it breaks autofs4
-> > 
-> > autofs: pipe file descriptor does not contain proper ops
-> > 
-> 
-> Any easy test case to reproduce the problem ?
-> 
+This is a multi-part message in MIME format.
+--------------090500010408000309050202
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Grab an FC5 setup, copy RH's .config into your tree.
+Fix a typo which caused us to corrupt CR2 (not likely a problem) and 
+fail to restore CR0 (potentially a problem on APM systems, since TS/EM 
+bits might be lost) after suspend.
+
+--------------090500010408000309050202
+Content-Type: text/plain;
+ name="i386-bogus-cr2-assignement"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="i386-bogus-cr2-assignement"
+
+Fix a typo in suspend code noticed by Artur Zaprzala.  I'm unsure if this
+actually causes a bug in practice, since the ACPI wakeup code also restores
+CR0, and the APM code returns to protected mode, but the fix is obviously much
+better.
+
+Signed-off-by: Zachary Amsden <zach@vmware.com>
+
+
+Index: linux-2.6.17-rc/arch/i386/power/cpu.c
+===================================================================
+--- linux-2.6.17-rc.orig/arch/i386/power/cpu.c	2006-03-19 21:53:29.000000000 -0800
++++ linux-2.6.17-rc/arch/i386/power/cpu.c	2006-05-22 09:50:50.000000000 -0700
+@@ -92,7 +92,7 @@ void __restore_processor_state(struct sa
+ 	write_cr4(ctxt->cr4);
+ 	write_cr3(ctxt->cr3);
+ 	write_cr2(ctxt->cr2);
+-	write_cr2(ctxt->cr0);
++	write_cr0(ctxt->cr0);
+ 
+ 	/*
+ 	 * now restore the descriptor tables to their proper values
+
+--------------090500010408000309050202--

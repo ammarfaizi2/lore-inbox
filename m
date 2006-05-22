@@ -1,37 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWEVXjQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWEVXpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbWEVXjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 19:39:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWEVXjQ
+	id S1751306AbWEVXpM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 19:45:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWEVXpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 19:39:16 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:52411 "HELO
+	Mon, 22 May 2006 19:45:12 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:9660 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751305AbWEVXjP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 19:39:15 -0400
-Subject: Re: RT patch + LTTng
+	id S1751306AbWEVXpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 19:45:11 -0400
+Subject: Question re: __mlog_cpu_guess in fs/ocfs2/cluster/masklog.h
 From: Lee Revell <rlrevell@joe-job.com>
-To: Serge Noiraud <serge.noiraud@bull.net>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200605221742.29566.Serge.Noiraud@bull.net>
-References: <200605221742.29566.Serge.Noiraud@bull.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: mark.fasheh@oracle.com, kurt.hackel@oracle.com
 Content-Type: text/plain
-Date: Mon, 22 May 2006 19:39:09 -0400
-Message-Id: <1148341150.2556.99.camel@mindpipe>
+Date: Mon, 22 May 2006 19:45:06 -0400
+Message-Id: <1148341507.2556.104.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-22 at 17:42 +0200, Serge Noiraud wrote:
-> Hi,
-> 
-> 	I have added the LTTng patch to the 2.6.16-rt23.
-> In the LTT trace, I see some odd time stamps :
+I am puzzled by this code and comment:
 
-Is your test machine a dual core AMD64?
+/*
+ * smp_processor_id() "helpfully" screams when called outside preemptible
+ * regions in current kernels.  sles doesn't have the variants that don't
+ * scream.  just do this instead of trying to guess which we're building
+ * against.. *sigh*.
+ */
+#define __mlog_cpu_guess ({             \
+        unsigned long _cpu = get_cpu(); \
+        put_cpu();                      \
+        _cpu;                           \
+})
+
+First I think you mean "inside preemptible regions".  Second, it screams
+because it's a bug to call smp_processor_id() from preemptible code!
+
+Am I missing something?
 
 Lee
 

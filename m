@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbWEVJ3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWEVJ35@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750954AbWEVJ3q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 05:29:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWEVJ3q
+	id S1750725AbWEVJ35 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 05:29:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWEVJ35
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 05:29:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23244 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750954AbWEVJ3p (ORCPT
+	Mon, 22 May 2006 05:29:57 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5858 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750725AbWEVJ34 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 05:29:45 -0400
-Date: Mon, 22 May 2006 02:29:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: pbadari@us.ibm.com, hch@lst.de, bcrl@kvack.org, cel@citi.umich.edu,
-       zach.brown@oracle.com, linux-kernel@vger.kernel.org, raven@themaw.net
-Subject: Re: [PATCH 2/4] Remove readv/writev methods and use
- aio_read/aio_write instead
-Message-Id: <20060522022917.3e563261.akpm@osdl.org>
-In-Reply-To: <20060522053450.GA22210@lst.de>
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>
-	<1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
-	<1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com>
-	<1147727945.20568.53.camel@dyn9047017100.beaverton.ibm.com>
-	<1147728133.6181.2.camel@dyn9047017100.beaverton.ibm.com>
-	<20060521180037.3c8f2847.akpm@osdl.org>
-	<20060522053450.GA22210@lst.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 22 May 2006 05:29:56 -0400
+Date: Mon, 22 May 2006 11:29:15 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Pau Garcia i Quiles <pgquiles@elpauer.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [IDEA] Poor man's UPS
+Message-ID: <20060522092915.GA25624@elf.ucw.cz>
+References: <200605212131.47860.pgquiles@elpauer.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200605212131.47860.pgquiles@elpauer.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@lst.de> wrote:
->
-> On Sun, May 21, 2006 at 06:00:37PM -0700, Andrew Morton wrote:
-> > Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> > >
-> > > This patch removes readv() and writev() methods and replaces
-> > >  them with aio_read()/aio_write() methods.
-> > 
-> > And it breaks autofs4
-> > 
-> > autofs: pipe file descriptor does not contain proper ops
-> 
-> this comes because the autofs4 pipe fd doesn't have a write file
-> operations.
-> 
+Hi!
 
-Note that fs/autofs/inode.c does the same thing.
+> This is an idea a had some time ago. It might be a waste of time or it might 
+> be a good idea, you decide.
+
+Well, it depends on "are you willing to work on it"?
+
+> The "continuous hibernation" is some kind of memory snapshots taken, say, 
+> every 5 minutes. The next time your system starts after a crash, it'd say "oh 
+> oh, looks like something went wrong" and offer you a list of the last N (for 
+> instance, 4) snapshots and you can recover your system to the very same state 
+> it was before power went off or your dog unplugged your CPU. It might even 
+> ask you which individual applications you want to start from that snapshot:  
+> maybe you don't want to start Quake 3.
+
+See suspend.sf.net and probably dm snapshotting functionality. Most of
+what you want can be done today, and in userspace.
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

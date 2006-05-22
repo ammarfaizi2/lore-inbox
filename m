@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751571AbWEVD6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751568AbWEVD6I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751571AbWEVD6H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 23:58:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751568AbWEVD44
+	id S1751568AbWEVD6I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 23:58:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751564AbWEVD4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 23:56:56 -0400
-Received: from xenotime.net ([66.160.160.81]:11223 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751567AbWEVD4a (ORCPT
+	Sun, 21 May 2006 23:56:54 -0400
+Received: from xenotime.net ([66.160.160.81]:10967 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751561AbWEVD4a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 21 May 2006 23:56:30 -0400
-Date: Sun, 21 May 2006 20:57:55 -0700
+Date: Sun, 21 May 2006 20:57:52 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, rgooch@atnf.csiro.au
-Subject: [PATCH 13/14/] Doc. sources: expose mtrr
-Message-Id: <20060521205755.65f19f4c.rdunlap@xenotime.net>
+Cc: akpm <akpm@osdl.org>, clemens@ladisch.de
+Subject: [PATCH 11/14/] Doc. sources: expose hpet
+Message-Id: <20060521205752.9247a60a.rdunlap@xenotime.net>
 In-Reply-To: <20060521203349.40b40930.rdunlap@xenotime.net>
 References: <20060521203349.40b40930.rdunlap@xenotime.net>
 Organization: YPO4
@@ -27,7 +27,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@xenotime.net>
 
-Documentation/mtrr.txt:
+Documentation/hpet.txt:
 Expose example and tool source files in the Documentation/ directory in
 their own files instead of being buried (almost hidden) in readme/txt files.
 
@@ -41,427 +41,564 @@ they should be removed.
 
 Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
- Documentation/mtrr-add.c  |  105 +++++++++++++++++++++++
- Documentation/mtrr-show.c |   93 +++++++++++++++++++++
- Documentation/mtrr.txt    |  202 ----------------------------------------------
- 3 files changed, 201 insertions(+), 199 deletions(-)
+ Documentation/hpet.txt       |  271 -------------------------------------------
+ Documentation/hpet_example.c |  269 ++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 270 insertions(+), 270 deletions(-)
 
---- /dev/null
-+++ linux-2617-rc4g9-docsrc-split/Documentation/mtrr-add.c
-@@ -0,0 +1,105 @@
-+/*  mtrr-add.c
-+
-+    Source file for mtrr-add (example programme to add an MTRRs using ioctl())
-+
-+    Copyright (C) 1997-1998  Richard Gooch
-+
-+    This program is free software; you can redistribute it and/or modify
-+    it under the terms of the GNU General Public License as published by
-+    the Free Software Foundation; either version 2 of the License, or
-+    (at your option) any later version.
-+
-+    This program is distributed in the hope that it will be useful,
-+    but WITHOUT ANY WARRANTY; without even the implied warranty of
-+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+    GNU General Public License for more details.
-+
-+    You should have received a copy of the GNU General Public License
-+    along with this program; if not, write to the Free Software
-+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+
-+    Richard Gooch may be reached by email at  rgooch@atnf.csiro.au
-+    The postal address is:
-+      Richard Gooch, c/o ATNF, P. O. Box 76, Epping, N.S.W., 2121, Australia.
-+*/
-+
-+/*
-+    This programme will use an ioctl() on /proc/mtrr to add an entry. The first
-+    available mtrr is used. This is an alternative to writing /proc/mtrr.
-+
-+
-+    Written by      Richard Gooch   17-DEC-1997
-+
-+    Last updated by Richard Gooch   2-MAY-1998
-+
-+
-+*/
-+#include <stdio.h>
-+#include <string.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <fcntl.h>
-+#include <sys/ioctl.h>
-+#include <errno.h>
-+#include <asm/mtrr.h>
-+
-+#define TRUE 1
-+#define FALSE 0
-+#define ERRSTRING strerror (errno)
-+
-+static char *mtrr_strings[MTRR_NUM_TYPES] =
-+{
-+    "uncachable",               /* 0 */
-+    "write-combining",          /* 1 */
-+    "?",                        /* 2 */
-+    "?",                        /* 3 */
-+    "write-through",            /* 4 */
-+    "write-protect",            /* 5 */
-+    "write-back",               /* 6 */
-+};
-+
-+int main (int argc, char **argv)
-+{
-+    int fd;
-+    struct mtrr_sentry sentry;
-+
-+    if (argc != 4)
-+    {
-+	fprintf (stderr, "Usage:\tmtrr-add base size type\n");
-+	exit (1);
-+    }
-+    sentry.base = strtoul (argv[1], NULL, 0);
-+    sentry.size = strtoul (argv[2], NULL, 0);
-+    for (sentry.type = 0; sentry.type < MTRR_NUM_TYPES; ++sentry.type)
-+    {
-+	if (strcmp (argv[3], mtrr_strings[sentry.type]) == 0) break;
-+    }
-+    if (sentry.type >= MTRR_NUM_TYPES)
-+    {
-+	fprintf (stderr, "Illegal type: \"%s\"\n", argv[3]);
-+	exit (2);
-+    }
-+    if ( ( fd = open ("/proc/mtrr", O_WRONLY, 0) ) == -1 )
-+    {
-+	if (errno == ENOENT)
-+	{
-+	    fputs ("/proc/mtrr not found: not supported or you don't have a PPro?\n",
-+		   stderr);
-+	    exit (3);
-+	}
-+	fprintf (stderr, "Error opening /proc/mtrr\t%s\n", ERRSTRING);
-+	exit (4);
-+    }
-+    if (ioctl (fd, MTRRIOC_ADD_ENTRY, &sentry) == -1)
-+    {
-+	fprintf (stderr, "Error doing ioctl(2) on /dev/mtrr\t%s\n", ERRSTRING);
-+	exit (5);
-+    }
-+    fprintf (stderr, "Sleeping for 5 seconds so you can see the new entry\n");
-+    sleep (5);
-+    close (fd);
-+    fputs ("I've just closed /proc/mtrr so now the new entry should be gone\n",
-+	   stderr);
-+}   /*  End Function main  */
---- /dev/null
-+++ linux-2617-rc4g9-docsrc-split/Documentation/mtrr-show.c
-@@ -0,0 +1,93 @@
-+/*  mtrr-show.c
-+
-+    Source file for mtrr-show (example program to show MTRRs using ioctl()'s)
-+
-+    Copyright (C) 1997-1998  Richard Gooch
-+
-+    This program is free software; you can redistribute it and/or modify
-+    it under the terms of the GNU General Public License as published by
-+    the Free Software Foundation; either version 2 of the License, or
-+    (at your option) any later version.
-+
-+    This program is distributed in the hope that it will be useful,
-+    but WITHOUT ANY WARRANTY; without even the implied warranty of
-+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+    GNU General Public License for more details.
-+
-+    You should have received a copy of the GNU General Public License
-+    along with this program; if not, write to the Free Software
-+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+
-+    Richard Gooch may be reached by email at  rgooch@atnf.csiro.au
-+    The postal address is:
-+      Richard Gooch, c/o ATNF, P. O. Box 76, Epping, N.S.W., 2121, Australia.
-+*/
-+
-+/*
-+    This program will use an ioctl() on /proc/mtrr to show the current MTRR
-+    settings. This is an alternative to reading /proc/mtrr.
-+
-+
-+    Written by      Richard Gooch   17-DEC-1997
-+
-+    Last updated by Richard Gooch   2-MAY-1998
-+
-+
-+*/
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <fcntl.h>
-+#include <sys/ioctl.h>
-+#include <errno.h>
-+#include <asm/mtrr.h>
-+
-+#define TRUE 1
-+#define FALSE 0
-+#define ERRSTRING strerror (errno)
-+
-+static char *mtrr_strings[MTRR_NUM_TYPES] =
-+{
-+    "uncachable",               /* 0 */
-+    "write-combining",          /* 1 */
-+    "?",                        /* 2 */
-+    "?",                        /* 3 */
-+    "write-through",            /* 4 */
-+    "write-protect",            /* 5 */
-+    "write-back",               /* 6 */
-+};
-+
-+int main ()
-+{
-+    int fd;
-+    struct mtrr_gentry gentry;
-+
-+    if ( ( fd = open ("/proc/mtrr", O_RDONLY, 0) ) == -1 )
-+    {
-+	if (errno == ENOENT)
-+	{
-+	    fputs ("/proc/mtrr not found: not supported or you don't have a PPro?\n",
-+		   stderr);
-+	    exit (1);
-+	}
-+	fprintf (stderr, "Error opening /proc/mtrr\t%s\n", ERRSTRING);
-+	exit (2);
-+    }
-+    for (gentry.regnum = 0; ioctl (fd, MTRRIOC_GET_ENTRY, &gentry) == 0;
-+	 ++gentry.regnum)
-+    {
-+	if (gentry.size < 1)
-+	{
-+	    fprintf (stderr, "Register: %u disabled\n", gentry.regnum);
-+	    continue;
-+	}
-+	fprintf (stderr, "Register: %u base: 0x%lx size: 0x%lx type: %s\n",
-+		 gentry.regnum, gentry.base, gentry.size,
-+		 mtrr_strings[gentry.type]);
-+    }
-+    if (errno == EINVAL) exit (0);
-+    fprintf (stderr, "Error doing ioctl(2) on /dev/mtrr\t%s\n", ERRSTRING);
-+    exit (3);
-+}   /*  End Function main  */
---- linux-2617-rc4g9-docsrc-split.orig/Documentation/mtrr.txt
-+++ linux-2617-rc4g9-docsrc-split/Documentation/mtrr.txt
-@@ -100,206 +100,10 @@ or using bash:
- % echo "disable=2" >| /proc/mtrr
- ===============================================================================
- Reading MTRRs from a C program using ioctl()'s:
-+See Documentation/mtrr-show.c
+--- linux-2617-rc4g9-docsrc-split.orig/Documentation/hpet.txt
++++ linux-2617-rc4g9-docsrc-split/Documentation/hpet.txt
+@@ -15,277 +15,8 @@ arch/i386/kernel/time_hpet.c.
  
--/*  mtrr-show.c
--
--    Source file for mtrr-show (example program to show MTRRs using ioctl()'s)
--
--    Copyright (C) 1997-1998  Richard Gooch
--
--    This program is free software; you can redistribute it and/or modify
--    it under the terms of the GNU General Public License as published by
--    the Free Software Foundation; either version 2 of the License, or
--    (at your option) any later version.
--
--    This program is distributed in the hope that it will be useful,
--    but WITHOUT ANY WARRANTY; without even the implied warranty of
--    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--    GNU General Public License for more details.
--
--    You should have received a copy of the GNU General Public License
--    along with this program; if not, write to the Free Software
--    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
--
--    Richard Gooch may be reached by email at  rgooch@atnf.csiro.au
--    The postal address is:
--      Richard Gooch, c/o ATNF, P. O. Box 76, Epping, N.S.W., 2121, Australia.
--*/
--
--/*
--    This program will use an ioctl() on /proc/mtrr to show the current MTRR
--    settings. This is an alternative to reading /proc/mtrr.
--
--
--    Written by      Richard Gooch   17-DEC-1997
--
--    Last updated by Richard Gooch   2-MAY-1998
--
--
--*/
+ The driver provides two APIs which are very similar to the API found in
+ the rtc.c driver.  There is a user space API and a kernel space API.
+-An example user space program is provided below.
++An example user space program is provided in Documentation/hpet_example.c
+ 
 -#include <stdio.h>
--#include <stdlib.h>
--#include <string.h>
--#include <sys/types.h>
--#include <sys/stat.h>
--#include <fcntl.h>
--#include <sys/ioctl.h>
--#include <errno.h>
--#include <asm/mtrr.h>
--
--#define TRUE 1
--#define FALSE 0
--#define ERRSTRING strerror (errno)
--
--static char *mtrr_strings[MTRR_NUM_TYPES] =
--{
--    "uncachable",               /* 0 */
--    "write-combining",          /* 1 */
--    "?",                        /* 2 */
--    "?",                        /* 3 */
--    "write-through",            /* 4 */
--    "write-protect",            /* 5 */
--    "write-back",               /* 6 */
--};
--
--int main ()
--{
--    int fd;
--    struct mtrr_gentry gentry;
--
--    if ( ( fd = open ("/proc/mtrr", O_RDONLY, 0) ) == -1 )
--    {
--	if (errno == ENOENT)
--	{
--	    fputs ("/proc/mtrr not found: not supported or you don't have a PPro?\n",
--		   stderr);
--	    exit (1);
--	}
--	fprintf (stderr, "Error opening /proc/mtrr\t%s\n", ERRSTRING);
--	exit (2);
--    }
--    for (gentry.regnum = 0; ioctl (fd, MTRRIOC_GET_ENTRY, &gentry) == 0;
--	 ++gentry.regnum)
--    {
--	if (gentry.size < 1)
--	{
--	    fprintf (stderr, "Register: %u disabled\n", gentry.regnum);
--	    continue;
--	}
--	fprintf (stderr, "Register: %u base: 0x%lx size: 0x%lx type: %s\n",
--		 gentry.regnum, gentry.base, gentry.size,
--		 mtrr_strings[gentry.type]);
--    }
--    if (errno == EINVAL) exit (0);
--    fprintf (stderr, "Error doing ioctl(2) on /dev/mtrr\t%s\n", ERRSTRING);
--    exit (3);
--}   /*  End Function main  */
- ===============================================================================
--Creating MTRRs from a C programme using ioctl()'s:
--
--/*  mtrr-add.c
--
--    Source file for mtrr-add (example programme to add an MTRRs using ioctl())
--
--    Copyright (C) 1997-1998  Richard Gooch
--
--    This program is free software; you can redistribute it and/or modify
--    it under the terms of the GNU General Public License as published by
--    the Free Software Foundation; either version 2 of the License, or
--    (at your option) any later version.
--
--    This program is distributed in the hope that it will be useful,
--    but WITHOUT ANY WARRANTY; without even the implied warranty of
--    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--    GNU General Public License for more details.
--
--    You should have received a copy of the GNU General Public License
--    along with this program; if not, write to the Free Software
--    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
--
--    Richard Gooch may be reached by email at  rgooch@atnf.csiro.au
--    The postal address is:
--      Richard Gooch, c/o ATNF, P. O. Box 76, Epping, N.S.W., 2121, Australia.
--*/
--
--/*
--    This programme will use an ioctl() on /proc/mtrr to add an entry. The first
--    available mtrr is used. This is an alternative to writing /proc/mtrr.
--
--
--    Written by      Richard Gooch   17-DEC-1997
--
--    Last updated by Richard Gooch   2-MAY-1998
--
--
--*/
--#include <stdio.h>
--#include <string.h>
 -#include <stdlib.h>
 -#include <unistd.h>
--#include <sys/types.h>
--#include <sys/stat.h>
 -#include <fcntl.h>
--#include <sys/ioctl.h>
+-#include <string.h>
+-#include <memory.h>
+-#include <malloc.h>
+-#include <time.h>
+-#include <ctype.h>
+-#include <sys/types.h>
+-#include <sys/wait.h>
+-#include <signal.h>
+-#include <fcntl.h>
 -#include <errno.h>
--#include <asm/mtrr.h>
+-#include <sys/time.h>
+-#include <linux/hpet.h>
 -
--#define TRUE 1
--#define FALSE 0
--#define ERRSTRING strerror (errno)
 -
--static char *mtrr_strings[MTRR_NUM_TYPES] =
--{
--    "uncachable",               /* 0 */
--    "write-combining",          /* 1 */
--    "?",                        /* 2 */
--    "?",                        /* 3 */
--    "write-through",            /* 4 */
--    "write-protect",            /* 5 */
--    "write-back",               /* 6 */
+-extern void hpet_open_close(int, const char **);
+-extern void hpet_info(int, const char **);
+-extern void hpet_poll(int, const char **);
+-extern void hpet_fasync(int, const char **);
+-extern void hpet_read(int, const char **);
+-
+-#include <sys/poll.h>
+-#include <sys/ioctl.h>
+-#include <signal.h>
+-
+-struct hpet_command {
+-	char		*command;
+-	void		(*func)(int argc, const char ** argv);
+-} hpet_command[] = {
+-	{
+-		"open-close",
+-		hpet_open_close
+-	},
+-	{
+-		"info",
+-		hpet_info
+-	},
+-	{
+-		"poll",
+-		hpet_poll
+-	},
+-	{
+-		"fasync",
+-		hpet_fasync
+-	},
 -};
 -
--int main (int argc, char **argv)
+-int
+-main(int argc, const char ** argv)
 -{
--    int fd;
--    struct mtrr_sentry sentry;
-+Creating MTRRs from a C program using ioctl()'s:
-+See Documentation/mtrr-add.c
- 
--    if (argc != 4)
--    {
--	fprintf (stderr, "Usage:\tmtrr-add base size type\n");
--	exit (1);
--    }
--    sentry.base = strtoul (argv[1], NULL, 0);
--    sentry.size = strtoul (argv[2], NULL, 0);
--    for (sentry.type = 0; sentry.type < MTRR_NUM_TYPES; ++sentry.type)
--    {
--	if (strcmp (argv[3], mtrr_strings[sentry.type]) == 0) break;
--    }
--    if (sentry.type >= MTRR_NUM_TYPES)
--    {
--	fprintf (stderr, "Illegal type: \"%s\"\n", argv[3]);
--	exit (2);
--    }
--    if ( ( fd = open ("/proc/mtrr", O_WRONLY, 0) ) == -1 )
--    {
--	if (errno == ENOENT)
--	{
--	    fputs ("/proc/mtrr not found: not supported or you don't have a PPro?\n",
--		   stderr);
--	    exit (3);
+-	int	i;
+-
+-	argc--;
+-	argv++;
+-
+-	if (!argc) {
+-		fprintf(stderr, "-hpet: requires command\n");
+-		return -1;
 -	}
--	fprintf (stderr, "Error opening /proc/mtrr\t%s\n", ERRSTRING);
--	exit (4);
--    }
--    if (ioctl (fd, MTRRIOC_ADD_ENTRY, &sentry) == -1)
--    {
--	fprintf (stderr, "Error doing ioctl(2) on /dev/mtrr\t%s\n", ERRSTRING);
--	exit (5);
--    }
--    fprintf (stderr, "Sleeping for 5 seconds so you can see the new entry\n");
--    sleep (5);
--    close (fd);
--    fputs ("I've just closed /proc/mtrr so now the new entry should be gone\n",
--	   stderr);
--}   /*  End Function main  */
- ===============================================================================
+-
+-
+-	for (i = 0; i < (sizeof (hpet_command) / sizeof (hpet_command[0])); i++)
+-		if (!strcmp(argv[0], hpet_command[i].command)) {
+-			argc--;
+-			argv++;
+-			fprintf(stderr, "-hpet: executing %s\n",
+-				hpet_command[i].command);
+-			hpet_command[i].func(argc, argv);
+-			return 0;
+-		}
+-
+-	fprintf(stderr, "do_hpet: command %s not implemented\n", argv[0]);
+-
+-	return -1;
+-}
+-
+-void
+-hpet_open_close(int argc, const char **argv)
+-{
+-	int	fd;
+-
+-	if (argc != 1) {
+-		fprintf(stderr, "hpet_open_close: device-name\n");
+-		return;
+-	}
+-
+-	fd = open(argv[0], O_RDONLY);
+-	if (fd < 0)
+-		fprintf(stderr, "hpet_open_close: open failed\n");
+-	else
+-		close(fd);
+-
+-	return;
+-}
+-
+-void
+-hpet_info(int argc, const char **argv)
+-{
+-}
+-
+-void
+-hpet_poll(int argc, const char **argv)
+-{
+-	unsigned long		freq;
+-	int			iterations, i, fd;
+-	struct pollfd		pfd;
+-	struct hpet_info	info;
+-	struct timeval		stv, etv;
+-	struct timezone		tz;
+-	long			usec;
+-
+-	if (argc != 3) {
+-		fprintf(stderr, "hpet_poll: device-name freq iterations\n");
+-		return;
+-	}
+-
+-	freq = atoi(argv[1]);
+-	iterations = atoi(argv[2]);
+-
+-	fd = open(argv[0], O_RDONLY);
+-
+-	if (fd < 0) {
+-		fprintf(stderr, "hpet_poll: open of %s failed\n", argv[0]);
+-		return;
+-	}
+-
+-	if (ioctl(fd, HPET_IRQFREQ, freq) < 0) {
+-		fprintf(stderr, "hpet_poll: HPET_IRQFREQ failed\n");
+-		goto out;
+-	}
+-
+-	if (ioctl(fd, HPET_INFO, &info) < 0) {
+-		fprintf(stderr, "hpet_poll: failed to get info\n");
+-		goto out;
+-	}
+-
+-	fprintf(stderr, "hpet_poll: info.hi_flags 0x%lx\n", info.hi_flags);
+-
+-	if (info.hi_flags && (ioctl(fd, HPET_EPI, 0) < 0)) {
+-		fprintf(stderr, "hpet_poll: HPET_EPI failed\n");
+-		goto out;
+-	}
+-
+-	if (ioctl(fd, HPET_IE_ON, 0) < 0) {
+-		fprintf(stderr, "hpet_poll, HPET_IE_ON failed\n");
+-		goto out;
+-	}
+-
+-	pfd.fd = fd;
+-	pfd.events = POLLIN;
+-
+-	for (i = 0; i < iterations; i++) {
+-		pfd.revents = 0;
+-		gettimeofday(&stv, &tz);
+-		if (poll(&pfd, 1, -1) < 0)
+-			fprintf(stderr, "hpet_poll: poll failed\n");
+-		else {
+-			long 	data;
+-
+-			gettimeofday(&etv, &tz);
+-			usec = stv.tv_sec * 1000000 + stv.tv_usec;
+-			usec = (etv.tv_sec * 1000000 + etv.tv_usec) - usec;
+-
+-			fprintf(stderr,
+-				"hpet_poll: expired time = 0x%lx\n", usec);
+-
+-			fprintf(stderr, "hpet_poll: revents = 0x%x\n",
+-				pfd.revents);
+-
+-			if (read(fd, &data, sizeof(data)) != sizeof(data)) {
+-				fprintf(stderr, "hpet_poll: read failed\n");
+-			}
+-			else
+-				fprintf(stderr, "hpet_poll: data 0x%lx\n",
+-					data);
+-		}
+-	}
+-
+-out:
+-	close(fd);
+-	return;
+-}
+-
+-static int hpet_sigio_count;
+-
+-static void
+-hpet_sigio(int val)
+-{
+-	fprintf(stderr, "hpet_sigio: called\n");
+-	hpet_sigio_count++;
+-}
+-
+-void
+-hpet_fasync(int argc, const char **argv)
+-{
+-	unsigned long		freq;
+-	int			iterations, i, fd, value;
+-	sig_t			oldsig;
+-	struct hpet_info	info;
+-
+-	hpet_sigio_count = 0;
+-	fd = -1;
+-
+-	if ((oldsig = signal(SIGIO, hpet_sigio)) == SIG_ERR) {
+-		fprintf(stderr, "hpet_fasync: failed to set signal handler\n");
+-		return;
+-	}
+-
+-	if (argc != 3) {
+-		fprintf(stderr, "hpet_fasync: device-name freq iterations\n");
+-		goto out;
+-	}
+-
+-	fd = open(argv[0], O_RDONLY);
+-
+-	if (fd < 0) {
+-		fprintf(stderr, "hpet_fasync: failed to open %s\n", argv[0]);
+-		return;
+-	}
+-
+-
+-	if ((fcntl(fd, F_SETOWN, getpid()) == 1) ||
+-		((value = fcntl(fd, F_GETFL)) == 1) ||
+-		(fcntl(fd, F_SETFL, value | O_ASYNC) == 1)) {
+-		fprintf(stderr, "hpet_fasync: fcntl failed\n");
+-		goto out;
+-	}
+-
+-	freq = atoi(argv[1]);
+-	iterations = atoi(argv[2]);
+-
+-	if (ioctl(fd, HPET_IRQFREQ, freq) < 0) {
+-		fprintf(stderr, "hpet_fasync: HPET_IRQFREQ failed\n");
+-		goto out;
+-	}
+-
+-	if (ioctl(fd, HPET_INFO, &info) < 0) {
+-		fprintf(stderr, "hpet_fasync: failed to get info\n");
+-		goto out;
+-	}
+-
+-	fprintf(stderr, "hpet_fasync: info.hi_flags 0x%lx\n", info.hi_flags);
+-
+-	if (info.hi_flags && (ioctl(fd, HPET_EPI, 0) < 0)) {
+-		fprintf(stderr, "hpet_fasync: HPET_EPI failed\n");
+-		goto out;
+-	}
+-
+-	if (ioctl(fd, HPET_IE_ON, 0) < 0) {
+-		fprintf(stderr, "hpet_fasync, HPET_IE_ON failed\n");
+-		goto out;
+-	}
+-
+-	for (i = 0; i < iterations; i++) {
+-		(void) pause();
+-		fprintf(stderr, "hpet_fasync: count = %d\n", hpet_sigio_count);
+-	}
+-
+-out:
+-	signal(SIGIO, oldsig);
+-
+-	if (fd >= 0)
+-		close(fd);
+-
+-	return;
+-}
+ 
+ The kernel API has three interfaces exported from the driver:
+ 
+--- /dev/null
++++ linux-2617-rc4g9-docsrc-split/Documentation/hpet_example.c
+@@ -0,0 +1,269 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <unistd.h>
++#include <fcntl.h>
++#include <string.h>
++#include <memory.h>
++#include <malloc.h>
++#include <time.h>
++#include <ctype.h>
++#include <sys/types.h>
++#include <sys/wait.h>
++#include <signal.h>
++#include <fcntl.h>
++#include <errno.h>
++#include <sys/time.h>
++#include <linux/hpet.h>
++
++
++extern void hpet_open_close(int, const char **);
++extern void hpet_info(int, const char **);
++extern void hpet_poll(int, const char **);
++extern void hpet_fasync(int, const char **);
++extern void hpet_read(int, const char **);
++
++#include <sys/poll.h>
++#include <sys/ioctl.h>
++#include <signal.h>
++
++struct hpet_command {
++	char		*command;
++	void		(*func)(int argc, const char ** argv);
++} hpet_command[] = {
++	{
++		"open-close",
++		hpet_open_close
++	},
++	{
++		"info",
++		hpet_info
++	},
++	{
++		"poll",
++		hpet_poll
++	},
++	{
++		"fasync",
++		hpet_fasync
++	},
++};
++
++int
++main(int argc, const char ** argv)
++{
++	int	i;
++
++	argc--;
++	argv++;
++
++	if (!argc) {
++		fprintf(stderr, "-hpet: requires command\n");
++		return -1;
++	}
++
++
++	for (i = 0; i < (sizeof (hpet_command) / sizeof (hpet_command[0])); i++)
++		if (!strcmp(argv[0], hpet_command[i].command)) {
++			argc--;
++			argv++;
++			fprintf(stderr, "-hpet: executing %s\n",
++				hpet_command[i].command);
++			hpet_command[i].func(argc, argv);
++			return 0;
++		}
++
++	fprintf(stderr, "do_hpet: command %s not implemented\n", argv[0]);
++
++	return -1;
++}
++
++void
++hpet_open_close(int argc, const char **argv)
++{
++	int	fd;
++
++	if (argc != 1) {
++		fprintf(stderr, "hpet_open_close: device-name\n");
++		return;
++	}
++
++	fd = open(argv[0], O_RDONLY);
++	if (fd < 0)
++		fprintf(stderr, "hpet_open_close: open failed\n");
++	else
++		close(fd);
++
++	return;
++}
++
++void
++hpet_info(int argc, const char **argv)
++{
++}
++
++void
++hpet_poll(int argc, const char **argv)
++{
++	unsigned long		freq;
++	int			iterations, i, fd;
++	struct pollfd		pfd;
++	struct hpet_info	info;
++	struct timeval		stv, etv;
++	struct timezone		tz;
++	long			usec;
++
++	if (argc != 3) {
++		fprintf(stderr, "hpet_poll: device-name freq iterations\n");
++		return;
++	}
++
++	freq = atoi(argv[1]);
++	iterations = atoi(argv[2]);
++
++	fd = open(argv[0], O_RDONLY);
++
++	if (fd < 0) {
++		fprintf(stderr, "hpet_poll: open of %s failed\n", argv[0]);
++		return;
++	}
++
++	if (ioctl(fd, HPET_IRQFREQ, freq) < 0) {
++		fprintf(stderr, "hpet_poll: HPET_IRQFREQ failed\n");
++		goto out;
++	}
++
++	if (ioctl(fd, HPET_INFO, &info) < 0) {
++		fprintf(stderr, "hpet_poll: failed to get info\n");
++		goto out;
++	}
++
++	fprintf(stderr, "hpet_poll: info.hi_flags 0x%lx\n", info.hi_flags);
++
++	if (info.hi_flags && (ioctl(fd, HPET_EPI, 0) < 0)) {
++		fprintf(stderr, "hpet_poll: HPET_EPI failed\n");
++		goto out;
++	}
++
++	if (ioctl(fd, HPET_IE_ON, 0) < 0) {
++		fprintf(stderr, "hpet_poll, HPET_IE_ON failed\n");
++		goto out;
++	}
++
++	pfd.fd = fd;
++	pfd.events = POLLIN;
++
++	for (i = 0; i < iterations; i++) {
++		pfd.revents = 0;
++		gettimeofday(&stv, &tz);
++		if (poll(&pfd, 1, -1) < 0)
++			fprintf(stderr, "hpet_poll: poll failed\n");
++		else {
++			long 	data;
++
++			gettimeofday(&etv, &tz);
++			usec = stv.tv_sec * 1000000 + stv.tv_usec;
++			usec = (etv.tv_sec * 1000000 + etv.tv_usec) - usec;
++
++			fprintf(stderr,
++				"hpet_poll: expired time = 0x%lx\n", usec);
++
++			fprintf(stderr, "hpet_poll: revents = 0x%x\n",
++				pfd.revents);
++
++			if (read(fd, &data, sizeof(data)) != sizeof(data)) {
++				fprintf(stderr, "hpet_poll: read failed\n");
++			}
++			else
++				fprintf(stderr, "hpet_poll: data 0x%lx\n",
++					data);
++		}
++	}
++
++out:
++	close(fd);
++	return;
++}
++
++static int hpet_sigio_count;
++
++static void
++hpet_sigio(int val)
++{
++	fprintf(stderr, "hpet_sigio: called\n");
++	hpet_sigio_count++;
++}
++
++void
++hpet_fasync(int argc, const char **argv)
++{
++	unsigned long		freq;
++	int			iterations, i, fd, value;
++	sig_t			oldsig;
++	struct hpet_info	info;
++
++	hpet_sigio_count = 0;
++	fd = -1;
++
++	if ((oldsig = signal(SIGIO, hpet_sigio)) == SIG_ERR) {
++		fprintf(stderr, "hpet_fasync: failed to set signal handler\n");
++		return;
++	}
++
++	if (argc != 3) {
++		fprintf(stderr, "hpet_fasync: device-name freq iterations\n");
++		goto out;
++	}
++
++	fd = open(argv[0], O_RDONLY);
++
++	if (fd < 0) {
++		fprintf(stderr, "hpet_fasync: failed to open %s\n", argv[0]);
++		return;
++	}
++
++
++	if ((fcntl(fd, F_SETOWN, getpid()) == 1) ||
++		((value = fcntl(fd, F_GETFL)) == 1) ||
++		(fcntl(fd, F_SETFL, value | O_ASYNC) == 1)) {
++		fprintf(stderr, "hpet_fasync: fcntl failed\n");
++		goto out;
++	}
++
++	freq = atoi(argv[1]);
++	iterations = atoi(argv[2]);
++
++	if (ioctl(fd, HPET_IRQFREQ, freq) < 0) {
++		fprintf(stderr, "hpet_fasync: HPET_IRQFREQ failed\n");
++		goto out;
++	}
++
++	if (ioctl(fd, HPET_INFO, &info) < 0) {
++		fprintf(stderr, "hpet_fasync: failed to get info\n");
++		goto out;
++	}
++
++	fprintf(stderr, "hpet_fasync: info.hi_flags 0x%lx\n", info.hi_flags);
++
++	if (info.hi_flags && (ioctl(fd, HPET_EPI, 0) < 0)) {
++		fprintf(stderr, "hpet_fasync: HPET_EPI failed\n");
++		goto out;
++	}
++
++	if (ioctl(fd, HPET_IE_ON, 0) < 0) {
++		fprintf(stderr, "hpet_fasync, HPET_IE_ON failed\n");
++		goto out;
++	}
++
++	for (i = 0; i < iterations; i++) {
++		(void) pause();
++		fprintf(stderr, "hpet_fasync: count = %d\n", hpet_sigio_count);
++	}
++
++out:
++	signal(SIGIO, oldsig);
++
++	if (fd >= 0)
++		close(fd);
++
++	return;
++}
 
 
 ---
+~Randy

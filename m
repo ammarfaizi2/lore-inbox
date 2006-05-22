@@ -1,73 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbWEVGTQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbWEVGeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932493AbWEVGTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 02:19:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWEVGTQ
+	id S932502AbWEVGeM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 02:34:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWEVGeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 02:19:16 -0400
-Received: from ns1.suse.de ([195.135.220.2]:31695 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932435AbWEVGTP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 02:19:15 -0400
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Mon, 22 May 2006 16:18:50 +1000
-Message-Id: <1060522061850.2849@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: "Don Dupuis" <dondster@gmail.com>
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 001 of 2] md: Fix possible oops when starting a raid0 array
-References: <20060522161259.2792.patches@notabene>
+	Mon, 22 May 2006 02:34:12 -0400
+Received: from omta04sl.mx.bigpond.com ([144.140.93.156]:10742 "EHLO
+	omta04sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932502AbWEVGeL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 02:34:11 -0400
+Message-ID: <44715B5F.6060205@bigpond.net.au>
+Date: Mon, 22 May 2006 16:34:07 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Mike Galbraith <efault@gmx.de>
+CC: Con Kolivas <kernel@kolivas.org>, Rene Herman <rene.herman@keyaccess.nl>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.17-rc2+ regression -- audio skipping
+References: <4470CC8F.9030706@keyaccess.nl>	 <200605221033.49153.kernel@kolivas.org> <1148264043.7643.15.camel@homer>	 <200605221243.54100.kernel@kolivas.org> <1148267426.21765.15.camel@homer>	 <4471305F.40105@bigpond.net.au> <1148273580.9914.3.camel@homer>	 <44714E4F.8000801@bigpond.net.au> <1148277658.10520.9.camel@homer>
+In-Reply-To: <1148277658.10520.9.camel@homer>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 22 May 2006 06:34:07 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mike Galbraith wrote:
+> On Mon, 2006-05-22 at 15:38 +1000, Peter Williams wrote:
+> 
+>> In my schedulers I generalize background to "soft cpu rate caps" with a 
+>> cap of zero being the same as background.  I have patches to add both 
+>> soft and hard cpu rate caps to the standard scheduler but I'm sitting on 
+>> them until things settle down a bit.
+> 
+> I look forward to seeing them.  Any chance of a preview?
+> 
 
-This loop that sets up the hash_table has problems.
+I'll post them as a "request for comment" tomorrow.  I'm still undecided 
+about the best user space interface for using them.  At the moment, I 
+have mechanisms to set them via /proc which is very handy for testing 
+but not necessarily the best interface for general use.  Other options 
+are via rlimits or a syscall.
 
-Careful examination will show that the last time through, everything
-but the first line is pointless.  This is because all it does is
-change 'cur' and 'size' and neither of these are used after
-the loop.  This should ring warning bells...
-That last time through the loop, 
-        size += conf->strip_zone[cur].size
-can index off the end of the strip_zone array.
-Depending on what it finds there, it might exit the loop cleanly, 
-or it might spin going further and further beyond the array until
-it hits an unmapped address.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-This patch rearranges the code so that the last, pointless, iteration
-of the loop never happens.  i.e. the one statement of the last loop
-that is needed is moved the the end of the previous loop - or to
-before the loop starts - and the loop counter starts from 1
-instead of 0.
-
-
-Cc: "Don Dupuis" <dondster@gmail.com>
-Signed-off-by: Neil Brown <neilb@suse.de>
-
-### Diffstat output
- ./drivers/md/raid0.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff ./drivers/md/raid0.c~current~ ./drivers/md/raid0.c
---- ./drivers/md/raid0.c~current~	2006-05-22 15:33:05.000000000 +1000
-+++ ./drivers/md/raid0.c	2006-05-22 15:35:01.000000000 +1000
-@@ -331,13 +331,14 @@ static int raid0_run (mddev_t *mddev)
- 		goto out_free_conf;
- 	size = conf->strip_zone[cur].size;
- 
--	for (i=0; i< nb_zone; i++) {
--		conf->hash_table[i] = conf->strip_zone + cur;
-+	conf->hash_table[0] = conf->strip_zone + cur;
-+	for (i=1; i< nb_zone; i++) {
- 		while (size <= conf->hash_spacing) {
- 			cur++;
- 			size += conf->strip_zone[cur].size;
- 		}
- 		size -= conf->hash_spacing;
-+		conf->hash_table[i] = conf->strip_zone + cur;
- 	}
- 	if (conf->preshift) {
- 		conf->hash_spacing >>= conf->preshift;
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

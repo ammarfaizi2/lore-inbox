@@ -1,74 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbWEVQn2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbWEVQoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750983AbWEVQn2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 12:43:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbWEVQn1
+	id S1750984AbWEVQoS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 12:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750986AbWEVQoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 12:43:27 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:8407 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S1750983AbWEVQn1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 12:43:27 -0400
-Message-ID: <4471EA2C.4010401@oracle.com>
-Date: Mon, 22 May 2006 09:43:24 -0700
-From: Zach Brown <zach.brown@oracle.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Mon, 22 May 2006 12:44:18 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:46345 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1750982AbWEVQoR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 12:44:17 -0400
+Message-ID: <4471EA60.8080607@vmware.com>
+Date: Mon, 22 May 2006 09:44:16 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [PATCH] kmap tracking
-References: <20060518155357.04066e9c.rdunlap@xenotime.net>
-In-Reply-To: <20060518155357.04066e9c.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       mingo@elte.hu, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       virtualization@lists.osdl.org, kraxel@suse.de
+Subject: Re: [PATCH] Gerd Hoffman's move-vsyscall-into-user-address-range
+ patch
+References: <1147759423.5492.102.camel@localhost.localdomain> <20060516064723.GA14121@elte.hu> <1147852189.1749.28.camel@localhost.localdomain> <20060519174303.5fd17d12.akpm@osdl.org> <20060522162949.GG30682@devserv.devel.redhat.com>
+In-Reply-To: <20060522162949.GG30682@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> From: Randy Dunlap <rdunlap@xenotime.net>
-> 
-> Track kmap/kunmap call history, storing caller function address,
-> action, and time (jiffies), if CONFIG_DEBUG_KMAP is enabled.
-> Based on a patch to 2.4.21 by Zach Brown that was used successfully
-> at Oracle to track down some kmap/kunmap problems.
+Jakub Jelinek wrote:
+>
+> That's known bug in early glibcs short after adding vDSO support.
+> The vDSO support has been added in May 2003 to CVS glibc (i.e. post glibc
+> 2.3.2) and the problems have been fixed when they were discovered, in
+> February 2004:
+> http://sources.redhat.com/ml/libc-hacker/2004-02/msg00053.html
+> http://sources.redhat.com/ml/libc-hacker/2004-02/msg00059.html
+>
+> I strongly believe we want randomized vDSOs, people are already abusing the
+> fix mapped vDSO for attacks, and I think the unfortunate 10 months of broken
+> glibc shouldn't stop that forever.  Anyone using such glibc can still use
+> vdso=0, or do that just once and upgrade to somewhat more recent glibc.
+>   
 
-Thanks for bringing this to 2.6.. sorry for the lag in reviewing.
+While I'm now inclined to agree with randomization, I think the default 
+should be off.  You can quite easily "echo 1 > 
+/proc/sys/kernel/vdso_randomization" in the RC scripts, which allows you 
+to maintain compatibility for everyone and get randomization turned on 
+early enough to thwart attacks against any vulnerable daemons.
 
-> +enum {
-> +	KMAP_FIRST = 1,
-> +	KMAP_ADDREF,
-> +	KMAP_DECREF,
-> +	KMAP_LAST,
-> +};
-
-I trust you got rid of these in the most recent version :)
-
-> +#else
-> +#define kmap_record_action(nr, action, refcount, retaddr) do {} while (0)
-> +#endif
-
-Make this an inline, please, so that we don't introduce unused var warnings.
-
-> +static __init int kmap_history_init(void)
-> +{
-> +	kmap_history_file = debugfs_create_file("kmap-history", 0644, NULL,
-> +			kh_running, &kmap_running_seq_fops);
-> +	if (!kmap_history_file)
-> +		goto out1;
-> +
-> +	return 0;
-> +
-> +out1:
-> +	return -ENOMEM;
-
-That seems noisy.. return -ENOMEM is probably fine for such a trivial
-funciton :).
-
-> +#define kmap(page)	__kmap(page, __builtin_return_address(0))
-> +#define kunmap(page)	__kunmap(page, __builtin_return_address(0))
-
-Hmm, I was hoping we wouldn't have to do this.  Can we use
-__builtin_return_address(1) from within the debug paths instead of
-passing down (0)?  Then we wouldn't have to ifdef around the declarations..
-
-- z
+Zach

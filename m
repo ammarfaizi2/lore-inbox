@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWEVRyI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWEVRyE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751098AbWEVRyI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 13:54:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWEVRyI
+	id S1751096AbWEVRyE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 13:54:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWEVRyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 13:54:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32914 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751098AbWEVRyG (ORCPT
+	Mon, 22 May 2006 13:54:04 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32933 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751098AbWEVRyB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 13:54:06 -0400
-Date: Mon, 22 May 2006 10:53:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: zach@vmware.com, jakub@redhat.com, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       virtualization@lists.osdl.org, kraxel@suse.de
-Subject: Re: [PATCH] Gerd Hoffman's move-vsyscall-into-user-address-range
- patch
-Message-Id: <20060522105329.1e0bdacf.akpm@osdl.org>
-In-Reply-To: <20060522172710.GA22823@elte.hu>
-References: <1147759423.5492.102.camel@localhost.localdomain>
-	<20060516064723.GA14121@elte.hu>
-	<1147852189.1749.28.camel@localhost.localdomain>
-	<20060519174303.5fd17d12.akpm@osdl.org>
-	<20060522162949.GG30682@devserv.devel.redhat.com>
-	<4471EA60.8080607@vmware.com>
-	<20060522101454.52551222.akpm@osdl.org>
-	<20060522172710.GA22823@elte.hu>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 22 May 2006 13:54:01 -0400
+Date: Mon, 22 May 2006 19:53:16 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Dave Jones <davej@redhat.com>, Laurence Vanek <lvanek@charter.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>,
+       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>, Jean Delvare <khali@linux-fr.org>
+Subject: Re: Kernel 2.6.16-1.2122_FC5 & lmsensors
+Message-ID: <20060522175316.GC2979@elf.ucw.cz>
+References: <4471F028.4090803@charter.net> <20060522174818.GA8016@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060522174818.GA8016@redhat.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
->
-> is it really a big problem to add "vdso=0" to the long list of 
->  requirements you need to run a 2.6 kernel on an old distribution (or to 
->  disable CONFIG_VDSO)? FC1 wasnt even 2.6-ready, it used a 2.4 kernel!
+On Po 22-05-06 13:48:18, Dave Jones wrote:
+> On Mon, May 22, 2006 at 12:08:56PM -0500, Laurence Vanek wrote:
+>  > Upon updating to the latest kernel (2.6.16-1.2122_FC5) & rebooting I 
+>  > find that I no longer have lmsensors.  /var/log/messages gives this in 
+>  > the suspect area:
+>  > 
+>  > ==========
+>  > May 22 11:42:42 localhost kernel: i2c_adapter i2c-0: SMBus Quick command 
+>  > not supported, can't probe for chips
+>  > May 22 11:42:42 localhost kernel: i2c_adapter i2c-1: SMBus Quick command 
+>  > not supported, can't probe for chips
+>  > May 22 11:42:42 localhost kernel: i2c_adapter i2c-2: SMBus Quick command 
+>  > not supported, can't probe for chips
+>  > =========
+>  > 
+>  > something new in this release?
+> 
+> Probably a side-effect of [PATCH] smbus unhiding kills thermal management
+> merged in 2.6.16.17.  Is this an ASUS board ?
 
-I assume that FC1-using people aren't the only ones who will be affected by
-this.  We just don't know.
-
-Oh well.  One way of finding out is to ship the thing ;)
-
-I seem to have lost the vdso=0 patch and the CONFIG_VDSO patch.  Resend,
-please?
-
+You can disable CONFIG_ACPI_SLEEP, if it gets you lmsensors back, that
+is it.
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

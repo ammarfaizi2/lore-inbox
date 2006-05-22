@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbWEVO3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWEVO2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750856AbWEVO3w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 10:29:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbWEVO3w
+	id S1750851AbWEVO2z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 10:28:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbWEVO2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 10:29:52 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:17867 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750841AbWEVO3v (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 10:29:51 -0400
-Message-Id: <200605221429.k4METL5D011740@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Arjan van de Ven <arjan@infradead.org>, "Theodore Ts'o" <tytso@mit.edu>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add user taint flag
-In-Reply-To: Your message of "Mon, 22 May 2006 15:35:48 BST."
-             <1148308548.17376.44.camel@localhost.localdomain>
-From: Valdis.Kletnieks@vt.edu
-References: <E1FhwyO-0001YQ-O1@candygram.thunk.org> <1148307276.3902.71.camel@laptopd505.fenrus.org>
-            <1148308548.17376.44.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1148308161_6073P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Mon, 22 May 2006 10:28:55 -0400
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:11023 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1750851AbWEVO2y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 10:28:54 -0400
+Message-ID: <4471CAA3.2030903@onelan.co.uk>
+Date: Mon, 22 May 2006 15:28:51 +0100
+From: Barry Scott <barry.scott@onelan.co.uk>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: broadcom 5752 in HP dc7600U works on 2.6.13 but does not working
+ on 2.6.16
+References: <4469E709.7080501@onelan.co.uk> <20060522035943.7829ee32.akpm@osdl.org> <200605222114.12165.kernel@kolivas.org>
+In-Reply-To: <200605222114.12165.kernel@kolivas.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 22 May 2006 10:29:21 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1148308161_6073P
-Content-Type: text/plain; charset=us-ascii
+Con Kolivas wrote:
+> On Monday 22 May 2006 20:59, Andrew Morton wrote:
+>   
+>> It appears that the 2.6.13 kernel did not bring up the machine's io-APICs,
+>> but 2.6.16 did.  However you are receiving eth0 interrupts on 2.6.16 so
+>> perhaps that's not relevant.
+>>     
+>
+> It looks like he's _not_ receiving eth0 interrupts if I'm not mistaken?
+>
+>   
+Correct no interrupts received under 2.6.16
+> and this:
+>
+>   
+>> ENABLING IO-APIC IRQs
+>> ..TIMER: vector=0x31 apic1=-1 pin1=-1 apic2=-1 pin2=-1
+>> ...trying to set up timer (IRQ0) through the 8259A ...  failed.
+>> ...trying to set up timer as Virtual Wire IRQ... works.
+>>     
+>
+> looks suspiciously like a broken apic/code/workaround/whatever
+>
+> I'd go with Andrew's suggestion and disable apic in your bootparameters 
+> (noapic and/or nolapic) and possibly in your config if it corrects i
+Adding noapic works. I have ethernet back.
 
-On Mon, 22 May 2006 15:35:48 BST, Alan Cox said:
-> On Llu, 2006-05-22 at 16:14 +0200, Arjan van de Ven wrote:
-> > we should then patch the /dev/mem driver or something to set this :)
-> > (well and possibly give it an exception for now for PCI space until the
-> > X people fix their stuff to use the proper sysfs stuff)
-> 
-> /dev/mem is used for all sorts of sane things including DMIdecode.
-> Tainting on it isn't terribly useful. Mind you this whole user taint
-> patch seems bogus as it can only be set by root owned processes so
-> doesn't appear to do the job it is intended for - perhaps Ted can
-> explain ?
+Do you need me to log a bug report somewhere about this?
 
-Taint on write to /dev/mem, perhaps?  I don't think DMIdecode needs to
-scribble on /dev/mem, does it?  (Figure if a userspace program runs OK
-on a recent Fedora or RedHat kernel, it doesn't need to scribble on /dev/mem
-too much, because the vast majority of it is lopped out via a patch....)
+Barry
 
---==_Exmh_1148308161_6073P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEccrBcC3lWbTT17ARAizGAJ9Bzhg6QJVc3kFOtouWI6qZAdpGXACg3Sts
-l9n0wo7F2rGRlFBVTNkAT2I=
-=nnqg
------END PGP SIGNATURE-----
-
---==_Exmh_1148308161_6073P--

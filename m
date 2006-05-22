@@ -1,64 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750917AbWEVPFr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbWEVPHX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750917AbWEVPFr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 11:05:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750918AbWEVPFr
+	id S1750919AbWEVPHX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 11:07:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbWEVPHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 11:05:47 -0400
-Received: from lea.cs.unibo.it ([130.136.1.101]:63951 "EHLO lea.cs.unibo.it")
-	by vger.kernel.org with ESMTP id S1750914AbWEVPFq (ORCPT
+	Mon, 22 May 2006 11:07:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12995 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750919AbWEVPHW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 11:05:46 -0400
-Date: Mon, 22 May 2006 17:05:44 +0200
-To: Jeff Dike <jdike@addtoit.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andi Kleen <ak@suse.de>, Ulrich Drepper <drepper@gmail.com>,
-       osd@cs.unibo.it, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2-ptrace_multi
-Message-ID: <20060522150544.GB11910@cs.unibo.it>
-References: <20060518155337.GA17498@cs.unibo.it> <20060519174534.GA22346@cs.unibo.it> <20060519201509.GA13477@nevyn.them.org> <200605192217.30518.ak@suse.de> <1148135825.2085.33.camel@localhost.localdomain> <20060520183020.GC11648@cs.unibo.it> <20060520213959.GA4229@ccure.user-mode-linux.org> <20060521152810.GL15497@cs.unibo.it> <20060522130222.GA16937@nevyn.them.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060522130222.GA16937@nevyn.them.org>
-User-Agent: Mutt/1.5.6+20040907i
-From: renzo@cs.unibo.it (Renzo Davoli)
+	Mon, 22 May 2006 11:07:22 -0400
+Date: Mon, 22 May 2006 08:06:51 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>, florin@iucha.net,
+       linux-kernel@vger.kernel.org, linux@dominikbrodowski.net
+Subject: Re: pcmcia oops on 2.6.17-rc[12]
+In-Reply-To: <20060522115046.GA23074@bitwizard.nl>
+Message-ID: <Pine.LNX.4.64.0605220751380.3697@g5.osdl.org>
+References: <20060423192251.GD8896@iucha.net> <20060423150206.546b7483.akpm@osdl.org>
+ <20060508145609.GA3983@rhlx01.fht-esslingen.de> <20060508084301.5025b25d.akpm@osdl.org>
+ <20060508163453.GB19040@flint.arm.linux.org.uk> <1147730828.26686.165.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0605151459140.3866@g5.osdl.org> <1147734026.26686.200.camel@localhost.localdomain>
+ <20060522115046.GA23074@bitwizard.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 22, 2006 at 09:02:22AM -0400, Daniel Jacobowitz wrote:
-> On Sun, May 21, 2006 at 05:28:10PM +0200, Renzo Davoli wrote:
-> > It is not enough. I am fixing the [GS]ETREGS for ppc32 but it happens
-> > that the error number is stored in the register PT_CCR (a.k.a. R38)
-> > so I need an extra call to get that, then I need the program counter which is
-> > in PT_NIP (R31). [GS]ETREGS for ppc load/store just the range R0-R31.
-> > so I need 3 syscalls for each syscall issued by the ptraced process
-> > instead of just one.
+
+
+On Mon, 22 May 2006, Rogier Wolff wrote:
 > 
-> Then have you considered changing the regset returned to be actually
-> useful?  Especially for ppc32 where you say it was not previously
-> implemented?
-Then it would be inconsistent with ppc64 where it does exist, and ppc64
-has the very same problem.
-So the solution would be to patch also the ppc64 [GS]ETREGS breaking
-compatibility with existing applications. 
+> The question I'm stuck with is: When is it valid to ask for a non-shared
+> IRQ, and get back a shared one. 
+> 
+> Drivers that know that they don't work well if they are called by the
+> "other" interrupt?
 
-The MULTI proposal was a way to have a fast, simple, safe support.
-Fast: one syscall does all
-simple: it is a vector of calls with the params of std ptrace calls
-safe: if is not a new call, the security checks for ptrace are already
-in place
-flexible: with [GS]ETREGS you can get only the registers you need
-instead of all the registers (this is just an example).
-PPC wants to read/write 32 registers, i386 17, x86_64 21 etc,
-when maybe just some of the registers are meaningful to your
-application. Using [GS]ETREGS, you have to save the entire register set
-somewhere to restore them after some changes. This applies also to areas
-of memory, and other ptrace commands.
-backward compatible: if you did not use it, nothing changes in ptrace
-support.
+No.
 
-If you do not find this proposal interesting, I'll continue to support
-it as a specific patch for umview. I am not here to "sell" any solution.
-On the contrary I think it might be useful in many applications.
+For example, on certain 16-bit PCMCIA setups, the PCMCIA controller may 
+have just one interrupt. It may even have that interrupt exclusively, but 
+the point is, it has _one_. One interrupt shared for both doing not just 
+card interrupts, but also for PCMCIA CSC interrupts.
 
-	renzo
+In that situation, once the card has been inserted (and powerup etc has 
+happened), the only interrupts you'll get is actually the interrupts for 
+the card. So everything is fine.
+
+BUT A PCMCIA DRIVER STILL MUST NOT ASK FOR A NON-SHARED IRQ.
+
+Because the irq will still be registered by the PCMCIA layer, and the 
+PCMCIA layer will check whether the interrupt was due to a CSC when the 
+card was removed, for example.
+
+So there's basically never any valid reason to ask for a nonshared irq.
+
+> I happen to know (ISA) hardware that CANNOT share an interrupt
+
+Not necessarily true, since ISA cards have been known to be able to share 
+an interrupt with the proper pull-down resistors. It was even common for 
+serial cards.
+
+Perhaps more importantly, not relevant for PCMCIA.  There is no PCMCIA 
+hardware that cannot share an interrupt, for reasons outlines above.
+
+There might be really bad hardware that doesn't even have an interrupt 
+status register so you can't tell if an interrupt happened from that card 
+or not, making it hard to write a driver that can handle "spurious" 
+interrupts (in the case of real sharing), but that sounds pretty damn 
+unlikely.
+
+		Linus

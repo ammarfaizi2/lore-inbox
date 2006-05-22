@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbWEVSVo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWEVS2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751116AbWEVSVo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 14:21:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbWEVSVo
+	id S1750849AbWEVS2v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 14:28:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbWEVS2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 14:21:44 -0400
-Received: from smtpq2.tilbu1.nb.home.nl ([213.51.146.201]:18884 "EHLO
-	smtpq2.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
-	id S1751116AbWEVSVn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 14:21:43 -0400
-Message-ID: <4472016F.6020102@keyaccess.nl>
-Date: Mon, 22 May 2006 20:22:39 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+	Mon, 22 May 2006 14:28:50 -0400
+Received: from ns1.suse.de ([195.135.220.2]:27855 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750849AbWEVS2t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 14:28:49 -0400
+From: Andi Kleen <ak@suse.de>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
+Subject: Re: [RFC] Consoldidate arch/{i386,x86_64}/boot
+Date: Mon, 22 May 2006 20:28:32 +0200
+User-Agent: KMail/1.9.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <4471FD34.8050202@gmx.net>
+In-Reply-To: <4471FD34.8050202@gmx.net>
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: Con Kolivas <kernel@kolivas.org>, Lee Revell <rlrevell@joe-job.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.17-rc2+ regression -- audio skipping
-References: <4470CC8F.9030706@keyaccess.nl>	 <1148247047.20472.78.camel@mindpipe> <44710162.3070406@keyaccess.nl>	 <200605221033.49153.kernel@kolivas.org> <1148264043.7643.15.camel@homer>
-In-Reply-To: <1148264043.7643.15.camel@homer>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Content-Disposition: inline
+Message-Id: <200605222028.32934.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
 
-> On Mon, 2006-05-22 at 10:33 +1000, Con Kolivas wrote:
+> Would a series of incremental patches to consolidate these two
+> subtrees get accepted?
 
->> This close to 2.6.17 the safest thing we can and should do is simply back out 
->> the patch.
-> 
-> Agreed.  That will reinstate terminal starvation in some cases, but
-> those cases are much less common than this one.
+Yes.
 
-Ah okay. I see that's already done even. Thanks for the quick responses.
+I have some plans to change the 64bit boot up though - the uncompression
+should already run as 64bit - but that shouldnt' affect these files.
 
-Rene.
+-Andi
 

@@ -1,94 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbWEVRBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbWEVRCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750991AbWEVRBS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 13:01:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750993AbWEVRBS
+	id S1750994AbWEVRCh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 13:02:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWEVRCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 13:01:18 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24776 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750991AbWEVRBS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 13:01:18 -0400
-Date: Mon, 22 May 2006 19:00:36 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.16.16 Parameter-controlled mmap/stack randomization
-Message-ID: <20060522170036.GD1893@elf.ucw.cz>
-References: <446E6A3B.8060100@comcast.net> <1148132838.3041.3.camel@laptopd505.fenrus.org> <446F3483.40208@comcast.net> <20060522010606.GC25434@elf.ucw.cz> <44712605.4000001@comcast.net> <20060522083352.GA11923@elf.ucw.cz> <4471E77F.1010704@comcast.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4471E77F.1010704@comcast.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 22 May 2006 13:02:37 -0400
+Received: from baldrick.bootc.net ([83.142.228.48]:50907 "EHLO
+	baldrick.fusednetworks.co.uk") by vger.kernel.org with ESMTP
+	id S1750993AbWEVRCg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 13:02:36 -0400
+In-Reply-To: <cf5433040605220605t22b6030j701add7d494c83e8@mail.gmail.com>
+References: <cf5433040605220605t22b6030j701add7d494c83e8@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <0980901F-F36D-4A7C-9951-CEF0F0F3558F@bootc.net>
+Cc: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Chris Boot <bootc@bootc.net>
+Subject: Re: RAID Sync Speeds
+Date: Mon, 22 May 2006 18:02:34 +0100
+To: Rainer Shiz <rainer.shiz@gmail.com>
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 22 May 2006, at 14:05, Rainer Shiz wrote:
 
-> >>>> On the other hand, some things[1][2][3] may give us the undesirable
-> >>>> situation where-- even on an x86-64 with real NX-bit love-- there's an
-> >>>> executable stack.  The stack randomization in this case can likely be
-> >>>> weakened by, say, 8 bits by padding your shellcode with 1-byte NOPs
-> >>>> (there's a zillion of these, like inc %eax) up to 4096 bytes.  This
-> >>>> leaves 1 success case for every 2047 fail cases.
-> >>> Maybe we can add more bits of randomness when there's enough address
-> >>> space -- like in x86-64 case?
-> >> Yes but how many?  I set the max in my working copy (by the way, I
-> >> patched it into Ubuntu Dapper kernel, built, tested, it works) at 1/12
-> >> of TASK_SIZE; on x86-64, that's 128TiB / 12 -> 10.667TiB -> long_log2()
-> >> - -> 43 bits -> 8TiB of VMA, which becomes 31 bits mmap() and 39 bits stack.
-> >>
-> >> That's feasible, it's nice, it's fregging huge.  Can we justify it?  ...
-> >> well we can't justify NOT doing it without the ad hominem "We Don't Need
-> >> That Because It's Not Necessary", but that's not the hard part around here.
-> > 
-> > Well, making it configurable and pushing hard decision to the user is
-> > not right approach, either. I believe we need different
-> > per-architecture defaults, not "make user configure it".
-> 
-> Yes, different per-architecture defaults is feasible with configuration
-> being possible.  I could replace 'int STACK_random_bits=19' with 'int
-> mmap_random_bits=ARCH_STACK_RANDOM_BITS_DEFAULT' and that would be
-> effective as long as the user doesn't touch it with command line or
-> SELinux or whatnot.
-> 
-> It is still possible that ARCH_STACK_RANDOM_BITS_DEFAULT breaks things.
->  The current kernel default broke emacs at first I heard; I believe
-> we
+> Hi,
+>    I have a general question on operating software RAIDs in linux.
+>    I am running md RAID in linux 2.6.12 kernel. I observed that the
+> sync speeds
+> were always much closer to /proc/sys/dev/raid/speed_limit_min value,
+> than
+> /proc/sys/dev/raid/speed_limit_max value. I agree that disk activity
+> (I/O) and
+> other system usage will bring down sync speeds. But I want sync speeds
+> to be
+> higher at whatever cost. So I thought I will just set max value to
+> around
+> 500000 and leave the min at 5000. But with idle disk activity and
+> otherwise
+> idle system usage, I still see sync speeds around 5300Kb/s only.
+>
+> So Is the 2.6 kernel designed to sync at speeds closer to min than  
+> max?
+>
+> Please advise.
 
-Well, fix emacs then. We definitely do not want 10000 settable knobs
-that randomly break things. OTOH per-architecture different randomness
-seems like good idea. And if Oracle breaks, fix it.
+I must admit I keep my settings on the default (1000/200000) and get  
+whatever my disks can handle, usually 50-70MB/sec. All this is on a  
+completely idle system, doing anything disk bound at all will lower  
+these numbers significantly. This is on various SATA controllers, all  
+with Seagate drives.
 
->  - Disable PF_RANDOMIZE for the binary.  (Already doable)
->  - Decrease randomization system-wide.  (My patch lets you do this)
->  - Decrease randomization for the binary to a point where it works.
-> (Adding SELinux hooks and policy to my patch would allow this)
+HTH,
+Chris
 
-Which immediately makes your patch obsolete.
-
-> Disabling randomization for the binary is much more fine-grained, but
-> opens up that binary for attacks.  Oracle breaks with high-order
-> entropy; we can disable randomization on Oracle and keep high-order
-> entropy, but now the database server is at risk.  This isn't the
-> greatest idea in the world either.
-
-So fix Oracle. No need to invent serious infrastructure because Oracle
-is broken.
-
-> It appears to me that the best solution is per-policy, but we should
-> leave even that up to the user.  This means make a sane default--
-> one
-
-No. Current situation is okay as is. It does not need to be
-configurable, and it should not be.
-
-Per-architecture ammount of randomness would be welcome, I
-believe. That will force Oracle to fix their code, but that's okay,
-and you can use disable PF_RANDOMIZE for Oracle in meantime.
-								Pavel
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Chris Boot
+bootc@bootc.net
+http://www.bootc.net/
+

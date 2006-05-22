@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbWEVRCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbWEVRHO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750994AbWEVRCh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 13:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWEVRCh
+	id S1750998AbWEVRHO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 13:07:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbWEVRHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 13:02:37 -0400
-Received: from baldrick.bootc.net ([83.142.228.48]:50907 "EHLO
-	baldrick.fusednetworks.co.uk") by vger.kernel.org with ESMTP
-	id S1750993AbWEVRCg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 13:02:36 -0400
-In-Reply-To: <cf5433040605220605t22b6030j701add7d494c83e8@mail.gmail.com>
-References: <cf5433040605220605t22b6030j701add7d494c83e8@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v750)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <0980901F-F36D-4A7C-9951-CEF0F0F3558F@bootc.net>
-Cc: linux-kernel@vger.kernel.org
+	Mon, 22 May 2006 13:07:14 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3972 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750998AbWEVRHM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 13:07:12 -0400
+Date: Mon, 22 May 2006 10:06:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: hch@lst.de, bcrl@kvack.org, cel@citi.umich.edu, zach.brown@oracle.com,
+       linux-kernel@vger.kernel.org, raven@themaw.net
+Subject: Re: [PATCH 2/4] Remove readv/writev methods and use
+ aio_read/aio_write instead
+Message-Id: <20060522100640.0710f7da.akpm@osdl.org>
+In-Reply-To: <1148310016.7214.26.camel@dyn9047017100.beaverton.ibm.com>
+References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>
+	<1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
+	<1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com>
+	<1147727945.20568.53.camel@dyn9047017100.beaverton.ibm.com>
+	<1147728133.6181.2.camel@dyn9047017100.beaverton.ibm.com>
+	<20060521180037.3c8f2847.akpm@osdl.org>
+	<1148310016.7214.26.camel@dyn9047017100.beaverton.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Chris Boot <bootc@bootc.net>
-Subject: Re: RAID Sync Speeds
-Date: Mon, 22 May 2006 18:02:34 +0100
-To: Rainer Shiz <rainer.shiz@gmail.com>
-X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 May 2006, at 14:05, Rainer Shiz wrote:
-
-> Hi,
->    I have a general question on operating software RAIDs in linux.
->    I am running md RAID in linux 2.6.12 kernel. I observed that the
-> sync speeds
-> were always much closer to /proc/sys/dev/raid/speed_limit_min value,
-> than
-> /proc/sys/dev/raid/speed_limit_max value. I agree that disk activity
-> (I/O) and
-> other system usage will bring down sync speeds. But I want sync speeds
-> to be
-> higher at whatever cost. So I thought I will just set max value to
-> around
-> 500000 and leave the min at 5000. But with idle disk activity and
-> otherwise
-> idle system usage, I still see sync speeds around 5300Kb/s only.
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
 >
-> So Is the 2.6 kernel designed to sync at speeds closer to min than  
-> max?
->
-> Please advise.
+> On Sun, 2006-05-21 at 18:00 -0700, Andrew Morton wrote:
+> > Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> > >
+> > > This patch removes readv() and writev() methods and replaces
+> > >  them with aio_read()/aio_write() methods.
+> > 
+> > And it breaks autofs4
+> > 
+> > autofs: pipe file descriptor does not contain proper ops
+> > 
+> 
+> Any easy test case to reproduce the problem ?
+> 
 
-I must admit I keep my settings on the default (1000/200000) and get  
-whatever my disks can handle, usually 50-70MB/sec. All this is on a  
-completely idle system, doing anything disk bound at all will lower  
-these numbers significantly. This is on various SATA controllers, all  
-with Seagate drives.
-
-HTH,
-Chris
-
--- 
-Chris Boot
-bootc@bootc.net
-http://www.bootc.net/
-
+Grab an FC5 setup, copy RH's .config into your tree.

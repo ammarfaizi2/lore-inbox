@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWEVRqx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbWEVRsy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751089AbWEVRqx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 13:46:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbWEVRqx
+	id S1751064AbWEVRsy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 13:48:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWEVRsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 13:46:53 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39568 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751089AbWEVRqw (ORCPT
+	Mon, 22 May 2006 13:48:54 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34982 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751064AbWEVRsx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 13:46:52 -0400
-Date: Mon, 22 May 2006 10:46:33 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@osdl.org>, Zachary Amsden <zach@vmware.com>,
-       jakub@redhat.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, kraxel@suse.de
-Subject: Re: [PATCH] Gerd Hoffman's move-vsyscall-into-user-address-range
- patch
-In-Reply-To: <20060522172710.GA22823@elte.hu>
-Message-ID: <Pine.LNX.4.64.0605221045140.3697@g5.osdl.org>
-References: <1147759423.5492.102.camel@localhost.localdomain>
- <20060516064723.GA14121@elte.hu> <1147852189.1749.28.camel@localhost.localdomain>
- <20060519174303.5fd17d12.akpm@osdl.org> <20060522162949.GG30682@devserv.devel.redhat.com>
- <4471EA60.8080607@vmware.com> <20060522101454.52551222.akpm@osdl.org>
- <20060522172710.GA22823@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 22 May 2006 13:48:53 -0400
+Date: Mon, 22 May 2006 13:48:18 -0400
+From: Dave Jones <davej@redhat.com>
+To: Laurence Vanek <lvanek@charter.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>,
+       Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Jean Delvare <khali@linux-fr.org>
+Subject: Re: Kernel 2.6.16-1.2122_FC5 & lmsensors
+Message-ID: <20060522174818.GA8016@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Laurence Vanek <lvanek@charter.net>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>,
+	Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
+	Chris Wright <chrisw@sous-sol.org>,
+	Greg Kroah-Hartman <gregkh@suse.de>,
+	Jean Delvare <khali@linux-fr.org>
+References: <4471F028.4090803@charter.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4471F028.4090803@charter.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 22, 2006 at 12:08:56PM -0500, Laurence Vanek wrote:
+ > Upon updating to the latest kernel (2.6.16-1.2122_FC5) & rebooting I 
+ > find that I no longer have lmsensors.  /var/log/messages gives this in 
+ > the suspect area:
+ > 
+ > ==========
+ > May 22 11:42:42 localhost kernel: i2c_adapter i2c-0: SMBus Quick command 
+ > not supported, can't probe for chips
+ > May 22 11:42:42 localhost kernel: i2c_adapter i2c-1: SMBus Quick command 
+ > not supported, can't probe for chips
+ > May 22 11:42:42 localhost kernel: i2c_adapter i2c-2: SMBus Quick command 
+ > not supported, can't probe for chips
+ > =========
+ > 
+ > something new in this release?
 
+Probably a side-effect of [PATCH] smbus unhiding kills thermal management
+merged in 2.6.16.17.  Is this an ASUS board ?
 
-On Mon, 22 May 2006, Ingo Molnar wrote:
->
-> very much so. Especially for security it's really bad if a feature is 
-> default-off. I'm quite strongly against such an approach.
+		Dave
 
-It's not bad at all.
-
-It's default-off FOR THE KERNEL.
-
-Make Fedora updates (and RHEL) just turn it on in the rc scripts. So that 
-it's default ON for those, WHEN IT WORKS.
-
-> is it really a big problem to add "vdso=0" to the long list of 
-> requirements you need to run a 2.6 kernel on an old distribution (or to 
-> disable CONFIG_VDSO)? FC1 wasnt even 2.6-ready, it used a 2.4 kernel!
-
-Backwards compatibility is absolutely paramount. Much more important than 
-just about anything else.
-
-		Linus
+-- 
+http://www.codemonkey.org.uk

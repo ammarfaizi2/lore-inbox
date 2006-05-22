@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWEVRbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbWEVRjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751079AbWEVRbp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 13:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbWEVRbp
+	id S1751081AbWEVRjb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 13:39:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWEVRjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 13:31:45 -0400
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:20937 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751079AbWEVRbo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 13:31:44 -0400
-To: dzickus <dzickus@redhat.com>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de,
-       oprofile-list@lists.sourceforge.net
-Subject: Re: [patch 5/8] Add SMP support on i386 to reservation framework
-References: <20060509205035.446349000@drseuss.boston.redhat.com>
-	<20060509205957.466442000@drseuss.boston.redhat.com>
-From: Markus Armbruster <armbru@redhat.com>
-Date: Mon, 22 May 2006 19:31:41 +0200
-In-Reply-To: <20060509205957.466442000@drseuss.boston.redhat.com> (dzickus@redhat.com's message of "Tue, 09 May 2006 16:50:40 -0400")
-Message-ID: <87mzdage4i.fsf@pike.pond.sub.org>
-User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 22 May 2006 13:39:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30606 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751081AbWEVRjb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 13:39:31 -0400
+Date: Mon, 22 May 2006 10:39:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Zach Brown <zach.brown@oracle.com>
+Cc: rdunlap@xenotime.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kmap tracking
+Message-Id: <20060522103915.53e03867.akpm@osdl.org>
+In-Reply-To: <4471EA2C.4010401@oracle.com>
+References: <20060518155357.04066e9c.rdunlap@xenotime.net>
+	<4471EA2C.4010401@oracle.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-@@ -457,143 +434,312 @@ late_initcall(init_lapic_nmi_sysfs);
-[...]
- static int setup_p6_watchdog(void)
-[...]
- 	apic_write(APIC_LVTPC, APIC_DM_NMI);
--	evntsel |= P6_EVNTSEL0_ENABLE;
--	wrmsr(MSR_P6_EVNTSEL0, evntsel, 0);
-+	evntsel |= K7_EVNTSEL_ENABLE;
+Zach Brown <zach.brown@oracle.com> wrote:
+>
+>  Randy.Dunlap wrote:
+>  > From: Randy Dunlap <rdunlap@xenotime.net>
+>  > 
+>  > Track kmap/kunmap call history, storing caller function address,
+>  > action, and time (jiffies), if CONFIG_DEBUG_KMAP is enabled.
+>  > Based on a patch to 2.4.21 by Zach Brown that was used successfully
+>  > at Oracle to track down some kmap/kunmap problems.
+> 
+>  Thanks for bringing this to 2.6.. sorry for the lag in reviewing.
 
-Me thinks you want P6_EVNTSEL0_ENABLE here, although the value is the
-same.
+I was scratching my head over this patch trying to think of any bug in
+recent years which it would have detected.  I failed.
+
+So...  what's the motivator here?

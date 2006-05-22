@@ -1,20 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWEVDzk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWEVD4W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbWEVDzk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 23:55:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbWEVDzk
+	id S1751191AbWEVD4W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 23:56:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbWEVD4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 23:55:40 -0400
-Received: from xenotime.net ([66.160.160.81]:55766 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751182AbWEVDzj (ORCPT
+	Sun, 21 May 2006 23:56:22 -0400
+Received: from xenotime.net ([66.160.160.81]:2263 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751191AbWEVD4V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 23:55:39 -0400
-Date: Sun, 21 May 2006 20:58:10 -0700
+	Sun, 21 May 2006 23:56:21 -0400
+Date: Sun, 21 May 2006 20:57:32 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, wim@iguana.be
-Subject: [PATCH 1/14/] Doc. sources: expose watchdog
-Message-Id: <20060521205810.64b631e2.rdunlap@xenotime.net>
+Cc: akpm <akpm@osdl.org>, wli@holomorphy.com
+Subject: [PATCH 2/14/] Doc. sources: expose vm/
+Message-Id: <20060521205732.cc824d73.rdunlap@xenotime.net>
+In-Reply-To: <20060521203349.40b40930.rdunlap@xenotime.net>
+References: <20060521203349.40b40930.rdunlap@xenotime.net>
 Organization: YPO4
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
@@ -25,7 +27,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@xenotime.net>
 
-Documentation/watchdog/:
+Documentation/vm/:
 Expose example and tool source files in the Documentation/ directory in
 their own files instead of being buried (almost hidden) in readme/txt files.
 
@@ -39,243 +41,339 @@ they should be removed.
 
 Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
- Documentation/watchdog/pcwd-watchdog.txt |   73 -------------------------------
- Documentation/watchdog/watchdog-api.txt  |   17 -------
- Documentation/watchdog/watchdog-simple.c |   15 ++++++
- Documentation/watchdog/watchdog-test.c   |   68 ++++++++++++++++++++++++++++
- Documentation/watchdog/watchdog.txt      |   23 ---------
- 5 files changed, 87 insertions(+), 109 deletions(-)
+ Documentation/vm/hugepage-mmap.c |   73 ++++++++++++++++++
+ Documentation/vm/hugepage-shm.c  |   69 +++++++++++++++++
+ Documentation/vm/hugetlbpage.txt |  152 +--------------------------------------
+ 3 files changed, 149 insertions(+), 145 deletions(-)
 
---- linux-2617-rc4g9-docsrc-split.orig/Documentation/watchdog/pcwd-watchdog.txt
-+++ linux-2617-rc4g9-docsrc-split/Documentation/watchdog/pcwd-watchdog.txt
-@@ -22,78 +22,9 @@
-  to run the program with an "&" to run it in the background!)
- 
-  If you want to write a program to be compatible with the PC Watchdog
-- driver, simply do the following:
-+ driver, simply use of modify the watchdog test program:
-+ Documentation/watchdog/watchdog-test.c
- 
---- Snippet of code --
--/*
-- * Watchdog Driver Test Program
-- */
--
--#include <stdio.h>
--#include <stdlib.h>
--#include <string.h>
--#include <unistd.h>
--#include <fcntl.h>
--#include <sys/ioctl.h>
--#include <linux/types.h>
--#include <linux/watchdog.h>
--
--int fd;
--
--/*
-- * This function simply sends an IOCTL to the driver, which in turn ticks
-- * the PC Watchdog card to reset its internal timer so it doesn't trigger
-- * a computer reset.
-- */
--void keep_alive(void)
--{
--    int dummy;
--
--    ioctl(fd, WDIOC_KEEPALIVE, &dummy);
--}
--
--/*
-- * The main program.  Run the program with "-d" to disable the card,
-- * or "-e" to enable the card.
-- */
--int main(int argc, char *argv[])
--{
--    fd = open("/dev/watchdog", O_WRONLY);
--
--    if (fd == -1) {
--	fprintf(stderr, "Watchdog device not enabled.\n");
--	fflush(stderr);
--	exit(-1);
--    }
--
--    if (argc > 1) {
--	if (!strncasecmp(argv[1], "-d", 2)) {
--	    ioctl(fd, WDIOC_SETOPTIONS, WDIOS_DISABLECARD);
--	    fprintf(stderr, "Watchdog card disabled.\n");
--	    fflush(stderr);
--	    exit(0);
--	} else if (!strncasecmp(argv[1], "-e", 2)) {
--	    ioctl(fd, WDIOC_SETOPTIONS, WDIOS_ENABLECARD);
--	    fprintf(stderr, "Watchdog card enabled.\n");
--	    fflush(stderr);
--	    exit(0);
--	} else {
--	    fprintf(stderr, "-d to disable, -e to enable.\n");
--	    fprintf(stderr, "run by itself to tick the card.\n");
--	    fflush(stderr);
--	    exit(0);
--	}
--    } else {
--	fprintf(stderr, "Watchdog Ticking Away!\n");
--	fflush(stderr);
--    }
--
--    while(1) {
--	keep_alive();
--	sleep(1);
--    }
--}
---- End snippet --
- 
-  Other IOCTL functions include:
- 
---- linux-2617-rc4g9-docsrc-split.orig/Documentation/watchdog/watchdog-api.txt
-+++ linux-2617-rc4g9-docsrc-split/Documentation/watchdog/watchdog-api.txt
-@@ -34,22 +34,7 @@ activates as soon as /dev/watchdog is op
- the watchdog is pinged within a certain time, this time is called the
- timeout or margin.  The simplest way to ping the watchdog is to write
- some data to the device.  So a very simple watchdog daemon would look
--like this:
--
--#include <stdlib.h>
--#include <fcntl.h>
--
--int main(int argc, const char *argv[]) {
--	int fd=open("/dev/watchdog",O_WRONLY);
--	if (fd==-1) {
--		perror("watchdog");
--		exit(1);
--	}
--	while(1) {
--		write(fd, "\0", 1);
--		sleep(10);
--	}
--}
-+like this source file:  see Documentation/watchdog/watchdog-simple.c
- 
- A more advanced driver could for example check that a HTTP server is
- still responding before doing the write call to ping the watchdog.
 --- /dev/null
-+++ linux-2617-rc4g9-docsrc-split/Documentation/watchdog/watchdog-simple.c
-@@ -0,0 +1,15 @@
++++ linux-2617-rc4g9-docsrc-split/Documentation/vm/hugepage-shm.c
+@@ -0,0 +1,69 @@
 +#include <stdlib.h>
-+#include <fcntl.h>
++#include <stdio.h>
++#include <sys/types.h>
++#include <sys/ipc.h>
++#include <sys/shm.h>
++#include <sys/mman.h>
 +
-+int main(int argc, const char *argv[]) {
-+	int fd = open("/dev/watchdog", O_WRONLY);
-+	if (fd == -1) {
-+		perror("watchdog");
++#ifndef SHM_HUGETLB
++#define SHM_HUGETLB 04000
++#endif
++
++#define LENGTH (256UL*1024*1024)
++
++#define dprintf(x)  printf(x)
++
++/* Only ia64 requires this */
++#ifdef __ia64__
++#define ADDR (void *)(0x8000000000000000UL)
++#define SHMAT_FLAGS (SHM_RND)
++#else
++#define ADDR (void *)(0x0UL)
++#define SHMAT_FLAGS (0)
++#endif
++
++int main(void)
++{
++	int shmid;
++	unsigned long i;
++	char *shmaddr;
++
++	if ((shmid = shmget(2, LENGTH,
++			    SHM_HUGETLB | IPC_CREAT | SHM_R | SHM_W)) < 0) {
++		perror("shmget");
 +		exit(1);
 +	}
-+	while (1) {
-+		write(fd, "\0", 1);
-+		fsync(fd);
-+		sleep(10);
++	printf("shmid: 0x%x\n", shmid);
++
++	shmaddr = shmat(shmid, ADDR, SHMAT_FLAGS);
++	if (shmaddr == (char *)-1) {
++		perror("Shared memory attach failure");
++		shmctl(shmid, IPC_RMID, NULL);
++		exit(2);
 +	}
-+}
---- /dev/null
-+++ linux-2617-rc4g9-docsrc-split/Documentation/watchdog/watchdog-test.c
-@@ -0,0 +1,68 @@
-+/*
-+ * Watchdog Driver Test Program
-+ */
++	printf("shmaddr: %p\n", shmaddr);
 +
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <unistd.h>
-+#include <fcntl.h>
-+#include <sys/ioctl.h>
-+#include <linux/types.h>
-+#include <linux/watchdog.h>
-+
-+int fd;
-+
-+/*
-+ * This function simply sends an IOCTL to the driver, which in turn ticks
-+ * the PC Watchdog card to reset its internal timer so it doesn't trigger
-+ * a computer reset.
-+ */
-+void keep_alive(void)
-+{
-+    int dummy;
-+
-+    ioctl(fd, WDIOC_KEEPALIVE, &dummy);
-+}
-+
-+/*
-+ * The main program.  Run the program with "-d" to disable the card,
-+ * or "-e" to enable the card.
-+ */
-+int main(int argc, char *argv[])
-+{
-+    fd = open("/dev/watchdog", O_WRONLY);
-+
-+    if (fd == -1) {
-+	fprintf(stderr, "Watchdog device not enabled.\n");
-+	fflush(stderr);
-+	exit(-1);
-+    }
-+
-+    if (argc > 1) {
-+	if (!strncasecmp(argv[1], "-d", 2)) {
-+	    ioctl(fd, WDIOC_SETOPTIONS, WDIOS_DISABLECARD);
-+	    fprintf(stderr, "Watchdog card disabled.\n");
-+	    fflush(stderr);
-+	    exit(0);
-+	} else if (!strncasecmp(argv[1], "-e", 2)) {
-+	    ioctl(fd, WDIOC_SETOPTIONS, WDIOS_ENABLECARD);
-+	    fprintf(stderr, "Watchdog card enabled.\n");
-+	    fflush(stderr);
-+	    exit(0);
-+	} else {
-+	    fprintf(stderr, "-d to disable, -e to enable.\n");
-+	    fprintf(stderr, "run by itself to tick the card.\n");
-+	    fflush(stderr);
-+	    exit(0);
++	dprintf("Starting the writes:\n");
++	for (i = 0; i < LENGTH; i++) {
++		shmaddr[i] = (char)(i);
++		if (!(i % (1024 * 1024)))
++			dprintf(".");
 +	}
-+    } else {
-+	fprintf(stderr, "Watchdog Ticking Away!\n");
-+	fflush(stderr);
-+    }
++	dprintf("\n");
 +
-+    while(1) {
-+	keep_alive();
-+	sleep(1);
-+    }
++	dprintf("Starting the Check...");
++	for (i = 0; i < LENGTH; i++)
++		if (shmaddr[i] != (char)i)
++			printf("\nIndex %lu mismatched\n", i);
++	dprintf("Done.\n");
++
++	if (shmdt((const void *)shmaddr) != 0) {
++		perror("Detach failure");
++		shmctl(shmid, IPC_RMID, NULL);
++		exit(3);
++	}
++
++	shmctl(shmid, IPC_RMID, NULL);
++
++	return 0;
 +}
---- linux-2617-rc4g9-docsrc-split.orig/Documentation/watchdog/watchdog.txt
-+++ linux-2617-rc4g9-docsrc-split/Documentation/watchdog/watchdog.txt
-@@ -65,28 +65,7 @@ The external event interfaces on the WDT
- Minor numbers are however allocated for it.
+--- linux-2617-rc4g9-docsrc-split.orig/Documentation/vm/hugetlbpage.txt
++++ linux-2617-rc4g9-docsrc-split/Documentation/vm/hugetlbpage.txt
+@@ -104,13 +104,15 @@ Also, it is important to note that no su
+ applications are going to use only shmat/shmget system calls.  Users who
+ wish to use hugetlb page via shared memory segment should be a member of
+ a supplementary group and system admin needs to configure that gid into
+-/proc/sys/vm/hugetlb_shm_group.  It is possible for same or different
+-applications to use any combination of mmaps and shm* calls, though the
+-mount of filesystem will be required for using mmap calls.
++/proc/sys/vm/hugetlb_shm_group.  It is possible for one or different
++applications to use any combination of mmaps and shm* calls, though a
++hugetlbfs filesystem mount will be required for using mmaps.
  
+ *******************************************************************
  
--Example Watchdog Driver
-------------------------
--
+ /*
++ * hugepage-shm:  see Documentation/vm/hugepage-shm.c
++ *
+  * Example of using hugepage memory in a user application using Sys V shared
+  * memory system calls.  In this example the app is requesting 256MB of
+  * memory that is backed by huge pages.  The application uses the flag
+@@ -134,79 +136,12 @@ mount of filesystem will be required for
+  *
+  * echo 4194304 > /proc/sys/kernel/shmall
+  */
+-#include <stdlib.h>
 -#include <stdio.h>
--#include <unistd.h>
--#include <fcntl.h>
+-#include <sys/types.h>
+-#include <sys/ipc.h>
+-#include <sys/shm.h>
+-#include <sys/mman.h>
 -
--int main(int argc, const char *argv[])
+-#ifndef SHM_HUGETLB
+-#define SHM_HUGETLB 04000
+-#endif
+-
+-#define LENGTH (256UL*1024*1024)
+-
+-#define dprintf(x)  printf(x)
+-
+-/* Only ia64 requires this */
+-#ifdef __ia64__
+-#define ADDR (void *)(0x8000000000000000UL)
+-#define SHMAT_FLAGS (SHM_RND)
+-#else
+-#define ADDR (void *)(0x0UL)
+-#define SHMAT_FLAGS (0)
+-#endif
+-
+-int main(void)
 -{
--	int fd=open("/dev/watchdog",O_WRONLY);
--	if(fd==-1)
--	{
--		perror("watchdog");
+-	int shmid;
+-	unsigned long i;
+-	char *shmaddr;
+-
+-	if ((shmid = shmget(2, LENGTH,
+-			    SHM_HUGETLB | IPC_CREAT | SHM_R | SHM_W)) < 0) {
+-		perror("shmget");
 -		exit(1);
 -	}
--	while(1)
--	{
--		write(fd,"\0",1);
--		fsync(fd);
--		sleep(10);
+-	printf("shmid: 0x%x\n", shmid);
+-
+-	shmaddr = shmat(shmid, ADDR, SHMAT_FLAGS);
+-	if (shmaddr == (char *)-1) {
+-		perror("Shared memory attach failure");
+-		shmctl(shmid, IPC_RMID, NULL);
+-		exit(2);
 -	}
+-	printf("shmaddr: %p\n", shmaddr);
+-
+-	dprintf("Starting the writes:\n");
+-	for (i = 0; i < LENGTH; i++) {
+-		shmaddr[i] = (char)(i);
+-		if (!(i % (1024 * 1024)))
+-			dprintf(".");
+-	}
+-	dprintf("\n");
+-
+-	dprintf("Starting the Check...");
+-	for (i = 0; i < LENGTH; i++)
+-		if (shmaddr[i] != (char)i)
+-			printf("\nIndex %lu mismatched\n", i);
+-	dprintf("Done.\n");
+-
+-	if (shmdt((const void *)shmaddr) != 0) {
+-		perror("Detach failure");
+-		shmctl(shmid, IPC_RMID, NULL);
+-		exit(3);
+-	}
+-
+-	shmctl(shmid, IPC_RMID, NULL);
+-
+-	return 0;
 -}
-+Example Watchdog Driver:  see Documentation/watchdog/watchdog-simple.c
  
+ *******************************************************************
  
- Contact Information
+ /*
++ * hugepage-mmap:  see Documentation/vm/hugepage-mmap.c
++ *
+  * Example of using hugepage memory in a user application using the mmap
+  * system call.  Before running this application, make sure that the
+  * administrator has mounted the hugetlbfs filesystem (on some directory
+@@ -219,76 +154,3 @@ int main(void)
+  * specified.  Specifying a fixed address is not required on ppc64, i386
+  * or x86_64.
+  */
+-#include <stdlib.h>
+-#include <stdio.h>
+-#include <unistd.h>
+-#include <sys/mman.h>
+-#include <fcntl.h>
+-
+-#define FILE_NAME "/mnt/hugepagefile"
+-#define LENGTH (256UL*1024*1024)
+-#define PROTECTION (PROT_READ | PROT_WRITE)
+-
+-/* Only ia64 requires this */
+-#ifdef __ia64__
+-#define ADDR (void *)(0x8000000000000000UL)
+-#define FLAGS (MAP_SHARED | MAP_FIXED)
+-#else
+-#define ADDR (void *)(0x0UL)
+-#define FLAGS (MAP_SHARED)
+-#endif
+-
+-void check_bytes(char *addr)
+-{
+-	printf("First hex is %x\n", *((unsigned int *)addr));
+-}
+-
+-void write_bytes(char *addr)
+-{
+-	unsigned long i;
+-
+-	for (i = 0; i < LENGTH; i++)
+-		*(addr + i) = (char)i;
+-}
+-
+-void read_bytes(char *addr)
+-{
+-	unsigned long i;
+-
+-	check_bytes(addr);
+-	for (i = 0; i < LENGTH; i++)
+-		if (*(addr + i) != (char)i) {
+-			printf("Mismatch at %lu\n", i);
+-			break;
+-		}
+-}
+-
+-int main(void)
+-{
+-	void *addr;
+-	int fd;
+-
+-	fd = open(FILE_NAME, O_CREAT | O_RDWR, 0755);
+-	if (fd < 0) {
+-		perror("Open failed");
+-		exit(1);
+-	}
+-
+-	addr = mmap(ADDR, LENGTH, PROTECTION, FLAGS, fd, 0);
+-	if (addr == MAP_FAILED) {
+-		perror("mmap");
+-		unlink(FILE_NAME);
+-		exit(1);
+-	}
+-
+-	printf("Returned address is %p\n", addr);
+-	check_bytes(addr);
+-	write_bytes(addr);
+-	read_bytes(addr);
+-
+-	munmap(addr, LENGTH);
+-	close(fd);
+-	unlink(FILE_NAME);
+-
+-	return 0;
+-}
+--- /dev/null
++++ linux-2617-rc4g9-docsrc-split/Documentation/vm/hugepage-mmap.c
+@@ -0,0 +1,73 @@
++#include <stdlib.h>
++#include <stdio.h>
++#include <unistd.h>
++#include <sys/mman.h>
++#include <fcntl.h>
++
++#define FILE_NAME "/mnt/hugepagefile"
++#define LENGTH (256UL*1024*1024)
++#define PROTECTION (PROT_READ | PROT_WRITE)
++
++/* Only ia64 requires this */
++#ifdef __ia64__
++#define ADDR (void *)(0x8000000000000000UL)
++#define FLAGS (MAP_SHARED | MAP_FIXED)
++#else
++#define ADDR (void *)(0x0UL)
++#define FLAGS (MAP_SHARED)
++#endif
++
++void check_bytes(char *addr)
++{
++	printf("First hex is %x\n", *((unsigned int *)addr));
++}
++
++void write_bytes(char *addr)
++{
++	unsigned long i;
++
++	for (i = 0; i < LENGTH; i++)
++		*(addr + i) = (char)i;
++}
++
++void read_bytes(char *addr)
++{
++	unsigned long i;
++
++	check_bytes(addr);
++	for (i = 0; i < LENGTH; i++)
++		if (*(addr + i) != (char)i) {
++			printf("Mismatch at %lu\n", i);
++			break;
++		}
++}
++
++int main(void)
++{
++	void *addr;
++	int fd;
++
++	fd = open(FILE_NAME, O_CREAT | O_RDWR, 0755);
++	if (fd < 0) {
++		perror("Open failed");
++		exit(1);
++	}
++
++	addr = mmap(ADDR, LENGTH, PROTECTION, FLAGS, fd, 0);
++	if (addr == MAP_FAILED) {
++		perror("mmap");
++		unlink(FILE_NAME);
++		exit(1);
++	}
++
++	printf("Returned address is %p\n", addr);
++	check_bytes(addr);
++	write_bytes(addr);
++	read_bytes(addr);
++
++	munmap(addr, LENGTH);
++	close(fd);
++	unlink(FILE_NAME);
++
++	return 0;
++}
 
 
 ---

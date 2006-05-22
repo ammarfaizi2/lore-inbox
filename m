@@ -1,76 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWEVUOe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWEVUQg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbWEVUOe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 16:14:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWEVUOe
+	id S1751126AbWEVUQg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 16:16:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWEVUQg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 16:14:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:4254 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751163AbWEVUOd (ORCPT
+	Mon, 22 May 2006 16:16:36 -0400
+Received: from xenotime.net ([66.160.160.81]:58754 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751126AbWEVUQf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 16:14:33 -0400
-Date: Mon, 22 May 2006 16:14:28 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH] s390: next_timer_interrupt overflow in stop_hz_timer
-Message-ID: <20060522201428.GA10346@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Martin Schwidefsky <schwidefsky@de.ibm.com>
-References: <200605212100.k4LL0pCX012928@hera.kernel.org>
+	Mon, 22 May 2006 16:16:35 -0400
+Date: Mon, 22 May 2006 13:19:02 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Cedric Le Goater <clg@fr.ibm.com>
+Cc: serue@us.ibm.com, linux-kernel@vger.kernel.org, dev@sw.ru,
+       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
+       ebiederm@xmission.com, xemul@sw.ru, haveblue@us.ibm.com, akpm@osdl.org
+Subject: Re: [PATCH 4/9] namespaces: utsname: switch to using uts namespaces
+Message-Id: <20060522131902.7e30e6f0.rdunlap@xenotime.net>
+In-Reply-To: <44721469.5000601@fr.ibm.com>
+References: <20060518154700.GA28344@sergelap.austin.ibm.com>
+	<20060518154936.GE28344@sergelap.austin.ibm.com>
+	<20060518170234.07c8fe4c.rdunlap@xenotime.net>
+	<44721469.5000601@fr.ibm.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605212100.k4LL0pCX012928@hera.kernel.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 21, 2006 at 09:00:51PM +0000, Linux Kernel wrote:
- > commit 92f63cd000059366af18712367216d96180e0ec0
- > tree 4f88c3875afaa8183d6cfcff685e03ac7684d82d
- > parent 0662b71322e211dba9a4bc0e6fbca7861a2b5a7d
- > author Martin Schwidefsky <schwidefsky@de.ibm.com> Sun, 21 May 2006 05:00:25 -0700
- > committer Linus Torvalds <torvalds@g5.osdl.org> Mon, 22 May 2006 02:59:21 -0700
- > 
- > [PATCH] s390: next_timer_interrupt overflow in stop_hz_timer
- > 
- > The 32 bit unsigned substraction (next - jiffies) in stop_hz_timer can
- > overflow if jiffies gets advanced between next_timer_interrupt and the read
- > under the xtime lock.  The cast to a u64 then results in a large value
- > which causes the cpu to wait too long.  Fix this by casting next and
- > jiffies independently to u64 before subtracting them.
- > 
- > (Spotted by Zachary Amsden <zach@vmware.com>)
- > 
- > Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
- > Signed-off-by: Andrew Morton <akpm@osdl.org>
- > Signed-off-by: Linus Torvalds <torvalds@osdl.org>
- > 
- >  arch/s390/kernel/time.c |    2 +-
- >  1 files changed, 1 insertion(+), 1 deletion(-)
- > 
- > diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
- > index 029f099..ce19ad4 100644
- > --- a/arch/s390/kernel/time.c
- > +++ b/arch/s390/kernel/time.c
- > @@ -272,7 +272,7 @@ static inline void stop_hz_timer(void)
- >  	next = next_timer_interrupt();
- >  	do {
- >  		seq = read_seqbegin_irqsave(&xtime_lock, flags);
- > -		timer = (__u64)(next - jiffies) + jiffies_64;
- > +		timer = (__u64 next) - (__u64 jiffies) + jiffies_64;
- >  	} while (read_seqretry_irqrestore(&xtime_lock, seq, flags));
- >  	todval = -1ULL;
- >  	/* Be careful about overflows. */
+On Mon, 22 May 2006 21:43:37 +0200 Cedric Le Goater wrote:
 
+> Randy.Dunlap wrote:
+> >>
+> >> 9ee063adf4d2287583dbb0a71d1d5f80d7ae011f
+> >> diff --git a/arch/i386/kernel/sys_i386.c b/arch/i386/kernel/sys_i386.c
+> >> index 8fdb1fb..4af731d 100644
+> >> --- a/arch/i386/kernel/sys_i386.c
+> >> +++ b/arch/i386/kernel/sys_i386.c
+> >> @@ -210,7 +210,7 @@ asmlinkage int sys_uname(struct old_utsn
+> >>  	if (!name)
+> >>  		return -EFAULT;
+> >>  	down_read(&uts_sem);
+> >> -	err=copy_to_user(name, &system_utsname, sizeof (*name));
+> >> +	err=copy_to_user(name, utsname(), sizeof (*name));
+> > 
+> > It would be really nice if you would fix spacing while you are here,
+> > like a space a each side of '='.
+> > 
+> > and a space after ',' in the function calls below.
+> 
+> Here's a possible cleanup on top of serge's patchset as found in
+> 2.6.17-rc4-mm3.
 
-arch/s390/kernel/time.c: In function 'stop_hz_timer':
-arch/s390/kernel/time.c:275: error: expected ')' before 'next'
-arch/s390/kernel/time.c:275: error: expected ')' before 'jiffies'
+Yes, thanks, looks good.
 
-		Dave
-
--- 
-http://www.codemonkey.org.uk
+---
+~Randy

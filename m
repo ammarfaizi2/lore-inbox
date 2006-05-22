@@ -1,63 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWEVLZt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWEVL1D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750755AbWEVLZt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 07:25:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbWEVLZt
+	id S1750757AbWEVL1D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 07:27:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbWEVL1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 07:25:49 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:37306
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1750755AbWEVLZt
+	Mon, 22 May 2006 07:27:03 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:11139 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750757AbWEVL1B
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 07:25:49 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Valdis.Kletnieks@vt.edu
-Subject: Re: 2.6.17-rc4-mm3
-Date: Mon, 22 May 2006 13:25:10 +0200
-User-Agent: KMail/1.9.1
-References: <20060522022709.633a7a7f.akpm@osdl.org> <200605221115.k4MBFq42013901@turing-police.cc.vt.edu>
-In-Reply-To: <200605221115.k4MBFq42013901@turing-police.cc.vt.edu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+	Mon, 22 May 2006 07:27:01 -0400
+Message-ID: <44719F4C.6090508@aitel.hist.no>
+Date: Mon, 22 May 2006 13:23:56 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200605221325.10761.mb@bu3sch.de>
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+To: =?UTF-8?B?IkTDtmhyLCBNYXJrdXMgSUNDLUgi?= 
+	<Markus.Doehr@siegenia-aubi.com>
+CC: "'Peter Gordon'" <codergeek42@gmail.com>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: replacing X Window System !
+References: <FC7F4950D2B3B845901C3CE3A1CA6766012A9E71@mxnd200-9.si-aubi.siegenia-aubi.com>
+In-Reply-To: <FC7F4950D2B3B845901C3CE3A1CA6766012A9E71@mxnd200-9.si-aubi.siegenia-aubi.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 May 2006 13:15, you wrote:
-> On Mon, 22 May 2006 02:27:09 PDT, Andrew Morton said:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc4/2.6.17-rc4-mm3/
-> 
-> Mostly works, am chasing down 3 small things (all 3 were new as of -mm2 - I was
-> busy chasing them when -mm3 showed up).
-> 
-> 1) Something has gone astray in the hardware RNG rework.  /sbin/rngd was
-> quite happy dealing with the i810 RNG in my laptop under -rc4-mm1, but under
-> -mm2 and -mm3, I get this (from strace /bin/rngd):
-> 
-> open("/dev/hw_random", O_RDONLY)        = 3
-> read(3, "q\252cg", 4)                   = 4
-> read(3, 0xbfaf56ac, 4)                  = -1 EAGAIN (Resource temporarily unavai lable)
-> 
-> It works for some number of reads, but eventually pulls an EAGAIN.  When
-> stracing on a console that was slow-to-scroll, it did several dozen before
-> failing - so it's apparently a timing thing.  I stuck a debugging printk
-> in just before the test that returns EAGAIN, and got this:
-> 
-> [   68.361000] rng_read data_present=1 i=0 bytes_read=1
-> [   68.361000] rng_read data_present=1 i=0 bytes_read=1
-> [   68.361000] rng_read data_present=1 i=0 bytes_read=1
-> [   68.361000] rng_read data_present=1 i=0 bytes_read=1
-> [   68.361000] rng_read data_present=0 i=20 bytes_read=0
-> 
-> It looks to me line the old code stayed in a while() loop in rng_dev_read
-> until it had fulfilled the read request (including possibly multiple
-> calls to need_resched() and friends).  The new code will bail on an -EAGAIN
-> as soon as the *first* poll fails, rather than waiting until something
-> is available - even if it is NOT flagged O_NONBLOCK.
+Döhr, Markus ICC-H wrote:
 
-Yeah. That is how it works. I am wondering why userspace doesn't
-simply retry, if it receives an EAGAIN.
-Should we return ERESTARTSYS or something like that instead?
+>[...]
+>  
+>
+>>>Did you actually do that? Starting Firefox over a 6 Mbit VPN takes 
+>>>about 3 minutes on a FAST machine. That´s not acceptable - our users 
+>>>want (almost) immediate response to an application, to clicking and 
+>>>waiting 10 seconds until the app is doing something.
+>>> 
+>>>
+>>>      
+>>>
+>>It is not that bad.  I tried starting firefox on a machine 
+>>20km away, using a 5Mbps ADSL link from the "wrong" end.  (I 
+>>ssh'ed into my home pc from work.) Firefox started in 55s, 
+>>not 3min. Still bad, but that is a firefox problem, not a 
+>>generic X-tunneling problem.  I can start the lyx word 
+>>processor in 3s over the same link, and have decent 
+>>performance while using it too.
+>>    
+>>
+>
+>55 seconds to start an application... That´s not acceptable. Why do you
+>think it´s a Firefox problem? Did you try this with a Java application? 
+>  
+>
+I say it is a firefox problem because other apps don't have this delay!
+So clearly, firefox is doing something stupid here that other apps
+doesn't do.  Waiting 3 seconds isn't that painful.
+
+I haven't tried with a java app - I don't think I have any of those.
+Are they special in any way?
+
+>I don´t wanna blame X in general, just saying it is useless if you´re
+>sitting in Hungary or Poland and want to work remotely - in comparision to
+>M$´s  RDP. 
+>  
+>
+It all depends on what latency and bandwith you have.
+5-6 Mbps is enough to have a decent experience, except for
+some stupid apps.  Firefox is certainly slow in starting, and
+somewhat slow later too.  But one doesn't have to run firefox,
+there are other browsers.  And usually, the webbrowser is
+something you _can_ run locally.  At least if you're simply
+trying to read webpages.
+
+>The question for me is not "X or not X" - but how to enable people to start
+>e. g. "sam" on an HP-UX box without needing to wait minutes before the
+>application starts. It works - for sure, but the speed is for our needs not
+>acceptable. Additionally ~ 60 ssh sessions on a single box will but a lot of
+>CPU load on the system beside the fact, that you need a BIG BIG pipe.
+>  
+>
+60 sessions - sure.  The more users, the more resources you need .  .  .
+
+Helge Hafting

@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbWEVA5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbWEVBBF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964969AbWEVA5R (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 20:57:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964971AbWEVA5R
+	id S964971AbWEVBBF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 21:01:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964973AbWEVBBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 20:57:17 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51655 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964969AbWEVA5Q (ORCPT
+	Sun, 21 May 2006 21:01:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:57539 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964971AbWEVBBD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 20:57:16 -0400
-Date: Mon, 22 May 2006 02:56:35 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: jayakumar.acpi@gmail.com
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: [PATCH/RFC 2.6.17-rc4 1/1] ACPI: Atlas ACPI driver v2
-Message-ID: <20060522005634.GB25434@elf.ucw.cz>
-References: <200605190153.k4J1rW0U002537@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605190153.k4J1rW0U002537@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sun, 21 May 2006 21:01:03 -0400
+Date: Sun, 21 May 2006 18:00:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: hch@lst.de, bcrl@kvack.org, cel@citi.umich.edu, zach.brown@oracle.com,
+       linux-kernel@vger.kernel.org, Ian Kent <raven@themaw.net>
+Subject: Re: [PATCH 2/4] Remove readv/writev methods and use
+ aio_read/aio_write instead
+Message-Id: <20060521180037.3c8f2847.akpm@osdl.org>
+In-Reply-To: <1147728133.6181.2.camel@dyn9047017100.beaverton.ibm.com>
+References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>
+	<1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
+	<1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com>
+	<1147727945.20568.53.camel@dyn9047017100.beaverton.ibm.com>
+	<1147728133.6181.2.camel@dyn9047017100.beaverton.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+> This patch removes readv() and writev() methods and replaces
+>  them with aio_read()/aio_write() methods.
 
-> Hi Len, ACPI, and kernel folk,
-> 
-> Appended is a refresh of my patch adding an ACPI driver for Atlas
-> boards. I've done this patch against 2.6.17-rc4 and the only change
-> from the previous version is addition of input support.
+And it breaks autofs4
 
-> diff -X linux-2.6.17-rc4/Documentation/dontdiff -X excludevid -uprN linux-2.6.17-rc4-vanilla/drivers/acpi/atlas_acpi.c linux-2.6.17-rc4/drivers/acpi/atlas_acpi.c
-> --- linux-2.6.17-rc4-vanilla/drivers/acpi/atlas_acpi.c	1970-01-01 07:30:00.000000000 +0730
-> +++ linux-2.6.17-rc4/drivers/acpi/atlas_acpi.c	2006-05-19 08:57:09.000000000 +0800
-> +
-> +#define PROC_ATLAS			"atlas"
+autofs: pipe file descriptor does not contain proper ops
 
-And this is now unused... good. (But please remove the define).
-
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

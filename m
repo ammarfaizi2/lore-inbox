@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWEVITw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWEVI0d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750808AbWEVITw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 04:19:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWEVITv
+	id S1750703AbWEVI0d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 04:26:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750702AbWEVI0d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 04:19:51 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:54279 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S1750808AbWEVITv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 04:19:51 -0400
-Message-ID: <44717424.4020705@argo.co.il>
-Date: Mon, 22 May 2006 11:19:48 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Mon, 22 May 2006 04:26:33 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:15878 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1750703AbWEVI0c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 04:26:32 -0400
+Message-ID: <44717564.50607@shadowen.org>
+Date: Mon, 22 May 2006 09:25:08 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Michael Buesch <mb@bu3sch.de>
-CC: Pau Garcia i Quiles <pgquiles@elpauer.org>, linux-kernel@vger.kernel.org
-Subject: Re: [IDEA] Poor man's UPS
-References: <200605212131.47860.pgquiles@elpauer.org> <20060521193803.GG8250@redhat.com> <200605212146.30342.mb@bu3sch.de>
-In-Reply-To: <200605212146.30342.mb@bu3sch.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: Mel Gorman <mel@csn.ul.ie>, nickpiggin@yahoo.com.au, haveblue@us.ibm.com,
+       ak@suse.de, bob.picco@hp.com, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, mingo@elte.hu, mbligh@mbligh.org
+Subject: Re: [PATCH 1/2] Align the node_mem_map endpoints to a MAX_ORDER boundary
+References: <20060519134241.29021.84756.sendpatchset@skynet>	<20060519134301.29021.71137.sendpatchset@skynet> <20060519134948.10992ba1.akpm@osdl.org>
+In-Reply-To: <20060519134948.10992ba1.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 May 2006 08:19:49.0818 (UTC) FILETIME=[7E7B11A0:01C67D78]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Buesch wrote:
->>  > The "continuous hibernation" is some kind of memory snapshots taken, say, 
->>  > every 5 minutes. The next time your system starts after a crash, it'd say "oh 
->>     
->
-> You really want a system, which freezes for 10-20 seconds every 5 minutes,
-> and thaws again when the image is written?
->   
+Andrew Morton wrote:
+> Mel Gorman <mel@csn.ul.ie> wrote:
+> 
+>>Andy added code to buddy allocator which does not require the zone's
+>>endpoints to be aligned to MAX_ORDER. An issue is that the buddy
+>>allocator requires the node_mem_map's endpoints to be MAX_ORDER aligned.
+>>Otherwise __page_find_buddy could compute a buddy not in node_mem_map for
+>>partial MAX_ORDER regions at zone's endpoints. page_is_buddy will detect
+>>that these pages at endpoints are not PG_buddy (they were zeroed out by
+>>bootmem allocator and not part of zone). Of course the negative here is
+>>we could waste a little memory but the positive is eliminating all the
+>>old checks for zone boundary conditions.
+>>
+>>SPARSEMEM won't encounter this issue because of MAX_ORDER size constraint
+>>when SPARSEMEM is configured. ia64 VIRTUAL_MEM_MAP doesn't need the
+>>logic either because the holes and endpoints are handled differently.
+>>This leaves checking alloc_remap and other arches which privately allocate
+>>for node_mem_map.
+> 
+> 
+> Do we think we need this in 2.6.17?
 
-The snapshot could be taken in the background, by marking all pages 
-read-only, starting a thread to write them to disk, and continuing 
-normal processing.
+I would say yes, it is a very low risk patch in my view and provides a
+very large part of the protections we require.  i386 as our largest
+userbase should be safe from zone/node alignment issues with just this
+change.  Others need slightly more (the page_zone_idx check) which is
+being discussed in another thread.
 
-Such systems have been implemented in the past, see for example 
-http://www.eros-os.org/.
-
--- 
-error compiling committee.c: too many arguments to function
-
+-apw

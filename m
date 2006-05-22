@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751558AbWEVD4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965008AbWEVD7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751558AbWEVD4v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 23:56:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751564AbWEVD41
+	id S965008AbWEVD7v (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 23:59:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751562AbWEVD7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 23:56:27 -0400
-Received: from xenotime.net ([66.160.160.81]:5079 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751195AbWEVD4X (ORCPT
+	Sun, 21 May 2006 23:59:50 -0400
+Received: from xenotime.net ([66.160.160.81]:6871 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751556AbWEVD4Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 23:56:23 -0400
-Date: Sun, 21 May 2006 20:57:37 -0700
+	Sun, 21 May 2006 23:56:25 -0400
+Date: Sun, 21 May 2006 20:57:42 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, axboe@suse.de
-Subject: [PATCH 4/14/] Doc. sources: expose block/
-Message-Id: <20060521205737.939aff71.rdunlap@xenotime.net>
+Cc: akpm <akpm@osdl.org>, linux@dominikbrodowski.net
+Subject: [PATCH 6/14/] Doc. sources: expose pcmcia/
+Message-Id: <20060521205742.0cd2273b.rdunlap@xenotime.net>
 In-Reply-To: <20060521203349.40b40930.rdunlap@xenotime.net>
 References: <20060521203349.40b40930.rdunlap@xenotime.net>
 Organization: YPO4
@@ -27,7 +27,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@xenotime.net>
 
-Documentation/block/:
+Documentation/pcmcia/:
 Expose example and tool source files in the Documentation/ directory in
 their own files instead of being buried (almost hidden) in readme/txt files.
 
@@ -41,255 +41,88 @@ they should be removed.
 
 Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
- Documentation/block/ionice.c   |  110 ++++++++++++++++++++++++++++++++++++++
- Documentation/block/ioprio.txt |  117 -----------------------------------------
- 2 files changed, 111 insertions(+), 116 deletions(-)
+ Documentation/pcmcia/crc32hash.c     |   32 +++++++++++++++++++++++++++++++
+ Documentation/pcmcia/devicetable.txt |   36 ++---------------------------------
+ 2 files changed, 35 insertions(+), 33 deletions(-)
 
 --- /dev/null
-+++ linux-2617-rc4g9-docsrc-split/Documentation/block/ionice.c
-@@ -0,0 +1,110 @@
++++ linux-2617-rc4g9-docsrc-split/Documentation/pcmcia/crc32hash.c
+@@ -0,0 +1,32 @@
++/* crc32hash.c - derived from linux/lib/crc32.c, GNU GPL v2 */
++/* Usage example:
++$ ./crc32hash "Dual Speed"
++*/
++
++#include <string.h>
 +#include <stdio.h>
++#include <ctype.h>
 +#include <stdlib.h>
-+#include <errno.h>
-+#include <getopt.h>
-+#include <unistd.h>
-+#include <sys/ptrace.h>
-+#include <asm/unistd.h>
 +
-+extern int sys_ioprio_set(int, int, int);
-+extern int sys_ioprio_get(int, int);
-+
-+#if defined(__i386__)
-+#define __NR_ioprio_set		289
-+#define __NR_ioprio_get		290
-+#elif defined(__ppc__)
-+#define __NR_ioprio_set		273
-+#define __NR_ioprio_get		274
-+#elif defined(__x86_64__)
-+#define __NR_ioprio_set		251
-+#define __NR_ioprio_get		252
-+#elif defined(__ia64__)
-+#define __NR_ioprio_set		1274
-+#define __NR_ioprio_get		1275
-+#else
-+#error "Unsupported arch"
-+#endif
-+
-+_syscall3(int, ioprio_set, int, which, int, who, int, ioprio);
-+_syscall2(int, ioprio_get, int, which, int, who);
-+
-+enum {
-+	IOPRIO_CLASS_NONE,
-+	IOPRIO_CLASS_RT,
-+	IOPRIO_CLASS_BE,
-+	IOPRIO_CLASS_IDLE,
-+};
-+
-+enum {
-+	IOPRIO_WHO_PROCESS = 1,
-+	IOPRIO_WHO_PGRP,
-+	IOPRIO_WHO_USER,
-+};
-+
-+#define IOPRIO_CLASS_SHIFT	13
-+
-+const char *to_prio[] = { "none", "realtime", "best-effort", "idle", };
-+
-+int main(int argc, char *argv[])
++unsigned int crc32(unsigned char const *p, unsigned int len)
 +{
-+	int ioprio = 4, set = 0, ioprio_class = IOPRIO_CLASS_BE;
-+	int c, pid = 0;
-+
-+	while ((c = getopt(argc, argv, "+n:c:p:")) != EOF) {
-+		switch (c) {
-+		case 'n':
-+			ioprio = strtol(optarg, NULL, 10);
-+			set = 1;
-+			break;
-+		case 'c':
-+			ioprio_class = strtol(optarg, NULL, 10);
-+			set = 1;
-+			break;
-+		case 'p':
-+			pid = strtol(optarg, NULL, 10);
-+			break;
-+		}
++	int i;
++	unsigned int crc = 0;
++	while (len--) {
++		crc ^= *p++;
++		for (i = 0; i < 8; i++)
++			crc = (crc >> 1) ^ ((crc & 1) ? 0xedb88320 : 0);
 +	}
++	return crc;
++}
 +
-+	switch (ioprio_class) {
-+		case IOPRIO_CLASS_NONE:
-+			ioprio_class = IOPRIO_CLASS_BE;
-+			break;
-+		case IOPRIO_CLASS_RT:
-+		case IOPRIO_CLASS_BE:
-+			break;
-+		case IOPRIO_CLASS_IDLE:
-+			ioprio = 7;
-+			break;
-+		default:
-+			printf("bad prio class %d\n", ioprio_class);
-+			return 1;
++int main(int argc, char **argv) {
++	unsigned int result;
++	if (argc != 2) {
++		printf("no string passed as argument\n");
++		return -1;
 +	}
-+
-+	if (!set) {
-+		if (!pid && argv[optind])
-+			pid = strtol(argv[optind], NULL, 10);
-+
-+		ioprio = ioprio_get(IOPRIO_WHO_PROCESS, pid);
-+
-+		printf("pid=%d, %d\n", pid, ioprio);
-+
-+		if (ioprio == -1)
-+			perror("ioprio_get");
-+		else {
-+			ioprio_class = ioprio >> IOPRIO_CLASS_SHIFT;
-+			ioprio = ioprio & 0xff;
-+			printf("%s: prio %d\n", to_prio[ioprio_class], ioprio);
-+		}
-+	} else {
-+		if (ioprio_set(IOPRIO_WHO_PROCESS, pid, ioprio | ioprio_class << IOPRIO_CLASS_SHIFT) == -1) {
-+			perror("ioprio_set");
-+			return 1;
-+		}
-+
-+		if (argv[optind])
-+			execvp(argv[optind], &argv[optind]);
-+	}
-+
++	result = crc32(argv[1], strlen(argv[1]));
++	printf("0x%x\n", result);
 +	return 0;
 +}
---- linux-2617-rc4g9-docsrc-split.orig/Documentation/block/ioprio.txt
-+++ linux-2617-rc4g9-docsrc-split/Documentation/block/ioprio.txt
-@@ -40,7 +40,7 @@ class data, since it doesn't really appl
- Tools
- -----
+--- linux-2617-rc4g9-docsrc-split.orig/Documentation/pcmcia/devicetable.txt
++++ linux-2617-rc4g9-docsrc-split/Documentation/pcmcia/devicetable.txt
+@@ -27,37 +27,7 @@ pcmcia:m0149cC1ABf06pfn00fn00pa725B842Dp
+ The hex value after "pa" is the hash of product ID string 1, after "pb" for
+ string 2 and so on.
  
--See below for a sample ionice tool. Usage:
-+See Documentation/block/ionice.c for a sample ionice tool.  Usage:
- 
- # ionice -c<class> -n<level> -p<pid>
- 
-@@ -57,120 +57,5 @@ For a running process, you can give the 
- 
- will change pid 100 to run at the realtime scheduling class, at priority 2.
- 
-----> snip ionice.c tool <---
+-Alternatively, you can use this small tool to determine the crc32 hash.
+-simply pass the string you want to evaluate as argument to this program,
+-e.g.
++Alternatively, you can use crc32hash (see Documentation/pcmcia/crc32hash.c)
++to determine the crc32 hash.  Simply pass the string you want to evaluate
++as argument to this program, e.g.:
+ $ ./crc32hash "Dual Speed"
 -
+--------------------------------------------------------------------------
+-/* crc32hash.c - derived from linux/lib/crc32.c, GNU GPL v2 */
+-#include <string.h>
 -#include <stdio.h>
+-#include <ctype.h>
 -#include <stdlib.h>
--#include <errno.h>
--#include <getopt.h>
--#include <unistd.h>
--#include <sys/ptrace.h>
--#include <asm/unistd.h>
 -
--extern int sys_ioprio_set(int, int, int);
--extern int sys_ioprio_get(int, int);
--
--#if defined(__i386__)
--#define __NR_ioprio_set		289
--#define __NR_ioprio_get		290
--#elif defined(__ppc__)
--#define __NR_ioprio_set		273
--#define __NR_ioprio_get		274
--#elif defined(__x86_64__)
--#define __NR_ioprio_set		251
--#define __NR_ioprio_get		252
--#elif defined(__ia64__)
--#define __NR_ioprio_set		1274
--#define __NR_ioprio_get		1275
--#else
--#error "Unsupported arch"
--#endif
--
--_syscall3(int, ioprio_set, int, which, int, who, int, ioprio);
--_syscall2(int, ioprio_get, int, which, int, who);
--
--enum {
--	IOPRIO_CLASS_NONE,
--	IOPRIO_CLASS_RT,
--	IOPRIO_CLASS_BE,
--	IOPRIO_CLASS_IDLE,
--};
--
--enum {
--	IOPRIO_WHO_PROCESS = 1,
--	IOPRIO_WHO_PGRP,
--	IOPRIO_WHO_USER,
--};
--
--#define IOPRIO_CLASS_SHIFT	13
--
--const char *to_prio[] = { "none", "realtime", "best-effort", "idle", };
--
--int main(int argc, char *argv[])
+-unsigned int crc32(unsigned char const *p, unsigned int len)
 -{
--	int ioprio = 4, set = 0, ioprio_class = IOPRIO_CLASS_BE;
--	int c, pid = 0;
--
--	while ((c = getopt(argc, argv, "+n:c:p:")) != EOF) {
--		switch (c) {
--		case 'n':
--			ioprio = strtol(optarg, NULL, 10);
--			set = 1;
--			break;
--		case 'c':
--			ioprio_class = strtol(optarg, NULL, 10);
--			set = 1;
--			break;
--		case 'p':
--			pid = strtol(optarg, NULL, 10);
--			break;
--		}
+-	int i;
+-	unsigned int crc = 0;
+-	while (len--) {
+-		crc ^= *p++;
+-		for (i = 0; i < 8; i++)
+-			crc = (crc >> 1) ^ ((crc & 1) ? 0xedb88320 : 0);
 -	}
--
--	switch (ioprio_class) {
--		case IOPRIO_CLASS_NONE:
--			ioprio_class = IOPRIO_CLASS_BE;
--			break;
--		case IOPRIO_CLASS_RT:
--		case IOPRIO_CLASS_BE:
--			break;
--		case IOPRIO_CLASS_IDLE:
--			ioprio = 7;
--			break;
--		default:
--			printf("bad prio class %d\n", ioprio_class);
--			return 1;
--	}
--
--	if (!set) {
--		if (!pid && argv[optind])
--			pid = strtol(argv[optind], NULL, 10);
--
--		ioprio = ioprio_get(IOPRIO_WHO_PROCESS, pid);
--
--		printf("pid=%d, %d\n", pid, ioprio);
--
--		if (ioprio == -1)
--			perror("ioprio_get");
--		else {
--			ioprio_class = ioprio >> IOPRIO_CLASS_SHIFT;
--			ioprio = ioprio & 0xff;
--			printf("%s: prio %d\n", to_prio[ioprio_class], ioprio);
--		}
--	} else {
--		if (ioprio_set(IOPRIO_WHO_PROCESS, pid, ioprio | ioprio_class << IOPRIO_CLASS_SHIFT) == -1) {
--			perror("ioprio_set");
--			return 1;
--		}
--
--		if (argv[optind])
--			execvp(argv[optind], &argv[optind]);
--	}
--
--	return 0;
+-	return crc;
 -}
 -
-----> snip ionice.c tool <---
--
- 
- March 11 2005, Jens Axboe <axboe@suse.de>
+-int main(int argc, char **argv) {
+-	unsigned int result;
+-	if (argc != 2) {
+-		printf("no string passed as argument\n");
+-		return -1;
+-	}
+-	result = crc32(argv[1], strlen(argv[1]));
+-	printf("0x%x\n", result);
+-	return 0;
+-}
 
 
 ---

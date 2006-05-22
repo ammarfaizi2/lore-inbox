@@ -1,77 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWEVLtp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWEVLuu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750765AbWEVLtp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 07:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWEVLtp
+	id S1750768AbWEVLuu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 07:50:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWEVLuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 07:49:45 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:17350
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1750765AbWEVLtp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 07:49:45 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Valdis.Kletnieks@vt.edu
-Subject: Re: 2.6.17-rc4-mm3
-Date: Mon, 22 May 2006 13:49:28 +0200
-User-Agent: KMail/1.9.1
-References: <20060522022709.633a7a7f.akpm@osdl.org> <200605221325.10761.mb@bu3sch.de> <200605221138.k4MBcgd2006492@turing-police.cc.vt.edu>
-In-Reply-To: <200605221138.k4MBcgd2006492@turing-police.cc.vt.edu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Mon, 22 May 2006 07:50:50 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:30460 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1750768AbWEVLut (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 07:50:49 -0400
+Date: Mon, 22 May 2006 13:50:46 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>, florin@iucha.net,
+       linux-kernel@vger.kernel.org, linux@dominikbrodowski.net
+Subject: Re: pcmcia oops on 2.6.17-rc[12]
+Message-ID: <20060522115046.GA23074@bitwizard.nl>
+References: <20060423192251.GD8896@iucha.net> <20060423150206.546b7483.akpm@osdl.org> <20060508145609.GA3983@rhlx01.fht-esslingen.de> <20060508084301.5025b25d.akpm@osdl.org> <20060508163453.GB19040@flint.arm.linux.org.uk> <1147730828.26686.165.camel@localhost.localdomain> <Pine.LNX.4.64.0605151459140.3866@g5.osdl.org> <1147734026.26686.200.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605221349.28329.mb@bu3sch.de>
+In-Reply-To: <1147734026.26686.200.camel@localhost.localdomain>
+Organization: BitWizard.nl
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 May 2006 13:38, you wrote:
-> On Mon, 22 May 2006 13:25:10 +0200, Michael Buesch said:
-> > On Monday 22 May 2006 13:15, you wrote:
+On Tue, May 16, 2006 at 12:00:26AM +0100, Alan Cox wrote:
+> > So I would strongly argue that any driver that depends on getting an 
+> > exclusive IRQ is buggy, not the PCMCIA layer itself, and that it would be 
+> > a lot more productive to try to fix those drivers.
 > 
-> > > It looks to me line the old code stayed in a while() loop in rng_dev_read
-> > > until it had fulfilled the read request (including possibly multiple
-> > > calls to need_resched() and friends).  The new code will bail on an -EAGAIN
-> > > as soon as the *first* poll fails, rather than waiting until something
-> > > is available - even if it is NOT flagged O_NONBLOCK.
-> > 
-> > Yeah. That is how it works. I am wondering why userspace doesn't
-> > simply retry, if it receives an EAGAIN.
-> > Should we return ERESTARTSYS or something like that instead?
-> 
-> That's not the way it worked in previous kernels, and it's not the way that
-> the current rng-utils RPM in Fedora expects it to work.
-> 
-> Here's a patch that makes it work the way it used to.  Adding the test
-> for O_NONBLOCK is the biggie - the old code did a resched test at that
-> point in the loop, so I added it here too.
-> 
-> --- linux-2.6.17-rc4-mm3/drivers/char/hw_random/core.c.rnd_fix	2006-05-22 07:23:34.000000000 -0400
-> +++ linux-2.6.17-rc4-mm3/drivers/char/hw_random/core.c	2006-05-22 07:22:29.000000000 -0400
-> @@ -125,7 +125,7 @@ static ssize_t rng_dev_read(struct file 
->  		mutex_unlock(&rng_mutex);
->  
->  		err = -EAGAIN;
-> -		if (!bytes_read)
-> +		if (filp->f_flags & O_NONBLOCK && !bytes_read)
->  			goto out;
->  
->  		err = -EFAULT;
-> @@ -138,6 +138,9 @@ static ssize_t rng_dev_read(struct file 
->  			data >>= 8;
->  		}
->  
-> +		if (need_resched())
-> +                        schedule_timeout_interruptible(1);
-> +
+> It would certainly be a lot cleaner than this sort of code in the pcmcia
+> core right now. Want me to send a patch which only allows for SA_SHIRQ
+> and WARN_ON()'s for any driver not asking for shared IRQ ?
 
-Andrew's comment on this:
+The question I'm stuck with is: When is it valid to ask for a non-shared
+IRQ, and get back a shared one. 
 
-	What's going on with the need_resched() tricks in there?  (Unobvious, needs
-	a comment).  From my reading, it'll cause a caller to this function to hang
-	for arbitrary periods of time if something if causing heavy scheduling
-	pressure.
+Drivers that know that they don't work well if they are called by the
+"other" interrupt?
 
-So I decided to remove it and return -EAGAIN, so userspace can retry.
-But seems like it it does not. I thought glibc would handle that.
+I happen to know (ISA) hardware that CANNOT share an interrupt: It
+drives the IRQ line either high or low, and has a driver that will
+overpower anything else on that line. This sounds like a good place to
+me to have the driver request no sharing (*), and to prevent the IRQ
+line drivers getting in eachothers way, it would be nice if the kernel
+refused "early on" (i.e. before the stronger driver asserts: No IRQ
+pending, and the weaker one keeps trying to assert: "YES, I have an
+IRQ", and the weaker one slowly burning out).
+
+Or am I talking nonsense again?
+
+	Roger. 
+
+(*) The driver knows to allow sharing when it's talking to the PCI
+version of the card.
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+Q: It doesn't work. A: Look buddy, doesn't work is an ambiguous statement. 
+Does it sit on the couch all day? Is it unemployed? Please be specific! 
+Define 'it' and what it isn't doing. --------- Adapted from lxrbot FAQ

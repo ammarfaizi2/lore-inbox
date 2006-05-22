@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWEVIQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbWEVIT6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbWEVIQk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 04:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWEVIQk
+	id S1750821AbWEVIT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 04:19:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWEVIT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 04:16:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:35795 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750727AbWEVIQk (ORCPT
+	Mon, 22 May 2006 04:19:58 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:29141 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750788AbWEVIT5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 04:16:40 -0400
-Message-ID: <44717355.1060403@themaw.net>
-Date: Mon, 22 May 2006 16:16:21 +0800
+	Mon, 22 May 2006 04:19:57 -0400
+Message-ID: <4471741A.1000804@themaw.net>
+Date: Mon, 22 May 2006 16:19:38 +0800
 From: Ian Kent <raven@themaw.net>
 User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
@@ -45,12 +45,6 @@ Christoph Hellwig wrote:
 > Ian, what kind of file is the autofs4 pipe?  is it a named pipe or
 > a fifo or a "real" file?
 
-The autofs4 fill_super does an fget on a pipe file handle passed in the 
-mount options. It uses the write method of the returned file struct to 
-send packets back to the daemon. The fill_super method checks to see if 
-there is a write method present in the returned file struct and emits 
-this message if it's not found.
-
-Ian
-
+Ahh. Sorry missed the actual question.
+It's a FIFO created with pipe(2).
 

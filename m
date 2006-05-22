@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751273AbWEVWWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWEVWZI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751273AbWEVWWh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 18:22:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbWEVWWh
+	id S1751278AbWEVWZI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 18:25:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbWEVWZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 18:22:37 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:56042 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id S1751273AbWEVWWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 18:22:37 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: tuning for large files in xfs
-Date: Mon, 22 May 2006 22:22:35 +0000 (UTC)
-Organization: Cistron
-Message-ID: <e4tdjb$h5h$1@news.cistron.nl>
-References: <447209A8.2040704@iparadigms.com>
+	Mon, 22 May 2006 18:25:08 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:49851 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751279AbWEVWZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 18:25:07 -0400
+Subject: Re: pcmcia oops on 2.6.17-rc[12]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>, florin@iucha.net,
+       linux-kernel@vger.kernel.org, linux@dominikbrodowski.net
+In-Reply-To: <20060522212724.GC9454@bitwizard.nl>
+References: <20060423192251.GD8896@iucha.net>
+	 <20060423150206.546b7483.akpm@osdl.org>
+	 <20060508145609.GA3983@rhlx01.fht-esslingen.de>
+	 <20060508084301.5025b25d.akpm@osdl.org>
+	 <20060508163453.GB19040@flint.arm.linux.org.uk>
+	 <1147730828.26686.165.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0605151459140.3866@g5.osdl.org>
+	 <1147734026.26686.200.camel@localhost.localdomain>
+	 <20060522115046.GA23074@bitwizard.nl>
+	 <1148299804.17376.34.camel@localhost.localdomain>
+	 <20060522212724.GC9454@bitwizard.nl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 22 May 2006 23:38:28 +0100
+Message-Id: <1148337508.17376.147.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1148336555 17585 194.109.0.112 (22 May 2006 22:22:35 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@n2o.xs4all.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <447209A8.2040704@iparadigms.com>,
-fitzboy  <fitzboy@iparadigms.com> wrote:
->I've got a very large (2TB) proprietary database that is kept on an XFS
->partition
+On Llu, 2006-05-22 at 23:27 +0200, Rogier Wolff wrote:
+> Fine. I know hardware that /cannot/ share interrupts. So, my driver
+> requesting an interrupt, and getting: "Can't allocate interrupt" is an
+> indication of a hardware configuration error. Or software (you've been
+> telling one of the drivers the wrong interrupt line). If you force
+> "shared mode", my driver will cope (it works just great on the PCI
+> version of the card, no problem). But will the hardware?
 
-Ehh.. partition ? Let me tell you about a very common mistake:
+Depends on the backplane
 
->under a debian 2.6.8 kernel. It seemed to work well, until I
->recently did some of my own tests and found that the performance should
->be better then it is...
->
->basically, treat the database as just a bunch of random seeks. The XFS
->partition is sitting on top of a SCSI array (Dell PowerVault) which has
->13+1 disks in a RAID5, stripe size=64k. I have done a number of tests
->that mimic my app's accesses and realized that I want the inode to be
->as large as possible (which in an intel box is only 2k), played with su
->and sw and got those to 64k and 13... and performance got better.
+> You guys maybe trying to fix very real problems in PCMCIA land, of
+> which I have very little knowledge. But changing what "not passing
+> SA_SHIRQ" means globlaly IMHO changes too much... 
 
-If your RAID has 64K stripes, and the XFS partition is also tuned
-for 64K, you expect those two to match, right ? But I bet the start
-of the partition isn't aligned to a multiple of 64K..
+PCMCIA doesn't need any big changes. The rules are simple. PCMCIA IRQs
+today are shared, period. Because of the way the hardware works this
+isn't an electrical issue. Drivers that ask for an exclusive PCMCIA IRQ
+need to wake up and smell the coffee and get fixed.
 
-In those cases I just use the whole disk instead of a partition,
-or I dump the partition table with sfdisk, move the start of the
-partition I'm using to a multiple of X, and re-read it. You need
-to re-mkfs the fs though.
-
-Not sure if it has any impact in your case, just thought I'd mention it.
-
-Mike.
+Alan
 

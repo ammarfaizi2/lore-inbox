@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbWEVLvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWEVLvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750778AbWEVLvo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 07:51:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWEVLvZ
+	id S1750780AbWEVLvy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 07:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbWEVLvq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 07:51:25 -0400
-Received: from ns.suse.de ([195.135.220.2]:45453 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750778AbWEVLvR (ORCPT
+	Mon, 22 May 2006 07:51:46 -0400
+Received: from mail.suse.de ([195.135.220.2]:47245 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750780AbWEVLv3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 07:51:17 -0400
-To: Chuck Lever <cel@citi.umich.edu>
-Cc: linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no, akpm@osdl.org
-Subject: Re: [PATCH 5/6] nfs: check all iov segments for correct memory access rights
-References: <20060519175652.3244.7079.stgit@brahms.dsl.sfldmi.ameritech.net>
-	<20060519180036.3244.70897.stgit@brahms.dsl.sfldmi.ameritech.net>
+	Mon, 22 May 2006 07:51:29 -0400
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org, roland@redhat.com, anemo@mba.ocn.ne.jp,
+       mingo@elte.hu, Andrew Morton <akpm@osdl.org>,
+       Aleksey_Gorelov@Phoenix.com
+Subject: Re: [PATCH] fix broken vm86 interrupt/signal handling
+References: <0EF82802ABAA22479BC1CE8E2F60E8C3EECE1B@scl-exch2k3.phoenix.com>
+	<1148092188.3069.6.camel@laptopd505.fenrus.org>
 From: Andi Kleen <ak@suse.de>
-Date: 22 May 2006 13:27:07 +0200
-In-Reply-To: <20060519180036.3244.70897.stgit@brahms.dsl.sfldmi.ameritech.net>
-Message-ID: <p731wum7110.fsf@verdi.suse.de>
+Date: 22 May 2006 13:25:26 +0200
+In-Reply-To: <1148092188.3069.6.camel@laptopd505.fenrus.org>
+Message-ID: <p7364jy713t.fsf@verdi.suse.de>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Lever <cel@netapp.com> writes:
+Arjan van de Ven <arjan@infradead.org> writes:
 
-> Add Badari's function to check access for all the segments in a passed-in
-> iov.  We can use the total byte count later.
+D> On Fri, 2006-05-19 at 15:09 -0700, Aleksey Gorelov wrote:
+> > Hi,
+> > 
+> >   This patch
+> > www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h
+> > =c3ff8ec31c1249d268cd11390649768a12bec1b9 has broken vm86
+> > interrupt/signal handling in case when vm86 is called from kernel space.
+> 
+> can you point out where vm86 is called from kernel space?
 
-It seems bogus to me because there is no big reason the access_ok
-can't be done later together with the real access. After all the
-real access has to check anyways to handle unmapped pages.
+Programs inside vm86 can run with segments that look like ring 0.
+That is why i386 always checks (ring > 0 || vmmask in eflags) when it checks
+for user mode.
 
-To pass checking is more error prone than single pass.
+I guess Aleksey meant that.
 
 -Andi
-

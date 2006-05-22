@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751564AbWEVD6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751558AbWEVD4v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751564AbWEVD6I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 23:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWEVD4w
+	id S1751558AbWEVD4v (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 23:56:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751564AbWEVD41
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 23:56:52 -0400
-Received: from xenotime.net ([66.160.160.81]:11479 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751568AbWEVD4a (ORCPT
+	Sun, 21 May 2006 23:56:27 -0400
+Received: from xenotime.net ([66.160.160.81]:5079 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751195AbWEVD4X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 23:56:30 -0400
-Date: Sun, 21 May 2006 20:57:53 -0700
+	Sun, 21 May 2006 23:56:23 -0400
+Date: Sun, 21 May 2006 20:57:37 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, brian@lantz.com, cjw44@cam.ac.uk
-Subject: [PATCH 12/14/] Doc. sources: expose java
-Message-Id: <20060521205753.a32e627d.rdunlap@xenotime.net>
+Cc: akpm <akpm@osdl.org>, axboe@suse.de
+Subject: [PATCH 4/14/] Doc. sources: expose block/
+Message-Id: <20060521205737.939aff71.rdunlap@xenotime.net>
 In-Reply-To: <20060521203349.40b40930.rdunlap@xenotime.net>
 References: <20060521203349.40b40930.rdunlap@xenotime.net>
 Organization: YPO4
@@ -27,7 +27,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@xenotime.net>
 
-Documentation/java.txt:
+Documentation/block/:
 Expose example and tool source files in the Documentation/ directory in
 their own files instead of being buried (almost hidden) in readme/txt files.
 
@@ -41,427 +41,255 @@ they should be removed.
 
 Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
- Documentation/java.txt        |  203 ------------------------------------------
- Documentation/javaclassname.c |  194 ++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 197 insertions(+), 200 deletions(-)
+ Documentation/block/ionice.c   |  110 ++++++++++++++++++++++++++++++++++++++
+ Documentation/block/ioprio.txt |  117 -----------------------------------------
+ 2 files changed, 111 insertions(+), 116 deletions(-)
 
---- linux-2617-rc4g9-docsrc-split.orig/Documentation/java.txt
-+++ linux-2617-rc4g9-docsrc-split/Documentation/java.txt
-@@ -50,9 +50,10 @@ other program after you have done the fo
-    handling), again fix the path names, both in the script and in the
-    above given configuration string.
- 
--   You, too, need the little program after the script. Compile like
-+   You, too, need the small javaclassname program (see
-+   Documentation/javaclassname.c). Compile like:
-    gcc -O2 -o javaclassname javaclassname.c
--   and stick it to /usr/local/bin.
-+   and stick it in /usr/local/bin.
- 
-    Both the javawrapper shellscript and the javaclassname program
-    were supplied by Colin J. Watson <cjw44@cam.ac.uk>.
-@@ -148,204 +149,6 @@ shift
- 
- 
- ====================== Cut here ===================
--/* javaclassname.c
-- *
-- * Extracts the class name from a Java class file; intended for use in a Java
-- * wrapper of the type supported by the binfmt_misc option in the Linux kernel.
-- *
-- * Copyright (C) 1999 Colin J. Watson <cjw44@cam.ac.uk>.
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-- */
--
--#include <stdlib.h>
--#include <stdio.h>
--#include <stdarg.h>
--#include <sys/types.h>
--
--/* From Sun's Java VM Specification, as tag entries in the constant pool. */
--
--#define CP_UTF8 1
--#define CP_INTEGER 3
--#define CP_FLOAT 4
--#define CP_LONG 5
--#define CP_DOUBLE 6
--#define CP_CLASS 7
--#define CP_STRING 8
--#define CP_FIELDREF 9
--#define CP_METHODREF 10
--#define CP_INTERFACEMETHODREF 11
--#define CP_NAMEANDTYPE 12
--
--/* Define some commonly used error messages */
--
--#define seek_error() error("%s: Cannot seek\n", program)
--#define corrupt_error() error("%s: Class file corrupt\n", program)
--#define eof_error() error("%s: Unexpected end of file\n", program)
--#define utf8_error() error("%s: Only ASCII 1-255 supported\n", program);
--
--char *program;
--
--long *pool;
--
--u_int8_t read_8(FILE *classfile);
--u_int16_t read_16(FILE *classfile);
--void skip_constant(FILE *classfile, u_int16_t *cur);
--void error(const char *format, ...);
--int main(int argc, char **argv);
--
--/* Reads in an unsigned 8-bit integer. */
--u_int8_t read_8(FILE *classfile)
--{
--	int b = fgetc(classfile);
--	if(b == EOF)
--		eof_error();
--	return (u_int8_t)b;
--}
--
--/* Reads in an unsigned 16-bit integer. */
--u_int16_t read_16(FILE *classfile)
--{
--	int b1, b2;
--	b1 = fgetc(classfile);
--	if(b1 == EOF)
--		eof_error();
--	b2 = fgetc(classfile);
--	if(b2 == EOF)
--		eof_error();
--	return (u_int16_t)((b1 << 8) | b2);
--}
--
--/* Reads in a value from the constant pool. */
--void skip_constant(FILE *classfile, u_int16_t *cur)
--{
--	u_int16_t len;
--	int seekerr = 1;
--	pool[*cur] = ftell(classfile);
--	switch(read_8(classfile))
--	{
--	case CP_UTF8:
--		len = read_16(classfile);
--		seekerr = fseek(classfile, len, SEEK_CUR);
--		break;
--	case CP_CLASS:
--	case CP_STRING:
--		seekerr = fseek(classfile, 2, SEEK_CUR);
--		break;
--	case CP_INTEGER:
--	case CP_FLOAT:
--	case CP_FIELDREF:
--	case CP_METHODREF:
--	case CP_INTERFACEMETHODREF:
--	case CP_NAMEANDTYPE:
--		seekerr = fseek(classfile, 4, SEEK_CUR);
--		break;
--	case CP_LONG:
--	case CP_DOUBLE:
--		seekerr = fseek(classfile, 8, SEEK_CUR);
--		++(*cur);
--		break;
--	default:
--		corrupt_error();
--	}
--	if(seekerr)
--		seek_error();
--}
--
--void error(const char *format, ...)
--{
--	va_list ap;
--	va_start(ap, format);
--	vfprintf(stderr, format, ap);
--	va_end(ap);
--	exit(1);
--}
--
--int main(int argc, char **argv)
--{
--	FILE *classfile;
--	u_int16_t cp_count, i, this_class, classinfo_ptr;
--	u_int8_t length;
--
--	program = argv[0];
--
--	if(!argv[1])
--		error("%s: Missing input file\n", program);
--	classfile = fopen(argv[1], "rb");
--	if(!classfile)
--		error("%s: Error opening %s\n", program, argv[1]);
--
--	if(fseek(classfile, 8, SEEK_SET))  /* skip magic and version numbers */
--		seek_error();
--	cp_count = read_16(classfile);
--	pool = calloc(cp_count, sizeof(long));
--	if(!pool)
--		error("%s: Out of memory for constant pool\n", program);
--
--	for(i = 1; i < cp_count; ++i)
--		skip_constant(classfile, &i);
--	if(fseek(classfile, 2, SEEK_CUR))	/* skip access flags */
--		seek_error();
--
--	this_class = read_16(classfile);
--	if(this_class < 1 || this_class >= cp_count)
--		corrupt_error();
--	if(!pool[this_class] || pool[this_class] == -1)
--		corrupt_error();
--	if(fseek(classfile, pool[this_class] + 1, SEEK_SET))
--		seek_error();
--
--	classinfo_ptr = read_16(classfile);
--	if(classinfo_ptr < 1 || classinfo_ptr >= cp_count)
--		corrupt_error();
--	if(!pool[classinfo_ptr] || pool[classinfo_ptr] == -1)
--		corrupt_error();
--	if(fseek(classfile, pool[classinfo_ptr] + 1, SEEK_SET))
--		seek_error();
--
--	length = read_16(classfile);
--	for(i = 0; i < length; ++i)
--	{
--		u_int8_t x = read_8(classfile);
--		if((x & 0x80) || !x)
--		{
--			if((x & 0xE0) == 0xC0)
--			{
--				u_int8_t y = read_8(classfile);
--				if((y & 0xC0) == 0x80)
--				{
--					int c = ((x & 0x1f) << 6) + (y & 0x3f);
--					if(c) putchar(c);
--					else utf8_error();
--				}
--				else utf8_error();
--			}
--			else utf8_error();
--		}
--		else if(x == '/') putchar('.');
--		else putchar(x);
--	}
--	putchar('\n');
--	free(pool);
--	fclose(classfile);
--	return 0;
--}
--====================== Cut here ===================
--
--
--====================== Cut here ===================
- #!/bin/bash
- # /usr/local/java/bin/jarwrapper - the wrapper for binfmt_misc/jar
- 
 --- /dev/null
-+++ linux-2617-rc4g9-docsrc-split/Documentation/javaclassname.c
-@@ -0,0 +1,194 @@
-+/* javaclassname.c
-+ *
-+ * Extracts the class name from a Java class file; intended for use in a Java
-+ * wrapper of the type supported by the binfmt_misc option in the Linux kernel.
-+ *
-+ * Copyright (C) 1999 Colin J. Watson <cjw44@cam.ac.uk>.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ */
-+
-+#include <stdlib.h>
++++ linux-2617-rc4g9-docsrc-split/Documentation/block/ionice.c
+@@ -0,0 +1,110 @@
 +#include <stdio.h>
-+#include <stdarg.h>
-+#include <sys/types.h>
++#include <stdlib.h>
++#include <errno.h>
++#include <getopt.h>
++#include <unistd.h>
++#include <sys/ptrace.h>
++#include <asm/unistd.h>
 +
-+/* From Sun's Java VM Specification, as tag entries in the constant pool. */
++extern int sys_ioprio_set(int, int, int);
++extern int sys_ioprio_get(int, int);
 +
-+#define CP_UTF8 1
-+#define CP_INTEGER 3
-+#define CP_FLOAT 4
-+#define CP_LONG 5
-+#define CP_DOUBLE 6
-+#define CP_CLASS 7
-+#define CP_STRING 8
-+#define CP_FIELDREF 9
-+#define CP_METHODREF 10
-+#define CP_INTERFACEMETHODREF 11
-+#define CP_NAMEANDTYPE 12
++#if defined(__i386__)
++#define __NR_ioprio_set		289
++#define __NR_ioprio_get		290
++#elif defined(__ppc__)
++#define __NR_ioprio_set		273
++#define __NR_ioprio_get		274
++#elif defined(__x86_64__)
++#define __NR_ioprio_set		251
++#define __NR_ioprio_get		252
++#elif defined(__ia64__)
++#define __NR_ioprio_set		1274
++#define __NR_ioprio_get		1275
++#else
++#error "Unsupported arch"
++#endif
 +
-+/* Define some commonly used error messages */
++_syscall3(int, ioprio_set, int, which, int, who, int, ioprio);
++_syscall2(int, ioprio_get, int, which, int, who);
 +
-+#define seek_error() error("%s: Cannot seek\n", program)
-+#define corrupt_error() error("%s: Class file corrupt\n", program)
-+#define eof_error() error("%s: Unexpected end of file\n", program)
-+#define utf8_error() error("%s: Only ASCII 1-255 supported\n", program);
++enum {
++	IOPRIO_CLASS_NONE,
++	IOPRIO_CLASS_RT,
++	IOPRIO_CLASS_BE,
++	IOPRIO_CLASS_IDLE,
++};
 +
-+char *program;
++enum {
++	IOPRIO_WHO_PROCESS = 1,
++	IOPRIO_WHO_PGRP,
++	IOPRIO_WHO_USER,
++};
 +
-+long *pool;
++#define IOPRIO_CLASS_SHIFT	13
 +
-+u_int8_t read_8(FILE *classfile);
-+u_int16_t read_16(FILE *classfile);
-+void skip_constant(FILE *classfile, u_int16_t *cur);
-+void error(const char *format, ...);
-+int main(int argc, char **argv);
++const char *to_prio[] = { "none", "realtime", "best-effort", "idle", };
 +
-+/* Reads in an unsigned 8-bit integer. */
-+u_int8_t read_8(FILE *classfile)
++int main(int argc, char *argv[])
 +{
-+	int b = fgetc(classfile);
-+	if(b == EOF)
-+		eof_error();
-+	return (u_int8_t)b;
-+}
++	int ioprio = 4, set = 0, ioprio_class = IOPRIO_CLASS_BE;
++	int c, pid = 0;
 +
-+/* Reads in an unsigned 16-bit integer. */
-+u_int16_t read_16(FILE *classfile)
-+{
-+	int b1, b2;
-+	b1 = fgetc(classfile);
-+	if(b1 == EOF)
-+		eof_error();
-+	b2 = fgetc(classfile);
-+	if(b2 == EOF)
-+		eof_error();
-+	return (u_int16_t)((b1 << 8) | b2);
-+}
-+
-+/* Reads in a value from the constant pool. */
-+void skip_constant(FILE *classfile, u_int16_t *cur)
-+{
-+	u_int16_t len;
-+	int seekerr = 1;
-+	pool[*cur] = ftell(classfile);
-+	switch(read_8(classfile))
-+	{
-+	case CP_UTF8:
-+		len = read_16(classfile);
-+		seekerr = fseek(classfile, len, SEEK_CUR);
-+		break;
-+	case CP_CLASS:
-+	case CP_STRING:
-+		seekerr = fseek(classfile, 2, SEEK_CUR);
-+		break;
-+	case CP_INTEGER:
-+	case CP_FLOAT:
-+	case CP_FIELDREF:
-+	case CP_METHODREF:
-+	case CP_INTERFACEMETHODREF:
-+	case CP_NAMEANDTYPE:
-+		seekerr = fseek(classfile, 4, SEEK_CUR);
-+		break;
-+	case CP_LONG:
-+	case CP_DOUBLE:
-+		seekerr = fseek(classfile, 8, SEEK_CUR);
-+		++(*cur);
-+		break;
-+	default:
-+		corrupt_error();
-+	}
-+	if(seekerr)
-+		seek_error();
-+}
-+
-+void error(const char *format, ...)
-+{
-+	va_list ap;
-+	va_start(ap, format);
-+	vfprintf(stderr, format, ap);
-+	va_end(ap);
-+	exit(1);
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	FILE *classfile;
-+	u_int16_t cp_count, i, this_class, classinfo_ptr;
-+	u_int8_t length;
-+
-+	program = argv[0];
-+
-+	if(!argv[1])
-+		error("%s: Missing input file\n", program);
-+	classfile = fopen(argv[1], "rb");
-+	if(!classfile)
-+		error("%s: Error opening %s\n", program, argv[1]);
-+
-+	if(fseek(classfile, 8, SEEK_SET))  /* skip magic and version numbers */
-+		seek_error();
-+	cp_count = read_16(classfile);
-+	pool = calloc(cp_count, sizeof(long));
-+	if(!pool)
-+		error("%s: Out of memory for constant pool\n", program);
-+
-+	for(i = 1; i < cp_count; ++i)
-+		skip_constant(classfile, &i);
-+	if(fseek(classfile, 2, SEEK_CUR))	/* skip access flags */
-+		seek_error();
-+
-+	this_class = read_16(classfile);
-+	if(this_class < 1 || this_class >= cp_count)
-+		corrupt_error();
-+	if(!pool[this_class] || pool[this_class] == -1)
-+		corrupt_error();
-+	if(fseek(classfile, pool[this_class] + 1, SEEK_SET))
-+		seek_error();
-+
-+	classinfo_ptr = read_16(classfile);
-+	if(classinfo_ptr < 1 || classinfo_ptr >= cp_count)
-+		corrupt_error();
-+	if(!pool[classinfo_ptr] || pool[classinfo_ptr] == -1)
-+		corrupt_error();
-+	if(fseek(classfile, pool[classinfo_ptr] + 1, SEEK_SET))
-+		seek_error();
-+
-+	length = read_16(classfile);
-+	for(i = 0; i < length; ++i)
-+	{
-+		u_int8_t x = read_8(classfile);
-+		if((x & 0x80) || !x)
-+		{
-+			if((x & 0xE0) == 0xC0)
-+			{
-+				u_int8_t y = read_8(classfile);
-+				if((y & 0xC0) == 0x80)
-+				{
-+					int c = ((x & 0x1f) << 6) + (y & 0x3f);
-+					if(c) putchar(c);
-+					else utf8_error();
-+				}
-+				else utf8_error();
-+			}
-+			else utf8_error();
++	while ((c = getopt(argc, argv, "+n:c:p:")) != EOF) {
++		switch (c) {
++		case 'n':
++			ioprio = strtol(optarg, NULL, 10);
++			set = 1;
++			break;
++		case 'c':
++			ioprio_class = strtol(optarg, NULL, 10);
++			set = 1;
++			break;
++		case 'p':
++			pid = strtol(optarg, NULL, 10);
++			break;
 +		}
-+		else if(x == '/') putchar('.');
-+		else putchar(x);
 +	}
-+	putchar('\n');
-+	free(pool);
-+	fclose(classfile);
++
++	switch (ioprio_class) {
++		case IOPRIO_CLASS_NONE:
++			ioprio_class = IOPRIO_CLASS_BE;
++			break;
++		case IOPRIO_CLASS_RT:
++		case IOPRIO_CLASS_BE:
++			break;
++		case IOPRIO_CLASS_IDLE:
++			ioprio = 7;
++			break;
++		default:
++			printf("bad prio class %d\n", ioprio_class);
++			return 1;
++	}
++
++	if (!set) {
++		if (!pid && argv[optind])
++			pid = strtol(argv[optind], NULL, 10);
++
++		ioprio = ioprio_get(IOPRIO_WHO_PROCESS, pid);
++
++		printf("pid=%d, %d\n", pid, ioprio);
++
++		if (ioprio == -1)
++			perror("ioprio_get");
++		else {
++			ioprio_class = ioprio >> IOPRIO_CLASS_SHIFT;
++			ioprio = ioprio & 0xff;
++			printf("%s: prio %d\n", to_prio[ioprio_class], ioprio);
++		}
++	} else {
++		if (ioprio_set(IOPRIO_WHO_PROCESS, pid, ioprio | ioprio_class << IOPRIO_CLASS_SHIFT) == -1) {
++			perror("ioprio_set");
++			return 1;
++		}
++
++		if (argv[optind])
++			execvp(argv[optind], &argv[optind]);
++	}
++
 +	return 0;
 +}
+--- linux-2617-rc4g9-docsrc-split.orig/Documentation/block/ioprio.txt
++++ linux-2617-rc4g9-docsrc-split/Documentation/block/ioprio.txt
+@@ -40,7 +40,7 @@ class data, since it doesn't really appl
+ Tools
+ -----
+ 
+-See below for a sample ionice tool. Usage:
++See Documentation/block/ionice.c for a sample ionice tool.  Usage:
+ 
+ # ionice -c<class> -n<level> -p<pid>
+ 
+@@ -57,120 +57,5 @@ For a running process, you can give the 
+ 
+ will change pid 100 to run at the realtime scheduling class, at priority 2.
+ 
+----> snip ionice.c tool <---
+-
+-#include <stdio.h>
+-#include <stdlib.h>
+-#include <errno.h>
+-#include <getopt.h>
+-#include <unistd.h>
+-#include <sys/ptrace.h>
+-#include <asm/unistd.h>
+-
+-extern int sys_ioprio_set(int, int, int);
+-extern int sys_ioprio_get(int, int);
+-
+-#if defined(__i386__)
+-#define __NR_ioprio_set		289
+-#define __NR_ioprio_get		290
+-#elif defined(__ppc__)
+-#define __NR_ioprio_set		273
+-#define __NR_ioprio_get		274
+-#elif defined(__x86_64__)
+-#define __NR_ioprio_set		251
+-#define __NR_ioprio_get		252
+-#elif defined(__ia64__)
+-#define __NR_ioprio_set		1274
+-#define __NR_ioprio_get		1275
+-#else
+-#error "Unsupported arch"
+-#endif
+-
+-_syscall3(int, ioprio_set, int, which, int, who, int, ioprio);
+-_syscall2(int, ioprio_get, int, which, int, who);
+-
+-enum {
+-	IOPRIO_CLASS_NONE,
+-	IOPRIO_CLASS_RT,
+-	IOPRIO_CLASS_BE,
+-	IOPRIO_CLASS_IDLE,
+-};
+-
+-enum {
+-	IOPRIO_WHO_PROCESS = 1,
+-	IOPRIO_WHO_PGRP,
+-	IOPRIO_WHO_USER,
+-};
+-
+-#define IOPRIO_CLASS_SHIFT	13
+-
+-const char *to_prio[] = { "none", "realtime", "best-effort", "idle", };
+-
+-int main(int argc, char *argv[])
+-{
+-	int ioprio = 4, set = 0, ioprio_class = IOPRIO_CLASS_BE;
+-	int c, pid = 0;
+-
+-	while ((c = getopt(argc, argv, "+n:c:p:")) != EOF) {
+-		switch (c) {
+-		case 'n':
+-			ioprio = strtol(optarg, NULL, 10);
+-			set = 1;
+-			break;
+-		case 'c':
+-			ioprio_class = strtol(optarg, NULL, 10);
+-			set = 1;
+-			break;
+-		case 'p':
+-			pid = strtol(optarg, NULL, 10);
+-			break;
+-		}
+-	}
+-
+-	switch (ioprio_class) {
+-		case IOPRIO_CLASS_NONE:
+-			ioprio_class = IOPRIO_CLASS_BE;
+-			break;
+-		case IOPRIO_CLASS_RT:
+-		case IOPRIO_CLASS_BE:
+-			break;
+-		case IOPRIO_CLASS_IDLE:
+-			ioprio = 7;
+-			break;
+-		default:
+-			printf("bad prio class %d\n", ioprio_class);
+-			return 1;
+-	}
+-
+-	if (!set) {
+-		if (!pid && argv[optind])
+-			pid = strtol(argv[optind], NULL, 10);
+-
+-		ioprio = ioprio_get(IOPRIO_WHO_PROCESS, pid);
+-
+-		printf("pid=%d, %d\n", pid, ioprio);
+-
+-		if (ioprio == -1)
+-			perror("ioprio_get");
+-		else {
+-			ioprio_class = ioprio >> IOPRIO_CLASS_SHIFT;
+-			ioprio = ioprio & 0xff;
+-			printf("%s: prio %d\n", to_prio[ioprio_class], ioprio);
+-		}
+-	} else {
+-		if (ioprio_set(IOPRIO_WHO_PROCESS, pid, ioprio | ioprio_class << IOPRIO_CLASS_SHIFT) == -1) {
+-			perror("ioprio_set");
+-			return 1;
+-		}
+-
+-		if (argv[optind])
+-			execvp(argv[optind], &argv[optind]);
+-	}
+-
+-	return 0;
+-}
+-
+----> snip ionice.c tool <---
+-
+ 
+ March 11 2005, Jens Axboe <axboe@suse.de>
 
 
 ---

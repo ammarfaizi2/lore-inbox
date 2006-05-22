@@ -1,73 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbWEVSku@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWEVSss@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751039AbWEVSku (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 14:40:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWEVSku
+	id S1751134AbWEVSss (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 14:48:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWEVSss
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 14:40:50 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10464 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751038AbWEVSkt (ORCPT
+	Mon, 22 May 2006 14:48:48 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:16315 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S1751128AbWEVSsr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 14:40:49 -0400
-Date: Mon, 22 May 2006 20:40:04 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.16.16 Parameter-controlled mmap/stack randomization
-Message-ID: <20060522184003.GD2979@elf.ucw.cz>
-References: <446E6A3B.8060100@comcast.net> <1148132838.3041.3.camel@laptopd505.fenrus.org> <446F3483.40208@comcast.net> <20060522010606.GC25434@elf.ucw.cz> <44712605.4000001@comcast.net> <20060522083352.GA11923@elf.ucw.cz> <4471E77F.1010704@comcast.net> <20060522170036.GD1893@elf.ucw.cz> <4471FAD0.9060403@comcast.net>
+	Mon, 22 May 2006 14:48:47 -0400
+Message-ID: <4472078D.8010706@hp.com>
+Date: Mon, 22 May 2006 11:48:45 -0700
+From: Rick Jones <rick.jones2@hp.com>
+User-Agent: Mozilla/5.0 (X11; U; HP-UX 9000/785; en-US; rv:1.6) Gecko/20040304
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4471FAD0.9060403@comcast.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Vlad Yasevich <vladislav.yasevich@hp.com>
+Cc: Paul P Komkoff Jr <i@stingr.net>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Was change to ip_push_pending_frames intended to break udp	(more
+ specifically, WCCP?)
+References: <20060520191153.GV3776@stingr.net>	<20060520140434.2139c31b.akpm@osdl.org> <1148322152.15322.299.camel@galen.zko.hp.com>
+In-Reply-To: <1148322152.15322.299.camel@galen.zko.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> IP id is set to 0 on unconnected sockets when the DF bit is set (path
+> mtu discovery is enabled).  Try issuing a connect() in your application
+> and see if the ids are increasing again.
 
-> > Well, fix emacs then. We definitely do not want 10000 settable knobs
-> > that randomly break things. OTOH per-architecture different randomness
-> > seems like good idea. And if Oracle breaks, fix it.
-> 
-> Fix this, fix that.  In due time perhaps.  I'm pretty sure Linus isn't
-> going to break anything, esp. since his mail client breaks too.
+ID of zero again?  I thought that went away years ago?  Anyway, given 
+the number of "helpful" devices out there willing to clear the DF bit, 
+fragment and forward, perhaps always setting the IP ID to 0, even if DF 
+is set, isn't such a good idea?
 
-Good. So fix emacs/oracle/pine, and year or so and some time after it
-is fixed, we can change kernel defaults. That's still less bad than
-having
-
-[ ] Break emacs
-
-in kernel config.
-
-> Why should it NOT be configurable anyway?  If you don't configure it,
-> then it behaves just like it would if it wasn't configurable at all.
-> This is called "having sane defaults."
-
-Because if it is configurable, someone _will_ configure it wrong, and
-then ask us why it does not work.
-
-And if it is configurable, applications will not get fixed for
-basically forever.
-
-> > Per-architecture ammount of randomness would be welcome, I
-> > believe. That will force Oracle to fix their code, but that's okay,
-> > and you can use disable PF_RANDOMIZE for Oracle in meantime.
-> 
-> No, this would leave Oracle shipping binaries with PF_RANDOMIZE
-> (PT_GNU_STACK still?) disabled.  Also if PF_RANDOMIZE is still connected
-> to PT_GNU_STACK, then this means that randomization is turned off BY
-> MAKING THE STACK EXECUTABLE.  You should notice the obvious problem
-> here.  You should also understand that as long as they can simply switch
-> randomization off, they're not going to fix it; and as long as it breaks
-> Oracle/Emacs/anything, Linus is not going to impose non-disablable,
-> non-adjustable randomization.
-
-I believe that Linus is going to apply this one even less likely.
-
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+rick jones

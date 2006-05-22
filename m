@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbWEVAJy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964958AbWEVAOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964957AbWEVAJy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 20:09:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964958AbWEVAJy
+	id S964958AbWEVAOq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 20:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbWEVAOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 20:09:54 -0400
-Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:46986 "HELO
-	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964957AbWEVAJx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 20:09:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=pVums11Z4RPwI4Qxh2YDVat0ErxtjuuGrZWUzhIKYi8UH3npleZRnKUPScH83p+v7BMuLM6TfEQP0DbhfR9UL/ldixgrbhmMZympJ3XMjIzMGp1pJFkD02hgxQizJ712DzlXAVgBHEr1LOBX15YKGTFoy6t8KFo1Sj3oP2m/bvI=  ;
-Message-ID: <44710144.7090105@yahoo.com.au>
-Date: Mon, 22 May 2006 10:09:40 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Sun, 21 May 2006 20:14:46 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:55513 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964958AbWEVAOq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 20:14:46 -0400
+Date: Mon, 22 May 2006 02:14:03 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andreas Dilger <adilger@clusterfs.com>,
+       "Stephen C. Tweedie" <sct@redhat.com>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sector_t overflow in block layer
+Message-ID: <20060522001402.GB25184@elf.ucw.cz>
+References: <m3odxxukcp.fsf@bzzz.home.net> <1147884610.16827.44.camel@localhost.localdomain> <m34pzo36d4.fsf@bzzz.home.net> <1147888715.12067.38.camel@dyn9047017100.beaverton.ibm.com> <m364k4zfor.fsf@bzzz.home.net> <20060517235804.GA5731@schatzie.adilger.int> <1147947803.5464.19.camel@sisko.sctweedie.blueyonder.co.uk> <20060518185955.GK5964@schatzie.adilger.int> <Pine.LNX.4.64.0605181403550.10823@g5.osdl.org> <Pine.LNX.4.64.0605182307540.16178@hermes-1.csi.cam.ac.uk>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Haar_J=E1nos?= <djani22@netcenter.hu>
-CC: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
-Subject: Re: swapper: page allocation failure.
-References: <00e901c67cad$fe9a9d90$1800a8c0@dcccs> <20060521081621.GA1151@taniwha.stupidest.org> <010801c67cb1$bc13fd00$1800a8c0@dcccs> <20060521084728.GA2535@taniwha.stupidest.org> <012201c67cb5$7a213800$1800a8c0@dcccs> <20060521091022.GA3468@taniwha.stupidest.org> <014601c67cb9$4f235f30$1800a8c0@dcccs> <20060521102642.GB5582@taniwha.stupidest.org> <44705699.3080401@yahoo.com.au> <024901c67cdf$1e1ce840$1800a8c0@dcccs>
-In-Reply-To: <024901c67cdf$1e1ce840$1800a8c0@dcccs>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0605182307540.16178@hermes-1.csi.cam.ac.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Haar János wrote:
+Hi!
 
-> I did it allready, and it looks like solves the problem.
-> Yesterday i have more than 6 random reboots, and after i set from 3800 to
-> 16000 the min free limit, i have none at this point. :-)
+> > Why isn't that just a 
+> > 
+> > 	if (unlikely(sector != (sector_t)sector))
+> > 
+> > and that's it? What does this have to do with CONFIG_LBD or BITS_PER_LONG, 
+> > or anything at all?
+> > 
+> > If the sector number fits in a sector_t, we're all good.
 > 
->  15:51:45 up  7:21,  1 user,  load average: 0.85, 0.79, 0.67
+> I think you missed that Andrewas said he is worried about 64-bit overflows 
+> as well.  And you would not catch those with the sector != 
 
-Oh that's good. It's sad that you had random reboots though :(
-
-> 
-> Anyway, i interested about cache/buffer mechanism, because i have some
-> performance problems too, and i can see, these systems wastes the half of
-> memory instead of speeds up the operation.
-
-Yeah, as I said, block device's pagecache (aka buffercache) can't
-use highmem. If nbd can export regular files as block devices, or
-you use loop devices from regular files, that might help (or slow
-things down :P).
-
+Can 64-bit really overflow? That's 16 000 Peta bytes, AFAICS. Does
+anyone really have disk array over 100 Peta bytes? How much space does
+Google have, for example?
+								Pavel
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

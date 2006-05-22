@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWEVKo4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWEVKu2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbWEVKo4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 06:44:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWEVKoz
+	id S1750741AbWEVKu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 06:50:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWEVKu2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 06:44:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:56541 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750735AbWEVKoz (ORCPT
+	Mon, 22 May 2006 06:50:28 -0400
+Received: from mail.siegenia-aubi.com ([217.5.180.129]:5782 "EHLO
+	alg-1.siegenia-aubi.com") by vger.kernel.org with ESMTP
+	id S1750741AbWEVKu1 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 06:44:55 -0400
-Date: Mon, 22 May 2006 03:44:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: hch@lst.de, pbadari@us.ibm.com, bcrl@kvack.org, cel@citi.umich.edu,
-       zach.brown@oracle.com, linux-kernel@vger.kernel.org, raven@themaw.net
-Subject: Re: [PATCH 2/4] Remove readv/writev methods and use
- aio_read/aio_write instead
-Message-Id: <20060522034424.4ccf408c.akpm@osdl.org>
-In-Reply-To: <20060522103246.GA28133@lst.de>
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>
-	<1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>
-	<1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com>
-	<1147727945.20568.53.camel@dyn9047017100.beaverton.ibm.com>
-	<1147728133.6181.2.camel@dyn9047017100.beaverton.ibm.com>
-	<20060521180037.3c8f2847.akpm@osdl.org>
-	<20060522053450.GA22210@lst.de>
-	<20060522022917.3e563261.akpm@osdl.org>
-	<20060522023519.2541f082.akpm@osdl.org>
-	<20060522103246.GA28133@lst.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 22 May 2006 06:50:27 -0400
+Message-ID: <FC7F4950D2B3B845901C3CE3A1CA6766012A9E71@mxnd200-9.si-aubi.siegenia-aubi.com>
+From: =?iso-8859-1?Q?=22D=F6hr=2C_Markus_ICC-H=22?= 
+	<Markus.Doehr@siegenia-aubi.com>
+To: "'Helge Hafting'" <helge.hafting@aitel.hist.no>
+Cc: "'Peter Gordon'" <codergeek42@gmail.com>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: RE: replacing X Window System !
+Date: Mon, 22 May 2006 12:50:20 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@lst.de> wrote:
->
-> On Mon, May 22, 2006 at 02:35:19AM -0700, Andrew Morton wrote:
-> > The loop driver plays with file_operations.write() also.  The code should
-> > be reviewed and tested against filesystems which use LO_FLAGS_USE_AOPS as
-> > well as against those which do not, please.
-> 
-> The LO_FLAGS_USE_AOPS stuff is broken, please drop it from -mm.
+[...]
+> >Did you actually do that? Starting Firefox over a 6 Mbit VPN takes 
+> >about 3 minutes on a FAST machine. That´s not acceptable - our users 
+> >want (almost) immediate response to an application, to clicking and 
+> >waiting 10 seconds until the app is doing something.
+> >  
+> >
+> It is not that bad.  I tried starting firefox on a machine 
+> 20km away, using a 5Mbps ADSL link from the "wrong" end.  (I 
+> ssh'ed into my home pc from work.) Firefox started in 55s, 
+> not 3min. Still bad, but that is a firefox problem, not a 
+> generic X-tunneling problem.  I can start the lyx word 
+> processor in 3s over the same link, and have decent 
+> performance while using it too.
 
-Did, ages ago.  I was referring to the present mainline loop
-implementation.
+55 seconds to start an application... That´s not acceptable. Why do you
+think it´s a Firefox problem? Did you try this with a Java application? 
+
+I don´t wanna blame X in general, just saying it is useless if you´re
+sitting in Hungary or Poland and want to work remotely - in comparision to
+M$´s  RDP. 
+
+The question for me is not "X or not X" - but how to enable people to start
+e. g. "sam" on an HP-UX box without needing to wait minutes before the
+application starts. It works - for sure, but the speed is for our needs not
+acceptable. Additionally ~ 60 ssh sessions on a single box will but a lot of
+CPU load on the system beside the fact, that you need a BIG BIG pipe.
+
+
+-- 
+Markus

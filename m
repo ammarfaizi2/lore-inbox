@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbWEVQS6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750955AbWEVQXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750958AbWEVQS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 12:18:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWEVQS6
+	id S1750955AbWEVQXP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 12:23:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWEVQXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 12:18:58 -0400
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:25728 "EHLO
-	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S1750955AbWEVQS5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 12:18:57 -0400
-Message-ID: <4471EF73.1030100@wolfmountaingroup.com>
-Date: Mon, 22 May 2006 11:05:55 -0600
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Mon, 22 May 2006 12:23:15 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:56591 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750950AbWEVQXP convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 12:23:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=M+w84P21zSiz9qjLx2sj9h4ULcFDMpVEyJ52nSFyWYTrgKoXWjgYWjmA4BllQhIcgeDhKul99k+IvGWPDVGWpOtQaHkfoQ7HK2/2Z1xSBzA4MWN40v7y+OISF3p8LxWdaZsFKkLbigvUAYSmcth5oFwyACnLaVmftOhZP6bktbo=
+Message-ID: <625fc13d0605220923l6e6281eap997f7e84b03061b8@mail.gmail.com>
+Date: Mon, 22 May 2006 11:23:13 -0500
+From: "Josh Boyer" <jwboyer@gmail.com>
+To: "Martin J. Bligh" <mbligh@google.com>
+Subject: Re: 2.6.17-rc4-mm3 - Build error in jffs
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "Linux Kernel Mailing List a" <linux-kernel@vger.kernel.org>,
+       "Andy Whitcroft" <apw@shadowen.org>
+In-Reply-To: <4471DB32.9060708@google.com>
 MIME-Version: 1.0
-To: Christian Trefzer <ctrefzer@gmx.de>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jan Knutar <jk-lkml@sci.fi>,
-       Pau Garcia i Quiles <pgquiles@elpauer.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [IDEA] Poor man's UPS
-References: <200605212131.47860.pgquiles@elpauer.org> <20060521224012.GB30855@hermes.uziel.local> <200605221604.16043.jk-lkml@sci.fi> <20060522151303.GA4538@hermes.uziel.local> <1148312458.17376.54.camel@localhost.localdomain> <20060522154830.GA5344@hermes.uziel.local>
-In-Reply-To: <20060522154830.GA5344@hermes.uziel.local>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4471DB32.9060708@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Trefzer wrote:
+On 5/22/06, Martin J. Bligh <mbligh@google.com> wrote:
+> http://test.kernel.org/abat/32863/debug/test.log.0
+>
+> fs/jffs2/scan.c:530:92: macro "jffs2_sum_scan_sumnode" passed 5
+> arguments, but takes just 4
+> fs/jffs2/scan.c: In function `jffs2_scan_eraseblock':
+> fs/jffs2/scan.c:530: error: `jffs2_sum_scan_sumnode' undeclared (first
+> use in this function)
+> fs/jffs2/scan.c:530: error: (Each undeclared identifier is reported only
+> once
+> fs/jffs2/scan.c:530: error: for each function it appears in.)
+> make[2]: *** [fs/jffs2/scan.o] Error 1
+> make[1]: *** [fs/jffs2] Error 2
+> make: *** [fs] Error 2
 
->On Mon, May 22, 2006 at 04:40:58PM +0100, Alan Cox wrote:
->  
->
->>Lead acid batteries should be kept well charged to avoid sulphation and
->>always full charged when recharging, preferably using a charger that
->>will do proper three step charging. "Cycling" a lead acid battery is a
->>great way to destroy it.
->>
->>    
->>
->
->So it is better to use only one battery (or an array thereof) which is
->sort of charged and discharged at the same time, or is this idea just as
->screwed..? I don't have a degree in electronics, mind you : )
->
->Might be easier to build something that keeps a battery well maintained
->and switches in case of power outage. With large enough condensors to
->bridge the gap, which would also iron out any peaks and stuff, this
->should work pretty well.
->
->Kind regards,
->Chris
->  
->
-You know, these old lead acid batteries are a fire hazard, not to 
-mention they produce free hydrogen gas when discharging to charging.
+http://git.infradead.org/?p=mtd-2.6.git;a=commit;h=06c6764b5830798c39617b24497cade90451592f
 
-Guys, stick to nicads or a fuel cell to avoid burning down your house or 
-the neighborhood.  Ever see a lead acid battery explode?  I have.  It 
-throws sulphuric acid all over the place.
-
-Jeff
+josh

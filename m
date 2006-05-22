@@ -1,246 +1,548 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWEVR7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbWEVSBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751102AbWEVR7O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 13:59:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWEVR7O
+	id S1751107AbWEVSBG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 14:01:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWEVSBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 13:59:14 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.152]:32446 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751102AbWEVR7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 13:59:12 -0400
-Message-ID: <4471FAD0.9060403@comcast.net>
-Date: Mon, 22 May 2006 13:54:24 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060518)
+	Mon, 22 May 2006 14:01:06 -0400
+Received: from amdext4.amd.com ([163.181.251.6]:18828 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S1751105AbWEVSBE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 14:01:04 -0400
+X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
+From: "Ray Bryant" <raybry@mpdtxmail.amd.com>
+To: "Dave McCracken" <dmccr@us.ibm.com>
+Subject: Re: [PATCH 0/2][RFC] New version of shared page tables
+Date: Mon, 22 May 2006 13:00:30 -0500
+User-Agent: KMail/1.8
+cc: "Hugh Dickins" <hugh@veritas.com>,
+       "Linux Memory Management" <linux-mm@kvack.org>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>
+References: <1146671004.24422.20.camel@wildcat.int.mccr.org>
+ <200605081432.40287.raybry@mpdtxmail.amd.com>
+ <2F9DB20EAB953ECFD816E9BF@[10.1.1.4]>
+In-Reply-To: <2F9DB20EAB953ECFD816E9BF@[10.1.1.4]>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.16.16 Parameter-controlled mmap/stack randomization
-References: <446E6A3B.8060100@comcast.net> <1148132838.3041.3.camel@laptopd505.fenrus.org> <446F3483.40208@comcast.net> <20060522010606.GC25434@elf.ucw.cz> <44712605.4000001@comcast.net> <20060522083352.GA11923@elf.ucw.cz> <4471E77F.1010704@comcast.net> <20060522170036.GD1893@elf.ucw.cz>
-In-Reply-To: <20060522170036.GD1893@elf.ucw.cz>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Message-ID: <200605221300.30998.raybry@mpdtxmail.amd.com>
+X-OriginalArrivalTime: 22 May 2006 18:01:54.0675 (UTC)
+ FILETIME=[CF515430:01C67DC9]
+X-WSS-ID: 686F231227K1233818-01-01
+Content-Type: multipart/mixed;
+ boundary="Boundary-00=_+wfcEpvu7wB+2Ow"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+
+--Boundary-00=_+wfcEpvu7wB+2Ow
+Content-Type: text/plain;
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+On Tuesday 16 May 2006 16:09, Dave McCracken wrote:
+> --On Monday, May 08, 2006 14:32:39 -0500 Ray Bryant
+>
+> <raybry@mpdtxmail.amd.com> wrote:
+> > On Saturday 06 May 2006 10:25, Hugh Dickins wrote:
+> > <snip>
+> >
+> >> How was Ray Bryant's shared,anonymous,fork,munmap,private bug of
+> >> 25 Jan resolved?  We didn't hear the end of that.
+> >
+> > I never heard anything back from Dave, either.
+>
+> My apologies.  As I recall your problem looked to be a race in an area
+> where I was redoing the concurrency control.  I intended to ask you to
+> retest when my new version came out.  Unfortunately the new version took
+> awhile, and by the time I sent it out I forgot to ask you about it.
+>
+> I believe your problem should be fixed in recent versions.  If not, I'll
+> make another pass at it.
+>
+> Dave McCracken
+>
+
+Dave,
+
+I'm sending you a test case and a small kernel patch (see attachments).   The 
+patch applies to 2.6.17-rc1, on top of your patches from 4/10/2006 (I'm 
+assuming these the most recent ones.).   
+
+What the patch does is to add a system call that will return the pfn and ptep 
+for a given virtual address.   What the test program does (I think :-) ) is 
+to create a mmap'd shared region, then fork off a child.   The child then 
+re-mmaps() private a portion of the region.  Call it without arguments for 
+now, that should map 512 pte's and share them between the parent and 1 child.
+[Later on we can try more pages and more children.  (e. g. 
+./shpt_test1 128 64).]
+
+At this point, what I expect to have happened is that in at the  shared region 
+address in the child, there will be a number of pages that are still shared 
+with the parent, hence have the same pfn and ptep as they used to, followed 
+by a set of pages in the re-mmapped() region where the pfn's and ptep's are 
+different, because that set of pages is no longer shared.
+
+What I find is that the re-mapped() region, the pfn's are different, but the 
+ptep's have not changed.   Hence, we've modified the parent address space
+rather than getting our own copy of that part of the address space.
+
+Now I'm not positive as to what the semantics SHOULD be here, so that may be 
+the error involved, but it seems to me that if I mmap() the region private in 
+the child, I should get a nice new private copy, and the pte's should no 
+longer be shared with the parent.   Is that the way you guys understand the
+semantics of this? 
+
+Anyway take a look at my test case and see if it makes any sense to you.
+If it turns out my test case is in error, the mea culpa, and I'll fix the 
+problems and try again.
+
+Best Regards,
+
+Ray
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-mm' in
+> the body to majordomo@kvack.org.  For more info on Linux MM,
+> see: http://www.linux-mm.org/ .
+> Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+
+-- 
+Ray Bryant
+AMD Performance Labs                   Austin, Tx
+512-602-0038 (o)                 512-507-7807 (c)
+
+--Boundary-00=_+wfcEpvu7wB+2Ow
+Content-Type: text/x-diff;
+ charset=iso-8859-1;
+ name=add-sys_get_vminfo.patch
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename=add-sys_get_vminfo.patch
+
+Index: linux-2.6.17-rc1-ptsh/mm/memory.c
+===================================================================
+--- linux-2.6.17-rc1-ptsh.orig/mm/memory.c
++++ linux-2.6.17-rc1-ptsh/mm/memory.c
+@@ -2463,3 +2463,80 @@ int in_gate_area_no_task(unsigned long a
+ }
+ 
+ #endif	/* __HAVE_ARCH_GATE_AREA */
++
++#define VMINFO_RESULTS 3
++asmlinkage long
++sys_get_vminfo(pid_t pid, unsigned long addr,  long *user_addr)
++{
++	int ret;
++	struct page *p;
++	struct task_struct *task = NULL;
++	struct mm_struct *mm = NULL;
++	pgd_t *pgd;
++	pud_t *pud;
++	pmd_t *pmd;
++	pte_t *ptep = NULL;
++	unsigned long results[VMINFO_RESULTS];
++
++	if (pid >= 0) {
++		read_lock(&tasklist_lock);
++		task = find_task_by_pid(pid);
++		if (task) {
++			task_lock(task);
++			mm = task->mm;
++			if (mm)
++				atomic_inc(&mm->mm_users);
++		} else {
++			read_unlock(&tasklist_lock);
++			return -ESRCH;
++		}
++		read_unlock(&tasklist_lock);
++	} else
++		return -1;
++
++	ret = get_user_pages(task, mm, addr, 1, 0, 0, &p, NULL);
++	results[0] = 0;
++	results[1] = -1;
++	if (ret >= 0) {
++		results[0] = page_to_pfn(p);
++		results[1] = page_to_nid(p);
++		put_page(p);
++	} else
++		ret = EINVAL;
++
++	pgd = pgd_offset(mm, addr);
++	if (pgd_none(*pgd) || unlikely(pgd_bad(*pgd)))
++		goto no_page_table;
++
++	pud = pud_offset(pgd, addr);
++	if (pud_none(*pud) || unlikely(pud_bad(*pud)))
++		goto no_page_table;
++
++	pmd = pmd_offset(pud, addr);
++	if (pmd_none(*pmd) || unlikely(pmd_bad(*pmd)))
++		goto no_page_table;
++
++	ptep = pte_offset_map(pmd, addr);
++	pte_unmap(ptep);
++
++	if (mm)
++		mmput(mm);
++
++	task_unlock(task);
++
++copy_vminfo_to_user:
++	results[2] = (unsigned long) ptep;
++
++	if (copy_to_user(user_addr, results, VMINFO_RESULTS*sizeof(long)))
++		ret = -EFAULT;
++
++	return ret;
++
++no_page_table:
++	ptep = NULL;
++
++	ret = ENOMEM;
++
++	goto copy_vminfo_to_user;
++
++}
+Index: linux-2.6.17-rc1-ptsh/include/asm-x86_64/unistd.h
+===================================================================
+--- linux-2.6.17-rc1-ptsh.orig/include/asm-x86_64/unistd.h
++++ linux-2.6.17-rc1-ptsh/include/asm-x86_64/unistd.h
+@@ -611,8 +611,10 @@ __SYSCALL(__NR_set_robust_list, sys_set_
+ __SYSCALL(__NR_get_robust_list, sys_get_robust_list)
+ #define __NR_splice		275
+ __SYSCALL(__NR_splice, sys_splice)
+-
+-#define __NR_syscall_max __NR_splice
++#define __NR_get_vminfo		276
++__SYSCALL(__NR_get_vminfo, sys_get_vminfo)
++ 
++#define __NR_syscall_max __NR_get_vminfo
+ 
+ #ifndef __NO_STUBS
+ 
+
+--Boundary-00=_+wfcEpvu7wB+2Ow
+Content-Type: text/x-csrc;
+ charset=iso-8859-1;
+ name=shpt_test1.c
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename=shpt_test1.c
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/shm.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/time.h>
+#include <asm/atomic.h>
+
+#define PAGE_SIZE 4096
+#define INITIAL_HOLE 50
+#define ADDR  (0x00002aaaaaf00000UL)
+#define ADDR1 (ADDR + INITIAL_HOLE*PAGE_SIZE)
+#define MAX_NCHILD 128
+#define PAGES_PER_PTE_PAGE 512
+
+#define PAGE_SIZE_IN_KB (PAGE_SIZE/1024)
+
+/*
+ *  Now test what happens if we create a shared region under the shpt
+ *  kernel and then the children remap part of the shared region.  We
+ *  use a hacked kernel with an additional system call (get_viminfo())
+ *  [see below for details] to make sure that each child gets its own
+ *  pfn in this case and that the shared paget table entries are no
+ *  longer shared.   This test was suggested by Christoph Lamater @ SGI.
+ */
+
+static inline long timeval_diff_in_ms(struct timeval *a, struct timeval *b) {
+   if (a->tv_usec > b->tv_usec) {
+   	// borrow
+	a->tv_sec--;
+	a->tv_usec += 1000000;
+   }
+   return(1000 * (b->tv_sec - a->tv_sec) + (b->tv_usec - a->tv_usec)/1000);
+}
+
+long get_pte_kb()
+{
+	FILE *f;
+	int err;
+	long parameter;
+	char str[128];
+
+	f = fopen("/proc/meminfo", "r");
+        if (!f) {
+		printf("fopen() error in %s\n", __FUNCTION__);
+		perror("fopen");
+		exit(-1);
+	 }
+
+	while (1) {
+		parameter = -1;
+                err = fscanf(f, "%s %ld", str, &parameter);
+                if (err == EOF  || !strcmp(str, "PageTables:"))
+                        break;
+        }
+
+	return parameter;
+}
+
+/* 
+ * hacked in system call to return the following info for a virtual address:
+ * results[0] = pfn of virtual address "addr"
+ * results[1] = nodeid where pfn lives (for NUMA boxen)
+ * results[2] = address of the pte
+ *
+ * Note well, this assumes the page has already been faulted in
+ * If this hasn't happended, the system call results are undefined.
+ */
+#define __NR_get_vminfo 276
+static inline long get_vminfo(pid_t pid, void *addr, long *results)
+{
+	return (syscall(__NR_get_vminfo,pid,addr,results));
+}
+
+main(int argc, char **argv)
+{
+	char *pages, *pages1;
+	int count;
+	int errors, pc, nchild, child;
+	long shared_region_size, i, remapped_region_size;
+	long starting_pte_kb, ending_pte_kb;
+	pid_t pid[MAX_NCHILD];
+	void *addr = (void *) ADDR;
+	void *addr1= (void *) ADDR1;
+	atomic_t *atom = (atomic_t *) (addr + 8);
+	volatile long *flag = (long *) (addr + 16);
+	struct timeval start, forkend, end;
+	long results[3];
+	long *page_pfn, *page_ptep;
+	int pfn_should_match_dont=0, ptep_should_match_dont=0;
+	int pfn_shouldnt_match_do=0, ptep_shouldnt_match_do=0;
+
+	setbuf(stdout, NULL);
+	printf("Main starts......\n");
+
+	printf("argc=%d\n", argc);
+	/* first arg is the number of pte pages to use */
+	if (argc == 1)
+		pc = 1;
+	else
+		sscanf(argv[1], "%d", &pc);
+
+	/* second arg is the number of threads to create */
+	if (argc < 3)
+		nchild = 1;
+	else
+		sscanf(argv[2], "%d", &nchild);
+
+	/* find out how many pages of pte's we've already used */
+	/* (we'll subtract this off of the number we get after */
+	/*  the children are all forked, below.) ............. */
+	starting_pte_kb = get_pte_kb();
+
+	pc = PAGES_PER_PTE_PAGE * pc;
+	if (nchild > MAX_NCHILD)
+		nchild = MAX_NCHILD;
+	printf("Number of pages to map: %d nchild: %d\n", pc, nchild);
+
+	shared_region_size = (long)pc * (long)PAGE_SIZE;
+
+	printf("Shared region size: %5.2f GB\n", shared_region_size/(1024.0*1024.0*1024.0));
+
+	pages = (char *)mmap(addr, shared_region_size,
+		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS | MAP_FIXED, 0, 0);
+
+	if (pages ==  MAP_FAILED) {
+		printf("mmap() failed.\n");
+		perror("mmap");
+		exit(999);
+	}
+
+	printf("mapped region starts at: %p\n", pages);
+
+	/* initialize the communication flags in the shared region */
+	atomic_set(atom, 0);
+	*flag = 0;
+
+	printf("writing data..........\n");
+	errors = 0;
+	/* initialize the first byte of page N to N */
+	for(i=0; i<shared_region_size; i+=PAGE_SIZE) {
+		pages[i] = (char) (i/PAGE_SIZE);
+	}
+	/* paranoia check. ........................ */
+	for(i=0; i<shared_region_size; i+=PAGE_SIZE) {
+		if(pages[i] != (char) (i/PAGE_SIZE))
+			errors++;
+	}
+	printf("done writing data...... errors=%d\n", errors);
+
+	printf("Forking.....\n");
+	gettimeofday(&start, NULL);
+	for(child=0;child<nchild;child++) {
+		if (pid[child]=fork()) {
+			if ((nchild < 16) || ((child % 16) == 0))
+				printf("parent (pid:%d) created child #%3d: pid:%d\n", getpid(), child, pid[child]);
+		} else {
+			char tmp, rc;
+			int tests = 0;
+			errors = 0;
+			/* check to make sure child sees same data as above */
+			/* also record pfn and pte addresses for later comparison */
+			page_pfn = (long *) malloc(pc*sizeof(long));
+			page_ptep= (long *) malloc(pc*sizeof(long));
+			if (!page_pfn || !page_ptep) {
+				printf("Ack, PID: %d couldn't allocate both page_pfn (%p) and page_pte (%p)\n",
+					getpid(), page_pfn, page_ptep);
+				perror("mmap");
+				atomic_add(1, atom);
+				exit(-1);
+			} else
+				printf("PID: %d page_pfn:%p page_pte:%p\n",
+					getpid(), page_pfn, page_ptep);
+			for(i=0; i<shared_region_size; i+=PAGE_SIZE) {
+				if(pages[i] != (char) (i/PAGE_SIZE))
+					errors++;
+				rc = get_vminfo(getpid(), &pages[i], results);
+				if (rc >= 0) {
+					page_pfn[i/PAGE_SIZE] = results[0];
+					page_ptep[i/PAGE_SIZE] = results[2];
+				}
+				else
+					printf("PID:%d i=%d vmaddr:%p returned %d\n",
+						getpid(), i, &pages[i], rc);
+			}
+			if (errors > 0)
+				printf("child(%d) sees errors=%d\n", getpid(), errors);
+
+			/* now (re-)mmap a portion of the shared region */
+			/* yeah, this is a little bit arbitrary :-) */
+			remapped_region_size = PAGE_SIZE*pc/8;
+			printf("remapped_region_size: %ld\n", remapped_region_size);
+			pages1 = (char *)mmap(addr1, remapped_region_size,
+				 PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_FIXED | MAP_PRIVATE, 0, 0);
+                        if (pages1 == MAP_FAILED) {
+				printf("mmap() failed in child process %d\n",getpid());
+				perror("mmap");
+				atomic_add(1, atom);
+				exit(-1);
+			}
+
+			/* fault the pages in and put some different data in the pages */
+			tmp = (char) (getpid() & 0xFF);
+			for(i=0; i<remapped_region_size; i+=PAGE_SIZE) {
+				pages1[i] = tmp;
+			}
+
+			errors = 0;
+			tests  = 0;
+
+			/*
+			 * now print out the pfn and pte addresses for the entire shared region
+			 * (up to the end of the re-mapped region, above).
+			 * we expect some of the addresses to still use shared ptes, but above
+			 * the initial hole, we should see distinct ptes.  Another plausible
+			 * implementation would be to unshared the entire region; that would be
+			 * legal as well.
+			 */
+			for(i=0; i<INITIAL_HOLE*PAGE_SIZE+remapped_region_size; i+=PAGE_SIZE) {
+			        if (((void *)&pages[i]) < addr1) {
+					/* we expect shared pte's in this region */
+					if (pages[i] != tmp)
+						errors++;
+					tests++;
+					rc = get_vminfo(getpid(), &pages[i], results);
+					if (rc >= 0) {
+						if (results[0] != page_pfn[i/PAGE_SIZE])
+							pfn_should_match_dont++;
+						if (results[2] != page_ptep[i/PAGE_SIZE])
+							ptep_should_match_dont++;
+						printf("Expect shared: PID:%d i=%d vmaddr:%p pfn:0x%lx was 0x%lx pte:0x%lx was 0x%lx\n",
+							getpid(), i, &pages[i], page_pfn[i/PAGE_SIZE], results[0], page_ptep[i/PAGE_SIZE], results[2]);
+					} else
+						printf("Expect shared: PID:%d i=%d vmaddr:%p returned %d\n",
+							getpid(), i, &pages[i], rc);
+				} else {
+					/* we expect unshared pte's in this region */
+					if (pages[i] != tmp)
+						errors++;
+					tests++;
+					rc = get_vminfo(getpid(), &pages[i], results);
+					if (rc >= 0) {
+						if (results[0] == page_pfn[i/PAGE_SIZE])
+							pfn_shouldnt_match_do++;
+						if (results[2] == page_ptep[i/PAGE_SIZE])
+							ptep_shouldnt_match_do++;
+						printf("Expect unshared: PID:%d i=%d vmaddr:%p pfn:0x%lx was 0x%lx pte:0x%lx was 0x%lx\n",
+							getpid(), i, &pages[i], page_pfn[i/PAGE_SIZE], results[0], page_ptep[i/PAGE_SIZE], results[2]);
+					} else
+						printf("Expect unshared: PID:%d i=%d vmaddr:%p returned %d\n",
+							getpid(), i, &pages[i], rc);
+				}
+			}
+			/* print the number of errors found for the region we have examined */
+			if (errors > 0)
+				printf("child(%d) sees errors=%d in region, tests:%d\n", getpid(), errors, tests);
+
+			if (pfn_should_match_dont || ptep_should_match_dont || pfn_shouldnt_match_do || ptep_shouldnt_match_do) {
+				int tmp = pfn_should_match_dont + ptep_should_match_dont + pfn_shouldnt_match_do + ptep_shouldnt_match_do;
+				printf("child(%d) sees match/mismatch errors %d in region, tests:%d\n", getpid(), tmp, tests);
+				printf("child(%d) pfn_should_match_dont:  %d\n", getpid(), pfn_should_match_dont);
+				printf("child(%d) ptep_should_match_dont: %d\n", getpid(), ptep_should_match_dont);
+				printf("child(%d) pfn_shouldnt_match_do:  %d\n", getpid(), pfn_shouldnt_match_do);
+				printf("child(%d) ptep_shouldnt_match_do: %d\n", getpid(), ptep_shouldnt_match_do);
+			}
 
 
+			/* indicate that this child is done */
+			atomic_add(1, atom);
+			while (!(*flag))
+				sleep(1);
 
-Pavel Machek wrote:
-> Hi!
-> 
->>>>>> On the other hand, some things[1][2][3] may give us the undesirable
->>>>>> situation where-- even on an x86-64 with real NX-bit love-- there's an
->>>>>> executable stack.  The stack randomization in this case can likely be
->>>>>> weakened by, say, 8 bits by padding your shellcode with 1-byte NOPs
->>>>>> (there's a zillion of these, like inc %eax) up to 4096 bytes.  This
->>>>>> leaves 1 success case for every 2047 fail cases.
->>>>> Maybe we can add more bits of randomness when there's enough address
->>>>> space -- like in x86-64 case?
->>>> Yes but how many?  I set the max in my working copy (by the way, I
->>>> patched it into Ubuntu Dapper kernel, built, tested, it works) at 1/12
->>>> of TASK_SIZE; on x86-64, that's 128TiB / 12 -> 10.667TiB -> long_log2()
->>>> - -> 43 bits -> 8TiB of VMA, which becomes 31 bits mmap() and 39 bits stack.
->>>>
->>>> That's feasible, it's nice, it's fregging huge.  Can we justify it?  ...
->>>> well we can't justify NOT doing it without the ad hominem "We Don't Need
->>>> That Because It's Not Necessary", but that's not the hard part around here.
->>> Well, making it configurable and pushing hard decision to the user is
->>> not right approach, either. I believe we need different
->>> per-architecture defaults, not "make user configure it".
->> Yes, different per-architecture defaults is feasible with configuration
->> being possible.  I could replace 'int STACK_random_bits=19' with 'int
->> mmap_random_bits=ARCH_STACK_RANDOM_BITS_DEFAULT' and that would be
->> effective as long as the user doesn't touch it with command line or
->> SELinux or whatnot.
->>
->> It is still possible that ARCH_STACK_RANDOM_BITS_DEFAULT breaks things.
->>  The current kernel default broke emacs at first I heard; I believe
->> we
-> 
-> Well, fix emacs then. We definitely do not want 10000 settable knobs
-> that randomly break things. OTOH per-architecture different randomness
-> seems like good idea. And if Oracle breaks, fix it.
-> 
+			exit(errors);
+		}
+	}
 
-Fix this, fix that.  In due time perhaps.  I'm pretty sure Linus isn't
-going to break anything, esp. since his mail client breaks too.
+	gettimeofday(&forkend, 0);
 
->>  - Disable PF_RANDOMIZE for the binary.  (Already doable)
->>  - Decrease randomization system-wide.  (My patch lets you do this)
->>  - Decrease randomization for the binary to a point where it works.
->> (Adding SELinux hooks and policy to my patch would allow this)
-> 
-> Which immediately makes your patch obsolete.
+	/* wait for all of the children to get started and check their data */
+	printf("Parent is waiting....\n");
+        while(atomic_read(atom) < nchild)
+		usleep(1000L);
+	gettimeofday(&end, NULL);
 
-How so?  My patch (the current fourth-generation copy I have here)
-supplies effective infrastructure that makes it easy to change
-per-architecture randomization or adjust randomization as per policy.
-Currently all you can do is flip off PT_GNU_STACK to kill randomization
-entirely; or live with the kernel defaults.  I'm progressing towards the
-third bullet point above.
+	printf("All children are now sleeping....elapsed ms: %ld fork ms: %ld\n", 
+		timeval_diff_in_ms(&start, &end), timeval_diff_in_ms(&start, &forkend));
 
-> 
->> Disabling randomization for the binary is much more fine-grained, but
->> opens up that binary for attacks.  Oracle breaks with high-order
->> entropy; we can disable randomization on Oracle and keep high-order
->> entropy, but now the database server is at risk.  This isn't the
->> greatest idea in the world either.
-> 
-> So fix Oracle. No need to invent serious infrastructure because Oracle
-> is broken.
+	/* now let us check to see how many pages of pte's have been used */
+	ending_pte_kb = get_pte_kb();
 
-Yeah we tried this one already.  Linus said no.  Arjan said no.  They're
-not insane, even though the people running Oracle on anything less than
-a 64-bit server are (3GiB TASK_SIZE for a database server juggling
-multi-gigabyte databases?  No thank you).
+	/* We can use this number to see if the shared region is still using 
+	 * any shared pte's after the mmap() by the child, although it really
+	 * doesn't matter (e. g. it would be allowed to revert the whole shared
+	 * region to non-shared ptes. ....................................... */
+	printf("pte pages used: \t%8ld\n",    (ending_pte_kb-starting_pte_kb)/PAGE_SIZE_IN_KB);
+	printf("KB of pte pages used: \t%8ld\n", ending_pte_kb-starting_pte_kb);
 
-> 
->> It appears to me that the best solution is per-policy, but we should
->> leave even that up to the user.  This means make a sane default--
->> one
-> 
-> No. Current situation is okay as is. It does not need to be
-> configurable, and it should not be.
-> 
+	*flag = 1;
+	
+	for(i=0;i<nchild;i++) {
+		int status;
+		waitpid(pid[i], &status, 0);
+		if (status != 0)
+			printf("pid %d exited with non-zero status: %d\n", pid[i], status);
+	}
 
-My issue is I want *more* randomization.  Linus won't give me more,
-because it breaks Oracle/Emacs/some mail client/etc.  Over here I'm
-running Ubuntu Dapper i386 on my laptop out of the box with the kernel
-patched with 24 bits stack and 16 bits mmap() randomization fine
-(default is 19 and 8); but I'm not running any of the handful of apps
-that break.
+	munmap(pages, shared_region_size);
 
-Why should it NOT be configurable anyway?  If you don't configure it,
-then it behaves just like it would if it wasn't configurable at all.
-This is called "having sane defaults."
+	printf("Main exits......\n");
+}
 
-There's different people with different wants and needs.  I'm sure if
-you look hard enough you'll find a group of people who want 256M stack
-and 256M mmap() randomization on i386 (hint:  Adamantix, Hardened
-Gentoo, anyone who swears by grsecurity); equally, if you look you'll
-find people who feel 8M stack and 1M mmap() is fine even on x86-64
-(hint:  Linus, Arjan, Fedora/RedHat).
 
-You'll also find those of us who don't particularly care about tangible
-benefit, and will crank up the protection on mathematical figures
-provided there are no detrimental effects.  This would be me; nobody
-comes near my house at night, in my whole life nobody has ever tried to
-jigger with my door, it'd be 'safe' to leave it unlocked at night but I
-still lock it.  Why?  Because I get the reasonable guarantee that
-someone isn't going to just walk into my house with the twist of a knob,
-and the only cost is turning a little piece of metal 90 degrees twice a
-day (with the proper lock it can even be pushing a button to lock, and
-the door automatically unlocks when I turn the knob from the inside).
-It's not 16 unevenly keyed deadbolts I lock and unlock every time I open
-my door.
+--Boundary-00=_+wfcEpvu7wB+2Ow--
 
-Still, there's some merit to the argument:
-
-  Attacks using our technique need only guess the libc text segment
-  offset, reducing the search space to an entirely practical 16 bits.
-  While our specific attack uses only a single entry-point in libc, the
-  exploit technique is also applicable to chained return-to-libc
-  attacks.
-
-  Our implementation shows that buffer overfl ow attacks (as used by,
-  e.g., the Slammer worm [11]) are as effective on code randomized by
-  PaX ASLR as on non-randomized code. Experimentally, our attack takes
-  on the average 216 seconds to obtain a remote shell.
-
-    -- http://www.stanford.edu/~blp/papers/asrandom.pdf
-
-(Now you know where I keep quoting 216 seconds from)
-
-The paper works on 16 bits of randomization-- 256M of mmap()
-randomization that PaX applies.  At a glance, it doesn't seem to take
-into account finding the stack frames injected into the stack or heap--
-both of which PaX and FC5's Exec Shield randomize the base of, and of
-which mainline Linux randomizes the stack base on.
-
-I would say that possibly randomization can be decreased by 1 to 1.5
-bits with the assumption that the injected stack frames are about a page
-long-- realisticly however, we could probably align system() pages to 32
-or 48 bytes, knocking off 6-7 bits.  We're almost back to page-aligned
-stack here, so let's use that assumption.
-
-Right now we have 8 bits mmap() (1M) and 19 bits stack (8M), which we
-can reduce to 8 and 11, total 19 bits for an attacker.  Assuming the
-above report gives an accurate view of brute forcing i.e. Apache, we
-just increased the complexity by 3 orders of magnitude-- should average
-1728 seconds, or about 29 minutes.  This is still my sysadmin's lunch
-break and nobody else is going to notice we're under attack.
-
-If we increase to 16 bits mmap() (256M) and 24 bits stack (256M), which
-can reduce to 16 and 16, this totals 32 bits for an attacker.  Under the
-same assumptions, this is 16 orders of magnitude bigger (2^16 == 65536),
-216 * 2^16 == 14,155,776 seconds (164 days).  This is about a 5 month
-vacation for my sysadmin.
-
-Like I said before, though, massive randomization breaks Oracle at
-least, possibly other things.  We can't just slap it across the board here.
-
-Interestingly, if we get this to an executable stack and shellcode
-inject, 19 bits becomes 11 bits and our attack is 5 orders of magnitude
-easier -- 216 / 2^5 == 6.75 seconds.  With 24 bits we can make it 16
-bits, so it's still 216 seconds.  (Do you feel like sub-page
-randomization is just about useless yet?  Not quite, but almost?  It's
-more effective on ret2libc chaining attacks..)
-
-So our absolute worst case is 7 seconds and we can make it about 3 and a
-half minutes on i386.  If we have an NX stack-- which by the way SELinux
-CAN enforce now (breaks Metacity on Fedora Core 5, but everything else
-works; the policy could be changed here until someone fixes
-Metacity..)-- then we move our worst case from 29 minutes to 164 days.
-If we do this, however, we break things; and we can't just slap this
-into the kernel and say "DURR FIX UR SHIT!"
-
-> Per-architecture ammount of randomness would be welcome, I
-> believe. That will force Oracle to fix their code, but that's okay,
-> and you can use disable PF_RANDOMIZE for Oracle in meantime.
-
-No, this would leave Oracle shipping binaries with PF_RANDOMIZE
-(PT_GNU_STACK still?) disabled.  Also if PF_RANDOMIZE is still connected
-to PT_GNU_STACK, then this means that randomization is turned off BY
-MAKING THE STACK EXECUTABLE.  You should notice the obvious problem
-here.  You should also understand that as long as they can simply switch
-randomization off, they're not going to fix it; and as long as it breaks
-Oracle/Emacs/anything, Linus is not going to impose non-disablable,
-non-adjustable randomization.
-
-> 								Pavel
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
-
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iQIVAwUBRHH6zgs1xW0HCTEFAQLPMg//WTW47tVb1Xk7aQQ5kF0CWO3MjU/kE5rw
-4M7kHd2sb1qGDYUIWIx1jIUAb4ce8AYFqPYEtMpeiqFics0nwK30E/U4BKxwcmzl
-+bd8bNhfWY4aTGM+L6dzlW2CmKGotNtLZb2iwbRhfNpEeFHJHGCiANd82SLFmJbY
-zT15qm+14O4TR9E0LHEHHQYIu2wCksv5dEG49dtUJqdf2MP4Zy66ZmVShUZOCtrq
-Fbl4cZYqJO0qAbZL8tz+3VWIvLqDNcuVXZY4gQK1UB4Fp/3gV32OSc/hYDt+LD5F
-xDcllnHW65bu+EknPyOO8e6/dorELsvfhfTckj361k8Q3ZcEdB2+W/+Nob03VTCL
-I20CEQu4bcl+B7KxP8Y7y54FzC04gZ3og7ce0l6l6H/V0kZfQ6KXb9zfL/P/hIOM
-+eKN1QEMdQDP9IkkFhUhu5MmDJeCS9FyApW5cw+erZWC/gNAzjJNSaZp3V/C6U0J
-oLUDfah81tOrnHXATVhHCy+V3b+hu7WZM+baWwslkUYoq6uUd7a6knJK6wMVQhnz
-BszM4wbxVLlYpPf/8SuxFiUpOHqGfbMjCVYtUW3y8zZ60HGP0ehzbQMMHY4LVZqt
-zN95n6DF4nYn0SqwkSvZEOgtTX60AOqTP9QKMbpVgKyoTAH3TOE7kAxWwLUzuDHT
-Cz8gA3ga0S0=
-=K1fe
------END PGP SIGNATURE-----

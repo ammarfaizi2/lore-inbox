@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbWEVS5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750970AbWEVS65@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750960AbWEVS5s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 14:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbWEVS5s
+	id S1750970AbWEVS65 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 14:58:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbWEVS65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 14:57:48 -0400
-Received: from cyrus.iparadigms.com ([64.140.48.8]:47847 "EHLO
-	cyrus.iparadigms.com") by vger.kernel.org with ESMTP
-	id S1750959AbWEVS5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 14:57:47 -0400
-Message-ID: <447209A8.2040704@iparadigms.com>
-Date: Mon, 22 May 2006 11:57:44 -0700
-From: fitzboy <fitzboy@iparadigms.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Mon, 22 May 2006 14:58:57 -0400
+Received: from hera.kernel.org ([140.211.167.34]:38344 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751066AbWEVS65 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 14:58:57 -0400
 To: linux-kernel@vger.kernel.org
-Subject: tuning for large files in xfs
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Linux Kernel Source Compression
+Date: Mon, 22 May 2006 11:58:50 -0700 (PDT)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <e4t1la$u3p$1@terminus.zytor.com>
+References: <Pine.LNX.4.64.0605211028100.4037@p34> <200605212003.32063.s0348365@sms.ed.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1148324330 30842 127.0.0.1 (22 May 2006 18:58:50 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Mon, 22 May 2006 18:58:50 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a very large (2TB) proprietary database that is kept on an XFS
-partition under a debian 2.6.8 kernel. It seemed to work well, until I
-recently did some of my own tests and found that the performance should
-be better then it is...
+Followup to:  <200605212003.32063.s0348365@sms.ed.ac.uk>
+By author:    Alistair John Strachan <s0348365@sms.ed.ac.uk>
+In newsgroup: linux.dev.kernel
+> 
+> Somebody needs to make lzma userspace tools (like p7zip) faster, not crash, 
+> and behave like a regular UNIX program. Then we need a patch to GNU tar to 
+> emerge, and for it to persist for at least 4 years. Then maybe people will 
+> adopt this format..
+> 
 
-basically, treat the database as just a bunch of random seeks. The XFS
-partition is sitting on top of a SCSI array (Dell PowerVault) which has
-13+1 disks in a RAID5, stripe size=64k. I have done a number of tests
-that mimic my app's accesses and realized that I want the inode to be
-as large as possible (which in an intel box is only 2k), played with su
-and sw and got those to 64k and 13... and performance got better.
+The patch to GNU tar isn't necessary.  If the "not crash, and behave
+like a regular UNIX program" can be satisfied, I'd be happy to support
+7zip/lzma on kernel.org.  Unfortunately, as far as I can tell:
 
-BUT... here is what I need to understand, the filesize has a drastic
-effect on performance. If I am doing random reads from a 20GB file
-(system only has 2GB ram, so caching is not a factor), I get
-performance about where I want it to be: about 5.7 - 6ms per block. But
-if that file is 2TB then the time almost doubles, to 11ms. Why is this?
-No other factors changed, only the filesize.
+a) right now the standard encapsulation format for LZMA is 7zip, which
+only comes in the form of hideously ugly code.  lzma-tools are
+cleaner, but incompatible.
 
-Another note, on this partition there is no other file then this one
-file.
+b) Even lzma-tools relies on a shell script to behave like a Unix
+program.
 
-I am assuming that somewhere along the way, the kernel now has to do an
-additional read from the disk for some metadata for xfs... perhaps the
-btree for the file doesn't fit in the kernel's memory? so it actually
-needs to do 2 seeks, one to find out where to go on disk then one to
-get the data. Is that the case? If so, how can I remedy this? How can I
-tell the kernel to keep all of the files xfs data in memory?
+Personally, I would like to suggest adding LZMA capability to gzip.
+The gzip format already has support for multiple compression formats.
 
-Tim
-
+	-hpa

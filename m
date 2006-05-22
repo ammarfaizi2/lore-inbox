@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbWEVC3P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbWEVCoc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932427AbWEVC3P (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 22:29:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWEVC3P
+	id S964984AbWEVCoc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 22:44:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbWEVCoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 22:29:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36013 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932427AbWEVC3O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 22:29:14 -0400
-Date: Sun, 21 May 2006 22:29:12 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: edac driver names in sysfs.
-Message-ID: <20060522022912.GS8250@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 21 May 2006 22:44:32 -0400
+Received: from mail22.syd.optusnet.com.au ([211.29.133.160]:41095 "EHLO
+	mail22.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S964984AbWEVCob (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 22:44:31 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: 2.6.17-rc2+ regression -- audio skipping
+Date: Mon, 22 May 2006 12:43:53 +1000
+User-Agent: KMail/1.9.1
+Cc: Rene Herman <rene.herman@keyaccess.nl>, Lee Revell <rlrevell@joe-job.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>
+References: <4470CC8F.9030706@keyaccess.nl> <200605221033.49153.kernel@kolivas.org> <1148264043.7643.15.camel@homer>
+In-Reply-To: <1148264043.7643.15.camel@homer>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200605221243.54100.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-EDAC does something funky that no other afaik seems to do.
+On Monday 22 May 2006 12:14, Mike Galbraith wrote:
+> In my tree, I don't use the expired array for anything except batch
+> tasks any more for this very reason. The latency just hurts too bad.
 
-#define edac_xstr(s) edac_str(s)
-#define edac_str(s) #s
-#define EDAC_MOD_STR edac_xstr(KBUILD_BASENAME)
-
-And then..
-
-	.name = EDAC_MOD_STR,
-
-in its pci_driver structs.
-This leads to it looking a bit 'odd' in /sys/bus/pci/drivers
-compared to the others.
-
-/sys/bus/pci/drivers/\"e752x_edac\"/
-
-Is correcting this to remove the quotes likely to break anything
-in userspace ?
-
-		Dave
+So it's turning your tree into a single priority array design effectively just 
+like staircase ;) ?
 
 -- 
-http://www.codemonkey.org.uk
+-ck

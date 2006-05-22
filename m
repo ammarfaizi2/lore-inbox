@@ -1,149 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964962AbWEVAQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbWEVARW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964962AbWEVAQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 20:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964963AbWEVAQZ
+	id S964960AbWEVARW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 20:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964964AbWEVARW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 20:16:25 -0400
-Received: from smtpq2.tilbu1.nb.home.nl ([213.51.146.201]:51870 "EHLO
-	smtpq2.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
-	id S964962AbWEVAQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 20:16:24 -0400
-Message-ID: <4471030B.9090008@keyaccess.nl>
-Date: Mon, 22 May 2006 02:17:15 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+	Sun, 21 May 2006 20:17:22 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35588 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964960AbWEVARW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 May 2006 20:17:22 -0400
+Date: Mon, 22 May 2006 02:17:21 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Dave Jones <davej@redhat.com>, Ulrich Drepper <drepper@gmail.com>,
+       Chris Wedgwood <cw@f00f.org>, dragoran <dragoran@feuerpokemon.de>,
+       linux-kernel@vger.kernel.org, ak@suse.de
+Subject: [2.6 patch] x86_64: don't printk for unimplemented 32bit syscalls
+Message-ID: <20060522001721.GF3339@stusta.de>
+References: <44702650.30507@feuerpokemon.de> <20060521085015.GB2535@taniwha.stupidest.org> <20060521160332.GA8250@redhat.com> <a36005b50605211135v2d55827fr96360d9a025b9db8@mail.gmail.com> <20060521185000.GB8250@redhat.com> <20060521185610.GC8250@redhat.com> <20060521193818.GE3339@stusta.de> <20060521194704.GJ8250@redhat.com>
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Mike Galbraith <efault@gmx.de>,
-       Ingo Molnar <mingo@elte.hu>, Con Kolivas <kernel@kolivas.org>
-Subject: Re: 2.6.17-rc2+ regression -- audio skipping
-References: <4470CC8F.9030706@keyaccess.nl> <1148247047.20472.78.camel@mindpipe> <44710162.3070406@keyaccess.nl>
-In-Reply-To: <44710162.3070406@keyaccess.nl>
-Content-Type: multipart/mixed;
- boundary="------------050203020409080403060003"
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060521194704.GJ8250@redhat.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050203020409080403060003
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sun, May 21, 2006 at 03:47:04PM -0400, Dave Jones wrote:
+> On Sun, May 21, 2006 at 09:38:18PM +0200, Adrian Bunk wrote:
+>  > On Sun, May 21, 2006 at 02:56:10PM -0400, Dave Jones wrote:
+>  > > 
+>  > > Actually it is kinda throttled, but only on process name.
+>  > > This patch just removes that stuff completely.
+>  > > (Also removes a bunch of trailing whitespace)
+>  > > 
+>  > > Signed-off-by: Dave Jones <davej@redhat.com>
+>  > > 
+>  > > --- linux-2.6.16.noarch/arch/x86_64/ia32/sys_ia32.c~	2006-05-21 14:50:57.000000000 -0400
+>  > > +++ linux-2.6.16.noarch/arch/x86_64/ia32/sys_ia32.c	2006-05-21 14:51:48.000000000 -0400
+>  > > @@ -522,17 +522,9 @@ sys32_waitpid(compat_pid_t pid, unsigned
+>  > >  }
+>  > >  
+>  > >  int sys32_ni_syscall(int call)
+>  > > -{ 
+>  > > -	struct task_struct *me = current;
+>  > > -	static char lastcomm[sizeof(me->comm)];
+>  > > -
+>  > > -	if (strncmp(lastcomm, me->comm, sizeof(lastcomm))) {
+>  > > -		printk(KERN_INFO "IA32 syscall %d from %s not implemented\n",
+>  > > -		       call, me->comm);
+>  > > -		strncpy(lastcomm, me->comm, sizeof(lastcomm));
+>  > > -	} 
+>  > > -	return -ENOSYS;	       
+>  > > -} 
+>  > > +{
+>  > > +	return -ENOSYS;
+>  > > +}
+>  > >...
+>  > 
+>  > Why can't we remove sys32_ni_syscall() and call sys_ni_syscall() 
+>  > instead if all we want to do is to return -ENOSYS?
+> 
+> We could, though it's a more invasive patch, which would probably sprinkle
+> extra includes/externs over multiple files, for no practical gain
+> over having this tiny function isolated to this file.
 
-Rene Herman wrote:
+Where exactly is the problem with the patch below (only compile tested 
+due to lack of hardware)?
 
-> --------------020706010703030706070708
- > Content-Type: text/plain;
->  name="unfix_interactive_task_starvation.diff" 
-> Content-Transfer-Encoding: base64
+> 		Dave
 
-Crap! Sorry guys, this is a Thunderbird bug, where it sends everything 
-base64 encoded when text encoding is set to UTF-8. It for some reason 
-decided to set it to UTF-8 now, so it went out base64...
+cu
+Adrian
 
 
---------------050203020409080403060003
-Content-Type: text/plain;
- name="unfix_interactive_task_starvation.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="unfix_interactive_task_starvation.diff"
+<--  snip  -->
 
-Index: local/kernel/sched.c
-===================================================================
---- local.orig/kernel/sched.c	2006-05-08 20:47:06.000000000 +0200
-+++ local/kernel/sched.c	2006-05-22 01:03:12.000000000 +0200
-@@ -665,55 +665,13 @@ static int effective_prio(task_t *p)
+
+Don't let users spam the logs by using unimplemented 32bit syscalls.
+
+Simply use sys_ni_syscall().
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ arch/x86_64/ia32/ia32entry.S |    2 +-
+ arch/x86_64/ia32/sys_ia32.c  |   13 -------------
+ 2 files changed, 1 insertion(+), 14 deletions(-)
+
+--- linux-git-x86_64/arch/x86_64/ia32/sys_ia32.c.old	2006-05-22 02:10:15.000000000 +0200
++++ linux-git-x86_64/arch/x86_64/ia32/sys_ia32.c	2006-05-22 02:10:24.000000000 +0200
+@@ -508,19 +508,6 @@
+ 	return compat_sys_wait4(pid, stat_addr, options, NULL);
  }
  
- /*
-- * We place interactive tasks back into the active array, if possible.
-- *
-- * To guarantee that this does not starve expired tasks we ignore the
-- * interactivity of a task if the first expired task had to wait more
-- * than a 'reasonable' amount of time. This deadline timeout is
-- * load-dependent, as the frequency of array switched decreases with
-- * increasing number of running tasks. We also ignore the interactivity
-- * if a better static_prio task has expired, and switch periodically
-- * regardless, to ensure that highly interactive tasks do not starve
-- * the less fortunate for unreasonably long periods.
-- */
--static inline int expired_starving(runqueue_t *rq)
--{
--	int limit;
+-int sys32_ni_syscall(int call)
+-{ 
+-	struct task_struct *me = current;
+-	static char lastcomm[sizeof(me->comm)];
 -
--	/*
--	 * Arrays were recently switched, all is well
--	 */
--	if (!rq->expired_timestamp)
--		return 0;
+-	if (strncmp(lastcomm, me->comm, sizeof(lastcomm))) {
+-		printk(KERN_INFO "IA32 syscall %d from %s not implemented\n",
+-		       call, me->comm);
+-		strncpy(lastcomm, me->comm, sizeof(lastcomm));
+-	} 
+-	return -ENOSYS;	       
+-} 
 -
--	limit = STARVATION_LIMIT * rq->nr_running;
--
--	/*
--	 * It's time to switch arrays
--	 */
--	if (jiffies - rq->expired_timestamp >= limit)
--		return 1;
--
--	/*
--	 * There's a better selection in the expired array
--	 */
--	if (rq->curr->static_prio > rq->best_expired_prio)
--		return 1;
--
--	/*
--	 * All is well
--	 */
--	return 0;
--}
--
--/*
-  * __activate_task - move a task to the runqueue.
-  */
- static void __activate_task(task_t *p, runqueue_t *rq)
- {
- 	prio_array_t *target = rq->active;
+ /* 32-bit timeval and related flotsam.  */
  
--	if (unlikely(batch_task(p) || (expired_starving(rq) && !rt_task(p))))
-+	if (batch_task(p))
- 		target = rq->expired;
- 	enqueue_task(p, target);
- 	rq->nr_running++;
-@@ -2532,6 +2490,22 @@ unsigned long long current_sched_time(co
- }
+ asmlinkage long
+--- linux-git-x86_64/arch/x86_64/ia32/ia32entry.S.old	2006-05-22 02:10:56.000000000 +0200
++++ linux-git-x86_64/arch/x86_64/ia32/ia32entry.S	2006-05-22 02:11:10.000000000 +0200
+@@ -322,7 +322,7 @@
  
- /*
-+ * We place interactive tasks back into the active array, if possible.
-+ *
-+ * To guarantee that this does not starve expired tasks we ignore the
-+ * interactivity of a task if the first expired task had to wait more
-+ * than a 'reasonable' amount of time. This deadline timeout is
-+ * load-dependent, as the frequency of array switched decreases with
-+ * increasing number of running tasks. We also ignore the interactivity
-+ * if a better static_prio task has expired:
-+ */
-+#define EXPIRED_STARVING(rq) \
-+	((STARVATION_LIMIT && ((rq)->expired_timestamp && \
-+		(jiffies - (rq)->expired_timestamp >= \
-+			STARVATION_LIMIT * ((rq)->nr_running) + 1))) || \
-+			((rq)->curr->static_prio > (rq)->best_expired_prio))
-+
-+/*
-  * Account user cpu time to a process.
-  * @p: the process that the cpu time gets accounted to
-  * @hardirq_offset: the offset to subtract from hardirq_count()
-@@ -2666,7 +2640,7 @@ void scheduler_tick(void)
+ ni_syscall:
+ 	movq %rax,%rdi
+-	jmp  sys32_ni_syscall			
++	jmp sys_ni_syscall		
  
- 		if (!rq->expired_timestamp)
- 			rq->expired_timestamp = jiffies;
--		if (!TASK_INTERACTIVE(p) || expired_starving(rq)) {
-+		if (!TASK_INTERACTIVE(p) || EXPIRED_STARVING(rq)) {
- 			enqueue_task(p, rq->expired);
- 			if (p->static_prio < rq->best_expired_prio)
- 				rq->best_expired_prio = p->static_prio;
-
---------------050203020409080403060003--
+ quiet_ni_syscall:
+ 	movq $-ENOSYS,%rax

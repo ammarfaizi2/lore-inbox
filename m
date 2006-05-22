@@ -1,75 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWEVTMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWEVTNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751085AbWEVTMP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 15:12:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWEVTMP
+	id S1751118AbWEVTNP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 15:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbWEVTNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 15:12:15 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:23170 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751085AbWEVTMO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 15:12:14 -0400
-Date: Mon, 22 May 2006 12:14:35 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: torvalds@osdl.org
-Subject: Re: Linux 2.6.16.18
-Message-ID: <20060522191435.GS23243@moss.sous-sol.org>
-References: <20060522191346.GR23243@moss.sous-sol.org>
-Mime-Version: 1.0
+	Mon, 22 May 2006 15:13:15 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12510 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751088AbWEVTNO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 15:13:14 -0400
+Date: Mon, 22 May 2006 21:12:30 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.16.16 Parameter-controlled mmap/stack randomization
+Message-ID: <20060522191230.GE2979@elf.ucw.cz>
+References: <1148132838.3041.3.camel@laptopd505.fenrus.org> <446F3483.40208@comcast.net> <20060522010606.GC25434@elf.ucw.cz> <44712605.4000001@comcast.net> <20060522083352.GA11923@elf.ucw.cz> <4471E77F.1010704@comcast.net> <20060522170036.GD1893@elf.ucw.cz> <4471FAD0.9060403@comcast.net> <20060522184003.GD2979@elf.ucw.cz> <44720ACB.7040808@comcast.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060522191346.GR23243@moss.sous-sol.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <44720ACB.7040808@comcast.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index ce59d4b..2567664 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 6
- SUBLEVEL = 16
--EXTRAVERSION = .17
-+EXTRAVERSION = .18
- NAME=Sliding Snow Leopard
- 
- # *DOCUMENTATION*
-diff --git a/net/ipv4/netfilter/ip_nat_snmp_basic.c b/net/ipv4/netfilter/ip_nat_snmp_basic.c
-index 4f95d47..df57e7a 100644
---- a/net/ipv4/netfilter/ip_nat_snmp_basic.c
-+++ b/net/ipv4/netfilter/ip_nat_snmp_basic.c
-@@ -1000,12 +1000,12 @@ static unsigned char snmp_trap_decode(st
- 		
- 	return 1;
- 
-+err_addr_free:
-+	kfree((unsigned long *)trap->ip_address);
-+
- err_id_free:
- 	kfree(trap->id);
- 
--err_addr_free:
--	kfree((unsigned long *)trap->ip_address);
--	
- 	return 0;
- }
- 
-@@ -1123,11 +1123,10 @@ static int snmp_parse_mangle(unsigned ch
- 		struct snmp_v1_trap trap;
- 		unsigned char ret = snmp_trap_decode(&ctx, &trap, map, check);
- 		
--		/* Discard trap allocations regardless */
--		kfree(trap.id);
--		kfree((unsigned long *)trap.ip_address);
--		
--		if (!ret)
-+		if (ret) {
-+			kfree(trap.id);
-+			kfree((unsigned long *)trap.ip_address);
-+		} else 
- 			return ret;
- 		
- 	} else {
+Hi!
+
+> >>> Well, fix emacs then. We definitely do not want 10000 settable knobs
+> >>> that randomly break things. OTOH per-architecture different randomness
+> >>> seems like good idea. And if Oracle breaks, fix it.
+> >> Fix this, fix that.  In due time perhaps.  I'm pretty sure Linus isn't
+> >> going to break anything, esp. since his mail client breaks too.
+> > 
+> > Good. So fix emacs/oracle/pine, and year or so and some time after it
+> > is fixed, we can change kernel defaults. That's still less bad than
+> > having
+> > 
+> > [ ] Break emacs
+> > 
+> > in kernel config.
+> 
+> Nobody is going to fix emacs/oracle/pine, they don't have to.  Nothing
+> is making them.  The kernel will wait for them so who cares.
+
+No, _you_ have to fix emacs/oracle/pine. You claimed your patch is
+interesting for secure distros, so you obviously have manpower for
+that, right?
+
+> >> Why should it NOT be configurable anyway?  If you don't configure it,
+> >> then it behaves just like it would if it wasn't configurable at all.
+> >> This is called "having sane defaults."
+> > 
+> > Because if it is configurable, someone _will_ configure it wrong, and
+> > then ask us why it does not work.
+> 
+> Oh big deal.  People configure out ide drivers and ask why their kernel
+> doesn't boot all the time.  Distro maintainers do most of the work.
+
+As you may have noticed, I'm at receiving end of those bug
+reports. And what you propose is actually *worse* than IDE, because at
+least you get relatively clear error message when misconfiguring IDE.
+
+> > And if it is configurable, applications will not get fixed for
+> > basically forever.
+> 
+> FUD.  If it's not configurable, applications will not get fixed for
+> basically forever, and nobody will put the breaking code into mainline.
+>  Linus is NOT giving 256M/256M randomization on mainline as default
+> ever.
+
+For x86-64... why not?
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

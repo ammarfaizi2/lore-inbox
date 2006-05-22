@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWEVUQg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWEVUVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751126AbWEVUQg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 16:16:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWEVUQg
+	id S1751171AbWEVUVR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 16:21:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbWEVUVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 16:16:36 -0400
-Received: from xenotime.net ([66.160.160.81]:58754 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751126AbWEVUQf (ORCPT
+	Mon, 22 May 2006 16:21:16 -0400
+Received: from stingr.net ([212.193.32.15]:18621 "EHLO stingr.net")
+	by vger.kernel.org with ESMTP id S1751164AbWEVUVQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 16:16:35 -0400
-Date: Mon, 22 May 2006 13:19:02 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Cedric Le Goater <clg@fr.ibm.com>
-Cc: serue@us.ibm.com, linux-kernel@vger.kernel.org, dev@sw.ru,
-       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
-       ebiederm@xmission.com, xemul@sw.ru, haveblue@us.ibm.com, akpm@osdl.org
-Subject: Re: [PATCH 4/9] namespaces: utsname: switch to using uts namespaces
-Message-Id: <20060522131902.7e30e6f0.rdunlap@xenotime.net>
-In-Reply-To: <44721469.5000601@fr.ibm.com>
-References: <20060518154700.GA28344@sergelap.austin.ibm.com>
-	<20060518154936.GE28344@sergelap.austin.ibm.com>
-	<20060518170234.07c8fe4c.rdunlap@xenotime.net>
-	<44721469.5000601@fr.ibm.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Mon, 22 May 2006 16:21:16 -0400
+Date: Tue, 23 May 2006 00:21:13 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: Vlad Yasevich <vladislav.yasevich@hp.com>
+Cc: Rick Jones <rick.jones2@hp.com>, Paul P Komkoff Jr <i@stingr.net>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: Was change to ip_push_pending_frames intended to break udp	(more specifically, WCCP?)
+Message-ID: <20060522202113.GA8196@stingr.net>
+Mail-Followup-To: Vlad Yasevich <vladislav.yasevich@hp.com>,
+	Rick Jones <rick.jones2@hp.com>, Paul P Komkoff Jr <i@stingr.net>,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <20060520191153.GV3776@stingr.net> <20060520140434.2139c31b.akpm@osdl.org> <1148322152.15322.299.camel@galen.zko.hp.com> <4472078D.8010706@hp.com> <1148324083.15323.325.camel@galen.zko.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <1148324083.15323.325.camel@galen.zko.hp.com>
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 May 2006 21:43:37 +0200 Cedric Le Goater wrote:
+Replying to Vlad Yasevich:
+>     /* This is only to work around buggy Windows95/2000
+>      * VJ compression implementations.  If the ID field
+>      * does not change, they drop every other packet in
+>      * a TCP stream using header compression.
+>      */
 
-> Randy.Dunlap wrote:
-> >>
-> >> 9ee063adf4d2287583dbb0a71d1d5f80d7ae011f
-> >> diff --git a/arch/i386/kernel/sys_i386.c b/arch/i386/kernel/sys_i386.c
-> >> index 8fdb1fb..4af731d 100644
-> >> --- a/arch/i386/kernel/sys_i386.c
-> >> +++ b/arch/i386/kernel/sys_i386.c
-> >> @@ -210,7 +210,7 @@ asmlinkage int sys_uname(struct old_utsn
-> >>  	if (!name)
-> >>  		return -EFAULT;
-> >>  	down_read(&uts_sem);
-> >> -	err=copy_to_user(name, &system_utsname, sizeof (*name));
-> >> +	err=copy_to_user(name, utsname(), sizeof (*name));
-> > 
-> > It would be really nice if you would fix spacing while you are here,
-> > like a space a each side of '='.
-> > 
-> > and a space after ',' in the function calls below.
-> 
-> Here's a possible cleanup on top of serge's patchset as found in
-> 2.6.17-rc4-mm3.
+Unfortunately, cisco IOS also complains that packets are "duplicate".
+And, regarding to your previous message on how to fix this - IIRC, if
+I do connect() on this socket, it will refuse to receive datagrams
+from hosts other than specified in connect(), and I will be unable to
+bind another socket to the same port on my side.
 
-Yes, thanks, looks good.
+That said, the only solution which is close to what been before, will
+be to keep one socket for receive, and create socket for each router I
+am communicating with, right?
 
----
-~Randy
+-- 
+Paul P 'Stingray' Komkoff Jr // http://stingr.net/key <- my pgp key
+ This message represents the official view of the voices in my head

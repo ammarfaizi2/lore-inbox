@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbWEVAW7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964966AbWEVAXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964965AbWEVAW7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 May 2006 20:22:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964966AbWEVAW7
+	id S964966AbWEVAXy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 May 2006 20:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbWEVAXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 May 2006 20:22:59 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5764 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964965AbWEVAW6 (ORCPT
+	Sun, 21 May 2006 20:23:54 -0400
+Received: from ns.suse.de ([195.135.220.2]:8114 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964966AbWEVAXx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 May 2006 20:22:58 -0400
-Date: Mon, 22 May 2006 02:22:17 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Neil Brown <neilb@suse.de>
-Cc: Al Boldi <a1426z@gawab.com>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: replacing X Window System !
-Message-ID: <20060522002215.GC25184@elf.ucw.cz>
-References: <200605200733.08757.a1426z@gawab.com> <20060520102526.GH10077@stusta.de> <200605201419.55428.a1426z@gawab.com> <17519.1323.822630.868492@cse.unsw.edu.au>
+	Sun, 21 May 2006 20:23:53 -0400
+From: Neil Brown <neilb@suse.de>
+To: Chris Wedgwood <cw@f00f.org>
+Date: Mon, 22 May 2006 10:23:28 +1000
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17519.1323.822630.868492@cse.unsw.edu.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Transfer-Encoding: 7bit
+Message-ID: <17521.1152.854853.738997@cse.unsw.edu.au>
+Cc: Pau Garcia i Quiles <pgquiles@elpauer.org>, linux-kernel@vger.kernel.org
+Subject: Re: [IDEA] Poor man's UPS
+In-Reply-To: message from Chris Wedgwood on Sunday May 21
+References: <200605212131.47860.pgquiles@elpauer.org>
+	<17520.61851.382933.12601@cse.unsw.edu.au>
+	<20060522000813.GC7581@taniwha.stupidest.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi!
-
-> > With a stable API, I can just implement whatever w/o caring whether it is 
-> > included into the kernel.  Now that's freedom!
-> > 
+On Sunday May 21, cw@f00f.org wrote:
+> On Mon, May 22, 2006 at 09:02:51AM +1000, Neil Brown wrote:
 > 
-> That's userspace. 
+> > Now if only firefox could embed a window from my running emacs ....
 > 
-> Improve what is in the kernel so that it presents to userspace
-> whatever API you need, and write stuff in userspace to your hearts
-> content.  I'm sure that there is no need for the entire 'X' server to
-> be in the kernel, and I'm equally sure that there are advantages in
-> the kernel providing more services for an X server than it currently
-> does.  You need to find that balance.  It may be hard, but there are
-> people here who will help.  You add bits of functionality - people
-> will question them and require you to justify them. Some will make it,
-> some won't.  Bit by bit you will arrive at a workable solution.
-> 
-> As a sort of example: were I to start writing an NFS server for Linux
-> today, I wouldn't put it all in the kernel.  I would figure out the
-> minimum services I needed from the kernel and add them one at a time,
-> at each step modifying the userspace NFS server to use this
-> functionality.  Some of it would be quite tricky - particularly
-> achieving zero-copy reads and single-copy writes.  But I'm sure it is
-> possible, and I'm sure there are people here who would help point me
-> in the right direction.
+> actually, it can somehow
 
-I'm sure it is still possible to rewrite knfsd into userspace
-:-). With splice & friends, maybe it is now easier to do 0-copy...
+Come on!!! you cannot just leave me dangling like that :-)
+Knowing that it can be done, but not how...
+Is it a config option, or do I have to write pages of XUL, or do
+I have to bribe some developer or .... ???
 
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+NeilBrown

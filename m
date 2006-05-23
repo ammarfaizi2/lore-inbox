@@ -1,75 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbWEWGva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWEWHAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751279AbWEWGva (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 02:51:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWEWGva
+	id S932068AbWEWHAu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 03:00:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932066AbWEWHAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 02:51:30 -0400
-Received: from msr45.hinet.net ([168.95.4.145]:10381 "EHLO msr45.hinet.net")
-	by vger.kernel.org with ESMTP id S1751101AbWEWGv3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 02:51:29 -0400
-Message-ID: <01ca01c67e35$2b78c7a0$4964a8c0@icplus.com.tw>
-From: =?utf-8?B?amVzc2VcKOW7uuiIiFwp?= <jesse@icplus.com.tw>
-To: "Francois Romieu" <romieu@fr.zoreil.com>,
-       "David Vrabel" <dvrabel@cantab.net>
-Cc: "Pekka Enberg" <penberg@cs.helsinki.fi>, <linux-kernel@vger.kernel.org>,
-       <netdev@vger.kernel.org>, <david@pleyades.net>
-References: <1146506939.23931.2.camel@localhost> <20060501231206.GD7419@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605020945010.4066@sbz-30.cs.Helsinki.FI> <20060502214520.GC26357@electric-eye.fr.zoreil.com> <20060502215559.GA1119@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605030913210.6032@sbz-30.cs.Helsinki.FI> <20060503233558.GA27232@electric-eye.fr.zoreil.com> <1146750276.11422.0.camel@localhost> <20060504235549.GA9128@electric-eye.fr.zoreil.com> <446F840E.3020808@cantab.net> <20060521101620.GA28210@electric-eye.fr.zoreil.com>
-Subject: Re: [PATCH 2/2] ipg: redundancy with mii.h
-Date: Tue, 23 May 2006 14:50:25 +0800
+	Tue, 23 May 2006 03:00:50 -0400
+Received: from odin2.bull.net ([129.184.85.11]:5839 "EHLO odin2.bull.net")
+	by vger.kernel.org with ESMTP id S932068AbWEWHAt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 03:00:49 -0400
+From: "Serge Noiraud" <serge.noiraud@bull.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: RT patch + LTTng
+Date: Tue, 23 May 2006 09:02:12 +0200
+User-Agent: KMail/1.7.1
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       linux-kernel@vger.kernel.org
+References: <200605221742.29566.Serge.Noiraud@bull.net> <1148341150.2556.99.camel@mindpipe>
+In-Reply-To: <1148341150.2556.99.camel@mindpipe>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200605230902.12469.Serge.Noiraud@bull.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear All:
+mardi 23 Mai 2006 01:39, Lee Revell wrote/a écrit :
+> On Mon, 2006-05-22 at 17:42 +0200, Serge Noiraud wrote:
+> > Hi,
+> > 
+> > 	I have added the LTTng patch to the 2.6.16-rt23.
+> > In the LTT trace, I see some odd time stamps :
+> 
+> Is your test machine a dual core AMD64?
+NO.
+-sh-2.05b# more /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 4
+model name      : Intel(R) Xeon(TM) CPU 3.60GHz
+stepping        : 1
+cpu MHz         : 3600.494
+cache size      : 1024 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 5
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov 
+pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe lm constant_tsc pni mo
+nitor ds_cpl est tm2 cid cx16 xtpr
+bogomips        : 7203.68
 
-I had tested the following patch of IP1000A
-http://www.fr.zoreil.com/people/francois/misc/20060521-2.6.17-rc4-git-ip1000-test.patch
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 4
+model name      : Intel(R) Xeon(TM) CPU 3.60GHz
+stepping        : 1
+cpu MHz         : 3600.494
+cache size      : 1024 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 5
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov 
+pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe lm constant_tsc pni mo
+nitor ds_cpl est tm2 cid cx16 xtpr
+bogomips        : 7199.36
 
-It works fine. We will discuss this driver with our members see if there are
-anything need to add or modify.
-Thanks for everybody's effort for our IP1000A.
+-sh-2.05b#
 
-Would anybody need some piece of IP1000A, please give me your address, we
-will send some of it to you.
-Thanks!
-
-If any problem, please feel free to contact me. jesse@icplus.com.tw
-
-Best Regards,
-Jesse
-
------ Original Message ----- 
-From: "Francois Romieu" <romieu@fr.zoreil.com>
-To: "David Vrabel" <dvrabel@cantab.net>
-Cc: "Pekka Enberg" <penberg@cs.helsinki.fi>; <linux-kernel@vger.kernel.org>;
-<netdev@vger.kernel.org>; <david@pleyades.net>; <jesse@icplus.com.tw>
-Sent: Sunday, May 21, 2006 6:16 PM
-Subject: Re: [PATCH 2/2] ipg: redundancy with mii.h
-
-
-David Vrabel <dvrabel@cantab.net> :
-[...]
-> 0007-ipg-plug-leaks-in-the-error-path-of-ipg_nic_open.txt broke receive
-> since it was skipping the initialization of the Rx buffers.  Patch
-attached.
-
-Oops. Applied to branch netdev-ipg of
-git://electric-eye.fr.zoreil.com/home/romieu/linux-2.6.git
-
-(please include the '-p' option in future invocation of diff)
-
-I have put an updated patch against 2.6.17-rc4 for the whole driver at
-http://www.fr.zoreil.com/people/francois/misc/20060521-2.6.17-rc4-git-ip1000-test.patch
+> 
+> Lee
+> 
 
 -- 
-Ueimor
-
+Serge Noiraud

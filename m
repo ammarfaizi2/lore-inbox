@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWEWWzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWEWW5s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932267AbWEWWzG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 18:55:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWEWWzG
+	id S932278AbWEWW5s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 18:57:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbWEWW5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 18:55:06 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:22996 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932267AbWEWWzF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 18:55:05 -0400
-Date: Wed, 24 May 2006 00:35:15 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
-Subject: 2.6.17-rc4-mm3: scary warning from pdflush
-Message-ID: <20060523223515.GA1571@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 23 May 2006 18:57:48 -0400
+Received: from chiark.greenend.org.uk ([193.201.200.170]:22453 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S932278AbWEWW5s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 18:57:48 -0400
+To: "Jon Smirl" <jonsmirl@gmail.com>
+Cc: "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org, "D. Hazelton" <dhazelton@enter.net>
+Subject: Re: OpenGL-based framebuffer concepts
+In-Reply-To: <9e4733910605231017g146e16dfnd61eb22a72bd3f5f@mail.gmail.com>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <44700ACC.8070207@gmail.com> <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com> <200605230048.14708.dhazelton@enter.net> <200605230048.14708.dhazelton@enter.net> <9e4733910605231017g146e16dfnd61eb22a72bd3f5f@mail.gmail.com>
+Date: Tue, 23 May 2006 23:57:36 +0100
+Message-Id: <E1Fifom-0003qk-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Jon Smirl <jonsmirl@gmail.com> wrote:
 
-Not sure, I'm getting this during resume:
+> 1) Running the video ROM at boot to reset cards, emu86
 
-May 24 00:34:01 amd kernel: Restarting tasks...pdflush: bogus wakeup!
-May 24 00:34:01 amd kernel:  done
-May 24 00:34:01 amd kernel: Thawing cpus ...
+Jon, how many times am I going to have to tell you that this won't work? 
+The video ROM is not always present on laptop hardware, and even when it 
+is it may jump into sections of ROM that have vanished since boot. 
+In the long run, graphics drivers need to know how to program cards from 
+scratch rather than depending on 80x25 text mod being there for them.
 
-Is it expected?
-									Pavel
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

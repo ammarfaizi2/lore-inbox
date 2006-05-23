@@ -1,127 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWEWVWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWEWVYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751168AbWEWVWk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 17:22:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWEWVWk
+	id S932290AbWEWVYM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 17:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWEWVYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 17:22:40 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:60441 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751168AbWEWVWj convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 17:22:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=b+BcaLnhVMGsKl7goIVssaG+OpGM46q/3T6A69wCcmAE3lrug8n6Rx3j6N3QdEv6RVSEQg5WphazovvSZLox02IPDM4i4wDGOU9fTWbsvveA7lrwIpWpNNLHV7n0OKih0sCWSkdotl9rngWMjz1EdnAtOIKyoEHlqWvRuBy5YqM=
-Message-ID: <4a192fd60605231422i76361d3ag5ee650d012e8720c@mail.gmail.com>
-Date: Tue, 23 May 2006 23:22:38 +0200
-From: "Laura Garcia" <nevola@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] firmware_class: s/semaphores/mutexes
+	Tue, 23 May 2006 17:24:12 -0400
+Received: from mail.unixshell.com ([207.210.106.37]:37532 "EHLO
+	mail.unixshell.com") by vger.kernel.org with ESMTP id S932288AbWEWVYK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 17:24:10 -0400
+Message-ID: <44737D53.9050006@tektonic.net>
+Date: Tue, 23 May 2006 17:23:31 -0400
+From: Matt Ayres <matta@tektonic.net>
+Organization: TekTonic
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+CC: Patrick McHardy <kaber@trash.net>,
+       "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>,
+       James Morris <jmorris@namei.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Xen-devel] Re: Panic in ipt_do_table with 2.6.16.13-xen
+References: <4468BE70.7030802@tektonic.net>	<4468D613.20309@trash.net>	<44691669.4080903@tektonic.net>	<Pine.LNX.4.64.0605152331140.10964@d.namei>	<4469D84F.8080709@tektonic.net>	<Pine.LNX.4.64.0605161127030.16379@d.namei>	<446D0A0D.5090608@tektonic.net>	<Pine.LNX.4.64.0605182002330.6528@d.namei>	<446D0E6D.2080600@tektonic.net> <446D151D.6030307@tektonic.net>	<4470A6CD.5010501@trash.net> <4471CB54.401@tektonic.net>	<4471CE19.5070802@trash.net> <bf76eefc5234d32440c822acd2879a8a@cl.cam.ac.uk>
+In-Reply-To: <bf76eefc5234d32440c822acd2879a8a@cl.cam.ac.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, this patch converts semaphores to mutexes for Randy's firmware_class.
 
-Signed-off-by: Laura Garcia Liebana <nevola@gmail.com>
 
-diff -Nru a/drivers/base/firmware_class.c b/drivers/base/firmware_class.c
---- a/drivers/base/firmware_class.c  2006-05-23 21:58:39.000000000 +0200
-+++ b/drivers/base/firmware_class.c       2006-05-23 22:15:27.000000000 +0200
-@@ -15,7 +15,7 @@
- #include <linux/vmalloc.h>
- #include <linux/interrupt.h>
- #include <linux/bitops.h>
--#include <asm/semaphore.h>
-+#include <linux/mutex.h>
+Keir Fraser wrote:
+> 
+> On 22 May 2006, at 15:43, Patrick McHardy wrote:
+> 
+>> Maybe this helps: there is not too much the Xen code could be doing
+>> wrong here. If I read your crash correctly it happend in the FORWARD
+>> chain, which could mean that the outgoing device (probably the Xen
+>> virtual network driver) has some bugs, but iptables really only cares
+>> about the names at this point, which practically can't be bogus.
+>> The only other thing I can imagine is that something is wrong with
+>> the per-CPU copy of the ruleset, i.e. either smp_processor_id is
+>> returning garbage or for_each_possible_cpu misses a CPU during
+>> initialization. I have no idea if Xen really does touch this code,
+>> but other than that I don't really see what it could break.
+> 
+> Having looked at disassembly, the fault happens when accessing 
+> e->ip.invflags in ip_packet_match() inlined inside ipt_do_table().
+> 
+>  e = private->entries[smp_processor_id()] + 
+> private->hook_entry[NF_IP_FORWARD]
+> 
+> smp_processor_id() should be 0 (since the oops appears to occur on cpu0) 
+> and presumably all the ipt_entry structures are static once set up. 
+> Since this crash happens on a common path in ipt_do_table(), and since 
+> it happens only after the system has been up a while (I believe?), it 
+> rather looks as though something has either corrupted a pointer or 
+> unmapped memory from under iptables' feet.
+> 
 
- #include <linux/firmware.h>
- #include "base.h"
-@@ -36,7 +36,7 @@
+As the concerned user, what does this mean to me?  It will only affect 
+SMP systems?  It is a bug in Xen or netfilter?
 
- /* fw_lock could be moved to 'struct firmware_priv' but since it is just
-  * guarding for corner cases a global lock should be OK */
--static DECLARE_MUTEX(fw_lock);
-+static DEFINE_MUTEX(fw_lock);
+I'd just like to understand what is going on.
 
- struct firmware_priv {
-        char fw_id[FIRMWARE_NAME_MAX];
-@@ -142,9 +142,9 @@
-
-        switch (loading) {
-        case 1:
--               down(&fw_lock);
-+               mutex_lock(&fw_lock);
-                if (!fw_priv->fw) {
--                       up(&fw_lock);
-+                       mutex_unlock(&fw_lock);
-                        break;
-                }
-                vfree(fw_priv->fw->data);
-@@ -152,7 +152,7 @@
-                fw_priv->fw->size = 0;
-                fw_priv->alloc_size = 0;
-                set_bit(FW_STATUS_LOADING, &fw_priv->status);
--               up(&fw_lock);
-+               mutex_unlock(&fw_lock);
-                break;
-        case 0:
-                if (test_bit(FW_STATUS_LOADING, &fw_priv->status)) {
-@@ -185,7 +185,7 @@
-        struct firmware *fw;
-        ssize_t ret_count = count;
-
--       down(&fw_lock);
-+       mutex_lock(&fw_lock);
-        fw = fw_priv->fw;
-        if (!fw || test_bit(FW_STATUS_DONE, &fw_priv->status)) {
-                ret_count = -ENODEV;
-@@ -200,7 +200,7 @@
-
-        memcpy(buffer, fw->data + offset, ret_count);
- out:
--       up(&fw_lock);
-+       mutex_unlock(&fw_lock);
-        return ret_count;
- }
-
-@@ -253,7 +253,7 @@
-        if (!capable(CAP_SYS_RAWIO))
-                return -EPERM;
-
--       down(&fw_lock);
-+       mutex_lock(&fw_lock);
-        fw = fw_priv->fw;
-        if (!fw || test_bit(FW_STATUS_DONE, &fw_priv->status)) {
-                retval = -ENODEV;
-@@ -268,7 +268,7 @@
-        fw->size = max_t(size_t, offset + count, fw->size);
-        retval = count;
- out:
--       up(&fw_lock);
-+       mutex_unlock(&fw_lock);
-        return retval;
- }
-
-@@ -436,14 +436,14 @@
-        } else
-                wait_for_completion(&fw_priv->completion);
-
--       down(&fw_lock);
-+       mutex_lock(&fw_lock);
-        if (!fw_priv->fw->size || test_bit(FW_STATUS_ABORT, &fw_priv->status)) {
-                retval = -ENOENT;
-                release_firmware(fw_priv->fw);
-                *firmware_p = NULL;
-        }
-        fw_priv->fw = NULL;
--       up(&fw_lock);
-+       mutex_unlock(&fw_lock);
-        class_device_unregister(class_dev);
-        goto out;
+Thanks,
+Matt

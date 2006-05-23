@@ -1,70 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbWEWWLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbWEWWQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932441AbWEWWLE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 18:11:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWEWWLD
+	id S932192AbWEWWQx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 18:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbWEWWQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 18:11:03 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:31251 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932441AbWEWWLC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 18:11:02 -0400
-Message-ID: <44738875.90206@vmware.com>
-Date: Tue, 23 May 2006 15:11:01 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Linus Torvalds <torvalds@osdl.org>, jakub@redhat.com,
-       rusty@rustcorp.com.au, kraxel@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/3] vdso: print fatal signals
-References: <20060523000119.GB9934@elte.hu>
-In-Reply-To: <20060523000119.GB9934@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 23 May 2006 18:16:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30183 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932192AbWEWWQw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 18:16:52 -0400
+Date: Tue, 23 May 2006 23:15:47 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Evan Harris <eharris@puremagic.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ext3-fs transient corruption with devmapper over md raid, kernel 2.6.16.14
+Message-ID: <20060523221547.GA1002@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Evan Harris <eharris@puremagic.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.62.0605231225450.11814@kinison.puremagic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0605231225450.11814@kinison.puremagic.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> Index: linux-vdso-rand.q/kernel/signal.c
-> ===================================================================
-> --- linux-vdso-rand.q.orig/kernel/signal.c
-> +++ linux-vdso-rand.q/kernel/signal.c
-> @@ -763,6 +763,37 @@ out_set:
->  #define LEGACY_QUEUE(sigptr, sig) \
->  	(((sig) < SIGRTMIN) && sigismember(&(sigptr)->signal, (sig)))
->  
-> +int print_fatal_signals = 0;
-> +
-> +static void print_fatal_signal(struct pt_regs *regs, int signr)
-> +{
-> +	printk("%s/%d: potentially unexpected fatal signal %d.\n",
-> +		current->comm, current->pid, signr);
-> +
-> +#ifdef __i386__
-> +	printk("code at %08lx: ", regs->eip);
-> +	{
-> +		int i;
-> +		for (i = 0; i < 16; i++) {
-> +			unsigned char insn;
-> +
-> +			__get_user(insn, (unsigned char *)(regs->eip + i));
-> +			printk("%02x ", insn);
-> +		}
-> +	}
-> +#endif
->   
+On Tue, May 23, 2006 at 01:26:32PM -0500, Evan Harris wrote:
+> I just recently upgraded a machine to use devmapper for an encrypted 
+> filesystem on top of a software raid5 array.  System is running a 
+> stock 2.6.16.14 kernel with no additional patches.
+ 
+> Happy to provide any further info that may be useful.
 
-
-This looks ok for debugging boot problems.  Perhaps you could print the 
-registers too?  The instruction dump won't help much for indirect access.
-
-The get_user of eip+i is ok, but doesn't account for segment offsets.  
-Not that I think it needs to here.  But it is one of a many growing 
-number of places that now try to inspect or modify a potentially 
-segmented area of memory (page fault handler must inspect for prefetch 
-instructions, kprobes reads and patches code, FPU emulation).  Perhaps a 
-common interface would be a nice thing at some point in time.
-
-Zach
+This might not be practical for you, but what we're looking for
+is people who can reproduce this on a test system where they can
+try varying things one-at-a-time.  For example, replace dm-crypt
+with dm-linear (e.g. a standard unencrypted LVM2 logical volume); 
+replace raid5 with (md) linear.  Also test with the latest 
+development kernels to see if recent md patches fixed the problem.
+ 
+Alasdair
+-- 
+agk@redhat.com

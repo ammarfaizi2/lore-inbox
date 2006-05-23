@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWEWVha@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWEWVkS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbWEWVha (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 17:37:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWEWVha
+	id S932304AbWEWVkS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 17:40:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWEWVkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 17:37:30 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:52865 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932298AbWEWVh3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 17:37:29 -0400
-Message-Id: <20060523212101.PS1689520000@infradead.org>
-Date: Tue, 23 May 2006 18:21:01 -0300
-From: mchehab@infradead.org
-To: torvalds@osdl.org
-Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 0/4] V4L/DVB updates
+	Tue, 23 May 2006 17:40:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:34508 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932304AbWEWVkQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 17:40:16 -0400
+Date: Tue, 23 May 2006 14:42:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Peschke <mp3@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, balbir@in.ibm.com
+Subject: Re: [Patch 0/6] statistics infrastructure
+Message-Id: <20060523144258.0938c4d3.akpm@osdl.org>
+In-Reply-To: <44733F7B.9070009@de.ibm.com>
+References: <1148054876.2974.10.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+	<20060519092411.6b859b51.akpm@osdl.org>
+	<44733F7B.9070009@de.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1-2mdk 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+Martin Peschke <mp3@de.ibm.com> wrote:
+>
+> Andrew Morton wrote:
+> > Martin Peschke <mp3@de.ibm.com> wrote:
+> >> My patch series is a proposal for a generic implementation of statistics.
+> > 
+> > This uses debugfs for the user interface, but the
+> > per-task-delay-accounting-*.patch series from Balbir creates an extensible
+> > netlink-based system for passing instrumentation results back to userspace.
+> > 
+> > Can this code be converted to use those netlink interfaces, or is Balbir's
+> > approach unsuitable, or hasn't it even been considered, or what?
+> > 
+> 
+> Andrew,
+> 
+> taskstats, Balbir'r approach, is too specific and doesn't work for me.
+> It is by design limited to per-task data.
 
-Please pull these from master branch at:
-        kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git
+OK.  They are pretty different things.
 
-It fixes some Makefile/Kconfig stuff on mainstream compilation:
+Balbir, do you see any sane way in which the APIs you've implemented can be
+extended to cover this requirement?
 
-   - Fix some warnings when VIDEO_V4L1_COMPAT=y
-   - Include requirement for I2C on some Kconfig modules
-   - Fix section warnings on bttv dvb driver
-   - Fix compilation on PPC 64 for some V4L devices
+> My statistics code is not limited to per-task statistics, but allows exploiters
+> to have data been accumulated and been shown for whatever entity they need to,
+> may it be for tasks, for SCSI disks, per adapter, per queue, per interface,
+> for a device driver, etc.
 
-Cheers,
-Mauro.
+OK.
 
-V4L/DVB development is hosted at http://linuxtv.org
----
+> If you want me to change my code to use netlink anyway, I might be able to
+> implement my own genetlink family. I haven't look at the details of that yet.
+> 
 
- drivers/media/dvb/Kconfig           |   10 +++++-----
- drivers/media/dvb/b2c2/Kconfig      |    6 +++---
- drivers/media/dvb/bt8xx/Kconfig     |    2 +-
- drivers/media/dvb/bt8xx/dvb-bt8xx.c |    6 +++---
- drivers/media/dvb/dvb-usb/Kconfig   |    2 +-
- drivers/media/dvb/pluto2/Kconfig    |    2 +-
- drivers/media/dvb/ttpci/Kconfig     |    8 ++++----
- drivers/media/video/Kconfig         |    4 ++--
- drivers/media/video/Makefile        |    5 ++++-
- 9 files changed, 24 insertions(+), 21 deletions(-)
+Well, a debugfs interface _should_ be OK.  If not, why do we need debugfs?
+
+Ho hum, hard.  Please send the patches again, let's take a closer look, see
+if we can move them forward a bit.
 

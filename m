@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWEWQm4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWEWQn3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbWEWQm4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 12:42:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbWEWQmz
+	id S932071AbWEWQn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 12:43:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWEWQn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 12:42:55 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:5584 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S932069AbWEWQmz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 12:42:55 -0400
-Message-ID: <44733B8A.40807@oracle.com>
-Date: Tue, 23 May 2006 09:42:50 -0700
-From: Zach Brown <zach.brown@oracle.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, mark.fasheh@oracle.com,
-       kurt.hackel@oracle.com
-Subject: Re: Question re: __mlog_cpu_guess in fs/ocfs2/cluster/masklog.h
-References: <1148341507.2556.104.camel@mindpipe>	 <447329F4.7020007@oracle.com> <1148402074.12529.65.camel@mindpipe>
-In-Reply-To: <1148402074.12529.65.camel@mindpipe>
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 23 May 2006 12:43:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3787 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932081AbWEWQn2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 12:43:28 -0400
+Date: Tue, 23 May 2006 09:43:24 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Herman Elfrink <herman.elfrink@ti-wmc.nl>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] FLAME: external kernel module for L2.5 meshing
+Message-ID: <20060523094324.11926fcc@localhost.localdomain>
+In-Reply-To: <44731733.7000204@ti-wmc.nl>
+References: <44731733.7000204@ti-wmc.nl>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 23 May 2006 16:07:47 +0200
+Herman Elfrink <herman.elfrink@ti-wmc.nl> wrote:
 
-> I was wondering how it could not be a bug to use smp_processor_id in
-> preemptible code, but I see that it's only used for debug output.  Sorry
-> for the noise. 
+>  
+> FLAME stands for "Forwarding Layer for Meshing"
+> 
+> FLAME provides an intermediate layer between the network layer (e.g. 
+> IPv4/IPv6) and the link (MAC) layer, providing L2.5 meshing. Both 
+> network layer and MAC layer can be used unchanged: to the network layer 
+> FLAME appears as a normal Ethernet-type MAC layer, and the underlying 
+> `real' MAC layer will see it as just another type of network layer.
+> 
 
-No problem, thanks for taking a look in the first place.  We'll update
-the comment to make it more explicit.
+Didn't you just reinvent 802.1d bridging? and/or WDS?
 
-- z
+As far as the Ethernet protocol field. Getting a real assigned number
+would have to come out of the IEEE 802. 
+
+You would need
+	http://standards.ieee.org/regauth/ethertype/forms/index.html
+
+It is cheaper (free vs $2500) to get a LLC sap assigned, but then
+you would have to change the protocol.
+	http://standards.ieee.org/regauth/llc/index.html

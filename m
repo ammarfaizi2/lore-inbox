@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWEWQ4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWEWQ7r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbWEWQ4G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 12:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750902AbWEWQ4G
+	id S1750795AbWEWQ7r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 12:59:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWEWQ7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 12:56:06 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:44520 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750753AbWEWQ4F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 12:56:05 -0400
-Subject: [Question] how to follow a symlink via a dentry?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 23 May 2006 12:56:03 -0400
-Message-Id: <1148403363.22855.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Tue, 23 May 2006 12:59:47 -0400
+Received: from mtagate6.uk.ibm.com ([195.212.29.139]:8447 "EHLO
+	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1750795AbWEWQ7r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 12:59:47 -0400
+Message-ID: <44733F7B.9070009@de.ibm.com>
+Date: Tue, 23 May 2006 18:59:39 +0200
+From: Martin Peschke <mp3@de.ibm.com>
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Balbir Singh <balbir@in.ibm.com>
+Subject: Re: [Patch 0/6] statistics infrastructure
+References: <1148054876.2974.10.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <20060519092411.6b859b51.akpm@osdl.org>
+In-Reply-To: <20060519092411.6b859b51.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What is the best way from inside the kernel, to find the dentry that
-another dentry points to via symlink?
+Andrew Morton wrote:
+> Martin Peschke <mp3@de.ibm.com> wrote:
+>> My patch series is a proposal for a generic implementation of statistics.
+> 
+> This uses debugfs for the user interface, but the
+> per-task-delay-accounting-*.patch series from Balbir creates an extensible
+> netlink-based system for passing instrumentation results back to userspace.
+> 
+> Can this code be converted to use those netlink interfaces, or is Balbir's
+> approach unsuitable, or hasn't it even been considered, or what?
+> 
 
-Scenario:
+Andrew,
 
-I have a kobj of a device in the sysfs system.  Inside a directory of
-the kobj, is a symlink to another device I need to get.  I can find the
-dentry of the symlink, but I haven't found a good way to get to the
-dentry of what the symlink points to.
+taskstats, Balbir'r approach, is too specific and doesn't work for me.
+It is by design limited to per-task data.
 
-Is there a standard way to do this, or do I need to start hacking at the
-follow_link of the sysfs directory to get what I want?
+My statistics code is not limited to per-task statistics, but allows exploiters
+to have data been accumulated and been shown for whatever entity they need to,
+may it be for tasks, for SCSI disks, per adapter, per queue, per interface,
+for a device driver, etc.
 
-Do I need to hack up something like page_readlink to get the path, and
-then do vfs_follow_link to get the rest.  Another thing is that I can't
-rely on what current->fs points to.
+If you want me to change my code to use netlink anyway, I might be able to
+implement my own genetlink family. I haven't look at the details of that yet.
 
-Thanks,
+	Martin
 
--- Steve
 
 

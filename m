@@ -1,61 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWEWE0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWEWExD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbWEWE0k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 00:26:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWEWE0k
+	id S1751029AbWEWExD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 00:53:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWEWExD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 00:26:40 -0400
-Received: from mail.kroah.org ([69.55.234.183]:50877 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751248AbWEWE0k (ORCPT
+	Tue, 23 May 2006 00:53:03 -0400
+Received: from mx2.suse.de ([195.135.220.15]:5772 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751029AbWEWExC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 00:26:40 -0400
-Date: Mon, 22 May 2006 21:19:58 -0700
-From: Greg KH <gregkh@suse.de>
-To: Brice Goglin <brice@myri.com>
-Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: AMD 8131 MSI quirk called too late, bus_flags not inherited ?
-Message-ID: <20060523041958.GA8415@suse.de>
-References: <4468EE85.4000500@myri.com> <20060518155441.GB13334@suse.de> <20060521101656.GM30211@mellanox.co.il> <447047F2.2070607@myri.com> <20060521121726.GQ30211@mellanox.co.il> <44705DA4.2020807@myri.com> <20060521131025.GR30211@mellanox.co.il> <447069F7.1010407@myri.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 23 May 2006 00:53:02 -0400
+From: Andi Kleen <ak@suse.de>
+To: Brian Gerst <bgerst@didntduck.org>
+Subject: Re: [stable][patch] x86_64: fix number of ia32 syscalls
+Date: Tue, 23 May 2006 04:50:16 +0200
+User-Agent: KMail/1.9.1
+Cc: lkml <linux-kernel@vger.kernel.org>
+References: <200605221701_MC3-1-C081-B4B3@compuserve.com> <200605230111.18121.ak@suse.de> <447249C5.6060706@didntduck.org>
+In-Reply-To: <447249C5.6060706@didntduck.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <447069F7.1010407@myri.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200605230450.17081.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 21, 2006 at 03:24:07PM +0200, Brice Goglin wrote:
-> Michael S. Tsirkin wrote:
-> >> @@ -925,8 +926,9 @@
-> >>  	if (dev->no_msi)
-> >>  		return status;
-> >>  
-> >> -	if (dev->bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
-> >> -		return -EINVAL;
-> >> +	for (bus = dev->bus; bus; bus = bus->parent)
-> >> +		if (bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
-> >> +			return -EINVAL;
-> >>  
-> >>  	temp = dev->irq;
-> >>     
-> >
-> > It seems we must add this loop to pci_enable_msix as well.
-> >   
+On Tuesday 23 May 2006 01:31, Brian Gerst wrote:
+> Andi Kleen wrote:
+> > On Monday 22 May 2006 22:59, Chuck Ebbert wrote:
+> >> Recent discussions about whether to print a message about unimplemented
+> >> ia32 syscalls on x86_64 have missed the real bug: the number of ia32
+> >> syscalls is wrong in 2.6.16.  Fixing that kills the message.
+> > 
+> > There is already a slightly different patch for this in the FF tree.
+> > 
 > 
-> Right, thanks. Greg, what do you think of putting the attached patch in
-> 2.6.17 ?
+> Where is the FF tree?
 
-Ok, does everyone agree that this patch fixes the issues for them?  I've
-had a few other private emails saying that the current code doesn't work
-properly and hadn't been able to determine what was happening.  Thanks
-for these patches.
+ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/
 
-> By the way, do we need to check dev->no_msi in pci_enable_msix() too ?
-
-Yes, good catch, care to respin the patch and give it a good changelog
-entry?
-
-thanks,
-
-greg k-h
+-Andi

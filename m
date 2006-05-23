@@ -1,43 +1,423 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWEWExD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWEWFFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751029AbWEWExD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 00:53:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWEWExD
+	id S1751264AbWEWFFi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 01:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWEWFFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 00:53:03 -0400
-Received: from mx2.suse.de ([195.135.220.15]:5772 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751029AbWEWExC (ORCPT
+	Tue, 23 May 2006 01:05:38 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:24256 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751264AbWEWFFh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 00:53:02 -0400
-From: Andi Kleen <ak@suse.de>
-To: Brian Gerst <bgerst@didntduck.org>
-Subject: Re: [stable][patch] x86_64: fix number of ia32 syscalls
-Date: Tue, 23 May 2006 04:50:16 +0200
-User-Agent: KMail/1.9.1
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <200605221701_MC3-1-C081-B4B3@compuserve.com> <200605230111.18121.ak@suse.de> <447249C5.6060706@didntduck.org>
-In-Reply-To: <447249C5.6060706@didntduck.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605230450.17081.ak@suse.de>
+	Tue, 23 May 2006 01:05:37 -0400
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@sgi.com>
+To: linux-kernel@vger.kernel.org
+cc: ak@suse.de
+Subject: Re: NMI problems with Dell SMP Xeons 
+In-reply-to: Your message of "Mon, 22 May 2006 19:08:04 +1000."
+             <12475.1148288884@kao2.melbourne.sgi.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 23 May 2006 15:03:39 +1000
+Message-ID: <8303.1148360619@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 23 May 2006 01:31, Brian Gerst wrote:
-> Andi Kleen wrote:
-> > On Monday 22 May 2006 22:59, Chuck Ebbert wrote:
-> >> Recent discussions about whether to print a message about unimplemented
-> >> ia32 syscalls on x86_64 have missed the real bug: the number of ia32
-> >> syscalls is wrong in 2.6.16.  Fixing that kills the message.
-> > 
-> > There is already a slightly different patch for this in the FF tree.
-> > 
-> 
-> Where is the FF tree?
+Keith Owens (on Mon, 22 May 2006 19:08:04 +1000) wrote:
+>Summary: sending an IPI as NMI will reboot a Dell SMP Xeon box.  This
+>         looks like a problem with setting up the I/O APICs.
 
-ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/
+Some more data points, which make this problem even less
+understandable.  My previous mail described an i386 build, so I tried
+an x86_64 kernel on two boxes that support 64 bit.  Both of them used
+flat APIC mode.
 
--Andi
+Intel M/B, CONFIG_ACPI=y.  Sending IPI 2 without APIC_DM_NMI is
+unexpectedly delivered as an NMI, and gets the 'Dazed and confused
+message'.  Contrast this with an i386 kernel with CONFIG_ACPI=y on the
+same box, where IPI 2 without APIC_DM_NMI is not delivered as NMI,
+instead it gets APIC errors.
+
+Dell SC1425 M/B, CONFIG_ACPI=y.  Sending IPI 2 without APIC_DM_NMI is
+not delivered at all, but there are no APIC errors.  Contrast this with
+an i386 kernel with CONFIG_ACPI=y on the same box, where IPI 2 without
+APIC_DM_NMI is also not delivered, but it gets APIC errors.
+
+Dell SC1425 M/B, CONFIG_ACPI=y.  Sending IPI 2 with APIC_DM_NMI is
+delivered as NMI, but it does not get the 'Dazed and confused' message.
+Contrast this with an i386 kernel with CONFIG_ACPI=y on the same box,
+where IPI 2 with APIC_DM_NMI is also delivered as NMI, but with the
+'Dazed and confused' message.
+
+Dell SC1425 M/B, CONFIG_ACPI=n.  Sending IPI 2 without APIC_DM_NMI
+causes an instant reset.  Contrast this with an i386 kernel with
+CONFIG_ACPI=n on the same box, which got APIC errors but no reset,
+unless APIC_DM_NMI was set.
+
+i386 vs. x86_64 differences.  Intel M/B vs. Dell M/B differences.
+Colour me confused.
+
+Stripped x86_64 .config.
+
+X86_64=y
+64BIT=y
+X86=y
+SEMAPHORE_SLEEPERS=y
+MMU=y
+RWSEM_GENERIC_SPINLOCK=y
+GENERIC_HWEIGHT=y
+GENERIC_CALIBRATE_DELAY=y
+X86_CMPXCHG=y
+EARLY_PRINTK=y
+GENERIC_ISA_DMA=y
+GENERIC_IOMAP=y
+ARCH_MAY_HAVE_PC_FDC=y
+DMI=y
+EXPERIMENTAL=y
+LOCK_KERNEL=y
+INIT_ENV_ARG_LIMIT=32
+LOCALVERSION="-kaos"
+SWAP=y
+SYSVIPC=y
+SYSCTL=y
+RELAY=y
+INITRAMFS_SOURCE=""
+UID16=y
+VM86=y
+CC_OPTIMIZE_FOR_SIZE=y
+KALLSYMS=y
+KALLSYMS_ALL=y
+HOTPLUG=y
+PRINTK=y
+BUG=y
+ELF_CORE=y
+BASE_FULL=y
+FUTEX=y
+EPOLL=y
+SHMEM=y
+SLAB=y
+BASE_SMALL=0
+MODULES=y
+MODULE_UNLOAD=y
+MODULE_FORCE_UNLOAD=y
+STOP_MACHINE=y
+LBD=y
+IOSCHED_NOOP=y
+DEFAULT_NOOP=y
+DEFAULT_IOSCHED="noop"
+X86_PC=y
+GENERIC_CPU=y
+X86_L1_CACHE_BYTES=128
+X86_L1_CACHE_SHIFT=7
+X86_INTERNODE_CACHE_BYTES=128
+X86_TSC=y
+X86_GOOD_APIC=y
+X86_MSR=y
+X86_CPUID=y
+X86_HT=y
+X86_IO_APIC=y
+X86_LOCAL_APIC=y
+MTRR=y
+SMP=y
+SCHED_SMT=y
+SCHED_MC=y
+PREEMPT=y
+PREEMPT_BKL=y
+ARCH_SPARSEMEM_ENABLE=y
+ARCH_FLATMEM_ENABLE=y
+SELECT_MEMORY_MODEL=y
+FLATMEM_MANUAL=y
+FLATMEM=y
+FLAT_NODE_MEM_MAP=y
+SPLIT_PTLOCK_CPUS=4
+NR_CPUS=8
+HPET_TIMER=y
+GART_IOMMU=y
+SWIOTLB=y
+X86_MCE=y
+X86_MCE_INTEL=y
+X86_MCE_AMD=y
+PHYSICAL_START=0x200000
+SECCOMP=y
+HZ_250=y
+HZ=250
+GENERIC_HARDIRQS=y
+GENERIC_IRQ_PROBE=y
+ISA_DMA_API=y
+GENERIC_PENDING_IRQ=y
+PM=y
+ACPI=y
+ACPI_AC=y
+ACPI_BATTERY=y
+ACPI_BUTTON=y
+ACPI_VIDEO=y
+ACPI_FAN=y
+ACPI_PROCESSOR=y
+ACPI_THERMAL=y
+ACPI_BLACKLIST_YEAR=0
+ACPI_EC=y
+ACPI_POWER=y
+ACPI_SYSTEM=y
+X86_PM_TIMER=y
+PCI=y
+PCI_DIRECT=y
+PCI_MSI=y
+BINFMT_ELF=y
+BINFMT_MISC=y
+IA32_EMULATION=y
+COMPAT=y
+SYSVIPC_COMPAT=y
+NET=y
+PACKET=y
+PACKET_MMAP=y
+UNIX=y
+INET=y
+IP_FIB_HASH=y
+SYN_COOKIES=y
+INET_DIAG=y
+INET_TCP_DIAG=y
+TCP_CONG_BIC=y
+NETFILTER=y
+NETFILTER_NETLINK=y
+NETFILTER_XTABLES=y
+NETFILTER_XT_TARGET_CLASSIFY=y
+NETFILTER_XT_TARGET_MARK=y
+NETFILTER_XT_TARGET_NFQUEUE=y
+NETFILTER_XT_TARGET_NOTRACK=y
+NETFILTER_XT_MATCH_COMMENT=y
+NETFILTER_XT_MATCH_CONNTRACK=y
+NETFILTER_XT_MATCH_DCCP=y
+NETFILTER_XT_MATCH_HELPER=y
+NETFILTER_XT_MATCH_LENGTH=y
+NETFILTER_XT_MATCH_LIMIT=y
+NETFILTER_XT_MATCH_MAC=y
+NETFILTER_XT_MATCH_MARK=y
+NETFILTER_XT_MATCH_PKTTYPE=y
+NETFILTER_XT_MATCH_REALM=y
+NETFILTER_XT_MATCH_SCTP=y
+NETFILTER_XT_MATCH_STATE=y
+NETFILTER_XT_MATCH_STRING=y
+NETFILTER_XT_MATCH_TCPMSS=y
+IP_NF_CONNTRACK=y
+IP_NF_CONNTRACK_NETLINK=y
+IP_NF_FTP=y
+IP_NF_IRC=y
+IP_NF_QUEUE=y
+IP_NF_IPTABLES=y
+IP_NF_MATCH_IPRANGE=y
+IP_NF_MATCH_TOS=y
+IP_NF_MATCH_RECENT=y
+IP_NF_MATCH_ECN=y
+IP_NF_MATCH_DSCP=y
+IP_NF_MATCH_TTL=y
+IP_NF_MATCH_OWNER=y
+IP_NF_MATCH_ADDRTYPE=y
+IP_NF_MATCH_HASHLIMIT=y
+IP_NF_FILTER=y
+IP_NF_TARGET_REJECT=y
+IP_NF_TARGET_LOG=y
+IP_NF_TARGET_ULOG=y
+IP_NF_TARGET_TCPMSS=y
+IP_NF_NAT=y
+IP_NF_NAT_NEEDED=y
+IP_NF_TARGET_MASQUERADE=y
+IP_NF_TARGET_REDIRECT=y
+IP_NF_TARGET_NETMAP=y
+IP_NF_TARGET_SAME=y
+IP_NF_NAT_SNMP_BASIC=y
+IP_NF_NAT_IRC=y
+IP_NF_NAT_FTP=y
+IP_NF_MANGLE=y
+IP_NF_TARGET_TOS=y
+IP_NF_TARGET_ECN=y
+IP_NF_TARGET_DSCP=y
+IP_NF_TARGET_TTL=y
+IP_NF_RAW=y
+IP_NF_ARPTABLES=y
+IP_NF_ARPFILTER=y
+IP_NF_ARP_MANGLE=y
+NET_CLS_ROUTE=y
+STANDALONE=y
+PREVENT_FIRMWARE_BUILD=y
+PARPORT=y
+PARPORT_PC=y
+BLK_DEV_FD=y
+BLK_DEV_LOOP=y
+BLK_DEV_RAM=y
+BLK_DEV_RAM_COUNT=16
+BLK_DEV_RAM_SIZE=4096
+IDE=y
+BLK_DEV_IDE=y
+BLK_DEV_IDEDISK=y
+IDEDISK_MULTI_MODE=y
+BLK_DEV_IDECD=y
+BLK_DEV_IDESCSI=y
+IDE_GENERIC=y
+BLK_DEV_IDEPCI=y
+IDEPCI_SHARE_IRQ=y
+BLK_DEV_GENERIC=y
+BLK_DEV_IDEDMA_PCI=y
+IDEDMA_PCI_AUTO=y
+BLK_DEV_PIIX=y
+BLK_DEV_IDEDMA=y
+IDEDMA_AUTO=y
+SCSI=y
+SCSI_PROC_FS=y
+BLK_DEV_SD=y
+BLK_DEV_SR=y
+BLK_DEV_SR_VENDOR=y
+CHR_DEV_SG=y
+SCSI_CONSTANTS=y
+SCSI_LOGGING=y
+SCSI_SATA=y
+SCSI_ATA_PIIX=y
+SCSI_SATA_INTEL_COMBINED=y
+MD=y
+BLK_DEV_MD=y
+MD_LINEAR=y
+MD_RAID0=y
+MD_RAID1=y
+MD_RAID10=y
+MD_RAID5=y
+MD_RAID6=y
+MD_MULTIPATH=y
+BLK_DEV_DM=y
+DM_CRYPT=y
+DM_SNAPSHOT=y
+DM_MIRROR=y
+DM_ZERO=y
+NETDEVICES=y
+DUMMY=y
+TUN=y
+NET_ETHERNET=y
+MII=y
+NET_PCI=y
+E100=y
+E1000=y
+TIGON3=y
+PPP=y
+PPP_ASYNC=y
+PPP_DEFLATE=y
+PPP_BSDCOMP=y
+INPUT=y
+INPUT_MOUSEDEV=y
+INPUT_MOUSEDEV_PSAUX=y
+INPUT_MOUSEDEV_SCREEN_X=1024
+INPUT_MOUSEDEV_SCREEN_Y=768
+INPUT_KEYBOARD=y
+KEYBOARD_ATKBD=y
+INPUT_MOUSE=y
+MOUSE_PS2=y
+MOUSE_SERIAL=y
+SERIO=y
+SERIO_I8042=y
+SERIO_SERPORT=y
+SERIO_PCIPS2=y
+SERIO_LIBPS2=y
+VT=y
+VT_CONSOLE=y
+HW_CONSOLE=y
+SERIAL_8250=y
+SERIAL_8250_CONSOLE=y
+SERIAL_8250_PCI=y
+SERIAL_8250_NR_UARTS=4
+SERIAL_8250_RUNTIME_UARTS=4
+SERIAL_8250_EXTENDED=y
+SERIAL_CORE=y
+SERIAL_CORE_CONSOLE=y
+UNIX98_PTYS=y
+LEGACY_PTYS=y
+LEGACY_PTY_COUNT=256
+PRINTER=y
+RTC=y
+AGP=y
+AGP_AMD64=y
+AGP_INTEL=y
+HWMON=y
+VGA_CONSOLE=y
+DUMMY_CONSOLE=y
+USB_ARCH_HAS_HCD=y
+USB_ARCH_HAS_OHCI=y
+USB_ARCH_HAS_EHCI=y
+EDAC=y
+EDAC_DEBUG=y
+EDAC_MM_EDAC=y
+EDAC_E752X=y
+EDAC_POLL=y
+EXT2_FS=y
+FS_POSIX_ACL=y
+XFS_FS=y
+XFS_EXPORT=y
+XFS_QUOTA=y
+ROMFS_FS=y
+INOTIFY=y
+QUOTACTL=y
+DNOTIFY=y
+AUTOFS_FS=y
+AUTOFS4_FS=y
+FUSE_FS=y
+ISO9660_FS=y
+JOLIET=y
+ZISOFS=y
+ZISOFS_FS=y
+UDF_FS=y
+UDF_NLS=y
+FAT_FS=y
+MSDOS_FS=y
+VFAT_FS=y
+FAT_DEFAULT_CODEPAGE=437
+FAT_DEFAULT_IOCHARSET="iso8859-1"
+NTFS_FS=y
+PROC_FS=y
+PROC_KCORE=y
+SYSFS=y
+TMPFS=y
+RAMFS=y
+EFS_FS=y
+HPFS_FS=y
+UFS_FS=y
+NFS_FS=y
+NFS_V3=y
+NFS_V4=y
+NFSD=y
+NFSD_V3=y
+NFSD_V4=y
+NFSD_TCP=y
+LOCKD=y
+LOCKD_V4=y
+EXPORTFS=y
+NFS_COMMON=y
+SUNRPC=y
+SUNRPC_GSS=y
+RPCSEC_GSS_KRB5=y
+SMB_FS=y
+MSDOS_PARTITION=y
+NLS=y
+NLS_DEFAULT="iso8859-1"
+NLS_CODEPAGE_437=y
+NLS_CODEPAGE_850=y
+NLS_ISO8859_1=y
+NLS_UTF8=y
+MAGIC_SYSRQ=y
+DEBUG_KERNEL=y
+LOG_BUF_SHIFT=16
+DEBUG_PREEMPT=y
+DEBUG_MUTEXES=y
+DEBUG_INFO=y
+DEBUG_FS=y
+FRAME_POINTER=y
+FORCED_INLINING=y
+DEBUG_RODATA=y
+CRYPTO=y
+CRYPTO_MD5=y
+CRYPTO_DES=y
+CRYPTO_AES_X86_64=y
+CRC_CCITT=y
+CRC32=y
+ZLIB_INFLATE=y
+ZLIB_DEFLATE=y
+TEXTSEARCH=y
+TEXTSEARCH_KMP=y
+TEXTSEARCH_BM=y
+TEXTSEARCH_FSM=y
+

@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWEWOlu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWEWOri@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751357AbWEWOlu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 10:41:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWEWOlu
+	id S932148AbWEWOri (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 10:47:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWEWOri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 10:41:50 -0400
-Received: from darla.ti-wmc.nl ([217.114.97.45]:9887 "EHLO smtp.wmc")
-	by vger.kernel.org with ESMTP id S1751357AbWEWOlt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 10:41:49 -0400
-Message-ID: <44731F2C.2010109@ti-wmc.nl>
-Date: Tue, 23 May 2006 16:41:48 +0200
-From: Simon Oosthoek <simon.oosthoek@ti-wmc.nl>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+	Tue, 23 May 2006 10:47:38 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:9706 "EHLO
+	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932148AbWEWOrh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 10:47:37 -0400
+From: Julian Seward <julian@valgrind.org>
+To: Olivier Galibert <galibert@pobox.com>
+Subject: Re: Linux Kernel Source Compression
+Date: Tue, 23 May 2006 15:47:31 +0100
+User-Agent: KMail/1.8.2
+Cc: Ivan Novick <ivan@0x4849.net>, Nuri Jawad <lkml@jawad.org>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.64.0605211028100.4037@p34> <1148393727.14381.262121289@webmail.messagingengine.com> <20060523142302.GA45392@dspnet.fr.eu.org>
+In-Reply-To: <20060523142302.GA45392@dspnet.fr.eu.org>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Herman Elfrink <herman.elfrink@ti-wmc.nl>
-Subject: Re: [ANNOUNCE] FLAME: external kernel module for L2.5 meshing
-References: <44731733.7000204@ti-wmc.nl> <1148395738.25255.68.camel@localhost.localdomain>
-In-Reply-To: <1148395738.25255.68.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605231547.32420.julian@valgrind.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Maw, 2006-05-23 at 16:07 +0200, Herman Elfrink wrote:
->> FLAME uses an unofficial protocol number (0x4040), any tips on how to 
->> get an official IANA number would be highly appreciated.
->>
-> 
-> Ethernet protocol number I assume you mean. If so this at least used to
-> be handled by the IEEE, along with ethernet mac address ranges.
-> 
 
-Yes ethernet protocol (it's below IP level), I didn't realise that IEEE 
-also handled the portnumbers. I'll check the ieee website to see how it 
-works, tnx!
+> bzip1 uses arithmetic encoding which is heavily patented.  bzip2 uses
+> huffman instead, which isn't, but is slightly (10% is often quoted)
+> less efficient.
 
-/Simon
+It uses an adaptive huffman scheme devised by David Wheeler, which usually
+gets within 1% of the arithmetic coder that bzip1 used.
 
+bzip2, especially the 1.0.X series, is superior to bzip1 in terms of speed,
+memory use, robustness against bad-case inputs, recoverability of data 
+from damaged compressed streams, and that it can be used as a library.
+Moving back to bzip1 would IMO be a big step backwards.
+
+J

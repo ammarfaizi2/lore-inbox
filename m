@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWEWOXE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWEWObs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932141AbWEWOXE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 10:23:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWEWOXE
+	id S932100AbWEWObs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 10:31:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWEWObs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 10:23:04 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:21777 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S932141AbWEWOXD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 10:23:03 -0400
-Date: Tue, 23 May 2006 16:23:02 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: Ivan Novick <ivan@0x4849.net>
-Cc: Nuri Jawad <lkml@jawad.org>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-       julian@valgrind.org
-Subject: Re: Linux Kernel Source Compression
-Message-ID: <20060523142302.GA45392@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Ivan Novick <ivan@0x4849.net>, Nuri Jawad <lkml@jawad.org>,
-	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-	Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-	julian@valgrind.org
-References: <Pine.LNX.4.64.0605211028100.4037@p34> <200605222015.01980.s0348365@sms.ed.ac.uk> <Pine.LNX.4.61.0605222220190.6816@yvahk01.tjqt.qr> <200605222200.18351.s0348365@sms.ed.ac.uk> <Pine.LNX.4.64.0605230407320.25860@pc> <1148393727.14381.262121289@webmail.messagingengine.com>
+	Tue, 23 May 2006 10:31:48 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:455 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932100AbWEWObr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 10:31:47 -0400
+Subject: Re: OpenGL-based framebuffer concepts
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Jeff Garzik <jeff@garzik.org>, Manu Abraham <abraham.manu@gmail.com>,
+       linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <83B4C39B-1A5E-4734-A5FF-10C3179B535B@mac.com>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <44700ACC.8070207@gmail.com> <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com>
+	 <1148379089.25255.9.camel@localhost.localdomain>
+	 <4472E3D8.9030403@garzik.org>
+	 <83B4C39B-1A5E-4734-A5FF-10C3179B535B@mac.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 23 May 2006 15:43:53 +0100
+Message-Id: <1148395433.25255.66.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1148393727.14381.262121289@webmail.messagingengine.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> just wanted to remark that I never liked that bzip was replaced by bzip2 
-> (were there license issues?) since bzip's compression was/is often 
-> stronger:
+On Maw, 2006-05-23 at 10:10 -0400, Kyle Moffett wrote:
+> A GPU which does not support OpenGL at all would look virtually  
 
-bzip1 uses arithmetic encoding which is heavily patented.  bzip2 uses
-huffman instead, which isn't, but is slightly (10% is often quoted)
-less efficient.  I guess bzip3 could use range coding which is
-supposedly patent-free[1] and has similar compression ratio than
-arithmetic coding.
+No GPU today "supports" OpenGL
 
-  OG.
+> 2)  Client program sends OpenGL commands through kernel framebuffer  
+> device.
+> 3)  Kernel either passes the OpenGL commands to the GPU or if they  
+> were trapped by the software renderer it passes them to that, which  
+> can emulate them using more primitive operations.
 
-[1] I guess everything is in the way it is written, since I have a
-very hard time understand where the difference is between range coding
-and arithmetic coding.
+You've no idea how a GPU works have you ?
+
+The process generally goes something like this.
+
+I build an OpenGL rendering context.
+The supporting library JITs an engine which implements this rendering
+context and pipeline. Only a JIT is really fast enough because there are
+so many tests are otherwise involved.
+
+Each poly is fired down the JIT engine which produces a mix of
+	- AGP command streams
+	- GPU bytecodes
+	- Polygon breakdowns which go back into the engine
+		(eg for clips the chip can't do)
+	- Texture loads and swaps
+
+The GPU view of the universe is far far from the OpenGL one. With the
+possible exception of the big 3D Labs cards anyway.
+
+Alan
+

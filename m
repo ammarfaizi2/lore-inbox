@@ -1,125 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWEWSBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWEWSEz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932240AbWEWSBU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 14:01:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWEWSBU
+	id S932237AbWEWSEz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 14:04:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWEWSEz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 14:01:20 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:21158 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S932240AbWEWSBT (ORCPT
+	Tue, 23 May 2006 14:04:55 -0400
+Received: from smtp-4.llnl.gov ([128.115.41.84]:29824 "EHLO smtp-4.llnl.gov")
+	by vger.kernel.org with ESMTP id S1751146AbWEWSEz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 14:01:19 -0400
-Date: Tue, 23 May 2006 19:01:15 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Andrew Morton <akpm@osdl.org>
-Cc: davej@codemonkey.org.uk, tony.luck@intel.com, ak@suse.de, bob.picco@hp.com,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       linux-mm@kvack.org
-Subject: Re: [PATCH 4/6] Have x86_64 use add_active_range() and free_area_init_nodes
-In-Reply-To: <20060520135922.129a481d.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0605231853410.8660@skynet.skynet.ie>
-References: <20060508141030.26912.93090.sendpatchset@skynet>
- <20060508141151.26912.15976.sendpatchset@skynet> <20060520135922.129a481d.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 23 May 2006 14:04:55 -0400
+Message-Id: <7.0.0.16.2.20060523094646.02429fd8@llnl.gov>
+X-Mailer: QUALCOMM Windows Eudora Version 7.0.0.16
+Date: Tue, 23 May 2006 11:04:23 -0700
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+From: Dave Peterson <dsp@llnl.gov>
+Subject: Re: [PATCH (try #3)] mm: avoid unnecessary OOM kills
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, pj@sgi.com, ak@suse.de,
+       linux-mm@kvack.org, garlick@llnl.gov, mgrondona@llnl.gov, dsp@llnl.gov
+In-Reply-To: <4472A006.2090006@yahoo.com.au>
+References: <200605230032.k4N0WCIU023760@calaveras.llnl.gov>
+ <4472A006.2090006@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 May 2006, Andrew Morton wrote:
+At 10:39 PM 5/22/2006, Nick Piggin wrote:
+>Does this fix observed problems on real (or fake) workloads? Can we have
+>some more information about that?
 
-> Mel Gorman <mel@csn.ul.ie> wrote:
->>
->>
->> Size zones and holes in an architecture independent manner for x86_64.
->>
->>
->
-> I found a .config which triggers the cant-map-acpitables problem.
->
->
-> With that .config, and without this patch:
->
-> Linux version 2.6.17-rc4-mm2 (akpm@box) (gcc version 4.1.0 20060304 (Red Hat 4.6
-> BIOS-provided physical RAM map:
-> BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
-> BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
-> BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
-> BIOS-e820: 0000000000100000 - 00000000ca605000 (usable)
-> BIOS-e820: 00000000ca605000 - 00000000ca680000 (ACPI NVS)
-> BIOS-e820: 00000000ca680000 - 00000000cb5ef000 (usable)
-> BIOS-e820: 00000000cb5ef000 - 00000000cb5fc000 (reserved)
-> BIOS-e820: 00000000cb5fc000 - 00000000cb6a2000 (usable)
-> BIOS-e820: 00000000cb6a2000 - 00000000cb6eb000 (ACPI NVS)
-> BIOS-e820: 00000000cb6eb000 - 00000000cb6ef000 (usable)
-> BIOS-e820: 00000000cb6ef000 - 00000000cb6ff000 (ACPI data)
-> BIOS-e820: 00000000cb6ff000 - 00000000cb700000 (usable)
-> BIOS-e820: 00000000cb700000 - 00000000cc000000 (reserved)
-> BIOS-e820: 00000000ffe00000 - 0000000100000000 (reserved)
-> BIOS-e820: 0000000100000000 - 0000000130000000 (usable)
-> DMI 2.4 present.
-> ACPI: PM-Timer IO Port: 0x408
-> ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
-> Processor #0 6:15 APIC version 20
-> ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01] enabled)
-> Processor #1 6:15 APIC version 20
-> ACPI: LAPIC (acpi_id[0x03] lapic_id[0x82] disabled)
-> ACPI: LAPIC (acpi_id[0x04] lapic_id[0x83] disabled)
-> ACPI: LAPIC_NMI (acpi_id[0x01] dfl dfl lint[0x1])
-> ACPI: LAPIC_NMI (acpi_id[0x02] dfl dfl lint[0x1])
-> ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
-> IOAPIC[0]: apic_id 2, version 32, address 0xfec00000, GSI 0-23
-> ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
->
->
-> With that .config, and with this patch:
->
-> Bootdata ok (command line is ro root=LABEL=/ earlyprintk=serial,ttyS0,9600,keep netconsole=4444@192.168.2.4/eth0,5147@192.168.2.33/00:0D:56:C6:C6:CC)
-> Linux version 2.6.17-rc4-mm2 (akpm@box) (gcc version 4.1.0 20060304 (Red Hat 4.1.0-3)) #33 SMP Sat May 20 12:08:03 PDT 2006
-> BIOS-provided physical RAM map:
-> BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
-> BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
-> BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
-> BIOS-e820: 0000000000100000 - 00000000ca605000 (usable)
-> BIOS-e820: 00000000ca605000 - 00000000ca680000 (ACPI NVS)
-> BIOS-e820: 00000000ca680000 - 00000000cb5ef000 (usable)
-> BIOS-e820: 00000000cb5ef000 - 00000000cb5fc000 (reserved)
-> BIOS-e820: 00000000cb5fc000 - 00000000cb6a2000 (usable)
-> BIOS-e820: 00000000cb6a2000 - 00000000cb6eb000 (ACPI NVS)
-> BIOS-e820: 00000000cb6eb000 - 00000000cb6ef000 (usable)
-> BIOS-e820: 00000000cb6ef000 - 00000000cb6ff000 (ACPI data)
-> BIOS-e820: 00000000cb6ff000 - 00000000cb700000 (usable)
-> BIOS-e820: 00000000cb700000 - 00000000cc000000 (reserved)
-> BIOS-e820: 00000000ffe00000 - 0000000100000000 (reserved)
-> BIOS-e820: 0000000100000000 - 0000000130000000 (usable)
-> Too many memory regions, truncating
-> Too many memory regions, truncating
-> Too many memory regions, truncating
-> DMI 2.4 present.
-> ACPI: Unable to map RSDT header
-> Intel MultiProcessor Specification v1.4
->    Virtual Wire compatibility mode.
-> OEM ID:  Product ID:  APIC at: 0xFEE00000
->
+The problems were observed when executing the C program shown below on a
+machine with swap turned off.  Soon we will be deploying diskless clusters
+(i.e. clusters with no swap space).  Our goal is to get an idea of how well
+the machines will recover if users push their memory allocations a bit too
+far.  This is a rather common occurrence in our environment since our users
+run memory-intensive workloads and tend to try to push the machines to
+their limits.  We are doing tests such as the one below in an effort to
+identify and resolve problems before the diskless machines go into
+production.  The fact that we see the bad behavior with reasonable
+frequency even when testing on a single machine suggests to us that we
+are likely to see it much more often in production on our 1000+ node
+clusters.
 
-I think I have figured out what went wrong here.
+On somewhat of a tangent, our motivations for going diskless are as follows:
 
-arch/i386/kernel/acpi/boot.c has a __acpi_map_table() function which uses 
-a variable end_pfn_map variable defined in arch/x86_64/kernel/e820.c . 
-Part of the arch-independent-zone-sizing patch calculates end_pfn_map from 
-early_node_map[] which only contains information on real RAM regions.
+    - Hard drive failure is by far our largest source of equipment failure.
+    - Hard drives generate extra heat and take up space.  Both of these are
+      substantial drawbacks when dealing with large clusters (i.e. 1000+ nodes).
+    - cost savings (hard drives cost money)
 
-On Christian's machine, there is no usable region after the ACPI table 
-data so early_node_map[] finishes just before the ACPI tables. This 
-results in the wrong value for end_pfn_map and the table fails to be 
-mapped. In Andrew's machines case, the regions got truncated and nothing 
-after ACPI NVS was recorded, including ACPI data which is why it fails to 
-boot.
+>I still don't quite understand why all this mechanism is needed. Suppose
+>that we single-thread the oom kill path (which isn't unreasonable, unless
+>you need really good OOM throughput :P), isn't it enough to find that any
+>process has TIF_MEMDIE set in order to know that an OOM kill is in progress?
+>
+>down(&oom_sem);
+>for each process {
+>  if TIF_MEMDIE
+>     goto oom_in_progress;
+>  else
+>    calculate badness;
+>}
+>up(&oom_sem);
 
-Am not ready to release another set of patches, but I think this was the 
-cause of magic failures on x86_64.
+That would be another way to do things.  It's a tradeoff between either
 
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+    option A: Each task that enters the OOM code path must loop over all
+              tasks to determine whether an OOM kill is in progress.
+
+    or...
+
+    option B: We must declare an oom_kill_in_progress variable and add
+              the following snippet of code to mmput():
+
+                put_swap_token(mm);
++               if (unlikely(test_bit(MM_FLAG_OOM_NOTIFY, &mm->flags)))
++                       oom_kill_finish();  /* terminate pending OOM kill */
+                mmdrop(mm);
+
+I think either option is reasonable (although I have a slight preference
+for B since it eliminates substantial looping through the tasklist).
+
+>Is all this really required? Shouldn't you just have in place the
+>mechanism to prevent concurrent OOM killings in the OOM code, and
+>so the page allocator doesn't have to bother with it at all (ie.
+>it can just call into the OOM killer, which may or may not actually
+>kill anything).
+
+I agree it's desirable to keep the OOM killing logic as encapsulated
+as possible.  However unless you are holding the oom kill semaphore
+when you make your final attempt to allocate memory it's a bit racy.
+Holding the OOM kill semaphore guarantees that our final allocation
+failure before invoking the OOM killer occurred _after_ any previous
+OOM kill victim freed its memory.  Thus we know we are not shooting
+another process prematurely (i.e. before the memory-freeing effects
+of our previous OOM kill have been felt).
+
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define CHUNKS 32
+
+int 
+main(int argc, char *argv[])
+{
+        unsigned long mb;
+        unsigned long iter = 1;
+        char *buf[CHUNKS];
+        int i;
+
+        if (argc < 2 || argc > 3) {
+                fprintf(stderr, "usage: usemem megabytes [iterations]\n");
+                exit(1);
+        }
+        mb = strtoul(argv[1], NULL, 0);
+        if (argc == 3)
+                iter = strtoul(argv[2], NULL, 0);
+        if (mb < CHUNKS) {
+                fprintf(stderr, "megabytes must be >= %d\n", CHUNKS);
+                exit(1);
+        }       
+
+        for (i = 0; i < CHUNKS; i++) {
+                fprintf(stderr, "%d: Mallocing %lu megabytes\n", i, mb/CHUNKS);
+                buf[i] = (char *)malloc(mb/CHUNKS * 1024L * 1024L);
+                if (!buf[i]) {
+                        fprintf(stderr, "malloc failure\n");
+                        exit(1);
+                }
+        }
+
+        while (iter-- > 0) {
+                for (i = 0; i < CHUNKS; i++) {
+                        fprintf(stderr, "%d: Zeroing %lu megabytes at %p\n", 
+                                        i, mb/CHUNKS, buf[i]);
+                        memset(buf[i], 0, mb/CHUNKS * 1024L * 1024L);
+                }
+        }
+
+
+        exit(0);
+}
+
+

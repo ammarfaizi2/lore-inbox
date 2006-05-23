@@ -1,147 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWEWM2T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWEWMyn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbWEWM2T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 08:28:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWEWM2S
+	id S932196AbWEWMyn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 08:54:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWEWMyn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 08:28:18 -0400
-Received: from crystal.sipsolutions.net ([195.210.38.204]:6381 "EHLO
-	sipsolutions.net") by vger.kernel.org with ESMTP id S1751187AbWEWM2S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 08:28:18 -0400
-Subject: [PATCH] make ams work with latest kernels
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Stelian Pop <stelian@popies.net>
-Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 23 May 2006 13:32:23 +0200
-Message-Id: <1148383943.25971.2.camel@johannes>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 23 May 2006 08:54:43 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:44665 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932196AbWEWMym convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 08:54:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=f3l4sHXHWBJifqWGV6n+GuLkZZVYkoXVxcSsiNy9Y29eOFATLTGB8BuYrrSecRay9v708dAnOhzAARo+h7Xhs15gtf1hu6qj5073Qm2ueI1guMr0rF+bclJGS9Uj01gha1P3vKm8b+LEDHVwRyuiyS0l3HU4tyCjJmqWdAvIISw=
+Message-ID: <661de9470605230554y1703fba9j2f2da0609fc3695e@mail.gmail.com>
+Date: Tue, 23 May 2006 18:24:41 +0530
+From: "Balbir Singh" <bsingharora@gmail.com>
+To: "Martin Peschke" <mp3@de.ibm.com>
+Subject: Re: [Patch 2/6] statistics infrastructure - prerequisite: parser enhancement
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1148055023.2974.14.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1148055023.2974.14.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For those who don't know: ams, written by Stelian Pop, is a driver for
-the motion sensor present in some PowerBooks (the series the
-PowerBook5,6 falls into, later ones have a slightly different one the
-driver doesn't handle).
+On 5/19/06, Martin Peschke <mp3@de.ibm.com> wrote:
+> This patch adds a match_* derivate for 64 bit operands to the parser library.
+>
+> Signed-off-by: Martin Peschke <mp3@de.ibm.com>
+> ---
+>
+>  include/linux/parser.h |    1 +
+>  lib/parser.c           |   30 ++++++++++++++++++++++++++++++
+>  2 files changed, 31 insertions(+)
+>
+> diff -Nurp a/lib/parser.c b/lib/parser.c
+> --- a/lib/parser.c      2006-03-20 06:53:29.000000000 +0100
+> +++ b/lib/parser.c      2006-05-19 16:01:48.000000000 +0200
+> @@ -140,6 +140,35 @@ static int match_number(substring_t *s,
+>  }
+>
+>  /**
+> + * match_s64: scan a number in the given base from a substring_t
+> + * @s: substring to be scanned
+> + * @result: resulting integer on success
+> + * @base: base to use when converting string
+> + *
+> + * Description: Given a &substring_t and a base, attempts to parse the substring
+> + * as a number in that base. On success, sets @result to the s64 represented
+> + * by the string and returns 0. Returns either -ENOMEM or -EINVAL on failure.
+> + */
+> +int match_s64(substring_t *s, s64 *result, int base)
+> +{
+> +       char *endp;
+> +       char *buf;
+> +       int ret;
+> +
+> +       buf = kmalloc(s->to - s->from + 1, GFP_KERNEL);
+> +       if (!buf)
+> +               return -ENOMEM;
+> +       memcpy(buf, s->from, s->to - s->from);
+> +       buf[s->to - s->from] = '\0';
+> +       *result = simple_strtoll(buf, &endp, base);
+> +       ret = 0;
+> +       if (endp == buf)
+> +               ret = -EINVAL;
+> +       kfree(buf);
+> +       return ret;
+> +}
+> +
+> +/**
+>   * match_int: - scan a decimal representation of an integer from a substring_t
+>   * @s: substring_t to be scanned
+>   * @result: resulting integer on success
+> @@ -218,3 +247,4 @@ EXPORT_SYMBOL(match_octal);
+>  EXPORT_SYMBOL(match_hex);
+>  EXPORT_SYMBOL(match_strcpy);
+>  EXPORT_SYMBOL(match_strdup);
+> +EXPORT_SYMBOL(match_s64);
+> diff -Nurp a/include/linux/parser.h b/include/linux/parser.h
+> --- a/include/linux/parser.h    2006-03-20 06:53:29.000000000 +0100
+> +++ b/include/linux/parser.h    2006-05-19 16:01:48.000000000 +0200
+> @@ -31,3 +31,4 @@ int match_octal(substring_t *, int *resu
+>  int match_hex(substring_t *, int *result);
+>  void match_strcpy(char *, substring_t *);
+>  char *match_strdup(substring_t *);
+> +int match_s64(substring_t *, s64 *result, int);
+>
 
-Even though we still don't seem to have a client that can actually use
-this data (something to actually tell the hd to protect itself) I
-updated the ams code to compile against the latest linux kernel
-versions. I also fixed a buglet (the interrupt handler should return
-IRQ_HANDLED even if the init flag isn't set yet since we own the
-interrupts, they can't be shared).
+Sorry for the delay in reviewing. I am just catching up with pending items.
+I wonder if makes sense to fold this along with match_u64(). 90% of
+their code is common. We can avoid text replication by folding the
+code and the common code is easier to maintain.
 
-Stelian and all, how about adding this driver to linux? hdaps seems to
-be there even if it too doesn't serve a useful purpose at this time.
-
-Signed-off-by: Johannes Berg <johannes@sipsolutions.net>
-
---- ams-0.02.orig/ams.c	2006-05-22 15:24:51.545837212 +0200
-+++ ams-0.02/ams.c	2006-05-22 15:36:10.175837212 +0200
-@@ -97,7 +97,7 @@ struct ams {
- 	int			irq1;		/* first irq line */
- 	int			irq2;		/* second irq line */
- 	struct work_struct	worker;		/* worker thread */
--	struct input_dev	idev;		/* input device */
-+	struct input_dev	*idev;		/* input device */
- 	char			iactive;	/* is the input device active ? */
- 	int			xcalib;		/* calibrated null value for x */
- 	int			ycalib;		/* calibrated null value for y */
-@@ -110,9 +110,10 @@ static int ams_attach(struct i2c_adapter
- static int ams_detach(struct i2c_adapter *adapter);
- 
- static struct i2c_driver ams_driver = {
--	.owner		= THIS_MODULE,
--	.name		= "ams",
--	.flags		= I2C_DF_NOTIFY,
-+	.driver = {
-+		.owner	= THIS_MODULE,
-+		.name	= "ams",
-+	},
- 	.attach_adapter	= ams_attach,
- 	.detach_adapter	= ams_detach,
- };
-@@ -210,10 +211,10 @@ static int ams_mouse_kthread(void *data)
- 	while (!kthread_should_stop()) {
- 		ams_sensors(&x, &y, &z);
- 
--		input_report_abs(&ams.idev, ABS_X, x - ams.xcalib);
--		input_report_abs(&ams.idev, ABS_Y, y - ams.ycalib);
-+		input_report_abs(ams.idev, ABS_X, x - ams.xcalib);
-+		input_report_abs(ams.idev, ABS_Y, y - ams.ycalib);
- 
--		input_sync(&ams.idev);
-+		input_sync(ams.idev);
- 
- 		msleep(25);
- 	}
-@@ -231,22 +232,24 @@ static void ams_mouse_enable(void)
- 	ams.xcalib = x;
- 	ams.ycalib = y;
- 
--	init_input_dev(&ams.idev);
--	ams.idev.name = "ams";
--	ams.idev.dev = &ams.client.dev;
--
--	input_set_abs_params(&ams.idev, ABS_X, -50, 50, 3, 0);
--	input_set_abs_params(&ams.idev, ABS_Y, -50, 50, 3, 0);
--
--	set_bit(EV_ABS, ams.idev.evbit);
--	set_bit(EV_KEY, ams.idev.evbit);
--	set_bit(BTN_TOUCH, ams.idev.keybit);
-+	ams.idev = input_allocate_device();
-+	if (!ams.idev)
-+		return;
-+	ams.idev->name = "Apple Motion Sensor";
-+	ams.idev->dev = &ams.client.dev;
-+
-+	input_set_abs_params(ams.idev, ABS_X, -50, 50, 3, 0);
-+	input_set_abs_params(ams.idev, ABS_Y, -50, 50, 3, 0);
-+
-+	set_bit(EV_ABS, ams.idev->evbit);
-+	set_bit(EV_KEY, ams.idev->evbit);
-+	set_bit(BTN_TOUCH, ams.idev->keybit);
- 
- 	ams.kthread = kthread_run(ams_mouse_kthread, NULL, "kams");
- 	if (IS_ERR(ams.kthread))
- 		return;
- 
--	input_register_device(&ams.idev);
-+	input_register_device(ams.idev);
- 	ams.iactive = 1;
- }
- 
-@@ -257,7 +260,8 @@ static void ams_mouse_disable(void)
- 
- 	kthread_stop(ams.kthread);
- 
--	input_unregister_device(&ams.idev);
-+	if (ams.idev)
-+		input_unregister_device(ams.idev);
- 
- 	ams.iactive = 0;
- }
-@@ -300,7 +304,7 @@ static void ams_worker(void *data)
- static irqreturn_t ams_interrupt(int irq, void *devid, struct pt_regs *regs)
- {
- 	if (!ams.init)
--		return IRQ_NONE;
-+		return IRQ_HANDLED;
- 	schedule_work(&ams.worker);
- 	return IRQ_HANDLED;
- }
-@@ -471,7 +475,7 @@ static int __init ams_init(void)
- 
- 	INIT_WORK(&ams.worker, ams_worker, NULL);
- 
--	if ((ams.of_dev = of_platform_device_create(np, "ams")) == NULL) {
-+	if ((ams.of_dev = of_platform_device_create(np, "ams", NULL)) == NULL) {
- 		free_irq(ams.irq1, NULL);
- 		free_irq(ams.irq2, NULL);
- 		return -ENODEV;
-
-
+Regards,
+Balbir
+Linux Technology Center,
+India Software Labs,
+Bangalore

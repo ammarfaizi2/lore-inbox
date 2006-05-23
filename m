@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWEWSyn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWEWSyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932269AbWEWSyn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 14:54:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbWEWSyn
+	id S932270AbWEWSyS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 14:54:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbWEWSyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 14:54:43 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:31416 "EHLO
+	Tue, 23 May 2006 14:54:18 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:28856 "EHLO
 	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S932269AbWEWSyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 14:54:24 -0400
-Date: Tue, 23 May 2006 20:54:23 +0200
+	id S932270AbWEWSyQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 14:54:16 -0400
+Date: Tue, 23 May 2006 20:54:15 +0200
 From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Clay Haapala <chaapala@cisco.com>
-Subject: [PATCH] -mm: constify libcrc32c table
-Message-ID: <20060523185423.GF10827@rhlx01.fht-esslingen.de>
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>
+Subject: [PATCH] -mm: constify parts of kernel/power/
+Message-ID: <20060523185415.GE10827@rhlx01.fht-esslingen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,20 +25,41 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello all,
 
-constify a medium-large CRC code table.
+patch run-tested on linux-2.6.17-rc4-mm3.
 
 Signed-off-by: Andreas Mohr <andi@lisas.de>
 
 
-diff -urN linux-2.6.17-rc4-mm3.orig/lib/libcrc32c.c linux-2.6.17-rc4-mm3.my/lib/libcrc32c.c
---- linux-2.6.17-rc4-mm3.orig/lib/libcrc32c.c	2006-05-23 17:46:35.000000000 +0200
-+++ linux-2.6.17-rc4-mm3/lib/libcrc32c.c	2006-05-22 20:17:16.000000000 +0200
-@@ -88,7 +88,7 @@
-  * reflect output bytes = true
-  */
+diff -urN linux-2.6.17-rc4-mm3.orig/kernel/power/disk.c linux-2.6.17-rc4-mm3.my/kernel/power/disk.c
+--- linux-2.6.17-rc4-mm3.orig/kernel/power/disk.c	2006-05-23 19:14:17.000000000 +0200
++++ linux-2.6.17-rc4-mm3/kernel/power/disk.c	2006-05-23 16:53:04.000000000 +0200
+@@ -214,7 +214,7 @@
+ }
  
--static u32 crc32c_table[256] = {
-+static const u32 crc32c_table[256] = {
- 	0x00000000L, 0xF26B8303L, 0xE13B70F7L, 0x1350F3F4L,
- 	0xC79A971FL, 0x35F1141CL, 0x26A1E7E8L, 0xD4CA64EBL,
- 	0x8AD958CFL, 0x78B2DBCCL, 0x6BE22838L, 0x9989AB3BL,
+ 
+-static char * pm_disk_modes[] = {
++static const char * const pm_disk_modes[] = {
+ 	[PM_DISK_FIRMWARE]	= "firmware",
+ 	[PM_DISK_PLATFORM]	= "platform",
+ 	[PM_DISK_SHUTDOWN]	= "shutdown",
+diff -urN linux-2.6.17-rc4-mm3.orig/kernel/power/main.c linux-2.6.17-rc4-mm3.my/kernel/power/main.c
+--- linux-2.6.17-rc4-mm3.orig/kernel/power/main.c	2006-05-23 19:13:20.000000000 +0200
++++ linux-2.6.17-rc4-mm3/kernel/power/main.c	2006-05-23 16:42:42.000000000 +0200
+@@ -143,7 +143,7 @@
+ 
+ 
+ 
+-static char *pm_states[PM_SUSPEND_MAX] = {
++static const char * const pm_states[PM_SUSPEND_MAX] = {
+ 	[PM_SUSPEND_STANDBY]	= "standby",
+ 	[PM_SUSPEND_MEM]	= "mem",
+ #ifdef CONFIG_SOFTWARE_SUSPEND
+@@ -260,7 +260,7 @@
+ static ssize_t state_store(struct subsystem * subsys, const char * buf, size_t n)
+ {
+ 	suspend_state_t state = PM_SUSPEND_STANDBY;
+-	char ** s;
++	const char * const * s;
+ 	char *p;
+ 	int error;
+ 	int len;

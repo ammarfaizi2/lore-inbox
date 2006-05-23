@@ -1,73 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbWEWSHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWEWSLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbWEWSHe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 14:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWEWSHe
+	id S1751131AbWEWSLw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 14:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWEWSLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 14:07:34 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:63965 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1750832AbWEWSHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 14:07:33 -0400
-Date: Tue, 23 May 2006 20:07:32 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] -mm: constify some parts of arch/i386/kernel/cpu/
-Message-ID: <20060523180732.GD24461@rhlx01.fht-esslingen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+	Tue, 23 May 2006 14:11:52 -0400
+Received: from fep32-0.kolumbus.fi ([193.229.0.63]:58960 "EHLO
+	fep32-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S1751131AbWEWSLw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 14:11:52 -0400
+Date: Tue, 23 May 2006 21:11:50 +0300 (EEST)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: James Lamanna <jlamanna@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Sense data errors trying to read from tape - 2.6.14-gentoo-r5
+In-Reply-To: <aa4c40ff0605230822r34230211o9fa276234545dd59@mail.gmail.com>
+Message-ID: <Pine.LNX.4.63.0605232108300.5791@kai.makisara.local>
+References: <aa4c40ff0605230822r34230211o9fa276234545dd59@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Tue, 23 May 2006, James Lamanna wrote:
 
-patch run-tested on linux-2.6.17-rc4-mm3.
+> On 5/23/06, James Lamanna <jlamanna@gmail.com> wrote:
+> > Was trying to do an 'amrestore /dev/nst0' when I received the following
+> > OOPS:
+> >
+> 
+> [SNIP]
+> 
+> > I've also had problems restoring large XFS partitions off of tape
+> > (amrestore returns with input/output errors), but I'm not sure whether
+> > that is kernel or userspace related (no errors in dmesg or anything).
+> > In that case, amrestore did not have any problems restoring TAR-ed
+> > filesystems from tape (that was with 2.6.14-gentoo-r5).
+> >
+> 
+> [SNIP]
+> 
+> As a follow-up to the above on 2.6.14-gentoo-r5, while trying to
+> restore an XFS partition off of the tape (amrestore/dd doesn't oops on
+> this kernel) my dmesg fills with the following:
+> 
+> st0: Error with sense data: <6>st0: Current: sense key=0xb
+>    ASC=0x4b ASCQ=0x0
+> 
+The sense key is "Aborted Command". The ASC and ASCQ fields translate to 
+"Data phase error".
 
-Signed-off-by: Andreas Mohr <andi@lisas.de>
+My first guess is that there are SCSI bus problems (cabling, termination, 
+etc.).
 
-
-diff -urN linux-2.6.17-rc4-mm3.orig/arch/i386/kernel/cpu/intel_cacheinfo.c linux-2.6.17-rc4-mm3.my/arch/i386/kernel/cpu/intel_cacheinfo.c
---- linux-2.6.17-rc4-mm3.orig/arch/i386/kernel/cpu/intel_cacheinfo.c	2006-05-23 19:14:13.000000000 +0200
-+++ linux-2.6.17-rc4-mm3/arch/i386/kernel/cpu/intel_cacheinfo.c	2006-05-23 17:27:28.000000000 +0200
-@@ -159,13 +159,13 @@
- 	unsigned val;
- };
- 
--static unsigned short assocs[] = {
-+static const unsigned short assocs[] = {
- 	[1] = 1, [2] = 2, [4] = 4, [6] = 8,
- 	[8] = 16,
- 	[0xf] = 0xffff // ??
- 	};
--static unsigned char levels[] = { 1, 1, 2 };
--static unsigned char types[] = { 1, 2, 3 };
-+static const unsigned char levels[] = { 1, 1, 2 };
-+static const unsigned char types[] = { 1, 2, 3 };
- 
- static void __cpuinit amd_cpuid4(int leaf, union _cpuid4_leaf_eax *eax,
- 		       union _cpuid4_leaf_ebx *ebx,
-diff -urN linux-2.6.17-rc4-mm3.orig/arch/i386/kernel/cpu/proc.c linux-2.6.17-rc4-mm3.my/arch/i386/kernel/cpu/proc.c
---- linux-2.6.17-rc4-mm3.orig/arch/i386/kernel/cpu/proc.c	2006-05-23 19:13:13.000000000 +0200
-+++ linux-2.6.17-rc4-mm3/arch/i386/kernel/cpu/proc.c	2006-05-22 17:42:41.000000000 +0200
-@@ -18,7 +18,7 @@
- 	 * applications want to get the raw CPUID data, they should access
- 	 * /dev/cpu/<cpu_nr>/cpuid instead.
- 	 */
--	static char *x86_cap_flags[] = {
-+	static const char * const x86_cap_flags[] = {
- 		/* Intel-defined */
- 	        "fpu", "vme", "de", "pse", "tsc", "msr", "pae", "mce",
- 	        "cx8", "apic", NULL, "sep", "mtrr", "pge", "mca", "cmov",
-@@ -62,7 +62,7 @@
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 	};
--	static char *x86_power_flags[] = {
-+	static const char * const x86_power_flags[] = {
- 		"ts",	/* temperature sensor */
- 		"fid",  /* frequency id control */
- 		"vid",  /* voltage id control */
+-- 
+Kai

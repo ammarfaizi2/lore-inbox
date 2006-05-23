@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWEWRgw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWEWRjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751017AbWEWRgw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 13:36:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWEWRgw
+	id S1751105AbWEWRjL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 13:39:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbWEWRjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 13:36:52 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:39862 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751017AbWEWRgv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 13:36:51 -0400
-Message-ID: <4473482A.3050407@zytor.com>
-Date: Tue, 23 May 2006 10:36:42 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [-mm] klibc breaks my initscripts
-References: <20060523083754.GA1586@elf.ucw.cz>
-In-Reply-To: <20060523083754.GA1586@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 23 May 2006 13:39:10 -0400
+Received: from 131.103.46-69.q9.net ([69.46.103.131]:1683 "EHLO
+	exchange.gtcorp.com") by vger.kernel.org with ESMTP
+	id S1751105AbWEWRjJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 13:39:09 -0400
+Subject: Re: Compact Flash Serial ATA patch
+From: Russell McConnachie <russell.mcconnachie@guest-tek.com>
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060523172352.GD9528@one-eyed-alien.net>
+References: <1148379397.1182.4.camel@gt-alphapbx2>
+	 <20060523172352.GD9528@one-eyed-alien.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Tue, 23 May 2006 04:41:03 -0600
+Message-Id: <1148380863.1364.1.camel@gt-alphapbx2>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
-> To reproduce: boot with init=/bin/bash
-> 
-> attempt to
-> 
-> mount / -oremount,rw
-> 
-> I have this as my command line:
-> 
-> root=/dev/hda4 resume=/dev/hda1 psmouse.psmouse_proto=imps
-> psmouse_proto=imps psmouse.proto=imps vga=1 pci=assign-busses
-> rootfstype=ext2
-> 
-> Kernel
-> 
-> VERSION = 2
-> PATCHLEVEL = 6
-> SUBLEVEL = 17
-> EXTRAVERSION =-rc4-mm3
-> 
+Hi Matt,
 
-Will look into immediately.
+The patch which stopped the DMA problems was adding the model ID to the
+dma blacklist in the libata-core.c file. I will create another patch in
+unified diff format, it seems that compact flash uses different device
+IDs than regular ATA/ATAPI devices.
 
-- a. What distro?
-- b. What's the error?
-- c. Are you using an initrd/initramfs as well?
-
-	-hpa
+On Tue, 2006-05-23 at 10:23 -0700, Matthew Dharm wrote:
+> On Tue, May 23, 2006 at 04:16:37AM -0600, Russell McConnachie wrote:
+> > I was having some trouble with a serial ATA compact flash adapter with
+> > libata. I wrote a small patch for the kernel to work around the sanity
+> > check, dma blacklisting and device ID detections in ata_dev_classify(). 
+> 
+> I've had this problem, too.  Apparently, my CF/SATA bridge doesn't support
+> DMA, but libata requires it.
+> 
+> I don't know if this is the right fix (if nothing else the patch needs to
+> be sent in unified diff format), but it's certainly something that needs
+> fixing.
+> 
+> Matt
+> 

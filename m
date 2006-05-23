@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbWEWLMJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751031AbWEWMAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750879AbWEWLMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 07:12:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWEWLMI
+	id S1751031AbWEWMAo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 08:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbWEWMAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 07:12:08 -0400
-Received: from ns.suse.de ([195.135.220.2]:37863 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750879AbWEWLMH (ORCPT
+	Tue, 23 May 2006 08:00:44 -0400
+Received: from mail.df.lth.se ([194.47.250.12]:1421 "EHLO df.lth.se")
+	by vger.kernel.org with ESMTP id S1751031AbWEWMAn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 07:12:07 -0400
-From: Neil Brown <neilb@suse.de>
-To: "Rainer Shiz" <rainer.shiz@gmail.com>
-Date: Tue, 23 May 2006 21:11:40 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17522.60908.335242.982796@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RAID Sync Speeds
-In-Reply-To: message from Rainer Shiz on Tuesday May 23
-References: <cf5433040605220605t22b6030j701add7d494c83e8@mail.gmail.com>
-	<17522.15942.232530.954548@cse.unsw.edu.au>
-	<cf5433040605230037h42d36b60k37e1f7fd576688f9@mail.gmail.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	Tue, 23 May 2006 08:00:43 -0400
+Date: Tue, 23 May 2006 14:00:41 +0200
+From: Fredrik Roubert <roubert@df.lth.se>
+To: linux-kernel@vger.kernel.org
+Subject: Re: uli526x again
+Message-ID: <20060523120041.GP19312@igloo.df.lth.se>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <1148170057.12045.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="CdrF4e02JqNVZeln"
+Content-Disposition: inline
+In-Reply-To: <1148170057.12045.7.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-PGP-Public-Key: http://www.df.lth.se/~roubert/pubkey.txt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday May 23, rainer.shiz@gmail.com wrote:
-> Thanks Neil and Chris for your quick replies.
-> 
-> Neil, well when you say 'detectable activity' what do you exactly
-> refer to.
 
-It should mean any IO request to any of the physical devices, whether
-though the raid array or otherwise.  Sometimes in can get confused,
-but in 2.6.12 (If it a kernel.org 2.6.12) got it pretty right I
-think.  Current kernels may have occasional issues that I really need
-to sort out one day...
+--CdrF4e02JqNVZeln
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Maybe if you give me more precise details about your setup 
-(e.g. cat /proc/mdstat) something might occur to me.
+On Sun 21 May 02:07 CEST 2006, Rakotomandimby Mihamina wrote:
 
-> I heard that speed values are averaged out for about 5 minutes or so.
+> I tried with 2.6.16 kernels. Nothing about uli526x file/stuff in the
+> 2.6.17, so it should be OK.
+>
+> What would you sugest to do?
 
-They are averaged over 30 seconds.
+The last thing I've seen about the uli526x driver is the following
+thread on this mailing list:
 
-> 
-> One more question while I am at it, if a RAID Set is newly created and
-> syncing, and now I change the /proc/sys/dev/raid/speed_limit_min and
-> max values will this reflect on new RAID Sets that are created henceforth
-> or even the existing RAID Sets which are being synced currently?
+http://groups.google.com/group/linux.kernel/browse_frm/thread/37c6b2a3fdc75=
+583
 
-These numbers apply globally to all arrays, and can be changed at any
-time.
-More recent kernels have similar numbers in /sys/block/mdX/md/..
-which allow the same settings to be applied to individual arrays.
+Cheers // Fredrik Roubert
 
-> 
-> And yes, I am too using Seagate hard drives. Does mixing up of
-> hard drives (vendors) affect this sync process.? (I presume not but please
-> correct me if I am wrong).
+--=20
+S=F6rbyplan 5       |  +46 8 7609169 / +46 708 776974
+SE-163 71 Sp=E5nga  |  http://www.df.lth.se/~roubert/
 
-Mixing things shouldn't have an unexpected effect.  Obviously the
-total speed will be limited by the slowest device, but no other
-effects that I can thing of.  Certainly not what you are experiencing.
+--CdrF4e02JqNVZeln
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-NeilBrown
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (SunOS)
+
+iQCVAwUBRHL5acRKuLhQMn35AQJrYwP+Pa+72TDbvOHaZRgbqQUWcBeK0AV03DEf
+jV/gmDgNCCmTJsMTQDi3/Zmi3EMZHbs6JqKG4L8NXQPm5i8O6oiUZd3dCj3Leulx
+/2zPrWn639w5xzQ6Rg+Dg5Y1IpLFWZJwjpseGIzpZFC5tGbqcRnTdbcQGZbsGMxW
+Uzo+ZVy00vE=
+=p9R9
+-----END PGP SIGNATURE-----
+
+--CdrF4e02JqNVZeln--

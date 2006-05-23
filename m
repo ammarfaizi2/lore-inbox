@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWEWV0x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWEWVbH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932296AbWEWV0x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 17:26:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbWEWV0x
+	id S932288AbWEWVbH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 17:31:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWEWVbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 17:26:53 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:10437 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932291AbWEWV0w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 17:26:52 -0400
-Subject: Re: [PATCH 1 of 10] ipath - fix spinlock recursion bug
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Roland Dreier <rdreier@cisco.com>
+	Tue, 23 May 2006 17:31:07 -0400
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:48163 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S932288AbWEWVbF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 17:31:05 -0400
+X-IronPort-AV: i="4.05,161,1146466800"; 
+   d="scan'208"; a="1811542407:sNHT267404500"
+To: "Bryan O'Sullivan" <bos@pathscale.com>
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <adawtccqwhg.fsf@cisco.com>
+Subject: Re: [PATCH 1 of 10] ipath - fix spinlock recursion bug
+X-Message-Flag: Warning: May contain useful information
 References: <bc968dacc8608566f4d2.1148409149@eng-12.pathscale.com>
-	 <adawtccqwhg.fsf@cisco.com>
-Content-Type: text/plain
-Date: Tue, 23 May 2006 14:26:51 -0700
-Message-Id: <1148419611.22550.11.camel@chalcedony.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
-Content-Transfer-Encoding: 7bit
+	<adawtccqwhg.fsf@cisco.com>
+	<1148419611.22550.11.camel@chalcedony.pathscale.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 23 May 2006 14:31:00 -0700
+In-Reply-To: <1148419611.22550.11.camel@chalcedony.pathscale.com> (Bryan O'Sullivan's message of "Tue, 23 May 2006 14:26:51 -0700")
+Message-ID: <adasln0qvhn.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 23 May 2006 21:31:03.0868 (UTC) FILETIME=[31A1F7C0:01C67EB0]
+Authentication-Results: sj-dkim-4.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-23 at 14:09 -0700, Roland Dreier wrote:
-> Thanks, I've put 1 through 10 into my git tree and asked Linus to pull.
+    Bryan> How do you feel about taking one code motion patch for
+    Bryan> 2.6.17?  :-)
 
-Thanks.
+It's probably OK as long as it's pure code motion.  In other words
+separate the actual fixes from moving code around.  What I want to
+avoid is the giant combo patch that does several different things,
+because if someone later bisects a regression back to that patch,
+we're kind of screwed...
 
-> BTW, I just tried SRP with 2.6.17-rc4 + my for-2.6.18 tree + all of
-> these patches, and immediately after connecting to a storage target I
-> get the following:
-
-Yes, I have another large pile of fixes to sort out.  Unfortunately, all
-of them depend on some "code motion" driver changes that, in an ideal
-world, should be deferred until 2.6.18.  Regenerating and testing them
-against 2.6.17, without the code motion, is a big pain in the big
-painful body region.
-
-How do you feel about taking one code motion patch for 2.6.17?  :-)
-
-	<b
-
+ - R.

@@ -1,89 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWEWHAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWEWHFw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbWEWHAu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 03:00:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932066AbWEWHAu
+	id S932066AbWEWHFw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 03:05:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbWEWHFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 03:00:50 -0400
-Received: from odin2.bull.net ([129.184.85.11]:5839 "EHLO odin2.bull.net")
-	by vger.kernel.org with ESMTP id S932068AbWEWHAt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 03:00:49 -0400
-From: "Serge Noiraud" <serge.noiraud@bull.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: RT patch + LTTng
-Date: Tue, 23 May 2006 09:02:12 +0200
-User-Agent: KMail/1.7.1
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       linux-kernel@vger.kernel.org
-References: <200605221742.29566.Serge.Noiraud@bull.net> <1148341150.2556.99.camel@mindpipe>
-In-Reply-To: <1148341150.2556.99.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
+	Tue, 23 May 2006 03:05:52 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:14039 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S932066AbWEWHFw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 03:05:52 -0400
+Date: Tue, 23 May 2006 03:05:27 -0400
+From: Brice Goglin <brice@myri.com>
+To: Greg KH <gregkh@suse.de>
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: AMD 8131 MSI quirk called too late, bus_flags not inherited ?
+Message-ID: <20060523070526.GA30499@myri.com>
+References: <4468EE85.4000500@myri.com> <20060518155441.GB13334@suse.de> <20060521101656.GM30211@mellanox.co.il> <447047F2.2070607@myri.com> <20060521121726.GQ30211@mellanox.co.il> <44705DA4.2020807@myri.com> <20060521131025.GR30211@mellanox.co.il> <447069F7.1010407@myri.com> <20060523041958.GA8415@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605230902.12469.Serge.Noiraud@bull.net>
+In-Reply-To: <20060523041958.GA8415@suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mardi 23 Mai 2006 01:39, Lee Revell wrote/a écrit :
-> On Mon, 2006-05-22 at 17:42 +0200, Serge Noiraud wrote:
-> > Hi,
+On Mon, May 22, 2006 at 09:19:58PM -0700, Greg KH wrote:
+> On Sun, May 21, 2006 at 03:24:07PM +0200, Brice Goglin wrote:
 > > 
-> > 	I have added the LTTng patch to the 2.6.16-rt23.
-> > In the LTT trace, I see some odd time stamps :
+> > Right, thanks. Greg, what do you think of putting the attached patch in
+> > 2.6.17 ?
 > 
-> Is your test machine a dual core AMD64?
-NO.
--sh-2.05b# more /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 4
-model name      : Intel(R) Xeon(TM) CPU 3.60GHz
-stepping        : 1
-cpu MHz         : 3600.494
-cache size      : 1024 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 5
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov 
-pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe lm constant_tsc pni mo
-nitor ds_cpl est tm2 cid cx16 xtpr
-bogomips        : 7203.68
-
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 4
-model name      : Intel(R) Xeon(TM) CPU 3.60GHz
-stepping        : 1
-cpu MHz         : 3600.494
-cache size      : 1024 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 5
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov 
-pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe lm constant_tsc pni mo
-nitor ds_cpl est tm2 cid cx16 xtpr
-bogomips        : 7199.36
-
--sh-2.05b#
-
+> Ok, does everyone agree that this patch fixes the issues for them?  I've
+> had a few other private emails saying that the current code doesn't work
+> properly and hadn't been able to determine what was happening.  Thanks
+> for these patches.
 > 
-> Lee
+> > By the way, do we need to check dev->no_msi in pci_enable_msix() too ?
 > 
+> Yes, good catch, care to respin the patch and give it a good changelog
+> entry?
 
--- 
-Serge Noiraud
+Here you are:
+
+The PCI_BUS_FLAGS_NO_MSI bus flags does not appear do be inherited
+correctly from the amd8131 MSI quirk to its parent busses. It makes
+devices behind a bridge behind amd8131 try to enable MSI while the
+amd8131 does not support it.
+We fix this by looking at flags of all parent busses in
+pci_enable_msi() and pci_enable_msix().
+
+By the way, also add the missing dev->no_msi check in pci_enable_msix()
+
+Signed-off-by: Brice Goglin <brice@myri.com>
+
+Index: linux-mm/drivers/pci/msi.c
+===================================================================
+--- linux-mm.orig/drivers/pci/msi.c	2006-05-21 15:12:04.000000000 +0200
++++ linux-mm/drivers/pci/msi.c	2006-05-23 08:31:02.000000000 +0200
+@@ -916,6 +916,7 @@
+  **/
+ int pci_enable_msi(struct pci_dev* dev)
+ {
++	struct pci_bus *bus;
+ 	int pos, temp, status = -EINVAL;
+ 	u16 control;
+ 
+@@ -925,8 +926,9 @@
+ 	if (dev->no_msi)
+ 		return status;
+ 
+-	if (dev->bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
+-		return -EINVAL;
++	for (bus = dev->bus; bus; bus = bus->parent)
++		if (bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
++			return -EINVAL;
+ 
+ 	temp = dev->irq;
+ 
+@@ -1162,6 +1164,7 @@
+  **/
+ int pci_enable_msix(struct pci_dev* dev, struct msix_entry *entries, int nvec)
+ {
++	struct pci_bus *bus;
+ 	int status, pos, nr_entries, free_vectors;
+ 	int i, j, temp;
+ 	u16 control;
+@@ -1170,6 +1173,13 @@
+ 	if (!pci_msi_enable || !dev || !entries)
+  		return -EINVAL;
+ 
++	if (dev->no_msi)
++		return -EINVAL;
++
++	for (bus = dev->bus; bus; bus = bus->parent)
++		if (bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
++			return -EINVAL;
++
+ 	status = msi_init();
+ 	if (status < 0)
+ 		return status;
+

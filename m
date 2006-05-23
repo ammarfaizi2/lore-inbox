@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWEVUY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750848AbWEVU2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751175AbWEVUY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 16:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWEVUY1
+	id S1750848AbWEVU2J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 16:28:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbWEVU2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 16:24:27 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:49043 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751175AbWEVUY1 (ORCPT
+	Mon, 22 May 2006 16:28:09 -0400
+Received: from [85.130.122.36] ([85.130.122.36]:25867 "HELO virgilio.it")
+	by vger.kernel.org with SMTP id S1750848AbWEVU2I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 16:24:27 -0400
-Date: Mon, 22 May 2006 22:24:10 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel Source Compression
-In-Reply-To: <200605222015.01980.s0348365@sms.ed.ac.uk>
-Message-ID: <Pine.LNX.4.61.0605222220190.6816@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.64.0605211028100.4037@p34> <200605222007.19456.s0348365@sms.ed.ac.uk>
- <44720CB6.7010908@zytor.com> <200605222015.01980.s0348365@sms.ed.ac.uk>
+	Mon, 22 May 2006 16:28:08 -0400
+Message-ID: <73bd01c67e0e$06f550a0$23c2b05d@venserinvestmentcompanyvenseri>
+From: "Venser Investment Company" 
+	<venserinvestmentcompanyvenseri@virgilio.it>
+To: "Investment Capital" <linux-kernel@vger.kernel.org>
+Subject: Investment Capital
+Date: Tue, 23 May 2006 02:10:13 -0600
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > Any idea why this wasn't done for bzip2?
->>
->> Yes, the bzip2 author I have been told was originally planning to do that,
->> but then thought it would be harder to deploy that way (because gzip is a
->> core utility, and people are nervous about making it larger.)
+From: Venser  Investment Company.
+ 
+Dear Sir/ Madam,
+ 
+Allow me introduce our company to you, we are a modest Cayman Islands based
+European Business and Finance Consultancy, offering service to midline
+businesses and individuals in the Europe who desire to expand into other
+countries or business activities.
+ 
+We are presently confronted with a request to invest funds in your country,
+the funds belong legitimately to widower from Saudi Arabia and the funds are
+deposited with the Pott Exchange of Netherlands. 
+ 
+Against this background we are seeking your indulgence to respond to us
+indicating if you are capable and wiling to partner with us in the
+investment of Twenty Five Million US Dollars, in a covert expedient and
+confidential manner.
+ 
+The investor in this case is interested in Industry and real estate, and
+your advice will be much valuable and highly regarded in this matter.
+ 
+Your swift response will be appreciated, and we will like you to include a
+brief profile of yourself family or business, along with your complete
+contact information in your response.
+ 
+Thank you so much and we look forward to doing business with you.
+ 
+Alberto Petris
+For: Venser  Investment Company.
+Email: venserinvestment@netscape.net
 
-I'd say that concern is valid.
-
->It's a bit of a shame bzip2 even exists, really. It really would be better if 
->there was one unified, pluggable archiver on UNIX (and portables).
-
-Would You Like To Contribute(tm)? :)
-Whenever a program is missing, someone is there to write it.
-
-
-
-Jan Engelhardt
--- 

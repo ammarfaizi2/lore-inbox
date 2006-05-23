@@ -1,88 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWEWLBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbWEWLMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932172AbWEWLBs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 07:01:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWEWLBs
+	id S1750879AbWEWLMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 07:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWEWLMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 07:01:48 -0400
-Received: from ns.dynamicweb.hu ([195.228.155.139]:49835 "EHLO dynamicweb.hu")
-	by vger.kernel.org with ESMTP id S932172AbWEWLBr (ORCPT
+	Tue, 23 May 2006 07:12:08 -0400
+Received: from ns.suse.de ([195.135.220.2]:37863 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750879AbWEWLMH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 07:01:47 -0400
-Message-ID: <01a101c67e58$38cdc8b0$1800a8c0@dcccs>
-From: =?ISO-8859-1?Q?Haar_J=E1nos?= <djani22@netcenter.hu>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>
-Cc: <kernel@kolivas.org>, <cw@f00f.org>, <linux-kernel@vger.kernel.org>
-References: <00e901c67cad$fe9a9d90$1800a8c0@dcccs> <200605222117.27433.kernel@kolivas.org> <031001c67db1$a8c4a1e0$1800a8c0@dcccs> <200605230112.45564.kernel@kolivas.org> <047401c67de3$a05a52c0$1800a8c0@dcccs> <4472D327.3060808@yahoo.com.au> <013601c67e51$eef03c10$1800a8c0@dcccs> <4472E2E0.4000201@yahoo.com.au> <018401c67e54$1043cfb0$1800a8c0@dcccs> <4472E7E4.6060403@yahoo.com.au>
-Subject: Re: swapper: page allocation failure. - random reboot problem
-Date: Tue, 23 May 2006 13:01:07 +0200
+	Tue, 23 May 2006 07:12:07 -0400
+From: Neil Brown <neilb@suse.de>
+To: "Rainer Shiz" <rainer.shiz@gmail.com>
+Date: Tue, 23 May 2006 21:11:40 +1000
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17522.60908.335242.982796@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RAID Sync Speeds
+In-Reply-To: message from Rainer Shiz on Tuesday May 23
+References: <cf5433040605220605t22b6030j701add7d494c83e8@mail.gmail.com>
+	<17522.15942.232530.954548@cse.unsw.edu.au>
+	<cf5433040605230037h42d36b60k37e1f7fd576688f9@mail.gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday May 23, rainer.shiz@gmail.com wrote:
+> Thanks Neil and Chris for your quick replies.
+> 
+> Neil, well when you say 'detectable activity' what do you exactly
+> refer to.
 
------ Original Message ----- 
-From: "Nick Piggin" <nickpiggin@yahoo.com.au>
-To: "Haar János" <djani22@netcenter.hu>
-Cc: <kernel@kolivas.org>; <cw@f00f.org>; <linux-kernel@vger.kernel.org>
-Sent: Tuesday, May 23, 2006 12:45 PM
-Subject: Re: swapper: page allocation failure. - random reboot problem
+It should mean any IO request to any of the physical devices, whether
+though the raid array or otherwise.  Sometimes in can get confused,
+but in 2.6.12 (If it a kernel.org 2.6.12) got it pretty right I
+think.  Current kernels may have occasional issues that I really need
+to sort out one day...
 
+Maybe if you give me more precise details about your setup 
+(e.g. cat /proc/mdstat) something might occur to me.
 
-> Haar János wrote:
-> > ----- Original Message ----- 
->
-> >>But is the power supply rated enough to support all the drives?
-> >>I have seen random reboots where the power supply wasn't good
-> >>enough.
-> >
-> >
-> > This is the 3rd modell, currently 550W.
-> > The system is P4 3G.
-> >
-> > The another 2 stable node uses only 460W, and all hardware is equal.
-> > But i tried to swap ps between the stable and unstabe nodes, but nothing
-is
-> > changed....
->
-> Not sure then, sorry.
+> I heard that speed values are averaged out for about 5 minutes or so.
 
-OK, what do you recommend? :-)
+They are averaged over 30 seconds.
 
+> 
+> One more question while I am at it, if a RAID Set is newly created and
+> syncing, and now I change the /proc/sys/dev/raid/speed_limit_min and
+> max values will this reflect on new RAID Sets that are created henceforth
+> or even the existing RAID Sets which are being synced currently?
 
->
-> If it is a software problem, then if you can narrow it down further
-> (eg. kernel 2.6.15 worked, 2.6.16 did not), or find a reproducable
-> test case for it, then some more progress might be made.
+These numbers apply globally to all arrays, and can be changed at any
+time.
+More recent kernels have similar numbers in /sys/block/mdX/md/..
+which allow the same settings to be applied to individual arrays.
 
-Yes, you have right!
-I try it allready, but i cannot step back enough, because my sata card works
-only on 2.6.16+
+> 
+> And yes, I am too using Seagate hard drives. Does mixing up of
+> hard drives (vendors) affect this sync process.? (I presume not but please
+> correct me if I am wrong).
 
-Before i use the promise sata cards, and the sata 300G hdds, i use 2.6.15
-kernel, and all my 4 nodes was really stable.
-But this is not enough to exactly find the problem. :-(
+Mixing things shouldn't have an unexpected effect.  Obviously the
+total speed will be limited by the slowest device, but no other
+effects that I can thing of.  Certainly not what you are experiencing.
 
-Anyway, Hetbert Xu helps me a lot to track down the problem, but we only can
-close out some thing.
-If i have right, the problem is about libata, promise driver,
-sata-error-handling or similar, but not so sure.
-
-If there is no way to software debug, i will swap all the 12 hdd between 2
-disk nodes, and this can show i have right, or not.
-
-Cheers,
-Janos
-
->
-> -- 
-> SUSE Labs, Novell Inc.
-> Send instant messages to your online friends http://au.messenger.yahoo.com
-
+NeilBrown

@@ -1,110 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWEWIa2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWEWIj1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbWEWIa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 04:30:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWEWIa1
+	id S932129AbWEWIj1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 04:39:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbWEWIj1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 04:30:27 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:30104 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932115AbWEWIa0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 04:30:26 -0400
-Date: Tue, 23 May 2006 17:29:32 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [Patch]Fix spanned_pages is not updated at a case of memory hot-add.
-Cc: Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060523170830.97E1.Y-GOTO@jp.fujitsu.com>
+	Tue, 23 May 2006 04:39:27 -0400
+Received: from bsamwel.xs4all.nl ([82.92.179.183]:39720 "EHLO samwel.tk")
+	by vger.kernel.org with ESMTP id S932129AbWEWIj0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 04:39:26 -0400
+Message-ID: <4472C9D0.9010508@samwel.tk>
+Date: Tue, 23 May 2006 10:37:36 +0200
+From: Bart Samwel <bart@samwel.tk>
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 10/14/] Doc. sources: expose laptop-mode
+References: <20060521203349.40b40930.rdunlap@xenotime.net>	<20060521205750.003b737c.rdunlap@xenotime.net>	<44714AC1.1060004@samwel.tk> <20060522083531.ad725cdf.rdunlap@xenotime.net>
+In-Reply-To: <20060522083531.ad725cdf.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: bart@samwel.tk
+X-SA-Exim-Scanned: No (on samwel.tk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Randy.Dunlap wrote:
+> On Mon, 22 May 2006 07:23:13 +0200 Bart Samwel wrote:
+>> Point for discussion: should the laptop_mode script really still be in 
+>> laptop-mode.txt? AFAIK most distros use laptop-mode-tools or use their 
+>> own scripts to control this. Furthermore, the existing script is mostly 
+>> unmaintained, and it is full of bugs that were fixed long ago in 
+>> laptop-mode-tools (which was originally a fork of the script). I think 
+>> it would be better to replace it with a bit of documentation on which 
+>> things a laptop mode control script *should* tweak, *may want to* tweak, 
+>> etc., accompanied by an explanation why these tweaks are needed. I.e, an 
+>> "annotated spec", as one would expect to find in documentation. I'll 
+>> submit a patch to this effect when I find some time.
+> 
+> If it's really so unmaintained and mostly replaced, sounds like it should
+> be removed.  OTOH, if you want to keep several source files and/or
+> scripts, I would prefer to see a laptop-mode subdirectory for them.
 
-I found there is a bug in grow_zone_span() and grow_pgdat_span().
+I'm all for completely removing the script, so no subdirectories needed 
+as far as I'm concerned. I'll submit a patch to replace the script by 
+some text explaining what such a script should do.
 
-Please apply.
-
----------
-If hot-added memory's address is smaller than old area,
-spanned_pages will not be updated. It must be fixed.
-
-example) Old zone_start_pfn = 0x60000, and spanned_pages = 0x10000
-         Added new memory's start_pfn = 0x50000, and end_pfn = 0x60000
-
-  new spanned_pages will be still 0x10000 by old code.
-  (It should be updated to 0x20000.) Because old_zone_end_pfn will be
-  0x70000, and end_pfn smaller than it. So, spanned_pages will not be
-  updated.
-  
-In current code, spanned_pages is updated only when end_pfn is updated.
-But, it should be updated even if end_pfn is not updated, because
-start_pfn might be changed.
-
-This is for 2.6.17-rc4-mm3.
-I tested this patch on Tiger4 with my node emulation.
-
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
-
-------------------------------------------------
-
- mm/memory_hotplug.c |   18 +++++++++++-------
- 1 files changed, 11 insertions(+), 7 deletions(-)
-
-Index: pgdat15/mm/memory_hotplug.c
-===================================================================
---- pgdat15.orig/mm/memory_hotplug.c	2006-05-23 14:58:21.000000000 +0900
-+++ pgdat15/mm/memory_hotplug.c	2006-05-23 14:58:29.000000000 +0900
-@@ -95,16 +95,18 @@ EXPORT_SYMBOL_GPL(__add_pages);
- static void grow_zone_span(struct zone *zone,
- 		unsigned long start_pfn, unsigned long end_pfn)
- {
--	unsigned long old_zone_end_pfn;
-+	unsigned long new_zone_end_pfn;
- 
- 	zone_span_writelock(zone);
- 
--	old_zone_end_pfn = zone->zone_start_pfn + zone->spanned_pages;
-+	new_zone_end_pfn = zone->zone_start_pfn + zone->spanned_pages;
- 	if (start_pfn < zone->zone_start_pfn)
- 		zone->zone_start_pfn = start_pfn;
- 
--	if (end_pfn > old_zone_end_pfn)
--		zone->spanned_pages = end_pfn - zone->zone_start_pfn;
-+	if (end_pfn > new_zone_end_pfn)
-+		 new_zone_end_pfn = end_pfn;
-+
-+	zone->spanned_pages = new_zone_end_pfn - zone->zone_start_pfn;
- 
- 	zone_span_writeunlock(zone);
- }
-@@ -112,14 +114,16 @@ static void grow_zone_span(struct zone *
- static void grow_pgdat_span(struct pglist_data *pgdat,
- 		unsigned long start_pfn, unsigned long end_pfn)
- {
--	unsigned long old_pgdat_end_pfn =
-+	unsigned long new_pgdat_end_pfn =
- 		pgdat->node_start_pfn + pgdat->node_spanned_pages;
- 
- 	if (start_pfn < pgdat->node_start_pfn)
- 		pgdat->node_start_pfn = start_pfn;
- 
--	if (end_pfn > old_pgdat_end_pfn)
--		pgdat->node_spanned_pages = end_pfn - pgdat->node_start_pfn;
-+	if (end_pfn > new_pgdat_end_pfn)
-+		new_pgdat_end_pfn = end_pfn;
-+
-+	pgdat->node_spanned_pages = new_pgdat_end_pfn - pgdat->node_start_pfn;
- }
- 
- int online_pages(unsigned long pfn, unsigned long nr_pages)
-
--- 
-Yasunori Goto 
-
-
+Cheers,
+Bart

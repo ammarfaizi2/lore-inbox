@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWEWVcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWEWVfQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932291AbWEWVcM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 17:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbWEWVcM
+	id S932292AbWEWVfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 17:35:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWEWVfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 17:32:12 -0400
-Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:23214 "EHLO mta2.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S932291AbWEWVcL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 17:32:11 -0400
-In-Reply-To: <44737D53.9050006@tektonic.net>
-References: <4468BE70.7030802@tektonic.net>	<4468D613.20309@trash.net>	<44691669.4080903@tektonic.net>	<Pine.LNX.4.64.0605152331140.10964@d.namei>	<4469D84F.8080709@tektonic.net>	<Pine.LNX.4.64.0605161127030.16379@d.namei>	<446D0A0D.5090608@tektonic.net>	<Pine.LNX.4.64.0605182002330.6528@d.namei>	<446D0E6D.2080600@tektonic.net> <446D151D.6030307@tektonic.net>	<4470A6CD.5010501@trash.net> <4471CB54.401@tektonic.net>	<4471CE19.5070802@trash.net> <bf76eefc5234d32440c822acd2879a8a@cl.cam.ac.uk> <44737D53.9050006@tektonic.net>
-Mime-Version: 1.0 (Apple Message framework v624)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <5e589307bfef58553bfda1d7ab47f9f3@cl.cam.ac.uk>
+	Tue, 23 May 2006 17:35:16 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:27860 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932292AbWEWVfP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 17:35:15 -0400
+Subject: Re: [Alsa-devel] Re: 2.6.17-rc4-mm3
+From: Lee Revell <rlrevell@joe-job.com>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, perex@suse.cz,
+       alsa-devel@alsa-project.org
+In-Reply-To: <6bffcb0e0605231407v11453f63t8b7335fd614ccdf9@mail.gmail.com>
+References: <20060522022709.633a7a7f.akpm@osdl.org>
+	 <6bffcb0e0605231407v11453f63t8b7335fd614ccdf9@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 23 May 2006 17:35:11 -0400
+Message-Id: <1148420112.12529.169.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Cc: Patrick McHardy <kaber@trash.net>, James Morris <jmorris@namei.org>,
-       "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Subject: Re: [Xen-devel] Re: Panic in ipt_do_table with 2.6.16.13-xen
-Date: Tue, 23 May 2006 22:27:17 +0100
-To: Matt Ayres <matta@tektonic.net>
-X-Mailer: Apple Mail (2.624)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2006-05-23 at 23:07 +0200, Michal Piotrowski wrote:
+> Hi,
+> 
+> On 22/05/06, Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc4/2.6.17-rc4-mm3/
+> >
+> [snip]
+> >  git-alsa.patch
+> 
+> I have noticed small problem with ALSA.
+> When I boot 2.6.17-rc4-mm3 everything is ok, then I switch to
+> 2.6.17-rc4-git11 - everything is ok. But when I switch back to
+> 2.6.17-rc4-mm3 PCM is mute (off), Spread Front to Surround and
+> Center/LFE is off, Channel Mode is set to 2ch (should be 6ch).
+> 
+> /sbin/alsactl -v
+> alsactl version 1.0.11rc2
+> 
+> This is an user space tools bug?
 
-On 23 May 2006, at 22:23, Matt Ayres wrote:
+If the mixer controls changed between those versions, then alsactl will
+be unable to completely restore the mixer state.
 
->> Having looked at disassembly, the fault happens when accessing 
->> e->ip.invflags in ip_packet_match() inlined inside ipt_do_table().
->>  e = private->entries[smp_processor_id()] + 
->> private->hook_entry[NF_IP_FORWARD]
->> smp_processor_id() should be 0 (since the oops appears to occur on 
->> cpu0) and presumably all the ipt_entry structures are static once set 
->> up. Since this crash happens on a common path in ipt_do_table(), and 
->> since it happens only after the system has been up a while (I 
->> believe?), it rather looks as though something has either corrupted a 
->> pointer or unmapped memory from under iptables' feet.
->
-> As the concerned user, what does this mean to me?  It will only affect 
-> SMP systems?  It is a bug in Xen or netfilter?
+Otherwise the problem is with your userspace tools.  I think KDE likes
+to save/restore mixer settings on its own and its ALSA support is
+horribly buggy.
 
-Probably a Xen bug, but if so then it's basically a memory corruption. 
-It's weird it would hit the iptables rules every time though, and not 
-be a more random crash. This might well need reproducing in a developer 
-test-machine environment to stand a chance of tracking down.
+It would help if you determine what app is saving/restoring the mixer
+settings.
 
-  -- Keir
+Lee
 
-> I'd just like to understand what is going on.
 

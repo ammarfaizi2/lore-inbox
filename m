@@ -1,55 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWEWOLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWEWOLm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbWEWOLt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 10:11:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWEWOLs
+	id S932078AbWEWOLm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 10:11:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWEWOLm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 10:11:48 -0400
-Received: from amdext4.amd.com ([163.181.251.6]:13509 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S932092AbWEWOLs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 10:11:48 -0400
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: RE: cpu hotplug sleeping from invalid context
-Date: Tue, 23 May 2006 09:12:32 -0500
-Message-ID: <B3870AD84389624BAF87A3C7B8314993029358EC@SAUSEXMB2.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: cpu hotplug sleeping from invalid context
-Thread-Index: AcZ+LFCVxF0QVFtXTBCZH+5UQbS1AgARlTbQ
-From: "shin, jacob" <jacob.shin@amd.com>
-To: "Ashok Raj" <ashok.raj@intel.com>, "Dave Jones" <davej@redhat.com>
-cc: "Linux Kernel" <linux-kernel@vger.kernel.org>, akpm@osdl.org
-X-OriginalArrivalTime: 23 May 2006 14:12:33.0779 (UTC)
- FILETIME=[EF98FC30:01C67E72]
-X-WSS-ID: 686DC7D827K1524833-01-01
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 23 May 2006 10:11:42 -0400
+Received: from smtpout.mac.com ([17.250.248.183]:20711 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932078AbWEWOLl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 10:11:41 -0400
+In-Reply-To: <4472E3D8.9030403@garzik.org>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <44700ACC.8070207@gmail.com> <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com> <1148379089.25255.9.camel@localhost.localdomain> <4472E3D8.9030403@garzik.org>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <83B4C39B-1A5E-4734-A5FF-10C3179B535B@mac.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Manu Abraham <abraham.manu@gmail.com>,
+       linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: OpenGL-based framebuffer concepts
+Date: Tue, 23 May 2006 10:10:56 -0400
+To: Jeff Garzik <jeff@garzik.org>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, May 23, 2006 12:42 AM Ashok Raj wrote:
-> On Mon, May 22, 2006 at 11:35:34AM -0700, Dave Jones wrote:
->> 
->>    (2.6.17rc4-git9)
->> 
->>    echo 0 > /sys/devices/system/cpu/cpu1/online
->>    echo 1 > /sys/devices/system/cpu/cpu1/online
->> 
->>    on my dual-core notebook gets me this:
->> 
-> 
-> I was just purging my inbox this morning, and saw a similar report
-> from Jacob Shin in the x86-64 discuss list. When i checked with
-> him, he replied that this is now resolved. I didnt ask what it
-> was... Jacob could you send a pointer to the fix?
+On May 23, 2006, at 06:28:40, Jeff Garzik wrote:
+> Alan Cox wrote:
+>> On Maw, 2006-05-23 at 01:08 -0400, Kyle Moffett wrote:
+>>> generation graphics system, I'd be interested in ideas on a new  
+>>> or  modified /dev/fbX device that offers native OpenGL rendering   
+>>> support.  Someone once mentioned OpenGL ES as a possibility as it
+>>
+>> So for a low end video card you want to put a full software opengl  
+>> es stack into the kernel including the rendering loops which tend  
+>> to be large and slow, or dynamically generated code ?
 
-http://lkml.org/lkml/2006/4/28/142
+First of all, absolutely not.  I stated elsewhere in the email:
+> There would also need to be a way for userspace to trap and emulate  
+> or ignore unsupported OpenGL commands.
 
-It was a simply null pointer fix.
+A GPU which does not support OpenGL at all would look virtually  
+identical to the current framebuffer model.  If it does support a few  
+2D-acceleration features, those should be exported through a similar  
+but distinct interface.  Using 3D on a GPU would trigger something  
+like the following series of events:
 
--Jacob
+During boot:
+1)  Userspace software renderer connects to a GL-framebuffer device  
+first, determines device capabilities, and installs OpenGL traps for  
+all unsupported operations that it can software-render (may be none).
+2)  Window-server connects to a subset of the available GL- 
+framebuffer and input devices.
+
+At client start:
+1)  Client connects to the window-server via TCP or UNIX socket.
+2)  If client is over UNIX socket, it receives specially-configured  
+open filehandles to the graphics device and mmaps those or performs  
+other operations via them, otherwise it sends and receives commands  
+and textures over the socket and the window-server does those  
+operations locally.
+
+For each rendering operation (either directly via filehandle or  
+indirectly through TCP to window-server):
+1)  Client program loads texture into mapped texture memory  
+"allocated from the GPU" (may actually be system RAM, depending on  
+card capabilities and memory utilization).
+2)  Client program sends OpenGL commands through kernel framebuffer  
+device.
+3)  Kernel either passes the OpenGL commands to the GPU or if they  
+were trapped by the software renderer it passes them to that, which  
+can emulate them using more primitive operations.
+
+IMHO, the way it should work is the kernel should export "rendering  
+contexts" to which a single client can connect (EX: software  
+renderer, window-server, The GIMP, etc).  By default the kernel would  
+export a single rendering context associated with the actual display  
+device as a whole.  A client can then use kernel calls to subdivide  
+its rendering context to other clients such that the client can  
+choose between trapping OpenGL calls, passing them up the stack, or  
+pre-rendering them to a texture.  This would allow the kernel to  
+manage CPU and GPU time, memory (it could "swap" data out from the  
+GPU to system RAM if necessary).  If no parent-client trapped a given  
+OpenGL command and it was unsupported by the GPU then the kernel  
+would return an error to the originating client.
+
+Cheers,
+Kyle Moffett
 

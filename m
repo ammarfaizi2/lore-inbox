@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWEWJqX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbWEWJ57@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbWEWJqX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 05:46:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWEWJqX
+	id S932159AbWEWJ57 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 05:57:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWEWJ57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 05:46:23 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:46120 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932153AbWEWJqW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 05:46:22 -0400
-Date: Tue, 23 May 2006 11:47:48 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Martin Devera <devik@cdi.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: wrong in_flight diskstat in 2.6.16.1
-Message-ID: <20060523094748.GR26261@suse.de>
-References: <4472CD62.5060906@cdi.cz> <20060523092324.GO26261@suse.de> <4472D651.5010206@cdi.cz>
+	Tue, 23 May 2006 05:57:59 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:11981 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932159AbWEWJ57
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 05:57:59 -0400
+Subject: Re: OpenGL-based framebuffer concepts
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <44700ACC.8070207@gmail.com> <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 23 May 2006 11:11:29 +0100
+Message-Id: <1148379089.25255.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4472D651.5010206@cdi.cz>
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 23 2006, Martin Devera wrote:
-> Jens Axboe wrote:
-> >On Tue, May 23 2006, Martin Devera wrote:
-> >>Hello,
-> >>
-> >>I see weird output from /sys/block/sd{a,b}/stat on our AMD64-X2 smp 
-> >>machine with HT1000 (Broadcom) SATA with 2 WD 250GB HDDs in MD raid1. AS 
-> >>scheduler was used, change to noop didn't change anything. It is vanilla 
-> >>2.6.16.1 and here are absolute values in hex and one second differences 
-> >>below:
-> >>
-> >>132CDF 56D62 61753C0 6966BC 165A8EB 5FF5B6C 3B32D6C0 1110594C FFCA89A4 
-> >>FEE85878 49FF74E4
-> >>132CDF 56D62 61753C0 6966BC 165A8EF 5FF5B6C 3B32D6E0 111059D0 FFCA89A1 
-> >>FEE85C60 79291244
-> >> 0: 0
-> >> 1: 0
-> >> 2: 0
-> >> 3: 0
-> >> 4: 4
-> >> 5: 0
-> >> 6: 32
-> >> 7: 132
-> >> 8: -3
-> >> 9: 1000
-> >>10: 791256416
-> >>
-> >>As you can see in_flight is constantly negative and it is DECREASING 
-> >>slowly all the time.
-> >>I can't find any reason for it :-\
-> >
-> >Are you using io barriers?
-> >
-> >[PATCH] blk: fix gendisk->in_flight accounting during barrier sequence
-> 
-> I don't think so, I just used
-> mount / -o remount,barrier=0
-> to make it sure and it keeps decrementing. I'll however apply the patch 
-> (and others up to 2.6.16.18) at night (I'm not allowed to restart the 
-> machine just now).
+On Maw, 2006-05-23 at 01:08 -0400, Kyle Moffett wrote:
+> generation graphics system, I'd be interested in ideas on a new or  
+> modified /dev/fbX device that offers native OpenGL rendering  
+> support.  Someone once mentioned OpenGL ES as a possibility as it  
 
-Ah, but you are using md, which uses barriers for superblock updates. So
-the patch will likely help you.
+So for a low end video card you want to put a full software opengl es
+stack into the kernel including the rendering loops which tend to be
+large and slow, or dynamically generated code ?
 
--- 
-Jens Axboe
+> framebuffer.  There would also need to be a way for userspace to trap  
+> and emulate or ignore unsupported OpenGL commands.  
+
+That would be most of them for a lot of chips because the hardware can
+only do "most" of the work, eg using software fixups after a rendering
+command or splitting GL commands into a chain of simpler ones as Mesa
+does. All large code.
+
+> effort.  Given that sort of support, a rootless xserver would be a  
+> fairly trivial wrapper over whatever underlying implementation there  
+> was.
+
+You mean move the X server from being root (privileged) to kernel (even
+more privileged) and pray there are no bugs in it ?
+
+Bits of the model are right - look at DRI for some (perhaps not pretty)
+evidence of that. Clearly the kernel needs to control the GPU, DMA and
+access to buffers. It isn't clear anything higher level belongs anywhere
+but user space.
+
+Alan
 

@@ -1,92 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWEWXil@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWEWXnw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932128AbWEWXil (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 19:38:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWEWXil
+	id S932188AbWEWXnw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 19:43:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWEWXnw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 19:38:41 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:26212 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932128AbWEWXil convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 19:38:41 -0400
+	Tue, 23 May 2006 19:43:52 -0400
+Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:5530 "HELO
+	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932188AbWEWXnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 19:43:52 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GmVQDW92Q5SdFmzHJX4nIA3SqcLAkkay1rr1j7vB8K1lgmyg+2oSYlFE2BDA+m6PYpK9v6X6FVZNEZZzZdgWFFVYKIxWdyG94tlBHq01OZTgXj4EHkI1SlSjg/igIqteBNPPxoDWRsFfAMANQeZHieOGnoFwYgf/TCBw6xv+a0s=
-Message-ID: <9e4733910605231638t4da71284oa37b66a88c60cf8a@mail.gmail.com>
-Date: Tue, 23 May 2006 19:38:40 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Matthew Garrett" <mgarrett@chiark.greenend.org.uk>
-Subject: Re: OpenGL-based framebuffer concepts
-Cc: "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, "D. Hazelton" <dhazelton@enter.net>
-In-Reply-To: <E1Fifom-0003qk-00@chiark.greenend.org.uk>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=qfmtPIBmwWG4PJNpog0C1d1tQHTe58NbpIGToRmotLYySRLcuF6HjKDdKuhDLdDeF+vkudWllZq4NYDPZ1Szbd5YJQOeavN08s4781xW8WqDe2/bWaXb+pETmHMhtUn0hw4wruIIqADa6PQJvTAnCguRUdJLe40iHSAqKeCs8mE=  ;
+Message-ID: <44739E2D.60406@yahoo.com.au>
+Date: Wed, 24 May 2006 09:43:41 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <44700ACC.8070207@gmail.com>
-	 <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com>
-	 <200605230048.14708.dhazelton@enter.net>
-	 <9e4733910605231017g146e16dfnd61eb22a72bd3f5f@mail.gmail.com>
-	 <E1Fifom-0003qk-00@chiark.greenend.org.uk>
+To: Dave Peterson <dsp@llnl.gov>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org, pj@sgi.com, ak@suse.de,
+       linux-mm@kvack.org, garlick@llnl.gov, mgrondona@llnl.gov
+Subject: Re: [PATCH (try #3)] mm: avoid unnecessary OOM kills
+References: <200605230032.k4N0WCIU023760@calaveras.llnl.gov> <4472A006.2090006@yahoo.com.au> <7.0.0.16.2.20060523094646.02429fd8@llnl.gov>
+In-Reply-To: <7.0.0.16.2.20060523094646.02429fd8@llnl.gov>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/23/06, Matthew Garrett <mgarrett@chiark.greenend.org.uk> wrote:
-> Jon Smirl <jonsmirl@gmail.com> wrote:
->
-> > 1) Running the video ROM at boot to reset cards, emu86
->
-> Jon, how many times am I going to have to tell you that this won't work?
-> The video ROM is not always present on laptop hardware, and even when it
-> is it may jump into sections of ROM that have vanished since boot.
-> In the long run, graphics drivers need to know how to program cards from
-> scratch rather than depending on 80x25 text mod being there for them.
+Dave Peterson wrote:
+> At 10:39 PM 5/22/2006, Nick Piggin wrote:
+> 
+>>Does this fix observed problems on real (or fake) workloads? Can we have
+>>some more information about that?
 
-1) I didn't put a lot of detail into the line item but you only need
-to use the ROM to reset secondary cards on x86 architectures. Primary
-cards are always initialized by the system BIOS so you don't need to
-run their ROM on boot. I think the only way to get a secondary card
-into a laptop is through a PCMCIA slot and I've only seen one PCMCIA
-video card.
+[snip]
 
-2) The ROM support in the kernel knows about the shadow RAM copy at
-C000::0. When you request the ROM from a laptop video system it
-returns a map to the shadow RAM copy, not to a physical ROM. You need
-access to the shadow RAM copy to get to things the BIOS left there
-when it ran.
+OK, thanks.
 
-So to add more detail,
-Run the ROM on primary adapters if the arch is non-x86 and the ROM
-contains x86 code.
-Run the ROM on primary adapters on embedded systems if the system BIOS
-doesn't do it.
-Otherwise don't run a primary ROM. The kernel ROM API tracks primary
-versus secondary for you.
-Always run the ROM on secondary adapters. Secondary adapters don't
-have the compressed laptop ROM problem.
+>>I still don't quite understand why all this mechanism is needed. Suppose
+>>that we single-thread the oom kill path (which isn't unreasonable, unless
+>>you need really good OOM throughput :P), isn't it enough to find that any
+>>process has TIF_MEMDIE set in order to know that an OOM kill is in progress?
+>>
+>>down(&oom_sem);
+>>for each process {
+>> if TIF_MEMDIE
+>>    goto oom_in_progress;
+>> else
+>>   calculate badness;
+>>}
+>>up(&oom_sem);
+> 
+> 
+> That would be another way to do things.  It's a tradeoff between either
+> 
+>     option A: Each task that enters the OOM code path must loop over all
+>               tasks to determine whether an OOM kill is in progress.
+> 
+>     or...
+> 
+>     option B: We must declare an oom_kill_in_progress variable and add
+>               the following snippet of code to mmput():
+> 
+>                 put_swap_token(mm);
+> +               if (unlikely(test_bit(MM_FLAG_OOM_NOTIFY, &mm->flags)))
+> +                       oom_kill_finish();  /* terminate pending OOM kill */
+>                 mmdrop(mm);
+> 
+> I think either option is reasonable (although I have a slight preference
+> for B since it eliminates substantial looping through the tasklist).
 
-When running the ROMs you will need to add code to manage the active
-VGA device since both adapters will try and turn it on when their ROMs
-are run.
+Don't you have to loop through the tasklist anyway? To find a task
+to kill?
 
-You will also need to provide a mechanism to call out to userspace.
-The userspace program will use vm86 or emu86 to run the ROM image.
+Either way, at the point of OOM, usually they should have gone through
+the LRU lists several times, so a little bit more CPU time shouldn't
+hurt.
 
-The contents of the ROM image should be put back into the kernel using
-the ROM copy APIs but no one has gotten that far yet. Video ROMs
-assume they are running out of shadow RAM so they alter things and
-leave pointers to what they found.
+> 
+> 
+>>Is all this really required? Shouldn't you just have in place the
+>>mechanism to prevent concurrent OOM killings in the OOM code, and
+>>so the page allocator doesn't have to bother with it at all (ie.
+>>it can just call into the OOM killer, which may or may not actually
+>>kill anything).
+> 
+> 
+> I agree it's desirable to keep the OOM killing logic as encapsulated
+> as possible.  However unless you are holding the oom kill semaphore
+> when you make your final attempt to allocate memory it's a bit racy.
+> Holding the OOM kill semaphore guarantees that our final allocation
+> failure before invoking the OOM killer occurred _after_ any previous
+> OOM kill victim freed its memory.  Thus we know we are not shooting
+> another process prematurely (i.e. before the memory-freeing effects
+> of our previous OOM kill have been felt).
 
-I can provide more detail on how to set all of this up if needed.
+But there is so much fudge in it that I don't think it matters:
+pages could be freed from other sources, some reclaim might happen,
+the point at which OOM is declared is pretty arbitrary anyway, etc.
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

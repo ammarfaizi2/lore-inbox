@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWEWF6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWEWF6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932082AbWEWF6w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 01:58:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWEWF6w
+	id S932083AbWEWF6x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 01:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWEWF6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 23 May 2006 01:58:53 -0400
+Received: from mga05.intel.com ([192.55.52.89]:24840 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932083AbWEWF6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 23 May 2006 01:58:52 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:28614 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932082AbWEWF6w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 01:58:52 -0400
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@ocs.com.au>
-To: Neil Brown <neilb@suse.de>
-cc: mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc4 md lock held at task exit 
-In-reply-to: Your message of "Fri, 12 May 2006 17:11:11 +1000."
-             <17508.13583.730399.209905@cse.unsw.edu.au> 
+X-IronPort-AV: i="4.05,159,1146466800"; 
+   d="scan'208"; a="41068582:sNHT2074668071"
+Date: Mon, 22 May 2006 22:56:52 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: Dave Jones <davej@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       jacob.shin@amd.com
+Subject: Re: cpu hotplug sleeping from invalid context
+Message-ID: <20060522225652.A21377@unix-os.sc.intel.com>
+References: <20060522183534.GA8920@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 23 May 2006 15:56:47 +1000
-Message-ID: <9193.1148363807@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060522183534.GA8920@redhat.com>; from davej@redhat.com on Mon, May 22, 2006 at 11:35:34AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown (on Fri, 12 May 2006 17:11:11 +1000) wrote:
->On Friday May 12, kaos@ocs.com.au wrote:
->> Doing poweroff on 2.6.17-rc4 i386, SMP
->> 
->> BUG halt/4781, lock held at task exit time!
->>  [f7001b34] {mddev_find}
->> .. held by: halt: 4781 [f7cd4030, 118]
->> ... acquired at: md_notify_reboot+0x3a/0xa9 [md_mod}
->> 
->
->I suspect this will fix it.
->Is it repeatable?  Can you test?
->
->Thanks,
->NeilBrown
->
->
->Signed-off-by: Neil Brown <neilb@suse.de>
->
->### Diffstat output
-> ./drivers/md/md.c |    4 +++-
-> 1 file changed, 3 insertions(+), 1 deletion(-)
->
->diff ./drivers/md/md.c~current~ ./drivers/md/md.c
->--- ./drivers/md/md.c~current~	2006-05-12 16:00:03.000000000 +1000
->+++ ./drivers/md/md.c	2006-05-12 17:10:16.000000000 +1000
->@@ -5171,8 +5171,10 @@ static int md_notify_reboot(struct notif
-> 		printk(KERN_INFO "md: stopping all md devices.\n");
+On Mon, May 22, 2006 at 11:35:34AM -0700, Dave Jones wrote:
 > 
-> 		ITERATE_MDDEV(mddev,tmp)
->-			if (mddev_trylock(mddev))
->+			if (mddev_trylock(mddev)) {
-> 				do_md_stop (mddev, 1);
->+				mddev_unlock(mddev);
->+			}
-> 		/*
-> 		 * certain more exotic SCSI devices are known to be
-> 		 * volatile wrt too early system reboots. While the
+>    (2.6.17rc4-git9)
+> 
+>    echo 0 > /sys/devices/system/cpu/cpu1/online
+>    echo 1 > /sys/devices/system/cpu/cpu1/online
+> 
+>    on my dual-core notebook gets me this:
+> 
 
-Finally got some time to test this.  The problem was reproducable and
-the patch fixed it.
+Ok, i just tried on my Centrino core duo, and the same online/offline
+works just fine for me on git-10. I havent tried git-9 though... could you 
+give git10 a try?
 
-Acked-by: Keith Owens <kaos@ocs.com.au>
-
+ashok

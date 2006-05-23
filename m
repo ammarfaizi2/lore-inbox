@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbWEWQip@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750864AbWEWQlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750886AbWEWQip (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 12:38:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWEWQio
+	id S1750864AbWEWQlg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 12:41:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWEWQlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 12:38:44 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:1241 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750816AbWEWQio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 12:38:44 -0400
-Date: Tue, 23 May 2006 09:38:29 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: chrisw@sous-sol.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cpuset: remove extra cpuset_zone_allowed check in
- __alloc_pages
-Message-Id: <20060523093829.84c50ee5.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0605230929070.9765@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0602081010440.2648@schroedinger.engr.sgi.com>
-	<20060522182356.fbea4aec.pj@sgi.com>
-	<Pine.LNX.4.64.0605221858250.7165@schroedinger.engr.sgi.com>
-	<20060522192248.b114fea3.pj@sgi.com>
-	<Pine.LNX.4.64.0605221925350.7272@schroedinger.engr.sgi.com>
-	<20060523063500.GB18769@moss.sous-sol.org>
-	<Pine.LNX.4.64.0605230929070.9765@schroedinger.engr.sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 23 May 2006 12:41:36 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:16352 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750863AbWEWQlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 12:41:35 -0400
+Subject: Re: OpenGL-based framebuffer concepts
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Jeff Garzik <jeff@garzik.org>, Manu Abraham <abraham.manu@gmail.com>,
+       linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <ADF9B4F7-2B6E-41B7-8B83-26261EBE27F7@mac.com>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <44700ACC.8070207@gmail.com> <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com>
+	 <1148379089.25255.9.camel@localhost.localdomain>
+	 <4472E3D8.9030403@garzik.org>
+	 <83B4C39B-1A5E-4734-A5FF-10C3179B535B@mac.com>
+	 <1148395433.25255.66.camel@localhost.localdomain>
+	 <ADF9B4F7-2B6E-41B7-8B83-26261EBE27F7@mac.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Tue, 23 May 2006 17:53:46 +0100
+Message-Id: <1148403226.25255.89.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph wrote:
-> Simply removing my patch from mm will do the same.
+On Maw, 2006-05-23 at 11:41 -0400, Kyle Moffett wrote:
+> So a modern GPU is essentially a proprietary CPU with an obscure  
+> instruction set and lots of specialized texel hardware?  Given the  
+> total lack of documentation from either ATI or NVidia about such  
+> cards I'd guess it's impossible for Linux to provide any kind of  
+> reasonable 3d engine for that kind of environment, and it might be  
+> better to target a design like the Open Graphics Project is working  
+> to provide.
 
-I doubt it.
+Its typically a device you feed a series of fairly low level rendering
+commands to sometimes including instructions (eg shaders). DRI provides
+an interface that is chip dependant but typically looks like
 
-Looks to me like your patch went into Linus's tree on March 24, 2006:
 
-    changeset:   23661:1541c55e5f8d
-    user:        Christoph Lameter <clameter@engr.sgi.com>
-    date:        Fri Mar 24 23:33:22 2006 +0800
-    summary:     [PATCH] cpusets: only wakeup kswapd for zones in the current cpuset
+      [User provided command buffer]
+                    |
+      [Kernel filtering/DMA interface]
+                    |
+      [Card command queue processing]
 
-If that's so, then only a reversing patch will suffice.  Linus does not
-remove patches from his tree; he only adds more patches.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+All the higher level graphic work is done in the 3D client itself.
+

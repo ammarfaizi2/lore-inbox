@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbWEWRBL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750902AbWEWRJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750985AbWEWRBL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 13:01:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbWEWRBK
+	id S1750902AbWEWRJu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 13:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbWEWRJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 13:01:10 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:17064 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750985AbWEWRBJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 13:01:09 -0400
-Subject: Re: Ingo's  realtime_preempt patch causes kernel oops
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Yann.LEPROVOST@wavecom.fr
-Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <OF75506F98.64DD61BC-ONC1257177.005A42A4-C1257177.005AF51F@wavecom.fr>
-References: <OF75506F98.64DD61BC-ONC1257177.005A42A4-C1257177.005AF51F@wavecom.fr>
-Content-Type: text/plain
-Date: Tue, 23 May 2006 13:00:42 -0400
-Message-Id: <1148403642.22855.12.camel@localhost.localdomain>
+	Tue, 23 May 2006 13:09:50 -0400
+Received: from hera.kernel.org ([140.211.167.34]:3546 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750863AbWEWRJt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 13:09:49 -0400
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [Question] how to follow a symlink via a dentry?
+Date: Tue, 23 May 2006 10:08:47 -0700
+Organization: OSDL
+Message-ID: <20060523100847.7056909a@localhost.localdomain>
+References: <1148403363.22855.8.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1148404127 21269 10.8.0.54 (23 May 2006 17:08:47 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Tue, 23 May 2006 17:08:47 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 2.1.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-23 at 18:27 +0200, Yann.LEPROVOST@wavecom.fr wrote:
-> I forgot to say that I let SA_SHIRQ as the IRQ line is shared...
-> It seems to work correctly...
+On Tue, 23 May 2006 12:56:03 -0400
+Steven Rostedt <rostedt@goodmis.org> wrote:
 
-What shares it?
+> What is the best way from inside the kernel, to find the dentry that
+> another dentry points to via symlink?
+> 
+> Scenario:
+> 
+> I have a kobj of a device in the sysfs system.  Inside a directory of
+> the kobj, is a symlink to another device I need to get.  I can find the
+> dentry of the symlink, but I haven't found a good way to get to the
+> dentry of what the symlink points to.
+> 
+> Is there a standard way to do this, or do I need to start hacking at the
+> follow_link of the sysfs directory to get what I want?
+> 
+> Do I need to hack up something like page_readlink to get the path, and
+> then do vfs_follow_link to get the rest.  Another thing is that I can't
+> rely on what current->fs points to.
+> 
+> Thanks,
+> 
+> -- Steve
+>
 
-Reason I ask, is that this irq is now running in true interrupt context,
-and that on PREEMPT_RT the spin_locks are mutexes and can schedule. So
-if another device is sharing this irq, then its interrupt handler will
-be running in interrupt context, and if it grabs a spin_lock than is not
-a raw_spinlock_t then you will have a crash.
-
-This won't be a problem if you only turn on Hard irqs as threads and
-don't do the PREEMPT_RT.
-
--- Steve
-
-
+Sysfs reflects kernel object linkage, you should not be using
+file access to find kernel objects.  You should use the pointers
+instead.

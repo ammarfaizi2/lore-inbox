@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWEWHj4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbWEWH6X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932102AbWEWHj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 03:39:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWEWHj4
+	id S1751299AbWEWH6X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 03:58:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbWEWH6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 03:39:56 -0400
-Received: from msr9.hinet.net ([168.95.4.109]:5876 "EHLO msr9.hinet.net")
-	by vger.kernel.org with ESMTP id S932096AbWEWHjz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 03:39:55 -0400
-Message-ID: <021901c67e3b$f284d680$4964a8c0@icplus.com.tw>
-From: =?big5?B?amVzc2VcKKvYv7NcKQ==?= <jesse@icplus.com.tw>
-To: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Cc: "Francois Romieu" <romieu@fr.zoreil.com>,
-       "David Vrabel" <dvrabel@cantab.net>, <linux-kernel@vger.kernel.org>,
-       <netdev@vger.kernel.org>, <david@pleyades.net>, <akpm@osdl.org>
-References: <84144f020605230001s32b29f59w8f95c67fad7b380d@mail.gmail.com>
-Subject: Re: Sign-off for the IP1000A driver before inclusion
-Date: Tue, 23 May 2006 15:38:55 +0800
+	Tue, 23 May 2006 03:58:23 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:64904 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751299AbWEWH6W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 03:58:22 -0400
+Message-ID: <4472BFE4.8000605@aitel.hist.no>
+Date: Tue, 23 May 2006 09:55:16 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: Matheus Izvekov <mizvekov@gmail.com>, Chris Wedgwood <cw@f00f.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>
+Subject: Re: [RFC PATCH (take #2)] i386: kill CONFIG_REGPARM completely
+References: <20060520025353.GE9486@taniwha.stupidest.org> <20060520090614.GA9630@infradead.org> <20060520201357.GA32010@taniwha.stupidest.org> <20060520212049.GA11180@taniwha.stupidest.org> <305c16960605201500s6153e1doad87e4b85f15b53f@mail.gmail.com> <Pine.LNX.4.61.0605220739580.26623@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0605220739580.26623@chaos.analogic.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pekka:
+linux-os (Dick Johnson) wrote:
 
-I will send this document to our product manager. After he agreed, we will
-sign it off.
-Thank you for this information.
+>On ix86 there are not enough registers to pass a significant parameter
+>list all in registers! Like when you are printk()ing a dotted-quad IP
+>address, etc. Registers ESI, EDI, and EBX are precious, that leaves
+>EAX, ECX, EDX and possibly EBP for only 4 parameters. You need 5
+>for the dotted quad IP address. If the compiler were to use the
+>precious registers, the contents need to be saved on the stack.
+>That negates any advantage to passing parameters in registers.
+>  
+>
+I had the impression that REGPARM in i386 only passed the
+first three arguments in registers, putting any further
+paramters on the stack? 
 
-Jesse
------ Original Message ----- 
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "jesse(«Ø¿³)" <jesse@icplus.com.tw>
-Cc: "Francois Romieu" <romieu@fr.zoreil.com>; "David Vrabel"
-<dvrabel@cantab.net>; <linux-kernel@vger.kernel.org>;
-<netdev@vger.kernel.org>; <david@pleyades.net>; <akpm@osdl.org>
-Sent: Tuesday, May 23, 2006 3:01 PM
-Subject: Sign-off for the IP1000A driver before inclusion
+Ought to help for all those 3-argument or less functions.
 
-
-Hi Jesse,
-
-On 5/23/06, jesse\(«Ø¿³\) <jesse@icplus.com.tw> wrote:
-> If any problem, please feel free to contact me. jesse@icplus.com.tw
-
-As per:
-
-  http://marc.theaimsgroup.com/?l=linux-kernel&m=114666027122495
-
-we still need someone from IC Plus to sign off on the IP1000A driver
-for it to be merged with mainline Linux.
-
-For more details on the Developer's Certificate of Origin, please
-refer to:
-http://www.osdl.org/newsroom/press_releases/2004/2004_05_24_dco.html
-or Documentation/SubmittingPatches.
-
-                                                     Pekka
-
+Helge Hafting

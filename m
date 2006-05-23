@@ -1,42 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbWEWGf6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWEWGod@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751265AbWEWGf6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 02:35:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWEWGf6
+	id S1751267AbWEWGod (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 02:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWEWGod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 02:35:58 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:52426 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751265AbWEWGf5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 02:35:57 -0400
-Date: Mon, 22 May 2006 23:35:45 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: akpm@osdl.org, chrisw@sous-sol.org, clameter@sgi.com,
+	Tue, 23 May 2006 02:44:33 -0400
+Received: from euklides.vdsoft.org ([82.208.56.17]:56798 "EHLO
+	euklides.vdsoft.org") by vger.kernel.org with ESMTP
+	id S1751101AbWEWGoc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 02:44:32 -0400
+Message-ID: <4472AF4E.7010206@vdsoft.org>
+Date: Tue, 23 May 2006 08:44:30 +0200
+From: Vladimir Dvorak <dvorakv@vdsoft.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Brown, Len" <len.brown@intel.com>
+CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@suse.de>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cpuset: remove extra cpuset_zone_allowed check in
- __alloc_pages
-Message-Id: <20060522233545.ad674527.pj@sgi.com>
-In-Reply-To: <20060523063500.GB18769@moss.sous-sol.org>
-References: <Pine.LNX.4.62.0602081010440.2648@schroedinger.engr.sgi.com>
-	<20060522182356.fbea4aec.pj@sgi.com>
-	<Pine.LNX.4.64.0605221858250.7165@schroedinger.engr.sgi.com>
-	<20060522192248.b114fea3.pj@sgi.com>
-	<Pine.LNX.4.64.0605221925350.7272@schroedinger.engr.sgi.com>
-	<20060523063500.GB18769@moss.sous-sol.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: Re: APIC error on CPUx
+References: <CFF307C98FEABE47A452B27C06B85BB681D44D@hdsmsx411.amr.corp.intel.com>
+In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB681D44D@hdsmsx411.amr.corp.intel.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, Chris.
+Brown, Len wrote:
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+> 
+>  
+>
+>>The problem goes away with noapic or acpi=off, but of course that also 
+>>means you don't have IRQs > 15.
+>>    
+>>
+>
+>"acpi=off" is a superset of "noapic" here, presumably because the
+>board doesn't have MPS  tables that describe the IOAPIC when ACPI is
+>off.
+>
+>"noapic" is a perfectly reasonable thing to use if you don't
+>have a lot of interrupt sources and there is no more sharing
+>in PIC mode than IOAPIC mode.
+>
+>The advantage of using IOAPIC mode is that the system has more interrupt
+>pins
+>availalble and this allows sharing to be avoided.  It also allows
+>the system to target the interrupts to any processor when you
+>have more than one.
+>
+>cheers,
+>-Len
+>
+>  
+>
+My experience yesterday:
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Server with  'noapic' cannot boot, kernel reports something like "Lost
+interrupt: hde"  ( it was said by my college, server is not in my
+physical control ) . With 'acpi=off' it boots, but errors appear again.
+
+Brief datasheet about the board is here:
+http://www.abclinuxu.cz/images/hosting/sr1200.pdf
+
+Vladimir

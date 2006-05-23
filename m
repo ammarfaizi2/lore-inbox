@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWEWWWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWEWWYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbWEWWWr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 18:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbWEWWWr
+	id S932187AbWEWWYy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 18:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWEWWYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 18:22:47 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:48595 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932214AbWEWWWq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 18:22:46 -0400
-Date: Wed, 24 May 2006 08:22:19 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: XFS write speed drop
-Message-ID: <20060524082218.A267844@wobbly.melbourne.sgi.com>
-References: <Pine.LNX.4.61.0605190047430.23455@yvahk01.tjqt.qr> <20060522105326.A212600@wobbly.melbourne.sgi.com> <Pine.LNX.4.61.0605221308290.11108@yvahk01.tjqt.qr> <20060523084309.A239136@wobbly.melbourne.sgi.com> <Pine.LNX.4.61.0605231517330.25086@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.61.0605231517330.25086@yvahk01.tjqt.qr>; from jengelh@linux01.gwdg.de on Tue, May 23, 2006 at 03:23:31PM +0200
+	Tue, 23 May 2006 18:24:54 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:51889 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932187AbWEWWYx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 18:24:53 -0400
+Message-ID: <44738BA7.1020507@zytor.com>
+Date: Tue, 23 May 2006 15:24:39 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [-mm] klibc breaks my initscripts
+References: <20060523083754.GA1586@elf.ucw.cz> <4473482A.3050407@zytor.com> <20060523211100.GA2788@elf.ucw.cz> <44737C33.4030503@zytor.com> <20060523215111.GA1669@elf.ucw.cz>
+In-Reply-To: <20060523215111.GA1669@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 23, 2006 at 03:23:31PM +0200, Jan Engelhardt wrote:
-> >> CASE 1: Copying from one disk to another
-> >> ========================================
-> >> Copying a compiled 2.6.17-rc4 tree; 306907 KB in 28566 files in 2090
-> >> directories.
-> >
-> >OK, we can call this a metadata intensive workload - lots of small
-> >files, lots of creates.  Barriers will hurt the most here, as we'd
-> >already have been log I/O bound most likely, and I'd expect barriers
-> >to only slow that further.
-> >
-> Yes and the most important thing is that someone made -o barrier the 
-> default and did not notice. Someone else? :-D
+Pavel Machek wrote:
+> Hi!
+> 
+>> [Adjusted Cc: list]
+>>
+>> Pavel Machek wrote:
+>>>> - a. What distro?
+>>> Hacked debian.
+>>>
+>>>> - b. What's the error?
+>>> Something about root not being mounted so it can't be remounted.
+>> I need the details on this one.  This sounds like it could be the Debian 
+>> mount getting confused by /proc/mounts and/or /etc/mtab.
+> 
+> I cheated: I added "rw" to the command line. But results are the same
+> as in normal case, even strace looked the same.
+> 
+> Any ideas?
+> 								Pavel
+>
 
-Not sure what you're trying to say here.  Yes, barriers are on
-by default now if the hardware supports them, yes, they will
-slow things down relative to write-cache-without-barriers, and
-yes we all knew that ... its not the case that someone "did not
-notice" or forgot about something.  There is no doubt that this
-is the right thing to be doing by default - there's no way that
-I can tell from inside XFS in the kernel that you have a UPS. ;)
+> read(3, "/dev/hda4\t/\text2\tdefaults,commit"..., 4096) = 601
+                                         ^^^^^^
 
-cheers.
+Yes, check your /etc/fstab.  You're trying (explicitly) to mount an ext3 filesystem as 
+ext2, but your /etc/fstab contains ext3-related options.  This means that mount(8) will 
+try to add them to the remount, and the remount will fail because you're passing options 
+to the filesystem that the filesystem doesn't understand.
 
--- 
-Nathan
+	-hpa

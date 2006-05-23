@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWEWRmt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWEWRsk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932104AbWEWRmt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 13:42:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbWEWRmt
+	id S1751139AbWEWRsk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 13:48:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWEWRsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 13:42:49 -0400
-Received: from smtpq3.tilbu1.nb.home.nl ([213.51.146.202]:20649 "EHLO
-	smtpq3.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
-	id S932093AbWEWRms (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 13:42:48 -0400
-Message-ID: <447349A6.50105@fastmail.fm>
-Date: Tue, 23 May 2006 19:43:02 +0200
-From: Simon Oosthoek <wmc_simon@fastmail.fm>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Tue, 23 May 2006 13:48:40 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:41345 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751139AbWEWRsj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 13:48:39 -0400
+Message-ID: <44734AEF.2020104@zytor.com>
+Date: Tue, 23 May 2006 10:48:31 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] FLAME: external kernel module for L2.5 meshing
-References: <44731733.7000204@ti-wmc.nl> <20060523094324.11926fcc@localhost.localdomain>
-In-Reply-To: <20060523094324.11926fcc@localhost.localdomain>
+To: Pavel Machek <pavel@ucw.cz>
+CC: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [-mm] klibc breaks my initscripts
+References: <20060523083754.GA1586@elf.ucw.cz>
+In-Reply-To: <20060523083754.GA1586@elf.ucw.cz>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Please contact support@home.nl for more information
-X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
-> On Tue, 23 May 2006 16:07:47 +0200
-> Herman Elfrink <herman.elfrink@ti-wmc.nl> wrote:
+Pavel Machek wrote:
+> Hi!
 > 
->>  
->> FLAME stands for "Forwarding Layer for Meshing"
->>
+> To reproduce: boot with init=/bin/bash
 > 
-> Didn't you just reinvent 802.1d bridging? and/or WDS?
-
-I wouldn't say "reinvent", but the difference is small but significant. 
-FLAME could be seen as ad hoc WDS, I think. It doesn't need to know 
-about the other "base-stations", which I think WDS does.
-
-> As far as the Ethernet protocol field. Getting a real assigned number
-> would have to come out of the IEEE 802. 
+> attempt to
 > 
-> You would need
-> 	http://standards.ieee.org/regauth/ethertype/forms/index.html
+> mount / -oremount,rw
 > 
-> It is cheaper (free vs $2500) to get a LLC sap assigned, but then
-> you would have to change the protocol.
-> 	http://standards.ieee.org/regauth/llc/index.html
+> I have this as my command line:
+> 
+> root=/dev/hda4 resume=/dev/hda1 psmouse.psmouse_proto=imps
+> psmouse_proto=imps psmouse.proto=imps vga=1 pci=assign-busses
+> rootfstype=ext2
+> 
 
-Wow, thanks, $2500 is a bit steep for a useful experiment ;-)
-The free option could be interesting though...
+I tried this (or at least as close to this as I can get in my simulation 
+environment), and I don't see any problems.  It works as is should; 
+however, mount(8) requires that /proc is mounted so that it can read 
+/proc/partitions, but that has nothing to do with klibc (or the kernel 
+overall) of course.
 
-Cheers
+I'm afraid I'm going to have to ask for more details...
 
-Simon
-
+	-hpa

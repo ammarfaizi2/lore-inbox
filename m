@@ -1,83 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWEWHhE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWEWHj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWEWHhE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 03:37:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWEWHhE
+	id S932102AbWEWHj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 03:39:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWEWHj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 03:37:04 -0400
-Received: from nz-out-0102.google.com ([64.233.162.205]:43244 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932095AbWEWHhC convert rfc822-to-8bit (ORCPT
+	Tue, 23 May 2006 03:39:56 -0400
+Received: from msr9.hinet.net ([168.95.4.109]:5876 "EHLO msr9.hinet.net")
+	by vger.kernel.org with ESMTP id S932096AbWEWHjz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 03:37:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GcwRhWrtHQSn8XS+J1fO4mstVqcKAQjasfScJ5KgVwj4z2eLg7Rjno2bRsw+7c75/Wv9VVj0/RXFgZJ71dAiZeE/q6j41vyqGi9QgsQIWrCvz6mAMf5Yprveh7D9IQFW8wmLijwzaNMJsYPIG17Nyqaa92efnSE1MMF4jROzmwU=
-Message-ID: <cf5433040605230037h42d36b60k37e1f7fd576688f9@mail.gmail.com>
-Date: Tue, 23 May 2006 07:37:01 +0000
-From: "Rainer Shiz" <rainer.shiz@gmail.com>
-To: "Neil Brown" <neilb@suse.de>
-Subject: Re: RAID Sync Speeds
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <17522.15942.232530.954548@cse.unsw.edu.au>
+	Tue, 23 May 2006 03:39:55 -0400
+Message-ID: <021901c67e3b$f284d680$4964a8c0@icplus.com.tw>
+From: =?big5?B?amVzc2VcKKvYv7NcKQ==?= <jesse@icplus.com.tw>
+To: "Pekka Enberg" <penberg@cs.helsinki.fi>
+Cc: "Francois Romieu" <romieu@fr.zoreil.com>,
+       "David Vrabel" <dvrabel@cantab.net>, <linux-kernel@vger.kernel.org>,
+       <netdev@vger.kernel.org>, <david@pleyades.net>, <akpm@osdl.org>
+References: <84144f020605230001s32b29f59w8f95c67fad7b380d@mail.gmail.com>
+Subject: Re: Sign-off for the IP1000A driver before inclusion
+Date: Tue, 23 May 2006 15:38:55 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <cf5433040605220605t22b6030j701add7d494c83e8@mail.gmail.com>
-	 <17522.15942.232530.954548@cse.unsw.edu.au>
+Content-Type: text/plain;
+	charset="big5"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1807
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Neil and Chris for your quick replies.
+Hi Pekka:
 
-Neil, well when you say 'detectable activity' what do you exactly refer to.
-Because my system is for all purposes 'idle'. It is not on the network,
-just booted it up, no apps running, only linux got booted and I am
-logging in through console (text only mode - no X). So I wish the sync
-speeds were atleast somewhere inbetween min and max values.
-But I see it hovering around min (min being 5000, speed was around 5320 kb/s).
-My max was around 250000.
+I will send this document to our product manager. After he agreed, we will
+sign it off.
+Thank you for this information.
 
-But once I changed min value to 20000, my speeds were around 10000kb/s.
-Max being same 250000.
-I heard that speed values are averaged out for about 5 minutes or so.
-Hence I did try these experiments for about 1 hour each.
+Jesse
+----- Original Message ----- 
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "jesse(«Ø¿³)" <jesse@icplus.com.tw>
+Cc: "Francois Romieu" <romieu@fr.zoreil.com>; "David Vrabel"
+<dvrabel@cantab.net>; <linux-kernel@vger.kernel.org>;
+<netdev@vger.kernel.org>; <david@pleyades.net>; <akpm@osdl.org>
+Sent: Tuesday, May 23, 2006 3:01 PM
+Subject: Sign-off for the IP1000A driver before inclusion
 
-This is what made me wonder if there is anything in the 2.6.12 kernel which is
-causing this behavior!
 
-One more question while I am at it, if a RAID Set is newly created and
-syncing, and now I change the /proc/sys/dev/raid/speed_limit_min and
-max values will this reflect on new RAID Sets that are created henceforth
-or even the existing RAID Sets which are being synced currently?
+Hi Jesse,
 
-And Chris, you are right - I understand that doing any other extraneous
-disk I/o or fetching will cause the sync speeds to slow down or
-in the extreme case there will be a limit on the SATA bus and how
-many other hard disks share it and what i/o is happening on them too,
-but in my case I am running these experiments keeping this in mind
-and keeping all hard disk activity at almost zero levels.
+On 5/23/06, jesse\(«Ø¿³\) <jesse@icplus.com.tw> wrote:
+> If any problem, please feel free to contact me. jesse@icplus.com.tw
 
-And yes, I am too using Seagate hard drives. Does mixing up of
-hard drives (vendors) affect this sync process.? (I presume not but please
-correct me if I am wrong).
+As per:
 
-Thanks again.
-Rainer
+  http://marc.theaimsgroup.com/?l=linux-kernel&m=114666027122495
 
-On 5/22/06, Neil Brown <neilb@suse.de> wrote:
-> On Monday May 22, rainer.shiz@gmail.com wrote:
-> >
-> > So Is the 2.6 kernel designed to sync at speeds closer to min than max?
-> >
->
-> If there is other detectable activity, the sync speed will be kept at
-> or below the min.
-> If there no other activity, the sync speed will be kept at or below
-> the max.
->
-> NeilBrown
->
+we still need someone from IC Plus to sign off on the IP1000A driver
+for it to be merged with mainline Linux.
+
+For more details on the Developer's Certificate of Origin, please
+refer to:
+http://www.osdl.org/newsroom/press_releases/2004/2004_05_24_dco.html
+or Documentation/SubmittingPatches.
+
+                                                     Pekka
+

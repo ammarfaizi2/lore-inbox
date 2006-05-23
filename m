@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbWEWBzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWEWB76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751243AbWEWBzz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 21:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWEWBzz
+	id S1751239AbWEWB76 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 21:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWEWB76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 21:55:55 -0400
-Received: from mx2.suse.de ([195.135.220.15]:14572 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751243AbWEWBzy (ORCPT
+	Mon, 22 May 2006 21:59:58 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:55698 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751239AbWEWB75 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 21:55:54 -0400
-From: Andi Kleen <ak@suse.de>
-To: Keith Owens <kaos@sgi.com>
-Subject: Re: NMI problems with Dell SMP Xeons
-Date: Tue, 23 May 2006 03:55:48 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <4715.1148347606@kao2.melbourne.sgi.com>
-In-Reply-To: <4715.1148347606@kao2.melbourne.sgi.com>
+	Mon, 22 May 2006 21:59:57 -0400
+Date: Mon, 22 May 2006 18:59:52 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+cc: Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org,
+       Chris Wright <chrisw@sous-sol.org>
+Subject: Re: cpusets: only wakeup kswapd for zones in the current cpuset
+In-Reply-To: <20060522182356.fbea4aec.pj@sgi.com>
+Message-ID: <Pine.LNX.4.64.0605221858250.7165@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0602081010440.2648@schroedinger.engr.sgi.com>
+ <20060522182356.fbea4aec.pj@sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605230355.48399.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nd add special cases just to get an NMI send with different vector.
+On Mon, 22 May 2006, Paul Jackson wrote:
+
+> Three months ago, Christoph wrote:
+> > If we get under some memory pressure in a cpuset (we only scan zones
+> > that are in the cpuset for memory) then kswapd is woken
+> > up for all zones. This patch only wakes up kswapd in zones that are
+> > part of the current cpuset.
+> > 
+> > Signed-off-by: Christoph Lameter <clameter@sgi.com>
+> > 
+> > Index: linux-2.6.16-rc2/mm/page_alloc.c
+> > ===================================================================
+> > --- linux-2.6.16-rc2.orig/mm/page_alloc.c	2006-02-02 22:03:08.000000000 -0800
+> > +++ linux-2.6.16-rc2/mm/page_alloc.c	2006-02-08 00:05:09.000000000 -0800
+> > @@ -923,7 +923,8 @@ restart:
+> >  		goto got_pg;
+> >  
+> >  	do {
+> > -		wakeup_kswapd(*z, order);
+> > +		if (cpuset_zone_allowed(*z, gfp_mask))
+> > +			wakeup_kswapd(*z, order);
+> >  	} while (*(++z));
+> >  
+> >  	/*
+> > 
 > 
-> I have never disagreed that all NMIs will end up on the NMI vector (2).
-
-The problem was that KDB had an own handler for its debug vector,
-although that was only ever called as NMI.
-
-> Unfortunately the way that you changed the x86_64 kdb code, it now does
-> neither.  Your hack to kdb sends an IPI using NMI_VECTOR (2) which is
+> Christoph,
 > 
-> (a) not actually sent as an NMI and
-> (b) on most of the hardware I have tested, it does not even get through
->     to the other cpus, instead it generates APIC errors.
+> Does this patch serve any use?  Chris Wright just noticed (in private
+> email) that wakeup_kswapd() already contains a check for cpuset
+> confinement, so it would seem the above added check is superfluous.
 
-Ok fine we can use some other vector and just the NMI bit. 
-Feel free to submit a patch to do that conversion for NMI_VECTOR
-
--Andi
+None if that is the case.

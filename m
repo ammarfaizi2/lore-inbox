@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWEWJbH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWEWJaz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932151AbWEWJbH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 05:31:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWEWJbH
+	id S932143AbWEWJaz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 05:30:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWEWJaz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 05:31:07 -0400
-Received: from www1.cdi.cz ([194.213.194.49]:27620 "EHLO www1.cdi.cz")
-	by vger.kernel.org with ESMTP id S932151AbWEWJbG (ORCPT
+	Tue, 23 May 2006 05:30:55 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:32749 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932143AbWEWJaz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 05:31:06 -0400
-Message-ID: <4472D651.5010206@cdi.cz>
-Date: Tue, 23 May 2006 11:30:57 +0200
-From: Martin Devera <devik@cdi.cz>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+	Tue, 23 May 2006 05:30:55 -0400
+Date: Tue, 23 May 2006 11:30:39 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: i386 Kconfig options out of order
+In-Reply-To: <9451.1148364620@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.64.0605231127550.17704@scrub.home>
+References: <9451.1148364620@kao2.melbourne.sgi.com>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: wrong in_flight diskstat in 2.6.16.1
-References: <4472CD62.5060906@cdi.cz> <20060523092324.GO26261@suse.de>
-In-Reply-To: <20060523092324.GO26261@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Tue, May 23 2006, Martin Devera wrote:
->> Hello,
->>
->> I see weird output from /sys/block/sd{a,b}/stat on our AMD64-X2 smp 
->> machine with HT1000 (Broadcom) SATA with 2 WD 250GB HDDs in MD raid1. AS 
->> scheduler was used, change to noop didn't change anything. It is vanilla 
->> 2.6.16.1 and here are absolute values in hex and one second differences 
->> below:
->>
->> 132CDF 56D62 61753C0 6966BC 165A8EB 5FF5B6C 3B32D6C0 1110594C FFCA89A4 
->> FEE85878 49FF74E4
->> 132CDF 56D62 61753C0 6966BC 165A8EF 5FF5B6C 3B32D6E0 111059D0 FFCA89A1 
->> FEE85C60 79291244
->>  0: 0
->>  1: 0
->>  2: 0
->>  3: 0
->>  4: 4
->>  5: 0
->>  6: 32
->>  7: 132
->>  8: -3
->>  9: 1000
->> 10: 791256416
->>
->> As you can see in_flight is constantly negative and it is DECREASING 
->> slowly all the time.
->> I can't find any reason for it :-\
-> 
-> Are you using io barriers?
-> 
-> [PATCH] blk: fix gendisk->in_flight accounting during barrier sequence
+Hi,
 
-I don't think so, I just used
-mount / -o remount,barrier=0
-to make it sure and it keeps decrementing. I'll however apply the patch 
-(and others up to 2.6.16.18) at night (I'm not allowed to restart the 
-machine just now).
-thanks, Martin
+On Tue, 23 May 2006, Keith Owens wrote:
+
+> Options NUMA and EFI in arch/i386/Kconfig depend on ACPI but they
+> appear before the ACPI option.  make oldconfig with no initial setting
+> for CONFIG_ACPI will prompt for these options, but if you then say No
+> to CONFIG_ACPI the options will silently be turned off.
+
+That's the normal behaviour.
+
+>  Conversely if
+> you turn on CONFIG_ACPI you do not get prompted for the options that
+> are out of order.
+
+What exactly did you do? It works fine here.
+Note that due to the "default y" the other options are visible before 
+ACPI.
+
+bye, Roman

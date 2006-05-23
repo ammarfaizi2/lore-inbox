@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWEWURq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWEWUVW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbWEWURq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 16:17:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWEWURp
+	id S932122AbWEWUVW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 16:21:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWEWUVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 16:17:45 -0400
-Received: from mga03.intel.com ([143.182.124.21]:6736 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751241AbWEWURp convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 16:17:45 -0400
-X-IronPort-AV: i="4.05,161,1146466800"; 
-   d="scan'208"; a="40551609:sNHT878194828"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Tue, 23 May 2006 16:21:22 -0400
+Received: from cyrus.iparadigms.com ([64.140.48.8]:17373 "EHLO
+	cyrus.iparadigms.com") by vger.kernel.org with ESMTP
+	id S932122AbWEWUVV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 16:21:21 -0400
+Message-ID: <44736EBE.3030704@iparadigms.com>
+Date: Tue, 23 May 2006 13:21:18 -0700
+From: fitzboy <fitzboy@iparadigms.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: APIC error on CPUx
-Date: Tue, 23 May 2006 16:16:25 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB686E5B4@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: APIC error on CPUx
-Thread-Index: AcZ+NF1NzrGQFQAxSYGe5ob1evRCugAb+E/w
-From: "Brown, Len" <len.brown@intel.com>
-To: "Vladimir Dvorak" <dvorakv@vdsoft.org>
-Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>, "Andi Kleen" <ak@suse.de>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 23 May 2006 20:16:26.0333 (UTC) FILETIME=[C4D058D0:01C67EA5]
+To: Avi Kivity <avi@argo.co.il>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: tuning for large files in xfs
+References: <447209A8.2040704@iparadigms.com> <44720DB8.4060200@argo.co.il> <447211E1.7080207@iparadigms.com> <447212B5.1010208@argo.co.il> <447259E7.8050706@iparadigms.com> <4472C25C.2090909@argo.co.il>
+In-Reply-To: <4472C25C.2090909@argo.co.il>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> http://www.abclinuxu.cz/images/hosting/sr1200.pdf
 
-An Intel SCB2, a Dual P3/Serverworks board....
-Run it in the default IOAPIC mode and ignore the warnings.
-No, upgrading the kernel will almost certainly not make
-any difference.
-My note about running with "noapic" was mis-guided --
-I didn't realize this was an SMP server board.
 
-Curious, however that you can't boot in IOAPIC mode with acpi=off.
-I thought that in that era they still had MPS support.  You might
-take a peek at the BIOS setup options.  dmesg will also mention
-MPS if it is there.  However, even if you succeeded in booting
-in acpi=off MPS IOAPIC mode, I would not expect it to have an
-effect on the warnings you see.
+Avi Kivity wrote:
+> 
+> This will overflow. I think that
+> 
+>      currentPos = drand48() * s.st_size;
+> 
+> will give better results
+> 
+>>     currentPos=currentPos%s.st_size;
+> 
 
-cheers,
--Len
+why would it overflow? Random() returns a 32 bit number, and if I 
+multiple that by 32k (basically the number random() returns is the block 
+number I am going to), that should never be over 64 bits? It may be over 
+to size of the file though, but that is why I do mod s.st_size... and a 
+random number mod something is still a random number. Also, with this 
+method it is already currentSize aligned...
+
+> 
+> Sorry, I wasn't specific enough: please run iostat -x /dev/whatever 1 
+> and look at the 'r/s' (reads per second) field. If that agrees with what 
+> your test says, you have a block layer or lower problem, otherwise it's 
+> a filesystem problem.
+> 
+
+I ran it and found an r/s at 165, which basically corresponds to my 6 ms 
+access time... when it should be around 3.5ms... so it seems like the 
+seeks themselves are taking along time, NOT that I am doing extra seeks...

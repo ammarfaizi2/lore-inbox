@@ -1,35 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWEWOfT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWEWOiO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbWEWOfT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 10:35:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWEWOfS
+	id S1751129AbWEWOiO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 10:38:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbWEWOiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 10:35:18 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:36036 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932101AbWEWOfR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 10:35:17 -0400
-Subject: Re: [ANNOUNCE] FLAME: external kernel module for L2.5 meshing
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Herman Elfrink <herman.elfrink@ti-wmc.nl>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <44731733.7000204@ti-wmc.nl>
-References: <44731733.7000204@ti-wmc.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 23 May 2006 15:48:58 +0100
-Message-Id: <1148395738.25255.68.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Tue, 23 May 2006 10:38:14 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:19929 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751042AbWEWOiN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 10:38:13 -0400
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org, mmlnx@us.ibm.com
+Subject: Re: nmi_watchdog default setting on i386 and x86_64
+References: <44724DE3.2000209@us.ibm.com>
+	<17523.6413.711397.401340@alkaid.it.uu.se>
+From: Andi Kleen <ak@suse.de>
+Date: 23 May 2006 16:37:57 +0200
+In-Reply-To: <17523.6413.711397.401340@alkaid.it.uu.se>
+Message-ID: <p73psi46c3e.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-05-23 at 16:07 +0200, Herman Elfrink wrote:
-> FLAME uses an unofficial protocol number (0x4040), any tips on how to 
-> get an official IANA number would be highly appreciated.
+Mikael Pettersson <mikpe@csd.uu.se> writes:
+
+> Mike Mason writes:
+>  > Does anybody know the reasoning behind having nmi_watchdog turned off by 
+>  > default on i386 and on by default on x86_64.  I've heard that i386 had 
+>  > problems with false positives in the past, but that local apic watchdog 
+>  > may make that concern obsolete.
 > 
+> On i386 the problems are mainly hardware and BIOS. In particular,
+> lots of Dell laptops have capable hardware but broken BIOSen that
+> hang the machines if we try to enable anything sending performance
+> counter interrupts via the local APIC.
 
-Ethernet protocol number I assume you mean. If so this at least used to
-be handled by the IEEE, along with ethernet mac address ranges.
+AFAIK that trouble was mostly when you forced the local APIC on against
+the wishes of the BIOS. That was always a dumb idea and gladly
+Linux doesn't try that by default anymore.
 
+-Andi
 

@@ -1,69 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWEWUAh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWEWUOD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751218AbWEWUAh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 16:00:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbWEWUAh
+	id S1751216AbWEWUOD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 16:14:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWEWUOC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 16:00:37 -0400
-Received: from main.gmane.org ([80.91.229.2]:50130 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751218AbWEWUAh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 16:00:37 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Adam Jones <adam@yggdrasl.demon.co.uk>
-Subject: Re: kernel: padlock: VIA PadLock not detected.
-Date: Tue, 23 May 2006 20:41:19 +0100
-Message-ID: <adam.20060523194119$0db7@samael.haus>
-References: <20060523164634.GC9829@dantooine>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: yggdrasl.demon.co.uk
+	Tue, 23 May 2006 16:14:02 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:14605 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751216AbWEWUOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 16:14:00 -0400
+Date: Tue, 23 May 2006 22:13:26 +0200
+From: Willy TARREAU <willy@w.ods.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       marcelo@kvack.org, akpm@osdl.org
+Subject: Re: [PATCH] Fix memory leak when the ext3's journal file is corrupted
+Message-ID: <20060523201326.GA478@w.ods.org>
+References: <E1Fhx2I-0001lb-Gk@candygram.thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1Fhx2I-0001lb-Gk@candygram.thunk.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In a futile gesture against entropy, markus reichelt wrote:
+Hi Theodore,
 
-> I get the following message on a Nehemiah system. Any ideas about
-> that?
-
-> kernel: CPU0: Centaur VIA Nehemiah stepping 01
-> kernel: padlock: VIA PadLock not detected
+On Sun, May 21, 2006 at 07:08:34PM -0400, Theodore Ts'o wrote:
 > 
-> cat /proc/cpuinfo
-[...]
-> flags           : fpu de tsc msr cx8 mtrr pge cmov mmx fxsr sse
-> fxsr_opt
+> Fix memory leak when the ext3's journal file is corrupted
+> 
+> Signed-off-by: "Theodore Ts'o" <tytso@mit.edu>
+> 
+> Index: linux-2.6/fs/jbd/recovery.c
+> ===================================================================
+> --- linux-2.6.orig/fs/jbd/recovery.c	2006-05-21 18:39:27.000000000 -0400
+> +++ linux-2.6/fs/jbd/recovery.c	2006-05-21 18:39:34.000000000 -0400
+> @@ -531,6 +531,7 @@
+>  		default:
+>  			jbd_debug(3, "Unrecognised magic %d, end of scan.\n",
+>  				  blocktype);
+> +			brelse(bh);
+>  			goto done;
+>  		}
+>  	}
 
-I believe the padlock support was only added in later steppings of the
-Nehemiah core.  My Nehemiah system here supports it:
+It seems to me that this one is a clear candidate for 2.4 too, isn't it ?
+While reviewing diffs between 2.4 and 2.6 on this file, I also found this
+patch from Andrew two years ago which also seems appropriate for 2.4 : 
 
-cat /proc/cpuinfo 
-processor       : 0
-vendor_id       : CentaurHauls
-cpu family      : 6
-model           : 9
-model name      : VIA Nehemiah
-stepping        : 8
-cpu MHz         : 997.000
-cache size      : 64 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr cx8 sep mtrr pge cmov pat mmx fxsr sse rng rng_en ace ace_en
-bogomips        : 2007.25
 
-(Note the rng* and ace* flags)
+[PATCH] JBD: avoid panic on corrupted journal superblock
 
-According to a VIA press release here:
-http://www.linuxdevices.com/sponsors/SP2782600871-NS4520757633.html
-only stepping 8 or later CPUs support these instructions.
--- 
-Adam Jones (adam@yggdrasl.demon.co.uk)(http://www.yggdrasl.demon.co.uk/)
-.oO("It's not like it's sigfile fodder or anything..."                 )
-PGP public key: http://www.yggdrasl.demon.co.uk/pubkey.asc
+Don't panic if the journal superblock is wrecked: just fail the mount.
+
+
+--- 1.11/fs/jbd/recovery.c	2006-05-23 20:44:53 -07:00
++++ 1.12/fs/jbd/recovery.c	2006-05-23 20:44:53 -07:00
+@@ -137,7 +137,10 @@
+ 
+ 	*bhp = NULL;
+ 
+-	J_ASSERT (offset < journal->j_maxlen);
++	if (offset >= journal->j_maxlen) {
++		printk(KERN_ERR "JBD: corrupted journal superblock\n");
++		return -EIO;
++	}
+ 
+ 	err = journal_bmap(journal, offset, &blocknr);
+ 
+
+I'm about to queue them both for Marcelo, do you have any objection ?
+
+Thanks in advance,
+Willy
 

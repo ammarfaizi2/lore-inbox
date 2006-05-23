@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWEWOvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWEWOyE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbWEWOvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 10:51:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWEWOvQ
+	id S932223AbWEWOyE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 10:54:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWEWOyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 10:51:16 -0400
-Received: from darla.ti-wmc.nl ([217.114.97.45]:28319 "EHLO smtp.wmc")
-	by vger.kernel.org with ESMTP id S932119AbWEWOvP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 10:51:15 -0400
-Message-ID: <44732162.6080107@ti-wmc.nl>
-Date: Tue, 23 May 2006 16:51:14 +0200
-From: Simon Oosthoek <simon.oosthoek@ti-wmc.nl>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
-MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Herman Elfrink <herman.elfrink@ti-wmc.nl>
-Subject: Re: [ANNOUNCE] FLAME: external kernel module for L2.5 meshing
-References: <44731733.7000204@ti-wmc.nl> <20060523073851.39c3b5fe@localhost.localdomain>
-In-Reply-To: <20060523073851.39c3b5fe@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 23 May 2006 10:54:04 -0400
+Received: from mga05.intel.com ([192.55.52.89]:27441 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932227AbWEWOyD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 10:54:03 -0400
+X-IronPort-AV: i="4.05,161,1146466800"; 
+   d="scan'208"; a="41269852:sNHT245312599"
+Date: Tue, 23 May 2006 07:52:03 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, y-goto@jp.fujitsu.com,
+       ktokunag@redhat.com, ashok.raj@intel.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH] node hotplug : register_cpu() changes [0/3]
+Message-ID: <20060523075202.A24516@unix-os.sc.intel.com>
+References: <20060523195636.693e00d6.kamezawa.hiroyu@jp.fujitsu.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060523195636.693e00d6.kamezawa.hiroyu@jp.fujitsu.com>; from kamezawa.hiroyu@jp.fujitsu.com on Tue, May 23, 2006 at 07:56:36PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
-> O
->> Usage
->> =====
->> - Load module:
->>     modprobe flame [debuglevel=]  [flm_topo_timer=]
->>       : debug level, default: 1
->>       : topology check timer (in seconds), default: 5
->> - Open/close a device with:
->>     echo "up   []" > /proc/net/flame/cmd
->>     echo "down " > /proc/net/flame/cmd
->>       : name of FLAME device, e.g. flm0
->>       : comma-separated list of MAC devices (at least one) that are
->>       used below the FLAME device. All of these must be up.
->>     : comma-separated list of MAC addresses of devices
->>       for which traffic should be ignored; each MAC address should
->>       be a semicolon-separated list of 6 hex-pairs
->> - Get current forwarding info from FLAME:
->>     cat /proc/net/flame/fwd
->> - Get nodes/cost information from MACINFO:
->>     cat /proc/net/macinfo
+On Tue, May 23, 2006 at 07:56:36PM +0900, KAMEZAWA Hiroyuki wrote:
+> I found acpi container, which describes node, could evaluate cpu before
+> memory. This means cpu-hot-add occurs before memory hot add.
 > 
-> 
-> Use of /proc for an API is no longer desirable. Please rewrite.
-> -
 
-hmm, ok, I'm not sure this will happen anytime soon (being a rather low 
-priority thing, which is also the reason it's not submitted as patch to 
-the kernel and not signed off), but what is currently the desirable method?
+Is it possible to process memory before cpu in container hot-add code?
 
-Cheers
+> In most part, cpu-hot-add doesn't depend on node hot add.
+> But register_cpu, which creates symbolic link from node to cpu, requires
 
-Simon
+Dont you need all per-cpu allocated on that node? Or is it from node0 or 
+something for all hotpluggable cpus?
 
-PS, I'm replying for my colleague, who will see this Monday at the 
-earliest ;-)
+If node is online first, then all allocations come from that node, thought you
+*want* to ensure node/mem is online before cpu is up to get that benefit.
 
+> that node should be onlined before register_cpu().
+> When a node is onlined, its pgdat should be there.

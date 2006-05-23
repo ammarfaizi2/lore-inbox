@@ -1,81 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWEWBCi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWEWBDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751214AbWEWBCi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 21:02:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWEWBCi
+	id S1751222AbWEWBDg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 21:03:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWEWBDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 21:02:38 -0400
-Received: from cyrus.iparadigms.com ([64.140.48.8]:44778 "EHLO
-	cyrus.iparadigms.com") by vger.kernel.org with ESMTP
-	id S1751214AbWEWBCh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 21:02:37 -0400
-Message-ID: <44725F26.3080802@iparadigms.com>
-Date: Mon, 22 May 2006 18:02:30 -0700
-From: fitzboy <fitzboy@iparadigms.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Re: tuning for large files in xfs
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 22 May 2006 21:03:36 -0400
+Received: from vbn.0050556.lodgenet.net ([216.142.194.234]:21968 "EHLO
+	vbn.0050556.lodgenet.net") by vger.kernel.org with ESMTP
+	id S1751222AbWEWBDf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 21:03:35 -0400
+Subject: Re: + input-new-force-feedback-interface.patch added to -mm tree
+From: Arjan van de Ven <arjan@infradead.org>
+To: Anssi Hannula <anssi.hannula@gmail.com>
+Cc: linux-kernel@vger.kernel.org, dtor_core@ameritech.net
+In-Reply-To: <4471E2F6.1040709@gmail.com>
+References: <200605180446.k4I4kFxs007658@shell0.pdx.osdl.net>
+	 <1147963441.2866.5.camel@laptopd505.fenrus.org>
+	 <4471E2F6.1040709@gmail.com>
+Content-Type: text/plain
+Date: Tue, 23 May 2006 03:03:24 +0200
+Message-Id: <1148346205.3100.3.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Return-Path: <news@google.com>
-X-Original-To: linux-kernel@moderators.bofh.it
-Delivered-To: linuxmod+linux.kernel@attila.bofh.it
-Received: from horus.isnic.is (horus.isnic.is [193.4.58.12])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by attila.bofh.it (Postfix) with ESMTP id 057865F87F
-	for <linux-kernel@moderators.bofh.it>; Tue, 23 May 2006 02:59:46 +0200 
-(CEST)
-Received: from proxy.google.com (proxy.google.com [66.102.0.4])
-	by horus.isnic.is (8.12.9p2/8.12.9/isnic) with ESMTP id k4N0xduC097233
-	for <linux-kernel@moderators.isc.org>; Tue, 23 May 2006 00:59:41 GMT
-	(envelope-from news@google.com)
-Received: from  G018037
-	by proxy.google.com with ESMTP id k4N0xXAA020036
-	for <linux-kernel@moderators.isc.org>; Mon, 22 May 2006 17:59:33 -0700
-Received: (from news@localhost)
-	by Google Production with  id k4N0xXvP022170
-	for linux-kernel@moderators.isc.org; Mon, 22 May 2006 17:59:33 -0700
-To: linux-kernel@moderators.isc.org
-Path: j73g2000cwa.googlegroups.com!not-for-mail
-From: fitzboy@iparadigms.com
-Newsgroups: linux.kernel
-Subject: Re: tuning for large files in xfs
-Date: 22 May 2006 17:59:27 -0700
-Organization: http://groups.google.com
-Lines: 12
-Message-ID: <1148345967.616414.318940@j73g2000cwa.googlegroups.com>
-References: <6fnNu-7ae-23@gated-at.bofh.it> <6fr4D-3JP-7@gated-at.bofh.it>
-NNTP-Posting-Host: 209.209.36.196
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-X-Trace: posting.google.com 1148345973 22160 127.0.0.1 (23 May 2006 
-00:59:33 GMT)
-X-Complaints-To: groups-abuse@google.com
-NNTP-Posting-Date: Tue, 23 May 2006 00:59:33 +0000 (UTC)
-In-Reply-To: <6fr4D-3JP-7@gated-at.bofh.it>
-User-Agent: G2/0.2
-X-HTTP-Useragent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en) 
-AppleWebKit/418 (KHTML, like Gecko) Safari/417.9.2,gzip(gfe),gzip(gfe)
-Complaints-To: groups-abuse@google.com
-Injection-Info: j73g2000cwa.googlegroups.com; posting-host=209.209.36.196;
-    posting-account=4elvtg0AAAAA6DoPt8oOAEoKYVdVm_2h
+On Mon, 2006-05-22 at 19:12 +0300, Anssi Hannula wrote:
+> Arjan van de Ven wrote:
+> > On Wed, 2006-05-17 at 21:46 -0700, akpm@osdl.org wrote:
+> > 
+> >>+
+> >>+#ifdef DEBUG
+> >>+#define debug(format, arg...) printk(KERN_DEBUG "ff-effects: " format "\n" , ## arg)
+> >>+#else
+> >>+#define debug(format, arg...) do {} while (0)
+> >>+#endif
+> > 
+> > 
+> > please just use the existing prdebug() thing for this, no need to invent
+> > your own ;)
+> 
+> Couldn't find any info on that one, are you sure you spelled it correctly?
 
-the sweet size for me would be a 32k block size on both the RAID and
-the XFS partition for me (that is the best number for my application).
-However, on the lower level RAID there is a very nominal performance
-difference between 32k and 64k stripe size (like 4%), so I just stick
-with the defauly 64k. And for the XFS partition, since I am on an intel
-machine with 2.6.8, I can only go up to a 2k blocksize...
 
-But to answer your question, the RAID is on a 64k stripe size, and I
-just changed my test app to do 2k reads, and still I get the same
-performance (with only marginal improvement), so alignment can't be the
+> 
+> > 
+#ifdef DEBUG
+#define pr_debug(fmt,arg...) \
+        printk(KERN_DEBUG fmt,##arg)
+#else
+#define pr_debug(fmt,arg...) \
+        do { } while (0)
+#endif
 
+
+in linux/kernel.h
+
+
+> Well, I don't know. When should EXPORT_SYMBOLs be EXPORT_SYMBOL_GPLs?
+> 
+
+if it's linux-only code or otherwise very internal, _GPL is usually the
+right thing
+
+> > hmmm stack space?
+> > 
+> 
+> I count 76 bytes (x86), is that too much?
+
+it's sort of ok, just make sure it doesn't grow more
+
+> > 
+> > that is almost always a wrong return value
+> > 
+> 
+> It's returned when the device is mem-capable but driver doesn't
+> implement set_gain() but sets FF_GAIN or when driver doesn't implement
+> set_autocenter() but sets FF_AUTOCENTER. But yes, if that happens, it's
+> a driver bug, so maybe this is not correct use for -ENOSYS. Probably
+> there should be BUG() too here.
+
+-EINVAL or so would be better; -ENOSYS basically is "not implemented
+system call", which is totally off topic in this context
+
+> 
+> >>+	if (test_bit(FF_CONSTANT, dev->ff->flags))
+> >>+		set_bit(FF_CONSTANT, dev->ffbit);
+> >>+	if (test_bit(FF_SPRING, dev->ff->flags))
+> >>+		set_bit(FF_SPRING, dev->ffbit);
+> >>+	if (test_bit(FF_FRICTION, dev->ff->flags))
+> >>+		set_bit(FF_FRICTION, dev->ffbit);
+> >>+	if (test_bit(FF_DAMPER, dev->ff->flags))
+> >>+		set_bit(FF_DAMPER, dev->ffbit);
+> >>+	if (test_bit(FF_INERTIA, dev->ff->flags))
+> > 
+> > 
+> > are you really sure you need atomic set_bit()'s here??
+> > if so.. I think you have a race ;)
+> 
+> Well, I'm not. Is there an alternative?
+
+__set_bit() is not atomic, and thus a lot faster if you don't need
+atomic behavior..
 
 

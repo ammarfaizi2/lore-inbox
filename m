@@ -1,123 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWEWFep@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWEWFj3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbWEWFep (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 01:34:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWEWFep
+	id S932067AbWEWFj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 01:39:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932068AbWEWFj3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 01:34:45 -0400
-Received: from smtp.enter.net ([216.193.128.24]:38930 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S1751321AbWEWFeo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 01:34:44 -0400
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: OpenGL-based framebuffer concepts
-Date: Tue, 23 May 2006 00:48:14 +0000
-User-Agent: KMail/1.8.1
-Cc: Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <44700ACC.8070207@gmail.com> <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com>
-In-Reply-To: <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com>
+	Tue, 23 May 2006 01:39:29 -0400
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:8112 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932067AbWEWFj2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 01:39:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=By2PqEMb7Ljlx5dpF+AzvDX33eWBxP53LJdfNYgMN81kL6n4JLrxHgXRUntyGv4d2bI+JESqKUg6HDkjuhk2k7g1mkRPyE/YRhxqfNor51NCWzr/XiLGbXas5L2DIn6H6wigbps7LdTjQMQN5mTLjJCmm7Lyk2liop4DJ60xM+0=  ;
+Message-ID: <4472A006.2090006@yahoo.com.au>
+Date: Tue, 23 May 2006 15:39:18 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Dave Peterson <dsp@llnl.gov>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org, pj@sgi.com, ak@suse.de,
+       linux-mm@kvack.org, garlick@llnl.gov, mgrondona@llnl.gov
+Subject: Re: [PATCH (try #3)] mm: avoid unnecessary OOM kills
+References: <200605230032.k4N0WCIU023760@calaveras.llnl.gov>
+In-Reply-To: <200605230032.k4N0WCIU023760@calaveras.llnl.gov>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605230048.14708.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 23 May 2006 05:08, Kyle Moffett wrote:
-> Tentatively going with the assumption put forth by Jon Smirl in his
-> future-of-linux-graphics document and the open-graphics-project group
-> that 3d rendering is an absolutely essential part of any next-
-> generation graphics system, I'd be interested in ideas on a new or
-> modified /dev/fbX device that offers native OpenGL rendering
-> support.  Someone once mentioned OpenGL ES as a possibility as it
-> provides extensions for multiple-process windowing environments.
-> Other requirements would obviously be the ability to allow client
-> programs to allocate and share out chunks of graphics memory to other
-> clients (later used as textures for compositing), support for
-> multiple graphics cards with different hardware renderers over
-> different busses, using DMA to transfer data between cards as
-> necessary (and user-configurable policy about how to divide use of
-> the cards), support for single or multiple framebuffers per GPU, as
-> well as an arbitrary number of hardware and software viewports per
-> framebuffer.  There would also need to be a way for userspace to trap
-> and emulate or ignore unsupported OpenGL commands.  The kernel would
-> need some rudimentary understanding of OpenGL to be able to handle
-> buggy GPUs and prevent them from hanging the PCI bus (some GPUs can
-> do that if sent invalid commands), but you obviously wouldn't want a
-> full software renderer in the kernel.  The system should also support
-> transmitting OpenGL textures, commands, and other data asynchronously
-> over a TCP socket, though doing it locally via mmap would be far more
-> efficient.  I'm probably missing other necessary generics, but that
-> should provide a good discussion starter.
+Dave Peterson wrote:
+> Below is a 2.6.17-rc4-mm3 patch that fixes a problem where the OOM killer was
+> unnecessarily killing system daemons in addition to memory-hogging user
+> processes.  The patch fixes things so that the following assertion is
+> satisfied:
+> 
+>     If a failed attempt to allocate memory triggers the OOM killer, then the
+>     failed attempt must have occurred _after_ any process previously shot by
+>     the OOM killer has cleaned out its mm_struct.
+> 
+> Thus we avoid situations where concurrent invocations of the OOM killer cause
+> more processes to be shot than necessary to resolve the OOM condition.
 
-Not that I can see, but the network connectivity bit should probably not be 
-targeted in the first set of patches. IMHO, the best way to handle this would 
-be to start merging the DRI drivers into the Framebuffer drivers.  This would 
-then provide some of the infrastructure needed to bring an accelerated 
-graphics framework into the realm of possibility just in userspace.
+Does this fix observed problems on real (or fake) workloads? Can we have
+some more information about that?
 
-In other words - like with everything, the kernel only needs to provide a very 
-basic set of tools. Provide the kernel with the capacity to handle the 
-accelerated aspects of video cards seemlessly with the framebuffer driver and 
-the "Mesa Solo" project would be more than half complete.
+I still don't quite understand why all this mechanism is needed. Suppose
+that we single-thread the oom kill path (which isn't unreasonable, unless
+you need really good OOM throughput :P), isn't it enough to find that any
+process has TIF_MEMDIE set in order to know that an OOM kill is in progress?
 
-By implementing a framework where userspace doesn't have to know - or care - 
-about the hardware, which, IMNSHO, is the way things should be, then 
-userspace applications can take advantage of such a system and be even more 
-stable.
+down(&oom_sem);
+for each process {
+   if TIF_MEMDIE
+      goto oom_in_progress;
+   else
+     calculate badness;
+}
+up(&oom_sem);
 
-> The necessary kernel support would include a graphics-memory
-> allocator, resource management, GPU-time allocation, etc, as well as
-> support for an overlaid kernel console.  Ideally an improved graphics
-> driver like that would be able to dump panics directly to the screen
-> composited on top of whatever graphics are being displayed, so you'd
-> get panics even while running X.  If that kind of support was
-> available in-kernel, fixing X to not need root would be far simpler,
-> plus you could also write replacement X-like tools without half the
-> effort.  Given that sort of support, a rootless xserver would be a
-> fairly trivial wrapper over whatever underlying implementation there
-> was.
+I have one other comment, below
 
-Here you outline what is needed, and strangely I find myself thinking that a 
-lot of this code has already been written. The DRI/DRM system provides a 
-method for userspace to directly access the acceleration features of graphics 
-cards. Would it not be possible, then, to take the DRI system, merge it with 
-the framebuffer system in some manner, and provide a single interface to 
-userspace?
+> +/* If an OOM kill is not already in progress, try once more to allocate
+> + * memory.  If allocation fails this time, invoke the OOM killer.
+> + */
+> +static struct page * oom_alloc(gfp_t gfp_mask, unsigned int order,
+> +		struct zonelist *zonelist)
+> +{
+> +	static DECLARE_MUTEX(sem);
+> +	struct page *page;
+> +
+> +	down(&sem);
+> +
+> +	/* Prevent parallel OOM kill operations.  This fixes a problem where
+> +	 * the OOM killer was observed shooting system daemons in addition to
+> +	 * memory-hogging user processes.
+> +	 */
+> +	if (oom_kill_active()) {
+> +		up(&sem);
+> +		goto out_sleep;
+> +	}
+> +
+> +	/* If we get here, we _know_ that any previous OOM killer victim has
+> +	 * cleaned out its mm_struct.  Therefore we should pick a victim to
+> +	 * shoot if this allocation fails.
+> +	 */
+> +	page = get_page_from_freelist(gfp_mask | __GFP_HARDWALL, order,
+> +				zonelist, ALLOC_WMARK_HIGH | ALLOC_CPUSET);
+> +
+> +	if (page) {
+> +		up(&sem);
+> +		return page;
+> +	}
+> +
+> +	oom_kill_start();
+> +	up(&sem);
+> +
+> +	/* Try to shoot a process.  Call oom_kill_finish() only if the OOM
+> +	 * killer did not shoot anything.  If the OOM killer shot something,
+> +	 * mmput() will call oom_kill_finish() once the mm_users count of the
+> +	 * victim's mm_struct has reached 0 and the mm_struct has been cleaned
+> +	 * out.
+> +	 */
+> +	if (out_of_memory(zonelist, gfp_mask, order))
+> +		oom_kill_finish();  /* cancel OOM kill */
+> +
+> +out_sleep:
+> +	/* Did we get shot by the OOM killer?  If not, sleep for a while to
+> +	 * avoid burning lots of CPU cycles looping in the memory allocator.
+> +	 * If the OOM killer shot a process, this gives the victim a good
+> +	 * chance to die before we retry allocation.
+> +	 */
+> +	if (!test_thread_flag(TIF_MEMDIE))
+> +		schedule_timeout_uninterruptible(1);
+> +
+> +	return NULL;
+> +}
 
-Even now I know that most applications that directly access the framebuffer 
-and make use of it have special drivers for the various cards that have 
-framebuffer drivers in Linux. These might be because of the various 
-colorspace conventions - like the BGRA (IIRC) of the Radeons - but even that 
-could be better handled either via a sysfs file or by an ioctl in the 
-drivers.
+Is all this really required? Shouldn't you just have in place the
+mechanism to prevent concurrent OOM killings in the OOM code, and
+so the page allocator doesn't have to bother with it at all (ie.
+it can just call into the OOM killer, which may or may not actually
+kill anything).
 
-But if the Framebuffer system got a makeover, perhaps implementing the 
-information side as sysfs files and the actual control side as ioctls...
-
-One thing that I've been thinking about is that there is some need for DMA to 
-and from the card. This would probably best be done by the current S/G DMA 
-system, as it's a well known and very stable part of the kernel that is 
-(IIRC) exposed to userspace.
-
-As for allowing direct access to the GPU, about all I can think of is 
-providing an IOCTL that gives you a pointer to a buffer that you can write 
-the information to, although a better solution would be to provide a single 
-IOCTL that takes a userspace buffer and transfers it directly to the GPU.
-
-Neither option seems good to me, since both would require userspace to know 
-which card it's talking to. So, my only real suggestion is to add another 
-library to the kernel - one that can translate a user request into the proper 
-GPU commands and hide all the machinery from the end-user.
-
-DRH
-(Note: I do not like any of the GPU access options I mentioned. The first two 
-because they require userspace knowing which hardware it's talking to when I, 
-personally, feel that userspace should have no need to know that sort of 
-information. The last one because it requires adding a complex interpreter to 
-the kernel, and that screams to me of "bloat".)
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWEWOyE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWEWOzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932223AbWEWOyE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 10:54:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWEWOyE
+	id S932178AbWEWOzx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 10:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWEWOzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 10:54:04 -0400
-Received: from mga05.intel.com ([192.55.52.89]:27441 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932227AbWEWOyD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 10:54:03 -0400
-X-IronPort-AV: i="4.05,161,1146466800"; 
-   d="scan'208"; a="41269852:sNHT245312599"
-Date: Tue, 23 May 2006 07:52:03 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, y-goto@jp.fujitsu.com,
-       ktokunag@redhat.com, ashok.raj@intel.com, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] node hotplug : register_cpu() changes [0/3]
-Message-ID: <20060523075202.A24516@unix-os.sc.intel.com>
-References: <20060523195636.693e00d6.kamezawa.hiroyu@jp.fujitsu.com>
+	Tue, 23 May 2006 10:55:53 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:17651 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751349AbWEWOzw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 10:55:52 -0400
+Date: Tue, 23 May 2006 16:55:50 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Simon Oosthoek <simon.oosthoek@ti-wmc.nl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Herman Elfrink <herman.elfrink@ti-wmc.nl>
+Subject: Re: [ANNOUNCE] FLAME: external kernel module for L2.5 meshing
+Message-ID: <20060523145549.GA22749@harddisk-recovery.com>
+References: <44731733.7000204@ti-wmc.nl> <1148395738.25255.68.camel@localhost.localdomain> <44731F2C.2010109@ti-wmc.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060523195636.693e00d6.kamezawa.hiroyu@jp.fujitsu.com>; from kamezawa.hiroyu@jp.fujitsu.com on Tue, May 23, 2006 at 07:56:36PM +0900
+In-Reply-To: <44731F2C.2010109@ti-wmc.nl>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 23, 2006 at 07:56:36PM +0900, KAMEZAWA Hiroyuki wrote:
-> I found acpi container, which describes node, could evaluate cpu before
-> memory. This means cpu-hot-add occurs before memory hot add.
+On Tue, May 23, 2006 at 04:41:48PM +0200, Simon Oosthoek wrote:
+> Alan Cox wrote:
+> >On Maw, 2006-05-23 at 16:07 +0200, Herman Elfrink wrote:
+> >>FLAME uses an unofficial protocol number (0x4040), any tips on how to 
+> >>get an official IANA number would be highly appreciated.
+> >>
+> >
+> >Ethernet protocol number I assume you mean. If so this at least used to
+> >be handled by the IEEE, along with ethernet mac address ranges.
+> >
 > 
+> Yes ethernet protocol (it's below IP level), I didn't realise that IEEE 
+> also handled the portnumbers. I'll check the ieee website to see how it 
+> works, tnx!
 
-Is it possible to process memory before cpu in container hot-add code?
+IEEE doesn't handle port numbers. Port numbers are for whatever is
+layered on top of ethernet, so you need to register those with the
+appropriate authorities (IANA for IP).
 
-> In most part, cpu-hot-add doesn't depend on node hot add.
-> But register_cpu, which creates symbolic link from node to cpu, requires
 
-Dont you need all per-cpu allocated on that node? Or is it from node0 or 
-something for all hotpluggable cpus?
+Erik
 
-If node is online first, then all allocations come from that node, thought you
-*want* to ensure node/mem is online before cpu is up to get that benefit.
-
-> that node should be onlined before register_cpu().
-> When a node is onlined, its pgdat should be there.
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

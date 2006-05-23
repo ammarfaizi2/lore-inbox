@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWEWCW7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbWEWCXf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751012AbWEWCW7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 22:22:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWEWCW7
+	id S1751256AbWEWCXf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 22:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWEWCXe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 22:22:59 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:12944 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751012AbWEWCW6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 22:22:58 -0400
-Date: Mon, 22 May 2006 19:22:48 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org, chrisw@sous-sol.org
-Subject: Re: cpusets: only wakeup kswapd for zones in the current cpuset
-Message-Id: <20060522192248.b114fea3.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0605221858250.7165@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0602081010440.2648@schroedinger.engr.sgi.com>
-	<20060522182356.fbea4aec.pj@sgi.com>
-	<Pine.LNX.4.64.0605221858250.7165@schroedinger.engr.sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Mon, 22 May 2006 22:23:34 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:27544 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751256AbWEWCXd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 May 2006 22:23:33 -0400
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: NMI problems with Dell SMP Xeons 
+In-reply-to: Your message of "Tue, 23 May 2006 12:02:10 +1000."
+             <5767.1148349730@kao2.melbourne.sgi.com> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 23 May 2006 12:21:56 +1000
+Message-ID: <6256.1148350916@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> None if that is the case.
+Keith Owens (on Tue, 23 May 2006 12:02:10 +1000) wrote:
+>Andi Kleen (on Tue, 23 May 2006 03:55:48 +0200) wrote:
+>>nd add special cases just to get an NMI send with different vector.
+>>> 
+>>> I have never disagreed that all NMIs will end up on the NMI vector (2).
+>>
+>>The problem was that KDB had an own handler for its debug vector,
+>>although that was only ever called as NMI.
+>
+>You are confusing KDB_ENTER (instruction code 'int 0x81') with
+>KDB_VECTOR (IPI).  KDB_ENTER needs its own int handler which is not an
+>NMI, KDB_VECTOR does not need (and does not have) its own handler, it
+>is handled by the NMI vector.
 
-Take a look at wakeup_kswapd() for yourself ;).
-No need to speculate.
+Or you might be thinking of kdb-v0.6-2.2.13 and earlier, which did have
+a spurious handler for KDB_VECTOR.  But that was fixed in
+kdb-v1.0-2.3.29, back in January 2000.  You are not going to hold that
+against me are you, especially since I was not maintaining KDB then?
 
-Do you recall why you posted this patch?  The
-wording made it sound like you had hit some
-problem with waking up kswapd for all the nodes.
-
-If you really saw that, then it would seem that
-we still have a problem, that is now lacking a fix.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

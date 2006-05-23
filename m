@@ -1,55 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbWEWKYj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWEWK26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751322AbWEWKYj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 06:24:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWEWKYj
+	id S1751323AbWEWK26 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 06:28:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWEWK26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 06:24:39 -0400
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:20827 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751322AbWEWKYj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 06:24:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=xjnGvrtOO9qpDhf+1witkzOXHCCJazsQxq7wdXlk/xIQbMq4Kb3ZhGrRJWBXNxoLzdcJ6Ga8Ph/cvkF9eAUvMWaOzXXbHGKJZ3Xszx6nno4We/pGH4CD/9IiuMuvipLxu/zAECGutmpYGmhVcVn4o7w7s9ihOZNx8CQaDlUvMKI=  ;
-Message-ID: <4472E2E0.4000201@yahoo.com.au>
-Date: Tue, 23 May 2006 20:24:32 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Tue, 23 May 2006 06:28:58 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:34226 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751323AbWEWK25 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 06:28:57 -0400
+Message-ID: <4472E3D8.9030403@garzik.org>
+Date: Tue, 23 May 2006 06:28:40 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Haar_J=E1nos?= <djani22@netcenter.hu>
-CC: kernel@kolivas.org, cw@f00f.org, linux-kernel@vger.kernel.org
-Subject: Re: swapper: page allocation failure. - random reboot problem
-References: <00e901c67cad$fe9a9d90$1800a8c0@dcccs> <200605222117.27433.kernel@kolivas.org> <031001c67db1$a8c4a1e0$1800a8c0@dcccs> <200605230112.45564.kernel@kolivas.org> <047401c67de3$a05a52c0$1800a8c0@dcccs> <4472D327.3060808@yahoo.com.au> <013601c67e51$eef03c10$1800a8c0@dcccs>
-In-Reply-To: <013601c67e51$eef03c10$1800a8c0@dcccs>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Kyle Moffett <mrmacman_g4@mac.com>, Manu Abraham <abraham.manu@gmail.com>,
+       linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>	 <44700ACC.8070207@gmail.com> <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com> <1148379089.25255.9.camel@localhost.localdomain>
+In-Reply-To: <1148379089.25255.9.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.1 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Haar János wrote:
-
-> Sorry,  i have allready did these things.
+Alan Cox wrote:
+> On Maw, 2006-05-23 at 01:08 -0400, Kyle Moffett wrote:
+>> generation graphics system, I'd be interested in ideas on a new or  
+>> modified /dev/fbX device that offers native OpenGL rendering  
+>> support.  Someone once mentioned OpenGL ES as a possibility as it  
 > 
-> The motherboard + CPU + RAM successed the overnight memtest, but anyway i
-> have replaced this group with another pre-tested ones, but no change!
-> (Additionally, i replaced the NIC [e1000 to e1000, and e1000 to realtek],
-> the sata cards [promise to promise], the sata and ide cables, mb, cpu, ram,
-> ps, and the power cable too.
-> Only the 12hdd is the same, but smart reports no errors at all!)
-> The power supply is the 3rd. and the problem is the same.
+> So for a low end video card you want to put a full software opengl es
+> stack into the kernel including the rendering loops which tend to be
+> large and slow, or dynamically generated code ?
 
-But is the power supply rated enough to support all the drives?
-I have seen random reboots where the power supply wasn't good
-enough.
+Indeed, consider the extent of that phrase "dynamically generated code."
 
-> 
-> This is really a software bug, but i dont know exactly where.
+To do modern OpenGL (mostly fragment and vertex shaders), you basically 
+must have a compiler front-end (C-like language), a code generator (JIT) 
+backend for your architecture (x86, x86-64, ...), and a code generator 
+backend for your GPU.
 
-Could be. memtest doesn't guarantee anything though...
+Further, as Keith Whitwell and others have rightly pointed out, a modern 
+GPU needs such advanced resource management that the X server (or 
+whatever driver) essentially becomes a _multi-tasking scheduler_. 
+Consider the case of two resource-hungry 3D processes rendering to the 
+same X11 screen, and you'll see why a GPU scheduler is needed.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Modern graphics is highly aligned with the Cell processor programming 
+model:  shipping specialized binary code elsewhere, to be remotely executed.
+
+OTOH, I think a perfect video driver would be in kernel space, and do
+
+* delivery of GPU commands from userspace to hardware, hopefully via 
+zero-copy DMA.  For older cards without a true instruction set, "GPU 
+commands" simply means userspace prepares hardware register 
+read/write/test commands, and blasts the sequence to hardware at the 
+appropriate moment (a la S3 Savage's BCI).
+* delivery of bytecode commands (faux GPU commands) from userspace to 
+kernel to hardware.  Much like today's ioctls, but much more efficient 
+delivery.  Used for mode switching commands, basic monitor management 
+commands, and other not-vendor-specific operations that belong in the 
+kernel.
+* interrupt and DMA handling
+* multi-context, multi-thread GPU resource scheduler (2D/3D context 
+switching is lumped in here too)
+* suspend and resume
+
+and nothing else.
+
+	Jeff
+
+

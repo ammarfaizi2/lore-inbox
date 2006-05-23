@@ -1,120 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWEWNbd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWEWNeE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbWEWNbd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 09:31:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWEWNbd
+	id S932213AbWEWNeE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 09:34:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWEWNeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 09:31:33 -0400
-Received: from smtp1.xs4all.be ([195.144.64.135]:26826 "EHLO smtp1.xs4all.be")
-	by vger.kernel.org with ESMTP id S932211AbWEWNbc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 09:31:32 -0400
-Date: Tue, 23 May 2006 15:31:11 +0200
-From: Frank Gevaerts <frank.gevaerts@fks.be>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH] Re: usb-serial ipaq kernel problem
-Message-ID: <20060523133111.GA23703@fks.be>
-References: <20060522143043.GA6408@fks.be> <20060522214403.GA7044@suse.de> <20060522220459.GA1910@fks.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060522220459.GA1910@fks.be>
-User-Agent: Mutt/1.5.9i
-X-FKS-MailScanner: Found to be clean
-X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-105.811,
-	vereist 5, autolearn=not spam, ALL_TRUSTED -3.30, AWL 0.09,
-	BAYES_00 -2.60, USER_IN_WHITELIST -100.00)
+	Tue, 23 May 2006 09:34:04 -0400
+Received: from mtagate4.uk.ibm.com ([195.212.29.137]:18733 "EHLO
+	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP id S932213AbWEWNeC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 09:34:02 -0400
+Message-ID: <44730F43.3050806@de.ibm.com>
+Date: Tue, 23 May 2006 15:33:55 +0200
+From: Martin Peschke <mp3@de.ibm.com>
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+MIME-Version: 1.0
+To: balbir@in.ibm.com
+CC: Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch 3/6] statistics infrastructure - prerequisite: timestamp
+References: <1148055080.2974.15.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <661de9470605230606l3e5fca31x5ce2be91512433@mail.gmail.com>
+In-Reply-To: <661de9470605230606l3e5fca31x5ce2be91512433@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 23, 2006 at 12:04:59AM +0200, Frank Gevaerts wrote:
-> On Mon, May 22, 2006 at 02:44:03PM -0700, Greg KH wrote:
-> > On Mon, May 22, 2006 at 04:30:48PM +0200, Frank Gevaerts wrote:
-> > > Hi, 
-> > > 
-> > > We are having problems with the usb-serial ipaq driver in 2.6.16 (debian
-> > > backports 2.6.16-1-686, but also reproducible with self-compiled
-> > > kernel.org kernel)
-> > > 
-> > > Sometimes, we get the following on disconnect:
-> > 
-> > <snip>
-> > 
-> > Can you duplicate this on 2.6.17-rc4?  A number of tty changes went into
-> > that release that should have fixed this issue.
+Balbir Singh wrote:
+>> +static inline int nsec_to_timestamp(char *s, unsigned long long t)
+>> +{
+>> +       unsigned long nsec_rem = do_div(t, 1000000000);
 > 
-> I'll try it in the morning. In the meantime, we found some other
-> problems in ipaq.c : apparently pocketpc accepts usb enumeration long
-> before it accepts usb-serial commands (sometimes 50 or more seconds),
-> which makes ipaq_open fail. When it fails, the read urb is not killed,
-> while the associated structures are freed, which gives a panic when
-> the urb completes. The following patch solves that :
-> Since changing this, I also have not seen the original problem anymore,
-> but I will do some more testing tomorrow.
+> Could we please use NSEC_PER_SEC. I cannot count the number of zeros
+> after the 1.
 
-I cannot reproduce the original problem anymore with my patch applied
+Sure. I tried to keep my changes as small as possible ;-)
 
-Frank
+>> +       return sprintf(s, "[%5lu.%06lu]", (unsigned long)t, 
+>> nsec_rem/1000);
+>> +}
+> 
+> Something symbolic for the 1000 would be better.  NSECS_PER_USEC probably?
 
-> 
-> Signed-off-by: Frank Gevaerts <frank.gevaerts@fks.be>
-> 
-> --- linux-2.6.16/drivers/usb/serial/ipaq.c      2006-03-20 06:53:29.000000000 +0100
-> +++ linux-2.6.16.ipaq/drivers/usb/serial/ipaq.c 2006-05-23 00:00:33.000000000 +0200
-> @@ -59,7 +59,7 @@
->  #include "usb-serial.h"
->  #include "ipaq.h"
->  
-> -#define KP_RETRIES     100
-> +#define KP_RETRIES     1000
->  
->  /*
->   * Version Information
-> @@ -652,12 +652,6 @@
->                       usb_rcvbulkpipe(serial->dev, port->bulk_in_endpointAddress),
->                       port->read_urb->transfer_buffer, port->read_urb->transfer_buffer_length,
->                       ipaq_read_bulk_callback, port);
-> -       result = usb_submit_urb(port->read_urb, GFP_KERNEL);
-> -       if (result) {
-> -               err("%s - failed submitting read urb, error %d", __FUNCTION__, result);
-> -               goto error;
-> -       }
-> -
->         /*
->          * Send out control message observed in win98 sniffs. Not sure what
->          * it does, but from empirical observations, it seems that the device
-> @@ -671,8 +665,15 @@
->                                 usb_sndctrlpipe(serial->dev, 0), 0x22, 0x21,
->                                 0x1, 0, NULL, 0, 100);
->                 if (result == 0) {
-> +                       result = usb_submit_urb(port->read_urb, GFP_KERNEL);
-> +                       if (result) {
-> +                               err("%s - failed submitting read urb, error %d", __FUNCTION__, result);
-> +                               goto error;
-> +                       }
-> +
->                         return 0;
->                 }
-> +                msleep(100);
->         }
->         err("%s - failed doing control urb, error %d", __FUNCTION__, result);
->         goto error;
-> 
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> 
-> -- 
-> Frank Gevaerts                                 frank.gevaerts@fks.be
-> fks bvba - Formal and Knowledge Systems        http://www.fks.be/
-> Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
-> B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19
+Makes sense.
 
--- 
-Frank Gevaerts                                 frank.gevaerts@fks.be
-fks bvba - Formal and Knowledge Systems        http://www.fks.be/
-Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
-B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19
+Thanks,
+Martin
+
+

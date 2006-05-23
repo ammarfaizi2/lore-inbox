@@ -1,30 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751051AbWEWRRV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbWEWRVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751051AbWEWRRV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 13:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbWEWRRU
+	id S1751002AbWEWRVa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 13:21:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWEWRV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 13:17:20 -0400
-Received: from nz-out-0102.google.com ([64.233.162.193]:58799 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751051AbWEWRRT convert rfc822-to-8bit (ORCPT
+	Tue, 23 May 2006 13:21:29 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:62924 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751002AbWEWRV3 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 13:17:19 -0400
+	Tue, 23 May 2006 13:21:29 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ry0Su7xXsDfT2NStvAFwneCYSeDdEnkp45MuhEE1cmW+Wto4d2uxaODcaNZBRY+EnY6veEB1K35r0UYj+Z9NuiD//uzUTe4FJsLSFG5Af92iy0Dxv68ZXMcriVRySDwLAwsd3k8OZv1zeneE1YvKTynfxEQ2GjysA/vN9PPOmJ0=
-Message-ID: <9e4733910605231017g146e16dfnd61eb22a72bd3f5f@mail.gmail.com>
-Date: Tue, 23 May 2006 13:17:18 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "D. Hazelton" <dhazelton@enter.net>
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=CSfle811oMqUiLZTBn8+YHfv7EGyYSJuFLISyVG3/DKmHrDxfpYXYoWQNhn5Repee2KyjIS2U/r0YpWtiYmK7c59DTNyYa4js9l3J0NlwR+KK/fxOtz849xN2qogpGG5tx0B0MIzlNVAg2p2zAreNid+vhkNHvBO7rN03yDYlgE=
+Message-ID: <9b5164430605231021h589dd194g8d88d46d1fcc4209@mail.gmail.com>
+Date: Tue, 23 May 2006 10:21:28 -0700
+From: "Xiong Jiang" <linuster@gmail.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: OpenGL-based framebuffer concepts
-Cc: "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200605230048.14708.dhazelton@enter.net>
+In-Reply-To: <9b5164430605231015s40ebcd38had1c3029da8afc7@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII;
 	format=flowed
@@ -33,92 +28,74 @@ Content-Disposition: inline
 References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
 	 <44700ACC.8070207@gmail.com>
 	 <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com>
-	 <200605230048.14708.dhazelton@enter.net>
+	 <1148379089.25255.9.camel@localhost.localdomain>
+	 <4472E3D8.9030403@garzik.org>
+	 <83B4C39B-1A5E-4734-A5FF-10C3179B535B@mac.com>
+	 <1148395433.25255.66.camel@localhost.localdomain>
+	 <ADF9B4F7-2B6E-41B7-8B83-26261EBE27F7@mac.com>
+	 <1148403226.25255.89.camel@localhost.localdomain>
+	 <9b5164430605231015s40ebcd38had1c3029da8afc7@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/22/06, D. Hazelton <dhazelton@enter.net> wrote:
-> Not that I can see, but the network connectivity bit should probably not be
-> targeted in the first set of patches. IMHO, the best way to handle this would
-> be to start merging the DRI drivers into the Framebuffer drivers.  This would
-> then provide some of the infrastructure needed to bring an accelerated
-> graphics framework into the realm of possibility just in userspace.
+---------- Forwarded message ----------
+From: Xiong Jiang <linuster@gmail.com>
+Date: May 23, 2006 10:15 AM
+Subject: Re: OpenGL-based framebuffer concepts
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 
-Merging fbdev and DRM is the obvious place to start. Fully
-implementing a merge requires solving a number of issues. Here are a
-few to get you going...
 
-1) Running the video ROM at boot to reset cards, emu86
-2) Sorting out VGA when multiple cards are present
-3) Determining where mode setting code is going to live
-4) Providing a default driver for video cards that have none
-5) Actually merging DRM/fbdev
-6) Some way for multiple users to control their video card without being root
+What about initialization, mode and context switching? From the
+discussion I thought that people would like to see X server and
+framebuffer console could coexist in a more coordinated way, which
+could be coordinated DRI in kernel.
 
-None of this is rocket science, patches have been already attempted
-for everything on the list. The real challenge is political, not
-technical.
+Agreed that kernel should only deal with necessary tasks as minimum as
+possible. 2D/3D engine in user mode and the reorg of Xserver/APIs
+around the engine is the thing people are discussing.
 
-> By implementing a framework where userspace doesn't have to know - or care -
-> about the hardware, which, IMNSHO, is the way things should be, then
-> userspace applications can take advantage of such a system and be even more
-> stable.
+Designing the interface inevitably involves clear understanding of the
+hardware capabilities and closed hardware spec is an obvious obstacle.
+Open Graphics card (when becoming available) would be a great thing
+and I wish a great X run it to its full strength.
 
-A true monolithic design doesn't really work for video hardware. In
-the monolithic model all devices in a class present a uniform API. The
-better design for GPUs is the exo-kernel model. DRM already uses the
-exo-kernel model. With exokernels each driver presents a unique API
-and userspace libraries are used to provide a uniform API.
+It's a little offtopic for this list but, it's an interface between
+kernel and user mode so both the Xorg and this mailing list would see
+a lot discussion on it. I am glad to see such discussion is happening.
 
-The exo-kernel model works well with software fallbacks. mesa provides
-a complete software OpenGL implementation. The device specific user
-space library then overlays functions that its hardware can
-accelerate.
+Of course a lot of education is needed for me to discuss such, with
+the wish that a better X / GUI running on modern graphics hardware is
+desirable for everyone.
 
-The current microkernel'ish design of the 2D Xserver causes a great
-deal of conflict with existing Linux subsystems. Given that 3D is
-already in the exo-kernel model, I don't see much benefit is pursuing
-a microkernel 2D solution.
+Regards,
 
-> > The necessary kernel support would include a graphics-memory
-> > allocator, resource management, GPU-time allocation, etc, as well as
-> > support for an overlaid kernel console.  Ideally an improved graphics
-> > driver like that would be able to dump panics directly to the screen
-> > composited on top of whatever graphics are being displayed, so you'd
-> > get panics even while running X.  If that kind of support was
-> > available in-kernel, fixing X to not need root would be far simpler,
-
-There is no technical reason requiring X to run as root, it is a
-matter of choice and convenience. I have had versions of X with 3D
-support running without root on my local machine but the patches were
-not merged.
-
-> > plus you could also write replacement X-like tools without half the
-> > effort.  Given that sort of support, a rootless xserver would be a
-> > fairly trivial wrapper over whatever underlying implementation there
-> > was.
+On 5/23/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Maw, 2006-05-23 at 11:41 -0400, Kyle Moffett wrote:
+> > So a modern GPU is essentially a proprietary CPU with an obscure
+> > instruction set and lots of specialized texel hardware?  Given the
+> > total lack of documentation from either ATI or NVidia about such
+> > cards I'd guess it's impossible for Linux to provide any kind of
+> > reasonable 3d engine for that kind of environment, and it might be
+> > better to target a design like the Open Graphics Project is working
+> > to provide.
 >
-> Here you outline what is needed, and strangely I find myself thinking that a
-> lot of this code has already been written. The DRI/DRM system provides a
-> method for userspace to directly access the acceleration features of graphics
-> cards. Would it not be possible, then, to take the DRI system, merge it with
-> the framebuffer system in some manner, and provide a single interface to
-> userspace?
-
-The strategy of adding acceleration feature to the framebuffer drivers
-causes conflict with X and DRM drivers. The better solution is to
-collect all acceleration support into a single driver. The DRM
-acceleration code is much more advanced than the fbdev code.
-
-> One thing that I've been thinking about is that there is some need for DMA to
-> and from the card. This would probably best be done by the current S/G DMA
-> system, as it's a well known and very stable part of the kernel that is
-> (IIRC) exposed to userspace.
-
-DRM already supports DMA to/from the GPU and does security checks on
-the parameters. It also security checks the commands being fed to the
-GPU to keep Direct Rendering applications from causing mischief.
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+> Its typically a device you feed a series of fairly low level rendering
+> commands to sometimes including instructions (eg shaders). DRI provides
+> an interface that is chip dependant but typically looks like
+>
+>
+>      [User provided command buffer]
+>                    |
+>      [Kernel filtering/DMA interface]
+>                    |
+>      [Card command queue processing]
+>
+>
+> All the higher level graphic work is done in the 3D client itself.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

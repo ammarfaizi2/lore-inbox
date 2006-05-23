@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbWEWXU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbWEWXWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932463AbWEWXU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 19:20:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWEWXU2
+	id S932477AbWEWXWh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 19:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWEWXWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 19:20:28 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:40680 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932463AbWEWXU2 (ORCPT
+	Tue, 23 May 2006 19:22:37 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:61867 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932477AbWEWXWh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 19:20:28 -0400
-Date: Tue, 23 May 2006 16:20:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc4-mm3: scary warning from pdflush
-Message-Id: <20060523162005.12c1e5c7.akpm@osdl.org>
-In-Reply-To: <20060523223515.GA1571@elf.ucw.cz>
-References: <20060523223515.GA1571@elf.ucw.cz>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 23 May 2006 19:22:37 -0400
+From: Andi Kleen <ak@suse.de>
+To: rohitseth@google.com
+Subject: Re: [PATCH]x86_64: moving phys_proc_id and cpu_core_id to cpuinfo_x86
+Date: Wed, 24 May 2006 01:21:39 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <1148424226.5959.18.camel@galaxy.corp.google.com>
+In-Reply-To: <1148424226.5959.18.camel@galaxy.corp.google.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605240121.39667.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote:
->
-> Hi!
+On Wednesday 24 May 2006 00:43, Rohit Seth wrote:
 > 
-> Not sure, I'm getting this during resume:
-> 
-> May 24 00:34:01 amd kernel: Restarting tasks...pdflush: bogus wakeup!
-> May 24 00:34:01 amd kernel:  done
-> May 24 00:34:01 amd kernel: Thawing cpus ...
-> 
-> Is it expected?
+> Most of the fields of cpuinfo are defined in cpuinfo_x86 structure.
+> This patch moves the phys_proc_id and cpu_core_id for each processor to
+> cpuinfo_x86 structure as well.
 
-It is expected if you expect me to screw stuff up.  I fixed it locally,
-thanks.
+Added thanks. At some point it'll probably change again because
+I hope to eventually move cpuinfo into the x86-64 PDA, but not right now.
 
+For symmetry it might be a good idea to do a similar patch for i386 too.
+
+-Andi

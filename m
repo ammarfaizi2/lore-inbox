@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWEWUdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWEWUhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbWEWUdW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 16:33:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWEWUdW
+	id S932185AbWEWUhV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 16:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWEWUhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 16:33:22 -0400
-Received: from wr-out-0506.google.com ([64.233.184.225]:21772 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932152AbWEWUdV convert rfc822-to-8bit (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Tue, 23 May 2006 16:33:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CzbUlvCUwCpUj84k+txObIGPOB9i37eDY/9qzVofLATNhnWdtaq/jqNK8zgYfBff3y4VfqvSGOnn+0xzi1Z2Gh3gBnaD8Y6EKvHjt8k+LpxrS2j8ebI6vRNDPKrWecG3BWJpkqjRHcbBvBMUDSWHfrojZV0uAAAiBXcfFLofIuY=
-Message-ID: <6bffcb0e0605231333n612da806j9bd910cba65e3692@mail.gmail.com>
-Date: Tue, 23 May 2006 22:33:20 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Alexey Polyakov" <alexey.polyakov@gmail.com>
-Subject: Re: [PATCH] updated reiser4 - reduced cpu usage for writes by writing more than 4k at a time (has implications for generic write code and eventually for the IO layer)
-Cc: "Hans Reiser" <reiser@namesys.com>, "Andrew Morton" <akpm@osdl.org>,
-       "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>,
-       "Reiserfs developers mail-list" <Reiserfs-Dev@namesys.com>,
-       "Reiserfs mail-list" <Reiserfs-List@namesys.com>,
-       "Nate Diller" <ndiller@namesys.com>
-In-Reply-To: <b5d90b2a0605231326g5319fea8wb9efef34ee5f7ec6@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+	Tue, 23 May 2006 16:37:21 -0400
+Received: from outmx010.isp.belgacom.be ([195.238.5.233]:57738 "EHLO
+	outmx010.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S932163AbWEWUhU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 16:37:20 -0400
+Date: Tue, 23 May 2006 22:37:09 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/14/] Doc. sources: expose watchdog
+Message-ID: <20060523203709.GA4651@infomag.infomag.iguana.be>
+References: <20060521205810.64b631e2.rdunlap@xenotime.net> <20060522144347.07b08a8c.akpm@osdl.org> <20060522145832.ce45807a.rdunlap@xenotime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <44736D3E.8090808@namesys.com>
-	 <b5d90b2a0605231326g5319fea8wb9efef34ee5f7ec6@mail.gmail.com>
+In-Reply-To: <20060522145832.ce45807a.rdunlap@xenotime.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Hans,
+Hi All,
 
-On 23/05/06, Alexey Polyakov <alexey.polyakov@gmail.com> wrote:
-> Hi!
->
-> I'm actively using Reiser4 on a production servers (and I know a lot
-> of people that do that too).
-> Could you please release the patch against the vanilla tree?
-> I don't think there's a lot of people that will test -mm version,
-> especially on production servers - -mm is a little bit too unstable.
+> > "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+> > >
+> > >  Documentation/watchdog/pcwd-watchdog.txt |   73 -------------------------------
+> > >   Documentation/watchdog/watchdog-api.txt  |   17 -------
+> > >   Documentation/watchdog/watchdog-simple.c |   15 ++++++
+> > >   Documentation/watchdog/watchdog-test.c   |   68 ++++++++++++++++++++++++++++
+> > >   Documentation/watchdog/watchdog.txt      |   23 ---------
+> > 
+> > Wouldn't it be better to move all the .c files into a new directory? 
+> > Documentation/src or something?
+> 
+> I dunno.  I like using multiple subdirectories (like watchdog/,
+> laptop/, block/, etc.) and not cluttering up Documentation/
+> with them.
 
-Any chance to get this patch against 2.6.17-rc4-mm3?
+I think a "user" that wants to know something specific about watchdog drivers
+will look in Documentation/watchdog and try to find what he need as fast as
+he can. I would say Documentation/watchdog/src/ then...
 
-Regards,
-Michal
+Greetings,
+Wim.
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)

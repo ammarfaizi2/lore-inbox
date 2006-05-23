@@ -1,128 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWEWSeG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWEWSjA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932124AbWEWSeG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 14:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWEWSdo
+	id S932250AbWEWSjA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 14:39:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWEWSi7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 14:33:44 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:7607 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751223AbWEWSdf (ORCPT
+	Tue, 23 May 2006 14:38:59 -0400
+Received: from smtp3.nextra.sk ([195.168.1.142]:23824 "EHLO mailhub3.nextra.sk")
+	by vger.kernel.org with ESMTP id S932250AbWEWSi7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 14:33:35 -0400
-Content-Type: text/plain; charset="us-ascii"
+	Tue, 23 May 2006 14:38:59 -0400
+Message-ID: <447356BF.2080000@rainbow-software.org>
+Date: Tue, 23 May 2006 20:38:55 +0200
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
+To: Antonio <tritemio@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [radeonfb]: unclean backward scrolling
+References: <5486cca80605210638l2906112fv515df1bc390cff24@mail.gmail.com>
+In-Reply-To: <5486cca80605210638l2906112fv515df1bc390cff24@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 6 of 10] ipath - enable GPIO interrupt on HT-460
-X-Mercurial-Node: 5d7e365286b3a3096fbad1c834ca4f3b9e1be6a2
-Message-Id: <5d7e365286b3a3096fba.1148409154@eng-12.pathscale.com>
-In-Reply-To: <patchbomb.1148409148@eng-12.pathscale.com>
-Date: Tue, 23 May 2006 11:32:34 -0700
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: rdreier@cisco.com
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is required for even semi-decent performance on OpenIB.
+Antonio wrote:
+> Hi,
+> 
+> I'm using the radeonfb driver with a radeon 7000 with the frambuffer
+> at 1280x1024 on a i386 system, with a 2.6.16.17 kernel. At boot time,
+> if I stop the messages with CTRL+s and try look the previous messages
+> with CTRL+PagUp (backward scrolling) the screen become unreadable. In
+> fact some lengthier lines are not erased scrolling backward and some
+> random characters a overwritten instead. So it's very difficult to
+> read the messages.
+> 
+> I don't have such problem with the frambuffer at 1024x768.
+> 
+> All the previous kernels I've tried have this problem (at least up to 
+> 2.6.15).
+> 
+> If someone can look at this issue I can provide further information.
 
-Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
+I have probably the same problem - but with vesafb on my notebook 
+(800x600). When I scroll back/forward or run mc and then exit, it fixes 
+itself. The problem was probably always there (in 2.6.x - don't know 
+about older versions).
 
-diff -r 6bf52c0f0f0d -r 5d7e365286b3 drivers/infiniband/hw/ipath/ipath_eeprom.c
---- a/drivers/infiniband/hw/ipath/ipath_eeprom.c	Tue May 23 11:29:15 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_eeprom.c	Tue May 23 11:29:16 2006 -0700
-@@ -505,11 +505,10 @@ static u8 flash_csum(struct ipath_flash 
-  * ipath_get_guid - get the GUID from the i2c device
-  * @dd: the infinipath device
-  *
-- * When we add the multi-chip support, we will probably have to add
-- * the ability to use the number of guids field, and get the guid from
-- * the first chip's flash, to use for all of them.
-- */
--void ipath_get_guid(struct ipath_devdata *dd)
-+ * We have the capability to use the ipath_nguid field, and get
-+ * the guid from the first chip's flash, to use for all of them.
-+ */
-+void ipath_get_eeprom_info(struct ipath_devdata *dd)
- {
- 	void *buf;
- 	struct ipath_flash *ifp;
-diff -r 6bf52c0f0f0d -r 5d7e365286b3 drivers/infiniband/hw/ipath/ipath_ht400.c
---- a/drivers/infiniband/hw/ipath/ipath_ht400.c	Tue May 23 11:29:15 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_ht400.c	Tue May 23 11:29:16 2006 -0700
-@@ -607,7 +607,12 @@ static int ipath_ht_boardname(struct ipa
- 	case 4:		/* Ponderosa is one of the bringup boards */
- 		n = "Ponderosa";
- 		break;
--	case 5:		/* HT-460 original production board */
-+	case 5:	
-+		/*
-+		 * HT-460 original production board; two production levels, with
-+		 * different serial number ranges.   See ipath_ht_early_init() for
-+		 * case where we enable IPATH_GPIO_INTR for later serial # range.
-+		 */
- 		n = "InfiniPath_HT-460";
- 		break;
- 	case 6:
-@@ -642,7 +647,7 @@ static int ipath_ht_boardname(struct ipa
- 	if (n)
- 		snprintf(name, namelen, "%s", n);
- 
--	if (dd->ipath_majrev != 3 || dd->ipath_minrev != 2) {
-+	if (dd->ipath_majrev != 3 || (dd->ipath_minrev < 2 || dd->ipath_minrev > 3)) {
- 		/*
- 		 * This version of the driver only supports the HT-400
- 		 * Rev 3.2
-@@ -1520,6 +1525,18 @@ static int ipath_ht_early_init(struct ip
- 	 */
- 	ipath_write_kreg(dd, dd->ipath_kregs->kr_sendctrl,
- 			 INFINIPATH_S_ABORT);
-+
-+	ipath_get_eeprom_info(dd);
-+	if(dd->ipath_boardrev == 5 && dd->ipath_serial[0] == '1' &&
-+		dd->ipath_serial[1] == '2' && dd->ipath_serial[2] == '8') {
-+		/*
-+		 * Later production HT-460 has same changes as HT-465, so
-+		 * can use GPIO interrupts.  They have serial #'s starting
-+		 * with 128, rather than 112.
-+		 */
-+		dd->ipath_flags |= IPATH_GPIO_INTR;
-+		dd->ipath_flags &= ~IPATH_POLL_RX_INTR;
-+	}
- 	return 0;
- }
- 
-diff -r 6bf52c0f0f0d -r 5d7e365286b3 drivers/infiniband/hw/ipath/ipath_init_chip.c
---- a/drivers/infiniband/hw/ipath/ipath_init_chip.c	Tue May 23 11:29:15 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_init_chip.c	Tue May 23 11:29:16 2006 -0700
-@@ -879,7 +879,6 @@ int ipath_init_chip(struct ipath_devdata
- 
- done:
- 	if (!ret) {
--		ipath_get_guid(dd);
- 		*dd->ipath_statusp |= IPATH_STATUS_CHIP_PRESENT;
- 		if (!dd->ipath_f_intrsetup(dd)) {
- 			/* now we can enable all interrupts from the chip */
-diff -r 6bf52c0f0f0d -r 5d7e365286b3 drivers/infiniband/hw/ipath/ipath_kernel.h
---- a/drivers/infiniband/hw/ipath/ipath_kernel.h	Tue May 23 11:29:15 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_kernel.h	Tue May 23 11:29:16 2006 -0700
-@@ -650,7 +650,7 @@ void ipath_init_pe800_funcs(struct ipath
- void ipath_init_pe800_funcs(struct ipath_devdata *);
- /* init HT-400-specific func */
- void ipath_init_ht400_funcs(struct ipath_devdata *);
--void ipath_get_guid(struct ipath_devdata *);
-+void ipath_get_eeprom_info(struct ipath_devdata *);
- u64 ipath_snap_cntr(struct ipath_devdata *, ipath_creg);
- 
- /*
-diff -r 6bf52c0f0f0d -r 5d7e365286b3 drivers/infiniband/hw/ipath/ipath_pe800.c
---- a/drivers/infiniband/hw/ipath/ipath_pe800.c	Tue May 23 11:29:15 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_pe800.c	Tue May 23 11:29:16 2006 -0700
-@@ -1180,6 +1180,8 @@ static int ipath_pe_early_init(struct ip
- 	 */
- 	dd->ipath_rhdrhead_intr_off = 1ULL<<32;
- 
-+	ipath_get_eeprom_info(dd);
-+
- 	return 0;
- }
- 
+-- 
+Ondrej Zary

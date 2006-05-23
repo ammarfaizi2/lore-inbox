@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751338AbWEWPWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbWEWP0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751338AbWEWPWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 11:22:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWEWPWQ
+	id S1751346AbWEWP0e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 11:26:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWEWP0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 11:22:16 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:33930 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751338AbWEWPWQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 11:22:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=hXSVXi3zSjoq7/BqvqufMaHRBPV59WuE3IOW660IC7JO+a6XNC/2MBCVOtJx+j+V2EUQCQAgeSqqnOIB56yaRGoia93eWpeANyPetTZIek+uuukxocwqH0WT53mqPlyo21cp9wk0+AF9cYYMvgyrIqYDFctwRriPxE05DVmB2fc=
-Message-ID: <aa4c40ff0605230822r34230211o9fa276234545dd59@mail.gmail.com>
-Date: Tue, 23 May 2006 08:22:15 -0700
-From: "James Lamanna" <jlamanna@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Sense data errors trying to read from tape - 2.6.14-gentoo-r5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Tue, 23 May 2006 11:26:34 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:44028 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1751346AbWEWP0e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 11:26:34 -0400
+Subject: Re: RT patch + LTTng
+From: Daniel Walker <dwalker@mvista.com>
+To: Serge Noiraud <serge.noiraud@bull.net>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200605231657.45363.Serge.Noiraud@bull.net>
+References: <200605221742.29566.Serge.Noiraud@bull.net>
+	 <1148393197.3535.85.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <200605231657.45363.Serge.Noiraud@bull.net>
+Content-Type: text/plain; charset=utf-8
+Date: Tue, 23 May 2006 08:26:30 -0700
+Message-Id: <1148397990.3535.87.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/23/06, James Lamanna <jlamanna@gmail.com> wrote:
-> Was trying to do an 'amrestore /dev/nst0' when I received the following OOPS:
->
+On Tue, 2006-05-23 at 16:57 +0200, Serge Noiraud wrote:
+> mardi 23 Mai 2006 16:06, Daniel Walker wrote/a écrit :
+> > On Mon, 2006-05-22 at 17:42 +0200, Serge Noiraud wrote:
+> > 
+> > > ltt_stat-7809  0Dnh3    0us : __trace_start_sched_wakeup (try_to_wake_up)
+> > > ltt_stat-7809  0Dnh3    0us : __trace_start_sched_wakeup <<...>-3> (0 0)
+> > 
+> > 
+> > Do you also have preempt and interrupt latency turned on ? In addition
+> > to wakeup latency ..
+> Here is all I configured :
 
-[SNIP]
 
-> I've also had problems restoring large XFS partitions off of tape
-> (amrestore returns with input/output errors), but I'm not sure whether
-> that is kernel or userspace related (no errors in dmesg or anything).
-> In that case, amrestore did not have any problems restoring TAR-ed
-> filesystems from tape (that was with 2.6.14-gentoo-r5).
->
+Do you get the same effect with all those options turned off?
 
-[SNIP]
+Daniel
 
-As a follow-up to the above on 2.6.14-gentoo-r5, while trying to
-restore an XFS partition off of the tape (amrestore/dd doesn't oops on
-this kernel) my dmesg fills with the following:
-
-st0: Error with sense data: <6>st0: Current: sense key=0xb
-    ASC=0x4b ASCQ=0x0
-
-the command I'm running specifically is:
-dd bs=32k skip=1 count=520531 conv=noerror,notrunc if=/dev/nst0 of=fs0restore
-
-As you can see, my backups are not going as well as I had planned.
-
-Thanks again.
-
--- James Lamanna

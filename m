@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWEWVOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWEWVTG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932287AbWEWVOb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 17:14:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWEWVOb
+	id S932281AbWEWVTG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 17:19:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWEWVTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 17:14:31 -0400
-Received: from www.hutor.net ([62.16.86.209]:13580 "EHLO hutor.localdomain")
-	by vger.kernel.org with ESMTP id S932274AbWEWVOa convert rfc822-to-8bit
+	Tue, 23 May 2006 17:19:06 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:5610 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932281AbWEWVTF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 17:14:30 -0400
-Date: Wed, 24 May 2006 01:15:00 +0400
-From: =?windows-1251?Q?=C0=EB=E5=EA=F1=E0=ED=E4=F0_=D1=E0=E4=EA=EE=E2?= 
-	<saalan@hutor.net>
-X-Mailer: The Bat! (v3.60.07) Professional
-Reply-To: =?windows-1251?Q?=C0=EB=E5=EA=F1=E0=ED=E4=F0_=D1=E0=E4=EA=EE=E2?= 
-	  <saalan@hutor.net>
-Organization: =?windows-1251?Q?=CE=CE=CE_=22=C6=E8=EB-=D2=E5=EB=E5=EA=EE=EC=22?=
-X-Priority: 3 (Normal)
-Message-ID: <1426349061.20060524011500@hutor.net>
-To: linux-kernel@vger.kernel.org
-Subject: problem of module SX8
+	Tue, 23 May 2006 17:19:05 -0400
+Message-ID: <44737C33.4030503@zytor.com>
+Date: Tue, 23 May 2006 14:18:43 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=windows-1251
-Content-Transfer-Encoding: 8BIT
+To: Pavel Machek <pavel@ucw.cz>
+CC: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [-mm] klibc breaks my initscripts
+References: <20060523083754.GA1586@elf.ucw.cz> <4473482A.3050407@zytor.com> <20060523211100.GA2788@elf.ucw.cz>
+In-Reply-To: <20060523211100.GA2788@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
-I wish to inform on a problem of module SX8 in kernels 2.6.15SMP and 2.6.16SMP.
+[Adjusted Cc: list]
 
-Hardware:
-SuperMicro 370DLE, 2xIntel PIII800EB
-Promise SATAII150 SX8 (latest firmware 1.00.0.37, Command Query – Disabled)
-System HDD - Western Digital WD1500ADFD (SATA)
-Data HDD – 4 x Seagate Barracuda 7200.9 ST3500641AS (SATA)
+Pavel Machek wrote:
+>>
+>> - a. What distro?
+> 
+> Hacked debian.
+> 
+>> - b. What's the error?
+> Something about root not being mounted so it can't be remounted.
 
-The equipment was tested under Windows XP in various modes.
-All perfectly worked except that it Windows...
+I need the details on this one.  This sounds like it could be the Debian mount getting 
+confused by /proc/mounts and/or /etc/mtab.
 
-In Linux FC5 (all updates) kernel 2.6.15SMP or  2.6.16SMP the system behaved as follows:
-
-If to connect only system HDD Western Digital that all works, but I periodically receive messages of type:
-cell kernel: end_request: I/O error, dev sx8/0, sector 220064
-cell kernel: Buffer I/O error on device sx8/0, logical block 27508
-
-If to connect all HDD it quickly enough leads to lag of one, several or all HDD connected to SX8.
-The system does not give out any mistakes, any command leads to freezing of the console, helps only reset.
-
-Following recommendations, I have tried to transfer module SX8 parameter max_queue = 30. 
-During loading the system has destroyed root file system. 
-
-Having restored with Backup, I tried to establish max_queue = 2, that also have destroyed root file system.
-
-I am sorry for bad English.
+	-hpa
 
 

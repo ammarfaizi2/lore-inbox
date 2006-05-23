@@ -1,122 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWEWDLJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWEWE0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751260AbWEWDLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 23:11:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbWEWDLJ
+	id S1751248AbWEWE0k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 00:26:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWEWE0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 23:11:09 -0400
-Received: from mail.gmx.de ([213.165.64.20]:62081 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751260AbWEWDLI (ORCPT
+	Tue, 23 May 2006 00:26:40 -0400
+Received: from mail.kroah.org ([69.55.234.183]:50877 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751248AbWEWE0k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 23:11:08 -0400
-X-Authenticated: #31060655
-Message-ID: <44727CE4.3090307@gmx.net>
-Date: Tue, 23 May 2006 05:09:24 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060316 SUSE/1.0-27 SeaMonkey/1.0
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Consoldidate arch/{i386,x86_64}/boot/compressed/misc.c
-References: <4471FD34.8050202@gmx.net> <200605222028.32934.ak@suse.de> <44720BD2.7060809@gmx.net> <200605230219.56068.ak@suse.de>
-In-Reply-To: <200605230219.56068.ak@suse.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Tue, 23 May 2006 00:26:40 -0400
+Date: Mon, 22 May 2006 21:19:58 -0700
+From: Greg KH <gregkh@suse.de>
+To: Brice Goglin <brice@myri.com>
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: AMD 8131 MSI quirk called too late, bus_flags not inherited ?
+Message-ID: <20060523041958.GA8415@suse.de>
+References: <4468EE85.4000500@myri.com> <20060518155441.GB13334@suse.de> <20060521101656.GM30211@mellanox.co.il> <447047F2.2070607@myri.com> <20060521121726.GQ30211@mellanox.co.il> <44705DA4.2020807@myri.com> <20060521131025.GR30211@mellanox.co.il> <447069F7.1010407@myri.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <447069F7.1010407@myri.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Monday 22 May 2006 21:06, Carl-Daniel Hailfinger wrote:
->> Andi Kleen wrote:
->>
->>>> Would a series of incremental patches to consolidate these two
->>>> subtrees get accepted?
->>>>     
->>> Yes.
->>>
->>> I have some plans to change the 64bit boot up though - the uncompression
->>> should already run as 64bit - but that shouldnt' affect these files.
->>>   
->> Clean up arch/{i386,x86_64}/boot/compressed/misc.c a bit to reduce their
->> differences. Should have zero effect on code generation.
+On Sun, May 21, 2006 at 03:24:07PM +0200, Brice Goglin wrote:
+> Michael S. Tsirkin wrote:
+> >> @@ -925,8 +926,9 @@
+> >>  	if (dev->no_msi)
+> >>  		return status;
+> >>  
+> >> -	if (dev->bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
+> >> -		return -EINVAL;
+> >> +	for (bus = dev->bus; bus; bus = bus->parent)
+> >> +		if (bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
+> >> +			return -EINVAL;
+> >>  
+> >>  	temp = dev->irq;
+> >>     
+> >
+> > It seems we must add this loop to pci_enable_msix as well.
+> >   
 > 
-> Applied.
+> Right, thanks. Greg, what do you think of putting the attached patch in
+> 2.6.17 ?
 
-Thanks!
+Ok, does everyone agree that this patch fixes the issues for them?  I've
+had a few other private emails saying that the current code doesn't work
+properly and hadn't been able to determine what was happening.  Thanks
+for these patches.
 
-Could you have a look at the remaining differences and tell me what else
-can be nuked?
-* For the CONFIG_X86_NUMAQ stuff there were some patches flying around,
-  but it seems they never got applied.
-* The hand-coded stack is probably a bootloader thing, but I don't yet
-  understand why it's only in i386.
-* The "uncompressing" messages differ. Any reason for that?
-* The list of includes differs. Probably related to NUMAQ and stack.
-* decompress_kernel is asmlinkage only on i386.
+> By the way, do we need to check dev->no_msi in pci_enable_msix() too ?
 
---- linux-2.6.17-rc4/arch/i386/boot/compressed/misc.c   2006-05-22 20:56:09.000000000 +0200
-+++ linux-2.6.17-rc4/arch/x86_64/boot/compressed/misc.c 2006-05-22 20:56:30.000000000 +0200
-@@ -9,8 +9,6 @@
-  * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
-  */
+Yes, good catch, care to respin the patch and give it a good changelog
+entry?
 
--#include <linux/linkage.h>
--#include <linux/vmalloc.h>
- #include <linux/screen_info.h>
- #include <asm/io.h>
- #include <asm/page.h>
-@@ -116,10 +114,6 @@
- static int vidport;
- static int lines, cols;
+thanks,
 
--#ifdef CONFIG_X86_NUMAQ
--static void * xquad_portio = NULL;
--#endif
--
- #include "../../../../lib/inflate.c"
-
- static void *malloc(int size)
-@@ -287,15 +281,6 @@
-        while(1);       /* Halt */
- }
-
--#define STACK_SIZE (4096)
--
--long user_stack [STACK_SIZE];
--
--struct {
--       long * a;
--       short b;
--       } stack_start = { & user_stack [STACK_SIZE] , __BOOT_DS };
--
- static void setup_normal_output_buffer(void)
- {
- #ifdef STANDARD_MEMORY_BIOS_CALL
-@@ -346,7 +331,7 @@
-        }
- }
-
--asmlinkage int decompress_kernel(struct moveparams *mv, void *rmode)
-+int decompress_kernel(struct moveparams *mv, void *rmode)
- {
-        real_mode = rmode;
-
-@@ -365,9 +350,9 @@
-        else setup_output_buffer_if_we_run_high(mv);
-
-        makecrc();
--       putstr("Uncompressing Linux... ");
-+       putstr(".\nDecompressing Linux...");
-        gunzip();
--       putstr("Ok, booting the kernel.\n");
-+       putstr("done.\nBooting the kernel.\n");
-        if (high_loaded) close_output_buffer_if_we_run_high(mv);
-        return high_loaded;
- }
-
-
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
+greg k-h

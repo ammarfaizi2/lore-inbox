@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751042AbWEWOjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWEWOlu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751042AbWEWOjD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 10:39:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWEWOjB
+	id S1751357AbWEWOlu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 10:41:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWEWOlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 10:39:01 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:54676 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751344AbWEWOi6 (ORCPT
+	Tue, 23 May 2006 10:41:50 -0400
+Received: from darla.ti-wmc.nl ([217.114.97.45]:9887 "EHLO smtp.wmc")
+	by vger.kernel.org with ESMTP id S1751357AbWEWOlt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 10:38:58 -0400
-Date: Tue, 23 May 2006 07:38:51 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Herman Elfrink <herman.elfrink@ti-wmc.nl>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+	Tue, 23 May 2006 10:41:49 -0400
+Message-ID: <44731F2C.2010109@ti-wmc.nl>
+Date: Tue, 23 May 2006 16:41:48 +0200
+From: Simon Oosthoek <simon.oosthoek@ti-wmc.nl>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Herman Elfrink <herman.elfrink@ti-wmc.nl>
 Subject: Re: [ANNOUNCE] FLAME: external kernel module for L2.5 meshing
-Message-ID: <20060523073851.39c3b5fe@localhost.localdomain>
-In-Reply-To: <44731733.7000204@ti-wmc.nl>
-References: <44731733.7000204@ti-wmc.nl>
-X-Mailer: Sylpheed-Claws 2.1.1 (GTK+ 2.8.17; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <44731733.7000204@ti-wmc.nl> <1148395738.25255.68.camel@localhost.localdomain>
+In-Reply-To: <1148395738.25255.68.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-O
-> Usage
-> =====
-> - Load module:
->     modprobe flame [debuglevel=]  [flm_topo_timer=]
->       : debug level, default: 1
->       : topology check timer (in seconds), default: 5
-> - Open/close a device with:
->     echo "up   []" > /proc/net/flame/cmd
->     echo "down " > /proc/net/flame/cmd
->       : name of FLAME device, e.g. flm0
->       : comma-separated list of MAC devices (at least one) that are
->       used below the FLAME device. All of these must be up.
->     : comma-separated list of MAC addresses of devices
->       for which traffic should be ignored; each MAC address should
->       be a semicolon-separated list of 6 hex-pairs
-> - Get current forwarding info from FLAME:
->     cat /proc/net/flame/fwd
-> - Get nodes/cost information from MACINFO:
->     cat /proc/net/macinfo
+Alan Cox wrote:
+> On Maw, 2006-05-23 at 16:07 +0200, Herman Elfrink wrote:
+>> FLAME uses an unofficial protocol number (0x4040), any tips on how to 
+>> get an official IANA number would be highly appreciated.
+>>
+> 
+> Ethernet protocol number I assume you mean. If so this at least used to
+> be handled by the IEEE, along with ethernet mac address ranges.
+> 
 
+Yes ethernet protocol (it's below IP level), I didn't realise that IEEE 
+also handled the portnumbers. I'll check the ieee website to see how it 
+works, tnx!
 
-Use of /proc for an API is no longer desirable. Please rewrite.
+/Simon
+

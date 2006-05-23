@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWEWOP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWEWOQA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbWEWOP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 10:15:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbWEWOP3
+	id S932088AbWEWOQA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 10:16:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbWEWOP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 10:15:29 -0400
-Received: from out3.smtp.messagingengine.com ([66.111.4.27]:395 "EHLO
-	out3.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S932096AbWEWOP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 10:15:28 -0400
-Message-Id: <1148393727.14381.262121289@webmail.messagingengine.com>
-X-Sasl-Enc: noLy0q9XNLalGWAIZTqQbBOltX/3cHDWzf9OACua9jbx 1148393727
-From: "Ivan Novick" <ivan@0x4849.net>
-To: "Nuri Jawad" <lkml@jawad.org>,
-       "Alistair John Strachan" <s0348365@sms.ed.ac.uk>
-Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-       julian@valgrind.org
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="ISO-8859-1"
+	Tue, 23 May 2006 10:15:59 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:11984 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S932088AbWEWOP6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 10:15:58 -0400
 MIME-Version: 1.0
-X-Mailer: MIME::Lite 5022  (F2.72; T1.15; A1.62; B3.04; Q3.03)
-References: <Pine.LNX.4.64.0605211028100.4037@p34>
-   <200605222015.01980.s0348365@sms.ed.ac.uk>
-   <Pine.LNX.4.61.0605222220190.6816@yvahk01.tjqt.qr>
-   <200605222200.18351.s0348365@sms.ed.ac.uk>
-   <Pine.LNX.4.64.0605230407320.25860@pc>
-Subject: Re: Linux Kernel Source Compression
-In-Reply-To: <Pine.LNX.4.64.0605230407320.25860@pc>
-Date: Tue, 23 May 2006 15:15:27 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17523.6413.711397.401340@alkaid.it.uu.se>
+Date: Tue, 23 May 2006 16:15:41 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Mike Mason <mmlnx@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nmi_watchdog default setting on i386 and x86_64
+In-Reply-To: <44724DE3.2000209@us.ibm.com>
+References: <44724DE3.2000209@us.ibm.com>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cc'ing Julian Seward the author of bzip2
+Mike Mason writes:
+ > Does anybody know the reasoning behind having nmi_watchdog turned off by 
+ > default on i386 and on by default on x86_64.  I've heard that i386 had 
+ > problems with false positives in the past, but that local apic watchdog 
+ > may make that concern obsolete.
 
------ Original message -----
-Hi,
-just wanted to remark that I never liked that bzip was replaced by bzip2 
-(were there license issues?) since bzip's compression was/is often 
-stronger:
+On i386 the problems are mainly hardware and BIOS. In particular,
+lots of Dell laptops have capable hardware but broken BIOSen that
+hang the machines if we try to enable anything sending performance
+counter interrupts via the local APIC.
 
-39843104 Mar 28 09:33 linux-2.6.15.7.tar.bz2
-39423739 Mar 28 09:33 linux-2.6.15.7.tar.bz
-
-Not a big difference in this case but still a step back. I for once am 
-keeping my bzip binary.. does anyone know where the source can still be 
-found?
+/Mikael

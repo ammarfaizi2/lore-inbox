@@ -1,82 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWEWHNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWEWHbd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932085AbWEWHNE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 03:13:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWEWHND
+	id S932087AbWEWHbd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 03:31:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbWEWHbd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 03:13:03 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:43479 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S932085AbWEWHNA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 03:13:00 -0400
-Date: Tue, 23 May 2006 03:12:59 -0400
-From: Brice Goglin <brice@myri.com>
-To: netdev@vger.kernel.org
-Cc: gallatin@myri.com, linux-kernel@vger.kernel.org
-Subject: [PATCH 5/5] myri10ge - Kconfig and Makefile
-Message-ID: <20060523071258.GG30499@myri.com>
-References: <20060523070919.GB30499@myri.com>
+	Tue, 23 May 2006 03:31:33 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:20861 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S932087AbWEWHbc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 03:31:32 -0400
+Date: Tue, 23 May 2006 15:31:29 +0800
+From: Akinobu Mita <mita@miraclelinux.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, Jens Axboe <axboe@suse.de>, "Theodore Ts'o" <tytso@mit.edu>,
+       Akinobu Mita <mita@miraclelinux.com>
+Subject: [PATCH] loop: online resize support
+Message-ID: <20060523073129.GA6507@miraclelinux.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060523070919.GB30499@myri.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 5/5] myri10ge - Kconfig and Makefile
+This patch introduces new ioctl command LOOP_UPDATE_SIZE
+which enables to resize online mounted loop device.
 
-Add Kconfig and Makefile support for the myri10ge driver.
+EXAMPLE
+=======
+# Make 10MB disk image
+# dd if=/dev/zero of=image bs=1k count=10k
+# mkfs.ext3 -j -F image
 
-Signed-off-by: Brice Goglin <brice@myri.com>
-Signed-off-by: Andrew J. Gallatin <gallatin@myri.com>
+# Mount
+# mkdir loop
+# mount -o loop=/dev/loop/0,debug -t ext3 image loop
 
- drivers/net/Kconfig           |   17 +++++++++++++++++
- drivers/net/Makefile          |    1 +
- drivers/net/myri10ge/Makefile |    5 +++++
- 3 files changed, 23 insertions(+)
+# Check disk size
+# df -h loop
+Filesystem            Size  Used Avail Use% Mounted on
+/home/mita/looback-test/image
+                      9.7M  1.1M  8.2M  12% /home/mita/looback-test/loop
 
---- linux-mm/drivers/net/Kconfig.old	2006-04-10 03:44:01.000000000 -0700
-+++ linux-mm/drivers/net/Kconfig	2006-04-18 03:49:11.000000000 -0700
-@@ -2327,6 +2327,23 @@ config S2IO_NAPI
+# Extend disk image to 20MB
+# dd if=/dev/zero of=appendix bs=1k count=10k
+# cat appendix >> image
+
+# Resize
+# gcc -o loop-update loop-update.c
+# ./loop-update /dev/loop/0
+# ext2online -d -v image
+
+# Check disk size again
+# df -h loop
+Filesystem            Size  Used Avail Use% Mounted on
+/home/mita/looback-test/image
+                       20M  1.1M   18M   6% /home/mita/looback-test/loop
+
+loop-update.c
+=============
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+#define LOOP_UPDATE_SIZE	0x4C07
+
+int main(int argc, char **argv)
+{
+	int fd;
+	int err;
+
+	if (argc < 2) {
+		fprintf(stderr, "usage: loop-update loop_device\n");
+		exit(1);
+	}
+
+	fd = open(argv[1], O_RDWR);
+	if (fd < 0) {
+		perror(argv[1]);
+		exit(1);
+	}
+
+	err = ioctl(fd, LOOP_UPDATE_SIZE, NULL);
+	if (err) {
+		perror(argv[1]);
+		exit(1);
+	}
+}
+
+
+CC: Jens Axboe <axboe@suse.de>
+CC: "Theodore Ts'o" <tytso@mit.edu>
+Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
+
+--- 2.6-mm/include/linux/loop.h.orig	2006-05-23 12:52:54.000000000 +0800
++++ 2.6-mm/include/linux/loop.h	2006-05-23 12:59:14.000000000 +0800
+@@ -158,5 +158,6 @@ int loop_unregister_transfer(int number)
+ #define LOOP_SET_STATUS64	0x4C04
+ #define LOOP_GET_STATUS64	0x4C05
+ #define LOOP_CHANGE_FD		0x4C06
++#define LOOP_UPDATE_SIZE	0x4C07
  
- 	  If in doubt, say N.
+ #endif
+--- 2.6-mm/drivers/block/loop.c.orig	2006-05-23 12:51:11.000000000 +0800
++++ 2.6-mm/drivers/block/loop.c	2006-05-23 13:50:58.000000000 +0800
+@@ -1108,7 +1108,8 @@ loop_set_status64(struct loop_device *lo
+ }
  
-+config MYRI10GE
-+	tristate "Myricom Myri-10G Ethernet support"
-+	depends on PCI
-+	select FW_LOADER
-+	select CRC32
-+	---help---
-+	  This driver supports Myricom Myri-10G Dual Protocol interface in
-+	  Ethernet mode. If the eeprom on your board is not recent enough,
-+	  you will need a newer firmware image.
-+	  You may get this image or more information, at:
-+
-+	  <http://www.myri.com/Myri-10G/>
-+
-+	  To compile this driver as a module, choose M here and read
-+	  <file:Documentation/networking/net-modules.txt>.  The module
-+	  will be called myri10ge.
-+
- endmenu
+ static int
+-loop_get_status_old(struct loop_device *lo, struct loop_info __user *arg) {
++loop_get_status_old(struct loop_device *lo, struct loop_info __user *arg)
++{
+ 	struct loop_info info;
+ 	struct loop_info64 info64;
+ 	int err = 0;
+@@ -1126,7 +1127,8 @@ loop_get_status_old(struct loop_device *
+ }
  
- source "drivers/net/tokenring/Kconfig"
---- linux-mm/drivers/net/Makefile.old	2006-04-08 04:49:53.000000000 -0700
-+++ linux-mm/drivers/net/Makefile	2006-04-21 08:10:27.000000000 -0700
-@@ -192,6 +192,7 @@ obj-$(CONFIG_R8169) += r8169.o
- obj-$(CONFIG_AMD8111_ETH) += amd8111e.o
- obj-$(CONFIG_IBMVETH) += ibmveth.o
- obj-$(CONFIG_S2IO) += s2io.o
-+obj-$(CONFIG_MYRI10GE) += myri10ge/
- obj-$(CONFIG_SMC91X) += smc91x.o
- obj-$(CONFIG_SMC911X) += smc911x.o
- obj-$(CONFIG_DM9000) += dm9000.o
---- /dev/null	2006-04-21 00:45:09.064430000 -0700
-+++ linux-mm/drivers/net/myri10ge/Makefile	2006-04-21 08:14:21.000000000 -0700
-@@ -0,0 +1,5 @@
-+#
-+# Makefile for the Myricom Myri-10G ethernet driver
-+#
+ static int
+-loop_get_status64(struct loop_device *lo, struct loop_info64 __user *arg) {
++loop_get_status64(struct loop_device *lo, struct loop_info64 __user *arg)
++{
+ 	struct loop_info64 info64;
+ 	int err = 0;
+ 
+@@ -1140,6 +1142,17 @@ loop_get_status64(struct loop_device *lo
+ 	return err;
+ }
+ 
++static int loop_update_size(struct loop_device *lo)
++{
++	int err = figure_loop_size(lo);
 +
-+obj-$(CONFIG_MYRI10GE) += myri10ge.o
++	if (!err)
++		i_size_write(lo->lo_device->bd_inode,
++			     (loff_t) get_capacity(disks[lo->lo_number]) << 9);
++
++	return err;
++}
++
+ static int lo_ioctl(struct inode * inode, struct file * file,
+ 	unsigned int cmd, unsigned long arg)
+ {
+@@ -1169,6 +1182,9 @@ static int lo_ioctl(struct inode * inode
+ 	case LOOP_GET_STATUS64:
+ 		err = loop_get_status64(lo, (struct loop_info64 __user *) arg);
+ 		break;
++	case LOOP_UPDATE_SIZE:
++		err = loop_update_size(lo);
++		break;
+ 	default:
+ 		err = lo->ioctl ? lo->ioctl(lo, cmd, arg) : -EINVAL;
+ 	}

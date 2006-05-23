@@ -1,103 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWEWHFw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWEWHJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbWEWHFw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 03:05:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbWEWHFw
+	id S932076AbWEWHJX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 03:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbWEWHJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 03:05:52 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:14039 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S932066AbWEWHFw (ORCPT
+	Tue, 23 May 2006 03:09:22 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:29143 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S932070AbWEWHJW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 03:05:52 -0400
-Date: Tue, 23 May 2006 03:05:27 -0400
+	Tue, 23 May 2006 03:09:22 -0400
+Date: Tue, 23 May 2006 03:09:20 -0400
 From: Brice Goglin <brice@myri.com>
-To: Greg KH <gregkh@suse.de>
-Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: AMD 8131 MSI quirk called too late, bus_flags not inherited ?
-Message-ID: <20060523070526.GA30499@myri.com>
-References: <4468EE85.4000500@myri.com> <20060518155441.GB13334@suse.de> <20060521101656.GM30211@mellanox.co.il> <447047F2.2070607@myri.com> <20060521121726.GQ30211@mellanox.co.il> <44705DA4.2020807@myri.com> <20060521131025.GR30211@mellanox.co.il> <447069F7.1010407@myri.com> <20060523041958.GA8415@suse.de>
+To: netdev@vger.kernel.org
+Cc: gallatin@myri.com, linux-kernel@vger.kernel.org
+Subject: [PATCH 0/5] myri10ge - Myri-10G Ethernet driver - v3
+Message-ID: <20060523070919.GB30499@myri.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060523041958.GA8415@suse.de>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 22, 2006 at 09:19:58PM -0700, Greg KH wrote:
-> On Sun, May 21, 2006 at 03:24:07PM +0200, Brice Goglin wrote:
-> > 
-> > Right, thanks. Greg, what do you think of putting the attached patch in
-> > 2.6.17 ?
-> 
-> Ok, does everyone agree that this patch fixes the issues for them?  I've
-> had a few other private emails saying that the current code doesn't work
-> properly and hadn't been able to determine what was happening.  Thanks
-> for these patches.
-> 
-> > By the way, do we need to check dev->no_msi in pci_enable_msix() too ?
-> 
-> Yes, good catch, care to respin the patch and give it a good changelog
-> entry?
+[PATCH 0/5] myri10ge - Myri-10G Ethernet driver - v3
 
-Here you are:
+We think we have addressed all problems that have been reported after the
+second submission. We would like this driver to be merged in the git-netdev
+tree or in -mm, with the aim of being in 2.6.18.
 
-The PCI_BUS_FLAGS_NO_MSI bus flags does not appear do be inherited
-correctly from the amd8131 MSI quirk to its parent busses. It makes
-devices behind a bridge behind amd8131 try to enable MSI while the
-amd8131 does not support it.
-We fix this by looking at flags of all parent busses in
-pci_enable_msi() and pci_enable_msix().
+The changes since the previous patchset are:
+- drop all volatile, fix __iomem annotations and cleanup/remove some casts
+- use kzalloc()
+- use msleep() instead of udelay() or schedule_timeout()
+- add an atomic flag to myri10ge_send_cmd() so that set_multicast_list
+  (which may be called from an atomic context) does not end up using
+  msleep when waiting for the command to complete
+- split myri10ge_open() to make it more readable
+- move Myricom vendor id to pci_ids.h
+- place module_param and MODULE_PARM_DESC near the declaration of
+  the module parameter variable
+- fix missing printk levels
+- #define explicit names for our 0xffffffff special values
+- reduce MYRI10GE_MCP{_ETHER,}_ into the new firmare prefix MXGEFW_
+- fix indentation of goto labels
+- various trivial things
 
-By the way, also add the missing dev->no_msi check in pci_enable_msix()
+myri10ge_xmit() is still very long since there is no nice way to
+split it in multiple functions.
+We still use several printk instead of dev_err/warn/info/printk
+since there are some place where it is better to speak about "eth2"
+instead of a bus id in the kernel messages.
 
-Signed-off-by: Brice Goglin <brice@myri.com>
+The changes that were made in the previous submission can be found
+in http://lkml.org/lkml/2006/5/17/236
 
-Index: linux-mm/drivers/pci/msi.c
-===================================================================
---- linux-mm.orig/drivers/pci/msi.c	2006-05-21 15:12:04.000000000 +0200
-+++ linux-mm/drivers/pci/msi.c	2006-05-23 08:31:02.000000000 +0200
-@@ -916,6 +916,7 @@
-  **/
- int pci_enable_msi(struct pci_dev* dev)
- {
-+	struct pci_bus *bus;
- 	int pos, temp, status = -EINVAL;
- 	u16 control;
- 
-@@ -925,8 +926,9 @@
- 	if (dev->no_msi)
- 		return status;
- 
--	if (dev->bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
--		return -EINVAL;
-+	for (bus = dev->bus; bus; bus = bus->parent)
-+		if (bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
-+			return -EINVAL;
- 
- 	temp = dev->irq;
- 
-@@ -1162,6 +1164,7 @@
-  **/
- int pci_enable_msix(struct pci_dev* dev, struct msix_entry *entries, int nvec)
- {
-+	struct pci_bus *bus;
- 	int status, pos, nr_entries, free_vectors;
- 	int i, j, temp;
- 	u16 control;
-@@ -1170,6 +1173,13 @@
- 	if (!pci_msi_enable || !dev || !entries)
-  		return -EINVAL;
- 
-+	if (dev->no_msi)
-+		return -EINVAL;
-+
-+	for (bus = dev->bus; bus; bus = bus->parent)
-+		if (bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
-+			return -EINVAL;
-+
- 	status = msi_init();
- 	if (status < 0)
- 		return status;
 
+
+The following patches introduce the myri10ge driver for Myricom Myri-10G
+boards in Ethernet mode. The driver is called myri10ge. The patches are
+against 2.6.17-rc4-mm3.
+
+[1/5]   add Myricom vendor id to pci_ids.h
+[2/5]   revive pci_find_ext_capability
+[3/5]	myri10ge driver header files.
+[4/5]	myri10ge driver core.
+[5/5]	add Kconfig and Makefile support for the myri10ge driver.
+
+It also uses the following patches that have been sent on May 2
+(http://lkml.org/lkml/2006/5/2/286 and 288) and merged into -mm.
+add-__iowrite64_copy.patch
+	Introduce __iowrite64_copy.
+add-pci_cap_id_vndr.patch
+	Add the vendor specific extended capability PCI_CAP_ID_VNDR.
+
+The Myri-10G board operates as a regular PCI-Express Ethernet NIC.
+If a firmware is available through hotplug, the driver will load it if its
+version matches the driver requirements. If not, the driver will adopt the
+running firmware that came in the board's eeprom if it is recent enough.
+
+This driver supports in particular NAPI, power management, IPv4 and IPv6
+checksum offload, 802.1q VLAN, and TCP Segmentation Offload.
+
+Brice Goglin

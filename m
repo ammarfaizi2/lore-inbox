@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWEWSLw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWEWSR7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751131AbWEWSLw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 14:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWEWSLw
+	id S1751155AbWEWSR7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 14:17:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWEWSR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 14:11:52 -0400
-Received: from fep32-0.kolumbus.fi ([193.229.0.63]:58960 "EHLO
-	fep32-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S1751131AbWEWSLw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 14:11:52 -0400
-Date: Tue, 23 May 2006 21:11:50 +0300 (EEST)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: James Lamanna <jlamanna@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Sense data errors trying to read from tape - 2.6.14-gentoo-r5
-In-Reply-To: <aa4c40ff0605230822r34230211o9fa276234545dd59@mail.gmail.com>
-Message-ID: <Pine.LNX.4.63.0605232108300.5791@kai.makisara.local>
-References: <aa4c40ff0605230822r34230211o9fa276234545dd59@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 23 May 2006 14:17:59 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:62903 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1751155AbWEWSR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 14:17:58 -0400
+Date: Tue, 23 May 2006 20:17:57 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Gareth Hughes <gareth@valinux.com>
+Subject: [PATCH] -mm: make i387 mxcsr_feature_mask __read_mostly
+Message-ID: <20060523181757.GA2566@rhlx01.fht-esslingen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 May 2006, James Lamanna wrote:
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>
+Subject: [PATCH] -mm: make using_apic_timer __read_mostly
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 
-> On 5/23/06, James Lamanna <jlamanna@gmail.com> wrote:
-> > Was trying to do an 'amrestore /dev/nst0' when I received the following
-> > OOPS:
-> >
-> 
-> [SNIP]
-> 
-> > I've also had problems restoring large XFS partitions off of tape
-> > (amrestore returns with input/output errors), but I'm not sure whether
-> > that is kernel or userspace related (no errors in dmesg or anything).
-> > In that case, amrestore did not have any problems restoring TAR-ed
-> > filesystems from tape (that was with 2.6.14-gentoo-r5).
-> >
-> 
-> [SNIP]
-> 
-> As a follow-up to the above on 2.6.14-gentoo-r5, while trying to
-> restore an XFS partition off of the tape (amrestore/dd doesn't oops on
-> this kernel) my dmesg fills with the following:
-> 
-> st0: Error with sense data: <6>st0: Current: sense key=0xb
->    ASC=0x4b ASCQ=0x0
-> 
-The sense key is "Aborted Command". The ASC and ASCQ fields translate to 
-"Data phase error".
+Hello all,
 
-My first guess is that there are SCSI bus problems (cabling, termination, 
-etc.).
+i386 run-tested on 2.6.17-rc4-mm3 (no x86_64 testing possible here).
 
--- 
-Kai
+this might collide with recent i386/x86_64 reunification efforts, though...
+
+Signed-off-by: Andreas Mohr <andi@lisas.de>
+
+
+
+diff -urN linux-2.6.17-rc4-mm3.orig/arch/i386/kernel/i387.c linux-2.6.17-rc4-mm3.my/arch/i386/kernel/i387.c
+--- linux-2.6.17-rc4-mm3.orig/arch/i386/kernel/i387.c	2006-05-23 17:48:39.000000000 +0200
++++ linux-2.6.17-rc4-mm3/arch/i386/kernel/i387.c	2006-05-17 12:45:18.000000000 +0200
+@@ -25,7 +25,7 @@
+ #define HAVE_HWFP 1
+ #endif
+ 
+-static unsigned long mxcsr_feature_mask = 0xffffffff;
++static unsigned long mxcsr_feature_mask __read_mostly = 0xffffffff;
+ 
+ void mxcsr_feature_mask_init(void)
+ {
+diff -urN linux-2.6.17-rc4-mm3.orig/arch/x86_64/kernel/i387.c linux-2.6.17-rc4-mm3.my/arch/x86_64/kernel/i387.c
+--- linux-2.6.17-rc4-mm3.orig/arch/x86_64/kernel/i387.c	2006-05-23 17:50:02.000000000 +0200
++++ linux-2.6.17-rc4-mm3/arch/x86_64/kernel/i387.c	2006-05-23 20:11:41.000000000 +0200
+@@ -24,7 +24,7 @@
+ #include <asm/ptrace.h>
+ #include <asm/uaccess.h>
+ 
+-unsigned int mxcsr_feature_mask = 0xffffffff;
++unsigned int mxcsr_feature_mask __read_mostly = 0xffffffff;
+ 
+ void mxcsr_feature_mask_init(void)
+ {

@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbWEWR0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWEWRgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751037AbWEWR0e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 13:26:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWEWR0e
+	id S1751017AbWEWRgw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 13:36:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWEWRgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 13:26:34 -0400
-Received: from ccerelbas01.cce.hp.com ([161.114.21.104]:36323 "EHLO
-	ccerelbas01.cce.hp.com") by vger.kernel.org with ESMTP
-	id S1751037AbWEWR0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 13:26:33 -0400
-Message-ID: <4472FFDA.2040005@hp.com>
-Date: Tue, 23 May 2006 12:28:10 +0000
-From: Patrick Jefferson <patrick.jefferson@hp.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Tue, 23 May 2006 13:36:52 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:39862 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751017AbWEWRgv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 13:36:51 -0400
+Message-ID: <4473482A.3050407@zytor.com>
+Date: Tue, 23 May 2006 10:36:42 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: gregkh@suse.de
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [PATCH] PCI: fix MMIO addressing collisions
+To: Pavel Machek <pavel@ucw.cz>
+CC: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [-mm] klibc breaks my initscripts
+References: <20060523083754.GA1586@elf.ucw.cz>
+In-Reply-To: <20060523083754.GA1586@elf.ucw.cz>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 May 2006 17:26:32.0469 (UTC) FILETIME=[08CC2450:01C67E8E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Pavel Machek wrote:
+> Hi!
+> 
+> To reproduce: boot with init=/bin/bash
+> 
+> attempt to
+> 
+> mount / -oremount,rw
+> 
+> I have this as my command line:
+> 
+> root=/dev/hda4 resume=/dev/hda1 psmouse.psmouse_proto=imps
+> psmouse_proto=imps psmouse.proto=imps vga=1 pci=assign-busses
+> rootfstype=ext2
+> 
+> Kernel
+> 
+> VERSION = 2
+> PATCHLEVEL = 6
+> SUBLEVEL = 17
+> EXTRAVERSION =-rc4-mm3
+> 
 
-Clearing PCI Command bits fixes machine halts observed during sizing 
-seqences using MMIO cycles. Clearing the bits is suggested by an 
-implementation note in the PCI spec.
+Will look into immediately.
 
-Thanks,
-Patrick
+- a. What distro?
+- b. What's the error?
+- c. Are you using an initrd/initramfs as well?
 
-Signed-off-by: Patrick Jefferson <patrick.jefferson@hp.com>
-
-  --- a/drivers/pci/probe.c
-  +++ b/drivers/pci/probe.c
-  @@ -147,7 +147,7 @@ static u32 pci_size(u32 base, u32 maxbas
-   static void pci_read_bases(struct pci_dev *dev, unsigned int howmany, 
-int rom)
-   {
-          unsigned int pos, reg, next;
-  -       u32 l, sz;
-  +       u32 l, sz, cmd;
-          struct resource *res;
-
-          for(pos=0; pos<howmany; pos = next) {
-  @@ -155,10 +155,14 @@ static void pci_read_bases(struct pci_de
-                  res = &dev->resource[pos];
-                  res->name = pci_name(dev);
-                  reg = PCI_BASE_ADDRESS_0 + (pos << 2);
-  +               /* disable Memory & I/O decoders before sizing a BAR */
-  +               pci_read_config_dword(dev, PCI_COMMAND, &cmd);
-  +               pci_write_config_dword(dev, PCI_COMMAND, cmd & 
-~(PCI_COMMAND_IO|PCI_COMMAND_MEMORY));
-                  pci_read_config_dword(dev, reg, &l);
-                  pci_write_config_dword(dev, reg, ~0);
-                  pci_read_config_dword(dev, reg, &sz);
-                  pci_write_config_dword(dev, reg, l);
-  +               pci_write_config_dword(dev, PCI_COMMAND, cmd);
-                  if (!sz || sz == 0xffffffff)
-                          continue;
-                  if (l == 0xffffffff)
-
-
-
+	-hpa

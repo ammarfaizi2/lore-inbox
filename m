@@ -1,38 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWEWCDs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWEWCQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751246AbWEWCDs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 22:03:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWEWCDs
+	id S1751255AbWEWCQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 22:16:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWEWCQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 22:03:48 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:17812 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751246AbWEWCDr (ORCPT
+	Mon, 22 May 2006 22:16:16 -0400
+Received: from leitseite.net ([213.239.214.51]:61385 "EHLO mail.leitseite.net")
+	by vger.kernel.org with ESMTP id S1751255AbWEWCQP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 22:03:47 -0400
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: NMI problems with Dell SMP Xeons 
-In-reply-to: Your message of "Tue, 23 May 2006 03:55:48 +0200."
-             <200605230355.48399.ak@suse.de> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 23 May 2006 12:02:10 +1000
-Message-ID: <5767.1148349730@kao2.melbourne.sgi.com>
+	Mon, 22 May 2006 22:16:15 -0400
+Date: Tue, 23 May 2006 04:16:25 +0200 (CEST)
+From: Nuri Jawad <lkml@jawad.org>
+X-X-Sender: lkml@pc
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Source Compression
+In-Reply-To: <200605222200.18351.s0348365@sms.ed.ac.uk>
+Message-ID: <Pine.LNX.4.64.0605230407320.25860@pc>
+References: <Pine.LNX.4.64.0605211028100.4037@p34> <200605222015.01980.s0348365@sms.ed.ac.uk>
+ <Pine.LNX.4.61.0605222220190.6816@yvahk01.tjqt.qr> <200605222200.18351.s0348365@sms.ed.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen (on Tue, 23 May 2006 03:55:48 +0200) wrote:
->nd add special cases just to get an NMI send with different vector.
->> 
->> I have never disagreed that all NMIs will end up on the NMI vector (2).
->
->The problem was that KDB had an own handler for its debug vector,
->although that was only ever called as NMI.
+Hi,
+just wanted to remark that I never liked that bzip was replaced by bzip2 
+(were there license issues?) since bzip's compression was/is often 
+stronger:
 
-You are confusing KDB_ENTER (instruction code 'int 0x81') with
-KDB_VECTOR (IPI).  KDB_ENTER needs its own int handler which is not an
-NMI, KDB_VECTOR does not need (and does not have) its own handler, it
-is handled by the NMI vector.
+39843104 Mar 28 09:33 linux-2.6.15.7.tar.bz2
+39423739 Mar 28 09:33 linux-2.6.15.7.tar.bz
 
+Not a big difference in this case but still a step back. I for once am 
+keeping my bzip binary.. does anyone know where the source can still be 
+found?
+
+Regards, Nuri

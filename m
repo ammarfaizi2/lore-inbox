@@ -1,78 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWEWUOD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWEWUPA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751216AbWEWUOD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 16:14:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWEWUOC
+	id S1751225AbWEWUPA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 16:15:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWEWUPA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 16:14:02 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:14605 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751216AbWEWUOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 16:14:00 -0400
-Date: Tue, 23 May 2006 22:13:26 +0200
-From: Willy TARREAU <willy@w.ods.org>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       marcelo@kvack.org, akpm@osdl.org
-Subject: Re: [PATCH] Fix memory leak when the ext3's journal file is corrupted
-Message-ID: <20060523201326.GA478@w.ods.org>
-References: <E1Fhx2I-0001lb-Gk@candygram.thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1Fhx2I-0001lb-Gk@candygram.thunk.org>
-User-Agent: Mutt/1.5.10i
+	Tue, 23 May 2006 16:15:00 -0400
+Received: from rwcrmhc13.comcast.net ([216.148.227.153]:16515 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S1751250AbWEWUO7 (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Tue, 23 May 2006 16:14:59 -0400
+Message-ID: <44736D3E.8090808@namesys.com>
+Date: Tue, 23 May 2006 13:14:54 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
+       Reiserfs mail-list <Reiserfs-List@namesys.com>,
+       Nate Diller <ndiller@namesys.com>
+Subject: [PATCH] updated reiser4 - reduced cpu usage for writes by writing
+ more than 4k at a time (has implications for generic write code and eventually
+ for the IO layer)
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Theodore,
+ftp://ftp.namesys.com/pub/reiser4-for-2.6/2.6.17-rc4-mm1/reiser4-for-2.6.17-rc4-mm1-2.patch.gz
 
-On Sun, May 21, 2006 at 07:08:34PM -0400, Theodore Ts'o wrote:
-> 
-> Fix memory leak when the ext3's journal file is corrupted
-> 
-> Signed-off-by: "Theodore Ts'o" <tytso@mit.edu>
-> 
-> Index: linux-2.6/fs/jbd/recovery.c
-> ===================================================================
-> --- linux-2.6.orig/fs/jbd/recovery.c	2006-05-21 18:39:27.000000000 -0400
-> +++ linux-2.6/fs/jbd/recovery.c	2006-05-21 18:39:34.000000000 -0400
-> @@ -531,6 +531,7 @@
->  		default:
->  			jbd_debug(3, "Unrecognised magic %d, end of scan.\n",
->  				  blocktype);
-> +			brelse(bh);
->  			goto done;
->  		}
->  	}
+The referenced patch replaces all reiser4 patches to mm.  It revises the
+existing reiser4 code to do a good job for writes that are larger than
+4k at a time by assiduously adhering to the principle that things that
+need to be done once per write should be done once per write, not once
+per 4k.  That statement is a slight simplification: there are times when
+due to the limited size of RAM you want to do some things once per
+WRITE_GRANULARITY, where WRITE_GRANULARITY is a #define that defines
+some moderate number of pages to write at once.  This code empirically
+proves that the generic code design which passes 4k at a time to the
+underlying FS can be improved.  Performance results show that the new
+code consumes  40% less CPU when doing "dd bs=1MB ....." (your hardware,
+and whether the data is in cache, may vary this result).  Note that this
+has only a small effect on elapsed time for most hardware.
 
-It seems to me that this one is a clear candidate for 2.4 too, isn't it ?
-While reviewing diffs between 2.4 and 2.6 on this file, I also found this
-patch from Andrew two years ago which also seems appropriate for 2.4 : 
+The planned future(as discussed with akpm previously):  we will ship
+very soon (testing it now) an improved reiser4 read code that does reads
+in more than little 4k chunks.  Then we will revise the generic code to
+allow an FS to receive the writes and reads in whole increments.  How
+best to revise the generic code is still being discussed.  Nate is
+discussing doing it in some way that improves code symmetry in the io
+scheduler layer as well, if there is interest by others in it maybe a
+thread can start on that topic, or maybe it can wait for him+zam to make
+a patch.
 
-
-[PATCH] JBD: avoid panic on corrupted journal superblock
-
-Don't panic if the journal superblock is wrecked: just fail the mount.
-
-
---- 1.11/fs/jbd/recovery.c	2006-05-23 20:44:53 -07:00
-+++ 1.12/fs/jbd/recovery.c	2006-05-23 20:44:53 -07:00
-@@ -137,7 +137,10 @@
- 
- 	*bhp = NULL;
- 
--	J_ASSERT (offset < journal->j_maxlen);
-+	if (offset >= journal->j_maxlen) {
-+		printk(KERN_ERR "JBD: corrupted journal superblock\n");
-+		return -EIO;
-+	}
- 
- 	err = journal_bmap(journal, offset, &blocknr);
- 
-
-I'm about to queue them both for Marcelo, do you have any objection ?
-
-Thanks in advance,
-Willy
+Note for users: this patch also contains numerous important bug fixes.
 

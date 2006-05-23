@@ -1,40 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbWEWXWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWEWXZk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932477AbWEWXWh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 19:22:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWEWXWh
+	id S932481AbWEWXZk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 19:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWEWXZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 19:22:37 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:61867 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932477AbWEWXWh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 19:22:37 -0400
-From: Andi Kleen <ak@suse.de>
-To: rohitseth@google.com
-Subject: Re: [PATCH]x86_64: moving phys_proc_id and cpu_core_id to cpuinfo_x86
-Date: Wed, 24 May 2006 01:21:39 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <1148424226.5959.18.camel@galaxy.corp.google.com>
-In-Reply-To: <1148424226.5959.18.camel@galaxy.corp.google.com>
+	Tue, 23 May 2006 19:25:40 -0400
+Received: from smtpq2.tilbu1.nb.home.nl ([213.51.146.201]:44445 "EHLO
+	smtpq2.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
+	id S932481AbWEWXZk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 19:25:40 -0400
+Message-ID: <44739A36.90701@keyaccess.nl>
+Date: Wed, 24 May 2006 01:26:46 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: libata PATA patch update
+References: <1147104400.3172.7.camel@localhost.localdomain> <445FD8D4.9030106@keyaccess.nl>
+In-Reply-To: <445FD8D4.9030106@keyaccess.nl>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605240121.39667.ak@suse.de>
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 24 May 2006 00:43, Rohit Seth wrote:
-> 
-> Most of the fields of cpuinfo are defined in cpuinfo_x86 structure.
-> This patch moves the phys_proc_id and cpu_core_id for each processor to
-> cpuinfo_x86 structure as well.
+Rene Herman wrote:
 
-Added thanks. At some point it'll probably change again because
-I hope to eventually move cpuinfo into the x86-64 PDA, but not right now.
+> CD and DVD ROMs are also working fine, including readcd and CDDA.
 
-For symmetry it might be a good idea to do a similar patch for i386 too.
+Well, other than spamming the kernel message buffer into oblivion. Must
+have missed these last time around but cdparanoia (regular cdparanoia)
+triggers tons and tons of these, with both sr0 (hdc, a CD-RW) and sr1
+(hdd, DVD-ROM):
 
--Andi
+sg_write: data in/out 56/56 bytes for SCSI command 0x12--guessing data in;
+   program cdparanoia not setting count and/or reply_len properly
+sg_write: data in/out 26/26 bytes for SCSI command 0x5a--guessing data in;
+   program cdparanoia not setting count and/or reply_len properly
+sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
+   program cdparanoia not setting count and/or reply_len properly
+sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
+   program cdparanoia not setting count and/or reply_len properly
+sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
+   program cdparanoia not setting count and/or reply_len properly
+sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
+   program cdparanoia not setting count and/or reply_len properly
+sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
+   program cdparanoia not setting count and/or reply_len properly
+sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
+   program cdparanoia not setting count and/or reply_len properly
+sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
+   program cdparanoia not setting count and/or reply_len properly
+sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
+   program cdparanoia not setting count and/or reply_len properly
+printk: 106 messages suppressed.
+sg_write: data in/out 30576/30576 bytes for SCSI command 0xbe--guessing data in;
+   program cdparanoia not setting count and/or reply_len properly
+printk: 1087 messages suppressed.
+sg_write: data in/out 16464/16464 bytes for SCSI command 0xbe--guessing data in;
+   program cdparanoia not setting count and/or reply_len properly
+printk: 1147 messages suppressed.
+sg_write: data in/out 30576/30576 bytes for SCSI command 0xbe--guessing data in;
+   program cdparanoia not setting count and/or reply_len properly
+
+Rene.

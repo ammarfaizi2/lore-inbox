@@ -1,62 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWEWS0j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWEWS3d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751174AbWEWS0j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 14:26:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWEWS0j
+	id S1751201AbWEWS3d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 14:29:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWEWS3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 14:26:39 -0400
-Received: from cpe-66-25-142-253.austin.res.rr.com ([66.25.142.253]:32476 "EHLO
-	kinison.puremagic.com") by vger.kernel.org with ESMTP
-	id S1751174AbWEWS0i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 14:26:38 -0400
-Date: Tue, 23 May 2006 13:26:32 -0500 (CDT)
-From: Evan Harris <eharris@puremagic.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: ext3-fs transient corruption with devmapper over md raid, kernel
- 2.6.16.14
-Message-ID: <Pine.LNX.4.62.0605231225450.11814@kinison.puremagic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 23 May 2006 14:29:33 -0400
+Received: from 193.red-82-159-197.user.auna.net ([82.159.197.193]:65417 "EHLO
+	indy.cmartin.tk") by vger.kernel.org with ESMTP id S1751201AbWEWS3d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 14:29:33 -0400
+Subject: A couple of oops.
+From: Carlos =?ISO-8859-1?Q?Mart=EDn?= <carlos@cmartin.tk>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-pyKEBD231fw/xxV1ugpc"
+Date: Tue, 23 May 2006 20:28:50 +0200
+Message-Id: <1148408930.7726.11.camel@kiopa>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I just recently upgraded a machine to use devmapper for an encrypted 
-filesystem on top of a software raid5 array.  System is running a 
-stock 2.6.16.14 kernel with no additional patches.
+--=-pyKEBD231fw/xxV1ugpc
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Under periods of high disk load on that array, I get various errors like the 
-following:
+Hi,
 
-May 23 06:26:48 localhost kernel: EXT3-fs error (device dm-0): ext3_readdir: bad entry in directory #108298277: rec_len %% 4 != 0 - offset=0, inode=857743392, rec_len=12853, name_len=52
-May 23 06:27:01 localhost kernel: EXT3-fs error (device dm-0): ext3_readdir: bad entry in directory #109215774: rec_len is smaller than minimal - offset=0, inode=0, rec_len=0, name_len=0
-May 23 06:27:23 localhost kernel: EXT3-fs error (device dm-0): ext3_readdir: bad entry in directory #109232146: rec_len is smaller than minimal - offset=0, inode=0, rec_len=0, name_len=0
-May 23 06:27:27 localhost kernel: EXT3-fs error (device dm-0): ext3_readdir: bad entry in directory #109282688: rec_len is smaller than minimal - offset=0, inode=1048832, rec_len=0, name_len=0
-May 23 06:27:27 localhost kernel: EXT3-fs error (device dm-0): ext3_readdir: bad entry in directory #109297749: rec_len %% 4 != 0 - offset=0, inode=1309226288, rec_len=8303, name_len=67
-May 23 06:28:07 localhost kernel: EXT3-fs error (device dm-0): ext3_readdir: bad entry in directory #109871722: rec_len %% 4 != 0 - offset=0, inode=6586752, rec_len=1581, name_len=0
-May 23 06:28:21 localhost kernel: EXT3-fs error (device dm-0): ext3_readdir: bad entry in directory #110412086: rec_len is smaller than minimal - offset=0, inode=1048832, rec_len=0, name_len=0
-May 23 06:28:23 localhost kernel: EXT3-fs error (device dm-0): ext3_readdir: bad entry in directory #110428194: rec_len is smaller than minimal - offset=0, inode=0, rec_len=1, name_len=0
-May 23 06:28:24 localhost kernel: EXT3-fs error (device dm-0): ext3_readdir: bad entry in directory #110428301: rec_len %% 4 != 0 - offset=0, inode=1767526191, rec_len=13679, name_len=77
-May 23 06:28:25 localhost kernel: EXT3-fs error (device dm-0): ext3_readdir: bad entry in directory #110444639: directory entry across blocks - offset=0, inode=538976288, rec_len=24892, name_len=32
+I've nailed this down to something that happened in 2.6.17-rc4. The
+system locks up with either a NULL dereference or an unhandable paging
+request. The stack trace shows this:
 
-After the errors occur, if I then unmount and fsck the devmapper device, it 
-finds no errors.  If the disk load isn't heavy, the errors never seem to 
-crop up.  There are no messages concerning the underlying md device or any 
-of the member disks of the md device.
+paging request            NULL dereference
 
-This is not completely reproducible, but appears to be commonly triggered by 
-the nightly updatedb/find cronjob running concurrently with a hefty rsync 
-process on a filesystem with about 3 million files.
+_raw_spin_trylock+12    _raw_spin_trylock+20
+__spin_lock+22
+main_timer_handler+22
+timer_interrupt+18
+handle_IRQ_event+41
+__do_IRQ+156
+do_IRQ+51
+default_idle+0
+_spin_unlock_irq+43
+thread_return+187
+generic_unplug_device+0
+default_idle+45
+dev_idle+95 (I can't read the func clearly in this handwriting)
+start_secondary+1129
 
-Other md devices on the same machine that are NOT used via devmapper are not 
-showing these problems.
+I'm guessing this is the same problem only that it once manifests itself
+as one and another time as the other. The problem is in the call to
+write_seqlock(&xtime_lock) from main_timer_handler().
 
-System is running AMD64 stable distribution of Debian, using devmapper with 
-dm_crypt and aes_x86_64 kernel modules.
+I've not been able to determine what patch has caused this to happen,
+but it is between 2.6.17-rc3 and -rc4. I'm bisecting, but if anybody has
+a good candidate, it'd probably be faster than doing a complete bisect.
 
-I found a couple of other similar reports via google, but most were pretty 
-old, and none seemed to have applicable resolutions.
+   cmn
+--=20
+Carlos Mart=C3=ADn Nieto    |   http://www.cmartin.tk
+Hobbyist programmer    |
 
-Happy to provide any further info that may be useful.
+--=-pyKEBD231fw/xxV1ugpc
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Evan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQBEc1RiEVXxXOiy6a4RAo15AKCDN9SG+eCo3vAeYZlbtSq5dMtuZQCgmqzQ
+qidt2ZgzMvGDdgswmACVrSg=
+=GkOM
+-----END PGP SIGNATURE-----
+
+--=-pyKEBD231fw/xxV1ugpc--
+

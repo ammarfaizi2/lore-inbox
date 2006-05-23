@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbWEWBHu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWEWBLv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751230AbWEWBHu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 21:07:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWEWBHu
+	id S1750761AbWEWBLv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 21:11:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWEWBLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 21:07:50 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:3794 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751230AbWEWBHt convert rfc822-to-8bit (ORCPT
+	Mon, 22 May 2006 21:11:50 -0400
+Received: from THUNK.ORG ([69.25.196.29]:55784 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1750761AbWEWBLu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 21:07:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZDQnFqYnBm/GFFaZ5i67JaRD++WM33Hx1Wf11IO2/OsPQ9KJ0tH2LmZJ24dZ5jDIvbMhNX4H3Na+D3tX221+7eAiKXuXspIki6ES/l6um2JVUS0I1KnUbnUiZ3yF3lCeQMu7IrdiC2NbAP4GumBAYExck6eh82m0lGz1y1rV38U=
-Message-ID: <305c16960605221807o756b8bafk408ce4dabc9eec67@mail.gmail.com>
-Date: Mon, 22 May 2006 22:07:48 -0300
-From: "Matheus Izvekov" <mizvekov@gmail.com>
-To: fitzboy <fitzboy@iparadigms.com>
-Subject: Re: tuning for large files in xfs
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44725A67.6090505@iparadigms.com>
+	Mon, 22 May 2006 21:11:50 -0400
+Date: Mon, 22 May 2006 21:11:23 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add user taint flag
+Message-ID: <20060523011123.GA32164@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <E1FhwyO-0001YQ-O1@candygram.thunk.org> <1148307276.3902.71.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <447209A8.2040704@iparadigms.com>
-	 <305c16960605221530h68e8e3c5s849eb66f4881593e@mail.gmail.com>
-	 <44725A67.6090505@iparadigms.com>
+In-Reply-To: <1148307276.3902.71.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/22/06, fitzboy <fitzboy@iparadigms.com> wrote:
-> Matheus Izvekov wrote:
-> >
-> > Why use a flesystem with just one file?? Why not use the device node
-> > of the partition directly?
->
-> I am not sure what you mean, could you elaborate?
->
+On Mon, May 22, 2006 at 04:14:36PM +0200, Arjan van de Ven wrote:
+> On Sun, 2006-05-21 at 19:04 -0400, Theodore Ts'o wrote:
+> > Allow taint flags to be set from userspace by writing to
+> > /proc/sys/kernel/tainted, and add a new taint flag, TAINT_USER, to be
+> > used when userspace is potentially doing something naughty that might
+> > compromise the kernel. 
+> 
+> we should then patch the /dev/mem driver or something to set this :)
+> (well and possibly give it an exception for now for PCI space until the
+> X people fix their stuff to use the proper sysfs stuff)
 
-If you have, say, a partition of size 2GB (lets call it sdc3), you can
-use the device node /dev/sdc3 as if it was a 2GB file. Just configure
-your program to use /dev/sdc3 instead of whatever you name your file
-that is alone in this xfs filesystem. You could try that and see how
-fast it goes.
+It may make sense to have an explicit taint flag which means direct
+access to memory, via /dev/mem or otherwise, with exceptions for I/O
+mapped memory not claimed by a device driver (and of course X until it
+is fixed, or never, whichever comes first).
+
+As I've mentioned, the original reason why I did this was because I
+needed to mmap physical memory, which at the time when I originally
+did things, /dev/mem didn't support except for the I/O mapped memory
+range, and I assumed that any attempt to enhance /dev/mem's mmap()
+capabilities in a patch intended for mainline wouldn't be looked at as
+a friendly act.  In fact, I was so unhappy about being forced by the
+RTSJ specification to do this insane thing that I wanted to make sure
+that if it were ever used, it would set a TAINT flag to warn people
+that just about anything unsane could have happened, and the system's
+stability was at the mercy of the competence of Java application
+programmers.  :-)
+
+						- Ted

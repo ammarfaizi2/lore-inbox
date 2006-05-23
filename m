@@ -1,64 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWEWSeI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWEWSeH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932244AbWEWSeI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 14:34:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWEWSdl
+	id S932222AbWEWSeH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 14:34:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWEWSdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 14:33:41 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:8119 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751215AbWEWSdf (ORCPT
+	Tue, 23 May 2006 14:33:39 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:1975 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751206AbWEWSdf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 23 May 2006 14:33:35 -0400
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: multipart/mixed; boundary="===============0721249993=="
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: [PATCH 5 of 10] ipath - fix NULL dereference during cleanup
-X-Mercurial-Node: 6bf52c0f0f0d0df39a784921b05616176fa37251
-Message-Id: <6bf52c0f0f0d0df39a78.1148409153@eng-12.pathscale.com>
-In-Reply-To: <patchbomb.1148409148@eng-12.pathscale.com>
-Date: Tue, 23 May 2006 11:32:33 -0700
+Subject: [PATCH 0 of 10] ipath patches for 2.6.17
+Message-Id: <patchbomb.1148409148@eng-12.pathscale.com>
+Date: Tue, 23 May 2006 11:32:28 -0700
 From: "Bryan O'Sullivan" <bos@pathscale.com>
 To: rdreier@cisco.com
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix NULL deref due to pcidev being clobbered before dd->ipath_f_cleanup()
-was called.
+--===============0721249993==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
+Hi, Roland -
 
-diff -r c7cf56636dd1 -r 6bf52c0f0f0d drivers/infiniband/hw/ipath/ipath_driver.c
---- a/drivers/infiniband/hw/ipath/ipath_driver.c	Tue May 23 11:29:15 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_driver.c	Tue May 23 11:29:15 2006 -0700
-@@ -1905,19 +1905,19 @@ static void __exit infinipath_cleanup(vo
- 			} else
- 				ipath_dbg("irq is 0, not doing free_irq "
- 					  "for unit %u\n", dd->ipath_unit);
-+
-+			/*
-+			 * we check for NULL here, because it's outside
-+			 * the kregbase check, and we need to call it
-+			 * after the free_irq.  Thus it's possible that
-+			 * the function pointers were never initialized.
-+			 */
-+			if (dd->ipath_f_cleanup)
-+				/* clean up chip-specific stuff */
-+				dd->ipath_f_cleanup(dd);
-+
- 			dd->pcidev = NULL;
- 		}
--
--		/*
--		 * we check for NULL here, because it's outside the kregbase
--		 * check, and we need to call it after the free_irq.  Thus
--		 * it's possible that the function pointers were never
--		 * initialized.
--		 */
--		if (dd->ipath_f_cleanup)
--			/* clean up chip-specific stuff */
--			dd->ipath_f_cleanup(dd);
--
- 		spin_lock_irqsave(&ipath_devs_lock, flags);
- 	}
- 
+Here are some patches for 2.6.17.  They all fix kernel or userspace
+crasher bugs.  I may have a few more for you in a while, too.
+
+Regards,
+
+	<b
+
+--===============0721249993==--

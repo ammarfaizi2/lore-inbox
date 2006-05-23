@@ -1,63 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbWEWXSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbWEWXU2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932462AbWEWXSY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 19:18:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWEWXSY
+	id S932463AbWEWXU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 19:20:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWEWXU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 19:18:24 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:36826 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932462AbWEWXSY (ORCPT
+	Tue, 23 May 2006 19:20:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:40680 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932463AbWEWXU2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 19:18:24 -0400
-Date: Wed, 24 May 2006 09:17:41 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: XFS write speed drop
-Message-ID: <20060524091741.D267844@wobbly.melbourne.sgi.com>
-References: <Pine.LNX.4.61.0605190047430.23455@yvahk01.tjqt.qr> <20060522105326.A212600@wobbly.melbourne.sgi.com> <Pine.LNX.4.61.0605221308290.11108@yvahk01.tjqt.qr> <20060523084309.A239136@wobbly.melbourne.sgi.com> <Pine.LNX.4.61.0605231517330.25086@yvahk01.tjqt.qr> <20060524082218.A267844@wobbly.melbourne.sgi.com>
+	Tue, 23 May 2006 19:20:28 -0400
+Date: Tue, 23 May 2006 16:20:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc4-mm3: scary warning from pdflush
+Message-Id: <20060523162005.12c1e5c7.akpm@osdl.org>
+In-Reply-To: <20060523223515.GA1571@elf.ucw.cz>
+References: <20060523223515.GA1571@elf.ucw.cz>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060524082218.A267844@wobbly.melbourne.sgi.com>; from nathans@sgi.com on Wed, May 24, 2006 at 08:22:19AM +1000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 24, 2006 at 08:22:19AM +1000, Nathan Scott wrote:
-> On Tue, May 23, 2006 at 03:23:31PM +0200, Jan Engelhardt wrote:
-> > >> CASE 1: Copying from one disk to another
-> > >> ========================================
-> > >> Copying a compiled 2.6.17-rc4 tree; 306907 KB in 28566 files in 2090
-> > >> directories.
-> > >
-> > >OK, we can call this a metadata intensive workload - lots of small
-> > >files, lots of creates.  Barriers will hurt the most here, as we'd
-> > >already have been log I/O bound most likely, and I'd expect barriers
-> > >to only slow that further.
-> > >
-> > Yes and the most important thing is that someone made -o barrier the 
-> > default and did not notice. Someone else? :-D
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> Hi!
 > 
-> Not sure what you're trying to say here.  Yes, barriers are on
-> by default now if the hardware supports them, yes, they will
-> slow things down relative to write-cache-without-barriers, and
-> yes we all knew that ... its not the case that someone "did not
-> notice" or forgot about something.  There is no doubt that this
-> is the right thing to be doing by default - there's no way that
-> I can tell from inside XFS in the kernel that you have a UPS. ;)
+> Not sure, I'm getting this during resume:
+> 
+> May 24 00:34:01 amd kernel: Restarting tasks...pdflush: bogus wakeup!
+> May 24 00:34:01 amd kernel:  done
+> May 24 00:34:01 amd kernel: Thawing cpus ...
+> 
+> Is it expected?
 
-Oh, I realised I've slightly misread your mail, you said...
+It is expected if you expect me to screw stuff up.  I fixed it locally,
+thanks.
 
-| I do not actually need barriers (or an UPS, to poke on another thread),
-| because power failures are rather rare in Germany.
-
-Hmm, even harder for us to detect at runtime, in the kernel,
-that you're in Germany. :)
-
-Power failures aren't the only thing to cause crashes, however.
-
-cheers.
-
--- 
-Nathan

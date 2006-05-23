@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWEWOiO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbWEWOit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbWEWOiO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 10:38:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbWEWOiO
+	id S1750892AbWEWOit (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 10:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWEWOit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 10:38:14 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:19929 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751042AbWEWOiN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 10:38:13 -0400
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org, mmlnx@us.ibm.com
-Subject: Re: nmi_watchdog default setting on i386 and x86_64
-References: <44724DE3.2000209@us.ibm.com>
-	<17523.6413.711397.401340@alkaid.it.uu.se>
-From: Andi Kleen <ak@suse.de>
-Date: 23 May 2006 16:37:57 +0200
-In-Reply-To: <17523.6413.711397.401340@alkaid.it.uu.se>
-Message-ID: <p73psi46c3e.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Tue, 23 May 2006 10:38:49 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:24500
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1750892AbWEWOis
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 10:38:48 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [stable][patch] x86_64: fix number of ia32 syscalls
+Date: Tue, 23 May 2006 16:33:50 +0200
+User-Agent: KMail/1.9.1
+References: <200605221701_MC3-1-C081-B4B3@compuserve.com>
+In-Reply-To: <200605221701_MC3-1-C081-B4B3@compuserve.com>
+Cc: Andi Kleen <ak@suse.de>, Adrian Bunk <bunk@stusta.de>,
+       Dave Jones <davej@redhat.com>, Ulrich Drepper <drepper@redhat.com>,
+       linux-stable <stable@kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605231633.51186.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson <mikpe@csd.uu.se> writes:
-
-> Mike Mason writes:
->  > Does anybody know the reasoning behind having nmi_watchdog turned off by 
->  > default on i386 and on by default on x86_64.  I've heard that i386 had 
->  > problems with false positives in the past, but that local apic watchdog 
->  > may make that concern obsolete.
+On Monday 22 May 2006 22:59, you wrote:
+> Recent discussions about whether to print a message about unimplemented
+> ia32 syscalls on x86_64 have missed the real bug: the number of ia32
+> syscalls is wrong in 2.6.16.  Fixing that kills the message.
 > 
-> On i386 the problems are mainly hardware and BIOS. In particular,
-> lots of Dell laptops have capable hardware but broken BIOSen that
-> hang the machines if we try to enable anything sending performance
-> counter interrupts via the local APIC.
+> Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+> 
+> --- 2.6.16.17-64.orig/include/asm-x86_64/ia32_unistd.h
+> +++ 2.6.16.17-64/include/asm-x86_64/ia32_unistd.h
+> @@ -317,6 +317,6 @@
+>  #define __NR_ia32_ppoll			309
+>  #define __NR_ia32_unshare		310
+>  
+> -#define IA32_NR_syscalls 315	/* must be > than biggest syscall! */
 
-AFAIK that trouble was mostly when you forced the local APIC on against
-the wishes of the BIOS. That was always a dumb idea and gladly
-Linux doesn't try that by default anymore.
-
--Andi
-
+Maybe fix the comment so this is more clear, too?
+/* must be biggest syscall + 1 */

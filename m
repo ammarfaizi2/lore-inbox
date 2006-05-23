@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWEWWYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbWEWW0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932187AbWEWWYy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 18:24:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWEWWYy
+	id S932228AbWEWW0W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 18:26:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWEWW0W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 18:24:54 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:51889 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932187AbWEWWYx
+	Tue, 23 May 2006 18:26:22 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:60677 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932228AbWEWW0V
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 18:24:53 -0400
-Message-ID: <44738BA7.1020507@zytor.com>
-Date: Tue, 23 May 2006 15:24:39 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Tue, 23 May 2006 18:26:21 -0400
+Message-ID: <44738C0C.9010107@vmware.com>
+Date: Tue, 23 May 2006 15:26:20 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [-mm] klibc breaks my initscripts
-References: <20060523083754.GA1586@elf.ucw.cz> <4473482A.3050407@zytor.com> <20060523211100.GA2788@elf.ucw.cz> <44737C33.4030503@zytor.com> <20060523215111.GA1669@elf.ucw.cz>
-In-Reply-To: <20060523215111.GA1669@elf.ucw.cz>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Linus Torvalds <torvalds@osdl.org>, jakub@redhat.com,
+       rusty@rustcorp.com.au, kraxel@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/3] vdso: improve print_fatal_signals support by adding
+ memory maps
+References: <20060523000126.GC9934@elte.hu>
+In-Reply-To: <20060523000126.GC9934@elte.hu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
->> [Adjusted Cc: list]
->>
->> Pavel Machek wrote:
->>>> - a. What distro?
->>> Hacked debian.
->>>
->>>> - b. What's the error?
->>> Something about root not being mounted so it can't be remounted.
->> I need the details on this one.  This sounds like it could be the Debian 
->> mount getting confused by /proc/mounts and/or /etc/mtab.
-> 
-> I cheated: I added "rw" to the command line. But results are the same
-> as in normal case, even strace looked the same.
-> 
-> Any ideas?
-> 								Pavel
->
+Ingo Molnar wrote:
+>  
+>  static void print_fatal_signal(struct pt_regs *regs, int signr)
+>  {
+> @@ -781,9 +870,13 @@ static void print_fatal_signal(struct pt
+>  			printk("%02x ", insn);
+>  		}
+>  	}
+> -#endif
+>  	printk("\n");
+> +	if (current->mm)
+> +		printk("vDSO at %p\n", current->mm->context.vdso);
+> +#endif
+>  	show_regs(regs);
+> +	printk("\n");
+> +	print_vmas();
+>  }
+>  
+>  static int __init setup_print_fatal_signals(char *str
 
-> read(3, "/dev/hda4\t/\text2\tdefaults,commit"..., 4096) = 601
-                                         ^^^^^^
+Perhaps I should have read your first patch more carefully - it did have 
+register info.  This looks even better (although you may now want to 
+allow it to be #ifdef'd out under CONFIG_EMBEDDED).
 
-Yes, check your /etc/fstab.  You're trying (explicitly) to mount an ext3 filesystem as 
-ext2, but your /etc/fstab contains ext3-related options.  This means that mount(8) will 
-try to add them to the remount, and the remount will fail because you're passing options 
-to the filesystem that the filesystem doesn't understand.
+You probably should use PATH_MAX+1 instead of SIZE or check IS_ERR() on 
+the string from d_path.
 
-	-hpa
+Zach

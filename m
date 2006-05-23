@@ -1,46 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWEWFoW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWEWF6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932072AbWEWFoW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 01:44:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWEWFoW
+	id S932082AbWEWF6w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 01:58:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWEWF6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 01:44:22 -0400
-Received: from mga07.intel.com ([143.182.124.22]:56891 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S932072AbWEWFoV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 01:44:21 -0400
-X-IronPort-AV: i="4.05,159,1146466800"; 
-   d="scan'208"; a="40190907:sNHT2315605159"
-Date: Mon, 22 May 2006 22:42:23 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Dave Jones <davej@redhat.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, jacob.shin@amd.com,
-       akpm@osdl.org
-Subject: Re: cpu hotplug sleeping from invalid context
-Message-ID: <20060522224222.A21335@unix-os.sc.intel.com>
-References: <20060522183534.GA8920@redhat.com>
+	Tue, 23 May 2006 01:58:52 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:28614 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932082AbWEWF6w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 01:58:52 -0400
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@ocs.com.au>
+To: Neil Brown <neilb@suse.de>
+cc: mingo@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc4 md lock held at task exit 
+In-reply-to: Your message of "Fri, 12 May 2006 17:11:11 +1000."
+             <17508.13583.730399.209905@cse.unsw.edu.au> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060522183534.GA8920@redhat.com>; from davej@redhat.com on Mon, May 22, 2006 at 11:35:34AM -0700
+Date: Tue, 23 May 2006 15:56:47 +1000
+Message-ID: <9193.1148363807@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 22, 2006 at 11:35:34AM -0700, Dave Jones wrote:
+Neil Brown (on Fri, 12 May 2006 17:11:11 +1000) wrote:
+>On Friday May 12, kaos@ocs.com.au wrote:
+>> Doing poweroff on 2.6.17-rc4 i386, SMP
+>> 
+>> BUG halt/4781, lock held at task exit time!
+>>  [f7001b34] {mddev_find}
+>> .. held by: halt: 4781 [f7cd4030, 118]
+>> ... acquired at: md_notify_reboot+0x3a/0xa9 [md_mod}
+>> 
+>
+>I suspect this will fix it.
+>Is it repeatable?  Can you test?
+>
+>Thanks,
+>NeilBrown
+>
+>
+>Signed-off-by: Neil Brown <neilb@suse.de>
+>
+>### Diffstat output
+> ./drivers/md/md.c |    4 +++-
+> 1 file changed, 3 insertions(+), 1 deletion(-)
+>
+>diff ./drivers/md/md.c~current~ ./drivers/md/md.c
+>--- ./drivers/md/md.c~current~	2006-05-12 16:00:03.000000000 +1000
+>+++ ./drivers/md/md.c	2006-05-12 17:10:16.000000000 +1000
+>@@ -5171,8 +5171,10 @@ static int md_notify_reboot(struct notif
+> 		printk(KERN_INFO "md: stopping all md devices.\n");
 > 
->    (2.6.17rc4-git9)
-> 
->    echo 0 > /sys/devices/system/cpu/cpu1/online
->    echo 1 > /sys/devices/system/cpu/cpu1/online
-> 
->    on my dual-core notebook gets me this:
-> 
+> 		ITERATE_MDDEV(mddev,tmp)
+>-			if (mddev_trylock(mddev))
+>+			if (mddev_trylock(mddev)) {
+> 				do_md_stop (mddev, 1);
+>+				mddev_unlock(mddev);
+>+			}
+> 		/*
+> 		 * certain more exotic SCSI devices are known to be
+> 		 * volatile wrt too early system reboots. While the
 
-I was just purging my inbox this morning, and saw a similar report from 
-Jacob Shin in the x86-64 discuss list. When i checked with him, he replied 
-that this is now resolved. I didnt ask what it was... Jacob could you 
-send a pointer to the fix?
+Finally got some time to test this.  The problem was reproducable and
+the patch fixed it.
 
-Cheers,
-ashok
+Acked-by: Keith Owens <kaos@ocs.com.au>
+

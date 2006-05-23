@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbWEWCC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWEWCDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751244AbWEWCC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 May 2006 22:02:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWEWCC7
+	id S1751246AbWEWCDs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 May 2006 22:03:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWEWCDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 May 2006 22:02:59 -0400
-Received: from dvhart.com ([64.146.134.43]:5003 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1751244AbWEWCC6 (ORCPT
+	Mon, 22 May 2006 22:03:48 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:17812 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751246AbWEWCDr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 May 2006 22:02:58 -0400
-Message-ID: <44726D47.8030306@mbligh.org>
-Date: Mon, 22 May 2006 19:02:47 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Avi Kivity <avi@argo.co.il>
-Cc: Christian Trefzer <ctrefzer@gmx.de>, Matthias Schniedermeyer <ms@citd.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jan Knutar <jk-lkml@sci.fi>,
-       Pau Garcia i Quiles <pgquiles@elpauer.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [IDEA] Poor man's UPS
-References: <200605212131.47860.pgquiles@elpauer.org> <20060521224012.GB30855@hermes.uziel.local> <200605221604.16043.jk-lkml@sci.fi> <20060522151303.GA4538@hermes.uziel.local> <1148312458.17376.54.camel@localhost.localdomain> <20060522154830.GA5344@hermes.uziel.local> <4471E39C.1070003@citd.de> <20060522194040.GC5995@hermes.uziel.local> <447214EF.50803@argo.co.il>
-In-Reply-To: <447214EF.50803@argo.co.il>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 22 May 2006 22:03:47 -0400
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: NMI problems with Dell SMP Xeons 
+In-reply-to: Your message of "Tue, 23 May 2006 03:55:48 +0200."
+             <200605230355.48399.ak@suse.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 23 May 2006 12:02:10 +1000
+Message-ID: <5767.1148349730@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Exactly, and since I cannot afford to buy one I'd have to build it
->> myself using mainly car batteries. The most complex part would be to
->> charge the batteries in a way that won't kill them over time. Building
->> such stuff into the PSU after the secondary coil and AC/DC converter
->> would save the double-conversion loss, therefore making this ideal for a
->> single machine. But I'm still brainstorming, lacking both money and
->> time.
-> 
-> Led/acid batteries are dangerous. Don't use them unless you know exactly 
-> what you are doing.
+Andi Kleen (on Tue, 23 May 2006 03:55:48 +0200) wrote:
+>nd add special cases just to get an NMI send with different vector.
+>> 
+>> I have never disagreed that all NMIs will end up on the NMI vector (2).
+>
+>The problem was that KDB had an own handler for its debug vector,
+>although that was only ever called as NMI.
 
-Buy an intelligent charger for an RV. They're designed to do pretty much
-exactly that (deep cycle marine batteries, probably).
+You are confusing KDB_ENTER (instruction code 'int 0x81') with
+KDB_VECTOR (IPI).  KDB_ENTER needs its own int handler which is not an
+NMI, KDB_VECTOR does not need (and does not have) its own handler, it
+is handled by the NMI vector.
 
-M.

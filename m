@@ -1,101 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbWEWRVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWEWRX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751002AbWEWRVa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 13:21:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWEWRV3
+	id S1751005AbWEWRX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 13:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbWEWRXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 13:21:29 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:62924 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751002AbWEWRV3 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 13:21:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CSfle811oMqUiLZTBn8+YHfv7EGyYSJuFLISyVG3/DKmHrDxfpYXYoWQNhn5Repee2KyjIS2U/r0YpWtiYmK7c59DTNyYa4js9l3J0NlwR+KK/fxOtz849xN2qogpGG5tx0B0MIzlNVAg2p2zAreNid+vhkNHvBO7rN03yDYlgE=
-Message-ID: <9b5164430605231021h589dd194g8d88d46d1fcc4209@mail.gmail.com>
-Date: Tue, 23 May 2006 10:21:28 -0700
-From: "Xiong Jiang" <linuster@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: OpenGL-based framebuffer concepts
-In-Reply-To: <9b5164430605231015s40ebcd38had1c3029da8afc7@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+	Tue, 23 May 2006 13:23:54 -0400
+Received: from adsl-67-113-118-6.dsl.sndg02.pacbell.net ([67.113.118.6]:59560
+	"EHLO multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S1750986AbWEWRXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 13:23:53 -0400
+Date: Tue, 23 May 2006 10:23:52 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Russell McConnachie <russell.mcconnachie@guest-tek.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Compact Flash Serial ATA patch
+Message-ID: <20060523172352.GD9528@one-eyed-alien.net>
+Mail-Followup-To: Russell McConnachie <russell.mcconnachie@guest-tek.com>,
+	linux-kernel@vger.kernel.org
+References: <1148379397.1182.4.camel@gt-alphapbx2>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8w3uRX/HFJGApMzv"
 Content-Disposition: inline
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <44700ACC.8070207@gmail.com>
-	 <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com>
-	 <1148379089.25255.9.camel@localhost.localdomain>
-	 <4472E3D8.9030403@garzik.org>
-	 <83B4C39B-1A5E-4734-A5FF-10C3179B535B@mac.com>
-	 <1148395433.25255.66.camel@localhost.localdomain>
-	 <ADF9B4F7-2B6E-41B7-8B83-26261EBE27F7@mac.com>
-	 <1148403226.25255.89.camel@localhost.localdomain>
-	 <9b5164430605231015s40ebcd38had1c3029da8afc7@mail.gmail.com>
+In-Reply-To: <1148379397.1182.4.camel@gt-alphapbx2>
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2006 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------- Forwarded message ----------
-From: Xiong Jiang <linuster@gmail.com>
-Date: May 23, 2006 10:15 AM
-Subject: Re: OpenGL-based framebuffer concepts
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 
+--8w3uRX/HFJGApMzv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-What about initialization, mode and context switching? From the
-discussion I thought that people would like to see X server and
-framebuffer console could coexist in a more coordinated way, which
-could be coordinated DRI in kernel.
+On Tue, May 23, 2006 at 04:16:37AM -0600, Russell McConnachie wrote:
+> I was having some trouble with a serial ATA compact flash adapter with
+> libata. I wrote a small patch for the kernel to work around the sanity
+> check, dma blacklisting and device ID detections in ata_dev_classify().=
+=20
 
-Agreed that kernel should only deal with necessary tasks as minimum as
-possible. 2D/3D engine in user mode and the reorg of Xserver/APIs
-around the engine is the thing people are discussing.
+I've had this problem, too.  Apparently, my CF/SATA bridge doesn't support
+DMA, but libata requires it.
 
-Designing the interface inevitably involves clear understanding of the
-hardware capabilities and closed hardware spec is an obvious obstacle.
-Open Graphics card (when becoming available) would be a great thing
-and I wish a great X run it to its full strength.
+I don't know if this is the right fix (if nothing else the patch needs to
+be sent in unified diff format), but it's certainly something that needs
+fixing.
 
-It's a little offtopic for this list but, it's an interface between
-kernel and user mode so both the Xorg and this mailing list would see
-a lot discussion on it. I am glad to see such discussion is happening.
+Matt
 
-Of course a lot of education is needed for me to discuss such, with
-the wish that a better X / GUI running on modern graphics hardware is
-desirable for everyone.
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
-Regards,
+Somebody call an exorcist!
+					-- Dust Puppy
+User Friendly, 5/16/1998
 
-On 5/23/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Maw, 2006-05-23 at 11:41 -0400, Kyle Moffett wrote:
-> > So a modern GPU is essentially a proprietary CPU with an obscure
-> > instruction set and lots of specialized texel hardware?  Given the
-> > total lack of documentation from either ATI or NVidia about such
-> > cards I'd guess it's impossible for Linux to provide any kind of
-> > reasonable 3d engine for that kind of environment, and it might be
-> > better to target a design like the Open Graphics Project is working
-> > to provide.
->
-> Its typically a device you feed a series of fairly low level rendering
-> commands to sometimes including instructions (eg shaders). DRI provides
-> an interface that is chip dependant but typically looks like
->
->
->      [User provided command buffer]
->                    |
->      [Kernel filtering/DMA interface]
->                    |
->      [Card command queue processing]
->
->
-> All the higher level graphic work is done in the 3D client itself.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+--8w3uRX/HFJGApMzv
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFEc0UoHL9iwnUZqnkRAjZmAJ9ZhCc78nmyNuDEJ/oKTyVDegGWegCdGcOj
+u+MZzC+4NpbdCpzXc7FrE7s=
+=V2ZX
+-----END PGP SIGNATURE-----
+
+--8w3uRX/HFJGApMzv--

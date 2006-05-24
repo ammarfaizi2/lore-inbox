@@ -1,101 +1,199 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932725AbWEXL3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932585AbWEXL3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932725AbWEXL3R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 07:29:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbWEXLTE
+	id S932585AbWEXL3k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 07:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbWEXL3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 07:19:04 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:38016 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932687AbWEXLTB (ORCPT
+	Wed, 24 May 2006 07:29:18 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:7809 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932585AbWEXLTG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 07:19:01 -0400
-Message-ID: <348469538.91213@ustc.edu.cn>
+	Wed, 24 May 2006 07:19:06 -0400
+Message-ID: <348469542.24469@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060524111859.909928820@localhost.localdomain>
+Message-Id: <20060524111903.510268987@localhost.localdomain>
 References: <20060524111246.420010595@localhost.localdomain>
-Date: Wed, 24 May 2006 19:12:52 +0800
+Date: Wed, 24 May 2006 19:12:59 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 06/33] readahead: refactor __do_page_cache_readahead()
-Content-Disposition: inline; filename=readahead-refactor-__do_page_cache_readahead.patch
+Subject: [PATCH 13/33] readahead: state based method - aging accounting
+Content-Disposition: inline; filename=readahead-method-stateful-aging.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add look-ahead support to __do_page_cache_readahead(),
-which is needed by the adaptive read-ahead logic.
+Collect info about the global available memory and its consumption speed.
+The data are used by the stateful method to estimate the thrashing threshold.
+
+They are the decisive factor of the correctness/accuracy of the resulting
+read-ahead size.
+
+- On NUMA systems, the accountings are done on a per-node basis. It works for
+  the two common real-world schemes:
+	  - the reader process allocates caches in a node affined manner;
+	  - the reader process allocates caches _balancely_ from a set of nodes.
+
+- On non-NUMA systems, the readahead_aging is mainly increased on first
+  access of the read-ahead pages, in order to make it go up constantly and
+  smoothly. It helps improve the accuracy on small/fast read-aheads, with
+  the cost of a little more overhead.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- mm/readahead.c |   15 +++++++++------
- 1 files changed, 9 insertions(+), 6 deletions(-)
+ include/linux/mm.h     |    9 +++++++++
+ include/linux/mmzone.h |    5 +++++
+ mm/Kconfig             |    5 +++++
+ mm/readahead.c         |   49 +++++++++++++++++++++++++++++++++++++++++++++++++
+ mm/swap.c              |    2 ++
+ mm/vmscan.c            |    4 ++++
+ 6 files changed, 74 insertions(+)
 
+--- linux-2.6.17-rc4-mm3.orig/mm/Kconfig
++++ linux-2.6.17-rc4-mm3/mm/Kconfig
+@@ -203,3 +203,8 @@ config DEBUG_READAHEAD
+ 	  echo 1 > /debug/readahead/debug_level # stop filling my kern.log
+ 
+ 	  Say N for production servers.
++
++config READAHEAD_SMOOTH_AGING
++	def_bool n if NUMA
++	default y if !NUMA
++	depends on ADAPTIVE_READAHEAD
+--- linux-2.6.17-rc4-mm3.orig/include/linux/mmzone.h
++++ linux-2.6.17-rc4-mm3/include/linux/mmzone.h
+@@ -161,6 +161,11 @@ struct zone {
+ 	unsigned long		pages_scanned;	   /* since last reclaim */
+ 	int			all_unreclaimable; /* All pages pinned */
+ 
++	/* The accumulated number of activities that may cause page aging,
++	 * that is, make some pages closer to the tail of inactive_list.
++	 */
++	unsigned long 		aging_total;
++
+ 	/* A count of how many reclaimers are scanning this zone */
+ 	atomic_t		reclaim_in_progress;
+ 
+--- linux-2.6.17-rc4-mm3.orig/include/linux/mm.h
++++ linux-2.6.17-rc4-mm3/include/linux/mm.h
+@@ -1044,6 +1044,15 @@ static inline int prefer_adaptive_readah
+ 	return readahead_ratio >= 10;
+ }
+ 
++DECLARE_PER_CPU(unsigned long, readahead_aging);
++static inline void inc_readahead_aging(void)
++{
++#ifdef CONFIG_READAHEAD_SMOOTH_AGING
++	if (prefer_adaptive_readahead())
++		per_cpu(readahead_aging, raw_smp_processor_id())++;
++#endif
++}
++
+ /* Do stack extension */
+ extern int expand_stack(struct vm_area_struct *vma, unsigned long address);
+ #ifdef CONFIG_IA64
+--- linux-2.6.17-rc4-mm3.orig/mm/vmscan.c
++++ linux-2.6.17-rc4-mm3/mm/vmscan.c
+@@ -457,6 +457,9 @@ static unsigned long shrink_page_list(st
+ 		if (PageWriteback(page))
+ 			goto keep_locked;
+ 
++		if (!PageReferenced(page))
++			inc_readahead_aging();
++
+ 		referenced = page_referenced(page, 1);
+ 		/* In active use or really unfreeable?  Activate it. */
+ 		if (referenced && page_mapping_inuse(page))
+@@ -655,6 +658,7 @@ static unsigned long shrink_inactive_lis
+ 					     &page_list, &nr_scan);
+ 		zone->nr_inactive -= nr_taken;
+ 		zone->pages_scanned += nr_scan;
++		zone->aging_total += nr_scan;
+ 		spin_unlock_irq(&zone->lru_lock);
+ 
+ 		nr_scanned += nr_scan;
+--- linux-2.6.17-rc4-mm3.orig/mm/swap.c
++++ linux-2.6.17-rc4-mm3/mm/swap.c
+@@ -127,6 +127,8 @@ void fastcall mark_page_accessed(struct 
+ 		ClearPageReferenced(page);
+ 	} else if (!PageReferenced(page)) {
+ 		SetPageReferenced(page);
++		if (PageLRU(page))
++			inc_readahead_aging();
+ 	}
+ }
+ 
 --- linux-2.6.17-rc4-mm3.orig/mm/readahead.c
 +++ linux-2.6.17-rc4-mm3/mm/readahead.c
-@@ -266,7 +266,8 @@ out:
+@@ -18,6 +18,7 @@
+ #include <linux/pagevec.h>
+ #include <linux/writeback.h>
+ #include <linux/nfsd/const.h>
++#include <asm/div64.h>
+ 
+ /*
+  * Adaptive read-ahead parameters.
+@@ -37,6 +38,14 @@ EXPORT_SYMBOL_GPL(readahead_ratio);
+ int readahead_hit_rate = 1;
+ 
+ /*
++ * Measures the aging process of cold pages.
++ * Mainly increased on fresh page references to make it smooth.
++ */
++#ifdef CONFIG_READAHEAD_SMOOTH_AGING
++DEFINE_PER_CPU(unsigned long, readahead_aging);
++#endif
++
++/*
+  * Detailed classification of read-ahead behaviors.
   */
- static int
- __do_page_cache_readahead(struct address_space *mapping, struct file *filp,
--			pgoff_t offset, unsigned long nr_to_read)
-+			pgoff_t offset, unsigned long nr_to_read,
-+			unsigned long lookahead_size)
- {
- 	struct inode *inode = mapping->host;
- 	struct page *page;
-@@ -279,7 +280,7 @@ __do_page_cache_readahead(struct address
- 	if (isize == 0)
- 		goto out;
- 
-- 	end_index = ((isize - 1) >> PAGE_CACHE_SHIFT);
-+	end_index = ((isize - 1) >> PAGE_CACHE_SHIFT);
- 
- 	/*
- 	 * Preallocate as many pages as we will need.
-@@ -302,6 +303,8 @@ __do_page_cache_readahead(struct address
- 			break;
- 		page->index = page_offset;
- 		list_add(&page->lru, &page_pool);
-+		if (page_idx == nr_to_read - lookahead_size)
-+			__SetPageReadahead(page);
- 		ret++;
- 	}
- 	read_unlock_irq(&mapping->tree_lock);
-@@ -338,7 +341,7 @@ int force_page_cache_readahead(struct ad
- 		if (this_chunk > nr_to_read)
- 			this_chunk = nr_to_read;
- 		err = __do_page_cache_readahead(mapping, filp,
--						offset, this_chunk);
-+						offset, this_chunk, 0);
- 		if (err < 0) {
- 			ret = err;
- 			break;
-@@ -385,7 +388,7 @@ int do_page_cache_readahead(struct addre
- 	if (bdi_read_congested(mapping->backing_dev_info))
- 		return -1;
- 
--	return __do_page_cache_readahead(mapping, filp, offset, nr_to_read);
-+	return __do_page_cache_readahead(mapping, filp, offset, nr_to_read, 0);
+ #define RA_CLASS_SHIFT 4
+@@ -805,6 +814,46 @@ out:
  }
  
  /*
-@@ -405,7 +408,7 @@ blockable_page_cache_readahead(struct ad
- 	if (!block && bdi_read_congested(mapping->backing_dev_info))
- 		return 0;
- 
--	actual = __do_page_cache_readahead(mapping, filp, offset, nr_to_read);
-+	actual = __do_page_cache_readahead(mapping, filp, offset, nr_to_read, 0);
- 
- 	return check_ra_success(ra, nr_to_read, actual);
- }
-@@ -450,7 +453,7 @@ static int make_ahead_window(struct addr
-  * @req_size: hint: total size of the read which the caller is performing in
-  *            PAGE_CACHE_SIZE units
++ * The node's effective length of inactive_list(s).
++ */
++static unsigned long node_free_and_cold_pages(void)
++{
++	unsigned int i;
++	unsigned long sum = 0;
++	struct zone *zones = NODE_DATA(numa_node_id())->node_zones;
++
++	for (i = 0; i < MAX_NR_ZONES; i++)
++		sum += zones[i].nr_inactive +
++			zones[i].free_pages - zones[i].pages_low;
++
++	return sum;
++}
++
++/*
++ * The node's accumulated aging activities.
++ */
++static unsigned long node_readahead_aging(void)
++{
++       unsigned long sum = 0;
++
++#ifdef CONFIG_READAHEAD_SMOOTH_AGING
++       unsigned long cpu;
++       cpumask_t mask = node_to_cpumask(numa_node_id());
++
++       for_each_cpu_mask(cpu, mask)
++	       sum += per_cpu(readahead_aging, cpu);
++#else
++       unsigned int i;
++       struct zone *zones = NODE_DATA(numa_node_id())->node_zones;
++
++       for (i = 0; i < MAX_NR_ZONES; i++)
++	       sum += zones[i].aging_total;
++#endif
++
++       return sum;
++}
++
++/*
+  * ra_min is mainly determined by the size of cache memory. Reasonable?
   *
-- * page_cache_readahead() is the main function.  If performs the adaptive
-+ * page_cache_readahead() is the main function.  It performs the adaptive
-  * readahead window size management and submits the readahead I/O.
-  *
-  * Note that @filp is purely used for passing on to the ->readpage[s]()
+  * Table of concrete numbers for 4KB page size:
 
 --

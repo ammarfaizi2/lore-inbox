@@ -1,88 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932706AbWEXMay@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932721AbWEXMbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932706AbWEXMay (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 08:30:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932721AbWEXMay
+	id S932721AbWEXMbx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 08:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932722AbWEXMbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 08:30:54 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:25057 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S932706AbWEXMax
+	Wed, 24 May 2006 08:31:53 -0400
+Received: from silver.veritas.com ([143.127.12.111]:43893 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932721AbWEXMbx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 08:30:53 -0400
-Subject: [Patch 2/6] statistics infrastructure - prerequisite: parser
-	enhancement
-From: Martin Peschke <mp3@de.ibm.com>
+	Wed, 24 May 2006 08:31:53 -0400
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="4.05,165,1146466800"; 
+   d="scan'208"; a="38465441:sNHT25381144"
+Date: Wed, 24 May 2006 13:31:47 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Wed, 24 May 2006 14:30:45 +0200
-Message-Id: <1148473845.2934.13.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH mm] swapless page migration: fix swapops.h:97 BUG
+Message-ID: <Pine.LNX.4.64.0605241329010.9391@blonde.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 24 May 2006 12:31:52.0315 (UTC) FILETIME=[09047CB0:01C67F2E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a match_* derivate for 64 bit operands to the parser library.
+Several times while testing swapless page migration (I've no NUMA, just
+hacking it up to migrate recklessly while running load), I've hit the
+BUG_ON(!PageLocked(p)) in migration_entry_to_page.
 
-Signed-off-by: Martin Peschke <mp3@de.ibm.com>
+This comes from an orphaned migration entry, unrelated to the current
+correctly locked migration, but hit by remove_anon_migration_ptes as
+it checks an address in each vma of the anon_vma list.
+
+Such an orphan may be left behind if an earlier migration raced with fork:
+copy_one_pte can duplicate a migration entry from parent to child, after
+remove_anon_migration_ptes has checked the child vma, but before it has
+removed it from the parent vma.  (If the process were later to fault on
+this orphaned entry, it would hit the same BUG from migration_entry_wait.)
+
+This could be fixed by locking anon_vma in copy_one_pte, but we'd rather
+not.  There's no such problem with file pages, because vma_prio_tree_add
+adds child vma after parent vma, and the page table locking at each end
+is enough to serialize.  Follow that example with anon_vma: add new vmas
+to the tail instead of the head.
+
+(There's no corresponding problem when inserting migration entries,
+because a missed pte will leave the page count and mapcount high,
+which is allowed for.  And there's no corresponding problem when
+migrating via swap, because a leftover swap entry will be correctly
+faulted.  But the swapless method has no refcounting of its entries.)
+
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- include/linux/parser.h |    1 +
- lib/parser.c           |   30 ++++++++++++++++++++++++++++++
- 2 files changed, 31 insertions(+)
+ mm/rmap.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff -Nurp a/lib/parser.c b/lib/parser.c
---- a/lib/parser.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/lib/parser.c	2006-05-19 16:01:48.000000000 +0200
-@@ -140,6 +140,35 @@ static int match_number(substring_t *s, 
- }
+--- 2.6.17-rc4-mm3/mm/rmap.c	2006-05-22 12:19:04.000000000 +0100
++++ linux/mm/rmap.c	2006-05-22 12:51:02.000000000 +0100
+@@ -103,7 +103,7 @@ int anon_vma_prepare(struct vm_area_stru
+ 		spin_lock(&mm->page_table_lock);
+ 		if (likely(!vma->anon_vma)) {
+ 			vma->anon_vma = anon_vma;
+-			list_add(&vma->anon_vma_node, &anon_vma->head);
++			list_add_tail(&vma->anon_vma_node, &anon_vma->head);
+ 			allocated = NULL;
+ 		}
+ 		spin_unlock(&mm->page_table_lock);
+@@ -127,7 +127,7 @@ void __anon_vma_link(struct vm_area_stru
+ 	struct anon_vma *anon_vma = vma->anon_vma;
  
- /**
-+ * match_s64: scan a number in the given base from a substring_t
-+ * @s: substring to be scanned
-+ * @result: resulting integer on success
-+ * @base: base to use when converting string
-+ *
-+ * Description: Given a &substring_t and a base, attempts to parse the substring
-+ * as a number in that base. On success, sets @result to the s64 represented
-+ * by the string and returns 0. Returns either -ENOMEM or -EINVAL on failure.
-+ */
-+int match_s64(substring_t *s, s64 *result, int base)
-+{
-+	char *endp;
-+	char *buf;
-+	int ret;
-+
-+	buf = kmalloc(s->to - s->from + 1, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+	memcpy(buf, s->from, s->to - s->from);
-+	buf[s->to - s->from] = '\0';
-+	*result = simple_strtoll(buf, &endp, base);
-+	ret = 0;
-+	if (endp == buf)
-+		ret = -EINVAL;
-+	kfree(buf);
-+	return ret;
-+}
-+
-+/**
-  * match_int: - scan a decimal representation of an integer from a substring_t
-  * @s: substring_t to be scanned
-  * @result: resulting integer on success
-@@ -218,3 +247,4 @@ EXPORT_SYMBOL(match_octal);
- EXPORT_SYMBOL(match_hex);
- EXPORT_SYMBOL(match_strcpy);
- EXPORT_SYMBOL(match_strdup);
-+EXPORT_SYMBOL(match_s64);
-diff -Nurp a/include/linux/parser.h b/include/linux/parser.h
---- a/include/linux/parser.h	2006-03-20 06:53:29.000000000 +0100
-+++ b/include/linux/parser.h	2006-05-19 16:01:48.000000000 +0200
-@@ -31,3 +31,4 @@ int match_octal(substring_t *, int *resu
- int match_hex(substring_t *, int *result);
- void match_strcpy(char *, substring_t *);
- char *match_strdup(substring_t *);
-+int match_s64(substring_t *, s64 *result, int);
-
-
+ 	if (anon_vma) {
+-		list_add(&vma->anon_vma_node, &anon_vma->head);
++		list_add_tail(&vma->anon_vma_node, &anon_vma->head);
+ 		validate_anon_vma(vma);
+ 	}
+ }
+@@ -138,7 +138,7 @@ void anon_vma_link(struct vm_area_struct
+ 
+ 	if (anon_vma) {
+ 		spin_lock(&anon_vma->lock);
+-		list_add(&vma->anon_vma_node, &anon_vma->head);
++		list_add_tail(&vma->anon_vma_node, &anon_vma->head);
+ 		validate_anon_vma(vma);
+ 		spin_unlock(&anon_vma->lock);
+ 	}

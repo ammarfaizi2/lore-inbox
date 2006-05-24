@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbWEXFYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932595AbWEXF1B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932568AbWEXFYg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 01:24:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbWEXFYg
+	id S932595AbWEXF1B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 01:27:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbWEXF1B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 01:24:36 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:60639 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932568AbWEXFYg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 01:24:36 -0400
-Message-ID: <4473EE0B.1050403@garzik.org>
-Date: Wed, 24 May 2006 01:24:27 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Wed, 24 May 2006 01:27:01 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:37613 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932595AbWEXF1A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 01:27:00 -0400
+Date: Wed, 24 May 2006 14:26:30 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [Patch]Fix spanned_pages is not updated at a case of memory hot-add.
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1148447148.8658.34.camel@localhost.localdomain>
+References: <20060524100531.3468.Y-GOTO@jp.fujitsu.com> <1148447148.8658.34.camel@localhost.localdomain>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060524142456.346C.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: OpenGL-based framebuffer concepts
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>	 <44700ACC.8070207@gmail.com>	 <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com>	 <1148379089.25255.9.camel@localhost.localdomain>	 <4472E3D8.9030403@garzik.org> <9e4733910605232148sf87b62eq5362d520e43c2e70@mail.gmail.com>
-In-Reply-To: <9e4733910605232148sf87b62eq5362d520e43c2e70@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> On 5/23/06, Jeff Garzik <jeff@garzik.org> wrote:
->> OTOH, I think a perfect video driver would be in kernel space, and do
->>
->> * delivery of GPU commands from userspace to hardware, hopefully via
->> zero-copy DMA.  For older cards without a true instruction set, "GPU
->> commands" simply means userspace prepares hardware register
->> read/write/test commands, and blasts the sequence to hardware at the
->> appropriate moment (a la S3 Savage's BCI).
+> On Wed, 2006-05-24 at 10:18 +0900, Yasunori Goto wrote:
+> > Could you fix and repost it? Or should I? 
 > 
-> You have to security check those commands in the kernel driver to keep
-> normal users from using the GPU to do nasty things. Users can only
-> play with memory that they own and no ones else's.
+> I'd appreciate it if you could test it, and forward it along
+> afterword.  
 
-Obviously.
+Ok. I'll do it. :-)
 
-	Jeff
-
+-- 
+Yasunori Goto 
 
 

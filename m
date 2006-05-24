@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932601AbWEXFer@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWEXFrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932601AbWEXFer (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 01:34:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932603AbWEXFer
+	id S932218AbWEXFrp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 01:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbWEXFrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 01:34:47 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:4497 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932601AbWEXFeq (ORCPT
+	Wed, 24 May 2006 01:47:45 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:56984 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932218AbWEXFro (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 01:34:46 -0400
-Date: Wed, 24 May 2006 07:34:47 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Linus Torvalds <torvalds@osdl.org>, jakub@redhat.com,
-       rusty@rustcorp.com.au, kraxel@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/3] vdso: improve print_fatal_signals support by adding memory maps
-Message-ID: <20060524053447.GA1934@elte.hu>
-References: <20060523000126.GC9934@elte.hu> <44738C0C.9010107@vmware.com>
+	Wed, 24 May 2006 01:47:44 -0400
+Date: Wed, 24 May 2006 15:47:23 +1000
+From: David Chinner <dgc@sgi.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] Per-superblock unused dentry LRU lists.
+Message-ID: <20060524054723.GF7418631@melbourne.sgi.com>
+References: <20060524012412.GB7412499@melbourne.sgi.com> <1148435980.3049.11.camel@laptopd505.fenrus.org> <20060524040142.GC7418631@melbourne.sgi.com> <1148444589.3049.26.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44738C0C.9010107@vmware.com>
+In-Reply-To: <1148444589.3049.26.camel@laptopd505.fenrus.org>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Zachary Amsden <zach@vmware.com> wrote:
-
-> >+	if (current->mm)
-> >+		printk("vDSO at %p\n", current->mm->context.vdso);
-> >+#endif
-> > 	show_regs(regs);
-> >+	printk("\n");
-> >+	print_vmas();
-> > }
-> > 
-> > static int __init setup_print_fatal_signals(char *str
+On Wed, May 24, 2006 at 06:23:09AM +0200, Arjan van de Ven wrote:
+> On Wed, 2006-05-24 at 14:01 +1000, David Chinner wrote:
+> > Yup, that is what the current code I've written will do. I just
+> > wanted someting that worked over all superblocks to begin with.
+> > It's not very smart, but improving it can be done incrementally.
 > 
-> Perhaps I should have read your first patch more carefully - it did 
-> have register info.  This looks even better (although you may now want 
-> to allow it to be #ifdef'd out under CONFIG_EMBEDDED).
-> 
-> You probably should use PATH_MAX+1 instead of SIZE or check IS_ERR() 
-> on the string from d_path.
+> I think that if you say A you should say B, I mean, if you make the list
+> per SB you probably just should do the step and make at least the
+> counter per SB as well. That will also save in cacheline bounces I
+> suppose...  but more importantly you keep the counters next to the list.
 
-the string is constructed on the stack, so 4K would be too much. 128 is 
-i think enough for most purposes.
+But it doesn't remove the need for the global counter. The
+dcache_lock is far more heavily contended so the counter cacheline
+bouncing is lost in the noise here. No to mention the counter can
+only be updated while holding the dcache_lock.  Hence at this point,
+adding per-sb counters is pure overhead unless the reclaim method
+is made to use them.
 
-	Ingo
+> Which you'll also need to do any kind of scaling I suppose later on, so
+> might as well keep the stats already.
+
+The per-sb list improves scalability only by reducing the maximum
+length of time the dcache_lock is held. Scalabilty for further
+parallelism (and therefore better reclaim performance) is going to
+require locking changes so that's when I'd expect the counters to
+need changing. I don't want to over-optimise before we know what we
+actually need to optimise...
+
+Cheers,
+
+Dave.
+-- 
+Dave Chinner
+R&D Software Enginner
+SGI Australian Software Group

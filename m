@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbWEXQyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWEXQ6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751003AbWEXQyt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 12:54:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbWEXQyt
+	id S1751127AbWEXQ6j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 12:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWEXQ6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 12:54:49 -0400
-Received: from www.osadl.org ([213.239.205.134]:47069 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751003AbWEXQyt (ORCPT
+	Wed, 24 May 2006 12:58:39 -0400
+Received: from [194.90.237.34] ([194.90.237.34]:42639 "EHLO mtlexch01.mtl.com")
+	by vger.kernel.org with ESMTP id S1751127AbWEXQ6i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 12:54:49 -0400
-Subject: Re: Ingo's  realtime_preempt patch causes kernel oops
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Sven-Thorsten Dietrich <sven@mvista.com>, Yann.LEPROVOST@wavecom.fr,
-       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       linux-kernel-owner@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1148488687.24623.67.camel@localhost.localdomain>
-References: <OFD8B7556E.13DD6F3A-ONC1257178.002C2D9A-C1257178.002D1FC5@wavecom.fr>
-	 <1148475334.24623.45.camel@localhost.localdomain>
-	 <1148476383.5239.54.camel@localhost.localdomain>
-	 <1148484729.14683.5.camel@localhost.localdomain>
-	 <1148485943.24623.54.camel@localhost.localdomain>
-	 <1148486614.5239.63.camel@localhost.localdomain>
-	 <1148488687.24623.67.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 24 May 2006 18:55:06 +0200
-Message-Id: <1148489706.5239.68.camel@localhost.localdomain>
+	Wed, 24 May 2006 12:58:38 -0400
+Date: Wed, 24 May 2006 19:59:58 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Greg KH <gregkh@suse.de>, Roland Dreier <rolandd@cisco.com>
+Cc: Brice Goglin <brice@myri.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: AMD 8131 MSI quirk called too late, bus_flags not inherited ?
+Message-ID: <20060524165958.GE21266@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <4468EE85.4000500@myri.com> <20060518155441.GB13334@suse.de> <20060521101656.GM30211@mellanox.co.il> <447047F2.2070607@myri.com> <20060521121726.GQ30211@mellanox.co.il> <44705DA4.2020807@myri.com> <20060521131025.GR30211@mellanox.co.il> <447069F7.1010407@myri.com> <20060523041958.GA8415@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060523041958.GA8415@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 24 May 2006 17:02:40.0968 (UTC) FILETIME=[DDF82C80:01C67F53]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-24 at 12:38 -0400, Steven Rostedt wrote:
-> OK I haven't worked on arm much at all. Only had to port one board
-> before, and didn't need to get too involved.
+Quoting r. Greg KH <gregkh@suse.de>:
+> > Right, thanks. Greg, what do you think of putting the attached patch in
+> > 2.6.17 ?
 > 
-> Can't two devices share the same interrupt line? Not talking about a
-> cascading interrupt controller, but two actual devices that can trigger
-> a single interrupt line.  So, if this is the case, how do you disable a
-> particular source without going to the driver itself?
+> Ok, does everyone agree that this patch fixes the issues for them?
 
-Yeah, the demux code has to go into the device driver to figure that
-out, which is not hard to do on SoC devices, as the peripherals are
-usually unique for a given SoC family.
+Worked here on a PCI-X AMD-8131 based system.
 
-PCI and other globally shared devices are completely differnt beasts and
-you would need a legion of hackers to fix that up.
+----
 
-	tglx
+Offtopic, something I wanted to bring up with respect to MSI,
+but never had the time to debug:
 
+If I do
 
+pci_enable_msix, pci_disable_msix
+
+then later
+
+pci_enable_msi
+
+on the same device fails with the following message:
+PCI: 0000:08:00.0: Can't enable MSI.  Device already has MSI-X vectors assigned
+
+This is not something new - has been happening since forever.
+Looks like not all MSI-X vectors get properly unassigned by pci_disable_msix.
+
+One way to test this is by loading mthca driver with msi_x=1, unloading
+and loading with msi=1.
+
+Someone has any idea what's wrong?
+
+-- 
+MST

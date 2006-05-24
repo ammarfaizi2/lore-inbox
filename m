@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbWEXAJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbWEXAKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932485AbWEXAJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 20:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWEXAJ7
+	id S932489AbWEXAKj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 20:10:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWEXAKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 20:09:59 -0400
-Received: from smtpq1.tilbu1.nb.home.nl ([213.51.146.200]:38296 "EHLO
-	smtpq1.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
-	id S932485AbWEXAJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 20:09:58 -0400
-Message-ID: <4473A498.4070101@keyaccess.nl>
-Date: Wed, 24 May 2006 02:11:04 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: libata PATA patch update
-References: <1147104400.3172.7.camel@localhost.localdomain> <445FD8D4.9030106@keyaccess.nl> <44739A36.90701@keyaccess.nl>
-In-Reply-To: <44739A36.90701@keyaccess.nl>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Tue, 23 May 2006 20:10:38 -0400
+Received: from smtpout.mac.com ([17.250.248.172]:64507 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932489AbWEXAKi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 20:10:38 -0400
+In-Reply-To: <9e4733910605231017g146e16dfnd61eb22a72bd3f5f@mail.gmail.com>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <44700ACC.8070207@gmail.com> <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com> <200605230048.14708.dhazelton@enter.net> <9e4733910605231017g146e16dfnd61eb22a72bd3f5f@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <6896241F-3389-4B20-9E42-3CCDDBFDD312@mac.com>
+Cc: "D. Hazelton" <dhazelton@enter.net>, Manu Abraham <abraham.manu@gmail.com>,
+       linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: OpenGL-based framebuffer concepts
+Date: Tue, 23 May 2006 20:10:01 -0400
+To: Jon Smirl <jonsmirl@gmail.com>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rene Herman wrote:
+On May 23, 2006, at 13:17:18, Jon Smirl wrote:
+>> By implementing a framework where userspace doesn't have to know -  
+>> or care - about the hardware, which, IMNSHO, is the way things  
+>> should be, then userspace applications can take advantage of such  
+>> a system and be even more stable.
+>
+> A true monolithic design doesn't really work for video hardware. In  
+> the monolithic model all devices in a class present a uniform API.  
+> The better design for GPUs is the exo-kernel model. DRM already  
+> uses the exo-kernel model. With exokernels each driver presents a  
+> unique API and userspace libraries are used to provide a uniform API.
 
->> CD and DVD ROMs are also working fine, including readcd and CDDA.
-> 
-> Well, other than spamming the kernel message buffer into oblivion. Must
-> have missed these last time around
+The one really significant potential problem with the exo-kernel  
+model for graphics is that the kernel *must* have a stable way to  
+display kernel panics regardless of current video mode, framebuffer  
+settings, 3D rendering, etc.  The kernel driver should be able to  
+provide some fundamental operations for compositing text on top of  
+the framebuffer at the primary viewport regardless of whatever  
+changes userspace makes to the GPU configuration.  We don't have this  
+now, but I see it as an absolute requirement for any replacement  
+graphics system.  This means that the kernel driver should be able to  
+understand and modify the entire GPU state to the extent necessary  
+for such a text console.
 
-Confirmed. Realised I was on 2.6.17-rc4-ide1 now, and 2.6.17-rc3-ide1 last
-time, but I just downgraded and these messages are indeed also present on
-2.6.17-rc3-ide1.
+Cheers,
+Kyle Moffett
 
-> but cdparanoia (regular cdparanoia) triggers tons and tons of these, with
-> both sr0 (hdc, a CD-RW) and sr1 (hdd, DVD-ROM):
-> 
-> sg_write: data in/out 56/56 bytes for SCSI command 0x12--guessing data in;
->   program cdparanoia not setting count and/or reply_len properly
-> sg_write: data in/out 26/26 bytes for SCSI command 0x5a--guessing data in;
->   program cdparanoia not setting count and/or reply_len properly
-> sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
->   program cdparanoia not setting count and/or reply_len properly
-> sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
->   program cdparanoia not setting count and/or reply_len properly
-> sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
->   program cdparanoia not setting count and/or reply_len properly
-> sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
->   program cdparanoia not setting count and/or reply_len properly
-> sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
->   program cdparanoia not setting count and/or reply_len properly
-> sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
->   program cdparanoia not setting count and/or reply_len properly
-> sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
->   program cdparanoia not setting count and/or reply_len properly
-> sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
->   program cdparanoia not setting count and/or reply_len properly
-> printk: 106 messages suppressed.
-> sg_write: data in/out 30576/30576 bytes for SCSI command 0xbe--guessing 
-> data in;
->   program cdparanoia not setting count and/or reply_len properly
-> printk: 1087 messages suppressed.
-> sg_write: data in/out 16464/16464 bytes for SCSI command 0xbe--guessing 
-> data in;
->   program cdparanoia not setting count and/or reply_len properly
-> printk: 1147 messages suppressed.
-> sg_write: data in/out 30576/30576 bytes for SCSI command 0xbe--guessing 
-> data in;
->   program cdparanoia not setting count and/or reply_len properly
-
-Rene.

@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932655AbWEXPcq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWEXPmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932655AbWEXPcq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 11:32:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932668AbWEXPcp
+	id S932340AbWEXPmE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 11:42:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWEXPmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 11:32:45 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:64188 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S932655AbWEXPcp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 11:32:45 -0400
-Subject: Re: Ingo's  realtime_preempt patch causes kernel oops
-From: Sven-Thorsten Dietrich <sven@mvista.com>
-To: tglx@linutronix.de
-Cc: Steven Rostedt <rostedt@goodmis.org>, Yann.LEPROVOST@wavecom.fr,
-       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       linux-kernel-owner@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1148476383.5239.54.camel@localhost.localdomain>
-References: <OFD8B7556E.13DD6F3A-ONC1257178.002C2D9A-C1257178.002D1FC5@wavecom.fr>
-	 <1148475334.24623.45.camel@localhost.localdomain>
-	 <1148476383.5239.54.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: MontaVista Software, Inc.
-Date: Wed, 24 May 2006 08:32:08 -0700
-Message-Id: <1148484729.14683.5.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
-Content-Transfer-Encoding: 7bit
+	Wed, 24 May 2006 11:42:04 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:46028 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S932340AbWEXPmD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 11:42:03 -0400
+Date: Wed, 24 May 2006 17:41:48 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+cc: Kyle Moffett <mrmacman_g4@mac.com>, Jon Smirl <jonsmirl@gmail.com>,
+       "D. Hazelton" <dhazelton@enter.net>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Valdis.Kletnieks@vt.edu,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: OpenGL-based framebuffer concepts
+In-Reply-To: <44740533.7040702@aitel.hist.no>
+Message-ID: <Pine.LNX.4.62.0605241741190.4644@pademelon.sonytel.be>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+ <44700ACC.8070207@gmail.com> <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com>
+ <200605230048.14708.dhazelton@enter.net> <9e4733910605231017g146e16dfnd61eb22a72bd3f5f@mail.gmail.com>
+ <6896241F-3389-4B20-9E42-3CCDDBFDD312@mac.com> <44740533.7040702@aitel.hist.no>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-24 at 15:13 +0200, Thomas Gleixner wrote:
-> On Wed, 2006-05-24 at 08:55 -0400, Steven Rostedt wrote:
-> > Thomas or Ingo,
-> > 
-> > Maybe the handling of IRQs needs to handle the case that shared irq can
-> > have both a NODELAY and a thread.  The irq descriptor could have a
-> > NODELAY set if any of the actions are NODELAY, but before calling the
-> > interrupt handler (in interrupt context), check if the action is NODELAY
-> > or not, and if not, wake up the thread if not done so already.
-> 
-> As I said yesterday. You need a demultiplexer for such cases.
-> 
+On Wed, 24 May 2006, Helge Hafting wrote:
+> Kyle Moffett wrote:
+> > The one really significant potential problem with the exo-kernel model for
+> > graphics is that the kernel *must* have a stable way to display kernel
+> > panics regardless of current video mode, framebuffer settings, 3D rendering,
+> > etc.  The kernel driver should be able to provide some fundamental
+> > operations for compositing text on top of the framebuffer at the primary
+> > viewport regardless of whatever changes userspace makes to the GPU
+> > configuration.  We don't have this now, but I see it as an absolute
+> > requirement for any replacement graphics system.  This means that the kernel
+> > driver should be able to understand and modify the entire GPU state to the
+> > extent necessary for such a text console.
+> I am not so sure I want this at all.
+> In the early 90's, I used unix machines wich did exactly this - spamming the
+> framebuffer console with occational messages while X was running.
+> Yuck yuck yuck yuck yuck .  .  .
 
-Would IRQs stay masked until the thread has finished running?
+And the funny thing is that Linux used to do this as well ;-)
 
-Sven
+Gr{oetje,eeting}s,
 
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

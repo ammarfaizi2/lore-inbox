@@ -1,116 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932729AbWEXMho@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932733AbWEXMiF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932729AbWEXMho (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 08:37:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932731AbWEXMho
+	id S932733AbWEXMiF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 08:38:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932731AbWEXMiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 08:37:44 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:36265 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932729AbWEXMhn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 08:37:43 -0400
-Message-ID: <348474258.29290@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Wed, 24 May 2006 20:37:40 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+	Wed, 24 May 2006 08:38:05 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:23915 "EHLO
+	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932733AbWEXMiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 08:38:03 -0400
+Subject: Re: [PATCH 17/33] readahead: context based method
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
 Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 04/33] readahead: page flag PG_readahead
-Message-ID: <20060524123740.GA16304@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Peter Zijlstra <a.p.zijlstra@chello.nl>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060524111246.420010595@localhost.localdomain> <20060524111858.869793445@localhost.localdomain> <1148473656.10561.46.camel@lappy>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1148473656.10561.46.camel@lappy>
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20060524111905.586110688@localhost.localdomain>
+References: <20060524111246.420010595@localhost.localdomain>
+	 <20060524111905.586110688@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 24 May 2006 14:37:48 +0200
+Message-Id: <1148474268.10561.53.camel@lappy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 24, 2006 at 02:27:36PM +0200, Peter Zijlstra wrote:
-> On Wed, 2006-05-24 at 19:12 +0800, Wu Fengguang wrote:
-> > plain text document attachment
-> > (readahead-page-flag-PG_readahead.patch)
-> > An new page flag PG_readahead is introduced as a look-ahead mark, which
-> > reminds the caller to give the adaptive read-ahead logic a chance to do
-> > read-ahead ahead of time for I/O pipelining.
-> > 
-> > It roughly corresponds to `ahead_start' of the stock read-ahead logic.
-> > 
-> > Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
-> > ---
-> > 
-> >  include/linux/page-flags.h |    5 +++++
-> >  mm/page_alloc.c            |    2 +-
-> >  2 files changed, 6 insertions(+), 1 deletion(-)
-> > 
-> > --- linux-2.6.17-rc4-mm3.orig/include/linux/page-flags.h
-> > +++ linux-2.6.17-rc4-mm3/include/linux/page-flags.h
-> > @@ -89,6 +89,7 @@
-> >  #define PG_reclaim		17	/* To be reclaimed asap */
-> >  #define PG_nosave_free		18	/* Free, should not be written */
-> >  #define PG_buddy		19	/* Page is free, on buddy lists */
-> > +#define PG_readahead		20	/* Reminder to do readahead */
-> >  
-> 
-> Page flags are gouped by four, 20 would start a new set.
-> Also in my tree (git from a few days ago), 20 is taken by PG_unchached.
+On Wed, 2006-05-24 at 19:13 +0800, Wu Fengguang wrote:
 
-Thanks, grouped and renumbered it as 21.
+> +#define PAGE_REFCNT_0           0
+> +#define PAGE_REFCNT_1           (1 << PG_referenced)
+> +#define PAGE_REFCNT_2           (1 << PG_active)
+> +#define PAGE_REFCNT_3           ((1 << PG_active) | (1 << PG_referenced))
+> +#define PAGE_REFCNT_MASK        PAGE_REFCNT_3
+> +
+> +/*
+> + * STATUS   REFERENCE COUNT
+> + *  __                   0
+> + *  _R       PAGE_REFCNT_1
+> + *  A_       PAGE_REFCNT_2
+> + *  AR       PAGE_REFCNT_3
+> + *
+> + *  A/R: Active / Referenced
+> + */
+> +static inline unsigned long page_refcnt(struct page *page)
+> +{
+> +        return page->flags & PAGE_REFCNT_MASK;
+> +}
+> +
+> +/*
+> + * STATUS   REFERENCE COUNT      TYPE
+> + *  __                   0      fresh
+> + *  _R       PAGE_REFCNT_1      stale
+> + *  A_       PAGE_REFCNT_2      disturbed once
+> + *  AR       PAGE_REFCNT_3      disturbed twice
+> + *
+> + *  A/R: Active / Referenced
+> + */
+> +static inline unsigned long cold_page_refcnt(struct page *page)
+> +{
+> +	if (!page || PageActive(page))
+> +		return 0;
+> +
+> +	return page_refcnt(page);
+> +}
+> +
 
-> What code is this patch-set against?
+Why all of this if all you're ever going to use is cold_page_refcnt.
+What about something like this:
 
-It's against the latest -mm tree: linux-2.6.17-rc4-mm3.
+static inline int cold_page_referenced(struct page *page)
+{
+	if (!page || PageActive(page))
+		return 0;
+	return !!PageReferenced(page);
+}
 
-Wu
----
+> +
+> +/*
+> + * Count/estimate cache hits in range [first_index, last_index].
+> + * The estimation is simple and optimistic.
+> + */
+> +static int count_cache_hit(struct address_space *mapping,
+> +				pgoff_t first_index, pgoff_t last_index)
+> +{
+> +	struct page *page;
+> +	int size = last_index - first_index + 1;
+> +	int count = 0;
+> +	int i;
+> +
+> +	cond_resched();
+> +	read_lock_irq(&mapping->tree_lock);
+> +
+> +	/*
+> +	 * The first page may well is chunk head and has been accessed,
+> +	 * so it is index 0 that makes the estimation optimistic. This
+> +	 * behavior guarantees a readahead when (size < ra_max) and
+> +	 * (readahead_hit_rate >= 16).
+> +	 */
+> +	for (i = 0; i < 16;) {
+> +		page = __find_page(mapping, first_index +
+> +						size * ((i++ * 29) & 15) / 16);
+> +		if (cold_page_refcnt(page) >= PAGE_REFCNT_1 && ++count >= 2)
+                      cold_page_referenced(page) && ++count >= 2
+> +			break;
+> +	}
+> +
+> +	read_unlock_irq(&mapping->tree_lock);
+> +
+> +	return size * count / i;
+> +}
 
-Subject: readahead: page flag PG_readahead
 
-An new page flag PG_readahead is introduced as a look-ahead mark, which
-reminds the caller to give the adaptive read-ahead logic a chance to do
-read-ahead ahead of time for I/O pipelining.
-
-It roughly corresponds to `ahead_start' of the stock read-ahead logic.
-
-Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
----
- include/linux/page-flags.h |    5 +++++
- mm/page_alloc.c            |    2 +-
- 2 files changed, 6 insertions(+), 1 deletion(-)
-
---- linux-2.6.17-rc4-mm3.orig/include/linux/page-flags.h
-+++ linux-2.6.17-rc4-mm3/include/linux/page-flags.h
-@@ -90,6 +90,8 @@
- #define PG_nosave_free		18	/* Free, should not be written */
- #define PG_buddy		19	/* Page is free, on buddy lists */
- 
-+#define PG_readahead		21	/* Reminder to do readahead */
-+
- 
- #if (BITS_PER_LONG > 32)
- /*
-@@ -372,6 +374,10 @@ extern void __mod_page_state_offset(unsi
- #define SetPageUncached(page)	set_bit(PG_uncached, &(page)->flags)
- #define ClearPageUncached(page)	clear_bit(PG_uncached, &(page)->flags)
- 
-+#define PageReadahead(page)	test_bit(PG_readahead, &(page)->flags)
-+#define __SetPageReadahead(page) __set_bit(PG_readahead, &(page)->flags)
-+#define TestClearPageReadahead(page) test_and_clear_bit(PG_readahead, &(page)->flags)
-+
- struct page;	/* forward declaration */
- 
- int test_clear_page_dirty(struct page *page);
---- linux-2.6.17-rc4-mm3.orig/mm/page_alloc.c
-+++ linux-2.6.17-rc4-mm3/mm/page_alloc.c
-@@ -564,7 +564,7 @@ static int prep_new_page(struct page *pa
- 	if (PageReserved(page))
- 		return 1;
- 
--	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
-+	page->flags &= ~(1 << PG_uptodate | 1 << PG_error | 1 << PG_readahead |
- 			1 << PG_referenced | 1 << PG_arch_1 |
- 			1 << PG_checked | 1 << PG_mappedtodisk);
- 	set_page_private(page, 0);

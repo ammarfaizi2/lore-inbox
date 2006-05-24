@@ -1,83 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932707AbWEXLXU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932715AbWEXLTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932707AbWEXLXU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 07:23:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932717AbWEXLTk
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S932715AbWEXLTk (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 24 May 2006 07:19:40 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:56961 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932689AbWEXLTL (ORCPT
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932714AbWEXLTd
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 24 May 2006 07:19:33 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:43650 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932716AbWEXLTP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 07:19:11 -0400
-Message-ID: <348469547.47755@ustc.edu.cn>
+	Wed, 24 May 2006 07:19:15 -0400
+Message-ID: <348469552.33709@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060524111908.569533741@localhost.localdomain>
+Message-Id: <20060524111913.603476893@localhost.localdomain>
 References: <20060524111246.420010595@localhost.localdomain>
-Date: Wed, 24 May 2006 19:13:09 +0800
+Date: Wed, 24 May 2006 19:13:19 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 23/33] readahead: backward prefetching method
-Content-Disposition: inline; filename=readahead-method-backward.patch
+Subject: [PATCH 33/33] readahead: debug traces showing read patterns
+Content-Disposition: inline; filename=readahead-debug-traces-access-pattern.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Readahead policy for reading backward.
+Print all relavant read requests to help discover the access pattern.
+
+If you are experiencing performance problems, or want to help improve
+the read-ahead logic, please send me the trace data. Thanks.
+
+- Preparations
+
+# Compile kernel with option CONFIG_DEBUG_READAHEAD
+mkdir /debug
+mount -t debug none /debug
+
+- For each session with distinct access pattern
+
+echo > /debug/readahead # reset the counters
+# echo > /var/log/kern.log # you may want to backup it first
+echo 8 > /debug/readahead/debug_level # show verbose printk traces
+# do one benchmark/task
+echo 0 > /debug/readahead/debug_level # revert to normal value
+cp /debug/readahead/events readahead-events-`date +'%F_%R'`
+bzip2 -c /var/log/kern.log > kern.log-`date +'%F_%R'`.bz2
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- mm/readahead.c |   40 ++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 40 insertions(+)
+ mm/filemap.c |   23 ++++++++++++++++++++++-
+ 1 files changed, 22 insertions(+), 1 deletion(-)
 
---- linux-2.6.17-rc4-mm3.orig/mm/readahead.c
-+++ linux-2.6.17-rc4-mm3/mm/readahead.c
-@@ -1574,6 +1574,46 @@ initial_readahead(struct address_space *
- }
+--- linux-2.6.17-rc4-mm3.orig/mm/filemap.c
++++ linux-2.6.17-rc4-mm3/mm/filemap.c
+@@ -45,6 +45,12 @@ static ssize_t
+ generic_file_direct_IO(int rw, struct kiocb *iocb, const struct iovec *iov,
+ 	loff_t offset, unsigned long nr_segs);
  
++#ifdef CONFIG_DEBUG_READAHEAD
++extern u32 debug_level;
++#else
++#define debug_level 0
++#endif /* CONFIG_DEBUG_READAHEAD */
++
  /*
-+ * Backward prefetching.
-+ *
-+ * No look-ahead and thrashing safety guard: should be unnecessary.
-+ */
-+static int
-+try_read_backward(struct file_ra_state *ra, pgoff_t begin_index,
-+			unsigned long ra_size, unsigned long ra_max)
-+{
-+	pgoff_t end_index;
+  * Shared mappings implemented 30.11.1994. It's not fully working yet,
+  * though.
+@@ -829,6 +835,10 @@ void do_generic_mapping_read(struct addr
+ 	if (!isize)
+ 		goto out;
+ 
++	if (debug_level >= 5)
++		printk(KERN_DEBUG "read-file(ino=%lu, req=%lu+%lu)\n",
++			inode->i_ino, index, last_index - index);
 +
-+	/* Are we reading backward? */
-+	if (begin_index > ra->prev_page)
-+		return 0;
+ 	end_index = (isize - 1) >> PAGE_CACHE_SHIFT;
+ 	for (;;) {
+ 		struct page *page;
+@@ -883,6 +893,11 @@ find_page:
+ 		if (prefer_adaptive_readahead())
+ 			readahead_cache_hit(&ra, page);
+ 
++		if (debug_level >= 7)
++			printk(KERN_DEBUG "read-page(ino=%lu, idx=%lu, io=%s)\n",
++				inode->i_ino, index,
++				PageUptodate(page) ? "hit" : "miss");
 +
-+	if ((ra->flags & RA_CLASS_MASK) == RA_CLASS_BACKWARD &&
-+					ra_has_index(ra, ra->prev_page)) {
-+		ra_size += 2 * ra_cache_hit(ra, 0);
-+		end_index = ra->la_index;
-+	} else {
-+		ra_size += ra_size + ra_size * (readahead_hit_rate - 1) / 2;
-+		end_index = ra->prev_page;
-+	}
+ 		if (!PageUptodate(page))
+ 			goto page_not_up_to_date;
+ page_ok:
+@@ -1334,7 +1349,6 @@ retry_all:
+ 	if (!prefer_adaptive_readahead() && VM_SequentialReadHint(area))
+ 		page_cache_readahead(mapping, ra, file, pgoff, 1);
+ 
+-
+ 	/*
+ 	 * Do we have something in the page cache already?
+ 	 */
+@@ -1397,6 +1411,13 @@ retry_find:
+ 	if (prefer_adaptive_readahead())
+ 		readahead_cache_hit(ra, page);
+ 
++	if (debug_level >= 6)
++		printk(KERN_DEBUG "read-mmap(ino=%lu, idx=%lu, hint=%s, io=%s)\n",
++			inode->i_ino, pgoff,
++			VM_RandomReadHint(area) ? "random" :
++			(VM_SequentialReadHint(area) ? "sequential" : "none"),
++			PageUptodate(page) ? "hit" : "miss");
 +
-+	if (ra_size > ra_max)
-+		ra_size = ra_max;
-+
-+	/* Read traces close enough to be covered by the prefetching? */
-+	if (end_index > begin_index + ra_size)
-+		return 0;
-+
-+	begin_index = end_index - ra_size;
-+
-+	ra_set_class(ra, RA_CLASS_BACKWARD);
-+	ra_set_index(ra, begin_index, begin_index);
-+	ra_set_size(ra, ra_size, 0);
-+
-+	return 1;
-+}
-+
-+/*
-  * ra_min is mainly determined by the size of cache memory. Reasonable?
-  *
-  * Table of concrete numbers for 4KB page size:
+ 	/*
+ 	 * Ok, found a page in the page cache, now we need to check
+ 	 * that it's up-to-date.
 
 --

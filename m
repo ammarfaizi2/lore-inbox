@@ -1,38 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932672AbWEXKoS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932674AbWEXKpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932672AbWEXKoS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 06:44:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932674AbWEXKoS
+	id S932674AbWEXKpR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 06:45:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932678AbWEXKpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 06:44:18 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:58628 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932672AbWEXKoR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 06:44:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=RhkHlk6bfUaYVZ/kqhmIFtRkK6bWKI3PitV0R0ss+tE5VCxu4TM+YZqG8GChyfSb5b2TN/BnoZNJ70lxJyjWd6bRe7vO4Xf546aFahNT8rhLRE/V6RcRfL8iGO+sKbtyZhDU5L9s2stOBFwJh242lwz2/Vrlshal38AMiSrJ2W8=
-Message-ID: <3420082f0605240344s61156345h22ca952b76533ec6@mail.gmail.com>
-Date: Wed, 24 May 2006 16:44:15 +0600
-From: "Irfan Habib" <irfan.habib@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: High speed method to determine bandwidth
+	Wed, 24 May 2006 06:45:17 -0400
+Received: from pne-smtpout3-sn1.fre.skanova.net ([81.228.11.120]:39585 "EHLO
+	pne-smtpout3-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S932674AbWEXKpQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 06:45:16 -0400
+Message-ID: <4474392F.1030809@gmail.com>
+Date: Wed, 24 May 2006 13:45:03 +0300
+From: Anssi Hannula <anssi.hannula@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6-7.5.20060mdk (X11/20050322)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: dtor_core@ameritech.net, linux-joystick@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 03/11] input: new force feedback interface
+References: <20060515211229.521198000@gmail.com>	<20060515211506.783939000@gmail.com> <20060517222007.2b606b1b.akpm@osdl.org> <4471E259.7080609@gmail.com>
+In-Reply-To: <4471E259.7080609@gmail.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Anssi Hannula wrote:
+> Andrew Morton wrote:
+> 
+>>Anssi Hannula <anssi.hannula@gmail.com> wrote:
+>>
+>>
+>>>Implement a new force feedback interface, in which all non-driver-specific
+>>>operations are separated to a common module. This module handles effect type
+>>>validations, effect timers, locking, etc.
+>>>
+>>>As a result, support is added for gain and envelope for memoryless devices,
+>>>periodic => rumble conversion for memoryless devices and rumble => periodic
+>>>conversion for devices with periodic support instead of rumble support. Also
+>>>the effect memory of devices is not emptied if the root user opens and closes
+>>>the device while another user is using effects. This module also obsoletes
+>>>some flawed locking and timer code in few ff drivers.
+>>>
+>>>The module is named ff-effects. If INPUT_FF_EFFECTS is enabled, the force
+>>>feedback drivers and interfaces (evdev) will be depending on it.
+>>>
+>>>Userspace interface is left unaltered.
+>>>
+>>
+>>
+>>Nice-looking patches.
+>>
+> 
+> 
+> Thanks for looking and providing helpful comments :)
+> 
 
-I'm building an application which requires me to determine the
-bandwitth between two nodes.
-Now I'm using the formulat BW = (max segment size/rtt) * 1/sqrt(packet loss)
-But this requires me to determine the packet loss and the RTT, and to
-do that I use ping. Now ping really slows down the entire calculation.
-Is there a more faster way to determine the bandwidth between nodes??
+Andrew, did you get my response? I received Delivery Status Notification
+for your address:
+<copy>
+- These recipients of your message have been processed by the mail server:
+akpm@osdl.org; Failed; 5.3.0 (other or undefined mail system status)
 
-Regards
-Irfan
+    Remote MTA smtp.osdl.org: network error
+
+
+ - SMTP protocol diagnostic: 554 5.7.1 gmail.com suggested we reject
+your email: 81.228.11.120 is neither permitted nor denied by domain of
+anssi.hannula@gmail.com
+</paste>
+
+
+> 
+> BTW, what is the best way to send corrected patches for this patchset?
+> Probably as a reply to the individual patches?
+> 
+
+Hmm, I think it is easier to just send the whole updated set...
+
+I'm going to do all the changes discussed and then send the set probably
+tomorrow or in the weekend.
+
+
+-- 
+Anssi Hannula
+

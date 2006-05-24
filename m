@@ -1,82 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWEXQ7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWEXRF5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbWEXQ7a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 12:59:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWEXQ7a
+	id S1751147AbWEXRF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 13:05:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWEXRF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 12:59:30 -0400
-Received: from mpc-26.sohonet.co.uk ([193.203.82.251]:3505 "EHLO
-	moving-picture.com") by vger.kernel.org with ESMTP id S1751133AbWEXQ73
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 12:59:29 -0400
-Message-ID: <447490EF.8010000@moving-picture.com>
-Date: Wed, 24 May 2006 17:59:27 +0100
-From: James Pearson <james-p@moving-picture.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040524
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 4096 byte limit to /proc/PID/environ ?
-References: <447481C0.5050709@moving-picture.com> <Pine.LNX.4.61.0605241235110.2450@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0605241235110.2450@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 24 May 2006 13:05:57 -0400
+Received: from www.osadl.org ([213.239.205.134]:60637 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751147AbWEXRF5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 13:05:57 -0400
+Subject: Re: Ingo's  realtime_preempt patch causes kernel oops
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Yann.LEPROVOST@wavecom.fr,
+       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <Pine.LNX.4.64.0605241834220.9777-100000@localhost>
+References: <Pine.LNX.4.64.0605241834220.9777-100000@localhost>
+Content-Type: text/plain
+Date: Wed, 24 May 2006 19:06:14 +0200
+Message-Id: <1148490374.5239.81.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-Disclaimer: This email and any attachments are confidential, may be legally
-X-Disclaimer: privileged and intended solely for the use of addressee. If you
-X-Disclaimer: are not the intended recipient of this message, any disclosure,
-X-Disclaimer: copying, distribution or any action taken in reliance on it is
-X-Disclaimer: strictly prohibited and may be unlawful. If you have received
-X-Disclaimer: this message in error, please notify the sender and delete all
-X-Disclaimer: copies from your system.
-X-Disclaimer: 
-X-Disclaimer: Email may be susceptible to data corruption, interception and
-X-Disclaimer: unauthorised amendment, and we do not accept liability for any
-X-Disclaimer: such corruption, interception or amendment or the consequences
-X-Disclaimer: thereof.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
-> On Wed, 24 May 2006, James Pearson wrote:
+On Wed, 2006-05-24 at 18:43 +0200, Esben Nielsen wrote:
+> I am working on patchset dealing with this problem. It still needs clean
+> up. The basic idea is to add a SA_MUSTTHREAD along with SA_NODELAY. Under
+> PREEMPT_RT all interrupthandlers, which doesn't have SA_NODELAY, will get
+> SA_MUSTTHREAD unless the driver is changed. In irq_request() it is checked
+> if the handler has SA_NODELAY and an old has SA_MUSTTHREAD and visa
+> versa.
 > 
-> 
->>It appears that /proc/PID/environ only returns the first 4096 bytes of a
->>processes' environment.
->>
->>Is there any other way via userland to get the whole environment for a
->>process?
->>
->>Thanks
->>
->>James Pearson
-> 
-> 
-> 
-> I think that /proc/PID/environ just returns the environment that
-> existed when the process was created, irrespective of size. You
-> can check this as:
-> 
-> #include <stdio.h>
-> 
-> main()
-> {
->      setenv("FOO=", "1234", 1);
->      printf("%d\n", getpid());
->      pause();
-> }
-> 
-> Variable "FOO" will not appear in /proc. It you set the environment
-> in non-standard ways, overwriting the original, you can see it in
-> /proc.
+> I have also made a lock type which can be changed from rt_mutex to
+> raw_spin_lock runtime. And I have made a system with a call-back from the
+> irq-layer to the driver so they can change their spinlocks on the fly when
+> needed.
 
-I'm not worried about that - more the fact that when I do:
+That sounds scary. 
 
-% cat /proc/$$/environ | wc -c
-4096
-% env | wc -c
-7329
+If you want your handler to be SA_NODELAY then you did this for a
+reason. Simply refuse to share if the other device requests the
+interrupt without SA_NODELAY.
 
-/proc/PID/environ is truncated ...
+A real solution for that problem needs more thought and the only thing
+which comes to my mind is to have split handler functionality, which
+allows to implement real cascaded interrupts. The short first stub would
+just query, mask/ack the interrupt in the device and return the
+appropriate information, so the real handler can be invoked at any given
+time.
 
-James Pearson
+I know it would be a large pile of hacking, but it would be a clean
+solution. OTOH it might be done gradually on a per driver base once the
+basic infrastucture is in place.
+
+	tglx
+
+

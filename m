@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932697AbWEXNuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932749AbWEXNzK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932697AbWEXNuF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 09:50:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932749AbWEXNuF
+	id S932749AbWEXNzK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 09:55:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932750AbWEXNzK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 09:50:05 -0400
-Received: from ns1.suse.de ([195.135.220.2]:10473 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932748AbWEXNuD (ORCPT
+	Wed, 24 May 2006 09:55:10 -0400
+Received: from relay4.usu.ru ([194.226.235.39]:8120 "EHLO relay4.usu.ru")
+	by vger.kernel.org with ESMTP id S932749AbWEXNzI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 09:50:03 -0400
-Date: Wed, 24 May 2006 15:43:38 +0200
-From: Stefan Seyfried <seife@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, "Theodore Ts'o" <tytso@mit.edu>,
-       Holger Macht <hmacht@suse.de>
-Subject: Re: [PATCH] Add user taint flag
-Message-ID: <20060524134338.GB20628@suse.de>
-References: <E1FhwyO-0001YQ-O1@candygram.thunk.org> <20060522033644.26d47a00.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060522033644.26d47a00.akpm@osdl.org>
-X-Operating-System: SUSE LINUX 10.1 (i586), Kernel 2.6.16.13-4-default
-User-Agent: Mutt/1.5.9i
+	Wed, 24 May 2006 09:55:08 -0400
+Message-ID: <447465C6.3090501@ums.usu.ru>
+Date: Wed, 24 May 2006 19:55:18 +0600
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.8.0.2) Gecko/20060405 SeaMonkey/1.0.1
+MIME-Version: 1.0
+Newsgroups: gmane.linux.kernel
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: Jon Smirl <jonsmirl@gmail.com>, "D. Hazelton" <dhazelton@enter.net>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <44700ACC.8070207@gmail.com> <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com> <200605230048.14708.dhazelton@enter.net> <9e4733910605231017g146e16dfnd61eb22a72bd3f5f@mail.gmail.com> <6896241F-3389-4B20-9E42-3CCDDBFDD312@mac.com> <44740533.7040702@aitel.hist.no>
+In-Reply-To: <44740533.7040702@aitel.hist.no>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.34.1.32; VDF: 6.34.1.137; host: usu2.usu.ru)
+X-AV-Checked: ClamAV using ClamSMTP@relay4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 22, 2006 at 03:36:44AM -0700, Andrew Morton wrote:
-> "Theodore Ts'o" <tytso@mit.edu> wrote:
-> >
-> > Allow taint flags to be set from userspace by writing to
-> > /proc/sys/kernel/tainted, and add a new taint flag, TAINT_USER, to be
-> > used when userspace is potentially doing something naughty that might
-> > compromise the kernel.
+Helge Hafting wrote:
+> Now, a panic/oops message is sure better than a silent hang, but that's 
+> it, really.
+> Anything less than that should just go in a logfile where the admin can 
+> look
+> it up later.  The very ability to write on the console will alway be abused
+> by some application programmer or kernel driver module vendor.
+> Blindly writing on the console won't be very useful either, the user might
+> be running a game or video which overwrites the message within 1/30s 
+> anyway.
+> Well, perhaps it can be done better than that, with some thought. I.e. :
 > 
-> What sort of userspace actions are you thinking of here?
+> * block all further access to /dev/fb0, processes will wait.
+> * Mark graphichs memory "not present" for any process that have it mapped,
+>   so as to pagefault anyone using it directly.  (read-only is not enough,
+>  processes should see the graphichs memory they expect, not
+>  the kernel message)
+> * Try to allocate memory for saving the screen image (assuming the
+>   machine won't hang completely, it will often keep running after an oops)
+> * Annoy the user by showing the message
+> * Provide some way of letting the user decide when to proceed, such
+>   as pressing a key
+> * Restore the saved screen memory (if that allocation was successful)
+> * Mark framebuffer memory present, releasing pagefaulted processes
+> * Unblock /dev/fb0
 
-I also thought about tainting the kernel from a userspace program that
-messes with runtime power management - switch off and on various devices
-at runtime (which is not recommended by anyone) - and you are clearly in
-Unsupportedland.
+Still too complex. Can't this be simplified to:
 
-So yes, this is a good idea (although i just would have written a module
-without MODULE_LICENSE that just printk'ed "Tainting kernel, we will use
-runtime power management" on load.)
+  * Don't use the kernel text output facility for anything except panics, where 
+there is no point in allowing userspace applications to continue
+  * Rely on userspace to display oopses and less important messages, because 
+doing this from the kernel leads either to the complex procedure outlined above 
+(where the policy is in the kernel, e.g., on which of the two keyboards should 
+one wait for a keypress?) or to unreliable displaying of messages
+  * Have a method in the framebuffer driver for clearing the screen and setting 
+a known good mode, for the Linux equivalent of a "blue screen of death"
+
 -- 
-Stefan Seyfried                  \ "I didn't want to write for pay. I
-QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
-SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen
+Alexander E. Patrakov

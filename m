@@ -1,131 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbWEXARB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbWEXARb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932506AbWEXARB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 20:17:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWEXARA
+	id S932488AbWEXARb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 20:17:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbWEXAQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 20:17:00 -0400
-Received: from [63.64.152.142] ([63.64.152.142]:6662 "EHLO gitlost.site")
-	by vger.kernel.org with ESMTP id S932504AbWEXAPV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 20:15:21 -0400
-From: Chris Leech <christopher.leech@intel.com>
-Subject: [PATCH 7/9] [I/OAT] make sk_eat_skb I/OAT aware
-Date: Tue, 23 May 2006 17:20:20 -0700
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Message-Id: <20060524002020.19403.80312.stgit@gitlost.site>
-In-Reply-To: <20060524001653.19403.31396.stgit@gitlost.site>
-References: <20060524001653.19403.31396.stgit@gitlost.site>
+	Tue, 23 May 2006 20:16:57 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:41930 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932506AbWEXAQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 20:16:53 -0400
+Date: Wed, 24 May 2006 09:18:15 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: linux-kernel@vger.kernel.org, y-goto@jp.fujitsu.com, ktokunag@redhat.com,
+       ashok.raj@intel.com, akpm@osdl.org
+Subject: Re: [RFC][PATCH] node hotplug : register_cpu() changes [0/3]
+Message-Id: <20060524091816.5a3960b9.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060523075202.A24516@unix-os.sc.intel.com>
+References: <20060523195636.693e00d6.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060523075202.A24516@unix-os.sc.intel.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add an extra argument to sk_eat_skb, and make it move early copied packets
-to the async_wait_queue instead of freeing them.
-Signed-off-by: Chris Leech <christopher.leech@intel.com>
----
+On Tue, 23 May 2006 07:52:03 -0700
+Ashok Raj <ashok.raj@intel.com> wrote:
 
- include/net/sock.h |   13 ++++++++++++-
- net/dccp/proto.c   |    4 ++--
- net/ipv4/tcp.c     |    8 ++++----
- net/llc/af_llc.c   |    2 +-
- 4 files changed, 19 insertions(+), 8 deletions(-)
+> On Tue, May 23, 2006 at 07:56:36PM +0900, KAMEZAWA Hiroyuki wrote:
+> > I found acpi container, which describes node, could evaluate cpu before
+> > memory. This means cpu-hot-add occurs before memory hot add.
+> > 
+> 
+> Is it possible to process memory before cpu in container hot-add code?
+> 
 
-diff --git a/include/net/sock.h b/include/net/sock.h
-index 90c65cb..75b0e97 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -1273,11 +1273,22 @@ sock_recv_timestamp(struct msghdr *msg, 
-  * This routine must be called with interrupts disabled or with the socket
-  * locked so that the sk_buff queue operation is ok.
- */
--static inline void sk_eat_skb(struct sock *sk, struct sk_buff *skb)
-+#ifdef CONFIG_NET_DMA
-+static inline void sk_eat_skb(struct sock *sk, struct sk_buff *skb, int copied_early)
-+{
-+	__skb_unlink(skb, &sk->sk_receive_queue);
-+	if (!copied_early)
-+		__kfree_skb(skb);
-+	else
-+		__skb_queue_tail(&sk->sk_async_wait_queue, skb);
-+}
-+#else
-+static inline void sk_eat_skb(struct sock *sk, struct sk_buff *skb, int copied_early)
- {
- 	__skb_unlink(skb, &sk->sk_receive_queue);
- 	__kfree_skb(skb);
- }
-+#endif
- 
- extern void sock_enable_timestamp(struct sock *sk);
- extern int sock_get_timestamp(struct sock *, struct timeval __user *);
-diff --git a/net/dccp/proto.c b/net/dccp/proto.c
-index 2e0ee83..5317fd3 100644
---- a/net/dccp/proto.c
-+++ b/net/dccp/proto.c
-@@ -719,7 +719,7 @@ int dccp_recvmsg(struct kiocb *iocb, str
- 		}
- 		dccp_pr_debug("packet_type=%s\n",
- 			      dccp_packet_name(dh->dccph_type));
--		sk_eat_skb(sk, skb);
-+		sk_eat_skb(sk, skb, 0);
- verify_sock_status:
- 		if (sock_flag(sk, SOCK_DONE)) {
- 			len = 0;
-@@ -773,7 +773,7 @@ verify_sock_status:
- 		}
- 	found_fin_ok:
- 		if (!(flags & MSG_PEEK))
--			sk_eat_skb(sk, skb);
-+			sk_eat_skb(sk, skb, 0);
- 		break;
- 	} while (1);
- out:
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 1c0cfd7..4e067d2 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -1072,11 +1072,11 @@ int tcp_read_sock(struct sock *sk, read_
- 				break;
- 		}
- 		if (skb->h.th->fin) {
--			sk_eat_skb(sk, skb);
-+			sk_eat_skb(sk, skb, 0);
- 			++seq;
- 			break;
- 		}
--		sk_eat_skb(sk, skb);
-+		sk_eat_skb(sk, skb, 0);
- 		if (!desc->count)
- 			break;
- 	}
-@@ -1356,14 +1356,14 @@ skip_copy:
- 		if (skb->h.th->fin)
- 			goto found_fin_ok;
- 		if (!(flags & MSG_PEEK))
--			sk_eat_skb(sk, skb);
-+			sk_eat_skb(sk, skb, 0);
- 		continue;
- 
- 	found_fin_ok:
- 		/* Process the FIN. */
- 		++*seq;
- 		if (!(flags & MSG_PEEK))
--			sk_eat_skb(sk, skb);
-+			sk_eat_skb(sk, skb, 0);
- 		break;
- 	} while (len > 0);
- 
-diff --git a/net/llc/af_llc.c b/net/llc/af_llc.c
-index 5a04db7..7465170 100644
---- a/net/llc/af_llc.c
-+++ b/net/llc/af_llc.c
-@@ -789,7 +789,7 @@ static int llc_ui_recvmsg(struct kiocb *
- 			continue;
- 
- 		if (!(flags & MSG_PEEK)) {
--			sk_eat_skb(sk, skb);
-+			sk_eat_skb(sk, skb, 0);
- 			*seq = 0;
- 		}
- 	} while (len > 0);
+Maybe No. I know ACPI people doesn't want to add special handling for cpu/memory
+in a container. It complicates the code very much.
+
+> > In most part, cpu-hot-add doesn't depend on node hot add.
+> > But register_cpu, which creates symbolic link from node to cpu, requires
+> 
+> Dont you need all per-cpu allocated on that node? Or is it from node0 or 
+> something for all hotpluggable cpus?
+> 
+I want to allocate on-node. But it's impossible now because per-cpu-pages
+has to be allocated at boot-time as for possible cpus. They has to be
+off-node now. They are from node0 (ia64) now.
+
+I want to migrate per-cpu when a cpu is enabled (if I can). But maybe there
+is a code which has pointer to object in per-cpu area.
+
+
+> If node is online first, then all allocations come from that node, thought you
+> *want* to ensure node/mem is online before cpu is up to get that benefit.
+> 
+Yes. But per-cpu should be allocated at boot-time now. I'd like to go step-by-step.
+
+-Kame
 

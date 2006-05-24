@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932657AbWEXIL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932662AbWEXIME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932657AbWEXIL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 04:11:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932660AbWEXIL2
+	id S932662AbWEXIME (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 04:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932656AbWEXIME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 04:11:28 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:17623 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S932657AbWEXIL1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 04:11:27 -0400
+	Wed, 24 May 2006 04:12:04 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:2318 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S932662AbWEXIMD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 04:12:03 -0400
+Message-ID: <44741550.5060006@argo.co.il>
+Date: Wed, 24 May 2006 11:12:00 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: fitzboy <fitzboy@iparadigms.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: tuning for large files in xfs
+References: <447209A8.2040704@iparadigms.com> <44720DB8.4060200@argo.co.il> <447211E1.7080207@iparadigms.com> <447212B5.1010208@argo.co.il> <447259E7.8050706@iparadigms.com> <4472C25C.2090909@argo.co.il> <44736EBE.3030704@iparadigms.com>
+In-Reply-To: <44736EBE.3030704@iparadigms.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17524.5395.541534.323286@alkaid.it.uu.se>
-Date: Wed, 24 May 2006 10:10:59 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: "Vladimir Dvorak" <dvorakv@vdsoft.org>,
-       "Jan Engelhardt" <jengelh@linux01.gwdg.de>, "Andi Kleen" <ak@suse.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: APIC error on CPUx
-In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB68AD7E5@hdsmsx411.amr.corp.intel.com>
-References: <CFF307C98FEABE47A452B27C06B85BB68AD7E5@hdsmsx411.amr.corp.intel.com>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+X-OriginalArrivalTime: 24 May 2006 08:12:00.0908 (UTC) FILETIME=[BBD094C0:01C67F09]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brown, Len writes:
- > Vladimir's SCB2/Serverworks boots with and without "acpi=off",
- > and in both cases the IOAPICS are set up properly,
- > the device work, and there are the following messages:
- > 
- > APIC error on CPU1: 00(40)
- > APIC error on CPU0: 00(40)
- > APIC error on CPU0: 40(40)
- > APIC error on CPU0: 40(40)
- > APIC error on CPU0: 40(40)
- > 
- > These are the now infamous "Receive illegal vector" messages.
- > I expect this chipset has a physical APIC bus (rather than
- > the FSB delivery used today) which is mis-behaving.
- > 
- > I've never heard of this being associated with an actual
- > failure (such as a lost interrupt).  This message is already
- > KERN_DEBUG -- can't get any lower priority than that.
- > Maybe we should put this message under apic_printk()?
+fitzboy wrote:
+>
+>
+> Avi Kivity wrote:
+>>
+>> This will overflow. I think that
+>
+> why would it overflow? Random() returns a 32 bit number, and if I 
+> multiple that by 32k (basically the number random() returns is the 
+> block number I am going to), that should never be over 64 bits? It may 
+> be over to size of the file though, but that is why I do mod 
+> s.st_size... and a random number mod something is still a random 
+> number. Also, with this method it is already currentSize aligned...
+>
 
-The default must be that APIC errors are logged. They are valid
-indicators of hardware brokenness, and have in the past been
-traced to bad mobos, bad PSUs, bad cooling, and even kernel bugs.
-The fact that many systems manage to limp along in their presence
-doesn't matter.
+You're right, of course.  Thinko on my part.
 
-The default for apic_printk is to print nothing (apic_verbosity
-== APIC_QUIET). You could add a fourth level (ERROR or WARNING)
-between QUIET and VERBOSE, make apic_verbosity initialise to that
-level, and use that level for the APIC error messages. That would
-make the messages visible by default but possible to suppress for
-knowledgeable users.
+>>
+>> Sorry, I wasn't specific enough: please run iostat -x /dev/whatever 1 
+>> and look at the 'r/s' (reads per second) field. If that agrees with 
+>> what your test says, you have a block layer or lower problem, 
+>> otherwise it's a filesystem problem.
+>>
+>
+> I ran it and found an r/s at 165, which basically corresponds to my 6 
+> ms access time... when it should be around 3.5ms... so it seems like 
+> the seeks themselves are taking along time, NOT that I am doing extra 
+> seeks...
+>
 
-/Mikael
+I presume that was with the 20GB file?
+
+If so, that rules out the filesystem as the cause.
+
+I would do the following next:
+
+- run the test on the device node (/dev/something), just to make sure. 
+you will need to issue an ioctl (BLKGETSIZE64) to get the size as fstat 
+will not return the correct size
+- break out the array into individual disks and run the test on each 
+disk.  that will show whether the controller is causing the problem or 
+one of the disks (is it possible the array is in degraded mode?)
+
+-- 
+error compiling committee.c: too many arguments to function
+

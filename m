@@ -1,46 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbWEXVYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932494AbWEXVbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932476AbWEXVYW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 17:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbWEXVYV
+	id S932494AbWEXVbl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 17:31:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932757AbWEXVbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 17:24:21 -0400
-Received: from ozlabs.org ([203.10.76.45]:16619 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932471AbWEXVYV (ORCPT
+	Wed, 24 May 2006 17:31:40 -0400
+Received: from wr-out-0506.google.com ([64.233.184.231]:25234 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932494AbWEXVbk convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 17:24:21 -0400
-Date: Thu, 25 May 2006 07:21:17 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Brice Goglin <brice@myri.com>
-Cc: netdev@vger.kernel.org, gallatin@myri.com, linux-kernel@vger.kernel.org,
-       benh@kernel.crashing.org
-Subject: Re: [PATCH 3/4] myri10ge - Driver core
-Message-ID: <20060524212117.GD5938@krispykreme>
-References: <20060517220218.GA13411@myri.com> <20060517220608.GD13411@myri.com> <20060523153928.GB5938@krispykreme> <4474138C.2050705@myri.com>
+	Wed, 24 May 2006 17:31:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AGFBRO0fChaqve2jNoDp/Vn0BpITCRKwGI+uVbWHVxP5J1zlChtTJ7LEgSRmq2TqZ/B6snM2ksC7ThNPpviOref7VKir+cNkxinfPTqY0O2P6pzK3aznd+c5p1M/a3BT0rMGsGMwTSZx7NVCnM6MPukbd5n35XJ6Y6NQieJNVjI=
+Message-ID: <6bffcb0e0605241431i2bf5e8cds526728fd3fd37ca3@mail.gmail.com>
+Date: Wed, 24 May 2006 23:31:39 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Ben Greear" <greearb@candelatech.com>
+Subject: Re: Issue with make -j4 when building in separate tree.
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4474C6F2.1010304@candelatech.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <4474138C.2050705@myri.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+References: <4474C6F2.1010304@candelatech.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi,
+Hi Ben,
 
-> We didn't get any ppc64 with PCI-E to run Linux so far. What performance
-> drop should we expect with our current code ?
+On 24/05/06, Ben Greear <greearb@candelatech.com> wrote:
+> There seems to be a dependency problem when running
+> make with multiple jobs (-j4).
+>
+> I am compiling 2.6.16.16 in a separate tree.  I created
+> the tree with the command:
+>
+> [greear@xeon-dt linux-2.6.dev]$ make O=~/kernel/2.6/linux-2.6.16.k6/ xconfig
+>
+> Then tried to build with this command.
+>
+> [greear@xeon-dt linux-2.6.16.k6]$ make -j4 bzImage modules
+> make -C /home/greear/git/linux-2.6.dev O=/home/greear/kernel/2.6/linux-2.6.16.k6 bzImage
+> make -C /home/greear/git/linux-2.6.dev O=/home/greear/kernel/2.6/linux-2.6.16.k6 modules
+>    GEN    /home/greear/kernel/2.6/linux-2.6.16.k6/Makefile
+>    GEN    /home/greear/kernel/2.6/linux-2.6.16.k6/Makefile
+>    CHK     include/linux/version.h
+>    CHK     include/linux/version.h
+>    UPD     include/linux/version.h
+>    UPD     include/linux/version.h
+> mv: cannot stat `include/linux/version.h.tmp': No such file or directory
+> make[2]: *** [include/linux/version.h] Error 1
+> make[1]: *** [bzImage] Error 2
+> make: *** [bzImage] Error 2
+> make: *** Waiting for unfinished jobs....
+>    SYMLINK include/asm -> include/asm-i386
+>
+>
+> This error has existed at least since 2.6.13.
+>
+> Thanks,
+> Ben
 
-We have seen > 20% improvement on ppc64 running some networking
-workloads when forcing 128 byte alignment (instead of 16 byte
-alignment). DMA writes have to get cacheline aligned (in power of 2
-steps) on some IO chips.
+Please try
+make -j4 O=~/kernel/2.6/linux-2.6.16.k6/
 
-> I am not sure what you mean.
-> The only ppc64 with PCI-E that we have seen so far (a G5) couldn't do
-> write combining according to Apple.
+Regards,
+Michal
 
-Im thinking more generally, MTRRs are x86 specific and it would be good
-to have a more generic way to enable write combining.
-
-Anton
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

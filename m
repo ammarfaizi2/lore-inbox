@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932569AbWEXEhe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932570AbWEXEkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932569AbWEXEhe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 00:37:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932570AbWEXEhe
+	id S932570AbWEXEkc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 00:40:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932571AbWEXEkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 00:37:34 -0400
-Received: from mail.kroah.org ([69.55.234.183]:54965 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932569AbWEXEhd (ORCPT
+	Wed, 24 May 2006 00:40:32 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:11966 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S932570AbWEXEkc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 00:37:33 -0400
-Date: Tue, 23 May 2006 21:30:50 -0700
-From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Greg KH <gregkh@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [Fwd: [PATCH] Revive pci_find_ext_capability]
-Message-ID: <20060524043050.GA6231@kroah.com>
-References: <4473DFFB.1030100@garzik.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4473DFFB.1030100@garzik.org>
-User-Agent: Mutt/1.5.11
+	Wed, 24 May 2006 00:40:32 -0400
+From: Magnus Damm <magnus@valinux.co.jp>
+To: fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+Cc: Magnus Damm <magnus@valinux.co.jp>, vgoyal@in.ibm.com,
+       ebiederm@xmission.com
+Message-Id: <20060524044232.14219.68240.sendpatchset@cherry.local>
+Subject: [PATCH 00/03] kexec: Avoid overwriting the current pgd (V2)
+Date: Wed, 24 May 2006 13:40:31 +0900 (JST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 24, 2006 at 12:24:27AM -0400, Jeff Garzik wrote:
-> FYI...  I'll be applying this via netdev, since the Myri net driver 
-> requires it.
+kexec: Avoid overwriting the current pgd (V2)
 
-That's fine with me, feel free to add a:
+This patch updates the kexec code for i386 and x86_64 to avoid overwriting
+the current pgd. For most people is overwriting the current pgd is not a big
+problem. When kexec:ing into a new kernel that reinitializes and makes use of 
+all memory we don't care about saving state.
 
-	Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+But overwriting the current pgd is not a good solution in the case of kdump 
+(CONFIG_CRASH_DUMP) where we want to preserve as much state as possible when 
+a crash occurs. This patch solves the overwriting issue.
 
-from me for it when you do.
+20060524: V2
 
-thanks,
+- Broke out architecture-specific data structures into asm/kexec.h
+- Fixed a i386/PAE page table problem only triggering on real hardware.
+- Moved segment handling code into the assembly routines.
 
-greg k-h
+20060501: V1
+
+- First release
+
+Signed-off-by: Magnus Damm <magnus@valinux.co.jp>

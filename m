@@ -1,112 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWEXTe5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbWEXTl6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbWEXTe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 15:34:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWEXTe5
+	id S1751288AbWEXTl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 15:41:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbWEXTl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 15:34:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48773 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751180AbWEXTe4 (ORCPT
+	Wed, 24 May 2006 15:41:58 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:11910 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751288AbWEXTl5 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 15:34:56 -0400
-Date: Wed, 24 May 2006 12:37:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Akinobu Mita <mita@miraclelinux.com>
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de, tytso@mit.edu,
-       mita@miraclelinux.com
-Subject: Re: [PATCH] loop: online resize support
-Message-Id: <20060524123715.77051ac0.akpm@osdl.org>
-In-Reply-To: <20060523073129.GA6507@miraclelinux.com>
-References: <20060523073129.GA6507@miraclelinux.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 24 May 2006 15:41:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Ej1SMTdO7v/s/rACJAxcuz1FMYudEy/NXqssCBjvkufuAGkhoWRDsh03Oh8tMBYFKNn/deE6iwn6tdqUvTRqwFrul817HqmAbBMkBhDXdDbbPGEsPFY254vyHJQj5Q5iNfkiSlQ7ksv82VeYf0ZTgAzu3+R3ZicMVWEfI1kHxR0=
+Message-ID: <91740af30605241241g3dc06954p3e6d5571185d15b5@mail.gmail.com>
+Date: Wed, 24 May 2006 15:41:57 -0400
+From: "Rohan Mutagi" <rohan208@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: linux 2.6.16.1 and kdb "error 6 mounting ext3"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Akinobu Mita <mita@miraclelinux.com> wrote:
->
-> This patch introduces new ioctl command LOOP_UPDATE_SIZE
-> which enables to resize online mounted loop device.
-> 
-> EXAMPLE
-> =======
-> # Make 10MB disk image
-> # dd if=/dev/zero of=image bs=1k count=10k
-> # mkfs.ext3 -j -F image
-> 
-> # Mount
-> # mkdir loop
-> # mount -o loop=/dev/loop/0,debug -t ext3 image loop
-> 
-> # Check disk size
-> # df -h loop
-> Filesystem            Size  Used Avail Use% Mounted on
-> /home/mita/looback-test/image
->                       9.7M  1.1M  8.2M  12% /home/mita/looback-test/loop
-> 
-> # Extend disk image to 20MB
-> # dd if=/dev/zero of=appendix bs=1k count=10k
-> # cat appendix >> image
-> 
-> # Resize
-> # gcc -o loop-update loop-update.c
-> # ./loop-update /dev/loop/0
-> # ext2online -d -v image
-> 
-> # Check disk size again
-> # df -h loop
-> Filesystem            Size  Used Avail Use% Mounted on
-> /home/mita/looback-test/image
->                        20M  1.1M   18M   6% /home/mita/looback-test/loop
+Hey Guys,
+ I am getting a -
 
-<tries to remember how loop works>
+"Kernel panic - not syncing: attempted to kill init!"
 
-> +static int loop_update_size(struct loop_device *lo)
-> +{
-> +	int err = figure_loop_size(lo);
-> +
-> +	if (!err)
-> +		i_size_write(lo->lo_device->bd_inode,
-> +			     (loff_t) get_capacity(disks[lo->lo_number]) << 9);
-> +
-> +	return err;
-> +}
-> +
->  static int lo_ioctl(struct inode * inode, struct file * file,
->  	unsigned int cmd, unsigned long arg)
->  {
-> @@ -1169,6 +1182,9 @@ static int lo_ioctl(struct inode * inode
->  	case LOOP_GET_STATUS64:
->  		err = loop_get_status64(lo, (struct loop_info64 __user *) arg);
->  		break;
-> +	case LOOP_UPDATE_SIZE:
-> +		err = loop_update_size(lo);
-> +		break;
->  	default:
->  		err = lo->ioctl ? lo->ioctl(lo, cmd, arg) : -EINVAL;
->  	}
+error when I try to run 2.6.16 kernel compiled with kdb support. Any
+ideas how to proceded further into this problem?
 
-I don't immediately see any show-stoppers here.
+Steps I took were:
+1. Got a fresh 2.6.16.1 kernel
+2. Applied the kdb patch from ftp://oss.sgi.com/www/projects/kdb/download/v4.4/
+3. make clean; make; make modules_install install; reboot;
 
-Note that this interface will allow the loop "device" to be larger than the
-backing file (in fact that's already the case).  Just ftruncate the backing
-file to a shorter size.  Everything should still work after that has
-happened - the VFS will just extend the file again once the loop driver
-writes to it outside i_size.
+I am running this Linux RHEL inside VMWare. Now when I reboot to the
+2.6.16-kgb kernel..
+I get the following error after I choose the 2.6.16 kernel from grub!
+__________________________________
+Red Hat nash version 4.2.1.6 starting
+  Reading all physical volumes. This may take a while...
+  No volume groups found
+  Unable to find volume group "VolGroup00"
+ERROR: /bin/lvm exited abnormally! (pid 304)
+mount: error 6 mounting ext3
+mount: error 2 mounting none
+switchroot: mount failed: 22
+umount /initrd/dev failed: 2
+Kernel panic - not syncing: attempted to kill init!
 
-Given that, and given that your code is a bit racy anyway, I don't think
-the interface should be "resize the device to match the backing file's
-size".  I think the interface should be "resize the loop device to this
-loff_t".  That's a superset of what you have there, and it permits the
-device size to be larger than or smaller than the backing file.
+entering kdb due to KDB_ENTER()
+kdb>
+_____________________________________
 
-Also, one really should take i_mutex when altering an i_size.  Probably it
-doesn't make much difference here, but that's the rule.
+I an provide the screen shot(60k), but not sure if posting screen
+shots is recommended, so didn't post it.
 
-Please ensure that the loop driver is well tested with a device size which
-is both smaller than and larger than the backing file, and that it's tested
-for both do_lo_send_aops()-based and do_lo_send_write()-based backing
-filesystems, thanks.
+However, when I boot up with the older kernel. everything works fine.
+Any ideas whats the problem or how to proceed further?
 
+Thanks a lot for your time,
+Rohan Mutagi

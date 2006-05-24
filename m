@@ -1,70 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWEXSOz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbWEXSSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932411AbWEXSOz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 14:14:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWEXSOz
+	id S932391AbWEXSSO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 14:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWEXSSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 14:14:55 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:32162 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932411AbWEXSOy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 14:14:54 -0400
-Subject: [PATCH] V4L/DVB (4045): Fixes recursive dependency for I2C
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Linux and Kernel Video <video4linux-list@redhat.com>
+	Wed, 24 May 2006 14:18:14 -0400
+Received: from a80-127-56-249.adsl.xs4all.nl ([80.127.56.249]:53996 "EHLO
+	nasng.slim") by vger.kernel.org with ESMTP id S932391AbWEXSSO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 14:18:14 -0400
+Subject: Re: [PATCH 0/6]  EDAC Patch Set
+From: Jurgen Kramer <gtm.kramer@inter.nl.net>
+Reply-To: gtm.kramer@inter.nl.net
+To: Doug Thompson <norsk5@yahoo.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060524174303.2323.qmail@web50102.mail.yahoo.com>
+References: <20060524174303.2323.qmail@web50102.mail.yahoo.com>
 Content-Type: text/plain
-Date: Wed, 24 May 2006 15:13:14 -0300
-Message-Id: <1148494394.27196.20.camel@praia>
+Date: Wed, 24 May 2006 20:17:56 +0200
+Message-Id: <1148494676.3282.8.camel@paragon.slim>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1-2mdk 
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jean Delvare <khali@linux-fr.org>
+On Wed, 2006-05-24 at 10:43 -0700, Doug Thompson wrote:
+> This patch set applies to kernel 2.6.17-rc4 fine and to 2.6.17-rc4-mm1 with slight
+> fuzz in the MAINTAINERs file.
+> 
+> The following set of patches to EDAC provide various cleanups of the EDAC core and
+> memory controller drivers.  Most of which came from Dave Peterson and from others.
+> 
+> edac-pci_dep.patch
+> Change MC drivers from using CVS revisions strings for their version number,
+> Now each driver has its own local string.
+> 
+> Remove some PCI dependencies from the core EDAC module.  Most of the code
+> changes here are from a patch by Dave Jiang.
+> It may be best to eventually move the PCI-specific code into a separate source file.
+> 
+> edac-mc_numbers_1_of_2.patch
+> This is part 1 of a 2-part patch set.  The code changes are split into two
+> parts to make the patches more readable.
+> 
+> Remove add_mc_to_global_list().  In next patch, this function will be
+> reimplemented with different semantics.
+> 
+> edac-mc_numbers_2_of_2.patch
+> This is part 2 of a 2-part patch set.
+> 
+> - Reimplement add_mc_to_global_list() with semantics that allow the caller to
+>   determine the ID number for a mem_ctl_info structure.  Then modify
+>   edac_mc_add_mc() so that the caller specifies the ID number for the new
+>   mem_ctl_info structure.  Platform-specific code should be able to assign the
+>   ID numbers in a platform-specific manner.  For instance, on Opteron it makes
+>   sense to have the ID of the mem_ctl_info structure match the ID of the node
+>   that the memory controller belongs to.
+> 
+> - Modify callers of edac_mc_add_mc() so they use the new semantics.
+> 
+> edac-probe1_cleanup_1_of_2.patch
+> This is part 1 of a 2-part patch set.  The code changes are split into two
+> parts to make the patches more readable.
+> 
+> Add lower-level functions that handle various parts of the initialization done
+> by the xxx_probe1() functions.  Some of the xxx_probe1() functions are much
+> too long and complicated (see "Chapter 5: Functions" in
+> Documentation/CodingStyle).
+> This is part 2 of a 2-part patch set.
+> 
+> Modify the xxx_probe1() functions so they call the lower-level functions
+> created by the first patch in the set.
 
-Mixing "depends on I2C" and "select I2C" within the media subsystem
-leads to the following problem:
-Warning! Found recursive dependency: I2C DVB_BUDGET DVB_BUDGET_PATCH
-DVB_AV7110 VIDEO_SAA7146_VV VIDEO_SAA7146 I2C
+Will this patchset fix/suppress the "Non-Fatal Error PCI Express B"
+messages I see with the E7525 edac?
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Acked-by: Manu Abraham <manu@linuxtv.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
----
+I am running 2.6.16 (or more specific FC5 2.6.16-1.2111) with seems to
+already include this version:
 
- drivers/media/common/Kconfig     |    2 +-
- drivers/media/dvb/pluto2/Kconfig |    1 -
- 2 files changed, 1 insertions(+), 2 deletions(-)
+MC: drivers/edac/edac_mc.c version edac_mc  Ver: 2.0.0 May  4 2006
 
-diff --git a/drivers/media/common/Kconfig b/drivers/media/common/Kconfig
-index 9c45b98..1a04db4 100644
---- a/drivers/media/common/Kconfig
-+++ b/drivers/media/common/Kconfig
-@@ -1,6 +1,6 @@
- config VIDEO_SAA7146
- 	tristate
--	select I2C
-+	depends on I2C
- 
- config VIDEO_SAA7146_VV
- 	tristate
-diff --git a/drivers/media/dvb/pluto2/Kconfig
-b/drivers/media/dvb/pluto2/Kconfig
-index 48252e9..7d8e6e8 100644
---- a/drivers/media/dvb/pluto2/Kconfig
-+++ b/drivers/media/dvb/pluto2/Kconfig
-@@ -1,7 +1,6 @@
- config DVB_PLUTO2
- 	tristate "Pluto2 cards"
- 	depends on DVB_CORE && PCI && I2C
--	select I2C
- 	select I2C_ALGOBIT
- 	select DVB_TDA1004X
- 	help
+This version still floods my syslog with "Non-Fatal Error...." messages.
+
+Jurgen
 
 

@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWEXUZJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbWEXU36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932326AbWEXUZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 16:25:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWEXUZJ
+	id S1750938AbWEXU36 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 16:29:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750966AbWEXU36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 16:25:09 -0400
-Received: from nevyn.them.org ([66.93.172.17]:36247 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S932326AbWEXUZH (ORCPT
+	Wed, 24 May 2006 16:29:58 -0400
+Received: from hera.kernel.org ([140.211.167.34]:55222 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750938AbWEXU35 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 16:25:07 -0400
-Date: Wed, 24 May 2006 16:25:06 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: vamsi krishna <vamsi.krishnak@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Program to convert core file to executable.
-Message-ID: <20060524202506.GA6326@nevyn.them.org>
-Mail-Followup-To: vamsi krishna <vamsi.krishnak@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <3faf05680605241018q302d5c0em6844765f81669498@mail.gmail.com> <20060524173821.GA1292@nevyn.them.org> <3faf05680605241306t64f63225i4d25af3e92a9d9f9@mail.gmail.com> <20060524200837.GA5679@nevyn.them.org> <3faf05680605241319y3b0f332v45922fc34ea0bf8@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3faf05680605241319y3b0f332v45922fc34ea0bf8@mail.gmail.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+	Wed, 24 May 2006 16:29:57 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: 4096 byte limit to /proc/PID/environ ?
+Date: Wed, 24 May 2006 13:29:53 -0700 (PDT)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <e52fo1$uv5$1@terminus.zytor.com>
+References: <4474B7DB.8000304@moving-picture.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1148502593 31718 127.0.0.1 (24 May 2006 20:29:53 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Wed, 24 May 2006 20:29:53 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 25, 2006 at 01:49:32AM +0530, vamsi krishna wrote:
-> Hello Dan,
-> 
-> 
-> >You might want to take a look at GDB's generate-core-file command.
-> >
-> 
-> Does gdb take care (loading) of core files generated on machine which
-> support ASLR (Address  Space Layout Randomization)? , currently ASLR
-> is being shipped as exec-shield in redhat
+I think this is the wrong approach.
 
-Why would it matter?
+Many of these should probably be converted to seq_file, but in the
+particular case of environ, the right approach is to observe the fact
+that reading environ is just like reading /proc/PID/mem, except:
 
--- 
-Daniel Jacobowitz
-CodeSourcery
+ a. the access restrictions are less strict, and
+ b. there is a range restriction, which needs to be enforced, and
+ c. there is an offset.
+
+Pretty much, take the guts from /proc/PID/mem and generalize it
+slightly, and you have the code that can run either /proc/PID/mem or
+/proc/PID/environ.
+
+	-hpa

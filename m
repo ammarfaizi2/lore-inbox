@@ -1,161 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932694AbWEXL2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932699AbWEXL2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932694AbWEXL2i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 07:28:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932692AbWEXL2X
+	id S932699AbWEXL2R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 07:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932685AbWEXL15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 07:28:23 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:31104 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932696AbWEXLTG (ORCPT
+	Wed, 24 May 2006 07:27:57 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:63872 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932692AbWEXLTG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 24 May 2006 07:19:06 -0400
-Message-ID: <348469537.15678@ustc.edu.cn>
+Message-ID: <348469541.17438@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060524111858.357709745@localhost.localdomain>
+Message-Id: <20060524111902.491708692@localhost.localdomain>
 References: <20060524111246.420010595@localhost.localdomain>
-Date: Wed, 24 May 2006 19:12:49 +0800
+Date: Wed, 24 May 2006 19:12:57 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 03/33] radixtree: hole scanning functions
-Content-Disposition: inline; filename=radixtree-scan-hole.patch
+Subject: [PATCH 11/33] readahead: sysctl parameters
+Content-Disposition: inline; filename=readahead-parameter-sysctl-variables.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Introduce a pair of functions to scan radix tree for hole/empty item.
+Add new sysctl entries in /proc/sys/vm:
 
- include/linux/radix-tree.h |    4 +
- lib/radix-tree.c           |  104 +++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 108 insertions(+)
+- readahead_ratio = 50
+	i.e. set read-ahead size to <=(readahead_ratio%) thrashing threshold
+- readahead_hit_rate = 1
+	i.e. read-ahead hit ratio >=(1/readahead_hit_rate) is deemed ok
+
+readahead_ratio also provides a way to select read-ahead logic at runtime:
+
+	condition			    action
+==========================================================================
+readahead_ratio == 0		disable read-ahead
+readahead_ratio <= 9		select the (old) stock read-ahead logic
+readahead_ratio >= 10		select the (new) adaptive read-ahead logic
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
---- linux-2.6.17-rc4-mm3.orig/include/linux/radix-tree.h
-+++ linux-2.6.17-rc4-mm3/include/linux/radix-tree.h
-@@ -74,6 +74,10 @@ unsigned int radix_tree_cache_count(stru
- void *radix_tree_cache_lookup_parent(struct radix_tree_root *root,
- 				struct radix_tree_cache *cache,
- 				unsigned long index, unsigned int level);
-+unsigned long radix_tree_scan_hole_backward(struct radix_tree_root *root,
-+				unsigned long index, unsigned long max_scan);
-+unsigned long radix_tree_scan_hole(struct radix_tree_root *root,
-+				unsigned long index, unsigned long max_scan);
- unsigned int
- radix_tree_gang_lookup(struct radix_tree_root *root, void **results,
- 			unsigned long first_index, unsigned int max_items);
---- linux-2.6.17-rc4-mm3.orig/lib/radix-tree.c
-+++ linux-2.6.17-rc4-mm3/lib/radix-tree.c
-@@ -427,6 +427,110 @@ unsigned int radix_tree_cache_count(stru
- EXPORT_SYMBOL(radix_tree_cache_count);
+ Documentation/sysctl/vm.txt |   37 +++++++++++++++++++++++++++++++++++++
+ include/linux/sysctl.h      |    2 ++
+ kernel/sysctl.c             |   28 ++++++++++++++++++++++++++++
+ mm/readahead.c              |   17 +++++++++++++++++
+ 4 files changed, 84 insertions(+)
+
+--- linux-2.6.17-rc4-mm3.orig/mm/readahead.c
++++ linux-2.6.17-rc4-mm3/mm/readahead.c
+@@ -20,6 +20,23 @@
+ #include <linux/nfsd/const.h>
  
- /**
-+ *	radix_tree_scan_hole_backward    -    scan backward for hole
-+ *	@root:		radix tree root
-+ *	@index:		index key
-+ *	@max_scan:      advice on max items to scan (it may scan a little more)
-+ *
-+ *      Scan backward from @index for a hole/empty item, stop when
-+ *      - hit hole
-+ *      - @max_scan or more items scanned
-+ *      - hit index 0
-+ *
-+ *      Return the correponding index.
+ /*
++ * Adaptive read-ahead parameters.
 + */
-+unsigned long radix_tree_scan_hole_backward(struct radix_tree_root *root,
-+				unsigned long index, unsigned long max_scan)
-+{
-+	struct radix_tree_cache cache;
-+	struct radix_tree_node *node;
-+	unsigned long origin;
-+	int i;
 +
-+	origin = index;
-+        radix_tree_cache_init(&cache);
++/* In laptop mode, poll delayed look-ahead on every ## pages read. */
++#define LAPTOP_POLL_INTERVAL 16
 +
-+	while (origin - index < max_scan) {
-+		node = radix_tree_cache_lookup_parent(root, &cache, index, 1);
-+		if (!node)
-+			break;
++/* Set look-ahead size to 1/# of the thrashing-threshold. */
++#define LOOKAHEAD_RATIO 8
 +
-+		if (node->count == RADIX_TREE_MAP_SIZE) {
-+			index = (index - RADIX_TREE_MAP_SIZE) |
-+					RADIX_TREE_MAP_MASK;
-+			goto check_underflow;
-+		}
++/* Set read-ahead size to ##% of the thrashing-threshold. */
++int readahead_ratio = 50;
++EXPORT_SYMBOL_GPL(readahead_ratio);
 +
-+		for (i = index & RADIX_TREE_MAP_MASK; i >= 0; i--, index--) {
-+			if (!node->slots[i])
-+				goto out;
-+		}
++/* Readahead as long as cache hit ratio keeps above 1/##. */
++int readahead_hit_rate = 1;
 +
-+check_underflow:
-+		if (unlikely(index == ULONG_MAX)) {
-+			index = 0;
-+			break;
-+		}
-+	}
++/*
+  * Detailed classification of read-ahead behaviors.
+  */
+ #define RA_CLASS_SHIFT 4
+--- linux-2.6.17-rc4-mm3.orig/include/linux/sysctl.h
++++ linux-2.6.17-rc4-mm3/include/linux/sysctl.h
+@@ -194,6 +194,8 @@ enum
+ 	VM_ZONE_RECLAIM_INTERVAL=32, /* time period to wait after reclaim failure */
+ 	VM_PANIC_ON_OOM=33,	/* panic at out-of-memory */
+ 	VM_SWAP_PREFETCH=34,	/* swap prefetch */
++	VM_READAHEAD_RATIO=35,	/* percent of read-ahead size to thrashing-threshold */
++	VM_READAHEAD_HIT_RATE=36, /* one accessed page legitimizes so many read-ahead pages */
+ };
+ 
+ /* CTL_NET names: */
+--- linux-2.6.17-rc4-mm3.orig/kernel/sysctl.c
++++ linux-2.6.17-rc4-mm3/kernel/sysctl.c
+@@ -77,6 +77,12 @@ extern int percpu_pagelist_fraction;
+ extern int compat_log;
+ extern int print_fatal_signals;
+ 
++#if defined(CONFIG_ADAPTIVE_READAHEAD)
++extern int readahead_ratio;
++extern int readahead_hit_rate;
++static int one = 1;
++#endif
 +
-+out:
-+	return index;
-+}
-+EXPORT_SYMBOL(radix_tree_scan_hole_backward);
+ #if defined(CONFIG_X86_LOCAL_APIC) && defined(CONFIG_X86)
+ int unknown_nmi_panic;
+ int nmi_watchdog_enabled;
+@@ -987,6 +993,28 @@ static ctl_table vm_table[] = {
+ 		.proc_handler	= &proc_dointvec,
+ 	},
+ #endif
++#ifdef CONFIG_ADAPTIVE_READAHEAD
++	{
++		.ctl_name	= VM_READAHEAD_RATIO,
++		.procname	= "readahead_ratio",
++		.data		= &readahead_ratio,
++		.maxlen		= sizeof(readahead_ratio),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++		.strategy	= &sysctl_intvec,
++		.extra1		= &zero,
++	},
++	{
++		.ctl_name	= VM_READAHEAD_HIT_RATE,
++		.procname	= "readahead_hit_rate",
++		.data		= &readahead_hit_rate,
++		.maxlen		= sizeof(readahead_hit_rate),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++		.strategy	= &sysctl_intvec,
++		.extra1		= &one,
++	},
++#endif
+ 	{ .ctl_name = 0 }
+ };
+ 
+--- linux-2.6.17-rc4-mm3.orig/Documentation/sysctl/vm.txt
++++ linux-2.6.17-rc4-mm3/Documentation/sysctl/vm.txt
+@@ -31,6 +31,8 @@ Currently, these files are in /proc/sys/
+ - zone_reclaim_interval
+ - panic_on_oom
+ - swap_prefetch
++- readahead_ratio
++- readahead_hit_rate
+ 
+ ==============================================================
+ 
+@@ -202,3 +204,38 @@ copying back pages from swap into the sw
+ practice it can take many minutes before the vm is idle enough.
+ 
+ The default value is 1.
 +
-+/**
-+ *	radix_tree_scan_hole    -    scan for hole
-+ *	@root:		radix tree root
-+ *	@index:		index key
-+ *	@max_scan:      advice on max items to scan (it may scan a little more)
-+ *
-+ *      Scan forward from @index for a hole/empty item, stop when
-+ *      - hit hole
-+ *      - hit EOF
-+ *      - hit index ULONG_MAX
-+ *      - @max_scan or more items scanned
-+ *
-+ *      Return the correponding index.
-+ */
-+unsigned long radix_tree_scan_hole(struct radix_tree_root *root,
-+				unsigned long index, unsigned long max_scan)
-+{
-+	struct radix_tree_cache cache;
-+	struct radix_tree_node *node;
-+	unsigned long origin;
-+	int i;
++==============================================================
 +
-+	origin = index;
-+        radix_tree_cache_init(&cache);
++readahead_ratio
 +
-+	while (index - origin < max_scan) {
-+		node = radix_tree_cache_lookup_parent(root, &cache, index, 1);
-+		if (!node)
-+			break;
++This limits readahead size to percent of the thrashing threshold.
++The thrashing threshold is dynamicly estimated from the _history_ read
++speed and system load, to deduce the _future_ readahead request size.
 +
-+		if (node->count == RADIX_TREE_MAP_SIZE) {
-+			index = (index | RADIX_TREE_MAP_MASK) + 1;
-+			goto check_overflow;
-+		}
++Set it to a smaller value if you have not enough memory for all the
++concurrent readers, or the I/O loads fluctuate a lot. But if there's
++plenty of memory(>2MB per reader), a bigger value may help performance.
 +
-+		for (i = index & RADIX_TREE_MAP_MASK; i < RADIX_TREE_MAP_SIZE;
-+								i++, index++) {
-+			if (!node->slots[i])
-+				goto out;
-+		}
++readahead_ratio also selects the readahead logic:
++	VALUE	CODE PATH
++	-------------------------------------------
++	    0	disable readahead totally
++	  1-9	select the stock readahead logic
++	10-inf	select the adaptive readahead logic
 +
-+check_overflow:
-+		if (unlikely(!index)) {
-+			index = ULONG_MAX;
-+			break;
-+		}
-+	}
-+out:
-+	return index;
-+}
-+EXPORT_SYMBOL(radix_tree_scan_hole);
++The default value is 50.  Reasonable values would be [50, 100].
 +
-+/**
-  *	radix_tree_tag_set - set a tag on a radix tree node
-  *	@root:		radix tree root
-  *	@index:		index key
++==============================================================
++
++readahead_hit_rate
++
++This is the max allowed value of (readahead-pages : accessed-pages).
++Useful only when (readahead_ratio >= 10). If the previous readahead
++request has bad hit rate, the kernel will be reluctant to do the next
++readahead.
++
++Larger values help catch more sparse access patterns. Be aware that
++readahead of the sparse patterns sacrifices memory for speed.
++
++The default value is 1.  It is recommended to keep the value below 16.
 
 --

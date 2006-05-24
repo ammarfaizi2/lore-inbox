@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbWEXQWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWEXQZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932368AbWEXQWA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 12:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWEXQWA
+	id S932365AbWEXQZx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 12:25:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWEXQZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 12:22:00 -0400
-Received: from pat.uio.no ([129.240.10.4]:56489 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932368AbWEXQV7 (ORCPT
+	Wed, 24 May 2006 12:25:53 -0400
+Received: from relay4.usu.ru ([194.226.235.39]:58334 "EHLO relay4.usu.ru")
+	by vger.kernel.org with ESMTP id S932365AbWEXQZw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 12:21:59 -0400
-Subject: Re: Linux 2.6 NFS client read-ahead
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: German San Agustin <chamocarrot@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <2bc0baf20605240453l89e5cd7w949377ead93e8b66@mail.gmail.com>
-References: <2bc0baf20605240446h197b3d2fxc797404aa0e733ba@mail.gmail.com>
-	 <2bc0baf20605240453l89e5cd7w949377ead93e8b66@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 24 May 2006 12:21:45 -0400
-Message-Id: <1148487705.5872.34.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Wed, 24 May 2006 12:25:52 -0400
+Message-ID: <4474891D.9010205@ums.usu.ru>
+Date: Wed, 24 May 2006 22:26:05 +0600
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.8.0.2) Gecko/20060405 SeaMonkey/1.0.1
+MIME-Version: 1.0
+To: Matheus Izvekov <mizvekov@gmail.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>,
+       Helge Hafting <helge.hafting@aitel.hist.no>,
+       "D. Hazelton" <dhazelton@enter.net>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>	 <44700ACC.8070207@gmail.com>	 <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com>	 <200605230048.14708.dhazelton@enter.net>	 <9e4733910605231017g146e16dfnd61eb22a72bd3f5f@mail.gmail.com>	 <6896241F-3389-4B20-9E42-3CCDDBFDD312@mac.com>	 <44740533.7040702@aitel.hist.no> <447465C6.3090501@ums.usu.ru>	 <9e4733910605240749r1ce9e9fehcfffb2f2e3aeab60@mail.gmail.com>	 <44747432.1090906@ums.usu.ru> <305c16960605240915p7961ddbfye90afd3cf7fbc372@mail.gmail.com>
+In-Reply-To: <305c16960605240915p7961ddbfye90afd3cf7fbc372@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.826, required 12,
-	autolearn=disabled, AWL 1.17, UIO_MAIL_IS_INTERNAL -5.00)
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.34.1.32; VDF: 6.34.1.139; host: usu2.usu.ru)
+X-AV-Checked: ClamAV using ClamSMTP@relay4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-24 at 13:53 +0200, German San Agustin wrote:
-> We have several linux 2.6.9 accesing to a netapp filer via nfs to
-> update several thousands of files. The application only need to read a
-> few blocks of the files when updating so we found out that disabling
-> the read-ahead on the server improve greatly the performance by
-> maintaining a clean cache and decreasing the number of access to disk.
-> We have been trying to disable the read-ahead in the client as well to
-> reduce the access to the server even further; but we couldn't find
->  where to do this in the 2.6 kernel family. Is it possible?, or it is
-> simply that on 2.6 kernels it is not possible to tune the nfs client.
+Matheus Izvekov wrote:
+> On 5/24/06, Alexander E. Patrakov <patrakov@ums.usu.ru> wrote:
+>> Jon Smirl wrote:
+>> > You can't change the mode, instead you have to track it and use the
+>> > one that is already set.
+>>
+>> OK, this doesn't change my other point: use in-kernel text output 
+>> facility for
+>> panics only.
+>>
+> 
+> It would be a good idea to allow oopses to be shown too. For example,
+> your main disk controller driver may oops, and then you have no way to
+> tell what happened, because if you try to run dmesg it may deadlock,
+> and obviously the oops message wont be logged either.
+> So a BSOD which allows you to hit enter to continue after an oops is
+> not a bad idea.
 
-It is not possible, and in this case, it really shouldn't make much
-difference to you either as the readahead code is adaptive: it should
-automatically detect that you are doing short reads.
+Now suppose this.
 
-If you want to check that it is working, I suggest using tcpdump to
-monitor the NFS traffic to that file, then comparing with a "strace"
-dump.
+The kernel has to save the video memory contents somewhereto restore it after 
+pressing Enter. This may swap something out. Whoops, swap is on that failed disk.
 
-Cheers,
-  Trond
+Or: lock the memory in advance, to avoid the use of swap. But this is not better 
+than doing the same thing from a userspace application that shows a pop-up 
+ballon with the contents of this oops. And it won't be affected by a disk 
+failure, because it has everything already in memory.
 
+-- 
+Alexander E. Patrakov

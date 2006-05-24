@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932560AbWEXEYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932566AbWEXEbg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932560AbWEXEYT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 00:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWEXEYT
+	id S932566AbWEXEbg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 00:31:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbWEXEbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 00:24:19 -0400
-Received: from wr-out-0506.google.com ([64.233.184.227]:5505 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932560AbWEXEYS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 00:24:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-        b=WYeGZdfG/FrEFzpodI32qh7ZSYy63s95o8WWbPivyiGkNHaQOAMaXndt9E7o+ZwCYKWJk+Uu4A2/HAgvaOeqlsinIy8Htj34Dm/xWjSoRTWspOp4Z39oZ5k4n8Zfn0dijA14WHs86O5kN2logjGVAq2QiU9+Hz0mwobrO8xmI+g=
-Message-ID: <4473E11C.6050305@gmail.com>
-Date: Wed, 24 May 2006 00:29:16 -0400
-From: Florin Malita <fmalita@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: zippel@linux-m68k.org
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] affs: possible null pointer dereference in affs_rename()
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 24 May 2006 00:31:36 -0400
+Received: from main.gmane.org ([80.91.229.2]:31701 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932566AbWEXEbf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 00:31:35 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Subject: Re: charset2upper broken
+Date: Wed, 24 May 2006 10:31:24 +0600
+Message-ID: <e50nie$3ud$1@sea.gmane.org>
+References: <44722ACE.3040500@austin.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 212.220.94.150
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.8.0.2) Gecko/20060405 SeaMonkey/1.0.1
+In-Reply-To: <44722ACE.3040500@austin.rr.com>
+Cc: linux-fsdevel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If affs_bread() fails, the exit path calls mark_buffer_dirty_inode()
-with a NULL argument.
+Steve French wrote:
+> Charset2upper is broken, at least for utf8 (see line 41 of nls_utf8.c)   
+> Seems straightforward to fix it for the key characters a-z (0x61-0x7a), 
+> unless the uppercasing rules are stranger than I think - especially 
+> since other places have it right e.g. nls_base.c seems to have it right 
+> in its charset2upper.
 
-Coverity CID: 312.
+<troll>
+Don't use UTF-8. Neither the kernel nor userspace is fully ready.
 
-Signed-off-by: Florin Malita <fmalita@gmail.com>
----
+Also, it seems wrong to put such comples thing as a complete UNICODE upper/lower 
+case mapping into the kernel, especially since this mapping is different for 
+Turkish and non-Turkish cases (see 
+http://www.i18nguy.com/unicode/turkish-i18n.html). So someone should convert all 
+filesystems that use character conversion and case mapping to FUSE, so that they 
+can use glibc to do all of this dirty/complex work.
+</troll>
 
-diff --git a/fs/affs/namei.c b/fs/affs/namei.c
-index d4c2d63..a42143c 100644
---- a/fs/affs/namei.c
-+++ b/fs/affs/namei.c
-@@ -416,10 +416,9 @@ affs_rename(struct inode *old_dir, struc
- 			return retval;
- 	}
- 
--	retval = -EIO;
- 	bh = affs_bread(sb, old_dentry->d_inode->i_ino);
- 	if (!bh)
--		goto done;
-+		return -EIO;
- 
- 	/* Remove header from its parent directory. */
- 	affs_lock_dir(old_dir);
-
+-- 
+Alexander E. Patrakov
 

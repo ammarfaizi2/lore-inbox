@@ -1,78 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932636AbWEXHKX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932639AbWEXHMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932636AbWEXHKX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 03:10:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932633AbWEXHKW
+	id S932639AbWEXHMr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 03:12:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbWEXHMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 03:10:22 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:8140 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932627AbWEXHKV (ORCPT
+	Wed, 24 May 2006 03:12:47 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:41130 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932632AbWEXHMq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 03:10:21 -0400
-Date: Wed, 24 May 2006 12:36:06 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: David Chinner <dgc@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] Per-superblock unused dentry LRU lists.
-Message-ID: <20060524070605.GA7743@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <20060524012412.GB7412499@melbourne.sgi.com> <20060524050214.GB9639@in.ibm.com> <20060524061933.GG7418631@melbourne.sgi.com>
+	Wed, 24 May 2006 03:12:46 -0400
+Date: Wed, 24 May 2006 11:12:52 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: David McCullough <david_mccullough@au.securecomputing.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ACRYPTO] New asynchronous crypto layer release.
+Message-ID: <20060524071252.GA24694@2ka.mipt.ru>
+References: <20060521131429.GA9789@2ka.mipt.ru> <20060523230443.GG15545@beast>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <20060524061933.GG7418631@melbourne.sgi.com>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <20060523230443.GG15545@beast>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 24 May 2006 11:12:53 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> per-sb, you mean? ;)
-
-Yes.
-
+On Wed, May 24, 2006 at 09:04:43AM +1000, David McCullough (david_mccullough@au.securecomputing.com) wrote:
 > 
-> > You can use trylock. Please see the patches in -mm to fix the umount
-> > race.
+> Hi Evgeniy,
+
+Hello David.
+
+> Just interested in the results you are getting below for
+> comparison to what I see under OCF with Openswan.
 > 
-> I'm not sure what unmount race you are talking about.
+> What sort of hifn card were you using in the test below,
+> was it a 7956 PCIX (ie., 64bit?)
 > 
-> AFAICT, there is no race here - we've got a reference on the superblock so  it
-> can't go away and the lru list is protected by the dcache_lock, so there's
-> nothing else we can race with. However, we can deadlock by taking the
-> s_umount lock here. So why even bother to try to take the lock when we don't
-> actually need it?
+> How did you measure the throughput  ?
 
-Please read the thread at http://lkml.org/lkml/2006/4/2/101.
+It is racoon transport setup with ESP4 only ecryption with AES-128 CBC
+mode.
 
-> 
-> > > +		if (__put_super_and_need_restart(sb) && count)
-> > > +			goto restart;
-> > 
-> > Comment please.
-> 
-> I'm not sure what a comment needs to explain that the code doesn't.
-> Which bit do you think needs commenting?
+Hardware.
+FC4 vanilla kernel 2.6.16-1.2069_FC4smp runs on P3 3 Ghz with HT
+enabled, 512 Mb of RAM, sk98lin gigabit ethernet.
+Acrypto kernel runs on Xeon 2.4 Ghz with HT enabled with 1Gb of RAM 
+and e1000 gigabit ethernet adapter (in pci-x slot).
+HIFN card is old 7955 (it was quite challenging to bring it to Russia
+when I started acrypto developemnt several years ago, so no new toys) 
+in PCI-X slot.
+When HIFN driver is not loaded, asynchronous SW crypto provider is
+loaded for one processor.
 
-I was referring to the __put_super_and_need_restart() part.
+Benchmark is scp (yes, it encrypt packets too to simulate some real work
+on hosts) of big files over the gigabit link.
 
-> > This should not be required with per super-block dentries. The only
-> > reason, I think we moved dentries to the tail is to club all entries
-> > from the sb together (to free them all at once).
-> 
-> I think we still need to do that. We get called in contexts that aren't
-> related to unmounting, so we want these dentries to be the first
-> to be reclaimed from that superblock when we next call prune_dcache().
+> I can post the OCF numbers,  but it doesn't mean a lot
+> unless it's a fair comparison :-)
 
-Is it? I quickly checked the callers of shrink_dcache_sb() and all of
-them seem to be mount related. shrink_dcache_parent() is another story.
-Am I missing something? Code reference will be particularly useful.
+That would be good :)
 
-> 
-> No. Right now I just want to fix the problem that has been reported with
-> shrink_dcache_sb().
+> Cheers,
+> Davidm
 
-Sure.
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+-- 
+	Evgeniy Polyakov

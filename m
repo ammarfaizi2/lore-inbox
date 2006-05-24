@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbWEXSbv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWEXSzP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932402AbWEXSbv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 14:31:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWEXSbv
+	id S932279AbWEXSzP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 14:55:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWEXSzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 14:31:51 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:51093 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932402AbWEXSbv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 14:31:51 -0400
-Date: Wed, 24 May 2006 11:31:39 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: <dtor_core@ameritech.net>
-Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
-Subject: Patch for atkbd.c from Ubuntu
-Message-Id: <20060524113139.e457d3a8.zaitcev@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Wed, 24 May 2006 14:55:15 -0400
+Received: from web50105.mail.yahoo.com ([206.190.38.33]:49045 "HELO
+	web50105.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932279AbWEXSzN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 14:55:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=bHaRlxs1K1XnEXa3kFPuShj7xYkZkhb80NAa49s8x2WZ+Qq/CIBuCqlSA2dGj2llQhbcuA8QK8LCE+tw6CaxiOZWT4OUPAkQXMsKXbvvvZHNodXJ8QeFIhar1tQTmy1wFUuPrrxU3wcNlXFQpIbGfxiSJ0sZ8DbQIG2FPy00iog=  ;
+Message-ID: <20060524185512.99258.qmail@web50105.mail.yahoo.com>
+Date: Wed, 24 May 2006 11:55:12 -0700 (PDT)
+From: Doug Thompson <norsk5@yahoo.com>
+Subject: Re: [PATCH 0/6]  EDAC Patch Set
+To: gtm.kramer@inter.nl.net
+Cc: Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1148494676.3282.8.camel@paragon.slim>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Dmitry:
 
-What do you think about the attached? Apparently, this is needed to
-support Korean input keys. Please let me know if this can be included.
 
-Here's a bug entry for reference:
- https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=192637
+--- Jurgen Kramer <gtm.kramer@inter.nl.net> wrote:
+> 
+> Will this patchset fix/suppress the "Non-Fatal Error PCI Express B"
+> messages I see with the E7525 edac?
 
-Yours,
--- Pete
+No not yet. These patches are part of the set we gathered in the queue after EDAC
+was put into the kernel as a result of various other feedback.  The Non-Fatal noise
+has been placed in the queue of work to do. Dave Peterson, who was co-maintainer of
+EDAC, has moved on, so I have picking up the TODO slack and flushing these patches
+out the door so I can start with a somewhat cleaner slate.
 
-diff -ruN linux-2.6.16.i686.orig/drivers/input/keyboard/atkbd.c linux-2.6.16.i686/drivers/input/keyboard/atkbd.c
---- linux-2.6.16.i686.orig/drivers/input/keyboard/atkbd.c	2006-05-23 18:16:01.000000000 +0900
-+++ linux-2.6.16.i686/drivers/input/keyboard/atkbd.c	2006-05-24 12:46:09.000000000 +0900
-@@ -85,7 +85,7 @@
- 	  0, 56, 42, 93, 29, 16,  2,  0,  0,  0, 44, 31, 30, 17,  3,  0,
- 	  0, 46, 45, 32, 18,  5,  4, 95,  0, 57, 47, 33, 20, 19,  6,183,
- 	  0, 49, 48, 35, 34, 21,  7,184,  0,  0, 50, 36, 22,  8,  9,185,
--	  0, 51, 37, 23, 24, 11, 10,  0,  0, 52, 53, 38, 39, 25, 12,  0,
-+	  0, 51, 37, 23, 24, 11, 10,122,123, 52, 53, 38, 39, 25, 12,  0,
- 	  0, 89, 40,  0, 26, 13,  0,  0, 58, 54, 28, 27,  0, 43,  0, 85,
- 	  0, 86, 91, 90, 92,  0, 14, 94,  0, 79,124, 75, 71,121,  0,  0,
- 	 82, 83, 80, 76, 77, 72,  1, 69, 87, 78, 81, 74, 55, 73, 70, 99,
+The good news is I have found a maintainer for the E7525 MC driver (I don't have
+access to a mobo with that chipset, so I have a problem in verifying any mods I do
+work) who has agreed to work with that driver. Thanks to mark gross for taking that
+on. He and I have discussed this noise issue.
 
--- Pete
+doug thompson
+
+> 
+> I am running 2.6.16 (or more specific FC5 2.6.16-1.2111) with seems to
+> already include this version:
+> 
+> MC: drivers/edac/edac_mc.c version edac_mc  Ver: 2.0.0 May  4 2006
+> 
+> This version still floods my syslog with "Non-Fatal Error...." messages.
+> 
+> Jurgen
+

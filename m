@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932624AbWEXHEj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932625AbWEXHFI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932624AbWEXHEj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 03:04:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932625AbWEXHEj
+	id S932625AbWEXHFI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 03:05:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932628AbWEXHFI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 03:04:39 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:9607 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932624AbWEXHEi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 03:04:38 -0400
-Date: Wed, 24 May 2006 16:05:56 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: ashok.raj@intel.com, linux-kernel@vger.kernel.org, y-goto@jp.fujitsu.com,
-       ktokunag@redhat.com, akpm@osdl.org
-Subject: Re: [RFC][PATCH] node hotplug : register_cpu() changes [0/3]
-Message-Id: <20060524160556.7ea43804.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060524091816.5a3960b9.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20060523195636.693e00d6.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060523075202.A24516@unix-os.sc.intel.com>
-	<20060524091816.5a3960b9.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Wed, 24 May 2006 03:05:08 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:42895 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S932625AbWEXHFF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 03:05:05 -0400
+Date: Wed, 24 May 2006 03:05:05 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [git patches] libata fixes
+Message-ID: <20060524070505.GA11218@havoc.gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 May 2006 09:18:15 +0900
-KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
 
-> I want to migrate per-cpu when a cpu is enabled (if I can). But maybe there
-> is a code which has pointer to object in per-cpu area.
-> 
-I read robust-VM-per_cpu variables thread. If it is merged, I think we can
-migrate pages for per_cpu variables (of possible cpus) to suitable nodes,
-by remapping.
+Please pull from 'upstream-linus' branch of
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
 
-Thanks,
--Kame
+to receive the following updates:
 
+ drivers/scsi/libata-core.c |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+Albert Lee:
+      libata: add pio flush for via atapi (was: Re: TR: ASUS A8V Deluxe, x86_64)
+
+diff --git a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
+index 823dfa7..fa476e7 100644
+--- a/drivers/scsi/libata-core.c
++++ b/drivers/scsi/libata-core.c
+@@ -3643,6 +3643,8 @@ static void ata_pio_block(struct ata_por
+ 
+ 		ata_pio_sector(qc);
+ 	}
++
++	ata_altstatus(ap); /* flush */
+ }
+ 
+ static void ata_pio_error(struct ata_port *ap)
+@@ -3759,11 +3761,14 @@ static void atapi_packet_task(void *_dat
+ 		spin_lock_irqsave(&ap->host_set->lock, flags);
+ 		ap->flags &= ~ATA_FLAG_NOINTR;
+ 		ata_data_xfer(ap, qc->cdb, qc->dev->cdb_len, 1);
++		ata_altstatus(ap); /* flush */
++
+ 		if (qc->tf.protocol == ATA_PROT_ATAPI_DMA)
+ 			ap->ops->bmdma_start(qc);	/* initiate bmdma */
+ 		spin_unlock_irqrestore(&ap->host_set->lock, flags);
+ 	} else {
+ 		ata_data_xfer(ap, qc->cdb, qc->dev->cdb_len, 1);
++		ata_altstatus(ap); /* flush */
+ 
+ 		/* PIO commands are handled by polling */
+ 		ap->hsm_task_state = HSM_ST;

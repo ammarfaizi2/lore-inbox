@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbWEXUg4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWEXUip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932370AbWEXUg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 16:36:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWEXUg4
+	id S932373AbWEXUip (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 16:38:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbWEXUip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 16:36:56 -0400
-Received: from hera.kernel.org ([140.211.167.34]:39057 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932370AbWEXUg4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 16:36:56 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [RFC PATCH (take #2)] i386: kill CONFIG_REGPARM completely
-Date: Wed, 24 May 2006 13:36:50 -0700 (PDT)
-Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <e52g52$v80$1@terminus.zytor.com>
-References: <20060520025353.GE9486@taniwha.stupidest.org> <20060520212049.GA11180@taniwha.stupidest.org> <305c16960605201500s6153e1doad87e4b85f15b53f@mail.gmail.com> <Pine.LNX.4.61.0605220739580.26623@chaos.analogic.com>
+	Wed, 24 May 2006 16:38:45 -0400
+Received: from mga03.intel.com ([143.182.124.21]:65300 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S932373AbWEXUio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 16:38:44 -0400
+X-IronPort-AV: i="4.05,169,1146466800"; 
+   d="scan'208"; a="41133791:sNHT14827466549"
+Subject: Re: [-mm] oops during boot, in dock-related code
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060523083908.GA1604@elf.ucw.cz>
+References: <20060523083908.GA1604@elf.ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 24 May 2006 13:49:18 -0700
+Message-Id: <1148503759.28890.2.camel@whizzy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1148503010 32001 127.0.0.1 (24 May 2006 20:36:50 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Wed, 24 May 2006 20:36:50 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+X-OriginalArrivalTime: 24 May 2006 20:37:59.0839 (UTC) FILETIME=[F23772F0:01C67F71]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.61.0605220739580.26623@chaos.analogic.com>
-By author:    "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-In newsgroup: linux.dev.kernel
+On Tue, 2006-05-23 at 10:39 +0200, Pavel Machek wrote:
+> Hi!
 > 
-> On ix86 there are not enough registers to pass a significant parameter
-> list all in registers! Like when you are printk()ing a dotted-quad IP
-> address, etc. Registers ESI, EDI, and EBX are precious, that leaves
-> EAX, ECX, EDX and possibly EBP for only 4 parameters. You need 5
-> for the dotted quad IP address. If the compiler were to use the
-> precious registers, the contents need to be saved on the stack.
-> That negates any advantage to passing parameters in registers.
-> 
-> This means that REGPARM will always remain a "hint" to the compiler,
-> not some absolute order.
-> 
+> I'll try to turn off CONFIG_ACPI_DOCK to see if it helps... yes it
+> does.
+> 									Pavel
 
-Bullshit.
+Hi Pavel,
+I must have missed part of this thread... can you give me some more
+details?  A config, log messages, or some way to reproduce?  Did you
+boot in the dock, or outside of the dock?  I tried to just boot the
+latest -mm with CONFIG_ACPI_DOCK set to y, and was unable to cause an
+oops.  
 
--mregparm=N is an absolute order.  On i386 it has the semantics of
-passing the first N dword-sized non-varadic arguments in registers
-%eax, %edx, and %ecx (in that order).  The rest are passed on the
-stack; that is true for any ABI.
-
-printk() is varadic; the only argument which will be put in a register
-is the formatting string (which goes into %eax).
-
-	-hpa
-
-
+Thanks,
+Kristen

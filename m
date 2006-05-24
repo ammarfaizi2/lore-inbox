@@ -1,40 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWEXLxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932685AbWEXM2B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbWEXLxT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 07:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932685AbWEXLxT
+	id S932685AbWEXM2B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 08:28:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932697AbWEXM2B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 07:53:19 -0400
-Received: from wr-out-0506.google.com ([64.233.184.237]:19424 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932283AbWEXLxS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 07:53:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=X+8cJDzfGQ56cdmyeJSW3ixCI4DgQfEknBHM86IBX//duPNRlGgzrslx1y/8cwwK7WDzjmoSpLF4pG7gKNlk/jB8iy7IUKNdZxR9aAnN0s5r0qN67jbtke9SgH2hYduP4YgkezpcPeZk8RxVEE9QFAMJW2xUrC1IN4yJpIqCJO0=
-Message-ID: <2bc0baf20605240453l89e5cd7w949377ead93e8b66@mail.gmail.com>
-Date: Wed, 24 May 2006 13:53:17 +0200
-From: "German San Agustin" <chamocarrot@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6 NFS client read-ahead
-In-Reply-To: <2bc0baf20605240446h197b3d2fxc797404aa0e733ba@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <2bc0baf20605240446h197b3d2fxc797404aa0e733ba@mail.gmail.com>
+	Wed, 24 May 2006 08:28:01 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:17587 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932685AbWEXM2A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 08:28:00 -0400
+Subject: [Patch 0/6] statistics infrastructure
+From: Martin Peschke <mp3@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 24 May 2006 14:27:52 +0200
+Message-Id: <1148473672.2934.7.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have several linux 2.6.9 accesing to a netapp filer via nfs to
-update several thousands of files. The application only need to read a
-few blocks of the files when updating so we found out that disabling
-the read-ahead on the server improve greatly the performance by
-maintaining a clean cache and decreasing the number of access to disk.
-We have been trying to disable the read-ahead in the client as well to
-reduce the access to the server even further; but we couldn't find
- where to do this in the 2.6 kernel family. Is it possible?, or it is
-simply that on 2.6 kernels it is not possible to tune the nfs client.
+Andrew,
+
+Patches are against 2.6.17-rc4-git12. Only change since last time
+is a beautification of the timestamp code (now using NSEC_PER_SEC etc.)
+
+	Martin
+
+
+
+My patch series is a proposal for a generic implementation of statistics.
+Envisioned exploiters include device drivers, and any other component.
+It provides both a unified programming interface for exploiters as well
+as a unified user interface. It comes with a set of disciplines that
+implement various ways of data processing, like counters and histograms.
+
+The recent rework addresses performance issues and memory footprint,
+straightens some concepts out, streamlines the programming interface,
+removes some weiredness from the user interface, and reduces the
+amount of code.
+
+A few more keywords for the reader's convenience:
+based on per-cpu data; spinlock-free protection of data; observes
+cpu-hot(un)plug for efficient memory use; tiny state machine for
+switching-on, switching-off, releasing data etc.; configurable by users
+at run-time; still sitting in debugfs; simple addition of other disciplines.
+
+Good places to start reading code are:
+
+   statistic_create(), statistic_remove()
+   statistic_add(), statistic_inc()
+   struct statistic_interface, struct statistic
+   struct statistic_discipline, statistic_*_counter()
+   statistic_transition()
+
+

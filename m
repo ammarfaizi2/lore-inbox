@@ -1,85 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbWEXDlw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbWEXECM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932547AbWEXDlw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 23:41:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932551AbWEXDlw
+	id S932480AbWEXECM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 00:02:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932551AbWEXECM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 23:41:52 -0400
-Received: from smtp.enter.net ([216.193.128.24]:63493 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S932547AbWEXDlv (ORCPT
+	Wed, 24 May 2006 00:02:12 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:11405 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932480AbWEXECK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 23:41:51 -0400
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Jeff Garzik <jeff@garzik.org>
-Subject: Re: OpenGL-based framebuffer concepts
-Date: Tue, 23 May 2006 23:41:41 +0000
-User-Agent: KMail/1.8.1
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <1148379089.25255.9.camel@localhost.localdomain> <4472E3D8.9030403@garzik.org>
-In-Reply-To: <4472E3D8.9030403@garzik.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 24 May 2006 00:02:10 -0400
+Date: Wed, 24 May 2006 14:01:42 +1000
+From: David Chinner <dgc@sgi.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] Per-superblock unused dentry LRU lists.
+Message-ID: <20060524040142.GC7418631@melbourne.sgi.com>
+References: <20060524012412.GB7412499@melbourne.sgi.com> <1148435980.3049.11.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605232341.42722.dhazelton@enter.net>
+In-Reply-To: <1148435980.3049.11.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 23 May 2006 10:28, Jeff Garzik wrote:
-> Alan Cox wrote:
-> > On Maw, 2006-05-23 at 01:08 -0400, Kyle Moffett wrote:
-> >> generation graphics system, I'd be interested in ideas on a new or
-> >> modified /dev/fbX device that offers native OpenGL rendering
-> >> support.  Someone once mentioned OpenGL ES as a possibility as it
-> >
-> > So for a low end video card you want to put a full software opengl es
-> > stack into the kernel including the rendering loops which tend to be
-> > large and slow, or dynamically generated code ?
->
-> Indeed, consider the extent of that phrase "dynamically generated code."
->
-> To do modern OpenGL (mostly fragment and vertex shaders), you basically
-> must have a compiler front-end (C-like language), a code generator (JIT)
-> backend for your architecture (x86, x86-64, ...), and a code generator
-> backend for your GPU.
->
-> Further, as Keith Whitwell and others have rightly pointed out, a modern
-> GPU needs such advanced resource management that the X server (or
-> whatever driver) essentially becomes a _multi-tasking scheduler_.
-> Consider the case of two resource-hungry 3D processes rendering to the
-> same X11 screen, and you'll see why a GPU scheduler is needed.
->
-> Modern graphics is highly aligned with the Cell processor programming
-> model:  shipping specialized binary code elsewhere, to be remotely
-> executed.
->
-> OTOH, I think a perfect video driver would be in kernel space, and do
->
-> * delivery of GPU commands from userspace to hardware, hopefully via
-> zero-copy DMA.  For older cards without a true instruction set, "GPU
-> commands" simply means userspace prepares hardware register
-> read/write/test commands, and blasts the sequence to hardware at the
-> appropriate moment (a la S3 Savage's BCI).
-> * delivery of bytecode commands (faux GPU commands) from userspace to
-> kernel to hardware.  Much like today's ioctls, but much more efficient
-> delivery.  Used for mode switching commands, basic monitor management
-> commands, and other not-vendor-specific operations that belong in the
-> kernel.
-> * interrupt and DMA handling
-> * multi-context, multi-thread GPU resource scheduler (2D/3D context
-> switching is lumped in here too)
-> * suspend and resume
->
-> and nothing else.
+On Wed, May 24, 2006 at 03:59:40AM +0200, Arjan van de Ven wrote:
+> On Wed, 2006-05-24 at 11:24 +1000, David Chinner wrote:
+> 
+> 
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=114491661527656&w=2
+> > 
+> > shrink_dcache_sb() becomes a severe bottleneck when the unused dentry
+> > list becomes long and mounts and unmounts occur frequently on the
+> > machine.
+> 
+> how does a per SB list deal with umounts that occur frequently? I
+> suppose it means destroying just your list... 
 
-Thanks for this list. Looks like if I'm going to do any code writing it won't 
-be solo, because a lot of this stuff  - mostly the scheduler and interrupt 
-handling - is way over my head. (However, I will try to learn and will be 
-doing even more research when I get to the point where this is needed to be 
-done)
+shrink_dcache_sb no longer walks the single unsed dentry list
+with the dcache lock held. With many millions of dentries on the
+unused list, this meant that all dentry operations come to a
+halt while one process executes shrink_dcache_sb().
 
-DRH
+With a per-sb lru, we no longer have to walk a global list to find
+all the dentries that belong to the superblock we are unmounting.
+Hence we only hold the dcache_lock for as long as it takes to pull
+a dentry of the list and free it.
+
+> > I've attempted to make reclaim fair by keeping track of the last superblock
+> > we pruned, and starting from the next on in the list each time.
+> 
+> how fair is this in the light of a non-equal sizes?
+
+It's not. If you read the thread I pointed at, you'll note that
+I commented at the time this method introduces "interesting" reclaim
+fairness issues, and this is one of the reasons I didn't implement
+this method straight away.
+
+> say you have a 4Gb
+> fs and a 1Tb list. Will your approach result in trying to prune 1000
+> from the 4Gb, then 1000 from the 1Tb, then 1000 from the 4Gb etc ?
+> while that is fair in absolute terms, in relative terms it's highly not
+> fair to the small filesystem.... 
+
+Yup, that is what the current code I've written will do. I just
+wanted someting that worked over all superblocks to begin with.
+It's not very smart, but improving it can be done incrementally.
+
+> (I'm not sure there is ONE right answer here, well maybe by scaling the
+> count to the per fs count rather than to the total...)
+
+Agreed - scaling is probably going to result in the fairest reclaim,
+but I prefered to focus on getting the mechanism working properly
+and testing that before considering optimising the reclaim algorithm.
+
+Also, I'd prefer to address deficiencies as they arise, rather than
+make optimisations based on assumptions that may be incorrect....
+
+> this makes me wonder btw if we can do a per superblock slab for these
+> dentries, that may decrease fragmentation of slabs in combination with
+> your patch....
+
+That doesn't prevent slab fragmentation per filesystem. And most of
+the fragmentation problems I see are in the inode caches so at best
+this would be a bandaid rather than a real solution to the fundamental
+problems....
+
+Cheers,
+
+Dave.
+-- 
+Dave Chinner
+R&D Software Enginner
+SGI Australian Software Group

@@ -1,55 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932709AbWEXLW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932707AbWEXLXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932709AbWEXLW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 07:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932704AbWEXLTr
+	id S932707AbWEXLXU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 07:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932717AbWEXLTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 07:19:47 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:17538 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932688AbWEXLTM (ORCPT
+	Wed, 24 May 2006 07:19:40 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:56961 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932689AbWEXLTL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 07:19:12 -0400
-Message-ID: <348469549.07101@ustc.edu.cn>
+	Wed, 24 May 2006 07:19:11 -0400
+Message-ID: <348469547.47755@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060524111911.032100160@localhost.localdomain>
+Message-Id: <20060524111908.569533741@localhost.localdomain>
 References: <20060524111246.420010595@localhost.localdomain>
-Date: Wed, 24 May 2006 19:13:14 +0800
+Date: Wed, 24 May 2006 19:13:09 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 28/33] readahead: loop case
-Content-Disposition: inline; filename=readahead-loop-case.patch
+Subject: [PATCH 23/33] readahead: backward prefetching method
+Content-Disposition: inline; filename=readahead-method-backward.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Disable look-ahead for loop file.
-
-Loopback files normally contain filesystems, in which case there are already
-proper look-aheads in the upper layer, more look-aheads on the loopback file
-only ruins the read-ahead hit rate.
+Readahead policy for reading backward.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
-I'd like to thank Tero Grundstr?m for uncovering the loopback problem.
+ mm/readahead.c |   40 ++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 40 insertions(+)
 
- drivers/block/loop.c |    6 ++++++
- 1 files changed, 6 insertions(+)
-
---- linux-2.6.17-rc4-mm3.orig/drivers/block/loop.c
-+++ linux-2.6.17-rc4-mm3/drivers/block/loop.c
-@@ -779,6 +779,12 @@ static int loop_set_fd(struct loop_devic
- 	mapping = file->f_mapping;
- 	inode = mapping->host;
+--- linux-2.6.17-rc4-mm3.orig/mm/readahead.c
++++ linux-2.6.17-rc4-mm3/mm/readahead.c
+@@ -1574,6 +1574,46 @@ initial_readahead(struct address_space *
+ }
  
-+	/*
-+	 * The upper layer should already do proper look-ahead,
-+	 * one more look-ahead here only ruins the cache hit rate.
-+	 */
-+	file->f_ra.flags |= RA_FLAG_NO_LOOKAHEAD;
+ /*
++ * Backward prefetching.
++ *
++ * No look-ahead and thrashing safety guard: should be unnecessary.
++ */
++static int
++try_read_backward(struct file_ra_state *ra, pgoff_t begin_index,
++			unsigned long ra_size, unsigned long ra_max)
++{
++	pgoff_t end_index;
 +
- 	if (!(file->f_mode & FMODE_WRITE))
- 		lo_flags |= LO_FLAGS_READ_ONLY;
- 
++	/* Are we reading backward? */
++	if (begin_index > ra->prev_page)
++		return 0;
++
++	if ((ra->flags & RA_CLASS_MASK) == RA_CLASS_BACKWARD &&
++					ra_has_index(ra, ra->prev_page)) {
++		ra_size += 2 * ra_cache_hit(ra, 0);
++		end_index = ra->la_index;
++	} else {
++		ra_size += ra_size + ra_size * (readahead_hit_rate - 1) / 2;
++		end_index = ra->prev_page;
++	}
++
++	if (ra_size > ra_max)
++		ra_size = ra_max;
++
++	/* Read traces close enough to be covered by the prefetching? */
++	if (end_index > begin_index + ra_size)
++		return 0;
++
++	begin_index = end_index - ra_size;
++
++	ra_set_class(ra, RA_CLASS_BACKWARD);
++	ra_set_index(ra, begin_index, begin_index);
++	ra_set_size(ra, ra_size, 0);
++
++	return 1;
++}
++
++/*
+  * ra_min is mainly determined by the size of cache memory. Reasonable?
+  *
+  * Table of concrete numbers for 4KB page size:
 
 --

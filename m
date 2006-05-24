@@ -1,103 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932610AbWEXGLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932617AbWEXGNu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932610AbWEXGLP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 02:11:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932612AbWEXGLP
+	id S932617AbWEXGNu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 02:13:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbWEXGNu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 02:11:15 -0400
-Received: from smtp.enter.net ([216.193.128.24]:17427 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S932610AbWEXGLP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 02:11:15 -0400
-From: "D. Hazelton" <dhazelton@enter.net>
-To: "Dave Airlie" <airlied@gmail.com>
-Subject: Re: OpenGL-based framebuffer concepts
-Date: Wed, 24 May 2006 02:11:03 +0000
-User-Agent: KMail/1.8.1
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200605240130.14879.dhazelton@enter.net> <21d7e9970605232248t48b303dfwcc481adc5c34932a@mail.gmail.com>
-In-Reply-To: <21d7e9970605232248t48b303dfwcc481adc5c34932a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 24 May 2006 02:13:50 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:31207 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932613AbWEXGNt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 02:13:49 -0400
+Date: Wed, 24 May 2006 09:13:42 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: "=?big5?B?amVzc2VcKKvYv7NcKQ==?=" <jesse@icplus.com.tw>
+cc: Francois Romieu <romieu@fr.zoreil.com>, David Vrabel <dvrabel@cantab.net>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       david@pleyades.net, akpm@osdl.org
+Subject: Re: Sign-off for the IP1000A driver before inclusion
+In-Reply-To: <044a01c67ef8$9bdd0420$4964a8c0@icplus.com.tw>
+Message-ID: <Pine.LNX.4.58.0605240911400.26629@sbz-30.cs.Helsinki.FI>
+References: <84144f020605230001s32b29f59w8f95c67fad7b380d@mail.gmail.com>
+ <044a01c67ef8$9bdd0420$4964a8c0@icplus.com.tw>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605240211.03959.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 24 May 2006 05:48, Dave Airlie wrote:
-> > > Step 1: add a layer between fbdev and DRM so that they can see each
-> > > other.
-> > >
-> > > Do *NOT* merge fbdev and DRM this is the "wrong answer". They may end
-> > > up merged but firstly let them at least become away of each others
-> > > existence, perhaps a lowerlayer driver that handles PCI functionality.
-> > > All other Step 1s are belong to us.
-> >
-> > Okay. This won't be simple, won't be pretty, but I should be able to
-> > handle it. The problem then becomes: What exactly should this system do?
-> > A layer that sits on top of the PCI/AGP stuff and mediates it for
-> > DRM/fbdev? Isn't easy, isn't simple but I think it is possible.
->
-> The scope of the lower layer system isn't defined, it should be able
-> to do what a driver needs it to do, so this can be in the simple case
-> provide a flag to tell the DRM the fb driver is loaded and vice versa,
-> up to doing suspend/resume handling and PCI handling.  I think at the
-> very least it will have to do PCI handling and device model support.
+On Wed, 24 May 2006, jesse\(??\)\) wrote:
+> We had read this document, but we can't find any blank at which we can sign.
+> Could you tell us where we can sign it off.
 
-Ah, okay. So I'll have to open-code the lower-level to provide 
-extensibility... Planned on it anyway, but was hoping to be able to try and 
-keep the lower-level a bit simpler by giving it a defined role.  Not that I 
-can reject a request to open-code something... It's what I try to request of 
-people :)
+You sign it off in the patch submission.  It's enough that you agree on it 
+and let us know a sign off line:
 
-> > If DRM makes use of the lower-level driver, and so does fbdev, then it's
-> > likely possible that the system can provide the information needed to
-> > allow the kernel to composite error messages onto the framebuffer.
->
-> That is the theory, the DRM usually knows where X has the framebuffer.
+Signed-off-by: John Doe <john.doe@somewhere.com>
 
-True, but is there a way we ould pull this information from DRM? I'll have to 
-take a long hard look and see.
+which the patch submitter (probably Francois) adds to the patch 
+when it is being submitted.  There is no actual documentation you need to 
+sign off.  Thanks.
 
-> > to compile DRM or fbdev out of the kernel there is no way that one could
-> > depend on the other. Having them intercommunicate, it seems, would
-> > require a third mechanism. Any pointers?
->
-> Yes you could move some common functionality into a lowlevel driver
-> which they could talk to, then compiling out either one wouldn't
-> matter.
-
-Okay. Good idea.
-
-> > > I could even drop the last hack I did in some sort of patch form
-> > > somewhere, I might even have a git tree (not sure...)
-> >
-> > That might be helpful.
->
-> Okay I've put up two patches at
-> http://www.skynet.ie/~airlied/patches/merge/three_tier.diff
-> http://www.skynet.ie/~airlied/patches/merge/three_tier_2.diff
->
-> The first is from Dec 27th of last year, the other from March 24 this
-> year, the three_tier_2 is probably the later patch, and I think is
-> from some kernel like 2.6.13 or something.
->
-> Neither of these do what I wanted to do but they give a lot of ideas
-> on how to do it, the device model required in the end using a bus to
-> do this, I actually had some thoughts about it at the X.org developers
-> conference earlier in the year while reading LDD, but I've been
-> swamped since and probably won't get back to it until OLS.
-
-Okay and thank you. I'll start going through all of it tomorrow, about the 
-same time I grab the latest kernel to start working on this. (My current 
-limited connection wouldn't support me using GIT unless I could dedicate it 
-for more than 6 hours. THis should be changing in about two months, but...)
-
-DRH
+					Pekka

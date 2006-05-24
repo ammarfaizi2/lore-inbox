@@ -1,351 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932587AbWEXFGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932581AbWEXFO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932587AbWEXFGc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 01:06:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbWEXFGc
+	id S932581AbWEXFO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 01:14:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbWEXFOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 01:06:32 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:34520 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932589AbWEXFGb (ORCPT
+	Wed, 24 May 2006 01:14:25 -0400
+Received: from wr-out-0506.google.com ([64.233.184.224]:15523 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932581AbWEXFOZ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 01:06:31 -0400
-Date: Wed, 24 May 2006 10:32:14 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: David Chinner <dgc@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] Per-superblock unused dentry LRU lists.
-Message-ID: <20060524050214.GB9639@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <20060524012412.GB7412499@melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 24 May 2006 01:14:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=scLTp/mPKpgCxrZ7qKr3gKH6WME6Xs3bvMv4zJsEZ8GwTwPOV5OAkfd9ES4jl0kY9C2XKV4E3PKVOEWptpNZsp922ROHMBqo6vyvf8NNH5+aKsfnhx2li7zFNMzeeqFfm5AP0rD8J0o7NHD18dMKFfWIbaDloqx6pvBQZNDsO/w=
+Message-ID: <21d7e9970605232214l3349df0dka162f794f8eddf95@mail.gmail.com>
+Date: Wed, 24 May 2006 15:14:24 +1000
+From: "Dave Airlie" <airlied@gmail.com>
+To: "D. Hazelton" <dhazelton@enter.net>
+Subject: Re: OpenGL-based framebuffer concepts
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200605240017.45039.dhazelton@enter.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060524012412.GB7412499@melbourne.sgi.com>
-User-Agent: Mutt/1.5.10i
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <200605232338.54177.dhazelton@enter.net>
+	 <21d7e9970605232108u27bc3ae7mbd161778c51afaf5@mail.gmail.com>
+	 <200605240017.45039.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 24, 2006 at 11:24:12AM +1000, David Chinner wrote:
-> 
-> As originally described in:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=114491661527656&w=2
-> 
-> shrink_dcache_sb() becomes a severe bottleneck when the unused dentry
-> list becomes long and mounts and unmounts occur frequently on the
-> machine.
-> 
-> My initial attempt to solve the problem using per-node LRUs
-> (http://marc.theaimsgroup.com/?l=linux-kernel&m=114537118504917&w=2)
-> fell apart under the complexity of locking required. This approach can
-> probably be made to work in the long term, but we need a robust fix 
-> for now....
-> 
-> The patch attached below is based on the suggestion made by Andrew
-> Morton here:
-> 
-> http://marc.theaimsgroup.com/?l=linux-fsdevel&m=114499224412427&w=2
-> 
-> This approach does not change any of the locking required, so avoids
-> the locking problems of the per-node lru implementation.
-> 
-> I've attempted to make reclaim fair by keeping track of the last superblock
-> we pruned, and starting from the next on in the list each time.
-> 
-> Signed-off-by: Dave Chinner <dgc@sgi.com>
-> 
-> ---
-> The patch has been stress tested on single and multiple filesystems,
-> using dbench, postmark and parallel create/unlink load tests. It has also
-> been running on the problem server since last Saturday which currently
-> has ~11 million cached dentries, and a dentry_cache slab size of ~27 million
-> objects.
+> > All the other designs and stuff people have mentioned have all been
+> > discussed to death before, people seem to love discussing graphics,
+> > but no-one seems to care about fixing it properly, in nice incremental
+> > steps that doesn't break older systems. The current systems are very
+> > very fixable, however there always seem to be lots of people who want
+> > to re-write it because it is a) ugly in their opinion b) don't care
+> > about backwards compat.
+> >
+>
+> I'd never advocate just killing a functioning system. What I've been talking
+> about is building a new system that sits alongside the existing one in the
+> tree, depends on EXPERIMENTAL and BROKEN in the Kconfig system and takes the
+> place of the traditional framebuffer system if someone decides to use it.
+>
+> I say have it depend on BROKEN because that should keep the masses away from
+> it while it's being heavily tested, and I say it should sit alongside the
+> existing code and be *new* for exactly the reason you've pointed out.
+> Modifying the existing systems to integrate the new technology would require
+> either changing the driver model or a lot fo dirty hacks. Neither seems that
+> good of an option to me.
+>
 
-I like the patch already :)
+Not going to happen at this stage I believe, while people are in NIH
+mode against trying to fix the current system, we are not going to
+merge a third incompatible graphics layer into the kernel, we have
+enough of them to do the job, we need people to fix the current crap
+not add more.
 
-<snip>
+The current system is fixable, we've discussed how to fix it a number
+of times, however there have never been resources to do it, we
+explained to Jon on a number of occasion how we as the maintainers
+felt it should be fixed, the patches he produced didn't follow the
+direction we wanted, he stated "the writer decides", we stated "the
+maintainers don't accept it".
 
-> +static void
-> +dentry_lru_add(struct dentry *dentry)
-> +{
-> +	list_add(&dentry->d_lru, &dentry->d_sb->s_dentry_lru);
-> +	dentry_stat.nr_unused++;
-> +}
-> +
-> +static void
-> +dentry_lru_add_tail(struct dentry *dentry)
-> +{
-> +	list_add_tail(&dentry->d_lru, &dentry->d_sb->s_dentry_lru);
-> +	dentry_stat.nr_unused++;
-> +}
-> +
-> +static void
-> +dentry_lru_del(struct dentry *dentry)
-> +{
-> +	if (!list_empty(&dentry->d_lru)) {
-> +		list_del(&dentry->d_lru);
-> +		dentry_stat.nr_unused--;
-> +	}
-> +}
-> +
-> +static void
-> +dentry_lru_del_init(struct dentry *dentry)
-> +{
-> +	if (likely(!list_empty(&dentry->d_lru))) {
-> +		list_del_init(&dentry->d_lru);
-> +		dentry_stat.nr_unused--;
-> +	}
-> +}
-> +
+Step 1: add a layer between fbdev and DRM so that they can see each other.
 
-I wonder if there should be per-sb count of number of used dentries. This
-will help us while unmounting. Instead of passing count as NULL, the number
-of dentries in the super block can be passed. May be we should have
-per-dentry stats along with global statistics.
+Do *NOT* merge fbdev and DRM this is the "wrong answer". They may end
+up merged but firstly let them at least become away of each others
+existence, perhaps a lowerlayer driver that handles PCI functionality.
+All other Step 1s are belong to us.
 
-<snip>
+I could even drop the last hack I did in some sort of patch form
+somewhere, I might even have a git tree (not sure...)
 
->  
-> +/*
-> + * Shrink the dentry LRU on æ given superblock.
-> + */
-> +static void
-> +__shrink_dcache_sb(struct super_block *sb, int *count, int flags)
-> +{
-> +	struct dentry *dentry;
-> +	int cnt = (count == NULL) ? -1 : *count;
-
-This code seems hacky. Some comments please. Negative counters are generally
-not good IMHO. This can be avoided by per-sb dentry stats (please see
-the comment above)
-
-> +
-> +	spin_lock(&dcache_lock);
-> +	while (!list_empty(&sb->s_dentry_lru) && cnt--) {
-> +		dentry = list_entry(sb->s_dentry_lru.prev,
-> +					struct dentry, d_lru);
-> +		dentry_lru_del_init(dentry);
-> +		BUG_ON(dentry->d_sb != sb);
-> +		prefetch(sb->s_dentry_lru.prev);
-> +
-> +		spin_lock(&dentry->d_lock);
-> +		/*
-> +		 * We found an inuse dentry which was not removed from
-> +		 * the LRU because of laziness during lookup.  Do not free
-> +		 * it - just keep it off the LRU list.
-> +		 */
-> +		if (atomic_read(&dentry->d_count)) {
-> +			spin_unlock(&dentry->d_lock);
-> +			continue;
-> +		}
-> +		/* If the dentry matches the flags passed in, don't free it.
-> +		 * clear the flags and put it back on the LRU */
-
-The comment does not follow coding style conventions. What do these flags
-typically contain - DCACHE_REFERENCED? Could you clean up this comment
-please.
-
-> +		if (flags && (dentry->d_flags & flags)) {
-> +			dentry->d_flags &= ~flags;
-> +			dentry_lru_add(dentry);
-> +			spin_unlock(&dentry->d_lock);
-> +			continue;
-> +		}
-> +		prune_one_dentry(dentry);
-> +	}
-> +	spin_unlock(&dcache_lock);
-> +	if (count)
-> +		*count = cnt;
-> +}
-> +
->  /**
->   * prune_dcache - shrink the dcache
->   * @count: number of entries to try and free
-> @@ -392,42 +456,44 @@ static inline void prune_one_dentry(stru
->   
->  static void prune_dcache(int count)
->  {
-> -	spin_lock(&dcache_lock);
-> -	for (; count ; count--) {
-> -		struct dentry *dentry;
-> -		struct list_head *tmp;
-> -
-> -		cond_resched_lock(&dcache_lock);
-> +	struct super_block *sb;
-> +	static struct super_block *sb_hand = NULL;
-> +	int work_done = 0;
-> +
-> +	spin_lock(&sb_lock);
-> +	if (sb_hand == NULL)
-> +		sb_hand = sb_entry(super_blocks.next);
-> +restart:
-> +	list_for_each_entry(sb, &super_blocks, s_list) {
-> +		if (sb != sb_hand)
-> +			continue;
-> +		/* Found the next superblock to work on.
-> +		 * Move the hand forwards so that parallel
-> +		 * pruners will work on a different sb */
-> +		work_done++;
-> +		sb_hand = sb_entry(sb->s_list.next);
-> +		sb->s_count++;
-> +		spin_unlock(&sb_lock);
-> +
-> +		/* we don't take the s_umount lock here because
-> +		 * because we can be called already holding a
-> +		 * write lock on a superblock */
-
-You can use trylock. Please see the patches in -mm to fix the umount
-race.
-
-> +		if (!list_empty(&sb->s_dentry_lru))
-> +			__shrink_dcache_sb(sb, &count, DCACHE_REFERENCED);
->  
-> -		tmp = dentry_unused.prev;
-> -		if (tmp == &dentry_unused)
-> +		spin_lock(&sb_lock);
-> +		if (__put_super_and_need_restart(sb) && count)
-> +			goto restart;
-
-Comment please.
-
-> +		if (count <= 0)
->  			break;
-> -		list_del_init(tmp);
-> -		prefetch(dentry_unused.prev);
-> - 		dentry_stat.nr_unused--;
-> -		dentry = list_entry(tmp, struct dentry, d_lru);
-> -
-> - 		spin_lock(&dentry->d_lock);
-> -		/*
-> -		 * We found an inuse dentry which was not removed from
-> -		 * dentry_unused because of laziness during lookup.  Do not free
-> -		 * it - just keep it off the dentry_unused list.
-> -		 */
-> - 		if (atomic_read(&dentry->d_count)) {
-> - 			spin_unlock(&dentry->d_lock);
-> -			continue;
-> -		}
-> -		/* If the dentry was recently referenced, don't free it. */
-> -		if (dentry->d_flags & DCACHE_REFERENCED) {
-> -			dentry->d_flags &= ~DCACHE_REFERENCED;
-> - 			list_add(&dentry->d_lru, &dentry_unused);
-> - 			dentry_stat.nr_unused++;
-> - 			spin_unlock(&dentry->d_lock);
-> -			continue;
-> -		}
-> -		prune_one_dentry(dentry);
->  	}
-> -	spin_unlock(&dcache_lock);
-> +	if (!work_done) {
-> +		/* sb_hand is stale. Start and the beginning of the
-> +		 * list again. */
-
-Please fix the comment style
-
-> +		sb_hand = sb_entry(super_blocks.next);
-> +		goto restart;
-> +	}
-> +	spin_unlock(&sb_lock);
->  }
->  
->  /*
-> @@ -454,41 +520,7 @@ static void prune_dcache(int count)
->  
->  void shrink_dcache_sb(struct super_block * sb)
->  {
-> -	struct list_head *tmp, *next;
-> -	struct dentry *dentry;
-> -
-> -	/*
-> -	 * Pass one ... move the dentries for the specified
-> -	 * superblock to the most recent end of the unused list.
-> -	 */
-> -	spin_lock(&dcache_lock);
-> -	list_for_each_safe(tmp, next, &dentry_unused) {
-> -		dentry = list_entry(tmp, struct dentry, d_lru);
-> -		if (dentry->d_sb != sb)
-> -			continue;
-> -		list_del(tmp);
-> -		list_add(tmp, &dentry_unused);
-> -	}
-> -
-> -	/*
-> -	 * Pass two ... free the dentries for this superblock.
-> -	 */
-> -repeat:
-> -	list_for_each_safe(tmp, next, &dentry_unused) {
-> -		dentry = list_entry(tmp, struct dentry, d_lru);
-> -		if (dentry->d_sb != sb)
-> -			continue;
-> -		dentry_stat.nr_unused--;
-> -		list_del_init(tmp);
-> -		spin_lock(&dentry->d_lock);
-> -		if (atomic_read(&dentry->d_count)) {
-> -			spin_unlock(&dentry->d_lock);
-> -			continue;
-> -		}
-> -		prune_one_dentry(dentry);
-> -		goto repeat;
-> -	}
-> -	spin_unlock(&dcache_lock);
-> +	__shrink_dcache_sb(sb, NULL, 0);
->  }
->  
->  /*
-> @@ -572,17 +604,13 @@ resume:
->  		struct dentry *dentry = list_entry(tmp, struct dentry, d_u.d_child);
->  		next = tmp->next;
->  
-> -		if (!list_empty(&dentry->d_lru)) {
-> -			dentry_stat.nr_unused--;
-> -			list_del_init(&dentry->d_lru);
-> -		}
-> +		dentry_lru_del_init(dentry);
->  		/* 
->  		 * move only zero ref count dentries to the end 
->  		 * of the unused list for prune_dcache
->  		 */
->  		if (!atomic_read(&dentry->d_count)) {
-> -			list_add(&dentry->d_lru, dentry_unused.prev);
-> -			dentry_stat.nr_unused++;
-> +			dentry_lru_add_tail(dentry);
->  			found++;
->  		}
-
-This should not be required with per super-block dentries. The only
-reason, I think we moved dentries to the tail is to club all entries
-from the sb together (to free them all at once).
-
->  
-> @@ -657,18 +685,14 @@ void shrink_dcache_anon(struct hlist_hea
->  		spin_lock(&dcache_lock);
->  		hlist_for_each(lp, head) {
->  			struct dentry *this = hlist_entry(lp, struct dentry, d_hash);
-> -			if (!list_empty(&this->d_lru)) {
-> -				dentry_stat.nr_unused--;
-> -				list_del_init(&this->d_lru);
-> -			}
->  
-> +			dentry_lru_del_init(this);
->  			/* 
->  			 * move only zero ref count dentries to the end 
->  			 * of the unused list for prune_dcache
->  			 */
->  			if (!atomic_read(&this->d_count)) {
-> -				list_add_tail(&this->d_lru, &dentry_unused);
-> -				dentry_stat.nr_unused++;
-> +				dentry_lru_add_tail(this);
->  				found++;
->  			}
->  		}
-
-This might still be required. Do you want to split out the anonymous dcache
-entries as well? I am not sure what their superblock points to.
-
-
-
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+Dave.

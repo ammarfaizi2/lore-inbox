@@ -1,84 +1,240 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932708AbWEXLVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932704AbWEXLWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932708AbWEXLVz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 07:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932719AbWEXLTs
+	id S932704AbWEXLWa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 07:22:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932711AbWEXLTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 07:19:48 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:34689 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932709AbWEXLTN (ORCPT
+	Wed, 24 May 2006 07:19:46 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:20097 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932704AbWEXLTM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 07:19:13 -0400
-Message-ID: <348469545.17438@ustc.edu.cn>
+	Wed, 24 May 2006 07:19:12 -0400
+Message-ID: <348469543.10865@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060524111906.245276338@localhost.localdomain>
+Message-Id: <20060524111904.683513683@localhost.localdomain>
 References: <20060524111246.420010595@localhost.localdomain>
-Date: Wed, 24 May 2006 19:13:04 +0800
+Date: Wed, 24 May 2006 19:13:01 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 18/33] readahead: initial method - guiding sizes
-Content-Disposition: inline; filename=readahead-method-initial-sizes.patch
+Subject: [PATCH 15/33] readahead: state based method - routines
+Content-Disposition: inline; filename=readahead-method-stateful-routines.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Introduce three guiding sizes for the initial readahead method.
-	- ra_pages0:	   recommended readahead on start-of-file
-	- ra_expect_bytes: expected read size on start-of-file
-	- ra_thrash_bytes: estimated thrashing threshold
+Define some helpers on struct file_ra_state.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
+ mm/readahead.c |  188 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 186 insertions(+), 2 deletions(-)
 
- block/ll_rw_blk.c           |    4 +---
- include/linux/backing-dev.h |    3 +++
- mm/readahead.c              |    3 +++
- 3 files changed, 7 insertions(+), 3 deletions(-)
-
---- linux-2.6.17-rc4-mm3.orig/include/linux/backing-dev.h
-+++ linux-2.6.17-rc4-mm3/include/linux/backing-dev.h
-@@ -24,6 +24,9 @@ typedef int (congested_fn)(void *, int);
- 
- struct backing_dev_info {
- 	unsigned long ra_pages;	/* max readahead in PAGE_CACHE_SIZE units */
-+	unsigned long ra_pages0; /* recommended readahead on start of file */
-+	unsigned long ra_expect_bytes;	/* expected read size on start of file */
-+	unsigned long ra_thrash_bytes;	/* thrashing threshold */
- 	unsigned long state;	/* Always use atomic bitops on this */
- 	unsigned int capabilities; /* Device capabilities */
- 	congested_fn *congested_fn; /* Function pointer if device is md/dm */
 --- linux-2.6.17-rc4-mm3.orig/mm/readahead.c
 +++ linux-2.6.17-rc4-mm3/mm/readahead.c
-@@ -122,6 +122,9 @@ EXPORT_SYMBOL(default_unplug_io_fn);
+@@ -854,6 +854,190 @@ static unsigned long node_readahead_agin
+ }
  
- struct backing_dev_info default_backing_dev_info = {
- 	.ra_pages	= PAGES_KB(VM_MAX_READAHEAD),
-+	.ra_pages0	= PAGES_KB(128),
-+	.ra_expect_bytes = 1024 * VM_MIN_READAHEAD,
-+	.ra_thrash_bytes = 1024 * VM_MIN_READAHEAD,
- 	.state		= 0,
- 	.capabilities	= BDI_CAP_MAP_COPY,
- 	.unplug_io_fn	= default_unplug_io_fn,
---- linux-2.6.17-rc4-mm3.orig/block/ll_rw_blk.c
-+++ linux-2.6.17-rc4-mm3/block/ll_rw_blk.c
-@@ -249,9 +249,6 @@ void blk_queue_make_request(request_queu
- 	blk_queue_max_phys_segments(q, MAX_PHYS_SEGMENTS);
- 	blk_queue_max_hw_segments(q, MAX_HW_SEGMENTS);
- 	q->make_request_fn = mfn;
--	q->backing_dev_info.ra_pages = (VM_MAX_READAHEAD * 1024) / PAGE_CACHE_SIZE;
--	q->backing_dev_info.state = 0;
--	q->backing_dev_info.capabilities = BDI_CAP_MAP_COPY;
- 	blk_queue_max_sectors(q, SAFE_MAX_SECTORS);
- 	blk_queue_hardsect_size(q, 512);
- 	blk_queue_dma_alignment(q, 511);
-@@ -1850,6 +1847,7 @@ request_queue_t *blk_alloc_queue_node(gf
- 	q->kobj.ktype = &queue_ktype;
- 	kobject_init(&q->kobj);
+ /*
++ * Some helpers for querying/building a read-ahead request.
++ *
++ * Diagram for some variable names used frequently:
++ *
++ *                                   |<------- la_size ------>|
++ *                  +-----------------------------------------+
++ *                  |                #                        |
++ *                  +-----------------------------------------+
++ *      ra_index -->|<---------------- ra_size -------------->|
++ *
++ */
++
++static enum ra_class ra_class_new(struct file_ra_state *ra)
++{
++	return ra->flags & RA_CLASS_MASK;
++}
++
++static inline enum ra_class ra_class_old(struct file_ra_state *ra)
++{
++	return (ra->flags >> RA_CLASS_SHIFT) & RA_CLASS_MASK;
++}
++
++static unsigned long ra_readahead_size(struct file_ra_state *ra)
++{
++	return ra->readahead_index - ra->ra_index;
++}
++
++static unsigned long ra_lookahead_size(struct file_ra_state *ra)
++{
++	return ra->readahead_index - ra->lookahead_index;
++}
++
++static unsigned long ra_invoke_interval(struct file_ra_state *ra)
++{
++	return ra->lookahead_index - ra->la_index;
++}
++
++/*
++ * The 64bit cache_hits stores three accumulated values and a counter value.
++ * MSB                                                                   LSB
++ * 3333333333333333 : 2222222222222222 : 1111111111111111 : 0000000000000000
++ */
++static int ra_cache_hit(struct file_ra_state *ra, int nr)
++{
++	return (ra->cache_hits >> (nr * 16)) & 0xFFFF;
++}
++
++/*
++ * Conceptual code:
++ * ra_cache_hit(ra, 1) += ra_cache_hit(ra, 0);
++ * ra_cache_hit(ra, 0) = 0;
++ */
++static void ra_addup_cache_hit(struct file_ra_state *ra)
++{
++	int n;
++
++	n = ra_cache_hit(ra, 0);
++	ra->cache_hits -= n;
++	n <<= 16;
++	ra->cache_hits += n;
++}
++
++/*
++ * The read-ahead is deemed success if cache-hit-rate >= 1/readahead_hit_rate.
++ */
++static int ra_cache_hit_ok(struct file_ra_state *ra)
++{
++	return ra_cache_hit(ra, 0) * readahead_hit_rate >=
++					(ra->lookahead_index - ra->la_index);
++}
++
++/*
++ * Check if @index falls in the @ra request.
++ */
++static int ra_has_index(struct file_ra_state *ra, pgoff_t index)
++{
++	if (index < ra->la_index || index >= ra->readahead_index)
++		return 0;
++
++	if (index >= ra->ra_index)
++		return 1;
++	else
++		return -1;
++}
++
++/*
++ * Which method is issuing this read-ahead?
++ */
++static void ra_set_class(struct file_ra_state *ra,
++				enum ra_class ra_class)
++{
++	unsigned long flags_mask;
++	unsigned long flags;
++	unsigned long old_ra_class;
++
++	flags_mask = ~(RA_CLASS_MASK | (RA_CLASS_MASK << RA_CLASS_SHIFT));
++	flags = ra->flags & flags_mask;
++
++	old_ra_class = ra_class_new(ra) << RA_CLASS_SHIFT;
++
++	ra->flags = flags | old_ra_class | ra_class;
++
++	ra_addup_cache_hit(ra);
++	if (ra_class != RA_CLASS_STATE)
++		ra->cache_hits <<= 16;
++
++	ra->age = node_readahead_aging();
++}
++
++/*
++ * Where is the old read-ahead and look-ahead?
++ */
++static void ra_set_index(struct file_ra_state *ra,
++				pgoff_t la_index, pgoff_t ra_index)
++{
++	ra->la_index = la_index;
++	ra->ra_index = ra_index;
++}
++
++/*
++ * Where is the new read-ahead and look-ahead?
++ */
++static void ra_set_size(struct file_ra_state *ra,
++				unsigned long ra_size, unsigned long la_size)
++{
++	/* Disable look-ahead for loopback file. */
++	if (unlikely(ra->flags & RA_FLAG_NO_LOOKAHEAD))
++		la_size = 0;
++
++	ra->readahead_index = ra->ra_index + ra_size;
++	ra->lookahead_index = ra->readahead_index - la_size;
++}
++
++/*
++ * Submit IO for the read-ahead request in file_ra_state.
++ */
++static int ra_dispatch(struct file_ra_state *ra,
++			struct address_space *mapping, struct file *filp)
++{
++	enum ra_class ra_class = ra_class_new(ra);
++	unsigned long ra_size = ra_readahead_size(ra);
++	unsigned long la_size = ra_lookahead_size(ra);
++	pgoff_t eof_index = PAGES_BYTE(i_size_read(mapping->host)) + 1;
++	int actual;
++
++	if (unlikely(ra->ra_index >= eof_index))
++		return 0;
++
++	/* Snap to EOF. */
++	if (ra->readahead_index + ra_size / 2 > eof_index) {
++		if (ra_class == RA_CLASS_CONTEXT_AGGRESSIVE &&
++				eof_index > ra->lookahead_index + 1)
++			la_size = eof_index - ra->lookahead_index;
++		else
++			la_size = 0;
++		ra_size = eof_index - ra->ra_index;
++		ra_set_size(ra, ra_size, la_size);
++		ra->flags |= RA_FLAG_EOF;
++	}
++
++	actual = __do_page_cache_readahead(mapping, filp,
++					ra->ra_index, ra_size, la_size);
++
++#ifdef CONFIG_DEBUG_READAHEAD
++	if (ra->flags & RA_FLAG_MMAP)
++		ra_account(ra, RA_EVENT_READAHEAD_MMAP, actual);
++	if (ra->readahead_index == eof_index)
++		ra_account(ra, RA_EVENT_READAHEAD_EOF, actual);
++	if (la_size)
++		ra_account(ra, RA_EVENT_LOOKAHEAD, la_size);
++	if (ra_size > actual)
++		ra_account(ra, RA_EVENT_IO_CACHE_HIT, ra_size - actual);
++	ra_account(ra, RA_EVENT_READAHEAD, actual);
++
++	dprintk("readahead-%s(ino=%lu, index=%lu, ra=%lu+%lu-%lu) = %d\n",
++			ra_class_name[ra_class],
++			mapping->host->i_ino, ra->la_index,
++			ra->ra_index, ra_size, la_size, actual);
++#endif /* CONFIG_DEBUG_READAHEAD */
++
++	return actual;
++}
++
++/*
+  * ra_min is mainly determined by the size of cache memory. Reasonable?
+  *
+  * Table of concrete numbers for 4KB page size:
+@@ -925,10 +1109,10 @@ static void ra_account(struct file_ra_st
+ 		return;
  
-+	q->backing_dev_info = default_backing_dev_info;
- 	q->backing_dev_info.unplug_io_fn = blk_backing_dev_unplug;
- 	q->backing_dev_info.unplug_io_data = q;
+ 	if (e == RA_EVENT_READAHEAD_HIT && pages < 0) {
+-		c = (ra->flags >> RA_CLASS_SHIFT) & RA_CLASS_MASK;
++		c = ra_class_old(ra);
+ 		pages = -pages;
+ 	} else if (ra)
+-		c = ra->flags & RA_CLASS_MASK;
++		c = ra_class_new(ra);
+ 	else
+ 		c = RA_CLASS_NONE;
  
 
 --

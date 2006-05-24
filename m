@@ -1,105 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932689AbWEXL1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932694AbWEXL2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932689AbWEXL1x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 07:27:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932727AbWEXL0j
+	id S932694AbWEXL2i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 07:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932692AbWEXL2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 07:26:39 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:16769 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932685AbWEXLTI (ORCPT
+	Wed, 24 May 2006 07:28:23 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:31104 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932696AbWEXLTG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 07:19:08 -0400
-Message-ID: <348469542.39504@ustc.edu.cn>
+	Wed, 24 May 2006 07:19:06 -0400
+Message-ID: <348469537.15678@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060524111904.019763011@localhost.localdomain>
+Message-Id: <20060524111858.357709745@localhost.localdomain>
 References: <20060524111246.420010595@localhost.localdomain>
-Date: Wed, 24 May 2006 19:13:00 +0800
+Date: Wed, 24 May 2006 19:12:49 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 14/33] readahead: state based method - data structure
-Content-Disposition: inline; filename=readahead-method-stateful-data.patch
+Subject: [PATCH 03/33] radixtree: hole scanning functions
+Content-Disposition: inline; filename=radixtree-scan-hole.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Extend struct file_ra_state to support the adaptive read-ahead logic.
+Introduce a pair of functions to scan radix tree for hole/empty item.
+
+ include/linux/radix-tree.h |    4 +
+ lib/radix-tree.c           |  104 +++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 108 insertions(+)
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- include/linux/fs.h |   57 +++++++++++++++++++++++++++++++++++++++++++----------
- 1 files changed, 47 insertions(+), 10 deletions(-)
-
---- linux-2.6.17-rc4-mm3.orig/include/linux/fs.h
-+++ linux-2.6.17-rc4-mm3/include/linux/fs.h
-@@ -613,21 +613,58 @@ struct fown_struct {
+--- linux-2.6.17-rc4-mm3.orig/include/linux/radix-tree.h
++++ linux-2.6.17-rc4-mm3/include/linux/radix-tree.h
+@@ -74,6 +74,10 @@ unsigned int radix_tree_cache_count(stru
+ void *radix_tree_cache_lookup_parent(struct radix_tree_root *root,
+ 				struct radix_tree_cache *cache,
+ 				unsigned long index, unsigned int level);
++unsigned long radix_tree_scan_hole_backward(struct radix_tree_root *root,
++				unsigned long index, unsigned long max_scan);
++unsigned long radix_tree_scan_hole(struct radix_tree_root *root,
++				unsigned long index, unsigned long max_scan);
+ unsigned int
+ radix_tree_gang_lookup(struct radix_tree_root *root, void **results,
+ 			unsigned long first_index, unsigned int max_items);
+--- linux-2.6.17-rc4-mm3.orig/lib/radix-tree.c
++++ linux-2.6.17-rc4-mm3/lib/radix-tree.c
+@@ -427,6 +427,110 @@ unsigned int radix_tree_cache_count(stru
+ EXPORT_SYMBOL(radix_tree_cache_count);
  
- /*
-  * Track a single file's readahead state
+ /**
++ *	radix_tree_scan_hole_backward    -    scan backward for hole
++ *	@root:		radix tree root
++ *	@index:		index key
++ *	@max_scan:      advice on max items to scan (it may scan a little more)
 + *
-+ * Diagram for the adaptive readahead logic:
++ *      Scan backward from @index for a hole/empty item, stop when
++ *      - hit hole
++ *      - @max_scan or more items scanned
++ *      - hit index 0
 + *
-+ *  |--------- old chunk ------->|-------------- new chunk -------------->|
-+ *  +----------------------------+----------------------------------------+
-+ *  |               #            |                  #                     |
-+ *  +----------------------------+----------------------------------------+
-+ *                  ^            ^                  ^                     ^
-+ *  file_ra_state.la_index    .ra_index   .lookahead_index      .readahead_index
-+ *
-+ * Deduced sizes:
-+ *                               |----------- readahead size ------------>|
-+ *  +----------------------------+----------------------------------------+
-+ *  |               #            |                  #                     |
-+ *  +----------------------------+----------------------------------------+
-+ *                  |------- invoke interval ------>|-- lookahead size -->|
-  */
- struct file_ra_state {
--	unsigned long start;		/* Current window */
--	unsigned long size;
--	unsigned long flags;		/* ra flags RA_FLAG_xxx*/
--	unsigned long cache_hit;	/* cache hit count*/
--	unsigned long prev_page;	/* Cache last read() position */
--	unsigned long ahead_start;	/* Ahead window */
--	unsigned long ahead_size;
--	unsigned long ra_pages;		/* Maximum readahead window */
--	unsigned long mmap_hit;		/* Cache hit stat for mmap accesses */
--	unsigned long mmap_miss;	/* Cache miss stat for mmap accesses */
-+	union {
-+		struct { /* conventional read-ahead */
-+			unsigned long start;		/* Current window */
-+			unsigned long size;
-+			unsigned long ahead_start;	/* Ahead window */
-+			unsigned long ahead_size;
-+			unsigned long cache_hit;        /* cache hit count */
-+		};
-+#ifdef CONFIG_ADAPTIVE_READAHEAD
-+		struct { /* adaptive read-ahead */
-+			pgoff_t la_index;
-+			pgoff_t ra_index;
-+			pgoff_t lookahead_index;
-+			pgoff_t readahead_index;
-+			unsigned long age;
-+			uint64_t cache_hits;
-+		};
-+#endif
-+	};
++ *      Return the correponding index.
++ */
++unsigned long radix_tree_scan_hole_backward(struct radix_tree_root *root,
++				unsigned long index, unsigned long max_scan)
++{
++	struct radix_tree_cache cache;
++	struct radix_tree_node *node;
++	unsigned long origin;
++	int i;
 +
-+	/* mmap read-around */
-+	unsigned long mmap_hit;         /* Cache hit stat for mmap accesses */
-+	unsigned long mmap_miss;        /* Cache miss stat for mmap accesses */
++	origin = index;
++        radix_tree_cache_init(&cache);
 +
-+	/* common ones */
-+	unsigned long flags;            /* ra flags RA_FLAG_xxx*/
-+	unsigned long prev_page;        /* Cache last read() position */
-+	unsigned long ra_pages;         /* Maximum readahead window */
- };
- #define RA_FLAG_MISS 0x01	/* a cache miss occured against this file */
- #define RA_FLAG_INCACHE 0x02	/* file is already in cache */
-+#define RA_FLAG_MMAP		(1UL<<31)	/* mmaped page access */
-+#define RA_FLAG_NO_LOOKAHEAD	(1UL<<30)	/* disable look-ahead */
-+#define RA_FLAG_EOF		(1UL<<29)	/* readahead hits EOF */
- 
- struct file {
- 	/*
++	while (origin - index < max_scan) {
++		node = radix_tree_cache_lookup_parent(root, &cache, index, 1);
++		if (!node)
++			break;
++
++		if (node->count == RADIX_TREE_MAP_SIZE) {
++			index = (index - RADIX_TREE_MAP_SIZE) |
++					RADIX_TREE_MAP_MASK;
++			goto check_underflow;
++		}
++
++		for (i = index & RADIX_TREE_MAP_MASK; i >= 0; i--, index--) {
++			if (!node->slots[i])
++				goto out;
++		}
++
++check_underflow:
++		if (unlikely(index == ULONG_MAX)) {
++			index = 0;
++			break;
++		}
++	}
++
++out:
++	return index;
++}
++EXPORT_SYMBOL(radix_tree_scan_hole_backward);
++
++/**
++ *	radix_tree_scan_hole    -    scan for hole
++ *	@root:		radix tree root
++ *	@index:		index key
++ *	@max_scan:      advice on max items to scan (it may scan a little more)
++ *
++ *      Scan forward from @index for a hole/empty item, stop when
++ *      - hit hole
++ *      - hit EOF
++ *      - hit index ULONG_MAX
++ *      - @max_scan or more items scanned
++ *
++ *      Return the correponding index.
++ */
++unsigned long radix_tree_scan_hole(struct radix_tree_root *root,
++				unsigned long index, unsigned long max_scan)
++{
++	struct radix_tree_cache cache;
++	struct radix_tree_node *node;
++	unsigned long origin;
++	int i;
++
++	origin = index;
++        radix_tree_cache_init(&cache);
++
++	while (index - origin < max_scan) {
++		node = radix_tree_cache_lookup_parent(root, &cache, index, 1);
++		if (!node)
++			break;
++
++		if (node->count == RADIX_TREE_MAP_SIZE) {
++			index = (index | RADIX_TREE_MAP_MASK) + 1;
++			goto check_overflow;
++		}
++
++		for (i = index & RADIX_TREE_MAP_MASK; i < RADIX_TREE_MAP_SIZE;
++								i++, index++) {
++			if (!node->slots[i])
++				goto out;
++		}
++
++check_overflow:
++		if (unlikely(!index)) {
++			index = ULONG_MAX;
++			break;
++		}
++	}
++out:
++	return index;
++}
++EXPORT_SYMBOL(radix_tree_scan_hole);
++
++/**
+  *	radix_tree_tag_set - set a tag on a radix tree node
+  *	@root:		radix tree root
+  *	@index:		index key
 
 --

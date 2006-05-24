@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932754AbWEXPzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932756AbWEXPz4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932754AbWEXPzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 11:55:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932756AbWEXPzQ
+	id S932756AbWEXPz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 11:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932757AbWEXPz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 11:55:16 -0400
-Received: from gold.veritas.com ([143.127.12.110]:3444 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S932754AbWEXPzO (ORCPT
+	Wed, 24 May 2006 11:55:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3742 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932756AbWEXPzy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 11:55:14 -0400
-X-IronPort-AV: i="4.05,167,1146466800"; 
-   d="scan'208"; a="59830328:sNHT29432644"
-Date: Wed, 24 May 2006 16:55:07 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Christoph Lameter <clameter@sgi.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH mm] swapless page migration: fix swapops.h:97 BUG
-In-Reply-To: <Pine.LNX.4.64.0605240816080.15446@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.64.0605241646380.16435@blonde.wat.veritas.com>
-References: <Pine.LNX.4.64.0605241329010.9391@blonde.wat.veritas.com>
- <Pine.LNX.4.64.0605240816080.15446@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 24 May 2006 15:55:12.0348 (UTC) FILETIME=[70CDC9C0:01C67F4A]
+	Wed, 24 May 2006 11:55:54 -0400
+Date: Wed, 24 May 2006 08:54:14 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Sam Vilain <sam.vilain@catalyst.net.nz>
+Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org, serue@us.ibm.com,
+       herbert@13thfloor.at, dev@sw.ru, devel@openvz.org, sam@vilain.net,
+       xemul@sw.ru, haveblue@us.ibm.com, clg@fr.ibm.com,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH 3/3] proc: make UTS-related sysctls utsns aware
+Message-Id: <20060524085414.40b980f5.akpm@osdl.org>
+In-Reply-To: <20060523012301.13531.12776.stgit@localhost.localdomain>
+References: <20060523012300.13531.96685.stgit@localhost.localdomain>
+	<20060523012301.13531.12776.stgit@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 May 2006, Christoph Lameter wrote:
-> 
-> Thats is very subtle. I hope there are no other areas where the child vma 
-> has to be processed before the parent vma?
+Sam Vilain <sam.vilain@catalyst.net.nz> wrote:
+>
+> Add a new function proc_do_utsns_string, that derives the pointer
+>  into the uts_namespace->name structure, currently based on the
+>  filename of the dentry in /proc, and calls _proc_do_string()
+>  ---
+>  RFC only - not tested yet.  builds, though
 
-I've considered, and very much doubt it; and if there are, they'd
-have to be peculiar to anonymous, since they'd already have been
-wrong for the vma_prio_tree cases.
+So... is it tested yet?
 
-> An alternative would be to 
-> make remove_anon_migration_ptes walk the list in reverse and add a big 
-> comment.
+You owe me three Signed-off-by:s, please.
 
-No, even without this migration issue, I'd much rather have anon_vmas
-inserted in the new list_add_tail way, matching the prio_tree direction.
-It's asking for trouble to have opposite conventions there (and much
-less surprising to insert child after parent than before).
-
-Hugh

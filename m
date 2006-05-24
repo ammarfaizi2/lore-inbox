@@ -1,268 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932635AbWEXHIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932636AbWEXHKX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932635AbWEXHIP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 03:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932633AbWEXHIP
+	id S932636AbWEXHKX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 03:10:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932633AbWEXHKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 03:08:15 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:47759 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S932634AbWEXHIO (ORCPT
+	Wed, 24 May 2006 03:10:22 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:8140 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932627AbWEXHKV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 03:08:14 -0400
-Date: Wed, 24 May 2006 03:08:13 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: linux-ide@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: What's in libata-dev.git
-Message-ID: <20060524070813.GA11438@havoc.gtf.org>
+	Wed, 24 May 2006 03:10:21 -0400
+Date: Wed, 24 May 2006 12:36:06 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+To: David Chinner <dgc@sgi.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] Per-superblock unused dentry LRU lists.
+Message-ID: <20060524070605.GA7743@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+References: <20060524012412.GB7412499@melbourne.sgi.com> <20060524050214.GB9639@in.ibm.com> <20060524061933.GG7418631@melbourne.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060524061933.GG7418631@melbourne.sgi.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The 'upstream' branch of
-git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+> per-sb, you mean? ;)
 
-contains the following updates (queued for 2.6.18):
+Yes.
 
- drivers/ide/pci/amd74xx.c         |    7 
- drivers/scsi/Makefile             |    2 
- drivers/scsi/ahci.c               |  436 +++---
- drivers/scsi/ata_piix.c           |   25 
- drivers/scsi/libata-bmdma.c       |  143 ++
- drivers/scsi/libata-core.c        | 2525 ++++++++++++++++++++++++--------------
- drivers/scsi/libata-eh.c          | 1561 +++++++++++++++++++++++
- drivers/scsi/libata-scsi.c        |  408 +++---
- drivers/scsi/libata.h             |   24 
- drivers/scsi/pdc_adma.c           |   10 
- drivers/scsi/sata_mv.c            |   70 -
- drivers/scsi/sata_nv.c            |   13 
- drivers/scsi/sata_promise.c       |   39 
- drivers/scsi/sata_qstor.c         |   14 
- drivers/scsi/sata_sil.c           |   66 
- drivers/scsi/sata_sil24.c         |  615 +++++----
- drivers/scsi/sata_sis.c           |    3 
- drivers/scsi/sata_svw.c           |    5 
- drivers/scsi/sata_sx4.c           |   20 
- drivers/scsi/sata_uli.c           |    3 
- drivers/scsi/sata_via.c           |    3 
- drivers/scsi/sata_vsc.c           |   16 
- drivers/scsi/scsi.c               |   18 
- drivers/scsi/scsi_error.c         |   24 
- drivers/scsi/scsi_lib.c           |    2 
- drivers/scsi/scsi_transport_api.h |    6 
- include/linux/ata.h               |   34 
- include/linux/libata.h            |  386 ++++-
- include/linux/pci_ids.h           |    4 
- include/scsi/scsi_cmnd.h          |    1 
- include/scsi/scsi_host.h          |    1 
- 31 files changed, 4764 insertions(+), 1720 deletions(-)
+> 
+> > You can use trylock. Please see the patches in -mm to fix the umount
+> > race.
+> 
+> I'm not sure what unmount race you are talking about.
+> 
+> AFAICT, there is no race here - we've got a reference on the superblock so  it
+> can't go away and the lru list is protected by the dcache_lock, so there's
+> nothing else we can race with. However, we can deadlock by taking the
+> s_umount lock here. So why even bother to try to take the lock when we don't
+> actually need it?
 
-Alan Cox:
-      libata: PIO 0
-      libata - fix bracketing and DMA oops
-      PATCH: libata. Add ->data_xfer method
-      ata_piix formatting
-      libata: Remove obsolete flag
+Please read the thread at http://lkml.org/lkml/2006/4/2/101.
 
-Albert Lee:
-      libata: interrupt driven pio for libata-core
-      libata: interrupt driven pio for LLD
-      libata irq-pio: add comments and cleanup
-      libata irq-pio: rename atapi_packet_task() and comments
-      libata irq-pio: simplify if condition in ata_dataout_task()
-      libata irq-pio: cleanup ata_qc_issue_prot()
-      libata: move atapi_send_cdb() and ata_dataout_task()
-      [libata irq-pio] reorganize ata_pio_sector() and __atapi_pio_bytes()
-      [libata irq-pio] reorganize "buf + offset" in ata_pio_sector()
-      [libata irq-pio] use PageHighMem() to optimize the kmap_atomic() usage
-      libata irq-pio: misc fixes
-      libata irq-pio: merge the ata_dataout_task workqueue with ata_pio_task workqueue
-      libata irq-pio: eliminate unnecessary queuing in ata_pio_first_block()
-      libata irq-pio: add read/write multiple support
-      libata-dev: determine err_mask when error is found
-      libata-dev: filter out noisy ATAPI error messages
-      libata-dev: Fix array index value in ata_rwcmd_protocol()
-      libata-dev: Use new ata_queue_pio_task() for PIO polling task
-      libata-dev: Use new AC_ERR_* flags
-      libata-dev: Minor comment fix
-      libata-dev: recognize WRITE_MULTI_FUA_EXT for r/w multiple
-      libata-dev: Remove trailing whitespaces
-      libata-dev: Fix merge problem with upstream
-      libata-dev: Remove atapi_packet_task()
-      libata-dev: Move out the HSM code from ata_host_intr()
-      libata-dev: Minor fix for ata_hsm_move() to work with ata_host_intr()
-      libata-dev: Let ata_hsm_move() work with both irq-pio and polling pio
-      libata-dev: Convert ata_pio_task() to use the new ata_hsm_move()
-      libata-dev: Cleanup unused enums/functions
-      libata-dev: ata_check_atapi_dma() fix for ATA_FLAG_PIO_POLLING LLDDs
-      libata-dev: Make the the in_wq check as an inline function
-      libata-dev: irq-pio minor fixes (respin)
-      libata-dev: fix the device err check sequence (respin)
-      libata-dev: wait idle after reading the last data block
-      libata-dev: print out information for ATAPI devices with CDB interrupts
-      libata-dev: handle DRQ=1 ERR=1 (revised)
-      libata-dev: irq-pio minor fix
-      libata-dev: irq-pio minor fix 2
-      libata: convert ATAPI_ENABLE_DMADIR to module parameter
-      libata: Fix the HSM error_mask mapping (was: Re: libata-tj and SMART)
-      libata: use qc->result_tf for temp taskfile storage
-      libata: add pio flush for via atapi (was: Re: TR: ASUS A8V Deluxe, x86_64)
-      libata: minor fix for irq-pio merge
+> 
+> > > +		if (__put_super_and_need_restart(sb) && count)
+> > > +			goto restart;
+> > 
+> > Comment please.
+> 
+> I'm not sure what a comment needs to explain that the code doesn't.
+> Which bit do you think needs commenting?
 
-Andrew Chew:
-      sata_nv: Add MCP61 support
+I was referring to the __put_super_and_need_restart() part.
 
-Bastiaan Jacques:
-      ahci: add support for VIA VT8251
+> > This should not be required with per super-block dentries. The only
+> > reason, I think we moved dentries to the tail is to club all entries
+> > from the sb together (to free them all at once).
+> 
+> I think we still need to do that. We get called in contexts that aren't
+> related to unmounting, so we want these dentries to be the first
+> to be reclaimed from that superblock when we next call prune_dcache().
 
-Jeff Garzik:
-      [libata irq-pio] build fix
-      [libata pdc_adma] update for removal of ATA_FLAG_NOINTR
-      [libata pdc_adma] fix for new irq-driven PIO code
-      [libata sata_mv] IRQ PIO build fix
-      [libata] irq-pio: fix breakage related to err_mask merge
-      [libata sata_promise] irq_pio: fix merge bug
-      [libata] build fix after merging some pre-packet_task-removal code
-      [libata irq-pio] s/assert/WARN_ON/
-      [libata] build fix after cdb_len move
-      sata_vsc build fix
-      libata: irq-pio build fixes
-      [libata] irq-pio: fix build breakage
-      [libata] irq-pio: Fix merge mistake
-      [libata] kill bogus cut-n-pasted comments in three drivers
-      [libata] bump versions
-      libata: Fix EH merge difference between this branch and upstream.
-      libata: Add helper ata_shost_to_port()
-      [libata sata_promise] Add PATA cable detection.
-      [libata] libata-scsi, sata_mv: trim trailing whitespace
+Is it? I quickly checked the callers of shrink_dcache_sb() and all of
+them seem to be mount related. shrink_dcache_parent() is another story.
+Am I missing something? Code reference will be particularly useful.
 
-Luben Tuikov:
-      SCSI: Introduce scsi_req_abort_cmd (REPOST)
+> 
+> No. Right now I just want to fix the problem that has been reported with
+> shrink_dcache_sb().
 
-Mark Lord:
-      sata_mv: endian annotations
+Sure.
 
-Tejun Heo:
-      libata: increase LBA48 max sectors to 65535
-      libata: fix ata_set_mode() return value
-      libata: make ata_bus_probe() return negative errno on failure
-      libata: separate out ata_spd_string()
-      libata: convert do_probe_reset() to ata_do_reset()
-      libata: implement ata_dev_enabled and disabled()
-      libata: make ata_set_mode() handle no-device case properly
-      libata: reorganize ata_set_mode()
-      libata: don't disable devices from ata_set_mode()
-      libata: preserve SATA SPD setting over hard resets
-      libata: implement ata_dev_absent()
-      libata: implement ap->sata_spd_limit and helpers
-      libata: use SATA speed down in ata_drive_probe_reset()
-      libata: add 5s sleep between resets
-      libata: implement ata_down_xfermask_limit()
-      libata: improve ata_bus_probe()
-      libata: consider disabled devices in ata_dev_xfermask()
-      libata: report device number when PIO fails
-      libata: ata_dev_revalidate() printk update
-      libata: ATA_FLAG_IN_EH is not used, kill it
-      libata: clean up constants
-      libata: rename ATA_FLAG_PORT_DISABLED to ATA_FLAG_DISABLED
-      libata: clear only affected flags during ata_dev_configure()
-      libata: clear ATA_DFLAG_PIO before setting it
-      libata: add ATA_QCFLAG_IO
-      libata: pass qc around intead of ap during PIO
-      libata: always generate sense if qc->err_mask is non-zero
-      libata: don't read TF directly from sense generation functions
-      libata: add @cdb to ata_exec_internal()
-      libata: dec scmd->retries for qcs with zero err_mask
-      libata: separate out libata-eh.c
-      libata: make some libata-core routines extern
-      libata: print SControl in SATA link status info message
-      ahci: do not fail softreset if PHY reports no device
-      libata: set default cbl in probeinit
-      libata: kill @verbose from ata_reset_fn_t
-      libata: make reset methods complain when they fail
-      sata_sil24: fix timeout calculation in sil24_softreset
-      sata_sil24: better error message from softreset
-      libata: implement ata_wait_register()
-      ahci: use ata_wait_register()
-      sata_sil24: use ata_wait_register()
-      libata: disable failed devices only once in ata_bus_probe()
-      libata: cosmetic update to ata_bus_probe()
-      libata: export ata_set_sata_spd()
-      sata_sil24: typo fix
-      sata_sil24: rename PORT_IRQ_SDB_FIS to PORT_IRQ_SDB_NOTIFY
-      sata_sil24: add more constants
-      sata_sil24: consolidate host flags into SIL24_COMMON_FLAGS
-      sata_sil24: implement loss of completion interrupt on PCI-X errta fix
-      sata_sil24: implement sil24_init_port()
-      sata_sil24: put port into known state before softresetting
-      sata_sil24: kill 10ms sleep in softreset
-      sata_sil24: reimplement hardreset
-      sata_sil24: don't do hardreset during driver initialization
-      sata_sil24: fix on-memory structure byteorder
-      sata_sil24: enable 64bit
-      SCSI: implement shost->host_eh_scheduled
-      libata: silly fix in ata_scsi_start_stop_xlat()
-      libata: rename ata_down_sata_spd_limit() and friends
-      ahci: hardreset classification fix
-      libata: unexport ata_scsi_error()
-      libata: kill duplicate prototypes
-      libata: fix ->phy_reset class code handling in ata_bus_probe()
-      libata: clear ap->active_tag atomically w.r.t. command completion
-      libata: hold host_set lock while finishing internal qc
-      libata: use preallocated buffers
-      libata: move ->set_mode() handling into ata_set_mode()
-      libata: remove postreset handling from ata_do_reset()
-      libata: implement qc->result_tf
-      sata_sil24: update TF image only when necessary
-      libata: init ap->cbl to ATA_CBL_SATA early
-      libata: implement new SCR handling and port on/offline functions
-      libata: use new SCR and on/offline functions
-      libata: kill old SCR functions and sata_dev_present()
-      libata: add dev->ap
-      libata: use dev->ap
-      libata: implement ATA printk helpers
-      libata: use ATA printk helpers
-      libata-eh-fw: add flags and operations for new EH
-      libata-eh-fw: clear SError in ata_std_postreset()
-      libata-eh-fw: use special reserved tag and qc for internal commands
-      libata-eh-fw: update ata_qc_from_tag() to enforce normal/EH qc ownership
-      libata-eh-fw: implement new EH scheduling via error completion
-      libata-eh-fw: implement ata_port_schedule_eh() and ata_port_abort()
-      libata-eh-fw: implement freeze/thaw
-      libata-eh-fw: implement new EH scheduling from PIO
-      libata-eh-fw: update ata_scsi_error() for new EH
-      libata-eh-fw: update ata_exec_internal() for new EH
-      libata-eh-fw: update SCSI command completion path for new EH
-      libata-eh: add ATA and libata flags for new EH
-      libata-eh: implement dev->ering
-      libata-eh: implement ata_eh_info and ata_eh_context
-      libata-eh: implement new EH
-      libata-eh: implement BMDMA EH
-      ata_piix: convert to new EH
-      sata_sil: convert to new EH
-      ahci: convert to new EH
-      ahci: add PIOS interim interrupt handling
-      sata_sil24: convert to new EH
-      libata: fix irq-pio merge
-      libata-ncq: add NCQ related ATA/libata constants and macros
-      libata-ncq: pass ata_scsi_translate() return value to SCSI midlayer
-      libata-ncq: rename ap->qactive to ap->qc_allocated
-      libata-ncq: implement ap->qc_active, ap->sactive and complete helper
-      libata-ncq: implement NCQ command translation and exclusion
-      libata-ncq: update EH to handle NCQ
-      libata-ncq: implement NCQ device configuration
-      ahci: clean up AHCI constants in preparation for NCQ
-      ahci: add HOST_CAP_NCQ constant
-      ahci: kill pp->cmd_tbl_sg
-      ahci: implement NCQ suppport
-      sata_sil24: implement NCQ support
-      libata: enforce default EH actions
-      SCSI: make scsi_implement_eh() generic API for SCSI transports
-
-Thomas Glanzmann:
-      Add PCI ID for the Intel IDE Controller which is in the Intel Mac Minis shipped in first quarter 2006
-
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

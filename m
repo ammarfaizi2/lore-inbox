@@ -1,284 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbWEXRSI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbWEXRSd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932431AbWEXRSI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 13:18:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWEXRSI
+	id S932437AbWEXRSd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 13:18:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWEXRSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 13:18:08 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:20717 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S932431AbWEXRSH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 13:18:07 -0400
-Date: Wed, 24 May 2006 19:18:54 +0200
-From: Jan Kara <jack@suse.cz>
-To: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
-Cc: sct@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Change ll_rw_block() calls in JBD
-Message-ID: <20060524171854.GA28568@atrey.karlin.mff.cuni.cz>
-References: <446C2F89.5020300@bull.net> <20060518134533.GA20159@atrey.karlin.mff.cuni.cz> <447423F7.5000002@bull.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 24 May 2006 13:18:32 -0400
+Received: from nz-out-0102.google.com ([64.233.162.194]:53096 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932437AbWEXRSc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 13:18:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=FYXXGrgLaq/UxaeNmkF2hne0w0G/QojHFyh1vqhQYH87KCvinxUIjq87QDVKt4lwUo9PO+i2INn6FEr9n6Dkjs+fyJukWe9xn4XsU7LNj+N9lmWdpJidepNglptId/GGLPSbvzdcObjO1laLyQM7qlS87sMwuLi9HJhsWZoBxYA=
+Message-ID: <3faf05680605241018q302d5c0em6844765f81669498@mail.gmail.com>
+Date: Wed, 24 May 2006 22:48:31 +0530
+From: "vamsi krishna" <vamsi.krishnak@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Program to convert core file to executable.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <447423F7.5000002@bull.net>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+Hello All,
 
-  I have tested my version of the patch yesterday so I'll post it in
-other mail... Anyway I have two objections to your version:
-  1) It does not solve the original problem with the fact that 'locked'
-     buffer does not mean 'buffer being written'. You cannot just refile
-     such buffers. You really have to check the dirty bit...
-  2) You drop j_list_lock after you write a single buffer. That may
-     impact the performance significantly (originally we dropped it only
-     for writing a bunch of buffers).
+o I have written the following program to convert a core file to a
+executable, and tried to execute the converted executable but my
+system __HANGED__, The kernel did'nt give any messages the complete
+system was stuck.
 
-								Honza
+o Theoretically , the OS loader should jump into the virtual address
+specified at 'ELF_HDR.e_entry and start executing instructions from
+that point if the ELF_TYPE is ET_EXEC.
 
-> --- linux-2.6.16.16-save/fs/jbd/commit.c	2006-05-19 
-> 15:00:50.000000000 +0200
-> +++ linux-2.6.16.16/fs/jbd/commit.c	2006-05-24 10:43:32.000000000 +0200
-> @@ -161,6 +161,107 @@
-> }
-> 
-> /*
-> + * Flush data from the "->t_sync_datalist" of the committing transaction.
-> + */
-> +static void write_out_sync_data(journal_t *journal,
-> +					transaction_t *commit_transaction)
-> +{
-> +	struct journal_head *jh;
-> +	struct buffer_head *bh;
-> +	int err = 0;
-> +
-> +	/*
-> +	 * Whenever we unlock the journal and sleep, things can get removed
-> +	 * from "->t_sync_datalist" by "journal_dirty_data()", so we have
-> +	 * to keep looping back to write_out_data until we *know* that the
-> +	 * list is empty.
-> +	 *
-> +	 * Cleanup any flushed data buffers from the data list.  Even in
-> +	 * abort mode, we want to flush this out as soon as possible.
-> +	 */
-> +write_out_data:
-> +	cond_resched();
-> +	spin_lock(&journal->j_list_lock);
-> +	while ((jh = commit_transaction->t_sync_datalist) != NULL){
-> +		bh = jh2bh(jh);
-> +		if (buffer_locked(bh)){		/* Unsafe */
-> +			BUFFER_TRACE(bh, "locked");
-> +			if (!inverted_lock(journal, bh)) /* 
-> jbd_lock_bh_state */
-> +				goto write_out_data;
-> +			/* "bh" may have been unlocked in the mean time */
-> +			__journal_file_buffer(jh, commit_transaction, 
-> BJ_Locked);
-> +			jbd_unlock_bh_state(bh);
-> +		} else {
-> +			/* "bh" may have become locked in the mean time */
-> +			if (buffer_dirty(bh)){	/* Unsafe */
-> +				if (test_set_buffer_locked(bh)){
-> +					BUFFER_TRACE(bh, "locked");
-> +					/* Put it on the BJ_Locked list */
-> +					continue;
-> +				}
-> +				if (test_clear_buffer_dirty(bh)){
-> +					BUFFER_TRACE(bh, "start journal wr");
-> +					spin_unlock(&journal->j_list_lock);
-> +					get_bh(bh);
-> +					bh->b_end_io = end_buffer_write_sync;
-> +					submit_bh(WRITE, bh);
-> +					/* Put it on the BJ_Locked list */
-> +					goto write_out_data;
-> +				}
-> +				unlock_buffer(bh);
-> +			} else {
-> +				/* "bh" may have become dirty in the mean 
-> time */
-> +				/* Just do nothing for this transaction */
-> +			}
-> +			BUFFER_TRACE(bh, "writeout complete: unfile");
-> +			if (!inverted_lock(journal, bh)) /* 
-> jbd_lock_bh_state */
-> +				goto write_out_data;
-> +			__journal_unfile_buffer(jh);
-> +			jbd_unlock_bh_state(bh);
-> +			journal_remove_journal_head(bh);
-> +			put_bh(bh);
-> +		}
-> +		if (lock_need_resched(&journal->j_list_lock)){
-> +			spin_unlock(&journal->j_list_lock);
-> +			goto write_out_data;
-> +		}
-> +	}
-> +	/*
-> +	 * Wait for all previously submitted IO to complete.
-> +	 */
-> +	while (commit_transaction->t_locked_list) {
-> +		jh = commit_transaction->t_locked_list->b_tprev;
-> +		bh = jh2bh(jh);
-> +		get_bh(bh);
-> +		if (buffer_locked(bh)) {
-> +			spin_unlock(&journal->j_list_lock);
-> +			wait_on_buffer(bh);
-> +			if (unlikely(!buffer_uptodate(bh)))
-> +				err = -EIO;
-> +			spin_lock(&journal->j_list_lock);
-> +		}
-> +		if (!inverted_lock(journal, bh)) {
-> +			put_bh(bh);
-> +			spin_lock(&journal->j_list_lock);
-> +			continue;
-> +		}
-> +		if (buffer_jbd(bh) && jh->b_jlist == BJ_Locked) {
-> +			__journal_unfile_buffer(jh);
-> +			jbd_unlock_bh_state(bh);
-> +			journal_remove_journal_head(bh);
-> +			put_bh(bh);
-> +		} else {
-> +			jbd_unlock_bh_state(bh);
-> +		}
-> +		put_bh(bh);
-> +		cond_resched_lock(&journal->j_list_lock);
-> +	}
-> +	spin_unlock(&journal->j_list_lock);
-> +	if (err)
-> +		__journal_abort_hard(journal);
-> +}
-> +
-> +/*
->  * journal_commit_transaction
->  *
->  * The primary function for committing a transaction to the log.  This
-> @@ -173,7 +274,7 @@
-> 	struct buffer_head **wbuf = journal->j_wbuf;
-> 	int bufs;
-> 	int flags;
-> -	int err;
-> +	int err = 0;
-> 	unsigned long blocknr;
-> 	char *tagp = NULL;
-> 	journal_header_t *header;
-> @@ -313,113 +414,7 @@
-> 	 * Now start flushing things to disk, in the order they appear
-> 	 * on the transaction lists.  Data blocks go first.
-> 	 */
-> -
-> -	err = 0;
-> -	/*
-> -	 * Whenever we unlock the journal and sleep, things can get added
-> -	 * onto ->t_sync_datalist, so we have to keep looping back to
-> -	 * write_out_data until we *know* that the list is empty.
-> -	 */
-> -	bufs = 0;
-> -	/*
-> -	 * Cleanup any flushed data buffers from the data list.  Even in
-> -	 * abort mode, we want to flush this out as soon as possible.
-> -	 */
-> -write_out_data:
-> -	cond_resched();
-> -	spin_lock(&journal->j_list_lock);
-> -
-> -	while (commit_transaction->t_sync_datalist) {
-> -		struct buffer_head *bh;
-> -
-> -		jh = commit_transaction->t_sync_datalist;
-> -		commit_transaction->t_sync_datalist = jh->b_tnext;
-> -		bh = jh2bh(jh);
-> -		if (buffer_locked(bh)) {
-> -			BUFFER_TRACE(bh, "locked");
-> -			if (!inverted_lock(journal, bh))
-> -				goto write_out_data;
-> -			__journal_temp_unlink_buffer(jh);
-> -			__journal_file_buffer(jh, commit_transaction,
-> -						BJ_Locked);
-> -			jbd_unlock_bh_state(bh);
-> -			if (lock_need_resched(&journal->j_list_lock)) {
-> -				spin_unlock(&journal->j_list_lock);
-> -				goto write_out_data;
-> -			}
-> -		} else {
-> -			if (buffer_dirty(bh)) {
-> -				BUFFER_TRACE(bh, "start journal writeout");
-> -				get_bh(bh);
-> -				wbuf[bufs++] = bh;
-> -				if (bufs == journal->j_wbufsize) {
-> -					jbd_debug(2, "submit %d writes\n",
-> -							bufs);
-> -					spin_unlock(&journal->j_list_lock);
-> -					ll_rw_block(SWRITE, bufs, wbuf);
-> -					journal_brelse_array(wbuf, bufs);
-> -					bufs = 0;
-> -					goto write_out_data;
-> -				}
-> -			} else {
-> -				BUFFER_TRACE(bh, "writeout complete: 
-> unfile");
-> -				if (!inverted_lock(journal, bh))
-> -					goto write_out_data;
-> -				__journal_unfile_buffer(jh);
-> -				jbd_unlock_bh_state(bh);
-> -				journal_remove_journal_head(bh);
-> -				put_bh(bh);
-> -				if 
-> (lock_need_resched(&journal->j_list_lock)) {
-> -					spin_unlock(&journal->j_list_lock);
-> -					goto write_out_data;
-> -				}
-> -			}
-> -		}
-> -	}
-> -
-> -	if (bufs) {
-> -		spin_unlock(&journal->j_list_lock);
-> -		ll_rw_block(SWRITE, bufs, wbuf);
-> -		journal_brelse_array(wbuf, bufs);
-> -		spin_lock(&journal->j_list_lock);
-> -	}
-> -
-> -	/*
-> -	 * Wait for all previously submitted IO to complete.
-> -	 */
-> -	while (commit_transaction->t_locked_list) {
-> -		struct buffer_head *bh;
-> -
-> -		jh = commit_transaction->t_locked_list->b_tprev;
-> -		bh = jh2bh(jh);
-> -		get_bh(bh);
-> -		if (buffer_locked(bh)) {
-> -			spin_unlock(&journal->j_list_lock);
-> -			wait_on_buffer(bh);
-> -			if (unlikely(!buffer_uptodate(bh)))
-> -				err = -EIO;
-> -			spin_lock(&journal->j_list_lock);
-> -		}
-> -		if (!inverted_lock(journal, bh)) {
-> -			put_bh(bh);
-> -			spin_lock(&journal->j_list_lock);
-> -			continue;
-> -		}
-> -		if (buffer_jbd(bh) && jh->b_jlist == BJ_Locked) {
-> -			__journal_unfile_buffer(jh);
-> -			jbd_unlock_bh_state(bh);
-> -			journal_remove_journal_head(bh);
-> -			put_bh(bh);
-> -		} else {
-> -			jbd_unlock_bh_state(bh);
-> -		}
-> -		put_bh(bh);
-> -		cond_resched_lock(&journal->j_list_lock);
-> -	}
-> -	spin_unlock(&journal->j_list_lock);
-> -
-> -	if (err)
-> -		__journal_abort_hard(journal);
-> +	write_out_sync_data(journal, commit_transaction);
-> 
-> 	journal_write_revoke_records(journal, commit_transaction);
-> 
-> 
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+o So I wrote a program which
+changes ELF_TYPE form ET_CORE to ET_EXEC and modifies e_entry to
+virtual address of the 'main' symbol, since the core file has valid offset
+to access the PHDRS, and for ET_EXEC the elf loader just need to map
+the PHDRS at the vaddr specified and start jump to e_entry.
+
+o Is there anything I'am missing, can some experts throw light on why
+kernel does not load this program, could it be a bug in the kernel code ?
+
+o The following is the program which converts core file to executable,
+its simple to use just compile it with 'gcc convertcore.c -o
+convertcore' , run with 'convertcore <core-file-name> <new-exec-name>
+<vaddr-of-main>'
+
+o I dump the core by CRTL+\
+
+really appreciate your inputs
+
+========================<BEGIN>===============================
+#include<elf.h>
+#include<stdio.h>
+#include<sys/types.h>
+#include<sys/stat.h>
+#include<fcntl.h>
+
+#ifndef __64_BIT__
+#define __32_BIT__
+#endif
+
+#ifdef __32_BIT__
+#define ELF_EHDR Elf32_Ehdr
+#else
+#define ELF_EHDR Elf64_Ehdr
+#endif
+
+ELF_EHDR place_holder;
+
+/*Chages the elf_header in the file with ptr */
+int ChangeElfHeader(int CoreFd, int WriteFd, unsigned long vaddr){
+
+      unsigned long got_len=0;
+
+      if((got_len = read(CoreFd,&place_holder,sizeof(ELF_EHDR)))
+              != sizeof(ELF_EHDR)){
+              perror("Unable to read the ELF Header::");
+              exit(1);
+      }
+      /*Change the ET_CORE tto ET_EXEC*/
+      if(place_holder.e_type == ET_CORE) {
+              place_holder.e_type = ET_EXEC;
+      } else {
+              fprintf(stderr,"The file is not of ELF core file");
+              exit(1);
+      }
+
+      /*Change the entry */
+
+      place_holder.e_entry = vaddr;
+
+      /*Write back the header*/
+      got_len = 0;
+      if (( got_len = write(WriteFd,&place_holder,sizeof(ELF_EHDR)))
+              != sizeof(ELF_EHDR)) {
+              perror("Unable to write the header::");
+              exit(1);
+      }
+      return 1;
+}

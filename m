@@ -1,107 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWEWXnw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbWEXAJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbWEWXnw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 19:43:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWEWXnw
+	id S932485AbWEXAJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 20:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWEXAJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 19:43:52 -0400
-Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:5530 "HELO
-	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932188AbWEWXnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 19:43:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=qfmtPIBmwWG4PJNpog0C1d1tQHTe58NbpIGToRmotLYySRLcuF6HjKDdKuhDLdDeF+vkudWllZq4NYDPZ1Szbd5YJQOeavN08s4781xW8WqDe2/bWaXb+pETmHMhtUn0hw4wruIIqADa6PQJvTAnCguRUdJLe40iHSAqKeCs8mE=  ;
-Message-ID: <44739E2D.60406@yahoo.com.au>
-Date: Wed, 24 May 2006 09:43:41 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Tue, 23 May 2006 20:09:59 -0400
+Received: from smtpq1.tilbu1.nb.home.nl ([213.51.146.200]:38296 "EHLO
+	smtpq1.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
+	id S932485AbWEXAJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 May 2006 20:09:58 -0400
+Message-ID: <4473A498.4070101@keyaccess.nl>
+Date: Wed, 24 May 2006 02:11:04 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-To: Dave Peterson <dsp@llnl.gov>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org, pj@sgi.com, ak@suse.de,
-       linux-mm@kvack.org, garlick@llnl.gov, mgrondona@llnl.gov
-Subject: Re: [PATCH (try #3)] mm: avoid unnecessary OOM kills
-References: <200605230032.k4N0WCIU023760@calaveras.llnl.gov> <4472A006.2090006@yahoo.com.au> <7.0.0.16.2.20060523094646.02429fd8@llnl.gov>
-In-Reply-To: <7.0.0.16.2.20060523094646.02429fd8@llnl.gov>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: libata PATA patch update
+References: <1147104400.3172.7.camel@localhost.localdomain> <445FD8D4.9030106@keyaccess.nl> <44739A36.90701@keyaccess.nl>
+In-Reply-To: <44739A36.90701@keyaccess.nl>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Peterson wrote:
-> At 10:39 PM 5/22/2006, Nick Piggin wrote:
-> 
->>Does this fix observed problems on real (or fake) workloads? Can we have
->>some more information about that?
+Rene Herman wrote:
 
-[snip]
+>> CD and DVD ROMs are also working fine, including readcd and CDDA.
+> 
+> Well, other than spamming the kernel message buffer into oblivion. Must
+> have missed these last time around
 
-OK, thanks.
+Confirmed. Realised I was on 2.6.17-rc4-ide1 now, and 2.6.17-rc3-ide1 last
+time, but I just downgraded and these messages are indeed also present on
+2.6.17-rc3-ide1.
 
->>I still don't quite understand why all this mechanism is needed. Suppose
->>that we single-thread the oom kill path (which isn't unreasonable, unless
->>you need really good OOM throughput :P), isn't it enough to find that any
->>process has TIF_MEMDIE set in order to know that an OOM kill is in progress?
->>
->>down(&oom_sem);
->>for each process {
->> if TIF_MEMDIE
->>    goto oom_in_progress;
->> else
->>   calculate badness;
->>}
->>up(&oom_sem);
+> but cdparanoia (regular cdparanoia) triggers tons and tons of these, with
+> both sr0 (hdc, a CD-RW) and sr1 (hdd, DVD-ROM):
 > 
-> 
-> That would be another way to do things.  It's a tradeoff between either
-> 
->     option A: Each task that enters the OOM code path must loop over all
->               tasks to determine whether an OOM kill is in progress.
-> 
->     or...
-> 
->     option B: We must declare an oom_kill_in_progress variable and add
->               the following snippet of code to mmput():
-> 
->                 put_swap_token(mm);
-> +               if (unlikely(test_bit(MM_FLAG_OOM_NOTIFY, &mm->flags)))
-> +                       oom_kill_finish();  /* terminate pending OOM kill */
->                 mmdrop(mm);
-> 
-> I think either option is reasonable (although I have a slight preference
-> for B since it eliminates substantial looping through the tasklist).
+> sg_write: data in/out 56/56 bytes for SCSI command 0x12--guessing data in;
+>   program cdparanoia not setting count and/or reply_len properly
+> sg_write: data in/out 26/26 bytes for SCSI command 0x5a--guessing data in;
+>   program cdparanoia not setting count and/or reply_len properly
+> sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
+>   program cdparanoia not setting count and/or reply_len properly
+> sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
+>   program cdparanoia not setting count and/or reply_len properly
+> sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
+>   program cdparanoia not setting count and/or reply_len properly
+> sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
+>   program cdparanoia not setting count and/or reply_len properly
+> sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
+>   program cdparanoia not setting count and/or reply_len properly
+> sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
+>   program cdparanoia not setting count and/or reply_len properly
+> sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
+>   program cdparanoia not setting count and/or reply_len properly
+> sg_write: data in/out 12/12 bytes for SCSI command 0x43--guessing data in;
+>   program cdparanoia not setting count and/or reply_len properly
+> printk: 106 messages suppressed.
+> sg_write: data in/out 30576/30576 bytes for SCSI command 0xbe--guessing 
+> data in;
+>   program cdparanoia not setting count and/or reply_len properly
+> printk: 1087 messages suppressed.
+> sg_write: data in/out 16464/16464 bytes for SCSI command 0xbe--guessing 
+> data in;
+>   program cdparanoia not setting count and/or reply_len properly
+> printk: 1147 messages suppressed.
+> sg_write: data in/out 30576/30576 bytes for SCSI command 0xbe--guessing 
+> data in;
+>   program cdparanoia not setting count and/or reply_len properly
 
-Don't you have to loop through the tasklist anyway? To find a task
-to kill?
-
-Either way, at the point of OOM, usually they should have gone through
-the LRU lists several times, so a little bit more CPU time shouldn't
-hurt.
-
-> 
-> 
->>Is all this really required? Shouldn't you just have in place the
->>mechanism to prevent concurrent OOM killings in the OOM code, and
->>so the page allocator doesn't have to bother with it at all (ie.
->>it can just call into the OOM killer, which may or may not actually
->>kill anything).
-> 
-> 
-> I agree it's desirable to keep the OOM killing logic as encapsulated
-> as possible.  However unless you are holding the oom kill semaphore
-> when you make your final attempt to allocate memory it's a bit racy.
-> Holding the OOM kill semaphore guarantees that our final allocation
-> failure before invoking the OOM killer occurred _after_ any previous
-> OOM kill victim freed its memory.  Thus we know we are not shooting
-> another process prematurely (i.e. before the memory-freeing effects
-> of our previous OOM kill have been felt).
-
-But there is so much fudge in it that I don't think it matters:
-pages could be freed from other sources, some reclaim might happen,
-the point at which OOM is declared is pretty arbitrary anyway, etc.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Rene.

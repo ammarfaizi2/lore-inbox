@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932600AbWEXReG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWEXRiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932600AbWEXReG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 13:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932607AbWEXReG
+	id S932309AbWEXRiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 13:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbWEXRiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 13:34:06 -0400
-Received: from smtp6.wanadoo.fr ([193.252.22.25]:16219 "EHLO smtp6.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S932600AbWEXReF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 13:34:05 -0400
-X-ME-UUID: 20060524173403560.88E121C000C3@mwinf0612.wanadoo.fr
-Subject: Re: OpenGL-based framebuffer concepts
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Cc: Matheus Izvekov <mizvekov@gmail.com>, Jon Smirl <jonsmirl@gmail.com>,
-       Helge Hafting <helge.hafting@aitel.hist.no>,
-       "D. Hazelton" <dhazelton@enter.net>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-In-Reply-To: <4474891D.9010205@ums.usu.ru>
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <44700ACC.8070207@gmail.com> <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com>
-	 <200605230048.14708.dhazelton@enter.net>
-	 <9e4733910605231017g146e16dfnd61eb22a72bd3f5f@mail.gmail.com>
-	 <6896241F-3389-4B20-9E42-3CCDDBFDD312@mac.com>
-	 <44740533.7040702@aitel.hist.no> <447465C6.3090501@ums.usu.ru>
-	 <9e4733910605240749r1ce9e9fehcfffb2f2e3aeab60@mail.gmail.com>
-	 <44747432.1090906@ums.usu.ru>
-	 <305c16960605240915p7961ddbfye90afd3cf7fbc372@mail.gmail.com>
-	 <4474891D.9010205@ums.usu.ru>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Wed, 24 May 2006 19:34:22 +0200
-Message-Id: <1148492064.16503.1.camel@bip.parateam.prv>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 8BIT
+	Wed, 24 May 2006 13:38:25 -0400
+Received: from nevyn.them.org ([66.93.172.17]:25258 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S932309AbWEXRiZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 13:38:25 -0400
+Date: Wed, 24 May 2006 13:38:22 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: vamsi krishna <vamsi.krishnak@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Program to convert core file to executable.
+Message-ID: <20060524173821.GA1292@nevyn.them.org>
+Mail-Followup-To: vamsi krishna <vamsi.krishnak@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <3faf05680605241018q302d5c0em6844765f81669498@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3faf05680605241018q302d5c0em6844765f81669498@mail.gmail.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mercredi 24 mai 2006 à 22:26 +0600, Alexander E. Patrakov a écrit :
-> Now suppose this.
+On Wed, May 24, 2006 at 10:48:31PM +0530, vamsi krishna wrote:
+> Hello All,
 > 
-> The kernel has to save the video memory contents somewhereto restore it after 
-> pressing Enter. This may swap something out. Whoops, swap is on that failed disk.
+> o I have written the following program to convert a core file to a
+> executable, and tried to execute the converted executable but my
+> system __HANGED__, The kernel did'nt give any messages the complete
+> system was stuck.
 > 
-> Or: lock the memory in advance, to avoid the use of swap. But this is not better 
-> than doing the same thing from a userspace application that shows a pop-up 
-> ballon with the contents of this oops. And it won't be affected by a disk 
-> failure, because it has everything already in memory.
+> o Theoretically , the OS loader should jump into the virtual address
+> specified at 'ELF_HDR.e_entry and start executing instructions from
+> that point if the ELF_TYPE is ET_EXEC.
+> 
+> o So I wrote a program which
+> changes ELF_TYPE form ET_CORE to ET_EXEC and modifies e_entry to
+> virtual address of the 'main' symbol, since the core file has valid offset
+> to access the PHDRS, and for ET_EXEC the elf loader just need to map
+> the PHDRS at the vaddr specified and start jump to e_entry.
 
-Don't save the framebuffer. Just send a message to the client
-application saying "fb is corrupted, please redraw". X11 can do it,
-console can do it.
+Look at the program headers.  Many of them probably have a file size of
+zero.  The code segments from the executable and shared libraries
+aren't present in the core file.
 
-	Xav
+Of course, the kernel shouldn't crash!  It sounds like a bug.
 
-
+-- 
+Daniel Jacobowitz
+CodeSourcery

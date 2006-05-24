@@ -1,94 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932607AbWEXRiv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932661AbWEXRnF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932607AbWEXRiv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 13:38:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932653AbWEXRiv
+	id S932661AbWEXRnF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 13:43:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932736AbWEXRnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 13:38:51 -0400
-Received: from hera.kernel.org ([140.211.167.34]:34436 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932607AbWEXRit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 13:38:49 -0400
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: sky2 hw csum failure [was Re: sky2 large MTU problems]
-Date: Wed, 24 May 2006 10:38:20 -0700
-Organization: OSDL
-Message-ID: <20060524103820.2e213a0b@localhost.localdomain>
-References: <6278d2220605240228v576dd66atdad4855b308e64bf@mail.gmail.com>
-Mime-Version: 1.0
+	Wed, 24 May 2006 13:43:04 -0400
+Received: from web50102.mail.yahoo.com ([206.190.38.30]:15983 "HELO
+	web50102.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932661AbWEXRnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 13:43:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=F/2aeX9VHhuemahkR7u4apq4EFxwNCJGVStkdOazyZGgw/T8fgyQVDi8P5tkcmpBjjeu2iOJ1AauyZJ7aalVEs8r1XBjBOO1lGkSdgQECyIs5OYSX/ouIb/7+nPdl1Vc5bYqH3fwVJ0m2vMbw9ruXKmch2rS3oU1pfKxwGD8DrA=  ;
+Message-ID: <20060524174303.2323.qmail@web50102.mail.yahoo.com>
+Date: Wed, 24 May 2006 10:43:03 -0700 (PDT)
+From: Doug Thompson <norsk5@yahoo.com>
+Subject: [PATCH 0/6]  EDAC Patch Set
+To: Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1148492299 28273 10.8.0.54 (24 May 2006 17:38:19 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Wed, 24 May 2006 17:38:19 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 2.1.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 May 2006 10:28:52 +0100
-"Daniel J Blueman" <daniel.blueman@gmail.com> wrote:
+This patch set applies to kernel 2.6.17-rc4 fine and to 2.6.17-rc4-mm1 with slight
+fuzz in the MAINTAINERs file.
 
-> Having done some more stress testing with sky2 1.4 (in 2.6.17-rc4) and
-> the latest patch, I have found problems when streaming lots of data
-> out of the sky2 interface (eg via samba serving a large file to GigE
-> client). Ultimately, the interface will stop sending.
-> 
-> Before this happens, I see lots of:
-> 
-> kernel: lan0: hw csum failure.
-> kernel:  [__skb_checksum_complete+86/96] __skb_checksum_complete+0x56/0x60
-> kernel:  [tcp_error+300/512] tcp_error+0x12c/0x200
-> kernel:  [poison_obj+41/96] poison_obj+0x29/0x60
-> kernel:  [tcp_error+0/512] tcp_error+0x0/0x200
-> kernel:  [ip_conntrack_in+157/1072] ip_conntrack_in+0x9d/0x430
-> kernel:  [kfree_skbmem+8/128] kfree_skbmem+0x8/0x80
-> kernel:  [arp_process+102/1408] arp_process+0x66/0x580
-> kernel:  [check_poison_obj+36/416] check_poison_obj+0x24/0x1a0
-> kernel:  [arp_process+102/1408] arp_process+0x66/0x580
-> kernel:  [nf_iterate+99/144] nf_iterate+0x63/0x90
-> kernel:  [ip_rcv_finish+0/608] ip_rcv_finish+0x0/0x260
-> kernel:  [nf_hook_slow+89/240] nf_hook_slow+0x59/0xf0
-> kernel:  [ip_rcv_finish+0/608] ip_rcv_finish+0x0/0x260
-> kernel:  [ip_rcv+386/1104] ip_rcv+0x182/0x450
-> kernel:  [ip_rcv_finish+0/608] ip_rcv_finish+0x0/0x260
-> kernel:  [packet_rcv_spkt+216/320] packet_rcv_spkt+0xd8/0x140
-> kernel:  [netif_receive_skb+476/784] netif_receive_skb+0x1dc/0x310
-> kernel:  [sky2_poll+879/2096] sky2_poll+0x36f/0x830
-> kernel:  [_spin_lock_irqsave+9/16] _spin_lock_irqsave+0x9/0x10
-> kernel:  [run_timer_softirq+290/416] run_timer_softirq+0x122/0x1a0
-> kernel:  [net_rx_action+108/256] net_rx_action+0x6c/0x100
-> kernel:  [__do_softirq+66/160] __do_softirq+0x42/0xa0
-> kernel:  [do_softirq+78/96] do_softirq+0x4e/0x60
-> kernel:  =======================
-> kernel:  [do_IRQ+90/160] do_IRQ+0x5a/0xa0
-> kernel:  [remove_vma+69/80] remove_vma+0x45/0x50
-> kernel:  [common_interrupt+26/32] common_interrupt+0x1a/0x20
-> kernel:  [get_offset_pmtmr+151/3584] get_offset_pmtmr+0x97/0xe00
-> kernel:  [do_gettimeofday+26/208] do_gettimeofday+0x1a/0xd0
-> kernel:  [sys_gettimeofday+26/144] sys_gettimeofday+0x1a/0x90
-> kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+The following set of patches to EDAC provide various cleanups of the EDAC core and
+memory controller drivers.  Most of which came from Dave Peterson and from others.
 
+edac-pci_dep.patch
+Change MC drivers from using CVS revisions strings for their version number,
+Now each driver has its own local string.
 
-What ever the netfilter chain is, it is trimming or altering the packet
-without clearing or altering the hardware checksum. It is not a driver
-problem, we saw these in VLAN's and ebtables already.
+Remove some PCI dependencies from the core EDAC module.  Most of the code
+changes here are from a patch by Dave Jiang.
+It may be best to eventually move the PCI-specific code into a separate source file.
 
+edac-mc_numbers_1_of_2.patch
+This is part 1 of a 2-part patch set.  The code changes are split into two
+parts to make the patches more readable.
 
-> One of these was preceeded by:
-> 
-> kernel: sky2 lan0: rx error, status 0x977d977d length 0
+Remove add_mc_to_global_list().  In next patch, this function will be
+reimplemented with different semantics.
 
-The receive FIFO got overrun. You must not be running hardware flow
-control.
+edac-mc_numbers_2_of_2.patch
+This is part 2 of a 2-part patch set.
 
-> 
-> This was happening with the default MTU of 1500, not just at MTU size
-> 9000 (but it was changed down from 9000). Hardware is Yukon-EC (0xb6)
-> rev 1.
-> 
-> I'll do some more stress testing tonight without the MTU patch and
-> without the MTU being raised to 9000 initially and see what happens.
-> 
-> Thanks for all your great work so far!
+- Reimplement add_mc_to_global_list() with semantics that allow the caller to
+  determine the ID number for a mem_ctl_info structure.  Then modify
+  edac_mc_add_mc() so that the caller specifies the ID number for the new
+  mem_ctl_info structure.  Platform-specific code should be able to assign the
+  ID numbers in a platform-specific manner.  For instance, on Opteron it makes
+  sense to have the ID of the mem_ctl_info structure match the ID of the node
+  that the memory controller belongs to.
+
+- Modify callers of edac_mc_add_mc() so they use the new semantics.
+
+edac-probe1_cleanup_1_of_2.patch
+This is part 1 of a 2-part patch set.  The code changes are split into two
+parts to make the patches more readable.
+
+Add lower-level functions that handle various parts of the initialization done
+by the xxx_probe1() functions.  Some of the xxx_probe1() functions are much
+too long and complicated (see "Chapter 5: Functions" in
+Documentation/CodingStyle).
+This is part 2 of a 2-part patch set.
+
+Modify the xxx_probe1() functions so they call the lower-level functions
+created by the first patch in the set.
+
+edac-maintainers.patch
+--------
+Removed Dave Peterson as per his request as maintainer.
+Add Mark Gross as maintainer for E752X MC driver
+
+Signed-off-by:  doug thompson <norsk5@xmission.com>
+
+ drivers/edac/amd76x_edac.c                   |   97 ++++---
+ drivers/edac/e752x_edac.c                    |  345 ++++++++++++++-------------
+ drivers/edac/e7xxx_edac.c                    |  184 +++++++-------
+ drivers/edac/edac_mc.c                       |   56 ++--
+ drivers/edac/edac_mc.h                       |   20 +
+ drivers/edac/i82860_edac.c                   |  132 +++++-----
+ drivers/edac/i82875p_edac.c                  |  254 +++++++++++--------
+ drivers/edac/r82600_edac.c                   |  139 +++++-----
+ linux-2.6.17-rc3/drivers/edac/edac_mc.c      |   43 ---
+ linux-2.6.17-rc4/MAINTAINERS                 |   14 -
+ linux-2.6.17-rc4/drivers/edac/amd76x_edac.c  |    5 
+ linux-2.6.17-rc4/drivers/edac/e752x_edac.c   |    5 
+ linux-2.6.17-rc4/drivers/edac/e7xxx_edac.c   |    5 
+ linux-2.6.17-rc4/drivers/edac/edac_mc.c      |   46 +++
+ linux-2.6.17-rc4/drivers/edac/edac_mc.h      |    2 
+ linux-2.6.17-rc4/drivers/edac/i82860_edac.c  |    5 
+ linux-2.6.17-rc4/drivers/edac/i82875p_edac.c |    5 
+ linux-2.6.17-rc4/drivers/edac/r82600_edac.c  |    5 
+ 18 files changed, 755 insertions(+), 607 deletions(-)
 

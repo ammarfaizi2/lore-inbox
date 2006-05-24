@@ -1,77 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932494AbWEXVbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932767AbWEXVfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932494AbWEXVbl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 17:31:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932757AbWEXVbk
+	id S932767AbWEXVfa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 17:35:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932768AbWEXVfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 17:31:40 -0400
-Received: from wr-out-0506.google.com ([64.233.184.231]:25234 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932494AbWEXVbk convert rfc822-to-8bit (ORCPT
+	Wed, 24 May 2006 17:35:30 -0400
+Received: from ns.suse.de ([195.135.220.2]:26558 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932767AbWEXVf3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 17:31:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AGFBRO0fChaqve2jNoDp/Vn0BpITCRKwGI+uVbWHVxP5J1zlChtTJ7LEgSRmq2TqZ/B6snM2ksC7ThNPpviOref7VKir+cNkxinfPTqY0O2P6pzK3aznd+c5p1M/a3BT0rMGsGMwTSZx7NVCnM6MPukbd5n35XJ6Y6NQieJNVjI=
-Message-ID: <6bffcb0e0605241431i2bf5e8cds526728fd3fd37ca3@mail.gmail.com>
-Date: Wed, 24 May 2006 23:31:39 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Ben Greear" <greearb@candelatech.com>
-Subject: Re: Issue with make -j4 when building in separate tree.
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4474C6F2.1010304@candelatech.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+	Wed, 24 May 2006 17:35:29 -0400
+Date: Wed, 24 May 2006 14:33:10 -0700
+From: Greg KH <greg@kroah.com>
+To: vamsi krishna <vamsi.krishnak@gmail.com>
+Cc: linux-kernel@vger.kernel.org, dan@debian.org
+Subject: Re: Program to convert core file to executable.
+Message-ID: <20060524213310.GA12371@kroah.com>
+References: <3faf05680605241018q302d5c0em6844765f81669498@mail.gmail.com> <20060524173821.GA1292@nevyn.them.org> <3faf05680605241306t64f63225i4d25af3e92a9d9f9@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4474C6F2.1010304@candelatech.com>
+In-Reply-To: <3faf05680605241306t64f63225i4d25af3e92a9d9f9@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ben,
+On Thu, May 25, 2006 at 01:36:08AM +0530, vamsi krishna wrote:
+> >
+> >Of course, the kernel shouldn't crash!  It sounds like a bug.
+> >
+> 
+> Yes I can reproduce this , is there a bugzilla for kernel? (or should
+> we report this at the buzilla of the distribution?)
 
-On 24/05/06, Ben Greear <greearb@candelatech.com> wrote:
-> There seems to be a dependency problem when running
-> make with multiple jobs (-j4).
->
-> I am compiling 2.6.16.16 in a separate tree.  I created
-> the tree with the command:
->
-> [greear@xeon-dt linux-2.6.dev]$ make O=~/kernel/2.6/linux-2.6.16.k6/ xconfig
->
-> Then tried to build with this command.
->
-> [greear@xeon-dt linux-2.6.16.k6]$ make -j4 bzImage modules
-> make -C /home/greear/git/linux-2.6.dev O=/home/greear/kernel/2.6/linux-2.6.16.k6 bzImage
-> make -C /home/greear/git/linux-2.6.dev O=/home/greear/kernel/2.6/linux-2.6.16.k6 modules
->    GEN    /home/greear/kernel/2.6/linux-2.6.16.k6/Makefile
->    GEN    /home/greear/kernel/2.6/linux-2.6.16.k6/Makefile
->    CHK     include/linux/version.h
->    CHK     include/linux/version.h
->    UPD     include/linux/version.h
->    UPD     include/linux/version.h
-> mv: cannot stat `include/linux/version.h.tmp': No such file or directory
-> make[2]: *** [include/linux/version.h] Error 1
-> make[1]: *** [bzImage] Error 2
-> make: *** [bzImage] Error 2
-> make: *** Waiting for unfinished jobs....
->    SYMLINK include/asm -> include/asm-i386
->
->
-> This error has existed at least since 2.6.13.
->
-> Thanks,
-> Ben
+For security issues such as this (ability for users to crash the
+kernel), security@kernel.org is the best address to send this to.
 
-Please try
-make -j4 O=~/kernel/2.6/linux-2.6.16.k6/
+thanks,
 
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+greg k-h

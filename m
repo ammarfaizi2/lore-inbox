@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932679AbWEXM1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932700AbWEXM3g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932679AbWEXM1w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 08:27:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932685AbWEXM1w
+	id S932700AbWEXM3g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 08:29:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932706AbWEXM3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 08:27:52 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:44745 "EHLO
-	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
-	id S932679AbWEXM1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 08:27:52 -0400
-Subject: Re: [PATCH 04/33] readahead: page flag PG_readahead
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060524111858.869793445@localhost.localdomain>
-References: <20060524111246.420010595@localhost.localdomain>
-	 <20060524111858.869793445@localhost.localdomain>
+	Wed, 24 May 2006 08:29:36 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:14652 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932700AbWEXM3f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 08:29:35 -0400
+Subject: [Patch 1/6] statistics infrastructure - prerequisite: list
+	operation
+From: Martin Peschke <mp3@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Wed, 24 May 2006 14:27:36 +0200
-Message-Id: <1148473656.10561.46.camel@lappy>
+Date: Wed, 24 May 2006 14:29:27 +0200
+Message-Id: <1148473767.2934.10.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-24 at 19:12 +0800, Wu Fengguang wrote:
-> plain text document attachment
-> (readahead-page-flag-PG_readahead.patch)
-> An new page flag PG_readahead is introduced as a look-ahead mark, which
-> reminds the caller to give the adaptive read-ahead logic a chance to do
-> read-ahead ahead of time for I/O pipelining.
-> 
-> It roughly corresponds to `ahead_start' of the stock read-ahead logic.
-> 
-> Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
-> ---
-> 
->  include/linux/page-flags.h |    5 +++++
->  mm/page_alloc.c            |    2 +-
->  2 files changed, 6 insertions(+), 1 deletion(-)
-> 
-> --- linux-2.6.17-rc4-mm3.orig/include/linux/page-flags.h
-> +++ linux-2.6.17-rc4-mm3/include/linux/page-flags.h
-> @@ -89,6 +89,7 @@
->  #define PG_reclaim		17	/* To be reclaimed asap */
->  #define PG_nosave_free		18	/* Free, should not be written */
->  #define PG_buddy		19	/* Page is free, on buddy lists */
-> +#define PG_readahead		20	/* Reminder to do readahead */
->  
+This patch adds another list_for_each_* derivate. I can't work around it
+because there is a list that I need to search both ways.
 
-Page flags are gouped by four, 20 would start a new set.
-Also in my tree (git from a few days ago), 20 is taken by PG_unchached.
-What code is this patch-set against?
+Signed-off-by: Martin Peschke <mp3@de.ibm.com>
+---
 
+ list.h |   13 +++++++++++++
+ 1 files changed, 13 insertions(+)
+
+diff -Nurp a/include/linux/list.h b/include/linux/list.h
+--- a/include/linux/list.h	2006-05-19 15:44:27.000000000 +0200
++++ b/include/linux/list.h	2006-05-19 16:28:14.000000000 +0200
+@@ -411,6 +411,19 @@ static inline void list_splice_init(stru
+ 	     pos = list_entry(pos->member.next, typeof(*pos), member))
+ 
+ /**
++ * list_for_each_entry_continue_reverse - list iterator variant
++ * @pos:	the type * to use as a loop counter.
++ * @head:	the head for your list.
++ * @member:	the name of the list_struct within the struct.
++ *
++ * Iterates backwards over list of given type continuing before given point.
++ */
++#define list_for_each_entry_continue_reverse(pos, head, member) 	\
++	for (pos = list_entry(pos->member.prev, typeof(*pos), member);	\
++	     prefetch(pos->member.prev), &pos->member != (head);	\
++	     pos = list_entry(pos->member.prev, typeof(*pos), member))
++
++/**
+  * list_for_each_entry_from -	iterate over list of given type
+  *			continuing from existing point
+  * @pos:	the type * to use as a loop counter.
 
 

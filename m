@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbWEXOa2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWEXOp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbWEXOa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 10:30:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932606AbWEXOa2
+	id S1750894AbWEXOp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 10:45:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbWEXOp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 10:30:28 -0400
-Received: from relay03.pair.com ([209.68.5.17]:35850 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S932319AbWEXOa2 (ORCPT
+	Wed, 24 May 2006 10:45:59 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:27297 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1750894AbWEXOp7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 10:30:28 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Wed, 24 May 2006 09:30:23 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: "D. Hazelton" <dhazelton@enter.net>
-cc: Jon Smirl <jonsmirl@gmail.com>,
-       Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, Dave Airlie <airlied@linux.ie>
-Subject: Re: OpenGL-based framebuffer concepts
-In-Reply-To: <200605240042.46288.dhazelton@enter.net>
-Message-ID: <Pine.LNX.4.64.0605240925510.15931@turbotaz.ourhouse>
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
- <200605232324.20876.dhazelton@enter.net> <9e4733910605232121s259e97fdu755e1f2762026e5f@mail.gmail.com>
- <200605240042.46288.dhazelton@enter.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 24 May 2006 10:45:59 -0400
+Subject: Re: [PATCH 1 of 10] ipath - fix spinlock recursion bug
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <adasln0qvhn.fsf@cisco.com>
+References: <bc968dacc8608566f4d2.1148409149@eng-12.pathscale.com>
+	 <adawtccqwhg.fsf@cisco.com>
+	 <1148419611.22550.11.camel@chalcedony.pathscale.com>
+	 <adasln0qvhn.fsf@cisco.com>
+Content-Type: text/plain
+Date: Wed, 24 May 2006 07:45:58 -0700
+Message-Id: <1148481958.5652.27.camel@chalcedony.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 May 2006, D. Hazelton wrote:
+On Tue, 2006-05-23 at 14:31 -0700, Roland Dreier wrote:
 
-> And as you note, licensing is an issue. However, as the kernel is GPL I might
-> use DRM as an information source and write that code over again to sidestep
-> any licensing issues. (I really don't want to piss off the MIT or BSD people)
+> It's probably OK as long as it's pure code motion.
 
-While licensing is obviously entirely up to you (as the author), I 
-wouldn't worry too much about using the GPL / copyleft for your software 
-in this case. I know there are a lot of BSD developers that would be happy 
-to replace every line of GPL-licensed code with BSD-licensed code, but 
-given that the BSD license has around 5% penetration versus 
-some-number-around-80% for the GPL, I think GPL code in a BSD system is 
-kind of a reality at this point. It might be more of a concern to me (in my work) if I 
-thought that the GPL was restrictive.
+I'll recheck and make sure that it is before I send you anything.
+Thanks.
 
-Remember that the GPL doesn't even apply to the end-user until they want 
-to make a copy of your original or their derivitive work. Also remember 
-that GNOME and KDE are both under (L)GPL licensing.
+> What I want to
+> avoid is the giant combo patch that does several different things,
+> because if someone later bisects a regression back to that patch,
+> we're kind of screwed...
 
-> DRH
+Yeah, I've been doing some educating lately about that :-)
 
-Cheers,
-Chase
+	<b
+

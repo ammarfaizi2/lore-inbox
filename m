@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932751AbWEXPyo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932754AbWEXPzQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932751AbWEXPyo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 11:54:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932756AbWEXPyn
+	id S932754AbWEXPzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 11:55:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932756AbWEXPzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 11:54:43 -0400
-Received: from mpc-26.sohonet.co.uk ([193.203.82.251]:16786 "EHLO
-	moving-picture.com") by vger.kernel.org with ESMTP id S932754AbWEXPyn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 11:54:43 -0400
-Message-ID: <447481C0.5050709@moving-picture.com>
-Date: Wed, 24 May 2006 16:54:40 +0100
-From: James Pearson <james-p@moving-picture.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040524
-X-Accept-Language: en-us, en
+	Wed, 24 May 2006 11:55:16 -0400
+Received: from gold.veritas.com ([143.127.12.110]:3444 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S932754AbWEXPzO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 11:55:14 -0400
+X-IronPort-AV: i="4.05,167,1146466800"; 
+   d="scan'208"; a="59830328:sNHT29432644"
+Date: Wed, 24 May 2006 16:55:07 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Christoph Lameter <clameter@sgi.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH mm] swapless page migration: fix swapops.h:97 BUG
+In-Reply-To: <Pine.LNX.4.64.0605240816080.15446@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.64.0605241646380.16435@blonde.wat.veritas.com>
+References: <Pine.LNX.4.64.0605241329010.9391@blonde.wat.veritas.com>
+ <Pine.LNX.4.64.0605240816080.15446@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 4096 byte limit to /proc/PID/environ ?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Disclaimer: This email and any attachments are confidential, may be legally
-X-Disclaimer: privileged and intended solely for the use of addressee. If you
-X-Disclaimer: are not the intended recipient of this message, any disclosure,
-X-Disclaimer: copying, distribution or any action taken in reliance on it is
-X-Disclaimer: strictly prohibited and may be unlawful. If you have received
-X-Disclaimer: this message in error, please notify the sender and delete all
-X-Disclaimer: copies from your system.
-X-Disclaimer: 
-X-Disclaimer: Email may be susceptible to data corruption, interception and
-X-Disclaimer: unauthorised amendment, and we do not accept liability for any
-X-Disclaimer: such corruption, interception or amendment or the consequences
-X-Disclaimer: thereof.
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 24 May 2006 15:55:12.0348 (UTC) FILETIME=[70CDC9C0:01C67F4A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It appears that /proc/PID/environ only returns the first 4096 bytes of a 
-processes' environment.
+On Wed, 24 May 2006, Christoph Lameter wrote:
+> 
+> Thats is very subtle. I hope there are no other areas where the child vma 
+> has to be processed before the parent vma?
 
-Is there any other way via userland to get the whole environment for a 
-process?
+I've considered, and very much doubt it; and if there are, they'd
+have to be peculiar to anonymous, since they'd already have been
+wrong for the vma_prio_tree cases.
 
-Thanks
+> An alternative would be to 
+> make remove_anon_migration_ptes walk the list in reverse and add a big 
+> comment.
 
-James Pearson
+No, even without this migration issue, I'd much rather have anon_vmas
+inserted in the new list_add_tail way, matching the prio_tree direction.
+It's asking for trouble to have opposite conventions there (and much
+less surprising to insert child after parent than before).
 
+Hugh

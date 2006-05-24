@@ -1,73 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932662AbWEXIME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932651AbWEXIM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932662AbWEXIME (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 04:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932656AbWEXIME
+	id S932651AbWEXIM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 04:12:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932656AbWEXIM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 04:12:04 -0400
-Received: from gateway.argo.co.il ([194.90.79.130]:2318 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S932662AbWEXIMD
+	Wed, 24 May 2006 04:12:56 -0400
+Received: from wmp-pc40.wavecom.fr ([81.80.89.162]:38150 "EHLO
+	domino.wavecom.fr") by vger.kernel.org with ESMTP id S932651AbWEXIMz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 04:12:03 -0400
-Message-ID: <44741550.5060006@argo.co.il>
-Date: Wed, 24 May 2006 11:12:00 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Wed, 24 May 2006 04:12:55 -0400
+In-Reply-To: <1148408496.24623.18.camel@localhost.localdomain>
+Subject: Re: Ingo's  realtime_preempt patch causes kernel oops
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
+       linux-kernel-owner@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>
+X-Mailer: Lotus Notes Release 6.5.1 January 21, 2004
+Message-ID: <OFD8B7556E.13DD6F3A-ONC1257178.002C2D9A-C1257178.002D1FC5@wavecom.fr>
+From: Yann.LEPROVOST@wavecom.fr
+Date: Wed, 24 May 2006 10:06:50 +0200
+X-MIMETrack: Serialize by Router on domino/wavecom(Release 6.5.4|March 27, 2005) at 05/24/2006
+ 10:06:53 AM
 MIME-Version: 1.0
-To: fitzboy <fitzboy@iparadigms.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: tuning for large files in xfs
-References: <447209A8.2040704@iparadigms.com> <44720DB8.4060200@argo.co.il> <447211E1.7080207@iparadigms.com> <447212B5.1010208@argo.co.il> <447259E7.8050706@iparadigms.com> <4472C25C.2090909@argo.co.il> <44736EBE.3030704@iparadigms.com>
-In-Reply-To: <44736EBE.3030704@iparadigms.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 May 2006 08:12:00.0908 (UTC) FILETIME=[BBD094C0:01C67F09]
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fitzboy wrote:
+The debug serial unit is part of the mainline kernel, this is the common
+link to work with the CSB637 Cogent board.
+I don't know about others AT91RM9200 based board.
+
+AT91RM9200 also have others USART, but there are no available output
+connectors on the CSB637 board.
+
+Yann
+
+
+
+                                                                           
+             Steven Rostedt                                                
+             <rostedt@goodmis.                                             
+             org>                                                       To 
+                                       Yann.LEPROVOST@wavecom.fr           
+             23/05/2006 20:21                                           cc 
+                                       Daniel Walker <dwalker@mvista.com>, 
+                                       linux-kernel@vger.kernel.org,       
+                                       linux-kernel-owner@vger.kernel.org, 
+                                       Ingo Molnar <mingo@elte.hu>, Thomas 
+                                       Gleixner <tglx@linutronix.de>       
+                                                                   Subject 
+                                       Re: Ingo's  realtime_preempt patch  
+                                       causes kernel oops                  
+                                                                           
+                                                                           
+                                                                           
+                                                                           
+                                                                           
+                                                                           
+
+
+
+
+On Tue, 2006-05-23 at 19:10 +0200, Yann.LEPROVOST@wavecom.fr wrote:
+> Currently there are only system timer and debug serial unit registered on
+> irq line 1.
+> Debug serial unit is used as the console !
 >
->
-> Avi Kivity wrote:
->>
->> This will overflow. I think that
->
-> why would it overflow? Random() returns a 32 bit number, and if I 
-> multiple that by 32k (basically the number random() returns is the 
-> block number I am going to), that should never be over 64 bits? It may 
-> be over to size of the file though, but that is why I do mod 
-> s.st_size... and a random number mod something is still a random 
-> number. Also, with this method it is already currentSize aligned...
->
 
-You're right, of course.  Thinko on my part.
+That scares me.  Is the debug serial unit added by you, or is it part of
+the mainline kernel?
 
->>
->> Sorry, I wasn't specific enough: please run iostat -x /dev/whatever 1 
->> and look at the 'r/s' (reads per second) field. If that agrees with 
->> what your test says, you have a block layer or lower problem, 
->> otherwise it's a filesystem problem.
->>
->
-> I ran it and found an r/s at 165, which basically corresponds to my 6 
-> ms access time... when it should be around 3.5ms... so it seems like 
-> the seeks themselves are taking along time, NOT that I am doing extra 
-> seeks...
->
+-- Steve
 
-I presume that was with the 20GB file?
 
-If so, that rules out the filesystem as the cause.
 
-I would do the following next:
-
-- run the test on the device node (/dev/something), just to make sure. 
-you will need to issue an ioctl (BLKGETSIZE64) to get the size as fstat 
-will not return the correct size
-- break out the array into individual disks and run the test on each 
-disk.  that will show whether the controller is causing the problem or 
-one of the disks (is it possible the array is in degraded mode?)
-
--- 
-error compiling committee.c: too many arguments to function
 

@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWEXOp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWEXOtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750894AbWEXOp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 10:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbWEXOp7
+	id S932310AbWEXOtE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 10:49:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWEXOtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 10:45:59 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:27297 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1750894AbWEXOp7 (ORCPT
+	Wed, 24 May 2006 10:49:04 -0400
+Received: from nz-out-0102.google.com ([64.233.162.200]:6196 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932310AbWEXOtC convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 10:45:59 -0400
-Subject: Re: [PATCH 1 of 10] ipath - fix spinlock recursion bug
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <adasln0qvhn.fsf@cisco.com>
-References: <bc968dacc8608566f4d2.1148409149@eng-12.pathscale.com>
-	 <adawtccqwhg.fsf@cisco.com>
-	 <1148419611.22550.11.camel@chalcedony.pathscale.com>
-	 <adasln0qvhn.fsf@cisco.com>
-Content-Type: text/plain
-Date: Wed, 24 May 2006 07:45:58 -0700
-Message-Id: <1148481958.5652.27.camel@chalcedony.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
-Content-Transfer-Encoding: 7bit
+	Wed, 24 May 2006 10:49:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UgFNAS/RIL/AxRpFINRtLBSylP7kgXuWJwCJeWITWULFsxf8UybytvnHmOddvQ62STpgur1nFsFUgLF18NfvVTr0e+gjNB3O8ZoXlzNK6x9VNHFrS886q/0FQ+P+IyA8LJObaowpKy0Zz9nThJixgJ9Db47ookg+4wT963noyCY=
+Message-ID: <9e4733910605240749r1ce9e9fehcfffb2f2e3aeab60@mail.gmail.com>
+Date: Wed, 24 May 2006 10:49:01 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Subject: Re: OpenGL-based framebuffer concepts
+Cc: "Helge Hafting" <helge.hafting@aitel.hist.no>,
+       "D. Hazelton" <dhazelton@enter.net>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <447465C6.3090501@ums.usu.ru>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <44700ACC.8070207@gmail.com>
+	 <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com>
+	 <200605230048.14708.dhazelton@enter.net>
+	 <9e4733910605231017g146e16dfnd61eb22a72bd3f5f@mail.gmail.com>
+	 <6896241F-3389-4B20-9E42-3CCDDBFDD312@mac.com>
+	 <44740533.7040702@aitel.hist.no> <447465C6.3090501@ums.usu.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-23 at 14:31 -0700, Roland Dreier wrote:
+On 5/24/06, Alexander E. Patrakov <patrakov@ums.usu.ru> wrote:
+>   * Have a method in the framebuffer driver for clearing the screen and setting
+> a known good mode, for the Linux equivalent of a "blue screen of death"
 
-> It's probably OK as long as it's pure code motion.
+You can't change the mode, instead you have to track it and use the
+one that is already set. Changing the mode on a lot of cards that we
+don't have docs for requires making BIOS calls using VM86. VM86 only
+runs from user space and user space may be dead when you want to
+print. WIndows can take a different approach since they have access to
+the video hardware docs.
 
-I'll recheck and make sure that it is before I send you anything.
-Thanks.
-
-> What I want to
-> avoid is the giant combo patch that does several different things,
-> because if someone later bisects a regression back to that patch,
-> we're kind of screwed...
-
-Yeah, I've been doing some educating lately about that :-)
-
-	<b
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

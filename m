@@ -1,50 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWEXWIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWEXWLQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964774AbWEXWIo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 18:08:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964776AbWEXWIo
+	id S964778AbWEXWLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 18:11:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbWEXWLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 18:08:44 -0400
-Received: from cavan.codon.org.uk ([217.147.92.49]:61864 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S964774AbWEXWIn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 18:08:43 -0400
-Date: Wed, 24 May 2006 23:08:27 +0100
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, "D. Hazelton" <dhazelton@enter.net>
-Subject: Re: OpenGL-based framebuffer concepts
-Message-ID: <20060524220827.GA12192@srcf.ucam.org>
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <44700ACC.8070207@gmail.com> <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com> <200605230048.14708.dhazelton@enter.net> <9e4733910605231017g146e16dfnd61eb22a72bd3f5f@mail.gmail.com> <E1Fifom-0003qk-00@chiark.greenend.org.uk> <9e4733910605231638t4da71284oa37b66a88c60cf8a@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e4733910605231638t4da71284oa37b66a88c60cf8a@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+	Wed, 24 May 2006 18:11:15 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:8545 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S964778AbWEXWLP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 18:11:15 -0400
+Message-ID: <4474D9EF.8030504@tls.msk.ru>
+Date: Thu, 25 May 2006 02:10:55 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Mail/News 1.5 (X11/20060318)
+MIME-Version: 1.0
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: swsusp in 2.6.16: works fine w/o PSE on a VIA C3?
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 23, 2006 at 07:38:40PM -0400, Jon Smirl wrote:
+I was just feeling lucky and tried suspend-to-disk cycle
+on my VIA C3 machine, which lacks PSE which is marked as
+being required for swsusp to work.  After commenting out
+the PSE check in include/asm-i386/suspend.h and rebooting,
+I tried the whole cycle, several times, with real load
+(while running 3 kernel compile in parallel) and while
+IDLE... And surprizingly, it all worked flawlessly for
+me, without a single glitch...
 
-> 2) The ROM support in the kernel knows about the shadow RAM copy at
-> C000::0. When you request the ROM from a laptop video system it
-> returns a map to the shadow RAM copy, not to a physical ROM. You need
-> access to the shadow RAM copy to get to things the BIOS left there
-> when it ran.
+So the question is: is PSE really needed nowadays?
 
-My experience is that, on some laptops, the code at c000:0003 may jump 
-into some other address block that isn't necessarily shadowed. There's 
-no reason to assume that POSTing an ancilliary ROM will work after the 
-system has left the BIOS. Further, my laptop doesn't appear to have a 
-rom entry in sysfs, which makes getting at stuff that way rather more 
-awkward...
+Ok, "w/o a single glitch"...  Actually there are several
+of them so far, but I guess they're unrelated to PSE/C3:
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+ o Suspend after clean boot is sloooow, it takes quite
+   alot of time to write all the stuff to the disk (the
+   percents are increasing by 1..2 in a sec).  After
+   resume, if I suspend again the whole process takes
+   only several secs.
+
+ o There's a single 'failed' message, while *suspending*:
+
+Stopping tasks: ===============================================|
+Shrinking memory... done (0 pages freed)
+pnp: Device 01:01.00 disabled.
+pnp: Device 00:09 disabled.
+pnp: Device 00:08 disabled.
+ACPI: PCI interrupt for device 0000:00:07.5 disabled
+ACPI: PCI interrupt for device 0000:00:07.3 disabled
+ACPI: PCI interrupt for device 0000:00:07.2 disabled
+swsusp: Need to copy 19322 pages
+PCI: Setting latency timer of device 0000:00:01.0 to 64
+PCI: VIA IRQ fixup for 0000:00:07.1, from 255 to 0
+ACPI: PCI Interrupt 0000:00:07.2[D] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
+PCI: VIA IRQ fixup for 0000:00:07.2, from 9 to 11
+usb usb1: root hub lost power or was reset
+ACPI: PCI Interrupt 0000:00:07.3[D] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
+PCI: VIA IRQ fixup for 0000:00:07.3, from 9 to 11
+usb usb2: root hub lost power or was reset
+ACPI: PCI Interrupt 0000:00:07.5[C] -> Link [LNKC] -> GSI 12 (level, low) -> IRQ 12
+ACPI: PCI Interrupt 0000:00:0a.0[A] -> Link [LNKC] -> GSI 12 (level, low) -> IRQ 12
+eth0: link up, 100Mbps, full-duplex, lpa 0x45E1
+pnp: Device 00:08 activated.
+pnp: Device 00:09 activated.
+pnp: Failed to activate device 00:0b.   <========= this one
+pnp: Device 01:01.00 activated.
+
+   This is all shown while *suspending*, so it looks like
+   the kernel is shutting down all the devices and brings
+   them up again for some reason.  PNP device 00:0b is my
+   keyboard.
+
+ o There's the following sequence of messages in my dmesg:
+
+Restarting tasks...<6>usb 1-1: USB disconnect, address 2
+ done
+usb 1-1: new low speed USB device using uhci_hcd and address 3
+
+   It looks like either the formatting is wrong (missing \n in some
+   printk() or something), or USB device(s) aren't shutting down/
+   powered up at the appropriate time, or the connect/powerup
+   event interferes with the stuff happening during "Restarting
+   tasks...done" time.  For the end-user this is just a cosmetic
+   glitch (improper formatting), but it as well may be some
+   more serious prob.
+
+Note I never tried swsusp before, so I've no idea how it usually
+looks like, or should look like.  We've servers which never suspend,
+we've X terminals (no need to suspend, and it will not work anyway
+as the network connections will not be restored anyway), and this
+my VIA-C3-based machine, which never worked due to the PSE check.
+
+Thanks.
+
+/mjt

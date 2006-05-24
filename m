@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932737AbWEXNMr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932738AbWEXNWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932737AbWEXNMr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 09:12:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932740AbWEXNMr
+	id S932738AbWEXNWf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 09:22:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932739AbWEXNWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 09:12:47 -0400
-Received: from www.osadl.org ([213.239.205.134]:7899 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S932737AbWEXNMr (ORCPT
+	Wed, 24 May 2006 09:22:35 -0400
+Received: from ns.suse.de ([195.135.220.2]:57573 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932738AbWEXNWe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 09:12:47 -0400
-Subject: Re: Ingo's  realtime_preempt patch causes kernel oops
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Yann.LEPROVOST@wavecom.fr, Daniel Walker <dwalker@mvista.com>,
-       linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1148475334.24623.45.camel@localhost.localdomain>
-References: <OFD8B7556E.13DD6F3A-ONC1257178.002C2D9A-C1257178.002D1FC5@wavecom.fr>
-	 <1148475334.24623.45.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 24 May 2006 15:13:03 +0200
-Message-Id: <1148476383.5239.54.camel@localhost.localdomain>
+	Wed, 24 May 2006 09:22:34 -0400
+Date: Wed, 24 May 2006 15:17:07 +0200
+From: Stefan Seyfried <seife@suse.de>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Manu Abraham <abraham.manu@gmail.com>,
+       linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org, "D. Hazelton" <dhazelton@enter.net>,
+       Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Subject: Re: OpenGL-based framebuffer concepts
+Message-ID: <20060524131707.GA20628@suse.de>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <44700ACC.8070207@gmail.com> <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com> <200605230048.14708.dhazelton@enter.net> <9e4733910605231017g146e16dfnd61eb22a72bd3f5f@mail.gmail.com> <E1Fifom-0003qk-00@chiark.greenend.org.uk> <9e4733910605231638t4da71284oa37b66a88c60cf8a@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <9e4733910605231638t4da71284oa37b66a88c60cf8a@mail.gmail.com>
+X-Operating-System: SUSE LINUX 10.1 (i586), Kernel 2.6.16.13-4-default
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-24 at 08:55 -0400, Steven Rostedt wrote:
-> Thomas or Ingo,
-> 
-> Maybe the handling of IRQs needs to handle the case that shared irq can
-> have both a NODELAY and a thread.  The irq descriptor could have a
-> NODELAY set if any of the actions are NODELAY, but before calling the
-> interrupt handler (in interrupt context), check if the action is NODELAY
-> or not, and if not, wake up the thread if not done so already.
+On Tue, May 23, 2006 at 07:38:40PM -0400, Jon Smirl wrote:
+> On 5/23/06, Matthew Garrett <mgarrett@chiark.greenend.org.uk> wrote:
 
-As I said yesterday. You need a demultiplexer for such cases.
+> 1) I didn't put a lot of detail into the line item but you only need
+> to use the ROM to reset secondary cards on x86 architectures. Primary
+> cards are always initialized by the system BIOS so you don't need to
+> run their ROM on boot. I think the only way to get a secondary card
+> into a laptop is through a
 
-	tglx
-
-
+Docking station.
+-- 
+Stefan Seyfried                  \ "I didn't want to write for pay. I
+QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
+SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen

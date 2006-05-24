@@ -1,240 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932704AbWEXLWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932688AbWEXLXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932704AbWEXLWa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 07:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932711AbWEXLTq
+	id S932688AbWEXLXE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 07:23:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932707AbWEXLTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 07:19:46 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:20097 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932704AbWEXLTM (ORCPT
+	Wed, 24 May 2006 07:19:43 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:12930 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932711AbWEXLTM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 24 May 2006 07:19:12 -0400
-Message-ID: <348469543.10865@ustc.edu.cn>
+Message-ID: <348469549.18212@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060524111904.683513683@localhost.localdomain>
+Message-Id: <20060524111910.544274094@localhost.localdomain>
 References: <20060524111246.420010595@localhost.localdomain>
-Date: Wed, 24 May 2006 19:13:01 +0800
+Date: Wed, 24 May 2006 19:13:13 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 15/33] readahead: state based method - routines
-Content-Disposition: inline; filename=readahead-method-stateful-routines.patch
+Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>,
+       Bart Samwel <bart@samwel.tk>
+Subject: [PATCH 27/33] readahead: laptop mode
+Content-Disposition: inline; filename=readahead-laptop-mode.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Define some helpers on struct file_ra_state.
+When the laptop drive is spinned down, defer look-ahead to spin up time.
+
+The implementation employs a poll based method, for performance is not a
+concern in this code path. The poll interval is 64KB, which should be small
+enough for movies/musics. The user space application is responsible for
+proper caching to hide the spin-up-and-read delay.
+
+------------------------------------------------------------------------
+For crazy laptop users who prefer aggressive read-ahead, here is the way:
+
+# echo 1000 > /proc/sys/vm/readahead_ratio
+# blockdev --setra 524280 /dev/hda      # this is the max possible value
+
+Notes:
+- It is still an untested feature.
+- It is safer to use blockdev+fadvise to increase ra-max for a single file,
+  which needs patching your movie player.
+- Be sure to restore them to sane values in normal operations!
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- mm/readahead.c |  188 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 186 insertions(+), 2 deletions(-)
+ include/linux/writeback.h |    6 ++++++
+ mm/page-writeback.c       |    2 +-
+ mm/readahead.c            |   30 ++++++++++++++++++++++++++++++
+ 3 files changed, 37 insertions(+), 1 deletion(-)
 
+--- linux-2.6.17-rc4-mm3.orig/include/linux/writeback.h
++++ linux-2.6.17-rc4-mm3/include/linux/writeback.h
+@@ -86,6 +86,12 @@ void laptop_io_completion(void);
+ void laptop_sync_completion(void);
+ void throttle_vm_writeout(void);
+ 
++extern struct timer_list laptop_mode_wb_timer;
++static inline int laptop_spinned_down(void)
++{
++	return !timer_pending(&laptop_mode_wb_timer);
++}
++
+ /* These are exported to sysctl. */
+ extern int dirty_background_ratio;
+ extern int vm_dirty_ratio;
+--- linux-2.6.17-rc4-mm3.orig/mm/page-writeback.c
++++ linux-2.6.17-rc4-mm3/mm/page-writeback.c
+@@ -389,7 +389,7 @@ static void wb_timer_fn(unsigned long un
+ static void laptop_timer_fn(unsigned long unused);
+ 
+ static DEFINE_TIMER(wb_timer, wb_timer_fn, 0, 0);
+-static DEFINE_TIMER(laptop_mode_wb_timer, laptop_timer_fn, 0, 0);
++DEFINE_TIMER(laptop_mode_wb_timer, laptop_timer_fn, 0, 0);
+ 
+ /*
+  * Periodic writeback of "old" data.
 --- linux-2.6.17-rc4-mm3.orig/mm/readahead.c
 +++ linux-2.6.17-rc4-mm3/mm/readahead.c
-@@ -854,6 +854,190 @@ static unsigned long node_readahead_agin
+@@ -817,6 +817,31 @@ out:
  }
  
  /*
-+ * Some helpers for querying/building a read-ahead request.
-+ *
-+ * Diagram for some variable names used frequently:
-+ *
-+ *                                   |<------- la_size ------>|
-+ *                  +-----------------------------------------+
-+ *                  |                #                        |
-+ *                  +-----------------------------------------+
-+ *      ra_index -->|<---------------- ra_size -------------->|
-+ *
++ * Set a new look-ahead mark at @new_index.
++ * Return 0 if the new mark is successfully set.
 + */
-+
-+static enum ra_class ra_class_new(struct file_ra_state *ra)
++static inline int renew_lookahead(struct address_space *mapping,
++				struct file_ra_state *ra,
++				pgoff_t index, pgoff_t new_index)
 +{
-+	return ra->flags & RA_CLASS_MASK;
-+}
++	struct page *page;
 +
-+static inline enum ra_class ra_class_old(struct file_ra_state *ra)
-+{
-+	return (ra->flags >> RA_CLASS_SHIFT) & RA_CLASS_MASK;
-+}
-+
-+static unsigned long ra_readahead_size(struct file_ra_state *ra)
-+{
-+	return ra->readahead_index - ra->ra_index;
-+}
-+
-+static unsigned long ra_lookahead_size(struct file_ra_state *ra)
-+{
-+	return ra->readahead_index - ra->lookahead_index;
-+}
-+
-+static unsigned long ra_invoke_interval(struct file_ra_state *ra)
-+{
-+	return ra->lookahead_index - ra->la_index;
-+}
-+
-+/*
-+ * The 64bit cache_hits stores three accumulated values and a counter value.
-+ * MSB                                                                   LSB
-+ * 3333333333333333 : 2222222222222222 : 1111111111111111 : 0000000000000000
-+ */
-+static int ra_cache_hit(struct file_ra_state *ra, int nr)
-+{
-+	return (ra->cache_hits >> (nr * 16)) & 0xFFFF;
-+}
-+
-+/*
-+ * Conceptual code:
-+ * ra_cache_hit(ra, 1) += ra_cache_hit(ra, 0);
-+ * ra_cache_hit(ra, 0) = 0;
-+ */
-+static void ra_addup_cache_hit(struct file_ra_state *ra)
-+{
-+	int n;
-+
-+	n = ra_cache_hit(ra, 0);
-+	ra->cache_hits -= n;
-+	n <<= 16;
-+	ra->cache_hits += n;
-+}
-+
-+/*
-+ * The read-ahead is deemed success if cache-hit-rate >= 1/readahead_hit_rate.
-+ */
-+static int ra_cache_hit_ok(struct file_ra_state *ra)
-+{
-+	return ra_cache_hit(ra, 0) * readahead_hit_rate >=
-+					(ra->lookahead_index - ra->la_index);
-+}
-+
-+/*
-+ * Check if @index falls in the @ra request.
-+ */
-+static int ra_has_index(struct file_ra_state *ra, pgoff_t index)
-+{
-+	if (index < ra->la_index || index >= ra->readahead_index)
-+		return 0;
-+
-+	if (index >= ra->ra_index)
++	if (index == ra->lookahead_index &&
++			new_index >= ra->readahead_index)
 +		return 1;
-+	else
-+		return -1;
++
++	page = find_page(mapping, new_index);
++	if (!page)
++		return 1;
++
++	__SetPageReadahead(page);
++	if (ra->lookahead_index == index)
++		ra->lookahead_index = new_index;
++
++	return 0;
 +}
 +
 +/*
-+ * Which method is issuing this read-ahead?
-+ */
-+static void ra_set_class(struct file_ra_state *ra,
-+				enum ra_class ra_class)
-+{
-+	unsigned long flags_mask;
-+	unsigned long flags;
-+	unsigned long old_ra_class;
-+
-+	flags_mask = ~(RA_CLASS_MASK | (RA_CLASS_MASK << RA_CLASS_SHIFT));
-+	flags = ra->flags & flags_mask;
-+
-+	old_ra_class = ra_class_new(ra) << RA_CLASS_SHIFT;
-+
-+	ra->flags = flags | old_ra_class | ra_class;
-+
-+	ra_addup_cache_hit(ra);
-+	if (ra_class != RA_CLASS_STATE)
-+		ra->cache_hits <<= 16;
-+
-+	ra->age = node_readahead_aging();
-+}
-+
-+/*
-+ * Where is the old read-ahead and look-ahead?
-+ */
-+static void ra_set_index(struct file_ra_state *ra,
-+				pgoff_t la_index, pgoff_t ra_index)
-+{
-+	ra->la_index = la_index;
-+	ra->ra_index = ra_index;
-+}
-+
-+/*
-+ * Where is the new read-ahead and look-ahead?
-+ */
-+static void ra_set_size(struct file_ra_state *ra,
-+				unsigned long ra_size, unsigned long la_size)
-+{
-+	/* Disable look-ahead for loopback file. */
-+	if (unlikely(ra->flags & RA_FLAG_NO_LOOKAHEAD))
-+		la_size = 0;
-+
-+	ra->readahead_index = ra->ra_index + ra_size;
-+	ra->lookahead_index = ra->readahead_index - la_size;
-+}
-+
-+/*
-+ * Submit IO for the read-ahead request in file_ra_state.
-+ */
-+static int ra_dispatch(struct file_ra_state *ra,
-+			struct address_space *mapping, struct file *filp)
-+{
-+	enum ra_class ra_class = ra_class_new(ra);
-+	unsigned long ra_size = ra_readahead_size(ra);
-+	unsigned long la_size = ra_lookahead_size(ra);
-+	pgoff_t eof_index = PAGES_BYTE(i_size_read(mapping->host)) + 1;
-+	int actual;
-+
-+	if (unlikely(ra->ra_index >= eof_index))
-+		return 0;
-+
-+	/* Snap to EOF. */
-+	if (ra->readahead_index + ra_size / 2 > eof_index) {
-+		if (ra_class == RA_CLASS_CONTEXT_AGGRESSIVE &&
-+				eof_index > ra->lookahead_index + 1)
-+			la_size = eof_index - ra->lookahead_index;
-+		else
-+			la_size = 0;
-+		ra_size = eof_index - ra->ra_index;
-+		ra_set_size(ra, ra_size, la_size);
-+		ra->flags |= RA_FLAG_EOF;
-+	}
-+
-+	actual = __do_page_cache_readahead(mapping, filp,
-+					ra->ra_index, ra_size, la_size);
-+
-+#ifdef CONFIG_DEBUG_READAHEAD
-+	if (ra->flags & RA_FLAG_MMAP)
-+		ra_account(ra, RA_EVENT_READAHEAD_MMAP, actual);
-+	if (ra->readahead_index == eof_index)
-+		ra_account(ra, RA_EVENT_READAHEAD_EOF, actual);
-+	if (la_size)
-+		ra_account(ra, RA_EVENT_LOOKAHEAD, la_size);
-+	if (ra_size > actual)
-+		ra_account(ra, RA_EVENT_IO_CACHE_HIT, ra_size - actual);
-+	ra_account(ra, RA_EVENT_READAHEAD, actual);
-+
-+	dprintk("readahead-%s(ino=%lu, index=%lu, ra=%lu+%lu-%lu) = %d\n",
-+			ra_class_name[ra_class],
-+			mapping->host->i_ino, ra->la_index,
-+			ra->ra_index, ra_size, la_size, actual);
-+#endif /* CONFIG_DEBUG_READAHEAD */
-+
-+	return actual;
-+}
-+
-+/*
-  * ra_min is mainly determined by the size of cache memory. Reasonable?
-  *
-  * Table of concrete numbers for 4KB page size:
-@@ -925,10 +1109,10 @@ static void ra_account(struct file_ra_st
- 		return;
+  * Update `backing_dev_info.ra_thrash_bytes' to be a _biased_ average of
+  * read-ahead sizes. Which makes it an a-bit-risky(*) estimation of the
+  * _minimal_ read-ahead thrashing threshold on the device.
+@@ -1760,6 +1785,11 @@ page_cache_readahead_adaptive(struct add
+ 							end_index - index);
+ 			return 0;
+ 		}
++		if (laptop_mode && laptop_spinned_down()) {
++			if (!renew_lookahead(mapping, ra, index,
++						index + LAPTOP_POLL_INTERVAL))
++				return 0;
++		}
+ 	}
  
- 	if (e == RA_EVENT_READAHEAD_HIT && pages < 0) {
--		c = (ra->flags >> RA_CLASS_SHIFT) & RA_CLASS_MASK;
-+		c = ra_class_old(ra);
- 		pages = -pages;
- 	} else if (ra)
--		c = ra->flags & RA_CLASS_MASK;
-+		c = ra_class_new(ra);
- 	else
- 		c = RA_CLASS_NONE;
- 
+ 	if (page)
 
 --

@@ -1,59 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932700AbWEXM3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932706AbWEXMay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932700AbWEXM3g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 08:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932706AbWEXM3g
+	id S932706AbWEXMay (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 08:30:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932721AbWEXMay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 08:29:36 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:14652 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932700AbWEXM3f
+	Wed, 24 May 2006 08:30:54 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:25057 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S932706AbWEXMax
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 08:29:35 -0400
-Subject: [Patch 1/6] statistics infrastructure - prerequisite: list
-	operation
+	Wed, 24 May 2006 08:30:53 -0400
+Subject: [Patch 2/6] statistics infrastructure - prerequisite: parser
+	enhancement
 From: Martin Peschke <mp3@de.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Wed, 24 May 2006 14:29:27 +0200
-Message-Id: <1148473767.2934.10.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+Date: Wed, 24 May 2006 14:30:45 +0200
+Message-Id: <1148473845.2934.13.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds another list_for_each_* derivate. I can't work around it
-because there is a list that I need to search both ways.
+This patch adds a match_* derivate for 64 bit operands to the parser library.
 
 Signed-off-by: Martin Peschke <mp3@de.ibm.com>
 ---
 
- list.h |   13 +++++++++++++
- 1 files changed, 13 insertions(+)
+ include/linux/parser.h |    1 +
+ lib/parser.c           |   30 ++++++++++++++++++++++++++++++
+ 2 files changed, 31 insertions(+)
 
-diff -Nurp a/include/linux/list.h b/include/linux/list.h
---- a/include/linux/list.h	2006-05-19 15:44:27.000000000 +0200
-+++ b/include/linux/list.h	2006-05-19 16:28:14.000000000 +0200
-@@ -411,6 +411,19 @@ static inline void list_splice_init(stru
- 	     pos = list_entry(pos->member.next, typeof(*pos), member))
+diff -Nurp a/lib/parser.c b/lib/parser.c
+--- a/lib/parser.c	2006-03-20 06:53:29.000000000 +0100
++++ b/lib/parser.c	2006-05-19 16:01:48.000000000 +0200
+@@ -140,6 +140,35 @@ static int match_number(substring_t *s, 
+ }
  
  /**
-+ * list_for_each_entry_continue_reverse - list iterator variant
-+ * @pos:	the type * to use as a loop counter.
-+ * @head:	the head for your list.
-+ * @member:	the name of the list_struct within the struct.
++ * match_s64: scan a number in the given base from a substring_t
++ * @s: substring to be scanned
++ * @result: resulting integer on success
++ * @base: base to use when converting string
 + *
-+ * Iterates backwards over list of given type continuing before given point.
++ * Description: Given a &substring_t and a base, attempts to parse the substring
++ * as a number in that base. On success, sets @result to the s64 represented
++ * by the string and returns 0. Returns either -ENOMEM or -EINVAL on failure.
 + */
-+#define list_for_each_entry_continue_reverse(pos, head, member) 	\
-+	for (pos = list_entry(pos->member.prev, typeof(*pos), member);	\
-+	     prefetch(pos->member.prev), &pos->member != (head);	\
-+	     pos = list_entry(pos->member.prev, typeof(*pos), member))
++int match_s64(substring_t *s, s64 *result, int base)
++{
++	char *endp;
++	char *buf;
++	int ret;
++
++	buf = kmalloc(s->to - s->from + 1, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++	memcpy(buf, s->from, s->to - s->from);
++	buf[s->to - s->from] = '\0';
++	*result = simple_strtoll(buf, &endp, base);
++	ret = 0;
++	if (endp == buf)
++		ret = -EINVAL;
++	kfree(buf);
++	return ret;
++}
 +
 +/**
-  * list_for_each_entry_from -	iterate over list of given type
-  *			continuing from existing point
-  * @pos:	the type * to use as a loop counter.
+  * match_int: - scan a decimal representation of an integer from a substring_t
+  * @s: substring_t to be scanned
+  * @result: resulting integer on success
+@@ -218,3 +247,4 @@ EXPORT_SYMBOL(match_octal);
+ EXPORT_SYMBOL(match_hex);
+ EXPORT_SYMBOL(match_strcpy);
+ EXPORT_SYMBOL(match_strdup);
++EXPORT_SYMBOL(match_s64);
+diff -Nurp a/include/linux/parser.h b/include/linux/parser.h
+--- a/include/linux/parser.h	2006-03-20 06:53:29.000000000 +0100
++++ b/include/linux/parser.h	2006-05-19 16:01:48.000000000 +0200
+@@ -31,3 +31,4 @@ int match_octal(substring_t *, int *resu
+ int match_hex(substring_t *, int *result);
+ void match_strcpy(char *, substring_t *);
+ char *match_strdup(substring_t *);
++int match_s64(substring_t *, s64 *result, int);
 
 

@@ -1,67 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932543AbWEXBs6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbWEXBuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932543AbWEXBs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 May 2006 21:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbWEXBs6
+	id S932540AbWEXBuy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 May 2006 21:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932541AbWEXBuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 May 2006 21:48:58 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:13804 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932542AbWEXBs5 (ORCPT
+	Tue, 23 May 2006 21:50:54 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:55259 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932540AbWEXBuy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 May 2006 21:48:57 -0400
-Date: Wed, 24 May 2006 11:48:41 +1000
-From: David Chinner <dgc@sgi.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] Per-superblock unused dentry LRU lists.
-Message-ID: <20060524014841.GA7418631@melbourne.sgi.com>
-References: <20060524012412.GB7412499@melbourne.sgi.com> <20060523184407.dc8b4a2b.rdunlap@xenotime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060523184407.dc8b4a2b.rdunlap@xenotime.net>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 23 May 2006 21:50:54 -0400
+Message-ID: <4473BBEE.6030509@garzik.org>
+Date: Tue, 23 May 2006 21:50:38 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+CC: Jon Smirl <jonsmirl@gmail.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org, "D. Hazelton" <dhazelton@enter.net>
+Subject: Re: OpenGL-based framebuffer concepts
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <44700ACC.8070207@gmail.com> <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com> <200605230048.14708.dhazelton@enter.net> <200605230048.14708.dhazelton@enter.net> <9e4733910605231017g146e16dfnd61eb22a72bd3f5f@mail.gmail.com> <E1Fifom-0003qk-00@chiark.greenend.org.uk>
+In-Reply-To: <E1Fifom-0003qk-00@chiark.greenend.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.1 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 23, 2006 at 06:44:07PM -0700, Randy.Dunlap wrote:
-> On Wed, 24 May 2006 11:24:12 +1000 David Chinner wrote:
-> > +static void
-> > +dentry_lru_del_init(struct dentry *dentry)
-> > +{
-> > +	if (likely(!list_empty(&dentry->d_lru))) {
-> > +		list_del_init(&dentry->d_lru);
-> > +		dentry_stat.nr_unused--;
-> > +	}
-> > +}
-> > +
-> >  /* 
-> >   * This is dput
-> >   *
-> 
-> Please use regular kernel coding style for functions:
-> don't put qualifiers and names on separate lines.
+Matthew Garrett wrote:
+> In the long run, graphics drivers need to know how to program cards from 
+> scratch rather than depending on 80x25 text mod being there for them.
 
-Oops - I'm too used to the XFS coding style. Fixed.
+True in theory, but that's a task of immense proportions.  The Video 
+BIOS is often the only place where RAM timings and other board-specific 
+data lives.
 
-> > @@ -377,6 +399,48 @@ static inline void prune_one_dentry(stru
-> >  	spin_lock(&dcache_lock);
-> >  }
-> >  
-> > +/*
-> > + * Shrink the dentry LRU on æ given superblock.
-> 
-> on ? given superblock ?
+	Jeff
 
-"a". Fixed.
 
-I'll wait for other comments before sending out an updated patch.
 
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-R&D Software Enginner
-SGI Australian Software Group

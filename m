@@ -1,64 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWEXOP0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbWEXO1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbWEXOP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 10:15:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbWEXOP0
+	id S932312AbWEXO1t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 10:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbWEXO1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 10:15:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:32416 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932315AbWEXOPZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 10:15:25 -0400
-Date: Wed, 24 May 2006 10:15:12 -0400
-From: Dave Jones <davej@redhat.com>
-To: Theodore Tso <tytso@mit.edu>, Greg KH <greg@kroah.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add user taint flag
-Message-ID: <20060524141512.GF28702@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Theodore Tso <tytso@mit.edu>, Greg KH <greg@kroah.com>,
-	akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <E1FhwyO-0001YQ-O1@candygram.thunk.org> <20060523184506.GA29044@kroah.com> <20060524133916.GC16705@thunk.org> <20060524135533.GD28702@redhat.com>
+	Wed, 24 May 2006 10:27:49 -0400
+Received: from 187.red-82-159-197.user.auna.net ([82.159.197.187]:33756 "EHLO
+	indy.cmartin.tk") by vger.kernel.org with ESMTP id S932312AbWEXO1t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 10:27:49 -0400
+Subject: Re: A couple of oops.
+From: Carlos =?ISO-8859-1?Q?Mart=EDn?= <carlos@cmartin.tk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>
+In-Reply-To: <20060523174030.3b52ca71.akpm@osdl.org>
+References: <1148408930.7726.11.camel@kiopa>
+	 <20060523174030.3b52ca71.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-hGj2IklJB3Waq6Z48u6P"
+Date: Wed, 24 May 2006 16:26:38 +0200
+Message-Id: <1148480798.4298.7.camel@kiopa>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060524135533.GD28702@redhat.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 24, 2006 at 09:55:33AM -0400, Dave Jones wrote:
- > On Wed, May 24, 2006 at 09:39:16AM -0400, Theodore Tso wrote:
- >  > On Tue, May 23, 2006 at 11:45:06AM -0700, Greg KH wrote:
- >  > > On Sun, May 21, 2006 at 07:04:32PM -0400, Theodore Ts'o wrote:
- >  > > > --- linux-2.6.orig/kernel/panic.c	2006-04-28 21:16:55.000000000 -0400
- >  > > > +++ linux-2.6/kernel/panic.c	2006-05-21 19:00:15.000000000 -0400
- >  > > > @@ -150,6 +150,7 @@
- >  > > >   *  'R' - User forced a module unload.
- >  > > >   *  'M' - Machine had a machine check experience.
- >  > > >   *  'B' - System has hit bad_page.
- >  > > > + *  'U' - Userspace-defined naughtiness.
- >  > > 
- >  > > Just a note, some other distros already use the 'U' flag in taint
- >  > > messages to show an "unsupported" module has been loaded.  I know it's
- >  > > out-of-the-tree and will never go into mainline, just FYI if you happen
- >  > > to see some 'U' flags in the wild today...
- >  > > 
- >  > > Oh, and I like this feature, makes sense to me to have this.
- >  > 
- >  > Should we worry about collisions with what distributions are using?
- >  > That could cause confusion in the future....
- > 
- > We use it in Fedora/RHEL if a module is loaded that hasn't been gpg signed.
- > It's been handy to spot things like 3rd parties replacing jbd.ko with
- > their own variant in bug-reports.
 
-Brainfart on my part. We mark such modules as (U) in the module list in oopses,
-but we don't actually taint.
+--=-hGj2IklJB3Waq6Z48u6P
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Meh, too early for davej's.
+On Tue, 2006-05-23 at 17:40 -0700, Andrew Morton wrote:
+> Carlos Mart=C3=ADn <carlos@cmartin.tk> wrote:
+> >
+> > Hi,
+> >=20
+> > I've nailed this down to something that happened in 2.6.17-rc4. The
+> > system locks up with either a NULL dereference or an unhandable paging
+> > request. The stack trace shows this:
+> >=20
+> > paging request            NULL dereference
+> >=20
+> > _raw_spin_trylock+12    _raw_spin_trylock+20
+> > __spin_lock+22
+> > main_timer_handler+22
+> > timer_interrupt+18
+> > handle_IRQ_event+41
+> > __do_IRQ+156
+> > do_IRQ+51
+> > default_idle+0
+> > _spin_unlock_irq+43
+> > thread_return+187
+> > generic_unplug_device+0
+> > default_idle+45
+> > dev_idle+95 (I can't read the func clearly in this handwriting)
+> > start_secondary+1129
+> >=20
+> > I'm guessing this is the same problem only that it once manifests itsel=
+f
+> > as one and another time as the other. The problem is in the call to
+> > write_seqlock(&xtime_lock) from main_timer_handler().
+> >=20
+> > I've not been able to determine what patch has caused this to happen,
+> > but it is between 2.6.17-rc3 and -rc4. I'm bisecting, but if anybody ha=
+s
+> > a good candidate, it'd probably be faster than doing a complete bisect.
+>=20
+> hm, so an attempt to access xtime_lock.lock results in a null-pointer der=
+ef?
 
-		Dave
+It seems to be xtime_lock.sequence:
+main_timer_handler:
+        pushq   %r13    #
+        movq    %rdi, %r13      # regs, regs
+        movq    $xtime_lock+8, %rdi     #,
+        pushq   %r12    #
+        pushq   %rbp    #
+        pushq   %rbx    #
+        pushq   %rbp    #
+        call    _spin_lock      #
+OOPS--> incl    xtime_lock(%rip)        # xtime_lock.sequence
+        xorl    %r12d, %r12d    # offset
 
--- 
-http://www.codemonkey.org.uk
+>=20
+> x86_64 does novel things, putting xtime_lock into a linker section all of
+> its own.  At a guess I'd say that your compiler/assembler/linker toolchai=
+n
+> got confused and generated the incorrect address for xtime_lock.  But if
+> that was the case you'd get oopses 100% of the time - it wouldn't be
+> intermittent, as your description seems to imply (although it's quite
+> unclear?).
+
+Once I've seen the NULL dereference, the rest are paging request errors.
+Most of the time I'm on X, so I don't actually see output, but the ones
+I've seen have been like that.
+
+It starts somewhere between rc3 and rc4.
+
+With the bisect, now I'm left with a bunch of SCSI patches which don't
+seem to bear any relationship and which I don't use (except for
+usb-storage).
+
+>=20
+> You could do:
+>=20
+> gdb vmlinux
+> (gdb) p &xtime_lock
+> (gdb) x/40i main_timer_handler
+>=20
+--=20
+Carlos Mart=C3=ADn Nieto    |   http://www.cmartin.tk
+Hobbyist programmer    |
+
+--=-hGj2IklJB3Waq6Z48u6P
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQBEdG0eEVXxXOiy6a4RAj50AKCqXakC1teRzV8mMVTfoAU58hjQvACfW0ZG
+iYLZzBVpQPRI0MKTK0GgHf4=
+=V49b
+-----END PGP SIGNATURE-----
+
+--=-hGj2IklJB3Waq6Z48u6P--
+

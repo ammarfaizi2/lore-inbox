@@ -1,59 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932742AbWEXNc3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932743AbWEXNd6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932742AbWEXNc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 09:32:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932741AbWEXNc3
+	id S932743AbWEXNd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 09:33:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932744AbWEXNd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 09:32:29 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:54468 "EHLO
-	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
-	id S932742AbWEXNc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 09:32:28 -0400
-Message-ID: <4474605B.70007@grupopie.com>
-Date: Wed, 24 May 2006 14:32:11 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+	Wed, 24 May 2006 09:33:58 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:61603 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932743AbWEXNd5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 09:33:57 -0400
+Message-ID: <348477632.00893@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Wed, 24 May 2006 21:33:54 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 17/33] readahead: context based method
+Message-ID: <20060524133353.GA16508@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Peter Zijlstra <a.p.zijlstra@chello.nl>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060524111246.420010595@localhost.localdomain> <20060524111905.586110688@localhost.localdomain> <1148474268.10561.53.camel@lappy>
 MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: "D. Hazelton" <dhazelton@enter.net>,
-       Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, Dave Airlie <airlied@linux.ie>
-Subject: Re: OpenGL-based framebuffer concepts
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>	 <E1Fifom-0003qk-00@chiark.greenend.org.uk>	 <9e4733910605231638t4da71284oa37b66a88c60cf8a@mail.gmail.com>	 <200605232324.20876.dhazelton@enter.net> <9e4733910605232121s259e97fdu755e1f2762026e5f@mail.gmail.com>
-In-Reply-To: <9e4733910605232121s259e97fdu755e1f2762026e5f@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1148474268.10561.53.camel@lappy>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> [...]
-> BenH has source for a working emu86. I would wait on that project
-> until klibc has been merged.
+On Wed, May 24, 2006 at 02:37:48PM +0200, Peter Zijlstra wrote:
+> On Wed, 2006-05-24 at 19:13 +0800, Wu Fengguang wrote:
+> 
+> > +#define PAGE_REFCNT_0           0
+> > +#define PAGE_REFCNT_1           (1 << PG_referenced)
+> > +#define PAGE_REFCNT_2           (1 << PG_active)
+> > +#define PAGE_REFCNT_3           ((1 << PG_active) | (1 << PG_referenced))
+> > +#define PAGE_REFCNT_MASK        PAGE_REFCNT_3
+> > +
+> > +/*
+> > + * STATUS   REFERENCE COUNT
+> > + *  __                   0
+> > + *  _R       PAGE_REFCNT_1
+> > + *  A_       PAGE_REFCNT_2
+> > + *  AR       PAGE_REFCNT_3
+> > + *
+> > + *  A/R: Active / Referenced
+> > + */
+> > +static inline unsigned long page_refcnt(struct page *page)
+> > +{
+> > +        return page->flags & PAGE_REFCNT_MASK;
+> > +}
+> > +
+> > +/*
+> > + * STATUS   REFERENCE COUNT      TYPE
+> > + *  __                   0      fresh
+> > + *  _R       PAGE_REFCNT_1      stale
+> > + *  A_       PAGE_REFCNT_2      disturbed once
+> > + *  AR       PAGE_REFCNT_3      disturbed twice
+> > + *
+> > + *  A/R: Active / Referenced
+> > + */
+> > +static inline unsigned long cold_page_refcnt(struct page *page)
+> > +{
+> > +	if (!page || PageActive(page))
+> > +		return 0;
+> > +
+> > +	return page_refcnt(page);
+> > +}
+> > +
+> 
+> Why all of this if all you're ever going to use is cold_page_refcnt.
 
-A while ago I worked on cleaning up the emulator that was first written 
-by SciTech, and then used by X and LinuxBIOS people.
+Well, the two functions have a long history...
 
-The .text size of the emulator went from 59478 to 38225 bytes, but I bet 
-I could shrink it even further. The emulator was a bit optimized for 
-speed, but IMHO we want it optimized for size.
+There has been a PG_activate which makes the two functions quite
+different. It was later removed for fear of the behavior changes it
+introduced. However, there's still possibility that someone
+reintroduce similar flags in the future :)
 
-If I can get the emulator to use, say, 20kB, wouldn't it be better to 
-have it in the kernel instead of as user-space helper?
+> What about something like this:
+> 
+> static inline int cold_page_referenced(struct page *page)
+> {
+> 	if (!page || PageActive(page))
+> 		return 0;
+> 	return !!PageReferenced(page);
+> }
 
-This would allow the graphics driver to call BIOS functions as if they 
-were regular functions, i.e., you could call on a BIOS function to set 
-the graphics mode and continue execution when the BIOS function completes.
+Ah, here's another theory: the algorithm uses reference count
+conceptually, so it may be better to retain the current form.
 
-A user mode helper will always be more cumbersome from a programming 
-POV. Not to mention that it would be a lot easier for distro maintainers...
-
--- 
-Paulo Marques - www.grupopie.com
-
-Pointy-Haired Boss: I don't see anything that could stand in our way.
-            Dilbert: Sanity? Reality? The laws of physics?
+Thanks,
+Wu

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932637AbWEXHGs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932635AbWEXHIP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932637AbWEXHGs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 03:06:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932634AbWEXHGr
+	id S932635AbWEXHIP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 03:08:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932633AbWEXHIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 03:06:47 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:47247 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S932632AbWEXHGq (ORCPT
+	Wed, 24 May 2006 03:08:15 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:47759 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S932634AbWEXHIO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 03:06:46 -0400
-Date: Wed, 24 May 2006 03:06:45 -0400
+	Wed, 24 May 2006 03:08:14 -0400
+Date: Wed, 24 May 2006 03:08:13 -0400
 From: Jeff Garzik <jeff@garzik.org>
-To: netdev@vger.kernel.org
+To: linux-ide@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
-Subject: What's in netdev-2.6.git
-Message-ID: <20060524070645.GA11392@havoc.gtf.org>
+Subject: What's in libata-dev.git
+Message-ID: <20060524070813.GA11438@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,261 +24,245 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 The 'upstream' branch of
-git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
+git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
 
 contains the following updates (queued for 2.6.18):
 
- Documentation/networking/README.ipw2200         |   10 
- MAINTAINERS                                     |    6 
- drivers/net/Kconfig                             |   33 
- drivers/net/Makefile                            |    2 
- drivers/net/au1000_eth.c                        |  206 -
- drivers/net/cassini.c                           |    9 
- drivers/net/e1000/Makefile                      |    3 
- drivers/net/e1000/e1000.h                       |    6 
- drivers/net/e1000/e1000_ethtool.c               |   47 
- drivers/net/e1000/e1000_hw.c                    |  115 
- drivers/net/e1000/e1000_hw.h                    |    7 
- drivers/net/e1000/e1000_main.c                  |  271 --
- drivers/net/e1000/e1000_osdep.h                 |    3 
- drivers/net/e1000/e1000_param.c                 |    3 
- drivers/net/ibmlana.c                           |   20 
- drivers/net/ibmlana.h                           |    6 
- drivers/net/ibmveth.c                           |  291 +-
- drivers/net/ibmveth.h                           |   11 
- drivers/net/ixgb/ixgb.h                         |    9 
- drivers/net/ixgb/ixgb_ethtool.c                 |   55 
- drivers/net/ixgb/ixgb_hw.h                      |    1 
- drivers/net/ixgb/ixgb_ids.h                     |    4 
- drivers/net/ixgb/ixgb_main.c                    |  132 -
- drivers/net/ixgb/ixgb_param.c                   |   24 
- drivers/net/myri10ge/Makefile                   |    5 
- drivers/net/myri10ge/myri10ge.c                 | 2851 ++++++++++++++++++++++++
- drivers/net/myri10ge/myri10ge_mcp.h             |  205 +
- drivers/net/myri10ge/myri10ge_mcp_gen_header.h  |   58 
- drivers/net/pcmcia/pcnet_cs.c                   |   42 
- drivers/net/phy/Kconfig                         |    6 
- drivers/net/phy/Makefile                        |    1 
- drivers/net/phy/smsc.c                          |  101 
- drivers/net/s2io-regs.h                         |   32 
- drivers/net/s2io.c                              | 1476 +++++++++---
- drivers/net/s2io.h                              |   59 
- drivers/net/sis900.c                            |   26 
- drivers/net/sis900.h                            |   10 
- drivers/net/sky2.c                              |   19 
- drivers/net/smc911x.c                           | 2307 +++++++++++++++++++
- drivers/net/smc911x.h                           |  835 +++++++
- drivers/net/smc91x.h                            |   18 
- drivers/net/wan/pci200syn.c                     |   27 
- drivers/net/wireless/Kconfig                    |   30 
- drivers/net/wireless/airo.c                     |  271 +-
- drivers/net/wireless/bcm43xx/bcm43xx.h          |    1 
- drivers/net/wireless/bcm43xx/bcm43xx_debugfs.c  |    2 
- drivers/net/wireless/bcm43xx/bcm43xx_main.c     |   35 
- drivers/net/wireless/hermes.c                   |   66 
- drivers/net/wireless/hermes.h                   |   43 
- drivers/net/wireless/hostap/hostap_80211_tx.c   |    1 
- drivers/net/wireless/hostap/hostap_ap.c         |   11 
- drivers/net/wireless/hostap/hostap_cs.c         |    6 
- drivers/net/wireless/hostap/hostap_main.c       |    2 
- drivers/net/wireless/ipw2200.c                  |  849 ++++++-
- drivers/net/wireless/ipw2200.h                  |   83 
- drivers/net/wireless/orinoco.c                  |  251 --
- drivers/net/wireless/orinoco.h                  |   19 
- drivers/net/wireless/orinoco_cs.c               |   42 
- drivers/net/wireless/orinoco_nortel.c           |  171 -
- drivers/net/wireless/orinoco_pci.c              |  210 -
- drivers/net/wireless/orinoco_pci.h              |  104 
- drivers/net/wireless/orinoco_plx.c              |  223 -
- drivers/net/wireless/orinoco_tmd.c              |   99 
- drivers/net/wireless/spectrum_cs.c              |   81 
- drivers/pci/pci.c                               |    3 
- drivers/s390/net/Makefile                       |    3 
- drivers/s390/net/ctcmain.c                      |   45 
- drivers/s390/net/ctcmain.h                      |   12 
- drivers/s390/net/ctctty.c                       | 1259 ----------
- drivers/s390/net/ctctty.h                       |   35 
- include/linux/pci.h                             |    2 
- include/linux/pci_ids.h                         |    2 
- include/net/ieee80211.h                         |    6 
- include/net/ieee80211softmac.h                  |   38 
- include/net/ieee80211softmac_wx.h               |    5 
- net/ieee80211/ieee80211_crypt_tkip.c            |   11 
- net/ieee80211/ieee80211_rx.c                    |   18 
- net/ieee80211/ieee80211_tx.c                    |   63 
- net/ieee80211/ieee80211_wx.c                    |   44 
- net/ieee80211/softmac/ieee80211softmac_assoc.c  |   74 
- net/ieee80211/softmac/ieee80211softmac_auth.c   |    3 
- net/ieee80211/softmac/ieee80211softmac_event.c  |   25 
- net/ieee80211/softmac/ieee80211softmac_module.c |  117 
- net/ieee80211/softmac/ieee80211softmac_priv.h   |    5 
- net/ieee80211/softmac/ieee80211softmac_wx.c     |   36 
- 85 files changed, 10278 insertions(+), 3480 deletions(-)
+ drivers/ide/pci/amd74xx.c         |    7 
+ drivers/scsi/Makefile             |    2 
+ drivers/scsi/ahci.c               |  436 +++---
+ drivers/scsi/ata_piix.c           |   25 
+ drivers/scsi/libata-bmdma.c       |  143 ++
+ drivers/scsi/libata-core.c        | 2525 ++++++++++++++++++++++++--------------
+ drivers/scsi/libata-eh.c          | 1561 +++++++++++++++++++++++
+ drivers/scsi/libata-scsi.c        |  408 +++---
+ drivers/scsi/libata.h             |   24 
+ drivers/scsi/pdc_adma.c           |   10 
+ drivers/scsi/sata_mv.c            |   70 -
+ drivers/scsi/sata_nv.c            |   13 
+ drivers/scsi/sata_promise.c       |   39 
+ drivers/scsi/sata_qstor.c         |   14 
+ drivers/scsi/sata_sil.c           |   66 
+ drivers/scsi/sata_sil24.c         |  615 +++++----
+ drivers/scsi/sata_sis.c           |    3 
+ drivers/scsi/sata_svw.c           |    5 
+ drivers/scsi/sata_sx4.c           |   20 
+ drivers/scsi/sata_uli.c           |    3 
+ drivers/scsi/sata_via.c           |    3 
+ drivers/scsi/sata_vsc.c           |   16 
+ drivers/scsi/scsi.c               |   18 
+ drivers/scsi/scsi_error.c         |   24 
+ drivers/scsi/scsi_lib.c           |    2 
+ drivers/scsi/scsi_transport_api.h |    6 
+ include/linux/ata.h               |   34 
+ include/linux/libata.h            |  386 ++++-
+ include/linux/pci_ids.h           |    4 
+ include/scsi/scsi_cmnd.h          |    1 
+ include/scsi/scsi_host.h          |    1 
+ 31 files changed, 4764 insertions(+), 1720 deletions(-)
 
-Adrian Bunk:
-      ieee80211_wx.c: remove dead code
-      drivers/net/s2io.c: make bus_speed[] static
+Alan Cox:
+      libata: PIO 0
+      libata - fix bracketing and DMA oops
+      PATCH: libata. Add ->data_xfer method
+      ata_piix formatting
+      libata: Remove obsolete flag
 
-Ananda Raju:
-      s2io: performance improvements
-      s2io: input parms, output messages update
-      s2io: fixes
-      s2io: additional stats
-      s2io: init/shutdown fixes
+Albert Lee:
+      libata: interrupt driven pio for libata-core
+      libata: interrupt driven pio for LLD
+      libata irq-pio: add comments and cleanup
+      libata irq-pio: rename atapi_packet_task() and comments
+      libata irq-pio: simplify if condition in ata_dataout_task()
+      libata irq-pio: cleanup ata_qc_issue_prot()
+      libata: move atapi_send_cdb() and ata_dataout_task()
+      [libata irq-pio] reorganize ata_pio_sector() and __atapi_pio_bytes()
+      [libata irq-pio] reorganize "buf + offset" in ata_pio_sector()
+      [libata irq-pio] use PageHighMem() to optimize the kmap_atomic() usage
+      libata irq-pio: misc fixes
+      libata irq-pio: merge the ata_dataout_task workqueue with ata_pio_task workqueue
+      libata irq-pio: eliminate unnecessary queuing in ata_pio_first_block()
+      libata irq-pio: add read/write multiple support
+      libata-dev: determine err_mask when error is found
+      libata-dev: filter out noisy ATAPI error messages
+      libata-dev: Fix array index value in ata_rwcmd_protocol()
+      libata-dev: Use new ata_queue_pio_task() for PIO polling task
+      libata-dev: Use new AC_ERR_* flags
+      libata-dev: Minor comment fix
+      libata-dev: recognize WRITE_MULTI_FUA_EXT for r/w multiple
+      libata-dev: Remove trailing whitespaces
+      libata-dev: Fix merge problem with upstream
+      libata-dev: Remove atapi_packet_task()
+      libata-dev: Move out the HSM code from ata_host_intr()
+      libata-dev: Minor fix for ata_hsm_move() to work with ata_host_intr()
+      libata-dev: Let ata_hsm_move() work with both irq-pio and polling pio
+      libata-dev: Convert ata_pio_task() to use the new ata_hsm_move()
+      libata-dev: Cleanup unused enums/functions
+      libata-dev: ata_check_atapi_dma() fix for ATA_FLAG_PIO_POLLING LLDDs
+      libata-dev: Make the the in_wq check as an inline function
+      libata-dev: irq-pio minor fixes (respin)
+      libata-dev: fix the device err check sequence (respin)
+      libata-dev: wait idle after reading the last data block
+      libata-dev: print out information for ATAPI devices with CDB interrupts
+      libata-dev: handle DRQ=1 ERR=1 (revised)
+      libata-dev: irq-pio minor fix
+      libata-dev: irq-pio minor fix 2
+      libata: convert ATAPI_ENABLE_DMADIR to module parameter
+      libata: Fix the HSM error_mask mapping (was: Re: libata-tj and SMART)
+      libata: use qc->result_tf for temp taskfile storage
+      libata: add pio flush for via atapi (was: Re: TR: ASUS A8V Deluxe, x86_64)
+      libata: minor fix for irq-pio merge
 
-Arjan van de Ven:
-      unused exports in wireless drivers
+Andrew Chew:
+      sata_nv: Add MCP61 support
 
-Auke Kok:
-      e1000: Remove PM warning DPRINTKs breaking 2.4.x kernels
-      e1000: Esb2 wol link cycle bug and uninitialized registers
-      e1000: De-inline functions to benefit from compiler smartness
-      e1000: Made an adapter struct variable into a local (txb2b)
-      e1000: Update truesize with the length of the packet for packet split
-      e1000: Dead variable cleanup
-      e1000: Buffer optimizations for small MTU
-      e1000: implement more efficient tx queue locking
-      e1000: Version bump, contact fix, year string change
-      {e100{,0},ixgb}: Add Auke Kok as new patch maintainer for e{100,1000} and ixgb
-      e1000: fix mispatch for media type detect.
-      e1000: fix mismerge skb_put.
-      ixgb: fix rare early tso completion
-      ixgb: remove duplicate code setting duplex and speed
-      ixgb: fix flow control
-      ixgb: add NETIF_F_LLTX analogous to e1000
-      ixgb: add copper 10gig driver id
-      ixgb: remove hardcoded number
-      ixgb: use DPRINTK and msglvl, and ethtool to control it
-      ixgb: add tx timeout counter
-      ixgb: increment version to 1.0.104-k2
-      e1000: add shutdown handler back to fix WOL
-      e1000: remove backslash r debug printfs
-      e1000: remove leading and trailing whitespace.
-      e1000: Fix date string in Makefile
-      e1000: remove changelog in driver
-      e1000: bump version to 7.0.38-k4
-
-Brice Goglin:
-      Revive pci_find_ext_capability
-      Add Myri-10G Ethernet driver
-
-Dan Williams:
-      wireless/airo: minimal WPA awareness
-
-Daniel Drake:
-      softmac: deauthentication implies deassociation
-      softmac: suggest per-frame-type TX rate
-
-Daniele Venzano:
-      Add VLAN (802.1q) support to sis900 driver
-
-Dustin McIntire:
-      RE: [PATCH 1/1] net driver: Add support for SMSC LAN911x line of ethernet chips
-
-Florin Malita:
-      orinoco: possible null pointer dereference in orinoco_rx_monitor()
-
-Frank Pavlic:
-      s390: remove tty support from ctc network device driver [1/2]
-      s390: remove tty support from ctc network device driver [2/2]
-
-Herbert Valerio Riedel:
-      phy: new SMSC LAN83C185 PHY driver
+Bastiaan Jacques:
+      ahci: add support for VIA VT8251
 
 Jeff Garzik:
-      [netdrvr smc911x] trim trailing whitespace
-      [netdrvr pcnet_cs, myri] trim trailing whitespace
-      [netdrvr ibmlana, ibmveth] trim trailing whitespace
+      [libata irq-pio] build fix
+      [libata pdc_adma] update for removal of ATA_FLAG_NOINTR
+      [libata pdc_adma] fix for new irq-driven PIO code
+      [libata sata_mv] IRQ PIO build fix
+      [libata] irq-pio: fix breakage related to err_mask merge
+      [libata sata_promise] irq_pio: fix merge bug
+      [libata] build fix after merging some pre-packet_task-removal code
+      [libata irq-pio] s/assert/WARN_ON/
+      [libata] build fix after cdb_len move
+      sata_vsc build fix
+      libata: irq-pio build fixes
+      [libata] irq-pio: fix build breakage
+      [libata] irq-pio: Fix merge mistake
+      [libata] kill bogus cut-n-pasted comments in three drivers
+      [libata] bump versions
+      libata: Fix EH merge difference between this branch and upstream.
+      libata: Add helper ata_shost_to_port()
+      [libata sata_promise] Add PATA cable detection.
+      [libata] libata-scsi, sata_mv: trim trailing whitespace
 
-Jiri Benc:
-      orinoco: fix BAP0 offset error after several days of operation
+Luben Tuikov:
+      SCSI: Introduce scsi_req_abort_cmd (REPOST)
 
-Johannes Berg:
-      sungem: Marvell PHY suspend
-      softmac: add SIOCSIWMLME
-      softmac: clean up event handling code
+Mark Lord:
+      sata_mv: endian annotations
 
-Krzysztof Halasa:
-      Goramo PCI200SYN WAN driver subsystem ID patch
+Tejun Heo:
+      libata: increase LBA48 max sectors to 65535
+      libata: fix ata_set_mode() return value
+      libata: make ata_bus_probe() return negative errno on failure
+      libata: separate out ata_spd_string()
+      libata: convert do_probe_reset() to ata_do_reset()
+      libata: implement ata_dev_enabled and disabled()
+      libata: make ata_set_mode() handle no-device case properly
+      libata: reorganize ata_set_mode()
+      libata: don't disable devices from ata_set_mode()
+      libata: preserve SATA SPD setting over hard resets
+      libata: implement ata_dev_absent()
+      libata: implement ap->sata_spd_limit and helpers
+      libata: use SATA speed down in ata_drive_probe_reset()
+      libata: add 5s sleep between resets
+      libata: implement ata_down_xfermask_limit()
+      libata: improve ata_bus_probe()
+      libata: consider disabled devices in ata_dev_xfermask()
+      libata: report device number when PIO fails
+      libata: ata_dev_revalidate() printk update
+      libata: ATA_FLAG_IN_EH is not used, kill it
+      libata: clean up constants
+      libata: rename ATA_FLAG_PORT_DISABLED to ATA_FLAG_DISABLED
+      libata: clear only affected flags during ata_dev_configure()
+      libata: clear ATA_DFLAG_PIO before setting it
+      libata: add ATA_QCFLAG_IO
+      libata: pass qc around intead of ap during PIO
+      libata: always generate sense if qc->err_mask is non-zero
+      libata: don't read TF directly from sense generation functions
+      libata: add @cdb to ata_exec_internal()
+      libata: dec scmd->retries for qcs with zero err_mask
+      libata: separate out libata-eh.c
+      libata: make some libata-core routines extern
+      libata: print SControl in SATA link status info message
+      ahci: do not fail softreset if PHY reports no device
+      libata: set default cbl in probeinit
+      libata: kill @verbose from ata_reset_fn_t
+      libata: make reset methods complain when they fail
+      sata_sil24: fix timeout calculation in sil24_softreset
+      sata_sil24: better error message from softreset
+      libata: implement ata_wait_register()
+      ahci: use ata_wait_register()
+      sata_sil24: use ata_wait_register()
+      libata: disable failed devices only once in ata_bus_probe()
+      libata: cosmetic update to ata_bus_probe()
+      libata: export ata_set_sata_spd()
+      sata_sil24: typo fix
+      sata_sil24: rename PORT_IRQ_SDB_FIS to PORT_IRQ_SDB_NOTIFY
+      sata_sil24: add more constants
+      sata_sil24: consolidate host flags into SIL24_COMMON_FLAGS
+      sata_sil24: implement loss of completion interrupt on PCI-X errta fix
+      sata_sil24: implement sil24_init_port()
+      sata_sil24: put port into known state before softresetting
+      sata_sil24: kill 10ms sleep in softreset
+      sata_sil24: reimplement hardreset
+      sata_sil24: don't do hardreset during driver initialization
+      sata_sil24: fix on-memory structure byteorder
+      sata_sil24: enable 64bit
+      SCSI: implement shost->host_eh_scheduled
+      libata: silly fix in ata_scsi_start_stop_xlat()
+      libata: rename ata_down_sata_spd_limit() and friends
+      ahci: hardreset classification fix
+      libata: unexport ata_scsi_error()
+      libata: kill duplicate prototypes
+      libata: fix ->phy_reset class code handling in ata_bus_probe()
+      libata: clear ap->active_tag atomically w.r.t. command completion
+      libata: hold host_set lock while finishing internal qc
+      libata: use preallocated buffers
+      libata: move ->set_mode() handling into ata_set_mode()
+      libata: remove postreset handling from ata_do_reset()
+      libata: implement qc->result_tf
+      sata_sil24: update TF image only when necessary
+      libata: init ap->cbl to ATA_CBL_SATA early
+      libata: implement new SCR handling and port on/offline functions
+      libata: use new SCR and on/offline functions
+      libata: kill old SCR functions and sata_dev_present()
+      libata: add dev->ap
+      libata: use dev->ap
+      libata: implement ATA printk helpers
+      libata: use ATA printk helpers
+      libata-eh-fw: add flags and operations for new EH
+      libata-eh-fw: clear SError in ata_std_postreset()
+      libata-eh-fw: use special reserved tag and qc for internal commands
+      libata-eh-fw: update ata_qc_from_tag() to enforce normal/EH qc ownership
+      libata-eh-fw: implement new EH scheduling via error completion
+      libata-eh-fw: implement ata_port_schedule_eh() and ata_port_abort()
+      libata-eh-fw: implement freeze/thaw
+      libata-eh-fw: implement new EH scheduling from PIO
+      libata-eh-fw: update ata_scsi_error() for new EH
+      libata-eh-fw: update ata_exec_internal() for new EH
+      libata-eh-fw: update SCSI command completion path for new EH
+      libata-eh: add ATA and libata flags for new EH
+      libata-eh: implement dev->ering
+      libata-eh: implement ata_eh_info and ata_eh_context
+      libata-eh: implement new EH
+      libata-eh: implement BMDMA EH
+      ata_piix: convert to new EH
+      sata_sil: convert to new EH
+      ahci: convert to new EH
+      ahci: add PIOS interim interrupt handling
+      sata_sil24: convert to new EH
+      libata: fix irq-pio merge
+      libata-ncq: add NCQ related ATA/libata constants and macros
+      libata-ncq: pass ata_scsi_translate() return value to SCSI midlayer
+      libata-ncq: rename ap->qactive to ap->qc_allocated
+      libata-ncq: implement ap->qc_active, ap->sactive and complete helper
+      libata-ncq: implement NCQ command translation and exclusion
+      libata-ncq: update EH to handle NCQ
+      libata-ncq: implement NCQ device configuration
+      ahci: clean up AHCI constants in preparation for NCQ
+      ahci: add HOST_CAP_NCQ constant
+      ahci: kill pp->cmd_tbl_sg
+      ahci: implement NCQ suppport
+      sata_sil24: implement NCQ support
+      libata: enforce default EH actions
+      SCSI: make scsi_implement_eh() generic API for SCSI transports
 
-Lennert Buytenhek:
-      smc91x: add support for LogicPD PXA270 platform
-
-Marc Zyngier:
-      netdrvr: Convert cassini to pci_iomap
-
-Marcin Juszkiewicz:
-      hostap: new pcmcia IDs
-      pcnet_cs: Add TRENDnet TE-CF100 ethernet adapter ID
-
-Michael Buesch:
-      bcm43xx: use pci_iomap() for convenience.
-
-Michal Schmidt:
-      wireless/airo: minimal WPA awareness
-
-Pavel Roskin:
-      orinoco: Remove useless CIS validation
-      orinoco: remove PCMCIA audio support, it's useless for wireless cards
-      orinoco: remove underscores from little-endian field names
-      orinoco: remove tracing code, it's unused
-      orinoco: remove debug buffer code and userspace include support
-      orinoco: Symbol card supported by spectrum_cs is LA4137, not LA4100
-      orinoco: optimize Tx exception handling in orinoco
-      orinoco: orinoco_xmit() should only return valid symbolic constants
-      orinoco replace hermes_write_words() with hermes_write_bytes()
-      orinoco: don't use any padding for Tx frames
-      orinoco: refactor and clean up Tx error handling
-      orinoco: simplify 802.3 encapsulation code
-      orinoco: delay FID allocation after firmware initialization
-      orinoco_pci: disable device and free IRQ when suspending
-      orinoco_pci: use pci_iomap() for resources
-      orinoco: support PCI suspend/resume for Nortel, PLX and TMD adaptors
-      orinoco: reduce differences between PCI drivers, create orinoco_pci.h
-      orinoco: further comment cleanup in the PCI drivers
-      orinoco: bump version to 0.15
-      orinoco: unregister network device before releasing PCMCIA resources
-      orinoco: report more relevant data on startup
-      orinoco: simplify locking, fix error handling in PCMCIA resume
-      orinoco: eliminate the suspend/resume functions if CONFIG_PM is unset
-      orinoco: don't put PCI resource data to the network device
-
-Santiago Leon:
-      ibmveth change buffer pools dynamically
-
-Sergei Shtylyov:
-      au1000_eth.c probe code straightened up
-
-Stefano Brivio:
-      bcm43xx: fix whitespace
-      bcm43xx: add PCI ID for bcm4319
-
-Stephen Hemminger:
-      sky2: fix jumbo packet support
-
-Zhu Yi:
-      ieee80211: Fix TKIP MIC calculation for QoS frames
-      ieee80211: Fix TX code doesn't enable QoS when using WPA + QoS
-      ieee80211: export list of bit rates with standard WEXT procddures
-      ieee80211: remove unnecessary CONFIG_WIRELESS_EXT checking
-      ieee80211: replace debug IEEE80211_WARNING with each own debug macro
-      ieee80211: update version stamp to 1.1.13
-      ipw2200: Exponential averaging for signal and noise Level
-      ipw2200: Fix TX QoS enabled frames problem
-      ipw2200: generates a scan event after a scan has completed
-      ipw2200: add module_param support for antenna selection
-      ipw2200: fix compile warning when !CONFIG_IPW2200_DEBUG
-      ipw2200: Do not continue loading the firmware if kmalloc fails
-      ipw2200: turn off signal debug log
-      ipw2200: Set the 'fixed' flags in wext get_rate
-      ipw2200: Fix endian issues with v3.0 fw image format
-      README.ipw2200: rename CONFIG_IPW_DEBUG to CONFIG_IPW2200_DEBUG
-      ipw2200: Enable rtap interface for RF promiscuous mode while associated
-      ipw2200: version string rework
-      ipw2200: update version stamp to 1.1.2
-      ipw2200: rename CONFIG_IPW_QOS to CONFIG_IPW2200_QOS
-      wireless Kconfig add IPW2200_RADIOTAP
-      ipw2200: rename CONFIG_IEEE80211_RADIOTAP to CONFIG_IPW2200_RADIOTAP
-      ipw2200: remove priv->last_noise reference
-      ipw2200: Fix wpa_supplicant association problem
+Thomas Glanzmann:
+      Add PCI ID for the Intel IDE Controller which is in the Intel Mac Minis shipped in first quarter 2006
 

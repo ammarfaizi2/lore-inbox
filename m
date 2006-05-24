@@ -1,20 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbWEXQDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbWEXQGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932311AbWEXQDS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 12:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbWEXQDS
+	id S932321AbWEXQGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 12:06:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932736AbWEXQGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 12:03:18 -0400
-Received: from www.osadl.org ([213.239.205.134]:8413 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S932311AbWEXQDR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 12:03:17 -0400
+	Wed, 24 May 2006 12:06:09 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:56535 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S932321AbWEXQGI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 12:06:08 -0400
 Subject: Re: Ingo's  realtime_preempt patch causes kernel oops
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
+From: Daniel Walker <dwalker@mvista.com>
 To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Sven-Thorsten Dietrich <sven@mvista.com>, Yann.LEPROVOST@wavecom.fr,
-       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
+Cc: Sven-Thorsten Dietrich <sven@mvista.com>, tglx@linutronix.de,
+       Yann.LEPROVOST@wavecom.fr, linux-kernel@vger.kernel.org,
        linux-kernel-owner@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
 In-Reply-To: <1148485943.24623.54.camel@localhost.localdomain>
 References: <OFD8B7556E.13DD6F3A-ONC1257178.002C2D9A-C1257178.002D1FC5@wavecom.fr>
@@ -23,51 +22,28 @@ References: <OFD8B7556E.13DD6F3A-ONC1257178.002C2D9A-C1257178.002D1FC5@wavecom.f
 	 <1148484729.14683.5.camel@localhost.localdomain>
 	 <1148485943.24623.54.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Wed, 24 May 2006 18:03:34 +0200
-Message-Id: <1148486614.5239.63.camel@localhost.localdomain>
+Date: Wed, 24 May 2006 09:06:03 -0700
+Message-Id: <1148486764.3535.145.camel@c-67-180-134-207.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-24 at 11:52 -0400, Steven Rostedt wrote:
-> > > As I said yesterday. You need a demultiplexer for such cases.
-> > > 
-> > 
-> > Would IRQs stay masked until the thread has finished running?
+>  Would IRQs stay masked until the thread has finished running?
 > 
 > I would say yes.  But the system is basically broken if you have the
 > same interrupt line that needs both to be threaded and NODELAY.
-> 
-> Basically, the best I can think to have for such a case, is all
-> interrupt threads that have a shared NODELAY run at MAX_PRIO (99).  So
-> that they act like a NODELAY interrupt, in that they run over everything
-> else, but they can still schedule.
 
-Err. That's why you use demultiplexers. The demux handler is always
-NODELAY.
+It's certainly less than and ideal situation .. If set an interrupt as
+SA_NODELAY you'd think that it's suppose to be high priority , but then
+you share it with something that's not high high priority which doesn't
+make a lot of sense ..
 
-shared IRQ
--> demux_handler
-	disable shared irq
-	identify interrupt sources
-	for all sources:
-		calculate the interrupt number
-		irq_desc[number]->handle_irq(.....)
-			disable/ack a particular source
-			if NODELAY 
-				call handler and reenable if appropriate
-			else 
-				wakeup thread
-	enable shared irq
+However, the PCI bus doesn't (as far as I know) allow for interrupts to
+easily be isolated .. So, with PCI, you may end up with potentially high
+priority interrupts shared with some other interrupt .. So it is a
+situation that could happen, maybe even often .
 
-That's the way you really want to do it. Granted, that this is not
-possible with the current implementation of PCI cards, but for the SoC
-peripherals this is usually simple to do.
-
-The ARM tree has tons of examples which do exactly this.
-
-	tglx
-
+Daniel
 

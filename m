@@ -1,210 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932732AbWEXMfi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932729AbWEXMho@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932732AbWEXMfi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 08:35:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932731AbWEXMfh
+	id S932729AbWEXMho (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 08:37:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932731AbWEXMho
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 08:35:37 -0400
-Received: from mtagate6.uk.ibm.com ([195.212.29.139]:15806 "EHLO
-	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP id S932733AbWEXMfg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 08:35:36 -0400
-Subject: [Patch 6/6] statistics infrastructure - exploitation: zfcp
-From: Martin Peschke <mp3@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Wed, 24 May 2006 14:35:28 +0200
-Message-Id: <1148474128.2934.21.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 24 May 2006 08:37:44 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:36265 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932729AbWEXMhn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 08:37:43 -0400
+Message-ID: <348474258.29290@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Wed, 24 May 2006 20:37:40 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 04/33] readahead: page flag PG_readahead
+Message-ID: <20060524123740.GA16304@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Peter Zijlstra <a.p.zijlstra@chello.nl>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060524111246.420010595@localhost.localdomain> <20060524111858.869793445@localhost.localdomain> <1148473656.10561.46.camel@lappy>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1148473656.10561.46.camel@lappy>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch instruments the zfcp driver and makes it feed statistics data
-into the statistics infrastructure.
+On Wed, May 24, 2006 at 02:27:36PM +0200, Peter Zijlstra wrote:
+> On Wed, 2006-05-24 at 19:12 +0800, Wu Fengguang wrote:
+> > plain text document attachment
+> > (readahead-page-flag-PG_readahead.patch)
+> > An new page flag PG_readahead is introduced as a look-ahead mark, which
+> > reminds the caller to give the adaptive read-ahead logic a chance to do
+> > read-ahead ahead of time for I/O pipelining.
+> > 
+> > It roughly corresponds to `ahead_start' of the stock read-ahead logic.
+> > 
+> > Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
+> > ---
+> > 
+> >  include/linux/page-flags.h |    5 +++++
+> >  mm/page_alloc.c            |    2 +-
+> >  2 files changed, 6 insertions(+), 1 deletion(-)
+> > 
+> > --- linux-2.6.17-rc4-mm3.orig/include/linux/page-flags.h
+> > +++ linux-2.6.17-rc4-mm3/include/linux/page-flags.h
+> > @@ -89,6 +89,7 @@
+> >  #define PG_reclaim		17	/* To be reclaimed asap */
+> >  #define PG_nosave_free		18	/* Free, should not be written */
+> >  #define PG_buddy		19	/* Page is free, on buddy lists */
+> > +#define PG_readahead		20	/* Reminder to do readahead */
+> >  
+> 
+> Page flags are gouped by four, 20 would start a new set.
+> Also in my tree (git from a few days ago), 20 is taken by PG_unchached.
 
-Signed-off-by: Martin Peschke <mp3@de.ibm.com>
-Acked-by: Andreas Herrmann <aherrman@de.ibm.com>
+Thanks, grouped and renumbered it as 21.
+
+> What code is this patch-set against?
+
+It's against the latest -mm tree: linux-2.6.17-rc4-mm3.
+
+Wu
 ---
 
- zfcp_ccw.c  |   24 ++++++++++++++++++++++++
- zfcp_def.h  |   10 ++++++++++
- zfcp_erp.c  |    2 ++
- zfcp_fsf.c  |   13 ++++++++++---
- zfcp_qdio.c |    4 ++++
- 5 files changed, 50 insertions(+), 3 deletions(-)
+Subject: readahead: page flag PG_readahead
 
-diff -Nurp a/drivers/s390/scsi/zfcp_ccw.c b/drivers/s390/scsi/zfcp_ccw.c
---- a/drivers/s390/scsi/zfcp_ccw.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/drivers/s390/scsi/zfcp_ccw.c	2006-05-19 16:02:38.000000000 +0200
-@@ -140,6 +140,17 @@ zfcp_ccw_remove(struct ccw_device *ccw_d
- 	up(&zfcp_data.config_sema);
- }
+An new page flag PG_readahead is introduced as a look-ahead mark, which
+reminds the caller to give the adaptive read-ahead logic a chance to do
+read-ahead ahead of time for I/O pipelining.
+
+It roughly corresponds to `ahead_start' of the stock read-ahead logic.
+
+Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
+---
+ include/linux/page-flags.h |    5 +++++
+ mm/page_alloc.c            |    2 +-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+--- linux-2.6.17-rc4-mm3.orig/include/linux/page-flags.h
++++ linux-2.6.17-rc4-mm3/include/linux/page-flags.h
+@@ -90,6 +90,8 @@
+ #define PG_nosave_free		18	/* Free, should not be written */
+ #define PG_buddy		19	/* Page is free, on buddy lists */
  
-+static struct statistic_info zfcp_statinfo_a[] = {
-+	{ /* ZFCP_STAT_A_QOF */
-+	  "qdio_outb_full", "sbals_left", "", 0, "type=counter_inc" },
-+	{ /* ZFCP_STAT_A_QO */
-+	  "qdio_outb", "sbals_used", "", 0, "type=utilisation" },
-+	{ /* ZFCP_STAT_A_QI */
-+	  "qdio_inb", "sbals_used", "", 0, "type=utilisation" },
-+	{ /* ZFCP_STAT_A_ERP */
-+	  "erp", "", "", 0, "type=counter_inc" }
-+};
++#define PG_readahead		21	/* Reminder to do readahead */
 +
- /**
-  * zfcp_ccw_set_online - set_online function of zfcp driver
-  * @ccw_device: pointer to belonging ccw device
-@@ -153,6 +164,7 @@ static int
- zfcp_ccw_set_online(struct ccw_device *ccw_device)
- {
- 	struct zfcp_adapter *adapter;
-+	char name[14];
- 	int retval;
  
- 	down(&zfcp_data.config_sema);
-@@ -161,6 +173,15 @@ zfcp_ccw_set_online(struct ccw_device *c
- 	retval = zfcp_adapter_debug_register(adapter);
- 	if (retval)
- 		goto out;
-+
-+	sprintf(name, "zfcp-%s", zfcp_get_busid_by_adapter(adapter));
-+	adapter->stat_if.stat = adapter->stat;
-+	adapter->stat_if.info = zfcp_statinfo_a;
-+	adapter->stat_if.number = _ZFCP_STAT_A_NUMBER;
-+	retval = statistic_create(&adapter->stat_if, name);
-+	if (retval)
-+		goto out_stat_create;
-+
- 	retval = zfcp_erp_thread_setup(adapter);
- 	if (retval) {
- 		ZFCP_LOG_INFO("error: start of error recovery thread for "
-@@ -181,6 +202,8 @@ zfcp_ccw_set_online(struct ccw_device *c
-  out_scsi_register:
- 	zfcp_erp_thread_kill(adapter);
-  out_erp_thread:
-+	statistic_remove(&adapter->stat_if);
-+ out_stat_create:
- 	zfcp_adapter_debug_unregister(adapter);
-  out:
- 	up(&zfcp_data.config_sema);
-@@ -207,6 +230,7 @@ zfcp_ccw_set_offline(struct ccw_device *
- 	zfcp_erp_wait(adapter);
- 	zfcp_adapter_scsi_unregister(adapter);
- 	zfcp_erp_thread_kill(adapter);
-+	statistic_remove(&adapter->stat_if);
- 	zfcp_adapter_debug_unregister(adapter);
- 	up(&zfcp_data.config_sema);
- 	return 0;
-diff -Nurp a/drivers/s390/scsi/zfcp_def.h b/drivers/s390/scsi/zfcp_def.h
---- a/drivers/s390/scsi/zfcp_def.h	2006-03-20 06:53:29.000000000 +0100
-+++ b/drivers/s390/scsi/zfcp_def.h	2006-05-19 16:02:38.000000000 +0200
-@@ -56,6 +56,7 @@
- #include <asm/qdio.h>
- #include <asm/debug.h>
- #include <asm/ebcdic.h>
-+#include <linux/statistic.h>
- #include <linux/mempool.h>
- #include <linux/syscalls.h>
- #include <linux/ioctl.h>
-@@ -898,6 +899,13 @@ struct zfcp_erp_action {
- 	struct timer_list timer;
- };
- 
-+enum zfcp_adapter_stats {
-+	ZFCP_STAT_A_QOF,
-+	ZFCP_STAT_A_QO,
-+	ZFCP_STAT_A_QI,
-+	ZFCP_STAT_A_ERP,
-+	_ZFCP_STAT_A_NUMBER,
-+};
- 
- struct zfcp_adapter {
- 	struct list_head	list;              /* list of adapters */
-@@ -968,6 +976,8 @@ struct zfcp_adapter {
- 	struct fc_host_statistics *fc_stats;
- 	struct fsf_qtcb_bottom_port *stats_reset_data;
- 	unsigned long		stats_reset;
-+	struct statistic_interface stat_if;
-+	struct statistic stat[_ZFCP_STAT_A_NUMBER];
- };
- 
+ #if (BITS_PER_LONG > 32)
  /*
-diff -Nurp a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
---- a/drivers/s390/scsi/zfcp_erp.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/drivers/s390/scsi/zfcp_erp.c	2006-05-19 16:02:38.000000000 +0200
-@@ -1693,10 +1693,12 @@ zfcp_erp_strategy_check_adapter(struct z
- 	switch (result) {
- 	case ZFCP_ERP_SUCCEEDED :
- 		atomic_set(&adapter->erp_counter, 0);
-+		statistic_inc(adapter->stat, ZFCP_STAT_A_ERP, 1);
- 		zfcp_erp_adapter_unblock(adapter);
- 		break;
- 	case ZFCP_ERP_FAILED :
- 		atomic_inc(&adapter->erp_counter);
-+		statistic_inc(adapter->stat, ZFCP_STAT_A_ERP, -1);
- 		if (atomic_read(&adapter->erp_counter) > ZFCP_MAX_ERPS)
- 			zfcp_erp_adapter_failed(adapter);
- 		break;
-diff -Nurp a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
---- a/drivers/s390/scsi/zfcp_fsf.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/drivers/s390/scsi/zfcp_fsf.c	2006-05-19 16:02:38.000000000 +0200
-@@ -4647,10 +4647,14 @@ zfcp_fsf_req_sbal_get(struct zfcp_adapte
- 						       ZFCP_SBAL_TIMEOUT);
- 		if (ret < 0)
- 			return ret;
--		if (!ret)
-+		if (!ret) {
-+			statistic_inc(adapter->stat, ZFCP_STAT_A_QOF, 1);
- 			return -EIO;
--        } else if (!zfcp_fsf_req_sbal_check(lock_flags, req_queue, 1))
-+		}
-+        } else if (!zfcp_fsf_req_sbal_check(lock_flags, req_queue, 1)) {
-+		statistic_inc(adapter->stat, ZFCP_STAT_A_QOF, 1);
-                 return -EIO;
-+	}
+@@ -372,6 +374,10 @@ extern void __mod_page_state_offset(unsi
+ #define SetPageUncached(page)	set_bit(PG_uncached, &(page)->flags)
+ #define ClearPageUncached(page)	clear_bit(PG_uncached, &(page)->flags)
  
-         return 0;
- }
-@@ -4816,12 +4820,15 @@ zfcp_fsf_req_send(struct zfcp_fsf_req *f
- 	 * position of first one
- 	 */
- 	atomic_sub(fsf_req->sbal_number, &req_queue->free_count);
-+	statistic_inc(adapter->stat, ZFCP_STAT_A_QO,
-+		      QDIO_MAX_BUFFERS_PER_Q -
-+		      atomic_read(&req_queue->free_count));
- 	ZFCP_LOG_TRACE("free_count=%d\n", atomic_read(&req_queue->free_count));
- 	req_queue->free_index += fsf_req->sbal_number;	  /* increase */
- 	req_queue->free_index %= QDIO_MAX_BUFFERS_PER_Q;  /* wrap if needed */
- 	new_distance_from_int = zfcp_qdio_determine_pci(req_queue, fsf_req);
++#define PageReadahead(page)	test_bit(PG_readahead, &(page)->flags)
++#define __SetPageReadahead(page) __set_bit(PG_readahead, &(page)->flags)
++#define TestClearPageReadahead(page) test_and_clear_bit(PG_readahead, &(page)->flags)
++
+ struct page;	/* forward declaration */
  
--	fsf_req->issued = get_clock();
-+	fsf_req->issued = sched_clock();
+ int test_clear_page_dirty(struct page *page);
+--- linux-2.6.17-rc4-mm3.orig/mm/page_alloc.c
++++ linux-2.6.17-rc4-mm3/mm/page_alloc.c
+@@ -564,7 +564,7 @@ static int prep_new_page(struct page *pa
+ 	if (PageReserved(page))
+ 		return 1;
  
- 	retval = do_QDIO(adapter->ccw_device,
- 			 QDIO_FLAG_SYNC_OUTPUT,
-diff -Nurp a/drivers/s390/scsi/zfcp_qdio.c b/drivers/s390/scsi/zfcp_qdio.c
---- a/drivers/s390/scsi/zfcp_qdio.c	2006-03-20 06:53:29.000000000 +0100
-+++ b/drivers/s390/scsi/zfcp_qdio.c	2006-05-19 16:02:38.000000000 +0200
-@@ -416,6 +416,7 @@ zfcp_qdio_response_handler(struct ccw_de
- 	} else {
- 		queue->free_index += count;
- 		queue->free_index %= QDIO_MAX_BUFFERS_PER_Q;
-+		statistic_inc(adapter->stat, ZFCP_STAT_A_QI, count);
- 		atomic_set(&queue->free_count, 0);
- 		ZFCP_LOG_TRACE("%i buffers enqueued to response "
- 			       "queue at position %i\n", count, start);
-@@ -660,6 +661,9 @@ zfcp_qdio_sbals_from_segment(struct zfcp
- 		/* get next free SBALE for new piece */
- 		if (NULL == zfcp_qdio_sbale_next(fsf_req, sbtype)) {
- 			/* no SBALE left, clean up and leave */
-+			statistic_inc(fsf_req->adapter->stat, ZFCP_STAT_A_QOF,
-+				      atomic_read(
-+				 &fsf_req->adapter->request_queue.free_count));
- 			zfcp_qdio_sbals_wipe(fsf_req);
- 			return -EINVAL;
- 		}
-
-
+-	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
++	page->flags &= ~(1 << PG_uptodate | 1 << PG_error | 1 << PG_readahead |
+ 			1 << PG_referenced | 1 << PG_arch_1 |
+ 			1 << PG_checked | 1 << PG_mappedtodisk);
+ 	set_page_private(page, 0);

@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWEXOHm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWEXOP0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbWEXOHm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 10:07:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbWEXOHm
+	id S932315AbWEXOP0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 10:15:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbWEXOP0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 10:07:42 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:31544 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1751003AbWEXOHl (ORCPT
+	Wed, 24 May 2006 10:15:26 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:32416 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932315AbWEXOPZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 10:07:41 -0400
-Date: Wed, 24 May 2006 16:07:39 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Al Viro <viro@ftp.linux.org.uk>, Or Gerlitz <or.gerlitz@gmail.com>,
-       linux-scsi@vger.kernel.org, axboe@suse.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG 2.6.17-git] kmem_cache_create: duplicate cache scsi_cmd_cache
-Message-ID: <20060524140739.GA12022@harddisk-recovery.nl>
-References: <20060512215520.GH17120@flint.arm.linux.org.uk> <20060512220807.GR27946@ftp.linux.org.uk> <Pine.LNX.4.64.0605121519420.3866@g5.osdl.org> <20060512222816.GS27946@ftp.linux.org.uk> <20060512224804.GT27946@ftp.linux.org.uk> <20060512225101.GU27946@ftp.linux.org.uk> <Pine.LNX.4.64.0605121559490.3866@g5.osdl.org> <20060512232131.GV27946@ftp.linux.org.uk> <20060512233711.GW27946@ftp.linux.org.uk> <Pine.LNX.4.64.0605121647250.3866@g5.osdl.org>
-MIME-Version: 1.0
+	Wed, 24 May 2006 10:15:25 -0400
+Date: Wed, 24 May 2006 10:15:12 -0400
+From: Dave Jones <davej@redhat.com>
+To: Theodore Tso <tytso@mit.edu>, Greg KH <greg@kroah.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add user taint flag
+Message-ID: <20060524141512.GF28702@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Theodore Tso <tytso@mit.edu>, Greg KH <greg@kroah.com>,
+	akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <E1FhwyO-0001YQ-O1@candygram.thunk.org> <20060523184506.GA29044@kroah.com> <20060524133916.GC16705@thunk.org> <20060524135533.GD28702@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0605121647250.3866@g5.osdl.org>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060524135533.GD28702@redhat.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 12, 2006 at 04:50:32PM -0700, Linus Torvalds wrote:
-> On Sat, 13 May 2006, Al Viro wrote:
-> > 
-> > BTW, the best option is to kill bdev_uevent() again.  Short of that,
-> > skip PHYSDEV mess if disk doesn't have GENHD_FL_UP.
-> 
-> I do think the mount/umount events are valid and interesting, so I'd much 
-> rather see the second version.
-> 
-> However, that does beg the question: wouldn't that effectively be what the 
-> patch I posted would do? Notably the "disk->driverfs_dev = NULL" part 
-> after we've dropped it (the "KOBJ_REMOVE" event move is a separate issue, 
-> mixed here into the same patch, but should result in possibly better name 
-> generation for the event).
-> 
-> Basically, onces driverfs_dev has been dropped, we NULL it out, and then 
-> the people who use it automatically get the right result.
-> 
-> Yes? No? "You're a total klutz, Linus, that patch won't actually do 
-> anything, because <xyz>"?
+On Wed, May 24, 2006 at 09:55:33AM -0400, Dave Jones wrote:
+ > On Wed, May 24, 2006 at 09:39:16AM -0400, Theodore Tso wrote:
+ >  > On Tue, May 23, 2006 at 11:45:06AM -0700, Greg KH wrote:
+ >  > > On Sun, May 21, 2006 at 07:04:32PM -0400, Theodore Ts'o wrote:
+ >  > > > --- linux-2.6.orig/kernel/panic.c	2006-04-28 21:16:55.000000000 -0400
+ >  > > > +++ linux-2.6/kernel/panic.c	2006-05-21 19:00:15.000000000 -0400
+ >  > > > @@ -150,6 +150,7 @@
+ >  > > >   *  'R' - User forced a module unload.
+ >  > > >   *  'M' - Machine had a machine check experience.
+ >  > > >   *  'B' - System has hit bad_page.
+ >  > > > + *  'U' - Userspace-defined naughtiness.
+ >  > > 
+ >  > > Just a note, some other distros already use the 'U' flag in taint
+ >  > > messages to show an "unsupported" module has been loaded.  I know it's
+ >  > > out-of-the-tree and will never go into mainline, just FYI if you happen
+ >  > > to see some 'U' flags in the wild today...
+ >  > > 
+ >  > > Oh, and I like this feature, makes sense to me to have this.
+ >  > 
+ >  > Should we worry about collisions with what distributions are using?
+ >  > That could cause confusion in the future....
+ > 
+ > We use it in Fedora/RHEL if a module is loaded that hasn't been gpg signed.
+ > It's been handy to spot things like 3rd parties replacing jbd.ko with
+ > their own variant in bug-reports.
 
-Just want to confirm that I can't recreate the SCSI slab error anymore
-with your patch (032ebf2620ef99a4fedaa0f77dc2272095ac5863) in the
-current -git kernel.
+Brainfart on my part. We mark such modules as (U) in the module list in oopses,
+but we don't actually taint.
 
+Meh, too early for davej's.
 
-Erik
+		Dave
 
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.nl -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+http://www.codemonkey.org.uk

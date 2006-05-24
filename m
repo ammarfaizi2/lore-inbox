@@ -1,61 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWEXFrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWEXFtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932218AbWEXFrp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 01:47:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbWEXFrp
+	id S932210AbWEXFtA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 01:49:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbWEXFs7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 01:47:45 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:56984 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932218AbWEXFro (ORCPT
+	Wed, 24 May 2006 01:48:59 -0400
+Received: from wr-out-0506.google.com ([64.233.184.225]:45753 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932210AbWEXFs7 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 01:47:44 -0400
-Date: Wed, 24 May 2006 15:47:23 +1000
-From: David Chinner <dgc@sgi.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] Per-superblock unused dentry LRU lists.
-Message-ID: <20060524054723.GF7418631@melbourne.sgi.com>
-References: <20060524012412.GB7412499@melbourne.sgi.com> <1148435980.3049.11.camel@laptopd505.fenrus.org> <20060524040142.GC7418631@melbourne.sgi.com> <1148444589.3049.26.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 24 May 2006 01:48:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YZrVB6fHLFM9qi+39tXI5t3ZGe4p38qNg2j9VFVM4QWtAAmhMgnbnQuANwR6ScKMd69HeFCqyRo10bjQ+3g1dQDAAkFG8aRSQ43gsyJ5bxfxPAYlN35kVpj/ibzXiIpKCkjLN0nKEMDdkbRqc9YNZB/1Zn8TPv274aO/+61SpNw=
+Message-ID: <21d7e9970605232248t48b303dfwcc481adc5c34932a@mail.gmail.com>
+Date: Wed, 24 May 2006 15:48:58 +1000
+From: "Dave Airlie" <airlied@gmail.com>
+To: "D. Hazelton" <dhazelton@enter.net>
+Subject: Re: OpenGL-based framebuffer concepts
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200605240130.14879.dhazelton@enter.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1148444589.3049.26.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <200605240017.45039.dhazelton@enter.net>
+	 <21d7e9970605232214l3349df0dka162f794f8eddf95@mail.gmail.com>
+	 <200605240130.14879.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 24, 2006 at 06:23:09AM +0200, Arjan van de Ven wrote:
-> On Wed, 2006-05-24 at 14:01 +1000, David Chinner wrote:
-> > Yup, that is what the current code I've written will do. I just
-> > wanted someting that worked over all superblocks to begin with.
-> > It's not very smart, but improving it can be done incrementally.
-> 
-> I think that if you say A you should say B, I mean, if you make the list
-> per SB you probably just should do the step and make at least the
-> counter per SB as well. That will also save in cacheline bounces I
-> suppose...  but more importantly you keep the counters next to the list.
+> > Step 1: add a layer between fbdev and DRM so that they can see each other.
+> >
+> > Do *NOT* merge fbdev and DRM this is the "wrong answer". They may end
+> > up merged but firstly let them at least become away of each others
+> > existence, perhaps a lowerlayer driver that handles PCI functionality.
+> > All other Step 1s are belong to us.
+>
+> Okay. This won't be simple, won't be pretty, but I should be able to handle
+> it. The problem then becomes: What exactly should this system do? A layer
+> that sits on top of the PCI/AGP stuff and mediates it for DRM/fbdev? Isn't
+> easy, isn't simple but I think it is possible.
 
-But it doesn't remove the need for the global counter. The
-dcache_lock is far more heavily contended so the counter cacheline
-bouncing is lost in the noise here. No to mention the counter can
-only be updated while holding the dcache_lock.  Hence at this point,
-adding per-sb counters is pure overhead unless the reclaim method
-is made to use them.
+The scope of the lower layer system isn't defined, it should be able
+to do what a driver needs it to do, so this can be in the simple case
+provide a flag to tell the DRM the fb driver is loaded and vice versa,
+up to doing suspend/resume handling and PCI handling.  I think at the
+very least it will have to do PCI handling and device model support.
 
-> Which you'll also need to do any kind of scaling I suppose later on, so
-> might as well keep the stats already.
+> If DRM makes use of the lower-level driver, and so does fbdev, then it's
+> likely possible that the system can provide the information needed to allow
+> the kernel to composite error messages onto the framebuffer.
 
-The per-sb list improves scalability only by reducing the maximum
-length of time the dcache_lock is held. Scalabilty for further
-parallelism (and therefore better reclaim performance) is going to
-require locking changes so that's when I'd expect the counters to
-need changing. I don't want to over-optimise before we know what we
-actually need to optimise...
+That is the theory, the DRM usually knows where X has the framebuffer.
 
-Cheers,
+> to compile DRM or fbdev out of the kernel there is no way that one could
+> depend on the other. Having them intercommunicate, it seems, would require a
+> third mechanism. Any pointers?
+
+Yes you could move some common functionality into a lowlevel driver
+which they could talk to, then compiling out either one wouldn't
+matter.
+
+> > I could even drop the last hack I did in some sort of patch form
+> > somewhere, I might even have a git tree (not sure...)
+>
+> That might be helpful.
+
+Okay I've put up two patches at
+http://www.skynet.ie/~airlied/patches/merge/three_tier.diff
+http://www.skynet.ie/~airlied/patches/merge/three_tier_2.diff
+
+The first is from Dec 27th of last year, the other from March 24 this
+year, the three_tier_2 is probably the later patch, and I think is
+from some kernel like 2.6.13 or something.
+
+Neither of these do what I wanted to do but they give a lot of ideas
+on how to do it, the device model required in the end using a bus to
+do this, I actually had some thoughts about it at the X.org developers
+conference earlier in the year while reading LDD, but I've been
+swamped since and probably won't get back to it until OLS.
 
 Dave.
--- 
-Dave Chinner
-R&D Software Enginner
-SGI Australian Software Group

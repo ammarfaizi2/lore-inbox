@@ -1,71 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932606AbWEXO6p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbWEXPF7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932606AbWEXO6p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 10:58:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbWEXO6p
+	id S932327AbWEXPF7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 11:05:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbWEXPF7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 10:58:45 -0400
-Received: from silver.veritas.com ([143.127.12.111]:21070 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S932606AbWEXO6p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 10:58:45 -0400
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.05,167,1146466800"; 
-   d="scan'208"; a="38470987:sNHT22094356"
-Date: Wed, 24 May 2006 15:57:34 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Christoph Lameter <clameter@sgi.com>
-cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, David Howells <dhowells@redhat.com>,
-       Rohit Seth <rohitseth@google.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: remove VM_LOCKED before remap_pfn_range and drop VM_SHM
-In-Reply-To: <Pine.LNX.4.64.0605231524370.11985@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.64.0605241539590.12355@blonde.wat.veritas.com>
-References: <Pine.LNX.4.64.0605222022100.11067@blonde.wat.veritas.com>
- <Pine.LNX.4.64.0605230917390.9731@schroedinger.engr.sgi.com>
- <Pine.LNX.4.64.0605231937410.14985@blonde.wat.veritas.com>
- <Pine.LNX.4.64.0605231223360.10836@schroedinger.engr.sgi.com>
- <Pine.LNX.4.64.0605232131560.19019@blonde.wat.veritas.com>
- <Pine.LNX.4.64.0605231524370.11985@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 24 May 2006 14:57:39.0921 (UTC) FILETIME=[66FF3C10:01C67F42]
+	Wed, 24 May 2006 11:05:59 -0400
+Received: from smtp-2.llnl.gov ([128.115.3.82]:50892 "EHLO smtp-2.llnl.gov")
+	by vger.kernel.org with ESMTP id S932327AbWEXPF6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 11:05:58 -0400
+Message-Id: <7.0.0.16.2.20060524073251.0237c250@llnl.gov>
+X-Mailer: QUALCOMM Windows Eudora Version 7.0.0.16
+Date: Wed, 24 May 2006 08:05:39 -0700
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+From: Dave Peterson <dsp@llnl.gov>
+Subject: Re: [PATCH (try #3)] mm: avoid unnecessary OOM kills
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, pj@sgi.com, ak@suse.de,
+       linux-mm@kvack.org, garlick@llnl.gov, mgrondona@llnl.gov
+In-Reply-To: <44739E2D.60406@yahoo.com.au>
+References: <200605230032.k4N0WCIU023760@calaveras.llnl.gov>
+ <4472A006.2090006@yahoo.com.au>
+ <7.0.0.16.2.20060523094646.02429fd8@llnl.gov>
+ <44739E2D.60406@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 May 2006, Christoph Lameter wrote:
-> 
-> Remove VM_LOCKED before remap_pfn range from device drivers and get rid of 
-> VM_SHM.
+At 04:43 PM 5/23/2006, Nick Piggin wrote:
+>>That would be another way to do things.  It's a tradeoff between either
+>>    option A: Each task that enters the OOM code path must loop over all
+>>              tasks to determine whether an OOM kill is in progress.
+>>    or...
+>>    option B: We must declare an oom_kill_in_progress variable and add
+>>              the following snippet of code to mmput():
+>>                put_swap_token(mm);
+>>+               if (unlikely(test_bit(MM_FLAG_OOM_NOTIFY, &mm->flags)))
+>>+                       oom_kill_finish();  /* terminate pending OOM kill */
+>>                mmdrop(mm);
+>>I think either option is reasonable (although I have a slight preference
+>>for B since it eliminates substantial looping through the tasklist).
+>
+>Don't you have to loop through the tasklist anyway? To find a task
+>to kill?
+>
+>Either way, at the point of OOM, usually they should have gone through
+>the LRU lists several times, so a little bit more CPU time shouldn't
+>hurt.
 
-Okay, that is rather a nice cleanup.  I've held off from doing it,
-and have discouraged one or two others from doing it, because there's
-a number of other things to be checked thereabouts (witness the way
-vfc_dev.c is or'ing flags it has no business to change: but you've
-rightly preserved that existing behaviour for now, however bad it may
-be); and there's VM_RESERVED (or most of its or'ings) to be removed too.
+ok, I'll change the patch to use option A.
 
-But what you have looks nice, and no way does it prevent further
-cleanup later; though I've not wanted to bother maintainers repeatedly.
+>>>Is all this really required? Shouldn't you just have in place the
+>>>mechanism to prevent concurrent OOM killings in the OOM code, and
+>>>so the page allocator doesn't have to bother with it at all (ie.
+>>>it can just call into the OOM killer, which may or may not actually
+>>>kill anything).
+>>
+>>I agree it's desirable to keep the OOM killing logic as encapsulated
+>>as possible.  However unless you are holding the oom kill semaphore
+>>when you make your final attempt to allocate memory it's a bit racy.
+>>Holding the OOM kill semaphore guarantees that our final allocation
+>>failure before invoking the OOM killer occurred _after_ any previous
+>>OOM kill victim freed its memory.  Thus we know we are not shooting
+>>another process prematurely (i.e. before the memory-freeing effects
+>>of our previous OOM kill have been felt).
+>
+>But there is so much fudge in it that I don't think it matters:
+>pages could be freed from other sources, some reclaim might happen,
+>the point at which OOM is declared is pretty arbitrary anyway, etc.
 
-Of course, you don't need this patch in order to proceed with migrating
-VM_LOCKED areas, because this patch is no more than a cleanup of
-irrelevance.  Well, somewhat worse than irrelevance: when a driver
-unilaterally sets VM_LOCKED on a vma, then mm->locked_vm goes wild
-when the vma is unmapped: doesn't matter at exit, but bad if before.
+There's definitely some fudge in it.  However the main scenario I'm
+concerned with is where one big process is hogging most of the memory
+(as opposed to a case where the collective memory-hogging effect of
+lots of little processes triggers the OOM killer).  In the first case
+we want to shoot the one big process and leave the little processes
+undisturbed.
 
-> remap_pfn_range() already sets VM_IO. There is no need to set VM_SHM since
-> it does nothing. VM_LOCKED is of no use since the remap_pfn_range does
-> not place pages on the LRU. The pages are therefore never subject to
-> swap anyways. Remove all the vm_flags settings before calling
-> remap_pfn_range.
-> 
-> After removing all the vm_flag settings no use of VM_SHM is left.
-> Drop it.
-> 
-> Signed-off-by: Christoph Lameter <clameter@sgi.com>
+If the final allocation failure before invoking the OOM killer
+occurs when we don't yet hold the OOM kill semaphore then I'd
+be concerned about processes queueing up on the OOM kill semaphore
+after they fail their memory allocations.  If only one of these
+ends up getting awakened _after_ the death of the big memory hog,
+then that process will enter the OOM killer and shoot a little
+process unnecessarily.
 
-Acked-by: Hugh Dickins <hugh@veritas.com>
+Alternately (perhaps less likely), if your kernel is preemptible,
+after the memory hog has been shot but not yet expired a process
+may get preempted between its final allocation failure and its
+choosing an OOM kill victim (with the memory hog expiring before
+the preempted process gets rescheduled).  Then the preempted
+process shoots a little process when rescheduled.
+
+

@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932566AbWEXEbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932569AbWEXEhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932566AbWEXEbg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 00:31:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbWEXEbg
+	id S932569AbWEXEhe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 00:37:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932570AbWEXEhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 00:31:36 -0400
-Received: from main.gmane.org ([80.91.229.2]:31701 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932566AbWEXEbf (ORCPT
+	Wed, 24 May 2006 00:37:34 -0400
+Received: from mail.kroah.org ([69.55.234.183]:54965 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932569AbWEXEhd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 00:31:35 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Subject: Re: charset2upper broken
-Date: Wed, 24 May 2006 10:31:24 +0600
-Message-ID: <e50nie$3ud$1@sea.gmane.org>
-References: <44722ACE.3040500@austin.rr.com>
+	Wed, 24 May 2006 00:37:33 -0400
+Date: Tue, 23 May 2006 21:30:50 -0700
+From: Greg KH <greg@kroah.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Greg KH <gregkh@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [Fwd: [PATCH] Revive pci_find_ext_capability]
+Message-ID: <20060524043050.GA6231@kroah.com>
+References: <4473DFFB.1030100@garzik.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 212.220.94.150
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.8.0.2) Gecko/20060405 SeaMonkey/1.0.1
-In-Reply-To: <44722ACE.3040500@austin.rr.com>
-Cc: linux-fsdevel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4473DFFB.1030100@garzik.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve French wrote:
-> Charset2upper is broken, at least for utf8 (see line 41 of nls_utf8.c)   
-> Seems straightforward to fix it for the key characters a-z (0x61-0x7a), 
-> unless the uppercasing rules are stranger than I think - especially 
-> since other places have it right e.g. nls_base.c seems to have it right 
-> in its charset2upper.
+On Wed, May 24, 2006 at 12:24:27AM -0400, Jeff Garzik wrote:
+> FYI...  I'll be applying this via netdev, since the Myri net driver 
+> requires it.
 
-<troll>
-Don't use UTF-8. Neither the kernel nor userspace is fully ready.
+That's fine with me, feel free to add a:
 
-Also, it seems wrong to put such comples thing as a complete UNICODE upper/lower 
-case mapping into the kernel, especially since this mapping is different for 
-Turkish and non-Turkish cases (see 
-http://www.i18nguy.com/unicode/turkish-i18n.html). So someone should convert all 
-filesystems that use character conversion and case mapping to FUSE, so that they 
-can use glibc to do all of this dirty/complex work.
-</troll>
+	Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
--- 
-Alexander E. Patrakov
+from me for it when you do.
 
+thanks,
+
+greg k-h

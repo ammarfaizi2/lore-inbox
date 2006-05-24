@@ -1,69 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWEXXbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWEXXdf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbWEXXbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 19:31:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWEXXbQ
+	id S932318AbWEXXdf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 19:33:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWEXXdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 19:31:16 -0400
-Received: from ns.suse.de ([195.135.220.2]:4300 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932342AbWEXXbP (ORCPT
+	Wed, 24 May 2006 19:33:35 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:20625 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932318AbWEXXde (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 19:31:15 -0400
-Date: Wed, 24 May 2006 16:29:00 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] Linux Device Driver Kit available
-Message-ID: <20060524232900.GA18408@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Wed, 24 May 2006 19:33:34 -0400
+Message-ID: <4474ED4A.9090703@garzik.org>
+Date: Wed, 24 May 2006 19:33:30 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Robert Hancock <hancockr@shaw.ca>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, robomod@news.nic.it
+Subject: Re: Q: how to send ATA cmds to USB drive?
+References: <6fXQT-16z-11@gated-at.bofh.it> <4474E92E.8020403@shaw.ca>
+In-Reply-To: <4474E92E.8020403@shaw.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Have you ever felt teased when driver developers of other operating
-systems teased you about a lack of a "proper" driver development kit for
-Linux?  Have you felt left out of the crowd when looking at the 36 cdrom
-package of documentation and example source code that other operating
-systems provide for their developers?  Well feel ashamed no longer!
+Robert Hancock wrote:
+> Herbert Rosmanith wrote:
+>> good day,
+>>
+>> I have a question concerning sending arbitrary ATA commands to an USB
+>> drive.
+>>
+>> Currently, I have a particular application which sends special ATA 
+>> commands
+>> to an IDE drive using IDE_TASKFILE. So far, this works pretty well.
+>>
+>> But now I also have to support USB harddisks from the same company.
+>> The USB harddisk uses the same set of ATA commands as the IDE harddisk,
+>> well, at least that's what I suppose.
+>>
+>> How do I send ATA commands to this USB drive? I suppose this would be
+>> done via SG_IO (the drive is recognised by linux as usb-storage, of
+>> course), but how exactly does this have to be done? I have already
+>> used SG_IO before to send some MMC commands to cdvd-drives, but I
+>> don't know how to send ATA (such as those from T13) commands with this
+>> interface.
+> 
+> Short answer is you likely can't. The USB-to-IDE bridge pretty much 
+> entirely hides the fact that it's an IDE drive behind it, from the 
+> host's viewpoint it looks pretty much like SCSI. Maybe if you sent SCSI 
+> commands to the device it would translate them into the correct ATA 
+> commands, depending on what exactly you're doing, but that's entirely 
+> dependent on the bridge chip in question and I would guess most of them 
+> don't support such fancy operations.
 
-In coordination with the FreedomHEC[1] conference this week in Seattle,
-WA, USA, I'm proud to announce the first release of the Linux Device
-Driver Kit.
+AFAIK most are not really pure bridges, but really microcontrollers 
+running a tiny firmware.  So there is a non-zero chance of there being 
+an 'ata passthrough' SCSI command.
 
-It is a cd image that contains everything that a Linux device driver
-author would need in order to create Linux drivers, including a full
-copy of the O'Reilly book, "Linux Device Drivers, third edition" and
-pre-built copies of all of the in-kernel docbook documentation for easy
-browsing.  It even has a copy of the Linux source code that you can
-directly build external kernel modules against.
+I would try to the official ATA_12 and ATA_16 SCSI commands first, to 
+see if they do something useful.
 
-It can be downloaded for free at:
-   kernel.org/pub/linux/kernel/people/gregkh/ddk/
-
-and all attendees of FreedomHEC will get a physical copy, for you to
-leave around your desk for other developers to envy.
+	Jeff
 
 
-There's a few things that I would like to include in future versions of
-this cdrom:
-  - searchable index of all documentation.  jsFind looks like will work
-    for this, but due to time constraints, did not make this release.
-  - prettier web pages.  I acknolodge I'm no designer, anyone who wants
-    to fix up my sparse html with proper CSS support and images would be
-    greatly appreciated.
-  - More documentation.  Possible inclusion is a snapshot of the
-    kernelnewbies wiki.  As we have plenty of room, any pointers to
-    stuff that should be included is welcome.
-
-And of course, the image is released under the GPL v2 and can be copied
-freely.  There's a cdrom label included in the root directory if you
-wish to print it out.
-
-thanks,
-
-greg k-h
-
-[1] Information about FreedomHEC can be found at
-	http://freedomhec.pbwiki.com/
 

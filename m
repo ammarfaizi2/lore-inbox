@@ -1,98 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932638AbWEXHQx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932631AbWEXHQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932638AbWEXHQx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 03:16:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932640AbWEXHQx
+	id S932631AbWEXHQi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 03:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932633AbWEXHQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 03:16:53 -0400
-Received: from mx2.suse.de ([195.135.220.15]:5846 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932633AbWEXHQw (ORCPT
+	Wed, 24 May 2006 03:16:38 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:9379 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932631AbWEXHQi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 03:16:52 -0400
-Message-ID: <44740855.4090409@suse.de>
-Date: Wed, 24 May 2006 09:16:37 +0200
-From: Gerd Hoffmann <kraxel@suse.de>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060411)
-MIME-Version: 1.0
-To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Cc: Matt Ayres <matta@tektonic.net>, Patrick McHardy <kaber@trash.net>,
-       James Morris <jmorris@namei.org>,
-       "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Xen-devel] Re: Panic in ipt_do_table with 2.6.16.13-xen
-References: <4468BE70.7030802@tektonic.net>	<4468D613.20309@trash.net>	<44691669.4080903@tektonic.net>	<Pine.LNX.4.64.0605152331140.10964@d.namei>	<4469D84F.8080709@tektonic.net>	<Pine.LNX.4.64.0605161127030.16379@d.namei>	<446D0A0D.5090608@tektonic.net>	<Pine.LNX.4.64.0605182002330.6528@d.namei>	<446D0E6D.2080600@tektonic.net> <446D151D.6030307@tektonic.net>	<4470A6CD.5010501@trash.net> <4471CB54.401@tektonic.net>	<4471CE19.5070802@trash.net> <bf76eefc5234d32440c822acd2879a8a@cl.cam.ac.uk> <44737D53.9050006@tektonic.net> <5e589307bfef58553bfda1d7ab47f9f3@cl.cam.ac.uk>
-In-Reply-To: <5e589307bfef58553bfda1d7ab47f9f3@cl.cam.ac.uk>
-Content-Type: multipart/mixed;
- boundary="------------080109030209000408000801"
+	Wed, 24 May 2006 03:16:38 -0400
+Date: Wed, 24 May 2006 00:16:00 -0700
+From: Jeremy Higdon <jeremy@sgi.com>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, xfs@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: XFS write speed drop
+Message-ID: <20060524071600.GF586512@sgi.com>
+References: <Pine.LNX.4.61.0605190047430.23455@yvahk01.tjqt.qr> <20060522105326.A212600@wobbly.melbourne.sgi.com> <Pine.LNX.4.61.0605221308290.11108@yvahk01.tjqt.qr> <20060523084309.A239136@wobbly.melbourne.sgi.com> <Pine.LNX.4.61.0605231517330.25086@yvahk01.tjqt.qr> <20060524082218.A267844@wobbly.melbourne.sgi.com> <20060524091741.D267844@wobbly.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060524091741.D267844@wobbly.melbourne.sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080109030209000408000801
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
->> As the concerned user, what does this mean to me?  It will only affect
->> SMP systems?  It is a bug in Xen or netfilter?
+On Wed, May 24, 2006 at 09:17:41AM +1000, Nathan Scott wrote:
+> On Wed, May 24, 2006 at 08:22:19AM +1000, Nathan Scott wrote:
+> > 
+> > Not sure what you're trying to say here.  Yes, barriers are on
+> > by default now if the hardware supports them, yes, they will
+> > slow things down relative to write-cache-without-barriers, and
+> > yes we all knew that ... its not the case that someone "did not
+> > notice" or forgot about something.  There is no doubt that this
+> > is the right thing to be doing by default - there's no way that
+> > I can tell from inside XFS in the kernel that you have a UPS. ;)
 > 
-> Probably a Xen bug, but if so then it's basically a memory corruption.
+> Oh, I realised I've slightly misread your mail, you said...
+> 
+> | I do not actually need barriers (or an UPS, to poke on another thread),
+> | because power failures are rather rare in Germany.
+> 
+> Hmm, even harder for us to detect at runtime, in the kernel,
+> that you're in Germany. :)
+>
+> Power failures aren't the only thing to cause crashes, however.
 
-Might also be a netfilter bug which is simply triggered by the way how
-xen manages the memory.  Due to ballooning you can have holes in memory,
-so out-of-range access may fault with xen whereas it will go unnoticed
-with normal kernels.
+There have been several examples of filesystem corruption without
+power failures too, though that is a common cause.  It can even happen
+on a normal system shutdown if there is no synchronize operation to
+the disk at shutdown time, depending on how much data is in the cache
+and how long you have until the ATA chip is reset.
 
-One such beast is in bridging netfilter code, additionally it triggers
-with certain ethernet cards only, patch below.  Pinned down last week ;)
-
-cheers,
-
-  Gerd
-
---------------080109030209000408000801
-Content-Type: text/plain;
- name="nf_bridge-header-size"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nf_bridge-header-size"
-
-Subject: nf_bridge: ethernet header is 14 not 16 bytes
-From: jbeulich@novell.com
-Acked-by: kraxel@suse.de
-References: 150410
-
-The bridge netfilter code saves two more bytes that it should.
-In most cases it doesn't hurt because many drivers use NET_IP_ALIGN
-to make the IP header aligned, so there are two extra bytes head room
-available.
-
-Some drivers don't do that though (sky2 for example), so copying
-accesses data outside the skbuff data allocation.  On xen kernels
-this can kill the machine with a page fault due to the way how
-skbuffs are allocated and the memory is managed.
-
-Index: linux-2.6.16/include/linux/netfilter_bridge.h
-===================================================================
---- linux-2.6.16.orig/include/linux/netfilter_bridge.h
-+++ linux-2.6.16/include/linux/netfilter_bridge.h
-@@ -73,14 +73,14 @@ void nf_bridge_maybe_copy_header(struct 
- 			memcpy(skb->data - 18, skb->nf_bridge->data, 18);
- 			skb_push(skb, 4);
- 		} else
--			memcpy(skb->data - 16, skb->nf_bridge->data, 16);
-+			memcpy(skb->data - 14, skb->nf_bridge->data, 14);
- 	}
- }
- 
- static inline
- void nf_bridge_save_header(struct sk_buff *skb)
- {
--        int header_size = 16;
-+        int header_size = 14;
- 
- 	if (skb->protocol == __constant_htons(ETH_P_8021Q))
- 		header_size = 18;
-
---------------080109030209000408000801--
+jeremy

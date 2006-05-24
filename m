@@ -1,62 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWEXQ6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWEXQ7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751127AbWEXQ6j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 12:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWEXQ6j
+	id S1751133AbWEXQ7a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 12:59:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWEXQ7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 12:58:39 -0400
-Received: from [194.90.237.34] ([194.90.237.34]:42639 "EHLO mtlexch01.mtl.com")
-	by vger.kernel.org with ESMTP id S1751127AbWEXQ6i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 12:58:38 -0400
-Date: Wed, 24 May 2006 19:59:58 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Greg KH <gregkh@suse.de>, Roland Dreier <rolandd@cisco.com>
-Cc: Brice Goglin <brice@myri.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: AMD 8131 MSI quirk called too late, bus_flags not inherited ?
-Message-ID: <20060524165958.GE21266@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <4468EE85.4000500@myri.com> <20060518155441.GB13334@suse.de> <20060521101656.GM30211@mellanox.co.il> <447047F2.2070607@myri.com> <20060521121726.GQ30211@mellanox.co.il> <44705DA4.2020807@myri.com> <20060521131025.GR30211@mellanox.co.il> <447069F7.1010407@myri.com> <20060523041958.GA8415@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060523041958.GA8415@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 24 May 2006 17:02:40.0968 (UTC) FILETIME=[DDF82C80:01C67F53]
+	Wed, 24 May 2006 12:59:30 -0400
+Received: from mpc-26.sohonet.co.uk ([193.203.82.251]:3505 "EHLO
+	moving-picture.com") by vger.kernel.org with ESMTP id S1751133AbWEXQ73
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 12:59:29 -0400
+Message-ID: <447490EF.8010000@moving-picture.com>
+Date: Wed, 24 May 2006 17:59:27 +0100
+From: James Pearson <james-p@moving-picture.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040524
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 4096 byte limit to /proc/PID/environ ?
+References: <447481C0.5050709@moving-picture.com> <Pine.LNX.4.61.0605241235110.2450@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0605241235110.2450@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Disclaimer: This email and any attachments are confidential, may be legally
+X-Disclaimer: privileged and intended solely for the use of addressee. If you
+X-Disclaimer: are not the intended recipient of this message, any disclosure,
+X-Disclaimer: copying, distribution or any action taken in reliance on it is
+X-Disclaimer: strictly prohibited and may be unlawful. If you have received
+X-Disclaimer: this message in error, please notify the sender and delete all
+X-Disclaimer: copies from your system.
+X-Disclaimer: 
+X-Disclaimer: Email may be susceptible to data corruption, interception and
+X-Disclaimer: unauthorised amendment, and we do not accept liability for any
+X-Disclaimer: such corruption, interception or amendment or the consequences
+X-Disclaimer: thereof.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Greg KH <gregkh@suse.de>:
-> > Right, thanks. Greg, what do you think of putting the attached patch in
-> > 2.6.17 ?
+linux-os (Dick Johnson) wrote:
+> On Wed, 24 May 2006, James Pearson wrote:
 > 
-> Ok, does everyone agree that this patch fixes the issues for them?
+> 
+>>It appears that /proc/PID/environ only returns the first 4096 bytes of a
+>>processes' environment.
+>>
+>>Is there any other way via userland to get the whole environment for a
+>>process?
+>>
+>>Thanks
+>>
+>>James Pearson
+> 
+> 
+> 
+> I think that /proc/PID/environ just returns the environment that
+> existed when the process was created, irrespective of size. You
+> can check this as:
+> 
+> #include <stdio.h>
+> 
+> main()
+> {
+>      setenv("FOO=", "1234", 1);
+>      printf("%d\n", getpid());
+>      pause();
+> }
+> 
+> Variable "FOO" will not appear in /proc. It you set the environment
+> in non-standard ways, overwriting the original, you can see it in
+> /proc.
 
-Worked here on a PCI-X AMD-8131 based system.
+I'm not worried about that - more the fact that when I do:
 
-----
+% cat /proc/$$/environ | wc -c
+4096
+% env | wc -c
+7329
 
-Offtopic, something I wanted to bring up with respect to MSI,
-but never had the time to debug:
+/proc/PID/environ is truncated ...
 
-If I do
-
-pci_enable_msix, pci_disable_msix
-
-then later
-
-pci_enable_msi
-
-on the same device fails with the following message:
-PCI: 0000:08:00.0: Can't enable MSI.  Device already has MSI-X vectors assigned
-
-This is not something new - has been happening since forever.
-Looks like not all MSI-X vectors get properly unassigned by pci_disable_msix.
-
-One way to test this is by loading mthca driver with msi_x=1, unloading
-and loading with msi=1.
-
-Someone has any idea what's wrong?
-
--- 
-MST
+James Pearson

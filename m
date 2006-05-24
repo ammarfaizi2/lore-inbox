@@ -1,113 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932715AbWEXLTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932716AbWEXLTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932715AbWEXLTk (ORCPT <rfc822;willy@w.ods.org>);
+	id S932716AbWEXLTk (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 24 May 2006 07:19:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932714AbWEXLTd
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932713AbWEXLTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 07:19:33 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:43650 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932716AbWEXLTP (ORCPT
+	Wed, 24 May 2006 07:19:34 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:39554 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932717AbWEXLTQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 07:19:15 -0400
-Message-ID: <348469552.33709@ustc.edu.cn>
+	Wed, 24 May 2006 07:19:16 -0400
+Message-ID: <348469551.86940@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060524111913.603476893@localhost.localdomain>
+Message-Id: <20060524111912.967392912@localhost.localdomain>
 References: <20060524111246.420010595@localhost.localdomain>
-Date: Wed, 24 May 2006 19:13:19 +0800
+Date: Wed, 24 May 2006 19:13:18 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 33/33] readahead: debug traces showing read patterns
-Content-Disposition: inline; filename=readahead-debug-traces-access-pattern.patch
+Subject: [PATCH 32/33] readahead: debug traces showing accessed file names
+Content-Disposition: inline; filename=readahead-debug-traces-file-list.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Print all relavant read requests to help discover the access pattern.
-
-If you are experiencing performance problems, or want to help improve
-the read-ahead logic, please send me the trace data. Thanks.
-
-- Preparations
-
-# Compile kernel with option CONFIG_DEBUG_READAHEAD
-mkdir /debug
-mount -t debug none /debug
-
-- For each session with distinct access pattern
-
-echo > /debug/readahead # reset the counters
-# echo > /var/log/kern.log # you may want to backup it first
-echo 8 > /debug/readahead/debug_level # show verbose printk traces
-# do one benchmark/task
-echo 0 > /debug/readahead/debug_level # revert to normal value
-cp /debug/readahead/events readahead-events-`date +'%F_%R'`
-bzip2 -c /var/log/kern.log > kern.log-`date +'%F_%R'`.bz2
+Print file names on their first read-ahead, for tracing file access patterns.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- mm/filemap.c |   23 ++++++++++++++++++++++-
- 1 files changed, 22 insertions(+), 1 deletion(-)
+ mm/readahead.c |   14 ++++++++++++++
+ 1 files changed, 14 insertions(+)
 
---- linux-2.6.17-rc4-mm3.orig/mm/filemap.c
-+++ linux-2.6.17-rc4-mm3/mm/filemap.c
-@@ -45,6 +45,12 @@ static ssize_t
- generic_file_direct_IO(int rw, struct kiocb *iocb, const struct iovec *iov,
- 	loff_t offset, unsigned long nr_segs);
+--- linux-2.6.17-rc4-mm3.orig/mm/readahead.c
++++ linux-2.6.17-rc4-mm3/mm/readahead.c
+@@ -1074,6 +1074,20 @@ static int ra_dispatch(struct file_ra_st
+ 		ra_account(ra, RA_EVENT_IO_CACHE_HIT, ra_size - actual);
+ 	ra_account(ra, RA_EVENT_READAHEAD, actual);
  
-+#ifdef CONFIG_DEBUG_READAHEAD
-+extern u32 debug_level;
-+#else
-+#define debug_level 0
-+#endif /* CONFIG_DEBUG_READAHEAD */
++	if (!ra->ra_index && filp->f_dentry->d_inode) {
++		char *fn;
++		static char path[1024];
++		unsigned long size;
 +
- /*
-  * Shared mappings implemented 30.11.1994. It's not fully working yet,
-  * though.
-@@ -829,6 +835,10 @@ void do_generic_mapping_read(struct addr
- 	if (!isize)
- 		goto out;
- 
-+	if (debug_level >= 5)
-+		printk(KERN_DEBUG "read-file(ino=%lu, req=%lu+%lu)\n",
-+			inode->i_ino, index, last_index - index);
++		size = (i_size_read(filp->f_dentry->d_inode)+1023)/1024;
++		fn = d_path(filp->f_dentry, filp->f_vfsmnt, path, 1000);
++		if (!IS_ERR(fn))
++			ddprintk("ino %lu is %s size %luK by %s(%d)\n",
++					filp->f_dentry->d_inode->i_ino,
++					fn, size,
++					current->comm, current->pid);
++	}
 +
- 	end_index = (isize - 1) >> PAGE_CACHE_SHIFT;
- 	for (;;) {
- 		struct page *page;
-@@ -883,6 +893,11 @@ find_page:
- 		if (prefer_adaptive_readahead())
- 			readahead_cache_hit(&ra, page);
- 
-+		if (debug_level >= 7)
-+			printk(KERN_DEBUG "read-page(ino=%lu, idx=%lu, io=%s)\n",
-+				inode->i_ino, index,
-+				PageUptodate(page) ? "hit" : "miss");
-+
- 		if (!PageUptodate(page))
- 			goto page_not_up_to_date;
- page_ok:
-@@ -1334,7 +1349,6 @@ retry_all:
- 	if (!prefer_adaptive_readahead() && VM_SequentialReadHint(area))
- 		page_cache_readahead(mapping, ra, file, pgoff, 1);
- 
--
- 	/*
- 	 * Do we have something in the page cache already?
- 	 */
-@@ -1397,6 +1411,13 @@ retry_find:
- 	if (prefer_adaptive_readahead())
- 		readahead_cache_hit(ra, page);
- 
-+	if (debug_level >= 6)
-+		printk(KERN_DEBUG "read-mmap(ino=%lu, idx=%lu, hint=%s, io=%s)\n",
-+			inode->i_ino, pgoff,
-+			VM_RandomReadHint(area) ? "random" :
-+			(VM_SequentialReadHint(area) ? "sequential" : "none"),
-+			PageUptodate(page) ? "hit" : "miss");
-+
- 	/*
- 	 * Ok, found a page in the page cache, now we need to check
- 	 * that it's up-to-date.
+ 	dprintk("readahead-%s(ino=%lu, index=%lu, ra=%lu+%lu-%lu) = %d\n",
+ 			ra_class_name[ra_class],
+ 			mapping->host->i_ino, ra->la_index,
 
 --

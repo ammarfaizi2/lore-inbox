@@ -1,101 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWEXWLQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbWEXWZj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbWEXWLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 18:11:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbWEXWLP
+	id S964779AbWEXWZj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 18:25:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbWEXWZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 18:11:15 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:8545 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S964778AbWEXWLP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 18:11:15 -0400
-Message-ID: <4474D9EF.8030504@tls.msk.ru>
-Date: Thu, 25 May 2006 02:10:55 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Mail/News 1.5 (X11/20060318)
-MIME-Version: 1.0
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: swsusp in 2.6.16: works fine w/o PSE on a VIA C3?
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=4F9CF57E
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 24 May 2006 18:25:39 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:56524 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S964779AbWEXWZj
+	(ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 18:25:39 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:content-type:
+	organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=F7Rot0Iu5rmaK4TXtLOPlLVUFeTQv3RvhzazPFEDxabvsRaa93lqMT0u5kytbLnM6
+	7deDidqaPHiLIl4r8zQPw==
+Subject: [PATCH]:x86_64: Change assembly to use regular cpuid_count macro
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: Andi Kleen <ak@suse.de>
+Cc: Linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Organization: Google Inc
+Date: Wed, 24 May 2006 15:25:22 -0700
+Message-Id: <1148509522.14025.7.camel@galaxy.corp.google.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was just feeling lucky and tried suspend-to-disk cycle
-on my VIA C3 machine, which lacks PSE which is marked as
-being required for swsusp to work.  After commenting out
-the PSE check in include/asm-i386/suspend.h and rebooting,
-I tried the whole cycle, several times, with real load
-(while running 3 kernel compile in parallel) and while
-IDLE... And surprizingly, it all worked flawlessly for
-me, without a single glitch...
+Minor cleanup patch:  
 
-So the question is: is PSE really needed nowadays?
+Replacing the asm statement with cpuid_count macro(which already
+provides the same functionality).
 
-Ok, "w/o a single glitch"...  Actually there are several
-of them so far, but I guess they're unrelated to PSE/C3:
 
- o Suspend after clean boot is sloooow, it takes quite
-   alot of time to write all the stuff to the disk (the
-   percents are increasing by 1..2 in a sec).  After
-   resume, if I suspend again the whole process takes
-   only several secs.
+Signed-off-by: Rohit Seth <rohitseth@google.com>
 
- o There's a single 'failed' message, while *suspending*:
+arch/x86_64/kernel/setup.c |    7 ++-----
+1 files changed, 2 insertions(+), 5 deletions(-)
 
-Stopping tasks: ===============================================|
-Shrinking memory... done (0 pages freed)
-pnp: Device 01:01.00 disabled.
-pnp: Device 00:09 disabled.
-pnp: Device 00:08 disabled.
-ACPI: PCI interrupt for device 0000:00:07.5 disabled
-ACPI: PCI interrupt for device 0000:00:07.3 disabled
-ACPI: PCI interrupt for device 0000:00:07.2 disabled
-swsusp: Need to copy 19322 pages
-PCI: Setting latency timer of device 0000:00:01.0 to 64
-PCI: VIA IRQ fixup for 0000:00:07.1, from 255 to 0
-ACPI: PCI Interrupt 0000:00:07.2[D] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
-PCI: VIA IRQ fixup for 0000:00:07.2, from 9 to 11
-usb usb1: root hub lost power or was reset
-ACPI: PCI Interrupt 0000:00:07.3[D] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
-PCI: VIA IRQ fixup for 0000:00:07.3, from 9 to 11
-usb usb2: root hub lost power or was reset
-ACPI: PCI Interrupt 0000:00:07.5[C] -> Link [LNKC] -> GSI 12 (level, low) -> IRQ 12
-ACPI: PCI Interrupt 0000:00:0a.0[A] -> Link [LNKC] -> GSI 12 (level, low) -> IRQ 12
-eth0: link up, 100Mbps, full-duplex, lpa 0x45E1
-pnp: Device 00:08 activated.
-pnp: Device 00:09 activated.
-pnp: Failed to activate device 00:0b.   <========= this one
-pnp: Device 01:01.00 activated.
 
-   This is all shown while *suspending*, so it looks like
-   the kernel is shutting down all the devices and brings
-   them up again for some reason.  PNP device 00:0b is my
-   keyboard.
+--- linux-2.6.17-rc4.org/arch/x86_64/kernel/setup.c	2006-05-24 13:47:11.000000000 -0700
++++ linux-2.6.17-rc4/arch/x86_64/kernel/setup.c	2006-05-24 14:37:25.000000000 -0700
+@@ -1024,15 +1024,12 @@
+  */
+ static int __cpuinit intel_num_cpu_cores(struct cpuinfo_x86 *c)
+ {
+-	unsigned int eax;
++	unsigned int eax, t;
+ 
+ 	if (c->cpuid_level < 4)
+ 		return 1;
+ 
+-	__asm__("cpuid"
+-		: "=a" (eax)
+-		: "0" (4), "c" (0)
+-		: "bx", "dx");
++	cpuid_count(4, 0, &eax, &t, &t, &t);
+ 
+ 	if (eax & 0x1f)
+ 		return ((eax >> 26) + 1);
 
- o There's the following sequence of messages in my dmesg:
 
-Restarting tasks...<6>usb 1-1: USB disconnect, address 2
- done
-usb 1-1: new low speed USB device using uhci_hcd and address 3
-
-   It looks like either the formatting is wrong (missing \n in some
-   printk() or something), or USB device(s) aren't shutting down/
-   powered up at the appropriate time, or the connect/powerup
-   event interferes with the stuff happening during "Restarting
-   tasks...done" time.  For the end-user this is just a cosmetic
-   glitch (improper formatting), but it as well may be some
-   more serious prob.
-
-Note I never tried swsusp before, so I've no idea how it usually
-looks like, or should look like.  We've servers which never suspend,
-we've X terminals (no need to suspend, and it will not work anyway
-as the network connections will not be restored anyway), and this
-my VIA-C3-based machine, which never worked due to the PSE check.
-
-Thanks.
-
-/mjt

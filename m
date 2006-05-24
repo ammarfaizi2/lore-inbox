@@ -1,47 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWEXWgI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbWEXWlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbWEXWgI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 18:36:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWEXWgI
+	id S964784AbWEXWlH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 18:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWEXWlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 18:36:08 -0400
-Received: from outgoing.tpinternet.pl ([193.110.120.20]:45889 "EHLO
-	outgoing.tpinternet.pl") by vger.kernel.org with ESMTP
-	id S964786AbWEXWgF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 18:36:05 -0400
-In-Reply-To: <20060505191127.GA16076@thunk.org>
-References: <8.420169009@selenic.com> <65CF7F44-0452-4E94-8FC1-03B024BCCAE7@mac.com> <20060505172424.GV15445@waste.org> <20060505191127.GA16076@thunk.org>
-Mime-Version: 1.0 (Apple Message framework v750)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <79CAB553-E966-4AD8-B32F-07F33F29452F@neostrada.pl>
-Cc: Matt Mackall <mpm@selenic.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       davem@davemloft.net
-Content-Transfer-Encoding: 7bit
-From: Marcin Dalecki <dalecki.marcin@neostrada.pl>
-Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
-Date: Thu, 25 May 2006 00:35:37 +0200
-To: Theodore Tso <tytso@mit.edu>
-X-Mailer: Apple Mail (2.750)
+	Wed, 24 May 2006 18:41:07 -0400
+Received: from nz-out-0102.google.com ([64.233.162.200]:2397 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S964784AbWEXWlF convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 18:41:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=o0IihDe4WNWEehEOw5bTOpLeMbpnJJMF/2Fjh9rElrauK1ea44o7cpuJiW9I5bS4Rhcqoc/zCptQ97fCymRAkFYVBJDOu97IG+hEx+UY2IE1B/JdoZohpwqLItIHYvOey0C9WPgJCnOetO7mgk56v2NzykFw2ANs0Hra0bw13JE=
+Message-ID: <9e4733910605241541w1c4257bej79d40ff7fff40d6f@mail.gmail.com>
+Date: Wed, 24 May 2006 18:41:05 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Matthew Garrett" <mjg59@srcf.ucam.org>
+Subject: Re: OpenGL-based framebuffer concepts
+Cc: "Matthew Garrett" <mgarrett@chiark.greenend.org.uk>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org, "D. Hazelton" <dhazelton@enter.net>
+In-Reply-To: <20060524220827.GA12192@srcf.ucam.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <44700ACC.8070207@gmail.com>
+	 <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com>
+	 <200605230048.14708.dhazelton@enter.net>
+	 <9e4733910605231017g146e16dfnd61eb22a72bd3f5f@mail.gmail.com>
+	 <E1Fifom-0003qk-00@chiark.greenend.org.uk>
+	 <9e4733910605231638t4da71284oa37b66a88c60cf8a@mail.gmail.com>
+	 <20060524220827.GA12192@srcf.ucam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 5/24/06, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+> On Tue, May 23, 2006 at 07:38:40PM -0400, Jon Smirl wrote:
+>
+> > 2) The ROM support in the kernel knows about the shadow RAM copy at
+> > C000::0. When you request the ROM from a laptop video system it
+> > returns a map to the shadow RAM copy, not to a physical ROM. You need
+> > access to the shadow RAM copy to get to things the BIOS left there
+> > when it ran.
+>
+> My experience is that, on some laptops, the code at c000:0003 may jump
+> into some other address block that isn't necessarily shadowed. There's
+> no reason to assume that POSTing an ancilliary ROM will work after the
+> system has left the BIOS. Further, my laptop doesn't appear to have a
+> rom entry in sysfs, which makes getting at stuff that way rather more
+> awkward...
 
-On 2006-05-05, at 21:11, Theodore Tso wrote:
+As outlined in the previous mail, you don't repost a primary adapter
+that has already been posted. Adapters should only get posted once.
+Laptop adapters are always primary. However, you may need access to
+the shadow ROM copy to get info out of it and to run non-post
+functions.
 
-> I've always thought the right answer is that whether or not network
-> packet arrival times should be used as entropy input should be
-> configurable, since depending on the environment, it might or might
-> not be safe, and for some hosts (particularly diskless servers), the
-> network might be the only source of entropy available to them.
+A missing sysfs ROM entry is probably a bug. There is a quirk in
+arch/i386 that detects shadow video ROMs and tracks the primary video
+adapter. It probably needs some special case code added for your
+chipset. You're the first report of it being missing. Since I don't
+have your laptop you'll need to debug this yourself. It shouldn't be
+hard, it is a tiny piece of code.
 
-The trully concerned should simply use true random number generators.  
-Like a zenner diodes noise.
-For everybody else... most if not all of what /dev/random does, just  
-simply
-isn't worth the trouble at all. Thus the less of it the better.
-BTW. Did somebody notice that the whole disc seek time dance around / 
-dev/random does,
-is quite idiotic for deterministic flash drives? It will screw yours  
-"randomness" silently...
+The ROM attribute feature is not well tested on all platforms since
+not much of the user space code that should be using it hasn't been
+changed yet.
 
+-- 
+Jon Smirl
+jonsmirl@gmail.com

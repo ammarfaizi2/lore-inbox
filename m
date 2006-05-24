@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWEXVl7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbWEXWFr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbWEXVl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 17:41:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932770AbWEXVl7
+	id S932387AbWEXWFr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 18:05:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWEXWFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 17:41:59 -0400
-Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:9443 "EHLO
-	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
-	id S932376AbWEXVl6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 17:41:58 -0400
-Message-ID: <4474D383.4030506@hp.com>
-Date: Wed, 24 May 2006 21:43:31 +0000
-From: Patrick Jefferson <patrick.jefferson@hp.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: greg@kroah.com
-Cc: ink@jurassic.park.msu.ru, gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH] PCI: fix MMIO addressing collisions
-References: <4472FFDA.2040005@hp.com> <20060524020654.A19699@jurassic.park.msu.ru> <20060523224718.GA31629@kroah.com>
-In-Reply-To: <20060523224718.GA31629@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 24 May 2006 18:05:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60855 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932387AbWEXWFq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 18:05:46 -0400
+Date: Wed, 24 May 2006 15:08:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Peschke <mp3@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [Patch 3/6] statistics infrastructure - prerequisite: timestamp
+Message-Id: <20060524150830.3864ae90.akpm@osdl.org>
+In-Reply-To: <1148473908.2934.14.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+References: <1148473908.2934.14.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 May 2006 21:41:57.0390 (UTC) FILETIME=[E19342E0:01C67F7A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Wed, May 24, 2006 at 02:06:54AM +0400, Ivan Kokshaysky wrote:
-> 
->>On Tue, May 23, 2006 at 12:28:10PM +0000, Patrick Jefferson wrote:
->>
->>>Clearing PCI Command bits fixes machine halts observed during sizing 
->>>seqences using MMIO cycles. Clearing the bits is suggested by an 
->>>implementation note in the PCI spec.
->>
->>The patch is not acceptable. This was discussed back in 2002:
->>
->>  http://www.uwsg.iu.edu/hypermail/linux/kernel/0212.2/index.html#978
-> 
-> 
-> I agree, it's not going to be accepted.
-> 
-> Patrick, are you trying to solve the same thing that Grant was back in
-> 2002?  Why do you feel this patch is necessary?
+Martin Peschke <mp3@de.ibm.com> wrote:
+>
+> +static inline int nsec_to_timestamp(char *s, unsigned long long t)
+> +{
+> +	unsigned long nsec_rem = do_div(t, NSEC_PER_SEC);
+> +	return sprintf(s, "[%5lu.%06lu]", (unsigned long)t,
+> +		       nsec_rem/NSEC_PER_USEC);
+> +}
 
-No. The problem is similar, involving colliding addresses, but 
-critically different. Sizing a device's BAR via memory-mapped 
-configuration space accesses will do spectacular things when the size, 
-say E0000000, unforeseeably equals the mapped config space address, like 
-E0000000. The Memory bit in the PCI Command register must be cleared.
+do_div() is actually defined in terms of u64, not unsigned long long. 
+Although afaict this will all work OK and all the usual type promotions
+will dtrt.
 
-Either a) some other specific sequence exists for safe sizing,
-Or b) disabling memory decoding by the device must be allowed, at 
-minimum, as a special case,
-Or c) a switch from MMCONFIG to CF8/CFC and back again should be used 
-when sizing,
-Or d) the resulting machine crash is acceptable during linux boot.
+Which begs the question: how _does_ the kernel represent nanoseconds?  The
+time-management code is a bit undecided (search for long long in
+posix-cpu-timers.c, and for u64 in hrtimers.c).  All a bit confused.
 
-The patch, since it addresses d), is necessary unless b) or c) are 
-feasible, or a) exists.
-
-Any suggestions would be appreciated.
-
-Thanks,
-Patrick
-
+Anwyay.  This function is too big and slow to be inlined..

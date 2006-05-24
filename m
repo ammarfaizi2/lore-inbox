@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWEXUut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWEXUw2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932390AbWEXUut (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 16:50:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWEXUut
+	id S932395AbWEXUw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 16:52:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWEXUw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 16:50:49 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63759 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932386AbWEXUus
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 16:50:48 -0400
-Date: Wed, 24 May 2006 20:50:35 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Herman Elfrink <herman.elfrink@ti-wmc.nl>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] FLAME: external kernel module for L2.5 meshing
-Message-ID: <20060524205035.GA4149@ucw.cz>
-References: <44731733.7000204@ti-wmc.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44731733.7000204@ti-wmc.nl>
-User-Agent: Mutt/1.5.9i
+	Wed, 24 May 2006 16:52:28 -0400
+Received: from vulpecula.futurs.inria.fr ([195.83.212.5]:58782 "EHLO
+	vulpecula.futurs.inria.fr") by vger.kernel.org with ESMTP
+	id S932395AbWEXUw2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 16:52:28 -0400
+Message-ID: <4474C788.7060905@tremplin-utc.net>
+Date: Wed, 24 May 2006 22:52:24 +0200
+From: Eric Piel <Eric.Piel@tremplin-utc.net>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060422)
+MIME-Version: 1.0
+To: vamsi krishna <vamsi.krishnak@gmail.com>
+Cc: linux-kernel@vger.kernel.org, dan@debian.org
+Subject: Re: Program to convert core file to executable.
+References: <3faf05680605241018q302d5c0em6844765f81669498@mail.gmail.com>	 <20060524173821.GA1292@nevyn.them.org> <3faf05680605241306t64f63225i4d25af3e92a9d9f9@mail.gmail.com>
+In-Reply-To: <3faf05680605241306t64f63225i4d25af3e92a9d9f9@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> FLAME stands for "Forwarding Layer for Meshing"
+05/24/2006 10:06 PM, vamsi krishna wrote/a écrit:
+>>
+>> Of course, the kernel shouldn't crash!  It sounds like a bug.
+>>
 > 
-> FLAME provides an intermediate layer between the network 
-> layer (e.g. IPv4/IPv6) and the link (MAC) layer, 
-> providing L2.5 meshing. Both network layer and MAC layer 
+> Yes I can reproduce this , is there a bugzilla for kernel? (or should
+> we report this at the buzilla of the distribution?)
+http://bugzilla.kernel.org/
 
-What is wrong with meshing on L3?
+Enjoy ;-)
 
-(It is called flame so lets at least have nice flamewar :-)
-							Pavel
--- 
-Thanks for all the (sleeping) penguins.
+Eric
+

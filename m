@@ -1,86 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965090AbWEYJAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965091AbWEYJIA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965090AbWEYJAF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 05:00:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965091AbWEYJAE
+	id S965091AbWEYJIA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 05:08:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965094AbWEYJH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 05:00:04 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:7914 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S965090AbWEYJAD (ORCPT
+	Thu, 25 May 2006 05:07:59 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:59327 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S965091AbWEYJH7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 05:00:03 -0400
-Message-ID: <348547594.25107@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Thu, 25 May 2006 16:59:57 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 22/33] readahead: initial method
-Message-ID: <20060525085957.GC4996@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060524111246.420010595@localhost.localdomain> <348469546.16482@ustc.edu.cn> <447541E6.4090702@yahoo.com.au>
+	Thu, 25 May 2006 05:07:59 -0400
+Message-ID: <447573E0.6000108@myri.com>
+Date: Thu, 25 May 2006 11:07:44 +0200
+From: Brice Goglin <brice@myri.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <447541E6.4090702@yahoo.com.au>
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Anton Blanchard <anton@samba.org>, netdev@vger.kernel.org,
+       gallatin@myri.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/4] myri10ge - Driver core
+References: <20060517220218.GA13411@myri.com>	 <20060517220608.GD13411@myri.com> <20060523153928.GB5938@krispykreme>	 <4474138C.2050705@myri.com> <1148543942.13249.268.camel@localhost.localdomain>
+In-Reply-To: <1148543942.13249.268.camel@localhost.localdomain>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 25, 2006 at 03:34:30PM +1000, Nick Piggin wrote:
-> BTW. while your patchset might be nicely broken down, I think your
-> naming and descriptions are letting it down a little bit.
+Benjamin Herrenschmidt wrote:
+> On Wed, 2006-05-24 at 10:04 +0200, Brice Goglin wrote:
+>
+>   
+>> I am not sure what you mean.
+>> The only ppc64 with PCI-E that we have seen so far (a G5) couldn't do
+>> write combining according to Apple.
+>>     
+>
+> That is not 100% true.... I don't know what apple had in mind. It also
+> depends in what slot you are.
+>
+> Do you have ways to measure the difference ?
+>   
 
-:) Maybe more practices will help.
+No, we don't have any PPC with PCIe running Linux. The only G5 PCIe that
+we have is running MacOSX.
 
-> Wu Fengguang wrote:
-> 
-> >Aggressive readahead policy for read on start-of-file.
-> >
-> >Instead of selecting a conservative readahead size,
-> >it tries to do large readahead in the first place.
-> >
-> >However we have to watch on two cases:
-> >	- do not ruin the hit rate for file-head-checkers
-> >	- do not lead to thrashing for memory tight systems
-> >
-> >
-> 
-> How does it handle
->             -  don't needlessly readahead too much if the file is in cache
+> Try doing __ioremap(mgp->iomem_base, mgp->board_span, _PAGE_NO_CACHE);
+> instead of using the normal ioremap for #ifdef powerpc and tell us if it
+> makes a difference.
+>   
 
-It is prevented by the calling scheme.
+I'll try it as soon as we get our G5 PCIe to run Linux.
 
-The adaptive readahead logic will only be called on
-        - read a non-cached page
-                So readahead will be started/stopped on demand.
-        - read a PG_readahead marked page
-                Since the PG_readahead mark will only be set on fresh
-                new pages in __do_page_cache_readahead(), readahead
-                will automatically cease on cache hit.
+thanks,
+Brice
 
-> 
-> Would the current readahead mechanism benefit from more aggressive 
-> start-of-file
-> readahead?
-
-It will have the same benefits(and drawbacks).
-
-[QUOTE FROM ANOTHER MAIL]
-> can we try to incrementally improve the current logic as well as work
-> towards merging your readahead rewrite?
-
-The current readahead is left untouched on purpose.
-
-If I understand it right, its simplicity is a great virtue.  And it is
-hard to improve it without loosing this virtue, or avoid disturbing
-old users.
-
-Then the new framework provides a ideal testbed for fancy new things.
-We can do experimental things without calling for complaints(before it
-is stabilized after one year). And then we might port some proved
-features to the current logic.
-
-Wu

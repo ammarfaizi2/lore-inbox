@@ -1,72 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030440AbWEYVjy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030413AbWEYVmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030440AbWEYVjy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 17:39:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030442AbWEYVjy
+	id S1030413AbWEYVmE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 17:42:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030442AbWEYVmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 17:39:54 -0400
-Received: from lug-owl.de ([195.71.106.12]:440 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1030440AbWEYVjx (ORCPT
+	Thu, 25 May 2006 17:42:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36482 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030413AbWEYVmC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 17:39:53 -0400
-Date: Thu, 25 May 2006 23:39:52 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Cc: Jeff Garzik <jeff@garzik.org>
+	Thu, 25 May 2006 17:42:02 -0400
+Date: Thu, 25 May 2006 17:41:56 -0400
+From: Dave Jones <davej@redhat.com>
+To: devmazumdar <dev@opensound.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: How to check if kernel sources are installed on a system?
-Message-ID: <20060525213952.GT13513@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Jeff Garzik <jeff@garzik.org>
-References: <e55715+usls@eGroups.com> <447622EA.90704@garzik.org>
+Message-ID: <20060525214156.GD4328@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	devmazumdar <dev@opensound.com>, linux-kernel@vger.kernel.org
+References: <e55715+usls@eGroups.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LtN0I0gXzHUftVCi"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <447622EA.90704@garzik.org>
-X-Operating-System: Linux mail 2.6.12.3lug-owl
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <e55715+usls@eGroups.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, May 25, 2006 at 09:19:33PM -0000, devmazumdar wrote:
+ > How does one check the existence of the kernel source RPM (or deb) on
+ > every single distribution?.
+ > 
+ > We know that rpm -qa | grep kernel-source works on Redhat, Fedora,
 
---LtN0I0gXzHUftVCi
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Actually, no it doesn't. The kernel source in RHEL4 & Fedora
+is an srpm just like every other source package.  Now, if you're 
+referring to kernel headers to build modules against, it's still
+incorrect, that's a package called kernel-devel.
 
-On Thu, 2006-05-25 17:34:34 -0400, Jeff Garzik <jeff@garzik.org> wrote:
->=20
-> find / -name libata-scsi.c
+ > SuSE, Mandrake and CentOS - how about other RPM based distros? How
+ > about debian based distros?. There doesn't seem to be a a single
+ > conherent naming scheme. 
 
-Which of the 10 versions showing up is the "right" one?
+Why should there be? When people do things independantly, it's
+unlikely they all arrive at the same solutions, and converging
+back afterwards is difficult once there are deployments in the field.
+(Even within 1 distro, when we moved from the kernel-source package
+ you referenced, to a .srpm, the fallout went on for *months*[1]).
 
-MfG, JBG
+You seem somewhat surprised at this.  It may sound trivial, but
+getting agreement on issues like this across distributions is a
+long drawn out process.  (See the LSB archives for some of the
+madness surrounding issues like this).
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+ > Another thing, can we please start enforcing that people ship kernel
+ > source with the base installation?
 
---LtN0I0gXzHUftVCi
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+So you want to increase the footprint of everyone's minimal install,
+even though the vast majority of users will never need it?
+This isn't going to fly.  Not everyone builds add-on modules.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+ > If distributors are distributing kernels, then it must be an absolute
+ > requirement that they ship kernel sources in a "configured" state as well.
 
-iD8DBQFEdiQoHb1edYOZ4bsRAvLfAJ460M8GcLxu+19VTbl2OPSGCOikwgCgkM/V
-lNxf3rxaYdvTtTEPoM8fU3A=
-=koH+
------END PGP SIGNATURE-----
+On a Fedora system:  yum install kernel-devel
+As mentioned at length in the release notes.
 
---LtN0I0gXzHUftVCi--
+Perhaps if you explain your problem in a less abrasive way instead of
+coming here with demands, maybe something can be done to improve
+whatever process you feel is failing.
+
+		Dave
+
+[1] Given you seem to have missed this, it could be argued that it's
+still ongoing, highlighting just how much of a problem renaming stuff causes.
+
+-- 
+http://www.codemonkey.org.uk

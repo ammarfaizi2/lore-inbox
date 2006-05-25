@@ -1,32 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbWEYRJr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWEYR0x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030289AbWEYRJr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 13:09:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030290AbWEYRJr
+	id S1030225AbWEYR0x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 13:26:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbWEYR0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 13:09:47 -0400
-Received: from ns2.uludag.org.tr ([193.140.100.220]:13484 "EHLO uludag.org.tr")
-	by vger.kernel.org with ESMTP id S1030289AbWEYRJp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 13:09:45 -0400
-Message-ID: <4475E4D9.2010505@pardus.org.tr>
-Date: Thu, 25 May 2006 20:09:45 +0300
-From: =?UTF-8?B?xLBzbWFpbCBEw7ZubWV6?= <ismail@pardus.org.tr>
-Organization: TUBITAK/UEKAE
-User-Agent: Mozilla Thunderbird 1.5.0.2 (X11/20060426)
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
+	Thu, 25 May 2006 13:26:52 -0400
+Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:41477 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1030225AbWEYR0w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 13:26:52 -0400
+Date: Thu, 25 May 2006 19:26:57 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>
+Cc: Ismail Donme <izsmail@pardus.org.tr>, LKML <linux-kernel@vger.kernel.org>,
+       lm-sensors@lm-sensors.org, Greg KH <greg@kroah.com>
 Subject: Re: [PATCH] scx200_acb: fix section mismatch warning
-References: <20060525100138.cb9e53c5.rdunlap@xenotime.net>
+Message-Id: <20060525192657.081c8c11.khali@linux-fr.org>
 In-Reply-To: <20060525100138.cb9e53c5.rdunlap@xenotime.net>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=5B88F54C
+References: <20060525100138.cb9e53c5.rdunlap@xenotime.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote On 25-05-2006 20:01:
+Hi Randy, all,
+
 > From: Randy Dunlap <rdunlap@xenotime.net>
 > 
 > Fix section mismatch warning reported by İsmail Dönmez:
@@ -50,11 +50,21 @@ Randy.Dunlap wrote On 25-05-2006 20:01:
 >  	u32	low, hi;
 >  	u32	smb_base;
 > 
-> 
-> ---
 
-Ack, this fixes the warning for me.
+Correct, I sent exactly the same patch to the the lm-sensors list and
+Greg KH yesterday:
+http://lists.lm-sensors.org/pipermail/lm-sensors/2006-May/016213.html
 
-Regards,
-ismail
+So this one is
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 
+Note that the section mismatch is harmless here (we have a non-__init
+function sandwiched between two __init functions) but nevertheless this
+kind of warning is never welcome in a final kernel release so let's get
+the fix merged now.
+
+Andrew, can you please push this to Linus?
+
+Thanks,
+-- 
+Jean Delvare

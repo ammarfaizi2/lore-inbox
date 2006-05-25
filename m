@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965055AbWEYIJy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965079AbWEYINu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965055AbWEYIJy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 04:09:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965079AbWEYIJy
+	id S965079AbWEYINu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 04:13:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965080AbWEYINu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 04:09:54 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:41372 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S965055AbWEYIJx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 04:09:53 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
+	Thu, 25 May 2006 04:13:50 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:30595 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965079AbWEYINt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 04:13:49 -0400
+Date: Thu, 25 May 2006 18:13:12 +1000
+From: David Chinner <dgc@sgi.com>
+To: Balbir Singh <balbir@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH]  Per-superblock unused dentry LRU lists V2
+Message-ID: <20060525081312.GE8069029@melbourne.sgi.com>
+References: <20060524110001.GU1331387@melbourne.sgi.com> <20060525040604.GB25185@in.ibm.com> <20060525061553.GC8069029@melbourne.sgi.com> <20060525063350.GD8069029@melbourne.sgi.com> <20060525065219.GD25185@in.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17525.25911.460120.154875@gargle.gargle.HOWL>
-Date: Thu, 25 May 2006 12:05:11 +0400
-To: Martin Peschke <mp3@de.ibm.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch 5/6] statistics infrastructure
-Newsgroups: gmane.linux.kernel
-In-Reply-To: <1148474038.2934.18.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
-References: <1148474038.2934.18.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+Content-Disposition: inline
+In-Reply-To: <20060525065219.GD25185@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Peschke writes:
- > This patch adds statistics infrastructure as common code.
- > 
+On Thu, May 25, 2006 at 12:22:20PM +0530, Balbir Singh wrote:
+> On Thu, May 25, 2006 at 04:33:50PM +1000, David Chinner wrote:
+> > On Thu, May 25, 2006 at 04:15:53PM +1000, David Chinner wrote:
+> > > 
+> > > FWIW, this create/unlink load has been triggering reliable "Busy
+> > > inodes after unmount" errors that I've slowly been tracking down.
+> > > After I fixed the last problem in XFS late last week, I've
+> > > been getting a failure that i think is the unmount/prune_dcache
+> > > races that you and Neil have recently fixed.
+> > 
+> > I just had all 8 filesystems come up with:
+> > 
+> > May 25 15:55:18 budgie kernel: XFS unmount got error 16
+> > May 25 15:55:18 budgie kernel: xfs_fs_put_super: vfsp/0xe00000b006339280 left dangling!
+> > May 25 15:55:18 budgie kernel: VFS: Busy inodes after unmount of dm-9. Self-destruct in 5 seconds.  Have a nice day...
 
-[...]
+.....
 
- > +
- > +static void statistic_add_util(struct statistic *stat, int cpu,
- > +			       s64 value, u64 incr)
- > +{
- > +	struct statistic_entry_util *util = stat->pdata->ptrs[cpu];
- > +	util->num += incr;
- > +	util->acc += value * incr;
- > +	if (unlikely(value < util->min))
- > +		util->min = value;
- > +	if (unlikely(value > util->max))
- > +		util->max = value;
+> > On the second test iteration. On 2.6.16, it takes about 10 iterations to get one
+> > filesystem to do this. I'll need to look into this one further. I'm going to
+> > reboot the machine and run some dbench tests (which typically don't trigger
+> > this problem) and then come back to this one with added debugging....
+> 
+> Is this with version 2 of your patch?
 
-One useful aggregate that can be calculated here is a standard
-deviation. Something like
+That's with version 2 on -rc4-mm3.
 
-        util->acc_sq += value * incr * value * incr; /* sum of squares */
+> Could you also try the -mm tree
+> and see if the problem goes away. We have a set of patches to address
+> exactly this problem. 
 
-And in statistic_fdata_util() squared standard deviation is
+Well, the patches overlap and I thought that I had taken into account
+the fixes that were applied to the -mm tree.
 
-        std_dev = util->acc_sq;
-        /*
-         * Difference of averaged square and squared average.
-         */
-        std_dev = do_div(std_dev, util->num) - whole * whole;
+I'm rerunning on 2.6.16 with the s_umount locking fix so I know that it's
+not something else in -mm that is being tripped over....
 
- > +}
+Cheers,
 
-Nikita.
+Dave.
+-- 
+Dave Chinner
+R&D Software Enginner
+SGI Australian Software Group

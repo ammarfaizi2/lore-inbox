@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030448AbWEYVoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030445AbWEYVoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030448AbWEYVoo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 17:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030450AbWEYVoo
+	id S1030445AbWEYVoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 17:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030446AbWEYVoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 17:44:44 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28383 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030447AbWEYVom (ORCPT
+	Thu, 25 May 2006 17:44:16 -0400
+Received: from main.gmane.org ([80.91.229.2]:13020 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1030445AbWEYVoP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 17:44:42 -0400
-Date: Thu, 25 May 2006 23:43:54 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: kronos@kronoz.cjb.net
-Cc: Michael Tokarev <mjt@tls.msk.ru>, linux-kernel@vger.kernel.org,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: swsusp in 2.6.16: works fine w/o PSE...
-Message-ID: <20060525214350.GC6347@elf.ucw.cz>
-References: <20060524230538.GA616@dreamland.darkstar.lan>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060524230538.GA616@dreamland.darkstar.lan>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 25 May 2006 17:44:15 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: [PATCH] Add compile domain
+Date: Thu, 25 May 2006 22:43:27 +0100
+Message-ID: <yw1xodxlwzk0.fsf@agrajag.inprovide.com>
+References: <20060525141714.GA31604@skunkworks.cabal.ca> <Pine.LNX.4.61.0605252027380.13379@yvahk01.tjqt.qr> <Pine.LNX.4.64.0605251146260.5623@g5.osdl.org> <200605251954.06227.s0348365@sms.ed.ac.uk> <Pine.LNX.4.61.0605252100070.13379@yvahk01.tjqt.qr> <44761E38.7050702@mbligh.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: agrajag.inprovide.com
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through Obscurity, linux)
+Cancel-Lock: sha1:Ym0qE0WHj+B/LC6Yv+rvbyhR778=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+"Martin J. Bligh" <mbligh@mbligh.org> writes:
 
-> I'm CC-ing the two swsusp gurus ;)
-> 
-> > I was just feeling lucky and tried suspend-to-disk cycle
-> > on my VIA C3 machine, which lacks PSE which is marked as
-> > being required for swsusp to work.  After commenting out
-> > the PSE check in include/asm-i386/suspend.h and rebooting,
-> > I tried the whole cycle, several times, with real load
-> > (while running 3 kernel compile in parallel) and while
-> > IDLE... And surprizingly, it all worked flawlessly for
-> > me, without a single glitch...
-> > 
-> > So the question is: is PSE really needed nowadays?
+>> 20:35 mason:/etc # rpm -qf `which hostname`
+>> net-tools-1.60-37
+>> 21:00 mason:/etc # hostname -v
+>> gethostname()=`mason'
+>> mason
+>> 21:00 mason:/etc # hostname --fqdn
+>> mason
+>> 21:00 mason:/etc # domainname
+>> (none)
+>> 21:00 mason:/etc # dnsdomainname
+>> Runs Aurora Linux 2.0.
+>
+> Ubuntu does this too:
+>
+> mbligh@flay:~$ hostname
+> flay
+> mbligh@flay:~$ hostname --fqdn
+> localhost.localdomain
 
-I think so. Or can you prove that pagetables are not going to be
-overwritten in wrong order in !PSE case?
+Gentoo:
 
-Look at x86-64 how !PSE case can be solved, but it is a bit of code.
+mru@agrajag:~$ hostname
+agrajag
+mru@agrajag:~$ hostname --fqdn
+agrajag.inprovide.com
+mru@agrajag:~$ hostname --version
+net-tools 1.60
+hostname 1.100 (2001-04-14)
 
-								Pavel
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Måns Rullgård
+mru@inprovide.com
+

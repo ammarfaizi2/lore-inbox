@@ -1,106 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbWEYPh3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030232AbWEYPpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030226AbWEYPh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 11:37:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWEYPh2
+	id S1030232AbWEYPpH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 11:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbWEYPpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 11:37:28 -0400
-Received: from nz-out-0102.google.com ([64.233.162.204]:38075 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1030226AbWEYPh2 convert rfc822-to-8bit (ORCPT
+	Thu, 25 May 2006 11:45:07 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3822 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030232AbWEYPpF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 11:37:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TW2IJYM5EHtNeOZcQqXJcbLfaut1TH0qjyUAkSIE7BQ9sGTACHtL+xdoktcPM8HjFeTTlTym3nxhFRNk45VA2+1/2BQBYhSTGNUq3LgYnj5EbappnUVC2flURdBnDFg1I3X0jZ71t+P1mU9Qrkl7LMckBIvIBd6dxu9YMUfQfcg=
-Message-ID: <9e4733910605250837u59ad3881s75a0ed366fa2eefb@mail.gmail.com>
-Date: Thu, 25 May 2006 11:37:27 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Jeff Garzik" <jeff@garzik.org>
-Subject: Re: OpenGL-based framebuffer concepts
-Cc: "D. Hazelton" <dhazelton@enter.net>, "Dave Airlie" <airlied@gmail.com>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4475C845.5000801@garzik.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <9e4733910605241656r6a88b5d3hda8c8a4e72edc193@mail.gmail.com>
-	 <4475007F.7020403@garzik.org> <200605250237.20644.dhazelton@enter.net>
-	 <44756E70.9020207@garzik.org>
-	 <9e4733910605250704m68235d88lcd8eaedfda5e63cf@mail.gmail.com>
-	 <4475C845.5000801@garzik.org>
+	Thu, 25 May 2006 11:45:05 -0400
+Date: Thu, 25 May 2006 08:44:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
+Cc: linux-kernel@vger.kernel.org, wfg@mail.ustc.edu.cn, mstone@mathom.us
+Subject: Re: [PATCH 00/33] Adaptive read-ahead V12
+Message-Id: <20060525084415.3a23e466.akpm@osdl.org>
+In-Reply-To: <348469535.17438@ustc.edu.cn>
+References: <348469535.17438@ustc.edu.cn>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/25/06, Jeff Garzik <jeff@garzik.org> wrote:
-> Jon Smirl wrote:
-> In Linux, the lowlevel driver registers irq handlers, so your simple
-> problem has the simple and obvious answer.  Further, reviewing my
-> statement above, if fbdev/DRM are aware of each other, and if they both
-> are layered on top of the lowlevel driver, then it should also be
-> obvious that they are cooperatively sharing resources, not competing
-> against one another.
+Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
 >
->
-> > I would instead start by making fbdev the low level driver. DRM could
-> > then bind to it and redundant code in DRM could be removed. 90% of the
-> > code in fbdev is always needed.  Hopefully X could be convinced to use
->
-> Take your pick.  An fbdev driver is nothing but a PCI driver that
-> registers itself with the fbdev subsystem.  Ditto a DRM driver, though
-> the DRM and agpgart layering is royally screwed up ATM.  Regardless, he
-> who codes, wins.
+> Andrew,
+> 
+> This is the 12th release of the adaptive readahead patchset.
+> 
+> It has received tests in a wide range of applications in the past
+> six months, and polished up considerably.
+> 
+> Please consider it for inclusion in -mm tree.
+> 
+> 
+> Performance benefits
+> ====================
+> 
+> Besides file servers and desktops, it is recently found to benefit
+> postgresql databases a lot.
+> 
+> I explained to pgsql users how the patch may help their db performance:
+> http://archives.postgresql.org/pgsql-performance/2006-04/msg00491.php
+> [QUOTE]
+> 	HOW IT WORKS
+> 
+> 	In adaptive readahead, the context based method may be of particular
+> 	interest to postgresql users. It works by peeking into the file cache
+> 	and check if there are any history pages present or accessed. In this
+> 	way it can detect almost all forms of sequential / semi-sequential read
+> 	patterns, e.g.
+> 		- parallel / interleaved sequential scans on one file
+> 		- sequential reads across file open/close
+> 		- mixed sequential / random accesses
+> 		- sparse / skimming sequential read
+> 
+> 	It also have methods to detect some less common cases:
+> 		- reading backward
+> 		- seeking all over reading N pages
+> 
+> 	WAYS TO BENEFIT FROM IT
+> 
+> 	As we know, postgresql relies on the kernel to do proper readahead.
+> 	The adaptive readahead might help performance in the following cases:
+> 		- concurrent sequential scans
+> 		- sequential scan on a fragmented table
+> 		  (some DBs suffer from this problem, not sure for pgsql)
+> 		- index scan with clustered matches
+> 		- index scan on majority rows (in case the planner goes wrong)
+> 
+> And received positive responses:
+> [QUOTE from Michael Stone]
+> 	I've got one DB where the VACUUM ANALYZE generally takes 11M-12M ms;
+> 	with the patch the job took 1.7M ms. Another VACUUM that normally takes
+> 	between 300k-500k ms took 150k. Definately a promising addition.
+> 
+> [QUOTE from Michael Stone]
+> 	>I'm thinking about it, we're already using a fixed read-ahead of 16MB
+> 	>using blockdev on the stock Redhat 2.6.9 kernel, it would be nice to
+> 	>not have to set this so we may try it.
+> 
+> 	FWIW, I never saw much performance difference from doing that. Wu's
+> 	patch, OTOH, gave a big boost.
+> 
+> [QUOTE: odbc-bench with Postgresql 7.4.11 on dual Opteron]
+> 	Base kernel:
+> 	 Transactions per second:                92.384758
+> 	 Transactions per second:                99.800896
+> 
+> 	After read-ahvm.readahead_ratio = 100:
+> 	 Transactions per second:                105.461952
+> 	 Transactions per second:                105.458664
+> 
+> 	vm.readahead_ratio = 100 ; vm.readahead_hit_rate = 1:
+> 	 Transactions per second:                113.055367
+> 	 Transactions per second:                124.815910
 
-There is significant architectural difference between the two schemes.
-Is the base driver an absolute minimal driver that only serves as a
-switch to route into the other drivers, or does the base driver
-contain all the common code? I'm in the common code camp, DaveA is in
-the minimal switch camp.
+These are nice-looking numbers, but one wonders.  If optimising readahead
+makes this much difference to postgresql performance then postgresql should
+be doing the readahead itself, rather than relying upon the kernel's
+ability to guess what the application will be doing in the future.  Because
+surely the database can do a better job of that than the kernel.
 
-Take memory management for example. I think the memory manager should
-go into the base driver. The other strategy is for each driver to have
-their own memory manager and then the base provides a way to select
-which one is active. (Note that in all cases the complex part of
-memory management is running in user space).
+That would involve using posix_fadvise(POSIX_FADV_RANDOM) to disable kernel
+readahead and then using posix_fadvise(POSIX_FADV_WILLNEED) to launch
+application-level readahead.
 
-> > the services offered by the fbdev/DRM pair. New memory management code
->
-> No "hopefully."  X must be forced to use this driver, otherwise the
-> system is unworkable.
-
-I have had no success in making this happen.
-
-> > would be added to this base driver since everyone needs it. Fbdev
->
-> If fbdev and DRM are cooperating, then obviously they will cooperate
-> when managing resources.  GPU memory is but one example of a resource.
-
-What is cooperation? Is it shared code in the base coordinating a
-single state in the hardware, or is it save your state, I'm switching
-to another driver, now I'm loading its state. We can't achieve
-agreement on this.
-
-> > would also pick up the ability to reset secondary cards at boot.
->
-> But if you think the kernel will grow an x86 emulator, you're dreaming.
-> That's what initramfs and friends are for.
-
-Depends on what you mean by the kernel growing the emulator. I don't
-want to put it in the kernel binary, but I would like to see it in the
-kernel tree. It would use klibc and initramfs. There are some classes
-of machines that cannot get video at boot without running the ROM.
-Making this part of the boot process will guarantee that all cards
-have been POSTed by the time normal user space is up.
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Has this been considered or attempted?

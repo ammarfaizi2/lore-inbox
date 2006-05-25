@@ -1,83 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964973AbWEYE3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbWEYEfT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964973AbWEYE3J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 00:29:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbWEYE3J
+	id S964992AbWEYEfT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 00:35:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbWEYEfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 00:29:09 -0400
-Received: from wr-out-0506.google.com ([64.233.184.229]:48310 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S964973AbWEYE3I convert rfc822-to-8bit (ORCPT
+	Thu, 25 May 2006 00:35:19 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:152 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964992AbWEYEfR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 00:29:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=GPoL36V43D3pbKkSbCZlsn1wpvlIwB+XGDdB14D0phaH0Sdz4B99Vx8O7LVycWS5BxU3R0L6DyceBvFp9jTQE38+3479CgyhMx/w/0jVRQvN9yZgLcaXbt5m1At73l9Z4uk74Jw75OVGCUAYhCbYwsEZpLUu/G/lIUqmFkJkL0A=
-Message-ID: <844f6ea60605242129k2887f28l9357b2ce707bdf26@mail.gmail.com>
-Date: Thu, 25 May 2006 09:59:07 +0530
-From: "C K Kashyap" <ckkashyap@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: help on using pseudo terminals - using /dev/ptmx
+	Thu, 25 May 2006 00:35:17 -0400
+Message-ID: <447533FB.1080400@garzik.org>
+Date: Thu, 25 May 2006 00:35:07 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: Jon Mason <jdmason@us.ibm.com>
+CC: Andi Kleen <ak@suse.de>, Muli Ben-Yehuda <muli@il.ibm.com>,
+       Muli Ben-Yehuda <mulix@mulix.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/4] x86-64: Calgary IOMMU - move valid_dma_direction
+ into the callers
+References: <20060525033550.GD7720@us.ibm.com>
+In-Reply-To: <20060525033550.GD7720@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Jon Mason wrote:
+>>From Andi Kleen's comments on the original Calgary patch, move
+> valid_dma_direction into the calling functions.
+> 
+> Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
+> Signed-off-by: Jon Mason <jdmason@us.ibm.com>
 
-I recently ran into trouble with pseudo terminals while trying to make
-nxterm(microwindows or nano X) work.
+Even though BUG_ON() includes unlikely(), this introduces additional 
+tests in very hot paths.
 
-Could someone please help me out with the program below...where I am
-trying to do a two way communication between parent and child using
-pseudo-terminal.
+_Why_ do we need this at all?
 
+I would prefer to NAK the patch, and fix the odd user that gets it 
+wrong.  It becomes REALLY obvious that a driver has gotten this wrong, 
+REALLY quickly.
 
-#include <pty.h>
-#include <utmp.h>
-#include <fcntl.h>
-#include <stdio.h>
+I see no need to burden critical hot paths with dumb checks like this.
 
-
-int main(){
-  int amaster,aslave;
-  char name[256];
-  char buffer[20];
-
-
-
-  openpty(&amaster,&aslave,name,NULL,NULL);
-    fcntl (amaster, F_SETFL, O_NONBLOCK);
-    fcntl (aslave, F_SETFL, O_NONBLOCK);
+	Jeff
 
 
 
-  printf("Master = %d, Slave = %d\n",amaster,aslave);
-  printf("NAME %s\n",name);
-
-  if(fork()==0){
-    //login_tty(aslave);
-    read(aslave,buffer,10);
-    printf("Child: %s\n",buffer);
-    write(aslave,"ABCDEFGHIJ\n",11);
-    sleep(5);
-    exit(0);
-
-  }
-  //  login_tty(amaster);
-  write(amaster,"1234567890\n",11);
-  read(amaster,buffer,10);
-  printf("Parent: %s\n",buffer);
-
-  sleep(5);
-}
-
-
-
--- 
-Regards,
-Kashyap

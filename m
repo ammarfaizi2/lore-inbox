@@ -1,40 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbWEYQ16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbWEYQbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030252AbWEYQ16 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 12:27:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030251AbWEYQ16
+	id S1030251AbWEYQbO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 12:31:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbWEYQbO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 12:27:58 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:44996 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030250AbWEYQ15 (ORCPT
+	Thu, 25 May 2006 12:31:14 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3472 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030251AbWEYQbN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 12:27:57 -0400
-Date: Thu, 25 May 2006 09:27:31 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       David Howells <dhowells@redhat.com>,
-       Christoph Lameter <christoph@lameter.com>,
-       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 1/3] mm: tracking shared dirty pages
-In-Reply-To: <20060525135555.20941.36612.sendpatchset@lappy>
-Message-ID: <Pine.LNX.4.64.0605250921300.23726@schroedinger.engr.sgi.com>
-References: <20060525135534.20941.91650.sendpatchset@lappy>
- <20060525135555.20941.36612.sendpatchset@lappy>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 25 May 2006 12:31:13 -0400
+Date: Thu, 25 May 2006 09:30:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
+Cc: linux-kernel@vger.kernel.org, wfg@mail.ustc.edu.cn
+Subject: Re: [PATCH 06/33] readahead: refactor __do_page_cache_readahead()
+Message-Id: <20060525093039.21b4246b.akpm@osdl.org>
+In-Reply-To: <348469538.91213@ustc.edu.cn>
+References: <20060524111246.420010595@localhost.localdomain>
+	<348469538.91213@ustc.edu.cn>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 May 2006, Peter Zijlstra wrote:
+Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
+>
+> Add look-ahead support to __do_page_cache_readahead(),
+> which is needed by the adaptive read-ahead logic.
 
->  - rebased on top of David Howells' page_mkwrite() patch.
+You'd need to define "look-ahead support" before telling us you've added it ;)
 
-I am a bit confused about the need for Davids patch. set_page_dirty() is 
-already a notification that a page is to be dirtied. Why do we need it 
-twice? set_page_dirty could return an error code and the file system can 
-use the set_page_dirty() hook to get its notification. What we would need 
-to do is to make sure that set_page_dirty can sleep.
+> @@ -302,6 +303,8 @@ __do_page_cache_readahead(struct address
+>  			break;
+>  		page->index = page_offset;
+>  		list_add(&page->lru, &page_pool);
+> +		if (page_idx == nr_to_read - lookahead_size)
+> +			__SetPageReadahead(page);
+>  		ret++;
+>  	}
+
+OK.  But the __SetPageFoo() things still give me the creeps.
+
+
+OT: look:
+
+		read_unlock_irq(&mapping->tree_lock);
+		page = page_cache_alloc_cold(mapping);
+		read_lock_irq(&mapping->tree_lock);
+
+we should have a page allocation function which just allocates a page from
+this CPU's per-cpu-pages magazine, and fails if the magazine is empty:
+
+		page = 	alloc_pages_local(mapping_gfp_mask(x)|__GFP_COLD);
+		if (!page) {
+			read_unlock_irq(&mapping->tree_lock);
+			/*
+			 * This will refill the per-cpu-pages magazine
+			 */
+			page = page_cache_alloc_cold(mapping);
+			read_lock_irq(&mapping->tree_lock);
+		}
 

@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030365AbWEYTTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030328AbWEYTWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030365AbWEYTTx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 15:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030366AbWEYTTx
+	id S1030328AbWEYTWU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 15:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030363AbWEYTWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 15:19:53 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:22670 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030365AbWEYTTw (ORCPT
+	Thu, 25 May 2006 15:22:20 -0400
+Received: from hera.kernel.org ([140.211.167.34]:57830 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1030328AbWEYTWT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 15:19:52 -0400
-Date: Thu, 25 May 2006 20:19:49 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 9/10] dm: fix block device initialisation
-Message-ID: <20060525191949.GA4521@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+	Thu, 25 May 2006 15:22:19 -0400
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: b44 driver issues?
+Date: Thu, 25 May 2006 12:21:54 -0700
+Organization: OSDL
+Message-ID: <20060525122154.3270e4bd@localhost.localdomain>
+References: <200605251919.00614.dj@david-web.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1148584911 3260 10.8.0.54 (25 May 2006 19:21:51 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Thu, 25 May 2006 19:21:51 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 2.1.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jeff Mahoney <jeffm@suse.com>
+On Thu, 25 May 2006 19:19:00 +0100
+David Johnson <dj@david-web.co.uk> wrote:
 
-In alloc_dev(), we register the device with the block layer and then
-continue to initialize the device.  But register_disk() makes
-the device available to be opened before we have completed
-initialising it.
+> Hi all,
+> 
+> I have a Dell Inspiron 5150 laptop with a Broadcom BCM4401 network card which 
+> uses the b44 driver.
+> 
+> With recent kernels (I've tested with Ubuntu's 2.6.15,  vanilla 2.6.16.18 and 
+> 2.6.17-rc5) the driver loads without error but the interface isn't 
+> registered.
+> 
+> In dmesg:
+> b44.c:v1.00 (Apr 7, 2006)
+> ACPI: PCI Interrupt 0000:02:01.0[A] -> GSI 17 (level, low) -> IRQ 177
+> eth0: Broadcom 4400 10/100BaseT Ethernet 00:11:43:7b:69:ae
+> 
+> # ifconfig eth0
+> eth0: error fetching interface information: Device not found
 
-This patch moves the final bits of the initialization above the disk
-registration.
+Did a hotplug script rename it for you.
 
-Signed-off-by: Jeff Mahoney <jeffm@suse.com>
-Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
-
-Index: linux-2.6.17-rc4/drivers/md/dm.c
-===================================================================
---- linux-2.6.17-rc4.orig/drivers/md/dm.c	2006-05-23 19:37:14.000000000 +0100
-+++ linux-2.6.17-rc4/drivers/md/dm.c	2006-05-23 19:38:01.000000000 +0100
-@@ -891,6 +891,10 @@ static struct mapped_device *alloc_dev(u
- 	if (!md->disk)
- 		goto bad4;
- 
-+	atomic_set(&md->pending, 0);
-+	init_waitqueue_head(&md->wait);
-+	init_waitqueue_head(&md->eventq);
-+
- 	md->disk->major = _major;
- 	md->disk->first_minor = minor;
- 	md->disk->fops = &dm_blk_dops;
-@@ -900,10 +904,6 @@ static struct mapped_device *alloc_dev(u
- 	add_disk(md->disk);
- 	format_dev_t(md->name, MKDEV(_major, minor));
- 
--	atomic_set(&md->pending, 0);
--	init_waitqueue_head(&md->wait);
--	init_waitqueue_head(&md->eventq);
--
- 	/* Populate the mapping, nobody knows we exist yet */
- 	spin_lock(&_minor_lock);
- 	old_md = idr_replace(&_minor_idr, md, minor);
+# ifconfig -a

@@ -1,64 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965125AbWEYMEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965124AbWEYMMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965125AbWEYMEo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 08:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965126AbWEYMEo
+	id S965124AbWEYMMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 08:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965126AbWEYMMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 08:04:44 -0400
-Received: from ns.mipt.ru ([193.125.143.173]:37848 "EHLO mail.telecom.mipt.ru")
-	by vger.kernel.org with ESMTP id S965125AbWEYMEo (ORCPT
+	Thu, 25 May 2006 08:12:08 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:64452 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S965124AbWEYMMH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 08:04:44 -0400
-Message-ID: <44758D79.3020302@sw.ru>
-Date: Thu, 25 May 2006 14:56:57 +0400
-From: Vasily Tarasov <vtaras@sw.ru>
-Reply-To: vtaras@sw.ru
-Organization: SWSoft
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051208)
-X-Accept-Language: en-us, en
+	Thu, 25 May 2006 08:12:07 -0400
+Message-ID: <348559122.14768@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Thu, 25 May 2006 20:12:06 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 12/33] readahead: min/max sizes
+Message-ID: <20060525121206.GI4996@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060524111246.420010595@localhost.localdomain> <348469541.17438@ustc.edu.cn> <447537B3.7050707@yahoo.com.au>
 MIME-Version: 1.0
-To: axboe@suse.de
-CC: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@sw.ru>
-Subject: ioprio feature behaviour
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <447537B3.7050707@yahoo.com.au>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
-I produced a little test of ioprio feature. Results are basically good 
-enough,
-but there is something strange on my mind.
-The test just runs 8 simple readers with priorities 0, 1, .., 7 in best 
-effort class.
-Readers read from files and count how much Mbytes per second they can read.
-Results are here:
-Process # (prio)  Measurement 1  (Mbps)   Measurement 2 (Mbps)    
-Measurement 3 (Mbps)
-    0                                 6,60                              
-            7,37                                 6,19
-    1                                 7,87                              
-            7,90                                 7,15
-    2                                 5,92                               
-           4,75                                 4,61
-    3                                 3,31                              
-            3,34                                 3,4
-    4                                 0,95                               
-           0,97                                 1,03
-    5                                 1,14                              
-            1,23                                 1,2
-    6                                 0,83                            
-              0,96                                 0,83
-    7                                 0,41                            
-              0,41                                 0,41
-( The whole results are at http://www.7ka.mipt.ru/~vass/cfq-tests/tests.pdf)
+On Thu, May 25, 2006 at 02:50:59PM +1000, Nick Piggin wrote:
+> Wu Fengguang wrote:
+> 
+> >- Enlarge VM_MAX_READAHEAD to 1024 if new read-ahead code is compiled in.
+> > This value is no longer tightly coupled with the thrashing problem,
+> > therefore constrained by it. The adaptive read-ahead logic merely takes
+> > it as an upper bound, and will not stick to it under memory pressure.
+> >
+> 
+> I guess this size enlargement is one of the main reasons your
+> patchset improves performance in some cases.
 
- The questions are:
-1) Why process 0 with priority 0 has less bandwidth than process 1 with 
-priority 1?
-2) The same with processes (priorities) 4, 5?
-3) Why there is no _uniform_ dependence between bandwidth and priority?
-4) Why sums of bandwidths of processes when priorities are setted and 
-when they are not setted (look in pdf) aren't equal?
+Sure, I started the patch to fulfill the 1M _default_ size dream ;-)
+The majority users will never enjoy the performance improvement if
+ever we stick to 128k default size.  And it won't be possible for the
+current readahead logic, since it lacks basic thrashing protection
+mechanism.
 
-Thanks, Vasily.
+> There is currently some sort of thrashing protection in there.
+> Obviously you've found it to be unable to cope with some situations
+> and introduced a lot of really fancy stuff to fix it. Are these just
+> academic access patterns, or do you have real test cases that
+> demonstrate this failure (ie. can we try to incrementally improve
+> the current logic as well as work towards merging your readahead
+> rewrite?)
+
+But to be serious, in the progress I realized that it's much more
+beyond the max readahead size. The fancy features are more coming out
+of _real_ needs than to fulfill academic goals. I've seen real world
+improvements from desktop/file server/backup server/database users
+for most of the implemented features.
+
+Wu

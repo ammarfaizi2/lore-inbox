@@ -1,40 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030316AbWEYSLD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030311AbWEYSNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030316AbWEYSLD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 14:11:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030313AbWEYSLC
+	id S1030311AbWEYSNw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 14:13:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030314AbWEYSNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 14:11:02 -0400
-Received: from lixom.net ([66.141.50.11]:58336 "EHLO mail.lixom.net")
-	by vger.kernel.org with ESMTP id S1030306AbWEYSLA (ORCPT
+	Thu, 25 May 2006 14:13:52 -0400
+Received: from xenotime.net ([66.160.160.81]:40847 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1030311AbWEYSNw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 14:11:00 -0400
-Date: Thu, 25 May 2006 11:09:52 -0700
-To: Chris Leech <christopher.leech@intel.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH 1/9] [I/OAT] DMA memcpy subsystem
-Message-ID: <20060525180952.GD9867@pb15.lixom.net>
-References: <20060524001653.19403.31396.stgit@gitlost.site> <20060524002012.19403.50151.stgit@gitlost.site> <20060525175940.GB9867@pb15.lixom.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060525175940.GB9867@pb15.lixom.net>
-User-Agent: Mutt/1.5.11
-From: Olof Johansson <olof@lixom.net>
+	Thu, 25 May 2006 14:13:52 -0400
+Date: Thu, 25 May 2006 11:16:24 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: =?UTF-8?B?xLBzbWFpbCBEw7ZubWV6?= <ismail@pardus.org.tr>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] scx200_acb: fix section mismatch warning
+Message-Id: <20060525111624.a647390f.rdunlap@xenotime.net>
+In-Reply-To: <4475F314.9060308@pardus.org.tr>
+References: <20060525100138.cb9e53c5.rdunlap@xenotime.net>
+	<20060525192657.081c8c11.khali@linux-fr.org>
+	<20060525110627.3461937f.akpm@osdl.org>
+	<4475F314.9060308@pardus.org.tr>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 25, 2006 at 10:59:40AM -0700, Olof Johansson wrote:
+On Thu, 25 May 2006 21:10:28 +0300 İsmail Dönmez wrote:
 
-> Is there a specific reason for why you chose to export 3 different
-> memcpu calls? They're all just wrapped to the same internals.
->
-> It would seem to make sense to have the client do their own
-> page_address(page) + offset calculations and just export one function?
+> Andrew Morton wrote On 25-05-2006 21:06:
+> > Jean Delvare <khali@linux-fr.org> wrote:
+> >>> -static int scx200_add_cs553x(void)
+> >>  > +static __init int scx200_add_cs553x(void)
+> >>  >  {
+> >>  >  	u32	low, hi;
+> >>  >  	u32	smb_base;
+> >>  > 
+> >>
+> >>  Correct, I sent exactly the same patch to the the lm-sensors list and
+> >>  Greg KH yesterday:
+> >>  http://lists.lm-sensors.org/pipermail/lm-sensors/2006-May/016213.html
+> >>
+> >>  So this one is
+> >>  Signed-off-by: Jean Delvare <khali@linux-fr.org>
+> >>
+> >>  Note that the section mismatch is harmless here (we have a non-__init
+> >>  function sandwiched between two __init functions) but nevertheless this
+> >>  kind of warning is never welcome in a final kernel release so let's get
+> >>  the fix merged now.
+> >>
+> >>  Andrew, can you please push this to Linus?
+> > 
+> > yup, I'll send that later on today.  My current 2.6.17 queue is:
+> > 
+> > s390-fix-typo-in-stop_hz_timer.patch
+> > add-cmspar-to-termbitsh-for-powerpc-and-alpha.patch
+> > x86-wire-up-vmsplice-syscall.patch
+> > ads7846-conversion-accuracy.patch
+> > affs-possible-null-pointer-dereference-in-affs_rename.patch
+> > powermac-force-only-suspend-to-disk-to-be-valid.patch
+> > s3c24xx-fix-spi-driver-with-config_pm.patch
+> > scx200_acb-fix-section-mismatch-warning.patch
+> 
+> Is there a chance of queing Randy's other mismatch fixes? It would be
+> nice to eliminate them for the final release.
 
-Nevermind. I'm too used to 64-bit environments where all memory is
-always addressable to the kernel. There's obvious reasons to do it on
-32-bit platforms to avoid the extra kernel mapping.
+Well this one got quick review/feedback/ack by maintainer.
+The others need something like that too....
 
-
--Olof
+---
+~Randy

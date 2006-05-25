@@ -1,69 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWEYApy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWEYAtl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964806AbWEYApy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 20:45:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964802AbWEYApy
+	id S964803AbWEYAtl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 20:49:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWEYAtl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 20:45:54 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:2707 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964801AbWEYApx (ORCPT
+	Wed, 24 May 2006 20:49:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9695 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964803AbWEYAtk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 20:45:53 -0400
-Message-ID: <4474FE3E.9040303@garzik.org>
-Date: Wed, 24 May 2006 20:45:50 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Greg KH <gregkh@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       Netdev List <netdev@vger.kernel.org>
-Subject: Re: [PATCH 2/3] pci: bcm43xx kill pci_find_device
-References: <20060525003040.A91E0C7BDC@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20060525003040.A91E0C7BDC@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 24 May 2006 20:49:40 -0400
+Date: Wed, 24 May 2006 17:49:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Anssi Hannula <anssi.hannula@gmail.com>
+Cc: dtor_core@ameritech.net, linux-joystick@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 03/11] input: new force feedback interface
+Message-Id: <20060524174910.5b066ee5.akpm@osdl.org>
+In-Reply-To: <4474392F.1030809@gmail.com>
+References: <20060515211229.521198000@gmail.com>
+	<20060515211506.783939000@gmail.com>
+	<20060517222007.2b606b1b.akpm@osdl.org>
+	<4471E259.7080609@gmail.com>
+	<4474392F.1030809@gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
-> bcm43xx kill pci_find_device
+Anssi Hannula <anssi.hannula@gmail.com> wrote:
+>
 > 
-> Change pci_find_device to safer pci_get_device.
-> 
-> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
-> 
-> ---
-> commit 75664d3c6fe1d8d00b87e42cc001cb5d90613dae
-> tree ebcec31955a991f1661197c7e8bcdd682e030681
-> parent 431ef31d431939bc9370f952d9510ab9e5b0ad47
-> author Jiri Slaby <ku@bellona.localdomain> Thu, 25 May 2006 02:04:38 +0159
-> committer Jiri Slaby <ku@bellona.localdomain> Thu, 25 May 2006 02:04:38 +0159
-> 
->  drivers/net/wireless/bcm43xx/bcm43xx_main.c |    3 ++-
->  1 files changed, 2 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/net/wireless/bcm43xx/bcm43xx_main.c b/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-> index b488f77..f770f59 100644
-> --- a/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-> +++ b/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-> @@ -2142,9 +2142,10 @@ #ifdef CONFIG_BCM947XX
->  	if (bcm->pci_dev->bus->number == 0) {
->  		struct pci_dev *d = NULL;
->  		/* FIXME: we will probably need more device IDs here... */
-> -		d = pci_find_device(PCI_VENDOR_ID_BROADCOM, 0x4324, NULL);
-> +		d = pci_get_device(PCI_VENDOR_ID_BROADCOM, 0x4324, NULL);
->  		if (d != NULL) {
->  			bcm->irq = d->irq;
-> +			pci_dev_put(d);
+> Andrew, did you get my response?
 
-Given the FIXME, if you are going to touch this area, it seems logical 
-to add a PCI device match table.
+Nope.
 
-	Jeff
+> I received Delivery Status Notification
+> for your address:
+> <copy>
+> - These recipients of your message have been processed by the mail server:
+> akpm@osdl.org; Failed; 5.3.0 (other or undefined mail system status)
+> 
+>     Remote MTA smtp.osdl.org: network error
+> 
+> 
+>  - SMTP protocol diagnostic: 554 5.7.1 gmail.com suggested we reject
+> your email: 81.228.11.120 is neither permitted nor denied by domain of
+> anssi.hannula@gmail.com
+> </paste>
+> 
 
+Appropriate people have been informed ;)
+
+> 
+> > 
+> > BTW, what is the best way to send corrected patches for this patchset?
+> > Probably as a reply to the individual patches?
+> > 
+> 
+> Hmm, I think it is easier to just send the whole updated set...
+> 
+> I'm going to do all the changes discussed and then send the set probably
+> tomorrow or in the weekend.
+> 
+
+Yes, that's fine.  Once patches have matured a bit, incremental (and
+fine-grained) updates are preferred.  And I'll often turn
+wholesale-replacement-attempts into incremental updates, so we can see what
+changed.
+
+But at this stage, rip-it-out-and-redo is fine.  Although it does help if
+you can tell us which of the review comments were and were not implemented,
+so we don't have to re-read the whole thing with the same level of
+attention.
 

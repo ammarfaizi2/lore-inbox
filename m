@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWEYQXq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030247AbWEYQ0i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030244AbWEYQXq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 12:23:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030249AbWEYQXq
+	id S1030247AbWEYQ0i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 12:26:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030250AbWEYQ0i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 12:23:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55948 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030244AbWEYQXo (ORCPT
+	Thu, 25 May 2006 12:26:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12686 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030247AbWEYQ0h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 12:23:44 -0400
-Date: Thu, 25 May 2006 09:23:11 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>
-Cc: linux-kernel@vger.kernel.org, wfg@mail.ustc.edu.cn
-Subject: Re: [PATCH 04/33] readahead: page flag PG_readahead
-Message-Id: <20060525092311.0523d8bf.akpm@osdl.org>
-In-Reply-To: <348469537.16036@ustc.edu.cn>
-References: <20060524111246.420010595@localhost.localdomain>
-	<348469537.16036@ustc.edu.cn>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 25 May 2006 12:26:37 -0400
+Date: Thu, 25 May 2006 09:26:31 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: alan <alan@clueserver.org>
+cc: Kyle McMartin <kyle@mcmartin.ca>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Well, Linus seems to like Lordi...
+In-Reply-To: <Pine.LNX.4.64.0605250906180.16055@blackbox.fnordora.org>
+Message-ID: <Pine.LNX.4.64.0605250925080.5623@g5.osdl.org>
+References: <20060525141714.GA31604@skunkworks.cabal.ca>
+ <Pine.LNX.4.64.0605250841340.5623@g5.osdl.org>
+ <Pine.LNX.4.64.0605250906180.16055@blackbox.fnordora.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
->
-> An new page flag PG_readahead is introduced as a look-ahead mark, which
-> reminds the caller to give the adaptive read-ahead logic a chance to do
-> read-ahead ahead of time for I/O pipelining.
+
+
+On Thu, 25 May 2006, alan wrote:
 > 
-> It roughly corresponds to `ahead_start' of the stock read-ahead logic.
+> > (As to Lordi, I've only ever seen their Eurovision thing on Youtube,
+> > because those pesky US networks thinks we're interested in some kind of
+> > inferior "American Idol" copycat product.
 > 
+> Except the Eurovision Song Contest has been going on since sometime in the
+> middle of the Jurasic period.
 
-This isn't a very revealing description of what this flag does.
+Sorry, I phrased it badly. I meant that Idol was the inferior copy-cat. 
+I'm well aware of the long (and for a Finn - until recently - very painful 
+indeed) history of the Eurovision.
 
-> +#define __SetPageReadahead(page) __set_bit(PG_readahead, &(page)->flags)
-
-uh-oh.  This is extremly risky.  Needs extensive justification, please.
+			Linus

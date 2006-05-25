@@ -1,35 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965121AbWEYLvq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965123AbWEYL7M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965121AbWEYLvq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 07:51:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965122AbWEYLvq
+	id S965123AbWEYL7M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 07:59:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965124AbWEYL7M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 07:51:46 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:20451 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S965121AbWEYLvq (ORCPT
+	Thu, 25 May 2006 07:59:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:20373 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965123AbWEYL7K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 07:51:46 -0400
-Date: Thu, 25 May 2006 13:51:30 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Vladimir Dvorak <dvorakv@vdsoft.org>
-cc: "Brown, Len" <len.brown@intel.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: APIC error on CPUx
-In-Reply-To: <4473729B.8030301@vdsoft.org>
-Message-ID: <Pine.LNX.4.61.0605251350330.28358@yvahk01.tjqt.qr>
-References: <CFF307C98FEABE47A452B27C06B85BB686E5B4@hdsmsx411.amr.corp.intel.com>
- <4473729B.8030301@vdsoft.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 25 May 2006 07:59:10 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1060522044652.31268@suse.de> 
+References: <1060522044652.31268@suse.de>  <20060522143524.25410.patches@notabene> 
+To: NeilBrown <neilb@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 001 of 2] Prepare for __copy_from_user_inatomic to not zero missed bytes. 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Thu, 25 May 2006 12:59:03 +0100
+Message-ID: <19591.1148558343@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+NeilBrown <neilb@suse.de> wrote:
 
->RAMDISK: Loading 4624 blocks [1 disk] into ram disk... |/-\|/-\
+> Interestingly 'frv' disables preempt in kmap_atomic, but its
+> copy_from_user doesn't expect faults and never zeros the tail...
 
-Did 2.6.8 really use a rotating dash for that or is it a custom patch?
+What gives you the idea that copy_from_user() on FRV doesn't expect or handle
+faults when CONFIG_MMU is set?  And why do you say it never zeroes the tail?
 
-
-Jan Engelhardt
--- 
+David

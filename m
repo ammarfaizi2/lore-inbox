@@ -1,69 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965074AbWEYJ6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbWEYKDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965074AbWEYJ6y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 05:58:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965100AbWEYJ6y
+	id S965100AbWEYKDH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 06:03:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965103AbWEYKDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 05:58:54 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:58014 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965074AbWEYJ6x (ORCPT
+	Thu, 25 May 2006 06:03:07 -0400
+Received: from ns2.g-housing.de ([81.169.133.75]:5311 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S965100AbWEYKDG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 05:58:53 -0400
-Message-ID: <44757FD3.3070805@garzik.org>
-Date: Thu, 25 May 2006 05:58:43 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Thu, 25 May 2006 06:03:06 -0400
+Date: Thu, 25 May 2006 11:03:01 +0100 (BST)
+From: Christian Kujau <evil@g-house.de>
+X-X-Sender: dummy@vaio.testbed.de
+To: David Mosberger-Tang <David.Mosberger@acm.org>
+cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: trivial videodev2.h patch
+In-Reply-To: <ed5aea430605242114g1e51e7e9nb124de50dbbf1e40@mail.gmail.com>
+Message-ID: <Pine.NEB.4.64.0605251100500.7762@vaio.testbed.de>
+References: <ed5aea430605242114g1e51e7e9nb124de50dbbf1e40@mail.gmail.com>
 MIME-Version: 1.0
-To: Muli Ben-Yehuda <mulix@mulix.org>
-CC: Jon Mason <jdmason@us.ibm.com>, Andi Kleen <ak@suse.de>,
-       Muli Ben-Yehuda <muli@il.ibm.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2/4] x86-64: Calgary IOMMU - move valid_dma_direction
- into the callers
-References: <20060525033550.GD7720@us.ibm.com> <447533FB.1080400@garzik.org> <20060525094236.GB22495@granada.merseine.nu>
-In-Reply-To: <20060525094236.GB22495@granada.merseine.nu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Muli Ben-Yehuda wrote:
-> On Thu, May 25, 2006 at 12:35:07AM -0400, Jeff Garzik wrote:
->> Jon Mason wrote:
->>> >From Andi Kleen's comments on the original Calgary patch, move
->>> valid_dma_direction into the calling functions.
->>>
->>> Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
->>> Signed-off-by: Jon Mason <jdmason@us.ibm.com>
->> Even though BUG_ON() includes unlikely(), this introduces additional 
->> tests in very hot paths.
-> 
-> Are they really very hot? I mean if you're calling the DMA API, you're
-> about to frob the hardware or have already frobbed it - does this
-> check really matter?
+On Wed, 24 May 2006, David Mosberger-Tang wrote:
+> linux/videodev2.h uses types such as __u8 but it fails to include
+> <linux/types.h>.  Within the kernel, that's not a problem because
+> <linux/time.h> already includes <linux/types.h>.  However, there are
+> user apps that try to include videodev2.h (e.g., ekiga) and at least
 
-When you are adding a check that will _never_ be hit in production, to 
-the _hottest_ paths in the kernel, you can be assured it matters...
+userspace apps should (must?) not include kernel headers, AFAIK.
+there is lots of discussion regarding this in the lkml archives...
 
+Christian.
+-- 
+BOFH excuse #435:
 
->> _Why_ do we need this at all?
-> 
-> It was helpful for us during the dma-ops work and Calgary bringup and
-> Andi requested that we move it from Calgary to common code. I think
-> we're fine with dropping it if that's the consensus, but it did catch
-> a few bugs early on and the cost is tiny.
-
-Key phrase:  "early on"
-
-These checks will only be useful during _early_ development of a new DMA 
-platform.  For _100%_ of the real world users, these checks are useless. 
-  Not 99%, 100%.
-
-	Jeff
-
-
-
+Internet shut down due to maintenance

@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965066AbWEYHVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965070AbWEYHWB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965066AbWEYHVk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 03:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965067AbWEYHVk
+	id S965070AbWEYHWB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 03:22:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965072AbWEYHWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 03:21:40 -0400
-Received: from mkedef2.rockwellautomation.com ([63.161.86.254]:1859 "EHLO
+	Thu, 25 May 2006 03:22:01 -0400
+Received: from mkedef2.rockwellautomation.com ([63.161.86.254]:32067 "EHLO
 	ramilwsmtp01.ra.rockwell.com") by vger.kernel.org with ESMTP
-	id S965066AbWEYHVj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 03:21:39 -0400
-Message-ID: <44755B2D.5050301@ra.rockwell.com>
-Date: Thu, 25 May 2006 09:22:21 +0200
+	id S965070AbWEYHVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 03:21:47 -0400
+Message-ID: <44755B35.1040809@ra.rockwell.com>
+Date: Thu, 25 May 2006 09:22:29 +0200
 From: Milan Svoboda <msvoboda@ra.rockwell.com>
 User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/5] usb gadget: update inode.c to support full speed only
- udc
+Subject: [PATCH 5/5] usb gadget: don't build small version if usbgadgetfs
+ is selected
 X-MIMETrack: Itemize by SMTP Server on RAMilwSMTP01/Milwaukee/RA/Rockwell(Release
- 6.5.4FP1|June 19, 2005) at 05/25/2006 02:22:22 AM,
+ 6.5.4FP1|June 19, 2005) at 05/25/2006 02:22:30 AM,
 	Serialize by Router on RAMilwSMTP01/Milwaukee/RA/Rockwell(Release 6.5.4FP1|June
- 19, 2005) at 05/25/2006 02:22:23 AM,
-	Serialize complete at 05/25/2006 02:22:23 AM
+ 19, 2005) at 05/25/2006 02:22:32 AM,
+	Serialize complete at 05/25/2006 02:22:32 AM
 Content-Type: multipart/mixed;
- boundary="------------030405000804090304050804"
+ boundary="------------000505030407080002000404"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------030405000804090304050804
+--------------000505030407080002000404
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 
 From: Milan Svoboda <msvoboda@ra.rockwell.com>
 
-Add support for full speed only udc controllers.
+usbgadgetfs allows userspace to open as many enpoints as it
+needs. It's not good to limit number of endpoints by the udc
+driver in this case.
 
 This patch is against 2.6.16.13.
-
-Please apply.
 
 Signed-off-by: Milan Svoboda <msvoboda@ra.rockwell.com>
 ---
@@ -46,31 +46,26 @@ Signed-off-by: Milan Svoboda <msvoboda@ra.rockwell.com>
 
 
 
---------------030405000804090304050804
+--------------000505030407080002000404
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
- name="inode.c.patch"
+ name="Kconfig.patch"
 Content-Disposition: inline;
- filename="inode.c.patch"
+ filename="Kconfig.patch"
 
---- orig/drivers/usb/gadget/inode.c	2006-05-15 10:21:34.000000000 +0000
-+++ new_gadget/drivers/usb/gadget/inode.c	2006-05-15 11:04:40.000000000 +0000
-@@ -1758,7 +1758,11 @@ static int gadgetfs_probe (struct usb_ga
- }
- 
- static struct usb_gadget_driver probe_driver = {
-+#ifdef	HIGHSPEED
- 	.speed		= USB_SPEED_HIGH,
-+#else
-+	.speed		= USB_SPEED_FULL,
-+#endif
- 	.bind		= gadgetfs_probe,
- 	.unbind		= gadgetfs_nop,
- 	.setup		= (void *)gadgetfs_nop,
+--- orig/drivers/usb/gadget/Kconfig	2006-05-15 10:20:49.000000000 +0000
++++ new_gadget/drivers/usb/gadget/Kconfig	2006-05-15 12:02:58.000000000 +0000
+@@ -117,6 +117,7 @@ config USB_PXA2XX_SMALL
+ 	depends on USB_GADGET_PXA2XX
+ 	bool
+ 	default n if USB_ETH_RNDIS
++	default n if USB_GADGETFS
+ 	default y if USB_ZERO
+ 	default y if USB_ETH
+ 	default y if USB_G_SERIAL
 
 
 
 
 
-
---------------030405000804090304050804--
+--------------000505030407080002000404--

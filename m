@@ -1,79 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbWEYQkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030262AbWEYQls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030259AbWEYQkP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 12:40:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbWEYQkP
+	id S1030262AbWEYQls (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 12:41:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbWEYQls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 12:40:15 -0400
-Received: from xenotime.net ([66.160.160.81]:60590 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030259AbWEYQkN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 12:40:13 -0400
-Date: Thu, 25 May 2006 09:42:47 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: =?UTF-8?B?xLBzbWFpbCBEw7ZubWV6?= <ismail@pardus.org.tr>
-Cc: linux-kernel@vger.kernel.org, akpm <akpm@osdl.org>
-Subject: Re: 2.6.17-rc5 : Lots of warning in MODPOST stage
-Message-Id: <20060525094247.0cb9d267.rdunlap@xenotime.net>
-In-Reply-To: <44756879.2010907@pardus.org.tr>
-References: <44756879.2010907@pardus.org.tr>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Thu, 25 May 2006 12:41:48 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:30111 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030262AbWEYQlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 12:41:47 -0400
+To: "Magnus Damm" <magnus.damm@gmail.com>
+Cc: "Magnus Damm" <magnus@valinux.co.jp>, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [PATCH 00/03] kexec: Avoid overwriting the current
+ pgd (V2)
+References: <20060524044232.14219.68240.sendpatchset@cherry.local>
+	<20060524225631.GA23291@in.ibm.com>
+	<1148522948.5793.98.camel@localhost>
+	<m1k68astge.fsf@ebiederm.dsl.xmission.com>
+	<1148527837.5793.121.camel@localhost>
+	<m17j4aso43.fsf@ebiederm.dsl.xmission.com>
+	<aec7e5c30605250029jfab09e4y26556abf8f16628d@mail.gmail.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 25 May 2006 10:40:48 -0600
+In-Reply-To: <aec7e5c30605250029jfab09e4y26556abf8f16628d@mail.gmail.com> (Magnus
+ Damm's message of "Thu, 25 May 2006 16:29:00 +0900")
+Message-ID: <m1psi2dpm7.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 May 2006 11:19:05 +0300 İsmail Dönmez wrote:
+"Magnus Damm" <magnus.damm@gmail.com> writes:
+>
+> Also, I feel that my approach with a valid idt and gdt is more robust.
 
-> I am getting lots of warnings in MODPOST stage, not sure if this is known:
-> 
-> WARNING: drivers/char/ip2/ip2main.o - Section mismatch: reference to
-> .init.text: from .text between 'cleanup_module' (at offset 0x1e82) and
-> 'ip2_loadmain'
-> WARNING: drivers/char/ip2/ip2main.o - Section mismatch: reference to
-> .init.text: from .text between 'cleanup_module' (at offset 0x1ea8) and
-> 'ip2_loadmain'
-> WARNING: drivers/char/ip2/ip2main.o - Section mismatch: reference to
-> .init.text: from .text between 'ip2_loadmain' (at offset 0x2109) and
-> 'set_irq'
-> WARNING: drivers/char/ip2/ip2main.o - Section mismatch: reference to
-> .init.text: from .text between 'ip2_loadmain' (at offset 0x21e7) and
-> 'set_irq'
-> WARNING: drivers/char/ip2/ip2main.o - Section mismatch: reference to
-> .init.text: from .text between 'ip2_loadmain' (at offset 0x22a6) and
-> 'set_irq'
-> WARNING: drivers/char/ip2/ip2main.o - Section mismatch: reference to
-> .init.text: from .text between 'ip2_loadmain' (at offset 0x253d) and
-> 'set_irq'
-> WARNING: drivers/char/ip2/ip2main.o - Section mismatch: reference to
-> .init.text: from .text between 'ip2_loadmain' (at offset 0x25c1) and
-> 'set_irq'
+One of my biggest concerns with the current code is that it is not
+sufficiently robust, in the kdump case.  So I am all in favor things
+that improve that situation.  At the same time just moving code from C
+to assembly doesn't make it more robust, especially when the comments
+explaining what the code does don't come along.
 
-Hm, I don't see all of those.  However, Andrew has a patch for
-(some of these) in -mm.  It fixes all of the warnings that I get.
+>> The big problem was you did several things with a single patch,
+>> and that made the review much more difficult than it had to be.
+>>
+>> Having to check if you correctly modified the page tables, while also
+>> having to check for segmentation, and the interrupt descriptor
+>> transformations was distracting.
+>
+> Let me know which parts you think are good and we will implement and
+> review them bit by bit instead then.
 
-[snip]
+Skip the infrastructure changes, and the rest looks like real
+possibilities.
 
-> WARNING: drivers/scsi/megaraid/megaraid_mbox.o - Section mismatch:
-> reference to .init.text: from .text between 'megaraid_probe_one' (at
-> offset 0x161) and 'megaraid_detach_one'
-> WARNING: drivers/scsi/wd7000.o - Section mismatch: reference to
-> .init.text: from .text between 'wd7000_detect' (at offset 0xa81) and
-> 'wd7000_release'
-
-Patches for these 2 will follow shortly (to linux-scsi m-l).
-
-> WARNING: drivers/scsi/qla1280.o - Section mismatch: reference to
-> .init.data: from .text between 'qla1280_get_token' (at offset 0x2a16)
-> and 'qla1280_probe_one'
-> WARNING: drivers/scsi/qla1280.o - Section mismatch: reference to
-> .init.data: from .text between 'qla1280_get_token' (at offset 0x2a3c)
-> and 'qla1280_probe_one'
-
-Weird, I don't get this one either, and I used your .config file.
-However, I'll put some eyes on it.
-
----
-~Randy
+Eric

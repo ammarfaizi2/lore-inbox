@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbWEYOd4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030194AbWEYOik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030189AbWEYOd4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 10:33:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030197AbWEYOd4
+	id S1030194AbWEYOik (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 10:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030197AbWEYOik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 10:33:56 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:19098 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1030189AbWEYOd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 10:33:56 -0400
-Date: Mon, 22 May 2006 14:08:13 -0700
-From: mark gross <mgross@linux.intel.com>
-To: Doug Thompson <norsk5@yahoo.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 6/6]  EDAC maintainers update
-Message-ID: <20060522210813.GA9816@linux.intel.com>
-Reply-To: mgross@linux.intel.com
-References: <20060524174957.25600.qmail@web50106.mail.yahoo.com>
+	Thu, 25 May 2006 10:38:40 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:14294 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030194AbWEYOij (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 10:38:39 -0400
+Date: Thu, 25 May 2006 07:38:02 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
+Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 08/33] readahead: common macros
+Message-Id: <20060525073802.7e64f563.akpm@osdl.org>
+In-Reply-To: <348564538.06705@ustc.edu.cn>
+References: <20060524111246.420010595@localhost.localdomain>
+	<348469539.42623@ustc.edu.cn>
+	<44754708.5090406@yahoo.com.au>
+	<348564538.06705@ustc.edu.cn>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060524174957.25600.qmail@web50106.mail.yahoo.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 24, 2006 at 10:49:57AM -0700, Doug Thompson wrote:
+Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
+>
+> On Thu, May 25, 2006 at 03:56:24PM +1000, Nick Piggin wrote:
+> > >+#define PAGES_BYTE(size) (((size) + PAGE_CACHE_SIZE - 1) >> 
+> > >PAGE_CACHE_SHIFT)
+> > >+#define PAGES_KB(size)	 PAGES_BYTE((size)*1024)
+> > >
+> > Don't really like the names. Don't think they do anything for clarity, but
+> > if you can come up with something better for PAGES_BYTE I might change my
+> > mind ;) (just forget about PAGES_KB - people know what *1024 means)
+> > 
+> > Also: the replacements are wrong: if you've defined VM_MAX_READAHEAD to be
+> > 4095 bytes, you don't want the _actual_ readahead to be 4096 bytes, do you?
+> > It is saying nothing about minimum, so presumably 0 is the correct choice.
 > 
-> Removed Dave Peterson as per his request as co-maintainer of EDAC
-> Thanks for the work Dave.
+> Got an idea, how about these ones:
 > 
-> Signed-of-by: Doug Thompson <norsk5@xmission.com>
-> 
-> 
-> Index: linux-2.6.17-rc4/MAINTAINERS
-> ===================================================================
-> --- linux-2.6.17-rc4.orig/MAINTAINERS	2006-05-23 10:40:04.000000000 -0600
-> +++ linux-2.6.17-rc4/MAINTAINERS	2006-05-24 11:02:07.000000000 -0600
-> @@ -892,23 +892,21 @@
->  
->  EDAC-CORE
->  P:	Doug Thompson
-> -M:	norsk5@xmission.com, dthompson@linuxnetworx.com
-> -P:	Dave Peterson
-> -M:	dsp@llnl.gov, dave_peterson@pobox.com
-> +M:	norsk5@xmission.com
->  L:	bluesmoke-devel@lists.sourceforge.net
->  W:	bluesmoke.sourceforge.net
-> -S:	Maintained
-> +S:	Supported
->  
->  EDAC-E752X
-> -P:	Dave Peterson
-> -M:	dsp@llnl.gov, dave_peterson@pobox.com
-> +P:	Mark Gross
-> +M:	mark.gross@intel.com
->  L:	bluesmoke-devel@lists.sourceforge.net
->  W:	bluesmoke.sourceforge.net
->  S:	Maintained
+> #define FULL_PAGES(bytes)    ((bytes) >> PAGE_CACHE_SHIFT)
 
-Ack.
+I dunno.  We've traditionally open-coded things like this.
 
---mgross
+> #define PARTIAL_PAGES(bytes) (((bytes)+PAGE_CACHE_SIZE-1) >> PAGE_CACHE_SHIFT)
 
+That's identical to include/linux/kernel.h:DIV_ROUND_UP(), from the gfs2 tree.

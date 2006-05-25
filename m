@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbWEYQTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWEYQUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030245AbWEYQTz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 12:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbWEYQTz
+	id S1751032AbWEYQUV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 12:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbWEYQUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 12:19:55 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:24709 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030242AbWEYQTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 12:19:54 -0400
-Subject: Re: + pi-futex-rt-mutex-docs.patch added to -mm tree
-From: Steven Rostedt <rostedt@goodmis.org>
-To: akpm@osdl.org
-Cc: arjan@linux.intel.com, mingo@elte.hu, tglx@linutronix.de,
-       mm-commits@vger.kernel.org, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200605251502.k4PF21vH027653@shell0.pdx.osdl.net>
-References: <200605251502.k4PF21vH027653@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Date: Thu, 25 May 2006 12:19:42 -0400
-Message-Id: <1148573982.16319.9.camel@localhost.localdomain>
+	Thu, 25 May 2006 12:20:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50571 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751032AbWEYQUT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 12:20:19 -0400
+Date: Thu, 25 May 2006 09:19:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
+Cc: linux-kernel@vger.kernel.org, wfg@mail.ustc.edu.cn
+Subject: Re: [PATCH 03/33] radixtree: hole scanning functions
+Message-Id: <20060525091946.2b57840f.akpm@osdl.org>
+In-Reply-To: <348469537.15678@ustc.edu.cn>
+References: <20060524111246.420010595@localhost.localdomain>
+	<348469537.15678@ustc.edu.cn>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
+>
+> Introduce a pair of functions to scan radix tree for hole/empty item.
+>
 
-I see you folded a bunch of doc patches together.  I just want to make
-sure that the updates to my document recommended by Randy Dunlap were
-not missed. I haven't received any verification that they went in.
+There's a userspace radix-tree test harness at
+http://www.zip.com.au/~akpm/linux/patches/stuff/rtth.tar.gz.
 
-Here's links to the patches I'm talking about.
+If/when these new features are merged up, it would be good to have new
+testcases added to that suite, please.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114768226928517&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114768248213413&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114768248205694&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114768444306113&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114776099430012&w=2
-
-It includes 4 out of 2 patches :)  The last two were add-ons that needed
-to get done.
-
-Or would it be easier if I fold these into one patch and send it to you?
-
-Thanks,
-
--- Steve
+In the meanwhile you may care to develop those tests anwyway, see if you
+can trip up the new features.
 

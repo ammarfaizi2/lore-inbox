@@ -1,90 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWEYDKP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWEYD2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964817AbWEYDKP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 23:10:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWEYDKP
+	id S964830AbWEYD2f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 23:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbWEYD2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 23:10:15 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:4739 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964817AbWEYDKO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 23:10:14 -0400
-Date: Thu, 25 May 2006 04:10:12 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] log comparison, build regressions and remapping
-Message-ID: <20060525031012.GO27946@ftp.linux.org.uk>
+	Wed, 24 May 2006 23:28:35 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:3968 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S964830AbWEYD2e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 23:28:34 -0400
+Subject: Re: [PATCH 00/03] kexec: Avoid overwriting the current pgd (V2)
+From: Magnus Damm <magnus@valinux.co.jp>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: vgoyal@in.ibm.com, fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <m1k68astge.fsf@ebiederm.dsl.xmission.com>
+References: <20060524044232.14219.68240.sendpatchset@cherry.local>
+	 <20060524225631.GA23291@in.ibm.com> <1148522948.5793.98.camel@localhost>
+	 <m1k68astge.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Date: Thu, 25 May 2006 12:30:37 +0900
+Message-Id: <1148527837.5793.121.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	There is an annoying problem that makes watching for build
-regressions painful and frustrating.  One would've thought that
-it ought to be a simple matter of diff between the build logs - that
-should show what had changed.  Of course, a sentence with such beginning
-can only be followed by equivalent of "and I have a nice bridge for you".
+Hi Eric,
 
-	The source of problem is quite simple: warnings, errors, etc. refer
-to locations in the source.  And if you do something as simple and innocious
-as adding #include, editing a comment or adding a couple of lines in unrelated
-function, you suddenly get
-foo/obscure/junk.c:53: warning: unused variable 'psJustInCase'
-replaced with
-foo/obscure/junk.c:54: warning: unused variable 'psJustInCase'
-et sodding cetera.  Of course, it _is_ the same warning, refering to the
-exact same line of code.  The only thing that has changed is the line number.
-Of course, that is enough for diff(1).
+On Wed, 2006-05-24 at 20:56 -0600, Eric W. Biederman wrote:
+> Magnus Damm <magnus@valinux.co.jp> writes:
+> 
+> > On Wed, 2006-05-24 at 18:56 -0400, Vivek Goyal wrote:
+> >> On Wed, May 24, 2006 at 01:40:31PM +0900, Magnus Damm wrote:
+> >> > kexec: Avoid overwriting the current pgd (V2)
+> >> > 
+> >> > This patch updates the kexec code for i386 and x86_64 to avoid overwriting
+> >> > the current pgd. For most people is overwriting the current pgd is not a big
+> >> > problem. When kexec:ing into a new kernel that reinitializes and makes use
+> > of
+> >> > all memory we don't care about saving state.
+> >> > 
+> >> > But overwriting the current pgd is not a good solution in the case of kdump
+> >> > (CONFIG_CRASH_DUMP) where we want to preserve as much state as possible when
+> >> > a crash occurs. This patch solves the overwriting issue.
+> >> > 
+> >> > 20060524: V2
+> >> > 
+> >> > - Broke out architecture-specific data structures into asm/kexec.h
+> >> > - Fixed a i386/PAE page table problem only triggering on real hardware.
+> >> > - Moved segment handling code into the assembly routines.
+> >> 
+> >> What's the advantage of moving segment handling code into assembly
+> >> routines? It will only add to the fear of control code page size growing
+> >> beyond 4K.
+> >
+> > I have two main reasons:
+> >
+> > - Why wrap assembler instructions in C code if you just can move them
+> > into an already existing assembly file? Much cleaner IMO.
+> 
+> C code is much more accessible to other programmers than arch specific
+> assembly.  The code on the control page was almost written in C, and
+> I'm still not quite convinced that it would be wrong to do that.
 
-	That might sound like a minor annoyance.  Yes, you could end up with
-some noise in the diff, but surely it will be easy to recognize and ignore.
-And I have a nice bridge for you, again.  In reality that is far from being
-a minor annoyance.  If you do such comparison of build (or sparse) logs on
-kernel source, two months worth of changes will be more than enough to drown
-all real information in the noise.
+I agree with you that it is of course better to implement something in C
+if possible compared to writing it in architecture-specific assembly.
 
-	Of course, the root cause is that we are comparing apples with
-oranges - references to locations in the old tree with references to
-locations in the new one.  To get a meaningful comparison we must know
-where the lines of old tree have gone in the new one.  In other words,
-we need to build a map and then use it to filter logs into comparable
-form.  I have finally grown sick and tired of the noise to do just that;
-it turned out to be easy enough.
+But I do not agree that wrapping architecture-specific assembly code in
+C functions makes the code more understandable. I'd really like to meet
+the kernel hacker that is aware of how x86 segmentation works but is
+unable to read x86 assembly.
 
-	Results are on ftp.kernel.org/pub/linux/kernel/people/viro/remapper/
-There are two scripts that generate maps (from a couple of trees and from
-a couple of revisions in git archive resp.) and a filter using those maps.
+> > - I'm currently working on making kexec to work under xen/dom0. And by
+> > moving the segment handling code into the assembly file we reduce the
+> > amount of duplicated code.
+> 
+> Not the reason I would have expected.  So you are only differring the
+> two implementations by the contents of the control code page?
 
-	To generate a map:
-diff-remap-data <old-tree> <new-tree>  > map
-or
-git-remap-data <usual git diff arguments>  > map
+Nah, there's a fairly large framework to pass pages to the hypervisor,
+converting pfn:s to mfn:s, building page tables etc. We will resend the
+patches later on today to xen-devel if you're interested.
 
-	To filter:
-remap-log <map> -p <original prefix> -o <old-only prefix> -n <new prefix>
+Thanks,
 
-That will transform lines of form
-<original prefix><filename>:<line number>:<text>
-either to
-<old-only prefix><filename>:<line number>:<text>
-or to
-<new prefix><new filename>:<new line number>:<text>
-depending on the fate of location in question - the first form is used if
-location doesn't make it into the new tree and the second one (with remapped
-line number and filename) is used if the counterpart in the new tree does
-exist.
+/ magnus
 
-You don't have to supply all prefices.  Defaults are:
-	* empty string for original prefix and new prefix
-	* O: for old-only prefix
-
-In practice you only need to change those if you are chaining the remappers,
-e.g. remap-log map12 -o died_early: | remap-log map23 -o died: -n lives:
-etc.
-
-	Have fun.  I've used it with very nice noise reduction on kernel
-build and sparse logs; it can be used for any userland builds as well
-and I'd love to hear about the results.  Comments, suggestions, bug reports,
-etc. are welcome.

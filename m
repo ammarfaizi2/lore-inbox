@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965031AbWEYEvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965030AbWEYEus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965031AbWEYEvF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 00:51:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965032AbWEYEvF
+	id S965030AbWEYEus (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 00:50:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965031AbWEYEur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 00:51:05 -0400
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:28058 "HELO
-	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965031AbWEYEvE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 00:51:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=mchfl58mReDH4CfbwHTtomNHscnU8FRQsEFP6Z52kTqfqQ1MmcdLgu2e6xuzvaEQ/vPgzaaGhTOrUAdJY/bVodyj3INVwZ2JY6huMdaiAuqtYfUzH8mgQkQFmzDRXlBUBgIXXjAzDXPbyS5Hq/NlfQZhrHWQ+0iKaVrc3AEPXRk=  ;
-Message-ID: <447537B3.7050707@yahoo.com.au>
-Date: Thu, 25 May 2006 14:50:59 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 12/33] readahead: min/max sizes
-References: <20060524111246.420010595@localhost.localdomain> <348469541.17438@ustc.edu.cn>
-In-Reply-To: <348469541.17438@ustc.edu.cn>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 25 May 2006 00:50:47 -0400
+Received: from mga02.intel.com ([134.134.136.20]:6323 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S965030AbWEYEur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 00:50:47 -0400
+X-IronPort-AV: i="4.05,170,1146466800"; 
+   d="scan'208"; a="41065237:sNHT14671104"
+Subject: Re: [PATCH 1/2] request_firmware without a device
+From: Shaohua Li <shaohua.li@intel.com>
+To: Greg KH <greg@kroah.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060525040134.GA29974@kroah.com>
+References: <1148529045.32046.102.camel@sli10-desk.sh.intel.com>
+	 <20060525040134.GA29974@kroah.com>
+Content-Type: text/plain
+Date: Thu, 25 May 2006 12:49:10 +0800
+Message-Id: <1148532550.32046.107.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wu Fengguang wrote:
+On Wed, 2006-05-24 at 21:01 -0700, Greg KH wrote:
+> On Thu, May 25, 2006 at 11:50:45AM +0800, Shaohua Li wrote:
+> > The patch allows calling request_firmware without a 'struct device'.
+> > It appears we just need a name here from 'struct device'. I changed it
+> > to use a kobject as Patrick suggested.
+> > Next patch will use the new API to request firmware (microcode) for a CPU.
+> 
+> But a cpu does have a struct device.  Why not just use that?
+It's a sysdev, no 'struct device' in it, IIRC.
 
->- Enlarge VM_MAX_READAHEAD to 1024 if new read-ahead code is compiled in.
->  This value is no longer tightly coupled with the thrashing problem,
->  therefore constrained by it. The adaptive read-ahead logic merely takes
->  it as an upper bound, and will not stick to it under memory pressure.
->
+> > +fw_setup_class_device_id(struct class_device *class_dev, struct kobject *kobj)
+> >  {
+> >  	/* XXX warning we should watch out for name collisions */
+> > -	strlcpy(class_dev->class_id, dev->bus_id, BUS_ID_SIZE);
+> > +	strlcpy(class_dev->class_id, kobj->k_name, BUS_ID_SIZE);
+> 
+> There's a function for this, kobject_name(), please never touch k_name
+> directly.
+Ok, will do.
 
-I guess this size enlargement is one of the main reasons your
-patchset improves performance in some cases.
+> > +EXPORT_SYMBOL(request_firmware_kobj);
+> 
+> Ick, if you really want to do this, just fix up all callers of
+> request_firmware(), there aren't that many of them.
+> 
+> But I don't recommend it anyway.
+I didn't see why we need a 'struct device' for request_firmware. It just
+needs a name to me.
 
-There is currently some sort of thrashing protection in there.
-Obviously you've found it to be unable to cope with some situations
-and introduced a lot of really fancy stuff to fix it. Are these just
-academic access patterns, or do you have real test cases that
-demonstrate this failure (ie. can we try to incrementally improve
-the current logic as well as work towards merging your readahead
-rewrite?)
-
---
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Thanks,
+Shaohua

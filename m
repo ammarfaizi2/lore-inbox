@@ -1,105 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965199AbWEYQfb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030254AbWEYQfc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965199AbWEYQfb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 12:35:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965204AbWEYQfb
+	id S1030254AbWEYQfc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 12:35:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030255AbWEYQfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Thu, 25 May 2006 12:35:31 -0400
-Received: from pne-smtpout4-sn2.hy.skanova.net ([81.228.8.154]:18914 "EHLO
-	pne-smtpout4-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S965199AbWEYQfa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:13000 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965201AbWEYQfa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 25 May 2006 12:35:30 -0400
-Message-ID: <4475DCC0.6000507@mandriva.org>
-Date: Thu, 25 May 2006 19:35:12 +0300
-From: Anssi Hannula <anssi@mandriva.org>
-User-Agent: Mozilla Thunderbird 1.0.6-7.5.20060mdk (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: dtor_core@ameritech.net, linux-joystick@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 03/11] input: new force feedback interface
-References: <20060515211229.521198000@gmail.com>	<20060515211506.783939000@gmail.com>	<20060517222007.2b606b1b.akpm@osdl.org>	<44757246.9010300@mandriva.org>	<20060525070017.16344c97.akpm@osdl.org>	<4475C2F2.7090207@mandriva.org> <20060525075257.3f2963a9.akpm@osdl.org>
-In-Reply-To: <20060525075257.3f2963a9.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Date: Thu, 25 May 2006 11:35:25 -0500
+To: linux-pci@atrey.karlin.mff.cuni.cz
+Cc: linux-kernel@vger.kernel.org
+Subject: PCI reset using x86 or x86-64 BIOS calls?
+Message-ID: <20060525163524.GV25867@austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Anssi Hannula <anssi@mandriva.org> wrote:
-> 
->>>Generally we use file descriptors (and driver-specific state at
->>
->> > file.f_private) to manage things like that.  But I'd imagine that we
->> > couldn't retain the existing semantics with any such scheme.
->> > 
->> > A pragmatic approach would be to put a big fat comment in there explaining
->> > how it all works and leave it at that.
->>
->> As I don't see this could break any existing applications, I would very
->> much like to change the behaviour so that the effects are file
->> descriptor specific.
-> 
-> 
-> ooh, that's always risky - we just don't know what people are doing out
-> there.  They do the damnedest things.
-> 
-> Is it possible to implement the new behaviour while retaining the old
-> behaviour as well?  And to detect when an app is using the old behaviour
-> and to drop a printk("stop doing this")?  So we can kill the old behaviour
-> in a year or so?
 
-I *really* don't think any app is trying to do one of the following:
-- open another fd to the same device and delete effect created in the
-first fd
-- open and close another fd to the same device to delete all effects
+I've go a newbie x86 BIOS question:  is there a BIOS function that 
+can be called to reset a PCI device? (By "reset a device" I mean
+raise the #RST PCI signal line to electrical high for 1.5 seconds).
+I know that BIOS does this during a soft reboot, but I was wondering
+if there's a stand-alone function for doing this while the system is up
+and running.
 
-The latter one doesn't make any sense (the process could just open and
-close the first fd), but the former one is possible, though very unlikely.
+This question ame up during conversations about kexec. When kexec is
+used to get out from under a crashed system, the PCI devices are 
+typically in some unknown state, and need to be brought to heel. 
+It seems to me that a brute-force reset would be a particularly 
+straightforward way of doing this.
 
-I count only 6 programs using linux ff, of which 3 are test programs.
-None of those messes up with fd's so that they would depend on the old
-behaviour. I would change the behaviour, while we still can.
-
-What we could do is allow deleting effects, whether they're owned by the
-fd or not. If they aren't, printk() would be issued.
-
-> 
->>What should I use to differentiate the descriptors?
->> Can I just compare the "struct file*"? (it seems to work well, I just
->> modified the code so)
-> 
-> Depends what you're trying to do.  Different threads in the same process
-> can share the same file*'s.
-
-I try to have a coherent behaviour:
-- fd1 opened
-- fd1: effects 0, 1 are created
-- fd2 opened
-- fd2: effects 2, 3 are created
-- fd2 closed
-=> effects 2, 3 get deleted
-- fd1 uses effects
-- fd1 closed
-=> effects 0, 1 get deleted
-
-
-I will once again give an example how things would go with the old
-behaviour:
-- fd1 opened
-- fd1: effects 0, 1 are created
-- fd2 opened
-- fd2: effects 2, 3 are created
-- fd2 closed
-=> effects 0, 1, 2, 3 get deleted
-- fd1 uses effects
-=> failure
-- fd1 closed
-
-
-(fd1 and fd2 are of the same process and the same device)
-
--- 
-Anssi Hannula
-
+--linas

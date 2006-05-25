@@ -1,91 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbWEYOA6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWEYOEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030186AbWEYOA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 10:00:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030188AbWEYOA6
+	id S1030190AbWEYOEr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 10:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030193AbWEYOEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 10:00:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9675 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030186AbWEYOA5 (ORCPT
+	Thu, 25 May 2006 10:04:47 -0400
+Received: from nz-out-0102.google.com ([64.233.162.197]:8914 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1030190AbWEYOEq convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 10:00:57 -0400
-Date: Thu, 25 May 2006 07:00:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Anssi Hannula <anssi@mandriva.org>
-Cc: dtor_core@ameritech.net, linux-joystick@atrey.karlin.mff.cuni.cz,
+	Thu, 25 May 2006 10:04:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XrPsHUDm1A6+5UDvyfLmGElKJXgeiTTqx8EZfSEkvv65lJoD+DcCZJuke5sq5vFL9hF8l1xo8dzeyQES/fO0gQ+66qi5UB3wehcPtfHNCm+Eo3pQKgotVWSZCXrPaTGXkHftfIjwBlEUPPwYsxIvup38skYz1rh+Prf0jtK41z8=
+Message-ID: <9e4733910605250704m68235d88lcd8eaedfda5e63cf@mail.gmail.com>
+Date: Thu, 25 May 2006 10:04:45 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Jeff Garzik" <jeff@garzik.org>
+Subject: Re: OpenGL-based framebuffer concepts
+Cc: "D. Hazelton" <dhazelton@enter.net>, "Dave Airlie" <airlied@gmail.com>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch 03/11] input: new force feedback interface
-Message-Id: <20060525070017.16344c97.akpm@osdl.org>
-In-Reply-To: <44757246.9010300@mandriva.org>
-References: <20060515211229.521198000@gmail.com>
-	<20060515211506.783939000@gmail.com>
-	<20060517222007.2b606b1b.akpm@osdl.org>
-	<44757246.9010300@mandriva.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <44756E70.9020207@garzik.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <9e4733910605241656r6a88b5d3hda8c8a4e72edc193@mail.gmail.com>
+	 <4475007F.7020403@garzik.org> <200605250237.20644.dhazelton@enter.net>
+	 <44756E70.9020207@garzik.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anssi Hannula <anssi@mandriva.org> wrote:
->
->  >>+int input_ff_erase(struct input_dev *dev, int id)
->  >>+{
->  >>+	struct ff_device *ff;
->  >>+	unsigned long flags = 0;
->  >>+	int ret;
->  >>+	if (!test_bit(EV_FF, dev->evbit))
->  >>+		return -EINVAL;
->  >>+	mutex_lock(&dev->ff_lock);
->  >>+	ff = dev->ff;
->  >>+	if (!ff) {
->  >>+		mutex_unlock(&dev->ff_lock);
->  >>+		return -ENODEV;
->  >>+	}
->  >>+	spin_ff_cond_lock(ff, flags);
->  >>+	ret = _input_ff_erase(dev, id, current->pid == 0);
->  >>+	spin_ff_cond_unlock(ff, flags);
->  >>+
->  >>+	mutex_unlock(&dev->ff_lock);
->  >>+	return ret;
->  >>+}
->  > 
->  > 
->  > Perhaps you meant `current->uid == 0' here.  There's no way in which pid
->  > 0 will call this code.
-> 
->  Right, a silly mistake.
-> 
->  > What's happening here anyway?  Why does this code need to know about pids?
->  > 
->  > Checking for uid==0 woud be a fishy thing to do as well.
-> 
->  User ID 0 is allowed to delete effects of other users. Pids are used to
->  keep a track of what process owns what effects. This is the same
->  behaviour as before.
+On 5/25/06, Jeff Garzik <jeff@garzik.org> wrote:
+> * Review Dave Airlie's posts, he's been pretty spot-on in this thread.
+> There needs to be a lowlevel driver that handles PCI functionality, and
+> registers itself with the fbdev and DRM layers.  The fbdev/DRM
+> registrations need to be aware of each other.  Once that is done, work
+> will proceed more rapidly.
 
-Oh dear.
+Controlling which driver is bound to the hardware is an easy problem
+that a low level driver handles nicely. But controlling binding
+doesn't really fix anything. All of the drivers binding to it still
+have to duplicate all of the code for things like VRAM allocation, GPU
+start/stop, mode setting, etc. That's because the second level drivers
+can't count on the other drivers being loaded. The giant mess of whose
+state is loaded into the hardware still exists too. Just consider the
+simple problem of who EOI's an interrupt.
 
-Whatever we do here should remain 100%-compatible with "before".  Which
-rather limits our options.
+I would instead start by making fbdev the low level driver. DRM could
+then bind to it and redundant code in DRM could be removed. 90% of the
+code in fbdev is always needed.  Hopefully X could be convinced to use
+the services offered by the fbdev/DRM pair. New memory management code
+would be added to this base driver since everyone needs it. Fbdev
+would also pick up the ability to reset secondary cards at boot.
 
->  There is a problem with this, though:
->  When a process closes any fd to this device, all pid-matching effects
->  are deleted whether the process has another fd using the device or not.
-> 
->  One solution would probably be to add some handle parameter to
->  input_ff_upload() and input_ff_erase(), and then in
->  evdev_ioctl_handler() pass an id unique to this fd. Then effects would
->  be fd-specific, not pid-specific. I think the uid == 0 thing can also be
->  dropped... I don't think the root user needs ability to override user
->  effects (it can delete them anyway, just kill the user process owning
->  the effects).
-> 
+I concede that loading both drivers will increase RAM usage slightly.
+At some point it will be worth the effort to split an API
+compatibility layer off from the lowlevel fbdev driver. But this is a
+lot of work to get back <40K of RAM.
 
-Generally we use file descriptors (and driver-specific state at
-file.f_private) to manage things like that.  But I'd imagine that we
-couldn't retain the existing semantics with any such scheme.
+A related issue to this is mode setting. Initially I would leave it
+alone in the fbdev code. Later it would use a collection of apps like
+this. Mode setting is at the core of why X has to run as root.
 
-A pragmatic approach would be to put a big fat comment in there explaining
-how it all works and leave it at that.
+|A good first project would be to start building a set of user space
+|apps for doing the mode setting on each card. All of the code for
+|doing this exists in the X server but it is a pain to extract. X has
+|1000s of internal APIs and typedefs. You would end up with a set of
+|apps that would be able to list the valid modes on each head and then
+|set them. The code for achieving this is all over the map, sometimes
+|we know everything needed like for the Radeon, sometimes you need to
+|make a VM86 call to the BIOS to get the info (Intel). Load an fbdev
+|driver and check out the current support for this in sysfs.
+|
+|When you get done with a command it should be a tiny app statically
+|linked to klibc and have no external dependencies. These apps should
+|be 30K or less in size. You probably will end up with about ten apps
+|since a lot of the uncommon cards only have a standard VBE BIOS and
+|will all use the same command.
+
+Mode setting has at least these requirements...
+1) Ability to be done at boot from initramfs
+2) Ability for a user to change their mode without being root
+3) No ability for a normal user to change the mode on hardware that
+they do not own
+4) Some hardware requires modes to be set using vm/emu86.
+5) Monitor hotplug event needs to ensure that the new monitor receives
+a valid mode
+6) An interlock needs to be in place to stop simultaneous attempts to
+change the mode
+
+A key design problem is not requiring root and making sure you can't
+change the mode on hardware that you don't own. This introduces the
+entire concept of video hardware belonging to the logged in user.
+I've written up more thoughts on this in the Kernel section of
+http://jonsmirl.googlepages.com/graphics.html
+
+I'm certainly open to any solutions that can satisfy the requirements.
+Every solution that I've come up with so far is fairly complex.
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

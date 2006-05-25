@@ -1,89 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbWEYPIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbWEYPV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030222AbWEYPIM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 11:08:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbWEYPIM
+	id S1030224AbWEYPV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 11:21:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965204AbWEYPV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 11:08:12 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:12457 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030222AbWEYPIL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 11:08:11 -0400
-Message-ID: <4475C845.5000801@garzik.org>
-Date: Thu, 25 May 2006 11:07:49 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: "D. Hazelton" <dhazelton@enter.net>, Dave Airlie <airlied@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: OpenGL-based framebuffer concepts
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>	 <9e4733910605241656r6a88b5d3hda8c8a4e72edc193@mail.gmail.com>	 <4475007F.7020403@garzik.org> <200605250237.20644.dhazelton@enter.net>	 <44756E70.9020207@garzik.org> <9e4733910605250704m68235d88lcd8eaedfda5e63cf@mail.gmail.com>
-In-Reply-To: <9e4733910605250704m68235d88lcd8eaedfda5e63cf@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+	Thu, 25 May 2006 11:21:28 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:64449 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964862AbWEYPV1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 11:21:27 -0400
+Date: Thu, 25 May 2006 11:21:12 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Magnus Damm <magnus@valinux.co.jp>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [PATCH 03/03] kexec: Avoid overwriting the current	pgd (V2, x86_64)
+Message-ID: <20060525152112.GA6791@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060524044232.14219.68240.sendpatchset@cherry.local> <20060524044247.14219.13579.sendpatchset@cherry.local> <m1slmystqa.fsf@ebiederm.dsl.xmission.com> <1148545616.5793.180.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1148545616.5793.180.camel@localhost>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> On 5/25/06, Jeff Garzik <jeff@garzik.org> wrote:
->> * Review Dave Airlie's posts, he's been pretty spot-on in this thread.
->> There needs to be a lowlevel driver that handles PCI functionality, and
->> registers itself with the fbdev and DRM layers.  The fbdev/DRM
->> registrations need to be aware of each other.  Once that is done, work
->> will proceed more rapidly.
+On Thu, May 25, 2006 at 05:26:56PM +0900, Magnus Damm wrote:
+> > >
+> > > The code introduces a new set of page tables called "page_table_a". These
+> > > tables are used to provide an executable identity mapping without overwriting
+> > > the current pgd. The already existing page table is renamed to "page_table_b".
+> > 
+> > As I mentioned earlier you don't need two page tables, because
+> > it is easy to guarantee that the identity mapping and the virtual mapping
+> > will not intersect on x86_64.  Until we have as many physical address bits
+> > as virtual address bits (which requires page table modifications) it
+> > is nonsense to have 2 page tables here.
 > 
-> Controlling which driver is bound to the hardware is an easy problem
-> that a low level driver handles nicely. But controlling binding
-> doesn't really fix anything. All of the drivers binding to it still
-> have to duplicate all of the code for things like VRAM allocation, GPU
-> start/stop, mode setting, etc. That's because the second level drivers
-> can't count on the other drivers being loaded. The giant mess of whose
-> state is loaded into the hardware still exists too. Just consider the
-> simple problem of who EOI's an interrupt.
+> Let me explain the theory behind my kexec patch:
+> 
+> During prepare, page_table_a is initialized. For x86_64 page_table_b is
+> also initialized.
+> 
+> When it is time for machine_kexec() the following sequence takes place:
+> 
+> 1. The C-code in machine_kexec() jumps to the assembly routine.
+> To avoid overwriting the page table and still work with NX bits we jump
+> to the original location of relocate_new_kernel. This is different from
+> the unpatched code which jumps to the physical address (ie the identity
+> mapped location).
+> 
+> 2. The assembly code switches to page_table_a.
+> page_table_a has mapped the control page at two virtual addresses:
+> - The same virtual address as relocate_new_kernel is located at.
+>   (This explains the extra aligment in the assembly file)
+> - An identity mapping, ie virtual address == physical address.
+> After the switch the code runs at the same virtual address, but the
+> physical page is now the control page.
+> 
+> 3. Setup idt, gdt, segment registers and stack pointer.
+> The stack pointer should point to the identity mapped page.
+> 
+> 4. Jump to the identity mapped address.
+> When the jump is performed we will be running at a virtual address which
+> is the same as the physical address.
+> 
+> 5. Turn off MMU (i386) / switch to page_table_b (x86_64).
+> We are able to turn off the MMU or switch to page_table_b because we are
+> already running at the physical address.
+> 
+> 6. Proceed with the page copying business as usual...
+> 
+> Ok, so far so good.
+> 
+> The fun part begins when we throw in Xen into the mix. Linux under xen
+> runs with pseudophysical addresses, ie what Linux thinks are physical
+> addresses are not physical. Xen use the term machine addresses for
+> addresses that are called physical address under "regular" Linux. On top
+> of that is Xen using a different memory map than Linux.
+> 
+> After prepare, all pages in page_table_a are passed to the hypervisor
+> that overwrites the contents filled in by machine_prepare(). 
+> (this explains the "ridiculous" array of struct page *)
+> 
+> A similar two page mapping is used for here too, but in the xen case we
+> use a different virtual address (the non-identity mapped address)
+> compared to "regular" Linux. All to fit the address space used by xen.
+> 
+> The xen port which is based on my patches is using a sequence similar to
+> "regular" Linux:
+> 
+> 1a. The C-code in xen_machine_kexec() performs a hypercall.
+> 
+> 1b. The hypervisor jumps to the assembly code.
+> After prepare we've created a NX-safe mapping for the control page. We
+> jump to that NX-safe address to transfer control to the assembly code.
+> 
+> Goto 2 above.
+> 
+> So, to answer your question regarding two page table copies. You may be
+> right that it can be made work with just one page table, but I feel my
+> two table approach is nice because it will always work - regardless of
+> the memory map used.
+>
 
-In Linux, the lowlevel driver registers irq handlers, so your simple 
-problem has the simple and obvious answer.  Further, reviewing my 
-statement above, if fbdev/DRM are aware of each other, and if they both 
-are layered on top of the lowlevel driver, then it should also be 
-obvious that they are cooperatively sharing resources, not competing 
-against one another.
+So you seem to be suggesting that code can be made to work (even with Xen)
+with single identity mapped page table as used currently but it would fail
+in certain circumstances (different memory map used). Can you please explain
+a little more how?
 
+This might be a very stupid question given the fact I am blissfully unaware
+of all the details of Xen.
 
-> I would instead start by making fbdev the low level driver. DRM could
-> then bind to it and redundant code in DRM could be removed. 90% of the
-> code in fbdev is always needed.  Hopefully X could be convinced to use
-
-Take your pick.  An fbdev driver is nothing but a PCI driver that 
-registers itself with the fbdev subsystem.  Ditto a DRM driver, though 
-the DRM and agpgart layering is royally screwed up ATM.  Regardless, he 
-who codes, wins.
-
-
-> the services offered by the fbdev/DRM pair. New memory management code
-
-No "hopefully."  X must be forced to use this driver, otherwise the 
-system is unworkable.
-
-
-> would be added to this base driver since everyone needs it. Fbdev
-
-If fbdev and DRM are cooperating, then obviously they will cooperate 
-when managing resources.  GPU memory is but one example of a resource.
-
-
-> would also pick up the ability to reset secondary cards at boot.
-
-But if you think the kernel will grow an x86 emulator, you're dreaming. 
-That's what initramfs and friends are for.
-
-	Jeff
-
-
-
+Thanks
+Vivek
+ 

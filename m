@@ -1,68 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030433AbWEYVaM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030430AbWEYVcv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030433AbWEYVaM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 17:30:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030431AbWEYVaL
+	id S1030430AbWEYVcv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 17:32:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030429AbWEYVcv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 17:30:11 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:24742 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1030429AbWEYVaJ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 17:30:09 -0400
-Message-Id: <200605252129.k4PLTx1r018031@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+	Thu, 25 May 2006 17:32:51 -0400
+Received: from wr-out-0506.google.com ([64.233.184.234]:3599 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1030430AbWEYVcu convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 17:32:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pX7NmcJllck6g8AzimnE9b0sJ1GnaIhSGccQyIvSWVjyUA0PxOPEVvp/z39GtF/YMZVc0nERut/dffnyTVdzOoEmwcCYeGbNaD62oH8Hpm4/wfiCgINkIAK70sbmtuaO8giVZF53PyrnMKXXrTjAnwxLIQVHgsoEX003/C/L71M=
+Message-ID: <6bffcb0e0605251432s55969e82la206d8ad863ba502@mail.gmail.com>
+Date: Thu, 25 May 2006 23:32:49 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
 To: devmazumdar <dev@opensound.com>
-Cc: linux-kernel@vger.kernel.org
 Subject: Re: How to check if kernel sources are installed on a system?
-In-Reply-To: Your message of "Thu, 25 May 2006 21:19:33 -0000."
-             <e55715+usls@eGroups.com>
-From: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <e55715+usls@eGroups.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 References: <e55715+usls@eGroups.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1148592598_2837P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 25 May 2006 17:29:59 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1148592598_2837P
-Content-Type: text/plain; charset=us-ascii
+Hi,
 
-On Thu, 25 May 2006 21:19:33 -0000, devmazumdar said:
+On 25/05/06, devmazumdar <dev@opensound.com> wrote:
 > How does one check the existence of the kernel source RPM (or deb) on
 > every single distribution?.
-> 
-> We know that rpm -qa | grep kernel-source works on Redhat, Fedora,
-> SuSE, Mandrake and CentOS - how about other RPM based distros?
 
-There's no kernel-source RPM on recent Fedora.  Also, there's another problem...
+How about something like this
 
-On my laptop at the moment:
+if [ -f /lib/modules/`uname -r`/build/Makefile ]
+ then
+  ...
+fi
 
-% rpm -q kernel
-kernel-2.6.16-1.2215_FC6
-% uname -r
-2.6.17-rc4-mm3
+[snip]
 
-Did you want the vendor kernel source, or the running kernel source?
+> provide a stable kernel API, then atleast please make this a requirement.
+>
+>
+> best regards
+>
+> Dev Mazumdar
+> 4Front Technologies
+> http://www.opensound.com
 
-Might want to look at the symlink at /lib/modules/`uname -r`/source which
-is probably as sane as it gets... (Though admittedly Fedora points it
-into the wild blue yonder of /usr/src/kernels/`uname -r` which isn't
-where the non-existent kernel-source RPM puts it.  Getting the .src.rpm
-and working from there leaves it in /usr/src/redhat/BUILD/yadda-yadda....)
+Regards,
+Michal
 
---==_Exmh_1148592598_2837P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEdiHWcC3lWbTT17ARAiVJAJ4yLWsKZ9wOzJM26DYU4iX8Nj0c5QCfXn3Q
-Rt3nCq8S5flEMiqi07C6oWc=
-=sz1V
------END PGP SIGNATURE-----
-
---==_Exmh_1148592598_2837P--
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

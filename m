@@ -1,112 +1,190 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWEYOEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbWEYOL3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030190AbWEYOEr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 10:04:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030193AbWEYOEr
+	id S1030196AbWEYOL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 10:11:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbWEYOL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 10:04:47 -0400
-Received: from nz-out-0102.google.com ([64.233.162.197]:8914 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1030190AbWEYOEq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 10:04:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XrPsHUDm1A6+5UDvyfLmGElKJXgeiTTqx8EZfSEkvv65lJoD+DcCZJuke5sq5vFL9hF8l1xo8dzeyQES/fO0gQ+66qi5UB3wehcPtfHNCm+Eo3pQKgotVWSZCXrPaTGXkHftfIjwBlEUPPwYsxIvup38skYz1rh+Prf0jtK41z8=
-Message-ID: <9e4733910605250704m68235d88lcd8eaedfda5e63cf@mail.gmail.com>
-Date: Thu, 25 May 2006 10:04:45 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Jeff Garzik" <jeff@garzik.org>
-Subject: Re: OpenGL-based framebuffer concepts
-Cc: "D. Hazelton" <dhazelton@enter.net>, "Dave Airlie" <airlied@gmail.com>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <44756E70.9020207@garzik.org>
+	Thu, 25 May 2006 10:11:29 -0400
+Received: from smtpauth07.mail.atl.earthlink.net ([209.86.89.67]:45740 "EHLO
+	smtpauth07.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S1030196AbWEYOL2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 10:11:28 -0400
+Message-ID: <4475BB05.6050001@netwolves.com>
+Date: Thu, 25 May 2006 10:11:17 -0400
+From: Steve Clark <sclark@netwolves.com>
+User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.7.12) Gecko/20051110
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <9e4733910605241656r6a88b5d3hda8c8a4e72edc193@mail.gmail.com>
-	 <4475007F.7020403@garzik.org> <200605250237.20644.dhazelton@enter.net>
-	 <44756E70.9020207@garzik.org>
+To: Willy TARREAU <willy@w.ods.org>
+CC: Steve Clark <sclark@dev.netwolves.com>, linux-kernel@vger.kernel.org,
+       uClinux development list <uclinux-dev@uclinux.org>
+Subject: Re: uclinux 2.4.32 panic
+References: <44746064.30607@netwolves.com> <20060524201030.GU11191@w.ods.org> <4474CF11.4090007@netwolves.com> <20060525063414.GA249@w.ods.org>
+In-Reply-To: <20060525063414.GA249@w.ods.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ELNK-Trace: a437fbc6971e80f61aa676d7e74259b7b3291a7d08dfec79d1a8a55ee1a40d1a06b1f9410ae30fe7350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 63.122.229.22
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/25/06, Jeff Garzik <jeff@garzik.org> wrote:
-> * Review Dave Airlie's posts, he's been pretty spot-on in this thread.
-> There needs to be a lowlevel driver that handles PCI functionality, and
-> registers itself with the fbdev and DRM layers.  The fbdev/DRM
-> registrations need to be aware of each other.  Once that is done, work
-> will proceed more rapidly.
+Hi Willy,
 
-Controlling which driver is bound to the hardware is an easy problem
-that a low level driver handles nicely. But controlling binding
-doesn't really fix anything. All of the drivers binding to it still
-have to duplicate all of the code for things like VRAM allocation, GPU
-start/stop, mode setting, etc. That's because the second level drivers
-can't count on the other drivers being loaded. The giant mess of whose
-state is loaded into the hardware still exists too. Just consider the
-simple problem of who EOI's an interrupt.
+Thanks for your analysis - see my comments below;
 
-I would instead start by making fbdev the low level driver. DRM could
-then bind to it and redundant code in DRM could be removed. 90% of the
-code in fbdev is always needed.  Hopefully X could be convinced to use
-the services offered by the fbdev/DRM pair. New memory management code
-would be added to this base driver since everyone needs it. Fbdev
-would also pick up the ability to reset secondary cards at boot.
+Steve
 
-I concede that loading both drivers will increase RAM usage slightly.
-At some point it will be worth the effort to split an API
-compatibility layer off from the lowlevel fbdev driver. But this is a
-lot of work to get back <40K of RAM.
+Willy TARREAU wrote:
+> On Wed, May 24, 2006 at 05:24:33PM -0400, Steve Clark wrote:
+> (...)
+> 
+>>>>>>LR;  008727cc <rs_write+148/294>
+>>>>
+>>>>>>PC;  0090e5fc <memmove+25c/460>   <=====
+>>>>
+>>>>Trace; 0090e3a0 <memcpy+0/0>
+>>>>Trace; 008727cc <rs_write+148/294>
+>>>>
+>>>>>>r8; 00956228 <tmp_buf+0/1000>
+>>>>
+>>>>Trace; 00872684 <rs_write+0/294>
+> 
+> (...)
+> 
+> 
+>>The hardware is the ActionTec DualPC Modem it has a conexant cx82100 
+>>arm processor.
+>>I can reproduce it at will by connecting to the internet and running 
+>>nttcp thru it at the same time
+>>I am scping file both ways from and to, and then finally starting a 
+>>getty on /dev/ttyS0, the modem is
+>>at ttyS1 and also ttyS0 is where all the kernel printk messages come out.
+>>
+>>When I start the getty if I have all the other traffic going it 
+>>usually will panic in under a minute. IF I don't
+>>have the getty running it will run for hours and not panic.
+>>
+>>
+>>
+>>2.4.32-uc0 with patches from
+>>http://www.bettina-attack.de/jonny/view.php/projects/uclinux_on_cx82100/
+> 
+> 
+> Well, at least the cnxtserial.c file looks suspicious to me :
+> 
+> static int rs_write(struct tty_struct * tty, int from_user,
+>                     const unsigned char *buf, int count)
+> {
+>         int     c, total = 0;
+>         unsigned long flags;
+>         struct cnxt_serial *info = (struct cnxt_serial *)tty->driver_data;
+>                                                          ^^^^^
+> 
+>         if (serial_paranoia_check(info,tty->device, "rs_write"))
+>                                        ^^^^^
+>           return 0;
+> 
+>         if (!tty || !info->xmit_buf)
+>           return 0;
+> 
+> => tty already referenced twice before the check. Either the check is
+>    useless, or the person who wrote it had a good reason for it which
+>    was not considered when writing the two lines above. I would suggest
+>    to start from something like this :
+> 
+> static int rs_write(struct tty_struct * tty, int from_user,
+>                     const unsigned char *buf, int count)
+> {
+>         int     c, total = 0;
+>         unsigned long flags;
+>         struct cnxt_serial *info;
+> 
+>         if (!tty)
+>         	return 0;
+> 
+>         info = (struct cnxt_serial *)tty->driver_data;
+>         if (serial_paranoia_check(info, tty->device, "rs_write"))
+>         	return 0;
+> 
+>         if (!info->xmit_buf)
+>         	return 0;
 
-A related issue to this is mode setting. Initially I would leave it
-alone in the fbdev code. Later it would use a collection of apps like
-this. Mode setting is at the core of why X has to run as root.
+I did this - actually I matched to serial.c
+> 
+> 
+> Further :
+> 
+>           c = MIN(count, MIN(SERIAL_XMIT_SIZE - info->xmit_cnt - 1,
+>                              SERIAL_XMIT_SIZE - info->xmit_head));
+>           if (c <= 0)
+>             break;
+> 
+> => info->xmit_cnt and info->xmit_head are signed ints. If you encounter
+>    memory corruption (eg: during your ethernet transfers) and those get
+>    negative, nothing prevents the buffer from being overwritten past the
+>    end.
+> 
+> Further :
+> 
+>           if (from_user) {
+>             down(&tmp_buf_sem);
+>             copy_from_user(tmp_buf, buf, c);
+>             c = MIN(c, MIN(SERIAL_XMIT_SIZE - info->xmit_cnt - 1,
+>                            SERIAL_XMIT_SIZE - info->xmit_head));
+>         ^^^^^^^^^^^^^^^^^^
+>             memcpy(info->xmit_buf + info->xmit_head, tmp_buf, c);
+>             up(&tmp_buf_sem);
+>           } else
+> 
+> => What the hell is this ? c was assigned the same value above, so
+>    we get :
+>    c = MIN(MIN(count, MIN(SERIAL_XMIT_SIZE - info->xmit_cnt - 1,
+>                        SERIAL_XMIT_SIZE - info->xmit_head)),
+>                       MIN(SERIAL_XMIT_SIZE - info->xmit_cnt - 1,
+>                        SERIAL_XMIT_SIZE - info->xmit_head));
+> 
+>    I'm not sure this was what the developper originally intented to do,
+>    but although useless, it does not seem incorrect. However, I don't
+>    know if he wanted to further reduce the buffer for any reason.
+> 
+> Also, it appears that nothing prevents any code running outside the
+> loop from changing info->xmit_buf between the restore_flags() and
+> the cli(). I don't know if this is functionnaly possible, but at
+> least it is possible by memory corruption (eg: padding too large
+> for a packet and writing zeroes past the end of one buffer).
+> 
+I moved the cli() outside of the while loop - similar to serial.c
 
-|A good first project would be to start building a set of user space
-|apps for doing the mode setting on each card. All of the code for
-|doing this exists in the X server but it is a pain to extract. X has
-|1000s of internal APIs and typedefs. You would end up with a set of
-|apps that would be able to list the valid modes on each head and then
-|set them. The code for achieving this is all over the map, sometimes
-|we know everything needed like for the Radeon, sometimes you need to
-|make a VM86 call to the BIOS to get the info (Intel). Load an fbdev
-|driver and check out the current support for this in sysfs.
-|
-|When you get done with a command it should be a tiny app statically
-|linked to klibc and have no external dependencies. These apps should
-|be 30K or less in size. You probably will end up with about ten apps
-|since a lot of the uncommon cards only have a standard VBE BIOS and
-|will all use the same command.
-
-Mode setting has at least these requirements...
-1) Ability to be done at boot from initramfs
-2) Ability for a user to change their mode without being root
-3) No ability for a normal user to change the mode on hardware that
-they do not own
-4) Some hardware requires modes to be set using vm/emu86.
-5) Monitor hotplug event needs to ensure that the new monitor receives
-a valid mode
-6) An interlock needs to be in place to stop simultaneous attempts to
-change the mode
-
-A key design problem is not requiring root and making sure you can't
-change the mode on hardware that you don't own. This introduces the
-entire concept of video hardware belonging to the logged in user.
-I've written up more thoughts on this in the Kernel section of
-http://jonsmirl.googlepages.com/graphics.html
-
-I'm certainly open to any solutions that can satisfy the requirements.
-Every solution that I've come up with so far is fairly complex.
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+> You should definitely add printks or at least double checks
+> everywhere within this loop I think.
+> 
+I did and info->xmit_head is getting clobbered!
+see below:
+> That's all I can tell, I don't know this platform at all.
+> 
+> Regards,
+> Willy
+> 
+> 
+> 
+xmit_buf+head=a2279c,tmp_buf=956228,c=250
+rs_write:xmit_buf=a22000,tmp_buf=956228
+xmit_buf+head=a22896,tmp_buf=956228,c=250
+rs_write:xmit_buf=a22000,tmp_buf=956228
+xmit_buf+head=a22990,tmp_buf=956228,c=19
+rs_write:xmit_buf=170f1200,tmp_buf=956228
+                               ^^^^^^
+xmit_buf+head=170f1200,tmp_buf=956228,c=13
+Unable to handle kernel NULL pointer dereference at virtual address 
+0000003f
+fault-common.c(97): start_code=0xdc4040, start_stack=0xe11f38)
+Internal error: Oops: ffffffff
+CPU: 0
+pc : [<0090e6a0>]    lr : [<00872808>]    Not tainted
+sp : 00a1fe94  ip : 00000001  fp : 00a1feb8
+r10: 00000fff  r9 : 00956228  r8 : 0093d26c
+r7 : 0000000d  r6 : 009922a0  r5 : 00955f00  r4 : 0000000d
+r3 : 0000007e  r2 : 00000009  r1 : 009922ac  r0 : 170f120d
+Flags: Nzcv  IRQs off  FIQs on  Mode SVC_32  Segment user
+Control: C000107D
+Process pppd (pid: 64, stackpage=00a1f000)

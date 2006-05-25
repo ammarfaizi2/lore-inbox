@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030248AbWEYQYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWEYQXq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030248AbWEYQYE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 12:24:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030247AbWEYQYE
+	id S1030244AbWEYQXq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 12:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030249AbWEYQXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 12:24:04 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:7884 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1030249AbWEYQYB (ORCPT
+	Thu, 25 May 2006 12:23:46 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55948 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030244AbWEYQXo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 12:24:01 -0400
-Date: Thu, 25 May 2006 18:23:52 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.17-rc5, patches patches
-In-Reply-To: <Pine.LNX.4.64.0605241902520.5623@g5.osdl.org>
-Message-ID: <Pine.LNX.4.61.0605251820080.6951@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.64.0605241902520.5623@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 25 May 2006 12:23:44 -0400
+Date: Thu, 25 May 2006 09:23:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
+Cc: linux-kernel@vger.kernel.org, wfg@mail.ustc.edu.cn
+Subject: Re: [PATCH 04/33] readahead: page flag PG_readahead
+Message-Id: <20060525092311.0523d8bf.akpm@osdl.org>
+In-Reply-To: <348469537.16036@ustc.edu.cn>
+References: <20060524111246.420010595@localhost.localdomain>
+	<348469537.16036@ustc.edu.cn>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
+>
+> An new page flag PG_readahead is introduced as a look-ahead mark, which
+> reminds the caller to give the adaptive read-ahead logic a chance to do
+> read-ahead ahead of time for I/O pipelining.
+> 
+> It roughly corresponds to `ahead_start' of the stock read-ahead logic.
+> 
 
-On Fri, 12 May 2006 19:45:48 +0200 (MEST), Jan Engelhardt wrote:
->http://lkml.org/lkml/2005/7/7/255
+This isn't a very revealing description of what this flag does.
 
-and
-http://lkml.org/lkml/2005/2/26/92
+> +#define __SetPageReadahead(page) __set_bit(PG_readahead, &(page)->flags)
 
-In 2.6.17-rc5, these two below have been merged, but the two above (which are
-way older) have not. What's up with that?
-
->>Andy Whitcroft:
->>      root mount failure: emit filesystems attempted
->>Olaf Kirch:
->>      smbfs chroot issue (CVE-2006-1864)
-
-
-Jan Engelhardt
--- 
+uh-oh.  This is extremly risky.  Needs extensive justification, please.

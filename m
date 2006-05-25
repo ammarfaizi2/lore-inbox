@@ -1,285 +1,199 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965147AbWEYMsj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965150AbWEYMuX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965147AbWEYMsj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 08:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965150AbWEYMsj
+	id S965150AbWEYMuX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 08:50:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbWEYMuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 08:48:39 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.206]:62669 "EHLO
+	Thu, 25 May 2006 08:50:23 -0400
+Received: from TYO202.gate.nec.co.jp ([202.32.8.206]:51407 "EHLO
 	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S965147AbWEYMsh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 08:48:37 -0400
+	id S965150AbWEYMuW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 08:50:22 -0400
 To: adilger@clusterfs.com, cmm@us.ibm.com, jitendra@linsyssoft.com
 Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [UPDATE][11/24]ext2 modify variables to exceed 2G
-Message-Id: <20060525214830sho@rifu.tnes.nec.co.jp>
+Subject: [UPDATE][13/24]ext3 enlarge file size
+Message-Id: <20060525215014sho@rifu.tnes.nec.co.jp>
 Mime-Version: 1.0
 X-Mailer: WeMail32[2.51] ID:1K0086
 From: sho@tnes.nec.co.jp
-Date: Thu, 25 May 2006 21:48:30 +0900
+Date: Thu, 25 May 2006 21:50:14 +0900
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Summary of this patch:
-  [11/24]  change the type of variables manipulating a block or an
-           inode(ext2)
-          - Change the type of 4byte variables manipulating a block or
-            an inode from signed to unsigned.
+  [13/24] extend file size(ext3)
+          - If the flag is set to super block, i_blocks of disk inode
+            (ext3_inode) is filesystem-block unit, and i_blocks of VFS
+            inode is sector unit.
 
-          - Where an overflow occurs in process of operation, casting
-            it to long long.
+          - If the flag is set to super block, max file size is set to
+            (FS blocksize) * (2^32 -1).
 
 Signed-off-by: Takashi Sato sho@tnes.nec.co.jp
 ---
-diff -upNr -X linux-2.6.17-rc4/Documentation/dontdiff linux-2.6.17-rc4/fs/ext2/balloc.c linux-2.6.17-rc4.tmp/fs/ext2/balloc.c
---- linux-2.6.17-rc4/fs/ext2/balloc.c	2006-05-25 16:31:59.468496252 +0900
-+++ linux-2.6.17-rc4.tmp/fs/ext2/balloc.c	2006-05-25 16:33:34.602284149 +0900
-@@ -99,7 +99,7 @@ error_out:
-  * Set sb->s_dirt here because the superblock was "logically" altered.  We
-  * need to recalculate its free blocks count and flush it out.
-  */
--static int reserve_blocks(struct super_block *sb, int count)
-+static unsigned int reserve_blocks(struct super_block *sb, unsigned int count)
- {
- 	struct ext2_sb_info *sbi = EXT2_SB(sb);
- 	struct ext2_super_block *es = sbi->s_es;
-@@ -130,7 +130,7 @@ static int reserve_blocks(struct super_b
- 	return count;
- }
+diff -upNr -X linux-2.6.17-rc4/Documentation/dontdiff linux-2.6.17-rc4/fs/ext3/inode.c linux-2.6.17-rc4.tmp/fs/ext3/inode.c
+--- linux-2.6.17-rc4/fs/ext3/inode.c	2006-05-25 16:33:29.706776397 +0900
++++ linux-2.6.17-rc4.tmp/fs/ext3/inode.c	2006-05-25 16:34:09.854236842 +0900
+@@ -2630,8 +2630,13 @@ void ext3_read_inode(struct inode * inod
+ 	inode->i_blksize = PAGE_SIZE;	/* This is the optimal IO size
+ 					 * (for stat), not the fs block
+ 					 * size */  
+-	inode->i_blocks = le32_to_cpu(raw_inode->i_blocks);
+ 	ei->i_flags = le32_to_cpu(raw_inode->i_flags);
++	if (ei->i_flags & EXT3_HUGE_FILE_FL) {
++		inode->i_blocks = (blkcnt_t)le32_to_cpu(raw_inode->i_blocks)
++			<< (inode->i_blkbits - EXT3_SECTOR_BITS);
++	} else {
++		inode->i_blocks = le32_to_cpu(raw_inode->i_blocks);
++	} 
+ #ifdef EXT3_FRAGMENTS
+ 	ei->i_faddr = le32_to_cpu(raw_inode->i_faddr);
+ 	ei->i_frag_no = raw_inode->i_frag;
+@@ -2726,6 +2731,7 @@ static int ext3_do_update_inode(handle_t
+ 	struct ext3_inode *raw_inode = ext3_raw_inode(iloc);
+ 	struct ext3_inode_info *ei = EXT3_I(inode);
+ 	struct buffer_head *bh = iloc->bh;
++	struct super_block *sb = inode->i_sb;
+ 	int err = 0, rc, block;
  
--static void release_blocks(struct super_block *sb, int count)
-+static void release_blocks(struct super_block *sb, unsigned int count)
+ 	/* For fields not not tracking in the in-memory inode,
+@@ -2763,9 +2769,30 @@ static int ext3_do_update_inode(handle_t
+ 	raw_inode->i_atime = cpu_to_le32(inode->i_atime.tv_sec);
+ 	raw_inode->i_ctime = cpu_to_le32(inode->i_ctime.tv_sec);
+ 	raw_inode->i_mtime = cpu_to_le32(inode->i_mtime.tv_sec);
+-	raw_inode->i_blocks = cpu_to_le32(inode->i_blocks);
+-	raw_inode->i_dtime = cpu_to_le32(ei->i_dtime);
+ 	raw_inode->i_flags = cpu_to_le32(ei->i_flags);
++
++	if (inode->i_blocks <= ~0U) {
++		raw_inode->i_flags &= ~EXT3_HUGE_FILE_FL;
++		raw_inode->i_blocks = cpu_to_le32(inode->i_blocks);
++	} else {
++		err = ext3_journal_get_write_access(handle,
++				EXT3_SB(sb)->s_sbh);
++		if (err)
++			goto out_brelse;
++		ext3_update_dynamic_rev(sb);
++		EXT3_SET_RO_COMPAT_FEATURE(sb,
++				EXT3_FEATURE_RO_COMPAT_HUGE_FILE);
++		sb->s_dirt = 1;
++		handle->h_sync = 1;
++		err = ext3_journal_dirty_metadata(handle,
++				EXT3_SB(sb)->s_sbh);
++		printk("ext3_do_update_inode: Now the file size is "
++		       "more than 2TB on device (%s)!!\n", sb->s_id);
++		raw_inode->i_flags |= EXT3_HUGE_FILE_FL;
++		raw_inode->i_blocks = cpu_to_le32((inode->i_blocks)
++		 	>> (inode->i_blkbits - EXT3_SECTOR_BITS));			
++	}
++	raw_inode->i_dtime = cpu_to_le32(ei->i_dtime);
+ #ifdef EXT3_FRAGMENTS
+ 	raw_inode->i_faddr = cpu_to_le32(ei->i_faddr);
+ 	raw_inode->i_frag = ei->i_frag_no;
+diff -upNr -X linux-2.6.17-rc4/Documentation/dontdiff linux-2.6.17-rc4/fs/ext3/super.c linux-2.6.17-rc4.tmp/fs/ext3/super.c
+--- linux-2.6.17-rc4/fs/ext3/super.c	2006-05-25 16:34:05.950916578 +0900
++++ linux-2.6.17-rc4.tmp/fs/ext3/super.c	2006-05-25 16:34:09.856189967 +0900
+@@ -1297,14 +1297,21 @@ static void ext3_orphan_cleanup (struct 
+  * block limit, and also a limit of (2^32 - 1) 512-byte sectors in i_blocks.
+  * We need to be 1 filesystem block less than the 2^32 sector limit.
+  */
+-static loff_t ext3_max_size(int bits)
++static loff_t ext3_max_size(int bits, struct super_block *sb)
  {
- 	if (count) {
- 		struct ext2_sb_info *sbi = EXT2_SB(sb);
-@@ -140,8 +140,8 @@ static void release_blocks(struct super_
+ 	loff_t res = EXT3_NDIR_BLOCKS;
+ 	/* This constant is calculated to be the largest file size for a
+ 	 * dense, 4k-blocksize file such that the total number of
+ 	 * sectors in the file, including data and all indirect blocks,
+ 	 * does not exceed 2^32. */
+-	const loff_t upper_limit = 0x1ff7fffd000LL;
++	loff_t upper_limit;
++	if (sizeof(blkcnt_t) < sizeof(u64)) {
++		upper_limit = 0x1ff7fffd000LL;
++	}
++	/* With CONFIG_LSF on, file size is limited to blocksize*(4G-1) */
++	else { 
++		upper_limit = (1LL << (bits + 32)) - (1LL << bits);
++	}
+ 
+ 	res += 1LL << (bits-2);
+ 	res += 1LL << (2*(bits-2));
+@@ -1465,7 +1472,7 @@ static int ext3_fill_super (struct super
+ 
+ 	if (blocksize > PAGE_SIZE) {
+ 		printk(KERN_ERR "EXT3-fs: cannot mount filesystem with "
+-		       "blocksize %u larger than PAGE_SIZE %u on %s\n",
++		       "blocksize %u larger than PAGE_SIZE %lu on %s\n",
+ 		       blocksize, PAGE_SIZE, sb->s_id);
+ 		goto failed_mount;
  	}
- }
+@@ -1508,7 +1515,7 @@ static int ext3_fill_super (struct super
+ 		}
+ 	}
  
--static int group_reserve_blocks(struct ext2_sb_info *sbi, int group_no,
--	struct ext2_group_desc *desc, struct buffer_head *bh, int count)
-+static unsigned int group_reserve_blocks(struct ext2_sb_info *sbi, int group_no,
-+	struct ext2_group_desc *desc, struct buffer_head *bh, unsigned int count)
- {
- 	unsigned free_blocks;
+-	sb->s_maxbytes = ext3_max_size(sb->s_blocksize_bits);
++	sb->s_maxbytes = ext3_max_size(sb->s_blocksize_bits, sb);
  
-@@ -159,7 +159,7 @@ static int group_reserve_blocks(struct e
- }
+ 	if (le32_to_cpu(es->s_rev_level) == EXT3_GOOD_OLD_REV) {
+ 		sbi->s_inode_size = EXT3_GOOD_OLD_INODE_SIZE;
+@@ -1699,6 +1706,18 @@ static int ext3_fill_super (struct super
+ 	 */
  
- static void group_release_blocks(struct super_block *sb, int group_no,
--	struct ext2_group_desc *desc, struct buffer_head *bh, int count)
-+	struct ext2_group_desc *desc, struct buffer_head *bh, unsigned int count)
- {
- 	if (count) {
- 		struct ext2_sb_info *sbi = EXT2_SB(sb);
-@@ -324,7 +324,7 @@ got_it:
-  * bitmap, and then for any free bit if that fails.
-  * This function also updates quota and i_blocks field.
-  */
--int ext2_new_block(struct inode *inode, unsigned long goal,
-+unsigned int ext2_new_block(struct inode *inode, unsigned long goal,
- 			u32 *prealloc_count, u32 *prealloc_block, int *err)
- {
- 	struct buffer_head *bitmap_bh = NULL;
-@@ -333,8 +333,8 @@ int ext2_new_block(struct inode *inode, 
- 	int group_no;			/* i */
- 	int ret_block;			/* j */
- 	int group_idx;			/* k */
--	int target_block;		/* tmp */
--	int block = 0;
-+	unsigned int target_block;      /* tmp */
-+	unsigned int block = 0;
- 	struct super_block *sb = inode->i_sb;
- 	struct ext2_sb_info *sbi = EXT2_SB(sb);
- 	struct ext2_super_block *es = sbi->s_es;
-diff -upNr -X linux-2.6.17-rc4/Documentation/dontdiff linux-2.6.17-rc4/fs/ext2/ext2.h linux-2.6.17-rc4.tmp/fs/ext2/ext2.h
---- linux-2.6.17-rc4/fs/ext2/ext2.h	2006-05-25 16:18:35.842529534 +0900
-+++ linux-2.6.17-rc4.tmp/fs/ext2/ext2.h	2006-05-25 16:33:34.602284149 +0900
-@@ -91,7 +91,7 @@ static inline struct ext2_inode_info *EX
- /* balloc.c */
- extern int ext2_bg_has_super(struct super_block *sb, int group);
- extern unsigned long ext2_bg_num_gdb(struct super_block *sb, int group);
--extern int ext2_new_block (struct inode *, unsigned long,
-+extern unsigned int ext2_new_block (struct inode *, unsigned long,
- 			   __u32 *, __u32 *, int *);
- extern void ext2_free_blocks (struct inode *, unsigned long,
- 			      unsigned long);
-diff -upNr -X linux-2.6.17-rc4/Documentation/dontdiff linux-2.6.17-rc4/fs/ext2/ialloc.c linux-2.6.17-rc4.tmp/fs/ext2/ialloc.c
---- linux-2.6.17-rc4/fs/ext2/ialloc.c	2006-05-25 16:31:09.390371866 +0900
-+++ linux-2.6.17-rc4.tmp/fs/ext2/ialloc.c	2006-05-25 16:33:34.603260712 +0900
-@@ -276,12 +276,10 @@ static int find_group_orlov(struct super
- 	struct ext2_super_block *es = sbi->s_es;
- 	int ngroups = sbi->s_groups_count;
- 	int inodes_per_group = EXT2_INODES_PER_GROUP(sb);
--	int freei;
-+	unsigned long freei, free_blocks, ndirs;
- 	int avefreei;
--	int free_blocks;
- 	int avefreeb;
- 	int blocks_per_dir;
--	int ndirs;
- 	int max_debt, max_dirs, min_blocks, min_inodes;
- 	int group = -1, i;
- 	struct ext2_group_desc *desc;
-diff -upNr -X linux-2.6.17-rc4/Documentation/dontdiff linux-2.6.17-rc4/fs/ext2/inode.c linux-2.6.17-rc4.tmp/fs/ext2/inode.c
---- linux-2.6.17-rc4/fs/ext2/inode.c	2006-05-25 16:31:59.469472815 +0900
-+++ linux-2.6.17-rc4.tmp/fs/ext2/inode.c	2006-05-25 16:33:34.604237274 +0900
-@@ -107,7 +107,7 @@ void ext2_discard_prealloc (struct inode
+ 	root = iget(sb, EXT3_ROOT_INO);
++
++	if (EXT3_HAS_RO_COMPAT_FEATURE(sb,
++	    EXT3_FEATURE_RO_COMPAT_HUGE_FILE)) {
++		if (sizeof(root->i_blocks) < sizeof(u64)) {
++			if (!(sb->s_flags & MS_RDONLY)) {
++				printk(KERN_ERR "EXT3-fs: %s: Having huge file with "
++						"LSF off, you must mount filesystem "
++						"read-only.\n", sb->s_id);
++				goto failed_mount;
++			}
++		}
++	}
+ 	sb->s_root = d_alloc_root(root);
+ 	if (!sb->s_root) {
+ 		printk(KERN_ERR "EXT3-fs: get root inode failed\n");
+diff -upNr -X linux-2.6.17-rc4/Documentation/dontdiff linux-2.6.17-rc4/include/linux/ext3_fs.h linux-2.6.17-rc4.tmp/include/linux/ext3_fs.h
+--- linux-2.6.17-rc4/include/linux/ext3_fs.h	2006-05-25 16:34:05.951893140 +0900
++++ linux-2.6.17-rc4.tmp/include/linux/ext3_fs.h	2006-05-25 16:34:09.857166530 +0900
+@@ -99,6 +99,7 @@ struct statfs;
+ #else
+ # define EXT3_BLOCK_SIZE_BITS(s)	((s)->s_log_block_size + 10)
  #endif
- }
++#define EXT3_SECTOR_BITS        9       /* log2(SECTOR_SIZE) */
+ #ifdef __KERNEL__
+ #define	EXT3_ADDR_PER_BLOCK_BITS(s)	(EXT3_SB(s)->s_addr_per_block_bits)
+ #define EXT3_INODE_SIZE(s)		(EXT3_SB(s)->s_inode_size)
+@@ -187,6 +188,7 @@ struct ext3_group_desc
+ #define EXT3_NOTAIL_FL			0x00008000 /* file tail should not be merged */
+ #define EXT3_DIRSYNC_FL			0x00010000 /* dirsync behaviour (directories only) */
+ #define EXT3_TOPDIR_FL			0x00020000 /* Top of directory hierarchies*/
++#define EXT3_HUGE_FILE_FL		0x00040000 /* Set to each huge file */
+ #define EXT3_RESERVED_FL		0x80000000 /* reserved for ext3 lib */
  
--static int ext2_alloc_block (struct inode * inode, unsigned long goal, int *err)
-+static unsigned int ext2_alloc_block (struct inode * inode, unsigned long goal, int *err)
- {
- #ifdef EXT2FS_DEBUG
- 	static unsigned long alloc_hits, alloc_attempts;
-@@ -194,7 +194,7 @@ static inline int verify_chain(Indirect 
+ #define EXT3_FL_USER_VISIBLE		0x0003DFFF /* User visible flags */
+@@ -558,6 +560,7 @@ static inline struct ext3_inode_info *EX
+ #define EXT3_FEATURE_RO_COMPAT_SPARSE_SUPER	0x0001
+ #define EXT3_FEATURE_RO_COMPAT_LARGE_FILE	0x0002
+ #define EXT3_FEATURE_RO_COMPAT_BTREE_DIR	0x0004
++#define EXT3_FEATURE_RO_COMPAT_HUGE_FILE	0x0008
+ 
+ #define EXT3_FEATURE_INCOMPAT_COMPRESSION	0x0001
+ #define EXT3_FEATURE_INCOMPAT_FILETYPE		0x0002
+@@ -573,8 +576,8 @@ static inline struct ext3_inode_info *EX
+ 					 EXT3_FEATURE_INCOMPAT_HUGE_FS)
+ #define EXT3_FEATURE_RO_COMPAT_SUPP	(EXT3_FEATURE_RO_COMPAT_SPARSE_SUPER| \
+ 					 EXT3_FEATURE_RO_COMPAT_LARGE_FILE| \
+-					 EXT3_FEATURE_RO_COMPAT_BTREE_DIR)
+-
++					 EXT3_FEATURE_RO_COMPAT_BTREE_DIR| \
++					 EXT3_FEATURE_RO_COMPAT_HUGE_FILE)
+ /*
+  * Default values for user and/or group using reserved blocks
   */
- 
- static int ext2_block_to_path(struct inode *inode,
--			long i_block, int offsets[4], int *boundary)
-+			unsigned long i_block, int offsets[4], int *boundary)
- {
- 	int ptrs = EXT2_ADDR_PER_BLOCK(inode->i_sb);
- 	int ptrs_bits = EXT2_ADDR_PER_BLOCK_BITS(inode->i_sb);
-@@ -363,7 +363,7 @@ static unsigned long ext2_find_near(stru
-  */
- 
- static inline int ext2_find_goal(struct inode *inode,
--				 long block,
-+				 unsigned long block,
- 				 Indirect chain[4],
- 				 Indirect *partial,
- 				 unsigned long *goal)
-@@ -425,13 +425,13 @@ static int ext2_alloc_branch(struct inod
- 	int n = 0;
- 	int err;
- 	int i;
--	int parent = ext2_alloc_block(inode, goal, &err);
-+	unsigned int parent = ext2_alloc_block(inode, goal, &err);
- 
- 	branch[0].key = cpu_to_le32(parent);
- 	if (parent) for (n = 1; n < num; n++) {
- 		struct buffer_head *bh;
- 		/* Allocate the next block */
--		int nr = ext2_alloc_block(inode, parent, &err);
-+		unsigned int nr = ext2_alloc_block(inode, parent, &err);
- 		if (!nr)
- 			break;
- 		branch[n].key = cpu_to_le32(nr);
-@@ -489,7 +489,7 @@ static int ext2_alloc_branch(struct inod
-  */
- 
- static inline int ext2_splice_branch(struct inode *inode,
--				     long block,
-+				     unsigned long block,
- 				     Indirect chain[4],
- 				     Indirect *where,
- 				     int num)
-@@ -905,7 +905,7 @@ void ext2_truncate (struct inode * inode
- 	Indirect *partial;
- 	__le32 nr = 0;
- 	int n;
--	long iblock;
-+	unsigned long iblock;
- 	unsigned blocksize;
- 
- 	if (!(S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
-diff -upNr -X linux-2.6.17-rc4/Documentation/dontdiff linux-2.6.17-rc4/fs/ext2/super.c linux-2.6.17-rc4.tmp/fs/ext2/super.c
---- linux-2.6.17-rc4/fs/ext2/super.c	2006-05-25 16:31:09.392324991 +0900
-+++ linux-2.6.17-rc4.tmp/fs/ext2/super.c	2006-05-25 16:33:34.605213837 +0900
-@@ -31,6 +31,7 @@
- #include <linux/seq_file.h>
- #include <linux/mount.h>
- #include <asm/uaccess.h>
-+#include <asm/div64.h>
- #include "ext2.h"
- #include "xattr.h"
- #include "acl.h"
-@@ -516,7 +517,7 @@ static int ext2_check_descriptors (struc
- 		if ((i % EXT2_DESC_PER_BLOCK(sb)) == 0)
- 			gdp = (struct ext2_group_desc *) sbi->s_group_desc[desc_block++]->b_data;
- 		if (le32_to_cpu(gdp->bg_block_bitmap) < block ||
--		    le32_to_cpu(gdp->bg_block_bitmap) >= block + EXT2_BLOCKS_PER_GROUP(sb))
-+		    le32_to_cpu(gdp->bg_block_bitmap) >= (unsigned long long)block + EXT2_BLOCKS_PER_GROUP(sb))
- 		{
- 			ext2_error (sb, "ext2_check_descriptors",
- 				    "Block bitmap for group %d"
-@@ -525,7 +526,7 @@ static int ext2_check_descriptors (struc
- 			return 0;
- 		}
- 		if (le32_to_cpu(gdp->bg_inode_bitmap) < block ||
--		    le32_to_cpu(gdp->bg_inode_bitmap) >= block + EXT2_BLOCKS_PER_GROUP(sb))
-+		    le32_to_cpu(gdp->bg_inode_bitmap) >= (unsigned long long)block + EXT2_BLOCKS_PER_GROUP(sb))
- 		{
- 			ext2_error (sb, "ext2_check_descriptors",
- 				    "Inode bitmap for group %d"
-@@ -535,7 +536,7 @@ static int ext2_check_descriptors (struc
- 		}
- 		if (le32_to_cpu(gdp->bg_inode_table) < block ||
- 		    le32_to_cpu(gdp->bg_inode_table) + sbi->s_itb_per_group >=
--		    block + EXT2_BLOCKS_PER_GROUP(sb))
-+		    (unsigned long long)block + EXT2_BLOCKS_PER_GROUP(sb))
- 		{
- 			ext2_error (sb, "ext2_check_descriptors",
- 				    "Inode table for group %d"
-@@ -609,6 +610,7 @@ static int ext2_fill_super(struct super_
- 	int db_count;
- 	int i, j;
- 	__le32 features;
-+	unsigned long long tmp_blocks;
- 
- 	sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
- 	if (!sbi)
-@@ -823,10 +825,11 @@ static int ext2_fill_super(struct super_
- 
- 	if (EXT2_BLOCKS_PER_GROUP(sb) == 0)
- 		goto cantfind_ext2;
--	sbi->s_groups_count = (le32_to_cpu(es->s_blocks_count) -
--				        le32_to_cpu(es->s_first_data_block) +
--				       EXT2_BLOCKS_PER_GROUP(sb) - 1) /
--				       EXT2_BLOCKS_PER_GROUP(sb);
-+	tmp_blocks = (le32_to_cpu(es->s_blocks_count) -
-+		      le32_to_cpu(es->s_first_data_block) +
-+		      (unsigned long long)EXT2_BLOCKS_PER_GROUP(sb) - 1);
-+	do_div(tmp_blocks, EXT2_BLOCKS_PER_GROUP(sb));
-+	sbi->s_groups_count = tmp_blocks;
- 	db_count = (sbi->s_groups_count + EXT2_DESC_PER_BLOCK(sb) - 1) /
- 		   EXT2_DESC_PER_BLOCK(sb);
- 	sbi->s_group_desc = kmalloc (db_count * sizeof (struct buffer_head *), GFP_KERNEL);
-diff -upNr -X linux-2.6.17-rc4/Documentation/dontdiff linux-2.6.17-rc4/fs/ext2/xattr.c linux-2.6.17-rc4.tmp/fs/ext2/xattr.c
---- linux-2.6.17-rc4/fs/ext2/xattr.c	2006-05-25 16:31:59.470449377 +0900
-+++ linux-2.6.17-rc4.tmp/fs/ext2/xattr.c	2006-05-25 16:33:34.606190399 +0900
-@@ -664,11 +664,11 @@ ext2_xattr_set2(struct inode *inode, str
- 			ext2_xattr_cache_insert(new_bh);
- 		} else {
- 			/* We need to allocate a new block */
--			int goal = le32_to_cpu(EXT2_SB(sb)->s_es->
-+			unsigned int goal = le32_to_cpu(EXT2_SB(sb)->s_es->
- 						           s_first_data_block) +
- 				   EXT2_I(inode)->i_block_group *
- 				   EXT2_BLOCKS_PER_GROUP(sb);
--			int block = ext2_new_block(inode, goal,
-+			unsigned int block = ext2_new_block(inode, goal,
- 						   NULL, NULL, &error);
- 			if (error)
- 				goto cleanup;
-diff -upNr -X linux-2.6.17-rc4/Documentation/dontdiff linux-2.6.17-rc4/fs/ext2/xip.c linux-2.6.17-rc4.tmp/fs/ext2/xip.c
---- linux-2.6.17-rc4/fs/ext2/xip.c	2006-03-20 14:53:29.000000000 +0900
-+++ linux-2.6.17-rc4.tmp/fs/ext2/xip.c	2006-05-25 16:33:34.606190399 +0900
-@@ -44,8 +44,8 @@ __ext2_get_sector(struct inode *inode, s
- 	return rc;
- }
- 
--int
--ext2_clear_xip_target(struct inode *inode, int block)
-+unsigned int
-+ext2_clear_xip_target(struct inode *inode, unsigned int block)
- {
- 	sector_t sector = block * (PAGE_SIZE/512);
- 	unsigned long data;
 
 
 

@@ -1,64 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965124AbWEYMMJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965127AbWEYMWn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965124AbWEYMMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 08:12:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965126AbWEYMMI
+	id S965127AbWEYMWn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 08:22:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965128AbWEYMWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 08:12:08 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:64452 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S965124AbWEYMMH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 08:12:07 -0400
-Message-ID: <348559122.14768@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Thu, 25 May 2006 20:12:06 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 12/33] readahead: min/max sizes
-Message-ID: <20060525121206.GI4996@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060524111246.420010595@localhost.localdomain> <348469541.17438@ustc.edu.cn> <447537B3.7050707@yahoo.com.au>
-MIME-Version: 1.0
+	Thu, 25 May 2006 08:22:43 -0400
+Received: from tirith.ics.muni.cz ([147.251.4.36]:65225 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S965127AbWEYMWn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 08:22:43 -0400
+Date: Thu, 25 May 2006 14:22:40 +0200
+From: Jan Kasprzak <kas@fi.muni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: 3ware 7500 not working in 2.6.16.18, 2.6.17-rc5
+Message-ID: <20060525122240.GG19612@fi.muni.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <447537B3.7050707@yahoo.com.au>
-User-Agent: Mutt/1.5.11+cvs20060126
+User-Agent: Mutt/1.4.1i
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: kas@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 25, 2006 at 02:50:59PM +1000, Nick Piggin wrote:
-> Wu Fengguang wrote:
-> 
-> >- Enlarge VM_MAX_READAHEAD to 1024 if new read-ahead code is compiled in.
-> > This value is no longer tightly coupled with the thrashing problem,
-> > therefore constrained by it. The adaptive read-ahead logic merely takes
-> > it as an upper bound, and will not stick to it under memory pressure.
-> >
-> 
-> I guess this size enlargement is one of the main reasons your
-> patchset improves performance in some cases.
+	Hi all,
 
-Sure, I started the patch to fulfill the 1M _default_ size dream ;-)
-The majority users will never enjoy the performance improvement if
-ever we stick to 128k default size.  And it won't be possible for the
-current readahead logic, since it lacks basic thrashing protection
-mechanism.
+I have a 3ware 75xx P-ATA controller, which has been working in 2.6.15-rc2.
+Today I have tried to upgrade to 2.6.16.18, and it cannot boot - the
+controller cannot access the drives, with the attached messages.
+I have also tried 2.6.17-rc5 with the same results.
 
-> There is currently some sort of thrashing protection in there.
-> Obviously you've found it to be unable to cope with some situations
-> and introduced a lot of really fancy stuff to fix it. Are these just
-> academic access patterns, or do you have real test cases that
-> demonstrate this failure (ie. can we try to incrementally improve
-> the current logic as well as work towards merging your readahead
-> rewrite?)
+[...]
+3ware Storage Controller device driver for Linux v1.26.02.001.
+GSI 18 sharing vector 0xB9 and IRQ 18
+ACPI: PCI Interrupt 0000:01:03.0[A] -> GSI 28 (level, low) -> IRQ 18
+scsi0 : 3ware Storage Controller
+3w-xxxx: scsi0: Found a 3ware Storage Controller at 0x8c00, IRQ: 18.
+  Vendor: 3ware     Model: Logical Disk 0    Rev: 1.2
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+  Vendor: 3ware     Model: Logical Disk 1    Rev: 1.2
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+  Vendor: 3ware     Model: Logical Disk 2    Rev: 1.2
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+  Vendor: 3ware     Model: Logical Disk 3    Rev: 1.2
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+  Vendor: 3ware     Model: Logical Disk 4    Rev: 1.2
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+  Vendor: 3ware     Model: Logical Disk 5    Rev: 1.2
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+  Vendor: 3ware     Model: Logical Disk 6    Rev: 1.2
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+  Vendor: 3ware     Model: Logical Disk 7    Rev: 1.2
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
+sda: Write Protect is off
+SCSI device sda: drive cache: write back w/ FUA
+SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
+sda: Write Protect is off
+SCSI device sda: drive cache: write back w/ FUA
+ sda:<3>nommu_map_sg: overflow 2053d9000+4096 of device mask ffffffff
+3w-xxxx: tw_map_scsi_sg_data(): pci_map_sg() failed.
+nommu_map_sg: overflow 2053d9000+4096 of device mask ffffffff
+3w-xxxx: tw_map_scsi_sg_data(): pci_map_sg() failed.
+nommu_map_sg: overflow 2053d9000+4096 of device mask ffffffff
+3w-xxxx: tw_map_scsi_sg_data(): pci_map_sg() failed.
+nommu_map_sg: overflow 2053d9000+4096 of device mask ffffffff
+3w-xxxx: tw_map_scsi_sg_data(): pci_map_sg() failed.
+nommu_map_sg: overflow 2053d9000+4096 of device mask ffffffff
+3w-xxxx: tw_map_scsi_sg_data(): pci_map_sg() failed.
+nommu_map_sg: overflow 2053d9000+4096 of device mask ffffffff
+3w-xxxx: tw_map_scsi_sg_data(): pci_map_sg() failed.
+sd 0:0:0:0: SCSI error: return code = 0x70000
+end_request: I/O error, dev sda, sector 0
+Buffer I/O error on device sda, logical block 0
+nommu_map_sg: overflow 2053d9000+4096 of device mask ffffffff
+3w-xxxx: tw_map_scsi_sg_data(): pci_map_sg() failed.
+[... and so on, the same for all eight drives sda to sdh ...]
 
-But to be serious, in the progress I realized that it's much more
-beyond the max readahead size. The fancy features are more coming out
-of _real_ needs than to fulfill academic goals. I've seen real world
-improvements from desktop/file server/backup server/database users
-for most of the implemented features.
+-Yenya
 
-Wu
+-- 
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/    Journal: http://www.fi.muni.cz/~kas/blog/ |
+> I will never go to meetings again because I think  face to face meetings <
+> are the biggest waste of time you can ever have.        --Linus Torvalds <

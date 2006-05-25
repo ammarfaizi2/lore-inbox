@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030220AbWEYPDR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965196AbWEYPEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030220AbWEYPDR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 11:03:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965196AbWEYPDR
+	id S965196AbWEYPEq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 11:04:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965197AbWEYPEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 11:03:17 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:63164 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965194AbWEYPDR (ORCPT
+	Thu, 25 May 2006 11:04:46 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:4541 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965196AbWEYPEp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 11:03:17 -0400
-Date: Thu, 25 May 2006 08:01:01 -0700
+	Thu, 25 May 2006 11:04:45 -0400
+Date: Thu, 25 May 2006 08:02:24 -0700
 From: Greg KH <greg@kroah.com>
-To: Theodore Tso <tytso@mit.edu>, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add user taint flag
-Message-ID: <20060525150101.GA1428@kroah.com>
-References: <E1FhwyO-0001YQ-O1@candygram.thunk.org> <20060523184506.GA29044@kroah.com> <20060524133916.GC16705@thunk.org>
+To: Dave Jones <davej@redhat.com>, Shaohua Li <shaohua.li@intel.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Tigran Aivazian <tigran@veritas.com>,
+       Rajesh Shah <rajesh.shah@intel.com>,
+       "Van De Ven, Adriaan" <adriaan.van.de.ven@intel.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/2] microcode update driver rewrite
+Message-ID: <20060525150224.GB1428@kroah.com>
+References: <1148529049.32046.103.camel@sli10-desk.sh.intel.com> <20060525040557.GA30175@kroah.com> <20060525041234.GA22024@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060524133916.GC16705@thunk.org>
+In-Reply-To: <20060525041234.GA22024@redhat.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 24, 2006 at 09:39:16AM -0400, Theodore Tso wrote:
-> On Tue, May 23, 2006 at 11:45:06AM -0700, Greg KH wrote:
-> > On Sun, May 21, 2006 at 07:04:32PM -0400, Theodore Ts'o wrote:
-> > > --- linux-2.6.orig/kernel/panic.c	2006-04-28 21:16:55.000000000 -0400
-> > > +++ linux-2.6/kernel/panic.c	2006-05-21 19:00:15.000000000 -0400
-> > > @@ -150,6 +150,7 @@
-> > >   *  'R' - User forced a module unload.
-> > >   *  'M' - Machine had a machine check experience.
-> > >   *  'B' - System has hit bad_page.
-> > > + *  'U' - Userspace-defined naughtiness.
-> > 
-> > Just a note, some other distros already use the 'U' flag in taint
-> > messages to show an "unsupported" module has been loaded.  I know it's
-> > out-of-the-tree and will never go into mainline, just FYI if you happen
-> > to see some 'U' flags in the wild today...
-> > 
-> > Oh, and I like this feature, makes sense to me to have this.
+On Thu, May 25, 2006 at 12:12:34AM -0400, Dave Jones wrote:
+> On Wed, May 24, 2006 at 09:05:57PM -0700, Greg Kroah-Hartman wrote:
 > 
-> Should we worry about collisions with what distributions are using?
+>  > Don't use request_firmware, use request_firmware_nowait() instead.  That
+>  > way you never stall.  You only want to update the firmware when
+>  > userspace tells you to, not for every boot like I think this will do.
+> 
+> But the CPU microcode *does* need reloading on each boot, as it's stored
+> in volatile memory that goes away on reboot.
 
-I wouldn't.  It's their responsibility to handle things like this when
-merging to new kernel versions.  They can just change the character,
-like they handle new sysrq values.
+Sorry about that, you are right.  But this will make the boot process a
+bit different than what it currently is, just make sure that the distros
+realize this change...
 
 thanks,
 

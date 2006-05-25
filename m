@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWEYQPk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWEYQPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbWEYQPk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 12:15:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbWEYQPk
+	id S1750777AbWEYQPr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 12:15:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbWEYQPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 12:15:40 -0400
-Received: from ns.suse.de ([195.135.220.2]:60126 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750777AbWEYQPj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 12:15:39 -0400
-Date: Thu, 25 May 2006 09:13:15 -0700
-From: Greg KH <greg@kroah.com>
-To: Dave Airlie <airlied@gmail.com>
-Cc: "D. Hazelton" <dhazelton@enter.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: OpenGL-based framebuffer concepts
-Message-ID: <20060525161315.GB4379@kroah.com>
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com> <1148379089.25255.9.camel@localhost.localdomain> <200605232338.54177.dhazelton@enter.net> <21d7e9970605232108u27bc3ae7mbd161778c51afaf5@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <21d7e9970605232108u27bc3ae7mbd161778c51afaf5@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Thu, 25 May 2006 12:15:46 -0400
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:46723 "EHLO
+	clueserver.org") by vger.kernel.org with ESMTP id S1750777AbWEYQPq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 12:15:46 -0400
+Date: Thu, 25 May 2006 09:15:45 -0700 (PDT)
+From: alan <alan@clueserver.org>
+X-X-Sender: alan@blackbox.fnordora.org
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Kyle McMartin <kyle@mcmartin.ca>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Well, Linus seems to like Lordi...
+In-Reply-To: <Pine.LNX.4.64.0605250841340.5623@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0605250906180.16055@blackbox.fnordora.org>
+References: <20060525141714.GA31604@skunkworks.cabal.ca>
+ <Pine.LNX.4.64.0605250841340.5623@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 24, 2006 at 02:08:02PM +1000, Dave Airlie wrote:
-> The two attempts I've done, were using a vgaclass device from Alan
-> Cox, and also adding a lowlevel driver for the radeon, hotplug became
-> my major issue each time, discussions last year at Kernel Summit were
-> had, but the results however never surfaced, I'm intending to go to KS
-> this year and actually try and get Greg-KH to fix the device model for
-> what we need as opposed to hacking the crap out of it.
+On Thu, 25 May 2006, Linus Torvalds wrote:
 
-I think we have what you need already done + a few minor patches.  I
-think a few hours of working together will be all that is needed.
-Looking forward to it.
+>
+>
+> On Thu, 25 May 2006, Kyle McMartin wrote:
+>>
+>> If we're going to have release code names for the kernel, might as well
+>> advertise them somewhere. :)
+>
+> Well, part of the charm of the name is that it's totally meaningless. I
+> can pick names out of my *ss, and they don't matter in the least, and
+> nobody will ever see it except in the kernel diffs.
 
-greg k-h
+Unlike the release names for "Pan" (http://pan.rebelbase.com/).  They 
+revel in weird release names.
+
+"I will not buy this lutefisk, it is scratched."
+
+> (As to Lordi, I've only ever seen their Eurovision thing on Youtube,
+> because those pesky US networks thinks we're interested in some kind of
+> inferior "American Idol" copycat product.
+
+Except the Eurovision Song Contest has been going on since sometime in the 
+middle of the Jurasic period.
+
+> But unless you've lived in
+> Finland during the 80s and 90s, you just simply cannot appreciate the
+> "Whaaa?" factor of having Finland win the dang thing. Imagine a whole
+> _country_ going "Whaaa? What the f?" at the same time..).
+
+It would be like Gwar winning American Idol.  (Which would be about the 
+only way to get me to watch it.)
+
+-- 
+"Waiter! This lambchop tastes like an old sock!" - Sheri Lewis

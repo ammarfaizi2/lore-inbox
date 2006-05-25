@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030367AbWEYTkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbWEYTnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030367AbWEYTkM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 15:40:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030368AbWEYTkM
+	id S1030371AbWEYTnW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 15:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030376AbWEYTnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 15:40:12 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:5040 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030367AbWEYTkK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 15:40:10 -0400
-Subject: [PATCH] tpm: fix bug for TPM on ThinkPad T60 and Z60
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: akpm@osdl.org, TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>,
-       Michael Prokop <prokop@sbox.tugraz.at>,
-       Seiji Munetoh <MUNETOH@jp.ibm.com>,
-       Leendert Van Doorn <leendert@us.ibm.com>
-Content-Type: text/plain
-Date: Thu, 25 May 2006 14:38:16 -0500
-Message-Id: <1148585896.5317.189.camel@localhost.localdomain>
+	Thu, 25 May 2006 15:43:22 -0400
+Received: from smtp-vbr17.xs4all.nl ([194.109.24.37]:8452 "EHLO
+	smtp-vbr17.xs4all.nl") by vger.kernel.org with ESMTP
+	id S1030371AbWEYTnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 15:43:21 -0400
+Date: Thu, 25 May 2006 21:43:15 +0200
+From: bjdouma <bjdouma@xs4all.nl>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add compile domain (was: Re: [PATCH] Well, Linus seems to like Lordi...)
+Message-ID: <20060525194315.GA14114@skyscraper.unix9.prv>
+References: <20060525141714.GA31604@skunkworks.cabal.ca> <Pine.LNX.4.61.0605251829410.6951@yvahk01.tjqt.qr> <Pine.LNX.4.64.0605250943520.5623@g5.osdl.org> <Pine.LNX.4.61.0605252027380.13379@yvahk01.tjqt.qr> <Pine.LNX.4.64.0605251146260.5623@g5.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0605251146260.5623@g5.osdl.org>
+X-Disclaimer: sorry
+X-Operating-System: human brain v1.04E11
+Organization: A training zoo
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The TPM chip on the ThinkPad T60 and Z60 machines is returning 0xFFFF
-for the vendor ID which is a check the driver made to double check it
-was actually talking to the memory mapped space of a TPM.  This patch
-removes the check since it isn't absolutely necessary and was causing
-device discovery to fail on these machines.
+On Thu, May 25, 2006 at 11:47:39AM -0700, Linus Torvalds wrote:
 
-This bug fix should go into 2.6.17.
+> On Thu, 25 May 2006, Jan Engelhardt wrote:
+> >
+> > # hostname --fqdn
+> > shanghai.hopto.org
+> 
+> Ahh. I wonder how portable this is. We could certainly make the kernel 
+> build use "hostname --fqdn" if that works across all versions.
+> 
+> That code hasn't changed in a looong time, and I suspect that "--fqdn" 
+> didn't exist back when.. 
 
-Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
---- 
- tpm_tis.c |    4 ----
- 1 files changed, 4 deletions(-)
+It still doesn't if you're using GNU coreutils' hostname...
 
---- linux-2.6.17-rc3/drivers/char/tpm/tpm_tis.c	2006-05-16 12:33:36.434356500 -0500
-+++ linux-2.6.17-rc3-tpm/drivers/char/tpm/tpm_tis.c	2006-05-25 14:52:01.793058750 -0500
-@@ -457,10 +457,6 @@ static int __devinit tpm_tis_pnp_init(st
- 	}
- 
- 	vendor = ioread32(chip->vendor.iobase + TPM_DID_VID(0));
--	if ((vendor & 0xFFFF) == 0xFFFF) {
--		rc = -ENODEV;
--		goto out_err;
--	}
- 
- 	/* Default timeouts */
- 	chip->vendor.timeout_a = msecs_to_jiffies(TIS_SHORT_TIMEOUT);
-
-
-
+Bauke Jan Douma

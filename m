@@ -1,58 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030496AbWEYWhc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030501AbWEYWiO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030496AbWEYWhc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 18:37:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030494AbWEYWhb
+	id S1030501AbWEYWiO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 18:38:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030497AbWEYWiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 18:37:31 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:15838 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1030492AbWEYWhb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 18:37:31 -0400
-Date: Thu, 25 May 2006 13:28:38 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Andrew Morton <akpm@osdl.org>
-cc: wfg@mail.ustc.edu.cn, linux-kernel@vger.kernel.org, mstone@mathom.us
-Subject: Re: [PATCH 00/33] Adaptive read-ahead V12
-In-Reply-To: <20060525150149.666c8476.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.63.0605251322480.1828@dlang.diginsite.com>
-References: <348469535.17438@ustc.edu.cn><20060525084415.3a23e466.akpm@osdl.
- org><Pine.LNX.4.63.0605251240160.1814@dlang.diginsite.com>
- <20060525150149.666c8476.akpm@osdl.org>
+	Thu, 25 May 2006 18:38:14 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29392 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030492AbWEYWiJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 18:38:09 -0400
+Date: Fri, 26 May 2006 00:17:44 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Kristen Accardi <kristen.c.accardi@intel.com>
+Cc: "Brown, Len" <len.brown@intel.com>, Andreas Saur <saur@acmelabs.de>,
+       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc4-mm3 - kernel panic
+Message-ID: <20060525221744.GA1671@elf.ucw.cz>
+References: <CFF307C98FEABE47A452B27C06B85BB68AD7E1@hdsmsx411.amr.corp.intel.com> <1148583675.3070.41.camel@whizzy> <20060525221222.GA1608@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060525221222.GA1608@elf.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If the developers of that program want to squeeze the last 5% out of it
-> then sure, I'd expect them to use such OS-provided I/O scheduling
-> facilities.  Database developers do that sort of thing all the time.
->
-> We have an application which knows what it's doing sending IO requests to
-> the kernel which must then try to reverse engineer what the application is
-> doing via this rather inappropriate communication channel.
->
-> Is that dumb, or what?
->
-> Given that the application already knows what it's doing, it's in a much
-> better position to issue the anticipatory IO requests than is the kernel.
+On Pá 26-05-06 00:12:22, Pavel Machek wrote:
+> Hi!
+> 
+> > > Does the panic go away with CONFIG_ACPI_DOCK=n?
+> 
+> > Can either Pavel or Andreas please try this little debugging patch and
+> > send me the dmesg output?  Please enable the CONFIG_DEBUG_KERNEL option
+> > in your .config as well so that I can get additional info.
+> 
+> Yep, you were right... this debugging patch helps.
 
-if a program is trying to squeeze every last bit of performance out of a 
-system then you are right, it should run on the bare hardware. however 
-in reality many people are willing to sacrafice a little performance for 
-maintainability, and portability.
+...and docking +/- works, but it does not look like PCI in docking
+station is properly connected:
 
-if Adaptive read-ahead was only useful for Postgres (and had a negative 
-effect on everything else, even if it's just the added complication in the 
-kernel) then I would agree that it should be in Postgres, not in the 
-kernel. but I don't believe that this is the case, this patch series helps 
-in a large number of workloads (including 'cp' according to some other 
-posters), postgres was just used as the example in this subthread.
+May 26 00:13:25 amd log1n[1450]: ROOT LOGIN on `tty8'
+May 26 00:13:27 amd kernel: ipw2200: version magic
+'2.6.17-rc4-g81a95636-dirty SMP mod_unload PENTIUMIII REGPARM gcc-4.0'
+should be '2.6.17-rc4-mm3 SMP preempt mod_unload PENTIUMIII REGPARM
+gcc-4.0'
+May 26 00:13:28 amd postfix/postfix-script: fatal: the Postfix mail
+system is already running
+May 26 00:13:57 amd kernel: ACPI Exception (acpi_bus-0070):
+AE_NOT_FOUND, No context for object [f7fdc3d8] [20060310]
+May 26 00:13:57 amd kernel: ACPI: docking
+May 26 00:13:57 amd kernel: ACPI Exception (acpi_bus-0070):
+AE_NOT_FOUND, No context for object [f7fdc3d8] [20060310]
 
-gnome startup has some serious read-ahead issues from what I've heard, 
-should it include an I/O scheduler as well (after all it knows what it's 
-going to be doing, why should the kernel have to reverse-enginer it)
+(and that is it; I'd expect messages about detecting hp100 etc...)
 
-David Lang
+I think my configuration is okay:
 
+#
+# PCI Hotplug Support
+#
+CONFIG_HOTPLUG_PCI=y
+# CONFIG_HOTPLUG_PCI_FAKE is not set
+# CONFIG_HOTPLUG_PCI_COMPAQ is not set
+CONFIG_HOTPLUG_PCI_IBM=y
+CONFIG_HOTPLUG_PCI_ACPI=y
+CONFIG_HOTPLUG_PCI_ACPI_IBM=y
+# CONFIG_HOTPLUG_PCI_CPCI is not set
+# CONFIG_HOTPLUG_PCI_SHPC is not set
+
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

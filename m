@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWEYAiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWEYApA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964797AbWEYAiu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 20:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWEYAiu
+	id S964799AbWEYApA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 20:45:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWEYApA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 20:38:50 -0400
-Received: from mga06.intel.com ([134.134.136.21]:42937 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964797AbWEYAiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 20:38:50 -0400
-X-IronPort-AV: i="4.05,170,1146466800"; 
-   d="scan'208"; a="40992629:sNHT28211092"
-Date: Wed, 24 May 2006 17:36:39 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: Ashok Raj <ashok.raj@intel.com>, linux-kernel@vger.kernel.org,
-       y-goto@jp.fujitsu.com, ktokunag@redhat.com, akpm@osdl.org
-Subject: Re: [RFC][PATCH] node hotplug : register_cpu() changes [0/3]
-Message-ID: <20060524173639.A2506@unix-os.sc.intel.com>
-References: <20060523195636.693e00d6.kamezawa.hiroyu@jp.fujitsu.com> <20060523075202.A24516@unix-os.sc.intel.com> <20060524091816.5a3960b9.kamezawa.hiroyu@jp.fujitsu.com> <20060524075128.A32074@unix-os.sc.intel.com> <20060525093418.b1639de2.kamezawa.hiroyu@jp.fujitsu.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060525093418.b1639de2.kamezawa.hiroyu@jp.fujitsu.com>; from kamezawa.hiroyu@jp.fujitsu.com on Thu, May 25, 2006 at 09:34:18AM +0900
+	Wed, 24 May 2006 20:45:00 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:62354 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964799AbWEYAo7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 20:44:59 -0400
+Message-ID: <4474FE08.50600@garzik.org>
+Date: Wed, 24 May 2006 20:44:56 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Greg KH <gregkh@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 0/3] avoid pci_find_device
+References: <200500919343.119285689fuj@nikdo.nikde.nikam.cz>
+In-Reply-To: <200500919343.119285689fuj@nikdo.nikde.nikam.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 25, 2006 at 09:34:18AM +0900, KAMEZAWA Hiroyuki wrote:
+Jiri Slaby wrote:
+> Hello,
 > 
-> Currently, I think  creating new empty node (pgdat) at onlining can work.
-> by cpu hotplug notifier chain, dangling cpus will create new pgdat.
-> If people want to see node <-> cpu relationship before onlining cpu, I' ll have
-> to do complicated work.
+> there are some patches to avoid pci_find_device in drivers, next will come in
+> future.
 > 
+> It's against 2.6.17-rc4-mm3 tree.
+> 
+> 01-i2c-scx200-acb-use-pci-probing.patch
+> 02-bcm43xx-kill-pci-find-device.patch
+> 03-gt96100eth-use-pci-probing.patch
+> 
+>  i2c/busses/scx200_acb.c             |  106 +++++++++++-----------
+>  net/gt96100eth.c                    |  167 +++++++++++++++++++++++-------------
+>  net/wireless/bcm43xx/bcm43xx_main.c |    3 
+
+Please CC the relevant driver maintainers, and netdev, when you touch 
+net drivers.
+
+	Jeff
 
 
-Iam ok with this patch, no need to get anything complicated without good 
-reason.
 
-Just want to make sure assumptions for cpu only nodes are not broken, as long
-as we have your implementation take care of those, this is good.
-
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center

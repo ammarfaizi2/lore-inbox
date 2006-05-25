@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030357AbWEYTQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030359AbWEYTR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030357AbWEYTQk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 15:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030358AbWEYTQj
+	id S1030359AbWEYTR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 15:17:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030360AbWEYTR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 15:16:39 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15500 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030357AbWEYTQj (ORCPT
+	Thu, 25 May 2006 15:17:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:59532 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030359AbWEYTR4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 15:16:39 -0400
-Date: Thu, 25 May 2006 20:16:35 +0100
+	Thu, 25 May 2006 15:17:56 -0400
+Date: Thu, 25 May 2006 20:17:52 +0100
 From: Alasdair G Kergon <agk@redhat.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 6/10] dm: add DMF_FREEING
-Message-ID: <20060525191635.GX4521@agk.surrey.redhat.com>
+Subject: [PATCH 7/10] dm: fix mapped device ref counting
+Message-ID: <20060525191752.GY4521@agk.surrey.redhat.com>
 Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
 	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
@@ -26,93 +26,153 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Jeff Mahoney <jeffm@suse.com>
 
-There is a chicken and egg problem between the block layer and dm in
-which the gendisk associated with a mapping keeps a reference-less 
-pointer to the mapped_device. 
+To avoid races, _minor_lock must be held while changing mapped device
+reference counts.
 
-This patch uses a new flag DMF_FREEING to indicate when the
-mapped_device is no longer valid.  This is checked to prevent any
-attempt to open the device from succeeding while the device is being
-destroyed.
+There are a few paths where a mapped_device pointer is returned before
+a reference is taken.  This patch fixes them.
 
 Signed-off-by: Jeff Mahoney <jeffm@suse.com>
 Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
 
-Index: linux-2.6.17-rc4/drivers/md/dm.c
+Index: linux-2.6.17-rc4/drivers/md/dm-ioctl.c
 ===================================================================
---- linux-2.6.17-rc4.orig/drivers/md/dm.c	2006-05-23 18:17:21.000000000 +0100
-+++ linux-2.6.17-rc4/drivers/md/dm.c	2006-05-23 18:18:25.000000000 +0100
-@@ -63,6 +63,7 @@ union map_info *dm_get_mapinfo(struct bi
- #define DMF_BLOCK_IO 0
- #define DMF_SUSPENDED 1
- #define DMF_FROZEN 2
-+#define DMF_FREEING 3
+--- linux-2.6.17-rc4.orig/drivers/md/dm-ioctl.c	2006-05-23 17:05:30.000000000 +0100
++++ linux-2.6.17-rc4/drivers/md/dm-ioctl.c	2006-05-23 18:48:33.000000000 +0100
+@@ -102,8 +102,10 @@ static struct hash_cell *__get_name_cell
+ 	unsigned int h = hash_str(str);
  
- struct mapped_device {
- 	struct rw_semaphore io_lock;
-@@ -221,9 +222,23 @@ static int dm_blk_open(struct inode *ino
+ 	list_for_each_entry (hc, _name_buckets + h, name_list)
+-		if (!strcmp(hc->name, str))
++		if (!strcmp(hc->name, str)) {
++			dm_get(hc->md);
+ 			return hc;
++		}
+ 
+ 	return NULL;
+ }
+@@ -114,8 +116,10 @@ static struct hash_cell *__get_uuid_cell
+ 	unsigned int h = hash_str(str);
+ 
+ 	list_for_each_entry (hc, _uuid_buckets + h, uuid_list)
+-		if (!strcmp(hc->uuid, str))
++		if (!strcmp(hc->uuid, str)) {
++			dm_get(hc->md);
+ 			return hc;
++		}
+ 
+ 	return NULL;
+ }
+@@ -191,7 +195,7 @@ static int unregister_with_devfs(struct 
+  */
+ static int dm_hash_insert(const char *name, const char *uuid, struct mapped_device *md)
  {
- 	struct mapped_device *md;
+-	struct hash_cell *cell;
++	struct hash_cell *cell, *hc;
  
-+	spin_lock(&_minor_lock);
-+
- 	md = inode->i_bdev->bd_disk->private_data;
-+	if (!md)
-+		goto out;
-+
-+	if (test_bit(DMF_FREEING, &md->flags)) {
-+		md = NULL;
-+		goto out;
+ 	/*
+ 	 * Allocate the new cells.
+@@ -204,14 +208,19 @@ static int dm_hash_insert(const char *na
+ 	 * Insert the cell into both hash tables.
+ 	 */
+ 	down_write(&_hash_lock);
+-	if (__get_name_cell(name))
++	hc = __get_name_cell(name);
++	if (hc) {
++		dm_put(hc->md);
+ 		goto bad;
 +	}
+ 
+ 	list_add(&cell->name_list, _name_buckets + hash_str(name));
+ 
+ 	if (uuid) {
+-		if (__get_uuid_cell(uuid)) {
++		hc = __get_uuid_cell(uuid);
++		if (hc) {
+ 			list_del(&cell->name_list);
++			dm_put(hc->md);
+ 			goto bad;
+ 		}
+ 		list_add(&cell->uuid_list, _uuid_buckets + hash_str(uuid));
+@@ -289,6 +298,7 @@ static int dm_hash_rename(const char *ol
+ 	if (hc) {
+ 		DMWARN("asked to rename to an already existing name %s -> %s",
+ 		       old, new);
++		dm_put(hc->md);
+ 		up_write(&_hash_lock);
+ 		kfree(new_name);
+ 		return -EBUSY;
+@@ -328,6 +338,7 @@ static int dm_hash_rename(const char *ol
+ 		dm_table_put(table);
+ 	}
+ 
++	dm_put(hc->md);
+ 	up_write(&_hash_lock);
+ 	kfree(old_name);
+ 	return 0;
+@@ -611,10 +622,8 @@ static struct hash_cell *__find_device_h
+ 		return __get_name_cell(param->name);
+ 
+ 	md = dm_get_md(huge_decode_dev(param->dev));
+-	if (md) {
++	if (md)
+ 		mdptr = dm_get_mdptr(md);
+-		dm_put(md);
+-	}
+ 
+ 	return mdptr;
+ }
+@@ -628,7 +637,6 @@ static struct mapped_device *find_device
+ 	hc = __find_device_hash_cell(param);
+ 	if (hc) {
+ 		md = hc->md;
+-		dm_get(md);
+ 
+ 		/*
+ 		 * Sneakily write in both the name and the uuid
+@@ -653,6 +661,7 @@ static struct mapped_device *find_device
+ static int dev_remove(struct dm_ioctl *param, size_t param_size)
+ {
+ 	struct hash_cell *hc;
++	struct mapped_device *md;
+ 
+ 	down_write(&_hash_lock);
+ 	hc = __find_device_hash_cell(param);
+@@ -663,8 +672,11 @@ static int dev_remove(struct dm_ioctl *p
+ 		return -ENXIO;
+ 	}
+ 
++	md = hc->md;
 +
- 	dm_get(md);
--	return 0;
-+
-+out:
-+	spin_unlock(&_minor_lock);
-+
-+	return md ? 0 : -ENXIO;
+ 	__hash_remove(hc);
+ 	up_write(&_hash_lock);
++	dm_put(md);
+ 	param->data_size = 0;
+ 	return 0;
+ }
+@@ -790,7 +802,6 @@ static int do_resume(struct dm_ioctl *pa
+ 	}
+ 
+ 	md = hc->md;
+-	dm_get(md);
+ 
+ 	new_map = hc->new_map;
+ 	hc->new_map = NULL;
+@@ -1078,6 +1089,7 @@ static int table_clear(struct dm_ioctl *
+ {
+ 	int r;
+ 	struct hash_cell *hc;
++	struct mapped_device *md;
+ 
+ 	down_write(&_hash_lock);
+ 
+@@ -1096,7 +1108,9 @@ static int table_clear(struct dm_ioctl *
+ 	param->flags &= ~DM_INACTIVE_PRESENT_FLAG;
+ 
+ 	r = __dev_status(hc->md, param);
++	md = hc->md;
+ 	up_write(&_hash_lock);
++	dm_put(md);
+ 	return r;
  }
  
- static int dm_blk_close(struct inode *inode, struct file *file)
-@@ -919,6 +934,11 @@ static void free_dev(struct mapped_devic
- 	mempool_destroy(md->io_pool);
- 	del_gendisk(md->disk);
- 	free_minor(minor);
-+
-+	spin_lock(&_minor_lock);
-+	md->disk->private_data = NULL;
-+	spin_unlock(&_minor_lock);
-+
- 	put_disk(md->disk);
- 	blk_cleanup_queue(md->queue);
- 	kfree(md);
-@@ -1023,9 +1043,14 @@ static struct mapped_device *dm_find_md(
- 	spin_lock(&_minor_lock);
- 
- 	md = idr_find(&_minor_idr, minor);
--	if (md && (md == MINOR_ALLOCED || (dm_disk(md)->first_minor != minor)))
-+	if (md && (md == MINOR_ALLOCED ||
-+		   (dm_disk(md)->first_minor != minor) ||
-+	           test_bit(DMF_FREEING, &md->flags))) {
- 		md = NULL;
-+		goto out;
-+	}
- 
-+out:
- 	spin_unlock(&_minor_lock);
- 
- 	return md;
-@@ -1060,9 +1085,12 @@ void dm_put(struct mapped_device *md)
- {
- 	struct dm_table *map;
- 
-+	BUG_ON(test_bit(DMF_FREEING, &md->flags));
-+
- 	if (atomic_dec_and_lock(&md->holders, &_minor_lock)) {
- 		map = dm_get_table(md);
- 		idr_replace(&_minor_idr, MINOR_ALLOCED, dm_disk(md)->first_minor);
-+		set_bit(DMF_FREEING, &md->flags);
- 		spin_unlock(&_minor_lock);
- 		if (!dm_suspended(md)) {
- 			dm_table_presuspend_targets(map);

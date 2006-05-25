@@ -1,76 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbWEYKlS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965110AbWEYKly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965115AbWEYKlS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 06:41:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbWEYKlS
+	id S965110AbWEYKly (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 06:41:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbWEYKly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 06:41:18 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:62096 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S965115AbWEYKlR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 06:41:17 -0400
-Message-ID: <348553673.03597@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Thu, 25 May 2006 18:41:17 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 08/33] readahead: common macros
-Message-ID: <20060525104117.GE4996@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060524111246.420010595@localhost.localdomain> <348469539.42623@ustc.edu.cn> <44754708.5090406@yahoo.com.au>
-MIME-Version: 1.0
+	Thu, 25 May 2006 06:41:54 -0400
+Received: from ftp.linux-mips.org ([194.74.144.162]:5804 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S965116AbWEYKlx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 06:41:53 -0400
+Date: Thu, 25 May 2006 11:41:47 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Jiri Slaby <jirislaby@gmail.com>, Greg KH <gregkh@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 3/3] pci: gt96100eth use pci probing
+Message-ID: <20060525104147.GB3822@linux-mips.org>
+References: <20060525003151.598EAC7C19@atrey.karlin.mff.cuni.cz> <4474FFE1.4030202@garzik.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44754708.5090406@yahoo.com.au>
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <4474FFE1.4030202@garzik.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 25, 2006 at 03:56:24PM +1000, Nick Piggin wrote:
-> >+#include <linux/writeback.h>
-> >+#include <linux/nfsd/const.h>
+On Wed, May 24, 2006 at 08:52:49PM -0400, Jeff Garzik wrote:
+
+> Jiri Slaby wrote:
+> >gt96100eth use pci probing
 > >
-> 
-> How come you're adding these includes?
-
-For something added in the past and removed later...
-
-> >+#define PAGES_BYTE(size) (((size) + PAGE_CACHE_SIZE - 1) >> 
-> >PAGE_CACHE_SHIFT)
-> >+#define PAGES_KB(size)	 PAGES_BYTE((size)*1024)
+> >Convert pci_find_device to pci probing. Use dev_* macros for printing.
 > >
-> Don't really like the names. Don't think they do anything for clarity, but
-> if you can come up with something better for PAGES_BYTE I might change my
-> mind ;) (just forget about PAGES_KB - people know what *1024 means)
+> >Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
-No, they are mainly for concision. Don't you think it's cleaner to write
-        PAGES_KB(VM_MAX_READAHEAD)
-than
-        (VM_MAX_READAHEAD * 1024) / PAGE_CACHE_SIZE
+The GT-96100 is not a PCI device but a system controller.  The driver
+just checkes for the PCI ID to ensure it is not by accident being loaded
+on the wrong type of system.  Which of course is suspect.  If anything it
+should become a platform device.
 
-Admittedly the names are somewhat awkward though :)
-
-> Also: the replacements are wrong: if you've defined VM_MAX_READAHEAD to be
-> 4095 bytes, you don't want the _actual_ readahead to be 4096 bytes, do you?
-> It is saying nothing about minimum, so presumably 0 is the correct choice.
-
-The macros were first introduced exact for this reason ;)
-
-It is rumored that there will be 64K page support, and this macro
-helps round up the 16K sized VM_MIN_READAHEAD. The eof_index also
-needs rounding up.
-
-> >+#define next_page(pg) (list_entry((pg)->lru.prev, struct page, lru))
-> >+#define prev_page(pg) (list_entry((pg)->lru.next, struct page, lru))
-> >
-> 
-> Again, it is probably easier just to use the expanded version. Then the
-> reader can immediately say: ah, the next page on the LRU list (rather
-> than, maybe, the next page in the pagecache).
-
-Ok, will expand it.
-
-Wu
+  Ralf

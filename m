@@ -1,46 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030201AbWEYXGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965179AbWEYXR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030201AbWEYXGX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 19:06:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbWEYXGX
+	id S965179AbWEYXR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 19:17:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965178AbWEYXR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 19:06:23 -0400
-Received: from wr-out-0506.google.com ([64.233.184.228]:43874 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030201AbWEYXGW convert rfc822-to-8bit (ORCPT
+	Thu, 25 May 2006 19:17:27 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:40888 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965170AbWEYXR0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 19:06:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NfGiYNUd6LdveUfUnG1NkJEtFkUY2edDUxWdGevb08olOdg9/toZOJPVqW/rRUEuMjLOVsAaAfNZbF8Ukn7tKTzVKY5omgV6cxRk3ywerXNe5IpmHGoO8/2iLdZKnxqUQYiiGuW7YrIUCEhORWDUWhh57nLfbVjUCrXRoHcKMvg=
-Message-ID: <9a8748490605251606q256d7e67s8b8220eae05a5422@mail.gmail.com>
-Date: Fri, 26 May 2006 01:06:21 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "4Front Technologies" <dev@opensound.com>
-Subject: Re: How to check if kernel sources are installed on a system?
-Cc: "Lee Revell" <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <4476321A.8090508@opensound.com>
+	Thu, 25 May 2006 19:17:26 -0400
+Message-ID: <44763AF9.6050104@garzik.org>
+Date: Thu, 25 May 2006 19:17:13 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe>
-	 <4476321A.8090508@opensound.com>
+To: Dave Airlie <airlied@gmail.com>
+CC: Jon Smirl <jonsmirl@gmail.com>, "D. Hazelton" <dhazelton@enter.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>	 <9e4733910605241656r6a88b5d3hda8c8a4e72edc193@mail.gmail.com>	 <4475007F.7020403@garzik.org> <200605250237.20644.dhazelton@enter.net>	 <44756E70.9020207@garzik.org>	 <9e4733910605250704m68235d88lcd8eaedfda5e63cf@mail.gmail.com>	 <4475C845.5000801@garzik.org>	 <9e4733910605250837u59ad3881s75a0ed366fa2eefb@mail.gmail.com> <21d7e9970605251604l409feddfycf004113def96574@mail.gmail.com>
+In-Reply-To: <21d7e9970605251604l409feddfycf004113def96574@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26/05/06, 4Front Technologies <dev@opensound.com> wrote:
->
-> Anything to get out-of-kernel modules compiling without jumping through 1000
-> hoops is good.
->
+Dave Airlie wrote:
+> So far we have no memory management, and most of the plans I've seen
+> involved using a userspace system to do it, really we just want the
+> fbdev driver to be able to ask the DRM, so where the hell is the
+> frontbuffer, if the DRM is loaded and if it isn't just say I'm using
+> here.
 
-hmm, I'd say that anything that encourages people to merge their code
-with mainline instead of maintaining out-of-tree modules is good.
+The kernel will need to do some amount of arbitration, some amount of 
+scheduling between competing processes.  Doing a lot of that in 
+userspace seems a bit questionable.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+
+> And won't as long as you fight against it, we don't have to force X to
+> use it, we have to make it an option in X that distros turn on... we
+> have to let the X people keep doing their drivers the way they do
+> drivers... I'm still not convinced putting modesetting in kernel is at
+> all necessary, I think a simple MMIO parser to stop bad commands from
+> getting to the hardware is all we should need, modesetting normally
+> consists of a small number of operations.
+> 
+> Write register,
+> Read register,
+> Wait for something to happen (vblank, bit set in a register X times..)
+
+Kernel needs to do suspend/resume, interrupt handling, DMA mapping, ...
+
+Further, whatever the Linux kernel chooses to do, the X server will follow.
+
+History has proven that it is COMPLETELY BROKEN to allow X to dictate 
+these basic architectural decisions.  X11's ancient and broken PCI bus 
+handling is a testament to this.  Tons of polling everywhere, rather 
+than cleanly handling events in interrupts, is a further testament.
+
+If we do it right, X will follow.  As will FreeBSD and other OS's.
+
+	Jeff
+
+

@@ -1,40 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030437AbWEYVfK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030436AbWEYVi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030437AbWEYVfK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 17:35:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030434AbWEYVfK
+	id S1030436AbWEYVi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 17:38:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030438AbWEYVi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 17:35:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5357 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030436AbWEYVfH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 17:35:07 -0400
-Date: Thu, 25 May 2006 17:35:00 -0400
-From: Dave Jones <davej@redhat.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: devmazumdar <dev@opensound.com>, linux-kernel@vger.kernel.org
-Subject: Re: How to check if kernel sources are installed on a system?
-Message-ID: <20060525213500.GA6227@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Valdis.Kletnieks@vt.edu,
-	devmazumdar <dev@opensound.com>, linux-kernel@vger.kernel.org
-References: <e55715+usls@eGroups.com> <200605252129.k4PLTx1r018031@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 25 May 2006 17:38:27 -0400
+Received: from smtp.bulldogdsl.com ([212.158.248.7]:30481 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1030436AbWEYVi0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 17:38:26 -0400
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Subject: Re: [PATCH] Add compile domain
+Date: Thu, 25 May 2006 22:38:37 +0100
+User-Agent: KMail/1.9.1
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linus Torvalds <torvalds@osdl.org>, Kyle McMartin <kyle@mcmartin.ca>,
+       linux-kernel@vger.kernel.org,
+       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+References: <20060525141714.GA31604@skunkworks.cabal.ca> <Pine.LNX.4.61.0605252100070.13379@yvahk01.tjqt.qr> <44761E38.7050702@mbligh.org>
+In-Reply-To: <44761E38.7050702@mbligh.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200605252129.k4PLTx1r018031@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200605252238.37352.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 25, 2006 at 05:29:59PM -0400, Valdis.Kletnieks@vt.edu wrote:
- > Might want to look at the symlink at /lib/modules/`uname -r`/source which
- > is probably as sane as it gets... (Though admittedly Fedora points it
- > into the wild blue yonder of /usr/src/kernels/`uname -r` which isn't
- > where the non-existent kernel-source RPM puts it.  Getting the .src.rpm
- > and working from there leaves it in /usr/src/redhat/BUILD/yadda-yadda....)
+On Thursday 25 May 2006 22:14, Martin J. Bligh wrote:
+> > 20:35 mason:/etc # rpm -qf `which hostname`
+> > net-tools-1.60-37
+> > 21:00 mason:/etc # hostname -v
+> > gethostname()=`mason'
+> > mason
+> > 21:00 mason:/etc # hostname --fqdn
+> > mason
+> > 21:00 mason:/etc # domainname
+> > (none)
+> > 21:00 mason:/etc # dnsdomainname
+> >
+> >
+> > Runs Aurora Linux 2.0.
+>
+> Ubuntu does this too:
+>
+> mbligh@flay:~$ hostname
+> flay
+> mbligh@flay:~$ hostname --fqdn
+> localhost.localdomain
 
-It's pointing at the files installed by the kernel-devel package.
+I think it's as Lennart suggested. From the man page for /etc/hosts ("man 
+hosts"), it seems to suggest that the format should be:
 
-		Dave
+IP_address canonical_hostname aliases
+
+On Ubuntu and approximately on my system, it's doing:
+
+127.0.0.1 localhost.localdomain <alias>
+
+But the manpage suggests that "alias" might contain "localhost". On our 
+machines it contains the "name" we assigned the machine.
+
+So, I think my hosts is screwed (because I don't have the .localdomain bit), 
+but I think Ubuntu is correct, and using the FQDN is not actually as 
+intuitive as you might think.
+
+For identification purposes, an "alias" is probably more useful (in general) 
+than the FQDN, because the FQDN may well be something meaningless like 
+localhost.localdomain, which is "fully qualified" but isn't a _unique_ 
+machine name, and thus not really a valid domain in a network context.
+
+(The 'hostname' utility from net-tools is using the "canonical hostname" 
+from /etc/hosts as the value for the FQDN, but gethostname() for the regular 
+hostname.)
+
 -- 
-http://www.codemonkey.org.uk
+Cheers,
+Alistair.
+
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

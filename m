@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030489AbWEYW30@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030493AbWEYWd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030489AbWEYW30 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 18:29:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030488AbWEYW30
+	id S1030493AbWEYWd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 18:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030492AbWEYWd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 18:29:26 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:37255 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030486AbWEYW30 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 18:29:26 -0400
-Subject: Re: How to check if kernel sources are installed on a system?
-From: Lee Revell <rlrevell@joe-job.com>
-To: devmazumdar <dev@opensound.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <e55715+usls@eGroups.com>
-References: <e55715+usls@eGroups.com>
-Content-Type: text/plain
-Date: Thu, 25 May 2006 18:29:22 -0400
-Message-Id: <1148596163.31038.30.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Thu, 25 May 2006 18:33:26 -0400
+Received: from ozlabs.org ([203.10.76.45]:43149 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1030490AbWEYWdZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 18:33:25 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17526.12463.412158.700850@cargo.ozlabs.ibm.com>
+Date: Fri, 26 May 2006 08:33:19 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Wu Fengguang <wfg@mail.ustc.edu.cn>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 06/33] readahead: refactor __do_page_cache_readahead()
+In-Reply-To: <20060525093039.21b4246b.akpm@osdl.org>
+References: <20060524111246.420010595@localhost.localdomain>
+	<348469538.91213@ustc.edu.cn>
+	<20060525093039.21b4246b.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-05-25 at 21:19 +0000, devmazumdar wrote:
-> How does one check the existence of the kernel source RPM (or deb) on
-> every single distribution?.
+Andrew Morton writes:
+
+> Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
+> > @@ -302,6 +303,8 @@ __do_page_cache_readahead(struct address
+> >  			break;
+> >  		page->index = page_offset;
+> >  		list_add(&page->lru, &page_pool);
+> > +		if (page_idx == nr_to_read - lookahead_size)
+> > +			__SetPageReadahead(page);
+> >  		ret++;
+> >  	}
 > 
-> We know that rpm -qa | grep kernel-source works on Redhat, Fedora,
-> SuSE, Mandrake and CentOS - how about other RPM based distros? How
-> about debian based distros?. There doesn't seem to be a a single
-> conherent naming scheme.  
+> OK.  But the __SetPageFoo() things still give me the creeps.
 
-I'd really like to see a distro-agnostic way to retrieve the kernel
-configuration.  /proc/config.gz has existed for soem time but many
-distros inexplicably don't enable it.
+I just hope that Wu Fengguang, or whoever is making these patches,
+realizes that on some architectures, doing __set_bit on one CPU
+concurrently with another CPU doing set_bit on a different bit in the
+same word can result in the second CPU's update getting lost...
 
-Lee
-
+Paul.

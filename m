@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965096AbWEYJeH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965099AbWEYJmt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965096AbWEYJeH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 05:34:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965097AbWEYJeG
+	id S965099AbWEYJmt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 05:42:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965100AbWEYJmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 05:34:06 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:33888 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S965096AbWEYJeF (ORCPT
+	Thu, 25 May 2006 05:42:49 -0400
+Received: from mtaout4.012.net.il ([84.95.2.10]:35925 "EHLO mtaout4.012.net.il")
+	by vger.kernel.org with ESMTP id S965099AbWEYJms (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 05:34:05 -0400
-Message-ID: <44757A09.8060603@tls.msk.ru>
-Date: Thu, 25 May 2006 13:34:01 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Mail/News 1.5 (X11/20060318)
-MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: drivers/char/rocket.c: somewhat broken since 2.6.16
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 25 May 2006 05:42:48 -0400
+Date: Thu, 25 May 2006 12:42:36 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+Subject: Re: [PATCH 2/4] x86-64: Calgary IOMMU - move valid_dma_direction into
+ the callers
+In-reply-to: <447533FB.1080400@garzik.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Jon Mason <jdmason@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Muli Ben-Yehuda <muli@il.ibm.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
+       Andrew Morton <akpm@osdl.org>
+Message-id: <20060525094236.GB22495@granada.merseine.nu>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+References: <20060525033550.GD7720@us.ibm.com> <447533FB.1080400@garzik.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We've an old 8-port ISA rocketport card, which worked for several
-years now.  And with 2.6.16, it behaves.. strangely.
+On Thu, May 25, 2006 at 12:35:07AM -0400, Jeff Garzik wrote:
+> Jon Mason wrote:
+> >>From Andi Kleen's comments on the original Calgary patch, move
+> >valid_dma_direction into the calling functions.
+> >
+> >Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
+> >Signed-off-by: Jon Mason <jdmason@us.ibm.com>
+> 
+> Even though BUG_ON() includes unlikely(), this introduces additional 
+> tests in very hot paths.
 
-After some [random] amount of work, some random port of the card
-starts to show delayed receiving of incoming characters.  Ie, I
-turn off/on the modem, connect to the port, hit AT<cr> - nothing
-happens.  I hit one more <cr> and see first 'A' from the modem.  I
-hit another <cr>, and see the 'T' from the modem... After hitting
-some key several more times, I finally see the whole modem response
-(echoing of the command - AT<cr>, followed by OK<cr>).  Ie, incoming
-(from the modem) chars are displayed only when something goes TO the
-modem.
+Are they really very hot? I mean if you're calling the DMA API, you're
+about to frob the hardware or have already frobbed it - does this
+check really matter?
 
-Once the port is turned into this "mode", it just stays here.  I tried
-to re-load rocket.ko module - it helps.  But some more time and it
-switches into this strange mode again.  Some more time/work, and
-another port switches to this mode.. etc.
+> _Why_ do we need this at all?
 
-2.6.15 behaves correctly, at least I'm unable to reproduce the problem
-on this kernel.  2.6.16 shows it on a regular basis.
+It was helpful for us during the dma-ops work and Calgary bringup and
+Andi requested that we move it from Calgary to common code. I think
+we're fine with dropping it if that's the consensus, but it did catch
+a few bugs early on and the cost is tiny.
 
-The only real changes to rocket.c during 2.6.16 development cycle was
-the following two patches:
+Cheers,
+Muli
+-- 
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
 
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=33f0f88f1c51ae5c2d593d26960c760ea154c2e2
-from Alan Cox, titled "[PATCH] TTY layer buffering revamp", and
-
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=1989e20cc1e7491232795f9dac9b745e4329dfd8
-from Michal Ostrowski, titled "[PATCH] Fix RocketPort driver",
-with (as it seems to be from the diff) is a fix for the first
-patch.
-
-I'm trying to use rocket.c from 2.6.15 on a 2.6.16 kernel now,
-let's see what will happen...  But the thing is, the problem
-is difficult to reproduce (sometimes it switches to this crazy
-mode very soon, sometimes it works for a week or so - I can't
-so far see what can be used to trigger the switch) so.. ugh... ;)
-
-Thanks.
-
-/mjt

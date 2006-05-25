@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030422AbWEYVOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030428AbWEYVTf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030422AbWEYVOg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 17:14:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030423AbWEYVOg
+	id S1030428AbWEYVTf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 17:19:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030429AbWEYVTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 17:14:36 -0400
-Received: from dvhart.com ([64.146.134.43]:15245 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1030422AbWEYVOf (ORCPT
+	Thu, 25 May 2006 17:19:35 -0400
+Received: from n15a.bullet.sc5.yahoo.com ([66.163.187.158]:41852 "HELO
+	n15a.bullet.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1030428AbWEYVTe convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 17:14:35 -0400
-Message-ID: <44761E38.7050702@mbligh.org>
-Date: Thu, 25 May 2006 14:14:32 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
-X-Accept-Language: en-us, en
+	Thu, 25 May 2006 17:19:34 -0400
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws; s=lima; d=yahoogroups.com;
+	b=EmdJuHeMDY3Y8bGL5edVVJa4OA5tjpK96t9yAugwTx+W6W+oLvGBLpo6i5/NWmSI/wYvPCoxkhN9zaEFFBZqfsq/y4TPXE2kcRmXk7xMyqEPwTFzw5AubjphhO3WxfwD;
+Date: Thu, 25 May 2006 21:19:33 -0000
+From: "devmazumdar" <dev@opensound.com>
+To: linux-kernel@vger.kernel.org
+Subject: How to check if kernel sources are installed on a system?
+Message-ID: <e55715+usls@eGroups.com>
+User-Agent: eGroups-EW/0.82
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Kyle McMartin <kyle@mcmartin.ca>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add compile domain
-References: <20060525141714.GA31604@skunkworks.cabal.ca> <Pine.LNX.4.61.0605252027380.13379@yvahk01.tjqt.qr> <Pine.LNX.4.64.0605251146260.5623@g5.osdl.org> <200605251954.06227.s0348365@sms.ed.ac.uk> <Pine.LNX.4.61.0605252100070.13379@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0605252100070.13379@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Yahoo Groups Message Poster
+X-Yahoo-Post-IP: 66.229.53.8
+X-Yahoo-Newman-Property: groups-compose
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+How does one check the existence of the kernel source RPM (or deb) on
+every single distribution?.
 
-> 20:35 mason:/etc # rpm -qf `which hostname`
-> net-tools-1.60-37
-> 21:00 mason:/etc # hostname -v
-> gethostname()=`mason'
-> mason
-> 21:00 mason:/etc # hostname --fqdn
-> mason
-> 21:00 mason:/etc # domainname
-> (none)
-> 21:00 mason:/etc # dnsdomainname
-> 
-> 
-> Runs Aurora Linux 2.0.
+We know that rpm -qa | grep kernel-source works on Redhat, Fedora,
+SuSE, Mandrake and CentOS - how about other RPM based distros? How
+about debian based distros?. There doesn't seem to be a a single
+conherent naming scheme. 
 
-Ubuntu does this too:
+Another thing, can we please start enforcing that people ship kernel
+source with the base installation? If distributors are distributing
+kernels, then it must be an absolute requirement that they ship kernel
+sources in a "configured" state as well.  If you're not going to
+provide a stable kernel API, then atleast please make this a requirement. 
 
-mbligh@flay:~$ hostname
-flay
-mbligh@flay:~$ hostname --fqdn
-localhost.localdomain
+
+best regards
+
+Dev Mazumdar
+4Front Technologies
+http://www.opensound.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

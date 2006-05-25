@@ -1,88 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965127AbWEYMWn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965129AbWEYMYW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965127AbWEYMWn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 08:22:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965128AbWEYMWn
+	id S965129AbWEYMYW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 08:24:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965132AbWEYMYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 08:22:43 -0400
-Received: from tirith.ics.muni.cz ([147.251.4.36]:65225 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S965127AbWEYMWn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 08:22:43 -0400
-Date: Thu, 25 May 2006 14:22:40 +0200
-From: Jan Kasprzak <kas@fi.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: 3ware 7500 not working in 2.6.16.18, 2.6.17-rc5
-Message-ID: <20060525122240.GG19612@fi.muni.cz>
-Mime-Version: 1.0
+	Thu, 25 May 2006 08:24:22 -0400
+Received: from ns2.suse.de ([195.135.220.15]:64680 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965129AbWEYMYW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 08:24:22 -0400
+From: Neil Brown <neilb@suse.de>
+To: David Howells <dhowells@redhat.com>
+Date: Thu, 25 May 2006 22:24:15 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: kas@fi.muni.cz
-X-Muni-Virus-Test: Clean
+Content-Transfer-Encoding: 7bit
+Message-ID: <17525.41455.815969.582475@cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 001 of 2] Prepare for __copy_from_user_inatomic to not zero missed bytes. 
+In-Reply-To: message from David Howells on Thursday May 25
+References: <1060522044652.31268@suse.de>
+	<20060522143524.25410.patches@notabene>
+	<19591.1148558343@warthog.cambridge.redhat.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi all,
+On Thursday May 25, dhowells@redhat.com wrote:
+> 
+> NeilBrown <neilb@suse.de> wrote:
+> 
+> > Interestingly 'frv' disables preempt in kmap_atomic, but its
+> > copy_from_user doesn't expect faults and never zeros the tail...
+> 
+> What gives you the idea that copy_from_user() on FRV doesn't expect or handle
+> faults when CONFIG_MMU is set?  And why do you say it never zeroes the tail?
+> 
+> David
 
-I have a 3ware 75xx P-ATA controller, which has been working in 2.6.15-rc2.
-Today I have tried to upgrade to 2.6.16.18, and it cannot boot - the
-controller cannot access the drives, with the attached messages.
-I have also tried 2.6.17-rc5 with the same results.
+Sloppy reading of the code I expect :-(  I was probably expecting it
+to look more like what I had seen in other ARCHs.
 
-[...]
-3ware Storage Controller device driver for Linux v1.26.02.001.
-GSI 18 sharing vector 0xB9 and IRQ 18
-ACPI: PCI Interrupt 0000:01:03.0[A] -> GSI 28 (level, low) -> IRQ 18
-scsi0 : 3ware Storage Controller
-3w-xxxx: scsi0: Found a 3ware Storage Controller at 0x8c00, IRQ: 18.
-  Vendor: 3ware     Model: Logical Disk 0    Rev: 1.2
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-  Vendor: 3ware     Model: Logical Disk 1    Rev: 1.2
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-  Vendor: 3ware     Model: Logical Disk 2    Rev: 1.2
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-  Vendor: 3ware     Model: Logical Disk 3    Rev: 1.2
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-  Vendor: 3ware     Model: Logical Disk 4    Rev: 1.2
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-  Vendor: 3ware     Model: Logical Disk 5    Rev: 1.2
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-  Vendor: 3ware     Model: Logical Disk 6    Rev: 1.2
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-  Vendor: 3ware     Model: Logical Disk 7    Rev: 1.2
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
-sda: Write Protect is off
-SCSI device sda: drive cache: write back w/ FUA
-SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
-sda: Write Protect is off
-SCSI device sda: drive cache: write back w/ FUA
- sda:<3>nommu_map_sg: overflow 2053d9000+4096 of device mask ffffffff
-3w-xxxx: tw_map_scsi_sg_data(): pci_map_sg() failed.
-nommu_map_sg: overflow 2053d9000+4096 of device mask ffffffff
-3w-xxxx: tw_map_scsi_sg_data(): pci_map_sg() failed.
-nommu_map_sg: overflow 2053d9000+4096 of device mask ffffffff
-3w-xxxx: tw_map_scsi_sg_data(): pci_map_sg() failed.
-nommu_map_sg: overflow 2053d9000+4096 of device mask ffffffff
-3w-xxxx: tw_map_scsi_sg_data(): pci_map_sg() failed.
-nommu_map_sg: overflow 2053d9000+4096 of device mask ffffffff
-3w-xxxx: tw_map_scsi_sg_data(): pci_map_sg() failed.
-nommu_map_sg: overflow 2053d9000+4096 of device mask ffffffff
-3w-xxxx: tw_map_scsi_sg_data(): pci_map_sg() failed.
-sd 0:0:0:0: SCSI error: return code = 0x70000
-end_request: I/O error, dev sda, sector 0
-Buffer I/O error on device sda, logical block 0
-nommu_map_sg: overflow 2053d9000+4096 of device mask ffffffff
-3w-xxxx: tw_map_scsi_sg_data(): pci_map_sg() failed.
-[... and so on, the same for all eight drives sda to sdh ...]
+Have looked more closely, I see that it does expect and handle faults,
+and copy_from_user does zero the tail, however __copy_from_user*
+does not zero the tail and this is what filemap_copy_from_user
+and ntfs_copy_user* actually use, so on that arch, we seem
+to fail the other way - we don't zero the tail sometimes when
+we should.
 
--Yenya
+Thanks for reading the patch and asking the question.
 
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/    Journal: http://www.fi.muni.cz/~kas/blog/ |
-> I will never go to meetings again because I think  face to face meetings <
-> are the biggest waste of time you can ever have.        --Linus Torvalds <
+NeilBrown

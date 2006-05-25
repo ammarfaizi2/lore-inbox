@@ -1,63 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030430AbWEYVcv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030432AbWEYVei@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030430AbWEYVcv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 17:32:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030429AbWEYVcv
+	id S1030432AbWEYVei (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 17:34:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030434AbWEYVei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 17:32:51 -0400
-Received: from wr-out-0506.google.com ([64.233.184.234]:3599 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030430AbWEYVcu convert rfc822-to-8bit (ORCPT
+	Thu, 25 May 2006 17:34:38 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:14262 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030432AbWEYVeh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 17:32:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pX7NmcJllck6g8AzimnE9b0sJ1GnaIhSGccQyIvSWVjyUA0PxOPEVvp/z39GtF/YMZVc0nERut/dffnyTVdzOoEmwcCYeGbNaD62oH8Hpm4/wfiCgINkIAK70sbmtuaO8giVZF53PyrnMKXXrTjAnwxLIQVHgsoEX003/C/L71M=
-Message-ID: <6bffcb0e0605251432s55969e82la206d8ad863ba502@mail.gmail.com>
-Date: Thu, 25 May 2006 23:32:49 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: devmazumdar <dev@opensound.com>
-Subject: Re: How to check if kernel sources are installed on a system?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <e55715+usls@eGroups.com>
+	Thu, 25 May 2006 17:34:37 -0400
+Message-ID: <447622EA.90704@garzik.org>
+Date: Thu, 25 May 2006 17:34:34 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: devmazumdar <dev@opensound.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How to check if kernel sources are installed on a system?
 References: <e55715+usls@eGroups.com>
+In-Reply-To: <e55715+usls@eGroups.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -3.3 (---)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-3.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On 25/05/06, devmazumdar <dev@opensound.com> wrote:
-> How does one check the existence of the kernel source RPM (or deb) on
-> every single distribution?.
+find / -name libata-scsi.c
 
-How about something like this
 
-if [ -f /lib/modules/`uname -r`/build/Makefile ]
- then
-  ...
-fi
-
-[snip]
-
-> provide a stable kernel API, then atleast please make this a requirement.
->
->
-> best regards
->
-> Dev Mazumdar
-> 4Front Technologies
-> http://www.opensound.com
-
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)

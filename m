@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965107AbWEYK1T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965111AbWEYKbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965107AbWEYK1T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 06:27:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965108AbWEYK1T
+	id S965111AbWEYKbs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 06:31:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965112AbWEYKbs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 06:27:19 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:37535 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965107AbWEYK1S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 06:27:18 -0400
-Message-ID: <44758683.4070205@garzik.org>
-Date: Thu, 25 May 2006 06:27:15 -0400
-From: Jeff Garzik <jeff@garzik.org>
+	Thu, 25 May 2006 06:31:48 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:32055 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965111AbWEYKbr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 06:31:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=GfKpe/XB2a9Ez7tjH4VN+4C5KPOVwoqNr7OVCh84OWxRE5Sea8Eipi84fQuhHG3v/Hyq/NTdokZNZaD91oYnhbXAWBA9kUbTmgUBSSw6S4wnOxtwVblOVLwa5P5TflZ227DwIWD2jR0lbVcOEe+ZNx8QKbBUXazjKrP5NJI13sQ=
+Message-ID: <4475879B.6030003@gmail.com>
+Date: Thu, 25 May 2006 12:31:32 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
 User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
+To: Jeff Garzik <jeff@garzik.org>
 CC: Greg KH <gregkh@suse.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        linux-pci@atrey.karlin.mff.cuni.cz, Ralf Baechle <ralf@linux-mips.org>
 Subject: Re: [PATCH 3/3] pci: gt96100eth use pci probing
-References: <20060525003151.598EAC7C19@atrey.karlin.mff.cuni.cz> <4474FFE1.4030202@garzik.org> <44758308.2040408@gmail.com>
-In-Reply-To: <44758308.2040408@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <20060525003151.598EAC7C19@atrey.karlin.mff.cuni.cz> <4474FFE1.4030202@garzik.org> <44758308.2040408@gmail.com> <44758683.4070205@garzik.org>
+In-Reply-To: <44758683.4070205@garzik.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
->>> +unprobe:
->>> +    for (j = i; j > 0; j--) {
->>> +        struct gt96100_if_t *gtif = &gtifs[j - 1];
->>> +        gt96100_remove1(gtif);
->>> +    }
->>> +    kfree(gtifs);
->> upon failure, you fail to set drvdata back to NULL
-> What is the purpose of setting this to NULL, other drivers don't do that too?
+Jeff Garzik napsal(a):
+> Jiri Slaby wrote:
+>>>> +unprobe:
+>>>> +    for (j = i; j > 0; j--) {
+>>>> +        struct gt96100_if_t *gtif = &gtifs[j - 1];
+>>>> +        gt96100_remove1(gtif);
+>>>> +    }
+>>>> +    kfree(gtifs);
+>>> upon failure, you fail to set drvdata back to NULL
+>> What is the purpose of setting this to NULL, other drivers don't do
+>> that too?
+> 
+> A simple grep(1) shows well over 300 cases that do this.
+But also shows the latter case: some of them do not have pci_dev_setdrv([^,]*,
+NULL) -- it finds only one occurence of that function (that set the value).
+> 
+> And it's just logical:  don't leave a pointer hanging around, after it
+> has been kfree'd.
+Seems logical. Will do it.
 
-A simple grep(1) shows well over 300 cases that do this.
-
-And it's just logical:  don't leave a pointer hanging around, after it 
-has been kfree'd.
-
-
->>> +        struct gt96100_private *gp = netdev_priv(gtif->dev);
->>> +        unregister_netdev(gtif->dev);
->>> +        dmafree(RX_HASH_TABLE_SIZE, gp->hash_table_dma);
->>> +        dmafree(PKT_BUF_SZ*RX_RING_SIZE, gp->rx_buff);
->>> +        dmafree(sizeof(gt96100_rd_t) * RX_RING_SIZE
->>> +            + sizeof(gt96100_td_t) * TX_RING_SIZE,
->>> +            gp->rx_ring);
->>> +        free_netdev(gtif->dev);
->>> +        release_region(gtif->iobase, gp->io_size);
->> shouldn't this be using pci_request_regions() / pci_release_regions() ?
-> There are GT96100_ETH{0,1}_BASEs instead of bars, 
-
-Indeed.  I stand corrected.
-
-	Jeff
-
-
+thanks,
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E

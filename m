@@ -1,85 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbWEYDwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbWEYDwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964838AbWEYDwU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 23:52:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWEYDwU
+	id S964843AbWEYDwW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 23:52:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbWEYDwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 23:52:20 -0400
-Received: from godel.catalyst.net.nz ([202.78.240.40]:53213 "EHLO
-	mail1.catalyst.net.nz") by vger.kernel.org with ESMTP
-	id S964838AbWEYDwU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 23:52:20 -0400
-Message-ID: <447529DA.8040800@catalyst.net.nz>
-Date: Thu, 25 May 2006 15:51:54 +1200
-From: Sam Vilain <sam.vilain@catalyst.net.nz>
-Organization: Catalyst IT (NZ) Ltd
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: ebiederm@xmission.com, linux-kernel@vger.kernel.org, serue@us.ibm.com,
-       herbert@13thfloor.at, dev@sw.ru, devel@openvz.org, sam@vilain.net,
-       xemul@sw.ru, haveblue@us.ibm.com, clg@fr.ibm.com,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH 3/3] proc: make UTS-related sysctls utsns aware
-References: <20060523012300.13531.96685.stgit@localhost.localdomain>	<20060523012301.13531.12776.stgit@localhost.localdomain> <20060524085414.40b980f5.akpm@osdl.org>
-In-Reply-To: <20060524085414.40b980f5.akpm@osdl.org>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 24 May 2006 23:52:22 -0400
+Received: from mga02.intel.com ([134.134.136.20]:9095 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964843AbWEYDwV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 23:52:21 -0400
+X-IronPort-AV: i="4.05,170,1146466800"; 
+   d="scan'208"; a="41049685:sNHT16649199"
+Subject: [PATCH 1/2] request_firmware without a device
+From: Shaohua Li <shaohua.li@intel.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Greg <greg@kroah.com>, Patrick Mochel <mochel@digitalimplant.org>,
+       Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 25 May 2006 11:50:45 +0800
+Message-Id: <1148529045.32046.102.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Sam Vilain <sam.vilain@catalyst.net.nz> wrote:
-> 
->>Add a new function proc_do_utsns_string, that derives the pointer
->> into the uts_namespace->name structure, currently based on the
->> filename of the dentry in /proc, and calls _proc_do_string()
->> ---
->> RFC only - not tested yet.  builds, though
-> 
-> 
-> So... is it tested yet?
+The patch allows calling request_firmware without a 'struct device'.
+It appears we just need a name here from 'struct device'. I changed it
+to use a kobject as Patrick suggested.
+Next patch will use the new API to request firmware (microcode) for a CPU.
 
-No, I was waiting for feedback
+Signed-off-by: Shaohua Li <shaohua.li@intel.com>
+---
 
-(hackhackhack)
+ linux-2.6.17-rc4-root/drivers/base/firmware_class.c |   32 ++++++++++++--------
+ linux-2.6.17-rc4-root/include/linux/firmware.h      |    2 +
+ 2 files changed, 22 insertions(+), 12 deletions(-)
 
-ok, now it's tested
-
-root@ken:~# ./chuts /bin/bash
-root@ken:~# uname -a
-Linux ken 2.6.17-rc4-mm2-g2214c350 #8 PREEMPT Thu May 25 09:32:27 NZST
-2006 x86_64 GNU/Linux
-root@ken:~# hostname bert
-root@ken:~# uname -a
-Linux bert 2.6.17-rc4-mm2-g2214c350 #8 PREEMPT Thu May 25 09:32:27 NZST
-2006 x86_64 GNU/Linux
-root@ken:~# exit
-root@ken:~# uname -a
-Linux ken 2.6.17-rc4-mm2-g2214c350 #8 PREEMPT Thu May 25 09:32:27 NZST
-2006 x86_64 GNU/Linux
-root@ken:~# cat /proc/sys/kernel/hostname
-ken
-root@ken:~# ./chuts /bin/sh -c "hostname bert && cat
-/proc/sys/kernel/hostname"
-bert
-root@ken:~# cat /proc/sys/kernel/hostname
-ken
-root@ken:~# ./chuts /bin/sh -c "echo 'bob' > /proc/sys/kernel/hostname
-&& uname -n"
-bob
-root@ken:~# uname -n
-ken
-
-
-> You owe me three Signed-off-by:s, please.
-
-They should be coming your way seperately very shortly.  I've revised
-the third one (namespaces-utsname-sysctl-hack-cleanup-2.patch), see my
-reply to Dave Hansen's e-mail.  The revised version is the one I tested.
--- 
-Sam Vilain, Catalyst IT (NZ) Ltd.
-phone: +64 4 499 2267        cell:  +64 21 55 40 50
-DDI:   +64 4 803 2342        PGP ID: 0x66B25843
+diff -puN drivers/base/firmware_class.c~request_firmware_nodevice drivers/base/firmware_class.c
+--- linux-2.6.17-rc4/drivers/base/firmware_class.c~request_firmware_nodevice	2006-05-15 14:25:09.000000000 +0800
++++ linux-2.6.17-rc4-root/drivers/base/firmware_class.c	2006-05-22 07:30:51.000000000 +0800
+@@ -301,15 +301,15 @@ firmware_class_timeout(u_long data)
+ }
+ 
+ static inline void
+-fw_setup_class_device_id(struct class_device *class_dev, struct device *dev)
++fw_setup_class_device_id(struct class_device *class_dev, struct kobject *kobj)
+ {
+ 	/* XXX warning we should watch out for name collisions */
+-	strlcpy(class_dev->class_id, dev->bus_id, BUS_ID_SIZE);
++	strlcpy(class_dev->class_id, kobj->k_name, BUS_ID_SIZE);
+ }
+ 
+ static int
+ fw_register_class_device(struct class_device **class_dev_p,
+-			 const char *fw_name, struct device *device)
++			 const char *fw_name, struct kobject *kobj)
+ {
+ 	int retval;
+ 	struct firmware_priv *fw_priv = kzalloc(sizeof(*fw_priv),
+@@ -333,8 +333,7 @@ fw_register_class_device(struct class_de
+ 	fw_priv->timeout.data = (u_long) fw_priv;
+ 	init_timer(&fw_priv->timeout);
+ 
+-	fw_setup_class_device_id(class_dev, device);
+-	class_dev->dev = device;
++	fw_setup_class_device_id(class_dev, kobj);
+ 	class_dev->class = &firmware_class;
+ 	class_set_devdata(class_dev, fw_priv);
+ 	retval = class_device_register(class_dev);
+@@ -354,14 +353,14 @@ error_kfree:
+ 
+ static int
+ fw_setup_class_device(struct firmware *fw, struct class_device **class_dev_p,
+-		      const char *fw_name, struct device *device, int uevent)
++		      const char *fw_name, struct kobject *kobj, int uevent)
+ {
+ 	struct class_device *class_dev;
+ 	struct firmware_priv *fw_priv;
+ 	int retval;
+ 
+ 	*class_dev_p = NULL;
+-	retval = fw_register_class_device(&class_dev, fw_name, device);
++	retval = fw_register_class_device(&class_dev, fw_name, kobj);
+ 	if (retval)
+ 		goto out;
+ 
+@@ -401,7 +400,7 @@ out:
+ 
+ static int
+ _request_firmware(const struct firmware **firmware_p, const char *name,
+-		 struct device *device, int uevent)
++		 struct kobject *kobj, int uevent)
+ {
+ 	struct class_device *class_dev;
+ 	struct firmware_priv *fw_priv;
+@@ -419,7 +418,7 @@ _request_firmware(const struct firmware 
+ 		goto out;
+ 	}
+ 
+-	retval = fw_setup_class_device(firmware, &class_dev, name, device,
++	retval = fw_setup_class_device(firmware, &class_dev, name, kobj,
+ 				       uevent);
+ 	if (retval)
+ 		goto error_kfree_fw;
+@@ -477,7 +476,15 @@ request_firmware(const struct firmware *
+                  struct device *device)
+ {
+         int uevent = 1;
+-        return _request_firmware(firmware_p, name, device, uevent);
++        return _request_firmware(firmware_p, name, &device->kobj, uevent);
++}
++
++int
++request_firmware_kobj(const struct firmware **firmware_p, const char *name,
++                      struct kobject *kobj)
++{
++        int uevent = 1;
++        return _request_firmware(firmware_p, name, kobj, uevent);
+ }
+ 
+ /**
+@@ -534,7 +541,7 @@ request_firmware_work_func(void *arg)
+ 		return 0;
+ 	}
+ 	daemonize("%s/%s", "firmware", fw_work->name);
+-	ret = _request_firmware(&fw, fw_work->name, fw_work->device,
++	ret = _request_firmware(&fw, fw_work->name, &fw_work->device->kobj,
+ 		fw_work->uevent);
+ 	if (ret < 0)
+ 		fw_work->cont(NULL, fw_work->context);
+@@ -624,10 +631,11 @@ firmware_class_exit(void)
+ 	class_unregister(&firmware_class);
+ }
+ 
+-module_init(firmware_class_init);
++fs_initcall(firmware_class_init);
+ module_exit(firmware_class_exit);
+ 
+ EXPORT_SYMBOL(release_firmware);
+ EXPORT_SYMBOL(request_firmware);
++EXPORT_SYMBOL(request_firmware_kobj);
+ EXPORT_SYMBOL(request_firmware_nowait);
+ EXPORT_SYMBOL(register_firmware);
+diff -puN include/linux/firmware.h~request_firmware_nodevice include/linux/firmware.h
+--- linux-2.6.17-rc4/include/linux/firmware.h~request_firmware_nodevice	2006-05-15 14:26:34.000000000 +0800
++++ linux-2.6.17-rc4-root/include/linux/firmware.h	2006-05-22 07:24:08.000000000 +0800
+@@ -13,6 +13,8 @@ struct firmware {
+ struct device;
+ int request_firmware(const struct firmware **fw, const char *name,
+ 		     struct device *device);
++int request_firmware_kobj(const struct firmware **fw, const char *name,
++			  struct kobject *kobj);
+ int request_firmware_nowait(
+ 	struct module *module, int uevent,
+ 	const char *name, struct device *device, void *context,
+_

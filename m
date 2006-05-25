@@ -1,69 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030309AbWEYSKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030316AbWEYSLD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030309AbWEYSKa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 14:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbWEYSK3
+	id S1030316AbWEYSLD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 14:11:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030313AbWEYSLC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 14:10:29 -0400
-Received: from ns2.uludag.org.tr ([193.140.100.220]:25487 "EHLO uludag.org.tr")
-	by vger.kernel.org with ESMTP id S1030309AbWEYSK3 (ORCPT
+	Thu, 25 May 2006 14:11:02 -0400
+Received: from lixom.net ([66.141.50.11]:58336 "EHLO mail.lixom.net")
+	by vger.kernel.org with ESMTP id S1030306AbWEYSLA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 14:10:29 -0400
-Message-ID: <4475F314.9060308@pardus.org.tr>
-Date: Thu, 25 May 2006 21:10:28 +0300
-From: =?UTF-8?B?xLBzbWFpbCBEw7ZubWV6?= <ismail@pardus.org.tr>
-Organization: TUBITAK/UEKAE
-User-Agent: Mozilla Thunderbird 1.5.0.2 (X11/20060426)
+	Thu, 25 May 2006 14:11:00 -0400
+Date: Thu, 25 May 2006 11:09:52 -0700
+To: Chris Leech <christopher.leech@intel.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH 1/9] [I/OAT] DMA memcpy subsystem
+Message-ID: <20060525180952.GD9867@pb15.lixom.net>
+References: <20060524001653.19403.31396.stgit@gitlost.site> <20060524002012.19403.50151.stgit@gitlost.site> <20060525175940.GB9867@pb15.lixom.net>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] scx200_acb: fix section mismatch warning
-References: <20060525100138.cb9e53c5.rdunlap@xenotime.net>	<20060525192657.081c8c11.khali@linux-fr.org> <20060525110627.3461937f.akpm@osdl.org>
-In-Reply-To: <20060525110627.3461937f.akpm@osdl.org>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=5B88F54C
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060525175940.GB9867@pb15.lixom.net>
+User-Agent: Mutt/1.5.11
+From: Olof Johansson <olof@lixom.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote On 25-05-2006 21:06:
-> Jean Delvare <khali@linux-fr.org> wrote:
->>> -static int scx200_add_cs553x(void)
->>  > +static __init int scx200_add_cs553x(void)
->>  >  {
->>  >  	u32	low, hi;
->>  >  	u32	smb_base;
->>  > 
->>
->>  Correct, I sent exactly the same patch to the the lm-sensors list and
->>  Greg KH yesterday:
->>  http://lists.lm-sensors.org/pipermail/lm-sensors/2006-May/016213.html
->>
->>  So this one is
->>  Signed-off-by: Jean Delvare <khali@linux-fr.org>
->>
->>  Note that the section mismatch is harmless here (we have a non-__init
->>  function sandwiched between two __init functions) but nevertheless this
->>  kind of warning is never welcome in a final kernel release so let's get
->>  the fix merged now.
->>
->>  Andrew, can you please push this to Linus?
-> 
-> yup, I'll send that later on today.  My current 2.6.17 queue is:
-> 
-> s390-fix-typo-in-stop_hz_timer.patch
-> add-cmspar-to-termbitsh-for-powerpc-and-alpha.patch
-> x86-wire-up-vmsplice-syscall.patch
-> ads7846-conversion-accuracy.patch
-> affs-possible-null-pointer-dereference-in-affs_rename.patch
-> powermac-force-only-suspend-to-disk-to-be-valid.patch
-> s3c24xx-fix-spi-driver-with-config_pm.patch
-> scx200_acb-fix-section-mismatch-warning.patch
+On Thu, May 25, 2006 at 10:59:40AM -0700, Olof Johansson wrote:
 
-Is there a chance of queing Randy's other mismatch fixes? It would be
-nice to eliminate them for the final release.
+> Is there a specific reason for why you chose to export 3 different
+> memcpu calls? They're all just wrapped to the same internals.
+>
+> It would seem to make sense to have the client do their own
+> page_address(page) + offset calculations and just export one function?
 
-Regards,
-ismail
+Nevermind. I'm too used to 64-bit environments where all memory is
+always addressable to the kernel. There's obvious reasons to do it on
+32-bit platforms to avoid the extra kernel mapping.
 
 
+-Olof

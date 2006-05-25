@@ -1,121 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965087AbWEYIYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbWEYIon@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965087AbWEYIYy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 04:24:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965088AbWEYIYy
+	id S965089AbWEYIon (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 04:44:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965090AbWEYIon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 04:24:54 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:40075 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S965087AbWEYIYx (ORCPT
+	Thu, 25 May 2006 04:44:43 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:60316 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965089AbWEYIom (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 04:24:53 -0400
-Subject: Re: [Fastboot] [PATCH 03/03] kexec: Avoid overwriting the current
-	pgd (V2, x86_64)
-From: Magnus Damm <magnus@valinux.co.jp>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <m1slmystqa.fsf@ebiederm.dsl.xmission.com>
-References: <20060524044232.14219.68240.sendpatchset@cherry.local>
-	 <20060524044247.14219.13579.sendpatchset@cherry.local>
-	 <m1slmystqa.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Date: Thu, 25 May 2006 17:26:56 +0900
-Message-Id: <1148545616.5793.180.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Thu, 25 May 2006 04:44:42 -0400
+Message-ID: <44756E70.9020207@garzik.org>
+Date: Thu, 25 May 2006 04:44:32 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: "D. Hazelton" <dhazelton@enter.net>
+CC: Jon Smirl <jonsmirl@gmail.com>, Dave Airlie <airlied@gmail.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <9e4733910605241656r6a88b5d3hda8c8a4e72edc193@mail.gmail.com> <4475007F.7020403@garzik.org> <200605250237.20644.dhazelton@enter.net>
+In-Reply-To: <200605250237.20644.dhazelton@enter.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-24 at 20:50 -0600, Eric W. Biederman wrote:
-> Magnus Damm <magnus@valinux.co.jp> writes:
+D. Hazelton wrote:
+> The goal of adding said "third system" would be to provide a minimal 
+> kernel-level API for interfacing with the hardware acceleration features and 
+> providing a userspace library for doing most of the interfacing work. 
 > 
-> > --===============37282618571824511==
-> >
-> > kexec: Avoid overwriting the current pgd (V2, x86_64)
-> >
-> > This patch upgrades the x86_64-specific kexec code to avoid overwriting the
-> > current pgd. Overwriting the current pgd is bad when CONFIG_CRASH_DUMP is used
-> > to start a secondary kernel that dumps the memory of the previous kernel.
-> >
-> > The code introduces a new set of page tables called "page_table_a". These
-> > tables are used to provide an executable identity mapping without overwriting
-> > the current pgd. The already existing page table is renamed to "page_table_b".
+> Done properly (something I always try for) this system would supplant DRM on 
+> Linux by providing a built-in system for accelerating all grahpics 
+> applications. This system would be quite similar to ALSA in nature and 
+> spirit.
 > 
-> As I mentioned earlier you don't need two page tables, because
-> it is easy to guarantee that the identity mapping and the virtual mapping
-> will not intersect on x86_64.  Until we have as many physical address bits
-> as virtual address bits (which requires page table modifications) it
-> is nonsense to have 2 page tables here.
+> I'm asking for advice from the experienced people on this list for help, since 
+> until I have a clear picture of what the kernel needs in a "modern" graphics 
+> system I cannot proceed. 
 
-Let me explain the theory behind my kexec patch:
+I really hate to be a killjoy to one who is so enthusiastic, but to be 
+perfectly blunt,
 
-During prepare, page_table_a is initialized. For x86_64 page_table_b is
-also initialized.
+* I doubt you will get much help.  From GGI to today, the world has been 
+full of people who have a clear picture of where Linux graphics needs to 
+be... and they never got very far.  So if you don't already have a clear 
+picture, you have ever farther to go.
 
-When it is time for machine_kexec() the following sequence takes place:
+* You really need to already know a good deal about graphics hardware, 
+old and new, before starting down this path.
 
-1. The C-code in machine_kexec() jumps to the assembly routine.
-To avoid overwriting the page table and still work with NX bits we jump
-to the original location of relocate_new_kernel. This is different from
-the unpatched code which jumps to the physical address (ie the identity
-mapped location).
+* Review Dave Airlie's posts, he's been pretty spot-on in this thread. 
+There needs to be a lowlevel driver that handles PCI functionality, and 
+registers itself with the fbdev and DRM layers.  The fbdev/DRM 
+registrations need to be aware of each other.  Once that is done, work 
+will proceed more rapidly.
 
-2. The assembly code switches to page_table_a.
-page_table_a has mapped the control page at two virtual addresses:
-- The same virtual address as relocate_new_kernel is located at.
-  (This explains the extra aligment in the assembly file)
-- An identity mapping, ie virtual address == physical address.
-After the switch the code runs at the same virtual address, but the
-physical page is now the control page.
+And mind you, _I_ am saying all this as one of the crowd who wants to 
+rewrite Linux video... once I get a free year or two.  I got my start in 
+kernel graphics (fbdev) ~ a decade ago, and I've followed the graphics 
+world intensely even since.  However, the more realistic people will 
+just re-read DaveA's posts.
 
-3. Setup idt, gdt, segment registers and stack pointer.
-The stack pointer should point to the identity mapped page.
+The path you suggest -- a third graphics system -- is going to be 
+completely ignored by everyone unless/until its so wonderful that we 
+just _have_ to switch.  And given past history (GGI, ...) it will be a 
+lonely path for a long time.
 
-4. Jump to the identity mapped address.
-When the jump is performed we will be running at a virtual address which
-is the same as the physical address.
-
-5. Turn off MMU (i386) / switch to page_table_b (x86_64).
-We are able to turn off the MMU or switch to page_table_b because we are
-already running at the physical address.
-
-6. Proceed with the page copying business as usual...
-
-Ok, so far so good.
-
-The fun part begins when we throw in Xen into the mix. Linux under xen
-runs with pseudophysical addresses, ie what Linux thinks are physical
-addresses are not physical. Xen use the term machine addresses for
-addresses that are called physical address under "regular" Linux. On top
-of that is Xen using a different memory map than Linux.
-
-After prepare, all pages in page_table_a are passed to the hypervisor
-that overwrites the contents filled in by machine_prepare(). 
-(this explains the "ridiculous" array of struct page *)
-
-A similar two page mapping is used for here too, but in the xen case we
-use a different virtual address (the non-identity mapped address)
-compared to "regular" Linux. All to fit the address space used by xen.
-
-The xen port which is based on my patches is using a sequence similar to
-"regular" Linux:
-
-1a. The C-code in xen_machine_kexec() performs a hypercall.
-
-1b. The hypervisor jumps to the assembly code.
-After prepare we've created a NX-safe mapping for the control page. We
-jump to that NX-safe address to transfer control to the assembly code.
-
-Goto 2 above.
-
-So, to answer your question regarding two page table copies. You may be
-right that it can be made work with just one page table, but I feel my
-two table approach is nice because it will always work - regardless of
-the memory map used.
-
-Thanks,
-
-/ magnus
+	Jeff
 

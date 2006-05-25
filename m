@@ -1,174 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbWEYMvI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965153AbWEYMvm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965151AbWEYMvI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 08:51:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbWEYMvH
+	id S965153AbWEYMvm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 08:51:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbWEYMvm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 08:51:07 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.206]:33488 "EHLO
-	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S965151AbWEYMvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 08:51:05 -0400
+	Thu, 25 May 2006 08:51:42 -0400
+Received: from TYO201.gate.nec.co.jp ([202.32.8.193]:4780 "EHLO
+	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S965153AbWEYMvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 08:51:41 -0400
 To: adilger@clusterfs.com, cmm@us.ibm.com, jitendra@linsyssoft.com
 Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [UPDATE][14/24]ext2 enlarge file size
-Message-Id: <20060525215057sho@rifu.tnes.nec.co.jp>
+Subject: [UPDATE][15/24]e2fsprogs modify format strings
+Message-Id: <20060525215133sho@rifu.tnes.nec.co.jp>
 Mime-Version: 1.0
 X-Mailer: WeMail32[2.51] ID:1K0086
 From: sho@tnes.nec.co.jp
-Date: Thu, 25 May 2006 21:50:57 +0900
+Date: Thu, 25 May 2006 21:51:32 +0900
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Summary of this patch:
-  [14/24] extend file size(ext2)
-          - If the flag is set to super block, i_blocks of disk inode
-            (ext3_inode) is filesystem-block unit, and i_blocks of VFS
-            inode is sector unit.
-
-          - If the flag is set to super block, max file size is set to
-            (FS blocksize) * (2^32 -1).
+  [15/24] modify format strings in print
+          - The part which prints the signed value, related to a block
+            and an inode, in decimal is corrected so that it can print
+            unsigned one.
 
 Signed-off-by: Takashi Sato sho@tnes.nec.co.jp
 ---
-diff -upNr -X linux-2.6.17-rc4/Documentation/dontdiff linux-2.6.17-rc4/fs/ext2/inode.c linux-2.6.17-rc4.tmp/fs/ext2/inode.c
---- linux-2.6.17-rc4/fs/ext2/inode.c	2006-05-25 16:33:48.509510541 +0900
-+++ linux-2.6.17-rc4.tmp/fs/ext2/inode.c	2006-05-25 16:34:32.872791248 +0900
-@@ -1095,8 +1095,13 @@ void ext2_read_inode (struct inode * ino
- 		goto bad_inode;
- 	}
- 	inode->i_blksize = PAGE_SIZE;	/* This is the optimal IO size (for stat), not the fs block size */
--	inode->i_blocks = le32_to_cpu(raw_inode->i_blocks);
- 	ei->i_flags = le32_to_cpu(raw_inode->i_flags);
-+	if (ei->i_flags & EXT2_HUGE_FILE_FL) {
-+		inode->i_blocks = (blkcnt_t)le32_to_cpu(raw_inode->i_blocks)
-+			<< (inode->i_blkbits - EXT2_SECTOR_BITS);
-+	} else {
-+		inode->i_blocks = le32_to_cpu(raw_inode->i_blocks);
-+	}
- 	ei->i_faddr = le32_to_cpu(raw_inode->i_faddr);
- 	ei->i_frag_no = raw_inode->i_frag;
- 	ei->i_frag_size = raw_inode->i_fsize;
-@@ -1215,10 +1220,22 @@ static int ext2_update_inode(struct inod
- 	raw_inode->i_atime = cpu_to_le32(inode->i_atime.tv_sec);
- 	raw_inode->i_ctime = cpu_to_le32(inode->i_ctime.tv_sec);
- 	raw_inode->i_mtime = cpu_to_le32(inode->i_mtime.tv_sec);
-+	raw_inode->i_flags = cpu_to_le32(ei->i_flags);
+diff -upNr e2fsprogs-1.39/debugfs/htree.c e2fsprogs-1.39.tmp/debugfs/htree.c
+--- e2fsprogs-1.39/debugfs/htree.c	2006-04-12 11:21:58.000000000 +0900
++++ e2fsprogs-1.39.tmp/debugfs/htree.c	2006-04-12 11:38:34.000000000 +0900
+@@ -114,7 +114,7 @@ static void htree_dump_int_node(ext2_fil
  
--	raw_inode->i_blocks = cpu_to_le32(inode->i_blocks);
-+	if (inode->i_blocks <= ~0U) {
-+		raw_inode->i_flags &= ~EXT2_HUGE_FILE_FL;
-+		raw_inode->i_blocks = cpu_to_le32(inode->i_blocks);
-+	} else {
-+		ext2_update_dynamic_rev(sb);
-+		EXT2_SET_RO_COMPAT_FEATURE(sb,
-+				EXT2_FEATURE_RO_COMPAT_HUGE_FILE);
-+		ext2_write_super(sb);
-+		printk("ext2_update_inode: Now the file size is more than 2TB on (%s)!!\n", sb->s_id);
-+		raw_inode->i_flags |= EXT2_HUGE_FILE_FL;
-+		raw_inode->i_blocks = cpu_to_le32((inode->i_blocks)
-+			>> (inode->i_blkbits - EXT2_SECTOR_BITS));
-+	}
- 	raw_inode->i_dtime = cpu_to_le32(ei->i_dtime);
--	raw_inode->i_flags = cpu_to_le32(ei->i_flags);
- 	raw_inode->i_faddr = cpu_to_le32(ei->i_faddr);
- 	raw_inode->i_frag = ei->i_frag_no;
- 	raw_inode->i_fsize = ei->i_frag_size;
-diff -upNr -X linux-2.6.17-rc4/Documentation/dontdiff linux-2.6.17-rc4/fs/ext2/super.c linux-2.6.17-rc4.tmp/fs/ext2/super.c
---- linux-2.6.17-rc4/fs/ext2/super.c	2006-05-25 16:33:48.510487104 +0900
-+++ linux-2.6.17-rc4.tmp/fs/ext2/super.c	2006-05-25 16:34:32.873767810 +0900
-@@ -557,14 +557,21 @@ static int ext2_check_descriptors (struc
-  * block limit, and also a limit of (2^32 - 1) 512-byte sectors in i_blocks.
-  * We need to be 1 filesystem block less than the 2^32 sector limit.
-  */
--static loff_t ext2_max_size(int bits)
-+static loff_t ext2_max_size(int bits, struct super_block *sb)
- {
- 	loff_t res = EXT2_NDIR_BLOCKS;
- 	/* This constant is calculated to be the largest file size for a
- 	 * dense, 4k-blocksize file such that the total number of
- 	 * sectors in the file, including data and all indirect blocks,
- 	 * does not exceed 2^32. */
--	const loff_t upper_limit = 0x1ff7fffd000LL;
-+	loff_t upper_limit;
-+	if (sizeof(blkcnt_t) < sizeof(u64)) {
-+		upper_limit = 0x1ff7fffd000LL;
-+	}
-+	/* With CONFIG_LSF on, file size is limited to blocksize*(4G-1) */
-+	else { 
-+		upper_limit = (1LL << (bits + 32)) - (1LL << bits);
-+	}
- 
- 	res += 1LL << (bits-2);
- 	res += 1LL << (2*(bits-2));
-@@ -748,7 +755,7 @@ static int ext2_fill_super(struct super_
+ 	for (i=0; i < limit.count; i++) {
+ 		hash = i ? ext2fs_le32_to_cpu(ent[i].hash) : 0;
+-		fprintf(pager, "Entry #%d: Hash 0x%08x%s, block %d\n", i,
++		fprintf(pager, "Entry #%d: Hash 0x%08x%s, block %u\n", i,
+ 			hash, (hash & 1) ? " (**)" : "",
+ 			ext2fs_le32_to_cpu(ent[i].block));
  		}
+diff -upNr e2fsprogs-1.39/e2fsck/unix.c e2fsprogs-1.39.tmp/e2fsck/unix.c
+--- e2fsprogs-1.39/e2fsck/unix.c	2006-04-12 11:21:58.000000000 +0900
++++ e2fsprogs-1.39.tmp/e2fsck/unix.c	2006-04-12 11:46:23.000000000 +0900
+@@ -118,49 +118,49 @@ static void show_stats(e2fsck_t	ctx)
+ 	frag_percent = (frag_percent + 5) / 10;
+ 	
+ 	if (!verbose) {
+-		printf(_("%s: %d/%d files (%0d.%d%% non-contiguous), %u/%u blocks\n"),
++		printf(_("%s: %u/%u files (%0d.%d%% non-contiguous), %u/%u blocks\n"),
+ 		       ctx->device_name, inodes_used, inodes,
+ 		       frag_percent / 10, frag_percent % 10,
+ 		       blocks_used, blocks);
+ 		return;
  	}
- 
--	sb->s_maxbytes = ext2_max_size(sb->s_blocksize_bits);
-+	sb->s_maxbytes = ext2_max_size(sb->s_blocksize_bits, sb);
- 
- 	if (le32_to_cpu(es->s_rev_level) == EXT2_GOOD_OLD_REV) {
- 		sbi->s_inode_size = EXT2_GOOD_OLD_INODE_SIZE;
-@@ -873,6 +880,19 @@ static int ext2_fill_super(struct super_
- 	sb->s_export_op = &ext2_export_ops;
- 	sb->s_xattr = ext2_xattr_handlers;
- 	root = iget(sb, EXT2_ROOT_INO);
-+
-+	if (EXT2_HAS_RO_COMPAT_FEATURE(sb,
-+	    EXT2_FEATURE_RO_COMPAT_HUGE_FILE)) {
-+		if (sizeof(root->i_blocks) < sizeof(u64)) {
-+			if (!(sb->s_flags & MS_RDONLY)) {
-+				printk(KERN_ERR "EXT2-fs: %s: Having huge file with "
-+						"LSF off, you must mount filesystem "
-+						"read-only.\n", sb->s_id);
-+				goto failed_mount;
-+			}
-+		}
-+	}
-+
- 	sb->s_root = d_alloc_root(root);
- 	if (!sb->s_root) {
- 		iput(root);
-diff -upNr -X linux-2.6.17-rc4/Documentation/dontdiff linux-2.6.17-rc4/include/linux/ext2_fs.h linux-2.6.17-rc4.tmp/include/linux/ext2_fs.h
---- linux-2.6.17-rc4/include/linux/ext2_fs.h	2006-05-25 16:34:05.951893140 +0900
-+++ linux-2.6.17-rc4.tmp/include/linux/ext2_fs.h	2006-05-25 16:34:32.874744373 +0900
-@@ -104,6 +104,7 @@ static inline struct ext2_sb_info *EXT2_
- #else
- # define EXT2_BLOCK_SIZE_BITS(s)	((s)->s_log_block_size + 10)
- #endif
-+#define EXT2_SECTOR_BITS	9	/* log2(SECTOR_SIZE) */
- #ifdef __KERNEL__
- #define	EXT2_ADDR_PER_BLOCK_BITS(s)	(EXT2_SB(s)->s_addr_per_block_bits)
- #define EXT2_INODE_SIZE(s)		(EXT2_SB(s)->s_inode_size)
-@@ -193,6 +194,7 @@ struct ext2_group_desc
- #define EXT2_NOTAIL_FL			0x00008000 /* file tail should not be merged */
- #define EXT2_DIRSYNC_FL			0x00010000 /* dirsync behaviour (directories only) */
- #define EXT2_TOPDIR_FL			0x00020000 /* Top of directory hierarchies*/
-+#define EXT2_HUGE_FILE_FL               0x00040000 /* Set to each huge file */
- #define EXT2_RESERVED_FL		0x80000000 /* reserved for ext2 lib */
- 
- #define EXT2_FL_USER_VISIBLE		0x0003DFFF /* User visible flags */
-@@ -465,6 +467,7 @@ struct ext2_super_block {
- #define EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER	0x0001
- #define EXT2_FEATURE_RO_COMPAT_LARGE_FILE	0x0002
- #define EXT2_FEATURE_RO_COMPAT_BTREE_DIR	0x0004
-+#define EXT2_FEATURE_RO_COMPAT_HUGE_FILE        0x0008
- #define EXT2_FEATURE_RO_COMPAT_ANY		0xffffffff
- 
- #define EXT2_FEATURE_INCOMPAT_COMPRESSION	0x0001
-@@ -481,7 +484,8 @@ struct ext2_super_block {
- 					 EXT2_FEATURE_INCOMPAT_HUGE_FS)
- #define EXT2_FEATURE_RO_COMPAT_SUPP	(EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER| \
- 					 EXT2_FEATURE_RO_COMPAT_LARGE_FILE| \
--					 EXT2_FEATURE_RO_COMPAT_BTREE_DIR)
-+					 EXT2_FEATURE_RO_COMPAT_BTREE_DIR| \
-+					 EXT2_FEATURE_RO_COMPAT_HUGE_FILE)
- #define EXT2_FEATURE_RO_COMPAT_UNSUPPORTED	~EXT2_FEATURE_RO_COMPAT_SUPP
- #define EXT2_FEATURE_INCOMPAT_UNSUPPORTED	~EXT2_FEATURE_INCOMPAT_SUPP
- 
-
+-	printf (P_("\n%8d inode used (%d%%)\n", "\n%8d inodes used (%d%%)\n",
+-		   inodes_used), inodes_used, 100 * inodes_used / inodes);
++	printf (P_("\n%8d inode used (%u%%)\n", "\n%8d inodes used (%u%%)\n",
++		   inodes_used), inodes_used, 100 * (__u64)inodes_used / inodes);
+ 	printf (P_("%8d non-contiguous inode (%0d.%d%%)\n",
+ 		   "%8d non-contiguous inodes (%0d.%d%%)\n",
+ 		   ctx->fs_fragmented),
+ 		ctx->fs_fragmented, frag_percent / 10, frag_percent % 10);
+-	printf (_("         # of inodes with ind/dind/tind blocks: %d/%d/%d\n"),
++	printf (_("         # of inodes with ind/dind/tind blocks: %u/%u/%u\n"),
+ 		ctx->fs_ind_count, ctx->fs_dind_count, ctx->fs_tind_count);
+ 	printf (P_("%8u block used (%d%%)\n", "%8u blocks used (%d%%)\n",
+ 		   blocks_used),
+ 		blocks_used, (int) ((long long) 100 * blocks_used / blocks));
+ 	printf (P_("%8d bad block\n", "%8d bad blocks\n",
+ 		   ctx->fs_badblocks_count), ctx->fs_badblocks_count);
+-	printf (P_("%8d large file\n", "%8d large files\n",
++	printf (P_("%8u large file\n", "%8u large files\n",
+ 		   ctx->large_files), ctx->large_files);
+-	printf (P_("\n%8d regular file\n", "\n%8d regular files\n",
++	printf (P_("\n%8u regular file\n", "\n%8u regular files\n",
+ 		   ctx->fs_regular_count), ctx->fs_regular_count);
+-	printf (P_("%8d directory\n", "%8d directories\n",
++	printf (P_("%8u directory\n", "%8u directories\n",
+ 		   ctx->fs_directory_count), ctx->fs_directory_count);
+-	printf (P_("%8d character device file\n",
+-		   "%8d character device files\n", ctx->fs_chardev_count),
++	printf (P_("%8u character device file\n",
++		   "%8u character device files\n", ctx->fs_chardev_count),
+ 		ctx->fs_chardev_count);
+-	printf (P_("%8d block device file\n", "%8d block device files\n",
++	printf (P_("%8u block device file\n", "%8u block device files\n",
+ 		   ctx->fs_blockdev_count), ctx->fs_blockdev_count);
+-	printf (P_("%8d fifo\n", "%8d fifos\n", ctx->fs_fifo_count),
++	printf (P_("%8u fifo\n", "%8u fifos\n", ctx->fs_fifo_count),
+ 		ctx->fs_fifo_count);
+-	printf (P_("%8d link\n", "%8d links\n",
++	printf (P_("%8u link\n", "%8u links\n",
+ 		   ctx->fs_links_count - dir_links),
+ 		ctx->fs_links_count - dir_links);
+-	printf (P_("%8d symbolic link", "%8d symbolic links",
++	printf (P_("%8u symbolic link", "%8u symbolic links",
+ 		   ctx->fs_symlinks_count), ctx->fs_symlinks_count);
+-	printf (P_(" (%d fast symbolic link)\n", " (%d fast symbolic links)\n",
++	printf (P_(" (%u fast symbolic link)\n", " (%u fast symbolic links)\n",
+ 		   ctx->fs_fast_symlinks_count), ctx->fs_fast_symlinks_count);
+-	printf (P_("%8d socket\n", "%8d sockets\n", ctx->fs_sockets_count),
++	printf (P_("%8u socket\n", "%8u sockets\n", ctx->fs_sockets_count),
+ 		ctx->fs_sockets_count);
+ 	printf ("--------\n");
+-	printf (P_("%8d file\n", "%8d files\n",
++	printf (P_("%8u file\n", "%8u files\n",
+ 		   ctx->fs_total_count - dir_links),
+ 		ctx->fs_total_count - dir_links);
+ }
+@@ -300,7 +300,7 @@ static void check_if_skip(e2fsck_t ctx)
+ 		fputs(_(", check forced.\n"), stdout);
+ 		return;
+ 	}
+-	printf(_("%s: clean, %d/%d files, %u/%u blocks"), ctx->device_name,
++	printf(_("%s: clean, %u/%u files, %u/%u blocks"), ctx->device_name,
+ 	       fs->super->s_inodes_count - fs->super->s_free_inodes_count,
+ 	       fs->super->s_inodes_count,
+ 	       fs->super->s_blocks_count - fs->super->s_free_blocks_count,
+diff -upNr e2fsprogs-1.39/misc/mke2fs.c e2fsprogs-1.39.tmp/misc/mke2fs.c
+--- e2fsprogs-1.39/misc/mke2fs.c	2006-04-12 11:21:58.000000000 +0900
++++ e2fsprogs-1.39.tmp/misc/mke2fs.c	2006-04-12 11:49:33.000000000 +0900
+@@ -644,8 +644,8 @@ static void show_stats(ext2_filsys fs)
+ 	       100.0 * s->s_r_blocks_count / s->s_blocks_count);
+ 	printf(_("First data block=%u\n"), s->s_first_data_block);
+ 	if (s->s_reserved_gdt_blocks)
+-		printf(_("Maximum filesystem blocks=%lu\n"),
+-		       (s->s_reserved_gdt_blocks + fs->desc_blocks) *
++		printf(_("Maximum filesystem blocks=%llu\n"),
++		       ((blk64_t)s->s_reserved_gdt_blocks + fs->desc_blocks) *
+ 		       (fs->blocksize / sizeof(struct ext2_group_desc)) *
+ 		       s->s_blocks_per_group);
+ 	if (fs->group_desc_count > 1)
 
 

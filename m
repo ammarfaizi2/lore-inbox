@@ -1,57 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbWEYQiF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbWEYQkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030263AbWEYQiF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 12:38:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030258AbWEYQhk
+	id S1030259AbWEYQkP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 12:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbWEYQkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 12:37:40 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39826 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030256AbWEYQha (ORCPT
+	Thu, 25 May 2006 12:40:15 -0400
+Received: from xenotime.net ([66.160.160.81]:60590 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1030259AbWEYQkN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 12:37:30 -0400
-Date: Thu, 25 May 2006 09:37:20 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>,
-       Neil Brown <neilb@suse.de>, Andrew Morton <akpm@osdl.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.17-rc5
-In-Reply-To: <20060525132336.7f6ca8af@doriath.conectiva>
-Message-ID: <Pine.LNX.4.64.0605250934220.5623@g5.osdl.org>
-References: <Pine.LNX.4.64.0605241902520.5623@g5.osdl.org>
- <20060525132336.7f6ca8af@doriath.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 25 May 2006 12:40:13 -0400
+Date: Thu, 25 May 2006 09:42:47 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: =?UTF-8?B?xLBzbWFpbCBEw7ZubWV6?= <ismail@pardus.org.tr>
+Cc: linux-kernel@vger.kernel.org, akpm <akpm@osdl.org>
+Subject: Re: 2.6.17-rc5 : Lots of warning in MODPOST stage
+Message-Id: <20060525094247.0cb9d267.rdunlap@xenotime.net>
+In-Reply-To: <44756879.2010907@pardus.org.tr>
+References: <44756879.2010907@pardus.org.tr>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 25 May 2006 11:19:05 +0300 İsmail Dönmez wrote:
 
-
-On Thu, 25 May 2006, Luiz Fernando N. Capitulino wrote:
+> I am getting lots of warnings in MODPOST stage, not sure if this is known:
 > 
->  I'm getting this after running 'halt':
-> 
-> Halting system...
-> md: stopping all md devices.
-> md: md0 switched to read-only mode.
-> Shutdown: hda
-> System halted.
-> BUG: halt/3367, lock held at task exit time!
->  [dfe70494] {mddev_find}
-> .. held by:              halt: 3367 [decf4a90, 118]
-> ... acquired at:               md_notify_reboot+0x31/0x7f
+> WARNING: drivers/char/ip2/ip2main.o - Section mismatch: reference to
+> .init.text: from .text between 'cleanup_module' (at offset 0x1e82) and
+> 'ip2_loadmain'
+> WARNING: drivers/char/ip2/ip2main.o - Section mismatch: reference to
+> .init.text: from .text between 'cleanup_module' (at offset 0x1ea8) and
+> 'ip2_loadmain'
+> WARNING: drivers/char/ip2/ip2main.o - Section mismatch: reference to
+> .init.text: from .text between 'ip2_loadmain' (at offset 0x2109) and
+> 'set_irq'
+> WARNING: drivers/char/ip2/ip2main.o - Section mismatch: reference to
+> .init.text: from .text between 'ip2_loadmain' (at offset 0x21e7) and
+> 'set_irq'
+> WARNING: drivers/char/ip2/ip2main.o - Section mismatch: reference to
+> .init.text: from .text between 'ip2_loadmain' (at offset 0x22a6) and
+> 'set_irq'
+> WARNING: drivers/char/ip2/ip2main.o - Section mismatch: reference to
+> .init.text: from .text between 'ip2_loadmain' (at offset 0x253d) and
+> 'set_irq'
+> WARNING: drivers/char/ip2/ip2main.o - Section mismatch: reference to
+> .init.text: from .text between 'ip2_loadmain' (at offset 0x25c1) and
+> 'set_irq'
 
-Sounds like this is due to df5b89b323b922f56650b4b4d7c41899b937cf19, aka 
-"md: Convert reconfig_sem to reconfig_mutex" by NeilBrown.
+Hm, I don't see all of those.  However, Andrew has a patch for
+(some of these) in -mm.  It fixes all of the warnings that I get.
 
-Neil? It may well be (and likely is) an old thing, just exposed by the 
-lock debugging of the new mutexes.
+[snip]
 
-Was it _meant_ to take the lock and hold it? Looks like it might be the
+> WARNING: drivers/scsi/megaraid/megaraid_mbox.o - Section mismatch:
+> reference to .init.text: from .text between 'megaraid_probe_one' (at
+> offset 0x161) and 'megaraid_detach_one'
+> WARNING: drivers/scsi/wd7000.o - Section mismatch: reference to
+> .init.text: from .text between 'wd7000_detect' (at offset 0xa81) and
+> 'wd7000_release'
 
-	ITERATE_MDDEV(mddev,tmp)
-		if (mddev_trylock(mddev))
-			do_md_stop (mddev, 1);
+Patches for these 2 will follow shortly (to linux-scsi m-l).
 
-(maybe it should release the lock after the md_stop?)
+> WARNING: drivers/scsi/qla1280.o - Section mismatch: reference to
+> .init.data: from .text between 'qla1280_get_token' (at offset 0x2a16)
+> and 'qla1280_probe_one'
+> WARNING: drivers/scsi/qla1280.o - Section mismatch: reference to
+> .init.data: from .text between 'qla1280_get_token' (at offset 0x2a3c)
+> and 'qla1280_probe_one'
 
-		Linus
+Weird, I don't get this one either, and I used your .config file.
+However, I'll put some eyes on it.
+
+---
+~Randy

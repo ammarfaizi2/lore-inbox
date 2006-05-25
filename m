@@ -1,46 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965081AbWEYH7f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965078AbWEYIDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965081AbWEYH7f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 03:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965079AbWEYH7f
+	id S965078AbWEYIDL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 04:03:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965079AbWEYIDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 03:59:35 -0400
-Received: from gate.crashing.org ([63.228.1.57]:2466 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965077AbWEYH7e (ORCPT
+	Thu, 25 May 2006 04:03:11 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:23762 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S965078AbWEYIDJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 03:59:34 -0400
-Subject: Re: [PATCH 3/4] myri10ge - Driver core
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Brice Goglin <brice@myri.com>
-Cc: Anton Blanchard <anton@samba.org>, netdev@vger.kernel.org,
-       gallatin@myri.com, linux-kernel@vger.kernel.org
-In-Reply-To: <4474138C.2050705@myri.com>
-References: <20060517220218.GA13411@myri.com>
-	 <20060517220608.GD13411@myri.com> <20060523153928.GB5938@krispykreme>
-	 <4474138C.2050705@myri.com>
-Content-Type: text/plain
-Date: Thu, 25 May 2006 17:59:02 +1000
-Message-Id: <1148543942.13249.268.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 25 May 2006 04:03:09 -0400
+Message-ID: <348544185.07479@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Thu, 25 May 2006 16:03:08 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 17/33] readahead: context based method
+Message-ID: <20060525080308.GB4996@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060524111246.420010595@localhost.localdomain> <348469544.17438@ustc.edu.cn> <44753FE8.3040002@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44753FE8.3040002@yahoo.com.au>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-24 at 10:04 +0200, Brice Goglin wrote:
+On Thu, May 25, 2006 at 03:26:00PM +1000, Nick Piggin wrote:
+> Wu Fengguang wrote:
+> >+	cond_resched();
+> >+	read_lock_irq(&mapping->tree_lock);
+> >+	index = radix_tree_scan_hole_backward(&mapping->page_tree,
+> >+							offset, ra_max);
+> >+	read_unlock_irq(&mapping->tree_lock);
+> >
+> 
+> Why do you drop this lock just to pick it up again a few instructions
+> down the line? (is ra_cache_hit_ok or cound_cache_hit very big or
+> unable to be called without the lock?)
 
-> I am not sure what you mean.
-> The only ppc64 with PCI-E that we have seen so far (a G5) couldn't do
-> write combining according to Apple.
+Nice catch, will fix it.
 
-That is not 100% true.... I don't know what apple had in mind. It also
-depends in what slot you are.
+> >+
+> >+	*remain = offset - index;
+> >+
+> >+	if (offset == ra->readahead_index && ra_cache_hit_ok(ra))
+> >+		count = *remain;
+> >+	else if (count_cache_hit(mapping, index + 1, offset) *
+> >+						readahead_hit_rate >= 
+> >*remain)
+> >+		count = *remain;
+> >+	else
+> >+		count = ra_min;
+> >+
+> >+	/*
+> >+	 * Unnecessary to count more?
+> >+	 */
+> >+	if (count < ra_max)
+> >+		goto out;
+> >+
+> >+	if (unlikely(ra->flags & RA_FLAG_NO_LOOKAHEAD))
+> >+		goto out;
+> >+
+> >+	/*
+> >+	 * Check the far pages coarsely.
+> >+	 * The enlarged count here helps increase la_size.
+> >+	 */
+> >+	nr_lookback = ra_max * (LOOKAHEAD_RATIO + 1) *
+> >+						100 / (readahead_ratio | 1);
+> >+
+> >+	cond_resched();
+> >+	radix_tree_cache_init(&cache);
+> >+	read_lock_irq(&mapping->tree_lock);
+> >+	for (count += ra_max; count < nr_lookback; count += ra_max) {
+> >+		struct radix_tree_node *node;
+> >+		node = radix_tree_cache_lookup_parent(&mapping->page_tree,
+> >+						&cache, offset - count, 1);
+> >+		if (!node)
+> >+			break;
+> >+	}
+> >+	read_unlock_irq(&mapping->tree_lock);
+> >
+> 
+> Yuck. Apart from not being commented, this depends on internal
+> implementation of radix-tree. This should just be packaged up in some
+> radix-tree function to do exactly what you want (eg. is there a hole of
+> N contiguous pages).
 
-Do you have ways to measure the difference ?
+Yes, it is ugly.
+Maybe we can make it a function named radix_tree_scan_hole_coarse().
 
-Try doing __ioremap(mgp->iomem_base, mgp->board_span, _PAGE_NO_CACHE);
-instead of using the normal ioremap for #ifdef powerpc and tell us if it
-makes a difference.
+> And then again you can be rid of the radix-tree cache.
+> 
+> Yes, it increasingly appears that you're using the cache because you're
+> using the wrong abstractions. Eg. this is basically half implementing
+> some data-structure internal detail.
 
-Ben.
+Sorry for not being aware of this problem :)
 
+Wu

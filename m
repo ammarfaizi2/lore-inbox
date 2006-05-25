@@ -1,89 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWEYD2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWEYD35@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964830AbWEYD2f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 23:28:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbWEYD2f
+	id S964834AbWEYD35 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 23:29:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbWEYD35
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 23:28:35 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:3968 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S964830AbWEYD2e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 23:28:34 -0400
-Subject: Re: [PATCH 00/03] kexec: Avoid overwriting the current pgd (V2)
-From: Magnus Damm <magnus@valinux.co.jp>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: vgoyal@in.ibm.com, fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <m1k68astge.fsf@ebiederm.dsl.xmission.com>
-References: <20060524044232.14219.68240.sendpatchset@cherry.local>
-	 <20060524225631.GA23291@in.ibm.com> <1148522948.5793.98.camel@localhost>
-	 <m1k68astge.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Date: Thu, 25 May 2006 12:30:37 +0900
-Message-Id: <1148527837.5793.121.camel@localhost>
+	Wed, 24 May 2006 23:29:57 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:49542 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S964834AbWEYD34
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 May 2006 23:29:56 -0400
+Date: Wed, 24 May 2006 22:34:09 -0500
+From: Jon Mason <jdmason@us.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Muli Ben-Yehuda <muli@il.ibm.com>, Muli Ben-Yehuda <mulix@mulix.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 1/4] x86-64: Calgary IOMMU - introduce iommu_detected
+Message-ID: <20060525033408.GC7720@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Eric,
-
-On Wed, 2006-05-24 at 20:56 -0600, Eric W. Biederman wrote:
-> Magnus Damm <magnus@valinux.co.jp> writes:
-> 
-> > On Wed, 2006-05-24 at 18:56 -0400, Vivek Goyal wrote:
-> >> On Wed, May 24, 2006 at 01:40:31PM +0900, Magnus Damm wrote:
-> >> > kexec: Avoid overwriting the current pgd (V2)
-> >> > 
-> >> > This patch updates the kexec code for i386 and x86_64 to avoid overwriting
-> >> > the current pgd. For most people is overwriting the current pgd is not a big
-> >> > problem. When kexec:ing into a new kernel that reinitializes and makes use
-> > of
-> >> > all memory we don't care about saving state.
-> >> > 
-> >> > But overwriting the current pgd is not a good solution in the case of kdump
-> >> > (CONFIG_CRASH_DUMP) where we want to preserve as much state as possible when
-> >> > a crash occurs. This patch solves the overwriting issue.
-> >> > 
-> >> > 20060524: V2
-> >> > 
-> >> > - Broke out architecture-specific data structures into asm/kexec.h
-> >> > - Fixed a i386/PAE page table problem only triggering on real hardware.
-> >> > - Moved segment handling code into the assembly routines.
-> >> 
-> >> What's the advantage of moving segment handling code into assembly
-> >> routines? It will only add to the fear of control code page size growing
-> >> beyond 4K.
-> >
-> > I have two main reasons:
-> >
-> > - Why wrap assembler instructions in C code if you just can move them
-> > into an already existing assembly file? Much cleaner IMO.
-> 
-> C code is much more accessible to other programmers than arch specific
-> assembly.  The code on the control page was almost written in C, and
-> I'm still not quite convinced that it would be wrong to do that.
-
-I agree with you that it is of course better to implement something in C
-if possible compared to writing it in architecture-specific assembly.
-
-But I do not agree that wrapping architecture-specific assembly code in
-C functions makes the code more understandable. I'd really like to meet
-the kernel hacker that is aware of how x86 segmentation works but is
-unable to read x86 assembly.
-
-> > - I'm currently working on making kexec to work under xen/dom0. And by
-> > moving the segment handling code into the assembly file we reduce the
-> > amount of duplicated code.
-> 
-> Not the reason I would have expected.  So you are only differring the
-> two implementations by the contents of the control code page?
-
-Nah, there's a fairly large framework to pass pages to the hypervisor,
-converting pfn:s to mfn:s, building page tables etc. We will resend the
-patches later on today to xen-devel if you're interested.
+swiotlb relies on the gart specific iommu_aperture variable to know if
+we discovered a hardware IOMMU before swiotlb initialization.  Introduce
+iommu_detected to do the same thing, but in a HW IOMMU neutral manner,
+in preparation for adding the Calgary HW IOMMU.
 
 Thanks,
+Jon
 
-/ magnus
+Signed-Off-By: Muli Ben-Yehuda <muli@il.ibm.com>
+Signed-Off-By: Jon Mason <jdmason@us.ibm.com>
 
+diff -r 82f66cc5a33b arch/x86_64/kernel/aperture.c
+--- a/arch/x86_64/kernel/aperture.c	Tue May 23 18:57:22 2006
++++ b/arch/x86_64/kernel/aperture.c	Tue May 23 14:05:16 2006
+@@ -212,6 +212,7 @@
+ 		if (read_pci_config(0, num, 3, 0x00) != NB_ID_3) 
+ 			continue;	
+ 
++		iommu_detected = 1;
+ 		iommu_aperture = 1; 
+ 
+ 		aper_order = (read_pci_config(0, num, 3, 0x90) >> 1) & 7; 
+diff -r 82f66cc5a33b arch/x86_64/kernel/pci-dma.c
+--- a/arch/x86_64/kernel/pci-dma.c	Tue May 23 18:57:22 2006
++++ b/arch/x86_64/kernel/pci-dma.c	Tue May 23 14:05:16 2006
+@@ -32,6 +32,9 @@
+ int panic_on_overflow __read_mostly = 0;
+ int force_iommu __read_mostly= 0;
+ #endif
++
++/* Set this to 1 if there is a HW IOMMU in the system */
++int iommu_detected __read_mostly = 0;
+ 
+ /* Dummy device used for NULL arguments (normally ISA). Better would
+    be probably a smaller DMA mask, but this is bug-to-bug compatible
+diff -r 82f66cc5a33b arch/x86_64/kernel/pci-gart.c
+--- a/arch/x86_64/kernel/pci-gart.c	Tue May 23 18:57:22 2006
++++ b/arch/x86_64/kernel/pci-gart.c	Tue May 23 14:05:16 2006
+@@ -624,6 +624,10 @@
+ 	if (swiotlb)
+ 		return -1; 
+ 
++	/* Did we detect a different HW IOMMU? */
++	if (iommu_detected && !iommu_aperture)
++		return -1;
++
+ 	if (no_iommu ||
+ 	    (!force_iommu && end_pfn <= MAX_DMA32_PFN) ||
+ 	    !iommu_aperture ||
+diff -r 82f66cc5a33b arch/x86_64/kernel/pci-swiotlb.c
+--- a/arch/x86_64/kernel/pci-swiotlb.c	Tue May 23 18:57:22 2006
++++ b/arch/x86_64/kernel/pci-swiotlb.c	Tue May 23 14:05:16 2006
+@@ -31,7 +31,7 @@
+ void pci_swiotlb_init(void)
+ {
+ 	/* don't initialize swiotlb if iommu=off (no_iommu=1) */
+-	if (!iommu_aperture && !no_iommu &&
++	if (!iommu_detected && !no_iommu &&
+ 	    (end_pfn > MAX_DMA32_PFN || force_iommu))
+ 	       swiotlb = 1;
+ 	if (swiotlb) {
+diff -r 82f66cc5a33b include/asm-x86_64/proto.h
+--- a/include/asm-x86_64/proto.h	Tue May 23 18:57:22 2006
++++ b/include/asm-x86_64/proto.h	Tue May 23 14:05:16 2006
+@@ -116,6 +116,7 @@
+ extern int acpi_ht;
+ extern int acpi_disabled;
+ 
++extern int iommu_detected;
+ #ifdef CONFIG_GART_IOMMU
+ extern int fallback_aper_order;
+ extern int fallback_aper_force;

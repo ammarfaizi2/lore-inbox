@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWEYQPr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbWEYQTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbWEYQPr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 12:15:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbWEYQPq
+	id S1030245AbWEYQTz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 12:19:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbWEYQTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 12:15:46 -0400
-Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:46723 "EHLO
-	clueserver.org") by vger.kernel.org with ESMTP id S1750777AbWEYQPq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 12:15:46 -0400
-Date: Thu, 25 May 2006 09:15:45 -0700 (PDT)
-From: alan <alan@clueserver.org>
-X-X-Sender: alan@blackbox.fnordora.org
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Kyle McMartin <kyle@mcmartin.ca>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Well, Linus seems to like Lordi...
-In-Reply-To: <Pine.LNX.4.64.0605250841340.5623@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0605250906180.16055@blackbox.fnordora.org>
-References: <20060525141714.GA31604@skunkworks.cabal.ca>
- <Pine.LNX.4.64.0605250841340.5623@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 25 May 2006 12:19:55 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:24709 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1030242AbWEYQTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 12:19:54 -0400
+Subject: Re: + pi-futex-rt-mutex-docs.patch added to -mm tree
+From: Steven Rostedt <rostedt@goodmis.org>
+To: akpm@osdl.org
+Cc: arjan@linux.intel.com, mingo@elte.hu, tglx@linutronix.de,
+       mm-commits@vger.kernel.org, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200605251502.k4PF21vH027653@shell0.pdx.osdl.net>
+References: <200605251502.k4PF21vH027653@shell0.pdx.osdl.net>
+Content-Type: text/plain
+Date: Thu, 25 May 2006 12:19:42 -0400
+Message-Id: <1148573982.16319.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 May 2006, Linus Torvalds wrote:
+Andrew,
 
->
->
-> On Thu, 25 May 2006, Kyle McMartin wrote:
->>
->> If we're going to have release code names for the kernel, might as well
->> advertise them somewhere. :)
->
-> Well, part of the charm of the name is that it's totally meaningless. I
-> can pick names out of my *ss, and they don't matter in the least, and
-> nobody will ever see it except in the kernel diffs.
+I see you folded a bunch of doc patches together.  I just want to make
+sure that the updates to my document recommended by Randy Dunlap were
+not missed. I haven't received any verification that they went in.
 
-Unlike the release names for "Pan" (http://pan.rebelbase.com/).  They 
-revel in weird release names.
+Here's links to the patches I'm talking about.
 
-"I will not buy this lutefisk, it is scratched."
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114768226928517&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114768248213413&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114768248205694&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114768444306113&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114776099430012&w=2
 
-> (As to Lordi, I've only ever seen their Eurovision thing on Youtube,
-> because those pesky US networks thinks we're interested in some kind of
-> inferior "American Idol" copycat product.
+It includes 4 out of 2 patches :)  The last two were add-ons that needed
+to get done.
 
-Except the Eurovision Song Contest has been going on since sometime in the 
-middle of the Jurasic period.
+Or would it be easier if I fold these into one patch and send it to you?
 
-> But unless you've lived in
-> Finland during the 80s and 90s, you just simply cannot appreciate the
-> "Whaaa?" factor of having Finland win the dang thing. Imagine a whole
-> _country_ going "Whaaa? What the f?" at the same time..).
+Thanks,
 
-It would be like Gwar winning American Idol.  (Which would be about the 
-only way to get me to watch it.)
+-- Steve
 
--- 
-"Waiter! This lambchop tastes like an old sock!" - Sheri Lewis

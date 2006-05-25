@@ -1,96 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbWEYQhU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030255AbWEYQhj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964862AbWEYQhU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 12:37:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965200AbWEYQhT
+	id S1030255AbWEYQhj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 12:37:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030259AbWEYQhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 12:37:19 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:24479 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964862AbWEYQhR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 12:37:17 -0400
-To: "Magnus Damm" <magnus.damm@gmail.com>
-Cc: "Magnus Damm" <magnus@valinux.co.jp>, "Andrew Morton" <akpm@osdl.org>,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [PATCH 01/03] kexec: Avoid overwriting the current
- pgd (V2, stubs)
-References: <20060524044232.14219.68240.sendpatchset@cherry.local>
-	<20060524044237.14219.15615.sendpatchset@cherry.local>
-	<m1wtcasu5b.fsf@ebiederm.dsl.xmission.com>
-	<1148528742.5793.135.camel@localhost>
-	<m1bqtmsosw.fsf@ebiederm.dsl.xmission.com>
-	<aec7e5c30605250011y35f295a0rf15e152910e98b94@mail.gmail.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 25 May 2006 10:36:13 -0600
-In-Reply-To: <aec7e5c30605250011y35f295a0rf15e152910e98b94@mail.gmail.com> (Magnus
- Damm's message of "Thu, 25 May 2006 16:11:12 +0900")
-Message-ID: <m1u07edptu.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Thu, 25 May 2006 12:37:38 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:44692 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1030258AbWEYQhe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 12:37:34 -0400
+Date: Thu, 25 May 2006 18:37:19 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Kyle McMartin <kyle@mcmartin.ca>
+cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: [PATCH] Add compile domain (was: Re: [PATCH] Well, Linus seems to
+ like Lordi...)
+In-Reply-To: <20060525141714.GA31604@skunkworks.cabal.ca>
+Message-ID: <Pine.LNX.4.61.0605251829410.6951@yvahk01.tjqt.qr>
+References: <20060525141714.GA31604@skunkworks.cabal.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Magnus Damm" <magnus.damm@gmail.com> writes:
-
-> On 5/25/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
->> Magnus Damm <magnus@valinux.co.jp> writes:
->> > On Wed, 2006-05-24 at 20:41 -0600, Eric W. Biederman wrote:
->> >> Magnus Damm <magnus@valinux.co.jp> writes:
->>
->> I believe I gave a complete explanation the first round.
->>
->> By having an extra extern variable you can export the offset of
->> a variable on the control code page, or what you need to compute
->> the offset.
+>If we're going to have release code names for the kernel, might as well
+>advertise them somewhere. :)
 >
-> You explained some things last round, but there were still some
-> questions left open. The main question was regarding "additional
-> protection".
+>--- a/init/version.c
+>+++ b/init/version.c
+>@@ -29,5 +29,6 @@ struct new_utsname system_utsname = {
+> EXPORT_SYMBOL(system_utsname);
+> 
+> const char linux_banner[] =
+>-	"Linux version " UTS_RELEASE " (" LINUX_COMPILE_BY "@"
+>-	LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") " UTS_VERSION "\n";
+>+	"Linux version " UTS_RELEASE " \"" LINUX_CODE_NAME "\" (" 
+>+	LINUX_COMPILE_BY "@" LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") "
+>+	UTS_VERSION "\n";
+>-
 
-Memory that the kernel never sets up for DMA ever.
+As for extending the linux_banner, here's a real patch in my line...
 
-> I'd be happy to change to code into something that you would feel
-> comfortable with, I just like to understand why. Having a
-> per-architecture data area in struct kimage is by far the simplest way
-> IMO.
+Signed-off-by: Jan Engelhardt <jengelh@gmx.de>
 
-But the problem is fundamentally hard.  I do not want to encourage
-people to make changes without thinking through all of the consequences.
+diff --fast -Ndpru linux-2.6.17-rc5~/arch/i386/boot/setup.S linux-2.6.17-rc5+/arch/i386/boot/setup.S
+--- linux-2.6.17-rc5~/arch/i386/boot/setup.S	2006-05-25 03:50:17.000000000 +0200
++++ linux-2.6.17-rc5+/arch/i386/boot/setup.S	2006-05-25 18:35:04.661512000 +0200
+@@ -862,6 +862,8 @@ kernel_version:	.ascii	UTS_RELEASE
+ 		.ascii	LINUX_COMPILE_BY
+ 		.ascii	"@"
+ 		.ascii	LINUX_COMPILE_HOST
++                .ascii  "."
++                .ascii  LINUX_COMPILE_DOMAIN
+ 		.ascii	") "
+ 		.ascii	UTS_VERSION
+ 		.byte	0
+diff --fast -Ndpru linux-2.6.17-rc5~/arch/x86_64/boot/setup.S linux-2.6.17-rc5+/arch/x86_64/boot/setup.S
+--- linux-2.6.17-rc5~/arch/x86_64/boot/setup.S	2006-05-25 03:50:17.000000000 +0200
++++ linux-2.6.17-rc5+/arch/x86_64/boot/setup.S	2006-05-25 18:35:04.661512000 +0200
+@@ -748,6 +748,8 @@ kernel_version:	.ascii	UTS_RELEASE
+ 		.ascii	LINUX_COMPILE_BY
+ 		.ascii	"@"
+ 		.ascii	LINUX_COMPILE_HOST
++                .ascii  "."
++                .ascii  LINUX_COMPILE_DOMAIN
+ 		.ascii	") "
+ 		.ascii	UTS_VERSION
+ 		.byte	0
+diff --fast -Ndpru linux-2.6.17-rc5~/init/version.c linux-2.6.17-rc5+/init/version.c
+--- linux-2.6.17-rc5~/init/version.c	2006-05-25 03:50:17.000000000 +0200
++++ linux-2.6.17-rc5+/init/version.c	2006-05-25 18:35:26.321512000 +0200
+@@ -30,4 +30,5 @@ EXPORT_SYMBOL(system_utsname);
+ 
+ const char linux_banner[] =
+ 	"Linux version " UTS_RELEASE " (" LINUX_COMPILE_BY "@"
+-	LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") " UTS_VERSION "\n";
++	LINUX_COMPILE_HOST "." LINUX_COMPILE_DOMAIN ") ("
++	LINUX_COMPILER ") " UTS_VERSION "\n";
+#<<eof>>
 
-So far my impression is that an additional per-architecture data area
-is struct kimage encourages people to be sloppy, and it moves key structures
-farther from where they are used.  I am coming to suspect it is as bad
-as ioctl.
 
-I could probably be convinced with a good use of a per-architecture
-area and a well reasoned argument.  But at the moment changing the
-infrastructure is unnecessary noise, so please drop that for now.
-
->> Part of the reason is you do more than one thing at a time, which makes
->> review much more difficult than it needs to be.
->
-> Yeah, I know. I'm sorry about that. I took some time to split the
-> patches in the most logical way I could think of. The reason behind
-> not separating the segment code and the page_table_a code was that
-> they both touched more or less the same lines.
-
-Dependent patches are not a problem.
-
-> And by global structure you mean the dynamically allocated struct
-> kimage? If you find that abusive then I think that _not_ using an
-> already existing structure is abusive. =)
->
-> I just want to keep things as simple as possible.
-
-Simplicity is good.  
-
-Doing unnecessary things is confusing and the issue is not good,
-and at least until the Xen support is merged you were doing
-unnecessary things.
-
-Please just take it carefully.  This is possibly the hardest
-to debug code path in the kernel and currently it works.  I
-don't want to break that.
-
-Eric
+Jan Engelhardt
+-- 
+| Software Engineer and Linux/Unix Network Administrator
+| Alphagate Systems, http://alphagate.hopto.org/
+| jengelh's site, http://jengelh.hopto.org/

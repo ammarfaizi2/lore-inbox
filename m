@@ -1,77 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWE3Oxb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbWE3Oye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbWE3Oxb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 10:53:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWE3Oxb
+	id S932303AbWE3Oye (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 10:54:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWE3Oye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 10:53:31 -0400
-Received: from perninha.conectiva.com.br ([200.140.247.100]:41612 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S932299AbWE3Oxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 10:53:30 -0400
-Date: Tue, 30 May 2006 11:53:29 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: Frank Gevaerts <frank.gevaerts@fks.be>, Pete Zaitcev <zaitcev@redhat.com>,
-       linux-kernel@vger.kernel.org, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: usb-serial ipaq kernel problem
-Message-ID: <20060530115329.30184aa0@doriath.conectiva>
-In-Reply-To: <20060530113801.22c71afe@doriath.conectiva>
-References: <20060526182217.GA12687@fks.be>
-	<20060526133410.9cfff805.zaitcev@redhat.com>
-	<20060529120102.1bc28bf2@doriath.conectiva>
-	<20060529132553.08b225ba@doriath.conectiva>
-	<20060529141110.6d149e21@doriath.conectiva>
-	<20060529194334.GA32440@fks.be>
-	<20060529172410.63dffa72@doriath.conectiva>
-	<20060529204724.GA22250@fks.be>
-	<20060529193330.3c51f3ba@home.brethil>
-	<20060530082141.GA26517@fks.be>
-	<20060530113801.22c71afe@doriath.conectiva>
-Organization: Mandriva
-X-Mailer: Sylpheed-Claws 2.2.0 (GTK+ 2.8.17; i586-mandriva-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 30 May 2006 10:54:34 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:37080 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S932303AbWE3Oyd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 10:54:33 -0400
+Message-Id: <200605301454.k4UEsJKk023813@zeus1.kernel.org>
+From: "Mr Eric Miao" <ericmiaojnr1@yahoo.com>
+Reply-To: tracymartins@myway.com
+To: linux-kernel@vger.kernel.org
+Date: Thu, 25 May 2006 14:49:48 +0100
+Subject: REPRESENTATIVES WANTED
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 May 2006 11:38:01 -0300
-"Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> wrote:
+ <http://mail.yahoo.com/config/login?/__javascriptNo:ol('http://www.allproducts.com/prc/abrasives/showroom1.html');> <http://mail.yahoo.com/config/login?/__javascriptNo:ol('http://www.allproducts.com/prc/abrasives/showroom1.html');>China Abrasives Import and Export Corporation (CAEC) is the specialized foreign trade company, which chiefly engages in exporting and importing abrasives raw materials, abrasives finished products and relevant machinery and equipment. The corporation has its head office in Zhengzhou , Henan province, its branch in Shenzhen, Hainan, branch office in Shanghai, Qingdao, liaison offices in Beijing, Tianjin, Xiamen.    	
+Dear Sir 
+It is my pleasure to write you in respect of our organization
+We are experts in the sale of abrasive raw materials and we export into Canada/America and some parts of Europe.
 
-| On Tue, 30 May 2006 10:21:41 +0200
-| Frank Gevaerts <frank.gevaerts@fks.be> wrote:
-| 
-| | On Mon, May 29, 2006 at 07:33:30PM -0300, Luiz Fernando N. Capitulino wrote:
-| | > On Mon, 29 May 2006 22:47:24 +0200
-| | > Frank Gevaerts <frank.gevaerts@fks.be> wrote:
-| | > | 
-| | > | The panic was caused by the read urb being submitten in ipaq_open,
-| | > | regardless of success, and never killed in case of failure. What my
-| | > | patch basically does is to submit the urb only after succesfully sending
-| | > | the control message, and adding a sleep between tries. As long as this
-| | > | patch is not applied, we hardly get any other error because the kernel
-| | > | panics as soon as an ipaq reboots.
-| | > 
-| | >  I see.
-| | > 
-| | >  Did you try to just kill the read urb in the ipaq_open's error path?
-| | 
-| | Yes, that's what I did at first. It works, but with the long waits (we see
-| | waits up to 80-90 seconds right now) I was afraid that the urb might timeout
-| | before the control message succeeds.
-| 
-|  Hmmm, I see.
+We are searching for reliable representatives who can help us establish a medium of getting to our customers in Canada/America/Europe as well as legally receiving cash and all forms of payment on our behalf from them as our Representative.
 
- Thinking about this again, are you sure the read urb depends on the
-control message? It's quite easy to test, just a add a long timeout after
-the read URB was sent (say, five minutes) and waits for the read urb
-callback to run.
+Please if interested in transacting business in view of helping us, so our clients could be making payment to you as our representative, we will be very glad.Compensations will be given and other benefits. 
 
- If it ran _before_ the timeout expires with no timeout error it does not
-depend. Then we can do the simpler solution: just kill the read urb in the
-ipaq_open's error path.
+Contact us for more information, if this proposal is acceptable to you. Please get back to us, so that remuneration can be worked out for your services as
+our representative in Canada/America/Europe as your location shall determine. 
 
--- 
-Luiz Fernando N. Capitulino
+For further information and enquiries, 
+Contact : Mrs.Tracy Martins (sales)
+email: tracymartins@myway.com <mailto:tracymartins@myway.com>
+China Abrasives Import & Export Corporation (CAEC)
+
+We anticipate your earliest response in this regard.
+Thanks,
+Mr Eric Miao 
+For : China Abrasives Import & Export Corporation (CAEC)
+
+

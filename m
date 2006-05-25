@@ -1,121 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965174AbWEYN3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965177AbWEYN35@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965174AbWEYN3b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 09:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965176AbWEYN3b
+	id S965177AbWEYN35 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 09:29:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965176AbWEYN35
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 09:29:31 -0400
-Received: from wr-out-0506.google.com ([64.233.184.225]:22740 "EHLO
+	Thu, 25 May 2006 09:29:57 -0400
+Received: from wr-out-0506.google.com ([64.233.184.238]:57556 "EHLO
 	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965174AbWEYN3a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 09:29:30 -0400
+	id S965178AbWEYN34 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 09:29:56 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:organization:user-agent;
-        b=R1irlIg4QtSCTq/hfleHUjYxvKExtYv2JCv6XcO6o42X84fMp6Ai1njK14G2h8kpADgUp8T2V7MfcEmOeLEGwoQdZF+JRTh2/ht7adxIErde+r2ks1X6q491C5s6cUUIL51EvscSJBWZdJPmqFCzjR5bId0dAE5N6MZHa+MgaSk=
-Date: Thu, 25 May 2006 21:29:15 +0800
-From: Limin Wang <lance.lmwang@gmail.com>
-To: sho@tnes.nec.co.jp
-Cc: adilger@clusterfs.com, cmm@us.ibm.com, jitendra@linsyssoft.com,
-       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [UPDATE][1/24]ext3 block allocation/reservation fixes to support 2^32 blocks
-Message-ID: <20060525132914.GA9943@laptop.exavio.cn>
-Mail-Followup-To: sho@tnes.nec.co.jp, adilger@clusterfs.com, cmm@us.ibm.com,
-	jitendra@linsyssoft.com, ext2-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20060525214011sho@rifu.tnes.nec.co.jp>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UIgNh/l5mQyOSHOmN9dwhYinvRSzRx/xgDHrKMw0BpPjwiSLeJpjX/KrjRwyrV7aSnnxj1skBCM2xlGzITuxnKMdxwWTIl4q0c8MIDCuDxmow6ixDgG/LQKs6fZxsHrCaIHN3FX6E8WImPPqdBC9YzOIYLx3hhG+TgehH4Tiy3o=
+Message-ID: <9a8748490605250629h33c46635od4352cfb4823f7e2@mail.gmail.com>
+Date: Thu, 25 May 2006 15:29:55 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Greg KH" <greg@kroah.com>
+Subject: Re: [ANNOUNCE] Linux Device Driver Kit available
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060524232900.GA18408@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060525214011sho@rifu.tnes.nec.co.jp>
-Organization: Exavio.Inc
-User-Agent: Mutt/1.5.11
+References: <20060524232900.GA18408@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 25/05/06, Greg KH <greg@kroah.com> wrote:
+[snip]
+> In coordination with the FreedomHEC[1] conference this week in Seattle,
+> WA, USA, I'm proud to announce the first release of the Linux Device
+> Driver Kit.
+>
+Very nice initiative. Thanks a lot for doing this.
 
---uAKRQypu60I7Lcqm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> There's a few things that I would like to include in future versions of
+> this cdrom:
+>   - searchable index of all documentation.  jsFind looks like will work
+>     for this, but due to time constraints, did not make this release.
+>   - prettier web pages.  I acknolodge I'm no designer, anyone who wants
+>     to fix up my sparse html with proper CSS support and images would be
+>     greatly appreciated.
 
-
-See my comments in the lines.
-
-Regards,
-lmwang
-
-* sho@tnes.nec.co.jp <sho@tnes.nec.co.jp> [2006-05-25 21:40:11 +0900]:
-
-> Summary of this patch:
->   [1/24]  modify around the block allocation code(ext3)
->           - Modify around the ext3 block allocation code to replace
->             "int" type filesystem block number with "unsigned long".
->=20
-> Signed-off-by: Takashi Sato sho@tnes.nec.co.jp
-> ---
-> diff -upNr -X linux-2.6.17-rc4/Documentation/dontdiff linux-2.6.17-rc4/fs=
-/ext3/balloc.c linux-2.6.17-rc4.tmp/fs/ext3/balloc.c
-> --- linux-2.6.17-rc4/fs/ext3/balloc.c	2006-05-25 16:18:35.848388909 +0900
-> +++ linux-2.6.17-rc4.tmp/fs/ext3/balloc.c	2006-05-25 16:27:50.071038370 +=
-0900
-> @@ -223,7 +223,7 @@ void ext3_rsv_window_add(struct super_bl
->  {
->  	struct rb_root *root =3D &EXT3_SB(sb)->s_rsv_window_root;
->  	struct rb_node *node =3D &rsv->rsv_node;
-> -	unsigned int start =3D rsv->rsv_start;
-> +	unsigned long start =3D rsv->rsv_start;
-> =20
->  	struct rb_node ** p =3D &root->rb_node;
->  	struct rb_node * parent =3D NULL;
-> @@ -656,7 +656,8 @@ ext3_try_to_allocate(struct super_block=20
->  			struct buffer_head *bitmap_bh, int goal,
->  			unsigned long *count, struct ext3_reserve_window *my_rsv)
->  {
-> -	int group_first_block, start, end;
-> +	unsigned long group_first_block;
-> +	int start, end;=20
-unsigned long start, end;
-
-start and end will get data from my_rcv, so it need use u32 also.
-
->  	unsigned long num =3D 0;
-> =20
->  	/* we do allocation within the reservation window if we have a window */
-> @@ -766,12 +767,13 @@ fail_access:
->  static int find_next_reservable_window(
->  				struct ext3_reserve_window_node *search_head,
->  				struct ext3_reserve_window_node *my_rsv,
-> -				struct super_block * sb, int start_block,
-> -				int last_block)
-> +				struct super_block * sb,
-> +				unsigned long start_block,
-> +				unsigned long last_block)
->  {
->  	struct rb_node *next;
->  	struct ext3_reserve_window_node *rsv, *prev;
-> -	int cur;
-> +	unsigned long cur;
->  	int size =3D my_rsv->rsv_goal_size;
-unsigned long size =3D my_rsv->rsv_goal_size;
-=20
+I'm downloading the ISO image right now. Once I've looked through it,
+I'll see what I can do to improve the web pages.
 
 
---uAKRQypu60I7Lcqm
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iQEVAwUBRHWxKjS5KN/wlg3IAQLX+Qf+IHbg+QfhOXRIucmkMc7BLZLA2j1MxYVU
-U9dAJ+UxLo2FbsXmvvffC/ahDQeHdsLQVMyj5kcrejcD0pUYXK93h2opuPbod52m
-ShK/NNQbqfSApUET+z5cgFkl38soySfGeVseRqw0FVWfwaLFSeiQlLu5OC6hTpTW
-gHiNfCz2gJevz/5+1yexkiRikowhIa4BTtpH2OBXzz0fjklnQPQpei+j2QlLQB7S
-1qV+ywfq8U2l93QnyyDf7DpFDGeKSg1+r1h73FQuwnFGxc4F1sY+miIVJDfGr04h
-3M7WF+1P98yBKaf6XCxoF/pyP3DBC2WqJg9JGneOEzX2UCLLYgYBgw==
-=v+OH
------END PGP SIGNATURE-----
-
---uAKRQypu60I7Lcqm--
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

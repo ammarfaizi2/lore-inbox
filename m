@@ -1,33 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965123AbWEYL7M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965125AbWEYMEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965123AbWEYL7M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 07:59:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965124AbWEYL7M
+	id S965125AbWEYMEo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 08:04:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965126AbWEYMEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 07:59:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20373 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965123AbWEYL7K (ORCPT
+	Thu, 25 May 2006 08:04:44 -0400
+Received: from ns.mipt.ru ([193.125.143.173]:37848 "EHLO mail.telecom.mipt.ru")
+	by vger.kernel.org with ESMTP id S965125AbWEYMEo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 07:59:10 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1060522044652.31268@suse.de> 
-References: <1060522044652.31268@suse.de>  <20060522143524.25410.patches@notabene> 
-To: NeilBrown <neilb@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 001 of 2] Prepare for __copy_from_user_inatomic to not zero missed bytes. 
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Thu, 25 May 2006 12:59:03 +0100
-Message-ID: <19591.1148558343@warthog.cambridge.redhat.com>
+	Thu, 25 May 2006 08:04:44 -0400
+Message-ID: <44758D79.3020302@sw.ru>
+Date: Thu, 25 May 2006 14:56:57 +0400
+From: Vasily Tarasov <vtaras@sw.ru>
+Reply-To: vtaras@sw.ru
+Organization: SWSoft
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: axboe@suse.de
+CC: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@sw.ru>
+Subject: ioprio feature behaviour
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
+I produced a little test of ioprio feature. Results are basically good 
+enough,
+but there is something strange on my mind.
+The test just runs 8 simple readers with priorities 0, 1, .., 7 in best 
+effort class.
+Readers read from files and count how much Mbytes per second they can read.
+Results are here:
+Process # (prio)  Measurement 1  (Mbps)   Measurement 2 (Mbps)    
+Measurement 3 (Mbps)
+    0                                 6,60                              
+            7,37                                 6,19
+    1                                 7,87                              
+            7,90                                 7,15
+    2                                 5,92                               
+           4,75                                 4,61
+    3                                 3,31                              
+            3,34                                 3,4
+    4                                 0,95                               
+           0,97                                 1,03
+    5                                 1,14                              
+            1,23                                 1,2
+    6                                 0,83                            
+              0,96                                 0,83
+    7                                 0,41                            
+              0,41                                 0,41
+( The whole results are at http://www.7ka.mipt.ru/~vass/cfq-tests/tests.pdf)
 
-NeilBrown <neilb@suse.de> wrote:
+ The questions are:
+1) Why process 0 with priority 0 has less bandwidth than process 1 with 
+priority 1?
+2) The same with processes (priorities) 4, 5?
+3) Why there is no _uniform_ dependence between bandwidth and priority?
+4) Why sums of bandwidths of processes when priorities are setted and 
+when they are not setted (look in pdf) aren't equal?
 
-> Interestingly 'frv' disables preempt in kmap_atomic, but its
-> copy_from_user doesn't expect faults and never zeros the tail...
-
-What gives you the idea that copy_from_user() on FRV doesn't expect or handle
-faults when CONFIG_MMU is set?  And why do you say it never zeroes the tail?
-
-David
+Thanks, Vasily.

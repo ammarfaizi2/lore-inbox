@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030181AbWEYNmX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965167AbWEYNzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030181AbWEYNmX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 09:42:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030180AbWEYNmX
+	id S965167AbWEYNzj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 09:55:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965170AbWEYNzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 09:42:23 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:16272 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1030184AbWEYNmW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 09:42:22 -0400
-Message-ID: <348564538.06705@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Thu, 25 May 2006 21:42:24 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 08/33] readahead: common macros
-Message-ID: <20060525134224.GJ4996@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060524111246.420010595@localhost.localdomain> <348469539.42623@ustc.edu.cn> <44754708.5090406@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44754708.5090406@yahoo.com.au>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 25 May 2006 09:55:39 -0400
+Received: from [213.46.243.16] ([213.46.243.16]:1372 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S965167AbWEYNzi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 09:55:38 -0400
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       David Howells <dhowells@redhat.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Christoph Lameter <christoph@lameter.com>,
+       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>
+Date: Thu, 25 May 2006 15:55:34 +0200
+Message-Id: <20060525135534.20941.91650.sendpatchset@lappy>
+Subject: [PATCH 0/3] mm: tracking dirty pages -v5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 25, 2006 at 03:56:24PM +1000, Nick Piggin wrote:
-> >+#define PAGES_BYTE(size) (((size) + PAGE_CACHE_SIZE - 1) >> 
-> >PAGE_CACHE_SHIFT)
-> >+#define PAGES_KB(size)	 PAGES_BYTE((size)*1024)
-> >
-> Don't really like the names. Don't think they do anything for clarity, but
-> if you can come up with something better for PAGES_BYTE I might change my
-> mind ;) (just forget about PAGES_KB - people know what *1024 means)
-> 
-> Also: the replacements are wrong: if you've defined VM_MAX_READAHEAD to be
-> 4095 bytes, you don't want the _actual_ readahead to be 4096 bytes, do you?
-> It is saying nothing about minimum, so presumably 0 is the correct choice.
 
-Got an idea, how about these ones:
+I hacked up a new version last night.
 
-#define FULL_PAGES(bytes)    ((bytes) >> PAGE_CACHE_SHIFT)
-#define PARTIAL_PAGES(bytes) (((bytes)+PAGE_CACHE_SIZE-1) >> PAGE_CACHE_SHIFT)
+Its now based on top of David's patches, Hugh's approach of using the
+MAP_PRIVATE protections instead of the MAP_SHARED seems far superior indeed.
+
+Q: would it be feasable to do so for al shared mappings so we can remove
+the MAP_SHARED protections all together?
+
+They survive my simple testing, but esp. the msync cleanup might need some
+more attention.
+
+I post them now instead of after a little more testing because I'll not 
+have much time the coming few days to do so, and hoarding them does 
+nobody any good.
+
+Peter

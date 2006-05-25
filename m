@@ -1,79 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965128AbWEYNZx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965175AbWEYN2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965128AbWEYNZx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 09:25:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965163AbWEYNZx
+	id S965175AbWEYN2v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 09:28:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965176AbWEYN2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 09:25:53 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:60067 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965128AbWEYNZx (ORCPT
+	Thu, 25 May 2006 09:28:51 -0400
+Received: from dsl-MP-dynamic-176.132.246.61.airtelbroadband.in ([61.246.132.176]:38150
+	"HELO dsl-MP-dynamic-176.132.246.61.airtelbroadband.in")
+	by vger.kernel.org with SMTP id S965175AbWEYN2u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 09:25:53 -0400
-Message-ID: <4475B05E.5080101@garzik.org>
-Date: Thu, 25 May 2006 09:25:50 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Thu, 25 May 2006 09:28:50 -0400
+Date: Thu, 25 May 2006 13:28:50 -0000
+From: <support@grimvideo.com>
+X-Mailer: The Bat! (v2.01)
+Reply-To: <support@grimvideo.com>
+X-Priority: 3 (Normal)
+Message-ID: <75490890.20050718034407@grimvideo.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: =?iso-8859-5?B?R29vZCBuZXdzIGZvciBmYW5z?=
+	=?iso-8859-5?B?IG9mIHJhcGUgYW5kIGZvcmNl?=
+	=?iso-8859-5?B?ZCBzZXggZmFudGFzeSE=?=
 MIME-Version: 1.0
-To: Jan Kasprzak <kas@fi.muni.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 3ware 7500 not working in 2.6.16.18, 2.6.17-rc5
-References: <20060525122240.GG19612@fi.muni.cz>
-In-Reply-To: <20060525122240.GG19612@fi.muni.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Type: multipart/mixed;
+ boundary="----------E02B2A48E4D"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Kasprzak wrote:
-> 	Hi all,
-> 
-> I have a 3ware 75xx P-ATA controller, which has been working in 2.6.15-rc2.
-> Today I have tried to upgrade to 2.6.16.18, and it cannot boot - the
-> controller cannot access the drives, with the attached messages.
-> I have also tried 2.6.17-rc5 with the same results.
-> 
-> [...]
-> 3ware Storage Controller device driver for Linux v1.26.02.001.
-> GSI 18 sharing vector 0xB9 and IRQ 18
-> ACPI: PCI Interrupt 0000:01:03.0[A] -> GSI 28 (level, low) -> IRQ 18
-> scsi0 : 3ware Storage Controller
-> 3w-xxxx: scsi0: Found a 3ware Storage Controller at 0x8c00, IRQ: 18.
->   Vendor: 3ware     Model: Logical Disk 0    Rev: 1.2
->   Type:   Direct-Access                      ANSI SCSI revision: 00
->   Vendor: 3ware     Model: Logical Disk 1    Rev: 1.2
->   Type:   Direct-Access                      ANSI SCSI revision: 00
->   Vendor: 3ware     Model: Logical Disk 2    Rev: 1.2
->   Type:   Direct-Access                      ANSI SCSI revision: 00
->   Vendor: 3ware     Model: Logical Disk 3    Rev: 1.2
->   Type:   Direct-Access                      ANSI SCSI revision: 00
->   Vendor: 3ware     Model: Logical Disk 4    Rev: 1.2
->   Type:   Direct-Access                      ANSI SCSI revision: 00
->   Vendor: 3ware     Model: Logical Disk 5    Rev: 1.2
->   Type:   Direct-Access                      ANSI SCSI revision: 00
->   Vendor: 3ware     Model: Logical Disk 6    Rev: 1.2
->   Type:   Direct-Access                      ANSI SCSI revision: 00
->   Vendor: 3ware     Model: Logical Disk 7    Rev: 1.2
->   Type:   Direct-Access                      ANSI SCSI revision: 00
-> SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
-> sda: Write Protect is off
-> SCSI device sda: drive cache: write back w/ FUA
-> SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
-> sda: Write Protect is off
-> SCSI device sda: drive cache: write back w/ FUA
->  sda:<3>nommu_map_sg: overflow 2053d9000+4096 of device mask ffffffff
-> 3w-xxxx: tw_map_scsi_sg_data(): pci_map_sg() failed.
-> nommu_map_sg: overflow 2053d9000+4096 of device mask ffffffff
-> 3w-xxxx: tw_map_scsi_sg_data(): pci_map_sg() failed.
+------------E02B2A48E4D
+Content-Type: text/plain; charset=iso-8859-5
+Content-Transfer-Encoding: 8bit
 
-Can you narrow down which kernel version first introduces the breakage, 
-between 2.6.15-rc2 and 2.6.16.x?
+Hello fans of rape and forced sex fantasy!
 
-And we will need much more information on your platform, what patches 
-(if any) you have applied, your .config, dmesg, etc.
+Check out this brand new exclusive site packed with hot stuff
+you never saw before. Not only highest quality video, but a
+unique opportunity to make your fantasies real! Everybody can
+submit a custom scenario which we will use to create an entire
+movie. Your dream will finally become real!
 
-	Jeff
+Additionally, this new site is an amazing community of
+dedicated people.
+
+It's right here: http://www.grimvideo.com
+
+P.S. Feel free to send us any feedback or your ideas!
+------------E02B2A48E4D--
 
 

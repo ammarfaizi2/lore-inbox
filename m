@@ -1,70 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965079AbWEYINu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965085AbWEYISv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965079AbWEYINu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 04:13:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965080AbWEYINu
+	id S965085AbWEYISv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 04:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965084AbWEYISv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 04:13:50 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:30595 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965079AbWEYINt (ORCPT
+	Thu, 25 May 2006 04:18:51 -0400
+Received: from mx2.mail.ru ([194.67.23.122]:16702 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S965080AbWEYISu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 04:13:49 -0400
-Date: Thu, 25 May 2006 18:13:12 +1000
-From: David Chinner <dgc@sgi.com>
-To: Balbir Singh <balbir@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH]  Per-superblock unused dentry LRU lists V2
-Message-ID: <20060525081312.GE8069029@melbourne.sgi.com>
-References: <20060524110001.GU1331387@melbourne.sgi.com> <20060525040604.GB25185@in.ibm.com> <20060525061553.GC8069029@melbourne.sgi.com> <20060525063350.GD8069029@melbourne.sgi.com> <20060525065219.GD25185@in.ibm.com>
+	Thu, 25 May 2006 04:18:50 -0400
+Date: Thu, 25 May 2006 12:22:38 +0400
+From: Evgeniy Dushistov <dushistov@mail.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: [PATCH] ufs: Unmark CONFIG_UFS_FS_WRITE as BROKEN -mm tree
+Message-ID: <20060525082238.GA7406@rain.homenetwork>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060525065219.GD25185@in.ibm.com>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 25, 2006 at 12:22:20PM +0530, Balbir Singh wrote:
-> On Thu, May 25, 2006 at 04:33:50PM +1000, David Chinner wrote:
-> > On Thu, May 25, 2006 at 04:15:53PM +1000, David Chinner wrote:
-> > > 
-> > > FWIW, this create/unlink load has been triggering reliable "Busy
-> > > inodes after unmount" errors that I've slowly been tracking down.
-> > > After I fixed the last problem in XFS late last week, I've
-> > > been getting a failure that i think is the unmount/prune_dcache
-> > > races that you and Neil have recently fixed.
-> > 
-> > I just had all 8 filesystems come up with:
-> > 
-> > May 25 15:55:18 budgie kernel: XFS unmount got error 16
-> > May 25 15:55:18 budgie kernel: xfs_fs_put_super: vfsp/0xe00000b006339280 left dangling!
-> > May 25 15:55:18 budgie kernel: VFS: Busy inodes after unmount of dm-9. Self-destruct in 5 seconds.  Have a nice day...
+To find new bugs, I suggest revert this patch:
+http://lkml.org/lkml/2006/1/31/275
+in -mm tree.
+So anybody except me can test "write support" of UFS.
 
-.....
+Signed-off-by: Evgeniy Dushistov <dushistov@mail.ru>
 
-> > On the second test iteration. On 2.6.16, it takes about 10 iterations to get one
-> > filesystem to do this. I'll need to look into this one further. I'm going to
-> > reboot the machine and run some dbench tests (which typically don't trigger
-> > this problem) and then come back to this one with added debugging....
-> 
-> Is this with version 2 of your patch?
+---
 
-That's with version 2 on -rc4-mm3.
+Index: linux-2.6.17-rc4/fs/Kconfig
+===================================================================
+--- linux-2.6.17-rc4.orig/fs/Kconfig
++++ linux-2.6.17-rc4/fs/Kconfig
+@@ -1320,7 +1320,7 @@ config UFS_FS
+ 
+ config UFS_FS_WRITE
+ 	bool "UFS file system write support (DANGEROUS)"
+-	depends on UFS_FS && EXPERIMENTAL && BROKEN
++	depends on UFS_FS && EXPERIMENTAL
+ 	help
+ 	  Say Y here if you want to try writing to UFS partitions. This is
+ 	  experimental, so you should back up your UFS partitions beforehand.
 
-> Could you also try the -mm tree
-> and see if the problem goes away. We have a set of patches to address
-> exactly this problem. 
-
-Well, the patches overlap and I thought that I had taken into account
-the fixes that were applied to the -mm tree.
-
-I'm rerunning on 2.6.16 with the s_umount locking fix so I know that it's
-not something else in -mm that is being tripped over....
-
-Cheers,
-
-Dave.
 -- 
-Dave Chinner
-R&D Software Enginner
-SGI Australian Software Group
+/Evgeniy
+

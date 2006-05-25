@@ -1,52 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbWEYEQp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964991AbWEYE3m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964986AbWEYEQp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 00:16:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbWEYEQp
+	id S964991AbWEYE3m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 00:29:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbWEYE3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 00:16:45 -0400
-Received: from vbn.0050556.lodgenet.net ([216.142.194.234]:36832 "EHLO
-	vbn.0050556.lodgenet.net") by vger.kernel.org with ESMTP
-	id S964986AbWEYEQp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 00:16:45 -0400
-Subject: Re: [PATCH 2/2] microcode update driver rewrite
-From: Arjan van de Ven <arjan@infradead.org>
+	Thu, 25 May 2006 00:29:42 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55981 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964991AbWEYE3l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 00:29:41 -0400
+Date: Wed, 24 May 2006 21:28:57 -0700
+From: Andrew Morton <akpm@osdl.org>
 To: Greg KH <greg@kroah.com>
-Cc: Shaohua Li <shaohua.li@intel.com>, lkml <linux-kernel@vger.kernel.org>,
-       Tigran Aivazian <tigran@veritas.com>,
-       Rajesh Shah <rajesh.shah@intel.com>,
-       "Van De Ven, Arjan" <arjan@linux.intel.com>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060525040557.GA30175@kroah.com>
-References: <1148529049.32046.103.camel@sli10-desk.sh.intel.com>
-	 <20060525040557.GA30175@kroah.com>
-Content-Type: text/plain
-Date: Thu, 25 May 2006 06:16:37 +0200
-Message-Id: <1148530597.3052.27.camel@laptopd505.fenrus.org>
+Cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 02/11] atyfb_base compile fix for CONFIG_PCI=n
+Message-Id: <20060524212857.6ba0690a.akpm@osdl.org>
+In-Reply-To: <20060525040717.GA30317@kroah.com>
+References: <20060525002742.723577000@linux-m68k.org>
+	<20060525003420.147932000@linux-m68k.org>
+	<20060524183327.601f0a43.akpm@osdl.org>
+	<20060525040717.GA30317@kroah.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-24 at 21:05 -0700, Greg KH wrote:
-> On Thu, May 25, 2006 at 11:50:49AM +0800, Shaohua Li wrote:
-> > This is the rewrite of microcode update driver. Changes:
-> > 1. trim the code
+Greg KH <greg@kroah.com> wrote:
+>
+> On Wed, May 24, 2006 at 06:33:27PM -0700, Andrew Morton wrote:
+> > zippel@linux-m68k.org wrote:
+> > >
+> > >  The atyfb_driver structure is only available if CONFIG_PCI is set.
+> > > 
+> > >  Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
+> > > 
+> > >  ---
+> > > 
+> > >   drivers/video/aty/atyfb_base.c |    4 ++++
+> > >   1 file changed, 4 insertions(+)
+> > > 
+> > >  Index: linux-2.6-mm/drivers/video/aty/atyfb_base.c
+> > >  ===================================================================
+> > >  --- linux-2.6-mm.orig/drivers/video/aty/atyfb_base.c
+> > >  +++ linux-2.6-mm/drivers/video/aty/atyfb_base.c
+> > >  @@ -3861,7 +3861,9 @@ static int __init atyfb_init(void)
+> > >       atyfb_setup(option);
+> > >   #endif
+> > >   
+> > >  +#ifdef CONFIG_PCI
+> > >       pci_register_driver(&atyfb_driver);
+> > >  +#endif
+> > >   #ifdef CONFIG_ATARI
+> > >       atyfb_atari_probe();
+> > >   #endif
+> > >  @@ -3870,7 +3872,9 @@ static int __init atyfb_init(void)
+> > >   
+> > >   static void __exit atyfb_exit(void)
+> > >   {
+> > >  +#ifdef CONFIG_PCI
+> > >   	pci_unregister_driver(&atyfb_driver);
+> > >  +#endif
+> > >   }
+> > 
+> > bah.  If pci_register_driver() was a macro we wouldn't need to do this all
+> > over the place.
 > 
-> Hm, but the code is now bigger.
+> Yes, this can be fixed easily in the pci.h header file, all other pci
+> functions are stubbed out properly if CONFIG_PCI is not enabled.  These
+> should be too.
+> 
 
-... because of the compat stuff. Maybe that should be split into a
-separate file after some time.
+Well pci_register_driver() and pci_unregister_driver() do have stubs.  But
+they're static-inlines, hence they reference their argument, hence the
+above ifdefs.
 
-
-> Don't use request_firmware, use request_firmware_nowait() instead.  That
-> way you never stall.  You only want to update the firmware when
-> userspace tells you to, not for every boot like I think this will do.
-
-this isn't persistent firmware, it's microcode. That is volatile, to the
-point that if you reboot (but that effect is also achieved at cpu S3 or
-do cpu hotplug) you need to reload it. These types of events are
-something the kernel knows about in general, but userspace.. not so.
-(esp since you generally want to load microcode as early as possible)
+But if the pci_register_driver() and pci_unregister_driver() stubs were
+macros which do not reference their argument, the above ifdefs aren't
+needed.
 

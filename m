@@ -1,99 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030424AbWEYV3o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030433AbWEYVaM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030424AbWEYV3o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 17:29:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030429AbWEYV3o
+	id S1030433AbWEYVaM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 17:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030431AbWEYVaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 17:29:44 -0400
-Received: from lug-owl.de ([195.71.106.12]:33981 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1030424AbWEYV3o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 17:29:44 -0400
-Date: Thu, 25 May 2006 23:29:42 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+	Thu, 25 May 2006 17:30:11 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:24742 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1030429AbWEYVaJ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 17:30:09 -0400
+Message-Id: <200605252129.k4PLTx1r018031@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
 To: devmazumdar <dev@opensound.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: How to check if kernel sources are installed on a system?
-Message-ID: <20060525212942.GS13513@lug-owl.de>
-Mail-Followup-To: devmazumdar <dev@opensound.com>,
-	linux-kernel@vger.kernel.org
+In-Reply-To: Your message of "Thu, 25 May 2006 21:19:33 -0000."
+             <e55715+usls@eGroups.com>
+From: Valdis.Kletnieks@vt.edu
 References: <e55715+usls@eGroups.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8+OS07CeIgZ706fH"
-Content-Disposition: inline
-In-Reply-To: <e55715+usls@eGroups.com>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+Content-Type: multipart/signed; boundary="==_Exmh_1148592598_2837P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 25 May 2006 17:29:59 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1148592598_2837P
+Content-Type: text/plain; charset=us-ascii
 
---8+OS07CeIgZ706fH
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, 2006-05-25 21:19:33 -0000, devmazumdar <dev@opensound.com> wrote:
+On Thu, 25 May 2006 21:19:33 -0000, devmazumdar said:
 > How does one check the existence of the kernel source RPM (or deb) on
 > every single distribution?.
-
-You don't.  That's the user's task!
-
+> 
 > We know that rpm -qa | grep kernel-source works on Redhat, Fedora,
-> SuSE, Mandrake and CentOS - how about other RPM based distros? How
-> about debian based distros?. There doesn't seem to be a a single
-> conherent naming scheme.=20
+> SuSE, Mandrake and CentOS - how about other RPM based distros?
 
-Indeed, there isn't.  Think about selfmade installations. Just ask the
-user to provide you with the correct path. There may even be several
-kernel version's source trees installed, with different configuration.
+There's no kernel-source RPM on recent Fedora.  Also, there's another problem...
 
-> Another thing, can we please start enforcing that people ship kernel
-> source with the base installation? If distributors are distributing
+On my laptop at the moment:
 
-No way.
+% rpm -q kernel
+kernel-2.6.16-1.2215_FC6
+% uname -r
+2.6.17-rc4-mm3
 
-> kernels, then it must be an absolute requirement that they ship kernel
-> sources in a "configured" state as well.  If you're not going to
-> provide a stable kernel API, then atleast please make this a requirement.=
-=20
+Did you want the vendor kernel source, or the running kernel source?
 
-Distros *will* ship kernel's configuration, but that'll never ever be
-installed by default.
+Might want to look at the symlink at /lib/modules/`uname -r`/source which
+is probably as sane as it gets... (Though admittedly Fedora points it
+into the wild blue yonder of /usr/src/kernels/`uname -r` which isn't
+where the non-existent kernel-source RPM puts it.  Getting the .src.rpm
+and working from there leaves it in /usr/src/redhat/BUILD/yadda-yadda....)
 
-If you work on drivers (as it seems), please just clean up the code
-and post it to the kernel mailing list (or subsystem specific lists.)
-Once it meets the standards, it'll just become a part of the tree,
-releasing you from the burden to think about its local installation.
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---8+OS07CeIgZ706fH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+--==_Exmh_1148592598_2837P
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFEdiHGHb1edYOZ4bsRAofBAJ9pDhXBLwqUhaCuwxdReTjAbFHBrACgjg6M
-5gh2ApYlJeTg2k/wWuOK49Q=
-=QEov
+iD8DBQFEdiHWcC3lWbTT17ARAiVJAJ4yLWsKZ9wOzJM26DYU4iX8Nj0c5QCfXn3Q
+Rt3nCq8S5flEMiqi07C6oWc=
+=sz1V
 -----END PGP SIGNATURE-----
 
---8+OS07CeIgZ706fH--
+--==_Exmh_1148592598_2837P--

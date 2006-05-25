@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbWEYPqG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWEYPso@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030233AbWEYPqG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 11:46:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbWEYPqG
+	id S1751023AbWEYPso (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 11:48:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWEYPso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 11:46:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:4224 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030233AbWEYPqF (ORCPT
+	Thu, 25 May 2006 11:48:44 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:34692 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1751023AbWEYPsn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 11:46:05 -0400
-Date: Thu, 25 May 2006 08:46:01 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Kyle McMartin <kyle@mcmartin.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Well, Linus seems to like Lordi...
-In-Reply-To: <20060525141714.GA31604@skunkworks.cabal.ca>
-Message-ID: <Pine.LNX.4.64.0605250841340.5623@g5.osdl.org>
-References: <20060525141714.GA31604@skunkworks.cabal.ca>
+	Thu, 25 May 2006 11:48:43 -0400
+Message-ID: <348572120.26227@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Thu, 25 May 2006 23:48:46 +0800
+To: linux-kernel@vger.kernel.org
+Cc: Limin Wang <lance.lmwang@gmail.com>
+Subject: Re: [PATCH 28/33] readahead: loop case
+Message-ID: <20060525154846.GA6907@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	linux-kernel@vger.kernel.org, Limin Wang <lance.lmwang@gmail.com>
+References: <20060524111246.420010595@localhost.localdomain> <20060524111911.032100160@localhost.localdomain> <20060524140135.GA19663@laptop.exavio.cn>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060524140135.GA19663@laptop.exavio.cn>
+User-Agent: Mutt/1.5.11+cvs20060126
+From: wfg <wfg@mail.ustc.edu.cn>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 24, 2006 at 10:01:35PM +0800, Limin Wang wrote:
+> 
+> If the loopback files is bigger than the memory size, it may cause miss again and
+> may better to turn on the read ahead?
+> 
 
+The readahead is always on, it's only disabling lookahead :-)
 
-On Thu, 25 May 2006, Kyle McMartin wrote:
->
-> If we're going to have release code names for the kernel, might as well
-> advertise them somewhere. :)
-
-Well, part of the charm of the name is that it's totally meaningless. I 
-can pick names out of my *ss, and they don't matter in the least, and 
-nobody will ever see it except in the kernel diffs.
-
-(As to Lordi, I've only ever seen their Eurovision thing on Youtube, 
-because those pesky US networks thinks we're interested in some kind of 
-inferior "American Idol" copycat product. But unless you've lived in 
-Finland during the 80s and 90s, you just simply cannot appreciate the 
-"Whaaa?" factor of having Finland win the dang thing. Imagine a whole 
-_country_ going "Whaaa? What the f?" at the same time..).
-
-			Linus
+> > Disable look-ahead for loop file.
+> > 
+> > Loopback files normally contain filesystems, in which case there are already
+> > proper look-aheads in the upper layer, more look-aheads on the loopback file
+> > only ruins the read-ahead hit rate.

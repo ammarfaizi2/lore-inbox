@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965068AbWEYHWH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965072AbWEYHWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965068AbWEYHWH (ORCPT <rfc822;willy@w.ods.org>);
+	id S965072AbWEYHWH (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 25 May 2006 03:22:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965072AbWEYHWE
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbWEYHWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 03:22:04 -0400
-Received: from mkedef2.rockwellautomation.com ([63.161.86.254]:26691 "EHLO
+	Thu, 25 May 2006 03:22:07 -0400
+Received: from mkedef2.rockwellautomation.com ([63.161.86.254]:15683 "EHLO
 	ramilwsmtp01.ra.rockwell.com") by vger.kernel.org with ESMTP
-	id S965069AbWEYHVq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 03:21:46 -0400
-Message-ID: <44755B33.3080302@ra.rockwell.com>
-Date: Thu, 25 May 2006 09:22:27 +0200
+	id S965068AbWEYHVn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 03:21:43 -0400
+Message-ID: <44755B31.9020204@ra.rockwell.com>
+Date: Thu, 25 May 2006 09:22:25 +0200
 From: Milan Svoboda <msvoboda@ra.rockwell.com>
 User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 4/5] usb gadget: clean udc.h
+Subject: [PATCH 3/5] usb gadget: update pxa2xx_udc.c driver to fully support
+ IXP4xx platform
 X-MIMETrack: Itemize by SMTP Server on RAMilwSMTP01/Milwaukee/RA/Rockwell(Release
- 6.5.4FP1|June 19, 2005) at 05/25/2006 02:22:28 AM,
+ 6.5.4FP1|June 19, 2005) at 05/25/2006 02:22:27 AM,
 	Serialize by Router on RAMilwSMTP01/Milwaukee/RA/Rockwell(Release 6.5.4FP1|June
- 19, 2005) at 05/25/2006 02:22:30 AM,
-	Serialize complete at 05/25/2006 02:22:30 AM
+ 19, 2005) at 05/25/2006 02:22:28 AM,
+	Serialize complete at 05/25/2006 02:22:28 AM
 Content-Type: multipart/mixed;
- boundary="------------000901010402070402010100"
+ boundary="------------000309010107090901060402"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------000901010402070402010100
+--------------000309010107090901060402
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 
 From: Milan Svoboda <msvoboda@ra.rockwell.com>
 
-This patch deletes file udc.h in include/asm-arm/arch-pxa and
-include/asm-arm/arch-ixp4xx
-and creates the same file in include/asm-arm.
+This patch adds IXP465 into the list of known devices and
+adds IXP465 to the list of devices that have cfr. This
+is not described in the hardware documentation, but without
+it driver don't work.
 
-I'm not sure if this change is correct, but this header is same for
-those two architectures
-and it's used by pxa2xx_udc driver only. Do you have better ideas?
+Workaround (#if 1) that seemed to get rid of lost
+status irqs is disabled for IXP4XX as it caused freezes
+during testing of control messages. No lost irqs are
+visible on IXP4XX.
+
+Driver survived tests running over night without any
+visible problems.
 
 This patch is against 2.6.16.13 with previous patches applied.
 
@@ -49,108 +55,52 @@ Signed-off-by: Milan Svoboda <msvoboda@ra.rockwell.com>
 
 
 
---------------000901010402070402010100
+--------------000309010107090901060402
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
- name="beautify.patch"
+ name="work_with_ixp465.patch"
 Content-Disposition: inline;
- filename="beautify.patch"
+ filename="work_with_ixp465.patch"
 
-diff -urpN -X orig/Documentation/dontdiff orig/arch/arm/mach-ixp4xx/common.c new_gadget/arch/arm/mach-ixp4xx/common.c
---- orig/arch/arm/mach-ixp4xx/common.c	2006-05-15 14:45:52.000000000 +0000
-+++ new_gadget/arch/arm/mach-ixp4xx/common.c	2006-05-15 15:17:15.000000000 +0000
-@@ -34,13 +34,12 @@
- #include <asm/pgtable.h>
- #include <asm/page.h>
- #include <asm/irq.h>
-+#include <asm/udc.h>
- 
- #include <asm/mach/map.h>
- #include <asm/mach/irq.h>
- #include <asm/mach/time.h>
- 
--#include <asm/arch/udc.h>
--
- /*************************************************************************
-  * IXP4xx chipset I/O mapping
-  *************************************************************************/
-diff -urpN -X orig/Documentation/dontdiff orig/drivers/usb/gadget/pxa2xx_udc.c new_gadget/drivers/usb/gadget/pxa2xx_udc.c
---- orig/drivers/usb/gadget/pxa2xx_udc.c	2006-05-15 14:45:52.000000000 +0000
-+++ new_gadget/drivers/usb/gadget/pxa2xx_udc.c	2006-05-15 15:11:55.000000000 +0000
-@@ -60,7 +60,7 @@
- #include <linux/usb_ch9.h>
- #include <linux/usb_gadget.h>
- 
--#include <asm/arch/udc.h>
-+#include <asm/udc.h>
- 
+--- orig/drivers/usb/gadget/pxa2xx_udc.c	2006-05-15 16:08:27.000000000 +0000
++++ new_gadget/drivers/usb/gadget/pxa2xx_udc.c	2006-05-15 15:59:13.000000000 +0000
+@@ -548,6 +548,7 @@ write_ep0_fifo (struct pxa2xx_ep *ep, st
+ 		count = req->req.length;
+ 		done (ep, req, 0);
+ 		ep0_idle(ep->dev);
++#ifndef CONFIG_ARCH_IXP4XX
+ #if 1
+ 		/* This seems to get rid of lost status irqs in some cases:
+ 		 * host responds quickly, or next request involves config
+@@ -568,6 +569,7 @@ write_ep0_fifo (struct pxa2xx_ep *ep, st
+ 			} while (count);
+ 		}
+ #endif
++#endif
+ 	} else if (ep->dev->req_pending)
+ 		ep0start(ep->dev, 0, "IN");
+ 	return is_short;
+@@ -2430,6 +2432,7 @@ static struct pxa2xx_udc memory = {
+ #define PXA210_B1		0x00000123
+ #define PXA210_B0		0x00000122
+ #define IXP425_A0		0x000001c1
++#define IXP465_AD		0x00000200
  
  /*
-diff -urpN -X orig/Documentation/dontdiff orig/include/asm-arm/arch-ixp4xx/udc.h new_gadget/include/asm-arm/arch-ixp4xx/udc.h
---- orig/include/asm-arm/arch-ixp4xx/udc.h	2006-05-15 14:45:52.000000000 +0000
-+++ new_gadget/include/asm-arm/arch-ixp4xx/udc.h	1970-01-01 00:00:00.000000000 +0000
-@@ -1,18 +0,0 @@
--/*
-- * linux/include/asm-arm/arch-pxa/udc.h
-- *
-- * This supports machine-specific differences in how the PXA2xx
-- * USB Device Controller (UDC) is wired.
-- *
-- * It is set in linux/arch/arm/mach-pxa/<machine>.c and used in
-- * the probe routine of linux/drivers/usb/gadget/pxa2xx_udc.c
-- */
--struct pxa2xx_udc_mach_info {
--        int  (*udc_is_connected)(void);		/* do we see host? */
--        void (*udc_command)(int cmd);
--#define	PXA2XX_UDC_CMD_CONNECT		0	/* let host see us */
--#define	PXA2XX_UDC_CMD_DISCONNECT	1	/* so host won't see us */
--};
--
--extern void pxa_set_udc_info(struct pxa2xx_udc_mach_info *info);
--
-diff -urpN -X orig/Documentation/dontdiff orig/include/asm-arm/arch-pxa/udc.h new_gadget/include/asm-arm/arch-pxa/udc.h
---- orig/include/asm-arm/arch-pxa/udc.h	2005-03-02 07:38:17.000000000 +0000
-+++ new_gadget/include/asm-arm/arch-pxa/udc.h	2006-05-15 15:13:26.000000000 +0000
-@@ -1,18 +1,4 @@
--/*
-- * linux/include/asm-arm/arch-pxa/udc.h
-- *
-- * This supports machine-specific differences in how the PXA2xx
-- * USB Device Controller (UDC) is wired.
-- *
-- * It is set in linux/arch/arm/mach-pxa/<machine>.c and used in
-- * the probe routine of linux/drivers/usb/gadget/pxa2xx_udc.c
-- */
--struct pxa2xx_udc_mach_info {
--        int  (*udc_is_connected)(void);		/* do we see host? */
--        void (*udc_command)(int cmd);
--#define	PXA2XX_UDC_CMD_CONNECT		0	/* let host see us */
--#define	PXA2XX_UDC_CMD_DISCONNECT	1	/* so host won't see us */
--};
-+#include <asm/udc.h>
- 
- extern void pxa_set_udc_info(struct pxa2xx_udc_mach_info *info);
- 
-diff -urpN -X orig/Documentation/dontdiff orig/include/asm-arm/udc.h new_gadget/include/asm-arm/udc.h
---- orig/include/asm-arm/udc.h	1970-01-01 00:00:00.000000000 +0000
-+++ new_gadget/include/asm-arm/udc.h	2006-05-15 15:12:43.000000000 +0000
-@@ -0,0 +1,13 @@
-+/*
-+ * linux/include/asm-arm/udc.h
-+ *
-+ * This supports machine-specific differences in how the PXA2xx
-+ * USB Device Controller (UDC) is wired.
-+ *
-+ */
-+struct pxa2xx_udc_mach_info {
-+        int  (*udc_is_connected)(void);		/* do we see host? */
-+        void (*udc_command)(int cmd);
-+#define	PXA2XX_UDC_CMD_CONNECT		0	/* let host see us */
-+#define	PXA2XX_UDC_CMD_DISCONNECT	1	/* so host won't see us */
-+};
+  * 	probe - binds to the platform device
+@@ -2465,6 +2468,9 @@ static int pxa2xx_udc_probe(struct platf
+ 	case PXA250_C0: case PXA210_C0:
+ 		break;
+ #elif	defined(CONFIG_ARCH_IXP4XX)
++	case IXP465_AD:
++		dev->has_cfr = 1;
++		/* fall through */
+ 	case IXP425_A0:
+ 		out_dma = 0;
+ 		break;
 
 
 
 
 
---------------000901010402070402010100--
+--------------000309010107090901060402--

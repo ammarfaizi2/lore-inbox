@@ -1,62 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbWEYB0n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWEYB1L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964813AbWEYB0n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 May 2006 21:26:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWEYB0n
+	id S964822AbWEYB1L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 May 2006 21:27:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbWEYB1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 May 2006 21:26:43 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:28814 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S964813AbWEYB0m (ORCPT
+	Wed, 24 May 2006 21:27:10 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:31630 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S964826AbWEYB1E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 May 2006 21:26:42 -0400
-Message-Id: <20060525003421.479787000@linux-m68k.org>
+	Wed, 24 May 2006 21:27:04 -0400
+Message-Id: <20060525003421.958272000@linux-m68k.org>
 References: <20060525002742.723577000@linux-m68k.org>
 User-Agent: quilt/0.44-1
-Date: Thu, 25 May 2006 02:27:48 +0200
+Date: Thu, 25 May 2006 02:27:49 +0200
 From: zippel@linux-m68k.org
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 06/11] print correct stack trace
+Subject: [PATCH 07/11] restore amikbd compatibility with 2.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pass unmodified stack argument to show_trace().
+Dump the extra mapping in the amikbd interrupt handler, so old Amiga
+keymaps work again. Amigas need a special keymap anyway, standard
+keymaps are not usable and recreating all keymaps is simply not worth
+the trouble.
 
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
 ---
 
- arch/m68k/kernel/traps.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/input/keyboard/amikbd.c |   32 +++++++++++++++++++++-----------
+ 1 file changed, 21 insertions(+), 11 deletions(-)
 
-Index: linux-2.6-mm/arch/m68k/kernel/traps.c
+Index: linux-2.6-mm/drivers/input/keyboard/amikbd.c
 ===================================================================
---- linux-2.6-mm.orig/arch/m68k/kernel/traps.c
-+++ linux-2.6-mm/arch/m68k/kernel/traps.c
-@@ -992,6 +992,7 @@ void show_registers(struct pt_regs *regs
+--- linux-2.6-mm.orig/drivers/input/keyboard/amikbd.c
++++ linux-2.6-mm/drivers/input/keyboard/amikbd.c
+@@ -36,6 +36,7 @@
+ #include <linux/input.h>
+ #include <linux/delay.h>
+ #include <linux/interrupt.h>
++#include <linux/keyboard.h>
  
- void show_stack(struct task_struct *task, unsigned long *stack)
+ #include <asm/amigaints.h>
+ #include <asm/amigahw.h>
+@@ -45,7 +46,7 @@ MODULE_AUTHOR("Vojtech Pavlik <vojtech@u
+ MODULE_DESCRIPTION("Amiga keyboard driver");
+ MODULE_LICENSE("GPL");
+ 
+-static unsigned char amikbd_keycode[0x78] = {
++static unsigned char amikbd_keycode[0x78] __initdata = {
+ 	[0]	 = KEY_GRAVE,
+ 	[1]	 = KEY_1,
+ 	[2]	 = KEY_2,
+@@ -170,12 +171,9 @@ static irqreturn_t amikbd_interrupt(int 
+ 	scancode >>= 1;
+ 
+ 	if (scancode < 0x78) {		/* scancodes < 0x78 are keys */
+-
+-		scancode = amikbd_keycode[scancode];
+-
+ 		input_regs(amikbd_dev, fp);
+ 
+-		if (scancode == KEY_CAPSLOCK) {	/* CapsLock is a toggle switch key on Amiga */
++		if (scancode == 98) {	/* CapsLock is a toggle switch key on Amiga */
+ 			input_report_key(amikbd_dev, scancode, 1);
+ 			input_report_key(amikbd_dev, scancode, 0);
+ 		} else {
+@@ -191,7 +189,7 @@ static irqreturn_t amikbd_interrupt(int 
+ 
+ static int __init amikbd_init(void)
  {
-+	unsigned long *p;
- 	unsigned long *endstack;
- 	int i;
+-	int i;
++	int i, j;
  
-@@ -1004,12 +1005,13 @@ void show_stack(struct task_struct *task
- 	endstack = (unsigned long *)(((unsigned long)stack + THREAD_SIZE - 1) & -THREAD_SIZE);
+ 	if (!AMIGAHW_PRESENT(AMI_KEYBOARD))
+ 		return -EIO;
+@@ -214,14 +212,26 @@ static int __init amikbd_init(void)
+ 	amikbd_dev->id.version = 0x0100;
  
- 	printk("Stack from %08lx:", (unsigned long)stack);
-+	p = stack;
- 	for (i = 0; i < kstack_depth_to_print; i++) {
--		if (stack + 1 > endstack)
-+		if (p + 1 > endstack)
- 			break;
- 		if (i % 8 == 0)
- 			printk("\n       ");
--		printk(" %08lx", *stack++);
-+		printk(" %08lx", *p++);
- 	}
- 	printk("\n");
- 	show_trace(stack);
+ 	amikbd_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
+-	amikbd_dev->keycode = amikbd_keycode;
+-	amikbd_dev->keycodesize = sizeof(unsigned char);
+-	amikbd_dev->keycodemax = ARRAY_SIZE(amikbd_keycode);
+ 
+ 	for (i = 0; i < 0x78; i++)
+-		if (amikbd_keycode[i])
+-			set_bit(amikbd_keycode[i], amikbd_dev->keybit);
++		set_bit(i, amikbd_dev->keybit);
+ 
++	for (i = 0; i < MAX_NR_KEYMAPS; i++) {
++		static u_short temp_map[NR_KEYS] __initdata;
++		if (!key_maps[i])
++			continue;
++		memset(temp_map, 0, sizeof(temp_map));
++		for (j = 0; j < 0x78; j++) {
++			if (!amikbd_keycode[j])
++				continue;
++			temp_map[j] = key_maps[i][amikbd_keycode[j]];
++		}
++		for (j = 0; j < NR_KEYS; j++) {
++			if (!temp_map[j])
++				temp_map[j] = 0xf200;
++		}
++		memcpy(key_maps[i], temp_map, sizeof(temp_map));
++	}
+ 	ciaa.cra &= ~0x41;	 /* serial data in, turn off TA */
+ 	request_irq(IRQ_AMIGA_CIAA_SP, amikbd_interrupt, 0, "amikbd", amikbd_interrupt);
+ 
 
 --
 

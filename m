@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965129AbWEYMYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965122AbWEYMfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965129AbWEYMYW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 08:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965132AbWEYMYW
+	id S965122AbWEYMfE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 08:35:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965128AbWEYMfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 08:24:22 -0400
-Received: from ns2.suse.de ([195.135.220.15]:64680 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965129AbWEYMYW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 08:24:22 -0400
-From: Neil Brown <neilb@suse.de>
-To: David Howells <dhowells@redhat.com>
-Date: Thu, 25 May 2006 22:24:15 +1000
-MIME-Version: 1.0
+	Thu, 25 May 2006 08:35:04 -0400
+Received: from tirith.ics.muni.cz ([147.251.4.36]:37320 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S965122AbWEYMfC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 08:35:02 -0400
+Date: Thu, 25 May 2006 14:35:00 +0200
+From: Jan Kasprzak <kas@fi.muni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 3ware 7500 not working in 2.6.16.18, 2.6.17-rc5
+Message-ID: <20060525123500.GH19612@fi.muni.cz>
+References: <20060525122240.GG19612@fi.muni.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17525.41455.815969.582475@cse.unsw.edu.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 001 of 2] Prepare for __copy_from_user_inatomic to not zero missed bytes. 
-In-Reply-To: message from David Howells on Thursday May 25
-References: <1060522044652.31268@suse.de>
-	<20060522143524.25410.patches@notabene>
-	<19591.1148558343@warthog.cambridge.redhat.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <20060525122240.GG19612@fi.muni.cz>
+User-Agent: Mutt/1.4.1i
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: kas@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday May 25, dhowells@redhat.com wrote:
-> 
-> NeilBrown <neilb@suse.de> wrote:
-> 
-> > Interestingly 'frv' disables preempt in kmap_atomic, but its
-> > copy_from_user doesn't expect faults and never zeros the tail...
-> 
-> What gives you the idea that copy_from_user() on FRV doesn't expect or handle
-> faults when CONFIG_MMU is set?  And why do you say it never zeroes the tail?
-> 
-> David
+Jan Kasprzak wrote:
+: 	Hi all,
+: 
+: I have a 3ware 75xx P-ATA controller, which has been working in 2.6.15-rc2.
+: Today I have tried to upgrade to 2.6.16.18, and it cannot boot - the
+: controller cannot access the drives, with the attached messages.
+: I have also tried 2.6.17-rc5 with the same results.
 
-Sloppy reading of the code I expect :-(  I was probably expecting it
-to look more like what I had seen in other ARCHs.
+	An additional note: I use "iommu=off" boot option (I had some
+problems using IOMMU in the past, so I have disabled it). Without
+this option, 2.6.16.18 boots correctly (I have not stress-tested the
+system yet, so I don't know whether the IOMMU problems are solved).
+But nevertheless, it would be nice to have 3ware driver working
+even with iommu=off.
 
-Have looked more closely, I see that it does expect and handle faults,
-and copy_from_user does zero the tail, however __copy_from_user*
-does not zero the tail and this is what filemap_copy_from_user
-and ntfs_copy_user* actually use, so on that arch, we seem
-to fail the other way - we don't zero the tail sometimes when
-we should.
+-Yenya
 
-Thanks for reading the patch and asking the question.
-
-NeilBrown
+-- 
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/    Journal: http://www.fi.muni.cz/~kas/blog/ |
+> I will never go to meetings again because I think  face to face meetings <
+> are the biggest waste of time you can ever have.        --Linus Torvalds <

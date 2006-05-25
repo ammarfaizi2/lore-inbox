@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030428AbWEYVTf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030421AbWEYV1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030428AbWEYVTf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 17:19:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030429AbWEYVTf
+	id S1030421AbWEYV1O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 17:27:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030424AbWEYV1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 17:19:35 -0400
-Received: from n15a.bullet.sc5.yahoo.com ([66.163.187.158]:41852 "HELO
-	n15a.bullet.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1030428AbWEYVTe convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 17:19:34 -0400
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws; s=lima; d=yahoogroups.com;
-	b=EmdJuHeMDY3Y8bGL5edVVJa4OA5tjpK96t9yAugwTx+W6W+oLvGBLpo6i5/NWmSI/wYvPCoxkhN9zaEFFBZqfsq/y4TPXE2kcRmXk7xMyqEPwTFzw5AubjphhO3WxfwD;
-Date: Thu, 25 May 2006 21:19:33 -0000
-From: "devmazumdar" <dev@opensound.com>
-To: linux-kernel@vger.kernel.org
-Subject: How to check if kernel sources are installed on a system?
-Message-ID: <e55715+usls@eGroups.com>
-User-Agent: eGroups-EW/0.82
+	Thu, 25 May 2006 17:27:14 -0400
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:41360 "EHLO
+	clueserver.org") by vger.kernel.org with ESMTP id S1030421AbWEYV1N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 17:27:13 -0400
+Date: Thu, 25 May 2006 14:27:13 -0700 (PDT)
+From: alan <alan@clueserver.org>
+X-X-Sender: alan@blackbox.fnordora.org
+To: devmazumdar <dev@opensound.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How to check if kernel sources are installed on a system?
+In-Reply-To: <e55715+usls@eGroups.com>
+Message-ID: <Pine.LNX.4.64.0605251425390.19028@blackbox.fnordora.org>
+References: <e55715+usls@eGroups.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Yahoo Groups Message Poster
-X-Yahoo-Post-IP: 66.229.53.8
-X-Yahoo-Newman-Property: groups-compose
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How does one check the existence of the kernel source RPM (or deb) on
-every single distribution?.
+On Thu, 25 May 2006, devmazumdar wrote:
 
-We know that rpm -qa | grep kernel-source works on Redhat, Fedora,
-SuSE, Mandrake and CentOS - how about other RPM based distros? How
-about debian based distros?. There doesn't seem to be a a single
-conherent naming scheme. 
+> How does one check the existence of the kernel source RPM (or deb) on
+> every single distribution?.
+>
+> We know that rpm -qa | grep kernel-source works on Redhat, Fedora,
+> SuSE, Mandrake and CentOS - how about other RPM based distros? How
+> about debian based distros?. There doesn't seem to be a a single
+> conherent naming scheme.
 
-Another thing, can we please start enforcing that people ship kernel
-source with the base installation? If distributors are distributing
-kernels, then it must be an absolute requirement that they ship kernel
-sources in a "configured" state as well.  If you're not going to
-provide a stable kernel API, then atleast please make this a requirement. 
+Actually it does not on later versions of fedora (4 & 5).  The headers are 
+included, but not the source.  If you want to build modules, you must have 
+kernel-devel installed.
 
-
-best regards
-
-Dev Mazumdar
-4Front Technologies
-http://www.opensound.com
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-- 
+"Waiter! This lambchop tastes like an old sock!" - Sheri Lewis

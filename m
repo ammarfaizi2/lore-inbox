@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030276AbWEYQ7H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030282AbWEYRAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030276AbWEYQ7H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 12:59:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030280AbWEYQ7H
+	id S1030282AbWEYRAm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 13:00:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030284AbWEYRAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 12:59:07 -0400
-Received: from xenotime.net ([66.160.160.81]:9151 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030276AbWEYQ7H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 12:59:07 -0400
-Date: Thu, 25 May 2006 10:01:38 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: ismail@pardus.org.tr, khali@linux-fr.org, akpm <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, lm-sensors@lm-sensors.org
-Subject: [PATCH] scx200_acb: fix section mismatch warning
-Message-Id: <20060525100138.cb9e53c5.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Thu, 25 May 2006 13:00:42 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:50852 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1030281AbWEYRAl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 13:00:41 -0400
+Date: Thu, 25 May 2006 13:00:31 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Andrew Morton <akpm@osdl.org>
+cc: arjan@linux.intel.com, mingo@elte.hu, tglx@linutronix.de,
+       rdunlap@xenotime.net, linux-kernel@vger.kernel.org
+Subject: Re: + pi-futex-rt-mutex-docs.patch added to -mm tree
+In-Reply-To: <20060525095242.48c3a310.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0605251258110.18540@gandalf.stny.rr.com>
+References: <200605251502.k4PF21vH027653@shell0.pdx.osdl.net>
+ <1148573982.16319.9.camel@localhost.localdomain> <20060525095242.48c3a310.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
 
-Fix section mismatch warning reported by İsmail Dönmez:
-WARNING: drivers/i2c/busses/scx200_acb.o - Section mismatch: reference
-to .init.text: from .text after 'scx200_add_cs553x' (at offset 0x528)
+On Thu, 25 May 2006, Andrew Morton wrote:
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- drivers/i2c/busses/scx200_acb.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+> >
+> > Or would it be easier if I fold these into one patch and send it to you?
+> >
+>
+> I'd asked Ingo to redo the patch series, as it had become a straggly mess.
+> He had diffed the old patch series against the new and nothing changed in
+> the documentation area.  So what's there now should be what was in rc4-mm3.
+>
 
---- linux-2617-rc5.orig/drivers/i2c/busses/scx200_acb.c
-+++ linux-2617-rc5/drivers/i2c/busses/scx200_acb.c
-@@ -491,7 +491,7 @@ static struct pci_device_id divil_pci[] 
- 
- #define MSR_LBAR_SMB		0x5140000B
- 
--static int scx200_add_cs553x(void)
-+static __init int scx200_add_cs553x(void)
- {
- 	u32	low, hi;
- 	u32	smb_base;
+OK, so I guess the update patches that had the changes that Randy
+suggested, got lost in the LKML noise.  I'll fold them up and send a
+single patch that should go against what is in rc4-mm3.
 
+Thanks,
 
----
+-- Steve

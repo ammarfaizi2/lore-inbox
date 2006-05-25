@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbWEYQbO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbWEYQev@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030251AbWEYQbO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 12:31:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbWEYQbO
+	id S1030257AbWEYQev (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 12:34:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030255AbWEYQev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 12:31:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3472 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030251AbWEYQbN (ORCPT
+	Thu, 25 May 2006 12:34:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:44689 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030257AbWEYQeu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 12:31:13 -0400
-Date: Thu, 25 May 2006 09:30:39 -0700
+	Thu, 25 May 2006 12:34:50 -0400
+Date: Thu, 25 May 2006 09:33:56 -0700
 From: Andrew Morton <akpm@osdl.org>
 To: Wu Fengguang <wfg@mail.ustc.edu.cn>
 Cc: linux-kernel@vger.kernel.org, wfg@mail.ustc.edu.cn
-Subject: Re: [PATCH 06/33] readahead: refactor __do_page_cache_readahead()
-Message-Id: <20060525093039.21b4246b.akpm@osdl.org>
-In-Reply-To: <348469538.91213@ustc.edu.cn>
+Subject: Re: [PATCH 08/33] readahead: common macros
+Message-Id: <20060525093356.7010efa2.akpm@osdl.org>
+In-Reply-To: <348469539.42623@ustc.edu.cn>
 References: <20060524111246.420010595@localhost.localdomain>
-	<348469538.91213@ustc.edu.cn>
+	<348469539.42623@ustc.edu.cn>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,39 +27,47 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
 >
-> Add look-ahead support to __do_page_cache_readahead(),
-> which is needed by the adaptive read-ahead logic.
+> Define some common used macros for the read-ahead logics.
+> 
+> Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
+> ---
+> 
+>  mm/readahead.c |   14 ++++++++++++--
+>  1 files changed, 12 insertions(+), 2 deletions(-)
+> 
+> --- linux-2.6.17-rc4-mm3.orig/mm/readahead.c
+> +++ linux-2.6.17-rc4-mm3/mm/readahead.c
+> @@ -5,6 +5,8 @@
+>   *
+>   * 09Apr2002	akpm@zip.com.au
+>   *		Initial version.
+> + * 21May2006	Wu Fengguang <wfg@mail.ustc.edu.cn>
+> + *		Adaptive read-ahead framework.
+>   */
+>  
+>  #include <linux/kernel.h>
+> @@ -14,6 +16,14 @@
+>  #include <linux/blkdev.h>
+>  #include <linux/backing-dev.h>
+>  #include <linux/pagevec.h>
+> +#include <linux/writeback.h>
+> +#include <linux/nfsd/const.h>
 
-You'd need to define "look-ahead support" before telling us you've added it ;)
+Why on earth are we including that file?
 
-> @@ -302,6 +303,8 @@ __do_page_cache_readahead(struct address
->  			break;
->  		page->index = page_offset;
->  		list_add(&page->lru, &page_pool);
-> +		if (page_idx == nr_to_read - lookahead_size)
-> +			__SetPageReadahead(page);
->  		ret++;
->  	}
+Whatever goodies it contains should be moved into fs.h or mm.h or something.
 
-OK.  But the __SetPageFoo() things still give me the creeps.
+> +
+> +#define PAGES_BYTE(size) (((size) + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT)
+> +#define PAGES_KB(size)	 PAGES_BYTE((size)*1024)
 
+These aren't proving popular.
 
-OT: look:
+> +#define next_page(pg) (list_entry((pg)->lru.prev, struct page, lru))
+> +#define prev_page(pg) (list_entry((pg)->lru.next, struct page, lru))
 
-		read_unlock_irq(&mapping->tree_lock);
-		page = page_cache_alloc_cold(mapping);
-		read_lock_irq(&mapping->tree_lock);
+hm.  Makes sense I guess, but normally we'll be iterating across lists with
+the list_for_each*() helpers, so I'm a little surprised that the above are
+needed.
 
-we should have a page allocation function which just allocates a page from
-this CPU's per-cpu-pages magazine, and fails if the magazine is empty:
-
-		page = 	alloc_pages_local(mapping_gfp_mask(x)|__GFP_COLD);
-		if (!page) {
-			read_unlock_irq(&mapping->tree_lock);
-			/*
-			 * This will refill the per-cpu-pages magazine
-			 */
-			page = page_cache_alloc_cold(mapping);
-			read_lock_irq(&mapping->tree_lock);
-		}
 

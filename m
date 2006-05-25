@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965167AbWEYNzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965172AbWEYN4Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965167AbWEYNzj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 09:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965170AbWEYNzj
+	id S965172AbWEYN4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 09:56:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965170AbWEYN4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 09:55:39 -0400
-Received: from [213.46.243.16] ([213.46.243.16]:1372 "EHLO
-	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
-	id S965167AbWEYNzi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 09:55:38 -0400
+	Thu, 25 May 2006 09:56:16 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:64478 "EHLO
+	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
+	id S965172AbWEYN4H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 09:56:07 -0400
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
@@ -17,26 +17,91 @@ Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
        Christoph Lameter <christoph@lameter.com>,
        Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
        Linus Torvalds <torvalds@osdl.org>
-Date: Thu, 25 May 2006 15:55:34 +0200
-Message-Id: <20060525135534.20941.91650.sendpatchset@lappy>
-Subject: [PATCH 0/3] mm: tracking dirty pages -v5
+Date: Thu, 25 May 2006 15:56:05 +0200
+Message-Id: <20060525135605.20941.4410.sendpatchset@lappy>
+In-Reply-To: <20060525135534.20941.91650.sendpatchset@lappy>
+References: <20060525135534.20941.91650.sendpatchset@lappy>
+Subject: [PATCH 2/3] mm: balance dirty pages
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I hacked up a new version last night.
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-Its now based on top of David's patches, Hugh's approach of using the
-MAP_PRIVATE protections instead of the MAP_SHARED seems far superior indeed.
+Now that we can detect writers of shared mappings, throttle them.
+Avoids OOM by surprise.
 
-Q: would it be feasable to do so for al shared mappings so we can remove
-the MAP_SHARED protections all together?
+Changes -v2:
 
-They survive my simple testing, but esp. the msync cleanup might need some
-more attention.
+ - small helper function (Andrew Morton)
 
-I post them now instead of after a little more testing because I'll not 
-have much time the coming few days to do so, and hoarding them does 
-nobody any good.
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-Peter
+ include/linux/writeback.h |    1 +
+ mm/memory.c               |    5 +++--
+ mm/page-writeback.c       |   10 ++++++++++
+ 3 files changed, 14 insertions(+), 2 deletions(-)
+
+Index: linux-2.6/mm/memory.c
+===================================================================
+--- linux-2.6.orig/mm/memory.c	2006-05-25 15:46:31.000000000 +0200
++++ linux-2.6/mm/memory.c	2006-05-25 15:46:55.000000000 +0200
+@@ -49,6 +49,7 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/backing-dev.h>
++#include <linux/writeback.h>
+ 
+ #include <asm/pgalloc.h>
+ #include <asm/uaccess.h>
+@@ -1558,7 +1559,7 @@ gotten:
+ unlock:
+ 	pte_unmap_unlock(page_table, ptl);
+ 	if (dirty_page) {
+-		set_page_dirty(dirty_page);
++		set_page_dirty_balance(dirty_page);
+ 		put_page(dirty_page);
+ 	}
+ 	return ret;
+@@ -2205,7 +2206,7 @@ retry:
+ unlock:
+ 	pte_unmap_unlock(page_table, ptl);
+ 	if (dirty_page) {
+-		set_page_dirty(dirty_page);
++		set_page_dirty_balance(dirty_page);
+ 		put_page(dirty_page);
+ 	}
+ 	return ret;
+Index: linux-2.6/include/linux/writeback.h
+===================================================================
+--- linux-2.6.orig/include/linux/writeback.h	2006-05-25 15:07:44.000000000 +0200
++++ linux-2.6/include/linux/writeback.h	2006-05-25 15:46:55.000000000 +0200
+@@ -114,6 +114,7 @@ int sync_page_range(struct inode *inode,
+ 			loff_t pos, loff_t count);
+ int sync_page_range_nolock(struct inode *inode, struct address_space *mapping,
+ 			   loff_t pos, loff_t count);
++void set_page_dirty_balance(struct page *page);
+ 
+ /* pdflush.c */
+ extern int nr_pdflush_threads;	/* Global so it can be exported to sysctl
+Index: linux-2.6/mm/page-writeback.c
+===================================================================
+--- linux-2.6.orig/mm/page-writeback.c	2006-05-25 15:46:08.000000000 +0200
++++ linux-2.6/mm/page-writeback.c	2006-05-25 15:46:55.000000000 +0200
+@@ -255,6 +255,16 @@ static void balance_dirty_pages(struct a
+ 		pdflush_operation(background_writeout, 0);
+ }
+ 
++void set_page_dirty_balance(struct page *page)
++{
++	if (set_page_dirty(page)) {
++		struct address_space *mapping = page_mapping(page);
++
++		if (mapping)
++			balance_dirty_pages_ratelimited(mapping);
++	}
++}
++
+ /**
+  * balance_dirty_pages_ratelimited_nr - balance dirty memory state
+  * @mapping: address_space which was dirtied

@@ -1,190 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbWEYOL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbWEYO11@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030196AbWEYOL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 10:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbWEYOL3
+	id S1030184AbWEYO11 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 10:27:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030189AbWEYO10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 10:11:29 -0400
-Received: from smtpauth07.mail.atl.earthlink.net ([209.86.89.67]:45740 "EHLO
-	smtpauth07.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
-	id S1030196AbWEYOL2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 10:11:28 -0400
-Message-ID: <4475BB05.6050001@netwolves.com>
-Date: Thu, 25 May 2006 10:11:17 -0400
-From: Steve Clark <sclark@netwolves.com>
-User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.7.12) Gecko/20051110
-X-Accept-Language: en-us, en
+	Thu, 25 May 2006 10:27:26 -0400
+Received: from stout.engsoc.carleton.ca ([134.117.69.22]:27572 "EHLO
+	stout.engsoc.carleton.ca") by vger.kernel.org with ESMTP
+	id S1030184AbWEYO10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 10:27:26 -0400
+Date: Thu, 25 May 2006 10:17:14 -0400
+From: Kyle McMartin <kyle@mcmartin.ca>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org
+Subject: [PATCH] Well, Linus seems to like Lordi...
+Message-ID: <20060525141714.GA31604@skunkworks.cabal.ca>
 MIME-Version: 1.0
-To: Willy TARREAU <willy@w.ods.org>
-CC: Steve Clark <sclark@dev.netwolves.com>, linux-kernel@vger.kernel.org,
-       uClinux development list <uclinux-dev@uclinux.org>
-Subject: Re: uclinux 2.4.32 panic
-References: <44746064.30607@netwolves.com> <20060524201030.GU11191@w.ods.org> <4474CF11.4090007@netwolves.com> <20060525063414.GA249@w.ods.org>
-In-Reply-To: <20060525063414.GA249@w.ods.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ELNK-Trace: a437fbc6971e80f61aa676d7e74259b7b3291a7d08dfec79d1a8a55ee1a40d1a06b1f9410ae30fe7350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 63.122.229.22
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Willy,
+If we're going to have release code names for the kernel, might as well
+advertise them somewhere. :)
 
-Thanks for your analysis - see my comments below;
+Signed-off-by: Kyle McMartin <kyle@there.is.no.cabal.ca>
 
-Steve
-
-Willy TARREAU wrote:
-> On Wed, May 24, 2006 at 05:24:33PM -0400, Steve Clark wrote:
-> (...)
-> 
->>>>>>LR;  008727cc <rs_write+148/294>
->>>>
->>>>>>PC;  0090e5fc <memmove+25c/460>   <=====
->>>>
->>>>Trace; 0090e3a0 <memcpy+0/0>
->>>>Trace; 008727cc <rs_write+148/294>
->>>>
->>>>>>r8; 00956228 <tmp_buf+0/1000>
->>>>
->>>>Trace; 00872684 <rs_write+0/294>
-> 
-> (...)
-> 
-> 
->>The hardware is the ActionTec DualPC Modem it has a conexant cx82100 
->>arm processor.
->>I can reproduce it at will by connecting to the internet and running 
->>nttcp thru it at the same time
->>I am scping file both ways from and to, and then finally starting a 
->>getty on /dev/ttyS0, the modem is
->>at ttyS1 and also ttyS0 is where all the kernel printk messages come out.
->>
->>When I start the getty if I have all the other traffic going it 
->>usually will panic in under a minute. IF I don't
->>have the getty running it will run for hours and not panic.
->>
->>
->>
->>2.4.32-uc0 with patches from
->>http://www.bettina-attack.de/jonny/view.php/projects/uclinux_on_cx82100/
-> 
-> 
-> Well, at least the cnxtserial.c file looks suspicious to me :
-> 
-> static int rs_write(struct tty_struct * tty, int from_user,
->                     const unsigned char *buf, int count)
-> {
->         int     c, total = 0;
->         unsigned long flags;
->         struct cnxt_serial *info = (struct cnxt_serial *)tty->driver_data;
->                                                          ^^^^^
-> 
->         if (serial_paranoia_check(info,tty->device, "rs_write"))
->                                        ^^^^^
->           return 0;
-> 
->         if (!tty || !info->xmit_buf)
->           return 0;
-> 
-> => tty already referenced twice before the check. Either the check is
->    useless, or the person who wrote it had a good reason for it which
->    was not considered when writing the two lines above. I would suggest
->    to start from something like this :
-> 
-> static int rs_write(struct tty_struct * tty, int from_user,
->                     const unsigned char *buf, int count)
-> {
->         int     c, total = 0;
->         unsigned long flags;
->         struct cnxt_serial *info;
-> 
->         if (!tty)
->         	return 0;
-> 
->         info = (struct cnxt_serial *)tty->driver_data;
->         if (serial_paranoia_check(info, tty->device, "rs_write"))
->         	return 0;
-> 
->         if (!info->xmit_buf)
->         	return 0;
-
-I did this - actually I matched to serial.c
-> 
-> 
-> Further :
-> 
->           c = MIN(count, MIN(SERIAL_XMIT_SIZE - info->xmit_cnt - 1,
->                              SERIAL_XMIT_SIZE - info->xmit_head));
->           if (c <= 0)
->             break;
-> 
-> => info->xmit_cnt and info->xmit_head are signed ints. If you encounter
->    memory corruption (eg: during your ethernet transfers) and those get
->    negative, nothing prevents the buffer from being overwritten past the
->    end.
-> 
-> Further :
-> 
->           if (from_user) {
->             down(&tmp_buf_sem);
->             copy_from_user(tmp_buf, buf, c);
->             c = MIN(c, MIN(SERIAL_XMIT_SIZE - info->xmit_cnt - 1,
->                            SERIAL_XMIT_SIZE - info->xmit_head));
->         ^^^^^^^^^^^^^^^^^^
->             memcpy(info->xmit_buf + info->xmit_head, tmp_buf, c);
->             up(&tmp_buf_sem);
->           } else
-> 
-> => What the hell is this ? c was assigned the same value above, so
->    we get :
->    c = MIN(MIN(count, MIN(SERIAL_XMIT_SIZE - info->xmit_cnt - 1,
->                        SERIAL_XMIT_SIZE - info->xmit_head)),
->                       MIN(SERIAL_XMIT_SIZE - info->xmit_cnt - 1,
->                        SERIAL_XMIT_SIZE - info->xmit_head));
-> 
->    I'm not sure this was what the developper originally intented to do,
->    but although useless, it does not seem incorrect. However, I don't
->    know if he wanted to further reduce the buffer for any reason.
-> 
-> Also, it appears that nothing prevents any code running outside the
-> loop from changing info->xmit_buf between the restore_flags() and
-> the cli(). I don't know if this is functionnaly possible, but at
-> least it is possible by memory corruption (eg: padding too large
-> for a packet and writing zeroes past the end of one buffer).
-> 
-I moved the cli() outside of the while loop - similar to serial.c
-
-> You should definitely add printks or at least double checks
-> everywhere within this loop I think.
-> 
-I did and info->xmit_head is getting clobbered!
-see below:
-> That's all I can tell, I don't know this platform at all.
-> 
-> Regards,
-> Willy
-> 
-> 
-> 
-xmit_buf+head=a2279c,tmp_buf=956228,c=250
-rs_write:xmit_buf=a22000,tmp_buf=956228
-xmit_buf+head=a22896,tmp_buf=956228,c=250
-rs_write:xmit_buf=a22000,tmp_buf=956228
-xmit_buf+head=a22990,tmp_buf=956228,c=19
-rs_write:xmit_buf=170f1200,tmp_buf=956228
-                               ^^^^^^
-xmit_buf+head=170f1200,tmp_buf=956228,c=13
-Unable to handle kernel NULL pointer dereference at virtual address 
-0000003f
-fault-common.c(97): start_code=0xdc4040, start_stack=0xe11f38)
-Internal error: Oops: ffffffff
-CPU: 0
-pc : [<0090e6a0>]    lr : [<00872808>]    Not tainted
-sp : 00a1fe94  ip : 00000001  fp : 00a1feb8
-r10: 00000fff  r9 : 00956228  r8 : 0093d26c
-r7 : 0000000d  r6 : 009922a0  r5 : 00955f00  r4 : 0000000d
-r3 : 0000007e  r2 : 00000009  r1 : 009922ac  r0 : 170f120d
-Flags: Nzcv  IRQs off  FIQs on  Mode SVC_32  Segment user
-Control: C000107D
-Process pppd (pid: 64, stackpage=00a1f000)
+--- a/Makefile
++++ b/Makefile
+@@ -841,6 +841,7 @@ define filechk_version.h
+ 	  exit 1; \
+ 	fi; \
+ 	(echo \#define UTS_RELEASE \"$(KERNELRELEASE)\"; \
++	  echo \#define LINUX_CODE_NAME \"$(NAME)\"; \
+ 	  echo \#define LINUX_VERSION_CODE `expr $(VERSION) \\* 65536 + $(PATCHLEVEL) \\* 256 + $(SUBLEVEL)`; \
+ 	 echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))'; \
+ 	)
+diff --git a/init/version.c b/init/version.c
+index 3ddc3ce..97cc8ec 100644
+--- a/init/version.c
++++ b/init/version.c
+@@ -29,5 +29,6 @@ struct new_utsname system_utsname = {
+ EXPORT_SYMBOL(system_utsname);
+ 
+ const char linux_banner[] =
+-	"Linux version " UTS_RELEASE " (" LINUX_COMPILE_BY "@"
+-	LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") " UTS_VERSION "\n";
++	"Linux version " UTS_RELEASE " \"" LINUX_CODE_NAME "\" (" 
++	LINUX_COMPILE_BY "@" LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") "
++	UTS_VERSION "\n";

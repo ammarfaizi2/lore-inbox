@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWEZOzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbWEZO5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750851AbWEZOzx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 10:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWEZOzx
+	id S1750856AbWEZO5k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 10:57:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbWEZO5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 10:55:53 -0400
-Received: from wr-out-0506.google.com ([64.233.184.227]:34680 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750849AbWEZOzx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 10:55:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=a54WP0nisAdi1y7/ENTpNNjMxmbDxYMhG8fl0DL2/j2bwkm4uvuMG2baFweb2X1k4D8BSwscqVSE1xnTJDKOgc+RU1iH18Pe+qNQYZfJs1N8BIznRyTVGahaxpzt7X35uD6ZowPxA11LDs9TAXmj2zJImjgHAyEQX8jzSCCteqI=
-Message-ID: <36e6b2150605260755t254e4850l2b69f72fe730279@mail.gmail.com>
-Date: Fri, 26 May 2006 18:55:46 +0400
-From: "Paul Drynoff" <pauldrynoff@gmail.com>
-To: "Christoph Lameter" <clameter@sgi.com>
-Subject: Re: [PATCH] kmalloc man page before 2.6.17
-Cc: "Jesper Juhl" <jesper.juhl@gmail.com>,
-       "Pekka J Enberg" <penberg@cs.helsinki.fi>, akpm@osdl.org,
-       "Linus Torvalds" <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0605260714460.30772@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <36e6b2150605260007h1601aa04v31c6c698c6e4d1b9@mail.gmail.com>
-	 <84144f020605260017i4682c409vc4a004d016c31270@mail.gmail.com>
-	 <36e6b2150605260058h5c1fbc0cla686a37d5bf3e34e@mail.gmail.com>
-	 <Pine.LNX.4.58.0605261059360.30386@sbz-30.cs.Helsinki.FI>
-	 <36e6b2150605260120s2fb692fegf4fef1eecf7c4674@mail.gmail.com>
-	 <9a8748490605260248i68a1eb84hc241068ae1f012bb@mail.gmail.com>
-	 <36e6b2150605260344l1ba91d56we2d224d49bde4d8e@mail.gmail.com>
-	 <Pine.LNX.4.64.0605260714460.30772@schroedinger.engr.sgi.com>
+	Fri, 26 May 2006 10:57:39 -0400
+Received: from bay103-f2.bay103.hotmail.com ([65.54.174.12]:2773 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1750855AbWEZO5j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 10:57:39 -0400
+Message-ID: <BAY103-F252A8BF91ABBFB34A8CE9B29E0@phx.gbl>
+X-Originating-IP: [85.36.106.198]
+X-Originating-Email: [pupilla@hotmail.com]
+From: "Marco Berizzi" <pupilla@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Section mismatch: reference to .init.text: from .smp_locks after ''
+Date: Fri, 26 May 2006 16:57:38 +0200
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 26 May 2006 14:57:39.0065 (UTC) FILETIME=[BB501E90:01C680D4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/26/06, Christoph Lameter <clameter@sgi.com> wrote:
-> Documentation of in kernel functions in the manpages <boogle>.
-Why not, this is common practic for big set of Unix lie OS.
-You can type something like:
-man VFS man vnops and so on.
+Hello everyboby.
+I have compiled 2.6.17-rc5 on an smp system and I get this
+warning message during compilation (2.6.16.18 is fine):
 
-> You are
-> going to do this full time in order to keep all of it up to date?
->
-> In that case you should add something to install the manpages
-> for each kernel when one does
->
-Why? In my Linux OS I should only type something like:
-package-manager install vanilla-sources
-or
-package-manager install git-sources
+[...]
+  OBJCOPY arch/i386/boot/compressed/vmlinux.bin
+  GZIP    arch/i386/boot/compressed/vmlinux.bin.gz
+  LD      arch/i386/boot/compressed/piggy.o
+  LD      arch/i386/boot/compressed/vmlinux
+  OBJCOPY arch/i386/boot/vmlinux.bin
+  HOSTCC  arch/i386/boot/tools/build
+  BUILD   arch/i386/boot/bzImage
+Root device is (8, 1)
+Boot sector 512 bytes.
+Setup is 4602 bytes.
+System is 1337 kB
+Kernel: arch/i386/boot/bzImage is ready  (#1)
+  Building modules, stage 2.
+  MODPOST
+WARNING: drivers/block/floppy.o - Section mismatch: reference to .init.text: 
+from .smp_locks after '' (at offset 0x60)
+WARNING: drivers/block/floppy.o - Section mismatch: reference to .init.text: 
+from .smp_locks after '' (at offset 0x64)
+WARNING: drivers/block/floppy.o - Section mismatch: reference to .init.text: 
+from .smp_locks after '' (at offset 0x68)
+  CC      crypto/blowfish.mod.o
+  LD [M]  crypto/blowfish.ko
+  CC      crypto/crc32c.mod.o
+  LD [M]  crypto/crc32c.ko
+  CC      crypto/serpent.mod.o
+  LD [M]  crypto/serpent.ko
+[...]
 
-and I'll get all documentation generated by "make mandocs" in
-/usr/share/man/man9
+

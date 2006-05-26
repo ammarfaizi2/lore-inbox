@@ -1,404 +1,282 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWEZQdw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbWEZQcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbWEZQdw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 12:33:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWEZQdR
+	id S1751068AbWEZQcV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 12:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbWEZQ3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 12:33:17 -0400
+	Fri, 26 May 2006 12:29:36 -0400
 Received: from pne-smtpout4-sn2.hy.skanova.net ([81.228.8.154]:28324 "EHLO
 	pne-smtpout4-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S1751065AbWEZQ3g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 12:29:36 -0400
-Message-Id: <20060526162910.113750000@gmail.com>
+	id S1751061AbWEZQ3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 12:29:23 -0400
+Message-Id: <20060526162904.998470000@gmail.com>
 References: <20060526161129.557416000@gmail.com>
 User-Agent: quilt/0.44-1
-Date: Fri, 26 May 2006 19:11:41 +0300
+Date: Fri, 26 May 2006 19:11:35 +0300
 From: Anssi Hannula <anssi.hannula@gmail.com>
 To: Dmitry Torokhov <dtor_core@ameritech.net>
 Cc: linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: [patch 12/13] input: drop the old PID driver
-Content-Disposition: inline; filename=ff-refactoring-drop-old-pid.diff
+Subject: [patch 06/13] input: adapt uinput for the new force feedback interface
+Content-Disposition: inline; filename=ff-refactoring-uinput-to-new-interface.diff
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Drop the old PID driver that is now obsoleted by a new implementation in
-hid-pidff.c. This older driver was never completed and is not able to upload
-effects.
+Modify the uinput driver for the new force feedback interface. The userspace
+interface of the force feedback part is changed and documentation in uinput.h
+is updated accordingly. MODULE_VERSION is also added to reflect the revision.
 
 Signed-off-by: Anssi Hannula <anssi.hannula@gmail.com>
 
 ---
- drivers/usb/input/pid.c |  295 ------------------------------------------------
- drivers/usb/input/pid.h |   62 ----------
- 2 files changed, 357 deletions(-)
+ drivers/input/misc/uinput.c |   76 +++++++++++++++++++++++++++++++++++---------
+ include/linux/uinput.h      |   21 ++++++++----
+ 2 files changed, 77 insertions(+), 20 deletions(-)
 
-Index: linux-2.6.16-git20/drivers/usb/input/pid.c
+Index: linux-2.6.17-rc4-git12/drivers/input/misc/uinput.c
 ===================================================================
---- linux-2.6.16-git20.orig/drivers/usb/input/pid.c	2006-04-10 21:02:44.000000000 +0300
-+++ /dev/null	1970-01-01 00:00:00.000000000 +0000
-@@ -1,295 +0,0 @@
--/*
-- *  PID Force feedback support for hid devices.
-- *
-- *  Copyright (c) 2002 Rodrigo Damazio.
-- *  Portions by Johann Deneux and Bjorn Augustson
-- */
+--- linux-2.6.17-rc4-git12.orig/drivers/input/misc/uinput.c	2006-05-26 16:59:59.000000000 +0300
++++ linux-2.6.17-rc4-git12/drivers/input/misc/uinput.c	2006-05-26 17:11:20.000000000 +0300
+@@ -20,6 +20,9 @@
+  * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
+  *
+  * Changes/Revisions:
++ *	0.3	09/04/2006 (Anssi Hannula <anssi.hannula@gmail.com>)
++ *		- updated ff support for the changes in kernel interface
++ *		- added MODULE_VERSION
+  *	0.2	16/10/2004 (Micah Dowty <micah@navi.cx>)
+  *		- added force feedback support
+  *              - added UI_SET_PHYS
+@@ -107,18 +110,31 @@ static int uinput_request_submit(struct 
+ 	return request->retval;
+ }
+ 
+-static int uinput_dev_upload_effect(struct input_dev *dev, struct ff_effect *effect)
++static void uinput_dev_set_gain(struct input_dev *dev, u16 gain)
++{
++	uinput_dev_event(dev, EV_FF, FF_GAIN, gain);
++}
++
++static void uinput_dev_set_autocenter(struct input_dev *dev, u16 magnitude)
++{
++	uinput_dev_event(dev, EV_FF, FF_AUTOCENTER, magnitude);
++}
++
++static int uinput_dev_playback(struct input_dev *dev, int effect_id, int value)
++{
++	return uinput_dev_event(dev, EV_FF, effect_id, value);
++}
++
++static int uinput_dev_upload_effect(struct input_dev *dev, struct ff_effect *effect, struct ff_effect *old)
+ {
+ 	struct uinput_request request;
+ 	int retval;
+ 
+-	if (!test_bit(EV_FF, dev->evbit))
+-		return -ENOSYS;
 -
--/*
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-- *
-- * Should you need to contact me, the author, you can do so by
-- * e-mail - mail your message to <rdamazio@lsi.usp.br>
-- */
--
--#include <linux/config.h>
--#include <linux/module.h>
--#include <linux/slab.h>
--#include <linux/kernel.h>
--#include <linux/init.h>
--#include <linux/mm.h>
--#include <linux/smp_lock.h>
--#include <linux/spinlock.h>
--#include <linux/input.h>
--#include <linux/usb.h>
--#include "hid.h"
--#include "pid.h"
--
--#define CHECK_OWNERSHIP(i, hid_pid)	\
--	((i) < FF_EFFECTS_MAX && i >= 0 && \
--	test_bit(FF_PID_FLAGS_USED, &hid_pid->effects[(i)].flags) && \
--	(current->pid == 0 || \
--	(hid_pid)->effects[(i)].owner == current->pid))
--
--/* Called when a transfer is completed */
--static void hid_pid_ctrl_out(struct urb *u, struct pt_regs *regs)
--{
--	dev_dbg(&u->dev->dev, "hid_pid_ctrl_out - Transfer Completed\n");
--}
--
--static void hid_pid_exit(struct hid_device *hid)
--{
--	struct hid_ff_pid *private = hid->ff_private;
--
--	if (private->urbffout) {
--		usb_kill_urb(private->urbffout);
--		usb_free_urb(private->urbffout);
--	}
--}
--
--static int pid_upload_periodic(struct hid_ff_pid *pid, struct ff_effect *effect, int is_update)
--{
--	dev_info(&pid->hid->dev->dev, "requested periodic force upload\n");
--	return 0;
--}
--
--static int pid_upload_constant(struct hid_ff_pid *pid, struct ff_effect *effect, int is_update)
--{
--	dev_info(&pid->hid->dev->dev, "requested constant force upload\n");
--	return 0;
--}
--
--static int pid_upload_condition(struct hid_ff_pid *pid, struct ff_effect *effect, int is_update)
--{
--	dev_info(&pid->hid->dev->dev, "requested Condition force upload\n");
--	return 0;
--}
--
--static int pid_upload_ramp(struct hid_ff_pid *pid, struct ff_effect *effect, int is_update)
--{
--	dev_info(&pid->hid->dev->dev, "request ramp force upload\n");
--	return 0;
--}
--
--static int hid_pid_event(struct hid_device *hid, struct input_dev *input,
--			 unsigned int type, unsigned int code, int value)
--{
--	dev_dbg(&hid->dev->dev, "PID event received: type=%d,code=%d,value=%d.\n", type, code, value);
--
--	if (type != EV_FF)
--		return -1;
--
--	return 0;
--}
--
--/* Lock must be held by caller */
--static void hid_pid_ctrl_playback(struct hid_device *hid, struct hid_pid_effect *effect, int play)
--{
--	if (play)
--		set_bit(FF_PID_FLAGS_PLAYING, &effect->flags);
--	else
--		clear_bit(FF_PID_FLAGS_PLAYING, &effect->flags);
--}
--
--static int hid_pid_erase(struct input_dev *dev, int id)
--{
--	struct hid_device *hid = dev->private;
--	struct hid_ff_pid *pid = hid->ff_private;
--	struct hid_field *field;
--	unsigned long flags;
--	int ret;
--
--	if (!CHECK_OWNERSHIP(id, pid))
--		return -EACCES;
--
--	/* Find report */
--	field = hid_find_field_by_usage(hid, HID_UP_PID | FF_PID_USAGE_BLOCK_FREE,
--					HID_OUTPUT_REPORT);
--	if (!field) {
--		dev_err(&hid->dev->dev, "couldn't find report\n");
--		return -EIO;
--	}
--
--	ret = hid_set_field(field, 0, pid->effects[id].device_id);
--	if (ret) {
--		dev_err(&hid->dev->dev, "couldn't set field\n");
--		return ret;
--	}
--
--	hid_submit_report(hid, field->report, USB_DIR_OUT);
--
--	spin_lock_irqsave(&pid->lock, flags);
--	hid_pid_ctrl_playback(hid, pid->effects + id, 0);
--	pid->effects[id].flags = 0;
--	spin_unlock_irqrestore(&pid->lock, flags);
--
--	return 0;
--}
--
--/* Erase all effects this process owns */
--static int hid_pid_flush(struct input_dev *dev, struct file *file)
--{
--	struct hid_device *hid = dev->private;
--	struct hid_ff_pid *pid = hid->ff_private;
--	int i;
--
--	/*NOTE: no need to lock here. The only times EFFECT_USED is
--	   modified is when effects are uploaded or when an effect is
--	   erased. But a process cannot close its dev/input/eventX fd
--	   and perform ioctls on the same fd all at the same time */
--	/*FIXME: multiple threads, anyone? */
--	for (i = 0; i < dev->ff_effects_max; ++i)
--		if (current->pid == pid->effects[i].owner
--		    && test_bit(FF_PID_FLAGS_USED, &pid->effects[i].flags))
--			if (hid_pid_erase(dev, i))
--				dev_warn(&hid->dev->dev, "erase effect %d failed", i);
--
--	return 0;
--}
--
--static int hid_pid_upload_effect(struct input_dev *dev,
--				 struct ff_effect *effect)
--{
--	struct hid_ff_pid *pid_private = (struct hid_ff_pid *)(dev->private);
--	int ret;
--	int is_update;
--	unsigned long flags;
--
--	dev_dbg(&pid_private->hid->dev->dev, "upload effect called: effect_type=%x\n", effect->type);
--	/* Check this effect type is supported by this device */
--	if (!test_bit(effect->type, dev->ffbit)) {
--		dev_dbg(&pid_private->hid->dev->dev,
--			"invalid kind of effect requested.\n");
--		return -EINVAL;
--	}
--
--	/*
--	 * If we want to create a new effect, get a free id
--	 */
--	if (effect->id == -1) {
--		int id = 0;
--
--		// Spinlock so we don`t get a race condition when choosing IDs
--		spin_lock_irqsave(&pid_private->lock, flags);
--
--		while (id < FF_EFFECTS_MAX)
--			if (!test_and_set_bit(FF_PID_FLAGS_USED, &pid_private->effects[id++].flags))
--				break;
--
--		if (id == FF_EFFECTS_MAX) {
--			spin_unlock_irqrestore(&pid_private->lock, flags);
--// TEMP - We need to get ff_effects_max correctly first:  || id >= dev->ff_effects_max) {
--			dev_dbg(&pid_private->hid->dev->dev, "Not enough device memory\n");
--			return -ENOMEM;
--		}
--
--		effect->id = id;
--		dev_dbg(&pid_private->hid->dev->dev, "effect ID is %d.\n", id);
--		pid_private->effects[id].owner = current->pid;
--		pid_private->effects[id].flags = (1 << FF_PID_FLAGS_USED);
--		spin_unlock_irqrestore(&pid_private->lock, flags);
--
--		is_update = FF_PID_FALSE;
--	} else {
--		/* We want to update an effect */
--		if (!CHECK_OWNERSHIP(effect->id, pid_private))
--			return -EACCES;
--
--		/* Parameter type cannot be updated */
--		if (effect->type != pid_private->effects[effect->id].effect.type)
--			return -EINVAL;
--
--		/* Check the effect is not already being updated */
--		if (test_bit(FF_PID_FLAGS_UPDATING, &pid_private->effects[effect->id].flags))
--			return -EAGAIN;
--
--		is_update = FF_PID_TRUE;
--	}
--
--	/*
--	 * Upload the effect
--	 */
--	switch (effect->type) {
--	case FF_PERIODIC:
--		ret = pid_upload_periodic(pid_private, effect, is_update);
--		break;
--
--	case FF_CONSTANT:
--		ret = pid_upload_constant(pid_private, effect, is_update);
--		break;
--
--	case FF_SPRING:
--	case FF_FRICTION:
--	case FF_DAMPER:
--	case FF_INERTIA:
--		ret = pid_upload_condition(pid_private, effect, is_update);
--		break;
--
--	case FF_RAMP:
--		ret = pid_upload_ramp(pid_private, effect, is_update);
--		break;
--
--	default:
--		dev_dbg(&pid_private->hid->dev->dev,
--			"invalid type of effect requested - %x.\n",
--			effect->type);
--		return -EINVAL;
--	}
--	/* If a packet was sent, forbid new updates until we are notified
--	 * that the packet was updated
--	 */
--	if (ret == 0)
--		set_bit(FF_PID_FLAGS_UPDATING, &pid_private->effects[effect->id].flags);
--	pid_private->effects[effect->id].effect = *effect;
--	return ret;
--}
--
--int hid_pid_init(struct hid_device *hid)
--{
--	struct hid_ff_pid *private;
--	struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
--	struct input_dev *input_dev = hidinput->input;
--
--	private = hid->ff_private = kzalloc(sizeof(struct hid_ff_pid), GFP_KERNEL);
--	if (!private)
--		return -ENOMEM;
--
--	private->hid = hid;
--
--	hid->ff_exit = hid_pid_exit;
--	hid->ff_event = hid_pid_event;
--
--	/* Open output URB */
--	if (!(private->urbffout = usb_alloc_urb(0, GFP_KERNEL))) {
--		kfree(private);
--		return -1;
--	}
--
--	usb_fill_control_urb(private->urbffout, hid->dev, 0,
--			     (void *)&private->ffcr, private->ctrl_buffer, 8,
--			     hid_pid_ctrl_out, hid);
--
--	input_dev->upload_effect = hid_pid_upload_effect;
--	input_dev->flush = hid_pid_flush;
--	input_dev->ff_effects_max = 8;	// A random default
--	set_bit(EV_FF, input_dev->evbit);
--	set_bit(EV_FF_STATUS, input_dev->evbit);
--
--	spin_lock_init(&private->lock);
--
--	printk(KERN_INFO "Force feedback driver for PID devices by Rodrigo Damazio <rdamazio@lsi.usp.br>.\n");
--
--	return 0;
--}
-Index: linux-2.6.16-git20/drivers/usb/input/pid.h
+ 	request.id = -1;
+ 	init_completion(&request.done);
+ 	request.code = UI_FF_UPLOAD;
+-	request.u.effect = effect;
++	request.u.upload.effect = effect;
++	request.u.upload.old = old;
+ 
+ 	retval = uinput_request_reserve_slot(dev->private, &request);
+ 	if (!retval)
+@@ -166,6 +182,14 @@ static void uinput_destroy_device(struct
+ 	udev->state = UIST_NEW_DEVICE;
+ }
+ 
++static struct ff_driver uinput_ff_driver = {
++	.upload = uinput_dev_upload_effect,
++	.erase = uinput_dev_erase_effect,
++	.playback = uinput_dev_playback,
++	.set_gain = uinput_dev_set_gain,
++	.set_autocenter = uinput_dev_set_autocenter
++};
++
+ static int uinput_create_device(struct uinput_device *udev)
+ {
+ 	int error;
+@@ -181,6 +205,14 @@ static int uinput_create_device(struct u
+ 		return error;
+ 	}
+ 
++	if (udev->dev->ff) {
++		error = input_ff_register(udev->dev, &uinput_ff_driver);
++		if (error) {
++			uinput_destroy_device(udev);
++			return error;
++		}
++	}
++
+ 	udev->state = UIST_CREATED;
+ 
+ 	return 0;
+@@ -243,8 +275,6 @@ static int uinput_allocate_device(struct
+ 		return -ENOMEM;
+ 
+ 	udev->dev->event = uinput_dev_event;
+-	udev->dev->upload_effect = uinput_dev_upload_effect;
+-	udev->dev->erase_effect = uinput_dev_erase_effect;
+ 	udev->dev->private = udev;
+ 
+ 	return 0;
+@@ -296,7 +326,12 @@ static int uinput_setup_device(struct ui
+ 	dev->id.vendor	= user_dev->id.vendor;
+ 	dev->id.product	= user_dev->id.product;
+ 	dev->id.version	= user_dev->id.version;
+-	dev->ff_effects_max = user_dev->ff_effects_max;
++	if (user_dev->ff_effects_max) {
++		retval = input_ff_allocate(dev);
++		if (retval)
++			goto exit;
++		dev->ff_effects_max = user_dev->ff_effects_max;
++	}
+ 
+ 	size = sizeof(int) * (ABS_MAX + 1);
+ 	memcpy(dev->absmax, user_dev->absmax, size);
+@@ -459,7 +494,12 @@ static long uinput_ioctl(struct file *fi
+ 			break;
+ 
+ 		case UI_SET_EVBIT:
+-			retval = uinput_set_bit(arg, evbit, EV_MAX);
++			if (arg == EV_FF)
++				/* EV_FF shall not be touched by the driver
++				   it is set by force feedback subsystem */
++				retval = -EINVAL;
++			else
++				retval = uinput_set_bit(arg, evbit, EV_MAX);
+ 			break;
+ 
+ 		case UI_SET_KEYBIT:
+@@ -487,7 +527,10 @@ static long uinput_ioctl(struct file *fi
+ 			break;
+ 
+ 		case UI_SET_FFBIT:
+-			retval = uinput_set_bit(arg, ffbit, FF_MAX);
++			if (!udev->dev->ff)
++				retval = -EINVAL;
++			else
++				retval = uinput_set_bit(arg, ff->flags, FF_MAX);
+ 			break;
+ 
+ 		case UI_SET_SWBIT:
+@@ -525,12 +568,17 @@ static long uinput_ioctl(struct file *fi
+ 				break;
+ 			}
+ 			req = uinput_request_find(udev, ff_up.request_id);
+-			if (!(req && req->code == UI_FF_UPLOAD && req->u.effect)) {
++			if (!(req && req->code == UI_FF_UPLOAD && req->u.upload.effect)) {
+ 				retval = -EINVAL;
+ 				break;
+ 			}
+ 			ff_up.retval = 0;
+-			memcpy(&ff_up.effect, req->u.effect, sizeof(struct ff_effect));
++			memcpy(&ff_up.effect, req->u.upload.effect, sizeof(struct ff_effect));
++			if (req->u.upload.old)
++				memcpy(&ff_up.old, req->u.upload.old, sizeof(struct ff_effect));
++			else
++				memset(&ff_up.old, 0, sizeof(struct ff_effect));
++
+ 			if (copy_to_user(p, &ff_up, sizeof(ff_up))) {
+ 				retval = -EFAULT;
+ 				break;
+@@ -561,12 +609,11 @@ static long uinput_ioctl(struct file *fi
+ 				break;
+ 			}
+ 			req = uinput_request_find(udev, ff_up.request_id);
+-			if (!(req && req->code == UI_FF_UPLOAD && req->u.effect)) {
++			if (!(req && req->code == UI_FF_UPLOAD && req->u.upload.effect)) {
+ 				retval = -EINVAL;
+ 				break;
+ 			}
+ 			req->retval = ff_up.retval;
+-			memcpy(req->u.effect, &ff_up.effect, sizeof(struct ff_effect));
+ 			uinput_request_done(udev, req);
+ 			break;
+ 
+@@ -622,6 +669,7 @@ static void __exit uinput_exit(void)
+ MODULE_AUTHOR("Aristeu Sergio Rozanski Filho");
+ MODULE_DESCRIPTION("User level driver support for input subsystem");
+ MODULE_LICENSE("GPL");
++MODULE_VERSION("0.3");
+ 
+ module_init(uinput_init);
+ module_exit(uinput_exit);
+Index: linux-2.6.17-rc4-git12/include/linux/uinput.h
 ===================================================================
---- linux-2.6.16-git20.orig/drivers/usb/input/pid.h	2006-04-10 21:02:44.000000000 +0300
-+++ /dev/null	1970-01-01 00:00:00.000000000 +0000
-@@ -1,62 +0,0 @@
--/*
-- *  PID Force feedback support for hid devices.
-- *
-- *  Copyright (c) 2002 Rodrigo Damazio.
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-- *
-- * Should you need to contact me, the author, you can do so by
-- * e-mail - mail your message to <rdamazio@lsi.usp.br>
-- */
--
--#define FF_EFFECTS_MAX 64
--
--#define FF_PID_FLAGS_USED	1	/* If the effect exists */
--#define FF_PID_FLAGS_UPDATING	2	/* If the effect is being updated */
--#define FF_PID_FLAGS_PLAYING	3	/* If the effect is currently being played */
--
--#define FF_PID_FALSE	0
--#define FF_PID_TRUE	1
--
--struct hid_pid_effect {
--	unsigned long flags;
--	pid_t owner;
--	unsigned int device_id;	/* The device-assigned ID */
--	struct ff_effect effect;
--};
--
--struct hid_ff_pid {
--	struct hid_device *hid;
--	unsigned long gain;
--
--	struct urb *urbffout;
--	struct usb_ctrlrequest ffcr;
--	spinlock_t lock;
--
--	unsigned char ctrl_buffer[8];
--
--	struct hid_pid_effect effects[FF_EFFECTS_MAX];
--};
--
--/*
-- * Constants from the PID usage table (still far from complete)
-- */
--
--#define FF_PID_USAGE_BLOCK_LOAD 	0x89UL
--#define FF_PID_USAGE_BLOCK_FREE		0x90UL
--#define FF_PID_USAGE_NEW_EFFECT 	0xABUL
--#define FF_PID_USAGE_POOL_REPORT	0x7FUL
+--- linux-2.6.17-rc4-git12.orig/include/linux/uinput.h	2006-05-26 16:59:59.000000000 +0300
++++ linux-2.6.17-rc4-git12/include/linux/uinput.h	2006-05-26 17:09:01.000000000 +0300
+@@ -22,12 +22,18 @@
+  * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
+  *
+  * Changes/Revisions:
++ *	0.3	24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
++ *		- update ff support for the changes in kernel interface
++ *		- add UINPUT_VERSION
+  *	0.2	16/10/2004 (Micah Dowty <micah@navi.cx>)
+  *		- added force feedback support
+  *             - added UI_SET_PHYS
+  *	0.1	20/06/2002
+  *		- first public version
+  */
++
++#define UINPUT_VERSION		3
++
+ #ifdef __KERNEL__
+ #define UINPUT_MINOR		223
+ #define UINPUT_NAME		"uinput"
+@@ -45,7 +51,10 @@ struct uinput_request {
+ 
+ 	union {
+ 		int		effect_id;
+-		struct ff_effect* effect;
++		struct {
++			struct ff_effect* effect;
++			struct ff_effect* old;
++		} upload;
+ 	} u;
+ };
+ 
+@@ -69,6 +78,7 @@ struct uinput_ff_upload {
+ 	int			request_id;
+ 	int			retval;
+ 	struct ff_effect	effect;
++	struct ff_effect	old;
+ };
+ 
+ struct uinput_ff_erase {
+@@ -105,7 +115,7 @@ struct uinput_ff_erase {
+  * ioctls to retrieve additional parameters and send the return code.
+  * The callback blocks until this return code is sent.
+  *
+- * The described callback mechanism is only used if EV_FF is set.
++ * The described callback mechanism is only used if ff_effects_max is set.
+  * Otherwise, default implementations of upload_effect and erase_effect
+  * are used.
+  *
+@@ -116,9 +126,9 @@ struct uinput_ff_erase {
+  *      the 'value' from the EV_UINPUT event.
+  *   3. Issue a UI_BEGIN_FF_UPLOAD ioctl, giving it the
+  *      uinput_ff_upload struct. It will be filled in with the
+- *      ff_effect passed to upload_effect().
+- *   4. Perform the effect upload, and place the modified ff_effect
+- *      and a return code back into the uinput_ff_upload struct.
++ *      ff_effects passed to upload_effect().
++ *   4. Perform the effect upload, and place a return code back into
++        the uinput_ff_upload struct.
+  *   5. Issue a UI_END_FF_UPLOAD ioctl, also giving it the
+  *      uinput_ff_upload_effect struct. This will complete execution
+  *      of our upload_effect() handler.
+@@ -133,7 +143,6 @@ struct uinput_ff_erase {
+  *      effect ID passed to erase_effect().
+  *   4. Perform the effect erasure, and place a return code back
+  *      into the uinput_ff_erase struct.
+- *      and a return code back into the uinput_ff_erase struct.
+  *   5. Issue a UI_END_FF_ERASE ioctl, also giving it the
+  *      uinput_ff_erase_effect struct. This will complete execution
+  *      of our erase_effect() handler.
 
 --
 Anssi Hannula

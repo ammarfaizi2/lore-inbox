@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751391AbWEZLAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbWEZLF6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751391AbWEZLAx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 07:00:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbWEZLAx
+	id S1751390AbWEZLF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 07:05:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWEZLF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 07:00:53 -0400
-Received: from mail24.syd.optusnet.com.au ([211.29.133.165]:36246 "EHLO
-	mail24.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751391AbWEZLAw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 07:00:52 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [RFC 3/5] sched: Add CPU rate hard caps
-Date: Fri, 26 May 2006 21:00:21 +1000
-User-Agent: KMail/1.9.1
-Cc: Mike Galbraith <efault@gmx.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
-       Rene Herman <rene.herman@keyaccess.nl>
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest> <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>
-In-Reply-To: <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>
+	Fri, 26 May 2006 07:05:58 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:59522 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1751390AbWEZLF5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 07:05:57 -0400
+Message-ID: <348641554.13480@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Fri, 26 May 2006 19:05:59 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH 03/33] radixtree: hole scanning functions
+Message-ID: <20060526110559.GA14398@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Nick Piggin <nickpiggin@yahoo.com.au>
+References: <20060524111246.420010595@localhost.localdomain> <348469537.15678@ustc.edu.cn> <20060525091946.2b57840f.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605262100.22071.kernel@kolivas.org>
+In-Reply-To: <20060525091946.2b57840f.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 26 May 2006 14:20, Peter Williams wrote:
-> This patch implements hard CPU rate caps per task as a proportion of a
-> single CPU's capacity expressed in parts per thousand.
+On Thu, May 25, 2006 at 09:19:46AM -0700, Andrew Morton wrote:
+> Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
+> >
+> > Introduce a pair of functions to scan radix tree for hole/empty item.
+> >
+> 
+> There's a userspace radix-tree test harness at
+> http://www.zip.com.au/~akpm/linux/patches/stuff/rtth.tar.gz.
+> 
+> If/when these new features are merged up, it would be good to have new
+> testcases added to that suite, please.
+> 
+> In the meanwhile you may care to develop those tests anwyway, see if you
+> can trip up the new features.
 
-A hard cap of 1/1000 could lead to interesting starvation scenarios where a 
-mutex or semaphore was held by a task that hardly ever got cpu. Same goes to 
-a lesser extent to a 0 soft cap. 
+The new radix-tree.c/.h breaks compiling terribly.
 
-Here is how I handle idleprio tasks in current -ck:
-
-http://ck.kolivas.org/patches/2.6/pre-releases/2.6.17-rc5/2.6.17-rc5-ck1/patches/track_mutexes-1.patch
-tags tasks that are holding a mutex
-
-http://ck.kolivas.org/patches/2.6/pre-releases/2.6.17-rc5/2.6.17-rc5-ck1/patches/sched-idleprio-1.7.patch
-is the idleprio policy for staircase.
-
-What it does is runs idleprio tasks as normal tasks when they hold a mutex or 
-are waking up after calling down() (ie holding a semaphore). These two in 
-combination have shown resistance to any priority inversion problems in 
-widespread testing. An attempt was made to track semaphores held via a 
-down_interruptible() but unfortunately the lack of strict rules about who 
-could release the semaphore meant accounting was impossible of this scenario. 
-In practice, though there were no test cases that showed it to be an issue, 
-and the recent conversion en-masse of semaphores to mutexes in the kernel 
-means it has pretty much covered most possibilities.
-
--- 
--ck
+Are there any particular reason not to implement it as a module?

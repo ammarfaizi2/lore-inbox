@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbWEZCEj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030215AbWEZCKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030203AbWEZCEj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 22:04:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbWEZCEj
+	id S1030215AbWEZCKh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 22:10:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbWEZCKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 22:04:39 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:24308 "EHLO
-	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1030203AbWEZCEi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 22:04:38 -0400
-Date: Thu, 25 May 2006 20:03:14 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: 3ware 7500 not working in 2.6.16.18, 2.6.17-rc5
-In-reply-to: <6gn8D-4AV-13@gated-at.bofh.it>
-To: Jan Kasprzak <kas@fi.muni.cz>, linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <447661E2.5020103@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <6gn8D-4AV-13@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+	Thu, 25 May 2006 22:10:37 -0400
+Received: from nz-out-0102.google.com ([64.233.162.200]:59101 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1030215AbWEZCKh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 22:10:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Zlfj5xj+3rklIVwMAuVcAzrkC53JAMCsUwaumVjFvE5lqY2ddN5juINTMnt7aKU0DReL60UxC2qQWLKYRnVOg3e1NW0ZIEBVViAV8tyTj45dOugFhLKuDiexxoiPmj8UIqDfTH8ddy+MDjR4M/pJcqTn+sJukqyxqsXaenUA6xQ=
+Message-ID: <9e4733910605251910k3bcd434aq5f7410c53fc8b17d@mail.gmail.com>
+Date: Thu, 25 May 2006 22:10:35 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [PATCH 00/33] Adaptive read-ahead V12
+Cc: "Wu Fengguang" <wfg@mail.ustc.edu.cn>, linux-kernel@vger.kernel.org,
+       mstone@mathom.us
+In-Reply-To: <20060525084415.3a23e466.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <348469535.17438@ustc.edu.cn>
+	 <20060525084415.3a23e466.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Kasprzak wrote:
-> 	Hi all,
-> 
-> I have a 3ware 75xx P-ATA controller, which has been working in 2.6.15-rc2.
-> Today I have tried to upgrade to 2.6.16.18, and it cannot boot - the
-> controller cannot access the drives, with the attached messages.
-> I have also tried 2.6.17-rc5 with the same results.
+On 5/25/06, Andrew Morton <akpm@osdl.org> wrote:
+> These are nice-looking numbers, but one wonders.  If optimising readahead
+> makes this much difference to postgresql performance then postgresql should
+> be doing the readahead itself, rather than relying upon the kernel's
+> ability to guess what the application will be doing in the future.  Because
+> surely the database can do a better job of that than the kernel.
+>
+> That would involve using posix_fadvise(POSIX_FADV_RANDOM) to disable kernel
+> readahead and then using posix_fadvise(POSIX_FADV_WILLNEED) to launch
+> application-level readahead.
 
-...
-
-> 3w-xxxx: tw_map_scsi_sg_data(): pci_map_sg() failed.
-> nommu_map_sg: overflow 2053d9000+4096 of device mask ffffffff
-> sd 0:0:0:0: SCSI error: return code = 0x70000
-> end_request: I/O error, dev sda, sector 0
-> Buffer I/O error on device sda, logical block 0
-> nommu_map_sg: overflow 2053d9000+4096 of device mask ffffffff
-> 3w-xxxx: tw_map_scsi_sg_data(): pci_map_sg() failed.
-> [... and so on, the same for all eight drives sda to sdh ...]
-
-It looks like this controller only supports 32-bit DMA addresses. For 
-some reason it's trying to feed in an SG list with addresses over 4GB, 
-which fails. I'd think this configuration should work, but maybe not?
-
-It looks like you have IOMMU turned off - I think you'll really want to 
-turn that on with that much RAM (12GB). Even if this case did work as 
-well as it could, without IOMMU the kernel would have to bounce-buffer 
-the data below 4GB which will kill performance.
+Users have also reported that this patch fixes performance problems
+from web servers using sendfile(). In the case of lighttpd they
+actually stopped using sendfile() for large transfers and wrote a user
+space replacement where they could control readahead manually. With
+this patch in place sendfile() went back to being faster than the user
+space implementation.
 
 -- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+Jon Smirl
+jonsmirl@gmail.com

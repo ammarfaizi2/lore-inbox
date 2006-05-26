@@ -1,61 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWEZXm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbWEZXrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964871AbWEZXm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 19:42:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWEZXm4
+	id S964872AbWEZXrN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 19:47:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbWEZXrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 19:42:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:46246 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964868AbWEZXmz (ORCPT
+	Fri, 26 May 2006 19:47:13 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:21728 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964872AbWEZXrN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 19:42:55 -0400
-Date: Fri, 26 May 2006 16:45:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: dtor_core@ameritech.net, linux-joystick@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 03/13] input: make input a multi-object module
-Message-Id: <20060526164543.52f5b8a0.akpm@osdl.org>
-In-Reply-To: <447790BB.4060707@gmail.com>
-References: <20060526161129.557416000@gmail.com>
-	<20060526162902.227348000@gmail.com>
-	<20060526141603.054f0459.akpm@osdl.org>
-	<44777340.7030905@gmail.com>
-	<20060526144309.60469bcd.akpm@osdl.org>
-	<447778DA.8080507@gmail.com>
-	<20060526150804.0ae11b1f.akpm@osdl.org>
-	<44777F98.4080004@gmail.com>
-	<20060526153246.267991ed.akpm@osdl.org>
-	<44778A14.4060500@gmail.com>
-	<20060526162842.4da6b447.akpm@osdl.org>
-	<447790BB.4060707@gmail.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 26 May 2006 19:47:13 -0400
+Message-ID: <4477937F.3030802@garzik.org>
+Date: Fri, 26 May 2006 19:47:11 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: linux-pci@atrey.karlin.mff.cuni.cz
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>
+Subject: Moving pci_test_config_bits
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anssi Hannula <anssi.hannula@gmail.com> wrote:
->
-> Andrew Morton wrote:
-> > Anssi Hannula <anssi.hannula@gmail.com> wrote:
-> > 
-> >>Unless you have any more thoughts, I'll make patches for (1) separate
-> >>input-ff.o from input.o so that input.c renaming is not required, and to
-> >>(2) use the input_dev->event() handler instead of input.o calling
-> >>input-ff.o.
-> > 
-> > 
-> > Sounds good, thanks.
-> 
-> Hmh, I guess I need to send the modified "input: new force feedback
-> interface" patch fully again, as the previous patch patches input-core.c
-> that doesn't exist if we drop the rename.
+FYI, I plan to move pci_test_config_bits() from libata-core.c to the PCI 
+layer, where it belongs.
 
-yup.
+	Jeff
 
-> A final minor question: In your opinion is input-ff.c or ff-effects.c a
-> better name? ;)
 
-ff-effects.

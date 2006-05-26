@@ -1,40 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751581AbWEZVW4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751583AbWEZV0i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751581AbWEZVW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 17:22:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751583AbWEZVWz
+	id S1751583AbWEZV0i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 17:26:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751585AbWEZV0i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 17:22:55 -0400
-Received: from mx.freeshell.ORG ([192.94.73.18]:3032 "EHLO sdf.lonestar.org")
-	by vger.kernel.org with ESMTP id S1751579AbWEZVWz (ORCPT
+	Fri, 26 May 2006 17:26:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:5262 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751582AbWEZV0h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 17:22:55 -0400
-Date: Fri, 26 May 2006 21:22:43 +0000
-From: Aravind Gottipati <aravind@freeshell.org>
-To: linux-kernel@vger.kernel.org
-Subject: e1000 poor network performance - 2.6.17-rc5-g705af309
-Message-ID: <20060526212243.GA19250@SDF.LONESTAR.ORG>
+	Fri, 26 May 2006 17:26:37 -0400
+Date: Fri, 26 May 2006 14:26:31 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] hrtimer: export symbols
+Message-ID: <20060526142631.38d5309e@localhost.localdomain>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I want to use the hrtimer's in the netem (Network Emulator) qdisc.
+But the necessary symbols aren't exported for module use.
 
-I recently started running linux on a new x60 thinkpad and started
-noticing really poor network performance with this kernel.  I saw some
-archived threads from a while back saying this could be related to
-conntracking.  Disabled that (rmmod ip_conntrack) did not fix the
-problem.  I also tried disabling tso but that didn't have any effect
-either.  I can reproduce the problem when connected to a 100Mbps switch
-(I don't have a GigE network to test this with).
-
-This laptop uses the Intel 82573L (PCI-Express) chip.  I'd be glad to
-assist with any toubleshooting/testing w.r.t this.  I am not subscribed
-to the list, so please cc me on any replies.
-
-Thank you,
-
-Aravind.
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+--- linux-2.6.orig/kernel/hrtimer.c	2006-04-27 11:12:53.000000000 -0700
++++ linux-2.6/kernel/hrtimer.c	2006-05-26 14:21:37.000000000 -0700
+@@ -456,6 +456,7 @@
+ 
+ 	return ret;
+ }
++EXPORT_SYMBOL_GPL(hrtimer_start);
+ 
+ /**
+  * hrtimer_try_to_cancel - try to deactivate a timer
+@@ -484,6 +485,7 @@
+ 	return ret;
+ 
+ }
++EXPORT_SYMBOL_GPL(hrtimer_try_to_cancel);
+ 
+ /**
+  * hrtimer_cancel - cancel a timer and wait for the handler to finish.
+@@ -504,6 +506,7 @@
+ 		cpu_relax();
+ 	}
+ }
++EXPORT_SYMBOL_GPL(hrtimer_cancel);
+ 
+ /**
+  * hrtimer_get_remaining - get remaining time for the timer
+@@ -522,6 +525,7 @@
+ 
+ 	return rem;
+ }
++EXPORT_SYMBOL_GPL(hrtimer_get_remaining);
+ 
+ #ifdef CONFIG_NO_IDLE_HZ
+ /**
+@@ -580,6 +584,7 @@
+ 	timer->base = &bases[clock_id];
+ 	timer->node.rb_parent = HRTIMER_INACTIVE;
+ }
++EXPORT_SYMBOL_GPL(hrtimer_init);
+ 
+ /**
+  * hrtimer_get_res - get the timer resolution for a clock
+@@ -599,6 +604,7 @@
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(hrtimer_get_res);
+ 
+ /*
+  * Expire the per base hrtimer-queue:

@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWEZU1Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751461AbWEZUaM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbWEZU1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 16:27:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbWEZU1Z
+	id S1751461AbWEZUaM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 16:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWEZUaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 16:27:25 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:61424 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1750728AbWEZU1Y (ORCPT
+	Fri, 26 May 2006 16:30:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30699 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751461AbWEZUaK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 16:27:24 -0400
-Message-ID: <44776491.1080506@myri.com>
-Date: Fri, 26 May 2006 22:26:57 +0200
-From: Brice Goglin <brice@myri.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Shaohua Li <shaohua.li@intel.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, greg@kroah.com, tom.l.nguyen@intel.com,
-       rajesh.shah@intel.com
-Subject: Re: [RFC]disable msi mode in pci_disable_device
-References: <1148612307.32046.132.camel@sli10-desk.sh.intel.com> <20060526125440.0897aef5.akpm@osdl.org>
-In-Reply-To: <20060526125440.0897aef5.akpm@osdl.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 26 May 2006 16:30:10 -0400
+Date: Fri, 26 May 2006 21:30:03 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Evan Harris <eharris@puremagic.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ext3-fs transient corruption with devmapper over md raid, kernel 2.6.16.14
+Message-ID: <20060526203003.GC10603@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Evan Harris <eharris@puremagic.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.62.0605231225450.11814@kinison.puremagic.com> <20060523221547.GA1002@agk.surrey.redhat.com> <Pine.LNX.4.62.0605261425160.19083@kinison.puremagic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0605261425160.19083@kinison.puremagic.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->> In
->> his usage, pci_save_state will be called at runtime, and later (after
->> the device operates for some time and has an error) pci_restore_state
->> will be called.
->
-> Is that a sane thing for a driver to be doing? (Not relevant to this issue
-> though).
+On Fri, May 26, 2006 at 02:35:48PM -0500, Evan Harris wrote:
+> However, this leads me to suspect that the problem is either in dm-crypt, 
+> or a data corruption problem resulting from a decrypt error from the 
+> aes_x86_64 module that dm-crypt is using.
+ 
+Perhaps try a different crypt module too?
 
-The aim is to be able to recover from a memory parity error in the NIC.
-Such errors happen sometimes, especially when a cosmic ray comes by. To
-recover, we restore the state that we saved at the end of the
-initialization. As saving currently disables MSI, we currently have to
-restore the state right after saving it at the end of the initialization
-(see the end of
-myri10ge_probe in http://lkml.org/lkml/2006/5/23/24).
-
-I just tried, the patch fixes our problem (no need to restore right
-after saving to reenable MSI).
-
-Brice
-
+Alasdair
+-- 
+agk@redhat.com

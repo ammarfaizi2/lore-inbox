@@ -1,129 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbWEZMFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbWEZMJz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932364AbWEZMFd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 08:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbWEZMES
+	id S932357AbWEZMJz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 08:09:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWEZMJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 08:04:18 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:23001 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932364AbWEZLxA (ORCPT
+	Fri, 26 May 2006 08:09:55 -0400
+Received: from sigrand.ru ([80.66.88.167]:29605 "EHLO mail.sigrand.com")
+	by vger.kernel.org with ESMTP id S932357AbWEZMJy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 07:53:00 -0400
-Message-ID: <348644377.06563@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060526115302.278500703@localhost.localdomain>
-References: <20060526113906.084341801@localhost.localdomain>
-Date: Fri, 26 May 2006 19:39:13 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 07/33] readahead: delay page release in do_generic_mapping_read()
-Content-Disposition: inline; filename=readahead-delay-page-release-in-do_generic_mapping_read.patch
+	Fri, 26 May 2006 08:09:54 -0400
+Date: Fri, 26 May 2006 18:40:28 +0700
+From: art <art@sigrand.ru>
+X-Mailer: The Bat! (v1.38e) S/N A1D26E39 / Educational
+Reply-To: art <art@sigrand.ru>
+Organization: Sigrand LLC
+X-Priority: 3 (Normal)
+Message-ID: <1778.060526@sigrand.ru>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re[2]: Problem with TLB mcheck!
+In-reply-To: <Pine.LNX.4.64N.0605241304090.7887@blysk.ds.pg.gda.pl>
+References: <Pine.LNX.4.64N.0605241304090.7887@blysk.ds.pg.gda.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In do_generic_mapping_read(), release accessed pages some time later,
-so that it can be passed to and used by the adaptive read-ahead code.
+Hello Maciej, thanks for answer! when it is at first time it is wery
+important :)!
 
-Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
----
+Wednesday, May 24, 2006, 7:45:26 PM, you wrote:
 
- mm/filemap.c |   18 ++++++++++++------
- 1 files changed, 12 insertions(+), 6 deletions(-)
+MWR>  The "linux-mips" mailing list (as cc-ed in this response) is a better
+MWR> place to ask such questions.
 
---- linux-2.6.17-rc4-mm3.orig/mm/filemap.c
-+++ linux-2.6.17-rc4-mm3/mm/filemap.c
-@@ -813,10 +813,12 @@ void do_generic_mapping_read(struct addr
- 	unsigned long prev_index;
- 	loff_t isize;
- 	struct page *cached_page;
-+	struct page *prev_page;
- 	int error;
- 	struct file_ra_state ra = *_ra;
- 
- 	cached_page = NULL;
-+	prev_page = NULL;
- 	index = *ppos >> PAGE_CACHE_SHIFT;
- 	next_index = index;
- 	prev_index = ra.prev_page;
-@@ -855,6 +857,11 @@ find_page:
- 			handle_ra_miss(mapping, &ra, index);
- 			goto no_cached_page;
- 		}
-+
-+		if (prev_page)
-+			page_cache_release(prev_page);
-+		prev_page = page;
-+
- 		if (!PageUptodate(page))
- 			goto page_not_up_to_date;
- page_ok:
-@@ -889,7 +896,6 @@ page_ok:
- 		index += offset >> PAGE_CACHE_SHIFT;
- 		offset &= ~PAGE_CACHE_MASK;
- 
--		page_cache_release(page);
- 		if (ret == nr && desc->count)
- 			continue;
- 		goto out;
-@@ -901,7 +907,6 @@ page_not_up_to_date:
- 		/* Did it get unhashed before we got the lock? */
- 		if (!page->mapping) {
- 			unlock_page(page);
--			page_cache_release(page);
- 			continue;
- 		}
- 
-@@ -931,7 +936,6 @@ readpage:
- 					 * invalidate_inode_pages got it
- 					 */
- 					unlock_page(page);
--					page_cache_release(page);
- 					goto find_page;
- 				}
- 				unlock_page(page);
-@@ -952,7 +956,6 @@ readpage:
- 		isize = i_size_read(inode);
- 		end_index = (isize - 1) >> PAGE_CACHE_SHIFT;
- 		if (unlikely(!isize || index > end_index)) {
--			page_cache_release(page);
- 			goto out;
- 		}
- 
-@@ -961,7 +964,6 @@ readpage:
- 		if (index == end_index) {
- 			nr = ((isize - 1) & ~PAGE_CACHE_MASK) + 1;
- 			if (nr <= offset) {
--				page_cache_release(page);
- 				goto out;
- 			}
- 		}
-@@ -971,7 +973,6 @@ readpage:
- readpage_error:
- 		/* UHHUH! A synchronous read error occurred. Report it */
- 		desc->error = error;
--		page_cache_release(page);
- 		goto out;
- 
- no_cached_page:
-@@ -996,6 +997,9 @@ no_cached_page:
- 		}
- 		page = cached_page;
- 		cached_page = NULL;
-+		if (prev_page)
-+			page_cache_release(prev_page);
-+		prev_page = page;
- 		goto readpage;
- 	}
- 
-@@ -1005,6 +1009,8 @@ out:
- 	*ppos = ((loff_t) index << PAGE_CACHE_SHIFT) + offset;
- 	if (cached_page)
- 		page_cache_release(cached_page);
-+	if (prev_page)
-+		page_cache_release(prev_page);
- 	if (filp)
- 		file_accessed(filp);
- }
+MWR>  You haven't included some important information, such as the version 
+MWR> number of your Linux kernel and where you got your sources from.  Without 
+MWR> that bit all I can say is there is something wrong with handling of the 
+MWR> TLB.
 
---
+MWR>  Ralf, BTW -- shouldn't we report the Index, EntryHi and possibly EntryLo* 
+MWR> registers in show_regs() if the cause is a machine check?  I think it 
+MWR> would be useful and these registers shouldn't have been corrupted since 
+MWR> the triggering tlbw* instruction.  A call to show_code() could be useful 
+MWR> too, to determine which kind of TLB exception has been taken originally.  
+
+MWR>   Maciej
+
+I know about linux-mips, but I have not get answer from that for two
+days! Maybe I write not complete message.
+I will try Ralf Baechles diff and send the result a bit later.
+Information about kernel sources (how can I forgot this!!):
+   Version: linux-2.6.12-rc1-mipscvs-20050403 (this is tar-s full
+   name). So I think this kernel is from linux-mips cvs repositary.
+   It was downloaded from http://www.student.tue.nl/Q/t.f.a.wilms/adm5120/
+
+Here is mcheck with respect to your patch:
+   
+[4294701.476000] Got mcheck at 8011c818
+[4294701.476000] Hi    : 00000000
+[4294701.476000] Pagemask: ffffffff
+[4294701.476000] EntryHi : c008a013
+[4294701.476000] EntryLo0: 0000f25f
+[4294701.476000] EntryLo1: 0000ff9f
+[4294701.476000]
+[4294701.476000] Cpu 0
+[4294701.476000] $ 0   : 00000000 10008400 00000000 802b17ac
+[4294701.476000] $ 4   : 802b13ac 00000400 c008ac00 80353d6c
+[4294701.476000] $ 8   : 10008400 1000001f 80393000 fffffff8
+[4294701.476000] $12   : 802b0000 802b0000 00000001 ffffffff
+[4294701.476000] $16   : 00000400 802b17ab 80353d6c 00000020
+[4294701.476000] $20   : 80353e38 81144800 00000400 802b13ac
+[4294701.476000] $24   : 00000006 0048ce30
+[4294701.476000] $28   : 80352000 80353c70 7faf5d98 8011ce94
+[4294701.476000] Hi    : 00000000
+[4294701.476000] Lo    : 000c3500
+[4294701.476000] epc   : 8011c818 vsnprintf+0x54/0x6bc     Not tainted
+[4294701.476000] ra    : 8011ce94 vscnprintf+0x14/0x30
+[4294701.476000] Status: 10208402    KERNEL EXL
+[4294701.476000] Cause : 00800060
+[4294701.476000] PrId  : 0001800b
+[4294701.476000]
+[4294701.476000] Index:  0 pgmask=4kb va=0050a000 asid=13
+[4294701.476000]                        [pa=00000000 c=0 d=0 v=0 g=0]
+[4294701.476000]                        [pa=00379000 c=3 d=1 v=1 g=0]
+[4294701.476000]
+[4294701.476000] Index:  1 pgmask=4kb va=7faf4000 asid=13
+[4294701.476000]                        [pa=00000000 c=0 d=0 v=0 g=0]
+[4294701.476000]                        [pa=0031b000 c=3 d=1 v=1 g=0]
+[4294701.476000]
+[4294701.476000] Index:  2 pgmask=4kb va=0048a000 asid=13
+[4294701.476000]                        [pa=011bc000 c=3 d=0 v=1 g=0]
+[4294701.476000]                        [pa=011bd000 c=3 d=0 v=1 g=0]
+[4294701.476000]
+[4294701.476000] Index:  5 pgmask=4kb va=00492000 asid=13
+[4294701.476000]                        [pa=011c4000 c=3 d=0 v=1 g=0]
+[4294701.476000]                        [pa=011c5000 c=3 d=0 v=1 g=0]
+[4294701.476000]
+[4294701.476000] Index:  6 pgmask=4kb va=004ee000 asid=13
+[4294701.476000]                        [pa=0028a000 c=3 d=0 v=1 g=0]
+[4294701.476000]                        [pa=011f7000 c=3 d=1 v=1 g=0]
+[4294701.476000]
+[4294701.476000] Index:  7 pgmask=4kb va=0048c000 asid=13
+[4294701.476000]                        [pa=011be000 c=3 d=0 v=1 g=0]
+[4294701.476000]                        [pa=011bf000 c=3 d=0 v=1 g=0]
+[4294701.476000]
+[4294701.476000] Index:  8 pgmask=4kb va=004f0000 asid=13
+[4294701.476000]                        [pa=00322000 c=3 d=1 v=1 g=0]
+[4294701.476000]                        [pa=00000000 c=0 d=0 v=0 g=0]
+[4294701.476000]
+[4294701.476000] Index:  9 pgmask=4kb va=00480000 asid=13
+[4294701.476000]                        [pa=011b0000 c=3 d=0 v=1 g=0]
+[4294701.476000]                        [pa=011b1000 c=3 d=0 v=1 g=0]
+[4294701.476000]
+[4294701.476000] Index: 10 pgmask=4kb va=00488000 asid=13
+[4294701.476000]                        [pa=011b8000 c=3 d=0 v=1 g=0]
+[4294701.476000]                        [pa=011b9000 c=3 d=0 v=1 g=0]
+[4294701.476000]
+[4294701.476000] Index: 11 pgmask=4kb va=7faf6000 asid=13
+[4294701.476000]                        [pa=00357000 c=3 d=1 v=1 g=0]
+[4294701.476000]                        [pa=00000000 c=0 d=0 v=0 g=0]
+[4294701.476000]
+[4294701.476000] Index: 12 pgmask=4kb va=00478000 asid=13
+[4294701.476000]                        [pa=00000000 c=0 d=0 v=0 g=0]
+[4294701.476000]                        [pa=011a9000 c=3 d=0 v=1 g=0]
+[4294701.476000]
+[4294701.476000] Index: 13 pgmask=4kb va=c008c000 asid=13
+[4294701.476000]                        [pa=003ff000 c=3 d=1 v=1 g=1]
+[4294701.476000]                        [pa=01200000 c=3 d=1 v=1 g=1]
+[4294701.476000]
+[4294701.476000] Index: 14 pgmask=4kb va=004aa000 asid=13
+[4294701.476000]                        [pa=00286000 c=3 d=0 v=1 g=0]
+[4294701.476000]                        [pa=00287000 c=3 d=0 v=1 g=0]
+[4294701.476000]
+[4294701.476000] Index: 15 pgmask=4kb va=00508000 asid=13
+[4294701.476000]                        [pa=0031c000 c=3 d=1 v=1 g=0]
+[4294701.476000]                        [pa=00000000 c=0 d=0 v=0 g=0]
+[4294701.476000]
+[4294701.476000]
+[4294701.476000] Code: 0222102b  14400034  00000000 <80c60000> 14c00014  02e08021  0230102b  10400021  00001821
+[4294701.476000] Caught Machine Check exception - caused by multiple matching entries in the TLB
+
+
+-- 
+Best regards,
+ art                            mailto:art@sigrand.ru
+
+

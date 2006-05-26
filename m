@@ -1,71 +1,204 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbWEZDOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbWEZDRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030256AbWEZDOM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 23:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbWEZDOM
+	id S1030261AbWEZDRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 23:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbWEZDRQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 23:14:12 -0400
-Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:387 "HELO
-	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030256AbWEZDOM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 23:14:12 -0400
+	Thu, 25 May 2006 23:17:16 -0400
+Received: from wr-out-0506.google.com ([64.233.184.231]:10534 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1030261AbWEZDRP convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 23:17:15 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=5BigYx33/+7B2wefGQrhaM4e81OiWU3dmIJqQ9juTs9hGaNKksXwvZbsKAn/BijlJwsoTMG7UoCdApkY98f7lnP/lPi+0b4YRD1OBZbDSPW/ruNoPrhWhhrQWyHyeeKr2k/wE75ieSPD71ui52PsPu1rPpV9ke1ct7Fbc9LlyGM=  ;
-Message-ID: <4476727C.8040803@yahoo.com.au>
-Date: Fri, 26 May 2006 13:14:04 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050831 Debian/1.7.8-1sarge2
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gmUpLbxk/XueHUa0WL+67TzRTGH941QZQYw0z+xEWFQj7jzzusc0sUEXjNKJhltXmzmhlTAl/NPAFOiAeQ9InzUMJWidI8FfLBFypE8ZCJopOklBCo/J10fUriB+8rJP7UHa/y1Iz0OT+EiYwo+gPY1TSTmRCe6gdO/2+730wsw=
+Message-ID: <aec7e5c30605252017v1d8269a4jf75f055fe256f966@mail.gmail.com>
+Date: Fri, 26 May 2006 12:17:14 +0900
+From: "Magnus Damm" <magnus.damm@gmail.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [Fastboot] [PATCH 03/03] kexec: Avoid overwriting the current pgd (V2, x86_64)
+Cc: "Magnus Damm" <magnus@valinux.co.jp>, "Andrew Morton" <akpm@osdl.org>,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <m11wuif5zy.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, Wu Fengguang <wfg@mail.ustc.edu.cn>,
-       linux-kernel@vger.kernel.org, mstone@mathom.us
-Subject: Re: [PATCH 00/33] Adaptive read-ahead V12
-References: <348469535.17438@ustc.edu.cn>	 <20060525084415.3a23e466.akpm@osdl.org> <9e4733910605251910k3bcd434aq5f7410c53fc8b17d@mail.gmail.com>
-In-Reply-To: <9e4733910605251910k3bcd434aq5f7410c53fc8b17d@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060524044232.14219.68240.sendpatchset@cherry.local>
+	 <20060524044247.14219.13579.sendpatchset@cherry.local>
+	 <m1slmystqa.fsf@ebiederm.dsl.xmission.com>
+	 <1148545616.5793.180.camel@localhost>
+	 <m11wuif5zy.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-
-> On 5/25/06, Andrew Morton <akpm@osdl.org> wrote:
+On 5/26/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
+> Magnus Damm <magnus@valinux.co.jp> writes:
 >
->> These are nice-looking numbers, but one wonders.  If optimising 
->> readahead
->> makes this much difference to postgresql performance then postgresql 
->> should
->> be doing the readahead itself, rather than relying upon the kernel's
->> ability to guess what the application will be doing in the future.  
->> Because
->> surely the database can do a better job of that than the kernel.
->>
->> That would involve using posix_fadvise(POSIX_FADV_RANDOM) to disable 
->> kernel
->> readahead and then using posix_fadvise(POSIX_FADV_WILLNEED) to launch
->> application-level readahead.
+> > Let me explain the theory behind my kexec patch:
 >
+> Please the next time you submit a please try to keep what
+> you are changing sufficiently clear that a followup email
+> is not needed to explain the code.
+
+Yes, I will try to do that. I guess what I'm doing requires a great
+amount of explaining so let's do it bit by bit.
+
+> > During prepare, page_table_a is initialized. For x86_64 page_table_b is
+> > also initialized.
+> >
+> > When it is time for machine_kexec() the following sequence takes place:
+> >
+> > 1. The C-code in machine_kexec() jumps to the assembly routine.
+> > To avoid overwriting the page table and still work with NX bits we jump
+> > to the original location of relocate_new_kernel. This is different from
+> > the unpatched code which jumps to the physical address (ie the identity
+> > mapped location).
+> >
+> > 2. The assembly code switches to page_table_a.
+> > page_table_a has mapped the control page at two virtual addresses:
+> > - The same virtual address as relocate_new_kernel is located at.
+> >   (This explains the extra aligment in the assembly file)
+> > - An identity mapping, ie virtual address == physical address.
+> > After the switch the code runs at the same virtual address, but the
+> > physical page is now the control page.
 >
-> Users have also reported that this patch fixes performance problems
-> from web servers using sendfile(). In the case of lighttpd they
-> actually stopped using sendfile() for large transfers and wrote a user
-> space replacement where they could control readahead manually. With
-> this patch in place sendfile() went back to being faster than the user
-> space implementation.
+> Sorry this is broken.  The code location you are running from when you
+> perform the switch from one page table to another must be mapped at
+> the same location in both page tables.  Otherwise it is undefined what
+> the processor will do.
 
+The code is not broken. The code does exactly what you are talking
+about. Maybe I was a bit unclear.
 
-Of course, that is something one would expect should be made to work 
-properly
-with the current readahead implementation.
+"page_table_a" contains two mappings. One which is the same as where
+the page is mapped in the kernel (the virtual address where
+relocate_new_kernel is located), and one identity mapped. So when the
+switch occurs the cpu will continue to run on the same virtual
+address.
 
-I don't see Wu's patches getting in for a little while yet.
+> So you need at least one additional entry in your page table.
+>
+> The fact that this bug did not jump out is a clear sign you were
+> changing too many things at once, and did not have an adequate
+> explanation in your change log.
 
-Reproducable test cases (preferably without a whole lot of network clients)
-should get this proble fixed.
+I will ignore that last part for now. I've tested the code on i386,
+i386/pae, x86_64 (both opteron and athlon64) and all the combinations
+with and without xen, and all configurations except x86_64 with both
+kexec and kdump.
 
---
+> > 3. Setup idt, gdt, segment registers and stack pointer.
+> > The stack pointer should point to the identity mapped page.
+> >
+> > 4. Jump to the identity mapped address.
+> > When the jump is performed we will be running at a virtual address which
+> > is the same as the physical address.
+>
+> After the jump is performed?
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Sorry for being unclear. Read it like this instead:
+
+Before jumping we will be running from the virtual address provided by
+the non-identity mapped page in page_table_a. This is the same page as
+relocate_new_kernel.
+
+After the jump we will be running from the identity mapped address
+provided by page_table_a. This is the same address as the physical
+address of the control page.
+
+> > 5. Turn off MMU (i386) / switch to page_table_b (x86_64).
+> > We are able to turn off the MMU or switch to page_table_b because we are
+> > already running at the physical address.
+> >
+> > 6. Proceed with the page copying business as usual...
+> >
+> > Ok, so far so good.
+> >
+> > The fun part begins when we throw in Xen into the mix. Linux under xen
+> > runs with pseudophysical addresses, ie what Linux thinks are physical
+> > addresses are not physical. Xen use the term machine addresses for
+> > addresses that are called physical address under "regular" Linux. On top
+> > of that is Xen using a different memory map than Linux.
+> >
+> > After prepare, all pages in page_table_a are passed to the hypervisor
+> > that overwrites the contents filled in by machine_prepare().
+> > (this explains the "ridiculous" array of struct page *)
+>
+> Actually it doesn't really, because I don't have enough information
+> to infer which Xen call you are using or why it is sane.  Certainly
+> Xen does not need struct page * pointers or Xen is too tightly coupled
+> with linux to be sane.
+
+The interface between dom0 and the hypervisor passes machine
+addresses. So no struct pages are passed there. I'm not insane.
+
+I actually went with struct page * over unsigned long because that's
+the way the current struct kimage refers to the control page. On top
+of that I must say that I prefer types over unsigned longs because I
+think it leads to better code. But that's another story.
+
+> > A similar two page mapping is used for here too, but in the xen case we
+> > use a different virtual address (the non-identity mapped address)
+> > compared to "regular" Linux. All to fit the address space used by xen.
+> >
+> > The xen port which is based on my patches is using a sequence similar to
+> > "regular" Linux:
+> >
+> > 1a. The C-code in xen_machine_kexec() performs a hypercall.
+> >
+> > 1b. The hypervisor jumps to the assembly code.
+> > After prepare we've created a NX-safe mapping for the control page. We
+> > jump to that NX-safe address to transfer control to the assembly
+> > code.
+>
+> I assume this is a Xen call with the semantics:
+> switch page tables and jump to location X in the new page tables.
+
+We are not switching any page tables more than whatever Xen likes to
+do during a hypercall. We simply jump to a NX-safe mapped location
+(fixmap) of the already loaded control page. Then the assembly code in
+the control page does the same magic as in the Linux case.
+
+> I assume Xen is still running at this point?
+
+If the hypervisor is crashing the loaded kdump kernel will be started.
+I guess Xen must be running for us to be able to go from dom0 to the
+hypervisor, but it that's not the case there's not much we can do. The
+dom0 kernel is not privileged to switch page tables by itself so we
+must do it from within the hypervisor.
+
+If you are referring to if kexec works under Xen, then yes:
+
+http://lists.xensource.com/archives/html/xen-devel/2006-05/msg01272.html
+
+> > Goto 2 above.
+> >
+> > So, to answer your question regarding two page table copies. You may be
+> > right that it can be made work with just one page table, but I feel my
+> > two table approach is nice because it will always work - regardless of
+> > the memory map used.
+>
+> Except that the memory map in linux is fixed.  The x86_64 kernel will
+> run with negative addresses and physical addresses will remain
+> positive until a decade or two from now when we get 64bit physical
+> addresses.
+>
+> Unless linux runs with a different memory map when running under Xen.
+
+Xen can be configured in many ways. Different page table modes.
+
+And to be frank, I'm not exactly sure how the memory map differs on
+all architectures when various configuration options are varied. And
+I'm not that interested in it either because it feels like very
+volatile knowledge.
+
+I do however believe that the "page_table_a" approach works regardless
+of memory map. Both with and without xen. Regardless of memory split.
+
+Thanks,
+
+/ magnus

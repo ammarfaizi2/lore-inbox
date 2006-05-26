@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbWEZWdD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751645AbWEZWnz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751298AbWEZWdD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 18:33:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751623AbWEZWdD
+	id S1751645AbWEZWnz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 18:43:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751647AbWEZWnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 18:33:03 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:31683 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751298AbWEZWdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 18:33:02 -0400
-Subject: Re: 2.6.16-rt24 Won't Apply
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: "K.R. Foley" <kr@cybsft.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <5bdc1c8b0605261511u1d4c224rb766638de367e2c@mail.gmail.com>
-References: <44775129.6030004@cybsft.com> <20060526194315.GA860@elte.hu>
-	 <44775F43.8020500@cybsft.com>
-	 <5bdc1c8b0605261511u1d4c224rb766638de367e2c@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 26 May 2006 18:32:49 -0400
-Message-Id: <1148682769.6830.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 26 May 2006 18:43:55 -0400
+Received: from gold.veritas.com ([143.127.12.110]:61701 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751645AbWEZWny (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 18:43:54 -0400
+X-IronPort-AV: i="4.05,178,1146466800"; 
+   d="scan'208"; a="59929130:sNHT28268572"
+Date: Fri, 26 May 2006 23:43:47 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: David Miller <davem@davemloft.net>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] fix update_mmu_cache in fremap.c
+In-Reply-To: <20060526.131059.27783433.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.64.0605262340130.9720@blonde.wat.veritas.com>
+References: <Pine.LNX.4.64.0605261926350.24818@blonde.wat.veritas.com>
+ <20060526.131059.27783433.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 26 May 2006 22:43:54.0416 (UTC) FILETIME=[DDEBEB00:01C68115]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-05-26 at 15:11 -0700, Mark Knecht wrote:
-
+On Fri, 26 May 2006, David Miller wrote:
+> From: Hugh Dickins <hugh@veritas.com>
+> Date: Fri, 26 May 2006 19:28:14 +0100 (BST)
 > 
-> Ingo & (I think) Steven,
->    -rt25 applies cleanly and boots fine on my AMD64 UMP machine.
-
-That's good to hear.  BTW, do you mean UP machine? or do you have a
-Uni-Multi-Processor machine :)
-
+> > There are two calls to update_mmu_cache in fremap.c, both defective.
+> > The one in install_page needs to be accompanied by lazy_mmu_prot_update
+> > (some other cleanup time, move that into ia64 update_mmu_cache itself); and
+> > the one in install_file_pte should be removed since the pte is not present.
+> > 
+> > Signed-off-by: Hugh Dickins <hugh@veritas.com>
 > 
-> mark@lightning ~ $ uname -a
-> Linux lightning 2.6.16-rt25 #1 PREEMPT Fri May 26 14:53:47 PDT 2006
-> x86_64 AMD Athlon(tm) 64 Processor 3000+ GNU/Linux
-> mark@lightning ~ $
+> Where did that rule come from?  We should call update_mmu_cache() even
+> if the PTE was not present before, look at the fault path in
+> mm/memory.c, it does this too.
 > 
->    Thanks to all for putting this fix together. I'm sorry I didn't do
-> much with the 2.6.16-rt series. I was so happy with 2.6.15-rt18 I
-> never moved forward. I promise to take a lot at 2.6.17 when that comes
-> along.
+> This is where we install hash table entries for newly installed
+> mappings on sparc64 and powerpc, so this update_mmu_cache() call
+> is important even for not-previously-present mappings.
 
-Also, thanks a lot for the comment about 2.6.15-rt18.  If it ain't
-broken, don't fix it.  There's no reason for you to upgrade if what you
-have works.  If you just like to test our stuff, then that's great and
-we really do appreciate it.
+Sure it's important for not-previously-present mappings, when you're
+installing a present pte.  But the "file pte" being installed by
+install_file_pte is not a real pte - it's a non-present entry (like
+a swap entry), noting what file offset should be mapped there when
+there's a fault (in a non-linear vma where that's not obvious).
 
-I've been working on embedded devices too much and haven't tested my
-x86_64 machine in a while either, I think the last I booted was in the
-2.6.15-rt16 (that's the oldest in my /boot directory).  Heck, I was
-still running 2.6.15 plain.
-
-I happened to wipe out the flash drive on my embedded device and had to
-wait for the recovery CD iso to be sent to me (Germany happens to have
-some sort of Holiday, so no one was in the office).  So I remembered
-that people where having problems with x86_64 and -rt, so I spent the
-day finding out why.  It wasn't much of a patch, but boy was it hard to
-find.
-
-Thanks,
-
--- Steve
-
-
+Hugh

@@ -1,80 +1,201 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWEZMBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWEZMCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932479AbWEZMBE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 08:01:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWEZMAj
+	id S932398AbWEZMCt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 08:02:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWEZMCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 08:00:39 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:37355 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932410AbWEZMAb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 08:00:31 -0400
-Date: Fri, 26 May 2006 06:00:32 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: sho@tnes.nec.co.jp
-Cc: cmm@us.ibm.com, jitendra@linsyssoft.com, ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [UPDATE][12/24]ext3 enlarge blocksize
-Message-ID: <20060526120032.GN5964@schatzie.adilger.int>
-Mail-Followup-To: sho@tnes.nec.co.jp, cmm@us.ibm.com,
-	jitendra@linsyssoft.com, ext2-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20060525214902sho@rifu.tnes.nec.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060525214902sho@rifu.tnes.nec.co.jp>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Fri, 26 May 2006 08:02:49 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:53209 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932398AbWEZLxD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 07:53:03 -0400
+Message-ID: <348644380.06563@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Message-Id: <20060526115305.437903777@localhost.localdomain>
+References: <20060526113906.084341801@localhost.localdomain>
+Date: Fri, 26 May 2006 19:39:18 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
+Subject: [PATCH 12/33] readahead: sysctl parameters
+Content-Disposition: inline; filename=readahead-parameter-sysctl-variables.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At least part of this patch can be included into the patch series that
-Mingming has posted to allow larger block sizes on architectures that
-support it.  This doesn't need a separate COMPAT flag itself, since
-older kernels will already refuse to mount a filesystem with large blocks.
+Add new sysctl entries in /proc/sys/vm:
 
-On May 25, 2006  21:49 +0900, sho@tnes.nec.co.jp wrote:
-> @@ -1463,11 +1463,17 @@ static int ext3_fill_super (struct super
-> +	if (blocksize > PAGE_SIZE) {
-> +		printk(KERN_ERR "EXT3-fs: cannot mount filesystem with "
-> +		       "blocksize %u larger than PAGE_SIZE %u on %s\n",
-> +		       blocksize, PAGE_SIZE, sb->s_id);
-> +		goto failed_mount;
-> +	}
-> +
->  	if (blocksize < EXT3_MIN_BLOCK_SIZE ||
-> -	    blocksize > EXT3_MAX_BLOCK_SIZE) {
-> +	    blocksize > EXT3_EXTENDED_MAX_BLOCK_SIZE) {
+- readahead_ratio = 50
+	i.e. set read-ahead size to <=(readahead_ratio%) thrashing threshold
+- readahead_hit_rate = 1
+	i.e. read-ahead hit ratio >=(1/readahead_hit_rate) is deemed ok
 
-We may as well just change EXT3_MAX_BLOCK_SIZE to be 65536, because no other
-code uses this value.  It is already 65536 in the e2fsprogs.
+readahead_ratio also provides a way to select read-ahead logic at runtime:
 
-> -		printk(KERN_ERR 
-> -		       "EXT3-fs: Unsupported filesystem blocksize %d on %s.\n",
-> -		       blocksize, sb->s_id);
-> +		printk(KERN_ERR "EXT3-fs: Unsupported filesystem blocksize %d on %s.\n",
-> +				 blocksize, sb->s_id);
+	condition			    action
+==========================================================================
+readahead_ratio == 0		disable read-ahead
+readahead_ratio <= 9		select the (old) stock read-ahead logic
+readahead_ratio >= 10		select the (new) adaptive read-ahead logic
 
-I'm not sure why you changed the formatting of this message to now be longer
-than 80 columns.
+Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
+---
 
-> diff -upNr -X linux-2.6.17-rc4/Documentation/dontdiff linux-2.6.17-rc4/include/linux/ext3_fs.h linux-2.6.17-rc4.tmp/include/linux/ext3_fs.h
-> --- linux-2.6.17-rc4/include/linux/ext3_fs.h	2006-05-25 16:33:29.711659209 +0900
-> +++ linux-2.6.17-rc4.tmp/include/linux/ext3_fs.h	2006-05-25 16:33:52.247791746 +0900
-> @@ -86,6 +86,7 @@ struct statfs;
->   */
->  #define EXT3_MIN_BLOCK_SIZE		1024
->  #define	EXT3_MAX_BLOCK_SIZE		4096
-> +#define        EXT3_EXTENDED_MAX_BLOCK_SIZE    65536
->  #define EXT3_MIN_BLOCK_LOG_SIZE		  10
->  #ifdef __KERNEL__
->  # define EXT3_BLOCK_SIZE(s)		((s)->s_blocksize)
+ Documentation/sysctl/vm.txt |   37 +++++++++++++++++++++++++++++++++++++
+ include/linux/sysctl.h      |    2 ++
+ kernel/sysctl.c             |   28 ++++++++++++++++++++++++++++
+ mm/readahead.c              |   17 +++++++++++++++++
+ 4 files changed, 84 insertions(+)
 
-Cheers, Andreas
+--- linux-2.6.17-rc4-mm3.orig/include/linux/mm.h
++++ linux-2.6.17-rc4-mm3/include/linux/mm.h
+@@ -1029,6 +1029,17 @@ void handle_ra_miss(struct address_space
+ 		    struct file_ra_state *ra, pgoff_t offset);
+ unsigned long max_sane_readahead(unsigned long nr);
+ 
++#ifdef CONFIG_ADAPTIVE_READAHEAD
++extern int readahead_ratio;
++#else
++#define readahead_ratio 1
++#endif /* CONFIG_ADAPTIVE_READAHEAD */
++
++static inline int prefer_adaptive_readahead(void)
++{
++	return readahead_ratio >= 10;
++}
++
+ /* Do stack extension */
+ extern int expand_stack(struct vm_area_struct *vma, unsigned long address);
+ #ifdef CONFIG_IA64
+--- linux-2.6.17-rc4-mm3.orig/mm/readahead.c
++++ linux-2.6.17-rc4-mm3/mm/readahead.c
+@@ -26,6 +26,23 @@
+ #define MIN_RA_PAGES	DIV_ROUND_UP(VM_MIN_READAHEAD*1024, PAGE_CACHE_SIZE)
+ 
+ /*
++ * Adaptive read-ahead parameters.
++ */
++
++/* In laptop mode, poll delayed look-ahead on every ## pages read. */
++#define LAPTOP_POLL_INTERVAL 16
++
++/* Set look-ahead size to 1/# of the thrashing-threshold. */
++#define LOOKAHEAD_RATIO 8
++
++/* Set read-ahead size to ##% of the thrashing-threshold. */
++int readahead_ratio = 50;
++EXPORT_SYMBOL_GPL(readahead_ratio);
++
++/* Readahead as long as cache hit ratio keeps above 1/##. */
++int readahead_hit_rate = 1;
++
++/*
+  * Detailed classification of read-ahead behaviors.
+  */
+ #define RA_CLASS_SHIFT 4
+--- linux-2.6.17-rc4-mm3.orig/include/linux/sysctl.h
++++ linux-2.6.17-rc4-mm3/include/linux/sysctl.h
+@@ -194,6 +194,8 @@ enum
+ 	VM_ZONE_RECLAIM_INTERVAL=32, /* time period to wait after reclaim failure */
+ 	VM_PANIC_ON_OOM=33,	/* panic at out-of-memory */
+ 	VM_SWAP_PREFETCH=34,	/* swap prefetch */
++	VM_READAHEAD_RATIO=35,	/* percent of read-ahead size to thrashing-threshold */
++	VM_READAHEAD_HIT_RATE=36, /* one accessed page legitimizes so many read-ahead pages */
+ };
+ 
+ /* CTL_NET names: */
+--- linux-2.6.17-rc4-mm3.orig/kernel/sysctl.c
++++ linux-2.6.17-rc4-mm3/kernel/sysctl.c
+@@ -77,6 +77,12 @@ extern int percpu_pagelist_fraction;
+ extern int compat_log;
+ extern int print_fatal_signals;
+ 
++#if defined(CONFIG_ADAPTIVE_READAHEAD)
++extern int readahead_ratio;
++extern int readahead_hit_rate;
++static int one = 1;
++#endif
++
+ #if defined(CONFIG_X86_LOCAL_APIC) && defined(CONFIG_X86)
+ int unknown_nmi_panic;
+ int nmi_watchdog_enabled;
+@@ -987,6 +993,28 @@ static ctl_table vm_table[] = {
+ 		.proc_handler	= &proc_dointvec,
+ 	},
+ #endif
++#ifdef CONFIG_ADAPTIVE_READAHEAD
++	{
++		.ctl_name	= VM_READAHEAD_RATIO,
++		.procname	= "readahead_ratio",
++		.data		= &readahead_ratio,
++		.maxlen		= sizeof(readahead_ratio),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++		.strategy	= &sysctl_intvec,
++		.extra1		= &zero,
++	},
++	{
++		.ctl_name	= VM_READAHEAD_HIT_RATE,
++		.procname	= "readahead_hit_rate",
++		.data		= &readahead_hit_rate,
++		.maxlen		= sizeof(readahead_hit_rate),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++		.strategy	= &sysctl_intvec,
++		.extra1		= &one,
++	},
++#endif
+ 	{ .ctl_name = 0 }
+ };
+ 
+--- linux-2.6.17-rc4-mm3.orig/Documentation/sysctl/vm.txt
++++ linux-2.6.17-rc4-mm3/Documentation/sysctl/vm.txt
+@@ -31,6 +31,8 @@ Currently, these files are in /proc/sys/
+ - zone_reclaim_interval
+ - panic_on_oom
+ - swap_prefetch
++- readahead_ratio
++- readahead_hit_rate
+ 
+ ==============================================================
+ 
+@@ -202,3 +204,38 @@ copying back pages from swap into the sw
+ practice it can take many minutes before the vm is idle enough.
+ 
+ The default value is 1.
++
++==============================================================
++
++readahead_ratio
++
++This limits readahead size to percent of the thrashing threshold.
++The thrashing threshold is dynamicly estimated from the _history_ read
++speed and system load, to deduce the _future_ readahead request size.
++
++Set it to a smaller value if you have not enough memory for all the
++concurrent readers, or the I/O loads fluctuate a lot. But if there's
++plenty of memory(>2MB per reader), a bigger value may help performance.
++
++readahead_ratio also selects the readahead logic:
++	VALUE	CODE PATH
++	-------------------------------------------
++	    0	disable readahead totally
++	  1-9	select the stock readahead logic
++	10-inf	select the adaptive readahead logic
++
++The default value is 50.  Reasonable values would be [50, 100].
++
++==============================================================
++
++readahead_hit_rate
++
++This is the max allowed value of (readahead-pages : accessed-pages).
++Useful only when (readahead_ratio >= 10). If the previous readahead
++request has bad hit rate, the kernel will be reluctant to do the next
++readahead.
++
++Larger values help catch more sparse access patterns. Be aware that
++readahead of the sparse patterns sacrifices memory for speed.
++
++The default value is 1.  It is recommended to keep the value below 16.
+
 --
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
-

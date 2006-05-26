@@ -1,166 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWEZLw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbWEZLyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932356AbWEZLw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 07:52:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWEZLw5
+	id S932440AbWEZLyM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 07:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWEZLxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 07:52:57 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:60888 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932356AbWEZLw4 (ORCPT
+	Fri, 26 May 2006 07:53:44 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:49882 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932440AbWEZLxJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 07:52:56 -0400
-Message-ID: <348644373.06563@ustc.edu.cn>
+	Fri, 26 May 2006 07:53:09 -0400
+Message-ID: <348644387.06434@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060526115259.223408850@localhost.localdomain>
+Message-Id: <20060526115312.145248016@localhost.localdomain>
 References: <20060526113906.084341801@localhost.localdomain>
-Date: Fri, 26 May 2006 19:39:08 +0800
+Date: Fri, 26 May 2006 19:39:29 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Christoph Lameter <clameter@sgi.com>
-Subject: [PATCH 02/33] radixtree: introduce __radix_tree_lookup_parent()
-Content-Disposition: inline; filename=radixtree-lookup-parent.patch
+Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
+Subject: [PATCH 23/33] readahead: backward prefetching method
+Content-Disposition: inline; filename=readahead-method-backward.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Introduce a general lookup function to radix tree.
+Readahead policy for reading backward.
 
-- __radix_tree_lookup_parent(root, index, level)
-	Perform partial lookup, return the @level'th parent of the slot at
-	@index.
-
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- include/linux/radix-tree.h |   83 +++++++++++++++++++++++++++++++++++
- lib/radix-tree.c           |  104 ++++++++++++++++++++++++++++++++++-----------
- 2 files changed, 161 insertions(+), 26 deletions(-)
+ mm/readahead.c |   40 ++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 40 insertions(+)
 
---- linux-2.6.17-rc4-mm3.orig/include/linux/radix-tree.h
-+++ linux-2.6.17-rc4-mm3/include/linux/radix-tree.h
-@@ -49,7 +49,8 @@ do {									\
- } while (0)
- 
- int radix_tree_insert(struct radix_tree_root *, unsigned long, void *);
--void *radix_tree_lookup(struct radix_tree_root *, unsigned long);
-+void *__radix_tree_lookup_parent(struct radix_tree_root *,
-+						unsigned long, unsigned int);
- void **radix_tree_lookup_slot(struct radix_tree_root *, unsigned long);
- void *radix_tree_delete(struct radix_tree_root *, unsigned long);
- unsigned int
-@@ -74,4 +75,17 @@ static inline void radix_tree_preload_en
- 	preempt_enable();
+--- linux-2.6.17-rc4-mm3.orig/mm/readahead.c
++++ linux-2.6.17-rc4-mm3/mm/readahead.c
+@@ -1574,6 +1574,46 @@ initial_readahead(struct address_space *
  }
  
-+/**
-+ *	radix_tree_lookup    -    perform lookup operation on a radix tree
-+ *	@root:		radix tree root
-+ *	@index:		index key
+ /*
++ * Backward prefetching.
 + *
-+ *	Lookup the item at the position @index in the radix tree @root.
++ * No look-ahead and thrashing safety guard: should be unnecessary.
 + */
-+static inline void *radix_tree_lookup(struct radix_tree_root *root,
-+							unsigned long index)
++static int
++try_read_backward(struct file_ra_state *ra, pgoff_t begin_index,
++			unsigned long ra_size, unsigned long ra_max)
 +{
-+	return __radix_tree_lookup_parent(root, index, 0);
++	pgoff_t end_index;
++
++	/* Are we reading backward? */
++	if (begin_index > ra->prev_page)
++		return 0;
++
++	if ((ra->flags & RA_CLASS_MASK) == RA_CLASS_BACKWARD &&
++					ra_has_index(ra, ra->prev_page)) {
++		ra_size += 2 * ra_cache_hit(ra, 0);
++		end_index = ra->la_index;
++	} else {
++		ra_size += ra_size + ra_size * (readahead_hit_rate - 1) / 2;
++		end_index = ra->prev_page;
++	}
++
++	if (ra_size > ra_max)
++		ra_size = ra_max;
++
++	/* Read traces close enough to be covered by the prefetching? */
++	if (end_index > begin_index + ra_size)
++		return 0;
++
++	begin_index = end_index - ra_size;
++
++	ra_set_class(ra, RA_CLASS_BACKWARD);
++	ra_set_index(ra, begin_index, begin_index);
++	ra_set_size(ra, ra_size, 0);
++
++	return 1;
 +}
 +
- #endif /* _LINUX_RADIX_TREE_H */
---- linux-2.6.17-rc4-mm3.orig/lib/radix-tree.c
-+++ linux-2.6.17-rc4-mm3/lib/radix-tree.c
-@@ -309,36 +309,46 @@ int radix_tree_insert(struct radix_tree_
- }
- EXPORT_SYMBOL(radix_tree_insert);
- 
--static inline void **__lookup_slot(struct radix_tree_root *root,
--				   unsigned long index)
-+/**
-+ *	__radix_tree_lookup_parent    -    low level lookup routine
-+ *	@root:		radix tree root
-+ *	@index:		index key
-+ *	@level:		stop at that many levels from the tree leaf
-+ *
-+ *	Lookup the @level'th parent of the slot at @index in radix tree @root.
-+ *	The return value is:
-+ *	@level == 0:      page at @index;
-+ *	@level == 1:      the corresponding bottom level tree node;
-+ *	@level < height:  (@level-1)th parent node of the bottom node
-+ *			  that contains @index;
-+ *	@level >= height: the root node.
-+ */
-+void *__radix_tree_lookup_parent(struct radix_tree_root *root,
-+				unsigned long index, unsigned int level)
- {
- 	unsigned int height, shift;
--	struct radix_tree_node **slot;
-+	struct radix_tree_node *slot;
- 
- 	height = root->height;
- 
- 	if (index > radix_tree_maxindex(height))
- 		return NULL;
- 
--	if (height == 0 && root->rnode)
--		return (void **)&root->rnode;
--
- 	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
--	slot = &root->rnode;
-+	slot = root->rnode;
- 
--	while (height > 0) {
--		if (*slot == NULL)
-+	while (height > level) {
-+		if (slot == NULL)
- 			return NULL;
- 
--		slot = (struct radix_tree_node **)
--			((*slot)->slots +
--				((index >> shift) & RADIX_TREE_MAP_MASK));
-+		slot = slot->slots[(index >> shift) & RADIX_TREE_MAP_MASK];
- 		shift -= RADIX_TREE_MAP_SHIFT;
- 		height--;
- 	}
- 
--	return (void **)slot;
-+	return slot;
- }
-+EXPORT_SYMBOL(__radix_tree_lookup_parent);
- 
- /**
-  *	radix_tree_lookup_slot    -    lookup a slot in a radix tree
-@@ -350,25 +360,15 @@ static inline void **__lookup_slot(struc
-  */
- void **radix_tree_lookup_slot(struct radix_tree_root *root, unsigned long index)
- {
--	return __lookup_slot(root, index);
--}
--EXPORT_SYMBOL(radix_tree_lookup_slot);
-+	struct radix_tree_node *node;
- 
--/**
-- *	radix_tree_lookup    -    perform lookup operation on a radix tree
-- *	@root:		radix tree root
-- *	@index:		index key
-- *
-- *	Lookup the item at the position @index in the radix tree @root.
-- */
--void *radix_tree_lookup(struct radix_tree_root *root, unsigned long index)
--{
--	void **slot;
-+	if (root->height == 0)
-+		return &root->rnode;
- 
--	slot = __lookup_slot(root, index);
--	return slot != NULL ? *slot : NULL;
-+	node = __radix_tree_lookup_parent(root, index, 1);
-+	return node ? node->slots + (index & RADIX_TREE_MAP_MASK) : NULL;
- }
--EXPORT_SYMBOL(radix_tree_lookup);
-+EXPORT_SYMBOL(radix_tree_lookup_slot);
- 
- /**
-  *	radix_tree_tag_set - set a tag on a radix tree node
++/*
+  * ra_min is mainly determined by the size of cache memory. Reasonable?
+  *
+  * Table of concrete numbers for 4KB page size:
 
 --

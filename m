@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWEZKbV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbWEZKdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbWEZKbV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 06:31:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWEZKbU
+	id S1751378AbWEZKdG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 06:33:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWEZKdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 06:31:20 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:5321 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751377AbWEZKbT (ORCPT
+	Fri, 26 May 2006 06:33:06 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:58322 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751378AbWEZKdE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 06:31:19 -0400
-Message-ID: <4476D8E3.40101@garzik.org>
-Date: Fri, 26 May 2006 06:30:59 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 26 May 2006 06:33:04 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: swsusp in 2.6.16: works fine w/o PSE...
+Date: Fri, 26 May 2006 12:33:23 +0200
+User-Agent: KMail/1.9.1
+Cc: kronos@kronoz.cjb.net, Michael Tokarev <mjt@tls.msk.ru>,
+       linux-kernel@vger.kernel.org
+References: <20060524230538.GA616@dreamland.darkstar.lan> <20060525214350.GC6347@elf.ucw.cz>
+In-Reply-To: <20060525214350.GC6347@elf.ucw.cz>
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Ingo Oeser <netdev@axxeo.de>, Anton Blanchard <anton@samba.org>,
-       Brice Goglin <brice@myri.com>, netdev@vger.kernel.org,
-       gallatin@myri.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/4] myri10ge - Driver core
-References: <20060517220218.GA13411@myri.com>	 <20060523153928.GB5938@krispykreme>	 <1148543810.13249.265.camel@localhost.localdomain>	 <200605261149.18415.netdev@axxeo.de> <1148637720.8089.145.camel@localhost.localdomain>
-In-Reply-To: <1148637720.8089.145.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Disposition: inline
+Message-Id: <200605261233.24186.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
->>> No proper interface exposed, he'll have to do an #ifdef powerpc here or
->>> such and use __ioremap with explicit page attributes. I have a hack to
->>> do that automatically for memory covered by prefetchable PCI BARs when
->>> mmap'ing from userland but not for kernel ioremap.
->> Stupid question: pci_iomap() is NOT what you are looking for, right?
->>
->> Implementation is at the end of lib/iomap.c
+Hi,
+
+On Thursday 25 May 2006 23:43, Pavel Machek wrote:
+> > I'm CC-ing the two swsusp gurus ;)
+> > 
+> > > I was just feeling lucky and tried suspend-to-disk cycle
+> > > on my VIA C3 machine, which lacks PSE which is marked as
+> > > being required for swsusp to work.  After commenting out
+> > > the PSE check in include/asm-i386/suspend.h and rebooting,
+> > > I tried the whole cycle, several times, with real load
+> > > (while running 3 kernel compile in parallel) and while
+> > > IDLE... And surprizingly, it all worked flawlessly for
+> > > me, without a single glitch...
+> > > 
+> > > So the question is: is PSE really needed nowadays?
 > 
-> No, there is no difference there, pci_iomap won't help for passing in
-> platform specific page attributes for things like write combining.
+> I think so. Or can you prove that pagetables are not going to be
+> overwritten in wrong order in !PSE case?
+> 
+> Look at x86-64 how !PSE case can be solved, but it is a bit of code.
 
-Since we already have ioremap_nocache(), maybe adding ioremap_wcomb() is 
-appropriate?
+Well, on i386 it'll have to be more complicated, because on x86_64 we use
+2 MB pages for the temporary 1-1 mapping.
 
-	Jeff
-
-
+Greetings,
+Rafael

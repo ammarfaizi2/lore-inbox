@@ -1,48 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWEZAYV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965208AbWEZAY4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964809AbWEZAYV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 20:24:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbWEZAYU
+	id S965208AbWEZAY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 20:24:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbWEZAY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 20:24:20 -0400
-Received: from agrajag.inprovide.com ([82.153.166.94]:33678 "EHLO
-	mail.inprovide.com") by vger.kernel.org with ESMTP id S932182AbWEZAYU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 20:24:20 -0400
-To: Diego Calleja <diegocg@gmail.com>
-Cc: dev@opensound.com, linux-kernel@vger.kernel.org
-Subject: Re: How to check if kernel sources are installed on a system?
-References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe>
-	<20060526010041.6f9ecde7.diegocg@gmail.com>
-From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Date: Fri, 26 May 2006 01:24:18 +0100
-In-Reply-To: <20060526010041.6f9ecde7.diegocg@gmail.com> (Diego Calleja's message of "Fri, 26 May 2006 01:00:41 +0200")
-Message-ID: <yw1x4pzdws3x.fsf@agrajag.inprovide.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through Obscurity, linux)
+	Thu, 25 May 2006 20:24:56 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:11400 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932182AbWEZAY4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 20:24:56 -0400
+Message-ID: <348603091.02442@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Fri, 26 May 2006 08:24:51 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, clameter@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: + radixtree-look-aside-cache.patch added to -mm tree
+Message-ID: <20060526002451.GA5973@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	Andrew Morton <akpm@osdl.org>, clameter@sgi.com,
+	linux-kernel@vger.kernel.org
+References: <200605242345.k4ONjqnE004454@shell0.pdx.osdl.net> <44753E0F.1020508@yahoo.com.au> <20060524223130.22519945.akpm@osdl.org> <44754378.7070504@yahoo.com.au> <348543696.07044@ustc.edu.cn> <44757871.4030807@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44757871.4030807@yahoo.com.au>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja <diegocg@gmail.com> writes:
+On Thu, May 25, 2006 at 07:27:13PM +1000, Nick Piggin wrote:
+> Wu Fengguang wrote:
+> 
+> >
+> >>Ah, I'm just having a little dig ;) (as you do with me when I break the
+> >>radix-tree). No, it's great to see you're picking up the readahead stuff,
+> >>however I guess one has to be fairly careful with the radix-tree though...
+> >>
+> >
+> >I had a feeling that there were too few reviews, and with this
+> >feeling, have been improving the code/doc/patch for easier reviews.
+> >
+> >Thank you very much for the comments, most of them are really valuable
+> >ones. I'll answer them one by one and try to solve the problems ASAP.
+> >
+> 
+> OK: just make sure to cc lkml (I forgot to with this thread)...
 
-> El Thu, 25 May 2006 18:29:22 -0400,
-> Lee Revell <rlrevell@joe-job.com> escribió:
->
->> I'd really like to see a distro-agnostic way to retrieve the kernel
->> configuration.  /proc/config.gz has existed for soem time but many
->> distros inexplicably don't enable it.
->
-> /proc/config.gz takes a bit of memory, and wasting such memory when
+ok.
 
-Yes, 9k on my machine.
+> >
+> >>I wouldn't like to see you drop it all, however if Wu can come up with a
+> >>patchset minus radix tree changes I think it would have a better chance.
+> >>
+> >
+> >I feel very sorry for the collision with your patches.
+> >I have been worried about it for some time.
+> >Maybe it's time for us to address it in some constructive way?
+> >
+> 
+> Well I think the direct data patches are fairly important, and are smallish
+> and standalone. Ie. they'll most likely get in before any readahead stuff,
+> so you'll have to look at porting patches to them.
+> 
+> I can help with that if/when the time comes. However, as I've said, I would
+> drop them for the moment and just focus on the core readahead patchset.
 
-> you can store the config at /boot/config-`uname -r` is a bit weird.
+Oh please keep them, I have fixed the code to work with the direct
+data :)
 
-There's no guaranteeing that file will match the running kernel.  Then
-again, modules can be changed without /proc/config.gz changing.
+Now I have removed the radix tree look-aside cache, and cut down the
+new radix tree functions to three core ones:
+        - __radix_tree_lookup_parent()
+        - radix_tree_scan_hole_backward()
+        - radix_tree_scan_hole()
+In the hope that it be easier for you to work with.
 
--- 
-Måns Rullgård
-mru@inprovide.com
+> >>Wu: if someone does report that it causes poor CPU efficiency, that won't
+> >>be cause for the patchset to be dropped: on the contrary it might provide
+> >>some good evidence that the radix-tree work is needed. And then we can
+> >>look at as a problem by itself.
+> >>
+> >
+> >You are guessing right: I've been nervous about the CPU efficiency of
+> >the context based method since the early stage of the patch. OMG it
+> >would be great if I get this advice early ;)
+> >
+> 
+> I guess this was the point I had been trying to get at. Maybe I wasn't
+> explicit :\
+
+;-)
+
+Wu

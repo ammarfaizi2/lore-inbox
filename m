@@ -1,39 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751594AbWEZVco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751596AbWEZVeB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751594AbWEZVco (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 17:32:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751595AbWEZVco
+	id S1751596AbWEZVeB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 17:34:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751598AbWEZVeB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 17:32:44 -0400
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:7135 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S1751593AbWEZVcn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 17:32:43 -0400
-Message-ID: <4477737C.6020708@stanford.edu>
-Date: Fri, 26 May 2006 14:30:36 -0700
-From: Brannon Klopfer <bklopfer@stanford.edu>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Fri, 26 May 2006 17:34:01 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47792 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751595AbWEZVeA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 17:34:00 -0400
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Ulrich Drepper <drepper@redhat.com>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       serue@us.ibm.com, sam@vilain.net, clg@fr.ibm.com, dev@sw.ru
+Subject: Re: [PATCH] POSIX-hostname up to 255 characters
+References: <20060525204534.4068e730.rdunlap@xenotime.net>
+	<m1zmh5b129.fsf@ebiederm.dsl.xmission.com>
+	<20060526144216.GZ13513@lug-owl.de>
+	<Pine.LNX.4.58.0605261025230.9655@shark.he.net>
+	<20060526180131.GA13513@lug-owl.de>
+	<Pine.LNX.4.61.0605261409300.8002@chaos.analogic.com>
+	<447748E4.4050908@redhat.com>
+	<Pine.LNX.4.61.0605261430370.8339@chaos.analogic.com>
+	<44774F0B.8010805@redhat.com>
+	<Pine.LNX.4.61.0605262111130.11445@yvahk01.tjqt.qr>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 26 May 2006 15:31:25 -0600
+In-Reply-To: <Pine.LNX.4.61.0605262111130.11445@yvahk01.tjqt.qr> (Jan
+ Engelhardt's message of "Fri, 26 May 2006 21:12:42 +0200 (MEST)")
+Message-ID: <m13bewa2xe.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: can't resume with recent kernel
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
 
-I have an IBM ThinkPad 600E. It runs perfectly with 2.6.15.1: namely, I 
-can suspend (apm -s) and resume without trouble.
+>>> It is written (on so-called compatible machines like my Sun) as:
+>>> 
+>>> #define MAXHOSTNAMELEN _POSIX_HOST_NAME_MAX
+>>> 
+>>> Then in limits.h, I see:
+>>> 
+>>> #define _POSIX_HOST_NAME_MAX 64
+>>
+>>That's wrong.  The value must be 255, at least for the current spec.
+>>You really should verify your statements before making them public.  The
+>>POSIX spec is available in HTML for for viewing for free from the
+>>OpenGroup.  What a specific implementation does is not authoritative.
+>>
+>
+> Let's all be happy with it that some systens have the maximum hostname length
+> at 64 or 255... thay way, applications do not tend to depend on it.
+> (Cf. Linux and the 100->1000 Hz change which _did_ turn up something.)
 
-I just upgraded to 2.6.16.18. Suspending works fine, but resuming just 
-locks it up completely: terminal cursor doesn't blink, caps lock won't 
-respond, can't VT switch, etc. As far as I know, my .config was the same 
-for each.
+For all of the kibitzers please reread Rolands original post, where he
+included the urls of the appropriate pieces of the Posix spec.
 
-I can try to see exactly when this got broken, if that would help.
-
-Thanks,
-Brannon Klopfer
-
-
+Eric

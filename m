@@ -1,82 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030219AbWEZDZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbWEZDdN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030219AbWEZDZL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 23:25:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030221AbWEZDZL
+	id S1030204AbWEZDdN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 23:33:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbWEZDdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 23:25:11 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:5566 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1030219AbWEZDZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 23:25:09 -0400
-Date: Thu, 25 May 2006 23:24:24 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: discuss@x86-64.org, Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, User-mode-linux-devel@lists.sourceforge.net,
-       Steven James <pyro@linuxlabs.com>, Roland McGrath <roland@redhat.com>,
-       Blaisorblade <blaisorblade@yahoo.it>
-Subject: [RFC] [PATCH] Double syscall exit traces on x86_64
-Message-ID: <20060526032424.GA8283@ccure.user-mode-linux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Thu, 25 May 2006 23:33:13 -0400
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:60799 "HELO
+	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030204AbWEZDdM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 23:33:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=SEoK2KarVvNEgFhZ8Sbu4aqqpJxYLalTYy6Y+ssrotRb+HDWaQSsHUwyLgsUHiBtN1/dyBbglGak2AP53ipMixwkbK/ETuQhM6yeNvdwmPgV7QZY2A86KdNPMXan7mIPpURS8Oa/LXCppVmakrhR+TW17rTKCrx2eA3kUpnByVA=  ;
+Message-ID: <447676F4.7090503@yahoo.com.au>
+Date: Fri, 26 May 2006 13:33:08 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050831 Debian/1.7.8-1sarge2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 08/33] readahead: common macros
+References: <20060524111246.420010595@localhost.localdomain> <348469539.42623@ustc.edu.cn> <44754708.5090406@yahoo.com.au> <348553673.03597@ustc.edu.cn>
+In-Reply-To: <348553673.03597@ustc.edu.cn>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We are seeing double ptrace notifications of system call returns on recent
-x86_64 kernels.  This breaks UML and at least one other app.
+Wu Fengguang wrote:
 
-The patch below appears to fix the problem.  The bug is caused by both
-syscall_trace and int_very_careful both calling syscall_trace_leave,
-and the system call tracing path going through int_very_careful.
+>On Thu, May 25, 2006 at 03:56:24PM +1000, Nick Piggin wrote:
+>
+>>>+#define PAGES_BYTE(size) (((size) + PAGE_CACHE_SIZE - 1) >> 
+>>>PAGE_CACHE_SHIFT)
+>>>+#define PAGES_KB(size)	 PAGES_BYTE((size)*1024)
+>>>
+>>>
+>>Don't really like the names. Don't think they do anything for clarity, but
+>>if you can come up with something better for PAGES_BYTE I might change my
+>>mind ;) (just forget about PAGES_KB - people know what *1024 means)
+>>
+>
+>No, they are mainly for concision. Don't you think it's cleaner to write
+>        PAGES_KB(VM_MAX_READAHEAD)
+>than
+>        (VM_MAX_READAHEAD * 1024) / PAGE_CACHE_SIZE
+>
+>
 
-I would have liked to get rid of one or the other call to
-syscall_trace_leave.  However, the syscall_trace path looks like it
-can exit to userspace without going through int_very_careful, and
-int_very_careful does things other than system call tracing.
+No. Apart from semantics being different (which I'll address below), anybody
+with any business looking at this code will immediately know and understand
+what the latter line means. Not so for the former.
 
-So, instead, I took _TIF_SYSCALL_TRACE and _TIF_SYSCALL_AUDIT out of
-the flags test on the grounds that they had already been checked in
-syscall_trace.  There is possibly a preemption and call to schedule
-between syscall_trace and int_very_careful, so if it can be attached
-at that point, then the first return will be missed.  However, I think
-that ptrace attachment requires a stopped child, not just one that has
-been preempted.
+>Admittedly the names are somewhat awkward though :)
+>
+>
+>>Also: the replacements are wrong: if you've defined VM_MAX_READAHEAD to be
+>>4095 bytes, you don't want the _actual_ readahead to be 4096 bytes, do you?
+>>It is saying nothing about minimum, so presumably 0 is the correct choice.
+>>
+>
+>The macros were first introduced exact for this reason ;)
+>
+>It is rumored that there will be 64K page support, and this macro
+>helps round up the 16K sized VM_MIN_READAHEAD. The eof_index also
+>needs rounding up.
+>
 
-I don't see signal delivery between syscall_trace and
-int_very_careful, so I don't see that there can be a ptrace attach
-followed by int_very_careful missing the first return.
+But VM_MIN_READAHEAD of course should be rounded up, for the same
+reasons I said VM_MAX_READAHEAD should be rounded down.
 
-This is an RFC - if it turns out to be actually correct, some comments
-need fixing before this goes anywhere.
+So OK as a bug fix, but it needs to be in its own patch, not in a "common
+macros" one, and sufficiently commented (and preferably outside your core
+adaptive readahead code so it can be quickly merged up)
 
-UML works with this applied, and it doesn't seem to break
-singlestepping, either on normal instructions or across system calls,
-which looks like the next most vulnerable thing.
+--
 
-				Jeff
-
-
-Index: linux-2.6.16.x86_64/arch/x86_64/kernel/entry.S
-===================================================================
---- linux-2.6.16.x86_64.orig/arch/x86_64/kernel/entry.S
-+++ linux-2.6.16.x86_64/arch/x86_64/kernel/entry.S
-@@ -345,7 +345,7 @@ int_very_careful:
- 	sti
- 	SAVE_REST
- 	/* Check for syscall exit trace */	
--	testl $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SINGLESTEP),%edx
-+	testl $(_TIF_SINGLESTEP),%edx
- 	jz int_signal
- 	pushq %rdi
- 	CFI_ADJUST_CFA_OFFSET 8
-@@ -353,7 +353,7 @@ int_very_careful:
- 	call syscall_trace_leave
- 	popq %rdi
- 	CFI_ADJUST_CFA_OFFSET -8
--	andl $~(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SINGLESTEP),%edi
-+	andl $~(_TIF_SINGLESTEP),%edi
- 	cli
- 	jmp int_restore_rest
- 	
+Send instant messages to your online friends http://au.messenger.yahoo.com 

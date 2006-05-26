@@ -1,95 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbWEZSSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751235AbWEZST3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751238AbWEZSSM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 14:18:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWEZSSM
+	id S1751235AbWEZST3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 14:19:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWEZST3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 14:18:12 -0400
-Received: from mga03.intel.com ([143.182.124.21]:25902 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751232AbWEZSSL convert rfc822-to-8bit (ORCPT
+	Fri, 26 May 2006 14:19:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30612 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751235AbWEZST3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 14:18:11 -0400
-X-IronPort-AV: i="4.05,177,1146466800"; 
-   d="scan'208"; a="42148225:sNHT27784064"
-Subject: Re: 2.6.17-rc4-mm3 - kernel panic
-From: Kristen Accardi <kristen.c.accardi@intel.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Brown, Len" <len.brown@intel.com>, Andreas Saur <saur@acmelabs.de>,
-       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060526071518.GC1699@elf.ucw.cz>
-References: <CFF307C98FEABE47A452B27C06B85BB68AD7E1@hdsmsx411.amr.corp.intel.com>
-	 <1148583675.3070.41.camel@whizzy> <20060525221222.GA1608@elf.ucw.cz>
-	 <20060525221744.GA1671@elf.ucw.cz> <1148601858.3070.62.camel@whizzy>
-	 <20060526071518.GC1699@elf.ucw.cz>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-Date: Fri, 26 May 2006 11:29:35 -0700
-Message-Id: <1148668175.7600.11.camel@whizzy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
-X-OriginalArrivalTime: 26 May 2006 18:18:08.0764 (UTC) FILETIME=[BD9283C0:01C680F0]
+	Fri, 26 May 2006 14:19:29 -0400
+Message-ID: <4477469F.7040103@redhat.com>
+Date: Fri, 26 May 2006 13:19:11 -0500
+From: Clark Williams <williams@redhat.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Steven Rostedt <rostedt@goodmis.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Mark Knecht <markknecht@gmail.com>,
+       Robert Crocombe <rwcrocombe@raytheon.com>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>
+Subject: Re: [PATCH -rt 0/2] Get x86_64 running with PREEMPT_RT
+References: <20060526160651.870725515@goodmis.org>
+In-Reply-To: <20060526160651.870725515@goodmis.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-05-26 at 09:15 +0200, Pavel Machek wrote:
-> On Čt 25-05-06 17:04:18, Kristen Accardi wrote:
-> > On Fri, 2006-05-26 at 00:17 +0200, Pavel Machek wrote:
-> > > On Pá 26-05-06 00:12:22, Pavel Machek wrote:
-> > > > Hi!
-> > > > 
-> > > > > > Does the panic go away with CONFIG_ACPI_DOCK=n?
-> > > > 
-> > > > > Can either Pavel or Andreas please try this little debugging patch and
-> > > > > send me the dmesg output?  Please enable the CONFIG_DEBUG_KERNEL option
-> > > > > in your .config as well so that I can get additional info.
-> > > > 
-> > > > Yep, you were right... this debugging patch helps.
-> > > 
-> > > ...and docking +/- works, but it does not look like PCI in docking
-> > > station is properly connected:
-> > > 
-> > 
-> > No, I would not expect PCI to work properly with the debug patch -
-> > basically all I did was prevent the oops and confirm that this is the
-> > issue, I did not actually solve the problem.
-> > 
-> > I need some way to prevent acpiphp from loading before dock is completed
-> > it's init.
-> > 
-> > I guess I will think about this some more.
-> 
-> Using different _init levels? Like putting dock at subsys_initcall()
-> while acpiphp at late_initcall()?
-> 								Pavel
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Can you see if this works for you?  Revert the first debug patch I sent
-and apply this one instead (against -mm).
+Steven Rostedt wrote:
+> The following two patches get PREEMPT_RT running on x86_64.  I'm currently
+> writing this from my x86_64 box running 2.6.16-rt23.
+>
+> The first patch probably only affected me, since it was caused by
+> having clocksource=XXX in the command line.
+>
+> The other patch simply fixes a bad condition in the default_idle
+> which prevented the idle task from ever scheduling (that was bad!)
+Fixed my problem on Athlon64x2.
 
 Thanks,
-Kristen
+Clark
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
+iD8DBQFEd0afHyuj/+TTEp0RAmMsAJ9Zf1n/GMHOB+SYXdI7fWGYfbkcVwCgrK6I
+I0pV042x2vtPj7750lzIXeM=
+=eMDn
+-----END PGP SIGNATURE-----
 
----
- drivers/acpi/dock.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
---- 2.6-mm.orig/drivers/acpi/dock.c
-+++ 2.6-mm/drivers/acpi/dock.c
-@@ -190,6 +190,9 @@ static int is_dock(acpi_handle handle)
-  */
- int is_dock_device(acpi_handle handle)
- {
-+	if (!dock_station)
-+		return 0;
-+
- 	if (is_dock(handle) || find_dock_dependent_device(dock_station, handle))
- 		return 1;
- 
-@@ -674,5 +677,5 @@ static void __exit dock_exit(void)
- 	dock_remove();
- }
- 
--module_init(dock_init);
-+postcore_initcall(dock_init);
- module_exit(dock_exit);

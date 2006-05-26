@@ -1,111 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbWEZIU6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWEZIaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750927AbWEZIU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 04:20:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750903AbWEZIU6
+	id S1750964AbWEZIaV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 04:30:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751027AbWEZIaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 04:20:58 -0400
-Received: from wr-out-0506.google.com ([64.233.184.229]:16886 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750829AbWEZIU5 convert rfc822-to-8bit (ORCPT
+	Fri, 26 May 2006 04:30:21 -0400
+Received: from [200.89.6.215] ([200.89.6.215]:55057 "HELO rgu")
+	by vger.kernel.org with SMTP id S1750964AbWEZIaV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 04:20:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GfG5hpDgM/kNSXyfgRDqlm7/Gb1XhWWE3f9RjXaQpl81dvoPIoalt7+74f6zfiJvgRpZOLGFR4ZCVSHeLEOIgwuOHaYvBhp7PNOvkYtFbrXgEGPhYoDr6PAtKvl2DoIhqLDBGGF49dzV84yKAds/g4l3W12I323e42W7Jv76/gA=
-Message-ID: <36e6b2150605260120s2fb692fegf4fef1eecf7c4674@mail.gmail.com>
-Date: Fri, 26 May 2006 12:20:56 +0400
-From: "Paul Drynoff" <pauldrynoff@gmail.com>
-To: "Pekka J Enberg" <penberg@cs.helsinki.fi>, akpm@osdl.org
-Subject: Re: [PATCH] kmalloc man page before 2.6.17
-Cc: "Linus Torvalds" <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0605261059360.30386@sbz-30.cs.Helsinki.FI>
+	Fri, 26 May 2006 04:30:21 -0400
+Message-ID: <000d01c68102$a3aa30cc$8abe6481@mjyxwwzceuqkx>
+Reply-To: "=?windows-1251?B?LUlOVklUQUNJT04gUEFSQSBDT05PQ0VSIExBUyBJTlNUQUxBQ0lPTkVTIERFIExBUyBMQURFUkFTIERFIENBTElGT1JOSQ==?=" 
+	  <mayo17laderas@latinmail.com>
+From: "=?windows-1251?B?LUlOVklUQUNJT04gUEFSQSBDT05PQ0VSIExBUyBJTlNUQUxBQ0lPTkVTIERFIExBUyBMQURFUkFTIERFIENBTElGT1JOSQ==?=" 
+	<elpamo08@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: =?windows-1251?B?UkU6UHVibGljaWRhZDotQlVOR0FMT1dTLVJFU1RBVVJBTlQtQkFSLVNPTC1QSVNDSU5BUy1KVUVHT1MtQVJFQVMgVkVSREVTLUVTUEFSQ0lNSUVOVE8uVEU6MzYwLTA0MTYvMzYwLTM2NzMvMzYwLTIxODkuUFJFR1VOVEUgUE9SIExBIFBST01PQ0lPTiBERSBNQVlP?=
+Date: Fri, 26 May 2006 03:28:13 -0500
+Organization: =?windows-1251?B?UkUtOlB1YmxpY2lkYWQtQlVOR0FMT1dTLVJFU1RBVVJBTlQtQkFSLUpVRUdPUy1BUkVBUyBWRVJERVMtRVNQQVJDSU1JRQ==?=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <36e6b2150605260007h1601aa04v31c6c698c6e4d1b9@mail.gmail.com>
-	 <84144f020605260017i4682c409vc4a004d016c31270@mail.gmail.com>
-	 <36e6b2150605260058h5c1fbc0cla686a37d5bf3e34e@mail.gmail.com>
-	 <Pine.LNX.4.58.0605261059360.30386@sbz-30.cs.Helsinki.FI>
+Content-Type: text/plain;
+	charset="windows-1251"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently kernel-doc doesn't produce the man page for "kmalloc",
-I think that is a big lack of documentation. This patch should help.
-Now
-scripts/kernel-doc -man -function kmalloc include/linux/slab.h  |
-nroff -man | less
-creates suitable "man page".
+khaaxtj
 
-Signed-off-by: Paul Drynoff <pauldrynoff@gmail.com>
+                        FIN DE SEMANA
+                   VIERNES,SABADO,DOMINGO
+    VENGAN A PASAR EL DIA CON NOSOTROS HAGA SU RESERVA. 
+        (Dias de semana, previa llamada telefonica)
+        NEXTEL:824*9306/824*9320   CEL:98249320/98249306 
 
----
+* VEINTE MIL M2 DE AREAS VERDES
+* ALQUILER DE BUNGALOWS
+* RESTAURANT,BAR,POLLOS A LA LEÑA,ALQUILER DE PARRILLAS
+* PISCINAS,PISCINA PARA NIÑOS,CANCHA DE FULBITO,PALETA FRONTON,VOLEY
+* PING PONG,BILLAR,FULBITO DE MANO,JUEGOS DE MESA
+* SUBIBAJA,CAMA ELASTICA,COLUMPIOS,PASAMANOS 
+* EXCELENTE MICROCLIMA Y SOL TODO EL AÑO
+* DISPONEMOS DE EQUIPO DE KARAOKE
+* AREA DE CAMPING,CONSULTENOS
 
-Index: linux-2.6.17-rc4/mm/slab.c
-===================================================================
---- linux-2.6.17-rc4.orig/mm/slab.c
-+++ linux-2.6.17-rc4/mm/slab.c
-@@ -3244,26 +3244,10 @@ EXPORT_SYMBOL(kmalloc_node);
- #endif
+INVITA A TU FAMILIA Y/O AMIGOS.
+ATENDEMOS COLEGIOS,RETIROS,CUMPLEAÑOS,FIESTAS INFANTILES,
+ALMUERZOS DE CAMARADERÍA,CONVENCIONES Y/O EMPRESAS
 
- /**
-- * kmalloc - allocate memory
-+ * __do_kmalloc - allocate memory
-  * @size: how many bytes of memory are required.
-- * @flags: the type of memory to allocate.
-+ * @flags: the type of memory to allocate(see kmalloc).
-  * @caller: function caller for debug tracking of the caller
-- *
-- * kmalloc is the normal method of allocating memory
-- * in the kernel.
-- *
-- * The @flags argument may be one of:
-- *
-- * %GFP_USER - Allocate memory on behalf of user.  May sleep.
-- *
-- * %GFP_KERNEL - Allocate normal kernel ram.  May sleep.
-- *
-- * %GFP_ATOMIC - Allocation will not sleep.  Use inside interrupt handlers.
-- *
-- * Additionally, the %GFP_DMA flag may be set to indicate the memory
-- * must be suitable for DMA.  This can mean different things on different
-- * platforms.  For example, on i386, it means that the memory must come
-- * from the first 16MB.
-  */
- static __always_inline void *__do_kmalloc(size_t size, gfp_t flags,
- 					  void *caller)
-Index: linux-2.6.17-rc4/include/linux/slab.h
-===================================================================
---- linux-2.6.17-rc4.orig/include/linux/slab.h
-+++ linux-2.6.17-rc4/include/linux/slab.h
-@@ -87,6 +87,27 @@ extern void *__kmalloc_track_caller(size
-     __kmalloc_track_caller(size, flags, __builtin_return_address(0))
- #endif
+LOS ESTAREMOS ESPERANDO GUSTOSOS DE PODER ATENDERLOS.
 
-+/**
-+ * kmalloc - allocate memory
-+ * @size: how many bytes of memory are required.
-+ * @gfp: the type of memory to allocate.
-+ *
-+ * kmalloc is the normal method of allocating memory
-+ * in the kernel.
-+ *
-+ * The @gfp argument may be one of:
-+ *
-+ * %GFP_USER - Allocate memory on behalf of user.  May sleep.
-+ *
-+ * %GFP_KERNEL - Allocate normal kernel ram.  May sleep.
-+ *
-+ * %GFP_ATOMIC - Allocation will not sleep.  Use inside interrupt handlers.
-+ *
-+ * Additionally, the %GFP_DMA flag may be set to indicate the memory
-+ * must be suitable for DMA.  This can mean different things on different
-+ * platforms.  For example, on i386, it means that the memory must come
-+ * from the first 16MB.
-+ */
- static inline void *kmalloc(size_t size, gfp_t flags)
- {
- 	if (__builtin_constant_p(size)) {
+DIRECCION:AV EL BOSQUE 401 URBANIZACION CALIFORNIA ALTA,PASANDO CHACLACAYO
+ANTES DEL PUENTE LOS ANGELES NO LO CRUCE, SIGA DE FRENTE,PARALELO AL RIO.
+SIGA 2KM (TENEMOS SEÑALIZACION CARTELES FLECHAS DESDE 3.3KM ANTES.
+TELEFONOS:3602189,3603673,3600416 
+
+SI USTED TIENE INTERES EN QUE LE ENVIEMOS VISTAS DE NUESTRO LOCAL ENVIENOS 
+UN E-MAILS SOLICITANDO FOTOS
+
+E-MAIL:
+invitacionladeras@latinmail.com
+lasladerasdecalifornia@latinmail.com
+invitacionladeras@fullzero.com.ar
+
+SI QUIERE VER ALGUNAS VISTAS CLIQUEE DEBAJO DE ESTE PARRAFO SOBRE LA WEBS
+Sírvase cliquear sobre la webs de la cual requiera informacion
+
+VISTAS GENERALES:
+http://perso.wanadoo.es/elpalmo14/LasEmpresas.ppt
+http://perso.wanadoo.es/elpalmo12/LasFamilias.ppt
+Si solo desea pasar el día, hay un consumo mínimo de S/. 30.00 por persona 
+adulta.
+El alquiler de parrilla: US. $ 10.00 ( Carbon, utensilios y todo tipo de 
+salsas )
+Aceptamos Tarjetas de Crédito ( Master Card, Visa, Diners Club y Ripley ).
+Para mayor información y reservaciones sírvase llamar a nuestros teléfonos 
+3602189 - 3603673 - 3600416 
+
+Atentamaente
+CARLOS  AUGUSTO VIGNOLO 
+
+LIMA-PERU
+LAS LADERAS DE CALIFORNIA
+AGRADECE LA RECEPCION DE NUESTRO E-MAIL.
+
+Para no volver a recibir estos mensajes responda por favor escribiendo a:
+removerladeras@latinmail.com 
+REMOVER
+Y SERA REMOVIDO A LA BREVEDAD
+MUCHAS GRACIAS
+

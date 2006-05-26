@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWEZRia@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWEZRjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751189AbWEZRia (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 13:38:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbWEZRia
+	id S1751200AbWEZRjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 13:39:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWEZRjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 13:38:30 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:12943 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751189AbWEZRi3 convert rfc822-to-8bit (ORCPT
+	Fri, 26 May 2006 13:39:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12480 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751200AbWEZRjH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 13:38:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UxxrsXYVgKowfmxgCUDT0BxWAul9ZjLmEv8HbMBQhyjNF13n92cLbORjiYaOKivYmEGTywLaMLkyh0V1armBupW3c6buRViivA8xbKHLN/+aYH3jrmUfRinggc7MUKdUWM/IWCS5k0GYpVm/Yu47sPdPZmeqPziPBpZj0dvXEIA=
-Message-ID: <5c49b0ed0605261037p6a32db1fva693ea72b596f896@mail.gmail.com>
-Date: Fri, 26 May 2006 10:37:56 -0700
-From: "Nate Diller" <nate.diller@gmail.com>
-To: "Wu Fengguang" <wfg@mail.ustc.edu.cn>
-Subject: Re: [PATCH 23/33] readahead: backward prefetching method
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <348469547.47755@ustc.edu.cn>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Fri, 26 May 2006 13:39:07 -0400
+Date: Fri, 26 May 2006 10:38:21 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
+Cc: linux-kernel@vger.kernel.org, wfg@mail.ustc.edu.cn, bart@samwel.tk
+Subject: Re: [PATCH 27/33] readahead: laptop mode
+Message-Id: <20060526103821.45329b4b.akpm@osdl.org>
+In-Reply-To: <348469549.18212@ustc.edu.cn>
 References: <20060524111246.420010595@localhost.localdomain>
-	 <348469547.47755@ustc.edu.cn>
+	<348469549.18212@ustc.edu.cn>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/24/06, Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
-> Readahead policy for reading backward.
+Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
+>
+>   /*
+>  + * Set a new look-ahead mark at @new_index.
+>  + * Return 0 if the new mark is successfully set.
+>  + */
+>  +static inline int renew_lookahead(struct address_space *mapping,
+>  +				struct file_ra_state *ra,
+>  +				pgoff_t index, pgoff_t new_index)
+>  +{
+>  +	struct page *page;
+>  +
+>  +	if (index == ra->lookahead_index &&
+>  +			new_index >= ra->readahead_index)
+>  +		return 1;
+>  +
+>  +	page = find_page(mapping, new_index);
+>  +	if (!page)
+>  +		return 1;
+>  +
+>  +	__SetPageReadahead(page);
+>  +	if (ra->lookahead_index == index)
+>  +		ra->lookahead_index = new_index;
+>  +
+>  +	return 0;
+>  +}
+>  +
 
-Just curious, who actually does this?  I noticed you submitted patches
-to do profiling of actual read loads, so this must be based on data
-you've seen.  Could you include a comment in the actual code relating
-to the loads that it affects?
+This is a pagecache page and other CPUs can look it up and play with it. 
+The __SetPageReadahead() is quite wrong here.
 
-thanks
+And we don't have a reference on this page, so this code appears to be racy.
 
-NATE
+You could fix that by taking and dropping a ref on the page, but it'd be
+quicker to take tree_lock and do the SetPageReadahead() while holding it.
+
+This function is too large to inline.

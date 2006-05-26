@@ -1,95 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWEZMBO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWEZMBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbWEZMBO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 08:01:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWEZMBF
+	id S932479AbWEZMBE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 08:01:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWEZMAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 08:01:05 -0400
-Received: from nz-out-0102.google.com ([64.233.162.207]:40585 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932410AbWEZMA4 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 08:00:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rUd8QjHGxqp88WO5+UsFm2bgwf+OOx9TBf+t9GRzLmxZl1Fm7G+zpBumNc0vfYmN4C5fvupssQ24km8TriOGKNTjmJf7ACl2lgtihEq95AY+sYmdgx8cbZ+9fPGcza/uRxPBHF7y+0u4+X/pB1LkimByZcHc0awypJ3XU9MwmPA=
-Message-ID: <5486cca80605260500p72e107fcw8c422c1ea884be4f@mail.gmail.com>
-Date: Fri, 26 May 2006 14:00:23 +0200
-From: Antonio <tritemio@gmail.com>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Subject: Re: : unclean backward scrolling
-Cc: nick@linicks.net, linux-kernel@vger.kernel.org
-In-Reply-To: <44764F4F.5000102@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+	Fri, 26 May 2006 08:00:39 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:37355 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932410AbWEZMAb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 08:00:31 -0400
+Date: Fri, 26 May 2006 06:00:32 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: sho@tnes.nec.co.jp
+Cc: cmm@us.ibm.com, jitendra@linsyssoft.com, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [UPDATE][12/24]ext3 enlarge blocksize
+Message-ID: <20060526120032.GN5964@schatzie.adilger.int>
+Mail-Followup-To: sho@tnes.nec.co.jp, cmm@us.ibm.com,
+	jitendra@linsyssoft.com, ext2-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <20060525214902sho@rifu.tnes.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <5486cca80605210638l2906112fv515df1bc390cff24@mail.gmail.com>
-	 <7c3341450605211155i3674a27bob6213b449e2d1a3a@mail.gmail.com>
-	 <44764F4F.5000102@gmail.com>
+In-Reply-To: <20060525214902sho@rifu.tnes.nec.co.jp>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+At least part of this patch can be included into the patch series that
+Mingming has posted to allow larger block sizes on architectures that
+support it.  This doesn't need a separate COMPAT flag itself, since
+older kernels will already refuse to mount a filesystem with large blocks.
 
-On 5/26/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
-> Nick Warne wrote:
-> > Hmmmph.
-> >
-> > I get this problem, and always have, but I always put it down to my system.
-> >
-> > I run Slackware 10, and this has always happened to me from 2.6.2
-> > upwards on CRT 1024x768 and later TFT 1280x1024 dvi.
-> >
-> > I use[d] in lilo:
-> >
-> > # VESA framebuffer console @ 1280x1024x?k
-> > vga=794
-> > # VESA framebuffer console @ 1024x768x64k
-> > #vga=791
-> >
-> > So you are not alone.
-> >
-> > Nick
-> >
-> > On 21/05/06, Antonio <tritemio@gmail.com> wrote:
-> >> Hi,
-> >>
-> >> I'm using the radeonfb driver with a radeon 7000 with the frambuffer
-> >> at 1280x1024 on a i386 system, with a 2.6.16.17 kernel. At boot time,
-> >> if I stop the messages with CTRL+s and try look the previous messages
-> >> with CTRL+PagUp (backward scrolling) the screen become unreadable. In
-> >> fact some lengthier lines are not erased scrolling backward and some
-> >> random characters a overwritten instead. So it's very difficult to
-> >> read the messages.
-> >>
-> >> I don't have such problem with the frambuffer at 1024x768.
-> >>
-> >> All the previous kernels I've tried have this problem (at least up to
-> >> 2.6.15).
-> >>
-> >> If someone can look at this issue I can provide further information.
-> >>
-> >> Many Thanks.
-> >>
-> >> Cheers,
-> >>
->
-> Can you try this patch and let me know if this fixes the problem?
->
-> Tony
->
-> PATCH: Fix scrollback with logo issue immediately after boot.
-[cut]
+On May 25, 2006  21:49 +0900, sho@tnes.nec.co.jp wrote:
+> @@ -1463,11 +1463,17 @@ static int ext3_fill_super (struct super
+> +	if (blocksize > PAGE_SIZE) {
+> +		printk(KERN_ERR "EXT3-fs: cannot mount filesystem with "
+> +		       "blocksize %u larger than PAGE_SIZE %u on %s\n",
+> +		       blocksize, PAGE_SIZE, sb->s_id);
+> +		goto failed_mount;
+> +	}
+> +
+>  	if (blocksize < EXT3_MIN_BLOCK_SIZE ||
+> -	    blocksize > EXT3_MAX_BLOCK_SIZE) {
+> +	    blocksize > EXT3_EXTENDED_MAX_BLOCK_SIZE) {
 
-This patch fixes completely the problem for me. Many thanks!
+We may as well just change EXT3_MAX_BLOCK_SIZE to be 65536, because no other
+code uses this value.  It is already 65536 in the e2fsprogs.
 
-Is going to be included in mainline anytime soon?
+> -		printk(KERN_ERR 
+> -		       "EXT3-fs: Unsupported filesystem blocksize %d on %s.\n",
+> -		       blocksize, sb->s_id);
+> +		printk(KERN_ERR "EXT3-fs: Unsupported filesystem blocksize %d on %s.\n",
+> +				 blocksize, sb->s_id);
 
-Many thanks again, I've really appreciated your help.
+I'm not sure why you changed the formatting of this message to now be longer
+than 80 columns.
 
-Cheers,
+> diff -upNr -X linux-2.6.17-rc4/Documentation/dontdiff linux-2.6.17-rc4/include/linux/ext3_fs.h linux-2.6.17-rc4.tmp/include/linux/ext3_fs.h
+> --- linux-2.6.17-rc4/include/linux/ext3_fs.h	2006-05-25 16:33:29.711659209 +0900
+> +++ linux-2.6.17-rc4.tmp/include/linux/ext3_fs.h	2006-05-25 16:33:52.247791746 +0900
+> @@ -86,6 +86,7 @@ struct statfs;
+>   */
+>  #define EXT3_MIN_BLOCK_SIZE		1024
+>  #define	EXT3_MAX_BLOCK_SIZE		4096
+> +#define        EXT3_EXTENDED_MAX_BLOCK_SIZE    65536
+>  #define EXT3_MIN_BLOCK_LOG_SIZE		  10
+>  #ifdef __KERNEL__
+>  # define EXT3_BLOCK_SIZE(s)		((s)->s_blocksize)
 
-  ~ Antonio
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
+

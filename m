@@ -1,106 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbWEZKWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbWEZKXR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751373AbWEZKWo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 06:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751372AbWEZKWo
+	id S1751370AbWEZKXR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 06:23:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751374AbWEZKXR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 06:22:44 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:44744 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751344AbWEZKWn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 06:22:43 -0400
-Message-ID: <4476D6EC.4060501@pobox.com>
-Date: Fri, 26 May 2006 06:22:36 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 26 May 2006 06:23:17 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:5280 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751375AbWEZKXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 06:23:15 -0400
+Date: Fri, 26 May 2006 19:23:07 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] ia64 node hotplug -- cpu - node relationship fix [0/2] intro
+Cc: linux-ia64@vger.kernel.org, ashok.raj@intel.com, steiner@sgi.com,
+       tony.luck@intel.com, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060526175622.13057d7e.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20060526175622.13057d7e.kamezawa.hiroyu@jp.fujitsu.com>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060526184011.EEAA.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Greg KH <gregkh@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, netdev@vger.kernel.org,
-       mb@bu3sch.de, st3@riseup.net, linville@tuxdriver.com
-Subject: Re: [PATCH 2/3] pci: bcm43xx avoid pci_find_device
-References: <20060526001053.D2349C7C58@atrey.karlin.mff.cuni.cz> <44764D4B.6050105@pobox.com> <4476D63E.8090207@gmail.com>
-In-Reply-To: <4476D63E.8090207@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.1 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.1 points, 5.0 required)
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Jeff Garzik napsal(a):
->> Jiri Slaby wrote:
->>> bcm43xx avoid pci_find_device
->>>
->>> Change pci_find_device to safer pci_get_device with support for more
->>> devices.
->>>
->>> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
->>>
->>> ---
->>> commit 1d3b6caf027fe53351c645523587aeac40bc3e47
->>> tree ae37c86b633442cdf8a7a19ac287542724081c90
->>> parent ab3443d79c94d0ae6a9e020daefa4d29eccff50d
->>> author Jiri Slaby <ku@bellona.localdomain> Fri, 26 May 2006 01:49:12
->>> +0159
->>> committer Jiri Slaby <ku@bellona.localdomain> Fri, 26 May 2006
->>> 01:49:12 +0159
->>>
->>>  drivers/net/wireless/bcm43xx/bcm43xx_main.c |   20 ++++++++++++++++----
->>>  1 files changed, 16 insertions(+), 4 deletions(-)
->>>
->>> diff --git a/drivers/net/wireless/bcm43xx/bcm43xx_main.c
->>> b/drivers/net/wireless/bcm43xx/bcm43xx_main.c
->>> index b488f77..56d2fc6 100644
->>> --- a/drivers/net/wireless/bcm43xx/bcm43xx_main.c
->>> +++ b/drivers/net/wireless/bcm43xx/bcm43xx_main.c
->>> @@ -2131,6 +2131,13 @@ out:
->>>      return err;
->>>  }
->>>  
->>> +#ifdef CONFIG_BCM947XX
->>> +static struct pci_device_id bcm43xx_ids[] = {
->>> +    { PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, 0x4324) },
->>> +    { 0 }
->>> +};
->>> +#endif
->>> +
->>>  static int bcm43xx_initialize_irq(struct bcm43xx_private *bcm)
->>>  {
->>>      int res;
->>> @@ -2141,10 +2148,15 @@ static int bcm43xx_initialize_irq(struct
->>>  #ifdef CONFIG_BCM947XX
->>>      if (bcm->pci_dev->bus->number == 0) {
->>>          struct pci_dev *d = NULL;
->>> -        /* FIXME: we will probably need more device IDs here... */
->>> -        d = pci_find_device(PCI_VENDOR_ID_BROADCOM, 0x4324, NULL);
->>> -        if (d != NULL) {
->>> -            bcm->irq = d->irq;
->>> +        struct pci_device_id *id = bcm43xx_ids;
->>> +        while (id->vendor) {
->>> +            d = pci_get_device(id->vendor, id->device, NULL);
->>> +            if (d != NULL) {
->>> +                bcm->irq = d->irq;
->>> +                pci_dev_put(d);
->>> +                break;
->> You'll want to use pci_match_device() or pci_match_one_device()
->> [I forget which one]
-> Why? Matching is done by pci_get_device() or pci_get_subsys(), respectively.
-> [pci_match_device() is for matching dev <-> drv, you meant pci_match_one_device()]
+> 1. empty-node-fix : avoid creating empty node
+>    SRAT's enable bit just shows 'you can read this entry'. But the kernel know
+>    this and checks each entries are vaild or not later.
+>
+>    But pxm_bit/node_online_mask is not treated as they should be.
+>    The kernel creates empty node, which has no cpu, no memory.
 
-The FIXME says "we will probably need more device IDs here."
+I would like to mention about background of this more.
 
-Thus, if you are touching this area, it would make sense to add the 
-capability to easily add a second (and third, fourth...) PCI ID.  And 
-that means pci_match_one_device() and a pci_device_id table.
+I thought if enable bit of each SRAT entry is on, then its entry's
+object is usable for OS.
 
-	Jeff
+However, SRAT specification says only
+"If clear, the OSPM ignores the contents of the Processor Local
+ APIC/SAPIC (or Memory) Affinity Structure."
 
+So, our firmware team (or Micro $oft) interprets this
+"If enable bit is on, then this entry is just readable by OS.
+ The object of its entry MIGHT NOT EXIST. This entry can be used for
+ reserve resource for memory/cpu which can be hot-add later."
+They implemented it.
+
+I really really hate this. :-(
+But, indeed, ACPI spec. says just IGNORE if clear. They are correct.
+
+Current linux code checks memory and cpu existence by other ways.
+But, PXM remains even if they don't exist. The first patch is to remove it.
+
+Bye.
+
+-- 
+Yasunori Goto 
 
 

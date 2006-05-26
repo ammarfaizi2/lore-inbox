@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbWEZTNW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWEZTXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751295AbWEZTNW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 15:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbWEZTNW
+	id S1751306AbWEZTXP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 15:23:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbWEZTXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 15:13:22 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:47249 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751295AbWEZTNW (ORCPT
+	Fri, 26 May 2006 15:23:15 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:47777 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751306AbWEZTXO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 15:13:22 -0400
-Date: Fri, 26 May 2006 21:12:42 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Ulrich Drepper <drepper@redhat.com>
-cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       serue@us.ibm.com, sam@vilain.net, clg@fr.ibm.com, dev@sw.ru
-Subject: Re: [PATCH] POSIX-hostname up to 255 characters
-In-Reply-To: <44774F0B.8010805@redhat.com>
-Message-ID: <Pine.LNX.4.61.0605262111130.11445@yvahk01.tjqt.qr>
-References: <20060525204534.4068e730.rdunlap@xenotime.net>
- <m1zmh5b129.fsf@ebiederm.dsl.xmission.com> <20060526144216.GZ13513@lug-owl.de>
- <Pine.LNX.4.58.0605261025230.9655@shark.he.net> <20060526180131.GA13513@lug-owl.de>
- <Pine.LNX.4.61.0605261409300.8002@chaos.analogic.com> <447748E4.4050908@redhat.com>
- <Pine.LNX.4.61.0605261430370.8339@chaos.analogic.com> <44774F0B.8010805@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 26 May 2006 15:23:14 -0400
+Date: Sat, 27 May 2006 05:22:43 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Nate Diller <nate.diller@gmail.com>
+Cc: Wu Fengguang <wfg@mail.ustc.edu.cn>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 23/33] readahead: backward prefetching method
+Message-ID: <20060527052243.B349096@wobbly.melbourne.sgi.com>
+References: <20060524111246.420010595@localhost.localdomain> <348469547.47755@ustc.edu.cn> <5c49b0ed0605261037p6a32db1fva693ea72b596f896@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <5c49b0ed0605261037p6a32db1fva693ea72b596f896@mail.gmail.com>; from nate.diller@gmail.com on Fri, May 26, 2006 at 10:37:56AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> It is written (on so-called compatible machines like my Sun) as:
->> 
->> #define MAXHOSTNAMELEN _POSIX_HOST_NAME_MAX
->> 
->> Then in limits.h, I see:
->> 
->> #define _POSIX_HOST_NAME_MAX 64
->
->That's wrong.  The value must be 255, at least for the current spec.
->You really should verify your statements before making them public.  The
->POSIX spec is available in HTML for for viewing for free from the
->OpenGroup.  What a specific implementation does is not authoritative.
->
+On Fri, May 26, 2006 at 10:37:56AM -0700, Nate Diller wrote:
+> On 5/24/06, Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
+> > Readahead policy for reading backward.
+> 
+> Just curious, who actually does this?  I noticed you submitted patches
 
-Let's all be happy with it that some systens have the maximum hostname length
-at 64 or 255... thay way, applications do not tend to depend on it.
-(Cf. Linux and the 100->1000 Hz change which _did_ turn up something.)
+Nastran does this, and probably other FEA codes.  IIRC, iozone
+will measure this too - it is very important to some people in
+certain scientific arenas.
 
+cheers.
 
-Jan Engelhardt
 -- 
+Nathan

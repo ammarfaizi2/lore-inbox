@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWEZWAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbWEZWBS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750873AbWEZWAY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 18:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWEZWAY
+	id S1750918AbWEZWBS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 18:01:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWEZWBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 18:00:24 -0400
-Received: from webmail-v.pelco.com ([12.104.148.44]:46231 "EHLO
-	exchft2.pelco.org") by vger.kernel.org with ESMTP id S1750873AbWEZWAX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 18:00:23 -0400
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.2663
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Importance: normal
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [PATCH] to make HID read block
-Date: Fri, 26 May 2006 15:00:21 -0700
-Message-ID: <6AEF81150769044DAD3056466B03847802E4D945@CA-EVS01.pelco.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] to make HID read block
-Thread-Index: AcZ4fVjLp+UNDzS1RT6wp2vf9wVbMQ==
-From: "Micon, David" <DMicon@pelco.com>
-To: <vojtech@suse.cz>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 May 2006 22:00:23.0057 (UTC) FILETIME=[C96E2810:01C6810F]
+	Fri, 26 May 2006 18:01:18 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:5287 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750914AbWEZWBR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 18:01:17 -0400
+Date: Fri, 26 May 2006 17:01:15 -0500
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PCI reset using x86 or x86-64 BIOS calls?
+Message-ID: <20060526220115.GA21605@austin.ibm.com>
+References: <6gr2t-1Pp-9@gated-at.bofh.it> <44765F57.90703@shaw.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44765F57.90703@shaw.ca>
+User-Agent: Mutt/1.5.9i
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes a read of a HID device block until data is available.
-Without it, the read goes into a busy-wait loop until data is available.
- 
-Signed-off-by: David Micon dmicon@pelco.com
- 
-diff -rupN linux-2.6.16.16.orig/drivers/usb/input/hiddev.c
-linux-2.6.16.16/drivers/usb/input/hiddev.c
---- linux-2.6.16.16.orig/drivers/usb/input/hiddev.c 2006-03-19
-21:53:29.000000000 -0800
-+++ linux-2.6.16.16/drivers/usb/input/hiddev.c 2006-05-12 
-+++ 16:39:08.000000000 -0700
-@@ -318,6 +318,7 @@ static ssize_t hiddev_read(struct file *
-     }
- 
-     schedule();
-+    set_current_state(TASK_INTERRUPTIBLE);
-    }
- 
-    set_current_state(TASK_RUNNING);
+On Thu, May 25, 2006 at 07:52:23PM -0600, Robert Hancock wrote:
+> Linas Vepstas wrote:
+> >I've go a newbie x86 BIOS question:  is there a BIOS function that 
+> >can be called to reset a PCI device? (By "reset a device" I mean
+> >raise the #RST PCI signal line to electrical high for 1.5 seconds).
+> >I know that BIOS does this during a soft reboot, but I was wondering
+> >if there's a stand-alone function for doing this while the system is up
+> >and running.
+> 
+> Unlikely - if you mean just resetting one PCI device, it's likely 
+> electrically impossible on many, if not most machines as the RST lines 
+> will be tied together on all slots.
 
+I was afraid of that.
 
-Confidentiality Notice:
+> In any case, I don't think - or at least would hope - that a PCI device 
+> going so far into the weeds that it can't be recovered without a RST 
+> would be a rare situation.
 
-The information contained in this transmission is legally privileged and confidential, intended only for the use of the individual(s) or entities named above.  This email and any files transmitted with it are the property of Pelco.  If the reader of this message is not the intended recipient, or an employee or agent responsible for delivering this message to the intended recipient, you are hereby notified that any review, disclosure, copying, distribution, retention, or any action taken or omitted to be taken in reliance on it is prohibited and may be unlawful. 
+Well, this comes up in the case of having kexec take over from a crashed 
+kernel; the state of any given PCI card is unclear, and its conceptually
+easiest to hit them with a hammer to put them back into a known state.
 
-If you receive this communication in error, please notify us immediately by telephone call to +1-559-292-1981 or forward the e-mail to administrator@pelco.com and then permanently delete the e-mail and destroy all soft and hard copies of the message and any attachments. Thank you for your cooperation.
+For hotplug slots, this can be accomplished by toggling power to a slot,
+but not all slots out there are hot-pluggable. 
+
+The other situation where this is useful is in recovering from a PCI bus
+error (e.g. parity error); but his has additional complications.
+
+I've got someone here  asking about the LSI megaraid controller; 
+appearently its under-documented, and it can hang hard on kexec. 
+Hitting it with a reset would make life simpler.
+
+--linas
+

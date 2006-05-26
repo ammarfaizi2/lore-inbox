@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWEZLr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWEZLuK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbWEZLr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 07:47:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWEZLr6
+	id S932347AbWEZLuK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 07:50:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWEZLuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 07:47:58 -0400
-Received: from smtp6.wanadoo.fr ([193.252.22.25]:21626 "EHLO smtp6.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S932337AbWEZLr5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 07:47:57 -0400
-X-ME-UUID: 20060526114755971.ED1481C001CE@mwinf0604.wanadoo.fr
-Date: Fri, 26 May 2006 13:42:45 +0200
-To: Mark Lord <liml@rtr.ca>
-Cc: Sven Luther <sven.luther@wanadoo.fr>, Jeff Garzik <jgarzik@pobox.com>,
-       Alexandre.Bounine@tundra.com, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Yang Xin-Xin-r48390 <Xin-Xin.Yang@freescale.com>
-Subject: Re: [PATCH/2.6.17-rc4 10/10]  bugs fix for marvell SATA on powerp c pl atform
-Message-ID: <20060526114245.GA32330@powerlinux.fr>
-References: <9FCDBA58F226D911B202000BDBAD46730626DE6E@zch01exm40.ap.freescale.net> <1147935734.17679.93.camel@localhost.localdomain> <446C9219.4080300@pobox.com> <446CDE26.8090504@rtr.ca> <20060526083931.GA23938@powerlinux.fr> <4476E964.90509@rtr.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 26 May 2006 07:50:09 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:50053
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932347AbWEZLuH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 07:50:07 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: [PATCH 2/3] pci: bcm43xx avoid pci_find_device
+Date: Fri, 26 May 2006 13:49:55 +0200
+User-Agent: KMail/1.9.1
+References: <20060526001053.D2349C7C58@atrey.karlin.mff.cuni.cz> <4476D6EC.4060501@pobox.com> <4476D95B.5030601@gmail.com>
+In-Reply-To: <4476D95B.5030601@gmail.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Greg KH <gregkh@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, netdev@vger.kernel.org,
+       mb@bu3sch.de, st3@riseup.net, linville@tuxdriver.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4476E964.90509@rtr.ca>
-User-Agent: Mutt/1.5.9i
-From: Sven Luther <sven.luther@wanadoo.fr>
+Message-Id: <200605261349.56011.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 26, 2006 at 07:41:24AM -0400, Mark Lord wrote:
-> Sven Luther wrote:
-> >I'm trying to use a Marvell 88SX5081 based card here in my pegasos machine,
-> >and i never got it working with the libata driver, even with the patches 
-> >Zang
-> >provided (and 2.6.16 though, maybe i should update to a newer version). The
-> >marvell provided driver worked though at some time.
-> >
-> >Would it be possible to have access to your work, in order to not duplicate
-> >effort or something ? 
-> 
-> All of the relevant bits of "my work" are now in Jeff's upstream libata 
-> tree,
-> from the recently posted sata_mv patches.
+On Friday 26 May 2006 12:33, you wrote:
+> >>>> --- a/drivers/net/wireless/bcm43xx/bcm43xx_main.c
+> >>>> +++ b/drivers/net/wireless/bcm43xx/bcm43xx_main.c
+> >>>> @@ -2131,6 +2131,13 @@ out:
+> >>>>      return err;
+> >>>>  }
+> >>>>
+> >>>> +#ifdef CONFIG_BCM947XX
+> >>>> +static struct pci_device_id bcm43xx_ids[] = {
 
-Ok. can i use this tree with a 2.6.16 base ?
- 
-> After struggling with bad SDRAM earlier this week, I now have Ubuntu 
-> installed
-> and running reliably on my G3 box here.  Next step is to upgrade the kernel
-> to something modern, and add in the latest sata_mv.
+Call it
+static struct pci_device_id bcm43xx_47xx_ids[] = {
+please.
 
-Ok.
- 
-> After that, I'll try my own 6081 Marvell card in it, and hopefully see the 
-> same failures as you.. hopefully!
-
-I tried getting a 6081 based low profile card, but they don't seem to sell in
-europe.
-
-Friendly,
-
-Sven Luther
-
+And; _important_; if you submit this change, _also_
+do a patch against the devicescape version of the driver in
+John Linville's wireless-dev tree
+drivers/net/wireless/d80211/bcm43xx
+in the tree at git://kernel.org/pub/scm/linux/kernel/git/linville/wireless-dev.git

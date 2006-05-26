@@ -1,87 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbWEZLzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932519AbWEZL4s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932459AbWEZLzx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 07:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbWEZLxd
+	id S932519AbWEZL4s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 07:56:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWEZLxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 07:53:33 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:62682 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932460AbWEZLxO (ORCPT
+	Fri, 26 May 2006 07:53:32 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:33755 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932474AbWEZLxP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 07:53:14 -0400
-Message-ID: <348644388.06434@ustc.edu.cn>
+	Fri, 26 May 2006 07:53:15 -0400
+Message-ID: <348644392.05317@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060526115313.491576583@localhost.localdomain>
+Message-Id: <20060526115318.181350700@localhost.localdomain>
 References: <20060526113906.084341801@localhost.localdomain>
-Date: Fri, 26 May 2006 19:39:31 +0800
+Date: Fri, 26 May 2006 19:39:38 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 25/33] readahead: thrashing recovery method
-Content-Disposition: inline; filename=readahead-method-onthrash.patch
+Subject: [PATCH 32/33] readahead: debug traces showing accessed file names
+Content-Disposition: inline; filename=readahead-debug-traces-file-list.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Readahead policy after thrashing.
-
-It tries to recover gracefully from the thrashing.
+Print file names on their first read-ahead, for tracing file access patterns.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- mm/readahead.c |   42 ++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 42 insertions(+)
+ mm/readahead.c |   14 ++++++++++++++
+ 1 files changed, 14 insertions(+)
 
---- linux.orig/mm/readahead.c
-+++ linux/mm/readahead.c
-@@ -1634,6 +1634,48 @@ try_readahead_on_seek(struct file_ra_sta
- }
+--- linux-2.6.17-rc4-mm3.orig/mm/readahead.c
++++ linux-2.6.17-rc4-mm3/mm/readahead.c
+@@ -1074,6 +1074,20 @@ static int ra_dispatch(struct file_ra_st
+ 		ra_account(ra, RA_EVENT_IO_CACHE_HIT, ra_size - actual);
+ 	ra_account(ra, RA_EVENT_READAHEAD, actual);
  
- /*
-+ * Readahead thrashing recovery.
-+ */
-+static unsigned long
-+thrashing_recovery_readahead(struct address_space *mapping,
-+				struct file *filp, struct file_ra_state *ra,
-+				pgoff_t index, unsigned long ra_max)
-+{
-+	unsigned long ra_size;
++	if (!ra->ra_index && filp->f_dentry->d_inode) {
++		char *fn;
++		static char path[1024];
++		unsigned long size;
 +
-+	if (probe_page(mapping, index - 1))
-+		ra_account(ra, RA_EVENT_READAHEAD_MUTILATE,
-+						ra->readahead_index - index);
-+	ra_account(ra, RA_EVENT_READAHEAD_THRASHING,
-+						ra->readahead_index - index);
-+
-+	/*
-+	 * Some thrashing occur in (ra_index, la_index], in which case the
-+	 * old read-ahead chunk is lost soon after the new one is allocated.
-+	 * Ensure that we recover all needed pages in the old chunk.
-+	 */
-+	if (index < ra->ra_index)
-+		ra_size = ra->ra_index - index;
-+	else {
-+		/* After thrashing, we know the exact thrashing-threshold. */
-+		ra_size = ra_cache_hit(ra, 0);
-+		update_ra_thrash_bytes(mapping->backing_dev_info, ra_size);
-+
-+		/* And we'd better be a bit conservative. */
-+		ra_size = ra_size * 3 / 4;
++		size = (i_size_read(filp->f_dentry->d_inode)+1023)/1024;
++		fn = d_path(filp->f_dentry, filp->f_vfsmnt, path, 1000);
++		if (!IS_ERR(fn))
++			ddprintk("ino %lu is %s size %luK by %s(%d)\n",
++					filp->f_dentry->d_inode->i_ino,
++					fn, size,
++					current->comm, current->pid);
 +	}
 +
-+	if (ra_size > ra_max)
-+		ra_size = ra_max;
-+
-+	ra_set_class(ra, RA_CLASS_THRASHING);
-+	ra_set_index(ra, index, index);
-+	ra_set_size(ra, ra_size, ra_size / LOOKAHEAD_RATIO);
-+
-+	return ra_dispatch(ra, mapping, filp);
-+}
-+
-+/*
-  * ra_min is mainly determined by the size of cache memory. Reasonable?
-  *
-  * Table of concrete numbers for 4KB page size:
+ 	dprintk("readahead-%s(ino=%lu, index=%lu, ra=%lu+%lu-%lu) = %d\n",
+ 			ra_class_name[ra_class],
+ 			mapping->host->i_ino, ra->la_index,
 
 --

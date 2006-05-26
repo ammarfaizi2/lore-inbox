@@ -1,113 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWEZVxf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWEZWAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750988AbWEZVxf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 17:53:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWEZVxf
+	id S1750873AbWEZWAY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 18:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWEZWAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 17:53:35 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:63538 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750988AbWEZVxf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 17:53:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=DpV+rCoMK/eN8Tx0dO3PsSa1s0HCrnBnWhz1uVLpTOCyI0jgoN9JoGQWsd9FJuK/ycmmBTtGdYaBKXeRcUg893y+5xcsvsx03iIuzX9DnR9mtBAHKxFNKoDbrWO1UVKa7uKWSi2sQ4Iqu/MFEQIledcwpc8x0g0TIZC/FOjvXEA=
-Message-ID: <447778DA.8080507@gmail.com>
-Date: Sat, 27 May 2006 00:53:30 +0300
-From: Anssi Hannula <anssi.hannula@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6-7.5.20060mdk (X11/20050322)
-X-Accept-Language: en-us, en
+	Fri, 26 May 2006 18:00:24 -0400
+Received: from webmail-v.pelco.com ([12.104.148.44]:46231 "EHLO
+	exchft2.pelco.org") by vger.kernel.org with ESMTP id S1750873AbWEZWAX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 18:00:23 -0400
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.2663
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: dtor_core@ameritech.net, linux-joystick@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 03/13] input: make input a multi-object module
-References: <20060526161129.557416000@gmail.com>	<20060526162902.227348000@gmail.com>	<20060526141603.054f0459.akpm@osdl.org>	<44777340.7030905@gmail.com> <20060526144309.60469bcd.akpm@osdl.org>
-In-Reply-To: <20060526144309.60469bcd.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Importance: normal
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: [PATCH] to make HID read block
+Date: Fri, 26 May 2006 15:00:21 -0700
+Message-ID: <6AEF81150769044DAD3056466B03847802E4D945@CA-EVS01.pelco.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] to make HID read block
+Thread-Index: AcZ4fVjLp+UNDzS1RT6wp2vf9wVbMQ==
+From: "Micon, David" <DMicon@pelco.com>
+To: <vojtech@suse.cz>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 26 May 2006 22:00:23.0057 (UTC) FILETIME=[C96E2810:01C6810F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Anssi Hannula <anssi.hannula@gmail.com> wrote:
-> 
->>Andrew Morton wrote:
->>
->>>Anssi Hannula <anssi.hannula@gmail.com> wrote:
->>>
->>>
->>>>Move the input.c to input-core.c and modify Makefile so that the input module
->>>>can be built from multiple source files. This is preparing for the input-ff.c.
->>>>
->>>>Signed-off-by: Anssi Hannula <anssi.hannula@gmail.com>
->>>>
->>>>---
->>>>drivers/input/Makefile     |    2 
->>>>drivers/input/input-core.c | 1099 +++++++++++++++++++++++++++++++++++++++++++++
->>>>drivers/input/input.c      | 1099 ---------------------------------------------
->>>
->>>urgh.  There are other changes pending againt input.c and this renaming
->>>makes everything a huge pain.
->>>
->>>What does "can be built from multiple source files" mean?
->>
->>Well, I want to embed the input-ff.c into the input module too.
-> 
-> 
-> What does "embed" mean?  #include a .c file, or what?  (If "yes" then "no",
-> there's enough of that happening and it's an awful thing to do).
-> 
+This patch makes a read of a HID device block until data is available.
+Without it, the read goes into a busy-wait loop until data is available.
+ 
+Signed-off-by: David Micon dmicon@pelco.com
+ 
+diff -rupN linux-2.6.16.16.orig/drivers/usb/input/hiddev.c
+linux-2.6.16.16/drivers/usb/input/hiddev.c
+--- linux-2.6.16.16.orig/drivers/usb/input/hiddev.c 2006-03-19
+21:53:29.000000000 -0800
++++ linux-2.6.16.16/drivers/usb/input/hiddev.c 2006-05-12 
++++ 16:39:08.000000000 -0700
+@@ -318,6 +318,7 @@ static ssize_t hiddev_read(struct file *
+     }
+ 
+     schedule();
++    set_current_state(TASK_INTERRUPTIBLE);
+    }
+ 
+    set_current_state(TASK_RUNNING);
 
-No, but this (from Documentation/kbuild/makefiles.txt):
-<clip>
-	If a kernel module is built from several source files, you specify
-	that you want to build a module in the same way as above.
 
-	Kbuild needs to know which the parts that you want to build your
-	module from, so you have to tell it by setting an
-	$(<module_name>-objs) variable.
+Confidentiality Notice:
 
-	Example:
-		#drivers/isdn/i4l/Makefile
-		obj-$(CONFIG_ISDN) += isdn.o
-		isdn-objs := isdn_net_lib.o isdn_v110.o isdn_common.o
+The information contained in this transmission is legally privileged and confidential, intended only for the use of the individual(s) or entities named above.  This email and any files transmitted with it are the property of Pelco.  If the reader of this message is not the intended recipient, or an employee or agent responsible for delivering this message to the intended recipient, you are hereby notified that any review, disclosure, copying, distribution, retention, or any action taken or omitted to be taken in reliance on it is prohibited and may be unlawful. 
 
-	In this example, the module name will be isdn.o. Kbuild will
-	compile the objects listed in $(isdn-objs) and then run
-	"$(LD) -r" on the list of these files to generate isdn.o.
-</clip>
-
-input.o would be the "module" name, and it would be by default build
-from input-core.o, and if INPUT_FF_EFFECTS is enabled, then also input-ff.o.
-
-Then any functions in input-ff.c that are called from input-core.c would
-not need to be EXPORT_SYMBOLed to the rest of the kernel.
-
-Note especially that the module name of such module can't be the same as
-one of the source files that the module is built from (I tried). That's
-the reason for the rename.
-
->>>It would be much nicer all round if we could avoid renaming this file.
->>
->>Indeed... There are these 4 options as far as I see:
->>
->>1. Do this rename
->>2. Put all the code in input-ff.c to input.c
->>3. Make the input-ff a separate bool "module" and add
->>EXPORT_SYMBOL_GPL() for input_ff_event() which is currently the only
->>function in input-ff.c that is called from input.c
->>4. Rename the input "module" to something else, it doesn't matter so
->>much as almost everybody builds it as built-in anyway.
->>
->>WDYT is the best one?
-> 
-> 
-> I still don't know what problem you're trying to solve so I cannot say.
-
-Maybe you know now.
-
--- 
-Anssi Hannula
-
+If you receive this communication in error, please notify us immediately by telephone call to +1-559-292-1981 or forward the e-mail to administrator@pelco.com and then permanently delete the e-mail and destroy all soft and hard copies of the message and any attachments. Thank you for your cooperation.

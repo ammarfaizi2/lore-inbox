@@ -1,55 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWEZQ0d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbWEZQ3H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751045AbWEZQ0d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 12:26:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbWEZQ0c
+	id S1751046AbWEZQ3H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 12:29:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbWEZQ3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 12:26:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:29865 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750704AbWEZQ0c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 12:26:32 -0400
-Date: Fri, 26 May 2006 09:25:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, wfg@mail.ustc.edu.cn, mstone@mathom.us
-Subject: Re: [PATCH 00/33] Adaptive read-ahead V12
-Message-Id: <20060526092544.3ef26e8a.akpm@osdl.org>
-In-Reply-To: <p73irns7uoh.fsf@bragg.suse.de>
-References: <348469535.17438@ustc.edu.cn>
-	<20060525084415.3a23e466.akpm@osdl.org>
-	<p73irns7uoh.fsf@bragg.suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 26 May 2006 12:29:06 -0400
+Received: from pne-smtpout4-sn2.hy.skanova.net ([81.228.8.154]:28324 "EHLO
+	pne-smtpout4-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S1751046AbWEZQ3F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 12:29:05 -0400
+Message-Id: <20060526161129.557416000@gmail.com>
+User-Agent: quilt/0.44-1
+Date: Fri, 26 May 2006 19:11:29 +0300
+From: Anssi Hannula <anssi.hannula@gmail.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: [patch 00/13] input: force feedback updates, second time
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> Andrew Morton <akpm@osdl.org> writes:
-> > 
-> > These are nice-looking numbers, but one wonders.  If optimising readahead
-> > makes this much difference to postgresql performance then postgresql should
-> > be doing the readahead itself, rather than relying upon the kernel's
-> > ability to guess what the application will be doing in the future.  Because
-> > surely the database can do a better job of that than the kernel.
-> 
-> With that argument we should remove all readahead from the kernel? 
-> Because it's already trying to guess what the application will do. 
-> 
-> I suspect it's better to have good readahead code in the kernel
-> than in a zillion application.
-> 
+Major update for the force feedback support, including a new force feedback
+driver interface and two new HID ff drivers.
 
-Wu: "this readahead patch speeds up postgres"
+This is the same patchset that I sent 10 days ago, now with the following
+changes:
 
-Me: "but postgres could be sped up even more via X"
+- ugly cond_locking dropped
+- 80-column rule now followed
+- some function opening braces newlined and unneeded braces removed
+- DECLARE_BITMAP used in input_ff_timer()
+- effects are fd specific instead of the previous behaviour [1]
+- uses setup_timer()
+- no new module added, but code is instead compiled into input module
+  (input.c is renamed to input-core.c)
+- EXPORT_SYMBOL_GPL() used
+- no -ENOSYS return values
+- non-atomic bit operations used in most places of input-ff.c
+- some comments are added
+- new patch for -ENOMEM => -ENOSPC in iforce-ff.c
+- UINPUT_VERSION define added in uinput.h
+- drop obsolete static function declaration from hid-lgff.c
+- pr_debug() used
 
-everyone: "ah, you're saying that's a reason for not altering readahead!".
+[1] There are no known ff programs that depend on the old behaviour. Daniel
+Remenak, who has been coding linux ff support for several programs, agrees
+to the change. The old behaviour is not documented anywhere, so most likely
+nobody even knew about it (Daniel didn't).
+
+I described this in another mail already, but here it is again:
+
+old behaviour:
+- fd1 opened
+- fd1: effects 0, 1 are created
+- fd2 opened
+- fd2: effects 2, 3 are created
+- fd2 closed
+=> effects 0, 1, 2, 3 get deleted
+- fd1 uses effects
+=> failure
+- fd1 closed
+
+new behaviour:
+- fd1 opened
+- fd1: effects 0, 1 are created
+- fd2 opened
+- fd2: effects 2, 3 are created
+- fd2 closed
+=> effects 2, 3 get deleted
+- fd1 uses effects
+- fd1 closed
+=> effects 0, 1 get deleted
+
+(fd1 and fd2 are of the same process and the same device)
 
 
-Would everyone *please* stop being so completely and utterly thick?
-
-Thank you.
+-- 
+Anssi Hannula

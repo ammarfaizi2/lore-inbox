@@ -1,41 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWEZXhV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWEZXml@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964861AbWEZXhV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 19:37:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWEZXhV
+	id S964866AbWEZXml (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 19:42:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWEZXml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 19:37:21 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:23952
-	"EHLO sunset.sfo1.dsl.speakeasy.net") by vger.kernel.org with ESMTP
-	id S964827AbWEZXhT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 19:37:19 -0400
-Date: Fri, 26 May 2006 16:37:28 -0700 (PDT)
-Message-Id: <20060526.163728.13768279.davem@davemloft.net>
-To: hugh@veritas.com
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] fix update_mmu_cache in fremap.c
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.64.0605262340130.9720@blonde.wat.veritas.com>
-References: <Pine.LNX.4.64.0605261926350.24818@blonde.wat.veritas.com>
-	<20060526.131059.27783433.davem@davemloft.net>
-	<Pine.LNX.4.64.0605262340130.9720@blonde.wat.veritas.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 26 May 2006 19:42:41 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:10208 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964866AbWEZXmk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 19:42:40 -0400
+Message-ID: <4477926D.7070308@pobox.com>
+Date: Fri, 26 May 2006 19:42:37 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Mark Lord <liml@rtr.ca>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux-ide-owner@vger.kernel.org, Tejun Heo <htejun@gmail.com>
+Subject: Re: 2.6.17-rc5-git1: regression: resume from suspend(RAM) fails:
+ libata issue
+References: <44775614.5000401@rtr.ca> <200605261544.46992.liml@rtr.ca>
+In-Reply-To: <200605261544.46992.liml@rtr.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.1 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Hugh Dickins <hugh@veritas.com>
-Date: Fri, 26 May 2006 23:43:47 +0100 (BST)
+Mark Lord wrote:
+> Mark Lord wrote:
+>> My ata_piix based Notebook (Dell i9300) suspends/resumes perfectly (RAM 
+>> or disk)
+>> with 2.6.16.xx kernels, but fails resume on 2.6.17-rc5-git1 (the first 
+>> 2.6.17-*
+>> I've attempted on this machine).
+>>
+>> On resume from RAM, after a 30-second-ish timeout, the screen comes on
+>> but the hard disk is NOT accessible.  "dmesg" in an already-open window
+>> shows this (typed in from handwritten notes):
+>>
+>> sd 0:0:0:0: SCSI error: return code = 0x40000
+>> end_request: I/O error, /dev/sda, sector nnnnnnn
+> ...
+> 
+> Ahh.. the fix for this was posted earlier today by Forrest Zhao.
+> But his patch is for libata-dev, and doesn't apply as-is on 2.6.17-rc*
+> 
+> Here is a modified version of Forrest's original patch, for 2.6.17-rc5-git1.
+> It seems to have fixed the resume issue on my machine here,
+> so that things are now working as they were in the unpatched 2.6.16 kernels.
+> 
+> Can we get (something like) this into 2.6.17, pretty please?
 
-> Sure it's important for not-previously-present mappings, when you're
-> installing a present pte.  But the "file pte" being installed by
-> install_file_pte is not a real pte - it's a non-present entry (like
-> a swap entry), noting what file offset should be mapped there when
-> there's a fault (in a non-linear vma where that's not obvious).
+Definitely not.  I've repeatedly explained (and just done so again) why 
+this is very wrong.  And you should know why, too, Mark ;-)
 
-My bad, the update_mmu_cache() certainly is erroneous in that
-case.
+The controller resume (ata_pci_device_resume) does nothing 
+controller-specific.  More importantly, the controller does not resume 
+the ATA bus, and bring the ATA bus to bus-idle state.
 
-Thanks for the clarification.
+	Jeff
+
+
+

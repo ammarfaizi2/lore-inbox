@@ -1,47 +1,49 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030475AbWEZF2b (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 26 May 2006 01:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030454AbWEZF2b
+	id S1751463AbWEZUbl (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 26 May 2006 16:31:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751465AbWEZUbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 01:28:31 -0400
-Received: from bzq-84-108-62-241.cablep.bezeqint.net ([84.108.62.241]:787 "EHLO
-	zaz.com.br") by vger.kernel.org with ESMTP id S1030397AbWEZF2a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 01:28:30 -0400
-In-Reply-To: <1d3801c67c3e$682f8ead$0c4b19af@f954n13>
-To: <sparclinux@vger.kernel.org>
-From: "Kirk B. Galindo" <kirk_b_galindohz@cs.com>
-Reply-To: "Kirk B. Galindo" <kirk_b_galindohz@cs.com>
-Message-ID: <MIGBOPBCMMDMIJPIIOLMHNIKDLAA.kirk_b_galindohz@cs.com>
+	Fri, 26 May 2006 16:31:41 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:35784 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751463AbWEZUbl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 16:31:41 -0400
+Message-ID: <169F5781.697A774@microdataware.com>
+Date: Fri, 26 May 2006 19:10:10 -0200
+From: "Garrett Rupprecht" <GregKerry@microdataware.com>
+User-Agent: Mozilla 4.79 [en]C-CCK-MCD {SillyDog}  (Win98; U)
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Subject: RERE: Loan Application y6ish1
-Date: Thu, 25 May 2006 22:23:04 -0600
+To: <linux-kernel@vger.kernel.org>, <majordomo@vger.kernel.org>
+Subject: FWD: Illegitimate Tasks Taped
 Content-Type: text/plain;
 	charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1030475AbWEZF2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751463AbWEZUbl@vger.kernel.org>
 
-Dear Homeowner,  
-sparclinux@vger.kernel.org
+Good Morning,
 
-http://blahmortz.com
+Do you OWN land and need PROMPT 
+finances to make use with ANY way you want?  
 
-You have been approved for a $ 466,675 house loan (2.9 fixed)
-This offer is being presented to you right now!. Your credit history is in no way a factor.
-To take advantage of this Limited Time Opportunity,
-please take a minute and confirm your curiosity or intention to accept this loan, at the following web-site:
+Maybe you would like to LOWER your payments 
+by 59% or more.
 
-http://blahmortz.com
+Cre*dit records are NOT required on our current deals :
 
-Best Regards
-Don Nut
-Loan Manager
+714K @ 2.1 % fixed
+618K at 2.7 % VARlABLE
+609K at 2.7 % lnterest-OnIy
 
-http://blahmortz.com/redirect
-sparclinux@vger.kernel.org wrote:
-> We can approve Yours loan today
-lq17tg1p9y
+http://incppdinc.net
 
+Our Company will provide you a approval within 5 minutes,
+9 out of 10 are accepted.
+
+Thanks,
+KAT Lending Ltd
+Agreement Officer
+Garrett Rupprecht
 

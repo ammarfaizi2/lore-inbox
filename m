@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbWEZJtn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWEZJxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751369AbWEZJtn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 05:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWEZJtn
+	id S1751366AbWEZJxo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 05:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbWEZJxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 05:49:43 -0400
-Received: from mail.axxeo.de ([82.100.226.146]:25807 "EHLO mail.axxeo.de")
-	by vger.kernel.org with ESMTP id S1751359AbWEZJtm (ORCPT
+	Fri, 26 May 2006 05:53:44 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:63687 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751366AbWEZJxn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 05:49:42 -0400
-From: Ingo Oeser <netdev@axxeo.de>
-Organization: Axxeo GmbH
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH 3/4] myri10ge - Driver core
-Date: Fri, 26 May 2006 11:49:18 +0200
-User-Agent: KMail/1.9.1
-Cc: Anton Blanchard <anton@samba.org>, Brice Goglin <brice@myri.com>,
-       netdev@vger.kernel.org, gallatin@myri.com, linux-kernel@vger.kernel.org
-References: <20060517220218.GA13411@myri.com> <20060523153928.GB5938@krispykreme> <1148543810.13249.265.camel@localhost.localdomain>
-In-Reply-To: <1148543810.13249.265.camel@localhost.localdomain>
+	Fri, 26 May 2006 05:53:43 -0400
+Message-ID: <4476D020.8070605@garzik.org>
+Date: Fri, 26 May 2006 05:53:36 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, len.brown@intel.com,
+       gregkh@suse.de
+Subject: Recent x86-64 patch causes many devices to disappear
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605261149.18415.netdev@axxeo.de>
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
 
-Benjamin Herrenschmidt wrote:
-> On Wed, 2006-05-24 at 01:39 +1000, Anton Blanchard wrote:
+The following patch made A TON of devices disappear on my HP XW9300 
+system.  I complained the day it was committed, but alas...
+
+> commit 5491d0f3e206beb95eeb506510d62a1dab462df1
+> Author: Andi Kleen <ak@suse.de>
+> Date:   Mon May 15 18:19:41 2006 +0200
 > 
-> > > +#ifdef CONFIG_MTRR
-> > > +	mgp->mtrr = mtrr_add(mgp->iomem_base, mgp->board_span,
-> > > +			     MTRR_TYPE_WRCOMB, 1);
-> > > +#endif
-> > ...
-> > > +	mgp->sram = ioremap(mgp->iomem_base, mgp->board_span);
-> > 
-> > Not sure how we are meant to specify write through in drivers. Any ideas Ben?
+>     [PATCH] i386/x86_64: Force pci=noacpi on HP XW9300
 > 
-> No proper interface exposed, he'll have to do an #ifdef powerpc here or
-> such and use __ioremap with explicit page attributes. I have a hack to
-> do that automatically for memory covered by prefetchable PCI BARs when
-> mmap'ing from userland but not for kernel ioremap.
-
-Stupid question: pci_iomap() is NOT what you are looking for, right?
-
-Implementation is at the end of lib/iomap.c
+>     This is needed to see all devices.
 
 
-Regards
+Finally, I was able to get to testing it, and provide proof that a 
+shitload of devices do indeed disappear:
 
-Ingo Oeser
+	http://gtf.org/garzik/dammit/
+
+Files:
+*.rc4		- rc4, plus some libata changes, PCI domains disabled
+*.rc5		- rc5-git1, PCI domains disabled
+*.rc5-pcidom	- rc5-git1, PCI domains enabled
+
+As the patch doesn't work, and the description is proven patently false, 
+maybe we can now consider reverting it and making a better patch?  My 
+Marvell SATA and MPT Fusion devices are no longer available, as a diff 
+between lspci.rc5 and lspci.rc5-pcidom demonstrates.
+
+	Jeff
+
+

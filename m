@@ -1,91 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbWEZP3Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWEZP3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750881AbWEZP3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 11:29:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWEZP3Y
+	id S1750912AbWEZP3W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 11:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWEZP3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 11:29:24 -0400
-Received: from rrcs-67-52-50-206.west.biz.rr.com ([67.52.50.206]:63870 "HELO
-	out-smtp.licor.com") by vger.kernel.org with SMTP id S1750881AbWEZP3Y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 11:29:24 -0400
-Subject: memcpy_toio on i386 using byte writes even when n%2==0
-From: Chris Lesiak <chris.lesiak@licor.com>
-To: linux-kernel@vger.kernel.org
-Cc: Chris Lesiak <chris.lesiak@licor.com>
-Content-Type: text/plain
-Date: Fri, 26 May 2006 10:29:22 -0500
-Message-Id: <1148657362.4376.77.camel@emerson.licor.com>
+	Fri, 26 May 2006 11:29:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59542 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750911AbWEZP3V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 11:29:21 -0400
+Date: Fri, 26 May 2006 08:28:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Jan Beulich" <jbeulich@novell.com>
+Cc: mingo@elte.hu, ak@suse.de, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org
+Subject: Re: [PATCH 6/6] reliable stack trace support (i386 entry.S
+ annotations)
+Message-Id: <20060526082828.58d7d752.akpm@osdl.org>
+In-Reply-To: <4476C9B9.76E4.0078.0@novell.com>
+References: <4471D691.76E4.0078.0@novell.com>
+	<20060524222359.06f467e8.akpm@osdl.org>
+	<4476C9B9.76E4.0078.0@novell.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm working on a driver for a custom PCI card on the i386 architecture.
-The card uses a PLX9030 pci bridge to link an FPGA to the PCI bus using
-a 16 bit bus.  I found that something broke when moving from 2.6.10 to
-2.6.17-rc4.  In the driver, I use memcpy_toio to write 14 bytes to a
-memory region in the FPGA.
+"Jan Beulich" <jbeulich@novell.com> wrote:
+>
+> >>> Andrew Morton <akpm@osdl.org> 25.05.06 07:23 >>>
+> >"Jan Beulich" <jbeulich@novell.com> wrote:
+> >>
+> >>  #define SAVE_ALL \
+> >>   	cld; \
+> >>   	pushl %es; \
+> >>  +	CFI_ADJUST_CFA_OFFSET 4;\
+> >>  +	/*CFI_REL_OFFSET es, 0;*/\
+> >>   	pushl %ds; \
+> >
+> >arch/i386/kernel/entry.S: Assembler messages:
+> >arch/i386/kernel/entry.S:757: Error: CFI instruction used without previous .cfi_startproc
+> >arch/i386/kernel/entry.S:757: Warning: rest of line ignored; first ignored character is `4'
+> >arch/i386/kernel/entry.S:757: Error: CFI instruction used without previous .cfi_startproc
+> >arch/i386/kernel/entry.S:757: Warning: rest of line ignored; first ignored character is `4'
+> >arch/i386/kernel/entry.S:757: Error: CFI instruction used without previous .cfi_startproc
+> >arch/i386/kernel/entry.S:757: Warning: rest of line ignored; first ignored character is `4'
+> >arch/i386/kernel/entry.S:757: Error: CFI instruction used without previous .cfi_startproc
+> >
+> >etcetera.  And
+> >
+> >arch/i386/kernel/entry.S:757: Error: no such instruction: `eax,0'
+> >arch/i386/kernel/entry.S:757: Error: no such instruction: `ebp,0'
+> >
+> >
+> >bix:/usr/src/25> as --version
+> >GNU assembler 2.14.90.0.6 20030820
+> 
+> Still doesn't make sense to me, assuming the merge didn't corrupt anything. The oldest assembler I'm using is
+> 2.15.90.0.1.1, but as said before your assembler clearly also supports .cfi_*. Any chance I could see the offending
+> entry.S?
+> 
 
-To copy the 14 bytes, 2.6.10 does three 32 bit writes followed by one 16
-bit write.  2.6.10 does three 32 bit writes followed by two 8 bit write.
-
-The PLX9030 breaks the 32 bit writes into 16 bit writes for its local
-bus just fine.  The problem is that my board doesn't handle byte
-enables.  It was assumed that if all memory transfers were a multiple of
-2 bytes, then byte accesses wouldn't be used.  This is no longer true in
-2.6.7-rc4.
-
-I've solved the problem by padding to 16 bytes, but should this be
-considered a bug in the kernel?
-
-Both kernels use __memcpy to implement memcpy_toio.  Here is the
-relevent code from <asm-i386/string.h>
-
-The 2.6.10 version:
-
-static inline void * __memcpy(void * to, const void * from, size_t n)
-{
-int d0, d1, d2;
-__asm__ __volatile__(
-        "rep ; movsl\n\t"
-        "testb $2,%b4\n\t"
-        "je 1f\n\t"
-        "movsw\n"
-        "1:\ttestb $1,%b4\n\t"
-        "je 2f\n\t"
-        "movsb\n"
-        "2:"
-        : "=&c" (d0), "=&D" (d1), "=&S" (d2)
-        :"0" (n/4), "q" (n),"1" ((long) to),"2" ((long) from)
-        : "memory");
-return (to);
-}
-
-The 2.6.17-rc4 version:
-
-static __always_inline void * __memcpy(void * to, const void * from,
-size_t n)
-{
-int d0, d1, d2;
-__asm__ __volatile__(
-        "rep ; movsl\n\t"
-        "movl %4,%%ecx\n\t"
-        "andl $3,%%ecx\n\t"
-#if 1   /* want to pay 2 byte penalty for a chance to skip microcoded
-rep? */
-        "jz 1f\n\t"
-#endif
-        "rep ; movsb\n\t"
-        "1:"
-        : "=&c" (d0), "=&D" (d1), "=&S" (d2)
-        : "0" (n/4), "g" (n), "1" ((long) to), "2" ((long) from)
-        : "memory");
-return (to);
-}
-
--- 
-Chris Lesiak
-chris.lesiak@licor.com
-
+http://www.zip.com.au/~akpm/linux/patches/stuff/entry.S

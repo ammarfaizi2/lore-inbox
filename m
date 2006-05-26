@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbWEZKXR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWEZKYE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751370AbWEZKXR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 06:23:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751374AbWEZKXR
+	id S1751374AbWEZKYE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 06:24:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751372AbWEZKYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 06:23:17 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:5280 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751375AbWEZKXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 06:23:15 -0400
-Date: Fri, 26 May 2006 19:23:07 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] ia64 node hotplug -- cpu - node relationship fix [0/2] intro
-Cc: linux-ia64@vger.kernel.org, ashok.raj@intel.com, steiner@sgi.com,
-       tony.luck@intel.com, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060526175622.13057d7e.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20060526175622.13057d7e.kamezawa.hiroyu@jp.fujitsu.com>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060526184011.EEAA.Y-GOTO@jp.fujitsu.com>
+	Fri, 26 May 2006 06:24:04 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:54216 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751374AbWEZKYD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 06:24:03 -0400
+Message-ID: <4476D73E.6060508@garzik.org>
+Date: Fri, 26 May 2006 06:23:58 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+To: Andi Kleen <ak@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, len.brown@intel.com,
+       gregkh@suse.de, trenn@suse.de,
+       joachim deguara <joachim.deguara@amd.com>
+Subject: Re: Recent x86-64 patch causes many devices to disappear
+References: <4476D020.8070605@garzik.org> <200605261203.55108.ak@suse.de>
+In-Reply-To: <200605261203.55108.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1. empty-node-fix : avoid creating empty node
->    SRAT's enable bit just shows 'you can read this entry'. But the kernel know
->    this and checks each entries are vaild or not later.
->
->    But pxm_bit/node_online_mask is not treated as they should be.
->    The kernel creates empty node, which has no cpu, no memory.
+Andi Kleen wrote:
+> On Friday 26 May 2006 11:53, Jeff Garzik wrote:
+>> *.rc4		- rc4, plus some libata changes, PCI domains disabled
+>> *.rc5		- rc5-git1, PCI domains disabled
+>> *.rc5-pcidom	- rc5-git1, PCI domains enabled
 
-I would like to mention about background of this more.
+> Do you have PCI segmentation disabled in your BIOS? 
 
-I thought if enable bit of each SRAT entry is on, then its entry's
-object is usable for OS.
+The strings "PCI domains disabled" and "PCI domains enabled" indicate 
+the state of the BIOS setting, at the time the dumps were taken.
 
-However, SRAT specification says only
-"If clear, the OSPM ignores the contents of the Processor Local
- APIC/SAPIC (or Memory) Affinity Structure."
+	Jeff
 
-So, our firmware team (or Micro $oft) interprets this
-"If enable bit is on, then this entry is just readable by OS.
- The object of its entry MIGHT NOT EXIST. This entry can be used for
- reserve resource for memory/cpu which can be hot-add later."
-They implemented it.
-
-I really really hate this. :-(
-But, indeed, ACPI spec. says just IGNORE if clear. They are correct.
-
-Current linux code checks memory and cpu existence by other ways.
-But, PXM remains even if they don't exist. The first patch is to remove it.
-
-Bye.
-
--- 
-Yasunori Goto 
 
 

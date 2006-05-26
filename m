@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbWEZQbV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWEZQbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751084AbWEZQbV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 12:31:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWEZQbK
+	id S1751096AbWEZQbo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 12:31:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbWEZQbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 12:31:10 -0400
-Received: from smtp12.wanadoo.fr ([193.252.22.20]:54346 "EHLO
-	smtp12.wanadoo.fr") by vger.kernel.org with ESMTP id S1751076AbWEZQag
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 12:30:36 -0400
-X-ME-UUID: 20060526163034985.F09201C00097@mwinf1203.wanadoo.fr
-Date: Fri, 26 May 2006 18:25:23 +0200
-To: Mark Lord <liml@rtr.ca>
-Cc: Sven Luther <sven.luther@wanadoo.fr>, Jeff Garzik <jgarzik@pobox.com>,
-       Alexandre.Bounine@tundra.com, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Yang Xin-Xin-r48390 <Xin-Xin.Yang@freescale.com>
-Subject: Re: [PATCH/2.6.17-rc4 10/10]  bugs fix for marvell SATA on powerp c pl atform
-Message-ID: <20060526162523.GA13104@powerlinux.fr>
-References: <446C9219.4080300@pobox.com> <446CDE26.8090504@rtr.ca> <20060526083931.GA23938@powerlinux.fr> <4476E964.90509@rtr.ca> <20060526114245.GA32330@powerlinux.fr> <44770065.8070907@rtr.ca> <20060526141535.GA7084@powerlinux.fr> <447722FF.9020202@rtr.ca> <20060526160156.GA11778@powerlinux.fr> <44772B10.7040300@rtr.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 26 May 2006 12:31:44 -0400
+Received: from amnesiac.heapspace.net ([195.54.228.42]:14859 "EHLO
+	amnesiac.heapspace.net") by vger.kernel.org with ESMTP
+	id S1751102AbWEZQb1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 12:31:27 -0400
+Date: Fri, 26 May 2006 19:31:25 +0300
+From: Daniel Stone <daniel@fooishbar.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel design: support for multiple local users
+Message-ID: <20060526163125.GI16521@fooishbar.org>
+Mail-Followup-To: Jon Smirl <jonsmirl@gmail.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <9e4733910605260901h6452c795s1c40cf61b47fc69a@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="KIzF6Cje4W/osXrF"
 Content-Disposition: inline
-In-Reply-To: <44772B10.7040300@rtr.ca>
-User-Agent: Mutt/1.5.9i
-From: Sven Luther <sven.luther@wanadoo.fr>
+In-Reply-To: <9e4733910605260901h6452c795s1c40cf61b47fc69a@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 26, 2006 at 12:21:36PM -0400, Mark Lord wrote:
-> Sven Luther wrote:
-> >On Fri, May 26, 2006 at 11:47:11AM -0400, Mark Lord wrote:
-> >
-> >>Meanwhile, I just booted 2.6.17-rc5-git1 (latest kernel.org) on my Mac G3
-> >>box here, and sata_mv seems to be behaving for me (thus far).
-> >
-> >Mmm, this is a G3, while i have a G4. The G4 does some I/O reordering, 
-> >which
-> >we don't have with a G3, so this may be the cause. 
-> 
-> MMmm.. is your G4 using a 64-bit kernel, or a 32-bit kernel?
 
-Ah, no, the G4 is a 32bit processor.
+--KIzF6Cje4W/osXrF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> The driver is a complete unknown (for me, at least) on 64-bit systems,
-> as I don't have one (of any processor type) here yet.
+On Fri, May 26, 2006 at 12:01:15PM -0400, Jon Smirl wrote:
+> It is possible to set the current X server up to support this
+> configuration. Using the X server this way has some drawbacks. The X
+> server needs to be run as root.
 
-I have an Xserve G5, which is a 64bit powerpc machine, and i could try it in
-it. I need to get the fans to a usable level first though, as it sounds like
-an airplan, and is sitting right beside my desk.
+So far, so good.
 
-> >Do you have a mac version of the board, with a forth/OF bios in it ? Or a
-> >normal PC card, which is thus uninitialized ? 
-> 
-> The board claims to be "mac" compatible, so it probably has an OF bios on 
-> it, but I have not verified this yet.
+> The multiple users are sharing a
+> single X server image so things they do can impact the other users.
 
-Yes, probably. This could mean that the board gets initialized for you, but
-not for me.
+No, they're not.
 
-Friendly,
+--KIzF6Cje4W/osXrF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Sven Luther
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
+iD8DBQFEdy1dRkzMgPKxYGwRAkwbAJ9zjwlKvb/t32fvOYhaMEl6t2v8MwCdFUeN
+INl4vFpHBJIxKPrVs6NkXSk=
+=qLNo
+-----END PGP SIGNATURE-----
+
+--KIzF6Cje4W/osXrF--

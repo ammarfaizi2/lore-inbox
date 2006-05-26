@@ -1,51 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbWEZFgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030480AbWEZFrK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030212AbWEZFgN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 01:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030470AbWEZFgN
+	id S1030480AbWEZFrK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 01:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030478AbWEZFrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 01:36:13 -0400
-Received: from vbn.0050556.lodgenet.net ([216.142.194.234]:25063 "EHLO
-	vbn.0050556.lodgenet.net") by vger.kernel.org with ESMTP
-	id S1030212AbWEZFgM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 01:36:12 -0400
-Subject: Re: [PATCH 2/2] microcode update driver rewrite
-From: Arjan van de Ven <arjan@infradead.org>
-To: Greg KH <greg@kroah.com>
-Cc: Dave Jones <davej@redhat.com>, Shaohua Li <shaohua.li@intel.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Tigran Aivazian <tigran@veritas.com>,
-       Rajesh Shah <rajesh.shah@intel.com>,
-       "Van De Ven, Arjan" <arjan@linux.intel.com>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060525150224.GB1428@kroah.com>
-References: <1148529049.32046.103.camel@sli10-desk.sh.intel.com>
-	 <20060525040557.GA30175@kroah.com> <20060525041234.GA22024@redhat.com>
-	 <20060525150224.GB1428@kroah.com>
-Content-Type: text/plain
-Date: Fri, 26 May 2006 07:35:55 +0200
-Message-Id: <1148621755.3081.0.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 26 May 2006 01:47:10 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:47078 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1030477AbWEZFrI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 01:47:08 -0400
+Message-ID: <44769656.8020507@zytor.com>
+Date: Thu, 25 May 2006 22:47:02 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: akpm@osdl.org, mm-commits@vger.kernel.org
+Subject: Re: - git-klibc-build-hacks.patch removed from -mm tree
+References: <200605252358.k4PNwQ8R015702@shell0.pdx.osdl.net>
+In-Reply-To: <200605252358.k4PNwQ8R015702@shell0.pdx.osdl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-05-25 at 08:02 -0700, Greg KH wrote:
-> On Thu, May 25, 2006 at 12:12:34AM -0400, Dave Jones wrote:
-> > On Wed, May 24, 2006 at 09:05:57PM -0700, Greg Kroah-Hartman wrote:
-> > 
-> >  > Don't use request_firmware, use request_firmware_nowait() instead.  That
-> >  > way you never stall.  You only want to update the firmware when
-> >  > userspace tells you to, not for every boot like I think this will do.
-> > 
-> > But the CPU microcode *does* need reloading on each boot, as it's stored
-> > in volatile memory that goes away on reboot.
-> 
-> Sorry about that, you are right.  But this will make the boot process a
-> bit different than what it currently is, just make sure that the distros
-> realize this change...
+akpm@osdl.org wrote:
+> git-klibc-stdint-build-fix.patch
+> git-klibc-stdint-build-fix-2.patch
 
+These two patches should no longer be necessary against the latest klibc 
+tree.  I have compile-tested sparc32 (don't have a working sparc32 
+system at the moment, so I haven't been able to boot-test it), and it 
+compiles clean.
 
-that's why there is a config option to keep the compatibility
-
+	-hpa

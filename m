@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWEZN5V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWEZN5L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750757AbWEZN5V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 09:57:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbWEZN5V
+	id S1750749AbWEZN5L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 09:57:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWEZN5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 09:57:21 -0400
-Received: from vbn.0012335.lodgenet.net ([67.96.213.158]:32682 "EHLO
-	vbn.0012335.lodgenet.net") by vger.kernel.org with ESMTP
-	id S1750757AbWEZN5U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 09:57:20 -0400
-Date: Fri, 26 May 2006 06:50:39 -0700
-From: Greg KH <greg@kroah.com>
-To: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: pci_walk_bus race condition
-Message-ID: <20060526135039.GA13280@kroah.com>
-References: <1148625315.4377.518.camel@ymzhang-perf.sh.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1148625315.4377.518.camel@ymzhang-perf.sh.intel.com>
-User-Agent: Mutt/1.5.11
+	Fri, 26 May 2006 09:57:11 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:13546 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750749AbWEZN5K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 09:57:10 -0400
+Date: Fri, 26 May 2006 06:56:47 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH 02/33] radixtree: introduce __radix_tree_lookup_parent()
+In-Reply-To: <348644373.06563@ustc.edu.cn>
+Message-ID: <Pine.LNX.4.64.0605260656090.30694@schroedinger.engr.sgi.com>
+References: <20060526113906.084341801@localhost.localdomain>
+ <348644373.06563@ustc.edu.cn>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 26, 2006 at 02:35:16PM +0800, Zhang, Yanmin wrote:
-> pci_walk_bus has a race with pci_destroy_dev. In the while loop,
-> when the callback function is called, dev pointed by next might be
-> freed and erased. So later on access to dev might cause kernel panic.
+On Fri, 26 May 2006, Wu Fengguang wrote:
 
-Have you seen this happen?  The only user of this function is the PPC64
-EEH handler, which last time I checked, didn't run on Intel based
-processors :)
+> Introduce a general lookup function to radix tree.
+> 
+> - __radix_tree_lookup_parent(root, index, level)
+> 	Perform partial lookup, return the @level'th parent of the slot at
+> 	@index.
+> 
+> Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-thanks,
-
-greg k-h
+Would you please remove my signoff? I never reviewed this code.

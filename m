@@ -1,140 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030376AbWEZEax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030408AbWEZEdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030376AbWEZEax (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 00:30:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030393AbWEZEax
+	id S1030408AbWEZEdG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 00:33:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030410AbWEZEdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 00:30:53 -0400
-Received: from liaag1ac.mx.compuserve.com ([149.174.40.29]:56709 "EHLO
-	liaag1ac.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1030376AbWEZEaw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 00:30:52 -0400
-Date: Fri, 26 May 2006 00:27:38 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [OOPS] amrestore dies in kmem_cache_free 2.6.16.18 -
-  cannot restore backups!
-To: "James Lamanna" <jlamanna@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Pekka Enberg <penberg@cs.helsinki.fi>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Mike Christie <michaelc@cs.wisc.edu>
-Message-ID: <200605260029_MC3-1-C0CF-C67C@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Fri, 26 May 2006 00:33:06 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:28942 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1030408AbWEZEdF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 00:33:05 -0400
+Date: Fri, 26 May 2006 06:23:44 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org,
+       Dave Jones <davej@redhat.com>, Jeff Garzik <jeff@garzik.org>
+Subject: Re: How to check if kernel sources are installed on a system?
+Message-ID: <20060526042343.GV11191@w.ods.org>
+References: <e55715+usls@eGroups.com> <447622EA.90704@garzik.org> <20060525213952.GT13513@lug-owl.de> <20060525214413.GE4328@redhat.com> <20060525225222.GA14552@dspnet.fr.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060525225222.GA14552@dspnet.fr.eu.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <aa4c40ff0605231824j55c998c3oe427dec2404afba0@mail.gmail.com>
+Hi,
 
-On Tue, 23 May 2006 18:24:14 -0700, James Lamanna wrote:
-
-> So I was able to recreate this problem on a vanilla 2.6.16.18 with the
-> following oops..
-> I'd say this is a serious regression since I cannot restore backups
-> anymore (I could with 2.6.14.x, but that kernel series had other
-> issues...)
-
-> Unable to handle kernel paging request at ffff82bc81000030 RIP: <ffffffff801657d9>{kmem_cache_free+82}
-> PGD 0
-> Oops: 0000 [1] SMP
-> CPU 1
-> Modules linked in:
-> Pid: 5814, comm: amrestore Not tainted 2.6.16.18 #2
-> RIP: 0010:[<ffffffff801657d9>] <ffffffff801657d9>{kmem_cache_free+82}
-> RSP: 0018:ffff81007d4afcd8  EFLAGS: 00010086
-> RAX: ffff82bc81000000 RBX: ffff81004119d800 RCX: 000000000000001e
-> RDX: ffff81000000c000 RSI: 0000000000000000 RDI: 00000007f0000000
-> RBP: ffff81007ff0c800 R08: 0000000000000000 R09: 0000000000000400
-> R10: 0000000000000000 R11: ffffffff8014b3d6 R12: ffff810041311480
-> R13: 0000000000000400 R14: 0000000000000400 R15: ffff81007e676748
-> FS:  00002b7f39708020(0000) GS:ffff810041173bc0(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-> CR2: ffff82bc81000030 CR3: 000000007de09000 CR4: 00000000000006e0
-> Process amrestore (pid: 5814, threadinfo ffff81007d4ae000, task ffff81007e2f8ae0)
-> Stack: 0000000000000000 0000000000000246 ffff8100413c9bc0 ffff81007ff0c800
->        ffff8100413c9bc0 ffffffff8016dfdc ffff8100413c9bc0 ffff81007fe25408
->        00000000ffffffea ffffffff803187e7
-> Call Trace: <ffffffff8016dfdc>{bio_free+48} <ffffffff803187e7>{scsi_execute_async+640}
->        <ffffffff8035d8d2>{st_do_scsi+422} <ffffffff8035d6e2>{st_sleep_done+0}
->        <ffffffff80362950>{st_read+855} <ffffffff8013e1ca>{autoremove_wake_function+0}
->        <ffffffff80169d7c>{vfs_read+171} <ffffffff8016a0af>{sys_read+69}
->        <ffffffff8010a93e>{system_call+126}
+On Fri, May 26, 2006 at 12:52:22AM +0200, Olivier Galibert wrote:
+> On Thu, May 25, 2006 at 05:44:13PM -0400, Dave Jones wrote:
+> > Following /lib/modules/`uname -r`/build is the only way this can work.
+> > (And that should be true on any distro)
 > 
-> Code: 48 8b 48 30 0f b7 51 28 65 8b 04 25 30 00 00 00 39 c2 0f 84
-> RIP <ffffffff801657d9>{kmem_cache_free+82} RSP <ffff81007d4afcd8>
-> CR2: ffff82bc81000030
+> On one side it's a reasonably nice way, on the other it makes it hard
+> to build modules for a different kernel than the running one.  I have
+> a uname version in a corner that allows overriding the -r return with
+> an environment variable just for that reason, I should probably send
+> the path upstream.
 
-First of all, to really see what is happening you need to recompile your kernel
-after adding some debug options:
+I agree with Olivier here.
 
-Kernel Hacking --->
-   [*] Kernel debugging
-   [*]   Debug memory allocations
-   [*]   Compile the kernel with frame pointers
+The trick above should only be a hint to propose to the user what has
+been found. If he doesn't know, it's certainly OK. Otherwise, he must
+have the ability to use anything else (often needed for packaging or
+for cross-building).
 
-(Frame pointers won't give an exact trace but they'll prevent the tail merging
-that makes it so hard to follow.)
+Regards,
+Willy
 
-Then reproduce the error and send the oops and any new error messages you see.
-Don't send the whole boot log and .config again -- we have them already.
-
-The bug is happening here, in __cache_free, in code that's only included
-on NUMA machines:
-
-static inline void __cache_free(struct kmem_cache *cachep, void *objp)
-{
-        struct array_cache *ac = cpu_cache_get(cachep);
-
-        check_irq_off();
-        objp = cache_free_debugcheck(cachep, objp, __builtin_return_address(0));
-
-        /* Make sure we are not freeing a object from another
-         * node to the array cache on this cpu.
-         */
-#ifdef CONFIG_NUMA
-        {
-                struct slab *slabp;
-                slabp = virt_to_slab(objp);                      <==== OOPS
-                if (unlikely(slabp->nodeid != numa_node_id())) {
-                        struct array_cache *alien = NULL;
-                        int nodeid = slabp->nodeid;
-
-
-Tracing through the nested inline functions, we have:
-
-static inline struct slab *virt_to_slab(const void *obj)
-{
-        struct page *page = virt_to_page(obj);
-        return page_get_slab(page);                              <==== OOPS
-}
-
-static inline struct slab *page_get_slab(struct page *page)
-{
-        return (struct slab *)page->lru.prev;                    <==== OOPS
-}
-
-
-virt_to_page() returned a struct page * that pointed to unmapped memory.
-
-
-This all came from scsi_execute_async, possibly through this path:
-
-scsi_execute_async
-    scsi_rq_map_sg: some kind of error occurred?
-        bio_endio
-            bio->bi_end_io ==> scsi_bi_end_io
-                bio_put
-                    bio->bi_destructor ==> bio_fs_destructor
-                        bio_free
-                            mempool_free
-                                kmem_cache_free
-
-scsi_execute_async and scsi_rq_map_sg were rewritten last December, so may have
-new bugs.
-
-
--- 
-Chuck

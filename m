@@ -1,73 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965218AbWEZAiE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965219AbWEZAjj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965218AbWEZAiE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 20:38:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965219AbWEZAiE
+	id S965219AbWEZAjj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 20:39:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965220AbWEZAjj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 20:38:04 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:3259 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965218AbWEZAiB (ORCPT
+	Thu, 25 May 2006 20:39:39 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:13188 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965219AbWEZAji (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 20:38:01 -0400
-Message-ID: <44764DE3.5090506@pobox.com>
-Date: Thu, 25 May 2006 20:37:55 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Thu, 25 May 2006 20:39:38 -0400
+From: Neil Brown <neilb@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Date: Fri, 26 May 2006 10:39:25 +1000
 MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Greg KH <gregkh@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, netdev@vger.kernel.org,
-       stevel@mvista.com, source@mvista.com
-Subject: Re: [PATCH 3/3] pci: gt96100eth avoid pci_find_device
-References: <20060526001155.4828DC7C5E@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20060526001155.4828DC7C5E@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.1 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.1 points, 5.0 required)
+Message-ID: <17526.20029.475148.370873@cse.unsw.edu.au>
+Cc: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.17-rc5
+In-Reply-To: message from Linus Torvalds on Thursday May 25
+References: <Pine.LNX.4.64.0605241902520.5623@g5.osdl.org>
+	<20060525132336.7f6ca8af@doriath.conectiva>
+	<Pine.LNX.4.64.0605250934220.5623@g5.osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
-> gt96100eth avoid pci_find_device
+On Thursday May 25, torvalds@osdl.org wrote:
 > 
-> Change pci_find_device to safer pci_get_device.
 > 
-> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+> On Thu, 25 May 2006, Luiz Fernando N. Capitulino wrote:
+> > 
+> >  I'm getting this after running 'halt':
+> > 
+> > Halting system...
+> > md: stopping all md devices.
+> > md: md0 switched to read-only mode.
+> > Shutdown: hda
+> > System halted.
+> > BUG: halt/3367, lock held at task exit time!
+> >  [dfe70494] {mddev_find}
+> > .. held by:              halt: 3367 [decf4a90, 118]
+> > ... acquired at:               md_notify_reboot+0x31/0x7f
 > 
-> ---
-> commit f656671e9da9d33bd7a2fb3f5c0d0f7009925698
-> tree b92c808b6a9eecce58b0f7b0ffe1237631dbd65a
-> parent 1d3b6caf027fe53351c645523587aeac40bc3e47
-> author Jiri Slaby <ku@bellona.localdomain> Fri, 26 May 2006 01:55:23 +0159
-> committer Jiri Slaby <ku@bellona.localdomain> Fri, 26 May 2006 01:55:23 +0159
+> Sounds like this is due to df5b89b323b922f56650b4b4d7c41899b937cf19, aka 
+> "md: Convert reconfig_sem to reconfig_mutex" by NeilBrown.
 > 
->  drivers/net/gt96100eth.c |   10 +++++++---
->  1 files changed, 7 insertions(+), 3 deletions(-)
+> Neil? It may well be (and likely is) an old thing, just exposed by the 
+> lock debugging of the new mutexes.
 > 
-> diff --git a/drivers/net/gt96100eth.c b/drivers/net/gt96100eth.c
-> index 2d24354..beac56d 100644
-> --- a/drivers/net/gt96100eth.c
-> +++ b/drivers/net/gt96100eth.c
-> @@ -613,9 +613,9 @@ static int gt96100_init_module(void)
->  	/*
->  	 * Stupid probe because this really isn't a PCI device
->  	 */
-> -	if (!(pci = pci_find_device(PCI_VENDOR_ID_MARVELL,
-> +	if (!(pci = pci_get_device(PCI_VENDOR_ID_MARVELL,
->  	                            PCI_DEVICE_ID_MARVELL_GT96100, NULL)) &&
-> -	    !(pci = pci_find_device(PCI_VENDOR_ID_MARVELL,
-> +	    !(pci = pci_get_device(PCI_VENDOR_ID_MARVELL,
->  		                    PCI_DEVICE_ID_MARVELL_GT96100A, NULL))) {
->  		printk(KERN_ERR __FILE__ ": GT96100 not found!\n");
->  		return -ENODEV;
+> Was it _meant_ to take the lock and hold it? Looks like it might be the
+> 
+> 	ITERATE_MDDEV(mddev,tmp)
+> 		if (mddev_trylock(mddev))
+> 			do_md_stop (mddev, 1);
+> 
+> (maybe it should release the lock after the md_stop?)
+> 
+> 		Linus
 
-Seems OK to me, though you may wish to use a pci_device_id list with 
-pci_match_[one_]device() here too.
+Yes.  Keith Owens hit this earlier and I have this patch in my
+queue.  It has been confirmed to fix the problem.
 
-	Jeff
+NeilBrown
 
+------------------------------------
+Unlock md devices when stopping them on reboot.
 
+otherwise we get nasty messages about locks not being released.
 
+Signed-off-by: Neil Brown <neilb@suse.de>
+
+### Diffstat output
+ ./drivers/md/md.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff ./drivers/md/md.c~current~ ./drivers/md/md.c
+--- ./drivers/md/md.c~current~	2006-05-21 08:46:09.000000000 +1000
++++ ./drivers/md/md.c	2006-05-21 08:46:08.000000000 +1000
+@@ -5171,8 +5171,10 @@ static int md_notify_reboot(struct notif
+ 		printk(KERN_INFO "md: stopping all md devices.\n");
+ 
+ 		ITERATE_MDDEV(mddev,tmp)
+-			if (mddev_trylock(mddev))
++			if (mddev_trylock(mddev)) {
+ 				do_md_stop (mddev, 1);
++				mddev_unlock(mddev);
++			}
+ 		/*
+ 		 * certain more exotic SCSI devices are known to be
+ 		 * volatile wrt too early system reboots. While the

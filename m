@@ -1,95 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWEZIaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWEZIcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750964AbWEZIaV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 04:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751027AbWEZIaV
+	id S1751141AbWEZIcT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 04:32:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751027AbWEZIcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 04:30:21 -0400
-Received: from [200.89.6.215] ([200.89.6.215]:55057 "HELO rgu")
-	by vger.kernel.org with SMTP id S1750964AbWEZIaV (ORCPT
+	Fri, 26 May 2006 04:32:19 -0400
+Received: from relay4.usu.ru ([194.226.235.39]:62155 "EHLO relay4.usu.ru")
+	by vger.kernel.org with ESMTP id S1750706AbWEZIcS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 04:30:21 -0400
-Message-ID: <000d01c68102$a3aa30cc$8abe6481@mjyxwwzceuqkx>
-Reply-To: "=?windows-1251?B?LUlOVklUQUNJT04gUEFSQSBDT05PQ0VSIExBUyBJTlNUQUxBQ0lPTkVTIERFIExBUyBMQURFUkFTIERFIENBTElGT1JOSQ==?=" 
-	  <mayo17laderas@latinmail.com>
-From: "=?windows-1251?B?LUlOVklUQUNJT04gUEFSQSBDT05PQ0VSIExBUyBJTlNUQUxBQ0lPTkVTIERFIExBUyBMQURFUkFTIERFIENBTElGT1JOSQ==?=" 
-	<elpamo08@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: =?windows-1251?B?UkU6UHVibGljaWRhZDotQlVOR0FMT1dTLVJFU1RBVVJBTlQtQkFSLVNPTC1QSVNDSU5BUy1KVUVHT1MtQVJFQVMgVkVSREVTLUVTUEFSQ0lNSUVOVE8uVEU6MzYwLTA0MTYvMzYwLTM2NzMvMzYwLTIxODkuUFJFR1VOVEUgUE9SIExBIFBST01PQ0lPTiBERSBNQVlP?=
-Date: Fri, 26 May 2006 03:28:13 -0500
-Organization: =?windows-1251?B?UkUtOlB1YmxpY2lkYWQtQlVOR0FMT1dTLVJFU1RBVVJBTlQtQkFSLUpVRUdPUy1BUkVBUyBWRVJERVMtRVNQQVJDSU1JRQ==?=
+	Fri, 26 May 2006 04:32:18 -0400
+Message-ID: <4476BD28.8040405@ums.usu.ru>
+Date: Fri, 26 May 2006 14:32:40 +0600
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.8.0.2) Gecko/20060405 SeaMonkey/1.0.1
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="windows-1251"
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: Jon Smirl <jonsmirl@gmail.com>, "D. Hazelton" <dhazelton@enter.net>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <44700ACC.8070207@gmail.com> <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com> <200605230048.14708.dhazelton@enter.net> <9e4733910605231017g146e16dfnd61eb22a72bd3f5f@mail.gmail.com> <6896241F-3389-4B20-9E42-3CCDDBFDD312@mac.com> <44740533.7040702@aitel.hist.no> <447465C6.3090501@ums.usu.ru> <4476A951.2070003@aitel.hist.no>
+In-Reply-To: <4476A951.2070003@aitel.hist.no>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.34.1.32; VDF: 6.34.1.144; host: usu2.usu.ru)
+X-AV-Checked: ClamAV using ClamSMTP@relay4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-khaaxtj
+Helge Hafting wrote:
+> "Which of the two keyboards to read, which of the three screens to use
+> for messages" is not a problem.  The kernel would use whatever devices
+> is associated with the primary console - any extra devices would be left 
+> alone.
+> The console is normally one particular keyboard (or possibly all of them),
+> and /dev/fb0 in case of graphical console.  Other framebuffers are
+> not the primary console.
 
-                        FIN DE SEMANA
-                   VIERNES,SABADO,DOMINGO
-    VENGAN A PASAR EL DIA CON NOSOTROS HAGA SU RESERVA. 
-        (Dias de semana, previa llamada telefonica)
-        NEXTEL:824*9306/824*9320   CEL:98249320/98249306 
+I am not sure how this can be achievable, assuming that udev is responsible for 
+loading framebuffer modules. Since it loads them in parallel, the registration 
+order is essentially random. See the following Debian bugs about other subsystems:
 
-* VEINTE MIL M2 DE AREAS VERDES
-* ALQUILER DE BUNGALOWS
-* RESTAURANT,BAR,POLLOS A LA LEÑA,ALQUILER DE PARRILLAS
-* PISCINAS,PISCINA PARA NIÑOS,CANCHA DE FULBITO,PALETA FRONTON,VOLEY
-* PING PONG,BILLAR,FULBITO DE MANO,JUEGOS DE MESA
-* SUBIBAJA,CAMA ELASTICA,COLUMPIOS,PASAMANOS 
-* EXCELENTE MICROCLIMA Y SOL TODO EL AÑO
-* DISPONEMOS DE EQUIPO DE KARAOKE
-* AREA DE CAMPING,CONSULTENOS
+http://bugs.debian.org/339951
+http://bugs.debian.org/365226
 
-INVITA A TU FAMILIA Y/O AMIGOS.
-ATENDEMOS COLEGIOS,RETIROS,CUMPLEAÑOS,FIESTAS INFANTILES,
-ALMUERZOS DE CAMARADERÍA,CONVENCIONES Y/O EMPRESAS
-
-LOS ESTAREMOS ESPERANDO GUSTOSOS DE PODER ATENDERLOS.
-
-DIRECCION:AV EL BOSQUE 401 URBANIZACION CALIFORNIA ALTA,PASANDO CHACLACAYO
-ANTES DEL PUENTE LOS ANGELES NO LO CRUCE, SIGA DE FRENTE,PARALELO AL RIO.
-SIGA 2KM (TENEMOS SEÑALIZACION CARTELES FLECHAS DESDE 3.3KM ANTES.
-TELEFONOS:3602189,3603673,3600416 
-
-SI USTED TIENE INTERES EN QUE LE ENVIEMOS VISTAS DE NUESTRO LOCAL ENVIENOS 
-UN E-MAILS SOLICITANDO FOTOS
-
-E-MAIL:
-invitacionladeras@latinmail.com
-lasladerasdecalifornia@latinmail.com
-invitacionladeras@fullzero.com.ar
-
-SI QUIERE VER ALGUNAS VISTAS CLIQUEE DEBAJO DE ESTE PARRAFO SOBRE LA WEBS
-Sírvase cliquear sobre la webs de la cual requiera informacion
-
-VISTAS GENERALES:
-http://perso.wanadoo.es/elpalmo14/LasEmpresas.ppt
-http://perso.wanadoo.es/elpalmo12/LasFamilias.ppt
-Si solo desea pasar el día, hay un consumo mínimo de S/. 30.00 por persona 
-adulta.
-El alquiler de parrilla: US. $ 10.00 ( Carbon, utensilios y todo tipo de 
-salsas )
-Aceptamos Tarjetas de Crédito ( Master Card, Visa, Diners Club y Ripley ).
-Para mayor información y reservaciones sírvase llamar a nuestros teléfonos 
-3602189 - 3603673 - 3600416 
-
-Atentamaente
-CARLOS  AUGUSTO VIGNOLO 
-
-LIMA-PERU
-LAS LADERAS DE CALIFORNIA
-AGRADECE LA RECEPCION DE NUESTRO E-MAIL.
-
-Para no volver a recibir estos mensajes responda por favor escribiendo a:
-removerladeras@latinmail.com 
-REMOVER
-Y SERA REMOVIDO A LA BREVEDAD
-MUCHAS GRACIAS
-
+-- 
+Alexander E. Patrakov

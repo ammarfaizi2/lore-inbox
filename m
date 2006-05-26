@@ -1,33 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbWEZT7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWEZUE0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751410AbWEZT7q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 15:59:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbWEZT7q
+	id S1751412AbWEZUE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 16:04:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWEZUE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 15:59:46 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:49844 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751410AbWEZT7q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 15:59:46 -0400
-Date: Fri, 26 May 2006 12:59:21 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH mm] swapless page migration: fix fork corruption
-In-Reply-To: <Pine.LNX.4.64.0605261923430.24818@blonde.wat.veritas.com>
-Message-ID: <Pine.LNX.4.64.0605261258590.837@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0605261923430.24818@blonde.wat.veritas.com>
+	Fri, 26 May 2006 16:04:26 -0400
+Received: from mail2.utc.com ([192.249.46.191]:32967 "EHLO mail2.utc.com")
+	by vger.kernel.org with ESMTP id S1751412AbWEZUEZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 16:04:25 -0400
+Message-ID: <44775F43.8020500@cybsft.com>
+Date: Fri, 26 May 2006 15:04:19 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Mark Knecht <markknecht@gmail.com>
+Subject: Re: 2.6.16-rt24 Won't Apply
+References: <44775129.6030004@cybsft.com> <20060526194315.GA860@elte.hu>
+In-Reply-To: <20060526194315.GA860@elte.hu>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 May 2006, Hugh Dickins wrote:
+Ingo Molnar wrote:
+> * K.R. Foley <kr@cybsft.com> wrote:
+> 
+>> Ingo,
+>>
+>> The 2.6.16-rt24 patch that you uploaded today will not apply cleanly 
+>> to a 2.6.16 source tree. Below is the first of many problems, if this 
+>> helps.
+> 
+> could you try -rt25, does it work any better?
+> 
+> 	Ingo
 
-> The protection in copy_one_pte looks very convincing, until at last you
-> realize that the second arg to make_migration_entry is a boolean "write",
-> and SWP_MIGRATION_READ is 30.
+Yes. It applies cleanly. Will know soon if it builds and boots.
 
-Sigh.
-
-Acked-by: Christoph Lameter <clameter@sgi.com>
+-- 
+   kr

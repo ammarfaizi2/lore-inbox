@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751069AbWEZQfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbWEZQek@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751069AbWEZQfP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 12:35:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWEZQel
+	id S1751086AbWEZQek (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 12:34:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWEZQdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 12:34:41 -0400
-Received: from pne-smtpout3-sn2.hy.skanova.net ([81.228.8.111]:55547 "EHLO
-	pne-smtpout3-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S1751050AbWEZQ3P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 12:29:15 -0400
-Message-Id: <20060526162901.463431000@gmail.com>
-References: <20060526161129.557416000@gmail.com>
-User-Agent: quilt/0.44-1
-Date: Fri, 26 May 2006 19:11:31 +0300
+	Fri, 26 May 2006 12:33:54 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:807 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751065AbWEZQd0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 12:33:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=p5PvP43YKmxrt/Fw2c+pTD7So0iaf6ziiuK99CP8kXBQvWBEolOf19slQ6GX4e1ooOVLDjvDPvlTRd0y/t6jbFUC4wRW7QacL0FEjyc6hRdlnUOUW+V2/7IU5vrljoVpC/P8WGnVbl/I38GSeLVO/T5/2FHncm9nIMRP7FWuh/k=
+Message-ID: <44772D99.2070001@gmail.com>
+Date: Fri, 26 May 2006 19:32:25 +0300
 From: Anssi Hannula <anssi.hannula@gmail.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: [patch 02/13] input: fix accuracy of fixp-arith.h
-Content-Disposition: inline; filename=ff-refactoring-fixp-arith-accuracy.diff
+User-Agent: Mozilla Thunderbird 1.0.6-7.5.20060mdk (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: dtor_core@ameritech.net, linux-joystick@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 03/11] input: new force feedback interface
+References: <20060515211229.521198000@gmail.com>	<20060515211506.783939000@gmail.com>	<20060517222007.2b606b1b.akpm@osdl.org>	<4471E259.7080609@gmail.com>	<4474392F.1030809@gmail.com> <20060524174910.5b066ee5.akpm@osdl.org>
+In-Reply-To: <20060524174910.5b066ee5.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add the value of cos(90) = 0 to the table. This also moves the results so that
-sin(x) == sin(180-x) is true as expected.
+Andrew Morton wrote:
+> Anssi Hannula <anssi.hannula@gmail.com> wrote:
+> 
+>>>BTW, what is the best way to send corrected patches for this patchset?
+>>>Probably as a reply to the individual patches?
+>>>
+>>
+>>Hmm, I think it is easier to just send the whole updated set...
+>>
+>>I'm going to do all the changes discussed and then send the set probably
+>>tomorrow or in the weekend.
+>>
+> 
+> Yes, that's fine.  Once patches have matured a bit, incremental (and
+> fine-grained) updates are preferred.  And I'll often turn
+> wholesale-replacement-attempts into incremental updates, so we can see what
+> changed.
+> 
+> But at this stage, rip-it-out-and-redo is fine.  Although it does help if
+> you can tell us which of the review comments were and were not implemented,
+> so we don't have to re-read the whole thing with the same level of
+> attention.
 
-Signed-off-by: Anssi Hannula <anssi.hannula@gmail.com>
+Okay, I sent the whole set again.
+I hope you have time to take a look :)
 
----
- drivers/input/fixp-arith.h |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
 
-Index: linux-2.6.16-git20/drivers/input/fixp-arith.h
-===================================================================
---- linux-2.6.16-git20.orig/drivers/input/fixp-arith.h	2006-04-10 21:02:50.000000000 +0300
-+++ linux-2.6.16-git20/drivers/input/fixp-arith.h	2006-04-10 21:03:45.000000000 +0300
-@@ -38,13 +38,13 @@ typedef s16 fixp_t;
- #define FRAC_MASK ((1<<FRAC_N)-1)
- 
- // Not to be used directly. Use fixp_{cos,sin}
--static const fixp_t cos_table[45] = {
-+static const fixp_t cos_table[46] = {
- 	0x0100,	0x00FF,	0x00FF,	0x00FE,	0x00FD,	0x00FC,	0x00FA,	0x00F8,
- 	0x00F6,	0x00F3,	0x00F0,	0x00ED,	0x00E9,	0x00E6,	0x00E2,	0x00DD,
- 	0x00D9,	0x00D4,	0x00CF,	0x00C9,	0x00C4,	0x00BE,	0x00B8,	0x00B1,
- 	0x00AB,	0x00A4,	0x009D,	0x0096,	0x008F,	0x0087,	0x0080,	0x0078,
- 	0x0070,	0x0068,	0x005F,	0x0057,	0x004F,	0x0046,	0x003D,	0x0035,
--	0x002C,	0x0023,	0x001A,	0x0011,	0x0008
-+	0x002C,	0x0023,	0x001A,	0x0011,	0x0008, 0x0000
- };
- 
- 
-@@ -69,7 +69,7 @@ static inline fixp_t fixp_cos(unsigned i
- 	unsigned int i = degrees % 90;
- 
- 	if (quadrant == 1 || quadrant == 3) {
--		i = 89 - i;
-+		i = 90 - i;
- 	}
- 
- 	i >>= 1;
+(didn't CC the patches for you because quilt sends them through my ISP
+with @gmail.com => smpt.osdl.org would've not accepted them)
 
---
+-- 
 Anssi Hannula
+

@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbWEZLGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWEZLIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751394AbWEZLGc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 07:06:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWEZLGc
+	id S1751395AbWEZLIl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 07:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWEZLIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 07:06:32 -0400
-Received: from smtp9.wanadoo.fr ([193.252.22.22]:36602 "EHLO smtp9.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S1751394AbWEZLGb (ORCPT
+	Fri, 26 May 2006 07:08:41 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:25546 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751395AbWEZLIl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 07:06:31 -0400
-X-ME-UUID: 20060526110629680.A62D51C00210@mwinf0906.wanadoo.fr
-Subject: Re: OpenGL-based framebuffer concepts
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-Cc: "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       Jon Smirl <jonsmirl@gmail.com>, "D. Hazelton" <dhazelton@enter.net>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-In-Reply-To: <4476DF40.8040403@aitel.hist.no>
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <44700ACC.8070207@gmail.com> <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com>
-	 <200605230048.14708.dhazelton@enter.net>
-	 <9e4733910605231017g146e16dfnd61eb22a72bd3f5f@mail.gmail.com>
-	 <6896241F-3389-4B20-9E42-3CCDDBFDD312@mac.com>
-	 <44740533.7040702@aitel.hist.no> <447465C6.3090501@ums.usu.ru>
-	 <4476A951.2070003@aitel.hist.no> <4476BD28.8040405@ums.usu.ru>
-	 <4476DF40.8040403@aitel.hist.no>
-Content-Type: text/plain
-Message-Id: <1148641580.1509.48.camel@capoeira>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Fri, 26 May 2006 13:06:20 +0200
+	Fri, 26 May 2006 07:08:41 -0400
+Message-ID: <4476E1B3.8020605@garzik.org>
+Date: Fri, 26 May 2006 07:08:35 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, len.brown@intel.com,
+       gregkh@suse.de, trenn@suse.de,
+       joachim deguara <joachim.deguara@amd.com>
+Subject: Re: Recent x86-64 patch causes many devices to disappear
+References: <4476D020.8070605@garzik.org> <200605261203.55108.ak@suse.de> <4476D874.6060000@garzik.org> <200605261255.27471.ak@suse.de>
+In-Reply-To: <200605261255.27471.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-05-26 at 12:58, Helge Hafting wrote:
-> Alexander E. Patrakov wrote:
-> > Helge Hafting wrote:
-> >> "Which of the two keyboards to read, which of the three screens to use
-> >> for messages" is not a problem.  The kernel would use whatever devices
-> >> is associated with the primary console - any extra devices would be 
-> >> left alone.
-> >> The console is normally one particular keyboard (or possibly all of 
-> >> them),
-> >> and /dev/fb0 in case of graphical console.  Other framebuffers are
-> >> not the primary console.
-> >
-> > I am not sure how this can be achievable, assuming that udev is 
-> > responsible for loading framebuffer modules. Since it loads them in 
-> > parallel, the registration order is essentially random. See the 
-> > following Debian bugs about other subsystems:
-> So what?  In that case, it is essentially random _which_ display you
-> get your PANIC on, but you will get it on one of them.
+Andi Kleen wrote:
+> On Friday 26 May 2006 12:29, Jeff Garzik wrote:
+>> Andi Kleen wrote:
+>>> The problem is that most people cannot figure out how 
+>>> to disable this in the BIOS so we needed a way to make it boot
+>>> out of the box.
+>> Agreed.
 > 
-> Of course this case is easily fixed by loading the preferred
-> framebuffer driver before running udev.  That way, it grabs
-> /dev/fb0 before anything else.
+> Do you use SCSI on your box? According to Joachim booting with 
+> segmentation on and not pci=noacpi SCSI is not seen. And that's the 
+> default setup on the machine which made it unusable.
 
-Well, the oops/panic should probably be displayed on all fbdevs anyway.
+Here, I see:
 
-	Xav
+	segmentation on + pci=noacpi == no SCSI
+and additionally
+	segmentation on + pci=noacpi == no sata_mv
+and thus overall
+	segmentation on + pci=noacpi == no PCI-X bus
+
+(as the posted output on gtf.org shows)
+
+Regards,
+
+	Jeff
 
 

@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030479AbWEZFsZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030505AbWEZGHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030479AbWEZFsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 01:48:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030481AbWEZFsZ
+	id S1030505AbWEZGHA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 02:07:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030507AbWEZGG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 01:48:25 -0400
-Received: from hera.kernel.org ([140.211.167.34]:7123 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1030479AbWEZFsY (ORCPT
+	Fri, 26 May 2006 02:06:59 -0400
+Received: from wr-out-0506.google.com ([64.233.184.237]:52886 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1030505AbWEZGG7 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 01:48:24 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [USB disks] FAT: invalid media value (0x01)
-Date: Thu, 25 May 2006 22:48:18 -0700 (PDT)
-Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <e564r2$84j$1@terminus.zytor.com>
-References: <200605260029_MC3-1-C0CF-C67B@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 26 May 2006 02:06:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BWE1RqpbDUi1ry4A4DY6wynoKxG65MDxUE/GSUkt9v2+bb00i4fSwYlprL/Mn0jk6oshCRTx4zNtKQB8rUwweKylqVle7IEnS3Slw7qhfC4Y3reXBZPbno2f4d5lpyg/As2kly7xTcjdaFgRCztKATkufmZg6vIAuQ+Nyvj1LVc=
+Message-ID: <4ae3c140605252306p4d4599c9g4e4e085a1b786144@mail.gmail.com>
+Date: Fri, 26 May 2006 02:06:58 -0400
+From: "Xin Zhao" <uszhaoxin@gmail.com>
+To: "Neil Brown" <neilb@suse.de>
+Subject: Re: why svc_export_lookup() has no implementation?
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+In-Reply-To: <17526.34136.986510.885941@cse.unsw.edu.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
 Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1148622498 8340 127.0.0.1 (26 May 2006 05:48:18 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Fri, 26 May 2006 05:48:18 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Disposition: inline
+References: <4ae3c140605252115n7b040a99l6633ba387ce48358@mail.gmail.com>
+	 <17526.34136.986510.885941@cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200605260029_MC3-1-C0CF-C67B@compuserve.com>
-By author:    Chuck Ebbert <76306.1226@compuserve.com>
-In newsgroup: linux.dev.kernel
-> 
-> > sdc: assuming drive cache: write through
-> >  sdc: sdc1
-> > sd 11:0:0:0: Attached scsi removable disk sdc
-> > usb-storage: device scan complete
-> > FAT: invalid media value (0x01)
-> > VFS: Can't find a valid FAT filesystem on dev sdc.
->                                                 ^^^
-> 
-> Shouldn't it be looking on sdc1 for the filesystem?
-> 
+Thanks a lot! Neil. Now I know what happened. :)
 
-Well, it depends what "it" is...
+Xin
 
-	-hpa (whoa... haven't seen a CompuServe addy for ages...)
+On 5/26/06, Neil Brown <neilb@suse.de> wrote:
+> On Friday May 26, uszhaoxin@gmail.com wrote:
+> > I noticed that functions like exp_get_by_name() calls function
+> > svc_export_lookup(). But I cannot find the implementation of
+> > svc_export_lookup(). I can only find the function definition. HOw can
+> > this happen?
+> >
+> > Can someone give me a hand?
+>
+> Look at and understand DefineCacheLookup (in
+> include/linux/sunrpc/cache.h).
+>
+> Then look for places that it is used.
+>
+> But if you find you cannot stomach that, but assured that you aren't
+> alone and have a look in something newer than 2.6.16.  There-in, and
+> Randy has suggest, it will be easy to find the definition.
+>
+> NeilBrown
+>

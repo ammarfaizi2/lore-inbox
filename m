@@ -1,70 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWEZN7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWEZOAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbWEZN7S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 09:59:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWEZN7R
+	id S1750760AbWEZOAW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 10:00:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbWEZOAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 09:59:17 -0400
-Received: from omta02sl.mx.bigpond.com ([144.140.93.154]:2936 "EHLO
-	omta02sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1750759AbWEZN7R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 09:59:17 -0400
-Message-ID: <447709B3.80309@bigpond.net.au>
-Date: Fri, 26 May 2006 23:59:15 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 26 May 2006 10:00:22 -0400
+Received: from cantor.suse.de ([195.135.220.2]:60308 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750760AbWEZOAV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 10:00:21 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, wfg@mail.ustc.edu.cn, mstone@mathom.us
+Subject: Re: [PATCH 00/33] Adaptive read-ahead V12
+References: <348469535.17438@ustc.edu.cn>
+	<20060525084415.3a23e466.akpm@osdl.org>
+From: Andi Kleen <ak@suse.de>
+Date: 26 May 2006 16:00:14 +0200
+In-Reply-To: <20060525084415.3a23e466.akpm@osdl.org>
+Message-ID: <p73irns7uoh.fsf@bragg.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Mike Galbraith <efault@gmx.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
-       Rene Herman <rene.herman@keyaccess.nl>
-Subject: Re: [RFC 3/5] sched: Add CPU rate hard caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest> <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest> <200605262100.22071.kernel@kolivas.org>
-In-Reply-To: <200605262100.22071.kernel@kolivas.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Fri, 26 May 2006 13:59:15 +0000
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> On Friday 26 May 2006 14:20, Peter Williams wrote:
->> This patch implements hard CPU rate caps per task as a proportion of a
->> single CPU's capacity expressed in parts per thousand.
+Andrew Morton <akpm@osdl.org> writes:
 > 
-> A hard cap of 1/1000 could lead to interesting starvation scenarios where a 
-> mutex or semaphore was held by a task that hardly ever got cpu. Same goes to 
-> a lesser extent to a 0 soft cap. 
-> 
-> Here is how I handle idleprio tasks in current -ck:
-> 
-> http://ck.kolivas.org/patches/2.6/pre-releases/2.6.17-rc5/2.6.17-rc5-ck1/patches/track_mutexes-1.patch
-> tags tasks that are holding a mutex
-> 
-> http://ck.kolivas.org/patches/2.6/pre-releases/2.6.17-rc5/2.6.17-rc5-ck1/patches/sched-idleprio-1.7.patch
-> is the idleprio policy for staircase.
-> 
-> What it does is runs idleprio tasks as normal tasks when they hold a mutex or 
-> are waking up after calling down() (ie holding a semaphore).
+> These are nice-looking numbers, but one wonders.  If optimising readahead
+> makes this much difference to postgresql performance then postgresql should
+> be doing the readahead itself, rather than relying upon the kernel's
+> ability to guess what the application will be doing in the future.  Because
+> surely the database can do a better job of that than the kernel.
 
-I wasn't aware that you could detect those conditions.  They could be 
-very useful.
+With that argument we should remove all readahead from the kernel? 
+Because it's already trying to guess what the application will do. 
 
-> These two in 
-> combination have shown resistance to any priority inversion problems in 
-> widespread testing. An attempt was made to track semaphores held via a 
-> down_interruptible() but unfortunately the lack of strict rules about who 
-> could release the semaphore meant accounting was impossible of this scenario. 
-> In practice, though there were no test cases that showed it to be an issue, 
-> and the recent conversion en-masse of semaphores to mutexes in the kernel 
-> means it has pretty much covered most possibilities.
-> 
+I suspect it's better to have good readahead code in the kernel
+than in a zillion application.
 
-Thanks,
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+-Andi

@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWEZOJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWEZOMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750763AbWEZOJt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 10:09:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWEZOJt
+	id S1750765AbWEZOMt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 10:12:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWEZOMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 10:09:49 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:4483 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1750763AbWEZOJs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 10:09:48 -0400
-Message-ID: <348652585.13489@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Fri, 26 May 2006 22:09:51 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH 02/33] radixtree: introduce __radix_tree_lookup_parent()
-Message-ID: <20060526140951.GA13954@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
-References: <20060526113906.084341801@localhost.localdomain> <348644373.06563@ustc.edu.cn> <Pine.LNX.4.64.0605260656090.30694@schroedinger.engr.sgi.com>
+	Fri, 26 May 2006 10:12:49 -0400
+Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:50612 "EHLO
+	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750765AbWEZOMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 10:12:48 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [RFC 3/5] sched: Add CPU rate hard caps
+Date: Sat, 27 May 2006 00:12:28 +1000
+User-Agent: KMail/1.9.1
+Cc: Mike Galbraith <efault@gmx.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
+       Rene Herman <rene.herman@keyaccess.nl>
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest> <200605262100.22071.kernel@kolivas.org> <447709B3.80309@bigpond.net.au>
+In-Reply-To: <447709B3.80309@bigpond.net.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0605260656090.30694@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200605270012.28743.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 26, 2006 at 06:56:47AM -0700, Christoph Lameter wrote:
-> On Fri, 26 May 2006, Wu Fengguang wrote:
-> 
-> > Introduce a general lookup function to radix tree.
-> > 
-> > - __radix_tree_lookup_parent(root, index, level)
-> > 	Perform partial lookup, return the @level'th parent of the slot at
-> > 	@index.
-> > 
-> > Signed-off-by: Christoph Lameter <clameter@sgi.com>
-> 
-> Would you please remove my signoff? I never reviewed this code.
+On Friday 26 May 2006 23:59, Peter Williams wrote:
+> Con Kolivas wrote:
+> > On Friday 26 May 2006 14:20, Peter Williams wrote:
+> >> This patch implements hard CPU rate caps per task as a proportion of a
+> >> single CPU's capacity expressed in parts per thousand.
+> >
+> > A hard cap of 1/1000 could lead to interesting starvation scenarios where
+> > a mutex or semaphore was held by a task that hardly ever got cpu. Same
+> > goes to a lesser extent to a 0 soft cap.
+> >
+> > Here is how I handle idleprio tasks in current -ck:
+> >
+> > http://ck.kolivas.org/patches/2.6/pre-releases/2.6.17-rc5/2.6.17-rc5-ck1/
+> >patches/track_mutexes-1.patch tags tasks that are holding a mutex
+> >
+> > http://ck.kolivas.org/patches/2.6/pre-releases/2.6.17-rc5/2.6.17-rc5-ck1/
+> >patches/sched-idleprio-1.7.patch is the idleprio policy for staircase.
+> >
+> > What it does is runs idleprio tasks as normal tasks when they hold a
+> > mutex or are waking up after calling down() (ie holding a semaphore).
+>
+> I wasn't aware that you could detect those conditions.  They could be
+> very useful.
 
-Sorry, ok.
+Ingo's mutex infrastructure made it possible to accurately track mutexes held, 
+and basically anything entering uninterruptible sleep has called down(). 
+Mainline, as you know, already flags the latter for interactivity purposes.
+
+-- 
+-ck

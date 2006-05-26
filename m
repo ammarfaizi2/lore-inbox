@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWEZRjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbWEZRj1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751200AbWEZRjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 13:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWEZRjJ
+	id S1751203AbWEZRj1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 13:39:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWEZRj1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 13:39:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12480 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751200AbWEZRjH (ORCPT
+	Fri, 26 May 2006 13:39:27 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:55249 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751203AbWEZRjZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 13:39:07 -0400
-Date: Fri, 26 May 2006 10:38:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>
-Cc: linux-kernel@vger.kernel.org, wfg@mail.ustc.edu.cn, bart@samwel.tk
-Subject: Re: [PATCH 27/33] readahead: laptop mode
-Message-Id: <20060526103821.45329b4b.akpm@osdl.org>
-In-Reply-To: <348469549.18212@ustc.edu.cn>
-References: <20060524111246.420010595@localhost.localdomain>
-	<348469549.18212@ustc.edu.cn>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 26 May 2006 13:39:25 -0400
+Date: Fri, 26 May 2006 19:39:16 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mark Knecht <markknecht@gmail.com>,
+       Clark Williams <williams@redhat.com>,
+       Robert Crocombe <rwcrocombe@raytheon.com>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>
+Subject: Re: [PATCH -rt 1/2] Dont blindly turn on interrupts in boot_override_clocksource
+Message-ID: <20060526173916.GB30208@elte.hu>
+References: <20060526160651.870725515@goodmis.org> <20060526161036.586358463@goodmis.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060526161036.586358463@goodmis.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
->
->   /*
->  + * Set a new look-ahead mark at @new_index.
->  + * Return 0 if the new mark is successfully set.
->  + */
->  +static inline int renew_lookahead(struct address_space *mapping,
->  +				struct file_ra_state *ra,
->  +				pgoff_t index, pgoff_t new_index)
->  +{
->  +	struct page *page;
->  +
->  +	if (index == ra->lookahead_index &&
->  +			new_index >= ra->readahead_index)
->  +		return 1;
->  +
->  +	page = find_page(mapping, new_index);
->  +	if (!page)
->  +		return 1;
->  +
->  +	__SetPageReadahead(page);
->  +	if (ra->lookahead_index == index)
->  +		ra->lookahead_index = new_index;
->  +
->  +	return 0;
->  +}
->  +
 
-This is a pagecache page and other CPUs can look it up and play with it. 
-The __SetPageReadahead() is quite wrong here.
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-And we don't have a reference on this page, so this code appears to be racy.
+> The boot_override_clocksource currently blindly turns on interrupts 
+> with the releasing of the lock.  But if you have clocksource=xxx in 
+> the command line, this function is called before interrupts are setup, 
+> and causes early exception errors.
 
-You could fix that by taking and dropping a ref on the page, but it'd be
-quicker to take tree_lock and do the SetPageReadahead() while holding it.
+thanks, applied.
 
-This function is too large to inline.
+	Ingo

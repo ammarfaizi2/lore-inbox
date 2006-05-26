@@ -1,45 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbWEZEGU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbWEZELZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030299AbWEZEGU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 00:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030318AbWEZEGT
+	id S1030319AbWEZELZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 00:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030318AbWEZELZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 00:06:19 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.206]:8147 "EHLO
-	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S1030299AbWEZEGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 00:06:19 -0400
-To: cmm@us.ibm.com
-Cc: adilger@clusterfs.com, jitendra@linsyssoft.com,
-       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [UPDATE][0/24]extend file size and filesystem size
-Message-Id: <20060526130555sho@rifu.tnes.nec.co.jp>
+	Fri, 26 May 2006 00:11:25 -0400
+Received: from zak.futurequest.net ([69.5.6.152]:49034 "HELO
+	zak.futurequest.net") by vger.kernel.org with SMTP id S1030319AbWEZELZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 00:11:25 -0400
+Date: Thu, 25 May 2006 22:11:22 -0600
+From: Bruce Guenter <bruce@untroubled.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Source Compression
+Message-ID: <20060526041122.GA31821@untroubled.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.64.0605211028100.4037@p34>
 Mime-Version: 1.0
-X-Mailer: WeMail32[2.51] ID:1K0086
-From: sho@tnes.nec.co.jp
-Date: Fri, 26 May 2006 13:05:55 +0900
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0605211028100.4037@p34>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mingming,
 
-On May 26, 2006, Mingming wrote:
-> As we have discussed before, it's saner to define ext3 fs blocks type
-> and group block type and then fix the kernel ext3 block variable type
-> bugs....So above patches from me are going to be replaced by a new
-> set of ext3 filesystem blocks patches, I have sent out a RFC to the
-> ext2-devel list in the last few weeks:
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I agree.  But the aim of this fix is to keep as much compatibility as
-possible by making only >2TB file incompatible(RO).  So I didn't add
-typedef for ext3 block type.
+On Sun, May 21, 2006 at 10:35:00AM -0400, Justin Piszcz wrote:
+> Was curious as to which utilities would offer the best compression ratio=
+=20
+> for the kernel source, I thought it'd be bzip2 or rar but lzma wins,=20
+> roughly 6 MiB smaller than bzip2.
+>=20
+> $ du -sk * | sort -n
+> 33520   linux-2.6.16.17.tar.lzma
 
-Now I'm working on changing the type of variables related to block,
-including ext3_fileblk_t.  I'll send the update patches later.
+Since it was requested by somebody:
 
+$ du -sk linux-2.6.16.17.*
+32904	linux-2.6.16.17.7z
+39919	linux-2.6.16.17.tar.bz2
 
-Cheer, sho
+This was done with: 7z -mx=3D9
+--=20
+Bruce Guenter <bruce@untroubled.org> http://untroubled.org/
+OpenPGP key: 699980E8 / D0B7 C8DD 365D A395 29DA  2E2A E96F B2DC 6999 80E8
 
+--0F1p//8PRICkK4MW
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFEdn/q6W+y3GmZgOgRAj9KAJ9rzXYuepAFOTZOfKEs+0p6i8k+CwCdGq2r
+pYf+jLuMKVoBgILncPJ1AAU=
+=Z/Uj
+-----END PGP SIGNATURE-----
+
+--0F1p//8PRICkK4MW--

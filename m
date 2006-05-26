@@ -1,36 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751578AbWEZVVq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751581AbWEZVW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751578AbWEZVVq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 17:21:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751579AbWEZVVq
+	id S1751581AbWEZVW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 17:22:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751583AbWEZVWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 17:21:46 -0400
-Received: from quechua.inka.de ([193.197.184.2]:44470 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S1751578AbWEZVVq (ORCPT
+	Fri, 26 May 2006 17:22:55 -0400
+Received: from mx.freeshell.ORG ([192.94.73.18]:3032 "EHLO sdf.lonestar.org")
+	by vger.kernel.org with ESMTP id S1751579AbWEZVWz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 17:21:46 -0400
-From: be-news06@lina.inka.de (Bernd Eckenfels)
+	Fri, 26 May 2006 17:22:55 -0400
+Date: Fri, 26 May 2006 21:22:43 +0000
+From: Aravind Gottipati <aravind@freeshell.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Intercept write to disk
-Organization: Private Site running Debian GNU/Linux
-In-Reply-To: <1148676730.2094.10.camel@localhost>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
-Message-Id: <E1Fjjke-0000EV-00@calista.inka.de>
-Date: Fri, 26 May 2006 23:21:44 +0200
+Subject: e1000 poor network performance - 2.6.17-rc5-g705af309
+Message-ID: <20060526212243.GA19250@SDF.LONESTAR.ORG>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mishael A Sibiryakov <death@junki.org> wrote:
-> Probably i have a stupid question but i can't find adequate solution for
-> it. I want to intercept write to real disk partition or entire disk
-> (except of swap partition of course). As i understood vfs and Co i think
-> that i need to work on level between fs driver and disk driver. But it's
-> unclean for me. Please tell me is it possible and if possible then say
-> how or put me to some documentation.
+Hi,
 
-You can write a devmapper module, or maybe pre-load a shared user mode
-library.
+I recently started running linux on a new x60 thinkpad and started
+noticing really poor network performance with this kernel.  I saw some
+archived threads from a while back saying this could be related to
+conntracking.  Disabled that (rmmod ip_conntrack) did not fix the
+problem.  I also tried disabling tso but that didn't have any effect
+either.  I can reproduce the problem when connected to a 100Mbps switch
+(I don't have a GigE network to test this with).
 
-Gruss
-Bernd
+This laptop uses the Intel 82573L (PCI-Express) chip.  I'd be glad to
+assist with any toubleshooting/testing w.r.t this.  I am not subscribed
+to the list, so please cc me on any replies.
+
+Thank you,
+
+Aravind.

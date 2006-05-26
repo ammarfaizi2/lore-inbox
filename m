@@ -1,54 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWEZTv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbWEZTy2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751401AbWEZTv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 15:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWEZTv6
+	id S1751403AbWEZTy2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 15:54:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWEZTy2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 15:51:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44772 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751401AbWEZTv6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 15:51:58 -0400
-Date: Fri, 26 May 2006 12:54:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       greg@kroah.com, tom.l.nguyen@intel.com, brice@myri.com,
-       rajesh.shah@intel.com
-Subject: Re: [RFC]disable msi mode in pci_disable_device
-Message-Id: <20060526125440.0897aef5.akpm@osdl.org>
-In-Reply-To: <1148612307.32046.132.camel@sli10-desk.sh.intel.com>
-References: <1148612307.32046.132.camel@sli10-desk.sh.intel.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 26 May 2006 15:54:28 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:11525 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751403AbWEZTy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 15:54:27 -0400
+Date: Fri, 26 May 2006 21:43:59 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Grant Coady <gcoady.lk@gmail.com>
+Cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
+       Chris Wright <chrisw@sous-sol.org>
+Subject: Re: [ANNOUNCE] Linux-2.4.32-hf32.5
+Message-ID: <20060526194359.GA16302@w.ods.org>
+References: <20060507131034.GA19198@exosec.fr> <20060525133427.GA22727@w.ods.org> <k2nd725cl0vocvb72boalj06tpjlita644@4ax.com> <20060526121623.GA14474@w.ods.org> <vvvd72p7mv2j9fet19evm807e0flonnugh@4ax.com> <20060526140731.GC14725@w.ods.org> <20060526182758.GB565@dmt> <oele72524b719itt80ueugtur35tct214u@4ax.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <oele72524b719itt80ueugtur35tct214u@4ax.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shaohua Li <shaohua.li@intel.com> wrote:
->
-> Brice said the pci_save_msi_state breaks his driver in his special usage
-> (not in suspend/resume), as pci_save_msi_state will disable msi mode.
+On Sat, May 27, 2006 at 05:29:58AM +1000, Grant Coady wrote:
+> On Fri, 26 May 2006 15:27:58 -0300, Marcelo Tosatti <marcelo@kvack.org> wrote:
+> 
+> >may_delete() should be called before attempting to grab victim's
+> >i_zombie. Grant, can you please try the following?
+> 
+> Yep, applied against linux-2.4.32-hf32.5, boots on sempro (the box I 
+> gave the oops info for).  
 
-That sounds wrong of pci_save_msi_state().  It's supposed to save the
-state, not to go fiddling with it.
+Fine, that's good news !
 
-> In
-> his usage, pci_save_state will be called at runtime, and later (after
-> the device operates for some time and has an error) pci_restore_state
-> will be called.
+> Guess I'll see .33-pre4 and a -hf32.7 soon?
 
-Is that a sane thing for a driver to be doing?  (Not relevant to this issue
-though).
+Well, at least not hf32.7 since this fix was initially "minor". I'll
+wait for a few more important ones to release another hotfix.
 
-> In another hand, suspend/resume needs disable msi mode, as device should
-> stop working completely. This patch try to workaround this issue.
-> Drivers are expected call pci_disable_device in suspend time after
-> pci_save_state.
+> Cheers,
+> Grant.
 
-Surely the drivers should be calling pci_disable_msix() or something after
-saving the state rather than relying upon magical side-effects of
-pci_save_msi_state().  Or we do disable_msi_mode() or whatever in
-pci_disable_device().
+Thanks for all your tests, Grant
+Willy
 
+> >
+> >diff --git a/fs/namei.c b/fs/namei.c
+> >index 48bd26c..42cce98 100644
+> >--- a/fs/namei.c
+> >+++ b/fs/namei.c
+> >@@ -1479,19 +1479,20 @@ int vfs_unlink(struct inode *dir, struct
+> > {
+> > 	int error;
+> > 
+> >-	double_down(&dir->i_zombie, &dentry->d_inode->i_zombie);
+> > 	error = may_delete(dir, dentry, 0);
+> >-	if (!error) {
+> >-		error = -EPERM;
+> >-		if (dir->i_op && dir->i_op->unlink) {
+> >-			DQUOT_INIT(dir);
+> >-			if (d_mountpoint(dentry))
+> >-				error = -EBUSY;
+> >-			else {
+> >-				lock_kernel();
+> >-				error = dir->i_op->unlink(dir, dentry);
+> >-				unlock_kernel();
+> >-			}
+> >+	if (error)
+> >+		return error;
+> >+
+> >+	double_down(&dir->i_zombie, &dentry->d_inode->i_zombie);
+> >+	error = -EPERM;
+> >+	if (dir->i_op && dir->i_op->unlink) {
+> >+		DQUOT_INIT(dir);
+> >+		if (d_mountpoint(dentry))
+> >+			error = -EBUSY;
+> >+		else {
+> >+			lock_kernel();
+> >+			error = dir->i_op->unlink(dir, dentry);
+> >+			unlock_kernel();
+> > 		}
+> > 	}
+> > 	double_up(&dir->i_zombie, &dentry->d_inode->i_zombie);

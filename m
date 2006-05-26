@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWEZQhd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWEZQn3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751088AbWEZQhd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 12:37:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751064AbWEZQhd
+	id S1751118AbWEZQn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 12:43:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbWEZQn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 12:37:33 -0400
-Received: from nz-out-0102.google.com ([64.233.162.195]:40427 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751065AbWEZQhc convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 12:37:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qBClldd118wwriIAiKmhoZKlH/+AiUSlx2GxIra8H5XIvvDpBwzrkqWSwJlAVBPOAuywlBBtP6rs8gAe5qpKbvOeGvqQ6SbUMVUIvo0Yj75cb70YIs5XxlGRzYRO7AfF+f1Xr8Acsn5nnVPK/KfWu74NmIZr5g+vQXC4dUACRIQ=
-Message-ID: <b0943d9e0605260937j5a86d4dr4adcae6fc35c73fa@mail.gmail.com>
-Date: Fri, 26 May 2006 17:37:31 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: [PATCH 2.6.17-rc4 1/6] Base support for kmemleak
-Cc: "Andi Kleen" <ak@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060526085916.GA14388@elte.hu>
+	Fri, 26 May 2006 12:43:29 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:59406 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751116AbWEZQn2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 12:43:28 -0400
+Date: Fri, 26 May 2006 18:43:27 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Michael Halcrow <mhalcrow@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Mike Halcrow <mike@halcrow.us>
+Subject: Re: [PATCH 1/10] Convert ASSERT to BUG_ON
+Message-ID: <20060526164327.GJ17337@stusta.de>
+References: <20060526142117.GA2764@us.ibm.com> <E1FjdCG-000335-IS@localhost.localdomain> <20060526152401.GF17337@stusta.de> <20060526161454.GC2764@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060513155757.8848.11980.stgit@localhost.localdomain>
-	 <20060513160541.8848.2113.stgit@localhost.localdomain>
-	 <p73u07t5x6f.fsf@bragg.suse.de> <20060526085916.GA14388@elte.hu>
+In-Reply-To: <20060526161454.GC2764@us.ibm.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26/05/06, Ingo Molnar <mingo@elte.hu> wrote:
-> All in one, i'm very much in favor of adding kmemleak to the upstream
-> kernel, once it gets clean enough and has seen some exposure on -mm.
+On Fri, May 26, 2006 at 11:14:54AM -0500, Michael Halcrow wrote:
+> On Fri, May 26, 2006 at 05:24:01PM +0200, Adrian Bunk wrote:
+> > On Fri, May 26, 2006 at 09:21:48AM -0500, Mike Halcrow wrote:
+> > > -	ASSERT(auth_tok->session_key.encrypted_key_size < PAGE_CACHE_SIZE);
+> > > +	BUG_ON(auth_tok->session_key.encrypted_key_size > PAGE_CACHE_SIZE);
+> > >...
+> > 
+> > What's with (auth_tok->session_key.encrypted_key_size ==
+> > PAGE_CACHE_SIZE) ?
+> 
+> That should not be a problem.
 
-I cleaned it and also tested it on SMP. I need to run a few more tests
-on x86 (as I mainly work on ARM) and release a new version this
-weekend.
+IOW, the ASSERT was wrong?
 
-A problem I'm facing (also because I'm not familiar with the other
-architectures) is detecting the effective stack boundaries of the
-threads running or waiting in kernel mode. Scanning the whole stack
-(8K) hides some possible leaks (because of no longer used local
-variables) and not scanning the list at all can lead to false
-positives. I would need to investigate this a bit more.
+My point is simply that this is not a semantically equivalent 
+transformation, so if this fixes a case where the ASSERT() might have 
+mistakenly triggered it should be noted in the changelog.
+
+> Mike
+
+cu
+Adrian
 
 -- 
-Catalin
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,75 +1,950 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030267AbWEZDmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbWEZDnD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030267AbWEZDmT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 23:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030281AbWEZDmT
+	id S1030275AbWEZDnD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 23:43:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030281AbWEZDnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 23:42:19 -0400
-Received: from mga02.intel.com ([134.134.136.20]:34937 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1030275AbWEZDmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 23:42:18 -0400
-X-IronPort-AV: i="4.05,174,1146466800"; 
-   d="scan'208"; a="41607305:sNHT15242416"
-Subject: Re: [PATCH 1/2] request_firmware without a device
-From: Shaohua Li <shaohua.li@intel.com>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1148552694.4734.10.camel@localhost>
-References: <1148529045.32046.102.camel@sli10-desk.sh.intel.com>
-	 <20060525040134.GA29974@kroah.com>  <1148552694.4734.10.camel@localhost>
-Content-Type: text/plain
-Date: Fri, 26 May 2006 11:40:39 +0800
-Message-Id: <1148614839.32046.143.camel@sli10-desk.sh.intel.com>
+	Thu, 25 May 2006 23:43:03 -0400
+Received: from xenotime.net ([66.160.160.81]:19127 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1030275AbWEZDnB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 23:43:01 -0400
+Date: Thu, 25 May 2006 20:45:34 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>, drepper@redhat.com
+Cc: akpm <akpm@osdl.org>, serue@us.ibm.com, sam@vilain.net,
+       ebiederm@xmission.com, clg@fr.ibm.com, dev@sw.ru
+Subject: [PATCH] POSIX-hostname up to 255 characters
+Message-Id: <20060525204534.4068e730.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-05-25 at 12:24 +0200, Marcel Holtmann wrote:
-> Hi Greg,
-> 
-> > > The patch allows calling request_firmware without a 'struct device'.
-> > > It appears we just need a name here from 'struct device'. I changed it
-> > > to use a kobject as Patrick suggested.
-> > > Next patch will use the new API to request firmware (microcode) for a CPU.
-> > 
-> > But a cpu does have a struct device.  Why not just use that?
-> > 
-> > > +fw_setup_class_device_id(struct class_device *class_dev, struct kobject *kobj)
-> > >  {
-> > >  	/* XXX warning we should watch out for name collisions */
-> > > -	strlcpy(class_dev->class_id, dev->bus_id, BUS_ID_SIZE);
-> > > +	strlcpy(class_dev->class_id, kobj->k_name, BUS_ID_SIZE);
-> > 
-> > There's a function for this, kobject_name(), please never touch k_name
-> > directly.
-> > 
-> > > +EXPORT_SYMBOL(request_firmware_kobj);
-> > 
-> > Ick, if you really want to do this, just fix up all callers of
-> > request_firmware(), there aren't that many of them.
-> > 
-> > But I don't recommend it anyway.
-> 
-> I also disagree with this change at all. The callers of request_firmware
-> should not fiddle around with kobject's to make this work. All of them
-> have their struct device and they should use it.
-So why we need a 'struct device'? I didn't see any point we need it. We
-just need a 'name'.
 
-> So I would propose that we fix the caller and the not request_firmware
-> code. However one option would be calling it with NULL as device
-> argument and it registers itself a dummy device for the operation.
-This doesn't work, as we need a 'name'.
+This patch is against 2.6.17-rc5, for review/comments, please.
+It won't apply to -mm since Andrew has merged the uts-namespace patches.
+I'll see about merging it with those patches next.
+---
 
-do we really need to differentiate between sysdev and device anymore. I
-> recall a plan to unify all devices, but I might be wrong.
-I'd like this idea. But it means many works. In addition, a sysdev could
-have multiple drivers, and a 'device' can't to me.
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Thanks,
-Shaohua
+Implement POSIX-defined length for 'hostname' so that hostnames
+can be longer than 64 characters (max. 255 characters plus
+terminating NULL character).
+
+Adds sys_gethostname_long() and sys_sethostname_long().
+Tested on i386 and x86_64.
+Builds on powerpc(64).
+Test program is at http://www.xenotime.net/linux/src/hostnamelong.c .
+
+Consolidates many open-coded copiers of system_utsname into
+functions in lib/utsname.c::put_oldold_uname(), put_old_uname(),
+put_new_uname(). and put_long_uname().
+
+gethostname:
+http://www.opengroup.org/onlinepubs/009695399/functions/gethostname.html
+sysconf:
+http://www.opengroup.org/onlinepubs/009695399/functions/sysconf.html
+unistd.h:
+http://www.opengroup.org/onlinepubs/009695399/basedefs/unistd.h.html
+limits.h:
+http://www.opengroup.org/onlinepubs/009695399/basedefs/limits.h.html
+
+
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ arch/i386/kernel/sys_i386.c      |   37 +------
+ arch/i386/kernel/syscall_table.S |    3 
+ arch/m32r/kernel/sys_m32r.c      |   12 --
+ arch/mips/kernel/linux32.c       |    4 
+ arch/mips/kernel/syscall.c       |   25 -----
+ arch/powerpc/kernel/syscalls.c   |   37 +------
+ arch/sh/kernel/sys_sh.c          |   11 --
+ arch/sh64/kernel/sys_sh64.c      |   11 --
+ arch/um/kernel/syscall_kern.c    |    9 -
+ arch/x86_64/ia32/ia32entry.S     |    4 
+ arch/x86_64/ia32/sys_ia32.c      |   39 +-------
+ arch/x86_64/kernel/sys_x86_64.c  |    8 -
+ arch/xtensa/kernel/syscalls.c    |    8 -
+ drivers/char/random.c            |    2 
+ include/asm-i386/unistd.h        |    6 +
+ include/asm-m32r/unistd.h        |    1 
+ include/asm-mips/unistd.h        |    3 
+ include/asm-powerpc/unistd.h     |    2 
+ include/asm-sh/unistd.h          |    1 
+ include/asm-sh64/unistd.h        |    1 
+ include/asm-um/unistd.h          |    2 
+ include/asm-x86_64/unistd.h      |    8 +
+ include/asm-xtensa/unistd.h      |    1 
+ include/linux/syscalls.h         |    2 
+ include/linux/utsname.h          |   21 ++++
+ init/version.c                   |    3 
+ kernel/power/power.h             |    2 
+ kernel/sys.c                     |   42 ++++++++
+ lib/Makefile                     |    2 
+ lib/utsname.c                    |  188 +++++++++++++++++++++++++++++++++++++++
+ net/ipv4/ipconfig.c              |    3 
+ 31 files changed, 334 insertions(+), 164 deletions(-)
+
+--- linux-2617-rc5.orig/include/asm-i386/unistd.h
++++ linux-2617-rc5/include/asm-i386/unistd.h
+@@ -322,8 +322,10 @@
+ #define __NR_sync_file_range	314
+ #define __NR_tee		315
+ #define __NR_vmsplice		316
++#define __NR_gethostname_long	317
++#define __NR_sethostname_long	318
+ 
+-#define NR_syscalls 317
++#define NR_syscalls 319
+ 
+ /*
+  * user-visible error numbers are in the range -1 - -128: see
+@@ -429,6 +431,8 @@ __syscall_return(type,__res); \
+ #define __ARCH_WANT_STAT64
+ #define __ARCH_WANT_SYS_ALARM
+ #define __ARCH_WANT_SYS_GETHOSTNAME
++#define __ARCH_WANT_OLD_UNAME
++#define __ARCH_WANT_OLDOLD_UNAME
+ #define __ARCH_WANT_SYS_PAUSE
+ #define __ARCH_WANT_SYS_SGETMASK
+ #define __ARCH_WANT_SYS_SIGNAL
+--- linux-2617-rc5.orig/include/linux/utsname.h
++++ linux-2617-rc5/include/linux/utsname.h
+@@ -30,7 +30,26 @@ struct new_utsname {
+ 	char domainname[65];
+ };
+ 
+-extern struct new_utsname system_utsname;
++/* for (POSIX) IEEE Std. 1003.1, 2004 edition */
++#define __POSIX_HOST_NAME_MAX	255	/* not including terminating NUL char */
+ 
++struct long_utsname {
++	char sysname[__NEW_UTS_LEN + 1];	/* O/S name */
++	char nodename[__POSIX_HOST_NAME_MAX + 1]; /* hostname, but keep field
++					* name same as other structs here */
++	char release[__NEW_UTS_LEN + 1];	/* O/S release level */
++	char version[__NEW_UTS_LEN + 1];	/* version level of release */
++	char machine[__NEW_UTS_LEN + 1];	/* machine hardware type */
++	char domainname[__NEW_UTS_LEN + 1];
++};
++
++extern struct long_utsname system_utsname;
+ extern struct rw_semaphore uts_sem;
++
++int put_oldold_uname(struct oldold_utsname __user *name);
++int __put_oldold_uname(struct oldold_utsname __user *name);
++int put_old_uname(struct old_utsname __user *name);
++int __put_old_uname(struct old_utsname __user *name);
++int put_new_uname(struct new_utsname __user *name);
++int __put_new_uname(struct new_utsname __user *name);
+ #endif
+--- linux-2617-rc5.orig/include/linux/syscalls.h
++++ linux-2617-rc5/include/linux/syscalls.h
+@@ -432,7 +432,9 @@ asmlinkage long sys_epoll_ctl(int epfd, 
+ asmlinkage long sys_epoll_wait(int epfd, struct epoll_event __user *events,
+ 				int maxevents, int timeout);
+ asmlinkage long sys_gethostname(char __user *name, int len);
++asmlinkage long sys_gethostname_long(char __user *name, int len);
+ asmlinkage long sys_sethostname(char __user *name, int len);
++asmlinkage long sys_sethostname_long(char __user *name, int len);
+ asmlinkage long sys_setdomainname(char __user *name, int len);
+ asmlinkage long sys_newuname(struct new_utsname __user *name);
+ 
+--- linux-2617-rc5.orig/init/version.c
++++ linux-2617-rc5/init/version.c
+@@ -17,7 +17,7 @@
+ 
+ int version_string(LINUX_VERSION_CODE);
+ 
+-struct new_utsname system_utsname = {
++struct long_utsname system_utsname = {
+ 	.sysname	= UTS_SYSNAME,
+ 	.nodename	= UTS_NODENAME,
+ 	.release	= UTS_RELEASE,
+@@ -25,7 +25,6 @@ struct new_utsname system_utsname = {
+ 	.machine	= UTS_MACHINE,
+ 	.domainname	= UTS_DOMAINNAME,
+ };
+-
+ EXPORT_SYMBOL(system_utsname);
+ 
+ const char linux_banner[] =
+--- linux-2617-rc5.orig/kernel/sys.c
++++ linux-2617-rc5/kernel/sys.c
+@@ -1666,14 +1666,13 @@ DECLARE_RWSEM(uts_sem);
+ 
+ EXPORT_SYMBOL(uts_sem);
+ 
++/* TBD: may also need a sys_uname_long() */
+ asmlinkage long sys_newuname(struct new_utsname __user * name)
+ {
+ 	int errno = 0;
+ 
+-	down_read(&uts_sem);
+-	if (copy_to_user(name,&system_utsname,sizeof *name))
++	if (put_new_uname(name))
+ 		errno = -EFAULT;
+-	up_read(&uts_sem);
+ 	return errno;
+ }
+ 
+@@ -1697,6 +1696,26 @@ asmlinkage long sys_sethostname(char __u
+ 	return errno;
+ }
+ 
++asmlinkage long sys_sethostname_long(char __user *name, int len)
++{
++	int errno;
++	char tmp[__POSIX_HOST_NAME_MAX + 1];
++
++	if (!capable(CAP_SYS_ADMIN))
++		return -EPERM;
++	if (len < 0 || len > __POSIX_HOST_NAME_MAX)
++		return -EINVAL;
++	down_write(&uts_sem);
++	errno = -EFAULT;
++	if (!copy_from_user(tmp, name, len)) {
++		memcpy(system_utsname.nodename, tmp, len);
++		system_utsname.nodename[len] = 0;
++		errno = 0;
++	}
++	up_write(&uts_sem);
++	return errno;
++}
++
+ #ifdef __ARCH_WANT_SYS_GETHOSTNAME
+ 
+ asmlinkage long sys_gethostname(char __user *name, int len)
+@@ -1718,6 +1737,23 @@ asmlinkage long sys_gethostname(char __u
+ 
+ #endif
+ 
++asmlinkage long sys_gethostname_long(char __user *name, int len)
++{
++	int i, errno;
++
++	if (len < 0)
++		return -EINVAL;
++	down_read(&uts_sem);
++	i = 1 + strlen(system_utsname.nodename);
++	if (i > len)
++		i = len;
++	errno = 0;
++	if (copy_to_user(name, system_utsname.nodename, i))
++		errno = -EFAULT;
++	up_read(&uts_sem);
++	return errno;
++}
++
+ /*
+  * Only setdomainname; getdomainname can be implemented by calling
+  * uname()
+--- linux-2617-rc5.orig/kernel/power/power.h
++++ linux-2617-rc5/kernel/power/power.h
+@@ -2,7 +2,7 @@
+ #include <linux/utsname.h>
+ 
+ struct swsusp_info {
+-	struct new_utsname	uts;
++	struct long_utsname	uts;
+ 	u32			version_code;
+ 	unsigned long		num_physpages;
+ 	int			cpus;
+--- linux-2617-rc5.orig/net/ipv4/ipconfig.c
++++ linux-2617-rc5/net/ipv4/ipconfig.c
+@@ -806,7 +806,8 @@ static void __init ic_do_bootp_ext(u8 *e
+ 			}
+ 			break;
+ 		case 12:	/* Host name */
+-			ic_bootp_string(system_utsname.nodename, ext+1, *ext, __NEW_UTS_LEN);
++			ic_bootp_string(system_utsname.nodename, ext+1, *ext,
++				sizeof(system_utsname.nodename));
+ 			ic_host_name_set = 1;
+ 			break;
+ 		case 15:	/* Domain name (DNS) */
+--- linux-2617-rc5.orig/arch/mips/kernel/syscall.c
++++ linux-2617-rc5/arch/mips/kernel/syscall.c
+@@ -232,9 +232,9 @@ out:
+  */
+ asmlinkage int sys_uname(struct old_utsname __user * name)
+ {
+-	if (name && !copy_to_user(name, &system_utsname, sizeof (*name)))
+-		return 0;
+-	return -EFAULT;
++	if (put_old_uname(name))
++		return -EFAULT;
++	return 0;
+ }
+ 
+ /*
+@@ -242,24 +242,7 @@ asmlinkage int sys_uname(struct old_utsn
+  */
+ asmlinkage int sys_olduname(struct oldold_utsname __user * name)
+ {
+-	int error;
+-
+-	if (!name)
+-		return -EFAULT;
+-	if (!access_ok(VERIFY_WRITE,name,sizeof(struct oldold_utsname)))
+-		return -EFAULT;
+-
+-	error = __copy_to_user(&name->sysname,&system_utsname.sysname,__OLD_UTS_LEN);
+-	error -= __put_user(0,name->sysname+__OLD_UTS_LEN);
+-	error -= __copy_to_user(&name->nodename,&system_utsname.nodename,__OLD_UTS_LEN);
+-	error -= __put_user(0,name->nodename+__OLD_UTS_LEN);
+-	error -= __copy_to_user(&name->release,&system_utsname.release,__OLD_UTS_LEN);
+-	error -= __put_user(0,name->release+__OLD_UTS_LEN);
+-	error -= __copy_to_user(&name->version,&system_utsname.version,__OLD_UTS_LEN);
+-	error -= __put_user(0,name->version+__OLD_UTS_LEN);
+-	error -= __copy_to_user(&name->machine,&system_utsname.machine,__OLD_UTS_LEN);
+-	error = __put_user(0,name->machine+__OLD_UTS_LEN);
+-	error = error ? -EFAULT : 0;
++	int error = put_oldold_uname(name);
+ 
+ 	return error;
+ }
+--- /dev/null
++++ linux-2617-rc5/lib/utsname.c
+@@ -0,0 +1,188 @@
++#include <linux/compiler.h>
++#include <linux/errno.h>
++#include <linux/module.h>
++#include <linux/rwsem.h>
++#include <linux/utsname.h>
++#include <asm/uaccess.h>
++
++#ifdef __ARCH_WANT_OLDOLD_UNAME
++
++int __put_oldold_uname(struct oldold_utsname __user *name)
++{
++	int error;
++
++	if (!name)
++		return -EFAULT;
++	if (!access_ok(VERIFY_WRITE, name, sizeof(struct oldold_utsname)))
++		return -EFAULT;
++
++	error = __copy_to_user(&name->sysname, &system_utsname.sysname,
++				__OLD_UTS_LEN);
++	error |= __put_user(0, name->sysname + __OLD_UTS_LEN);
++	error |= __copy_to_user(&name->nodename, &system_utsname.nodename,
++				__OLD_UTS_LEN);
++	error |= __put_user(0, name->nodename + __OLD_UTS_LEN);
++	error |= __copy_to_user(&name->release, &system_utsname.release,
++				__OLD_UTS_LEN);
++	error |= __put_user(0, name->release + __OLD_UTS_LEN);
++	error |= __copy_to_user(&name->version, &system_utsname.version,
++				__OLD_UTS_LEN);
++	error |= __put_user(0, name->version + __OLD_UTS_LEN);
++	error |= __copy_to_user(&name->machine, &system_utsname.machine,
++				__OLD_UTS_LEN);
++	error |= __put_user(0, name->machine + __OLD_UTS_LEN);
++
++	return error;
++}
++EXPORT_SYMBOL(__put_oldold_uname);
++
++int put_oldold_uname(struct oldold_utsname __user *name)
++{
++	int error;
++
++	down_read(&uts_sem);
++	error = __put_oldold_uname(name);
++	up_read(&uts_sem);
++
++	error = error ? -EFAULT : 0;
++	return error;
++}
++EXPORT_SYMBOL(put_oldold_uname);
++
++#endif
++
++#ifdef __ARCH_WANT_OLD_UNAME
++
++int __put_old_uname(struct old_utsname __user *name)
++{
++	int error;
++
++	if (!name)
++		return -EFAULT;
++	if (!access_ok(VERIFY_WRITE, name, sizeof(struct old_utsname)))
++		return -EFAULT;
++
++	error = __copy_to_user(&name->sysname, &system_utsname.sysname,
++				__NEW_UTS_LEN);
++	error |= __put_user(0, name->sysname + __NEW_UTS_LEN);
++	error |= __copy_to_user(&name->nodename, &system_utsname.nodename,
++				__NEW_UTS_LEN);
++	error |= __put_user(0, name->nodename + __NEW_UTS_LEN);
++	error |= __copy_to_user(&name->release, &system_utsname.release,
++				__NEW_UTS_LEN);
++	error |= __put_user(0, name->release + __NEW_UTS_LEN);
++	error |= __copy_to_user(&name->version, &system_utsname.version,
++				__NEW_UTS_LEN);
++	error |= __put_user(0, name->version + __NEW_UTS_LEN);
++	error |= __copy_to_user(&name->machine, &system_utsname.machine,
++				__NEW_UTS_LEN);
++	error |= __put_user(0, name->machine + __NEW_UTS_LEN);
++
++	return error;
++}
++EXPORT_SYMBOL(__put_old_uname);
++
++int put_old_uname(struct old_utsname __user *name)
++{
++	int error;
++
++	down_read(&uts_sem);
++	error = __put_old_uname(name);
++	up_read(&uts_sem);
++
++	error = error ? -EFAULT : 0;
++	return error;
++}
++EXPORT_SYMBOL(put_old_uname);
++
++#endif
++
++int __put_new_uname(struct new_utsname __user *name)
++{
++	int error;
++
++	if (!name)
++		return -EFAULT;
++	if (!access_ok(VERIFY_WRITE, name, sizeof(struct new_utsname)))
++		return -EFAULT;
++
++	error = __copy_to_user(&name->sysname, &system_utsname.sysname,
++				__NEW_UTS_LEN);
++	error |= __put_user(0, name->sysname + __NEW_UTS_LEN);
++	error |= __copy_to_user(&name->nodename, &system_utsname.nodename,
++				__NEW_UTS_LEN);
++	error |= __put_user(0, name->nodename + __NEW_UTS_LEN);
++	error |= __copy_to_user(&name->release, &system_utsname.release,
++				__NEW_UTS_LEN);
++	error |= __put_user(0, name->release + __NEW_UTS_LEN);
++	error |= __copy_to_user(&name->version, &system_utsname.version,
++				__NEW_UTS_LEN);
++	error |= __put_user(0, name->version + __NEW_UTS_LEN);
++	error |= __copy_to_user(&name->machine, &system_utsname.machine,
++				__NEW_UTS_LEN);
++	error |= __put_user(0, name->machine + __NEW_UTS_LEN);
++	error |= __copy_to_user(&name->domainname, &system_utsname.domainname,
++				__NEW_UTS_LEN);
++	error |= __put_user(0, name->domainname + __NEW_UTS_LEN);
++
++	return error;
++}
++EXPORT_SYMBOL(__put_new_uname);
++
++int put_new_uname(struct new_utsname __user *name)
++{
++	int error;
++
++	down_read(&uts_sem);
++	error = __put_new_uname(name);
++	up_read(&uts_sem);
++
++	error = error ? -EFAULT : 0;
++	return error;
++}
++EXPORT_SYMBOL(put_new_uname);
++
++int __put_long_uname(struct long_utsname __user *name)
++{
++	int error;
++
++	if (!name)
++		return -EFAULT;
++	if (!access_ok(VERIFY_WRITE, name, sizeof(struct new_utsname)))
++		return -EFAULT;
++
++	error = __copy_to_user(&name->sysname, &system_utsname.sysname,
++				__NEW_UTS_LEN);
++	error |= __put_user(0, name->sysname + __NEW_UTS_LEN);
++	error |= __copy_to_user(&name->nodename, &system_utsname.nodename,
++				__NEW_UTS_LEN);
++	error |= __put_user(0, name->nodename + __NEW_UTS_LEN);
++	error |= __copy_to_user(&name->release, &system_utsname.release,
++				__NEW_UTS_LEN);
++	error |= __put_user(0, name->release + __NEW_UTS_LEN);
++	error |= __copy_to_user(&name->version, &system_utsname.version,
++				__NEW_UTS_LEN);
++	error |= __put_user(0, name->version + __NEW_UTS_LEN);
++	error |= __copy_to_user(&name->machine, &system_utsname.machine,
++				__NEW_UTS_LEN);
++	error |= __put_user(0, name->machine + __NEW_UTS_LEN);
++	error |= __copy_to_user(&name->domainname, &system_utsname.domainname,
++				__NEW_UTS_LEN);
++	error |= __put_user(0, name->domainname + __NEW_UTS_LEN);
++
++	return error;
++}
++EXPORT_SYMBOL(__put_long_uname);
++
++int put_long_uname(struct long_utsname __user *name)
++{
++	int error;
++
++	down_read(&uts_sem);
++	error = __put_long_uname(name);
++	up_read(&uts_sem);
++
++	error = error ? -EFAULT : 0;
++	return error;
++}
++EXPORT_SYMBOL(put_long_uname);
+--- linux-2617-rc5.orig/arch/powerpc/kernel/syscalls.c
++++ linux-2617-rc5/arch/powerpc/kernel/syscalls.c
+@@ -255,14 +255,13 @@ static inline int override_machine(char 
+ 	return 0;
+ }
+ 
+-long ppc_newuname(struct new_utsname __user * name)
++long ppc_newuname(struct new_utsname __user *name)
+ {
+-	int err = 0;
++	int err;
+ 
+-	down_read(&uts_sem);
+-	if (copy_to_user(name, &system_utsname, sizeof(*name)))
++	err = put_new_uname(name);
++	if (err)
+ 		err = -EFAULT;
+-	up_read(&uts_sem);
+ 	if (!err)
+ 		err = override_machine(name->machine);
+ 	return err;
+@@ -270,12 +269,10 @@ long ppc_newuname(struct new_utsname __u
+ 
+ int sys_uname(struct old_utsname __user *name)
+ {
+-	int err = 0;
++	int err;
+ 	
+-	down_read(&uts_sem);
+-	if (copy_to_user(name, &system_utsname, sizeof(*name)))
++	err = put_old_uname(name);
+ 		err = -EFAULT;
+-	up_read(&uts_sem);
+ 	if (!err)
+ 		err = override_machine(name->machine);
+ 	return err;
+@@ -285,28 +282,10 @@ int sys_olduname(struct oldold_utsname _
+ {
+ 	int error;
+ 
+-	if (!access_ok(VERIFY_WRITE, name, sizeof(struct oldold_utsname)))
+-		return -EFAULT;
+-  
+-	down_read(&uts_sem);
+-	error = __copy_to_user(&name->sysname, &system_utsname.sysname,
+-			       __OLD_UTS_LEN);
+-	error |= __put_user(0, name->sysname + __OLD_UTS_LEN);
+-	error |= __copy_to_user(&name->nodename, &system_utsname.nodename,
+-				__OLD_UTS_LEN);
+-	error |= __put_user(0, name->nodename + __OLD_UTS_LEN);
+-	error |= __copy_to_user(&name->release, &system_utsname.release,
+-				__OLD_UTS_LEN);
+-	error |= __put_user(0, name->release + __OLD_UTS_LEN);
+-	error |= __copy_to_user(&name->version, &system_utsname.version,
+-				__OLD_UTS_LEN);
+-	error |= __put_user(0, name->version + __OLD_UTS_LEN);
+-	error |= __copy_to_user(&name->machine, &system_utsname.machine,
+-				__OLD_UTS_LEN);
++	error = put_oldold_uname(name);
+ 	error |= override_machine(name->machine);
+-	up_read(&uts_sem);
+ 
+-	return error? -EFAULT: 0;
++	return error ? -EFAULT : 0;
+ }
+ 
+ long ppc_fadvise64_64(int fd, int advice, u32 offset_high, u32 offset_low,
+--- linux-2617-rc5.orig/include/asm-mips/unistd.h
++++ linux-2617-rc5/include/asm-mips/unistd.h
+@@ -1176,6 +1176,9 @@ type name (atype a,btype b,ctype c,dtype
+ #define __ARCH_WANT_OLD_READDIR
+ #define __ARCH_WANT_SYS_ALARM
+ #define __ARCH_WANT_SYS_GETHOSTNAME
++#define __ARCH_WANT_OLDOLD_UNAME
++#define __ARCH_WANT_OLD_UNAME
++#define __ARCH_WANT_NEW_UNAME
+ #define __ARCH_WANT_SYS_PAUSE
+ #define __ARCH_WANT_SYS_SGETMASK
+ #define __ARCH_WANT_SYS_UTIME
+--- linux-2617-rc5.orig/include/asm-powerpc/unistd.h
++++ linux-2617-rc5/include/asm-powerpc/unistd.h
+@@ -454,6 +454,8 @@ type name(type1 arg1, type2 arg2, type3 
+ #define __ARCH_WANT_STAT64
+ #define __ARCH_WANT_SYS_ALARM
+ #define __ARCH_WANT_SYS_GETHOSTNAME
++#define __ARCH_WANT_OLDOLD_UNAME
++#define __ARCH_WANT_NEW_UNAME
+ #define __ARCH_WANT_SYS_PAUSE
+ #define __ARCH_WANT_SYS_SGETMASK
+ #define __ARCH_WANT_SYS_SIGNAL
+--- linux-2617-rc5.orig/arch/mips/kernel/linux32.c
++++ linux-2617-rc5/arch/mips/kernel/linux32.c
+@@ -1039,10 +1039,8 @@ asmlinkage long sys32_newuname(struct ne
+ {
+ 	int ret = 0;
+ 
+-	down_read(&uts_sem);
+-	if (copy_to_user(name,&system_utsname,sizeof *name))
++	if (put_new_uname(name))
+ 		ret = -EFAULT;
+-	up_read(&uts_sem);
+ 
+ 	if (current->personality == PER_LINUX32 && !ret)
+ 		if (copy_to_user(name->machine, "mips\0\0\0", 8))
+--- linux-2617-rc5.orig/lib/Makefile
++++ linux-2617-rc5/lib/Makefile
+@@ -5,7 +5,7 @@
+ lib-y := errno.o ctype.o string.o vsprintf.o cmdline.o \
+ 	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
+ 	 idr.o div64.o int_sqrt.o bitmap.o extable.o prio_tree.o \
+-	 sha1.o
++	 sha1.o utsname.o
+ 
+ lib-$(CONFIG_SMP) += cpumask.o
+ 
+--- linux-2617-rc5.orig/include/asm-m32r/unistd.h
++++ linux-2617-rc5/include/asm-m32r/unistd.h
+@@ -410,6 +410,7 @@ __syscall_return(type,__res); \
+ #define __ARCH_WANT_STAT64
+ #define __ARCH_WANT_SYS_ALARM
+ #define __ARCH_WANT_SYS_GETHOSTNAME
++#define	__ARCH_WANT_OLD_UNAME
+ #define __ARCH_WANT_SYS_PAUSE
+ #define __ARCH_WANT_SYS_TIME
+ #define __ARCH_WANT_SYS_UTIME
+--- linux-2617-rc5.orig/arch/m32r/kernel/sys_m32r.c
++++ linux-2617-rc5/arch/m32r/kernel/sys_m32r.c
+@@ -200,15 +200,11 @@ asmlinkage int sys_ipc(uint call, int fi
+ 	}
+ }
+ 
+-asmlinkage int sys_uname(struct old_utsname * name)
++asmlinkage int sys_uname(struct old_utsname *name)
+ {
+-	int err;
+-	if (!name)
+-		return -EFAULT;
+-	down_read(&uts_sem);
+-	err=copy_to_user(name, &system_utsname, sizeof (*name));
+-	up_read(&uts_sem);
+-	return err?-EFAULT:0;
++	int err = put_old_uname(name);
++
++	return err ? -EFAULT : 0;
+ }
+ 
+ asmlinkage int sys_cacheflush(void *addr, int bytes, int cache)
+--- linux-2617-rc5.orig/arch/xtensa/kernel/syscalls.c
++++ linux-2617-rc5/arch/xtensa/kernel/syscalls.c
+@@ -127,11 +127,11 @@ out:
+ 	return error;
+ }
+ 
+-int sys_uname(struct old_utsname * name)
++int sys_uname(struct old_utsname *name)
+ {
+-	if (name && !copy_to_user(name, &system_utsname, sizeof (*name)))
+-		return 0;
+-	return -EFAULT;
++	if (put_old_uname(name))
++		return -EFAULT;
++	return 0;
+ }
+ 
+ /*
+--- linux-2617-rc5.orig/include/asm-xtensa/unistd.h
++++ linux-2617-rc5/include/asm-xtensa/unistd.h
+@@ -434,6 +434,7 @@ static __inline__ _syscall3(int,execve,c
+ #define __ARCH_WANT_SYS_UTIME
+ #define __ARCH_WANT_SYS_LLSEEK
+ #define __ARCH_WANT_SYS_RT_SIGACTION
++#define __ARCH_WANT_OLD_UNAME
+ #endif
+ 
+ #endif	/* _XTENSA_UNISTD_H */
+--- linux-2617-rc5.orig/arch/um/kernel/syscall_kern.c
++++ linux-2617-rc5/arch/um/kernel/syscall_kern.c
+@@ -107,12 +107,9 @@ long sys_pipe(unsigned long __user * fil
+ long sys_uname(struct old_utsname __user * name)
+ {
+ 	long err;
+-	if (!name)
+-		return -EFAULT;
+-	down_read(&uts_sem);
+-	err=copy_to_user(name, &system_utsname, sizeof (*name));
+-	up_read(&uts_sem);
+-	return err?-EFAULT:0;
++
++	err = put_old_uname(name);
++	return err ? -EFAULT : 0;
+ }
+ 
+ long sys_olduname(struct oldold_utsname __user * name)
+--- linux-2617-rc5.orig/include/asm-um/unistd.h
++++ linux-2617-rc5/include/asm-um/unistd.h
+@@ -18,6 +18,8 @@ extern int um_execve(const char *file, c
+ #define __ARCH_WANT_OLD_READDIR
+ #define __ARCH_WANT_SYS_ALARM
+ #define __ARCH_WANT_SYS_GETHOSTNAME
++#define __ARCH_WANT_OLD_UNAME
++#define __ARCH_WANT_NEW_UNAME
+ #define __ARCH_WANT_SYS_PAUSE
+ #define __ARCH_WANT_SYS_SGETMASK
+ #define __ARCH_WANT_SYS_SIGNAL
+--- linux-2617-rc5.orig/include/asm-sh/unistd.h
++++ linux-2617-rc5/include/asm-sh/unistd.h
+@@ -427,6 +427,7 @@ __syscall_return(type,__sc0); \
+ #define __ARCH_WANT_STAT64
+ #define __ARCH_WANT_SYS_ALARM
+ #define __ARCH_WANT_SYS_GETHOSTNAME
++#define __ARCH_WANT_OLD_UNAME
+ #define __ARCH_WANT_SYS_PAUSE
+ #define __ARCH_WANT_SYS_SGETMASK
+ #define __ARCH_WANT_SYS_SIGNAL
+--- linux-2617-rc5.orig/include/asm-sh64/unistd.h
++++ linux-2617-rc5/include/asm-sh64/unistd.h
+@@ -493,6 +493,7 @@ __syscall_return(type,__sc0); 						    
+ #define __ARCH_WANT_STAT64
+ #define __ARCH_WANT_SYS_ALARM
+ #define __ARCH_WANT_SYS_GETHOSTNAME
++#define __ARCH_WANT_OLD_UNAME
+ #define __ARCH_WANT_SYS_PAUSE
+ #define __ARCH_WANT_SYS_SGETMASK
+ #define __ARCH_WANT_SYS_SIGNAL
+--- linux-2617-rc5.orig/arch/sh/kernel/sys_sh.c
++++ linux-2617-rc5/arch/sh/kernel/sys_sh.c
+@@ -261,15 +261,12 @@ asmlinkage int sys_ipc(uint call, int fi
+ 	return -EINVAL;
+ }
+ 
+-asmlinkage int sys_uname(struct old_utsname * name)
++asmlinkage int sys_uname(struct old_utsname *name)
+ {
+ 	int err;
+-	if (!name)
+-		return -EFAULT;
+-	down_read(&uts_sem);
+-	err=copy_to_user(name, &system_utsname, sizeof (*name));
+-	up_read(&uts_sem);
+-	return err?-EFAULT:0;
++
++	err = put_old_uname(name);
++	return err ? -EFAULT : 0;
+ }
+ 
+ asmlinkage ssize_t sys_pread_wrapper(unsigned int fd, char * buf,
+--- linux-2617-rc5.orig/arch/sh64/kernel/sys_sh64.c
++++ linux-2617-rc5/arch/sh64/kernel/sys_sh64.c
+@@ -273,13 +273,10 @@ asmlinkage int sys_ipc(uint call, int fi
+ 	return -EINVAL;
+ }
+ 
+-asmlinkage int sys_uname(struct old_utsname * name)
++asmlinkage int sys_uname(struct old_utsname *name)
+ {
+ 	int err;
+-	if (!name)
+-		return -EFAULT;
+-	down_read(&uts_sem);
+-	err=copy_to_user(name, &system_utsname, sizeof (*name));
+-	up_read(&uts_sem);
+-	return err?-EFAULT:0;
++
++	err = put_old_uname(name);
++	return err ? -EFAULT : 0;
+ }
+--- linux-2617-rc5.orig/arch/x86_64/kernel/sys_x86_64.c
++++ linux-2617-rc5/arch/x86_64/kernel/sys_x86_64.c
+@@ -144,12 +144,10 @@ full_search:
+ 	}
+ }
+ 
+-asmlinkage long sys_uname(struct new_utsname __user * name)
++asmlinkage long sys_uname(struct new_utsname __user *name)
+ {
+-	int err;
+-	down_read(&uts_sem);
+-	err = copy_to_user(name, &system_utsname, sizeof (*name));
+-	up_read(&uts_sem);
++	int err = put_new_uname(name);
++
+ 	if (personality(current->personality) == PER_LINUX32) 
+ 		err |= copy_to_user(&name->machine, "i686", 5); 		
+ 	return err ? -EFAULT : 0;
+--- linux-2617-rc5.orig/include/asm-x86_64/unistd.h
++++ linux-2617-rc5/include/asm-x86_64/unistd.h
+@@ -617,8 +617,12 @@ __SYSCALL(__NR_tee, sys_tee)
+ __SYSCALL(__NR_sync_file_range, sys_sync_file_range)
+ #define __NR_vmsplice		278
+ __SYSCALL(__NR_vmsplice, sys_vmsplice)
++#define __NR_gethostname_long	279
++__SYSCALL(__NR_gethostname_long, sys_gethostname_long)
++#define __NR_sethostname_long	280
++__SYSCALL(__NR_sethostname_long, sys_sethostname_long)
+ 
+-#define __NR_syscall_max __NR_vmsplice
++#define __NR_syscall_max __NR_sethostname_long
+ 
+ #ifndef __NO_STUBS
+ 
+@@ -640,6 +644,8 @@ do { \
+ #define __ARCH_WANT_OLD_STAT
+ #define __ARCH_WANT_SYS_ALARM
+ #define __ARCH_WANT_SYS_GETHOSTNAME
++#define __ARCH_WANT_OLDOLD_UNAME
++#define __ARCH_WANT_NEW_UNAME
+ #define __ARCH_WANT_SYS_PAUSE
+ #define __ARCH_WANT_SYS_SGETMASK
+ #define __ARCH_WANT_SYS_SIGNAL
+--- linux-2617-rc5.orig/arch/x86_64/ia32/sys_ia32.c
++++ linux-2617-rc5/arch/x86_64/ia32/sys_ia32.c
+@@ -790,38 +790,17 @@ asmlinkage long sys32_mmap2(unsigned lon
+ 	return error;
+ }
+ 
+-asmlinkage long sys32_olduname(struct oldold_utsname __user * name)
++asmlinkage long sys32_olduname(struct oldold_utsname __user *name)
+ {
+-	int error;
++	int error = put_oldold_uname(name);
++	char *arch = "x86_64";
+ 
+-	if (!name)
+-		return -EFAULT;
+-	if (!access_ok(VERIFY_WRITE,name,sizeof(struct oldold_utsname)))
+-		return -EFAULT;
+-  
+-  	down_read(&uts_sem);
+-	
+-	error = __copy_to_user(&name->sysname,&system_utsname.sysname,__OLD_UTS_LEN);
+-	 __put_user(0,name->sysname+__OLD_UTS_LEN);
+-	 __copy_to_user(&name->nodename,&system_utsname.nodename,__OLD_UTS_LEN);
+-	 __put_user(0,name->nodename+__OLD_UTS_LEN);
+-	 __copy_to_user(&name->release,&system_utsname.release,__OLD_UTS_LEN);
+-	 __put_user(0,name->release+__OLD_UTS_LEN);
+-	 __copy_to_user(&name->version,&system_utsname.version,__OLD_UTS_LEN);
+-	 __put_user(0,name->version+__OLD_UTS_LEN);
+-	 { 
+-		 char *arch = "x86_64";
+-		 if (personality(current->personality) == PER_LINUX32)
+-			 arch = "i686";
+-		 
+-		 __copy_to_user(&name->machine,arch,strlen(arch)+1);
+-	 }
+-	
+-	 up_read(&uts_sem);
+-	 
+-	 error = error ? -EFAULT : 0;
+-	 
+-	 return error;
++	if (personality(current->personality) == PER_LINUX32)
++		arch = "i686";
++	__copy_to_user(&name->machine, arch, strlen(arch)+1);
++
++	error = error ? -EFAULT : 0;
++	return error;
+ }
+ 
+ long sys32_uname(struct old_utsname __user * name)
+--- linux-2617-rc5.orig/arch/i386/kernel/sys_i386.c
++++ linux-2617-rc5/arch/i386/kernel/sys_i386.c
+@@ -204,42 +204,17 @@ asmlinkage int sys_ipc (uint call, int f
+ /*
+  * Old cruft
+  */
+-asmlinkage int sys_uname(struct old_utsname __user * name)
++asmlinkage int sys_uname(struct old_utsname __user *name)
+ {
+-	int err;
+-	if (!name)
+-		return -EFAULT;
+-	down_read(&uts_sem);
+-	err=copy_to_user(name, &system_utsname, sizeof (*name));
+-	up_read(&uts_sem);
+-	return err?-EFAULT:0;
++	int err = put_old_uname(name);
++
++	return err ? -EFAULT : 0;
+ }
+ 
+-asmlinkage int sys_olduname(struct oldold_utsname __user * name)
++asmlinkage int sys_olduname(struct oldold_utsname __user *name)
+ {
+-	int error;
+-
+-	if (!name)
+-		return -EFAULT;
+-	if (!access_ok(VERIFY_WRITE,name,sizeof(struct oldold_utsname)))
+-		return -EFAULT;
+-  
+-  	down_read(&uts_sem);
+-	
+-	error = __copy_to_user(&name->sysname,&system_utsname.sysname,__OLD_UTS_LEN);
+-	error |= __put_user(0,name->sysname+__OLD_UTS_LEN);
+-	error |= __copy_to_user(&name->nodename,&system_utsname.nodename,__OLD_UTS_LEN);
+-	error |= __put_user(0,name->nodename+__OLD_UTS_LEN);
+-	error |= __copy_to_user(&name->release,&system_utsname.release,__OLD_UTS_LEN);
+-	error |= __put_user(0,name->release+__OLD_UTS_LEN);
+-	error |= __copy_to_user(&name->version,&system_utsname.version,__OLD_UTS_LEN);
+-	error |= __put_user(0,name->version+__OLD_UTS_LEN);
+-	error |= __copy_to_user(&name->machine,&system_utsname.machine,__OLD_UTS_LEN);
+-	error |= __put_user(0,name->machine+__OLD_UTS_LEN);
+-	
+-	up_read(&uts_sem);
++	int error = put_oldold_uname(name);
+ 	
+ 	error = error ? -EFAULT : 0;
+-
+ 	return error;
+ }
+--- linux-2617-rc5.orig/drivers/char/random.c
++++ linux-2617-rc5/drivers/char/random.c
+@@ -223,7 +223,6 @@
+  * Eastlake, Steve Crocker, and Jeff Schiller.
+  */
+ 
+-#include <linux/utsname.h>
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+@@ -240,6 +239,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/percpu.h>
+ #include <linux/cryptohash.h>
++#include <linux/utsname.h>
+ 
+ #include <asm/processor.h>
+ #include <asm/uaccess.h>
+--- linux-2617-rc5.orig/arch/i386/kernel/syscall_table.S
++++ linux-2617-rc5/arch/i386/kernel/syscall_table.S
+@@ -315,3 +315,6 @@ ENTRY(sys_call_table)
+ 	.long sys_splice
+ 	.long sys_sync_file_range
+ 	.long sys_tee			/* 315 */
++	.long sys_ni_syscall		/* vmsplice */
++	.long sys_gethostname_long
++	.long sys_sethostname_long
+--- linux-2617-rc5.orig/arch/x86_64/ia32/ia32entry.S
++++ linux-2617-rc5/arch/x86_64/ia32/ia32entry.S
+@@ -694,6 +694,8 @@ ia32_sys_call_table:
+ 	.quad compat_sys_get_robust_list
+ 	.quad sys_splice
+ 	.quad sys_sync_file_range
+-	.quad sys_tee
++	.quad sys_tee			/* 315 */
+ 	.quad compat_sys_vmsplice
++	.quad sys_gethostname
++	.quad sys_sethostname
+ ia32_syscall_end:		

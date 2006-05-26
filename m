@@ -1,79 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751583AbWEZV0i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751590AbWEZV3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751583AbWEZV0i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 17:26:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751585AbWEZV0i
+	id S1751590AbWEZV3k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 17:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751591AbWEZV3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 17:26:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5262 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751582AbWEZV0h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 17:26:37 -0400
-Date: Fri, 26 May 2006 14:26:31 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] hrtimer: export symbols
-Message-ID: <20060526142631.38d5309e@localhost.localdomain>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 26 May 2006 17:29:40 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:40196 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751589AbWEZV3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 17:29:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=h3mmIxPVEwTpXhDPTQmzb8KuETuRQ2cLwspo6GZfe4WrOquP3cxTwknxHYSAaEBoqzVWFqpKX3MoX2kQ9Gh50RKteYX0esTiUw5rYVQmdrqZcJVFg3N3IXoXKVomcke1tjIdMbRP4WyJebOLXBu/2wn6xvuMyv0+CM6jk7zvoIU=
+Message-ID: <44777340.7030905@gmail.com>
+Date: Sat, 27 May 2006 00:29:36 +0300
+From: Anssi Hannula <anssi.hannula@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6-7.5.20060mdk (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: dtor_core@ameritech.net, linux-joystick@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 03/13] input: make input a multi-object module
+References: <20060526161129.557416000@gmail.com>	<20060526162902.227348000@gmail.com> <20060526141603.054f0459.akpm@osdl.org>
+In-Reply-To: <20060526141603.054f0459.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I want to use the hrtimer's in the netem (Network Emulator) qdisc.
-But the necessary symbols aren't exported for module use.
+Andrew Morton wrote:
+> Anssi Hannula <anssi.hannula@gmail.com> wrote:
+> 
+>>Move the input.c to input-core.c and modify Makefile so that the input module
+>>can be built from multiple source files. This is preparing for the input-ff.c.
+>>
+>>Signed-off-by: Anssi Hannula <anssi.hannula@gmail.com>
+>>
+>>---
+>> drivers/input/Makefile     |    2 
+>> drivers/input/input-core.c | 1099 +++++++++++++++++++++++++++++++++++++++++++++
+>> drivers/input/input.c      | 1099 ---------------------------------------------
+> 
+> urgh.  There are other changes pending againt input.c and this renaming
+> makes everything a huge pain.
+> 
+> What does "can be built from multiple source files" mean?
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
---- linux-2.6.orig/kernel/hrtimer.c	2006-04-27 11:12:53.000000000 -0700
-+++ linux-2.6/kernel/hrtimer.c	2006-05-26 14:21:37.000000000 -0700
-@@ -456,6 +456,7 @@
- 
- 	return ret;
- }
-+EXPORT_SYMBOL_GPL(hrtimer_start);
- 
- /**
-  * hrtimer_try_to_cancel - try to deactivate a timer
-@@ -484,6 +485,7 @@
- 	return ret;
- 
- }
-+EXPORT_SYMBOL_GPL(hrtimer_try_to_cancel);
- 
- /**
-  * hrtimer_cancel - cancel a timer and wait for the handler to finish.
-@@ -504,6 +506,7 @@
- 		cpu_relax();
- 	}
- }
-+EXPORT_SYMBOL_GPL(hrtimer_cancel);
- 
- /**
-  * hrtimer_get_remaining - get remaining time for the timer
-@@ -522,6 +525,7 @@
- 
- 	return rem;
- }
-+EXPORT_SYMBOL_GPL(hrtimer_get_remaining);
- 
- #ifdef CONFIG_NO_IDLE_HZ
- /**
-@@ -580,6 +584,7 @@
- 	timer->base = &bases[clock_id];
- 	timer->node.rb_parent = HRTIMER_INACTIVE;
- }
-+EXPORT_SYMBOL_GPL(hrtimer_init);
- 
- /**
-  * hrtimer_get_res - get the timer resolution for a clock
-@@ -599,6 +604,7 @@
- 
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(hrtimer_get_res);
- 
- /*
-  * Expire the per base hrtimer-queue:
+Well, I want to embed the input-ff.c into the input module too.
+
+> It would be much nicer all round if we could avoid renaming this file.
+
+Indeed... There are these 4 options as far as I see:
+
+1. Do this rename
+2. Put all the code in input-ff.c to input.c
+3. Make the input-ff a separate bool "module" and add
+EXPORT_SYMBOL_GPL() for input_ff_event() which is currently the only
+function in input-ff.c that is called from input.c
+4. Rename the input "module" to something else, it doesn't matter so
+much as almost everybody builds it as built-in anyway.
+
+WDYT is the best one?
+
+-- 
+Anssi Hannula
+

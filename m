@@ -1,102 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWEZOYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWEZOWO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbWEZOYu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 10:24:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWEZOWN
+	id S1750788AbWEZOWO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 10:22:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWEZOWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 10:22:13 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:34249 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750789AbWEZOWC (ORCPT
+	Fri, 26 May 2006 10:22:10 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:2482 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750790AbWEZOWD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 10:22:02 -0400
+	Fri, 26 May 2006 10:22:03 -0400
 In-reply-to: <20060526142117.GA2764@us.ibm.com>
 From: Mike Halcrow <mhalcrow@us.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
        Christoph Hellwig <hch@infradead.org>,
        Mike Halcrow <mhalcrow@us.ibm.com>, Mike Halcrow <mike@halcrow.us>
-Subject: [PATCH 7/10] Remove extraneous read of inode size from header
-Message-Id: <E1FjdCG-00033d-N5@localhost.localdomain>
+Subject: [PATCH 10/10] Overhaul file locking
+Message-Id: <E1FjdCG-00033w-QA@localhost.localdomain>
 Date: Fri, 26 May 2006 09:21:48 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig pointed out that the inode is not live at this point
-in ecryptfs_open(), and so this entire function is pointless.
+Use exported posix_lock_file_wait() rather than re-implement it. Note
+that ecryptfs_getlk() and ecryptfs_setlk() still need work; we need to
+figure out how to best integrate with the existing fcntl_setlk() and
+fcntl_getlk() functions in fs/locks.c.
 
 Signed-off-by: Michael Halcrow <mhalcrow@us.ibm.com>
 
 ---
 
- fs/ecryptfs/file.c |   47 +----------------------------------------------
- 1 files changed, 1 insertions(+), 46 deletions(-)
+ fs/ecryptfs/file.c |   71 +++++++++++++---------------------------------------
+ 1 files changed, 18 insertions(+), 53 deletions(-)
 
-35776954e1116224272c4e191aed9a85b63914f7
+494162519c1eee8de78405ac35302f488a6b8ef0
 diff --git a/fs/ecryptfs/file.c b/fs/ecryptfs/file.c
-index 0284e16..b8fcd0a 100644
+index c984ea6..c4ea9f0 100644
 --- a/fs/ecryptfs/file.c
 +++ b/fs/ecryptfs/file.c
-@@ -189,49 +189,6 @@ retry:
+@@ -336,40 +336,12 @@ ecryptfs_fsync(struct file *file, struct
  	return rc;
  }
  
--/**
-- * read_inode_size_from_header
-- * @lower_file: The lower file struct
-- * @lower_inode: The lower inode
-- * @inode: The ecryptfs inode
-- *
-- * Returns zero on success; non-zero otherwise
-- */
--static int
--read_inode_size_from_header(struct file *lower_file,
--			    struct inode *lower_inode, struct inode *inode)
+-static void locks_delete_block(struct file_lock *waiter)
+-{
+-	lock_kernel();
+-	list_del_init(&waiter->fl_block);
+-	list_del_init(&waiter->fl_link);
+-	waiter->fl_next = NULL;
+-	unlock_kernel();
+-}
+-
+-static int ecryptfs_posix_lock(struct file *file, struct file_lock *fl, int cmd)
 -{
 -	int rc;
--	struct page *header_page;
--	unsigned char *header_virt;
--	u64 data_size;
 -
--	header_page = grab_cache_page(lower_inode->i_mapping, 0);
--	if (!header_page) {
--		rc = -EINVAL;
--		ecryptfs_printk(KERN_ERR, "grab_cache_page for header page "
--				"failed\n");
+-lock_file:
+-	rc = posix_lock_file(file, fl);
+-	if ((rc != -EAGAIN) || (cmd == F_SETLK))
 -		goto out;
--	}
--	header_virt = kmap(header_page);
--	rc = lower_inode->i_mapping->a_ops->readpage(lower_file, header_page);
--	if (rc) {
--		ecryptfs_printk(KERN_ERR, "Error reading header page\n");
--		goto out_unmap;
--	}
--	memcpy(&data_size, header_virt, sizeof(data_size));
--	data_size = be64_to_cpu(data_size);
--	i_size_write(inode, (loff_t)data_size);
--	ecryptfs_printk(KERN_DEBUG, "inode w/ addr = [0x%p], i_ino = [0x%.16x] "
--			"size: [0x%.16x]\n", inode, inode->i_ino,
--			i_size_read(inode));
--out_unmap:
--	kunmap(header_page);
--	page_cache_release(header_page);
+-	rc = wait_event_interruptible(fl->fl_wait, !fl->fl_next);
+-	if (!rc)
+-		goto lock_file;
+-	locks_delete_block(fl);
 -out:
 -	return rc;
 -}
 -
- struct kmem_cache *ecryptfs_file_info_cache;
+ static int ecryptfs_setlk(struct file *file, int cmd, struct file_lock *fl)
+ {
+-	int rc = -EINVAL;
+-	struct inode *inode, *lower_inode;
+-	struct file *lower_file = NULL;
++	struct file *lower_file = ecryptfs_file_to_lower(file);
++	struct inode *lower_inode = lower_file->f_dentry->d_inode;
++	int rc;
  
- /**
-@@ -320,9 +277,7 @@ static int ecryptfs_open(struct inode *i
- 			 * going to default to -EIO. */
- 			rc = -EIO;
- 			goto out_puts;
--		} else
--			read_inode_size_from_header(lower_file, lower_inode,
--						    inode);
-+		}
+-	lower_file = ecryptfs_file_to_lower(file);
+-	inode = file->f_dentry->d_inode;
+-	lower_inode = lower_file->f_dentry->d_inode;
+ 	/* Don't allow mandatory locks on files that may be memory mapped
+ 	 * and shared. */
+ 	if (IS_MANDLOCK(lower_inode) &&
+@@ -378,7 +350,7 @@ static int ecryptfs_setlk(struct file *f
+ 		rc = -EAGAIN;
+ 		goto out;
  	}
- 	ecryptfs_printk(KERN_DEBUG, "inode w/ addr = [0x%p], i_ino = [0x%.16x] "
- 			"size: [0x%.16x]\n", inode, inode->i_ino,
+-	if (cmd == F_SETLKW)
++	if (IS_SETLKW(cmd))
+ 		fl->fl_flags |= FL_SLEEP;
+ 	rc = -EBADF;
+ 	switch (fl->fl_type) {
+@@ -406,29 +378,29 @@ static int ecryptfs_setlk(struct file *f
+ 			goto out;
+ 		goto upper_lock;
+ 	}
+-	rc = ecryptfs_posix_lock(lower_file, fl, cmd);
++	rc = posix_lock_file_wait(lower_file, fl);
+ 	if (rc)
+ 		goto out;
+ upper_lock:
+ 	fl->fl_file = file;
+-	rc = ecryptfs_posix_lock(file, fl, cmd);
++	rc = posix_lock_file_wait(lower_file, fl);
+ 	if (rc) {
+ 		fl->fl_type = F_UNLCK;
+ 		fl->fl_file = lower_file;
+-		ecryptfs_posix_lock(lower_file, fl, cmd);
++		rc = posix_lock_file_wait(lower_file, fl);
+ 	}
+ out:
+ 	return rc;
+ }
+ 
+-static int ecryptfs_getlk(struct file *file, struct file_lock *fl)
++static int ecryptfs_getlk(struct file *file, int cmd, struct file_lock *fl)
+ {
+ 	struct file_lock cfl;
+ 	struct file_lock *tempfl = NULL;
+ 	int rc = 0;
+ 
+ 	if (file->f_op && file->f_op->lock) {
+-		rc = file->f_op->lock(file, F_GETLK, fl);
++		rc = file->f_op->lock(file, cmd, fl);
+ 		if (rc < 0)
+ 			goto out;
+ 	} else
+@@ -454,27 +426,20 @@ static int ecryptfs_fasync(int fd, struc
+ 
+ static int ecryptfs_lock(struct file *file, int cmd, struct file_lock *fl)
+ {
+-	int rc = 0;
+-	struct file *lower_file = NULL;
++	struct file *lower_file = ecryptfs_file_to_lower(file);
++	int rc = -EINVAL;
+ 
+-	lower_file = ecryptfs_file_to_lower(file);
+-	rc = -EINVAL;
+ 	if (!fl)
+ 		goto out;
+-	fl->fl_file = lower_file;
+-	switch (cmd) {
+-	case F_GETLK:
+-		rc = ecryptfs_getlk(lower_file, fl);
+-		break;
+-	case F_SETLK:
+-	case F_SETLKW:
++	if (IS_GETLK(cmd)) {
++		fl->fl_file = lower_file;
++		rc = ecryptfs_getlk(lower_file, cmd, fl);
++		fl->fl_file = file;
++	} else if (IS_SETLK(cmd) || IS_SETLKW(cmd)) {
+ 		fl->fl_file = file;
+ 		rc = ecryptfs_setlk(file, cmd, fl);
+-		break;
+-	default:
+-		rc = -EINVAL;
+-	}
+-	fl->fl_file = file;
++	} else
++		fl->fl_file = file;
+ out:
+ 	return rc;
+ }
 -- 
 1.3.3
 

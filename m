@@ -1,37 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWEZN5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWEZN7S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbWEZN5L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 09:57:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWEZN5L
+	id S1750759AbWEZN7S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 09:59:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWEZN7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 09:57:11 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:13546 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750749AbWEZN5K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 09:57:10 -0400
-Date: Fri, 26 May 2006 06:56:47 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH 02/33] radixtree: introduce __radix_tree_lookup_parent()
-In-Reply-To: <348644373.06563@ustc.edu.cn>
-Message-ID: <Pine.LNX.4.64.0605260656090.30694@schroedinger.engr.sgi.com>
-References: <20060526113906.084341801@localhost.localdomain>
- <348644373.06563@ustc.edu.cn>
+	Fri, 26 May 2006 09:59:17 -0400
+Received: from omta02sl.mx.bigpond.com ([144.140.93.154]:2936 "EHLO
+	omta02sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750759AbWEZN7R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 09:59:17 -0400
+Message-ID: <447709B3.80309@bigpond.net.au>
+Date: Fri, 26 May 2006 23:59:15 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Con Kolivas <kernel@kolivas.org>
+CC: Mike Galbraith <efault@gmx.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
+       Rene Herman <rene.herman@keyaccess.nl>
+Subject: Re: [RFC 3/5] sched: Add CPU rate hard caps
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest> <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest> <200605262100.22071.kernel@kolivas.org>
+In-Reply-To: <200605262100.22071.kernel@kolivas.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Fri, 26 May 2006 13:59:15 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 May 2006, Wu Fengguang wrote:
-
-> Introduce a general lookup function to radix tree.
+Con Kolivas wrote:
+> On Friday 26 May 2006 14:20, Peter Williams wrote:
+>> This patch implements hard CPU rate caps per task as a proportion of a
+>> single CPU's capacity expressed in parts per thousand.
 > 
-> - __radix_tree_lookup_parent(root, index, level)
-> 	Perform partial lookup, return the @level'th parent of the slot at
-> 	@index.
+> A hard cap of 1/1000 could lead to interesting starvation scenarios where a 
+> mutex or semaphore was held by a task that hardly ever got cpu. Same goes to 
+> a lesser extent to a 0 soft cap. 
 > 
-> Signed-off-by: Christoph Lameter <clameter@sgi.com>
+> Here is how I handle idleprio tasks in current -ck:
+> 
+> http://ck.kolivas.org/patches/2.6/pre-releases/2.6.17-rc5/2.6.17-rc5-ck1/patches/track_mutexes-1.patch
+> tags tasks that are holding a mutex
+> 
+> http://ck.kolivas.org/patches/2.6/pre-releases/2.6.17-rc5/2.6.17-rc5-ck1/patches/sched-idleprio-1.7.patch
+> is the idleprio policy for staircase.
+> 
+> What it does is runs idleprio tasks as normal tasks when they hold a mutex or 
+> are waking up after calling down() (ie holding a semaphore).
 
-Would you please remove my signoff? I never reviewed this code.
+I wasn't aware that you could detect those conditions.  They could be 
+very useful.
+
+> These two in 
+> combination have shown resistance to any priority inversion problems in 
+> widespread testing. An attempt was made to track semaphores held via a 
+> down_interruptible() but unfortunately the lack of strict rules about who 
+> could release the semaphore meant accounting was impossible of this scenario. 
+> In practice, though there were no test cases that showed it to be an issue, 
+> and the recent conversion en-masse of semaphores to mutexes in the kernel 
+> means it has pretty much covered most possibilities.
+> 
+
+Thanks,
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

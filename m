@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbWEZXNL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751689AbWEZXZ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750990AbWEZXNL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 19:13:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751680AbWEZXNL
+	id S1751689AbWEZXZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 19:25:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751690AbWEZXZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 19:13:11 -0400
-Received: from mga05.intel.com ([192.55.52.89]:25434 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750989AbWEZXNK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 19:13:10 -0400
-X-IronPort-AV: i="4.05,178,1146466800"; 
-   d="scan'208"; a="43156010:sNHT27913375"
-Date: Fri, 26 May 2006 16:10:44 -0700
-From: Rajesh Shah <rajesh.shah@intel.com>
-To: Brice Goglin <brice@myri.com>
-Cc: Andrew Morton <akpm@osdl.org>, Shaohua Li <shaohua.li@intel.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       greg@kroah.com, tom.l.nguyen@intel.com, rajesh.shah@intel.com
-Subject: Re: [RFC]disable msi mode in pci_disable_device
-Message-ID: <20060526161043.A16912@unix-os.sc.intel.com>
-Reply-To: Rajesh Shah <rajesh.shah@intel.com>
-References: <1148612307.32046.132.camel@sli10-desk.sh.intel.com> <20060526125440.0897aef5.akpm@osdl.org> <44776491.1080506@myri.com>
+	Fri, 26 May 2006 19:25:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58531 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751688AbWEZXZz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 19:25:55 -0400
+Date: Fri, 26 May 2006 16:28:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Anssi Hannula <anssi.hannula@gmail.com>
+Cc: dtor_core@ameritech.net, linux-joystick@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 03/13] input: make input a multi-object module
+Message-Id: <20060526162842.4da6b447.akpm@osdl.org>
+In-Reply-To: <44778A14.4060500@gmail.com>
+References: <20060526161129.557416000@gmail.com>
+	<20060526162902.227348000@gmail.com>
+	<20060526141603.054f0459.akpm@osdl.org>
+	<44777340.7030905@gmail.com>
+	<20060526144309.60469bcd.akpm@osdl.org>
+	<447778DA.8080507@gmail.com>
+	<20060526150804.0ae11b1f.akpm@osdl.org>
+	<44777F98.4080004@gmail.com>
+	<20060526153246.267991ed.akpm@osdl.org>
+	<44778A14.4060500@gmail.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <44776491.1080506@myri.com>; from brice@myri.com on Fri, May 26, 2006 at 10:26:57PM +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 26, 2006 at 10:26:57PM +0200, Brice Goglin wrote:
-> 
-> I just tried, the patch fixes our problem (no need to restore right
-> after saving to reenable MSI).
-> 
-Yeah, I agree this latest patch from Shaohua is the right thing,
-and that pci save/restore msi state functions should not have
-the side effect of disabling/enabling MSI. Shaohua, do drivers
-already call pci_disable_device() or will you have to patch
-them all to get the disable effect?
+Anssi Hannula <anssi.hannula@gmail.com> wrote:
+>
+> Unless you have any more thoughts, I'll make patches for (1) separate
+> input-ff.o from input.o so that input.c renaming is not required, and to
+> (2) use the input_dev->event() handler instead of input.o calling
+> input-ff.o.
 
-Rajesh
+Sounds good, thanks.

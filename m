@@ -1,154 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWEZRzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWEZSBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbWEZRzL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 13:55:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWEZRzL
+	id S1751222AbWEZSBd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 14:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWEZSBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 13:55:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:40837 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750741AbWEZRzJ (ORCPT
+	Fri, 26 May 2006 14:01:33 -0400
+Received: from lug-owl.de ([195.71.106.12]:31121 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1751222AbWEZSBc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 13:55:09 -0400
-Date: Fri, 26 May 2006 13:59:02 -0400
-From: Don Zickus <dzickus@redhat.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de
-Subject: [PATCH] x86 clean up nmi panic messages
-Message-ID: <20060526175902.GB2839@redhat.com>
-References: <20060511214933.GU16561@redhat.com> <20060518191700.GC5846@ucw.cz>
+	Fri, 26 May 2006 14:01:32 -0400
+Date: Fri, 26 May 2006 20:01:31 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       lkml <linux-kernel@vger.kernel.org>, drepper@redhat.com,
+       akpm <akpm@osdl.org>, serue@us.ibm.com, sam@vilain.net, clg@fr.ibm.com,
+       dev@sw.ru
+Subject: Re: [PATCH] POSIX-hostname up to 255 characters
+Message-ID: <20060526180131.GA13513@lug-owl.de>
+Mail-Followup-To: "Randy.Dunlap" <rdunlap@xenotime.net>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	lkml <linux-kernel@vger.kernel.org>, drepper@redhat.com,
+	akpm <akpm@osdl.org>, serue@us.ibm.com, sam@vilain.net,
+	clg@fr.ibm.com, dev@sw.ru
+References: <20060525204534.4068e730.rdunlap@xenotime.net> <m1zmh5b129.fsf@ebiederm.dsl.xmission.com> <20060526144216.GZ13513@lug-owl.de> <Pine.LNX.4.58.0605261025230.9655@shark.he.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WxezjuMNsgvRf6mf"
 Content-Disposition: inline
-In-Reply-To: <20060518191700.GC5846@ucw.cz>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <Pine.LNX.4.58.0605261025230.9655@shark.he.net>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clean up some of the output messages on the nmi error paths to make more
-sense when they are displayed.  This is mainly a cosmetic fix and
-shouldn't impact any normal code path.  
 
-Signed-off-by:  Don Zickus <dzickus@redhat.com>
+--WxezjuMNsgvRf6mf
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
----
+On Fri, 2006-05-26 10:28:13 -0700, Randy.Dunlap <rdunlap@xenotime.net> wrot=
+e:
+> On Fri, 26 May 2006, Jan-Benedict Glaw wrote:
+[Patch touchin all archs]
+> > ...and this should have gone to linux-arch, too...
+>=20
+> so how does someone know:
+> (a) that this should have gone to linux-arch
 
-Pavel, 
+Anything that modifies all architectures (eg. new system calls,
+low-level MM changes, ...) should go to linux-arch. This is where all
+architecture maintainers are expected to be around.
 
-I hope this patch addresses your concerns.  This will apply on top of my
-other patch.  
+> (b) that linux-arch exists
 
-Cheers,
-Don
+Noticing the existance of linux-arch is admittedly a hard job. It's a
+quite specialized low-volume list, so most people actually never ever
+recognize it--unfortunately.
 
-> > Index: linux-don/arch/i386/kernel/traps.c
-> > ===================================================================
-> > --- linux-don.orig/arch/i386/kernel/traps.c
-> > +++ linux-don/arch/i386/kernel/traps.c
-> > @@ -602,6 +602,8 @@ static void mem_parity_error(unsigned ch
-> >  			"to continue\n");
-> >  	printk(KERN_EMERG "You probably have a hardware problem with your RAM "
-> >  			"chips\n");
-> > +	if (panic_on_unrecovered_nmi)
-> > +                panic("NMI: Not continuing");
-> >  
-> >  	/* Clear and disable the memory parity error line. */
-> >  	clear_mem_error(reason);
-> > @@ -637,6 +639,10 @@ static void unknown_nmi_error(unsigned c
-> >  		reason, smp_processor_id());
-> >  	printk("Dazed and confused, but trying to continue\n");
-> 
-> 'Trying to contninue'
-> 
-> >  	printk("Do you have a strange power saving mode enabled?\n");
-> > +
-> > +	if (panic_on_unrecovered_nmi)
-> > +                panic("NMI: Not continuing");
-> > +
-> 
-> 'not really'. Move printks around so it makes sense...
+> (c) what it's full email address it?
 
+The list's email address is linux-arch@vger.kernel.org
 
-Index: linux-don/arch/i386/kernel/traps.c
-===================================================================
---- linux-don.orig/arch/i386/kernel/traps.c
-+++ linux-don/arch/i386/kernel/traps.c
-@@ -598,13 +598,15 @@ gp_in_kernel:
- 
- static void mem_parity_error(unsigned char reason, struct pt_regs * regs)
- {
--	printk(KERN_EMERG "Uhhuh. NMI received. Dazed and confused, but trying "
--			"to continue\n");
-+	printk(KERN_EMERG "Uhhuh. NMI received for unknown reason %02x on "
-+		"CPU %d.\n", reason, smp_processor_id());
- 	printk(KERN_EMERG "You probably have a hardware problem with your RAM "
- 			"chips\n");
- 	if (panic_on_unrecovered_nmi)
-                 panic("NMI: Not continuing");
- 
-+	printk(KERN_EMERG "Dazed and confused, but trying to continue\n");
-+
- 	/* Clear and disable the memory parity error line. */
- 	clear_mem_error(reason);
- }
-@@ -635,14 +637,13 @@ static void unknown_nmi_error(unsigned c
- 		return;
- 	}
- #endif
--	printk("Uhhuh. NMI received for unknown reason %02x on CPU %d.\n",
--		reason, smp_processor_id());
--	printk("Dazed and confused, but trying to continue\n");
--	printk("Do you have a strange power saving mode enabled?\n");
--
-+	printk(KERN_EMERG "Uhhuh. NMI received for unknown reason %02x on "
-+		"CPU %d.\n", reason, smp_processor_id());
-+	printk(KERN_EMERG "Do you have a strange power saving mode enabled?\n");
- 	if (panic_on_unrecovered_nmi)
-                 panic("NMI: Not continuing");
- 
-+	printk(KERN_EMERG "Dazed and confused, but trying to continue\n");
- }
- 
- static DEFINE_SPINLOCK(nmi_print_lock);
-Index: linux-don/arch/x86_64/kernel/traps.c
-===================================================================
---- linux-don.orig/arch/x86_64/kernel/traps.c
-+++ linux-don/arch/x86_64/kernel/traps.c
-@@ -606,10 +606,15 @@ asmlinkage void __kprobes do_general_pro
- static __kprobes void
- mem_parity_error(unsigned char reason, struct pt_regs * regs)
- {
--	printk("Uhhuh. NMI received. Dazed and confused, but trying to continue\n");
--	printk("You probably have a hardware problem with your RAM chips\n");
-+	printk(KERN_EMERG "Uhhuh. NMI received for unknown reason %02x.\n",
-+		reason);
-+	printk(KERN_EMERG "You probably have a hardware problem with your "
-+		"RAM chips\n");
-+
- 	if (panic_on_unrecovered_nmi)
--               panic("NMI: Not continuing");
-+		panic("NMI: Not continuing");
-+
-+	printk(KERN_EMERG "Dazed and confused, but trying to continue\n");
- 
- 	/* Clear and disable the memory parity error line. */
- 	reason = (reason & 0xf) | 4;
-@@ -632,13 +637,15 @@ io_check_error(unsigned char reason, str
- 
- static __kprobes void
- unknown_nmi_error(unsigned char reason, struct pt_regs * regs)
--{	printk("Uhhuh. NMI received for unknown reason %02x.\n", reason);
--	printk("Dazed and confused, but trying to continue\n");
--	printk("Do you have a strange power saving mode enabled?\n");
-+{
-+	printk(KERN_EMERG "Uhhuh. NMI received for unknown reason %02x.\n",
-+		reason);
-+	printk(KERN_EMERG "Do you have a strange power saving mode enabled?\n");
- 
- 	if (panic_on_unrecovered_nmi)
--                panic("NMI: Not continuing");
-+		panic("NMI: Not continuing");
- 
-+	printk(KERN_EMERG "Dazed and confused, but trying to continue\n");
- }
- 
- /* Runs on IST stack. This code must keep interrupts off all the time.
+> I.e., where is all of this explained?
+
+Nowhere :-/
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--WxezjuMNsgvRf6mf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFEd0J6Hb1edYOZ4bsRAmarAJ9KJHmDplZEdRrRxzm4x4S1goc/cACfX6GQ
+9HvxJKyfRWDAxY/Scy7FN+I=
+=7rUh
+-----END PGP SIGNATURE-----
+
+--WxezjuMNsgvRf6mf--

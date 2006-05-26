@@ -1,80 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWEZTaB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWEZTgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbWEZTaB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 15:30:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWEZTaB
+	id S1751315AbWEZTgE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 15:36:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWEZTgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 15:30:01 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:19414 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1751320AbWEZTaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 15:30:00 -0400
-From: Grant Coady <gcoady.lk@gmail.com>
-To: Marcelo Tosatti <marcelo@kvack.org>
-Cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org,
-       Grant Coady <gcoady.lk@gmail.com>, Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [ANNOUNCE] Linux-2.4.32-hf32.5
-Date: Sat, 27 May 2006 05:29:58 +1000
-Organization: http://bugsplatter.mine.nu/
-Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <oele72524b719itt80ueugtur35tct214u@4ax.com>
-References: <20060507131034.GA19198@exosec.fr> <20060525133427.GA22727@w.ods.org> <k2nd725cl0vocvb72boalj06tpjlita644@4ax.com> <20060526121623.GA14474@w.ods.org> <vvvd72p7mv2j9fet19evm807e0flonnugh@4ax.com> <20060526140731.GC14725@w.ods.org> <20060526182758.GB565@dmt>
-In-Reply-To: <20060526182758.GB565@dmt>
-X-Mailer: Forte Agent 2.0/32.652
+	Fri, 26 May 2006 15:36:04 -0400
+Received: from cpe-70-113-23-186.austin.res.rr.com ([70.113.23.186]:63442 "EHLO
+	kinison.puremagic.com") by vger.kernel.org with ESMTP
+	id S1751315AbWEZTgC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 15:36:02 -0400
+Date: Fri, 26 May 2006 14:35:48 -0500 (CDT)
+From: Evan Harris <eharris@puremagic.com>
+To: Alasdair G Kergon <agk@redhat.com>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ext3-fs transient corruption with devmapper over md raid, kernel
+ 2.6.16.14
+In-Reply-To: <20060523221547.GA1002@agk.surrey.redhat.com>
+Message-ID: <Pine.LNX.4.62.0605261425160.19083@kinison.puremagic.com>
+References: <Pine.LNX.4.62.0605231225450.11814@kinison.puremagic.com>
+ <20060523221547.GA1002@agk.surrey.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 May 2006 15:27:58 -0300, Marcelo Tosatti <marcelo@kvack.org> wrote:
 
->may_delete() should be called before attempting to grab victim's
->i_zombie. Grant, can you please try the following?
+Luckily the filesystem had no important data on it yet, so I have been 
+testing various changes.
 
-Yep, applied against linux-2.4.32-hf32.5, boots on sempro (the box I 
-gave the oops info for).  
+First I changed the mount from ext3 to plain ext2, and that eventually 
+produced a series of errors like this:
 
-Guess I'll see .33-pre4 and a -hf32.7 soon?
+May 24 03:15:18 localhost kernel: init_special_inode: bogus i_mode (2640)
+May 24 03:15:29 localhost kernel: init_special_inode: bogus i_mode (175015)
+May 24 03:15:29 localhost kernel: init_special_inode: bogus i_mode (11)
+May 24 03:15:29 localhost kernel: init_special_inode: bogus i_mode (161265)
+May 24 03:15:29 localhost kernel: init_special_inode: bogus i_mode (0)
+May 24 03:15:29 localhost kernel: attempt to access beyond end of device
+May 24 03:15:29 localhost kernel: dm-0: rw=0, want=8341843240, limit=2930302464
+May 24 03:15:30 localhost kernel: attempt to access beyond end of device
+May 24 03:15:30 localhost kernel: dm-0: rw=0, want=9187258480, limit=2930302464
+May 24 03:15:30 localhost kernel: attempt to access beyond end of device
+May 24 03:15:30 localhost kernel: dm-0: rw=0, want=9184366040, limit=2930302464
+May 24 03:15:30 localhost kernel: attempt to access beyond end of device
+May 24 03:15:30 localhost kernel: dm-0: rw=0, want=9182932112, limit=2930302464
+May 24 03:15:30 localhost kernel: attempt to access beyond end of device
+May 24 03:15:30 localhost kernel: dm-0: rw=0, want=8994978168, limit=2930302464
+May 24 03:15:30 localhost kernel: attempt to access beyond end of device
+May 24 03:15:30 localhost kernel: dm-0: rw=0, want=9187258480, limit=2930302464
+May 24 03:15:30 localhost kernel: attempt to access beyond end of device
 
-Cheers,
-Grant.
+Then I tried changing from dm-crypt to dm-linear and have not been able to 
+reproduce the problem using dm-linear.  Unfortunately, the test conditions 
+are not exactly the same because using the dm-crypt module completely pegs 
+the cpu, while using the linear module is disk-bound not io-bound and the 
+cpu utilization is MUCH lower.
+
+However, this leads me to suspect that the problem is either in dm-crypt, or 
+a data corruption problem resulting from a decrypt error from the aes_x86_64 
+module that dm-crypt is using.
+
+One thing I forgot to mention before is this is on a dual-core box.  Just in 
+case the problem may be related to SMP, I'm planning to try recompiling for 
+a non-SMP kernel and go back to using dm-crypt and see if I can still 
+produce the error that way.
+
+If anyone has variations that would be more useful, I can try to test those 
+first.
+
+Evan
+
+
+On Tue, 23 May 2006, Alasdair G Kergon wrote:
+
+> On Tue, May 23, 2006 at 01:26:32PM -0500, Evan Harris wrote:
+>> I just recently upgraded a machine to use devmapper for an encrypted
+>> filesystem on top of a software raid5 array.  System is running a
+>> stock 2.6.16.14 kernel with no additional patches.
 >
->diff --git a/fs/namei.c b/fs/namei.c
->index 48bd26c..42cce98 100644
->--- a/fs/namei.c
->+++ b/fs/namei.c
->@@ -1479,19 +1479,20 @@ int vfs_unlink(struct inode *dir, struct
-> {
-> 	int error;
-> 
->-	double_down(&dir->i_zombie, &dentry->d_inode->i_zombie);
-> 	error = may_delete(dir, dentry, 0);
->-	if (!error) {
->-		error = -EPERM;
->-		if (dir->i_op && dir->i_op->unlink) {
->-			DQUOT_INIT(dir);
->-			if (d_mountpoint(dentry))
->-				error = -EBUSY;
->-			else {
->-				lock_kernel();
->-				error = dir->i_op->unlink(dir, dentry);
->-				unlock_kernel();
->-			}
->+	if (error)
->+		return error;
->+
->+	double_down(&dir->i_zombie, &dentry->d_inode->i_zombie);
->+	error = -EPERM;
->+	if (dir->i_op && dir->i_op->unlink) {
->+		DQUOT_INIT(dir);
->+		if (d_mountpoint(dentry))
->+			error = -EBUSY;
->+		else {
->+			lock_kernel();
->+			error = dir->i_op->unlink(dir, dentry);
->+			unlock_kernel();
-> 		}
-> 	}
-> 	double_up(&dir->i_zombie, &dentry->d_inode->i_zombie);
-
+>> Happy to provide any further info that may be useful.
+>
+> This might not be practical for you, but what we're looking for
+> is people who can reproduce this on a test system where they can
+> try varying things one-at-a-time.  For example, replace dm-crypt
+> with dm-linear (e.g. a standard unencrypted LVM2 logical volume);
+> replace raid5 with (md) linear.  Also test with the latest
+> development kernels to see if recent md patches fixed the problem.
+>
+> Alasdair
+> -- 
+> agk@redhat.com

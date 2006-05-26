@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWEZLJq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWEZLKE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbWEZLJq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 07:09:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWEZLJq
+	id S1751398AbWEZLKE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 07:10:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWEZLKD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 07:09:46 -0400
-Received: from mail17.syd.optusnet.com.au ([211.29.132.198]:2723 "EHLO
-	mail17.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751393AbWEZLJp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 07:09:45 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [RFC 0/5] sched: Add CPU rate caps
-Date: Fri, 26 May 2006 21:09:20 +1000
-User-Agent: KMail/1.9.1
-Cc: Mike Galbraith <efault@gmx.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
-       Rene Herman <rene.herman@keyaccess.nl>
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>
-In-Reply-To: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>
+	Fri, 26 May 2006 07:10:03 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:31690 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751398AbWEZLKA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 07:10:00 -0400
+Message-ID: <4476E203.1080701@pobox.com>
+Date: Fri, 26 May 2006 07:09:55 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Greg KH <gregkh@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, netdev@vger.kernel.org,
+       mb@bu3sch.de, st3@riseup.net, linville@tuxdriver.com
+Subject: Re: [PATCH 2/3] pci: bcm43xx avoid pci_find_device
+References: <20060526001053.D2349C7C58@atrey.karlin.mff.cuni.cz> <44764D4B.6050105@pobox.com> <4476D63E.8090207@gmail.com> <4476D6EC.4060501@pobox.com> <4476D95B.5030601@gmail.com> <4476DA5C.9080602@pobox.com> <4476DE47.7010907@gmail.com>
+In-Reply-To: <4476DE47.7010907@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605262109.20808.kernel@kolivas.org>
+X-Spam-Score: -4.1 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 26 May 2006 14:20, Peter Williams wrote:
-> These patches implement CPU usage rate limits for tasks.
->
-> Although the rlimit mechanism already has a CPU usage limit (RLIMIT_CPU)
-> it is a total usage limit and therefore (to my mind) not very useful.
-> These patches provide an alternative whereby the (recent) average CPU
-> usage rate of a task can be limited to a (per task) specified proportion
-> of a single CPU's capacity.  The limits are specified in parts per
-> thousand and come in two varieties -- hard and soft.  The difference
-> between the two is that the system tries to enforce hard caps regardless
-> of the other demand for CPU resources but allows soft caps to be
-> exceeded if there are spare CPU resources available.  By default, tasks
-> will have both caps set to 1000 (i.e. no limit) but newly forked tasks
-> will inherit any caps that have been imposed on their parent from the
-> parent.  The mimimim soft cap allowed is 0 (which effectively puts the
-> task in the background) and the minimim hard cap allowed is 1.
->
-> Care has been taken to minimize the overhead inflicted on tasks that
-> have no caps and my tests using kernbench indicate that it is hidden in
-> the noise.
+Jiri Slaby wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Jeff Garzik napsal(a):
+>> The point is that you don't need to loop over the table,
+>> pci_match_one_device() does that for you.
+> The problem is, that there is no such function, I think.
+> If you take a look at pci_dev_present:
 
-The presence of tasks with caps will break smp balancing and smp nice. I 
-suspect you could probably provide a reasonable workaround by altering their 
-priority bias effect in the raw weighted load in smp nice for soft caps by 
-the percentage cpu of the cap. Hard caps provide more "interesting" 
-challenges though. I can't think of a valid biasing off hand for them, but at 
-least initially using the same logic as soft caps should help.
+The function you want is pci_dev_present().
 
--- 
--ck
+	Jeff
+
+
+

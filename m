@@ -1,79 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965211AbWEZAZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965217AbWEZAff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965211AbWEZAZF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 20:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWEZAZE
+	id S965217AbWEZAff (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 20:35:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965216AbWEZAff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 20:25:04 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:60049 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932182AbWEZAZC (ORCPT
+	Thu, 25 May 2006 20:35:35 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:59322 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965214AbWEZAfe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 20:25:02 -0400
-Date: Fri, 26 May 2006 10:24:05 +1000
-From: David Chinner <dgc@sgi.com>
-To: Balbir Singh <balbir@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH]  Per-superblock unused dentry LRU lists V2
-Message-ID: <20060526002405.GL8069029@melbourne.sgi.com>
-References: <20060524110001.GU1331387@melbourne.sgi.com> <20060525040604.GB25185@in.ibm.com> <20060525061553.GC8069029@melbourne.sgi.com> <20060525063350.GD8069029@melbourne.sgi.com> <20060525065219.GD25185@in.ibm.com> <20060525081312.GE8069029@melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060525081312.GE8069029@melbourne.sgi.com>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 25 May 2006 20:35:34 -0400
+Message-ID: <44764D4B.6050105@pobox.com>
+Date: Thu, 25 May 2006 20:35:23 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Greg KH <gregkh@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, netdev@vger.kernel.org,
+       mb@bu3sch.de, st3@riseup.net, linville@tuxdriver.com
+Subject: Re: [PATCH 2/3] pci: bcm43xx avoid pci_find_device
+References: <20060526001053.D2349C7C58@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20060526001053.D2349C7C58@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.1 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 25, 2006 at 06:13:12PM +1000, David Chinner wrote:
-> On Thu, May 25, 2006 at 12:22:20PM +0530, Balbir Singh wrote:
-> > On Thu, May 25, 2006 at 04:33:50PM +1000, David Chinner wrote:
-> > > On Thu, May 25, 2006 at 04:15:53PM +1000, David Chinner wrote:
-> > > > 
-> > > > FWIW, this create/unlink load has been triggering reliable "Busy
-> > > > inodes after unmount" errors that I've slowly been tracking down.
-> > > > After I fixed the last problem in XFS late last week, I've
-> > > > been getting a failure that i think is the unmount/prune_dcache
-> > > > races that you and Neil have recently fixed.
-> > > 
-> > > I just had all 8 filesystems come up with:
-> > > 
-> > > May 25 15:55:18 budgie kernel: XFS unmount got error 16
-> > > May 25 15:55:18 budgie kernel: xfs_fs_put_super: vfsp/0xe00000b006339280 left dangling!
-> > > May 25 15:55:18 budgie kernel: VFS: Busy inodes after unmount of dm-9. Self-destruct in 5 seconds.  Have a nice day...
+Jiri Slaby wrote:
+> bcm43xx avoid pci_find_device
 > 
-> .....
+> Change pci_find_device to safer pci_get_device with support for more
+> devices.
 > 
-> > > On the second test iteration. On 2.6.16, it takes about 10 iterations to get one
-> > > filesystem to do this. I'll need to look into this one further. I'm going to
-> > > reboot the machine and run some dbench tests (which typically don't trigger
-> > > this problem) and then come back to this one with added debugging....
-> > 
-> > Is this with version 2 of your patch?
+> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 > 
-> That's with version 2 on -rc4-mm3.
+> ---
+> commit 1d3b6caf027fe53351c645523587aeac40bc3e47
+> tree ae37c86b633442cdf8a7a19ac287542724081c90
+> parent ab3443d79c94d0ae6a9e020daefa4d29eccff50d
+> author Jiri Slaby <ku@bellona.localdomain> Fri, 26 May 2006 01:49:12 +0159
+> committer Jiri Slaby <ku@bellona.localdomain> Fri, 26 May 2006 01:49:12 +0159
 > 
-> > Could you also try the -mm tree
-> > and see if the problem goes away. We have a set of patches to address
-> > exactly this problem. 
+>  drivers/net/wireless/bcm43xx/bcm43xx_main.c |   20 ++++++++++++++++----
+>  1 files changed, 16 insertions(+), 4 deletions(-)
 > 
-> Well, the patches overlap and I thought that I had taken into account
-> the fixes that were applied to the -mm tree.
-> 
-> I'm rerunning on 2.6.16 with the s_umount locking fix so I know that it's
-> not something else in -mm that is being tripped over....
+> diff --git a/drivers/net/wireless/bcm43xx/bcm43xx_main.c b/drivers/net/wireless/bcm43xx/bcm43xx_main.c
+> index b488f77..56d2fc6 100644
+> --- a/drivers/net/wireless/bcm43xx/bcm43xx_main.c
+> +++ b/drivers/net/wireless/bcm43xx/bcm43xx_main.c
+> @@ -2131,6 +2131,13 @@ out:
+>  	return err;
+>  }
+>  
+> +#ifdef CONFIG_BCM947XX
+> +static struct pci_device_id bcm43xx_ids[] = {
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, 0x4324) },
+> +	{ 0 }
+> +};
+> +#endif
+> +
+>  static int bcm43xx_initialize_irq(struct bcm43xx_private *bcm)
+>  {
+>  	int res;
+> @@ -2141,10 +2148,15 @@ static int bcm43xx_initialize_irq(struct
+>  #ifdef CONFIG_BCM947XX
+>  	if (bcm->pci_dev->bus->number == 0) {
+>  		struct pci_dev *d = NULL;
+> -		/* FIXME: we will probably need more device IDs here... */
+> -		d = pci_find_device(PCI_VENDOR_ID_BROADCOM, 0x4324, NULL);
+> -		if (d != NULL) {
+> -			bcm->irq = d->irq;
+> +		struct pci_device_id *id = bcm43xx_ids;
+> +		while (id->vendor) {
+> +			d = pci_get_device(id->vendor, id->device, NULL);
+> +			if (d != NULL) {
+> +				bcm->irq = d->irq;
+> +				pci_dev_put(d);
+> +				break;
 
-2.6.16 ran all night on the above test with the s_umount locking fix in it.
-The prune_dcache/unmount race was indeed the cause of the errors I have
-been seeing over the last week.
+You'll want to use pci_match_device() or pci_match_one_device()
+[I forget which one]
 
-I just found a bug in the -mm patch which broke shrink_dcache_parent().
-This is the likely cause of the above problems, and I'm about to retest
-the -mm kernel with the fixed patch.....
+	Jeff
 
-Cheers,
 
-Dave.
--- 
-Dave Chinner
-R&D Software Enginner
-SGI Australian Software Group
+

@@ -1,61 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbWEZWBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWEZWCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750918AbWEZWBS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 18:01:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWEZWBS
+	id S1751277AbWEZWCA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 18:02:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWEZWCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 18:01:18 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:5287 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750914AbWEZWBR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 18:01:17 -0400
-Date: Fri, 26 May 2006 17:01:15 -0500
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PCI reset using x86 or x86-64 BIOS calls?
-Message-ID: <20060526220115.GA21605@austin.ibm.com>
-References: <6gr2t-1Pp-9@gated-at.bofh.it> <44765F57.90703@shaw.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44765F57.90703@shaw.ca>
-User-Agent: Mutt/1.5.9i
-From: linas@austin.ibm.com (Linas Vepstas)
+	Fri, 26 May 2006 18:02:00 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:60656 "EHLO
+	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1751298AbWEZWB7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 18:01:59 -0400
+Message-ID: <44777AD2.5040502@gmail.com>
+Date: Fri, 26 May 2006 23:01:54 +0100
+From: Catalin Marinas <catalin.marinas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.17-rc4 1/6] Base support for kmemleak
+References: <20060513155757.8848.11980.stgit@localhost.localdomain> <20060513160541.8848.2113.stgit@localhost.localdomain> <p73u07t5x6f.fsf@bragg.suse.de> <20060526085916.GA14388@elte.hu>
+In-Reply-To: <20060526085916.GA14388@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 25, 2006 at 07:52:23PM -0600, Robert Hancock wrote:
-> Linas Vepstas wrote:
-> >I've go a newbie x86 BIOS question:  is there a BIOS function that 
-> >can be called to reset a PCI device? (By "reset a device" I mean
-> >raise the #RST PCI signal line to electrical high for 1.5 seconds).
-> >I know that BIOS does this during a soft reboot, but I was wondering
-> >if there's a stand-alone function for doing this while the system is up
-> >and running.
-> 
-> Unlikely - if you mean just resetting one PCI device, it's likely 
-> electrically impossible on many, if not most machines as the RST lines 
-> will be tied together on all slots.
+Ingo Molnar wrote:
+> Also, kmemleak guarantees (assuming the implementation is correct) that 
+> if a leak happens in practice, it will be detected immediately. 
+> Coverity, being a static analyzer, wont find leaks that are obscured by 
+> some sort of complex codepath.
 
-I was afraid of that.
+A good example is the skb allocation/freeing. I'm not sure Coverity is
+able to track the code path in a protocol stack. I'll modify a network
+driver to "forget" some skb freeing and test the kmemleak detection.
 
-> In any case, I don't think - or at least would hope - that a PCI device 
-> going so far into the weeds that it can't be recovered without a RST 
-> would be a rare situation.
-
-Well, this comes up in the case of having kexec take over from a crashed 
-kernel; the state of any given PCI card is unclear, and its conceptually
-easiest to hit them with a hammer to put them back into a known state.
-
-For hotplug slots, this can be accomplished by toggling power to a slot,
-but not all slots out there are hot-pluggable. 
-
-The other situation where this is useful is in recovering from a PCI bus
-error (e.g. parity error); but his has additional complications.
-
-I've got someone here  asking about the LSI megaraid controller; 
-appearently its under-documented, and it can hang hard on kexec. 
-Hitting it with a reset would make life simpler.
-
---linas
-
+Catalin

@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWEZEPe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbWEZESF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbWEZEPe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 00:15:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030335AbWEZEPe
+	id S1030265AbWEZESF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 00:18:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbWEZESF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 00:15:34 -0400
-Received: from wr-out-0506.google.com ([64.233.184.231]:20046 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030221AbWEZEPd convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 00:15:33 -0400
+	Fri, 26 May 2006 00:18:05 -0400
+Received: from web50209.mail.yahoo.com ([206.190.38.50]:28076 "HELO
+	web50209.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1030265AbWEZESE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 00:18:04 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=N/OTnkwQNLrWfZnLuTVAOu4KVRzEBhm8Y+Rnx3/+a0uLk0J2h6q4ZjQIY382T+VzXvwn+y2SXuqmdI7oXjFvh9WnCXlvWvC5BHfcV9geSzidk2LWIAVauDIx6rPm7W8AwidW7q6kHa8OYh2D9SbKO4csYMnQ3D1b0BgQmUeKtfk=
-Message-ID: <4ae3c140605252115n7b040a99l6633ba387ce48358@mail.gmail.com>
-Date: Fri, 26 May 2006 00:15:32 -0400
-From: "Xin Zhao" <uszhaoxin@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: why svc_export_lookup() has no implementation?
-Cc: linux-fsdevel@vger.kernel.org
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=PTY/TCQ0dobAd9RLwTcU3z7AhR5ABCZF3Z51IMOXilXnVxD7ORkvHASi2GIEOV1IZmCQhBAQd88zJi9DsXbC7wLSGv2OSKq+Rhj6elEIOafoz4NoZQqqXbab+vJYb+G8akWEpj1O0iyFlkdt9JwOJ+cjfuXaGJyJdQaYIWHteBY=  ;
+Message-ID: <20060526041803.46181.qmail@web50209.mail.yahoo.com>
+Date: Thu, 25 May 2006 21:18:03 -0700 (PDT)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Fwd: [RFC] New netfilter match
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I noticed that functions like exp_get_by_name() calls function
-svc_export_lookup(). But I cannot find the implementation of
-svc_export_lookup(). I can only find the function definition. HOw can
-this happen?
+I posted this to netfilter-devel@lists.netfilter.org 5 hours ago and it hasn't 
+appeared on that list yet.
 
-Can someone give me a hand?
 
-Thanks!
+--- Alex Davis <alex14641@yahoo.com> wrote:
 
--x
+> 
+> This is a proposal for a new netfilter module. 
+> Please read and furnish comments.
+> 
+> http://linux.ace-technologies.biz:81/ipisforif.html
+> 
+>  
+> Thanks
+> 
+> -Alex
+
+I code, therefore I am
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

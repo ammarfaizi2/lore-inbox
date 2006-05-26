@@ -1,248 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965215AbWEZAni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965224AbWEZAoJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965215AbWEZAni (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 20:43:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965222AbWEZAni
+	id S965224AbWEZAoJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 20:44:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965225AbWEZAoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 20:43:38 -0400
-Received: from [203.144.27.9] ([203.144.27.9]:9734 "EHLO surfers.oz.agile.tv")
-	by vger.kernel.org with ESMTP id S965215AbWEZAnh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 20:43:37 -0400
-Message-ID: <44764F35.9050002@agile.tv>
-Date: Fri, 26 May 2006 10:43:33 +1000
-From: Tony Griffiths <tonyg@agile.tv>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060202 Fedora/1.7.12-1.5.2
-X-Accept-Language: en-us, en
+	Thu, 25 May 2006 20:44:09 -0400
+Received: from py-out-1112.google.com ([64.233.166.179]:54215 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S965223AbWEZAoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 20:44:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=SjLwoD+Wbp+3P65taOCABj8uoWG+hsFvL2KaTdaZQLmKMET3qzKa2MIxWGSLNhxTt0MYBCGJHSCpKrvgscpvNHHaeagvjwcxfCAGK8HtY1I8j0qEVr/GVvUUEQK08Ysc+wwXsZ97KHBfaUlzz5EXfq8ZZy3QwF2HIxSOFh/EIic=
+Message-ID: <44764F4F.5000102@gmail.com>
+Date: Fri, 26 May 2006 08:43:59 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: /proc (procfs) task exit race condition causes a kernel
- crash
-Content-Type: multipart/mixed;
- boundary="------------030308050702010900090809"
+To: nick@linicks.net
+CC: Antonio <tritemio@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: : unclean backward scrolling
+References: <5486cca80605210638l2906112fv515df1bc390cff24@mail.gmail.com> <7c3341450605211155i3674a27bob6213b449e2d1a3a@mail.gmail.com>
+In-Reply-To: <7c3341450605211155i3674a27bob6213b449e2d1a3a@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030308050702010900090809
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Nick Warne wrote:
+> Hmmmph.
+> 
+> I get this problem, and always have, but I always put it down to my system.
+> 
+> I run Slackware 10, and this has always happened to me from 2.6.2
+> upwards on CRT 1024x768 and later TFT 1280x1024 dvi.
+> 
+> I use[d] in lilo:
+> 
+> # VESA framebuffer console @ 1280x1024x?k
+> vga=794
+> # VESA framebuffer console @ 1024x768x64k
+> #vga=791
+> 
+> So you are not alone.
+> 
+> Nick
+> 
+> On 21/05/06, Antonio <tritemio@gmail.com> wrote:
+>> Hi,
+>>
+>> I'm using the radeonfb driver with a radeon 7000 with the frambuffer
+>> at 1280x1024 on a i386 system, with a 2.6.16.17 kernel. At boot time,
+>> if I stop the messages with CTRL+s and try look the previous messages
+>> with CTRL+PagUp (backward scrolling) the screen become unreadable. In
+>> fact some lengthier lines are not erased scrolling backward and some
+>> random characters a overwritten instead. So it's very difficult to
+>> read the messages.
+>>
+>> I don't have such problem with the frambuffer at 1024x768.
+>>
+>> All the previous kernels I've tried have this problem (at least up to
+>> 2.6.15).
+>>
+>> If someone can look at this issue I can provide further information.
+>>
+>> Many Thanks.
+>>
+>> Cheers,
+>>
 
-Summary:
+Can you try this patch and let me know if this fixes the problem?
 
-A condition exists that crashes the kernel when one or more tasks are 
-exiting while at the same time another task is reading their /proc 
-entries.  The crash is caused by either a bad VA (NULL, LIST_POISON1, or 
-LIST_POISON2) in prune_dcache() or a BUG_ON() sanity check in 
-include/linux/list.h!
+Tony
 
-Detailed Description:
+PATCH: Fix scrollback with logo issue immediately after boot.
 
-If there is a great deal of modification activity in /proc caused by 
-task creation [fork()] and task exiting, and at the same time other 
-task(s) are reading /proc/<pid>/... files, the dentry_unused list 
-becomes corrupted and the kernel crashes, usually in function 
-prune_dcache() in module fs/dcache.c!  A simple program that forks 
-itself run in a continuous loop combined with a 'find /proc ... cat {} 
-\;' to read the /proc task entries is all that is needed to induce the 
-condition.  A couple of sample crash outputs look like-
+From: David Hollister <david.hollister@amd.com>
 
-(a)  BUG_ON() --
- ------------[ cut here ]------------
-kernel BUG at include/linux/list.h:167!
-invalid opcode: 0000 [#1]
-SMP
-last sysfs file: /class/vc/vcs1/dev
-Modules linked in: parport_pc lp parport autofs4 i2c_dev i2c_core 
-microcode binfmt_misc video thermal sony_acpi processor fan button 
-battery ac ehci_hcd usbcore ide_cd cdrom sg ext3 jbd dm_mod mptspi 
-scsi_transport_spi mptscsih mptbase sd_mod scsi_mod
-CPU:    1
-EIP:    0060:[<c017ec60>]    Not tainted VLI
-EFLAGS: 00010203   (2.6.16-mm2 #1)
-EIP is at prune_dcache+0x3c6/0x3d3
-eax: 00000010   ebx: f7326b08   ecx: f7326b10   edx: c017e280
-esi: f7326ae0   edi: f7e81e5c   ebp: 00000001   esp: f7e81e4c
-ds: 007b   es: 007b   ss: 0068
-Process init (pid: 1, threadinfo=f7e80000 task=c352eaa0)
-Stack: <0>c0401c00 f7e81e5c f7e81ead c017ef28 f7e81e5c f7e81e5c f7326df8 
-f620c000
-       f7326df8 f7e81ea8 c017efe6 00000006 f7ec0e00 f620c000 c019c71a 
-f7326df8
-       f7e81e98 c036a63a 000077a4 089c21d9 00000005 f7e81ea8 c0117643 
-32363033
-Call Trace:
- <c017ef28> select_parent+0x17/0xbc   <c017efe6> 
-shrink_dcache_parent+0x19/0x2c
- <c019c71a> proc_flush_task+0x5f/0x1f5   <c0117643> sched_exit+0xb1/0xc8
- <c0120552> release_task+0x84/0x101   <c01028c3> handle_signal+0x108/0x143
- <c0122094> wait_task_zombie+0x2de/0x3cf   <c0102984> do_signal+0x86/0x11c
- <c012291d> do_wait+0x36f/0x40f   <c0119153> default_wake_function+0x0/0x12
- <c01f08ec> copy_to_user+0x3c/0x50   <c0119153> 
-default_wake_function+0x0/0x12
- <c0122a8c> sys_wait4+0x3f/0x43   <c0122ab7> sys_waitpid+0x27/0x2b
- <c0102b5f> syscall_call+0x7/0xb
-Code: 31 ff ff ff 0f 0b a7 00 9f 69 35 c0 e9 8c fd ff ff 0f 0b a8 00 9f 
-69 35 c0 e9 8b fd ff ff 0f 0b a8 00 9f 69 35 c0 e9 9e fe ff ff <0f> 0b 
-a7 00 9f 69 35 c0 e9 85 fe ff ff 55 b8 00 1c 40 c0 57 56
+After the system boots with the logo, if the first action is a
+scrollback, the screen may become garbled.  This patch ensures
+that the softback_curr value is updated along with softback_in
+following the scrollback.
 
-(b)  LIST_POISON1/LIST_POISON2 --
-# Unable to handle kernel paging request at virtual address 00100104
- printing eip:
-c0179d12
-*pde = 3780b001
-Oops: 0002 [#1]
-SMP
-Modules linked in: parport_pc lp parport autofs4 i2c_dev i2c_core 
-microcode binfmt_misc video thermal processor fan button battery ac 
-ehci_hcd usbcore ide_cd cdrom sg ext3 jbd dm_mod mptspi mptscsih mptbase 
-sd_mod scsi_mod
-CPU:    7
-EIP:    0060:[<c0179d12>]    Not tainted VLI
-EFLAGS: 00010202   (2.6.16.18 #1)
-EIP is at prune_dcache+0x231/0x327
-eax: 00100100   ebx: f553d55c   ecx: f553d564   edx: 00200200
-esi: f553d534   edi: f7e81e94   ebp: 00000002   esp: f7e81e84
-ds: 007b   es: 007b   ss: 0068
-Process init (pid: 1, threadinfo=f7e80000 task=c352ea90)
-Stack: <0>c03f2c00 f7e81e94 f65fcac0 c017a03d f7e81e94 f7e81e94 f576a954 
-f59c2a90
-       f576a954 00000000 c017a0fa 0000000a f7ecf000 f576a954 c0196c8a 
-f576a954
-       f59c2a90 c01212b2 f576a954 c0102993 f59c2a90 00000000 00003b88 
-00000000
-Call Trace:
- [<c017a03d>] select_parent+0x17/0xbb
- [<c017a0fa>] shrink_dcache_parent+0x19/0x2c
- [<c0196c8a>] proc_pid_flush+0x14/0x26
- [<c01212b2>] release_task+0xa3/0x12e
- [<c0102993>] handle_signal+0x108/0x143
- [<c0122dac>] wait_task_zombie+0x2de/0x3c9
- [<c0102a5e>] do_signal+0x90/0x127
- [<c01235c9>] do_wait+0x34d/0x3de
- [<c011a913>] default_wake_function+0x0/0x12
- [<c01e9b5e>] copy_to_user+0x3c/0x50
- [<c011a913>] default_wake_function+0x0/0x12
- [<c0123722>] sys_wait4+0x3f/0x43
- [<c012374d>] sys_waitpid+0x27/0x2b
- [<c0102c2d>] syscall_call+0x7/0xb
-Code: fe ff ff 8b 4e 50 e9 bd fe ff ff 8d 7c 24 10 89 7c 24 10 89 7c 24 
-14 8b 46 04 a8 10 0f 84 a8 00 00 00 8d 4e 30 8b 46 30 8b 51 04 <89> 50 
-04 89 02 c7 41 04 00 02 20 00 c7 46 30 00 01 10 00 83 2d
- <0>Kernel panic - not syncing: Attempted to kill init!
+Signed-off-by: David Hollister <david.hollister@amd.com>
+Signed-off-by: Jordan Crouse <jordan.crouse@amd.com>
+---
 
-All kernels from 2.6.15 -> 2.6.17 with any of the applicable patch-sets 
-(-git or -mm) are affected!!!  Also RedHat FC<n> kernels.
+ drivers/video/console/fbcon.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Environment:
+diff --git a/drivers/video/console/fbcon.c b/drivers/video/console/fbcon.c
+index ca02071..953eb8c 100644
+--- a/drivers/video/console/fbcon.c
++++ b/drivers/video/console/fbcon.c
+@@ -2631,7 +2631,7 @@ static int fbcon_scrolldelta(struct vc_d
+ 					scr_memcpyw((u16 *) q, (u16 *) p,
+ 						    vc->vc_size_row);
+ 				}
+-				softback_in = p;
++				softback_in = softback_curr = p;
+ 				update_region(vc, vc->vc_origin,
+ 					      logo_lines * vc->vc_cols);
+ 			}
 
-The environment is any SMP hardware with the kernel build with or 
-without PREEMPT enabled.  Any P4 hyperthreaded chip, or Xeon 
-multi-processor system [DELL 1425 & 1850 dual-Xeon and also dual-core 
-dual-Xeon in my case] will exhibit the crash.
-
-The attached forkalot.c program combined with the simple shell scripts 
-do the job.  Running the forkalot shell script while at the same time 
-running any of the proc-*.sh in a 'while true; do ... ; done' loop 
-crashes by systems within a couple of minutes.
-
-
---------------030308050702010900090809
-Content-Type: text/x-csrc;
- name="forkalot.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="forkalot.c"
-
-// Program:  forkalot.c
-//
-// Compile:  cc forkalot.c -o forkalot
-// Run:      ./forkalot [100] [1]
-//
-// Args:     arg1 = # of copies of program to run simultaneously [100]
-//           arg2 = Sleep time before exiting [1]
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <unistd.h>
-#include <fcntl.h>
-
-#define CHILDREN    100
-#define SLEEP_FOR   1
-
-int main(int argc, char *argv[])
-{
-	int	count, this_long;
-	int	pid;
-
-	if (argc > 1)
-		count = atoi(argv[1]);
-	else
-		count = CHILDREN;
-	if (argc > 2)
-		this_long = atoi(argv[2]);
-        else
-                this_long = SLEEP_FOR;
-
-	/* fork count-1 children */
-	while (count-- > 1) {
-		pid = fork();
-		if (pid == 0) {
-			/* child */
-			break;
-		} else if (pid < 0) {
-			perror("fork");
-			exit(1);
-		}
-	}
-
-        /* Sleepy... sleepy... */
-	sleep(this_long);
-
-        /* All done... return success! */
-	return 0;
-}
-
---------------030308050702010900090809
-Content-Type: application/x-shellscript;
- name="forkalot-test.sh"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="forkalot-test.sh"
-
-IyEvYmluL3NoCiMgTm90ZTogQXNzdW1lcyBwcm9ncmFtIGlzIGluIC90bXAKaWYgWyAhIC1m
-IC90bXAvZm9ya2Fsb3QgXQp0aGVuCiAgICBlY2hvICJDYW5ub3QgZmluZCB0aGUgJ2Zvcmth
-bG90JyBiaW5hcnkhIgogICAgZXhpdCAxCmZpCgp3aGlsZSB0cnVlOyBkbwogICAgL3RtcC9m
-b3JrYWxvdCAyMDAgMQogICAga2lsbGFsbCAtcSBmb3JrYWxvdAogICAgZWNobyAtbiAiLiIK
-ZG9uZQoK
---------------030308050702010900090809
-Content-Type: application/x-shellscript;
- name="proc-cmdline.sh"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="proc-cmdline.sh"
-
-IyEvYmluL2Jhc2gKZmluZCAvcHJvYyAtdHlwZSBmIC1uYW1lIGNtZGxpbmUgLWV4ZWMgY2F0
-IHt9ID4gL2Rldi9udWxsIDI+JjEgXDsK
---------------030308050702010900090809
-Content-Type: application/x-shellscript;
- name="proc-status.sh"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="proc-status.sh"
-
-IyEvYmluL2Jhc2gKZmluZCAvcHJvYyAtdHlwZSBmIC1uYW1lIHN0YXRcKiAtZXhlYyBjYXQg
-e30gPiAvZGV2L251bGwgMj4mMSBcOwo=
---------------030308050702010900090809
-Content-Type: application/x-shellscript;
- name="proc-torture.sh"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="proc-torture.sh"
-
-IyEvYmluL2Jhc2gKCndoaWxlIHRydWUKZG8KICAgIGRhdGUKICAgIGZpbmQgL3Byb2MgLW1v
-dW50IC1uYW1lIGNtZGxpbmUgLWV4ZWMgY2F0IHt9ID4gL2Rldi9udWxsIDI+JjEgXDsKICAg
-IGZpbmQgL3Byb2MgLW1vdW50IC1uYW1lIHN0YXRcKiAtZXhlYyBjYXQge30gPiAvZGV2L251
-bGwgMj4mMSBcOwpkb25lCg==
---------------030308050702010900090809--

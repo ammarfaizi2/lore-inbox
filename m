@@ -1,70 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbWEZJl2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbWEZJtB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751353AbWEZJl2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 05:41:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWEZJl2
+	id S1751356AbWEZJtB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 05:49:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWEZJtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 05:41:28 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:27567 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751353AbWEZJl1 (ORCPT
+	Fri, 26 May 2006 05:49:00 -0400
+Received: from nz-out-0102.google.com ([64.233.162.200]:49117 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751356AbWEZJtA convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 05:41:27 -0400
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 2.6.17-rc4 1/6] Base support for kmemleak
-Date: Fri, 26 May 2006 11:39:21 +0200
-User-Agent: KMail/1.9.1
-Cc: Catalin Marinas <catalin.marinas@gmail.com>, linux-kernel@vger.kernel.org
-References: <20060513155757.8848.11980.stgit@localhost.localdomain> <p73u07t5x6f.fsf@bragg.suse.de> <20060526085916.GA14388@elte.hu>
-In-Reply-To: <20060526085916.GA14388@elte.hu>
+	Fri, 26 May 2006 05:49:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pdYJ5eV9qYj09Lazfzldo/M0FXHTzTKpEtgmfeM+rt0sewxzlHJw4t5EWSeI0XcHYTvs7YPtYEcx0+NjSlpuxYJdj6dwiW5NHEIFnGdeddpECentZ5bWIBLPkWt29xCbQSNo3+T7x3wSAMykR2Fc/7OcmfpAjOao0EbIFg12kug=
+Message-ID: <9a8748490605260248i68a1eb84hc241068ae1f012bb@mail.gmail.com>
+Date: Fri, 26 May 2006 11:48:59 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Paul Drynoff" <pauldrynoff@gmail.com>
+Subject: Re: [PATCH] kmalloc man page before 2.6.17
+Cc: "Pekka J Enberg" <penberg@cs.helsinki.fi>, akpm@osdl.org,
+       "Linus Torvalds" <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <36e6b2150605260120s2fb692fegf4fef1eecf7c4674@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200605261139.22193.ak@suse.de>
+References: <36e6b2150605260007h1601aa04v31c6c698c6e4d1b9@mail.gmail.com>
+	 <84144f020605260017i4682c409vc4a004d016c31270@mail.gmail.com>
+	 <36e6b2150605260058h5c1fbc0cla686a37d5bf3e34e@mail.gmail.com>
+	 <Pine.LNX.4.58.0605261059360.30386@sbz-30.cs.Helsinki.FI>
+	 <36e6b2150605260120s2fb692fegf4fef1eecf7c4674@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 26 May 2006 10:59, Ingo Molnar wrote:
-> 
-> * Andi Kleen <ak@suse.de> wrote:
-> 
-> > > From: Catalin Marinas <catalin.marinas@arm.com>
-> > > 
-> > > This patch adds the base support for the kernel memory leak detector. It
-> > > traces the memory allocation/freeing in a way similar to the Boehm's
-> > > conservative garbage collector, the difference being that the orphan
-> > > pointers are not freed but only shown in /proc/memleak. Enabling this
-> > > feature would introduce an overhead to memory allocations.
-> > 
-> > Interesting approach. Did you actually find any leaks with this?
-> 
-> we should be very careful here, since 'low hanging fruit' memory leaks 
-> have already been clean-sweeped by a proprietary tool (Coverity), so the 
-> utility of this free (GPL-ed) tool is artificially depressed!
+On 26/05/06, Paul Drynoff <pauldrynoff@gmail.com> wrote:
+> Currently kernel-doc doesn't produce the man page for "kmalloc",
+> I think that is a big lack of documentation. This patch should help.
+> Now
+> scripts/kernel-doc -man -function kmalloc include/linux/slab.h  |
+> nroff -man | less
+> creates suitable "man page".
+>
+> Signed-off-by: Paul Drynoff <pauldrynoff@gmail.com>
+>
+> ---
+>
+> Index: linux-2.6.17-rc4/mm/slab.c
+> ===================================================================
+> --- linux-2.6.17-rc4.orig/mm/slab.c
+> +++ linux-2.6.17-rc4/mm/slab.c
+> @@ -3244,26 +3244,10 @@ EXPORT_SYMBOL(kmalloc_node);
+>  #endif
+>
+>  /**
+> - * kmalloc - allocate memory
+> + * __do_kmalloc - allocate memory
+>   * @size: how many bytes of memory are required.
+> - * @flags: the type of memory to allocate.
+> + * @flags: the type of memory to allocate(see kmalloc).
+>   * @caller: function caller for debug tracking of the caller
+> - *
+> - * kmalloc is the normal method of allocating memory
+> - * in the kernel.
+> - *
+> - * The @flags argument may be one of:
+> - *
+> - * %GFP_USER - Allocate memory on behalf of user.  May sleep.
+> - *
+> - * %GFP_KERNEL - Allocate normal kernel ram.  May sleep.
+> - *
+> - * %GFP_ATOMIC - Allocation will not sleep.  Use inside interrupt handlers.
+> - *
+> - * Additionally, the %GFP_DMA flag may be set to indicate the memory
+> - * must be suitable for DMA.  This can mean different things on different
+> - * platforms.  For example, on i386, it means that the memory must come
+> - * from the first 16MB.
 
-It should be more. A real dynamic GC can find much larger
-classes of leaks than even the best static checker.
+You seem to be missing :
 
-iirc Coverty mostly just found missing free()s in error handling paths.
-Which is surely nice, but in practice most of these error handling cases only occur 
-rarely if at all.
- 
-> What kmemleak will find are all the cases that Coverity does not check: 
-> developer's own trees, uncommon architectures/drivers.
+   GFP_HIGHUSER
+      - Allocate pages from high memory.
+   GFP_NOIO
+      - Do not do any I/O at all while trying to get memory.
+   GFP_NOFS
+      - Do not make any fs calls while trying to get memory.
 
-> Also, kmemleak guarantees (assuming the implementation is correct) that 
-> if a leak happens in practice, it will be detected immediately. 
+It might also make sense to document the fact that you can set
+different flags by OR'ing in one or more of the following :
 
-Not if the slab object is reused quickly - which it often is.
+   __GFP_COLD
+      - Request cache-cold pages instead of trying to return cache-warm pages.
+   __GFP_DMA
+      - Request memory from the DMA-capable zone
+   __GFP_HIGH
+      - This allocation is high priority and may use emergency pools.
+   __GFP_HIGHMEM
+      - Allocated memory may be from highmem.
+   __GFP_NOFAIL
+      - Indicate that this allocation is in no way allowed to fail
+(think twice before using).
+   __GFP_NORETRY
+      - If memory is not imidiately available, then give up at once.
+   __GFP_NOWARN
+      - If allocation fails, don't issue any warnings.
+   __GFP_REPEAT
+      - If allocation fails initially, try once more before failing.
 
-That is why I think it would at least need some tweaks to slab to make
-the reuse times longer.
 
->All in one, i'm very much in favor of adding kmemleak to the upstream 
->kernel, once it gets clean enough and has seen some exposure on -mm.
+Btw: how about vmalloc() do we need to document that one as well
+(didn't check) ?
 
-Yes.
 
--Andi
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

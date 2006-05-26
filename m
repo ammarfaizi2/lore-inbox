@@ -1,76 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbWEZOes@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbWEZOgl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750813AbWEZOes (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 10:34:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWEZOes
+	id S1750824AbWEZOgl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 10:36:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWEZOgl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 10:34:48 -0400
-Received: from ns2.suse.de ([195.135.220.15]:6095 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750813AbWEZOer (ORCPT
+	Fri, 26 May 2006 10:36:41 -0400
+Received: from lug-owl.de ([195.71.106.12]:18842 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1750824AbWEZOgk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 10:34:47 -0400
-Subject: Re: Recent x86-64 patch causes many devices to disappear
-From: Thomas Renninger <trenn@suse.de>
-Reply-To: trenn@suse.de
+	Fri, 26 May 2006 10:36:40 -0400
+Date: Fri, 26 May 2006 16:36:39 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
 To: Jeff Garzik <jeff@garzik.org>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, len.brown@intel.com,
-       gregkh@suse.de, joachim deguara <joachim.deguara@amd.com>
-In-Reply-To: <4476E1B3.8020605@garzik.org>
-References: <4476D020.8070605@garzik.org> <200605261203.55108.ak@suse.de>
-	 <4476D874.6060000@garzik.org> <200605261255.27471.ak@suse.de>
-	 <4476E1B3.8020605@garzik.org>
-Content-Type: text/plain
-Organization: Novell/SUSE
-Date: Fri, 26 May 2006 16:34:39 +0200
-Message-Id: <1148654080.16187.107.camel@queen.suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to check if kernel sources are installed on a system?
+Message-ID: <20060526143638.GX13513@lug-owl.de>
+Mail-Followup-To: Jeff Garzik <jeff@garzik.org>,
+	linux-kernel@vger.kernel.org
+References: <e55715+usls@eGroups.com> <447622EA.90704@garzik.org> <20060525213952.GT13513@lug-owl.de> <447624B8.1070000@garzik.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="OEa2bCMk+rg6xBXy"
+Content-Disposition: inline
+In-Reply-To: <447624B8.1070000@garzik.org>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-05-26 at 07:08 -0400, Jeff Garzik wrote:
-> Andi Kleen wrote:
-> > On Friday 26 May 2006 12:29, Jeff Garzik wrote:
-> >> Andi Kleen wrote:
-> >>> The problem is that most people cannot figure out how 
-> >>> to disable this in the BIOS so we needed a way to make it boot
-> >>> out of the box.
-> >> Agreed.
-> > 
-> > Do you use SCSI on your box? According to Joachim booting with 
-> > segmentation on and not pci=noacpi SCSI is not seen. And that's the 
-> > default setup on the machine which made it unusable.
-> 
-> Here, I see:
-> 
-> 	segmentation on + pci=noacpi == no SCSI
-> and additionally
-> 	segmentation on + pci=noacpi == no sata_mv
-> and thus overall
-> 	segmentation on + pci=noacpi == no PCI-X bus
-> 
-> (as the posted output on gtf.org shows)
 
-Here are the results from Joachim (without the patch):
-(from novell.bugzilla.com bug #82986):
+--OEa2bCMk+rg6xBXy
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-segmentation enablee with no extra kernel params = not working
-segmentation enabled with pci=noacpi = working
-segmentation disabled with no extra kernel params = working
-segmentation disabled with pci=noacpi = working
+On Thu, 2006-05-25 17:42:16 -0400, Jeff Garzik <jeff@garzik.org> wrote:
+> Jan-Benedict Glaw wrote:
+> >On Thu, 2006-05-25 17:34:34 -0400, Jeff Garzik <jeff@garzik.org> wrote:
+> >>find / -name libata-scsi.c
+> >
+> >Which of the 10 versions showing up is the "right" one?
+>=20
+> If its pulling up my libata core, they are all the "right" one...
 
-I'd say that only disabling when segmentation is enabled makes sense...,
-however the devices should still appear.
-I know there are a lot BIOS versions of this machines flying around.
-Maybe everybody should check that the latest version is running, first?
-I have:
-BIOS Information
-        Vendor: Hewlett-Packard
-        Version: 786B9 v2.05
-        Release Date: 01/26/2006
+:-)
 
-        Thomas
+Unfortunately it's not the case, because these trees are all
+configured differently...
 
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--OEa2bCMk+rg6xBXy
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFEdxJ2Hb1edYOZ4bsRAp3vAJwKFrnowLrBw3gc0ZAaI/3cn9rjUQCfQjOU
+0n1HgZw53OPY9i0sTTA37mQ=
+=z58A
+-----END PGP SIGNATURE-----
+
+--OEa2bCMk+rg6xBXy--

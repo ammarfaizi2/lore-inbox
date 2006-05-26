@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbWEZTlY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWEZTnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751400AbWEZTlY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 15:41:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbWEZTlY
+	id S1750781AbWEZTnE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 15:43:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWEZTnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 15:41:24 -0400
-Received: from silver.veritas.com ([143.127.12.111]:46456 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751341AbWEZTlC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 15:41:02 -0400
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.05,177,1146466800"; 
-   d="scan'208"; a="38565041:sNHT23521000"
-Date: Fri, 26 May 2006 19:31:05 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove unused o_flags from do_shmat
-Message-ID: <Pine.LNX.4.64.0605261929580.24818@blonde.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 26 May 2006 19:41:01.0056 (UTC) FILETIME=[514A1000:01C680FC]
+	Fri, 26 May 2006 15:43:04 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:29152 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750781AbWEZTnB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 15:43:01 -0400
+Date: Fri, 26 May 2006 21:43:15 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Mark Knecht <markknecht@gmail.com>
+Subject: Re: 2.6.16-rt24 Won't Apply
+Message-ID: <20060526194315.GA860@elte.hu>
+References: <44775129.6030004@cybsft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44775129.6030004@cybsft.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove the unused variable o_flags from do_shmat.
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
- ipc/shm.c |    3 ---
- 1 file changed, 3 deletions(-)
+* K.R. Foley <kr@cybsft.com> wrote:
 
---- 2.6.17-rc5/ipc/shm.c	2006-05-25 03:43:36.000000000 +0100
-+++ linux/ipc/shm.c	2006-05-26 17:55:29.000000000 +0100
-@@ -698,7 +698,6 @@ long do_shmat(int shmid, char __user *sh
- 	int    err;
- 	unsigned long flags;
- 	unsigned long prot;
--	unsigned long o_flags;
- 	int acc_mode;
- 	void *user_addr;
- 
-@@ -725,11 +724,9 @@ long do_shmat(int shmid, char __user *sh
- 
- 	if (shmflg & SHM_RDONLY) {
- 		prot = PROT_READ;
--		o_flags = O_RDONLY;
- 		acc_mode = S_IRUGO;
- 	} else {
- 		prot = PROT_READ | PROT_WRITE;
--		o_flags = O_RDWR;
- 		acc_mode = S_IRUGO | S_IWUGO;
- 	}
- 	if (shmflg & SHM_EXEC) {
+> Ingo,
+> 
+> The 2.6.16-rt24 patch that you uploaded today will not apply cleanly 
+> to a 2.6.16 source tree. Below is the first of many problems, if this 
+> helps.
+
+could you try -rt25, does it work any better?
+
+	Ingo

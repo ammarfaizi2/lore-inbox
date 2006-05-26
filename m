@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbWEZJ3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWEZJlc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751355AbWEZJ3R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 05:29:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWEZJ3R
+	id S1751364AbWEZJlc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 05:41:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWEZJlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 05:29:17 -0400
-Received: from wr-out-0506.google.com ([64.233.184.227]:43317 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751355AbWEZJ3Q convert rfc822-to-8bit (ORCPT
+	Fri, 26 May 2006 05:41:32 -0400
+Received: from mx1.suse.de ([195.135.220.2]:39390 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751364AbWEZJlb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 05:29:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Z4JQ/Ms2COz7FF24/IrgOaoFGaZiWGZGTJ5YLJqxNATEmz2N8VDXPZ2PB26q7Qhmzr5IPy4Ss5LNwbbhAoOw3fdm6PQSmDYTeVPjvdWbya0SJCYGtsRETCULJAgojgsJzCLj4oTGNTP/9WUk3hSN+AASlAoIKTwhXGBEId5bCV0=
-Message-ID: <aec7e5c30605260229i5a182254u188d1a7f9e73056e@mail.gmail.com>
-Date: Fri, 26 May 2006 18:29:15 +0900
-From: "Magnus Damm" <magnus.damm@gmail.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [Fastboot] [PATCH 03/03] kexec: Avoid overwriting the current pgd (V2, x86_64)
-Cc: "Gerd Hoffmann" <kraxel@suse.de>, "Magnus Damm" <magnus@valinux.co.jp>,
-       "Andrew Morton" <akpm@osdl.org>, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <m1r72hb0vc.fsf@ebiederm.dsl.xmission.com>
+	Fri, 26 May 2006 05:41:31 -0400
+From: Andi Kleen <ak@suse.de>
+To: Jeff Garzik <jeff@garzik.org>
+Subject: Re: [discuss] Re: [PATCH 2/4] x86-64: Calgary IOMMU - move valid_dma_direction into the callers
+Date: Fri, 26 May 2006 11:35:36 +0200
+User-Agent: KMail/1.9.1
+Cc: discuss@x86-64.org, Muli Ben-Yehuda <mulix@mulix.org>,
+       Jon Mason <jdmason@us.ibm.com>, Muli Ben-Yehuda <muli@il.ibm.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <20060525033550.GD7720@us.ibm.com> <200605260957.02163.ak@suse.de> <4476C27A.7040707@garzik.org>
+In-Reply-To: <4476C27A.7040707@garzik.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060524044232.14219.68240.sendpatchset@cherry.local>
-	 <20060524044247.14219.13579.sendpatchset@cherry.local>
-	 <m1slmystqa.fsf@ebiederm.dsl.xmission.com>
-	 <1148545616.5793.180.camel@localhost> <4476B0F6.2000708@suse.de>
-	 <aec7e5c30605260202m531b0f01pfd244932d9fc99a9@mail.gmail.com>
-	 <m1r72hb0vc.fsf@ebiederm.dsl.xmission.com>
+Message-Id: <200605261135.36509.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/26/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
-> "Magnus Damm" <magnus.damm@gmail.com> writes:
->
-> > On 5/26/06, Gerd Hoffmann <kraxel@suse.de> wrote:
-> >> > 1a. The C-code in xen_machine_kexec() performs a hypercall.
-> >> >
-> >> > 1b. The hypervisor jumps to the assembly code.
-> >> > After prepare we've created a NX-safe mapping for the control page. We
-> >> > jump to that NX-safe address to transfer control to the assembly code.
-> >>
-> >> This is about kexec'ing the physical machine, not the virtual machine,
-> >> right?
-> >
-> > Correct, kexec:ing from dom0.
->
-> And staying in dom0?  Or does Xen go away?
 
-You replace what's running on the physical machine.
+> > On the other hand if the problem of passing wrong parameters here
+> > isn't common I would be ok with dropping them.
+> 
+> As the author noted, it was only used in early platform bring-up.  And 
+> simply reviewing the patch... it is clear that screwing up the 
+> parameters would cause massive, noticeable problems immediately -- such 
+> as on EM64T with swiotlb.
 
-You can chose to kexec into a new "regular" Linux kernel (Xen goes
-away), or kexec into a new Xen hypervisor with a new dom0 kernel (Xen
-is replaced). Kexec behaves exactly the same as Linux today - no
-patches are needed to kexec-tools.
+Well the point is that even if you don't run on swiotlb
+(which most people even on EM64T don't use because they don't have more than
+3GB of RAM) you won't screw them up.
 
-Kdump is a little different though, we reserve the physical ram range
-in the hypervisor and our hypervisor code is currently using a
-differen format for the command line options. With Kdump under Xen it
-is possible to take a memory snapshot of the entire machine - both the
-hypervisor and dom0.
+On the other hand correct IOMMU operation needs much more than passing
+these parameters so only checking for this might not be very useful.
 
-/ magnus
+BTW we've had these checks forever - Jon just moved them to a different place.
+But they indeed might have outlived their usefulness.
+
+-Andi

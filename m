@@ -1,131 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbWEZMD2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932549AbWEZMEt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932361AbWEZMD2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 08:03:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWEZMCw
+	id S932549AbWEZMEt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 08:04:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWEZMEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 08:02:52 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:48601 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932361AbWEZLxC (ORCPT
+	Fri, 26 May 2006 08:04:24 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:10969 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932357AbWEZLxA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 07:53:02 -0400
-Message-ID: <348644379.23564@ustc.edu.cn>
+	Fri, 26 May 2006 07:53:00 -0400
+Message-ID: <348644375.06563@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060526115304.821789643@localhost.localdomain>
+Message-Id: <20060526115300.609227164@localhost.localdomain>
 References: <20060526113906.084341801@localhost.localdomain>
-Date: Fri, 26 May 2006 19:39:17 +0800
+Date: Fri, 26 May 2006 19:39:10 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 11/33] readahead: rescue_pages()
-Content-Disposition: inline; filename=readahead-rescue-pages.patch
+Subject: [PATCH 04/33] mm: introduce probe_pages()
+Content-Disposition: inline; filename=mm-probe-page.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Introduce function rescue_pages() to protect pages in danger of thrashing.
+Introduce a pair of functions to probe the existence of file page.
+	- int __probe_page(mapping, offset)
+	- int probe_page(mapping, offset)
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- include/linux/mm.h |   11 +++++
- mm/readahead.c     |  107 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 118 insertions(+)
 
---- linux-2.6.17-rc4-mm3.orig/mm/readahead.c
-+++ linux-2.6.17-rc4-mm3/mm/readahead.c
-@@ -682,6 +682,93 @@ unsigned long max_sane_readahead(unsigne
- }
+--- linux.orig/include/linux/pagemap.h
++++ linux/include/linux/pagemap.h
+@@ -68,6 +68,8 @@ static inline struct page *page_cache_al
+ 
+ typedef int filler_t(void *, struct page *);
+ 
++extern int __probe_page(struct address_space *mapping, pgoff_t offset);
++extern int probe_page(struct address_space *mapping, pgoff_t offset);
+ extern struct page * find_get_page(struct address_space *mapping,
+ 				unsigned long index);
+ extern struct page * find_lock_page(struct address_space *mapping,
+--- linux.orig/mm/filemap.c
++++ linux/mm/filemap.c
+@@ -548,6 +548,28 @@ void fastcall __lock_page(struct page *p
+ EXPORT_SYMBOL(__lock_page);
  
  /*
-+ * Adaptive read-ahead.
-+ *
-+ * Good read patterns are compact both in space and time. The read-ahead logic
-+ * tries to grant larger read-ahead size to better readers under the constraint
-+ * of system memory and load pressure.
-+ *
-+ * It employs two methods to estimate the max thrashing safe read-ahead size:
-+ *   1. state based   - the default one
-+ *   2. context based - the failsafe one
-+ * The integration of the dual methods has the merit of being agile and robust.
-+ * It makes the overall design clean: special cases are handled in general by
-+ * the stateless method, leaving the stateful one simple and fast.
-+ *
-+ * To improve throughput and decrease read delay, the logic 'looks ahead'.
-+ * In most read-ahead chunks, one page will be selected and tagged with
-+ * PG_readahead. Later when the page with PG_readahead is read, the logic
-+ * will be notified to submit the next read-ahead chunk in advance.
-+ *
-+ *                 a read-ahead chunk
-+ *    +-----------------------------------------+
-+ *    |       # PG_readahead                    |
-+ *    +-----------------------------------------+
-+ *            ^ When this page is read, notify me for the next read-ahead.
-+ *
++ * Probing page existence.
 + */
-+
-+#ifdef CONFIG_ADAPTIVE_READAHEAD
-+
-+/*
-+ * Move pages in danger (of thrashing) to the head of inactive_list.
-+ * Not expected to happen frequently.
-+ */
-+static unsigned long rescue_pages(struct page *page, unsigned long nr_pages)
++int __probe_page(struct address_space *mapping, pgoff_t offset)
 +{
-+	int pgrescue = 0;
-+	pgoff_t index = page_index(page);
-+	struct address_space *mapping = page_mapping(page);
-+	struct page *grabbed_page = NULL;
-+	struct zone *zone;
-+
-+	dprintk("rescue_pages(ino=%lu, index=%lu nr=%lu)\n",
-+			mapping->host->i_ino, index, nr_pages);
-+
-+	for(;;) {
-+		zone = page_zone(page);
-+		spin_lock_irq(&zone->lru_lock);
-+
-+		if (!PageLRU(page))
-+			goto out_unlock;
-+
-+		while (page_mapping(page) == mapping &&
-+				page_index(page) == index) {
-+			struct page *the_page = page;
-+			page = list_entry((page)->lru.prev, struct page, lru);
-+			if (!PageActive(the_page) &&
-+					!PageLocked(the_page) &&
-+					page_count(the_page) == 1) {
-+				list_move(&the_page->lru, &zone->inactive_list);
-+				pgrescue++;
-+			}
-+			index++;
-+			if (!--nr_pages)
-+				goto out_unlock;
-+		}
-+
-+		spin_unlock_irq(&zone->lru_lock);
-+		cond_resched();
-+
-+		if (grabbed_page)
-+			page_cache_release(grabbed_page);
-+		grabbed_page = page = find_get_page(mapping, index);
-+		if (!page)
-+			goto out;
-+	}
-+
-+out_unlock:
-+	spin_unlock_irq(&zone->lru_lock);
-+out:
-+	if (grabbed_page)
-+		page_cache_release(grabbed_page);
-+	ra_account(NULL, RA_EVENT_READAHEAD_RESCUE, pgrescue);
-+	return nr_pages;
++	return !! radix_tree_lookup(&mapping->page_tree, offset);
 +}
 +
-+#endif /* CONFIG_ADAPTIVE_READAHEAD */
++/*
++ * Here we just do not bother to grab the page, it's meaningless anyway.
++ */
++int probe_page(struct address_space *mapping, pgoff_t offset)
++{
++	int exists;
++
++	read_lock_irq(&mapping->tree_lock);
++	exists = __probe_page(mapping, offset);
++	read_unlock_irq(&mapping->tree_lock);
++
++	return exists;
++}
 +
 +/*
-  * Read-ahead events accounting.
+  * a rather lightweight function, finding and getting a reference to a
+  * hashed page atomically.
   */
- #ifdef CONFIG_DEBUG_READAHEAD
 
 --

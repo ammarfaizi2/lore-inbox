@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751591AbWEZVbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751594AbWEZVco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751591AbWEZVbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 17:31:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751593AbWEZVbJ
+	id S1751594AbWEZVco (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 17:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751595AbWEZVco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 17:31:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:45966 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751591AbWEZVbI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 17:31:08 -0400
-Date: Fri, 26 May 2006 14:33:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: rjw@sisk.pl, pavel@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: APM suspend to RAM broken, culprit found
-Message-Id: <20060526143353.42a456fe.akpm@osdl.org>
-In-Reply-To: <20060526211249.GP24227@waste.org>
-References: <20060526211249.GP24227@waste.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 26 May 2006 17:32:44 -0400
+Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:7135 "EHLO
+	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S1751593AbWEZVcn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 17:32:43 -0400
+Message-ID: <4477737C.6020708@stanford.edu>
+Date: Fri, 26 May 2006 14:30:36 -0700
+From: Brannon Klopfer <bklopfer@stanford.edu>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: can't resume with recent kernel
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall <mpm@selenic.com> wrote:
->
-> Bisection reveals that the patch entitled:
-> 
-> [PATCH] swsusp: add check for suspension of X-controlled devices
-> 
-> breaks resume of ipw2200, synaptics mouse, USB, and probably other
-> useful bits on my Thinkpad R51. Notably, I'm using APM.
-> 
+Hello,
 
-Would that be because APM remains in X while suspending, but swsusp flicks
-back to VT mode?
+I have an IBM ThinkPad 600E. It runs perfectly with 2.6.15.1: namely, I 
+can suspend (apm -s) and resume without trouble.
 
-Anyway, I'll queue a revert patch for 2.6.17, thanks.
+I just upgraded to 2.6.16.18. Suspending works fine, but resuming just 
+locks it up completely: terminal cursor doesn't blink, caps lock won't 
+respond, can't VT switch, etc. As far as I know, my .config was the same 
+for each.
+
+I can try to see exactly when this got broken, if that would help.
+
+Thanks,
+Brannon Klopfer
+
+

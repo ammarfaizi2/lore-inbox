@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbWEZIvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWEZIzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751184AbWEZIvd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 04:51:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWEZIvd
+	id S1751191AbWEZIzY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 04:55:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWEZIzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 04:51:33 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:2970 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751184AbWEZIvd (ORCPT
+	Fri, 26 May 2006 04:55:24 -0400
+Received: from corky.net ([212.150.53.130]:25536 "EHLO zebday.corky.net")
+	by vger.kernel.org with ESMTP id S1751191AbWEZIzX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 04:51:33 -0400
-Date: Fri, 26 May 2006 10:51:19 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-cc: Nathan Scott <nathans@sgi.com>, linux-xfs@oss.sgi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: XFS write speed drop
-In-Reply-To: <4476AC3B.5030704@aitel.hist.no>
-Message-ID: <Pine.LNX.4.61.0605261047440.16828@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0605190047430.23455@yvahk01.tjqt.qr>
- <20060522105326.A212600@wobbly.melbourne.sgi.com>
- <Pine.LNX.4.61.0605221308290.11108@yvahk01.tjqt.qr>
- <20060523084309.A239136@wobbly.melbourne.sgi.com>
- <Pine.LNX.4.61.0605231517330.25086@yvahk01.tjqt.qr> <4476AC3B.5030704@aitel.hist.no>
+	Fri, 26 May 2006 04:55:23 -0400
+Message-ID: <4476D019.6090601@corky.net>
+Date: Fri, 26 May 2006 10:53:29 +0100
+From: Just Marc <marc@corky.net>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/33] Adaptive read-ahead V12
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AV-Checked: ClamAV using ClamSMTP on CorKy.NeT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
->> Well as mentioned, -o nobarrier solved it, and that's it. I do not
->> actually need barriers (or an UPS, to poke on another thread), because
->> power failures are rather rare in Germany.
+>If the developers of that program want to squeeze the last 5% out of it
+>then sure, I'd expect them to use such OS-provided I/O scheduling
+>facilities.  Database developers do that sort of thing all the time.
 >
-> Then there are mistakes like someone stepping on the power
-> cord, pulling out the wrong one, drilling holes in the wall,
-> there are kernel crashes, there is lightning,
-> there is the possibility that some
-> component inside the box just breaks.
+>We have an application which knows what it's doing sending IO requests to
+>the kernel which must then try to reverse engineer what the application is
+>doing via this rather inappropriate communication channel.
 >
-A mathematician has fear of flying because there could possibly be a 
-terrorist bomb inside the plane. What does he do?
-Taking an bomb with himself, because the probablity that there are two 
-bombs inside a plane is lower than one.
+>Is that dumb, or what?
+>
+> Given that the application already knows what it's doing, it's in a much
+>better position to issue the anticipatory IO requests than is the kernel.
 
-What I am wanting to say is that the factors you mentioned just do not happen
-here, at this one - home - box.
+What about a performance driven application (A web server) that's using say
+sendfile() in order to reduce the overhead of context switching, how would
+this application do its own read-ahead "management" effectively?
 
+Thanks
 
-Jan Engelhardt
--- 

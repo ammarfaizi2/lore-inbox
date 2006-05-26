@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbWEZKtl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWEZKyX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751388AbWEZKtl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 06:49:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWEZKtl
+	id S932161AbWEZKyX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 06:54:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWEZKyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 06:49:41 -0400
-Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:28042 "EHLO
-	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751388AbWEZKtl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 06:49:41 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [RFC 2/5] sched: Add CPU rate soft caps
-Date: Fri, 26 May 2006 20:48:52 +1000
-User-Agent: KMail/1.9.1
-Cc: Mike Galbraith <efault@gmx.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
-       Rene Herman <rene.herman@keyaccess.nl>
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest> <20060526042041.2886.69840.sendpatchset@heathwren.pw.nest>
-In-Reply-To: <20060526042041.2886.69840.sendpatchset@heathwren.pw.nest>
+	Fri, 26 May 2006 06:54:23 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:36285 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751393AbWEZKyW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 06:54:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=ma+wxA+kQwaM40Spl7OiMdneWZhXlTRMYtaFJSQPXrMjjLV7b8GPnUYvdRsN9qiyq3pTLWPxZSs7kO123LpLmaDuX85qW8nbj0tMYSW48fFWNhcVyQW1anDcQSDhHrmniJS56x+NSa0LvAjj+GrDwVoI8bABK9QDBLQY6rkCdQw=
+Message-ID: <4476DE47.7010907@gmail.com>
+Date: Fri, 26 May 2006 12:53:36 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Greg KH <gregkh@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, netdev@vger.kernel.org,
+       mb@bu3sch.de, st3@riseup.net, linville@tuxdriver.com
+Subject: Re: [PATCH 2/3] pci: bcm43xx avoid pci_find_device
+References: <20060526001053.D2349C7C58@atrey.karlin.mff.cuni.cz> <44764D4B.6050105@pobox.com> <4476D63E.8090207@gmail.com> <4476D6EC.4060501@pobox.com> <4476D95B.5030601@gmail.com> <4476DA5C.9080602@pobox.com>
+In-Reply-To: <4476DA5C.9080602@pobox.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605262048.53131.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 26 May 2006 14:20, Peter Williams wrote:
-> This patch implements (soft) CPU rate caps per task as a proportion of a
-> single CPU's capacity expressed in parts per thousand.  The CPU usage
-> of capped tasks is determined by using Kalman filters to calculate the
-> (recent) average lengths of the task's scheduling cycle and the time
-> spent on the CPU each cycle and taking the ratio of the latter to the
-> former.  To minimize overhead associated with uncapped tasks these
-> statistics are not kept for them.
->
-> Notes:
->
-> 1. To minimize the overhead incurred when testing to skip caps processing
-> for uncapped tasks a new flag PF_HAS_CAP has been added to flags.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-[ot]I'm sorry to see an Australian adopt American spelling [/ot]
+Jeff Garzik napsal(a):
+> The point is that you don't need to loop over the table,
+> pci_match_one_device() does that for you.
+The problem is, that there is no such function, I think.
+If you take a look at pci_dev_present:
+http://sosdg.org/~coywolf/lxr/source/drivers/pci/search.c#L270
+They traverse the table in similar way as I do.
 
-> 3. Enforcement of caps is not as strict as it could be in order to
-> reduce the possibility of a task being starved of CPU while holding
-> an important system resource with resultant overall performance
-> degradation.  In effect, all runnable capped tasks will get some amount
-> of CPU access every active/expired swap cycle.  This will be most
-> apparent for small or zero soft caps.
+pci_match_one_device() just checks (one to one) values without any looping.
 
-The array swap happens very frequently if there are nothing but heavily cpu 
-bound tasks, which is not an infrequent workload. I doubt the zero caps are 
-very effective in that environment.
+regards,
+- --
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
--- 
--ck
+iD8DBQFEdt5HMsxVwznUen4RAqt8AJ9pzaDey2zn399lrahelv17w8IiDgCguUwa
+4xOX7pUX2Au/WBsbJbnNwBE=
+=P1cu
+-----END PGP SIGNATURE-----

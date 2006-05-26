@@ -1,63 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWEZRrK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWEZRzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751214AbWEZRrK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 13:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWEZRrK
+	id S1750741AbWEZRzL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 13:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWEZRzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 13:47:10 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:52156 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751214AbWEZRrJ (ORCPT
+	Fri, 26 May 2006 13:55:11 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:40837 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750741AbWEZRzJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 13:47:09 -0400
-Date: Fri, 26 May 2006 19:47:23 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Catalin Marinas <catalin.marinas@gmail.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.17-rc4 1/6] Base support for kmemleak
-Message-ID: <20060526174723.GD30208@elte.hu>
-References: <20060513155757.8848.11980.stgit@localhost.localdomain> <20060513160541.8848.2113.stgit@localhost.localdomain> <p73u07t5x6f.fsf@bragg.suse.de> <20060526085916.GA14388@elte.hu> <b0943d9e0605260937j5a86d4dr4adcae6fc35c73fa@mail.gmail.com>
+	Fri, 26 May 2006 13:55:09 -0400
+Date: Fri, 26 May 2006 13:59:02 -0400
+From: Don Zickus <dzickus@redhat.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de
+Subject: [PATCH] x86 clean up nmi panic messages
+Message-ID: <20060526175902.GB2839@redhat.com>
+References: <20060511214933.GU16561@redhat.com> <20060518191700.GC5846@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <b0943d9e0605260937j5a86d4dr4adcae6fc35c73fa@mail.gmail.com>
+In-Reply-To: <20060518191700.GC5846@ucw.cz>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Clean up some of the output messages on the nmi error paths to make more
+sense when they are displayed.  This is mainly a cosmetic fix and
+shouldn't impact any normal code path.  
 
-* Catalin Marinas <catalin.marinas@gmail.com> wrote:
+Signed-off-by:  Don Zickus <dzickus@redhat.com>
 
-> A problem I'm facing (also because I'm not familiar with the other 
-> architectures) is detecting the effective stack boundaries of the 
-> threads running or waiting in kernel mode. Scanning the whole stack 
-> (8K) hides some possible leaks (because of no longer used local 
-> variables) and not scanning the list at all can lead to false 
-> positives. I would need to investigate this a bit more.
+---
 
-i was thinking about this too, and i wanted to suggest a different 
-solution here: you could build a list of "temporary" objects that only 
-get registered with the memleak proper once a thread exits a system call 
-(or once a kernel thread goes back to its main loop). This means a 
-(lightweight) callback in the syscall exit (or irq exit) path. This way 
-you'd not have to scan kernel stacks at all, only .data and the objects 
-themselves.
+Pavel, 
 
-the stack boundary rules can be quite complex: for example on x86_64 you 
-can have a pretty complex nesting of exception, interrupt and process 
-stacks. In fact on SMP we dont even know the precise stack boundary for 
-tasks that are running on some other CPU. [because we have no snapshot 
-of their register state]
+I hope this patch addresses your concerns.  This will apply on top of my
+other patch.  
 
-avoiding the scanning of the kernel stacks gets rid of some of the 
-biggest source of natural entropy. (they contain strings and all sorts 
-of other binary data that could accidentally match up with a kernel 
-pointer)
+Cheers,
+Don
 
-	Ingo
+> > Index: linux-don/arch/i386/kernel/traps.c
+> > ===================================================================
+> > --- linux-don.orig/arch/i386/kernel/traps.c
+> > +++ linux-don/arch/i386/kernel/traps.c
+> > @@ -602,6 +602,8 @@ static void mem_parity_error(unsigned ch
+> >  			"to continue\n");
+> >  	printk(KERN_EMERG "You probably have a hardware problem with your RAM "
+> >  			"chips\n");
+> > +	if (panic_on_unrecovered_nmi)
+> > +                panic("NMI: Not continuing");
+> >  
+> >  	/* Clear and disable the memory parity error line. */
+> >  	clear_mem_error(reason);
+> > @@ -637,6 +639,10 @@ static void unknown_nmi_error(unsigned c
+> >  		reason, smp_processor_id());
+> >  	printk("Dazed and confused, but trying to continue\n");
+> 
+> 'Trying to contninue'
+> 
+> >  	printk("Do you have a strange power saving mode enabled?\n");
+> > +
+> > +	if (panic_on_unrecovered_nmi)
+> > +                panic("NMI: Not continuing");
+> > +
+> 
+> 'not really'. Move printks around so it makes sense...
+
+
+Index: linux-don/arch/i386/kernel/traps.c
+===================================================================
+--- linux-don.orig/arch/i386/kernel/traps.c
++++ linux-don/arch/i386/kernel/traps.c
+@@ -598,13 +598,15 @@ gp_in_kernel:
+ 
+ static void mem_parity_error(unsigned char reason, struct pt_regs * regs)
+ {
+-	printk(KERN_EMERG "Uhhuh. NMI received. Dazed and confused, but trying "
+-			"to continue\n");
++	printk(KERN_EMERG "Uhhuh. NMI received for unknown reason %02x on "
++		"CPU %d.\n", reason, smp_processor_id());
+ 	printk(KERN_EMERG "You probably have a hardware problem with your RAM "
+ 			"chips\n");
+ 	if (panic_on_unrecovered_nmi)
+                 panic("NMI: Not continuing");
+ 
++	printk(KERN_EMERG "Dazed and confused, but trying to continue\n");
++
+ 	/* Clear and disable the memory parity error line. */
+ 	clear_mem_error(reason);
+ }
+@@ -635,14 +637,13 @@ static void unknown_nmi_error(unsigned c
+ 		return;
+ 	}
+ #endif
+-	printk("Uhhuh. NMI received for unknown reason %02x on CPU %d.\n",
+-		reason, smp_processor_id());
+-	printk("Dazed and confused, but trying to continue\n");
+-	printk("Do you have a strange power saving mode enabled?\n");
+-
++	printk(KERN_EMERG "Uhhuh. NMI received for unknown reason %02x on "
++		"CPU %d.\n", reason, smp_processor_id());
++	printk(KERN_EMERG "Do you have a strange power saving mode enabled?\n");
+ 	if (panic_on_unrecovered_nmi)
+                 panic("NMI: Not continuing");
+ 
++	printk(KERN_EMERG "Dazed and confused, but trying to continue\n");
+ }
+ 
+ static DEFINE_SPINLOCK(nmi_print_lock);
+Index: linux-don/arch/x86_64/kernel/traps.c
+===================================================================
+--- linux-don.orig/arch/x86_64/kernel/traps.c
++++ linux-don/arch/x86_64/kernel/traps.c
+@@ -606,10 +606,15 @@ asmlinkage void __kprobes do_general_pro
+ static __kprobes void
+ mem_parity_error(unsigned char reason, struct pt_regs * regs)
+ {
+-	printk("Uhhuh. NMI received. Dazed and confused, but trying to continue\n");
+-	printk("You probably have a hardware problem with your RAM chips\n");
++	printk(KERN_EMERG "Uhhuh. NMI received for unknown reason %02x.\n",
++		reason);
++	printk(KERN_EMERG "You probably have a hardware problem with your "
++		"RAM chips\n");
++
+ 	if (panic_on_unrecovered_nmi)
+-               panic("NMI: Not continuing");
++		panic("NMI: Not continuing");
++
++	printk(KERN_EMERG "Dazed and confused, but trying to continue\n");
+ 
+ 	/* Clear and disable the memory parity error line. */
+ 	reason = (reason & 0xf) | 4;
+@@ -632,13 +637,15 @@ io_check_error(unsigned char reason, str
+ 
+ static __kprobes void
+ unknown_nmi_error(unsigned char reason, struct pt_regs * regs)
+-{	printk("Uhhuh. NMI received for unknown reason %02x.\n", reason);
+-	printk("Dazed and confused, but trying to continue\n");
+-	printk("Do you have a strange power saving mode enabled?\n");
++{
++	printk(KERN_EMERG "Uhhuh. NMI received for unknown reason %02x.\n",
++		reason);
++	printk(KERN_EMERG "Do you have a strange power saving mode enabled?\n");
+ 
+ 	if (panic_on_unrecovered_nmi)
+-                panic("NMI: Not continuing");
++		panic("NMI: Not continuing");
+ 
++	printk(KERN_EMERG "Dazed and confused, but trying to continue\n");
+ }
+ 
+ /* Runs on IST stack. This code must keep interrupts off all the time.

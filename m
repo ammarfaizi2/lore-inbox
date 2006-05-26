@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751689AbWEZXZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932776AbWEZXav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751689AbWEZXZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 19:25:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751690AbWEZXZ4
+	id S932776AbWEZXav (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 19:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932779AbWEZXav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 19:25:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58531 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751688AbWEZXZz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 19:25:55 -0400
-Date: Fri, 26 May 2006 16:28:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: dtor_core@ameritech.net, linux-joystick@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 03/13] input: make input a multi-object module
-Message-Id: <20060526162842.4da6b447.akpm@osdl.org>
-In-Reply-To: <44778A14.4060500@gmail.com>
-References: <20060526161129.557416000@gmail.com>
-	<20060526162902.227348000@gmail.com>
-	<20060526141603.054f0459.akpm@osdl.org>
-	<44777340.7030905@gmail.com>
-	<20060526144309.60469bcd.akpm@osdl.org>
-	<447778DA.8080507@gmail.com>
-	<20060526150804.0ae11b1f.akpm@osdl.org>
-	<44777F98.4080004@gmail.com>
-	<20060526153246.267991ed.akpm@osdl.org>
-	<44778A14.4060500@gmail.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 26 May 2006 19:30:51 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:56213 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932776AbWEZXau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 19:30:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=UKPMowPo7h2FW9BFahbO3rS1x18U2HC1pH1JI+y7sTdedRUqp89PXXI5HeSRB+5BDuEAkpzhAK2kmwFd1Z240YdBP6vau4vAp/VYktu3w2fqMmf96ZQ3Twjo6VL1/BLtTo6zFd9RFNdJN4dIjC5GK3ca+i9BWBCLUEC4chzLq10=
+Date: Sat, 27 May 2006 03:31:12 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+Subject: [PATCH] nfs: really return status from decode_recall_args()
+Message-ID: <20060526233112.GA7267@martell.zuzino.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anssi Hannula <anssi.hannula@gmail.com> wrote:
->
-> Unless you have any more thoughts, I'll make patches for (1) separate
-> input-ff.o from input.o so that input.c renaming is not required, and to
-> (2) use the input_dev->event() handler instead of input.o calling
-> input-ff.o.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-Sounds good, thanks.
+--- a/fs/nfs/callback_xdr.c
++++ 1/fs/nfs/callback_xdr.c
+@@ -202,7 +202,7 @@ static unsigned decode_recall_args(struc
+ 	status = decode_fh(xdr, &args->fh);
+ out:
+ 	dprintk("%s: exit with status = %d\n", __FUNCTION__, status);
+-	return 0;
++	return status;
+ }
+ 
+ static unsigned encode_string(struct xdr_stream *xdr, unsigned int len, const char *str)
+

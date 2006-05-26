@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbWEZLF6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbWEZLGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751390AbWEZLF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 07:05:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWEZLF6
+	id S1751394AbWEZLGc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 07:06:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWEZLGc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 07:05:58 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:59522 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1751390AbWEZLF5 (ORCPT
+	Fri, 26 May 2006 07:06:32 -0400
+Received: from smtp9.wanadoo.fr ([193.252.22.22]:36602 "EHLO smtp9.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S1751394AbWEZLGb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 07:05:57 -0400
-Message-ID: <348641554.13480@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Fri, 26 May 2006 19:05:59 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH 03/33] radixtree: hole scanning functions
-Message-ID: <20060526110559.GA14398@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Nick Piggin <nickpiggin@yahoo.com.au>
-References: <20060524111246.420010595@localhost.localdomain> <348469537.15678@ustc.edu.cn> <20060525091946.2b57840f.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060525091946.2b57840f.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 26 May 2006 07:06:31 -0400
+X-ME-UUID: 20060526110629680.A62D51C00210@mwinf0906.wanadoo.fr
+Subject: Re: OpenGL-based framebuffer concepts
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       Jon Smirl <jonsmirl@gmail.com>, "D. Hazelton" <dhazelton@enter.net>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <4476DF40.8040403@aitel.hist.no>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <44700ACC.8070207@gmail.com> <A78F7AE7-C3C2-43DA-9F17-D196CCA7632A@mac.com>
+	 <200605230048.14708.dhazelton@enter.net>
+	 <9e4733910605231017g146e16dfnd61eb22a72bd3f5f@mail.gmail.com>
+	 <6896241F-3389-4B20-9E42-3CCDDBFDD312@mac.com>
+	 <44740533.7040702@aitel.hist.no> <447465C6.3090501@ums.usu.ru>
+	 <4476A951.2070003@aitel.hist.no> <4476BD28.8040405@ums.usu.ru>
+	 <4476DF40.8040403@aitel.hist.no>
+Content-Type: text/plain
+Message-Id: <1148641580.1509.48.camel@capoeira>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Fri, 26 May 2006 13:06:20 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 25, 2006 at 09:19:46AM -0700, Andrew Morton wrote:
-> Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
+On Fri, 2006-05-26 at 12:58, Helge Hafting wrote:
+> Alexander E. Patrakov wrote:
+> > Helge Hafting wrote:
+> >> "Which of the two keyboards to read, which of the three screens to use
+> >> for messages" is not a problem.  The kernel would use whatever devices
+> >> is associated with the primary console - any extra devices would be 
+> >> left alone.
+> >> The console is normally one particular keyboard (or possibly all of 
+> >> them),
+> >> and /dev/fb0 in case of graphical console.  Other framebuffers are
+> >> not the primary console.
 > >
-> > Introduce a pair of functions to scan radix tree for hole/empty item.
-> >
+> > I am not sure how this can be achievable, assuming that udev is 
+> > responsible for loading framebuffer modules. Since it loads them in 
+> > parallel, the registration order is essentially random. See the 
+> > following Debian bugs about other subsystems:
+> So what?  In that case, it is essentially random _which_ display you
+> get your PANIC on, but you will get it on one of them.
 > 
-> There's a userspace radix-tree test harness at
-> http://www.zip.com.au/~akpm/linux/patches/stuff/rtth.tar.gz.
-> 
-> If/when these new features are merged up, it would be good to have new
-> testcases added to that suite, please.
-> 
-> In the meanwhile you may care to develop those tests anwyway, see if you
-> can trip up the new features.
+> Of course this case is easily fixed by loading the preferred
+> framebuffer driver before running udev.  That way, it grabs
+> /dev/fb0 before anything else.
 
-The new radix-tree.c/.h breaks compiling terribly.
+Well, the oops/panic should probably be displayed on all fbdevs anyway.
 
-Are there any particular reason not to implement it as a module?
+	Xav
+
+

@@ -1,70 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWEZIza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWEZIzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbWEZIza (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 04:55:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWEZIza
+	id S1751196AbWEZIzq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 04:55:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWEZIzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 26 May 2006 04:55:45 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:36006 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751196AbWEZIza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 26 May 2006 04:55:30 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:17350 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751195AbWEZIz3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 04:55:29 -0400
-Message-ID: <4476C27A.7040707@garzik.org>
-Date: Fri, 26 May 2006 04:55:22 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: discuss@x86-64.org, Muli Ben-Yehuda <mulix@mulix.org>,
-       Jon Mason <jdmason@us.ibm.com>, Muli Ben-Yehuda <muli@il.ibm.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [discuss] Re: [PATCH 2/4] x86-64: Calgary IOMMU - move valid_dma_direction
- into the callers
-References: <20060525033550.GD7720@us.ibm.com> <20060525094236.GB22495@granada.merseine.nu> <44757FD3.3070805@garzik.org> <200605260957.02163.ak@suse.de>
-In-Reply-To: <200605260957.02163.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Fri, 26 May 2006 17:56:22 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: y-goto@jp.fujitsu.com, linux-ia64@vger.kernel.org, ashok.raj@intel.com,
+       steiner@sgi.com, tony.luck@intel.com
+Subject: [RFC][PATCH] ia64 node hotplug -- cpu - node relationship fix [0/2]
+ intro
+Message-Id: <20060526175622.13057d7e.kamezawa.hiroyu@jp.fujitsu.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Thursday 25 May 2006 11:58, Jeff Garzik wrote:
->> Muli Ben-Yehuda wrote:
->>> On Thu, May 25, 2006 at 12:35:07AM -0400, Jeff Garzik wrote:
->>>> Jon Mason wrote:
->>>>> >From Andi Kleen's comments on the original Calgary patch, move
->>>>> valid_dma_direction into the calling functions.
->>>>>
->>>>> Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
->>>>> Signed-off-by: Jon Mason <jdmason@us.ibm.com>
->>>> Even though BUG_ON() includes unlikely(), this introduces additional 
->>>> tests in very hot paths.
->>> Are they really very hot? I mean if you're calling the DMA API, you're
->>> about to frob the hardware or have already frobbed it - does this
->>> check really matter?
->> When you are adding a check that will _never_ be hit in production, to 
->> the _hottest_ paths in the kernel, you can be assured it matters...
-> 
-> pci_dma_* shouldn't be that hot. Or at least IO usually has so much
-> overhead that some more bugging shouldn't matter.
+current -mm tree includes node-hotplug codes.
 
-I respectfully disagree with that logic.  If its a key hot path -- which 
-it is, every modern network or disk I/O runs through these paths -- then 
-it deserves at least _some_ consideration before adding more CPU cycles.
+But by following reason , ia64's node-hotplug doesn't work well now.
 
+Following patch will fix it. I'd like to post this patch against next -mm.
+Feedbacks are welcome.
 
-> On the other hand if the problem of passing wrong parameters here
-> isn't common I would be ok with dropping them.
+1. empty-node-fix : avoid creating empty node
+   SRAT's enable bit just shows 'you can read this entry'. But the kernel know
+   this and checks each entries are vaild or not later.
 
-As the author noted, it was only used in early platform bring-up.  And 
-simply reviewing the patch... it is clear that screwing up the 
-parameters would cause massive, noticeable problems immediately -- such 
-as on EM64T with swiotlb.
+   But pxm_bit/node_online_mask is not treated as they should be.
+   The kernel creates empty node, which has no cpu, no memory.
 
-	Jeff
+   Becasue of the empty node, node-hot-added will not create new NODE_DATA at
+   hotadd event. It's already created at boot time as empty node.
+   I'm now thinking of allocate NODE_DATA on local (hot-added) node. So,
+   avoiding to allocate empty NODE_DATA (allocated on off-node) is necessary.
 
+   My concern is whether there is a nice way to detect I/O only node at boot
+   time or not. (if we need it) If someone shows it, I'll add it to my patch.
+
+2. cpu-to-node fix: fix cpu-to-node mapping at cpu hotplug
+   cpu hotplug on NUMA has to map cpu to its node. From its comment in the code,
+   it expects the container hotplug will map pxm to correct node.
+   But the container hotplug itself doesn't it now and acpi_map_pxm_to_node()
+   is introduced.
+   We also need to update node_to_cpu_mask[] and cpu_to_node_map[].
+
+BTW, our team's node-hotplug considers (cpu + memory) hotplug by ACPI's container.
+Does anyone has plan of cpu-only-node-hotplug or I/O-only-node-hotplug ?
+If someone has, I'll develop memory-less-node hotplug, which just allocates
+NODE_DATA of hot-added node.
+
+-Kame
 

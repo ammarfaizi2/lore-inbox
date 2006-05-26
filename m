@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030411AbWEZEem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbWEZEek@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030411AbWEZEem (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 00:34:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030410AbWEZEem
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 00:34:42 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:30222 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1030411AbWEZEek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1030420AbWEZEek (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 26 May 2006 00:34:40 -0400
-Date: Fri, 26 May 2006 06:25:51 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Alex Davis <alex14641@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fwd: [RFC] New netfilter match
-Message-ID: <20060526042550.GW11191@w.ods.org>
-References: <20060526041803.46181.qmail@web50209.mail.yahoo.com>
-Mime-Version: 1.0
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030412AbWEZEek
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 26 May 2006 00:34:40 -0400
+Received: from cantor.suse.de ([195.135.220.2]:58816 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030406AbWEZEej (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 00:34:39 -0400
+From: Neil Brown <neilb@suse.de>
+To: "Xin Zhao" <uszhaoxin@gmail.com>
+Date: Fri, 26 May 2006 14:34:32 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060526041803.46181.qmail@web50209.mail.yahoo.com>
-User-Agent: Mutt/1.5.10i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17526.34136.986510.885941@cse.unsw.edu.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: Re: why svc_export_lookup() has no implementation?
+In-Reply-To: message from Xin Zhao on Friday May 26
+References: <4ae3c140605252115n7b040a99l6633ba387ce48358@mail.gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 25, 2006 at 09:18:03PM -0700, Alex Davis wrote:
-> I posted this to netfilter-devel@lists.netfilter.org 5 hours ago and it hasn't 
-> appeared on that list yet.
+On Friday May 26, uszhaoxin@gmail.com wrote:
+> I noticed that functions like exp_get_by_name() calls function
+> svc_export_lookup(). But I cannot find the implementation of
+> svc_export_lookup(). I can only find the function definition. HOw can
+> this happen?
 > 
-> 
-> --- Alex Davis <alex14641@yahoo.com> wrote:
-> 
-> > 
-> > This is a proposal for a new netfilter module. 
-> > Please read and furnish comments.
-> > 
-> > http://linux.ace-technologies.biz:81/ipisforif.html
+> Can someone give me a hand?
 
-Nobody will take the time to click on your link. And there are people in
-big companies who will not have an easy access to HTTP on a port other
-than 80. You should post your code right here in a mail so that competent
-people can discuss it (and don't worry if they use harsh words).
+Look at and understand DefineCacheLookup (in
+include/linux/sunrpc/cache.h).
 
-Willy
+Then look for places that it is used.
 
+But if you find you cannot stomach that, but assured that you aren't
+alone and have a look in something newer than 2.6.16.  There-in, and
+Randy has suggest, it will be easy to find the definition.
+
+NeilBrown

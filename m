@@ -1,224 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbWEZMAO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWEZMBO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932379AbWEZMAO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 08:00:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWEZL7x
+	id S932410AbWEZMBO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 08:01:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWEZMBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 07:59:53 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:11994 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932379AbWEZLxH (ORCPT
+	Fri, 26 May 2006 08:01:05 -0400
+Received: from nz-out-0102.google.com ([64.233.162.207]:40585 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932410AbWEZMA4 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 07:53:07 -0400
-Message-ID: <348644382.05317@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060526115307.794859372@localhost.localdomain>
-References: <20060526113906.084341801@localhost.localdomain>
-Date: Fri, 26 May 2006 19:39:22 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 16/33] readahead: state based method
-Content-Disposition: inline; filename=readahead-method-stateful.patch
+	Fri, 26 May 2006 08:00:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rUd8QjHGxqp88WO5+UsFm2bgwf+OOx9TBf+t9GRzLmxZl1Fm7G+zpBumNc0vfYmN4C5fvupssQ24km8TriOGKNTjmJf7ACl2lgtihEq95AY+sYmdgx8cbZ+9fPGcza/uRxPBHF7y+0u4+X/pB1LkimByZcHc0awypJ3XU9MwmPA=
+Message-ID: <5486cca80605260500p72e107fcw8c422c1ea884be4f@mail.gmail.com>
+Date: Fri, 26 May 2006 14:00:23 +0200
+From: Antonio <tritemio@gmail.com>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Subject: Re: : unclean backward scrolling
+Cc: nick@linicks.net, linux-kernel@vger.kernel.org
+In-Reply-To: <44764F4F.5000102@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <5486cca80605210638l2906112fv515df1bc390cff24@mail.gmail.com>
+	 <7c3341450605211155i3674a27bob6213b449e2d1a3a@mail.gmail.com>
+	 <44764F4F.5000102@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the fast code path of adaptive read-ahead.
+Hi,
 
-MAJOR STEPS
-===========
+On 5/26/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+> Nick Warne wrote:
+> > Hmmmph.
+> >
+> > I get this problem, and always have, but I always put it down to my system.
+> >
+> > I run Slackware 10, and this has always happened to me from 2.6.2
+> > upwards on CRT 1024x768 and later TFT 1280x1024 dvi.
+> >
+> > I use[d] in lilo:
+> >
+> > # VESA framebuffer console @ 1280x1024x?k
+> > vga=794
+> > # VESA framebuffer console @ 1024x768x64k
+> > #vga=791
+> >
+> > So you are not alone.
+> >
+> > Nick
+> >
+> > On 21/05/06, Antonio <tritemio@gmail.com> wrote:
+> >> Hi,
+> >>
+> >> I'm using the radeonfb driver with a radeon 7000 with the frambuffer
+> >> at 1280x1024 on a i386 system, with a 2.6.16.17 kernel. At boot time,
+> >> if I stop the messages with CTRL+s and try look the previous messages
+> >> with CTRL+PagUp (backward scrolling) the screen become unreadable. In
+> >> fact some lengthier lines are not erased scrolling backward and some
+> >> random characters a overwritten instead. So it's very difficult to
+> >> read the messages.
+> >>
+> >> I don't have such problem with the frambuffer at 1024x768.
+> >>
+> >> All the previous kernels I've tried have this problem (at least up to
+> >> 2.6.15).
+> >>
+> >> If someone can look at this issue I can provide further information.
+> >>
+> >> Many Thanks.
+> >>
+> >> Cheers,
+> >>
+>
+> Can you try this patch and let me know if this fixes the problem?
+>
+> Tony
+>
+> PATCH: Fix scrollback with logo issue immediately after boot.
+[cut]
 
-        - estimate a thrashing safe ra_size;
-        - assemble the next read-ahead request in file_ra_state;
-        - submit it.
+This patch fixes completely the problem for me. Many thanks!
 
+Is going to be included in mainline anytime soon?
 
-THE REFERENCE MODEL
-===================
+Many thanks again, I've really appreciated your help.
 
-        1. inactive list has constant length and page flow speed
-        2. the observed stream receives a steady flow of read requests
-        3. no page activation, so that the inactive list forms a pipe
+Cheers,
 
-With that we get the picture showed below.
-
-|<------------------------- constant length ------------------------->|
-<<<<<<<<<<<<<<<<<<<<<<<<< steady flow of pages <<<<<<<<<<<<<<<<<<<<<<<<
-+---------------------------------------------------------------------+
-|tail                        inactive list                        head|
-|   =======                  ==========----                           |
-|   chunk A(stale pages)     chunk B(stale + fresh pages)             |
-+---------------------------------------------------------------------+
-
-
-REAL WORLD ISSUES
-=================
-
-Real world workloads will always have fluctuations (violation of assumption
-1 and 2). To counteract it, a tunable parameter readahead_ratio is introduced
-to make the estimation conservative enough. Violation of assumption 3 will
-not lead to thrashing, it is there just for simplicity of discussion.
-
-Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
----
-
- mm/readahead.c |  147 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 147 insertions(+)
-
---- linux-2.6.17-rc4-mm3.orig/mm/readahead.c
-+++ linux-2.6.17-rc4-mm3/mm/readahead.c
-@@ -1038,6 +1038,153 @@ static int ra_dispatch(struct file_ra_st
- }
- 
- /*
-+ * Deduce the read-ahead/look-ahead size from primitive values.
-+ *
-+ * Input:
-+ *	- @ra_size stores the estimated thrashing-threshold.
-+ *	- @la_size stores the look-ahead size of previous request.
-+ */
-+static int adjust_rala(unsigned long ra_max,
-+				unsigned long *ra_size, unsigned long *la_size)
-+{
-+	unsigned long stream_shift = *la_size;
-+
-+	/*
-+	 * Substract the old look-ahead to get real safe size for the next
-+	 * read-ahead request.
-+	 */
-+	if (*ra_size > *la_size)
-+		*ra_size -= *la_size;
-+	else {
-+		ra_account(NULL, RA_EVENT_READAHEAD_SHRINK, *ra_size);
-+		return 0;
-+	}
-+
-+	/*
-+	 * Set new la_size according to the (still large) ra_size.
-+	 */
-+	*la_size = *ra_size / LOOKAHEAD_RATIO;
-+
-+	/*
-+	 * Apply upper limits.
-+	 */
-+	if (*ra_size > ra_max)
-+		*ra_size = ra_max;
-+	if (*la_size > *ra_size)
-+		*la_size = *ra_size;
-+
-+	/*
-+	 * Make sure stream_shift is not too small.
-+	 * (So that the next global_shift will not be too small.)
-+	 */
-+	stream_shift += (*ra_size - *la_size);
-+	if (stream_shift < *ra_size / 4)
-+		*la_size -= (*ra_size / 4 - stream_shift);
-+
-+	return 1;
-+}
-+
-+/*
-+ * The function estimates two values:
-+ * 1. thrashing-threshold for the current stream
-+ *    It is returned to make the next read-ahead request.
-+ * 2. the remained safe space for the current chunk
-+ *    It will be checked to ensure that the current chunk is safe.
-+ *
-+ * The computation will be pretty accurate under heavy load, and will vibrate
-+ * more on light load(with small global_shift), so the grow speed of ra_size
-+ * must be limited, and a moderate large stream_shift must be insured.
-+ *
-+ * This figure illustrates the formula used in the function:
-+ * While the stream reads stream_shift pages inside the chunks,
-+ * the chunks are shifted global_shift pages inside inactive_list.
-+ *
-+ *      chunk A                    chunk B
-+ *                          |<=============== global_shift ================|
-+ *  +-------------+         +-------------------+                          |
-+ *  |       #     |         |           #       |            inactive_list |
-+ *  +-------------+         +-------------------+                     head |
-+ *          |---->|         |---------->|
-+ *             |                  |
-+ *             +-- stream_shift --+
-+ */
-+static unsigned long compute_thrashing_threshold(struct file_ra_state *ra,
-+							unsigned long *remain)
-+{
-+	unsigned long global_size;
-+	unsigned long global_shift;
-+	unsigned long stream_shift;
-+	unsigned long ra_size;
-+	uint64_t ll;
-+
-+	global_size = node_free_and_cold_pages();
-+	global_shift = node_readahead_aging() - ra->age;
-+	global_shift |= 1UL;
-+	stream_shift = ra_invoke_interval(ra);
-+
-+	/* future safe space */
-+	ll = (uint64_t) stream_shift * (global_size >> 9) * readahead_ratio * 5;
-+	do_div(ll, global_shift);
-+	ra_size = ll;
-+
-+	/* remained safe space */
-+	if (global_size > global_shift) {
-+		ll = (uint64_t) stream_shift * (global_size - global_shift);
-+		do_div(ll, global_shift);
-+		*remain = ll;
-+	} else
-+		*remain = 0;
-+
-+	ddprintk("compute_thrashing_threshold: "
-+			"at %lu ra %lu=%lu*%lu/%lu, remain %lu for %lu\n",
-+			ra->readahead_index, ra_size,
-+			stream_shift, global_size, global_shift,
-+			*remain, ra_lookahead_size(ra));
-+
-+	return ra_size;
-+}
-+
-+/*
-+ * Main function for file_ra_state based read-ahead.
-+ */
-+static unsigned long
-+state_based_readahead(struct address_space *mapping, struct file *filp,
-+			struct file_ra_state *ra,
-+			struct page *page, pgoff_t index,
-+			unsigned long req_size, unsigned long ra_max)
-+{
-+	unsigned long ra_old;
-+	unsigned long ra_size;
-+	unsigned long la_size;
-+	unsigned long remain_space;
-+	unsigned long growth_limit;
-+
-+	la_size = ra->readahead_index - index;
-+	ra_size = compute_thrashing_threshold(ra, &remain_space);
-+
-+	if (page && remain_space <= la_size && la_size > 1) {
-+		rescue_pages(page, la_size);
-+		return 0;
-+	}
-+
-+	ra_old = ra_readahead_size(ra);
-+	growth_limit = req_size;
-+	growth_limit += ra_max / 16;
-+	growth_limit += (2 + readahead_ratio / 64) * ra_old;
-+	if (growth_limit > ra_max)
-+		growth_limit = ra_max;
-+
-+	if (!adjust_rala(growth_limit, &ra_size, &la_size))
-+		return 0;
-+
-+	ra_set_class(ra, RA_CLASS_STATE);
-+	ra_set_index(ra, index, ra->readahead_index);
-+	ra_set_size(ra, ra_size, la_size);
-+
-+	return ra_dispatch(ra, mapping, filp);
-+}
-+
-+/*
-  * ra_min is mainly determined by the size of cache memory. Reasonable?
-  *
-  * Table of concrete numbers for 4KB page size:
-
---
+  ~ Antonio

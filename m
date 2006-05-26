@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWEZXml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWEZXm5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964866AbWEZXml (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 19:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWEZXml
+	id S964871AbWEZXm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 19:42:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWEZXm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 19:42:41 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:10208 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964866AbWEZXmk (ORCPT
+	Fri, 26 May 2006 19:42:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:46246 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964868AbWEZXmz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 19:42:40 -0400
-Message-ID: <4477926D.7070308@pobox.com>
-Date: Fri, 26 May 2006 19:42:37 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Mark Lord <liml@rtr.ca>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux-ide-owner@vger.kernel.org, Tejun Heo <htejun@gmail.com>
-Subject: Re: 2.6.17-rc5-git1: regression: resume from suspend(RAM) fails:
- libata issue
-References: <44775614.5000401@rtr.ca> <200605261544.46992.liml@rtr.ca>
-In-Reply-To: <200605261544.46992.liml@rtr.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 26 May 2006 19:42:55 -0400
+Date: Fri, 26 May 2006 16:45:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Anssi Hannula <anssi.hannula@gmail.com>
+Cc: dtor_core@ameritech.net, linux-joystick@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 03/13] input: make input a multi-object module
+Message-Id: <20060526164543.52f5b8a0.akpm@osdl.org>
+In-Reply-To: <447790BB.4060707@gmail.com>
+References: <20060526161129.557416000@gmail.com>
+	<20060526162902.227348000@gmail.com>
+	<20060526141603.054f0459.akpm@osdl.org>
+	<44777340.7030905@gmail.com>
+	<20060526144309.60469bcd.akpm@osdl.org>
+	<447778DA.8080507@gmail.com>
+	<20060526150804.0ae11b1f.akpm@osdl.org>
+	<44777F98.4080004@gmail.com>
+	<20060526153246.267991ed.akpm@osdl.org>
+	<44778A14.4060500@gmail.com>
+	<20060526162842.4da6b447.akpm@osdl.org>
+	<447790BB.4060707@gmail.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.1 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> Mark Lord wrote:
->> My ata_piix based Notebook (Dell i9300) suspends/resumes perfectly (RAM 
->> or disk)
->> with 2.6.16.xx kernels, but fails resume on 2.6.17-rc5-git1 (the first 
->> 2.6.17-*
->> I've attempted on this machine).
->>
->> On resume from RAM, after a 30-second-ish timeout, the screen comes on
->> but the hard disk is NOT accessible.  "dmesg" in an already-open window
->> shows this (typed in from handwritten notes):
->>
->> sd 0:0:0:0: SCSI error: return code = 0x40000
->> end_request: I/O error, /dev/sda, sector nnnnnnn
-> ...
+Anssi Hannula <anssi.hannula@gmail.com> wrote:
+>
+> Andrew Morton wrote:
+> > Anssi Hannula <anssi.hannula@gmail.com> wrote:
+> > 
+> >>Unless you have any more thoughts, I'll make patches for (1) separate
+> >>input-ff.o from input.o so that input.c renaming is not required, and to
+> >>(2) use the input_dev->event() handler instead of input.o calling
+> >>input-ff.o.
+> > 
+> > 
+> > Sounds good, thanks.
 > 
-> Ahh.. the fix for this was posted earlier today by Forrest Zhao.
-> But his patch is for libata-dev, and doesn't apply as-is on 2.6.17-rc*
-> 
-> Here is a modified version of Forrest's original patch, for 2.6.17-rc5-git1.
-> It seems to have fixed the resume issue on my machine here,
-> so that things are now working as they were in the unpatched 2.6.16 kernels.
-> 
-> Can we get (something like) this into 2.6.17, pretty please?
+> Hmh, I guess I need to send the modified "input: new force feedback
+> interface" patch fully again, as the previous patch patches input-core.c
+> that doesn't exist if we drop the rename.
 
-Definitely not.  I've repeatedly explained (and just done so again) why 
-this is very wrong.  And you should know why, too, Mark ;-)
+yup.
 
-The controller resume (ata_pci_device_resume) does nothing 
-controller-specific.  More importantly, the controller does not resume 
-the ATA bus, and bring the ATA bus to bus-idle state.
+> A final minor question: In your opinion is input-ff.c or ff-effects.c a
+> better name? ;)
 
-	Jeff
-
-
-
+ff-effects.

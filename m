@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751596AbWEZVeB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751618AbWEZVjV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751596AbWEZVeB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 17:34:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751598AbWEZVeB
+	id S1751618AbWEZVjV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 17:39:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751620AbWEZVjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 17:34:01 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47792 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751595AbWEZVeA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 17:34:00 -0400
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Ulrich Drepper <drepper@redhat.com>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       serue@us.ibm.com, sam@vilain.net, clg@fr.ibm.com, dev@sw.ru
-Subject: Re: [PATCH] POSIX-hostname up to 255 characters
-References: <20060525204534.4068e730.rdunlap@xenotime.net>
-	<m1zmh5b129.fsf@ebiederm.dsl.xmission.com>
-	<20060526144216.GZ13513@lug-owl.de>
-	<Pine.LNX.4.58.0605261025230.9655@shark.he.net>
-	<20060526180131.GA13513@lug-owl.de>
-	<Pine.LNX.4.61.0605261409300.8002@chaos.analogic.com>
-	<447748E4.4050908@redhat.com>
-	<Pine.LNX.4.61.0605261430370.8339@chaos.analogic.com>
-	<44774F0B.8010805@redhat.com>
-	<Pine.LNX.4.61.0605262111130.11445@yvahk01.tjqt.qr>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 26 May 2006 15:31:25 -0600
-In-Reply-To: <Pine.LNX.4.61.0605262111130.11445@yvahk01.tjqt.qr> (Jan
- Engelhardt's message of "Fri, 26 May 2006 21:12:42 +0200 (MEST)")
-Message-ID: <m13bewa2xe.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 26 May 2006 17:39:21 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:47520 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751616AbWEZVjU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 17:39:20 -0400
+Date: Fri, 26 May 2006 17:39:15 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: .17rc5 cfq slab corruption.
+Message-ID: <20060526213915.GB7585@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
+Was playing with googles new picasa toy, which hammered the disks
+hunting out every image file it could find, when this popped out:
 
->>> It is written (on so-called compatible machines like my Sun) as:
->>> 
->>> #define MAXHOSTNAMELEN _POSIX_HOST_NAME_MAX
->>> 
->>> Then in limits.h, I see:
->>> 
->>> #define _POSIX_HOST_NAME_MAX 64
->>
->>That's wrong.  The value must be 255, at least for the current spec.
->>You really should verify your statements before making them public.  The
->>POSIX spec is available in HTML for for viewing for free from the
->>OpenGroup.  What a specific implementation does is not authoritative.
->>
->
-> Let's all be happy with it that some systens have the maximum hostname length
-> at 64 or 255... thay way, applications do not tend to depend on it.
-> (Cf. Linux and the 100->1000 Hz change which _did_ turn up something.)
+Slab corruption: (Not tainted) start=ffff810012b998c8, len=168
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<ffffffff8032c319>](cfq_free_io_context+0x2f/0x74)
+090: 10 bd 28 1b 00 81 ff ff 6b 6b 6b 6b 6b 6b 6b 6b
+Prev obj: start=ffff810012b99808, len=168
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<ffffffff8032c319>](cfq_free_io_context+0x2f/0x74)
+000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Next obj: start=ffff810012b99988, len=168
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<ffffffff8032c319>](cfq_free_io_context+0x2f/0x74)
+000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
 
-For all of the kibitzers please reread Rolands original post, where he
-included the urls of the appropriate pieces of the Posix spec.
+		Dave
 
-Eric
+-- 
+http://www.codemonkey.org.uk

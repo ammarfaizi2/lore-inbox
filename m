@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbWEZQek@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWEZQhd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751086AbWEZQek (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 12:34:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWEZQdy
+	id S1751088AbWEZQhd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 12:37:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751064AbWEZQhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 12:33:54 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:807 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751065AbWEZQd0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 12:33:26 -0400
+	Fri, 26 May 2006 12:37:33 -0400
+Received: from nz-out-0102.google.com ([64.233.162.195]:40427 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751065AbWEZQhc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 12:37:32 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=p5PvP43YKmxrt/Fw2c+pTD7So0iaf6ziiuK99CP8kXBQvWBEolOf19slQ6GX4e1ooOVLDjvDPvlTRd0y/t6jbFUC4wRW7QacL0FEjyc6hRdlnUOUW+V2/7IU5vrljoVpC/P8WGnVbl/I38GSeLVO/T5/2FHncm9nIMRP7FWuh/k=
-Message-ID: <44772D99.2070001@gmail.com>
-Date: Fri, 26 May 2006 19:32:25 +0300
-From: Anssi Hannula <anssi.hannula@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6-7.5.20060mdk (X11/20050322)
-X-Accept-Language: en-us, en
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qBClldd118wwriIAiKmhoZKlH/+AiUSlx2GxIra8H5XIvvDpBwzrkqWSwJlAVBPOAuywlBBtP6rs8gAe5qpKbvOeGvqQ6SbUMVUIvo0Yj75cb70YIs5XxlGRzYRO7AfF+f1Xr8Acsn5nnVPK/KfWu74NmIZr5g+vQXC4dUACRIQ=
+Message-ID: <b0943d9e0605260937j5a86d4dr4adcae6fc35c73fa@mail.gmail.com>
+Date: Fri, 26 May 2006 17:37:31 +0100
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Subject: Re: [PATCH 2.6.17-rc4 1/6] Base support for kmemleak
+Cc: "Andi Kleen" <ak@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060526085916.GA14388@elte.hu>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: dtor_core@ameritech.net, linux-joystick@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 03/11] input: new force feedback interface
-References: <20060515211229.521198000@gmail.com>	<20060515211506.783939000@gmail.com>	<20060517222007.2b606b1b.akpm@osdl.org>	<4471E259.7080609@gmail.com>	<4474392F.1030809@gmail.com> <20060524174910.5b066ee5.akpm@osdl.org>
-In-Reply-To: <20060524174910.5b066ee5.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060513155757.8848.11980.stgit@localhost.localdomain>
+	 <20060513160541.8848.2113.stgit@localhost.localdomain>
+	 <p73u07t5x6f.fsf@bragg.suse.de> <20060526085916.GA14388@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Anssi Hannula <anssi.hannula@gmail.com> wrote:
-> 
->>>BTW, what is the best way to send corrected patches for this patchset?
->>>Probably as a reply to the individual patches?
->>>
->>
->>Hmm, I think it is easier to just send the whole updated set...
->>
->>I'm going to do all the changes discussed and then send the set probably
->>tomorrow or in the weekend.
->>
-> 
-> Yes, that's fine.  Once patches have matured a bit, incremental (and
-> fine-grained) updates are preferred.  And I'll often turn
-> wholesale-replacement-attempts into incremental updates, so we can see what
-> changed.
-> 
-> But at this stage, rip-it-out-and-redo is fine.  Although it does help if
-> you can tell us which of the review comments were and were not implemented,
-> so we don't have to re-read the whole thing with the same level of
-> attention.
+On 26/05/06, Ingo Molnar <mingo@elte.hu> wrote:
+> All in one, i'm very much in favor of adding kmemleak to the upstream
+> kernel, once it gets clean enough and has seen some exposure on -mm.
 
-Okay, I sent the whole set again.
-I hope you have time to take a look :)
+I cleaned it and also tested it on SMP. I need to run a few more tests
+on x86 (as I mainly work on ARM) and release a new version this
+weekend.
 
-
-(didn't CC the patches for you because quilt sends them through my ISP
-with @gmail.com => smpt.osdl.org would've not accepted them)
+A problem I'm facing (also because I'm not familiar with the other
+architectures) is detecting the effective stack boundaries of the
+threads running or waiting in kernel mode. Scanning the whole stack
+(8K) hides some possible leaks (because of no longer used local
+variables) and not scanning the list at all can lead to false
+positives. I would need to investigate this a bit more.
 
 -- 
-Anssi Hannula
-
+Catalin

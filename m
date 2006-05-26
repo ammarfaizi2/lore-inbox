@@ -1,201 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWEZMCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWEZMCK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932398AbWEZMCt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 08:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWEZMCt
+	id S932366AbWEZMCK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 08:02:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWEZMCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 08:02:49 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:53209 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932398AbWEZLxD (ORCPT
+	Fri, 26 May 2006 08:02:06 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:19161 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932366AbWEZLxE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 07:53:03 -0400
-Message-ID: <348644380.06563@ustc.edu.cn>
+	Fri, 26 May 2006 07:53:04 -0400
+Message-ID: <348644376.06563@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060526115305.437903777@localhost.localdomain>
+Message-Id: <20060526115301.640751284@localhost.localdomain>
 References: <20060526113906.084341801@localhost.localdomain>
-Date: Fri, 26 May 2006 19:39:18 +0800
+Date: Fri, 26 May 2006 19:39:12 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 12/33] readahead: sysctl parameters
-Content-Disposition: inline; filename=readahead-parameter-sysctl-variables.patch
+Subject: [PATCH 06/33] readahead: add look-ahead support to __do_page_cache_readahead()
+Content-Disposition: inline; filename=readahead-add-lookahead-support-to-__do_page_cache_readahead.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add new sysctl entries in /proc/sys/vm:
+Add look-ahead support to __do_page_cache_readahead().
 
-- readahead_ratio = 50
-	i.e. set read-ahead size to <=(readahead_ratio%) thrashing threshold
-- readahead_hit_rate = 1
-	i.e. read-ahead hit ratio >=(1/readahead_hit_rate) is deemed ok
+It works by
+	- mark the Nth backwards page with PG_readahead,
+	(which instructs the page's first reader to invoke readahead)
+	- and only do the marking for newly allocated pages.
+	(to prevent blindly doing readahead on already cached pages)
 
-readahead_ratio also provides a way to select read-ahead logic at runtime:
-
-	condition			    action
-==========================================================================
-readahead_ratio == 0		disable read-ahead
-readahead_ratio <= 9		select the (old) stock read-ahead logic
-readahead_ratio >= 10		select the (new) adaptive read-ahead logic
+Look-ahead is a technique to achieve I/O pipelining:
+	While the application is working through a chunk of cached pages,
+	the kernel reads-ahead the next chunk of pages _before_ time of need.
+	It effectively hides low level I/O latencies to high level
+	applications.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- Documentation/sysctl/vm.txt |   37 +++++++++++++++++++++++++++++++++++++
- include/linux/sysctl.h      |    2 ++
- kernel/sysctl.c             |   28 ++++++++++++++++++++++++++++
- mm/readahead.c              |   17 +++++++++++++++++
- 4 files changed, 84 insertions(+)
+ mm/readahead.c |   15 +++++++++------
+ 1 files changed, 9 insertions(+), 6 deletions(-)
 
---- linux-2.6.17-rc4-mm3.orig/include/linux/mm.h
-+++ linux-2.6.17-rc4-mm3/include/linux/mm.h
-@@ -1029,6 +1029,17 @@ void handle_ra_miss(struct address_space
- 		    struct file_ra_state *ra, pgoff_t offset);
- unsigned long max_sane_readahead(unsigned long nr);
- 
-+#ifdef CONFIG_ADAPTIVE_READAHEAD
-+extern int readahead_ratio;
-+#else
-+#define readahead_ratio 1
-+#endif /* CONFIG_ADAPTIVE_READAHEAD */
-+
-+static inline int prefer_adaptive_readahead(void)
-+{
-+	return readahead_ratio >= 10;
-+}
-+
- /* Do stack extension */
- extern int expand_stack(struct vm_area_struct *vma, unsigned long address);
- #ifdef CONFIG_IA64
 --- linux-2.6.17-rc4-mm3.orig/mm/readahead.c
 +++ linux-2.6.17-rc4-mm3/mm/readahead.c
-@@ -26,6 +26,23 @@
- #define MIN_RA_PAGES	DIV_ROUND_UP(VM_MIN_READAHEAD*1024, PAGE_CACHE_SIZE)
+@@ -266,7 +266,8 @@ out:
+  */
+ static int
+ __do_page_cache_readahead(struct address_space *mapping, struct file *filp,
+-			pgoff_t offset, unsigned long nr_to_read)
++			pgoff_t offset, unsigned long nr_to_read,
++			unsigned long lookahead_size)
+ {
+ 	struct inode *inode = mapping->host;
+ 	struct page *page;
+@@ -279,7 +280,7 @@ __do_page_cache_readahead(struct address
+ 	if (isize == 0)
+ 		goto out;
+ 
+- 	end_index = ((isize - 1) >> PAGE_CACHE_SHIFT);
++	end_index = ((isize - 1) >> PAGE_CACHE_SHIFT);
+ 
+ 	/*
+ 	 * Preallocate as many pages as we will need.
+@@ -302,6 +303,8 @@ __do_page_cache_readahead(struct address
+ 			break;
+ 		page->index = page_offset;
+ 		list_add(&page->lru, &page_pool);
++		if (page_idx == nr_to_read - lookahead_size)
++			SetPageReadahead(page);
+ 		ret++;
+ 	}
+ 	read_unlock_irq(&mapping->tree_lock);
+@@ -338,7 +341,7 @@ int force_page_cache_readahead(struct ad
+ 		if (this_chunk > nr_to_read)
+ 			this_chunk = nr_to_read;
+ 		err = __do_page_cache_readahead(mapping, filp,
+-						offset, this_chunk);
++						offset, this_chunk, 0);
+ 		if (err < 0) {
+ 			ret = err;
+ 			break;
+@@ -385,7 +388,7 @@ int do_page_cache_readahead(struct addre
+ 	if (bdi_read_congested(mapping->backing_dev_info))
+ 		return -1;
+ 
+-	return __do_page_cache_readahead(mapping, filp, offset, nr_to_read);
++	return __do_page_cache_readahead(mapping, filp, offset, nr_to_read, 0);
+ }
  
  /*
-+ * Adaptive read-ahead parameters.
-+ */
-+
-+/* In laptop mode, poll delayed look-ahead on every ## pages read. */
-+#define LAPTOP_POLL_INTERVAL 16
-+
-+/* Set look-ahead size to 1/# of the thrashing-threshold. */
-+#define LOOKAHEAD_RATIO 8
-+
-+/* Set read-ahead size to ##% of the thrashing-threshold. */
-+int readahead_ratio = 50;
-+EXPORT_SYMBOL_GPL(readahead_ratio);
-+
-+/* Readahead as long as cache hit ratio keeps above 1/##. */
-+int readahead_hit_rate = 1;
-+
-+/*
-  * Detailed classification of read-ahead behaviors.
-  */
- #define RA_CLASS_SHIFT 4
---- linux-2.6.17-rc4-mm3.orig/include/linux/sysctl.h
-+++ linux-2.6.17-rc4-mm3/include/linux/sysctl.h
-@@ -194,6 +194,8 @@ enum
- 	VM_ZONE_RECLAIM_INTERVAL=32, /* time period to wait after reclaim failure */
- 	VM_PANIC_ON_OOM=33,	/* panic at out-of-memory */
- 	VM_SWAP_PREFETCH=34,	/* swap prefetch */
-+	VM_READAHEAD_RATIO=35,	/* percent of read-ahead size to thrashing-threshold */
-+	VM_READAHEAD_HIT_RATE=36, /* one accessed page legitimizes so many read-ahead pages */
- };
+@@ -405,7 +408,7 @@ blockable_page_cache_readahead(struct ad
+ 	if (!block && bdi_read_congested(mapping->backing_dev_info))
+ 		return 0;
  
- /* CTL_NET names: */
---- linux-2.6.17-rc4-mm3.orig/kernel/sysctl.c
-+++ linux-2.6.17-rc4-mm3/kernel/sysctl.c
-@@ -77,6 +77,12 @@ extern int percpu_pagelist_fraction;
- extern int compat_log;
- extern int print_fatal_signals;
+-	actual = __do_page_cache_readahead(mapping, filp, offset, nr_to_read);
++	actual = __do_page_cache_readahead(mapping, filp, offset, nr_to_read, 0);
  
-+#if defined(CONFIG_ADAPTIVE_READAHEAD)
-+extern int readahead_ratio;
-+extern int readahead_hit_rate;
-+static int one = 1;
-+#endif
-+
- #if defined(CONFIG_X86_LOCAL_APIC) && defined(CONFIG_X86)
- int unknown_nmi_panic;
- int nmi_watchdog_enabled;
-@@ -987,6 +993,28 @@ static ctl_table vm_table[] = {
- 		.proc_handler	= &proc_dointvec,
- 	},
- #endif
-+#ifdef CONFIG_ADAPTIVE_READAHEAD
-+	{
-+		.ctl_name	= VM_READAHEAD_RATIO,
-+		.procname	= "readahead_ratio",
-+		.data		= &readahead_ratio,
-+		.maxlen		= sizeof(readahead_ratio),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+		.strategy	= &sysctl_intvec,
-+		.extra1		= &zero,
-+	},
-+	{
-+		.ctl_name	= VM_READAHEAD_HIT_RATE,
-+		.procname	= "readahead_hit_rate",
-+		.data		= &readahead_hit_rate,
-+		.maxlen		= sizeof(readahead_hit_rate),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+		.strategy	= &sysctl_intvec,
-+		.extra1		= &one,
-+	},
-+#endif
- 	{ .ctl_name = 0 }
- };
- 
---- linux-2.6.17-rc4-mm3.orig/Documentation/sysctl/vm.txt
-+++ linux-2.6.17-rc4-mm3/Documentation/sysctl/vm.txt
-@@ -31,6 +31,8 @@ Currently, these files are in /proc/sys/
- - zone_reclaim_interval
- - panic_on_oom
- - swap_prefetch
-+- readahead_ratio
-+- readahead_hit_rate
- 
- ==============================================================
- 
-@@ -202,3 +204,38 @@ copying back pages from swap into the sw
- practice it can take many minutes before the vm is idle enough.
- 
- The default value is 1.
-+
-+==============================================================
-+
-+readahead_ratio
-+
-+This limits readahead size to percent of the thrashing threshold.
-+The thrashing threshold is dynamicly estimated from the _history_ read
-+speed and system load, to deduce the _future_ readahead request size.
-+
-+Set it to a smaller value if you have not enough memory for all the
-+concurrent readers, or the I/O loads fluctuate a lot. But if there's
-+plenty of memory(>2MB per reader), a bigger value may help performance.
-+
-+readahead_ratio also selects the readahead logic:
-+	VALUE	CODE PATH
-+	-------------------------------------------
-+	    0	disable readahead totally
-+	  1-9	select the stock readahead logic
-+	10-inf	select the adaptive readahead logic
-+
-+The default value is 50.  Reasonable values would be [50, 100].
-+
-+==============================================================
-+
-+readahead_hit_rate
-+
-+This is the max allowed value of (readahead-pages : accessed-pages).
-+Useful only when (readahead_ratio >= 10). If the previous readahead
-+request has bad hit rate, the kernel will be reluctant to do the next
-+readahead.
-+
-+Larger values help catch more sparse access patterns. Be aware that
-+readahead of the sparse patterns sacrifices memory for speed.
-+
-+The default value is 1.  It is recommended to keep the value below 16.
+ 	return check_ra_success(ra, nr_to_read, actual);
+ }
+@@ -450,7 +453,7 @@ static int make_ahead_window(struct addr
+  * @req_size: hint: total size of the read which the caller is performing in
+  *            PAGE_CACHE_SIZE units
+  *
+- * page_cache_readahead() is the main function.  If performs the adaptive
++ * page_cache_readahead() is the main function.  It performs the adaptive
+  * readahead window size management and submits the readahead I/O.
+  *
+  * Note that @filp is purely used for passing on to the ->readpage[s]()
 
 --

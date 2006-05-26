@@ -1,57 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWEZOdq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbWEZOes@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbWEZOdq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 10:33:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbWEZOdq
+	id S1750813AbWEZOes (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 10:34:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWEZOes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 10:33:46 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:715 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750791AbWEZOdp (ORCPT
+	Fri, 26 May 2006 10:34:48 -0400
+Received: from ns2.suse.de ([195.135.220.15]:6095 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750813AbWEZOer (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 10:33:45 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.64.0605250921300.23726@schroedinger.engr.sgi.com> 
-References: <Pine.LNX.4.64.0605250921300.23726@schroedinger.engr.sgi.com>  <20060525135534.20941.91650.sendpatchset@lappy> <20060525135555.20941.36612.sendpatchset@lappy> 
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Christoph Lameter <christoph@lameter.com>,
-       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 1/3] mm: tracking shared dirty pages 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Fri, 26 May 2006 15:33:05 +0100
-Message-ID: <24747.1148653985@warthog.cambridge.redhat.com>
+	Fri, 26 May 2006 10:34:47 -0400
+Subject: Re: Recent x86-64 patch causes many devices to disappear
+From: Thomas Renninger <trenn@suse.de>
+Reply-To: trenn@suse.de
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, len.brown@intel.com,
+       gregkh@suse.de, joachim deguara <joachim.deguara@amd.com>
+In-Reply-To: <4476E1B3.8020605@garzik.org>
+References: <4476D020.8070605@garzik.org> <200605261203.55108.ak@suse.de>
+	 <4476D874.6060000@garzik.org> <200605261255.27471.ak@suse.de>
+	 <4476E1B3.8020605@garzik.org>
+Content-Type: text/plain
+Organization: Novell/SUSE
+Date: Fri, 26 May 2006 16:34:39 +0200
+Message-Id: <1148654080.16187.107.camel@queen.suse.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@sgi.com> wrote:
-
-> >  - rebased on top of David Howells' page_mkwrite() patch.
+On Fri, 2006-05-26 at 07:08 -0400, Jeff Garzik wrote:
+> Andi Kleen wrote:
+> > On Friday 26 May 2006 12:29, Jeff Garzik wrote:
+> >> Andi Kleen wrote:
+> >>> The problem is that most people cannot figure out how 
+> >>> to disable this in the BIOS so we needed a way to make it boot
+> >>> out of the box.
+> >> Agreed.
+> > 
+> > Do you use SCSI on your box? According to Joachim booting with 
+> > segmentation on and not pci=noacpi SCSI is not seen. And that's the 
+> > default setup on the machine which made it unusable.
 > 
-> I am a bit confused about the need for Davids patch. set_page_dirty() is 
-> already a notification that a page is to be dirtied. Why do we need it 
-> twice? set_page_dirty could return an error code and the file system can 
-> use the set_page_dirty() hook to get its notification. What we would need 
-> to do is to make sure that set_page_dirty can sleep.
+> Here, I see:
+> 
+> 	segmentation on + pci=noacpi == no SCSI
+> and additionally
+> 	segmentation on + pci=noacpi == no sata_mv
+> and thus overall
+> 	segmentation on + pci=noacpi == no PCI-X bus
+> 
+> (as the posted output on gtf.org shows)
 
-page_mkwrite() is called just before the _PTE_ is dirtied.  Take do_wp_page()
-for example, set_page_dirty() is called after a lot of stuff, including some
-stuff that marks the PTE dirty... by which time it's too late as another
-thread sharing the page tables can come along and modify the page before the
-first thread calls set_page_dirty().
+Here are the results from Joachim (without the patch):
+(from novell.bugzilla.com bug #82986):
 
-Furthermore, by that point, it's pointless to have set_page_dirty() return an
-error by then.  The deed is effectively done: the PTE is marked dirty and
-writable.
+segmentation enablee with no extra kernel params = not working
+segmentation enabled with pci=noacpi = working
+segmentation disabled with no extra kernel params = working
+segmentation disabled with pci=noacpi = working
 
-And also as you pointed out, set_page_dirty() needs to be able to sleep.
-There are places where it's called still, even with Peter's patch, with the
-page table lock held - zap_pte_range() for example.  In that particular case,
-dropping the lock for each PTE would be bad for performance.
+I'd say that only disabling when segmentation is enabled makes sense...,
+however the devices should still appear.
+I know there are a lot BIOS versions of this machines flying around.
+Maybe everybody should check that the latest version is running, first?
+I have:
+BIOS Information
+        Vendor: Hewlett-Packard
+        Version: 786B9 v2.05
+        Release Date: 01/26/2006
 
-Basically, you can look at it as page_mkwrite() is called upfront, and
-set_page_dirty() is called at the end.
+        Thomas
 
-David

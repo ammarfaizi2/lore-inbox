@@ -1,36 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030480AbWEZFrK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030479AbWEZFsZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030480AbWEZFrK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 01:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030478AbWEZFrK
+	id S1030479AbWEZFsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 01:48:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030481AbWEZFsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 01:47:10 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:47078 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1030477AbWEZFrI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 01:47:08 -0400
-Message-ID: <44769656.8020507@zytor.com>
-Date: Thu, 25 May 2006 22:47:02 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
+	Fri, 26 May 2006 01:48:25 -0400
+Received: from hera.kernel.org ([140.211.167.34]:7123 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1030479AbWEZFsY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 01:48:24 -0400
 To: linux-kernel@vger.kernel.org
-CC: akpm@osdl.org, mm-commits@vger.kernel.org
-Subject: Re: - git-klibc-build-hacks.patch removed from -mm tree
-References: <200605252358.k4PNwQ8R015702@shell0.pdx.osdl.net>
-In-Reply-To: <200605252358.k4PNwQ8R015702@shell0.pdx.osdl.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [USB disks] FAT: invalid media value (0x01)
+Date: Thu, 25 May 2006 22:48:18 -0700 (PDT)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <e564r2$84j$1@terminus.zytor.com>
+References: <200605260029_MC3-1-C0CF-C67B@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1148622498 8340 127.0.0.1 (26 May 2006 05:48:18 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Fri, 26 May 2006 05:48:18 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-akpm@osdl.org wrote:
-> git-klibc-stdint-build-fix.patch
-> git-klibc-stdint-build-fix-2.patch
+Followup to:  <200605260029_MC3-1-C0CF-C67B@compuserve.com>
+By author:    Chuck Ebbert <76306.1226@compuserve.com>
+In newsgroup: linux.dev.kernel
+> 
+> > sdc: assuming drive cache: write through
+> >  sdc: sdc1
+> > sd 11:0:0:0: Attached scsi removable disk sdc
+> > usb-storage: device scan complete
+> > FAT: invalid media value (0x01)
+> > VFS: Can't find a valid FAT filesystem on dev sdc.
+>                                                 ^^^
+> 
+> Shouldn't it be looking on sdc1 for the filesystem?
+> 
 
-These two patches should no longer be necessary against the latest klibc 
-tree.  I have compile-tested sparc32 (don't have a working sparc32 
-system at the moment, so I haven't been able to boot-test it), and it 
-compiles clean.
+Well, it depends what "it" is...
 
-	-hpa
+	-hpa (whoa... haven't seen a CompuServe addy for ages...)

@@ -1,66 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbWEZELZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWEZEPe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030319AbWEZELZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 00:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030318AbWEZELZ
+	id S1030229AbWEZEPe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 00:15:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030335AbWEZEPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 00:11:25 -0400
-Received: from zak.futurequest.net ([69.5.6.152]:49034 "HELO
-	zak.futurequest.net") by vger.kernel.org with SMTP id S1030319AbWEZELZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 00:11:25 -0400
-Date: Thu, 25 May 2006 22:11:22 -0600
-From: Bruce Guenter <bruce@untroubled.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel Source Compression
-Message-ID: <20060526041122.GA31821@untroubled.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0605211028100.4037@p34>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+	Fri, 26 May 2006 00:15:34 -0400
+Received: from wr-out-0506.google.com ([64.233.184.231]:20046 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1030221AbWEZEPd convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 00:15:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=N/OTnkwQNLrWfZnLuTVAOu4KVRzEBhm8Y+Rnx3/+a0uLk0J2h6q4ZjQIY382T+VzXvwn+y2SXuqmdI7oXjFvh9WnCXlvWvC5BHfcV9geSzidk2LWIAVauDIx6rPm7W8AwidW7q6kHa8OYh2D9SbKO4csYMnQ3D1b0BgQmUeKtfk=
+Message-ID: <4ae3c140605252115n7b040a99l6633ba387ce48358@mail.gmail.com>
+Date: Fri, 26 May 2006 00:15:32 -0400
+From: "Xin Zhao" <uszhaoxin@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: why svc_export_lookup() has no implementation?
+Cc: linux-fsdevel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0605211028100.4037@p34>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I noticed that functions like exp_get_by_name() calls function
+svc_export_lookup(). But I cannot find the implementation of
+svc_export_lookup(). I can only find the function definition. HOw can
+this happen?
 
---0F1p//8PRICkK4MW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Can someone give me a hand?
 
-On Sun, May 21, 2006 at 10:35:00AM -0400, Justin Piszcz wrote:
-> Was curious as to which utilities would offer the best compression ratio=
-=20
-> for the kernel source, I thought it'd be bzip2 or rar but lzma wins,=20
-> roughly 6 MiB smaller than bzip2.
->=20
-> $ du -sk * | sort -n
-> 33520   linux-2.6.16.17.tar.lzma
+Thanks!
 
-Since it was requested by somebody:
-
-$ du -sk linux-2.6.16.17.*
-32904	linux-2.6.16.17.7z
-39919	linux-2.6.16.17.tar.bz2
-
-This was done with: 7z -mx=3D9
---=20
-Bruce Guenter <bruce@untroubled.org> http://untroubled.org/
-OpenPGP key: 699980E8 / D0B7 C8DD 365D A395 29DA  2E2A E96F B2DC 6999 80E8
-
---0F1p//8PRICkK4MW
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQFEdn/q6W+y3GmZgOgRAj9KAJ9rzXYuepAFOTZOfKEs+0p6i8k+CwCdGq2r
-pYf+jLuMKVoBgILncPJ1AAU=
-=Z/Uj
------END PGP SIGNATURE-----
-
---0F1p//8PRICkK4MW--
+-x

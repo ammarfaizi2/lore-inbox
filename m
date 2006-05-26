@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWEZSzy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWEZTBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751246AbWEZSzy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 14:55:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWEZSzy
+	id S1751290AbWEZTBv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 15:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWEZTBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 14:55:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:24747 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751246AbWEZSzx (ORCPT
+	Fri, 26 May 2006 15:01:51 -0400
+Received: from rtr.ca ([64.26.128.89]:50586 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751290AbWEZTBv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 14:55:53 -0400
-Message-ID: <44774F0B.8010805@redhat.com>
-Date: Fri, 26 May 2006 11:55:07 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 26 May 2006 15:01:51 -0400
+Message-ID: <4477509D.1020009@rtr.ca>
+Date: Fri, 26 May 2006 15:01:49 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       serue@us.ibm.com, sam@vilain.net, clg@fr.ibm.com, dev@sw.ru
-Subject: Re: [PATCH] POSIX-hostname up to 255 characters
-References: <20060525204534.4068e730.rdunlap@xenotime.net> <m1zmh5b129.fsf@ebiederm.dsl.xmission.com> <20060526144216.GZ13513@lug-owl.de> <Pine.LNX.4.58.0605261025230.9655@shark.he.net> <20060526180131.GA13513@lug-owl.de> <Pine.LNX.4.61.0605261409300.8002@chaos.analogic.com> <447748E4.4050908@redhat.com> <Pine.LNX.4.61.0605261430370.8339@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0605261430370.8339@chaos.analogic.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigA62C81E2816EFB785926DDFA"
+To: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.17-rc5-git1: potentially fatal build WARNINGS
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigA62C81E2816EFB785926DDFA
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+This is from building the latest kernel on a Kubuntu Breezy system:
 
-linux-os (Dick Johnson) wrote:
-> It is written (on so-called compatible machines like my Sun) as:
->=20
-> #define MAXHOSTNAMELEN _POSIX_HOST_NAME_MAX
->=20
-> Then in limits.h, I see:
->=20
-> #define _POSIX_HOST_NAME_MAX 64
+System is 1290 kB
+Kernel: arch/i386/boot/bzImage is ready  (#1)
+  Building modules, stage 2.
+  MODPOST
+WARNING: drivers/acpi/processor.o - Section mismatch: reference to .init.data: from .text between 'acpi_processor_power_init' (at offset 0xec7) and 'acpi_processor_cst_has_changed'
+WARNING: drivers/input/misc/wistron_btns.o - Section mismatch: reference to .init.text:dmi_matched from .data between 'dmi_ids' (at offset 0xe0) and 'keymap_acer_travelmate_240'
+WARNING: drivers/input/misc/wistron_btns.o - Section mismatch: reference to .init.text:dmi_matched from .data between 'dmi_ids' (at offset 0x10c) and 'keymap_acer_travelmate_240'
+WARNING: drivers/input/misc/wistron_btns.o - Section mismatch: reference to .init.text:dmi_matched from .data between 'dmi_ids' (at offset 0x138) and 'keymap_acer_travelmate_240'
+WARNING: drivers/input/misc/wistron_btns.o - Section mismatch: reference to .init.text:dmi_matched from .data between 'dmi_ids' (at offset 0x164) and 'keymap_acer_travelmate_240'
+WARNING: drivers/input/misc/wistron_btns.o - Section mismatch: reference to .init.text:dmi_matched from .data between 'dmi_ids' (at offset 0x190) and 'keymap_acer_travelmate_240'
+WARNING: drivers/video/macmodes.o - Section mismatch: reference to .init.text:mac_find_mode from __ksymtab between '__ksymtab_mac_find_mode' (at offset 0x0) and '__ksymtab_mac_map_monitor_sense'
+WARNING: fs/jffs2/jffs2.o - Section mismatch: reference to .init.text:jffs2_zlib_init from .text between 'jffs2_compressors_init' (at offset 0x21) and 'jffs2_compressors_exit'
+...
 
-That's wrong.  The value must be 255, at least for the current spec.
-You really should verify your statements before making them public.  The
-POSIX spec is available in HTML for for viewing for free from the
-OpenGroup.  What a specific implementation does is not authoritative.
+# gcc --version
+gcc (GCC) 4.0.2 20050808 (prerelease) (Ubuntu 4.0.1-4ubuntu9)
+Copyright (C) 2005 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
+# ld --version
+GNU ld version 2.16.1 Debian GNU/Linux
+Copyright 2005 Free Software Foundation, Inc.
+This program is free software; you may redistribute it under the terms of
+the GNU General Public License.  This program has absolutely no warranty.
 
 
---------------enigA62C81E2816EFB785926DDFA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFEd08L2ijCOnn/RHQRAlToAKDCntfcnUg86CJBuOkPrRVwg+5FgACglS3n
-nWoCllTkpRsC392SG8hnoq8=
-=IK2j
------END PGP SIGNATURE-----
-
---------------enigA62C81E2816EFB785926DDFA--

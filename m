@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbWEZEek@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030258AbWEZEg7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030420AbWEZEek (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 00:34:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030412AbWEZEek
+	id S1030258AbWEZEg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 00:36:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbWEZEg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 00:34:40 -0400
-Received: from cantor.suse.de ([195.135.220.2]:58816 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030406AbWEZEej (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 00:34:39 -0400
-From: Neil Brown <neilb@suse.de>
-To: "Xin Zhao" <uszhaoxin@gmail.com>
-Date: Fri, 26 May 2006 14:34:32 +1000
-MIME-Version: 1.0
+	Fri, 26 May 2006 00:36:59 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:32270 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1030258AbWEZEg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 00:36:58 -0400
+Date: Fri, 26 May 2006 06:28:06 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Linux Device Driver Kit available
+Message-ID: <20060526042806.GX11191@w.ods.org>
+References: <20060524232900.GA18408@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17526.34136.986510.885941@cse.unsw.edu.au>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: Re: why svc_export_lookup() has no implementation?
-In-Reply-To: message from Xin Zhao on Friday May 26
-References: <4ae3c140605252115n7b040a99l6633ba387ce48358@mail.gmail.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <20060524232900.GA18408@kroah.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday May 26, uszhaoxin@gmail.com wrote:
-> I noticed that functions like exp_get_by_name() calls function
-> svc_export_lookup(). But I cannot find the implementation of
-> svc_export_lookup(). I can only find the function definition. HOw can
-> this happen?
+On Wed, May 24, 2006 at 04:29:00PM -0700, Greg KH wrote:
+(...)
+> In coordination with the FreedomHEC[1] conference this week in Seattle,
+> WA, USA, I'm proud to announce the first release of the Linux Device
+> Driver Kit.
 > 
-> Can someone give me a hand?
+> It is a cd image that contains everything that a Linux device driver
+> author would need in order to create Linux drivers, including a full
+> copy of the O'Reilly book, "Linux Device Drivers, third edition" and
+> pre-built copies of all of the in-kernel docbook documentation for easy
+> browsing.  It even has a copy of the Linux source code that you can
+> directly build external kernel modules against.
+> 
+> It can be downloaded for free at:
+>    kernel.org/pub/linux/kernel/people/gregkh/ddk/
+(...)
 
-Look at and understand DefineCacheLookup (in
-include/linux/sunrpc/cache.h).
+Got it. Thanks a lot Greg, that's an excellent initiative ! I hope it
+will encourage hardware makers to provide GPL drivers.
 
-Then look for places that it is used.
+Regards,
+Willy
 
-But if you find you cannot stomach that, but assured that you aren't
-alone and have a look in something newer than 2.6.16.  There-in, and
-Randy has suggest, it will be easy to find the definition.
-
-NeilBrown

@@ -1,86 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbWEZSPd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbWEZSSM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750805AbWEZSPd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 14:15:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbWEZSPd
+	id S1751238AbWEZSSM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 14:18:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWEZSSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 14:15:33 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:18451 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1750805AbWEZSPc convert rfc822-to-8bit (ORCPT
+	Fri, 26 May 2006 14:18:12 -0400
+Received: from mga03.intel.com ([143.182.124.21]:25902 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1751232AbWEZSSL convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 14:15:32 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 26 May 2006 18:15:26.0796 (UTC) FILETIME=[5D0828C0:01C680F0]
-Content-class: urn:content-classes:message
-Subject: Re: [PATCH] POSIX-hostname up to 255 characters
-Date: Fri, 26 May 2006 14:15:26 -0400
-Message-ID: <Pine.LNX.4.61.0605261409300.8002@chaos.analogic.com>
-In-Reply-To: <20060526180131.GA13513@lug-owl.de>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] POSIX-hostname up to 255 characters
-Thread-Index: AcaA8F0Rjjz0CoglSlqyh1uDlNwXaQ==
-References: <20060525204534.4068e730.rdunlap@xenotime.net> <m1zmh5b129.fsf@ebiederm.dsl.xmission.com> <20060526144216.GZ13513@lug-owl.de> <Pine.LNX.4.58.0605261025230.9655@shark.he.net> <20060526180131.GA13513@lug-owl.de>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Jan-Benedict Glaw" <jbglaw@lug-owl.de>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "lkml" <linux-kernel@vger.kernel.org>, <drepper@redhat.com>,
-       "akpm" <akpm@osdl.org>, <serue@us.ibm.com>, <sam@vilain.net>,
-       <clg@fr.ibm.com>, <dev@sw.ru>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Fri, 26 May 2006 14:18:11 -0400
+X-IronPort-AV: i="4.05,177,1146466800"; 
+   d="scan'208"; a="42148225:sNHT27784064"
+Subject: Re: 2.6.17-rc4-mm3 - kernel panic
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Brown, Len" <len.brown@intel.com>, Andreas Saur <saur@acmelabs.de>,
+       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060526071518.GC1699@elf.ucw.cz>
+References: <CFF307C98FEABE47A452B27C06B85BB68AD7E1@hdsmsx411.amr.corp.intel.com>
+	 <1148583675.3070.41.camel@whizzy> <20060525221222.GA1608@elf.ucw.cz>
+	 <20060525221744.GA1671@elf.ucw.cz> <1148601858.3070.62.camel@whizzy>
+	 <20060526071518.GC1699@elf.ucw.cz>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+Date: Fri, 26 May 2006 11:29:35 -0700
+Message-Id: <1148668175.7600.11.camel@whizzy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+X-OriginalArrivalTime: 26 May 2006 18:18:08.0764 (UTC) FILETIME=[BD9283C0:01C680F0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2006-05-26 at 09:15 +0200, Pavel Machek wrote:
+> On Čt 25-05-06 17:04:18, Kristen Accardi wrote:
+> > On Fri, 2006-05-26 at 00:17 +0200, Pavel Machek wrote:
+> > > On Pá 26-05-06 00:12:22, Pavel Machek wrote:
+> > > > Hi!
+> > > > 
+> > > > > > Does the panic go away with CONFIG_ACPI_DOCK=n?
+> > > > 
+> > > > > Can either Pavel or Andreas please try this little debugging patch and
+> > > > > send me the dmesg output?  Please enable the CONFIG_DEBUG_KERNEL option
+> > > > > in your .config as well so that I can get additional info.
+> > > > 
+> > > > Yep, you were right... this debugging patch helps.
+> > > 
+> > > ...and docking +/- works, but it does not look like PCI in docking
+> > > station is properly connected:
+> > > 
+> > 
+> > No, I would not expect PCI to work properly with the debug patch -
+> > basically all I did was prevent the oops and confirm that this is the
+> > issue, I did not actually solve the problem.
+> > 
+> > I need some way to prevent acpiphp from loading before dock is completed
+> > it's init.
+> > 
+> > I guess I will think about this some more.
+> 
+> Using different _init levels? Like putting dock at subsys_initcall()
+> while acpiphp at late_initcall()?
+> 								Pavel
 
-On Fri, 26 May 2006, Jan-Benedict Glaw wrote:
+Can you see if this works for you?  Revert the first debug patch I sent
+and apply this one instead (against -mm).
 
-> On Fri, 2006-05-26 10:28:13 -0700, Randy.Dunlap <rdunlap@xenotime.net> wrote:
->> On Fri, 26 May 2006, Jan-Benedict Glaw wrote:
-> [Patch touchin all archs]
->>> ...and this should have gone to linux-arch, too...
->>
->> so how does someone know:
->> (a) that this should have gone to linux-arch
->
-> Anything that modifies all architectures (eg. new system calls,
-> low-level MM changes, ...) should go to linux-arch. This is where all
-> architecture maintainers are expected to be around.
->
->> (b) that linux-arch exists
->
-> Noticing the existance of linux-arch is admittedly a hard job. It's a
-> quite specialized low-volume list, so most people actually never ever
-> recognize it--unfortunately.
->
->> (c) what it's full email address it?
->
-> The list's email address is linux-arch@vger.kernel.org
->
->> I.e., where is all of this explained?
->
-> Nowhere :-/
->
-> MfG, JBG
+Thanks,
+Kristen
 
-MAXHOSTNAMELEN, defined by POSIX, is 64 bytes. You can't just
-change it to 255. If you did, all servers in the universe, all
-everything would have to be shutdown, recompiled, and rebooted
-simultaneously. You can't have a name-server returning a 255-byte
-string when a mail-server can only handle 64 bytes.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.73 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
+---
+ drivers/acpi/dock.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+--- 2.6-mm.orig/drivers/acpi/dock.c
++++ 2.6-mm/drivers/acpi/dock.c
+@@ -190,6 +190,9 @@ static int is_dock(acpi_handle handle)
+  */
+ int is_dock_device(acpi_handle handle)
+ {
++	if (!dock_station)
++		return 0;
++
+ 	if (is_dock(handle) || find_dock_dependent_device(dock_station, handle))
+ 		return 1;
+ 
+@@ -674,5 +677,5 @@ static void __exit dock_exit(void)
+ 	dock_remove();
+ }
+ 
+-module_init(dock_init);
++postcore_initcall(dock_init);
+ module_exit(dock_exit);

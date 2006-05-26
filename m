@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWEZLKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWEZLOR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751398AbWEZLKE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 07:10:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWEZLKD
+	id S1751396AbWEZLOR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 07:14:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWEZLOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 07:10:03 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:31690 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751398AbWEZLKA (ORCPT
+	Fri, 26 May 2006 07:14:17 -0400
+Received: from mail.gmx.de ([213.165.64.20]:42624 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751396AbWEZLOR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 07:10:00 -0400
-Message-ID: <4476E203.1080701@pobox.com>
-Date: Fri, 26 May 2006 07:09:55 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Greg KH <gregkh@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, netdev@vger.kernel.org,
-       mb@bu3sch.de, st3@riseup.net, linville@tuxdriver.com
-Subject: Re: [PATCH 2/3] pci: bcm43xx avoid pci_find_device
-References: <20060526001053.D2349C7C58@atrey.karlin.mff.cuni.cz> <44764D4B.6050105@pobox.com> <4476D63E.8090207@gmail.com> <4476D6EC.4060501@pobox.com> <4476D95B.5030601@gmail.com> <4476DA5C.9080602@pobox.com> <4476DE47.7010907@gmail.com>
-In-Reply-To: <4476DE47.7010907@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 26 May 2006 07:14:17 -0400
+X-Authenticated: #14349625
+Subject: Re: [RFC 2/5] sched: Add CPU rate soft caps
+From: Mike Galbraith <efault@gmx.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Peter Williams <pwil3058@bigpond.net.au>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
+       Rene Herman <rene.herman@keyaccess.nl>
+In-Reply-To: <200605262048.53131.kernel@kolivas.org>
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>
+	 <20060526042041.2886.69840.sendpatchset@heathwren.pw.nest>
+	 <200605262048.53131.kernel@kolivas.org>
+Content-Type: text/plain
+Date: Fri, 26 May 2006 13:15:54 +0200
+Message-Id: <1148642155.7602.19.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.1 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.1 points, 5.0 required)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Fri, 2006-05-26 at 20:48 +1000, Con Kolivas wrote:
+> On Friday 26 May 2006 14:20, Peter Williams wrote:
+> > 3. Enforcement of caps is not as strict as it could be in order to
+> > reduce the possibility of a task being starved of CPU while holding
+> > an important system resource with resultant overall performance
+> > degradation.  In effect, all runnable capped tasks will get some amount
+> > of CPU access every active/expired swap cycle.  This will be most
+> > apparent for small or zero soft caps.
 > 
-> Jeff Garzik napsal(a):
->> The point is that you don't need to loop over the table,
->> pci_match_one_device() does that for you.
-> The problem is, that there is no such function, I think.
-> If you take a look at pci_dev_present:
+> The array swap happens very frequently if there are nothing but heavily cpu 
+> bound tasks, which is not an infrequent workload. I doubt the zero caps are 
+> very effective in that environment.
 
-The function you want is pci_dev_present().
+Hmm.  I think that came out kinda back-assward.  You meant "the array
+swap happens very frequently _unless_..."  No?
 
-	Jeff
+But anyway, I can't think of any reason to hold back an uncontested
+resource.
 
-
+	-Mike
 

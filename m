@@ -1,72 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWEZSzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWEZSzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750783AbWEZSzW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 14:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWEZSzV
+	id S1751246AbWEZSzy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 14:55:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWEZSzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 14:55:21 -0400
-Received: from lame.durables.org ([64.81.244.120]:678 "EHLO lame.durables.org")
-	by vger.kernel.org with ESMTP id S1750783AbWEZSzV (ORCPT
+	Fri, 26 May 2006 14:55:54 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:24747 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751246AbWEZSzx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 14:55:21 -0400
-Subject: Question about dma_alloc_coherent and iommu
-From: Robert Walsh <rjwalsh@durables.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-cQ2G+7ML3GvEX4QHIEs8"
-Date: Fri, 26 May 2006 11:55:18 -0700
-Message-Id: <1148669718.3665.11.camel@phosphene.durables.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+	Fri, 26 May 2006 14:55:53 -0400
+Message-ID: <44774F0B.8010805@redhat.com>
+Date: Fri, 26 May 2006 11:55:07 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       serue@us.ibm.com, sam@vilain.net, clg@fr.ibm.com, dev@sw.ru
+Subject: Re: [PATCH] POSIX-hostname up to 255 characters
+References: <20060525204534.4068e730.rdunlap@xenotime.net> <m1zmh5b129.fsf@ebiederm.dsl.xmission.com> <20060526144216.GZ13513@lug-owl.de> <Pine.LNX.4.58.0605261025230.9655@shark.he.net> <20060526180131.GA13513@lug-owl.de> <Pine.LNX.4.61.0605261409300.8002@chaos.analogic.com> <447748E4.4050908@redhat.com> <Pine.LNX.4.61.0605261430370.8339@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0605261430370.8339@chaos.analogic.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigA62C81E2816EFB785926DDFA"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-cQ2G+7ML3GvEX4QHIEs8
-Content-Type: text/plain
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigA62C81E2816EFB785926DDFA
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-Hi there,
+linux-os (Dick Johnson) wrote:
+> It is written (on so-called compatible machines like my Sun) as:
+>=20
+> #define MAXHOSTNAMELEN _POSIX_HOST_NAME_MAX
+>=20
+> Then in limits.h, I see:
+>=20
+> #define _POSIX_HOST_NAME_MAX 64
 
-Our driver (the ipath driver in drivers/infiniband) uses
-dma_alloc_coherent to allocate buffers that our device will DMA into.
-We use a 64-bit DMA mask.  Although we don't set a consistent DMA mask,
-it doesn't seem to matter whether we do or not for the following
-problem.
-
-Everything works fine on 2.6.16: when the device tells us it's DMA'd
-into a buffer, the data is there and everyone is happy.  It also works
-fine on kernels from 2.6.9 through 2.6.15, but only as long as there is
-4GB or less of memory on the machine.  On our machines with > 4GB
-memory, the buffers do not appear to have had anything DMA'd into them.
-
-If we use "iommu=3Doff" on the kernel boot line, the problem goes away and
-the data starts appearing.
-
-Has anyone seen this behaviour on other devices?  Are we missing
-something in the device setup, maybe?  As I mentioned, setting a
-consistent DMA mask doesn't help, no matter whether we set it to 64-bits
-or 32-bits.  Setting the regular DMA mask to 32-bits doesn't help
-either: the problem still crops up.
-
-Regards,
- Robert.
+That's wrong.  The value must be 255, at least for the current spec.
+You really should verify your statements before making them public.  The
+POSIX spec is available in HTML for for viewing for free from the
+OpenGroup.  What a specific implementation does is not authoritative.
 
 --=20
-Robert Walsh
-Amalgamated Durables, Inc.  -  "We don't make the things you buy."
-Email: rjwalsh@durables.org
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
 
---=-cQ2G+7ML3GvEX4QHIEs8
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+
+--------------enigA62C81E2816EFB785926DDFA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iD8DBQBEd08WbZtqSALM5CYRAshNAJ9BTUO12N/vBI2/ss/6BkuGOS1oEwCg43rt
-CZCYY5dmZFhuf6GIEdShHlg=
-=NSBX
+iD8DBQFEd08L2ijCOnn/RHQRAlToAKDCntfcnUg86CJBuOkPrRVwg+5FgACglS3n
+nWoCllTkpRsC392SG8hnoq8=
+=IK2j
 -----END PGP SIGNATURE-----
 
---=-cQ2G+7ML3GvEX4QHIEs8--
-
+--------------enigA62C81E2816EFB785926DDFA--

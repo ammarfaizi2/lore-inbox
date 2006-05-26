@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbWEZG7o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWEZHER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751304AbWEZG7o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 02:59:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbWEZG7n
+	id S1751309AbWEZHER (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 03:04:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWEZHER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 02:59:43 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:19103
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1751304AbWEZG7n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 02:59:43 -0400
-Message-Id: <4476C3B1.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
-Date: Fri, 26 May 2006 09:00:33 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <mingo@elte.hu>, "Andreas Kleen" <ak@suse.de>,
-       <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
-Subject: Re: [PATCH 6/6] reliable stack trace support (i386 entry.S
-	annotations)
-References: <4471D691.76E4.0078.0@novell.com> <20060524222359.06f467e8.akpm@osdl.org> <20060524224159.6a049775.akpm@osdl.org>
-In-Reply-To: <20060524224159.6a049775.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 26 May 2006 03:04:17 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:20621 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1751309AbWEZHEP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 03:04:15 -0400
+Message-ID: <348627053.08248@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Fri, 26 May 2006 15:04:16 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 03/33] radixtree: hole scanning functions
+Message-ID: <20060526070416.GB5135@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060524111246.420010595@localhost.localdomain> <348469537.15678@ustc.edu.cn> <20060525091946.2b57840f.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060525091946.2b57840f.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sure - it doesn't use the assembler's .cfi_* directives, but encodes things manually. I'll still have to check why
-you're getting these errors, as you should see entirely different ones if the assembler didn't support the directives at
-all. Jan
-
->>> Andrew Morton <akpm@osdl.org> 25.05.06 07:41 >>>
-Andrew Morton <akpm@osdl.org> wrote:
->
-> "Jan Beulich" <jbeulich@novell.com> wrote:
->  >
->  >  #define SAVE_ALL \
->  >   	cld; \
->  >   	pushl %es; \
->  >  +	CFI_ADJUST_CFA_OFFSET 4;\
->  >  +	/*CFI_REL_OFFSET es, 0;*/\
->  >   	pushl %ds; \
+On Thu, May 25, 2006 at 09:19:46AM -0700, Andrew Morton wrote:
+> Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
+> >
+> > Introduce a pair of functions to scan radix tree for hole/empty item.
+> >
 > 
->  arch/i386/kernel/entry.S: Assembler messages:
->  arch/i386/kernel/entry.S:757: Error: CFI instruction used without previous .cfi_startproc
->  arch/i386/kernel/entry.S:757: Warning: rest of line ignored; first ignored character is `4'
->  arch/i386/kernel/entry.S:757: Error: CFI instruction used without previous .cfi_startproc
->  arch/i386/kernel/entry.S:757: Warning: rest of line ignored; first ignored character is `4'
->  arch/i386/kernel/entry.S:757: Error: CFI instruction used without previous .cfi_startproc
->  arch/i386/kernel/entry.S:757: Warning: rest of line ignored; first ignored character is `4'
->  arch/i386/kernel/entry.S:757: Error: CFI instruction used without previous .cfi_startproc
+> There's a userspace radix-tree test harness at
+> http://www.zip.com.au/~akpm/linux/patches/stuff/rtth.tar.gz.
 > 
->  etcetera.  And
+> If/when these new features are merged up, it would be good to have new
+> testcases added to that suite, please.
 > 
->  arch/i386/kernel/entry.S:757: Error: no such instruction: `eax,0'
->  arch/i386/kernel/entry.S:757: Error: no such instruction: `ebp,0'
-> 
+> In the meanwhile you may care to develop those tests anwyway, see if you
+> can trip up the new features.
 
-btw, this cfi annotation code:
+Handy tool.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc4/2.6.17-rc4-mm3/broken-out/kgdb-cfi_annotations.patch
+I'll update it with the newly introduced functions, and write
+corresponding test cases.
 
-
-compiles happily with that toolchain.
-
+Thanks,
+Wu

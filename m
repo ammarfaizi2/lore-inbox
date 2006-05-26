@@ -1,112 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWEZMCK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbWEZMD2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932366AbWEZMCK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 08:02:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWEZMCG
+	id S932361AbWEZMD2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 08:03:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWEZMCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 08:02:06 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:19161 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932366AbWEZLxE (ORCPT
+	Fri, 26 May 2006 08:02:52 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:48601 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932361AbWEZLxC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 07:53:04 -0400
-Message-ID: <348644376.06563@ustc.edu.cn>
+	Fri, 26 May 2006 07:53:02 -0400
+Message-ID: <348644379.23564@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060526115301.640751284@localhost.localdomain>
+Message-Id: <20060526115304.821789643@localhost.localdomain>
 References: <20060526113906.084341801@localhost.localdomain>
-Date: Fri, 26 May 2006 19:39:12 +0800
+Date: Fri, 26 May 2006 19:39:17 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 06/33] readahead: add look-ahead support to __do_page_cache_readahead()
-Content-Disposition: inline; filename=readahead-add-lookahead-support-to-__do_page_cache_readahead.patch
+Subject: [PATCH 11/33] readahead: rescue_pages()
+Content-Disposition: inline; filename=readahead-rescue-pages.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add look-ahead support to __do_page_cache_readahead().
-
-It works by
-	- mark the Nth backwards page with PG_readahead,
-	(which instructs the page's first reader to invoke readahead)
-	- and only do the marking for newly allocated pages.
-	(to prevent blindly doing readahead on already cached pages)
-
-Look-ahead is a technique to achieve I/O pipelining:
-	While the application is working through a chunk of cached pages,
-	the kernel reads-ahead the next chunk of pages _before_ time of need.
-	It effectively hides low level I/O latencies to high level
-	applications.
+Introduce function rescue_pages() to protect pages in danger of thrashing.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- mm/readahead.c |   15 +++++++++------
- 1 files changed, 9 insertions(+), 6 deletions(-)
+ include/linux/mm.h |   11 +++++
+ mm/readahead.c     |  107 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 118 insertions(+)
 
 --- linux-2.6.17-rc4-mm3.orig/mm/readahead.c
 +++ linux-2.6.17-rc4-mm3/mm/readahead.c
-@@ -266,7 +266,8 @@ out:
-  */
- static int
- __do_page_cache_readahead(struct address_space *mapping, struct file *filp,
--			pgoff_t offset, unsigned long nr_to_read)
-+			pgoff_t offset, unsigned long nr_to_read,
-+			unsigned long lookahead_size)
- {
- 	struct inode *inode = mapping->host;
- 	struct page *page;
-@@ -279,7 +280,7 @@ __do_page_cache_readahead(struct address
- 	if (isize == 0)
- 		goto out;
- 
-- 	end_index = ((isize - 1) >> PAGE_CACHE_SHIFT);
-+	end_index = ((isize - 1) >> PAGE_CACHE_SHIFT);
- 
- 	/*
- 	 * Preallocate as many pages as we will need.
-@@ -302,6 +303,8 @@ __do_page_cache_readahead(struct address
- 			break;
- 		page->index = page_offset;
- 		list_add(&page->lru, &page_pool);
-+		if (page_idx == nr_to_read - lookahead_size)
-+			SetPageReadahead(page);
- 		ret++;
- 	}
- 	read_unlock_irq(&mapping->tree_lock);
-@@ -338,7 +341,7 @@ int force_page_cache_readahead(struct ad
- 		if (this_chunk > nr_to_read)
- 			this_chunk = nr_to_read;
- 		err = __do_page_cache_readahead(mapping, filp,
--						offset, this_chunk);
-+						offset, this_chunk, 0);
- 		if (err < 0) {
- 			ret = err;
- 			break;
-@@ -385,7 +388,7 @@ int do_page_cache_readahead(struct addre
- 	if (bdi_read_congested(mapping->backing_dev_info))
- 		return -1;
- 
--	return __do_page_cache_readahead(mapping, filp, offset, nr_to_read);
-+	return __do_page_cache_readahead(mapping, filp, offset, nr_to_read, 0);
+@@ -682,6 +682,93 @@ unsigned long max_sane_readahead(unsigne
  }
  
  /*
-@@ -405,7 +408,7 @@ blockable_page_cache_readahead(struct ad
- 	if (!block && bdi_read_congested(mapping->backing_dev_info))
- 		return 0;
- 
--	actual = __do_page_cache_readahead(mapping, filp, offset, nr_to_read);
-+	actual = __do_page_cache_readahead(mapping, filp, offset, nr_to_read, 0);
- 
- 	return check_ra_success(ra, nr_to_read, actual);
- }
-@@ -450,7 +453,7 @@ static int make_ahead_window(struct addr
-  * @req_size: hint: total size of the read which the caller is performing in
-  *            PAGE_CACHE_SIZE units
-  *
-- * page_cache_readahead() is the main function.  If performs the adaptive
-+ * page_cache_readahead() is the main function.  It performs the adaptive
-  * readahead window size management and submits the readahead I/O.
-  *
-  * Note that @filp is purely used for passing on to the ->readpage[s]()
++ * Adaptive read-ahead.
++ *
++ * Good read patterns are compact both in space and time. The read-ahead logic
++ * tries to grant larger read-ahead size to better readers under the constraint
++ * of system memory and load pressure.
++ *
++ * It employs two methods to estimate the max thrashing safe read-ahead size:
++ *   1. state based   - the default one
++ *   2. context based - the failsafe one
++ * The integration of the dual methods has the merit of being agile and robust.
++ * It makes the overall design clean: special cases are handled in general by
++ * the stateless method, leaving the stateful one simple and fast.
++ *
++ * To improve throughput and decrease read delay, the logic 'looks ahead'.
++ * In most read-ahead chunks, one page will be selected and tagged with
++ * PG_readahead. Later when the page with PG_readahead is read, the logic
++ * will be notified to submit the next read-ahead chunk in advance.
++ *
++ *                 a read-ahead chunk
++ *    +-----------------------------------------+
++ *    |       # PG_readahead                    |
++ *    +-----------------------------------------+
++ *            ^ When this page is read, notify me for the next read-ahead.
++ *
++ */
++
++#ifdef CONFIG_ADAPTIVE_READAHEAD
++
++/*
++ * Move pages in danger (of thrashing) to the head of inactive_list.
++ * Not expected to happen frequently.
++ */
++static unsigned long rescue_pages(struct page *page, unsigned long nr_pages)
++{
++	int pgrescue = 0;
++	pgoff_t index = page_index(page);
++	struct address_space *mapping = page_mapping(page);
++	struct page *grabbed_page = NULL;
++	struct zone *zone;
++
++	dprintk("rescue_pages(ino=%lu, index=%lu nr=%lu)\n",
++			mapping->host->i_ino, index, nr_pages);
++
++	for(;;) {
++		zone = page_zone(page);
++		spin_lock_irq(&zone->lru_lock);
++
++		if (!PageLRU(page))
++			goto out_unlock;
++
++		while (page_mapping(page) == mapping &&
++				page_index(page) == index) {
++			struct page *the_page = page;
++			page = list_entry((page)->lru.prev, struct page, lru);
++			if (!PageActive(the_page) &&
++					!PageLocked(the_page) &&
++					page_count(the_page) == 1) {
++				list_move(&the_page->lru, &zone->inactive_list);
++				pgrescue++;
++			}
++			index++;
++			if (!--nr_pages)
++				goto out_unlock;
++		}
++
++		spin_unlock_irq(&zone->lru_lock);
++		cond_resched();
++
++		if (grabbed_page)
++			page_cache_release(grabbed_page);
++		grabbed_page = page = find_get_page(mapping, index);
++		if (!page)
++			goto out;
++	}
++
++out_unlock:
++	spin_unlock_irq(&zone->lru_lock);
++out:
++	if (grabbed_page)
++		page_cache_release(grabbed_page);
++	ra_account(NULL, RA_EVENT_READAHEAD_RESCUE, pgrescue);
++	return nr_pages;
++}
++
++#endif /* CONFIG_ADAPTIVE_READAHEAD */
++
++/*
+  * Read-ahead events accounting.
+  */
+ #ifdef CONFIG_DEBUG_READAHEAD
 
 --

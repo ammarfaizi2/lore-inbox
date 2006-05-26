@@ -1,79 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWEZPMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWEZPYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbWEZPMS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 11:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWEZPMS
+	id S1750898AbWEZPYF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 11:24:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750906AbWEZPYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 11:12:18 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:7369 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1750874AbWEZPMR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 11:12:17 -0400
-Date: Fri, 26 May 2006 16:12:14 +0100
-To: linuxppc-dev@ozlabs.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] Compile failure fix for ppc on 2.6.17-rc4-mm3 (2nd attempt)
-Message-ID: <20060526151214.GA5190@skynet.ie>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+	Fri, 26 May 2006 11:24:04 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:12814 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750898AbWEZPYC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 11:24:02 -0400
+Date: Fri, 26 May 2006 17:24:01 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Mike Halcrow <mhalcrow@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Mike Halcrow <mike@halcrow.us>
+Subject: Re: [PATCH 1/10] Convert ASSERT to BUG_ON
+Message-ID: <20060526152401.GF17337@stusta.de>
+References: <20060526142117.GA2764@us.ibm.com> <E1FjdCG-000335-IS@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-From: mel@csn.ul.ie (Mel Gorman)
+In-Reply-To: <E1FjdCG-000335-IS@localhost.localdomain>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Resending with Andrew's email address correct this time)
+On Fri, May 26, 2006 at 09:21:48AM -0500, Mike Halcrow wrote:
 
-For the last few -mm releases, kernels built for an old RS6000 failed to
-compile with the message;
+> Use the kernel BUG_ON() macro rather than the eCryptfs ASSERT(). Note
+> that this temporarily renders the CONFIG_ECRYPT_DEBUG build option
+> unused. We certainly plan on using it in the future; for now, is it
+> okay to leave it in fs/Kconfig, or would you like to remove it?
+>...
 
-arch/powerpc/kernel/built-in.o(.init.text+0x77b4): In function `vrsqrtefp':
-: undefined reference to `__udivdi3'
-arch/powerpc/kernel/built-in.o(.init.text+0x7800): In function `vrsqrtefp':
-: undefined reference to `__udivdi3'
-make: *** [.tmp_vmlinux1] Error 1
+Remove it as long as it deos nothing - re-adding it when it's actually 
+used will be trivial.
 
-2.6.17-rc5 is not affected but I didn't search for the culprit patch in
--mm. The following patch adds an implementation of __udivdi3 for plain old
-ppc32. This may not be the correct fix as Google tells me that __udivdi3
-has been replaced by calls to do_div() in a number of cases. There was no
-obvious way to do that for vrsqrtefp, hence this workaround. The patch should
-be acked, rejected or replaced by a ppc expert.
+> --- a/fs/ecryptfs/keystore.c
+> +++ b/fs/ecryptfs/keystore.c
+> @@ -506,7 +506,7 @@ static int decrypt_session_key(struct ec
+>  	       auth_tok->session_key.encrypted_key_size);
+>  	src_sg[0].page = virt_to_page(encrypted_session_key);
+>  	src_sg[0].offset = 0;
+> -	ASSERT(auth_tok->session_key.encrypted_key_size < PAGE_CACHE_SIZE);
+> +	BUG_ON(auth_tok->session_key.encrypted_key_size > PAGE_CACHE_SIZE);
+>...
 
-Signed-off-by: Mel Gorman <mel@csn.ul.ie>
+What's with (auth_tok->session_key.encrypted_key_size == PAGE_CACHE_SIZE) ?
 
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.17-rc5-clean/arch/powerpc/lib/Makefile linux-2.6.17-rc5-udivdi3_ppc/arch/powerpc/lib/Makefile
---- linux-2.6.17-rc5-clean/arch/powerpc/lib/Makefile	2006-05-25 02:50:17.000000000 +0100
-+++ linux-2.6.17-rc5-udivdi3_ppc/arch/powerpc/lib/Makefile	2006-05-26 13:17:15.000000000 +0100
-@@ -4,7 +4,7 @@
- 
- ifeq ($(CONFIG_PPC_MERGE),y)
- obj-y			:= string.o strcase.o
--obj-$(CONFIG_PPC32)	+= div64.o copy_32.o checksum_32.o
-+obj-$(CONFIG_PPC32)	+= div64.o copy_32.o checksum_32.o udivdi3.o
- endif
- 
- obj-y			+= bitops.o
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.17-rc5-clean/arch/powerpc/lib/udivdi3.c linux-2.6.17-rc5-udivdi3_ppc/arch/powerpc/lib/udivdi3.c
---- linux-2.6.17-rc5-clean/arch/powerpc/lib/udivdi3.c	2006-05-26 13:17:22.000000000 +0100
-+++ linux-2.6.17-rc5-udivdi3_ppc/arch/powerpc/lib/udivdi3.c	2006-05-26 13:25:26.000000000 +0100
-@@ -0,0 +1,15 @@
-+/*
-+ * Simple __udivdi3 function which doesn't use FPU.
-+ */
-+
-+#include <linux/types.h>
-+#include <linux/kernel.h>
-+#include <asm-generic/div64.h>
-+
-+u64 __udivdi3(u64 n, u64 d)
-+{
-+	if (d & ~0xffffffff)
-+		panic("Need true 64-bit/64-bit division");
-+	return __div64_32(&n, (u32)d);
-+}
-+
+cu
+Adrian
+
 -- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

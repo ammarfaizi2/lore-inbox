@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965201AbWEYXw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965213AbWEZAH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965201AbWEYXw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 May 2006 19:52:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965204AbWEYXw5
+	id S965213AbWEZAH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 May 2006 20:07:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965212AbWEZAH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 May 2006 19:52:57 -0400
-Received: from mga03.intel.com ([143.182.124.21]:51863 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S965201AbWEYXw4 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 May 2006 19:52:56 -0400
-X-IronPort-AV: i="4.05,174,1146466800"; 
-   d="scan'208"; a="41762169:sNHT17200820"
-Subject: Re: 2.6.17-rc4-mm3 - kernel panic
-From: Kristen Accardi <kristen.c.accardi@intel.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Brown, Len" <len.brown@intel.com>, Andreas Saur <saur@acmelabs.de>,
-       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060525221744.GA1671@elf.ucw.cz>
-References: <CFF307C98FEABE47A452B27C06B85BB68AD7E1@hdsmsx411.amr.corp.intel.com>
-	 <1148583675.3070.41.camel@whizzy> <20060525221222.GA1608@elf.ucw.cz>
-	 <20060525221744.GA1671@elf.ucw.cz>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-Date: Thu, 25 May 2006 17:04:18 -0700
-Message-Id: <1148601858.3070.62.camel@whizzy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
-X-OriginalArrivalTime: 25 May 2006 23:52:54.0950 (UTC) FILETIME=[57758460:01C68056]
+	Thu, 25 May 2006 20:07:29 -0400
+Received: from orfeus.profiwh.com ([82.100.20.117]:22277 "EHLO
+	orfeus.profiwh.com") by vger.kernel.org with ESMTP id S965210AbWEZAH2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 May 2006 20:07:28 -0400
+Message-id: <2005009.119285689fuj@nikdo.nikde.cz>
+Subject: [PATCH 0/3 #2] avoid pci_find_device
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Greg KH <gregkh@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, jgarzik@pobox.com,
+       netdev@vger.kernel.org, khali@linux-fr.org, lm-sensors@lm-sensors.org,
+       stevel@mvista.com, source@mvista.com, mb@bu3sch.de, st3@riseup.net,
+       linville@tuxdriver.com
+X-SpamReason: {Bypass=00}-{0,00}-{0,00}-{0,00
+Date: Thu, 25 May 2006 20:07:28 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-05-26 at 00:17 +0200, Pavel Machek wrote:
-> On Pá 26-05-06 00:12:22, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > > Does the panic go away with CONFIG_ACPI_DOCK=n?
-> > 
-> > > Can either Pavel or Andreas please try this little debugging patch and
-> > > send me the dmesg output?  Please enable the CONFIG_DEBUG_KERNEL option
-> > > in your .config as well so that I can get additional info.
-> > 
-> > Yep, you were right... this debugging patch helps.
-> 
-> ...and docking +/- works, but it does not look like PCI in docking
-> station is properly connected:
-> 
+Hello,
 
-No, I would not expect PCI to work properly with the debug patch -
-basically all I did was prevent the oops and confirm that this is the
-issue, I did not actually solve the problem.
+there are some patches to avoid pci_find_device in drivers, next will come in
+future.
 
-I need some way to prevent acpiphp from loading before dock is completed
-it's init.
+Take #2.
 
-I guess I will think about this some more.
+It's against 2.6.17-rc4-mm3 tree.
 
-Kristen
+01-i2c-scx200-acb-avoid-pci-find-device.patch
+02-bcm43xx-avoid-pci-find-device.patch
+03-gt96100eth-avoid-pci-find-device.patch
+
+ i2c/busses/scx200_acb.c             |    9 ++++++---
+ net/gt96100eth.c                    |   10 +++++++---
+ net/wireless/bcm43xx/bcm43xx_main.c |   20 ++++++++++++++++----
+ 3 files changed, 29 insertions(+), 10 deletions(-)
+
+Thanks.

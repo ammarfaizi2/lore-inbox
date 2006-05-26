@@ -1,71 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750907AbWEZQBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbWEZQGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750907AbWEZQBU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 12:01:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbWEZQBU
+	id S1750950AbWEZQGl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 12:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbWEZQGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 12:01:20 -0400
-Received: from nz-out-0102.google.com ([64.233.162.201]:44635 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750899AbWEZQBT convert rfc822-to-8bit (ORCPT
+	Fri, 26 May 2006 12:06:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:31394 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750948AbWEZQGk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 12:01:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=r1+7pjl6+Co5WiWXJxzeaYzOSFWEupQhHoc/j1B7YbCQ5A1p1iOimBjcVyELNA3CpDRpLdTIKcXjCTfQbhnmxEH4GMMIqeMDG/7pTajtZHJ5ZugN42tjmMup/kTt8bN6w2RaWZJS2Ce6KDgBi9fxb1T48RlqmbBtnWdQKLf+HYQ=
-Message-ID: <9e4733910605260901h6452c795s1c40cf61b47fc69a@mail.gmail.com>
-Date: Fri, 26 May 2006 12:01:15 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Kernel design: support for multiple local users
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Fri, 26 May 2006 12:06:40 -0400
+Date: Fri, 26 May 2006 09:05:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: ak@suse.de, jbeulich@novell.com, mingo@elte.hu,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: [PATCH 6/6] reliable stack trace support (i386 entry.S
+ annotations)
+Message-Id: <20060526090518.7bac4824.akpm@osdl.org>
+In-Reply-To: <20060526084327.433e2be0.akpm@osdl.org>
+References: <4471D691.76E4.0078.0@novell.com>
+	<20060524222359.06f467e8.akpm@osdl.org>
+	<200605260918.52484.ak@suse.de>
+	<20060526084327.433e2be0.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A central, unanswered question in the graphics debate is whether the
-kernel should directly support multiple users logged into video cards.
-Currently this is not supported. A simple example of this is a two
-headed video card and two keyboards. Should the kernel support two
-independent users logged into these heads and give them the ability to
-control their environment without needing to be root?
+Andrew Morton <akpm@osdl.org> wrote:
+>
+>  Andi Kleen <ak@suse.de> wrote:
+>  >
+>  > You probably need newer binutils.
+> 
+>  Don't think so.
 
-This situation commonly occurs in Internet cafes, kiosks, schools,
-etc. There are several out of tree patches addressing this. I also
-believe there are multiple vendors selling products in this
-configuration.
+<fiddles a bit more>
 
-It is possible to set the current X server up to support this
-configuration. Using the X server this way has some drawbacks. The X
-server needs to be run as root. The multiple users are sharing a
-single X server image so things they do can impact the other users.
-Plus this solution only works for X apps. Things like VT swap must be
-disabled.
+This makes it build.
 
-An alternative model with kernel support would work something like
-this. Devices are created for each video head. Devices (video, mouse,
-keyboard, usb ports, cdrom, etc) are marked as belonging in a console
-grouping. When you log in ownership of the grouped devices is assigned
-to you.
 
-Now that you have ownership of the devices you are able to control
-them without being root. If you want to change your video mode ask
-your video device to do it (this is not a comment on how the video
-device achieves the mode change). Since the devices are locally owned
-each user can independently run X, emacs, svglib or whatever.
+diff -puN arch/i386/kernel/entry.S~a arch/i386/kernel/entry.S
+--- devel/arch/i386/kernel/entry.S~a	2006-05-26 09:02:57.000000000 -0700
++++ devel-akpm/arch/i386/kernel/entry.S	2006-05-26 09:04:08.000000000 -0700
+@@ -733,6 +733,7 @@ nmi_debug_stack_check:
+ 
+ nmi_16bit_stack:
+ 	/* create the pointer to lss back */
++	CFI_STARTPROC simple
+ 	pushl %ss
+ 	pushl %esp
+ 	movzwl %sp, %esp
+@@ -747,6 +748,7 @@ nmi_16bit_stack:
+ 	xorl %edx,%edx			# zero error code
+ 	call do_nmi
+ 	RESTORE_REGS
++	CFI_ENDPROC
+ 	lss 12+4(%esp), %esp		# back to 16bit stack
+ 1:	iret
+ .section __ex_table,"a"
+@@ -756,11 +758,13 @@ nmi_16bit_stack:
+ 
+ KPROBE_ENTRY(int3)
+ 	pushl $-1			# mark this as an int
++	CFI_STARTPROC simple
+ 	SAVE_ALL
+ 	xorl %edx,%edx		# zero error code
+ 	movl %esp,%eax		# pt_regs pointer
+ 	call do_int3
+ 	jmp ret_from_exception
++	CFI_ENDPROC
+ 	.previous .text
+ 
+ ENTRY(overflow)
+_
 
-I am obviously leaving out some details about how sharing the
-resources of a single video card between heads is achieved. If you
-prefer, think of this scenario for two installed graphics cards. This
-is not an attempt to detail how to build the feature.
-
-The question is, do we want local multiuser support in the kernel, or
-should it be an application feature?
-
--- 
-Jon Smirl
-jonsmirl@gmail.com

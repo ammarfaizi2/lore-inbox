@@ -1,110 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbWEZOpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWEZOzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750854AbWEZOpw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 10:45:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWEZOpw
+	id S1750851AbWEZOzx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 10:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWEZOzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 10:45:52 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:6095 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750853AbWEZOpv (ORCPT
+	Fri, 26 May 2006 10:55:53 -0400
+Received: from wr-out-0506.google.com ([64.233.184.227]:34680 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750849AbWEZOzx convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 10:45:51 -0400
-Subject: Re: [PATCH 2/2] tpm: bios log parsing fixes
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: Seiji Munetoh <seiji.munetoh@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-In-Reply-To: <1148654638.20195.41.camel@localhost.localdomain>
-References: <1148654638.20195.41.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 26 May 2006 09:43:59 -0500
-Message-Id: <1148654639.5317.205.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Fri, 26 May 2006 10:55:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=a54WP0nisAdi1y7/ENTpNNjMxmbDxYMhG8fl0DL2/j2bwkm4uvuMG2baFweb2X1k4D8BSwscqVSE1xnTJDKOgc+RU1iH18Pe+qNQYZfJs1N8BIznRyTVGahaxpzt7X35uD6ZowPxA11LDs9TAXmj2zJImjgHAyEQX8jzSCCteqI=
+Message-ID: <36e6b2150605260755t254e4850l2b69f72fe730279@mail.gmail.com>
+Date: Fri, 26 May 2006 18:55:46 +0400
+From: "Paul Drynoff" <pauldrynoff@gmail.com>
+To: "Christoph Lameter" <clameter@sgi.com>
+Subject: Re: [PATCH] kmalloc man page before 2.6.17
+Cc: "Jesper Juhl" <jesper.juhl@gmail.com>,
+       "Pekka J Enberg" <penberg@cs.helsinki.fi>, akpm@osdl.org,
+       "Linus Torvalds" <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0605260714460.30772@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <36e6b2150605260007h1601aa04v31c6c698c6e4d1b9@mail.gmail.com>
+	 <84144f020605260017i4682c409vc4a004d016c31270@mail.gmail.com>
+	 <36e6b2150605260058h5c1fbc0cla686a37d5bf3e34e@mail.gmail.com>
+	 <Pine.LNX.4.58.0605261059360.30386@sbz-30.cs.Helsinki.FI>
+	 <36e6b2150605260120s2fb692fegf4fef1eecf7c4674@mail.gmail.com>
+	 <9a8748490605260248i68a1eb84hc241068ae1f012bb@mail.gmail.com>
+	 <36e6b2150605260344l1ba91d56we2d224d49bde4d8e@mail.gmail.com>
+	 <Pine.LNX.4.64.0605260714460.30772@schroedinger.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ack'ed-by: Kylene Hall <kjhall@us.ibm.com>
+On 5/26/06, Christoph Lameter <clameter@sgi.com> wrote:
+> Documentation of in kernel functions in the manpages <boogle>.
+Why not, this is common practic for big set of Unix lie OS.
+You can type something like:
+man VFS man vnops and so on.
 
-On Fri, 2006-05-26 at 23:43 +0900, Seiji Munetoh wrote:
-> This patch changes the binary output format to actual ACPI TCPA log
-> structure since the current format does not contain all event-data
-> information that need to verify the PCRs in TPM. 
-> tpm_binary_bios_measurements_show() uses get_event_name() to convert the
-> binary event-data to ascii format, and puts them as binary. However, to
-> verify the PCRs, the event-data must be a actual binary event-data used
-> by SHA1 calc. in BIOS. 
-> 
-> So, I think actual ACPI TCPA log is good for this binary output format. 
-> That way, any userland tools easily parse this data with reference to
-> TCG PC specification.
-> 
-> Signed-off-by: Seiji Munetoh <seiji.munetoh@gmail.com>
-> ---
-> 
-> --- linux-2.6.17-rc4/drivers/char/tpm/tpm_bios.c	2006-05-16
-> 09:33:06.000000000 +0900
-> +++ linux-2.6.17-rc4-tpm/drivers/char/tpm/tpm_bios.c	2006-05-24
-> 07:11:44.000000000 +0900
-> @@ -275,53 +284,13 @@ static int get_event_name(char *dest, st
->  
->  static int tpm_binary_bios_measurements_show(struct seq_file *m, void
-> *v)
->  {
-> -
-> -	char *eventname;
-> -	char data[4];
-> -	u32 help;
-> -	int i, len;
->  	struct tcpa_event *event = (struct tcpa_event *) v;
-> -	unsigned char *event_entry =
-> -	    (unsigned char *) (v + sizeof(struct tcpa_event));
-> -
-> -	eventname = kmalloc(MAX_TEXT_EVENT, GFP_KERNEL);
-> -	if (!eventname) {
-> -		printk(KERN_ERR "%s: ERROR - No Memory for event name\n ",
-> -		       __func__);
-> -		return -ENOMEM;
-> -	}
-> -
-> -	/* 1st: PCR used is in little-endian format (4 bytes) */
-> -	help = le32_to_cpu(event->pcr_index);
-> -	memcpy(data, &help, 4);
-> -	for (i = 0; i < 4; i++)
-> -		seq_putc(m, data[i]);
-> -
-> -	/* 2nd: SHA1 (20 bytes) */
-> -	for (i = 0; i < 20; i++)
-> -		seq_putc(m, event->pcr_value[i]);
-> +	char *data = (char *) v;
-> +	int i;
->  
-> -	/* 3rd: event type identifier (4 bytes) */
-> -	help = le32_to_cpu(event->event_type);
-> -	memcpy(data, &help, 4);
-> -	for (i = 0; i < 4; i++)
-> +	for (i = 0;i < sizeof(struct tcpa_event) + event->event_size; i++)
->  		seq_putc(m, data[i]);
->  
-> -	len = 0;
-> -
-> -	len += get_event_name(eventname, event, event_entry);
-> -
-> -	/* 4th:  filename <= 255 + \'0' delimiter */
-> -	if (len > TCG_EVENT_NAME_LEN_MAX)
-> -		len = TCG_EVENT_NAME_LEN_MAX;
-> -
-> -	for (i = 0; i < len; i++)
-> -		seq_putc(m, eventname[i]);
-> -
-> -	/* 5th: delimiter */
-> -	seq_putc(m, '\0');
-> -
-> -	kfree(eventname);
->  	return 0;
->  }
->  
-> 
-> 
-> 
+> You are
+> going to do this full time in order to keep all of it up to date?
+>
+> In that case you should add something to install the manpages
+> for each kernel when one does
+>
+Why? In my Linux OS I should only type something like:
+package-manager install vanilla-sources
+or
+package-manager install git-sources
 
+and I'll get all documentation generated by "make mandocs" in
+/usr/share/man/man9

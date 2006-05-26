@@ -1,41 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWEZTXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWEZTZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751306AbWEZTXP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 15:23:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbWEZTXP
+	id S1751310AbWEZTZL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 15:25:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWEZTZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 15:23:15 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:47777 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751306AbWEZTXO (ORCPT
+	Fri, 26 May 2006 15:25:11 -0400
+Received: from rtr.ca ([64.26.128.89]:20146 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751310AbWEZTZJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 15:23:14 -0400
-Date: Sat, 27 May 2006 05:22:43 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Nate Diller <nate.diller@gmail.com>
-Cc: Wu Fengguang <wfg@mail.ustc.edu.cn>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 23/33] readahead: backward prefetching method
-Message-ID: <20060527052243.B349096@wobbly.melbourne.sgi.com>
-References: <20060524111246.420010595@localhost.localdomain> <348469547.47755@ustc.edu.cn> <5c49b0ed0605261037p6a32db1fva693ea72b596f896@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <5c49b0ed0605261037p6a32db1fva693ea72b596f896@mail.gmail.com>; from nate.diller@gmail.com on Fri, May 26, 2006 at 10:37:56AM -0700
+	Fri, 26 May 2006 15:25:09 -0400
+Message-ID: <44775614.5000401@rtr.ca>
+Date: Fri, 26 May 2006 15:25:08 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux-ide-owner@vger.kernel.org, Tejun Heo <htejun@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: 2.6.17-rc5-git1: regression: resume from suspend(RAM) fails: libata
+ issue
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 26, 2006 at 10:37:56AM -0700, Nate Diller wrote:
-> On 5/24/06, Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
-> > Readahead policy for reading backward.
-> 
-> Just curious, who actually does this?  I noticed you submitted patches
+My ata_piix based Notebook (Dell i9300) suspends/resumes perfectly (RAM or disk)
+with 2.6.16.xx kernels, but fails resume on 2.6.17-rc5-git1 (the first 2.6.17-*
+I've attempted on this machine).
 
-Nastran does this, and probably other FEA codes.  IIRC, iozone
-will measure this too - it is very important to some people in
-certain scientific arenas.
+On resume from RAM, after a 30-second-ish timeout, the screen comes on
+but the hard disk is NOT accessible.  "dmesg" in an already-open window
+shows this (typed in from handwritten notes):
 
-cheers.
+sd 0:0:0:0: SCSI error: return code = 0x40000
+end_request: I/O error, /dev/sda, sector nnnnnnn
+sd 0:0:0:0: SCSI error: return code = 0x40000
+end_request: I/O error, /dev/sda, sector nnnnnnn
+sd 0:0:0:0: SCSI error: return code = 0x40000
+end_request: I/O error, /dev/sda, sector nnnnnnn
+sd 0:0:0:0: SCSI error: return code = 0x40000
+end_request: I/O error, /dev/sda, sector nnnnnnn
+sd 0:0:0:0: SCSI error: return code = 0x40000
+end_request: I/O error, /dev/sda, sector nnnnnnn
+sd 0:0:0:0: SCSI error: return code = 0x40000
+end_request: I/O error, /dev/sda, sector nnnnnnn
+sd 0:0:0:0: SCSI error: return code = 0x40000
+end_request: I/O error, /dev/sda, sector nnnnnnn
 
--- 
-Nathan
+(the nnnnnnn was actually a real number, different on each message).
+
+Is there a fix already floating around for this?
+
+Cheers

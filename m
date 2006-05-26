@@ -1,71 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWEZRYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWEZR2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbWEZRYG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 13:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWEZRYF
+	id S1751190AbWEZR2R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 13:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWEZR2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 13:24:05 -0400
-Received: from amnesiac.heapspace.net ([195.54.228.42]:29459 "EHLO
-	amnesiac.heapspace.net") by vger.kernel.org with ESMTP
-	id S1750772AbWEZRYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 13:24:04 -0400
-Date: Fri, 26 May 2006 20:24:02 +0300
-From: Daniel Stone <daniel@fooishbar.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel design: support for multiple local users
-Message-ID: <20060526172402.GJ16521@fooishbar.org>
-Mail-Followup-To: Jon Smirl <jonsmirl@gmail.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <9e4733910605260901h6452c795s1c40cf61b47fc69a@mail.gmail.com> <20060526163125.GI16521@fooishbar.org> <9e4733910605261012w1d470b11rbf120d5c0d0d1750@mail.gmail.com>
+	Fri, 26 May 2006 13:28:17 -0400
+Received: from xenotime.net ([66.160.160.81]:45283 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751192AbWEZR2Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 13:28:16 -0400
+Date: Fri, 26 May 2006 10:28:13 -0700 (PDT)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       lkml <linux-kernel@vger.kernel.org>, drepper@redhat.com,
+       akpm <akpm@osdl.org>, serue@us.ibm.com, sam@vilain.net, clg@fr.ibm.com,
+       dev@sw.ru
+Subject: Re: [PATCH] POSIX-hostname up to 255 characters
+In-Reply-To: <20060526144216.GZ13513@lug-owl.de>
+Message-ID: <Pine.LNX.4.58.0605261025230.9655@shark.he.net>
+References: <20060525204534.4068e730.rdunlap@xenotime.net>
+ <m1zmh5b129.fsf@ebiederm.dsl.xmission.com> <20060526144216.GZ13513@lug-owl.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="MGu/vTNewDGZ7tmp"
-Content-Disposition: inline
-In-Reply-To: <9e4733910605261012w1d470b11rbf120d5c0d0d1750@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 26 May 2006, Jan-Benedict Glaw wrote:
 
---MGu/vTNewDGZ7tmp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, May 26, 2006 at 01:12:09PM -0400, Jon Smirl wrote:
-> On 5/26/06, Daniel Stone <daniel@fooishbar.org> wrote:
-> >On Fri, May 26, 2006 at 12:01:15PM -0400, Jon Smirl wrote:
-> >> It is possible to set the current X server up to support this
-> >> configuration. Using the X server this way has some drawbacks. The X
-> >> server needs to be run as root.
+> On Fri, 2006-05-26 03:14:06 -0600, Eric W. Biederman <ebiederm@xmission.com> wrote:
+> > "Randy.Dunlap" <rdunlap@xenotime.net> writes:
+> > > This patch is against 2.6.17-rc5, for review/comments, please.
+> > > It won't apply to -mm since Andrew has merged the uts-namespace patches.
+> > > I'll see about merging it with those patches next.
+> > > ---
+> > >
+> > > From: Randy Dunlap <rdunlap@xenotime.net>
+> > >
+> > > Implement POSIX-defined length for 'hostname' so that hostnames
+> > > can be longer than 64 characters (max. 255 characters plus
+> > > terminating NULL character).
+> > >
+> > > Adds sys_gethostname_long() and sys_sethostname_long().
+> > > Tested on i386 and x86_64.
 > >
-> >So far, so good.
+> > Is there any particular reason for this?
+> > The existing sys_gethostname and sys_sethostname interfaces
+> > should work for any string length.
 > >
-> >> The multiple users are sharing a
-> >> single X server image so things they do can impact the other users.
-> >
-> >No, they're not.
->=20
-> So if I manage to fault my X server process, they other users a just fine?
+> > Although I do agree that we need at least one new syscall
+> > for the architectures that don't currently use get_hostname.
+>
+> ...and this should have gone to linux-arch, too...
 
-It's entirely possible, inasmuch as it's entirely possible for a rogue X
-server to take out the entire machine.
+so how does someone know:
+(a) that this should have gone to linux-arch
+(b) that linux-arch exists
+(c) what it's full email address it?
 
-When I said that each user's server was a separate process, I wasn't
-making that bit up.
+I.e., where is all of this explained?
 
---MGu/vTNewDGZ7tmp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Thanks.
+-- 
+~Randy
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQFEdzmyRkzMgPKxYGwRAjdZAJsHvDO4A6jNglsqBieITyikSuVHeQCgjHw6
-usCFknNEbDV8pZwPVkRKgjg=
-=F0+r
------END PGP SIGNATURE-----
-
---MGu/vTNewDGZ7tmp--
+I'll get to Eric's questions later.  I'm in a meeting today.

@@ -1,132 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbWEZKhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWEZKlf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751385AbWEZKhX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 06:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWEZKhW
+	id S1751382AbWEZKlf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 06:41:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWEZKle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 06:37:22 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:22729 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751382AbWEZKhV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 06:37:21 -0400
-Message-ID: <4476DA5C.9080602@pobox.com>
-Date: Fri, 26 May 2006 06:37:16 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 26 May 2006 06:41:34 -0400
+Received: from mail08.syd.optusnet.com.au ([211.29.132.189]:65477 "EHLO
+	mail08.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751382AbWEZKle (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 06:41:34 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [RFC 0/5] sched: Add CPU rate caps
+Date: Fri, 26 May 2006 20:41:07 +1000
+User-Agent: KMail/1.9.1
+Cc: Mike Galbraith <efault@gmx.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
+       Rene Herman <rene.herman@keyaccess.nl>
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>
+In-Reply-To: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>
 MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Greg KH <gregkh@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, netdev@vger.kernel.org,
-       mb@bu3sch.de, st3@riseup.net, linville@tuxdriver.com
-Subject: Re: [PATCH 2/3] pci: bcm43xx avoid pci_find_device
-References: <20060526001053.D2349C7C58@atrey.karlin.mff.cuni.cz> <44764D4B.6050105@pobox.com> <4476D63E.8090207@gmail.com> <4476D6EC.4060501@pobox.com> <4476D95B.5030601@gmail.com>
-In-Reply-To: <4476D95B.5030601@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.1 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.1 points, 5.0 required)
+Content-Disposition: inline
+Message-Id: <200605262041.09221.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Jeff Garzik napsal(a):
->> Jiri Slaby wrote:
->>> -----BEGIN PGP SIGNED MESSAGE-----
->>> Hash: SHA1
->>>
->>> Jeff Garzik napsal(a):
->>>> Jiri Slaby wrote:
->>>>> bcm43xx avoid pci_find_device
->>>>>
->>>>> Change pci_find_device to safer pci_get_device with support for more
->>>>> devices.
->>>>>
->>>>> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
->>>>>
->>>>> ---
->>>>> commit 1d3b6caf027fe53351c645523587aeac40bc3e47
->>>>> tree ae37c86b633442cdf8a7a19ac287542724081c90
->>>>> parent ab3443d79c94d0ae6a9e020daefa4d29eccff50d
->>>>> author Jiri Slaby <ku@bellona.localdomain> Fri, 26 May 2006 01:49:12
->>>>> +0159
->>>>> committer Jiri Slaby <ku@bellona.localdomain> Fri, 26 May 2006
->>>>> 01:49:12 +0159
->>>>>
->>>>>  drivers/net/wireless/bcm43xx/bcm43xx_main.c |   20
->>>>> ++++++++++++++++----
->>>>>  1 files changed, 16 insertions(+), 4 deletions(-)
->>>>>
->>>>> diff --git a/drivers/net/wireless/bcm43xx/bcm43xx_main.c
->>>>> b/drivers/net/wireless/bcm43xx/bcm43xx_main.c
->>>>> index b488f77..56d2fc6 100644
->>>>> --- a/drivers/net/wireless/bcm43xx/bcm43xx_main.c
->>>>> +++ b/drivers/net/wireless/bcm43xx/bcm43xx_main.c
->>>>> @@ -2131,6 +2131,13 @@ out:
->>>>>      return err;
->>>>>  }
->>>>>  
->>>>> +#ifdef CONFIG_BCM947XX
->>>>> +static struct pci_device_id bcm43xx_ids[] = {
->>>>> +    { PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, 0x4324) },
->>>>> +    { 0 }
->>>>> +};
-> Table is here ^^^. You just add an entry, and that's it.
->>>>> +#endif
->>>>> +
->>>>>  static int bcm43xx_initialize_irq(struct bcm43xx_private *bcm)
->>>>>  {
->>>>>      int res;
->>>>> @@ -2141,10 +2148,15 @@ static int bcm43xx_initialize_irq(struct
->>>>>  #ifdef CONFIG_BCM947XX
->>>>>      if (bcm->pci_dev->bus->number == 0) {
->>>>>          struct pci_dev *d = NULL;
->>>>> -        /* FIXME: we will probably need more device IDs here... */
->>>>> -        d = pci_find_device(PCI_VENDOR_ID_BROADCOM, 0x4324, NULL);
->>>>> -        if (d != NULL) {
->>>>> -            bcm->irq = d->irq;
->>>>> +        struct pci_device_id *id = bcm43xx_ids;
->>>>> +        while (id->vendor) {
->>>>> +            d = pci_get_device(id->vendor, id->device, NULL);
->>>>> +            if (d != NULL) {
->>>>> +                bcm->irq = d->irq;
->>>>> +                pci_dev_put(d);
->>>>> +                break;
->>>> You'll want to use pci_match_device() or pci_match_one_device()
->>>> [I forget which one]
->>> Why? Matching is done by pci_get_device() or pci_get_subsys(),
->>> respectively.
->>> [pci_match_device() is for matching dev <-> drv, you meant
->>> pci_match_one_device()]
->> The FIXME says "we will probably need more device IDs here."
-> Yup.
->> Thus, if you are touching this area, it would make sense to add the
->> capability to easily add a second (and third, fourth...) PCI ID.  And
->> that means pci_match_one_device() and a pci_device_id table.
-> But the while loop do the work: unless id->vendor != NULL, do the matching with
-> the current raw (id) of the table, then jump to the next raw (id++).
-> 
-> pci_get_device returns NULL if the device with id->vendor, id->device wasn't
-> found, then we try next raw, otherwise, we break the loop.
-> 
-> Implementations before and now do the same strangeness -- assume there is only
-> one device (?shouldn't matter?, since it is embedded).
+On Friday 26 May 2006 14:20, Peter Williams wrote:
+> These patches implement CPU usage rate limits for tasks.
 
-The point is that you don't need to loop over the table, 
-pci_match_one_device() does that for you.
+Nice :)
 
-And this code, like the gt96100_eth code, is testing the existence of 
-certain platform devices, to be certain that it can proceed with certain 
-platform-specific duties.
+> Although the rlimit mechanism already has a CPU usage limit (RLIMIT_CPU)
+> it is a total usage limit and therefore (to my mind) not very useful.
+> These patches provide an alternative whereby the (recent) average CPU
+> usage rate of a task can be limited to a (per task) specified proportion
+> of a single CPU's capacity.  The limits are specified in parts per
+> thousand and come in two varieties -- hard and soft.
 
-Thus we don't care about matching multiple devices -- an unlikely case 
--- but we do care about making the code as small as possible by calling 
-a standard PCI match function which searches through a list of PCI IDs.
+Why 1000? I doubt that degree of accuracy is possible in cpu accounting and 
+accuracy or even required. To me it would seem to make more sense to just be 
+a percentage.
 
-	Jeff
-
-
+-- 
+-ck

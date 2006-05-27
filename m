@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964962AbWE0UU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbWE0UVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964962AbWE0UU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 16:20:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964964AbWE0UU3
+	id S964965AbWE0UVp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 16:21:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964964AbWE0UVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 16:20:29 -0400
-Received: from nz-out-0102.google.com ([64.233.162.197]:41343 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S964962AbWE0UU2 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 16:20:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZTTzMWVqAA1d7rJeF/ONwDtkakp36W5nmgt89iD5uWo+NLUDv/UEk3BtIpegDuoAIfhx0/nv3WwKpGYwFgUIlMuSZnAkGMHG7+O/Eodpt7Dd1ywejTTKRvkkwjlN/CjraNXpwr3/i0oMVv7e2Sxe0sTN+e6nJUS0G/DquNcNrbc=
-Message-ID: <b0943d9e0605271320t4a8384f0r376f082e9918350d@mail.gmail.com>
-Date: Sat, 27 May 2006 21:20:27 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Anne Thrax" <foobarfoobarfoobar@gmail.com>
-Subject: Re: [PATCH 2.6.17-rc5 1/7] Base support for kmemleak
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44789D3D.3020001@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060527120709.21451.3187.stgit@localhost.localdomain>
-	 <20060527122307.21451.84934.stgit@localhost.localdomain>
-	 <44789D3D.3020001@gmail.com>
+	Sat, 27 May 2006 16:21:45 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:44954 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964965AbWE0UVo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 16:21:44 -0400
+Subject: Re: How to check if kernel sources are installed on a system?
+From: Arjan van de Ven <arjan@infradead.org>
+To: bidulock@openss7.org
+Cc: Lee Revell <rlrevell@joe-job.com>, devmazumdar <dev@opensound.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060527135214.A15216@openss7.org>
+References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe>
+	 <1148653797.3579.18.camel@laptopd505.fenrus.org>
+	 <20060526093530.A20928@openss7.org>
+	 <1148732512.3265.0.camel@laptopd505.fenrus.org>
+	 <20060527135214.A15216@openss7.org>
+Content-Type: text/plain
+Date: Sat, 27 May 2006 22:21:39 +0200
+Message-Id: <1148761299.3265.241.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Anne,
+On Sat, 2006-05-27 at 13:52 -0600, Brian F. G. Bidulock wrote:
+> Arjan,
+> 
+> On Sat, 27 May 2006, Arjan van de Ven wrote:
+> 
+> > 
+> > > > 
+> > > 
+> > > Redhat and SuSE put /boot/config- files of the same name for different
+> > > architectures (i386, i586) in the same file.  If multiple architecture
+> > > kernels of the same verion are installed, there is no guarantee that the
+> > > /boot/config-`uname -r` is not for, say, i686 instead of i386.  
+> > 
+> > at least on fedora you can't do that parallel installation anyway
+> 
+> rpm --force
 
-On 27/05/06, Anne Thrax <foobarfoobarfoobar@gmail.com> wrote:
->  mm/memleak.c: In function `insert_pointer':
->  mm/memleak.c:216: warning: unused variable `i'
->  mm/memleak.c: At top level:
->  mm/memleak.c:586: warning: 'memleak_scan' defined but not used
-[...]
-> If I'm not mistaken, you don't use 'i' outside of #ifdef CONFIG_FRAME_POINTER code.
+at which point 95% of the files get overwritten including the config
+file, which then points to the right place of the 2nd kernel you abuse
+onto your system.
 
-Yes, indeed, I should've added "i" inside the CONFIG_FRAME_POINTER block.
-
-> > +/* Scan the memory and print the orphan pointers */
-> > +static void memleak_scan(void)
->
-> I don't think this is used anywhere in memleak.c besides
-> #ifdef CONFIG_DEBUG_FS code.
-
-I'm actually thinking about removing the conditional compilation on
-DEBUG_FS and just mandate this option. At the moment there is no other
-way to find the memory leaks apart from /sys/kernel/debug/memleak. The
-other option would be to scan the memory periodically from a timer or
-kernel thread and print the findings.
-
-Thanks.
-
--- 
-Catalin

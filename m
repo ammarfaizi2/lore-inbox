@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751606AbWE0TwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964945AbWE0UHT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751606AbWE0TwR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 15:52:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751607AbWE0TwR
+	id S964945AbWE0UHT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 16:07:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964948AbWE0UHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 15:52:17 -0400
-Received: from gw.openss7.com ([142.179.199.224]:48807 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id S1751587AbWE0TwQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 15:52:16 -0400
-Date: Sat, 27 May 2006 13:52:14 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, devmazumdar <dev@opensound.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: How to check if kernel sources are installed on a system?
-Message-ID: <20060527135214.A15216@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	Lee Revell <rlrevell@joe-job.com>, devmazumdar <dev@opensound.com>,
-	linux-kernel@vger.kernel.org
-References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe> <1148653797.3579.18.camel@laptopd505.fenrus.org> <20060526093530.A20928@openss7.org> <1148732512.3265.0.camel@laptopd505.fenrus.org>
+	Sat, 27 May 2006 16:07:19 -0400
+Received: from crystal.sipsolutions.net ([195.210.38.204]:57298 "EHLO
+	sipsolutions.net") by vger.kernel.org with ESMTP id S964945AbWE0UHR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 16:07:17 -0400
+Subject: Re: [PATCH] make ams work with latest kernels
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Stelian Pop <stelian@popies.net>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060526173908.GA3357@ucw.cz>
+References: <1148383943.25971.2.camel@johannes>
+	 <1148465069.6723.26.camel@localhost.localdomain>
+	 <20060526173908.GA3357@ucw.cz>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ANRVqCZSfU/zOXn2j/VX"
+Date: Sat, 27 May 2006 22:06:54 +0200
+Message-Id: <1148760414.16989.59.camel@johannes.berg>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1148732512.3265.0.camel@laptopd505.fenrus.org>; from arjan@infradead.org on Sat, May 27, 2006 at 02:21:52PM +0200
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan,
 
-On Sat, 27 May 2006, Arjan van de Ven wrote:
+--=-ANRVqCZSfU/zOXn2j/VX
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> > > 
-> > 
-> > Redhat and SuSE put /boot/config- files of the same name for different
-> > architectures (i386, i586) in the same file.  If multiple architecture
-> > kernels of the same verion are installed, there is no guarantee that the
-> > /boot/config-`uname -r` is not for, say, i686 instead of i386.  
-> 
-> at least on fedora you can't do that parallel installation anyway
+On Fri, 2006-05-26 at 17:39 +0000, Pavel Machek wrote:
 
-rpm --force
+> > This driver also provides an absolute input class device, allowing
+> > the laptop to act as a pinball machine-esque joystick.
+>=20
+> Is it useful to have /sysfs interface when we already have same data
+> available as joystick?
 
---brian
+Might be useful if you need to turn off the "joystick" because X gets
+confused with it. Other than that, no.
 
--- 
-Brian F. G. Bidulock    ¦ The reasonable man adapts himself to the ¦
-bidulock@openss7.org    ¦ world; the unreasonable one persists in  ¦
-http://www.openss7.org/ ¦ trying  to adapt the  world  to himself. ¦
-                        ¦ Therefore  all  progress  depends on the ¦
-                        ¦ unreasonable man. -- George Bernard Shaw ¦
+johannes
+
+--=-ANRVqCZSfU/zOXn2j/VX
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIVAwUARHixXKVg1VMiehFYAQIt8g/+KTCerGwZtfWmQSywGmf6Iz+kCVPqI9YF
+TKPPzv8fsu+Jw5PY4VnuCBEu7szT48hB7nDElJTpk+pgcx85cDlxNxXdZBOy0t5z
+oRVx4PRUbMUMNIuQVMiZCVDlmmNRF0NjuoZCoIllqA7kZbnBUXARV+H3mlLoGKu9
+9nGUgI8K+qKSanGhnEfzUKliUCYpW8MBMfl5A6nx8ky5ksVlLewUJKYGFeupy3sC
+7Tn0seLoAZejDFVUN0Q0HsJ0WH4v6Vxg1F7nb1EzYkynysFvRTzxwGVR2pro3JKW
+HsPVNeHeMKtRoNMlx9yP08E3YJzO068aRen2Pf0y7zY6fHYUHNcxGbP3EA6BzdOo
+bgyR+6MRW/tCQui1Giw+b0o3KwOjXLWF7nTUUuIF3L+UI3JFCTtxFBabXTtkpq3M
+fmqXfnTKnSP1hP+wCjBJmq87/GrFfLiPzHVFol5WaRIFKUvnT8aREknJwEQxRApC
+63TxLjlCStiWx9qoFaWBo+nkq3lZkaHaiJgL8eb75h5F4XemQs9g5/PXixmqDkl5
+CdUYkAY2WmrFp3Y2trEiaKNKGKPLsc2JtLdmOZvBv0WVI+YqKJcY8psNlpQ/c6uW
+gaXBsXKSSd8u/7H/nFgsESMpVX1JB156fEfObYM1DSjWxT21vYd3cuBMCoMCNb2K
+bci/E3dpAWQ=
+=tvZ2
+-----END PGP SIGNATURE-----
+
+--=-ANRVqCZSfU/zOXn2j/VX--
+

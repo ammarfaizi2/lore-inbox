@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751761AbWE0CMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751764AbWE0CNV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751761AbWE0CMp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 22:12:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbWE0CMp
+	id S1751764AbWE0CNV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 22:13:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751763AbWE0CNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 22:12:45 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:4309 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1751761AbWE0CMp (ORCPT
+	Fri, 26 May 2006 22:13:21 -0400
+Received: from quechua.inka.de ([193.197.184.2]:40646 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S1751764AbWE0CNU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 22:12:45 -0400
-Message-ID: <348695962.25458@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Sat, 27 May 2006 10:12:52 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 17/33] readahead: context based method
-Message-ID: <20060527021252.GB7418@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060524111246.420010595@localhost.localdomain> <348469544.17438@ustc.edu.cn> <20060526102343.625a16a8.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060526102343.625a16a8.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 26 May 2006 22:13:20 -0400
+From: be-news06@lina.inka.de (Bernd Eckenfels)
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add compile domain
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <20060525202917.GB21926@csclub.uwaterloo.ca>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
+Message-Id: <E1FjoIp-0003RG-00@calista.inka.de>
+Date: Sat, 27 May 2006 04:13:19 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 26, 2006 at 10:23:43AM -0700, Andrew Morton wrote:
-> Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
-> >
-> > +#define PAGE_REFCNT_0           0
-> >  +#define PAGE_REFCNT_1           (1 << PG_referenced)
-> >  +#define PAGE_REFCNT_2           (1 << PG_active)
-> >  +#define PAGE_REFCNT_3           ((1 << PG_active) | (1 << PG_referenced))
-> >  +#define PAGE_REFCNT_MASK        PAGE_REFCNT_3
-> >  +
-> >  +/*
-> >  + * STATUS   REFERENCE COUNT
-> >  + *  __                   0
-> >  + *  _R       PAGE_REFCNT_1
-> >  + *  A_       PAGE_REFCNT_2
-> >  + *  AR       PAGE_REFCNT_3
-> >  + *
-> >  + *  A/R: Active / Referenced
-> >  + */
-> >  +static inline unsigned long page_refcnt(struct page *page)
-> >  +{
-> >  +        return page->flags & PAGE_REFCNT_MASK;
-> >  +}
-> >  +
-> 
-> This assumes that PG_referenced < PG_active.  Nobody knows that this
-> assumption was made and someone might go and reorder the page flags and
-> subtly break readahead.
-> 
-> We need to either not do it this way, or put a big comment in page-flags.h,
-> or even redefine PG_active to be PG_referenced+1.
+Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
+> I always thought that was how it worked.  The first hostname in
+> /etc/hosts on the line containing the short name was used as the FQDN.
+> Maybe that is only a gnu hostname thing.  I seem to recall solaris had a
+> domainname file that was used to find the domain part of the FQDN
+> instead.
 
-I have had a code segment like:
+yes this is how hostname works (see the man page)
 
-#if PG_active < PG_referenced
-#  error unexpected page flags order
-#endif
+# Technically: The FQDN is the name gethostbyname(2) returns for the host
+# name returned by gethostname(2).  The DNS domain name is the part after
+# the first dot.
 
-I'd add it back.
+# Therefore  it  depends on the configuration (usually in /etc/host.conf)
+# how you can change it. Usually (if the hosts file is parsed before DNS or
+# NIS) you can change it in /etc/hosts.
+
+And yes, this is broken, but who used hostname -f anyway?
+
+BTW: the above works also (better?) if you set the utsname to the FQDN like
+Linus does.
+
+Gruss
+Bernd

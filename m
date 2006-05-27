@@ -1,48 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbWE0FzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWE0Fzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751402AbWE0FzN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 01:55:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWE0FzN
+	id S1751416AbWE0Fzf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 01:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWE0Fzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 01:55:13 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:37783 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1751402AbWE0FzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 01:55:11 -0400
-Date: Fri, 26 May 2006 10:38:30 -0400
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: Linas Vepstas <linas@austin.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PCI reset using x86 or x86-64 BIOS calls?
-Message-ID: <20060526143830.GA16442@csclub.uwaterloo.ca>
-References: <6gr2t-1Pp-9@gated-at.bofh.it> <44765F57.90703@shaw.ca>
+	Sat, 27 May 2006 01:55:35 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:53421 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1751416AbWE0Fze (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 01:55:34 -0400
+Date: Sat, 27 May 2006 01:55:33 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: linux-ide@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] libata resume improvements
+Message-ID: <20060527055533.GA5159@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44765F57.90703@shaw.ca>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 25, 2006 at 07:52:23PM -0600, Robert Hancock wrote:
-> Unlikely - if you mean just resetting one PCI device, it's likely 
-> electrically impossible on many, if not most machines as the RST lines 
-> will be tied together on all slots.
-> 
-> The BIOS might possibly have the ability to issue a PCI bus reset 
-> independent of resetting the CPU, chipset, etc. but I don't think 
-> there's any standardized way to trigger this, even so.
-> 
-> In any case, I don't think - or at least would hope - that a PCI device 
-> going so far into the weeds that it can't be recovered without a RST 
-> would be a rare situation.
 
-Well I know there is a way to make a pci to pci bridge assert reset on
-the secondary bus, which of course resets all devices behind the bridge.
-I am not sure when, other than in the bios, this would be useful.  I
-wouldn't want to have to go clean up the pci configuration settings on
-all the devices after the reset.  I considered doing it to solve a rare
-problem with some pci cards, but decided a reboot was simpler.
+This is an example of how one might make sure the ATA bus reaches
+bus-idle, before attempting to talk to it.
 
-Len Sorensen
+It compiles, but is completely untested...
+
+Other resume improvements should work at the pci_driver::resume level as
+this does, _not_ the SCSI->ATA->resume device level.
+
+
+diff --git a/drivers/scsi/ata_piix.c b/drivers/scsi/ata_piix.c
+index 6dc8814..949d496 100644
+--- a/drivers/scsi/ata_piix.c
++++ b/drivers/scsi/ata_piix.c
+@@ -201,7 +201,7 @@ static struct pci_driver piix_pci_driver
+ 	.probe			= piix_init_one,
+ 	.remove			= ata_pci_remove_one,
+ 	.suspend		= ata_pci_device_suspend,
+-	.resume			= ata_pci_device_resume,
++	.resume			= pata_pci_device_resume,
+ };
+ 
+ static struct scsi_host_template piix_sht = {
+diff --git a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
+index fa476e7..fe42a75 100644
+--- a/drivers/scsi/libata-core.c
++++ b/drivers/scsi/libata-core.c
+@@ -4852,6 +4852,28 @@ int ata_pci_device_resume(struct pci_dev
+ 	pci_set_master(pdev);
+ 	return 0;
+ }
++
++int pata_pci_device_resume(struct pci_dev *pdev)
++{
++	struct device *dev = pci_dev_to_dev(pdev);
++	struct ata_host_set *host_set = dev_get_drvdata(dev);
++	struct ata_port *ap;
++	int i;
++
++	ata_pci_device_resume(pdev);
++
++	msleep(400);
++
++	for (i = 0; i < host_set->n_ports; i++) {
++		ap = host_set->ports[i];
++
++		if (ata_busy_sleep(ap, ATA_TMOUT_BOOT_QUICK, ATA_TMOUT_BOOT))
++			printk(KERN_ERR "ata%u: failed to resume\n", ap->id);
++	}
++
++	return 0;
++}
++
+ #endif /* CONFIG_PCI */
+ 
+ 
+@@ -4970,6 +4992,7 @@ EXPORT_SYMBOL_GPL(ata_pci_init_one);
+ EXPORT_SYMBOL_GPL(ata_pci_remove_one);
+ EXPORT_SYMBOL_GPL(ata_pci_device_suspend);
+ EXPORT_SYMBOL_GPL(ata_pci_device_resume);
++EXPORT_SYMBOL_GPL(pata_pci_device_resume);
+ EXPORT_SYMBOL_GPL(ata_pci_default_filter);
+ EXPORT_SYMBOL_GPL(ata_pci_clear_simplex);
+ #endif /* CONFIG_PCI */
+diff --git a/include/linux/libata.h b/include/linux/libata.h
+index b80d2e7..cad531a 100644
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -516,6 +516,7 @@ extern int ata_pci_init_one (struct pci_
+ extern void ata_pci_remove_one (struct pci_dev *pdev);
+ extern int ata_pci_device_suspend(struct pci_dev *pdev, pm_message_t state);
+ extern int ata_pci_device_resume(struct pci_dev *pdev);
++extern int pata_pci_device_resume(struct pci_dev *pdev);
+ extern int ata_pci_clear_simplex(struct pci_dev *pdev);
+ #endif /* CONFIG_PCI */
+ extern int ata_device_add(const struct ata_probe_ent *ent);

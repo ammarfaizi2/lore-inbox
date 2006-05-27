@@ -1,228 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751508AbWE0NDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751509AbWE0NFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751508AbWE0NDA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 09:03:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751509AbWE0NDA
+	id S1751509AbWE0NFE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 09:05:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751510AbWE0NFD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 09:03:00 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:44181 "EHLO
+	Sat, 27 May 2006 09:05:03 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:53141 "EHLO
 	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751508AbWE0NC7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 09:02:59 -0400
+	id S1751509AbWE0NFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 09:05:01 -0400
 X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Sat, 27 May 2006 15:01:59 +0200 (CEST)
+Date: Sat, 27 May 2006 15:04:06 +0200 (CEST)
 From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 2.6.16.18 2/4] sbp2: consolidate workarounds, part two
+Subject: [PATCH 2.6.16.18 3/4] sbp2: add read_capacity workaround for iPod
 To: stable@kernel.org
 cc: linux-kernel@vger.kernel.org
-In-Reply-To: <tkrat.0ce6aaa18134ec31@s5r6.in-berlin.de>
-Message-ID: <tkrat.7f23ff12ead1dc67@s5r6.in-berlin.de>
+In-Reply-To: <tkrat.7f23ff12ead1dc67@s5r6.in-berlin.de>
+Message-ID: <tkrat.e72cc97ac35d83e5@s5r6.in-berlin.de>
 References: <tkrat.b9bf60697156ef7b@s5r6.in-berlin.de>
  <tkrat.0ce6aaa18134ec31@s5r6.in-berlin.de>
+ <tkrat.7f23ff12ead1dc67@s5r6.in-berlin.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; CHARSET=us-ascii
 Content-Disposition: INLINE
-X-Spam-Score: (0.882) AWL,BAYES_50
+X-Spam-Score: (0.883) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rest of the original patch
+Apple decided to copy some USB stupidity over to FireWire.
+The sector number returned by iPods from read_capacity is one too many.
+This may cause I/O errors, especially if the kernel is configured for EFI
+partition support. We use the same workaround as usb-storage but have to
+check for different model IDs.
+http://marc.theaimsgroup.com/?t=114233262300001
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=187409
+
+Acknowledgements: Diagnosis and therapy by Mathieu Chouquet-Stringer
+<ml2news@free.fr>, additional data about affected and unaffected Apple
+hardware from Vladimir Kotal, Sander De Graaf, Bryan Olmstead, Hugh Dixon.
 
 Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
 ---
-rediff for -stable, from commit 24d3bf884e093f9de52d31c97187f4b9b4ad7dcb
+rediff for -stable, from commit e9a1c52c7b19d10342226c12f170d7ab644427e2
 
- Documentation/feature-removal-schedule.txt |    9 +++
- drivers/ieee1394/sbp2.c                    |   76 ++++++++++++++---------------
- drivers/ieee1394/sbp2.h                    |    9 ---
- 3 files changed, 48 insertions(+), 46 deletions(-)
+ drivers/ieee1394/sbp2.c |   49 ++++++++++++++++++++++++++++++++++++++++++++----
+ drivers/ieee1394/sbp2.h |    1
+ 2 files changed, 46 insertions(+), 4 deletions(-)
 
 Index: linux-2.6.16.18/drivers/ieee1394/sbp2.h
 ===================================================================
---- linux-2.6.16.18.orig/drivers/ieee1394/sbp2.h	2006-05-27 13:24:17.000000000 +0200
-+++ linux-2.6.16.18/drivers/ieee1394/sbp2.h	2006-05-27 13:26:01.000000000 +0200
-@@ -227,11 +227,6 @@ struct sbp2_status_block {
- #define SBP2_SW_VERSION_ENTRY					0x00010483
+--- linux-2.6.16.18.orig/drivers/ieee1394/sbp2.h	2006-05-27 13:26:01.000000000 +0200
++++ linux-2.6.16.18/drivers/ieee1394/sbp2.h	2006-05-27 13:27:02.000000000 +0200
+@@ -238,6 +238,7 @@ struct sbp2_status_block {
+ #define SBP2_WORKAROUND_128K_MAX_TRANS	0x1
+ #define SBP2_WORKAROUND_INQUIRY_36	0x2
+ #define SBP2_WORKAROUND_MODE_SENSE_8	0x4
++#define SBP2_WORKAROUND_FIX_CAPACITY	0x8
  
- /*
-- * Other misc defines
-- */
--#define SBP2_128KB_BROKEN_FIRMWARE				0xa0b800
--
--/*
-  * SCSI specific stuff
-  */
- 
-@@ -273,10 +268,6 @@ struct sbp2_command_info {
- 
- };
- 
--/* A list of flags for detected oddities and brokeness. */
--#define SBP2_BREAKAGE_128K_MAX_TRANSFER		0x1
--#define SBP2_BREAKAGE_INQUIRY_HACK		0x2
--
- struct sbp2scsi_host_info;
- 
- /*
+ /* This is the two dma types we use for cmd_dma below */
+ enum cmd_dma_types {
 Index: linux-2.6.16.18/drivers/ieee1394/sbp2.c
 ===================================================================
---- linux-2.6.16.18.orig/drivers/ieee1394/sbp2.c	2006-05-27 13:24:17.000000000 +0200
-+++ linux-2.6.16.18/drivers/ieee1394/sbp2.c	2006-05-27 13:26:01.000000000 +0200
-@@ -118,7 +118,8 @@ MODULE_PARM_DESC(serialize_io, "Serializ
+--- linux-2.6.16.18.orig/drivers/ieee1394/sbp2.c	2006-05-27 13:26:01.000000000 +0200
++++ linux-2.6.16.18/drivers/ieee1394/sbp2.c	2006-05-27 13:27:02.000000000 +0200
+@@ -151,6 +151,11 @@ MODULE_PARM_DESC(exclusive_login, "Exclu
+  * - skip mode page 8
+  *   Suppress sending of mode_sense for mode page 8 if the device pretends to
+  *   support the SCSI Primary Block commands instead of Reduced Block Commands.
++ *
++ * - fix capacity
++ *   Tell sd_mod to correct the last sector number reported by read_capacity.
++ *   Avoids access beyond actual disk limits on devices with an off-by-one bug.
++ *   Don't use this with devices which don't have this bug.
   */
- static int max_sectors = SBP2_MAX_SECTORS;
- module_param(max_sectors, int, 0444);
--MODULE_PARM_DESC(max_sectors, "Change max sectors per I/O supported (default = 255)");
-+MODULE_PARM_DESC(max_sectors, "Change max sectors per I/O supported (default = "
-+		 __stringify(SBP2_MAX_SECTORS) ")");
- 
- /*
-  * Exclusive login to sbp2 device? In most cases, the sbp2 driver should
-@@ -135,6 +136,22 @@ static int exclusive_login = 1;
- module_param(exclusive_login, int, 0644);
- MODULE_PARM_DESC(exclusive_login, "Exclusive login to sbp2 device (default = 1)");
- 
-+/*
-+ * If any of the following workarounds is required for your device to work,
-+ * please submit the kernel messages logged by sbp2 to the linux1394-devel
-+ * mailing list.
-+ *
-+ * - 128kB max transfer
-+ *   Limit transfer size. Necessary for some old bridges.
-+ *
-+ * - 36 byte inquiry
-+ *   When scsi_mod probes the device, let the inquiry command look like that
-+ *   from MS Windows.
-+ *
-+ * - skip mode page 8
-+ *   Suppress sending of mode_sense for mode page 8 if the device pretends to
-+ *   support the SCSI Primary Block commands instead of Reduced Block Commands.
-+ */
  static int sbp2_default_workarounds;
  module_param_named(workarounds, sbp2_default_workarounds, int, 0644);
- MODULE_PARM_DESC(workarounds, "Work around device bugs (default = 0"
-@@ -143,19 +160,10 @@ MODULE_PARM_DESC(workarounds, "Work arou
+@@ -158,6 +163,7 @@ MODULE_PARM_DESC(workarounds, "Work arou
+ 	", 128kB max transfer = " __stringify(SBP2_WORKAROUND_128K_MAX_TRANS)
+ 	", 36 byte inquiry = "    __stringify(SBP2_WORKAROUND_INQUIRY_36)
  	", skip mode page 8 = "   __stringify(SBP2_WORKAROUND_MODE_SENSE_8)
++	", fix capacity = "       __stringify(SBP2_WORKAROUND_FIX_CAPACITY)
  	", or a combination)");
  
--/*
-- * SCSI inquiry hack for really badly behaved sbp2 devices. Turn this on
-- * if your sbp2 device is not properly handling the SCSI inquiry command.
-- * This hack makes the inquiry look more like a typical MS Windows inquiry
-- * by enforcing 36 byte inquiry and avoiding access to mode_sense page 8.
-- *
-- * If force_inquiry_hack=1 is required for your device to work,
-- * please submit the logged sbp2_firmware_revision value of this device to
-- * the linux1394-devel mailing list.
-- */
-+/* legacy parameter */
- static int force_inquiry_hack;
- module_param(force_inquiry_hack, int, 0644);
--MODULE_PARM_DESC(force_inquiry_hack, "Force SCSI inquiry hack (default = 0)");
-+MODULE_PARM_DESC(force_inquiry_hack, "Deprecated, use 'workarounds'");
- 
- /*
-  * Export information about protocols/devices supported by this driver.
-@@ -274,8 +282,11 @@ static struct hpsb_protocol_driver sbp2_
- };
- 
- /*
-- * List of device firmwares that require the inquiry hack.
-- * Yields a few false positives but did not break other devices so far.
-+ * List of devices with known bugs.
-+ *
-+ * The firmware_revision field, masked with 0xffff00, is the best indicator
-+ * for the type of bridge chip of a device.  It yields a few false positives
-+ * but this did not break correctly behaving devices so far.
+ /* legacy parameter */
+@@ -290,6 +296,7 @@ static struct hpsb_protocol_driver sbp2_
   */
  static const struct {
  	u32 firmware_revision;
-@@ -1555,12 +1566,8 @@ static void sbp2_parse_unit_directory(st
- 		case SBP2_FIRMWARE_REVISION_KEY:
- 			/* Firmware revision */
- 			firmware_revision = kv->value.immediate;
--			if (force_inquiry_hack)
--				SBP2_INFO("sbp2_firmware_revision = %x",
--					  (unsigned int)firmware_revision);
--			else
--				SBP2_DEBUG("sbp2_firmware_revision = %x",
--					   (unsigned int)firmware_revision);
-+			SBP2_DEBUG("sbp2_firmware_revision = %x",
-+				   (unsigned int)firmware_revision);
- 			break;
++	u32 model_id;
+ 	unsigned workarounds;
+ } sbp2_workarounds_table[] = {
+ 	/* TSB42AA9 */ {
+@@ -304,6 +311,31 @@ static const struct {
+ 	/* Symbios bridge */ {
+ 		.firmware_revision	= 0xa0b800,
+ 		.workarounds		= SBP2_WORKAROUND_128K_MAX_TRANS,
++	},
++	/*
++	 * Note about the following Apple iPod blacklist entries:
++	 *
++	 * There are iPods (2nd gen, 3rd gen) with model_id==0.  Since our
++	 * matching logic treats 0 as a wildcard, we cannot match this ID
++	 * without rewriting the matching routine.  Fortunately these iPods
++	 * do not feature the read_capacity bug according to one report.
++	 * Read_capacity behaviour as well as model_id could change due to
++	 * Apple-supplied firmware updates though.
++	 */
++	/* iPod 4th generation */ {
++		.firmware_revision	= 0x0a2700,
++		.model_id		= 0x000021,
++		.workarounds		= SBP2_WORKAROUND_FIX_CAPACITY,
++	},
++	/* iPod mini */ {
++		.firmware_revision	= 0x0a2700,
++		.model_id		= 0x000023,
++		.workarounds		= SBP2_WORKAROUND_FIX_CAPACITY,
++	},
++	/* iPod Photo */ {
++		.firmware_revision	= 0x0a2700,
++		.model_id		= 0x00007e,
++		.workarounds		= SBP2_WORKAROUND_FIX_CAPACITY,
+ 	}
+ };
  
- 		default:
-@@ -1568,24 +1575,12 @@ static void sbp2_parse_unit_directory(st
- 		}
+@@ -1583,18 +1615,25 @@ static void sbp2_parse_unit_directory(st
  	}
  
--	/* This is the start of our broken device checking. We try to hack
--	 * around oddities and known defects.  */
- 	workarounds = sbp2_default_workarounds;
--
--	/* If the vendor id is 0xa0b8 (Symbios vendor id), then we have a
--	 * bridge with 128KB max transfer size limitation. For sanity, we
--	 * only voice this when the current max_sectors setting
--	 * exceeds the 128k limit. By default, that is not the case.
--	 *
--	 * It would be really nice if we could detect this before the scsi
--	 * host gets initialized. That way we can down-force the
--	 * max_sectors to account for it. That is not currently
--	 * possible.  */
--	/* Check for a blacklisted set of devices that require us to force
--	 * a 36 byte host inquiry. This can be overriden as a module param
--	 * (to force all hosts).  */
--	if (force_inquiry_hack)
-+	if (force_inquiry_hack) {
-+		SBP2_WARN("force_inquiry_hack is deprecated. "
-+			  "Use parameter 'workarounds' instead.");
- 		workarounds |= SBP2_WORKAROUND_INQUIRY_36;
-+	}
- 
  	for (i = 0; i < ARRAY_SIZE(sbp2_workarounds_table); i++) {
- 		if (sbp2_workarounds_table[i].firmware_revision !=
-@@ -1595,6 +1590,14 @@ static void sbp2_parse_unit_directory(st
+-		if (sbp2_workarounds_table[i].firmware_revision !=
++		if (sbp2_workarounds_table[i].firmware_revision &&
++		    sbp2_workarounds_table[i].firmware_revision !=
+ 		    (firmware_revision & 0xffff00))
+ 			continue;
++		if (sbp2_workarounds_table[i].model_id &&
++		    sbp2_workarounds_table[i].model_id != ud->model_id)
++			continue;
+ 		workarounds |= sbp2_workarounds_table[i].workarounds;
  		break;
  	}
  
-+	if (workarounds)
-+		SBP2_INFO("Workarounds for node " NODE_BUS_FMT ": "
-+			  "0x%x (firmware_revision 0x%x)",
-+			  NODE_BUS_ARGS(ud->ne->host, ud->ne->nodeid),
-+			  workarounds, firmware_revision);
-+
-+	/* We would need one SCSI host template for each target to adjust
-+	 * max_sectors on the fly, therefore warn only. */
- 	if (workarounds & SBP2_WORKAROUND_128K_MAX_TRANS &&
- 	    (max_sectors * 512) > (128 * 1024))
- 		SBP2_WARN("Node " NODE_BUS_FMT ": Bridge only supports 128KB "
-@@ -2662,7 +2665,6 @@ static int sbp2_module_init(void)
- 		scsi_driver_template.cmd_per_lun = 1;
- 	}
+ 	if (workarounds)
+-		SBP2_INFO("Workarounds for node " NODE_BUS_FMT ": "
+-			  "0x%x (firmware_revision 0x%x)",
++		SBP2_INFO("Workarounds for node " NODE_BUS_FMT ": 0x%x "
++			  "(firmware_revision 0x%06x, vendor_id 0x%06x,"
++			  " model_id 0x%06x)",
+ 			  NODE_BUS_ARGS(ud->ne->host, ud->ne->nodeid),
+-			  workarounds, firmware_revision);
++			  workarounds, firmware_revision,
++			  ud->vendor_id ? ud->vendor_id : ud->ne->vendor_id,
++			  ud->model_id);
  
--	/* Set max sectors (module load option). Default is 255 sectors. */
- 	if (sbp2_default_workarounds & SBP2_WORKAROUND_128K_MAX_TRANS &&
- 	    (max_sectors * 512) > (128 * 1024))
- 		max_sectors = 128 * 1024 / 512;
-Index: linux-2.6.16.18/Documentation/feature-removal-schedule.txt
-===================================================================
---- linux-2.6.16.18.orig/Documentation/feature-removal-schedule.txt	2006-05-27 13:23:23.000000000 +0200
-+++ linux-2.6.16.18/Documentation/feature-removal-schedule.txt	2006-05-27 13:26:50.000000000 +0200
-@@ -56,6 +56,15 @@ Who:	Jody McIntyre <scjody@steamballoon.
+ 	/* We would need one SCSI host template for each target to adjust
+ 	 * max_sectors on the fly, therefore warn only. */
+@@ -2522,6 +2561,8 @@ static int sbp2scsi_slave_configure(stru
+ 	if (sdev->type == TYPE_DISK &&
+ 	    scsi_id->workarounds & SBP2_WORKAROUND_MODE_SENSE_8)
+ 		sdev->skip_ms_page_8 = 1;
++	if (scsi_id->workarounds & SBP2_WORKAROUND_FIX_CAPACITY)
++		sdev->fix_capacity = 1;
+ 	return 0;
+ }
  
- ---------------------------
- 
-+What:	sbp2: module parameter "force_inquiry_hack"
-+When:	July 2006
-+Why:	Superceded by parameter "workarounds". Both parameters are meant to be
-+	used ad-hoc and for single devices only, i.e. not in modprobe.conf,
-+	therefore the impact of this feature replacement should be low.
-+Who:	Stefan Richter <stefanr@s5r6.in-berlin.de>
-+
-+---------------------------
-+
- What:	Video4Linux API 1 ioctls and video_decoder.h from Video devices.
- When:	July 2006
- Why:	V4L1 AP1 was replaced by V4L2 API. during migration from 2.4 to 2.6
 
 

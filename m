@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750955AbWE0Io0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWE0J02@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750955AbWE0Io0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 04:44:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWE0Io0
+	id S1751451AbWE0J02 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 05:26:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751452AbWE0J02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 04:44:26 -0400
-Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:53708 "EHLO
-	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1750955AbWE0IoZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 04:44:25 -0400
-Message-ID: <44781167.6060700@bigpond.net.au>
-Date: Sat, 27 May 2006 18:44:23 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Balbir Singh <bsingharora@gmail.com>
-CC: Mike Galbraith <efault@gmx.de>, Con Kolivas <kernel@kolivas.org>,
+	Sat, 27 May 2006 05:26:28 -0400
+Received: from mail.gmx.net ([213.165.64.21]:39329 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751451AbWE0J01 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 05:26:27 -0400
+X-Authenticated: #14349625
+Subject: Re: [RFC 3/5] sched: Add CPU rate hard caps
+From: Mike Galbraith <efault@gmx.de>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Con Kolivas <kernel@kolivas.org>,
        Linux Kernel <linux-kernel@vger.kernel.org>,
        Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
        Rene Herman <rene.herman@keyaccess.nl>
-Subject: Re: [RFC 3/5] sched: Add CPU rate hard caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest> <661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>
-In-Reply-To: <661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <44779A61.7070002@bigpond.net.au>
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>
+	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>
+	 <200605262100.22071.kernel@kolivas.org>  <447709B3.80309@bigpond.net.au>
+	 <1148653398.8321.7.camel@homer>  <44779A61.7070002@bigpond.net.au>
+Content-Type: text/plain
+Date: Sat, 27 May 2006 11:28:07 +0200
+Message-Id: <1148722087.7578.15.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 27 May 2006 08:44:23 +0000
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh wrote:
+On Sat, 2006-05-27 at 10:16 +1000, Peter Williams wrote:
+> Mike Galbraith wrote:
+> > On Fri, 2006-05-26 at 23:59 +1000, Peter Williams wrote:
+> >> Con Kolivas wrote:
+> >>> On Friday 26 May 2006 14:20, Peter Williams wrote:
+> >>>> This patch implements hard CPU rate caps per task as a proportion of a
+> >>>> single CPU's capacity expressed in parts per thousand.
+> >>> A hard cap of 1/1000 could lead to interesting starvation scenarios where a 
+> >>> mutex or semaphore was held by a task that hardly ever got cpu. Same goes to 
+> >>> a lesser extent to a 0 soft cap. 
+> >>>
+> >>> Here is how I handle idleprio tasks in current -ck:
+> >>>
+> >>> http://ck.kolivas.org/patches/2.6/pre-releases/2.6.17-rc5/2.6.17-rc5-ck1/patches/track_mutexes-1.patch
+> >>> tags tasks that are holding a mutex
+> >>>
+> >>> http://ck.kolivas.org/patches/2.6/pre-releases/2.6.17-rc5/2.6.17-rc5-ck1/patches/sched-idleprio-1.7.patch
+> >>> is the idleprio policy for staircase.
+> >>>
+> >>> What it does is runs idleprio tasks as normal tasks when they hold a mutex or 
+> >>> are waking up after calling down() (ie holding a semaphore).
+> >> I wasn't aware that you could detect those conditions.  They could be 
+> >> very useful.
+> > 
+> > Isn't this exactly what the PI code is there to handle?  Is something
+> > more than PI needed?
+> > 
 > 
-> Using a timer for releasing tasks from their sinbin sounds like a  bit
-> of an overhead. Given that there could be 10s of thousands of tasks.
+> AFAIK (but I may be wrong) PI is only used by RT tasks and would need to 
+> be extended.  It could be argued that extending PI so that it can be 
+> used by non RT tasks is a worthwhile endeavour in its own right.
 
-The more runnable tasks there are the less likely it is that any of them 
-is exceeding its hard cap due to normal competition for the CPUs.  So I 
-think that it's unlikely that there will ever be a very large number of 
-tasks in the sinbin at the same time.
+Hm.  Looking around a bit, it appears to me that we're one itty bitty
+redefine away from PI being global.  No idea if/when that will happen
+though.
 
-> Is it possible to use the scheduler_tick() function take a look at all
-> deactivated tasks (as efficiently as possible) and activate them when
-> its time to activate them or just fold the functionality by defining a
-> time quantum after which everyone is worken up. This time quantum
-> could be the same as the time over which limits are honoured.
+	-Mike
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

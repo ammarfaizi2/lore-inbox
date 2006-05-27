@@ -1,81 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWE0MEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbWE0MMP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbWE0MEs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 08:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWE0MEs
+	id S1751485AbWE0MMP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 08:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbWE0MMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 08:04:48 -0400
-Received: from smtp4-g19.free.fr ([212.27.42.30]:38877 "EHLO smtp4-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1750775AbWE0MEr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 08:04:47 -0400
-Message-ID: <4478409D.3030706@free.fr>
-Date: Sat, 27 May 2006 14:05:49 +0200
-From: Laurent Riffard <laurent.riffard@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+	Sat, 27 May 2006 08:12:15 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:24211 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751485AbWE0MMO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 08:12:14 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Sat, 27 May 2006 14:11:18 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [PATCH 2.6.16.18] ohci1394, sbp2: fix "scsi_add_device failed" with
+ PL-3507 based devices
+To: stable@kernel.org
+cc: linux-kernel@vger.kernel.org
+Message-ID: <tkrat.5fe8e80b997f7413@s5r6.in-berlin.de>
 MIME-Version: 1.0
-To: Jim Cromie <jim.cromie@gmail.com>
-CC: Kernel development list <linux-kernel@vger.kernel.org>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.17-rc1-mm3: time-i386-clocksource-drivers*.patch broke userspace
- apps
-References: <4454B4A1.4060304@free.fr> <447212C1.403@gmail.com>
-In-Reply-To: <447212C1.403@gmail.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
+X-Spam-Score: (0.879) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Re-enable posted writes for status FIFO.
+Besides bringing back a very minor bandwidth tweak from Linux 2.6.15.x
+and older, this also fixes an interoperability regression since 2.6.16:
+http://bugzilla.kernel.org/show_bug.cgi?id=6356
+(sbp2: scsi_add_device failed. IEEE1394 HD is not working anymore.)
+
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Tested-by: Vanei Heidemann <linux@javanei.com.br>
+Tested-by: Martin Putzlocher <mputzi@gmx.de> (chip type unconfirmed)
+---
+rediff for -stable, from commit a54c9d30dbb06391ec4422aaf0e1dc2c8c53bd3e
+
+Index: linux-2.6.16.18/drivers/ieee1394/ohci1394.c
+===================================================================
+--- linux-2.6.16.18.orig/drivers/ieee1394/ohci1394.c	2006-05-27 13:23:25.000000000 +0200
++++ linux-2.6.16.18/drivers/ieee1394/ohci1394.c	2006-05-27 13:23:50.000000000 +0200
+@@ -2525,7 +2525,7 @@ static irqreturn_t ohci_irq_handler(int 
+ 			if (phys_dma) {
+ 				reg_write(ohci,OHCI1394_PhyReqFilterHiSet, 0xffffffff);
+ 				reg_write(ohci,OHCI1394_PhyReqFilterLoSet, 0xffffffff);
+-				reg_write(ohci,OHCI1394_PhyUpperBound, 0xffff0000);
++				reg_write(ohci,OHCI1394_PhyUpperBound, 0x01000000);
+ 			} else {
+ 				reg_write(ohci,OHCI1394_PhyReqFilterHiSet, 0x00000000);
+ 				reg_write(ohci,OHCI1394_PhyReqFilterLoSet, 0x00000000);
+Index: linux-2.6.16.18/drivers/ieee1394/sbp2.c
+===================================================================
+--- linux-2.6.16.18.orig/drivers/ieee1394/sbp2.c	2006-05-27 13:23:25.000000000 +0200
++++ linux-2.6.16.18/drivers/ieee1394/sbp2.c	2006-05-27 13:23:50.000000000 +0200
+@@ -754,11 +754,16 @@ static struct scsi_id_instance_data *sbp
+ 
+ 	/* Register the status FIFO address range. We could use the same FIFO
+ 	 * for targets at different nodes. However we need different FIFOs per
+-	 * target in order to support multi-unit devices. */
++	 * target in order to support multi-unit devices.
++	 * The FIFO is located out of the local host controller's physical range
++	 * but, if possible, within the posted write area. Status writes will
++	 * then be performed as unified transactions. This slightly reduces
++	 * bandwidth usage, and some Prolific based devices seem to require it.
++	 */
+ 	scsi_id->status_fifo_addr = hpsb_allocate_and_register_addrspace(
+ 			&sbp2_highlevel, ud->ne->host, &sbp2_ops,
+ 			sizeof(struct sbp2_status_block), sizeof(quadlet_t),
+-			~0ULL, ~0ULL);
++			0x010000000000ULL, CSR1212_ALL_SPACE_END);
+ 	if (!scsi_id->status_fifo_addr) {
+ 		SBP2_ERR("failed to allocate status FIFO address range");
+ 		goto failed_alloc;
 
 
-Le 22.05.2006 21:36, Jim Cromie a écrit :
-> Laurent Riffard wrote:
->> Hello,
->>
->> Since 2.6.17-rc1-mm3, some applications behave strangely here:
->> - video players (mplayer, vlc) are randomly frozen after less than 1
->> minute playing . They are killable by ^C.
->> - some network java application (freenet-0.7) quit after a few
->> minutes running.
->>
->> A bissection point out time-i386-clocksource-drivers.patch as the
->> sucker.
->>
->> I noticed that, since 2.6.17-rc1-mm3, pit clocksource is installed
->> instead of acpi_pm clocksource. Booting with "clocksource=acpi_pm"
->> does not help.
-> 
->> Is pit clocksource broken ? If so, how can I get back acpi_pm
->> clocksource ?
->>
->>   
-> Followup on the 1st Q:
-> GTS v.C2 had some pit fixes, what happens now testing with
-> clocksource=pit ?
-> 
-
-Sorry for this late answer.
-
-Now, I can't notice any problem with clocksource=pit. Video players and
-freenet-0.7 are running fine.
-
-> [root@antares ~]# dmesg | grep -e clocksource -e "Linux version"
-> Linux version 2.6.17-rc4-mm3 (laurent@antares.localdomain) (gcc version 4.1.1 20060330 (prerelease)) #10 Tue May 23 01:35:36 CEST 2006
-> Kernel command line: root=/dev/vglinux1/lvroot video=vesafb:ywrap,mtrr splash=silent resume=/dev/hdb6 clocksource=pit
-> Time: pit clocksource has been installed.
-
-Thanks.
-- --
-laurent
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEeECdUqUFrirTu6IRAvedAKCPmsiaQYUuxhiOPblsyGCHUg4BYwCgjIkA
-NY1utbG3qXCNJKk3mV25zVo=
-=zJjX
------END PGP SIGNATURE-----

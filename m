@@ -1,63 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751752AbWE0BnH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751756AbWE0Buu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751752AbWE0BnH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 21:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751754AbWE0BnH
+	id S1751756AbWE0Buu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 21:50:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751758AbWE0Buu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 21:43:07 -0400
-Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:15000 "EHLO
+	Fri, 26 May 2006 21:50:50 -0400
+Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:17595 "EHLO
 	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751752AbWE0BnF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 21:43:05 -0400
+	id S1751756AbWE0But (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 May 2006 21:50:49 -0400
 From: Con Kolivas <kernel@kolivas.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [RFC 0/5] sched: Add CPU rate caps
-Date: Sat, 27 May 2006 11:42:43 +1000
+To: Jens Axboe <axboe@suse.de>
+Subject: [patch] cfq: ioprio inherit rt class
+Date: Sat, 27 May 2006 11:50:41 +1000
 User-Agent: KMail/1.9.1
-Cc: Mike Galbraith <efault@gmx.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
-       Rene Herman <rene.herman@keyaccess.nl>
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest> <200605262041.09221.kernel@kolivas.org> <4477AB24.1050109@bigpond.net.au>
-In-Reply-To: <4477AB24.1050109@bigpond.net.au>
+Cc: ck list <ck@vds.kolivas.org>, linux list <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200605271142.43611.kernel@kolivas.org>
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200605271150.41924.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 27 May 2006 11:28, Peter Williams wrote:
-> Con Kolivas wrote:
-> > On Friday 26 May 2006 14:20, Peter Williams wrote:
-> >> Although the rlimit mechanism already has a CPU usage limit (RLIMIT_CPU)
-> >> it is a total usage limit and therefore (to my mind) not very useful.
-> >> These patches provide an alternative whereby the (recent) average CPU
-> >> usage rate of a task can be limited to a (per task) specified proportion
-> >> of a single CPU's capacity.  The limits are specified in parts per
-> >> thousand and come in two varieties -- hard and soft.
-> >
-> > Why 1000?
->
-> Probably a hang over from a version where the units were proportion of a
-> whole machine.  Percentage doesn't work very well if there are more than
-> 1 CPU in that case (especially if there are more than 100 CPUs :-)).
-> But it's also useful to have the extra range if your trying to cap
-> processes (or users) from outside the scheduler using these primitives.
->
-> > I doubt that degree of accuracy is possible in cpu accounting and
-> > accuracy or even required. To me it would seem to make more sense to just
-> > be a percentage.
->
-> It's not meant to imply accuracy :-).  The main issue is avoiding
-> overflow when doing the multiplications during the comparisons.
+Jens, ml
 
-Well you could always expose a smaller more meaningful value than what is 
-stored internally. However you've already implied that there are requirements 
-in userspace for more granularity in the proportioning than percentage can 
-give.
+I was wondering if cfq io priorities should be explicitly set to the realtime 
+class when no io priority is specified from realtime tasks as in the 
+following patch? (rt_task() will need to be modified to suit the PI changes in
+-mm)
+
+---
+Set cfq io priority class to realtime and scale the priority according to the
+rt priority when no io priority is explicitly set in realtime tasks.
+
+Signed-off-by: Con Kolivas <kernel@kolivas.org>
+
+---
+ block/cfq-iosched.c    |    4 ++--
+ include/linux/ioprio.h |   12 +++++++++++-
+ 2 files changed, 13 insertions(+), 3 deletions(-)
+
+Index: linux-2.6.17-rc5-ck2/block/cfq-iosched.c
+===================================================================
+--- linux-2.6.17-rc5-ck2.orig/block/cfq-iosched.c	2006-05-25 21:32:45.000000000 +1000
++++ linux-2.6.17-rc5-ck2/block/cfq-iosched.c	2006-05-25 23:55:22.000000000 +1000
+@@ -1334,10 +1334,10 @@ static void cfq_init_prio_data(struct cf
+ 			printk(KERN_ERR "cfq: bad prio %x\n", ioprio_class);
+ 		case IOPRIO_CLASS_NONE:
+ 			/*
+-			 * no prio set, place us in the middle of the BE classes
++			 * Select class and ioprio according to policy and nice
+ 			 */
++			cfqq->ioprio_class = task_policy_ioprio_class(tsk);
+ 			cfqq->ioprio = task_nice_ioprio(tsk);
+-			cfqq->ioprio_class = IOPRIO_CLASS_BE;
+ 			break;
+ 		case IOPRIO_CLASS_RT:
+ 			cfqq->ioprio = task_ioprio(tsk);
+Index: linux-2.6.17-rc5-ck2/include/linux/ioprio.h
+===================================================================
+--- linux-2.6.17-rc5-ck2.orig/include/linux/ioprio.h	2006-05-25 23:02:06.000000000 +1000
++++ linux-2.6.17-rc5-ck2/include/linux/ioprio.h	2006-05-25 23:55:22.000000000 +1000
+@@ -22,7 +22,7 @@
+  * class, the default for any process. IDLE is the idle scheduling class, it
+  * is only served when no one else is using the disk.
+  */
+-enum {
++enum ioprio_class {
+ 	IOPRIO_CLASS_NONE,
+ 	IOPRIO_CLASS_RT,
+ 	IOPRIO_CLASS_BE,
+@@ -51,8 +51,18 @@ static inline int task_ioprio(struct tas
+ 	return IOPRIO_PRIO_DATA(task->ioprio);
+ }
+ 
++static inline enum ioprio_class
++	task_policy_ioprio_class(struct task_struct *task)
++{
++	if (rt_task(task))
++		return IOPRIO_CLASS_RT;
++	return IOPRIO_CLASS_BE;
++}
++
+ static inline int task_nice_ioprio(struct task_struct *task)
+ {
++	if (rt_task(task))
++		return (task->rt_priority * IOPRIO_BE_NR / MAX_RT_PRIO);
+ 	return (task_nice(task) + 20) / 5;
+ }
+ 
 
 -- 
 -ck

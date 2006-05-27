@@ -1,115 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbWE0C1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbWE0C4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964900AbWE0C1U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 May 2006 22:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWE0C1U
+	id S1751083AbWE0C4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 May 2006 22:56:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWE0C4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 22:27:20 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:48100 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751767AbWE0C1T (ORCPT
+	Fri, 26 May 2006 22:56:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:33485 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751083AbWE0C4Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 22:27:19 -0400
-Message-ID: <4477B905.9090806@garzik.org>
-Date: Fri, 26 May 2006 22:27:17 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Git Mailing List <git@vger.kernel.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [SCRIPT] chomp: trim trailing whitespace
-Content-Type: multipart/mixed;
- boundary="------------030305020406070900020809"
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+	Fri, 26 May 2006 22:56:25 -0400
+Date: Fri, 26 May 2006 22:56:23 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: .17rc5 cfq slab corruption.
+Message-ID: <20060527025623.GA7165@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060526213915.GB7585@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060526213915.GB7585@redhat.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030305020406070900020809
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, May 26, 2006 at 05:39:15PM -0400, Dave Jones wrote:
+ > Was playing with googles new picasa toy, which hammered the disks
+ > hunting out every image file it could find, when this popped out:
+ > 
+ > Slab corruption: (Not tainted) start=ffff810012b998c8, len=168
+ > Redzone: 0x5a2cf071/0x5a2cf071.
+ > Last user: [<ffffffff8032c319>](cfq_free_io_context+0x2f/0x74)
+ > 090: 10 bd 28 1b 00 81 ff ff 6b 6b 6b 6b 6b 6b 6b 6b
+ > Prev obj: start=ffff810012b99808, len=168
+ > Redzone: 0x5a2cf071/0x5a2cf071.
+ > Last user: [<ffffffff8032c319>](cfq_free_io_context+0x2f/0x74)
+ > 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+ > 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+ > Next obj: start=ffff810012b99988, len=168
+ > Redzone: 0x5a2cf071/0x5a2cf071.
+ > Last user: [<ffffffff8032c319>](cfq_free_io_context+0x2f/0x74)
+ > 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+ > 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+
+After a reboot, I just hit this again.  This time whilst the box was
+mostly idle (just picking up some email via fetchmail)
+
+Slab corruption: (Not tainted) start=ffff81003dcde8c8, len=168
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<ffffffff8032bb5f>](cfq_free_io_context+0x2f/0x74)
+090: d0 1a 65 3b 00 81 ff ff 6b 6b 6b 6b 6b 6b 6b 6b
+Prev obj: start=ffff81003dcde808, len=168
+Redzone: 0x170fc2a5/0x170fc2a5.
+Last user: [<ffffffff8021ce1c>](cfq_set_request+0x3bb/0x41f)
+000: 00 00 00 00 00 00 00 00 01 00 00 00 5a 5a 5a 5a
+010: 00 00 00 00 00 00 00 00 08 78 44 3c 00 81 ff ff
+Next obj: start=ffff81003dcde988, len=168
+Redzone: 0x170fc2a5/0x170fc2a5.
+Last user: [<ffffffff8021ce1c>](cfq_set_request+0x3bb/0x41f)
+000: 88 e6 cd 3d 00 81 ff ff 00 00 00 00 5a 5a 5a 5a
+010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
 
-Attached to this email is chomp.pl, a Perl script which removes trailing 
-whitespace from several files.  I've had this for years, as trailing 
-whitespace is one of my pet peeves.
+What's interesting is the 00 81 ff ff part of the corruption
+is there in both cases.  Anyone have any clues what this could be?
 
-Now that git-applymbox complains loudly whenever a patch adds trailing 
-whitespace, I figured this script may be useful to others.
-
-	Jeff
-
-
-
-
---------------030305020406070900020809
-Content-Type: application/x-perl;
- name="chomp.pl"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="chomp.pl"
-
-#!/usr/bin/perl -w
-#
-# chomp: Trim trailing whitespace from a list of files.
-#
-# Usage: chomp file1 file2 file3...
-#
-# NOTE:  Files are modified in-place.  No backups are created.
-#
-# Files are, of course, not updated if they lack trailing whitespace.
-#
-#
-
-use strict;
-
-my ($argv_fn);
-my $bytes_saved = 0;
-
-while ($argv_fn = shift @ARGV) {
-	&chomp_file($argv_fn);
-}
-printf "%u bytes chomped.\n", $bytes_saved;
-exit(0);
-
-
-sub chomp_file {
-	my ($fn) = @_;
-	my ($s, $i);
-	my $chomped = 0;
-
-	# read entire data file into memory
-	open (F, $fn) or die "cannot open $fn: $!\n";
-	my @data = <F>;
-	close (F);
-
-	# trim trailing whitespace
-	foreach $i (0 .. $#data) {
-		$s = $data[$i];
-		if ($s =~ /\s$/) {
-			while (($s) && ($s =~ /\s$/)) {
-				chop $s;
-				$bytes_saved++;
-			}
-			$s .= "\n";
-			$bytes_saved--;
-			if ($s ne $data[$i]) {
-				$chomped = 1;
-				$data[$i] = $s;
-			}
-		}
-	}
-
-	# dump data back to disk
-	if ($chomped) {
-		open (F, ">$fn") or die "cannot overwrite $fn: $!\n";
-		print F @data;
-		close (F);
-
-		print "$fn modified.\n";
-	}
-}
-
-
---------------030305020406070900020809--
+		Dave
+-- 
+http://www.codemonkey.org.uk

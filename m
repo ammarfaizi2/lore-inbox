@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWE0MmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751502AbWE0M7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751125AbWE0MmN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 08:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWE0MmN
+	id S1751502AbWE0M7L (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 08:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWE0M7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 08:42:13 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:29839 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751026AbWE0MmM (ORCPT
+	Sat, 27 May 2006 08:59:11 -0400
+Received: from ns.dynamicweb.hu ([195.228.155.139]:1225 "EHLO dynamicweb.hu")
+	by vger.kernel.org with ESMTP id S1751502AbWE0M7K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 08:42:12 -0400
-Date: Sat, 27 May 2006 14:42:02 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Jeff Garzik <jeff@garzik.org>
-cc: Git Mailing List <git@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [SCRIPT] chomp: trim trailing whitespace
-In-Reply-To: <447838EB.9060900@garzik.org>
-Message-ID: <Pine.LNX.4.61.0605271441080.4857@yvahk01.tjqt.qr>
-References: <4477B905.9090806@garzik.org> <Pine.LNX.4.61.0605271212210.6670@yvahk01.tjqt.qr>
- <447838EB.9060900@garzik.org>
+	Sat, 27 May 2006 08:59:10 -0400
+Message-ID: <01b701c6818d$4bcd37b0$1800a8c0@dcccs>
+From: =?iso-8859-2?Q?Haar_J=E1nos?= <djani22@netcenter.hu>
+To: <linux-kernel@vger.kernel.org>
+Subject: How to send a break?
+Date: Sat, 27 May 2006 14:58:44 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Pretty long script. How about this two-liner? It does not show 'bytes
->> chomped' but it also trims trailing whitespace.
->> 
->> #!/usr/bin/perl -i -p
->> s/[ \t\r\n]+$//
->
-> Yes, it does, but a bit too aggressive for what we need :)
->
-Whoops, should have been s/[ \t\r]+$//
-And the CL form is
-  perl -i -pe '...'
+Hello, list,
 
-Somehow, you can't group it to -ipe, but who cares.
+I wish to know, how to send a "BREAK" to trigger the sysreq functions on the
+serial line, using echo.
 
+I mean like this:
 
-Jan Engelhardt
--- 
+#!/bin/bash
+echo "?BREAK?" >/dev/ttyS0
+sleep 2
+echo "m" >/dev/ttyS0
+
+Thanks,
+Janos
+

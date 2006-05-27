@@ -1,122 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751531AbWE0N4c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751542AbWE0Om2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751531AbWE0N4c (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 09:56:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751532AbWE0N4c
+	id S1751542AbWE0Om2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 10:42:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751546AbWE0Om2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 09:56:32 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57017 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751530AbWE0N4c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 09:56:32 -0400
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, drepper@redhat.com,
-       akpm <akpm@osdl.org>, serue@us.ibm.com, sam@vilain.net, clg@fr.ibm.com,
-       dev@sw.ru
-Subject: Re: [PATCH] POSIX-hostname up to 255 characters
-References: <20060525204534.4068e730.rdunlap@xenotime.net>
-	<m1zmh5b129.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.58.0605261758001.13225@shark.he.net>
-	<Pine.LNX.4.58.0605270027070.29434@shark.he.net>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Sat, 27 May 2006 07:54:38 -0600
-In-Reply-To: <Pine.LNX.4.58.0605270027070.29434@shark.he.net> (Randy
- Dunlap's message of "Sat, 27 May 2006 00:36:23 -0700 (PDT)")
-Message-ID: <m13bev8tep.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 27 May 2006 10:42:28 -0400
+Received: from smtpout.mac.com ([17.250.248.184]:55763 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751533AbWE0Om1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 10:42:27 -0400
+In-Reply-To: <20060526093530.A20928@openss7.org>
+References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe> <1148653797.3579.18.camel@laptopd505.fenrus.org> <20060526093530.A20928@openss7.org>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <0E42EDC8-3CC3-4161-8032-9599CA0ED63A@mac.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Lee Revell <rlrevell@joe-job.com>,
+       devmazumdar <dev@opensound.com>, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: How to check if kernel sources are installed on a system?
+Date: Sat, 27 May 2006 10:41:28 -0400
+To: bidulock@openss7.org
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rdunlap@xenotime.net> writes:
-
->> > "Randy.Dunlap" <rdunlap@xenotime.net> writes:
->> >
->> > > This patch is against 2.6.17-rc5, for review/comments, please.
->> > > It won't apply to -mm since Andrew has merged the uts-namespace patches.
->> > > I'll see about merging it with those patches next.
->> > > ---
+On May 26, 2006, at 11:35:30, Brian F. G. Bidulock wrote:
+> On Fri, 26 May 2006, Arjan van de Ven wrote:
+>> /boot/config-`uname -r`
 >
-> Per Eric's comments:
->
-> 1.  use existing sys_gethostname() and sys_sethostname().
->
-> 2.  add sys_uname_long() to read struct long_utsname;
->
-> 3.  removed EXPORT_SYMBOL()s
+> Debian (Woody), OTOH strips extra names of their kernels, so 3 or 4  
+> different releases of the same upstream kernel version all install  
+> with the same name and report `uname -r` the same.  If multiple of  
+> these kernels and a vanilla kernel are installed, their config  
+> files will be difficult to distinguish.  dpkg can be used (similar  
+> to above for rpm) to test the condition.
 
-I have to confess I am still uneasy with sys_uname_long.
+Huh?  My Debian system here has:
 
-The problem is that we have several revisions of this system
-call almost always simply to accommodate long string lengths,
-and the new interface doesn't seem any less susceptible to
-handling longer strings than the old one.
+   /boot/config-2.6.15-1-powerpc-smp
 
-Could we do something like:
-long sys_unamev(int count, char __user **name, size_t name_len)
-{
-        char *table[] = {
-		system_utsname.sysname,
-                system_utsname.nodename,
-                system_utsname.release,
-                system_utsname.version,
-                system_utsname.machine,
-                system_utsname.domainname,
-        };
-        char __user *data;
-        long error;
-        long len;
-        int i;
+This corresponds to the config of the currently installed version and  
+revision ("2.6.15-8") of the "linux-image-2.6.15-1-powerpc-smp"  
+package.  Since you can only have one version of a given package  
+installed at once, this poses no problems.
 
-	down_read(&uts_sem);
+If I upgrade to a new one (say "2.6.15-9") that changes the config  
+slightly or adds a new distro patch, then that config and kernel  
+image would replace the currently installed one.  If I use make-kpkg  
+to build and install a custom kernel tuned for "host":
 
-        error = -EINVAL;     
-        if (count > 6)
-        	goto out;
+   make-kpkg [args] --append-to-version -zeus1-1-powerpc-smp -- 
+revision 1 kernel_image
 
-        len = sizeof(char __user *) * count;
-        for (i = 0; i < count; i++) {
- 		len += strlen(table[i]) + 1;
-        }
+Now I get a package "linux-image-2.6.15-zeus1-1-powerpc-smp" version  
+"2.6.15-1", with:
 
-        error = -ERANGE;
-        if (len > name_len)
-        	goto out;
+   /boot/config-2.6.15-zeus1-1-powerpc-smp
 
-        error = -EFAULT;
-        if (!name)
-        	goto out;
-        if (!access_ok(VERIFY_WRITE, name, name_len))
-        	goto out;
+I see no potential for confusion or mismatch here.
 
-        error = 0;
-        data = (char __user *)&name[count];
-        for (i = 0; i < count; i++) {
-        	size_t len = strlen(table[i]) + 1;
-                error |= __put_user(data, name[i]);
-                error |= __copy_to_user(data, table[i], len);
-                data += len;
-        }
-out:
-	up_read(&uts_sem);
-        return error;
-}
+Cheers,
+Kyle Moffett
 
-And then in user space we can do.
-struct utsname {
-       char *sysname;
-       char *nodename;
-       char *release;
-       char *version;
-       char *machine;
-       char *domainname;
-       char buf[4096 - (sizeof(char *)*6)];
-};
-
-int uname(struct utsname *buf)
-{
-        return sys_unamev(6, buf, sizeof(*buf));
-}
-
-Eric

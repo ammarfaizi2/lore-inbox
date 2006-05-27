@@ -1,202 +1,224 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751569AbWE0PxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751647AbWE0PyK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751569AbWE0PxK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 11:53:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751568AbWE0Pwe
+	id S1751647AbWE0PyK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 11:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751605AbWE0Pwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 11:52:34 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:6108 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1751569AbWE0Pvd (ORCPT
+	Sat, 27 May 2006 11:52:32 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:26844 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1751572AbWE0Pvf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 11:51:33 -0400
-Message-ID: <348745090.16246@ustc.edu.cn>
+	Sat, 27 May 2006 11:51:35 -0400
+Message-ID: <348745092.16246@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060527155131.200177171@localhost.localdomain>
+Message-Id: <20060527155133.216888332@localhost.localdomain>
 References: <20060527154849.927021763@localhost.localdomain>
-Date: Sat, 27 May 2006 23:49:00 +0800
+Date: Sat, 27 May 2006 23:49:04 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 11/32] readahead: sysctl parameters
-Content-Disposition: inline; filename=readahead-parameter-sysctl-variables.patch
+Subject: [PATCH 15/32] readahead: state based method
+Content-Disposition: inline; filename=readahead-method-stateful.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add new sysctl entries in /proc/sys/vm:
+This is the fast code path of adaptive read-ahead.
 
-- readahead_ratio = 50
-	i.e. set read-ahead size to <=(readahead_ratio%) thrashing threshold
-- readahead_hit_rate = 1
-	i.e. read-ahead hit ratio >=(1/readahead_hit_rate) is deemed ok
+MAJOR STEPS
+===========
 
-readahead_ratio also provides a way to select read-ahead logic at runtime:
+        - estimate a thrashing safe ra_size;
+        - assemble the next read-ahead request in file_ra_state;
+        - submit it.
 
-	condition			    action
-==========================================================================
-readahead_ratio == 0		disable read-ahead
-readahead_ratio <= 9		select the (old) stock read-ahead logic
-readahead_ratio >= 10		select the (new) adaptive read-ahead logic
+
+THE REFERENCE MODEL
+===================
+
+        1. inactive list has constant length and page flow speed
+        2. the observed stream receives a steady flow of read requests
+        3. no page activation, so that the inactive list forms a pipe
+
+With that we get the picture showed below.
+
+|<------------------------- constant length ------------------------->|
+<<<<<<<<<<<<<<<<<<<<<<<<< steady flow of pages <<<<<<<<<<<<<<<<<<<<<<<<
++---------------------------------------------------------------------+
+|tail                        inactive list                        head|
+|   =======                  ==========----                           |
+|   chunk A(stale pages)     chunk B(stale + fresh pages)             |
++---------------------------------------------------------------------+
+
+
+REAL WORLD ISSUES
+=================
+
+Real world workloads will always have fluctuations (violation of assumption
+1 and 2). To counteract it, a tunable parameter readahead_ratio is introduced
+to make the estimation conservative enough. Violation of assumption 3 will
+not lead to thrashing, it is there just for simplicity of discussion.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- Documentation/sysctl/vm.txt |   37 +++++++++++++++++++++++++++++++++++++
- include/linux/mm.h          |   11 +++++++++++
- include/linux/sysctl.h      |    2 ++
- kernel/sysctl.c             |   28 ++++++++++++++++++++++++++++
- mm/readahead.c              |   17 +++++++++++++++++
- 5 files changed, 95 insertions(+)
+ mm/readahead.c |  147 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 147 insertions(+)
 
---- linux-2.6.17-rc4-mm3.orig/include/linux/mm.h
-+++ linux-2.6.17-rc4-mm3/include/linux/mm.h
-@@ -1029,6 +1029,17 @@ void handle_ra_miss(struct address_space
- 		    struct file_ra_state *ra, pgoff_t offset);
- unsigned long max_sane_readahead(unsigned long nr);
- 
-+#ifdef CONFIG_ADAPTIVE_READAHEAD
-+extern int readahead_ratio;
-+#else
-+#define readahead_ratio 1
-+#endif /* CONFIG_ADAPTIVE_READAHEAD */
-+
-+static inline int prefer_adaptive_readahead(void)
-+{
-+	return readahead_ratio >= 10;
-+}
-+
- /* Do stack extension */
- extern int expand_stack(struct vm_area_struct *vma, unsigned long address);
- #ifdef CONFIG_IA64
 --- linux-2.6.17-rc4-mm3.orig/mm/readahead.c
 +++ linux-2.6.17-rc4-mm3/mm/readahead.c
-@@ -26,6 +26,23 @@
- #define MIN_RA_PAGES	DIV_ROUND_UP(VM_MIN_READAHEAD*1024, PAGE_CACHE_SIZE)
+@@ -1002,6 +1002,153 @@ static int ra_dispatch(struct file_ra_st
+ }
  
  /*
-+ * Adaptive read-ahead parameters.
++ * Deduce the read-ahead/look-ahead size from primitive values.
++ *
++ * Input:
++ *	- @ra_size stores the estimated thrashing-threshold.
++ *	- @la_size stores the look-ahead size of previous request.
 + */
++static int adjust_rala(unsigned long ra_max,
++				unsigned long *ra_size, unsigned long *la_size)
++{
++	unsigned long stream_shift = *la_size;
 +
-+/* In laptop mode, poll delayed look-ahead on every ## pages read. */
-+#define LAPTOP_POLL_INTERVAL 16
++	/*
++	 * Substract the old look-ahead to get real safe size for the next
++	 * read-ahead request.
++	 */
++	if (*ra_size > *la_size)
++		*ra_size -= *la_size;
++	else {
++		ra_account(NULL, RA_EVENT_READAHEAD_SHRINK, *ra_size);
++		return 0;
++	}
 +
-+/* Set look-ahead size to 1/# of the thrashing-threshold. */
-+#define LOOKAHEAD_RATIO 8
++	/*
++	 * Set new la_size according to the (still large) ra_size.
++	 */
++	*la_size = *ra_size / LOOKAHEAD_RATIO;
 +
-+/* Set read-ahead size to ##% of the thrashing-threshold. */
-+int readahead_ratio = 50;
-+EXPORT_SYMBOL_GPL(readahead_ratio);
++	/*
++	 * Apply upper limits.
++	 */
++	if (*ra_size > ra_max)
++		*ra_size = ra_max;
++	if (*la_size > *ra_size)
++		*la_size = *ra_size;
 +
-+/* Readahead as long as cache hit ratio keeps above 1/##. */
-+int readahead_hit_rate = 1;
++	/*
++	 * Make sure stream_shift is not too small.
++	 * (So that the next global_shift will not be too small.)
++	 */
++	stream_shift += (*ra_size - *la_size);
++	if (stream_shift < *ra_size / 4)
++		*la_size -= (*ra_size / 4 - stream_shift);
++
++	return 1;
++}
 +
 +/*
-  * Detailed classification of read-ahead behaviors.
-  */
- #define RA_CLASS_SHIFT 4
---- linux-2.6.17-rc4-mm3.orig/include/linux/sysctl.h
-+++ linux-2.6.17-rc4-mm3/include/linux/sysctl.h
-@@ -194,6 +194,8 @@ enum
- 	VM_ZONE_RECLAIM_INTERVAL=32, /* time period to wait after reclaim failure */
- 	VM_PANIC_ON_OOM=33,	/* panic at out-of-memory */
- 	VM_SWAP_PREFETCH=34,	/* swap prefetch */
-+	VM_READAHEAD_RATIO=35,	/* percent of read-ahead size to thrashing-threshold */
-+	VM_READAHEAD_HIT_RATE=36, /* one accessed page legitimizes so many read-ahead pages */
- };
- 
- /* CTL_NET names: */
---- linux-2.6.17-rc4-mm3.orig/kernel/sysctl.c
-+++ linux-2.6.17-rc4-mm3/kernel/sysctl.c
-@@ -77,6 +77,12 @@ extern int percpu_pagelist_fraction;
- extern int compat_log;
- extern int print_fatal_signals;
- 
-+#if defined(CONFIG_ADAPTIVE_READAHEAD)
-+extern int readahead_ratio;
-+extern int readahead_hit_rate;
-+static int one = 1;
-+#endif
++ * The function estimates two values:
++ * 1. thrashing-threshold for the current stream
++ *    It is returned to make the next read-ahead request.
++ * 2. the remained safe space for the current chunk
++ *    It will be checked to ensure that the current chunk is safe.
++ *
++ * The computation will be pretty accurate under heavy load, and will vibrate
++ * more on light load(with small global_shift), so the grow speed of ra_size
++ * must be limited, and a moderate large stream_shift must be insured.
++ *
++ * This figure illustrates the formula used in the function:
++ * While the stream reads stream_shift pages inside the chunks,
++ * the chunks are shifted global_shift pages inside inactive_list.
++ *
++ *      chunk A                    chunk B
++ *                          |<=============== global_shift ================|
++ *  +-------------+         +-------------------+                          |
++ *  |       #     |         |           #       |            inactive_list |
++ *  +-------------+         +-------------------+                     head |
++ *          |---->|         |---------->|
++ *             |                  |
++ *             +-- stream_shift --+
++ */
++static unsigned long compute_thrashing_threshold(struct file_ra_state *ra,
++							unsigned long *remain)
++{
++	unsigned long global_size;
++	unsigned long global_shift;
++	unsigned long stream_shift;
++	unsigned long ra_size;
++	uint64_t ll;
 +
- #if defined(CONFIG_X86_LOCAL_APIC) && defined(CONFIG_X86)
- int unknown_nmi_panic;
- int nmi_watchdog_enabled;
-@@ -987,6 +993,28 @@ static ctl_table vm_table[] = {
- 		.proc_handler	= &proc_dointvec,
- 	},
- #endif
-+#ifdef CONFIG_ADAPTIVE_READAHEAD
-+	{
-+		.ctl_name	= VM_READAHEAD_RATIO,
-+		.procname	= "readahead_ratio",
-+		.data		= &readahead_ratio,
-+		.maxlen		= sizeof(readahead_ratio),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+		.strategy	= &sysctl_intvec,
-+		.extra1		= &zero,
-+	},
-+	{
-+		.ctl_name	= VM_READAHEAD_HIT_RATE,
-+		.procname	= "readahead_hit_rate",
-+		.data		= &readahead_hit_rate,
-+		.maxlen		= sizeof(readahead_hit_rate),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+		.strategy	= &sysctl_intvec,
-+		.extra1		= &one,
-+	},
-+#endif
- 	{ .ctl_name = 0 }
- };
- 
---- linux-2.6.17-rc4-mm3.orig/Documentation/sysctl/vm.txt
-+++ linux-2.6.17-rc4-mm3/Documentation/sysctl/vm.txt
-@@ -31,6 +31,8 @@ Currently, these files are in /proc/sys/
- - zone_reclaim_interval
- - panic_on_oom
- - swap_prefetch
-+- readahead_ratio
-+- readahead_hit_rate
- 
- ==============================================================
- 
-@@ -202,3 +204,38 @@ copying back pages from swap into the sw
- practice it can take many minutes before the vm is idle enough.
- 
- The default value is 1.
++	global_size = nr_free_inactive_pages_node(numa_node_id());
++	global_shift = node_readahead_aging() - ra->age;
++	global_shift |= 1UL;
++	stream_shift = ra_invoke_interval(ra);
 +
-+==============================================================
++	/* future safe space */
++	ll = (uint64_t) stream_shift * (global_size >> 9) * readahead_ratio * 5;
++	do_div(ll, global_shift);
++	ra_size = ll;
 +
-+readahead_ratio
++	/* remained safe space */
++	if (global_size > global_shift) {
++		ll = (uint64_t) stream_shift * (global_size - global_shift);
++		do_div(ll, global_shift);
++		*remain = ll;
++	} else
++		*remain = 0;
 +
-+This limits readahead size to percent of the thrashing threshold.
-+The thrashing threshold is dynamicly estimated from the _history_ read
-+speed and system load, to deduce the _future_ readahead request size.
++	ddprintk("compute_thrashing_threshold: "
++			"at %lu ra %lu=%lu*%lu/%lu, remain %lu for %lu\n",
++			ra->readahead_index, ra_size,
++			stream_shift, global_size, global_shift,
++			*remain, ra_lookahead_size(ra));
 +
-+Set it to a smaller value if you have not enough memory for all the
-+concurrent readers, or the I/O loads fluctuate a lot. But if there's
-+plenty of memory(>2MB per reader), a bigger value may help performance.
++	return ra_size;
++}
 +
-+readahead_ratio also selects the readahead logic:
-+	VALUE	CODE PATH
-+	-------------------------------------------
-+	    0	disable readahead totally
-+	  1-9	select the stock readahead logic
-+	10-inf	select the adaptive readahead logic
++/*
++ * Main function for file_ra_state based read-ahead.
++ */
++static unsigned long
++state_based_readahead(struct address_space *mapping, struct file *filp,
++			struct file_ra_state *ra,
++			struct page *page, pgoff_t index,
++			unsigned long req_size, unsigned long ra_max)
++{
++	unsigned long ra_old;
++	unsigned long ra_size;
++	unsigned long la_size;
++	unsigned long remain_space;
++	unsigned long growth_limit;
 +
-+The default value is 50.  Reasonable values would be [50, 100].
++	la_size = ra->readahead_index - index;
++	ra_size = compute_thrashing_threshold(ra, &remain_space);
 +
-+==============================================================
++	if (page && remain_space <= la_size && la_size > 1) {
++		rescue_pages(page, la_size);
++		return 0;
++	}
 +
-+readahead_hit_rate
++	ra_old = ra_readahead_size(ra);
++	growth_limit = req_size;
++	growth_limit += ra_max / 16;
++	growth_limit += (2 + readahead_ratio / 64) * ra_old;
++	if (growth_limit > ra_max)
++		growth_limit = ra_max;
 +
-+This is the max allowed value of (readahead-pages : accessed-pages).
-+Useful only when (readahead_ratio >= 10). If the previous readahead
-+request has bad hit rate, the kernel will be reluctant to do the next
-+readahead.
++	if (!adjust_rala(growth_limit, &ra_size, &la_size))
++		return 0;
 +
-+Larger values help catch more sparse access patterns. Be aware that
-+readahead of the sparse patterns sacrifices memory for speed.
++	ra_set_class(ra, RA_CLASS_STATE);
++	ra_set_index(ra, index, ra->readahead_index);
++	ra_set_size(ra, ra_size, la_size);
 +
-+The default value is 1.  It is recommended to keep the value below 16.
++	return ra_dispatch(ra, mapping, filp);
++}
++
++/*
+  * ra_min is mainly determined by the size of cache memory. Reasonable?
+  *
+  * Table of concrete numbers for 4KB page size:
 
 --

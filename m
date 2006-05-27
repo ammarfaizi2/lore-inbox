@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbWE0RZ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964922AbWE0R3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964921AbWE0RZ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 13:25:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWE0RZ6
+	id S964922AbWE0R3y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 13:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964923AbWE0R3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 13:25:58 -0400
-Received: from wx-out-0102.google.com ([66.249.82.207]:63831 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S964921AbWE0RZ5 convert rfc822-to-8bit (ORCPT
+	Sat, 27 May 2006 13:29:54 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:2143 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S964922AbWE0R3x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 13:25:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tXfSwZ5eeC2pTHNO9Kl1FApstoxUtwZ7yqMfzrwU8w2iaEEU1ERAgaFhgaVWudZ3hT9LYcy2OgTAJRebJysW5il9Und1sFPY8YnTFvRKWD/LLBQS031RcT4a0SWdRX/RE3w4QOmyTwi4LZsJYpFbIRONtAtxfPvmnrAzfb2Q/PY=
-Message-ID: <58d0dbf10605271025h5f79cec1u328d9cfb5fd51c5d@mail.gmail.com>
-Date: Sat, 27 May 2006 19:25:57 +0200
-From: "Jan Kiszka" <jan.kiszka@googlemail.com>
-To: "Michael Opdenacker" <michael-lists@free-electrons.com>
-Subject: Re: New Linux Cross Reference (LXR) site
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <44742166.20907@free-electrons.com>
+	Sat, 27 May 2006 13:29:53 -0400
+Message-ID: <44788C8A.2070900@tls.msk.ru>
+Date: Sat, 27 May 2006 21:29:46 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Mail/News 1.5 (X11/20060318)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <44742166.20907@free-electrons.com>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/32] Adaptive readahead V14
+References: <348745084.15239@ustc.edu.cn>
+In-Reply-To: <348745084.15239@ustc.edu.cn>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/5/24, Michael Opdenacker <michael-lists@free-electrons.com>:
-> Hello,
->
-> As the number of such sites is still very small, I set up a new LXR
-> site: http://lxr.free-electrons.com/
->
+Wu Fengguang wrote:
+> Andrew,
+> 
+> This is the 14th release of the adaptive readahead patchset.
 
-You obviously use a quite recent lxr version. Which one? I have a
-number of projects still referenced via lxr 0.3.1 because it's easy to
-maintain and does not require a bunch of additional software. Maybe I
-should really update...
+A question I wanted to ask for quite some time already but for
+some reason didn't ask...
 
-Recently I started to experiment with OpenGrok
-(http://www.opensolaris.org/os/project/opengrok), also for kernel
-trees. Quite easy to handle, and I was enthusiastic about it first.
-But it is not yet as robust as the lxr behind your site (reference
-links are occasionally missing in the code), it's history mechanism is
-not comparable to lxr's versioning, and arch-switching is lacking.
+How the new readahead logic works with media read errors?
+Current linux behavior is questionable (it killed my dvd drive
+for example, due to too many retries to read a single bad block
+on a CD-Rom), it - I think - should be to stop reading ahead if
+an read error occurs, instead of re-trying, and only retry to
+read that block (if at all) when and only when an application
+asks for that block.  I'm unsure when it should "resume reading
+ahead" again (ie, like, setting ra to 0 on first error, and
+restoring it back if we trying to read past the bad block.. or
+set it to 0, and try to increase it on subsequent reads one by
+one back to the original value, or...) - but that's probably
+different story, for now, i think just setting ra to 0 on read
+error will be sufficient...
 
-Jan
+Thanks.
+
+/mjt

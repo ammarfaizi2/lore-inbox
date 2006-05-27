@@ -1,83 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751603AbWE0P4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751642AbWE0P4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751603AbWE0P4W (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 11:56:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751597AbWE0PwQ
+	id S1751642AbWE0P4V (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 11:56:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751599AbWE0PwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 11:52:16 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:57820 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1751603AbWE0Pvi (ORCPT
+	Sat, 27 May 2006 11:52:20 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:47580 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1751601AbWE0Pvh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 11:51:38 -0400
-Message-ID: <348745095.16246@ustc.edu.cn>
+	Sat, 27 May 2006 11:51:37 -0400
+Message-ID: <348745094.16246@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060527155136.503037461@localhost.localdomain>
+Message-Id: <20060527155135.584918734@localhost.localdomain>
 References: <20060527154849.927021763@localhost.localdomain>
-Date: Sat, 27 May 2006 23:49:11 +0800
+Date: Sat, 27 May 2006 23:49:09 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 22/32] readahead: backward prefetching method
-Content-Disposition: inline; filename=readahead-method-backward.patch
+Subject: [PATCH 20/32] readahead: initial method - user recommended size
+Content-Disposition: inline; filename=readahead-method-initial-size-recommend.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Readahead policy for reading backward.
+backing_dev_info.ra_pages0 is a user configurable parameter that controls
+the readahead size on start-of-file.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- mm/readahead.c |   40 ++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 40 insertions(+)
+ block/ll_rw_blk.c |   30 ++++++++++++++++++++++++++++++
+ 1 files changed, 30 insertions(+)
 
---- linux-2.6.17-rc4-mm3.orig/mm/readahead.c
-+++ linux-2.6.17-rc4-mm3/mm/readahead.c
-@@ -1536,6 +1536,46 @@ initial_readahead(struct address_space *
+--- linux-2.6.17-rc4-mm3.orig/block/ll_rw_blk.c
++++ linux-2.6.17-rc4-mm3/block/ll_rw_blk.c
+@@ -3811,6 +3811,29 @@ queue_ra_store(struct request_queue *q, 
+ 	return ret;
  }
  
- /*
-+ * Backward prefetching.
-+ *
-+ * No look-ahead and thrashing safety guard: should be unnecessary.
-+ */
-+static int
-+try_read_backward(struct file_ra_state *ra, pgoff_t begin_index,
-+			unsigned long ra_size, unsigned long ra_max)
++static ssize_t queue_initial_ra_show(struct request_queue *q, char *page)
 +{
-+	pgoff_t end_index;
++	int kb = q->backing_dev_info.ra_pages0 << (PAGE_CACHE_SHIFT - 10);
 +
-+	/* Are we reading backward? */
-+	if (begin_index > ra->prev_page)
-+		return 0;
-+
-+	if ((ra->flags & RA_CLASS_MASK) == RA_CLASS_BACKWARD &&
-+					ra_has_index(ra, ra->prev_page)) {
-+		ra_size += 2 * ra->hit0;
-+		end_index = ra->la_index;
-+	} else {
-+		ra_size += ra_size + ra_size * (readahead_hit_rate - 1) / 2;
-+		end_index = ra->prev_page;
-+	}
-+
-+	if (ra_size > ra_max)
-+		ra_size = ra_max;
-+
-+	/* Read traces close enough to be covered by the prefetching? */
-+	if (end_index > begin_index + ra_size)
-+		return 0;
-+
-+	begin_index = end_index - ra_size;
-+
-+	ra_set_class(ra, RA_CLASS_BACKWARD);
-+	ra_set_index(ra, begin_index, begin_index);
-+	ra_set_size(ra, ra_size, 0);
-+
-+	return 1;
++	return queue_var_show(kb, (page));
 +}
 +
-+/*
-  * ra_min is mainly determined by the size of cache memory. Reasonable?
-  *
-  * Table of concrete numbers for 4KB page size:
++static ssize_t
++queue_initial_ra_store(struct request_queue *q, const char *page, size_t count)
++{
++	unsigned long kb, ra;
++	ssize_t ret = queue_var_store(&kb, page, count);
++
++	ra = kb >> (PAGE_CACHE_SHIFT - 10);
++	q->backing_dev_info.ra_pages0 = ra;
++
++	ra = kb * 1024;
++	if (q->backing_dev_info.ra_expect_bytes > ra)
++		q->backing_dev_info.ra_expect_bytes = ra;
++
++	return ret;
++}
++
+ static ssize_t queue_max_sectors_show(struct request_queue *q, char *page)
+ {
+ 	int max_sectors_kb = q->max_sectors >> 1;
+@@ -3868,6 +3891,12 @@ static struct queue_sysfs_entry queue_ra
+ 	.store = queue_ra_store,
+ };
+ 
++static struct queue_sysfs_entry queue_initial_ra_entry = {
++	.attr = {.name = "initial_ra_kb", .mode = S_IRUGO | S_IWUSR },
++	.show = queue_initial_ra_show,
++	.store = queue_initial_ra_store,
++};
++
+ static struct queue_sysfs_entry queue_max_sectors_entry = {
+ 	.attr = {.name = "max_sectors_kb", .mode = S_IRUGO | S_IWUSR },
+ 	.show = queue_max_sectors_show,
+@@ -3888,6 +3917,7 @@ static struct queue_sysfs_entry queue_io
+ static struct attribute *default_attrs[] = {
+ 	&queue_requests_entry.attr,
+ 	&queue_ra_entry.attr,
++	&queue_initial_ra_entry.attr,
+ 	&queue_max_hw_sectors_entry.attr,
+ 	&queue_max_sectors_entry.attr,
+ 	&queue_iosched_entry.attr,
 
 --

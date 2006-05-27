@@ -1,35 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbWE0Vyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964931AbWE0WBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964975AbWE0Vyw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 17:54:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbWE0Vyw
+	id S964931AbWE0WBr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 18:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbWE0WBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 17:54:52 -0400
-Received: from h-68-166-120-83.cmbrmaor.covad.net ([68.166.120.83]:14477 "EHLO
-	qix.demiurgestudios.com") by vger.kernel.org with ESMTP
-	id S964975AbWE0Vyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 17:54:52 -0400
-Date: Sat, 27 May 2006 17:54:26 -0400
-From: Andrew Moise <chops@demiurgestudios.com>
-To: Haar =?iso-8859-1?Q?J=E1nos?= <djani22@netcenter.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DMA errors, then I/O errors, on 2.6.16
-Message-ID: <20060527215425.GB2866@qix.demiurgestudios.com>
-References: <20060527210715.GA2866@qix.demiurgestudios.com> <02c701c681d3$2a17e750$1800a8c0@dcccs>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sat, 27 May 2006 18:01:47 -0400
+Received: from smtp.enter.net ([216.193.128.24]:17931 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S964931AbWE0WBr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 18:01:47 -0400
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: OpenGL-based framebuffer concepts
+Date: Sat, 27 May 2006 18:01:36 +0000
+User-Agent: KMail/1.8.1
+Cc: Dave Airlie <airlied@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <21d7e9970605232108u27bc3ae7mbd161778c51afaf5@mail.gmail.com> <20060526173913.GA3357@ucw.cz>
+In-Reply-To: <20060526173913.GA3357@ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <02c701c681d3$2a17e750$1800a8c0@dcccs>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200605271801.36942.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 27, 2006 at 11:18:47PM +0200, Haar János wrote:
-> If it is a WD hdd, try to use master AND slave on the same cable, or try to
-> set "cable select" setting on hdd!
+On Friday 26 May 2006 17:39, Pavel Machek wrote:
+> Hi!
+>
+> > >I am currently looking for some information or help in
+> > >making the Framebuffer
+> > >devices use DRM and setting up a userspace system that
+> > >interfaces with the
+> > >DRM backed framebuffer device to provide full 2D and 3D
+> > >acceleration of all
+> > >supported features and *userspace* emulation of the
+> > >unsupported stuff.
+> >
+> > The first step is to provide some sort of communication
+> > between the
+> > DRM and fb drivers so they know the other one exists,
+> >
+> > previous attempts at this by myself have come apart in
+> > the device
+> > model which just plainly cannot support this without
+> > adding a couple
+> > of dirty hacks,
+>
+> Could fb and drm simply be 'merged' into one driver (at least as far
+> as rest of system is concerned)? That should have no driver model
+> issues...?
+> 							Pavel
 
-  Sadly, it's a Maxtor drive, already set to cable select.  When I
-opened the case to check the jumper, I noticed that the drive is very
-hot; I tried improving the airflow to see if it's caused by the drive
-overheating.
+And such was my original idea. However I've been informed that doing such 
+would either constitute "Breaking working systems" or "introducing a third 
+and unneeded driver".
+
+For that reason I've begun doing a bit of research and planning... it might 
+show fruit in a couple of days.
+
+DRH

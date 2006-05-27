@@ -1,76 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751661AbWE0Pvw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751621AbWE0PxK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751661AbWE0Pvw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 11:51:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751658AbWE0Pvv
+	id S1751621AbWE0PxK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 11:53:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751619AbWE0Pwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 11:51:51 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:29917 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1751612AbWE0Pvn (ORCPT
+	Sat, 27 May 2006 11:52:40 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:47323 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1751562AbWE0Pvb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 11:51:43 -0400
-Message-ID: <348745100.16246@ustc.edu.cn>
+	Sat, 27 May 2006 11:51:31 -0400
+Message-ID: <348745087.27363@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060527155141.697607086@localhost.localdomain>
+Message-Id: <20060527155128.472551240@localhost.localdomain>
 References: <20060527154849.927021763@localhost.localdomain>
-Date: Sat, 27 May 2006 23:49:19 +0800
+Date: Sat, 27 May 2006 23:48:55 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 30/32] readahead: debug radix tree new functions
-Content-Disposition: inline; filename=readahead-debug-radix-tree.patch
+Subject: [PATCH 06/32] readahead: delay page release in do_generic_mapping_read()
+Content-Disposition: inline; filename=readahead-delay-page-release-in-do_generic_mapping_read.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do some sanity checkings on the newly added radix tree code.
+In do_generic_mapping_read(), release accessed pages some time later,
+so that it can be passed to and used by the adaptive read-ahead code.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- mm/readahead.c |   19 +++++++++++++++++++
- 1 files changed, 19 insertions(+)
+ mm/filemap.c |   18 ++++++++++++------
+ 1 files changed, 12 insertions(+), 6 deletions(-)
 
---- linux-2.6.17-rc4-mm3.orig/mm/readahead.c
-+++ linux-2.6.17-rc4-mm3/mm/readahead.c
-@@ -70,6 +70,8 @@ enum ra_class {
- 	RA_CLASS_COUNT
- };
+--- linux-2.6.17-rc4-mm3.orig/mm/filemap.c
++++ linux-2.6.17-rc4-mm3/mm/filemap.c
+@@ -835,10 +835,12 @@ void do_generic_mapping_read(struct addr
+ 	unsigned long prev_index;
+ 	loff_t isize;
+ 	struct page *cached_page;
++	struct page *prev_page;
+ 	int error;
+ 	struct file_ra_state ra = *_ra;
  
-+#define DEBUG_READAHEAD_RADIXTREE
+ 	cached_page = NULL;
++	prev_page = NULL;
+ 	index = *ppos >> PAGE_CACHE_SHIFT;
+ 	next_index = index;
+ 	prev_index = ra.prev_page;
+@@ -877,6 +879,11 @@ find_page:
+ 			handle_ra_miss(mapping, &ra, index);
+ 			goto no_cached_page;
+ 		}
 +
- /* Read-ahead events to be accounted. */
- enum ra_event {
- 	RA_EVENT_CACHE_MISS,		/* read cache misses */
-@@ -1294,6 +1296,16 @@ static pgoff_t find_segtail(struct addre
- 	cond_resched();
- 	read_lock_irq(&mapping->tree_lock);
- 	ra_index = radix_tree_scan_hole(&mapping->page_tree, index, max_scan);
-+#ifdef DEBUG_READAHEAD_RADIXTREE
-+	BUG_ON(!__probe_page(mapping, index));
-+	WARN_ON(ra_index < index);
-+	if (ra_index != index && !__probe_page(mapping, ra_index - 1))
-+		printk(KERN_ERR "radix_tree_scan_hole(index=%lu ra_index=%lu "
-+				"max_scan=%lu nrpages=%lu) fooled!\n",
-+				index, ra_index, max_scan, mapping->nrpages);
-+	if (ra_index != ~0UL && ra_index - index < max_scan)
-+		WARN_ON(__probe_page(mapping, ra_index));
-+#endif
- 	read_unlock_irq(&mapping->tree_lock);
++		if (prev_page)
++			page_cache_release(prev_page);
++		prev_page = page;
++
+ 		if (!PageUptodate(page))
+ 			goto page_not_up_to_date;
+ page_ok:
+@@ -911,7 +918,6 @@ page_ok:
+ 		index += offset >> PAGE_CACHE_SHIFT;
+ 		offset &= ~PAGE_CACHE_MASK;
  
- 	if (ra_index <= index + max_scan)
-@@ -1377,6 +1389,13 @@ static unsigned long query_page_cache_se
- 	read_lock_irq(&mapping->tree_lock);
- 	index = radix_tree_scan_hole_backward(&mapping->page_tree,
- 							offset - 1, ra_max);
-+#ifdef DEBUG_READAHEAD_RADIXTREE
-+	WARN_ON(index > offset - 1);
-+	if (index != offset - 1)
-+		WARN_ON(!__probe_page(mapping, index + 1));
-+	if (index && offset - 1 - index < ra_max)
-+		WARN_ON(__probe_page(mapping, index));
-+#endif
+-		page_cache_release(page);
+ 		if (ret == nr && desc->count)
+ 			continue;
+ 		goto out;
+@@ -923,7 +929,6 @@ page_not_up_to_date:
+ 		/* Did it get unhashed before we got the lock? */
+ 		if (!page->mapping) {
+ 			unlock_page(page);
+-			page_cache_release(page);
+ 			continue;
+ 		}
  
- 	*remain = offset - index;
+@@ -953,7 +958,6 @@ readpage:
+ 					 * invalidate_inode_pages got it
+ 					 */
+ 					unlock_page(page);
+-					page_cache_release(page);
+ 					goto find_page;
+ 				}
+ 				unlock_page(page);
+@@ -974,7 +978,6 @@ readpage:
+ 		isize = i_size_read(inode);
+ 		end_index = (isize - 1) >> PAGE_CACHE_SHIFT;
+ 		if (unlikely(!isize || index > end_index)) {
+-			page_cache_release(page);
+ 			goto out;
+ 		}
  
+@@ -983,7 +986,6 @@ readpage:
+ 		if (index == end_index) {
+ 			nr = ((isize - 1) & ~PAGE_CACHE_MASK) + 1;
+ 			if (nr <= offset) {
+-				page_cache_release(page);
+ 				goto out;
+ 			}
+ 		}
+@@ -993,7 +995,6 @@ readpage:
+ readpage_error:
+ 		/* UHHUH! A synchronous read error occurred. Report it */
+ 		desc->error = error;
+-		page_cache_release(page);
+ 		goto out;
+ 
+ no_cached_page:
+@@ -1018,6 +1019,9 @@ no_cached_page:
+ 		}
+ 		page = cached_page;
+ 		cached_page = NULL;
++		if (prev_page)
++			page_cache_release(prev_page);
++		prev_page = page;
+ 		goto readpage;
+ 	}
+ 
+@@ -1027,6 +1031,8 @@ out:
+ 	*ppos = ((loff_t) index << PAGE_CACHE_SHIFT) + offset;
+ 	if (cached_page)
+ 		page_cache_release(cached_page);
++	if (prev_page)
++		page_cache_release(prev_page);
+ 	if (filp)
+ 		file_accessed(filp);
+ }
 
 --

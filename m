@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964998AbWE0WOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965007AbWE0WVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964998AbWE0WOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 18:14:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964999AbWE0WOP
+	id S965007AbWE0WVV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 18:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965008AbWE0WVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 18:14:15 -0400
-Received: from mx5.redainternet.nl ([82.98.244.137]:64516 "EHLO
-	mx5.redainternet.nl") by vger.kernel.org with ESMTP id S964998AbWE0WOP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 18:14:15 -0400
-Message-ID: <4478CF33.80609@inn.nl>
-Date: Sun, 28 May 2006 00:14:11 +0200
-From: Arend Freije <afreije@inn.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.8.0.1) Gecko/20060418 SeaMonkey/1.0
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: RAID-1 and Reiser4 issue: umount hangs
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Sat, 27 May 2006 18:21:21 -0400
+Received: from gw.openss7.com ([142.179.199.224]:59305 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id S965007AbWE0WVV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 18:21:21 -0400
+Date: Sat, 27 May 2006 16:21:18 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, devmazumdar <dev@opensound.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: How to check if kernel sources are installed on a system?
+Message-ID: <20060527162118.E15216@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	Lee Revell <rlrevell@joe-job.com>, devmazumdar <dev@opensound.com>,
+	linux-kernel@vger.kernel.org
+References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe> <1148653797.3579.18.camel@laptopd505.fenrus.org> <20060526093530.A20928@openss7.org> <1148732512.3265.0.camel@laptopd505.fenrus.org> <20060527135214.A15216@openss7.org> <1148761299.3265.241.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1148761299.3265.241.camel@laptopd505.fenrus.org>; from arjan@infradead.org on Sat, May 27, 2006 at 10:21:39PM +0200
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Arjan,
 
-I'm using Reiser4 for my filesystems on disk (/dev/sda) , and it works
-just fine. Recently I bought a second disk (/dev/sdb) for RAID-1
-mirroring. With mdadm I created a degraded raid-1 array  on /dev/md/0,
-devices missing,/dev/sdb1. After that I created a Reiser4 filesystem on
-/dev/md/0 and mounted it at /mnt. Then I copied the data from /dev/sda1
-to /mnt.
-All goes well until I umount /mnt, umount simply hangs without any
-error. Syslog doesn't report any error. In /proc/mdstat, the array
-remains "active sync". Shutting down linux fails because the umount is
-still waiting and seems to block other umounts. The umount process
-cannot be killed by the root. A hard reset is the only resolution to get
-my system functioning normally, but without the raid-1 of course.
-The problem seems to emerge only with the combination of RAID and
-Reiser4.  I've created an ext-2 filesystem on /dev/md/0, and after that
-mount ; cp -ax ; umount works without  a problem, and the hanging umount
-re-appears when using Reiser4 again.
+On Sat, 27 May 2006, Arjan van de Ven wrote:
 
-My questions:
-- how can I find the cause of the hanging umount?
-- how can I fix it?
+> On Sat, 2006-05-27 at 13:52 -0600, Brian F. G. Bidulock wrote:
+> > Arjan,
+> > 
+> > On Sat, 27 May 2006, Arjan van de Ven wrote:
+> > 
+> > > 
+> > > > > 
+> > > > 
+> > > > Redhat and SuSE put /boot/config- files of the same name for different
+> > > > architectures (i386, i586) in the same file.  If multiple architecture
+> > > > kernels of the same verion are installed, there is no guarantee that the
+> > > > /boot/config-`uname -r` is not for, say, i686 instead of i386.  
+> > > 
+> > > at least on fedora you can't do that parallel installation anyway
+> > 
+> > rpm --force
+> 
+> at which point 95% of the files get overwritten including the config
+> file, which then points to the right place of the 2nd kernel you abuse
+> onto your system.
 
-A few details of my linux-box:
+But not the right place for the running kernel.  /boot/config-`uname -r` will
+be of the wrong architecture for the running kernel.
 
-Gentoo Linux, 2.6.16 kernel with Reiser4-for-2.6.16-2.patch.gz
-i686 AMD Athlon(tm) XP 2400+
-DC4300 SATA-II controller (Silicon Image 3124, libata + sata_sil24 drivers)
-2 x Samsung SP2504C hard disk
+--brian
 
-Thanx in advance,
-
-Arend
+-- 
+Brian F. G. Bidulock    ¦ The reasonable man adapts himself to the ¦
+bidulock@openss7.org    ¦ world; the unreasonable one persists in  ¦
+http://www.openss7.org/ ¦ trying  to adapt the  world  to himself. ¦
+                        ¦ Therefore  all  progress  depends on the ¦
+                        ¦ unreasonable man. -- George Bernard Shaw ¦

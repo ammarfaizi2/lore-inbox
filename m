@@ -1,111 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751510AbWE0NHx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751511AbWE0NTx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751510AbWE0NHx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 09:07:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbWE0NHx
+	id S1751511AbWE0NTx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 09:19:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751513AbWE0NTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 09:07:53 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:61845 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751510AbWE0NHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 09:07:52 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Sat, 27 May 2006 15:06:38 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 2.6.16.18 4/4] sbp2: add ability to override hardwired
- blacklist
-To: stable@kernel.org
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <tkrat.e72cc97ac35d83e5@s5r6.in-berlin.de>
-Message-ID: <tkrat.5116cb08a76ce5c5@s5r6.in-berlin.de>
-References: <tkrat.b9bf60697156ef7b@s5r6.in-berlin.de>
- <tkrat.0ce6aaa18134ec31@s5r6.in-berlin.de>
- <tkrat.7f23ff12ead1dc67@s5r6.in-berlin.de>
- <tkrat.e72cc97ac35d83e5@s5r6.in-berlin.de>
+	Sat, 27 May 2006 09:19:53 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:51426 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1751511AbWE0NTw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 09:19:52 -0400
+Message-ID: <348735988.17875@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Sat, 27 May 2006 21:20:02 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, joern@wohnheim.fh-wedel.de,
+       ioe-lkml@rameria.de, Martin Peschke <mp3@de.ibm.com>
+Subject: Re: [PATCH 09/33] readahead: events accounting
+Message-ID: <20060527132002.GA4814@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	joern@wohnheim.fh-wedel.de, ioe-lkml@rameria.de,
+	Martin Peschke <mp3@de.ibm.com>
+References: <20060524111246.420010595@localhost.localdomain> <348469540.16036@ustc.edu.cn> <20060525093627.4d37e789.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
-X-Spam-Score: (-0.038) AWL,BAYES_40
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060525093627.4d37e789.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In case the blacklist with workarounds for device bugs yields a false
-positive, the module load parameter can now also be used as an override
-instead of an addition to the blacklist.
+On Thu, May 25, 2006 at 09:36:27AM -0700, Andrew Morton wrote:
+> Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
+> >
+> > A debugfs file named `readahead/events' is created according to advises from
+> >  J?rn Engel, Andrew Morton and Ingo Oeser.
+> 
+> If everyone's patches all get merged up we'd expect that this facility be
+> migrated over to use Martin Peschke's statistics infrastructure.
+> 
+> That's not a thing you should do now, but it would be a useful test of
+> Martin's work if you could find time to look at it and let us know whether
+> the infrastructure which he has provided would suit this application,
+> thanks.
 
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
----
-rediff for -stable, from commit 679c0cd2dd61c825ab910fdbf347a8b7d1dddec4
+Hi, Martin is doing a great job, thanks.
 
- drivers/ieee1394/sbp2.c |   29 ++++++++++++++++++-----------
- drivers/ieee1394/sbp2.h |    1 +
- 2 files changed, 19 insertions(+), 11 deletions(-)
+I have read about its doc.  It should be suitable for various
+readahead numbers. And it seems a trivial work to port to it :)
 
-Index: linux-2.6.16.18/drivers/ieee1394/sbp2.h
-===================================================================
---- linux-2.6.16.18.orig/drivers/ieee1394/sbp2.h	2006-05-27 13:27:02.000000000 +0200
-+++ linux-2.6.16.18/drivers/ieee1394/sbp2.h	2006-05-27 13:27:07.000000000 +0200
-@@ -239,6 +239,7 @@ struct sbp2_status_block {
- #define SBP2_WORKAROUND_INQUIRY_36	0x2
- #define SBP2_WORKAROUND_MODE_SENSE_8	0x4
- #define SBP2_WORKAROUND_FIX_CAPACITY	0x8
-+#define SBP2_WORKAROUND_OVERRIDE	0x100
- 
- /* This is the two dma types we use for cmd_dma below */
- enum cmd_dma_types {
-Index: linux-2.6.16.18/drivers/ieee1394/sbp2.c
-===================================================================
---- linux-2.6.16.18.orig/drivers/ieee1394/sbp2.c	2006-05-27 13:27:02.000000000 +0200
-+++ linux-2.6.16.18/drivers/ieee1394/sbp2.c	2006-05-27 13:27:07.000000000 +0200
-@@ -156,6 +156,11 @@ MODULE_PARM_DESC(exclusive_login, "Exclu
-  *   Tell sd_mod to correct the last sector number reported by read_capacity.
-  *   Avoids access beyond actual disk limits on devices with an off-by-one bug.
-  *   Don't use this with devices which don't have this bug.
-+ *
-+ * - override internal blacklist
-+ *   Instead of adding to the built-in blacklist, use only the workarounds
-+ *   specified in the module load parameter.
-+ *   Useful if a blacklist entry interfered with a non-broken device.
-  */
- static int sbp2_default_workarounds;
- module_param_named(workarounds, sbp2_default_workarounds, int, 0644);
-@@ -164,6 +169,7 @@ MODULE_PARM_DESC(workarounds, "Work arou
- 	", 36 byte inquiry = "    __stringify(SBP2_WORKAROUND_INQUIRY_36)
- 	", skip mode page 8 = "   __stringify(SBP2_WORKAROUND_MODE_SENSE_8)
- 	", fix capacity = "       __stringify(SBP2_WORKAROUND_FIX_CAPACITY)
-+	", override internal blacklist = " __stringify(SBP2_WORKAROUND_OVERRIDE)
- 	", or a combination)");
- 
- /* legacy parameter */
-@@ -1614,17 +1620,18 @@ static void sbp2_parse_unit_directory(st
- 		workarounds |= SBP2_WORKAROUND_INQUIRY_36;
- 	}
- 
--	for (i = 0; i < ARRAY_SIZE(sbp2_workarounds_table); i++) {
--		if (sbp2_workarounds_table[i].firmware_revision &&
--		    sbp2_workarounds_table[i].firmware_revision !=
--		    (firmware_revision & 0xffff00))
--			continue;
--		if (sbp2_workarounds_table[i].model_id &&
--		    sbp2_workarounds_table[i].model_id != ud->model_id)
--			continue;
--		workarounds |= sbp2_workarounds_table[i].workarounds;
--		break;
--	}
-+	if (!(workarounds & SBP2_WORKAROUND_OVERRIDE))
-+		for (i = 0; i < ARRAY_SIZE(sbp2_workarounds_table); i++) {
-+			if (sbp2_workarounds_table[i].firmware_revision &&
-+			    sbp2_workarounds_table[i].firmware_revision !=
-+			    (firmware_revision & 0xffff00))
-+				continue;
-+			if (sbp2_workarounds_table[i].model_id &&
-+			    sbp2_workarounds_table[i].model_id != ud->model_id)
-+				continue;
-+			workarounds |= sbp2_workarounds_table[i].workarounds;
-+			break;
-+		}
- 
- 	if (workarounds)
- 		SBP2_INFO("Workarounds for node " NODE_BUS_FMT ": 0x%x "
+However it might also make sense to keep the current _table_ interface.
+It shows us the whole picture at a glance:
+
+% cat /debug/readahead/events
+[table requests]     total   newfile     state   context  contexta [...]
+cache_miss          136302       538      3860     11317       490
+read_random          62176       160       424      1633        60
+io_congestion            0         0         0         0         0
+io_cache_hit         34521       663     10071     15611      1423
+io_block            204302     42174     10408     68277      2226
+readahead           251478     70746     96846     73636      2561
+lookahead           136315     14805     86267     32738      2505
+lookahead_hit       103384      8038     74605      9097       598
+lookahead_ignore         0         0         0         0         0
+readahead_mmap        6911         0         0         0         0
+readahead_eof        70793     55935      8500       648       581
+readahead_shrink       473         0       473         0         0
+readahead_thrash         0         0         0         0         0
+readahead_mutilt      2526        24      1079      1403        20
+readahead_rescue      1209         0         0         0         0
+
+[table pages]        total   newfile     state   context  contexta
+cache_miss      1292350444    282817  35557285  86087568   5592690
+read_random       10299237       177       426      1903        63
+io_congestion            0         0         0         0         0
+io_cache_hit       2194663      9289   1507054    414311    184715
+io_block            204302     42174     10408     68277      2226
+readahead         26122947    770681  21815335   3097682    259587
+readahead_hit     23101714    588811  19906233   2209547    191269
+lookahead         21397630    173502  19872014    936474    415640
+lookahead_hit     18663196     98004  17879848    596562     88782
+lookahead_ignore         0         0         0         0         0
+readahead_mmap      170509         0         0         0         0
+readahead_eof      1950484    432763   1342148     47368     34742
+readahead_shrink     19900         0     19900         0         0
+readahead_thrash         0         0         0         0         0
+readahead_mutilt    220331       485    186922     29900      3024
+readahead_rescue    119592         0         0         0         0
+
+[table summary]      total   newfile     state   context  contexta
+random_rate            19%        0%        0%        2%        2%
+ra_hit_rate            88%       76%       91%       71%       73%
+la_hit_rate            75%       54%       86%       27%       23%
+var_ra_size          13850       130      5802      6709     10563
+avg_ra_size            104        11       225        42       101
+avg_la_size            157        12       230        29       166
 
 
+When Martin's work is included into -mm, I would like to reduce
+several col/rows from the table to Martin's infrastructure, and
+perhaps add some more items. One obvious candidate collection is the
+ra_account(NULL, ...) calls, which do not quite fit the table
+interface and deserves individual files.
+
+Wu

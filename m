@@ -1,43 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWE0KSn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWE0KYm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751456AbWE0KSn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 06:18:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWE0KSn
+	id S1751034AbWE0KYm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 06:24:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWE0KYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 06:18:43 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:28811 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750740AbWE0KSm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 06:18:42 -0400
-Date: Sat, 27 May 2006 12:15:59 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Jeff Garzik <jeff@garzik.org>
-cc: Git Mailing List <git@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
+	Sat, 27 May 2006 06:24:42 -0400
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:31209 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S1751034AbWE0KYl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 06:24:41 -0400
+Date: Sat, 27 May 2006 12:24:39 +0200
+From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: GIT <git@vger.kernel.org>, Jan Engelhardt <jengelh@linux01.gwdg.de>
 Subject: Re: [SCRIPT] chomp: trim trailing whitespace
-In-Reply-To: <4477B905.9090806@garzik.org>
-Message-ID: <Pine.LNX.4.61.0605271212210.6670@yvahk01.tjqt.qr>
-References: <4477B905.9090806@garzik.org>
+Message-ID: <20060527102439.GB26430@cip.informatik.uni-erlangen.de>
+Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	GIT <git@vger.kernel.org>, Jan Engelhardt <jengelh@linux01.gwdg.de>
+References: <4477B905.9090806@garzik.org> <Pine.LNX.4.61.0605271212210.6670@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0605271212210.6670@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Attached to this email is chomp.pl, a Perl script which removes trailing
-> whitespace from several files.  I've had this for years, as trailing whitespace
-> is one of my pet peeves.
->
-> Now that git-applymbox complains loudly whenever a patch adds trailing
-> whitespace, I figured this script may be useful to others.
->
+Hello,
 
-Pretty long script. How about this two-liner? It does not show 'bytes 
-chomped' but it also trims trailing whitespace.
+> #!/usr/bin/perl -i -p
+> s/[ \t\r\n]+$//
 
-#!/usr/bin/perl -i -p
-s/[ \t\r\n]+$//
+perl -p -i -e 's/\s+$//' file1 file2 file3 ...
 
-
-
-Jan Engelhardt
--- 
+        Thomas

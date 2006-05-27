@@ -1,88 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751642AbWE0P4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751610AbWE0P6L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751642AbWE0P4V (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 11:56:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751599AbWE0PwU
+	id S1751610AbWE0P6L (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 11:58:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751608AbWE0PwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 11:52:20 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:47580 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1751601AbWE0Pvh (ORCPT
+	Sat, 27 May 2006 11:52:06 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:16861 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1751610AbWE0Pvm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 11:51:37 -0400
-Message-ID: <348745094.16246@ustc.edu.cn>
+	Sat, 27 May 2006 11:51:42 -0400
+Message-ID: <348745099.16246@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060527155135.584918734@localhost.localdomain>
+Message-Id: <20060527155140.035991503@localhost.localdomain>
 References: <20060527154849.927021763@localhost.localdomain>
-Date: Sat, 27 May 2006 23:49:09 +0800
+Date: Sat, 27 May 2006 23:49:16 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 20/32] readahead: initial method - user recommended size
-Content-Disposition: inline; filename=readahead-method-initial-size-recommend.patch
+Subject: [PATCH 27/32] readahead: loop case
+Content-Disposition: inline; filename=readahead-loop-case.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-backing_dev_info.ra_pages0 is a user configurable parameter that controls
-the readahead size on start-of-file.
+Disable look-ahead for loop file.
+
+Loopback files normally contain filesystems, in which case there are already
+proper look-aheads in the upper layer, more look-aheads on the loopback file
+only ruins the read-ahead hit rate.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- block/ll_rw_blk.c |   30 ++++++++++++++++++++++++++++++
- 1 files changed, 30 insertions(+)
+I'd like to thank Tero Grundstr?m for uncovering the loopback problem.
 
---- linux-2.6.17-rc4-mm3.orig/block/ll_rw_blk.c
-+++ linux-2.6.17-rc4-mm3/block/ll_rw_blk.c
-@@ -3811,6 +3811,29 @@ queue_ra_store(struct request_queue *q, 
- 	return ret;
- }
+ drivers/block/loop.c |    6 ++++++
+ 1 files changed, 6 insertions(+)
+
+--- linux-2.6.17-rc4-mm3.orig/drivers/block/loop.c
++++ linux-2.6.17-rc4-mm3/drivers/block/loop.c
+@@ -779,6 +779,12 @@ static int loop_set_fd(struct loop_devic
+ 	mapping = file->f_mapping;
+ 	inode = mapping->host;
  
-+static ssize_t queue_initial_ra_show(struct request_queue *q, char *page)
-+{
-+	int kb = q->backing_dev_info.ra_pages0 << (PAGE_CACHE_SHIFT - 10);
++	/*
++	 * The upper layer should already do proper look-ahead,
++	 * one more look-ahead here only ruins the cache hit rate.
++	 */
++	file->f_ra.flags |= RA_FLAG_NO_LOOKAHEAD;
 +
-+	return queue_var_show(kb, (page));
-+}
-+
-+static ssize_t
-+queue_initial_ra_store(struct request_queue *q, const char *page, size_t count)
-+{
-+	unsigned long kb, ra;
-+	ssize_t ret = queue_var_store(&kb, page, count);
-+
-+	ra = kb >> (PAGE_CACHE_SHIFT - 10);
-+	q->backing_dev_info.ra_pages0 = ra;
-+
-+	ra = kb * 1024;
-+	if (q->backing_dev_info.ra_expect_bytes > ra)
-+		q->backing_dev_info.ra_expect_bytes = ra;
-+
-+	return ret;
-+}
-+
- static ssize_t queue_max_sectors_show(struct request_queue *q, char *page)
- {
- 	int max_sectors_kb = q->max_sectors >> 1;
-@@ -3868,6 +3891,12 @@ static struct queue_sysfs_entry queue_ra
- 	.store = queue_ra_store,
- };
+ 	if (!(file->f_mode & FMODE_WRITE))
+ 		lo_flags |= LO_FLAGS_READ_ONLY;
  
-+static struct queue_sysfs_entry queue_initial_ra_entry = {
-+	.attr = {.name = "initial_ra_kb", .mode = S_IRUGO | S_IWUSR },
-+	.show = queue_initial_ra_show,
-+	.store = queue_initial_ra_store,
-+};
-+
- static struct queue_sysfs_entry queue_max_sectors_entry = {
- 	.attr = {.name = "max_sectors_kb", .mode = S_IRUGO | S_IWUSR },
- 	.show = queue_max_sectors_show,
-@@ -3888,6 +3917,7 @@ static struct queue_sysfs_entry queue_io
- static struct attribute *default_attrs[] = {
- 	&queue_requests_entry.attr,
- 	&queue_ra_entry.attr,
-+	&queue_initial_ra_entry.attr,
- 	&queue_max_hw_sectors_entry.attr,
- 	&queue_max_sectors_entry.attr,
- 	&queue_iosched_entry.attr,
 
 --

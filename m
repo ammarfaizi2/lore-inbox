@@ -1,55 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbWE0VKV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbWE0VTU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964976AbWE0VKV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 17:10:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbWE0VKV
+	id S964981AbWE0VTU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 17:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964988AbWE0VTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 17:10:21 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:31158 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964979AbWE0VKT convert rfc822-to-8bit (ORCPT
+	Sat, 27 May 2006 17:19:20 -0400
+Received: from ns.dynamicweb.hu ([195.228.155.139]:3024 "EHLO dynamicweb.hu")
+	by vger.kernel.org with ESMTP id S964981AbWE0VTT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 17:10:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WF8DuExyuJ2W9WHspxHmItIw1JQPmvgRcnHFMxWohE4xsTL3nvyhbda+QkGMeHEMgx3jg/WFPikkedONIQ46Y+J4az2s8GsmgKYyrgqHbq5iBEjmKw9wzpGpZ9r7y1LSTK20pzXMTotRBSrrw6emLAHTYyHSIltnIuNnRyMIJSU=
-Message-ID: <4807377b0605271410j39532f44j2cafd3239d40bf31@mail.gmail.com>
-Date: Sat, 27 May 2006 14:10:17 -0700
-From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
-To: "Aravind Gottipati" <aravind@freeshell.org>
-Subject: Re: e1000 poor network performance - 2.6.17-rc5-g705af309
-Cc: linux-kernel@vger.kernel.org, "NetDEV list" <netdev@vger.kernel.org>
-In-Reply-To: <20060526212243.GA19250@SDF.LONESTAR.ORG>
+	Sat, 27 May 2006 17:19:19 -0400
+Message-ID: <02c701c681d3$2a17e750$1800a8c0@dcccs>
+From: =?iso-8859-1?Q?Haar_J=E1nos?= <djani22@netcenter.hu>
+To: "Andrew Moise" <chops@demiurgestudios.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <20060527210715.GA2866@qix.demiurgestudios.com>
+Subject: Re: DMA errors, then I/O errors, on 2.6.16
+Date: Sat, 27 May 2006 23:18:47 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060526212243.GA19250@SDF.LONESTAR.ORG>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/26/06, Aravind Gottipati <aravind@freeshell.org> wrote:
-> Hi,
+Hi!
+
+I am just a single user, but i have get this too earlier.
+
+If it is a WD hdd, try to use master AND slave on the same cable, or try to
+set "cable select" setting on hdd!
+
+This works for me! ;-)
+
+(Only WD made this for me, and only when it is a single master drive.)
+
+Cheers,
+
+Janos
+----- Original Message ----- 
+From: "Andrew Moise" <chops@demiurgestudios.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Saturday, May 27, 2006 11:07 PM
+Subject: DMA errors, then I/O errors, on 2.6.16
+
+
+>   Running 2.6.16 (and some earlier 2.6 kernels as well), I get
+> occasional DMA failures, which are always followed by the disk not
+> working at all (any request leads to an I/O error).  The log and whatnot
+> follows.  Can anyone tell me what the source of this trouble might be
+> (disk, controller, cable, software)?
+>   Please CC replies to me, as I'm not on the list.  Thanks.
 >
-> I recently started running linux on a new x60 thinkpad and started
-> noticing really poor network performance with this kernel.  I saw some
-> archived threads from a while back saying this could be related to
-> conntracking.  Disabled that (rmmod ip_conntrack) did not fix the
-> problem.  I also tried disabling tso but that didn't have any effect
-> either.  I can reproduce the problem when connected to a 100Mbps switch
-> (I don't have a GigE network to test this with).
+> --- Log:
+>
+> May 27 16:34:44 vino kernel: hda: dma_intr: status=0x7f { DriveReady
+DeviceFault
+>  SeekComplete DataRequest CorrectedError Index Error }
+> May 27 16:34:44 vino kernel: hda: dma_intr: error=0x7f { DriveStatusError
+UncorrectableError SectorIdNotFound TrackZeroNotFound AddrMarkNotFound },
+LBAsect=1495
+> 68083689343, high=8914952, low=8355711, sector=356876123
+> May 27 16:34:44 vino kernel: ide: failed opcode was: unknown
+> May 27 16:34:44 vino kernel: hda: DMA disabled
+> May 27 16:34:44 vino kernel: ide0: reset: master: error (0x0a?)
+> May 27 16:34:44 vino kernel: hda: task_in_intr: status=0x7f { DriveReady
+DeviceFault SeekComplete DataRequest CorrectedError Index Error }
+> May 27 16:34:44 vino kernel: hda: task_in_intr: error=0x7f {
+DriveStatusError UncorrectableError SectorIdNotFound TrackZeroNotFound
+AddrMarkNotFound }, LBAsect=
+> 149568083689343, high=8914952, low=8355711, sector=356876123
+> May 27 16:34:44 vino kernel: ide: failed opcode was: unknown
+> May 27 16:34:44 vino kernel: ide0: reset: master: error (0x0a?)
+> May 27 16:34:44 vino kernel: end_request: I/O error, dev hda, sector
+356876123
+> May 27 16:34:44 vino kernel: end_request: I/O error, dev hda, sector
+356876131
+>
+>   ... and so on, for many more I/O errors.
+>
+> --- Version:
+>
+> Linux version 2.6.16-1-486 (Debian 2.6.16-12) (waldi@debian.org) (gcc
+version 4.0.4 20060422 (prerelease) (Debian 4.0.3-2)) #2 Thu May 4 18:15:54
+UTC 2006
+>
+> --- Disk controller:
+>
+> 0000:00:11.1 IDE interface: VIA Technologies, Inc.
+VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06) (prog-if 8a
+[Master SecP PriP])
+>         Subsystem: VIA Technologies, Inc.: Unknown device aa01
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 32
+>         Interrupt: pin A routed to IRQ 11
+>         Region 4: I/O ports at e000 [size=16]
+>         Capabilities: [c0] Power Management version 2
+>                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+>                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-First, lets move this over to netdev (see CC)
-
-> This laptop uses the Intel 82573L (PCI-Express) chip.  I'd be glad to
-> assist with any toubleshooting/testing w.r.t this.  I am not subscribed
-> to the list, so please cc me on any replies.
-
-What kind of poor performance?  what test? please send the output of
-ethtool -e ethX and ethtool -S ethX after you've been having problems.
-
-please provide more details and we can see if we can help.
-
-Jesse

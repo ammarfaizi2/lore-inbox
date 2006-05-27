@@ -1,72 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964943AbWE0WDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbWE0WFq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964943AbWE0WDl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 18:03:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWE0WDl
+	id S964983AbWE0WFq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 18:05:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWE0WFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 18:03:41 -0400
-Received: from smtp.enter.net ([216.193.128.24]:32011 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S964943AbWE0WDl (ORCPT
+	Sat, 27 May 2006 18:05:46 -0400
+Received: from gw.openss7.com ([142.179.199.224]:48297 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id S964988AbWE0WFp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 18:03:41 -0400
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: OpenGL-based framebuffer concepts
-Date: Sat, 27 May 2006 18:03:17 +0000
-User-Agent: KMail/1.8.1
-Cc: Dave Airlie <airlied@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200605240130.14879.dhazelton@enter.net> <20060526175321.GB3361@ucw.cz>
-In-Reply-To: <20060526175321.GB3361@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 27 May 2006 18:05:45 -0400
+Date: Sat, 27 May 2006 16:05:44 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Lee Revell <rlrevell@joe-job.com>,
+       devmazumdar <dev@opensound.com>, linux-kernel@vger.kernel.org
+Subject: Re: How to check if kernel sources are installed on a system?
+Message-ID: <20060527160544.D15216@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: Kyle Moffett <mrmacman_g4@mac.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Lee Revell <rlrevell@joe-job.com>, devmazumdar <dev@opensound.com>,
+	linux-kernel@vger.kernel.org
+References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe> <1148653797.3579.18.camel@laptopd505.fenrus.org> <20060526093530.A20928@openss7.org> <0E42EDC8-3CC3-4161-8032-9599CA0ED63A@mac.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200605271803.18175.dhazelton@enter.net>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <0E42EDC8-3CC3-4161-8032-9599CA0ED63A@mac.com>; from mrmacman_g4@mac.com on Sat, May 27, 2006 at 10:41:28AM -0400
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 26 May 2006 17:53, Pavel Machek wrote:
-> Hi!
->
-> > > Step 1: add a layer between fbdev and DRM so that they can see each
-> > > other.
-> > >
-> > > Do *NOT* merge fbdev and DRM this is the "wrong answer". They may end
-> > > up merged but firstly let them at least become away of each others
-> > > existence, perhaps a lowerlayer driver that handles PCI functionality.
-> > > All other Step 1s are belong to us.
-> >
-> > Okay. This won't be simple, won't be pretty, but I should be able to
-> > handle it. The problem then becomes: What exactly should this system do?
-> > A layer that sits on top of the PCI/AGP stuff and mediates it for
-> > DRM/fbdev? Isn't easy, isn't simple but I think it is possible.
-> >
-> > Any other option though, would seem to require rebuilding a good deal of
-> > both DRM and fbdev, if not replacing the driver model, because of
-> > difficulties you have previously pointed out.
-> >
-> > If DRM makes use of the lower-level driver, and so does fbdev, then it's
-> > likely possible that the system can provide the information needed to
-> > allow the kernel to composite error messages onto the framebuffer.
-> >
-> > And, really, if there is a common PCI layer beneath the two graphics
-> > systems, they could potentially have some interaction... though to retain
-> > the capacity to compile DRM or fbdev out of the kernel there is no way
-> > that one could depend on the other. Having them intercommunicate, it
-> > seems, would require a third mechanism. Any pointers?
->
-> Well, if drm and fbdev become interdependend while cleaning up... I do
-> not think it is too big problem.
-> 							Pavel
+Kyle,
 
-It's not that, it's that if DRM uses the middle layer to ask the framebuffer 
-for information about the memory layout then it becomes dependant on systems 
-present in the framebuffer driver. The same holds true for the framebuffer 
-using DRM to provide acceleration features.
+On Sat, 27 May 2006, Kyle Moffett wrote:
 
-DRH
+> On May 26, 2006, at 11:35:30, Brian F. G. Bidulock wrote:
+> > On Fri, 26 May 2006, Arjan van de Ven wrote:
+> >> /boot/config-`uname -r`
+> >
+> > Debian (Woody), OTOH strips extra names of their kernels, so 3 or 4  
+> > different releases of the same upstream kernel version all install  
+> > with the same name and report `uname -r` the same.  If multiple of  
+> > these kernels and a vanilla kernel are installed, their config  
+> > files will be difficult to distinguish.  dpkg can be used (similar  
+> > to above for rpm) to test the condition.
+> 
+> Huh?  My Debian system here has:
+> 
+>    /boot/config-2.6.15-1-powerpc-smp
+> 
+> This corresponds to the config of the currently installed version and  
+> revision ("2.6.15-8") of the "linux-image-2.6.15-1-powerpc-smp"  
+> package.  Since you can only have one version of a given package  
+> installed at once, this poses no problems.
+> 
+> If I upgrade to a new one (say "2.6.15-9") that changes the config  
+> slightly or adds a new distro patch, then that config and kernel  
+> image would replace the currently installed one.  If I use make-kpkg  
+> to build and install a custom kernel tuned for "host":
+> 
+>    make-kpkg [args] --append-to-version -zeus1-1-powerpc-smp -- 
+> revision 1 kernel_image
+> 
+> Now I get a package "linux-image-2.6.15-zeus1-1-powerpc-smp" version  
+> "2.6.15-1", with:
+> 
+>    /boot/config-2.6.15-zeus1-1-powerpc-smp
+> 
+> I see no potential for confusion or mismatch here.
+
+Woody, ... I said Woody, not Sarge.
+
+2.4 kernel distributions under Woody had this problem.
+
+--brian
+
+-- 
+Brian F. G. Bidulock    ¦ The reasonable man adapts himself to the ¦
+bidulock@openss7.org    ¦ world; the unreasonable one persists in  ¦
+http://www.openss7.org/ ¦ trying  to adapt the  world  to himself. ¦
+                        ¦ Therefore  all  progress  depends on the ¦
+                        ¦ unreasonable man. -- George Bernard Shaw ¦

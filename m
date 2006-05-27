@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751460AbWE0K6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751473AbWE0LdE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751460AbWE0K6V (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 06:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWE0K6V
+	id S1751473AbWE0LdE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 07:33:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbWE0LdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 06:58:21 -0400
-Received: from 83-221-72-92.dynamic.primacom.net ([83.221.72.92]:8721 "HELO
-	elkhartfire.org") by vger.kernel.org with SMTP id S1751460AbWE0K6U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 06:58:20 -0400
-Message-ID: <644CA52B.ACAD4A0@elkhartfire.org>
-Date: Sat, 27 May 2006 18:37:11 +0700
-From: "Juan Hancock" <MrGrisham@elkhartfire.org>
-User-Agent: Mutt/1.2.5i
-X-Accept-Language: en-us
+	Sat, 27 May 2006 07:33:04 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:50157 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751468AbWE0LdB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 07:33:01 -0400
+Message-ID: <447838EB.9060900@garzik.org>
+Date: Sat, 27 May 2006 07:32:59 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: <linux-kernel@vger.kernel.org>, <majordomo@vger.kernel.org>
-Subject: Potential Inaccuracies with your FICO Rating
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Git Mailing List <git@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [SCRIPT] chomp: trim trailing whitespace
+References: <4477B905.9090806@garzik.org> <Pine.LNX.4.61.0605271212210.6670@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0605271212210.6670@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jan Engelhardt wrote:
+>> Attached to this email is chomp.pl, a Perl script which removes trailing
+>> whitespace from several files.  I've had this for years, as trailing whitespace
+>> is one of my pet peeves.
+>>
+>> Now that git-applymbox complains loudly whenever a patch adds trailing
+>> whitespace, I figured this script may be useful to others.
+>>
+> 
+> Pretty long script. How about this two-liner? It does not show 'bytes 
+> chomped' but it also trims trailing whitespace.
+> 
+> #!/usr/bin/perl -i -p
+> s/[ \t\r\n]+$//
 
-Do you HAVE holdings and need IMMEDIATE 
-assets to regulate ANY way you desire?  
+Yes, it does, but a bit too aggressive for what we need :)
 
-Maybe you feel like to DECREASE your installments 
-by 49% or greater.
+	Jeff
 
-C*redit ratings aren't required with our current offers :
 
-647K @ 3.1 % FlXED
-633K at 2.1 % variabIe
-782K @ 2.6 % lnterest-OnIy
-
-http://okqwerty.net
-
-We will send you a answer in 64 mins.,
-9 out of 10 are approved.
-
-Thank you,
-FRR Banks LLC
-Confirmation Officer
-Juan Hancock
 

@@ -1,52 +1,64 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751444AbWEZUcf (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 26 May 2006 16:32:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751465AbWEZUcf
+	id S1751469AbWE0LOw (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 27 May 2006 07:14:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbWE0LOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 May 2006 16:32:35 -0400
-Received: from abbf107.neoplus.adsl.tpnet.pl ([83.6.195.107]:39180 "HELO
-	nhbragg.com") by vger.kernel.org with SMTP id S1751444AbWEZUce
+	Sat, 27 May 2006 07:14:52 -0400
+Received: from smtpout1222.sc1.cp.net ([64.97.144.222]:55729 "EHLO
+	n007.sc1.cp.net") by vger.kernel.org with ESMTP id S1751469AbWE0LOw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 May 2006 16:32:34 -0400
-Message-ID: <AB01B312.B56FBF0@nhbragg.com>
-Date: Fri, 26 May 2006 14:19:17 -0700
-Reply-To: "Harry Olariu" <RicoSimon@nhbragg.com>
-From: "Harry Olariu" <RicoSimon@nhbragg.com>
-User-Agent: Mozilla 4.7 [en] (Win95; I)
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: <linux-kernel@vger.kernel.org>, <majordomo@vger.kernel.org>
-Subject: Fwd: whole Creddit
-Content-Type: text/plain;
-	charset="us-ascii"
+	Sat, 27 May 2006 07:14:52 -0400
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
-X-Antivirus: avast! (VPS 0621-4, 2006-05-26), Outbound message
-X-Antivirus-Status: Clean
+MIME-Version: 1.0
+From: smith_perry@ivenus.com
+Subject: Commission Agent Needed!!
+X-Sent-From: smith_perry@ivenus.com
+Date: Sat, 27 May 2006 04:13:38 -0700 (PDT)
+X-Mailer: Web Mail 6.2.2-4.1_0
+Message-Id: <20060527111339.7521.fh1045.wm@smtp.sc1.cp.net>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751444AbWEZUcf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751469AbWE0LOw@vger.kernel.org>
 
-Greetings,
+>From The Desk Of
+Mr. Smith Perry
+Chief Executive Officer
+ES Oil and Gas Ltd
+2711 Metrople Square
+2 On Yiu Street
+Hong Kong.
+27/05/2006.
 
-Do you HOLD a house and want IMMEDIATE 
-finances to make use with ANY way you like?  
+I am Mr Smith Perry, Chief Executive Officer of ES Oil
+and Gas Ltd. We are an OPEC members that deals on crude
+oil, raw materials and export to Canada, America,
+Europe and Asia.
+Our company is also into promotions and entertainments.
+We are looking for a reliable commission agent who can
+help us receive payments from
+customers that our company supplies Goods to in
+Canada,America, Europe and Asia as well as making
+Payments through you to us.
+Please if you are reliable and Interested in been a
+commission agent with our company we will be glad but
+you have to be an honest and a trustworthy person.
+ Note that, as our commission agent, you will receive
+some percentage and  motivations on whatever amount
+that is paid by our debtors through you to us.
+Be informed that THERE IS NO  FINANCIAL OBLIGATION AT
+YOUR END as acommission agent. Please, to facilitate
+and proceed if accepted do sendme your information to
+the email: (ceogasltd@yahoo.com.hk)
+Thank you for your time as we are looking forward to
+working With you as you send your response back to us.
+Yours Sincerely,
+Mr Smith Perry.
+Chief Executive Officer.
 
-Perhaps you want to REDUCE your installments 
-by 34% or more.
-
-Cre-dit records are NOT pulled on our current deals :
-
-702K @ 3.2 % fixed
-680K @ 2.5 % VARlABLE
-741K at 3.6 % lnterest-OnIy
-
-http://goodqwert.net
-
-Our Office will provide you a approval within 59 mins.,
-9 out of 10 are accepted.
-
-Best Regards,
-LWE Banking Inc
-Consent Director
-Harry Olariu
+______________________________________________
+Get your free email address from iVenus.com - the web network for European women. 
+Logon to iVenus.com for Competitions, Fashion, Beauty, Health, Horoscopes, Chat, Discussions, Shopping.
 

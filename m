@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751471AbWE0Lls@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbWE0LmG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751471AbWE0Lls (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 07:41:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWE0Lls
+	id S1751467AbWE0LmG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 07:42:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbWE0LmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 07:41:48 -0400
-Received: from smtp1.xs4all.be ([195.144.64.135]:21423 "EHLO smtp1.xs4all.be")
-	by vger.kernel.org with ESMTP id S1751471AbWE0Lls (ORCPT
+	Sat, 27 May 2006 07:42:05 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:63981 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751467AbWE0LmC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 07:41:48 -0400
-Date: Sat, 27 May 2006 13:41:18 +0200
-From: Frank Gevaerts <frank.gevaerts@fks.be>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Frank Gevaerts <frank.gevaerts@fks.be>, linux-kernel@vger.kernel.org,
-       gregkh@suse.de, linux-usb-devel@lists.sourceforge.net
-Subject: Re: usb-serial ipaq kernel problem
-Message-ID: <20060527114118.GB12931@fks.be>
-References: <20060526182217.GA12687@fks.be> <20060526133410.9cfff805.zaitcev@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060526133410.9cfff805.zaitcev@redhat.com>
-User-Agent: Mutt/1.5.9i
-X-FKS-MailScanner: Found to be clean
-X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-105.813,
-	vereist 5, autolearn=not spam, ALL_TRUSTED -3.30, AWL 0.09,
-	BAYES_00 -2.60, USER_IN_WHITELIST -100.00)
+	Sat, 27 May 2006 07:42:02 -0400
+Message-ID: <44783B08.1040803@garzik.org>
+Date: Sat, 27 May 2006 07:42:00 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [SCRIPT] chomp: trim trailing whitespace
+References: <4477B905.9090806@garzik.org> <4477D2D9.5050001@zytor.com>
+In-Reply-To: <4477D2D9.5050001@zytor.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 26, 2006 at 01:34:10PM -0700, Pete Zaitcev wrote:
-> On Fri, 26 May 2006 20:22:17 +0200, Frank Gevaerts <frank.gevaerts@fks.be> wrote:
+H. Peter Anvin wrote:
+> Jeff Garzik wrote:
+>>
+>> Attached to this email is chomp.pl, a Perl script which removes 
+>> trailing whitespace from several files.  I've had this for years, as 
+>> trailing whitespace is one of my pet peeves.
+>>
+>> Now that git-applymbox complains loudly whenever a patch adds trailing 
+>> whitespace, I figured this script may be useful to others.
+>>
 > 
-> > usb 1-4.5.7: USB disconnect, address 79
-> > ------------[ cut here ]------------
-> > kernel BUG at kernel/workqueue.c:110!
-> 
-> Please let me know if this helps:
+> This is the script I use for the same purpose.  It's a bit more 
+> sophisticated, in that it detects and avoids binary files, and doesn't 
+> throw an error if it encounters a directory (which can happen if you 
+> give it a wildcard.)
 
-It didn't help, I still get the error.
+Chewing the EOF blanks is nice.  The only nit I have is that your script 
+rewrites the file even if nothing was changed.
 
-Frank
+	Jeff
 
-> 
-> --- linux-2.6.17-rc2/drivers/usb/serial/usb-serial.c	2006-04-23 21:06:18.000000000 -0700
-> +++ linux-2.6.17-rc2-lem/drivers/usb/serial/usb-serial.c	2006-05-22 21:23:29.000000000 -0700
-> @@ -162,6 +162,8 @@ static void destroy_serial(struct kref *
->  		}
->  	}
->  
-> +	flush_scheduled_work();		/* port->work */
-> +
->  	usb_put_dev(serial->dev);
->  
->  	/* free up any memory that we allocated */
-> 
-> -- Pete
 
--- 
-Frank Gevaerts                                 frank.gevaerts@fks.be
-fks bvba - Formal and Knowledge Systems        http://www.fks.be/
-Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
-B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19
+

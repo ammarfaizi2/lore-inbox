@@ -1,155 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751455AbWE0JfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbWE0J7w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751455AbWE0JfN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 05:35:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbWE0JfN
+	id S1750889AbWE0J7w (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 05:59:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750887AbWE0J7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 05:35:13 -0400
-Received: from fep01-0.kolumbus.fi ([193.229.0.41]:9602 "EHLO
-	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S1750745AbWE0JfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 05:35:11 -0400
-Date: Sat, 27 May 2006 12:34:54 +0300 (EEST)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: James Lamanna <jlamanna@gmail.com>
-cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       Mike Christie <michaelc@cs.wisc.edu>,
-       Bryan Holty <lgeek@frontiernet.net>
-Subject: Re: [OOPS] amrestore dies in kmem_cache_free 2.6.16.18 - cannot
- restore backups!
-In-Reply-To: <Pine.LNX.4.63.0605252224450.4178@kai.makisara.local>
-Message-ID: <Pine.LNX.4.63.0605271202110.10358@kai.makisara.local>
-References: <aa4c40ff0605231824j55c998c3oe427dec2404afba0@mail.gmail.com>
- <Pine.LNX.4.63.0605252224450.4178@kai.makisara.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 27 May 2006 05:59:52 -0400
+Received: from mail.gmx.net ([213.165.64.21]:16597 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750736AbWE0J7w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 05:59:52 -0400
+X-Authenticated: #2308221
+Date: Sat, 27 May 2006 11:59:40 +0200
+From: Christian Trefzer <ctrefzer@gmx.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: tracking Fn key events
+Message-ID: <20060527095939.GA10105@hermes.uziel.local>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5mCyUwZo2JvN/JJP"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 May 2006, Kai Makisara wrote:
 
-> I am adding linux-scsi to recipients (and quoting the whole message for 
-> readers of that list).
-> 
-> On Tue, 23 May 2006, James Lamanna wrote:
-> 
-> > So I was able to recreate this problem on a vanilla 2.6.16.18 with the
-> > following oops..
-> > I'd say this is a serious regression since I cannot restore backups
-> > anymore (I could with 2.6.14.x, but that kernel series had other
-> > issues...)
-> > 
-> > amrestore does manage to read 1 32k block from tape before dying.
-> > 
-> > Any help would be greatly appreciated.
-> > 
-> I have tried 'amrestore' on my machine with 2.6.16.18 but was not able to 
-> reproduce the problem.
+--5mCyUwZo2JvN/JJP
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 
-OK. Now I think I have found something, thanks to Mike Christie's reminder 
-yesterday in another thread that the patch at the end of this message has 
-not been merged into 2.6.16 (and 2.6.17-rcx) ;-)
+Hi all,
 
-I did strace amrestore here and found out that the tape buffer addresses 
-were not aligned at 512 byte boundaries:
+could it be possible to track the Fn key on laptops in a generic way, so
+I might notify a driver to read back register values, ie. on key
+release? I'd like to do this in the driver itself, because the issues at
+hand are very specific to the NeoMagic framebuffer driver implementation
+and its interaction with the hardware.
 
-read(0x3, 0x523380, 0x8000)             = 0x8000
-read(0x3, 0x51b370, 0x8000)             = 0x8000
-
-This meant that st used the internal driver buffer aligned at page 
-boundary as input to scsi_execute_async and the problem fixed by the patch 
-did not occur.
-
-(BTW, I hate this. The SCSI HBA would be perfectly capable to do direct 
-transfers from/to these addresses but the default alignment restrictions 
-prevent this and the HBA driver does not modify the defaults.)
-
-Next I made a test program reading to a buffer with start address I could 
-control. When the offset from page boundary was 0 or not a multiple of 
-512, no errors occurred. When I set the offset to 512, I got the following 
-OOPS (this is from 2.6.17-rc5 with CONFIG_DEBUG_SLAB set but the 
-similarity is obvious):
-
-kfree_debugcheck: out of range ptr fffffffffffffff8h.
------------ [cut here ] --------- [please bite here ] ---------
-Kernel BUG at mm/slab.c:2590
-invalid opcode: 0000 [1] 
-CPU 0 
-Modules linked in: st snd_seq snd_pcm_oss snd_mixer_oss w83627hf hwmon_vid 
-i2c_isa snd_via82xx snd_ac97_codec snd_ac97_bus snd_pcm snd_timer 
-snd_page_alloc snd_mpu401_uart snd_rawmidi snd_seq_device snd i2c_viapro 
-i2c_core ohci1394 ieee1394
-Pid: 11174, comm: talign Not tainted 2.6.17-rc5-g705af309 #7
-RIP: 0010:[<ffffffff8025dd2a>] <ffffffff8025dd2a>{kfree_debugcheck+70}
-RSP: 0018:ffff810011057c68  EFLAGS: 00010096
-RAX: 0000000000000039 RBX: fffffffffffffff8 RCX: ffffffff80558f98
-RDX: ffff810039dbae60 RSI: 0000000000000046 RDI: ffffffff80558f80
-RBP: ffff81003ff991c0 R08: ffffffff80558f98 R09: 0000000000000020
-R10: 0000000000000010 R11: 0000000000000010 R12: fffffffffffffff8
-R13: 0000000000000246 R14: ffffffff80266d70 R15: ffff8100390f28e0
-FS:  00002ba29f0aeb00(0000) GS:ffffffff806c8000(0000) 
-knlGS:00000000563b80c0
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: 00002ba29eed407b CR3: 000000000cdbb000 CR4: 00000000000006e0
-Process talign (pid: 11174, threadinfo ffff810011056000, task 
-ffff810039dbae60)
-Stack: 0000000000000000 ffffffff8025e634 0000000000000000 ffff81003ff991c0 
-       ffff810001fee098 0000000000000246 0000000000000200 ffffffff8025f2a8 
-       ffff81003ff991c0 ffff81000b94e8b0 
-Call Trace: <ffffffff8025e634>{cache_free_debugcheck+35}
-       <ffffffff8025f2a8>{kmem_cache_free+41} 
-<ffffffff80266d70>{bio_free+48}
-       <ffffffff803fa0e5>{scsi_execute_async+374} 
-<ffffffff880edec7>{:st:st_do_scsi+504}
-       <ffffffff880ed045>{:st:st_sleep_done+0} 
-<ffffffff880ed89e>{:st:setup_buffering+516}
-       <ffffffff880f17cd>{:st:st_read+845} 
-<ffffffff8022381d>{__wake_up+54}
-       <ffffffff80262af3>{vfs_read+168} <ffffffff802634b0>{sys_read+69}
-       <ffffffff802095de>{system_call+126}
-
-Code: 0f 0b 68 37 bd 4e 80 c2 1e 0a 48 b8 ff ff ff 7f ff ff ff ff 
-RIP <ffffffff8025dd2a>{kfree_debugcheck+70} RSP <ffff810011057c68>
+The clean alternative of course would be sysfs attributes, but so far I
+could not find ways to tap Fn key events from user space. OTOH, it seems
+strange to me that one might need some sort of daemon running to render
+a display driver functional. So here lies my dilemma in the first place:
+the beast should be self-contained IMHO, but more than a sh*tload of
+hacks in the end.
 
 
-Next thing was to patch 2.6.16.18 with the patch at the end: No more 
-oopses with any alignment.
+This is what I intend to achieve: the neofb driver has issues with
+reading and writing to registers, such as the backlight status bits.
 
-James, does this fix your problem ?
+Until I made the driver re-read the register values in question, the
+thing used to restore previous display configuration (combination of
+internal/external) upon unblanking the display through the usual console
+blanking mechanisms. Now the driver stores the values read during screen
+blanking, avoiding the reset to whichever configuration was active
+during neofb initialization.
 
-Kai
+Now the following problem arises: once I shut the LID, the hardware or
+firmware turns off the backlight, which is somewhat sensible. A few
+minutes later, the console code decides it is time to blank the screen,
+reading back the (now bogus) values. Once the LID is re-opened, the
+display comes back to life, but after the first key stroke the console
+is "un-blanked" and the backlight set to "off". The problem can be
+solved by shutting and opening the LID once more, abusing whatever
+mechanism is designed into the hardware/firmware combo.
 
---------------------------------8<------------------------------------------
+The quick and dirty fix I tried was to use acpid for handling LID events
+such that it should disable/enable console blanking via setterm calls.
+Needless to say, this did not work out as expected and would be not
+quite acceptable if the driver is expected to be self-contained.
 
-Excerpt from a message from Brian Holty to linux-scsi and linux-kernel on
-Wed, 22 Mar 2006 06:35:39:
+My favourite solution would be wiretapping the Fn key, sending the neofb
+driver an event whenever it is _released_. After a minimal timeout, the
+register values should have changed underneath and neofb could read back
+the values, thus properly accounting for any changes therein.
 
-...
-Based on above, I think the most intuitive fix would be the offset addition of 
-the first entry to the initialization of nr_pages.  
+Any hints appreciated!
 
-Without this change, for instance, with 4K io's every sg io that is 
-dma_aligned for direct io, but not page aligned will cause slab corruption 
-and an oops
+Kind regards,
+Chris
 
-I am able to run a number of tests with sg that cause the boundary to be 
-crossed, and with this fix there is no slab corruption or data corruption.
+--5mCyUwZo2JvN/JJP
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Thanks Dan, I had been hunting for this for a couple of days!!
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-Thoughts??
+iQIVAwUBRHgjCl2m8MprmeOlAQIABg/+PS4D04Nn/4a6y94TUeZkvfYPyLJX3OXI
+V01P3lV70Nks3JJAW/EJnD+RpI1HaO1mLhrxCBR82lum85XWP5mTdBqSQtYI/YNV
+0ns9OdLQlioXm+0egInTQdLq6MHzJ+4iLpzwLV7N9pvnuJASXfGIF/7bj7iVVeUj
+2rnB1VEh+X3jkTOnLZlNRM4Zyuai1t1jqF/BZ0cXvEV09dNlRMyodDnYJIo3ih5T
+BeG6eZYnvnOreDFEmKMTYtzFDEqAUk71EAWppXAsnpkQR0LjuvmBGS+2u+5CY0qf
+Ql1iSUyDRKCIvSlZC+qCxwAjz259hBAZT7GiyJrqZZk/gYFoo+WKpQD4qGTm4fNv
+O1U7CKlySgMUCcLaQ5PPOkPj+eDXhKG90jiFSNpDFLCh/osKMK30JmjtF8mofDlv
+4kN5G1/q+Nr+I8T822+gQ2l6xzV7Zzc436+t75WhMl+ywNrbg+sUd5KNY6fHaikB
+p9FbjtaG3dCRqllt0VUC0BrIcpLQiGPDxcNwlgB2F+Hs7Y1e6YB6/vaqQgJ3Kcdh
+0520bDvBeA6vRFhg7a+C8bWPeyiGt7Qv5AGTUEj5/24aSmYyefxEM0BN1gFM2lJn
+oskLNyUfNBsfvgKToB81mXoqImlq6G+l9EzFA453fnAmQmsNiD+7ORlOxNtUZolI
+v4ailpbPjqw=
+=iqyw
+-----END PGP SIGNATURE-----
 
-Signed-off-by: Bryan Holty <lgeek@frontiernet.net>
+--5mCyUwZo2JvN/JJP--
 
- --- a/drivers/scsi/scsi_lib.c	2006-03-03 13:17:22.000000000 -0600
-+++ b/drivers/scsi/scsi_lib.c	2006-03-22 06:09:09.669599539 -0600
-@@ -368,7 +368,7 @@
- 			   int nsegs, unsigned bufflen, gfp_t gfp)
- {
- 	struct request_queue *q = rq->q;
--	int nr_pages = (bufflen + PAGE_SIZE - 1) >> PAGE_SHIFT;
-+	int nr_pages = (bufflen + sgl[0].offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
- 	unsigned int data_len = 0, len, bytes, off;
- 	struct page *page;
- 	struct bio *bio = NULL;

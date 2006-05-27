@@ -1,78 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbWE1CJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965017AbWE1COK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965013AbWE1CJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 22:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbWE1CJ7
+	id S965017AbWE1COK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 22:14:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965052AbWE1COJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 22:09:59 -0400
-Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:54664 "EHLO
-	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S965013AbWE1CJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 22:09:58 -0400
-Message-ID: <44790673.9070803@bigpond.net.au>
-Date: Sun, 28 May 2006 12:09:55 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Sat, 27 May 2006 22:14:09 -0400
+Received: from smtp.enter.net ([216.193.128.24]:9225 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S965017AbWE1COI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 22:14:08 -0400
+From: "D. Hazelton" <dhazelton@enter.net>
+To: "Jon Smirl" <jonsmirl@gmail.com>
+Subject: Re: OpenGL-based framebuffer concepts
+Date: Sat, 27 May 2006 22:13:57 +0000
+User-Agent: KMail/1.8.1
+Cc: "Pavel Machek" <pavel@ucw.cz>, "Dave Airlie" <airlied@gmail.com>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200605271801.36942.dhazelton@enter.net> <9e4733910605271703p5f9de85dw74bc97d86d9a3cd7@mail.gmail.com>
+In-Reply-To: <9e4733910605271703p5f9de85dw74bc97d86d9a3cd7@mail.gmail.com>
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
-       Rene Herman <rene.herman@keyaccess.nl>
-Subject: Re: [RFC 3/5] sched: Add CPU rate hard caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>	 <200605262100.22071.kernel@kolivas.org>  <447709B3.80309@bigpond.net.au>	 <1148653398.8321.7.camel@homer>  <44779A61.7070002@bigpond.net.au> <1148722087.7578.15.camel@homer>
-In-Reply-To: <1148722087.7578.15.camel@homer>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sun, 28 May 2006 02:09:56 +0000
+Content-Disposition: inline
+Message-Id: <200605272213.58015.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> On Sat, 2006-05-27 at 10:16 +1000, Peter Williams wrote:
->> Mike Galbraith wrote:
->>> On Fri, 2006-05-26 at 23:59 +1000, Peter Williams wrote:
->>>> Con Kolivas wrote:
->>>>> On Friday 26 May 2006 14:20, Peter Williams wrote:
->>>>>> This patch implements hard CPU rate caps per task as a proportion of a
->>>>>> single CPU's capacity expressed in parts per thousand.
->>>>> A hard cap of 1/1000 could lead to interesting starvation scenarios where a 
->>>>> mutex or semaphore was held by a task that hardly ever got cpu. Same goes to 
->>>>> a lesser extent to a 0 soft cap. 
->>>>>
->>>>> Here is how I handle idleprio tasks in current -ck:
->>>>>
->>>>> http://ck.kolivas.org/patches/2.6/pre-releases/2.6.17-rc5/2.6.17-rc5-ck1/patches/track_mutexes-1.patch
->>>>> tags tasks that are holding a mutex
->>>>>
->>>>> http://ck.kolivas.org/patches/2.6/pre-releases/2.6.17-rc5/2.6.17-rc5-ck1/patches/sched-idleprio-1.7.patch
->>>>> is the idleprio policy for staircase.
->>>>>
->>>>> What it does is runs idleprio tasks as normal tasks when they hold a mutex or 
->>>>> are waking up after calling down() (ie holding a semaphore).
->>>> I wasn't aware that you could detect those conditions.  They could be 
->>>> very useful.
->>> Isn't this exactly what the PI code is there to handle?  Is something
->>> more than PI needed?
->>>
->> AFAIK (but I may be wrong) PI is only used by RT tasks and would need to 
->> be extended.  It could be argued that extending PI so that it can be 
->> used by non RT tasks is a worthwhile endeavour in its own right.
-> 
-> Hm.  Looking around a bit, it appears to me that we're one itty bitty
-> redefine away from PI being global.  No idea if/when that will happen
-> though.
+On Sunday 28 May 2006 00:03, Jon Smirl wrote:
+> On 5/27/06, D. Hazelton <dhazelton@enter.net> wrote:
+> > On Friday 26 May 2006 17:39, Pavel Machek wrote:
+> > > Could fb and drm simply be 'merged' into one driver (at least as far
+> > > as rest of system is concerned)? That should have no driver model
+> > > issues...?
+> > >                                                       Pavel
+> >
+> > And such was my original idea. However I've been informed that doing such
+> > would either constitute "Breaking working systems" or "introducing a
+> > third and unneeded driver".
+> >
+> > For that reason I've begun doing a bit of research and planning... it
+> > might show fruit in a couple of days.
+>
+> The simplest solution to starting a DRM/fbdev merge is to declare
+> fbdev the bottom layer that binds to the hardware. Doing this is easy
+> since the fbdev drivers already contain code for binding to the
+> hardware. If you don't do this and instead create a new bottom layer
+> that binds, you are forced into modifying the 60 existing fbdev
+> drivers to remove their binding code and to use the new layer. I don't
+> see anyone volunteering to edit 60 fbdev drivers.
 
-It needs slightly more than that.  It's currently relying on the way 
-tasks with prio less than MAX_RT_PRIO are treated to prevent the 
-priority of tasks who are inheriting a priority from having that 
-priority reset to their normal priority at various places in sched.c. 
-So something would need to be done in that regard but it shouldn't be 
-too difficult.
+Okay. This, at least, sounds like a system that should work. I was thinking of 
+similar, but after the shitstorm that I saw over the idea I decided to wait 
+and do some research.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+> DRM drivers currently works in stealth mode. They use the graphics
+> hardware without attaching to it like a normal PCI driver would. Using
+> hardware in stealth mode is a bad design, but DRM can't be modified to
+> attach to the PCI device because it would conflict with the fbdev
+> driver that is already attached.
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Yes, I noticed this while studying the DRM code. Part of me doing this, 
+actually, will also be updating the DRM in kernel to the latest release. 
+(Doing such provides at least one new DRM driver that already has it's X 
+counterpart in the 6.8.2 tree)
+
+> So, the easiest way to fix this is to change the eight DRM drivers in
+> the kernel so that they are linked to their corresponding fbdev
+> driver. After these changes you would not be able to load the DRM
+> drivers without also loading their corresponding base fbdev driver.
+> The embedded people are still happy since they can load fbdev and
+> ignore DRM. Note that you can use symbols to create a dependency
+> without changing the existing functions of either driver.
+
+Okay. Sounds easy enough. Just need to have DRM reliant on symbols in the 
+fbdev code. And you are correct about the embedded people - I'd actually 
+forgotten about them when I originally made the proposal of merging DRM with 
+fbdev.
+
+> Making the drivers dependent starts us down the path of a full merge
+> and having one driver in control of the hardware. As part of the basic
+> merge patch I would also move the drm directory from drivers/char/drm
+> to drivers/video/drm. After this very basic linkage is established you
+> can start making real changes.
+
+Fully merging fbdev with DRM would really create some problems for the 
+embedded people. If the design of using the fbdev driver as a base layer and 
+the DRM drivers as an acceleration layer works then that's all that's truly 
+needed. Merging the DRM and fbdev code bases would create a situation where 
+the embedded people would have to configure *out* the DRM code that has been 
+merged into the fbdev drivers. Not only would such a thing create potential 
+bugs in the system, it is a step that could create problems with people 
+maintaining the .config's for those systems.
+
+> BTW, I have already submitted a patch that does this and it was
+> rejected. I might be able to find it somewhere, but the dependency
+> code is not very hard to write.
+
+If you can find it Jon, I'd appreciate it. If not, then I'll have to dive into 
+the code head first and hope I don't drown in it.
+
+DRH

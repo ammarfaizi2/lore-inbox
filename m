@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964918AbWE0RXY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbWE0RZ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964918AbWE0RXY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 13:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbWE0RXY
+	id S964921AbWE0RZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 13:25:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWE0RZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 13:23:24 -0400
-Received: from saltmine.radix.net ([207.192.128.40]:18371 "EHLO
-	saltmine.radix.net") by vger.kernel.org with ESMTP id S964918AbWE0RXX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 13:23:23 -0400
-Date: Sat, 27 May 2006 13:23:22 -0400 (EDT)
-From: Marshall DeBerry <mdb@radix.net>
-Message-Id: <200605271723.k4RHNMsk015026@saltmine.radix.net>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: udev "unable to handle kernel paging request" FC5 2.6.16-1.2122
+	Sat, 27 May 2006 13:25:58 -0400
+Received: from wx-out-0102.google.com ([66.249.82.207]:63831 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S964921AbWE0RZ5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 13:25:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=tXfSwZ5eeC2pTHNO9Kl1FApstoxUtwZ7yqMfzrwU8w2iaEEU1ERAgaFhgaVWudZ3hT9LYcy2OgTAJRebJysW5il9Und1sFPY8YnTFvRKWD/LLBQS031RcT4a0SWdRX/RE3w4QOmyTwi4LZsJYpFbIRONtAtxfPvmnrAzfb2Q/PY=
+Message-ID: <58d0dbf10605271025h5f79cec1u328d9cfb5fd51c5d@mail.gmail.com>
+Date: Sat, 27 May 2006 19:25:57 +0200
+From: "Jan Kiszka" <jan.kiszka@googlemail.com>
+To: "Michael Opdenacker" <michael-lists@free-electrons.com>
+Subject: Re: New Linux Cross Reference (LXR) site
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <44742166.20907@free-electrons.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <44742166.20907@free-electrons.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Over the past several kernel upgrades, I've begun to have problems getting
-past the udev section of FC5.  Sometimes I get the "unable to handle kernel
-paging request" message at the udev, other times it just sits until I turn 
-the machine off, sometimes it seems to generate an oops, and dumps until
-I turn the machine off.  Some of the dump messages have the following:
-do_page_fault + 0x0/0x51d or do_page_fault + 0x8a/0x51d repeated over and over.
+2006/5/24, Michael Opdenacker <michael-lists@free-electrons.com>:
+> Hello,
+>
+> As the number of such sites is still very small, I set up a new LXR
+> site: http://lxr.free-electrons.com/
+>
 
-Machine is a Dell 4550, with the following info:
-Linux version 2.6.16-1.2122_FC5
-Cpuinfo: Intel(R) Pentium(R) 4 CPU 2.53GHz
-Firewire: FireWire (IEEE 1394): Texas Instruments TSB12LV26 IEEE-1394 Controller
-Video:  ATI Technologies Inc Radeon RV250 [Radeon 9000]
-PCI Bridge: Intel Corporation 82845G/GL[Brookdale-G]/GE/PE Host-to-AGP
-Sound card: Creative Labs [SB Live! Value] EMU10k1X
-Ethernet: Intel Corporation 82801DB PRO/100 VE (LOM)
-Modem:  Conexant Unknown device 2702 (rev 01)
-Mouse:  Logitech USB Optical Mouse
-Memory:  1035444 kB
+You obviously use a quite recent lxr version. Which one? I have a
+number of projects still referenced via lxr 0.3.1 because it's easy to
+maintain and does not require a bunch of additional software. Maybe I
+should really update...
 
-I haven't been able to get a complete copy of the dump when it happens, but
-was able to copy the do_page_faults by hand this last fault.
+Recently I started to experiment with OpenGrok
+(http://www.opensolaris.org/os/project/opengrok), also for kernel
+trees. Quite easy to handle, and I was enthusiastic about it first.
+But it is not yet as robust as the lxr behind your site (reference
+links are occasionally missing in the code), it's history mechanism is
+not comparable to lxr's versioning, and arch-switching is lacking.
 
-Any insights would be appreciated.
+Jan

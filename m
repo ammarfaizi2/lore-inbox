@@ -1,91 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751499AbWE0MYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWE0MmN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751499AbWE0MYh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 08:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWE0MYZ
+	id S1751125AbWE0MmN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 08:42:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWE0MmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 08:24:25 -0400
-Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:19675 "EHLO
-	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1751499AbWE0MXw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 08:23:52 -0400
-From: Catalin Marinas <catalin.marinas@gmail.com>
-Subject: [PATCH 2.6.17-rc5 5/7] Add kmemleak support for ARM
-Date: Sat, 27 May 2006 13:23:48 +0100
-To: linux-kernel@vger.kernel.org
-Message-Id: <20060527122348.21451.41834.stgit@localhost.localdomain>
-In-Reply-To: <20060527120709.21451.3187.stgit@localhost.localdomain>
-References: <20060527120709.21451.3187.stgit@localhost.localdomain>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.9
+	Sat, 27 May 2006 08:42:13 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:29839 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751026AbWE0MmM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 08:42:12 -0400
+Date: Sat, 27 May 2006 14:42:02 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jeff Garzik <jeff@garzik.org>
+cc: Git Mailing List <git@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [SCRIPT] chomp: trim trailing whitespace
+In-Reply-To: <447838EB.9060900@garzik.org>
+Message-ID: <Pine.LNX.4.61.0605271441080.4857@yvahk01.tjqt.qr>
+References: <4477B905.9090806@garzik.org> <Pine.LNX.4.61.0605271212210.6670@yvahk01.tjqt.qr>
+ <447838EB.9060900@garzik.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Catalin Marinas <catalin.marinas@arm.com>
+>> Pretty long script. How about this two-liner? It does not show 'bytes
+>> chomped' but it also trims trailing whitespace.
+>> 
+>> #!/usr/bin/perl -i -p
+>> s/[ \t\r\n]+$//
+>
+> Yes, it does, but a bit too aggressive for what we need :)
+>
+Whoops, should have been s/[ \t\r]+$//
+And the CL form is
+  perl -i -pe '...'
 
-This patch modifies the vmlinux.lds.S script and adds the backtrace support
-for ARM to be used with kmemleak.
+Somehow, you can't group it to -ipe, but who cares.
 
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
----
 
- arch/arm/kernel/vmlinux.lds.S |    7 +++++++
- include/asm-arm/processor.h   |   12 ++++++++++++
- 2 files changed, 19 insertions(+), 0 deletions(-)
-
-diff --git a/arch/arm/kernel/vmlinux.lds.S b/arch/arm/kernel/vmlinux.lds.S
-index 2b254e8..c6f038c 100644
---- a/arch/arm/kernel/vmlinux.lds.S
-+++ b/arch/arm/kernel/vmlinux.lds.S
-@@ -68,6 +68,11 @@ #endif
- 		__per_cpu_start = .;
- 			*(.data.percpu)
- 		__per_cpu_end = .;
-+#ifdef CONFIG_DEBUG_MEMLEAK
-+		__memleak_offsets_start = .;
-+			*(.init.memleak_offsets)
-+		__memleak_offsets_end = .;
-+#endif
- #ifndef CONFIG_XIP_KERNEL
- 		__init_begin = _stext;
- 		*(.init.data)
-@@ -110,6 +115,7 @@ #endif
- 
- 	.data : AT(__data_loc) {
- 		__data_start = .;	/* address in memory */
-+		_sdata = .;
- 
- 		/*
- 		 * first, the init task union, aligned
-@@ -158,6 +164,7 @@ #endif
- 		__bss_start = .;	/* BSS				*/
- 		*(.bss)
- 		*(COMMON)
-+		__bss_stop = .;
- 		_end = .;
- 	}
- 					/* Stabs debugging sections.	*/
-diff --git a/include/asm-arm/processor.h b/include/asm-arm/processor.h
-index 04f4d34..feaf017 100644
---- a/include/asm-arm/processor.h
-+++ b/include/asm-arm/processor.h
-@@ -121,6 +121,18 @@ #define spin_lock_prefetch(x) do { } whi
- 
- #endif
- 
-+#ifdef CONFIG_FRAME_POINTER
-+static inline unsigned long arch_call_address(void *frame)
-+{
-+	return *(unsigned long *) (frame - 4) - 4;
-+}
-+
-+static inline void *arch_prev_frame(void *frame)
-+{
-+	return *(void **) (frame - 12);
-+}
-+#endif
-+
- #endif
- 
- #endif /* __ASM_ARM_PROCESSOR_H */
+Jan Engelhardt
+-- 

@@ -1,41 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964967AbWE0XCI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbWE0XMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964967AbWE0XCI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 19:02:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965010AbWE0XCH
+	id S964960AbWE0XMz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 19:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964966AbWE0XMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 19:02:07 -0400
-Received: from rtsoft2.corbina.net ([85.21.88.2]:35050 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S964967AbWE0XCG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 19:02:06 -0400
-Message-ID: <4478DA36.90408@ru.mvista.com>
-Date: Sun, 28 May 2006 03:01:10 +0400
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
+	Sat, 27 May 2006 19:12:55 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:13726 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S964960AbWE0XMy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 19:12:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:x-enigmail-version:content-type:content-transfer-encoding;
+        b=MkFhWQHfhafpN4dKQg8OM20p8FlYd/GAoGlqP7ESXGMhrvRTrZrGFErxqPpPdKdVWlHoA6FT8yrWciwAdN3ZSWRDsmx07h9LmS7wmmgG7M7egSBN6tkKxmCiu7yn7k2HoSMyGYQVVlh94MPMwPoHQUGC9Sb7pYLMMYE9iGeeXqQ=
+Message-ID: <4478DCF1.8080608@gmail.com>
+Date: Sun, 28 May 2006 01:12:26 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>, Andrew Morton <akpm@osdl.org>
-CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] HPT3xx: switch to using pci_find_slot()
-References: <444B3BDE.1030106@ru.mvista.com> <4457DC97.3010807@ru.mvista.com> <445A5A1B.60903@ru.mvista.com> <446A55D6.90507@ru.mvista.com> <446ED8A3.6030702@ru.mvista.com> <4478CD3D.6010409@ru.mvista.com> <4478D889.506@gmail.com>
-In-Reply-To: <4478D889.506@gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Jeff Garzik <jgarzik@pobox.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Greg KH <gregkh@suse.de>
+Subject: searching for pci busses
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Hello,
 
-Jiri Slaby wrote:
-> Sergei Shtylyov napsal(a):
+I want to ask, if there is any function to call (as we debated with Jeff), which
+does something like this:
+1) I have some vendor/device ids in table
+2) I want to traverse raws of the table and compare to system devices, and if
+found, stop and return pci_dev struct (or raw in the table).
+I have this code for the time being:
 
->>   Switch to using pci_find_slot() to get to the function 1 of HPT36x/374
+static struct pci_device_id ids[] = {
+    { PCI_DEVICE(0x1234, 0x4321) },
+    /* ... whatever ... */
+    { 0 }
+};
 
-> Better to use pci_get_slot()+pci_dev_put(), i. e. refcounting.
+for (id = ids; id->vendor; id++) {
+  d = pci_get_device(id->vendor, id->device, NULL);
+  if (d != NULL) {
+    /* get some info */
+    pci_dev_put(d);
+    break;
+  }
+}
 
-    Indeed. I'll recast.
+I'm searching for a bus or something, which is only one in the system, but would
+be made by more vendors.
+Simply, something like pci_dev_present(), but with a result of pci_dev or index
+of the raw in the ids table corresponding to the found device (instead of
+returning 0/1).
 
-WBR, Sergei
+thanks,
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E

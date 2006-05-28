@@ -1,99 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWE1WiG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbWE1WrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751020AbWE1WiG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 18:38:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWE1WiG
+	id S1751019AbWE1WrD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 18:47:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWE1WrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 18:38:06 -0400
-Received: from lug-owl.de ([195.71.106.12]:3224 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1751020AbWE1WiF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 18:38:05 -0400
-Date: Mon, 29 May 2006 00:38:03 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       devmazumdar <dev@opensound.com>, linux-kernel@vger.kernel.org
-Subject: Re: How to check if kernel sources are installed on a system?
-Message-ID: <20060528223803.GT13513@lug-owl.de>
-Mail-Followup-To: Lee Revell <rlrevell@joe-job.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Heiko Carstens <heiko.carstens@de.ibm.com>,
-	devmazumdar <dev@opensound.com>, linux-kernel@vger.kernel.org
-References: <1148653797.3579.18.camel@laptopd505.fenrus.org> <20060528130320.GA10385@osiris.ibm.com> <1148835799.3074.41.camel@laptopd505.fenrus.org> <1148838738.21094.65.camel@mindpipe> <1148839964.3074.52.camel@laptopd505.fenrus.org> <1148846131.27461.14.camel@mindpipe> <20060528204558.GR13513@lug-owl.de> <1148851660.27461.23.camel@mindpipe> <20060528215504.GS13513@lug-owl.de> <1148853773.28334.9.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Fh5LqGQwq8YwuKb/"
-Content-Disposition: inline
-In-Reply-To: <1148853773.28334.9.camel@mindpipe>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+	Sun, 28 May 2006 18:47:03 -0400
+Received: from watts.utsl.gen.nz ([202.78.240.73]:25236 "EHLO
+	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S1751019AbWE1WrB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 18:47:01 -0400
+Message-ID: <447A2853.2080901@vilain.net>
+Date: Mon, 29 May 2006 10:46:43 +1200
+From: Sam Vilain <sam@vilain.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>
+Cc: Mike Galbraith <efault@gmx.de>, Peter Williams <pwil3058@bigpond.net.au>,
+       Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
+       Rene Herman <rene.herman@keyaccess.nl>,
+       Herbert Poetzl <herbert@13thfloor.at>, Kirill Korotaev <dev@sw.ru>
+Subject: Re: [RFC 0/5] sched: Add CPU rate caps
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest> <1148630661.7589.65.camel@homer> <20060526161148.GA23680@atjola.homenet>
+In-Reply-To: <20060526161148.GA23680@atjola.homenet>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Björn Steinbrink wrote:
 
---Fh5LqGQwq8YwuKb/
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>>The killer problem I see with this approach is that it doesn't address
+>>the divide and conquer problem.  If a task is capped, and forks off
+>>workers, each worker inherits the total cap, effectively extending same.
+>>    
+>>
 
-On Sun, 2006-05-28 18:02:53 -0400, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Sun, 2006-05-28 at 23:55 +0200, Jan-Benedict Glaw wrote:
-> Chicken and egg problem.  Users have hardware and they want to run Linux
-> on it.  It's not always feasible for them to verify Linux compatibility
-> before they buy.  And some vendors like BenQ even ship a Linux CD with
-> their laptops even though the sound doesn't work on any BenQ system -
-> they obviously did not even try it.  So we have a large population of
-> users who would love to run Linux but can't until we support their
-> hardware.
+Yes, although the current thinking is that you need to set a special
+clone() flag (which may be restricted via capabilities such as
+CAP_SYS_RESOURCE) to set a new CPU scheduling namespace, so the workers
+will inherit the same scheduling ns and therefore be accounted against
+the one resource.
 
-In my world, "we" also contains the user. If a user doesn't want to
-eg. re-test with upstream kernels or consider to put other efforts
-(like paying developers or learning to code), then re doesn't *really*
-want it supported.
+Sorry if I'm replying out of context, I'll catch up on this thread
+shortly.  Thanks for including me.
 
-> >  If there's a user that *really* wants that hardware supported,
-> > then they will put effort into getting it to work, either by helping
-> > debugging, hacking or by paying some expert to reverse-engineer an
-> > existing driver.
->=20
-> There are many users who *really* want their hardware supported but
-> don't have the funds or the know-how to do any of these.  Like all of
-> these users:
->=20
-> https://bugtrack.alsa-project.org/alsa-bug/view.php?id=3D1134
+>>IMHO, per task resource management is too severely limited in it's
+>>usefulness, because jobs are what need managing, and they're seldom
+>>single threaded.  In order to use per task limits to manage any given
+>>job, you have to both know the number of components, and manually
+>>distribute resources to each component of the job.  If a job has a
+>>dynamic number of components, it becomes impossible to manage.
+>>    
+>>
+>
+>Linux-VServer uses a token bucket scheduler (TBS) to limit cpu ressources
+>for processes in a "context". All processes in a context share one token
+>bucket, which has a set of parameters to tune scheduling behaviour.
+>As the token bucket is shared by a group of processes, and inherited by
+>child processes/threads, management is quite easy. And the parameters
+>can be tuned to allow different scheduling behaviours, like allowing a
+>process group to burst, ie. use as much cpu time as is available, after
+>being idle for some time, but being limited to X % cpu time on average.
+>  
+>
 
-I accept the no-money argument, but not the no-knowledge one. Anybody
-can learn, can't they?
+This is correct.  Basically I read the LARTC.org (which explains Linux
+network schedulers etc) and the description of the Token Bucket
+Scheduler inspired me to write the same thing for CPU resources.  It was
+originally developed for the 2.4 Alan Cox series kernels.  The primary
+design guarantee of the scheduler is a low total performance impact -
+maximum CPU utilisation prioritisation and fairness a secondary
+concern.  It was built with the idea that people wanting different sorts
+of scheduling policies could at least get a set of userland controls to
+implement their approach - to the limit of the effectiveness of task
+priorities.
 
-MfG, JBG
+I most recently described this at http://lkml.org/lkml/2006/3/29/59, a
+lot of that thread is probably worth catching up on.
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+It would be nice if we could somehow re-use the scheduling algorithms in
+use in the network space here, if it doesn't impact on performance.
 
---Fh5LqGQwq8YwuKb/
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+For instance, the "CBQ" network scheduler is the same approach as used
+in OpenVZ's CPU scheduler, and the classful Token Bucket Filter is the
+approach used in VServer.  The "Sched_prio" and "Sched_hard" distinction
+in vserver could probably be compared to "Ingres Policing", where
+available CPU that could run a process instead sits idle - similar to
+the network world where data that has arrived is dropped to try to
+convince the application to throttle its network activity.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+As in the network space (http://lkml.org/lkml/2006/5/19/216) in this
+space we have a continual scale of possible implementations, marked by a
+highly efficient solution akin to "binding" at one end, and a
+virtualisation at the other.  Each deliver guarantees most applicable to
+certain users or workloads.
 
-iD8DBQFEeiZLHb1edYOZ4bsRAhmBAJ9EqKq7deSItrtcp6DCJmqc6GW78wCfQ2IW
-Hg5k86d3/sdwoY3XkP6o6dg=
-=Vloj
------END PGP SIGNATURE-----
+Sam.
 
---Fh5LqGQwq8YwuKb/--
+>I'm CC'ing Herbert and Sam on this as they can explain the whole thing a
+>lot better and I'm not familiar with implementation details.
+>
+>Regards
+>Björn
+>  
+>
+

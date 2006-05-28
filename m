@@ -1,80 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWE1TXH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750864AbWE1TXi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750815AbWE1TXH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 15:23:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWE1TXG
+	id S1750864AbWE1TXi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 15:23:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWE1TXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 15:23:06 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:29968 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1750815AbWE1TXG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 15:23:06 -0400
-Date: Sun, 28 May 2006 21:10:45 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       devmazumdar <dev@opensound.com>, linux-kernel@vger.kernel.org
-Subject: Re: How to check if kernel sources are installed on a system?
-Message-ID: <20060528191045.GY11191@w.ods.org>
-References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe> <1148653797.3579.18.camel@laptopd505.fenrus.org> <20060528130320.GA10385@osiris.ibm.com> <1148835799.3074.41.camel@laptopd505.fenrus.org> <1148838738.21094.65.camel@mindpipe> <1148839964.3074.52.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1148839964.3074.52.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.10i
+	Sun, 28 May 2006 15:23:38 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:55126 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1750761AbWE1TXh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 15:23:37 -0400
+Message-ID: <4479F8B5.90906@tls.msk.ru>
+Date: Sun, 28 May 2006 23:23:33 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Mail/News 1.5 (X11/20060318)
+MIME-Version: 1.0
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>, Michael Tokarev <mjt@tls.msk.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/32] Adaptive readahead V14
+References: <348745084.15239@ustc.edu.cn> <44788C8A.2070900@tls.msk.ru> <348818092.32485@ustc.edu.cn>
+In-Reply-To: <348818092.32485@ustc.edu.cn>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 28, 2006 at 08:12:44PM +0200, Arjan van de Ven wrote:
-> On Sun, 2006-05-28 at 13:52 -0400, Lee Revell wrote:
-> > On Sun, 2006-05-28 at 19:03 +0200, Arjan van de Ven wrote:
-> > > On Sun, 2006-05-28 at 15:03 +0200, Heiko Carstens wrote:
-> > > > > > > How does one check the existence of the kernel source RPM (or deb) on
-> > > > > > > every single distribution?.
-> > > > > > > 
-> > > > > > > We know that rpm -qa | grep kernel-source works on Redhat, Fedora,
-> > > > > > > SuSE, Mandrake and CentOS - how about other RPM based distros? How
-> > > > > > > about debian based distros?. There doesn't seem to be a a single
-> > > > > > > conherent naming scheme.  
-> > > > > > 
-> > > > > > I'd really like to see a distro-agnostic way to retrieve the kernel
-> > > > > > configuration.  /proc/config.gz has existed for soem time but many
-> > > > > > distros inexplicably don't enable it.
-> > > > > 
-> > > > > /boot/config-`uname -r`
-> > > > 
-> > > > What's the reason for distros to disable /proc/config.gz?
-> > > 
-> > > what would be a reason to ENable it???
-> > > it's double functionality that does take memory away...
-> > > 
-> > 
-> > It sounds like there is in fact no distro agnostic way to retrieve the
-> > kernel config 
+Wu Fengguang wrote:
 > 
-> /boot/config-`uname -r` goes a long way, and yes I'm ignoring the "but
-> users CAN clobber the file if they use enough violence against their
-> packaging system" argument entirely. That's just a bogus one.
-> 
-> Also... why would there really be a need for such a way? Not for
-> building anything for sure.... it's for the human. And the human seems
-> to just find it already (and again the boot file works well in practice
-> it seems)
+> It's not quite reasonable for readahead to worry about media errors.
+> If the media fails, fix it. Or it will hurt read sooner or later.
 
-Well, /boot/config-`uname -r` would not work right here, as well as on
-a number of people's systems that I know, simply because a solution to
-avoid the awful mess in /boot is to mkdir /boot/$(uname -r) and put
-your System.map, .config and bzImage there (BTW, I also put modules
-there since my /lib/modules is a symlink to /boot). This way, there
-is only *ONE* rm -rf to do to remove an old unused kernel. So in this
-case, it would be /boot/$(uname -r)/.config.
+Well... In reality, it is just the opposite.
 
-On another subject, I find /proc/config.gz useful when debugging kernels
-because this is the only *safe* way to know what was put in a given kernel
-that I have booted in the middle of others. However, I agree that this
-does not bring much usefulness on distro kernels.
+Suppose there's a CD-rom with a scratch/etc, one sector is unreadable.
+In order to "fix" it, one have to read it and write to another CD-rom,
+or something.. or just ignore the error (if it's just a skip in a video
+stream).  Let's assume the unreadable block is number U.
 
-Cheers,
-Willy
+But current behavior is just insane.  An application requests block
+number N, which is before U. Kernel tries to read-ahead blocks N..U.
+Cdrom drive tries to read it, re-read it.. for some time.  Finally,
+when all the N..U-1 blocks are read, kernel returns block number N
+(as requested) to an application, successefully.
 
+Now an app requests block number N+1, and kernel tries to read
+blocks N+1..U+1.  Retrying again as in previous step.
+
+And so on, up to when an app requests block number U-1.  And when,
+finally, it requests block U, it receives read error.
+
+So, kernel currentry tries to re-read the same failing block as
+many times as the current readahead value (256 (times?) by default).
+
+This whole process already killed my cdrom drive (I posted about it
+to LKML several months ago) - literally, the drive has fried, and
+does not work anymore.  Ofcourse that problem was a bug in firmware
+(or whatever) of the drive *too*, but.. main problem with that is
+current readahead logic as described above.
+
+With that logic, an app also becomes unkillable (at least for some
+time) -- ie, even when I knew something's wrong and the CDrom should
+not behave like it was, I wasn't able to stop it until I powered the
+machine off (just unplugged the power cable) - but.. too late.
+
+Yes, bad media is just that - a bad thing.  But it's not a reason to
+force power unplug to stop the process, and not a reason to burn a
+drive (or anything else).  And this is where readahead comes into
+play - it IS read-ahead logic who's responsible for the situation.
+
+And there's alot of scratched/whatever CD-Rom drives out there -
+unreadable CDrom (or a floppy which is already ancient, or some
+other media) - you can't just say to every user out there that
+linux isn't compatible with all people's stuff and those people
+should "fix" it before ever trying to insert it into their linux
+machine...
+
+Thanks.
+
+/mjt

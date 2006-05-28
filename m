@@ -1,35 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751748AbWE1Id3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751745AbWE1Ida@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751748AbWE1Id3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 04:33:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751733AbWE1Id2
+	id S1751745AbWE1Ida (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 04:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751726AbWE1Id3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sun, 28 May 2006 04:33:29 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:10645 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751529AbWE1Id2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 28 May 2006 04:33:28 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:32197 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1751354AbWE1Id1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 04:33:27 -0400
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@ocs.com.au>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Jeff Garzik <jeff@garzik.org>, Git Mailing List <git@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [SCRIPT] chomp: trim trailing whitespace 
-In-reply-to: Your message of "Sat, 27 May 2006 14:42:02 +0200."
-             <Pine.LNX.4.61.0605271441080.4857@yvahk01.tjqt.qr> 
+Subject: Re: DMA errors, then I/O errors, on 2.6.16
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Moise <chops@demiurgestudios.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060527210715.GA2866@qix.demiurgestudios.com>
+References: <20060527210715.GA2866@qix.demiurgestudios.com>
+Content-Type: text/plain
+Date: Sun, 28 May 2006 10:33:23 +0200
+Message-Id: <1148805203.3074.10.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 28 May 2006 18:33:14 +1000
-Message-ID: <8694.1148805194@ocs3.ocs.com.au>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt (on Sat, 27 May 2006 14:42:02 +0200 (MEST)) wrote:
->And the CL form is
->  perl -i -pe '...'
->Somehow, you can't group it to -ipe, but who cares.
+On Sat, 2006-05-27 at 17:07 -0400, Andrew Moise wrote:
+>   Running 2.6.16 (and some earlier 2.6 kernels as well), I get
+> occasional DMA failures, which are always followed by the disk not
+> working at all (any request leads to an I/O error).  The log and whatnot
+> follows.  Can anyone tell me what the source of this trouble might be
+> (disk, controller, cable, software)?
+>   Please CC replies to me, as I'm not on the list.  Thanks.
+> 
+> --- Log:
+> 
+> May 27 16:34:44 vino kernel: hda: dma_intr: status=0x7f { DriveReady DeviceFault
+>  SeekComplete DataRequest CorrectedError Index Error } 
+> May 27 16:34:44 vino kernel: hda: dma_intr: error=0x7f { DriveStatusError UncorrectableError SectorIdNotFound TrackZeroNotFound AddrMarkNotFound }, LBAsect=1495
+> 68083689343, high=8914952, low=8355711, sector=356876123 
 
--i takes an optional extension which is used to optionally create
-backup files.  As such, -i must be followed by space if you want no
-extension (and no backup).
+
+this tends to be a disk dying.. better run smartctl to check it out...
 

@@ -1,73 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbWE1SlG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWE1TXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750846AbWE1SlG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 14:41:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWE1SlG
+	id S1750815AbWE1TXH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 15:23:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWE1TXG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 14:41:06 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:20144 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750863AbWE1SlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 14:41:05 -0400
-Subject: Re: Stradis driver conflicts with all other SAA7146 drivers
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Christer Weinigel <christer@weinigel.se>
-Cc: Nathan Laredo <laredo@gnu.org>, Jiri Slaby <jirislaby@gmail.com>,
-       linux-kernel@vger.kernel.org, video4linux-list@redhat.com,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>
-In-Reply-To: <m3k686hvzi.fsf@zoo.weinigel.se>
-References: <m3wtc6ib0v.fsf@zoo.weinigel.se> <44799D24.7050301@gmail.com>
-	 <1148825088.1170.45.camel@praia>
-	 <d6e463920605280901n41840baeuc30283a51e35204e@mail.gmail.com>
-	 <1148837483.1170.65.camel@praia>  <m3k686hvzi.fsf@zoo.weinigel.se>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Sun, 28 May 2006 15:40:54 -0300
-Message-Id: <1148841654.1170.70.camel@praia>
+	Sun, 28 May 2006 15:23:06 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:29968 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1750815AbWE1TXG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 15:23:06 -0400
+Date: Sun, 28 May 2006 21:10:45 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       devmazumdar <dev@opensound.com>, linux-kernel@vger.kernel.org
+Subject: Re: How to check if kernel sources are installed on a system?
+Message-ID: <20060528191045.GY11191@w.ods.org>
+References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe> <1148653797.3579.18.camel@laptopd505.fenrus.org> <20060528130320.GA10385@osiris.ibm.com> <1148835799.3074.41.camel@laptopd505.fenrus.org> <1148838738.21094.65.camel@mindpipe> <1148839964.3074.52.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1-2mdk 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1148839964.3074.52.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Dom, 2006-05-28 às 19:58 +0200, Christer Weinigel escreveu:
-> Mauro Carvalho Chehab <mchehab@infradead.org> writes:
+On Sun, May 28, 2006 at 08:12:44PM +0200, Arjan van de Ven wrote:
+> On Sun, 2006-05-28 at 13:52 -0400, Lee Revell wrote:
+> > On Sun, 2006-05-28 at 19:03 +0200, Arjan van de Ven wrote:
+> > > On Sun, 2006-05-28 at 15:03 +0200, Heiko Carstens wrote:
+> > > > > > > How does one check the existence of the kernel source RPM (or deb) on
+> > > > > > > every single distribution?.
+> > > > > > > 
+> > > > > > > We know that rpm -qa | grep kernel-source works on Redhat, Fedora,
+> > > > > > > SuSE, Mandrake and CentOS - how about other RPM based distros? How
+> > > > > > > about debian based distros?. There doesn't seem to be a a single
+> > > > > > > conherent naming scheme.  
+> > > > > > 
+> > > > > > I'd really like to see a distro-agnostic way to retrieve the kernel
+> > > > > > configuration.  /proc/config.gz has existed for soem time but many
+> > > > > > distros inexplicably don't enable it.
+> > > > > 
+> > > > > /boot/config-`uname -r`
+> > > > 
+> > > > What's the reason for distros to disable /proc/config.gz?
+> > > 
+> > > what would be a reason to ENable it???
+> > > it's double functionality that does take memory away...
+> > > 
+> > 
+> > It sounds like there is in fact no distro agnostic way to retrieve the
+> > kernel config 
+> 
+> /boot/config-`uname -r` goes a long way, and yes I'm ignoring the "but
+> users CAN clobber the file if they use enough violence against their
+> packaging system" argument entirely. That's just a bogus one.
+> 
+> Also... why would there really be a need for such a way? Not for
+> building anything for sure.... it's for the human. And the human seems
+> to just find it already (and again the boot file works well in practice
+> it seems)
 
-> dpc7146, hexium_orion and mxb don't match all PCI IDs, they only match
-> boards with zero as a board ID.  So they won't conflict with
-> non-broken boards that have valid subvendor IDs.  But they will
-> conflict with each other.
-Yes. it is this I was trying to say :)
-> 
-> How may of these boards are broken and have zeroes in the
-> subvendor/subdevice fields?  Apparently some of the dpc7146f,
-> hexium_orion, mxb, and stradis boards are broken.  How many of the
-> boards supported by the generic saa7146 driver are broken the same
-> way?
-I don't have any saa7146 board, but, on bttv, most boards don't have its
-own PCI ID.
-> 
-> Can't the stradis driver do the same thing as the other drivers and
-> explicitly match the broken zero subvendor id and the non-broken
-> subvendor IDs?
-> 
+Well, /boot/config-`uname -r` would not work right here, as well as on
+a number of people's systems that I know, simply because a solution to
+avoid the awful mess in /boot is to mkdir /boot/$(uname -r) and put
+your System.map, .config and bzImage there (BTW, I also put modules
+there since my /lib/modules is a symlink to /boot). This way, there
+is only *ONE* rm -rf to do to remove an old unused kernel. So in this
+case, it would be /boot/$(uname -r)/.config.
 
-> That would fix the problem for me and make it SEP. :-)
+On another subject, I find /proc/config.gz useful when debugging kernels
+because this is the only *safe* way to know what was put in a given kernel
+that I have booted in the middle of others. However, I agree that this
+does not bring much usefulness on distro kernels.
 
-This seems to be an interesting idea: to make stradis just probe the
-recognized IDs and the generic one. It won't solve, however, the probing
-intersection for dpc7146f, hexium_orion, mxb, and stradis when no
-subvendor ID is specified on the board.
-> 
-> Can somebody with a SDM2xx stradis board mail me the output from
-> "lspci -vn" and I'll cobble together a patch that does this?
-> 
-> This still needs solving properly, but at least it makes it less of
-> a problem for people with non-broken hardware.
-> 
->   /Christer
-> 
-Cheers, 
-Mauro.
+Cheers,
+Willy
 

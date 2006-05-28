@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWE1V34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWE1VfK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750953AbWE1V34 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 17:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750956AbWE1V34
+	id S1750956AbWE1VfK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 17:35:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWE1VfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 17:29:56 -0400
-Received: from proof.pobox.com ([207.106.133.28]:26041 "EHLO proof.pobox.com")
-	by vger.kernel.org with ESMTP id S1750950AbWE1V34 (ORCPT
+	Sun, 28 May 2006 17:35:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:42204 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750956AbWE1VfI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 17:29:56 -0400
-Date: Sun, 28 May 2006 14:29:51 -0700
-From: Paul Dickson <dickson@permanentmail.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Resume stops working between 2.6.16 and 2.6.17-rc1 on Dell
- Inspiron 6000
-Message-Id: <20060528142951.2a7417cb.dickson@permanentmail.com>
-In-Reply-To: <1148850683.3074.72.camel@laptopd505.fenrus.org>
-References: <20060528140238.2c25a805.dickson@permanentmail.com>
-	<1148850683.3074.72.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.9.1; i686-pc-linux-gnu)
+	Sun, 28 May 2006 17:35:08 -0400
+Date: Sun, 28 May 2006 17:34:14 -0400
+From: Dave Jones <davej@redhat.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Paul Dickson <paul@permanentmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Bisects that are neither good nor bad
+Message-ID: <20060528213414.GC5741@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Rafael J. Wysocki" <rjw@sisk.pl>,
+	Paul Dickson <paul@permanentmail.com>, linux-kernel@vger.kernel.org
+References: <20060528140238.2c25a805.dickson@permanentmail.com> <20060528140854.34ddec2a.paul@permanentmail.com> <200605282324.13431.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200605282324.13431.rjw@sisk.pl>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 May 2006 23:11:23 +0200, Arjan van de Ven wrote:
+On Sun, May 28, 2006 at 11:24:12PM +0200, Rafael J. Wysocki wrote:
 
-> On Sun, 2006-05-28 at 14:02 -0700, Paul Dickson wrote:
-> > I follow the Fedora development kernels and noticed that resuming from
-> > suspending (and hibernate) stopped working at 2.6.16-git15 (Fedora Core
-> > kernel 2102).  Trouble was, my only previous kernel was 2.6.16-rc6-git12
-> > (FC 2064) because I had been out of town for nearly two weeks (I did have
-> > limited net access and that's how I got that last working version).
-> 
-> have you verified they have both the same general .config file? Like
-> both are smp or both UP, same APIC settings etc etc 
-> That's all easy to check and those two are the most likely candidates in
-> config land that could break resume... 
-> (not saying those are the cause or have changed, no idea, but they're
-> really cheap to check that none have changed, much cheaper than a
-> bisect ;)
+ > Besides, it would be helpful if you were able to get a serial console log
+ > from the failing system.
 
-Not the Fedora kernels, but the ones I'm bisecting have the same .config
-(modulus "make oldconfig").  I did lose some time when somehow SMP got
-enabled between the test of 2.6.16 and 2.6.17-rc1.  I ended up testing
-2.6.17-rc1 without suspend being in the kernel (that kernel wouldn't
-suspend).  After that, I have been verifying that each kernel will have
-suspend compiled in before the hour long make session.
+I think I've seen the same problem on one of my (similar spec) laptops.
+Serial console was useless. On resume, there's a short spew of garbage
+(just like if the baud rate were misconfigured) over serial before it
+locks up completely. Adjusting the speed on the other end of the cable 
+made no difference, nothing but garbage comes out.
+Maybe serial needs some suspend/resume hooks to reinitialise state ?
 
-	-Paul
+ > BTW, have you tried any kernel _after_ 2.6.17-rc1?  If not, I'd start from
+ > these.
 
+If it's the same problem I'm seeing, it's still there in rc5.
+I'll continue to poke at it when I get time.
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

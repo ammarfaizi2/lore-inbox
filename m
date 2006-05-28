@@ -1,146 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWE1HKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751732AbWE1HQf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751267AbWE1HKs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 03:10:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWE1HKs
+	id S1751732AbWE1HQf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 03:16:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751733AbWE1HQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 03:10:48 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:23737 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751267AbWE1HKr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 03:10:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=DuZ5GO5OhEmh+WXr+s1MzzIO43KwGCTtF446NMUeImEOLAmfEWtVaPPsQ2BFcwQhF2BS3Kp3Lld7qKQzfMjW0P9X4uyMK7efYeuFdosZCqS+9Nym1V0m5BbnhEM8Am3yRTyfXj1TeQLoCYT4F/C6eE4JUPMZJHq09O4nYuQMLiQ=
-Date: Sun, 28 May 2006 11:14:46 +0400
-From: Paul Drynoff <pauldrynoff@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] mm/comments: kmalloc man page before 2.6.17 (the third
- attempt)
-Message-Id: <20060528111446.55572c6f.pauldrynoff@gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.12; i686-pc-linux-gnu)
+	Sun, 28 May 2006 03:16:35 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30994 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751732AbWE1HQe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 03:16:34 -0400
+Date: Sun, 28 May 2006 07:16:22 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Rafa Bilski <rafalbilski@interia.pl>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+Subject: Re: [PATCH] Longhaul - call suspend(PMSG_FREEZE) before and resume() after
+Message-ID: <20060528071622.GA4108@ucw.cz>
+References: <4478D319.2030707@interia.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4478D319.2030707@interia.pl>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This bugfix patch is added comments to right places and give possibility
-generate man pages for kmalloc(9) and kzalloc(9).
+Hi!
 
-Signed-off-by: Paul Drynoff <pauldrynoff@gmail.com>
+> I posted this to Dave Jones, but:
+> > This really should also get posted to linux-kernel, though I don't
+> > think people are going to be particularly enthusiastic about exposing
+> > these innards to modules.
+> So I'm posting this patch here too. I'm not subscribed to this list.
+> If You wish email me.
+> Minor change: preempt_disabled() goto_sleep_pci() and wakeup_pci() 
+> causes "sheduling while atomic". So in this patch below it isn't
+> preempt_disabled(). But I think that this should be protected
+> in some way. 
 
----
+Well, suspend/resume is normally called during system suspend/resume,
+so it has 'interesting' locking requirements.
 
-Index: linux-2.6.17-rc4/mm/slab.c
-===================================================================
---- linux-2.6.17-rc4.orig/mm/slab.c
-+++ linux-2.6.17-rc4/mm/slab.c
-@@ -3244,26 +3244,10 @@ EXPORT_SYMBOL(kmalloc_node);
- #endif
- 
- /**
-- * kmalloc - allocate memory
-+ * __do_kmalloc - allocate memory
-  * @size: how many bytes of memory are required.
-- * @flags: the type of memory to allocate.
-+ * @flags: the type of memory to allocate (see kmalloc).
-  * @caller: function caller for debug tracking of the caller
-- *
-- * kmalloc is the normal method of allocating memory
-- * in the kernel.
-- *
-- * The @flags argument may be one of:
-- *
-- * %GFP_USER - Allocate memory on behalf of user.  May sleep.
-- *
-- * %GFP_KERNEL - Allocate normal kernel ram.  May sleep.
-- *
-- * %GFP_ATOMIC - Allocation will not sleep.  Use inside interrupt handlers.
-- *
-- * Additionally, the %GFP_DMA flag may be set to indicate the memory
-- * must be suitable for DMA.  This can mean different things on different
-- * platforms.  For example, on i386, it means that the memory must come
-- * from the first 16MB.
-  */
- static __always_inline void *__do_kmalloc(size_t size, gfp_t flags,
- 					  void *caller)
-Index: linux-2.6.17-rc4/include/linux/slab.h
-===================================================================
---- linux-2.6.17-rc4.orig/include/linux/slab.h
-+++ linux-2.6.17-rc4/include/linux/slab.h
-@@ -87,6 +87,48 @@ extern void *__kmalloc_track_caller(size
-     __kmalloc_track_caller(size, flags, __builtin_return_address(0))
- #endif
- 
-+/**
-+ * kmalloc - allocate memory
-+ * @size: how many bytes of memory are required.
-+ * @flags: the type of memory to allocate.
-+ *
-+ * kmalloc is the normal method of allocating memory
-+ * in the kernel.
-+ *
-+ * The @flags argument may be one of:
-+ *
-+ * %GFP_USER - Allocate memory on behalf of user.  May sleep.
-+ *
-+ * %GFP_KERNEL - Allocate normal kernel ram.  May sleep.
-+ *
-+ * %GFP_ATOMIC - Allocation will not sleep.
-+ *   For example: use inside interrupt handlers.
-+ * %GFP_HIGHUSER - Allocate pages from high memory.
-+ * %GFP_NOIO - Do not do any I/O at all while trying to get memory.
-+ * %GFP_NOFS - Do not make any fs calls while trying to get memory.
-+ *
-+ *
-+ * Also it is possible set different flags by OR'ing
-+ * in one or more of the following:
-+ * %__GFP_COLD
-+ *  - Request cache-cold pages instead of trying to return cache-warm pages.
-+ * %__GFP_DMA
-+ *  - Request memory from the DMA-capable zone.
-+ * %__GFP_HIGH
-+ *  - This allocation has high priority and may use emergency pools.
-+ * %__GFP_HIGHMEM
-+ *   - Allocated memory may be from highmem.
-+ * %__GFP_NOFAIL
-+ *  - Indicate that this allocation is in no way allowed to fail
-+ * (think twice before using).
-+ * %__GFP_NORETRY
-+ * - If memory is not immediately available, then give up at once.
-+ * %__GFP_NOWARN
-+ * - If allocation fails, don't issue any warnings.
-+ * %__GFP_REPEAT
-+ * - If allocation fails initially, try once more before failing.
-+ *
-+ */
- static inline void *kmalloc(size_t size, gfp_t flags)
- {
- 	if (__builtin_constant_p(size)) {
-@@ -112,6 +154,11 @@ found:
- 
- extern void *__kzalloc(size_t, gfp_t);
- 
-+/**
-+ * kzalloc - allocate memory. The memory is set to zero.
-+ * @size: how many bytes of memory are required.
-+ * @flags: the type of memory to allocate (see kmalloc).
-+ */
- static inline void *kzalloc(size_t size, gfp_t flags)
- {
- 	if (__builtin_constant_p(size)) {
-Index: linux-2.6.17-rc4/Documentation/DocBook/kernel-api.tmpl
-===================================================================
---- linux-2.6.17-rc4.orig/Documentation/DocBook/kernel-api.tmpl
-+++ linux-2.6.17-rc4/Documentation/DocBook/kernel-api.tmpl
-@@ -124,6 +124,7 @@ X!Ilib/string.c
- !Earch/i386/lib/usercopy.c
-      </sect1>
-      <sect1><title>More Memory Management Functions</title>
-+!Iinclude/linux/slab.h
- !Iinclude/linux/rmap.h
- !Emm/readahead.c
- !Emm/filemap.c
+> How it works:
+> 1. Call suspend(PMSG_FREEZE) for each block device.
+> 2. Call suspend(PMSG_FREEZE) for each PCI device.
+> 3. Change CPU frequency.
+> 4. Call resume() for each PCI device.
+> 5. Call resume() for each block device.
+> 
+> Result: No more broken DMA transfers caused by frequency change.
+
+Result: system hang if userspace tries to do request at the same time
+-- PCI drivers probably were not designed for _that_... but we
+probably want to fix them, anyway, so this is probably ok (but expect
+to do some driver debugging).
+
+But you should really add that preempt_disable and not try this on smp
+system...
+						Pavel
+
+-- 
+Thanks for all the (sleeping) penguins.

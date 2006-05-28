@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbWE1IHj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751530AbWE1IWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751299AbWE1IHj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 04:07:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWE1IHj
+	id S1751530AbWE1IWj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 04:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751529AbWE1IWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 04:07:39 -0400
-Received: from mail.polimi.it ([131.175.12.3]:26089 "EHLO polimi.it")
-	by vger.kernel.org with ESMTP id S1751299AbWE1IHj (ORCPT
+	Sun, 28 May 2006 04:22:39 -0400
+Received: from mail.gmx.net ([213.165.64.20]:6621 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751279AbWE1IWi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 04:07:39 -0400
-Date: Sun, 28 May 2006 10:07:25 +0200
-From: Stefano Brivio <stefano.brivio@polimi.it>
-To: Marc Perkel <marc@perkel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux and Wireless USB Adaptor
-Message-ID: <20060528100725.394b3173@localhost>
-In-Reply-To: <44793F44.1040603@perkel.com>
-References: <44793F44.1040603@perkel.com>
-X-Mailer: Sylpheed-Claws 2.2.0 (GTK+ 2.8.9; i686-pc-linux-gnu)
+	Sun, 28 May 2006 04:22:38 -0400
+X-Authenticated: #14349625
+Subject: Re: 2.6.17-rc4-mm3 cfq oops->panic w. fs damage
+From: Mike Galbraith <efault@gmx.de>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+In-Reply-To: <1148803384.8757.7.camel@homer>
+References: <1148793123.7572.22.camel@homer>
+	 <20060528052514.GQ27946@ftp.linux.org.uk> <1148796018.11873.11.camel@homer>
+	 <1148802491.8083.7.camel@homer>  <1148803384.8757.7.camel@homer>
+Content-Type: text/plain
+Date: Sun, 28 May 2006 10:24:35 +0200
+Message-Id: <1148804675.7755.2.camel@homer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-X-PMX-Version: 5.2.0.264296, Antispam-Engine: 2.4.0.264935, Antispam-Data: 2006.5.28.4406
-X-PerlMx-Spam: Gauge=I, Probability=81%, Report='RELAY_IN_CBL 8, __CP_URI_IN_BODY 0, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0'
-X-Spam-Score: ***** (Spam Prob: 81% GAuge: XXXXXXXX)
-X-Probable-Spam: yes
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 May 2006 23:12:20 -0700
-Marc Perkel <marc@perkel.com> wrote:
+On Sun, 2006-05-28 at 10:03 +0200, Mike Galbraith wrote:
 
-> I have an Airlink Wireless USB 2.0 adaptor. Does it work with Linux? If 
-> so - what do I have to do to make it work?
+> Yup, mm3 makes reliable kaboom.
+> 
+> I suppose the first thing to do is see if it's cfq, and then maybe toss
+> a dart at the patch list.
 
-Please see:
-http://linux-wless.passys.nl/query_part.php?brandname=Airlink+Tech
+That was too easy.  It's git-cfq.patch.
 
+	-Mike
 
---
-Ciao
-Stefano

@@ -1,77 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750850AbWE1STa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbWE1Sdc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750850AbWE1STa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 14:19:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750851AbWE1STa
+	id S1750857AbWE1Sdc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 14:33:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWE1Sdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 14:19:30 -0400
-Received: from xenotime.net ([66.160.160.81]:15523 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750849AbWE1ST3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 14:19:29 -0400
-Date: Sun, 28 May 2006 11:22:04 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: rlrevell@joe-job.com, heiko.carstens@de.ibm.com, dev@opensound.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: How to check if kernel sources are installed on a system?
-Message-Id: <20060528112204.93c92b07.rdunlap@xenotime.net>
-In-Reply-To: <1148839964.3074.52.camel@laptopd505.fenrus.org>
-References: <e55715+usls@eGroups.com>
-	<1148596163.31038.30.camel@mindpipe>
-	<1148653797.3579.18.camel@laptopd505.fenrus.org>
-	<20060528130320.GA10385@osiris.ibm.com>
-	<1148835799.3074.41.camel@laptopd505.fenrus.org>
-	<1148838738.21094.65.camel@mindpipe>
-	<1148839964.3074.52.camel@laptopd505.fenrus.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Sun, 28 May 2006 14:33:32 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:55996 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750855AbWE1Sdb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 14:33:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=rzl86yXRpX7Li4XLM6ahYF1uzyok9B9nOChUG+a/NtruMC/PaOa7vDRvq+9vXLSiTTEzp6pk2fGlkDNuMz/lNYYVGfIPD9qFUnSthRvAyd5/UV4g6Ymw/QONfyQkAeyS/idynr1WnmZmyLbhwdr2/l0uVnVCyS4MY0B3bTexGe0=
+Date: Sun, 28 May 2006 22:34:03 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>
+Subject: [PATCH] Remove acpi_os_create_lock(), acpi_os_delete_lock()
+Message-ID: <20060528183403.GA7266@martell.zuzino.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 May 2006 20:12:44 +0200 Arjan van de Ven wrote:
+Minimally intrusive patch to remove some overdesign in ACPI code. Based
+on hch rant.
 
-> On Sun, 2006-05-28 at 13:52 -0400, Lee Revell wrote:
-> > On Sun, 2006-05-28 at 19:03 +0200, Arjan van de Ven wrote:
-> > > On Sun, 2006-05-28 at 15:03 +0200, Heiko Carstens wrote:
-> > > > > > > How does one check the existence of the kernel source RPM (or deb) on
-> > > > > > > every single distribution?.
-> > > > > > > 
-> > > > > > > We know that rpm -qa | grep kernel-source works on Redhat, Fedora,
-> > > > > > > SuSE, Mandrake and CentOS - how about other RPM based distros? How
-> > > > > > > about debian based distros?. There doesn't seem to be a a single
-> > > > > > > conherent naming scheme.  
-> > > > > > 
-> > > > > > I'd really like to see a distro-agnostic way to retrieve the kernel
-> > > > > > configuration.  /proc/config.gz has existed for soem time but many
-> > > > > > distros inexplicably don't enable it.
-> > > > > 
-> > > > > /boot/config-`uname -r`
-> > > > 
-> > > > What's the reason for distros to disable /proc/config.gz?
-> > > 
-> > > what would be a reason to ENable it???
-> > > it's double functionality that does take memory away...
-> > > 
-> > 
-> > It sounds like there is in fact no distro agnostic way to retrieve the
-> > kernel config 
-> 
-> /boot/config-`uname -r` goes a long way, and yes I'm ignoring the "but
-> users CAN clobber the file if they use enough violence against their
-> packaging system" argument entirely. That's just a bogus one.
-> 
-> Also... why would there really be a need for such a way? Not for
-> building anything for sure.... it's for the human. And the human seems
-> to just find it already (and again the boot file works well in practice
-> it seems)
+The only purpose of functions in question is to dynamically allocate
+one global spinlock -- acpi_gbl_gpe_lock. Instead, create it in .bss.
 
-You may be correct now but a few years ago when /proc/config.gz
-was developed, there were lots of distros that did not provide
-/boot/config* files.
-
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 ---
-~Randy
+
+ It's tempting to shoot acpi_os_release_lock() et al too.
+
+ drivers/acpi/osl.c               |   34 ----------------------------------
+ drivers/acpi/utilities/utmutex.c |    6 ++++--
+ include/acpi/acpiosxf.h          |    4 ----
+ 3 files changed, 4 insertions(+), 40 deletions(-)
+
+--- a/drivers/acpi/osl.c
++++ b/drivers/acpi/osl.c
+@@ -659,40 +659,6 @@ void acpi_os_wait_events_complete(void *
+ 
+ EXPORT_SYMBOL(acpi_os_wait_events_complete);
+ 
+-/*
+- * Allocate the memory for a spinlock and initialize it.
+- */
+-acpi_status acpi_os_create_lock(acpi_handle * out_handle)
+-{
+-	spinlock_t *lock_ptr;
+-
+-	ACPI_FUNCTION_TRACE("os_create_lock");
+-
+-	lock_ptr = acpi_os_allocate(sizeof(spinlock_t));
+-
+-	spin_lock_init(lock_ptr);
+-
+-	ACPI_DEBUG_PRINT((ACPI_DB_MUTEX, "Creating spinlock[%p].\n", lock_ptr));
+-
+-	*out_handle = lock_ptr;
+-
+-	return_ACPI_STATUS(AE_OK);
+-}
+-
+-/*
+- * Deallocate the memory for a spinlock.
+- */
+-void acpi_os_delete_lock(acpi_handle handle)
+-{
+-	ACPI_FUNCTION_TRACE("os_create_lock");
+-
+-	ACPI_DEBUG_PRINT((ACPI_DB_MUTEX, "Deleting spinlock[%p].\n", handle));
+-
+-	acpi_os_free(handle);
+-
+-	return_VOID;
+-}
+-
+ acpi_status
+ acpi_os_create_semaphore(u32 max_units, u32 initial_units, acpi_handle * handle)
+ {
+--- a/drivers/acpi/utilities/utmutex.c
++++ b/drivers/acpi/utilities/utmutex.c
+@@ -51,6 +51,8 @@ static acpi_status acpi_ut_create_mutex(
+ 
+ static acpi_status acpi_ut_delete_mutex(acpi_mutex_handle mutex_id);
+ 
++static spinlock_t __acpi_gbl_gpe_lock;
++
+ /*******************************************************************************
+  *
+  * FUNCTION:    acpi_ut_mutex_initialize
+@@ -80,7 +82,8 @@ acpi_status acpi_ut_mutex_initialize(voi
+ 		}
+ 	}
+ 
+-	status = acpi_os_create_lock(&acpi_gbl_gpe_lock);
++	spin_lock_init(&__acpi_gbl_gpe_lock);
++	acpi_gbl_gpe_lock = &__acpi_gbl_gpe_lock;
+ 	return_ACPI_STATUS(status);
+ }
+ 
+@@ -109,7 +112,6 @@ void acpi_ut_mutex_terminate(void)
+ 		(void)acpi_ut_delete_mutex(i);
+ 	}
+ 
+-	acpi_os_delete_lock(acpi_gbl_gpe_lock);
+ 	return_VOID;
+ }
+ 
+--- a/include/acpi/acpiosxf.h
++++ b/include/acpi/acpiosxf.h
+@@ -104,10 +104,6 @@ acpi_status acpi_os_wait_semaphore(acpi_
+ 
+ acpi_status acpi_os_signal_semaphore(acpi_handle handle, u32 units);
+ 
+-acpi_status acpi_os_create_lock(acpi_handle * out_handle);
+-
+-void acpi_os_delete_lock(acpi_handle handle);
+-
+ acpi_cpu_flags acpi_os_acquire_lock(acpi_handle handle);
+ 
+ void acpi_os_release_lock(acpi_handle handle, acpi_cpu_flags flags);
+

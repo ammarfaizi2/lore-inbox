@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWE1ALM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964980AbWE1AOJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751082AbWE1ALM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 20:11:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWE1ALM
+	id S964980AbWE1AOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 20:14:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964999AbWE1AOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 20:11:12 -0400
-Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:57205 "EHLO
-	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751082AbWE1ALM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 20:11:12 -0400
-Message-ID: <4478EA9D.4030201@bigpond.net.au>
-Date: Sun, 28 May 2006 10:11:09 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: balbir@in.ibm.com
-CC: Mike Galbraith <efault@gmx.de>, Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
-       Rene Herman <rene.herman@keyaccess.nl>
-Subject: Re: [RFC 2/5] sched: Add CPU rate soft caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	 <20060526042041.2886.69840.sendpatchset@heathwren.pw.nest> <661de9470605262331w2e2258a7r41e2aab10895955f@mail.gmail.com> <4477F9DC.8090107@bigpond.net.au>
-In-Reply-To: <4477F9DC.8090107@bigpond.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 27 May 2006 20:14:09 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:31680 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964980AbWE1AOI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 20:14:08 -0400
+Subject: Re: [-rt BUG] scheduling with irqs disabled: swapper
+From: john stultz <johnstul@us.ibm.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       mingo@redhat.com, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1148692456.5381.7.camel@localhost.localdomain>
+References: <1f1b08da0605261553v5e55ebdfpc790ebd5e5b0add8@mail.gmail.com>
+	 <1148692456.5381.7.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sat, 27 May 2006 17:13:52 -0700
+Message-Id: <1148775233.30211.1.camel@leatherman>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sun, 28 May 2006 00:11:10 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Balbir Singh wrote:
->> On 5/26/06, Peter Williams <pwil3058@bigpond.net.au> wrote:
->> <snip>
->>>
->>> Notes:
->>>
->>> 1. To minimize the overhead incurred when testing to skip caps 
->>> processing for
->>> uncapped tasks a new flag PF_HAS_CAP has been added to flags.
->>>
->>> 2. The implementation involves the addition of two priority slots to the
->>> run queue priority arrays and this means that MAX_PRIO no longer
->>> represents the scheduling priority of the idle process and can't be 
->>> used to
->>> test whether priority values are in the valid range.  To alleviate this
->>> problem a new function sched_idle_prio() has been provided.
->>
->> I am a little confused by this. Why link the bandwidth expired tasks a
->> cpu (its caps) to a priority slot? Is this a hack to conitnue using
->> the prio_array? why not move such tasks to the expired array?
+On Fri, 2006-05-26 at 21:14 -0400, Steven Rostedt wrote:
+> On Fri, 2006-05-26 at 15:53 -0700, john stultz wrote:
+> > Hey Ingo, All,
+> > 	We had the following bug reported on bootup on one of our boxes (it
+> > was a 4way I believe) running -rt22. So far it seems to be a one-off
+> > but I figured I'd post it to see if anyone had a clue.
 > 
-> Because it won't work as after the array switch they may get to run 
-> before tasks who aren't exceeding their cap (or don't have a cap).
+> I'm assuming this is a i386.  Also I'm assuming that frame pointers was
+> not compiled in since the stack is a little suspicious.
+> 
+> Anyway, could you show the /proc/interrupts of this machine.  I'm
+> curious if the i8042 isn't sharing an interrupt with something with
+> NODELAY in it.
 
-Another important reason for using these slots is that it allows waking 
-tasks to preempt tasks that have exceeded their cap.
+Here ya go:
+            CPU0       CPU1       CPU2       CPU3
+   0:       8796    3868607        275     531673  IO-APIC-edge   [........N/  0]  pit
+   2:          0          0          0          0  XT-PIC         [........N/  0]  cascade
+   3:          5        620          2        229  IO-APIC-edge   [........./ 63]  serial
+   8:          0          1          0          0  IO-APIC-edge   [........./  0]  rtc
+  11:          0          0          0          0  IO-APIC-edge   [........./  0]  acpi
+  19:        120          0          0          1  IO-APIC-level  [........./  0]  ohci_hcd:usb1, ohci_hcd:usb2
+  24:         57          9          5      46795  IO-APIC-level  [........./  0]  eth0
+  26:       1396      14537          0        702  IO-APIC-level  [........./  0]  ioc0
+ NMI:          0          0          0          0
+ LOC:    6907796    4419008    4415669    4413513
+ ERR:          0
+ MIS:          0
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+thanks
+-john
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+

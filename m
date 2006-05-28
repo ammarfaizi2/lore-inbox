@@ -1,62 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWE1OmG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWE1Opo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750770AbWE1OmG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 10:42:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWE1OmF
+	id S1750771AbWE1Opo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 10:45:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWE1Opo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 10:42:05 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:34136 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750770AbWE1OmE convert rfc822-to-8bit (ORCPT
+	Sun, 28 May 2006 10:45:44 -0400
+Received: from mx2.go2.pl ([193.17.41.42]:4331 "EHLO poczta.o2.pl")
+	by vger.kernel.org with ESMTP id S1750771AbWE1Opn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 10:42:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=C94cHmtLoq0iwQihMvwaQc4WENIN+wGefqxlRUqxD396K+dNkjoadRpaiMzZ3lC7MRks+R6OQUDx4wsp/xFu6XEOBg5xy75B5U0ipropK/7uUNJzNtaLhMgXI58pEvQnYjB3m4wQpoPXtwPbgOiChqPtNfcaJG5vxwV78NGjoa8=
-Message-ID: <661de9470605280742o70fb6fc9g34ead234d377a1e0@mail.gmail.com>
-Date: Sun, 28 May 2006 20:12:03 +0530
-From: "Balbir Singh" <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-To: "Peter Williams" <pwil3058@bigpond.net.au>
-Subject: Re: [RFC 2/5] sched: Add CPU rate soft caps
-Cc: "Mike Galbraith" <efault@gmx.de>, "Con Kolivas" <kernel@kolivas.org>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Kingsley Cheung" <kingsley@aurema.com>, "Ingo Molnar" <mingo@elte.hu>,
-       "Rene Herman" <rene.herman@keyaccess.nl>
-In-Reply-To: <4479A71C.4060604@bigpond.net.au>
+	Sun, 28 May 2006 10:45:43 -0400
+From: Zbigniew Luszpinski <zbiggy@o2.pl>
+To: linux-kernel@vger.kernel.org
+Subject: [Patch] Logitech TrackMan trackball - unknown device
+Date: Sun, 28 May 2006 16:46:05 +0200
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>
-	 <20060526042041.2886.69840.sendpatchset@heathwren.pw.nest>
-	 <661de9470605262331w2e2258a7r41e2aab10895955f@mail.gmail.com>
-	 <4477F9DC.8090107@bigpond.net.au> <4478EA9D.4030201@bigpond.net.au>
-	 <661de9470605280038l40e53357ka3043dabd95de5fc@mail.gmail.com>
-	 <4479A71C.4060604@bigpond.net.au>
-X-Google-Sender-Auth: 4da3cafcb9cd66a1
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_tebeE/IBSM/kxrj"
+Message-Id: <200605281646.05765.zbiggy@o2.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/28/06, Peter Williams <pwil3058@bigpond.net.au> wrote:
-<snip>
+--Boundary-00=_tebeE/IBSM/kxrj
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> >
-> > That behaviour would be fair.
->
-> Caps aren't about being fair.  In fact, giving a task a cap is an
-> explicit instruction to the scheduler that the task should be treated
-> unfairly in some circumstances (namely when it's exceeding that cap).
->
-> Similarly, the interactive bonus mechanism is not about fairness either.
->   It's about giving tasks that are thought to be interactive an unfair
-> advantage so that the user experiences good responsiveness.
->
+Hello!
 
-I understand that, I was talking about fairness between capped tasks
-and what might be considered fair or intutive between capped tasks and
-regular tasks. Of course, the last point is debatable ;)
+When I connect to my linux 2.6.16.18 box a Logitech TrackMan trackball the 
+kernel welcomes me with message:
 
-Balbir
+logips2pp: Detected unknown logitech mouse model 79
+input: ImExPS/2 Logitech Explorer Mouse as /class/input/input1
+
+My patch makes TrackMan known for kernel 2.6.16.18. Other recent kernels 
+should work with this patch too. After applying patch kenel 2.6.16.18 says:
+
+input: PS2++ Logitech TrackMan Whell as /class/input/input1
+
+have a nice day,
+Zbigniew 'zbiggy' Luszpinski
+
+--Boundary-00=_tebeE/IBSM/kxrj
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="logips2pp.c.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="logips2pp.c.patch"
+
+--- linux-2.6.16.18/drivers/input/mouse/logips2pp.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6.16.18/drivers/input/mouse/logips2pp.c	2006-05-27 20:35:26.000000000 +0200
+@@ -19,6 +19,7 @@
+ #define PS2PP_KIND_WHEEL	1
+ #define PS2PP_KIND_MX		2
+ #define PS2PP_KIND_TP3		3
++#define PS2PP_KIND_TBW		4
+ 
+ /* Logitech mouse features */
+ #define PS2PP_WHEEL		0x01
+@@ -223,6 +224,7 @@
+ 		{ 73,	0,			PS2PP_SIDE_BTN },
+ 		{ 75,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
+ 		{ 76,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
++		{ 79,	PS2PP_KIND_TBW,		PS2PP_WHEEL }, /* Trackball with wheel */
+ 		{ 80,	PS2PP_KIND_WHEEL,	PS2PP_SIDE_BTN | PS2PP_WHEEL },
+ 		{ 81,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
+ 		{ 83,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
+@@ -298,6 +300,10 @@
+ 			psmouse->name = "TouchPad 3";
+ 			break;
+ 
++		case PS2PP_KIND_TBW:
++			psmouse->name = "TrackMan Wheel";
++			break;
++
+ 		default:
+ 			/*
+ 			 * Set name to "Mouse" only when using PS2++,
+
+--Boundary-00=_tebeE/IBSM/kxrj--

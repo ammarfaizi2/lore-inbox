@@ -1,95 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWE1QBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWE1QCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbWE1QBo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 12:01:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWE1QBo
+	id S1750780AbWE1QCq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 12:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbWE1QCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 12:01:44 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:12883 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750720AbWE1QBn convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 12:01:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=VEXO3T02+wIZUA4FiCveKIKRpQ0X2jI8foV45qtsisPNPWEpS3jAMvhmJmh0my295t3H5nL33ed1RjbFYGagg66pbHM7oxAcsio+TGyh0wncwxr98Ko9wtAVDLu5y0srKCv694I4PWI04vSgfomG5tI5yhTHJfjWtuJfkeJiYlo=
-Message-ID: <d6e463920605280901n41840baeuc30283a51e35204e@mail.gmail.com>
-Date: Sun, 28 May 2006 09:01:43 -0700
-From: "Nathan Laredo" <laredo@gnu.org>
-To: "Mauro Carvalho Chehab" <mchehab@infradead.org>
+	Sun, 28 May 2006 12:02:46 -0400
+Received: from 2-1-3-15a.ens.sth.bostream.se ([82.182.31.214]:28832 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id S1750780AbWE1QCp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 12:02:45 -0400
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Christer Weinigel <christer@weinigel.se>, Nathan Laredo <laredo@gnu.org>,
+       linux-kernel@vger.kernel.org, video4linux-list@redhat.com
 Subject: Re: Stradis driver conflicts with all other SAA7146 drivers
-Cc: "Jiri Slaby" <jirislaby@gmail.com>,
-       "Christer Weinigel" <christer@weinigel.se>,
-       linux-kernel@vger.kernel.org, video4linux-list@redhat.com,
-       "v4l-dvb maintainer list" <v4l-dvb-maintainer@linuxtv.org>
-In-Reply-To: <1148825088.1170.45.camel@praia>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
 References: <m3wtc6ib0v.fsf@zoo.weinigel.se> <44799D24.7050301@gmail.com>
-	 <1148825088.1170.45.camel@praia>
-X-Google-Sender-Auth: cb09c3eeefd03316
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 28 May 2006 18:02:44 +0200
+In-Reply-To: <44799D24.7050301@gmail.com>
+Message-ID: <m3slmui1cr.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I agree that the real fix is to unify the stradis driver so that it
-uses the existing saa7146 driver (and extending the saa7146 driver if
-it doesn't have all the support necessary yet).   Keep in mind that at
-the time the driver was written, there was no other saa7146-based card
-on the market (mid 1999).
+Jiri Slaby <jirislaby@gmail.com> writes:
 
-Until the pci change there was never a single complaint.
+> Christer Weinigel napsal(a):
+> > Hi,
+> > 
+> > [Nathan Laredo is the maintainer of the stradis driver but Jiri Slaby
+> > submitted the PCI probing change that went into 2.6.16 so I'm Cc-ing
+> > him too.  I'm not a member of the video4linux mailing list so please
+> > Cc me on any responses.]
+> > 
+> > The stradis driver in the 2.6.16 kernel only looks at the SAA7146
+> > vendor and product ID and binds to any SAA7146 based device even if it
+> > is not a stradis card.  This stops all other SAA7146 drivers from
+> > working, for example my WinTV Nova-T card using the budget-ci driver
+> > doesn't work any longer.  A lot of other people have also been bitten
+> > by this.
 
-Unfortunately it was ill timed to happen when I was busiest at work,
-and even now I'm on my way to New Zealand for a month where I'll be
-out of touc as well, so the "right" fix is not likely to happen soon.
+> The only difference is in order of searching for devices. Stradis now gets
+> control before your "real" driver. Kick stradis from your config or blacklist
+> it. Or, why you ever load module, you don't want to use?
+> There is no change in searching devices, it didn't check for subvendors before
+> not even now. If Nathan knows, there are some subvendor/subdevices ids, which we
+> should compare to, then yes, we can change the behaviour, otherwise, I am
+> afraid, we can't. It's vendors' problem, that they don't use this pci registers
+> (and it's evil) -- i think, that stradis cards have that two zeroed.
 
-I didn't even know that other saa7146 cards had been developed until
-the bug reports about the conflicts started pouring in.  I don't run
-bleeding edge kernels anymore due to work having a rhel3 requirement
-because the lame cad tool vendors are so far behind the curve.
+I'm running the stock Fedora Core 5 kernels, and for some reason the
+stradis driver is loaded.  I suppose there's some magic in the FC5
+hotplug scripts that tries to load all device drivers that claim to
+support a certain PCI device.
 
-- Nathan Laredo
-laredo@gnu.org
+I have blacklisted the stradis driver on my system, which fixes it for
+me, but it does feels as a workaround for a problem that ought to be
+fixed in the driver.  If the card doesn't have a subvendor/subdevice,
+is there some way of doing a sanity check on the board to see if it
+actually is a stradis card and then release the board if it isn't?
 
-On 5/28/06, Mauro Carvalho Chehab <mchehab@infradead.org> wrote:
-> Em Dom, 2006-05-28 às 14:52 +0159, Jiri Slaby escreveu:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
->
-> > > For anyone submitting a new SAA7146 driver to the kernel in the
-> > > future, please be aware that your card isn't the only one that uses
-> > > that chip, so always add a subvendor/subdevice to your drivers.
-> The better is to use the existent driver instead of creating newer
-> ones.
-> > The only difference is in order of searching for devices. Stradis now gets
-> > control before your "real" driver. Kick stradis from your config or blacklist
-> > it.
-> This sucks. Distros should compile all drivers to support as much
-> hardware as possible. For now, it is better to implement Christer
-> suggestions.
-> > Or, why you ever load module, you don't want to use?
-> There's no safe way to make a driver to get control after the others, if
-> both are modules, so the option is to use the saa7146 driver instead of
-> stradis.
-> > There is no change in searching devices, it didn't check for subvendors before
-> > not even now. If Nathan knows, there are some subvendor/subdevices ids, which we
-> > should compare to, then yes, we can change the behaviour, otherwise, I am
-> > afraid, we can't. It's vendors' problem, that they don't use this pci registers
-> > (and it's evil) -- i think, that stradis cards have that two zeroed.
-> This is, in fact, a trouble on several video capture boards. A real
-> merge work should be done by migrating stradis to use the generic
-> support for SAA7146. Then, having just one board, those conflicts won't
-> happen.
-> >
-> > regards,
-> > - --
-> > Jiri Slaby         www.fi.muni.cz/~xslaby
->
-> Cheers,
-> Mauro.
->
->
+If the driver isn't fixed I'll file a bug report on the Fedora
+bugzilla asking them to blacklist or just not compile that driver.
+
+  /Christer
+
+-- 
+"Just how much can I get away with and still go to heaven?"
+
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

@@ -1,63 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751732AbWE1HQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWE1HVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751732AbWE1HQf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 03:16:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751733AbWE1HQf
+	id S932066AbWE1HVz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 03:21:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbWE1HVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 03:16:35 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30994 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751732AbWE1HQe
+	Sun, 28 May 2006 03:21:55 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18950 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932066AbWE1HVy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 03:16:34 -0400
-Date: Sun, 28 May 2006 07:16:22 +0000
+	Sun, 28 May 2006 03:21:54 -0400
+Date: Sun, 28 May 2006 07:21:40 +0000
 From: Pavel Machek <pavel@ucw.cz>
-To: Rafa Bilski <rafalbilski@interia.pl>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-Subject: Re: [PATCH] Longhaul - call suspend(PMSG_FREEZE) before and resume() after
-Message-ID: <20060528071622.GA4108@ucw.cz>
-References: <4478D319.2030707@interia.pl>
+To: Jens Gtze <jens.goetze@1in1.de>
+Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux and Wireless USB Adaptor
+Message-ID: <20060528072140.GB4108@ucw.cz>
+References: <44793F44.1040603@perkel.com> <447946F8.9090407@1in1.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4478D319.2030707@interia.pl>
+In-Reply-To: <447946F8.9090407@1in1.de>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> I posted this to Dave Jones, but:
-> > This really should also get posted to linux-kernel, though I don't
-> > think people are going to be particularly enthusiastic about exposing
-> > these innards to modules.
-> So I'm posting this patch here too. I'm not subscribed to this list.
-> If You wish email me.
-> Minor change: preempt_disabled() goto_sleep_pci() and wakeup_pci() 
-> causes "sheduling while atomic". So in this patch below it isn't
-> preempt_disabled(). But I think that this should be protected
-> in some way. 
-
-Well, suspend/resume is normally called during system suspend/resume,
-so it has 'interesting' locking requirements.
-
-> How it works:
-> 1. Call suspend(PMSG_FREEZE) for each block device.
-> 2. Call suspend(PMSG_FREEZE) for each PCI device.
-> 3. Change CPU frequency.
-> 4. Call resume() for each PCI device.
-> 5. Call resume() for each block device.
+On Sun 28-05-06 08:45:12, Jens G?tze wrote:
+> Hello Marc,
 > 
-> Result: No more broken DMA transfers caused by frequency change.
+> I would try ndiswrapper (http://ndiswrapper.sf.net), because it is the
+> easiest way to run a USB Wireless LAN adapter. The ndiswrapper is a nice
+> driver, which allows to run Windows NDIS Driver under Linux. Therefore,
 
-Result: system hang if userspace tries to do request at the same time
--- PCI drivers probably were not designed for _that_... but we
-probably want to fix them, anyway, so this is probably ok (but expect
-to do some driver debugging).
+For some very obscure definition of 'nice'...  
 
-But you should really add that preempt_disable and not try this on smp
-system...
-						Pavel
-
+Avoid ndiswrapper, it is broken by design.
+							Pavel
 -- 
 Thanks for all the (sleeping) penguins.

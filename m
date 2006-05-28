@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932784AbWE1Gke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWE1GpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932784AbWE1Gke (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 02:40:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932786AbWE1Gke
+	id S1750726AbWE1GpX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 02:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWE1GpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 02:40:34 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:51164 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932784AbWE1Gkd (ORCPT
+	Sun, 28 May 2006 02:45:23 -0400
+Received: from 1in1.de ([85.214.39.241]:2723 "EHLO 1in1.de")
+	by vger.kernel.org with ESMTP id S1750726AbWE1GpX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 02:40:33 -0400
-Date: Sun, 28 May 2006 08:40:26 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: john stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
-       mingo@redhat.com, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [-rt BUG] scheduling with irqs disabled: swapper
-Message-ID: <20060528064026.GA14665@elte.hu>
-References: <1f1b08da0605261553v5e55ebdfpc790ebd5e5b0add8@mail.gmail.com> <1148692456.5381.7.camel@localhost.localdomain> <1148775233.30211.1.camel@leatherman> <1148778806.5381.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1148778806.5381.11.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Sun, 28 May 2006 02:45:23 -0400
+Message-ID: <447946F8.9090407@1in1.de>
+Date: Sun, 28 May 2006 08:45:12 +0200
+From: =?ISO-8859-1?Q?Jens_G=F6tze?= <jens.goetze@1in1.de>
+MIME-Version: 1.0
+To: Marc Perkel <marc@perkel.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux and Wireless USB Adaptor
+References: <44793F44.1040603@perkel.com>
+In-Reply-To: <44793F44.1040603@perkel.com>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=DA519E6B
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Spam: no
+X-note: out-remsmtp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Marc,
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+I would try ndiswrapper (http://ndiswrapper.sf.net), because it is the
+easiest way to run a USB Wireless LAN adapter. The ndiswrapper is a nice
+driver, which allows to run Windows NDIS Driver under Linux. Therefore,
+you can use the delivered Windows Driver to run your adapter under
+Linux. I use for all my wireless adapter this kind of solution. But
+maybe it exists a better way to run your adapter under Linux (separate
+linux driver or so).
+If you need help to install ndiswrapper you should take a look on the
+project website.
 
-> Thanks, but I was looking more into the code, and I'm wondering... 
-> Does this machine have "irqfixup" or "irqpoll" set in the kernel 
-> command line?
+Regards,
+Jens
+
+Marc Perkel wrote:
+> I have an Airlink Wireless USB 2.0 adaptor. Does it work with Linux? If
+> so - what do I have to do to make it work?
 > 
-> I think that -rt doesn't support it yet.  That is, it can call a 
-> handler from interrupt context, which should have been a thread.
+> Thanks in advance.
 > 
-> Let me know if that was the case.
-
-the backtrace shows misrouted_irq(), which is only called if "irqfixup" 
-is enabled. That indeed isnt supported in -rt yet.
-
-	Ingo
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

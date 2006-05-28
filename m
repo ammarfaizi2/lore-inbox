@@ -1,94 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbWE1VzJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbWE1WCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750977AbWE1VzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 17:55:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWE1VzJ
+	id S1750981AbWE1WCN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 18:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWE1WCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 17:55:09 -0400
-Received: from lug-owl.de ([195.71.106.12]:33193 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1750987AbWE1VzH (ORCPT
+	Sun, 28 May 2006 18:02:13 -0400
+Received: from rune.pobox.com ([208.210.124.79]:21650 "EHLO rune.pobox.com")
+	by vger.kernel.org with ESMTP id S1750980AbWE1WCN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 17:55:07 -0400
-Date: Sun, 28 May 2006 23:55:05 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       devmazumdar <dev@opensound.com>, linux-kernel@vger.kernel.org
-Subject: Re: How to check if kernel sources are installed on a system?
-Message-ID: <20060528215504.GS13513@lug-owl.de>
-Mail-Followup-To: Lee Revell <rlrevell@joe-job.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Heiko Carstens <heiko.carstens@de.ibm.com>,
-	devmazumdar <dev@opensound.com>, linux-kernel@vger.kernel.org
-References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe> <1148653797.3579.18.camel@laptopd505.fenrus.org> <20060528130320.GA10385@osiris.ibm.com> <1148835799.3074.41.camel@laptopd505.fenrus.org> <1148838738.21094.65.camel@mindpipe> <1148839964.3074.52.camel@laptopd505.fenrus.org> <1148846131.27461.14.camel@mindpipe> <20060528204558.GR13513@lug-owl.de> <1148851660.27461.23.camel@mindpipe>
+	Sun, 28 May 2006 18:02:13 -0400
+Date: Sun, 28 May 2006 15:02:08 -0700
+From: Paul Dickson <dickson@permanentmail.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bisects that are neither good nor bad
+Message-Id: <20060528150208.3a606c1c.dickson@permanentmail.com>
+In-Reply-To: <200605282324.13431.rjw@sisk.pl>
+References: <20060528140238.2c25a805.dickson@permanentmail.com>
+	<20060528140854.34ddec2a.paul@permanentmail.com>
+	<200605282324.13431.rjw@sisk.pl>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.9.1; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cGn0fZIJon5R7R2H"
-Content-Disposition: inline
-In-Reply-To: <1148851660.27461.23.camel@mindpipe>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 28 May 2006 23:24:12 +0200, Rafael J. Wysocki wrote:
 
---cGn0fZIJon5R7R2H
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Sunday 28 May 2006 23:08, Paul Dickson wrote:
+> > On Sun, 28 May 2006 14:02:38 -0700, Paul Dickson wrote:
+> > 
+> > > Building and testing a good kernel takes me about 70 minutes.  If I make
+> > > mistakes it can easily take two times (or more!) longer.
+> > >
+> > > I'm currently tracking my work at:
+> > >     https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=185108
+> > >
+> > > I'm currently building my fifth bisect.
+> 
+> Could you please also try if the problems persist if you boot with
+> init=/bin/bash?
 
-On Sun, 2006-05-28 17:27:39 -0400, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Sun, 2006-05-28 at 22:45 +0200, Jan-Benedict Glaw wrote:
-> > ...which isn't always the worst solution to the problem. If some guy
-> > doesn't want to jump through the loops to figure out what's actually
-> > broken, Windows may be a good solution for them. "World domination"
-> > also means "dominated by the world's problems," so I tend to go a step
-> > back from time to time:-)
->=20
-> Yes, if it were a perfect world and we had access to all the hardware
-> specs like Microsoft does, we would not need these users' help.  But the
-> users have access to a lot more hardware than the developers do and
-> trial and error is often the only solution.
+I'll try it after I send this message.  I'm guessing you're refering to
+my third bisect.  I still have that and will use it.
 
-But this isn't a perfect world.
+I also have my 5th bisect ready for this reboot too...
 
-> If they give up and go back to Windows we may never support their
-> hardware correctly.
 
-No user for that given hardware, then there's no sense in supporting
-it. If there's a user that *really* wants that hardware supported,
-then they will put effort into getting it to work, either by helping
-debugging, hacking or by paying some expert to reverse-engineer an
-existing driver.
+> Besides, it would be helpful if you were able to get a serial console log
+> from the failing system.
 
-MfG, JBG
+No serial port on this notebook.  I've tried
+"netconsole=4444@192.168.1.9/eth0,6666@192.168.1.3/00:01:02:77:7D:E1" but
+nothing happens (there's not even a log message that this is unsupported).
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
 
---cGn0fZIJon5R7R2H
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+> > Is there a method of bisecting that means neither "good" nor "bad"?  I
+> > have run into kernel problems that are not related to the problem I'm
+> > attempting to track.  Some are not avoidable by changing the .config (see
+> > the third bisect in comments 10 and 11 in the bugzilla report).
+> 
+> There are lots of patches between 2.6.16-rc* and 2.6.17-rc1, most of them
+> having stayed in -mm for some time.  If you found the first failing -mm kernel,
+> it would be easier to catch the offending patch.
+> 
+> BTW, have you tried any kernel _after_ 2.6.17-rc1?  If not, I'd start from
+> these.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+I have been using the Fedora development kernels.  The last I'm SURE I
+tested was 2211 (2.6.17-rc4-git11).  It has the same problems as the
+2.6.17-rc1 I compiled from the git database.  It's been the same
+throughout the series.
 
-iD8DBQFEehw4Hb1edYOZ4bsRAh5jAKCGNBBA++sDVFPGsCi6owKvTyfmWwCeJQKr
-MnfHhoDenuNEZuhP1S/Pfj0=
-=THr8
------END PGP SIGNATURE-----
+I may try sshing into my notebook when I finish these current bisect
+tests to see if it's still the HD being made RO.  This is assuming ssh
+will keep the connection through a suspend.
 
---cGn0fZIJon5R7R2H--
+	-Paul

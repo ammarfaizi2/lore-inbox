@@ -1,135 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbWE1Sa0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbWE1SlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750854AbWE1Sa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 14:30:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbWE1Sa0
+	id S1750846AbWE1SlG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 14:41:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWE1SlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 14:30:26 -0400
-Received: from xenotime.net ([66.160.160.81]:31917 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750835AbWE1SaZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 14:30:25 -0400
-Date: Sun, 28 May 2006 11:32:59 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: linux-kernel@vger.kernel.org, drepper@redhat.com, akpm@osdl.org,
-       serue@us.ibm.com, sam@vilain.net, clg@fr.ibm.com, dev@sw.ru
-Subject: Re: [PATCH] POSIX-hostname up to 255 characters
-Message-Id: <20060528113259.6a60c351.rdunlap@xenotime.net>
-In-Reply-To: <m13bev8tep.fsf@ebiederm.dsl.xmission.com>
-References: <20060525204534.4068e730.rdunlap@xenotime.net>
-	<m1zmh5b129.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.58.0605261758001.13225@shark.he.net>
-	<Pine.LNX.4.58.0605270027070.29434@shark.he.net>
-	<m13bev8tep.fsf@ebiederm.dsl.xmission.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Sun, 28 May 2006 14:41:06 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:20144 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750863AbWE1SlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 14:41:05 -0400
+Subject: Re: Stradis driver conflicts with all other SAA7146 drivers
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Christer Weinigel <christer@weinigel.se>
+Cc: Nathan Laredo <laredo@gnu.org>, Jiri Slaby <jirislaby@gmail.com>,
+       linux-kernel@vger.kernel.org, video4linux-list@redhat.com,
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>
+In-Reply-To: <m3k686hvzi.fsf@zoo.weinigel.se>
+References: <m3wtc6ib0v.fsf@zoo.weinigel.se> <44799D24.7050301@gmail.com>
+	 <1148825088.1170.45.camel@praia>
+	 <d6e463920605280901n41840baeuc30283a51e35204e@mail.gmail.com>
+	 <1148837483.1170.65.camel@praia>  <m3k686hvzi.fsf@zoo.weinigel.se>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Sun, 28 May 2006 15:40:54 -0300
+Message-Id: <1148841654.1170.70.camel@praia>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.6.1-2mdk 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 May 2006 07:54:38 -0600 Eric W. Biederman wrote:
+Em Dom, 2006-05-28 às 19:58 +0200, Christer Weinigel escreveu:
+> Mauro Carvalho Chehab <mchehab@infradead.org> writes:
 
-> "Randy.Dunlap" <rdunlap@xenotime.net> writes:
+> dpc7146, hexium_orion and mxb don't match all PCI IDs, they only match
+> boards with zero as a board ID.  So they won't conflict with
+> non-broken boards that have valid subvendor IDs.  But they will
+> conflict with each other.
+Yes. it is this I was trying to say :)
 > 
-> >> > "Randy.Dunlap" <rdunlap@xenotime.net> writes:
-> >> >
-> >> > > This patch is against 2.6.17-rc5, for review/comments, please.
-> >> > > It won't apply to -mm since Andrew has merged the uts-namespace patches.
-> >> > > I'll see about merging it with those patches next.
-> >> > > ---
-> >
-> > Per Eric's comments:
-> >
-> > 1.  use existing sys_gethostname() and sys_sethostname().
-> >
-> > 2.  add sys_uname_long() to read struct long_utsname;
-> >
-> > 3.  removed EXPORT_SYMBOL()s
+> How may of these boards are broken and have zeroes in the
+> subvendor/subdevice fields?  Apparently some of the dpc7146f,
+> hexium_orion, mxb, and stradis boards are broken.  How many of the
+> boards supported by the generic saa7146 driver are broken the same
+> way?
+I don't have any saa7146 board, but, on bttv, most boards don't have its
+own PCI ID.
 > 
-> I have to confess I am still uneasy with sys_uname_long.
+> Can't the stradis driver do the same thing as the other drivers and
+> explicitly match the broken zero subvendor id and the non-broken
+> subvendor IDs?
 > 
-> The problem is that we have several revisions of this system
-> call almost always simply to accommodate long string lengths,
-> and the new interface doesn't seem any less susceptible to
-> handling longer strings than the old one.
 
-so you want an interface that is self-describing and extensible?
+> That would fix the problem for me and make it SEP. :-)
 
-There are lots of syscalls that require struct pointers
-from userspace... that users can get wrong.
+This seems to be an interesting idea: to make stradis just probe the
+recognized IDs and the generic one. It won't solve, however, the probing
+intersection for dpc7146f, hexium_orion, mxb, and stradis when no
+subvendor ID is specified on the board.
+> 
+> Can somebody with a SDM2xx stradis board mail me the output from
+> "lspci -vn" and I'll cobble together a patch that does this?
+> 
+> This still needs solving properly, but at least it makes it less of
+> a problem for people with non-broken hardware.
+> 
+>   /Christer
+> 
+Cheers, 
+Mauro.
 
-Ulrich, do you have any comments/suggestions about this from
-the userspace/lib perspective?
-
-
-> Could we do something like:
-> long sys_unamev(int count, char __user **name, size_t name_len)
-> {
->         char *table[] = {
-> 		system_utsname.sysname,
->                 system_utsname.nodename,
->                 system_utsname.release,
->                 system_utsname.version,
->                 system_utsname.machine,
->                 system_utsname.domainname,
->         };
->         char __user *data;
->         long error;
->         long len;
->         int i;
-> 
-> 	down_read(&uts_sem);
-> 
->         error = -EINVAL;     
->         if (count > 6)
->         	goto out;
-> 
->         len = sizeof(char __user *) * count;
->         for (i = 0; i < count; i++) {
->  		len += strlen(table[i]) + 1;
->         }
-> 
->         error = -ERANGE;
->         if (len > name_len)
->         	goto out;
-> 
->         error = -EFAULT;
->         if (!name)
->         	goto out;
->         if (!access_ok(VERIFY_WRITE, name, name_len))
->         	goto out;
-> 
->         error = 0;
->         data = (char __user *)&name[count];
->         for (i = 0; i < count; i++) {
->         	size_t len = strlen(table[i]) + 1;
->                 error |= __put_user(data, name[i]);
->                 error |= __copy_to_user(data, table[i], len);
->                 data += len;
->         }
-> out:
-> 	up_read(&uts_sem);
->         return error;
-> }
-> 
-> And then in user space we can do.
-> struct utsname {
->        char *sysname;
->        char *nodename;
->        char *release;
->        char *version;
->        char *machine;
->        char *domainname;
->        char buf[4096 - (sizeof(char *)*6)];
-> };
-> 
-> int uname(struct utsname *buf)
-> {
->         return sys_unamev(6, buf, sizeof(*buf));
-> }
-
----
-~Randy

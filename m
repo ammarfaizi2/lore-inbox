@@ -1,168 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbWE1Num@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWE1OFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750769AbWE1Num (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 09:50:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWE1Nul
+	id S1750756AbWE1OFE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 10:05:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWE1OFE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 09:50:41 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:56766 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750768AbWE1Nuk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 09:50:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=Z3PJBIvIetL9+wJfAx/YHqlFtJOMsFpatTcdh+ixeUGyOVH/+FV8OBHH3r+NDxiCEFnIvuQaSRNodZfLvtB2arY2o9xDAgzDdU5LFGqvCAqJ7mneE+6zPcGoCCBBeTWVQ9/JW+BocQXusr/h6E51K23mJn60F0jp4sxt+kWPUPA=
-Message-ID: <4479AAB8.9010509@gmail.com>
-Date: Sun, 28 May 2006 15:50:25 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] HPT3xx: switch to using pci_get_slot()
-References: <444B3BDE.1030106@ru.mvista.com> <4457DC97.3010807@ru.mvista.com> <445A5A1B.60903@ru.mvista.com> <446A55D6.90507@ru.mvista.com> <446ED8A3.6030702@ru.mvista.com> <4478CD3D.6010409@ru.mvista.com> <4478E104.7040200@ru.mvista.com>
-In-Reply-To: <4478E104.7040200@ru.mvista.com>
-X-Enigmail-Version: 0.94.0.0
+	Sun, 28 May 2006 10:05:04 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:54711 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750756AbWE1OFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 10:05:02 -0400
+Subject: Re: Stradis driver conflicts with all other SAA7146 drivers
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Christer Weinigel <christer@weinigel.se>, Nathan Laredo <laredo@gnu.org>,
+       linux-kernel@vger.kernel.org, video4linux-list@redhat.com,
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>
+In-Reply-To: <44799D24.7050301@gmail.com>
+References: <m3wtc6ib0v.fsf@zoo.weinigel.se>  <44799D24.7050301@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Date: Sun, 28 May 2006 11:04:47 -0300
+Message-Id: <1148825088.1170.45.camel@praia>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1-2mdk 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Sergei Shtylyov napsal(a):
->    Switch to using pci_get_slot() to get to the function 1 of HPT36x/374
-> chips -- there's no need for the driver itself to walk the list of the
-> PCI devices, and it also forgets to check the bus number of the device
-> found.
-It's better, but you missed to call pci_dev_put() in some __exit function.
-> 
-> Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> Index: linus/drivers/ide/pci/hpt366.c
-> ===================================================================
-> --- linus.orig/drivers/ide/pci/hpt366.c
-> +++ linus/drivers/ide/pci/hpt366.c
-> @@ -1,5 +1,5 @@
->  /*
-> - * linux/drivers/ide/pci/hpt366.c		Version 0.44	May 20, 2006
-> + * linux/drivers/ide/pci/hpt366.c		Version 0.45	May 27, 2006
->   *
->   * Copyright (C) 1999-2003		Andre Hedrick <andre@linux-ide.org>
->   * Portions Copyright (C) 2001	        Sun Microsystems, Inc.
-> @@ -79,6 +79,7 @@
->   * - prefix the driver startup messages with the real chip name
->   * - claim the extra 240 bytes of I/O space for all chips
->   * - optimize the rate masking/filtering and the drive list lookup code
-> + * - use pci_get_slot() to get to the function 1 of HPT36x/374
->   *		<source@mvista.com>
->   *
->   */
-> @@ -1412,24 +1413,24 @@ static void __devinit init_iops_hpt366(i
->  
->  static int __devinit init_setup_hpt374(struct pci_dev *dev, ide_pci_device_t *d)
->  {
-> -	struct pci_dev *findev = NULL;
-> +	struct pci_dev *dev2;
->  
->  	if (PCI_FUNC(dev->devfn) & 1)
->  		return -ENODEV;
->  
-> -	while ((findev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, findev)) != NULL) {
-> -		if ((findev->vendor == dev->vendor) &&
-> -		    (findev->device == dev->device) &&
-> -		    ((findev->devfn - dev->devfn) == 1) &&
-> -		    (PCI_FUNC(findev->devfn) & 1)) {
-> -			if (findev->irq != dev->irq) {
-> -				/* FIXME: we need a core pci_set_interrupt() */
-> -				findev->irq = dev->irq;
-> -				printk(KERN_WARNING "%s: pci-config space interrupt "
-> -					"fixed.\n", d->name);
-> -			}
-> -			return ide_setup_pci_devices(dev, findev, d);
-> +	if ((dev2 = pci_get_slot(dev->bus, dev->devfn + 1)) != NULL) {
-> +		int ret;
-> +
-> +		if (dev2->irq != dev->irq) {
-> +			/* FIXME: we need a core pci_set_interrupt() */
-> +			dev2->irq = dev->irq;
-> +			printk(KERN_WARNING "%s: PCI config space interrupt "
-> +			       "fixed.\n", d->name);
->  		}
-> +		ret = ide_setup_pci_devices(dev, dev2, d);
-> +		if (ret < 0)
-> +			pci_dev_put(dev2);
-> +		return ret;
->  	}
->  	return ide_setup_pci_device(dev, d);
->  }
-> @@ -1487,8 +1488,8 @@ static int __devinit init_setup_hpt302(s
->  
->  static int __devinit init_setup_hpt366(struct pci_dev *dev, ide_pci_device_t *d)
->  {
-> -	struct pci_dev *findev = NULL;
-> -	u8 rev = 0, pin1 = 0, pin2 = 0;
-> +	struct pci_dev *dev2;
-> +	u8 rev = 0;
->  	static char   *chipset_names[] = { "HPT366", "HPT366",  "HPT368",
->  					   "HPT370", "HPT370A", "HPT372",
->  					   "HPT372N" };
-> @@ -1508,21 +1509,21 @@ static int __devinit init_setup_hpt366(s
->  
->  	d->channels = 1;
->  
-> -	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin1);
-> -	while ((findev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, findev)) != NULL) {
-> -		if ((findev->vendor == dev->vendor) &&
-> -		    (findev->device == dev->device) &&
-> -		    ((findev->devfn - dev->devfn) == 1) &&
-> -		    (PCI_FUNC(findev->devfn) & 1)) {
-> -			pci_read_config_byte(findev, PCI_INTERRUPT_PIN, &pin2);
-> -			if ((pin1 != pin2) && (dev->irq == findev->irq)) {
-> -				d->bootable = ON_BOARD;
-> -				printk("%s: onboard version of chipset, "
-> -					"pin1=%d pin2=%d\n", d->name,
-> -					pin1, pin2);
-> -			}
-> -			return ide_setup_pci_devices(dev, findev, d);
-> +	if ((dev2 = pci_get_slot(dev->bus, dev->devfn + 1)) != NULL) {
-> +	  	u8  pin1 = 0, pin2 = 0;
-> +		int ret;
-> +
-> +		pci_read_config_byte(dev,  PCI_INTERRUPT_PIN, &pin1);
-> +		pci_read_config_byte(dev2, PCI_INTERRUPT_PIN, &pin2);
-> +		if (pin1 != pin2 && dev->irq == dev2->irq) {
-> +			d->bootable = ON_BOARD;
-> +			printk("%s: onboard version of chipset, pin1=%d pin2=%d\n",
-> +			       d->name, pin1, pin2);
->  		}
-> +		ret = ide_setup_pci_devices(dev, dev2, d);
-> +		if (ret < 0)
-> +			pci_dev_put(dev2);
-> +		return ret;
->  	}
->  init_single:
->  	return ide_setup_pci_device(dev, d);
+Em Dom, 2006-05-28 às 14:52 +0159, Jiri Slaby escreveu:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
 
+> > For anyone submitting a new SAA7146 driver to the kernel in the
+> > future, please be aware that your card isn't the only one that uses
+> > that chip, so always add a subvendor/subdevice to your drivers.
+The better is to use the existent driver instead of creating newer
+ones. 
+> The only difference is in order of searching for devices. Stradis now gets
+> control before your "real" driver. Kick stradis from your config or blacklist
+> it. 
+This sucks. Distros should compile all drivers to support as much
+hardware as possible. For now, it is better to implement Christer
+suggestions.
+> Or, why you ever load module, you don't want to use?
+There's no safe way to make a driver to get control after the others, if
+both are modules, so the option is to use the saa7146 driver instead of
+stradis.
+> There is no change in searching devices, it didn't check for subvendors before
+> not even now. If Nathan knows, there are some subvendor/subdevices ids, which we
+> should compare to, then yes, we can change the behaviour, otherwise, I am
+> afraid, we can't. It's vendors' problem, that they don't use this pci registers
+> (and it's evil) -- i think, that stradis cards have that two zeroed.
+This is, in fact, a trouble on several video capture boards. A real
+merge work should be done by migrating stradis to use the generic
+support for SAA7146. Then, having just one board, those conflicts won't
+happen.
+> 
+> regards,
+> - --
+> Jiri Slaby         www.fi.muni.cz/~xslaby
 
-- --
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Cheers, 
+Mauro.
 
-iD8DBQFEeaq4MsxVwznUen4RAgeRAKDFZZWKIOW1kEOOnsMPRmsNBGc0AQCfWM1f
-v7Ub4sGcHL0nCGJ6dhoj4g0=
-=e7BC
------END PGP SIGNATURE-----

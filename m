@@ -1,50 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWE1MaI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbWE1Mdy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbWE1MaI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 08:30:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWE1MaI
+	id S1750752AbWE1Mdy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 08:33:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWE1Mdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 08:30:08 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:43947 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1750748AbWE1MaH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 08:30:07 -0400
-Message-ID: <348819403.29527@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Sun, 28 May 2006 20:30:06 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Nate Diller <nate.diller@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 23/33] readahead: backward prefetching method
-Message-ID: <20060528123006.GC6478@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Nathan Scott <nathans@sgi.com>, Nate Diller <nate.diller@gmail.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060524111246.420010595@localhost.localdomain> <348469547.47755@ustc.edu.cn> <5c49b0ed0605261037p6a32db1fva693ea72b596f896@mail.gmail.com> <20060527052243.B349096@wobbly.melbourne.sgi.com>
+	Sun, 28 May 2006 08:33:53 -0400
+Received: from 2-1-3-15a.ens.sth.bostream.se ([82.182.31.214]:51384 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id S1750752AbWE1Mdx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 08:33:53 -0400
+To: Nathan Laredo <laredo@gnu.org>
+Cc: Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org,
+       video4linux-list@redhat.com
+Subject: Stradis driver conflicts with all other SAA7146 drivers
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 28 May 2006 14:33:52 +0200
+Message-ID: <m3wtc6ib0v.fsf@zoo.weinigel.se>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060527052243.B349096@wobbly.melbourne.sgi.com>
-User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 27, 2006 at 05:22:43AM +1000, Nathan Scott wrote:
-> On Fri, May 26, 2006 at 10:37:56AM -0700, Nate Diller wrote:
-> > On 5/24/06, Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
-> > > Readahead policy for reading backward.
-> > 
-> > Just curious, who actually does this?  I noticed you submitted patches
-> 
-> Nastran does this, and probably other FEA codes.  IIRC, iozone
-> will measure this too - it is very important to some people in
-> certain scientific arenas.
+Hi,
 
-Thanks.
+[Nathan Laredo is the maintainer of the stradis driver but Jiri Slaby
+submitted the PCI probing change that went into 2.6.16 so I'm Cc-ing
+him too.  I'm not a member of the video4linux mailing list so please
+Cc me on any responses.]
 
-It makes sense to have a list of use cases for the
-less-common-but-still-important access patterns.
+The stradis driver in the 2.6.16 kernel only looks at the SAA7146
+vendor and product ID and binds to any SAA7146 based device even if it
+is not a stradis card.  This stops all other SAA7146 drivers from
+working, for example my WinTV Nova-T card using the budget-ci driver
+doesn't work any longer.  A lot of other people have also been bitten
+by this.
 
-Cheers,
-Wu
+So could you please modify your driver so that it only binds to real
+stradis cards?  If stradis cards have a subvendor and subdevice ID you
+could just modify the pci_device_id table to look something like this:
+
+static struct pci_device_id stradis_pci_tbl[] = {
+        { 
+                .vendor = PCI_VENDOR_ID_PHILIPS, 
+                .device = PCI_DEVICE_ID_PHILIPS_SAA7146,
+                .subvendor = 0xdead,
+                .subdevice = 0xbeef,
+        },
+        { 0 }
+};
+
+>From the code it looks as if some boards don't have a good subsystem
+vendor and device ID:
+
+        if (!pdev->subsystem_vendor)
+                dev_info(&pdev->dev, "%d: rev1 decoder\n", saa_num);
+        else
+                dev_info(&pdev->dev, "%d: SDM2xx found\n", saa_num);
+
+Are those rev1 boards out in the real world or are they just
+prototypes?  If they are prototypes, can you add the subvendor ID
+anway and add a module parameter so that your driver only binds to
+unspecified vendor IDs if you use that module parameter?  Something
+like this:
+
+static int bind_to_anything = 0;
+module_param(bind_to_anything, int, 0);
+
+int __init stradis_init(void)
+{
+        ...
+	if (bind_to_anything) {   
+		stradis_pci_tbl[0].subvendor = PCI_ANY_ID;
+		stradis_pci_tbl[0].subdevice = PCI_ANY_ID;
+        }
+        ...
+        pci_register_driver(&stradis_driver);
+        ...
+}
+
+For anyone submitting a new SAA7146 driver to the kernel in the
+future, please be aware that your card isn't the only one that uses
+that chip, so always add a subvendor/subdevice to your drivers.
+
+  /Christer
+
+-- 
+"Just how much can I get away with and still go to heaven?"
+
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

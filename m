@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWE1J3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWE1JpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWE1J3O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 05:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWE1J3O
+	id S932115AbWE1JpF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 05:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWE1JpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 05:29:14 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:7215 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932095AbWE1J3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 05:29:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=a9OHURg1wT6LrIFDZcsBH6CR+N4avHAeXfRvlkYOQN2ZgJXT/do5ehZ4hK0tm+zj5hnh8sJrIlgh6DY+SMDkHBjswHS6cwOo7bs4WoZGOVniKAL/R6uTaTxlJS40n0HG+T/bbrC8dnT8JV83mTbxTzenuzoD7Npgs3WeIhPiE1Q=
-Message-ID: <35fb2e590605280229g76e75419h10717238e15e7347@mail.gmail.com>
-Date: Sun, 28 May 2006 10:29:12 +0100
-From: "Jon Masters" <jonathan@jonmasters.org>
-To: "Greg KH" <greg@kroah.com>
-Subject: Re: [ANNOUNCE] Linux Device Driver Kit available
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060524232900.GA18408@kroah.com>
+	Sun, 28 May 2006 05:45:05 -0400
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:21107 "EHLO
+	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932115AbWE1JpD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 05:45:03 -0400
+Message-ID: <4479759C.8050104@gentoo.org>
+Date: Sun, 28 May 2006 11:04:12 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060509)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Marc Perkel <marc@perkel.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux and Wireless USB Adaptor
+References: <44793F44.1040603@perkel.com>
+In-Reply-To: <44793F44.1040603@perkel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060524232900.GA18408@kroah.com>
-X-Google-Sender-Auth: bc92b874f28670cc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/25/06, Greg KH <greg@kroah.com> wrote:
+Hi Marc,
 
-> It is a cd image that contains everything that a Linux device driver
-> author would need in order to create Linux drivers, including a full
-> copy of the O'Reilly book, "Linux Device Drivers, third edition" and
-> pre-built copies of all of the in-kernel docbook documentation for easy
-> browsing.  It even has a copy of the Linux source code that you can
-> directly build external kernel modules against.
+Marc Perkel wrote:
+> I have an Airlink Wireless USB 2.0 adaptor. Does it work with Linux? If 
+> so - what do I have to do to make it work?
 
-Thanks Greg. I'll download a copy and take a look.
+Is it an AWLL3025 or an AWLL3026?
 
-Random ideas:
+If so, it is based on the ZD1211 chip. You can download a community 
+maintained version of the vendor driver here: http://zd1211.ath.cx/
 
-* Bootable Damn Small Linux (DSL) or similar.
-* cached LXR (obviously with reduced function).
+Or you can try the rewritten version which we aim to get included in 
+2.6.18 or 2.6.19: http://zd1211.ath.cx/wiki/DriverRewrite
 
-Jon.
+Daniel

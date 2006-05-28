@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbWE1XGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbWE1XJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751036AbWE1XGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 19:06:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751038AbWE1XGZ
+	id S1751035AbWE1XJL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 19:09:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbWE1XJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 19:06:25 -0400
-Received: from hera.kernel.org ([140.211.167.34]:30689 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751036AbWE1XGY (ORCPT
+	Sun, 28 May 2006 19:09:11 -0400
+Received: from mail1.cluenet.de ([195.20.121.7]:35006 "EHLO mail1.cluenet.de")
+	by vger.kernel.org with ESMTP id S1751035AbWE1XJK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 19:06:24 -0400
+	Sun, 28 May 2006 19:09:10 -0400
+Date: Mon, 29 May 2006 01:09:09 +0200
+From: Daniel Roesen <dr@cluenet.de>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: How to send a break?
-Date: Sun, 28 May 2006 16:06:06 -0700 (PDT)
-Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <e5dacu$v33$1@terminus.zytor.com>
-References: <01b701c6818d$4bcd37b0$1800a8c0@dcccs>
+Subject: Re: EDAC MC0: UE page 0x1fffa, offset 0x0, grain 4096, row 0, labels ":": i82875p UE
+Message-ID: <20060528230909.GA14256@srv01.cluenet.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <89E85E0168AD994693B574C80EDB9C2703F7749D@uk-email.terastack.bluearc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1148857566 31844 127.0.0.1 (28 May 2006 23:06:06 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Sun, 28 May 2006 23:06:06 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <89E85E0168AD994693B574C80EDB9C2703F7749D@uk-email.terastack.bluearc.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <01b701c6818d$4bcd37b0$1800a8c0@dcccs>
-By author:    =?iso-8859-2?Q?Haar_J=E1nos?= <djani22@netcenter.hu>
-In newsgroup: linux.dev.kernel
->
-> Hello, list,
+On Tue, May 16, 2006 at 09:55:47AM +0100, Andy Chittenden wrote:
+> Every one of our ASUS P4C800-E and ASUS P4C800 based machines that I've
+> installed a 2.6.16 smp based kernel on is logging messages of the form:
 > 
-> I wish to know, how to send a "BREAK" to trigger the sysreq functions on the
-> serial line, using echo.
+> EDAC MC0: UE page 0x1fffa, offset 0x0, grain 4096, row 0, labels ":":
+> i82875p UE
 > 
-> I mean like this:
-> 
-> #!/bin/bash
-> echo "?BREAK?" >/dev/ttyS0
-> sleep 2
-> echo "m" >/dev/ttyS0
-> 
+> every second or so. So I've downgraded them back to 2.6.15. I believe
+> the message is moaning that the ECC memory has unrecoverable errors.
+> However, the memory in the machines I've tried passes memtest. And
+> I'd've expected system hangs which we don't get.
 
-You can't use it using echo, however, you can do it using Perl:
+I'm experiencing the same problem, which sorta keeps me somewhat from
+using an up-to-date kernel.
 
-perl -e 'use POSIX; tcsendbreak(1,0);' > /dev/ttyS0
+Also reported to Fedora:
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=191506
 
-	-hpa
+rmmod'ing the EDAC driver makes those messages go away, but that's
+sticking the head into the sand. 
+
+Are actually errors happening when those messages pop up? The system
+is running rock-solid since ages. It's only with the new kernels and
+it's EDAC module where those errors do pop up...
+
+
+Best regards,
+Daniel
+
+-- 
+CLUE-RIPE -- Jabber: dr@cluenet.de -- dr@IRCnet -- PGP: 0xA85C8AA0

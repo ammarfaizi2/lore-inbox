@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbWE1VL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbWE1VMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750939AbWE1VL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 17:11:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWE1VL2
+	id S1750948AbWE1VMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 17:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750950AbWE1VMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 17:11:28 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:17865 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750939AbWE1VL1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 17:11:27 -0400
-Subject: Re: Resume stops working between 2.6.16 and 2.6.17-rc1 on Dell
-	Inspiron 6000
-From: Arjan van de Ven <arjan@infradead.org>
-To: Paul Dickson <dickson@permanentmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060528140238.2c25a805.dickson@permanentmail.com>
-References: <20060528140238.2c25a805.dickson@permanentmail.com>
-Content-Type: text/plain
-Date: Sun, 28 May 2006 23:11:23 +0200
-Message-Id: <1148850683.3074.72.camel@laptopd505.fenrus.org>
+	Sun, 28 May 2006 17:12:09 -0400
+Received: from ns2.suse.de ([195.135.220.15]:63887 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750949AbWE1VMI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 17:12:08 -0400
+Date: Sun, 28 May 2006 23:12:06 +0200
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] enable CONFIG_KALLSYMS_ALL unconditionally after allnoconfig
+Message-ID: <20060528211206.GA13458@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-05-28 at 14:02 -0700, Paul Dickson wrote:
-> I follow the Fedora development kernels and noticed that resuming from
-> suspending (and hibernate) stopped working at 2.6.16-git15 (Fedora Core
-> kernel 2102).  Trouble was, my only previous kernel was 2.6.16-rc6-git12
-> (FC 2064) because I had been out of town for nearly two weeks (I did have
-> limited net access and that's how I got that last working version).
 
-have you verified they have both the same general .config file? Like
-both are smp or both UP, same APIC settings etc etc 
-That's all easy to check and those two are the most likely candidates in
-config land that could break resume... 
-(not saying those are the cause or have changed, no idea, but they're
-really cheap to check that none have changed, much cheaper than a
-bisect ;)
+CONFIG_KALLSYMS_ALL is disabled after these commands:
 
+rm -rf ../foo-$$
+mkdir ../foo-$$
+make -j ARCH=powerpc O=../foo-$$ allnoconfig  > /dev/null 
+grep KALLSYMS ../foo-$$/.config
+make -j ARCH=powerpc O=../foo-$$ menuconfig
+ # 'Kernel hacking  ---> ' , enable 'Kernel debugging '
+grep KALLSYMS ../foo-$$/.config
+
+enabled it along with CONFIG_KALLSYMS, because CONFIG_KALLSYMS is not selectable per default
+xmon can not lookup all symbols without CONFIG_KALLSYMS_ALL,
+'ls log_buf' will not work as example.
+
+Signed-off-by: Olaf Hering <olh@suse.de>
+
+---
+ init/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
+
+Index: linux-2.6/init/Kconfig
+===================================================================
+--- linux-2.6.orig/init/Kconfig
++++ linux-2.6/init/Kconfig
+@@ -276,6 +276,7 @@ config KALLSYMS
+ config KALLSYMS_ALL
+ 	bool "Include all symbols in kallsyms"
+ 	depends on DEBUG_KERNEL && KALLSYMS
++	default y
+ 	help
+ 	   Normally kallsyms only contains the symbols of functions, for nicer
+ 	   OOPS messages.  Some debuggers can use kallsyms for other

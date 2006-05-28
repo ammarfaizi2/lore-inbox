@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWE1W7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbWE1XGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751029AbWE1W7E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 18:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbWE1W7E
+	id S1751036AbWE1XGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 19:06:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751038AbWE1XGZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 18:59:04 -0400
-Received: from mx2.suse.de ([195.135.220.15]:24985 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751029AbWE1W7D (ORCPT
+	Sun, 28 May 2006 19:06:25 -0400
+Received: from hera.kernel.org ([140.211.167.34]:30689 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751036AbWE1XGY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 18:59:03 -0400
-From: Neil Brown <neilb@suse.de>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Date: Mon, 29 May 2006 08:58:36 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17530.11036.427239.812677@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.16.18 - spelling fix
-In-Reply-To: message from Justin Piszcz on Saturday May 27
-References: <Pine.LNX.4.64.0605272016520.28903@p34>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	Sun, 28 May 2006 19:06:24 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: How to send a break?
+Date: Sun, 28 May 2006 16:06:06 -0700 (PDT)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <e5dacu$v33$1@terminus.zytor.com>
+References: <01b701c6818d$4bcd37b0$1800a8c0@dcccs>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1148857566 31844 127.0.0.1 (28 May 2006 23:06:06 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Sun, 28 May 2006 23:06:06 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday May 27, jpiszcz@lucidpixels.com wrote:
-> I was experimenting with Linux SW raid today and found a spelling error 
-> when reading the help menus...
+Followup to:  <01b701c6818d$4bcd37b0$1800a8c0@dcccs>
+By author:    =?iso-8859-2?Q?Haar_J=E1nos?= <djani22@netcenter.hu>
+In newsgroup: linux.dev.kernel
+>
+> Hello, list,
 > 
-> Patch attached, not sure if this is the right place to send it or if 
-> patches go to Andrew Morton (misc ones like this)...
-
-Thanks....
-but more helpful than a spelling fix would be a chunk of elisp that I
-could stick in my .emacs, which would automatically turn on flyspell
-mode in Kconfig files, and inside comments in .c and .h files.
-
-The first bit is probably trivial.  The second has got to be
-possible...
-
-Or maybe just keep posting patches like this in the hope of shaming
-people like me into learning how to spell....
-
-;-)
-
-Thanks.
-
-NeilBrown
-
+> I wish to know, how to send a "BREAK" to trigger the sysreq functions on the
+> serial line, using echo.
 > 
-> Justin.
+> I mean like this:
 > 
-> diff -uprN linux-2.6.16.18/drivers/md/Kconfig linux-2.6.16.18-diff/drivers/md/Kconfig
-> --- linux-2.6.16.18/drivers/md/Kconfig	2006-05-22 14:04:35.000000000 -0400
-> +++ linux-2.6.16.18-diff/drivers/md/Kconfig	2006-05-27 20:14:50.501458687 -0400
-> @@ -90,7 +90,7 @@ config MD_RAID10
->  	depends on BLK_DEV_MD && EXPERIMENTAL
->  	---help---
->  	  RAID-10 provides a combination of striping (RAID-0) and
-> -	  mirroring (RAID-1) with easier configuration and more flexable
-> +	  mirroring (RAID-1) with easier configuration and more flexible
->  	  layout.
->  	  Unlike RAID-0, but like RAID-1, RAID-10 requires all devices to
->  	  be the same size (or at least, only as much as the smallest device
+> #!/bin/bash
+> echo "?BREAK?" >/dev/ttyS0
+> sleep 2
+> echo "m" >/dev/ttyS0
+> 
+
+You can't use it using echo, however, you can do it using Perl:
+
+perl -e 'use POSIX; tcsendbreak(1,0);' > /dev/ttyS0
+
+	-hpa

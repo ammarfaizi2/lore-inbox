@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWE1Hpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWE1HqU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932090AbWE1Hpf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 03:45:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbWE1Hpf
+	id S932085AbWE1HqU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 03:46:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbWE1HqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 03:45:35 -0400
-Received: from 1in1.de ([85.214.39.241]:35000 "EHLO 1in1.de")
-	by vger.kernel.org with ESMTP id S932079AbWE1Hpe (ORCPT
+	Sun, 28 May 2006 03:46:20 -0400
+Received: from mail.gmx.net ([213.165.64.20]:19401 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932085AbWE1HqT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 03:45:34 -0400
-Message-ID: <44795515.90301@1in1.de>
-Date: Sun, 28 May 2006 09:45:25 +0200
-From: =?ISO-8859-1?Q?Jens_G=F6tze?= <jens.goetze@1in1.de>
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux and Wireless USB Adaptor
-References: <44793F44.1040603@perkel.com> <447946F8.9090407@1in1.de> <20060528072140.GB4108@ucw.cz>
-In-Reply-To: <20060528072140.GB4108@ucw.cz>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=DA519E6B
-Content-Type: text/plain; charset=ISO-8859-1
+	Sun, 28 May 2006 03:46:19 -0400
+X-Authenticated: #14349625
+Subject: Re: 2.6.17-rc4-mm3 cfq oops->panic w. fs damage
+From: Mike Galbraith <efault@gmx.de>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+In-Reply-To: <1148796018.11873.11.camel@homer>
+References: <1148793123.7572.22.camel@homer>
+	 <20060528052514.GQ27946@ftp.linux.org.uk> <1148796018.11873.11.camel@homer>
+Content-Type: text/plain
+Date: Sun, 28 May 2006 09:48:11 +0200
+Message-Id: <1148802491.8083.7.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-X-Spam: no
-X-note: out-remsmtp
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Pavel,
-
-'nice' is everything what works fine as a solution. Therefore, I would
-say that the ndiswrapper is nice, if the case is that no Linux Driver is
-available. And if you have no time or the knowledge (programming or chip
-set information) to implement a driver by your own, then is the
-ndiswrapper a good solution.
-Yes, the design is not the best, but it works or not?! ;-)
-
-Regards,
-Jens
-
-Pavel Machek wrote:
-> On Sun 28-05-06 08:45:12, Jens G?tze wrote:
->> Hello Marc,
->>
->> I would try ndiswrapper (http://ndiswrapper.sf.net), because it is the
->> easiest way to run a USB Wireless LAN adapter. The ndiswrapper is a nice
->> driver, which allows to run Windows NDIS Driver under Linux. Therefore,
+On Sun, 2006-05-28 at 08:00 +0200, Mike Galbraith wrote:
+> On Sun, 2006-05-28 at 06:25 +0100, Al Viro wrote:
+> > On Sun, May 28, 2006 at 07:12:03AM +0200, Mike Galbraith wrote:
+> > > Greetings,
+> > > 
+> > > I tried to boot 2.6.17-rc4-mm3 twice yesterday, and received the below
+> > > both times.  Both times, the oops->panic occurred while X/KDE was
+> > > starting.  KDE would not run thereafter, and had to be reinstalled.
+> > 
+> > Can you reproduce that with mainline?
 > 
-> For some very obscure definition of 'nice'...  
-> 
-> Avoid ndiswrapper, it is broken by design.
-> 							Pavel
+> Virgin rc4 has been working fine, but I've been using UP kernels.  I'll
+> try the same config as SMP.
+
+She's running fine.  Guess I'll go prod mm3 again.
+
+	-Mike
+

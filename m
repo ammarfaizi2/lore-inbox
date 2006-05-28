@@ -1,64 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964966AbWE0Xu2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964989AbWE1ADF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964966AbWE0Xu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 19:50:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964989AbWE0Xu2
+	id S964989AbWE1ADF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 20:03:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964999AbWE1ADF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 19:50:28 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:12712 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S964966AbWE0Xu2 (ORCPT
+	Sat, 27 May 2006 20:03:05 -0400
+Received: from nz-out-0102.google.com ([64.233.162.205]:20012 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S964989AbWE1ADE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 19:50:28 -0400
-Date: Sun, 28 May 2006 01:50:22 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Jesper Juhl <jesper.juhl@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] a few small mconf improvements
-In-Reply-To: <9a8748490605131359h18f47e89o1f8545269fbf3502@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0605280140280.32445@scrub.home>
-References: <200605071749.28822.jesper.juhl@gmail.com> 
- <Pine.LNX.4.64.0605082337280.32445@scrub.home>
- <9a8748490605131359h18f47e89o1f8545269fbf3502@mail.gmail.com>
+	Sat, 27 May 2006 20:03:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LVbrnWvlvP1UBFkp77FKerS5xGdVd/iabVif9rkKsZc+OoKZtNm3YzfJiCO3HXMzOUCT+gzPXJwMYN5DvUxW+xrtEO1JA6vLlQbWGAOTmR6cIDfj0+AKKcvpOzp67X1BNfCsrVjLTQDF2cl1TF45/erAyKIToUZyNhRpcpw4MpY=
+Message-ID: <9e4733910605271703p5f9de85dw74bc97d86d9a3cd7@mail.gmail.com>
+Date: Sat, 27 May 2006 20:03:02 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "D. Hazelton" <dhazelton@enter.net>
+Subject: Re: OpenGL-based framebuffer concepts
+Cc: "Pavel Machek" <pavel@ucw.cz>, "Dave Airlie" <airlied@gmail.com>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200605271801.36942.dhazelton@enter.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <21d7e9970605232108u27bc3ae7mbd161778c51afaf5@mail.gmail.com>
+	 <20060526173913.GA3357@ucw.cz>
+	 <200605271801.36942.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 5/27/06, D. Hazelton <dhazelton@enter.net> wrote:
+> On Friday 26 May 2006 17:39, Pavel Machek wrote:
+> > Could fb and drm simply be 'merged' into one driver (at least as far
+> > as rest of system is concerned)? That should have no driver model
+> > issues...?
+> >                                                       Pavel
+>
+> And such was my original idea. However I've been informed that doing such
+> would either constitute "Breaking working systems" or "introducing a third
+> and unneeded driver".
+>
+> For that reason I've begun doing a bit of research and planning... it might
+> show fruit in a couple of days.
 
-On Sat, 13 May 2006, Jesper Juhl wrote:
+The simplest solution to starting a DRM/fbdev merge is to declare
+fbdev the bottom layer that binds to the hardware. Doing this is easy
+since the fbdev drivers already contain code for binding to the
+hardware. If you don't do this and instead create a new bottom layer
+that binds, you are forced into modifying the 60 existing fbdev
+drivers to remove their binding code and to use the new layer. I don't
+see anyone volunteering to edit 60 fbdev drivers.
 
-(Sorry for the delay.)
+DRM drivers currently works in stealth mode. They use the graphics
+hardware without attaching to it like a normal PCI driver would. Using
+hardware in stealth mode is a bad design, but DRM can't be modified to
+attach to the PCI device because it would conflict with the fbdev
+driver that is already attached.
 
-> > >  - if the sscanf() call in conf() fails and stat==0 && type=='t', then
-> > >    we'll end up dereferencing a NULL 'sym' in sym_is_choice(). The patch
-> > >    adds a NULL check of 'sym' to that path and bails out with a big fat
-> > >    error message if that should ever happen (better than just crashing
-> > >    IMHO).
-> > 
-> > That error message is as useful to the normal user as a segfault - mconf
-> > doesn't work. Since it shouldn't happen, this check adds no real value,
-> > the user still has to provide enough information to reproduce the problem
-> > and at this point it makes no difference, whether I get this message or I
-> > see where it stops with gdb.
-> > 
-> I disagree a little here. It may not really matter to you if you get a
-> report of a crash or if you get a report that mconf spewed an error
-> message, but to the user who experiences it (should it ever happen)
-> there's a difference - it's either "the damn thing crashed on me, what
-> a piece of crap" or "the damn thing crashed on me, but at least it
-> told me something went wrong, so now I can report it"... Printing an
-> error and exiting cleanly is IMHO always preferable to a crash - users
-> respond better to that and it's the "right" thing to do.
+So, the easiest way to fix this is to change the eight DRM drivers in
+the kernel so that they are linked to their corresponding fbdev
+driver. After these changes you would not be able to load the DRM
+drivers without also loading their corresponding base fbdev driver.
+The embedded people are still happy since they can load fbdev and
+ignore DRM. Note that you can use symbols to create a dependency
+without changing the existing functions of either driver.
 
-The point is that this shouldn't happen and so far didn't, you have to do 
-something really weird to trigger this, so a big error message is not 
-appropriate. Something like assert() would be more acceptable, but IMO 
-it's just not important enough.
+Making the drivers dependent starts us down the path of a full merge
+and having one driver in control of the hardware. As part of the basic
+merge patch I would also move the drm directory from drivers/char/drm
+to drivers/video/drm. After this very basic linkage is established you
+can start making real changes.
 
-> What about the other bits of the patch? are those OK?
+BTW, I have already submitted a patch that does this and it was
+rejected. I might be able to find it somewhere, but the dependency
+code is not very hard to write.
 
-Yes, it's OK.
-
-bye, Roman
+-- 
+Jon Smirl
+jonsmirl@gmail.com

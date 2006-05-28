@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWE1KAI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWE1KNQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWE1KAI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 06:00:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWE1KAI
+	id S1750712AbWE1KNQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 06:13:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbWE1KNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 06:00:08 -0400
-Received: from mail.gmx.net ([213.165.64.20]:22703 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750701AbWE1KAH (ORCPT
+	Sun, 28 May 2006 06:13:15 -0400
+Received: from gw.openss7.com ([142.179.199.224]:53941 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id S1750712AbWE1KNP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 06:00:07 -0400
-X-Authenticated: #1490710
-Date: Sun, 28 May 2006 12:00:01 +0200 (CEST)
-From: Johannes Schindelin <Johannes.Schindelin@gmx.de>
-X-X-Sender: gene099@wbgn013.biozentrum.uni-wuerzburg.de
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Martin Langhoff <martin.langhoff@gmail.com>, Jeff Garzik <jeff@garzik.org>,
-       Git Mailing List <git@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [SCRIPT] chomp: trim trailing whitespace
-In-Reply-To: <Pine.LNX.4.64.0605270905190.5623@g5.osdl.org>
-Message-ID: <Pine.LNX.4.63.0605281157330.1862@wbgn013.biozentrum.uni-wuerzburg.de>
-References: <4477B905.9090806@garzik.org> <46a038f90605270828u7842ea48hda07331388694db2@mail.gmail.com>
- <Pine.LNX.4.64.0605270905190.5623@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+	Sun, 28 May 2006 06:13:15 -0400
+Date: Sun, 28 May 2006 04:13:12 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, devmazumdar <dev@opensound.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: How to check if kernel sources are installed on a system?
+Message-ID: <20060528041312.A13564@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	Lee Revell <rlrevell@joe-job.com>, devmazumdar <dev@opensound.com>,
+	linux-kernel@vger.kernel.org
+References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe> <1148653797.3579.18.camel@laptopd505.fenrus.org> <20060526093530.A20928@openss7.org> <1148732512.3265.0.camel@laptopd505.fenrus.org> <20060527135214.A15216@openss7.org> <1148761299.3265.241.camel@laptopd505.fenrus.org> <20060527162118.E15216@openss7.org> <1148804871.3074.2.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1148804871.3074.2.camel@laptopd505.fenrus.org>; from arjan@infradead.org on Sun, May 28, 2006 at 10:27:51AM +0200
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Arjan,
 
-On Sat, 27 May 2006, Linus Torvalds wrote:
+On Sun, 28 May 2006, Arjan van de Ven wrote:
 
-> Well, git-stripspace actually does something slightly differently, in that 
-> it also removes extraneous all-whitespace lines from the beginning, the 
-> end, and the middle (in the middle, the rule is: two or more empty lines 
-> are collapsed into one).
 > 
-> Ie it's a total hack for parsing just commit messages (and it is in C, 
-> because I can personally write 25 lines of C in about a millionth of the 
-> time I can write 3 lines of perl).
+> > But not the right place for the running kernel.  /boot/config-`uname -r` will
+> > be of the wrong architecture for the running kernel.
+> 
+> so yes you can use --force to cause it to overwrite a file. DUH.
+> Big yawn as will since this file isn't needed for anything but for a
+> human to build his own kernel; if that human first does the really silly
+> --force thing (which is a great way to hose your system) then he knows
+> there might not be an exact match. Big Yawn(tm) :)
+> 
 
-But there is no good reason not to add some code and a command line 
-switch, so that this tool with a very generic name actually performs what 
-a normal person would expect from that name.
+Well, Mandriva doesn't have even this problem because the architecture is
+part of the kernel name.
 
-Ciao,
-Dscho
+For others its worth sanity checking
 
+  rpm -q --qf "%{ARCH}\n" --what-provides /boot/config-`uname -r`
+
+against
+
+  uname -m
+
+to ensure that the architecture matches.
+
+--brian

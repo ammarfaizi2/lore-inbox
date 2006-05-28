@@ -1,73 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWE1H2s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWE1HiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbWE1H2s (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 03:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWE1H2s
+	id S932076AbWE1HiS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 03:38:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbWE1HiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 03:28:48 -0400
-Received: from mx3.mail.ru ([194.67.23.149]:15662 "EHLO mx3.mail.ru")
-	by vger.kernel.org with ESMTP id S932068AbWE1H2r (ORCPT
+	Sun, 28 May 2006 03:38:18 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:34510 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932076AbWE1HiS convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 03:28:47 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: alsa-devel@alsa-project.org
-Subject: 2.6.16.x - relatively low volume and high noice using snd-ali15451
-Date: Sun, 28 May 2006 11:28:33 +0400
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 28 May 2006 03:38:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=kuNcvYNXnp9ZNhuXOgQyIuY2QIJoF/d3mGkhL3en/ZN9eqza8LIw8h4ylchxeXumBSlIk/SL2xCeeoESyt+3Qspkr+XF1yXugQbVBoQMirmxd3IzZDOd+dj0i0FThphQqLLLYdoB2a1nSwctbBDMMJYZcm3wuAIBaY92HWSUmWM=
+Message-ID: <661de9470605280038l40e53357ka3043dabd95de5fc@mail.gmail.com>
+Date: Sun, 28 May 2006 13:08:16 +0530
+From: "Balbir Singh" <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+To: "Peter Williams" <pwil3058@bigpond.net.au>
+Subject: Re: [RFC 2/5] sched: Add CPU rate soft caps
+Cc: "Mike Galbraith" <efault@gmx.de>, "Con Kolivas" <kernel@kolivas.org>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Kingsley Cheung" <kingsley@aurema.com>, "Ingo Molnar" <mingo@elte.hu>,
+       "Rene Herman" <rene.herman@keyaccess.nl>
+In-Reply-To: <4478EA9D.4030201@bigpond.net.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200605281128.33841.arvidjaar@mail.ru>
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>
+	 <20060526042041.2886.69840.sendpatchset@heathwren.pw.nest>
+	 <661de9470605262331w2e2258a7r41e2aab10895955f@mail.gmail.com>
+	 <4477F9DC.8090107@bigpond.net.au> <4478EA9D.4030201@bigpond.net.au>
+X-Google-Sender-Auth: 1d82aa2159ec47c6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 5/28/06, Peter Williams <pwil3058@bigpond.net.au> wrote:
+> Peter Williams wrote:
+> > Balbir Singh wrote:
+> >> On 5/26/06, Peter Williams <pwil3058@bigpond.net.au> wrote:
+> >> <snip>
+> >>>
+> >>> Notes:
+> >>>
+> >>> 1. To minimize the overhead incurred when testing to skip caps
+> >>> processing for
+> >>> uncapped tasks a new flag PF_HAS_CAP has been added to flags.
+> >>>
+> >>> 2. The implementation involves the addition of two priority slots to the
+> >>> run queue priority arrays and this means that MAX_PRIO no longer
+> >>> represents the scheduling priority of the idle process and can't be
+> >>> used to
+> >>> test whether priority values are in the valid range.  To alleviate this
+> >>> problem a new function sched_idle_prio() has been provided.
+> >>
+> >> I am a little confused by this. Why link the bandwidth expired tasks a
+> >> cpu (its caps) to a priority slot? Is this a hack to conitnue using
+> >> the prio_array? why not move such tasks to the expired array?
+> >
+> > Because it won't work as after the array switch they may get to run
+> > before tasks who aren't exceeding their cap (or don't have a cap).
+>
 
-I have a notebook with built in sound card:
+That behaviour would be fair. Let the priority govern who gets to run
+first (irrespective of their cap) and then use the cap to limit their
+timeslice (execution time).
 
-{pts/0}% lspci
-00:00.0 Host bridge: ALi Corporation M1644/M1644T Northbridge+Trident (rev 01)
-00:01.0 PCI bridge: ALi Corporation PCI to AGP Controller
-00:02.0 USB Controller: ALi Corporation USB 1.1 Controller (rev 03)
-00:04.0 IDE interface: ALi Corporation M5229 IDE (rev c3)
-00:06.0 Multimedia audio controller: ALi Corporation M5451 PCI AC-Link 
-Controller Audio Device (rev 01)
-00:07.0 ISA bridge: ALi Corporation M1533 PCI to ISA Bridge [Aladdin IV]
-00:08.0 Bridge: ALi Corporation M7101 Power Management Controller [PMU]
-00:0a.0 Ethernet controller: Intel Corporation 82557/8/9 [Ethernet Pro 100] 
-(rev 08)
-00:10.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus Controller 
-(rev 01)
-00:11.0 CardBus bridge: Toshiba America Info Systems ToPIC100 PCI to Cardbus 
-Bridge with ZV Support (rev 32)
-00:11.1 CardBus bridge: Toshiba America Info Systems ToPIC100 PCI to Cardbus 
-Bridge with ZV Support (rev 32)
-00:12.0 System peripheral: Toshiba America Info Systems SD TypA Controller 
-(rev 03)
-01:00.0 VGA compatible controller: Trident Microsystems CyberBlade XPAi1 (rev 
-82)
+> Another important reason for using these slots is that it allows waking
+> tasks to preempt tasks that have exceeded their cap.
+>
 
-A some point I noticed that volume became quite low; attempting to turn it up 
-using volume control on notebook results in very audible noise that makes it 
-impossible to actually use sound.
+But among all tasks that exceed their cap (there is no priority based
+scheduling). As far as preemption is concerned, if they are moved to
+the expired array, capped tasks will only run if an array switch takes
+place. If it does, then they get their fare share of the cap again
+until they exceed their cap.
 
-I am very casual sound user so I unfortunately cannot tell when exactly the 
-problem appeared first; but I am pretty sure that in 2.6.14 I could normally 
-watch video or listen CD without much strain.
-
-I appreciate any pointers how to debug it further; if required I am ready to 
-try to recompile older kernel (as time permits).
-
-TIA
-
-- -andrey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQFEeVEhR6LMutpd94wRAr4sAJ9XajOR7+fnA1ndK6qEJdfG0POVBwCgu/3Z
-lBIo9yqV145Sb6havhHLmBc=
-=YPM/
------END PGP SIGNATURE-----
+Balbir

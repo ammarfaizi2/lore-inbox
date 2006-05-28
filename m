@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWE1V2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWE1V34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750894AbWE1V2H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 17:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750906AbWE1V2H
+	id S1750953AbWE1V34 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 17:29:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750956AbWE1V34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 17:28:07 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:54416 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750894AbWE1V2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 17:28:06 -0400
-Subject: Re: How to check if kernel sources are installed on a system?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       devmazumdar <dev@opensound.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060528204558.GR13513@lug-owl.de>
-References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe>
-	 <1148653797.3579.18.camel@laptopd505.fenrus.org>
-	 <20060528130320.GA10385@osiris.ibm.com>
-	 <1148835799.3074.41.camel@laptopd505.fenrus.org>
-	 <1148838738.21094.65.camel@mindpipe>
-	 <1148839964.3074.52.camel@laptopd505.fenrus.org>
-	 <1148846131.27461.14.camel@mindpipe>  <20060528204558.GR13513@lug-owl.de>
-Content-Type: text/plain
-Date: Sun, 28 May 2006 17:27:39 -0400
-Message-Id: <1148851660.27461.23.camel@mindpipe>
+	Sun, 28 May 2006 17:29:56 -0400
+Received: from proof.pobox.com ([207.106.133.28]:26041 "EHLO proof.pobox.com")
+	by vger.kernel.org with ESMTP id S1750950AbWE1V34 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 17:29:56 -0400
+Date: Sun, 28 May 2006 14:29:51 -0700
+From: Paul Dickson <dickson@permanentmail.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Resume stops working between 2.6.16 and 2.6.17-rc1 on Dell
+ Inspiron 6000
+Message-Id: <20060528142951.2a7417cb.dickson@permanentmail.com>
+In-Reply-To: <1148850683.3074.72.camel@laptopd505.fenrus.org>
+References: <20060528140238.2c25a805.dickson@permanentmail.com>
+	<1148850683.3074.72.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.9.1; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-05-28 at 22:45 +0200, Jan-Benedict Glaw wrote:
-> On Sun, 2006-05-28 15:55:29 -0400, Lee Revell <rlrevell@joe-job.com> wrote:
-> > On Sun, 2006-05-28 at 20:12 +0200, Arjan van de Ven wrote:
-> > > Also... why would there really be a need for such a way? Not for
-> > > building anything for sure.... it's for the human. And the human seems
-> > > to just find it already (and again the boot file works well in practice
-> > > it seems)
-> > 
-> > Debugging.  When a new Linux user files a "no sound" ALSA bug report I
-> > need to find out whether they have any known broken options enabled,
-> > like USB bandwidth checking or the OSS USB midi/audio drivers.  If we
-> > have to go back and forth figuring out which distro they have and where
-> > the config is they are that much more likely to give up and go back to
-> > Windows.
+On Sun, 28 May 2006 23:11:23 +0200, Arjan van de Ven wrote:
+
+> On Sun, 2006-05-28 at 14:02 -0700, Paul Dickson wrote:
+> > I follow the Fedora development kernels and noticed that resuming from
+> > suspending (and hibernate) stopped working at 2.6.16-git15 (Fedora Core
+> > kernel 2102).  Trouble was, my only previous kernel was 2.6.16-rc6-git12
+> > (FC 2064) because I had been out of town for nearly two weeks (I did have
+> > limited net access and that's how I got that last working version).
 > 
-> ...which isn't always the worst solution to the problem. If some guy
-> doesn't want to jump through the loops to figure out what's actually
-> broken, Windows may be a good solution for them. "World domination"
-> also means "dominated by the world's problems," so I tend to go a step
-> back from time to time:-)
+> have you verified they have both the same general .config file? Like
+> both are smp or both UP, same APIC settings etc etc 
+> That's all easy to check and those two are the most likely candidates in
+> config land that could break resume... 
+> (not saying those are the cause or have changed, no idea, but they're
+> really cheap to check that none have changed, much cheaper than a
+> bisect ;)
 
-Yes, if it were a perfect world and we had access to all the hardware
-specs like Microsoft does, we would not need these users' help.  But the
-users have access to a lot more hardware than the developers do and
-trial and error is often the only solution.
+Not the Fedora kernels, but the ones I'm bisecting have the same .config
+(modulus "make oldconfig").  I did lose some time when somehow SMP got
+enabled between the test of 2.6.16 and 2.6.17-rc1.  I ended up testing
+2.6.17-rc1 without suspend being in the kernel (that kernel wouldn't
+suspend).  After that, I have been verifying that each kernel will have
+suspend compiled in before the hour long make session.
 
-If they give up and go back to Windows we may never support their
-hardware correctly.
-
-Lee
+	-Paul
 

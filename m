@@ -1,46 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWE1I15@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751748AbWE1Id3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751287AbWE1I15 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 04:27:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWE1I15
+	id S1751748AbWE1Id3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 04:33:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751733AbWE1Id2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 04:27:57 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:22977 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751287AbWE1I14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 04:27:56 -0400
-Subject: Re: How to check if kernel sources are installed on a system?
-From: Arjan van de Ven <arjan@infradead.org>
-To: bidulock@openss7.org
-Cc: Lee Revell <rlrevell@joe-job.com>, devmazumdar <dev@opensound.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060527162118.E15216@openss7.org>
-References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe>
-	 <1148653797.3579.18.camel@laptopd505.fenrus.org>
-	 <20060526093530.A20928@openss7.org>
-	 <1148732512.3265.0.camel@laptopd505.fenrus.org>
-	 <20060527135214.A15216@openss7.org>
-	 <1148761299.3265.241.camel@laptopd505.fenrus.org>
-	 <20060527162118.E15216@openss7.org>
-Content-Type: text/plain
-Date: Sun, 28 May 2006 10:27:51 +0200
-Message-Id: <1148804871.3074.2.camel@laptopd505.fenrus.org>
+	Sun, 28 May 2006 04:33:28 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:32197 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S1751354AbWE1Id1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 04:33:27 -0400
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@ocs.com.au>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Jeff Garzik <jeff@garzik.org>, Git Mailing List <git@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [SCRIPT] chomp: trim trailing whitespace 
+In-reply-to: Your message of "Sat, 27 May 2006 14:42:02 +0200."
+             <Pine.LNX.4.61.0605271441080.4857@yvahk01.tjqt.qr> 
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 28 May 2006 18:33:14 +1000
+Message-ID: <8694.1148805194@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan Engelhardt (on Sat, 27 May 2006 14:42:02 +0200 (MEST)) wrote:
+>And the CL form is
+>  perl -i -pe '...'
+>Somehow, you can't group it to -ipe, but who cares.
 
-> But not the right place for the running kernel.  /boot/config-`uname -r` will
-> be of the wrong architecture for the running kernel.
-
-so yes you can use --force to cause it to overwrite a file. DUH.
-Big yawn as will since this file isn't needed for anything but for a
-human to build his own kernel; if that human first does the really silly
---force thing (which is a great way to hose your system) then he knows
-there might not be an exact match. Big Yawn(tm) :)
-
+-i takes an optional extension which is used to optionally create
+backup files.  As such, -i must be followed by space if you want no
+extension (and no backup).
 

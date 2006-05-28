@@ -1,50 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWE1Qxs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbWE1REN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbWE1Qxs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 12:53:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWE1Qxs
+	id S1750805AbWE1REN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 13:04:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWE1REN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 12:53:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:47574 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750790AbWE1Qxr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 12:53:47 -0400
-Date: Sun, 28 May 2006 12:53:38 -0400
-From: Dave Jones <davej@redhat.com>
-To: James Courtier-Dutton <James@superbug.co.uk>
-Cc: alsa-devel@alsa-project.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Alsa-devel] 2.6.17rc emu10k1 regression.
-Message-ID: <20060528165338.GA4692@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	James Courtier-Dutton <James@superbug.co.uk>,
-	alsa-devel@alsa-project.org,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060528164015.GA13499@redhat.com> <4479D500.2060305@superbug.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 28 May 2006 13:04:13 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:18977 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750805AbWE1REN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 13:04:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=DuhBz8RiTn0XUbGLJU5+d6JhQK7n9nfHD90aMnXaKxQdgyo0gNV8LnXecGEcvadPJoVOjPwNAlfBTtGD4rpNs0/goj2iEgrIJzUKAWsGe9wkPpPd2+hnMKsaQgp98og/729sJao0Nuixvxg/Qc5Gll5WLppsY889tTmH5khqCwM=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH][trivial] Clean up 'inline is not at beginning' warnings for usb storage
+Date: Sun, 28 May 2006 19:05:14 +0200
+User-Agent: KMail/1.9.1
+Cc: mdharm-usb@one-eyed-alien.net, usb-storage@lists.one-eyed-alien.net,
+       Jesper Juhl <jesper.juhl@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4479D500.2060305@superbug.co.uk>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200605281905.14765.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 28, 2006 at 05:51:12PM +0100, James Courtier-Dutton wrote:
 
- > > cannot find the slot for index 0 (range 0-1)
- > > EMU10K1_Audigy: probe of 0000:06:0d.0 failed with error -12
- > > 
- > > (Unremarkable, considering it *isn't* an Audigy)
- > The same driver is used for the EMU10K1 and the Prodigy.
- > the -12 is an "Out of memory", so something outside the alas driver tree
- > must have changed to cause this problem.
+Usually we don't care much about 'gcc -W' warnings, but some of us do build
+kernels that way to look for problems, and then the fewer warnings we have 
+to wade through the better. Especially when they are very easy and 
+non-intrusive to clean up. Which is the case for the following warnings 
+spewed by drivers/usb/storage/usb.h :
 
-I rebooted into exactly the same kernel, and everything magically
-started working again. Puzzling.  There were no other signs of memory
-exhaustion.
+  drivers/usb/storage/usb.h:163: warning: `inline' is not at beginning of declaration
+  drivers/usb/storage/usb.h:166: warning: `inline' is not at beginning of declaration
 
-Hmm. Will keep an eye on things to see if it happens again.
+There's also some precedence for cleaning up these warnings. I've had 
+a few patches merged in the past that remove exactly this class of 
+warnings.
 
-		Dave
+Please consider merging.
 
--- 
-http://www.codemonkey.org.uk
+
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+ drivers/usb/storage/usb.h |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+--- linux-2.6.17-rc5-git3-orig/drivers/usb/storage/usb.h	2006-05-27 13:59:08.000000000 +0200
++++ linux-2.6.17-rc5-git3/drivers/usb/storage/usb.h	2006-05-28 18:43:26.000000000 +0200
+@@ -160,10 +160,10 @@
+ };
+ 
+ /* Convert between us_data and the corresponding Scsi_Host */
+-static struct Scsi_Host inline *us_to_host(struct us_data *us) {
++static inline struct Scsi_Host *us_to_host(struct us_data *us) {
+ 	return container_of((void *) us, struct Scsi_Host, hostdata);
+ }
+-static struct us_data inline *host_to_us(struct Scsi_Host *host) {
++static inline struct us_data *host_to_us(struct Scsi_Host *host) {
+ 	return (struct us_data *) host->hostdata;
+ }
+ 
+
+

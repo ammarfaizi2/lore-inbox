@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWE1IBN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbWE1IHj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbWE1IBN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 04:01:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbWE1IBN
+	id S1751299AbWE1IHj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 04:07:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWE1IHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 04:01:13 -0400
-Received: from mail.gmx.de ([213.165.64.20]:8163 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932079AbWE1IBM (ORCPT
+	Sun, 28 May 2006 04:07:39 -0400
+Received: from mail.polimi.it ([131.175.12.3]:26089 "EHLO polimi.it")
+	by vger.kernel.org with ESMTP id S1751299AbWE1IHj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 04:01:12 -0400
-X-Authenticated: #14349625
-Subject: Re: 2.6.17-rc4-mm3 cfq oops->panic w. fs damage
-From: Mike Galbraith <efault@gmx.de>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
-In-Reply-To: <1148802491.8083.7.camel@homer>
-References: <1148793123.7572.22.camel@homer>
-	 <20060528052514.GQ27946@ftp.linux.org.uk> <1148796018.11873.11.camel@homer>
-	 <1148802491.8083.7.camel@homer>
-Content-Type: text/plain
-Date: Sun, 28 May 2006 10:03:04 +0200
-Message-Id: <1148803384.8757.7.camel@homer>
+	Sun, 28 May 2006 04:07:39 -0400
+Date: Sun, 28 May 2006 10:07:25 +0200
+From: Stefano Brivio <stefano.brivio@polimi.it>
+To: Marc Perkel <marc@perkel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux and Wireless USB Adaptor
+Message-ID: <20060528100725.394b3173@localhost>
+In-Reply-To: <44793F44.1040603@perkel.com>
+References: <44793F44.1040603@perkel.com>
+X-Mailer: Sylpheed-Claws 2.2.0 (GTK+ 2.8.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+X-PMX-Version: 5.2.0.264296, Antispam-Engine: 2.4.0.264935, Antispam-Data: 2006.5.28.4406
+X-PerlMx-Spam: Gauge=I, Probability=81%, Report='RELAY_IN_CBL 8, __CP_URI_IN_BODY 0, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0'
+X-Spam-Score: ***** (Spam Prob: 81% GAuge: XXXXXXXX)
+X-Probable-Spam: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-05-28 at 09:48 +0200, Mike Galbraith wrote:
-> On Sun, 2006-05-28 at 08:00 +0200, Mike Galbraith wrote:
-> > On Sun, 2006-05-28 at 06:25 +0100, Al Viro wrote:
-> > > On Sun, May 28, 2006 at 07:12:03AM +0200, Mike Galbraith wrote:
-> > > > Greetings,
-> > > > 
-> > > > I tried to boot 2.6.17-rc4-mm3 twice yesterday, and received the below
-> > > > both times.  Both times, the oops->panic occurred while X/KDE was
-> > > > starting.  KDE would not run thereafter, and had to be reinstalled.
-> > > 
-> > > Can you reproduce that with mainline?
-> > 
-> > Virgin rc4 has been working fine, but I've been using UP kernels.  I'll
-> > try the same config as SMP.
-> 
-> She's running fine.  Guess I'll go prod mm3 again.
+On Sat, 27 May 2006 23:12:20 -0700
+Marc Perkel <marc@perkel.com> wrote:
 
-Yup, mm3 makes reliable kaboom.
+> I have an Airlink Wireless USB 2.0 adaptor. Does it work with Linux? If 
+> so - what do I have to do to make it work?
 
-I suppose the first thing to do is see if it's cfq, and then maybe toss
-a dart at the patch list.
+Please see:
+http://linux-wless.passys.nl/query_part.php?brandname=Airlink+Tech
 
-	-Mike
 
+--
+Ciao
+Stefano

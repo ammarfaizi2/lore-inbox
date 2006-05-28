@@ -1,62 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965244AbWE1FVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965247AbWE1FZS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965244AbWE1FVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 01:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965247AbWE1FVZ
+	id S965247AbWE1FZS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 01:25:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965248AbWE1FZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 01:21:25 -0400
-Received: from mail13.syd.optusnet.com.au ([211.29.132.194]:7626 "EHLO
-	mail13.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S965244AbWE1FVY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 01:21:24 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: gcc 4.1.1 issues with 2.6.17-rc5
-Date: Sun, 28 May 2006 15:21:20 +1000
-User-Agent: KMail/1.9.1
-References: <200605281255.49821.kernel@kolivas.org>
-In-Reply-To: <200605281255.49821.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 28 May 2006 01:25:17 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:51135 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965247AbWE1FZQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 01:25:16 -0400
+Date: Sun, 28 May 2006 06:25:15 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Mike Galbraith <efault@gmx.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: 2.6.17-rc4-mm3 cfq oops->panic w. fs damage
+Message-ID: <20060528052514.GQ27946@ftp.linux.org.uk>
+References: <1148793123.7572.22.camel@homer>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605281521.20876.kernel@kolivas.org>
+In-Reply-To: <1148793123.7572.22.camel@homer>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 28 May 2006 12:55, Con Kolivas wrote:
-> Funky new warnings on upgrading to gcc 4.1.1
->
-> gcc compiled locally with:
-> Target: i686-pc-linux-gnu
-> Configured with: ../gcc-4.1.1/configure --prefix=/usr
-> --mandir=/usr/share/man --infodir=/usr/share/info --enable-shared
-> --enable-threads=posix
-> --disable-checking --enable-long-long --enable-__cxa_atexit
-> --enable-clocale=gnu --disable-libunwind-exceptions
-> --enable-languages=c,c++ --program-suffix=-4.1.1
->
-> warnings:
->   OBJCOPY arch/i386/boot/vmlinux.bin
-> WARNING: drivers/i2c/busses/scx200_acb.o - Section mismatch: reference
-> to .init.text: from .smp_locks after '' (at offset 0x0)
-> WARNING: drivers/i2c/busses/scx200_acb.o - Section mismatch: reference
-> to .init.text: from .smp_locks after '' (at offset 0x4)
-> WARNING: drivers/i2c/busses/scx200_acb.o - Section mismatch: reference
-> to .exit.text: from .smp_locks after '' (at offset 0x8)
-> WARNING: drivers/i2c/busses/scx200_acb.o - Section mismatch: reference
-> to .exit.text: from .smp_locks after '' (at offset 0xc)
-> WARNING: drivers/i2c/busses/scx200_acb.o - Section mismatch: reference
-> to .exit.text: from .smp_locks after '' (at offset 0x10)
->   BUILD   arch/i386/boot/bzImage
+On Sun, May 28, 2006 at 07:12:03AM +0200, Mike Galbraith wrote:
+> Greetings,
+> 
+> I tried to boot 2.6.17-rc4-mm3 twice yesterday, and received the below
+> both times.  Both times, the oops->panic occurred while X/KDE was
+> starting.  KDE would not run thereafter, and had to be reinstalled.
 
-Should also mention:
-binutils-2.15.92.0.2-6.2.102mdk
-
-and a missed one:
-WARNING: drivers/usb/storage/usb-storage.o - Section mismatch: reference 
-to .exit.text: from .smp_locks after '' (at offset 0x40)
-
--- 
--ck
+Can you reproduce that with mainline?

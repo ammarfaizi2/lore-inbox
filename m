@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWE1F6t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932775AbWE1GHk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbWE1F6t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 01:58:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWE1F6t
+	id S932775AbWE1GHk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 02:07:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932777AbWE1GHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 01:58:49 -0400
-Received: from mail.gmx.net ([213.165.64.20]:12433 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751321AbWE1F6s (ORCPT
+	Sun, 28 May 2006 02:07:40 -0400
+Received: from 8.ctyme.com ([69.50.231.8]:467 "EHLO darwin.ctyme.com")
+	by vger.kernel.org with ESMTP id S932775AbWE1GHk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 01:58:48 -0400
-X-Authenticated: #14349625
-Subject: Re: 2.6.17-rc4-mm3 cfq oops->panic w. fs damage
-From: Mike Galbraith <efault@gmx.de>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
-In-Reply-To: <20060528052514.GQ27946@ftp.linux.org.uk>
-References: <1148793123.7572.22.camel@homer>
-	 <20060528052514.GQ27946@ftp.linux.org.uk>
-Content-Type: text/plain
-Date: Sun, 28 May 2006 08:00:18 +0200
-Message-Id: <1148796018.11873.11.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Sun, 28 May 2006 02:07:40 -0400
+Message-ID: <44793E2B.2050100@perkel.com>
+Date: Sat, 27 May 2006 23:07:39 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Asus K8N-VM Motherboard Ethernet Problem
+References: <44793100.50707@perkel.com>
+In-Reply-To: <44793100.50707@perkel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-05-28 at 06:25 +0100, Al Viro wrote:
-> On Sun, May 28, 2006 at 07:12:03AM +0200, Mike Galbraith wrote:
-> > Greetings,
-> > 
-> > I tried to boot 2.6.17-rc4-mm3 twice yesterday, and received the below
-> > both times.  Both times, the oops->panic occurred while X/KDE was
-> > starting.  KDE would not run thereafter, and had to be reinstalled.
-> 
-> Can you reproduce that with mainline?
 
-Virgin rc4 has been working fine, but I've been using UP kernels.  I'll
-try the same config as SMP.
 
-I'm still picking up the pieces ATM, because (expletive) YAST and I had
-a minor disagreement wrt what all wanted restoration (yup, i lost;). 
+Marc Perkel wrote:
+> Is there a problem with the forcedeth driver not being compatible with 
+> the Asus K8N-VM motherboard? I installed Fedora Core 5 and the 
+> Ethernet doesn't want to work. I installed the latest FC5 kernel which 
+> is some flavor og 2.6.16 and it still doesn't work. The FC4 CD and 
+> rescue disk don't work either. Windows XP however does work so I know 
+> that hardware is good.
+>
+> lspci says the hardware is an nVidia MCP51 ethernet controller. What 
+> am I missing?
+>
+> Thanks in advance.
+>
 
-	-Mike
+Also - why is it that I can load a 3 year old version of Windows XP on 
+this motherboad and it just work but I load a modern Linux Kernel and it 
+can't find the Ethernet card?
 

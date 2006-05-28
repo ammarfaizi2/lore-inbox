@@ -1,97 +1,214 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965191AbWE1Cpd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965178AbWE1Czy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965191AbWE1Cpd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 22:45:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbWE1Cpd
+	id S965178AbWE1Czy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 22:55:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbWE1Czy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 22:45:33 -0400
-Received: from smtp.enter.net ([216.193.128.24]:19214 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S965170AbWE1Cpd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 22:45:33 -0400
-From: "D. Hazelton" <dhazelton@enter.net>
-To: "Jon Smirl" <jonsmirl@gmail.com>
-Subject: Re: OpenGL-based framebuffer concepts
-Date: Sat, 27 May 2006 22:45:21 +0000
-User-Agent: KMail/1.8.1
-Cc: "Pavel Machek" <pavel@ucw.cz>, "Dave Airlie" <airlied@gmail.com>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200605272213.58015.dhazelton@enter.net> <9e4733910605271934q76d41330lcf339f221612d74b@mail.gmail.com>
-In-Reply-To: <9e4733910605271934q76d41330lcf339f221612d74b@mail.gmail.com>
+	Sat, 27 May 2006 22:55:54 -0400
+Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:56786 "EHLO
+	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S965178AbWE1Czx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 22:55:53 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux list <linux-kernel@vger.kernel.org>
+Subject: gcc 4.1.1 issues with 2.6.17-rc5
+Date: Sun, 28 May 2006 12:55:49 +1000
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605272245.22320.dhazelton@enter.net>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_1EReEr0WOhMrGxH"
+Message-Id: <200605281255.49821.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 28 May 2006 02:34, Jon Smirl wrote:
-> On 5/27/06, D. Hazelton <dhazelton@enter.net> wrote:
-> > Yes, I noticed this while studying the DRM code. Part of me doing this,
-> > actually, will also be updating the DRM in kernel to the latest release.
-> > (Doing such provides at least one new DRM driver that already has it's X
-> > counterpart in the 6.8.2 tree)
->
-> DaveA will take care of merging drivers from CVS into the kernel tree.
-> Drivers that are in CVS and not in the kernel are probably there
-> because their DMA engines are not secure. With Direct Rendering normal
-> users can submit DMA commands to the GPUs. The kernel drivers check
-> these commands and make sure that the user isn't using the DMA
-> controller to play with memory that they don't own. If the DRM driver
-> is missing these checks it can't go into the kernel since it isn't
-> secure. I'd ignore DRM CVS and just play with the code in the kernel
-> tree.
+--Boundary-00=_1EReEr0WOhMrGxH
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Okay. Wasn't aware of any major differences in the code - in fact, I'm using 
-the CVS on my machine right now. (Not that it works - I can't get *any* 
-acceleration, even using binary-only drivers from the card manufacturer)
+Funky new warnings on upgrading to gcc 4.1.1
 
-> > Fully merging fbdev with DRM would really create some problems for the
-> > embedded people. If the design of using the fbdev driver as a base layer
-> > and the DRM drivers as an acceleration layer works then that's all that's
-> > truly needed. Merging the DRM and fbdev code bases would create a
-> > situation where the embedded people would have to configure *out* the DRM
-> > code that has been merged into the fbdev drivers. Not only would such a
-> > thing create potential bugs in the system, it is a step that could create
-> > problems with people maintaining the .config's for those systems.
->
-> It may cause problems for some embedded people but I wouldn't worry
-> about them right now. If they don't like something I'm sure we'll hear
-> from them. Most people don't go to the expense of putting a DRM
-> capable chip into a system and then not use all of its capabilities.
-> Remember, only 8 out of the 60 fbdev drivers have DRM modules.
->
-> Worst thing that can happen is that they lose 50K of memory. Don't
-> spend a lot of effort worrying about this especially if no one is
-> complaining. Issues like this can be addressed later.
+gcc compiled locally with:
+Target: i686-pc-linux-gnu
+Configured with: ../gcc-4.1.1/configure --prefix=/usr --mandir=/usr/share/man 
+--infodir=/usr/share/info --enable-shared --enable-threads=posix 
+--disable-checking --enable-long-long --enable-__cxa_atexit 
+--enable-clocale=gnu --disable-libunwind-exceptions --enable-languages=c,c++ 
+--program-suffix=-4.1.1
 
-Yes, however, I don't think a lot of embedded people are putting DRM capable 
-chips in their machines. And I will worry about that at all points, to great 
-length - I will actually fight to keep a complete merger from happening. For 
-exactly the reasons I stated above.
+warnings:
+  OBJCOPY arch/i386/boot/vmlinux.bin
+WARNING: drivers/i2c/busses/scx200_acb.o - Section mismatch: reference 
+to .init.text: from .smp_locks after '' (at offset 0x0)
+WARNING: drivers/i2c/busses/scx200_acb.o - Section mismatch: reference 
+to .init.text: from .smp_locks after '' (at offset 0x4)
+WARNING: drivers/i2c/busses/scx200_acb.o - Section mismatch: reference 
+to .exit.text: from .smp_locks after '' (at offset 0x8)
+WARNING: drivers/i2c/busses/scx200_acb.o - Section mismatch: reference 
+to .exit.text: from .smp_locks after '' (at offset 0xc)
+WARNING: drivers/i2c/busses/scx200_acb.o - Section mismatch: reference 
+to .exit.text: from .smp_locks after '' (at offset 0x10)
+  BUILD   arch/i386/boot/bzImage
 
-> > > BTW, I have already submitted a patch that does this and it was
-> > > rejected. I might be able to find it somewhere, but the dependency
-> > > code is not very hard to write.
-> >
-> > If you can find it Jon, I'd appreciate it. If not, then I'll have to dive
-> > into the code head first and hope I don't drown in it.
->
-> I'll poke around and see if I can find it, but it probably wouldn't
-> merge anymore.  It took me less than a day to write it so it shouldn't
-> be too hard to recreate. Just add a do nothing function to each of the
-> 8 fbdev drivers and then make each of the 8 DRM drivers call it. Then
-> adjust the include and make files until everything compiles. You're
-> not trying to change anything yet, you're just trying to bind them to
-> each other.
+config attached
 
-Thanks.
+-- 
+-ck
 
-DRH
+--Boundary-00=_1EReEr0WOhMrGxH
+Content-Type: application/x-gzip;
+  name="config.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="config.gz"
+
+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
+AA==
+
+--Boundary-00=_1EReEr0WOhMrGxH--

@@ -1,80 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965000AbWE1APp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbWE1ATO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965000AbWE1APp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 20:15:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWE1APp
+	id S965002AbWE1ATO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 20:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWE1ATO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 20:15:45 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:12432 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965000AbWE1APo (ORCPT
+	Sat, 27 May 2006 20:19:14 -0400
+Received: from lucidpixels.com ([66.45.37.187]:32181 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S965002AbWE1ATN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 20:15:44 -0400
-Message-ID: <4478EBAD.4060105@us.ibm.com>
-Date: Sat, 27 May 2006 17:15:41 -0700
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
+	Sat, 27 May 2006 20:19:13 -0400
+Date: Sat, 27 May 2006 20:19:11 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.16.18 - spelling fix
+Message-ID: <Pine.LNX.4.64.0605272016520.28903@p34>
 MIME-Version: 1.0
-To: Ian Kent <raven@themaw.net>
-CC: Andrew Morton <akpm@osdl.org>, christoph <hch@lst.de>,
-       Benjamin LaHaise <bcrl@kvack.org>, cel@citi.umich.edu,
-       Zach Brown <zach.brown@oracle.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/4] Remove readv/writev methods and	use	aio_read/aio_write instead
-References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com>	 <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com>	 <1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com>	 <1147727945.20568.53.camel@dyn9047017100.beaverton.ibm.com>	 <1147728133.6181.2.camel@dyn9047017100.beaverton.ibm.com>	 <20060521180037.3c8f2847.akpm@osdl.org>	 <1148310016.7214.26.camel@dyn9047017100.beaverton.ibm.com>	 <20060522100640.0710f7da.akpm@osdl.org>	 <1148318671.7214.42.camel@dyn9047017100.beaverton.ibm.com>	 <4472C7E1.3060004@themaw.net> <1148394915.8788.4.camel@raven.themaw.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463747160-1249280934-1148775551=:28903"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+---1463747160-1249280934-1148775551=:28903
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+
+I was experimenting with Linux SW raid today and found a spelling error 
+when reading the help menus...
+
+Patch attached, not sure if this is the right place to send it or if 
+patches go to Andrew Morton (misc ones like this)...
+
+Justin.
 
 
-Ian Kent wrote:
+---1463747160-1249280934-1148775551=:28903
+Content-Type: TEXT/plain; charset=US-ASCII; name=patch-2.6.16.18-spelling-fix.diff
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.64.0605272019110.28903@p34>
+Content-Description: 
+Content-Disposition: attachment; filename=patch-2.6.16.18-spelling-fix.diff
 
->On Tue, 2006-05-23 at 16:29 +0800, Ian Kent wrote:
->
->>Badari Pulavarty wrote:
->>
->>>On Mon, 2006-05-22 at 10:06 -0700, Andrew Morton wrote:
->>>
->>>>Badari Pulavarty <pbadari@us.ibm.com> wrote:
->>>>
->>>>>On Sun, 2006-05-21 at 18:00 -0700, Andrew Morton wrote:
->>>>>
->>>>>>Badari Pulavarty <pbadari@us.ibm.com> wrote:
->>>>>>
->>>>>>>This patch removes readv() and writev() methods and replaces
->>>>>>> them with aio_read()/aio_write() methods.
->>>>>>>
->>>>>>And it breaks autofs4
->>>>>>
->>>>>>autofs: pipe file descriptor does not contain proper ops
->>>>>>
->>>>>Any easy test case to reproduce the problem ?
->>>>>
->>>>Grab an FC5 setup, copy RH's .config into your tree.
->>>>
->>>Will do. 
->>>
->>>Like I mentioned, I am travelling this week. I would really
->>>appreciate if someone could test my updated patch (I sent out
->>>in my earlier mail).
->>>
->>Doesn't seem to apply to 2.6.17-rc4.
->>
->>[raven@raven linux-2.6.16]$ patch -p1 < 
->>~/remove-readv_writev-methods-and-use-aio_read_aio_write.patch
->>patching file drivers/char/raw.c
->>
+ZGlmZiAtdXByTiBsaW51eC0yLjYuMTYuMTgvZHJpdmVycy9tZC9LY29uZmln
+IGxpbnV4LTIuNi4xNi4xOC1kaWZmL2RyaXZlcnMvbWQvS2NvbmZpZw0KLS0t
+IGxpbnV4LTIuNi4xNi4xOC9kcml2ZXJzL21kL0tjb25maWcJMjAwNi0wNS0y
+MiAxNDowNDozNS4wMDAwMDAwMDAgLTA0MDANCisrKyBsaW51eC0yLjYuMTYu
+MTgtZGlmZi9kcml2ZXJzL21kL0tjb25maWcJMjAwNi0wNS0yNyAyMDoxNDo1
+MC41MDE0NTg2ODcgLTA0MDANCkBAIC05MCw3ICs5MCw3IEBAIGNvbmZpZyBN
+RF9SQUlEMTANCiAJZGVwZW5kcyBvbiBCTEtfREVWX01EICYmIEVYUEVSSU1F
+TlRBTA0KIAktLS1oZWxwLS0tDQogCSAgUkFJRC0xMCBwcm92aWRlcyBhIGNv
+bWJpbmF0aW9uIG9mIHN0cmlwaW5nIChSQUlELTApIGFuZA0KLQkgIG1pcnJv
+cmluZyAoUkFJRC0xKSB3aXRoIGVhc2llciBjb25maWd1cmF0aW9uIGFuZCBt
+b3JlIGZsZXhhYmxlDQorCSAgbWlycm9yaW5nIChSQUlELTEpIHdpdGggZWFz
+aWVyIGNvbmZpZ3VyYXRpb24gYW5kIG1vcmUgZmxleGlibGUNCiAJICBsYXlv
+dXQuDQogCSAgVW5saWtlIFJBSUQtMCwgYnV0IGxpa2UgUkFJRC0xLCBSQUlE
+LTEwIHJlcXVpcmVzIGFsbCBkZXZpY2VzIHRvDQogCSAgYmUgdGhlIHNhbWUg
+c2l6ZSAob3IgYXQgbGVhc3QsIG9ubHkgYXMgbXVjaCBhcyB0aGUgc21hbGxl
+c3QgZGV2aWNlDQo=
 
-This patch is the 2nd patch in the series. So you need to apply 
-vectorize-aio methods
-patch first. Anyway, I am going to re-test and send out the series when 
-I get back.
-
-Thanks,
-Badari
-
->
-
-
-
+---1463747160-1249280934-1148775551=:28903--

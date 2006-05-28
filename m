@@ -1,48 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbWE1T4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbWE1U2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750881AbWE1T4A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 15:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWE1T4A
+	id S1750899AbWE1U2s (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 16:28:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750902AbWE1U2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 15:56:00 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:906 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750871AbWE1Tz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 15:55:59 -0400
-Subject: Re: How to check if kernel sources are installed on a system?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>,
-       devmazumdar <dev@opensound.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1148839964.3074.52.camel@laptopd505.fenrus.org>
-References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe>
-	 <1148653797.3579.18.camel@laptopd505.fenrus.org>
-	 <20060528130320.GA10385@osiris.ibm.com>
-	 <1148835799.3074.41.camel@laptopd505.fenrus.org>
-	 <1148838738.21094.65.camel@mindpipe>
-	 <1148839964.3074.52.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Sun, 28 May 2006 15:55:29 -0400
-Message-Id: <1148846131.27461.14.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sun, 28 May 2006 16:28:48 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:46991 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750898AbWE1U2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 16:28:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=nuULtsgk3cNkA6WSdtfKwQkBtqc6/IpHgE6zEsHV3A1neNWVSVgaGWtJBmSSG2CtdFRBktToq43/fyWgWNP8sB8mmX6vxHf13v08+eMpJ2cIEXxm/EyxSRqguQm5m9li9ygplFT+fD/7FTdqbOdxKD3M6Rb+Z93cphEWAGkaMEc=
+Message-ID: <447A0809.7050207@gmail.com>
+Date: Sun, 28 May 2006 22:28:34 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: matthieu castet <castet.matthieu@free.fr>
+CC: Linux and Kernel Video <video4linux-list@redhat.com>,
+       Christer Weinigel <christer@weinigel.se>, linux-kernel@vger.kernel.org,
+       Nathan Laredo <laredo@gnu.org>
+Subject: Re: Stradis driver conflicts with all other SAA7146 drivers
+References: <m3wtc6ib0v.fsf@zoo.weinigel.se>	<44799D24.7050301@gmail.com>	<m3slmui1cr.fsf@zoo.weinigel.se>	<4479D167.4020203@gmail.com> <m3odxihxvp.fsf@zoo.weinigel.se> <4479DF88.2040500@gmail.com> <4479E1F8.4030606@free.fr>
+In-Reply-To: <4479E1F8.4030606@free.fr>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-05-28 at 20:12 +0200, Arjan van de Ven wrote:
-> Also... why would there really be a need for such a way? Not for
-> building anything for sure.... it's for the human. And the human seems
-> to just find it already (and again the boot file works well in practice
-> it seems)
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Debugging.  When a new Linux user files a "no sound" ALSA bug report I
-need to find out whether they have any known broken options enabled,
-like USB bandwidth checking or the OSS USB midi/audio drivers.  If we
-have to go back and forth figuring out which distro they have and where
-the config is they are that much more likely to give up and go back to
-Windows.
+matthieu castet napsal(a):
+> Jiri Slaby wrote:
+>> Christer Weinigel napsal(a):
+>>> Why not?  There's an I2C bus with a bunch of devices on it.  Isn't it
+>>> possible to do an I2C scan and if it doesn't match what's supposed to
+>>> be on the card fail the probe and release the PCI resources?
+>>
+>> This is an older method not used for device drivers, but only for
+>> searching for
+>> busses or i2c et al, of which drivers stands aside and controls the
+>> device.
+>>
+>>> If there is no FPGA or the FPGA fails to respond, that should also be
+>>> a fairly good indicator that it is not a stradis board.
+>>
+>> Yup, but pci probing doesn't have such mechanism.
+> Hum ?
+> The driver have to return an error (negative value) in the probbing
+> function if it detect that the card fails to respond correctly.
+I meant something other. Now it's clear, ignore that sentence in my reply,
+please. Of course, there is a mechanism how driver can tell layers upwards it
+can't drive the device.
 
-Lee
+regrads,
+- --
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
+iD8DBQFEeggJMsxVwznUen4RAprXAKCNwSJpVIItEPm7cPSLvtS5xeT/gwCeI6UP
+4SXefweIJhM0j2DA1wxlyZ4=
+=RmKM
+-----END PGP SIGNATURE-----

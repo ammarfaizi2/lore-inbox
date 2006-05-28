@@ -1,48 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbWE1UeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWE1UkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750911AbWE1UeW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 16:34:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbWE1UeW
+	id S1750912AbWE1UkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 16:40:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbWE1UkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 16:34:22 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:51586 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1750907AbWE1UeV (ORCPT
+	Sun, 28 May 2006 16:40:09 -0400
+Received: from nz-out-0102.google.com ([64.233.162.202]:13842 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750912AbWE1UkI convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 16:34:21 -0400
-Date: Sun, 28 May 2006 16:34:19 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [git patch] libata resume fix
-Message-ID: <20060528203419.GA15087@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 28 May 2006 16:40:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Ur0CNuJ/RX6kwwA9+0V23FXUNkQKxNQjTWI641/Zvov79CkxtDnEOeVB0AUbZ6qGADQFz8dG0N888pQpjrRwqNxv+eDbCMdIrX9m8yX0NVabiXMI8IG0gU2CiA8PqvzMSRfNbq4CBXJLniZCGYTqoqgUrtfOVbmG/63GrBe0ZQI=
+Message-ID: <9a8748490605281340p1f768307l2d5e22a2cfe6e8a7@mail.gmail.com>
+Date: Sun, 28 May 2006 22:40:07 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Subject: Re: How to check if kernel sources are installed on a system?
+Cc: "Lee Revell" <rlrevell@joe-job.com>,
+       "Heiko Carstens" <heiko.carstens@de.ibm.com>,
+       devmazumdar <dev@opensound.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1148839964.3074.52.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe>
+	 <1148653797.3579.18.camel@laptopd505.fenrus.org>
+	 <20060528130320.GA10385@osiris.ibm.com>
+	 <1148835799.3074.41.camel@laptopd505.fenrus.org>
+	 <1148838738.21094.65.camel@mindpipe>
+	 <1148839964.3074.52.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 28/05/06, Arjan van de Ven <arjan@infradead.org> wrote:
+>
+> /boot/config-`uname -r` goes a long way, and yes I'm ignoring the "but
+> users CAN clobber the file if they use enough violence against their
+> packaging system" argument entirely. That's just a bogus one.
+>
+You are also ignoring the fact that not all distros store configs
+there (and/or under that name).
 
-Please pull from 'upstream-fixes' branch of
-master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
 
-to receive the following updates:
+> Also... why would there really be a need for such a way? Not for
+> building anything for sure.... it's for the human. And the human seems
+> to just find it already (and again the boot file works well in practice
+> it seems)
+>
 
- drivers/scsi/libata-core.c |    1 +
- 1 file changed, 1 insertion(+)
+My personal favorite is /proc/config.gz . It has the very nice
+property that even if I misplace my config file (or rebuild my tree
+several times with different configs and don't save the one for my
+running kernel) then I can always get the config for any of the
+kernels I have installed, simply by booting it (or extracting it from
+the kernel image).
 
-Mark Lord:
-      the latest consensus libata resume fix
-
-diff --git a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
-index fa476e7..b046ffa 100644
---- a/drivers/scsi/libata-core.c
-+++ b/drivers/scsi/libata-core.c
-@@ -4297,6 +4297,7 @@ static int ata_start_drive(struct ata_po
- int ata_device_resume(struct ata_port *ap, struct ata_device *dev)
- {
- 	if (ap->flags & ATA_FLAG_SUSPENDED) {
-+		ata_busy_wait(ap, ATA_BUSY | ATA_DRQ, 200000);
- 		ap->flags &= ~ATA_FLAG_SUSPENDED;
- 		ata_set_mode(ap);
- 	}
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

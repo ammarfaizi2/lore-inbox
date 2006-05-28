@@ -1,74 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbWE1RpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWE1Rqf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbWE1RpN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 13:45:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWE1RpN
+	id S1750825AbWE1Rqf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 13:46:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWE1Rqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 13:45:13 -0400
-Received: from mxfep01.bredband.com ([195.54.107.70]:62088 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S1750824AbWE1RpM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 13:45:12 -0400
-Message-ID: <4479E1A1.1030006@stesmi.com>
-Date: Sun, 28 May 2006 19:45:05 +0200
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
-X-Accept-Language: en-us, en
+	Sun, 28 May 2006 13:46:35 -0400
+Received: from smtp3-g19.free.fr ([212.27.42.29]:407 "EHLO smtp3-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1750825AbWE1Rqe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 13:46:34 -0400
+Message-ID: <4479E1F8.4030606@free.fr>
+Date: Sun, 28 May 2006 19:46:32 +0200
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060205 Debian/1.7.12-1.1
+X-Accept-Language: fr-fr, en, en-us
 MIME-Version: 1.0
-To: Jon Masters <jonathan@jonmasters.org>
-CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Linux Device Driver Kit available
-References: <20060524232900.GA18408@kroah.com> <35fb2e590605280229g76e75419h10717238e15e7347@mail.gmail.com>
-In-Reply-To: <35fb2e590605280229g76e75419h10717238e15e7347@mail.gmail.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/signed; micalg=pgp-ripemd160;
- protocol="application/pgp-signature";
- boundary="------------enigA2F441C442D7568B9127D500"
+To: Linux and Kernel Video <video4linux-list@redhat.com>
+CC: Christer Weinigel <christer@weinigel.se>, linux-kernel@vger.kernel.org,
+       Nathan Laredo <laredo@gnu.org>
+Subject: Re: Stradis driver conflicts with all other SAA7146 drivers
+References: <m3wtc6ib0v.fsf@zoo.weinigel.se>	<44799D24.7050301@gmail.com>	<m3slmui1cr.fsf@zoo.weinigel.se>	<4479D167.4020203@gmail.com> <m3odxihxvp.fsf@zoo.weinigel.se> <4479DF88.2040500@gmail.com>
+In-Reply-To: <4479DF88.2040500@gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigA2F441C442D7568B9127D500
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-Jon Masters wrote:
-> On 5/25/06, Greg KH <greg@kroah.com> wrote:
+Jiri Slaby wrote:
+> Christer Weinigel napsal(a):
 > 
->> It is a cd image that contains everything that a Linux device driver
->> author would need in order to create Linux drivers, including a full
->> copy of the O'Reilly book, "Linux Device Drivers, third edition" and
->> pre-built copies of all of the in-kernel docbook documentation for easy
->> browsing.  It even has a copy of the Linux source code that you can
->> directly build external kernel modules against.
+>>Jiri Slaby <jirislaby@gmail.com> writes:
+>>
+>>
+>>>Christer Weinigel napsal(a):
+>>>
+>>>>fixed in the driver.  If the card doesn't have a subvendor/subdevice,
+>>>>is there some way of doing a sanity check on the board to see if it
+>>>>actually is a stradis card and then release the board if it isn't?
+>>>
+>>>Unfortunately not.
+>>
+>>Why not?  There's an I2C bus with a bunch of devices on it.  Isn't it
+>>possible to do an I2C scan and if it doesn't match what's supposed to
+>>be on the card fail the probe and release the PCI resources?
 > 
+> This is an older method not used for device drivers, but only for searching for
+> busses or i2c et al, of which drivers stands aside and controls the device.
 > 
-> Thanks Greg. I'll download a copy and take a look.
+>>If there is no FPGA or the FPGA fails to respond, that should also be
+>>a fairly good indicator that it is not a stradis board.
 > 
-> Random ideas:
-> 
-> * Bootable Damn Small Linux (DSL) or similar.
-> * cached LXR (obviously with reduced function).
+> Yup, but pci probing doesn't have such mechanism.
+Hum ?
+The driver have to return an error (negative value) in the probbing 
+function if it detect that the card fails to respond correctly.
 
-For what platform? MIPS ? Alpha ? x86_64 ? i386 ? ARM ?
+Same happen for i2c.
+If the driver didn't manage to find what it expect on the i2c bus, the 
+driver won't be usefull for the device, so the driver should release the 
+device.
 
-Unless you can make it platform-agnostic (or supporting all
-platforms Linux does) ..
-
-// Stefan
-
---------------enigA2F441C442D7568B9127D500
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFEeeGlBrn2kJu9P78RAxBbAKC4eIP9orYJRZCjjM6cIOr8VaavEQCgvzA7
-G8iFHhERmuxncLXoMl/C2/w=
-=Ild6
------END PGP SIGNATURE-----
-
---------------enigA2F441C442D7568B9127D500--
+Matthieu

@@ -1,62 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWE1KbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWE1LiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbWE1KbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 06:31:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbWE1KbQ
+	id S1750729AbWE1LiY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 07:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWE1LiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 06:31:16 -0400
-Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:25285 "EHLO
-	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1750716AbWE1KbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 06:31:15 -0400
-Message-ID: <44797BEF.70206@gmail.com>
-Date: Sun, 28 May 2006 11:31:11 +0100
-From: Catalin Marinas <catalin.marinas@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Sun, 28 May 2006 07:38:24 -0400
+Received: from smtp2.poczta.interia.pl ([213.25.80.232]:29197 "EHLO
+	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S1750729AbWE1LiY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 07:38:24 -0400
+Message-ID: <44798B99.9070608@interia.pl>
+Date: Sun, 28 May 2006 13:38:01 +0200
+From: =?windows-1252?Q?Rafa=3F_Bilski?= <rafalbilski@interia.pl>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Possible kernel memory leaks
-Content-Type: text/plain; charset=ISO-8859-1
+Cc: Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: [ PATCH ] Longhaul - call suspend(PMSG_FREEZE) before and	resume()
+ after
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
+X-EMID: a4ddcacc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> This is an horrible hack that breaks so many defined semantics that it's
+> not even funny.
 
-There are some possible kernel memory leaks discovered by kmemleak. I
-didn't have time for investigating them. Please let me know if they are
-not leaks so that I can improve kmemleak (or just add a false alarm call):
+> If you want something like that, then you need to freeze/resume _all_
+> devices with the proper ordering defined by the bus linkage. It has a
+> number of side effects though, can't be done that easily. Maybe cpufreq
+> should have the necessary infrastructure for that ?
 
-- acpi_evaluate_integer in drivers/acpi/utils.c - "element" is not freed
-on the error path (if Coverity hasn't seen this, it was probably
-confused by the return_* macros)
+> That's the wrong approach. If you need to stop
+> DMA's during the frequency change, you either need to fix all drivers to
+> register cpufreq notifiers that do so (ick !) or if you want to reuse
+> the PM callbacks, you need to respect their semantics, notably vs. call
+> ordering, or very bad things will happen.
 
-- acpi_ev_execute_reg_method in drivers/acpi/events/evregion.c - I'm not
-sure about this but kmemleak reports an orphan pointer on the following
-allocation path:
-  c0159372: <kmem_cache_alloc>
-  c01ffa07: <acpi_os_acquire_object>
-  c0215b3a: <acpi_ut_allocate_object_desc_dbg>
-  c02159ce: <acpi_ut_create_internal_object_dbg>
-  c0203784: <acpi_ev_execute_reg_method>
-  c0203db4: <acpi_ev_reg_run>
-  c020ed17: <acpi_ns_walk_namespace>
-  c0203d6b: <acpi_ev_execute_reg_methods>
-Is acpi_ut_remove_reference actually removing the params[0/1]?
+> If we want to go that way, we probably need to add a bit of
+> infrastructure to cpufreq to cooperate with the PM code to trigger a
+> "light" machine suspend/resume, though expect delays and artifacts, it's
+> not something that code be done lightly.
 
-And some new false positives (kmemleak needs fixing):
+> Ben.
 
-- legacy_init_iomem_resources in arch/i386/kernel/setup.c - kmemleak is
-probably right here in that "res" can never be freed since the pointer
-was lost. However, there is no need to free this resource and that's why
-I'll add a false alarm call
+I'm toys salesman. I don't think that I'm capable.
+There is already necessary infrastructure (PM). I can do freeze for all 
+devices with just one function call. Problem is that only block devices 
+implement freeze. Most devices do suspend insteed of freeze. Some 
+devices (Speedtouch) don't implement suspend/resume. After USB power 
+down You have to unplug modem.
+Block devices are at top level? If I remove PCI suspend/resume 
+(network card compatible) will this be OK? Other subsystems 
+are visible. Can block subsystem be visible too?
 
-- there are a lot of false positives caused by module loading. I would
-need to investigate these a bit more (it's missing a root memory block
-that can lead to the reported pointers; it's also missing the static
-variables in module)
 
-Thanks,
+> But you should really add that preempt_disable and not try this on smp
+> system...
+	
+> Pavel
 
-Catalin
+Datasheet for my C3 Nehemiah says that this processor don't have local 
+APIC and is not SMP capable. I have assumed (based on original longhaul.c) 
+that all VIA C3 are not SMP capable.
+
+Would You consider appling part of this patch if I add all my assumptions
+to Kconfig?
+
+depends on EXPERIMENTAL && (HZ_100 || HZ_250) && (PREEMPT_NONE || PREEMPT_VOLUNTARY)
+
+Rafal
+
+
+----------------------------------------------------------------------
+Potrzebujesz gotowki? Halogotowka to nawet 50 000 bez wizyty w banku.
+Rata od 35 zl, bez poreczycieli. Wypelnij formularz. Oddzwonimy.
+>>> http://link.interia.pl/f1942
+

@@ -1,111 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbWE1WrD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbWE1W5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751019AbWE1WrD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 18:47:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWE1WrD
+	id S1751015AbWE1W5R (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 18:57:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751027AbWE1W5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 18:47:03 -0400
-Received: from watts.utsl.gen.nz ([202.78.240.73]:25236 "EHLO
-	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S1751019AbWE1WrB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 18:47:01 -0400
-Message-ID: <447A2853.2080901@vilain.net>
-Date: Mon, 29 May 2006 10:46:43 +1200
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Sun, 28 May 2006 18:57:17 -0400
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:39887 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1751015AbWE1W5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 18:57:17 -0400
+From: Grant Coady <gcoady.lk@gmail.com>
+To: Mark Lord <lkml@rtr.ca>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: Query: No IDE DMA for IBM 365X with PIIX chipset?
+Date: Mon, 29 May 2006 08:57:08 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <0p9k72l0tjpe0bg5mc8vept9dor17r9d1t@4ax.com>
+References: <j9bi729h2u4dcn9da7na3t1d8ckk477d9b@4ax.com> <4479925C.2070909@rtr.ca>
+In-Reply-To: <4479925C.2070909@rtr.ca>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>
-Cc: Mike Galbraith <efault@gmx.de>, Peter Williams <pwil3058@bigpond.net.au>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
-       Rene Herman <rene.herman@keyaccess.nl>,
-       Herbert Poetzl <herbert@13thfloor.at>, Kirill Korotaev <dev@sw.ru>
-Subject: Re: [RFC 0/5] sched: Add CPU rate caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest> <1148630661.7589.65.camel@homer> <20060526161148.GA23680@atjola.homenet>
-In-Reply-To: <20060526161148.GA23680@atjola.homenet>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Björn Steinbrink wrote:
+On Sun, 28 May 2006 08:06:52 -0400, Mark Lord <lkml@rtr.ca> wrote:
 
->>The killer problem I see with this approach is that it doesn't address
->>the divide and conquer problem.  If a task is capped, and forks off
->>workers, each worker inherits the total cap, effectively extending same.
->>    
->>
-
-Yes, although the current thinking is that you need to set a special
-clone() flag (which may be restricted via capabilities such as
-CAP_SYS_RESOURCE) to set a new CPU scheduling namespace, so the workers
-will inherit the same scheduling ns and therefore be accounted against
-the one resource.
-
-Sorry if I'm replying out of context, I'll catch up on this thread
-shortly.  Thanks for including me.
-
->>IMHO, per task resource management is too severely limited in it's
->>usefulness, because jobs are what need managing, and they're seldom
->>single threaded.  In order to use per task limits to manage any given
->>job, you have to both know the number of components, and manually
->>distribute resources to each component of the job.  If a job has a
->>dynamic number of components, it becomes impossible to manage.
->>    
->>
+>Grant Coady wrote:
+>> Hi there,
+>> 
+>> Have an old Thinkpad 365X laptop that 'hdparm -i' tells me is 
+>> running mdma2 but it refuses to set dma mode.  2.6.16.18 also 
+>> refuses to set dma.
+>...
 >
->Linux-VServer uses a token bucket scheduler (TBS) to limit cpu ressources
->for processes in a "context". All processes in a context share one token
->bucket, which has a set of parameters to tune scheduling behaviour.
->As the token bucket is shared by a group of processes, and inherited by
->child processes/threads, management is quite easy. And the parameters
->can be tuned to allow different scheduling behaviours, like allowing a
->process group to burst, ie. use as much cpu time as is available, after
->being idle for some time, but being limited to X % cpu time on average.
->  
+>No luck with "hdparm -d1 /dev/hda" ??
+
+~# hdparm -d1 /dev/hda
+
+/dev/hda:
+ setting using_dma to 1 (on)
+ HDIO_SET_DMA failed: Operation not permitted
+ using_dma    =  0 (off)
+
+2.6.16.18 gives the same result, am I supposed to try hdparm -d1 
+early in the startup scripts, before / gets remounted rw?
+
+>> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+>> PIIXa: IDE controller at PCI slot 00:01.0
+>> PIIXa: chipset revision 2
+>> PIIXa: not 100% native mode: will probe irqs later
+>> PIIXa: neither IDE port enabled (BIOS)
+>> hda: TOSHIBA MK6014MAP, ATA DISK drive
+>> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+>> hda: attached ide-disk driver.
+>> hda: host protected area => 1
+>> hda: 11733120 sectors (6007 MB), CHS=776/240/63
+>> Partition check:
+>>  hda: hda1 hda2 hda3 hda4 < hda5 hda6 hda7 hda8 >
+>...
 >
+>Mmm.. there's a curious line: "PIIXa: neither IDE port enabled (BIOS)".
+>Can you enable DMA in the BIOS?
 
-This is correct.  Basically I read the LARTC.org (which explains Linux
-network schedulers etc) and the description of the Token Bucket
-Scheduler inspired me to write the same thing for CPU resources.  It was
-originally developed for the 2.4 Alan Cox series kernels.  The primary
-design guarantee of the scheduler is a low total performance impact -
-maximum CPU utilisation prioritisation and fairness a secondary
-concern.  It was built with the idea that people wanting different sorts
-of scheduling policies could at least get a set of userland controls to
-implement their approach - to the limit of the effectiveness of task
-priorities.
+The IBM pretty BIOS with a bird shaped mouse pointer flapping wings 
+as it moves?  ;)  No, the BIOS hasn't much config options.
 
-I most recently described this at http://lkml.org/lkml/2006/3/29/59, a
-lot of that thread is probably worth catching up on.
+Installed the ms-dos PS2 utility, no joy there either:
+PS2 DISK sets HDD idle standby delay in minutes
+PS2 DMA selects DMA channel for audio and printer
 
-It would be nice if we could somehow re-use the scheduling algorithms in
-use in the network space here, if it doesn't impact on performance.
+Nothing looks like HDD DMA enable in there.  Same HDD in another 
+box via IDE adapter does udma2 (well, it wanted to go faster but 
+I slowed it down with hdparm -X to suit the HDD spec.).
 
-For instance, the "CBQ" network scheduler is the same approach as used
-in OpenVZ's CPU scheduler, and the classful Token Bucket Filter is the
-approach used in VServer.  The "Sched_prio" and "Sched_hard" distinction
-in vserver could probably be compared to "Ingres Policing", where
-available CPU that could run a process instead sits idle - similar to
-the network world where data that has arrived is dropped to try to
-convince the application to throttle its network activity.
+>  The IDE driver seems to be unwilling
+>to set up the bus-master DMA (BMDMA) portion of the chip unless
+>it was already initialized by the BIOS (paranoia, I suppose, or maybe a bug).
 
-As in the network space (http://lkml.org/lkml/2006/5/19/216) in this
-space we have a continual scale of possible implementations, marked by a
-highly efficient solution akin to "binding" at one end, and a
-virtualisation at the other.  Each deliver guarantees most applicable to
-certain users or workloads.
+Perhaps a buglet, why I cc'd Alan.  I'll check if 2.6.17-rc5 boots 
+on the thing...
 
-Sam.
-
->I'm CC'ing Herbert and Sam on this as they can explain the whole thing a
->lot better and I'm not familiar with implementation details.
->
->Regards
->Björn
->  
->
-
+Thanks,
+Grant.

@@ -1,71 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965204AbWE1BNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbWE1CJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965204AbWE1BNo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 May 2006 21:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965206AbWE1BNo
+	id S965013AbWE1CJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 May 2006 22:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbWE1CJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 May 2006 21:13:44 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:65408 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965204AbWE1BNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 May 2006 21:13:44 -0400
-Subject: Re: [-rt BUG] scheduling with irqs disabled: swapper
-From: Steven Rostedt <rostedt@goodmis.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       mingo@redhat.com, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1148775233.30211.1.camel@leatherman>
-References: <1f1b08da0605261553v5e55ebdfpc790ebd5e5b0add8@mail.gmail.com>
-	 <1148692456.5381.7.camel@localhost.localdomain>
-	 <1148775233.30211.1.camel@leatherman>
-Content-Type: text/plain
-Date: Sat, 27 May 2006 21:13:26 -0400
-Message-Id: <1148778806.5381.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Sat, 27 May 2006 22:09:59 -0400
+Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:54664 "EHLO
+	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S965013AbWE1CJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 May 2006 22:09:58 -0400
+Message-ID: <44790673.9070803@bigpond.net.au>
+Date: Sun, 28 May 2006 12:09:55 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Mike Galbraith <efault@gmx.de>
+CC: Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
+       Rene Herman <rene.herman@keyaccess.nl>
+Subject: Re: [RFC 3/5] sched: Add CPU rate hard caps
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>	 <200605262100.22071.kernel@kolivas.org>  <447709B3.80309@bigpond.net.au>	 <1148653398.8321.7.camel@homer>  <44779A61.7070002@bigpond.net.au> <1148722087.7578.15.camel@homer>
+In-Reply-To: <1148722087.7578.15.camel@homer>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sun, 28 May 2006 02:09:56 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-05-27 at 17:13 -0700, john stultz wrote:
-> On Fri, 2006-05-26 at 21:14 -0400, Steven Rostedt wrote:
-> > On Fri, 2006-05-26 at 15:53 -0700, john stultz wrote:
-> > > Hey Ingo, All,
-> > > 	We had the following bug reported on bootup on one of our boxes (it
-> > > was a 4way I believe) running -rt22. So far it seems to be a one-off
-> > > but I figured I'd post it to see if anyone had a clue.
-> > 
-> > I'm assuming this is a i386.  Also I'm assuming that frame pointers was
-> > not compiled in since the stack is a little suspicious.
-> > 
-> > Anyway, could you show the /proc/interrupts of this machine.  I'm
-> > curious if the i8042 isn't sharing an interrupt with something with
-> > NODELAY in it.
+Mike Galbraith wrote:
+> On Sat, 2006-05-27 at 10:16 +1000, Peter Williams wrote:
+>> Mike Galbraith wrote:
+>>> On Fri, 2006-05-26 at 23:59 +1000, Peter Williams wrote:
+>>>> Con Kolivas wrote:
+>>>>> On Friday 26 May 2006 14:20, Peter Williams wrote:
+>>>>>> This patch implements hard CPU rate caps per task as a proportion of a
+>>>>>> single CPU's capacity expressed in parts per thousand.
+>>>>> A hard cap of 1/1000 could lead to interesting starvation scenarios where a 
+>>>>> mutex or semaphore was held by a task that hardly ever got cpu. Same goes to 
+>>>>> a lesser extent to a 0 soft cap. 
+>>>>>
+>>>>> Here is how I handle idleprio tasks in current -ck:
+>>>>>
+>>>>> http://ck.kolivas.org/patches/2.6/pre-releases/2.6.17-rc5/2.6.17-rc5-ck1/patches/track_mutexes-1.patch
+>>>>> tags tasks that are holding a mutex
+>>>>>
+>>>>> http://ck.kolivas.org/patches/2.6/pre-releases/2.6.17-rc5/2.6.17-rc5-ck1/patches/sched-idleprio-1.7.patch
+>>>>> is the idleprio policy for staircase.
+>>>>>
+>>>>> What it does is runs idleprio tasks as normal tasks when they hold a mutex or 
+>>>>> are waking up after calling down() (ie holding a semaphore).
+>>>> I wasn't aware that you could detect those conditions.  They could be 
+>>>> very useful.
+>>> Isn't this exactly what the PI code is there to handle?  Is something
+>>> more than PI needed?
+>>>
+>> AFAIK (but I may be wrong) PI is only used by RT tasks and would need to 
+>> be extended.  It could be argued that extending PI so that it can be 
+>> used by non RT tasks is a worthwhile endeavour in its own right.
 > 
-> Here ya go:
->             CPU0       CPU1       CPU2       CPU3
->    0:       8796    3868607        275     531673  IO-APIC-edge   [........N/  0]  pit
->    2:          0          0          0          0  XT-PIC         [........N/  0]  cascade
->    3:          5        620          2        229  IO-APIC-edge   [........./ 63]  serial
->    8:          0          1          0          0  IO-APIC-edge   [........./  0]  rtc
->   11:          0          0          0          0  IO-APIC-edge   [........./  0]  acpi
->   19:        120          0          0          1  IO-APIC-level  [........./  0]  ohci_hcd:usb1, ohci_hcd:usb2
->   24:         57          9          5      46795  IO-APIC-level  [........./  0]  eth0
->   26:       1396      14537          0        702  IO-APIC-level  [........./  0]  ioc0
->  NMI:          0          0          0          0
->  LOC:    6907796    4419008    4415669    4413513
->  ERR:          0
->  MIS:          0
+> Hm.  Looking around a bit, it appears to me that we're one itty bitty
+> redefine away from PI being global.  No idea if/when that will happen
+> though.
 
-Thanks, but I was looking more into the code, and I'm wondering...
-Does this machine have "irqfixup" or "irqpoll" set in the kernel command
-line?
+It needs slightly more than that.  It's currently relying on the way 
+tasks with prio less than MAX_RT_PRIO are treated to prevent the 
+priority of tasks who are inheriting a priority from having that 
+priority reset to their normal priority at various places in sched.c. 
+So something would need to be done in that regard but it shouldn't be 
+too difficult.
 
-I think that -rt doesn't support it yet.  That is, it can call a handler
-from interrupt context, which should have been a thread.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-Let me know if that was the case.
-
--- Steve
-
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

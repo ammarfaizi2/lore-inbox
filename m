@@ -1,81 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbWE1WDX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751010AbWE1WR6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750985AbWE1WDX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 18:03:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750986AbWE1WDX
+	id S1751010AbWE1WR6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 18:17:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbWE1WR6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 18:03:23 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:7571 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750983AbWE1WDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 18:03:22 -0400
-Subject: Re: How to check if kernel sources are installed on a system?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       devmazumdar <dev@opensound.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060528215504.GS13513@lug-owl.de>
-References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe>
-	 <1148653797.3579.18.camel@laptopd505.fenrus.org>
-	 <20060528130320.GA10385@osiris.ibm.com>
-	 <1148835799.3074.41.camel@laptopd505.fenrus.org>
-	 <1148838738.21094.65.camel@mindpipe>
-	 <1148839964.3074.52.camel@laptopd505.fenrus.org>
-	 <1148846131.27461.14.camel@mindpipe> <20060528204558.GR13513@lug-owl.de>
-	 <1148851660.27461.23.camel@mindpipe>  <20060528215504.GS13513@lug-owl.de>
-Content-Type: text/plain
-Date: Sun, 28 May 2006 18:02:53 -0400
-Message-Id: <1148853773.28334.9.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sun, 28 May 2006 18:17:58 -0400
+Received: from mx1.suse.de ([195.135.220.2]:10933 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751004AbWE1WR6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 18:17:58 -0400
+Date: Mon, 29 May 2006 00:17:56 +0200
+From: "Andi Kleen" <ak@suse.de>
+To: torvalds@osdl.org
+Cc: discuss@x86-64.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       jbeulich@novell.com
+Subject: [PATCH] [3/7] i386: apic= command line option should always be
+Message-ID: <447A2194.mailYI1VMCPV@suse.de>
+User-Agent: nail 10.6 11/15/03
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-05-28 at 23:55 +0200, Jan-Benedict Glaw wrote:
-> On Sun, 2006-05-28 17:27:39 -0400, Lee Revell <rlrevell@joe-job.com> wrote:
-> > On Sun, 2006-05-28 at 22:45 +0200, Jan-Benedict Glaw wrote:
-> > > ...which isn't always the worst solution to the problem. If some guy
-> > > doesn't want to jump through the loops to figure out what's actually
-> > > broken, Windows may be a good solution for them. "World domination"
-> > > also means "dominated by the world's problems," so I tend to go a step
-> > > back from time to time:-)
-> > 
-> > Yes, if it were a perfect world and we had access to all the hardware
-> > specs like Microsoft does, we would not need these users' help.  But the
-> > users have access to a lot more hardware than the developers do and
-> > trial and error is often the only solution.
-> 
-> But this isn't a perfect world.
-> 
 
-Uhmmm... that was my point.  Please re-read my post.
+From: "Jan Beulich" <jbeulich@novell.com>
 
-> > If they give up and go back to Windows we may never support their
-> > hardware correctly.
-> 
-> No user for that given hardware, then there's no sense in supporting
-> it.
+When using apic= on the kernel command line, this had no effect for machines
+matched by either the ACPI MADT or the MPS OEM table scan. However, when such
+option is specified, it should also take effect for this set of systems.
 
-Chicken and egg problem.  Users have hardware and they want to run Linux
-on it.  It's not always feasible for them to verify Linux compatibility
-before they buy.  And some vendors like BenQ even ship a Linux CD with
-their laptops even though the sound doesn't work on any BenQ system -
-they obviously did not even try it.  So we have a large population of
-users who would love to run Linux but can't until we support their
-hardware.
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
+Signed-off-by: Andi Kleen <ak@suse.de>
 
->  If there's a user that *really* wants that hardware supported,
-> then they will put effort into getting it to work, either by helping
-> debugging, hacking or by paying some expert to reverse-engineer an
-> existing driver.
+---
+ arch/i386/mach-generic/probe.c |   16 ++++++++++------
+ 1 files changed, 10 insertions(+), 6 deletions(-)
 
-There are many users who *really* want their hardware supported but
-don't have the funds or the know-how to do any of these.  Like all of
-these users:
-
-https://bugtrack.alsa-project.org/alsa-bug/view.php?id=1134
-
-Lee
-
+Index: linux-2.6.17-rc5/arch/i386/mach-generic/probe.c
+===================================================================
+--- linux-2.6.17-rc5.orig/arch/i386/mach-generic/probe.c
++++ linux-2.6.17-rc5/arch/i386/mach-generic/probe.c
+@@ -93,9 +93,11 @@ int __init mps_oem_check(struct mp_confi
+ 	int i;
+ 	for (i = 0; apic_probe[i]; ++i) { 
+ 		if (apic_probe[i]->mps_oem_check(mpc,oem,productid)) { 
+-			genapic = apic_probe[i];
+-			printk(KERN_INFO "Switched to APIC driver `%s'.\n", 
+-			       genapic->name);
++			if (!cmdline_apic) {
++				genapic = apic_probe[i];
++				printk(KERN_INFO "Switched to APIC driver `%s'.\n",
++				       genapic->name);
++			}
+ 			return 1;
+ 		} 
+ 	} 
+@@ -107,9 +109,11 @@ int __init acpi_madt_oem_check(char *oem
+ 	int i;
+ 	for (i = 0; apic_probe[i]; ++i) { 
+ 		if (apic_probe[i]->acpi_madt_oem_check(oem_id, oem_table_id)) { 
+-			genapic = apic_probe[i];
+-			printk(KERN_INFO "Switched to APIC driver `%s'.\n", 
+-			       genapic->name);
++			if (!cmdline_apic) {
++				genapic = apic_probe[i];
++				printk(KERN_INFO "Switched to APIC driver `%s'.\n",
++				       genapic->name);
++			}
+ 			return 1;
+ 		} 
+ 	} 

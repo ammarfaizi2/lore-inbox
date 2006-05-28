@@ -1,74 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWE1QCq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWE1QEE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbWE1QCq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 12:02:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbWE1QCq
+	id S1750787AbWE1QEE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 12:04:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbWE1QEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 12:02:46 -0400
-Received: from 2-1-3-15a.ens.sth.bostream.se ([82.182.31.214]:28832 "EHLO
-	zoo.weinigel.se") by vger.kernel.org with ESMTP id S1750780AbWE1QCp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 12:02:45 -0400
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Christer Weinigel <christer@weinigel.se>, Nathan Laredo <laredo@gnu.org>,
-       linux-kernel@vger.kernel.org, video4linux-list@redhat.com
-Subject: Re: Stradis driver conflicts with all other SAA7146 drivers
-References: <m3wtc6ib0v.fsf@zoo.weinigel.se> <44799D24.7050301@gmail.com>
-From: Christer Weinigel <christer@weinigel.se>
-Organization: Weinigel Ingenjorsbyra AB
-Date: 28 May 2006 18:02:44 +0200
-In-Reply-To: <44799D24.7050301@gmail.com>
-Message-ID: <m3slmui1cr.fsf@zoo.weinigel.se>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Sun, 28 May 2006 12:04:04 -0400
+Received: from rtr.ca ([64.26.128.89]:27031 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1750783AbWE1QEB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 12:04:01 -0400
+Message-ID: <4479C9F0.9090807@rtr.ca>
+Date: Sun, 28 May 2006 12:04:00 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel <linux-kernel@vger.kernel.org>, linux-acpi@vger.kernel.org,
+       len.brown@intel.com
+Subject: [BUG] Link problem on drivers/acpi/processor_idle.c
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby <jirislaby@gmail.com> writes:
+In 2.6.17-rc5, the GNU linker gives me this message:
 
-> Christer Weinigel napsal(a):
-> > Hi,
-> > 
-> > [Nathan Laredo is the maintainer of the stradis driver but Jiri Slaby
-> > submitted the PCI probing change that went into 2.6.16 so I'm Cc-ing
-> > him too.  I'm not a member of the video4linux mailing list so please
-> > Cc me on any responses.]
-> > 
-> > The stradis driver in the 2.6.16 kernel only looks at the SAA7146
-> > vendor and product ID and binds to any SAA7146 based device even if it
-> > is not a stradis card.  This stops all other SAA7146 drivers from
-> > working, for example my WinTV Nova-T card using the budget-ci driver
-> > doesn't work any longer.  A lot of other people have also been bitten
-> > by this.
+WARNING: drivers/acpi/processor.o - Section mismatch: reference to .init.data: from .text between 'acpi_processor_power_init' (at offset 0xec7) and 'acpi_processor_cst_has_changed'
 
-> The only difference is in order of searching for devices. Stradis now gets
-> control before your "real" driver. Kick stradis from your config or blacklist
-> it. Or, why you ever load module, you don't want to use?
-> There is no change in searching devices, it didn't check for subvendors before
-> not even now. If Nathan knows, there are some subvendor/subdevices ids, which we
-> should compare to, then yes, we can change the behaviour, otherwise, I am
-> afraid, we can't. It's vendors' problem, that they don't use this pci registers
-> (and it's evil) -- i think, that stradis cards have that two zeroed.
+It is basically pointing out a potential bug on from processor_idle.c,
+on this line of code:
 
-I'm running the stock Fedora Core 5 kernels, and for some reason the
-stradis driver is loaded.  I suppose there's some magic in the FC5
-hotplug scripts that tries to load all device drivers that claim to
-support a certain PCI device.
+     dmi_check_system(processor_power_dmi_table);
 
-I have blacklisted the stradis driver on my system, which fixes it for
-me, but it does feels as a workaround for a problem that ought to be
-fixed in the driver.  If the card doesn't have a subvendor/subdevice,
-is there some way of doing a sanity check on the board to see if it
-actually is a stradis card and then release the board if it isn't?
+The problem here, is that processor_power_dmi_table is declared as __cpuinitdata,
+and is not guaranteed to exist when invoked from code other than __init code.
 
-If the driver isn't fixed I'll file a bug report on the Fedora
-bugzilla asking them to blacklist or just not compile that driver.
+The acpi_processor_power_init() routine is NOT marked as __init code.
 
-  /Christer
-
--- 
-"Just how much can I get away with and still go to heaven?"
-
-Freelance consultant specializing in device driver programming for Linux 
-Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se
+Cheers

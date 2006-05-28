@@ -1,93 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbWE1WEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbWE1WDX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750991AbWE1WEW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 18:04:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750993AbWE1WEW
+	id S1750985AbWE1WDX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 18:03:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750986AbWE1WDX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 18:04:22 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:29789 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750988AbWE1WEV convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 18:04:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=e7DY3qvAUIyy3qrwh/XqjBH0/ZBwd75Q3AP5cYW3D+5stAbSHDWmdrAdNbVfHiioDmEzoBHgrUPCwrmabtnZf8JQbCW2XHzO60Fz22ajASU4yctZWT/7Euzuz2Ubec5E8HCiOmeE1YHL3TrPHaP1DB/ww10g87fpnZBGAA/nl0M=
-Message-ID: <aa4c40ff0605281504w522953f5x63686e898c3a3bc3@mail.gmail.com>
-Date: Sun, 28 May 2006 15:04:20 -0700
-From: "James Lamanna" <jlamanna@gmail.com>
-To: "Kai Makisara" <Kai.Makisara@kolumbus.fi>
-Subject: Re: [OOPS] amrestore dies in kmem_cache_free 2.6.16.18 - cannot restore backups!
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       "Mike Christie" <michaelc@cs.wisc.edu>,
-       "Bryan Holty" <lgeek@frontiernet.net>
-In-Reply-To: <Pine.LNX.4.63.0605271202110.10358@kai.makisara.local>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <aa4c40ff0605231824j55c998c3oe427dec2404afba0@mail.gmail.com>
-	 <Pine.LNX.4.63.0605252224450.4178@kai.makisara.local>
-	 <Pine.LNX.4.63.0605271202110.10358@kai.makisara.local>
+	Sun, 28 May 2006 18:03:23 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:7571 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750983AbWE1WDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 18:03:22 -0400
+Subject: Re: How to check if kernel sources are installed on a system?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       devmazumdar <dev@opensound.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060528215504.GS13513@lug-owl.de>
+References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe>
+	 <1148653797.3579.18.camel@laptopd505.fenrus.org>
+	 <20060528130320.GA10385@osiris.ibm.com>
+	 <1148835799.3074.41.camel@laptopd505.fenrus.org>
+	 <1148838738.21094.65.camel@mindpipe>
+	 <1148839964.3074.52.camel@laptopd505.fenrus.org>
+	 <1148846131.27461.14.camel@mindpipe> <20060528204558.GR13513@lug-owl.de>
+	 <1148851660.27461.23.camel@mindpipe>  <20060528215504.GS13513@lug-owl.de>
+Content-Type: text/plain
+Date: Sun, 28 May 2006 18:02:53 -0400
+Message-Id: <1148853773.28334.9.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/27/06, Kai Makisara <Kai.Makisara@kolumbus.fi> wrote:
+On Sun, 2006-05-28 at 23:55 +0200, Jan-Benedict Glaw wrote:
+> On Sun, 2006-05-28 17:27:39 -0400, Lee Revell <rlrevell@joe-job.com> wrote:
+> > On Sun, 2006-05-28 at 22:45 +0200, Jan-Benedict Glaw wrote:
+> > > ...which isn't always the worst solution to the problem. If some guy
+> > > doesn't want to jump through the loops to figure out what's actually
+> > > broken, Windows may be a good solution for them. "World domination"
+> > > also means "dominated by the world's problems," so I tend to go a step
+> > > back from time to time:-)
+> > 
+> > Yes, if it were a perfect world and we had access to all the hardware
+> > specs like Microsoft does, we would not need these users' help.  But the
+> > users have access to a lot more hardware than the developers do and
+> > trial and error is often the only solution.
+> 
+> But this isn't a perfect world.
+> 
 
-[SNIP]
+Uhmmm... that was my point.  Please re-read my post.
 
->
->
-> Next thing was to patch 2.6.16.18 with the patch at the end: No more
-> oopses with any alignment.
->
-> James, does this fix your problem ?
+> > If they give up and go back to Windows we may never support their
+> > hardware correctly.
+> 
+> No user for that given hardware, then there's no sense in supporting
+> it.
 
-Kai-
-I'll try and see if I can test this on Tuesday.
-I've been traveling for the last few days.
+Chicken and egg problem.  Users have hardware and they want to run Linux
+on it.  It's not always feasible for them to verify Linux compatibility
+before they buy.  And some vendors like BenQ even ship a Linux CD with
+their laptops even though the sound doesn't work on any BenQ system -
+they obviously did not even try it.  So we have a large population of
+users who would love to run Linux but can't until we support their
+hardware.
 
-Thanks for your help!
+>  If there's a user that *really* wants that hardware supported,
+> then they will put effort into getting it to work, either by helping
+> debugging, hacking or by paying some expert to reverse-engineer an
+> existing driver.
 
--- James
+There are many users who *really* want their hardware supported but
+don't have the funds or the know-how to do any of these.  Like all of
+these users:
 
+https://bugtrack.alsa-project.org/alsa-bug/view.php?id=1134
 
->
-> Kai
->
-> --------------------------------8<------------------------------------------
->
-> Excerpt from a message from Brian Holty to linux-scsi and linux-kernel on
-> Wed, 22 Mar 2006 06:35:39:
->
-> ...
-> Based on above, I think the most intuitive fix would be the offset addition of
-> the first entry to the initialization of nr_pages.
->
-> Without this change, for instance, with 4K io's every sg io that is
-> dma_aligned for direct io, but not page aligned will cause slab corruption
-> and an oops
->
-> I am able to run a number of tests with sg that cause the boundary to be
-> crossed, and with this fix there is no slab corruption or data corruption.
->
-> Thanks Dan, I had been hunting for this for a couple of days!!
->
-> Thoughts??
->
-> Signed-off-by: Bryan Holty <lgeek@frontiernet.net>
->
->  --- a/drivers/scsi/scsi_lib.c  2006-03-03 13:17:22.000000000 -0600
-> +++ b/drivers/scsi/scsi_lib.c   2006-03-22 06:09:09.669599539 -0600
-> @@ -368,7 +368,7 @@
->                            int nsegs, unsigned bufflen, gfp_t gfp)
->  {
->         struct request_queue *q = rq->q;
-> -       int nr_pages = (bufflen + PAGE_SIZE - 1) >> PAGE_SHIFT;
-> +       int nr_pages = (bufflen + sgl[0].offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
->         unsigned int data_len = 0, len, bytes, off;
->         struct page *page;
->         struct bio *bio = NULL;
->
+Lee
+

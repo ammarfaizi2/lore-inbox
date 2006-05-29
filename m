@@ -1,35 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWE2WuK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWE2W4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751451AbWE2WuK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 18:50:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWE2WuK
+	id S932077AbWE2W4f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 18:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWE2W4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 18:50:10 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:12231 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1751451AbWE2WuI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 18:50:08 -0400
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@ocs.com.au>
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 33/61] lock validator: disable NMI watchdog if CONFIG_LOCKDEP 
-In-reply-to: Your message of "Mon, 29 May 2006 23:25:50 +0200."
-             <20060529212550.GG3155@elte.hu> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 30 May 2006 08:49:53 +1000
-Message-ID: <14402.1148942993@ocs3.ocs.com.au>
+	Mon, 29 May 2006 18:56:34 -0400
+Received: from science.horizon.com ([192.35.100.1]:33590 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S932076AbWE2W4e
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 18:56:34 -0400
+Date: 29 May 2006 18:56:32 -0400
+Message-ID: <20060529225632.7073.qmail@science.horizon.com>
+From: linux@horizon.com
+To: paul@permanentmail.com
+Subject: Re: Bisects that are neither good nor bad
+Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar (on Mon, 29 May 2006 23:25:50 +0200) wrote:
->From: Ingo Molnar <mingo@elte.hu>
->
->The NMI watchdog uses spinlocks (notifier chains, etc.),
->so it's not lockdep-safe at the moment.
+(Cc: to the git list, since the people there undoubtedly know much better.)
 
-Fixed in 2.6.17-rc1.  notify_die() uses atomic_notifier_call_chain()
-which uses RCU, not spinlocks.
+> Is there a method of bisecting that means neither "good" nor "bad"?  I
+> have run into kernel problems that are not related to the problem I'm
+> attempting to track.  Some are not avoidable by changing the .config (see
+> the third bisect in comments 10 and 11 in the bugzilla report).
 
+Yes.  While you're bisecting, HEAD is a special "bisect" head used just
+for that purpose.  If you encounter a compile error or are otherwise
+unable to test a version, you can "git reset --hard <commit>" to jump
+to some other commit and test that instead.  Because that command
+unconditionally changes both the current head and the checked-out code,
+it's normally somewhat dangerous, but while bisecting, there's no problem.
+You can choose anything you like to test instead of git-bisect's suggested
+version, but staying near the middle of the uncertain range is usually
+a good idea.  "HEAD^" (the parent of the current commit) is often a
+simple choice.  "git bisect visualize" might give you some ideas.
+
+Note that if the problem actually is in the area of the untestable commit,
+git bisect might drag you back there, but this lets you try to avoid it.
+
+It's also worth repeating some advice from the manual:
+
+>> You can further cut down the number of trials if you know what part of
+>> the tree is involved in the problem you are tracking down, by giving
+>> paths parameters when you say bisect start, like this:
+>>
+>> $ git bisect start arch/i386 include/asm-i386

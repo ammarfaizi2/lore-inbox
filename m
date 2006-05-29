@@ -1,74 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbWE2WHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbWE2WKY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751420AbWE2WHN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 18:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWE2WHN
+	id S1751424AbWE2WKY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 18:10:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWE2WKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 18:07:13 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:28807 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751418AbWE2WHL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 18:07:11 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: James Courtier-Dutton <James@superbug.co.uk>
-Subject: [BUG 6480]Re: Asus K8N-VM Motherboard Ethernet Problem
-Date: Tue, 30 May 2006 00:03:38 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Marc Perkel <marc@perkel.com>,
-       bugme@bugzilla.kernel.org, netdev@vger.kernel.org, aabdulla@nvidia.com
-References: <44793100.50707@perkel.com> <20060528101849.GL13513@lug-owl.de> <447B3408.1020001@superbug.co.uk>
-In-Reply-To: <447B3408.1020001@superbug.co.uk>
+	Mon, 29 May 2006 18:10:24 -0400
+Received: from nz-out-0102.google.com ([64.233.162.193]:42712 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751424AbWE2WKX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 18:10:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bCW4OnAAbaerS8Ov3i8xS5B64+T7fX7+/t4U1e6iKOUCSaI2AY/owiSYOVkrbah5N7H9CQdeVfJelZDmZ9Cqik62u8c0b7NZ4sZ2BHCPwmYq/JsCHdq6TJYI0SRqy6xuXr2PF/+gJkKGAEgiKeVCKbeUgOe7eqyk6/SwcSJWIM0=
+Message-ID: <9e4733910605291510i18d80ff3qc7be3b412fc99785@mail.gmail.com>
+Date: Mon, 29 May 2006 18:10:13 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Jeff Garzik" <jeff@garzik.org>
+Subject: Re: OpenGL-based framebuffer concepts
+Cc: "Pavel Machek" <pavel@ucw.cz>, "Dave Airlie" <airlied@gmail.com>,
+       "D. Hazelton" <dhazelton@enter.net>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <447B666F.5080109@garzik.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200605300003.39513.ioe-lkml@rameria.de>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <200605272245.22320.dhazelton@enter.net>
+	 <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com>
+	 <200605280112.01639.dhazelton@enter.net>
+	 <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com>
+	 <20060529102339.GA746@elf.ucw.cz>
+	 <21d7e9970605290336m1f80b08nebbd2a995be959cb@mail.gmail.com>
+	 <20060529124840.GD746@elf.ucw.cz> <447B666F.5080109@garzik.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James,
+On 5/29/06, Jeff Garzik <jeff@garzik.org> wrote:
+> Pavel Machek wrote:
+> > These are very reasonable rules... but still, I think we need to move
+> > away from vgacon/vesafb. We need proper hardware drivers for our
+> > hardware.
+>
+> I agree we need proper drivers, but moving away from vesafb will be
+> tough... moving away from vgacon is likely impossible for many many
+> years yet.
+>
+> Once proper hardware drivers exist, you will still need to support
+> booting into a situation where you probably need video before a driver
+> can be loaded -- e.g. distro installers.  Server owners will likely
+> prefer vgacon over a huge video driver they will never use for anything
+> but text mode console.
 
-On Monday, 29. May 2006 19:48, James Courtier-Dutton wrote:
-> I can concur that the forcedeth is unreliable on nvidia based motherboards.
-> I have a ethernet device that works with forcedeth.
-> 0000:00:0a.0 Bridge: nVidia Corporation CK804 Ethernet Controller (rev a3)
-> 0000:00:0a.0 0680: 10de:0057 (rev a3)
->         Subsystem: 147b:1c12
->         Flags: 66MHz, fast devsel, IRQ 11
->         Memory at fe02f000 (32-bit, non-prefetchable) [size=4K]
->         I/O ports at fc00 [size=8]
->         Capabilities: [44] Power Management version 2
-> 
-> It works in that it can actually send and receive packets.
-> The problems are:
-> 1) one cannot rmmod the forcedeth module. Even after ifdown etc.
-> 2) the machine hangs randomly.
-> Before someone asks, the MB has no serial port, so no stack trace available.
-> 3) The netconsole fails to function with it.
-> 
-> I have installed a standard PCI based intel ethernet card, and only use
-> that. Without the forcedeth loaded, no hangs since.
-> 
-> So, although I can confirm that there are certainly problems with the
-> forcedeth driver, without a serial port, I am at a loss at how I might
-> help diagnose the problem and fix it.
+These are areas that definitely need more discussion and design work
+once we can come to some kind of basic agreement on where to start. I
+would definitely like to reduce the number of permutations on how
+video drivers can be combined to an absolute minimum. For example
+vesafb has caused me a number of problems when it is used
+simultaneously with other drivers.
 
-This sounds like  http://bugzilla.kernel.org/show_bug.cgi?id=6480
+Other areas that can be explored:
+1) Multiple active consoles on multiple video cards
+2) User space console driver
+3) Ownership of video hardware by the logged in user
+4) Using graphics mode to do console for complex Asian languages
+5) Concept of a safe mode console that will work in all environments
 
-Maybe we can help to resolve this. I already stored a lot of info in
-the bugzilla entry.
+There are probably a lot more areas that can be added to this list.
+But none of this can be built until the foundation is laid.
 
-Could you please describe your setup further? I'm interested on
-the devices behind your nvidia NIC, since we only have it at one customers
-mail server behind a SonicWall, so we cannot really try a lot. 
-
-For all other customers it works. I'm a bit lost on the cause.
-I've seen 4% collisions, which might reduce performance,
-but should not stop the transmitter forever.
-
-PS: CC'ed some more relevant addresses to increase awareness.
-
-Regards
-
-Ingo Oeser
+-- 
+Jon Smirl
+jonsmirl@gmail.com

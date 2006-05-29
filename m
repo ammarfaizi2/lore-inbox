@@ -1,92 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWE2Vqc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWE2Vv3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbWE2Vqc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 17:46:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWE2VXe
+	id S1751365AbWE2Vv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 17:51:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWE2Vv2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 17:23:34 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:62903 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751315AbWE2VXM (ORCPT
+	Mon, 29 May 2006 17:51:28 -0400
+Received: from wr-out-0506.google.com ([64.233.184.235]:58323 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751325AbWE2Vv2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 17:23:12 -0400
-Date: Mon, 29 May 2006 23:23:33 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
-Subject: [patch 06/61] lock validator: add __module_address() method
-Message-ID: <20060529212333.GF3155@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 29 May 2006 17:51:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VYzMyxRS1l4fblgmJYgUTBoPYMqonBRRq4IBAKuM6pJ+Rr+0lNchXUZz+sUpbvPkbxxd0VaxcWsv2homHp5MVGK6gMkOzEoD+Qwkd05U2c+6sumq2JL4r8sALBVyiPTXA0HUH+gm+Qz6xXvVfbX9epslfIpg6H+ygCFuaVo2qzs=
+Message-ID: <9a8748490605291451y2c6c2a8bs621ada64fafd6a62@mail.gmail.com>
+Date: Mon, 29 May 2006 23:51:27 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Subject: Re: /sys/class/net/eth?/carrier and uevents
+Cc: "=?ISO-8859-1?Q?Jo=E3o_Luis_Meloni_Assirati?=" 
+	<assirati@nonada.if.usp.br>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1148938395.3291.104.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060529212109.GA2058@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <200605291807.42725.assirati@nonada.if.usp.br>
+	 <9a8748490605291429h32f67b53k757d6e4a0cec7675@mail.gmail.com>
+	 <1148938395.3291.104.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
+On 29/05/06, Arjan van de Ven <arjan@infradead.org> wrote:
+>
+> >
+> > I added the 'carrier' attribute initially but never considered udev at
+> > the time. But I can certainly see how it could be useful.
+> > I'll take a look at adding a hotplug event when I get some spare time
+> > (probably some time next week) - or perhaps someone else will beat me
+> > to it :)
+>
+> there is a netlink event already though... is this really worth the
+> duplication?
+>
 
-add __module_address() method - to be used by lockdep.
+Dunno, perhaps not. Have not looked at it yet. If it's simple to add
+and there won't be any confusion for userspace as to what event to
+react to, then it might be a nice little thing to have.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
----
- include/linux/module.h |    6 ++++++
- kernel/module.c        |   14 ++++++++++++++
- 2 files changed, 20 insertions(+)
-
-Index: linux/include/linux/module.h
-===================================================================
---- linux.orig/include/linux/module.h
-+++ linux/include/linux/module.h
-@@ -371,6 +371,7 @@ static inline int module_is_live(struct 
- /* Is this address in a module? (second is with no locks, for oops) */
- struct module *module_text_address(unsigned long addr);
- struct module *__module_text_address(unsigned long addr);
-+int __module_address(unsigned long addr);
- 
- /* Returns module and fills in value, defined and namebuf, or NULL if
-    symnum out of range. */
-@@ -509,6 +510,11 @@ static inline struct module *__module_te
- 	return NULL;
- }
- 
-+static inline int __module_address(unsigned long addr)
-+{
-+	return 0;
-+}
-+
- /* Get/put a kernel symbol (calls should be symmetric) */
- #define symbol_get(x) ({ extern typeof(x) x __attribute__((weak)); &(x); })
- #define symbol_put(x) do { } while(0)
-Index: linux/kernel/module.c
-===================================================================
---- linux.orig/kernel/module.c
-+++ linux/kernel/module.c
-@@ -2222,6 +2222,20 @@ const struct exception_table_entry *sear
- 	return e;
- }
- 
-+/*
-+ * Is this a valid module address? We don't grab the lock.
-+ */
-+int __module_address(unsigned long addr)
-+{
-+	struct module *mod;
-+
-+	list_for_each_entry(mod, &modules, list)
-+		if (within(addr, mod->module_core, mod->core_size))
-+			return 1;
-+	return 0;
-+}
-+
-+
- /* Is this a valid kernel address?  We don't grab the lock: we are oopsing. */
- struct module *__module_text_address(unsigned long addr)
- {
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbWE2B5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWE2COS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751094AbWE2B5z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 May 2006 21:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWE2B5y
+	id S1751096AbWE2COS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 May 2006 22:14:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWE2COR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 May 2006 21:57:54 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:17552 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751091AbWE2B5y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 May 2006 21:57:54 -0400
-Date: Mon, 29 May 2006 11:57:27 +1000
-From: David Chinner <dgc@sgi.com>
-To: Jan Blunck <jblunck@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       viro@zeniv.linux.org.uk, dgc@sgi.com
-Subject: Re: [patch 0/5] [RFC] vfs: per-superblock unused dentries list
-Message-ID: <20060529015727.GS8069029@melbourne.sgi.com>
-References: <20060526110655.197949000@suse.de>
+	Sun, 28 May 2006 22:14:17 -0400
+Received: from mga02.intel.com ([134.134.136.20]:31121 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751090AbWE2COR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 May 2006 22:14:17 -0400
+X-IronPort-AV: i="4.05,182,1146466800"; 
+   d="scan'208"; a="42644146:sNHT28216755"
+Subject: Re: [RFC]disable msi mode in pci_disable_device
+From: Shaohua Li <shaohua.li@intel.com>
+To: Rajesh Shah <rajesh.shah@intel.com>
+Cc: Brice Goglin <brice@myri.com>, Andrew Morton <akpm@osdl.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       greg@kroah.com, tom.l.nguyen@intel.com
+In-Reply-To: <20060526161043.A16912@unix-os.sc.intel.com>
+References: <1148612307.32046.132.camel@sli10-desk.sh.intel.com>
+	 <20060526125440.0897aef5.akpm@osdl.org> <44776491.1080506@myri.com>
+	 <20060526161043.A16912@unix-os.sc.intel.com>
+Content-Type: text/plain
+Date: Mon, 29 May 2006 10:12:32 +0800
+Message-Id: <1148868752.32046.153.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060526110655.197949000@suse.de>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 26, 2006 at 01:06:55PM +0200, Jan Blunck wrote:
-> BTW: Dave, I just saw that you already posted some patches but I decided to
-> send my patches anyway.
+On Fri, 2006-05-26 at 16:10 -0700, Rajesh Shah wrote:
+> On Fri, May 26, 2006 at 10:26:57PM +0200, Brice Goglin wrote:
+> > 
+> > I just tried, the patch fixes our problem (no need to restore right
+> > after saving to reenable MSI).
+> > 
+> Yeah, I agree this latest patch from Shaohua is the right thing,
+> and that pci save/restore msi state functions should not have
+> the side effect of disabling/enabling MSI. Shaohua, do drivers
+> already call pci_disable_device() or will you have to patch
+> them all to get the disable effect?
+I guess most drivers already do this. It's recommended way (call
+pci_disable_device in suspend) for a long time for suspend/resume. If
+they really care, the driver authors should fix them.
 
-No problems. Your patches remove bits that I wasn't sure could be removed,
-but effectively do the same thing. Removing shrink_dcache_anon(), for example.
-The question is which patchset do we want to carry forward?
-
-I'll add more comments in replies to the various patches...
-
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-R&D Software Enginner
-SGI Australian Software Group
+Thanks,
+Shaohua

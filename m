@@ -1,112 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWE2Rhh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWE2Ri2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751098AbWE2Rhh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 13:37:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbWE2Rhh
+	id S1751100AbWE2Ri2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 13:38:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWE2Ri2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 13:37:37 -0400
-Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:29025 "HELO
-	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751098AbWE2Rhg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 13:37:36 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2.6.17-rc3] platform_bus learns about modalias
-Date: Mon, 29 May 2006 10:37:33 -0700
-User-Agent: KMail/1.7.1
-Cc: Russell King <rmk@arm.linux.org.uk>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <200605011116.02250.david-b@pacbell.net>
-In-Reply-To: <200605011116.02250.david-b@pacbell.net>
+	Mon, 29 May 2006 13:38:28 -0400
+Received: from holly.csn.ul.ie ([193.1.99.76]:57791 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1750727AbWE2Ri1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 13:38:27 -0400
+Date: Mon, 29 May 2006 18:38:23 +0100 (IST)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet.skynet.ie
+To: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Compile failure fix for ppc on 2.6.17-rc4-mm3 (2nd
+ attempt)
+In-Reply-To: <2ebd96e4a7ea753273b2c5f856ba8c7a@kernel.crashing.org>
+Message-ID: <Pine.LNX.4.64.0605291825500.11234@skynet.skynet.ie>
+References: <20060526151214.GA5190@skynet.ie> <20060526094924.10efc515.akpm@osdl.org>
+ <20060529154923.GA9025@skynet.ie> <2ebd96e4a7ea753273b2c5f856ba8c7a@kernel.crashing.org>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_eFzeEJajN0OvaiP"
-Message-Id: <200605291037.34305.david-b@pacbell.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_eFzeEJajN0OvaiP
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Mon, 29 May 2006, Segher Boessenkool wrote:
 
-On Monday 01 May 2006 11:16 am, David Brownell wrote:
-> This is one of the most significant busses not to support the $MODALIAS
-> and /sys/devices/.../modalias conventions.
+>>>>  arch/powerpc/kernel/built-in.o(.init.text+0x77b4): In function 
+>>>> `vrsqrtefp':
+>>>>  : undefined reference to `__udivdi3'
+>>>>  arch/powerpc/kernel/built-in.o(.init.text+0x7800): In function 
+>>>> `vrsqrtefp':
+>>>>  : undefined reference to `__udivdi3'
+>>>>  make: *** [.tmp_vmlinux1] Error 1
+>>> 
+>>> A function with a name like that doesn't _deserve_ to compile.
+>
+> Would vector_reciprocal_square_root_estimate_floating_point() be any 
+> better...
+> Anyway, this is just a machine insn mnemonic, so the function name is fine
+> I believe.
+>
+>>  #define push_end(res, size) do { unsigned long __sz = (size) ; \
+>> -	res->end = ((res->end + __sz) / (__sz + 1)) * (__sz + 1) + __sz; \
+>> +	resource_size_t farEnd = (res->end + __sz); \
+>> +	do_div(farEnd, (__sz + 1)); \
+>> +	res->end = farEnd * (__sz + 1) + __sz; \
+>>      } while (0)
+>
+> Size here is a) a misnomer (size + 1 is the actual size) and b) always a 
+> power
+> of two minus one.  So instead, do
+>
+> #define push_end(res, mask) res->end = -(-res->end & ~(unsigned long)mask)
+>
+> (with a do { } while(0) armour if you prefer).
+>
 
-Here's a replacement patch, against RC5.  The modalias file itself
-should have a newline termination, and on some platforms the min()
-invocation caused compiler trouble (hence a build patch found in
-the MM tree).
+It's not doing the same as the old code so is your suggested fix a correct 
+replacement?
 
-- Dave
+For example, given 0xfff for size the current code rounds res->end to the 
+next 0x1000 boundary and adds 0xfff. Your propose fix just rounds it to 
+the next 0x1000 if I'm reading it correctly but is what the code was meant 
+to do in the first place? Using masks, the equivilant of the current code 
+is something like;
 
+#define push_end(res, mask) do { \
+ 	res->end = -(-res->end & ~(unsigned long)mask); \
+ 	res->end += mask; \
+} while (0)
 
---Boundary-00=_eFzeEJajN0OvaiP
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="plat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="plat.patch"
-
-This patch adds modalias support to platform devices, for simpler
-hotplug/coldplug driven driver setup.
-
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-
-Index: g26/drivers/base/platform.c
-===================================================================
---- g26.orig/drivers/base/platform.c	2006-05-24 19:16:50.000000000 -0700
-+++ g26/drivers/base/platform.c	2006-05-24 21:15:52.000000000 -0700
-@@ -452,6 +452,37 @@ void platform_driver_unregister(struct p
- EXPORT_SYMBOL_GPL(platform_driver_unregister);
- 
- 
-+/* modalias support enables more hands-off userspace setup:
-+ * (a) environment variable lets new-style hotplug events work once system is
-+ *     fully running:  "modprobe $MODALIAS"
-+ * (b) sysfs attribute lets new-style coldplug recover from hotplug events
-+ *     mishandled before system is fully running:  "modprobe $(cat modalias)"
-+ */
-+static ssize_t
-+modalias_show(struct device *dev, struct device_attribute *a, char *buf)
-+{
-+	struct platform_device	*pdev = to_platform_device(dev);
-+	int len = snprintf(buf, PAGE_SIZE, "%s\n", pdev->name);
-+
-+	return (len >= PAGE_SIZE) ? (PAGE_SIZE - 1) : len;
-+}
-+
-+static struct device_attribute platform_dev_attrs[] = {
-+	__ATTR_RO(modalias),
-+	__ATTR_NULL,
-+};
-+
-+static int platform_uevent(struct device *dev, char **envp, int num_envp,
-+		char *buffer, int buffer_size)
-+{
-+	struct platform_device	*pdev = to_platform_device(dev);
-+
-+	envp[0] = buffer;
-+	snprintf(buffer, buffer_size, "MODALIAS=%s", pdev->name);
-+	return 0;
-+}
-+
-+
- /**
-  *	platform_match - bind platform device to platform driver.
-  *	@dev:	device.
-@@ -496,7 +527,9 @@ static int platform_resume(struct device
- 
- struct bus_type platform_bus_type = {
- 	.name		= "platform",
-+	.dev_attrs	= platform_dev_attrs,
- 	.match		= platform_match,
-+	.uevent		= platform_uevent,
- 	.suspend	= platform_suspend,
- 	.resume		= platform_resume,
- };
-
---Boundary-00=_eFzeEJajN0OvaiP--
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

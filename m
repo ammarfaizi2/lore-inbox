@@ -1,79 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWE2Ri2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWE2Rs7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751100AbWE2Ri2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 13:38:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWE2Ri2
+	id S1751138AbWE2Rs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 13:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWE2Rs7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 13:38:28 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:57791 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1750727AbWE2Ri1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 13:38:27 -0400
-Date: Mon, 29 May 2006 18:38:23 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Compile failure fix for ppc on 2.6.17-rc4-mm3 (2nd
- attempt)
-In-Reply-To: <2ebd96e4a7ea753273b2c5f856ba8c7a@kernel.crashing.org>
-Message-ID: <Pine.LNX.4.64.0605291825500.11234@skynet.skynet.ie>
-References: <20060526151214.GA5190@skynet.ie> <20060526094924.10efc515.akpm@osdl.org>
- <20060529154923.GA9025@skynet.ie> <2ebd96e4a7ea753273b2c5f856ba8c7a@kernel.crashing.org>
+	Mon, 29 May 2006 13:48:59 -0400
+Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:61714 "EHLO
+	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1751136AbWE2Rs7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 13:48:59 -0400
+Message-ID: <447B3408.1020001@superbug.co.uk>
+Date: Mon, 29 May 2006 18:48:56 +0100
+From: James Courtier-Dutton <James@superbug.co.uk>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org, Marc Perkel <marc@perkel.com>
+Subject: Re: Asus K8N-VM Motherboard Ethernet Problem
+References: <44793100.50707@perkel.com> <44793E2B.2050100@perkel.com> <20060528101849.GL13513@lug-owl.de>
+In-Reply-To: <20060528101849.GL13513@lug-owl.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 May 2006, Segher Boessenkool wrote:
+Jan-Benedict Glaw wrote:
+> On Sat, 2006-05-27 23:07:39 -0700, Marc Perkel <marc@perkel.com> wrote:
+>> Marc Perkel wrote:
+> [forcedeth not working correctly]
+>> Also - why is it that I can load a 3 year old version of Windows XP on 
+>> this motherboad and it just work but I load a modern Linux Kernel and it 
+>> can't find the Ethernet card?
+> 
+> That is either because Windows XP is totally superior to Linux, or
+> because the vendor (NVidia in this case) wrote a Windows driver, but
+> they didn't write something for Linux _and_ didn't publish any specs
+> for this ethernet controller.  So it took some time to reverse
+> engineer the Windows driver...
+> 
+> MfG, JBG
+> 
 
->>>>  arch/powerpc/kernel/built-in.o(.init.text+0x77b4): In function 
->>>> `vrsqrtefp':
->>>>  : undefined reference to `__udivdi3'
->>>>  arch/powerpc/kernel/built-in.o(.init.text+0x7800): In function 
->>>> `vrsqrtefp':
->>>>  : undefined reference to `__udivdi3'
->>>>  make: *** [.tmp_vmlinux1] Error 1
->>> 
->>> A function with a name like that doesn't _deserve_ to compile.
->
-> Would vector_reciprocal_square_root_estimate_floating_point() be any 
-> better...
-> Anyway, this is just a machine insn mnemonic, so the function name is fine
-> I believe.
->
->>  #define push_end(res, size) do { unsigned long __sz = (size) ; \
->> -	res->end = ((res->end + __sz) / (__sz + 1)) * (__sz + 1) + __sz; \
->> +	resource_size_t farEnd = (res->end + __sz); \
->> +	do_div(farEnd, (__sz + 1)); \
->> +	res->end = farEnd * (__sz + 1) + __sz; \
->>      } while (0)
->
-> Size here is a) a misnomer (size + 1 is the actual size) and b) always a 
-> power
-> of two minus one.  So instead, do
->
-> #define push_end(res, mask) res->end = -(-res->end & ~(unsigned long)mask)
->
-> (with a do { } while(0) armour if you prefer).
->
+I can concur that the forcedeth is unreliable on nvidia based motherboards.
+I have a ethernet device that works with forcedeth.
+0000:00:0a.0 Bridge: nVidia Corporation CK804 Ethernet Controller (rev a3)
+0000:00:0a.0 0680: 10de:0057 (rev a3)
+        Subsystem: 147b:1c12
+        Flags: 66MHz, fast devsel, IRQ 11
+        Memory at fe02f000 (32-bit, non-prefetchable) [size=4K]
+        I/O ports at fc00 [size=8]
+        Capabilities: [44] Power Management version 2
 
-It's not doing the same as the old code so is your suggested fix a correct 
-replacement?
+It works in that it can actually send and receive packets.
+The problems are:
+1) one cannot rmmod the forcedeth module. Even after ifdown etc.
+2) the machine hangs randomly.
+Before someone asks, the MB has no serial port, so no stack trace available.
+3) The netconsole fails to function with it.
 
-For example, given 0xfff for size the current code rounds res->end to the 
-next 0x1000 boundary and adds 0xfff. Your propose fix just rounds it to 
-the next 0x1000 if I'm reading it correctly but is what the code was meant 
-to do in the first place? Using masks, the equivilant of the current code 
-is something like;
+I have installed a standard PCI based intel ethernet card, and only use
+that. Without the forcedeth loaded, no hangs since.
 
-#define push_end(res, mask) do { \
- 	res->end = -(-res->end & ~(unsigned long)mask); \
- 	res->end += mask; \
-} while (0)
+So, although I can confirm that there are certainly problems with the
+forcedeth driver, without a serial port, I am at a loss at how I might
+help diagnose the problem and fix it.
 
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+The only help this email is, is to confirm that if someone is raising
+problems with the forcedeth driver, it is most likely to be a truthful
+report and if they also have a serial port, they might even be able to
+give some good diagnosis output.
+
+James
+

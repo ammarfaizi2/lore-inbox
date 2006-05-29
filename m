@@ -1,131 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWE2Kgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWE2Kft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750825AbWE2Kgz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 06:36:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbWE2Kgz
+	id S1750822AbWE2Kft (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 06:35:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbWE2Kft
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 06:36:55 -0400
-Received: from wr-out-0506.google.com ([64.233.184.236]:24690 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750825AbWE2Kgy convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 06:36:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=t4ezSNqAJPDyGKEBGcmBrKuCe5ICbDeo//q09dcguRqrtjbDes4tOGjwIiNaFeNfDCdyu5AL6MM/H5QTFTYC5x1ldIi2KJuhCunL6Gn4Mvr8V1dyLRbeOmohF7VpFFkQjYfybP8VjWWrii4+XaGNLCIzLBmiFhCkDPu12up8n14=
-Message-ID: <21d7e9970605290336m1f80b08nebbd2a995be959cb@mail.gmail.com>
-Date: Mon, 29 May 2006 20:36:53 +1000
-From: "Dave Airlie" <airlied@gmail.com>
-To: "Pavel Machek" <pavel@ucw.cz>
-Subject: Re: OpenGL-based framebuffer concepts
-Cc: "D. Hazelton" <dhazelton@enter.net>, "Jon Smirl" <jonsmirl@gmail.com>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060529102339.GA746@elf.ucw.cz>
+	Mon, 29 May 2006 06:35:49 -0400
+Received: from smtp2.actcom.co.il ([192.114.47.35]:9344 "EHLO
+	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S1750822AbWE2Kft
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 06:35:49 -0400
+Message-ID: <027e01c68313$e8e11440$c400a8c0@Chavalaptop>
+From: "Chava Leviatan" <chavale@actcom.net.il>
+To: <bidulock@openss7.org>
+Cc: <linux-kernel@vger.kernel.org>
+References: <003101c682ff$1b7c7350$c400a8c0@Chavalaptop> <20060529021315.B23539@openss7.org> <023201c6830a$827539b0$c400a8c0@Chavalaptop> <20060529035344.A25913@openss7.org>
+Subject: Re: Ethernet driver module compilation  (8139too)
+Date: Mon, 29 May 2006 13:34:43 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <200605272245.22320.dhazelton@enter.net>
-	 <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com>
-	 <200605280112.01639.dhazelton@enter.net>
-	 <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com>
-	 <20060529102339.GA746@elf.ucw.cz>
+Content-Type: text/plain;
+	format=flowed;
+	charset="ISO-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2869
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > a) we don't always have a fully functional fbdev driver, see intel fb
-> > drivers.
+Hi Brian ,
+
+Thanks alot ! This exactly the line I was missing at my makefile !
+Now it works ...
+
+
+Chava
+----- Original Message ----- 
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: "Chava Leviatan" <chavale@actcom.net.il>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Monday, May 29, 2006 11:53 AM
+Subject: Re: Ethernet driver module compilation (8139too)
+
+
+> Chava,
 >
-> Well, we need to write those fbdev drivers, then.
-
-And you propose to get specs from hw vendors how? (please provide
-solutions for practical problems)
-
-> > b) loading fbdev drivers breaks X in a lot of cases, we need to be a
-> > bit more careful.
+> On Mon, 29 May 2006, Chava Leviatan wrote:
 >
-> Fix X and/or fbdev, then.
-
-we don't have the manpower to do even that...
-
-> > c) Lots of distros don't use fbdev drivers, forcing this on them to
-> > use drm isn't an option.
+>> Hi Brian,
+>>
+>> I did reboot the machine, and saw that during boot time there is a call 
+>> to
+>> depmod.
+>> I did depmod -ae as you've requested, and here are the results:
+>>   [root@NettGain root]# depmod -ae >chav.dat
+>> depmod: /lib/modules/2.4.18-3/kernel/drivers/net/makefile.8139 is not an 
+>> ELF
+>> file
+>> depmod: /lib/modules/2.4.18-3/kernel/drivers/net/makefile.eepro is not an
+>> ELF file
+>> depmod: *** Unresolved symbols in
+>> /lib/modules/2.4.18-3/kernel/drivers/net/8139too.o
+>> depmod:         __netdev_watchdog_up
+>> depmod:         flush_signals
+> ...
+> ...
+>> depmod:         mii_ethtool_gset
+> ...
+> ...
+>>
+>> Please note that if I manually insmod mii , then the insmod 8139too 
+>> passes
+>> w/o problems .
+>>
 >
-> Let the distros catch up with current state of technology....
+> I don't see how it could with all those depmod errors.  Try doing
+> this:
 >
-> I mean, it is crazy. We have complex subsystem (graphics), that is
-> made even more complex because of crazy design (independend fbdev and
-> DRM, X handling PCI from userspace).
-
-and you are not going to fix it with a big lot of code, you need to
-fix it one problem at a time,
-
-> Now, lets take common hardware like radeon. You want these
-> combinations to be supported:
+> grep uregister_netdev /proc/ksyms
 >
-> vgacon
-> vesafb ( + unaccelerated X )
-> radeonfb ( + unaccelerated X )
+> If you get something like this:
 >
-> vgacon + accelerated X
-> vesafb + accelerated X
-> radeonfb + accelerated X
+>  c0194ef0 unregister_netdev_Rc45f34ea
+>  c01d5270 unregister_netdevice_notifier_Rfe769456
+>  c01d6ca0 unregister_netdevice_R52c1d940
 >
-> vgacon + DRM + accelerated X
-> vesafb + DRM + accelerated X
-> radeonfb + DRM + accelerated X
+> then your kernel has versioned symbols.
 >
-> ...that's crazy! You claim that for various reasons (mostly bugs) we
-> need to keep that complexity. That's not the way forward, with
-> manpower we have I'm afraid.
-
-We have to support what we support now, regressions in what we support
-are not acceptable, we would spend all our time just having Linus
-backing out changes, I'm sorry Pavel I respect what you've done with
-input, but your list below cuts out a number of currently support
-configurations the main ones currently in use are:
-
-vgacon + DRM + accelerated X
-vesafb + DRM + accelerated X
-
-If you take a look at the stuff required to get r300 support in the
-drm and X into the kernel without breaking current systems you'll get
-an idea of what we have to do..
-
-Linus has so far reverted a number of patches from the DRM as they
-cause regressions, anything done in this area has to be careful to
-have a complete understanding of the area.
-
-> vgacon
-> vesafb ( + unaccelerated X )
-> radeonfb ( + unaccelerated X )
-> radeonfb + accelerated X
-> radeonfb + DRM + accelerated X
+> In which case, you are probably missing
 >
+> -DMODVERSIONS -include linux/modversions.h
+>
+> from your compile statement.
+>
+> Hope that helps.
+>
+> --brian
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Again this gets rid of the two most popular combinations in use today.
-I don't think this is acceptable, and you'll also break suspend/resume
-on every radeon based laptop in use today, but I'm sure you thought
-about all of that before posting :-)
-
-I'm not knocking solutions here for the fun of it, I've tried a lot of
-different combinations of things to find an answer, and until someone
-supplies some code that doesn't regress or works in an incremental
-manner to improve the situation....
-
-Here are the rules:
-1. No regressions.
-2. Doesn't require lockstep changes in X and kernel, i.e. a new kernel
-can't break old X, and new kernel can't require a new X, new config
-features in the kernel can require a new X of course but anything
-using and old config feature must still work.
-
-Dave.

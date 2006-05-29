@@ -1,87 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWE3Fs7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWE3FtY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWE3Fs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 01:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWE3Fs6
+	id S932125AbWE3FtY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 01:49:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWE3FtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 01:48:58 -0400
-Received: from cantor.suse.de ([195.135.220.2]:38598 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932069AbWE3Fs6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 01:48:58 -0400
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 30 May 2006 15:48:45 +1000
-Message-Id: <1060530054845.4649@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] md: Fix badness in sysfs_notify caused by md_new_event
-References: <20060530152626.4554.patches@notabene>
+	Tue, 30 May 2006 01:49:24 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:2961 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S932075AbWE3FtX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 01:49:23 -0400
+From: Rob Landley <rob@landley.net>
+To: mpm@selenic.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] More bloat-o-meter tweaks.
+Date: Mon, 29 May 2006 16:26:04 -0400
+User-Agent: KMail/1.8.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605291626.04327.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a patch for a bug in 2.6.17-rc that just came to light.  It
-should get into 2.6.17 if possible and so is in 'obviously correct'
-form rather than "correct final fix" form (see comments).
-The patch was actually generated agains -rc4-mm3, but applies to
--rc4-git9 with a moderate offset for one of the chunks (no fuzz).
+Some of the busybox users got confused by what looked like a table but didn't
+have the total displayed at the bottom (where it won't scroll off it lots of
+stuff changed).  Also, changes to string lengths weren't registering because
+nm doesn't look at the rodata segment.  So I improvised.
 
-Thanks,
-NeilBrown
+This may not be the world's cleanest approach to addressing either issue. 
+Feel free to improve upon it.  (And yes, it's svn output so it's -p0 instead
+of -p1.  Sorry 'bout that.  Need to beat subversion with a large stick one of
+these days.)
 
+But what do you think of the approach?
 
-### Comments for Changeset
+Signed-off-by: Rob Landley <rob@landley.net>
 
-If an error is reported by a drive in a RAID array
-(which is done via bi_end_io - in interrupt context),
-we call md_error and md_new_event which calls
-sysfs_notify.
-However sysfs_notify grabs a mutex and so cannot be called
-in interrupt context.
-
-This patch just creates a variant of md_new_event which
-avoids the sysfs call, and uses that.
-A better fix for later is to arrange for the event to be
-called from user-context.
-
-Note: avoiding the sysfs call isn't a problem as an error
-will not, by itself, modify the sync_action attribute.
-(We do still need to wake_up(&md_event_waiters) as an
-error by itself will modify /proc/mdstat).
-
-Signed-off-by: Neil Brown <neilb@suse.de>
-
-### Diffstat output
- ./drivers/md/md.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
-
-diff ./drivers/md/md.c~current~ ./drivers/md/md.c
---- ./drivers/md/md.c~current~	2006-05-30 15:14:20.000000000 +1000
-+++ ./drivers/md/md.c	2006-05-30 15:23:26.000000000 +1000
-@@ -172,6 +172,15 @@ void md_new_event(mddev_t *mddev)
- }
- EXPORT_SYMBOL_GPL(md_new_event);
+Index: scripts/bloat-o-meter
+===================================================================
+--- scripts/bloat-o-meter	(revision 15036)
++++ scripts/bloat-o-meter	(working copy)
+@@ -20,6 +20,10 @@
+         if type in "tTdDbB":
+             if "." in name: name = "static." + name.split(".")[0]
+             sym[name] = sym.get(name, 0) + int(size, 16)
++    for l in os.popen("readelf -S " + file).readlines():
++        x = l.split()
++        if len(x)<6 or x[1] != ".rodata": continue
++        sym[".rodata"] = int(x[5], 16)
+     return sym
  
-+/* Alternate version that can be called from interrupts
-+ * when calling sysfs_notify isn't needed.
-+ */
-+void md_new_event_inintr(mddev_t *mddev)
-+{
-+	atomic_inc(&md_event_count);
-+	wake_up(&md_event_waiters);
-+}
-+
- /*
-  * Enables to iterate over all existing md arrays
-  * all_mddevs_lock protects this list.
-@@ -4268,7 +4277,7 @@ void md_error(mddev_t *mddev, mdk_rdev_t
- 	set_bit(MD_RECOVERY_INTR, &mddev->recovery);
- 	set_bit(MD_RECOVERY_NEEDED, &mddev->recovery);
- 	md_wakeup_thread(mddev->thread);
--	md_new_event(mddev);
-+	md_new_event_inintr(mddev);
- }
+ old = getsizes(sys.argv[1])
+@@ -52,8 +56,10 @@
+ delta.sort()
+ delta.reverse()
  
- /* seq_file implementation /proc/mdstat */
+-print "add/remove: %s/%s grow/shrink: %s/%s up/down: %s/%s (%s)" % \
+-      (add, remove, grow, shrink, up, -down, up-down)
+-print "%-40s %7s %7s %+7s" % ("function", "old", "new", "delta")
++print "%-48s %7s %7s %+7s" % ("function", "old", "new", "delta")
+ for d, n in delta:
+-    if d: print "%-40s %7s %7s %+7d" % (n, old.get(n,"-"), new.get(n,"-"), d)
++    if d: print "%-48s %7s %7s %+7d" % (n, old.get(n,"-"), new.get(n,"-"), d)
++print "-"*78
++total="(add/remove: %s/%s grow/shrink: %s/%s up/down: %s/%s)%%sTotal: %s bytes"\
++    % (add, remove, grow, shrink, up, -down, up-down)
++print total % (" "*(80-len(total)))
+
+-- 
+Never bet against the cheap plastic solution.

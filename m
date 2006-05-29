@@ -1,81 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWE2JyI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbWE2KBK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbWE2JyI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 05:54:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbWE2JyI
+	id S1750805AbWE2KBK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 06:01:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWE2KBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 05:54:08 -0400
-Received: from gw.openss7.com ([142.179.199.224]:37830 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id S1750787AbWE2JyH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 05:54:07 -0400
-Date: Mon, 29 May 2006 03:53:44 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Chava Leviatan <chavale@actcom.net.il>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ethernet driver module compilation  (8139too)
-Message-ID: <20060529035344.A25913@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Chava Leviatan <chavale@actcom.net.il>,
-	linux-kernel@vger.kernel.org
-References: <003101c682ff$1b7c7350$c400a8c0@Chavalaptop> <20060529021315.B23539@openss7.org> <023201c6830a$827539b0$c400a8c0@Chavalaptop>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <023201c6830a$827539b0$c400a8c0@Chavalaptop>; from chavale@actcom.net.il on Mon, May 29, 2006 at 12:27:34PM +0200
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+	Mon, 29 May 2006 06:01:10 -0400
+Received: from host-81-1-226-178.academ.org ([81.1.226.178]:36103 "HELO
+	buckley-law.com") by vger.kernel.org with SMTP id S1750793AbWE2KBJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 06:01:09 -0400
+Message-ID: <E0F2DC9A.9E5C18E@buckley-law.com>
+Date: Mon, 29 May 2006 14:56:50 +0400
+Reply-To: "Wilbert Schmidt" <RobPilger@buckley-law.com>
+From: "Wilbert Schmidt" <RobPilger@buckley-law.com>
+User-Agent: mPOP Web-Mail 2.19
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: <linux-kernel@vger.kernel.org>, <majordomo@vger.kernel.org>
+Subject: disclaim FICO is Score Paritium
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chava,
+Hey,
 
-On Mon, 29 May 2006, Chava Leviatan wrote:
+Do you POSSSESS real estate and want INSTANTANEOUS 
+cash to regulate ANY way you want?  
 
-> Hi Brian,
-> 
-> I did reboot the machine, and saw that during boot time there is a call to 
-> depmod.
-> I did depmod -ae as you've requested, and here are the results:
->   [root@NettGain root]# depmod -ae >chav.dat
-> depmod: /lib/modules/2.4.18-3/kernel/drivers/net/makefile.8139 is not an ELF 
-> file
-> depmod: /lib/modules/2.4.18-3/kernel/drivers/net/makefile.eepro is not an 
-> ELF file
-> depmod: *** Unresolved symbols in 
-> /lib/modules/2.4.18-3/kernel/drivers/net/8139too.o
-> depmod:         __netdev_watchdog_up
-> depmod:         flush_signals
-...
-...
-> depmod:         mii_ethtool_gset
-...
-...
-> 
-> Please note that if I manually insmod mii , then the insmod 8139too passes 
-> w/o problems .
-> 
+Maybe you would like to MODERATE your premiums 
+by 38% or more.
 
-I don't see how it could with all those depmod errors.  Try doing
-this:
+C-redit reports aren't pulled with our current proposals :
 
- grep uregister_netdev /proc/ksyms
+691K @ 2.9 % fixed
+656K at 3.0 % VARlABLE
+708K at 3.9 % interest only
 
-If you get something like this:
+http://judgepositive.info
 
-  c0194ef0 unregister_netdev_Rc45f34ea
-  c01d5270 unregister_netdevice_notifier_Rfe769456
-  c01d6ca0 unregister_netdevice_R52c1d940
+I will send you a approval in 65 minutes,
+9 out of 10 are accepted.
 
-then your kernel has versioned symbols.
+Best Regards,
+WJT Banks LLC
+Compliance Inspector
+Wilbert Schmidt
 
-In which case, you are probably missing
-
- -DMODVERSIONS -include linux/modversions.h
-
-from your compile statement.
-
-Hope that helps.
-
---brian

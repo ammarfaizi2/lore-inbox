@@ -1,49 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWE2Min@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbWE2MpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbWE2Min (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 08:38:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWE2Min
+	id S1750799AbWE2MpR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 08:45:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWE2MpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 08:38:43 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:45449 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750784AbWE2Mim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 08:38:42 -0400
-Subject: Re: How to check if kernel sources are installed on a system?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Cc: Lee Revell <rlrevell@joe-job.com>, Arjan van de Ven <arjan@infradead.org>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       devmazumdar <dev@opensound.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1148904707.11270.14.camel@localhost.localdomain>
-References: <1148653797.3579.18.camel@laptopd505.fenrus.org>
-	 <20060528130320.GA10385@osiris.ibm.com>
-	 <1148835799.3074.41.camel@laptopd505.fenrus.org>
-	 <1148838738.21094.65.camel@mindpipe>
-	 <1148839964.3074.52.camel@laptopd505.fenrus.org>
-	 <1148846131.27461.14.camel@mindpipe> <20060528204558.GR13513@lug-owl.de>
-	 <1148851660.27461.23.camel@mindpipe> <20060528215504.GS13513@lug-owl.de>
-	 <1148853773.28334.9.camel@mindpipe>  <20060528223803.GT13513@lug-owl.de>
-	 <1148904707.11270.14.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 29 May 2006 08:38:33 -0400
-Message-Id: <1148906313.11270.16.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 29 May 2006 08:45:17 -0400
+Received: from allen.werkleitz.de ([80.190.251.108]:54692 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S1750799AbWE2MpP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 08:45:15 -0400
+Message-ID: <447AECC6.60408@linuxtv.org>
+Date: Mon, 29 May 2006 14:44:54 +0200
+From: Michael Hunold <hunold@linuxtv.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Christer Weinigel <christer@weinigel.se>
+CC: Mauro Carvalho Chehab <mchehab@infradead.org>, video4linux-list@redhat.com,
+       Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org,
+       Nathan Laredo <laredo@gnu.org>,
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>
+References: <m3wtc6ib0v.fsf@zoo.weinigel.se> <44799D24.7050301@gmail.com>	<1148825088.1170.45.camel@praia>	<d6e463920605280901n41840baeuc30283a51e35204e@mail.gmail.com>	<1148837483.1170.65.camel@praia> <m3k686hvzi.fsf@zoo.weinigel.se>
+In-Reply-To: <m3k686hvzi.fsf@zoo.weinigel.se>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 84.137.188.36
+Subject: Re: [v4l-dvb-maintainer] Re: Stradis driver conflicts with all other
+ SAA7146 drivers
+X-SA-Exim-Version: 4.2.1 (built Mon, 27 Mar 2006 13:42:28 +0200)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-29 at 08:11 -0400, Steven Rostedt wrote:
-> I guess your argument is the old "Linux is user friendly, it's just
-> picky about its users". 
+Hello,
 
-Damn, I can't even get the saying right!  That was suppose to be:
+sorry for jumping into this thread so late.
 
-"Linux is user friendly, it's just picky about its _friends_".
+on 28.05.2006 19:58 Christer Weinigel said the following:
+> Mauro Carvalho Chehab <mchehab@infradead.org> writes:
+>>Em Dom, 2006-05-28 às 09:01 -0700, Nathan Laredo escreveu:
 
-I guess I'll go have my first cup of coffee today.
+> dpc7146, hexium_orion and mxb don't match all PCI IDs, they only match
+> boards with zero as a board ID.  So they won't conflict with
+> non-broken boards that have valid subvendor IDs.  But they will
+> conflict with each other.
 
--- Steve
+That's unfortunately right.
 
+> How may of these boards are broken and have zeroes in the
+> subvendor/subdevice fields?  Apparently some of the dpc7146f,
+> hexium_orion, mxb, and stradis boards are broken.
 
+I would not call them broken.
+
+They simply don't have subvendor/subdevice informations, but when these
+informations are requested, the card gives back zeroes.
+
+>  How many of the
+> boards supported by the generic saa7146 driver are broken the same
+> way?
+
+I can confirm this for the dpc7146, the mxb and the hexium_orion.
+
+> This still needs solving properly, but at least it makes it less of
+> a problem for people with non-broken hardware.
+
+Up to now, this problem did not show up so drastically. On the one hand,
+just a few dozen people use the MXB, a handful use the hexium_orion and
+the dpc7146 is really rare. All these users then simply tweaked their
+environment so that it works for the next boot.
+
+In order to fix this, these drivers should not be autoloaded because
+there is no sane way to autodetect these cards. In theory, you could do
+an i2c bus scan and check if all devices are there. But since MXB and
+dpc7146 both use the saa7111 video decoder on address 0x11 IIRC, the
+dpc7146 will grab any MXB device if loaded before.
+
+Distributions probably should keep these drivers from being autoloaded.
+
+>   /Christer
+
+Best regards
+Michael.

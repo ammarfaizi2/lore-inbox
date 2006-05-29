@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWE2H37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWE2Hid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbWE2H37 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 03:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWE2H37
+	id S1750746AbWE2Hid (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 03:38:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWE2Hic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 03:29:59 -0400
-Received: from gw.openss7.com ([142.179.199.224]:12994 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id S1750728AbWE2H37 (ORCPT
+	Mon, 29 May 2006 03:38:32 -0400
+Received: from hera.kernel.org ([140.211.167.34]:52690 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750746AbWE2Hic (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 03:29:59 -0400
-Date: Mon, 29 May 2006 01:29:54 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: 4Front Technologies <dev@opensound.com>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: How to check if kernel sources are installed on a system?
-Message-ID: <20060529012954.E20649@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	4Front Technologies <dev@opensound.com>,
-	linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-	Heiko Carstens <heiko.carstens@de.ibm.com>
-References: <1148835799.3074.41.camel@laptopd505.fenrus.org> <1148838738.21094.65.camel@mindpipe> <1148839964.3074.52.camel@laptopd505.fenrus.org> <1148846131.27461.14.camel@mindpipe> <20060528224402.A13279@openss7.org> <1148878368.3291.40.camel@laptopd505.fenrus.org> <447A883C.5070604@opensound.com> <1148883077.3291.47.camel@laptopd505.fenrus.org> <20060529005705.C20649@openss7.org> <1148886070.3291.54.camel@laptopd505.fenrus.org>
+	Mon, 29 May 2006 03:38:32 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: memcpy_toio on i386 using byte writes even when n%2==0
+Date: Mon, 29 May 2006 00:38:05 -0700 (PDT)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <e5e8ct$bl6$1@terminus.zytor.com>
+References: <6gMqr-8uW-23@gated-at.bofh.it> <44779358.9010703@shaw.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1148886070.3291.54.camel@laptopd505.fenrus.org>; from arjan@infradead.org on Mon, May 29, 2006 at 09:01:10AM +0200
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1148888285 11943 127.0.0.1 (29 May 2006 07:38:05 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Mon, 29 May 2006 07:38:05 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan,
+Followup to:  <44779358.9010703@shaw.ca>
+By author:    Robert Hancock <hancockr@shaw.ca>
+In newsgroup: linux.dev.kernel
+> 
+> It does seem a little bit less efficient, but I don't know think it's 
+> necessarily a bug. There's no guarantee of what size writes will be used 
+> with the memcpy_to/fromio functions.
+> 
 
-On Mon, 29 May 2006, Arjan van de Ven wrote:
-> eh dude what are you thinking? Documentation/kbuild very much gives you
-> a FULLY standardized way of doing this. On all distributions.
-> The only tricky part is finding the build tree, for the current kernel
-> that is
-> /lib/modules/`uname -r`/build
-> (as per Linus' decree from like 4 to 5 years ago)
-> for non-current kernels that's a bit more complex, so just ask the user.
-> Once you have that the rest comes for free.
+There are only a few semantics that make sense: fixed 8, 16, 32, or 64
+bits, plus "optimal"; the latter to be used for anything that doesn't
+require a specific transfer size.  Logically, an unqualified
+"memcpy_to/fromio" should be the optimal size (as few transfers as
+possible) -- we have a qualified "memcpy_to/fromio32" already, and 8-
+and 16-bit variants could/should be added.
 
-kbuild is fine for small isolated kernel modules that export no symbols
-(esp. little ones that nobody supports any more or were recently kicked
-out of a kernel), but for building large subsystems of kernel modules
-and multiple interdependent packages that export symbols and headers it
-is rather lacking.
+However, having the unqualified version do byte transfers seems like a
+really bad idea.
 
-An, of course, if you want to build kernel modules for 2.4 and 2.6 as
-well, kbuild does not help you.
+	-hpa
 
-Also, while checking for kernel version on the fine kernel.org kernels
-is quite sufficient, it is next to useless on hacked production distro
-kernels.  Therefore, one has to locate configured sources and headers
-to perform checks to adapt to them.
-
---brian

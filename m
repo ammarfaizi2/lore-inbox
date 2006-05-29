@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWE2VoP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751332AbWE2Vox@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751333AbWE2VoP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 17:44:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbWE2VYL
+	id S1751332AbWE2Vox (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 17:44:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWE2VXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 17:24:11 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:19384 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751335AbWE2VYH (ORCPT
+	Mon, 29 May 2006 17:23:43 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:5816 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751321AbWE2VXj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 17:24:07 -0400
-Date: Mon, 29 May 2006 23:24:27 +0200
+	Mon, 29 May 2006 17:23:39 -0400
+Date: Mon, 29 May 2006 23:23:59 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
 Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
-Subject: [patch 17/61] lock validator: sk_callback_lock workaround
-Message-ID: <20060529212427.GQ3155@elte.hu>
+Subject: [patch 11/61] lock validator: lockdep: small xfs init_rwsem() cleanup
+Message-ID: <20060529212359.GK3155@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -32,92 +32,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Ingo Molnar <mingo@elte.hu>
 
-temporary workaround for the lock validator: make all uses of
-sk_callback_lock softirq-safe. (The real solution will be to
-express to the lock validator that sk_callback_lock rules are
-to be generated per-address-family.)
+init_rwsem() has no return value. This is not a problem if init_rwsem()
+is a function, but it's a problem if it's a do { ... } while (0) macro.
+(which lockdep introduces)
 
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
 ---
- net/core/sock.c |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ fs/xfs/linux-2.6/mrlock.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Index: linux/net/core/sock.c
+Index: linux/fs/xfs/linux-2.6/mrlock.h
 ===================================================================
---- linux.orig/net/core/sock.c
-+++ linux/net/core/sock.c
-@@ -934,9 +934,9 @@ int sock_i_uid(struct sock *sk)
- {
- 	int uid;
+--- linux.orig/fs/xfs/linux-2.6/mrlock.h
++++ linux/fs/xfs/linux-2.6/mrlock.h
+@@ -28,7 +28,7 @@ typedef struct {
+ } mrlock_t;
  
--	read_lock(&sk->sk_callback_lock);
-+	read_lock_bh(&sk->sk_callback_lock);
- 	uid = sk->sk_socket ? SOCK_INODE(sk->sk_socket)->i_uid : 0;
--	read_unlock(&sk->sk_callback_lock);
-+	read_unlock_bh(&sk->sk_callback_lock);
- 	return uid;
- }
- 
-@@ -944,9 +944,9 @@ unsigned long sock_i_ino(struct sock *sk
- {
- 	unsigned long ino;
- 
--	read_lock(&sk->sk_callback_lock);
-+	read_lock_bh(&sk->sk_callback_lock);
- 	ino = sk->sk_socket ? SOCK_INODE(sk->sk_socket)->i_ino : 0;
--	read_unlock(&sk->sk_callback_lock);
-+	read_unlock_bh(&sk->sk_callback_lock);
- 	return ino;
- }
- 
-@@ -1306,33 +1306,33 @@ ssize_t sock_no_sendpage(struct socket *
- 
- static void sock_def_wakeup(struct sock *sk)
- {
--	read_lock(&sk->sk_callback_lock);
-+	read_lock_bh(&sk->sk_callback_lock);
- 	if (sk->sk_sleep && waitqueue_active(sk->sk_sleep))
- 		wake_up_interruptible_all(sk->sk_sleep);
--	read_unlock(&sk->sk_callback_lock);
-+	read_unlock_bh(&sk->sk_callback_lock);
- }
- 
- static void sock_def_error_report(struct sock *sk)
- {
--	read_lock(&sk->sk_callback_lock);
-+	read_lock_bh(&sk->sk_callback_lock);
- 	if (sk->sk_sleep && waitqueue_active(sk->sk_sleep))
- 		wake_up_interruptible(sk->sk_sleep);
- 	sk_wake_async(sk,0,POLL_ERR); 
--	read_unlock(&sk->sk_callback_lock);
-+	read_unlock_bh(&sk->sk_callback_lock);
- }
- 
- static void sock_def_readable(struct sock *sk, int len)
- {
--	read_lock(&sk->sk_callback_lock);
-+	read_lock_bh(&sk->sk_callback_lock);
- 	if (sk->sk_sleep && waitqueue_active(sk->sk_sleep))
- 		wake_up_interruptible(sk->sk_sleep);
- 	sk_wake_async(sk,1,POLL_IN);
--	read_unlock(&sk->sk_callback_lock);
-+	read_unlock_bh(&sk->sk_callback_lock);
- }
- 
- static void sock_def_write_space(struct sock *sk)
- {
--	read_lock(&sk->sk_callback_lock);
-+	read_lock_bh(&sk->sk_callback_lock);
- 
- 	/* Do not wake up a writer until he can make "significant"
- 	 * progress.  --DaveM
-@@ -1346,7 +1346,7 @@ static void sock_def_write_space(struct 
- 			sk_wake_async(sk, 2, POLL_OUT);
- 	}
- 
--	read_unlock(&sk->sk_callback_lock);
-+	read_unlock_bh(&sk->sk_callback_lock);
- }
- 
- static void sock_def_destruct(struct sock *sk)
+ #define mrinit(mrp, name)	\
+-	( (mrp)->mr_writer = 0, init_rwsem(&(mrp)->mr_lock) )
++	do { (mrp)->mr_writer = 0; init_rwsem(&(mrp)->mr_lock); } while (0)
+ #define mrlock_init(mrp, t,n,s)	mrinit(mrp, n)
+ #define mrfree(mrp)		do { } while (0)
+ #define mraccess(mrp)		mraccessf(mrp, 0)

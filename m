@@ -1,96 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbWE2Wa1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWE2WkB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751439AbWE2Wa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 18:30:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWE2Wa1
+	id S1751443AbWE2WkB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 18:40:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWE2WkB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 18:30:27 -0400
-Received: from perninha.conectiva.com.br ([200.140.247.100]:24025 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S1751439AbWE2Wa0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 18:30:26 -0400
-Date: Mon, 29 May 2006 19:33:30 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-To: Frank Gevaerts <frank.gevaerts@fks.be>
-Cc: Frank Gevaerts <frank.gevaerts@fks.be>, Pete Zaitcev <zaitcev@redhat.com>,
-       linux-kernel@vger.kernel.org, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: usb-serial ipaq kernel problem
-Message-ID: <20060529193330.3c51f3ba@home.brethil>
-In-Reply-To: <20060529204724.GA22250@fks.be>
-References: <20060526182217.GA12687@fks.be>
-	<20060526133410.9cfff805.zaitcev@redhat.com>
-	<20060529120102.1bc28bf2@doriath.conectiva>
-	<20060529132553.08b225ba@doriath.conectiva>
-	<20060529141110.6d149e21@doriath.conectiva>
-	<20060529194334.GA32440@fks.be>
-	<20060529172410.63dffa72@doriath.conectiva>
-	<20060529204724.GA22250@fks.be>
-Organization: Mandriva
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-mandriva-linux-gnu)
+	Mon, 29 May 2006 18:40:01 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:14747 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751443AbWE2WkB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 18:40:01 -0400
+Date: Mon, 29 May 2006 15:44:02 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: torvalds@osdl.org, scjody@modernduck.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.17-rc5] ieee1394_core: switch to kthread API
+Message-Id: <20060529154402.cfa5143e.akpm@osdl.org>
+In-Reply-To: <tkrat.cfb023075101da5c@s5r6.in-berlin.de>
+References: <tkrat.cfb023075101da5c@s5r6.in-berlin.de>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 May 2006 22:47:24 +0200
-Frank Gevaerts <frank.gevaerts@fks.be> wrote:
+On Sun, 28 May 2006 18:43:52 +0200 (CEST)
+Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
 
-| On Mon, May 29, 2006 at 05:24:10PM -0300, Luiz Fernando N. Capitulino wrote:
-| > On Mon, 29 May 2006 21:43:35 +0200
-| > Frank Gevaerts <frank.gevaerts@fks.be> wrote:
-| > 
-| > | On Mon, May 29, 2006 at 02:11:10PM -0300, Luiz Fernando N. Capitulino wrote:
-| > | > 
-| > | >  Frank, could you try this one please?
-| > | > 
-| > | >  I have no sure whether this makes sense, but every USB-Serial driver
-| > | > I know exits in the write URB callback if the URB got an error.
-| > | 
-| > | It looks sane to me at least.
-| > | The machine is now running with this patch (and my ipaq_open patch, see
-| > | http://www.ussg.iu.edu/hypermail/linux/kernel/0605.2/1901.html).
-| > 
-| >  Hmmm. Then does the workqueue problem began to happen _after_ you applied
-| > your patch?
-| 
-| No. I saw it a few times before that as well. Here is the oldest one I found (using 2.6.15)
+We end up with:
 
- Okay.
+:static void queue_packet_complete(struct hpsb_packet *packet)
+:{
+:	if (packet->no_waiter) {
+:		hpsb_free_packet(packet);
+:		return;
+:	}
+:	if (packet->complete_routine != NULL) {
+:		skb_queue_tail(&hpsbpkt_queue, packet->skb);
+:		wake_up_process(khpsbpkt_thread);
+:	}
+:	return;
+:}
+:
+:static int hpsbpkt_thread(void *__hi)
+:{
+:	struct sk_buff *skb;
+:	struct hpsb_packet *packet;
+:	void (*complete_routine)(void*);
+:	void *complete_data;
+:
+:	current->flags |= PF_NOFREEZE;
+:
+:	while (!kthread_should_stop()) {
+:		while ((skb = skb_dequeue(&hpsbpkt_queue)) != NULL) {
+:			packet = (struct hpsb_packet *)skb->data;
+:
+:			complete_routine = packet->complete_routine;
+:			complete_data = packet->complete_data;
+:
+:			packet->complete_routine = packet->complete_data = NULL;
+:
+:			complete_routine(complete_data);
+:		}
 
-| >  Are you sure your patch is the right thing to do? Does it look reasonable
-| > to submit that urb 1000 times that way?
-| 
-| It only submits it once, just after the control message has succeeded.
+There's a race here.
 
- Oh, that's right. I didn't see the return statement.
+:		set_current_state(TASK_INTERRUPTIBLE );
+:		schedule();
+:	}
+:
+:	return 0;
+:}
 
-| The loop is needed because sometimes the ipaq takes a very long time
-| (more than a minute) before it starts accepting the control message.
+If queue_packet_complete() is called on another CPU in that window, there
+will be a new skb queued and we'll miss the wakeup.
 
- Ok.
+I used skb_peek() in the below fix, but there are other ways, perhaps..
 
-| >  At first, it seems something else.
-| > 
-| >  Couldn't you run your test-case in a kernel previous to the TTY layer
-| > buffering revamp change?
-| 
-| We first used 2.6.15. We got different types of error : a panic in
-| ipaq_read_bulk_callback(), the bug I mentionned in
-| http://www.ussg.iu.edu/hypermail/linux/kernel/0605.2/1770.html and the
-| current problem. We first tried upgrading to 2.6.16, which did not help.
-| 
-| The panic was caused by the read urb being submitten in ipaq_open,
-| regardless of success, and never killed in case of failure. What my
-| patch basically does is to submit the urb only after succesfully sending
-| the control message, and adding a sleep between tries. As long as this
-| patch is not applied, we hardly get any other error because the kernel
-| panics as soon as an ipaq reboots.
 
- I see.
+--- devel/drivers/ieee1394/ieee1394_core.c~ieee1394_core-switch-to-kthread-api-fix	2006-05-29 15:42:30.000000000 -0700
++++ devel-akpm/drivers/ieee1394/ieee1394_core.c	2006-05-29 15:42:40.000000000 -0700
+@@ -1001,7 +1001,6 @@ void abort_timedouts(unsigned long __opa
+ static struct task_struct *khpsbpkt_thread;
+ static struct sk_buff_head hpsbpkt_queue;
+ 
+-
+ static void queue_packet_complete(struct hpsb_packet *packet)
+ {
+ 	if (packet->no_waiter) {
+@@ -1036,10 +1035,11 @@ static int hpsbpkt_thread(void *__hi)
+ 			complete_routine(complete_data);
+ 		}
+ 
+-		set_current_state(TASK_INTERRUPTIBLE );
+-		schedule();
++		set_current_state(TASK_INTERRUPTIBLE);
++		if (!skb_peek(&hpsbpkt_queue))
++			schedule();
++		__set_current_state(TASK_RUNNING);
+ 	}
+-
+ 	return 0;
+ }
+ 
+_
 
- Did you try to just kill the read urb in the ipaq_open's error path?
-
--- 
-Luiz Fernando N. Capitulino

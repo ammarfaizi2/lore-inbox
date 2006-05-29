@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWE2QAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750887AbWE2QV3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751110AbWE2QAR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 12:00:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbWE2QAQ
+	id S1750887AbWE2QV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 12:21:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWE2QV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 12:00:16 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:29413 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751110AbWE2QAP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 12:00:15 -0400
-Subject: Re: How to check if kernel sources are installed on a system?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Christopher Friesen <cfriesen@nortel.com>
-Cc: 4Front Technologies <dev@opensound.com>, linux-kernel@vger.kernel.org,
-       bidulock@openss7.org, Lee Revell <rlrevell@joe-job.com>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>
-In-Reply-To: <447B18DB.3030805@nortel.com>
-References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe>
-	 <1148653797.3579.18.camel@laptopd505.fenrus.org>
-	 <20060528130320.GA10385@osiris.ibm.com>
-	 <1148835799.3074.41.camel@laptopd505.fenrus.org>
-	 <1148838738.21094.65.camel@mindpipe>
-	 <1148839964.3074.52.camel@laptopd505.fenrus.org>
-	 <1148846131.27461.14.camel@mindpipe>  <20060528224402.A13279@openss7.org>
-	 <1148878368.3291.40.camel@laptopd505.fenrus.org>
-	 <447A883C.5070604@opensound.com>
-	 <1148883077.3291.47.camel@laptopd505.fenrus.org>
-	 <447B18DB.3030805@nortel.com>
-Content-Type: text/plain
-Date: Mon, 29 May 2006 18:00:07 +0200
-Message-Id: <1148918407.3291.93.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 29 May 2006 12:21:29 -0400
+Received: from gate.crashing.org ([63.228.1.57]:36060 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750887AbWE2QV3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 12:21:29 -0400
+In-Reply-To: <20060529154923.GA9025@skynet.ie>
+References: <20060526151214.GA5190@skynet.ie> <20060526094924.10efc515.akpm@osdl.org> <20060529154923.GA9025@skynet.ie>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <2ebd96e4a7ea753273b2c5f856ba8c7a@kernel.crashing.org>
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Cc: vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [PATCH] Compile failure fix for ppc on 2.6.17-rc4-mm3 (2nd attempt)
+Date: Mon, 29 May 2006 18:22:33 +0200
+To: mel@csn.ul.ie (Mel Gorman)
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-29 at 09:52 -0600, Christopher Friesen wrote:
-> Arjan van de Ven wrote:
-> > On Sun, 2006-05-28 at 22:35 -0700, 4Front Technologies wrote:
-> > 
-> >>BTW, why is Mandriva the only distro to turn OFF REGPARM?. Again, I think 
-> >>distros shouldn't be given an option to turn it off if its a good thing to have.
-> 
-> > why not? It's not like it's a dramatic change of API after all... (and
-> > even if it were...)
-> > 
-> > external modules shouldn't care, they really really should inherit the
-> > cflags from the kernel's makefiles at which point.. the thing is moot.
-> 
-> Speaking from personal experience...there are a LOT of 3rd party drivers 
-> out there that do not build their modules properly. 
+>>>  arch/powerpc/kernel/built-in.o(.init.text+0x77b4): In function 
+>>> `vrsqrtefp':
+>>>  : undefined reference to `__udivdi3'
+>>>  arch/powerpc/kernel/built-in.o(.init.text+0x7800): In function 
+>>> `vrsqrtefp':
+>>>  : undefined reference to `__udivdi3'
+>>>  make: *** [.tmp_vmlinux1] Error 1
+>>
+>> A function with a name like that doesn't _deserve_ to compile.
 
-yup there are. sad but true ;(
+Would vector_reciprocal_square_root_estimate_floating_point() be any 
+better...
+Anyway, this is just a machine insn mnemonic, so the function name is 
+fine
+I believe.
 
->  It gets especially 
-> interesting when they want to have a single package support 2.4 and 2.6, 
-> and also link the result against an included binary blob.
+>  #define push_end(res, size) do { unsigned long __sz = (size) ; \
+> -	res->end = ((res->end + __sz) / (__sz + 1)) * (__sz + 1) + __sz; \
+> +	resource_size_t farEnd = (res->end + __sz); \
+> +	do_div(farEnd, (__sz + 1)); \
+> +	res->end = farEnd * (__sz + 1) + __sz; \
+>      } while (0)
 
-well if a binary blob is involved you've lost already in many ways.
+Size here is a) a misnomer (size + 1 is the actual size) and b) always 
+a power
+of two minus one.  So instead, do
 
+#define push_end(res, mask) res->end = -(-res->end & ~(unsigned 
+long)mask)
+
+(with a do { } while(0) armour if you prefer).
+
+
+Segher
 

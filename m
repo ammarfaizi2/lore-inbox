@@ -1,94 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWE2Pt3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWE2PxO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751092AbWE2Pt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 11:49:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWE2Pt3
+	id S1751103AbWE2PxO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 11:53:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWE2PxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 11:49:29 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:37045 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1751092AbWE2Pt2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 11:49:28 -0400
-Date: Mon, 29 May 2006 16:49:24 +0100
-To: Andrew Morton <akpm@osdl.org>
-Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, vgoyal@in.ibm.com
-Subject: Re: [PATCH] Compile failure fix for ppc on 2.6.17-rc4-mm3 (2nd attempt)
-Message-ID: <20060529154923.GA9025@skynet.ie>
-References: <20060526151214.GA5190@skynet.ie> <20060526094924.10efc515.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <20060526094924.10efc515.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
-From: mel@csn.ul.ie (Mel Gorman)
+	Mon, 29 May 2006 11:53:13 -0400
+Received: from zrtps0kp.nortel.com ([47.140.192.56]:40940 "EHLO
+	zrtps0kp.nortel.com") by vger.kernel.org with ESMTP
+	id S1751103AbWE2PxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 11:53:13 -0400
+Message-ID: <447B18DB.3030805@nortel.com>
+Date: Mon, 29 May 2006 09:52:59 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: 4Front Technologies <dev@opensound.com>, linux-kernel@vger.kernel.org,
+       bidulock@openss7.org, Lee Revell <rlrevell@joe-job.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: How to check if kernel sources are installed on a system?
+References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe> <1148653797.3579.18.camel@laptopd505.fenrus.org> <20060528130320.GA10385@osiris.ibm.com> <1148835799.3074.41.camel@laptopd505.fenrus.org> <1148838738.21094.65.camel@mindpipe> <1148839964.3074.52.camel@laptopd505.fenrus.org> <1148846131.27461.14.camel@mindpipe>  <20060528224402.A13279@openss7.org> <1148878368.3291.40.camel@laptopd505.fenrus.org> <447A883C.5070604@opensound.com> <1148883077.3291.47.camel@laptopd505.fenrus.org>
+In-Reply-To: <1148883077.3291.47.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 May 2006 15:53:03.0915 (UTC) FILETIME=[F85137B0:01C68337]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On (26/05/06 09:49), Andrew Morton didst pronounce:
-> mel@csn.ul.ie (Mel Gorman) wrote:
-> >
-> > (Resending with Andrew's email address correct this time)
-> > 
-> >  For the last few -mm releases, kernels built for an old RS6000 failed to
-> >  compile with the message;
-> > 
-> >  arch/powerpc/kernel/built-in.o(.init.text+0x77b4): In function `vrsqrtefp':
-> >  : undefined reference to `__udivdi3'
-> >  arch/powerpc/kernel/built-in.o(.init.text+0x7800): In function `vrsqrtefp':
-> >  : undefined reference to `__udivdi3'
-> >  make: *** [.tmp_vmlinux1] Error 1
+Arjan van de Ven wrote:
+> On Sun, 2006-05-28 at 22:35 -0700, 4Front Technologies wrote:
 > 
-> A function with a name like that doesn't _deserve_ to compile.
+>>BTW, why is Mandriva the only distro to turn OFF REGPARM?. Again, I think 
+>>distros shouldn't be given an option to turn it off if its a good thing to have.
+
+> why not? It's not like it's a dramatic change of API after all... (and
+> even if it were...)
 > 
+> external modules shouldn't care, they really really should inherit the
+> cflags from the kernel's makefiles at which point.. the thing is moot.
 
-heh
+Speaking from personal experience...there are a LOT of 3rd party drivers 
+out there that do not build their modules properly.  It gets especially 
+interesting when they want to have a single package support 2.4 and 2.6, 
+and also link the result against an included binary blob.
 
-> But actually vrsqrtefp() doesn't call __udivdi3 - the error lies somewhere
-> else in the kernel and the toolchain gets it wrong, so we don't know where.
-> 
-
-It explains why I couldn't find where vrsqrtefp() was.
-
-> The way I usually hunt this problem down is to build the .s files (make
-> arch/powerpc/kernel/foo.s) and then grep around, find the offending C
-> function.
-> 
-
-That was a good idea, thanks. It showed that check_for_io_childs() in
-arch/powerpc/kernel/pci_32.c was the real problem. A quick look showed
-that is was doing divisions on resource_type_t which was 64 bits with my
-.config. Selecting CONFIG_RESOURCES_32BIT made the problem go away. This
-option is introduced by the kconfigurable-resources-* patches so I've cc'd
-Vivek Goyal to comment on the potential fixes below.
-
-> >  2.6.17-rc5 is not affected but I didn't search for the culprit patch in
-> >  -mm. The following patch adds an implementation of __udivdi3 for plain old
-> >  ppc32. This may not be the correct fix as Google tells me that __udivdi3
-> >  has been replaced by calls to do_div() in a number of cases. There was no
-> >  obvious way to do that for vrsqrtefp, hence this workaround. The patch should
-> >  be acked, rejected or replaced by a ppc expert.
-> 
-> Yes, we've traditionally avoided adding the 64-bit divide library functions.
-
-Understandable. The fixes are obvious in this case. Easiest is for users to
-set CONFIG_RESOURCES_32BIT manually although the kernel build error is not
-very obvious. A fairly easy bodge is to default CONFIG_RESOURCES_32BIT to Y
-when building PPC32 but a determined user may still fail to build a kernel. A
-slightly riskier option is this patch that replaces a potential 64 bit divide
-with a do_div call. The patch has been successfully boot-tested on a RS6000.
-
-Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.17-rc4-mm3-clean/arch/powerpc/kernel/pci_32.c linux-2.6.17-rc4-mm3-resources-32/arch/powerpc/kernel/pci_32.c
---- linux-2.6.17-rc4-mm3-clean/arch/powerpc/kernel/pci_32.c	2006-05-29 15:55:52.000000000 +0100
-+++ linux-2.6.17-rc4-mm3-resources-32/arch/powerpc/kernel/pci_32.c	2006-05-29 15:53:43.000000000 +0100
-@@ -1115,7 +1115,9 @@ check_for_io_childs(struct pci_bus *bus,
- 	int	rc = 0;
- 
- #define push_end(res, size) do { unsigned long __sz = (size) ; \
--	res->end = ((res->end + __sz) / (__sz + 1)) * (__sz + 1) + __sz; \
-+	resource_size_t farEnd = (res->end + __sz); \
-+	do_div(farEnd, (__sz + 1)); \
-+	res->end = farEnd * (__sz + 1) + __sz; \
-     } while (0)
- 
- 	list_for_each_entry(dev, &bus->devices, bus_list) {
+Chris

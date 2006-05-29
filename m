@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbWE2HFM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWE2HId@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750852AbWE2HFM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 03:05:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbWE2HFM
+	id S1750712AbWE2HId (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 03:08:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWE2HId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 03:05:12 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.192.83]:17302 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1750850AbWE2HFK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 03:05:10 -0400
-Message-ID: <447A9D28.9010809@opensound.com>
-Date: Mon, 29 May 2006 00:05:12 -0700
-From: 4Front Technologies <dev@opensound.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.2) Gecko/20060404 SeaMonkey/1.0.1
+	Mon, 29 May 2006 03:08:33 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:34570 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S1750712AbWE2HIc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 03:08:32 -0400
+Date: Mon, 29 May 2006 15:06:23 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, christoph <hch@lst.de>,
+       Benjamin LaHaise <bcrl@kvack.org>, cel@citi.umich.edu,
+       Zach Brown <zach.brown@oracle.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/4] Remove readv/writev methods and use aio_read/aio_write
+ instead
+In-Reply-To: <4478EBAD.4060105@us.ibm.com>
+Message-ID: <Pine.LNX.4.64.0605291505340.3431@raven.themaw.net>
+References: <1146582438.8373.7.camel@dyn9047017100.beaverton.ibm.com> 
+ <1147197826.27056.4.camel@dyn9047017100.beaverton.ibm.com> 
+ <1147361890.12117.11.camel@dyn9047017100.beaverton.ibm.com> 
+ <1147727945.20568.53.camel@dyn9047017100.beaverton.ibm.com> 
+ <1147728133.6181.2.camel@dyn9047017100.beaverton.ibm.com> 
+ <20060521180037.3c8f2847.akpm@osdl.org>  <1148310016.7214.26.camel@dyn9047017100.beaverton.ibm.com>
+  <20060522100640.0710f7da.akpm@osdl.org>  <1148318671.7214.42.camel@dyn9047017100.beaverton.ibm.com>
+  <4472C7E1.3060004@themaw.net> <1148394915.8788.4.camel@raven.themaw.net>
+ <4478EBAD.4060105@us.ibm.com>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>,
-       4Front Technologies <dev@opensound.com>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: How to check if kernel sources are installed on a system?
-References: <1148653797.3579.18.camel@laptopd505.fenrus.org> <20060528130320.GA10385@osiris.ibm.com> <1148835799.3074.41.camel@laptopd505.fenrus.org> <1148838738.21094.65.camel@mindpipe> <1148839964.3074.52.camel@laptopd505.fenrus.org> <1148846131.27461.14.camel@mindpipe> <20060528224402.A13279@openss7.org> <1148878368.3291.40.camel@laptopd505.fenrus.org> <447A883C.5070604@opensound.com> <1148883077.3291.47.camel@laptopd505.fenrus.org> <20060529005705.C20649@openss7.org>
-In-Reply-To: <20060529005705.C20649@openss7.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-themaw-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-2.599,
+	required 5, autolearn=not spam, BAYES_00 -2.60)
+X-themaw-MailScanner-From: raven@themaw.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian F. G. Bidulock wrote:
-> Arjan,
+On Sat, 27 May 2006, Badari Pulavarty wrote:
+
+> > > > 
+> > > Doesn't seem to apply to 2.6.17-rc4.
+> > > 
+> > > [raven@raven linux-2.6.16]$ patch -p1 <
+> > > ~/remove-readv_writev-methods-and-use-aio_read_aio_write.patch
+> > > patching file drivers/char/raw.c
+> > > 
 > 
-> On Mon, 29 May 2006, Arjan van de Ven wrote:
->> external modules shouldn't care, they really really should inherit the
->> cflags from the kernel's makefiles at which point.. the thing is moot.
-> 
-> Yes, and ultimately the kernel's makefile (if present) are the best
-> place to get CFLAGS from.  However, the task of ensuring that the
-> correct Makefile is present and that the correct configuration
-> information is feeding it (back to .config) is distribution specific
-> and not always straightforward.
-> 
-> --brian
-> 
-> 
+> This patch is the 2nd patch in the series. So you need to apply vectorize-aio
+> methods
+> patch first. Anyway, I am going to re-test and send out the series when I get
+> back.
 
+Oops.
 
-How about external modules that have a kernel dependant part and kernel 
-independant part?. Kernel independant part could live in a separate tree and
-has its own makefiles.
+Sorry.
 
-But regparm requires that ALL parts linked into the module need to have regparm 
-defined. So it's another headache to write makefiles for the kernel independant 
-part to figure out if the distro support regparm or not.
+Ian
 
-
-
-
-regards
-Dev Mazumdar
------------------------------------------------------------
-4Front Technologies
-4035 Lafayette Place, Unit F, Culver City, CA 90232, USA.
-Tel: (310) 202 8530		URL: www.opensound.com
-Fax: (310) 202 0496 		Email: info@opensound.com
------------------------------------------------------------

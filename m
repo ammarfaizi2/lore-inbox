@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWE2V0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWE2V1e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751374AbWE2V0q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 17:26:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWE2V0p
+	id S1751381AbWE2V1e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 17:27:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWE2V1Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 17:26:45 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:53217 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751357AbWE2V0Y (ORCPT
+	Mon, 29 May 2006 17:27:25 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:62945 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751361AbWE2V0t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 17:26:24 -0400
-Date: Mon, 29 May 2006 23:26:43 +0200
+	Mon, 29 May 2006 17:26:49 -0400
+Date: Mon, 29 May 2006 23:27:09 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
 Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
-Subject: [patch 45/61] lock validator: special locking: mm
-Message-ID: <20060529212643.GS3155@elte.hu>
+Subject: [patch 50/61] lock validator: special locking: hrtimer.c
+Message-ID: <20060529212709.GX3155@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -39,33 +39,19 @@ effect on non-lockdep kernels.
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
 ---
- mm/memory.c |    2 +-
- mm/mremap.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ kernel/hrtimer.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Index: linux/mm/memory.c
+Index: linux/kernel/hrtimer.c
 ===================================================================
---- linux.orig/mm/memory.c
-+++ linux/mm/memory.c
-@@ -509,7 +509,7 @@ again:
- 		return -ENOMEM;
- 	src_pte = pte_offset_map_nested(src_pmd, addr);
- 	src_ptl = pte_lockptr(src_mm, src_pmd);
--	spin_lock(src_ptl);
-+	spin_lock_nested(src_ptl, SINGLE_DEPTH_NESTING);
+--- linux.orig/kernel/hrtimer.c
++++ linux/kernel/hrtimer.c
+@@ -786,7 +786,7 @@ static void __devinit init_hrtimers_cpu(
+ 	int i;
  
- 	do {
- 		/*
-Index: linux/mm/mremap.c
-===================================================================
---- linux.orig/mm/mremap.c
-+++ linux/mm/mremap.c
-@@ -97,7 +97,7 @@ static void move_ptes(struct vm_area_str
-  	new_pte = pte_offset_map_nested(new_pmd, new_addr);
- 	new_ptl = pte_lockptr(mm, new_pmd);
- 	if (new_ptl != old_ptl)
--		spin_lock(new_ptl);
-+		spin_lock_nested(new_ptl, SINGLE_DEPTH_NESTING);
+ 	for (i = 0; i < MAX_HRTIMER_BASES; i++, base++)
+-		spin_lock_init(&base->lock);
++		spin_lock_init_static(&base->lock);
+ }
  
- 	for (; old_addr < old_end; old_pte++, old_addr += PAGE_SIZE,
- 				   new_pte++, new_addr += PAGE_SIZE) {
+ #ifdef CONFIG_HOTPLUG_CPU

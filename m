@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWE2Veq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWE2VfA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751359AbWE2Veq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 17:34:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWE2VeV
+	id S1751377AbWE2VfA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 17:35:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWE2V0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 17:34:21 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:14803 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751359AbWE2V0K (ORCPT
+	Mon, 29 May 2006 17:26:04 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:9939 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751360AbWE2VZx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 17:26:10 -0400
-Date: Mon, 29 May 2006 23:26:30 +0200
+	Mon, 29 May 2006 17:25:53 -0400
+Date: Mon, 29 May 2006 23:26:13 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
 Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
-Subject: [patch 42/61] lock validator: special locking: kgdb
-Message-ID: <20060529212630.GP3155@elte.hu>
+Subject: [patch 38/61] lock validator: special locking: i_mutex
+Message-ID: <20060529212613.GL3155@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -33,35 +33,131 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Ingo Molnar <mingo@elte.hu>
 
-teach special (recursive, non-ordered) locking code to the lock validator.
-Has no effect on non-lockdep kernels.
+teach special (recursive) locking code to the lock validator. Has no
+effect on non-lockdep kernels.
 
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
 ---
----
- kernel/kgdb.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/core/inode.c |    2 +-
+ fs/namei.c               |   24 ++++++++++++------------
+ include/linux/fs.h       |   14 ++++++++++++++
+ 3 files changed, 27 insertions(+), 13 deletions(-)
 
-Index: linux/kernel/kgdb.c
+Index: linux/drivers/usb/core/inode.c
 ===================================================================
---- linux.orig/kernel/kgdb.c
-+++ linux/kernel/kgdb.c
-@@ -1539,7 +1539,7 @@ int kgdb_handle_exception(int ex_vector,
+--- linux.orig/drivers/usb/core/inode.c
++++ linux/drivers/usb/core/inode.c
+@@ -201,7 +201,7 @@ static void update_sb(struct super_block
+ 	if (!root)
+ 		return;
  
- 	if (!debugger_step || !kgdb_contthread) {
- 		for (i = 0; i < NR_CPUS; i++)
--			spin_unlock(&slavecpulocks[i]);
-+			spin_unlock_non_nested(&slavecpulocks[i]);
- 		/* Wait till all the processors have quit
- 		 * from the debugger. */
- 		for (i = 0; i < NR_CPUS; i++) {
-@@ -1622,7 +1622,7 @@ static void __init kgdb_internal_init(vo
+-	mutex_lock(&root->d_inode->i_mutex);
++	mutex_lock_nested(&root->d_inode->i_mutex, I_MUTEX_PARENT);
  
- 	/* Initialize our spinlocks. */
- 	for (i = 0; i < NR_CPUS; i++)
--		spin_lock_init(&slavecpulocks[i]);
-+		spin_lock_init_static(&slavecpulocks[i]);
+ 	list_for_each_entry(bus, &root->d_subdirs, d_u.d_child) {
+ 		if (bus->d_inode) {
+Index: linux/fs/namei.c
+===================================================================
+--- linux.orig/fs/namei.c
++++ linux/fs/namei.c
+@@ -1422,7 +1422,7 @@ struct dentry *lock_rename(struct dentry
+ 	struct dentry *p;
  
- 	for (i = 0; i < MAX_BREAKPOINTS; i++)
- 		kgdb_break[i].state = bp_none;
+ 	if (p1 == p2) {
+-		mutex_lock(&p1->d_inode->i_mutex);
++		mutex_lock_nested(&p1->d_inode->i_mutex, I_MUTEX_PARENT);
+ 		return NULL;
+ 	}
+ 
+@@ -1430,30 +1430,30 @@ struct dentry *lock_rename(struct dentry
+ 
+ 	for (p = p1; p->d_parent != p; p = p->d_parent) {
+ 		if (p->d_parent == p2) {
+-			mutex_lock(&p2->d_inode->i_mutex);
+-			mutex_lock(&p1->d_inode->i_mutex);
++			mutex_lock_nested(&p2->d_inode->i_mutex, I_MUTEX_PARENT);
++			mutex_lock_nested(&p1->d_inode->i_mutex, I_MUTEX_CHILD);
+ 			return p;
+ 		}
+ 	}
+ 
+ 	for (p = p2; p->d_parent != p; p = p->d_parent) {
+ 		if (p->d_parent == p1) {
+-			mutex_lock(&p1->d_inode->i_mutex);
+-			mutex_lock(&p2->d_inode->i_mutex);
++			mutex_lock_nested(&p1->d_inode->i_mutex, I_MUTEX_PARENT);
++			mutex_lock_nested(&p2->d_inode->i_mutex, I_MUTEX_CHILD);
+ 			return p;
+ 		}
+ 	}
+ 
+-	mutex_lock(&p1->d_inode->i_mutex);
+-	mutex_lock(&p2->d_inode->i_mutex);
++	mutex_lock_nested(&p1->d_inode->i_mutex, I_MUTEX_PARENT);
++	mutex_lock_nested(&p2->d_inode->i_mutex, I_MUTEX_CHILD);
+ 	return NULL;
+ }
+ 
+ void unlock_rename(struct dentry *p1, struct dentry *p2)
+ {
+-	mutex_unlock(&p1->d_inode->i_mutex);
++	mutex_unlock_non_nested(&p1->d_inode->i_mutex);
+ 	if (p1 != p2) {
+-		mutex_unlock(&p2->d_inode->i_mutex);
++		mutex_unlock_non_nested(&p2->d_inode->i_mutex);
+ 		mutex_unlock(&p1->d_inode->i_sb->s_vfs_rename_mutex);
+ 	}
+ }
+@@ -1750,7 +1750,7 @@ struct dentry *lookup_create(struct name
+ {
+ 	struct dentry *dentry = ERR_PTR(-EEXIST);
+ 
+-	mutex_lock(&nd->dentry->d_inode->i_mutex);
++	mutex_lock_nested(&nd->dentry->d_inode->i_mutex, I_MUTEX_PARENT);
+ 	/*
+ 	 * Yucky last component or no last component at all?
+ 	 * (foo/., foo/.., /////)
+@@ -2007,7 +2007,7 @@ static long do_rmdir(int dfd, const char
+ 			error = -EBUSY;
+ 			goto exit1;
+ 	}
+-	mutex_lock(&nd.dentry->d_inode->i_mutex);
++	mutex_lock_nested(&nd.dentry->d_inode->i_mutex, I_MUTEX_PARENT);
+ 	dentry = lookup_hash(&nd);
+ 	error = PTR_ERR(dentry);
+ 	if (!IS_ERR(dentry)) {
+@@ -2081,7 +2081,7 @@ static long do_unlinkat(int dfd, const c
+ 	error = -EISDIR;
+ 	if (nd.last_type != LAST_NORM)
+ 		goto exit1;
+-	mutex_lock(&nd.dentry->d_inode->i_mutex);
++	mutex_lock_nested(&nd.dentry->d_inode->i_mutex, I_MUTEX_PARENT);
+ 	dentry = lookup_hash(&nd);
+ 	error = PTR_ERR(dentry);
+ 	if (!IS_ERR(dentry)) {
+Index: linux/include/linux/fs.h
+===================================================================
+--- linux.orig/include/linux/fs.h
++++ linux/include/linux/fs.h
+@@ -558,6 +558,20 @@ struct inode {
+ };
+ 
+ /*
++ * inode->i_mutex nesting types for the LOCKDEP validator:
++ *
++ * 0: the object of the current VFS operation
++ * 1: parent
++ * 2: child/target
++ */
++enum inode_i_mutex_lock_type
++{
++	I_MUTEX_NORMAL,
++	I_MUTEX_PARENT,
++	I_MUTEX_CHILD
++};
++
++/*
+  * NOTE: in a 32bit arch with a preemptable kernel and
+  * an UP compile the i_size_read/write must be atomic
+  * with respect to the local cpu (unlike with preempt disabled),

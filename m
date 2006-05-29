@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbWE2Vqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbWE2VrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751343AbWE2Vqb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 17:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbWE2VXg
+	id S1751324AbWE2VrD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 17:47:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWE2Vqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 17:23:36 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:20434 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751322AbWE2VXH (ORCPT
+	Mon, 29 May 2006 17:46:33 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:36266 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751325AbWE2Vq3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 17:23:07 -0400
-Date: Mon, 29 May 2006 23:23:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
-Subject: [patch 05/61] lock validator: introduce WARN_ON_ONCE(cond)
-Message-ID: <20060529212328.GE3155@elte.hu>
-Mime-Version: 1.0
+	Mon, 29 May 2006 17:46:29 -0400
+Date: Mon, 29 May 2006 23:45:40 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Dave Airlie <airlied@gmail.com>, "D. Hazelton" <dhazelton@enter.net>,
+       Jon Smirl <jonsmirl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+Message-ID: <20060529214540.GB7537@elf.ucw.cz>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200605272245.22320.dhazelton@enter.net> <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com> <200605280112.01639.dhazelton@enter.net> <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <20060529102339.GA746@elf.ucw.cz> <21d7e9970605290336m1f80b08nebbd2a995be959cb@mail.gmail.com> <20060529124840.GD746@elf.ucw.cz> <447B666F.5080109@garzik.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060529212109.GA2058@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <447B666F.5080109@garzik.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
+On Po 29-05-06 17:23:59, Jeff Garzik wrote:
+> Pavel Machek wrote:
+> >These are very reasonable rules... but still, I think we need to move
+> >away from vgacon/vesafb. We need proper hardware drivers for our
+> >hardware.
+> 
+> I agree we need proper drivers, but moving away from vesafb will be 
+> tough... moving away from vgacon is likely impossible for many many 
+> years yet.
+> 
+> Once proper hardware drivers exist, you will still need to support 
+> booting into a situation where you probably need video before a driver 
+> can be loaded -- e.g. distro installers.  Server owners will likely 
+> prefer vgacon over a huge video driver they will never use for anything 
+> but text mode console.
 
-add WARN_ON_ONCE(cond) to print once-per-bootup messages.
+Well, I agree that vesafb and vgacon need to exist and are useful for
+installation/servers/etc. I was arguing that some combinations are
+bad.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
----
- include/asm-generic/bug.h |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+Like vgacon + X + 3D acceleration.
 
-Index: linux/include/asm-generic/bug.h
-===================================================================
---- linux.orig/include/asm-generic/bug.h
-+++ linux/include/asm-generic/bug.h
-@@ -44,4 +44,17 @@
- # define WARN_ON_SMP(x)			do { } while (0)
- #endif
- 
-+#define WARN_ON_ONCE(condition)				\
-+({							\
-+	static int __warn_once = 1;			\
-+	int __ret = 0;					\
-+							\
-+	if (unlikely(__warn_once && (condition))) {	\
-+		__warn_once = 0;			\
-+		WARN_ON(1);				\
-+		__ret = 1;				\
-+	}						\
-+	__ret;						\
-+})
-+
- #endif
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

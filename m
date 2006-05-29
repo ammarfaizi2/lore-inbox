@@ -1,71 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWE2HwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWE2IGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWE2HwU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 03:52:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWE2HwU
+	id S1750759AbWE2IGP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 04:06:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbWE2IGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 03:52:20 -0400
-Received: from ns.dynamicweb.hu ([195.228.155.139]:43206 "EHLO dynamicweb.hu")
-	by vger.kernel.org with ESMTP id S1750754AbWE2HwT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 03:52:19 -0400
-Message-ID: <00cb01c682f4$c307d7a0$1800a8c0@dcccs>
-From: =?iso-8859-2?Q?Haar_J=E1nos?= <djani22@netcenter.hu>
-To: <hpa@zytor.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: How to send a break?
-Date: Mon, 29 May 2006 09:51:56 +0200
+	Mon, 29 May 2006 04:06:15 -0400
+Received: from smtp2.actcom.co.il ([192.114.47.35]:35744 "EHLO
+	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S1750759AbWE2IGO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 04:06:14 -0400
+Message-ID: <003101c682ff$1b7c7350$c400a8c0@Chavalaptop>
+From: "Chava Leviatan" <chavale@actcom.net.il>
+To: <linux-kernel@vger.kernel.org>
+Subject: Ethernet driver module compilation  (8139too)
+Date: Mon, 29 May 2006 11:05:58 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 8bit
+	format=flowed;
+	charset="windows-1255";
+	reply-type=response
+Content-Transfer-Encoding: 7bit
 X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+X-Mailer: Microsoft Outlook Express 6.00.2900.2869
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-"H. Peter Anvin" <hpa@zytor.com> az alábbiakat írta a következo üzenetben
-news:e5dacu$v33$1@terminus.zytor.com...
-> Followup to:  <01b701c6818d$4bcd37b0$1800a8c0@dcccs>
-> By author:    =?iso-8859-2?Q?Haar_J=E1nos?= <djani22@netcenter.hu>
-> In newsgroup: linux.dev.kernel
-> >
-> > Hello, list,
-> >
-> > I wish to know, how to send a "BREAK" to trigger the sysreq functions on
-the
-> > serial line, using echo.
-> >
-> > I mean like this:
-> >
-> > #!/bin/bash
-> > echo "?BREAK?" >/dev/ttyS0
-> > sleep 2
-> > echo "m" >/dev/ttyS0
-> >
->
-> You can't use it using echo, however, you can do it using Perl:
->
-> perl -e 'use POSIX; tcsendbreak(1,0);' > /dev/ttyS0
+My Linux 2.4.18 machine has 2 ethernet interfaces: eepro100 and 8139too.
 
-Ahh, thats what i am waiting for, thanks! :-)
+I need to put a minur changes (printk messages) into those drivers, which
+are loaded as kernel modules .
 
-Works fine!
+I first changed the eepro then  compiled it seperatly (with
+_DMODULE, -D__KERNEL and the correct path into
+/lib/modules/.....) and everything worked well (was able to see my printing
+through dmesg).
 
-Thanks,
-Janos
+When I tried to change 8139too, it did not work -- not because of the code
+change -- rather , I had some
+problems in compiling this module.
+When i rebooted the machine the interfaces wer not up, and when I did lsmod
+8139too was not there.
+I then tried to manually install it (insmod) and was promp with unresolved
+external. I found out that
+those unresolved belong to mii.o which was not loaded during the boot
+process.
+When I changed to the original 8139too.o (luckily I have saved it ...) the
+machine is ok, mii.o
+is loadede , and also 8139too.
 
+I am sure the problem is in the way I compile this module , but i don't know
+what is missing ?
+I have browsed many Makefiles and could not tell what flags make the
+8139too.o tell the boot that
+it needs mii.o . The modules.dep file create during boot tme shows that
+8139too depends on mii.o,
+but from some reason mii.o is ot loaded.
 
+Maybe I can not compile kernel modules seperatly, i.e., kernel modules that
+are loaded during bot time ?
 
+Obviosly i can do this procee manually: insmod mii, then 8139 and finally
+bring the interface up.
+But, i really need to know what went wrong there
 
->
-> -hpa
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Any help will be much appreciated
+
+Chava Leviatan
 

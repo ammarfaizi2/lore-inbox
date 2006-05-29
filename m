@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWE2W4f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWE2XCM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932077AbWE2W4f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 18:56:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWE2W4e
+	id S932081AbWE2XCM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 19:02:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWE2XCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 18:56:34 -0400
-Received: from science.horizon.com ([192.35.100.1]:33590 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S932076AbWE2W4e
+	Mon, 29 May 2006 19:02:12 -0400
+Received: from nonada.if.usp.br ([143.107.131.169]:37522 "EHLO
+	nonada.if.usp.br") by vger.kernel.org with ESMTP id S932081AbWE2XCL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 18:56:34 -0400
-Date: 29 May 2006 18:56:32 -0400
-Message-ID: <20060529225632.7073.qmail@science.horizon.com>
-From: linux@horizon.com
-To: paul@permanentmail.com
-Subject: Re: Bisects that are neither good nor bad
-Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
+	Mon, 29 May 2006 19:02:11 -0400
+From: =?iso-8859-1?q?Jo=E3o_Luis_Meloni_Assirati?= 
+	<assirati@nonada.if.usp.br>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: /sys/class/net/eth?/carrier and uevents
+Date: Mon, 29 May 2006 20:02:21 -0300
+User-Agent: KMail/1.7.2
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+References: <200605291807.42725.assirati@nonada.if.usp.br> <9a8748490605291429h32f67b53k757d6e4a0cec7675@mail.gmail.com> <1148938395.3291.104.camel@laptopd505.fenrus.org>
+In-Reply-To: <1148938395.3291.104.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200605292002.21576.assirati@nonada.if.usp.br>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Cc: to the git list, since the people there undoubtedly know much better.)
+Em Seg 29 Mai 2006 18:33, Arjan van de Ven escreveu:
+> > I added the 'carrier' attribute initially but never considered udev at
+> > the time. But I can certainly see how it could be useful.
+> > I'll take a look at adding a hotplug event when I get some spare time
+> > (probably some time next week) - or perhaps someone else will beat me
+> > to it :)
+>
+> there is a netlink event already though... is this really worth the
+> duplication?
 
-> Is there a method of bisecting that means neither "good" nor "bad"?  I
-> have run into kernel problems that are not related to the problem I'm
-> attempting to track.  Some are not avoidable by changing the .config (see
-> the third bisect in comments 10 and 11 in the bugzilla report).
+IMHO the ability to substitute a daemon with a simple udev rule, together with 
+the benefit of notification by d-bus to the user interface (say KDE) makes it 
+worth.
 
-Yes.  While you're bisecting, HEAD is a special "bisect" head used just
-for that purpose.  If you encounter a compile error or are otherwise
-unable to test a version, you can "git reset --hard <commit>" to jump
-to some other commit and test that instead.  Because that command
-unconditionally changes both the current head and the checked-out code,
-it's normally somewhat dangerous, but while bisecting, there's no problem.
-You can choose anything you like to test instead of git-bisect's suggested
-version, but staying near the middle of the uncertain range is usually
-a good idea.  "HEAD^" (the parent of the current commit) is often a
-simple choice.  "git bisect visualize" might give you some ideas.
-
-Note that if the problem actually is in the area of the untestable commit,
-git bisect might drag you back there, but this lets you try to avoid it.
-
-It's also worth repeating some advice from the manual:
-
->> You can further cut down the number of trials if you know what part of
->> the tree is involved in the problem you are tracking down, by giving
->> paths parameters when you say bisect start, like this:
->>
->> $ git bisect start arch/i386 include/asm-i386
+Regards,
+João.

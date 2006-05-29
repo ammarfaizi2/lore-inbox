@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWE2IT4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWE2I1A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbWE2IT4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 04:19:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWE2IT4
+	id S1750768AbWE2I1A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 04:27:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWE2I1A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 04:19:56 -0400
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:33336 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750762AbWE2IT4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 04:19:56 -0400
-Message-ID: <447AAE98.2080409@de.ibm.com>
-Date: Mon, 29 May 2006 10:19:36 +0200
-From: Martin Peschke <mp3@de.ibm.com>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+	Mon, 29 May 2006 04:27:00 -0400
+Received: from ns.suse.de ([195.135.220.2]:37765 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750768AbWE2I07 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 04:26:59 -0400
+From: Neil Brown <neilb@suse.de>
+To: Nikita Danilov <nikita@clusterfs.com>
+Date: Mon, 29 May 2006 18:26:47 +1000
 MIME-Version: 1.0
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, joern@wohnheim.fh-wedel.de,
-       ioe-lkml@rameria.de, Martin Peschke <mp3@de.ibm.com>
-Subject: Re: [PATCH 09/33] readahead: events accounting
-References: <20060524111246.420010595@localhost.localdomain> <348469540.16036@ustc.edu.cn> <20060525093627.4d37e789.akpm@osdl.org> <348735988.17875@ustc.edu.cn>
-In-Reply-To: <348735988.17875@ustc.edu.cn>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17530.45127.92580.684010@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.16.18 - spelling fix
+Newsgroups: gmane.linux.kernel
+In-Reply-To: message from Nikita Danilov on Monday May 29
+References: <Pine.LNX.4.64.0605272016520.28903@p34>
+	<17530.11036.427239.812677@cse.unsw.edu.au>
+	<17530.42626.693182.834140@gargle.gargle.HOWL>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wu Fengguang wrote:
-> On Thu, May 25, 2006 at 09:36:27AM -0700, Andrew Morton wrote:
->> Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
->>> A debugfs file named `readahead/events' is created according to advises from
->>>  J?rn Engel, Andrew Morton and Ingo Oeser.
->> If everyone's patches all get merged up we'd expect that this facility be
->> migrated over to use Martin Peschke's statistics infrastructure.
->>
->> That's not a thing you should do now, but it would be a useful test of
->> Martin's work if you could find time to look at it and let us know whether
->> the infrastructure which he has provided would suit this application,
->> thanks.
+On Monday May 29, nikita@clusterfs.com wrote:
+> Neil Brown writes:
+>  > On Saturday May 27, jpiszcz@lucidpixels.com wrote:
+>  > > I was experimenting with Linux SW raid today and found a spelling error 
+>  > > when reading the help menus...
+>  > > 
+>  > > Patch attached, not sure if this is the right place to send it or if 
+>  > > patches go to Andrew Morton (misc ones like this)...
+>  > 
+>  > Thanks....
+>  > but more helpful than a spelling fix would be a chunk of elisp that I
+>  > could stick in my .emacs, which would automatically turn on flyspell
+>  > mode in Kconfig files, and inside comments in .c and .h files.
 > 
-> Hi, Martin is doing a great job, thanks.
+> (defun linux-c-mode ()
+>   ...
+>   (flyspell-prog-mode)
+>   ...)
 > 
-> I have read about its doc.  It should be suitable for various
-> readahead numbers. And it seems a trivial work to port to it :)
 
-Wu, great :) If you got questions (e.g. on how to setup your statistics so
-that the output looks quite compact) or more requirements (like an enhancement
-of the code that accumulates numbers) feel free to get back to me.
-Thanks, Martin
+Seems easy enough.... doesn't work for me :-(
 
+Further exploration shows that I need font-lock mode enabled for it to
+highlight speeling errors for me, and I never could get used to seeing
+my C code look like a Disco.
+
+It seems that flyspell-prog-mode absolutely requires font-lock as it
+uses the font-lock tags to detect which text to spell check.
+
+So I guess I need to tell font-lock that all the different text types
+should be displayed in the same font.
+
+Why is it never easy?
+
+Thanks.
+
+NeilBrown

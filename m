@@ -1,49 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWE2Hid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWE2Hnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWE2Hid (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 03:38:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWE2Hic
+	id S1750751AbWE2Hnq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 03:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWE2Hnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 03:38:32 -0400
-Received: from hera.kernel.org ([140.211.167.34]:52690 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1750746AbWE2Hic (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 03:38:32 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: memcpy_toio on i386 using byte writes even when n%2==0
-Date: Mon, 29 May 2006 00:38:05 -0700 (PDT)
-Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <e5e8ct$bl6$1@terminus.zytor.com>
-References: <6gMqr-8uW-23@gated-at.bofh.it> <44779358.9010703@shaw.ca>
+	Mon, 29 May 2006 03:43:46 -0400
+Received: from pool-72-66-202-199.ronkva.east.verizon.net ([72.66.202.199]:38083
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1750751AbWE2Hnq (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 03:43:46 -0400
+Message-Id: <200605290743.k4T7hT1x000374@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: 4Front Technologies <dev@opensound.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: How to check if kernel sources are installed on a system?
+In-Reply-To: Your message of "Mon, 29 May 2006 00:05:12 PDT."
+             <447A9D28.9010809@opensound.com>
+From: Valdis.Kletnieks@vt.edu
+References: <1148653797.3579.18.camel@laptopd505.fenrus.org> <20060528130320.GA10385@osiris.ibm.com> <1148835799.3074.41.camel@laptopd505.fenrus.org> <1148838738.21094.65.camel@mindpipe> <1148839964.3074.52.camel@laptopd505.fenrus.org> <1148846131.27461.14.camel@mindpipe> <20060528224402.A13279@openss7.org> <1148878368.3291.40.camel@laptopd505.fenrus.org> <447A883C.5070604@opensound.com> <1148883077.3291.47.camel@laptopd505.fenrus.org> <20060529005705.C20649@openss7.org>
+            <447A9D28.9010809@opensound.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1148888285 11943 127.0.0.1 (29 May 2006 07:38:05 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Mon, 29 May 2006 07:38:05 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: multipart/signed; boundary="==_Exmh_1148888608_6867P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 29 May 2006 03:43:29 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <44779358.9010703@shaw.ca>
-By author:    Robert Hancock <hancockr@shaw.ca>
-In newsgroup: linux.dev.kernel
-> 
-> It does seem a little bit less efficient, but I don't know think it's 
-> necessarily a bug. There's no guarantee of what size writes will be used 
-> with the memcpy_to/fromio functions.
-> 
+--==_Exmh_1148888608_6867P
+Content-Type: text/plain; charset=us-ascii
 
-There are only a few semantics that make sense: fixed 8, 16, 32, or 64
-bits, plus "optimal"; the latter to be used for anything that doesn't
-require a specific transfer size.  Logically, an unqualified
-"memcpy_to/fromio" should be the optimal size (as few transfers as
-possible) -- we have a qualified "memcpy_to/fromio32" already, and 8-
-and 16-bit variants could/should be added.
+On Mon, 29 May 2006 00:05:12 PDT, 4Front Technologies said:
+> But regparm requires that ALL parts linked into the module need to have regparm
+> defined. So it's another headache to write makefiles for the kernel independant
+> part to figure out if the distro support regparm or not.
 
-However, having the unqualified version do byte transfers seems like a
-really bad idea.
+Not true at all.. Or at least not for the most infamous module out there:
 
-	-hpa
+% grep NV_API_CALL *.h | head
+nv.h:#if !defined(NV_API_CALL)
+nv.h:#define NV_API_CALL __attribute__((regparm(0)))
+nv.h:#define NV_API_CALL
+nv.h:void*  NV_API_CALL  nv_dma_to_mmap_token         (nv_state_t *, NvU64);
+nv.h:void*  NV_API_CALL  nv_alloc_kernel_mapping      (nv_state_t *, NvU64, U032, void **);
+nv.h:S032   NV_API_CALL  nv_free_kernel_mapping       (nv_state_t *, void *, void *);
+nv.h:NvU64  NV_API_CALL  nv_get_kern_phys_address     (NvU64);
+nv.h:NvU64  NV_API_CALL  nv_get_user_phys_address     (NvU64);
+nv.h:void*  NV_API_CALL  nv_get_adapter_state         (U016, U016);
+nv.h:void   NV_API_CALL  nv_lock_rm                   (nv_state_t *);
 
+So there's routines facing the rest of the kernel - those *do* need to have a
+regparm that matches the kernel.  But internal to the module, you can have some
+other regparm value - the requirement is only that the prototype needs to have
+the same regparm as the function body is actually compiled with.
+
+I seem to remember that parts of the *mainline* kernel use 'asmlinkage'
+for similar reasons.... ;)
+
+--==_Exmh_1148888608_6867P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEeqYgcC3lWbTT17ARAtPFAKCoqpcdonij8VXYp7Qh9qVHL2Cc4wCfS8UM
+K9WRZtnL4ff9A4Huhkx0d1c=
+=WZjP
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1148888608_6867P--

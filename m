@@ -1,45 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWE2XCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWE2XJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbWE2XCM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 19:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWE2XCM
+	id S932080AbWE2XJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 19:09:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWE2XJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 19:02:12 -0400
-Received: from nonada.if.usp.br ([143.107.131.169]:37522 "EHLO
-	nonada.if.usp.br") by vger.kernel.org with ESMTP id S932081AbWE2XCL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 19:02:11 -0400
-From: =?iso-8859-1?q?Jo=E3o_Luis_Meloni_Assirati?= 
-	<assirati@nonada.if.usp.br>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: /sys/class/net/eth?/carrier and uevents
-Date: Mon, 29 May 2006 20:02:21 -0300
-User-Agent: KMail/1.7.2
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
-References: <200605291807.42725.assirati@nonada.if.usp.br> <9a8748490605291429h32f67b53k757d6e4a0cec7675@mail.gmail.com> <1148938395.3291.104.camel@laptopd505.fenrus.org>
-In-Reply-To: <1148938395.3291.104.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Mon, 29 May 2006 19:09:28 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:10639 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932080AbWE2XJ2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 19:09:28 -0400
+Date: Mon, 29 May 2006 19:09:08 -0400
+From: Dave Jones <davej@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 00/61] ANNOUNCE: lock validator -V1
+Message-ID: <20060529230908.GC333@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Ingo Molnar <mingo@elte.hu>,
+	Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+	linux-kernel@vger.kernel.org,
+	Arjan van de Ven <arjan@infradead.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <20060529212109.GA2058@elte.hu> <6bffcb0e0605291528qe24a0a3r3841c37c5323de6a@mail.gmail.com> <20060529224107.GA6037@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605292002.21576.assirati@nonada.if.usp.br>
+In-Reply-To: <20060529224107.GA6037@elte.hu>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Seg 29 Mai 2006 18:33, Arjan van de Ven escreveu:
-> > I added the 'carrier' attribute initially but never considered udev at
-> > the time. But I can certainly see how it could be useful.
-> > I'll take a look at adding a hotplug event when I get some spare time
-> > (probably some time next week) - or perhaps someone else will beat me
-> > to it :)
->
-> there is a netlink event already though... is this really worth the
-> duplication?
+On Tue, May 30, 2006 at 12:41:08AM +0200, Ingo Molnar wrote:
 
-IMHO the ability to substitute a daemon with a simple udev rule, together with 
-the benefit of notification by d-bus to the user interface (say KDE) makes it 
-worth.
+ > > =====================================================
+ > > [ BUG: possible circular locking deadlock detected! ]
+ > > -----------------------------------------------------
+ > > modprobe/1942 is trying to acquire lock:
+ > > (&anon_vma->lock){--..}, at: [<c10609cf>] anon_vma_link+0x1d/0xc9
+ > > 
+ > > but task is already holding lock:
+ > > (&mm->mmap_sem/1){--..}, at: [<c101e5a0>] copy_process+0xbc6/0x1519
+ > > 
+ > > which lock already depends on the new lock,
+ > > which could lead to circular deadlocks!
+ > 
+ > hm, this one could perhaps be a real bug. Dave: lockdep complains about 
+ > having observed:
+ > 
+ > 	anon_vma->lock  =>   mm->mmap_sem
+ > 	mm->mmap_sem    =>   anon_vma->lock
+ > 
+ > locking sequences, in the cpufreq code. Is there some special runtime 
+ > behavior that still makes this safe, or is it a real bug?
 
-Regards,
-João.
+I'm feeling a bit overwhelmed by the voluminous output of this checker.
+Especially as (directly at least) cpufreq doesn't touch vma's, or mmap's.
+
+The first stack trace it shows has us down in the bowels of cpu hotplug,
+where we're taking the cpucontrol sem.  The second stack trace shows
+us in cpufreq_update_policy taking a per-cpu data->lock semaphore.
+
+Now, I notice this is modprobe triggering this, and this *looks* like
+we're loading two modules simultaneously (the first trace is from a
+scaling driver like powernow-k8 or the like, whilst the second trace
+is from cpufreq-stats).  
+
+How on earth did we get into this situation? module loading is supposed
+to be serialised on the module_mutex no ?
+
+It's been a while since a debug patch has sent me in search of paracetamol ;)
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

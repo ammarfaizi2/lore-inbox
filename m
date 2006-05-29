@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWE2Ryv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWE2SGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751146AbWE2Ryv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 13:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWE2Ryv
+	id S1751150AbWE2SGN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 14:06:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWE2SGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 13:54:51 -0400
-Received: from pih-relay04.plus.net ([212.159.14.131]:33234 "EHLO
-	pih-relay04.plus.net") by vger.kernel.org with ESMTP
-	id S1751146AbWE2Ryu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 13:54:50 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: James Courtier-Dutton <James@superbug.co.uk>
-Subject: Re: Asus K8N-VM Motherboard Ethernet Problem
-Date: Mon, 29 May 2006 18:54:47 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Marc Perkel <marc@perkel.com>
-References: <44793100.50707@perkel.com> <20060528101849.GL13513@lug-owl.de> <447B3408.1020001@superbug.co.uk>
-In-Reply-To: <447B3408.1020001@superbug.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 29 May 2006 14:06:13 -0400
+Received: from gw.openss7.com ([142.179.199.224]:39373 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id S1751150AbWE2SGN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 14:06:13 -0400
+Date: Mon, 29 May 2006 12:06:11 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: Nick Warne <nick@linicks.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Question on Space.c
+Message-ID: <20060529120611.A30398@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: Nick Warne <nick@linicks.net>,
+	linux-kernel@vger.kernel.org
+References: <200605291849.04769.nick@linicks.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605291854.48001.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200605291849.04769.nick@linicks.net>; from nick@linicks.net on Mon, May 29, 2006 at 06:49:04PM +0100
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 29 May 2006 18:48, James Courtier-Dutton wrote:
-[snip irrelevant Other OS discussion]
->
-> I can concur that the forcedeth is unreliable on nvidia based motherboards.
-> I have a ethernet device that works with forcedeth.
-> 0000:00:0a.0 Bridge: nVidia Corporation CK804 Ethernet Controller (rev a3)
-> 0000:00:0a.0 0680: 10de:0057 (rev a3)
->         Subsystem: 147b:1c12
->         Flags: 66MHz, fast devsel, IRQ 11
->         Memory at fe02f000 (32-bit, non-prefetchable) [size=4K]
->         I/O ports at fc00 [size=8]
->         Capabilities: [44] Power Management version 2
->
-> It works in that it can actually send and receive packets.
-> The problems are:
-> 1) one cannot rmmod the forcedeth module. Even after ifdown etc.
-> 2) the machine hangs randomly.
-> Before someone asks, the MB has no serial port, so no stack trace
-> available. 3) The netconsole fails to function with it.
+Nick,
 
-File a bug report. What kernel version did you last test?
+On Mon, 29 May 2006, Nick Warne wrote:
 
-I have that exact ethernet controller (CK804) and cannot reproduce any of the 
-problems you have listed on 2.6.17-rc5.
+> I saw Space.o being build, and seeing as it is Capitalised thought I would see 
+> why, and maybe a patch to make it all lower case.
+...
+...
+> I have looked though docs and googled as to why this One File Is Like This to 
+> no avail?  Convention?
+> 
 
--- 
-Cheers,
-Alistair.
+Yes, convention: SVR4 had a Space.c file for defining drivers.
 
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+--brian

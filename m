@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbWE2Htu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWE2HwU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750752AbWE2Htu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 03:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWE2Htu
+	id S1750754AbWE2HwU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 03:52:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWE2HwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 03:49:50 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:11686 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1750752AbWE2Htt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 03:49:49 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
+	Mon, 29 May 2006 03:52:20 -0400
+Received: from ns.dynamicweb.hu ([195.228.155.139]:43206 "EHLO dynamicweb.hu")
+	by vger.kernel.org with ESMTP id S1750754AbWE2HwT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 03:52:19 -0400
+Message-ID: <00cb01c682f4$c307d7a0$1800a8c0@dcccs>
+From: =?iso-8859-2?Q?Haar_J=E1nos?= <djani22@netcenter.hu>
+To: <hpa@zytor.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: How to send a break?
+Date: Mon, 29 May 2006 09:51:56 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17530.42626.693182.834140@gargle.gargle.HOWL>
-Date: Mon, 29 May 2006 11:45:06 +0400
-To: Neil Brown <neilb@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.16.18 - spelling fix
-Newsgroups: gmane.linux.kernel
-In-Reply-To: <17530.11036.427239.812677@cse.unsw.edu.au>
-References: <Pine.LNX.4.64.0605272016520.28903@p34>
-	<17530.11036.427239.812677@cse.unsw.edu.au>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown writes:
- > On Saturday May 27, jpiszcz@lucidpixels.com wrote:
- > > I was experimenting with Linux SW raid today and found a spelling error 
- > > when reading the help menus...
- > > 
- > > Patch attached, not sure if this is the right place to send it or if 
- > > patches go to Andrew Morton (misc ones like this)...
- > 
- > Thanks....
- > but more helpful than a spelling fix would be a chunk of elisp that I
- > could stick in my .emacs, which would automatically turn on flyspell
- > mode in Kconfig files, and inside comments in .c and .h files.
 
-(defun linux-c-mode ()
-  ...
-  (flyspell-prog-mode)
-  ...)
+"H. Peter Anvin" <hpa@zytor.com> az alábbiakat írta a következo üzenetben
+news:e5dacu$v33$1@terminus.zytor.com...
+> Followup to:  <01b701c6818d$4bcd37b0$1800a8c0@dcccs>
+> By author:    =?iso-8859-2?Q?Haar_J=E1nos?= <djani22@netcenter.hu>
+> In newsgroup: linux.dev.kernel
+> >
+> > Hello, list,
+> >
+> > I wish to know, how to send a "BREAK" to trigger the sysreq functions on
+the
+> > serial line, using echo.
+> >
+> > I mean like this:
+> >
+> > #!/bin/bash
+> > echo "?BREAK?" >/dev/ttyS0
+> > sleep 2
+> > echo "m" >/dev/ttyS0
+> >
+>
+> You can't use it using echo, however, you can do it using Perl:
+>
+> perl -e 'use POSIX; tcsendbreak(1,0);' > /dev/ttyS0
 
- > 
- > The first bit is probably trivial.  The second has got to be
- > possible...
- > 
- > Or maybe just keep posting patches like this in the hope of shaming
- > people like me into learning how to spell....
- > 
- > ;-)
- > 
- > Thanks.
- > 
- > NeilBrown
+Ahh, thats what i am waiting for, thanks! :-)
 
-Nikita.
+Works fine!
+
+Thanks,
+Janos
+
+
+
+
+>
+> -hpa
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

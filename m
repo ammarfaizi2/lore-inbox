@@ -1,66 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWE2HOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWE2HX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWE2HOs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 03:14:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbWE2HOs
+	id S1750736AbWE2HX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 03:23:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWE2HX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 03:14:48 -0400
-Received: from wr-out-0506.google.com ([64.233.184.230]:52951 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750701AbWE2HOr convert rfc822-to-8bit (ORCPT
+	Mon, 29 May 2006 03:23:26 -0400
+Received: from gw.openss7.com ([142.179.199.224]:2754 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id S1750736AbWE2HXZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 03:14:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KDB8GKpyOjNoVTQDzczonZqKo2J9X4u1sqthM8oKBFJyr7TQp7S6mQzLs384hHBN/FKou0PNJ2XcjOwHmik3iB7RRBL90z5gNmhPzI0oM3L1hmmNTNg8FkmAi0ZkfmQrJ63DnzxuAjApmqIn2sBH98RFi2sPDRg9J7IQLIo5qf8=
-Message-ID: <21d7e9970605290014n198a5295k583667db7e11b004@mail.gmail.com>
-Date: Mon, 29 May 2006 17:14:46 +1000
-From: "Dave Airlie" <airlied@gmail.com>
-To: "D. Hazelton" <dhazelton@enter.net>
-Subject: Re: OpenGL-based framebuffer concepts
-Cc: "Jon Smirl" <jonsmirl@gmail.com>, "Pavel Machek" <pavel@ucw.cz>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200605290025.50100.dhazelton@enter.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+	Mon, 29 May 2006 03:23:25 -0400
+Date: Mon, 29 May 2006 01:23:20 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: 4Front Technologies <dev@opensound.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: How to check if kernel sources are installed on a system?
+Message-ID: <20060529012319.D20649@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: 4Front Technologies <dev@opensound.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+	Heiko Carstens <heiko.carstens@de.ibm.com>
+References: <1148835799.3074.41.camel@laptopd505.fenrus.org> <1148838738.21094.65.camel@mindpipe> <1148839964.3074.52.camel@laptopd505.fenrus.org> <1148846131.27461.14.camel@mindpipe> <20060528224402.A13279@openss7.org> <1148878368.3291.40.camel@laptopd505.fenrus.org> <447A883C.5070604@opensound.com> <1148883077.3291.47.camel@laptopd505.fenrus.org> <20060529005705.C20649@openss7.org> <447A9D28.9010809@opensound.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <200605282316.50916.dhazelton@enter.net>
-	 <9e4733910605282105t656b7c11i3809105cf261741@mail.gmail.com>
-	 <200605290025.50100.dhazelton@enter.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <447A9D28.9010809@opensound.com>; from dev@opensound.com on Mon, May 29, 2006 at 12:05:12AM -0700
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >
-> > Most of the fbdev drivers use the PCI bus mechanism to find their
-> > hardware. Some of the ones that don't run in boxes that don't have a
-> > PCI bus. I don't know of any PCI based fbdev drivers not using the PCI
-> > support, what is an example of one?
->
->
-> Radeon, Riva, Nvidia... Shall I continue? I've only found 2 that actually use
-> the PCI binding calls like "pci_get_subsys()" and "pci_dev_get()"
+4Front,
 
-Earlier I asked if you had a copy of LDD v3 for a reason, you seemed
-to take this as a direct insult or something like that... please take
-a look at the LDD chapter on PCI device drivers, see how the
-pci_register_driver and struct pci_driver work in order to register
-devices, the pci_get_subsys and stuff is old code.
+On Mon, 29 May 2006, 4Front Technologies wrote:
+> 
+> How about external modules that have a kernel dependant part and kernel
+> independant part?. Kernel independant part could live in a separate tree and
+> has its own makefiles.
+> 
+> But regparm requires that ALL parts linked into the module need to have
+> regparm defined. So it's another headache to write makefiles for the kernel
+> independant part to figure out if the distro support regparm or not.
 
-All the important fb drivers use the correct PCI interface.
+They way I approached it was to get CFLAGS for compiling both the kernel
+dependent part and kernel independent part.
 
-The DRM uses the incorrect interface in-tree, and in CVS has both.
+The interface exported from the kernel dependent part to the indepdent part
+have the regparms attribute explicity pinned on exported symbols (e.g.  on
+supporting architectures either to  __attribute__((__regparm__(3))) or
+__attribute__((__regparm(0)))).  LiS uses regparm(0) for binary compatible
+(kernel independent) STREAMS modules for historical reasons.  Linux
+Fast-STREAMS uses regparm(3).
 
-I really think you've somehow taken things a bit personally, which
-might be understandable, but by the standards of some of the flame
-wars on this list, this thread is tame in the least...
+Taking a similar approach, make all your kernel dependent part exported
+function (and function pointer) symbols "fastcall" and then forget about the
+compiler flag.  If you access regular kernel symbols, you, of course, do not
+have this choice.
 
-Dave.
+It would have been nice if the kernel would set the regparms on all exported
+symbols, but external modules was really just an afterthought.
+
+The autoconf approach that I take does not use kbuild, primarily because of
+the inherent separation between kernel depedent part and independent part
+for STREAMS (STREAMS subsystem is kernel dependent, STREAMS modules attempt
+to be somewhat kernel independent and use an SVR4.2 ABI).
+
+The autoconf/automake makefiles handle the building of both.  And, of course,
+they nicely handle building all the othter GNU/Linux things like user space
+programs built on the same definitions, manual pages, etc.
+
+--brian
+

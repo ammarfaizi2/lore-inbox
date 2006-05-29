@@ -1,53 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbWE2MIX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWE2MKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750891AbWE2MIX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 08:08:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbWE2MIX
+	id S1750723AbWE2MKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 08:10:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWE2MKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 08:08:23 -0400
-Received: from boogie.lpds.sztaki.hu ([193.225.12.226]:51173 "EHLO
-	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
-	id S1750857AbWE2MIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 08:08:23 -0400
-Date: Mon, 29 May 2006 14:08:21 +0200
-From: Gabor Gombas <gombasg@sztaki.hu>
+	Mon, 29 May 2006 08:10:09 -0400
+Received: from vanessarodrigues.com ([192.139.46.150]:5357 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1750714AbWE2MKH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 08:10:07 -0400
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Kyle McMartin <kyle@mcmartin.ca>,
+Cc: Andrew Morton <akpm@osdl.org>, Mike Shaver <shaver@mozilla.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add compile domain (was: Re: [PATCH] Well, Linus seems to like Lordi...)
-Message-ID: <20060529120821.GD22245@boogie.lpds.sztaki.hu>
-References: <20060525141714.GA31604@skunkworks.cabal.ca> <Pine.LNX.4.61.0605251829410.6951@yvahk01.tjqt.qr> <Pine.LNX.4.64.0605250943520.5623@g5.osdl.org>
+Subject: Re: [patch] eliminte unused /proc/sys/net/ethernet
+References: <yq0r72dt4vc.fsf@jaguar.mkp.net>
+From: Jes Sorensen <jes@sgi.com>
+Date: 29 May 2006 08:10:06 -0400
+In-Reply-To: <yq0r72dt4vc.fsf@jaguar.mkp.net>
+Message-ID: <yq0mzd1t4kh.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0605250943520.5623@g5.osdl.org>
-X-Copyright: Forwarding or publishing without permission is prohibited.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 25, 2006 at 09:48:34AM -0700, Linus Torvalds wrote:
+>>>>> "Jes" == Jes Sorensen <jes@sgi.com> writes:
 
-> So just fix your hostname to give the full hostname. Nothing less makes 
-> any sense anyway.
+Jes> Hi, Given that /proc/sys/net/ethernet is > 10 years old and empty
+Jes> - maybe we should just nuke it off the face of the planet?
 
-Which full hostname? I have access to a machine with 2 NICs having 5
-IPv4 addresses total, and none of the associated DNS records correspond
-to the hostname.
+DOH!
 
-And if I move a laptop from one foreign network to an other, I most
-certainly do not want the hostname to change. It is the same machine
-with the same name even if it's network address/domain is completely
-different compared to what it was 5 minutes ago. It would make
-absolutely no sense to include the current network address in the kernel
-version.
+Forgot to remove it from the Makefile ... here we go again.
 
-Anything that assumes that the hostname has anything to do with IP
-networking and DNS records is just utterly broken IMHO.
+Jes
 
-Gabor
+The /proc/sys/net/ehternet directory has been sitting empty
+for more than 10 years! Time to eliminate it!
 
--- 
-     ---------------------------------------------------------
-     MTA SZTAKI Computer and Automation Research Institute
-                Hungarian Academy of Sciences
-     ---------------------------------------------------------
+Signed-off-by: Jes Sorensen <jes@sgi.com>
+
+---
+ net/ethernet/Makefile           |    1 -
+ net/ethernet/sysctl_net_ether.c |   14 --------------
+ net/sysctl_net.c                |    8 --------
+ 3 files changed, 23 deletions(-)
+
+Index: linux-2.6/net/ethernet/Makefile
+===================================================================
+--- linux-2.6.orig/net/ethernet/Makefile
++++ linux-2.6/net/ethernet/Makefile
+@@ -3,6 +3,5 @@
+ #
+ 
+ obj-y					+= eth.o
+-obj-$(CONFIG_SYSCTL)			+= sysctl_net_ether.o
+ obj-$(subst m,y,$(CONFIG_IPX))		+= pe2.o
+ obj-$(subst m,y,$(CONFIG_ATALK))	+= pe2.o
+Index: linux-2.6/net/ethernet/sysctl_net_ether.c
+===================================================================
+--- linux-2.6.orig/net/ethernet/sysctl_net_ether.c
++++ /dev/null
+@@ -1,14 +0,0 @@
+-/* -*- linux-c -*-
+- * sysctl_net_ether.c: sysctl interface to net Ethernet subsystem.
+- *
+- * Begun April 1, 1996, Mike Shaver.
+- * Added /proc/sys/net/ether directory entry (empty =) ). [MS]
+- */
+-
+-#include <linux/mm.h>
+-#include <linux/sysctl.h>
+-#include <linux/if_ether.h>
+-
+-ctl_table ether_table[] = {
+-	{0}
+-};
+Index: linux-2.6/net/sysctl_net.c
+===================================================================
+--- linux-2.6.orig/net/sysctl_net.c
++++ linux-2.6/net/sysctl_net.c
+@@ -37,14 +37,6 @@
+ 		.mode		= 0555,
+ 		.child		= core_table,
+ 	},
+-#ifdef CONFIG_NET
+-	{
+-		.ctl_name	= NET_ETHER,
+-		.procname	= "ethernet",
+-		.mode		= 0555,
+-		.child		= ether_table,
+-	},
+-#endif
+ #ifdef CONFIG_INET
+ 	{
+ 		.ctl_name	= NET_IPV4,

@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWE2GJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWE2GLV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751218AbWE2GJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 02:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWE2GJ2
+	id S1751225AbWE2GLV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 02:11:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWE2GLV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 02:09:28 -0400
-Received: from smtp.enter.net ([216.193.128.24]:4104 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S1751218AbWE2GJ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 02:09:27 -0400
-From: "D. Hazelton" <dhazelton@enter.net>
-To: "Dave Airlie" <airlied@gmail.com>
-Subject: Re: OpenGL-based framebuffer concepts
-Date: Mon, 29 May 2006 02:09:18 +0000
-User-Agent: KMail/1.8.1
-Cc: "Neil Brown" <neilb@suse.de>, "Jon Smirl" <jonsmirl@gmail.com>,
-       "Pavel Machek" <pavel@ucw.cz>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <17530.32657.869302.621952@cse.unsw.edu.au> <21d7e9970605282214l3b3060cew9d55ddc55c4274dc@mail.gmail.com>
-In-Reply-To: <21d7e9970605282214l3b3060cew9d55ddc55c4274dc@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 29 May 2006 02:11:21 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:57578 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751225AbWE2GLU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 02:11:20 -0400
+Subject: Re: How to check if kernel sources are installed on a system?
+From: Arjan van de Ven <arjan@infradead.org>
+To: 4Front Technologies <dev@opensound.com>
+Cc: linux-kernel@vger.kernel.org, bidulock@openss7.org,
+       Lee Revell <rlrevell@joe-job.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>
+In-Reply-To: <447A883C.5070604@opensound.com>
+References: <e55715+usls@eGroups.com> <1148596163.31038.30.camel@mindpipe>
+	 <1148653797.3579.18.camel@laptopd505.fenrus.org>
+	 <20060528130320.GA10385@osiris.ibm.com>
+	 <1148835799.3074.41.camel@laptopd505.fenrus.org>
+	 <1148838738.21094.65.camel@mindpipe>
+	 <1148839964.3074.52.camel@laptopd505.fenrus.org>
+	 <1148846131.27461.14.camel@mindpipe>  <20060528224402.A13279@openss7.org>
+	 <1148878368.3291.40.camel@laptopd505.fenrus.org>
+	 <447A883C.5070604@opensound.com>
+Content-Type: text/plain
+Date: Mon, 29 May 2006 08:11:17 +0200
+Message-Id: <1148883077.3291.47.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605290209.19668.dhazelton@enter.net>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 29 May 2006 05:14, Dave Airlie wrote:
-> > And we really have no tie-breaker mechanism in the kernel - I know
-> > Linus is very loathe to play that role.  Negotiation, compromise, and
-> > persistence are what is needed.
-> >
-> > I suspect that to make progress you will have to start out by doing
-> > something that you don't completely agree with.  But that doesn't need
-> > to be a loss.  It will be both a learning experience and a credibility
-> > earning exercise.
-> >
-> > Maybe if you are really genuine about putting effort into this we
-> > should see if something can be arranged to get you to the
-> > kernel-summit so that you, Jon, and Dave can yell at each other for a
-> > while and come to some understanding:-)
->
-> We did this at last years Kernel Summit :-)
->
-> When I state these views they are not all my own, they are the
-> aggregate of a number of developers who were at KS last year and a few
-> we've talked to since.
+On Sun, 2006-05-28 at 22:35 -0700, 4Front Technologies wrote:
+> BTW, why is Mandriva the only distro to turn OFF REGPARM?. Again, I think 
+> distros shouldn't be given an option to turn it off if its a good thing to have.
 
-I'd be willing to think about restoring a working code tree and starting over 
-if you have notes and/or minutes of the KS discussion and any talks that have 
-happened since.
+why not? It's not like it's a dramatic change of API after all... (and
+even if it were...)
 
-This way I can get a clear picture of exactly what people want done regardless 
-of what I feel needs to be or should be done.
+external modules shouldn't care, they really really should inherit the
+cflags from the kernel's makefiles at which point.. the thing is moot.
 
-DRH
+

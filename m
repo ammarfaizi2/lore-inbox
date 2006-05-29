@@ -1,80 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbWE2PfM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWE2Pt3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751059AbWE2PfM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 11:35:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWE2PfM
+	id S1751092AbWE2Pt3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 11:49:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWE2Pt3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 11:35:12 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:22693 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751059AbWE2PfK (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 11:35:10 -0400
-Message-Id: <200605291535.k4TFZ0VP003544@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: =?iso-8859-2?Q?Haar_J=E1nos?= <djani22@netcenter.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: How to send a break?
-In-Reply-To: Your message of "Mon, 29 May 2006 11:08:15 EDT."
-             <Pine.LNX.4.61.0605291105550.21358@chaos.analogic.com>
-From: Valdis.Kletnieks@vt.edu
-References: <01b701c6818d$4bcd37b0$1800a8c0@dcccs>
-            <Pine.LNX.4.61.0605291105550.21358@chaos.analogic.com>
+	Mon, 29 May 2006 11:49:29 -0400
+Received: from holly.csn.ul.ie ([193.1.99.76]:37045 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1751092AbWE2Pt2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 11:49:28 -0400
+Date: Mon, 29 May 2006 16:49:24 +0100
+To: Andrew Morton <akpm@osdl.org>
+Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, vgoyal@in.ibm.com
+Subject: Re: [PATCH] Compile failure fix for ppc on 2.6.17-rc4-mm3 (2nd attempt)
+Message-ID: <20060529154923.GA9025@skynet.ie>
+References: <20060526151214.GA5190@skynet.ie> <20060526094924.10efc515.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1148916899_3031P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 29 May 2006 11:35:00 -0400
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <20060526094924.10efc515.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
+From: mel@csn.ul.ie (Mel Gorman)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1148916899_3031P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, 29 May 2006 11:08:15 EDT, =22linux-os (Dick Johnson)=22 said:
->=20
-> On Sat, 27 May 2006, =5Biso-8859-2=5D Haar J=E1nos wrote:
->=20
-> > Hello, list,
+On (26/05/06 09:49), Andrew Morton didst pronounce:
+> mel@csn.ul.ie (Mel Gorman) wrote:
 > >
-> > I wish to know, how to send a =22BREAK=22 to trigger the sysreq funct=
-ions on the
-> > serial line, using echo.
-> >
-> > I mean like this:
-> >
-> > =23=21/bin/bash
-> > echo =22?BREAK?=22 >/dev/ttyS0
-> > sleep 2
-> > echo =22m=22 >/dev/ttyS0
-> >
-> > Thanks,
-> > Janos
-> >
->=20
-> Can't you use /proc/sysrq-trigger?
+> > (Resending with Andrew's email address correct this time)
+> > 
+> >  For the last few -mm releases, kernels built for an old RS6000 failed to
+> >  compile with the message;
+> > 
+> >  arch/powerpc/kernel/built-in.o(.init.text+0x77b4): In function `vrsqrtefp':
+> >  : undefined reference to `__udivdi3'
+> >  arch/powerpc/kernel/built-in.o(.init.text+0x7800): In function `vrsqrtefp':
+> >  : undefined reference to `__udivdi3'
+> >  make: *** [.tmp_vmlinux1] Error 1
+> 
+> A function with a name like that doesn't _deserve_ to compile.
+> 
 
-That can be tricky if the other end of /dev/ttyS0 is plugged into a debug=
-ging
-serial port on an embedded system where you don't have easy access to a s=
-hell.
+heh
 
-Or for that matter, if you're trying to talk to the serial port on a non-=
-embedded
-system, which is too far into OOM thrashing for you to be able to get a
-usable shell prompt.....
+> But actually vrsqrtefp() doesn't call __udivdi3 - the error lies somewhere
+> else in the kernel and the toolchain gets it wrong, so we don't know where.
+> 
 
---==_Exmh_1148916899_3031P
-Content-Type: application/pgp-signature
+It explains why I couldn't find where vrsqrtefp() was.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> The way I usually hunt this problem down is to build the .s files (make
+> arch/powerpc/kernel/foo.s) and then grep around, find the offending C
+> function.
+> 
 
-iD8DBQFEexSjcC3lWbTT17ARAiBJAKCbm57XLXb3bRD/ok50jDW+yu+ycACeOwDh
-w9NQ6osNSpYEP/mNlKfF6q8=
-=wukj
------END PGP SIGNATURE-----
+That was a good idea, thanks. It showed that check_for_io_childs() in
+arch/powerpc/kernel/pci_32.c was the real problem. A quick look showed
+that is was doing divisions on resource_type_t which was 64 bits with my
+.config. Selecting CONFIG_RESOURCES_32BIT made the problem go away. This
+option is introduced by the kconfigurable-resources-* patches so I've cc'd
+Vivek Goyal to comment on the potential fixes below.
 
---==_Exmh_1148916899_3031P--
+> >  2.6.17-rc5 is not affected but I didn't search for the culprit patch in
+> >  -mm. The following patch adds an implementation of __udivdi3 for plain old
+> >  ppc32. This may not be the correct fix as Google tells me that __udivdi3
+> >  has been replaced by calls to do_div() in a number of cases. There was no
+> >  obvious way to do that for vrsqrtefp, hence this workaround. The patch should
+> >  be acked, rejected or replaced by a ppc expert.
+> 
+> Yes, we've traditionally avoided adding the 64-bit divide library functions.
+
+Understandable. The fixes are obvious in this case. Easiest is for users to
+set CONFIG_RESOURCES_32BIT manually although the kernel build error is not
+very obvious. A fairly easy bodge is to default CONFIG_RESOURCES_32BIT to Y
+when building PPC32 but a determined user may still fail to build a kernel. A
+slightly riskier option is this patch that replaces a potential 64 bit divide
+with a do_div call. The patch has been successfully boot-tested on a RS6000.
+
+Signed-off-by: Mel Gorman <mel@csn.ul.ie>
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.17-rc4-mm3-clean/arch/powerpc/kernel/pci_32.c linux-2.6.17-rc4-mm3-resources-32/arch/powerpc/kernel/pci_32.c
+--- linux-2.6.17-rc4-mm3-clean/arch/powerpc/kernel/pci_32.c	2006-05-29 15:55:52.000000000 +0100
++++ linux-2.6.17-rc4-mm3-resources-32/arch/powerpc/kernel/pci_32.c	2006-05-29 15:53:43.000000000 +0100
+@@ -1115,7 +1115,9 @@ check_for_io_childs(struct pci_bus *bus,
+ 	int	rc = 0;
+ 
+ #define push_end(res, size) do { unsigned long __sz = (size) ; \
+-	res->end = ((res->end + __sz) / (__sz + 1)) * (__sz + 1) + __sz; \
++	resource_size_t farEnd = (res->end + __sz); \
++	do_div(farEnd, (__sz + 1)); \
++	res->end = farEnd * (__sz + 1) + __sz; \
+     } while (0)
+ 
+ 	list_for_each_entry(dev, &bus->devices, bus_list) {

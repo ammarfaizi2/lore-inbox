@@ -1,76 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWE2HX0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWE2HTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbWE2HX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 03:23:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWE2HX0
+	id S1750726AbWE2HTu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 03:19:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWE2HTu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 03:23:26 -0400
-Received: from gw.openss7.com ([142.179.199.224]:2754 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id S1750736AbWE2HXZ (ORCPT
+	Mon, 29 May 2006 03:19:50 -0400
+Received: from styx.suse.cz ([82.119.242.94]:31622 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1750726AbWE2HTt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 03:23:25 -0400
-Date: Mon, 29 May 2006 01:23:20 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: 4Front Technologies <dev@opensound.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: How to check if kernel sources are installed on a system?
-Message-ID: <20060529012319.D20649@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: 4Front Technologies <dev@opensound.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-	Heiko Carstens <heiko.carstens@de.ibm.com>
-References: <1148835799.3074.41.camel@laptopd505.fenrus.org> <1148838738.21094.65.camel@mindpipe> <1148839964.3074.52.camel@laptopd505.fenrus.org> <1148846131.27461.14.camel@mindpipe> <20060528224402.A13279@openss7.org> <1148878368.3291.40.camel@laptopd505.fenrus.org> <447A883C.5070604@opensound.com> <1148883077.3291.47.camel@laptopd505.fenrus.org> <20060529005705.C20649@openss7.org> <447A9D28.9010809@opensound.com>
+	Mon, 29 May 2006 03:19:49 -0400
+Date: Mon, 29 May 2006 09:19:14 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: "LKML, " <linux-kernel@vger.kernel.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>, Andi Kleen <ak@muc.de>,
+       Andrey Panin <pazke@orbita1.ru>
+Subject: Re: Should we make dmi_check_system case insensitive?
+Message-ID: <20060529071914.GA16787@suse.cz>
+References: <200605290131.42292.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <447A9D28.9010809@opensound.com>; from dev@opensound.com on Mon, May 29, 2006 at 12:05:12AM -0700
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+In-Reply-To: <200605290131.42292.dtor_core@ameritech.net>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-4Front,
-
-On Mon, 29 May 2006, 4Front Technologies wrote:
+On Mon, May 29, 2006 at 01:31:41AM -0400, Dmitry Torokhov wrote:
+> Hi,
 > 
-> How about external modules that have a kernel dependant part and kernel
-> independant part?. Kernel independant part could live in a separate tree and
-> has its own makefiles.
-> 
-> But regparm requires that ALL parts linked into the module need to have
-> regparm defined. So it's another headache to write makefiles for the kernel
-> independant part to figure out if the distro support regparm or not.
+> I have a request to add entry for "LifeBook B Series" to lifebook driver to
+> accomodate lifebook B2545, however we already have entry for "LIFEBOOK B
+> Series" (used by some other model) which is not working. Would anyone
+> be opposed making dmi_check_system() ignore string case? We would have to
+> malloc/copy both strings and lowercase them before doing stsstr...   
+ 
+I think it's easier to just add the second entry. We're trying to
+distinguish individual machines here, the fact that we have a single DMI
+entry accomodating a whole series is an exception.
 
-They way I approached it was to get CFLAGS for compiling both the kernel
-dependent part and kernel independent part.
-
-The interface exported from the kernel dependent part to the indepdent part
-have the regparms attribute explicity pinned on exported symbols (e.g.  on
-supporting architectures either to  __attribute__((__regparm__(3))) or
-__attribute__((__regparm(0)))).  LiS uses regparm(0) for binary compatible
-(kernel independent) STREAMS modules for historical reasons.  Linux
-Fast-STREAMS uses regparm(3).
-
-Taking a similar approach, make all your kernel dependent part exported
-function (and function pointer) symbols "fastcall" and then forget about the
-compiler flag.  If you access regular kernel symbols, you, of course, do not
-have this choice.
-
-It would have been nice if the kernel would set the regparms on all exported
-symbols, but external modules was really just an afterthought.
-
-The autoconf approach that I take does not use kbuild, primarily because of
-the inherent separation between kernel depedent part and independent part
-for STREAMS (STREAMS subsystem is kernel dependent, STREAMS modules attempt
-to be somewhat kernel independent and use an SVR4.2 ABI).
-
-The autoconf/automake makefiles handle the building of both.  And, of course,
-they nicely handle building all the othter GNU/Linux things like user space
-programs built on the same definitions, manual pages, etc.
-
---brian
-
+-- 
+Vojtech Pavlik
+Director SuSE Labs

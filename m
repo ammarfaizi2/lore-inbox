@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751376AbWE2VbS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbWE2Vam@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751376AbWE2VbS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 17:31:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWE2V1Q
+	id S1751378AbWE2Vam (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 17:30:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWE2V34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 17:27:16 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:40427 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751369AbWE2V1H (ORCPT
+	Mon, 29 May 2006 17:29:56 -0400
+Received: from wr-out-0506.google.com ([64.233.184.233]:62404 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751376AbWE2V3y convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 17:27:07 -0400
-Date: Mon, 29 May 2006 23:27:27 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
-Subject: [patch 54/61] lock validator: special locking: mmap_sem
-Message-ID: <20060529212727.GB3155@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 29 May 2006 17:29:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=THByIp64KgGVDgYo4JuW29aecrlerRXNS9PSZ65BZboG4cHBGUv8BgmArs7/Fw5nVoeD1FU2YC9iJ5NHEOjocV8OgmlhX4bwVdqeyUgX7v/hRzZRJoTDwzLiP42ZB/4XPVAlUOqrD9dZW/alx524/ocTcJq4Xx31YTXNNMPtnsE=
+Message-ID: <9a8748490605291429h32f67b53k757d6e4a0cec7675@mail.gmail.com>
+Date: Mon, 29 May 2006 23:29:53 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "=?ISO-8859-1?Q?Jo=E3o_Luis_Meloni_Assirati?=" 
+	<assirati@nonada.if.usp.br>
+Subject: Re: /sys/class/net/eth?/carrier and uevents
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200605291807.42725.assirati@nonada.if.usp.br>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20060529212109.GA2058@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <200605291807.42725.assirati@nonada.if.usp.br>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
+On 29/05/06, João Luis Meloni Assirati <assirati@nonada.if.usp.br> wrote:
+>
+> Hello,
+>
+Hi,
 
-teach special (recursive) locking code to the lock validator. Has no
-effect on non-lockdep kernels.
+> I would like to have my network interfaces configured when plugged on the
+> network cable. I know there are some daemons that do this for me (laptop-net,
+> ifplugd, whereami), but it would be nice if a simple udev rule take care of
+> this to me. However, as I can see with kernel 2.6.16 and udevmonitor (udev
+> version 0.091), nonetheless /sys/class/net/eth?/carrier changes when I plug
+> the network cable, no uevent is generated. Could this be changed so udev get
+> triggered when network cables get plugged? As I am no kernel developper, this
+> is only a suggestion, hoping that it would be a simple and pertinent job for
+> those ho know the subject.
+>
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
----
- kernel/exit.c |    2 +-
- kernel/fork.c |    5 ++++-
- 2 files changed, 5 insertions(+), 2 deletions(-)
+I added the 'carrier' attribute initially but never considered udev at
+the time. But I can certainly see how it could be useful.
+I'll take a look at adding a hotplug event when I get some spare time
+(probably some time next week) - or perhaps someone else will beat me
+to it :)
 
-Index: linux/kernel/exit.c
-===================================================================
---- linux.orig/kernel/exit.c
-+++ linux/kernel/exit.c
-@@ -582,7 +582,7 @@ static void exit_mm(struct task_struct *
- 	/* more a memory barrier than a real lock */
- 	task_lock(tsk);
- 	tsk->mm = NULL;
--	up_read(&mm->mmap_sem);
-+	up_read_non_nested(&mm->mmap_sem);
- 	enter_lazy_tlb(mm, current);
- 	task_unlock(tsk);
- 	mmput(mm);
-Index: linux/kernel/fork.c
-===================================================================
---- linux.orig/kernel/fork.c
-+++ linux/kernel/fork.c
-@@ -196,7 +196,10 @@ static inline int dup_mmap(struct mm_str
- 
- 	down_write(&oldmm->mmap_sem);
- 	flush_cache_mm(oldmm);
--	down_write(&mm->mmap_sem);
-+	/*
-+	 * Not linked in yet - no deadlock potential:
-+	 */
-+	down_write_nested(&mm->mmap_sem, 1);
- 
- 	mm->locked_vm = 0;
- 	mm->mmap = NULL;
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

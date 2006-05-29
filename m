@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWE2RyP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWE2Ryv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751143AbWE2RyP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 13:54:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWE2RyP
+	id S1751146AbWE2Ryv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 13:54:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWE2Ryv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 13:54:15 -0400
-Received: from gate.crashing.org ([63.228.1.57]:50653 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751143AbWE2RyO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 13:54:14 -0400
-In-Reply-To: <Pine.LNX.4.64.0605291825500.11234@skynet.skynet.ie>
-References: <20060526151214.GA5190@skynet.ie> <20060526094924.10efc515.akpm@osdl.org> <20060529154923.GA9025@skynet.ie> <2ebd96e4a7ea753273b2c5f856ba8c7a@kernel.crashing.org> <Pine.LNX.4.64.0605291825500.11234@skynet.skynet.ie>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <c6414fc4b2c627791a49085bf8eea7e8@kernel.crashing.org>
+	Mon, 29 May 2006 13:54:51 -0400
+Received: from pih-relay04.plus.net ([212.159.14.131]:33234 "EHLO
+	pih-relay04.plus.net") by vger.kernel.org with ESMTP
+	id S1751146AbWE2Ryu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 13:54:50 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: James Courtier-Dutton <James@superbug.co.uk>
+Subject: Re: Asus K8N-VM Motherboard Ethernet Problem
+Date: Mon, 29 May 2006 18:54:47 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Marc Perkel <marc@perkel.com>
+References: <44793100.50707@perkel.com> <20060528101849.GL13513@lug-owl.de> <447B3408.1020001@superbug.co.uk>
+In-Reply-To: <447B3408.1020001@superbug.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Cc: vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [PATCH] Compile failure fix for ppc on 2.6.17-rc4-mm3 (2nd attempt)
-Date: Mon, 29 May 2006 19:56:21 +0200
-To: Mel Gorman <mel@csn.ul.ie>
-X-Mailer: Apple Mail (2.623)
+Content-Disposition: inline
+Message-Id: <200605291854.48001.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>  #define push_end(res, size) do { unsigned long __sz = (size) ; \
->>> -	res->end = ((res->end + __sz) / (__sz + 1)) * (__sz + 1) + __sz; \
->>> +	resource_size_t farEnd = (res->end + __sz); \
->>> +	do_div(farEnd, (__sz + 1)); \
->>> +	res->end = farEnd * (__sz + 1) + __sz; \
->>>      } while (0)
->>
->> Size here is a) a misnomer (size + 1 is the actual size) and b) 
->> always a power
->> of two minus one.  So instead, do
->>
->> #define push_end(res, mask) res->end = -(-res->end & ~(unsigned 
->> long)mask)
->>
->> (with a do { } while(0) armour if you prefer).
->>
+On Monday 29 May 2006 18:48, James Courtier-Dutton wrote:
+[snip irrelevant Other OS discussion]
 >
-> It's not doing the same as the old code so is your suggested fix a 
-> correct replacement?
+> I can concur that the forcedeth is unreliable on nvidia based motherboards.
+> I have a ethernet device that works with forcedeth.
+> 0000:00:0a.0 Bridge: nVidia Corporation CK804 Ethernet Controller (rev a3)
+> 0000:00:0a.0 0680: 10de:0057 (rev a3)
+>         Subsystem: 147b:1c12
+>         Flags: 66MHz, fast devsel, IRQ 11
+>         Memory at fe02f000 (32-bit, non-prefetchable) [size=4K]
+>         I/O ports at fc00 [size=8]
+>         Capabilities: [44] Power Management version 2
 >
-> For example, given 0xfff for size the current code rounds res->end to 
-> the next 0x1000 boundary and adds 0xfff. Your propose fix just rounds 
-> it to the next 0x1000 if I'm reading it correctly but is what the code 
-> was meant to do in the first place? Using masks, the equivilant of the 
-> current code is something like;
->
-> #define push_end(res, mask) do { \
-> 	res->end = -(-res->end & ~(unsigned long)mask); \
-> 	res->end += mask; \
-> } while (0)
+> It works in that it can actually send and receive packets.
+> The problems are:
+> 1) one cannot rmmod the forcedeth module. Even after ifdown etc.
+> 2) the machine hangs randomly.
+> Before someone asks, the MB has no serial port, so no stack trace
+> available. 3) The netconsole fails to function with it.
 
-Yeah forgot a bit, this looks fine.
+File a bug report. What kernel version did you last test?
 
+I have that exact ethernet controller (CK804) and cannot reproduce any of the 
+problems you have listed on 2.6.17-rc5.
 
-Segher
+-- 
+Cheers,
+Alistair.
 
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

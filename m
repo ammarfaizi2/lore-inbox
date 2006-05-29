@@ -1,38 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWE2MOv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWE2MXx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWE2MOv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 08:14:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWE2MOv
+	id S1750703AbWE2MXx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 08:23:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbWE2MXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 08:14:51 -0400
-Received: from wr-out-0506.google.com ([64.233.184.239]:61637 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750706AbWE2MOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 08:14:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=FztgaFQCR6rvkqFqVbq8Vtw9kutEdkuKeIiZkrhsGUAb46Mv9p3O5rj/0qTBxDUmjb7L8AIf0w2YBX7QfTGGrQwobo1daqGNxMc9vRwASV6g57oLGM7jriCgT37U8LobDT6C8UjB2RkAfNWzniGh3uH1e1HCPNtI4D0EaZ/rM/I=
-Message-ID: <331433e10605290514k7b1d0b3if6fdb5a74eeccf47@mail.gmail.com>
-Date: Mon, 29 May 2006 13:14:47 +0100
-From: "tom hall" <thattommyhall@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: External SATA, can a linux box appear as a device? Any other ideas for box as direct attached storage?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 29 May 2006 08:23:53 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:3714 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750703AbWE2MXw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 08:23:52 -0400
+Subject: Re: How to check if kernel sources are installed on a system?
+From: Arjan van de Ven <arjan@infradead.org>
+To: 4Front Technologies <dev@opensound.com>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>
+In-Reply-To: <447A9D28.9010809@opensound.com>
+References: <1148653797.3579.18.camel@laptopd505.fenrus.org>
+	 <20060528130320.GA10385@osiris.ibm.com>
+	 <1148835799.3074.41.camel@laptopd505.fenrus.org>
+	 <1148838738.21094.65.camel@mindpipe>
+	 <1148839964.3074.52.camel@laptopd505.fenrus.org>
+	 <1148846131.27461.14.camel@mindpipe> <20060528224402.A13279@openss7.org>
+	 <1148878368.3291.40.camel@laptopd505.fenrus.org>
+	 <447A883C.5070604@opensound.com>
+	 <1148883077.3291.47.camel@laptopd505.fenrus.org>
+	 <20060529005705.C20649@openss7.org>  <447A9D28.9010809@opensound.com>
+Content-Type: text/plain
+Date: Mon, 29 May 2006 14:23:48 +0200
+Message-Id: <1148905428.3291.62.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-eSATA is new to me, ive never used it.
-im guessing a linux box makes a good host for a eSATA device, but i
-was wondering if it can appear as a device to other computers.
-Ive just built myself a NAS box and as some of them have a way to
-directly attach to one computer, i would like mine to as well. it is
-not possible via usb without buying a different controller as all in
-standard PCs are hosts.
-Can i do it with firewire (appear as a attached device)? or is IP over
-firewire the only way to do it?
-ive searched the net for this, hope you can help
-tom
+On Mon, 2006-05-29 at 00:05 -0700, 4Front Technologies wrote:
+> Brian F. G. Bidulock wrote:
+> > Arjan,
+> > 
+> > On Mon, 29 May 2006, Arjan van de Ven wrote:
+> >> external modules shouldn't care, they really really should inherit the
+> >> cflags from the kernel's makefiles at which point.. the thing is moot.
+> > 
+> > Yes, and ultimately the kernel's makefile (if present) are the best
+> > place to get CFLAGS from.  However, the task of ensuring that the
+> > correct Makefile is present and that the correct configuration
+> > information is feeding it (back to .config) is distribution specific
+> > and not always straightforward.
+> > 
+> > --brian
+> > 
+> > 
+> 
+> 
+> How about external modules that have a kernel dependant part and kernel 
+> independant part?.
+
+tough luck :)
+
+>  Kernel independant part could live in a separate tree and
+> has its own makefiles.
+
+as long as those makefiles inherit the proper CFLAGs it's no big deal.
+If not then you need to glue them together properly, but thankfully the
+GPL gives you the freedom to tinker with the sources you get so you can
+do that.
+
+> But regparm requires that ALL parts linked into the module need to have regparm 
+> defined. So it's another headache to write makefiles for the kernel independant 
+> part to figure out if the distro support regparm or not.
+
+just inherit the cflags. You need to have matching cflags and compiler
+anyway for many other reasons; this one is no exception.
+
+

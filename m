@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751327AbWE2ViV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbWE2VhK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751327AbWE2ViV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 17:38:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWE2ViJ
+	id S1751352AbWE2VhK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 17:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWE2VZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 17:38:09 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:63698 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751338AbWE2VZV (ORCPT
+	Mon, 29 May 2006 17:25:56 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:5587 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751355AbWE2VZj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 17:25:21 -0400
-Date: Mon, 29 May 2006 23:25:41 +0200
+	Mon, 29 May 2006 17:25:39 -0400
+Date: Mon, 29 May 2006 23:25:59 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
 Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
-Subject: [patch 31/61] lock validator: SMP alternatives workaround
-Message-ID: <20060529212541.GE3155@elte.hu>
+Subject: [patch 35/61] lock validator: special locking: direct-IO
+Message-ID: <20060529212559.GI3155@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -33,35 +33,37 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Ingo Molnar <mingo@elte.hu>
 
-disable SMP alternatives fixups (the patching in of NOPs on 1-CPU
-systems) if the lock validator is enabled: there is a binutils
-section handling bug that causes corrupted instructions when
-UP instructions are patched in.
+teach special (rwsem-in-irq) locking code to the lock validator. Has no
+effect on non-lockdep kernels.
 
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
 ---
- arch/i386/kernel/alternative.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+---
+ fs/direct-io.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Index: linux/arch/i386/kernel/alternative.c
+Index: linux/fs/direct-io.c
 ===================================================================
---- linux.orig/arch/i386/kernel/alternative.c
-+++ linux/arch/i386/kernel/alternative.c
-@@ -301,6 +301,16 @@ void alternatives_smp_switch(int smp)
- 	struct smp_alt_module *mod;
- 	unsigned long flags;
+--- linux.orig/fs/direct-io.c
++++ linux/fs/direct-io.c
+@@ -220,7 +220,8 @@ static void dio_complete(struct dio *dio
+ 	if (dio->end_io && dio->result)
+ 		dio->end_io(dio->iocb, offset, bytes, dio->map_bh.b_private);
+ 	if (dio->lock_type == DIO_LOCKING)
+-		up_read(&dio->inode->i_alloc_sem);
++		/* lockdep: non-owner release */
++		up_read_non_owner(&dio->inode->i_alloc_sem);
+ }
  
-+#ifdef CONFIG_LOCKDEP
-+	/*
-+	 * A not yet fixed binutils section handling bug prevents
-+	 * alternatives-replacement from working reliably, so turn
-+	 * it off:
-+	 */
-+	printk("lockdep: not fixing up alternatives.\n");
-+	return;
-+#endif
-+
- 	if (no_replacement || smp_alt_once)
- 		return;
- 	BUG_ON(!smp && (num_online_cpus() > 1));
+ /*
+@@ -1261,7 +1262,8 @@ __blockdev_direct_IO(int rw, struct kioc
+ 		}
+ 
+ 		if (dio_lock_type == DIO_LOCKING)
+-			down_read(&inode->i_alloc_sem);
++			/* lockdep: not the owner will release it */
++			down_read_non_owner(&inode->i_alloc_sem);
+ 	}
+ 
+ 	/*

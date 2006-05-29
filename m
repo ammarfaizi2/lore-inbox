@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWE2Qg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWE2Qlx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751132AbWE2Qg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 12:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbWE2Qg1
+	id S1751124AbWE2Qlx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 12:41:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWE2Qlx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 12:36:27 -0400
-Received: from wr-out-0506.google.com ([64.233.184.235]:51149 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751132AbWE2Qg0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 12:36:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=MhSbubUBSiS8NRsu0i+FXAM8gfUoE6Cirhna5nYuPMwukNvhq0vB2zn4JG3aB5N7yYIYA+nkmrESoX5c4r7jSNLZN7YNY0TaJDgIKqxllVYyCFj6R0zWiXLZxEDFBcT5cS8RRHjH7WODZ5O7GslXLqcb3SzGq8Urq4zAuWRTYQ8=
-Message-ID: <35fb2e590605290936s35b0adf9r33b0c7c97ab0baa8@mail.gmail.com>
-Date: Mon, 29 May 2006 17:36:25 +0100
-From: "Jon Masters" <jonathan@jonmasters.org>
-To: "Stefan Smietanowski" <stesmi@stesmi.com>
-Subject: Re: [ANNOUNCE] Linux Device Driver Kit available
-Cc: "Greg KH" <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <4479E1A1.1030006@stesmi.com>
+	Mon, 29 May 2006 12:41:53 -0400
+Received: from mail.artecdesign.ee ([62.65.32.9]:40681 "EHLO
+	postikukk.artecdesign.ee") by vger.kernel.org with ESMTP
+	id S1751124AbWE2Qlw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 12:41:52 -0400
+Message-ID: <447B244A.6010008@artecdesign.ee>
+Date: Mon, 29 May 2006 19:41:46 +0300
+From: Indrek Kruusa <indrek.kruusa@artecdesign.ee>
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060524232900.GA18408@kroah.com>
-	 <35fb2e590605280229g76e75419h10717238e15e7347@mail.gmail.com>
-	 <4479E1A1.1030006@stesmi.com>
-X-Google-Sender-Auth: 4100fac1e0faa0f6
+To: Jordan Crouse <jordan.crouse@amd.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: long/heavy USB fs operations panics 2.6.16.18
+References: <447495CC.7040205@artecdesign.ee> <20060524192503.GJ17964@cosmic.amd.com>
+In-Reply-To: <20060524192503.GJ17964@cosmic.amd.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ADG-Spam-Score: -2.6 (--)
+X-ADG-Spam-ScoreInt: -25
+X-ADG-Spam-Report: Content analysis details:   (-2.6 points, 5.5 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+X-ADG-ExiScan-Signature: 06dfdebcc3f9f3e666e5dbcb028b2343
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/28/06, Stefan Smietanowski <stesmi@stesmi.com> wrote:
+Jordan Crouse wrote:
+> Hi Indrek -
+>
+>   
+>> I am investigating a problem with a little custom Geode LX board. It has 
+>> external USB ide hdd as root and it panics during long/heavy/? disk 
+>> operation. E.g. 'du -sk /usr' or 'bzip2 -d linux-src.tar.bz2' in my /home.
+>> Simplest (I suppose) example is fsck panic during boot (output,conf 
+>> attached).
+>>     
+>
+> Is the bug recreatable every single time when you try to fsck?
+> Have you tried recreating the issue without EHCI?  That should help us
+> at least narrow it down to the specific USB controller.  
+>
+> It seems to me like something is causing trouble down somewhere in the
+> MM subsystem - its almost like something is walking over sensitive parts
+> of memory - but be it stack or heap, I can't tell.
+>   
 
-> Jon Masters wrote:
+Duh... I have to doublecheck it but currently it seems that our BIOS 
+needs a fix. I hope you haven't had much trouble with my problem report. 
+I much appreciate your feedback.
 
-> > * Bootable Damn Small Linux (DSL) or similar.
-> > * cached LXR (obviously with reduced function).
+Best regards,
+Indrek
 
-> For what platform? MIPS ? Alpha ? x86_64 ? i386 ? ARM ?
-
-You missed PowerPC and a few others... :P
-
-I get the point, but we all know that many people getting into Linux
-from some other background often are using PC based platforms. It's
-not worth ignoring that just because Linux supports many alternatives
-and we personally use them. I personally use my Powerbooks for much of
-my day-to-day Linux, but I'm weird anyway.
-
-> Unless you can make it platform-agnostic (or supporting all
-> platforms Linux does) ..
-
-No point bothering, just do an x86 one and someone will do a variant!
-:P Then they'll end up starting an entire community and figuring out
-which platforms should be first class citizens for support. Before
-Greg even realizes it, he'll have started a whole new Linux
-distribution all by releasing a DDK. No I'm not being serious.
-
-Jon.

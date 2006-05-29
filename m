@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbWE2RtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWE2RyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750952AbWE2RtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 13:49:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWE2RtI
+	id S1751143AbWE2RyP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 13:54:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWE2RyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 13:49:08 -0400
-Received: from mail.linicks.net ([217.204.244.146]:3772 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S1750952AbWE2RtH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 13:49:07 -0400
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: Question on Space.c
-Date: Mon, 29 May 2006 18:49:04 +0100
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Mon, 29 May 2006 13:54:15 -0400
+Received: from gate.crashing.org ([63.228.1.57]:50653 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751143AbWE2RyO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 13:54:14 -0400
+In-Reply-To: <Pine.LNX.4.64.0605291825500.11234@skynet.skynet.ie>
+References: <20060526151214.GA5190@skynet.ie> <20060526094924.10efc515.akpm@osdl.org> <20060529154923.GA9025@skynet.ie> <2ebd96e4a7ea753273b2c5f856ba8c7a@kernel.crashing.org> <Pine.LNX.4.64.0605291825500.11234@skynet.skynet.ie>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <c6414fc4b2c627791a49085bf8eea7e8@kernel.crashing.org>
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605291849.04769.nick@linicks.net>
+Cc: vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [PATCH] Compile failure fix for ppc on 2.6.17-rc4-mm3 (2nd attempt)
+Date: Mon, 29 May 2006 19:56:21 +0200
+To: Mel Gorman <mel@csn.ul.ie>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I saw Space.o being build, and seeing as it is Capitalised thought I would see 
-why, and maybe a patch to make it all lower case.
+>>>  #define push_end(res, size) do { unsigned long __sz = (size) ; \
+>>> -	res->end = ((res->end + __sz) / (__sz + 1)) * (__sz + 1) + __sz; \
+>>> +	resource_size_t farEnd = (res->end + __sz); \
+>>> +	do_div(farEnd, (__sz + 1)); \
+>>> +	res->end = farEnd * (__sz + 1) + __sz; \
+>>>      } while (0)
+>>
+>> Size here is a) a misnomer (size + 1 is the actual size) and b) 
+>> always a power
+>> of two minus one.  So instead, do
+>>
+>> #define push_end(res, mask) res->end = -(-res->end & ~(unsigned 
+>> long)mask)
+>>
+>> (with a do { } while(0) armour if you prefer).
+>>
+>
+> It's not doing the same as the old code so is your suggested fix a 
+> correct replacement?
+>
+> For example, given 0xfff for size the current code rounds res->end to 
+> the next 0x1000 boundary and adds 0xfff. Your propose fix just rounds 
+> it to the next 0x1000 if I'm reading it correctly but is what the code 
+> was meant to do in the first place? Using masks, the equivilant of the 
+> current code is something like;
+>
+> #define push_end(res, mask) do { \
+> 	res->end = -(-res->end & ~(unsigned long)mask); \
+> 	res->end += mask; \
+> } while (0)
 
-The patch is trivial:
+Yeah forgot a bit, this looks fine.
 
---- drivers/net/MakefileOrig    2006-05-29 17:59:09.000000000 +0100
-+++ drivers/net/Makefile        2006-05-29 17:59:23.000000000 +0100
-@@ -79,7 +79,7 @@
 
- obj-$(CONFIG_SUNDANCE) += sundance.o
- obj-$(CONFIG_HAMACHI) += hamachi.o
--obj-$(CONFIG_NET) += Space.o loopback.o
-+obj-$(CONFIG_NET) += space.o loopback.o
- obj-$(CONFIG_SEEQ8005) += seeq8005.o
- obj-$(CONFIG_NET_SB1000) += sb1000.o
- obj-$(CONFIG_MAC8390) += mac8390.o 8390.o
+Segher
 
-then/and rename drivers/net/Space.c -> drivers/net/space.c
-
-It all builds OK (not booted with it though).
-
-Doing a grep of source after changes reveals only a few documentation/comments 
-refer to Space.c - no other code.
-
-I have looked though docs and googled as to why this One File Is Like This to 
-no avail?  Convention?
-
-Nick
--- 
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb

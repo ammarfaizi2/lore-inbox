@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWE2E7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbWE2FL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751178AbWE2E7g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 00:59:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWE2E7f
+	id S1751184AbWE2FL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 01:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWE2FL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 00:59:35 -0400
-Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:42894 "HELO
-	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751178AbWE2E7e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 00:59:34 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Patch for atkbd.c from Ubuntu
-Date: Mon, 29 May 2006 00:59:31 -0400
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <20060524113139.e457d3a8.zaitcev@redhat.com>
-In-Reply-To: <20060524113139.e457d3a8.zaitcev@redhat.com>
+	Mon, 29 May 2006 01:11:57 -0400
+Received: from mail1.bizmail.net.au ([202.162.77.164]:24769 "EHLO
+	mail1.bizmail.net.au") by vger.kernel.org with ESMTP
+	id S1751184AbWE2FL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 01:11:56 -0400
+Message-ID: <3140.58.105.227.226.1148880207.squirrel@58.105.227.226>
+Date: Mon, 29 May 2006 15:23:27 +1000 (EST)
+Subject: Re: Error of building modutils-2.4.27
+From: yh@bizmail.com.au
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605290059.32302.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 24 May 2006 14:31, Pete Zaitcev wrote:
-> Hi, Dmitry:
-> 
-> What do you think about the attached? Apparently, this is needed to
-> support Korean input keys. Please let me know if this can be included.
-> 
-> Here's a bug entry for reference:
->  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=192637
->
+Hello,
 
-Hi Pete,
+If the subject is not appropriate to this list, please point me a proper
+mailing list.
 
-Please look here:
+While I am building modutils-2.4.27 by FC5, I've got following errors:
 
-	http://bugzilla.kernel.org/show_bug.cgi?id=2817#c4
+../../obj/obj_kallsyms.c:204: error: invalid lvalue in assignment
+../../obj/obj_kallsyms.c:279: error: invalid lvalue in assignment
 
-"I will not accept this patch (or any similar patch) to extend the atkbd.c
-mapping table - only standard scancodes are allowed there. The table is
-easily modified from userspace, and that is the way to go.
+Any helps for what was I missing?
 
-In the past I tried to fill the table with all the entries, but found out
-that there are two or three keyboards competing for every position in the
-scancode table, with a different keycode."
+Thank you.
 
-I continue to agree with Vojtech's position here. Because kernel does not
-have ability to detect the kind of keyboard connected to a box (nor do we
-really want to store all this data in the kernel) all fine tuning of AT
-keymap should be done from userspace.
+Jim
 
--- 
-Dmitry

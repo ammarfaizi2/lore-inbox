@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWE2E7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWE2E7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbWE2E7V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 00:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWE2E7V
+	id S1751178AbWE2E7g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 00:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWE2E7f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 00:59:21 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:13237 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751177AbWE2E7U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 00:59:20 -0400
-From: Neil Brown <neilb@suse.de>
-To: "D. Hazelton" <dhazelton@enter.net>
-Date: Mon, 29 May 2006 14:58:57 +1000
+	Mon, 29 May 2006 00:59:35 -0400
+Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:42894 "HELO
+	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751178AbWE2E7e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 00:59:34 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: Patch for atkbd.c from Ubuntu
+Date: Mon, 29 May 2006 00:59:31 -0400
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <20060524113139.e457d3a8.zaitcev@redhat.com>
+In-Reply-To: <20060524113139.e457d3a8.zaitcev@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17530.32657.869302.621952@cse.unsw.edu.au>
-Cc: "Jon Smirl" <jonsmirl@gmail.com>, "Dave Airlie" <airlied@gmail.com>,
-       "Pavel Machek" <pavel@ucw.cz>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: OpenGL-based framebuffer concepts
-In-Reply-To: message from D. Hazelton on Monday May 29
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	<200605282316.50916.dhazelton@enter.net>
-	<9e4733910605282105t656b7c11i3809105cf261741@mail.gmail.com>
-	<200605290025.50100.dhazelton@enter.net>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+Message-Id: <200605290059.32302.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday May 29, dhazelton@enter.net wrote:
-> >
-> > There is plenty of work to do on graphics and lots of flame wars too.
+On Wednesday 24 May 2006 14:31, Pete Zaitcev wrote:
+> Hi, Dmitry:
 > 
-> Not by me. I give up - nothing I might do stands a smowballs chance in hell of 
-> surviving in a recognizable form  through the web of kernel politics.
+> What do you think about the attached? Apparently, this is needed to
+> support Korean input keys. Please let me know if this can be included.
+> 
+> Here's a bug entry for reference:
+>  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=192637
+>
 
-I must say I find that quite disappointing.
-It seemed like you had the background knowledge, the enthusiasm and
-the time to make something happen here, and I think everyone agrees
-that something needs to happen.
+Hi Pete,
 
-You seem to be caught at an impasse between Jon and Dave without a
-clear idea who is "right" - I know I have no clear idea!  I suspect
-that they are both right and are both wrong, but figuring which bit is
-which will be tricky.  Very.
+Please look here:
 
-And we really have no tie-breaker mechanism in the kernel - I know
-Linus is very loathe to play that role.  Negotiation, compromise, and
-persistence are what is needed.
+	http://bugzilla.kernel.org/show_bug.cgi?id=2817#c4
 
-I suspect that to make progress you will have to start out by doing
-something that you don't completely agree with.  But that doesn't need
-to be a loss.  It will be both a learning experience and a credibility
-earning exercise.
+"I will not accept this patch (or any similar patch) to extend the atkbd.c
+mapping table - only standard scancodes are allowed there. The table is
+easily modified from userspace, and that is the way to go.
 
-Maybe if you are really genuine about putting effort into this we
-should see if something can be arranged to get you to the
-kernel-summit so that you, Jon, and Dave can yell at each other for a
-while and come to some understanding:-)
+In the past I tried to fill the table with all the entries, but found out
+that there are two or three keyboards competing for every position in the
+scancode table, with a different keycode."
 
-Anyway, while I personal cannot offer you any incentives I would
-implore you: don't give up.  At least not yet.
+I continue to agree with Vojtech's position here. Because kernel does not
+have ability to detect the kind of keyboard connected to a box (nor do we
+really want to store all this data in the kernel) all fine tuning of AT
+keymap should be done from userspace.
 
-NeilBrown
+-- 
+Dmitry

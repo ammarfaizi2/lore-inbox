@@ -1,39 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWE2Vpd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbWE2Vqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751329AbWE2Vpd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 17:45:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWE2Voy
+	id S1751343AbWE2Vqb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 17:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbWE2VXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 17:44:54 -0400
-Received: from akl.day-one.co.nz ([210.54.239.78]:62689 "EHLO
-	smtp.day-one.co.nz") by vger.kernel.org with ESMTP id S1751321AbWE2VXq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 17:23:46 -0400
-X-Antivirus-MYDOMAIN-Mail-From: chris.byrne@monstavision.com via smtp.day-one.co.nz
-X-Antivirus-MYDOMAIN: 1.25-st-qms (Clear:RC:0(172.27.20.1):. Processed in 0.03182 secs Process 13398)
-Message-ID: <447B6723.5070000@monstavision.com>
-Date: Tue, 30 May 2006 09:26:59 +1200
-From: Chris Byrne <chris.byrne@monstavision.com>
-Reply-To: chris.byrne@monstavision.com
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Linux and Kernel Video <video4linux-list@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: compile error: i2c_transfer
-References: <200605292214.10378.toralf.foerster@gmx.de>
-In-Reply-To: <200605292214.10378.toralf.foerster@gmx.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 29 May 2006 17:23:36 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:20434 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751322AbWE2VXH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 17:23:07 -0400
+Date: Mon, 29 May 2006 23:23:28 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
+Subject: [patch 05/61] lock validator: introduce WARN_ON_ONCE(cond)
+Message-ID: <20060529212328.GE3155@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060529212109.GA2058@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Toralf Förster wrote:
-> #
-> # I2C support
-> #
-> # CONFIG_I2C is not set
-> 
+From: Ingo Molnar <mingo@elte.hu>
 
-Try enabling I2C
+add WARN_ON_ONCE(cond) to print once-per-bootup messages.
 
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+---
+ include/asm-generic/bug.h |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
+Index: linux/include/asm-generic/bug.h
+===================================================================
+--- linux.orig/include/asm-generic/bug.h
++++ linux/include/asm-generic/bug.h
+@@ -44,4 +44,17 @@
+ # define WARN_ON_SMP(x)			do { } while (0)
+ #endif
+ 
++#define WARN_ON_ONCE(condition)				\
++({							\
++	static int __warn_once = 1;			\
++	int __ret = 0;					\
++							\
++	if (unlikely(__warn_once && (condition))) {	\
++		__warn_once = 0;			\
++		WARN_ON(1);				\
++		__ret = 1;				\
++	}						\
++	__ret;						\
++})
++
+ #endif

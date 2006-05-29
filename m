@@ -1,107 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWE2WkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751446AbWE2Wkx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751443AbWE2WkB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 18:40:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWE2WkB
+	id S1751446AbWE2Wkx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 18:40:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbWE2Wkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 18:40:01 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14747 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751443AbWE2WkB (ORCPT
+	Mon, 29 May 2006 18:40:53 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:53692 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751446AbWE2Wkv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 18:40:01 -0400
-Date: Mon, 29 May 2006 15:44:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: torvalds@osdl.org, scjody@modernduck.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.17-rc5] ieee1394_core: switch to kthread API
-Message-Id: <20060529154402.cfa5143e.akpm@osdl.org>
-In-Reply-To: <tkrat.cfb023075101da5c@s5r6.in-berlin.de>
-References: <tkrat.cfb023075101da5c@s5r6.in-berlin.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Mon, 29 May 2006 18:40:51 -0400
+Date: Tue, 30 May 2006 00:41:08 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: [patch 00/61] ANNOUNCE: lock validator -V1
+Message-ID: <20060529224107.GA6037@elte.hu>
+References: <20060529212109.GA2058@elte.hu> <6bffcb0e0605291528qe24a0a3r3841c37c5323de6a@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6bffcb0e0605291528qe24a0a3r3841c37c5323de6a@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 May 2006 18:43:52 +0200 (CEST)
-Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
 
-We end up with:
+* Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
 
-:static void queue_packet_complete(struct hpsb_packet *packet)
-:{
-:	if (packet->no_waiter) {
-:		hpsb_free_packet(packet);
-:		return;
-:	}
-:	if (packet->complete_routine != NULL) {
-:		skb_queue_tail(&hpsbpkt_queue, packet->skb);
-:		wake_up_process(khpsbpkt_thread);
-:	}
-:	return;
-:}
-:
-:static int hpsbpkt_thread(void *__hi)
-:{
-:	struct sk_buff *skb;
-:	struct hpsb_packet *packet;
-:	void (*complete_routine)(void*);
-:	void *complete_data;
-:
-:	current->flags |= PF_NOFREEZE;
-:
-:	while (!kthread_should_stop()) {
-:		while ((skb = skb_dequeue(&hpsbpkt_queue)) != NULL) {
-:			packet = (struct hpsb_packet *)skb->data;
-:
-:			complete_routine = packet->complete_routine;
-:			complete_data = packet->complete_data;
-:
-:			packet->complete_routine = packet->complete_data = NULL;
-:
-:			complete_routine(complete_data);
-:		}
+> On 29/05/06, Ingo Molnar <mingo@elte.hu> wrote:
+> >We are pleased to announce the first release of the "lock dependency
+> >correctness validator" kernel debugging feature, which can be downloaded
+> >from:
+> >
+> >  http://redhat.com/~mingo/lockdep-patches/
+> >
+> [snip]
+> 
+> I get this while loading cpufreq modules
+> 
+> =====================================================
+> [ BUG: possible circular locking deadlock detected! ]
+> -----------------------------------------------------
+> modprobe/1942 is trying to acquire lock:
+> (&anon_vma->lock){--..}, at: [<c10609cf>] anon_vma_link+0x1d/0xc9
+> 
+> but task is already holding lock:
+> (&mm->mmap_sem/1){--..}, at: [<c101e5a0>] copy_process+0xbc6/0x1519
+> 
+> which lock already depends on the new lock,
+> which could lead to circular deadlocks!
 
-There's a race here.
+hm, this one could perhaps be a real bug. Dave: lockdep complains about 
+having observed:
 
-:		set_current_state(TASK_INTERRUPTIBLE );
-:		schedule();
-:	}
-:
-:	return 0;
-:}
+	anon_vma->lock  =>   mm->mmap_sem
+	mm->mmap_sem    =>   anon_vma->lock
 
-If queue_packet_complete() is called on another CPU in that window, there
-will be a new skb queued and we'll miss the wakeup.
+locking sequences, in the cpufreq code. Is there some special runtime 
+behavior that still makes this safe, or is it a real bug?
 
-I used skb_peek() in the below fix, but there are other ways, perhaps..
+> stack backtrace:
+> <c1003f36> show_trace+0xd/0xf  <c1004449> dump_stack+0x17/0x19
+> <c103863e> print_circular_bug_tail+0x59/0x64  <c1038e91>
+> __lockdep_acquire+0x848/0xa39
+> <c10394be> lockdep_acquire+0x69/0x82  <c11ed759>
+> __mutex_lock_slowpath+0xd0/0x347
 
+there's one small detail to improve future lockdep printouts: please set 
+CONFIG_STACK_BACKTRACE_COLS=1, so that the backtrace is more readable. 
+(i'll change the code to force that when CONFIG_LOCKDEP is enabled)
 
---- devel/drivers/ieee1394/ieee1394_core.c~ieee1394_core-switch-to-kthread-api-fix	2006-05-29 15:42:30.000000000 -0700
-+++ devel-akpm/drivers/ieee1394/ieee1394_core.c	2006-05-29 15:42:40.000000000 -0700
-@@ -1001,7 +1001,6 @@ void abort_timedouts(unsigned long __opa
- static struct task_struct *khpsbpkt_thread;
- static struct sk_buff_head hpsbpkt_queue;
- 
--
- static void queue_packet_complete(struct hpsb_packet *packet)
- {
- 	if (packet->no_waiter) {
-@@ -1036,10 +1035,11 @@ static int hpsbpkt_thread(void *__hi)
- 			complete_routine(complete_data);
- 		}
- 
--		set_current_state(TASK_INTERRUPTIBLE );
--		schedule();
-+		set_current_state(TASK_INTERRUPTIBLE);
-+		if (!skb_peek(&hpsbpkt_queue))
-+			schedule();
-+		__set_current_state(TASK_RUNNING);
- 	}
--
- 	return 0;
- }
- 
-_
+> BTW I still must revert lockdep-serial.patch - it doesn't compile on 
+> my gcc 4.1.1
 
+ok, will check this.
+
+	Ingo

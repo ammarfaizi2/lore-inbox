@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWE2TCS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWE2TDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751171AbWE2TCS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 15:02:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWE2TCS
+	id S1751190AbWE2TDK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 15:03:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWE2TDJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 15:02:18 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:34308 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751171AbWE2TCS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 15:02:18 -0400
-Date: Mon, 29 May 2006 15:12:16 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Mark Lord <lkml@rtr.ca>
-Cc: Paul Dickson <dickson@permanentmail.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Resume stops working between 2.6.16 and 2.6.17-rc1 on Dell Inspiron 6000
-Message-ID: <20060529151216.GB4356@ucw.cz>
-References: <20060528140238.2c25a805.dickson@permanentmail.com> <1148850683.3074.72.camel@laptopd505.fenrus.org> <20060528142951.2a7417cb.dickson@permanentmail.com> <447A1AEF.3040900@rtr.ca> <20060528172101.a1b9725e.dickson@permanentmail.com> <447A642F.6080500@rtr.ca>
-Mime-Version: 1.0
+	Mon, 29 May 2006 15:03:09 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:40457 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751190AbWE2TDI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 15:03:08 -0400
+Date: Mon, 29 May 2006 21:03:07 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] i386: don't consider regparm EXPERIMENTAL anymore
+Message-ID: <20060529190306.GD3955@stusta.de>
+References: <20060520025353.GE9486@taniwha.stupidest.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <447A642F.6080500@rtr.ca>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060520025353.GE9486@taniwha.stupidest.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi!
-
-> >I still get the BUG message on resuming that I reported 
-> >in bugzilla
-> ...
-> >BUG: sleeping function called from invalid context at 
-> >mm/slab.c:2794
-> >in_atomic():0, irqs_disabled():1
-> > <c01c971b> acpi_os_acquire_object+0xf/0x3c  <c0149c48> 
-> > kmem_cache_alloc+0x27/0x7f
-> > <c01c971b> acpi_os_acquire_object+0xf/0x3c  <c01df220> 
-> > acpi_ut_allocate_object_desc_dbg+0xc/0x40
-> > <c01df26d> 
-> > acpi_ut_create_internal_object_dbg+0x19/0x70  
-> > <c01db3ef> acpi_rs_set_srs_method_data+0x40/0xc5
-> > <c01e545d> acpi_pci_link_set+0x3e/0x16d  <c0149c96> 
-> > kmem_cache_alloc+0x75/0x7f
-> > <c01e5515> acpi_pci_link_set+0xf6/0x16d  <c01e55c0> 
-> > irqrouter_resume+0x34/0x52
-> > <c020eb77> __sysdev_resume+0x12/0x55  <c020ecd4> 
-> > sysdev_resume+0x16/0x47
-> > <c0213117> device_power_up+0x5/0xa  <c01293db> 
-> > suspend_enter+0x32/0x3a
-> > <c0129504> enter_state+0x121/0x13e  <c01295a2> 
-> > state_store+0x81/0x94
-> > <c0182fa9> sysfs_write_file+0xa3/0xc9  <c014d4c8> 
-> > vfs_write+0xa2/0x136
-> > <c014d9d2> sys_write+0x3b/0x64  <c0102ab3> 
-> > syscall_call+0x7/0xb
+On Fri, May 19, 2006 at 07:53:53PM -0700, Chris Wedgwood wrote:
+>   [This might be a tad premature given recent tail-call fixups?]
 > 
-> Yup, pretty obvious bug in the acpi code.
-> Something probably needs to use GFP_ATOMIC there.
+> ---
+> 
+> Drop EXPERIMENTAL status from REGPARM as a lot of people seem to use
+> it and it seems to be pretty stable these days.
+> 
+> 
+> Signed-off-by: Chris Wedgwood <cw@f00f.org>
+> 
+> diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
+> index 5b1a7d4..2b8657d 100644
+> --- a/arch/i386/Kconfig
+> +++ b/arch/i386/Kconfig
+> @@ -660,8 +660,7 @@ config BOOT_IOREMAP
+>  	default y
+>  
+>  config REGPARM
+> -	bool "Use register arguments (EXPERIMENTAL)"
+> -	depends on EXPERIMENTAL
+> +	bool "Use register arguments"
+>  	default n
+>  	help
+>  	Compile the kernel with -mregparm=3. This uses a different ABI
 
-Does it still happen in -rc5?
+You should make such patches against -mm (or at least against a current 
+Linus' tree).
+
+The dependency on EXPERIMENTAL was removed more than two months ago in 
+Linus' tree (and at the same time the default was changed to "y").
+
+cu
+Adrian
 
 -- 
-Thanks for all the (sleeping) penguins.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

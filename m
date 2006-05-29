@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751409AbWE2Vjf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbWE2VkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751409AbWE2Vjf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 17:39:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWE2VZQ
+	id S1751419AbWE2VkV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 17:40:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWE2VkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 17:25:16 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:45266 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751334AbWE2VYg (ORCPT
+	Mon, 29 May 2006 17:40:20 -0400
+Received: from ns2.suse.de ([195.135.220.15]:48058 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751424AbWE2VkO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 17:24:36 -0400
-Date: Mon, 29 May 2006 23:24:57 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Mon, 29 May 2006 17:40:14 -0400
+Date: Mon, 29 May 2006 23:40:11 +0200
+From: Olaf Hering <olh@suse.de>
 To: linux-kernel@vger.kernel.org
-Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
-Subject: [patch 22/61] lock validator:  add per_cpu_offset()
-Message-ID: <20060529212457.GV3155@elte.hu>
+Subject: cramfs corruption after BLKFLSBUF on loop device
+Message-ID: <20060529214011.GA417@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20060529212109.GA2058@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
+This script will cause cramfs decompression errors, on SMP at least:
 
-add the per_cpu_offset() generic method. (used by the lock validator)
+#!/bin/bash
+while :;do blockdev --flushbufs /dev/loop0;done </dev/null &>/dev/null&
+while :;do ps faxs  </dev/null &>/dev/null&done </dev/null &>/dev/null&
+while :;do dmesg    </dev/null &>/dev/null&done </dev/null &>/dev/null&
+while :;do find /mounts/instsys -type f -print0|xargs -0 cat &>/dev/null;done
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
----
- include/asm-generic/percpu.h |    2 ++
- include/asm-x86_64/percpu.h  |    2 ++
- 2 files changed, 4 insertions(+)
+...
+Error -3 while decompressing!
+c0000000009592a2(2649)->c0000000edf87000(4096)
+Error -3 while decompressing!
+c000000000959298(2520)->c0000000edbc7000(4096)
+Error -3 while decompressing!
+c000000000959c70(2489)->c0000000f1482000(4096)
+Error -3 while decompressing!
+c00000000095a629(2355)->c0000000edaff000(4096)
+Error -3 while decompressing!
+...
 
-Index: linux/include/asm-generic/percpu.h
-===================================================================
---- linux.orig/include/asm-generic/percpu.h
-+++ linux/include/asm-generic/percpu.h
-@@ -7,6 +7,8 @@
- 
- extern unsigned long __per_cpu_offset[NR_CPUS];
- 
-+#define per_cpu_offset(x) (__per_cpu_offset[x])
-+
- /* Separate out the type, so (int[3], foo) works. */
- #define DEFINE_PER_CPU(type, name) \
-     __attribute__((__section__(".data.percpu"))) __typeof__(type) per_cpu__##name
-Index: linux/include/asm-x86_64/percpu.h
-===================================================================
---- linux.orig/include/asm-x86_64/percpu.h
-+++ linux/include/asm-x86_64/percpu.h
-@@ -14,6 +14,8 @@
- #define __per_cpu_offset(cpu) (cpu_pda(cpu)->data_offset)
- #define __my_cpu_offset() read_pda(data_offset)
- 
-+#define per_cpu_offset(x) (__per_cpu_offset(x))
-+
- /* Separate out the type, so (int[3], foo) works. */
- #define DEFINE_PER_CPU(type, name) \
-     __attribute__((__section__(".data.percpu"))) __typeof__(type) per_cpu__##name
+evms_access does the ioctl (lots of them) on the loop device.
+Its a long standing bug, 2.6.5 fails as well. cramfs_read() clears parts
+of the src buffer because the page is not uptodate. invalidate_bdev()
+touched the page last.
+cramfs_read() was called from line 480 or 490 when the
+PageUptodate(page) test fails.
+
+...
+    464 static int cramfs_readpage(struct file *file, struct page * page)
+..
+    479                 if (page->index)
+    480                         start_offset = *(u32 *) cramfs_read(sb, blkptr_offset-4, 4);
+..
+    488                         bytes_filled = cramfs_uncompress_block(pgdata,
+    489                                  PAGE_CACHE_SIZE,
+    490                                  cramfs_read(sb, start_offset, compr_len),
+    491                                  compr_len);
+...
+
+There are rumors that cramfs is not smp safe...
+Maybe the only hope is to tell evms to not do that ioctl for loop.

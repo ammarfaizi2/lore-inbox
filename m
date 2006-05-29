@@ -1,45 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWE2GTs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbWE2GWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751233AbWE2GTs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 02:19:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWE2GTs
+	id S1751238AbWE2GWM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 02:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWE2GWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 02:19:48 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:25276 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751233AbWE2GTr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 02:19:47 -0400
-Subject: Re: Should we make dmi_check_system case insensitive?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: "LKML," <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>, Andi Kleen <ak@muc.de>,
-       Andrey Panin <pazke@orbita1.ru>
-In-Reply-To: <200605290131.42292.dtor_core@ameritech.net>
-References: <200605290131.42292.dtor_core@ameritech.net>
-Content-Type: text/plain
-Date: Mon, 29 May 2006 08:19:08 +0200
-Message-Id: <1148883548.3291.50.camel@laptopd505.fenrus.org>
+	Mon, 29 May 2006 02:22:12 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:44293 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751238AbWE2GWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 02:22:11 -0400
+Date: Mon, 29 May 2006 08:09:12 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: 4Front Technologies <dev@opensound.com>
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
+       bidulock@openss7.org, Lee Revell <rlrevell@joe-job.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: How to check if kernel sources are installed on a system?
+Message-ID: <20060529060912.GA30150@w.ods.org>
+References: <1148596163.31038.30.camel@mindpipe> <1148653797.3579.18.camel@laptopd505.fenrus.org> <20060528130320.GA10385@osiris.ibm.com> <1148835799.3074.41.camel@laptopd505.fenrus.org> <1148838738.21094.65.camel@mindpipe> <1148839964.3074.52.camel@laptopd505.fenrus.org> <1148846131.27461.14.camel@mindpipe> <20060528224402.A13279@openss7.org> <1148878368.3291.40.camel@laptopd505.fenrus.org> <447A883C.5070604@opensound.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <447A883C.5070604@opensound.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-29 at 01:31 -0400, Dmitry Torokhov wrote:
-> Hi,
+On Sun, May 28, 2006 at 10:35:56PM -0700, 4Front Technologies wrote:
+> BTW, why is Mandriva the only distro to turn OFF REGPARM?. Again, I think 
+> distros shouldn't be given an option to turn it off if its a good thing 
+> to have.
 > 
-> I have a request to add entry for "LifeBook B Series" to lifebook driver to
-> accomodate lifebook B2545, however we already have entry for "LIFEBOOK B
-> Series" (used by some other model) which is not working. Would anyone
-> be opposed making dmi_check_system() ignore string case? 
+> Are there any good reasons why REGPARM is turned off?.
+> 
+> ------------------
+> 
+> 
+> Yet one more reason to have something like kernel-config (similar to 
+> gtk-config or xmms-config) where you can get the package's cflags, 
+> ldflags, other info.
+> 
+> for example
+> 
+> kernel-config --cflags should say -DUSE_REGPARM -I/lib/modules/blah/blah
+> 
+> kernel-config --libdir should say where the lib/modules/blah/blah
+> 
+> kernel-config --srcdir should say where the kernel sources are installed 
+> or not installed.
+> 
+> kernel-config --configsrc should configure the kernel source with the 
+> running
+> kernel's configuration.
+> 
+> kernel-config --installsrc should automatically download the RIGHT source 
+> from the net. Right now if you go on Ubuntu or Mandrake and you try to 
+> install kernel source - you get the option of stripped source, 
+> kernel-headers, kernel-2.6.blah which may not be installed.
+> 
+> Any comments?
 
-yes I would.
-There are very legit reasons to be able to separate both machines, for
-other things they may well be not the same after all. Once you go case
-insensitive you can't separate at all anymore; I rather have an
-occasional "dupe" in the table than a really huge mess of things you
-can't keep separate anymore....
+This is a wrong thing to do IMHO, because it is incompatible with
+cross-compilation, and the more the projects will use this method,
+the more a nightmare it will become for distro maintainers. At
+least when you rely on either a config file or something like this,
+it's always possible to make it point to your target system's. But
+when you *execute* commands on the build system, chances are that
+you will not get the expected result. pcre-config, glib-config and
+such are already in this case.
+
+> best regards
+> Dev Mazumdar
+> -----------------------------------------------------------
+> 4Front Technologies
+> 4035 Lafayette Place, Unit F, Culver City, CA 90232, USA.
+> Tel: (310) 202 8530		URL: www.opensound.com
+> Fax: (310) 202 0496 		Email: info@opensound.com
+> -----------------------------------------------------------
+
+Regards,
+Willy
 

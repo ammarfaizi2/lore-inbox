@@ -1,76 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWE3C5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWE3C6d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932114AbWE3C5j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 22:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbWE3C5j
+	id S932105AbWE3C6d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 22:58:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbWE3C6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 22:57:39 -0400
-Received: from smtp.enter.net ([216.193.128.24]:52242 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S932114AbWE3C5j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 22:57:39 -0400
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Jeff Garzik <jeff@garzik.org>
-Subject: Re: OpenGL-based framebuffer concepts
-Date: Mon, 29 May 2006 22:57:28 +0000
-User-Agent: KMail/1.8.1
-Cc: Pavel Machek <pavel@ucw.cz>, Dave Airlie <airlied@gmail.com>,
-       Jon Smirl <jonsmirl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+	Mon, 29 May 2006 22:58:33 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:36779 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932105AbWE3C6c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 22:58:32 -0400
+Date: Tue, 30 May 2006 05:58:27 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+cc: Paul Drynoff <pauldrynoff@gmail.com>, akpm@osdl.org,
        linux-kernel@vger.kernel.org
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <20060529124840.GD746@elf.ucw.cz> <447B666F.5080109@garzik.org>
-In-Reply-To: <447B666F.5080109@garzik.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Subject: Re: [PATCH] mm/comments: kmalloc man page before 2.6.17 (the fifth
+ attempt)
+In-Reply-To: <20060529120512.d757a43b.rdunlap@xenotime.net>
+Message-ID: <Pine.LNX.4.58.0605300556010.18303@sbz-30.cs.Helsinki.FI>
+References: <20060528111446.55572c6f.pauldrynoff@gmail.com>
+ <84144f020605281029q1fa6ed59jb415ffb9a7daeef9@mail.gmail.com>
+ <20060529183325.937cea13.pauldrynoff@gmail.com> <20060529120512.d757a43b.rdunlap@xenotime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605292257.29462.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 29 May 2006 21:23, Jeff Garzik wrote:
-> Pavel Machek wrote:
-> > These are very reasonable rules... but still, I think we need to move
-> > away from vgacon/vesafb. We need proper hardware drivers for our
-> > hardware.
->
-> I agree we need proper drivers, but moving away from vesafb will be
-> tough... moving away from vgacon is likely impossible for many many
-> years yet.
+Hi,
 
-After my rant last night I spent some time thinking... Thanks to a private 
-message from Dave Arlie today the conclusion I came to proved correct.
+On Mon, 29 May 2006 18:33:25 +0400 Paul Drynoff wrote:
+> > This bugfix patch is added comments to right places and give possibility
+> > generate man pages for kmalloc(9) and kzalloc(9).
 
-The model I was working towards, where there is a low-level mediation layer 
-for the video-hardware is what is needed. The argument was over where to 
-start, and I started at the wrong end.
+On Mon, 29 May 2006, Randy.Dunlap wrote:
+> Thanks for doing this.  You are right IMO, it was really needed.
+> There are more that are needed if you are up to it.
 
-> Once proper hardware drivers exist, you will still need to support
-> booting into a situation where you probably need video before a driver
-> can be loaded -- e.g. distro installers.  Server owners will likely
-> prefer vgacon over a huge video driver they will never use for anything
-> but text mode console.
+Looks good.  Thanks.
 
-vgacon will likely never be removed from the kernel. If the direction Dave has 
-told me things should go in works, vgacon will be needed for distro 
-installers, servers and early boot. The fbdev system itself will survive for 
-those servers where people want it and for the embedded people that depend on 
-it. WHat is likely to change is the common user...
-
-I'm making an assumption here based on several statements Dave made in a 
-private e-mail to me, but the direction things would likely go for "normal" 
-users is that the DRM system will be used for everything. If this is the 
-case, then the likely best solution for all kernel errors would be 
-transferring control of the primary display and input devices to vgacon and 
-switching to it's preferred mode. Done properly the driver state (at an oops) 
-could be stored and then restored after the user acknowledges the error 
-(unless the user has configured the system not to wait on a recoveable 
-error).
-
-Before I can restart my work at trying to move the kernel graphics system 
-forward, I would like to apologize to people for my behaviour.
-
-DRH
+Acked-by: Pekka Enberg <penberg@cs.helsinki.fi>

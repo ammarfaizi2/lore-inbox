@@ -1,53 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbWE3UZA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWE3U0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932400AbWE3UZA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 16:25:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWE3UZA
+	id S932401AbWE3U0e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 16:26:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWE3U0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 16:25:00 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19390 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932400AbWE3UY7 (ORCPT
+	Tue, 30 May 2006 16:26:34 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:1228 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932401AbWE3U0d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 16:24:59 -0400
-Date: Tue, 30 May 2006 22:24:01 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Airlie <airlied@gmail.com>
-Cc: "D. Hazelton" <dhazelton@enter.net>, Jon Smirl <jonsmirl@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: OpenGL-based framebuffer concepts
-Message-ID: <20060530202401.GC16106@elf.ucw.cz>
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200605272245.22320.dhazelton@enter.net> <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com> <200605280112.01639.dhazelton@enter.net> <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <20060529102339.GA746@elf.ucw.cz> <21d7e9970605290336m1f80b08nebbd2a995be959cb@mail.gmail.com> <20060529124840.GD746@elf.ucw.cz> <21d7e9970605291623k3636f7hcc12028cad5e962b@mail.gmail.com>
-MIME-Version: 1.0
+	Tue, 30 May 2006 16:26:33 -0400
+Date: Tue, 30 May 2006 22:26:54 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [patch, -rc5-mm1] lock validator: fix RT_HASH_LOCK_SZ
+Message-ID: <20060530202654.GA25720@elte.hu>
+References: <20060530022925.8a67b613.akpm@osdl.org> <adaac8z70yc.fsf@cisco.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <21d7e9970605291623k3636f7hcc12028cad5e962b@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <adaac8z70yc.fsf@cisco.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> >No, to the contrary. suspend/resume can't ever work properly with
-> >vgacon and vesafb. It works okay with radeonfb tooday, and in fact
-> >radeonfb is neccessary today for saving power over S3.
+* Roland Dreier <rdreier@cisco.com> wrote:
+
+> Building 2.6.17-rc5-mm1, I get this:
 > 
-> But the things is today for many users suspend/resume to RAM works for
-> people running X drivers, I know on my laptop that my radeon
-> suspends/resumes fine when running vgacon/DRM/accelerated X, it
-> doesn't suspend/resume at all well when running vgacon on its own of
-> course. or with radeonfb for that matter. so I still believe the
-> suspend/resume code for a card can live in userspace if necessary but
-> it just shouldn't be part of X... it needs to be part of another
-> graphics controller process.
+> 	net/built-in.o: In function `ip_rt_init':
+> 	(.init.text+0xb04): undefined reference to `__you_cannot_kmalloc_that_much'
 
-So we are mostly in agreement. I'd prefer to have suspend/resume code
-in kernel in cases it is simple... but separate userspace process is
-better than having it in X.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+could you try the patch below and set NR_CPUS back to 32?
+
+-----------
+Subject: lock validator: fix RT_HASH_LOCK_SZ
+From: Ingo Molnar <mingo@elte.hu>
+
+on lockdep we have a quite big spinlock_t, so keep the size down.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+---
+ net/ipv4/route.c |   23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
+
+Index: linux/net/ipv4/route.c
+===================================================================
+--- linux.orig/net/ipv4/route.c
++++ linux/net/ipv4/route.c
+@@ -212,17 +212,22 @@ struct rt_hash_bucket {
+ /*
+  * Instead of using one spinlock for each rt_hash_bucket, we use a table of spinlocks
+  * The size of this table is a power of two and depends on the number of CPUS.
++ * (on lockdep we have a quite big spinlock_t, so keep the size down there)
+  */
+-#if NR_CPUS >= 32
+-#define RT_HASH_LOCK_SZ	4096
+-#elif NR_CPUS >= 16
+-#define RT_HASH_LOCK_SZ	2048
+-#elif NR_CPUS >= 8
+-#define RT_HASH_LOCK_SZ	1024
+-#elif NR_CPUS >= 4
+-#define RT_HASH_LOCK_SZ	512
++#ifdef CONFIG_LOCKDEP
++# define RT_HASH_LOCK_SZ	256
+ #else
+-#define RT_HASH_LOCK_SZ	256
++# if NR_CPUS >= 32
++#  define RT_HASH_LOCK_SZ	4096
++# elif NR_CPUS >= 16
++#  define RT_HASH_LOCK_SZ	2048
++# elif NR_CPUS >= 8
++#  define RT_HASH_LOCK_SZ	1024
++# elif NR_CPUS >= 4
++#  define RT_HASH_LOCK_SZ	512
++# else
++#  define RT_HASH_LOCK_SZ	256
++# endif
+ #endif
+ 
+ static spinlock_t	*rt_hash_locks;

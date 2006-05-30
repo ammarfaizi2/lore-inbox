@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWE3RRm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbWE3RRZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932351AbWE3RRm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 13:17:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbWE3RRm
+	id S932346AbWE3RRZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 13:17:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWE3RRZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 13:17:42 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:10596 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932353AbWE3RRk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 13:17:40 -0400
-Message-ID: <447C7E1F.7020602@de.ibm.com>
-Date: Tue, 30 May 2006 19:17:19 +0200
-From: Martin Peschke <mp3@de.ibm.com>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Patch 5/6] statistics infrastructure
-References: <1148474038.2934.18.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <20060524155735.04ed777a.akpm@osdl.org>
-In-Reply-To: <20060524155735.04ed777a.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 30 May 2006 13:17:25 -0400
+Received: from holly.csn.ul.ie ([193.1.99.76]:55751 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S932350AbWE3RRY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 13:17:24 -0400
+From: Mel Gorman <mel@csn.ul.ie>
+To: akpm@osdl.org
+Cc: Mel Gorman <mel@csn.ul.ie>, mingo@elte.hu, arjan@linux.intel.com,
+       linux-kernel@vger.kernel.org, tglx@linutronix.de
+Message-Id: <20060530171723.27305.31883.sendpatchset@skynet>
+In-Reply-To: <20060530171642.27305.38862.sendpatchset@skynet>
+References: <20060530171642.27305.38862.sendpatchset@skynet>
+Subject: [PATCH 2/2] 2.6.17-rc5-mm1 compile-fix on ia64 for desc->handler
+Date: Tue, 30 May 2006 18:17:23 +0100 (IST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Martin Peschke <mp3@de.ibm.com> wrote:
->> +static int statistic_alloc(struct statistic *stat,
->> +			   struct statistic_info *info)
->> +{
->> +	int cpu;
->> +	stat->age = sched_clock();
-> 
-> argh.  Didn't we end up finding a way to avoid this?
-> 
-> At the least, we should have statistics_clock(), or nsec_clock(), or
-> something which is decoupled from this low-level scheduler-internal thing,
-> and which architectures can implement (vis attribute-weak) if they have a
-> preferred/better/more-accurate alternative.
 
-I use clocks for two purposes. Both have used sched_clock() so far.
+genirq-rename-desc-handler-to-desc-chip.patch renames a number of IRQ
+desc->handler to desk->chip. This patch renames one that was missed.
 
-The statistics infrastructure itself uses a clock only for time stamps
-that tell users what time a statistic has been switched on/off and reset.
-This is what you have spotted here.
 
-(The other and more important requirement regards exploiters of the
-statistics infrastructure. They need a clock to measure latencies,
-which they can report then.)
 
-Regarding those time stamps, I think it best to make them look like other
-timestamps, specifically the printk() time stamps in order not to confuse
-users. That is why, one of my patches introduces nsec_to_timestamp()
-based on some lines from printk(). Printk() uses printk_clock() as
-source, which is nothing else than a sched_clock() call, unless
-reimpelmented by architectures (only done for ia64).
-If I want similar timestamps, I need the same time source too.
+ hpsim_irq.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Now my question:
-
-Would I get away with making printk_clock() a timestamp_clock() that
-should be used by anyone exporting nsec_to_timestamp()-formated time
-stamps to user space, including me?
-
-I would then continue to see the use of sched_clock() in printk_clock()
-... aehm timestamp_clock() as somebody else's problem (or at least
-as a subordinate problem).
-Thoughts?  <ducking down>
-
-Martin
-
+Signed-off-by: Mel Gorman <mel@csn.ul.ie>
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.17-rc5-mm1-irqflags/arch/ia64/hp/sim/hpsim_irq.c linux-2.6.17-rc5-mm1-hpsim_irq/arch/ia64/hp/sim/hpsim_irq.c
+--- linux-2.6.17-rc5-mm1-irqflags/arch/ia64/hp/sim/hpsim_irq.c	2006-05-30 14:41:20.000000000 +0100
++++ linux-2.6.17-rc5-mm1-hpsim_irq/arch/ia64/hp/sim/hpsim_irq.c	2006-05-30 16:25:31.000000000 +0100
+@@ -45,7 +45,7 @@ hpsim_irq_init (void)
+ 
+ 	for (i = 0; i < NR_IRQS; ++i) {
+ 		idesc = irq_desc + i;
+-		if (idesc->handler == &no_irq_type)
+-			idesc->handler = &irq_type_hp_sim;
++		if (idesc->chip == &no_irq_type)
++			idesc->chip = &irq_type_hp_sim;
+ 	}
+ }

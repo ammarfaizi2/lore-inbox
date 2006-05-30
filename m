@@ -1,71 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWE3MWi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWE3MYm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932267AbWE3MWi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 08:22:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWE3MWh
+	id S932269AbWE3MYm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 08:24:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWE3MYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 08:22:37 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:7102 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932267AbWE3MWh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 08:22:37 -0400
-Date: Tue, 30 May 2006 14:21:26 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Greg KH <greg@kroah.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 02/11] atyfb_base compile fix for CONFIG_PCI=n
-In-Reply-To: <20060525040717.GA30317@kroah.com>
-Message-ID: <Pine.LNX.4.64.0605301408290.32445@scrub.home>
-References: <20060525002742.723577000@linux-m68k.org> <20060525003420.147932000@linux-m68k.org>
- <20060524183327.601f0a43.akpm@osdl.org> <20060525040717.GA30317@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 30 May 2006 08:24:42 -0400
+Received: from TYO202.gate.nec.co.jp ([202.32.8.206]:35554 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S1751460AbWE3MYl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 08:24:41 -0400
+To: adilger@clusterfs.com
+Cc: cmm@us.ibm.com, jitendra@linsyssoft.com, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, tytso@mit.edu, sct@redhat.com
+Subject: Re: [UPDATE][12/24]ext3 enlarge blocksize
+Message-Id: <20060530212434sho@rifu.tnes.nec.co.jp>
+Mime-Version: 1.0
+X-Mailer: WeMail32[2.51] ID:1K0086
+From: sho@tnes.nec.co.jp
+Date: Tue, 30 May 2006 21:24:34 +0900
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Andreas,
 
-On Wed, 24 May 2006, Greg KH wrote:
+On May 26, 2006, Andreas wrote:
+> At least part of this patch can be included into the patch series that
+> Mingming has posted to allow larger block sizes on architectures that
+> support it.  This doesn't need a separate COMPAT flag itself, since
+> older kernels will already refuse to mount a filesystem with 
+> large blocks.
 
-> > >  Index: linux-2.6-mm/drivers/video/aty/atyfb_base.c
-> > >  ===================================================================
-> > >  --- linux-2.6-mm.orig/drivers/video/aty/atyfb_base.c
-> > >  +++ linux-2.6-mm/drivers/video/aty/atyfb_base.c
-> > >  @@ -3861,7 +3861,9 @@ static int __init atyfb_init(void)
-> > >       atyfb_setup(option);
-> > >   #endif
-> > >   
-> > >  +#ifdef CONFIG_PCI
-> > >       pci_register_driver(&atyfb_driver);
-> > >  +#endif
-> > >   #ifdef CONFIG_ATARI
-> > >       atyfb_atari_probe();
-> > >   #endif
-> > >  @@ -3870,7 +3872,9 @@ static int __init atyfb_init(void)
-> > >   
-> > >   static void __exit atyfb_exit(void)
-> > >   {
-> > >  +#ifdef CONFIG_PCI
-> > >   	pci_unregister_driver(&atyfb_driver);
-> > >  +#endif
-> > >   }
-> > 
-> > bah.  If pci_register_driver() was a macro we wouldn't need to do this all
-> > over the place.
+Do you mention block size?  I don't use the COMPAT flag for large block
+size, but for >2G blocks.
+
+> On May 25, 2006  21:49 +0900, sho@tnes.nec.co.jp wrote:
+> > @@ -1463,11 +1463,17 @@ static int ext3_fill_super (struct super
+> > +	if (blocksize > PAGE_SIZE) {
+> > +		printk(KERN_ERR "EXT3-fs: cannot mount filesystem with "
+> > +		       "blocksize %u larger than PAGE_SIZE %u on %s\n",
+> > +		       blocksize, PAGE_SIZE, sb->s_id);
+> > +		goto failed_mount;
+> > +	}
+> > +
+> >  	if (blocksize < EXT3_MIN_BLOCK_SIZE ||
+> > -	    blocksize > EXT3_MAX_BLOCK_SIZE) {
+> > +	    blocksize > EXT3_EXTENDED_MAX_BLOCK_SIZE) {
 > 
-> Yes, this can be fixed easily in the pci.h header file, all other pci
-> functions are stubbed out properly if CONFIG_PCI is not enabled.  These
-> should be too.
+> We may as well just change EXT3_MAX_BLOCK_SIZE to be 65536, 
+> because no other
+> code uses this value.  It is already 65536 in the e2fsprogs.
 
-I'm not a big fan of such dummy macros, as these macros should properly 
-look like:
+Agree.
 
-#define pci_register_driver(x)	({ (void)(x); 0; })
+> 
+> > -		printk(KERN_ERR 
+> > -		       "EXT3-fs: Unsupported filesystem 
+> blocksize %d on %s.\n",
+> > -		       blocksize, sb->s_id);
+> > +		printk(KERN_ERR "EXT3-fs: Unsupported 
+> filesystem blocksize %d on %s.\n",
+> > +				 blocksize, sb->s_id);
+> 
+> I'm not sure why you changed the formatting of this message 
+> to now be longer
+> than 80 columns.
 
-otherwise you risk warnings about defined but unused variables.
+Oops, you are right.
 
-The other alternative is to remove the #ifdef around atyfb_driver, recent 
-gcc (>= 4.0) can remove the unused structure.
+Thanks a lot, Andreas!
 
-bye, Roman
+
+Cheers, sho
+
+

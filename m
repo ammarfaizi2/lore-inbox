@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbWE3TNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbWE3TPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932370AbWE3TNt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 15:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWE3TNt
+	id S932430AbWE3TPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 15:15:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWE3TPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 15:13:49 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:37854 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932370AbWE3TNs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 15:13:48 -0400
-Subject: Re: 2.6.17-rc5-mm1
-From: Arjan van de Ven <arjan@infradead.org>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <6bffcb0e0605300546k26090790s54581ca16855de2d@mail.gmail.com>
-References: <20060530022925.8a67b613.akpm@osdl.org>
-	 <6bffcb0e0605300546k26090790s54581ca16855de2d@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 30 May 2006 21:13:43 +0200
-Message-Id: <1149016423.3636.95.camel@laptopd505.fenrus.org>
+	Tue, 30 May 2006 15:15:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32231 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932430AbWE3TPX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 15:15:23 -0400
+Date: Tue, 30 May 2006 12:19:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Peschke <mp3@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Patch 5/6] statistics infrastructure
+Message-Id: <20060530121920.8c8f5d34.akpm@osdl.org>
+In-Reply-To: <447C7E1F.7020602@de.ibm.com>
+References: <1148474038.2934.18.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+	<20060524155735.04ed777a.akpm@osdl.org>
+	<447C7E1F.7020602@de.ibm.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-30 at 14:46 +0200, Michal Piotrowski wrote:
-> Hi,
-> 
-> On 30/05/06, Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm1/
-> >
-> 
-> ============================
-> [ BUG: illegal lock usage! ]
-> ----------------------------
-> illegal {in-hardirq-W} -> {hardirq-on-W} usage.
-> udevd/415 [HC0[0]:SC1[1]:HE1:SE0] takes:
->  (&base->lock#2){++..}, at: [<c012900a>] run_timer_softirq+0x3d/0x164
+On Tue, 30 May 2006 19:17:19 +0200
+Martin Peschke <mp3@de.ibm.com> wrote:
 
-hhmmm curious.. you don't happen to have nmi watchdog enabled??
+> Would I get away with making printk_clock() a timestamp_clock() that
+> should be used by anyone exporting nsec_to_timestamp()-formated time
+> stamps to user space, including me?
+> 
+> I would then continue to see the use of sched_clock() in printk_clock()
+> ... aehm timestamp_clock() as somebody else's problem (or at least
+> as a subordinate problem).
+
+Sure, a generic kernel-wide nsec-resolution timestamp_clock() makes sense
+to me.
+
+The default implementation can use sched_clock() but arch maintainers
+can/should override it (vai attribute-weak) and do somethnig better.
 

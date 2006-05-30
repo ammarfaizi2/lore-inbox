@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWE3KWb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWE3K0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932229AbWE3KWb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 06:22:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbWE3KWb
+	id S932233AbWE3K0X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 06:26:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWE3K0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 06:22:31 -0400
-Received: from ns.dynamicweb.hu ([195.228.155.139]:59107 "EHLO dynamicweb.hu")
-	by vger.kernel.org with ESMTP id S932229AbWE3KWa (ORCPT
+	Tue, 30 May 2006 06:26:23 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63714 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932231AbWE3K0X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 06:22:30 -0400
-Message-ID: <01a801c683d2$e7a79c10$1800a8c0@dcccs>
-From: "Janos Haar" <djani22@netcenter.hu>
-To: "Jesper Juhl" <jesper.juhl@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <01b701c6818d$4bcd37b0$1800a8c0@dcccs> <20060527234350.GA13881@voodoo.jdc.home> <004501c68225$00add170$1800a8c0@dcccs> <9a8748490605280917l73f5751cmf40674fc22726c43@mail.gmail.com> <01d801c6827c$fba04ca0$1800a8c0@dcccs>
-Subject: Re: How to send a break? - dump from frozen 64bit linux
-Date: Tue, 30 May 2006 12:22:01 +0200
+	Tue, 30 May 2006 06:26:23 -0400
+Date: Tue, 30 May 2006 12:25:39 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Kristen Accardi <kristen.c.accardi@intel.com>
+Cc: "Brown, Len" <len.brown@intel.com>, Andreas Saur <saur@acmelabs.de>,
+       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc4-mm3 - kernel panic
+Message-ID: <20060530102538.GA1662@elf.ucw.cz>
+References: <CFF307C98FEABE47A452B27C06B85BB68AD7E1@hdsmsx411.amr.corp.intel.com> <1148583675.3070.41.camel@whizzy> <20060525221222.GA1608@elf.ucw.cz> <20060525221744.GA1671@elf.ucw.cz> <1148601858.3070.62.camel@whizzy> <20060526071518.GC1699@elf.ucw.cz> <1148668175.7600.11.camel@whizzy>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1148668175.7600.11.camel@whizzy>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[cut]
+Hi!
 
->
-> >
-> > 2) You should try the latest stable kernel. Currently that's 2.6.16.18
-> > (http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.16.18.tar.bz2).
-> > There have been lots of fixes added since 2.6.15.x and perhaps you are
-> > lucky that whatever is giving you trouble  has already been fixed in
-> > that kernel.
->
+> > > No, I would not expect PCI to work properly with the debug patch -
+> > > basically all I did was prevent the oops and confirm that this is the
+> > > issue, I did not actually solve the problem.
+> > > 
+> > > I need some way to prevent acpiphp from loading before dock is completed
+> > > it's init.
+> > > 
+> > > I guess I will think about this some more.
+> > 
+> > Using different _init levels? Like putting dock at subsys_initcall()
+> > while acpiphp at late_initcall()?
+> > 								Pavel
+> 
+> Can you see if this works for you?  Revert the first debug patch I sent
+> and apply this one instead (against -mm).
 
-This time i try the 2.6.16.18 kernel, but the issue is the same!
+Tried it in 
 
-Here is the logs:
-http://download.netcenter.hu/bughunt/20060530/dump.txt  (The frozen system,
-540KB)
-http://download.netcenter.hu/bughunt/20060530/261618-good.txt  (After
-reboot, the working system, 300KB, uptime 54 min)
-http://download.netcenter.hu/bughunt/20060530/dmesg.txt  (The boot dmesg
-file)
+VERSION = 2
+PATCHLEVEL = 6
+SUBLEVEL = 17
+EXTRAVERSION =-rc4-mm3
 
-Can somebody tell me, whats wrong?
+...and now kernel hangs, last messages being:
 
-It seems like some part of the fs died.
-(The "top", "watch df" hangs on the ssh window, in the "mc" the line is
-moving, but if i try to step in/out from/to dir, it hangs too, ping reply is
-working. )
+pci_hotplug: ... core version: 0.5
+ibmphpd: ... 0.6
+acpiphp: ... 0.5
+acpiphp: Slot [1] registered
 
-I use only 3 fs:
-- the root FS on NFS.
-- one XFS mount point from sata drive (200GB)
-- one huge XFS mount point from NBD. (14TB)
-
-Cheers,
-Janos
-
+I tried hitting magic sysrq, but it did not seem to respond.
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,69 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWE3NtN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWE3NuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbWE3NtN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 09:49:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWE3NtM
+	id S932154AbWE3NuV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 09:50:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751504AbWE3NuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 09:49:12 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:24946 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751503AbWE3NtM (ORCPT
+	Tue, 30 May 2006 09:50:21 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:57280 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751503AbWE3NuU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 09:49:12 -0400
-Date: Tue, 30 May 2006 15:50:59 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: .17rc5 cfq slab corruption.
-Message-ID: <20060530135059.GA4199@suse.de>
-References: <20060526213915.GB7585@redhat.com> <20060526170013.67391a2b.akpm@osdl.org> <20060527070724.GB24988@suse.de> <20060527133122.GB3086@redhat.com> <20060530131728.GX4199@suse.de> <20060530134450.GF14721@redhat.com>
-Mime-Version: 1.0
+	Tue, 30 May 2006 09:50:20 -0400
+Date: Tue, 30 May 2006 15:50:18 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Keith Chew <keith.chew@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IO APIC IRQ assignment
+Message-ID: <20060530135017.GD5151@harddisk-recovery.com>
+References: <20f65d530605300521q1d56c3a3t84be3d92f1df0c14@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060530134450.GF14721@redhat.com>
+In-Reply-To: <20f65d530605300521q1d56c3a3t84be3d92f1df0c14@mail.gmail.com>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 30 2006, Dave Jones wrote:
-> On Tue, May 30, 2006 at 03:17:28PM +0200, Jens Axboe wrote:
->  > On Sat, May 27 2006, Dave Jones wrote:
->  > > On Sat, May 27, 2006 at 09:07:24AM +0200, Jens Axboe wrote:
->  > >  > On Fri, May 26 2006, Andrew Morton wrote:
->  > >  > > Dave Jones <davej@redhat.com> wrote:
->  > >  > > >
->  > >  > > > Was playing with googles new picasa toy, which hammered the disks
->  > >  > > > hunting out every image file it could find, when this popped out:
->  > >  > > > 
->  > >  > > > Slab corruption: (Not tainted) start=ffff810012b998c8, len=168
->  > >  > > > Redzone: 0x5a2cf071/0x5a2cf071.
->  > >  > > > Last user: [<ffffffff8032c319>](cfq_free_io_context+0x2f/0x74)
->  > >  > > > 090: 10 bd 28 1b 00 81 ff ff 6b 6b 6b 6b 6b 6b 6b 6b
->  > >  > > > Prev obj: start=ffff810012b99808, len=168
->  > >  > > > Redzone: 0x5a2cf071/0x5a2cf071.
->  > >  > > > Last user: [<ffffffff8032c319>](cfq_free_io_context+0x2f/0x74)
->  > >  > > > 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
->  > >  > > > 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
->  > >  > > > Next obj: start=ffff810012b99988, len=168
->  > >  > > > Redzone: 0x5a2cf071/0x5a2cf071.
->  > >  > > > Last user: [<ffffffff8032c319>](cfq_free_io_context+0x2f/0x74)
->  > >  > > > 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
->  > >  > > > 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
->  > >  > 
->  > >  > Pretty baffling... cfq has been hammered pretty thoroughly over the
->  > >  > last months and _nothing_ has shown up except some performance anomalies
->  > >  > that are now fixed. Since daves case (at least) seems to be
->  > >  > use-after-free, I'll see if I can reproduce with some contrived case.
->  > >  > I'm asuming that picasa forks and exits a lot with submitted io in
->  > >  > between than may not have finished at exit.
->  > > 
->  > > The second time I hit it, was actually during boot up.
->  > 
->  > Dave, do you have any io scheduler switching going on?
-> 
-> Nope, everything set to use CFQ as default, and left that way.
+On Wed, May 31, 2006 at 12:21:53AM +1200, Keith Chew wrote:
+> We are working closely with an x86-based hardware manufacturer for our
+> linux based application. In their hardware, it contains 4 x BT878
+> chips and 3 x USB controllers.
 
-Hrmpf ok, I had hoped perhaps something in your init scripts modified
-the scheduler value.
+That sounds like a nice MythTV box to me :)
+
+> The USB and BT878 share the same
+> hardware IRQ lines, which is causing us to notice random hard lockups.
+> Increasing the PCI latency of the BTTV drivers has helped the
+> situation (we have not noticed any lockups yet), but it would be nice
+> if we can separate the IRQs.
+> 
+> We asked the manufacturers if they can do a physical modication for
+> us, but unfortunately this is not possible. The engineer did mention
+> that under Windows XP in "IO APIC" mode, it is possible to assign
+> different IRQs to the USB and BTTV.
+
+Unless Windows XP IO APIC mode contains a soldering iron and rework
+wire to physically change the way the hardware IRQ lines are connected,
+this is nonsense.
+
+Or the engineer means that in legacy PIC mode the IRQs are shared, but
+in APIC mode they can be separated. That is a different thing, cause in
+that case the IRQ lines are not physically connected, but put together
+in PIC mode and can again be separated by using APIC mode.
+
+> Is this possible in Linux? We have tried enabling IO APIC in the
+> kernel, but the IRQs are still shared.
+
+Depends on the hardware, but Linux does indeed support IO APIC.
+
+
+Erik
 
 -- 
-Jens Axboe
-
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWE3OKf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWE3OMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932290AbWE3OKf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 10:10:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWE3OKf
+	id S932286AbWE3OMI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 10:12:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWE3OMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 10:10:35 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:3280 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932300AbWE3OKe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 10:10:34 -0400
-Date: Tue, 30 May 2006 10:10:06 -0400
-From: Dave Jones <davej@redhat.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch 00/61] ANNOUNCE: lock validator -V1
-Message-ID: <20060530141006.GG14721@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-	Ingo Molnar <mingo@elte.hu>
-References: <20060529212109.GA2058@elte.hu> <6bffcb0e0605291528qe24a0a3r3841c37c5323de6a@mail.gmail.com> <20060529224107.GA6037@elte.hu> <20060529230908.GC333@redhat.com> <1148967947.3636.4.camel@laptopd505.fenrus.org>
+	Tue, 30 May 2006 10:12:07 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:15295 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932300AbWE3OMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 10:12:06 -0400
+Subject: RE: Long delay on bootup with wait_hwif_ready
+From: Steven Rostedt <rostedt@goodmis.org>
+To: David Balazic <david.balazic@hermes.si>
+Cc: LKML <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Andi Kleen <ak@suse.de>, Pavel Machek <pavel@suse.cz>,
+       Matt Domsch <Matt_Domsch@dell.com>
+In-Reply-To: <B216E7A91F67B6429E3ACF162402A02D0E5F90@hsl-lj-mail.hermes.si>
+References: <B216E7A91F67B6429E3ACF162402A02D0E5F90@hsl-lj-mail.hermes.si>
+Content-Type: text/plain
+Date: Tue, 30 May 2006 10:11:12 -0400
+Message-Id: <1148998272.8104.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1148967947.3636.4.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 30, 2006 at 07:45:47AM +0200, Arjan van de Ven wrote:
+On Tue, 2006-05-30 at 14:10 +0200, David Balazic wrote:
+> Hi!
+> 
+> My "final conclusion" last time was, that there is some memory
+> area, that comes out too short in certain cases.
+> This is some early kernel boot code, that deals with the BIOS (and
+> confuses it, it seems, by running out the mentioned memory area).
+> 
+> As I understood, the kernel could be tweaked to increase/decrease
+> the problemtatic memory area (or the usage of it).
+> 
+> It is some kind of stack, heap or segment, I don't know, but somebody
+> mentioned it last time.
+> 
+> Regards,
+> David
+> 
+> PS: Feel free to ask me for testing patches ;-)
+> I still have the same PC (with a certain weird behavior lately,
+> I can't switch the IDE mode from "RAID" to "normal" ...)
+> 
 
- > One
- > ---
- > store_scaling_governor takes policy->lock and then calls __cpufreq_set_policy
- > __cpufreq_set_policy calls __cpufreq_governor
- > __cpufreq_governor  calls __cpufreq_driver_target via cpufreq_governor_performance
- > __cpufreq_driver_target calls lock_cpu_hotplug() (which takes the hotplug lock)
- > 
- > 
- > Two
- > ---
- > cpufreq_stats_init lock_cpu_hotplug() and then calls cpufreq_stat_cpu_callback
- > cpufreq_stat_cpu_callback calls cpufreq_update_policy
- > cpufreq_update_policy takes the policy->lock
- > 
- > 
- > so this looks like a real honest AB-BA deadlock to me...
+After rereading the thread (after my first cup of coffee this time), I
+see that the problem was slightly different than what I had. The thread
+showed some delay before the console was initialized (the EDD code). But
+I'm experiencing the delay with the wait_not_busy.
 
-This looks a little clearer this morning.  I missed the fact that sys_init_module
-isn't completely serialised, only the loading part. ->init routines can and will be
-called in parallel.
+My problem is that the secondary status register is returning busy when
+there isn't anything there.  So I have to wait 35 seconds for the
+timeout to expire.  This could just be a fluke with the way the board is
+designed (it wouldn't surprise me).
 
-I don't see where cpufreq_update_policy takes policy->lock though.
-In my tree it just takes the per-cpu data->lock.
+-- Steve
 
-Time for more wake-up juice? or am I missing something obvious again?
 
-		Dave
-
--- 
-http://www.codemonkey.org.uk

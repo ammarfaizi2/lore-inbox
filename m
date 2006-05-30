@@ -1,120 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWE3Rs7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWE3Rzr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932291AbWE3Rs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 13:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932361AbWE3Rs7
+	id S932366AbWE3Rzr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 13:55:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWE3Rzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 13:48:59 -0400
-Received: from smtp1.xs4all.be ([195.144.64.135]:60620 "EHLO smtp1.xs4all.be")
-	by vger.kernel.org with ESMTP id S932291AbWE3Rs6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 13:48:58 -0400
-Date: Tue, 30 May 2006 19:48:21 +0200
-From: Frank Gevaerts <frank.gevaerts@fks.be>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: Frank Gevaerts <frank.gevaerts@fks.be>, Pete Zaitcev <zaitcev@redhat.com>,
-       linux-kernel@vger.kernel.org, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: usb-serial ipaq kernel problem
-Message-ID: <20060530174821.GA15969@fks.be>
-References: <20060529120102.1bc28bf2@doriath.conectiva> <20060529132553.08b225ba@doriath.conectiva> <20060529141110.6d149e21@doriath.conectiva> <20060529194334.GA32440@fks.be> <20060529172410.63dffa72@doriath.conectiva> <20060529204724.GA22250@fks.be> <20060529193330.3c51f3ba@home.brethil> <20060530082141.GA26517@fks.be> <20060530113801.22c71afe@doriath.conectiva> <20060530115329.30184aa0@doriath.conectiva>
+	Tue, 30 May 2006 13:55:47 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:23010 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932367AbWE3Rzq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 13:55:46 -0400
+Subject: Re: [PATCH 0/2]Define ext3 in-kernel filesystem block types and
+	extend ext3 filesystem limit from 8TB to 16TB
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <20060526110803.50380d55.akpm@osdl.org>
+References: <20060325223358sho@rifu.tnes.nec.co.jp>
+	 <1143485147.3970.23.camel@dyn9047017067.beaverton.ibm.com>
+	 <20060327131049.2c6a5413.akpm@osdl.org>
+	 <20060327225847.GC3756@localhost.localdomain>
+	 <1143530126.11560.6.camel@openx2.frec.bull.fr>
+	 <1143568905.3935.13.camel@dyn9047017067.beaverton.ibm.com>
+	 <1143623605.5046.11.camel@openx2.frec.bull.fr>
+	 <1143682730.4045.145.camel@dyn9047017067.beaverton.ibm.com>
+	 <1148619653.5855.16.camel@localhost.localdomain>
+	 <20060526110803.50380d55.akpm@osdl.org>
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Tue, 30 May 2006 10:55:38 -0700
+Message-Id: <1149011738.4061.3.camel@dyn9047017069.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060530115329.30184aa0@doriath.conectiva>
-User-Agent: Mutt/1.5.9i
-X-FKS-MailScanner: Found to be clean
-X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-105.815,
-	vereist 5, autolearn=not spam, ALL_TRUSTED -3.30, AWL 0.08,
-	BAYES_00 -2.60, USER_IN_WHITELIST -100.00)
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 30, 2006 at 11:53:29AM -0300, Luiz Fernando N. Capitulino wrote:
-> On Tue, 30 May 2006 11:38:01 -0300
-> "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> wrote:
+On Fri, 2006-05-26 at 11:08 -0700, Andrew Morton wrote:
+> Mingming Cao <cmm@us.ibm.com> wrote:
+> >
+> > Some of the in-kernel ext3 block variable type are treated as signed 4 bytes
+> >  int type, thus limited ext3 filesystem to 8TB (4kblock size based). While
+> >  trying to fix them, it seems quite confusing in the ext3 code where some
+> >  blocks are filesystem-wide blocks, some are group relative offsets that need
+> >  to be signed value (as -1 has special meaning). So it seem saner to define two
+> >  types of physical blocks: one is filesystem wide blocks, another is
+> >  group-relative blocks.  The following patches clarify these two types of
+> >  blocks in the ext3 code, and fix the type bugs which limit current 32 bit ext3
+> >  filesystem limit to 8TB.
+> > 
+> >  With this series of patches and the percpu counter data type changes in the mm
+> >  tree, we are able to extend exts filesystem limit to 16TB.
 > 
->  If it ran _before_ the timeout expires with no timeout error it does not
-> depend. Then we can do the simpler solution: just kill the read urb in the
-> ipaq_open's error path.
+> Did you look at the `gcc -W' output before and after these patches are
+> applied?  That would have found the bug which the previous version
+> of these patches introduced.
+> 
+Sorry for the delay, was out for the past holiday.
 
-That seems to work.
-I also found that both the return in ipaq_write_bulk_callback and the
-flush_scheduled_work() in destroy_serial() are needed to get rid of the
-usb_serial_disconnect() bug.
+Yes, I did used gcc -Wall -Wextra.  Pretty careful about it this time. 
 
-It's now running with the following patch:
+> We already get a pile of `warning: comparison between signed and unsigned'
+> warnings which should be checked, too..
+> 
 
-Signed-off-by: Frank Gevaerts <frank.gevaerts@fks.be>
+Yes, indeed.
 
-diff -pur linux-2.6.17-rc4/drivers/usb/serial/ipaq.c linux-2.6.17-rc4.test/drivers/usb/serial/ipaq.c
---- linux-2.6.17-rc4/drivers/usb/serial/ipaq.c	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6.17-rc4.test/drivers/usb/serial/ipaq.c	2006-05-30 19:41:19.000000000 +0200
-@@ -71,6 +71,7 @@
- 
- static __u16 product, vendor;
- static int debug;
-+static int connect_retries;
- 
- /* Function prototypes for an ipaq */
- static int  ipaq_open (struct usb_serial_port *port, struct file *filp);
-@@ -583,7 +584,7 @@ static int ipaq_open(struct usb_serial_p
- 	struct ipaq_private	*priv;
- 	struct ipaq_packet	*pkt;
- 	int			i, result = 0;
--	int			retries = KP_RETRIES;
-+	int			retries = connect_retries;
- 
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
-@@ -681,6 +682,7 @@ enomem:
- 	result = -ENOMEM;
- 	err("%s - Out of memory", __FUNCTION__);
- error:
-+	usb_kill_urb(port->read_urb);
- 	ipaq_destroy_lists(port);
- 	kfree(priv);
- 	return result;
-@@ -692,6 +694,7 @@ static void ipaq_close(struct usb_serial
- 	struct ipaq_private	*priv = usb_get_serial_port_data(port);
- 
- 	dbg("%s - port %d", __FUNCTION__, port->number);
-+
- 			 
- 	/*
- 	 * shut down bulk read and write
-@@ -855,6 +858,7 @@ static void ipaq_write_bulk_callback(str
- 	
- 	if (urb->status) {
- 		dbg("%s - nonzero write bulk status received: %d", __FUNCTION__, urb->status);
-+		return;
- 	}
- 
- 	spin_lock_irqsave(&write_list_lock, flags);
-@@ -967,3 +971,6 @@ MODULE_PARM_DESC(vendor, "User specified
- 
- module_param(product, ushort, 0);
- MODULE_PARM_DESC(product, "User specified USB idProduct");
-+
-+module_param(connect_retries, int, KP_RETRIES);
-+MODULE_PARM_DESC(product, "Maximum number of connect retries (100ms each)");
-diff -pur linux-2.6.17-rc4/drivers/usb/serial/usb-serial.c linux-2.6.17-rc4.test/drivers/usb/serial/usb-serial.c
---- linux-2.6.17-rc4/drivers/usb/serial/usb-serial.c	2006-05-30 19:01:16.000000000 +0200
-+++ linux-2.6.17-rc4.test/drivers/usb/serial/usb-serial.c	2006-05-30 19:01:24.000000000 +0200
-@@ -162,6 +162,8 @@ static void destroy_serial(struct kref *
- 		}
- 	}
- 
-+	flush_scheduled_work();		/* port->work */
-+
- 	usb_put_dev(serial->dev);
- 
- 	/* free up any memory that we allocated */
+Mingming
 
-Frank
-
--- 
-Frank Gevaerts                                 frank.gevaerts@fks.be
-fks bvba - Formal and Knowledge Systems        http://www.fks.be/
-Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
-B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19

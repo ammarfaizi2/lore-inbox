@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWE3MEC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751415AbWE3MGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751395AbWE3MEC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 08:04:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWE3MEC
+	id S1751415AbWE3MGX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 08:06:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWE3MGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 08:04:02 -0400
-Received: from mail.gmx.de ([213.165.64.20]:58566 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751395AbWE3MEA (ORCPT
+	Tue, 30 May 2006 08:06:23 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:25002 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751415AbWE3MGW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 08:04:00 -0400
-X-Authenticated: #14349625
+	Tue, 30 May 2006 08:06:22 -0400
+Date: Tue, 30 May 2006 14:06:41 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Subject: Re: [patch, -rc5-mm1] lock validator, fix NULL type->name bug
-From: Mike Galbraith <efault@gmx.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Arjan van de Ven <arjan@infradead.org>
-In-Reply-To: <20060530120201.GA8073@elte.hu>
-References: <20060530022925.8a67b613.akpm@osdl.org>
-	 <20060530111138.GA5078@elte.hu> <1148990326.7599.4.camel@homer>
-	 <20060530120201.GA8073@elte.hu>
-Content-Type: text/plain
-Date: Tue, 30 May 2006 14:06:17 +0200
-Message-Id: <1148990777.8610.3.camel@homer>
+Message-ID: <20060530120641.GA8263@elte.hu>
+References: <20060530022925.8a67b613.akpm@osdl.org> <20060530111138.GA5078@elte.hu> <1148990326.7599.4.camel@homer> <1148990725.8610.1.camel@homer>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1148990725.8610.1.camel@homer>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-30 at 14:02 +0200, Ingo Molnar wrote:
-> * Mike Galbraith <efault@gmx.de> wrote:
+
+* Mike Galbraith <efault@gmx.de> wrote:
+
+> On Tue, 2006-05-30 at 13:58 +0200, Mike Galbraith wrote:
 > 
-> > On Tue, 2006-05-30 at 13:11 +0200, Ingo Molnar wrote:
-> > > Subject: lock validator, fix NULL type->name bug
-> > > From: Ingo Molnar <mingo@elte.hu>
-> > > 
-> > > this should fix the bug reported Mike Galbraith: pass in a non-NULL 
-> > > mutex name string even if DEBUG_MUTEXES is turned off.
-> > 
-> > Well, yes and no.  It cures the oops, and it almost boots.  It passes 
-> > all tests, and gets to where we start mounting things...
-> > 
-> > kjournald starting.  Commit interval 5 seconds
-> > EXT3 FS on hdc1, internal journal
-> > EXT3-fs: mounted filesystem with ordered data mode.
-> > 
 > > =====================================================
 > > [ BUG: possible circular locking deadlock detected! ]
 > > -----------------------------------------------------
@@ -53,10 +43,14 @@ On Tue, 2006-05-30 at 14:02 +0200, Ingo Molnar wrote:
 > >  (&ni->mrec_lock){--..}, at: [<b13d1563>] mutex_lock+0x8/0xa
 > > 
 > > ...and deadlocks.
+> > 
+> > I'll try to find out what it hates.
 > 
-> hm, and no other messages? Are you using serial logging?
+> It hates NTFS.
 
-nada.  Yes, serial console.
+i'd still love to figure out what's going on here.
 
-	-Mike
+hmm ... do you have the NMI watchdog enabled? Could you try with 
+nmi_watchdog=0?
 
+	Ingo

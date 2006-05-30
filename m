@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWE3Bdu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWE3Bey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWE3Bdu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 21:33:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWE3Bcj
+	id S932119AbWE3Bey (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 21:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932103AbWE3BbR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 21:32:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15041 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932120AbWE3BcK (ORCPT
+	Mon, 29 May 2006 21:31:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:40128 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932095AbWE3BaO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 21:32:10 -0400
-Date: Mon, 29 May 2006 18:36:24 -0700
+	Mon, 29 May 2006 21:30:14 -0400
+Date: Mon, 29 May 2006 18:34:04 -0700
 From: Andrew Morton <akpm@osdl.org>
 To: Ingo Molnar <mingo@elte.hu>
 Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch 55/61] lock validator: special locking: sb->s_umount
-Message-Id: <20060529183624.2c8032cd.akpm@osdl.org>
-In-Reply-To: <20060529212732.GC3155@elte.hu>
+Subject: Re: [patch 16/61] lock validator: fown locking workaround
+Message-Id: <20060529183404.48878079.akpm@osdl.org>
+In-Reply-To: <20060529212423.GP3155@elte.hu>
 References: <20060529212109.GA2058@elte.hu>
-	<20060529212732.GC3155@elte.hu>
+	<20060529212423.GP3155@elte.hu>
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,43 +25,14 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 May 2006 23:27:32 +0200
+On Mon, 29 May 2006 23:24:23 +0200
 Ingo Molnar <mingo@elte.hu> wrote:
 
-> From: Ingo Molnar <mingo@elte.hu>
-> 
-> workaround for special sb->s_umount locking rule.
-> 
-> s_umount gets held across a series of lock dropping and releasing
-> in prune_one_dentry(), so i changed the order, at the risk of
-> introducing a umount race. FIXME.
-> 
-> i think a better fix would be to do the unlocks as _non_nested in
-> prune_one_dentry(), and to do the up_read() here as
-> an up_read_non_nested() as well?
-> 
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
-> ---
->  fs/dcache.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> Index: linux/fs/dcache.c
-> ===================================================================
-> --- linux.orig/fs/dcache.c
-> +++ linux/fs/dcache.c
-> @@ -470,8 +470,9 @@ static void prune_dcache(int count, stru
->  		s_umount = &dentry->d_sb->s_umount;
->  		if (down_read_trylock(s_umount)) {
->  			if (dentry->d_sb->s_root != NULL) {
-> -				prune_one_dentry(dentry);
-> +// lockdep hack: do this better!
->  				up_read(s_umount);
-> +				prune_one_dentry(dentry);
->  				continue;
+> temporary workaround for the lock validator: make all uses of
+> f_owner.lock irq-safe. (The real solution will be to express to
+> the lock validator that f_owner.lock rules are to be generated
+> per-filesystem.)
 
-argh, you broke my kernel!
+This description forgot to tell us what problem is being worked around.
 
-I'll whack some ifdefs in here so it's only known-broken if CONFIG_LOCKDEP.
-
-Again, we'd need the real fix here.
+This patch is a bit of a show-stopper.  How hard-n-bad is the real fix?

@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWE3XtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWE3Xv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbWE3XtI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 19:49:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWE3XtI
+	id S932244AbWE3Xv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 19:51:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWE3Xv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 19:49:08 -0400
-Received: from wr-out-0506.google.com ([64.233.184.231]:36852 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932239AbWE3XtH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 19:49:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=I1gE0AN7Cpf3iMc0EuX7V8hTuGwRaliMy0U8wbrVkxhZAQrNvDWQ3M4s+EnA1Cx9CbkS5P/Er4iHBgNkDweduUsp+yyF+OjtHcR7YQ9jcdWCTjdahlCLZKcKCPuKVPAe5q2ql/SFMhYms53c2LT1xTC79d42MGeSI3QLUy13Q4g=
-Message-ID: <6bffcb0e0605301649u2d3c48f5td9b7998168df8114@mail.gmail.com>
-Date: Wed, 31 May 2006 01:49:04 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: 2.6.17-rc5-mm1
-Cc: "Arjan van de Ven" <arjan@linux.intel.com>, linux-kernel@vger.kernel.org,
-       "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <20060530230620.GA6226@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 30 May 2006 19:51:26 -0400
+Received: from mx2.suse.de ([195.135.220.15]:47248 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932230AbWE3XvZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 19:51:25 -0400
+Date: Tue, 30 May 2006 16:48:38 -0700
+From: Greg KH <greg@kroah.com>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: Jeremy Fitzhardinge <jeremy@xensource.com>, konradr@us.ibm.com,
+       Jeremy Fitzhardinge <jeremy@goop.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       arjan@linux.intel.com, linux-acpi@vger.kernel.org
+Subject: Re: ThinkPad X60: PCI: BIOS Bug: MCFG area is not E820-reserved	(MCFG is in ACPI NVS)
+Message-ID: <20060530234838.GA26478@kroah.com>
+References: <447C9F19.5000105@goop.org> <20060530204112.GA22031@andromeda.dapyr.net> <1149025621.25497.9.camel@jeremy.eng.hq.xensource.com> <447CCFF2.30207@vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060530022925.8a67b613.akpm@osdl.org>
-	 <6bffcb0e0605301155h3b472d79h65e8403e7fa0b214@mail.gmail.com>
-	 <6bffcb0e0605301157o6b7c5f66q3c9f151cbb4537d5@mail.gmail.com>
-	 <20060530194259.GB22742@elte.hu>
-	 <6bffcb0e0605301457v9ba284bk75b8b6d14384489a@mail.gmail.com>
-	 <20060530220931.GA32759@elte.hu>
-	 <6bffcb0e0605301559y603a60bl685b7aca60069dfd@mail.gmail.com>
-	 <20060530230512.GA6042@elte.hu> <20060530230620.GA6226@elte.hu>
+In-Reply-To: <447CCFF2.30207@vc.cvut.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31/05/06, Ingo Molnar <mingo@elte.hu> wrote:
->
-> * Ingo Molnar <mingo@elte.hu> wrote:
->
-> > Could you try the patch below? This uses the ID string as the key.
-> > (the ID string seems to be based on static kernel strings most of the
-> > time, so this might as well work)
->
-> that patch should be:
->
+On Wed, May 31, 2006 at 01:06:26AM +0200, Petr Vandrovec wrote:
+> Jeremy Fitzhardinge wrote:
+> >On Tue, 2006-05-30 at 16:41 -0400, konradr@us.ibm.com wrote:
+> >
+> >>On Tue, May 30, 2006 at 12:38:01PM -0700, Jeremy Fitzhardinge wrote:
+> >>
+> >>>[snip]
+> >>>
+> >>>So the MCFG entry is in the ACPI NVS region of the E820 table.  Is this 
+> >>>bad? 
+> >>
+> >>Not at all. The ACPI v3.0 specs mentions that:
+> >>
+> >>"ACPI NVS Memory. This range of addresses is in use or reserve by
+> >>the system and must not be used by the operating system. This
+> >>range is required to be saved and restored across an NVS sleep."
+> >
+> >
+> >I actually misread the tables.  It appears that MCFG (at 0x7f6e2e36) is
+> >in ACPI Data (7f6d0000 - 7f6e3000).  include/asm-i386/e820.h says that
+> >memory marked as "E820_ACPI" can be reused as normal memory once the
+> >ACPI tables have been read.
+> >
+> >Doesn't this mean that the MCFG memory could end up being used as
+> >general system memory?  That seems bad if MCFG memory is some kind of
+> >MMIO space.  Or is the comment simply wrong?
+> 
+> Address where MCFG table lives is not important.  What is important (and 
+> checked) is address of MMCONFIG reported by MCFG table...  Unfortunately 
+> code does not bother with printing that address :-(
+> 
+> Another problem is that code has hardcoded that MMCONFIG area is 256MB 
+> large. Unfortunately for the code PCI specification allows any power of two 
+> between 2MB and 256MB if vendor knows that such amount of busses (from 2 to 
+> 128) will be sufficient for system.  With notebook it is quite possible 
+> that not full 8 bits are implemented for MMCONFIG bus number.
 
-Thanks, problem solved.
+Patches to address this are always welcome :)
 
-Regards,
-Michal
+thanks,
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+greg k-h

@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWE3LWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbWE3LWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932253AbWE3LWE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 07:22:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWE3LWD
+	id S932264AbWE3LWs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 07:22:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWE3LWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 07:22:03 -0400
-Received: from www.osadl.org ([213.239.205.134]:7620 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S932253AbWE3LWB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 07:22:01 -0400
-Subject: Re: RT_PREEMPT problem with cascaded irqchip
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Yann.LEPROVOST@wavecom.fr
-Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       linux-kernel-owner@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Steven Rostedt <rostedt@goodmis.org>, Esben Nielsen <simlo@phys.au.dk>,
-       Sven-Thorsten Dietrich <sven@mvista.com>
-In-Reply-To: <OF7D277146.13CDBC6A-ONC125717E.0039350C-C125717E.0039F142@wavecom.fr>
-References: <OF7D277146.13CDBC6A-ONC125717E.0039350C-C125717E.0039F142@wavecom.fr>
-Content-Type: text/plain
-Date: Tue, 30 May 2006 13:22:44 +0200
-Message-Id: <1148988165.20582.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Tue, 30 May 2006 07:22:48 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:91 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S932264AbWE3LWr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 07:22:47 -0400
+Message-ID: <447C2AF3.6060200@de.ibm.com>
+Date: Tue, 30 May 2006 13:22:27 +0200
+From: Martin Peschke <mp3@de.ibm.com>
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+MIME-Version: 1.0
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] statistics infrastructure - update 1
+References: <1148474038.2934.18.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <20060524155735.04ed777a.akpm@osdl.org> <1148941055.3005.73.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <20060530080700.GA9419@osiris.boeblingen.de.ibm.com>
+In-Reply-To: <20060530080700.GA9419@osiris.boeblingen.de.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-30 at 12:26 +0200, Yann.LEPROVOST@wavecom.fr wrote:
-> Of course, here is the file arch/arm/mach-at91rm9200/gpio.c with my
-> modified gpio_irq_handler.
+Heiko Carstens wrote:
+>>  	case CPU_UP_PREPARE:
+>>  		stat->pdata->ptrs[cpu] = statistic_alloc_ptr(stat, GFP_ATOMIC,
+> 
+> Why not GFP_KERNEL?
 
->             for (i = 0; i < 32; i++, pin++) {
->                   set_irq_chip(pin, &gpio_irqchip);
->                         printk(KERN_ERR "GPIO SET_IRQ_CHIP\n");
->                   set_irq_handler(pin, do_simple_IRQ);
+I see. Schedule() is permitted in this context. Will change it.
 
------------------------------------------^^^^^^^^^^^^^^^
+>> +		if (!stat->pdata->ptrs[cpu])
+>> +			return -ENOMEM;
+> 
+> NOTIFY_BAD instead of -ENOMEM, I guess.
 
-Care to look into the implementation of this ? As the name says, its
-simple. It does no ack/mask whatever. Use the level resp. the edge
-handler instead.
+Not a bug, but slightly confusing. I think I will clean it up in my
+next update patch.
 
-	tglx
+>>  		break;
+>>  	case CPU_UP_CANCELED:
+>>  	case CPU_DEAD:
+> 
+> I think your merge code (which gets called if CPU_UP_PREPARE fails) expects
+> stat->pdata->ptrs[cpu] to be non-zero, right?
 
+That's a bug and needs fixing (just bail out if pointer if zero).
 
-
+Thanks, Martin
 

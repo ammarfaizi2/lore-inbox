@@ -1,85 +1,508 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbWE3Q17@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWE3Qe0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbWE3Q17 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 12:27:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbWE3Q16
+	id S932282AbWE3Qe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 12:34:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbWE3Qe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 12:27:58 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:40405 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932319AbWE3Q15 (ORCPT
+	Tue, 30 May 2006 12:34:26 -0400
+Received: from moci.net4u.de ([217.7.64.195]:33701 "EHLO moci.net4u.de")
+	by vger.kernel.org with ESMTP id S932282AbWE3QeZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 12:27:57 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.64.0605300818080.16904@schroedinger.engr.sgi.com> 
-References: <Pine.LNX.4.64.0605300818080.16904@schroedinger.engr.sgi.com>  <Pine.LNX.4.64.0605260825160.31609@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0605250921300.23726@schroedinger.engr.sgi.com> <20060525135534.20941.91650.sendpatchset@lappy> <20060525135555.20941.36612.sendpatchset@lappy> <24747.1148653985@warthog.cambridge.redhat.com> <12042.1148976035@warthog.cambridge.redhat.com> 
-To: Christoph Lameter <clameter@sgi.com>
-Cc: David Howells <dhowells@redhat.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 1/3] mm: tracking shared dirty pages 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 30 May 2006 17:26:14 +0100
-Message-ID: <7966.1149006374@warthog.cambridge.redhat.com>
+	Tue, 30 May 2006 12:34:25 -0400
+From: Ernst Herzberg <list-lkml@net4u.de>
+Reply-To: earny@net4u.de
+Organization: Net4U
+To: linux-kernel@vger.kernel.org
+Subject: ALPHA 2.6.17-rc5 AIC7###: does not boot
+User-Agent: KMail/1.9.1
+MIME-Version: 1.0
+Content-Disposition: inline
+X-Length: 20870
+Date: Tue, 30 May 2006 18:34:19 +0200
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200605301834.19795.list-lkml@net4u.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@sgi.com> wrote:
+moinmoin.
 
-> Maybe I do not understand properly. I thought page_mkwrite is called 
-> before a page is made writable not before it is dirtied. If its only 
-> called before the page is dirtied then a better name maybe before_dirty or 
-> so?
+2.6.16.18 boots and runs without problems.
 
-page_mkwrite() is called before any of the PTEs referring to a page are made
-writable.  This must precede a page being dirtied by writing to it directly
-through an mmap'd section.  It does not catch write() and co. dirtying pages,
-but then there's no need since prepare_write() is available for that.
+2.6.17-rc5 with patch
+"[PATCH] alpha: generic hweight (Re: ALPHA 2.6.17-rc5 compile error)"
+http://www.ussg.iu.edu/hypermail/linux/kernel/0605.3/1559.html
 
-> What do you mean by "written to the cache"? It cannot be written back 
-> since the page has been dirtied yet. So "written to the cache" means 
-> that the FS does some reservation, right?
+hangs with 
 
-See the FS-Cache patches posted to LKML on the 19th of May, in particular the
-documentation included in the patch with the subject:
+[....]
+scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 7.0
+        <Adaptec aic7895 Ultra SCSI adapter>
+        aic7895C: Ultra Wide Channel B, SCSI Id=7, 32/253 SCBs
 
-	[PATCH 10/14] FS-Cache: Generic filesystem caching facility [try #10]
+ 1:0:0:0: Attempting to queue an ABORT message
+CDB:CDB: 0x12 0x12 0x0 0x0 0x0 0x0 0x0 0x0 0x24 0x24 0x0 0x0
+ 1:0:0:0: Command already completed
+aic7xxx_abort returns 0x2002
+ 1:0:0:0: Attempting to queue an ABORT message
+CDB: 0x12 0x0 0x0 0x0 0x24 0x0
+ 1:0:0:0: Command already completed
+aic7xxx_abort returns 0x2002
+[....]
 
-These patches permit data retrieved from network filesystems (NFS and AFS for
-now) to be cached locally on disk.
+dmesg (captured with netconsole and netcat, most messages are duplicated
+but better than nothing)
 
-The page is fetched from the server and then written to the cache.  We don't
-let the clean page be modified or released until the write to the cache is
-complete.  This permits us to keep track of what state the cache is in.
+-----
+Linux version 2.6.17-rc5 (root@olga) (gcc version 3.4.6 (Gentoo 3.4.6-r1, 
+ssp-3.4.5-1.0, pie-8.7.9)) #1 SMP Tue May 30 17:48:20 CEST 2006
+Linux version 2.6.17-rc5 (root@olga) (gcc version 3.4.6 (Gentoo 3.4.6-r1, 
+ssp-3.4.5-1.0, pie-8.7.9)) #1 SMP Tue May 30 17:48:20 CEST 2006
+Booting on Tsunami variation DP264 using machine vector DP264 from SRM
+Booting on Tsunami variation DP264 using machine vector DP264 from SRM
+Major Options: SMP LEGACY_START VERBOSE_MCHECK MAGIC_SYSRQ 
+Major Options: SMP LEGACY_START VERBOSE_MCHECK MAGIC_SYSRQ 
+Command line: root=/dev/sdb1 
+netconsole=4444@***.*.**.***/eth0,6666@***.*.**.***/
+Command line: root=/dev/sdb1 
+netconsole=4444@***.*.**.***/eth0,6666@***.*.**.***/
+memcluster 0, usage 1, start        0, end      256
+memcluster 0, usage 1, start        0, end      256
+memcluster 1, usage 0, start      256, end   130976
+memcluster 1, usage 0, start      256, end   130976
+memcluster 2, usage 1, start   130976, end   131072
+memcluster 2, usage 1, start   130976, end   131072
+memcluster 3, usage 0, start   131072, end   524282
+memcluster 3, usage 0, start   131072, end   524282
+memcluster 4, usage 1, start   524282, end   524288
+memcluster 4, usage 1, start   524282, end   524288
+freeing pages 256:384
+freeing pages 256:384
+freeing pages 1019:130976
+freeing pages 1019:130976
+freeing pages 131072:524282
+freeing pages 131072:524282
+reserving pages 1019:1027
+reserving pages 1019:1027
+4096K Bcache detected; load hit latency 20 cycles, load miss latency 105 
+cycles
+4096K Bcache detected; load hit latency 20 cycles, load miss latency 105 
+cycles
+SMP: 2 CPUs probed -- cpu_present_mask = 3
+Built 1 zonelists
+SMP: 2 CPUs probed -- cpu_present_mask = 3
+Built 1 zonelists
+Kernel command line: root=/dev/sdb1 
+netconsole=4444@***.*.**.***/eth0,6666@***.*.**.***/
+Kernel command line: root=/dev/sdb1 
+netconsole=4444@***.*.**.***/eth0,6666@***.*.**.***/
+netconsole: local port 4444
+netconsole: local port 4444
+netconsole: local IP ***.*.**.***
+netconsole: local IP ***.*.**.***
+netconsole: interface eth0
+netconsole: interface eth0
+netconsole: remote port 6666
+netconsole: remote port 6666
+netconsole: remote IP ***.*.**.***
+netconsole: remote IP ***.*.**.***
+netconsole: remote ethernet address ff:ff:ff:ff:ff:ff
+netconsole: remote ethernet address ff:ff:ff:ff:ff:ff
+PID hash table entries: 4096 (order: 12, 32768 bytes)
+PID hash table entries: 4096 (order: 12, 32768 bytes)
+Using epoch = 1980
+Using epoch = 1980
+Console: colour VGA+ 80x25
+Console: colour VGA+ 80x25
+Dentry cache hash table entries: 524288 (order: 9, 4194304 bytes)
+Dentry cache hash table entries: 524288 (order: 9, 4194304 bytes)
+Inode-cache hash table entries: 262144 (order: 8, 2097152 bytes)
+Inode-cache hash table entries: 262144 (order: 8, 2097152 bytes)
+Memory: 4148672k/4194256k available (3168k kernel code, 42144k reserved, 
+624k data, 168k init)
+Memory: 4148672k/4194256k available (3168k kernel code, 42144k reserved, 
+624k data, 168k init)
+Mount-cache hash table entries: 512
+Mount-cache hash table entries: 512
+SMP starting up secondaries.
+SMP starting up secondaries.
+Brought up 1 CPUs
+Brought up 1 CPUs
+SMP: Total of 1 processors activated (1001.25 BogoMIPS).
+SMP: Total of 1 processors activated (1001.25 BogoMIPS).
+migration_cost=0
+migration_cost=0
+NET: Registered protocol family 16
+SMC37c669 Super I/O Controller found @ 0x3f0
+NET: Registered protocol family 16
+SMC37c669 Super I/O Controller found @ 0x3f0
+Linux Plug and Play Support v0.97 (c) Adam Belay
+Linux Plug and Play Support v0.97 (c) Adam Belay
+SCSI subsystem initialized
+SCSI subsystem initialized
+usbcore: registered new driver usbfs
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+usbcore: registered new driver hub
+NET: Registered protocol family 2
+NET: Registered protocol family 2
+IP route cache hash table entries: 131072 (order: 7, 1048576 bytes)
+IP route cache hash table entries: 131072 (order: 7, 1048576 bytes)
+TCP established hash table entries: 524288 (order: 10, 8388608 bytes)
+TCP established hash table entries: 524288 (order: 10, 8388608 bytes)
+TCP bind hash table entries: 65536 (order: 7, 1048576 bytes)
+TCP bind hash table entries: 65536 (order: 7, 1048576 bytes)
+TCP: Hash tables configured (established 524288 bind 65536)
+TCP: Hash tables configured (established 524288 bind 65536)
+TCP reno registered
+TCP reno registered
+srm_env: version 0.0.5 loaded successfully
+srm_env: version 0.0.5 loaded successfully
+fuse init (API version 7.6)
+fuse init (API version 7.6)
+Initializing Cryptographic API
+Initializing Cryptographic API
+io scheduler noop registered
+io scheduler anticipatory registered (default)
+io scheduler deadline registered
+Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing disabled
+serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+serial8250: ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+isa bounce pool size: 16 pages
+Floppy drive(s): fd0 is 2.88M
+FDC 0 is a post-1991 82077
+FDC 0 is a post-1991 82077
+loop: loaded (max 8 devices)
+loop: loaded (max 8 devices)
+nbd: registered device at major 43
+nbd: registered device at major 43
+Linux Tulip driver version 1.1.13-NAPI (May 11, 2002)
+Linux Tulip driver version 1.1.13-NAPI (May 11, 2002)
+tulip0:  EEPROM default media type Autosense.
+tulip0:  EEPROM default media type Autosense.
+tulip0:  Index #0 - Media MII (#11) described by a 21142 MII PHY (3) block.
+tulip0:  Index #0 - Media MII (#11) described by a 21142 MII PHY (3) block.
+tulip0:  MII transceiver #17 config 1000 status 782d advertising 01e1.
+tulip0:  MII transceiver #17 config 1000 status 782d advertising 01e1.
+eth0: Digital DS21143 Tulip rev 65 at fffffd0209040000, 00:00:CB:53:30:85, 
+IRQ 47.
+eth0: Digital DS21143 Tulip rev 65 at fffffd0209040000, 00:00:CB:53:30:85, 
+IRQ 47.
+netconsole: device eth0 not up yet, forcing it
+netconsole: device eth0 not up yet, forcing it
+netconsole: carrier detect appears untrustworthy, waiting 4 seconds
+netconsole: carrier detect appears untrustworthy, waiting 4 seconds
+eth0: Setting full-duplex based on MII#17 link partner capability of 45e1.
+eth0: Setting full-duplex based on MII#17 link partner capability of 45e1.
+netconsole: network logging started
+netconsole: network logging started
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+CY82C693: IDE controller at PCI slot 0000:00:05.1
+CY82C693: IDE controller at PCI slot 0000:00:05.1
+CY82C693: chipset revision 0
+CY82C693: chipset revision 0
+CY82C693: not 100% native mode: will probe irqs later
+CY82C693: not 100% native mode: will probe irqs later
+CY82C693U driver v0.34 99-13-12 Andreas S. Krebs (akrebs@altavista.net)
+CY82C693U driver v0.34 99-13-12 Andreas S. Krebs (akrebs@altavista.net)
+    ide0: BM-DMA at 0x8800-0x8807    ide0: BM-DMA at 0x8800-0x8807, BIOS 
+settings: hda:pio, hdb:pio
+, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0x8808-0x880f    ide1: BM-DMA at 0x8808-0x880f, BIOS 
+settings: hdc:pio, hdd:pio, BIOS settings: hdc:pio, hdd:pio
 
-> If set_page_dirty cannot reserve the page then we know that some severe
-> action is required. The FS method set_page_dirty() could:
+Linux version 2.6.17-rc5 (root@olga) (gcc version 3.4.6 (Gentoo 3.4.6-r1, 
+ssp-3.4.5-1.0, pie-8.7.9)) #1 SMP Tue May 30 17:48:20 CEST 2006
+Booting on Tsunami variation DP264 using machine vector DP264 from SRM
+Major Options: SMP LEGACY_START VERBOSE_MCHECK MAGIC_SYSRQ 
+Command line: root=/dev/sdb1 
+netconsole=4444@***.*.**.***/eth0,6666@***.*.**.***/
+memcluster 0, usage 1, start        0, end      256
+memcluster 1, usage 0, start      256, end   130976
+memcluster 2, usage 1, start   130976, end   131072
+memcluster 3, usage 0, start   131072, end   524282
+memcluster 4, usage 1, start   524282, end   524288
+freeing pages 256:384
+freeing pages 1019:130976
+freeing pages 131072:524282
+reserving pages 1019:1027
+4096K Bcache detected; load hit latency 20 cycles, load miss latency 105 
+cycles
+SMP: 2 CPUs probed -- cpu_present_mask = 3
+Built 1 zonelists
+Kernel command line: root=/dev/sdb1 
+netconsole=4444@***.*.**.***/eth0,6666@***.*.**.***/
+netconsole: local port 4444
+netconsole: local IP ***.*.**.***
+netconsole: interface eth0
+netconsole: remote port 6666
+netconsole: remote IP ***.*.**.***
+netconsole: remote ethernet address ff:ff:ff:ff:ff:ff
+PID hash table entries: 4096 (order: 12, 32768 bytes)
+Using epoch = 1980
+Console: colour VGA+ 80x25
+Dentry cache hash table entries: 524288 (order: 9, 4194304 bytes)
+Inode-cache hash table entries: 262144 (order: 8, 2097152 bytes)
+Memory: 4148672k/4194256k available (3168k kernel code, 42144k reserved, 
+624k data, 168k init)
+Mount-cache hash table entries: 512
+SMP starting up secondaries.
+Brought up 1 CPUs
+SMP: Total of 1 processors activated (1001.25 BogoMIPS).
+migration_cost=0
+NET: Registered protocol family 16
+SMC37c669 Super I/O Controller found @ 0x3f0
+hda: CD-950E/TKU, hda: CD-950E/TKU, ATAPI ATAPI CD/DVD-ROMCD/DVD-ROM drive
+ drive
+Linux Plug and Play Support v0.97 (c) Adam Belay
+SCSI subsystem initialized
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+NET: Registered protocol family 2
+IP route cache hash table entries: 131072 (order: 7, 1048576 bytes)
+TCP established hash table entries: 524288 (order: 10, 8388608 bytes)
+TCP bind hash table entries: 65536 (order: 7, 1048576 bytes)
+TCP: Hash tables configured (established 524288 bind 65536)
+TCP reno registered
+srm_env: version 0.0.5 loaded successfully
+fuse init (API version 7.6)
+Initializing Cryptographic API
+io scheduler noop registered
+io scheduler anticipatory registered (default)
+io scheduler deadline registered
+io scheduler cfq registered
+rtc: ARC console epoch (1980) detected
+Real Time Clock Driver v1.12ac
+Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing disabled
+serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+serial8250: ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+isa bounce pool size: 16 pages
+Floppy drive(s): fd0 is 2.88M
+FDC 0 is a post-1991 82077
+loop: loaded (max 8 devices)
+nbd: registered device at major 43
+Linux Tulip driver version 1.1.13-NAPI (May 11, 2002)
+tulip0:  EEPROM default media type Autosense.
+tulip0:  Index #0 - Media MII (#11) described by a 21142 MII PHY (3) block.
+tulip0:  MII transceiver #17 config 1000 status 782d advertising 01e1.
+eth0: Digital DS21143 Tulip rev 65 at fffffd0209040000, 00:00:CB:53:30:85, 
+IRQ 47.
+netconsole: device eth0 not up yet, forcing it
+netconsole: carrier detect appears untrustworthy, waiting 4 seconds
+eth0: Setting full-duplex based on MII#17 link partner capability of 45e1.
+netconsole: network logging started
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+CY82C693: IDE controller at PCI slot 0000:00:05.1
+CY82C693: chipset revision 0
+CY82C693: not 100% native mode: will probe irqs later
+CY82C693U driver v0.34 99-13-12 Andreas S. Krebs (akrebs@altavista.net)
+    ide0: BM-DMA at 0x8800-0x8807, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0x8808-0x880f, BIOS settings: hdc:pio, hdd:pio
+hda: CD-950E/TKU, ATAPI CD/DVD-ROMide0 at 0x1f0-0x1f7,0x3f6 on irq 14ide0 
+at 0x1f0-0x1f7,0x3f6 on irq 14
 
-But by the time set_page_dirty() is called, it's too late as the code
-currently stands.  We've already marked the PTE writable and dirty.  The
-page_mkwrite() op is called _first_.
+ drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hda: ATAPIhda: ATAPI 52X 52X CD-ROM CD-ROM drive drive, 128kB Cache, 128kB 
+Cache
 
-> 1. Determine the ENOSPC condition before it sets the page dirty.
->    That leaves the potential that some writes to the page have occurred
->    by other processes.
+Uniform CD-ROM driver Revision: 3.20
+Uniform CD-ROM driver Revision: 3.20
+ide-floppy driver 0.99.newide
+ide-floppy driver 0.99.newide
+hda: ATAPI 52X CD-ROM drive, 128kB Cache
+Uniform CD-ROM driver Revision: 3.20
+ide-floppy driver 0.99.newide
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 7.0
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 7.0
+        <Adaptec aic7895 Ultra SCSI adapter>
+        <Adaptec aic7895 Ultra SCSI adapter>
+        aic7895C: Ultra Wide Channel A, SCSI Id=7, 32/253 SCBs
+        aic7895C: Ultra Wide Channel A, SCSI Id=7, 32/253 SCBs
 
-You have to detect ENOSPC before you modify the PTE, otherwise someone else
-can jump through your hoop and dirty the page before you can stop them.
 
-> 2. Track down all processes that use the mapping (or maybe less
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 7.0
+        <Adaptec aic7895 Ultra SCSI adapter>
+        aic7895C: Ultra Wide Channel A, SCSI Id=7, 32/253 SCBs
 
-That's bad, even if you restrict it to those that have MAP_SHARED and
-PROT_WRITE set.  They should not be terminated if they haven't attempted to
-write to the mapping.
+  Vendor:   Vendor: IIBBMM            Model:   Model: 
+DDDYDYSS--TT3369695500NN          Rev:   Rev: SS9966HH
 
->    severe: processes that have set the dirty bit in the pte) and 
->    terminate them with SIGBUS.
+  Type:   Direct-Access       Type:   Direct-Access                      
+ANSI SCSI revision: 03                 ANSI SCSI revision: 03
 
-Brrrr.
+scsi0:A:1:0: scsi0:A:1:0: Tagged Queuing enabled.  Depth 253
+Tagged Queuing enabled.  Depth 253
+ target0:0:1: Beginning Domain Validation
+ target0:0:1: Beginning Domain Validation
+ target0:0:1: wide asynchronous
+ target0:0:1: wide asynchronous
+ target0:0:1: FAST-20 WIDE SCSI 40.0 MB/s ST (50 ns, offset 8)
+ target0:0:1: FAST-20 WIDE SCSI 40.0 MB/s ST (50 ns, offset 8)
+ target0:0:1: Domain Validation skipping write tests
+ target0:0:1: Domain Validation skipping write tests
+ target0:0:1: Ending Domain Validation
+ target0:0:1: Ending Domain Validation
+  Vendor: IBM       Model: DDYS-T36950N      Rev: S96H
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+scsi0:A:1:0: Tagged Queuing enabled.  Depth 253
+ target0:0:1: Beginning Domain Validation
+ target0:0:1: wide asynchronous
+ target0:0:1: FAST-20 WIDE SCSI 40.0 MB/s ST (50 ns, offset 8)
+ target0:0:1: Domain Validation skipping write tests
+ target0:0:1: Ending Domain Validation
+  Vendor:   Vendor: IIBBMM           Model:    Model: 
+DDNNEESS--330099117700WW          Rev:   Rev: SSA3A300
 
-What's wrong with my suggestion anyway?
+  Type:   Direct-Access       Type:   Direct-Access                      
+ANSI SCSI revision: 03                 ANSI SCSI revision: 03
 
-David
+scsi0:A:6:0: scsi0:A:6:0: Tagged Queuing enabled.  Depth 253
+Tagged Queuing enabled.  Depth 253
+ target0:0:6: Beginning Domain Validation
+ target0:0:6: Beginning Domain Validation
+ target0:0:6: wide asynchronous
+ target0:0:6: wide asynchronous
+ target0:0:6: FAST-20 WIDE SCSI 40.0 MB/s ST (50 ns, offset 8)
+ target0:0:6: FAST-20 WIDE SCSI 40.0 MB/s ST (50 ns, offset 8)
+ target0:0:6: Domain Validation skipping write tests
+ target0:0:6: Domain Validation skipping write tests
+ target0:0:6: Ending Domain Validation
+ target0:0:6: Ending Domain Validation
+  Vendor: IBM       Model: DNES-309170W      Rev: SA30
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+scsi0:A:6:0: Tagged Queuing enabled.  Depth 253
+ target0:0:6: Beginning Domain Validation
+ target0:0:6: wide asynchronous
+ target0:0:6: FAST-20 WIDE SCSI 40.0 MB/s ST (50 ns, offset 8)
+ target0:0:6: Domain Validation skipping write tests
+ target0:0:6: Ending Domain Validation
+scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 7.0
+scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 7.0
+        <Adaptec aic7895 Ultra SCSI adapter>
+        <Adaptec aic7895 Ultra SCSI adapter>
+        aic7895C: Ultra Wide Channel B, SCSI Id=7, 32/253 SCBs
+        aic7895C: Ultra Wide Channel B, SCSI Id=7, 32/253 SCBs
+
+
+scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 7.0
+        <Adaptec aic7895 Ultra SCSI adapter>
+        aic7895C: Ultra Wide Channel B, SCSI Id=7, 32/253 SCBs
+
+ 1:0:0:0: Attempting to queue an ABORT message
+ 1:0:0:0: Attempting to queue an ABORT message
+CDB:CDB: 0x12 0x12 0x0 0x0 0x0 0x0 0x0 0x0 0x24 0x24 0x0 0x0
+
+ 1:0:0:0: Command already completed
+ 1:0:0:0: Command already completed
+aic7xxx_abort returns 0x2002
+aic7xxx_abort returns 0x2002
+ 1:0:0:0: Attempting to queue an ABORT message
+CDB: 0x12 0x0 0x0 0x0 0x24 0x0
+ 1:0:0:0: Command already completed
+aic7xxx_abort returns 0x2002
+ 1:0:0:0: Attempting to queue an ABORT message
+ 1:0:0:0: Attempting to queue an ABORT message
+CDB:CDB: 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0
+
+ 1:0:0:0: Command already completed
+ 1:0:0:0: Command already completed
+aic7xxx_abort returns 0x2002
+aic7xxx_abort returns 0x2002
+ 1:0:0:0: Attempting to queue a TARGET RESET message
+ 1:0:0:0: Attempting to queue a TARGET RESET message
+CDB:CDB: 0x12 0x12 0x0 0x0 0x0 0x0 0x0 0x24 0x0 0x24 0x0 0x0
+
+ 1:0:0:0: Command not found
+ 1:0:0:0: Command not found
+aic7xxx_dev_reset returns 0x2002
+aic7xxx_dev_reset returns 0x2002
+ 1:0:0:0: Attempting to queue an ABORT message
+CDB: 0x0 0x0 0x0 0x0 0x0 0x0
+ 1:0:0:0: Command already completed
+aic7xxx_abort returns 0x2002
+ 1:0:0:0: Attempting to queue a TARGET RESET message
+CDB: 0x12 0x0 0x0 0x0 0x24 0x0
+ 1:0:0:0: Command not found
+aic7xxx_dev_reset returns 0x2002
+ 1:0:0:0: Attempting to queue an ABORT message
+ 1:0:0:0: Attempting to queue an ABORT message
+CDB:CDB: 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0
+
+ 1:0:0:0: Command already completed
+ 1:0:0:0: Command already completed
+aic7xxx_abort returns 0x2002
+aic7xxx_abort returns 0x2002
+ 1:0:0:0: Attempting to queue an ABORT message
+CDB: 0x0 0x0 0x0 0x0 0x0 0x0
+ 1:0:0:0: Command already completed
+aic7xxx_abort returns 0x2002
+ 1:0:0:0: Attempting to queue an ABORT message
+ 1:0:0:0: Attempting to queue an ABORT message
+CDB:CDB: 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0
+
+ 1:0:0:0: Command already completed
+ 1:0:0:0: Command already completed
+aic7xxx_abort returns 0x2002
+aic7xxx_abort returns 0x2002
+ 1:0:0:0: scsi: Device offlined - not ready after error recovery
+ 1:0:0:0: scsi: Device offlined - not ready after error recovery
+ 1:0:0:0: Attempting to queue an ABORT message
+CDB: 0x0 0x0 0x0 0x0 0x0 0x0
+ 1:0:0:0: Command already completed
+aic7xxx_abort returns 0x2002
+ 1:0:0:0: scsi: Device offlined - not ready after error recovery
+ 1:0:1:0: Attempting to queue an ABORT message
+ 1:0:1:0: Attempting to queue an ABORT message
+CDB:CDB: 0x12 0x12 0x0 0x0 0x0 0x0 0x0 0x0 0x24 0x24 0x0 0x0
+
+ 1:0:1:0: Command already completed
+ 1:0:1:0: Command already completed
+aic7xxx_abort returns 0x2002
+aic7xxx_abort returns 0x2002
+ 1:0:1:0: Attempting to queue an ABORT message
+CDB: 0x12 0x0 0x0 0x0 0x24 0x0
+ 1:0:1:0: Command already completed
+aic7xxx_abort returns 0x2002
+ 1:0:1:0: Attempting to queue an ABORT message
+ 1:0:1:0: Attempting to queue an ABORT message
+CDB:CDB: 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0
+
+ 1:0:1:0: Command already completed
+ 1:0:1:0: Command already completed
+aic7xxx_abort returns 0x2002
+aic7xxx_abort returns 0x2002
+ 1:0:1:0: Attempting to queue a TARGET RESET message
+ 1:0:1:0: Attempting to queue a TARGET RESET message
+CDB:CDB: 0x12 0x12 0x0 0x0 0x0 0x0 0x0 0x0 0x24 0x24 0x0 0x0
+
+ 1:0:1:0: Command not found
+ 1:0:1:0: Command not found
+aic7xxx_dev_reset returns 0x2002
+aic7xxx_dev_reset returns 0x2002
+ 1:0:1:0: Attempting to queue an ABORT message
+CDB: 0x0 0x0 0x0 0x0 0x0 0x0
+ 1:0:1:0: Command already completed
+aic7xxx_abort returns 0x2002
+ 1:0:1:0: Attempting to queue a TARGET RESET message
+CDB: 0x12 0x0 0x0 0x0 0x24 0x0
+ 1:0:1:0: Command not found
+aic7xxx_dev_reset returns 0x2002
+ 1:0:1:0: Attempting to queue an ABORT message
+ 1:0:1:0: Attempting to queue an ABORT message
+CDB:CDB: 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0
+
+ 1:0:1:0: Command already completed
+ 1:0:1:0: Command already completed
+aic7xxx_abort returns 0x2002
+aic7xxx_abort returns 0x2002
+ 1:0:1:0: Attempting to queue an ABORT message
+CDB: 0x0 0x0 0x0 0x0 0x0 0x0
+ 1:0:1:0: Command already completed
+aic7xxx_abort returns 0x2002
+[....repeated forever....]

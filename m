@@ -1,103 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWE3RTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbWE3RZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbWE3RTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 13:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWE3RTY
+	id S932352AbWE3RZi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 13:25:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbWE3RZi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 13:19:24 -0400
-Received: from nz-out-0102.google.com ([64.233.162.203]:20562 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932350AbWE3RTY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 13:19:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=SVmNvvHEO108A8/fWBZTLjMQpePIbfOE5CVmhpzZcrygSQvYJqKCWxxPoCTPNjbFKtrJXiZpFdpbN1VT4FdPkuqz/9Ayc37dZBAYpVP3YSb/aYLEZ2G0vWdOK3Xe3kNAk6Hivj40mXp1xxVt1LYV9CYAqot7oAKnk+OwlDfCdUs=
-Message-ID: <9e4733910605301019x30cb41eby2ac54b8b48856179@mail.gmail.com>
-Date: Tue, 30 May 2006 13:19:23 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Matthew Wilcox" <matthew@wil.cx>
-Subject: Re: searching for pci busses
-Cc: "Greg KH" <gregkh@suse.de>, "Jeff Garzik" <jgarzik@pobox.com>,
-       "Greg KH" <greg@kroah.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-In-Reply-To: <20060530170051.GA1610@parisc-linux.org>
+	Tue, 30 May 2006 13:25:38 -0400
+Received: from gold.veritas.com ([143.127.12.110]:60527 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S932352AbWE3RZh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 13:25:37 -0400
+X-IronPort-AV: i="4.05,190,1146466800"; 
+   d="scan'208"; a="60015125:sNHT33796200"
+Date: Tue, 30 May 2006 18:25:29 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Christoph Lameter <clameter@sgi.com>
+cc: David Howells <dhowells@redhat.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Christoph Lameter <christoph@lameter.com>,
+       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 1/3] mm: tracking shared dirty pages 
+In-Reply-To: <Pine.LNX.4.64.0605300953390.17716@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.64.0605301819380.7566@blonde.wat.veritas.com>
+References: <Pine.LNX.4.64.0605300818080.16904@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.64.0605260825160.31609@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.64.0605250921300.23726@schroedinger.engr.sgi.com>
+ <20060525135534.20941.91650.sendpatchset@lappy> <20060525135555.20941.36612.sendpatchset@lappy>
+ <24747.1148653985@warthog.cambridge.redhat.com> <12042.1148976035@warthog.cambridge.redhat.com>
+  <7966.1149006374@warthog.cambridge.redhat.com>
+ <Pine.LNX.4.64.0605300953390.17716@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_9157_9954774.1149009563352"
-References: <4478DCF1.8080608@gmail.com> <20060529214753.GD10875@kroah.com>
-	 <447B6ECB.9080207@pobox.com> <20060530163821.GC7146@suse.de>
-	 <9e4733910605300952v1cf56beasc2a907cc77b8a09f@mail.gmail.com>
-	 <20060530170051.GA1610@parisc-linux.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 30 May 2006 17:25:37.0090 (UTC) FILETIME=[10AE3A20:01C6840E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_9157_9954774.1149009563352
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Tue, 30 May 2006, Christoph Lameter wrote:
+> On Tue, 30 May 2006, David Howells wrote:
+> 
+> > What's wrong with my suggestion anyway?
+> 
+> Adds yet another method with functionality that for the most part 
+> is the same as set_page_dirty().
 
-On 5/30/06, Matthew Wilcox <matthew@wil.cx> wrote:
-> On Tue, May 30, 2006 at 12:52:31PM -0400, Jon Smirl wrote:
-> > This is how DRM does it...
->
-> >        for (i = 0; driver->pci_driver.id_table[i].vendor != 0; i++) {
-> >                pid = (struct pci_device_id *)&driver->pci_driver.id_table[i];
->
-> Why do you cast away the const warning?  Why not just make pid a pointer
-> to const?  drm_get_dev already has the const qualifier, so somebody
-> realised what the right thing to do was.
+Your original question, whether they could be combined, was a good one;
+and I hoped you'd be right.  But I agree with David, they cannot, unless
+we sacrifice the guarantee that one or the other is there to give.  It's
+much like the relationship between ->prepare_write and ->commit_write.
 
-Nobody pointed that out before (That code has been around for a while,
-I suspect one of the routines being called wasn't always marked as
-taking a const parameter). I made a patch and attached it. You can
-send it to DaveA, they reject everything from me.
-
-> But looking at this code just reinforces the basic problem -- that DRM
-> does everything wrong and it needs shooting in the head.
-
-DRM has to do that loop because the fbdev drivers are already bound to
-the device. There is a more complex version in DRM CVS that looks for
-the fbdev drivers, if they are not present DRM will bind to the
-device, otherwise it falls back in stealth mode. It also adds code to
-manually mark PCI memory regions in use. Confusion over who can bind
-has impacts on attaching to the suspend/resume hooks.
-
-But binding is only a minor problem. The true problem is who controls
-the state loaded inside of the device.
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
-
-------=_Part_9157_9954774.1149009563352
-Content-Type: text/x-patch; name=drm.patch; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-X-Attachment-Id: f_enuiigb8
-Content-Disposition: attachment; filename="drm.patch"
-
-diff --git a/drivers/char/drm/drm_drv.c b/drivers/char/drm/drm_drv.c
-index 3c0b882..3af48be 100644
---- a/drivers/char/drm/drm_drv.c
-+++ b/drivers/char/drm/drm_drv.c
-@@ -253,7 +253,7 @@ int drm_lastclose(drm_device_t * dev)
- int drm_init(struct drm_driver *driver)
- {
- =09struct pci_dev *pdev =3D NULL;
--=09struct pci_device_id *pid;
-+=09const struct pci_device_id *pid;
- =09int i;
-=20
- =09DRM_DEBUG("\n");
-@@ -261,7 +261,7 @@ int drm_init(struct drm_driver *driver)
- =09drm_mem_init();
-=20
- =09for (i =3D 0; driver->pci_driver.id_table[i].vendor !=3D 0; i++) {
--=09=09pid =3D (struct pci_device_id *)&driver->pci_driver.id_table[i];
-+=09=09pid =3D &driver->pci_driver.id_table[i];
-=20
- =09=09pdev =3D NULL;
- =09=09/* pass back in pdev to account for multiple identical cards */
-
-------=_Part_9157_9954774.1149009563352--
+Hugh

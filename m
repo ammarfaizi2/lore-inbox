@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932487AbWE3VeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbWE3VhX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932487AbWE3VeY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 17:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWE3VeY
+	id S932490AbWE3VhX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 17:37:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbWE3VhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 17:34:24 -0400
-Received: from sccrmhc13.comcast.net ([63.240.77.83]:20428 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S932487AbWE3VeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 17:34:23 -0400
-Date: Tue, 30 May 2006 14:36:49 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] ARM: explicitly disable BTB on ixp2350
-Message-ID: <20060530213649.GA6169@plexity.net>
-Reply-To: dsaxena@plexity.net
+	Tue, 30 May 2006 17:37:23 -0400
+Received: from smtp1.xs4all.be ([195.144.64.135]:33727 "EHLO smtp1.xs4all.be")
+	by vger.kernel.org with ESMTP id S932490AbWE3VhW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 17:37:22 -0400
+Date: Tue, 30 May 2006 23:36:35 +0200
+From: Frank Gevaerts <frank.gevaerts@fks.be>
+To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+Cc: Frank Gevaerts <frank.gevaerts@fks.be>, Pete Zaitcev <zaitcev@redhat.com>,
+       linux-kernel@vger.kernel.org, gregkh@suse.de,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: usb-serial ipaq kernel problem
+Message-ID: <20060530213635.GA28443@fks.be>
+References: <20060529141110.6d149e21@doriath.conectiva> <20060529194334.GA32440@fks.be> <20060529172410.63dffa72@doriath.conectiva> <20060529204724.GA22250@fks.be> <20060529193330.3c51f3ba@home.brethil> <20060530082141.GA26517@fks.be> <20060530113801.22c71afe@doriath.conectiva> <20060530115329.30184aa0@doriath.conectiva> <20060530174821.GA15969@fks.be> <20060530175208.2c2dedaa@doriath.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: Plexity Networks
+In-Reply-To: <20060530175208.2c2dedaa@doriath.conectiva>
 User-Agent: Mutt/1.5.9i
+X-FKS-MailScanner: Found to be clean
+X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-105.815,
+	vereist 5, autolearn=not spam, ALL_TRUSTED -3.30, AWL 0.08,
+	BAYES_00 -2.60, USER_IN_WHITELIST -100.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 30, 2006 at 05:52:08PM -0300, Luiz Fernando N. Capitulino wrote:
+> On Tue, 30 May 2006 19:48:21 +0200
+> Frank Gevaerts <frank.gevaerts@fks.be> wrote:
+> 
+> | On Tue, May 30, 2006 at 11:53:29AM -0300, Luiz Fernando N. Capitulino wrote:
+> | > On Tue, 30 May 2006 11:38:01 -0300
+> | > "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> wrote:
+> | > 
+> | >  If it ran _before_ the timeout expires with no timeout error it does not
+> | > depend. Then we can do the simpler solution: just kill the read urb in the
+> | > ipaq_open's error path.
+> | 
+> | That seems to work.
+> | I also found that both the return in ipaq_write_bulk_callback and the
+> | flush_scheduled_work() in destroy_serial() are needed to get rid of the
+> | usb_serial_disconnect() bug.
+> 
+>  Then did you hit it with my patch?
+> 
+>  I'm just worried with the fact that you're hitting it with every
+> proposed fix. Maybe it's something else.
 
-We don't enable the BTB on the ixp2350 as that can cause weird
-crashes (erratum #42.)  However, some bootloaders enable the BTB,
-which means that we have to disable the BTB explicitly.
+I'm hitting it with either of the proposed fixes, but not when both are
+applied.
 
-Found thanks to Tom Rini.
+Frank
 
-Signed-off-by: Lennert Buytenhek <buytenh@wantstofly.org>
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
-
-Index: linux-2.6.17-rc3/arch/arm/mm/proc-xsc3.S
-===================================================================
---- linux-2.6.17-rc3.orig/arch/arm/mm/proc-xsc3.S
-+++ linux-2.6.17-rc3/arch/arm/mm/proc-xsc3.S
-@@ -427,12 +427,13 @@ __xsc3_setup:
- #endif
- 	mcr	p15, 0, r0, c1, c0, 1		@ set auxiliary control reg
- 	mrc	p15, 0, r0, c1, c0, 0		@ get control register
--	bic	r0, r0, #0x0200			@ .... ..R. .... ....
- 	bic	r0, r0, #0x0002			@ .... .... .... ..A.
- 	orr	r0, r0, #0x0005			@ .... .... .... .C.M
- #if BTB_ENABLE
-+	bic	r0, r0, #0x0200			@ .... ..R. .... ....
- 	orr	r0, r0, #0x3900			@ ..VI Z..S .... ....
- #else
-+	bic	r0, r0, #0x0a00			@ .... Z.R. .... ....
- 	orr	r0, r0, #0x3100			@ ..VI ...S .... ....
- #endif
- #if L2_CACHE_ENABLE
-
+> 
+> -- 
+> Luiz Fernando N. Capitulino
 
 -- 
-Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
-
-In the end, they will not say, "those were dark times,"  they will ask
-"why were their poets silent?" - Bertold Brecht
+Frank Gevaerts                                 frank.gevaerts@fks.be
+fks bvba - Formal and Knowledge Systems        http://www.fks.be/
+Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
+B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19

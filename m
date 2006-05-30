@@ -1,53 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751537AbWE3QFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751536AbWE3QJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751537AbWE3QFt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 12:05:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751533AbWE3QFt
+	id S1751536AbWE3QJL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 12:09:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751543AbWE3QJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 12:05:49 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:44961 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751525AbWE3QFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 12:05:48 -0400
-Subject: Re: [patch, -rc5-mm1] lock validator: remove softirq.c WARN_ON
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Cc: Ingo Molnar <mingo@elte.hu>, Jiri Slaby <jirislaby@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, netdev@vger.kernel.org, alan@redhat.com
-In-Reply-To: <20060530160024.GA8987@ms2.inr.ac.ru>
+	Tue, 30 May 2006 12:09:11 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:14736 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S1751534AbWE3QJK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 12:09:10 -0400
+Subject: Re: 2.6.17-rc5-mm1
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, mingo@elte.hu
+In-Reply-To: <6bffcb0e0605300859x5c8f83f5w635fd25f0100fca@mail.gmail.com>
 References: <20060530022925.8a67b613.akpm@osdl.org>
-	 <447C261E.1090202@gmail.com> <20060530115545.GA7025@elte.hu>
-	 <20060530160024.GA8987@ms2.inr.ac.ru>
+	 <6bffcb0e0605300859x5c8f83f5w635fd25f0100fca@mail.gmail.com>
 Content-Type: text/plain
-Date: Tue, 30 May 2006 18:05:30 +0200
-Message-Id: <1149005130.3636.75.camel@laptopd505.fenrus.org>
+Content-Transfer-Encoding: 7bit
+Date: Tue, 30 May 2006 18:08:49 +0200
+Message-Id: <1149005329.3636.78.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-30 at 20:00 +0400, Alexey Kuznetsov wrote:
-> Hello!
+On Tue, 2006-05-30 at 17:59 +0200, Michal Piotrowski wrote:
+> Hi,
 > 
-> > ok, that WARN_ON is over-eager. Fix is below:
+> On 30/05/06, Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm1/
+> >
+> >
 > 
-> Nevertheless, I cannot figure out what's happening here.
+> It looks like a network stack problem.
 > 
-> This local_bh_disable() is called right after schedule().
-> No way irqs can be disabled there. What is wrong?
-> 
-> 
-> static void netlink_table_grab(void)
-> {
->         write_lock_bh(&nl_table_lock);
+> May 30 17:50:34 ltg01-fedora init: Switching to runlevel: 6
+> May 30 17:50:35 ltg01-fedora avahi-daemon[1878]: Got SIGTERM, quitting.
+> May 30 17:50:35 ltg01-fedora avahi-daemon[1878]: Leaving mDNS
+> multicast group on interface eth0.IPv4 with address 192.168.0.
+> 14.
+> May 30 17:50:35 ltg01-fedora kernel:
+> May 30 17:50:35 ltg01-fedora kernel: ======================================
+> May 30 17:50:35 ltg01-fedora kernel: [ BUG: bad unlock ordering detected! ]
+> May 30 17:50:35 ltg01-fedora kernel: --------------------------------------
+> May 30 17:50:35 ltg01-fedora kernel: avahi-daemon/1878 is trying to
 
-well it could be this one as well...
+does this fix it for you?
 
-> 
->         if (atomic_read(&nl_table_users)) {
 
+
+Mark out of order unlocking in igmp.c as such
+
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+---
+ net/ipv4/igmp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux-2.6.17-rc5-mm1-lockdep/net/ipv4/igmp.c
+===================================================================
+--- linux-2.6.17-rc5-mm1-lockdep.orig/net/ipv4/igmp.c
++++ linux-2.6.17-rc5-mm1-lockdep/net/ipv4/igmp.c
+@@ -1472,7 +1472,7 @@ static int ip_mc_del_src(struct in_devic
+ 		return -ESRCH;
+ 	}
+ 	spin_lock_bh(&pmc->lock);
+-	read_unlock(&in_dev->mc_list_lock);
++	read_unlock_non_nested(&in_dev->mc_list_lock);
+ #ifdef CONFIG_IP_MULTICAST
+ 	sf_markstate(pmc);
+ #endif
 

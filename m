@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWE3UWn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbWE3UZA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbWE3UWn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 16:22:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbWE3UWn
+	id S932400AbWE3UZA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 16:25:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWE3UZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 16:22:43 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:54148 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932399AbWE3UWm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 16:22:42 -0400
-Date: Tue, 30 May 2006 13:21:52 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: David Howells <dhowells@redhat.com>
-cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 1/3] mm: tracking shared dirty pages 
-In-Reply-To: <18903.1149011787@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.64.0605301317340.18290@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0605300953390.17716@schroedinger.engr.sgi.com> 
- <Pine.LNX.4.64.0605300818080.16904@schroedinger.engr.sgi.com>
- <Pine.LNX.4.64.0605260825160.31609@schroedinger.engr.sgi.com>
- <Pine.LNX.4.64.0605250921300.23726@schroedinger.engr.sgi.com>
- <20060525135534.20941.91650.sendpatchset@lappy> <20060525135555.20941.36612.sendpatchset@lappy>
- <24747.1148653985@warthog.cambridge.redhat.com> <12042.1148976035@warthog.cambridge.redhat.com>
- <7966.1149006374@warthog.cambridge.redhat.com>  <18903.1149011787@warthog.cambridge.redhat.com>
+	Tue, 30 May 2006 16:25:00 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19390 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932400AbWE3UY7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 16:24:59 -0400
+Date: Tue, 30 May 2006 22:24:01 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Dave Airlie <airlied@gmail.com>
+Cc: "D. Hazelton" <dhazelton@enter.net>, Jon Smirl <jonsmirl@gmail.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+Message-ID: <20060530202401.GC16106@elf.ucw.cz>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200605272245.22320.dhazelton@enter.net> <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com> <200605280112.01639.dhazelton@enter.net> <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <20060529102339.GA746@elf.ucw.cz> <21d7e9970605290336m1f80b08nebbd2a995be959cb@mail.gmail.com> <20060529124840.GD746@elf.ucw.cz> <21d7e9970605291623k3636f7hcc12028cad5e962b@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <21d7e9970605291623k3636f7hcc12028cad5e962b@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 May 2006, David Howells wrote:
+Hi!
 
-> Christoph Lameter <clameter@sgi.com> wrote:
+> >No, to the contrary. suspend/resume can't ever work properly with
+> >vgacon and vesafb. It works okay with radeonfb tooday, and in fact
+> >radeonfb is neccessary today for saving power over S3.
 > 
-> > On Tue, 30 May 2006, David Howells wrote:
-> > 
-> > > > If set_page_dirty cannot reserve the page then we know that some severe
-> > > > action is required. The FS method set_page_dirty() could:
-> > > 
-> > > But by the time set_page_dirty() is called, it's too late as the code
-> > > currently stands.  We've already marked the PTE writable and dirty.  The
-> > > page_mkwrite() op is called _first_.
-> > 
-> > We are in set_page_dirty and this would be part of set_page_dirty 
-> > processing.
-> 
-> Eh?  What do you mean "We are in set_page_dirty"?
+> But the things is today for many users suspend/resume to RAM works for
+> people running X drivers, I know on my laptop that my radeon
+> suspends/resumes fine when running vgacon/DRM/accelerated X, it
+> doesn't suspend/resume at all well when running vgacon on its own of
+> course. or with radeonfb for that matter. so I still believe the
+> suspend/resume code for a card can live in userspace if necessary but
+> it just shouldn't be part of X... it needs to be part of another
+> graphics controller process.
 
-We could do the reservation in as part of the set_page_dirty FS method.
-
-> Actually, I'm not sure that calling set_page_dirty() at the bottom of
-> do_wp_page() is necessarily a good idea.  It's possible that the page will be
-> marked dirty in do_wp_page() and then will get written back before the write
-> actually succeeds.  In other words the page may be marked dirty and cleaned up
-> all before the modification _actually_ occurs.  On the other hand, the common
-> case is probably that the store instruction will beat the writeback.
-
-Yes we are aware of that case.
-
+So we are mostly in agreement. I'd prefer to have suspend/resume code
+in kernel in cases it is simple... but separate userspace process is
+better than having it in X.
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

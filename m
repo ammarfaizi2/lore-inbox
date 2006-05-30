@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWE3Kw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWE3K5f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932223AbWE3Kw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 06:52:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbWE3Kw4
+	id S932194AbWE3K5f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 06:57:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbWE3K5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 06:52:56 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:25273 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932181AbWE3Kwz (ORCPT
+	Tue, 30 May 2006 06:57:34 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:22489 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932194AbWE3K5e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 06:52:55 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060530103550.GV27946@ftp.linux.org.uk> 
-References: <20060530103550.GV27946@ftp.linux.org.uk>  <20060519154640.11791.2928.stgit@warthog.cambridge.redhat.com> <20060519154650.11791.71116.stgit@warthog.cambridge.redhat.com> 
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       steved@redhat.com, trond.myklebust@fys.uio.no, aviro@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 03/14] NFS: Abstract out namespace initialisation [try #10] 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 30 May 2006 11:51:28 +0100
-Message-ID: <23521.1148986288@warthog.cambridge.redhat.com>
+	Tue, 30 May 2006 06:57:34 -0400
+Date: Tue, 30 May 2006 12:57:51 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mike Galbraith <efault@gmx.de>
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 00/61] ANNOUNCE: lock validator -V1
+Message-ID: <20060530105751.GA3820@elte.hu>
+References: <20060529212109.GA2058@elte.hu> <1148964741.7704.10.camel@homer> <20060530063724.GE19870@elte.hu> <1148981134.8532.5.camel@homer>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1148981134.8532.5.camel@homer>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro <viro@ftp.linux.org.uk> wrote:
 
-> > The attached patch abstracts out the namespace initialisation so that
-> > temporary namespaces can be set up elsewhere.
+* Mike Galbraith <efault@gmx.de> wrote:
+
+> On Tue, 2006-05-30 at 08:37 +0200, Ingo Molnar wrote:
+> > * Mike Galbraith <efault@gmx.de> wrote:
+> > 
+> > > Darn.  It said all tests passed, then oopsed.
+> > > 
+> > > (have .config all gzipped up if you want it)
+> > 
+> > yeah, please.
 > 
-> IDGI...   Where does your patchset use it?
+> (sent off list)
 
-Hmmm... That's a good point.  It doesn't any more.  This patch is obsolete and
-can be dropped.
+thanks, i managed to reproduce the warning with your .config - i'm 
+debugging the problem now.
 
-It used to be used to set up a separate namespace in which to do NFSv4 path
-traversal during mount so that we could walk from '/' to the nominated
-directory on the NFS4 server using link_path_walk(), but the patches don't do
-that now.
-
-David
+	Ingo

@@ -1,28 +1,37 @@
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932591AbWFCHJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965282AbWFAC5P (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 31 May 2006 22:57:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965296AbWFAC45
+	id S932591AbWFCHJT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 03:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbWFCHJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 22:56:57 -0400
-Received: from dd5436.kasserver.com ([85.13.130.117]:42369 "EHLO
-	dd5436.kasserver.com") by vger.kernel.org with ESMTP
-	id S965286AbWFAC4z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 22:56:55 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Aol  New
-From: Aol <admin@aol.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20060601025319.9CB3BBF2CD@dd5436.kasserver.com>
-Date: Thu,  1 Jun 2006 04:53:19 +0200 (CEST)
+	Sat, 3 Jun 2006 03:09:19 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25363 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932591AbWFCHJS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 03:09:18 -0400
+Date: Tue, 30 May 2006 15:33:27 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Martin Bligh <mbligh@google.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Andy Whitcroft <apw@shadowen.org>, Andi Kleen <ak@suse.de>
+Subject: Re: 2.6.17-rc5-mm1
+Message-ID: <20060530153327.GB4103@ucw.cz>
+References: <447DEF49.9070401@google.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <447DEF49.9070401@google.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965282AbWFAC5P@vger.kernel.org>
 
+Hi!
 
-to have a domain name .com, .fr .net with lodging and php, mysql during 2 years free at AOL but it is necessary to have a bank card to ensure that your site did not tighten out the law  http://aol.ift.fr
------------------------------------------------
-avoir un nom de domaine .com , .fr .net avec hebergement et php , mysql pendant 2 ans gratuit chez aol mais il faut avoir une carte bancaire pour assurer que votre site ne serra pas hors la lois http://aol.ift.fr
+> The x86_65 panic in LTP has changed a bit. Looks more 
 
+What? IBM adding one bit to x86_64 so it can run AS/400 on it?
+:-))))))))))))))))
 
+							Pavel
+-- 
+Thanks for all the (sleeping) penguins.

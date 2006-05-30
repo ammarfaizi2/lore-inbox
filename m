@@ -1,86 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWE3Kr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWE3Ksh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932247AbWE3Kr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 06:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWE3Kr3
+	id S932147AbWE3Ksh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 06:48:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWE3Ksh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 06:47:29 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:13952 "EHLO
+	Tue, 30 May 2006 06:48:37 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:44162 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932247AbWE3Kr2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 06:47:28 -0400
+	id S932147AbWE3Ksg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 06:48:36 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=VCawB9iUrHMJup34B442UgyhBbjT9mKwL2wrkpVN0t9LYG+szLsVU/EMpMCeBb34WXHYMEyZq5G4LcQesLcnp+AJCnmjusXF78PlG8Lo3U4Zjd/21SMQvQ0nTWuFFoGjw9tXVpskWJydSDmHArYEec3WR5NpsMccss7tPKvjgIg=
-Message-ID: <447C22CE.2060402@gmail.com>
-Date: Tue, 30 May 2006 12:47:19 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, tiwai@suse.de,
-       emu10k1-devel@lists.sourceforge.net, James@superbug.demon.co.uk,
-       perex@suse.cz
-Subject: BUG: possible deadlock detected! (sound) [Was: 2.6.17-rc5-mm1]
-References: <20060530022925.8a67b613.akpm@osdl.org>
-In-Reply-To: <20060530022925.8a67b613.akpm@osdl.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=KXR1SFLenxFrHMyU+uQ9XtdZwIJK3+Xroc4oqb0DWa8oUn/Y3Aj+7D1Xokyx/umJhmm0KuYnGrZs4RtGH+ywNoNYspWdOYzhJ+BWsgmsg3IixjGNPVoxM62XAB0oY114rQ10HgENlYXYDKnQdAQDdlOFsClwHR3ScyQFaz6pkv4=
+Date: Tue, 30 May 2006 14:49:15 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Ian Kester-Haney <ikesterhaney@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+Message-ID: <20060530104915.GA31189@martell.zuzino.mipt.ru>
+References: <200605272245.22320.dhazelton@enter.net> <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com> <200605280112.01639.dhazelton@enter.net> <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <20060529102339.GA746@elf.ucw.cz> <21d7e9970605290336m1f80b08nebbd2a995be959cb@mail.gmail.com> <20060529124840.GD746@elf.ucw.cz> <21d7e9970605291623k3636f7hcc12028cad5e962b@mail.gmail.com> <4423333a0605291648w11a66440xcd9f833f654fb468@mail.gmail.com> <441e43c90605291839jff1c34bqe6ea176ee6f3e0ce@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <441e43c90605291839jff1c34bqe6ea176ee6f3e0ce@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, May 29, 2006 at 08:39:53PM -0500, Ian Kester-Haney wrote:
+> Backwards Compatibility
+>     As far as I can tell, the kernel user-land interface has been
+> rapidly changing
 
-Andrew Morton napsal(a):
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm1/
+My gut feeling is that you don't even know what this "kernel user-land
+interface" include.
 
-====================================
-[ BUG: possible deadlock detected! ]
-- ------------------------------------
-idle/1 is trying to acquire lock:
- (&ops->reg_mutex){--..}, at: [<c03ca763>] mutex_lock+0x8/0xa
+Post a list of kernel userland breakages you're aware of, so they can
+be fixed, OK?. Preferably with version numbers.
 
-but task is already holding lock:
- (&ops->reg_mutex){--..}, at: [<c03ca763>] mutex_lock+0x8/0xa
+>     Why shouldn't new power be added to the linux kernel
+>     Do all features and drivers in the linux kernel fully maintain
+> backwards compat.
+>
+> Linux will never take the desktop
+Buzzword detected (core dumped)
 
-which could potentially lead to deadlocks!
-
-other info that might help us debug this:
-1 locks held by idle/1:
- #0:  (&ops->reg_mutex){--..}, at: [<c03ca763>] mutex_lock+0x8/0xa
-
-stack backtrace:
- [<c01042ac>] show_trace+0x1b/0x1d
- [<c01049f2>] dump_stack+0x26/0x28
- [<c01422fa>] __lockdep_acquire+0xa58/0xd8e
- [<c0142b97>] lockdep_acquire+0x73/0x88
- [<c03ca378>] __mutex_lock_slowpath+0xb3/0x496
- [<c03ca763>] mutex_lock+0x8/0xa
- [<c0333aa0>] snd_seq_device_new+0x96/0x111
- [<c0358260>] snd_emux_init_seq_oss+0x35/0x9c
- [<c0353f50>] snd_emux_register+0x10d/0x13f
- [<c0352c39>] snd_emu10k1_synth_new_device+0xe7/0x14e
- [<c0333537>] init_device+0x2c/0x94
- [<c0333d04>] snd_seq_device_register_driver+0x8f/0xeb
- [<c05911e0>] alsa_emu10k1_synth_init+0x22/0x24
- [<c01003cb>] init+0x12b/0x2f5
- [<c0101005>] kernel_thread_helper+0x5/0xb
-
-If more info needed, feel free to ask.
-
-regards,
-- --
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFEfCLOMsxVwznUen4RArelAJ0WtN36nSYJ3VWB515Wik2ji8YXAACfe5jD
-jiPvjBzv4udC7XJPxTUtmOM=
-=vLLJ
------END PGP SIGNATURE-----

@@ -1,89 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWE3NTh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWE3NVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbWE3NTh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 09:19:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWE3NTh
+	id S1751399AbWE3NVm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 09:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWE3NVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 09:19:37 -0400
-Received: from mx2.suse.de ([195.135.220.15]:14255 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751091AbWE3NTg (ORCPT
+	Tue, 30 May 2006 09:21:42 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20644 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751102AbWE3NVl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 09:19:36 -0400
-Date: Tue, 30 May 2006 15:19:34 +0200
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: cramfs corruption after BLKFLSBUF on loop device
-Message-ID: <20060530131934.GA6400@suse.de>
-References: <20060529214011.GA417@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Tue, 30 May 2006 09:21:41 -0400
+Date: Tue, 30 May 2006 15:20:54 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>,
+       Netdev list <netdev@vger.kernel.org>, Jirka Lenost Benc <jbenc@suse.cz>,
+       pe1rxq@amsat.org
+Subject: zd1201 failure on sharp zaurus explained
+Message-ID: <20060530132054.GA9780@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060529214011.GA417@suse.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, May 29, Olaf Hering wrote:
+Hi!
 
-> This script will cause cramfs decompression errors, on SMP at least:
-> 
-> #!/bin/bash
-> while :;do blockdev --flushbufs /dev/loop0;done </dev/null &>/dev/null&
-> while :;do ps faxs  </dev/null &>/dev/null&done </dev/null &>/dev/null&
-> while :;do dmesg    </dev/null &>/dev/null&done </dev/null &>/dev/null&
-> while :;do find /mounts/instsys -type f -print0|xargs -0 cat &>/dev/null;done
-> 
-> ...
-> Error -3 while decompressing!
-> c0000000009592a2(2649)->c0000000edf87000(4096)
-> Error -3 while decompressing!
-> c000000000959298(2520)->c0000000edbc7000(4096)
-> Error -3 while decompressing!
-> c000000000959c70(2489)->c0000000f1482000(4096)
-> Error -3 while decompressing!
-> c00000000095a629(2355)->c0000000edaff000(4096)
-> Error -3 while decompressing!
-> ...
+Now I found out what went wrong with zd1201 on sharp zaurus (spitz)...
 
-This change works for me, the added BUG() does not trigger.
-read_cache_page() returns the page in PageUptodate() state.
-But a few ticks later, invalidate_complete_page() calls ClearPageUptodate(),
-on another cpu.
-The SetPageDirty() works for my testcase, but not without the mb().
-Does anyone know what sideeffects the SetPageDirty() has for the
-loopmounted cramfs?
+Card is detected and seems to work okay, except that you don't get any
+results from iwlist eth1 scan, and card generally does not do anything
+involving radio.
 
+And now I have an explanation, too:
 
+If you plug card directly to zaurus, above is what happens.
 
----
- fs/cramfs/inode.c      |    2 ++
- fs/cramfs/uncompress.c |    1 +
- 2 files changed, 3 insertions(+)
+If you plug it into the hub, hub flashes the lights and shuts down, as
+if not enough power is available from the zaurus.
 
-Index: linux-2.6.16.16-1.6/fs/cramfs/inode.c
-===================================================================
---- linux-2.6.16.16-1.6.orig/fs/cramfs/inode.c
-+++ linux-2.6.16.16-1.6/fs/cramfs/inode.c
-@@ -186,6 +186,8 @@ static void *cramfs_read(struct super_bl
- 			/* synchronous error? */
- 			if (IS_ERR(page))
- 				page = NULL;
-+			SetPageDirty(page);
-+			mb();
- 		}
- 		pages[i] = page;
- 	}
-Index: linux-2.6.16.16-1.6/fs/cramfs/uncompress.c
-===================================================================
---- linux-2.6.16.16-1.6.orig/fs/cramfs/uncompress.c
-+++ linux-2.6.16.16-1.6/fs/cramfs/uncompress.c
-@@ -50,6 +50,7 @@ int cramfs_uncompress_block(void *dst, i
- err:
- 	printk("Error %d while decompressing!\n", err);
- 	printk("%p(%d)->%p(%d)\n", src, srclen, dst, dstlen);
-+	BUG_ON(1);
- 	return 0;
- }
- 
+...which is probably the case, because if I connect external 6V power
+supply to the hub, it all starts to work.
+
+So... it is
+
+1) hw problem: spitz power supply is not strong enough to drive zd1201
+
+2) usb problem, probably. Should not usb core detect that card
+requires too much juice and refuse to power it up?
+
+...and the morale is, always put hub between device and the host so
+that you can see the flashy leds :-).
+								Pavel 
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

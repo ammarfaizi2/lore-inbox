@@ -1,78 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWE3Jx1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWE3J7J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbWE3Jx1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 05:53:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWE3Jx1
+	id S932221AbWE3J7J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 05:59:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWE3J7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 05:53:27 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:12473 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932220AbWE3Jx0
+	Tue, 30 May 2006 05:59:09 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:47064 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932221AbWE3J7I
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 05:53:26 -0400
-Date: Tue, 30 May 2006 12:53:20 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: "=?utf-8?B?amVzc2VcKOW7uuiIiFwp?=" <jesse@icplus.com.tw>
-cc: Andrew Morton <akpm@osdl.org>, romieu@fr.zoreil.com, dvrabel@cantab.net,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       david@pleyades.net
-Subject: Re: Sign-off for the IP1000A driver before inclusion
-In-Reply-To: <026801c683c8$e3f63860$4964a8c0@icplus.com.tw>
-Message-ID: <Pine.LNX.4.58.0605301245260.22126@sbz-30.cs.Helsinki.FI>
-References: <84144f020605230001s32b29f59w8f95c67fad7b380d@mail.gmail.com>
- <044a01c67ef8$9bdd0420$4964a8c0@icplus.com.tw>
- <Pine.LNX.4.58.0605240911400.26629@sbz-30.cs.Helsinki.FI>
- <021f01c683b0$34b5cbd0$4964a8c0@icplus.com.tw>
- <Pine.LNX.4.58.0605300915400.18933@sbz-30.cs.Helsinki.FI>
- <20060529234610.e5671e4c.akpm@osdl.org> <Pine.LNX.4.58.0605301024440.22126@sbz-30.cs.Helsinki.FI>
- <026801c683c8$e3f63860$4964a8c0@icplus.com.tw>
+	Tue, 30 May 2006 05:59:08 -0400
+Date: Tue, 30 May 2006 10:58:59 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       arjan@infradead.org
+Subject: Re: [patch 34/61] lock validator: special locking: bdev
+Message-ID: <20060530095859.GU27946@ftp.linux.org.uk>
+References: <20060529212109.GA2058@elte.hu> <20060529212554.GH3155@elte.hu> <20060529183523.0985b537.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060529183523.0985b537.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jesse,
+On Mon, May 29, 2006 at 06:35:23PM -0700, Andrew Morton wrote:
+> > +	 * For now, block device ->open() routine must _not_
+> > +	 * examine anything in 'inode' argument except ->i_rdev.
+> > +	 */
+> > +	struct file fake_file = {};
+> > +	struct dentry fake_dentry = {};
+> > +	fake_file.f_mode = mode;
+> > +	fake_file.f_flags = flags;
+> > +	fake_file.f_dentry = &fake_dentry;
+> > +	fake_dentry.d_inode = bdev->bd_inode;
+> > +
+> > +	return do_open(bdev, &fake_file, BD_MUTEX_WHOLE);
+> > +}
+> 
+> "crock" is a decent description ;)
+> 
+> How long will this live, and what will the fix look like?
 
-On Tue, 30 May 2006, jesse\(??\)~H~H\) wrote:
-> Sorry for that. I try to generate the patch file. But I only can use
-> "diff -uN" to generate it. The "diff --git" is not work. I still try to
-> generate it.
+The comment there is a bit deceptive.  
 
-I assume you're using Francois' git tree, right?  What you need to do is:
+The real problem is with the stuff ->open() uses.  Short version of the
+story:
+	* everything uses inode->i_bdev.  Since we always pass an inode
+allocated in block_dev.c along with bdev and its ->i_bdev points to that
+bdev (i.e. at the constant offset from inode), it doesn't matter whether
+we pass struct inode or struct block_device.
+	* many things use file->f_mode.  Nobody modifies it.
+	* some things use file->f_flags.  Used flags: O_EXCL and O_NDELAY.
+Nobody modifies it.
+	* one (and only one) weird driver uses something else.  That FPOS
+is floppy.c and it needs more detailed description.
 
-  - Check out netdev-ipg branch:
+floppy.c is _weird_.  In addition to normally used stuff, it checks for
+opener having write permissions on file->f_dentry->d_inode.  Then it
+modifies file->private_data to store that information and uses it as
+permission check in ->ioctl().
 
-    git checkout netdev-ipg
+The rationale for that crock is a big load of bullshit.  It goes like that:
+	We have priveleged ioctls and can't allow them unless you have
+write permissions.
+	We can't ask to just open() the damn thing for write and let these
+be done as usual (and check file->f_mode & FMODE_WRITE) because we might want
+them on drive that has no disk in it or a write-protected one.  Opening it
+for write would try to check for disk being writable and screw itself.
+	Passing O_NDELAY would avoid that problem by skipping the checks
+for disk being writable, present, etc., but we can't use that.  Reasons
+why we can't?  We don't need no stinkin' reasons!
 
-  - Create a new branch against netdev-ipg (this is where you'll do the
-    work):
+IOW, *all* of that could be avoided if floppy.c
+	* checked FMODE_WRITE for ability to do priveleged ioctls
+	* had those who want to issue such ioctls on drive that might have
+no disk in it pass O_NDELAY|O_WRONLY (or O_NDELAY|O_RDWR) when they open
+the fscker.  Note that userland code always could have done that -
+passing O_NDELAY|O_RDWR will do the right thing with any kernel.
 
-    git checkout -b ipg-mine
+That FPOS is the main reason why we pass struct file * there at all *and*
+care to have ->f_dentry->d_inode in it (normally that wouldn't be even
+looked at).  Again, my prefered solution would be to pass 4-bit flags and
+either inode or block_device.  Flags being FMODE_READ, FMODE_WRITE,
+O_EXCL and O_NDELAY.
 
-  - Commit patches in your ipg-mine branch.  Use git update-index and git
-    commit for this.  Please commit each changeset separately.  You can 
-    use my patchset as a starting point:
-
-     http://www.cs.helsinki.fi/u/penberg/linux/ip1000-jesse/
-
-  - When you're done, you can generate diffs against the netdev-ipg 
-    branch:
-
-    git format-patch netdev-ipg ipg-mine
-
-  - If you want, you can then delete your working branch:
-
-    git checkout netdev-ipg ; git branch -D ipg-mine
-
-On Tue, 30 May 2006, jesse\(??\)~H~H\) wrote:
-> --Changelog:
-> --Updata mentainer information
-> --Remove some default phy params
-> --Remove Threshold comfig and RxDMAInt from ipg_io_config(). Remove relative
-> define form ipg.h
-> --Remove and Rewrite ipg_config_autoneg() function.
-
-The changelog isn't telling me much.  Why are you removing default phy 
-params and the threshold config?
-
-					Pekka
+The problem is moronic semantics for ioctl access control in floppy.c,
+even though the sane API is _already_ present and always had been.  In
+the very same floppy_open()...

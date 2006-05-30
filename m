@@ -1,57 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932535AbWE3W5u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWE3W7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932535AbWE3W5u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 18:57:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbWE3W5u
+	id S964800AbWE3W7e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 18:59:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbWE3W7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 18:57:50 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:17836 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932535AbWE3W5t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 18:57:49 -0400
-Date: Wed, 31 May 2006 00:58:08 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>
+	Tue, 30 May 2006 18:59:34 -0400
+Received: from wr-out-0506.google.com ([64.233.184.235]:58833 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S964799AbWE3W7d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 18:59:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=A+lgiCEJnuNAZXFZRfEvzq3Sg4unVSa33VdWKUMFC9g9pJGE6rZsw1bGwXU2DXSeMUyKVwQNtD7+dBOJvnWhbzLaKGK8Ab753EmMlrv/aKByB+H0xIXKRg/TdaaAYT1dkShcoo7rer9RgMVIsHMiMfeYph0l9x9qbPcowaKDZyU=
+Message-ID: <6bffcb0e0605301559y603a60bl685b7aca60069dfd@mail.gmail.com>
+Date: Wed, 31 May 2006 00:59:32 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Ingo Molnar" <mingo@elte.hu>
 Subject: Re: 2.6.17-rc5-mm1
-Message-ID: <20060530225808.GA5836@elte.hu>
-References: <20060530022925.8a67b613.akpm@osdl.org> <adawtc34364.fsf@cisco.com> <20060530154521.d737cc65.akpm@osdl.org> <20060530224955.GA5500@elte.hu> <20060530225254.GA5681@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: "Arjan van de Ven" <arjan@linux.intel.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>
+In-Reply-To: <20060530220931.GA32759@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060530225254.GA5681@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <20060530022925.8a67b613.akpm@osdl.org>
+	 <6bffcb0e0605301155h3b472d79h65e8403e7fa0b214@mail.gmail.com>
+	 <6bffcb0e0605301157o6b7c5f66q3c9f151cbb4537d5@mail.gmail.com>
+	 <20060530194259.GB22742@elte.hu>
+	 <6bffcb0e0605301457v9ba284bk75b8b6d14384489a@mail.gmail.com>
+	 <20060530220931.GA32759@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 31/05/06, Ingo Molnar <mingo@elte.hu> wrote:
+>
+> * Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+>
+> > >  http://redhat.com/~mingo/lockdep-patches/latency-tracing-lockdep.patch
+> > >
+> > >just apply it ontop of your current tree and accept all the new .config
+> > >options as the kernel suggests them to you.
+> >
+> > I can't boot with that patch. I even don't see "Uncompressing
+> > Linux..." - machine reboots.
+> > I have 2.6.17-rc5-mm1 +
+> > genirq-cleanup-remove-irq_descp-fix.patch
+> > lock-validator-irqtrace-support-non-x86-architectures.patch
+> > lock-validator-special-locking-sb-s_umount-2-fix.patch
+> > from hot fixes
+> > +
+> > Arjan's net/ipv4/igmp.c patch.
+>
+> could you try to 1) disable PREEMPT, 2) apply the -V2 rollup of all
+> fixes so far to 2.6.17-rc5-mm1:
+>
+>  http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-rc5-mm1.patch
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+I'll try to reproduce that bug now... but here is new one :)
 
-> 
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > > do_IRQ() did a jump-to-zero.  So there's no handler installed.
-> > 
-> > yep. No desc->irq_handler. That should be 'impossible' on x86_64, 
-> > because the irq_desc[] array is initialized with handle_bad_irq, and 
-> > from that point on x86_64 only uses set_irq_chip_and_handler(), which 
-> > at most can set it to another (non-NULL) handle_irq function. Weird.
-> > 
-> > does MSI much with the irq_desc[] separately perhaps, clearing 
-> > handle_irq in the process perhaps?
-> 
-> aha - drivers/pci/msi.c sets msix_irq_type, which has no handle_irq 
-> entry. This needs to be converted to irqchips.
+BUG: key f7155db0 not in .data!
+(        modprobe-485  |#0): new 15286092 us user-latency.
+stopped custom tracer.
+BUG: warning at /usr/src/linux-mm/kernel/lockdep.c:1985/lockdep_init_map()
+ [<c0104208>] show_trace+0x1b/0x20
+ [<c01042e6>] dump_stack+0x1f/0x24
+ [<c0136e26>] lockdep_init_map+0x65/0xb0
+ [<c0134a62>] __mutex_init+0x46/0x50
+ [<f98b72a3>] find_driver+0xb7/0x115 [snd_seq_device]
+ [<f98b776f>] snd_seq_device_register_driver+0x42/0xeb [snd_seq_device]
+ [<f887012d>] alsa_seq_oss_init+0x12d/0x158 [snd_seq_oss]
+ [<c013fdad>] sys_init_module+0x96/0x1d4
+ [<c02eb442>] sysenter_past_esp+0x63/0xa1
+---------------------------
+| preempt count: 00000000 ]
+| 0-level deep critical section nesting:
+----------------------------------------
 
-still ... that doesnt explain how the irq_desc[].irq_handler got NULL. 
+Here is dmesg
+http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm1/mm-dmesg3
 
-	Ingo
+Here is new config (without some debugging options)
+http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm1/mm-config4
+
+>
+> ? I'll try your config meanwhile.
+>
+>         Ingo
+>
+
+Regards,
+Michal
+
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

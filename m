@@ -1,71 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbWE3LR4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWE3LSJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932268AbWE3LR4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 07:17:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWE3LR4
+	id S932262AbWE3LSJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 07:18:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWE3LSJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 07:17:56 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4011 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932259AbWE3LRz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 07:17:55 -0400
-Date: Tue, 30 May 2006 13:17:12 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Netdev list <netdev@vger.kernel.org>, Jirka Lenost Benc <jbenc@suse.cz>,
-       kernel list <linux-kernel@vger.kernel.org>
-Cc: Greg KH <greg@kroah.com>
-Subject: zd1201 & ipw2200 problems
-Message-ID: <20060530111712.GA32054@elf.ucw.cz>
+	Tue, 30 May 2006 07:18:09 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:55304 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S932262AbWE3LSH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 07:18:07 -0400
+Message-ID: <447C29CC.3070208@shadowen.org>
+Date: Tue, 30 May 2006 12:17:32 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: rc5-git1 and later fail to boot on x86_64
+References: <4479BC92.1090900@mbligh.org>
+In-Reply-To: <4479BC92.1090900@mbligh.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Martin J. Bligh wrote:
+> plain -rc5 seems fine. Double checking this isn't a machine issue, but
+> it seems to boot the older kernels just fine.
+> 
+> good boot is here: http://test.kernel.org/abat/33283/debug/console.log
+> for comparison
 
-I see some strange problems with zd1201. (Ccing greg, he seen
-something similar).
+This seems to be a machine install issue.  It appears that the image on
+/dev/sda1 thinks its on /dev/sdb1 which it is not which is now relevant
+to the automation tools.  How this happened is lost in the mists of time
+sadly.
 
-Wireless LAN is configured on eth1 (ipw2200) and works. I insert
-zd1201 usb wireless card, and pings stop. I do not have (or should not
-have) any hotplug scripts doing anything. Leds on zd1201 light up.
+I have fixed up the install and the reruns I have done seem ok.
 
-If I unplug zd1201, pings immediately continue.
-
-If I issue iwlist wlan0 scan, zd1201 discovers some networks, its led
-goes out, and ipw2200 ping immediately continue (ipw2200 starts to
-work).
-
-Now... what is going on? Any ideas how to debug it?
-
-Plus, zd1201 does not work on sharp zaurus (pxa arm-based)
-machine. (Any idea if that is little or big endian?). It is detected
-okay, lights light up, but iwlist wlan0 scan produces no results.
-
-								Pavel
-
-pavel@amd:~$ cat /proc/interrupts
-           CPU0
-  0:     776518          XT-PIC  timer
-  1:      12266          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  8:          1          XT-PIC  rtc
-  9:     123162          XT-PIC  acpi
- 11:      48021          XT-PIC  ohci1394, yenta, yenta,
-ehci_hcd:usb1, uhci_hcd:usb2, uhci_hcd:usb3,
-uhci_hcd:usb4, Intel 82801DB-ICH4, ipw2200
- 12:      11315          XT-PIC  i8042
- 14:      21677          XT-PIC  ide0
-NMI:          0
-LOC:          0
-ERR:          0
-MIS:          0
-pavel@amd:~$
-
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+-apw

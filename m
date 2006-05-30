@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWE3Xjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWE3XtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964827AbWE3Xjp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 19:39:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWE3Xjo
+	id S932239AbWE3XtI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 19:49:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWE3XtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 19:39:44 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31212 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964830AbWE3Xjo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 19:39:44 -0400
-Date: Wed, 31 May 2006 01:38:55 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jon Smirl <jonsmirl@gmail.com>, Dave Airlie <airlied@gmail.com>,
-       "D. Hazelton" <dhazelton@enter.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: OpenGL-based framebuffer concepts
-Message-ID: <20060530233855.GF16106@elf.ucw.cz>
-References: <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <20060529102339.GA746@elf.ucw.cz> <21d7e9970605290336m1f80b08nebbd2a995be959cb@mail.gmail.com> <20060529124840.GD746@elf.ucw.cz> <21d7e9970605291623k3636f7hcc12028cad5e962b@mail.gmail.com> <20060530202401.GC16106@elf.ucw.cz> <9e4733910605301356k64dcd75fo38e45e1b7572817f@mail.gmail.com> <21d7e9970605301601t37f8d3ddwaf4a900ed8997fdf@mail.gmail.com> <9e4733910605301627t2f28db08vf58c78e2656b7047@mail.gmail.com> <20060530233813.GC16521@fooishbar.org>
+	Tue, 30 May 2006 19:49:08 -0400
+Received: from wr-out-0506.google.com ([64.233.184.231]:36852 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932239AbWE3XtH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 19:49:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=I1gE0AN7Cpf3iMc0EuX7V8hTuGwRaliMy0U8wbrVkxhZAQrNvDWQ3M4s+EnA1Cx9CbkS5P/Er4iHBgNkDweduUsp+yyF+OjtHcR7YQ9jcdWCTjdahlCLZKcKCPuKVPAe5q2ql/SFMhYms53c2LT1xTC79d42MGeSI3QLUy13Q4g=
+Message-ID: <6bffcb0e0605301649u2d3c48f5td9b7998168df8114@mail.gmail.com>
+Date: Wed, 31 May 2006 01:49:04 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Subject: Re: 2.6.17-rc5-mm1
+Cc: "Arjan van de Ven" <arjan@linux.intel.com>, linux-kernel@vger.kernel.org,
+       "Andrew Morton" <akpm@osdl.org>
+In-Reply-To: <20060530230620.GA6226@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060530233813.GC16521@fooishbar.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <20060530022925.8a67b613.akpm@osdl.org>
+	 <6bffcb0e0605301155h3b472d79h65e8403e7fa0b214@mail.gmail.com>
+	 <6bffcb0e0605301157o6b7c5f66q3c9f151cbb4537d5@mail.gmail.com>
+	 <20060530194259.GB22742@elte.hu>
+	 <6bffcb0e0605301457v9ba284bk75b8b6d14384489a@mail.gmail.com>
+	 <20060530220931.GA32759@elte.hu>
+	 <6bffcb0e0605301559y603a60bl685b7aca60069dfd@mail.gmail.com>
+	 <20060530230512.GA6042@elte.hu> <20060530230620.GA6226@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On St 31-05-06 02:38:13, Daniel Stone wrote:
-> On Tue, May 30, 2006 at 07:27:25PM -0400, Jon Smirl wrote:
-> > On 5/30/06, Dave Airlie <airlied@gmail.com> wrote:
-> > >Actually the suspend/resume has to be in userspace, X just re-posts
-> > >the video ROM and reloads the registers... so the repost on resume has
-> > >to happen... so some component needs to be in userspace..
-> > 
-> > I'd like to see the simple video POST program get finished.
-> 
-> http://archive.ubuntu.com/ubuntu/pool/main/v/vbetool/
+On 31/05/06, Ingo Molnar <mingo@elte.hu> wrote:
+>
+> * Ingo Molnar <mingo@elte.hu> wrote:
+>
+> > Could you try the patch below? This uses the ID string as the key.
+> > (the ID string seems to be based on static kernel strings most of the
+> > time, so this might as well work)
+>
+> that patch should be:
+>
 
-also integreted into cvs at suspend.sf.net, along with dmi-based
-whitelist.
+Thanks, problem solved.
 
-								Pavel
+Regards,
+Michal
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

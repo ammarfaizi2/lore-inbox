@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWE3GOz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWE3GQS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbWE3GOz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 02:14:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWE3GOz
+	id S932155AbWE3GQS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 02:16:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWE3GQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 02:14:55 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:6560 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932156AbWE3GOy (ORCPT
+	Tue, 30 May 2006 02:16:18 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:34208 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932155AbWE3GQR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 02:14:54 -0400
-Date: Tue, 30 May 2006 08:15:04 +0200
+	Tue, 30 May 2006 02:16:17 -0400
+Date: Tue, 30 May 2006 08:16:30 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Simon Derr <Simon.Derr@bull.net>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       John Stultz <johnstul@us.ibm.com>
-Subject: Re: -rt IA64 update
-Message-ID: <20060530061503.GA19870@elte.hu>
-References: <Pine.LNX.4.61.0605291356170.14092@openx3.frec.bull.fr>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Thomas Gleixner <tglx@linutronix.de>,
+       mingo@redhat.com, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [-rt BUG] scheduling with irqs disabled: swapper
+Message-ID: <20060530061630.GB19870@elte.hu>
+References: <1f1b08da0605261553v5e55ebdfpc790ebd5e5b0add8@mail.gmail.com> <1148692456.5381.7.camel@localhost.localdomain> <1148775233.30211.1.camel@leatherman> <1148778806.5381.11.camel@localhost.localdomain> <20060528064026.GA14665@elte.hu> <1148936590.30211.9.camel@leatherman>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0605291356170.14092@openx3.frec.bull.fr>
+In-Reply-To: <1148936590.30211.9.camel@leatherman>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: -2.8
 X-ELTE-SpamLevel: 
@@ -34,61 +34,18 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Simon Derr <Simon.Derr@bull.net> wrote:
+* john stultz <johnstul@us.ibm.com> wrote:
 
-> Hi Ingo,
+> > the backtrace shows misrouted_irq(), which is only called if "irqfixup" 
+> > is enabled. That indeed isnt supported in -rt yet.
 > 
-> This is an update of my IA64 port, against -rt25.
-
-thanks - i have applied it.
-
-> I have modified check_pgt_cache() as we discussed before, and the raw 
-> spinlock in the struct zone is no longer needed.
-
-ok, great!
-
-> There's also a preliminary and certainly very bogus attempt to have 
-> the HR timers on IA64. I'd love to have comments on that part.
+> Ugh. You and Steven are right. We've been bitten by this a few times, 
+> but we thought we got rid of that option on all of our boxes. I guess 
+> one slipped by.
 > 
-> Some bits of the Kconfig have been stolen from a previous patch by 
-> Eric Piel.
+> Anyway, thanks for pointing that out. Would you consider a patch like 
+> the following so that folks don't continue to slip over this?
 
-i'll let Thomas and John comment on that - but at a quick glance it 
-seems quite OK.
-
-> This kernel boots OK on UP and SMP, and runs the sched_football test 
-> successfully.
-> 
-> 
-> A few notes:
-> 
-> * You can see at the end of the patch this ugly thing in 
-> clockevents_set_next_event()
-> 
-> +#ifndef CONFIG_IA64
->         clc = mpy_sc32((unsigned long) delta, sources->nextevt->mult);
-> +#else
-> +       clc = (unsigned long) delta * (unsigned long) sources->nextevt->mult;
-> +       clc = clc >> sources->nextevt->shift;
-> +#endif
-> +
-> 
-> I made this ia64-only, but it seems to me that this code should be 
-> fixed as it works only for clocksources that have shift=32.
-
-yeah, agreed.
-
-> * This kernel, when booting, prints:
-> 
-> 	BUG in check_monotonic_clock at kernel/time/timeofday.c:164
-> 
-> But I think this happens because two get_monotonic_clock() are racing 
-> on two cpus. There is a lock to prevent the race, but it is a seqlock. 
-> That means that it is okay if the race happens since another try will 
-> be attempted, but the message that has been printed on the console 
-> can't be removed, and the user is unnecessarily scared.
-
-that too comes from the GTOD patchset. John, should we pick up the 
-latest from -mm?
+sure, i've applied it. (fixed a small typo in the printout)
 
 	Ingo

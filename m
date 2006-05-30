@@ -1,103 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWE3S5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWE3TDP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932396AbWE3S5v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 14:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbWE3S5v
+	id S932390AbWE3TDP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 15:03:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWE3TDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 14:57:51 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:11258 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932396AbWE3S5v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 14:57:51 -0400
-Subject: [PATCH] remove unnecessary return value of audit_avc_path
-From: Steven Rostedt <rostedt@goodmis.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: faith@redhat.com, amy.griffis@hp.com, dustin.kirkland@us.ibm.com,
-       danjones@us.ibm.com, dustin.kirkland@us.ibm.com,
-       Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 30 May 2006 14:57:34 -0400
-Message-Id: <1149015454.12492.11.camel@localhost.localdomain>
+	Tue, 30 May 2006 15:03:15 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:33747 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932390AbWE3TDO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 15:03:14 -0400
+Date: Tue, 30 May 2006 15:02:35 -0400
+From: Dave Jones <davej@redhat.com>
+To: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Ingo Molnar <mingo@elte.hu>, nanhai.zou@intel.com
+Subject: Re: [patch 00/61] ANNOUNCE: lock validator -V1
+Message-ID: <20060530190235.GC17218@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Dominik Brodowski <linux@dominikbrodowski.net>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+	Ingo Molnar <mingo@elte.hu>, nanhai.zou@intel.com
+References: <20060529212109.GA2058@elte.hu> <6bffcb0e0605291528qe24a0a3r3841c37c5323de6a@mail.gmail.com> <20060529224107.GA6037@elte.hu> <20060529230908.GC333@redhat.com> <1148967947.3636.4.camel@laptopd505.fenrus.org> <20060530141006.GG14721@redhat.com> <1148998762.3636.65.camel@laptopd505.fenrus.org> <20060530145852.GA6566@redhat.com> <20060530171118.GA30909@dominikbrodowski.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060530171118.GA30909@dominikbrodowski.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 30, 2006 at 07:11:18PM +0200, Dominik Brodowski wrote:
 
-I'm sending this as a patch to get some attention :)
+ > That's indeed a possible deadlock situation -- what's the
+ > cpufreq_update_policy() call needed for in cpufreq_stat_cpu_callback anyway?
 
-Is there any reason that audit_avc_path has a return value?  The only
-two places in the kernel that it is used, the value is ignored, and when
-it is turned off, we get a silly warning about "statement with no
-effect".  Even the comment above the function states that it is only
-used in one file.
+I was hoping you could enlighten me :)
+I started picking through history with gitk, but my tk install uses
+fonts that make my eyes bleed.  My kingdom for a 'git annotate'..
 
-So this patch removes the need to have a return value.
-
--- Steve
-
-Signed-off-by: Steven Rostedt
-
-Index: linux-2.6.17-rc5/include/linux/audit.h
-===================================================================
---- linux-2.6.17-rc5.orig/include/linux/audit.h	2006-05-30 14:39:22.000000000 -0400
-+++ linux-2.6.17-rc5/include/linux/audit.h	2006-05-30 14:39:45.000000000 -0400
-@@ -324,7 +324,7 @@ extern int audit_ipc_obj(struct kern_ipc
- extern int audit_ipc_set_perm(unsigned long qbytes, uid_t uid, gid_t gid, mode_t mode, struct kern_ipc_perm *ipcp);
- extern int audit_socketcall(int nargs, unsigned long *args);
- extern int audit_sockaddr(int len, void *addr);
--extern int audit_avc_path(struct dentry *dentry, struct vfsmount *mnt);
-+extern void audit_avc_path(struct dentry *dentry, struct vfsmount *mnt);
- extern void audit_signal_info(int sig, struct task_struct *t);
- extern int audit_set_macxattr(const char *name);
- #else
-@@ -344,7 +344,7 @@ extern int audit_set_macxattr(const char
- #define audit_ipc_set_perm(q,u,g,m,i) ({ 0; })
- #define audit_socketcall(n,a) ({ 0; })
- #define audit_sockaddr(len, addr) ({ 0; })
--#define audit_avc_path(dentry, mnt) ({ 0; })
-+#define audit_avc_path(dentry, mnt) do { ; } while (0)
- #define audit_signal_info(s,t) do { ; } while (0)
- #define audit_set_macxattr(n) do { ; } while (0)
- #endif
-Index: linux-2.6.17-rc5/kernel/auditsc.c
-===================================================================
---- linux-2.6.17-rc5.orig/kernel/auditsc.c	2006-05-30 14:40:00.000000000 -0400
-+++ linux-2.6.17-rc5/kernel/auditsc.c	2006-05-30 14:41:56.000000000 -0400
-@@ -1292,21 +1292,19 @@ int audit_sockaddr(int len, void *a)
-  * @dentry: dentry to record
-  * @mnt: mnt to record
-  *
-- * Returns 0 for success or NULL context or < 0 on error.
-- *
-  * Called from security/selinux/avc.c::avc_audit()
-  */
--int audit_avc_path(struct dentry *dentry, struct vfsmount *mnt)
-+void audit_avc_path(struct dentry *dentry, struct vfsmount *mnt)
- {
- 	struct audit_aux_data_path *ax;
- 	struct audit_context *context = current->audit_context;
- 
- 	if (likely(!context))
--		return 0;
-+		return;
- 
- 	ax = kmalloc(sizeof(*ax), GFP_ATOMIC);
- 	if (!ax)
--		return -ENOMEM;
-+		return;
- 
- 	ax->dentry = dget(dentry);
- 	ax->mnt = mntget(mnt);
-@@ -1314,7 +1312,7 @@ int audit_avc_path(struct dentry *dentry
- 	ax->d.type = AUDIT_AVC_PATH;
- 	ax->d.next = context->aux;
- 	context->aux = (void *)ax;
--	return 0;
-+	return;
- }
- 
- /**
-
-
+		Dave
+-- 
+http://www.codemonkey.org.uk

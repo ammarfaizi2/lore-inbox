@@ -1,145 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbWE3DNn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWE3D2Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751149AbWE3DNn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 23:13:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWE3DNn
+	id S1751187AbWE3D2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 23:28:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWE3D2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 23:13:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20695 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751149AbWE3DNn (ORCPT
+	Mon, 29 May 2006 23:28:25 -0400
+Received: from mail.gmx.net ([213.165.64.20]:14226 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751187AbWE3D2Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 23:13:43 -0400
-Date: Mon, 29 May 2006 20:14:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, mason@suse.com,
-       andrea@suse.de, hugh@veritas.com, axboe@suse.de, torvalds@osdl.org
-Subject: Re: [rfc][patch] remove racy sync_page?
-Message-Id: <20060529201444.cd89e0d8.akpm@osdl.org>
-In-Reply-To: <447BB3FD.1070707@yahoo.com.au>
-References: <447AC011.8050708@yahoo.com.au>
-	<20060529121556.349863b8.akpm@osdl.org>
-	<447B8CE6.5000208@yahoo.com.au>
-	<20060529183201.0e8173bc.akpm@osdl.org>
-	<447BB3FD.1070707@yahoo.com.au>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 29 May 2006 23:28:25 -0400
+X-Authenticated: #24879014
+Message-ID: <447BBB6B.3070003@gmx.net>
+Date: Tue, 30 May 2006 15:26:35 +1200
+From: Michael Kerrisk <mtk-manpages@gmx.net>
+User-Agent: Thunderbird 1.5 (X11/20060317)
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: man-pages-2.33 is released
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 May 2006 12:54:53 +1000
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Gidday,
 
-> Andrew Morton wrote:
-> 
-> >On Tue, 30 May 2006 10:08:06 +1000
-> >Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> >
-> >
-> >>Which is what I want to know. I don't exactly have an interesting
-> >>disk setup.
-> >>
-> >
-> >You don't need one - just a single disk should show up such problems.  I
-> >forget which workloads though.  Perhaps just a linear read (readahead
-> >queues the I/O but doesn't unplug, subsequent lock_page() sulks).
-> >
-> 
-> I guess so. Is plugging still needed now that the IO layer should
-> get larger requests? Disabling it might result in a small initial
-> request (although even that may be good for pipelining)...
+I recently released man-pages-2.33, which can be found at the
+location in the .sig.
 
-Mysterious question, that.  A few years ago I think Jens tried pulling unplugging
-out, but some devices still want it (magneto-optical storage iirc).  And I
-think we did try removing it, and it caused hurt.
+Changes in this release that may be of interest to readers
+of this list include the following:
 
-> Otherwise, we could make set_page_dirty_lock use a weird non-unplugging
-> variant
+New page
+--------
 
-Yes, that would work.  In fact the number of times when direct-io actually
-calls set_page_dirty_lock() is infinitesimal - I had to jump through hoops
-to even test that code.  The speculative
-set-the-page-dirty-before-we-do-the-IO thing is very effective.  So the
-performace impact of making such a change would be nil.
+mq_getsetattr.2
+   mtk
+       New page briefly describing mq_getsetattr(2), the system
+       call that underlies mq_setattr(3) and mq_getattr(3).
 
-That's for the direct-io case.  Other cases might be hurt more.
 
-Also, perhaps we could poke kblockd to do it for us.
+==========
 
-> sync_page wants to get either the current mapping, or a NULL one.
-> The sync_page methods must then be able to handle running into a
-> NULL mapping.
-> 
-> With splice, the mapping can change, so you can have the wrong
-> sync_page callback run against the page.
+The man-pages set contains sections 2, 3, 4, 5, and 7 of
+the manual pages.  These sections describe the following:
 
-Oh.
+2: (Linux) system calls
+3: (libc) library functions
+4: Devices
+5: File formats and protocols
+7: Overview pages, conventions, etc.
 
-> >
-> >>Well yes, writing to a page would be the main reason to set it dirty.
-> >>Is splice broken as well? I'm not sure that it always has a ref on the
-> >>inode when stealing a page.
-> >>
-> >
-> >Whereabouts?
-> >
-> 
-> The ->pin() calls in pipe_to_file and pipe_to_sendpage?
+As far as this list is concerned the most relevant parts are:
+all of sections 2 and 4, which describe kernel-userland interfaces;
+in section 5, the proc(5) manual page, which attempts (it's always
+catching up) to be a comprehensive description of /proc; and
+various pages in section 7, some of which are overview pages of
+kernel features (e.g., networking protocols).
 
-One for Jens...
+If you make a change to a kernel-userland interface, or observe
+a discrepancy between the manual pages and reality, would you
+please send me (at mtk-manpages@gmx.net ) one of the following
+(in decreasing order of preference):
 
-> >
-> >>It sounds like you think fixing the set_page_dirty_lock callers wouldn't
-> >>be too difficult? I wouldn't know (although the ptrace one should be
-> >>able to be turned into a set_page_dirty, because we're holding mmap_sem).
-> >>
-> >
-> >No, I think it's damn impossible ;)
-> >
-> >get_user_pages() has gotten us a random pagecache page.  How do we
-> >non-racily get at the address_space prior to locking that page?
-> >
-> >I don't think we can.
-> >
-> 
-> But the vma isn't going to disappear because mmap_sem is held; and the
-> vma should hold a ref on the inode I think?
+1. An in-line "diff -u" patch with text changes for the
+   corresponding manual page.  (The most up-to-date version
+   of the manual pages can always be found at
+   ftp://ftp.win.tue.nl/pub/linux-local/manpages or
+   ftp://ftp.kernel.org/pub/linux/docs/manpages .)
 
-That's true during the get_user_pages() call.  Be we run
-set_page_dirty_lock() much later, after IO completion.
+2. Some raw text describing the changes, which I can then
+   integrate into the appropriate manual page.
 
-> >
-> >>You're sure about all other lock_page()rs? I'm not, given that
-> >>set_page_dirty_lock got it so wrong. But you'd have a better idea than
-> >>me.
-> >>
-> >
-> >No, I'm not sure.
-> >
-> >However it is rare for the kernel to play with pagecache pages against
-> >which the caller doesn't have an inode ref.  Think: how did the caller look
-> >up that page in the first place if not from the address_space in the first
-> >place?
-> >
-> >- get_user_pages(): the current problem
-> >
-> >- page LRU: OK, uses trylock first.
-> >
-> >- pagetable walk??
-> >
-> 
-> Am I wrong about mmap_sem?
-> 
-> Anyway, it is possible that most of the problems could be solved by locking
-> the page at the time of lookup, and unlocking it on completion/dirtying...
-> it's just that that would be a bit of a task.
+3. A message alerting me that some part of the manual pages
+   does not correspond to reality.  Eventually, I will try to
+   remedy the situation.
 
-But lock_page() requires access to the address_space.  To kick the IO so we
-don't wait for ever.
+Obviously, as we get further down this list, more of my time
+is required, and things may go slower, especially when the
+changes concern some part of the kernel that I am ignorant
+about and I can't find someone to assist.
 
-> Can we somehow add BUG_ONs to
-> lock_page to ensure we've got an inode ref?
+Cheers,
 
-WARN_ONs.
+Michael
+-- 
+Michael Kerrisk
+maintainer of Linux man pages Sections 2, 3, 4, 5, and 7
+
+Want to help with man page maintenance?  Grab the latest tarball at
+ftp://ftp.win.tue.nl/pub/linux-local/manpages/,
+read the HOWTOHELP file and grep the source files for 'FIXME'.

@@ -1,146 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWE3Cpa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWE3CzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932087AbWE3Cpa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 22:45:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWE3Cp3
+	id S932068AbWE3CzE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 22:55:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbWE3CzD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 22:45:29 -0400
-Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:46050 "EHLO
-	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932087AbWE3Cp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 22:45:29 -0400
-Message-ID: <447BB1C6.9050901@bigpond.net.au>
-Date: Tue, 30 May 2006 12:45:26 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Mon, 29 May 2006 22:55:03 -0400
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:32351 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932068AbWE3CzC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 22:55:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=4bvC2TZ5jbPR3OQIacxRhMgKbj0kcupffel0maT5MvZdqphE6d0Zaj66fM03QpmGmWQvzK5CFRiUsfVMTThKmxYlm70/Ng/QcEyak2zbX6/UzAoMj7W0deLQi9shzxv+V561qxNo8DGN8/B2ypuSyjJc3z3mGuHNFbnIQzhauMo=  ;
+Message-ID: <447BB3FD.1070707@yahoo.com.au>
+Date: Tue, 30 May 2006 12:54:53 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Sam Vilain <sam@vilain.net>
-CC: =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
-       Mike Galbraith <efault@gmx.de>, Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
-       Rene Herman <rene.herman@keyaccess.nl>,
-       Herbert Poetzl <herbert@13thfloor.at>, Kirill Korotaev <dev@sw.ru>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [RFC 0/5] sched: Add CPU rate caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest> <1148630661.7589.65.camel@homer> <20060526161148.GA23680@atjola.homenet> <447A2853.2080901@vilain.net> <447A3292.5070606@bigpond.net.au> <447A65EA.9020705@vilain.net> <447A6D7B.9090302@bigpond.net.au> <447B64BF.4050806@vilain.net> <447B7FD6.6020405@bigpond.net.au> <447BA8ED.3080904@vilain.net>
-In-Reply-To: <447BA8ED.3080904@vilain.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org, mason@suse.com,
+       andrea@suse.de, hugh@veritas.com, axboe@suse.de, torvalds@osdl.org
+Subject: Re: [rfc][patch] remove racy sync_page?
+References: <447AC011.8050708@yahoo.com.au>	<20060529121556.349863b8.akpm@osdl.org>	<447B8CE6.5000208@yahoo.com.au> <20060529183201.0e8173bc.akpm@osdl.org>
+In-Reply-To: <20060529183201.0e8173bc.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 30 May 2006 02:45:26 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Vilain wrote:
-> Peter Williams wrote:
-> 
->>> I'd certainly be interested in having a look through the split out patch
->>> to see how namespaces and this advanced scheduling system might
->>> interoperate.
->>>    
->>>
->> OK.  I've tried very hard to make the scheduling code orthogonal to 
->> everything else and it essentially separates out the scheduling within a 
->> CPU from other issues e.g. load balancing.  This separation is 
->> sufficiently good for me to have merged PlugSched with an earlier 
->> version of CKRM's CPU management module in a way that made each of 
->> PlugSched's schedulers available within CKRM's infrastructure.  (CKRM 
->> have radically rewritten their CPU code since then and I haven't 
->> bothered to keep up.)
+Andrew Morton wrote:
+
+>On Tue, 30 May 2006 10:08:06 +1000
+>Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+>
+>>Which is what I want to know. I don't exactly have an interesting
+>>disk setup.
 >>
->> The key point that I'm trying to make is that I would expect PlugSched 
->> and namespaces to coexist without any problems.  How it integrates with 
->> the "advanced" scheduling system would depend on how that system alters 
->> things such as load balancing and/or whether it goes for scheduling 
->> outcomes at a higher level than the task.
->>  
+>
+>You don't need one - just a single disk should show up such problems.  I
+>forget which workloads though.  Perhaps just a linear read (readahead
+>queues the I/O but doesn't unplug, subsequent lock_page() sulks).
+>
+
+I guess so. Is plugging still needed now that the IO layer should
+get larger requests? Disabling it might result in a small initial
+request (although even that may be good for pipelining)...
+
+Otherwise, we could make set_page_dirty_lock use a weird non-unplugging
+variant (although maybe that will upset Ken), but I'd rather look
+at simplification first ;)
+
+>
+>>Yes. So set_page_dirty_lock is broken, right?
 >>
-> 
-> Coexisting is the base line and I don't think they'll 'interfere' with
-> each other, per se, but we specifically want to make it easy for
-> userland to set up and configure scheduling policies to apply to groups
-> of processes.
-
-They shouldn't interfere as which scheduler to use is a boot time 
-selection and only one scheduler is in force.  It's mainly a coding 
-matter and in particular whether the "scheduler driver" interface would 
-need to be modified or whether your scheduler can be implemented using 
-the current interface.
-
-> 
-> For instance, the vserver scheduling extension I wrote changes
-> scheduling policy so that the interactivity bonus is reduced to -5 ..
-> -5, and -5 .. +15 is given as a bonus or penalty for an entire vserver
-> that is currently below or above its allocated CPU quotient.  In this
-> case the scheduling algorithm hasn't changed, just more feedback is
-> given into the effective priorities of the processes being scheduled. 
-> ie, there are now two "inputs" (task and vserver) to the existing scheduler.
-> 
-> I guess the big question is - is there a corresponding concept in
-> PlugSched?  for instance, is there a reference in the task_struct to the
-> current scheduling domain, or is it more CKRM-style with classification
-> modules?
-
-It uses the standard run queue structure with per scheduler 
-modifications (via a union) to handle the different ways that the 
-schedulers manage priority arrays (so yes).  As I said it restricts 
-itself to scheduling matters within each run queue and leaves the wider 
-aspects to the normal code.
-
-At first guess, it sounds like adding your scheduler could be as simple 
-as taking a copy of ingosched.c (which is the implementation of the 
-standard scheduler within PlugSched) and then making your modifications. 
-  You could probably even share the same run queue components but 
-there's nothing to stop you adding new ones.
-
-Each scheduler can also have its own per task data via a union in the 
-task struct.
-
-> 
-> If there is a reference in the task_struct to some set of scheduling
-> counters, maybe we could squint and say that looks like a namespace, and
-> throw it into the nsproxy.
-
-Depends on the scheduler.
-
-> 
->> I'm assuming that you're happy to wait for the next release?  That will 
->> improve the likelihood of descriptions in the patches :-).
->>  
+>
+>yup.
+>
+>
+>>And the wait_on_page_stuff needs an inode ref.
+>>Also splice seems to have broken sync_page.
 >>
-> 
-> Let's keep it the technical dialogue going for now, then.
+>
+>Please describe the splice() problem which you've observed.
+>
 
-OK.  I'm waiting for the next -mm kernel before I make the next release.
+sync_page wants to get either the current mapping, or a NULL one.
+The sync_page methods must then be able to handle running into a
+NULL mapping.
 
-> 
-> Now, forgive me if I'm preaching to the vicar here, but have you tried
-> using Stacked Git for the patch development?
+With splice, the mapping can change, so you can have the wrong
+sync_page callback run against the page.
 
-No, I actually use the gquilt GUI wrapper for quilt 
-<http://freshmeat.net/projects/gquilt/> and, although I've modified it 
-to use a generic interface to the underlying patch management system 
-(a.k.a. back end), I haven't yet modified it to use Stacked GIT as a 
-back end.  I have thought about it and it was the primary motivation for 
-adding the generic interface but I ran out of enthusiasm.
+>
+>>Well yes, writing to a page would be the main reason to set it dirty.
+>>Is splice broken as well? I'm not sure that it always has a ref on the
+>>inode when stealing a page.
+>>
+>
+>Whereabouts?
+>
 
->  I find the way that you
-> build patch descriptions as you go along, can easily wind the commit
-> stack to work on individual patches and import other people's work to be
-> very simple and powerful.
-> 
->   http://www.procode.org/stgit/
-> 
-> I just mention this because you're not the first person I've talked to
-> using Quilt to express some difficulty in producing incremental patchset
-> snapshots.  Not having used Quilt myself I'm unsure whether this is a
-> deficiency or just "the way it is" once a patch set gets big.
+The ->pin() calls in pipe_to_file and pipe_to_sendpage?
 
-Making quilt easier to use is why I wrote gquilt :-)
+>
+>>It sounds like you think fixing the set_page_dirty_lock callers wouldn't
+>>be too difficult? I wouldn't know (although the ptrace one should be
+>>able to be turned into a set_page_dirty, because we're holding mmap_sem).
+>>
+>
+>No, I think it's damn impossible ;)
+>
+>get_user_pages() has gotten us a random pagecache page.  How do we
+>non-racily get at the address_space prior to locking that page?
+>
+>I don't think we can.
+>
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+But the vma isn't going to disappear because mmap_sem is held; and the
+vma should hold a ref on the inode I think?
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+>
+>>You're sure about all other lock_page()rs? I'm not, given that
+>>set_page_dirty_lock got it so wrong. But you'd have a better idea than
+>>me.
+>>
+>
+>No, I'm not sure.
+>
+>However it is rare for the kernel to play with pagecache pages against
+>which the caller doesn't have an inode ref.  Think: how did the caller look
+>up that page in the first place if not from the address_space in the first
+>place?
+>
+>- get_user_pages(): the current problem
+>
+>- page LRU: OK, uses trylock first.
+>
+>- pagetable walk??
+>
+
+Am I wrong about mmap_sem?
+
+Anyway, it is possible that most of the problems could be solved by locking
+the page at the time of lookup, and unlocking it on completion/dirtying...
+it's just that that would be a bit of a task. Can we somehow add BUG_ONs to
+lock_page to ensure we've got an inode ref?
+
+--
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

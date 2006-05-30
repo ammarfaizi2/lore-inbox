@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWE3IWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWE3I3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbWE3IWP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 04:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbWE3IWP
+	id S932171AbWE3I3D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 04:29:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWE3I3C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 04:22:15 -0400
-Received: from smtp1.xs4all.be ([195.144.64.135]:53904 "EHLO smtp1.xs4all.be")
-	by vger.kernel.org with ESMTP id S932152AbWE3IWO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 04:22:14 -0400
-Date: Tue, 30 May 2006 10:21:41 +0200
-From: Frank Gevaerts <frank.gevaerts@fks.be>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: Frank Gevaerts <frank.gevaerts@fks.be>, Pete Zaitcev <zaitcev@redhat.com>,
-       linux-kernel@vger.kernel.org, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: usb-serial ipaq kernel problem
-Message-ID: <20060530082141.GA26517@fks.be>
-References: <20060526182217.GA12687@fks.be> <20060526133410.9cfff805.zaitcev@redhat.com> <20060529120102.1bc28bf2@doriath.conectiva> <20060529132553.08b225ba@doriath.conectiva> <20060529141110.6d149e21@doriath.conectiva> <20060529194334.GA32440@fks.be> <20060529172410.63dffa72@doriath.conectiva> <20060529204724.GA22250@fks.be> <20060529193330.3c51f3ba@home.brethil>
-Mime-Version: 1.0
+	Tue, 30 May 2006 04:29:02 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:25301 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932171AbWE3I3A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 04:29:00 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060529193330.3c51f3ba@home.brethil>
-User-Agent: Mutt/1.5.9i
-X-FKS-MailScanner: Found to be clean
-X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-105.814,
-	vereist 5, autolearn=not spam, ALL_TRUSTED -3.30, AWL 0.09,
-	BAYES_00 -2.60, USER_IN_WHITELIST -100.00)
+Content-Transfer-Encoding: 7bit
+Message-ID: <17532.305.602559.660069@gargle.gargle.HOWL>
+Date: Tue, 30 May 2006 12:24:17 +0400
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, mason@suse.com, andrea@suse.de, hugh@veritas.com,
+       axboe@suse.de
+Subject: Re: [rfc][patch] remove racy sync_page?
+Newsgroups: gmane.linux.kernel,gmane.linux.kernel.mm
+In-Reply-To: <447BD63D.2080900@yahoo.com.au>
+References: <447AC011.8050708@yahoo.com.au>
+	<20060529121556.349863b8.akpm@osdl.org>
+	<447B8CE6.5000208@yahoo.com.au>
+	<20060529183201.0e8173bc.akpm@osdl.org>
+	<447BB3FD.1070707@yahoo.com.au>
+	<Pine.LNX.4.64.0605292117310.5623@g5.osdl.org>
+	<447BD31E.7000503@yahoo.com.au>
+	<447BD63D.2080900@yahoo.com.au>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 29, 2006 at 07:33:30PM -0300, Luiz Fernando N. Capitulino wrote:
-> On Mon, 29 May 2006 22:47:24 +0200
-> Frank Gevaerts <frank.gevaerts@fks.be> wrote:
-> | 
-> | The panic was caused by the read urb being submitten in ipaq_open,
-> | regardless of success, and never killed in case of failure. What my
-> | patch basically does is to submit the urb only after succesfully sending
-> | the control message, and adding a sleep between tries. As long as this
-> | patch is not applied, we hardly get any other error because the kernel
-> | panics as soon as an ipaq reboots.
-> 
->  I see.
-> 
->  Did you try to just kill the read urb in the ipaq_open's error path?
+Nick Piggin writes:
+ > Nick Piggin wrote:
+ > > Linus Torvalds wrote:
+ > > 
+ > >>
+ > >> Why do you think the IO layer should get larger requests?
+ > > 
+ > > 
+ > > For workloads where plugging helps (ie. lots of smaller, contiguous
+ > > requests going into the IO layer), should be pretty good these days
+ > > due to multiple readahead and writeback.
+ > 
+ > Let me try again.
+ > 
+ > For workloads where plugging helps (ie. lots of smaller, contiguous
+ > requests going into the IO layer), the request pattern should be
+ > pretty good without plugging these days, due to multiple page
+ > readahead and writeback.
 
-Yes, that's what I did at first. It works, but with the long waits (we see
-waits up to 80-90 seconds right now) I was afraid that the urb might timeout
-before the control message succeeds.
+Pageout by VM scanner doesn't benefit from those, and it is still quite
+important in some workloads (e.g., mmap intensive).
 
-Frank
-
-> 
-> -- 
-> Luiz Fernando N. Capitulino
-
--- 
-Frank Gevaerts                                 frank.gevaerts@fks.be
-fks bvba - Formal and Knowledge Systems        http://www.fks.be/
-Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
-B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19
+Nikita.

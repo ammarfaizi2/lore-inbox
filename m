@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWE3RDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWE3RCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbWE3RDE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 13:03:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWE3RDE
+	id S932337AbWE3RCq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 13:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbWE3RCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 13:03:04 -0400
-Received: from [64.62.168.36] ([64.62.168.36]:35237 "EHLO gigablast.com")
-	by vger.kernel.org with ESMTP id S932339AbWE3RDC (ORCPT
+	Tue, 30 May 2006 13:02:46 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:55850 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932337AbWE3RCp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 13:03:02 -0400
-Message-ID: <447C7B49.4010003@gigablast.com>
-Date: Tue, 30 May 2006 11:05:13 -0600
-From: Javier Olivares <jolivares@gigablast.com>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Bug Fix for 2GB core limit in 2.4
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 30 May 2006 13:02:45 -0400
+Date: Tue, 30 May 2006 19:04:35 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: .17rc5 cfq slab corruption.
+Message-ID: <20060530170435.GC4199@suse.de>
+References: <20060526213915.GB7585@redhat.com> <20060526170013.67391a2b.akpm@osdl.org> <20060527070724.GB24988@suse.de> <20060527133122.GB3086@redhat.com> <20060530131728.GX4199@suse.de> <20060530161232.GA17218@redhat.com> <20060530164917.GB4199@suse.de> <20060530165649.GB17218@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060530165649.GB17218@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We were having problems when running programs that used over 2GB of ram 
-not being able to generate core files over 2GB, these are some very 
-simple changes that fixed the problem.
+On Tue, May 30 2006, Dave Jones wrote:
+> On Tue, May 30, 2006 at 06:49:18PM +0200, Jens Axboe wrote:
+> 
+>  > > List corruption. next->prev should be f74a5e2c, but was ea7ed31c
+>  > > Pointing at cfq_set_request.
+>  > 
+>  > I think I'm missing a piece of this - what list was corrupted, in what
+>  > function did it trigger?
+> 
+> If you look at the attachment in the bugzilla url in my previous msg,
+> you'll see this:
+> 
+> ay 30 05:31:33 mandril kernel: List corruption. next->prev should be f74a5e2c, but was ea7ed31c
+> May 30 05:31:33 mandril kernel: ------------[ cut here ]------------
+> May 30 05:31:33 mandril kernel: kernel BUG at include/linux/list.h:58!
+> May 30 05:31:33 mandril kernel: invalid opcode: 0000 [#1]
+> May 30 05:31:33 mandril kernel: SMP
+> May 30 05:31:33 mandril kernel: last sysfs file: /devices/pci0000:00/0000:00:1f.3/i2c-0/0-002e/pwm3
+> May 30 05:31:33 mandril kernel: Modules linked in: iptable_filter ipt_DSCP iptable_mangle ip_tables x_tables eeprom lm85 hwmon_vid hwmon i2c_isa ipv6 nls_utf8 loop dm_mirror dm_mod video button battery ac lp parport_pc parport ehci_hcd uhci_hcd floppy snd_intel8x0 snd_ac97_codec snd_ac97_bus sg snd_seq_dummy matroxfb_base snd_seq_oss snd_seq_midi_event matroxfb_DAC1064 snd_seq matroxfb_accel matroxfb_Ti3026 3w_9xxx matroxfb_g450 snd_seq_device g450_pll matroxfb_misc snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd e1000 soundcore snd_page_alloc i2c_i801 i2c_core ext3 jbd 3w_xxxx ata_piix libata sd_mod scsi_mod
+> May 30 05:31:33 mandril kernel: CPU:    0
+> May 30 05:31:33 mandril kernel: EIP:    0060:[<c04e3310>]    Not tainted VLI
+> May 30 05:31:33 mandril kernel: EFLAGS: 00210292   (2.6.16-1.2227_FC6 #1)
+> May 30 05:31:33 mandril kernel: EIP is at cfq_set_request+0x202/0x3ff
 
-linux-2.4.31/fs/binfmt_elf.c
-1024c1024
-< static int dump_seek(struct file *file, off_t off)
----
- > static int dump_seek(struct file *file, loff_t off)
+Just do a l *cfq_set_request+0x202 from gdb if you have
+CONFIG_DEBUG_INFO enabled in your vmlinux.
 
-Changed the function parameter "off" from type "off_t" to "loff_t".  The 
-parameter was truncating the incoming long long type to a long, causing 
-the seek to fail and kill the dump when off grew above 2GB.
+-- 
+Jens Axboe
 
-/kernels/2.4.31/linux-2.4.31/fs/exec.c
-1151c1151
-<     file = filp_open(corename, O_CREAT | 2 | O_NOFOLLOW, 0600);
----
- >     file = filp_open(corename, O_CREAT | 2 | O_NOFOLLOW | 
-O_LARGEFILE, 0600);
-
-Included the O_LARGEFILE flag in order to create files over 2GB.
-
-The changes have been running on many Debian systems for a couple of 
-months.  Valid core files just over 3GB have been created without any 
-problem.  I have never submitted anything like this before so please 
-excuse any lack of proper protocol.
-Thank you.
-
--Javier Olivares

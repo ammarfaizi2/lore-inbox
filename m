@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWE3WJP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbWE3WNc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932523AbWE3WJP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 18:09:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbWE3WJO
+	id S932521AbWE3WNc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 18:13:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbWE3WNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 18:09:14 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:38788 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932518AbWE3WJN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 18:09:13 -0400
-Date: Wed, 31 May 2006 00:09:32 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Arjan van de Ven <arjan@linux.intel.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.17-rc5-mm1
-Message-ID: <20060530220931.GA32759@elte.hu>
-References: <20060530022925.8a67b613.akpm@osdl.org> <6bffcb0e0605301155h3b472d79h65e8403e7fa0b214@mail.gmail.com> <6bffcb0e0605301157o6b7c5f66q3c9f151cbb4537d5@mail.gmail.com> <20060530194259.GB22742@elte.hu> <6bffcb0e0605301457v9ba284bk75b8b6d14384489a@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 May 2006 18:13:32 -0400
+Received: from nz-out-0102.google.com ([64.233.162.198]:50969 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932521AbWE3WNb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 18:13:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=c/eniYeeY1hmiXoduZftcYem/dn1reqJHO4avH9qXNaDMrErWXWyvN038irHh6SE9oDavveuvjTuvvX7oPxVJx5QuuxUxCzsqDfIFhbzZhNAgVRvWtCnWtS60eUZZTMQNVkoS7kHvxAAxSi8a1jyPpL2PREmzd3nKjsf4xxfKwc=
+Message-ID: <9e4733910605301513i1ee986c3gd221e8ce586ab471@mail.gmail.com>
+Date: Tue, 30 May 2006 18:13:20 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Subject: Re: OpenGL-based framebuffer concepts
+Cc: "David Lang" <dlang@digitalinsight.com>, "Dave Airlie" <airlied@gmail.com>,
+       "D. Hazelton" <dhazelton@enter.net>, "Pavel Machek" <pavel@ucw.cz>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <447CBEC5.1080602@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <6bffcb0e0605301457v9ba284bk75b8b6d14384489a@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <200605272245.22320.dhazelton@enter.net>
+	 <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com>
+	 <200605280112.01639.dhazelton@enter.net>
+	 <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com>
+	 <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com>
+	 <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz>
+	 <447CBEC5.1080602@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 5/30/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+> A framebuffer driver can be faster than vgacon.  Scrolling is also smooth
+> even for vesafb because of a new scrolling method (pan_redraw) introduced
+> sometime in 2.6.10.  I don't know about less cpu required, that's probably
+> true.
 
-* Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+To put this in perspective all of those numbers are drawing screens
+way faster than your monitor refresh rate so the text isn't visible.
 
-> >  http://redhat.com/~mingo/lockdep-patches/latency-tracing-lockdep.patch
-> >
-> >just apply it ontop of your current tree and accept all the new .config
-> >options as the kernel suggests them to you.
-> 
-> I can't boot with that patch. I even don't see "Uncompressing
-> Linux..." - machine reboots.
-> I have 2.6.17-rc5-mm1 +
-> genirq-cleanup-remove-irq_descp-fix.patch
-> lock-validator-irqtrace-support-non-x86-architectures.patch
-> lock-validator-special-locking-sb-s_umount-2-fix.patch
-> from hot fixes
-> +
-> Arjan's net/ipv4/igmp.c patch.
+Highest speed where you could actually see the data, assuming that you
+can read at 70 FPS...
+3229 lines / 25 lines per screen / 70Hz refresh = 1.85s
+3229 lines / 50 lines per screen / 70Hz refresh = 0.92s
 
-could you try to 1) disable PREEMPT, 2) apply the -V2 rollup of all 
-fixes so far to 2.6.17-rc5-mm1:
+But faster code in fbdev is good since it lowers the overall CPU load.
 
- http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-rc5-mm1.patch
+I would like to see fbdev acceleration unified with the other drivers
+(DRM/X) so that a single state is maintained in the hardware.
 
-? I'll try your config meanwhile.
-
-	Ingo
+-- 
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWE3S1G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWE3ScB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbWE3S1G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 14:27:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWE3S1F
+	id S932375AbWE3ScB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 14:32:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWE3ScB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 14:27:05 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:28631 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932373AbWE3S1E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 14:27:04 -0400
-Date: Tue, 30 May 2006 11:26:55 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Mark Lord <liml@rtr.ca>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [git patch] libata resume fix
-In-Reply-To: <447C4718.6090802@rtr.ca>
-Message-ID: <Pine.LNX.4.64.0605301122340.5623@g5.osdl.org>
-References: <20060528203419.GA15087@havoc.gtf.org> <1148938482.5959.27.camel@localhost.localdomain>
- <447C4718.6090802@rtr.ca>
+	Tue, 30 May 2006 14:32:01 -0400
+Received: from silver.veritas.com ([143.127.12.111]:19899 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932375AbWE3ScA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 14:32:00 -0400
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="4.05,190,1146466800"; 
+   d="scan'208"; a="38654627:sNHT21717300"
+Date: Tue, 30 May 2006 19:31:52 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mason@suse.com,
+       andrea@suse.de, axboe@suse.de
+Subject: Re: [rfc][patch] remove racy sync_page?
+In-Reply-To: <447BD9CE.2020505@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0605301911480.10355@blonde.wat.veritas.com>
+References: <447AC011.8050708@yahoo.com.au> <20060529121556.349863b8.akpm@osdl.org>
+ <447B8CE6.5000208@yahoo.com.au> <20060529183201.0e8173bc.akpm@osdl.org>
+ <447BB3FD.1070707@yahoo.com.au> <Pine.LNX.4.64.0605292117310.5623@g5.osdl.org>
+ <447BD31E.7000503@yahoo.com.au> <447BD9CE.2020505@yahoo.com.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 30 May 2006 18:32:00.0014 (UTC) FILETIME=[56B032E0:01C68417]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 30 May 2006, Mark Lord wrote:
+On Tue, 30 May 2006, Nick Piggin wrote:
 > 
-> Not in a suspend/resume capable notebook, though.
-> 
-> I don't know of *any* notebook drives that take longer
-> than perhaps five seconds to spin-up and accept commands.
-> Such a slow drive wouldn't really be tolerated by end-users,
-> which is why they don't exist.
+> But for 2.6.17, how's this?
 
-Indeed. In fact, I'd be surprised to see it in a desktop too.
+It was a great emperor's-clothes-like discovery.  But we've survived
+for so many years without noticing, does it have to be fixed right
+now for 2.6.17?  (I bet I'd be insisting yes if I'd found it.)
 
-At least at one point, in order to get a M$ hw qualification (whatever 
-it's called - but every single hw manufacturer wants it, because some 
-vendors won't use your hardware if you don't have it), a laptop needed to 
-boot up in less than 30 seconds or something.
+The thing I don't like about your lock_page_nosync (reasonable as
+it is) is that the one case you're using it, set_page_dirty_nolock,
+would be so much happier not to have to lock the page in the first
+place - it's only doing _that_ to stabilize page->mapping, and the
+lock_page forbids it from being called from anywhere that can't
+sleep, which is often just where we want to call it from.  Neil's
+suggestion, using a spin_lock against the mapping changing, would
+help there; but seems like more work than I'd want to get into.
 
-And that wasn't the disk spin-up time. That was the time until the Windows 
-desktop was visible.
+So, although I think lock_page_nosync fixes the bug (at least in
+that one place we've identified there's likely to be such a bug),
+it seems to be aiming at the wrong target.  I'm pacing and thinking,
+doubt I'll come up with anything better, please don't hold breath.
 
-Desktops could do a bit longer, and I think servers didn't have any time 
-limits, but the point is that selling a disk that takes a long time to 
-start working is actually not that easy. 
-
-The market that has accepted slow bootup times is historically the server 
-market (don't ask me why - you'd think that with five-nines uptime 
-guarantees you'd want fast bootup), and so you'll find large SCSI disks in 
-particular with long spin-up times. In the laptop and desktop space I'd be 
-very surprised to see anythign longer than a few seconds.
-
-		Linus
+Hugh

@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbWE3VhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932494AbWE3Viq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932490AbWE3VhX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 17:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbWE3VhX
+	id S932494AbWE3Viq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 17:38:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWE3Viq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 17:37:23 -0400
-Received: from smtp1.xs4all.be ([195.144.64.135]:33727 "EHLO smtp1.xs4all.be")
-	by vger.kernel.org with ESMTP id S932490AbWE3VhW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 17:37:22 -0400
-Date: Tue, 30 May 2006 23:36:35 +0200
-From: Frank Gevaerts <frank.gevaerts@fks.be>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: Frank Gevaerts <frank.gevaerts@fks.be>, Pete Zaitcev <zaitcev@redhat.com>,
-       linux-kernel@vger.kernel.org, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: usb-serial ipaq kernel problem
-Message-ID: <20060530213635.GA28443@fks.be>
-References: <20060529141110.6d149e21@doriath.conectiva> <20060529194334.GA32440@fks.be> <20060529172410.63dffa72@doriath.conectiva> <20060529204724.GA22250@fks.be> <20060529193330.3c51f3ba@home.brethil> <20060530082141.GA26517@fks.be> <20060530113801.22c71afe@doriath.conectiva> <20060530115329.30184aa0@doriath.conectiva> <20060530174821.GA15969@fks.be> <20060530175208.2c2dedaa@doriath.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 May 2006 17:38:46 -0400
+Received: from wr-out-0506.google.com ([64.233.184.231]:13971 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932494AbWE3Vip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 17:38:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Un7OPqi0pBw7Nfg66K8MHsewFUNHnSKM6miliSMJODz5T8UzyrXWoJvELmNueGsVdYIPwt88kq7FDa5i+bAiD85F7D/slpYuw73e6oS9Z837ZUGWdOgTARNm9nrsT830xjgCvVCV9LZxIEAOu1DNj6zOhVGZpTD76BsA9PMR1IM=
+Message-ID: <4d8e3fd30605301438k457f6242x1df64df9bab7f8f1@mail.gmail.com>
+Date: Tue, 30 May 2006 23:38:44 +0200
+From: "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com>
+To: "Jens Axboe" <axboe@suse.de>
+Subject: Re: [PATCH] fcache: a remapping boot cache
+Cc: linux-kernel@vger.kernel.org, mason@suse.com
+In-Reply-To: <20060516074628.GA16317@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060530175208.2c2dedaa@doriath.conectiva>
-User-Agent: Mutt/1.5.9i
-X-FKS-MailScanner: Found to be clean
-X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-105.815,
-	vereist 5, autolearn=not spam, ALL_TRUSTED -3.30, AWL 0.08,
-	BAYES_00 -2.60, USER_IN_WHITELIST -100.00)
+References: <20060515091806.GA4110@suse.de> <20060515101019.GA4068@suse.de>
+	 <20060516074628.GA16317@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 30, 2006 at 05:52:08PM -0300, Luiz Fernando N. Capitulino wrote:
-> On Tue, 30 May 2006 19:48:21 +0200
-> Frank Gevaerts <frank.gevaerts@fks.be> wrote:
-> 
-> | On Tue, May 30, 2006 at 11:53:29AM -0300, Luiz Fernando N. Capitulino wrote:
-> | > On Tue, 30 May 2006 11:38:01 -0300
-> | > "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> wrote:
-> | > 
-> | >  If it ran _before_ the timeout expires with no timeout error it does not
-> | > depend. Then we can do the simpler solution: just kill the read urb in the
-> | > ipaq_open's error path.
-> | 
-> | That seems to work.
-> | I also found that both the return in ipaq_write_bulk_callback and the
-> | flush_scheduled_work() in destroy_serial() are needed to get rid of the
-> | usb_serial_disconnect() bug.
-> 
->  Then did you hit it with my patch?
-> 
->  I'm just worried with the fact that you're hitting it with every
-> proposed fix. Maybe it's something else.
+On 5/16/06, Jens Axboe <axboe@suse.de> wrote:
+> On Mon, May 15 2006, Jens Axboe wrote:
+> > On Mon, May 15 2006, Jens Axboe wrote:
+> > > o Trying it on my notebook brought the time from the kernel starts
+> > >   loading to kde has fully auto-logged in down from 50 seconds to 38
+> > >   seconds. The primed boot took 61 seconds. The notebook is about 4
+> > >   months old and the file system is very fresh, so better results should
+> > >   be seen on more fragmented installs.
+> >
+[...]
+> git://brick.kernel.dk/data/git/linux-2.6-block.git fcache
 
-I'm hitting it with either of the proposed fixes, but not when both are
-applied.
+Just cloned.
 
-Frank
+Any progress on this project Jens?
 
-> 
-> -- 
-> Luiz Fernando N. Capitulino
+I'll try to apply the patch to mainline and post here some numbers.
 
+Ciao,
 -- 
-Frank Gevaerts                                 frank.gevaerts@fks.be
-fks bvba - Formal and Knowledge Systems        http://www.fks.be/
-Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
-B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19
+Paolo
+http://paolociarrocchi.googlepages.com

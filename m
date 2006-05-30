@@ -1,58 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbWE3XZZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964820AbWE3X11@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964816AbWE3XZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 19:25:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbWE3XZZ
+	id S964820AbWE3X11 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 19:27:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbWE3X11
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 19:25:25 -0400
-Received: from omta05sl.mx.bigpond.com ([144.140.93.195]:40905 "EHLO
-	omta05sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S964816AbWE3XZY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 19:25:24 -0400
-Message-ID: <447CD460.6020001@bigpond.net.au>
-Date: Wed, 31 May 2006 09:25:20 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Tue, 30 May 2006 19:27:27 -0400
+Received: from nz-out-0102.google.com ([64.233.162.205]:19222 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S964820AbWE3X10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 19:27:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NUvQtf5JzJpYDtDw7jH6aJ1B7t1tUOtuxfGo/13+fv27rL3dULxNZ+4K8RsXrGSPoAqOWpqEwbK1SQ1U7v7n2BJJksNLANBbm9EJHDP3BAAoCK/q74rGN20A94NNB2ynYdEkQqGXI24ltIg0zbdTNRjXE7gOItw6CFkA07aDwBI=
+Message-ID: <9e4733910605301627t2f28db08vf58c78e2656b7047@mail.gmail.com>
+Date: Tue, 30 May 2006 19:27:25 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Dave Airlie" <airlied@gmail.com>
+Subject: Re: OpenGL-based framebuffer concepts
+Cc: "Pavel Machek" <pavel@ucw.cz>, "D. Hazelton" <dhazelton@enter.net>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <21d7e9970605301601t37f8d3ddwaf4a900ed8997fdf@mail.gmail.com>
 MIME-Version: 1.0
-To: Sam Vilain <sam@vilain.net>
-CC: =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
-       Mike Galbraith <efault@gmx.de>, Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
-       Rene Herman <rene.herman@keyaccess.nl>,
-       Herbert Poetzl <herbert@13thfloor.at>, Kirill Korotaev <dev@sw.ru>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [RFC 0/5] sched: Add CPU rate caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest> <1148630661.7589.65.camel@homer> <20060526161148.GA23680@atjola.homenet> <447A2853.2080901@vilain.net> <447A3292.5070606@bigpond.net.au> <447A65EA.9020705@vilain.net> <447A6D7B.9090302@bigpond.net.au> <447B64BF.4050806@vilain.net> <447B7FD6.6020405@bigpond.net.au> <447BA8ED.3080904@vilain.net> <447BB1C6.9050901@bigpond.net.au> <447CC19D.4020603@vilain.net>
-In-Reply-To: <447CC19D.4020603@vilain.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 30 May 2006 23:25:21 +0000
+Content-Disposition: inline
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <200605280112.01639.dhazelton@enter.net>
+	 <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com>
+	 <20060529102339.GA746@elf.ucw.cz>
+	 <21d7e9970605290336m1f80b08nebbd2a995be959cb@mail.gmail.com>
+	 <20060529124840.GD746@elf.ucw.cz>
+	 <21d7e9970605291623k3636f7hcc12028cad5e962b@mail.gmail.com>
+	 <20060530202401.GC16106@elf.ucw.cz>
+	 <9e4733910605301356k64dcd75fo38e45e1b7572817f@mail.gmail.com>
+	 <21d7e9970605301601t37f8d3ddwaf4a900ed8997fdf@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Vilain wrote:
-> Peter Williams wrote:
-> 
->> No, I actually use the gquilt GUI wrapper for quilt 
->> <http://freshmeat.net/projects/gquilt/> and, although I've modified it 
->> to use a generic interface to the underlying patch management system 
->> (a.k.a. back end), I haven't yet modified it to use Stacked GIT as a 
->> back end.  I have thought about it and it was the primary motivation for 
->> adding the generic interface but I ran out of enthusiasm.
->>  
->>
-> 
-> Hmm, guess the vicar disclaimer was a good one to make.
-> 
-> Well maybe you'll find the attached file motivating, then.
+On 5/30/06, Dave Airlie <airlied@gmail.com> wrote:
+> Actually the suspend/resume has to be in userspace, X just re-posts
+> the video ROM and reloads the registers... so the repost on resume has
+> to happen... so some component needs to be in userspace..
 
-Maybe.
+I'd like to see the simple video POST program get finished. All of the
+pieces are lying around. A key step missing is to getting klibc added
+to the kernel tree which is being worked on.
 
-Thanks
-Peter
+BenH has the emu86 code. I agree that is simpler to always use emu86
+and not bother with vm86. He also pointed out that we need to copy the
+image back into the kernel after the ROM runs. Right now you can only
+read the ROM image from the sysfs attribute. The ROM code has support
+for keeping an image in RAM, it just isn't hooked up to the sysfs
+attribute for writing it.
+
+The pci device struct tracks primary vs secondary cards. How does this
+reposting work on laptops where the primary ROM may not really be
+there? We have the shadow copy, is it always safe to rerun it?
+
+At boot, inside the kernel device driver of the video card there would
+be a small piece of logic that check the pci device struct, if
+secondary it uses call_userspace() to trigger the reset program. The
+driver has to suspend at this point until user space hits an sysfs
+attribute and tells it that it is safe to proceed. This mechanism will
+allow us to reset secondary cards at boot.
+
+Small programs like this are the same way I would handle mode setting
+for cards that have to do it in user space. A normal user could use an
+IOCTL to set the mode and then the driver uses call_userspace() to do
+the actual mode setting in root context. This lets you set your mode
+without being root and it stops you from setting the mode on video
+hardware that you don't own. Everything happens through a device node
+making it easy for PAM to assign ownership.
+
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Jon Smirl
+jonsmirl@gmail.com

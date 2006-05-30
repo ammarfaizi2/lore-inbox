@@ -1,128 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751461AbWE3MZq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbWE3M0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751461AbWE3MZq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 08:25:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWE3MZq
+	id S1751462AbWE3M0O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 08:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbWE3M0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 08:25:46 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.193]:9415 "EHLO
-	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S1751461AbWE3MZp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 08:25:45 -0400
-To: adilger@clusterfs.com
-Cc: sct@redhat.com, tytso@mit.edu, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, jitendra@linsyssoft.com,
-       cmm@us.ibm.com
-Subject: Re: [UPDATE][13/24]ext3 enlarge file size
-Message-Id: <20060530212540sho@rifu.tnes.nec.co.jp>
+	Tue, 30 May 2006 08:26:14 -0400
+Received: from mail.gmx.net ([213.165.64.20]:17867 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751462AbWE3M0N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 08:26:13 -0400
+X-Authenticated: #14349625
+Subject: Re: [patch, -rc5-mm1] lock validator, fix NULL type->name bug
+From: Mike Galbraith <efault@gmx.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060530121952.GA9625@elte.hu>
+References: <20060530022925.8a67b613.akpm@osdl.org>
+	 <20060530111138.GA5078@elte.hu> <1148990326.7599.4.camel@homer>
+	 <1148990725.8610.1.camel@homer> <20060530120641.GA8263@elte.hu>
+	 <1148991422.8610.8.camel@homer>  <20060530121952.GA9625@elte.hu>
+Content-Type: text/plain
+Date: Tue, 30 May 2006 14:28:18 +0200
+Message-Id: <1148992098.8700.2.camel@homer>
 Mime-Version: 1.0
-X-Mailer: WeMail32[2.51] ID:1K0086
-From: sho@tnes.nec.co.jp
-Date: Tue, 30 May 2006 21:25:40 +0900
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andreas,
-
-On May 26, 2006, Andreas wrote:
-> > @@ -1465,7 +1472,7 @@ static int ext3_fill_super (struct super
-> >  
-> >  	if (blocksize > PAGE_SIZE) {
-> >  		printk(KERN_ERR "EXT3-fs: cannot mount filesystem with "
-> > -		       "blocksize %u larger than PAGE_SIZE %u on %s\n",
-> > +		       "blocksize %u larger than PAGE_SIZE %lu on %s\n",
-> >  		       blocksize, PAGE_SIZE, sb->s_id);
+On Tue, 2006-05-30 at 14:19 +0200, Ingo Molnar wrote:
+> * Mike Galbraith <efault@gmx.de> wrote:
 > 
-> Why is it that PAGE_SIZE is suddenly changing from unsigned 
-> to unsigned long?
-
-Oops, you are right.
-
-> On May 25, 2006  21:50 +0900, sho@tnes.nec.co.jp wrote:
-> > @@ -2630,8 +2630,13 @@ void ext3_read_inode(struct inode * inod
-> > +	if (ei->i_flags & EXT3_HUGE_FILE_FL) {
-> > +		inode->i_blocks = 
-> (blkcnt_t)le32_to_cpu(raw_inode->i_blocks)
-> > +			<< (inode->i_blkbits - EXT3_SECTOR_BITS);
+> > I have nmi_watchdog=1.  I'll reboot with 0 and see if it'll trigger.
+> > 
+> > I found a warning.
 > 
-> Please put operators at the end of the line.
-
-Sure.
-
-> > @@ -2763,9 +2769,30 @@ static int ext3_do_update_inode(handle_t
-> > +	} else {
-> > +		err = ext3_journal_get_write_access(handle,
-> > +				EXT3_SB(sb)->s_sbh);
-> > +		if (err)
-> > +			goto out_brelse;
-> > +		ext3_update_dynamic_rev(sb);
-> > +		EXT3_SET_RO_COMPAT_FEATURE(sb,
-> > +				EXT3_FEATURE_RO_COMPAT_HUGE_FILE);
-> > +		sb->s_dirt = 1;
-> > +		handle->h_sync = 1;
-> > +		err = ext3_journal_dirty_metadata(handle,
-> > +				EXT3_SB(sb)->s_sbh);
-> > +		printk("ext3_do_update_inode: Now the file size is "
-> > +		       "more than 2TB on device (%s)!!\n", sb->s_id);
+> > BUG: warning at kernel/lockdep.c:2398/check_flags()
 > 
-> This part should all be conditional upon RO_COMPAT_HUGE_FILE 
-> not already
-> being set in the superblock.  It might make sense to put this into a
-> helper function and call it from here and also where 
-> RO_COMPAT_LARGE_FILE
-> is checked.  We can probably remove the printk entirely.
+> this one could be related to NMI. We are already disabling NMI on 
+> x86_64, but i thought i had it fixed up for i386 - apparently not.
 
-Agree.
+Booted with nmi_watchdog=0, no warning and no deadlock.  It produced
+fruit for NFTS.
 
-> > +static loff_t ext3_max_size(int bits, struct super_block *sb)
-> >  {
-> >  	/* This constant is calculated to be the largest file size for a
-> >  	 * dense, 4k-blocksize file such that the total number of
-> >  	 * sectors in the file, including data and all indirect blocks,
-> >  	 * does not exceed 2^32. */
-> > +	if (sizeof(blkcnt_t) < sizeof(u64)) {
-> > +		upper_limit = 0x1ff7fffd000LL;
-> > +	}
-> > +	/* With CONFIG_LSF on, file size is limited to 
-> blocksize*(4G-1) */
-> > +	else { 
-> > +		upper_limit = (1LL << (bits + 32)) - (1LL << bits);
-> > +	}
-> 
-> This doesn't take into account that there will be some number of extra
-> blocks on the file for {dt}indirect blocks.  There was some discussion
-> among ext3 developers to use another field in the inode to allow the
-> i_blocks count to grow up to 2^48 bits in conjunction with this
-> patch, which will remove any worry about additional metadata blocks
-> and alsoallow future growth without yet another COMPAT flag.
+=====================================================
+[ BUG: possible circular locking deadlock detected! ]
+-----------------------------------------------------
+mount/2545 is trying to acquire lock:
+ (&ni->mrec_lock){--..}, at: [<b13d1563>] mutex_lock+0x8/0xa
 
-I'm considering using l_i_frag and l_i_fsize as the high bits of
-i_blocks for 48-bits, besides i_blocks in fs blocksize.  Is there any
-comment?
+but task is already holding lock:
+ (&rl->lock){----}, at: [<b1165306>] ntfs_map_runlist+0x14/0xa7
 
-> > @@ -1699,6 +1706,18 @@ static int ext3_fill_super (struct super
-> > +	if (EXT3_HAS_RO_COMPAT_FEATURE(sb,
-> > +	    EXT3_FEATURE_RO_COMPAT_HUGE_FILE)) {
-> > +		if (sizeof(root->i_blocks) < sizeof(u64)) {
-> > +			if (!(sb->s_flags & MS_RDONLY)) {
-> > +				printk(KERN_ERR "EXT3-fs: %s: 
-> Having huge file with "
-> > +						"LSF off, you 
-> must mount filesystem "
-> > +						"read-only.\n", 
-> sb->s_id);
-> > +				goto failed_mount;
-> 
-> Instead of indenting so deeply here, this could just be a 
-> single condition:
+which lock already depends on the new lock,
+which could lead to circular deadlocks!
 
-Agree.
+the existing dependency chain (in reverse order) is:
 
-Thanks a lot, Andreas!
+-> #1 (&rl->lock){----}:
+       [<b103d9f8>] lockdep_acquire+0x61/0x77
+       [<b11613ae>] ntfs_readpage+0x92c/0xb53
+       [<b10540c8>] read_cache_page+0x95/0x15a
+       [<b1174b0e>] map_mft_record+0xda/0x28a
+       [<b117187f>] ntfs_read_locked_inode+0x5d/0x1559
+       [<b1174212>] ntfs_read_inode_mount+0x572/0xb30
+       [<b1183f8c>] ntfs_fill_super+0xc9e/0x1467
+       [<b1078ac2>] get_sb_bdev+0xee/0x141
+       [<b117eff5>] ntfs_get_sb+0x1a/0x20
+       [<b107880c>] vfs_kern_mount+0x9a/0x166
+       [<b1078920>] do_kern_mount+0x30/0x43
+       [<b108ea7f>] do_mount+0x464/0x7ba
+       [<b108ee44>] sys_mount+0x6f/0xa4
+       [<b13d3043>] syscall_call+0x7/0xb
 
+-> #0 (&ni->mrec_lock){--..}:
+       [<b103d9f8>] lockdep_acquire+0x61/0x77
+       [<b13d14a5>] __mutex_lock_slowpath+0x49/0xff
+       [<b13d1563>] mutex_lock+0x8/0xa
+       [<b1174a51>] map_mft_record+0x1d/0x28a
+       [<b1164b77>] ntfs_map_runlist_nolock+0x378/0x4a6
+       [<b1165360>] ntfs_map_runlist+0x6e/0xa7
+       [<b1161375>] ntfs_readpage+0x8f3/0xb53
+       [<b10540c8>] read_cache_page+0x95/0x15a
+       [<b11806e5>] load_system_files+0x1e3/0x1e5c
+       [<b1183fec>] ntfs_fill_super+0xcfe/0x1467
+       [<b1078ac2>] get_sb_bdev+0xee/0x141
+       [<b117eff5>] ntfs_get_sb+0x1a/0x20
+       [<b107880c>] vfs_kern_mount+0x9a/0x166
+       [<b1078920>] do_kern_mount+0x30/0x43
+       [<b108ea7f>] do_mount+0x464/0x7ba
+       [<b108ee44>] sys_mount+0x6f/0xa4
+       [<b13d3043>] syscall_call+0x7/0xb
 
-Cheers, sho
+other info that might help us debug this:
+
+2 locks held by mount/2545:
+ #0:  (&s->s_umount){----}, at: [<b10782db>] sget+0x1d9/0x3bd
+ #1:  (&rl->lock){----}, at: [<b1165306>] ntfs_map_runlist+0x14/0xa7
+
+stack backtrace:
+ <b1003dd2> show_trace+0xd/0xf  <b10044c0> dump_stack+0x17/0x19
+ <b103c9ca> print_circular_bug_tail+0x5d/0x66  <b103d145> __lockdep_acquire+0x772/0xc32
+ <b103d9f8> lockdep_acquire+0x61/0x77  <b13d14a5> __mutex_lock_slowpath+0x49/0xff
+ <b13d1563> mutex_lock+0x8/0xa  <b1174a51> map_mft_record+0x1d/0x28a
+ <b1164b77> ntfs_map_runlist_nolock+0x378/0x4a6  <b1165360> ntfs_map_runlist+0x6e/0xa7
+ <b1161375> ntfs_readpage+0x8f3/0xb53  <b10540c8> read_cache_page+0x95/0x15a
+ <b11806e5> load_system_files+0x1e3/0x1e5c  <b1183fec> ntfs_fill_super+0xcfe/0x1467
+ <b1078ac2> get_sb_bdev+0xee/0x141  <b117eff5> ntfs_get_sb+0x1a/0x20
+ <b107880c> vfs_kern_mount+0x9a/0x166  <b1078920> do_kern_mount+0x30/0x43
+ <b108ea7f> do_mount+0x464/0x7ba  <b108ee44> sys_mount+0x6f/0xa4
+ <b13d3043> syscall_call+0x7/0xb 
 
 

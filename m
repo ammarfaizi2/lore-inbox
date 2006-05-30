@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbWE3NWf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751495AbWE3NY4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751295AbWE3NWf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 09:22:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWE3NWf
+	id S1751495AbWE3NY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 09:24:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbWE3NY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 09:22:35 -0400
-Received: from rtr.ca ([64.26.128.89]:45233 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1751400AbWE3NWe (ORCPT
+	Tue, 30 May 2006 09:24:56 -0400
+Received: from mail.gmx.de ([213.165.64.20]:1947 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751495AbWE3NYz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 09:22:34 -0400
-Message-ID: <447C4718.6090802@rtr.ca>
-Date: Tue, 30 May 2006 09:22:32 -0400
-From: Mark Lord <liml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [git patch] libata resume fix
-References: <20060528203419.GA15087@havoc.gtf.org> <1148938482.5959.27.camel@localhost.localdomain>
-In-Reply-To: <1148938482.5959.27.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 30 May 2006 09:24:55 -0400
+X-Authenticated: #14349625
+Subject: Re: 2.6.17-rc4-mm3 cfq oops->panic w. fs damage
+From: Mike Galbraith <efault@gmx.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Al Viro <viro@ftp.linux.org.uk>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060530123652.GV4199@suse.de>
+References: <1148793123.7572.22.camel@homer>
+	 <20060528052514.GQ27946@ftp.linux.org.uk> <1148796018.11873.11.camel@homer>
+	 <1148802491.8083.7.camel@homer> <1148803384.8757.7.camel@homer>
+	 <1148804675.7755.2.camel@homer> <1148900440.9817.46.camel@homer>
+	 <20060530123652.GV4199@suse.de>
+Content-Type: text/plain
+Date: Tue, 30 May 2006 15:27:12 +0200
+Message-Id: <1148995632.7574.4.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
-> On Sun, 2006-05-28 at 16:34 -0400, Jeff Garzik wrote:
->> Please pull from 'upstream-fixes' branch of
->> master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
->>
->> to receive the following updates:
->>
->>  drivers/scsi/libata-core.c |    1 +
->>  1 file changed, 1 insertion(+)
->>
->> Mark Lord:
->>       the latest consensus libata resume fix
-> 
-> If your devices are coming from poweron-reset then you will have to wait
-> up to 31 seconds :( And yes, I _did_ have such a device at one point.
+On Tue, 2006-05-30 at 14:36 +0200, Jens Axboe wrote:
 
-Not in a suspend/resume capable notebook, though.
+> I'm suspecting a recent -mm change, since git-cfq hasn't changed in
+> quite a while and it used to work just fine.
 
-I don't know of *any* notebook drives that take longer
-than perhaps five seconds to spin-up and accept commands.
-Such a slow drive wouldn't really be tolerated by end-users,
-which is why they don't exist.
+It's apparently not mm.  I just plugged it into 2.6.17-rc4, and get the
+same explosion.  It doesn't seem to play well with the changes in
+2.6.17-rc1.
 
-But I suppose people will want to suspend/resume bigger machines
-too, in which case a 10000rpm Raptor might need 15 seconds or so.
+	-Mike
 
-We could bump up the existing timeout, I suppose.
-
-Perhaps Jeff could comment on any potential harm in libata
-for going all the way to 3100000 with the timeout?
-
-Cheers

@@ -1,75 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbWE3Lz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbWE3L4d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750939AbWE3Lz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 07:55:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbWE3Lz5
+	id S1750930AbWE3L4d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 07:56:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750934AbWE3L4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 07:55:57 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:10459 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750925AbWE3Lz4 (ORCPT
+	Tue, 30 May 2006 07:56:33 -0400
+Received: from mail.gmx.net ([213.165.64.20]:42137 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750928AbWE3L4c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 07:55:56 -0400
-Date: Tue, 30 May 2006 13:55:45 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, netdev@vger.kernel.org, kuznet@ms2.inr.ac.ru,
-       alan@redhat.com
-Subject: [patch, -rc5-mm1] lock validator: remove softirq.c WARN_ON
-Message-ID: <20060530115545.GA7025@elte.hu>
-References: <20060530022925.8a67b613.akpm@osdl.org> <447C261E.1090202@gmail.com>
+	Tue, 30 May 2006 07:56:32 -0400
+X-Authenticated: #14349625
+Subject: Re: [patch, -rc5-mm1] lock validator, fix NULL type->name bug
+From: Mike Galbraith <efault@gmx.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060530111138.GA5078@elte.hu>
+References: <20060530022925.8a67b613.akpm@osdl.org>
+	 <20060530111138.GA5078@elte.hu>
+Content-Type: text/plain
+Date: Tue, 30 May 2006 13:58:46 +0200
+Message-Id: <1148990326.7599.4.camel@homer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <447C261E.1090202@gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Jiri Slaby <jirislaby@gmail.com> wrote:
-
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Tue, 2006-05-30 at 13:11 +0200, Ingo Molnar wrote:
+> Subject: lock validator, fix NULL type->name bug
+> From: Ingo Molnar <mingo@elte.hu>
 > 
-> Andrew Morton napsal(a):
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm1/
-> 
-> BUG: warning at /l/latest/xxx/kernel/softirq.c:86/local_bh_disable()
+> this should fix the bug reported Mike Galbraith: pass in a non-NULL 
+> mutex name string even if DEBUG_MUTEXES is turned off.
 
-ok, that WARN_ON is over-eager. Fix is below:
+Well, yes and no.  It cures the oops, and it almost boots.  It passes
+all tests, and gets to where we start mounting things...
 
---------------
-Subject: lock validator: remove softirq.c WARN_ON
-From: Ingo Molnar <mingo@elte.hu>
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS on hdc1, internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
 
-there is nothing wrong with calling local_bh_disable() in irqs-off
-section (as long as the local_bh_enable isnt done with irqs-off),
-so remove this over-eager WARN_ON().
+=====================================================
+[ BUG: possible circular locking deadlock detected! ]
+-----------------------------------------------------
+mount/2545 is trying to acquire lock:
+ (&ni->mrec_lock){--..}, at: [<b13d1563>] mutex_lock+0x8/0xa
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
----
- kernel/softirq.c |    1 -
- 1 file changed, 1 deletion(-)
+...and deadlocks.
 
-Index: linux/kernel/softirq.c
-===================================================================
---- linux.orig/kernel/softirq.c
-+++ linux/kernel/softirq.c
-@@ -83,7 +83,6 @@ static void __local_bh_disable(unsigned 
- 
- void local_bh_disable(void)
- {
--	WARN_ON_ONCE(irqs_disabled());
- 	__local_bh_disable((unsigned long)__builtin_return_address(0));
- }
- 
+I'll try to find out what it hates.
+
+	-Mike
+

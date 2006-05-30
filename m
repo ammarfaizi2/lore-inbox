@@ -1,128 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWE3QrX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbWE3QuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbWE3QrX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 12:47:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbWE3QrW
+	id S932324AbWE3QuI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 12:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbWE3QuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 12:47:22 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:64542 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932294AbWE3QrW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 12:47:22 -0400
-Date: Tue, 30 May 2006 18:49:18 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: .17rc5 cfq slab corruption.
-Message-ID: <20060530164917.GB4199@suse.de>
-References: <20060526213915.GB7585@redhat.com> <20060526170013.67391a2b.akpm@osdl.org> <20060527070724.GB24988@suse.de> <20060527133122.GB3086@redhat.com> <20060530131728.GX4199@suse.de> <20060530161232.GA17218@redhat.com>
+	Tue, 30 May 2006 12:50:08 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:22251 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932324AbWE3QuH (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 12:50:07 -0400
+Message-Id: <200605301649.k4UGnooZ004266@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Voluspa <lista1@comhem.se>
+Cc: wfg@mail.ustc.edu.cn, linux-kernel@vger.kernel.org
+Subject: Re: Adaptive Readahead V14 - statistics question...
+In-Reply-To: Your message of "Tue, 30 May 2006 05:36:31 +0200."
+             <20060530053631.57899084.lista1@comhem.se>
+From: Valdis.Kletnieks@vt.edu
+References: <20060530053631.57899084.lista1@comhem.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060530161232.GA17218@redhat.com>
+Content-Type: multipart/signed; boundary="==_Exmh_1149007790_3454P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 30 May 2006 12:49:50 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 30 2006, Dave Jones wrote:
-> On Tue, May 30, 2006 at 03:17:28PM +0200, Jens Axboe wrote:
->  > On Sat, May 27 2006, Dave Jones wrote:
->  > > On Sat, May 27, 2006 at 09:07:24AM +0200, Jens Axboe wrote:
->  > >  > On Fri, May 26 2006, Andrew Morton wrote:
->  > >  > > Dave Jones <davej@redhat.com> wrote:
->  > >  > > >
->  > >  > > > Was playing with googles new picasa toy, which hammered the disks
->  > >  > > > hunting out every image file it could find, when this popped out:
->  > >  > > > 
->  > >  > > > Slab corruption: (Not tainted) start=ffff810012b998c8, len=168
->  > >  > > > Redzone: 0x5a2cf071/0x5a2cf071.
->  > >  > > > Last user: [<ffffffff8032c319>](cfq_free_io_context+0x2f/0x74)
->  > >  > > > 090: 10 bd 28 1b 00 81 ff ff 6b 6b 6b 6b 6b 6b 6b 6b
->  > >  > > > Prev obj: start=ffff810012b99808, len=168
->  > >  > > > Redzone: 0x5a2cf071/0x5a2cf071.
->  > >  > > > Last user: [<ffffffff8032c319>](cfq_free_io_context+0x2f/0x74)
->  > >  > > > 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
->  > >  > > > 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
->  > >  > > > Next obj: start=ffff810012b99988, len=168
->  > >  > > > Redzone: 0x5a2cf071/0x5a2cf071.
->  > >  > > > Last user: [<ffffffff8032c319>](cfq_free_io_context+0x2f/0x74)
->  > >  > > > 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
->  > >  > > > 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
->  > >  > 
->  > >  > Pretty baffling... cfq has been hammered pretty thoroughly over the
->  > >  > last months and _nothing_ has shown up except some performance anomalies
->  > >  > that are now fixed. Since daves case (at least) seems to be
->  > >  > use-after-free, I'll see if I can reproduce with some contrived case.
->  > >  > I'm asuming that picasa forks and exits a lot with submitted io in
->  > >  > between than may not have finished at exit.
->  > > 
->  > > The second time I hit it, was actually during boot up.
->  > 
->  > Dave, do you have any io scheduler switching going on?
-> 
-> Here's something interesting (possibly unrelated).
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=193534
-> 
-> I added this patch to our devel kernel (based on 17rc5-git5 right now)
-> 
-> It's similar to the list_head debugging patch from -mm
-> 
-> --- linux-2.6.12/include/linux/list.h~	2005-08-08 15:34:50.000000000 -0400
-> +++ linux-2.6.12/include/linux/list.h	2005-08-08 15:35:22.000000000 -0400
-> @@ -5,7 +5,9 @@
->  
->  #include <linux/stddef.h>
->  #include <linux/prefetch.h>
-> +#include <linux/kernel.h>
->  #include <asm/system.h>
-> +#include <asm/bug.h>
->  
->  /*
->   * These are non-NULL pointers that will result in page faults
-> @@ -52,6 +52,16 @@ static inline void __list_add(struct lis
->  			      struct list_head *prev,
->  			      struct list_head *next)
->  {
-> +	if (next->prev != prev) {
-> +		printk("List corruption. next->prev should be %p, but was %p\n",
-> +				prev, next->prev);
-> +		BUG();
-> +	}
-> +	if (prev->next != next) {
-> +		printk("List corruption. prev->next should be %p, but was %p\n",
-> +				next, prev->next);
-> +		BUG();
-> +	}
->  	next->prev = new;
->  	new->next = next;
->  	new->prev = prev;
-> @@ -162,6 +162,16 @@ static inline void __list_del(struct lis
->   */
->  static inline void list_del(struct list_head *entry)
->  {
-> +	if (entry->prev->next != entry) {
-> +		printk("List corruption. prev->next should be %p, but was %p\n",
-> +				entry, entry->prev->next);
-> +		BUG();
-> +	}
-> +	if (entry->next->prev != entry) {
-> +		printk("List corruption. next->prev should be %p, but was %p\n",
-> +				entry, entry->next->prev);
-> +		BUG();
-> +	}
->  	__list_del(entry->prev, entry->next);
->  	entry->next = LIST_POISON1;
->  	entry->prev = LIST_POISON2;
-> 
-> 
-> And then it turned up this:
-> 
-> List corruption. next->prev should be f74a5e2c, but was ea7ed31c
-> Pointing at cfq_set_request.
+--==_Exmh_1149007790_3454P
+Content-Type: text/plain; charset=us-ascii
 
-I think I'm missing a piece of this - what list was corrupted, in what
-function did it trigger?
+On Tue, 30 May 2006 05:36:31 +0200, Voluspa said:
+> On 2006-05-30 0:37:57 Wu Fengguang wrote:
+> > On Mon, May 29, 2006 at 03:44:59PM -0400, Valdis Kletnieks wrote:
+> [...]
+> >> doing anything useful? (One thing I've noticed is that xmms, rather
+> >> than gobble up 100K of data off disk every 10 seconds or so, snarfs
+> >> a big 2M chunk every 3-4 minutes, often sucking in an entire song at
+> >> (nearly) one shot...)
+> >
+> > Hehe, it's resulted from the enlarged default max readahead size(128K
+> > => 1M). Too much aggressive? I'm interesting to know the recommended
+> > size for desktops, thanks. For now you can adjust it through the
+> > 'blockdev --setra /dev/hda' command.
+
+Actually, it doesn't seem too aggressive at all - I have 768M of memory,
+and the larger max readahead means that it hits the disk 1/8th as often
+for a bigger slurp.  Since I'm on a laptop with a slow 5400rpm 60g disk,
+a 128K seek-and-read "costs" almost exactly the same as a 1M seek-and-read...
+
+(If I was more memory constrained, I'd probably be hitting that --setra though ;)
+
+The only hard numbers I have so far are a build of a 17-rc4-mm3 kernel tree
+under -mm3+readahead and a slightly older -mm2 - the readahead kernel got
+through the build about 30 seconds faster (19 mins 45 secs versus 20:17 -but
+that's only 1 trial each).
+
+Oh.. another "hard number" - elapsed time for a 4AM 'tripwire' run from cron
+with a -mm3+readahead kernel was 36 minutes. A few days earlier, a -mm3
+kernel took 46 minutes for the same thing.  I'll have to go and retry this
+with equivalent cache-cold scenarios - I *think* the file cache was roughly
+equivalent, but can't prove it...
+
+The desktop "feel" is certainly at least as good, but it's a lot harder
+to quantify that - yesterday I was doing some heavy-duty cleaning in my
+~/Mail directory (MH-style one message per file, about 250K files and 3G,
+obviously seriously in need of cleaning).  I'd often have 2 different
+'find | xargs grep' type commands running at a time, and that seemed to
+work a lot better than it used to (but again, no numbers)..
+
+Damn, this is a lot harder to benchmark than the sort of microbenchmarks
+we usually see around here. :)
+
+> And notebooks? I'm running a 64bit system with 2gig memory and a 7200
+> RPM disk. Without your patches a movie like Elephants_Dream_HD.avi
+> causes a continuous silent read. After patching 2.6.17-rc5 (more on that
+> later) there's a slow 'click-read-click-read-click-etc' during the
+> same movie as the head travels _somewhere_ to rest(?) between reads.
+
+For my usage patterns, this is a feature, not a bug. As mentioned before,
+on this machine anything that reduces the number of seeks is a Good Thing.
+
+> Distracting in silent sequences, and perhaps increased disk wear/tear.
+
+It would be increased wear/tear only if the disk was idle long enough to
+spin down. Especially for video, the read-ahead needed to let the disk spin
+down (assuming a sane timeout for that) would be enormous. :)
+
+> I'll try adjusting the readahead size towards silence tomorrow.
+
+The onboard sound chip is an ok-quality CS4205, the onboard speakers are crap.
+However, running the audio through a nice pair of Kenwood headphones is a good
+solution. I don't hear the disk (or sometimes even the phone), and my
+co-workers don't have to hear my Malmsteen collection. :)
 
 
--- 
-Jens Axboe
 
+--==_Exmh_1149007790_3454P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEfHeucC3lWbTT17ARAtuoAJ4/FUKELt1RsL0eWryUKiTUAQVTEQCg3xUr
+NP3s9Exg3jRcxp91HNGloxw=
+=LrT5
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1149007790_3454P--

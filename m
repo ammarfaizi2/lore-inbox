@@ -1,43 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751469AbWE3M3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751473AbWE3M3b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751469AbWE3M3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 08:29:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbWE3M3Q
+	id S1751473AbWE3M3b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 08:29:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbWE3M3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 08:29:16 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:26833 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751469AbWE3M3P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 08:29:15 -0400
-Subject: Re: Possible MTD bug in 2.6.15
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jim Ramsay <kernel@jimramsay.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4789af9e0604190949t42677b35mcba4ee57b92ffff9@mail.gmail.com>
-References: <4789af9e0604190949t42677b35mcba4ee57b92ffff9@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 30 May 2006 13:30:08 +0100
-Message-Id: <1148992208.2885.171.camel@hades.cambridge.redhat.com>
+	Tue, 30 May 2006 08:29:30 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:53426 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751472AbWE3M32 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 08:29:28 -0400
+Date: Tue, 30 May 2006 14:29:50 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [patch, -rc5-mm1] lock validator: disable NMI watchdog if CONFIG_LOCKDEP, i386
+Message-ID: <20060530122950.GA10216@elte.hu>
+References: <20060530022925.8a67b613.akpm@osdl.org> <20060530111138.GA5078@elte.hu> <1148990326.7599.4.camel@homer> <1148990725.8610.1.camel@homer> <20060530120641.GA8263@elte.hu> <1148991422.8610.8.camel@homer> <20060530121952.GA9625@elte.hu> <1148992098.8700.2.camel@homer>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1148992098.8700.2.camel@homer>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-04-19 at 10:49 -0600, Jim Ramsay wrote:
-> We have an interesting problem with MTD and a flash chip on an
-> embedded board.  The problem stems from the fact that due to hardware
-> constraints we can only access up to 32M of address space on an
-> attached flash device.  However, the actual part attached to the board
-> is 64M.  Yes, I know this is not likely to happen, but it points at a
-> kernel bug which will happen if you ever specify a MTD map->size which
-> is less than the actual size of the CFI flash chip. 
 
-Please could you confirm this is fixed in the current MTD git tree (and
-in the current -mm kernel). 
+* Mike Galbraith <efault@gmx.de> wrote:
 
--- 
-dwmw2
+> > > BUG: warning at kernel/lockdep.c:2398/check_flags()
+> > 
+> > this one could be related to NMI. We are already disabling NMI on 
+> > x86_64, but i thought i had it fixed up for i386 - apparently not.
+> 
+> Booted with nmi_watchdog=0, no warning and no deadlock.
 
+ok, great. The patch below turns off NMI on i386 automatically.
+
+-------------------
+Subject: lock validator: disable NMI watchdog if CONFIG_LOCKDEP, i386
+From: Ingo Molnar <mingo@elte.hu>
+
+The NMI watchdog uses spinlocks (notifier chains, etc.),
+so it's not lockdep-safe at the moment.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
+ arch/i386/kernel/nmi.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+Index: linux/arch/i386/kernel/nmi.c
+===================================================================
+--- linux.orig/arch/i386/kernel/nmi.c
++++ linux/arch/i386/kernel/nmi.c
+@@ -741,6 +741,17 @@ static void stop_intel_arch_watchdog(voi
+ 
+ void setup_apic_nmi_watchdog (void *unused)
+ {
++#ifdef CONFIG_LOCKDEP
++	/*
++	 * The NMI watchdog uses spinlocks (notifier chains, etc.),
++	 * so it's not lockdep-safe:
++	 */
++	nmi_watchdog = NMI_NONE;
++	printk("lockdep: disabled NMI watchdog.\n");
++
++	return;
++#endif
++
+ 	/* only support LOCAL and IO APICs for now */
+ 	if ((nmi_watchdog != NMI_LOCAL_APIC) &&
+ 	    (nmi_watchdog != NMI_IO_APIC))

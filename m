@@ -1,128 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWE3OHq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbWE3OIV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932287AbWE3OHq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 10:07:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWE3OHp
+	id S932280AbWE3OIV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 10:08:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbWE3OHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 10:07:45 -0400
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:6551 "EHLO
+	Tue, 30 May 2006 10:07:53 -0400
+Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:2199 "EHLO
 	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S932287AbWE3OHh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 10:07:37 -0400
+	id S932280AbWE3OH0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 10:07:26 -0400
 From: Catalin Marinas <catalin.marinas@arm.com>
 Reply-To: catalin.marinas@gmail.com
-Subject: [PATCH 2.6.17-rc5 7/7] Simple testing for kmemleak
-Date: Tue, 30 May 2006 15:07:35 +0100
+Subject: [PATCH 2.6.17-rc5 2/7] Some documentation for kmemleak
+Date: Tue, 30 May 2006 15:07:19 +0100
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060530140735.21491.15343.stgit@localhost.localdomain>
+Message-Id: <20060530140718.21491.92823.stgit@localhost.localdomain>
 In-Reply-To: <20060530135016.21491.34817.stgit@localhost.localdomain>
 References: <20060530135016.21491.34817.stgit@localhost.localdomain>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.9
-X-OriginalArrivalTime: 30 May 2006 14:07:35.0914 (UTC) FILETIME=[66F2A4A0:01C683F2]
+X-OriginalArrivalTime: 30 May 2006 14:07:19.0962 (UTC) FILETIME=[5D708FA0:01C683F2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Catalin Marinas <catalin.marinas@arm.com>
-
-This patch only contains some very simple testing at the moment. Proper
-testing will be needed.
+From: Catalin Marinas <catalin.marinas@gmail.com>
 
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 ---
 
- lib/Kconfig.debug |    9 +++++++++
- mm/Makefile       |    1 +
- mm/memleak-test.c |   54 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 64 insertions(+), 0 deletions(-)
+ Documentation/kmemleak.txt |   92 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 92 insertions(+), 0 deletions(-)
 
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 821565a..d0404e2 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -122,6 +122,15 @@ config DEBUG_MEMLEAK_PREINIT_POINTERS
- 	  buffer will be freed once the system initialization is
- 	  completed.
- 
-+config DEBUG_MEMLEAK_TEST
-+	tristate "Test the kernel memory leak detector"
-+	default n
-+	depends on DEBUG_MEMLEAK
-+	help
-+	  Say Y here to build the test harness for the kernel memory
-+	  leak detector. At the moment, this option enables a module
-+	  that explicitly leaks memory.
-+
- config DEBUG_PREEMPT
- 	bool "Debug preemptible kernel"
- 	depends on DEBUG_KERNEL && PREEMPT
-diff --git a/mm/Makefile b/mm/Makefile
-index d487d96..aef1bd8 100644
---- a/mm/Makefile
-+++ b/mm/Makefile
-@@ -24,3 +24,4 @@ obj-$(CONFIG_MEMORY_HOTPLUG) += memory_h
- obj-$(CONFIG_FS_XIP) += filemap_xip.o
- obj-$(CONFIG_MIGRATION) += migrate.o
- obj-$(CONFIG_DEBUG_MEMLEAK) += memleak.o
-+obj-$(CONFIG_DEBUG_MEMLEAK_TEST) += memleak-test.o
-diff --git a/mm/memleak-test.c b/mm/memleak-test.c
+diff --git a/Documentation/kmemleak.txt b/Documentation/kmemleak.txt
 new file mode 100644
-index 0000000..15ddd36
+index 0000000..7072325
 --- /dev/null
-+++ b/mm/memleak-test.c
-@@ -0,0 +1,54 @@
-+/*
-+ * mm/memleak-test.c
-+ *
-+ * Copyright (C) 2006 ARM Limited
-+ * Written by Catalin Marinas <catalin.marinas@arm.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ */
++++ b/Documentation/kmemleak.txt
+@@ -0,0 +1,92 @@
++Kernel Memory Leak Detector
++===========================
 +
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/vmalloc.h>
 +
-+#include <linux/memleak.h>
++Introduction
++------------
 +
-+/* Some very simple testing. This function needs to be extended for
-+ * proper testing */
-+static int __init memleak_test_init(void)
-+{
-+	printk(KERN_INFO "KMemLeak testing\n");
++Kmemleak provides a way of detecting possible kernel memory leaks in a
++way similar to a tracing garbage collector
++(http://en.wikipedia.org/wiki/Garbage_collection_%28computer_science%29#Tracing_garbage_collectors),
++with the difference that the orphan pointers are not freed but only
++reported via /sys/kernel/debug/memleak. A similar method is used by
++the Valgrind tool (memcheck --leak-check) to detect the memory leaks
++in user-space applications.
 +
-+	/* make some orphan pointers */
-+	kmalloc(32, GFP_KERNEL);
-+	kmalloc(32, GFP_KERNEL);
-+#ifndef CONFIG_MODULES
-+	kmem_cache_alloc(files_cachep, GFP_KERNEL);
-+	kmem_cache_alloc(files_cachep, GFP_KERNEL);
-+#endif
-+	vmalloc(64);
-+	vmalloc(64);
 +
-+	return 0;
-+}
-+module_init(memleak_test_init);
++Basic Algorithm
++---------------
 +
-+static void __exit memleak_test_exit(void)
-+{
-+}
-+module_exit(memleak_test_exit);
++The memory allocations via kmalloc, vmalloc, kmem_cache_alloc and
++friends are tracked and the pointers, together with additional
++information like size and stack trace, are stored in a radix tree. The
++corresponding freeing function calls are tracked and the pointers
++removed from the radix tree.
 +
-+MODULE_LICENSE("GPL");
++An allocated block of memory is considered orphan if a pointer to its
++start address or to an alias (pointer aliases are explained later)
++cannot be found by scanning the memory (including saved
++registers). This means that there might be no way for the kernel to
++pass the address of the allocated block to a freeing function and
++therefore the block is considered a leak.
++
++The scanning algorithm steps:
++
++  1. mark all pointers as white (remaining white pointers will later
++     be considered orphan)
++  2. scan the memory starting with the data section and stacks,
++     checking the values against the addresses stored in the radix
++     tree. If a white pointer is found, it is added to the grey list
++  3. scan the grey pointers for matching addresses (some white
++     pointers can become grey and added at the end of the grey list)
++     until the grey set is finished
++  4. the remaining white pointers are considered orphan and reported
++     via /sys/kernel/debug/memleak
++
++
++Improvements
++------------
++
++Because the Linux kernel calculates many pointers at run-time via the
++container_of macro (see the lists implementation), a lot of false
++positives would be reported. This tool re-writes the container_of
++macro so that the offset and size information is stored in the
++.init.memleak_offsets section. The memleak_init() function creates a
++radix tree with corresponding offsets for every encountered block
++size. The memory allocations hook stores the pointer address together
++with its aliases based on the size of the allocated block.
++
++While one level of offsets should be enough for most cases, two levels
++are considered, i.e. container_of(container_of(...)) (one false
++positive is the "struct socket_alloc" allocation in the
++sock_alloc_inode() function).
++
++Some allocated memory blocks have pointers stored in the kernel's
++internal data structures and they cannot be detected as orphans. To
++avoid this, kmemleak can also store the number of values equal to the
++pointer (or aliases) that need to be found so that the block is not
++considered a leak. One example is __vmalloc().
++
++
++Limitations and Drawbacks
++-------------------------
++
++The biggest drawback is the reduced performance of memory allocation
++and freeing. To avoid other penalties, the memory scanning is only
++performed when the /sys/kernel/debug/memleak file is read. Anyway,
++this tool is intended for debugging purposes where the performance
++might not be the most important requirement.
++
++The tool can report false positives. These are cases where an
++allocated block doesn't need to be freed (some cases in the init_call
++functions), the pointer is calculated by other methods than the
++container_of macro or the pointer is stored in a location not scanned
++by kmemleak. If the "member" argument in the offsetof(type, member)
++call is not constant, kmemleak considers the offset as zero since it
++cannot be determined at compilation time (as a side node, it seems
++that gcc-4.0 doesn't compile these offsetof constructs either).
++
++Page allocations and ioremap are not tracked. NUMA architectures are
++not supported yet.
++
++Only the ARM and i386 architectures are currently supported.

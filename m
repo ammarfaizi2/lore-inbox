@@ -1,64 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbWE3Tnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbWE3Tq6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932440AbWE3Tnm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 15:43:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932441AbWE3Tnm
+	id S932446AbWE3Tq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 15:46:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWE3Tq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 15:43:42 -0400
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:15501 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S932440AbWE3Tnl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 15:43:41 -0400
-X-IronPort-AV: i="4.05,190,1146466800"; 
-   d="scan'208"; a="323814411:sNHT31136794"
-To: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm1
-X-Message-Flag: Warning: May contain useful information
-References: <20060530022925.8a67b613.akpm@osdl.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 30 May 2006 12:43:39 -0700
-In-Reply-To: <20060530022925.8a67b613.akpm@osdl.org> (Andrew Morton's message of "Tue, 30 May 2006 02:29:25 -0700")
-Message-ID: <adaac8z70yc.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
+	Tue, 30 May 2006 15:46:58 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:22281 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932446AbWE3Tq5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 15:46:57 -0400
+Date: Tue, 30 May 2006 21:48:53 +0200
+From: Jens Axboe <axboe@suse.de>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: .17rc5 cfq slab corruption.
+Message-ID: <20060530194852.GN4199@suse.de>
+References: <20060530131728.GX4199@suse.de> <20060530161232.GA17218@redhat.com> <20060530164917.GB4199@suse.de> <20060530165649.GB17218@redhat.com> <20060530170435.GC4199@suse.de> <20060530184911.GD4199@suse.de> <20060530185158.GG4199@suse.de> <20060530191126.GJ4199@suse.de> <87slmrwbvq.fsf@duaron.myhome.or.jp> <20060530194211.GL4199@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 30 May 2006 19:43:40.0679 (UTC) FILETIME=[5A159970:01C68421]
-Authentication-Results: sj-dkim-3.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+Content-Disposition: inline
+In-Reply-To: <20060530194211.GL4199@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Building 2.6.17-rc5-mm1, I get this:
+On Tue, May 30 2006, Jens Axboe wrote:
+> On Wed, May 31 2006, OGAWA Hirofumi wrote:
+> > Jens Axboe <axboe@suse.de> writes:
+> > 
+> > > On Tue, May 30 2006, Jens Axboe wrote:
+> > >> On Tue, May 30 2006, Jens Axboe wrote:
+> > >> > On Tue, May 30 2006, Jens Axboe wrote:
+> > >> > > On Tue, May 30 2006, Dave Jones wrote:
+> > >> > > > On Tue, May 30, 2006 at 06:49:18PM +0200, Jens Axboe wrote:
+> > >> > > > 
+> > >> > > >  > > List corruption. next->prev should be f74a5e2c, but was ea7ed31c
+> > >> > > >  > > Pointing at cfq_set_request.
+> > >> > > >  > 
+> > >> > > >  > I think I'm missing a piece of this - what list was corrupted, in what
+> > >> > > >  > function did it trigger?
+> > >> > > > 
+> > >> > > > If you look at the attachment in the bugzilla url in my previous msg,
+> > >> > > > you'll see this:
+> > >> > > > 
+> > >> > > > ay 30 05:31:33 mandril kernel: List corruption. next->prev should be f74a5e2c, but was ea7ed31c
+> > >> > > > May 30 05:31:33 mandril kernel: ------------[ cut here ]------------
+> > >> > > > May 30 05:31:33 mandril kernel: kernel BUG at include/linux/list.h:58!
+> > >> > > > May 30 05:31:33 mandril kernel: invalid opcode: 0000 [#1]
+> > >> > > > May 30 05:31:33 mandril kernel: SMP
+> > >> > > > May 30 05:31:33 mandril kernel: last sysfs file: /devices/pci0000:00/0000:00:1f.3/i2c-0/0-002e/pwm3
+> > >> > > > May 30 05:31:33 mandril kernel: Modules linked in: iptable_filter ipt_DSCP iptable_mangle ip_tables x_tables eeprom lm85 hwmon_vid hwmon i2c_isa ipv6 nls_utf8 loop dm_mirror dm_mod video button battery ac lp parport_pc parport ehci_hcd uhci_hcd floppy snd_intel8x0 snd_ac97_codec snd_ac97_bus sg snd_seq_dummy matroxfb_base snd_seq_oss snd_seq_midi_event matroxfb_DAC1064 snd_seq matroxfb_accel matroxfb_Ti3026 3w_9xxx matroxfb_g450 snd_seq_device g450_pll matroxfb_misc snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd e1000 soundcore snd_page_alloc i2c_i801 i2c_core ext3 jbd 3w_xxxx ata_piix libata sd_mod scsi_mod
+> > >> > > > May 30 05:31:33 mandril kernel: CPU:    0
+> > >> > > > May 30 05:31:33 mandril kernel: EIP:    0060:[<c04e3310>]    Not tainted VLI
+> > >> > > > May 30 05:31:33 mandril kernel: EFLAGS: 00210292   (2.6.16-1.2227_FC6 #1)
+> > >> > > > May 30 05:31:33 mandril kernel: EIP is at cfq_set_request+0x202/0x3ff
+> > >> > > 
+> > >> > > Just do a l *cfq_set_request+0x202 from gdb if you have
+> > >> > > CONFIG_DEBUG_INFO enabled in your vmlinux.
+> > >> > 
+> > >> > Doh, found it. Dave, please try and reproduce with this applied:
+> > >> 
+> > >> Nevermind, that's not it either. Damn. Stay tuned.
+> > >
+> > > Try this instead, please.
+> > 
+> > Umm.. don't we need this line?
+> > 
+> > static void cfq_free_io_context(struct io_context *ioc)
+> > {
+> > 	struct cfq_io_context *__cic;
+> > 	struct rb_node *n;
+> > 	int freed = 0;
+> > 
+> > 	while ((n = rb_first(&ioc->cic_root)) != NULL) {
+> > 		__cic = rb_entry(n, struct cfq_io_context, rb_node);
+> > 		rb_erase(&__cic->rb_node, &ioc->cic_root);
+> >                 list_del(&__cic->queue_list);
+> > 		^^^^^^^^   <---- this line
+> > 		kmem_cache_free(cfq_ioc_pool, __cic);
+> > 		freed++;
+> > 	}
+> > 
+> > 	if (atomic_sub_and_test(freed, &ioc_count) && ioc_gone)
+> > 		complete(ioc_gone);
+> 
+> Yep, looks like that is missing as well. Care to send a proper patch and
+> I'll shove it in, too.
 
-	net/built-in.o: In function `ip_rt_init':
-	(.init.text+0xb04): undefined reference to `__you_cannot_kmalloc_that_much'
+Spoke too quickly, it's not needed. The cic will already have gone
+through the exit function, so it must already have been pruned from the
+list. It was a little head scratching though, if we really did need that
+it should have shown very quickly I think.
 
-This seems to be coming from:
+-- 
+Jens Axboe
 
-	rt_hash_locks = kmalloc(sizeof(spinlock_t) * RT_HASH_LOCK_SZ, GFP_KERNEL);
-
-I have CONFIG_NR_CPUS=32, so RT_HASH_LOCK_SZ ends up as 2048.  Also, I
-have both CONFIG_DEBUG_SPINLOCK=y and CONFIG_PROVE_SPIN_LOCKING=y so
-spinlock_t is bloated up quite big:
-
-	typedef struct {
-		raw_spinlock_t raw_lock;
-	#if defined(CONFIG_PREEMPT) && defined(CONFIG_SMP)
-		unsigned int break_lock;
-	#endif
-	#ifdef CONFIG_DEBUG_SPINLOCK
-		unsigned int magic, owner_cpu;
-		void *owner;
-	#endif
-	#ifdef CONFIG_PROVE_SPIN_LOCKING
-		struct lockdep_map dep_map;
-	#endif
-	} spinlock_t;
-
-I only have 8 CPUs in the box, so updating my config from the x86_64
-defconfig fixes things for me.
-
-No patch because I don't really know how to fix this properly...
-
- - R.

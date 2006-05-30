@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWE3LGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWE3LLS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932256AbWE3LGf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 07:06:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWE3LGe
+	id S932254AbWE3LLS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 07:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWE3LLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 07:06:34 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:62607 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932256AbWE3LGc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 07:06:32 -0400
-Subject: Re: BUG: possible deadlock detected! (sound) [Was: 2.6.17-rc5-mm1]
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       alsa-devel@alsa-project.org, tiwai@suse.de,
-       emu10k1-devel@lists.sourceforge.net, James@superbug.demon.co.uk,
-       perex@suse.cz
-In-Reply-To: <447C22CE.2060402@gmail.com>
+	Tue, 30 May 2006 07:11:18 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:32473 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932254AbWE3LLR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 07:11:17 -0400
+Date: Tue, 30 May 2006 13:11:38 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Mike Galbraith <efault@gmx.de>
+Subject: [patch, -rc5-mm1] lock validator, fix NULL type->name bug
+Message-ID: <20060530111138.GA5078@elte.hu>
 References: <20060530022925.8a67b613.akpm@osdl.org>
-	 <447C22CE.2060402@gmail.com>
-Content-Type: text/plain
-Date: Tue, 30 May 2006 13:06:28 +0200
-Message-Id: <1148987188.3636.52.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060530022925.8a67b613.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-30 at 147 +0159, Jiri Slaby wrote:
+Subject: lock validator, fix NULL type->name bug
+From: Ingo Molnar <mingo@elte.hu>
 
-(I've turned your backtrace upside down to show it "chronological")
+this should fix the bug reported Mike Galbraith: pass in a non-NULL 
+mutex name string even if DEBUG_MUTEXES is turned off.
 
- [<c05911e0>] alsa_emu10k1_synth_init+0x22/0x24
- [<c0333d04>] snd_seq_device_register_driver+0x8f/0xeb
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
+ include/linux/mutex.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-this one does:
-
-       mutex_lock(&ops->reg_mutex);
-       ...
-       list_for_each(head, &ops->dev_list) {
-                struct snd_seq_device *dev = list_entry(head, struct snd_seq_device, list);
-                init_device(dev, ops);
-       }
-       mutex_unlock(&ops->reg_mutex);
-
- [<c0333537>] init_device+0x2c/0x94
-  which calls into the driver
- [<c0352c39>] snd_emu10k1_synth_new_device+0xe7/0x14e
- [<c0353f50>] snd_emux_register+0x10d/0x13f
- [<c0358260>] snd_emux_init_seq_oss+0x35/0x9c
- [<c0333aa0>] snd_seq_device_new+0x96/0x111
-
-and this one does
-        mutex_lock(&ops->reg_mutex);
-        list_add_tail(&dev->list, &ops->dev_list);
-        ops->num_devices++;
-        mutex_unlock(&ops->reg_mutex);
-
-
-so... on first sight this looks like a real deadlock;
-unless the ALSA folks can tell me why "ops" is always different,
-and what the lock ordering rules between those is...
-
-
+Index: linux/include/linux/mutex.h
+===================================================================
+--- linux.orig/include/linux/mutex.h
++++ linux/include/linux/mutex.h
+@@ -80,7 +80,7 @@ struct mutex_waiter {
+ do {							\
+ 	static struct lockdep_type_key __key;		\
+ 							\
+-	__mutex_init((mutex), NULL, &__key);		\
++	__mutex_init((mutex), #mutex, &__key);		\
+ } while (0)
+ # define mutex_destroy(mutex)				do { } while (0)
+ #endif

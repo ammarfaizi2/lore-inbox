@@ -1,82 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWE3PKR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWE3PRi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932272AbWE3PKR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 11:10:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWE3PKR
+	id S932274AbWE3PRi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 11:17:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWE3PRi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 11:10:17 -0400
-Received: from smtp1.xs4all.be ([195.144.64.135]:60549 "EHLO smtp1.xs4all.be")
-	by vger.kernel.org with ESMTP id S932272AbWE3PKP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 11:10:15 -0400
-Date: Tue, 30 May 2006 17:09:43 +0200
-From: Frank Gevaerts <frank.gevaerts@fks.be>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: Frank Gevaerts <frank.gevaerts@fks.be>, Pete Zaitcev <zaitcev@redhat.com>,
-       linux-kernel@vger.kernel.org, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: usb-serial ipaq kernel problem
-Message-ID: <20060530150942.GC27700@fks.be>
-References: <20060529120102.1bc28bf2@doriath.conectiva> <20060529132553.08b225ba@doriath.conectiva> <20060529141110.6d149e21@doriath.conectiva> <20060529194334.GA32440@fks.be> <20060529172410.63dffa72@doriath.conectiva> <20060529204724.GA22250@fks.be> <20060529193330.3c51f3ba@home.brethil> <20060530082141.GA26517@fks.be> <20060530113801.22c71afe@doriath.conectiva> <20060530115329.30184aa0@doriath.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 May 2006 11:17:38 -0400
+Received: from py-out-1112.google.com ([64.233.166.181]:13997 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932311AbWE3PRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 11:17:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LSD0TiqcCv6yFySwZN1e8n//QFwWB4ViDamfyxKEsW5jU1rtAxoi7GpgVp9yAOQ4JdQJ4NPHeVPaGO3m7IBVw+vSfCJhTZCQn5tWHjKObkJFq01NWiHFrgTKX0kHDomziBx/ybYjb27QcMALqwz4BQeI5gG7idFYrGxIGQz82oE=
+Message-ID: <aa4c40ff0605300817w63da104dq8c28d007447649a2@mail.gmail.com>
+Date: Tue, 30 May 2006 08:17:36 -0700
+From: "James Lamanna" <jlamanna@gmail.com>
+To: "Kai Makisara" <Kai.Makisara@kolumbus.fi>
+Subject: Re: [OOPS] amrestore dies in kmem_cache_free 2.6.16.18 - cannot restore backups!
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       "Mike Christie" <michaelc@cs.wisc.edu>,
+       "Bryan Holty" <lgeek@frontiernet.net>
+In-Reply-To: <Pine.LNX.4.63.0605271202110.10358@kai.makisara.local>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060530115329.30184aa0@doriath.conectiva>
-User-Agent: Mutt/1.5.9i
-X-FKS-MailScanner: Found to be clean
-X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-105.815,
-	vereist 5, autolearn=not spam, ALL_TRUSTED -3.30, AWL 0.08,
-	BAYES_00 -2.60, USER_IN_WHITELIST -100.00)
+References: <aa4c40ff0605231824j55c998c3oe427dec2404afba0@mail.gmail.com>
+	 <Pine.LNX.4.63.0605252224450.4178@kai.makisara.local>
+	 <Pine.LNX.4.63.0605271202110.10358@kai.makisara.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 30, 2006 at 11:53:29AM -0300, Luiz Fernando N. Capitulino wrote:
-> On Tue, 30 May 2006 11:38:01 -0300
-> "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> wrote:
-> 
-> | On Tue, 30 May 2006 10:21:41 +0200
-> | Frank Gevaerts <frank.gevaerts@fks.be> wrote:
-> | 
-> | | On Mon, May 29, 2006 at 07:33:30PM -0300, Luiz Fernando N. Capitulino wrote:
-> | | > On Mon, 29 May 2006 22:47:24 +0200
-> | | > Frank Gevaerts <frank.gevaerts@fks.be> wrote:
-> | | > | 
-> | | > | The panic was caused by the read urb being submitten in ipaq_open,
-> | | > | regardless of success, and never killed in case of failure. What my
-> | | > | patch basically does is to submit the urb only after succesfully sending
-> | | > | the control message, and adding a sleep between tries. As long as this
-> | | > | patch is not applied, we hardly get any other error because the kernel
-> | | > | panics as soon as an ipaq reboots.
-> | | > 
-> | | >  I see.
-> | | > 
-> | | >  Did you try to just kill the read urb in the ipaq_open's error path?
-> | | 
-> | | Yes, that's what I did at first. It works, but with the long waits (we see
-> | | waits up to 80-90 seconds right now) I was afraid that the urb might timeout
-> | | before the control message succeeds.
-> | 
-> |  Hmmm, I see.
-> 
->  Thinking about this again, are you sure the read urb depends on the
-> control message? It's quite easy to test, just a add a long timeout after
-> the read URB was sent (say, five minutes) and waits for the read urb
-> callback to run.
-> 
->  If it ran _before_ the timeout expires with no timeout error it does not
-> depend. Then we can do the simpler solution: just kill the read urb in the
-> ipaq_open's error path.
+On 5/27/06, Kai Makisara <Kai.Makisara@kolumbus.fi> wrote:
+> On Thu, 25 May 2006, Kai Makisara wrote:
+>
+> > I am adding linux-scsi to recipients (and quoting the whole message for
+> > readers of that list).
+> >
+> > On Tue, 23 May 2006, James Lamanna wrote:
+> >
+> > > So I was able to recreate this problem on a vanilla 2.6.16.18 with the
+> > > following oops..
+> > > I'd say this is a serious regression since I cannot restore backups
+> > > anymore (I could with 2.6.14.x, but that kernel series had other
+> > > issues...)
+> > >
+> > > amrestore does manage to read 1 32k block from tape before dying.
+> > >
+> > > Any help would be greatly appreciated.
+> > >
+> > I have tried 'amrestore' on my machine with 2.6.16.18 but was not able to
+> > reproduce the problem.
+>
+> OK. Now I think I have found something, thanks to Mike Christie's reminder
+> yesterday in another thread that the patch at the end of this message has
+> not been merged into 2.6.16 (and 2.6.17-rcx) ;-)
 
-I'll try it sometime today.
+[SNIP]
 
-Frank
+>
+> Next thing was to patch 2.6.16.18 with the patch at the end: No more
+> oopses with any alignment.
+>
+> James, does this fix your problem ?
 
-> 
-> -- 
-> Luiz Fernando N. Capitulino
+Kai-
 
--- 
-Frank Gevaerts                                 frank.gevaerts@fks.be
-fks bvba - Formal and Knowledge Systems        http://www.fks.be/
-Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
-B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19
+Yes, the patch below does fix my problem and lets amrestore run.
+Of course I still have the sense data problem, but I think I'm going
+to replace some cables and terminators :)
+
+So I would say that this should be included in 2.6.17, and perhaps a
+2.6.16.19? :)
+
+Thanks again!
+
+>
+> Kai
+
+-- James
+
+>
+> --------------------------------8<------------------------------------------
+>
+> Excerpt from a message from Brian Holty to linux-scsi and linux-kernel on
+> Wed, 22 Mar 2006 06:35:39:
+>
+> ...
+> Based on above, I think the most intuitive fix would be the offset addition of
+> the first entry to the initialization of nr_pages.
+>
+> Without this change, for instance, with 4K io's every sg io that is
+> dma_aligned for direct io, but not page aligned will cause slab corruption
+> and an oops
+>
+> I am able to run a number of tests with sg that cause the boundary to be
+> crossed, and with this fix there is no slab corruption or data corruption.
+>
+> Thanks Dan, I had been hunting for this for a couple of days!!
+>
+> Thoughts??
+>
+> Signed-off-by: Bryan Holty <lgeek@frontiernet.net>
+>
+>  --- a/drivers/scsi/scsi_lib.c  2006-03-03 13:17:22.000000000 -0600
+> +++ b/drivers/scsi/scsi_lib.c   2006-03-22 06:09:09.669599539 -0600
+> @@ -368,7 +368,7 @@
+>                            int nsegs, unsigned bufflen, gfp_t gfp)
+>  {
+>         struct request_queue *q = rq->q;
+> -       int nr_pages = (bufflen + PAGE_SIZE - 1) >> PAGE_SHIFT;
+> +       int nr_pages = (bufflen + sgl[0].offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
+>         unsigned int data_len = 0, len, bytes, off;
+>         struct page *page;
+>         struct bio *bio = NULL;
+>

@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWE3OMI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbWE3ONk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbWE3OMI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 10:12:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWE3OMH
+	id S1750925AbWE3ONk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 10:13:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbWE3ONk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 10:12:07 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:15295 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932300AbWE3OMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 10:12:06 -0400
-Subject: RE: Long delay on bootup with wait_hwif_ready
-From: Steven Rostedt <rostedt@goodmis.org>
-To: David Balazic <david.balazic@hermes.si>
-Cc: LKML <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Andi Kleen <ak@suse.de>, Pavel Machek <pavel@suse.cz>,
-       Matt Domsch <Matt_Domsch@dell.com>
-In-Reply-To: <B216E7A91F67B6429E3ACF162402A02D0E5F90@hsl-lj-mail.hermes.si>
-References: <B216E7A91F67B6429E3ACF162402A02D0E5F90@hsl-lj-mail.hermes.si>
-Content-Type: text/plain
-Date: Tue, 30 May 2006 10:11:12 -0400
-Message-Id: <1148998272.8104.7.camel@localhost.localdomain>
+	Tue, 30 May 2006 10:13:40 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:25298 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750871AbWE3ONj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 10:13:39 -0400
+Date: Tue, 30 May 2006 10:13:18 -0400
+From: Dave Jones <davej@redhat.com>
+To: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: .17rc5 cfq slab corruption.
+Message-ID: <20060530141318.GH14721@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Jens Axboe <axboe@suse.de>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060526213915.GB7585@redhat.com> <20060526170013.67391a2b.akpm@osdl.org> <20060527070724.GB24988@suse.de> <20060527133122.GB3086@redhat.com> <20060530131728.GX4199@suse.de> <20060530134450.GF14721@redhat.com> <20060530135059.GA4199@suse.de> <20060530135224.GA3179@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060530135224.GA3179@redhat.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-30 at 14:10 +0200, David Balazic wrote:
-> Hi!
-> 
-> My "final conclusion" last time was, that there is some memory
-> area, that comes out too short in certain cases.
-> This is some early kernel boot code, that deals with the BIOS (and
-> confuses it, it seems, by running out the mentioned memory area).
-> 
-> As I understood, the kernel could be tweaked to increase/decrease
-> the problemtatic memory area (or the usage of it).
-> 
-> It is some kind of stack, heap or segment, I don't know, but somebody
-> mentioned it last time.
-> 
-> Regards,
-> David
-> 
-> PS: Feel free to ask me for testing patches ;-)
-> I still have the same PC (with a certain weird behavior lately,
-> I can't switch the IDE mode from "RAID" to "normal" ...)
-> 
+On Tue, May 30, 2006 at 09:52:24AM -0400, Dave Jones wrote:
+ > On Tue, May 30, 2006 at 03:50:59PM +0200, Jens Axboe wrote:
+ > 
+ >  > >  > >  > Pretty baffling... cfq has been hammered pretty thoroughly over the
+ >  > >  > >  > last months and _nothing_ has shown up except some performance anomalies
+ >  > >  > >  > that are now fixed. Since daves case (at least) seems to be
+ >  > >  > >  > use-after-free, I'll see if I can reproduce with some contrived case.
+ >  > >  > >  > I'm asuming that picasa forks and exits a lot with submitted io in
+ >  > >  > >  > between than may not have finished at exit.
+ >  > >  > > 
+ >  > >  > > The second time I hit it, was actually during boot up.
+ >  > >  > 
+ >  > >  > Dave, do you have any io scheduler switching going on?
+ >  > > 
+ >  > > Nope, everything set to use CFQ as default, and left that way.
+ >  > 
+ >  > Hrmpf ok, I had hoped perhaps something in your init scripts modified
+ >  > the scheduler value.
+ > 
+ > grep doesn't show anything in init scripts, and ttbomk, hald isn't messing
+ > with this. (Actually I'm seeing it trigger before that gets started
+ > anyway, so that can't be it).
 
-After rereading the thread (after my first cup of coffee this time), I
-see that the problem was slightly different than what I had. The thread
-showed some delay before the console was initialized (the EDD code). But
-I'm experiencing the delay with the wait_not_busy.
+In case it makes a difference to help with reproducing -- the hardware of this
+system is:
 
-My problem is that the secondary status register is returning busy when
-there isn't anything there.  So I have to wait 35 seconds for the
-timeout to expire.  This could just be a fluke with the way the board is
-designed (it wouldn't surprise me).
+two sata drives sda1/sdb1 in single-volume device-mapper configuration as VolGroup00-LogVol00
+pata cd drive on /dev/hdc
+usb memory stick on sdc1
 
--- Steve
+Nothing too out of the ordinary there..
 
+		Dave
 
+-- 
+http://www.codemonkey.org.uk

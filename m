@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWE3Gfo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWE3GhH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbWE3Gfo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 02:35:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWE3Gfo
+	id S932164AbWE3GhH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 02:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932158AbWE3GhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 02:35:44 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:29066 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932122AbWE3Gfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 02:35:43 -0400
-Subject: Re: [patch 00/61] ANNOUNCE: lock validator -V1
-From: Arjan van de Ven <arjan@infradead.org>
+	Tue, 30 May 2006 02:37:06 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:10705 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932164AbWE3GhF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 02:37:05 -0400
+Date: Tue, 30 May 2006 08:37:24 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: Mike Galbraith <efault@gmx.de>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
        Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1148964741.7704.10.camel@homer>
+Subject: Re: [patch 00/61] ANNOUNCE: lock validator -V1
+Message-ID: <20060530063724.GE19870@elte.hu>
 References: <20060529212109.GA2058@elte.hu> <1148964741.7704.10.camel@homer>
-Content-Type: text/plain
-Date: Tue, 30 May 2006 08:35:41 +0200
-Message-Id: <1148970941.3636.13.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1148964741.7704.10.camel@homer>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-30 at 06:52 +0200, Mike Galbraith wrote:
-> On Mon, 2006-05-29 at 23:21 +0200, Ingo Molnar wrote:
-> > The easiest way to try lockdep on a testbox is to apply the combo patch 
-> > to 2.6.17-rc4-mm3. The patch order is:
-> > 
-> >   http://kernel.org/pub/linux/kernel/v2.6/testing/linux-2.6.17-rc4.tar.bz2
-> >   http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc4/2.6.17-rc4-mm3/2.6.17-rc4-mm3.bz2
-> >   http://redhat.com/~mingo/lockdep-patches/lockdep-combo.patch
-> > 
-> > do 'make oldconfig' and accept all the defaults for new config options - 
-> > reboot into the kernel and if everything goes well it should boot up 
-> > fine and you should have /proc/lockdep and /proc/lockdep_stats files.
-> 
+
+* Mike Galbraith <efault@gmx.de> wrote:
+
 > Darn.  It said all tests passed, then oopsed.
+> 
+> (have .config all gzipped up if you want it)
 
+yeah, please.
 
-does this fix it?
+> EIP:    0060:[<b103a872>]    Not tainted VLI
+> EFLAGS: 00010083   (2.6.17-rc4-mm3-smp #157)
+> EIP is at count_matching_names+0x5b/0xa2
 
+> 1151            list_for_each_entry(type, &all_lock_types, lock_entry) {
+> 1152                    if (new_type->key - new_type->subtype == type->key)
+> 1153                            return type->name_version;
+> 1154                    if (!strcmp(type->name, new_type->name))  <--kaboom
+> 1155                            count = max(count, type->name_version);
 
-type->name can be NULL legitimately; all places but one check for this
-already. Fix this off-by-one.
+hm, while most code (except the one above) is prepared for type->name 
+being NULL, it should not be NULL. Maybe an uninitialized lock slipped 
+through? Please try the patch below - it both protects against 
+type->name being NULL in this place, and will warn if it finds a NULL 
+lockname.
 
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+	Ingo
 
---- linux-2.6.17-rc4-mm3-lockdep/kernel/lockdep.c.org	2006-05-30 08:32:52.000000000 +0200
-+++ linux-2.6.17-rc4-mm3-lockdep/kernel/lockdep.c	2006-05-30 08:33:09.000000000 +0200
+Index: linux/kernel/lockdep.c
+===================================================================
+--- linux.orig/kernel/lockdep.c
++++ linux/kernel/lockdep.c
 @@ -1151,7 +1151,7 @@ int count_matching_names(struct lock_typ
  	list_for_each_entry(type, &all_lock_types, lock_entry) {
  		if (new_type->key - new_type->subtype == type->key)
@@ -62,5 +72,13 @@ Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
  			count = max(count, type->name_version);
  	}
  
-
-
+@@ -1974,7 +1974,8 @@ void lockdep_init_map(struct lockdep_map
+ 
+ 	if (DEBUG_WARN_ON(!key))
+ 		return;
+-
++	if (DEBUG_WARN_ON(!name))
++		return;
+ 	/*
+ 	 * Sanity check, the lock-type key must be persistent:
+ 	 */

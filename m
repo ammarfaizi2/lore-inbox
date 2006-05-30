@@ -1,114 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWE3Tzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbWE3T46@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932453AbWE3Tzx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 15:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWE3Tzx
+	id S932455AbWE3T46 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 15:56:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWE3T46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 15:55:53 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:43989 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S932452AbWE3Tzw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 15:55:52 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <447CA301.5000802@s5r6.in-berlin.de>
-Date: Tue, 30 May 2006 21:54:41 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Robert Hancock <hancockr@shaw.ca>
-CC: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH] Fix broken suspend/resume in ohci1394 (Was: ACPI
- suspend problems revisited)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: (0.885) AWL,BAYES_50
+	Tue, 30 May 2006 15:56:58 -0400
+Received: from mga06.intel.com ([134.134.136.21]:13904 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932455AbWE3T45 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 15:56:57 -0400
+X-IronPort-AV: i="4.05,190,1146466800"; 
+   d="scan'208"; a="43397761:sNHT78223593"
+Date: Tue, 30 May 2006 12:53:58 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: Dave Jones <davej@redhat.com>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Ingo Molnar <mingo@elte.hu>, nanhai.zou@intel.com, ashok.raj@intel.com
+Subject: Re: [patch 00/61] ANNOUNCE: lock validator -V1
+Message-ID: <20060530125357.A21581@unix-os.sc.intel.com>
+References: <20060529212109.GA2058@elte.hu> <6bffcb0e0605291528qe24a0a3r3841c37c5323de6a@mail.gmail.com> <20060529224107.GA6037@elte.hu> <20060529230908.GC333@redhat.com> <1148967947.3636.4.camel@laptopd505.fenrus.org> <20060530141006.GG14721@redhat.com> <1148998762.3636.65.camel@laptopd505.fenrus.org> <20060530145852.GA6566@redhat.com> <20060530171118.GA30909@dominikbrodowski.de> <20060530193947.GG17218@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060530193947.GG17218@redhat.com>; from davej@redhat.com on Tue, May 30, 2006 at 03:39:47PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock wrote to lkml on 2006-05-22:
-(full quote for linux1394-devel)
-> I've been experimenting to track down the cause of suspend/resume
-> problems on my Compaq Presario X1050 laptop:
-> 
-> http://bugzilla.kernel.org/show_bug.cgi?id=6075
-> 
-> Essentially the ACPI Embedded Controller and keyboard controller would
-> get into a bizarre, confused state after resume.
-> 
-> I found that unloading the ohci1394 module before suspend and reloading
-> it after resume made the problem go away. Diffing the dmesg output from
-> resume, with and without the module loaded, I found that with the module
-> loaded I was missing these:
-> 
-> PM: Writing back config space on device 0000:02:00.0 at offset 1. (Was 2100080, writing 2100007)
-> PM: Writing back config space on device 0000:02:00.0 at offset 3. (Was 0, writing 8008)
-> PM: Writing back config space on device 0000:02:00.0 at offset 4. (Was 0, writing 90200000)
-> PM: Writing back config space on device 0000:02:00.0 at offset 5. (Was 1, writing 2401)
-> PM: Writing back config space on device 0000:02:00.0 at offset f. (Was 20000100, writing 2000010a)
-> The default PCI driver performs the pci_restore_state when no driver is
-> loaded for the device. When the ohci1394 driver is loaded, it is
-> supposed to do this, however it appears not to do so.
-> 
-> I created the patch below and tested it, and it appears to resolve the
-> suspend problems I was having with the module loaded. I only added in
-> the pci_save_state and pci_restore_state - however, though I know little
-> of this hardware, surely the driver should really be doing more than
-> this when suspending and resuming? Currently it does almost nothing,
-> what if there are commands in progress, etc? As such this is just an RFC.
+On Tue, May 30, 2006 at 03:39:47PM -0400, Dave Jones wrote:
 
-Thanks, this is at least a start. Apart from the code for PPC 
-Macintoshs, ohci1394 does indeed lack any suspend/resume handling. I 
-don't know anything about this matter, however the OHCI spec (gratis 
-available, linked from www.linux1394.org) table A-11 on page 168 says 
-which losses of configuration result from what power state transitions: 
-Interrupts are masked when going into D1. IEEE 1394 configuration is 
-lost when going into D2. PCI configuration is lost when going into D3. 
-Since we don't handle this yet, a suspend/resume cycle results at least 
-in loss of FireWire connectivity.
+> So, that last part pretty highlights that we knew about this problem, and meant to
+> come back and fix it later. Surprise surprise, no one came back and fixed it.
+> 
 
-As you may have guessed, this problem is basically as old as the driver. 
-Nobody is actively working on it AFAIK. (Except that I dusted off an old 
-notebook and put a fresh Linux distro on it --- with the plan check 
-power management and hot ejection handling by ohci1394... later this 
-year...)
+There was another iteration after his, and currently we keep track of
+the owner in lock_cpu_hotplug()->__lock_cpu_hotplug(). So if we are in 
+same thread context we dont acquire locks.
 
-> Don't ask me why the failure to save/restore the state of the 1394
-> controller messes with the keyboard/EC controller, but it apparently does..
-> 
-> Signed-off-by: Robert Hancock <hancockr@shaw.ca>
-> 
-> (Patch attached to stop Thunderbird from destroying it..)
-> 
-> -- 
-> Robert Hancock      Saskatoon, SK, Canada
-> To email, remove "nospam" from hancockr@nospamshaw.ca
-> Home Page: http://www.roberthancock.com/
-> 
-> 
-> 
-> 
-> --- linux-2.6.16-1.2208_FC6/drivers/ieee1394/ohci1394.c	2006-05-22 12:34:30.000000000 -0600
-> +++ linux-2.6.16-1.2208_FC6ide/drivers/ieee1394/ohci1394.c	2006-05-22 14:56:53.000000000 -0600
-> @@ -3539,6 +3539,7 @@ static int ohci1394_pci_resume (struct p
->  	}
->  #endif /* CONFIG_PPC_PMAC */
->  
-> +	pci_restore_state(pdev);
->  	pci_enable_device(pdev);
->  
->  	return 0;
-> @@ -3558,6 +3559,8 @@ static int ohci1394_pci_suspend (struct 
->  	}
->  #endif
->  
-> +	pci_save_state(pdev);
-> +
->  	return 0;
->  }
->  
+    if (lock_cpu_hotplug_owner != current) {
+        if (interruptible)
+            ret = down_interruptible(&cpucontrol);
+        else
+            down(&cpucontrol);
+    }
+
+
+the lock and unlock kept track of the depth as well, so we know when to release
+
+We didnt hear any better suggestions (from cpufreq folks), so we left it in 
+that state (atlease the same thread doenst try to take the lock twice) 
+that resulted in deadlocks earlier.
 
 -- 
-Stefan Richter
--=====-=-==- -=-= ====-
-http://arcgraph.de/sr/
+Cheers,
+Ashok Raj
+- Open Source Technology Center

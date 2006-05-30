@@ -1,88 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbWE3PgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWE3Pin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932295AbWE3PgX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 11:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbWE3PgX
+	id S932315AbWE3Pin (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 11:38:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWE3Pin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 11:36:23 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:60366 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S932295AbWE3PgW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 11:36:22 -0400
-Message-ID: <447C666D.5030003@bull.net>
-Date: Tue, 30 May 2006 17:36:13 +0200
-From: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en, fr, hu
+	Tue, 30 May 2006 11:38:43 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:3540 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932315AbWE3Pim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 11:38:42 -0400
+Date: Tue, 30 May 2006 08:38:07 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: David Howells <dhowells@redhat.com>
+cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Christoph Lameter <christoph@lameter.com>,
+       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 1/3] mm: tracking shared dirty pages 
+In-Reply-To: <12042.1148976035@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.64.0605300818080.16904@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0605260825160.31609@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.64.0605250921300.23726@schroedinger.engr.sgi.com>
+ <20060525135534.20941.91650.sendpatchset@lappy> <20060525135555.20941.36612.sendpatchset@lappy>
+ <24747.1148653985@warthog.cambridge.redhat.com>  <12042.1148976035@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
-To: Jan Kara <jack@suse.cz>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Change ll_rw_block() calls in JBD
-References: <446C2F89.5020300@bull.net> <20060518134533.GA20159@atrey.karlin.mff.cuni.cz> <1148051208.5156.31.camel@sisko.sctweedie.blueyonder.co.uk> <20060524173314.GB28568@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20060524173314.GB28568@atrey.karlin.mff.cuni.cz>
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 30/05/2006 17:39:45,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 30/05/2006 17:39:48,
-	Serialize complete at 30/05/2006 17:39:48
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have got a concern about this code fragment:
+On Tue, 30 May 2006, David Howells wrote:
 
-> +		if (buffer_dirty(bh)) {
-> +			if (test_set_buffer_locked(bh)) {
-> +				...
-> +				get_bh(bh);
-> +				spin_unlock(&journal->j_list_lock);
-> +				/* Submit all accumulated buffers to prevent
-> +				 * possible deadlocks */
-> +				submit_buffers(bufs, wbuf);
-> +				bufs = 0;
-> +				lock_buffer(bh);
-> +				spin_lock(&journal->j_list_lock);
-> +				/* Someone already cleaned up the buffer? */
-> +				if (!buffer_jbd(bh)
-> +					|| jh->b_jlist != BJ_SyncData) {
-> +					unlock_buffer(bh);
-> +					BUFFER_TRACE(bh, "already cleaned up");
-> +					put_bh(bh);
-> +					continue;
-> +				}
-> +				put_bh(bh);
-> +			}
-> +			if (test_clear_buffer_dirty(bh)) {
-> +				BUFFER_TRACE(bh, "needs writeout, submitting");
-> +				get_bh(bh);
-> +				wbuf[bufs++] = bh;
-> +				if (bufs == journal->j_wbufsize) {
-> +					spin_unlock(&journal->j_list_lock);
-> +					/* Writeout will be done at the
-> +					 * beginning of the loop */
-> +					goto write_out_data;
-> +				}
-> +			}
+> Christoph Lameter <clameter@sgi.com> wrote:
+> 
+> > > page_mkwrite() is called just before the _PTE_ is dirtied.  Take
+> > > do_wp_page() for example, set_page_dirty() is called after a lot of stuff,
+> > > including some stuff that marks the PTE dirty... by which time it's too
+> > > late as another thread sharing the page tables can come along and modify
+> > > the page before the first thread calls set_page_dirty().
 
-We lock up to "->j_wbufsize" buffers, one after the others.
+Maybe I do not understand properly. I thought page_mkwrite is called 
+before a page is made writable not before it is dirtied. If its only 
+called before the page is dirtied then a better name maybe before_dirty or 
+so?
 
-Originally, we toke a buffer, we did something to it, and we released it.
-When we wanted two of them and the second one was not available, we
-released the first one, too, in order to avoid dead-locks.
+> > Since we are terminating the application with extreme prejudice on an 
+> > error (SIGBUS) it does not matter if another process has written to the 
+> > page in the meantime.
+> 
+> Erm... Yes, it does matter, at least for AFS or NFS using FS-Cache, and whether
+> or not we're generating a SIGBUS or just proceeding normally.  There are two
+> cases I've come across:
+> 
+> Firstly I use page_mkwrite() to make sure that the page is written to the cache
+> before we let anyone modify it, just so that we've got a reasonable idea of
+> what's in the cache.
 
-Keeping a couple of buffer locked for an unpredictably long time...
-(Here you keep N-1 buffer locked while you are waiting for the Nth one.)
-And not imposing / respecting any locking order...
+What do you mean by "written to the cache"? It cannot be written back 
+since the page has been dirtied yet. So "written to the cache" means 
+that the FS does some reservation, right?
 
-The original code did not lock the buffers while it was composing the
-list of buffers. "ll_rw_block()" locked one by one the buffers
-and submitted them to the BIO. These buffers got eventually unlocked,
-possibly before the some last buffers got locked by "ll_rw_block()".
+> What we currently have is:
+> 
+> 	invoke page_mkwrite()
+> 	  - wait for page to be written to the cache
 
-This change implies an important difference in locking behavior.
+I am not sure what the point would be to write a page that is
+not dirty. So I guess this reserves space on disk for the page.
 
-Regards,
+> 	lock
+> 	modify PTE
+> 	unlock
+> 	invoke set_page_dirty()
+> 
+> What your suggestion gives is:
+> 
+> 	lock
+> 	modify PTE
+> 	unlock
+> 	invoke set_page_dirty()
+> 	  - wait for page to be written to the cache
 
-Zoltan
+Regardless of what "written to the cache" exactly means here
+we have the page marked dirty in the mapping and queued for write back.
+
+> But what can happen is:
+> 
+> 	CPU 1			CPU 2
+> 	=======================	=======================
+> 	write to page (faults)
+> 	lock
+> 	modify PTE
+> 	unlock
+> 				write to page (succeeds)
+
+Correct.
+
+> 	invoke set_page_dirty()
+> 	  - wait for page to be written to the cache
+> 	write to page (succeeds)
+> 
+> That potentially lets data of uncertain state into the cache, which means we
+> can't trust what's in the cache any longer.
+
+It continues established usage and usage that even with your patch 
+continues at least for anonymous pages. The page dirty state may also be 
+reflected by any dirty bit set in a pte pointing to the page even if the 
+dirty state is not set on the page itself.
+
+> Secondly some filesystems want to use page_mkwrite() to prevent a write from
+> occurring if a write to a shared writable mapping would require an allocation
+> from a filesystem that's currently in an ENOSPC state.  That means that we may
+> not change the PTE until we're sure that the allocation is guaranteed to
+> succeed, and that means that the kernel isn't left with dirty pages attached to
+> inodes it'd like to dispose of but can't because there's nowhere to write the
+> data.
+
+If set_page_dirty cannot reserve the page then we know that some severe
+action is required. The FS method set_page_dirty() could:
+
+1. Determine the ENOSPC condition before it sets the page dirty.
+   That leaves the potential that some writes to the page have occurred
+   by other processes.
+
+2. Track down all processes that use the mapping (or maybe less
+   severe: processes that have set the dirty bit in the pte) and 
+   terminate them with SIGBUS.
+

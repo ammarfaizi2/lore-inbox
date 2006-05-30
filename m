@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbWE3Os0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWE3OuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932300AbWE3Os0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 10:48:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbWE3Os0
+	id S932302AbWE3OuY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 10:50:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWE3OuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 10:48:26 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1958 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932207AbWE3OsZ (ORCPT
+	Tue, 30 May 2006 10:50:24 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3750 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932298AbWE3OuX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 10:48:25 -0400
-Date: Tue, 30 May 2006 16:47:42 +0200
+	Tue, 30 May 2006 10:50:23 -0400
+Date: Tue, 30 May 2006 16:49:37 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Greg KH <greg@kroah.com>
-Cc: Netdev list <netdev@vger.kernel.org>, Jirka Lenost Benc <jbenc@suse.cz>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: zd1201 & ipw2200 problems
-Message-ID: <20060530144742.GC27794@elf.ucw.cz>
-References: <20060530111712.GA32054@elf.ucw.cz> <20060530144120.GA15350@kroah.com>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>,
+       Netdev list <netdev@vger.kernel.org>, Jirka Lenost Benc <jbenc@suse.cz>,
+       pe1rxq@amsat.org
+Subject: Re: zd1201 failure on sharp zaurus explained
+Message-ID: <20060530144937.GD27794@elf.ucw.cz>
+References: <20060530132054.GA9780@elf.ucw.cz> <200605301611.02984.oliver@neukum.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060530144120.GA15350@kroah.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200605301611.02984.oliver@neukum.org>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > I see some strange problems with zd1201. (Ccing greg, he seen
-> > something similar).
+On Út 30-05-06 16:11:02, Oliver Neukum wrote:
+> Am Dienstag, 30. Mai 2006 15:20 schrieb Pavel Machek:
+> > 2) usb problem, probably. Should not usb core detect that card
+> > requires too much juice and refuse to power it up?
 > 
-> Which zd1201 driver are you using?
+> Does your hub correctly report whether it is plugged in?
 
-In-tree one, 2.6.17-rc4 (and around). Ouch and I've "solved" the
-zaurus problme in the meantime -- it was hw one.
+No idea; how do I tell?
+
+But zaurus tries to power the wlan card even if it is directly plugged
+in. wlan card there comunicates with the computer but not with the
+wireless part...
 								Pavel
 -- 
 (english) http://www.livejournal.com/~pavelmachek

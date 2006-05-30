@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbWE3UVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWE3UVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932327AbWE3UVF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 16:21:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbWE3UVE
+	id S932398AbWE3UVn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 16:21:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbWE3UVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 16:21:04 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:42905 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932327AbWE3UVC (ORCPT
+	Tue, 30 May 2006 16:21:42 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24977 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932398AbWE3UVm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 16:21:02 -0400
-Date: Tue, 30 May 2006 16:20:18 -0400
-From: Dave Jones <davej@redhat.com>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: akpm@osdl.org, Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm1
-Message-ID: <20060530202018.GI17218@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Arjan van de Ven <arjan@linux.intel.com>, akpm@osdl.org,
-	Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-References: <20060530022925.8a67b613.akpm@osdl.org> <6bffcb0e0605301139l2b4895d0mbecffb422fb2c0cf@mail.gmail.com> <1149018946.3636.107.camel@laptopd505.fenrus.org>
+	Tue, 30 May 2006 16:21:42 -0400
+Date: Tue, 30 May 2006 13:25:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Drynoff <pauldrynoff@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc5-mm1 - doesn't boot
+Message-Id: <20060530132540.a2c98244.akpm@osdl.org>
+In-Reply-To: <20060530195417.e870b305.pauldrynoff@gmail.com>
+References: <20060530195417.e870b305.pauldrynoff@gmail.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1149018946.3636.107.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 30, 2006 at 09:55:46PM +0200, Arjan van de Ven wrote:
- > > May 30 20:25:56 ltg01-fedora kernel: which lock already depends on the new lock,
- > 
- > ... but there was an observed code sequence before which was the other
- > way around ...
+On Tue, 30 May 2006 19:54:17 +0400
+Paul Drynoff <pauldrynoff@gmail.com> wrote:
 
-That phrase could use some rewording IMO. It sounds more like a question
-than a statement.
+> During boot 2.6.17-rc5-mm1 I got such message:
+> Uncompressing Linux... Ok, booting kernel.
+> 
+> And that's all, 2.6.17-rc5 booted successfully.
 
-		Dave
+I'm not able to reproduce this with your .config.  Perhaps you could
+disable kgdb, enable CONFIG_EARLY_PRINTK and boot with earlyprintk=vga (or,
+better, earlyprintk=serial[,ttySn[,baudrate]]).
 
--- 
-http://www.codemonkey.org.uk
+(you can get a nicer backtrace out gdb by simply using `bt', btw)

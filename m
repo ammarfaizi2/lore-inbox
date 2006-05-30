@@ -1,94 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWE3XWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWE3XYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964822AbWE3XWR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 19:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWE3XWR
+	id S964806AbWE3XYX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 19:24:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964814AbWE3XYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 19:22:17 -0400
-Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:24260 "EHLO
-	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S964821AbWE3XWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 19:22:16 -0400
-Message-ID: <447CD3A4.906@bigpond.net.au>
-Date: Wed, 31 May 2006 09:22:12 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Sam Vilain <sam@vilain.net>
-CC: =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
-       Mike Galbraith <efault@gmx.de>, Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
-       Rene Herman <rene.herman@keyaccess.nl>,
-       Herbert Poetzl <herbert@13thfloor.at>, Kirill Korotaev <dev@sw.ru>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [RFC 0/5] sched: Add CPU rate caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest> <1148630661.7589.65.camel@homer> <20060526161148.GA23680@atjola.homenet> <447A2853.2080901@vilain.net> <447A3292.5070606@bigpond.net.au> <447A65EA.9020705@vilain.net> <447A6D7B.9090302@bigpond.net.au> <447B64BF.4050806@vilain.net> <447B7FD6.6020405@bigpond.net.au> <447BA8ED.3080904@vilain.net> <447BB1C6.9050901@bigpond.net.au> <447CC19D.4020603@vilain.net>
-In-Reply-To: <447CC19D.4020603@vilain.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 30 May 2006 23:22:13 +0000
+	Tue, 30 May 2006 19:24:23 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:24332 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S964806AbWE3XYW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 19:24:22 -0400
+Date: Wed, 31 May 2006 01:09:28 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Javier Olivares <jolivares@gigablast.com>
+Cc: linux-kernel@vger.kernel.org, marcelo@kvack.org
+Subject: Re: Bug Fix for 2GB core limit in 2.4
+Message-ID: <20060530230928.GA7125@w.ods.org>
+References: <447C7B49.4010003@gigablast.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <447C7B49.4010003@gigablast.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Vilain wrote:
-> Peter Williams wrote:
-> 
->> They shouldn't interfere as which scheduler to use is a boot time 
->> selection and only one scheduler is in force.  It's mainly a coding 
->> matter and in particular whether the "scheduler driver" interface would 
->> need to be modified or whether your scheduler can be implemented using 
->> the current interface.
->>  
->>
-> 
-> Yes, that's the key issue I think - the interface now has more inputs.
-> 
->>> I guess the big question is - is there a corresponding concept in
->>>> PlugSched?  for instance, is there a reference in the task_struct to the
->>>> current scheduling domain, or is it more CKRM-style with classification
->>>> modules?
->>>    
->>>
->> It uses the standard run queue structure with per scheduler
->> modifications (via a union) to handle the different ways that the
->> schedulers manage priority arrays (so yes). As I said it restricts
->> itself to scheduling matters within each run queue and leaves the
->> wider aspects to the normal code.
-> 
-> 
-> Ok, so there is no existing "classification" abstraction?  The
-> classification is tied to the scheduler implementation?
+Hello,
 
-Yes.
-
+On Tue, May 30, 2006 at 11:05:13AM -0600, Javier Olivares wrote:
+> We were having problems when running programs that used over 2GB of ram 
+> not being able to generate core files over 2GB, these are some very 
+> simple changes that fixed the problem.
 > 
->> At first guess, it sounds like adding your scheduler could be as simple 
->> as taking a copy of ingosched.c (which is the implementation of the 
->> standard scheduler within PlugSched) and then making your modifications. 
->>  You could probably even share the same run queue components but 
->> there's nothing to stop you adding new ones.
->>
->> Each scheduler can also have its own per task data via a union in the 
->> task struct.
->>  
->>
+> linux-2.4.31/fs/binfmt_elf.c
+> 1024c1024
+> < static int dump_seek(struct file *file, off_t off)
+> ---
+> > static int dump_seek(struct file *file, loff_t off)
 > 
-> Ok, sounds like that problem is solved - just the classification one
-> remaining.
+> Changed the function parameter "off" from type "off_t" to "loff_t".  The 
+> parameter was truncating the incoming long long type to a long, causing 
+> the seek to fail and kill the dump when off grew above 2GB.
+
+You change looks right.
+
+
+> /kernels/2.4.31/linux-2.4.31/fs/exec.c
+> 1151c1151
+> <     file = filp_open(corename, O_CREAT | 2 | O_NOFOLLOW, 0600);
+> ---
+> >     file = filp_open(corename, O_CREAT | 2 | O_NOFOLLOW | 
+> O_LARGEFILE, 0600);
 > 
->> OK.  I'm waiting for the next -mm kernel before I make the next release.
->>  
->>
+> Included the O_LARGEFILE flag in order to create files over 2GB.
 > 
-> Looking forward to it.
+> The changes have been running on many Debian systems for a couple of 
+> months.  Valid core files just over 3GB have been created without any 
+> problem.  I have never submitted anything like this before so please 
+> excuse any lack of proper protocol.
 
-Andrew released 2.6.17-rc5-mm1 yesterday so I should have a new version 
-in a day or two.
+You would be interested in reading this file in the kernel sources :
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+   Documentation/SubmittingPatches
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Most important to remember : use "diff -u" to make the patch, and don't
+forget to CC the maintainer, particularly on 2.4 patches, because very
+few patches are related to 2.4 right now on LKML and it's easy to miss
+them. Anyway, your changes are quite self-explanatory and are very easy
+to redo by hand. Here's the patch re-done as a diff -u (in fact, as
+exported by Git but the output from diff -u would be the same).
+
+--- a/fs/binfmt_elf.c
++++ b/fs/binfmt_elf.c
+@@ -1026,7 +1026,7 @@ static int dump_write(struct file *file,
+ 	return file->f_op->write(file, addr, nr, &file->f_pos) == nr;
+ }
+ 
+-static int dump_seek(struct file *file, off_t off)
++static int dump_seek(struct file *file, loff_t off)
+ {
+ 	if (file->f_op->llseek) {
+ 		if (file->f_op->llseek(file, off, 0) != off)
+
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1148,7 +1148,8 @@ int do_coredump(long signr, struct pt_re
+ 		goto fail;
+ 
+  	format_corename(corename, core_pattern, signr);
+-	file = filp_open(corename, O_CREAT | 2 | O_NOFOLLOW, 0600);
++	file = filp_open(corename,
++	                 O_CREAT | 2 | O_NOFOLLOW | O_LARGEFILE, 0600);
+ 	if (IS_ERR(file))
+ 		goto fail;
+ 	inode = file->f_dentry->d_inode;
+
+
+> Thank you.
+> 
+> -Javier Olivares
+
+Thank you.
+
+Marcelo, this looks valid to me, I've queued it.
+Willy
+
+

@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWE3MM6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbWE3MOT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751428AbWE3MM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 08:12:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWE3MM6
+	id S1751444AbWE3MOT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 08:14:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWE3MOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 08:12:58 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:27336 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751426AbWE3MM6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 08:12:58 -0400
-Date: Tue, 30 May 2006 14:13:15 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-Cc: Arjan van de Ven <arjan@linux.intel.com>, jketreno@linux.intel.com,
-       yi.zhu@intel.com, Andrew Morton <akpm@osdl.org>,
+	Tue, 30 May 2006 08:14:19 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:24749 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751426AbWE3MOT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 08:14:19 -0400
+Subject: Re: [patch, -rc5-mm1] lock validator, fix NULL type->name bug
+From: Arjan van de Ven <arjan@infradead.org>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch 00/61] ANNOUNCE: lock validator -V1
-Message-ID: <20060530121315.GA9337@elte.hu>
-References: <20060529212109.GA2058@elte.hu> <20060530091415.GA13341@ens-lyon.fr> <1148984787.3636.45.camel@laptopd505.fenrus.org> <20060530114257.GA17628@ens-lyon.fr>
+In-Reply-To: <1148990725.8610.1.camel@homer>
+References: <20060530022925.8a67b613.akpm@osdl.org>
+	 <20060530111138.GA5078@elte.hu>  <1148990326.7599.4.camel@homer>
+	 <1148990725.8610.1.camel@homer>
+Content-Type: text/plain
+Date: Tue, 30 May 2006 14:14:16 +0200
+Message-Id: <1148991256.3636.55.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060530114257.GA17628@ens-lyon.fr>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Benoit Boissinot <benoit.boissinot@ens-lyon.org> wrote:
-
-> It is probably related, but I got this in my log too:
+On Tue, 2006-05-30 at 14:05 +0200, Mike Galbraith wrote:
+> On Tue, 2006-05-30 at 13:58 +0200, Mike Galbraith wrote:
 > 
-> BUG: warning at kernel/softirq.c:86/local_bh_disable()
+> > =====================================================
+> > [ BUG: possible circular locking deadlock detected! ]
+> > -----------------------------------------------------
+> > mount/2545 is trying to acquire lock:
+> >  (&ni->mrec_lock){--..}, at: [<b13d1563>] mutex_lock+0x8/0xa
+> > 
+> > ...and deadlocks.
+> > 
+> > I'll try to find out what it hates.
+> 
+> It hates NTFS.
 
-this one is harmless, you can ignore it. (already sent a patch to remove 
-the WARN_ON)
 
-	Ingo
+hummm. NTFS does really really weird things with mutexes...
+can you try to enable the mutex debugging config option to see if that
+triggers anything?
+

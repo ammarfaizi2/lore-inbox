@@ -1,76 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWE3XVT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWE3XWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964818AbWE3XVT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 19:21:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbWE3XVT
+	id S964822AbWE3XWR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 19:22:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWE3XWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 19:21:19 -0400
-Received: from wx-out-0102.google.com ([66.249.82.205]:41666 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S964806AbWE3XVS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 19:21:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=M9s9daWj7l+QVdzXC+g5zcDfW3LoNlBcjkgPH8v/VPoZ5oypD1u07Eb7hPkwt06QRZHitzRHiOwBn1X0PA+qHWTyRoUzf1a7BuFrLET5Gz1RQSup8rcOlTbb7fyrGtY8uFb9yQRi4iCxlyqmNFOZVmRwyvsyOddE3g2ETAdH6Kk=
-Message-ID: <447CD367.5050606@gmail.com>
-Date: Wed, 31 May 2006 07:21:11 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+	Tue, 30 May 2006 19:22:17 -0400
+Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:24260 "EHLO
+	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S964821AbWE3XWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 19:22:16 -0400
+Message-ID: <447CD3A4.906@bigpond.net.au>
+Date: Wed, 31 May 2006 09:22:12 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Ondrej Zajicek <santiago@mail.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: OpenGL-based framebuffer concepts
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200605272245.22320.dhazelton@enter.net> <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com> <200605280112.01639.dhazelton@enter.net> <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com> <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz> <20060530223513.GA32267@localhost.localdomain>
-In-Reply-To: <20060530223513.GA32267@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Sam Vilain <sam@vilain.net>
+CC: =?ISO-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
+       Mike Galbraith <efault@gmx.de>, Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
+       Rene Herman <rene.herman@keyaccess.nl>,
+       Herbert Poetzl <herbert@13thfloor.at>, Kirill Korotaev <dev@sw.ru>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [RFC 0/5] sched: Add CPU rate caps
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest> <1148630661.7589.65.camel@homer> <20060526161148.GA23680@atjola.homenet> <447A2853.2080901@vilain.net> <447A3292.5070606@bigpond.net.au> <447A65EA.9020705@vilain.net> <447A6D7B.9090302@bigpond.net.au> <447B64BF.4050806@vilain.net> <447B7FD6.6020405@bigpond.net.au> <447BA8ED.3080904@vilain.net> <447BB1C6.9050901@bigpond.net.au> <447CC19D.4020603@vilain.net>
+In-Reply-To: <447CC19D.4020603@vilain.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 30 May 2006 23:22:13 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ondrej Zajicek wrote:
-> On Tue, May 30, 2006 at 10:40:20AM -0700, David Lang wrote:
->> as a long time linux user I tend to not to use the framebuffer, but 
->> instead use the standard vga text drivers (with X and sometimes dri/drm).
+Sam Vilain wrote:
+> Peter Williams wrote:
+> 
+>> They shouldn't interfere as which scheduler to use is a boot time 
+>> selection and only one scheduler is in force.  It's mainly a coding 
+>> matter and in particular whether the "scheduler driver" interface would 
+>> need to be modified or whether your scheduler can be implemented using 
+>> the current interface.
+>>  
 >>
->> in part this dates back to my early experiances with the framebuffer code 
->> when it was first introduced, but I still find that the framebuffer is not 
->> as nice to use as the simpler direct access for text modes. and when I 
->> start X up it doesn't need a framebuffer, so why suffer with the 
->> performance hit of the framebuffer?
 > 
-> Many users want to use text mode for console. But this request is not
-> in contradiction with fbdev and fbcon. It just requires to do some work:
+> Yes, that's the key issue I think - the interface now has more inputs.
 > 
-> 1) To extend fbcon to be able to handle framebuffer in text mode.
+>>> I guess the big question is - is there a corresponding concept in
+>>>> PlugSched?  for instance, is there a reference in the task_struct to the
+>>>> current scheduling domain, or is it more CKRM-style with classification
+>>>> modules?
+>>>    
+>>>
+>> It uses the standard run queue structure with per scheduler
+>> modifications (via a union) to handle the different ways that the
+>> schedulers manage priority arrays (so yes). As I said it restricts
+>> itself to scheduling matters within each run queue and leaves the
+>> wider aspects to the normal code.
+> 
+> 
+> Ok, so there is no existing "classification" abstraction?  The
+> classification is tied to the scheduler implementation?
 
-And it can be done.  The matrox driver in 2.4 can do just that.  For 2.6,
-we have tileblitting which is a drawing method that can handle pure text.
-None of the drivers use this, but vgacon can be trivially written as a
-framebuffer driver that uses tileblitting (instead of the default bitblit).
+Yes.
 
-I believe that there was a vgafb driver before that does exactly what you
-want.
+> 
+>> At first guess, it sounds like adding your scheduler could be as simple 
+>> as taking a copy of ingosched.c (which is the implementation of the 
+>> standard scheduler within PlugSched) and then making your modifications. 
+>>  You could probably even share the same run queue components but 
+>> there's nothing to stop you adding new ones.
+>>
+>> Each scheduler can also have its own per task data via a union in the 
+>> task struct.
+>>  
+>>
+> 
+> Ok, sounds like that problem is solved - just the classification one
+> remaining.
+> 
+>> OK.  I'm waiting for the next -mm kernel before I make the next release.
+>>  
+>>
+> 
+> Looking forward to it.
 
-> 2) To modify appropriate fbdev drivers to not do mode change at startup.
->    Fill fb_*_screeninfo with appropriate values for text mode instead.
+Andrew released 2.6.17-rc5-mm1 yesterday so I should have a new version 
+in a day or two.
 
-Most drivers do not change the mode at startup.  Do not load fbcon, and
-you will retain your text mode even if a framebuffer is loaded.  This is
-not a hard and fast rule, so some drivers, especially those in embedded,
-will explicitly change the mode at startup, that's a developer choice.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-> 3) (optional) To modify appropriate fbdev drivers to be able to switch
->    back from graphics mode to text mode.
-
-And a few drivers already do that, i810fb and rivafb.  Load rivafb or i810fb,
-switch to graphics mode, unload, and you're back to text mode. The main problem
-is that fbcon cannot be unloaded, but it's again trivial to rewrite fbcon so it
-can be unloaded.  What prevents me for doing the rewrite is that only a few
-drivers restore the hardware to text mode.
-
-And this is one argument against making vgacon the primary console driver.
-It does not have the capability to reset itself, it has to be done by
-an external driver, whether by X or fbdev.
-
-Tony
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

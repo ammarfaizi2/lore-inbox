@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWE3GQS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWE3GQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932155AbWE3GQS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 02:16:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWE3GQS
+	id S932157AbWE3GQh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 02:16:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbWE3GQg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 02:16:18 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:34208 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932155AbWE3GQR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 02:16:17 -0400
-Date: Tue, 30 May 2006 08:16:30 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Thomas Gleixner <tglx@linutronix.de>,
-       mingo@redhat.com, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [-rt BUG] scheduling with irqs disabled: swapper
-Message-ID: <20060530061630.GB19870@elte.hu>
-References: <1f1b08da0605261553v5e55ebdfpc790ebd5e5b0add8@mail.gmail.com> <1148692456.5381.7.camel@localhost.localdomain> <1148775233.30211.1.camel@leatherman> <1148778806.5381.11.camel@localhost.localdomain> <20060528064026.GA14665@elte.hu> <1148936590.30211.9.camel@leatherman>
+	Tue, 30 May 2006 02:16:36 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:36273 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932158AbWE3GQf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 02:16:35 -0400
+Date: Tue, 30 May 2006 09:16:29 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: "=?utf-8?B?amVzc2VcKOW7uuiIiFwp?=" <jesse@icplus.com.tw>
+cc: Francois Romieu <romieu@fr.zoreil.com>, David Vrabel <dvrabel@cantab.net>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       david@pleyades.net, akpm@osdl.org
+Subject: Re: Sign-off for the IP1000A driver before inclusion
+In-Reply-To: <021f01c683b0$34b5cbd0$4964a8c0@icplus.com.tw>
+Message-ID: <Pine.LNX.4.58.0605300915400.18933@sbz-30.cs.Helsinki.FI>
+References: <84144f020605230001s32b29f59w8f95c67fad7b380d@mail.gmail.com>
+ <044a01c67ef8$9bdd0420$4964a8c0@icplus.com.tw>
+ <Pine.LNX.4.58.0605240911400.26629@sbz-30.cs.Helsinki.FI>
+ <021f01c683b0$34b5cbd0$4964a8c0@icplus.com.tw>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1148936590.30211.9.camel@leatherman>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 30 May 2006, jesse\(??\)~H~H\) wrote:
+> I had did some modification of ipg.h and ipg.c. Please see attach file.
+> 20060521-2.6.17-rc4-git-ip1000-test.patch__icplus_modify.zip
 
-* john stultz <johnstul@us.ibm.com> wrote:
+Please send them as regular patches.  Please 
+Documentation/SubmittingPatches and the following URL for details:
 
-> > the backtrace shows misrouted_irq(), which is only called if "irqfixup" 
-> > is enabled. That indeed isnt supported in -rt yet.
-> 
-> Ugh. You and Steven are right. We've been bitten by this a few times, 
-> but we thought we got rid of that option on all of our boxes. I guess 
-> one slipped by.
-> 
-> Anyway, thanks for pointing that out. Would you consider a patch like 
-> the following so that folks don't continue to slip over this?
+http://www.zipworld.com.au/~akpm/linux/patches/stuff/tpp.txt
 
-sure, i've applied it. (fixed a small typo in the printout)
+Thanks.
 
-	Ingo
+					Pekka

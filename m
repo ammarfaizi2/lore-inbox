@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWE3NVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbWE3NWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751399AbWE3NVm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 09:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWE3NVm
+	id S1751295AbWE3NWf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 09:22:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWE3NWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 09:21:42 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20644 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751102AbWE3NVl (ORCPT
+	Tue, 30 May 2006 09:22:35 -0400
+Received: from rtr.ca ([64.26.128.89]:45233 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751400AbWE3NWe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 09:21:41 -0400
-Date: Tue, 30 May 2006 15:20:54 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>,
-       Netdev list <netdev@vger.kernel.org>, Jirka Lenost Benc <jbenc@suse.cz>,
-       pe1rxq@amsat.org
-Subject: zd1201 failure on sharp zaurus explained
-Message-ID: <20060530132054.GA9780@elf.ucw.cz>
+	Tue, 30 May 2006 09:22:34 -0400
+Message-ID: <447C4718.6090802@rtr.ca>
+Date: Tue, 30 May 2006 09:22:32 -0400
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [git patch] libata resume fix
+References: <20060528203419.GA15087@havoc.gtf.org> <1148938482.5959.27.camel@localhost.localdomain>
+In-Reply-To: <1148938482.5959.27.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Benjamin Herrenschmidt wrote:
+> On Sun, 2006-05-28 at 16:34 -0400, Jeff Garzik wrote:
+>> Please pull from 'upstream-fixes' branch of
+>> master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+>>
+>> to receive the following updates:
+>>
+>>  drivers/scsi/libata-core.c |    1 +
+>>  1 file changed, 1 insertion(+)
+>>
+>> Mark Lord:
+>>       the latest consensus libata resume fix
+> 
+> If your devices are coming from poweron-reset then you will have to wait
+> up to 31 seconds :( And yes, I _did_ have such a device at one point.
 
-Now I found out what went wrong with zd1201 on sharp zaurus (spitz)...
+Not in a suspend/resume capable notebook, though.
 
-Card is detected and seems to work okay, except that you don't get any
-results from iwlist eth1 scan, and card generally does not do anything
-involving radio.
+I don't know of *any* notebook drives that take longer
+than perhaps five seconds to spin-up and accept commands.
+Such a slow drive wouldn't really be tolerated by end-users,
+which is why they don't exist.
 
-And now I have an explanation, too:
+But I suppose people will want to suspend/resume bigger machines
+too, in which case a 10000rpm Raptor might need 15 seconds or so.
 
-If you plug card directly to zaurus, above is what happens.
+We could bump up the existing timeout, I suppose.
 
-If you plug it into the hub, hub flashes the lights and shuts down, as
-if not enough power is available from the zaurus.
+Perhaps Jeff could comment on any potential harm in libata
+for going all the way to 3100000 with the timeout?
 
-...which is probably the case, because if I connect external 6V power
-supply to the hub, it all starts to work.
-
-So... it is
-
-1) hw problem: spitz power supply is not strong enough to drive zd1201
-
-2) usb problem, probably. Should not usb core detect that card
-requires too much juice and refuse to power it up?
-
-...and the morale is, always put hub between device and the host so
-that you can see the flashy leds :-).
-								Pavel 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Cheers

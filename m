@@ -1,60 +1,208 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbWE3WfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbWE3Wf7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964775AbWE3WfS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 18:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWE3WfS
+	id S964788AbWE3Wf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 18:35:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWE3Wf7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 18:35:18 -0400
-Received: from smtp1.kolej.mff.cuni.cz ([195.113.24.4]:8722 "EHLO
-	smtp1.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S964775AbWE3WfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 18:35:16 -0400
-X-Envelope-From: zajio1am@artax.karlin.mff.cuni.cz
-Date: Wed, 31 May 2006 00:35:13 +0200
-From: Ondrej Zajicek <santiago@mail.cz>
+	Tue, 30 May 2006 18:35:59 -0400
+Received: from smtp-2.llnl.gov ([128.115.3.82]:35211 "EHLO smtp-2.llnl.gov")
+	by vger.kernel.org with ESMTP id S964788AbWE3Wf6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 18:35:58 -0400
+Date: Tue, 30 May 2006 15:35:04 -0700 (PDT)
+Message-Id: <200605302235.k4UMZ4ok005150@calaveras.llnl.gov>
+From: Dave Peterson <dsp@llnl.gov>
 To: linux-kernel@vger.kernel.org
-Subject: Re: OpenGL-based framebuffer concepts
-Message-ID: <20060530223513.GA32267@localhost.localdomain>
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200605272245.22320.dhazelton@enter.net> <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com> <200605280112.01639.dhazelton@enter.net> <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com> <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz>
-X-Operating-System: Debian GNU/Linux 3.1 (Sarge)
-User-Agent: Mutt/1.5.9i
+Cc: akpm@osdl.org, nickpiggin@yahoo.com.au, pj@sgi.com, ak@suse.de,
+       linux-mm@kvack.org, garlick@llnl.gov, mgrondona@llnl.gov, dsp@llnl.gov
+Subject: [PATCH (try #4)] mm: avoid unnecessary OOM kills
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 30, 2006 at 10:40:20AM -0700, David Lang wrote:
-> as a long time linux user I tend to not to use the framebuffer, but 
-> instead use the standard vga text drivers (with X and sometimes dri/drm).
-> 
-> in part this dates back to my early experiances with the framebuffer code 
-> when it was first introduced, but I still find that the framebuffer is not 
-> as nice to use as the simpler direct access for text modes. and when I 
-> start X up it doesn't need a framebuffer, so why suffer with the 
-> performance hit of the framebuffer?
+Below is a 2.6.17-rc4-mm3 patch that fixes a problem where the OOM killer was
+unnecessarily killing system daemons in addition to memory-hogging user
+processes.  The patch fixes things so that the following assertion is
+satisfied:
 
-Many users want to use text mode for console. But this request is not
-in contradiction with fbdev and fbcon. It just requires to do some work:
+    If a failed attempt to allocate memory triggers the OOM killer, then the
+    failed attempt must have occurred _after_ any process previously shot by
+    the OOM killer has cleaned out its mm_struct.
 
-1) To extend fbcon to be able to handle framebuffer in text mode.
-2) To modify appropriate fbdev drivers to not do mode change at startup.
-   Fill fb_*_screeninfo with appropriate values for text mode instead.
-3) (optional) To modify appropriate fbdev drivers to be able to switch
-   back from graphics mode to text mode.
-   
-Step 2) could be done easily - just disable mode switch and examine structure
-of fb. Step 3) could be hacked using store and restore of vga registers
-if better way is not available.
+Thus we avoid situations where concurrent invocations of the OOM killer cause
+more processes to be shot than necessary to resolve the OOM condition.
 
-If someone do that, then there should be no difference in user experience
-with vgacon and fbcon/vga16fb (or specific fb driver), which can result to
-better acceptance of fb drivers between users.
+Signed-Off-By: David S. Peterson <dsp@llnl.gov>
+---
+Changes in this version of patch:
 
--- 
-Elen sila lumenn' omentielvo
+    - Loop over all tasks to determine whether OOM kill is in progress.
+      Eliminate OOM notify flag in mm_struct, etc.
 
-Ondrej 'SanTiago' Zajicek (email: santiago@mail.cz, jabber: santiago@njs.netlab.cz)
-OpenPGP encrypted e-mails preferred (KeyID 0x11DEADC3, wwwkeys.pgp.net)
-"To err is human -- to blame it on a computer is even more so."
+
+diff -urNp -X dontdiff linux-2.6.17-rc5-mm1/mm/oom_kill.c linux-2.6.17-rc5-mm1-oom/mm/oom_kill.c
+--- linux-2.6.17-rc5-mm1/mm/oom_kill.c	2006-05-30 14:05:53.000000000 -0700
++++ linux-2.6.17-rc5-mm1-oom/mm/oom_kill.c	2006-05-30 14:07:00.000000000 -0700
+@@ -25,6 +25,23 @@
+ int sysctl_panic_on_oom;
+ /* #define DEBUG */
+ 
++/* Return 1 if OOM kill in progress.  Else return 0. */
++int oom_kill_active(void)
++{
++	task_t *p, *q;
++
++	read_lock(&tasklist_lock);
++	do_each_thread(p, q) {
++		if (test_tsk_thread_flag(q, TIF_MEMDIE)) {
++			read_unlock(&tasklist_lock);
++			return 1;
++		}
++	} while_each_thread(p, q);
++	read_unlock(&tasklist_lock);
++
++	return 0;
++}
++
+ /**
+  * badness - calculate a numeric value for how bad this task has been
+  * @p: task struct of which task we should calculate
+@@ -318,6 +335,7 @@ void out_of_memory(struct zonelist *zone
+ {
+ 	task_t *p;
+ 	unsigned long points = 0;
++	const char *msg = NULL;
+ 
+ 	if (printk_ratelimit()) {
+ 		printk("oom-killer: gfp_mask=0x%x, order=%d\n",
+@@ -335,19 +353,19 @@ void out_of_memory(struct zonelist *zone
+ 	 */
+ 	switch (constrained_alloc(zonelist, gfp_mask)) {
+ 	case CONSTRAINT_MEMORY_POLICY:
+-		oom_kill_process(current, points,
+-				"No available memory (MPOL_BIND)");
++		p = current;
++		msg = "No available memory (MPOL_BIND)";
+ 		break;
+ 
+ 	case CONSTRAINT_CPUSET:
+-		oom_kill_process(current, points,
+-				"No available memory in cpuset");
++		p = current;
++		msg = "No available memory in cpuset";
+ 		break;
+ 
+ 	case CONSTRAINT_NONE:
+ 		if (sysctl_panic_on_oom)
+ 			panic("out of memory. panic_on_oom is selected\n");
+-retry:
++
+ 		/*
+ 		 * Rambo mode: Shoot down a process and hope it solves whatever
+ 		 * issues we may have.
+@@ -364,20 +382,16 @@ retry:
+ 			panic("Out of memory and no killable processes...\n");
+ 		}
+ 
+-		if (oom_kill_process(p, points, "Out of memory"))
+-			goto retry;
+-
++		msg = "Out of memory";
+ 		break;
++
++	default:
++		BUG();
+ 	}
+ 
++	oom_kill_process(p, points, msg);
++
+ out:
+ 	read_unlock(&tasklist_lock);
+ 	cpuset_unlock();
+-
+-	/*
+-	 * Give "p" a good chance of killing itself before we
+-	 * retry to allocate memory unless "p" is current
+-	 */
+-	if (!test_thread_flag(TIF_MEMDIE))
+-		schedule_timeout_uninterruptible(1);
+ }
+diff -urNp -X dontdiff linux-2.6.17-rc5-mm1/mm/page_alloc.c linux-2.6.17-rc5-mm1-oom/mm/page_alloc.c
+--- linux-2.6.17-rc5-mm1/mm/page_alloc.c	2006-05-30 14:05:53.000000000 -0700
++++ linux-2.6.17-rc5-mm1-oom/mm/page_alloc.c	2006-05-30 14:07:00.000000000 -0700
+@@ -992,6 +992,56 @@ static inline void set_page_owner(struct
+ }
+ #endif /* CONFIG_PAGE_OWNER */
+ 
++int oom_kill_active(void);
++
++/* If an OOM kill is not already in progress, try once more to allocate
++ * memory.  If allocation fails this time, invoke the OOM killer.
++ */
++static struct page * oom_alloc(gfp_t gfp_mask, unsigned int order,
++		struct zonelist *zonelist)
++{
++	static DECLARE_MUTEX(sem);
++	struct page *page;
++
++	down(&sem);
++
++	/* Prevent parallel OOM kill operations.  This fixes a problem where
++	 * the OOM killer was observed shooting system daemons in addition to
++	 * memory-hogging user processes.
++	 */
++	if (oom_kill_active()) {
++		up(&sem);
++		goto out_sleep;
++	}
++
++	/* If we get here, we _know_ that any previous OOM killer victim has
++	 * cleaned out its mm_struct.  Therefore we should pick a victim to
++	 * shoot if this allocation fails.
++	 */
++	page = get_page_from_freelist(gfp_mask | __GFP_HARDWALL, order,
++				zonelist, ALLOC_WMARK_HIGH | ALLOC_CPUSET);
++
++	if (page) {
++		up(&sem);
++		return page;
++	}
++
++	/* Try to shoot a process. */
++	out_of_memory(zonelist, gfp_mask, order);
++	up(&sem);
++
++out_sleep:
++	/* Did we get shot by the OOM killer?  If not, sleep for a while to
++	 * avoid burning lots of CPU cycles looping in the memory allocator.
++	 * If the OOM killer shot a process, this gives the victim a good
++	 * chance to die before we retry allocation.
++	 */
++	if (!test_thread_flag(TIF_MEMDIE))
++		schedule_timeout_uninterruptible(1);
++
++	return NULL;
++}
++
+ /*
+  * This is the 'heart' of the zoned buddy allocator.
+  */
+@@ -1102,18 +1152,9 @@ rebalance:
+ 		if (page)
+ 			goto got_pg;
+ 	} else if ((gfp_mask & __GFP_FS) && !(gfp_mask & __GFP_NORETRY)) {
+-		/*
+-		 * Go through the zonelist yet one more time, keep
+-		 * very high watermark here, this is only to catch
+-		 * a parallel oom killing, we must fail if we're still
+-		 * under heavy pressure.
+-		 */
+-		page = get_page_from_freelist(gfp_mask|__GFP_HARDWALL, order,
+-				zonelist, ALLOC_WMARK_HIGH|ALLOC_CPUSET);
++		page = oom_alloc(gfp_mask, order, zonelist);
+ 		if (page)
+ 			goto got_pg;
+-
+-		out_of_memory(zonelist, gfp_mask, order);
+ 		goto restart;
+ 	}
+ 

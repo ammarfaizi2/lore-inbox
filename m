@@ -1,68 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWE3SvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbWE3Szx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932386AbWE3SvE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 14:51:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWE3SvE
+	id S932391AbWE3Szx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 14:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWE3Szx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 14:51:04 -0400
-Received: from wr-out-0506.google.com ([64.233.184.236]:42730 "EHLO
+	Tue, 30 May 2006 14:55:53 -0400
+Received: from wr-out-0506.google.com ([64.233.184.238]:32751 "EHLO
 	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932353AbWE3SvC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 14:51:02 -0400
+	id S932391AbWE3Szw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 14:55:52 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Wth+yXrum78/SdMW1+Qhd4lwcQG5t9G2KMzKf+0UTREw0YafrgYxxLVPeCecjjiMdTvvN4njw0OsXpNJRo1YVP2KZ1IGhqP7XyYW2j2rmevvlPkn0HFczt8TRMNP1QV3+iaZflnO5fenAsasBUvIpPIEikMTed+TWVJL1+1Ldno=
-Message-ID: <6bffcb0e0605301151j7cebedc4wa376b54338d1a5ba@mail.gmail.com>
-Date: Tue, 30 May 2006 20:51:01 +0200
+        b=pwyIvJ34A+9bopGK0tCYBpGJX5IuqgJ7ENMizTCsAlg6m39OVlLRTw0jX7t/v4iGr6Rxkih8f8MMxmE4/nvWqLdTnTAydE6XHjSDksbNk2Q852onaTJuYJTZoQLQXQpVgMrJa+hwSS07oHmbJ492w0ckYK8yXxMXvlj0fbWghWs=
+Message-ID: <6bffcb0e0605301155h3b472d79h65e8403e7fa0b214@mail.gmail.com>
+Date: Tue, 30 May 2006 20:55:52 +0200
 From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Arjan van de Ven" <arjan@linux.intel.com>
+To: "Andrew Morton" <akpm@osdl.org>
 Subject: Re: 2.6.17-rc5-mm1
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "Andrew Morton" <akpm@osdl.org>, mingo@elte.hu
-In-Reply-To: <1149005329.3636.78.camel@laptopd505.fenrus.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060530022925.8a67b613.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 References: <20060530022925.8a67b613.akpm@osdl.org>
-	 <6bffcb0e0605300859x5c8f83f5w635fd25f0100fca@mail.gmail.com>
-	 <1149005329.3636.78.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Arjan,
+Hi,
 
-On 30/05/06, Arjan van de Ven <arjan@linux.intel.com> wrote:
-> On Tue, 2006-05-30 at 17:59 +0200, Michal Piotrowski wrote:
-> > Hi,
-> >
-> > On 30/05/06, Andrew Morton <akpm@osdl.org> wrote:
-> > >
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm1/
-> > >
-> > >
-> >
-> > It looks like a network stack problem.
-> >
-> > May 30 17:50:34 ltg01-fedora init: Switching to runlevel: 6
-> > May 30 17:50:35 ltg01-fedora avahi-daemon[1878]: Got SIGTERM, quitting.
-> > May 30 17:50:35 ltg01-fedora avahi-daemon[1878]: Leaving mDNS
-> > multicast group on interface eth0.IPv4 with address 192.168.0.
-> > 14.
-> > May 30 17:50:35 ltg01-fedora kernel:
-> > May 30 17:50:35 ltg01-fedora kernel: ======================================
-> > May 30 17:50:35 ltg01-fedora kernel: [ BUG: bad unlock ordering detected! ]
-> > May 30 17:50:35 ltg01-fedora kernel: --------------------------------------
-> > May 30 17:50:35 ltg01-fedora kernel: avahi-daemon/1878 is trying to
+On 30/05/06, Andrew Morton <akpm@osdl.org> wrote:
 >
-> does this fix it for you?
-
-Yes, thanks.
-
-> Mark out of order unlocking in igmp.c as such
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm1/
 >
-> Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+
+SCSI or libata problem.
+============================
+[ BUG: illegal lock usage! ]
+----------------------------
+illegal {in-hardirq-W} -> {hardirq-on-W} usage.
+init/1 [HC0[0]:SC0[0]:HE1:SE1] takes:
+ (&base->lock#2){++..}, at: [<c0129a24>] lock_timer_base+0x29/0x55
+{in-hardirq-W} state was registered at:
+  [<c0139a56>] lockdep_acquire+0x69/0x82
+  [<c02f237c>] _spin_lock_irqsave+0x2a/0x3a
+  [<c0129a24>] lock_timer_base+0x29/0x55
+  [<c0129e48>] del_timer+0x19/0x4c
+  [<c02651e2>] scsi_delete_timer+0xe/0x1f
+  [<c0262964>] scsi_done+0xb/0x19
+  [<c0273ed3>] ata_scsi_qc_complete+0x73/0x7f
+  [<c027024a>] __ata_qc_complete+0x26c/0x274
+  [<c02704f0>] ata_qc_complete+0xd5/0xdc
+  [<c0270c42>] ata_hsm_qc_complete+0x201/0x210
+  [<c02713e7>] ata_hsm_move+0x796/0x7ac
+  [<c027314e>] ata_interrupt+0x173/0x1b4
+  [<c014c4f4>] handle_IRQ_event+0x20/0x50
+  [<c014d76e>] handle_level_irq+0xa1/0xeb
+  [<c010579c>] do_IRQ+0xa1/0xc9
+irq event stamp: 576924
+hardirqs last  enabled at (576923): [<c02f26c7>]
+_spin_unlock_irqrestore+0x36/0x69
+hardirqs last disabled at (576924): [<c02f2361>] _spin_lock_irqsave+0xf/0x3a
+softirqs last  enabled at (576878): [<c0125873>] __do_softirq+0xea/0xf0
+softirqs last disabled at (576869): [<c0105689>] do_softirq+0x59/0xcb
+
+other info that might help us debug this:
+1 locks held by init/1:
+ #0:  (&base->lock#2){++..}, at: [<c0129a24>] lock_timer_base+0x29/0x55
+
+stack backtrace:
+ [<c0103e52>] show_trace_log_lvl+0x4b/0xf4
+ [<c01044b3>] show_trace+0xd/0x10
+ [<c010457b>] dump_stack+0x19/0x1b
+ [<c0137d63>] print_usage_bug+0x1a1/0x1ab
+ [<c0138458>] mark_lock+0x2d7/0x514
+ [<c01386dc>] mark_held_locks+0x47/0x65
+ [<c0139745>] trace_hardirqs_on+0x12b/0x16f
+ [<c02f2b61>] restore_nocheck+0x8/0xb
+
+Here is config
+http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm1/mm-config2
+
+Here is dmesg
+http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm1/mm-dmesg2
 
 Regards,
 Michal

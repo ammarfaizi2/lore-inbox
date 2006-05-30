@@ -1,23 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWE3Bca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWE3Bci@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932123AbWE3Bca (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 21:32:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWE3Bc3
+	id S932117AbWE3Bci (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 21:32:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWE3Bch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 21:32:29 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:21953 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932125AbWE3Bc1 (ORCPT
+	Mon, 29 May 2006 21:32:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21441 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932116AbWE3BcX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 21:32:27 -0400
-Date: Mon, 29 May 2006 18:36:41 -0700
+	Mon, 29 May 2006 21:32:23 -0400
+Date: Mon, 29 May 2006 18:36:32 -0700
 From: Andrew Morton <akpm@osdl.org>
 To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch 61/61] lock validator: enable lock validator in Kconfig
-Message-Id: <20060529183641.09ca4e08.akpm@osdl.org>
-In-Reply-To: <20060529212812.GI3155@elte.hu>
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org,
+       "David S. Miller" <davem@davemloft.net>,
+       Patrick McHardy <kaber@trash.net>
+Subject: Re: [patch 59/61] lock validator: special locking: xfrm
+Message-Id: <20060529183632.67f6b0bd.akpm@osdl.org>
+In-Reply-To: <20060529212751.GG3155@elte.hu>
 References: <20060529212109.GA2058@elte.hu>
-	<20060529212812.GI3155@elte.hu>
+	<20060529212751.GG3155@elte.hu>
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,34 +27,48 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 May 2006 23:28:12 +0200
+On Mon, 29 May 2006 23:27:51 +0200
 Ingo Molnar <mingo@elte.hu> wrote:
 
-> offer the following lock validation options:
+> From: Ingo Molnar <mingo@elte.hu>
 > 
->  CONFIG_PROVE_SPIN_LOCKING
->  CONFIG_PROVE_RW_LOCKING
->  CONFIG_PROVE_MUTEX_LOCKING
->  CONFIG_PROVE_RWSEM_LOCKING
+> teach special (non-nested) unlocking code to the lock validator. Has no
+> effect on non-lockdep kernels.
 > 
 > Signed-off-by: Ingo Molnar <mingo@elte.hu>
 > Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
 > ---
->  lib/Kconfig.debug |  167 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 167 insertions(+)
+>  net/xfrm/xfrm_policy.c |    2 +-
+>  net/xfrm/xfrm_state.c  |    2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 > 
-> Index: linux/lib/Kconfig.debug
+> Index: linux/net/xfrm/xfrm_policy.c
 > ===================================================================
-> --- linux.orig/lib/Kconfig.debug
-> +++ linux/lib/Kconfig.debug
-> @@ -184,6 +184,173 @@ config DEBUG_SPINLOCK
->  	  best used in conjunction with the NMI watchdog so that spinlock
->  	  deadlocks are also debuggable.
+> --- linux.orig/net/xfrm/xfrm_policy.c
+> +++ linux/net/xfrm/xfrm_policy.c
+> @@ -1308,7 +1308,7 @@ static struct xfrm_policy_afinfo *xfrm_p
+>  	afinfo = xfrm_policy_afinfo[family];
+>  	if (likely(afinfo != NULL))
+>  		read_lock(&afinfo->lock);
+> -	read_unlock(&xfrm_policy_afinfo_lock);
+> +	read_unlock_non_nested(&xfrm_policy_afinfo_lock);
+>  	return afinfo;
+>  }
 >  
-> +config PROVE_SPIN_LOCKING
-> +	bool "Prove spin-locking correctness"
-> +	default y
+> Index: linux/net/xfrm/xfrm_state.c
+> ===================================================================
+> --- linux.orig/net/xfrm/xfrm_state.c
+> +++ linux/net/xfrm/xfrm_state.c
+> @@ -1105,7 +1105,7 @@ static struct xfrm_state_afinfo *xfrm_st
+>  	afinfo = xfrm_state_afinfo[family];
+>  	if (likely(afinfo != NULL))
+>  		read_lock(&afinfo->lock);
+> -	read_unlock(&xfrm_state_afinfo_lock);
+> +	read_unlock_non_nested(&xfrm_state_afinfo_lock);
+>  	return afinfo;
+>  }
+>  
 
-err, I think I'll be sticking a `depends on X86' in there, thanks very
-much.  I'd prefer that you be the first to test it ;)
+I got a bunch of rejects here due to changes in git-net.patch.  Please
+verify the result.  It could well be wrong (the changes in there are odd).
 

@@ -1,57 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932529AbWE3WdD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbWE3Wf0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932529AbWE3WdD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 18:33:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932531AbWE3WdB
+	id S964784AbWE3Wf0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 18:35:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWE3Wf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 18:33:01 -0400
-Received: from mail.visionpro.com ([63.91.95.13]:23568 "EHLO
-	chicken.machinevisionproducts.com") by vger.kernel.org with ESMTP
-	id S932529AbWE3WdA convert rfc822-to-8bit (ORCPT
+	Tue, 30 May 2006 18:35:26 -0400
+Received: from gate.crashing.org ([63.228.1.57]:22662 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964784AbWE3WfZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 18:33:00 -0400
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Sharing memory between kernel and user space
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Date: Tue, 30 May 2006 15:32:59 -0700
-Message-ID: <14CFC56C96D8554AA0B8969DB825FEA0012B331A@chicken.machinevisionproducts.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Sharing memory between kernel and user space
-Thread-Index: AcaEOQFsLZeNVPl8Tw6dY4bvlkakUw==
-From: "Brian D. McGrew" <brian@visionpro.com>
-To: <linux-kernel@vger.kernel.org>
+	Tue, 30 May 2006 18:35:25 -0400
+Subject: Re: [git patch] libata resume fix
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Mark Lord <liml@rtr.ca>
+Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <447C4718.6090802@rtr.ca>
+References: <20060528203419.GA15087@havoc.gtf.org>
+	 <1148938482.5959.27.camel@localhost.localdomain>  <447C4718.6090802@rtr.ca>
+Content-Type: text/plain
+Date: Wed, 31 May 2006 08:34:09 +1000
+Message-Id: <1149028449.9986.66.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a question about the best way to share memory between user and
-kernel space.
+On Tue, 2006-05-30 at 09:22 -0400, Mark Lord wrote:
+> Benjamin Herrenschmidt wrote:
+> > On Sun, 2006-05-28 at 16:34 -0400, Jeff Garzik wrote:
+> >> Please pull from 'upstream-fixes' branch of
+> >> master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+> >>
+> >> to receive the following updates:
+> >>
+> >>  drivers/scsi/libata-core.c |    1 +
+> >>  1 file changed, 1 insertion(+)
+> >>
+> >> Mark Lord:
+> >>       the latest consensus libata resume fix
+> > 
+> > If your devices are coming from poweron-reset then you will have to wait
+> > up to 31 seconds :( And yes, I _did_ have such a device at one point.
+> 
+> Not in a suspend/resume capable notebook, though.
 
-Let's say I have a common structure;
+Maybe, but 2 seconds is just "abitrary". I know some ATAPI devices (in
+notebooks) that will drive the bus (and thus pollute whatever you try to
+do) for way more than 2 seconds if they are reset with a CD in the
+drive.
 
-struct counter {
-	u_long interrupt_counts;
-	bool saw_interupt;
-}
+> I don't know of *any* notebook drives that take longer
+> than perhaps five seconds to spin-up and accept commands.
+> Such a slow drive wouldn't really be tolerated by end-users,
+> which is why they don't exist.
 
-And I need to be able to modify these elements from both the kernel and
-user space.  What is the best way to allocate this???  I've tried
-several methods including __get_free_pages, alloc_pages, vmalloc and so
-on; and thus far, I'm just confused myself.
+They do, especially ATAPI.
 
-Can someone help me out here with a quick example of some sort???
+> But I suppose people will want to suspend/resume bigger machines
+> too, in which case a 10000rpm Raptor might need 15 seconds or so.
+> 
+> We could bump up the existing timeout, I suppose.
+> 
+> Perhaps Jeff could comment on any potential harm in libata
+> for going all the way to 3100000 with the timeout?
 
-Thanks,
-
-:b!
-
-Brian D. McGrew { brian@visionpro.com || brian@doubledimension.com }
---
-> This is a test.  This is only a test!
-  Had this been an actual emergency, you would have been
-  told to cancel this test and seek professional assistance!
 

@@ -1,91 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWE3IBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWE3IHI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932182AbWE3IBd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 04:01:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWE3IBd
+	id S932167AbWE3IHI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 04:07:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbWE3IHI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 04:01:33 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:27588 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932182AbWE3IBc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 04:01:32 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.64.0605260825160.31609@schroedinger.engr.sgi.com> 
-References: <Pine.LNX.4.64.0605260825160.31609@schroedinger.engr.sgi.com>  <Pine.LNX.4.64.0605250921300.23726@schroedinger.engr.sgi.com> <20060525135534.20941.91650.sendpatchset@lappy> <20060525135555.20941.36612.sendpatchset@lappy> <24747.1148653985@warthog.cambridge.redhat.com> 
-To: Christoph Lameter <clameter@sgi.com>
-Cc: David Howells <dhowells@redhat.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 1/3] mm: tracking shared dirty pages 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 30 May 2006 09:00:35 +0100
-Message-ID: <12042.1148976035@warthog.cambridge.redhat.com>
+	Tue, 30 May 2006 04:07:08 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:64646 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932167AbWE3IHH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 04:07:07 -0400
+Date: Tue, 30 May 2006 10:07:00 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Martin Peschke <mp3@de.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] statistics infrastructure - update 1
+Message-ID: <20060530080700.GA9419@osiris.boeblingen.de.ibm.com>
+References: <1148474038.2934.18.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <20060524155735.04ed777a.akpm@osdl.org> <1148941055.3005.73.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1148941055.3005.73.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+User-Agent: mutt-ng/devel-r802 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@sgi.com> wrote:
+>  	case CPU_UP_PREPARE:
+>  		stat->pdata->ptrs[cpu] = statistic_alloc_ptr(stat, GFP_ATOMIC,
 
-> > page_mkwrite() is called just before the _PTE_ is dirtied.  Take
-> > do_wp_page() for example, set_page_dirty() is called after a lot of stuff,
-> > including some stuff that marks the PTE dirty... by which time it's too
-> > late as another thread sharing the page tables can come along and modify
-> > the page before the first thread calls set_page_dirty().
-> 
-> Since we are terminating the application with extreme prejudice on an 
-> error (SIGBUS) it does not matter if another process has written to the 
-> page in the meantime.
+Why not GFP_KERNEL?
 
-Erm... Yes, it does matter, at least for AFS or NFS using FS-Cache, and whether
-or not we're generating a SIGBUS or just proceeding normally.  There are two
-cases I've come across:
+> +		if (!stat->pdata->ptrs[cpu])
+> +			return -ENOMEM;
 
-Firstly I use page_mkwrite() to make sure that the page is written to the cache
-before we let anyone modify it, just so that we've got a reasonable idea of
-what's in the cache.
+NOTIFY_BAD instead of -ENOMEM, I guess.
 
-What we currently have is:
+>  		break;
+>  	case CPU_UP_CANCELED:
+>  	case CPU_DEAD:
 
-	invoke page_mkwrite()
-	  - wait for page to be written to the cache
-	lock
-	modify PTE
-	unlock
-	invoke set_page_dirty()
-
-What your suggestion gives is:
-
-	lock
-	modify PTE
-	unlock
-	invoke set_page_dirty()
-	  - wait for page to be written to the cache
-
-But what can happen is:
-
-	CPU 1			CPU 2
-	=======================	=======================
-	write to page (faults)
-	lock
-	modify PTE
-	unlock
-				write to page (succeeds)
-	invoke set_page_dirty()
-	  - wait for page to be written to the cache
-	write to page (succeeds)
-
-That potentially lets data of uncertain state into the cache, which means we
-can't trust what's in the cache any longer.
-
-Secondly some filesystems want to use page_mkwrite() to prevent a write from
-occurring if a write to a shared writable mapping would require an allocation
-from a filesystem that's currently in an ENOSPC state.  That means that we may
-not change the PTE until we're sure that the allocation is guaranteed to
-succeed, and that means that the kernel isn't left with dirty pages attached to
-inodes it'd like to dispose of but can't because there's nowhere to write the
-data.
-
-David
+I think your merge code (which gets called if CPU_UP_PREPARE fails) expects
+stat->pdata->ptrs[cpu] to be non-zero, right?

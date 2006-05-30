@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWE3HkG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWE3HlU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751306AbWE3HkG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 03:40:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWE3HkF
+	id S932178AbWE3HlU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 03:41:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWE3HlU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 03:40:05 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:29865
+	Tue, 30 May 2006 03:41:20 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:45481
 	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S932176AbWE3HkC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 03:40:02 -0400
-Message-Id: <447C1319.76E4.0078.0@novell.com>
+	id S932151AbWE3HlS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 03:41:18 -0400
+Message-Id: <447C1360.76E4.0078.0@novell.com>
 X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
-Date: Tue, 30 May 2006 09:40:41 +0200
+Date: Tue, 30 May 2006 09:41:52 +0200
 From: "Jan Beulich" <jbeulich@novell.com>
-To: "Andreas Kleen" <ak@suse.de>
+To: "Andrew Morton" <akpm@osdl.org>, "Andreas Kleen" <ak@suse.de>
 Cc: "Ingo Molnar" <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
        <discuss@x86-64.org>
 Subject: [PATCH 5/6, fixed] reliable stack trace support (i386)

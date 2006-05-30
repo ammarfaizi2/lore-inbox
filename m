@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbWE3UEu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932448AbWE3URn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932445AbWE3UEu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 16:04:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWE3UEu
+	id S932448AbWE3URn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 16:17:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWE3URn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 16:04:50 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:11199 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932445AbWE3UEt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 16:04:49 -0400
-Date: Tue, 30 May 2006 22:05:09 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [patch, -rc5-mm1] lock validator: disable NMI watchdog if CONFIG_LOCKDEP, i386
-Message-ID: <20060530200509.GA24928@elte.hu>
-References: <20060530111138.GA5078@elte.hu> <1148990326.7599.4.camel@homer> <1148990725.8610.1.camel@homer> <20060530120641.GA8263@elte.hu> <1148991422.8610.8.camel@homer> <20060530121952.GA9625@elte.hu> <1148992098.8700.2.camel@homer> <20060530122950.GA10216@elte.hu> <p73mzcz1g0h.fsf@verdi.suse.de> <20060530194748.GC22742@elte.hu>
+	Tue, 30 May 2006 16:17:43 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:58888 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932448AbWE3URm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 16:17:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=hg/EDOQ1dnr3wtBwxj1Bd5qgpTtA+tkx/U9p3+nWagEu5cyWjKvLMrWl2yIIzbpqjbB3Q+qvmCvEc55HzAxcx0O/ekFgp7/wi8cVgXccz1GcDiHttjxAmBR6xhbfAb5mfiRhvAqwuvNEF1GraTP3toWcJlQym0e2Td9IvGL4o0I=
+Date: Wed, 31 May 2006 00:18:17 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH] blktrace_api.h: endian annotations
+Message-ID: <20060530201817.GC7267@martell.zuzino.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060530194748.GC22742@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+ include/linux/blktrace_api.h |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-> yeah, totally agreed, they need to be raw notifiers. Havent had time 
-> to investigate it in detail yet - i went for the easier hack of 
-> disabling NMIs while lockdep is enabled.
+--- a/include/linux/blktrace_api.h
++++ b/include/linux/blktrace_api.h
+@@ -89,13 +89,13 @@ struct blk_io_trace {
+ 
+ /*
+  * The remap event
+  */
+ struct blk_io_trace_remap {
+-	u32 device;
++	__be32 device;
+ 	u32 __pad;
+-	u64 sector;
++	__be64 sector;
+ };
+ 
+ enum {
+ 	Blktrace_setup = 1,
+ 	Blktrace_running,
+@@ -223,11 +223,11 @@ static inline void blk_add_trace_generic
+  **/
+ static inline void blk_add_trace_pdu_int(struct request_queue *q, u32 what,
+ 					 struct bio *bio, unsigned int pdu)
+ {
+ 	struct blk_trace *bt = q->blk_trace;
+-	u64 rpdu = cpu_to_be64(pdu);
++	__be64 rpdu = cpu_to_be64(pdu);
+ 
+ 	if (likely(!bt))
+ 		return;
+ 
+ 	if (bio)
 
-hm ... atomic_notifier_call_chain ought to be fine - it uses 
-rcu_read_lock(), which uses preempt_disable(), which is NMI-safe.
-
-so i think this NMI problem might be lockdep-specific. I think it might 
-be the NMI iret that confuses lockdep. (and irqflags-trace in 
-particular)
-
-	Ingo

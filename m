@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWE3Tuv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWE3TvO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932451AbWE3Tuv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 15:50:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWE3Tuv
+	id S932454AbWE3TvO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 15:51:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWE3TvO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 15:50:51 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:901 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932451AbWE3Tuu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 15:50:50 -0400
-Date: Tue, 30 May 2006 12:54:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [patch, -rc5-mm1] lock validator: disable NMI watchdog if
- CONFIG_LOCKDEP, i386
-Message-Id: <20060530125447.b646d2dd.akpm@osdl.org>
-In-Reply-To: <p73mzcz1g0h.fsf@verdi.suse.de>
-References: <20060530022925.8a67b613.akpm@osdl.org>
-	<20060530111138.GA5078@elte.hu>
-	<1148990326.7599.4.camel@homer>
-	<1148990725.8610.1.camel@homer>
-	<20060530120641.GA8263@elte.hu>
-	<1148991422.8610.8.camel@homer>
-	<20060530121952.GA9625@elte.hu>
-	<1148992098.8700.2.camel@homer>
-	<20060530122950.GA10216@elte.hu>
-	<p73mzcz1g0h.fsf@verdi.suse.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 30 May 2006 15:51:14 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:23027 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S932452AbWE3TvM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 15:51:12 -0400
+Date: Tue, 30 May 2006 10:40:20 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Jon Smirl <jonsmirl@gmail.com>
+cc: Dave Airlie <airlied@gmail.com>, "D. Hazelton" <dhazelton@enter.net>,
+       Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+In-Reply-To: <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com>
+Message-ID: <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> 
+ <200605272245.22320.dhazelton@enter.net>  <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com>
+  <200605280112.01639.dhazelton@enter.net>  <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com>
+ <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30 May 2006 21:14:54 +0200
-Andi Kleen <ak@suse.de> wrote:
+On Sun, 28 May 2006, Jon Smirl wrote:
 
-> Ingo Molnar <mingo@elte.hu> writes:
-> > 
-> > The NMI watchdog uses spinlocks (notifier chains, etc.),
-> > so it's not lockdep-safe at the moment.
-> 
-> That's totally unsafe even without lockdep and should be fixed
-> instead. I guess someone bungled the notifier chain conversion.
-> The NMI notifiers need to be lockless.
-> 
+>> b) loading fbdev drivers breaks X in a lot of cases, we need to be a
+>> bit more careful.
+>
+> It is perfectly legal to load an fbdev driver with X today. If it
+> doesn't work it is a bug in X and should be fixed.
+>
+>> c) Lots of distros don't use fbdev drivers, forcing this on them to
+>> use drm isn't an option.
+>
+> Why isn't this an option? Will the distros that insist on continuing
+> to ship three conflicting video drivers fighting over a single piece
+> of hardware please stand up and be counted? Distros get new drivers
+> all the time, why will this be any different?
 
-Confused.  NMI uses notify_die(), which doesn't take locks?
+as a long time linux user I tend to not to use the framebuffer, but 
+instead use the standard vga text drivers (with X and sometimes dri/drm).
 
-We'll probably accidentally take locks when actually reporting an NMI
-watchdog timeout, but that doesn't seem terribly important.
+in part this dates back to my early experiances with the framebuffer code 
+when it was first introduced, but I still find that the framebuffer is not 
+as nice to use as the simpler direct access for text modes. and when I 
+start X up it doesn't need a framebuffer, so why suffer with the 
+performance hit of the framebuffer?
+
+yes, some hardware requires a framebuffer to display anything, but for 
+most video cards, the hardware scrolling of a pure text mode is better 
+(faster, smoother, less cpu required, etc) then the framebuffer 
+equivalent.
+
+David Lang

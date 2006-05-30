@@ -1,136 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWE3AFL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWE3AIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751264AbWE3AFL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 20:05:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbWE3AFL
+	id S932090AbWE3AIR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 20:08:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbWE3AIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 20:05:11 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:44964 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751264AbWE3AFJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 20:05:09 -0400
-Date: Tue, 30 May 2006 10:04:43 +1000
-From: David Chinner <dgc@sgi.com>
-To: Jan Blunck <jblunck@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       viro@zeniv.linux.org.uk
-Subject: Re: [patch 5/5] vfs: per superblock dentry unused list
-Message-ID: <20060530000443.GB8069029@melbourne.sgi.com>
-References: <20060526110655.197949000@suse.de>> <20060526110803.159085000@suse.de> <20060529030834.GU8069029@melbourne.sgi.com> <20060529115443.GG21024@hasse.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060529115443.GG21024@hasse.suse.de>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 29 May 2006 20:08:17 -0400
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:34406 "HELO
+	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932090AbWE3AIQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 20:08:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=2XkkuP8BObR2KYFQ4Fu2dnHxPU1JS5wGbKLuMXkcXhVNbTrB6NxOwN2rx7Rg8UNMQhGf6POxBmKmwEYZ1fHQZ1NC8YEmLOdkZj/s8GC/AZhGep/6+eftCJK7//q8OODR7Fzc3QS6PWk9S0pq+WKO5rM8nB6u5/aGUB07Yhw+WmQ=  ;
+Message-ID: <447B8CE6.5000208@yahoo.com.au>
+Date: Tue, 30 May 2006 10:08:06 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org, mason@suse.com,
+       andrea@suse.de, hugh@veritas.com, axboe@suse.de, torvalds@osdl.org
+Subject: Re: [rfc][patch] remove racy sync_page?
+References: <447AC011.8050708@yahoo.com.au> <20060529121556.349863b8.akpm@osdl.org>
+In-Reply-To: <20060529121556.349863b8.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 29, 2006 at 01:54:43PM +0200, Jan Blunck wrote:
-> On Mon, May 29, David Chinner wrote:
+Andrew Morton wrote:
+> On Mon, 29 May 2006 19:34:09 +1000
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 > 
-> > > -	spin_lock(&dcache_lock);
-> > > -	list_for_each_entry_safe(dentry, pos, &dentry_unused, d_lru) {
-> > > -		if (dentry->d_sb != sb)
-> > > -			continue;
-> > > -		list_del(&dentry->d_lru);
-> > > -		list_add(&dentry->d_lru, &dentry_unused);
-> > > +			/*
-> > > +			 * Try to be fair to the unused lists:
-> > > +			 *  sb_count/sb_unused ~ global_count/global_unused
-> > > +			 */
-> > > +			tmp = sb->s_dentry_stat.nr_unused/((unused/count)+1);
-> > > +			prune_dcache_sb(sb, tmp);
-> > 
-> > So if count = SHRINK_BATCH = 128, unused is 12800 (for easy maths) and we have
-> > 100 unused on the first superbloc, we end up with tmp = 100 / ((12800/128)+1)
-> > = 100/101 = 0.
-> > 
-> > Essentially, if your superblock has less than (global_unused / count) dentries
-> > on it, they'll never get shrunk. They need to take at least one dentry off
-> > each superblock to ensure that the lru lists are slowly turned over. This is
-> > needed to allow pages in the slab pinned by dentries on lesser used or
-> > smaller filesystems to be freed before you've trimmed almost every dentry
-> > from the superblocks that contain orders of magnitude more dentries...
-> > 
-> > IOWs, I think that tmp must be >= 1 for all calls here. 
-> > 
-> > Realistically, we are limited in resolution by the way the shrinker works
-> > here. When we have a difference of greater than 2 orders of magnitude between
-> > the small superblock and the large superblock lists we are either going to
-> > trim the small superblock lists too much or not enough....
 > 
-> Yeah, I have problems with that part as well. Some of your assumtions are
-> wrong. If the sb.nr_unused count is smaller than 128, the superblock is not
-> shrinked, thats true. But there is a superblock with more than 128 unused
-> dentries (since the global_unused count was 12800). So the prune_dcache() is
-> shrinking that one first. After a few runs, prune_dcache() is shrinking the
-> superblock with 128 unused dentries aswell.
-
-You've just described the embodiment of the two order's of magnitude
-issue I mentioned. That's not a wrong assumption - think of the
-above case with global_unused count now being 1.28*10^7 instead of
-1.28x10^4. How many dentries do you have to free before freeing any
-on the small superblock if we don't free one per call? (quick
-answer: 99.9%).
-
-If we shrink one per call, we've freed all 128 dentries while there
-is still 1*10^5 dentries on the large list. That seems like a much
-better balance to make within the constraints of the shrinker
-resolution we have to work with.
-
-FWIW, if we don't free a dentry per sb per prune_dcache call, any
-prooblems caused by slab page pinning and fragmetnation get worse
-than they are now as some dentries will take far, far longer
-to be freed than others regardless of their age.
-
-> Although, what happens when we have 100 superblocks with 128 unused dentries
-> each ... I have to think about this. The right solution would be to shrink the
-> dentries with the help of their age. But at the moment I don't have any bright
-> ideas in that direction.
-
-Hmm - need to do something with that age_limit field, right? That
-would imply we need a timestamp in the dentry as well, and we don't
-shrink any sb that doesn't have dentries older than the age limit.
-If we scan all the sb's and still have more to free, then we halve
-the age limit and scan again....
-
-> > > @@ -499,30 +488,16 @@ static void select_sb(struct super_block
-> > >   * is used to free the dcache before unmounting a file
-> > >   * system
-> > >   */
-> > > -
-> > >  void shrink_dcache_sb(struct super_block * sb)
-> > >  {
-> > 
-> > The only difference between this function and prune_dcache_sb
-> > is the handlingof the DCACHE_REFERENCED bit. i built a common
-> > function for these, because....
-> > 
-> > > @@ -671,7 +646,7 @@ void shrink_dcache_parent(struct dentry 
-> > >  	int found;
-> > >  
-> > >  	while ((found = select_parent(parent)) != 0)
-> > > -		prune_dcache(found);
-> > > +		prune_dcache_sb(parent->d_sb, found);
-> > >  }
-> > 
-> > ... prune_dcache_parent() uses the same code as well....
+>>I'm not completely sure whether this is the bug or not,
 > 
-> No. prune_dcache() is working on the unused list in the opposite (reverse)
-> direction. shrink_dcache_sb() (basically my prune_dcache_sb()) is shrinking
-> all unused dentries. In that case it is better to visit the unused list in the
-> normal (forward) direction (~only one pass).
+> 
+> "the bug".  Are we suposed to know what yo're referring to here?
 
-Why? Forward or reverse it's only one traversal to free all dentries
-- you go till the list is empty. Either way, with the prefetch of
-the next entry in the list there's little perfomrance difference
-once you've got outside some tiny subset of the list that might be
-hot in cache....
+You were supposed to know, if I hadn't made a typo :) "a bug".
 
-Cheers,
+> 
+> 
+>>nor what would be
+>>the performance consequences of my attached fix (wrt the block layer). So
+>>you're probably cc'ed because I've found similar threads with your names
+>>on them.
+>>
+> 
+> 
+> The performance risk is that someone will do lock_page() against a page
+> whose IO is queued-but-not-yet-kicked-off.  We'll go to sleep with no IO
+> submitted until kblockd or someone else kicks off the IO for us.
 
-Dave.
+Yes.
+
+> 
+> Try disabling kblockd completely, see what effect that has on performance.
+
+Which is what I want to know. I don't exactly have an interesting
+disk setup.
+
+>>Can we get rid of the whole thing, confusing memory barriers and all? Nobody
+>>uses anything but the default sync_page, and if block rq plugging is terribly
+>>bad for performance, perhaps it should be reworked anyway? It shouldn't be a
+>>correctness thing, right?
+> 
+> 
+> What this means is that it is not legal to run lock_page() against a
+> pagecache page if you don't have a ref on the inode.
+
+Yes. So set_page_dirty_lock is broken, right?
+And the wait_on_page_stuff needs an inode ref.
+Also splice seems to have broken sync_page.
+
+> 
+> iirc the main (only?) offender here is direct-io reads into MAP_SHARED
+> pagecache.  (And similar things, like infiniband and nfs-direct).
+
+Well yes, writing to a page would be the main reason to set it dirty.
+Is splice broken as well? I'm not sure that it always has a ref on the
+inode when stealing a page.
+
+It sounds like you think fixing the set_page_dirty_lock callers wouldn't
+be too difficult? I wouldn't know (although the ptrace one should be
+able to be turned into a set_page_dirty, because we're holding mmap_sem).
+
+You're sure about all other lock_page()rs? I'm not, given that
+set_page_dirty_lock got it so wrong. But you'd have a better idea than
+me.
+
 -- 
-Dave Chinner
-R&D Software Enginner
-SGI Australian Software Group
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

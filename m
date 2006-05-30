@@ -1,24 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751535AbWE3BMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751546AbWE3B3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751535AbWE3BMs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 21:12:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751541AbWE3BMs
+	id S1751546AbWE3B3N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 21:29:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751549AbWE3B3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 21:12:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:6845 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751535AbWE3BMr (ORCPT
+	Mon, 29 May 2006 21:29:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:11200 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751546AbWE3B3L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 21:12:47 -0400
-Date: Mon, 29 May 2006 18:17:01 -0700
+	Mon, 29 May 2006 21:29:11 -0400
+Date: Mon, 29 May 2006 18:33:25 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Martin Peschke <mp3@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch 5/6] statistics infrastructure
-Message-Id: <20060529181701.05981487.akpm@osdl.org>
-In-Reply-To: <1148941028.3005.72.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
-References: <1148474038.2934.18.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
-	<20060524155735.04ed777a.akpm@osdl.org>
-	<1148941028.3005.72.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [patch 06/61] lock validator: add __module_address() method
+Message-Id: <20060529183325.b2f02192.akpm@osdl.org>
+In-Reply-To: <20060529212333.GF3155@elte.hu>
+References: <20060529212109.GA2058@elte.hu>
+	<20060529212333.GF3155@elte.hu>
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,39 +25,35 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 May 2006 00:17:08 +0200
-Martin Peschke <mp3@de.ibm.com> wrote:
+On Mon, 29 May 2006 23:23:33 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
-> > > +static void statistic_set_sparse(struct statistic *stat, s64 value, u64 total)
-> > > +{
-> > > +	struct statistic_sparse_list *slist = (struct statistic_sparse_list *)
-> > > +						stat->pdata;
-> > 
-> > Hang on, what's happening here?  statistic.pdata is `struct percpu_data *'.
-> > That's
-> > 
-> > struct percpu_data {
-> > 	void *ptrs[NR_CPUS];
-> > };
-> > 
-> > How can we cast that to a statistic_sparse_list* and then start playing
-> > with it?  We're supposed to use per_cpu_ptr() to get at the actual data.
-> 
-> With regard to the data that a statistic feeds on, there are are two
-> types of statistics: statistics that accumulate incremental updates
-> (pushed - probably frequently - through statistic_add() or
-> statistic_inc()), and statistics that accept total numbers (pulled
-> through statistic_set() only when read by user). We use per-cpu data for
-> the former. As to the latter, per-cpu data would be way to heavy.
-> That is why, my code is capable of dealing with both per-cpu data and
-> non-per-cpu data. Since a particular statistic is either per-cpu or
-> non-per-cpu, I use the same data pointer for both cases in order to keep
-> struct statistic as small as possible.
-> 
-> I admit the cast looks a bit fishy. But lines above are correct.
+> +/*
+> + * Is this a valid module address? We don't grab the lock.
+> + */
+> +int __module_address(unsigned long addr)
+> +{
+> +	struct module *mod;
+> +
+> +	list_for_each_entry(mod, &modules, list)
+> +		if (within(addr, mod->module_core, mod->core_size))
+> +			return 1;
+> +	return 0;
+> +}
 
-<head spins>
+Returns a boolean.
 
-Perhaps a suitable comment somewhere so people don't fall out of their
-chairs when they see this like I did?
+>  /* Is this a valid kernel address?  We don't grab the lock: we are oopsing. */
+>  struct module *__module_text_address(unsigned long addr)
+
+But this returns a module*.
+
+I'd suggest that __module_address() should do the same thing, from an API neatness
+POV.  Although perhaps that's mot very useful if we didn't take a ref on the returned
+object (but module_text_address() doesn't either).
+
+Also, the name's a bit misleading - it sounds like it returns the address
+of a module or something.  __module_any_address() would be better, perhaps?
+
+Also, how come this doesn't need modlist_lock()?
 

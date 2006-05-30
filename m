@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932593AbWFCHJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932592AbWFCHOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932593AbWFCHJY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 03:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbWFCHJY
+	id S932592AbWFCHOd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 03:14:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932595AbWFCHOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 03:09:24 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25619 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932593AbWFCHJX
+	Sat, 3 Jun 2006 03:14:33 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35857 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932592AbWFCHOd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 03:09:23 -0400
-Date: Tue, 30 May 2006 15:29:26 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Jones <davej@redhat.com>, Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Paul Dickson <paul@permanentmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Bisects that are neither good nor bad
-Message-ID: <20060530152926.GA4103@ucw.cz>
-References: <20060528140238.2c25a805.dickson@permanentmail.com> <20060528140854.34ddec2a.paul@permanentmail.com> <200605282324.13431.rjw@sisk.pl> <200605282324.13431.rjw@sisk.pl> <20060528213414.GC5741@redhat.com> <r6u079rrik.fsf@skye.ra.phy.cam.ac.uk> <20060529145255.GB32274@redhat.com>
+	Sat, 3 Jun 2006 03:14:33 -0400
+Date: Tue, 30 May 2006 20:01:35 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: David Liontooth <liontooth@cogweb.net>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: USB devices fail unnecessarily on unpowered hubs
+Message-ID: <20060530200134.GB4074@ucw.cz>
+References: <447EB0DC.4040203@cogweb.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060529145255.GB32274@redhat.com>
+In-Reply-To: <447EB0DC.4040203@cogweb.net>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
->  > > I think I've seen the same problem on one of my (similar spec) laptops.
->  > > Serial console was useless. On resume, there's a short spew of garbage
->  > > (just like if the baud rate were misconfigured) over serial before it
->  > > locks up completely.
->  > 
->  > <http://bugzilla.kernel.org/show_bug.cgi?id=4270> discusses a similar
->  > problem on a couple of machines.  In my resume script (for a TP 600X),
->  > I have to restore the serial console with
->  > 
->  >   setserial -a /dev/ttyS0
->  > 
->  > Until that magic executes, garbage characters (like modem noise)
->  > appear across the serial console.
+> Starting with 2.6.16, some USB devices fail unnecessarily on unpowered
+> hubs. Alan Stern explains,
 > 
-> With the resume failure I'm seeing, we don't get back to userspace
-> to run anything like this. It goes bang long before that.
+> "The idea is that the kernel now keeps track of USB power budgets.  When a 
+> bus-powered device requires more current than its upstream hub is capable 
+> of providing, the kernel will not configure it.
 > 
-> The SATA fix Mark proposed also didn't improve the situation for me :-/
+> Computers' USB ports are capable of providing a full 500 mA, so devices
+> plugged directly into the computer will work okay.  However unpowered hubs
+> can provide only 100 mA to each port.  Some devices require (or claim they
+> require) more current than that.  As a result, they don't get configured
+> when plugged into an unpowered hub."
 
-If setserial -a is needed.. it means that someone really needs to fix
-suspend/resume support for serial... do it on working machine to
-enable debugging of broken ones...
+Actually I have exactly opposite problem: my computer (spitz) can't
+supply full 500mA on its root hub, and linux tries to power up
+'hungry' devices, anyway, leading to very weird behaviour.
 
-(But x32 has no serials, so I'm unlikely to code it...)
 -- 
 Thanks for all the (sleeping) penguins.

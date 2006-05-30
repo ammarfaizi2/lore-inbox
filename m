@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWE3HWI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWE3H0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbWE3HWI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 03:22:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWE3HWI
+	id S932177AbWE3H0n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 03:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWE3H0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 03:22:08 -0400
-Received: from gate.crashing.org ([63.228.1.57]:4070 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932148AbWE3HWH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 03:22:07 -0400
-Subject: Re: [PATCH] powerpc vdso updates
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060530062447.GD19870@elte.hu>
-References: <1148961097.15722.11.camel@localhost.localdomain>
-	 <20060530062447.GD19870@elte.hu>
-Content-Type: text/plain
-Date: Tue, 30 May 2006 17:21:40 +1000
-Message-Id: <1148973700.15722.34.camel@localhost.localdomain>
+	Tue, 30 May 2006 03:26:43 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:47539 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932165AbWE3H0m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 03:26:42 -0400
+Date: Tue, 30 May 2006 10:26:36 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Andrew Morton <akpm@osdl.org>
+cc: jesse@icplus.com.tw, romieu@fr.zoreil.com, dvrabel@cantab.net,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       david@pleyades.net
+Subject: Re: Sign-off for the IP1000A driver before inclusion
+In-Reply-To: <20060529234610.e5671e4c.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0605301024440.22126@sbz-30.cs.Helsinki.FI>
+References: <84144f020605230001s32b29f59w8f95c67fad7b380d@mail.gmail.com>
+ <044a01c67ef8$9bdd0420$4964a8c0@icplus.com.tw>
+ <Pine.LNX.4.58.0605240911400.26629@sbz-30.cs.Helsinki.FI>
+ <021f01c683b0$34b5cbd0$4964a8c0@icplus.com.tw>
+ <Pine.LNX.4.58.0605300915400.18933@sbz-30.cs.Helsinki.FI>
+ <20060529234610.e5671e4c.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 29 May 2006, Andrew Morton wrote:
+> It takes people quite a few iterations to get patch preparation worked out.
+> 
+> Pekka, if you have time, perhaps you can extract the patches for us?
 
-> get_unmapped_area() without holding the mmap semaphore seems dangerous. 
-> The VDSO setup itself should be 'private' to the process, but i'm not 
-> totally sure that no other kernel code could get access to this mm. For 
-> example the swapout code? Am i missing something?
+Jesse, I wasn't able to work out the ipg_config_autoneg() changes, but the 
+rest of them are at:
 
-Well, all of this happens so early, I doubt anything will cause actual
-harm, for get_unmapped_area to be a problem, something would have to
-concurrently allocate a VMA (or dispose of) I think that can't happen at
-this point before we even run the binary but yes, better safe than
-sorry... I supose the whole patch could get in 2.6.17 even without the
-arch_vma_name (that is it can be there, it wont be used though until
-your patch gets in).
+  http://www.cs.helsinki.fi/u/penberg/linux/ip1000-jesse/
 
-Ben.
+They're missing changelogs, though, so I'd much appreciate if Jesse 
+submitted them properly to Francois who's maintaining the ipg git tree.
 
-
+				Pekka 

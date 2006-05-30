@@ -1,49 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbWE3GUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbWE3GYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932159AbWE3GUO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 02:20:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWE3GUO
+	id S932160AbWE3GYb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 02:24:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWE3GYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 02:20:14 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:47085 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932159AbWE3GUM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 02:20:12 -0400
-Subject: Re: [patch 00/61] ANNOUNCE: lock validator -V1
-From: Arjan van de Ven <arjan@infradead.org>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1148964741.7704.10.camel@homer>
-References: <20060529212109.GA2058@elte.hu> <1148964741.7704.10.camel@homer>
-Content-Type: text/plain
-Date: Tue, 30 May 2006 08:20:09 +0200
-Message-Id: <1148970009.3636.10.camel@laptopd505.fenrus.org>
+	Tue, 30 May 2006 02:24:31 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:18840 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932160AbWE3GYb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 02:24:31 -0400
+Date: Tue, 30 May 2006 08:24:47 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] powerpc vdso updates
+Message-ID: <20060530062447.GD19870@elte.hu>
+References: <1148961097.15722.11.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1148961097.15722.11.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-30 at 06:52 +0200, Mike Galbraith wrote:
-> On Mon, 2006-05-29 at 23:21 +0200, Ingo Molnar wrote:
-> > The easiest way to try lockdep on a testbox is to apply the combo patch 
-> > to 2.6.17-rc4-mm3. The patch order is:
-> > 
-> >   http://kernel.org/pub/linux/kernel/v2.6/testing/linux-2.6.17-rc4.tar.bz2
-> >   http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc4/2.6.17-rc4-mm3/2.6.17-rc4-mm3.bz2
-> >   http://redhat.com/~mingo/lockdep-patches/lockdep-combo.patch
-> > 
-> > do 'make oldconfig' and accept all the defaults for new config options - 
-> > reboot into the kernel and if everything goes well it should boot up 
-> > fine and you should have /proc/lockdep and /proc/lockdep_stats files.
-> 
-> Darn.  It said all tests passed, then oopsed.
-> 
-> (have .config all gzipped up if you want it)
 
+* Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-yes please get me/Ingo the .config; something odd is going on
+> This patch cleans up some locking & error handling in the ppc vdso and 
+> moves the vdso base pointer from the thread struct to the mm context 
+> where it more logically belongs. It brings the powerpc implementation 
+> closer to Ingo's new x86 one and also adds an arch_vma_name() function 
+> allowing to print [vsdo] in /proc/<pid>/maps if Ingo's x86 vdso patch 
+> is also applied.
 
+looks good to me.
+
+> Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+
+Reviewed-by: Ingo Molnar <mingo@elte.hu>
+
+> This is 2.6.18 material, hopefully should go along with Ingo's x86 
+> vdso updates. Ingo, if you change something to arch_vma_name(), please 
+> let me know.
+
+ok. There's one bit that could potentially be 2.6.17 material:
+
+>  	 * at vdso_base which is the "natural" base for it, but we might fail
+>  	 * and end up putting it elsewhere.
+>  	 */
+> +	down_write(&mm->mmap_sem);
+>  	vdso_base = get_unmapped_area(NULL, vdso_base,
+>  				      vdso_pages << PAGE_SHIFT, 0, 0);
+
+get_unmapped_area() without holding the mmap semaphore seems dangerous. 
+The VDSO setup itself should be 'private' to the process, but i'm not 
+totally sure that no other kernel code could get access to this mm. For 
+example the swapout code? Am i missing something?
+
+	Ingo

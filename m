@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWE3VRF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbWE3VTL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932481AbWE3VRF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 17:17:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbWE3VRE
+	id S932467AbWE3VTL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 17:19:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWE3VTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 17:17:04 -0400
-Received: from mail.gmx.de ([213.165.64.20]:52391 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932481AbWE3VRD (ORCPT
+	Tue, 30 May 2006 17:19:11 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:57069 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932467AbWE3VTJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 17:17:03 -0400
-X-Authenticated: #704063
-Subject: [Patch] NULL pointer dereference in
-	drivers/message/i2o/i2o_config.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: markus.lidel@shadowconnect.com
-Content-Type: text/plain
-Date: Tue, 30 May 2006 23:17:02 +0200
-Message-Id: <1149023822.30594.2.camel@alice>
+	Tue, 30 May 2006 17:19:09 -0400
+Date: Tue, 30 May 2006 23:19:30 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Roland Dreier <rdreier@cisco.com>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: [combo patch] lock validator -V2
+Message-ID: <20060530211930.GA29358@elte.hu>
+References: <20060530022925.8a67b613.akpm@osdl.org> <adaac8z70yc.fsf@cisco.com> <20060530202654.GA25720@elte.hu> <ada1wub6y6b.fsf@cisco.com> <20060530204901.GA27645@elte.hu> <adawtc35iws.fsf@cisco.com> <1149022880.3636.116.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1149022880.3636.116.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
 
-i am not sure if there is some black magic which prevents this
-from happening, it is spotted by coverity id #265
+i've uploaded lock validator -V2, a rollup of all current fixes (against 
+-rc5-mm1) to:
 
-499  		for (p = open_files; p; p = p->next)
-500  			if (p->q_id == (ulong) fp->private_data)
-501  				break;
-502  	
-503  		if (!p->q_len)
-504  			return -ENOENT
+ http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-rc5-mm1.patch
 
-if we cant find a p with a p->q_id which matches fp->private data,
-we dereference it.
+(Andrew got all these fixes as individual patches already)
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-
-
---- linux-2.6.17-rc4-git2/drivers/message/i2o/i2o_config.c.orig	2006-05-30 23:12:13.000000000 +0200
-+++ linux-2.6.17-rc4-git2/drivers/message/i2o/i2o_config.c	2006-05-30 23:13:30.000000000 +0200
-@@ -500,7 +500,7 @@ static int i2o_cfg_evt_get(unsigned long
- 		if (p->q_id == (ulong) fp->private_data)
- 			break;
- 
--	if (!p->q_len)
-+	if (!p || !p->q_len)
- 		return -ENOENT;
- 
- 	memcpy(&kget.info, &p->event_q[p->q_out], sizeof(struct i2o_evt_info));
-
-
+	Ingo

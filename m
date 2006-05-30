@@ -1,81 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbWE3R6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWE3SZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932363AbWE3R6h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 13:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWE3R6g
+	id S932207AbWE3SZE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 14:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWE3SZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 13:58:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:51409 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932363AbWE3R6g (ORCPT
+	Tue, 30 May 2006 14:25:04 -0400
+Received: from mx2.suse.de ([195.135.220.15]:38104 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932207AbWE3SZC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 13:58:36 -0400
-Date: Tue, 30 May 2006 10:55:15 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, mason@suse.com, andrea@suse.de, hugh@veritas.com,
-       axboe@suse.de
-Subject: Re: [rfc][patch] remove racy sync_page?
-In-Reply-To: <447BD63D.2080900@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0605301041200.5623@g5.osdl.org>
-References: <447AC011.8050708@yahoo.com.au> <20060529121556.349863b8.akpm@osdl.org>
- <447B8CE6.5000208@yahoo.com.au> <20060529183201.0e8173bc.akpm@osdl.org>
- <447BB3FD.1070707@yahoo.com.au> <Pine.LNX.4.64.0605292117310.5623@g5.osdl.org>
- <447BD31E.7000503@yahoo.com.au> <447BD63D.2080900@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 30 May 2006 14:25:02 -0400
+Date: Tue, 30 May 2006 20:24:53 +0200
+From: Olaf Hering <olh@suse.de>
+To: linux-kernel@vger.kernel.org, Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: cramfs corruption after BLKFLSBUF on loop device
+Message-ID: <20060530182453.GA8701@suse.de>
+References: <20060529214011.GA417@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060529214011.GA417@suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ On Mon, May 29, Olaf Hering wrote:
 
-
-On Tue, 30 May 2006, Nick Piggin wrote:
+> This script will cause cramfs decompression errors, on SMP at least:
 > 
-> For workloads where plugging helps (ie. lots of smaller, contiguous
-> requests going into the IO layer), the request pattern should be
-> pretty good without plugging these days, due to multiple page
-> readahead and writeback.
+> #!/bin/bash
+> while :;do blockdev --flushbufs /dev/loop0;done </dev/null &>/dev/null&
+> while :;do ps faxs  </dev/null &>/dev/null&done </dev/null &>/dev/null&
+> while :;do dmesg    </dev/null &>/dev/null&done </dev/null &>/dev/null&
+> while :;do find /mounts/instsys -type f -print0|xargs -0 cat &>/dev/null;done
+> 
+> ...
+> Error -3 while decompressing!
+> c0000000009592a2(2649)->c0000000edf87000(4096)
+> Error -3 while decompressing!
+> c000000000959298(2520)->c0000000edbc7000(4096)
+> Error -3 while decompressing!
+> c000000000959c70(2489)->c0000000f1482000(4096)
+> Error -3 while decompressing!
+> c00000000095a629(2355)->c0000000edaff000(4096)
+> Error -3 while decompressing!
+> ...
+> 
+> evms_access does the ioctl (lots of them) on the loop device.
+> Its a long standing bug, 2.6.5 fails as well. cramfs_read() clears parts
+> of the src buffer because the page is not uptodate. invalidate_bdev()
+> touched the page last.
+> cramfs_read() was called from line 480 or 490 when the
+> PageUptodate(page) test fails.
 
-No.
+Al, you added the PageUptodate check for 2.6.2.
 
-That's fundamentally wrong.
+http://linux.bkbits.net:8080/linux-2.6/gnupatch@400c1cddyzRoKomOj57xxUAmKnMbZQ
 
-The fact is, plugging is not about read-ahead and writeback. It's very 
-fundamentally about the _boundaries_ between multiple requests, and in 
-particular the time when the queue starts out empty so that we can build 
-up things for devices that wand big requests, but even more so for devices 
-where _seeking_ is very expensive.
-
-Those boundaries haven't gone anywhere. The fact that we do read-ahead and 
-write-back in chunks doesn't change anything: yes, we often have the "big 
-requests" thing handled, but (a) not always and (b) upper layers 
-fundamentally don't fix the seek issues.
-
-I want to know that the block layer could - if we wanted to - do things 
-like read-ahead for many distinct files, and for metadata. We don't 
-currently do much of that yet, but the point is, plugging _allows_ us to. 
-Exactly because it doesn't depend on upper layers feeding everything in 
-one go.
-
-Look at "sys_readahead()", and realize that it can be used to start IO for 
-read ahead _across_many_small_files_. Last I tried it, it was hugely 
-faster at populating the page cache than reading individual files (I used 
-to do it with BK to bring everything into cache so that the regular ops 
-would be fster - now git doesn't much need it).
-
-And maybe it was just my imagination, but the disk seemed quieter too. It 
-should be able to do better seek patterns at the beginning due to plugging 
-(ie we won't start IO after the first file, but after the request queue 
-fills up or something else needs to wait and we do an unplug event).
-
-THAT is what plugging is good for. Our read-ahead does well for large 
-requests, and that's important for some disk controllers in particular. 
-But plugging is about avoiding startign the IO too early.
-
-Think about the TCP plugging (which is actually newer, but perhaps easier 
-to explain): it's useful not for the big file case (just use large reads 
-and writes), but for the "different sources" case - for handling the gap 
-between a header and the actual file contents. Exactly because it plugs in 
-_between_ events. 
-
-		Linus
+Should there be some locking for blockdev --flushbufs, or is the check
+just bogus? 

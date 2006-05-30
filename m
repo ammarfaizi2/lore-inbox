@@ -1,65 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWE3NuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751503AbWE3NwA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932154AbWE3NuV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 09:50:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751504AbWE3NuV
+	id S1751503AbWE3NwA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 09:52:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWE3NwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 09:50:21 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:57280 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1751503AbWE3NuU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 09:50:20 -0400
-Date: Tue, 30 May 2006 15:50:18 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Keith Chew <keith.chew@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IO APIC IRQ assignment
-Message-ID: <20060530135017.GD5151@harddisk-recovery.com>
-References: <20f65d530605300521q1d56c3a3t84be3d92f1df0c14@mail.gmail.com>
-MIME-Version: 1.0
+	Tue, 30 May 2006 09:52:00 -0400
+Received: from tayrelbas04.tay.hp.com ([161.114.80.247]:41618 "EHLO
+	tayrelbas04.tay.hp.com") by vger.kernel.org with ESMTP
+	id S1751503AbWE3Nv7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 09:51:59 -0400
+Date: Tue, 30 May 2006 09:51:58 -0400
+From: Amy Griffis <amy@griffis1.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, john@johnmccutchan.com, rlove@rlove.org
+Subject: Re: [PATCH] inotify kernel API
+Message-ID: <20060530135158.GA24918@zk3.dec.com>
+References: <20060526021030.GA4936@zk3.dec.com> <20060530024013.5d80ba81.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20f65d530605300521q1d56c3a3t84be3d92f1df0c14@mail.gmail.com>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060530024013.5d80ba81.akpm@osdl.org>
+X-Mailer: Mutt http://www.mutt.org/
+X-Editor: Vim http://www.vim.org/
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31, 2006 at 12:21:53AM +1200, Keith Chew wrote:
-> We are working closely with an x86-based hardware manufacturer for our
-> linux based application. In their hardware, it contains 4 x BT878
-> chips and 3 x USB controllers.
-
-That sounds like a nice MythTV box to me :)
-
-> The USB and BT878 share the same
-> hardware IRQ lines, which is causing us to notice random hard lockups.
-> Increasing the PCI latency of the BTTV drivers has helped the
-> situation (we have not noticed any lockups yet), but it would be nice
-> if we can separate the IRQs.
+On Tue, May 30, 2006 at 02:40:13AM -0700, Andrew Morton wrote:
+> On Thu, 25 May 2006 22:10:30 -0400
+> Amy Griffis <amy.griffis@hp.com> wrote:
 > 
-> We asked the manufacturers if they can do a physical modication for
-> us, but unfortunately this is not possible. The engineer did mention
-> that under Windows XP in "IO APIC" mode, it is possible to assign
-> different IRQs to the USB and BTTV.
+> >  fs/inotify.c                          |  991 +++++++++-------------------------
+> >  fs/inotify_user.c                     |  719 ++++++++++++++++++++++++
+> 
+> This patch would be much easier to review if the move-code-around part was
+> delivered in a separate patch from the add-new-functionality part.
 
-Unless Windows XP IO APIC mode contains a soldering iron and rework
-wire to physically change the way the hardware IRQ lines are connected,
-this is nonsense.
-
-Or the engineer means that in legacy PIC mode the IRQs are shared, but
-in APIC mode they can be separated. That is a different thing, cause in
-that case the IRQ lines are not physically connected, but put together
-in PIC mode and can again be separated by using APIC mode.
-
-> Is this possible in Linux? We have tried enabling IO APIC in the
-> kernel, but the IRQs are still shared.
-
-Depends on the hardware, but Linux does indeed support IO APIC.
-
-
-Erik
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+Makes sense.  I'll split it up and repost.

@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbWE3V4D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbWE3Vzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932510AbWE3V4D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 17:56:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWE3V4D
+	id S932509AbWE3Vzz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 17:55:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbWE3Vzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 17:56:03 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:25061 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932510AbWE3V4A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 17:56:00 -0400
-Subject: [Patch -rc5-mm1] Lockdep annotate rpc_populate for
-	child-relationship of its mutex
-From: Arjan van de Ven <arjan@infradead.org>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+	Tue, 30 May 2006 17:55:55 -0400
+Received: from wx-out-0102.google.com ([66.249.82.197]:32778 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932509AbWE3Vzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 17:55:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=BQjjcjL6aTjIhFJozNMs9NsMuC2L3/z9LQfBldiI/9wM/TMDDGyWJz0Y8J5HcUDgIYLzTuFnDj3O0o7X/spLDPSrGudWk885O0I//H/oZFhxvAQkgdQg9c+NbsDA1/LMswFVSpIDldbL924M0TevjZ/u/dq/a5tq/IROJXu6efM=
+Message-ID: <447CBF53.8050703@gmail.com>
+Date: Wed, 31 May 2006 05:55:31 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+CC: David Lang <dlang@digitalinsight.com>, Jon Smirl <jonsmirl@gmail.com>,
+       Dave Airlie <airlied@gmail.com>, "D. Hazelton" <dhazelton@enter.net>,
+       Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
        linux-kernel@vger.kernel.org
-In-Reply-To: <adaodxf5i6h.fsf@cisco.com>
-References: <20060530022925.8a67b613.akpm@osdl.org>
-	 <adaac8z70yc.fsf@cisco.com> <20060530202654.GA25720@elte.hu>
-	 <ada1wub6y6b.fsf@cisco.com> <20060530204901.GA27645@elte.hu>
-	 <adawtc35iws.fsf@cisco.com>
-	 <1149022880.3636.116.camel@laptopd505.fenrus.org>
-	 <adaodxf5i6h.fsf@cisco.com>
-Content-Type: text/plain
-Date: Tue, 30 May 2006 23:55:56 +0200
-Message-Id: <1149026156.3636.126.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Subject: Re: OpenGL-based framebuffer concepts
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>  <200605272245.22320.dhazelton@enter.net>  <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com>  <200605280112.01639.dhazelton@enter.net>  <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com> <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz> <447CBEC5.1080602@gmail.com>
+In-Reply-To: <447CBEC5.1080602@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-30 at 14:14 -0700, Roland Dreier wrote:
-> Here it is with KALLSYMS_ALL:
+Antonino A. Daplas wrote:
+> David Lang wrote:
+>> On Sun, 28 May 2006, Jon Smirl wrote:
+>>
 
+Correcting myself:
+> 
+> vesafb 640x480-8 (vga=0x305 video=vesafb:ypan,mtrr:3)
 
-ok this ought to do it 
+vga=0x301
 
+> 
+> real    0m0.572s
+> user    0m0.001s
+> sys     0m0.571s
+> 
+> vesafb 640x480-8 (vga=0x305 video=vesafb:ypan,mtrr:3,vremap:4)
 
-rpc_populate is creating a child inode in a directory, and the
-parent already has it's mutex locked. Similar to the VFS code
-this needs I_MUTEX_CHILD nesting annotation
+vga=0x301
 
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
----
- net/sunrpc/rpc_pipe.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-Index: linux-2.6.17-rc5-mm1-lockdep/net/sunrpc/rpc_pipe.c
-===================================================================
---- linux-2.6.17-rc5-mm1-lockdep.orig/net/sunrpc/rpc_pipe.c
-+++ linux-2.6.17-rc5-mm1-lockdep/net/sunrpc/rpc_pipe.c
-@@ -557,7 +557,7 @@ rpc_populate(struct dentry *parent,
- 	struct dentry *dentry;
- 	int mode, i;
- 
--	mutex_lock(&dir->i_mutex);
-+	mutex_lock_nested(&dir->i_mutex, I_MUTEX_CHILD);
- 	for (i = start; i < eof; i++) {
- 		dentry = d_alloc_name(parent, files[i].name);
- 		if (!dentry)
-
-
+Tony

@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWE3XF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbWE3XO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964809AbWE3XF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 19:05:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWE3XF6
+	id S964805AbWE3XO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 19:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbWE3XO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 19:05:58 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:27539 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964803AbWE3XF5 (ORCPT
+	Tue, 30 May 2006 19:14:27 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:36280 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964805AbWE3XO1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 19:05:57 -0400
-Date: Wed, 31 May 2006 01:06:20 +0200
+	Tue, 30 May 2006 19:14:27 -0400
+Date: Wed, 31 May 2006 01:14:46 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Arjan van de Ven <arjan@linux.intel.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrew Morton <akpm@osdl.org>, Roland Dreier <rdreier@cisco.com>,
+       linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: 2.6.17-rc5-mm1
-Message-ID: <20060530230620.GA6226@elte.hu>
-References: <20060530022925.8a67b613.akpm@osdl.org> <6bffcb0e0605301155h3b472d79h65e8403e7fa0b214@mail.gmail.com> <6bffcb0e0605301157o6b7c5f66q3c9f151cbb4537d5@mail.gmail.com> <20060530194259.GB22742@elte.hu> <6bffcb0e0605301457v9ba284bk75b8b6d14384489a@mail.gmail.com> <20060530220931.GA32759@elte.hu> <6bffcb0e0605301559y603a60bl685b7aca60069dfd@mail.gmail.com> <20060530230512.GA6042@elte.hu>
+Message-ID: <20060530231446.GA6504@elte.hu>
+References: <20060530022925.8a67b613.akpm@osdl.org> <adawtc34364.fsf@cisco.com> <20060530154521.d737cc65.akpm@osdl.org> <20060530224955.GA5500@elte.hu> <20060530225254.GA5681@elte.hu> <20060530225808.GA5836@elte.hu> <1149030330.20582.45.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060530230512.GA6042@elte.hu>
+In-Reply-To: <1149030330.20582.45.camel@localhost.localdomain>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
+X-ELTE-SpamScore: -2.8
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
 	0.0 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+* Thomas Gleixner <tglx@linutronix.de> wrote:
 
-> Could you try the patch below? This uses the ID string as the key. 
-> (the ID string seems to be based on static kernel strings most of the 
-> time, so this might as well work)
+> CC'ed Ben, who is hacking on msi, IIRC
+> 
+> On Wed, 2006-05-31 at 00:58 +0200, Ingo Molnar wrote:
+> > > > 
+> > > > does MSI much with the irq_desc[] separately perhaps, clearing 
+> > > > handle_irq in the process perhaps?
+> > > 
+> > > aha - drivers/pci/msi.c sets msix_irq_type, which has no handle_irq 
+> > > entry. This needs to be converted to irqchips.
+> > 
+> > still ... that doesnt explain how the irq_desc[].irq_handler got NULL. 
+> 
+> It has it's own irq_desc array
+> 
+> static struct msi_desc* msi_desc[NR_IRQS] = { [0 ... NR_IRQS-1] = NULL };
 
-that patch should be:
+ah ...
 
-Index: linux/sound/core/seq/seq_device.c
-===================================================================
---- linux.orig/sound/core/seq/seq_device.c
-+++ linux/sound/core/seq/seq_device.c
-@@ -74,8 +74,6 @@ struct ops_list {
- 	struct mutex reg_mutex;
- 
- 	struct list_head list;	/* next driver */
--
--	struct lockdep_type_key reg_mutex_key;
- };
- 
- 
-@@ -382,7 +380,7 @@ static struct ops_list * create_driver(c
- 
- 	/* set up driver entry */
- 	strlcpy(ops->id, id, sizeof(ops->id));
--	mutex_init_key(&ops->reg_mutex, id, &ops->reg_mutex_key);
-+	mutex_init_key(&ops->reg_mutex, id, (struct lockdep_type_key *)id);
- 	ops->driver = DRIVER_EMPTY;
- 	INIT_LIST_HEAD(&ops->dev_list);
- 	/* lock this instance */
+then i guess a quick solution would be to do:
 
+	if (!irq_desc[irq].irq_handler)
+		__do_IRQ(irq, regs);
+	else
+		generic_handle_irq(irq, regs);
+
+in arch/x86_64/kernel/irq.c [and in arch/i386/kernel/irq.c], and 
+__do_IRQ() should handle the old-style irq-type MSI code just fine.
+
+	Ingo

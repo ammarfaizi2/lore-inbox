@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbWE3CTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWE3Che@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751115AbWE3CTo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 May 2006 22:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWE3CTo
+	id S1751106AbWE3Che (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 May 2006 22:37:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWE3Che
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 May 2006 22:19:44 -0400
-Received: from nz-out-0102.google.com ([64.233.162.192]:27981 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751115AbWE3CTo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 May 2006 22:19:44 -0400
+	Mon, 29 May 2006 22:37:34 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:10481 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750804AbWE3Chd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 May 2006 22:37:33 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=nzeSAmBYk7/k5P6wIqgOXaaNMKXz6xH+zBGd9TDqtB8kNygcLlTM4prqSDxA3dv39fsNLctGr1/VM350NHYcpfaeaT1woODfvDQxc4n9yfbCRtsw6mu5cqmD5+jtIWl6jjhbXYS6nVX62Fe950h/kbQgCgen3k/l6YwZPfzxkWw=
-Message-ID: <447C2A48.1050200@gmail.com>
-Date: Tue, 30 May 2006 20:19:36 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BwlCCbZtQB5fW/+eEyzgkynw6cx9EwBX4tKAbhxuisn4XZP8ZpLYu2LChy5gUzqxvS66bXooO4XSDAZvfvlbbwPrlIWVdVNK5PRcpu6HC/4QEPYg+C8qky7t8IUfueKrokaqVPGEsJhTrLzABvgd71XAzI2JD1OaodOyC1jKr5E=
+Message-ID: <441e43c90605291937r50f3e3a9n86538458d07f8eda@mail.gmail.com>
+Date: Mon, 29 May 2006 21:37:32 -0500
+From: "Ian Kester-Haney" <ikesterhaney@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Fwd: OpenGL-based framebuffer concepts
+In-Reply-To: <441e43c90605291936t19caa0eat4bd4b699e0ac9202@mail.gmail.com>
 MIME-Version: 1.0
-To: Nicolas Pitre <nico@cam.org>
-CC: Jens Axboe <axboe@suse.de>, James Bottomley <James.Bottomley@SteelEye.com>,
-       Dave Miller <davem@redhat.com>, bzolnier@gmail.com,
-       james.steward@dynamicratings.com, jgarzik@pobox.com,
-       lkml <linux-kernel@vger.kernel.org>, mattjreimer@gmail.com
-Subject: Re: [PATCHSET] block: fix PIO cache coherency bug
-References: <11371658562541-git-send-email-htejun@gmail.com> <1137167419.3365.5.camel@mulgrave> <20060113182035.GC25849@flint.arm.linux.org.uk> <1137177324.3365.67.camel@mulgrave> <20060113190613.GD25849@flint.arm.linux.org.uk> <20060222082732.GA24320@htj.dyndns.org> <1141325189.3238.37.camel@mulgrave.il.steeleye.com> <20060302203039.GH28895@flint.arm.linux.org.uk> <20060302204432.GZ4329@suse.de> <Pine.LNX.4.64.0605291509370.11290@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.64.0605291509370.11290@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com>
+	 <20060529102339.GA746@elf.ucw.cz>
+	 <21d7e9970605290336m1f80b08nebbd2a995be959cb@mail.gmail.com>
+	 <20060529124840.GD746@elf.ucw.cz>
+	 <21d7e9970605291623k3636f7hcc12028cad5e962b@mail.gmail.com>
+	 <4423333a0605291648w11a66440xcd9f833f654fb468@mail.gmail.com>
+	 <441e43c90605291839jff1c34bqe6ea176ee6f3e0ce@mail.gmail.com>
+	 <20060529190918.329b6d59.rdunlap@xenotime.net>
+	 <441e43c90605291936t19caa0eat4bd4b699e0ac9202@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas Pitre wrote:
-> Has any discussion about this problem lead to some consensus?
+Look at it this way,
+    by refusing to allow forward progress, many people have to work
+around the kernel
+    xorg and other developers have had to hack their way around the
+kernel limitations
+          to get hardware acceleration.
+    Don't you think Intel might release a binary driver if the options
+were available.
+    While legacy systems still exist, they should not hamper the newer ones.
+    As long as ATI and Nvidia, Intel and AMD, and Cisco and IBM compete against
+          each other closed source and binary drivers are needed.
+Does Linux want
+          to oppose innovation in graphics and networking.
+    It looks like a cockfight to me and that is not good for the image
+of developers.
 
-Argghhh.. I completely forgot about this.
+I bet SUSE would rather get the kernel fixed than to hack around it
+for XGL and compviz
 
->> What do you think of the kmap_atomic_pio() (notoriously bad at names,
->> but it should get the point across) and kunmap_atomic_pio(), the latter
->> accepting a read/write flag to note if we wrote to a vm page?
->>
->> This is basically Tejuns original patch set, just moving it out of the
->> block layer so it's a generel exported property of the kmap api.
-> 
-> What was the problem with Tejun's patchset already to which RMK (and 
-> many others) agreed?
-> 
-> I do have hardware that exhibits the problem and therefore I wish the 
-> discussion could be resumed.
-
-I'll follow up soon.  Sorry.
-
--- 
-tejun
+Regards,
+      Ian

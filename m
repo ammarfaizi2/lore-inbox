@@ -1,148 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbWE3T4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWE3Tzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932452AbWE3T4A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 15:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWE3T4A
+	id S932453AbWE3Tzx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 15:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWE3Tzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 15:56:00 -0400
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:19859 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S932452AbWE3Tz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 15:55:59 -0400
-Subject: Re: 2.6.17-rc5-mm1
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: akpm@osdl.org, Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <6bffcb0e0605301139l2b4895d0mbecffb422fb2c0cf@mail.gmail.com>
-References: <20060530022925.8a67b613.akpm@osdl.org>
-	 <6bffcb0e0605301139l2b4895d0mbecffb422fb2c0cf@mail.gmail.com>
-Content-Type: text/plain
+	Tue, 30 May 2006 15:55:53 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:43989 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932452AbWE3Tzw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 15:55:52 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <447CA301.5000802@s5r6.in-berlin.de>
+Date: Tue, 30 May 2006 21:54:41 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Robert Hancock <hancockr@shaw.ca>
+CC: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] Fix broken suspend/resume in ohci1394 (Was: ACPI
+ suspend problems revisited)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 30 May 2006 21:55:46 +0200
-Message-Id: <1149018946.3636.107.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Spam-Score: (0.885) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-30 at 20:39 +0200, Michal Piotrowski wrote:
-> Hi,
+Robert Hancock wrote to lkml on 2006-05-22:
+(full quote for linux1394-devel)
+> I've been experimenting to track down the cause of suspend/resume
+> problems on my Compaq Presario X1050 laptop:
 > 
-> On 30/05/06, Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm1/
-> >
+> http://bugzilla.kernel.org/show_bug.cgi?id=6075
 > 
-> I get this on 2.6.17-rc5-mm1 + hot fixes + Arjan's net/ipv4/igmp.c patch.
-
-since Andrew asked how to read this stuff.....
+> Essentially the ACPI Embedded Controller and keyboard controller would
+> get into a bizarre, confused state after resume.
 > 
-> May 30 20:25:56 ltg01-fedora kernel:
-> May 30 20:25:56 ltg01-fedora kernel:
-> =====================================================
-> May 30 20:25:56 ltg01-fedora kernel: [ BUG: possible circular locking
-> deadlock detected! ]
+> I found that unloading the ohci1394 module before suspend and reloading
+> it after resume made the problem go away. Diffing the dmesg output from
+> resume, with and without the module loaded, I found that with the module
+> loaded I was missing these:
+> 
+> PM: Writing back config space on device 0000:02:00.0 at offset 1. (Was 2100080, writing 2100007)
+> PM: Writing back config space on device 0000:02:00.0 at offset 3. (Was 0, writing 8008)
+> PM: Writing back config space on device 0000:02:00.0 at offset 4. (Was 0, writing 90200000)
+> PM: Writing back config space on device 0000:02:00.0 at offset 5. (Was 1, writing 2401)
+> PM: Writing back config space on device 0000:02:00.0 at offset f. (Was 20000100, writing 2000010a)
+> The default PCI driver performs the pci_restore_state when no driver is
+> loaded for the device. When the ohci1394 driver is loaded, it is
+> supposed to do this, however it appears not to do so.
+> 
+> I created the patch below and tested it, and it appears to resolve the
+> suspend problems I was having with the module loaded. I only added in
+> the pci_save_state and pci_restore_state - however, though I know little
+> of this hardware, surely the driver should really be doing more than
+> this when suspending and resuming? Currently it does almost nothing,
+> what if there are commands in progress, etc? As such this is just an RFC.
 
-this message means basically an AB-BA deadlock is found
+Thanks, this is at least a start. Apart from the code for PPC 
+Macintoshs, ohci1394 does indeed lack any suspend/resume handling. I 
+don't know anything about this matter, however the OHCI spec (gratis 
+available, linked from www.linux1394.org) table A-11 on page 168 says 
+which losses of configuration result from what power state transitions: 
+Interrupts are masked when going into D1. IEEE 1394 configuration is 
+lost when going into D2. PCI configuration is lost when going into D3. 
+Since we don't handle this yet, a suspend/resume cycle results at least 
+in loss of FireWire connectivity.
 
-> May 30 20:25:56 ltg01-fedora kernel:
-> -----------------------------------------------------
-> May 30 20:25:56 ltg01-fedora kernel: umount/2322 is trying to acquire lock:
-> May 30 20:25:56 ltg01-fedora kernel:  (sb_security_lock){--..}, at:
-> [<c01d6400>] selinux_sb_free_security+0x17/0x4e
-> May 30 20:25:56 ltg01-fedora kernel:
-> May 30 20:25:56 ltg01-fedora kernel: but task is already holding lock:
-> May 30 20:25:56 ltg01-fedora kernel:  (sb_lock){--..}, at:
+As you may have guessed, this problem is basically as old as the driver. 
+Nobody is actively working on it AFAIK. (Except that I dusted off an old 
+notebook and put a fresh Linux distro on it --- with the plan check 
+power management and hot ejection handling by ohci1394... later this 
+year...)
 
-we're holding "sb_lock" already, and are trying to get sb_security_lock
+> Don't ask me why the failure to save/restore the state of the 1394
+> controller messes with the keyboard/EC controller, but it apparently does..
+> 
+> Signed-off-by: Robert Hancock <hancockr@shaw.ca>
+> 
+> (Patch attached to stop Thunderbird from destroying it..)
+> 
+> -- 
+> Robert Hancock      Saskatoon, SK, Canada
+> To email, remove "nospam" from hancockr@nospamshaw.ca
+> Home Page: http://www.roberthancock.com/
+> 
+> 
+> 
+> 
+> --- linux-2.6.16-1.2208_FC6/drivers/ieee1394/ohci1394.c	2006-05-22 12:34:30.000000000 -0600
+> +++ linux-2.6.16-1.2208_FC6ide/drivers/ieee1394/ohci1394.c	2006-05-22 14:56:53.000000000 -0600
+> @@ -3539,6 +3539,7 @@ static int ohci1394_pci_resume (struct p
+>  	}
+>  #endif /* CONFIG_PPC_PMAC */
+>  
+> +	pci_restore_state(pdev);
+>  	pci_enable_device(pdev);
+>  
+>  	return 0;
+> @@ -3558,6 +3559,8 @@ static int ohci1394_pci_suspend (struct 
+>  	}
+>  #endif
+>  
+> +	pci_save_state(pdev);
+> +
+>  	return 0;
+>  }
+>  
 
-> [<c0178a89>] put_super+0x10/0x24
-> May 30 20:25:56 ltg01-fedora kernel:
-> May 30 20:25:56 ltg01-fedora kernel: which lock already depends on the new lock,
-
-... but there was an observed code sequence before which was the other
-way around ...
-> May 30 20:25:56 ltg01-fedora kernel: which could lead to circular deadlocks!
-
-yes.
-
-> May 30 20:25:56 ltg01-fedora kernel:
-> May 30 20:25:56 ltg01-fedora kernel: the existing dependency chain (in
-> reverse order) is:
-
-now it's going to print the previously observed behavior (backwards),
-and give a backtrace of where that was acquired
-> May 30 20:25:56 ltg01-fedora kernel:
-> May 30 20:25:56 ltg01-fedora kernel: -> #1 (sb_lock){--..}:
-
-since it prints backwards, this is the latest of the 2 locks taken in
-the old situaion
-
-> May 30 20:25:56 ltg01-fedora kernel:        [<c0139a56>]
-> lockdep_acquire+0x69/0x82
-> May 30 20:25:56 ltg01-fedora kernel:        [<c02f2171>] _spin_lock+0x21/0x2f
-> May 30 20:25:56 ltg01-fedora kernel:        [<c01d72de>]
-> selinux_complete_init+0x45/0xda
-
-and it was in selinux_complete_init
-
-for some reason the #0 is not being printed here (it normally is), which
-would give a simliar backtrace. In this case it was ok,
-selinux_complete_init was the sole guilty party.
- 
-> May 30 20:25:56 ltg01-fedora kernel:
-> May 30 20:25:56 ltg01-fedora kernel: other info that might help us debug this:
-> May 30 20:25:56 ltg01-fedora kernel:
-now it's going to print all the locks we own currently, and where those
-were taken; not just the ones that are part of the deadlock (that was
-printed before)
-
-> May 30 20:25:56 ltg01-fedora kernel: 1 locks held by umount/2322:
-> May 30 20:25:56 ltg01-fedora kernel:  #0:  (sb_lock){--..}, at:
-> [<c0178a89>] put_super+0x10/0x24
-
-ok so in put_super we took sb_lock. [*]
-
-> May 30 20:25:56 ltg01-fedora kernel:
-> May 30 20:25:56 ltg01-fedora kernel: stack backtrace:
-> May 30 20:25:56 ltg01-fedora kernel:  [<c0103e52>] show_trace_log_lvl+0x4b/0xf4
-> May 30 20:25:56 ltg01-fedora kernel:  [<c01044b3>] show_trace+0xd/0x10
-> May 30 20:25:56 ltg01-fedora kernel:  [<c010457b>] dump_stack+0x19/0x1b
-> May 30 20:25:56 ltg01-fedora kernel:  [<c0138bd6>]
-> print_circular_bug_tail+0x59/0x64
-> May 30 20:25:56 ltg01-fedora kernel:  [<c0139429>] __lockdep_acquire+0x848/0xa39
-> May 30 20:25:56 ltg01-fedora kernel:  [<c0139a56>] lockdep_acquire+0x69/0x82
-> May 30 20:25:56 ltg01-fedora kernel:  [<c02f2171>] _spin_lock+0x21/0x2f
-
-these are just the lockdep printing stuff
-
-> May 30 20:25:56 ltg01-fedora kernel:  [<c01d6400>]
-> selinux_sb_free_security+0x17/0x4e
-
-but here it gets interesting; this is the function that triggered the
-final deadlock message (well we knew that already from the first line of
-the message), which gets called from
-
-> May 30 20:25:56 ltg01-fedora kernel:  [<c0178a68>] __put_super+0x24/0x35
-which gets called from
-
-> May 30 20:25:56 ltg01-fedora kernel:  [<c0178a90>] put_super+0x17/0x24
-
-... but wait we know this one already from where I put [*], so we're now
-done. put_super takes sb_lock, then calls __put_super which calls
-selinux_sb_free_security which takes sb_security lock.
-
->From the old pattern we knew the opposite order in
-selinux_complete_init(), and we have our AB-BA deadlock
-
-
-> May 30 20:25:56 ltg01-fedora kernel:  [<c01793a3>] deactivate_super+0xa3/0xad
-> May 30 20:25:56 ltg01-fedora kernel:  [<c018e010>] mntput_no_expire+0x52/0x85
-> May 30 20:25:56 ltg01-fedora kernel:  [<c017fcb0>]
-> path_release_on_umount+0x15/0x18
-> May 30 20:25:56 ltg01-fedora kernel:  [<c018f535>] sys_umount+0x292/0x2aa
-
-well we also now know that it came from a sys_umount; that might help
-chasing stuff down if it's more fuzzy than this example
-
-
+-- 
+Stefan Richter
+-=====-=-==- -=-= ====-
+http://arcgraph.de/sr/

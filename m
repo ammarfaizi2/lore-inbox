@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751503AbWE3NwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751504AbWE3Nwa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751503AbWE3NwA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 09:52:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWE3NwA
+	id S1751504AbWE3Nwa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 09:52:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751506AbWE3Nwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 09:52:00 -0400
-Received: from tayrelbas04.tay.hp.com ([161.114.80.247]:41618 "EHLO
-	tayrelbas04.tay.hp.com") by vger.kernel.org with ESMTP
-	id S1751503AbWE3Nv7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 09:51:59 -0400
-Date: Tue, 30 May 2006 09:51:58 -0400
-From: Amy Griffis <amy@griffis1.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, john@johnmccutchan.com, rlove@rlove.org
-Subject: Re: [PATCH] inotify kernel API
-Message-ID: <20060530135158.GA24918@zk3.dec.com>
-References: <20060526021030.GA4936@zk3.dec.com> <20060530024013.5d80ba81.akpm@osdl.org>
+	Tue, 30 May 2006 09:52:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:12480 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751504AbWE3Nw3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 09:52:29 -0400
+Date: Tue, 30 May 2006 09:52:24 -0400
+From: Dave Jones <davej@redhat.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: .17rc5 cfq slab corruption.
+Message-ID: <20060530135224.GA3179@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Jens Axboe <axboe@suse.de>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060526213915.GB7585@redhat.com> <20060526170013.67391a2b.akpm@osdl.org> <20060527070724.GB24988@suse.de> <20060527133122.GB3086@redhat.com> <20060530131728.GX4199@suse.de> <20060530134450.GF14721@redhat.com> <20060530135059.GA4199@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060530024013.5d80ba81.akpm@osdl.org>
-X-Mailer: Mutt http://www.mutt.org/
-X-Editor: Vim http://www.vim.org/
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <20060530135059.GA4199@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 30, 2006 at 02:40:13AM -0700, Andrew Morton wrote:
-> On Thu, 25 May 2006 22:10:30 -0400
-> Amy Griffis <amy.griffis@hp.com> wrote:
-> 
-> >  fs/inotify.c                          |  991 +++++++++-------------------------
-> >  fs/inotify_user.c                     |  719 ++++++++++++++++++++++++
-> 
-> This patch would be much easier to review if the move-code-around part was
-> delivered in a separate patch from the add-new-functionality part.
+On Tue, May 30, 2006 at 03:50:59PM +0200, Jens Axboe wrote:
 
-Makes sense.  I'll split it up and repost.
+ > >  > >  > Pretty baffling... cfq has been hammered pretty thoroughly over the
+ > >  > >  > last months and _nothing_ has shown up except some performance anomalies
+ > >  > >  > that are now fixed. Since daves case (at least) seems to be
+ > >  > >  > use-after-free, I'll see if I can reproduce with some contrived case.
+ > >  > >  > I'm asuming that picasa forks and exits a lot with submitted io in
+ > >  > >  > between than may not have finished at exit.
+ > >  > > 
+ > >  > > The second time I hit it, was actually during boot up.
+ > >  > 
+ > >  > Dave, do you have any io scheduler switching going on?
+ > > 
+ > > Nope, everything set to use CFQ as default, and left that way.
+ > 
+ > Hrmpf ok, I had hoped perhaps something in your init scripts modified
+ > the scheduler value.
+
+grep doesn't show anything in init scripts, and ttbomk, hald isn't messing
+with this. (Actually I'm seeing it trigger before that gets started
+anyway, so that can't be it).
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

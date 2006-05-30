@@ -1,225 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932475AbWE3VXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbWE3VYR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932475AbWE3VXv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 17:23:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbWE3VXu
+	id S932466AbWE3VYR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 17:24:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbWE3VYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 17:23:50 -0400
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:32733 "EHLO
-	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S932474AbWE3VXt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 17:23:49 -0400
-Subject: [Patch] statistics infrastructure - update 3
-From: Martin Peschke <mp3@de.ibm.com>
+	Tue, 30 May 2006 17:24:17 -0400
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:39821 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S932466AbWE3VYP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 17:24:15 -0400
+X-IronPort-AV: i="4.05,190,1146466800"; 
+   d="scan'208"; a="1815676923:sNHT1485983554"
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Tue, 30 May 2006 23:23:31 +0200
-Message-Id: <1149024211.2937.21.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc5-mm1
+X-Message-Flag: Warning: May contain useful information
+References: <20060530022925.8a67b613.akpm@osdl.org>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 30 May 2006 14:24:03 -0700
+In-Reply-To: <20060530022925.8a67b613.akpm@osdl.org> (Andrew Morton's message of "Tue, 30 May 2006 02:29:25 -0700")
+Message-ID: <adawtc34364.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 30 May 2006 21:24:05.0273 (UTC) FILETIME=[6105B090:01C6842F]
+Authentication-Results: sj-dkim-4.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
-this patch makes printk_clock() a generic kernel-wide nsec-resolution
-timestamp_clock(). It's used both by printk() as well as the
-statistics infrastructure to provide unified time stamps to users.
+I'm seeing problems with MSI-X interrupts on 2.6.17-rc5-mm1.  I'll try
+to debug the MSI patches in -mm further in the next day or so, but for
+now I'll post the symptoms.
 
-Signed-off-by: Martin Peschke <mp3@de.ibm.com>
----
+When I load the ib_mthca driver with MSI-X interrupts enabled, I get
+the following crash as soon as the first interrupt is generated.
 
- arch/ia64/kernel/setup.c    |    4 ++--
- arch/ia64/kernel/time.c     |   15 ++++++++-------
- arch/ia64/sn/kernel/setup.c |    6 +++---
- include/linux/time.h        |    2 ++
- kernel/printk.c             |    7 +------
- kernel/time.c               |    5 +++++
- lib/statistic.c             |    8 ++++----
- 7 files changed, 25 insertions(+), 22 deletions(-)
-
-diff -urp a/arch/ia64/kernel/setup.c b/arch/ia64/kernel/setup.c
---- a/arch/ia64/kernel/setup.c	2006-05-30 22:23:11.000000000 +0200
-+++ b/arch/ia64/kernel/setup.c	2006-05-30 22:29:30.000000000 +0200
-@@ -71,7 +71,7 @@ unsigned long __per_cpu_offset[NR_CPUS];
- EXPORT_SYMBOL(__per_cpu_offset);
- #endif
- 
--extern void ia64_setup_printk_clock(void);
-+extern void ia64_setup_timestamp_clock(void);
- 
- DEFINE_PER_CPU(struct cpuinfo_ia64, cpu_info);
- DEFINE_PER_CPU(unsigned long, local_per_cpu_offset);
-@@ -436,7 +436,7 @@ setup_arch (char **cmdline_p)
- 	/* process SAL system table: */
- 	ia64_sal_init(__va(efi.sal_systab));
- 
--	ia64_setup_printk_clock();
-+	ia64_setup_timestamp_clock();
- 
- #ifdef CONFIG_SMP
- 	cpu_physical_id(0) = hard_smp_processor_id();
-diff -urp a/arch/ia64/kernel/time.c b/arch/ia64/kernel/time.c
---- a/arch/ia64/kernel/time.c	2006-05-30 22:23:11.000000000 +0200
-+++ b/arch/ia64/kernel/time.c	2006-05-30 22:29:30.000000000 +0200
-@@ -279,29 +279,30 @@ udelay (unsigned long usecs)
- }
- EXPORT_SYMBOL(udelay);
- 
--static unsigned long long ia64_itc_printk_clock(void)
-+static unsigned long long ia64_itc_timestamp_clock(void)
- {
- 	if (ia64_get_kr(IA64_KR_PER_CPU_DATA))
- 		return sched_clock();
- 	return 0;
- }
- 
--static unsigned long long ia64_default_printk_clock(void)
-+static unsigned long long ia64_default_timestamp_clock(void)
- {
- 	return (unsigned long long)(jiffies_64 - INITIAL_JIFFIES) *
- 		(1000000000/HZ);
- }
- 
--unsigned long long (*ia64_printk_clock)(void) = &ia64_default_printk_clock;
-+unsigned long long (*ia64_timestamp_clock)(void) =
-+						&ia64_default_timestamp_clock;
- 
--unsigned long long printk_clock(void)
-+unsigned long long timestamp_clock(void)
- {
--	return ia64_printk_clock();
-+	return ia64_timestamp_clock();
- }
- 
- void __init
--ia64_setup_printk_clock(void)
-+ia64_setup_timestamp_clock(void)
- {
- 	if (!(sal_platform_features & IA64_SAL_PLATFORM_FEATURE_ITC_DRIFT))
--		ia64_printk_clock = ia64_itc_printk_clock;
-+		ia64_timestamp_clock = ia64_itc_timestamp_clock;
- }
-diff -urp a/arch/ia64/sn/kernel/setup.c b/arch/ia64/sn/kernel/setup.c
---- a/arch/ia64/sn/kernel/setup.c	2006-05-30 22:23:11.000000000 +0200
-+++ b/arch/ia64/sn/kernel/setup.c	2006-05-30 22:29:30.000000000 +0200
-@@ -67,7 +67,7 @@ extern unsigned long last_time_offset;
- extern void (*ia64_mark_idle) (int);
- extern void snidle(int);
- extern unsigned char acpi_kbd_controller_present;
--extern unsigned long long (*ia64_printk_clock)(void);
-+extern unsigned long long (*ia64_timestamp_clock)(void);
- 
- unsigned long sn_rtc_cycles_per_second;
- EXPORT_SYMBOL(sn_rtc_cycles_per_second);
-@@ -364,7 +364,7 @@ sn_scan_pcdp(void)
- 
- static unsigned long sn2_rtc_initial;
- 
--static unsigned long long ia64_sn2_printk_clock(void)
-+static unsigned long long ia64_sn2_timestamp_clock(void)
- {
- 	unsigned long rtc_now = rtc_time();
- 
-@@ -451,7 +451,7 @@ void __init sn_setup(char **cmdline_p)
- 
- 	platform_intr_list[ACPI_INTERRUPT_CPEI] = IA64_CPE_VECTOR;
- 
--	ia64_printk_clock = ia64_sn2_printk_clock;
-+	ia64_timestamp_clock = ia64_sn2_timestamp_clock;
- 
- 	/*
- 	 * Old PROMs do not provide an ACPI FADT. Disable legacy keyboard
-diff -urp a/include/linux/time.h b/include/linux/time.h
---- a/include/linux/time.h	2006-05-30 22:23:16.000000000 +0200
-+++ b/include/linux/time.h	2006-05-30 22:29:30.000000000 +0200
-@@ -142,6 +142,8 @@ extern struct timespec ns_to_timespec(co
-  */
- extern struct timeval ns_to_timeval(const s64 nsec);
- 
-+extern unsigned long long timestamp_clock(void);
-+
- #endif /* __KERNEL__ */
- 
- #define NFDBITS			__NFDBITS
-diff -urp a/kernel/printk.c b/kernel/printk.c
---- a/kernel/printk.c	2006-05-30 22:25:12.000000000 +0200
-+++ b/kernel/printk.c	2006-05-30 22:29:30.000000000 +0200
-@@ -447,11 +447,6 @@ static int __init printk_time_setup(char
- 
- __setup("time", printk_time_setup);
- 
--__attribute__((weak)) unsigned long long printk_clock(void)
--{
--	return sched_clock();
--}
--
- /**
-  * printk - print a kernel message
-  * @fmt: format string
-@@ -531,7 +526,7 @@ asmlinkage int vprintk(const char *fmt, 
- 			if (printk_time) {
- 				char tbuf[TIMESTAMP_SIZE], *tp;
- 				printed_len += nsec_to_timestamp(tbuf,
--							printk_clock());
-+							timestamp_clock());
- 				for (tp = tbuf; *tp; tp++)
- 					emit_log_char(*tp);
- 				emit_log_char(' ');
-diff -urp a/kernel/time.c b/kernel/time.c
---- a/kernel/time.c	2006-05-30 22:23:16.000000000 +0200
-+++ b/kernel/time.c	2006-05-30 22:29:30.000000000 +0200
-@@ -641,6 +641,11 @@ struct timeval ns_to_timeval(const s64 n
- 	return tv;
- }
- 
-+__attribute__((weak)) unsigned long long timestamp_clock(void)
-+{
-+	return sched_clock();
-+}
-+
- #if (BITS_PER_LONG < 64)
- u64 get_jiffies_64(void)
- {
-diff -urp a/lib/statistic.c b/lib/statistic.c
---- a/lib/statistic.c	2006-05-30 22:25:44.000000000 +0200
-+++ b/lib/statistic.c	2006-05-30 22:29:30.000000000 +0200
-@@ -152,7 +152,7 @@ static int statistic_alloc(struct statis
- 			   struct statistic_info *info)
- {
- 	int cpu, node;
--	stat->age = sched_clock();
-+	stat->age = timestamp_clock();
- 	if (unlikely(info->flags & STATISTIC_FLAGS_NOINCR)) {
- 		stat->pdata = statistic_alloc_ptr(stat, -1);
- 		if (unlikely(!stat->pdata))
-@@ -177,7 +177,7 @@ static int statistic_alloc(struct statis
- 
- static int statistic_start(struct statistic *stat)
- {
--	stat->started = sched_clock();
-+	stat->started = timestamp_clock();
- 	stat->state = STATISTIC_STATE_ON;
- 	return 0;
- }
-@@ -188,7 +188,7 @@ static void _statistic_barrier(void *unu
- 
- static int statistic_stop(struct statistic *stat)
- {
--	stat->stopped = sched_clock();
-+	stat->stopped = timestamp_clock();
- 	stat->state = STATISTIC_STATE_OFF;
- 	/* ensures that all CPUs have ceased updating statistics */
- 	smp_mb();
-@@ -243,7 +243,7 @@ static int statistic_reset(struct statis
- 	else
- 		for_each_possible_cpu(cpu)
- 			statistic_reset_ptr(stat, stat->pdata->ptrs[cpu]);
--	stat->age = sched_clock();
-+	stat->age = timestamp_clock();
- 	statistic_transition(stat, info, prev_state);
- 	return 0;
- }
-
-
+[  329.979089] Unable to handle kernel NULL pointer dereference at 0000000000000000 RIP:
+[  329.995487]  [<0000000000000000>]
+<8>[  330.012818] PGD 119477067 PUD 119b48067 PMD 0
+[  330.027009] Oops: 0010 [1] SMP
+[  330.036503] last sysfs file: /class/net/ib2/address
+<8>[  330.051084] CPU 0
+<8>[  330.057932] Modules linked in: ib_mthca ib_srp ib_cm ib_ipoib ib_sa ib_mad ib_core nfs lockd nfs_acl sunrpc ipv6 thermal fan button processor ac battery dm_mod ide_generic ide_disk evdev usbhid ide_cd cdrom amd74xx psmouse serio_raw e1000 pcspkr generic ohci_hcd ehci_hcd ide_core
+<8>[  330.134158] Pid: 0, comm: idle Not tainted 2.6.17-rc5-mm1 #7
+<8>[  330.151851] RIP: 0010:[<0000000000000000>]  [<0000000000000000>]
+<8>[  330.170116] RSP: 0000:ffffffff805d4f98  EFLAGS: 00010016
+<8>[  330.187344] RAX: 0000000000005200 RBX: ffffffff80873eb8 RCX: 0000000000000000
+<8>[  330.209448] RDX: ffffffff80873eb8 RSI: ffffffff80863e80 RDI: 0000000000000052
+<8>[  330.231552] RBP: ffffffff805d4fb0 R08: 0000000000000001 R09: ffffffff804380f7
+<8>[  330.253656] R10: ffff81007adc6000 R11: 0000000000000000 R12: 0000000000000052
+<8>[  330.275762] R13: 0000000000090000 R14: 0000000000000000 R15: 0000000000000000
+<8>[  330.297867] FS:  00002b9e555966d0(0000) GS:ffffffff8085c000(0000) knlGS:0000000000000000
+<8>[  330.322823] CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+<8>[  330.340777] CR2: 0000000000000000 CR3: 0000000119bd7000 CR4: 00000000000006e0
+<8>[  330.362882] Process idle (pid: 0, threadinfo ffffffff80872000, task ffffffff804baa00)
+<8>[  330.387061] Stack: ffffffff8020c693 ffffffff80207c93 0000000000000100 ffffffff80873ee0
+<8>[  330.411423]        ffffffff80209b89  <EOI> ff6500230f54e8fa 65c900000020250c 00000010250c8b48
+<8>[  330.438222]        f700001fd8e98148 7400000003582444
+<8>[  330.454231] Call Trace:
+<8>[  330.462870]  <IRQ> [<ffffffff8020c693>] do_IRQ+0x5e/0x6f
+<8>[  330.479631]  [<ffffffff80207c93>] default_idle+0x0/0x9b
+<8>[  330.496080]  [<ffffffff80209b89>] ret_from_intr+0x0/0xf
+<8>[  330.512526]  <EOI>Unable to handle kernel paging request at ffffffff82800000 RIP:
+[  332.136320]  [<ffffffff8020ad6e>] show_trace+0x145/0x195
+<8>[  332.159591] PGD 203027 PUD 205027 PMD 0
+[  332.172226] Oops: 0000 [2] SMP
+[  332.181720] last sysfs file: /class/net/ib2/address
+<

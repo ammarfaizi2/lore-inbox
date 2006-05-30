@@ -1,96 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWE3GMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWE3GOz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbWE3GMa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 02:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWE3GMa
+	id S932156AbWE3GOz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 02:14:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWE3GOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 02:12:30 -0400
-Received: from ns2.suse.de ([195.135.220.15]:34028 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932153AbWE3GM3 (ORCPT
+	Tue, 30 May 2006 02:14:55 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:6560 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932156AbWE3GOy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 02:12:29 -0400
-From: Neil Brown <neilb@suse.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Date: Tue, 30 May 2006 16:12:09 +1000
-MIME-Version: 1.0
+	Tue, 30 May 2006 02:14:54 -0400
+Date: Tue, 30 May 2006 08:15:04 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Simon Derr <Simon.Derr@bull.net>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       John Stultz <johnstul@us.ibm.com>
+Subject: Re: -rt IA64 update
+Message-ID: <20060530061503.GA19870@elte.hu>
+References: <Pine.LNX.4.61.0605291356170.14092@openx3.frec.bull.fr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17531.57913.151520.946557@cse.unsw.edu.au>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mason@suse.com,
-       andrea@suse.de, hugh@veritas.com, axboe@suse.de
-Subject: Re: [rfc][patch] remove racy sync_page?
-In-Reply-To: message from Nick Piggin on Tuesday May 30
-References: <447AC011.8050708@yahoo.com.au>
-	<20060529121556.349863b8.akpm@osdl.org>
-	<447B8CE6.5000208@yahoo.com.au>
-	<20060529183201.0e8173bc.akpm@osdl.org>
-	<447BB3FD.1070707@yahoo.com.au>
-	<Pine.LNX.4.64.0605292117310.5623@g5.osdl.org>
-	<447BD31E.7000503@yahoo.com.au>
-	<447BD63D.2080900@yahoo.com.au>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0605291356170.14092@openx3.frec.bull.fr>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday May 30, nickpiggin@yahoo.com.au wrote:
-> Nick Piggin wrote:
-> > Linus Torvalds wrote:
-> > 
-> >>
-> >> Why do you think the IO layer should get larger requests?
-> > 
-> > 
-> > For workloads where plugging helps (ie. lots of smaller, contiguous
-> > requests going into the IO layer), should be pretty good these days
-> > due to multiple readahead and writeback.
+
+* Simon Derr <Simon.Derr@bull.net> wrote:
+
+> Hi Ingo,
 > 
-> Let me try again.
+> This is an update of my IA64 port, against -rt25.
+
+thanks - i have applied it.
+
+> I have modified check_pgt_cache() as we discussed before, and the raw 
+> spinlock in the struct zone is no longer needed.
+
+ok, great!
+
+> There's also a preliminary and certainly very bogus attempt to have 
+> the HR timers on IA64. I'd love to have comments on that part.
 > 
-> For workloads where plugging helps (ie. lots of smaller, contiguous
-> requests going into the IO layer), the request pattern should be
-> pretty good without plugging these days, due to multiple page
-> readahead and writeback.
+> Some bits of the Kconfig have been stolen from a previous patch by 
+> Eric Piel.
 
-Can I please put in a vote for not thinking that every device is disk
-drive?
+i'll let Thomas and John comment on that - but at a quick glance it 
+seems quite OK.
 
-I find plugging fairly important for raid5, particularly for write.
+> This kernel boots OK on UP and SMP, and runs the sched_football test 
+> successfully.
+> 
+> 
+> A few notes:
+> 
+> * You can see at the end of the patch this ugly thing in 
+> clockevents_set_next_event()
+> 
+> +#ifndef CONFIG_IA64
+>         clc = mpy_sc32((unsigned long) delta, sources->nextevt->mult);
+> +#else
+> +       clc = (unsigned long) delta * (unsigned long) sources->nextevt->mult;
+> +       clc = clc >> sources->nextevt->shift;
+> +#endif
+> +
+> 
+> I made this ia64-only, but it seems to me that this code should be 
+> fixed as it works only for clocksources that have shift=32.
 
-The more whole-stripe writes I can get, the better throughput I get.
-So I tend to keep a raid5 array plugged while any requests are
-arriving, and interpret 'plugged' to mean that incomplete stripes
-don't get processed while full stripes (needing no pre-reading) do get
-processed.
+yeah, agreed.
 
-The only way "large requests" are going to replace plugging is they
-are perfectly aligned, which I don't expect to ever see.
+> * This kernel, when booting, prints:
+> 
+> 	BUG in check_monotonic_clock at kernel/time/timeofday.c:164
+> 
+> But I think this happens because two get_monotonic_clock() are racing 
+> on two cpus. There is a lock to prevent the race, but it is a seqlock. 
+> That means that it is okay if the race happens since another try will 
+> be attempted, but the message that has been printed on the console 
+> can't be removed, and the user is unnecessarily scared.
 
-As for your original problem.... I wonder if PG_locked is protecting
-too much?  It protects against IO and it also protects against ->mapping
-changes.  So if you want to ensure that ->mapping won't change, you
-need to wait for any pending read request to finish, which seems a bit
-dumb.
-Maybe we need a new bit: PG_maplocked.  You are only allowed to change
-->mapping or ->index of you hold PG_locked and PG_maplocked, you are
-not allowed to wait for PG_locked while holding PG_maplocked, and
-you can read ->mapping or ->index while PG_locked or PG_maplocked are
-held.
-Think of PG_locked like a mutex and PG_maplocked like a spinlock (and
-probably use bit_spinlock to get it).
+that too comes from the GTOD patchset. John, should we pick up the 
+latest from -mm?
 
-Then set_page_dirty_lock would use PG_maplocked to get access to
-->mapping, and then hold a reference on the address_space while
-calling into balance_dirty_pages ... I wonder how you hold a reference
-on an address space...
-
-There are presumably few pieces of code that change ->mapping.  Once
-they all take PG_maplocked as well as PG_locked, you can start freeing
-up other code to take PG_maplocked instead of PG_locked....
-
-Does that make sense at all?  Do we have any spare page bits?
-
-NeilBrown
+	Ingo

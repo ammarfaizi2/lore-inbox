@@ -1,115 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbWE3M0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbWE3M1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751462AbWE3M0O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 08:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbWE3M0O
+	id S1751464AbWE3M1m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 08:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbWE3M1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 08:26:14 -0400
-Received: from mail.gmx.net ([213.165.64.20]:17867 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751462AbWE3M0N (ORCPT
+	Tue, 30 May 2006 08:27:41 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:55331 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751464AbWE3M1l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 08:26:13 -0400
-X-Authenticated: #14349625
-Subject: Re: [patch, -rc5-mm1] lock validator, fix NULL type->name bug
-From: Mike Galbraith <efault@gmx.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060530121952.GA9625@elte.hu>
-References: <20060530022925.8a67b613.akpm@osdl.org>
-	 <20060530111138.GA5078@elte.hu> <1148990326.7599.4.camel@homer>
-	 <1148990725.8610.1.camel@homer> <20060530120641.GA8263@elte.hu>
-	 <1148991422.8610.8.camel@homer>  <20060530121952.GA9625@elte.hu>
-Content-Type: text/plain
-Date: Tue, 30 May 2006 14:28:18 +0200
-Message-Id: <1148992098.8700.2.camel@homer>
+	Tue, 30 May 2006 08:27:41 -0400
+Date: Tue, 30 May 2006 14:29:34 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>, Michael Tokarev <mjt@tls.msk.ru>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 00/32] Adaptive readahead V14
+Message-ID: <20060530122934.GT4199@suse.de>
+References: <348745084.15239@ustc.edu.cn> <44788C8A.2070900@tls.msk.ru> <348818092.32485@ustc.edu.cn> <4479F8B5.90906@tls.msk.ru> <20060529030152.GA5994@mail.ustc.edu.cn> <20060530092309.GH4199@suse.de> <20060530113221.GA8665@mail.ustc.edu.cn>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060530113221.GA8665@mail.ustc.edu.cn>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-30 at 14:19 +0200, Ingo Molnar wrote:
-> * Mike Galbraith <efault@gmx.de> wrote:
-> 
-> > I have nmi_watchdog=1.  I'll reboot with 0 and see if it'll trigger.
+On Tue, May 30 2006, Wu Fengguang wrote:
+> On Tue, May 30, 2006 at 11:23:10AM +0200, Jens Axboe wrote:
+> > On Mon, May 29 2006, Wu Fengguang wrote:
+> > > On Sun, May 28, 2006 at 11:23:33PM +0400, Michael Tokarev wrote:
+> > > > Wu Fengguang wrote:
+> > > > > 
+> > > > > It's not quite reasonable for readahead to worry about media errors.
+> > > > > If the media fails, fix it. Or it will hurt read sooner or later.
+> > > > 
+> > > > Well... In reality, it is just the opposite.
+> > > > 
+> > > > Suppose there's a CD-rom with a scratch/etc, one sector is unreadable.
+> > > > In order to "fix" it, one have to read it and write to another CD-rom,
+> > > > or something.. or just ignore the error (if it's just a skip in a video
+> > > > stream).  Let's assume the unreadable block is number U.
+> > > > 
+> > > > But current behavior is just insane.  An application requests block
+> > > > number N, which is before U. Kernel tries to read-ahead blocks N..U.
+> > > > Cdrom drive tries to read it, re-read it.. for some time.  Finally,
+> > > > when all the N..U-1 blocks are read, kernel returns block number N
+> > > > (as requested) to an application, successefully.
+> > > > 
+> > > > Now an app requests block number N+1, and kernel tries to read
+> > > > blocks N+1..U+1.  Retrying again as in previous step.
+> > > > 
+> > > > And so on, up to when an app requests block number U-1.  And when,
+> > > > finally, it requests block U, it receives read error.
+> > > > 
+> > > > So, kernel currentry tries to re-read the same failing block as
+> > > > many times as the current readahead value (256 (times?) by default).
+> > > 
+> > > Good insight... But I'm not sure about it.
+> > > 
+> > > Jens, will a bad sector cause the _whole_ request to fail?
+> > > Or only the page that contains the bad sector?
 > > 
-> > I found a warning.
+> > Depends entirely on the driver, and that point we've typically lost the
+> > fact that this is a read-ahead request and could just be tossed. In
+> > fact, the entire request may consist of read-ahead as well as normal
+> > read entries.
+> > 
+> > For ide-cd, it tends do only end the first part of the request on a
+> > medium error. So you may see a lot of repeats :/
 > 
-> > BUG: warning at kernel/lockdep.c:2398/check_flags()
-> 
-> this one could be related to NMI. We are already disabling NMI on 
-> x86_64, but i thought i had it fixed up for i386 - apparently not.
+> Another question about it:
+>         If the block layer issued a request, which happened to contain
+>         R ranges of B bad blocks, i.e. 3 ranges of 9 bad-blocks:
+>                 ___b_____bb___________bbbbbb____
+>         How many retries will incur? 1, 3, 9, or something else?
+>         If it is 3 or more, then we are even more bad luck :(
 
-Booted with nmi_watchdog=0, no warning and no deadlock.  It produced
-fruit for NFTS.
+Again, this is driver specific. But for ide-cd, if it's using PIO the
+right thing should happen since we do each chunk individually. For dma
+it looks much worse, since we only get an EIO back from the hardware for
+the entire range. It wont do the right thing at all, only for the very
+last thing when get get past the last bbbbbb block.
 
-=====================================================
-[ BUG: possible circular locking deadlock detected! ]
------------------------------------------------------
-mount/2545 is trying to acquire lock:
- (&ni->mrec_lock){--..}, at: [<b13d1563>] mutex_lock+0x8/0xa
+> Will it be suitable to _automatically_ apply the following retracting
+> policy on I/O error? Please comment if there's better ways:
 
-but task is already holding lock:
- (&rl->lock){----}, at: [<b1165306>] ntfs_map_runlist+0x14/0xa7
+Probably it should be even more aggressively scaling down. The real
+problem is the drivers of course, we should spend some time fixing them
+up too.
 
-which lock already depends on the new lock,
-which could lead to circular deadlocks!
-
-the existing dependency chain (in reverse order) is:
-
--> #1 (&rl->lock){----}:
-       [<b103d9f8>] lockdep_acquire+0x61/0x77
-       [<b11613ae>] ntfs_readpage+0x92c/0xb53
-       [<b10540c8>] read_cache_page+0x95/0x15a
-       [<b1174b0e>] map_mft_record+0xda/0x28a
-       [<b117187f>] ntfs_read_locked_inode+0x5d/0x1559
-       [<b1174212>] ntfs_read_inode_mount+0x572/0xb30
-       [<b1183f8c>] ntfs_fill_super+0xc9e/0x1467
-       [<b1078ac2>] get_sb_bdev+0xee/0x141
-       [<b117eff5>] ntfs_get_sb+0x1a/0x20
-       [<b107880c>] vfs_kern_mount+0x9a/0x166
-       [<b1078920>] do_kern_mount+0x30/0x43
-       [<b108ea7f>] do_mount+0x464/0x7ba
-       [<b108ee44>] sys_mount+0x6f/0xa4
-       [<b13d3043>] syscall_call+0x7/0xb
-
--> #0 (&ni->mrec_lock){--..}:
-       [<b103d9f8>] lockdep_acquire+0x61/0x77
-       [<b13d14a5>] __mutex_lock_slowpath+0x49/0xff
-       [<b13d1563>] mutex_lock+0x8/0xa
-       [<b1174a51>] map_mft_record+0x1d/0x28a
-       [<b1164b77>] ntfs_map_runlist_nolock+0x378/0x4a6
-       [<b1165360>] ntfs_map_runlist+0x6e/0xa7
-       [<b1161375>] ntfs_readpage+0x8f3/0xb53
-       [<b10540c8>] read_cache_page+0x95/0x15a
-       [<b11806e5>] load_system_files+0x1e3/0x1e5c
-       [<b1183fec>] ntfs_fill_super+0xcfe/0x1467
-       [<b1078ac2>] get_sb_bdev+0xee/0x141
-       [<b117eff5>] ntfs_get_sb+0x1a/0x20
-       [<b107880c>] vfs_kern_mount+0x9a/0x166
-       [<b1078920>] do_kern_mount+0x30/0x43
-       [<b108ea7f>] do_mount+0x464/0x7ba
-       [<b108ee44>] sys_mount+0x6f/0xa4
-       [<b13d3043>] syscall_call+0x7/0xb
-
-other info that might help us debug this:
-
-2 locks held by mount/2545:
- #0:  (&s->s_umount){----}, at: [<b10782db>] sget+0x1d9/0x3bd
- #1:  (&rl->lock){----}, at: [<b1165306>] ntfs_map_runlist+0x14/0xa7
-
-stack backtrace:
- <b1003dd2> show_trace+0xd/0xf  <b10044c0> dump_stack+0x17/0x19
- <b103c9ca> print_circular_bug_tail+0x5d/0x66  <b103d145> __lockdep_acquire+0x772/0xc32
- <b103d9f8> lockdep_acquire+0x61/0x77  <b13d14a5> __mutex_lock_slowpath+0x49/0xff
- <b13d1563> mutex_lock+0x8/0xa  <b1174a51> map_mft_record+0x1d/0x28a
- <b1164b77> ntfs_map_runlist_nolock+0x378/0x4a6  <b1165360> ntfs_map_runlist+0x6e/0xa7
- <b1161375> ntfs_readpage+0x8f3/0xb53  <b10540c8> read_cache_page+0x95/0x15a
- <b11806e5> load_system_files+0x1e3/0x1e5c  <b1183fec> ntfs_fill_super+0xcfe/0x1467
- <b1078ac2> get_sb_bdev+0xee/0x141  <b117eff5> ntfs_get_sb+0x1a/0x20
- <b107880c> vfs_kern_mount+0x9a/0x166  <b1078920> do_kern_mount+0x30/0x43
- <b108ea7f> do_mount+0x464/0x7ba  <b108ee44> sys_mount+0x6f/0xa4
- <b13d3043> syscall_call+0x7/0xb 
-
+-- 
+Jens Axboe
 

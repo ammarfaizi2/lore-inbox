@@ -1,60 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWE3Fpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWE3Fs7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751000AbWE3Fpw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 01:45:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbWE3Fpw
+	id S932113AbWE3Fs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 01:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWE3Fs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 01:45:52 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:37827 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750804AbWE3Fpw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 01:45:52 -0400
-Subject: Re: [patch 00/61] ANNOUNCE: lock validator -V1
-From: Arjan van de Ven <arjan@infradead.org>
-To: Dave Jones <davej@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20060529230908.GC333@redhat.com>
-References: <20060529212109.GA2058@elte.hu>
-	 <6bffcb0e0605291528qe24a0a3r3841c37c5323de6a@mail.gmail.com>
-	 <20060529224107.GA6037@elte.hu>  <20060529230908.GC333@redhat.com>
-Content-Type: text/plain
-Date: Tue, 30 May 2006 07:45:47 +0200
-Message-Id: <1148967947.3636.4.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 30 May 2006 01:48:58 -0400
+Received: from cantor.suse.de ([195.135.220.2]:38598 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932069AbWE3Fs6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 01:48:58 -0400
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Tue, 30 May 2006 15:48:45 +1000
+Message-Id: <1060530054845.4649@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] md: Fix badness in sysfs_notify caused by md_new_event
+References: <20060530152626.4554.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here is a patch for a bug in 2.6.17-rc that just came to light.  It
+should get into 2.6.17 if possible and so is in 'obviously correct'
+form rather than "correct final fix" form (see comments).
+The patch was actually generated agains -rc4-mm3, but applies to
+-rc4-git9 with a moderate offset for one of the chunks (no fuzz).
 
-> I'm feeling a bit overwhelmed by the voluminous output of this checker.
-> Especially as (directly at least) cpufreq doesn't touch vma's, or mmap's.
-
-the reporter doesn't have CONFIG_KALLSYMS_ALL enabled which gives
-sometimes misleading backtraces (should lockdep just enable KALLSYMS_ALL
-to get more useful bugreports?)
-
-the problem is this, there are 2 scenarios in this bug:
-
-One
----
-store_scaling_governor takes policy->lock and then calls __cpufreq_set_policy
-__cpufreq_set_policy calls __cpufreq_governor
-__cpufreq_governor  calls __cpufreq_driver_target via cpufreq_governor_performance
-__cpufreq_driver_target calls lock_cpu_hotplug() (which takes the hotplug lock)
+Thanks,
+NeilBrown
 
 
-Two
----
-cpufreq_stats_init lock_cpu_hotplug() and then calls cpufreq_stat_cpu_callback
-cpufreq_stat_cpu_callback calls cpufreq_update_policy
-cpufreq_update_policy takes the policy->lock
+### Comments for Changeset
 
+If an error is reported by a drive in a RAID array
+(which is done via bi_end_io - in interrupt context),
+we call md_error and md_new_event which calls
+sysfs_notify.
+However sysfs_notify grabs a mutex and so cannot be called
+in interrupt context.
 
-so this looks like a real honest AB-BA deadlock to me...
+This patch just creates a variant of md_new_event which
+avoids the sysfs call, and uses that.
+A better fix for later is to arrange for the event to be
+called from user-context.
 
+Note: avoiding the sysfs call isn't a problem as an error
+will not, by itself, modify the sync_action attribute.
+(We do still need to wake_up(&md_event_waiters) as an
+error by itself will modify /proc/mdstat).
 
+Signed-off-by: Neil Brown <neilb@suse.de>
+
+### Diffstat output
+ ./drivers/md/md.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff ./drivers/md/md.c~current~ ./drivers/md/md.c
+--- ./drivers/md/md.c~current~	2006-05-30 15:14:20.000000000 +1000
++++ ./drivers/md/md.c	2006-05-30 15:23:26.000000000 +1000
+@@ -172,6 +172,15 @@ void md_new_event(mddev_t *mddev)
+ }
+ EXPORT_SYMBOL_GPL(md_new_event);
+ 
++/* Alternate version that can be called from interrupts
++ * when calling sysfs_notify isn't needed.
++ */
++void md_new_event_inintr(mddev_t *mddev)
++{
++	atomic_inc(&md_event_count);
++	wake_up(&md_event_waiters);
++}
++
+ /*
+  * Enables to iterate over all existing md arrays
+  * all_mddevs_lock protects this list.
+@@ -4268,7 +4277,7 @@ void md_error(mddev_t *mddev, mdk_rdev_t
+ 	set_bit(MD_RECOVERY_INTR, &mddev->recovery);
+ 	set_bit(MD_RECOVERY_NEEDED, &mddev->recovery);
+ 	md_wakeup_thread(mddev->thread);
+-	md_new_event(mddev);
++	md_new_event_inintr(mddev);
+ }
+ 
+ /* seq_file implementation /proc/mdstat */

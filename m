@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWE3LSJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWE3LWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932262AbWE3LSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 07:18:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWE3LSJ
+	id S932253AbWE3LWE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 07:22:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWE3LWD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 07:18:09 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:55304 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S932262AbWE3LSH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 07:18:07 -0400
-Message-ID: <447C29CC.3070208@shadowen.org>
-Date: Tue, 30 May 2006 12:17:32 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: rc5-git1 and later fail to boot on x86_64
-References: <4479BC92.1090900@mbligh.org>
-In-Reply-To: <4479BC92.1090900@mbligh.org>
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 30 May 2006 07:22:03 -0400
+Received: from www.osadl.org ([213.239.205.134]:7620 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S932253AbWE3LWB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 07:22:01 -0400
+Subject: Re: RT_PREEMPT problem with cascaded irqchip
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Yann.LEPROVOST@wavecom.fr
+Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
+       linux-kernel-owner@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Steven Rostedt <rostedt@goodmis.org>, Esben Nielsen <simlo@phys.au.dk>,
+       Sven-Thorsten Dietrich <sven@mvista.com>
+In-Reply-To: <OF7D277146.13CDBC6A-ONC125717E.0039350C-C125717E.0039F142@wavecom.fr>
+References: <OF7D277146.13CDBC6A-ONC125717E.0039350C-C125717E.0039F142@wavecom.fr>
+Content-Type: text/plain
+Date: Tue, 30 May 2006 13:22:44 +0200
+Message-Id: <1148988165.20582.19.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> plain -rc5 seems fine. Double checking this isn't a machine issue, but
-> it seems to boot the older kernels just fine.
-> 
-> good boot is here: http://test.kernel.org/abat/33283/debug/console.log
-> for comparison
+On Tue, 2006-05-30 at 12:26 +0200, Yann.LEPROVOST@wavecom.fr wrote:
+> Of course, here is the file arch/arm/mach-at91rm9200/gpio.c with my
+> modified gpio_irq_handler.
 
-This seems to be a machine install issue.  It appears that the image on
-/dev/sda1 thinks its on /dev/sdb1 which it is not which is now relevant
-to the automation tools.  How this happened is lost in the mists of time
-sadly.
+>             for (i = 0; i < 32; i++, pin++) {
+>                   set_irq_chip(pin, &gpio_irqchip);
+>                         printk(KERN_ERR "GPIO SET_IRQ_CHIP\n");
+>                   set_irq_handler(pin, do_simple_IRQ);
 
-I have fixed up the install and the reruns I have done seem ok.
+-----------------------------------------^^^^^^^^^^^^^^^
 
--apw
+Care to look into the implementation of this ? As the name says, its
+simple. It does no ack/mask whatever. Use the level resp. the edge
+handler instead.
+
+	tglx
+
+
+
+

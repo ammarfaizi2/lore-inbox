@@ -1,56 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbWE3SoS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbWE3Sra@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932380AbWE3SoS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 14:44:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWE3SoR
+	id S932387AbWE3Sra (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 14:47:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWE3Sra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 14:44:17 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62940 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932380AbWE3SoR (ORCPT
+	Tue, 30 May 2006 14:47:30 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:34064 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932387AbWE3Sr3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 14:44:17 -0400
-Date: Tue, 30 May 2006 11:44:03 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Tomasz Torcz <zdzichu@irc.pl>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: BUG: unable to handle kernel paging request at virtual address
- feededed (was: Re: Linux v2.6.17-rc5)
-In-Reply-To: <20060528182342.GA9433@irc.pl>
-Message-ID: <Pine.LNX.4.64.0605301132180.5623@g5.osdl.org>
-References: <Pine.LNX.4.64.0605241902520.5623@g5.osdl.org> <20060528182342.GA9433@irc.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 30 May 2006 14:47:29 -0400
+Date: Tue, 30 May 2006 20:49:12 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: .17rc5 cfq slab corruption.
+Message-ID: <20060530184911.GD4199@suse.de>
+References: <20060526213915.GB7585@redhat.com> <20060526170013.67391a2b.akpm@osdl.org> <20060527070724.GB24988@suse.de> <20060527133122.GB3086@redhat.com> <20060530131728.GX4199@suse.de> <20060530161232.GA17218@redhat.com> <20060530164917.GB4199@suse.de> <20060530165649.GB17218@redhat.com> <20060530170435.GC4199@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060530170435.GC4199@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 28 May 2006, Tomasz Torcz wrote:
->
->   After 2 days and few hours uptime, during updatedb run I got:
+On Tue, May 30 2006, Jens Axboe wrote:
+> On Tue, May 30 2006, Dave Jones wrote:
+> > On Tue, May 30, 2006 at 06:49:18PM +0200, Jens Axboe wrote:
+> > 
+> >  > > List corruption. next->prev should be f74a5e2c, but was ea7ed31c
+> >  > > Pointing at cfq_set_request.
+> >  > 
+> >  > I think I'm missing a piece of this - what list was corrupted, in what
+> >  > function did it trigger?
+> > 
+> > If you look at the attachment in the bugzilla url in my previous msg,
+> > you'll see this:
+> > 
+> > ay 30 05:31:33 mandril kernel: List corruption. next->prev should be f74a5e2c, but was ea7ed31c
+> > May 30 05:31:33 mandril kernel: ------------[ cut here ]------------
+> > May 30 05:31:33 mandril kernel: kernel BUG at include/linux/list.h:58!
+> > May 30 05:31:33 mandril kernel: invalid opcode: 0000 [#1]
+> > May 30 05:31:33 mandril kernel: SMP
+> > May 30 05:31:33 mandril kernel: last sysfs file: /devices/pci0000:00/0000:00:1f.3/i2c-0/0-002e/pwm3
+> > May 30 05:31:33 mandril kernel: Modules linked in: iptable_filter ipt_DSCP iptable_mangle ip_tables x_tables eeprom lm85 hwmon_vid hwmon i2c_isa ipv6 nls_utf8 loop dm_mirror dm_mod video button battery ac lp parport_pc parport ehci_hcd uhci_hcd floppy snd_intel8x0 snd_ac97_codec snd_ac97_bus sg snd_seq_dummy matroxfb_base snd_seq_oss snd_seq_midi_event matroxfb_DAC1064 snd_seq matroxfb_accel matroxfb_Ti3026 3w_9xxx matroxfb_g450 snd_seq_device g450_pll matroxfb_misc snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd e1000 soundcore snd_page_alloc i2c_i801 i2c_core ext3 jbd 3w_xxxx ata_piix libata sd_mod scsi_mod
+> > May 30 05:31:33 mandril kernel: CPU:    0
+> > May 30 05:31:33 mandril kernel: EIP:    0060:[<c04e3310>]    Not tainted VLI
+> > May 30 05:31:33 mandril kernel: EFLAGS: 00210292   (2.6.16-1.2227_FC6 #1)
+> > May 30 05:31:33 mandril kernel: EIP is at cfq_set_request+0x202/0x3ff
 > 
-> BUG: unable to handle kernel paging request at virtual address feededed
+> Just do a l *cfq_set_request+0x202 from gdb if you have
+> CONFIG_DEBUG_INFO enabled in your vmlinux.
 
-Looks like one of the magic numbers ("0xfee1dead", "0xfeedbeef", 
-0xfeedface"), but that's not it.
+Doh, found it. Dave, please try and reproduce with this applied:
 
->  It never happened before. d_splice_alias in bt is very strange, as I don't
-> think anything on my system uses splice(). It's too new, and my system is
-> Slackware -current (which seems to return ENOSUPORTED even for old stuff
-> like posix_fadvise()).
+---
 
-No, d_splice_alias() is a different kind of splicing: it splices a dentry 
-entry into the alias list. Nothing to do with the new splice() system 
-call, except that the naming comes from the same english word ("splice: to 
-join two ropes by interweaving strands").
+[PATCH] cfq-iosched: kill list entry on dead cic
 
-I don't see anything suspicious anywhere, and this doesn't ring a bell. 
-It is probably a good idea to open a bugzilla entry on it, so that it 
-doesn't get lost. And perhaps cc the reiserfs people (there's been a few 
-reiserfs changes since 2.6.16, but none of them looks suspicious to me: 
-however, maybe this makes somebody else go "Aaah!").
+We must remember to drop the cic circular list when we prune
+a dead entry.
 
-Try Jan Kara <jack@suse.cz>, Jeff Mahoney <jeffm@suse.com> and 
-Alexander Zarochentzev <zam@namesys.com>.
+Signed-off-by: Jens Axboe <axboe@suse.de>
 
-			Linus
+diff --git a/block/cfq-iosched.c b/block/cfq-iosched.c
+index 2540dfa..309e0f4 100644
+--- a/block/cfq-iosched.c
++++ b/block/cfq-iosched.c
+@@ -1477,6 +1477,7 @@ cfq_drop_dead_cic(struct io_context *ioc
+ {
+ 	read_lock(&cfq_exit_lock);
+ 	rb_erase(&cic->rb_node, &ioc->cic_root);
++	list_del_init(&cic->queue_list);
+ 	read_unlock(&cfq_exit_lock);
+ 	kmem_cache_free(cfq_ioc_pool, cic);
+ 	atomic_dec(&ioc_count);
+
+-- 
+Jens Axboe
+

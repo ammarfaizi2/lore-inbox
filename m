@@ -1,226 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWE3LFn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWE3LGf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932252AbWE3LFn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 07:05:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWE3LFm
+	id S932256AbWE3LGf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 07:06:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWE3LGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 07:05:42 -0400
-Received: from pne-smtpout3-sn1.fre.skanova.net ([81.228.11.120]:46234 "EHLO
-	pne-smtpout3-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S932252AbWE3LB4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 07:01:56 -0400
-Message-Id: <20060530110134.874949000@gmail.com>
-References: <20060530105705.157014000@gmail.com>
-User-Agent: quilt/0.44-1
-Date: Tue, 30 May 2006 13:57:13 +0300
-From: Anssi Hannula <anssi.hannula@gmail.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: [patch 08/12] input: force feedback driver for Zeroplus devices
-Content-Disposition: inline; filename=ff-refactoring-new-driver-zpff.diff
+	Tue, 30 May 2006 07:06:34 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:62607 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932256AbWE3LGc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 07:06:32 -0400
+Subject: Re: BUG: possible deadlock detected! (sound) [Was: 2.6.17-rc5-mm1]
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org, tiwai@suse.de,
+       emu10k1-devel@lists.sourceforge.net, James@superbug.demon.co.uk,
+       perex@suse.cz
+In-Reply-To: <447C22CE.2060402@gmail.com>
+References: <20060530022925.8a67b613.akpm@osdl.org>
+	 <447C22CE.2060402@gmail.com>
+Content-Type: text/plain
+Date: Tue, 30 May 2006 13:06:28 +0200
+Message-Id: <1148987188.3636.52.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add force feedback driver for some PSX-style Zeroplus devices.
+On Tue, 2006-05-30 at 147 +0159, Jiri Slaby wrote:
 
-Signed-off-by: Anssi Hannula <anssi.hannula@gmail.com>
+(I've turned your backtrace upside down to show it "chronological")
 
----
- drivers/usb/input/Kconfig    |    7 ++
- drivers/usb/input/Makefile   |    3 +
- drivers/usb/input/hid-ff.c   |    4 +
- drivers/usb/input/hid-zpff.c |  124 +++++++++++++++++++++++++++++++++++++++++++
- drivers/usb/input/hid.h      |    1 
- 5 files changed, 139 insertions(+)
+ [<c05911e0>] alsa_emu10k1_synth_init+0x22/0x24
+ [<c0333d04>] snd_seq_device_register_driver+0x8f/0xeb
 
-Index: linux-2.6.17-rc4-git12/drivers/usb/input/hid-ff.c
-===================================================================
---- linux-2.6.17-rc4-git12.orig/drivers/usb/input/hid-ff.c	2006-05-24 21:14:35.000000000 +0300
-+++ linux-2.6.17-rc4-git12/drivers/usb/input/hid-ff.c	2006-05-24 21:15:25.000000000 +0300
-@@ -54,6 +54,10 @@ static struct hid_ff_initializer inits[]
- #ifdef CONFIG_THRUSTMASTER_FF
- 	{0x44f, 0xb304, hid_tmff_init},
- #endif
-+#ifdef CONFIG_ZEROPLUS_FF
-+	{0xc12, 0x0005, zpff_init},
-+	{0xc12, 0x0030, zpff_init},
-+#endif
- 	{0, 0, NULL} /* Terminating entry */
- };
- 
-Index: linux-2.6.17-rc4-git12/drivers/usb/input/hid-zpff.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.17-rc4-git12/drivers/usb/input/hid-zpff.c	2006-05-24 21:15:52.000000000 +0300
-@@ -0,0 +1,124 @@
-+/*
-+ *  Force feedback support for Zeroplus based devices
-+ *
-+ *  Copyright (c) 2005, 2006 Anssi Hannula <anssi.hannula@gmail.com>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ */
-+
-+
-+/* #define DEBUG */
-+
-+#define debug(format, arg...) pr_debug("hid-zpff: " format "\n" , ## arg)
-+
-+#include <linux/input.h>
-+#include <linux/usb.h>
-+#include "hid.h"
-+struct zpff_device {
-+	struct hid_report *report;
-+};
-+
-+static int zpff_play(struct input_dev *dev, struct ff_effect *effect,
-+		     struct ff_effect *old)
-+{
-+	struct hid_device *hid = dev->private;
-+	struct zpff_device *zpff = hid->ff_private;
-+	int left, right;
-+
-+	/* The following is specified the other way around in the Zeroplus
-+	   datasheet, but the order below is correct for the XFX Executioner */
-+	/* However it is possible that the XFX Executioner is an exception */
-+
-+	left = effect->u.rumble.strong_magnitude;
-+	right = effect->u.rumble.weak_magnitude;
-+	debug("called with 0x%04x 0x%04x", left, right);
-+
-+	left = left * 0x7f / 0xffff;
-+	right = right * 0x7f / 0xffff;
-+
-+	zpff->report->field[2]->value[0] = left;
-+	zpff->report->field[3]->value[0] = right;
-+	debug("running with 0x%02x 0x%02x", left, right);
-+	hid_submit_report(hid, zpff->report, USB_DIR_OUT);
-+	return 0;
-+}
-+
-+static void zpff_exit(struct hid_device *hid)
-+{
-+	struct zpff_device *zpff = hid->ff_private;
-+	hid->ff_private = NULL;
-+	kfree(zpff);
-+}
-+
-+static struct ff_driver zpff_driver = {
-+	.upload = zpff_play,
-+};
-+
-+int zpff_init(struct hid_device *hid)
-+{
-+	struct zpff_device *zpff;
-+	struct hid_report *report;
-+	struct hid_input *hidinput =
-+	    list_entry(hid->inputs.next, struct hid_input, list);
-+	struct input_dev *dev = hidinput->input;
-+	int ret;
-+
-+	if (list_empty(&hid->report_enum[HID_OUTPUT_REPORT].report_list)) {
-+		printk(KERN_ERR "hid-zpff: no output report found\n");
-+		return -1;
-+	}
-+	report =
-+	    list_entry(hid->report_enum[HID_OUTPUT_REPORT].report_list.next,
-+		       struct hid_report, list);
-+
-+	if (report->maxfield < 4) {
-+		printk(KERN_ERR "hid-zpff: not enough fields in report\n");
-+		return -1;
-+	}
-+
-+	ret = input_ff_allocate(dev);
-+	if (ret)
-+		return ret;
-+
-+	zpff = kzalloc(sizeof(*zpff), GFP_KERNEL);
-+	if (!zpff) {
-+		return -ENOMEM;
-+	}
-+
-+	hid->ff_private = zpff;
-+	hid->ff_exit = zpff_exit;
-+
-+	set_bit(FF_RUMBLE, dev->ff->flags);
-+
-+	zpff->report = report;
-+	zpff->report->field[0]->value[0] = 0x00;
-+	zpff->report->field[1]->value[0] = 0x02;
-+	zpff->report->field[2]->value[0] = 0x00;
-+	zpff->report->field[3]->value[0] = 0x00;
-+	hid_submit_report(hid, zpff->report, USB_DIR_OUT);
-+
-+	ret = input_ff_register(dev, &zpff_driver);
-+	if (ret) {
-+		kfree(zpff);
-+		return ret;
-+	}
-+
-+	printk(KERN_INFO "Force feedback for Zeroplus based devices by "
-+	       "Anssi Hannula <anssi.hannula@gmail.com>\n");
-+
-+	return 0;
-+}
-Index: linux-2.6.17-rc4-git12/drivers/usb/input/Kconfig
-===================================================================
---- linux-2.6.17-rc4-git12.orig/drivers/usb/input/Kconfig	2006-05-24 21:14:35.000000000 +0300
-+++ linux-2.6.17-rc4-git12/drivers/usb/input/Kconfig	2006-05-24 21:15:25.000000000 +0300
-@@ -87,6 +87,13 @@ config THRUSTMASTER_FF
- 	  Note: if you say N here, this device will still be supported, but without
- 	  force feedback.
- 
-+config ZEROPLUS_FF
-+	bool "Zeroplus based game controller support"
-+	depends on HID_FF
-+	help
-+	  Say Y here if you have a Zeroplus based game controller and want to
-+	  enable force feedback for it.
-+
- config USB_HIDDEV
- 	bool "/dev/hiddev raw HID device support"
- 	depends on USB_HID
-Index: linux-2.6.17-rc4-git12/drivers/usb/input/Makefile
-===================================================================
---- linux-2.6.17-rc4-git12.orig/drivers/usb/input/Makefile	2006-05-24 21:14:35.000000000 +0300
-+++ linux-2.6.17-rc4-git12/drivers/usb/input/Makefile	2006-05-24 21:15:25.000000000 +0300
-@@ -22,6 +22,9 @@ endif
- ifeq ($(CONFIG_THRUSTMASTER_FF),y)
- 	usbhid-objs	+= hid-tmff.o
- endif
-+ifeq ($(CONFIG_ZEROPLUS_FF),y)
-+	usbhid-objs	+= hid-zpff.o
-+endif
- ifeq ($(CONFIG_HID_FF),y)
- 	usbhid-objs	+= hid-ff.o
- endif
-Index: linux-2.6.17-rc4-git12/drivers/usb/input/hid.h
-===================================================================
---- linux-2.6.17-rc4-git12.orig/drivers/usb/input/hid.h	2006-05-24 21:14:35.000000000 +0300
-+++ linux-2.6.17-rc4-git12/drivers/usb/input/hid.h	2006-05-24 21:15:25.000000000 +0300
-@@ -527,6 +527,7 @@ static inline void hid_ff_exit(struct hi
- 
- int hid_lgff_init(struct hid_device* hid);
- int hid_tmff_init(struct hid_device* hid);
-+int zpff_init(struct hid_device* hid);
- 
- #ifdef CONFIG_HID_PID
- int pidff_init(struct hid_device *hid);
+this one does:
 
---
-Anssi Hannula
+       mutex_lock(&ops->reg_mutex);
+       ...
+       list_for_each(head, &ops->dev_list) {
+                struct snd_seq_device *dev = list_entry(head, struct snd_seq_device, list);
+                init_device(dev, ops);
+       }
+       mutex_unlock(&ops->reg_mutex);
+
+ [<c0333537>] init_device+0x2c/0x94
+  which calls into the driver
+ [<c0352c39>] snd_emu10k1_synth_new_device+0xe7/0x14e
+ [<c0353f50>] snd_emux_register+0x10d/0x13f
+ [<c0358260>] snd_emux_init_seq_oss+0x35/0x9c
+ [<c0333aa0>] snd_seq_device_new+0x96/0x111
+
+and this one does
+        mutex_lock(&ops->reg_mutex);
+        list_add_tail(&dev->list, &ops->dev_list);
+        ops->num_devices++;
+        mutex_unlock(&ops->reg_mutex);
+
+
+so... on first sight this looks like a real deadlock;
+unless the ALSA folks can tell me why "ops" is always different,
+and what the lock ordering rules between those is...
+
+

@@ -1,91 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbWE3TkT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbWE3TkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932438AbWE3TkT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 15:40:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932439AbWE3TkT
+	id S932436AbWE3TkO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 15:40:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWE3TkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 15:40:19 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:59250 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932438AbWE3TkR (ORCPT
+	Tue, 30 May 2006 15:40:13 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:21740 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932436AbWE3TkL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 15:40:17 -0400
-Date: Tue, 30 May 2006 21:42:11 +0200
-From: Jens Axboe <axboe@suse.de>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: .17rc5 cfq slab corruption.
-Message-ID: <20060530194211.GL4199@suse.de>
-References: <20060527133122.GB3086@redhat.com> <20060530131728.GX4199@suse.de> <20060530161232.GA17218@redhat.com> <20060530164917.GB4199@suse.de> <20060530165649.GB17218@redhat.com> <20060530170435.GC4199@suse.de> <20060530184911.GD4199@suse.de> <20060530185158.GG4199@suse.de> <20060530191126.GJ4199@suse.de> <87slmrwbvq.fsf@duaron.myhome.or.jp>
+	Tue, 30 May 2006 15:40:11 -0400
+Date: Tue, 30 May 2006 15:39:47 -0400
+From: Dave Jones <davej@redhat.com>
+To: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Ingo Molnar <mingo@elte.hu>, nanhai.zou@intel.com, ashok.raj@intel.com
+Subject: Re: [patch 00/61] ANNOUNCE: lock validator -V1
+Message-ID: <20060530193947.GG17218@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Dominik Brodowski <linux@dominikbrodowski.net>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+	Ingo Molnar <mingo@elte.hu>, nanhai.zou@intel.com,
+	ashok.raj@intel.com
+References: <20060529212109.GA2058@elte.hu> <6bffcb0e0605291528qe24a0a3r3841c37c5323de6a@mail.gmail.com> <20060529224107.GA6037@elte.hu> <20060529230908.GC333@redhat.com> <1148967947.3636.4.camel@laptopd505.fenrus.org> <20060530141006.GG14721@redhat.com> <1148998762.3636.65.camel@laptopd505.fenrus.org> <20060530145852.GA6566@redhat.com> <20060530171118.GA30909@dominikbrodowski.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87slmrwbvq.fsf@duaron.myhome.or.jp>
+In-Reply-To: <20060530171118.GA30909@dominikbrodowski.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31 2006, OGAWA Hirofumi wrote:
-> Jens Axboe <axboe@suse.de> writes:
-> 
-> > On Tue, May 30 2006, Jens Axboe wrote:
-> >> On Tue, May 30 2006, Jens Axboe wrote:
-> >> > On Tue, May 30 2006, Jens Axboe wrote:
-> >> > > On Tue, May 30 2006, Dave Jones wrote:
-> >> > > > On Tue, May 30, 2006 at 06:49:18PM +0200, Jens Axboe wrote:
-> >> > > > 
-> >> > > >  > > List corruption. next->prev should be f74a5e2c, but was ea7ed31c
-> >> > > >  > > Pointing at cfq_set_request.
-> >> > > >  > 
-> >> > > >  > I think I'm missing a piece of this - what list was corrupted, in what
-> >> > > >  > function did it trigger?
-> >> > > > 
-> >> > > > If you look at the attachment in the bugzilla url in my previous msg,
-> >> > > > you'll see this:
-> >> > > > 
-> >> > > > ay 30 05:31:33 mandril kernel: List corruption. next->prev should be f74a5e2c, but was ea7ed31c
-> >> > > > May 30 05:31:33 mandril kernel: ------------[ cut here ]------------
-> >> > > > May 30 05:31:33 mandril kernel: kernel BUG at include/linux/list.h:58!
-> >> > > > May 30 05:31:33 mandril kernel: invalid opcode: 0000 [#1]
-> >> > > > May 30 05:31:33 mandril kernel: SMP
-> >> > > > May 30 05:31:33 mandril kernel: last sysfs file: /devices/pci0000:00/0000:00:1f.3/i2c-0/0-002e/pwm3
-> >> > > > May 30 05:31:33 mandril kernel: Modules linked in: iptable_filter ipt_DSCP iptable_mangle ip_tables x_tables eeprom lm85 hwmon_vid hwmon i2c_isa ipv6 nls_utf8 loop dm_mirror dm_mod video button battery ac lp parport_pc parport ehci_hcd uhci_hcd floppy snd_intel8x0 snd_ac97_codec snd_ac97_bus sg snd_seq_dummy matroxfb_base snd_seq_oss snd_seq_midi_event matroxfb_DAC1064 snd_seq matroxfb_accel matroxfb_Ti3026 3w_9xxx matroxfb_g450 snd_seq_device g450_pll matroxfb_misc snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd e1000 soundcore snd_page_alloc i2c_i801 i2c_core ext3 jbd 3w_xxxx ata_piix libata sd_mod scsi_mod
-> >> > > > May 30 05:31:33 mandril kernel: CPU:    0
-> >> > > > May 30 05:31:33 mandril kernel: EIP:    0060:[<c04e3310>]    Not tainted VLI
-> >> > > > May 30 05:31:33 mandril kernel: EFLAGS: 00210292   (2.6.16-1.2227_FC6 #1)
-> >> > > > May 30 05:31:33 mandril kernel: EIP is at cfq_set_request+0x202/0x3ff
-> >> > > 
-> >> > > Just do a l *cfq_set_request+0x202 from gdb if you have
-> >> > > CONFIG_DEBUG_INFO enabled in your vmlinux.
-> >> > 
-> >> > Doh, found it. Dave, please try and reproduce with this applied:
-> >> 
-> >> Nevermind, that's not it either. Damn. Stay tuned.
-> >
-> > Try this instead, please.
-> 
-> Umm.. don't we need this line?
-> 
-> static void cfq_free_io_context(struct io_context *ioc)
-> {
-> 	struct cfq_io_context *__cic;
-> 	struct rb_node *n;
-> 	int freed = 0;
-> 
-> 	while ((n = rb_first(&ioc->cic_root)) != NULL) {
-> 		__cic = rb_entry(n, struct cfq_io_context, rb_node);
-> 		rb_erase(&__cic->rb_node, &ioc->cic_root);
->                 list_del(&__cic->queue_list);
-> 		^^^^^^^^   <---- this line
-> 		kmem_cache_free(cfq_ioc_pool, __cic);
-> 		freed++;
-> 	}
-> 
-> 	if (atomic_sub_and_test(freed, &ioc_count) && ioc_gone)
-> 		complete(ioc_gone);
+On Tue, May 30, 2006 at 07:11:18PM +0200, Dominik Brodowski wrote:
+ 
+ > On Tue, May 30, 2006 at 10:58:52AM -0400, Dave Jones wrote:
+ > > On Tue, May 30, 2006 at 04:19:22PM +0200, Arjan van de Ven wrote:
+ > > 
+ > >  > >  > One
+ > >  > >  > ---
+ > >  > >  > store_scaling_governor takes policy->lock and then calls __cpufreq_set_policy
+ > >  > >  > __cpufreq_set_policy calls __cpufreq_governor
+ > >  > >  > __cpufreq_governor  calls __cpufreq_driver_target via cpufreq_governor_performance
+ > >  > >  > __cpufreq_driver_target calls lock_cpu_hotplug() (which takes the hotplug lock)
+ > >  > >  > 
+ > >  > >  > 
+ > >  > >  > Two
+ > >  > >  > ---
+ > >  > >  > cpufreq_stats_init lock_cpu_hotplug() and then calls cpufreq_stat_cpu_callback
+ > >  > >  > cpufreq_stat_cpu_callback calls cpufreq_update_policy
+ > >  > >  > cpufreq_update_policy takes the policy->lock
+ > >  > >  > 
+ > >  > >  > 
+ > >  > >  > so this looks like a real honest AB-BA deadlock to me...
+ > >  > > 
+ > >  > > This looks a little clearer this morning.  I missed the fact that sys_init_module
+ > >  > > isn't completely serialised, only the loading part. ->init routines can and will be
+ > >  > > called in parallel.
+ > >  > > 
+ > >  > > I don't see where cpufreq_update_policy takes policy->lock though.
+ > >  > > In my tree it just takes the per-cpu data->lock.
+ > >  > 
+ > >  > isn't that basically the same lock?
+ > > 
+ > > Ugh, I've completely forgotten how this stuff fits together.
+ > > 
+ > > Dominik, any clues ?
+ > 
+ > That's indeed a possible deadlock situation -- what's the
+ > cpufreq_update_policy() call needed for in cpufreq_stat_cpu_callback anyway?
 
-Yep, looks like that is missing as well. Care to send a proper patch and
-I'll shove it in, too.
+Oh wow. Reading the commit message of this change rings alarm bells.
+
+change c32b6b8e524d2c337767d312814484d9289550cf has this to say..
+
+    [PATCH] create and destroy cpufreq sysfs entries based on cpu notifiers
+    
+    cpufreq entries in sysfs should only be populated when CPU is online state.
+     When we either boot with maxcpus=x and then boot the other cpus by echoing
+    to sysfs online file, these entries should be created and destroyed when
+    CPU_DEAD is notified.  Same treatement as cache entries under sysfs.
+    
+    We place the processor in the lowest frequency, so hw managed P-State
+    transitions can still work on the other threads to save power.
+    
+    Primary goal was to just make these directories appear/disapper dynamically.
+    
+    There is one in this patch i had to do, which i really dont like myself but
+    probably best if someone handling the cpufreq infrastructure could give
+    this code right treatment if this is not acceptable.  I guess its probably
+    good for the first cut.
+    
+    - Converting lock_cpu_hotplug()/unlock_cpu_hotplug() to disable/enable preempt.
+      The locking was smack in the middle of the notification path, when the
+      hotplug is already holding the lock. I tried another solution to avoid this
+      so avoid taking locks if we know we are from notification path. The solution
+      was getting very ugly and i decided this was probably good for this iteration
+      until someone who understands cpufreq could do a better job than me.
+
+So, that last part pretty highlights that we knew about this problem, and meant to
+come back and fix it later. Surprise surprise, no one came back and fixed it.
+
+		Dave
 
 -- 
-Jens Axboe
-
+http://www.codemonkey.org.uk

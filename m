@@ -1,55 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbWE3L4d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbWE3MBw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750930AbWE3L4d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 07:56:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750934AbWE3L4d
+	id S1751285AbWE3MBw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 08:01:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbWE3MBw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 07:56:33 -0400
-Received: from mail.gmx.net ([213.165.64.20]:42137 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750928AbWE3L4c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 07:56:32 -0400
-X-Authenticated: #14349625
-Subject: Re: [patch, -rc5-mm1] lock validator, fix NULL type->name bug
-From: Mike Galbraith <efault@gmx.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060530111138.GA5078@elte.hu>
-References: <20060530022925.8a67b613.akpm@osdl.org>
-	 <20060530111138.GA5078@elte.hu>
+	Tue, 30 May 2006 08:01:52 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:62697 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751285AbWE3MBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 08:01:51 -0400
+Subject: Long delay on bootup with wait_hwif_ready
+From: Steven Rostedt <rostedt@goodmis.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Andi Kleen <ak@suse.de>,
+       Pavel Machek <pavel@suse.cz>, Matt Domsch <Matt_Domsch@dell.com>,
+       David Balazic <david.balazic@hermes.si>
 Content-Type: text/plain
-Date: Tue, 30 May 2006 13:58:46 +0200
-Message-Id: <1148990326.7599.4.camel@homer>
+Date: Tue, 30 May 2006 08:01:00 -0400
+Message-Id: <1148990460.11270.53.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-30 at 13:11 +0200, Ingo Molnar wrote:
-> Subject: lock validator, fix NULL type->name bug
-> From: Ingo Molnar <mingo@elte.hu>
-> 
-> this should fix the bug reported Mike Galbraith: pass in a non-NULL 
-> mutex name string even if DEBUG_MUTEXES is turned off.
+Hi,
 
-Well, yes and no.  It cures the oops, and it almost boots.  It passes
-all tests, and gets to where we start mounting things...
+I got a board I'm working with which has the following IDE controller.
 
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on hdc1, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
+# lspci
+...
+0000:00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+..
 
-=====================================================
-[ BUG: possible circular locking deadlock detected! ]
------------------------------------------------------
-mount/2545 is trying to acquire lock:
- (&ni->mrec_lock){--..}, at: [<b13d1563>] mutex_lock+0x8/0xa
+On boot up there's a 35 second delay that happens right here:
 
-...and deadlocks.
+(happens on 2.6.9 - 2.6.16)
 
-I'll try to find out what it hates.
+	/* Now make sure both master & slave are ready */
+	SELECT_DRIVE(&hwif->drives[0]);
+	hwif->OUTB(8, hwif->io_ports[IDE_CONTROL_OFFSET]);
+	mdelay(2);
+	rc = ide_wait_not_busy(hwif, 35000);
+	if (rc)
+		return rc;
+	SELECT_DRIVE(&hwif->drives[1]);
+	hwif->OUTB(8, hwif->io_ports[IDE_CONTROL_OFFSET]);
+	mdelay(2);
+Delaying function
+          |
+          V
+	rc = ide_wait_not_busy(hwif, 35000);
 
-	-Mike
+There is no secondary drive, but for some reason the return of the
+status is 0x80 which is "busy".  So on boot up, we wait every time for
+this 35 second timeout.
+
+I noticed that this was discussed before (got my CC from this thread):
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108890865325793&w=2
+But I didn't see a solution at the end.
+
+So my question is. Is this just a bad response from hardware, or is
+there a better way to find out if the drive exists or not?
+
+My current work around is to remove the wait for the second drive
+(removed the if(rc) from above to always return there), which is not
+robust, but suites my needs.
+
+-- Steve
+
 

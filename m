@@ -1,91 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWE3U0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWE3Ucf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932401AbWE3U0e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 16:26:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWE3U0e
+	id S932403AbWE3Ucf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 16:32:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbWE3Ucf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 16:26:34 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:1228 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932401AbWE3U0d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 16:26:33 -0400
-Date: Tue, 30 May 2006 22:26:54 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [patch, -rc5-mm1] lock validator: fix RT_HASH_LOCK_SZ
-Message-ID: <20060530202654.GA25720@elte.hu>
-References: <20060530022925.8a67b613.akpm@osdl.org> <adaac8z70yc.fsf@cisco.com>
+	Tue, 30 May 2006 16:32:35 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:19171 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932403AbWE3Uce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 16:32:34 -0400
+Subject: Re: 2.6.17-rc5-mm1
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>, akpm@osdl.org
+In-Reply-To: <20060530202018.GI17218@redhat.com>
+References: <20060530022925.8a67b613.akpm@osdl.org>
+	 <6bffcb0e0605301139l2b4895d0mbecffb422fb2c0cf@mail.gmail.com>
+	 <1149018946.3636.107.camel@laptopd505.fenrus.org>
+	 <20060530202018.GI17218@redhat.com>
+Content-Type: text/plain
+Date: Tue, 30 May 2006 22:32:31 +0200
+Message-Id: <1149021151.3636.114.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <adaac8z70yc.fsf@cisco.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Roland Dreier <rdreier@cisco.com> wrote:
-
-> Building 2.6.17-rc5-mm1, I get this:
+On Tue, 2006-05-30 at 16:20 -0400, Dave Jones wrote:
+> On Tue, May 30, 2006 at 09:55:46PM +0200, Arjan van de Ven wrote:
+>  > > May 30 20:25:56 ltg01-fedora kernel: which lock already depends on the new lock,
+>  > 
+>  > ... but there was an observed code sequence before which was the other
+>  > way around ...
 > 
-> 	net/built-in.o: In function `ip_rt_init':
-> 	(.init.text+0xb04): undefined reference to `__you_cannot_kmalloc_that_much'
+> That phrase could use some rewording IMO. It sounds more like a question
+> than a statement.
 
-could you try the patch below and set NR_CPUS back to 32?
+if you have suggestions please share them... you're the native United
+Kingdomian.... :)
 
------------
-Subject: lock validator: fix RT_HASH_LOCK_SZ
-From: Ingo Molnar <mingo@elte.hu>
 
-on lockdep we have a quite big spinlock_t, so keep the size down.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
----
- net/ipv4/route.c |   23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
-
-Index: linux/net/ipv4/route.c
-===================================================================
---- linux.orig/net/ipv4/route.c
-+++ linux/net/ipv4/route.c
-@@ -212,17 +212,22 @@ struct rt_hash_bucket {
- /*
-  * Instead of using one spinlock for each rt_hash_bucket, we use a table of spinlocks
-  * The size of this table is a power of two and depends on the number of CPUS.
-+ * (on lockdep we have a quite big spinlock_t, so keep the size down there)
-  */
--#if NR_CPUS >= 32
--#define RT_HASH_LOCK_SZ	4096
--#elif NR_CPUS >= 16
--#define RT_HASH_LOCK_SZ	2048
--#elif NR_CPUS >= 8
--#define RT_HASH_LOCK_SZ	1024
--#elif NR_CPUS >= 4
--#define RT_HASH_LOCK_SZ	512
-+#ifdef CONFIG_LOCKDEP
-+# define RT_HASH_LOCK_SZ	256
- #else
--#define RT_HASH_LOCK_SZ	256
-+# if NR_CPUS >= 32
-+#  define RT_HASH_LOCK_SZ	4096
-+# elif NR_CPUS >= 16
-+#  define RT_HASH_LOCK_SZ	2048
-+# elif NR_CPUS >= 8
-+#  define RT_HASH_LOCK_SZ	1024
-+# elif NR_CPUS >= 4
-+#  define RT_HASH_LOCK_SZ	512
-+# else
-+#  define RT_HASH_LOCK_SZ	256
-+# endif
- #endif
- 
- static spinlock_t	*rt_hash_locks;

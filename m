@@ -1,60 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbWE3T46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbWE3T6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932455AbWE3T46 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 15:56:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWE3T46
+	id S932459AbWE3T6s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 15:58:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWE3T6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 15:56:58 -0400
-Received: from mga06.intel.com ([134.134.136.21]:13904 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932455AbWE3T45 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 15:56:57 -0400
-X-IronPort-AV: i="4.05,190,1146466800"; 
-   d="scan'208"; a="43397761:sNHT78223593"
-Date: Tue, 30 May 2006 12:53:58 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Dave Jones <davej@redhat.com>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Ingo Molnar <mingo@elte.hu>, nanhai.zou@intel.com, ashok.raj@intel.com
-Subject: Re: [patch 00/61] ANNOUNCE: lock validator -V1
-Message-ID: <20060530125357.A21581@unix-os.sc.intel.com>
-References: <20060529212109.GA2058@elte.hu> <6bffcb0e0605291528qe24a0a3r3841c37c5323de6a@mail.gmail.com> <20060529224107.GA6037@elte.hu> <20060529230908.GC333@redhat.com> <1148967947.3636.4.camel@laptopd505.fenrus.org> <20060530141006.GG14721@redhat.com> <1148998762.3636.65.camel@laptopd505.fenrus.org> <20060530145852.GA6566@redhat.com> <20060530171118.GA30909@dominikbrodowski.de> <20060530193947.GG17218@redhat.com>
+	Tue, 30 May 2006 15:58:48 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:4322 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932456AbWE3T6q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 15:58:46 -0400
+Date: Tue, 30 May 2006 21:59:02 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: Arjan van de Ven <arjan@linux.intel.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: Fwd: 2.6.17-rc5-mm1
+Message-ID: <20060530195902.GD22742@elte.hu>
+References: <20060530022925.8a67b613.akpm@osdl.org> <6bffcb0e0605301155h3b472d79h65e8403e7fa0b214@mail.gmail.com> <6bffcb0e0605301157o6b7c5f66q3c9f151cbb4537d5@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060530193947.GG17218@redhat.com>; from davej@redhat.com on Tue, May 30, 2006 at 03:39:47PM -0400
+In-Reply-To: <6bffcb0e0605301157o6b7c5f66q3c9f151cbb4537d5@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 30, 2006 at 03:39:47PM -0400, Dave Jones wrote:
 
-> So, that last part pretty highlights that we knew about this problem, and meant to
-> come back and fix it later. Surprise surprise, no one came back and fixed it.
-> 
+* Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
 
-There was another iteration after his, and currently we keep track of
-the owner in lock_cpu_hotplug()->__lock_cpu_hotplug(). So if we are in 
-same thread context we dont acquire locks.
+> ============================
+> [ BUG: illegal lock usage! ]
+> ----------------------------
+> illegal {in-hardirq-W} -> {hardirq-on-W} usage.
 
-    if (lock_cpu_hotplug_owner != current) {
-        if (interruptible)
-            ret = down_interruptible(&cpucontrol);
-        else
-            down(&cpucontrol);
-    }
+sorry - the messages are indeed cryptic, partly because there are lots 
+of illegal state transitions and the printout is atomated, and partly to 
+keep the already sizable lockdep printouts as compact as possible.
 
+What happened here is that a lock (-type) that had the {in-hardirq-W} 
+state bit set, and lockdep observed an event that also sets the 
+{hardirq-on-W} state bit: illegal.
 
-the lock and unlock kept track of the depth as well, so we know when to release
+here is a rough translation of the usage history state bits:
 
-We didnt hear any better suggestions (from cpufreq folks), so we left it in 
-that state (atlease the same thread doenst try to take the lock twice) 
-that resulted in deadlocks earlier.
+ {in-hardirq-W}: lock was exclusively acquired in hardirq context
+ {in-hardirq-R}: lock was read-acquired in hardirq context
+ {in-softirq-W}: lock was exclusively acquired in softirq context
+ {in-softirq-R}: lock was read-acquired in softirq context
+ {hardirq-on-W}: lock was held exclusively with hardirqs enabled
+ {hardirq-on-R}: lock was read-held with hardirqs enabled
+ {softirq-on-W}: lock was held exclusively with softirqs enabled
+ {softirq-on-R}: lock was read-held with softirqs enabled
 
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+to interpret the lock state at a glance, there's an even shorter 
+representation of the state bits:
+
+ (&base->lock#2){++..}
+                 ^^^^
+
+'+' : irq-safe [lock was taken in irq context]
+'-' : irq-unsafe [lock was taken with irqs enabled]
+'.' : unknown [lock has not yet become irq-safe or irq-unsafe]
+
+'?' : read-locked with both hardirq context and with irqs enabled
+
+the first character is for exclusive-locking in hardirqs, the second for 
+exclusive-locking in softirqs, the third is for read-locking in 
+hardirqs, the fourth is for read-locking in softirqs.
+
+this means that the "{++..}" sequence shows that this lock is 
+hardirq-safe and softirq-safe, and was never read-locked. [the later one 
+is not surprising from a spinlock - but lockdep doesnt know that it's a 
+spinlock, it deals with all lock types in a unified way]
+
+(more details about the usage history state bits are in 
+Documentation/lockdep-design.txt and in include/linux/lockdep.h)
+
+	Ingo

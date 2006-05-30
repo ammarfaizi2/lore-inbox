@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWE3OaA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWE3ObV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbWE3OaA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 10:30:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWE3OaA
+	id S932288AbWE3ObV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 10:31:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWE3ObU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 10:30:00 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:37354 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932271AbWE3O37
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 10:29:59 -0400
-Subject: Re: -rt IA64 update
-From: john stultz <johnstul@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Simon Derr <Simon.Derr@bull.net>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <20060530061503.GA19870@elte.hu>
-References: <Pine.LNX.4.61.0605291356170.14092@openx3.frec.bull.fr>
-	 <20060530061503.GA19870@elte.hu>
-Content-Type: text/plain
-Date: Tue, 30 May 2006 07:20:41 -0700
-Message-Id: <1148998842.23411.11.camel@leatherman>
+	Tue, 30 May 2006 10:31:20 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:61322 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S932288AbWE3ObT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 10:31:19 -0400
+Date: Tue, 30 May 2006 07:24:20 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: perfmon@napali.hpl.hp.com
+Cc: linux-ia64@vger.kernel.org, oprofile-list@lists.sourceforge.net,
+       perfctr-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: 2.6.17-rc5 new perfmon code base available
+Message-ID: <20060530142420.GH25544@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-30 at 08:15 +0200, Ingo Molnar wrote:
-> * Simon Derr <Simon.Derr@bull.net> wrote:
-> > * This kernel, when booting, prints:
-> > 
-> > 	BUG in check_monotonic_clock at kernel/time/timeofday.c:164
-> > 
-> > But I think this happens because two get_monotonic_clock() are racing 
-> > on two cpus. There is a lock to prevent the race, but it is a seqlock. 
-> > That means that it is okay if the race happens since another try will 
-> > be attempted, but the message that has been printed on the console 
-> > can't be removed, and the user is unnecessarily scared.
+Hello,
 
-Simon, I suspect here you actually have unsynced ITCs, as the
-check_monotonic_clock values are all locked w/ spinlocks.
+I have released another version of the perfmon new code base package.
 
-You should probably add a cmpxchg in clocksource_itc_read() where you
-currently do the if (last_itc < now), or you'll race on setting
-last_itc. Let me know if you still see the issue w/ that fix.
+The patch includes:
+	- update to 2.6.17-rc5
+	- re-enable debugging
+	- fix broken pfm_read(). Sampling was not functional.
+	 (broken by the perfmon_kapi.c code)
 
+This patch works with existing libpfm-3.2-060522 release.
 
-> that too comes from the GTOD patchset. John, should we pick up the 
-> latest from -mm?
+You can grab the new package at our web site:
 
-It would be nice to do so sooner or later. There will probably be a few
-regressions as the bits in -mm are more stripped down then the older
-code in -rt, but I'd work to fill those holes as they appeared.
+	 http://perfmon2.sf.net
 
-Thomas, did you have any thought about the hrt code I sent you?
- 
-thanks
--john
+-- 
+-Stephane
+-- 
 
-
+-Stephane

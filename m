@@ -1,103 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbWE3OvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWE3Oxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932305AbWE3OvH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 10:51:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWE3OvH
+	id S932299AbWE3Oxb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 10:53:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWE3Oxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 10:51:07 -0400
-Received: from wmp-pc40.wavecom.fr ([81.80.89.162]:50952 "EHLO
-	domino.wavecom.fr") by vger.kernel.org with ESMTP id S932305AbWE3OvG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 10:51:06 -0400
-In-Reply-To: <1148988165.20582.19.camel@localhost.localdomain>
-Subject: Re: RT_PREEMPT problem with cascaded irqchip
-To: tglx@linutronix.de
-Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       linux-kernel-owner@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Steven Rostedt <rostedt@goodmis.org>, Esben Nielsen <simlo@phys.au.dk>,
-       Sven-Thorsten Dietrich <sven@mvista.com>
-X-Mailer: Lotus Notes Release 6.5.1 January 21, 2004
-Message-ID: <OF1D43115C.4017CA7A-ONC125717E.004F8944-C125717E.0051942C@wavecom.fr>
-From: Yann.LEPROVOST@wavecom.fr
-Date: Tue, 30 May 2006 16:44:58 +0200
-X-MIMETrack: Serialize by Router on domino/wavecom(Release 6.5.4|March 27, 2005) at 05/30/2006
- 04:45:00 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Tue, 30 May 2006 10:53:31 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:41612 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S932299AbWE3Oxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 10:53:30 -0400
+Date: Tue, 30 May 2006 11:53:29 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+Cc: Frank Gevaerts <frank.gevaerts@fks.be>, Pete Zaitcev <zaitcev@redhat.com>,
+       linux-kernel@vger.kernel.org, gregkh@suse.de,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: usb-serial ipaq kernel problem
+Message-ID: <20060530115329.30184aa0@doriath.conectiva>
+In-Reply-To: <20060530113801.22c71afe@doriath.conectiva>
+References: <20060526182217.GA12687@fks.be>
+	<20060526133410.9cfff805.zaitcev@redhat.com>
+	<20060529120102.1bc28bf2@doriath.conectiva>
+	<20060529132553.08b225ba@doriath.conectiva>
+	<20060529141110.6d149e21@doriath.conectiva>
+	<20060529194334.GA32440@fks.be>
+	<20060529172410.63dffa72@doriath.conectiva>
+	<20060529204724.GA22250@fks.be>
+	<20060529193330.3c51f3ba@home.brethil>
+	<20060530082141.GA26517@fks.be>
+	<20060530113801.22c71afe@doriath.conectiva>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 2.2.0 (GTK+ 2.8.17; i586-mandriva-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, in fact the issue doesn't come neither from the mask/unmask procedure
-nor from the set_irq calls.
-Correct gpio mask/unmask are called before the gpio_irq_handler.
+On Tue, 30 May 2006 11:38:01 -0300
+"Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> wrote:
 
-However, there is an issue in gpio_irq_handler (specific to generic_irq and
-AT91RM9200, i think) concerning desc->chip->chip_data.
-The following change has to be applied :
+| On Tue, 30 May 2006 10:21:41 +0200
+| Frank Gevaerts <frank.gevaerts@fks.be> wrote:
+| 
+| | On Mon, May 29, 2006 at 07:33:30PM -0300, Luiz Fernando N. Capitulino wrote:
+| | > On Mon, 29 May 2006 22:47:24 +0200
+| | > Frank Gevaerts <frank.gevaerts@fks.be> wrote:
+| | > | 
+| | > | The panic was caused by the read urb being submitten in ipaq_open,
+| | > | regardless of success, and never killed in case of failure. What my
+| | > | patch basically does is to submit the urb only after succesfully sending
+| | > | the control message, and adding a sleep between tries. As long as this
+| | > | patch is not applied, we hardly get any other error because the kernel
+| | > | panics as soon as an ipaq reboots.
+| | > 
+| | >  I see.
+| | > 
+| | >  Did you try to just kill the read urb in the ipaq_open's error path?
+| | 
+| | Yes, that's what I did at first. It works, but with the long waits (we see
+| | waits up to 80-90 seconds right now) I was afraid that the urb might timeout
+| | before the control message succeeds.
+| 
+|  Hmmm, I see.
 
- --    pio = (void __force __iomem *) desc->chip->chip_data;
-++   pio = (void __force __iomem *) desc->chip_data;
+ Thinking about this again, are you sure the read urb depends on the
+control message? It's quite easy to test, just a add a long timeout after
+the read URB was sent (say, five minutes) and waits for the read urb
+callback to run.
 
-Moreover, I think that the call to redirect_hardirq have to be insered in
-gpio_irq_handler but I don't know how to do that.
+ If it ran _before_ the timeout expires with no timeout error it does not
+depend. Then we can do the simpler solution: just kill the read urb in the
+ipaq_open's error path.
 
-Regards
-
-Yann Leprovost
-
-
-
-                                                                           
-             Thomas Gleixner                                               
-             <tglx@linutronix.                                             
-             de>                                                        To 
-             Sent by:                  Yann.LEPROVOST@wavecom.fr           
-             linux-kernel-owne                                          cc 
-             r@vger.kernel.org         Daniel Walker <dwalker@mvista.com>, 
-                                       linux-kernel@vger.kernel.org,       
-                                       linux-kernel-owner@vger.kernel.org, 
-             30/05/2006 13:22          Ingo Molnar <mingo@elte.hu>, Steven 
-                                       Rostedt <rostedt@goodmis.org>,      
-                                       Esben Nielsen <simlo@phys.au.dk>,   
-             Please respond to         Sven-Thorsten Dietrich              
-             tglx@linutronix.d         <sven@mvista.com>                   
-                     e                                             Subject 
-                                       Re: RT_PREEMPT problem with         
-                                       cascaded irqchip                    
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-
-
-
-
-On Tue, 2006-05-30 at 12:26 +0200, Yann.LEPROVOST@wavecom.fr wrote:
-> Of course, here is the file arch/arm/mach-at91rm9200/gpio.c with my
-> modified gpio_irq_handler.
-
->             for (i = 0; i < 32; i++, pin++) {
->                   set_irq_chip(pin, &gpio_irqchip);
->                         printk(KERN_ERR "GPIO SET_IRQ_CHIP\n");
->                   set_irq_handler(pin, do_simple_IRQ);
-
------------------------------------------^^^^^^^^^^^^^^^
-
-Care to look into the implementation of this ? As the name says, its
-simple. It does no ack/mask whatever. Use the level resp. the edge
-handler instead.
-
-             tglx
-
-
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+-- 
+Luiz Fernando N. Capitulino

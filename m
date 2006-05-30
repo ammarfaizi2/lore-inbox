@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWE3SfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbWE3ShV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932314AbWE3SfA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 14:35:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbWE3SfA
+	id S932374AbWE3ShV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 14:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbWE3ShV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 14:35:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15293 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932314AbWE3Se7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 14:34:59 -0400
-Date: Tue, 30 May 2006 11:33:27 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Frank Gevaerts <frank.gevaerts@fks.be>
-Cc: lcapitulino@mandriva.com.br, frank.gevaerts@fks.be,
-       linux-kernel@vger.kernel.org, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net, zaitcev@redhat.com
-Subject: Re: usb-serial ipaq kernel problem
-Message-Id: <20060530113327.297aceb7.zaitcev@redhat.com>
-In-Reply-To: <20060530174821.GA15969@fks.be>
-References: <20060529120102.1bc28bf2@doriath.conectiva>
-	<20060529132553.08b225ba@doriath.conectiva>
-	<20060529141110.6d149e21@doriath.conectiva>
-	<20060529194334.GA32440@fks.be>
-	<20060529172410.63dffa72@doriath.conectiva>
-	<20060529204724.GA22250@fks.be>
-	<20060529193330.3c51f3ba@home.brethil>
-	<20060530082141.GA26517@fks.be>
-	<20060530113801.22c71afe@doriath.conectiva>
-	<20060530115329.30184aa0@doriath.conectiva>
-	<20060530174821.GA15969@fks.be>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 30 May 2006 14:37:21 -0400
+Received: from wr-out-0506.google.com ([64.233.184.224]:21725 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932374AbWE3ShU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 14:37:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Lj3+1KMqJsosHafWvL4yDGMQ4Nrlt6h6tl+asU6iAQM07OnUOEOjTeQmY6+8HE31nKW6TEZy2PtEP6DiObcr8uHOgfubicobUuOmy4L0IEk/9dpmomNnqum326MP4SW5PU3n64Wm8NU77yttF4qRhTfd9fAbY4S8UKkPm12xrh0=
+Message-ID: <d120d5000605301137h883eebi3c4ede13ab7ff3e1@mail.gmail.com>
+Date: Tue, 30 May 2006 14:37:20 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: linux-kernel@vger.kernel.org
+Subject: Confused about section type conflicts and __initdata
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 May 2006 19:48:21 +0200, Frank Gevaerts <frank.gevaerts@fks.be> wrote:
-+0100
-> +++ linux-2.6.17-rc4.test/drivers/usb/serial/ipaq.c	2006-05-30 19:41:19.000000000 +0200
-> @@ -692,6 +694,7 @@ static void ipaq_close(struct usb_serial
->  	struct ipaq_private	*priv = usb_get_serial_port_data(port);
->  
->  	dbg("%s - port %d", __FUNCTION__, port->number);
-> +
->  			 
->  	/*
->  	 * shut down bulk read and write
+Hi,
 
-Please get rid of the above.
+I am trying to declare dmi_ids in drivers/input/misc/wistron_btns.c as
+__initdata but gcc keeps bitching about
+"drivers/input/misc/wistron_btns.c:326: error: dmi_ids causes a
+section type conflict" unless I also declare that variable as "const".
+I checked GCC's assembler output and using "static const struct
+dmi_system_id __initdata dmi_ids[] = {..." does indeed get it into
+".init.data" section but comments in include/linux/init.h specifically
+mention that the data can't be const... This is with GCC 3.4.4.
 
-> @@ -967,3 +971,6 @@ MODULE_PARM_DESC(vendor, "User specified
->  
->  module_param(product, ushort, 0);
->  MODULE_PARM_DESC(product, "User specified USB idProduct");
-> +
-> +module_param(connect_retries, int, KP_RETRIES);
-> +MODULE_PARM_DESC(product, "Maximum number of connect retries (100ms each)");
+Anyone have any ideas, pretty please?
 
-Personally, I'm not keen on adding knobs.
-
--- Pete
+-- 
+Dmitry

@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964824AbWE3XcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbWE3XiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964824AbWE3XcR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 19:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964825AbWE3XcR
+	id S964823AbWE3XiS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 19:38:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964825AbWE3XiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 19:32:17 -0400
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:31266 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S964824AbWE3XcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 19:32:16 -0400
-X-IronPort-AV: i="4.05,191,1146466800"; 
-   d="scan'208"; a="1815782242:sNHT31487116"
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: 2.6.17-rc5-mm1
-X-Message-Flag: Warning: May contain useful information
-References: <20060530022925.8a67b613.akpm@osdl.org>
-	<adawtc34364.fsf@cisco.com> <20060530154521.d737cc65.akpm@osdl.org>
-	<20060530224955.GA5500@elte.hu> <20060530225254.GA5681@elte.hu>
-	<20060530225808.GA5836@elte.hu>
-	<1149030330.20582.45.camel@localhost.localdomain>
-	<20060530231446.GA6504@elte.hu>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 30 May 2006 16:32:13 -0700
-In-Reply-To: <20060530231446.GA6504@elte.hu> (Ingo Molnar's message of "Wed, 31 May 2006 01:14:46 +0200")
-Message-ID: <adaslmr3x8i.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Tue, 30 May 2006 19:38:18 -0400
+Received: from amnesiac.heapspace.net ([195.54.228.42]:61445 "EHLO
+	amnesiac.heapspace.net") by vger.kernel.org with ESMTP
+	id S964823AbWE3XiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 19:38:17 -0400
+Date: Wed, 31 May 2006 02:38:13 +0300
+From: Daniel Stone <daniel@fooishbar.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Dave Airlie <airlied@gmail.com>, Pavel Machek <pavel@ucw.cz>,
+       "D. Hazelton" <dhazelton@enter.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+Message-ID: <20060530233813.GC16521@fooishbar.org>
+Mail-Followup-To: Jon Smirl <jonsmirl@gmail.com>,
+	Dave Airlie <airlied@gmail.com>, Pavel Machek <pavel@ucw.cz>,
+	"D. Hazelton" <dhazelton@enter.net>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Kyle Moffett <mrmacman_g4@mac.com>,
+	Manu Abraham <abraham.manu@gmail.com>,
+	linux cbon <linuxcbon@yahoo.fr>,
+	Helge Hafting <helge.hafting@aitel.hist.no>,
+	Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+References: <200605280112.01639.dhazelton@enter.net> <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <20060529102339.GA746@elf.ucw.cz> <21d7e9970605290336m1f80b08nebbd2a995be959cb@mail.gmail.com> <20060529124840.GD746@elf.ucw.cz> <21d7e9970605291623k3636f7hcc12028cad5e962b@mail.gmail.com> <20060530202401.GC16106@elf.ucw.cz> <9e4733910605301356k64dcd75fo38e45e1b7572817f@mail.gmail.com> <21d7e9970605301601t37f8d3ddwaf4a900ed8997fdf@mail.gmail.com> <9e4733910605301627t2f28db08vf58c78e2656b7047@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 30 May 2006 23:32:15.0695 (UTC) FILETIME=[48DEF5F0:01C68441]
-Authentication-Results: sj-dkim-5.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ByM1h5nouWwd3kz8"
+Content-Disposition: inline
+In-Reply-To: <9e4733910605301627t2f28db08vf58c78e2656b7047@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > then i guess a quick solution would be to do:
- > 
- > 	if (!irq_desc[irq].irq_handler)
- > 		__do_IRQ(irq, regs);
- > 	else
- > 		generic_handle_irq(irq, regs);
- > 
- > in arch/x86_64/kernel/irq.c [and in arch/i386/kernel/irq.c], and 
- > __do_IRQ() should handle the old-style irq-type MSI code just fine.
 
-Indeed (fixing ".irq_handler" to be ".handle_irq"), with that change
-MSI-X works fine with ib_mthca on my system.  The only slightly funny
-quirk is that the IRQ type is shown as "PCI-MSI-X-<NULL>", I guess
-because it's printing handle_irq_name(NULL).
+--ByM1h5nouWwd3kz8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-However (as BenH pointed out) there's definitely some work to do to
-untangle MSI...
+On Tue, May 30, 2006 at 07:27:25PM -0400, Jon Smirl wrote:
+> On 5/30/06, Dave Airlie <airlied@gmail.com> wrote:
+> >Actually the suspend/resume has to be in userspace, X just re-posts
+> >the video ROM and reloads the registers... so the repost on resume has
+> >to happen... so some component needs to be in userspace..
+>=20
+> I'd like to see the simple video POST program get finished.
 
- - R.
+http://archive.ubuntu.com/ubuntu/pool/main/v/vbetool/
+
+--ByM1h5nouWwd3kz8
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFEfNdlRkzMgPKxYGwRArYlAJ4uq4pUKTjqZhZHzxbkokKrm+IOYgCghysl
+0Eq/Cydw0EPk6hcoX0m5SQE=
+=QgsW
+-----END PGP SIGNATURE-----
+
+--ByM1h5nouWwd3kz8--

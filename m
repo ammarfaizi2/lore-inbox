@@ -1,84 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbWE3VYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbWE3VcH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932471AbWE3VYv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 17:24:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbWE3VYv
+	id S932484AbWE3VcH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 17:32:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751509AbWE3VcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 17:24:51 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:3463 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932471AbWE3VYu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 17:24:50 -0400
-Subject: Re: 2.6.17-rc5-mm1
-From: Arjan van de Ven <arjan@infradead.org>
-To: Laurent Riffard <laurent.riffard@free.fr>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <447CB42E.5060004@free.fr>
-References: <20060530022925.8a67b613.akpm@osdl.org>
-	 <447CB42E.5060004@free.fr>
-Content-Type: text/plain; charset=UTF-8
-Date: Tue, 30 May 2006 23:24:47 +0200
-Message-Id: <1149024287.3636.121.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 30 May 2006 17:32:07 -0400
+Received: from relais.videotron.ca ([24.201.245.36]:62060 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP
+	id S1751506AbWE3VcF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 17:32:05 -0400
+Date: Tue, 30 May 2006 17:32:03 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: [PATCHSET] block: fix PIO cache coherency bug
+In-reply-to: <Pine.LNX.4.60.0605302301280.6213@poirot.grange>
+X-X-Sender: nico@localhost.localdomain
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: Tejun Heo <htejun@gmail.com>, Jens Axboe <axboe@suse.de>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Dave Miller <davem@redhat.com>, bzolnier@gmail.com,
+       james.steward@dynamicratings.com, jgarzik@pobox.com,
+       lkml <linux-kernel@vger.kernel.org>, mattjreimer@gmail.com
+Message-id: <Pine.LNX.4.64.0605301723060.16927@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <11371658562541-git-send-email-htejun@gmail.com>
+ <1137167419.3365.5.camel@mulgrave>
+ <20060113182035.GC25849@flint.arm.linux.org.uk>
+ <1137177324.3365.67.camel@mulgrave>
+ <20060113190613.GD25849@flint.arm.linux.org.uk>
+ <20060222082732.GA24320@htj.dyndns.org>
+ <1141325189.3238.37.camel@mulgrave.il.steeleye.com>
+ <20060302203039.GH28895@flint.arm.linux.org.uk>
+ <20060302204432.GZ4329@suse.de>
+ <Pine.LNX.4.64.0605291509370.11290@localhost.localdomain>
+ <447C2A48.1050200@gmail.com> <Pine.LNX.4.60.0605302301280.6213@poirot.grange>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-30 at 23:07 +0200, Laurent Riffard wrote:
-> Le 30.05.2006 11:29, Andrew Morton a écrit :
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm1/
-> > ...
-> >  Runtime locking validation.
+On Tue, 30 May 2006, Guennadi Liakhovetski wrote:
+
+> On Tue, 30 May 2006, Tejun Heo wrote:
 > 
-> ============================
-> [ BUG: illegal lock usage! ]
-> ----------------------------
-> illegal {hardirq-on-W} -> {in-hardirq-W} usage.
-> events/0/4 [HC1[1]:SC0[0]:HE0:SE1] takes:
->  (&list->lock){+...}, at: [<c0247689>] skb_dequeue+0x12/0x43
-
-hmmm skb_dequeue is called in a hard irq... 
-
-
-
-> {hardirq-on-W} state was registered at:
->   [<c012d2a1>] lockdep_acquire+0x56/0x6f
->   [<c029595b>] _spin_lock_bh+0x1c/0x29
->   [<c02922e0>] unix_stream_connect+0x2d8/0x3a7
-
-.. yet it was taken only with spin_lock_bh() in unix_stream_connect,
-leaving interrupts enabled (and thus not allowing use inside a hard irq)
-
->   [<c0243fb4>] sys_connect+0x54/0x71
->   [<c0244c5c>] sys_socketcall+0x6f/0x166
->   [<c0295afd>] sysenter_past_esp+0x56/0x8d
-> irq event stamp: 1886
-> hardirqs last  enabled at (1885): [<c0295a2b>] _spin_unlock_irqrestore+0x35/0x3b
-> hardirqs last disabled at (1886): [<c01032fb>] common_interrupt+0x1b/0x2c
-> softirqs last  enabled at (0): [<c0114af0>] copy_process+0x265/0x11dc
-> softirqs last disabled at (0): [<00000000>] init+0x3feffde0/0x1da
+> > Nicolas Pitre wrote:
+> > > I do have hardware that exhibits the problem and therefore I wish the
+> > > discussion could be resumed.
 > 
-> other info that might help us debug this:
-> no locks held by events/0/4.
+> Partly to add myself to the cc-list, partly to add some oil in the fire - 
+> there have been a few discussions on arm-kernel recently, one of them 
 > 
-> stack backtrace:
->  [<c0103810>] show_trace_log_lvl+0x4b/0xf4
->  [<c0103e11>] show_trace+0xd/0x10
->  [<c0103e58>] dump_stack+0x19/0x1b
->  [<c012b8be>] print_usage_bug+0x1a4/0x1ae
->  [<c012c3c6>] mark_lock+0x8a/0x411
->  [<c012cc55>] __lockdep_acquire+0x302/0x8f8
->  [<c012d2a1>] lockdep_acquire+0x56/0x6f
->  [<c0295906>] _spin_lock_irqsave+0x20/0x2f
->  [<c0247689>] skb_dequeue+0x12/0x43
->  [<e0bdb7ac>] hpsb_bus_reset+0x55/0xa2 [ieee1394]
+> http://marc.theaimsgroup.com/?t=114136178100001&r=1&w=2
+> 
+> where at least you can get some more test results / failure pictures. 
+> However, many have also stated that the patch set from Tejun, 
+> unfortunately, doesn't fix 100% of IDE PIO cache coherency problems on 
+> ARM.
 
-yet hpsb_bus_reset() calls skb_dequeue (indirectly, via the inlined
-abort_requests() function) in a hard irq.
+The other problem is probably due to a mistake in the interpretation of 
+some XScale document and if so is easily fixable (actually one bit 
+difference in the page table).
+
+The much more fundamental issue of having dirty lines after PIO in a 
+VIVT cache that user space fails to see is a real and generic design 
+issue on its own.
 
 
-
+Nicolas

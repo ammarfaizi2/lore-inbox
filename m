@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbWE3VGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbWE3VHt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932463AbWE3VGR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 17:06:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbWE3VGR
+	id S932472AbWE3VHt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 17:07:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbWE3VHt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 17:06:17 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:10186 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932463AbWE3VGQ (ORCPT
+	Tue, 30 May 2006 17:07:49 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:40917 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S932472AbWE3VHs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 17:06:16 -0400
-Date: Tue, 30 May 2006 23:06:25 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 38/61] lock validator: special locking: i_mutex
-Message-ID: <20060530210625.GB28618@elte.hu>
-References: <20060529212613.GL3155@elte.hu> <1149022401.21827.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1149022401.21827.6.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 30 May 2006 17:07:48 -0400
+Message-ID: <447CB407.9090805@ens-lyon.org>
+Date: Tue, 30 May 2006 23:07:19 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: 2.6.17-rc5-mm1
+References: <20060530022925.8a67b613.akpm@osdl.org>
+In-Reply-To: <20060530022925.8a67b613.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> +node-hotplug-register-cpu-remove-node-struct.patch
+> +node-hotplug-fixes-callres-of-register_cpu.patch
+> +node-hotplug-fixes-callres-of-register_cpu-powerpc-warning-fix.patch
+> +node-hotplug-register_node-fix.patch
+>
+>  NUMA node hotplugging updates
+>   
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-> On Mon, 2006-05-29 at 23:26 +0200, Ingo Molnar wrote:
-> > + * inode->i_mutex nesting types for the LOCKDEP validator:
-> > + *
-> > + * 0: the object of the current VFS operation
-> > + * 1: parent
-> > + * 2: child/target
-> > + */
-> > +enum inode_i_mutex_lock_type
-> > +{
-> > +       I_MUTEX_NORMAL,
-> > +       I_MUTEX_PARENT,
-> > +       I_MUTEX_CHILD
-> > +};
-> > +
-> > +/* 
-> 
-> I guess we can say the same about I_MUTEX_NORMAL.
+Hi Andrew,
 
-yeah. Subtypes start from 1, as 0 is the basic type.
+I had to apply the following patch to build this -mm on alpha.
 
-Lock types are keyed via static kernel addresses. This means that we can 
-use the lock address (for DEFINE_SPINLOCK) or the static key embedded in 
-spin_lock_init() as a key in 99% of the cases. The key [struct 
-lockdep_type_key, see include/linux/lockdep.h] occupies enough bytes (of 
-kernel static virtual memory) so that the keys remain automatically 
-unique. Right now MAX_LOKCDEP_SUBTYPES is 8, so the keys take at most 8 
-bytes. (To save some memory there's another detail: for static locks 
-(DEFINE_SPINLOCK ones) we use the lock address itself as the key.)
+Signed-off-by: Brice Goglin <Brice.Goglin@ens-lyon.org>
 
-	Ingo
+Brice
+
+Index: linux-mm/arch/alpha/kernel/setup.c
+===================================================================
+--- linux-mm.orig/arch/alpha/kernel/setup.c	2006-05-30 22:53:54.000000000 +0200
++++ linux-mm/arch/alpha/kernel/setup.c	2006-05-30 22:55:30.000000000 +0200
+@@ -481,7 +481,7 @@
+ 		struct cpu *p = kzalloc(sizeof(*p), GFP_KERNEL);
+ 		if (!p)
+ 			return -ENOMEM;
+-		register_cpu(p, i, NULL);
++		register_cpu(p, i);
+ 	}
+ 	return 0;
+ }
+
+

@@ -1,83 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWE3PJf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWE3PKR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbWE3PJf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 11:09:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWE3PJf
+	id S932272AbWE3PKR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 11:10:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWE3PKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 11:09:35 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:57528 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S932309AbWE3PJe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 11:09:34 -0400
-Date: Tue, 30 May 2006 17:09:23 +0200 (CEST)
-From: Simon Derr <Simon.Derr@bull.net>
-X-X-Sender: derrs@openx3.frec.bull.fr
-To: john stultz <johnstul@us.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Simon Derr <Simon.Derr@bull.net>,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: -rt IA64 update
-In-Reply-To: <1148998842.23411.11.camel@leatherman>
-Message-ID: <Pine.LNX.4.61.0605301658440.14092@openx3.frec.bull.fr>
-References: <Pine.LNX.4.61.0605291356170.14092@openx3.frec.bull.fr> 
- <20060530061503.GA19870@elte.hu> <1148998842.23411.11.camel@leatherman>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 30/05/2006 17:12:56,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 30/05/2006 17:12:59,
-	Serialize complete at 30/05/2006 17:12:59
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 30 May 2006 11:10:17 -0400
+Received: from smtp1.xs4all.be ([195.144.64.135]:60549 "EHLO smtp1.xs4all.be")
+	by vger.kernel.org with ESMTP id S932272AbWE3PKP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 11:10:15 -0400
+Date: Tue, 30 May 2006 17:09:43 +0200
+From: Frank Gevaerts <frank.gevaerts@fks.be>
+To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+Cc: Frank Gevaerts <frank.gevaerts@fks.be>, Pete Zaitcev <zaitcev@redhat.com>,
+       linux-kernel@vger.kernel.org, gregkh@suse.de,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: usb-serial ipaq kernel problem
+Message-ID: <20060530150942.GC27700@fks.be>
+References: <20060529120102.1bc28bf2@doriath.conectiva> <20060529132553.08b225ba@doriath.conectiva> <20060529141110.6d149e21@doriath.conectiva> <20060529194334.GA32440@fks.be> <20060529172410.63dffa72@doriath.conectiva> <20060529204724.GA22250@fks.be> <20060529193330.3c51f3ba@home.brethil> <20060530082141.GA26517@fks.be> <20060530113801.22c71afe@doriath.conectiva> <20060530115329.30184aa0@doriath.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060530115329.30184aa0@doriath.conectiva>
+User-Agent: Mutt/1.5.9i
+X-FKS-MailScanner: Found to be clean
+X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-105.815,
+	vereist 5, autolearn=not spam, ALL_TRUSTED -3.30, AWL 0.08,
+	BAYES_00 -2.60, USER_IN_WHITELIST -100.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 May 2006, john stultz wrote:
-
-> On Tue, 2006-05-30 at 08:15 +0200, Ingo Molnar wrote:
-> > * Simon Derr <Simon.Derr@bull.net> wrote:
-> > > * This kernel, when booting, prints:
-> > > 
-> > > 	BUG in check_monotonic_clock at kernel/time/timeofday.c:164
-> > > 
-> > > But I think this happens because two get_monotonic_clock() are racing 
-> > > on two cpus. There is a lock to prevent the race, but it is a seqlock. 
-> > > That means that it is okay if the race happens since another try will 
-> > > be attempted, but the message that has been printed on the console 
-> > > can't be removed, and the user is unnecessarily scared.
+On Tue, May 30, 2006 at 11:53:29AM -0300, Luiz Fernando N. Capitulino wrote:
+> On Tue, 30 May 2006 11:38:01 -0300
+> "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> wrote:
 > 
-> Simon, I suspect here you actually have unsynced ITCs, as the
-> check_monotonic_clock values are all locked w/ spinlocks.
+> | On Tue, 30 May 2006 10:21:41 +0200
+> | Frank Gevaerts <frank.gevaerts@fks.be> wrote:
+> | 
+> | | On Mon, May 29, 2006 at 07:33:30PM -0300, Luiz Fernando N. Capitulino wrote:
+> | | > On Mon, 29 May 2006 22:47:24 +0200
+> | | > Frank Gevaerts <frank.gevaerts@fks.be> wrote:
+> | | > | 
+> | | > | The panic was caused by the read urb being submitten in ipaq_open,
+> | | > | regardless of success, and never killed in case of failure. What my
+> | | > | patch basically does is to submit the urb only after succesfully sending
+> | | > | the control message, and adding a sleep between tries. As long as this
+> | | > | patch is not applied, we hardly get any other error because the kernel
+> | | > | panics as soon as an ipaq reboots.
+> | | > 
+> | | >  I see.
+> | | > 
+> | | >  Did you try to just kill the read urb in the ipaq_open's error path?
+> | | 
+> | | Yes, that's what I did at first. It works, but with the long waits (we see
+> | | waits up to 80-90 seconds right now) I was afraid that the urb might timeout
+> | | before the control message succeeds.
+> | 
+> |  Hmmm, I see.
 > 
-> You should probably add a cmpxchg in clocksource_itc_read() where you
-> currently do the if (last_itc < now), or you'll race on setting
-> last_itc. Let me know if you still see the issue w/ that fix.
+>  Thinking about this again, are you sure the read urb depends on the
+> control message? It's quite easy to test, just a add a long timeout after
+> the read URB was sent (say, five minutes) and waits for the read urb
+> callback to run.
+> 
+>  If it ran _before_ the timeout expires with no timeout error it does not
+> depend. Then we can do the simpler solution: just kill the read urb in the
+> ipaq_open's error path.
 
-I have already tried to add a raw_spinlock_t to avoid this race, and the 
-message still appears.
+I'll try it sometime today.
 
-What I believe is happening is that is that somewhere between 
-__get_nsec_offset() and ktime_add_ns(), while in
+Frank
 
-static ktime_t __get_monotonic_clock(void)
-{
-        s64 offset = __get_nsec_offset();
-#ifdef CONFIG_PARANOID_GENERIC_TIME
-        ktime_t check = get_check_value();
-#endif
-        ktime_t ret;
+> 
+> -- 
+> Luiz Fernando N. Capitulino
 
-        ret = ktime_add_ns(system_time, offset);
-        check_monotonic_clock(check,ret);
-        return ret;
-}
-
-the cycle_last and system_time are being updated by a concurrent 
-timeofday_periodic_hook().
-
-This can happen since system_time_lock is "only" a seqlock.
-
->From a correctness point of view this is okay as get_monotonic_clock() 
-will detect the race and call __get_monotonic_clock() again. But the 
-warning message has been already been printed.
-
-	Simon.
-
+-- 
+Frank Gevaerts                                 frank.gevaerts@fks.be
+fks bvba - Formal and Knowledge Systems        http://www.fks.be/
+Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
+B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19

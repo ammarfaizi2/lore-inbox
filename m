@@ -1,56 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751415AbWE3MGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbWE3MKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751415AbWE3MGX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 08:06:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWE3MGX
+	id S1750934AbWE3MKL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 08:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWE3MKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 08:06:23 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:25002 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751415AbWE3MGW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 08:06:22 -0400
-Date: Tue, 30 May 2006 14:06:41 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch, -rc5-mm1] lock validator, fix NULL type->name bug
-Message-ID: <20060530120641.GA8263@elte.hu>
-References: <20060530022925.8a67b613.akpm@osdl.org> <20060530111138.GA5078@elte.hu> <1148990326.7599.4.camel@homer> <1148990725.8610.1.camel@homer>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1148990725.8610.1.camel@homer>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 30 May 2006 08:10:10 -0400
+Received: from mail4.hermes.si ([193.77.5.145]:10251 "EHLO mail4.hermes.si")
+	by vger.kernel.org with ESMTP id S1750934AbWE3MKJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 08:10:09 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Long delay on bootup with wait_hwif_ready
+Date: Tue, 30 May 2006 14:10:06 +0200
+Message-ID: <B216E7A91F67B6429E3ACF162402A02D0E5F90@hsl-lj-mail.hermes.si>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Long delay on bootup with wait_hwif_ready
+Thread-Index: AcaD4L1N0imdthNjSTOie7QaM3O6UAAAKo5Q
+From: "David Balazic" <david.balazic@hermes.si>
+To: "Steven Rostedt" <rostedt@goodmis.org>,
+       "LKML" <linux-kernel@vger.kernel.org>
+Cc: "Jeff Garzik" <jgarzik@pobox.com>, "Andi Kleen" <ak@suse.de>,
+       "Pavel Machek" <pavel@suse.cz>, "Matt Domsch" <Matt_Domsch@dell.com>,
+       "David Balazic" <david.balazic@hermes.si>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Mike Galbraith <efault@gmx.de> wrote:
+My "final conclusion" last time was, that there is some memory
+area, that comes out too short in certain cases.
+This is some early kernel boot code, that deals with the BIOS (and
+confuses it, it seems, by running out the mentioned memory area).
 
-> On Tue, 2006-05-30 at 13:58 +0200, Mike Galbraith wrote:
+As I understood, the kernel could be tweaked to increase/decrease
+the problemtatic memory area (or the usage of it).
+
+It is some kind of stack, heap or segment, I don't know, but somebody
+mentioned it last time.
+
+Regards,
+David
+
+PS: Feel free to ask me for testing patches ;-)
+I still have the same PC (with a certain weird behavior lately,
+I can't switch the IDE mode from "RAID" to "normal" ...)
+
+
+
+> -----Original Message-----
+> From: Steven Rostedt [mailto:rostedt@goodmis.org] 
+> Sent: Tuesday, May 30, 2006 2:01 PM
+> To: LKML
+> Cc: Jeff Garzik; Andi Kleen; Pavel Machek; Matt Domsch; David Balazic
+> Subject: Long delay on bootup with wait_hwif_ready
 > 
-> > =====================================================
-> > [ BUG: possible circular locking deadlock detected! ]
-> > -----------------------------------------------------
-> > mount/2545 is trying to acquire lock:
-> >  (&ni->mrec_lock){--..}, at: [<b13d1563>] mutex_lock+0x8/0xa
-> > 
-> > ...and deadlocks.
-> > 
-> > I'll try to find out what it hates.
 > 
-> It hates NTFS.
-
-i'd still love to figure out what's going on here.
-
-hmm ... do you have the NMI watchdog enabled? Could you try with 
-nmi_watchdog=0?
-
-	Ingo
+> Hi,
+> 
+> I got a board I'm working with which has the following IDE controller.
+> 
+> # lspci
+> ...
+> 0000:00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 
+> IDE (rev 01)
+> ..
+> 
+> On boot up there's a 35 second delay that happens right here:
+> 
+> (happens on 2.6.9 - 2.6.16)
+> 
+> 	/* Now make sure both master & slave are ready */
+> 	SELECT_DRIVE(&hwif->drives[0]);
+> 	hwif->OUTB(8, hwif->io_ports[IDE_CONTROL_OFFSET]);
+> 	mdelay(2);
+> 	rc = ide_wait_not_busy(hwif, 35000);
+> 	if (rc)
+> 		return rc;
+> 	SELECT_DRIVE(&hwif->drives[1]);
+> 	hwif->OUTB(8, hwif->io_ports[IDE_CONTROL_OFFSET]);
+> 	mdelay(2);
+> Delaying function
+>           |
+>           V
+> 	rc = ide_wait_not_busy(hwif, 35000);
+> 
+> There is no secondary drive, but for some reason the return of the
+> status is 0x80 which is "busy".  So on boot up, we wait every time for
+> this 35 second timeout.
+> 
+> I noticed that this was discussed before (got my CC from this thread):
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=108890865325793&w=2
+> But I didn't see a solution at the end.
+> 
+> So my question is. Is this just a bad response from hardware, or is
+> there a better way to find out if the drive exists or not?
+> 
+> My current work around is to remove the wait for the second drive
+> (removed the if(rc) from above to always return there), which is not
+> robust, but suites my needs.
+> 
+> -- Steve
+> 
+> 
+> 

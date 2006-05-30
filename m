@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWE3XQO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbWE3XRA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964811AbWE3XQO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 19:16:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964814AbWE3XQO
+	id S964815AbWE3XRA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 19:17:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964814AbWE3XRA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 19:16:14 -0400
-Received: from gate.crashing.org ([63.228.1.57]:61830 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S964811AbWE3XQO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 19:16:14 -0400
-Subject: Re: 2.6.17-rc5-mm1
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: tglx@linutronix.de
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1149030330.20582.45.camel@localhost.localdomain>
-References: <20060530022925.8a67b613.akpm@osdl.org>
-	 <adawtc34364.fsf@cisco.com> <20060530154521.d737cc65.akpm@osdl.org>
-	 <20060530224955.GA5500@elte.hu> <20060530225254.GA5681@elte.hu>
-	 <20060530225808.GA5836@elte.hu>
-	 <1149030330.20582.45.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 31 May 2006 09:15:49 +1000
-Message-Id: <1149030950.9986.83.camel@localhost.localdomain>
+	Tue, 30 May 2006 19:17:00 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:19585 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S964815AbWE3XQ7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 19:16:59 -0400
+Date: Tue, 30 May 2006 16:19:17 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: stable@kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [stable] [PATCH 2.6.16.18 0/4] sbp2: workaround for buggy iPods
+Message-ID: <20060530231917.GI18769@moss.sous-sol.org>
+References: <tkrat.b9bf60697156ef7b@s5r6.in-berlin.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <tkrat.b9bf60697156ef7b@s5r6.in-berlin.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-31 at 01:05 +0200, Thomas Gleixner wrote:
-> CC'ed Ben, who is hacking on msi, IIRC
+* Stefan Richter (stefanr@s5r6.in-berlin.de) wrote:
+> There is a firmware bug in several Apple iPods which prevents access to
+> these iPods under certain conditions. The disk size reported by the iPod
+> is one sector too big. Once access to the end of the disk is attempted,
+> the iPod becomes inaccessible. This problem has been known for USB iPods
+> for some time and has recently been discovered to exist with
+> FireWire/USB combo iPods too.
 > 
-> On Wed, 2006-05-31 at 00:58 +0200, Ingo Molnar wrote:
-> > > > 
-> > > > does MSI much with the irq_desc[] separately perhaps, clearing 
-> > > > handle_irq in the process perhaps?
-> > > 
-> > > aha - drivers/pci/msi.c sets msix_irq_type, which has no handle_irq 
-> > > entry. This needs to be converted to irqchips.
-> > 
-> > still ... that doesnt explain how the irq_desc[].irq_handler got NULL. 
-> 
-> It has it's own irq_desc array
-> 
-> static struct msi_desc* msi_desc[NR_IRQS] = { [0 ... NR_IRQS-1] = NULL };
-> 
-> Too tired right now. I look into this tomorrow.
+> The following patchset is the fix as it exists in Linux 2.6.17-rc. Alas
+> it is rather large, therefore it may be unfit for -stable as it is. If
+> there are objections, I would appreciate suggestions how to better adapt
+> this fix for -stable.
 
-The only way to fix drivers/pci/msi.c is to delete it.
+Just to be clear, we're talking about this fix:
 
-Honest, there is nothing salvageable in that code. I've been looking at
-the issues involved in supporting MSIs on various powerpc platforms and
-I came to the conclusion that there isn't a single re-useable line of
-code in there. Not only it's totally specific to a given set of intel
-chipsets, but it's also broken beyond imagination. I wonder how that
-code got in there in the first place, especially maskqueraded as
-"generic" code. Greg must have been drunk.
++	if (scsi_id->workarounds & SBP2_WORKAROUND_FIX_CAPACITY)
++		sdev->fix_capacity = 1;
 
-At this point, the only solution for us (powerpc) is to allow the arch
-to have it's own implementatin of the toplevel MSI API (pci_enable_msi()
-etc...). From there, depending on what we come up with, we'll look into
-moving that back into generic code, but we are under some pressure for
-time (stupid 2 weeks merge window thing is a pain sometimes).
+with patches 1 and 2 consolidating workaround logic, and 4 adding the
+command line override.
 
-Ben.
+I'd feel better to let this bit diverge in -stable to have the two-line
+patch rather than all 4 patches.  Could you do detection sbp2_probe(),
+set a flag in scsi_id_instance_data, and use that in slave_configure?
 
-
+thanks,
+-chris

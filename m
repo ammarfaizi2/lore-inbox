@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWE3Goh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWE3GpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbWE3Goh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 02:44:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWE3Gog
+	id S932174AbWE3GpF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 02:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWE3GpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 02:44:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61846 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932168AbWE3Gof (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 02:44:35 -0400
-Date: Mon, 29 May 2006 23:46:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-Cc: jesse@icplus.com.tw, romieu@fr.zoreil.com, dvrabel@cantab.net,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       david@pleyades.net
-Subject: Re: Sign-off for the IP1000A driver before inclusion
-Message-Id: <20060529234610.e5671e4c.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0605300915400.18933@sbz-30.cs.Helsinki.FI>
-References: <84144f020605230001s32b29f59w8f95c67fad7b380d@mail.gmail.com>
-	<044a01c67ef8$9bdd0420$4964a8c0@icplus.com.tw>
-	<Pine.LNX.4.58.0605240911400.26629@sbz-30.cs.Helsinki.FI>
-	<021f01c683b0$34b5cbd0$4964a8c0@icplus.com.tw>
-	<Pine.LNX.4.58.0605300915400.18933@sbz-30.cs.Helsinki.FI>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 30 May 2006 02:45:05 -0400
+Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:19099 "HELO
+	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932170AbWE3GpE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 02:45:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Bcr5Gvll+D8VIJugP3LL7Er/siyrOdkVNoXfE2CLa3SIPOZ24HK7hwDOZtjTBSTFnP4YZNCdVweS+c5DTNp9uISFCNxXjm6MhTM5P7ZJE431HjEMx18HIpv55AvSFyWcPpvcnq7QTaPKRpqI6ordVuDgkh4JbVMjLpzZpKYEvEs=  ;
+Message-ID: <447BE9E9.4000907@yahoo.com.au>
+Date: Tue, 30 May 2006 16:44:57 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Chris Mason <mason@suse.com>, Andrea Arcangeli <andrea@suse.de>,
+       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       mike@halcrow.us, ezk@cs.sunysb.edu
+Subject: Re: [rfc][patch] remove racy sync_page?
+References: <447AC011.8050708@yahoo.com.au> <20060530055115.GD18626@filer.fsl.cs.sunysb.edu>
+In-Reply-To: <20060530055115.GD18626@filer.fsl.cs.sunysb.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 May 2006 09:16:29 +0300 (EEST)
-Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
-
-> On Tue, 30 May 2006, jesse\(??\)~H~H\) wrote:
-> > I had did some modification of ipg.h and ipg.c. Please see attach file.
-> > 20060521-2.6.17-rc4-git-ip1000-test.patch__icplus_modify.zip
+Josef Sipek wrote:
+> On Mon, May 29, 2006 at 07:34:09PM +1000, Nick Piggin wrote:
+> ...
 > 
-> Please send them as regular patches.  Please 
-> Documentation/SubmittingPatches and the following URL for details:
+>>Can we get rid of the whole thing, confusing memory barriers and all?
+>>Nobody uses anything but the default sync_page
 > 
-> http://www.zipworld.com.au/~akpm/linux/patches/stuff/tpp.txt
 > 
+> I feel like I must say this: there are some file systems that live
+> outside the kernel (at least for now) that do _NOT_ use the default
+> sync_page. All the stackable file systems that are based on FiST [1],
+> such as Unionfs [2] and eCryptfs (currently in -mm) [3] (respective
+> authors CC'd). As an example, Unionfs must decide which lower file
+> system page to sync (since it may have several to chose from).
 
-It takes people quite a few iterations to get patch preparation worked out.
+OK, noted. Thanks. Luckily for them it looks like sync_page might
+stay for other reasons (eg. raid) ;)
 
-Pekka, if you have time, perhaps you can extract the patches for us?
+Any good reasons they are not in the tree?
+
+> 
+> Josef "Jeff" Sipek.
+> 
+> [1] http://www.filesystems.org
+> [2] http://unionfs.filesystems.org
+> [3] http://ecryptfs.sourceforge.net
+
+
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

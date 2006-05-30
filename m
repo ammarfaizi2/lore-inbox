@@ -1,92 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbWE3M1m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751469AbWE3M3Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751464AbWE3M1m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 08:27:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbWE3M1l
+	id S1751469AbWE3M3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 08:29:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbWE3M3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 08:27:41 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:55331 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751464AbWE3M1l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 08:27:41 -0400
-Date: Tue, 30 May 2006 14:29:34 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>, Michael Tokarev <mjt@tls.msk.ru>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 00/32] Adaptive readahead V14
-Message-ID: <20060530122934.GT4199@suse.de>
-References: <348745084.15239@ustc.edu.cn> <44788C8A.2070900@tls.msk.ru> <348818092.32485@ustc.edu.cn> <4479F8B5.90906@tls.msk.ru> <20060529030152.GA5994@mail.ustc.edu.cn> <20060530092309.GH4199@suse.de> <20060530113221.GA8665@mail.ustc.edu.cn>
+	Tue, 30 May 2006 08:29:16 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:26833 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751469AbWE3M3P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 08:29:15 -0400
+Subject: Re: Possible MTD bug in 2.6.15
+From: David Woodhouse <dwmw2@infradead.org>
+To: Jim Ramsay <kernel@jimramsay.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4789af9e0604190949t42677b35mcba4ee57b92ffff9@mail.gmail.com>
+References: <4789af9e0604190949t42677b35mcba4ee57b92ffff9@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 30 May 2006 13:30:08 +0100
+Message-Id: <1148992208.2885.171.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060530113221.GA8665@mail.ustc.edu.cn>
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 30 2006, Wu Fengguang wrote:
-> On Tue, May 30, 2006 at 11:23:10AM +0200, Jens Axboe wrote:
-> > On Mon, May 29 2006, Wu Fengguang wrote:
-> > > On Sun, May 28, 2006 at 11:23:33PM +0400, Michael Tokarev wrote:
-> > > > Wu Fengguang wrote:
-> > > > > 
-> > > > > It's not quite reasonable for readahead to worry about media errors.
-> > > > > If the media fails, fix it. Or it will hurt read sooner or later.
-> > > > 
-> > > > Well... In reality, it is just the opposite.
-> > > > 
-> > > > Suppose there's a CD-rom with a scratch/etc, one sector is unreadable.
-> > > > In order to "fix" it, one have to read it and write to another CD-rom,
-> > > > or something.. or just ignore the error (if it's just a skip in a video
-> > > > stream).  Let's assume the unreadable block is number U.
-> > > > 
-> > > > But current behavior is just insane.  An application requests block
-> > > > number N, which is before U. Kernel tries to read-ahead blocks N..U.
-> > > > Cdrom drive tries to read it, re-read it.. for some time.  Finally,
-> > > > when all the N..U-1 blocks are read, kernel returns block number N
-> > > > (as requested) to an application, successefully.
-> > > > 
-> > > > Now an app requests block number N+1, and kernel tries to read
-> > > > blocks N+1..U+1.  Retrying again as in previous step.
-> > > > 
-> > > > And so on, up to when an app requests block number U-1.  And when,
-> > > > finally, it requests block U, it receives read error.
-> > > > 
-> > > > So, kernel currentry tries to re-read the same failing block as
-> > > > many times as the current readahead value (256 (times?) by default).
-> > > 
-> > > Good insight... But I'm not sure about it.
-> > > 
-> > > Jens, will a bad sector cause the _whole_ request to fail?
-> > > Or only the page that contains the bad sector?
-> > 
-> > Depends entirely on the driver, and that point we've typically lost the
-> > fact that this is a read-ahead request and could just be tossed. In
-> > fact, the entire request may consist of read-ahead as well as normal
-> > read entries.
-> > 
-> > For ide-cd, it tends do only end the first part of the request on a
-> > medium error. So you may see a lot of repeats :/
-> 
-> Another question about it:
->         If the block layer issued a request, which happened to contain
->         R ranges of B bad blocks, i.e. 3 ranges of 9 bad-blocks:
->                 ___b_____bb___________bbbbbb____
->         How many retries will incur? 1, 3, 9, or something else?
->         If it is 3 or more, then we are even more bad luck :(
+On Wed, 2006-04-19 at 10:49 -0600, Jim Ramsay wrote:
+> We have an interesting problem with MTD and a flash chip on an
+> embedded board.  The problem stems from the fact that due to hardware
+> constraints we can only access up to 32M of address space on an
+> attached flash device.  However, the actual part attached to the board
+> is 64M.  Yes, I know this is not likely to happen, but it points at a
+> kernel bug which will happen if you ever specify a MTD map->size which
+> is less than the actual size of the CFI flash chip. 
 
-Again, this is driver specific. But for ide-cd, if it's using PIO the
-right thing should happen since we do each chunk individually. For dma
-it looks much worse, since we only get an EIO back from the hardware for
-the entire range. It wont do the right thing at all, only for the very
-last thing when get get past the last bbbbbb block.
-
-> Will it be suitable to _automatically_ apply the following retracting
-> policy on I/O error? Please comment if there's better ways:
-
-Probably it should be even more aggressively scaling down. The real
-problem is the drivers of course, we should spend some time fixing them
-up too.
+Please could you confirm this is fixed in the current MTD git tree (and
+in the current -mm kernel). 
 
 -- 
-Jens Axboe
+dwmw2
 

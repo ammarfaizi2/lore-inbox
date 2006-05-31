@@ -1,65 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965213AbWEaWce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965208AbWEaWdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965213AbWEaWce (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 18:32:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965215AbWEaWce
+	id S965208AbWEaWdR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 18:33:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965216AbWEaWdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 18:32:34 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:61403 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965213AbWEaWce (ORCPT
+	Wed, 31 May 2006 18:33:17 -0400
+Received: from mail.gmx.de ([213.165.64.20]:9674 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965208AbWEaWdQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 18:32:34 -0400
-Date: Thu, 1 Jun 2006 00:32:43 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Martin Bligh <mbligh@google.com>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, apw@shadowen.org
-Subject: Re: 2.6.17-rc5-mm1
-Message-ID: <20060531223243.GC5269@elte.hu>
-References: <447DEF47.6010908@google.com> <20060531140823.580dbece.akpm@osdl.org> <20060531211530.GA2716@elte.hu> <447E0A49.4050105@mbligh.org> <20060531213340.GA3535@elte.hu> <447E0DEC.60203@mbligh.org> <20060531215315.GB4059@elte.hu> <447E11B5.7030203@mbligh.org> <20060531221242.GA5269@elte.hu> <447E16E6.7020804@google.com>
+	Wed, 31 May 2006 18:33:16 -0400
+X-Authenticated: #704063
+Subject: [Patch] Negative index in drivers/usb/host/isp116x-hcd.c
+From: Eric Sesterhenn <snakebyte@gmx.de>
+To: ok@artecdesign.ee
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Thu, 01 Jun 2006 00:33:14 +0200
+Message-Id: <1149114794.26057.10.camel@alice>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <447E16E6.7020804@google.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5020]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi,
 
-* Martin Bligh <mbligh@google.com> wrote:
+This fixes coverity Bug #390.
 
-> >>OK. So what's the perf impact of the new version on a 32 cpu machine? 
-> >>;-) Maybe it's fine, maybe it's not.
-> >
-> >
-> >no idea, but it shouldnt be nearly as bad as say SLAB_DEBUG.
-> 
-> The "no idea" is hardly reassuring ;-)
-> The latter point is definitely valid though, it's not an isolated issue.
+With the following code
 
-> Adding new runs is easy. Changing the harness is hard ;-)
+	ret = ep->branch = balance(isp116x, ep->period, ep->load);
+	if (ret < 0)
+		goto fail;
 
-ok. How about a CONFIG_DEBUG_NO_OVERHEAD option, that would default to 
-disabled but which you could set to y. Then we could make all the more 
-expensive debug options:
+the problem is that ret and balance are of the type int, and ep->branch is u16.
+so the int balance() returns gets reduced to u16 and then converted to an int again,
+which removes the sign. Maybe the following little c program can explain it better:
 
-	default y if !CONFIG_DEBUG_NO_OVERHEAD
 
-this would still mean you'd have to turn off CONFIG_DEBUG_NO_OVERHEAD, 
-but it would be automatically maintainable for you after that initial 
-effort, and we'd be careful to always flag new debugging options with 
-this flag, if they are expensive. And initially i'd define "expensive" 
-as "anything that adds runtime overhead".
+----snip----
+int foo() {
+	return -5;
+}
 
-would this be acceptable to you?
+int main(int argc, char **argv) {
+	int a;
+	unsigned short b;
 
-	Ingo
+	a = b = foo();
+	if (a < 0)
+		puts("case 1 works\n");
+
+	b = a = foo();
+	if (a < 0 )
+		puts("case 2 works\n");
+}
+----snip----
+
+only the case 2 output is visible.
+
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+
+--- linux-2.6.17-rc5/drivers/usb/host/isp116x-hcd.c.orig	2006-06-01 00:25:32.000000000 +0200
++++ linux-2.6.17-rc5/drivers/usb/host/isp116x-hcd.c	2006-06-01 00:26:18.000000000 +0200
+@@ -781,7 +781,7 @@ static int isp116x_urb_enqueue(struct us
+ 		if (ep->branch < PERIODIC_SIZE)
+ 			break;
+ 
+-		ret = ep->branch = balance(isp116x, ep->period, ep->load);
++		ep->branch = ret = balance(isp116x, ep->period, ep->load);
+ 		if (ret < 0)
+ 			goto fail;
+ 		ret = 0;
+
+

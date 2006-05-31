@@ -1,65 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965163AbWEaV1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965166AbWEaV3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965163AbWEaV1k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 17:27:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965167AbWEaV1k
+	id S965166AbWEaV3q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 17:29:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965167AbWEaV3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 17:27:40 -0400
-Received: from dvhart.com ([64.146.134.43]:7570 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S965163AbWEaV1j (ORCPT
+	Wed, 31 May 2006 17:29:46 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:19938 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965166AbWEaV3p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 17:27:39 -0400
-Message-ID: <447E0A49.4050105@mbligh.org>
-Date: Wed, 31 May 2006 14:27:37 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@google.com>,
-       linux-kernel@vger.kernel.org, apw@shadowen.org
-Subject: Re: 2.6.17-rc5-mm1
-References: <447DEF47.6010908@google.com> <20060531140823.580dbece.akpm@osdl.org> <20060531211530.GA2716@elte.hu>
-In-Reply-To: <20060531211530.GA2716@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 31 May 2006 17:29:45 -0400
+Date: Wed, 31 May 2006 23:30:02 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: tglx@linutronix.de, Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch, -rc5-mm1] genirq: add chip->eoi(), fastack -> fasteoi
+Message-ID: <20060531213002.GB3174@elte.hu>
+References: <1149040361.766.10.camel@localhost.localdomain> <1149064735.20582.85.camel@localhost.localdomain> <1149066718.766.51.camel@localhost.localdomain> <20060531101925.GA27637@elte.hu> <1149110637.29764.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1149110637.29764.9.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5024]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Andrew Morton <akpm@osdl.org> wrote:
+
+* Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+
+> Hrm... ok. Not sure I agree with adding one more callback but it 
+> doesn't matter much.
 > 
+> Thing is, end() isn't used anymore at all now. Thus it's just 
+> basically renaming end() to eoi() except that end() is still there for 
+> whoever uses __do_IRQ() and ... handle_percpu_irq(). Doesn't make that 
+> much sense to me. So I suppose you should also change 
+> handle_percpu_irq() to use eoi() then and consider end() to be 
+> "legacy" (to be used only by __do_IRQ) ?
+
+ok, that works with me. I did not want to reuse ->end() just to have a 
+clean migration path. ->eoi() is in fact quite descriptive as well, so 
+i'm not worried about the name.
+
+> > sounds like a plan? The patch below works fine for me.
 > 
->>>EIP is at check_deadlock+0x15/0xe0
+> The patch is _almost_ right to me :) I don't need the
 > 
+> 	if (unlikely(desc->status & IRQ_DISABLED))
+>  		desc->chip->mask(irq);
 > 
->>>  <c012b77b> check_deadlock+0xa5/0xe0  <c012b922> 
->>>debug_mutex_add_waiter+0x46/0x55
->>>  <c02d50de> __mutex_lock_slowpath+0x9e/0x1c0  <c0160061> 
->>>lookup_create+0x19/0x5b
->>>  <c016043a> sys_mkdirat+0x4c/0xc3  <c01604c0> sys_mkdir+0xf/0x13
->>>  <c02d6217> syscall_call+0x7/0xb
->>
->>Looks like the lock validator came unstuck.  But there's so much other 
->>crap happening in there it's hard to tell.  Did you try it without all 
->>the lockdep stuff enabled?
-> 
-> 
-> AFAICS this isnt the lock validator but the normal mutex debugging code 
-> (CONFIG_DEBUG_MUTEXES). The log does not indicate that lockdep was 
-> enabled.
+> At all. I suppose it won't harm, but it shouldn't be necessary for me 
+> and I'm not sure why it's necessary on IO_APIC neither (but then I 
+> don't know those very well).
 
-Buggered if I know how that got turned on. I thought we turned it off
-by default now? That's what screwed up all the perf results before.
+hm, i dont think it's necessary either. I'll run a few experiments. 
+Thomas, do you remember why we have that masking there?
 
-http://test.kernel.org/abat/33803/build/dotconfig
-That's the build config it ran with.
-
-CONFIG_DEBUG_MUTEXES=y
-
-Grrr. Humpf. I can't see the option being turned on for lockdep ...
-what was the config option, and is it enabled by default?
-
-M.
-
-
+	Ingo

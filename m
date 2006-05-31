@@ -1,41 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965117AbWEaTYp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965118AbWEaT2V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965117AbWEaTYp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 15:24:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965116AbWEaTYp
+	id S965118AbWEaT2V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 15:28:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbWEaT2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 15:24:45 -0400
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:49724 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S965117AbWEaTYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 15:24:43 -0400
-X-IronPort-AV: i="4.05,194,1146466800"; 
-   d="scan'208"; a="323919244:sNHT29247340"
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] iWARP Connection Manager.
-X-Message-Flag: Warning: May contain useful information
-References: <20060531182650.3308.81538.stgit@stevo-desktop>
-	<20060531182652.3308.1244.stgit@stevo-desktop>
-	<20060531114059.704ef1f1@localhost.localdomain>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Wed, 31 May 2006 12:24:42 -0700
-In-Reply-To: <20060531114059.704ef1f1@localhost.localdomain> (Stephen Hemminger's message of "Wed, 31 May 2006 11:40:59 -0700")
-Message-ID: <ada3beqyp39.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Wed, 31 May 2006 15:28:21 -0400
+Received: from dvhart.com ([64.146.134.43]:56721 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S965118AbWEaT2U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 15:28:20 -0400
+Message-ID: <447DEE53.2010301@mbligh.org>
+Date: Wed, 31 May 2006 12:28:19 -0700
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 31 May 2006 19:24:42.0321 (UTC) FILETIME=[DDFBB410:01C684E7]
-Authentication-Results: sj-dkim-3.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andy Whitcroft <apw@shadowen.org>
+Subject: 2.6.17-rc5-mm1 panic on p-series
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > +	cm_id_priv = kzalloc(sizeof *cm_id_priv, GFP_KERNEL);
+Get a different panic on -mm1 from mainline (and much
+earlier)
 
-> Please put paren's after sizeof, it is not required by C but it
-> is easier to read.
+http://test.kernel.org/abat/33808/debug/console.log
 
-I disagree -- I hate seeing sizeof look like a function call.
-
- - R.
+Badness in local_bh_disable at kernel/softirq.c:86
+Call Trace:
+[C00000000051F280] [C00000000000EEC8] .show_stack+0x74/0x1b4 (unreliable)
+[C00000000051F330] [C000000000338664] .program_check_exception+0x1f4/0x65c
+[C00000000051F410] [C0000000000044EC] program_check_common+0xec/0x100
+--- Exception: 700 at .local_bh_disable+0x34/0x4c
+     LR = .do_softirq+0x64/0xd0
+[C00000000051F790] [C000000000063B64] .irq_exit+0x64/0x7c
+[C00000000051F810] [C0000000000228E0] .timer_interrupt+0x464/0x48c
+[C00000000051F8E0] [C0000000000034EC] decrementer_common+0xec/0x100
+--- Exception: 901 at .memset+0x80/0xfc
+     LR = .__alloc_bootmem_core+0x39c/0x3dc
+[C00000000051FBD0] [C0000000004460E8] 0xc0000000004460e8 (unreliable)
+[C00000000051FC90] [C0000000003D51B0] .__alloc_bootmem_nopanic+0x44/0xb0
+[C00000000051FD30] [C0000000003D523C] .__alloc_bootmem+0x20/0x5c
+[C00000000051FDB0] [C0000000003D6124] .alloc_large_system_hash+0x130/0x268
+[C00000000051FE70] [C0000000003D78D4] .vfs_caches_init_early+0x5c/0xd4
+[C00000000051FEF0] [C0000000003BD718] .start_kernel+0x220/0x320
+[C00000000051FF90] [C000000000008594] .start_here_common+0x88/0x8c
+Badness in __local_bh_enable at kernel/softirq.c:100
+Call Trace:
+[C00000000051F280] [C00000000000EEC8] .show_stack+0x74/0x1b4 (unreliable)
+[C00000000051F330] [C000000000338664] .program_check_exception+0x1f4/0x65c
+[C00000000051F410] [C0000000000044EC] program_check_common+0xec/0x100
+--- Exception: 700 at .__local_bh_enable+0x60/0x7c
+     LR = .do_softirq+0xb0/0xd0
+[C00000000051F700] [C00000000000B518] .do_softirq+0xa8/0xd0 (unreliable)
+[C00000000051F790] [C000000000063B64] .irq_exit+0x64/0x7c
+[C00000000051F810] [C0000000000228E0] .timer_interrupt+0x464/0x48c
+[C00000000051F8E0] [C0000000000034EC] decrementer_common+0xec/0x100
+--- Exception: 901 at .memset+0x80/0xfc
+     LR = .__alloc_bootmem_core+0x39c/0x3dc
+[C00000000051FBD0] [C0000000004460E8] 0xc0000000004460e8 (unreliable)
+[C00000000051FC90] [C0000000003D51B0] .__alloc_bootmem_nopanic+0x44/0xb0
+[C00000000051FD30] [C0000000003D523C] .__alloc_bootmem+0x20/0x5c
+[C00000000051FDB0] [C0000000003D6124] .alloc_large_system_hash+0x130/0x268
+[C00000000051FE70] [C0000000003D78D4] .vfs_caches_init_early+0x5c/0xd4
+[C00000000051FEF0] [C0000000003BD718] .start_kernel+0x220/0x320
+[C00000000051FF90] [C000000000008594] .start_here_common+0x88/0x8c
+Dentry cache hash table entries: 524288 (order: 10, 4194304 bytes)

@@ -1,53 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965214AbWEaWfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751273AbWFACgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965214AbWEaWfS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 18:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965216AbWEaWfS
+	id S1751273AbWFACgi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 22:36:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWFACgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 18:35:18 -0400
-Received: from fed1rmmtao11.cox.net ([68.230.241.28]:37541 "EHLO
-	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
-	id S965214AbWEaWfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 18:35:16 -0400
-Date: Wed, 31 May 2006 15:35:15 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andi Kleen <ak@suse.de>
-Cc: piet@bluelane.com, "Amit S. Kale" <amitkale@linsyssoft.com>,
-       "Vladimir A. Barinov" <vbarinov@ru.mvista.com>,
-       Andrew Morton <akpm@osdl.org>, kgdb-bugreport@lists.sourceforge.net,
+	Wed, 31 May 2006 22:36:38 -0400
+Received: from smtp.enter.net ([216.193.128.24]:41990 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S1751273AbWFACgh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 22:36:37 -0400
+From: "D. Hazelton" <dhazelton@enter.net>
+To: "Jon Smirl" <jonsmirl@gmail.com>
+Subject: Re: OpenGL-based framebuffer concepts
+Date: Wed, 31 May 2006 22:36:26 +0000
+User-Agent: KMail/1.8.1
+Cc: "Antonino A. Daplas" <adaplas@gmail.com>,
+       "Dave Airlie" <airlied@gmail.com>, "Pavel Machek" <pavel@ucw.cz>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
        linux-kernel@vger.kernel.org
-Subject: Re: linux-2.6 x86_64 kgdb issue
-Message-ID: <20060531223515.GE31210@smtp.west.cox.net>
-References: <446E0B4B.9070003@ru.mvista.com> <200605310913.54758.ak@suse.de> <20060531150343.GZ31210@smtp.west.cox.net> <200605312301.56452.ak@suse.de>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <447E493E.1090808@gmail.com> <9e4733910605311919x2cd1847cx90b5353cf6b325f6@mail.gmail.com>
+In-Reply-To: <9e4733910605311919x2cd1847cx90b5353cf6b325f6@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200605312301.56452.ak@suse.de>
-Organization: Embedded Alley Solutions, Inc
-User-Agent: Mutt/1.5.11+cvs20060403
+Message-Id: <200605312236.27690.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31, 2006 at 11:01:56PM +0200, Andi Kleen wrote:
-> On Wednesday 31 May 2006 17:03, Tom Rini wrote:
-> > On Wed, May 31, 2006 at 09:13:53AM +0200, Andi Kleen wrote:
+On Thursday 01 June 2006 02:19, Jon Smirl wrote:
+> On 5/31/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+> > > 4) Some things are so tiny it is pointless to move them to user space
+> > > and they need root to work. Things like screen blank, set the hardware
+> > > cursor, set the cmap, etc. I think these are best implemented as
+> > > additions to the DRM driver.
 > >
-> > [snip]
-> >
-> > > Yes because you if modular works you don't need to build it in.
-> > >
-> > > Modular was working at some point on x86-64 for kdb and the original 2.6
-> > > version of kgdb was nearly there too.
-> >
-> > FWIW, the only change the current version of kgdb makes that would
-> > prevent it from being totally modular is the debugger_active check in
-> 
-> Can you post the patch and a description? 
+> > These small things (cmap, blanking) are sometimes difficult to do, and
+> > the driver is not always right about that. A user helper may be needed.
+> > vesafb in x86_64 may not be able to set the cmap properly without calling
+> > out to the BIOS.
+>
+> Call out to user space if it is complex. But it only takes few lines
+> of code to to these things on a radeon.
 
-The change is a simple if (atomic_read(&debugger_active)) return right
-at the start.  And I'm embarrased to say the change predates me on the
-project so I'm not 100% sure on the lineage and it might be totally
-bogus now.
+I'll be working with Tony on a lot of the fbdev side of things. Hopefully we 
+won't run into problems providing for backwards compatability.
 
--- 
-Tom Rini
+> > > 7) Since there isn't much left to a device specific fbdev driver after
+> > > you push mode setting out to user space, I would just add the
+> > > remaining functions to the device specific DRM driver. But that would
+> > > be 'evil' since it merges fbdev and DRM.
+> >
+> > Actually, there's no need for a merge as there is nothing in DRM that
+> > is absolutely needed by fbdev or the other way around, as long as
+> > console acceleration is disabled. In-kernel fbdev drivers may not even
+> > be necessary.
+>
+> Something needs to bind to the hardware, that code is in the device
+> specific fbdev drivers currently. The fbdev drivers also contain those
+> small functions I mentioned like cmap, cursor, etc. Some of the fbdev
+> drivers also contain initialization code.
+>
+> If fbdev is eliminated the DRM code will need to provide a compatible
+> fbdev device in user space for legacy apps. It makes sense to get that
+> code from fbdev.
+
+I've been talking with Tony and this seems to be the direction he'd like to 
+take the Kernel. While I'd like to keep the full complement of fbdev drivers 
+in the kernel for the embedded people to use (or not) as they please, this 
+might not be a good idea.
+
+> Any concerns about having two device nodes for a single piece of
+> hardware, fb0 and dri0? Since dri0 has a single user it may be
+> possible to rework its IOCTLs to use the fb0 device.
+>
+> As part of multiuser support you need to make one device per head
+> instead of one device per card. Each independent user needs their own
+> deivce to control.
+
+I was thinking that the dri? nodes could redirect fb specific IOCTL's 
+internally and still maintain the two device nodes. This is actually part of 
+not breaking anything, since a lot of legacy apps will look for the dri* or 
+fb* nodes.
+
+And yes, providing a device per head is something that needs to happen, if 
+just to make things like a multi-head Radeon easier to configure and bring up 
+both heads on under X.
+
+As to having seperate devices per user - the only cases this would be really 
+required are:
+1) Multiple users logged onto different VT's
+2) Remote users doing server-side acceleration of graphics
+
+For #1 there is no need for seperate devices, since both users are using the 
+same display and input methods (unless configured different - say with 
+multiple heads and input devices, in which case the second head would already 
+have a node available for it).
+
+For #2 I have no real solution. Personally I think that most of the drawing 
+commands that can be accelerated should be left to the remote client. As far 
+as a remote client wanting sever side rendering and acceleration... This can 
+use the same device node and a seperate rendering buffer.The driver itself 
+*should* be able to handle accelerating offscreen and oinscreen rendering at 
+the same time.
+
+DRH

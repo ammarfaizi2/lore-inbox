@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbWEaNAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965007AbWEaNGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964992AbWEaNAY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 09:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbWEaNAY
+	id S965007AbWEaNGc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 09:06:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965011AbWEaNGc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 09:00:24 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:63751 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964992AbWEaNAX (ORCPT
+	Wed, 31 May 2006 09:06:32 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:41862 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S964998AbWEaNGb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 09:00:23 -0400
-Date: Wed, 31 May 2006 15:02:15 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Mark Lord <lkml@rtr.ca>
-Cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mason@suse.com,
-       andrea@suse.de, hugh@veritas.com
-Subject: Re: [rfc][patch] remove racy sync_page?
-Message-ID: <20060531130215.GO29535@suse.de>
-References: <447BB3FD.1070707@yahoo.com.au> <Pine.LNX.4.64.0605292117310.5623@g5.osdl.org> <447BD31E.7000503@yahoo.com.au> <447BD63D.2080900@yahoo.com.au> <Pine.LNX.4.64.0605301041200.5623@g5.osdl.org> <447CE43A.6030700@yahoo.com.au> <Pine.LNX.4.64.0605301739030.24646@g5.osdl.org> <447CF252.7010704@rtr.ca> <20060531061110.GB29535@suse.de> <447D923B.1080503@rtr.ca>
+	Wed, 31 May 2006 09:06:31 -0400
+Date: Wed, 31 May 2006 17:06:15 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: David Miller <davem@davemloft.net>, draghuram@rocketmail.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: "Brian F. G. Bidulock" <bidulock@openss7.org>
+Subject: Re: Question about tcp hash function tcp_hashfn()
+Message-ID: <20060531130615.GA32362@2ka.mipt.ru>
+References: <20060530235525.A30563@openss7.org> <20060531.001027.60486156.davem@davemloft.net> <20060531014540.A1319@openss7.org> <20060531.004953.91760903.davem@davemloft.net> <20060531020009.A1868@openss7.org> <20060531090301.GA26782@2ka.mipt.ru> <20060531035124.B3065@openss7.org> <20060531105814.GB7806@2ka.mipt.ru> <20060531110459.GA20551@2ka.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <447D923B.1080503@rtr.ca>
+In-Reply-To: <20060531110459.GA20551@2ka.mipt.ru>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 31 May 2006 17:06:16 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31 2006, Mark Lord wrote:
-> Jens Axboe wrote:
-> >
-> >NCQ helps us with something we can never fix in software - the
-> >rotational latency. Ordering is only a small part of the picture.
+On Wed, May 31, 2006 at 03:04:59PM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
+> On Wed, May 31, 2006 at 02:58:18PM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
+> > On Wed, May 31, 2006 at 03:51:24AM -0600, Brian F. G. Bidulock (bidulock@openss7.org) wrote:
+> > > Evgeniy,
+> > > 
+> > > On Wed, 31 May 2006, Evgeniy Polyakov wrote:
+> > > > 2. Compared Jenkins hash with XOR hash used in TCP socket selection code.
+> > > > http://tservice.net.ru/~s0mbre/blog/2006/05/14#2006_05_14
+> > > 
+> > > Two problems with the comparison:
+> > > 
+> > >   Port numbers can be collected into a 32 bit register in network
+> > >   byte order directly from the TCP packet without taking two 16 bit
+> > >   values and shifting and or'ing them.
+> > 
+> > They are.
+> > 
+> > u32 ports;
+> > 
+> > ports = lport;
+> > ports <<= 16;
+> > ports |= fport;
 > 
-> Yup.  And it also helps reduce the command-to-command latencies.
-
-That too, however that's a much much smaller part.
-
-> I'm all for it, and have implemented tagged queuing for a variety
-> of device drivers over the past five years (TCQ & NCQ).  In every
-> case people say.. wow, I expected more of a difference than that,
-> while still noting the end result was faster under Linux than MS$.
+> Using network or host byte order does not affect hash distribution,
+> that shifting was coded to simulate other types of mixing ports,
+> which actually never showed different results.
 > 
-> Of course with artificial benchmarks, and the right firmware in
-> the right drives, it's easier to create and see a difference.
-> But I'm talking more life-like loads than just a multi-threaded
-> random seek generator.
+> > >   Worse: he folded the jenkins algorith result with
+> > > 
+> > >    h ^= h >> 16;
+> > >    h ^= h >> 8;
+> > > 
+> > >   Destroying the coverage of the function.
+> > 
+> > It was done to simulate socket code which uses the same folding.
+> > Leaving 32bit space is just wrong, consider hash table size with that
+> > index.
 
-Definitely, the random pseudo read work load is about as good as it gets
-for NCQ, and it was tailored to keep the queue full at all times. So I
-agree, real life will see less of a benefit. But it's still there.
+Btw, that probably requires some clarification.
+Since hash table size is definitely less than returned hash value, so
+higher bits are removed, for that case above folding is done both in
+XOR hash and my test case. 
+It is possible to just remove higher bits, but fairly ditributed parts
+being xored produce still fairly distributed value.
 
 -- 
-Jens Axboe
-
+	Evgeniy Polyakov

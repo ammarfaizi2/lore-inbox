@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWEaQ05@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbWEaQ1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751099AbWEaQ05 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 12:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751687AbWEaQ05
+	id S1750957AbWEaQ1J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 12:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965068AbWEaQ1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 12:26:57 -0400
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:10370 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750957AbWEaQ04 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 12:26:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=q37AapZlLJatddbbdDcSpMeY9B1mJX3pC7FUS9NbnLUfjGE+aaQeJvoaQIx66anaMCn6Ql7ue9CibTINYadqI4Nv0Z48DGWXXq/oUZH7JWKXcpeJ45h0W7r/f8dc5eJmSVCHWyj49DB2KdU//MTVusjOjXVjccewON7DJW4uKvQ=  ;
-Message-ID: <447DC3C6.3030709@yahoo.com.au>
-Date: Thu, 01 Jun 2006 02:26:46 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux-kernel@vger.kernel.org, hugh@veritas.com, axboe@suse.de
-Subject: Re: [rfc][patch] remove racy sync_page?
-References: <447AC011.8050708@yahoo.com.au> <20060529121556.349863b8.akpm@osdl.org> <447B8CE6.5000208@yahoo.com.au> <20060529183201.0e8173bc.akpm@osdl.org> <447BB3FD.1070707@yahoo.com.au> <Pine.LNX.4.64.0605292117310.5623@g5.osdl.org> <447BD31E.7000503@yahoo.com.au> <447BD63D.2080900@yahoo.com.au> <Pine.LNX.4.64.0605301041200.5623@g5.osdl.org> <447CE43A.6030700@yahoo.com.au> <Pine.LNX.4.64.0605301739030.24646@g5.osdl.org> <447D9A41.8040601@yahoo.com.au> <Pine.LNX.4.64.0605310740530.24646@g5.osdl.org> <447DAEDE.5070305@yahoo.com.au> <Pine.LNX.4.64.0605310809250.24646@g5.osdl.org> <447DB765.6030702@yahoo.com.au> <Pine.LNX.4.64.0605310840000.24646@g5.osdl.org> <Pine.LNX.4.64.0605310903310.24646@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0605310903310.24646@g5.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 31 May 2006 12:27:09 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:31131 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1750957AbWEaQ1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 12:27:08 -0400
+Subject: [GIT PATCH] scsi bug fixes for 2.6.17-rc5
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-scsi <linux-scsi@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 31 May 2006 11:26:58 -0500
+Message-Id: <1149092818.22134.45.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+This is my current slew of small bug fixes which either fix serious
+bugs, or are completely safe for this -rc5 stage of the kernel.  I've
+added one more since I last sent you this pull request (the fix memory
+building non-aligned sg lists)
 
-> And I suspect your objection to unplugging is not really about unplugging 
-> itself. It's literally about the fact that we use the same page lock for 
-> IO and for the ->mapping thing, isn't it?
+The patch is available from:
 
-Nearly, but not quite that far: it's that we sync_page in lock_page.
+master.kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-rc-fixes-2.6.git
 
-I don't think using the single lock for both is too bad (in many
-ways they are related eg. you don't want the page to be truncated
-while IO is in progress).
+The short changelog is:
 
-> 
-> IOW, you don't actually dislike plugging itself, you dislike it due to the 
-> effects of a totally unrelated locking issue, namely that we use the same 
-> lock for two totally independent things. If the ->mapping thing were to 
-> use a PG_map_lock that didn't affect plugging one way or the other, you 
-> wouldn't have any issues with unplugging, would you?
-> 
-> And I think _that_ is what really gets us to the problem. 
+Bryan Holty:
+  o fix memory building non-aligned sg lists
 
-No I don't dislike plugging at all ;) Just this tangle as you say.
+Eric Moore:
+  o scsi_transport_sas: make write attrs writeable
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+James Bottomley:
+  o scsi_transport_sas; fix user_scan
+  o mptspi: reset handler shouldn't be called for other bus protocols
+
+Randy.Dunlap:
+  o ppa: fix for machines with highmem
+
+Thomas Bogendoerfer:
+  o Blacklist entry for HP dat changer
+
+And the diffstat:
+
+ message/fusion/mptbase.c  |   27 +++++++++++++++++++++------
+ scsi/ppa.c                |    7 +++++++
+ scsi/scsi_devinfo.c       |    1 +
+ scsi/scsi_lib.c           |    2 +-
+ scsi/scsi_transport_sas.c |    4 ++--
+ 5 files changed, 32 insertions(+), 9 deletions(-)
+
+James
+
+

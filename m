@@ -1,72 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965215AbWEaWhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965220AbWEaWnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965215AbWEaWhT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 18:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965216AbWEaWhS
+	id S965220AbWEaWnL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 18:43:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965221AbWEaWnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 18:37:18 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:33159 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S965215AbWEaWhR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 18:37:17 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=bKPEnFkkhcrvVk5GYxiSIX3SOGCDyvQFdPyO77bFZ1a+cRRyHBqMIQKhDLE/YAvQK
-	7CqWROVO2iAsCEwJTPWKQ==
-Message-ID: <447E1A7B.2000200@google.com>
-Date: Wed, 31 May 2006 15:36:43 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, apw@shadowen.org
-Subject: Re: 2.6.17-rc5-mm1
-References: <447DEF47.6010908@google.com> <20060531140823.580dbece.akpm@osdl.org> <20060531211530.GA2716@elte.hu> <447E0A49.4050105@mbligh.org> <20060531213340.GA3535@elte.hu> <447E0DEC.60203@mbligh.org> <20060531215315.GB4059@elte.hu> <447E11B5.7030203@mbligh.org> <20060531221242.GA5269@elte.hu> <447E16E6.7020804@google.com> <20060531223243.GC5269@elte.hu>
-In-Reply-To: <20060531223243.GC5269@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 31 May 2006 18:43:10 -0400
+Received: from smtp1.xs4all.be ([195.144.64.135]:17828 "EHLO smtp1.xs4all.be")
+	by vger.kernel.org with ESMTP id S965220AbWEaWnJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 18:43:09 -0400
+Date: Thu, 1 Jun 2006 00:42:45 +0200
+From: Frank Gevaerts <frank.gevaerts@fks.be>
+To: Greg KH <gregkh@suse.de>
+Cc: Frank Gevaerts <frank.gevaerts@fks.be>, Pete Zaitcev <zaitcev@redhat.com>,
+       lcapitulino@mandriva.com.br, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: [PATCH] ipaq.c bugfixes
+Message-ID: <20060531224245.GB17711@fks.be>
+References: <20060529172410.63dffa72@doriath.conectiva> <20060529204724.GA22250@fks.be> <20060529193330.3c51f3ba@home.brethil> <20060530082141.GA26517@fks.be> <20060530113801.22c71afe@doriath.conectiva> <20060530115329.30184aa0@doriath.conectiva> <20060530174821.GA15969@fks.be> <20060530113327.297aceb7.zaitcev@redhat.com> <20060531213828.GA17711@fks.be> <20060531215523.GA13745@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060531215523.GA13745@suse.de>
+User-Agent: Mutt/1.5.9i
+X-FKS-MailScanner: Found to be clean
+X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-105.816,
+	vereist 5, autolearn=not spam, ALL_TRUSTED -3.30, AWL 0.08,
+	BAYES_00 -2.60, USER_IN_WHITELIST -100.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Martin Bligh <mbligh@google.com> wrote:
-> 
-> 
->>>>OK. So what's the perf impact of the new version on a 32 cpu machine? 
->>>>;-) Maybe it's fine, maybe it's not.
->>>
->>>
->>>no idea, but it shouldnt be nearly as bad as say SLAB_DEBUG.
->>
->>The "no idea" is hardly reassuring ;-)
->>The latter point is definitely valid though, it's not an isolated issue.
-> 
-> 
->>Adding new runs is easy. Changing the harness is hard ;-)
-> 
-> 
-> ok. How about a CONFIG_DEBUG_NO_OVERHEAD option, that would default to 
-> disabled but which you could set to y. Then we could make all the more 
-> expensive debug options:
-> 
-> 	default y if !CONFIG_DEBUG_NO_OVERHEAD
-> 
-> this would still mean you'd have to turn off CONFIG_DEBUG_NO_OVERHEAD, 
-> but it would be automatically maintainable for you after that initial 
-> effort, and we'd be careful to always flag new debugging options with 
-> this flag, if they are expensive. And initially i'd define "expensive" 
-> as "anything that adds runtime overhead".
-> 
-> would this be acceptable to you?
+This patch fixes several problems in the ipaq.c driver with connecting
+and disconnecting pocketpc devices: 
+* The read urb stayed active if the connect failed, causing nullpointer
+  dereferences later on. 
+* If a write failed, the driver continued as if nothing happened. Now it
+  handles that case the same way as other usb serial devices (fix by 
+  "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>)
 
-Sure, makes sense. I don't care which way up it is, ie
-CONFIG_DEBUG_OVERHEAD vs CONFIG_DEBUG_NO_OVERHEAD, as long as it's
-easily separable.
+The connect_retries parameter is added because if a pocketpc device is
+connected while it is rebooting, it can take a long time after the USB
+connect (sometimes several minutes) before it starts accepting the
+control packet that starts the serial connection. Since this is not the
+normal usecase, it is probably better to leave the default number of
+retries as-is.
 
-There's probably other debug stuff we can turn on too, if we do that.
+Signed-off-by: Frank Gevaerts <frank.gevaerts@fks.be>
 
-M.
+diff -pur linux-2.6.17-rc4/drivers/usb/serial/ipaq.c linux-2.6.17-rc4.test/drivers/usb/serial/ipaq.c
+--- linux-2.6.17-rc4/drivers/usb/serial/ipaq.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6.17-rc4.test/drivers/usb/serial/ipaq.c	2006-05-30 20:46:23.000000000 +0200
+@@ -71,6 +71,7 @@
+ 
+ static __u16 product, vendor;
+ static int debug;
++static int connect_retries;
+ 
+ /* Function prototypes for an ipaq */
+ static int  ipaq_open (struct usb_serial_port *port, struct file *filp);
+@@ -583,7 +584,7 @@ static int ipaq_open(struct usb_serial_p
+ 	struct ipaq_private	*priv;
+ 	struct ipaq_packet	*pkt;
+ 	int			i, result = 0;
+-	int			retries = KP_RETRIES;
++	int			retries = connect_retries;
+ 
+ 	dbg("%s - port %d", __FUNCTION__, port->number);
+ 
+@@ -681,6 +682,7 @@ enomem:
+ 	result = -ENOMEM;
+ 	err("%s - Out of memory", __FUNCTION__);
+ error:
++	usb_kill_urb(port->read_urb);
+ 	ipaq_destroy_lists(port);
+ 	kfree(priv);
+ 	return result;
+@@ -855,6 +857,7 @@ static void ipaq_write_bulk_callback(str
+ 	
+ 	if (urb->status) {
+ 		dbg("%s - nonzero write bulk status received: %d", __FUNCTION__, urb->status);
++		return;
+ 	}
+ 
+ 	spin_lock_irqsave(&write_list_lock, flags);
+@@ -967,3 +970,6 @@ MODULE_PARM_DESC(vendor, "User specified
+ 
+ module_param(product, ushort, 0);
+ MODULE_PARM_DESC(product, "User specified USB idProduct");
++
++module_param(connect_retries, int, KP_RETRIES);
++MODULE_PARM_DESC(product, "Maximum number of connect retries (100ms each)");
+
+-- 
+Frank Gevaerts                                 frank.gevaerts@fks.be
+fks bvba - Formal and Knowledge Systems        http://www.fks.be/
+Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
+B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19

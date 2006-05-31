@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWEaS13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbWEaS1P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751232AbWEaS13 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 14:27:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751783AbWEaS12
+	id S965073AbWEaS1P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 14:27:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbWEaS06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 14:27:28 -0400
-Received: from rrcs-24-227-247-130.sw.biz.rr.com ([24.227.247.130]:2263 "EHLO
-	linux.local") by vger.kernel.org with ESMTP id S1751784AbWEaS04
+	Wed, 31 May 2006 14:26:58 -0400
+Received: from rrcs-24-227-247-130.sw.biz.rr.com ([24.227.247.130]:983 "EHLO
+	linux.local") by vger.kernel.org with ESMTP id S1751783AbWEaS0x
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 14:26:56 -0400
+	Wed, 31 May 2006 14:26:53 -0400
 From: Steve Wise <swise@opengridcomputing.com>
-Subject: [PATCH 2/2] iWARP Core Changes.
-Date: Wed, 31 May 2006 13:26:55 -0500
+Subject: [PATCH 1/2] iWARP Connection Manager.
+Date: Wed, 31 May 2006 13:26:52 -0500
 To: rdreier@cisco.com, mshefty@ichips.intel.com
 Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
        openib-general@openib.org
-Message-Id: <20060531182654.3308.41372.stgit@stevo-desktop>
+Message-Id: <20060531182652.3308.1244.stgit@stevo-desktop>
 In-Reply-To: <20060531182650.3308.81538.stgit@stevo-desktop>
 References: <20060531182650.3308.81538.stgit@stevo-desktop>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -25,1142 +25,1233 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch contains modifications to the existing rdma header files,
-core files, drivers, and ulp files to support iWARP.
+This patch provides the new files implementing the iWARP Connection
+Manager.
 ---
 
- drivers/infiniband/core/Makefile             |    4 
- drivers/infiniband/core/addr.c               |    8 -
- drivers/infiniband/core/cache.c              |    8 -
- drivers/infiniband/core/cm.c                 |    3 
- drivers/infiniband/core/cma.c                |  349 +++++++++++++++++++++++---
- drivers/infiniband/core/device.c             |    6 
- drivers/infiniband/core/mad.c                |   11 +
- drivers/infiniband/core/sa_query.c           |    5 
- drivers/infiniband/core/smi.c                |   18 +
- drivers/infiniband/core/sysfs.c              |   18 +
- drivers/infiniband/core/ucm.c                |    5 
- drivers/infiniband/core/user_mad.c           |    9 -
- drivers/infiniband/hw/ipath/ipath_verbs.c    |    2 
- drivers/infiniband/hw/mthca/mthca_provider.c |    2 
- drivers/infiniband/ulp/ipoib/ipoib_main.c    |    8 +
- drivers/infiniband/ulp/srp/ib_srp.c          |    2 
- include/rdma/ib_addr.h                       |   15 +
- include/rdma/ib_verbs.h                      |   39 +++
- 18 files changed, 427 insertions(+), 85 deletions(-)
+ drivers/infiniband/core/iwcm.c |  887 ++++++++++++++++++++++++++++++++++++++++
+ include/rdma/iw_cm.h           |  254 +++++++++++
+ include/rdma/iw_cm_private.h   |   62 +++
+ 3 files changed, 1203 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/infiniband/core/Makefile b/drivers/infiniband/core/Makefile
-index 68e73ec..163d991 100644
---- a/drivers/infiniband/core/Makefile
-+++ b/drivers/infiniband/core/Makefile
-@@ -1,7 +1,7 @@
- infiniband-$(CONFIG_INFINIBAND_ADDR_TRANS)	:= ib_addr.o rdma_cm.o
- 
- obj-$(CONFIG_INFINIBAND) +=		ib_core.o ib_mad.o ib_sa.o \
--					ib_cm.o $(infiniband-y)
-+					ib_cm.o iw_cm.o $(infiniband-y)
- obj-$(CONFIG_INFINIBAND_USER_MAD) +=	ib_umad.o
- obj-$(CONFIG_INFINIBAND_USER_ACCESS) +=	ib_uverbs.o ib_ucm.o
- 
-@@ -14,6 +14,8 @@ ib_sa-y :=			sa_query.o
- 
- ib_cm-y :=			cm.o
- 
-+iw_cm-y :=			iwcm.o
-+
- rdma_cm-y :=			cma.o
- 
- ib_addr-y :=			addr.o
-diff --git a/drivers/infiniband/core/addr.c b/drivers/infiniband/core/addr.c
-index d294bbc..5a9be54 100644
---- a/drivers/infiniband/core/addr.c
-+++ b/drivers/infiniband/core/addr.c
-@@ -60,12 +60,15 @@ static LIST_HEAD(req_list);
- static DECLARE_WORK(work, process_req, NULL);
- static struct workqueue_struct *addr_wq;
- 
--static int copy_addr(struct rdma_dev_addr *dev_addr, struct net_device *dev,
-+int copy_addr(struct rdma_dev_addr *dev_addr, struct net_device *dev,
- 		     unsigned char *dst_dev_addr)
- {
- 	switch (dev->type) {
- 	case ARPHRD_INFINIBAND:
--		dev_addr->dev_type = IB_NODE_CA;
-+		dev_addr->dev_type = RDMA_NODE_IB_CA;
-+		break;
-+	case ARPHRD_ETHER:
-+		dev_addr->dev_type = RDMA_NODE_RNIC;
- 		break;
- 	default:
- 		return -EADDRNOTAVAIL;
-@@ -77,6 +80,7 @@ static int copy_addr(struct rdma_dev_add
- 		memcpy(dev_addr->dst_dev_addr, dst_dev_addr, MAX_ADDR_LEN);
- 	return 0;
- }
-+EXPORT_SYMBOL(copy_addr);
- 
- int rdma_translate_ip(struct sockaddr *addr, struct rdma_dev_addr *dev_addr)
- {
-diff --git a/drivers/infiniband/core/cache.c b/drivers/infiniband/core/cache.c
-index e05ca2c..061858c 100644
---- a/drivers/infiniband/core/cache.c
-+++ b/drivers/infiniband/core/cache.c
-@@ -32,13 +32,12 @@
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  * SOFTWARE.
-  *
-- * $Id: cache.c 1349 2004-12-16 21:09:43Z roland $
-+ * $Id: cache.c 6885 2006-05-03 18:22:02Z sean.hefty $
-  */
- 
- #include <linux/module.h>
- #include <linux/errno.h>
- #include <linux/slab.h>
--#include <linux/sched.h>	/* INIT_WORK, schedule_work(), flush_scheduled_work() */
- 
- #include <rdma/ib_cache.h>
- 
-@@ -62,12 +61,13 @@ struct ib_update_work {
- 
- static inline int start_port(struct ib_device *device)
- {
--	return device->node_type == IB_NODE_SWITCH ? 0 : 1;
-+	return (device->node_type == RDMA_NODE_IB_SWITCH) ? 0 : 1;
- }
- 
- static inline int end_port(struct ib_device *device)
- {
--	return device->node_type == IB_NODE_SWITCH ? 0 : device->phys_port_cnt;
-+	return (device->node_type == RDMA_NODE_IB_SWITCH) ?
-+		0 : device->phys_port_cnt;
- }
- 
- int ib_get_cached_gid(struct ib_device *device,
-diff --git a/drivers/infiniband/core/cm.c b/drivers/infiniband/core/cm.c
-index 1c7463b..cf43ccb 100644
---- a/drivers/infiniband/core/cm.c
-+++ b/drivers/infiniband/core/cm.c
-@@ -3253,6 +3253,9 @@ static void cm_add_one(struct ib_device 
- 	int ret;
- 	u8 i;
- 
-+	if (rdma_node_get_transport(device->node_type) != RDMA_TRANSPORT_IB)
-+		return;
-+
- 	cm_dev = kmalloc(sizeof(*cm_dev) + sizeof(*port) *
- 			 device->phys_port_cnt, GFP_KERNEL);
- 	if (!cm_dev)
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 94555d2..2e0be1d 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -43,6 +43,7 @@ #include <rdma/rdma_cm_ib.h>
- #include <rdma/ib_cache.h>
- #include <rdma/ib_cm.h>
- #include <rdma/ib_sa.h>
+diff --git a/drivers/infiniband/core/iwcm.c b/drivers/infiniband/core/iwcm.c
+new file mode 100644
+index 0000000..5657ee8
+--- /dev/null
++++ b/drivers/infiniband/core/iwcm.c
+@@ -0,0 +1,887 @@
++/*
++ * Copyright (c) 2004, 2005 Intel Corporation.  All rights reserved.
++ * Copyright (c) 2004 Topspin Corporation.  All rights reserved.
++ * Copyright (c) 2004, 2005 Voltaire Corporation.  All rights reserved.
++ * Copyright (c) 2005 Sun Microsystems, Inc. All rights reserved.
++ * Copyright (c) 2005 Open Grid Computing, Inc. All rights reserved.
++ * Copyright (c) 2005 Network Appliance, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ *
++ */
++#include <linux/dma-mapping.h>
++#include <linux/err.h>
++#include <linux/idr.h>
++#include <linux/interrupt.h>
++#include <linux/pci.h>
++#include <linux/rbtree.h>
++#include <linux/spinlock.h>
++#include <linux/workqueue.h>
 +#include <rdma/iw_cm.h>
- 
- MODULE_AUTHOR("Sean Hefty");
- MODULE_DESCRIPTION("Generic RDMA CM Agent");
-@@ -124,6 +125,7 @@ struct rdma_id_private {
- 	int			query_id;
- 	union {
- 		struct ib_cm_id	*ib;
-+		struct iw_cm_id	*iw;
- 	} cm_id;
- 
- 	u32			seq_num;
-@@ -259,13 +261,23 @@ static void cma_detach_from_dev(struct r
- 	id_priv->cma_dev = NULL;
- }
- 
--static int cma_acquire_ib_dev(struct rdma_id_private *id_priv)
-+static int cma_acquire_dev(struct rdma_id_private *id_priv)
- {
-+	enum rdma_node_type dev_type = id_priv->id.route.addr.dev_addr.dev_type;
- 	struct cma_device *cma_dev;
- 	union ib_gid *gid;
- 	int ret = -ENODEV;
- 
--	gid = ib_addr_get_sgid(&id_priv->id.route.addr.dev_addr);
-+	switch (rdma_node_get_transport(dev_type)) {
-+	case RDMA_TRANSPORT_IB:
-+		gid = ib_addr_get_sgid(&id_priv->id.route.addr.dev_addr);
-+		break;
-+	case RDMA_TRANSPORT_IWARP:
-+		gid = iw_addr_get_sgid(&id_priv->id.route.addr.dev_addr);
-+		break;
-+	default:
-+		return -ENODEV;
++#include <rdma/iw_cm_private.h>
++#include <rdma/ib_addr.h>
++
++MODULE_AUTHOR("Tom Tucker");
++MODULE_DESCRIPTION("iWARP CM");
++MODULE_LICENSE("Dual BSD/GPL");
++
++static struct workqueue_struct *iwcm_wq;
++struct iwcm_work {
++	struct work_struct work;
++	struct iwcm_id_private *cm_id;
++	struct list_head list;
++	struct iw_cm_event event;
++};
++
++/* 
++ * Release a reference on cm_id. If the last reference is being removed
++ * and iw_destroy_cm_id is waiting, wake up the waiting thread.
++ */
++static int iwcm_deref_id(struct iwcm_id_private *cm_id_priv)
++{
++	int ret = 0;
++
++	BUG_ON(atomic_read(&cm_id_priv->refcount)==0);
++	if (atomic_dec_and_test(&cm_id_priv->refcount)) {
++		BUG_ON(!list_empty(&cm_id_priv->work_list));
++		if (waitqueue_active(&cm_id_priv->destroy_wait)) {
++			BUG_ON(cm_id_priv->state != IW_CM_STATE_DESTROYING);
++			BUG_ON(test_bit(IWCM_F_CALLBACK_DESTROY,
++					&cm_id_priv->flags));
++			ret = 1;
++			wake_up(&cm_id_priv->destroy_wait);
++		}
 +	}
- 
- 	mutex_lock(&lock);
- 	list_for_each_entry(cma_dev, &dev_list, list) {
-@@ -280,16 +292,6 @@ static int cma_acquire_ib_dev(struct rdm
- 	return ret;
- }
- 
--static int cma_acquire_dev(struct rdma_id_private *id_priv)
--{
--	switch (id_priv->id.route.addr.dev_addr.dev_type) {
--	case IB_NODE_CA:
--		return cma_acquire_ib_dev(id_priv);
--	default:
--		return -ENODEV;
--	}
--}
--
- static void cma_deref_id(struct rdma_id_private *id_priv)
- {
- 	if (atomic_dec_and_test(&id_priv->refcount))
-@@ -347,6 +349,16 @@ static int cma_init_ib_qp(struct rdma_id
- 					  IB_QP_PKEY_INDEX | IB_QP_PORT);
- }
- 
-+static int cma_init_iw_qp(struct rdma_id_private *id_priv, struct ib_qp *qp)
++
++	return ret;
++}
++
++static void add_ref(struct iw_cm_id *cm_id)
++{
++	struct iwcm_id_private *cm_id_priv;
++	cm_id_priv = container_of(cm_id, struct iwcm_id_private, id);
++	atomic_inc(&cm_id_priv->refcount);
++}
++
++static void rem_ref(struct iw_cm_id *cm_id)
++{
++	struct iwcm_id_private *cm_id_priv;
++	cm_id_priv = container_of(cm_id, struct iwcm_id_private, id);
++	iwcm_deref_id(cm_id_priv);
++}
++
++static void cm_event_handler(struct iw_cm_id *cm_id, struct iw_cm_event *event);
++
++struct iw_cm_id *iw_create_cm_id(struct ib_device *device,
++				 iw_cm_handler cm_handler,
++				 void *context)
++{
++	struct iwcm_id_private *cm_id_priv;
++
++	cm_id_priv = kzalloc(sizeof *cm_id_priv, GFP_KERNEL);
++	if (!cm_id_priv)
++		return ERR_PTR(-ENOMEM);
++
++	cm_id_priv->state = IW_CM_STATE_IDLE;
++	cm_id_priv->id.device = device;
++	cm_id_priv->id.cm_handler = cm_handler;
++	cm_id_priv->id.context = context;
++	cm_id_priv->id.event_handler = cm_event_handler;
++	cm_id_priv->id.add_ref = add_ref;
++	cm_id_priv->id.rem_ref = rem_ref;
++	spin_lock_init(&cm_id_priv->lock);
++	atomic_set(&cm_id_priv->refcount, 1);
++	init_waitqueue_head(&cm_id_priv->connect_wait);
++	init_waitqueue_head(&cm_id_priv->destroy_wait);
++	INIT_LIST_HEAD(&cm_id_priv->work_list);
++
++	return &cm_id_priv->id;
++}
++EXPORT_SYMBOL(iw_create_cm_id);
++
++
++static int iwcm_modify_qp_err(struct ib_qp *qp)
 +{
 +	struct ib_qp_attr qp_attr;
 +
-+	qp_attr.qp_state = IB_QPS_INIT;
-+	qp_attr.qp_access_flags = IB_ACCESS_LOCAL_WRITE;
++	if (!qp)
++		return -EINVAL;
 +
-+	return ib_modify_qp(qp, &qp_attr, IB_QP_STATE | IB_QP_ACCESS_FLAGS);
++	qp_attr.qp_state = IB_QPS_ERR;
++	return ib_modify_qp(qp, &qp_attr, IB_QP_STATE);
 +}
 +
- int rdma_create_qp(struct rdma_cm_id *id, struct ib_pd *pd,
- 		   struct ib_qp_init_attr *qp_init_attr)
- {
-@@ -362,10 +374,13 @@ int rdma_create_qp(struct rdma_cm_id *id
- 	if (IS_ERR(qp))
- 		return PTR_ERR(qp);
- 
--	switch (id->device->node_type) {
--	case IB_NODE_CA:
-+	switch (rdma_node_get_transport(id->device->node_type)) {
-+	case RDMA_TRANSPORT_IB:
- 		ret = cma_init_ib_qp(id_priv, qp);
- 		break;
-+	case RDMA_TRANSPORT_IWARP:
-+		ret = cma_init_iw_qp(id_priv, qp);
-+		break;
- 	default:
- 		ret = -ENOSYS;
- 		break;
-@@ -451,13 +466,17 @@ int rdma_init_qp_attr(struct rdma_cm_id 
- 	int ret;
- 
- 	id_priv = container_of(id, struct rdma_id_private, id);
--	switch (id_priv->id.device->node_type) {
--	case IB_NODE_CA:
-+	switch (rdma_node_get_transport(id_priv->id.device->node_type)) {
-+	case RDMA_TRANSPORT_IB:
- 		ret = ib_cm_init_qp_attr(id_priv->cm_id.ib, qp_attr,
- 					 qp_attr_mask);
- 		if (qp_attr->qp_state == IB_QPS_RTR)
- 			qp_attr->rq_psn = id_priv->seq_num;
- 		break;
-+	case RDMA_TRANSPORT_IWARP:
-+		ret = iw_cm_init_qp_attr(id_priv->cm_id.iw, qp_attr,
-+					qp_attr_mask);
-+		break;
- 	default:
- 		ret = -ENOSYS;
- 		break;
-@@ -590,8 +609,8 @@ static int cma_notify_user(struct rdma_i
- 
- static void cma_cancel_route(struct rdma_id_private *id_priv)
- {
--	switch (id_priv->id.device->node_type) {
--	case IB_NODE_CA:
-+	switch (rdma_node_get_transport(id_priv->id.device->node_type)) {
-+	case RDMA_TRANSPORT_IB:
- 		if (id_priv->query)
- 			ib_sa_cancel_query(id_priv->query_id, id_priv->query);
- 		break;
-@@ -611,11 +630,15 @@ static void cma_destroy_listen(struct rd
- 	cma_exch(id_priv, CMA_DESTROYING);
- 
- 	if (id_priv->cma_dev) {
--		switch (id_priv->id.device->node_type) {
--		case IB_NODE_CA:
-+		switch (rdma_node_get_transport(id_priv->id.device->node_type)) {
-+		case RDMA_TRANSPORT_IB:
- 	 		if (id_priv->cm_id.ib && !IS_ERR(id_priv->cm_id.ib))
- 				ib_destroy_cm_id(id_priv->cm_id.ib);
- 			break;
-+		case RDMA_TRANSPORT_IWARP:
-+	 		if (id_priv->cm_id.iw && !IS_ERR(id_priv->cm_id.iw))
-+				iw_destroy_cm_id(id_priv->cm_id.iw);
-+			break;
- 		default:
- 			break;
- 		}
-@@ -690,11 +713,15 @@ void rdma_destroy_id(struct rdma_cm_id *
- 	cma_cancel_operation(id_priv, state);
- 
- 	if (id_priv->cma_dev) {
--		switch (id->device->node_type) {
--		case IB_NODE_CA:
-+		switch (rdma_node_get_transport(id->device->node_type)) {
-+		case RDMA_TRANSPORT_IB:
- 	 		if (id_priv->cm_id.ib && !IS_ERR(id_priv->cm_id.ib))
- 				ib_destroy_cm_id(id_priv->cm_id.ib);
- 			break;
-+		case RDMA_TRANSPORT_IWARP:
-+	 		if (id_priv->cm_id.iw && !IS_ERR(id_priv->cm_id.iw))
-+				iw_destroy_cm_id(id_priv->cm_id.iw);
-+			break;
- 		default:
- 			break;
- 		}
-@@ -868,7 +895,7 @@ static struct rdma_id_private *cma_new_i
- 	ib_addr_set_sgid(&rt->addr.dev_addr, &rt->path_rec[0].sgid);
- 	ib_addr_set_dgid(&rt->addr.dev_addr, &rt->path_rec[0].dgid);
- 	ib_addr_set_pkey(&rt->addr.dev_addr, be16_to_cpu(rt->path_rec[0].pkey));
--	rt->addr.dev_addr.dev_type = IB_NODE_CA;
-+	rt->addr.dev_addr.dev_type = RDMA_NODE_IB_CA;
- 
- 	id_priv = container_of(id, struct rdma_id_private, id);
- 	id_priv->state = CMA_CONNECT;
-@@ -897,7 +924,7 @@ static int cma_req_handler(struct ib_cm_
- 	}
- 
- 	atomic_inc(&conn_id->dev_remove);
--	ret = cma_acquire_ib_dev(conn_id);
-+	ret = cma_acquire_dev(conn_id);
- 	if (ret) {
- 		ret = -ENODEV;
- 		cma_release_remove(conn_id);
-@@ -981,6 +1008,124 @@ static void cma_set_compare_data(enum rd
- 	}
- }
- 
-+static int cma_iw_handler(struct iw_cm_id *iw_id, struct iw_cm_event *iw_event)
++/* 
++ * This is really the RDMAC CLOSING state. It is most similar to the
++ * IB SQD QP state. 
++ */
++static int iwcm_modify_qp_sqd(struct ib_qp *qp)
 +{
-+	struct rdma_id_private *id_priv = iw_id->context;
-+	enum rdma_cm_event_type event = 0;
-+	struct sockaddr_in *sin;
++	struct ib_qp_attr qp_attr;
++
++	BUG_ON(qp == NULL);
++	qp_attr.qp_state = IB_QPS_SQD;
++	return ib_modify_qp(qp, &qp_attr, IB_QP_STATE);
++}
++
++/* 
++ * CM_ID <-- CLOSING
++ *
++ * Block if a passive or active connection is currenlty being processed. Then
++ * process the event as follows:
++ * - If we are ESTABLISHED, move to CLOSING and modify the QP state
++ *   based on the abrupt flag 
++ * - If the connection is already in the CLOSING or IDLE state, the peer is
++ *   disconnecting concurrently with us and we've already seen the 
++ *   DISCONNECT event -- ignore the request and return 0
++ * - Disconnect on a listening endpoint returns -EINVAL
++ */
++int iw_cm_disconnect(struct iw_cm_id *cm_id, int abrupt)
++{
++	struct iwcm_id_private *cm_id_priv;
++	unsigned long flags;
 +	int ret = 0;
 +
-+	atomic_inc(&id_priv->dev_remove);
++	cm_id_priv = container_of(cm_id, struct iwcm_id_private, id);
++	/* Wait if we're currently in a connect or accept downcall */
++	wait_event(cm_id_priv->connect_wait, 
++		   !test_bit(IWCM_F_CONNECT_WAIT, &cm_id_priv->flags));
 +
-+	switch (iw_event->event) {
-+	case IW_CM_EVENT_CLOSE:
-+		event = RDMA_CM_EVENT_DISCONNECTED;
-+		break;
-+	case IW_CM_EVENT_CONNECT_REPLY:
-+		sin = (struct sockaddr_in*)&id_priv->id.route.addr.src_addr;
-+		*sin = iw_event->local_addr;
-+		sin = (struct sockaddr_in*)&id_priv->id.route.addr.dst_addr;
-+		*sin = iw_event->remote_addr;
-+		if (iw_event->status)
-+			event = RDMA_CM_EVENT_REJECTED;
++	spin_lock_irqsave(&cm_id_priv->lock, flags);
++	switch (cm_id_priv->state) {
++	case IW_CM_STATE_ESTABLISHED:
++		cm_id_priv->state = IW_CM_STATE_CLOSING;
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		if (cm_id_priv->qp)	{ /* QP could be <nul> for user-mode client */
++			if (abrupt)
++				ret = iwcm_modify_qp_err(cm_id_priv->qp);
++			else
++				ret = iwcm_modify_qp_sqd(cm_id_priv->qp);
++			/* 
++			 * If both sides are disconnecting the QP could
++			 * already be in ERR or SQD states
++			 */
++			ret = 0;
++		}
 +		else
-+			event = RDMA_CM_EVENT_ESTABLISHED;
++			ret = -EINVAL;
 +		break;
-+	case IW_CM_EVENT_ESTABLISHED:
-+		event = RDMA_CM_EVENT_ESTABLISHED;
++	case IW_CM_STATE_LISTEN:
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		ret = -EINVAL;
++		break;
++	case IW_CM_STATE_CLOSING:
++		/* remote peer closed first */
++	case IW_CM_STATE_IDLE:	
++		/* accept or connect returned !0 */
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		break;
++	case IW_CM_STATE_CONN_RECV:
++		/* 
++		 * App called disconnect before/without calling accept after
++		 * connect_request event delivered.
++		 */
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		break;
++	case IW_CM_STATE_CONN_SENT:
++		/* Can only get here if wait above fails */
++	default:		
++		BUG_ON(1);
++	}
++
++	return ret;
++}
++EXPORT_SYMBOL(iw_cm_disconnect);
++
++/* 
++ * CM_ID <-- DESTROYING
++ * 
++ * Clean up all resources associated with the connection and release
++ * the initial reference taken by iw_create_cm_id. 
++ */
++static void destroy_cm_id(struct iw_cm_id *cm_id)
++{
++	struct iwcm_id_private *cm_id_priv;
++	unsigned long flags;
++	int ret;
++
++	cm_id_priv = container_of(cm_id, struct iwcm_id_private, id);
++	/* Wait if we're currently in a connect or accept downcall. A
++	 * listening endpoint should never block here. */
++	wait_event(cm_id_priv->connect_wait, 
++		   !test_bit(IWCM_F_CONNECT_WAIT, &cm_id_priv->flags));
++
++	spin_lock_irqsave(&cm_id_priv->lock, flags);
++	switch (cm_id_priv->state) {
++	case IW_CM_STATE_LISTEN:
++		cm_id_priv->state = IW_CM_STATE_DESTROYING;
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		/* destroy the listening endpoint */
++		ret = cm_id->device->iwcm->destroy_listen(cm_id);
++		break;
++	case IW_CM_STATE_ESTABLISHED:
++		cm_id_priv->state = IW_CM_STATE_DESTROYING;
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		/* Abrupt close of the connection */
++		(void)iwcm_modify_qp_err(cm_id_priv->qp);
++		break;
++	case IW_CM_STATE_IDLE:
++	case IW_CM_STATE_CLOSING:
++		cm_id_priv->state = IW_CM_STATE_DESTROYING;
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		break;
++	case IW_CM_STATE_CONN_RECV:
++		/* 
++		 * App called destroy before/without calling accept after
++		 * receiving connection request event notification.
++		 */ 
++		cm_id_priv->state = IW_CM_STATE_DESTROYING;
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		break;
++	case IW_CM_STATE_CONN_SENT:
++	case IW_CM_STATE_DESTROYING:
++	default:
++		BUG_ON(1);
++		break;
++	}
++
++	spin_lock_irqsave(&cm_id_priv->lock, flags);
++	if (cm_id_priv->qp) {
++		cm_id_priv->id.device->iwcm->rem_ref(cm_id_priv->qp);
++		cm_id_priv->qp = NULL;
++	}
++	spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++
++	(void)iwcm_deref_id(cm_id_priv);
++}
++
++/* 
++ * This function is only called by the application thread and cannot
++ * be called by the event thread. The function will wait for all
++ * references to be released on the cm_id and then kfree the cm_id
++ * object. 
++ */
++void iw_destroy_cm_id(struct iw_cm_id *cm_id)
++{
++	struct iwcm_id_private *cm_id_priv;
++
++	cm_id_priv = container_of(cm_id, struct iwcm_id_private, id);
++        BUG_ON(test_bit(IWCM_F_CALLBACK_DESTROY, &cm_id_priv->flags));
++
++	destroy_cm_id(cm_id);
++
++	wait_event(cm_id_priv->destroy_wait, 
++		   !atomic_read(&cm_id_priv->refcount));
++
++	kfree(cm_id_priv);
++}
++EXPORT_SYMBOL(iw_destroy_cm_id);
++
++/* 
++ * CM_ID <-- LISTEN
++ *
++ * Start listening for connect requests. Generates one CONNECT_REQUEST
++ * event for each inbound connect request. 
++ */
++int iw_cm_listen(struct iw_cm_id *cm_id, int backlog)
++{
++	struct iwcm_id_private *cm_id_priv;
++	unsigned long flags;
++	int ret = 0;
++
++	cm_id_priv = container_of(cm_id, struct iwcm_id_private, id);
++	spin_lock_irqsave(&cm_id_priv->lock, flags);
++	switch (cm_id_priv->state) {
++	case IW_CM_STATE_IDLE:
++		cm_id_priv->state = IW_CM_STATE_LISTEN;
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		ret = cm_id->device->iwcm->create_listen(cm_id, backlog);
++		if (ret)
++			cm_id_priv->state = IW_CM_STATE_IDLE;
++		break;
++	default:
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		ret = -EINVAL;
++	}
++
++	return ret;
++}
++EXPORT_SYMBOL(iw_cm_listen);
++
++/* 
++ * CM_ID <-- IDLE
++ *
++ * Rejects an inbound connection request. No events are generated.
++ */
++int iw_cm_reject(struct iw_cm_id *cm_id,
++		 const void *private_data,
++		 u8 private_data_len)
++{
++	struct iwcm_id_private *cm_id_priv;
++	unsigned long flags;
++	int ret;
++
++	cm_id_priv = container_of(cm_id, struct iwcm_id_private, id);
++	set_bit(IWCM_F_CONNECT_WAIT, &cm_id_priv->flags);
++
++	spin_lock_irqsave(&cm_id_priv->lock, flags);
++	if (cm_id_priv->state != IW_CM_STATE_CONN_RECV) {
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		clear_bit(IWCM_F_CONNECT_WAIT, &cm_id_priv->flags);
++		wake_up_all(&cm_id_priv->connect_wait);
++		return -EINVAL;
++	}
++	cm_id_priv->state = IW_CM_STATE_IDLE;
++	spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++
++	ret = cm_id->device->iwcm->reject(cm_id, private_data, 
++					  private_data_len);
++
++	clear_bit(IWCM_F_CONNECT_WAIT, &cm_id_priv->flags);
++	wake_up_all(&cm_id_priv->connect_wait);
++
++	return ret;
++}
++EXPORT_SYMBOL(iw_cm_reject);
++
++/* 
++ * CM_ID <-- ESTABLISHED
++ *
++ * Accepts an inbound connection request and generates an ESTABLISHED
++ * event. Callers of iw_cm_disconnect and iw_destroy_cm_id will block
++ * until the ESTABLISHED event is received from the provider. 
++ */
++int iw_cm_accept(struct iw_cm_id *cm_id, 
++		 struct iw_cm_conn_param *iw_param)
++{
++	struct iwcm_id_private *cm_id_priv;
++	struct ib_qp *qp;
++	unsigned long flags;
++	int ret;
++
++	cm_id_priv = container_of(cm_id, struct iwcm_id_private, id);
++	set_bit(IWCM_F_CONNECT_WAIT, &cm_id_priv->flags);
++
++	spin_lock_irqsave(&cm_id_priv->lock, flags);
++	if (cm_id_priv->state != IW_CM_STATE_CONN_RECV) {
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		clear_bit(IWCM_F_CONNECT_WAIT, &cm_id_priv->flags);
++		wake_up_all(&cm_id_priv->connect_wait);
++		return -EINVAL;
++	}
++	/* Get the ib_qp given the QPN */
++	qp = cm_id->device->iwcm->get_qp(cm_id->device, iw_param->qpn);
++	if (!qp) {
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		return -EINVAL;
++	}
++	cm_id->device->iwcm->add_ref(qp);
++	cm_id_priv->qp = qp;
++	spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++
++	ret = cm_id->device->iwcm->accept(cm_id, iw_param);
++	if (ret) {
++		/* An error on accept precludes provider events */
++		BUG_ON(cm_id_priv->state != IW_CM_STATE_CONN_RECV);
++		cm_id_priv->state = IW_CM_STATE_IDLE;
++		spin_lock_irqsave(&cm_id_priv->lock, flags);
++		if (cm_id_priv->qp) {
++			cm_id->device->iwcm->rem_ref(qp);
++			cm_id_priv->qp = NULL;
++		}
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		printk("Accept failed, ret=%d\n", ret);
++		clear_bit(IWCM_F_CONNECT_WAIT, &cm_id_priv->flags);
++		wake_up_all(&cm_id_priv->connect_wait);
++	}			
++
++	return ret;
++}
++EXPORT_SYMBOL(iw_cm_accept);
++
++/*
++ * Active Side: CM_ID <-- CONN_SENT
++ *
++ * If successful, results in the generation of a CONNECT_REPLY
++ * event. iw_cm_disconnect and iw_cm_destroy will block until the
++ * CONNECT_REPLY event is received from the provider.
++ */
++int iw_cm_connect(struct iw_cm_id *cm_id, struct iw_cm_conn_param *iw_param)
++{
++	struct iwcm_id_private *cm_id_priv;
++	int ret = 0;
++	unsigned long flags;
++	struct ib_qp *qp;
++
++	cm_id_priv = container_of(cm_id, struct iwcm_id_private, id);
++	set_bit(IWCM_F_CONNECT_WAIT, &cm_id_priv->flags);
++
++	spin_lock_irqsave(&cm_id_priv->lock, flags);
++	if (cm_id_priv->state != IW_CM_STATE_IDLE) {
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		clear_bit(IWCM_F_CONNECT_WAIT, &cm_id_priv->flags);
++		wake_up_all(&cm_id_priv->connect_wait);
++		return -EINVAL;
++	}
++		
++	/* Get the ib_qp given the QPN */
++	qp = cm_id->device->iwcm->get_qp(cm_id->device, iw_param->qpn);
++	if (!qp) {
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		return -EINVAL;
++	}
++	cm_id->device->iwcm->add_ref(qp);
++	cm_id_priv->qp = qp;
++	cm_id_priv->state = IW_CM_STATE_CONN_SENT;
++	spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++
++	ret = cm_id->device->iwcm->connect(cm_id, iw_param);
++	if (ret) {
++		spin_lock_irqsave(&cm_id_priv->lock, flags);
++		if (cm_id_priv->qp) {
++			cm_id->device->iwcm->rem_ref(qp);
++			cm_id_priv->qp = NULL;
++		}
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		BUG_ON(cm_id_priv->state != IW_CM_STATE_CONN_SENT);
++		cm_id_priv->state = IW_CM_STATE_IDLE;
++		printk("Connect failed, ret=%d\n", ret);
++		clear_bit(IWCM_F_CONNECT_WAIT, &cm_id_priv->flags);
++		wake_up_all(&cm_id_priv->connect_wait);
++	}
++
++	return ret;
++}
++EXPORT_SYMBOL(iw_cm_connect);
++
++/*
++ * Passive Side: new CM_ID <-- CONN_RECV
++ *
++ * Handles an inbound connect request. The function creates a new
++ * iw_cm_id to represent the new connection and inherits the client
++ * callback function and other attributes from the listening parent. 
++ * 
++ * The work item contains a pointer to the listen_cm_id and the event. The
++ * listen_cm_id contains the client cm_handler, context and
++ * device. These are copied when the device is cloned. The event
++ * contains the new four tuple.
++ *
++ * An error on the child should not affect the parent, so this
++ * function does not return a value.
++ */
++static void cm_conn_req_handler(struct iwcm_id_private *listen_id_priv, 
++				struct iw_cm_event *iw_event)
++{
++	unsigned long flags;
++	struct iw_cm_id *cm_id;
++	struct iwcm_id_private *cm_id_priv;
++	int ret;
++
++	/* The provider should never generate a connection request
++	 * event with a bad status. 
++	 */
++	BUG_ON(iw_event->status);
++
++	/* We could be destroying the listening id. If so, ignore this
++	 * upcall. */
++	spin_lock_irqsave(&listen_id_priv->lock, flags);
++	if (listen_id_priv->state != IW_CM_STATE_LISTEN) {
++		spin_unlock_irqrestore(&listen_id_priv->lock, flags);
++		return;
++	}
++	spin_unlock_irqrestore(&listen_id_priv->lock, flags);
++
++	cm_id = iw_create_cm_id(listen_id_priv->id.device,	
++				listen_id_priv->id.cm_handler, 
++				listen_id_priv->id.context);
++	/* If the cm_id could not be created, ignore the request */
++	if (IS_ERR(cm_id)) 
++		return;
++
++	cm_id->provider_data = iw_event->provider_data;
++	cm_id->local_addr = iw_event->local_addr;
++	cm_id->remote_addr = iw_event->remote_addr;
++
++	cm_id_priv = container_of(cm_id, struct iwcm_id_private, id);
++	cm_id_priv->state = IW_CM_STATE_CONN_RECV;
++	
++	/* Call the client CM handler */
++	ret = cm_id->cm_handler(cm_id, iw_event);
++	if (ret) {
++		printk("destroying child id %p, ret=%d\n",
++		       cm_id, ret);
++		set_bit(IWCM_F_CALLBACK_DESTROY, &cm_id_priv->flags);
++		destroy_cm_id(cm_id);
++		if (atomic_read(&cm_id_priv->refcount)==0)
++			kfree(cm_id);
++	}
++}
++
++/*
++ * Passive Side: CM_ID <-- ESTABLISHED
++ * 
++ * The provider generated an ESTABLISHED event which means that 
++ * the MPA negotion has completed successfully and we are now in MPA
++ * FPDU mode. 
++ *
++ * This event can only be received in the CONN_RECV state. If the
++ * remote peer closed, the ESTABLISHED event would be received followed
++ * by the CLOSE event. If the app closes, it will block until we wake
++ * it up after processing this event.
++ */
++static int cm_conn_est_handler(struct iwcm_id_private *cm_id_priv, 
++			       struct iw_cm_event *iw_event)
++{
++	unsigned long flags;
++	int ret = 0;
++
++	spin_lock_irqsave(&cm_id_priv->lock, flags);
++
++	/* We clear the CONNECT_WAIT bit here to allow the callback
++	 * function to call iw_cm_disconnect. Calling iw_destroy_cm_id
++	 * from a callback handler is not allowed */
++	clear_bit(IWCM_F_CONNECT_WAIT, &cm_id_priv->flags);
++	switch (cm_id_priv->state) {
++	case IW_CM_STATE_CONN_RECV:
++		cm_id_priv->state = IW_CM_STATE_ESTABLISHED;
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		ret = cm_id_priv->id.cm_handler(&cm_id_priv->id, iw_event);
 +		break;
 +	default:
 +		BUG_ON(1);
-+	}	
-+
-+	ret = cma_notify_user(id_priv, event, iw_event->status, 
-+			      iw_event->private_data, 
-+			      iw_event->private_data_len);
-+	if (ret) {
-+		/* Destroy the CM ID by returning a non-zero value. */
-+		id_priv->cm_id.iw = NULL;
-+		cma_exch(id_priv, CMA_DESTROYING);
-+		cma_release_remove(id_priv);
-+		rdma_destroy_id(&id_priv->id);
-+		return ret;
 +	}
++	wake_up_all(&cm_id_priv->connect_wait);
 +
-+	cma_release_remove(id_priv);
 +	return ret;
 +}
 +
-+struct net_device *ip_dev_find(u32 ip);
-+static int iw_conn_req_handler(struct iw_cm_id *cm_id, 
++/*
++ * Active Side: CM_ID <-- ESTABLISHED
++ *
++ * The app has called connect and is waiting for the established event to
++ * post it's requests to the server. This event will wake up anyone
++ * blocked in iw_cm_disconnect or iw_destroy_id.
++ */
++static int cm_conn_rep_handler(struct iwcm_id_private *cm_id_priv, 
 +			       struct iw_cm_event *iw_event)
 +{
-+	struct rdma_cm_id *new_cm_id;
-+	struct rdma_id_private *listen_id, *conn_id;
-+	struct sockaddr_in *sin;
-+	struct net_device *dev;
-+	int ret;
++	unsigned long flags;
++	int ret = 0;
 +
-+	listen_id = cm_id->context;
-+	atomic_inc(&listen_id->dev_remove);
-+	if (!cma_comp(listen_id, CMA_LISTEN)) {
-+		ret = -ECONNABORTED;
-+		goto out;
++	spin_lock_irqsave(&cm_id_priv->lock, flags);
++	/* Clear the connect wait bit so a callback function calling
++	 * iw_cm_disconnect will not wait and deadlock this thread */
++	clear_bit(IWCM_F_CONNECT_WAIT, &cm_id_priv->flags);
++	switch (cm_id_priv->state) {
++	case IW_CM_STATE_CONN_SENT:
++		if (iw_event->status == IW_CM_EVENT_STATUS_ACCEPTED) {
++			cm_id_priv->id.local_addr = iw_event->local_addr;
++			cm_id_priv->id.remote_addr = iw_event->remote_addr;
++			cm_id_priv->state = IW_CM_STATE_ESTABLISHED;
++		} else {
++			/* REJECTED or RESET */
++			cm_id_priv->id.device->iwcm->rem_ref(cm_id_priv->qp);
++			cm_id_priv->qp = NULL;
++			cm_id_priv->state = IW_CM_STATE_IDLE;
++		}
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		ret = cm_id_priv->id.cm_handler(&cm_id_priv->id, iw_event);
++		break;
++	default:
++		BUG_ON(1);
 +	}
++	/* Wake up waiters on connect complete */
++	wake_up_all(&cm_id_priv->connect_wait);
 +
-+	/* Create a new RDMA id for the new IW CM ID */
-+	new_cm_id = rdma_create_id(listen_id->id.event_handler, 
-+				   listen_id->id.context,
-+				   RDMA_PS_TCP);
-+	if (!new_cm_id) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+	conn_id = container_of(new_cm_id, struct rdma_id_private, id);
-+	atomic_inc(&conn_id->dev_remove);
-+	conn_id->state = CMA_CONNECT;
-+
-+	dev = ip_dev_find(iw_event->local_addr.sin_addr.s_addr);
-+	if (!dev) {
-+		ret = -EADDRNOTAVAIL;
-+		rdma_destroy_id(new_cm_id);
-+		goto out;
-+	}
-+	ret = copy_addr(&conn_id->id.route.addr.dev_addr, dev, NULL);
-+	if (ret) {
-+		rdma_destroy_id(new_cm_id);
-+		goto out;
-+	}
-+
-+	ret = cma_acquire_dev(conn_id);
-+	if (ret) {
-+		rdma_destroy_id(new_cm_id);
-+		goto out;
-+	}
-+
-+	conn_id->cm_id.iw = cm_id;
-+	cm_id->context = conn_id;
-+	cm_id->cm_handler = cma_iw_handler;
-+
-+	sin = (struct sockaddr_in*)&new_cm_id->route.addr.src_addr;
-+	*sin = iw_event->local_addr;
-+	sin = (struct sockaddr_in*)&new_cm_id->route.addr.dst_addr;
-+	*sin = iw_event->remote_addr;
-+
-+	ret = cma_notify_user(conn_id, RDMA_CM_EVENT_CONNECT_REQUEST, 0,
-+			      iw_event->private_data,
-+			      iw_event->private_data_len);
-+	if (ret) {
-+		/* User wants to destroy the CM ID */
-+		conn_id->cm_id.iw = NULL;
-+		cma_exch(conn_id, CMA_DESTROYING);
-+		cma_release_remove(conn_id);
-+		rdma_destroy_id(&conn_id->id);
-+	}
-+
-+out:
-+	cma_release_remove(listen_id);
 +	return ret;
 +}
 +
- static int cma_ib_listen(struct rdma_id_private *id_priv)
- {
- 	struct ib_cm_compare_data compare_data;
-@@ -1010,6 +1155,30 @@ static int cma_ib_listen(struct rdma_id_
- 	return ret;
- }
- 
-+static int cma_iw_listen(struct rdma_id_private *id_priv, int backlog)
++/*
++ * CM_ID <-- CLOSING 
++ *
++ * If in the ESTABLISHED state, move to CLOSING.
++ */
++static void cm_disconnect_handler(struct iwcm_id_private *cm_id_priv, 
++				  struct iw_cm_event *iw_event)
 +{
-+	int ret;
-+	struct sockaddr_in *sin;
++	unsigned long flags;
 +
-+	id_priv->cm_id.iw = iw_create_cm_id(id_priv->id.device, 
-+					    iw_conn_req_handler,
-+					    id_priv);
-+	if (IS_ERR(id_priv->cm_id.iw))
-+		return PTR_ERR(id_priv->cm_id.iw);
++	spin_lock_irqsave(&cm_id_priv->lock, flags);
++	if (cm_id_priv->state == IW_CM_STATE_ESTABLISHED)
++		cm_id_priv->state = IW_CM_STATE_CLOSING;
++	spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++}
 +
-+	sin = (struct sockaddr_in*)&id_priv->id.route.addr.src_addr;
-+	id_priv->cm_id.iw->local_addr = *sin;
++/*
++ * CM_ID <-- IDLE
++ *
++ * If in the ESTBLISHED or CLOSING states, the QP will have have been
++ * moved by the provider to the ERR state. Disassociate the CM_ID from
++ * the QP,  move to IDLE, and remove the 'connected' reference.
++ * 
++ * If in some other state, the cm_id was destroyed asynchronously.
++ * This is the last reference that will result in waking up
++ * the app thread blocked in iw_destroy_cm_id.
++ */
++static int cm_close_handler(struct iwcm_id_private *cm_id_priv, 
++				  struct iw_cm_event *iw_event)
++{
++	unsigned long flags;
++	int ret = 0;
++	/* TT */printk("%s:%d cm_id_priv=%p, state=%d\n", 
++		       __FUNCTION__, __LINE__,
++		       cm_id_priv,cm_id_priv->state);
++	spin_lock_irqsave(&cm_id_priv->lock, flags);
 +
-+	ret = iw_cm_listen(id_priv->cm_id.iw, backlog);
-+
-+	if (ret) {
-+		iw_destroy_cm_id(id_priv->cm_id.iw);
-+		id_priv->cm_id.iw = NULL;
++	if (cm_id_priv->qp) {
++		cm_id_priv->id.device->iwcm->rem_ref(cm_id_priv->qp);
++		cm_id_priv->qp = NULL;
++	}
++	switch (cm_id_priv->state) {
++	case IW_CM_STATE_ESTABLISHED:
++	case IW_CM_STATE_CLOSING:
++		cm_id_priv->state = IW_CM_STATE_IDLE;
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		ret = cm_id_priv->id.cm_handler(&cm_id_priv->id, iw_event);
++		break;
++	case IW_CM_STATE_DESTROYING:
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		break;
++	default:
++		BUG_ON(1);
 +	}
 +
 +	return ret;
 +}
 +
- static int cma_listen_handler(struct rdma_cm_id *id,
- 			      struct rdma_cm_event *event)
- {
-@@ -1085,12 +1254,17 @@ int rdma_listen(struct rdma_cm_id *id, i
- 		return -EINVAL;
- 
- 	if (id->device) {
--		switch (id->device->node_type) {
--		case IB_NODE_CA:
-+		switch (rdma_node_get_transport(id->device->node_type)) {
-+		case RDMA_TRANSPORT_IB:
- 			ret = cma_ib_listen(id_priv);
- 			if (ret)
- 				goto err;
- 			break;
-+		case RDMA_TRANSPORT_IWARP:
-+			ret = cma_iw_listen(id_priv, backlog);
-+			if (ret)
-+				goto err;
-+			break;
- 		default:
- 			ret = -ENOSYS;
- 			goto err;
-@@ -1229,6 +1403,23 @@ err:
- }
- EXPORT_SYMBOL(rdma_set_ib_paths);
- 
-+static int cma_resolve_iw_route(struct rdma_id_private *id_priv, int timeout_ms)
++static int process_event(struct iwcm_id_private *cm_id_priv, 
++			 struct iw_cm_event *iw_event)
 +{
-+	struct cma_work *work;
++	int ret = 0;
 +
-+	work = kzalloc(sizeof *work, GFP_KERNEL);
++	switch (iw_event->event) {
++	case IW_CM_EVENT_CONNECT_REQUEST:
++		cm_conn_req_handler(cm_id_priv, iw_event);
++		break;
++	case IW_CM_EVENT_CONNECT_REPLY:
++		ret = cm_conn_rep_handler(cm_id_priv, iw_event);
++		break;
++	case IW_CM_EVENT_ESTABLISHED:
++		ret = cm_conn_est_handler(cm_id_priv, iw_event);
++		break;
++	case IW_CM_EVENT_DISCONNECT:
++		cm_disconnect_handler(cm_id_priv, iw_event);
++		break;
++	case IW_CM_EVENT_CLOSE:
++		ret = cm_close_handler(cm_id_priv, iw_event);
++		break;
++	default:
++		BUG_ON(1);
++	}
++
++	return ret;
++}
++
++/* 
++ * Process events on the work_list for the cm_id. If the callback
++ * function requests that the cm_id be deleted, a flag is set in the
++ * cm_id flags to indicate that when the last reference is
++ * removed, the cm_id is to be destroyed. This is necessary to
++ * distinguish between an object that will be destroyed by the app
++ * thread asleep on the destroy_wait list vs. an object destroyed
++ * here synchronously when the last reference is removed.
++ */
++static void cm_work_handler(void *arg)
++{
++	struct iwcm_work *work = (struct iwcm_work*)arg;
++	struct iwcm_id_private *cm_id_priv = work->cm_id;
++	unsigned long flags;
++	int empty;
++	int ret = 0;
++
++	spin_lock_irqsave(&cm_id_priv->lock, flags);
++	empty = list_empty(&cm_id_priv->work_list);
++	while (!empty) {
++		work = list_entry(cm_id_priv->work_list.next, 
++				  struct iwcm_work, list);
++		list_del_init(&work->list);
++		empty = list_empty(&cm_id_priv->work_list);
++		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++
++		ret = process_event(cm_id_priv, &work->event);
++		kfree(work);
++		if (ret) {
++			set_bit(IWCM_F_CALLBACK_DESTROY, &cm_id_priv->flags);
++			destroy_cm_id(&cm_id_priv->id);
++		}
++		BUG_ON(atomic_read(&cm_id_priv->refcount)==0);
++		if (iwcm_deref_id(cm_id_priv))
++			return;
++		
++		if (atomic_read(&cm_id_priv->refcount)==0 && 
++		    test_bit(IWCM_F_CALLBACK_DESTROY, &cm_id_priv->flags)) {
++			kfree(cm_id_priv);
++			return;
++		}
++		spin_lock_irqsave(&cm_id_priv->lock, flags);
++	}
++	spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++}
++
++/* 
++ * This function is called on interrupt context. Schedule events on
++ * the iwcm_wq thread to allow callback functions to downcall into
++ * the CM and/or block.  Events are queued to a per-CM_ID
++ * work_list. If this is the first event on the work_list, the work
++ * element is also queued on the iwcm_wq thread.
++ *
++ * Each event holds a reference on the cm_id. Until the last posted
++ * event has been delivered and processed, the cm_id cannot be
++ * deleted. 
++ */
++static void cm_event_handler(struct iw_cm_id *cm_id,
++			     struct iw_cm_event *iw_event) 
++{
++	struct iwcm_work *work;
++	struct iwcm_id_private *cm_id_priv;
++	unsigned long flags;
++
++	work = kmalloc(sizeof *work, GFP_ATOMIC);
 +	if (!work)
++		return;
++
++	cm_id_priv = container_of(cm_id, struct iwcm_id_private, id);
++	atomic_inc(&cm_id_priv->refcount);
++	
++	INIT_WORK(&work->work, cm_work_handler, work);
++	work->cm_id = cm_id_priv;
++	work->event = *iw_event;
++
++	spin_lock_irqsave(&cm_id_priv->lock, flags);
++	if (list_empty(&cm_id_priv->work_list)) {
++		list_add_tail(&work->list, &cm_id_priv->work_list);
++		queue_work(iwcm_wq, &work->work);
++	} else
++		list_add_tail(&work->list, &cm_id_priv->work_list);
++	spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++}
++
++static int iwcm_init_qp_init_attr(struct iwcm_id_private *cm_id_priv,
++				  struct ib_qp_attr *qp_attr,
++				  int *qp_attr_mask)
++{
++	unsigned long flags;
++	int ret;
++
++	spin_lock_irqsave(&cm_id_priv->lock, flags);
++	switch (cm_id_priv->state) {
++	case IW_CM_STATE_IDLE:
++	case IW_CM_STATE_CONN_SENT:
++	case IW_CM_STATE_CONN_RECV:
++	case IW_CM_STATE_ESTABLISHED:
++		*qp_attr_mask = IB_QP_STATE | IB_QP_ACCESS_FLAGS;
++		qp_attr->qp_access_flags = IB_ACCESS_LOCAL_WRITE |
++					   IB_ACCESS_REMOTE_WRITE|
++					   IB_ACCESS_REMOTE_READ;
++		ret = 0;
++		break;
++	default:
++		ret = -EINVAL;
++		break;
++	}
++	spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++	return ret;
++}
++
++static int iwcm_init_qp_rts_attr(struct iwcm_id_private *cm_id_priv,
++				  struct ib_qp_attr *qp_attr,
++				  int *qp_attr_mask)
++{
++	unsigned long flags;
++	int ret;
++
++	spin_lock_irqsave(&cm_id_priv->lock, flags);
++	switch (cm_id_priv->state) {
++	case IW_CM_STATE_IDLE:
++	case IW_CM_STATE_CONN_SENT:
++	case IW_CM_STATE_CONN_RECV:
++	case IW_CM_STATE_ESTABLISHED:
++		*qp_attr_mask = 0;
++		ret = 0;
++		break;
++	default:
++		ret = -EINVAL;
++		break;
++	}
++	spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++	return ret;
++}
++
++int iw_cm_init_qp_attr(struct iw_cm_id *cm_id,
++		       struct ib_qp_attr *qp_attr,
++		       int *qp_attr_mask)
++{
++	struct iwcm_id_private *cm_id_priv;
++	int ret;
++
++	cm_id_priv = container_of(cm_id, struct iwcm_id_private, id);
++	switch (qp_attr->qp_state) {
++	case IB_QPS_INIT:
++	case IB_QPS_RTR:
++		ret = iwcm_init_qp_init_attr(cm_id_priv, 
++					     qp_attr, qp_attr_mask);
++		break;
++	case IB_QPS_RTS:
++		ret = iwcm_init_qp_rts_attr(cm_id_priv, 
++					    qp_attr, qp_attr_mask);
++		break;
++	default:
++		ret = -EINVAL;
++		break;
++	}
++	return ret;
++}
++EXPORT_SYMBOL(iw_cm_init_qp_attr);
++
++static int __init iw_cm_init(void)
++{
++	iwcm_wq = create_singlethread_workqueue("iw_cm_wq");
++	if (!iwcm_wq)
 +		return -ENOMEM;
 +
-+	work->id = id_priv;
-+	INIT_WORK(&work->work, cma_work_handler, work);
-+	work->old_state = CMA_ROUTE_QUERY;
-+	work->new_state = CMA_ROUTE_RESOLVED;
-+	work->event.event = RDMA_CM_EVENT_ROUTE_RESOLVED;
-+	queue_work(cma_wq, &work->work);
 +	return 0;
 +}
 +
- int rdma_resolve_route(struct rdma_cm_id *id, int timeout_ms)
- {
- 	struct rdma_id_private *id_priv;
-@@ -1239,10 +1430,13 @@ int rdma_resolve_route(struct rdma_cm_id
- 		return -EINVAL;
- 
- 	atomic_inc(&id_priv->refcount);
--	switch (id->device->node_type) {
--	case IB_NODE_CA:
-+	switch (rdma_node_get_transport(id->device->node_type)) {
-+	case RDMA_TRANSPORT_IB:
- 		ret = cma_resolve_ib_route(id_priv, timeout_ms);
- 		break;
-+	case RDMA_TRANSPORT_IWARP:
-+		ret = cma_resolve_iw_route(id_priv, timeout_ms);
-+		break;
- 	default:
- 		ret = -ENOSYS;
- 		break;
-@@ -1646,6 +1840,47 @@ out:
- 	return ret;
- }
- 
-+static int cma_connect_iw(struct rdma_id_private *id_priv,
-+			  struct rdma_conn_param *conn_param)
++static void __exit iw_cm_cleanup(void)
 +{
-+	struct iw_cm_id *cm_id;
-+	struct sockaddr_in* sin;
-+	int ret;
-+	struct iw_cm_conn_param iw_param;
-+
-+	cm_id = iw_create_cm_id(id_priv->id.device, cma_iw_handler, id_priv);
-+	if (IS_ERR(cm_id)) {
-+		ret = PTR_ERR(cm_id);
-+		goto out;
-+	}
-+
-+	id_priv->cm_id.iw = cm_id;
-+
-+	sin = (struct sockaddr_in*)&id_priv->id.route.addr.src_addr;
-+	cm_id->local_addr = *sin;
-+
-+	sin = (struct sockaddr_in*)&id_priv->id.route.addr.dst_addr;
-+	cm_id->remote_addr = *sin;
-+
-+	ret = cma_modify_qp_rtr(&id_priv->id);
-+	if (ret) {
-+		iw_destroy_cm_id(cm_id);
-+		return ret;
-+	}
-+
-+	iw_param.ord = conn_param->initiator_depth;
-+	iw_param.ird = conn_param->responder_resources;
-+	iw_param.private_data = conn_param->private_data;
-+	iw_param.private_data_len = conn_param->private_data_len;
-+	if (id_priv->id.qp)
-+		iw_param.qpn = id_priv->qp_num;
-+	else 
-+		iw_param.qpn = conn_param->qp_num;
-+	ret = iw_cm_connect(cm_id, &iw_param);
-+out:
-+	return ret;
++	destroy_workqueue(iwcm_wq);
 +}
 +
- int rdma_connect(struct rdma_cm_id *id, struct rdma_conn_param *conn_param)
- {
- 	struct rdma_id_private *id_priv;
-@@ -1661,10 +1896,13 @@ int rdma_connect(struct rdma_cm_id *id, 
- 		id_priv->srq = conn_param->srq;
- 	}
- 
--	switch (id->device->node_type) {
--	case IB_NODE_CA:
-+	switch (rdma_node_get_transport(id->device->node_type)) {
-+	case RDMA_TRANSPORT_IB:
- 		ret = cma_connect_ib(id_priv, conn_param);
- 		break;
-+	case RDMA_TRANSPORT_IWARP:
-+		ret = cma_connect_iw(id_priv, conn_param);
-+		break;
- 	default:
- 		ret = -ENOSYS;
- 		break;
-@@ -1705,6 +1943,28 @@ static int cma_accept_ib(struct rdma_id_
- 	return ib_send_cm_rep(id_priv->cm_id.ib, &rep);
- }
- 
-+static int cma_accept_iw(struct rdma_id_private *id_priv, 
-+		  struct rdma_conn_param *conn_param)
-+{
-+	struct iw_cm_conn_param iw_param;
-+	int ret;
++module_init(iw_cm_init);
++module_exit(iw_cm_cleanup);
+diff --git a/include/rdma/iw_cm.h b/include/rdma/iw_cm.h
+new file mode 100644
+index 0000000..0752a94
+--- /dev/null
++++ b/include/rdma/iw_cm.h
+@@ -0,0 +1,254 @@
++/*
++ * Copyright (c) 2005 Network Appliance, Inc. All rights reserved.
++ * Copyright (c) 2005 Open Grid Computing, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ */
++#if !defined(IW_CM_H)
++#define IW_CM_H
 +
-+	ret = cma_modify_qp_rtr(&id_priv->id);
-+	if (ret)
-+		return ret;
++#include <linux/in.h>
++#include <rdma/ib_cm.h>
 +
-+	iw_param.ord = conn_param->initiator_depth;
-+	iw_param.ird = conn_param->responder_resources;
-+	iw_param.private_data = conn_param->private_data;
-+	iw_param.private_data_len = conn_param->private_data_len;
-+	if (id_priv->id.qp) {
-+		iw_param.qpn = id_priv->qp_num;
-+	} else 
-+		iw_param.qpn = conn_param->qp_num;
++struct iw_cm_id;
 +
-+	return iw_cm_accept(id_priv->cm_id.iw, &iw_param);
-+}
-+
- int rdma_accept(struct rdma_cm_id *id, struct rdma_conn_param *conn_param)
- {
- 	struct rdma_id_private *id_priv;
-@@ -1720,13 +1980,16 @@ int rdma_accept(struct rdma_cm_id *id, s
- 		id_priv->srq = conn_param->srq;
- 	}
- 
--	switch (id->device->node_type) {
--	case IB_NODE_CA:
-+	switch (rdma_node_get_transport(id->device->node_type)) {
-+	case RDMA_TRANSPORT_IB:
- 		if (conn_param)
- 			ret = cma_accept_ib(id_priv, conn_param);
- 		else
- 			ret = cma_rep_recv(id_priv);
- 		break;
-+	case RDMA_TRANSPORT_IWARP:
-+		ret = cma_accept_iw(id_priv, conn_param);
-+		break;
- 	default:
- 		ret = -ENOSYS;
- 		break;
-@@ -1753,12 +2016,16 @@ int rdma_reject(struct rdma_cm_id *id, c
- 	if (!cma_comp(id_priv, CMA_CONNECT))
- 		return -EINVAL;
- 
--	switch (id->device->node_type) {
--	case IB_NODE_CA:
-+	switch (rdma_node_get_transport(id->device->node_type)) {
-+	case RDMA_TRANSPORT_IB:
- 		ret = ib_send_cm_rej(id_priv->cm_id.ib,
- 				     IB_CM_REJ_CONSUMER_DEFINED, NULL, 0,
- 				     private_data, private_data_len);
- 		break;
-+	case RDMA_TRANSPORT_IWARP: 
-+		ret = iw_cm_reject(id_priv->cm_id.iw, 
-+				   private_data, private_data_len);
-+		break;
- 	default:
- 		ret = -ENOSYS;
- 		break;
-@@ -1777,16 +2044,18 @@ int rdma_disconnect(struct rdma_cm_id *i
- 	    !cma_comp(id_priv, CMA_DISCONNECT))
- 		return -EINVAL;
- 
--	ret = cma_modify_qp_err(id);
--	if (ret)
--		goto out;
--
--	switch (id->device->node_type) {
--	case IB_NODE_CA:
-+	switch (rdma_node_get_transport(id->device->node_type)) {
-+	case RDMA_TRANSPORT_IB:
-+		ret = cma_modify_qp_err(id);
-+		if (ret)
-+			goto out;
- 		/* Initiate or respond to a disconnect. */
- 		if (ib_send_cm_dreq(id_priv->cm_id.ib, NULL, 0))
- 			ib_send_cm_drep(id_priv->cm_id.ib, NULL, 0);
- 		break;
-+	case RDMA_TRANSPORT_IWARP:
-+		ret = iw_cm_disconnect(id_priv->cm_id.iw, 0);
-+		break;
- 	default:
- 		break;
- 	}
-diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
-index b2f3cb9..7318fba 100644
---- a/drivers/infiniband/core/device.c
-+++ b/drivers/infiniband/core/device.c
-@@ -30,7 +30,7 @@
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  * SOFTWARE.
-  *
-- * $Id: device.c 1349 2004-12-16 21:09:43Z roland $
-+ * $Id: device.c 5943 2006-03-22 00:58:04Z roland $
-  */
- 
- #include <linux/module.h>
-@@ -505,7 +505,7 @@ int ib_query_port(struct ib_device *devi
- 		  u8 port_num,
- 		  struct ib_port_attr *port_attr)
- {
--	if (device->node_type == IB_NODE_SWITCH) {
-+	if (device->node_type == RDMA_NODE_IB_SWITCH) {
- 		if (port_num)
- 			return -EINVAL;
- 	} else if (port_num < 1 || port_num > device->phys_port_cnt)
-@@ -580,7 +580,7 @@ int ib_modify_port(struct ib_device *dev
- 		   u8 port_num, int port_modify_mask,
- 		   struct ib_port_modify *port_modify)
- {
--	if (device->node_type == IB_NODE_SWITCH) {
-+	if (device->node_type == RDMA_NODE_IB_SWITCH) {
- 		if (port_num)
- 			return -EINVAL;
- 	} else if (port_num < 1 || port_num > device->phys_port_cnt)
-diff --git a/drivers/infiniband/core/mad.c b/drivers/infiniband/core/mad.c
-index b38e02a..a928ecf 100644
---- a/drivers/infiniband/core/mad.c
-+++ b/drivers/infiniband/core/mad.c
-@@ -1,5 +1,5 @@
- /*
-- * Copyright (c) 2004, 2005 Voltaire, Inc. All rights reserved.
-+ * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
-  * Copyright (c) 2005 Intel Corporation.  All rights reserved.
-  * Copyright (c) 2005 Mellanox Technologies Ltd.  All rights reserved.
-  *
-@@ -31,7 +31,7 @@
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  * SOFTWARE.
-  *
-- * $Id: mad.c 5596 2006-03-03 01:00:07Z sean.hefty $
-+ * $Id: mad.c 7294 2006-05-17 18:12:30Z roland $
-  */
- #include <linux/dma-mapping.h>
- #include <rdma/ib_cache.h>
-@@ -2877,7 +2877,10 @@ static void ib_mad_init_device(struct ib
- {
- 	int start, end, i;
- 
--	if (device->node_type == IB_NODE_SWITCH) {
-+	if (rdma_node_get_transport(device->node_type) != RDMA_TRANSPORT_IB)
-+		return;
-+
-+	if (device->node_type == RDMA_NODE_IB_SWITCH) {
- 		start = 0;
- 		end   = 0;
- 	} else {
-@@ -2924,7 +2927,7 @@ static void ib_mad_remove_device(struct 
- {
- 	int i, num_ports, cur_port;
- 
--	if (device->node_type == IB_NODE_SWITCH) {
-+	if (device->node_type == RDMA_NODE_IB_SWITCH) {
- 		num_ports = 1;
- 		cur_port = 0;
- 	} else {
-diff --git a/drivers/infiniband/core/sa_query.c b/drivers/infiniband/core/sa_query.c
-index 501cc05..4230277 100644
---- a/drivers/infiniband/core/sa_query.c
-+++ b/drivers/infiniband/core/sa_query.c
-@@ -887,7 +887,10 @@ static void ib_sa_add_one(struct ib_devi
- 	struct ib_sa_device *sa_dev;
- 	int s, e, i;
- 
--	if (device->node_type == IB_NODE_SWITCH)
-+	if (rdma_node_get_transport(device->node_type) != RDMA_TRANSPORT_IB)
-+		return;
-+
-+	if (device->node_type == RDMA_NODE_IB_SWITCH)
- 		s = e = 0;
- 	else {
- 		s = 1;
-diff --git a/drivers/infiniband/core/smi.c b/drivers/infiniband/core/smi.c
-index 35852e7..b81b2b9 100644
---- a/drivers/infiniband/core/smi.c
-+++ b/drivers/infiniband/core/smi.c
-@@ -34,7 +34,7 @@
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  * SOFTWARE.
-  *
-- * $Id: smi.c 1389 2004-12-27 22:56:47Z roland $
-+ * $Id: smi.c 5258 2006-02-01 20:32:40Z sean.hefty $
-  */
- 
- #include <rdma/ib_smi.h>
-@@ -64,7 +64,7 @@ int smi_handle_dr_smp_send(struct ib_smp
- 
- 		/* C14-9:2 */
- 		if (hop_ptr && hop_ptr < hop_cnt) {
--			if (node_type != IB_NODE_SWITCH)
-+			if (node_type != RDMA_NODE_IB_SWITCH)
- 				return 0;
- 
- 			/* smp->return_path set when received */
-@@ -77,7 +77,7 @@ int smi_handle_dr_smp_send(struct ib_smp
- 		if (hop_ptr == hop_cnt) {
- 			/* smp->return_path set when received */
- 			smp->hop_ptr++;
--			return (node_type == IB_NODE_SWITCH ||
-+			return (node_type == RDMA_NODE_IB_SWITCH ||
- 				smp->dr_dlid == IB_LID_PERMISSIVE);
- 		}
- 
-@@ -95,7 +95,7 @@ int smi_handle_dr_smp_send(struct ib_smp
- 
- 		/* C14-13:2 */
- 		if (2 <= hop_ptr && hop_ptr <= hop_cnt) {
--			if (node_type != IB_NODE_SWITCH)
-+			if (node_type != RDMA_NODE_IB_SWITCH)
- 				return 0;
- 
- 			smp->hop_ptr--;
-@@ -107,7 +107,7 @@ int smi_handle_dr_smp_send(struct ib_smp
- 		if (hop_ptr == 1) {
- 			smp->hop_ptr--;
- 			/* C14-13:3 -- SMPs destined for SM shouldn't be here */
--			return (node_type == IB_NODE_SWITCH ||
-+			return (node_type == RDMA_NODE_IB_SWITCH ||
- 				smp->dr_slid == IB_LID_PERMISSIVE);
- 		}
- 
-@@ -142,7 +142,7 @@ int smi_handle_dr_smp_recv(struct ib_smp
- 
- 		/* C14-9:2 -- intermediate hop */
- 		if (hop_ptr && hop_ptr < hop_cnt) {
--			if (node_type != IB_NODE_SWITCH)
-+			if (node_type != RDMA_NODE_IB_SWITCH)
- 				return 0;
- 
- 			smp->return_path[hop_ptr] = port_num;
-@@ -156,7 +156,7 @@ int smi_handle_dr_smp_recv(struct ib_smp
- 				smp->return_path[hop_ptr] = port_num;
- 			/* smp->hop_ptr updated when sending */
- 
--			return (node_type == IB_NODE_SWITCH ||
-+			return (node_type == RDMA_NODE_IB_SWITCH ||
- 				smp->dr_dlid == IB_LID_PERMISSIVE);
- 		}
- 
-@@ -175,7 +175,7 @@ int smi_handle_dr_smp_recv(struct ib_smp
- 
- 		/* C14-13:2 */
- 		if (2 <= hop_ptr && hop_ptr <= hop_cnt) {
--			if (node_type != IB_NODE_SWITCH)
-+			if (node_type != RDMA_NODE_IB_SWITCH)
- 				return 0;
- 
- 			/* smp->hop_ptr updated when sending */
-@@ -190,7 +190,7 @@ int smi_handle_dr_smp_recv(struct ib_smp
- 				return 1;
- 			}
- 			/* smp->hop_ptr updated when sending */
--			return (node_type == IB_NODE_SWITCH);
-+			return (node_type == RDMA_NODE_IB_SWITCH);
- 		}
- 
- 		/* C14-13:4 -- hop_ptr = 0 -> give to SM */
-diff --git a/drivers/infiniband/core/sysfs.c b/drivers/infiniband/core/sysfs.c
-index 21f9282..cfd2c06 100644
---- a/drivers/infiniband/core/sysfs.c
-+++ b/drivers/infiniband/core/sysfs.c
-@@ -31,7 +31,7 @@
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  * SOFTWARE.
-  *
-- * $Id: sysfs.c 1349 2004-12-16 21:09:43Z roland $
-+ * $Id: sysfs.c 6940 2006-05-04 17:04:55Z roland $
-  */
- 
- #include "core_priv.h"
-@@ -589,10 +589,16 @@ static ssize_t show_node_type(struct cla
- 		return -ENODEV;
- 
- 	switch (dev->node_type) {
--	case IB_NODE_CA:     return sprintf(buf, "%d: CA\n", dev->node_type);
--	case IB_NODE_SWITCH: return sprintf(buf, "%d: switch\n", dev->node_type);
--	case IB_NODE_ROUTER: return sprintf(buf, "%d: router\n", dev->node_type);
--	default:             return sprintf(buf, "%d: <unknown>\n", dev->node_type);
-+	case RDMA_NODE_IB_CA:
-+		return sprintf(buf, "%d: CA\n", dev->node_type);
-+	case RDMA_NODE_RNIC:
-+		return sprintf(buf, "%d: RNIC\n", dev->node_type);
-+	case RDMA_NODE_IB_SWITCH:
-+		return sprintf(buf, "%d: switch\n", dev->node_type);
-+	case RDMA_NODE_IB_ROUTER:
-+		return sprintf(buf, "%d: router\n", dev->node_type);
-+	default:
-+		return sprintf(buf, "%d: <unknown>\n", dev->node_type);
- 	}
- }
- 
-@@ -708,7 +714,7 @@ int ib_device_register_sysfs(struct ib_d
- 	if (ret)
- 		goto err_put;
- 
--	if (device->node_type == IB_NODE_SWITCH) {
-+	if (device->node_type == RDMA_NODE_IB_SWITCH) {
- 		ret = add_port(device, 0);
- 		if (ret)
- 			goto err_put;
-diff --git a/drivers/infiniband/core/ucm.c b/drivers/infiniband/core/ucm.c
-index 67caf36..ad2e417 100644
---- a/drivers/infiniband/core/ucm.c
-+++ b/drivers/infiniband/core/ucm.c
-@@ -30,7 +30,7 @@
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  * SOFTWARE.
-  *
-- * $Id: ucm.c 4311 2005-12-05 18:42:01Z sean.hefty $
-+ * $Id: ucm.c 7119 2006-05-11 16:40:38Z sean.hefty $
-  */
- 
- #include <linux/completion.h>
-@@ -1248,7 +1248,8 @@ static void ib_ucm_add_one(struct ib_dev
- {
- 	struct ib_ucm_device *ucm_dev;
- 
--	if (!device->alloc_ucontext)
-+	if (!device->alloc_ucontext ||
-+	    rdma_node_get_transport(device->node_type) != RDMA_TRANSPORT_IB)
- 		return;
- 
- 	ucm_dev = kzalloc(sizeof *ucm_dev, GFP_KERNEL);
-diff --git a/drivers/infiniband/core/user_mad.c b/drivers/infiniband/core/user_mad.c
-index afe70a5..0cbd692 100644
---- a/drivers/infiniband/core/user_mad.c
-+++ b/drivers/infiniband/core/user_mad.c
-@@ -1,6 +1,6 @@
- /*
-  * Copyright (c) 2004 Topspin Communications.  All rights reserved.
-- * Copyright (c) 2005 Voltaire, Inc. All rights reserved. 
-+ * Copyright (c) 2005-2006 Voltaire, Inc. All rights reserved. 
-  * Copyright (c) 2005 Sun Microsystems, Inc. All rights reserved.
-  *
-  * This software is available to you under a choice of one of two
-@@ -31,7 +31,7 @@
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  * SOFTWARE.
-  *
-- * $Id: user_mad.c 5596 2006-03-03 01:00:07Z sean.hefty $
-+ * $Id: user_mad.c 6041 2006-03-27 21:06:00Z halr $
-  */
- 
- #include <linux/module.h>
-@@ -967,7 +967,10 @@ static void ib_umad_add_one(struct ib_de
- 	struct ib_umad_device *umad_dev;
- 	int s, e, i;
- 
--	if (device->node_type == IB_NODE_SWITCH)
-+	if (rdma_node_get_transport(device->node_type) != RDMA_TRANSPORT_IB)
-+		return;
-+
-+	if (device->node_type == RDMA_NODE_IB_SWITCH)
- 		s = e = 0;
- 	else {
- 		s = 1;
-diff --git a/drivers/infiniband/hw/ipath/ipath_verbs.c b/drivers/infiniband/hw/ipath/ipath_verbs.c
-index 28fdbda..e4b45d7 100644
---- a/drivers/infiniband/hw/ipath/ipath_verbs.c
-+++ b/drivers/infiniband/hw/ipath/ipath_verbs.c
-@@ -984,7 +984,7 @@ static void *ipath_register_ib_device(in
- 		(1ull << IB_USER_VERBS_CMD_QUERY_SRQ)		|
- 		(1ull << IB_USER_VERBS_CMD_DESTROY_SRQ)		|
- 		(1ull << IB_USER_VERBS_CMD_POST_SRQ_RECV);
--	dev->node_type = IB_NODE_CA;
-+	dev->node_type = RDMA_NODE_IB_CA;
- 	dev->phys_port_cnt = 1;
- 	dev->dma_device = ipath_layer_get_device(dd);
- 	dev->class_dev.dev = dev->dma_device;
-diff --git a/drivers/infiniband/hw/mthca/mthca_provider.c b/drivers/infiniband/hw/mthca/mthca_provider.c
-index a2eae8a..5c31819 100644
---- a/drivers/infiniband/hw/mthca/mthca_provider.c
-+++ b/drivers/infiniband/hw/mthca/mthca_provider.c
-@@ -1273,7 +1273,7 @@ int mthca_register_device(struct mthca_d
- 		(1ull << IB_USER_VERBS_CMD_MODIFY_SRQ)		|
- 		(1ull << IB_USER_VERBS_CMD_QUERY_SRQ)		|
- 		(1ull << IB_USER_VERBS_CMD_DESTROY_SRQ);
--	dev->ib_dev.node_type            = IB_NODE_CA;
-+	dev->ib_dev.node_type            = RDMA_NODE_IB_CA;
- 	dev->ib_dev.phys_port_cnt        = dev->limits.num_ports;
- 	dev->ib_dev.dma_device           = &dev->pdev->dev;
- 	dev->ib_dev.class_dev.dev        = &dev->pdev->dev;
-diff --git a/drivers/infiniband/ulp/ipoib/ipoib_main.c b/drivers/infiniband/ulp/ipoib/ipoib_main.c
-index 1c6ea1c..262427f 100644
---- a/drivers/infiniband/ulp/ipoib/ipoib_main.c
-+++ b/drivers/infiniband/ulp/ipoib/ipoib_main.c
-@@ -1084,13 +1084,16 @@ static void ipoib_add_one(struct ib_devi
- 	struct ipoib_dev_priv *priv;
- 	int s, e, p;
- 
-+	if (rdma_node_get_transport(device->node_type) != RDMA_TRANSPORT_IB)
-+		return;
-+
- 	dev_list = kmalloc(sizeof *dev_list, GFP_KERNEL);
- 	if (!dev_list)
- 		return;
- 
- 	INIT_LIST_HEAD(dev_list);
- 
--	if (device->node_type == IB_NODE_SWITCH) {
-+	if (device->node_type == RDMA_NODE_IB_SWITCH) {
- 		s = 0;
- 		e = 0;
- 	} else {
-@@ -1114,6 +1117,9 @@ static void ipoib_remove_one(struct ib_d
- 	struct ipoib_dev_priv *priv, *tmp;
- 	struct list_head *dev_list;
- 
-+	if (rdma_node_get_transport(device->node_type) != RDMA_TRANSPORT_IB)
-+		return;
-+
- 	dev_list = ib_get_client_data(device, &ipoib_client);
- 
- 	list_for_each_entry_safe(priv, tmp, dev_list, list) {
-diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
-index f1401e1..bba2956 100644
---- a/drivers/infiniband/ulp/srp/ib_srp.c
-+++ b/drivers/infiniband/ulp/srp/ib_srp.c
-@@ -1845,7 +1845,7 @@ static void srp_add_one(struct ib_device
- 	if (IS_ERR(srp_dev->fmr_pool))
- 		srp_dev->fmr_pool = NULL;
- 
--	if (device->node_type == IB_NODE_SWITCH) {
-+	if (device->node_type == RDMA_NODE_IB_SWITCH) {
- 		s = 0;
- 		e = 0;
- 	} else {
-diff --git a/include/rdma/ib_addr.h b/include/rdma/ib_addr.h
-index fcb5ba8..f2fd3cc 100644
---- a/include/rdma/ib_addr.h
-+++ b/include/rdma/ib_addr.h
-@@ -40,7 +40,7 @@ struct rdma_dev_addr {
- 	unsigned char src_dev_addr[MAX_ADDR_LEN];
- 	unsigned char dst_dev_addr[MAX_ADDR_LEN];
- 	unsigned char broadcast[MAX_ADDR_LEN];
--	enum ib_node_type dev_type;
-+	enum rdma_node_type dev_type;
- };
- 
- /**
-@@ -72,6 +72,9 @@ int rdma_resolve_ip(struct sockaddr *src
- 
- void rdma_addr_cancel(struct rdma_dev_addr *addr);
- 
-+int copy_addr(struct rdma_dev_addr *dev_addr, struct net_device *dev,
-+	      unsigned char *dst_dev_addr);
-+
- static inline int ip_addr_size(struct sockaddr *addr)
- {
- 	return addr->sa_family == AF_INET6 ?
-@@ -111,4 +114,14 @@ static inline void ib_addr_set_dgid(stru
- 	memcpy(dev_addr->dst_dev_addr + 4, gid, sizeof *gid);
- }
- 
-+static inline union ib_gid* iw_addr_get_sgid(struct rdma_dev_addr* rda)
-+{
-+	return (union ib_gid*)rda->src_dev_addr;
-+}
-+
-+static inline union ib_gid* iw_addr_get_dgid(struct rdma_dev_addr* rda)
-+{
-+	return (union ib_gid*)rda->dst_dev_addr;
-+}
-+
- #endif /* IB_ADDR_H */
-diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
-index aeb4fcd..76e2351 100644
---- a/include/rdma/ib_verbs.h
-+++ b/include/rdma/ib_verbs.h
-@@ -35,7 +35,7 @@
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  * SOFTWARE.
-  *
-- * $Id: ib_verbs.h 1349 2004-12-16 21:09:43Z roland $
-+ * $Id: ib_verbs.h 6885 2006-05-03 18:22:02Z sean.hefty $
-  */
- 
- #if !defined(IB_VERBS_H)
-@@ -56,12 +56,35 @@ union ib_gid {
- 	} global;
- };
- 
--enum ib_node_type {
--	IB_NODE_CA 	= 1,
--	IB_NODE_SWITCH,
--	IB_NODE_ROUTER
-+enum rdma_node_type {
-+	/* IB values map to NodeInfo:NodeType. */
-+	RDMA_NODE_IB_CA 	= 1,
-+	RDMA_NODE_IB_SWITCH,
-+	RDMA_NODE_IB_ROUTER,
-+	RDMA_NODE_RNIC
- };
- 
-+enum rdma_transport_type {
-+	RDMA_TRANSPORT_IB,
-+	RDMA_TRANSPORT_IWARP
++enum iw_cm_event_type {
++	IW_CM_EVENT_CONNECT_REQUEST = 1, /* connect request received */
++	IW_CM_EVENT_CONNECT_REPLY,	 /* reply from active connect request */
++	IW_CM_EVENT_ESTABLISHED,	 /* passive side accept successful */
++	IW_CM_EVENT_DISCONNECT,		 /* orderly shutdown */
++	IW_CM_EVENT_CLOSE		 /* close complete */
++};
++enum iw_cm_event_status {
++	IW_CM_EVENT_STATUS_OK = 0,	 /* request successful */
++	IW_CM_EVENT_STATUS_ACCEPTED = 0, /* connect request accepted */
++	IW_CM_EVENT_STATUS_REJECTED,	 /* connect request rejected */
++	IW_CM_EVENT_STATUS_TIMEOUT,	 /* the operation timed out */
++	IW_CM_EVENT_STATUS_RESET,	 /* reset from remote peer */
++	IW_CM_EVENT_STATUS_EINVAL,	 /* asynchronous failure for bad parm */
++};
++struct iw_cm_event {
++	enum iw_cm_event_type event;
++	enum iw_cm_event_status status;
++	struct sockaddr_in local_addr;
++	struct sockaddr_in remote_addr;
++	void *private_data;
++	u8 private_data_len;
++	void* provider_data;
 +};
 +
-+static inline enum rdma_transport_type
-+rdma_node_get_transport(enum rdma_node_type node_type)
-+{
-+	switch (node_type) {
-+	case RDMA_NODE_IB_CA:
-+	case RDMA_NODE_IB_SWITCH:
-+	case RDMA_NODE_IB_ROUTER:
-+		return RDMA_TRANSPORT_IB;
-+	case RDMA_NODE_RNIC:
-+		return RDMA_TRANSPORT_IWARP;
-+	default:
-+		BUG();
-+		return 0;
-+	}
-+}
++/**
++ * iw_cm_handler - Function to be called by the IW CM when delivering events
++ * to the client.
++ *
++ * @cm_id: The IW CM identifier associated with the event.
++ * @event: Pointer to the event structure.
++ */
++typedef int (*iw_cm_handler)(struct iw_cm_id *cm_id,
++			     struct iw_cm_event *event);
 +
- enum ib_device_cap_flags {
- 	IB_DEVICE_RESIZE_MAX_WR		= 1,
- 	IB_DEVICE_BAD_PKEY_CNTR		= (1<<1),
-@@ -78,6 +101,9 @@ enum ib_device_cap_flags {
- 	IB_DEVICE_RC_RNR_NAK_GEN	= (1<<12),
- 	IB_DEVICE_SRQ_RESIZE		= (1<<13),
- 	IB_DEVICE_N_NOTIFY_CQ		= (1<<14),
-+	IB_DEVICE_ZERO_STAG		= (1<<15),
-+	IB_DEVICE_SEND_W_INV		= (1<<16),
-+	IB_DEVICE_MEM_WINDOW		= (1<<17)
- };
- 
- enum ib_atomic_cap {
-@@ -830,6 +856,7 @@ struct ib_cache {
- 	u8                     *lmc_cache;
- };
- 
-+struct iw_cm_verbs;
- struct ib_device {
- 	struct device                *dma_device;
- 
-@@ -846,6 +873,8 @@ struct ib_device {
- 
- 	u32                           flags;
- 
-+	struct iw_cm_verbs*           iwcm;
++/**
++ * iw_event_handler - Function called by the provider when delivering provider
++ * events to the IW CM. 
++ *
++ * @cm_id: The IW CM identifier associated with the event.
++ * @event: Pointer to the event structure.
++ */
++typedef void (*iw_event_handler)(struct iw_cm_id *cm_id,
++				 struct iw_cm_event *event);
++struct iw_cm_id {
++	iw_cm_handler		cm_handler;      /* client callback function */
++	void		        *context;	 /* client cb context */
++	struct ib_device	*device;	 
++	struct sockaddr_in      local_addr;
++	struct sockaddr_in	remote_addr;
++	void			*provider_data;	 /* provider private data */
++	iw_event_handler        event_handler;   /* cb for provider
++						    events */
++	/* Used by provider to add and remove refs on IW cm_id */	
++	void (*add_ref)(struct iw_cm_id *);     
++	void (*rem_ref)(struct iw_cm_id *);
++};
 +
- 	int		           (*query_device)(struct ib_device *device,
- 						   struct ib_device_attr *device_attr);
- 	int		           (*query_port)(struct ib_device *device,
++struct iw_cm_conn_param {
++	const void *private_data;
++	u16 private_data_len;
++	u32 ord;
++	u32 ird;
++	u32 qpn;
++};
++
++struct iw_cm_verbs {
++	void		(*add_ref)(struct ib_qp *qp);
++
++	void		(*rem_ref)(struct ib_qp *qp);
++
++	struct ib_qp *	(*get_qp)(struct ib_device *device,
++				  int qpn);
++
++	int		(*connect)(struct iw_cm_id *cm_id,
++				   struct iw_cm_conn_param *conn_param);
++	
++	int		(*accept)(struct iw_cm_id *cm_id, 
++				  struct iw_cm_conn_param *conn_param);
++
++	int		(*reject)(struct iw_cm_id *cm_id, 
++				  const void *pdata, u8 pdata_len);
++
++	int		(*create_listen)(struct iw_cm_id *cm_id,
++					 int backlog);
++
++	int		(*destroy_listen)(struct iw_cm_id *cm_id);
++};
++
++/**
++ * iw_create_cm_id - Create an IW CM identifier.
++ *
++ * @device: The IB device on which to create the IW CM identier.
++ * @event_handler: User callback invoked to report events associated with the
++ *   returned IW CM identifier. 
++ * @context: User specified context associated with the id.
++ */
++struct iw_cm_id *iw_create_cm_id(struct ib_device *device,
++				 iw_cm_handler cm_handler, void *context);
++
++/**
++ * iw_destroy_cm_id - Destroy an IW CM identifier.
++ *
++ * @cm_id: The previously created IW CM identifier to destroy.
++ *
++ * The client can assume that no events will be delivered for the CM ID after
++ * this function returns. 
++ */
++void iw_destroy_cm_id(struct iw_cm_id *cm_id);
++
++/**
++ * iw_cm_bind_qp - Unbind the specified IW CM identifier and QP
++ *
++ * @cm_id: The IW CM idenfier to unbind from the QP. 
++ * @qp: The QP
++ *
++ * This is called by the provider when destroying the QP to ensure
++ * that any references held by the IWCM are released. It may also
++ * be called by the IWCM when destroying a CM_ID to that any
++ * references held by the provider are released.
++ */
++void iw_cm_unbind_qp(struct iw_cm_id *cm_id, struct ib_qp *qp);
++
++/**
++ * iw_cm_get_qp - Return the ib_qp associated with a QPN
++ *
++ * @ib_device: The IB device
++ * @qpn: The queue pair number
++ */
++struct ib_qp *iw_cm_get_qp(struct ib_device *device, int qpn);
++
++/**
++ * iw_cm_listen - Listen for incoming connection requests on the
++ * specified IW CM id. 
++ *
++ * @cm_id: The IW CM identifier.
++ * @backlog: The maximum number of outstanding un-accepted inbound listen
++ *   requests to queue. 
++ * 
++ * The source address and port number are specified in the IW CM identifier
++ * structure.
++ */
++int iw_cm_listen(struct iw_cm_id *cm_id, int backlog);
++
++/**
++ * iw_cm_accept - Called to accept an incoming connect request. 
++ *
++ * @cm_id: The IW CM identifier associated with the connection request. 
++ * @iw_param: Pointer to a structure containing connection establishment
++ *   parameters. 
++ *
++ * The specified cm_id will have been provided in the event data for a
++ * CONNECT_REQUEST event. Subsequent events related to this connection will be
++ * delivered to the specified IW CM identifier prior and may occur prior to
++ * the return of this function. If this function returns a non-zero value, the
++ * client can assume that no events will be delivered to the specified IW CM
++ * identifier. 
++ */
++int iw_cm_accept(struct iw_cm_id *cm_id, struct iw_cm_conn_param *iw_param);
++
++/**
++ * iw_cm_reject - Reject an incoming connection request.
++ *
++ * @cm_id: Connection identifier associated with the request.
++ * @private_daa: Pointer to data to deliver to the remote peer as part of the
++ *   reject message. 
++ * @private_data_len: The number of bytes in the private_data parameter. 
++ *
++ * The client can assume that no events will be delivered to the specified IW
++ * CM identifier following the return of this function. The private_data
++ * buffer is available for reuse when this function returns. 
++ */
++int iw_cm_reject(struct iw_cm_id *cm_id, const void *private_data,
++		 u8 private_data_len);
++
++/**
++ * iw_cm_connect - Called to request a connection to a remote peer. 
++ *
++ * @cm_id: The IW CM identifier for the connection.
++ * @iw_param: Pointer to a structure containing connection  establishment
++ *   parameters. 
++ *
++ * Events may be delivered to the specified IW CM identifier prior to the
++ * return of this function. If this function returns a non-zero value, the
++ * client can assume that no events will be delivered to the specified IW CM
++ * identifier.  
++ */
++int iw_cm_connect(struct iw_cm_id *cm_id, struct iw_cm_conn_param *iw_param);
++
++/**
++ * iw_cm_disconnect - Close the specified connection. 
++ *
++ * @cm_id: The IW CM identifier to close.
++ * @abrupt: If 0, the connection will be closed gracefully, otherwise, the
++ *   connection will be reset.  
++ *
++ * The IW CM identifier is still active until the IW_CM_EVENT_CLOSE event is
++ * delivered. 
++ */
++int iw_cm_disconnect(struct iw_cm_id *cm_id, int abrupt);
++
++/**
++ * iw_cm_init_qp_attr - Called to initialize the attributes of the QP
++ * associated with a IW CM identifier.
++ *
++ * @cm_id: The IW CM identifier associated with the QP
++ * @qp_attr: Pointer to the QP attributes structure. 
++ * @qp_attr_mask: Pointer to a bit vector specifying which QP attributes are
++ *   valid.  
++ */
++int iw_cm_init_qp_attr(struct iw_cm_id *cm_id, struct ib_qp_attr *qp_attr,
++		       int *qp_attr_mask);
++
++#endif /* IW_CM_H */
+diff --git a/include/rdma/iw_cm_private.h b/include/rdma/iw_cm_private.h
+new file mode 100644
+index 0000000..d07034e
+--- /dev/null
++++ b/include/rdma/iw_cm_private.h
+@@ -0,0 +1,62 @@
++/*
++ * Copyright (c) 2005 Network Appliance, Inc. All rights reserved.
++ * Copyright (c) 2005 Open Grid Computing, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ */
++#if !defined(IW_CM_PRIVATE_H)
++#define IW_CM_PRIVATE_H
++
++#include <rdma/iw_cm.h>
++
++enum iw_cm_state {
++	IW_CM_STATE_IDLE,             /* unbound, inactive */
++	IW_CM_STATE_LISTEN,           /* listen waiting for connect */
++	IW_CM_STATE_CONN_RECV,        /* inbound waiting for user accept */
++	IW_CM_STATE_CONN_SENT,        /* outbound waiting for peer accept */
++	IW_CM_STATE_ESTABLISHED,      /* established */
++	IW_CM_STATE_CLOSING,	      /* disconnect */
++	IW_CM_STATE_DESTROYING        /* object being deleted */
++};
++
++struct iwcm_id_private {
++	struct iw_cm_id	id;
++	enum iw_cm_state state;
++	unsigned long flags;
++	struct ib_qp *qp;
++	wait_queue_head_t destroy_wait;
++	wait_queue_head_t connect_wait;
++	struct list_head work_list;
++	spinlock_t lock;
++	atomic_t refcount;
++};
++#define IWCM_F_CALLBACK_DESTROY   1
++#define IWCM_F_CONNECT_WAIT       2
++
++#endif /* IW_CM_PRIVATE_H */

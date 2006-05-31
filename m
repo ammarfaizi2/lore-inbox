@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964956AbWEaKhi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbWEaKzv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964956AbWEaKhi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 06:37:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964958AbWEaKhi
+	id S964947AbWEaKzv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 06:55:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964914AbWEaKzv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 06:37:38 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:64748 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S964956AbWEaKhh (ORCPT
+	Wed, 31 May 2006 06:55:51 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:51159 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751577AbWEaKzu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 06:37:37 -0400
-Date: Wed, 31 May 2006 12:37:34 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: parport and irq question
-Message-ID: <Pine.LNX.4.61.0605311235060.4321@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 31 May 2006 06:55:50 -0400
+Date: Wed, 31 May 2006 12:56:09 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: Arjan van de Ven <arjan@linux.intel.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.17-rc5-mm1
+Message-ID: <20060531105609.GA608@elte.hu>
+References: <20060530022925.8a67b613.akpm@osdl.org> <6bffcb0e0605301155h3b472d79h65e8403e7fa0b214@mail.gmail.com> <6bffcb0e0605301157o6b7c5f66q3c9f151cbb4537d5@mail.gmail.com> <20060530194259.GB22742@elte.hu> <6bffcb0e0605301457v9ba284bk75b8b6d14384489a@mail.gmail.com> <20060530220931.GA32759@elte.hu> <20060530221850.GA1764@elte.hu> <20060530222608.GA3274@elte.hu> <20060530222954.GA3746@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060530222954.GA3746@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-standard parport probing gives:
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-# modprobe parport_pc
-pnp: Device 00:0a activated.
-parport: PnPBIOS parport detected.
-parport0: PC-style at 0x378 (0x778), irq 7, dma 3 
-[PCSPP,TRISTATE,COMPAT,ECP,DMA]
-ACPI: PCI Interrupt 0000:00:0c.0[A] -> GSI 16 (level, low) -> IRQ 185
-PCI parallel port detected: 9710:9805, I/O at 0xc800(0xc400)
-parport1: PC-style at 0xc800 (0xc400) [PCSPP,TRISTATE]
-PCI parallel port detected: 9710:9805, I/O at 0xc000(0xbc00)
-parport2: PC-style at 0xc000 (0xbc00) [PCSPP,TRISTATE]
+> CONFIG_PROFILE_LIKELY it is, please disable it in your config, along 
+> with CONFIG_DEBUG_STACKOVERFLOW:
 
-Since I do not use parport0 but parport2 for regular work, I wanted to make 
-parport2 have the DMA channel, so I tried
+the tracer fix for PROFILE_LIKELY is below. I have also uploaded an 
+updated tracing patch to
 
-# rmmod parport_pc
-pnp: Device 00:0a disabled.
+  http://redhat.com/~mingo/lockdep-patches/latency-tracing-lockdep.patch
 
-# modprobe parport_pc io=0x378,0xc800,0xc000 irq=100,101,7
-parport 0x378 (WARNING): CTR: wrote 0x0c, read 0xff
-parport 0x378 (WARNING): DATA: wrote 0xaa, read 0xff
-parport 0x378: You gave this address, but there is probably no parallel 
-port there!
-parport0: PC-style at 0x378, irq 100 [PCSPP,TRISTATE]
-parport0: irq 100 in use, resorting to polled operation
-parport1: PC-style at 0xc800, irq 101 [PCSPP,TRISTATE,EPP]
-parport1: irq 101 in use, resorting to polled operation
-parport2: PC-style at 0xc000 (0xc400), irq 7, dma 7 
-[PCSPP,TRISTATE,COMPAT,ECP,DMA]
+which allows the enabling of PROFILE_LIKELY && LATENCY_TRACING again. 
+There's an updated combo patch too:
 
+  http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-rc5-mm1.patch
 
-Looks good so far, but what irq am I supposed to hand to the irq= parameter 
-for parport0 and parport1? Giving irq=-1,-1,7 is rejected. And what about 
-the "You gave this address, but there is probably no parallel port there?" 
-- there is one. It also appears when I try 0x778 instead of 0x378.
+for easy pickup of all current fixes against mm1 baseline.
 
+	Ingo
 
-
-Jan Engelhardt
--- 
+Index: linux/lib/likely_prof.c
+===================================================================
+--- linux.orig/lib/likely_prof.c
++++ linux/lib/likely_prof.c
+@@ -20,7 +20,7 @@
+ 
+ static struct likeliness *likeliness_head;
+ 
+-int do_check_likely(struct likeliness *likeliness, int ret)
++int notrace do_check_likely(struct likeliness *likeliness, int ret)
+ {
+ 	static unsigned long likely_lock;
+ 

@@ -1,117 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964995AbWEaOPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbWEaOaL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964995AbWEaOPU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 10:15:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbWEaOPT
+	id S965041AbWEaOaL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 10:30:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965042AbWEaOaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 10:15:19 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:59378 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964995AbWEaOPR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 10:15:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=Vy2R6qgiZKshUyqW+4ZnFsZvy/cZj/Y0kGxwZDdodQOTVkknaf0dDEDS8/Xy1tJ6a8Q7jHJ42pM1uN/czzbwIOnT6BoIYUD8L4BCFLf50mLRrTRziT2vzmm0Wzr0prhaC9upjiqlAO+rvMpTp1HGkLba+CXuitL/NQ9p8WvuxoY=
-Date: Wed, 31 May 2006 18:19:26 +0400
-From: Paul Drynoff <pauldrynoff@gmail.com>
-To: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm1 - output of lock validator
-Message-Id: <20060531181926.51c4f4c5.pauldrynoff@gmail.com>
-In-Reply-To: <20060530132540.a2c98244.akpm@osdl.org>
-References: <20060530195417.e870b305.pauldrynoff@gmail.com>
-	<20060530132540.a2c98244.akpm@osdl.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.12; i686-pc-linux-gnu)
+	Wed, 31 May 2006 10:30:11 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:28558 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965041AbWEaOaJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 10:30:09 -0400
+Subject: Re: [v4l-dvb-maintainer] Re: Stradis driver conflicts with
+	all	other SAA7146 drivers
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alan Cox <alan@redhat.com>
+Cc: Linux and Kernel Video <video4linux-list@redhat.com>,
+       Michael Hunold <hunold@linuxtv.org>, Jiri Slaby <jirislaby@gmail.com>,
+       linux-kernel@vger.kernel.org, Nathan Laredo <laredo@gnu.org>,
+       Christer Weinigel <christer@weinigel.se>,
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>
+In-Reply-To: <20060531140118.GE26681@devserv.devel.redhat.com>
+References: <44799D24.7050301@gmail.com> <1148825088.1170.45.camel@praia>
+	 <d6e463920605280901n41840baeuc30283a51e35204e@mail.gmail.com>
+	 <1148837483.1170.65.camel@praia> <m3k686hvzi.fsf@zoo.weinigel.se>
+	 <1148841654.1170.70.camel@praia> <447AED3B.4070708@linuxtv.org>
+	 <1148909606.1170.94.camel@praia> <447AFA88.1010700@linuxtv.org>
+	 <1148911139.1170.99.camel@praia>
+	 <20060531140118.GE26681@devserv.devel.redhat.com>
+Content-Type: text/plain
+Date: Wed, 31 May 2006 16:29:56 +0200
+Message-Id: <1149085796.3114.36.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 May 2006 13:25:40 -0700
-Andrew Morton <akpm@osdl.org> wrote:
-
-> On Tue, 30 May 2006 19:54:17 +0400
-> Paul Drynoff <pauldrynoff@gmail.com> wrote:
-> 
-> > During boot 2.6.17-rc5-mm1 I got such message:
-> > Uncompressing Linux... Ok, booting kernel.
+On Wed, 2006-05-31 at 10:01 -0400, Alan Cox wrote:
+> On Mon, May 29, 2006 at 10:58:59AM -0300, Mauro Carvalho Chehab wrote:
+> > 1) Integrate your code and Nathan one;
 > > 
-> > And that's all, 2.6.17-rc5 booted successfully.
+> > 2) create a generic handler for all saa7146 boards, moving all PCI probe
+> > to the newer module. After detecting the card number, it should request
+> > the specific module.
 > 
-> I'm not able to reproduce this with your .config.  Perhaps you could
-> disable kgdb, enable CONFIG_EARLY_PRINTK and boot with earlyprintk=vga (or,
-> better, earlyprintk=serial[,ttySn[,baudrate]]).
-> 
-> (you can get a nicer backtrace out gdb by simply using `bt', btw)
+> #2 breaks some existing setups that build modules to load based on the PCI
+> tables or built initrds this way. 
 
-Thanks, `bt' help, the problem was "kgbd", I switch off it and all works fine now.
-
-Here is output of "lock validator":
-
-Linux version 2.6.17-rc5-mm1
-Lock dependency validator: Copyright (c) 2006 Red Hat, Inc., Ingo Molnar
-... MAX_LOCKDEP_SUBTYPES:    8
-... MAX_LOCK_DEPTH:          30
-... MAX_LOCKDEP_KEYS:        2048
-... TYPEHASH_SIZE:           1024
-... MAX_LOCKDEP_ENTRIES:     8192
-... MAX_LOCKDEP_CHAINS:      8192
-... CHAINHASH_SIZE:          4096
- memory used by lock dependency info: 696 kB
- per task-struct memory footprint: 1080 bytes
--------------------------------------------------------
-Good, all 210 testcases passed! |
----------------------------------
-
-============================
-[ BUG: illegal lock usage! ]
-----------------------------
-illegal {hardirq-on-W} -> {in-hardirq-W} usage.
-dhclient/2176 [HC1[1]:SC0[1]:HE0:SE0] takes:
- (&ei_local->page_lock){+...}, at: [<c035b822>] ei_interrupt+0x4a/0x2b4
-{hardirq-on-W} state was registered at:
-  [<c012ef8c>] lockdep_acquire+0x4b/0x63
-  [<c05a57e0>] _spin_lock+0x18/0x26
-  [<c035b666>] ei_start_xmit+0x81/0x1f3
-  [<c054fc30>] qdisc_restart+0xb9/0x162
-  [<c05478ea>] dev_queue_xmit+0xc5/0x1cb
-  [<c0594228>] packet_sendmsg_spkt+0x177/0x1b2
-  [<c053d886>] sock_sendmsg+0xd2/0xeb
-  [<c053dbf3>] sys_sendto+0xbe/0xdc
-  [<c053ebaf>] sys_socketcall+0xe5/0x161
-  [<c05a5c63>] syscall_call+0x7/0xb
-irq event stamp: 7953
-hardirqs last  enabled at (7952): [<c05a5a94>] _spin_unlock_irqrestore+0x36/0x3f
-hardirqs last disabled at (7953): [<c010306f>] common_interrupt+0x1b/0x2c
-softirqs last  enabled at (7934): [<c011c939>] __do_softirq+0x97/0x9f
-softirqs last disabled at (7946): [<c05478c1>] dev_queue_xmit+0x9c/0x1cb
-
-other info that might help us debug this:
-1 locks held by dhclient/2176:
- #0:  (&dev->xmit_lock){-+..}, at: [<c054fbb1>] qdisc_restart+0x3a/0x162
-
-stack backtrace:
- [<c01035eb>] show_trace+0x16/0x19
- [<c0103b0b>] dump_stack+0x1a/0x1f
- [<c012d5d6>] print_usage_bug+0x1a4/0x1b0
- [<c012e0a9>] mark_lock+0x92/0x40c
- [<c012e92c>] __lockdep_acquire+0x302/0x917
- [<c012ef8c>] lockdep_acquire+0x4b/0x63
- [<c05a57e0>] _spin_lock+0x18/0x26
- [<c035b822>] ei_interrupt+0x4a/0x2b4
- [<c0135849>] handle_IRQ_event+0x18/0x4d
- [<c0136877>] handle_level_irq+0x6e/0xbb
- [<c0104841>] do_IRQ+0x33/0x42
- [<c0103079>] common_interrupt+0x25/0x2c
- [<c0135d6d>] enable_irq+0x82/0x8a
- [<c035b7be>] ei_start_xmit+0x1d9/0x1f3
- [<c054fc30>] qdisc_restart+0xb9/0x162
- [<c05478ea>] dev_queue_xmit+0xc5/0x1cb
- [<c0594228>] packet_sendmsg_spkt+0x177/0x1b2
- [<c053d886>] sock_sendmsg+0xd2/0xeb
- [<c053dbf3>] sys_sendto+0xbe/0xdc
- [<c053ebaf>] sys_socketcall+0xe5/0x161
- [<c05a5c63>] syscall_call+0x7/0xb
+not if you make this meta module depend on the other two, that way all
+this infrastructure will just pull the right stuff in.. at the price
+of some wasted memory for the one you don't need
 

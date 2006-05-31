@@ -1,60 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbWEaWq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965221AbWEaWoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964812AbWEaWq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 18:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965222AbWEaWqz
+	id S965221AbWEaWoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 18:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965222AbWEaWoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 18:46:55 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:21451 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S964812AbWEaWqz (ORCPT
+	Wed, 31 May 2006 18:44:16 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:45958 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965221AbWEaWoP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 18:46:55 -0400
-Date: Thu, 1 Jun 2006 00:46:25 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Ingo Molnar <mingo@elte.hu>
-cc: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       Martin Bligh <mbligh@google.com>, linux-kernel@vger.kernel.org,
-       apw@shadowen.org
-Subject: Re: 2.6.17-rc5-mm1
-In-Reply-To: <20060531221242.GA5269@elte.hu>
-Message-ID: <Pine.LNX.4.64.0606010026160.17704@scrub.home>
-References: <447DEF47.6010908@google.com> <20060531140823.580dbece.akpm@osdl.org>
- <20060531211530.GA2716@elte.hu> <447E0A49.4050105@mbligh.org>
- <20060531213340.GA3535@elte.hu> <447E0DEC.60203@mbligh.org>
- <20060531215315.GB4059@elte.hu> <447E11B5.7030203@mbligh.org>
- <20060531221242.GA5269@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 31 May 2006 18:44:15 -0400
+Date: Wed, 31 May 2006 15:46:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: earny@net4u.de
+Cc: list-lkml@net4u.de, linux-kernel@vger.kernel.org,
+       Richard Henderson <rth@twiddle.net>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Subject: Re: ALPHA 2.6.17-rc5 AIC7###: does not boot
+Message-Id: <20060531154648.53539006.akpm@osdl.org>
+In-Reply-To: <200605301834.19795.list-lkml@net4u.de>
+References: <200605301834.19795.list-lkml@net4u.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thu, 1 Jun 2006, Ingo Molnar wrote:
-
-> on one side, the -mm kernel is about showcasing new code and finding
-> bugs in them as fast as possible. Having new debugging options enabled
-> by default is an important part of the testing effort. Users will care
-> more about having no crashes than about having 0.5% more performance in
-> select benchmarks.
+Ernst Herzberg <list-lkml@net4u.de> wrote:
+>
+> moinmoin.
 > 
-> on the other side, you obviously dont want a 0.5% overhead for select 
-> benchmarks, as that would mess up the history! A very fair and valid 
-> position too.
+> 2.6.16.18 boots and runs without problems.
 > 
-> but one side has to give, we cant have both.
+> 2.6.17-rc5 with patch
+> "[PATCH] alpha: generic hweight (Re: ALPHA 2.6.17-rc5 compile error)"
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0605.3/1559.html
+> 
+> hangs with 
+> 
+> [....]
+> scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 7.0
+>         <Adaptec aic7895 Ultra SCSI adapter>
+>         aic7895C: Ultra Wide Channel B, SCSI Id=7, 32/253 SCBs
+> 
+>  1:0:0:0: Attempting to queue an ABORT message
+> CDB:CDB: 0x12 0x12 0x0 0x0 0x0 0x0 0x0 0x0 0x24 0x24 0x0 0x0
+>  1:0:0:0: Command already completed
+> aic7xxx_abort returns 0x2002
+>  1:0:0:0: Attempting to queue an ABORT message
+> CDB: 0x12 0x0 0x0 0x0 0x24 0x0
+>  1:0:0:0: Command already completed
+> aic7xxx_abort returns 0x2002
+> [....]
+> 
+> dmesg (captured with netconsole and netcat, most messages are duplicated
+> but better than nothing)
+>
+> ...
+>
 
-As I mentioned before, please keep these defaults as a -mm-only patch, 
-Giving them testing in -mm is fine, but defaults are already way too much 
-abused as is. The default rule should be to enable an option explicitly, 
-if it's needed, it should not be auto-enabled, because its author likes 
-it so much. Using a "default y" should be close to hiding the option via 
-CONFIG_EMBEDDED or some other option and the default should not differ 
-between hidden and visible state, e.g.:
+James sayeth "Best guess would be lost interrupt ...  especially if there's
+no device usually at target1:0:0 (i.e.  the machine doesn't get a reply it
+expects doing the initial inquiry)."
 
-config FOO
-	bool "foo" if BAR
-	default y
+But I don't recall us making any changes in the Alpha interrupt-management
+code post-2.6.16.  Perhaps it was PCI changes which introduced this
+regression.
 
-bye, Roman

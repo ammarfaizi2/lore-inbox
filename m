@@ -1,89 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbWEaJjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbWEaJlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964928AbWEaJjt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 05:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964924AbWEaJjt
+	id S964913AbWEaJlv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 05:41:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964932AbWEaJlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 05:39:49 -0400
-Received: from gw.openss7.com ([142.179.199.224]:26861 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id S964921AbWEaJjs (ORCPT
+	Wed, 31 May 2006 05:41:51 -0400
+Received: from cantor.suse.de ([195.135.220.2]:39320 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964913AbWEaJlu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 05:39:48 -0400
-Date: Wed, 31 May 2006 03:39:47 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: David Miller <davem@davemloft.net>
-Cc: draghuram@rocketmail.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: Question about tcp hash function tcp_hashfn()
-Message-ID: <20060531033947.A3065@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: David Miller <davem@davemloft.net>,
-	draghuram@rocketmail.com, linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org
-References: <20060531014540.A1319@openss7.org> <20060531.004953.91760903.davem@davemloft.net> <20060531024954.A2458@openss7.org> <20060531.020239.00305778.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 31 May 2006 05:41:50 -0400
+From: Andi Kleen <ak@suse.de>
+To: piet@bluelane.com
+Subject: Re: linux-2.6 x86_64 kgdb issue
+Date: Wed, 31 May 2006 11:41:43 +0200
+User-Agent: KMail/1.9.3
+Cc: "Amit S. Kale" <amitkale@linsyssoft.com>,
+       "Vladimir A. Barinov" <vbarinov@ru.mvista.com>,
+       Andrew Morton <akpm@osdl.org>, kgdb-bugreport@lists.sourceforge.net,
+       trini@kernel.crashing.org, linux-kernel@vger.kernel.org
+References: <446E0B4B.9070003@ru.mvista.com> <200605310913.54758.ak@suse.de> <1149064749.26542.191.camel@piet2.bluelane.com>
+In-Reply-To: <1149064749.26542.191.camel@piet2.bluelane.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060531.020239.00305778.davem@davemloft.net>; from davem@davemloft.net on Wed, May 31, 2006 at 02:02:39AM -0700
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+Message-Id: <200605311141.43340.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David,
 
-On Wed, 31 May 2006, David Miller wrote:
-> 
-> I don't know how practical this is.  The 4GB sequence space
-> wraps very fast on 10 gigabit, so we'd be rehashing a bit
-> and 100 gigabit would make things worse whenever that shows
-> up.
+> My bet is that in this case I was storing a LOT of 
+> data in the thread structure, so the space left for 
+> the stack was massively reduced. 
 
-It works better for SCTP, because the vtags are constant.  No
-rehashing is required there.
+Ok so it was your bug. Don't do that.
 
-But, also consider that rehashing is only required for senders
-sending at a high data rate.  (http clients will likely never
-have to be rehashed.)  These packets will typically be large and
-per-packet overheads will be overwhelmed by per-byte overheads.
+> Sure but the debugger environment must tolerate larger stacks.
 
-Also, the rehashing is orderly and simple, the entry is simply
-bumped to the next sequential hash slot and the socket hash
-structure can already be cached at the time the action is
-performed.  Rehashing, although a bother, would take little
-time, and could simply be added as part of TCP's existing window
-calculations.
+No, Linux doesn't tolerate larger stacks.
 
-> 
-> It is, however, definitely an interesting idea.
-> 
-> We also need the pure traditional hashes for net channels.  I don't
-> see how we could use your scheme for net channels, because we are just
-> hashing in the interrupt handler of the network device driver in order
-> to get a queue to tack the packet onto, we're not interpreting the
-> sequence numbers and thus would not able to maintain the sequence
-> space based hashing state.
+> But this can miss a minor abuse. The interrupt check
+> is a quick and simple hack but I wonder if it's really
+> optimal for commercial implementations.
 
-Under SCTP I still have the traditional established hash for
-lookups of out of the blue packets and packets containing
-invalid verification tags.  Really long lookups would invite DoS
-attacks on these.
+In practice if you overwrite thread_info you crash eventually
+and it's noticed.  If you write below thread_info but keep
+ti intact then the redzone would likely not catch it either.
 
-> 
-> On a 3ghz cpu, the jenkins hash is essentially free.  Even on slower
-> cpus, jhash_2words for example is just 20 cycles on a sparc64 chip.
-> It's ~40 integer instructions and they all pair up perfectly to
-> dual issue.  We'd probably use jhash_3words() for TCP ipv4 which
-> would get us into the 30 cycle range.
+I don't think an additional red zone would improve overflow detection 
+in a significant way.
 
-But you could throw away all 30 cycles, plus the stacking and
-unstacking of registers to get in and out of the algorithm.
-Some architectures might benefit more.
+> I think all modules should be ABLE to be built in.
 
-Well, I thought you might find it interesting.  Perhaps somebody
-reading this will experiment with it.  For SCTP it is one of a
-number of techniques that allows OpenSS7 SCTP to drastically
-outperform lksctp.
+If you have a working module it can be easily built in too.
+Just hacks that don't work with modules are bad.
 
---brian
+-Andi

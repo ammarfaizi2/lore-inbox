@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965250AbWEaXOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965249AbWEaXPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965250AbWEaXOq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 19:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965251AbWEaXOq
+	id S965249AbWEaXPm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 19:15:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965251AbWEaXPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 19:14:46 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:3758 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965250AbWEaXOq (ORCPT
+	Wed, 31 May 2006 19:15:41 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:48869 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965249AbWEaXPl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 19:14:46 -0400
-Date: Thu, 1 Jun 2006 01:15:02 +0200
+	Wed, 31 May 2006 19:15:41 -0400
+Date: Thu, 1 Jun 2006 01:16:02 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>, mbligh@google.com,
-       linux-kernel@vger.kernel.org, apw@shadowen.org, ak@suse.de
-Subject: Re: 2.6.17-rc5-mm1
-Message-ID: <20060531231502.GA9560@elte.hu>
-References: <447DEF49.9070401@google.com> <20060531140652.054e2e45.akpm@osdl.org> <447E093B.7020107@mbligh.org> <20060531144310.7aa0e0ff.akpm@osdl.org> <20060531230710.GA7484@elte.hu>
+To: Paul Drynoff <pauldrynoff@gmail.com>
+Cc: Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: 2.6.17-rc5-mm1 - output of lock validator
+Message-ID: <20060531231602.GA9610@elte.hu>
+References: <20060530195417.e870b305.pauldrynoff@gmail.com> <20060530132540.a2c98244.akpm@osdl.org> <20060531181926.51c4f4c5.pauldrynoff@gmail.com> <1149085739.3114.34.camel@laptopd505.fenrus.org> <20060531203823.bc77da92.pauldrynoff@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060531230710.GA7484@elte.hu>
+In-Reply-To: <20060531203823.bc77da92.pauldrynoff@gmail.com>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
+X-ELTE-SpamScore: -3.1
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
 	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5009]
-	0.0 AWL                    AWL: From: address is in the auto white-list
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+* Paul Drynoff <pauldrynoff@gmail.com> wrote:
 
-> Martin, is the box still somewhat operational after such a crash? If 
-> yes then we could use my crash-tracer to see the kernel function call 
-> history leading up to the crash:
+> On Wed, 31 May 2006 16:28:59 +0200
+> Arjan van de Ven <arjan@linux.intel.com> wrote:
 > 
->   http://redhat.com/~mingo/lockdep-patches/latency-tracing-lockdep.patch
+> > On Wed, 2006-05-31 at 18:19 +0400, Paul Drynoff wrote:
 > 
-> just apply the patch, accept the offered Kconfig defaults and it will 
-> be configured to do the trace-crashes thing. Reproduce the crash and 
-> save /proc/latency_trace - it contains the execution history leading 
-> up to the crash. (on the CPU that crashes) Should work on i386 and 
-> x86_64.
+> > Make the ne2000 drivers use irqsave, they already disabled 
+> > interrupts generally so it is semi redundant, but it'll help the 
+> > lock validator at least...
 > 
-> the trace is saved upon the first crash or lockdep assert that occurs 
-> on the box. (but you'll have lockdep disabled, so it's the crash that 
-> matters)
+> Yes, this patch fixes situation.
 
-i just provoked a NULL pointer dereference with the tracer applied, and 
-/proc/latency_trace contained the proper trace, leading up to the crash:
-
-gettimeo-2333  0D... 2210us : trace_hardirqs_on (restore_nocheck)
-gettimeo-2333  0.... 2210us > sys_gettimeofday (00000000 00000000 0000007b)
-gettimeo-2333  0.... 2210us : sys_gettimeofday (sysenter_past_esp)
-gettimeo-2333  0D... 2211us : do_page_fault (error_code)
-gettimeo-2333  0D... 2211us : do_page_fault (c0123238 0 2)
-gettimeo-2333  0D... 2211us : do_page_fault (10202 202 7b)
-gettimeo-2333  0D... 2211us : trace_hardirqs_on (do_page_fault)
-gettimeo-2333  0.... 2211us : lockdep_acquire (do_page_fault)
-
-for best trace output you should have KALLSYMS and KALLSYMS_ALL enabled.
-
-of course it could happen that tracing makes your crash go away ...
+great!
 
 	Ingo

@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965189AbWEaV70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965132AbWFABPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965189AbWEaV70 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 17:59:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965192AbWEaV7Z
+	id S965132AbWFABPy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 21:15:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965149AbWFABPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 17:59:25 -0400
-Received: from dvhart.com ([64.146.134.43]:14226 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S965189AbWEaV7Z (ORCPT
+	Wed, 31 May 2006 21:15:53 -0400
+Received: from smtp.enter.net ([216.193.128.24]:6158 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S965132AbWFABPx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 17:59:25 -0400
-Message-ID: <447E11B5.7030203@mbligh.org>
-Date: Wed, 31 May 2006 14:59:17 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
-X-Accept-Language: en-us, en
+	Wed, 31 May 2006 21:15:53 -0400
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: OpenGL-based framebuffer concepts
+Date: Wed, 31 May 2006 21:15:44 +0000
+User-Agent: KMail/1.8.1
+Cc: Dave Airlie <airlied@gmail.com>, Jon Smirl <jonsmirl@gmail.com>,
+       Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200605282316.50916.dhazelton@enter.net> <Pine.LNX.4.61.0605312341240.30170@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0605312341240.30170@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@google.com>,
-       linux-kernel@vger.kernel.org, apw@shadowen.org
-Subject: Re: 2.6.17-rc5-mm1
-References: <447DEF47.6010908@google.com> <20060531140823.580dbece.akpm@osdl.org> <20060531211530.GA2716@elte.hu> <447E0A49.4050105@mbligh.org> <20060531213340.GA3535@elte.hu> <447E0DEC.60203@mbligh.org> <20060531215315.GB4059@elte.hu>
-In-Reply-To: <20060531215315.GB4059@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605312115.44907.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 31 May 2006 21:42, Jan Engelhardt wrote:
+> >> c) Lots of distros don't use fbdev drivers, forcing this on them to
+> >> use drm isn't an option.
+> >
+> >what distro's? The only ones that don't are either the ones that hold the
+> >users hand or the ones where the user is meant to be able to quickly
+> > change and modify the system.
+>
+> As long as I can continue to use 80x25 or any of the "pure text modes"
+> (vga=scan boot option says more) without loading any FB/DRM, I am satisfied
+> :)
+>
+>
+>
+> Jan Engelhardt
 
-> but ... i fixed the performance problem that caused the previous 
-> DEBUG_MUTEXES scalability problems. (there's no global mutex list 
-> anymore) We also default to e.g. DEBUG_SLAB which is alot more costly.
+Jan, I don't plan on forcing fbdev/DRM on anyone. My work is going to leave 
+vgacon alone, and if my work at making DRM and FBdev cooperate goes as 
+planned, those two will remain independant, though part of my work aims at 
+having fbdev provide all 2D graphics acceleration for DRM while DRM handles 
+the 3D stuff via the Mesa libraries or similar.
 
-OK. So what's the perf impact of the new version on a 32 cpu machine? 
-;-) Maybe it's fine, maybe it's not.
-
-> i'm wondering, why doesnt your config have DEBUG_MUTEXES disabled? Then 
-> 'make oldconfig' would pick it up automatically.
-
-Because it builds off the same config file all the time. It was created
-before CONFIG_MUTEXES existed ... creating a situation where we have to
-explicitly disable new options all the time becomes a maintainance
-nightmare ;-(
-
-If we don't want to do performance regression checking on -mm, that's
-fine, but I thought it was useful (has caught several things already).
-If we want debug options explicitly enabled, we can do a separate debug
-run, I'd think, but it makes it very difficult to do automated testing
-if we add random new debug options all the time on by default ...
-
-If we really think the debug options we're turning on by default have
-zero perf impact, that's fine ... but it has not been my previous
-experience. People obviously haven't checked that carefully in the past,
-perhaps they are now and the world fixed itself, but I'm not that
-optimistic ...
-
-M.
+DRH

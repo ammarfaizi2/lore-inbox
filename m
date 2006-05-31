@@ -1,77 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965208AbWEaWdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965214AbWEaWfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965208AbWEaWdR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 18:33:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965216AbWEaWdR
+	id S965214AbWEaWfS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 18:35:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965216AbWEaWfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 18:33:17 -0400
-Received: from mail.gmx.de ([213.165.64.20]:9674 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S965208AbWEaWdQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 18:33:16 -0400
-X-Authenticated: #704063
-Subject: [Patch] Negative index in drivers/usb/host/isp116x-hcd.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: ok@artecdesign.ee
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Thu, 01 Jun 2006 00:33:14 +0200
-Message-Id: <1149114794.26057.10.camel@alice>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Wed, 31 May 2006 18:35:18 -0400
+Received: from fed1rmmtao11.cox.net ([68.230.241.28]:37541 "EHLO
+	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
+	id S965214AbWEaWfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 18:35:16 -0400
+Date: Wed, 31 May 2006 15:35:15 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andi Kleen <ak@suse.de>
+Cc: piet@bluelane.com, "Amit S. Kale" <amitkale@linsyssoft.com>,
+       "Vladimir A. Barinov" <vbarinov@ru.mvista.com>,
+       Andrew Morton <akpm@osdl.org>, kgdb-bugreport@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: linux-2.6 x86_64 kgdb issue
+Message-ID: <20060531223515.GE31210@smtp.west.cox.net>
+References: <446E0B4B.9070003@ru.mvista.com> <200605310913.54758.ak@suse.de> <20060531150343.GZ31210@smtp.west.cox.net> <200605312301.56452.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200605312301.56452.ak@suse.de>
+Organization: Embedded Alley Solutions, Inc
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Wed, May 31, 2006 at 11:01:56PM +0200, Andi Kleen wrote:
+> On Wednesday 31 May 2006 17:03, Tom Rini wrote:
+> > On Wed, May 31, 2006 at 09:13:53AM +0200, Andi Kleen wrote:
+> >
+> > [snip]
+> >
+> > > Yes because you if modular works you don't need to build it in.
+> > >
+> > > Modular was working at some point on x86-64 for kdb and the original 2.6
+> > > version of kgdb was nearly there too.
+> >
+> > FWIW, the only change the current version of kgdb makes that would
+> > prevent it from being totally modular is the debugger_active check in
+> 
+> Can you post the patch and a description? 
 
-This fixes coverity Bug #390.
+The change is a simple if (atomic_read(&debugger_active)) return right
+at the start.  And I'm embarrased to say the change predates me on the
+project so I'm not 100% sure on the lineage and it might be totally
+bogus now.
 
-With the following code
-
-	ret = ep->branch = balance(isp116x, ep->period, ep->load);
-	if (ret < 0)
-		goto fail;
-
-the problem is that ret and balance are of the type int, and ep->branch is u16.
-so the int balance() returns gets reduced to u16 and then converted to an int again,
-which removes the sign. Maybe the following little c program can explain it better:
-
-
-----snip----
-int foo() {
-	return -5;
-}
-
-int main(int argc, char **argv) {
-	int a;
-	unsigned short b;
-
-	a = b = foo();
-	if (a < 0)
-		puts("case 1 works\n");
-
-	b = a = foo();
-	if (a < 0 )
-		puts("case 2 works\n");
-}
-----snip----
-
-only the case 2 output is visible.
-
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-
---- linux-2.6.17-rc5/drivers/usb/host/isp116x-hcd.c.orig	2006-06-01 00:25:32.000000000 +0200
-+++ linux-2.6.17-rc5/drivers/usb/host/isp116x-hcd.c	2006-06-01 00:26:18.000000000 +0200
-@@ -781,7 +781,7 @@ static int isp116x_urb_enqueue(struct us
- 		if (ep->branch < PERIODIC_SIZE)
- 			break;
- 
--		ret = ep->branch = balance(isp116x, ep->period, ep->load);
-+		ep->branch = ret = balance(isp116x, ep->period, ep->load);
- 		if (ret < 0)
- 			goto fail;
- 		ret = 0;
-
-
+-- 
+Tom Rini

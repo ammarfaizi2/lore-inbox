@@ -1,95 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWE3X4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932538AbWEaABQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932397AbWE3X4e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 19:56:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932538AbWE3X4e
+	id S932538AbWEaABQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 20:01:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932539AbWEaABP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 19:56:34 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:9945 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932397AbWE3X4c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 19:56:32 -0400
-Date: Wed, 31 May 2006 09:56:06 +1000
-From: David Chinner <dgc@sgi.com>
-To: Jan Blunck <jblunck@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       viro@zeniv.linux.org.uk
-Subject: Re: [patch 5/5] vfs: per superblock dentry unused list
-Message-ID: <20060530235606.GL8069029@melbourne.sgi.com>
-References: <20060526110655.197949000@suse.de>> <20060526110803.159085000@suse.de> <20060529030834.GU8069029@melbourne.sgi.com> <20060529115443.GG21024@hasse.suse.de> <20060530000443.GB8069029@melbourne.sgi.com> <20060530100633.GH21024@hasse.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060530100633.GH21024@hasse.suse.de>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 30 May 2006 20:01:15 -0400
+Received: from wx-out-0102.google.com ([66.249.82.203]:24025 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932538AbWEaABP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 20:01:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=mS0P0wCSjw6Ptj/Fivnn2VkCRTyqhFyxNjDoSOy1XgjQl0Mgt5EnI7xkzalHzLLu34gQcFiRyjfxpzTmBLm5BTjM2ttOfcWJZmFdcVBCfiLJJW9znqFJQN7tw1XFdHoaPPfm+SrXs6ED2yCGWGFADgrDrzqLu4IMztlY48aViRY=
+Message-ID: <447CDCB7.8080708@gmail.com>
+Date: Wed, 31 May 2006 08:00:55 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Jon Smirl <jonsmirl@gmail.com>, Dave Airlie <airlied@gmail.com>,
+       "D. Hazelton" <dhazelton@enter.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+References: <200605280112.01639.dhazelton@enter.net> <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <20060529102339.GA746@elf.ucw.cz> <21d7e9970605290336m1f80b08nebbd2a995be959cb@mail.gmail.com> <20060529124840.GD746@elf.ucw.cz> <21d7e9970605291623k3636f7hcc12028cad5e962b@mail.gmail.com> <20060530202401.GC16106@elf.ucw.cz> <9e4733910605301356k64dcd75fo38e45e1b7572817f@mail.gmail.com> <21d7e9970605301601t37f8d3ddwaf4a900ed8997fdf@mail.gmail.com> <9e4733910605301627t2f28db08vf58c78e2656b7047@mail.gmail.com> <20060530233826.GE16106@elf.ucw.cz>
+In-Reply-To: <20060530233826.GE16106@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 30, 2006 at 12:06:33PM +0200, Jan Blunck wrote:
-> On Tue, May 30, David Chinner wrote:
+Pavel Machek wrote:
+> Hi!
 > 
-> > You've just described the embodiment of the two order's of magnitude
-> > issue I mentioned. That's not a wrong assumption - think of the
-> > above case with global_unused count now being 1.28*10^7 instead of
-> > 1.28x10^4. How many dentries do you have to free before freeing any
-> > on the small superblock if we don't free one per call? (quick
-> > answer: 99.9%).
-> > 
-> > If we shrink one per call, we've freed all 128 dentries while there
-> > is still 1*10^5 dentries on the large list. That seems like a much
-> > better balance to make within the constraints of the shrinker
-> > resolution we have to work with.
+>>> Actually the suspend/resume has to be in userspace, X just re-posts
+>>> the video ROM and reloads the registers... so the repost on resume has
+>>> to happen... so some component needs to be in userspace..
+>> I'd like to see the simple video POST program get finished. All of the
+>> pieces are lying around. A key step missing is to getting klibc added
+>> to the kernel tree which is being worked on.
+>>
+>> BenH has the emu86 code. I agree that is simpler to always use emu86
+>> and not bother with vm86. He also pointed out that we need to copy the
+>> image back into the kernel after the ROM runs. Right now you can only
+>> read the ROM image from the sysfs attribute. The ROM code has support
+>> for keeping an image in RAM, it just isn't hooked up to the sysfs
+>> attribute for writing it.
 > 
-> With the effect that the dcache is completely useless for small filesystems
-> as long as there is one big one.
+> Actually, vbetool is the piece of puzzle we currently use to
+> reinitialize graphics cards after resume. (suspend.sf.net).
 
-Not necessarily. I think that as long as the small filesystem is not
-being used, then we _should_ be reclaiming slowly from it,
-regardless of how big the other filesystems are.  That's the way the
-global list ends up working now as the dentries for the small
-filesystem get purged according to LRU.
+But vbetool can only handle primary cards, can't it?
 
-> Filesystems where regularily a small amount
-> of files is used don't have any cached dentries but the filesystem where
-> someone touched every file still has a lot of dentries in cache although they
-> are never used again.
+> 
+> We currently do it all in userspace; it would be cleaner to do it as
+> call_usermodehelper() from kernel.
 
-Or alternatively small filesystems with no activity and dentries
-that will never get used again never get trimmed while the large
-fielsytem with lots of activity gets trimmed. This can lead to
-thousands of pages being pinned in slabs that we don't try to
-free up until we've already free >90% of the overall caches.
-That's not very appealing, IMO.
+I had a patch sometime before, vm86d.  It's a daemon in userspace that
+accepts requests from the kernel which executes x86 instructions using
+lrmi, then pushes the result back to the kernel.  I modified vesafb
+so that it uses this daemon which makes vesafb acquire the capability
+to do on the fly mode switching (similar in functionality with
+vesafb-tng which uses a different method).
 
-So I suggest the question is this - how do you define "not being
-used"? I guess dentry age or "last dentry was added to list at time
-X" (recorded in dput()) would be one way of determining this.
+I abandoned this patch, but it seems there's might be at least one user.
 
-Say something like:
+spblinux (http://spblinux.sourceforge.net/)
 
-dput():
-	list_add(&dentry->d_lru, &dentry->d_sb->s_unused);
-	dentry->s_sb->s_unused_age = jiffies +
-				(&dentry->d_sb->s_dentry_stat.age_limit * HZ);
-
-prune_dcache():
-
-	tmp = sb->s_dentry_stat.nr_unused/((unused/count)+1);
-	if ((tmp == 0) && time_after(jiffies, sb->s_unused_age))
-		tmp = 1;
-
-That would turn over small unused dentry lists that have not been
-modified for age_limit seconds. That means that small caches that
-are being used are not reclaimed prematurely, and those small
-caches would also be reclaimed after some time if they are not
-being used. That seems to address both our concerns.....
-
-Thoughts?
-
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-R&D Software Enginner
-SGI Australian Software Group
+Tony

@@ -1,25 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965140AbWEaUBk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965142AbWEaUCQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965140AbWEaUBk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 16:01:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965138AbWEaUBk
+	id S965142AbWEaUCQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 16:02:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbWEaUCQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 16:01:40 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:52631 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965135AbWEaUBj (ORCPT
+	Wed, 31 May 2006 16:02:16 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:13720 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965143AbWEaUCP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 16:01:39 -0400
-Date: Wed, 31 May 2006 22:01:59 +0200
+	Wed, 31 May 2006 16:02:15 -0400
+Date: Wed, 31 May 2006 22:02:36 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch, -rc5-mm1] lock validator: introduce irq_[disable/enable]_lockdep()
-Message-ID: <20060531200159.GA31711@elte.hu>
-References: <20060531195927.GA31584@elte.hu>
+Subject: [patch, -rc5-mm1] locking validator: special rule: 8390.c disable_irq()
+Message-ID: <20060531200236.GA31619@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060531195927.GA31584@elte.hu>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: -3.1
 X-ELTE-SpamLevel: 
@@ -34,69 +32,41 @@ X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+untested on 8390 hardware, but ought to solve the lockdep false 
+positive.
 
-doh - wrong patch version. Correct one below:
-----------------
-Subject: lock validator: introduce irq_[disable/enable]_lockdep()
+-----------------
+Subject: locking validator: special rule: 8390.c disable_irq()
 From: Ingo Molnar <mingo@elte.hu>
 
-Special lockdep variants of irq line disabling/enabling.
-
-These should be used for locking constructs that
-know that a particular irq context which is disabled,
-and which is the only irq-context user of a lock,
-that it's safe to take the lock in the irq-disabled
-section without disabling hardirqs.
+8390.c knows that ei_local->page_lock can only be used by an irq
+context that it disabled - and can hence take the ->page_lock
+without disabling hardirqs. Teach lockdep about this.
 
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 ---
- include/linux/interrupt.h |   35 +++++++++++++++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
+ drivers/net/8390.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Index: linux/include/linux/interrupt.h
+Index: linux/drivers/net/8390.c
 ===================================================================
---- linux.orig/include/linux/interrupt.h
-+++ linux/include/linux/interrupt.h
-@@ -53,6 +53,41 @@ static inline int disable_irq_wake(unsig
+--- linux.orig/drivers/net/8390.c
++++ linux/drivers/net/8390.c
+@@ -249,7 +249,7 @@ void ei_tx_timeout(struct net_device *de
  
- #endif
- 
-+/*
-+ * Special lockdep variants of irq disabling/enabling.
-+ * These should be used for locking constructs that
-+ * know that a particular irq context which is disabled,
-+ * and which is the only irq-context user of a lock,
-+ * that it's safe to take the lock in the irq-disabled
-+ * section without disabling hardirqs.
-+ *
-+ * On !CONFIG_LOCKDEP they are equivalent to the normal
-+ * irq disable/enable methods.
-+ */
-+static inline void disable_irq_nosync_lockdep(unsigned int irq)
-+{
-+	disable_irq_nosync(irq);
-+#ifdef CONFIG_LOCKDEP
-+	local_irq_disable();
-+#endif
-+}
-+
-+static inline void disable_irq_lockdep(unsigned int irq)
-+{
-+	disable_irq(irq);
-+#ifdef CONFIG_LOCKDEP
-+	local_irq_disable();
-+#endif
-+}
-+
-+static inline void enable_irq_lockdep(unsigned int irq)
-+{
-+#ifdef CONFIG_LOCKDEP
-+	local_irq_enable();
-+#endif
-+	enable_irq(irq);
-+}
-+
- #ifndef __ARCH_SET_SOFTIRQ_PENDING
- #define set_softirq_pending(x) (local_softirq_pending() = (x))
- #define or_softirq_pending(x)  (local_softirq_pending() |= (x))
-
+ 	/* Ugly but a reset can be slow, yet must be protected */
+ 		
+-	disable_irq_nosync(dev->irq);
++	disable_irq_nosync_lockdep(dev->irq);
+ 	spin_lock(&ei_local->page_lock);
+ 		
+ 	/* Try to restart the card.  Perhaps the user has fixed something. */
+@@ -257,7 +257,7 @@ void ei_tx_timeout(struct net_device *de
+ 	NS8390_init(dev, 1);
+ 		
+ 	spin_unlock(&ei_local->page_lock);
+-	enable_irq(dev->irq);
++	enable_irq_lockdep(dev->irq);
+ 	netif_wake_queue(dev);
+ }
+     

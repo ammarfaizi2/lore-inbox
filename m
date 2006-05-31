@@ -1,85 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbWEaQgi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751719AbWEaQj5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751097AbWEaQgi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 12:36:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751705AbWEaQgi
+	id S1751719AbWEaQj5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 12:39:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751721AbWEaQj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 12:36:38 -0400
-Received: from stinky.trash.net ([213.144.137.162]:21483 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S1751075AbWEaQgh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 12:36:37 -0400
-Message-ID: <447DC613.10102@trash.net>
-Date: Wed, 31 May 2006 18:36:35 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
+	Wed, 31 May 2006 12:39:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3050 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751719AbWEaQj5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 12:39:57 -0400
+Date: Wed, 31 May 2006 09:39:52 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: [rfc][patch] remove racy sync_page?
+In-Reply-To: <447DC22C.5070503@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0605310937170.24646@g5.osdl.org>
+References: <447AC011.8050708@yahoo.com.au> <20060529121556.349863b8.akpm@osdl.org>
+ <447B8CE6.5000208@yahoo.com.au> <20060529183201.0e8173bc.akpm@osdl.org>
+ <447BB3FD.1070707@yahoo.com.au> <Pine.LNX.4.64.0605292117310.5623@g5.osdl.org>
+ <447BD31E.7000503@yahoo.com.au> <447BD63D.2080900@yahoo.com.au>
+ <Pine.LNX.4.64.0605301041200.5623@g5.osdl.org> <447CE43A.6030700@yahoo.com.au>
+ <Pine.LNX.4.64.0605301739030.24646@g5.osdl.org> <447D9A41.8040601@yahoo.com.au>
+ <Pine.LNX.4.64.0605310740530.24646@g5.osdl.org> <447DAEDE.5070305@yahoo.com.au>
+ <Pine.LNX.4.64.0605310809250.24646@g5.osdl.org> <447DB765.6030702@yahoo.com.au>
+ <Pine.LNX.4.64.0605310840000.24646@g5.osdl.org> <447DC22C.5070503@yahoo.com.au>
 MIME-Version: 1.0
-To: Frank van Maarseveen <frankvm@frankvm.com>
-CC: linux-kernel@vger.kernel.org,
-       Kernel Netdev Mailing List <netdev@vger.kernel.org>
-Subject: Re: 2.6.17-rc4: netfilter LOG messages truncated via NETCONSOLE
-References: <20060531094626.GA23156@janus> <447DAEC9.3050003@trash.net> <20060531160611.GA25637@janus>
-In-Reply-To: <20060531160611.GA25637@janus>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/mixed;
- boundary="------------020608060405080105030900"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020608060405080105030900
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
 
-Frank van Maarseveen wrote:
-> On Wed, May 31, 2006 at 04:57:13PM +0200, Patrick McHardy wrote:
+
+On Thu, 1 Jun 2006, Nick Piggin wrote:
 > 
->>The message means that there was recursion and netpoll fell back
->>to dev_queue_xmit This patch should fix the "protocol is buggy"
->>messages, netpoll didn't set skb->nh.raw. Please try if it also
->>makes the other problem go away.
-> 
-> 
-> "protocol 0000 is buggy" is gone. The other problem is still there.
+> I keep telling you. Put the unplug after submission of IO. Not before
+> waiting for IO.
 
+And that's exactly where we have the lock_page().
 
-The messages might get dropped when the output queue is full.
-Does one of the drop counters shown by "ip -s link list"
-and "tc -s -d qdisc show" increase (the other counts might also
-give some clues)? Otherwise please apply the attached patch
-(should fix tcpdump, last patch was incomplete) and post a dump.
+And you ignored the list of _requirements_ I had, so you just missed the 
+other place you _have_ to have the unplug, namely in the "found a page 
+that was not yet up-to-date" case (look for the other lock_page()). 
+Because the person who started the IO might be off doing something else, 
+and may not be unplugging now (or ever, in the case of readahead).
 
+In other words, when you start arguing, at least read my emails. Your 
+suggestion would have introduced a bug by not waiting on that other place.
 
-
---------------020608060405080105030900
-Content-Type: text/plain;
- name="x"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x"
-
-diff --git a/net/core/netpoll.c b/net/core/netpoll.c
-index e8e05ce..05ed18d 100644
---- a/net/core/netpoll.c
-+++ b/net/core/netpoll.c
-@@ -329,7 +329,7 @@ void netpoll_send_udp(struct netpoll *np
- 	udph->len = htons(udp_len);
- 	udph->check = 0;
- 
--	iph = (struct iphdr *)skb_push(skb, sizeof(*iph));
-+	skb->nh.iph = iph = (struct iphdr *)skb_push(skb, sizeof(*iph));
- 
- 	/* iph->version = 4; iph->ihl = 5; */
- 	put_unaligned(0x45, (unsigned char *)iph);
-@@ -346,7 +346,7 @@ void netpoll_send_udp(struct netpoll *np
- 
- 	eth = (struct ethhdr *) skb_push(skb, ETH_HLEN);
- 
--	eth->h_proto = htons(ETH_P_IP);
-+	eth->h_proto = skb->protocol = htons(ETH_P_IP);
- 	memcpy(eth->h_source, np->local_mac, 6);
- 	memcpy(eth->h_dest, np->remote_mac, 6);
- 
-
---------------020608060405080105030900--
+		Linus

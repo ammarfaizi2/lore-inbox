@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965137AbWEaVx1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965183AbWEaVy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965137AbWEaVx1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 17:53:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965183AbWEaVx1
+	id S965183AbWEaVy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 17:54:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965139AbWEaVy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 17:53:27 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:38298 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965137AbWEaVx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 17:53:26 -0400
-Subject: [PATCH Trivial] Wrong syntax: instead of bool, it was written
-	boolean
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>
-Content-Type: text/plain
-Date: Wed, 31 May 2006 18:53:15 -0300
-Message-Id: <1149112395.23919.4.camel@praia>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2-1mdv2007.0 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 31 May 2006 17:54:26 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:549 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S965187AbWEaVyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 17:54:25 -0400
+X-IronPort-AV: i="4.05,195,1146466800"; 
+   d="scan'208"; a="286453267:sNHT34696668"
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Steve Wise <swise@opengridcomputing.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] iWARP Connection Manager.
+X-Message-Flag: Warning: May contain useful information
+References: <20060531182650.3308.81538.stgit@stevo-desktop>
+	<20060531182652.3308.1244.stgit@stevo-desktop>
+	<20060531114059.704ef1f1@localhost.localdomain>
+	<ada3beqyp39.fsf@cisco.com> <1149109080.7469.15.camel@stevo-desktop>
+	<20060531140100.36024296@localhost.localdomain>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 31 May 2006 14:54:22 -0700
+In-Reply-To: <20060531140100.36024296@localhost.localdomain> (Stephen Hemminger's message of "Wed, 31 May 2006 14:01:00 -0700")
+Message-ID: <adaverlx3ld.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 31 May 2006 21:54:24.0415 (UTC) FILETIME=[C7BA7AF0:01C684FC]
+Authentication-Results: sj-dkim-1.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Mauro Carvalho Chehab  <mchehab@infradead.org>
+This is a silly thing to argue about, but...
 
-Wrong syntax: instead of bool, it was written boolean on Kconfig on V4L1
-and V4L1_COMPAT.
+ > The preferred form for passing a size of a struct is the following:
+ > 
+ > 	p = kmalloc(sizeof(*p), ...);
+ > 
+ > The alternative form where struct name is spelled out hurts readability and
+ > introduces an opportunity for a bug when the pointer variable type is changed
+ > but the corresponding sizeof that is passed to a memory allocator is not.
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
----
+I would argue that this is talking about sizeof(*p) vs. sizeof (struct foo)
+rather than sizeof(*p) vs. sizeof *p.
 
-diff -upNr oldtree/drivers/media/Kconfig linux/drivers/media/Kconfig
---- oldtree/drivers/media/Kconfig	2006-05-31 18:35:40.000000000 -0300
-+++ linux/drivers/media/Kconfig	2006-05-31 18:35:33.000000000 -0300
-@@ -25,7 +25,7 @@ config VIDEO_DEV
- 	  module will be called videodev.
- 
- config VIDEO_V4L1
--	boolean "Enable Video For Linux API 1 (DEPRECATED)"
-+	bool "Enable Video For Linux API 1 (DEPRECATED)"
- 	depends on VIDEO_DEV
- 	select VIDEO_V4L1_COMPAT
- 	default y
-@@ -36,7 +36,7 @@ config VIDEO_V4L1
- 	  If you are unsure as to whether this is required, answer Y.
- 
- config VIDEO_V4L1_COMPAT
--	boolean "Enable Video For Linux API 1 compatible Layer"
-+	bool "Enable Video For Linux API 1 compatible Layer"
- 	depends on VIDEO_DEV
- 	default y
- 	---help---
+You wouldn't write:
 
+	return(*p);
 
+but rather
+
+	return *p;
+
+And sizeof is an operator not a function, so I think the same usage
+would apply.
+
+With that said the prevalent kernel usage does seem to be sizeof(*foo)
+(by about 10 to 1).  But I can't help feeling it looks silly.
+
+ - R.

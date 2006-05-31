@@ -1,39 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751735AbWEaRAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751718AbWEaRHg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751735AbWEaRAs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 13:00:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751734AbWEaRAs
+	id S1751718AbWEaRHg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 13:07:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWEaRHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 13:00:48 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:50701 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1751733AbWEaRAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 13:00:47 -0400
-Message-ID: <447DCBAD.8070307@shadowen.org>
-Date: Wed, 31 May 2006 18:00:29 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Wed, 31 May 2006 13:07:36 -0400
+Received: from cs1.cs.huji.ac.il ([132.65.16.10]:34571 "EHLO cs1.cs.huji.ac.il")
+	by vger.kernel.org with ESMTP id S1751156AbWEaRHg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 13:07:36 -0400
+Date: Wed, 31 May 2006 20:07:34 +0300 (IDT)
+From: Amnon Aaronsohn <bla@cs.huji.ac.il>
+To: netdev@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] don't automatically drop packets from 0.0.0.0/8
+Message-ID: <Pine.LNX.4.56.0605311958070.8718@duke.cs.huji.ac.il>
 MIME-Version: 1.0
-To: Ralf Baechle <ralf@linux-mips.org>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Chad Reese <creese@caviumnetworks.com>
-Subject: Re: mem_map definition / declaration.
-References: <20060531162345.GA19674@linux-mips.org>
-In-Reply-To: <20060531162345.GA19674@linux-mips.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralf Baechle wrote:
-> mm/memory defines mem_map and max_mapnr only if !CONFIG_NEED_MULTIPLE_NODES.
-> <linux/mm.h> declares mem_map[] if !CONFIG_DISCONTIGMEM.  Shouldn't
-> both depend on !CONFIG_FLATMEM?  As things are now mem_map may be
-> declared but not defined for a non-NUMA sparsemem system which may make
-> tracking a remaining mem_map reference in the code a little harder.
+For some reason linux drops all incoming packets which have a source
+address in the 0.0.0.0/8 range, although these are valid addresses. The
+attached patch fixes this. (It still drops packets coming from 0.0.0.0
+since that's a special address.)
 
-Sounds suspect for sure.  I will take a look and see.  Thanks for the
-head up.
+Signed-off-by: Amnon Aaronsohn <bla@cs.huji.ac.il>
+---
 
--apw
+--- linux-2.6.16.18/net/ipv4/route.c.old	2006-05-30 08:57:42.000000000 +0300
++++ linux-2.6.16.18/net/ipv4/route.c	2006-05-30 08:58:22.000000000 +0300
+@@ -1935,7 +1935,7 @@ static int ip_route_input_slow(struct sk
+ 	/* Accept zero addresses only to limited broadcast;
+ 	 * I even do not know to fix it or not. Waiting for complains :-)
+ 	 */
+-	if (ZERONET(saddr))
++	if (saddr == 0)
+ 		goto martian_source;
+
+ 	if (BADCLASS(daddr) || ZERONET(daddr) || LOOPBACK(daddr))

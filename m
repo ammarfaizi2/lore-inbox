@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965187AbWEaV6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965189AbWEaV70@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965187AbWEaV6A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 17:58:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965190AbWEaV6A
+	id S965189AbWEaV70 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 17:59:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965192AbWEaV7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 17:58:00 -0400
-Received: from ns1.suse.de ([195.135.220.2]:41384 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965187AbWEaV57 (ORCPT
+	Wed, 31 May 2006 17:59:25 -0400
+Received: from dvhart.com ([64.146.134.43]:14226 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S965189AbWEaV7Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 17:57:59 -0400
-Date: Wed, 31 May 2006 14:55:23 -0700
-From: Greg KH <gregkh@suse.de>
-To: Frank Gevaerts <frank.gevaerts@fks.be>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, lcapitulino@mandriva.com.br,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: usb-serial ipaq kernel problem
-Message-ID: <20060531215523.GA13745@suse.de>
-References: <20060529194334.GA32440@fks.be> <20060529172410.63dffa72@doriath.conectiva> <20060529204724.GA22250@fks.be> <20060529193330.3c51f3ba@home.brethil> <20060530082141.GA26517@fks.be> <20060530113801.22c71afe@doriath.conectiva> <20060530115329.30184aa0@doriath.conectiva> <20060530174821.GA15969@fks.be> <20060530113327.297aceb7.zaitcev@redhat.com> <20060531213828.GA17711@fks.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060531213828.GA17711@fks.be>
-User-Agent: Mutt/1.5.11
+	Wed, 31 May 2006 17:59:25 -0400
+Message-ID: <447E11B5.7030203@mbligh.org>
+Date: Wed, 31 May 2006 14:59:17 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@google.com>,
+       linux-kernel@vger.kernel.org, apw@shadowen.org
+Subject: Re: 2.6.17-rc5-mm1
+References: <447DEF47.6010908@google.com> <20060531140823.580dbece.akpm@osdl.org> <20060531211530.GA2716@elte.hu> <447E0A49.4050105@mbligh.org> <20060531213340.GA3535@elte.hu> <447E0DEC.60203@mbligh.org> <20060531215315.GB4059@elte.hu>
+In-Reply-To: <20060531215315.GB4059@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31, 2006 at 11:38:28PM +0200, Frank Gevaerts wrote:
-> On Tue, May 30, 2006 at 11:33:27AM -0700, Pete Zaitcev wrote:
-> > 
-> > Please get rid of the above.
-> > >  	 * shut down bulk read and write
-> 
-> OK, So here's the corrected patch:
-> 
-> Signed-off-by: Frank Gevaerts <frank.gevaerts@fks.be>
 
-Care to send it with a proper changelog description?  And not the
-usb-serial.c fix as that's already in my tree.
+> but ... i fixed the performance problem that caused the previous 
+> DEBUG_MUTEXES scalability problems. (there's no global mutex list 
+> anymore) We also default to e.g. DEBUG_SLAB which is alot more costly.
 
-thanks,
+OK. So what's the perf impact of the new version on a 32 cpu machine? 
+;-) Maybe it's fine, maybe it's not.
 
-greg k-h
+> i'm wondering, why doesnt your config have DEBUG_MUTEXES disabled? Then 
+> 'make oldconfig' would pick it up automatically.
+
+Because it builds off the same config file all the time. It was created
+before CONFIG_MUTEXES existed ... creating a situation where we have to
+explicitly disable new options all the time becomes a maintainance
+nightmare ;-(
+
+If we don't want to do performance regression checking on -mm, that's
+fine, but I thought it was useful (has caught several things already).
+If we want debug options explicitly enabled, we can do a separate debug
+run, I'd think, but it makes it very difficult to do automated testing
+if we add random new debug options all the time on by default ...
+
+If we really think the debug options we're turning on by default have
+zero perf impact, that's fine ... but it has not been my previous
+experience. People obviously haven't checked that carefully in the past,
+perhaps they are now and the world fixed itself, but I'm not that
+optimistic ...
+
+M.

@@ -1,90 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWEaIoe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWEaIt5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964870AbWEaIoe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 04:44:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbWEaIoe
+	id S964874AbWEaIt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 04:49:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbWEaIt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 04:44:34 -0400
-Received: from fand.conysis.com ([212.34.136.14]:745 "EHLO fand.conysis.com")
-	by vger.kernel.org with ESMTP id S964870AbWEaIoe (ORCPT
+	Wed, 31 May 2006 04:49:57 -0400
+Received: from gw.openss7.com ([142.179.199.224]:63212 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id S964871AbWEaIt4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 04:44:34 -0400
-Message-ID: <447D5772.10909@ejerciciosresueltos.com>
-Date: Wed, 31 May 2006 09:44:34 +0100
-From: Noel <tecnico@ejerciciosresueltos.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: kernel reports kernel bug when trying to start kaddressbook
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 31 May 2006 04:49:56 -0400
+Date: Wed, 31 May 2006 02:49:54 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: David Miller <davem@davemloft.net>
+Cc: draghuram@rocketmail.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Question about tcp hash function tcp_hashfn()
+Message-ID: <20060531024954.A2458@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: David Miller <davem@davemloft.net>,
+	draghuram@rocketmail.com, linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org
+References: <20060530235525.A30563@openss7.org> <20060531.001027.60486156.davem@davemloft.net> <20060531014540.A1319@openss7.org> <20060531.004953.91760903.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060531.004953.91760903.davem@davemloft.net>; from davem@davemloft.net on Wed, May 31, 2006 at 12:49:53AM -0700
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-May 31 09:19:01 padoc kernel: [17232590.616000] ------------[ cut here 
-]------------
-May 31 09:19:01 padoc kernel: [17232590.616000] kernel BUG at mm/swap.c:52!
-May 31 09:19:01 padoc kernel: [17232590.616000] invalid opcode: 0000 [#4]
-May 31 09:19:01 padoc kernel: [17232590.616000] Modules linked in: 
-usbcore autofs4 via_rhine 8139too crc32
-May 31 09:19:01 padoc kernel: [17232590.616000] CPU:    0
-May 31 09:19:01 padoc kernel: [17232590.616000] EIP:    
-0060:[<c013d925>]    Tainted: G   M  VLI
-May 31 09:19:01 padoc kernel: [17232590.616000] EFLAGS: 00210246   
-(2.6.16.4+20060419.padoc.envite #1)
-May 31 09:19:01 padoc kernel: [17232590.616000] EIP is at put_page+0x25/0x40
-May 31 09:19:01 padoc kernel: [17232590.616000] eax: 00000002   ebx: 
-cea51664   ecx: 00016325   edx: c12c64a0
-May 31 09:19:01 padoc kernel: [17232590.616000] esi: 08199000   edi: 
-c12c64a0   ebp: ca329e20   esp: ca329d88
-May 31 09:19:01 padoc kernel: [17232590.616000] ds: 007b   es: 007b   
-ss: 0068
-May 31 09:19:01 padoc kernel: [17232590.616000] Process kaddressbook 
-(pid: 10310, threadinfo=ca328000 task=cbc5d090)
-May 31 09:19:01 padoc kernel: [17232590.616000] Stack: <0>c01424a8 
-c12c64a0 08199000 16325045 16325045 fffffec1 00000000 cea48e40
-May 31 09:19:01 padoc kernel: [17232590.616000]        082b0000 cea49080 
-082b0000 ca329e20 c0142623 c03c5bac c4097a14 cea49080
-May 31 09:19:01 padoc kernel: [17232590.616000]        08053000 082b0000 
-ca329e20 00000000 082affff cea49080 cea49080 c4097a14
-May 31 09:19:01 padoc kernel: [17232590.616000] Call Trace:
-May 31 09:19:01 padoc kernel: [17232590.616000]  [<c01424a8>] 
-zap_pte_range+0x178/0x230
-May 31 09:19:01 padoc kernel: [17232590.616000]  [<c0142623>] 
-unmap_page_range+0xc3/0x130
-May 31 09:19:01 padoc kernel: [17232590.616000]  [<c014277b>] 
-unmap_vmas+0xeb/0x1a0
-May 31 09:19:01 padoc kernel: [17232590.616000]  [<c01470eb>] 
-exit_mmap+0x6b/0xf0
-May 31 09:19:01 padoc kernel: [17232590.616000]  [<c011789c>] 
-mmput+0x2c/0x80
-May 31 09:19:01 padoc kernel: [17232590.616000]  [<c015dafe>] 
-exec_mmap+0xae/0x140
-May 31 09:19:01 padoc kernel: [17232590.616000]  [<c015e1ab>] 
-flush_old_exec+0x4b/0x230
-May 31 09:19:01 padoc kernel: [17232590.616000]  [<c015da40>] 
-kernel_read+0x50/0x60
-May 31 09:19:01 padoc kernel: [17232590.616000]  [<c017ca6f>] 
-load_elf_binary+0x32f/0xd50
-May 31 09:19:01 padoc kernel: [17232590.616000]  [<c013ad0e>] 
-__alloc_pages+0x5e/0x310
-May 31 09:19:01 padoc kernel: [17232590.616000]  [<c01c6a8c>] 
-copy_from_user+0x4c/0xc0
-May 31 09:19:01 padoc kernel: [17232590.616000]  [<c015d58d>] 
-copy_strings+0x1dd/0x230
-May 31 09:19:01 padoc kernel: [17232590.616000]  [<c015e5ed>] 
-search_binary_handler+0x5d/0x1b0
-May 31 09:19:01 padoc kernel: [17232590.616000]  [<c015e8c0>] 
-do_execve+0x180/0x200
-May 31 09:19:01 padoc kernel: [17232590.616000]  [<c0101932>] 
-sys_execve+0x42/0x80
-May 31 09:19:01 padoc kernel: [17232590.616000]  [<c0102bbb>] 
-sysenter_past_esp+0x54/0x75
-May 31 09:19:01 padoc kernel: [17232590.616000] Code: bc 27 00 00 00 00 
-8b 54 24 04 8b 02 f6 c4 40 75 24 8b 42 04 40 74 14 83 42 04 ff 0f 98 c0 
-84 c0 75 02 90 c3 89 d0 e9 ab 02 00 00 <0f> 0b 34 00 f9 eb 2f c0 eb e2 
-eb 8f eb 0d 90 90 90 90 90 90 90
-May 31 09:19:01 padoc kernel: [17232590.616000]  <6>note: 
-kaddressbook[10310] exited with preempt_count 1
+David,
+
+On Wed, 31 May 2006, David Miller wrote:
+> 
+> For sure and there are plans afoot to move over to
+> dynamic table sizing and the Jenkins hash function.
+
+Just a suggestion, but I have an approach that stands to be
+faster than Jenkins deriving from the verification tag approach
+that I took for SCTP (OpenSS7 SCTP not lksctp).
+
+TCP uses a cryptographic hash function to select its initial
+sequence number (SCTP does the same for vtag).  Last I checked
+it was taken from an MD4 swirled entropy pool and further
+combined with the local and remote IP addresses and port
+numbers.
+
+Each received segment contains a sequence number that is offset
+from the initial sequence number but is expected to appear
+within the current window.  Most of the high order bits of an
+in-window sequence number are predicatable at any point in time
+and, due to cryptographic strength, are more efficient than
+Jenkins, ... and they are right there in the received packet.
+
+The approach would take the high order bits of the received
+sequence number and use them to index a separate sequence number
+keyed established hash (which could be dynamic). As the window
+changes, the socket would have to be removed and reinserted into
+this hash, but the repositioning would be infrequent.  Out of
+window segments would fail to find a socket, but could fall back
+to the current established hash, or even the bind hash.  A layer
+of caching could increase the hash lookup speed further for
+noisy senders.
+
+This would be faster than a Jenkins hash approach because it
+would not be necessary to calculate the hash function at all for
+in-window segments.  Per packet overheads would decrease and
+better small packet performance would be experienced (i.e. your
+http server).  It has better hash coverage because MD4 and other
+cryptographic algorithms used for initial sequence number
+selection have far better properties than Jenkins.
+
+What do you think?
 

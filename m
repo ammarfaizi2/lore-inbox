@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965183AbWEaVy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965139AbWEaVzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965183AbWEaVy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 17:54:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965139AbWEaVy0
+	id S965139AbWEaVzO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 17:55:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965186AbWEaVzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 17:54:26 -0400
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:549 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S965187AbWEaVyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 17:54:25 -0400
-X-IronPort-AV: i="4.05,195,1146466800"; 
-   d="scan'208"; a="286453267:sNHT34696668"
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Steve Wise <swise@opengridcomputing.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] iWARP Connection Manager.
-X-Message-Flag: Warning: May contain useful information
-References: <20060531182650.3308.81538.stgit@stevo-desktop>
-	<20060531182652.3308.1244.stgit@stevo-desktop>
-	<20060531114059.704ef1f1@localhost.localdomain>
-	<ada3beqyp39.fsf@cisco.com> <1149109080.7469.15.camel@stevo-desktop>
-	<20060531140100.36024296@localhost.localdomain>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Wed, 31 May 2006 14:54:22 -0700
-In-Reply-To: <20060531140100.36024296@localhost.localdomain> (Stephen Hemminger's message of "Wed, 31 May 2006 14:01:00 -0700")
-Message-ID: <adaverlx3ld.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Wed, 31 May 2006 17:55:14 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:63719 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S965139AbWEaVzM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 17:55:12 -0400
+Date: Wed, 31 May 2006 23:54:45 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Janos Haar <djani22@netcenter.hu>
+cc: Nathan Scott <nathans@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-xfs@oss.sgi.com
+Subject: Re: XFS related hang (was Re: How to send a break? - dump from frozen
+ 64bit linux)
+In-Reply-To: <00f501c68488$4d10c080$1800a8c0@dcccs>
+Message-ID: <Pine.LNX.4.61.0605312353530.30170@yvahk01.tjqt.qr>
+References: <01b701c6818d$4bcd37b0$1800a8c0@dcccs> <20060527234350.GA13881@voodoo.jdc.home>
+ <004501c68225$00add170$1800a8c0@dcccs> <9a8748490605280917l73f5751cmf40674fc22726c43@mail.gmail.com>
+ <01d801c6827c$fba04ca0$1800a8c0@dcccs> <01a801c683d2$e7a79c10$1800a8c0@dcccs>
+ <200605301903.k4UJ3xQU008919@turing-police.cc.vt.edu>
+ <1149038431.21827.20.camel@localhost.localdomain>
+ <20060531143849.C478554@wobbly.melbourne.sgi.com> <00f501c68488$4d10c080$1800a8c0@dcccs>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 31 May 2006 21:54:24.0415 (UTC) FILETIME=[C7BA7AF0:01C684FC]
-Authentication-Results: sj-dkim-1.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a silly thing to argue about, but...
+>
+>Hey, i think i found something.
+>My quota on my huge device is broken.
 
- > The preferred form for passing a size of a struct is the following:
- > 
- > 	p = kmalloc(sizeof(*p), ...);
- > 
- > The alternative form where struct name is spelled out hurts readability and
- > introduces an opportunity for a bug when the pointer variable type is changed
- > but the corresponding sizeof that is passed to a memory allocator is not.
+That should not be a problem. I ran into that "problem" too but had no 
+lockups back then (2.6.16-rc1).
 
-I would argue that this is talking about sizeof(*p) vs. sizeof (struct foo)
-rather than sizeof(*p) vs. sizeof *p.
+>(inferno   -- 18014398504855404       0       0        18446744073709551519
+>0     0)
+>I cant found a way to re-initialize it.
 
-You wouldn't write:
+Reinit:
 
-	return(*p);
+quotaoff /mntpt
+umount /mntpt
+mount /mntpt
 
-but rather
+>But anyway, at this point i dont need it, trying to disable the quota usage.
+>We will see....
 
-	return *p;
 
-And sizeof is an operator not a function, so I think the same usage
-would apply.
-
-With that said the prevalent kernel usage does seem to be sizeof(*foo)
-(by about 10 to 1).  But I can't help feeling it looks silly.
-
- - R.
+Jan Engelhardt
+-- 

@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965130AbWEaT5Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965158AbWEaT7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965130AbWEaT5Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 15:57:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751794AbWEaT5Y
+	id S965158AbWEaT7t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 15:59:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbWEaT7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 15:57:24 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:52253 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751793AbWEaT5X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 15:57:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=U24vpFrziNMmzz8xScleGBhHURcdDXzk6eGg6EkBMOu6YZrLUcI6Uv7pSqqruHeh5FaSJW9TFCbD/Wxws5NqbUKr/2m4oPoYoT81bP3NccmlgXcpLj3YkG9JunSm0Ys7XCIzQzNd5TbQQLepsQGJLdh4ctnerGB4A/MAS2ZOWus=
-Message-ID: <9e4733910605311257m19450bbai4c3ae6fdc7909a4@mail.gmail.com>
-Date: Wed, 31 May 2006 15:57:23 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Geert Uytterhoeven" <geert@linux-m68k.org>
-Subject: Re: OpenGL-based framebuffer concepts
-Cc: "Antonino A. Daplas" <adaplas@gmail.com>,
-       "Ondrej Zajicek" <santiago@mail.cz>,
-       "Linux Kernel Development" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.62.0605312033260.16745@pademelon.sonytel.be>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 31 May 2006 15:59:49 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:23050 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S965155AbWEaT7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 15:59:48 -0400
+Date: Wed, 31 May 2006 21:43:45 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, Ayaz Abdulla <aabdulla@nvidia.com>
+Subject: Re: [PATCH-2.4] forcedeth update to 0.50
+Message-ID: <20060531194345.GA11807@w.ods.org>
+References: <20060530220319.GA6945@w.ods.org> <447D2EA8.8020001@colorfullife.com> <20060531055438.GA9142@w.ods.org> <20060531180545.GA30797@dmt> <447DF38E.3020409@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <200605272245.22320.dhazelton@enter.net>
-	 <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com>
-	 <200605280112.01639.dhazelton@enter.net>
-	 <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com>
-	 <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com>
-	 <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz>
-	 <20060530223513.GA32267@localhost.localdomain>
-	 <447CD367.5050606@gmail.com>
-	 <Pine.LNX.4.62.0605312033260.16745@pademelon.sonytel.be>
+In-Reply-To: <447DF38E.3020409@colorfullife.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/31/06, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> On Wed, 31 May 2006, Antonino A. Daplas wrote:
-> > And it can be done.  The matrox driver in 2.4 can do just that.  For 2.6,
-> > we have tileblitting which is a drawing method that can handle pure text.
-> > None of the drivers use this, but vgacon can be trivially written as a
-> > framebuffer driver that uses tileblitting (instead of the default bitblit).
+On Wed, May 31, 2006 at 09:50:38PM +0200, Manfred Spraul wrote:
+> Marcelo Tosatti wrote:
+> 
+> >Since v2.4.33 should be out RSN, my opinion is that applying the 
+> >one-liner to fix the bringup problem for now is more prudent..
 > >
-> > I believe that there was a vgafb driver before that does exactly what you
-> > want.
->
-> Indeed. Early 2.1.x had a vgafb and an fbcon-vga, before vgacon existed in its
-> current form.
+> > 
+> >
+> It's attached. Untested, but it should work. Just the relevant hunk from 
+> the 0.42 patch.
 
-Moving back to a vgafb with text mode support in fbcon would be one
-way to eliminate a few of the way too many graphics drivers. I don't
-see any real downside side to doing this, does any one else see any
-problems?
+I will test it tomorrow morning. John might be interested in merging it too,
+as I have checked today that RHEL3 was affected by the same problem (rmmod
+followed by modprobe).
 
+> But I would disagree with waiting for 2.3.34 for a full backport:
+> 0.30 basically doesn't work, thus the update to 0.50 would be a big step 
+> forward - it can't be worse that 0.30.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Seconded !
+Manfred, if you have some corner cases in mind, are aware of anything which
+might sometimes break, or have a few experimental patches to try, I'm OK for
+a few tests while I have the machine (it's SMP BTW).
+
+> --
+>    Manfred
+
+Cheers,
+Willy
+

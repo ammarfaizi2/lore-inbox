@@ -1,74 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751623AbWEaQEv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751627AbWEaQGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751623AbWEaQEv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 12:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751625AbWEaQEv
+	id S1751627AbWEaQGN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 12:06:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751629AbWEaQGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 12:04:51 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:63974 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751621AbWEaQEv
+	Wed, 31 May 2006 12:06:13 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:10388 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S1751625AbWEaQGM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 12:04:51 -0400
-Message-ID: <447DBD44.5040602@in.ibm.com>
-Date: Wed, 31 May 2006 21:29:00 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Peter Williams <pwil3058@bigpond.net.au>,
-       Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
-       Rene Herman <rene.herman@keyaccess.nl>
-Subject: Re: [RFC 3/5] sched: Add CPU rate hard caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest> <661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com> <44781167.6060700@bigpond.net.au> <447D95DE.1080903@sw.ru>
-In-Reply-To: <447D95DE.1080903@sw.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 31 May 2006 12:06:12 -0400
+Date: Wed, 31 May 2006 18:06:11 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: Patrick McHardy <kaber@trash.net>
+Cc: linux-kernel@vger.kernel.org,
+       Kernel Netdev Mailing List <netdev@vger.kernel.org>
+Subject: Re: 2.6.17-rc4: netfilter LOG messages truncated via NETCONSOLE
+Message-ID: <20060531160611.GA25637@janus>
+References: <20060531094626.GA23156@janus> <447DAEC9.3050003@trash.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <447DAEC9.3050003@trash.net>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev wrote:
->>> Using a timer for releasing tasks from their sinbin sounds like a  bit
->>> of an overhead. Given that there could be 10s of thousands of tasks.
->>
->>
->>
->> The more runnable tasks there are the less likely it is that any of 
->> them is exceeding its hard cap due to normal competition for the 
->> CPUs.  So I think that it's unlikely that there will ever be a very 
->> large number of tasks in the sinbin at the same time.
-> 
-> for containers this can be untrue... :( actually even for 1000 tasks (I 
-> suppose this is the maximum in your case) it can slowdown significantly 
-> as well.
+On Wed, May 31, 2006 at 04:57:13PM +0200, Patrick McHardy wrote:
+> Frank van Maarseveen wrote:
+> > I have two machines named "porvoo" and "espoo". The first one
+> > has netconsole configured to send kernel messages to UDP port 514
+> > (a.k.a. syslog) on the other machine.
+> > 
+> > Somewhere between 2.6.13.2 and 2.6.17-rc4 there is a regression causing
+> > the netconsole messages which originate from netfilter to be truncated
+> > right after the MAC addresses. For example, /var/log/messages on the
+> > sending machine says:
+> > 
+> > May 31 09:28:11 porvoo kernel: IN=eth0 OUT= MAC=00:12:3f:85:9f:92:00:04:9a:a0:1d:d1:08:00 SRC=192.168.100.30 DST=172.17.1.113 LEN=60 TOS=0x00 PREC=0x00 TTL=54 ID=51496 DF PROTO=TCP SPT=50868 DPT=22 WINDOW=5840 RES=0x00 SYN URGP=0 
+> > 
+> > but netconsole messages captured in /var/log/messages on the receiving
+> > machine:
+> > 
+> > May 31 09:28:11 porvoo IN=eth0 OUT= 
+> > May 31 09:28:11 porvoo MAC=
+> > May 31 09:28:11 porvoo 00:
+> > May 31 09:28:11 porvoo 12:
+> > May 31 09:28:11 porvoo 3f:
+> > May 31 09:28:11 porvoo 85:
+> > May 31 09:28:11 porvoo 9f:
+> > May 31 09:28:11 porvoo 92:
+> > May 31 09:28:11 porvoo 00:
+> > May 31 09:28:11 porvoo 04:
+> > May 31 09:28:11 porvoo 9a:
+> > May 31 09:28:11 porvoo a0:
+> > May 31 09:28:11 porvoo 1d:
+> > May 31 09:28:11 porvoo d1:
+> > May 31 09:28:11 porvoo 08:
+> > May 31 09:28:11 porvoo 00 
+> > May 31 09:49:06 espoo -- MARK --
+> > 
+> > I ran a tcpdump on the sending machine to verify(?) what goes out but in
+> > that case the 2.6.17-rc4 kernel starts to report "protocol 0000 is buggy":
 
-Do you have any documented requirements for container resource management?
-Is there a minimum list of features and nice to have features for containers
-as far as resource management is concerned?
-
+[...]
 
 > 
->>> Is it possible to use the scheduler_tick() function take a look at all
->>> deactivated tasks (as efficiently as possible) and activate them when
->>> its time to activate them or just fold the functionality by defining a
->>> time quantum after which everyone is worken up. This time quantum
->>> could be the same as the time over which limits are honoured.
 > 
-> agree with it.
+> The message means that there was recursion and netpoll fell back
+> to dev_queue_xmit This patch should fix the "protocol is buggy"
+> messages, netpoll didn't set skb->nh.raw. Please try if it also
+> makes the other problem go away.
 
-Thinking a bit more along these lines, it would probably break O(1). But I guess a good
-algorithm can amortize the cost.
+"protocol 0000 is buggy" is gone. The other problem is still there.
 
-> 
-> Kirill
-> 
 -- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+Frank

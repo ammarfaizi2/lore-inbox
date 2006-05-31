@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbWEaIU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWEaI0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964860AbWEaIU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 04:20:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWEaIU2
+	id S964861AbWEaI0O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 04:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbWEaI0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 04:20:28 -0400
-Received: from mail.artecdesign.ee ([62.65.32.9]:46522 "EHLO
-	postikukk.artecdesign.ee") by vger.kernel.org with ESMTP
-	id S964860AbWEaIU2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 04:20:28 -0400
-Message-ID: <447D51C8.8040503@artecdesign.ee>
-Date: Wed, 31 May 2006 11:20:24 +0300
-From: Indrek Kruusa <indrek.kruusa@artecdesign.ee>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-MIME-Version: 1.0
-To: Jordan Crouse <jordan.crouse@amd.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: long/heavy USB fs operations panics 2.6.16.18
-References: <447495CC.7040205@artecdesign.ee> <20060524192503.GJ17964@cosmic.amd.com> <447B244A.6010008@artecdesign.ee> <20060530031037.GA11543@cosmic.amd.com>
-In-Reply-To: <20060530031037.GA11543@cosmic.amd.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ADG-Spam-Score: -2.6 (--)
-X-ADG-Spam-ScoreInt: -25
-X-ADG-Spam-Report: Content analysis details:   (-2.6 points, 5.5 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
-X-ADG-ExiScan-Signature: 8c644d10b7d0a9bad7b479b763bfc43a
+	Wed, 31 May 2006 04:26:14 -0400
+Received: from smtp1.kolej.mff.cuni.cz ([195.113.24.4]:57872 "EHLO
+	smtp1.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S964861AbWEaI0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 04:26:13 -0400
+X-Envelope-From: zajio1am@artax.karlin.mff.cuni.cz
+Date: Wed, 31 May 2006 10:26:05 +0200
+From: Ondrej Zajicek <santiago@mail.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+Message-ID: <20060531082605.GA3925@localhost.localdomain>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200605272245.22320.dhazelton@enter.net> <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com> <200605280112.01639.dhazelton@enter.net> <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com> <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz> <20060530223513.GA32267@localhost.localdomain> <447CD367.5050606@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <447CD367.5050606@gmail.com>
+X-Operating-System: Debian GNU/Linux 3.1 (Sarge)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jordan Crouse wrote:
-> On 29/05/06 19:41 +0300, Indrek Kruusa wrote:
->   
->> Duh... I have to doublecheck it but currently it seems that our BIOS 
->> needs a fix. I hope you haven't had much trouble with my problem report. 
->> I much appreciate your feedback.
->>     
->
-> Well, let us know if the problem persists.  Good luck.
->   
+On Wed, May 31, 2006 at 07:21:11AM +0800, Antonino A. Daplas wrote:
+> > 2) To modify appropriate fbdev drivers to not do mode change at startup.
+> >    Fill fb_*_screeninfo with appropriate values for text mode instead.
+> 
+> Most drivers do not change the mode at startup.  Do not load fbcon, and
+> you will retain your text mode even if a framebuffer is loaded. 
 
-I am not able to describe it in depth but there was "layout" or 
-"placement" changes needed in our mini-version BIOS (so they said). I 
-just figured out that with full-blown BIOS there wasn't problems. By now 
-the "mini" BIOS is also OK (especially for Linux).
+Yes, but i wrote about _using_ fbcon and fbdev without mode change.
 
-Indrek
+> > 3) (optional) To modify appropriate fbdev drivers to be able to switch
+> >    back from graphics mode to text mode.
+> 
+> And a few drivers already do that, i810fb and rivafb.  Load rivafb or i810fb,
+> switch to graphics mode, unload, and you're back to text mode.
 
+I though about being able to explicitly change mode from graphics to text 
+(for example when fbdev-only X switch to fbcon) while using fbdev.
+
+-- 
+Elen sila lumenn' omentielvo
+
+Ondrej 'SanTiago' Zajicek (email: santiago@mail.cz, jabber: santiago@njs.netlab.cz)
+OpenPGP encrypted e-mails preferred (KeyID 0x11DEADC3, wwwkeys.pgp.net)
+"To err is human -- to blame it on a computer is even more so."

@@ -1,127 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965230AbWEaXH5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965228AbWEaXDr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965230AbWEaXH5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 19:07:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965231AbWEaXH5
+	id S965228AbWEaXDr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 19:03:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbWEaXDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 19:07:57 -0400
-Received: from liaag1aa.mx.compuserve.com ([149.174.40.27]:31642 "EHLO
-	liaag1aa.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S965230AbWEaXH4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 19:07:56 -0400
-Date: Wed, 31 May 2006 19:01:45 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch 2.6.17-rc5 1/2] i386 memcpy: use as few moves as 
-  possible for I/O
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Chris Lesiak <chris.lesiak@licor.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200605311905_MC3-1-C141-B5CF@compuserve.com>
-MIME-Version: 1.0
+	Wed, 31 May 2006 19:03:47 -0400
+Received: from mse2fe2.mse2.exchange.ms ([66.232.26.194]:46711 "EHLO
+	mse2fe2.mse2.exchange.ms") by vger.kernel.org with ESMTP
+	id S965228AbWEaXDr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 19:03:47 -0400
+Subject: Re: linux-2.6 x86_64 kgdb issue
+From: Piet Delaney <piet@bluelane.com>
+Reply-To: piet@bluelane.com
+To: Andi Kleen <ak@suse.de>
+Cc: Piet Delaney <piet@bluelane.com>, Tom Rini <trini@kernel.crashing.org>,
+       "Amit S. Kale" <amitkale@linsyssoft.com>,
+       "Vladimir A. Barinov" <vbarinov@ru.mvista.com>,
+       Andrew Morton <akpm@osdl.org>, kgdb-bugreport@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1149115945.26542.208.camel@piet2.bluelane.com>
+References: <446E0B4B.9070003@ru.mvista.com> <200605310913.54758.ak@suse.de>
+	 <20060531150343.GZ31210@smtp.west.cox.net>  <200605312301.56452.ak@suse.de>
+	 <1149115945.26542.208.camel@piet2.bluelane.com>
+Content-Type: text/plain
+Organization: BlueLane Tech,
+Date: Wed, 31 May 2006 16:03:42 -0700
+Message-Id: <1149116622.26542.212.camel@piet2.bluelane.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4-3mdk 
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+X-OriginalArrivalTime: 31 May 2006 23:03:46.0836 (UTC) FILETIME=[78B98540:01C68506]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <447D1094.20409@zytor.com>
+On Wed, 2006-05-31 at 15:52 -0700, Piet Delaney wrote:
+ 
+> Mailing list is acting up; I've been having trouble posting due to
+> a mailserver problem; I contacted the SourceForge folks about it.
 
-On Tue, 30 May 2006 20:42:12 -0700, H. Peter Anvin wrote:
+Perhaps my problem was likely not having a SourceForge account;
+I added one last evening an it looks like my posting showed up on the
+mailing list. 
 
-> I was thinking some more about that, and I suspect the "right" way to do 
-> this looks something like the attached code.  Note that it assymetric, 
-> and that it's probably too long to inline.
-> 
-> I haven't tested this yet, and I probably won't have time to do so this 
-> evening.
+	http://sourceforge.net/account/newuser_emailverify.php
 
-There were some small problems, but I think I fixed them:
+-piet
 
 
-/*
- * arch/i386/lib/memcpy_io.S
- *
- * The most general form of memory copy to/from I/O space, used for
- * devices which can handle arbitrary transactions with appropriate
- * handling of byte enables.  The goal is to produce the minimum
- * number of naturally aligned transactions on the bus.
- */
-	
-#include <linux/config.h>
-#include <linux/linkage.h>
-	
-.macro	build_memcpy_io_fn fn_name,align_reg
+ 
 
-	.globl	\fn_name
-	.type	\fn_name, @function
-	
-	ALIGN
-\fn_name:
-
-	ebp_space=0
-#ifdef CONFIG_FRAME_POINTER
-	pushl	%ebp
-	movl	%esp,%ebp
-	ebp_space=4
-#endif
-
-	pushl	%edi
-	pushl	%esi
-	
-#ifdef CONFIG_REGPARM
-	movl	%eax, %edi
-	movl	%edx, %esi
-#else
-	movl	12+ebp_space(%esp), %edi
-	movl	20+ebp_space(%esp), %ecx
-	movl	16+ebp_space(%esp), %esi
-#endif
-
-	jecxz	1f
-	
-	testl	$1, \align_reg
-	jz	2f
-	movsb
-	decl	%ecx
-2:
-	cmpl	$2, %ecx
-	jb	3f
-	testl	$2, \align_reg
-	jz	4f
-	movsw
-	decl	%ecx
-	decl	%ecx
-4:
-	movl	%ecx, %edx
-	shrl	$2, %ecx
-	jz	5f
-	rep ; movsl
-5:
-	movl	%edx, %ecx
-	testb	$2, %cl
-	jz	3f
-	movsw
-3:
-	testb	$1, %cl
-	jz	1f
-	movsb
-1:
-	pop	%esi
-	pop	%edi
-
-#ifdef CONFIG_FRAME_POINTER
-	leave
-#endif
-
-	ret
-
-	.size	\fn_name, .-\fn_name
-
-.endm
-
-	build_memcpy_io_fn fn_name=memcpy_fromio,align_reg=%esi
-	build_memcpy_io_fn fn_name=memcpy_toio,align_reg=%edi
--- 
-Chuck

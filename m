@@ -1,68 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965258AbWEaXaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965260AbWEaXbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965258AbWEaXaN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 19:30:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965260AbWEaXaN
+	id S965260AbWEaXbL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 19:31:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965261AbWEaXbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 19:30:13 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:33435 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S965258AbWEaXaL
+	Wed, 31 May 2006 19:31:11 -0400
+Received: from bobcat.it.wsu.edu ([134.121.0.132]:52703 "EHLO
+	bobcat.it.wsu.edu") by vger.kernel.org with ESMTP id S965260AbWEaXbJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 19:30:11 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=w48TRfFtyvjZNc3JlOXkMInGU+o9CE+HYvE4fx4wiZEV+8UyZindfJXhV7D3nz7o5
-	gVGZNd2JhhnmDoeEzmOLA==
-Message-ID: <447E26C5.8030301@google.com>
-Date: Wed, 31 May 2006 16:29:09 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Wed, 31 May 2006 19:31:09 -0400
+Message-ID: <447E2726.8020507@sandall.us>
+Date: Wed, 31 May 2006 16:30:46 -0700
+From: Eric Sandall <eric@sandall.us>
+Organization: Source Mage GNU/Linux
+User-Agent: Mail/News 1.5.0.2 (X11/20060427)
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       linux-kernel@vger.kernel.org, apw@shadowen.org, ak@suse.de
-Subject: Re: 2.6.17-rc5-mm1
-References: <447DEF49.9070401@google.com> <20060531140652.054e2e45.akpm@osdl.org> <447E093B.7020107@mbligh.org> <20060531144310.7aa0e0ff.akpm@osdl.org> <20060531230710.GA7484@elte.hu>
-In-Reply-To: <20060531230710.GA7484@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Robert Hancock <hancockr@shaw.ca>
+CC: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
+       Mattia Dongili <malattia@linux.it>
+Subject: Re: cpufreq and kernel >2.6.15.6 is limited
+References: <6imLa-3G2-11@gated-at.bofh.it> <6in4s-44o-13@gated-at.bofh.it> <447D12D3.9050306@shaw.ca>
+In-Reply-To: <447D12D3.9050306@shaw.ca>
+X-Enigmail-Version: 0.93.2.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Martin, is the box still somewhat operational after such a crash? If yes 
-> then we could use my crash-tracer to see the kernel function call 
-> history leading up to the crash:
-> 
->   http://redhat.com/~mingo/lockdep-patches/latency-tracing-lockdep.patch
-> 
-> just apply the patch, accept the offered Kconfig defaults and it will be 
-> configured to do the trace-crashes thing. Reproduce the crash and save 
-> /proc/latency_trace - it contains the execution history leading up to 
-> the crash. (on the CPU that crashes) Should work on i386 and x86_64.
-> 
-> the trace is saved upon the first crash or lockdep assert that occurs on 
-> the box. (but you'll have lockdep disabled, so it's the crash that 
-> matters)
-> 
-> if the box dies after a crash then there's a possibility to print the 
-> execution history to the serial console - but that takes around 10-15 
-> minutes even on 115200 baud. If you want/need to do this then edit 
-> kernel/latency.c and change "trace_print_at_crash = 0" to 
-> "trace_print_at_crash = 1".
-> 
-> (btw., the tracer has another neat feature as well: if a kernel crashes 
-> or triple faults (and reboots) early during bootup, then the tracer can 
-> be configured to print all function calls to the serial console, via 
-> early_printk() - right when the function calls happen. I debugged 
-> numerous nasty boot-time bugs via this. To set it, change 
-> "print_functions = 0" to "print_functions = 1" in kernel/latency.c.)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Looks cool, but we'll have to beg the IBM guys to run it, I don't have
-access to that box anymore. Dumping to serial console would be cool,
-even if it's slow (the test boxes all have that logged).
+Robert Hancock wrote:
+> Dave Jones wrote:
+>> On Tue, May 30, 2006 at 05:25:26PM -0700, Eric Sandall wrote:
+>>  >  > It seems that any kernel on my Dell Inspiron 5100 after 2.6.15.6
+>>  > (including 2.6.17-rc5) 'breaks' my cpufreq in that up to and including
+>>  > 2.6.15.6 I can scale between 300MHz-2.4GHz, but after (starting with
+>>  > 2.6.16) I can only scale between 2.1GHz and 2.4GHz.
+>>  >  > I've attached the files, sorted by kernel, I assume may be
+>> helpful. Let
+>>  > me know if you need any more.
+>>
+>> It may have worked in the past, but the CPU has an errata which makes
+>> it an unsafe operation to scale below 2GHz.
+> 
+> There was some discussion about whether this was correct or not in this
+> thread:
+> 
+> http://groups.google.ca/group/fa.linux.kernel/browse_thread/thread/d5b5905d7f1aa221/66c41ee3a26583b3
+> 
+> 
+> Did this ever get resolved? From my reading of the N60 erratum,
+> disabling the 12.5% duty cycle sounds like this should be enough,
+> disabling everything under 2GHz is not necessary..
 
-M.
+I would definitely prefer that approach of removing the problem
+frequency rather than all 8.
 
+- -sandalle
+
+- --
+Eric Sandall                     |  Source Mage GNU/Linux Developer
+eric@sandall.us                  |  http://www.sourcemage.org/
+http://eric.sandall.us/          |  SysAdmin @ Shock Physics @ WSU
+http://counter.li.org/  #196285  |  http://www.shock.wsu.edu/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFEficmHXt9dKjv3WERAhMqAJ9u9AMHd+X/eQ5FxgrHF7BF+Gd+FgCfY9JR
+PFtmAt7+9z+CO6KnZw3sxeI=
+=3qP/
+-----END PGP SIGNATURE-----

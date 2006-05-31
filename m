@@ -1,40 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965034AbWEaOB4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965029AbWEaOCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965034AbWEaOB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 10:01:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbWEaOBw
+	id S965029AbWEaOCY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 10:02:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbWEaOBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 10:01:52 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:48559 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965033AbWEaOBe (ORCPT
+	Wed, 31 May 2006 10:01:51 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:53435 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965034AbWEaOBs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 10:01:34 -0400
-Date: Wed, 31 May 2006 10:01:18 -0400
-From: Alan Cox <alan@redhat.com>
-To: Linux and Kernel Video <video4linux-list@redhat.com>
-Cc: Michael Hunold <hunold@linuxtv.org>, Jiri Slaby <jirislaby@gmail.com>,
-       linux-kernel@vger.kernel.org, Nathan Laredo <laredo@gnu.org>,
-       Christer Weinigel <christer@weinigel.se>,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>
-Subject: Re: [v4l-dvb-maintainer] Re: Stradis driver conflicts with all	other SAA7146 drivers
-Message-ID: <20060531140118.GE26681@devserv.devel.redhat.com>
-References: <44799D24.7050301@gmail.com> <1148825088.1170.45.camel@praia> <d6e463920605280901n41840baeuc30283a51e35204e@mail.gmail.com> <1148837483.1170.65.camel@praia> <m3k686hvzi.fsf@zoo.weinigel.se> <1148841654.1170.70.camel@praia> <447AED3B.4070708@linuxtv.org> <1148909606.1170.94.camel@praia> <447AFA88.1010700@linuxtv.org> <1148911139.1170.99.camel@praia>
+	Wed, 31 May 2006 10:01:48 -0400
+Date: Wed, 31 May 2006 16:02:02 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@linux.intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc5-mm1
+Message-ID: <20060531140201.GA11617@elte.hu>
+References: <20060530022925.8a67b613.akpm@osdl.org> <6bffcb0e0605301155h3b472d79h65e8403e7fa0b214@mail.gmail.com> <6bffcb0e0605310651u61b9756fpfce3515ab046bf42@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1148911139.1170.99.camel@praia>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <6bffcb0e0605310651u61b9756fpfce3515ab046bf42@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 29, 2006 at 10:58:59AM -0300, Mauro Carvalho Chehab wrote:
-> 1) Integrate your code and Nathan one;
-> 
-> 2) create a generic handler for all saa7146 boards, moving all PCI probe
-> to the newer module. After detecting the card number, it should request
-> the specific module.
 
-#2 breaks some existing setups that build modules to load based on the PCI
-tables or built initrds this way. You can have two drivers for the same
-PCI identifier providing that they both know how to bail out for the wrong
-type of card
+* Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+
+> but these two bugs looks similar (both were previously reported). Both 
+> appears while starting avahi daemon.
+> 
+> http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm1/dmesg_1
+> http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm1/dmesg_2
+> 
+> http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm1/latency_trace_1.bz2
+> http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm1/latency_trace_2.bz2
+
+thanks - these traces made it really easy to spot the problem! The 
+problem seems to be caused by a pagefault:
+
+   <...>-1     0D..1 10648us : check_chain_key (__lockdep_acquire)
+   <...>-1     0D..1 10649us+: _raw_spin_lock (_spin_lock_irqsave)
+   <...>-1     0D..1 10651us : do_page_fault (error_code)
+   <...>-1     0D..1 10652us : trace_hardirqs_off (ret_from_exception)
+   <...>-1     0D..1 10653us : trace_hardirqs_on (restore_nocheck)
+   <...>-1     0D..1 10654us : mark_held_locks (trace_hardirqs_on)
+   <...>-1     0D..1 10654us : mark_lock (mark_held_locks)
+   <...>-1     0D..1 10655us : save_trace (mark_lock)
+   <...>-1     0D..1 10656us : save_stack_trace (save_trace)
+   <...>-1     0D..1 10658us : print_usage_bug (mark_lock)
+
+i think what happened is that the pagefault happened with irqs disabled, 
+and the entry.S return-to-exception-site irq-flags tracing code 
+mistakenly turned on the irq flag - causing the mismatch and lockdep's 
+confusion.
+
+if it's easy to reproduce it once more, could you apply the patch below? 
+That will add a trace entry about what address faulted and at what EIP. 
+Please also upload vmlinux.bz2 because the EIP will be a raw hex number 
+and i'll have to look it up. (or if it's too big then please disassemble 
+vmlinux via objdump -d vmlinux and upload a ~100 lines portion that is 
+mentioned in the new trace entry next to the do_page_fault trace entry 
+near the end of the latency_trace output)
+
+	Ingo
+
+Index: linux/arch/i386/mm/fault.c
+===================================================================
+--- linux.orig/arch/i386/mm/fault.c
++++ linux/arch/i386/mm/fault.c
+@@ -337,6 +338,7 @@ fastcall void __kprobes do_page_fault(st
+ 
+ 	/* get the address */
+         address = read_cr2();
++	trace_special(regs->eip, address, error_code);
+ 
+ 	tsk = current;
+ 

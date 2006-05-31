@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751573AbWEaCuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751586AbWEaDDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751573AbWEaCuI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 22:50:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751576AbWEaCuH
+	id S1751586AbWEaDDM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 23:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751590AbWEaDDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 22:50:07 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:37002 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751573AbWEaCuG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 22:50:06 -0400
-Message-ID: <447D0453.5070201@zytor.com>
-Date: Tue, 30 May 2006 19:49:55 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Tue, 30 May 2006 23:03:12 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:6627 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751586AbWEaDDL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 23:03:11 -0400
+Message-ID: <447D063A.9000401@in.ibm.com>
+Date: Wed, 31 May 2006 08:28:02 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM India Private Limited
+User-Agent: Googlebot/2.1 (+http://www.google.com/bot.html) 
 MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@mbligh.org>
-Subject: Re: i386 subarchitectures: boot page table flags
-References: <447CF7F5.8010709@zytor.com> <1149042065.3545.49.camel@mulgrave.il.steeleye.com>
-In-Reply-To: <1149042065.3545.49.camel@mulgrave.il.steeleye.com>
+To: David Chinner <dgc@sgi.com>
+Cc: Jan Blunck <jblunck@suse.de>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] Per-superblock unused dentry LRU lists V3
+References: <20060526023536.GN8069029@melbourne.sgi.com> <4de7f8a60605300753j3b1e257u3849b72e7bc4d100@mail.gmail.com> <20060530150438.GB4377@hasse.suse.de> <20060531004022.GM8069029@melbourne.sgi.com>
+In-Reply-To: <20060531004022.GM8069029@melbourne.sgi.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> On Tue, 2006-05-30 at 18:57 -0700, H. Peter Anvin wrote:
->> Does any of the i386 subarchitectures actually care about the Accessed and Dirty bits in 
->> the bootup pagetables (the ones that start at pg0, used before the mm is initialized?)  If 
->> not, I'd like to speed up booting by setting those bits at initialization time.
+David Chinner wrote:
+> On Tue, May 30, 2006 at 05:04:38PM +0200, Jan Blunck wrote:
+>>> David Chinner <dgc@sgi.com> wrote:
+>>> -
+>>> void shrink_dcache_sb(struct super_block * sb)
+>>> {
+> ....
+>>> +       __shrink_dcache_sb(sb, &sb->s_dentry_lru_nr, 0);
+>>> }
+>> This doesn't prune all the dentries on the unused list. The parents of the
+>> pruned dentries are added to the unused list. Therefore just shrinking
+>> sb->s_dentry_lru_nr dentries isn't enough.
 > 
-> Depends what you mean by "care".  I do hijack pg0 in
-> voyager_memory_detect() to access the clickmap for ascertaining the
-> memory layout, but I don't use the accessed or dirty bits.
+> Yes, you are right, Jan. I'm surprised I didn't see problems due to this.
+> The original patch got this right by shrinking in this case until the list
+> was empty. I'll wrap this one in a while loop...
+> 
+> Cheers,
+> 
+> Dave.
 
-Okay...
+Good catch,
 
-Leaving the A and D bits clear means the CPU has to trap to microcode to 
-set those bits before it is allowed to load the entry into the TLB. 
-Furthermore, and this is the real killer on some CPUs, it is not allowed 
-to load those entries speculatively.
+I suspect the reason why the problem never showed up is because select_parent()
+would take care of ensuring that the parent entries move to LRU list (this is
+the case of regular umounts, which do not call shrink_dcache_sb() directly).
 
-As far as I can tell, this is completely pointless for pg0.
+Maybe even the dentry_unused list should be per-superblock now.
 
-(And no, the Voyager code wouldn't be affected.)
-
-	-hpa
-
+-- 
+        Regards,
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

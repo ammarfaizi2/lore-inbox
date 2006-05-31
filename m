@@ -1,77 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751651AbWEaEKt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751656AbWEaEMg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751651AbWEaEKt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 00:10:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751654AbWEaEKt
+	id S1751656AbWEaEMg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 00:12:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751657AbWEaEMg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 00:10:49 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15254 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751648AbWEaEKt (ORCPT
+	Wed, 31 May 2006 00:12:36 -0400
+Received: from smtp.enter.net ([216.193.128.24]:10506 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S1751654AbWEaEMf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 00:10:49 -0400
-Date: Tue, 30 May 2006 21:14:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: 2.6.17-rc5-mm1
-Message-Id: <20060530211442.a260a32e.akpm@osdl.org>
-In-Reply-To: <1149045448.28264.4.camel@localhost.localdomain>
-References: <20060530022925.8a67b613.akpm@osdl.org>
-	<1149045448.28264.4.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 31 May 2006 00:12:35 -0400
+From: "D. Hazelton" <dhazelton@enter.net>
+To: "Jon Smirl" <jonsmirl@gmail.com>
+Subject: Re: OpenGL-based framebuffer concepts
+Date: Wed, 31 May 2006 00:11:22 +0000
+User-Agent: KMail/1.8.1
+Cc: "Dave Airlie" <airlied@gmail.com>, "Pavel Machek" <pavel@ucw.cz>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200605302314.25957.dhazelton@enter.net> <9e4733910605302102y491de627n7dabfbda0ed365b1@mail.gmail.com>
+In-Reply-To: <9e4733910605302102y491de627n7dabfbda0ed365b1@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605310011.22902.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 May 2006 23:17:28 -0400
-Steven Rostedt <rostedt@goodmis.org> wrote:
+On Wednesday 31 May 2006 04:02, Jon Smirl wrote:
+> On 5/30/06, D. Hazelton <dhazelton@enter.net> wrote:
+> > On Tuesday 30 May 2006 23:27, Jon Smirl wrote:
+> > > On 5/30/06, Dave Airlie <airlied@gmail.com> wrote:
+> > > > Actually the suspend/resume has to be in userspace, X just re-posts
+> > > > the video ROM and reloads the registers... so the repost on resume
+> > > > has to happen... so some component needs to be in userspace..
+> > >
+> > > I'd like to see the simple video POST program get finished. All of the
+> > > pieces are lying around. A key step missing is to getting klibc added
+> > > to the kernel tree which is being worked on.
+> >
+> > True. But how long is it going to be before klibc is merged?
+>
+> The merged tree is here:
+> git://git.kernel.org/pub/scm/linux/kernel/git/hpa/linux-2.6-klibc.git
 
-> Oh look what I found.  It seems that little driver of Andrew's has come
-> back to haunt me :)  And I think it has to do with that cute little
-> disable_irq in vortex_timer again.
-> 
-> 
-> ============================
-> [ BUG: illegal lock usage! ]
-> ----------------------------
-> illegal {in-hardirq-W} -> {hardirq-on-W} usage.
-> idle/0 [HC0[0]:SC1[2]:HE1:SE0] takes:
->  (&vp->lock){++..}, at: [<f8895b44>] vortex_timer+0x414/0x490 [3c59x]
-> {in-hardirq-W} state was registered at:
->   [<c013c759>] lockdep_acquire+0x59/0x70
->   [<c031a11d>] _spin_lock+0x3d/0x50
->   [<f8898983>] boomerang_interrupt+0x33/0x470 [3c59x]
->   [<c0147a11>] handle_IRQ_event+0x31/0x70
->   [<c0149304>] handle_level_irq+0xa4/0x100
->   [<c0105658>] do_IRQ+0x58/0x90
->   [<c010348d>] common_interrupt+0x25/0x2c
->   [<c010162d>] cpu_idle+0x4d/0xb0
->   [<c01002e5>] rest_init+0x45/0x50
->   [<c03f881a>] start_kernel+0x32a/0x460
->   [<c0100210>] 0xc0100210
-> irq event stamp: 220672
-> hardirqs last  enabled at (220672): [<c031aa45>] _spin_unlock_irqrestore+0x65/00hardirqs last disabled at (220671): [<c031a5d6>] _spin_lock_irqsave+0x16/0x60
-> softirqs last  enabled at (220658): [<c0124453>] __do_softirq+0xf3/0x110
-> softirqs last disabled at (220667): [<c01244e5>] do_softirq+0x75/0x80
-> 
-> other info that might help us debug this:
-> no locks held by idle/0.
-> 
-> stack backtrace:
->  <c01052bb> show_trace+0x1b/0x20  <c01052e6> dump_stack+0x26/0x30
->  <c013af5d> print_usage_bug+0x22d/0x240  <c013b591> mark_lock+0x621/0x6c0
->  <c013b6ff> __lockdep_acquire+0xcf/0xd30  <c013c759> lockdep_acquire+0x59/0x70
->  <c031a172> _spin_lock_bh+0x42/0x50  <f8895b44> vortex_timer+0x414/0x490 [3c59x] <c0128cf9> run_timer_softirq+0xc9/0x1a0  <c01243e7> __do_softirq+0x87/0x110
->  <c01244e5> do_softirq+0x75/0x80  <c0124650> irq_exit+0x50/0x60
->  <c01102a3> smp_apic_timer_interrupt+0x73/0x80  <c010354e> apic_timer_interrupt0 <c010162d> cpu_idle+0x4d/0xb0  <c010f2a5> start_secondary+0x455/0x500
->  <00000000> 0x0  <f7f85fb4> 0xf7f85fb4
+At the moment I don't have a connection that makes gits useful... I'm hoping 
+to upgrade my connection within the next two months, but finances (for me) 
+are never certain because bills come in seemingly at random.
 
-Without having looked at it very hard, I'd venture that this is a false
-positive - that driver uses disable_irq() to prevent reentry onto that
-lock.
+> I don't know the plans for when the final merge will happen.
+>
+> A standalone version of klibc is also available here:
+> http://www.kernel.org/pub/linux/libs/klibc/
+> Looks like version 1.3 is the latest
 
-It does that because it knows it's about to spend a long time talking with
-the mii registers and it doesn't want to do that with interrupts disabled.
+I'll have to install it, then. But none of my work in the kernel is going to 
+depend on it until it is merged into Linus' tree.
 
+> The standalone version is perfectly fine for development. You only
+> need to worry about the kernel tree version when it everything is
+> finished. I've used klibc for several apps like this and it is a great
+> tool. The binaries it produces are tiny.
+>
+> vbetool is a good way to practice resetting the cards if you do the
+> mods to /sys/class/firmware. The other features like emu86 support can
+> be added later.
+
+As I said, I will be taking a look at it in the hopes that I can assist them 
+once I get most of the framework layed down.
+
+DRH

@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965162AbWEaV1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965163AbWEaV1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965162AbWEaV1O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 17:27:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965169AbWEaV1N
+	id S965163AbWEaV1k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 17:27:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965167AbWEaV1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 17:27:13 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:58593 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965163AbWEaV1L (ORCPT
+	Wed, 31 May 2006 17:27:40 -0400
+Received: from dvhart.com ([64.146.134.43]:7570 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S965163AbWEaV1j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 17:27:11 -0400
-Date: Wed, 31 May 2006 23:27:30 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: alan@redhat.com, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch, -rc5-mm1] locking validator: special rule: 8390.c disable_irq()
-Message-ID: <20060531212730.GA3174@elte.hu>
-References: <20060531200236.GA31619@elte.hu> <1149107500.3114.75.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1149107500.3114.75.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5001]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 31 May 2006 17:27:39 -0400
+Message-ID: <447E0A49.4050105@mbligh.org>
+Date: Wed, 31 May 2006 14:27:37 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@google.com>,
+       linux-kernel@vger.kernel.org, apw@shadowen.org
+Subject: Re: 2.6.17-rc5-mm1
+References: <447DEF47.6010908@google.com> <20060531140823.580dbece.akpm@osdl.org> <20060531211530.GA2716@elte.hu>
+In-Reply-To: <20060531211530.GA2716@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Arjan van de Ven <arjan@infradead.org> wrote:
-
-> On Wed, 2006-05-31 at 22:02 +0200, Ingo Molnar wrote:
-> > untested on 8390 hardware, but ought to solve the lockdep false 
-> > positive.
-> > 
-> > -----------------
-> > Subject: locking validator: special rule: 8390.c disable_irq()
-> > From: Ingo Molnar <mingo@elte.hu>
-> > 
-> > 8390.c knows that ei_local->page_lock can only be used by an irq
-> > context that it disabled -
+Ingo Molnar wrote:
+> * Andrew Morton <akpm@osdl.org> wrote:
 > 
-> btw I think this is no longer correct with the irq polling stuff Alan 
-> added to the kernel recently...
+> 
+>>>EIP is at check_deadlock+0x15/0xe0
+> 
+> 
+>>>  <c012b77b> check_deadlock+0xa5/0xe0  <c012b922> 
+>>>debug_mutex_add_waiter+0x46/0x55
+>>>  <c02d50de> __mutex_lock_slowpath+0x9e/0x1c0  <c0160061> 
+>>>lookup_create+0x19/0x5b
+>>>  <c016043a> sys_mkdirat+0x4c/0xc3  <c01604c0> sys_mkdir+0xf/0x13
+>>>  <c02d6217> syscall_call+0x7/0xb
+>>
+>>Looks like the lock validator came unstuck.  But there's so much other 
+>>crap happening in there it's hard to tell.  Did you try it without all 
+>>the lockdep stuff enabled?
+> 
+> 
+> AFAICS this isnt the lock validator but the normal mutex debugging code 
+> (CONFIG_DEBUG_MUTEXES). The log does not indicate that lockdep was 
+> enabled.
 
-hm, indeed. misrouted_irq() goes through all irq descriptors and ignores 
-IRQ_DISABLED flag - rendering disable_irq() useless in essence, and 
-introducing the kind of deadlocks that lockdep warned about.
+Buggered if I know how that got turned on. I thought we turned it off
+by default now? That's what screwed up all the perf results before.
 
-Andrew, as far as i can see with irqfixup this isnt a lockdep false 
-positive but a real deadlock scenario - a spurious IRQ might arrive 
-during vortex_timer() execution and might cause the execution of 
-misrouted_irq(), which could execute vortex_interrupt() => deadlock.
+http://test.kernel.org/abat/33803/build/dotconfig
+That's the build config it ran with.
 
-Alan, is this a necessary property of irqpoll/irqfixup? Shouldnt 
-irqfixup leave irq descriptors alone that are disabled?
+CONFIG_DEBUG_MUTEXES=y
 
-	Ingo
+Grrr. Humpf. I can't see the option being turned on for lockdep ...
+what was the config option, and is it enabled by default?
+
+M.
+
+

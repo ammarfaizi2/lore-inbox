@@ -1,54 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbWEaOaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965032AbWEaO3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965041AbWEaOaL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 10:30:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965042AbWEaOaL
+	id S965032AbWEaO3O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 10:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbWEaO3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 10:30:11 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:28558 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965041AbWEaOaJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 10:30:09 -0400
-Subject: Re: [v4l-dvb-maintainer] Re: Stradis driver conflicts with
-	all	other SAA7146 drivers
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alan Cox <alan@redhat.com>
-Cc: Linux and Kernel Video <video4linux-list@redhat.com>,
-       Michael Hunold <hunold@linuxtv.org>, Jiri Slaby <jirislaby@gmail.com>,
-       linux-kernel@vger.kernel.org, Nathan Laredo <laredo@gnu.org>,
-       Christer Weinigel <christer@weinigel.se>,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>
-In-Reply-To: <20060531140118.GE26681@devserv.devel.redhat.com>
-References: <44799D24.7050301@gmail.com> <1148825088.1170.45.camel@praia>
-	 <d6e463920605280901n41840baeuc30283a51e35204e@mail.gmail.com>
-	 <1148837483.1170.65.camel@praia> <m3k686hvzi.fsf@zoo.weinigel.se>
-	 <1148841654.1170.70.camel@praia> <447AED3B.4070708@linuxtv.org>
-	 <1148909606.1170.94.camel@praia> <447AFA88.1010700@linuxtv.org>
-	 <1148911139.1170.99.camel@praia>
-	 <20060531140118.GE26681@devserv.devel.redhat.com>
+	Wed, 31 May 2006 10:29:14 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:11938 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S965032AbWEaO3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 10:29:13 -0400
+Subject: Re: 2.6.17-rc5-mm1 - output of lock validator
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Paul Drynoff <pauldrynoff@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060531181926.51c4f4c5.pauldrynoff@gmail.com>
+References: <20060530195417.e870b305.pauldrynoff@gmail.com>
+	 <20060530132540.a2c98244.akpm@osdl.org>
+	 <20060531181926.51c4f4c5.pauldrynoff@gmail.com>
 Content-Type: text/plain
-Date: Wed, 31 May 2006 16:29:56 +0200
-Message-Id: <1149085796.3114.36.camel@laptopd505.fenrus.org>
+Content-Transfer-Encoding: 7bit
+Date: Wed, 31 May 2006 16:28:59 +0200
+Message-Id: <1149085739.3114.34.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-31 at 10:01 -0400, Alan Cox wrote:
-> On Mon, May 29, 2006 at 10:58:59AM -0300, Mauro Carvalho Chehab wrote:
-> > 1) Integrate your code and Nathan one;
-> > 
-> > 2) create a generic handler for all saa7146 boards, moving all PCI probe
-> > to the newer module. After detecting the card number, it should request
-> > the specific module.
+On Wed, 2006-05-31 at 18:19 +0400, Paul Drynoff wrote:
+> On Tue, 30 May 2006 13:25:40 -0700
+> Andrew Morton <akpm@osdl.org> wrote:
 > 
-> #2 breaks some existing setups that build modules to load based on the PCI
-> tables or built initrds this way. 
+> > On Tue, 30 May 2006 19:54:17 +0400
+> > Paul Drynoff <pauldrynoff@gmail.com> wrote:
+> > 
+> > > During boot 2.6.17-rc5-mm1 I got such message:
+> > > Uncompressing Linux... Ok, booting kernel.
+> > > 
+> > > And that's all, 2.6.17-rc5 booted successfully.
+> > 
+> > I'm not able to reproduce this with your .config.  Perhaps you could
+> > disable kgdb, enable CONFIG_EARLY_PRINTK and boot with earlyprintk=vga (or,
+> > better, earlyprintk=serial[,ttySn[,baudrate]]).
+> > 
+> > (you can get a nicer backtrace out gdb by simply using `bt', btw)
+> 
+> Thanks, `bt' help, the problem was "kgbd", I switch off it and all works fine now.
+> 
+> Here is output of "lock validator":
+> 
+> Linux version 2.6.17-rc5-mm1
+> Lock dependency validator: Copyright (c) 2006 Red Hat, Inc., Ingo Molnar
+> ... MAX_LOCKDEP_SUBTYPES:    8
+> ... MAX_LOCK_DEPTH:          30
+> ... MAX_LOCKDEP_KEYS:        2048
+> ... TYPEHASH_SIZE:           1024
+> ... MAX_LOCKDEP_ENTRIES:     8192
+> ... MAX_LOCKDEP_CHAINS:      8192
+> ... CHAINHASH_SIZE:          4096
+>  memory used by lock dependency info: 696 kB
+>  per task-struct memory footprint: 1080 bytes
+> -------------------------------------------------------
+> Good, all 210 testcases passed! |
+> ---------------------------------
+> 
+> ============================
+> [ BUG: illegal lock usage! ]
+> ----------------------------
+> illegal {hardirq-on-W} -> {in-hardirq-W} usage.
+> dhclient/2176 [HC1[1]:SC0[1]:HE0:SE0] takes:
+>  (&ei_local->page_lock){+...}, at: [<c035b822>] ei_interrupt+0x4a/0x2b4
 
-not if you make this meta module depend on the other two, that way all
-this infrastructure will just pull the right stuff in.. at the price
-of some wasted memory for the one you don't need
+does this fix it?
+
+Make the ne2000 drivers use irqsave, they already disabled interrupts
+generally so it is semi redundant, but it'll help the lock validator at
+least...
+(potential downside: the old code let the timer irq at least happen;
+but... this is all really yukky code in the first place, someone
+needs to modernize this at some point)
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+
+---
+ drivers/net/8390.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+Index: linux-2.6.17-rc5-mm1.5/drivers/net/8390.c
+===================================================================
+--- linux-2.6.17-rc5-mm1.5.orig/drivers/net/8390.c
++++ linux-2.6.17-rc5-mm1.5/drivers/net/8390.c
+@@ -299,7 +299,7 @@ static int ei_start_xmit(struct sk_buff 
+ 	 
+ 	disable_irq_nosync(dev->irq);
+ 	
+-	spin_lock(&ei_local->page_lock);
++	spin_lock_irqsave(&ei_local->page_lock, flags);
+ 	
+ 	ei_local->irqlock = 1;
+ 
+@@ -335,7 +335,7 @@ static int ei_start_xmit(struct sk_buff 
+ 		ei_local->irqlock = 0;
+ 		netif_stop_queue(dev);
+ 		outb_p(ENISR_ALL, e8390_base + EN0_IMR);
+-		spin_unlock(&ei_local->page_lock);
++		spin_unlock_irqrestore(&ei_local->page_lock, flags);
+ 		enable_irq(dev->irq);
+ 		ei_local->stat.tx_errors++;
+ 		return 1;
+@@ -376,7 +376,7 @@ static int ei_start_xmit(struct sk_buff 
+ 	ei_local->irqlock = 0;
+ 	outb_p(ENISR_ALL, e8390_base + EN0_IMR);
+ 	
+-	spin_unlock(&ei_local->page_lock);
++	spin_unlock_irqrestore(&ei_local->page_lock, flags);
+ 	enable_irq(dev->irq);
+ 
+ 	dev_kfree_skb (skb);
 

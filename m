@@ -1,67 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbWEaKzv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964958AbWEaK6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964947AbWEaKzv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 06:55:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964914AbWEaKzv
+	id S964958AbWEaK6n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 06:58:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964950AbWEaK6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 06:55:51 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:51159 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751577AbWEaKzu (ORCPT
+	Wed, 31 May 2006 06:58:42 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:32732 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S964914AbWEaK6m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 06:55:50 -0400
-Date: Wed, 31 May 2006 12:56:09 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Arjan van de Ven <arjan@linux.intel.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.17-rc5-mm1
-Message-ID: <20060531105609.GA608@elte.hu>
-References: <20060530022925.8a67b613.akpm@osdl.org> <6bffcb0e0605301155h3b472d79h65e8403e7fa0b214@mail.gmail.com> <6bffcb0e0605301157o6b7c5f66q3c9f151cbb4537d5@mail.gmail.com> <20060530194259.GB22742@elte.hu> <6bffcb0e0605301457v9ba284bk75b8b6d14384489a@mail.gmail.com> <20060530220931.GA32759@elte.hu> <20060530221850.GA1764@elte.hu> <20060530222608.GA3274@elte.hu> <20060530222954.GA3746@elte.hu>
+	Wed, 31 May 2006 06:58:42 -0400
+Date: Wed, 31 May 2006 14:58:18 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: David Miller <davem@davemloft.net>, draghuram@rocketmail.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: Question about tcp hash function tcp_hashfn()
+Message-ID: <20060531105814.GB7806@2ka.mipt.ru>
+References: <20060530235525.A30563@openss7.org> <20060531.001027.60486156.davem@davemloft.net> <20060531014540.A1319@openss7.org> <20060531.004953.91760903.davem@davemloft.net> <20060531020009.A1868@openss7.org> <20060531090301.GA26782@2ka.mipt.ru> <20060531035124.B3065@openss7.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <20060530222954.GA3746@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20060531035124.B3065@openss7.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 31 May 2006 14:58:20 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 31, 2006 at 03:51:24AM -0600, Brian F. G. Bidulock (bidulock@openss7.org) wrote:
+> Evgeniy,
+> 
+> On Wed, 31 May 2006, Evgeniy Polyakov wrote:
+> > 2. Compared Jenkins hash with XOR hash used in TCP socket selection code.
+> > http://tservice.net.ru/~s0mbre/blog/2006/05/14#2006_05_14
+> 
+> Two problems with the comparison:
+> 
+>   Port numbers can be collected into a 32 bit register in network
+>   byte order directly from the TCP packet without taking two 16 bit
+>   values and shifting and or'ing them.
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+They are.
 
-> CONFIG_PROFILE_LIKELY it is, please disable it in your config, along 
-> with CONFIG_DEBUG_STACKOVERFLOW:
+u32 ports;
 
-the tracer fix for PROFILE_LIKELY is below. I have also uploaded an 
-updated tracing patch to
+ports = lport;
+ports <<= 16;
+ports |= fport;
 
-  http://redhat.com/~mingo/lockdep-patches/latency-tracing-lockdep.patch
+>   Worse: he folded the jenkins algorith result with
+> 
+>    h ^= h >> 16;
+>    h ^= h >> 8;
+> 
+>   Destroying the coverage of the function.
 
-which allows the enabling of PROFILE_LIKELY && LATENCY_TRACING again. 
-There's an updated combo patch too:
+It was done to simulate socket code which uses the same folding.
+Leaving 32bit space is just wrong, consider hash table size with that
+index.
 
-  http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-rc5-mm1.patch
+> I, for one, am not suprised that artifacts appeared in the comparison
+> as a result of this destruction of the coverage of the hashing function.
 
-for easy pickup of all current fixes against mm1 baseline.
+It is comparison of the approach used in TCP hashing code, it is not full 
+mathematical analysis. And in that case jenkins hash already not good. 
+I'm sure it can be tuned, but it does require a lot of iterations, while
+XOR one "just works".
 
-	Ingo
-
-Index: linux/lib/likely_prof.c
-===================================================================
---- linux.orig/lib/likely_prof.c
-+++ linux/lib/likely_prof.c
-@@ -20,7 +20,7 @@
- 
- static struct likeliness *likeliness_head;
- 
--int do_check_likely(struct likeliness *likeliness, int ret)
-+int notrace do_check_likely(struct likeliness *likeliness, int ret)
- {
- 	static unsigned long likely_lock;
- 
+-- 
+	Evgeniy Polyakov

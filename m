@@ -1,105 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965173AbWEaVi5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965172AbWEaVkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965173AbWEaVi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 17:38:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965185AbWEaVi4
+	id S965172AbWEaVkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 17:40:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965175AbWEaVkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 17:38:56 -0400
-Received: from smtp1.xs4all.be ([195.144.64.135]:30347 "EHLO smtp1.xs4all.be")
-	by vger.kernel.org with ESMTP id S965173AbWEaViz (ORCPT
+	Wed, 31 May 2006 17:40:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54237 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965172AbWEaVkY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 17:38:55 -0400
-Date: Wed, 31 May 2006 23:38:28 +0200
-From: Frank Gevaerts <frank.gevaerts@fks.be>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Frank Gevaerts <frank.gevaerts@fks.be>, lcapitulino@mandriva.com.br,
-       linux-kernel@vger.kernel.org, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: usb-serial ipaq kernel problem
-Message-ID: <20060531213828.GA17711@fks.be>
-References: <20060529141110.6d149e21@doriath.conectiva> <20060529194334.GA32440@fks.be> <20060529172410.63dffa72@doriath.conectiva> <20060529204724.GA22250@fks.be> <20060529193330.3c51f3ba@home.brethil> <20060530082141.GA26517@fks.be> <20060530113801.22c71afe@doriath.conectiva> <20060530115329.30184aa0@doriath.conectiva> <20060530174821.GA15969@fks.be> <20060530113327.297aceb7.zaitcev@redhat.com>
+	Wed, 31 May 2006 17:40:24 -0400
+Date: Wed, 31 May 2006 14:43:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: mbligh@google.com, linux-kernel@vger.kernel.org, apw@shadowen.org,
+       ak@suse.de
+Subject: Re: 2.6.17-rc5-mm1
+Message-Id: <20060531144310.7aa0e0ff.akpm@osdl.org>
+In-Reply-To: <447E093B.7020107@mbligh.org>
+References: <447DEF49.9070401@google.com>
+	<20060531140652.054e2e45.akpm@osdl.org>
+	<447E093B.7020107@mbligh.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060530113327.297aceb7.zaitcev@redhat.com>
-User-Agent: Mutt/1.5.9i
-X-FKS-MailScanner: Found to be clean
-X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-105.815,
-	vereist 5, autolearn=not spam, ALL_TRUSTED -3.30, AWL 0.08,
-	BAYES_00 -2.60, USER_IN_WHITELIST -100.00)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 30, 2006 at 11:33:27AM -0700, Pete Zaitcev wrote:
+"Martin J. Bligh" <mbligh@mbligh.org> wrote:
+>
+> Andrew Morton wrote:
+> > Martin Bligh <mbligh@google.com> wrote:
+> > 
+> >>The x86_65 panic in LTP has changed a bit. Looks more useful now.
+> >>Possibly just unrelated new stuff. Possibly we got lucky.
+> > 
+> > What are you doing to make this happen?
 > 
-> Please get rid of the above.
-> >  	 * shut down bulk read and write
+> runalltests on LTP
+> 
 
-OK, So here's the corrected patch:
+We have to get to the bottom of this - there's a shadow over about 500
+patches and we don't know which.
 
-Signed-off-by: Frank Gevaerts <frank.gevaerts@fks.be>
+iirc I tried to reproduce this a couple of weeks back and failed.
 
+Are you able to narrow it down to a particular LTP test?  It was mtest01 or
+something like that?  Perhaps we can identify a particular command line
+which triggers the fault in a standalone fashion?
 
-diff -pur linux-2.6.17-rc4/drivers/usb/serial/ipaq.c linux-2.6.17-rc4.test/drivers/usb/serial/ipaq.c
---- linux-2.6.17-rc4/drivers/usb/serial/ipaq.c	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6.17-rc4.test/drivers/usb/serial/ipaq.c	2006-05-30 20:46:23.000000000 +0200
-@@ -71,6 +71,7 @@
- 
- static __u16 product, vendor;
- static int debug;
-+static int connect_retries;
- 
- /* Function prototypes for an ipaq */
- static int  ipaq_open (struct usb_serial_port *port, struct file *filp);
-@@ -583,7 +584,7 @@ static int ipaq_open(struct usb_serial_p
- 	struct ipaq_private	*priv;
- 	struct ipaq_packet	*pkt;
- 	int			i, result = 0;
--	int			retries = KP_RETRIES;
-+	int			retries = connect_retries;
- 
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
-@@ -681,6 +682,7 @@ enomem:
- 	result = -ENOMEM;
- 	err("%s - Out of memory", __FUNCTION__);
- error:
-+	usb_kill_urb(port->read_urb);
- 	ipaq_destroy_lists(port);
- 	kfree(priv);
- 	return result;
-@@ -855,6 +857,7 @@ static void ipaq_write_bulk_callback(str
- 	
- 	if (urb->status) {
- 		dbg("%s - nonzero write bulk status received: %d", __FUNCTION__, urb->status);
-+		return;
- 	}
- 
- 	spin_lock_irqsave(&write_list_lock, flags);
-@@ -967,3 +970,6 @@ MODULE_PARM_DESC(vendor, "User specified
- 
- module_param(product, ushort, 0);
- MODULE_PARM_DESC(product, "User specified USB idProduct");
-+
-+module_param(connect_retries, int, KP_RETRIES);
-+MODULE_PARM_DESC(product, "Maximum number of connect retries (100ms each)");
-diff -pur linux-2.6.17-rc4/drivers/usb/serial/usb-serial.c linux-2.6.17-rc4.test/drivers/usb/serial/usb-serial.c
---- linux-2.6.17-rc4/drivers/usb/serial/usb-serial.c	2006-05-30 19:01:16.000000000 +0200
-+++ linux-2.6.17-rc4.test/drivers/usb/serial/usb-serial.c	2006-05-30 19:01:24.000000000 +0200
-@@ -162,6 +162,8 @@ static void destroy_serial(struct kref *
- 		}
- 	}
- 
-+	flush_scheduled_work();		/* port->work */
-+
- 	usb_put_dev(serial->dev);
- 
- 	/* free up any memory that we allocated */
+And why can't I make it happen?  Perhaps it's a memory initialisation
+problem, and it only happens to hit in that stage of LTP because that's
+when you started doing page reclaim, or something?  Perhaps just
+try putting a heap of memory pressure on the machine, see what
+that does?
 
-
-
--- 
-Frank Gevaerts                                 frank.gevaerts@fks.be
-fks bvba - Formal and Knowledge Systems        http://www.fks.be/
-Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
-B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19
+Being unable to reproduce it and not having a theory to go on leaves us
+kinda stuck.  Help, please?

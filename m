@@ -1,134 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965046AbWEaOx1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965051AbWEaO5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965046AbWEaOx1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 10:53:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWEaOx1
+	id S965051AbWEaO5d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 10:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965053AbWEaO5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 10:53:27 -0400
-Received: from zombie.ncsc.mil ([144.51.88.131]:13720 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S965046AbWEaOx1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 10:53:27 -0400
-Subject: [patch 1/1] selinux:  fix sb_lock/sb_security_lock nesting (Was:
-	Re: 2.6.17-rc5-mm1)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       James Morris <jmorris@namei.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <1149015890.3636.92.camel@laptopd505.fenrus.org>
-References: <20060530022925.8a67b613.akpm@osdl.org>
-	 <6bffcb0e0605301139l2b4895d0mbecffb422fb2c0cf@mail.gmail.com>
-	 <1149015890.3636.92.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Wed, 31 May 2006 10:56:52 -0400
-Message-Id: <1149087412.524.169.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 31 May 2006 10:57:33 -0400
+Received: from stinky.trash.net ([213.144.137.162]:12258 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S965051AbWEaO5c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 10:57:32 -0400
+Message-ID: <447DAEC9.3050003@trash.net>
+Date: Wed, 31 May 2006 16:57:13 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Frank van Maarseveen <frankvm@frankvm.com>
+CC: linux-kernel@vger.kernel.org,
+       Kernel Netdev Mailing List <netdev@vger.kernel.org>
+Subject: Re: 2.6.17-rc4: netfilter LOG messages truncated via NETCONSOLE
+References: <20060531094626.GA23156@janus>
+In-Reply-To: <20060531094626.GA23156@janus>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/mixed;
+ boundary="------------080405030508060800050202"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-30 at 21:04 +0200, Arjan van de Ven wrote:
-> On Tue, 2006-05-30 at 20:39 +0200, Michal Piotrowski wrote:
-> > Hi,
-> > 
-> > On 30/05/06, Andrew Morton <akpm@osdl.org> wrote:
-> > >
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm1/
-> > >
-> > 
-> > I get this on 2.6.17-rc5-mm1 + hot fixes + Arjan's net/ipv4/igmp.c patch.
-> > 
-> > May 30 20:25:56 ltg01-fedora kernel:
-> > May 30 20:25:56 ltg01-fedora kernel:
-> > =====================================================
-> > May 30 20:25:56 ltg01-fedora kernel: [ BUG: possible circular locking
-> > deadlock detected! ]
-> > May 30 20:25:56 ltg01-fedora kernel:
-> > -----------------------------------------------------
-> > May 30 20:25:56 ltg01-fedora kernel: umount/2322 is trying to acquire lock:
-> > May 30 20:25:56 ltg01-fedora kernel:  (sb_security_lock){--..}, at:
-> > [<c01d6400>] selinux_sb_free_security+0x17/0x4e
-> 
-> 
-> ok so  selinux_complete_init() does
->         spin_lock(&sb_security_lock);
-> next_sb:
->         if (!list_empty(&superblock_security_head)) {
->                 struct superblock_security_struct *sbsec =
->                                 list_entry(superblock_security_head.next,
->                                            struct superblock_security_struct,
->                                            list);
->                 struct super_block *sb = sbsec->sb;
->                 spin_lock(&sb_lock);
->                 sb->s_count++;
->                 spin_unlock(&sb_lock);
->                 spin_unlock(&sb_security_lock);
-> 
-> nesting sb_lock inside sb_security_lock
-> 
-> while
-> 
-> put_super() takes the sb_lock, then calls __put_super() which calls 
-> selinux_sb_free_security which calls superblock_free_security() which takes sb_security_lock
-> which means the nesting is opposite.
-> 
-> 
-> textbook AB-BA deadlock
+This is a multi-part message in MIME format.
+--------------080405030508060800050202
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-Yes, looks that way, although oddly I don't see this warning myself upon
-performing a umount (w/ 2.6.17-rc5-mm1-lockdep).  Patch below should
-fix.
+Frank van Maarseveen wrote:
+> I have two machines named "porvoo" and "espoo". The first one
+> has netconsole configured to send kernel messages to UDP port 514
+> (a.k.a. syslog) on the other machine.
+> 
+> Somewhere between 2.6.13.2 and 2.6.17-rc4 there is a regression causing
+> the netconsole messages which originate from netfilter to be truncated
+> right after the MAC addresses. For example, /var/log/messages on the
+> sending machine says:
+> 
+> May 31 09:28:11 porvoo kernel: IN=eth0 OUT= MAC=00:12:3f:85:9f:92:00:04:9a:a0:1d:d1:08:00 SRC=192.168.100.30 DST=172.17.1.113 LEN=60 TOS=0x00 PREC=0x00 TTL=54 ID=51496 DF PROTO=TCP SPT=50868 DPT=22 WINDOW=5840 RES=0x00 SYN URGP=0 
+> 
+> but netconsole messages captured in /var/log/messages on the receiving
+> machine:
+> 
+> May 31 09:28:11 porvoo IN=eth0 OUT= 
+> May 31 09:28:11 porvoo MAC=
+> May 31 09:28:11 porvoo 00:
+> May 31 09:28:11 porvoo 12:
+> May 31 09:28:11 porvoo 3f:
+> May 31 09:28:11 porvoo 85:
+> May 31 09:28:11 porvoo 9f:
+> May 31 09:28:11 porvoo 92:
+> May 31 09:28:11 porvoo 00:
+> May 31 09:28:11 porvoo 04:
+> May 31 09:28:11 porvoo 9a:
+> May 31 09:28:11 porvoo a0:
+> May 31 09:28:11 porvoo 1d:
+> May 31 09:28:11 porvoo d1:
+> May 31 09:28:11 porvoo 08:
+> May 31 09:28:11 porvoo 00 
+> May 31 09:49:06 espoo -- MARK --
+> 
+> I ran a tcpdump on the sending machine to verify(?) what goes out but in
+> that case the 2.6.17-rc4 kernel starts to report "protocol 0000 is buggy":
+> 
+> May 31 11:00:49 porvoo kernel: device eth0 entered promiscuous mode
+> May 31 11:03:31 porvoo kernel: IN=eth0 OUT= MAC=00:12:3f:85:9f:92:00:12:3f:85:17:52:08:00 SRC=172.17.1.64 DST=172.17.1.113 LEN=60 TOS=0x00 PREC=0x00 TTL=64 ID=60618 DF PROTO=TCP SPT=34984 DPT=21212 WINDOW=5840 RES=0x00 SYN URGP=0
+> May 31 11:03:31 porvoo kernel: protocol 0000 is buggy, dev eth0
+> May 31 11:03:31 porvoo last message repeated 9 times
+> 
+> the netconsole output captured on the receiving machine:
+> 
+> May 31 11:00:49 porvoo device eth0 entered promiscuous mode 
+> May 31 11:03:31 porvoo protocol 0000 is buggy, dev eth0 
+> May 31 11:03:31 porvoo IN=eth0 OUT= 
+> May 31 11:03:31 porvoo protocol 0000 is buggy, dev eth0 
+> May 31 11:03:31 porvoo MAC=
+> May 31 11:03:31 porvoo protocol 0000 is buggy, dev eth0 
+> May 31 11:03:31 porvoo 00:
+> May 31 11:03:31 porvoo protocol 0000 is buggy, dev eth0 
+> May 31 11:03:31 porvoo 12:
+> May 31 11:03:31 porvoo protocol 0000 is buggy, dev eth0 
+> May 31 11:03:31 porvoo 3f:
+> May 31 11:03:31 porvoo protocol 0000 is buggy, dev eth0 
+> May 31 11:03:31 porvoo 85:
+> May 31 11:03:31 porvoo protocol 0000 is buggy, dev eth0 
+> May 31 11:03:31 porvoo 9f:
+> May 31 11:03:31 porvoo protocol 0000 is buggy, dev eth0 
+> May 31 11:03:31 porvoo 92:
+> May 31 11:03:31 porvoo protocol 0000 is buggy, dev eth0 
+> May 31 11:03:31 porvoo 00:
+> May 31 11:03:31 porvoo protocol 0000 is buggy, dev eth0 
+> May 31 11:03:31 porvoo 12:
+> May 31 11:03:31 porvoo 3f:
+> May 31 11:03:31 porvoo 85:
+> May 31 11:03:31 porvoo 17:
+> May 31 11:03:31 porvoo 52:
+> May 31 11:03:31 porvoo 08:
+> May 31 11:03:31 porvoo 00 
+> 
+> again 9 packets are missing and there are 9 "protocol 0000 is buggy"
+> messages. Netfilter has almost everything configured. IPv6 is left out
+> everywhere. Above has been produced using this rule on the netconsole
+> sending machine:
+> 
+> iptables -I INPUT -p tcp -s espoo --dport 21212 -j LOG
 
----
 
-Fix unsafe nesting of sb_lock inside sb_security_lock in selinux_complete_init.
-Detected by the kernel locking validator.
+The message means that there was recursion and netpoll fell back
+to dev_queue_xmit This patch should fix the "protocol is buggy"
+messages, netpoll didn't set skb->nh.raw. Please try if it also
+makes the other problem go away.
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+--------------080405030508060800050202
+Content-Type: text/plain;
+ name="x"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="x"
 
----
-
- security/selinux/hooks.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
-
---- linux-2.6.17-rc5-mm1/security/selinux/hooks.c	2006-05-30 14:26:11.000000000 -0400
-+++ linux-2.6.17-rc5-mm1-x/security/selinux/hooks.c	2006-05-31 07:29:23.000000000 -0400
-@@ -4448,6 +4448,7 @@ void selinux_complete_init(void)
+diff --git a/net/core/netpoll.c b/net/core/netpoll.c
+index e8e05ce..7a4787c 100644
+--- a/net/core/netpoll.c
++++ b/net/core/netpoll.c
+@@ -329,7 +329,7 @@ void netpoll_send_udp(struct netpoll *np
+ 	udph->len = htons(udp_len);
+ 	udph->check = 0;
  
- 	/* Set up any superblocks initialized prior to the policy load. */
- 	printk(KERN_INFO "SELinux:  Setting up existing superblocks.\n");
-+	spin_lock(&sb_lock);
- 	spin_lock(&sb_security_lock);
- next_sb:
- 	if (!list_empty(&superblock_security_head)) {
-@@ -4456,19 +4457,20 @@ next_sb:
- 				           struct superblock_security_struct,
- 				           list);
- 		struct super_block *sb = sbsec->sb;
--		spin_lock(&sb_lock);
- 		sb->s_count++;
--		spin_unlock(&sb_lock);
- 		spin_unlock(&sb_security_lock);
-+		spin_unlock(&sb_lock);
- 		down_read(&sb->s_umount);
- 		if (sb->s_root)
- 			superblock_doinit(sb, NULL);
- 		drop_super(sb);
-+		spin_lock(&sb_lock);
- 		spin_lock(&sb_security_lock);
- 		list_del_init(&sbsec->list);
- 		goto next_sb;
- 	}
- 	spin_unlock(&sb_security_lock);
-+	spin_unlock(&sb_lock);
- }
+-	iph = (struct iphdr *)skb_push(skb, sizeof(*iph));
++	skb->nh.iph = iph = (struct iphdr *)skb_push(skb, sizeof(*iph));
  
- /* SELinux requires early initialization in order to label
+ 	/* iph->version = 4; iph->ihl = 5; */
+ 	put_unaligned(0x45, (unsigned char *)iph);
 
--- 
-Stephen Smalley
-National Security Agency
-
+--------------080405030508060800050202--

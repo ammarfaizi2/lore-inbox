@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965177AbWEaVlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965175AbWEaVmr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965177AbWEaVlt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 17:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965175AbWEaVlt
+	id S965175AbWEaVmr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 17:42:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965178AbWEaVmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 17:41:49 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:64134 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965177AbWEaVls (ORCPT
+	Wed, 31 May 2006 17:42:47 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:6601 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S965175AbWEaVmq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 17:41:48 -0400
-Date: Wed, 31 May 2006 17:41:39 -0400
-From: Alan Cox <alan@redhat.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Ingo Molnar <mingo@elte.hu>, alan@redhat.com,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch, -rc5-mm1] locking validator: special rule: 8390.c disable_irq()
-Message-ID: <20060531214139.GA8196@devserv.devel.redhat.com>
-References: <20060531200236.GA31619@elte.hu> <1149107500.3114.75.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1149107500.3114.75.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 31 May 2006 17:42:46 -0400
+Date: Wed, 31 May 2006 23:42:28 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "D. Hazelton" <dhazelton@enter.net>
+cc: Dave Airlie <airlied@gmail.com>, Jon Smirl <jonsmirl@gmail.com>,
+       Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+In-Reply-To: <200605282316.50916.dhazelton@enter.net>
+Message-ID: <Pine.LNX.4.61.0605312341240.30170@yvahk01.tjqt.qr>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+ <200605280112.01639.dhazelton@enter.net> <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com>
+ <200605282316.50916.dhazelton@enter.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31, 2006 at 10:31:40PM +0200, Arjan van de Ven wrote:
-> > 8390.c knows that ei_local->page_lock can only be used by an irq
-> > context that it disabled -
-> 
-> btw I think this is no longer correct with the irq polling stuff Alan
-> added to the kernel recently...
+>
+>> c) Lots of distros don't use fbdev drivers, forcing this on them to
+>> use drm isn't an option.
+>
+>what distro's? The only ones that don't are either the ones that hold the 
+>users hand or the ones where the user is meant to be able to quickly change 
+>and modify the system.
+>
+As long as I can continue to use 80x25 or any of the "pure text modes"
+(vga=scan boot option says more) without loading any FB/DRM, I am satisfied :)
 
-We could make the misrouted IRQ logic skip all handlers on a disabled IRQ
-but that might actually be worse than the disease we are trying to cure by
-doing so.
 
-Alan
 
+Jan Engelhardt
+-- 

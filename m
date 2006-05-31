@@ -1,52 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965011AbWEaNM4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWEaNTU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965011AbWEaNM4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 09:12:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbWEaNMz
+	id S1751384AbWEaNTU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 09:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751578AbWEaNTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 09:12:55 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:57640 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S965011AbWEaNMz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 09:12:55 -0400
-Message-ID: <447D95DE.1080903@sw.ru>
-Date: Wed, 31 May 2006 17:10:54 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Peter Williams <pwil3058@bigpond.net.au>
-CC: Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
-       Rene Herman <rene.herman@keyaccess.nl>
-Subject: Re: [RFC 3/5] sched: Add CPU rate hard caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest> <661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com> <44781167.6060700@bigpond.net.au>
-In-Reply-To: <44781167.6060700@bigpond.net.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 31 May 2006 09:19:20 -0400
+Received: from relais.videotron.ca ([24.201.245.36]:52135 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP
+	id S1751384AbWEaNTT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 09:19:19 -0400
+Date: Wed, 31 May 2006 08:43:34 -0400
+From: Raphael Assenat <raph@raphnet.net>
+Subject: Re: [PATCH] Add max6902 RTC support
+In-reply-to: <20060530235500.edc9ef49.akpm@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ian Campbell <ijc@hellion.org.uk>, alessandro.zummo@towertech.it,
+       linux-kernel@vger.kernel.org
+Message-id: <20060531124333.GA945@aramis.lan.raphnet.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+References: <20060530150913.GE797@aramis.lan.raphnet.net>
+ <20060530203241.4a4de734@inspiron>
+ <20060530184949.GF797@aramis.lan.raphnet.net>
+ <20060530150143.7e39dac3.akpm@osdl.org>
+ <1149057131.7461.40.camel@localhost.localdomain>
+ <20060530235500.edc9ef49.akpm@osdl.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Using a timer for releasing tasks from their sinbin sounds like a  bit
->> of an overhead. Given that there could be 10s of thousands of tasks.
+On Tue, May 30, 2006 at 11:55:00PM -0700, Andrew Morton wrote:
+> Ian Campbell <ijc@hellion.org.uk> wrote:
+> > On Tue, 2006-05-30 at 15:01 -0700, Andrew Morton wrote:
+...
+> >         (a) The contribution was created in whole or in part by me and I
+> >         have the right to submit it under the open source license
+> >         indicated in the file; or
+> >         
+> >         (b) The contribution is based upon previous work that, to the
+> >         best of my knowledge, is covered under an appropriate open
+> >         source license and I have the right under that license to submit
+> >         that work with modifications, whether created in whole or in
+> >         part by me, under the same open source license (unless I am
+> >         permitted to submit under a different license), as indicated in
+> >         the file; or
 > 
+> Yes, I think that would work, if Rafael is prepared to make that assertion.
 > 
-> The more runnable tasks there are the less likely it is that any of them 
-> is exceeding its hard cap due to normal competition for the CPUs.  So I 
-> think that it's unlikely that there will ever be a very large number of 
-> tasks in the sinbin at the same time.
-for containers this can be untrue... :( actually even for 1000 tasks (I 
-suppose this is the maximum in your case) it can slowdown significantly 
-as well.
+> If so, please send along a few words describing where the Compulab code
+> came from and some substantiation of your belief that it was appropriately
+> licensed.  (It probably had some license words at the top of the file..)
+The compulab code comes from the kernel patch the produce for their
+cn-x255 board. (inside a zip file on the 
+http://www.compulab.co.il/x255/html/x255-developer.htm)
 
->> Is it possible to use the scheduler_tick() function take a look at all
->> deactivated tasks (as efficiently as possible) and activate them when
->> its time to activate them or just fold the functionality by defining a
->> time quantum after which everyone is worken up. This time quantum
->> could be the same as the time over which limits are honoured.
-agree with it.
+The original file (drivers/char/max6902.c) was GPL, which is of course
+an appropriate licence:
 
-Kirill
+/*
+ * max6902.c
+ *
+ * Driver for MAX6902 RTC
+ *
+ * Copyright (C) 2004 Compulab Ltd.
+ *
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ *
+ */
+
+For reference, you can get the original file here:
+http://raph.people.8d.com/misc/max6902.c
+
+Regards,
+Raphael Assenat
 

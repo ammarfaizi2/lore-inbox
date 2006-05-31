@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWEaSUL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751777AbWEaSUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751224AbWEaSUL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 14:20:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751772AbWEaSUK
+	id S1751777AbWEaSUV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 14:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751775AbWEaSUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 14:20:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:55486 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751224AbWEaSUJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 14:20:09 -0400
-Date: Wed, 31 May 2006 14:20:04 -0400
-From: Kimball Murray <kimball.murray@gmail.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: Kimball Murray <kimball.murray@gmail.com>, <greg@kroah.com>
-Message-Id: <20060531181358.6617.96108.sendpatchset@dhcp83-97.boston.redhat.com>
-Subject: [git Patch 1/1] don't move ioapics below PCI bridge
+	Wed, 31 May 2006 14:20:21 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:18836 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S1751772AbWEaSUU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 14:20:20 -0400
+Date: Wed, 31 May 2006 20:20:19 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: Patrick McHardy <kaber@trash.net>
+Cc: linux-kernel@vger.kernel.org,
+       Kernel Netdev Mailing List <netdev@vger.kernel.org>
+Subject: Re: 2.6.17-rc4: netfilter LOG messages truncated via NETCONSOLE
+Message-ID: <20060531182019.GA26456@janus>
+References: <20060531094626.GA23156@janus> <447DAEC9.3050003@trash.net> <20060531160611.GA25637@janus> <447DC613.10102@trash.net> <20060531172936.GB25788@janus> <447DD66C.30605@trash.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <447DD66C.30605@trash.net>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A recent Stratus x86_64 platform uses a system ioapic that is a PCI device
-located below a PCI bridge.  Other platforms like this may exist.
+On Wed, May 31, 2006 at 07:46:20PM +0200, Patrick McHardy wrote:
+> Frank van Maarseveen wrote:
+> > On Wed, May 31, 2006 at 06:36:35PM +0200, Patrick McHardy wrote:
+> > 
+> >>The messages might get dropped when the output queue is full.
+> >>Does one of the drop counters shown by "ip -s link list"
+> >>and "tc -s -d qdisc show" increase (the other counts might also
+> >>give some clues)? Otherwise please apply the attached patch
+> >>(should fix tcpdump, last patch was incomplete) and post a dump.
+> > 
+> > 
+> > No visible improvement with the new patch.
+> 
+> Does this mean tcpdump doesn't show any packets?
 
-This patch fixes a problem wherein the kernel's PCI setup code moves
-the ioapic to an address other than that assigned by the BIOS.  It simply
-adds another exclusion (which already includes classless devices and host
-bridges) to the function pbus_assign_resources_sorted so that it will not
-move the ioapic.
+tcpdump output is consistent with what the netconsole receiver sees: 9
+packets are still missing. I know there are 9 because 2.6.13.2 shows them.
 
-If the ioapic is moved, the fixmap mapping to it is broken, so the OS should
-leave it alone.
+The two patches behaved identically for me.
 
---------------- SNIP ---------------------
-diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
-index 28ce3a7..35086e8 100644
---- a/drivers/pci/setup-bus.c
-+++ b/drivers/pci/setup-bus.c
-@@ -55,9 +55,10 @@ pbus_assign_resources_sorted(struct pci_
- 	list_for_each_entry(dev, &bus->devices, bus_list) {
- 		u16 class = dev->class >> 8;
- 
--		/* Don't touch classless devices and host bridges.  */
-+		/* Don't touch classless devices or host bridges or ioapics.  */
- 		if (class == PCI_CLASS_NOT_DEFINED ||
--		    class == PCI_CLASS_BRIDGE_HOST)
-+		    class == PCI_CLASS_BRIDGE_HOST ||
-+		    class == PCI_CLASS_SYSTEM_PIC)
- 			continue;
- 
- 		pdev_sort_resources(dev, &head);
+> 
+> > ip -s link doesn't show any
+> > dropped packets so far with any patch and I don't use traffic control
+> > that I'm aware of. But I'm not sure what to make of "tc" output, maybe
+> > because CONFIG_SHAPER is not set:
+> > 
+> > 	# tc -s -d qdisc show
+> > 	RTNETLINK answers: Invalid argument
+> > 	Dump terminated
+> 
+> Thats because you're missing CONFIG_NET_SCHED. Please enable it and
+> try the tc command again, without it we can't see whether the qdisc
+> (which is present even without CONFIG_NET_SCHED) just dropped the
+> packets.
+
+I'll try that tomorrow.
+
+-- 
+Frank

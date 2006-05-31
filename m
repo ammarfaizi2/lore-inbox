@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbWEaUan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751625AbWEaUaS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964859AbWEaUan (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 16:30:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWEaUal
+	id S1751625AbWEaUaS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 16:30:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751644AbWEaUaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 16:30:41 -0400
-Received: from es335.com ([67.65.19.105]:61970 "EHLO mail.es335.com")
-	by vger.kernel.org with ESMTP id S964782AbWEaUah (ORCPT
+	Wed, 31 May 2006 16:30:17 -0400
+Received: from gw.goop.org ([64.81.55.164]:60302 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751625AbWEaUaQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 16:30:37 -0400
-Subject: Re: [PATCH 2/2] iWARP Core Changes.
-From: Steve Wise <swise@opengridcomputing.com>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: mshefty@ichips.intel.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <adaodxeypfd.fsf@cisco.com>
-References: <20060531182650.3308.81538.stgit@stevo-desktop>
-	 <20060531182654.3308.41372.stgit@stevo-desktop> <adaodxeypfd.fsf@cisco.com>
-Content-Type: text/plain
-Date: Wed, 31 May 2006 15:30:35 -0500
-Message-Id: <1149107435.7469.7.camel@stevo-desktop>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Wed, 31 May 2006 16:30:16 -0400
+Message-ID: <447DDEC0.70105@goop.org>
+Date: Wed, 31 May 2006 11:21:52 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: gregkh@suse.de
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: [PATCH] Add Sierra Wireless MC5720 ID to airprime.c
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-31 at 12:17 -0700, Roland Dreier wrote:
->  > +EXPORT_SYMBOL(copy_addr);
-> 
-> I think if you want to export this, it needs a less generic name
-> (something with an rdma_ prefix probably).  Otherwise it's going to
-> collide someday...
+The Sierra Wireless MC5720 is an embedded EV-DO module which is shipping 
+with a number of laptops.  This change adds its ID to the airprime.c usb 
+serial driver, so that it appears as a serial device.
 
-ok.
+As an aside, people have reported that it is necessary to increase the 
+max packet size in usb-serial.c in order to get good throughput with 
+these devices; there's a patch floating around to do this.  Is this a 
+reasonable thing to do?  (I guess I'll post my variation of the patch 
+and see what discussion comes up...)
 
+    J
 
-The function is needed by the iwcm module, so that's why we exported it.
-I could change the name to rdma_copy_addr(), or make the function a
-static inline in a header file since its kinda small anyway...
+--
+Recognize the Sierra Wireless MC5720.
 
-Any preference?
+Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
+
+diff -r 3f1becfa22f9 drivers/usb/serial/airprime.c
+--- a/drivers/usb/serial/airprime.c	Tue May 30 23:23:15 2006 -0700
++++ b/drivers/usb/serial/airprime.c	Wed May 31 11:07:35 2006 -0700
+@@ -19,6 +19,7 @@ static struct usb_device_id id_table [] 
+ 	{ USB_DEVICE(0xf3d, 0x0112) },  /* AirPrime CDMA Wireless PC Card */
+ 	{ USB_DEVICE(0x1410, 0x1110) }, /* Novatel Wireless Merlin CDMA */
+ 	{ USB_DEVICE(0x1199, 0x0112) }, /* Sierra Wireless Aircard 580 */
++	{ USB_DEVICE(0x1199, 0x0218) }, /* Sierra Wireless MC5720 */
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(usb, id_table);
+
 
 

@@ -1,82 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWEaNTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751590AbWEaNTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751384AbWEaNTU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 09:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751578AbWEaNTU
+	id S1751590AbWEaNTO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 09:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751578AbWEaNTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 09:19:20 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:52135 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1751384AbWEaNTT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 09:19:19 -0400
-Date: Wed, 31 May 2006 08:43:34 -0400
-From: Raphael Assenat <raph@raphnet.net>
-Subject: Re: [PATCH] Add max6902 RTC support
-In-reply-to: <20060530235500.edc9ef49.akpm@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ian Campbell <ijc@hellion.org.uk>, alessandro.zummo@towertech.it,
-       linux-kernel@vger.kernel.org
-Message-id: <20060531124333.GA945@aramis.lan.raphnet.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-References: <20060530150913.GE797@aramis.lan.raphnet.net>
- <20060530203241.4a4de734@inspiron>
- <20060530184949.GF797@aramis.lan.raphnet.net>
- <20060530150143.7e39dac3.akpm@osdl.org>
- <1149057131.7461.40.camel@localhost.localdomain>
- <20060530235500.edc9ef49.akpm@osdl.org>
-User-Agent: Mutt/1.5.10i
+	Wed, 31 May 2006 09:19:14 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:21519 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751384AbWEaNTN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 09:19:13 -0400
+Message-ID: <447D975B.3070700@openvz.org>
+Date: Wed, 31 May 2006 17:17:15 +0400
+From: Kirill Korotaev <dev@openvz.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Peter Williams <pwil3058@bigpond.net.au>
+CC: balbir@in.ibm.com, Mike Galbraith <efault@gmx.de>,
+       Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
+       Rene Herman <rene.herman@keyaccess.nl>
+Subject: Re: [RFC 2/5] sched: Add CPU rate soft caps
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	 <20060526042041.2886.69840.sendpatchset@heathwren.pw.nest>	 <661de9470605262331w2e2258a7r41e2aab10895955f@mail.gmail.com>	 <4477F9DC.8090107@bigpond.net.au> <4478EA9D.4030201@bigpond.net.au>	 <661de9470605280038l40e53357ka3043dabd95de5fc@mail.gmail.com>	 <4479A71C.4060604@bigpond.net.au> <661de9470605280742o70fb6fc9g34ead234d377a1e0@mail.gmail.com> <447A31DE.3060601@bigpond.net.au>
+In-Reply-To: <447A31DE.3060601@bigpond.net.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 30, 2006 at 11:55:00PM -0700, Andrew Morton wrote:
-> Ian Campbell <ijc@hellion.org.uk> wrote:
-> > On Tue, 2006-05-30 at 15:01 -0700, Andrew Morton wrote:
-...
-> >         (a) The contribution was created in whole or in part by me and I
-> >         have the right to submit it under the open source license
-> >         indicated in the file; or
-> >         
-> >         (b) The contribution is based upon previous work that, to the
-> >         best of my knowledge, is covered under an appropriate open
-> >         source license and I have the right under that license to submit
-> >         that work with modifications, whether created in whole or in
-> >         part by me, under the same open source license (unless I am
-> >         permitted to submit under a different license), as indicated in
-> >         the file; or
+>> I understand that, I was talking about fairness between capped tasks
+>> and what might be considered fair or intutive between capped tasks and
+>> regular tasks. Of course, the last point is debatable ;)
 > 
-> Yes, I think that would work, if Rafael is prepared to make that assertion.
 > 
-> If so, please send along a few words describing where the Compulab code
-> came from and some substantiation of your belief that it was appropriately
-> licensed.  (It probably had some license words at the top of the file..)
-The compulab code comes from the kernel patch the produce for their
-cn-x255 board. (inside a zip file on the 
-http://www.compulab.co.il/x255/html/x255-developer.htm)
+> Well, the primary fairness mechanism in the scheduler is the time slice 
+> allocation and the capping code doesn't fiddle with those so there 
+> should be a reasonable degree of fairness (taking into account "nice") 
+> between capped tasks.  To improve that would require allocating several 
+> new priority slots for use by tasks exceeding their caps and fiddling 
+> with those.  I don't think that it's worth the bother.
+I suppose it should be handled still. a subjective feeling :)
 
-The original file (drivers/char/max6902.c) was GPL, which is of course
-an appropriate licence:
+BTW, do you have any test results for your patch?
+It would be interesting to see how precise these limitations are and 
+whether or not we should bother for the above...
 
-/*
- * max6902.c
- *
- * Driver for MAX6902 RTC
- *
- * Copyright (C) 2004 Compulab Ltd.
- *
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- *
- */
-
-For reference, you can get the original file here:
-http://raph.people.8d.com/misc/max6902.c
-
-Regards,
-Raphael Assenat
+Kirill
 

@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965233AbWEaXIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965242AbWEaXMp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965233AbWEaXIa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 19:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965232AbWEaXIa
+	id S965242AbWEaXMp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 19:12:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965249AbWEaXMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 19:08:30 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:41194 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965233AbWEaXI3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 19:08:29 -0400
-Date: Thu, 1 Jun 2006 01:08:54 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm1
-Message-ID: <20060531230854.GA7912@elte.hu>
-References: <20060530022925.8a67b613.akpm@osdl.org> <4807377b0605310948h47c035f4q8f07a9c1a5bea993@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 31 May 2006 19:12:45 -0400
+Received: from nz-out-0102.google.com ([64.233.162.193]:10605 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S965242AbWEaXMo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 19:12:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BznJ8XU52SJQ/lqzckDn1Vq8fCi8pBuu3Vimnh2otWLkSpdYL53zrH7NERN8XTsv8nLx6hDb1YWHH8X1TGa1BGqrXCr5tzMkS63VRIsO8seUfApaff5n8/jOop/WOP56FMa2kIMYLi6pncUPlynxwWIx9IAYGPuj9oPUEaFBKnY=
+Message-ID: <20f65d530605311612n15820847sca559d0c443fc230@mail.gmail.com>
+Date: Thu, 1 Jun 2006 11:12:43 +1200
+From: "Keith Chew" <keith.chew@gmail.com>
+To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
+Subject: Re: IO APIC IRQ assignment
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0606010002200.30170@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4807377b0605310948h47c035f4q8f07a9c1a5bea993@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5022]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <20f65d530605300521q1d56c3a3t84be3d92f1df0c14@mail.gmail.com>
+	 <20060530135017.GD5151@harddisk-recovery.com>
+	 <20f65d530605300705l60bfcca7k47a41c95bf42a0ef@mail.gmail.com>
+	 <Pine.LNX.4.61.0606010002200.30170@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Jesse Brandeburg <jesse.brandeburg@gmail.com> wrote:
-
-> On 5/30/06, Andrew Morton <akpm@osdl.org> wrote:
 > >
-> >- Merged the runtime locking validator.  If you enable this your machine
-> >  will run slowly.
-> 
-> The help in menuconfig mentions that a user looking for more info 
-> should reference Documentation/locking-correctness.txt which doesn't 
-> exist.
+> Plus
+> CONFIG_X86_UP_APIC=y
+> CONFIG_X86_UP_IOAPIC=y
+> CONFIG_X86_LOCAL_APIC=y
+> CONFIG_X86_IO_APIC=y
+>
+> but I guess you already have these.
+>
 
-indeed - i'll fix this.
+Yes, I have these options enabled.
 
-	Ingo
+*sigh*
+
+Keith

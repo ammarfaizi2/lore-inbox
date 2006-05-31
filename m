@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965084AbWEaVQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965143AbWEaVWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965084AbWEaVQl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 17:16:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965086AbWEaVQl
+	id S965143AbWEaVWh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 17:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965138AbWEaVWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 17:16:41 -0400
-Received: from ik55118.ikexpress.com ([213.246.55.118]:47496 "EHLO
-	ik55118.ikexpress.com") by vger.kernel.org with ESMTP
-	id S965084AbWEaVQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 17:16:40 -0400
-Message-ID: <447E07A1.1030601@free-electrons.com>
-Date: Wed, 31 May 2006 23:16:17 +0200
-From: Michael Opdenacker <michael-lists@free-electrons.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: How to extract the cpio archive in the kernel image?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 31 May 2006 17:22:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52951 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965093AbWEaVWg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 17:22:36 -0400
+Date: Wed, 31 May 2006 14:25:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Cc: pauldrynoff@gmail.com, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: 2.6.17-rc5-mm1 - output of lock validator
+Message-Id: <20060531142525.5a22f9f1.akpm@osdl.org>
+In-Reply-To: <447DFE29.6040508@linux.intel.com>
+References: <20060530195417.e870b305.pauldrynoff@gmail.com>
+	<20060530132540.a2c98244.akpm@osdl.org>
+	<20060531181926.51c4f4c5.pauldrynoff@gmail.com>
+	<1149085739.3114.34.camel@laptopd505.fenrus.org>
+	<20060531102128.eb0020ad.akpm@osdl.org>
+	<447DFE29.6040508@linux.intel.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Arjan van de Ven <arjan@linux.intel.com> wrote:
+>
+> Andrew Morton wrote:
+> > On Wed, 31 May 2006 16:28:59 +0200
+> > Arjan van de Ven <arjan@linux.intel.com> wrote:
+> > 
+> >> --- linux-2.6.17-rc5-mm1.5.orig/drivers/net/8390.c
+> >> +++ linux-2.6.17-rc5-mm1.5/drivers/net/8390.c
+> >> @@ -299,7 +299,7 @@ static int ei_start_xmit(struct sk_buff 
+> >>  	 
+> >>  	disable_irq_nosync(dev->irq);
+> >>  	
+> >> -	spin_lock(&ei_local->page_lock);
+> >> +	spin_lock_irqsave(&ei_local->page_lock, flags);
+> > 
+> > Again, notabug - we did disable_irq().
+> 
+> but does disable_irq() work in the light of that irqpoll stuff?
+> 
 
-Does anyone know a simple, command line way to extract the cpio archive 
-embedded in a (compressed) kernel image?
-
-That would be useful to modify the initramfs included in the kernel 
-image even if one only has the kernel binary and sources, but not the 
-initramfs sources.
-
-Of course, it is always possible to get the initramfs contents from the 
-running kernel and dump them somewhere, or to write a custom program for 
-this purpose (accessing and uncompressing the embedded cpio archive as 
-the kernel does), but it would be nice it there was a simpler way with 
-regular Unix commands (I guess involving gunzip and cpio).
-
-In a nutshell, how to open the penguin and still get the golden egg? ;-)
-
-    Cheers,
-
-    Michael.  
-
--- 
-Michael Opdenacker, Free Electrons
-Free Embedded Linux Training Materials
-on http://free-electrons.com/training
-(More than 1000 pages!)
-
+Don't have a clue what you're referring to, sorry.

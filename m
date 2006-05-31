@@ -1,54 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbWEaIkv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWEaIoe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964867AbWEaIkv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 04:40:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWEaIkv
+	id S964870AbWEaIoe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 04:44:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbWEaIoe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 04:40:51 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:63127 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964867AbWEaIkv (ORCPT
+	Wed, 31 May 2006 04:44:34 -0400
+Received: from fand.conysis.com ([212.34.136.14]:745 "EHLO fand.conysis.com")
+	by vger.kernel.org with ESMTP id S964870AbWEaIoe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 04:40:51 -0400
-Date: Wed, 31 May 2006 10:40:45 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: Roland Dreier <rdreier@cisco.com>, Dave Jones <davej@redhat.com>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       nanhai.zou@intel.com
-Subject: Re: [patch 00/61] ANNOUNCE: lock validator -V1
-Message-ID: <20060531084045.GA24994@elte.hu>
-References: <20060529230908.GC333@redhat.com> <1148967947.3636.4.camel@laptopd505.fenrus.org> <20060530141006.GG14721@redhat.com> <1148998762.3636.65.camel@laptopd505.fenrus.org> <20060530145852.GA6566@redhat.com> <20060530171118.GA30909@dominikbrodowski.de> <20060530190235.GC17218@redhat.com> <adafyir71sm.fsf@cisco.com> <20060530204123.GA27436@elte.hu> <4d8e3fd30605301458h33fc5e47t5c6f35bc08f2b545@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4d8e3fd30605301458h33fc5e47t5c6f35bc08f2b545@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 31 May 2006 04:44:34 -0400
+Message-ID: <447D5772.10909@ejerciciosresueltos.com>
+Date: Wed, 31 May 2006 09:44:34 +0100
+From: Noel <tecnico@ejerciciosresueltos.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: kernel reports kernel bug when trying to start kaddressbook
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+May 31 09:19:01 padoc kernel: [17232590.616000] ------------[ cut here 
+]------------
+May 31 09:19:01 padoc kernel: [17232590.616000] kernel BUG at mm/swap.c:52!
+May 31 09:19:01 padoc kernel: [17232590.616000] invalid opcode: 0000 [#4]
+May 31 09:19:01 padoc kernel: [17232590.616000] Modules linked in: 
+usbcore autofs4 via_rhine 8139too crc32
+May 31 09:19:01 padoc kernel: [17232590.616000] CPU:    0
+May 31 09:19:01 padoc kernel: [17232590.616000] EIP:    
+0060:[<c013d925>]    Tainted: G   M  VLI
+May 31 09:19:01 padoc kernel: [17232590.616000] EFLAGS: 00210246   
+(2.6.16.4+20060419.padoc.envite #1)
+May 31 09:19:01 padoc kernel: [17232590.616000] EIP is at put_page+0x25/0x40
+May 31 09:19:01 padoc kernel: [17232590.616000] eax: 00000002   ebx: 
+cea51664   ecx: 00016325   edx: c12c64a0
+May 31 09:19:01 padoc kernel: [17232590.616000] esi: 08199000   edi: 
+c12c64a0   ebp: ca329e20   esp: ca329d88
+May 31 09:19:01 padoc kernel: [17232590.616000] ds: 007b   es: 007b   
+ss: 0068
+May 31 09:19:01 padoc kernel: [17232590.616000] Process kaddressbook 
+(pid: 10310, threadinfo=ca328000 task=cbc5d090)
+May 31 09:19:01 padoc kernel: [17232590.616000] Stack: <0>c01424a8 
+c12c64a0 08199000 16325045 16325045 fffffec1 00000000 cea48e40
+May 31 09:19:01 padoc kernel: [17232590.616000]        082b0000 cea49080 
+082b0000 ca329e20 c0142623 c03c5bac c4097a14 cea49080
+May 31 09:19:01 padoc kernel: [17232590.616000]        08053000 082b0000 
+ca329e20 00000000 082affff cea49080 cea49080 c4097a14
+May 31 09:19:01 padoc kernel: [17232590.616000] Call Trace:
+May 31 09:19:01 padoc kernel: [17232590.616000]  [<c01424a8>] 
+zap_pte_range+0x178/0x230
+May 31 09:19:01 padoc kernel: [17232590.616000]  [<c0142623>] 
+unmap_page_range+0xc3/0x130
+May 31 09:19:01 padoc kernel: [17232590.616000]  [<c014277b>] 
+unmap_vmas+0xeb/0x1a0
+May 31 09:19:01 padoc kernel: [17232590.616000]  [<c01470eb>] 
+exit_mmap+0x6b/0xf0
+May 31 09:19:01 padoc kernel: [17232590.616000]  [<c011789c>] 
+mmput+0x2c/0x80
+May 31 09:19:01 padoc kernel: [17232590.616000]  [<c015dafe>] 
+exec_mmap+0xae/0x140
+May 31 09:19:01 padoc kernel: [17232590.616000]  [<c015e1ab>] 
+flush_old_exec+0x4b/0x230
+May 31 09:19:01 padoc kernel: [17232590.616000]  [<c015da40>] 
+kernel_read+0x50/0x60
+May 31 09:19:01 padoc kernel: [17232590.616000]  [<c017ca6f>] 
+load_elf_binary+0x32f/0xd50
+May 31 09:19:01 padoc kernel: [17232590.616000]  [<c013ad0e>] 
+__alloc_pages+0x5e/0x310
+May 31 09:19:01 padoc kernel: [17232590.616000]  [<c01c6a8c>] 
+copy_from_user+0x4c/0xc0
+May 31 09:19:01 padoc kernel: [17232590.616000]  [<c015d58d>] 
+copy_strings+0x1dd/0x230
+May 31 09:19:01 padoc kernel: [17232590.616000]  [<c015e5ed>] 
+search_binary_handler+0x5d/0x1b0
+May 31 09:19:01 padoc kernel: [17232590.616000]  [<c015e8c0>] 
+do_execve+0x180/0x200
+May 31 09:19:01 padoc kernel: [17232590.616000]  [<c0101932>] 
+sys_execve+0x42/0x80
+May 31 09:19:01 padoc kernel: [17232590.616000]  [<c0102bbb>] 
+sysenter_past_esp+0x54/0x75
+May 31 09:19:01 padoc kernel: [17232590.616000] Code: bc 27 00 00 00 00 
+8b 54 24 04 8b 02 f6 c4 40 75 24 8b 42 04 40 74 14 83 42 04 ff 0f 98 c0 
+84 c0 75 02 90 c3 89 d0 e9 ab 02 00 00 <0f> 0b 34 00 f9 eb 2f c0 eb e2 
+eb 8f eb 0d 90 90 90 90 90 90 90
+May 31 09:19:01 padoc kernel: [17232590.616000]  <6>note: 
+kaddressbook[10310] exited with preempt_count 1
 
-* Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
-
-> GTK? A typo, I suppose.
-
-brainfart, sorry :)
-
-> QGit is a git GUI viewer built on Qt/C++ (that I hope will be added to 
-> the git.git tree soon).
-
-yeah.
-
-	Ingo

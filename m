@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751590AbWEaNTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965018AbWEaN17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751590AbWEaNTO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 09:19:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751578AbWEaNTO
+	id S965018AbWEaN17 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 09:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbWEaN17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 09:19:14 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:21519 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751384AbWEaNTN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 09:19:13 -0400
-Message-ID: <447D975B.3070700@openvz.org>
-Date: Wed, 31 May 2006 17:17:15 +0400
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Peter Williams <pwil3058@bigpond.net.au>
-CC: balbir@in.ibm.com, Mike Galbraith <efault@gmx.de>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
-       Rene Herman <rene.herman@keyaccess.nl>
-Subject: Re: [RFC 2/5] sched: Add CPU rate soft caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	 <20060526042041.2886.69840.sendpatchset@heathwren.pw.nest>	 <661de9470605262331w2e2258a7r41e2aab10895955f@mail.gmail.com>	 <4477F9DC.8090107@bigpond.net.au> <4478EA9D.4030201@bigpond.net.au>	 <661de9470605280038l40e53357ka3043dabd95de5fc@mail.gmail.com>	 <4479A71C.4060604@bigpond.net.au> <661de9470605280742o70fb6fc9g34ead234d377a1e0@mail.gmail.com> <447A31DE.3060601@bigpond.net.au>
-In-Reply-To: <447A31DE.3060601@bigpond.net.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 31 May 2006 09:27:59 -0400
+Received: from ftp.linux-mips.org ([194.74.144.162]:3298 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S965018AbWEaN16
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 09:27:58 -0400
+Date: Wed, 31 May 2006 14:27:50 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Chad Reese <creese@caviumnetworks.com>
+Subject: [PATCH] Sparsemem build fix.
+Message-ID: <20060531132750.GA9504@linux-mips.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I understand that, I was talking about fairness between capped tasks
->> and what might be considered fair or intutive between capped tasks and
->> regular tasks. Of course, the last point is debatable ;)
-> 
-> 
-> Well, the primary fairness mechanism in the scheduler is the time slice 
-> allocation and the capping code doesn't fiddle with those so there 
-> should be a reasonable degree of fairness (taking into account "nice") 
-> between capped tasks.  To improve that would require allocating several 
-> new priority slots for use by tasks exceeding their caps and fiddling 
-> with those.  I don't think that it's worth the bother.
-I suppose it should be handled still. a subjective feeling :)
+<linux/mmzone.h> uses PAGE_SIZE, PAGE_SHIFT from <asm/page.h> without
+including that header itself.  For some sparsemem configurations this
+may result in build errors like:
 
-BTW, do you have any test results for your patch?
-It would be interesting to see how precise these limitations are and 
-whether or not we should bother for the above...
+  CC      init/initramfs.o
+In file included from include/linux/gfp.h:4,
+                 from include/linux/slab.h:15,
+                 from include/linux/percpu.h:4,
+                 from include/linux/rcupdate.h:41,
+                 from include/linux/dcache.h:10,
+                 from include/linux/fs.h:226,
+                 from init/initramfs.c:2:
+include/linux/mmzone.h:498:22: warning: "PAGE_SHIFT" is not defined
+In file included from include/linux/gfp.h:4,
+                 from include/linux/slab.h:15,
+                 from include/linux/percpu.h:4,
+                 from include/linux/rcupdate.h:41,
+                 from include/linux/dcache.h:10,
+                 from include/linux/fs.h:226,
+                 from init/initramfs.c:2:
+include/linux/mmzone.h:526: error: `PAGE_SIZE' undeclared here (not in a function)
+include/linux/mmzone.h: In function `__pfn_to_section':
+include/linux/mmzone.h:573: error: `PAGE_SHIFT' undeclared (first use in this function)
+include/linux/mmzone.h:573: error: (Each undeclared identifier is reported only once
+include/linux/mmzone.h:573: error: for each function it appears in.)
+include/linux/mmzone.h: In function `pfn_valid':
+include/linux/mmzone.h:578: error: `PAGE_SHIFT' undeclared (first use in this function)
+make[1]: *** [init/initramfs.o] Error 1
+make: *** [init] Error 2
 
-Kirill
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
 
+diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
+index 3674035..2d83371 100644
+--- a/include/linux/mmzone.h
++++ b/include/linux/mmzone.h
+@@ -15,6 +15,7 @@ #include <linux/init.h>
+ #include <linux/seqlock.h>
+ #include <linux/nodemask.h>
+ #include <asm/atomic.h>
++#include <asm/page.h>
+ 
+ /* Free memory management - zoned buddy allocator.  */
+ #ifndef CONFIG_FORCE_MAX_ZONEORDER

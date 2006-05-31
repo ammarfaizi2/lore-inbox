@@ -1,68 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWEaUIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWEaUPo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964794AbWEaUIm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 16:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWEaUIm
+	id S1751156AbWEaUPo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 16:15:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbWEaUPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 16:08:42 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:64445 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932405AbWEaUIl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 16:08:41 -0400
-Date: Wed, 31 May 2006 22:09:00 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
-Subject: [patch, -rc5-mm1] locking validator: special rule: 3c59x.c disable_irq()
-Message-ID: <20060531200900.GA32482@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5684]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 31 May 2006 16:15:44 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:20943 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751156AbWEaUPn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 16:15:43 -0400
+Message-ID: <447DF96E.4000602@vmware.com>
+Date: Wed, 31 May 2006 13:15:42 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: akpm@osdl.org
+Cc: 76306.1226@compuserve.com, ak@muc.de, rohitseth@google.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: + i386-fix-get_segment_eip-with-vm86.patch added to -mm tree
+References: <200605300302.k4U321t6026244@shell0.pdx.osdl.net>
+In-Reply-To: <200605300302.k4U321t6026244@shell0.pdx.osdl.net>
+Content-Type: multipart/mixed;
+ boundary="------------020206040109000403080807"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: locking validator: special rule: 3c59x.c disable_irq()
-From: Ingo Molnar <mingo@elte.hu>
+This is a multi-part message in MIME format.
+--------------020206040109000403080807
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-3c59x.c's vortex_timer() function knows that vp->lock can only be used
-by an irq context that it disabled - and can hence take the vp->lock
-without disabling hardirqs. Teach lockdep about this.
+akpm@osdl.org wrote:
+> The patch titled
+>
+>      i386: fix get_segment_eip() with vm86 segments
+>
+> has been added to the -mm tree.  Its filename is
+>
+>      i386-fix-get_segment_eip-with-vm86.patch
+>
+> See http://www.zip.com.au/~akpm/linux/patches/stuff/added-to-mm.txt to find
+> out what to do about this
+>
+> ------------------------------------------------------
+> Subject: i386: fix get_segment_eip() with vm86 segments
+> From: Chuck Ebbert <76306.1226@compuserve.com>
+>
+>
+> We need to check for vm86 mode first before looking at selector privilege
+> bits.
+>
+> Segment limit is always base + 64k and only the low 16 bits of EIP are
+> significant in vm86 mode.
+>
+> Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+> Cc: Andi Kleen <ak@muc.de>
+> Cc: Zachary Amsden <zach@vmware.com>
+> Cc: Rohit Seth <rohitseth@google.com>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> ---
+>
+>  arch/i386/mm/fault.c |   11 +++++++----
+>  1 file changed, 7 insertions(+), 4 deletions(-)
+>
+> diff -puN arch/i386/mm/fault.c~i386-fix-get_segment_eip-with-vm86 arch/i386/mm/fault.c
+> --- devel/arch/i386/mm/fault.c~i386-fix-get_segment_eip-with-vm86	2006-05-29 20:06:19.000000000 -0700
+> +++ devel-akpm/arch/i386/mm/fault.c	2006-05-29 20:06:19.000000000 -0700
+> @@ -77,12 +77,15 @@ static inline unsigned long get_segment_
+>  	unsigned seg = regs->xcs & 0xffff;
+>  	u32 seg_ar, seg_limit, base, *desc;
+>  
+> +	/* Unlikely, but must come before segment checks. */
+> +	if (unlikely(regs->eflags & VM_MASK)) {
+> +		base = seg << 4;
+> +		*eip_limit = base + 0xffff;
+> +		return base + (eip & 0xffff);
+> +	}
+> +
+>  	/* The standard kernel/user address space limit. */
+>  	*eip_limit = (seg & 3) ? USER_DS.seg : KERNEL_DS.seg;
+> -
+> -	/* Unlikely, but must come before segment checks. */
+> -	if (unlikely((regs->eflags & VM_MASK) != 0))
+> -		return eip + (seg << 4);
+>  	
+>  	/* By far the most common cases. */
+>  	if (likely(seg == __USER_CS || seg == __KERNEL_CS))
+> _
+>
+> Patches currently in -mm which might be from 76306.1226@compuserve.com are
+>
+> i386-let-usermode-execute-the-enter.patch
+> i386-fix-get_segment_eip-with-vm86.patch
+>
+>   
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- drivers/net/3c59x.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+This looks great.  While we're in the spirit let's fix kprobes v8086 
+handling as well by filtering out int3s from v8086 mode.
 
-Index: linux/drivers/net/3c59x.c
+--------------020206040109000403080807
+Content-Type: text/plain;
+ name="i386-dont-try-kprobes-for-v8086-mode"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="i386-dont-try-kprobes-for-v8086-mode"
+
+Never allow int3 traps from V8086 mode to enter the kprobes handler.
+
+Signed-off-by: Zachary Amsden <zach@vmware.com>
+
+Index: linux-2.6.17-rc/arch/i386/kernel/kprobes.c
 ===================================================================
---- linux.orig/drivers/net/3c59x.c
-+++ linux/drivers/net/3c59x.c
-@@ -1904,7 +1904,7 @@ vortex_timer(unsigned long data)
- 		printk(KERN_DEBUG "dev->watchdog_timeo=%d\n", dev->watchdog_timeo);
- 	}
+--- linux-2.6.17-rc.orig/arch/i386/kernel/kprobes.c	2006-05-18 13:31:50.000000000 -0700
++++ linux-2.6.17-rc/arch/i386/kernel/kprobes.c	2006-05-31 13:09:26.000000000 -0700
+@@ -607,7 +607,7 @@ int __kprobes kprobe_exceptions_notify(s
+ 	struct die_args *args = (struct die_args *)data;
+ 	int ret = NOTIFY_DONE;
  
--	disable_irq(dev->irq);
-+	disable_irq_lockdep(dev->irq);
- 	old_window = ioread16(ioaddr + EL3_CMD) >> 13;
- 	EL3WINDOW(4);
- 	media_status = ioread16(ioaddr + Wn4_Media);
-@@ -1985,7 +1985,7 @@ leave_media_alone:
- 			 dev->name, media_tbl[dev->if_port].name);
+-	if (args->regs && user_mode(args->regs))
++	if (args->regs && user_mode_vm(args->regs))
+ 		return ret;
  
- 	EL3WINDOW(old_window);
--	enable_irq(dev->irq);
-+	enable_irq_lockdep(dev->irq);
- 	mod_timer(&vp->timer, RUN_AT(next_tick));
- 	if (vp->deferred)
- 		iowrite16(FakeIntr, ioaddr + EL3_CMD);
+ 	switch (val) {
+
+--------------020206040109000403080807--

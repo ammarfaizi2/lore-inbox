@@ -1,51 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965048AbWEaPJQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965054AbWEaPMZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965048AbWEaPJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 11:09:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbWEaPJP
+	id S965054AbWEaPMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 11:12:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965057AbWEaPMY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 11:09:15 -0400
-Received: from gold.veritas.com ([143.127.12.110]:51869 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S965048AbWEaPJP (ORCPT
+	Wed, 31 May 2006 11:12:24 -0400
+Received: from xenotime.net ([66.160.160.81]:52712 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S965054AbWEaPMY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 11:09:15 -0400
-X-IronPort-AV: i="4.05,193,1146466800"; 
-   d="scan'208"; a="60055972:sNHT32738844"
-Date: Wed, 31 May 2006 16:09:06 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mason@suse.com,
-       andrea@suse.de, torvalds@osdl.org
-Subject: Re: [rfc][patch] remove racy sync_page?
-In-Reply-To: <447D9D9C.1030602@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0605311602020.26969@blonde.wat.veritas.com>
-References: <447AC011.8050708@yahoo.com.au> <20060529121556.349863b8.akpm@osdl.org>
- <447B8CE6.5000208@yahoo.com.au> <20060529183201.0e8173bc.akpm@osdl.org>
- <447BB3FD.1070707@yahoo.com.au> <20060529201444.cd89e0d8.akpm@osdl.org>
- <20060530090549.GF4199@suse.de> <447D9D9C.1030602@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 31 May 2006 15:09:14.0733 (UTC) FILETIME=[2E0761D0:01C684C4]
+	Wed, 31 May 2006 11:12:24 -0400
+Date: Wed, 31 May 2006 08:15:03 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Anssi Hannula <anssi.hannula@gmail.com>
+Cc: dtor_core@ameritech.net, linux-joystick@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 12/12] input: use -ENOSPC instead of -ENOMEM in iforce
+ when device full
+Message-Id: <20060531081503.ae9bf422.rdunlap@xenotime.net>
+In-Reply-To: <447D6A28.4060909@gmail.com>
+References: <20060530105705.157014000@gmail.com>
+	<20060530110137.412646000@gmail.com>
+	<20060530220205.103536b1.rdunlap@xenotime.net>
+	<447D6A28.4060909@gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 May 2006, Nick Piggin wrote:
-> Jens Axboe wrote:
+On Wed, 31 May 2006 13:04:24 +0300 Anssi Hannula wrote:
+
+> Randy.Dunlap wrote:
+> > On Tue, 30 May 2006 13:57:17 +0300 Anssi Hannula wrote:
 > > 
-> > Maybe I'm being dense, but I don't see a problem there. You _should_
-> > call the new mapping sync page if it has been migrated.
+> > 
+> >>Use -ENOSPC instead of -ENOMEM when the iforce device doesn't have enough free
+> >>memory for the new effect. All other drivers are already been using -ENOSPC,
+> >>so this makes the behaviour coherent.
+> > 
+> > 
+> > Could all of the others be wrong?
+> > 
 > 
-> But can some other thread calling lock_page first find the old mapping,
-> and then run its ->sync_page which finds the new mapping? While it may
-> not matter for anyone in-tree, it does break the API so it would be
-> better to either fix it or rip it out than be silently buggy.
+> They could.
+> 
+> > ENOSPC: No space left on device
+> > ENOMEM: Not enough space [!?!?!?] or Out of memory
+> > 
+> 
+> Hmm, I thought -ENOMEM is "Out of memory" and only to be used when the
+> system is out of memory, not some internal memory chip in external device.
 
-Splicing a page from one mapping to another is rather worrying/exciting,
-but it does look safely done to me.  remove_mapping checks page_count
-while page lock and old mapping->tree_lock are held, and gives up if
-anyone else has an interest in the page.  And we already know it's
-unsafe to lock_page without holding a reference to the page, don't we?
+Oh, in the case of a device vs. system, I do agree/prefer ENOSPC.
+Sorry about my confusion on that.
 
-Hugh
+
+> Does someone have an idea which one should be used?
+> 
+> > 
+> >>Signed-off-by: Anssi Hannula <anssi.hannula@gmail.com>
+> >>
+> >>---
+> >> drivers/input/joystick/iforce/iforce-ff.c |    8 ++++----
+> >> 1 files changed, 4 insertions(+), 4 deletions(-)
+> >>
+> >>Index: linux-2.6.17-rc4-git12/drivers/input/joystick/iforce/iforce-ff.c
+> >>===================================================================
+> >>--- linux-2.6.17-rc4-git12.orig/drivers/input/joystick/iforce/iforce-ff.c	2006-05-26 16:55:12.000000000 +0300
+> >>+++ linux-2.6.17-rc4-git12/drivers/input/joystick/iforce/iforce-ff.c	2006-05-26 16:57:13.000000000 +0300
+> >>@@ -47,7 +47,7 @@ static int make_magnitude_modifier(struc
+> >> 			iforce->device_memory.start, iforce->device_memory.end, 2L,
+> >> 			NULL, NULL)) {
+> >> 			mutex_unlock(&iforce->mem_mutex);
+> >>-			return -ENOMEM;
+> >>+			return -ENOSPC;
+> >> 		}
+> >> 		mutex_unlock(&iforce->mem_mutex);
+> >> 	}
+> >>@@ -80,7 +80,7 @@ static int make_period_modifier(struct i
+> >> 			iforce->device_memory.start, iforce->device_memory.end, 2L,
+> >> 			NULL, NULL)) {
+> >> 			mutex_unlock(&iforce->mem_mutex);
+> >>-			return -ENOMEM;
+> >>+			return -ENOSPC;
+> >> 		}
+> >> 		mutex_unlock(&iforce->mem_mutex);
+> >> 	}
+> >>@@ -120,7 +120,7 @@ static int make_envelope_modifier(struct
+> >> 			iforce->device_memory.start, iforce->device_memory.end, 2L,
+> >> 			NULL, NULL)) {
+> >> 			mutex_unlock(&iforce->mem_mutex);
+> >>-			return -ENOMEM;
+> >>+			return -ENOSPC;
+> >> 		}
+> >> 		mutex_unlock(&iforce->mem_mutex);
+> >> 	}
+> >>@@ -157,7 +157,7 @@ static int make_condition_modifier(struc
+> >> 			iforce->device_memory.start, iforce->device_memory.end, 2L,
+> >> 			NULL, NULL)) {
+> >> 			mutex_unlock(&iforce->mem_mutex);
+> >>-			return -ENOMEM;
+> >>+			return -ENOSPC;
+> >> 		}
+> >> 		mutex_unlock(&iforce->mem_mutex);
+> >> 	}
+> >>
+> >>--
+
+---
+~Randy

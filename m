@@ -1,73 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751643AbWEaECO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751650AbWEaEHb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751643AbWEaECO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 00:02:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751644AbWEaECN
+	id S1751650AbWEaEHb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 00:07:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751651AbWEaEHb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 00:02:13 -0400
-Received: from nz-out-0102.google.com ([64.233.162.192]:55590 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751642AbWEaECN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 00:02:13 -0400
+	Wed, 31 May 2006 00:07:31 -0400
+Received: from wr-out-0506.google.com ([64.233.184.231]:14772 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751649AbWEaEHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 00:07:30 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ok9WuOR124gASdqZQ8er5KPsBuONqMFJY9S9SADuF5JcroR0F9Xt7QiV5i+9cEm6yjKxNHuoi1Umf/qNYdzFaqRualiCMW8oUWplW4YNUYMQBt+yJW7JgICOcEUuoGN4kHWmXwqMcIr/OK1ubF/ql//FsD0hIyAPxkOdrsAv898=
-Message-ID: <9e4733910605302102y491de627n7dabfbda0ed365b1@mail.gmail.com>
-Date: Wed, 31 May 2006 00:02:12 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "D. Hazelton" <dhazelton@enter.net>
-Subject: Re: OpenGL-based framebuffer concepts
-Cc: "Dave Airlie" <airlied@gmail.com>, "Pavel Machek" <pavel@ucw.cz>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200605302314.25957.dhazelton@enter.net>
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=FLQlv2H0ciOWmZRUtdmnjRKE97jM9QjyRiedG5jDW8LgKH68Umqf7gin0zoDYc6KrfPsWuZGkAPAtwhsstbjYyVtjuMFQwndVS/62TRCzm1E6e5HlQXrU+H2sFe8GvIzOmtHYCEDpj+ocCAWvJgU5XtsRMVRv1wvr2rv5fuI6TY=
+Message-ID: <447D17B8.8020106@gmail.com>
+Date: Wed, 31 May 2006 00:12:40 -0400
+From: Florin Malita <fmalita@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: mostrows@speakeasy.net
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: [PATCH] pppoe: missing result check in __pppoe_xmit()
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <21d7e9970605301601t37f8d3ddwaf4a900ed8997fdf@mail.gmail.com>
-	 <9e4733910605301627t2f28db08vf58c78e2656b7047@mail.gmail.com>
-	 <200605302314.25957.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/30/06, D. Hazelton <dhazelton@enter.net> wrote:
-> On Tuesday 30 May 2006 23:27, Jon Smirl wrote:
-> > On 5/30/06, Dave Airlie <airlied@gmail.com> wrote:
-> > > Actually the suspend/resume has to be in userspace, X just re-posts
-> > > the video ROM and reloads the registers... so the repost on resume has
-> > > to happen... so some component needs to be in userspace..
-> >
-> > I'd like to see the simple video POST program get finished. All of the
-> > pieces are lying around. A key step missing is to getting klibc added
-> > to the kernel tree which is being worked on.
->
-> True. But how long is it going to be before klibc is merged?
+skb_clone() may fail, we should check the result.
 
-The merged tree is here:
-git://git.kernel.org/pub/scm/linux/kernel/git/hpa/linux-2.6-klibc.git
+Coverity CID: 1215.
 
-I don't know the plans for when the final merge will happen.
+Signed-off-by: Florin Malita <fmalita@gmail.com>
+---
 
-A standalone version of klibc is also available here:
-http://www.kernel.org/pub/linux/libs/klibc/
-Looks like version 1.3 is the latest
+diff --git a/drivers/net/pppoe.c b/drivers/net/pppoe.c
+index 475dc93..0d101a1 100644
+--- a/drivers/net/pppoe.c
++++ b/drivers/net/pppoe.c
+@@ -861,6 +861,9 @@ static int __pppoe_xmit(struct sock *sk,
+ 		 * give dev_queue_xmit something it can free.
+ 		 */
+ 		skb2 = skb_clone(skb, GFP_ATOMIC);
++
++		if (skb2 == NULL)
++			goto abort;
+ 	}
+ 
+ 	ph = (struct pppoe_hdr *) skb_push(skb2, sizeof(struct pppoe_hdr));
 
-The standalone version is perfectly fine for development. You only
-need to worry about the kernel tree version when it everything is
-finished. I've used klibc for several apps like this and it is a great
-tool. The binaries it produces are tiny.
 
-vbetool is a good way to practice resetting the cards if you do the
-mods to /sys/class/firmware. The other features like emu86 support can
-be added later.
-
--- 
-Jon Smirl
-jonsmirl@gmail.com

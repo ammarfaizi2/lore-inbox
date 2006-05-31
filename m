@@ -1,108 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWEaXxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964881AbWEaX7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbWEaXxX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 19:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWEaXxX
+	id S964881AbWEaX7c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 19:59:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751666AbWEaX7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 19:53:23 -0400
-Received: from mga03.intel.com ([143.182.124.21]:16041 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751182AbWEaXxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 19:53:22 -0400
-X-IronPort-AV: i="4.05,195,1146466800"; 
-   d="scan'208"; a="44233221:sNHT76393737"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "'Jens Axboe'" <axboe@suse.de>
-Subject: Big kernel lock contention in do_open() and blkdev_put()
-Date: Wed, 31 May 2006 16:53:21 -0700
-Message-ID: <000001c6850d$660dfe60$d234030a@amr.corp.intel.com>
+	Wed, 31 May 2006 19:59:31 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:19856 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751500AbWEaX7b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 19:59:31 -0400
+From: Neil Brown <neilb@suse.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Date: Thu, 1 Jun 2006 09:59:14 +1000
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AcaFDWWKCqRjGaQFT4S67HZLmDtCZA==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Message-ID: <17534.11730.599721.445091@cse.unsw.edu.au>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       axboe@suse.de
+Subject: Re: [rfc][patch] remove racy sync_page?
+In-Reply-To: message from Nick Piggin on Thursday June 1
+References: <447AC011.8050708@yahoo.com.au>
+	<20060529121556.349863b8.akpm@osdl.org>
+	<447B8CE6.5000208@yahoo.com.au>
+	<20060529183201.0e8173bc.akpm@osdl.org>
+	<447BB3FD.1070707@yahoo.com.au>
+	<Pine.LNX.4.64.0605292117310.5623@g5.osdl.org>
+	<447BD31E.7000503@yahoo.com.au>
+	<447BD63D.2080900@yahoo.com.au>
+	<Pine.LNX.4.64.0605301041200.5623@g5.osdl.org>
+	<447CE43A.6030700@yahoo.com.au>
+	<Pine.LNX.4.64.0605301739030.24646@g5.osdl.org>
+	<447D9A41.8040601@yahoo.com.au>
+	<Pine.LNX.4.64.0605310740530.24646@g5.osdl.org>
+	<447DAEDE.5070305@yahoo.com.au>
+	<Pine.LNX.4.64.0605310809250.24646@g5.osdl.org>
+	<447DB765.6030702@yahoo.com.au>
+	<Pine.LNX.4.64.0605310840000.24646@g5.osdl.org>
+	<447DC22C.5070503@yahoo.com.au>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apparently the latest kernel still uses big kernel lock in the opening/
-closing of block device.  And on a moderate sized numa machine, we've see
-huge lock contention with lock_kernel()/unlock_kernel() function coming
-from fs/block_dev.c:do_open() and block_dev.c/blkdev_put().
+On Thursday June 1, nickpiggin@yahoo.com.au wrote:
+> 
+> I keep telling you. Put the unplug after submission of IO. Not before
+> waiting for IO.
+> 
+> I'll give you one example of how it could be better (feel free to ask
+> for others too). Your sys_readahead(). Someone asks to readahead 1MB
+> of data, currently if the queue is empty, that's going to sit around
+> for 4ms before starting the read. 4ms later, the app comes back hoping
+> for the request to have finished. Unfortunately it takes another 4ms.
+> Throughput is halved.
 
-This was found accidentally by a slightly non-optimal application environ-
-ment: a multi-process application runs on 128P numa machine; it forks out
-400 processes and each process tries to open ~3000 block devices. Because
-of per process limit of file descriptor, this "smart ass" application went
-into a mode where it dynamically open and close file descriptors on demand.
-I know we can get around it by increasing "open file" limit.  But it darn
-on me that current code won't allow concurrent opening of different block
-devices either.
+I think this is all a question of heuristics.  There is a trade off
+between throughput and latency, and making the right decisions require
+prescience, and I don't think either Intel or AMD have implemented
+yet.
 
-I've studied do_open() and blkdev_put(), and concluded that it is already
-SMP safe because they are protected by per-device bdev->bd_mutex.  What's
-left that I can tell is the call to each block device type via disk->fops
-->open().  I would like to propose rid the BKL in the generic block device
-open/close path and put the burden on each device specific code to use BKL
-if necessary.  Most of the modern block device drivers shouldn't need them
-because in fops->open() they already uses one of the three variants:
-a) spin lock, b) mutex, or c) per device structure.
+One could argue that the best you can get would involve making
+decisions at the lowest level - where device characteristics are
+known - and using hints from upper levels like "I'm going to submit
+lots of requests now" and "Ok, I'm done" and "I want this page NOW".
+These should be hints and the device can treat them as it likes.
 
-Out of the 63 hits I see in 2.6.17-rc4 with block_device_operations->open(),
-floppy driver seems to be the only one that mucks around with a global
-Variable without any protection. We can add a spin lock there.
+Maybe a disk device could estimate the time it would take to process
+the current plugged queue, and if the first request were older than
+half that time, unplug the queue, unless there was a genuine
+expectation of more requests very soon...
 
-Comments?
+Currently the decisions are made at a reasonably low level, but the
+only hint is "I want some page somewhere on this device now, or maybe
+I just want to stop anyone changing ->mapping", which is a fairly
+broad and inaccurate hint....
 
+But the real point is that as this is an heuristic, it is very hard to
+argue in the abstract about what is best.  We really need measurements
+to show that changes to have a measurable effect.
 
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+I have an interesting issue with plugging and raid5 at the moment.  As
+I mentioned earlier, plugging only affects incomplete stripes being
+written.  So if a very long, totally sequential write is being issued
+(dd of=/dev/md0) then we never really need to unplug (except may at
+the end).  But unplugging does happen (3msec timeout at least) and so
+we sometimes end up pre-reading for partial stripes even though there
+is really no need.
 
+What I would really like is for ->unplug_fn to know something about
+why it is being called.
+ - if it is for read, I'll unplug component devices, but not
+     incomplete writes.
+ - if it is for write, I'll unplug writes, but I'd really rather 
+     know which address was required
+ - if it is a timeout, I'll unplug writes that have been pending
+     for more than 2msec.
 
-diff -Nurp linux-2.6.16/fs/block_dev.c linux-2.6.16.ken/fs/block_dev.c
---- linux-2.6.16/fs/block_dev.c	2006-05-31 17:45:37.000000000 -0700
-+++ linux-2.6.16.ken/fs/block_dev.c	2006-05-31 17:44:48.000000000 -0700
-@@ -860,10 +860,8 @@ static int do_open(struct block_device *
- 	int part;
- 
- 	file->f_mapping = bdev->bd_inode->i_mapping;
--	lock_kernel();
- 	disk = get_gendisk(bdev->bd_dev, &part);
- 	if (!disk) {
--		unlock_kernel();
- 		bdput(bdev);
- 		return ret;
- 	}
-@@ -935,7 +933,6 @@ static int do_open(struct block_device *
- 	}
- 	bdev->bd_openers++;
- 	mutex_unlock(&bdev->bd_mutex);
--	unlock_kernel();
- 	return 0;
- 
- out_first:
-@@ -948,7 +945,6 @@ out_first:
- 	module_put(owner);
- out:
- 	mutex_unlock(&bdev->bd_mutex);
--	unlock_kernel();
- 	if (ret)
- 		bdput(bdev);
- 	return ret;
-@@ -1010,7 +1006,6 @@ int blkdev_put(struct block_device *bdev
- 	struct gendisk *disk = bdev->bd_disk;
- 
- 	mutex_lock(&bdev->bd_mutex);
--	lock_kernel();
- 	if (!--bdev->bd_openers) {
- 		sync_blockdev(bdev);
- 		kill_bdev(bdev);
-@@ -1040,7 +1035,6 @@ int blkdev_put(struct block_device *bdev
- 		}
- 		bdev->bd_contains = NULL;
- 	}
--	unlock_kernel();
- 	mutex_unlock(&bdev->bd_mutex);
- 	bdput(bdev);
- 	return ret;
+I suspect there is at least one workload that this would help, but I
+would need to measure to be sure.
+
+... maybe I'll try adding a 'how' option to ->unplug_fn and see what I
+can come up with...
+
+NeilBrown

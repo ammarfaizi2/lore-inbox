@@ -1,94 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965165AbWEaV0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965162AbWEaV1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965165AbWEaV0r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 17:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965163AbWEaV0r
+	id S965162AbWEaV1O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 17:27:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965169AbWEaV1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 17:26:47 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:40098 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S965161AbWEaV0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 17:26:45 -0400
-Message-ID: <447E0A12.5090209@ichips.intel.com>
-Date: Wed, 31 May 2006 14:26:42 -0700
-From: Sean Hefty <mshefty@ichips.intel.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Steve Wise <swise@opengridcomputing.com>
-CC: rdreier@cisco.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [PATCH 2/2] iWARP Core Changes.
-References: <20060531182650.3308.81538.stgit@stevo-desktop> <20060531182654.3308.41372.stgit@stevo-desktop>
-In-Reply-To: <20060531182654.3308.41372.stgit@stevo-desktop>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 31 May 2006 17:27:13 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:58593 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965163AbWEaV1L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 17:27:11 -0400
+Date: Wed, 31 May 2006 23:27:30 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: alan@redhat.com, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch, -rc5-mm1] locking validator: special rule: 8390.c disable_irq()
+Message-ID: <20060531212730.GA3174@elte.hu>
+References: <20060531200236.GA31619@elte.hu> <1149107500.3114.75.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1149107500.3114.75.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5001]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mainly nits...
 
-Steve Wise wrote:
-> -static int copy_addr(struct rdma_dev_addr *dev_addr, struct net_device *dev,
-> +int copy_addr(struct rdma_dev_addr *dev_addr, struct net_device *dev,
->  		     unsigned char *dst_dev_addr)
+* Arjan van de Ven <arjan@infradead.org> wrote:
 
-Might want to rename this to something like rdma_copy_addr if you're going to 
-export it.
+> On Wed, 2006-05-31 at 22:02 +0200, Ingo Molnar wrote:
+> > untested on 8390 hardware, but ought to solve the lockdep false 
+> > positive.
+> > 
+> > -----------------
+> > Subject: locking validator: special rule: 8390.c disable_irq()
+> > From: Ingo Molnar <mingo@elte.hu>
+> > 
+> > 8390.c knows that ei_local->page_lock can only be used by an irq
+> > context that it disabled -
+> 
+> btw I think this is no longer correct with the irq polling stuff Alan 
+> added to the kernel recently...
 
-> +static int cma_iw_handler(struct iw_cm_id *iw_id, struct iw_cm_event *iw_event)
-> +{
-> +	struct rdma_id_private *id_priv = iw_id->context;
-> +	enum rdma_cm_event_type event = 0;
-> +	struct sockaddr_in *sin;
-> +	int ret = 0;
-> +
-> +	atomic_inc(&id_priv->dev_remove);
-> +
-> +	switch (iw_event->event) {
-> +	case IW_CM_EVENT_CLOSE:
-> +		event = RDMA_CM_EVENT_DISCONNECTED;
-> +		break;
-> +	case IW_CM_EVENT_CONNECT_REPLY:
-> +		sin = (struct sockaddr_in*)&id_priv->id.route.addr.src_addr;
-> +		*sin = iw_event->local_addr;
-> +		sin = (struct sockaddr_in*)&id_priv->id.route.addr.dst_addr;
+hm, indeed. misrouted_irq() goes through all irq descriptors and ignores 
+IRQ_DISABLED flag - rendering disable_irq() useless in essence, and 
+introducing the kind of deadlocks that lockdep warned about.
 
-spacing nit - (struct sockaddr_in *) &id_priv->...
+Andrew, as far as i can see with irqfixup this isnt a lockdep false 
+positive but a real deadlock scenario - a spurious IRQ might arrive 
+during vortex_timer() execution and might cause the execution of 
+misrouted_irq(), which could execute vortex_interrupt() => deadlock.
 
-> +struct net_device *ip_dev_find(u32 ip);
+Alan, is this a necessary property of irqpoll/irqfixup? Shouldnt 
+irqfixup leave irq descriptors alone that are disabled?
 
-Just include header file with definition.
-
-> +	sin = (struct sockaddr_in*)&new_cm_id->route.addr.src_addr;
-> +	*sin = iw_event->local_addr;
-> +	sin = (struct sockaddr_in*)&new_cm_id->route.addr.dst_addr;
-
-same spacing nit...  appears in a couple other places as well.
-
-> +static inline union ib_gid* iw_addr_get_sgid(struct rdma_dev_addr* rda)
-> +{
-> +	return (union ib_gid*)rda->src_dev_addr;
-> +}
-> +
-> +static inline union ib_gid* iw_addr_get_dgid(struct rdma_dev_addr* rda)
-> +{
-> +	return (union ib_gid*)rda->dst_dev_addr;
-> +}
-
-spacing nits
-
-> +struct iw_cm_verbs;
->  struct ib_device {
->  	struct device                *dma_device;
->  
-> @@ -846,6 +873,8 @@ struct ib_device {
->  
->  	u32                           flags;
->  
-> +	struct iw_cm_verbs*           iwcm;
-> +
-
-'*' placement nit
-
-- Sean
+	Ingo

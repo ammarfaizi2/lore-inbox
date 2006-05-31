@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbWEaFtG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbWEaFuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932227AbWEaFtG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 01:49:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWEaFtG
+	id S932094AbWEaFuv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 01:50:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWEaFuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 01:49:06 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:24714 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932227AbWEaFtF (ORCPT
+	Wed, 31 May 2006 01:50:50 -0400
+Received: from ns.suse.de ([195.135.220.2]:12997 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932094AbWEaFus (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 01:49:05 -0400
-Date: Wed, 31 May 2006 07:49:27 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: genirq handle helper
-Message-ID: <20060531054927.GA18703@elte.hu>
-References: <1149046728.766.17.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 31 May 2006 01:50:48 -0400
+From: Andi Kleen <ak@suse.de>
+To: piet@bluelane.com
+Subject: Re: linux-2.6 x86_64 kgdb issue
+Date: Wed, 31 May 2006 07:50:33 +0200
+User-Agent: KMail/1.9.1
+Cc: "Amit S. Kale" <amitkale@linsyssoft.com>,
+       "Vladimir A. Barinov" <vbarinov@ru.mvista.com>,
+       Andrew Morton <akpm@osdl.org>, kgdb-bugreport@lists.sourceforge.net,
+       trini@kernel.crashing.org, linux-kernel@vger.kernel.org
+References: <446E0B4B.9070003@ru.mvista.com> <200605251207.27699.amitkale@linsyssoft.com> <1149050728.26542.85.camel@piet2.bluelane.com>
+In-Reply-To: <1149050728.26542.85.camel@piet2.bluelane.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1149046728.766.17.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200605310750.34047.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> Perhaps we should add a kgdb config menu option and #define
+> CONFIG_16KSTACKS to double the stack size so the kernel can be 
+> debugged with more context available. I'm currently using -O0 for 
+> the networking stack and -O1 for the rest of the kernel. Sounds like 
+> it would be helpful now for AMD64 targets.
 
-> Hi Ingo, Thomas !
-> 
-> This simple pach makes the transition easier. By making 
-> generic_handle_irq() call the old __do_IRQ if no new-style handler 
-> exist for a given irq, the transition from old style to new style is 
-> made easier for me. That is, I can have some PICs use the new handler 
-> mecanism while old ones still get __do_IRQ without having the common 
-> powerpc code caring about the type of PIC (it just does 
-> generic_handle_irq()).
-> 
-> Might be useful to others as well, at least until everybody is ported 
-> over.
+You only got stack overflows when working with kgdb right? 
+Sounds like a kgdb problem to me then that can and should be probably fixed. e.g. 
+afaik kgdb isn't reentrant anyways so it could just use static buffers.
 
-yeah, good idea - this will also make the MSI fix simpler.
+I would suggest against adding any new config options for this - it would
+conflict with the great goal of having loadable debuggers that work
+on any kernels.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+-Andi
 
-Andrew, if you add Ben's patch, you can drop the 
-arch/x86_64/kernel/irq.c bits of genirq-msi-fixes.patch. [if they stay 
-they wont hurt, they'll only be redundant.]
-
-	Ingo

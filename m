@@ -1,266 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751628AbWEaUiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbWEaUjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751628AbWEaUiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 16:38:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751647AbWEaUiY
+	id S964936AbWEaUjS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 16:39:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964966AbWEaUjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 16:38:24 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:10179 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751628AbWEaUiX (ORCPT
+	Wed, 31 May 2006 16:39:17 -0400
+Received: from es335.com ([67.65.19.105]:65372 "EHLO mail.es335.com")
+	by vger.kernel.org with ESMTP id S964847AbWEaUjP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 16:38:23 -0400
-Message-ID: <447DFEB1.8010008@redhat.com>
-Date: Wed, 31 May 2006 16:38:09 -0400
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.4.1 (X11/20060420)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] memory mapped files not updating timestamps
-References: <446B3E5D.1030301@redhat.com> <447DD80C.2000408@redhat.com> <447DF0C8.7030507@cosmosbay.com>
-In-Reply-To: <447DF0C8.7030507@cosmosbay.com>
-Content-Type: multipart/mixed;
- boundary="------------050009060108080607050003"
+	Wed, 31 May 2006 16:39:15 -0400
+Subject: Re: [PATCH 1/7] AMSO1100 Makefiles and Kconfig changes.
+From: Steve Wise <swise@opengridcomputing.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: mshefty@ichips.intel.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <ada8xoix76r.fsf@cisco.com>
+References: <20060531182733.3652.54755.stgit@stevo-desktop>
+	 <20060531182735.3652.44197.stgit@stevo-desktop> <ada8xoix76r.fsf@cisco.com>
+Content-Type: text/plain
+Date: Wed, 31 May 2006 15:39:13 -0500
+Message-Id: <1149107953.7469.9.camel@stevo-desktop>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050009060108080607050003
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+On Wed, 2006-05-31 at 13:36 -0700, Roland Dreier wrote:
+> Can you reorder things so these changes go last?  Otherwise after this
+> patch we're left with a kernel tree that has a Makefile that refers to
+> sources that don't exist yet.  It's not really a practical issue but
+> it is neater to do that way.
+> 
+> (It's easy to do in stgit -- just pop all the patches and then use
+> "stg push <name>" to push them in a different order)
+> 
+>  - R.
 
-Eric Dumazet wrote:
-
-> Peter Staubach a écrit :
->
->> --- linux-2.6.16.i686/mm/msync.c.org
->> +++ linux-2.6.16.i686/mm/msync.c
->> @@ -206,12 +206,16 @@ asmlinkage long sys_msync(unsigned long 
->>          file = vma->vm_file;
->>          start = vma->vm_end;
->>          if ((flags & MS_ASYNC) && file && nr_pages_dirtied) {
->> +            struct address_space *mapping = file->f_mapping;
->> +
->>              get_file(file);
->>              up_read(&current->mm->mmap_sem);
->> -            balance_dirty_pages_ratelimited_nr(file->f_mapping,
->> +            balance_dirty_pages_ratelimited_nr(mapping,
->>                              nr_pages_dirtied);
->>              fput(file);
->
->
-> <here>, another thread can perform an munmap(), and the file can be 
-> totally dismantled.
->
->>              down_read(&current->mm->mmap_sem);
->
->
-> So referencing 'mapping' is *buggy* here.
-> I believe that you have to move 'fput(file);' *after* the folloging 
-> two lines.
->
->> +            if (test_and_clear_bit(AS_MCTIME, &mapping->flags))
->> +                inode_update_time(mapping->host);
->>              vma = find_vma(current->mm, start);
->>          } else if ((flags & MS_SYNC) && file &&
->>                  (vma->vm_flags & VM_SHARED)) {
->
->
->
-> Eric
+will do.
 
 
-Yes, sorry, you mentioned that before and I meant to address that.  I almost
-reordered those operations originally because I think that it is cleaner
-when acquires and releases are done in the opposite order.  However, I was
-also trying to change as little as possible too.
-
-Anyway, attached is an updated patch.
-
-    Thanx...
-
-       ps
-
-Signed-off-by: Peter Staubach <staubach@redhat.com>
-
---------------050009060108080607050003
-Content-Type: text/plain;
- name="mctime.devel"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mctime.devel"
-
---- linux-2.6.16.x86_64/fs/inode.c.org
-+++ linux-2.6.16.x86_64/fs/inode.c
-@@ -1211,8 +1211,8 @@ void touch_atime(struct vfsmount *mnt, s
- EXPORT_SYMBOL(touch_atime);
- 
- /**
-- *	file_update_time	-	update mtime and ctime time
-- *	@file: file accessed
-+ *	inode_update_time	-	update mtime and ctime time
-+ *	@inode: file accessed
-  *
-  *	Update the mtime and ctime members of an inode and mark the inode
-  *	for writeback.  Note that this function is meant exclusively for
-@@ -1222,9 +1222,8 @@ EXPORT_SYMBOL(touch_atime);
-  *	timestamps are handled by the server.
-  */
- 
--void file_update_time(struct file *file)
-+void inode_update_time(struct inode *inode)
- {
--	struct inode *inode = file->f_dentry->d_inode;
- 	struct timespec now;
- 	int sync_it = 0;
- 
-@@ -1246,7 +1245,7 @@ void file_update_time(struct file *file)
- 		mark_inode_dirty_sync(inode);
- }
- 
--EXPORT_SYMBOL(file_update_time);
-+EXPORT_SYMBOL(inode_update_time);
- 
- int inode_needs_sync(struct inode *inode)
- {
---- linux-2.6.16.x86_64/fs/fs-writeback.c.org
-+++ linux-2.6.16.x86_64/fs/fs-writeback.c
-@@ -168,6 +168,9 @@ __sync_single_inode(struct inode *inode,
- 
- 	spin_unlock(&inode_lock);
- 
-+	if (test_and_clear_bit(AS_MCTIME, &mapping->flags))
-+		inode_update_time(inode);
-+
- 	ret = do_writepages(mapping, wbc);
- 
- 	/* Don't write the inode if only I_DIRTY_PAGES was set */
---- linux-2.6.16.x86_64/fs/buffer.c.org
-+++ linux-2.6.16.x86_64/fs/buffer.c
-@@ -347,6 +347,10 @@ long do_fsync(struct file *file, int dat
- 	if (!ret)
- 		ret = err;
- 	current->flags &= ~PF_SYNCWRITE;
-+
-+	if (test_and_clear_bit(AS_MCTIME, &mapping->flags))
-+		inode_update_time(mapping->host);
-+
- out:
- 	return ret;
- }
-@@ -837,6 +841,7 @@ EXPORT_SYMBOL(mark_buffer_dirty_inode);
- int __set_page_dirty_buffers(struct page *page)
- {
- 	struct address_space * const mapping = page->mapping;
-+	int ret = 0;
- 
- 	spin_lock(&mapping->private_lock);
- 	if (page_has_buffers(page)) {
-@@ -861,9 +866,13 @@ int __set_page_dirty_buffers(struct page
- 		}
- 		write_unlock_irq(&mapping->tree_lock);
- 		__mark_inode_dirty(mapping->host, I_DIRTY_PAGES);
--		return 1;
-+		ret = 1;
- 	}
--	return 0;
-+
-+	if (page_mapped(page))
-+		set_bit(AS_MCTIME, &mapping->flags);
-+
-+	return ret;
- }
- EXPORT_SYMBOL(__set_page_dirty_buffers);
- 
---- linux-2.6.16.x86_64/include/linux/fs.h.org
-+++ linux-2.6.16.x86_64/include/linux/fs.h
-@@ -1778,7 +1778,12 @@ extern int buffer_migrate_page(struct pa
- extern int inode_change_ok(struct inode *, struct iattr *);
- extern int __must_check inode_setattr(struct inode *, struct iattr *);
- 
--extern void file_update_time(struct file *file);
-+extern void inode_update_time(struct inode *);
-+
-+static inline void file_update_time(struct file *file)
-+{
-+	inode_update_time(file->f_dentry->d_inode);
-+}
- 
- static inline ino_t parent_ino(struct dentry *dentry)
- {
---- linux-2.6.16.x86_64/include/linux/pagemap.h.org
-+++ linux-2.6.16.x86_64/include/linux/pagemap.h
-@@ -16,8 +16,9 @@
-  * Bits in mapping->flags.  The lower __GFP_BITS_SHIFT bits are the page
-  * allocation mode flags.
-  */
--#define	AS_EIO		(__GFP_BITS_SHIFT + 0)	/* IO error on async write */
-+#define AS_EIO		(__GFP_BITS_SHIFT + 0)	/* IO error on async write */
- #define AS_ENOSPC	(__GFP_BITS_SHIFT + 1)	/* ENOSPC on async write */
-+#define AS_MCTIME	(__GFP_BITS_SHIFT + 2)	/* need m/ctime change */
- 
- static inline gfp_t mapping_gfp_mask(struct address_space * mapping)
- {
---- linux-2.6.16.x86_64/mm/page-writeback.c.org
-+++ linux-2.6.16.x86_64/mm/page-writeback.c
-@@ -627,8 +627,10 @@ EXPORT_SYMBOL(write_one_page);
-  */
- int __set_page_dirty_nobuffers(struct page *page)
- {
-+	struct address_space *mapping = page_mapping(page);
-+	int ret = 0;
-+
- 	if (!TestSetPageDirty(page)) {
--		struct address_space *mapping = page_mapping(page);
- 		struct address_space *mapping2;
- 
- 		if (mapping) {
-@@ -648,9 +650,11 @@ int __set_page_dirty_nobuffers(struct pa
- 							I_DIRTY_PAGES);
- 			}
- 		}
--		return 1;
-+		ret = 1;
- 	}
--	return 0;
-+	if (page_mapped(page))
-+		set_bit(AS_MCTIME, &mapping->flags);
-+	return ret;
- }
- EXPORT_SYMBOL(__set_page_dirty_nobuffers);
- 
---- linux-2.6.16.x86_64/mm/msync.c.org
-+++ linux-2.6.16.x86_64/mm/msync.c
-@@ -206,12 +206,16 @@ asmlinkage long sys_msync(unsigned long 
- 		file = vma->vm_file;
- 		start = vma->vm_end;
- 		if ((flags & MS_ASYNC) && file && nr_pages_dirtied) {
-+			struct address_space *mapping = file->f_mapping;
-+
- 			get_file(file);
- 			up_read(&current->mm->mmap_sem);
--			balance_dirty_pages_ratelimited_nr(file->f_mapping,
-+			balance_dirty_pages_ratelimited_nr(mapping,
- 							nr_pages_dirtied);
--			fput(file);
- 			down_read(&current->mm->mmap_sem);
-+			if (test_and_clear_bit(AS_MCTIME, &mapping->flags))
-+				inode_update_time(mapping->host);
-+			fput(file);
- 			vma = find_vma(current->mm, start);
- 		} else if ((flags & MS_SYNC) && file &&
- 				(vma->vm_flags & VM_SHARED)) {
---- linux-2.6.16.x86_64/mm/mmap.c.org
-+++ linux-2.6.16.x86_64/mm/mmap.c
-@@ -203,6 +203,8 @@ void unlink_file_vma(struct vm_area_stru
- 		spin_lock(&mapping->i_mmap_lock);
- 		__remove_shared_vm_struct(vma, file, mapping);
- 		spin_unlock(&mapping->i_mmap_lock);
-+		if (test_and_clear_bit(AS_MCTIME, &mapping->flags))
-+			inode_update_time(mapping->host);
- 	}
- }
- 
-
---------------050009060108080607050003--

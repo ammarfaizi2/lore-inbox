@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965254AbWEaX2s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965258AbWEaXaN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965254AbWEaX2s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 19:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965258AbWEaX2s
+	id S965258AbWEaXaN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 19:30:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965260AbWEaXaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 19:28:48 -0400
-Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:709 "EHLO
-	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S965254AbWEaX2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 19:28:47 -0400
-Message-ID: <447E26AC.7010102@bigpond.net.au>
-Date: Thu, 01 Jun 2006 09:28:44 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Wed, 31 May 2006 19:30:13 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:33435 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S965258AbWEaXaL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 19:30:11 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=w48TRfFtyvjZNc3JlOXkMInGU+o9CE+HYvE4fx4wiZEV+8UyZindfJXhV7D3nz7o5
+	gVGZNd2JhhnmDoeEzmOLA==
+Message-ID: <447E26C5.8030301@google.com>
+Date: Wed, 31 May 2006 16:29:09 -0700
+From: Martin Bligh <mbligh@google.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-CC: Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
-       Rene Herman <rene.herman@keyaccess.nl>
-Subject: Re: [RFC 3/5] sched: Add CPU rate hard caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest> <661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com> <44781167.6060700@bigpond.net.au> <447D95DE.1080903@sw.ru>
-In-Reply-To: <447D95DE.1080903@sw.ru>
+To: Ingo Molnar <mingo@elte.hu>
+CC: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       linux-kernel@vger.kernel.org, apw@shadowen.org, ak@suse.de
+Subject: Re: 2.6.17-rc5-mm1
+References: <447DEF49.9070401@google.com> <20060531140652.054e2e45.akpm@osdl.org> <447E093B.7020107@mbligh.org> <20060531144310.7aa0e0ff.akpm@osdl.org> <20060531230710.GA7484@elte.hu>
+In-Reply-To: <20060531230710.GA7484@elte.hu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 31 May 2006 23:28:45 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev wrote:
->>> Using a timer for releasing tasks from their sinbin sounds like a  bit
->>> of an overhead. Given that there could be 10s of thousands of tasks.
->>
->>
->> The more runnable tasks there are the less likely it is that any of 
->> them is exceeding its hard cap due to normal competition for the 
->> CPUs.  So I think that it's unlikely that there will ever be a very 
->> large number of tasks in the sinbin at the same time.
-> for containers this can be untrue...
-
-Why will this be untrue for containers?
-
-> :( actually even for 1000 tasks (I 
-> suppose this is the maximum in your case) it can slowdown significantly 
-> as well.
+> Martin, is the box still somewhat operational after such a crash? If yes 
+> then we could use my crash-tracer to see the kernel function call 
+> history leading up to the crash:
 > 
->>> Is it possible to use the scheduler_tick() function take a look at all
->>> deactivated tasks (as efficiently as possible) and activate them when
->>> its time to activate them or just fold the functionality by defining a
->>> time quantum after which everyone is worken up. This time quantum
->>> could be the same as the time over which limits are honoured.
-> agree with it.
+>   http://redhat.com/~mingo/lockdep-patches/latency-tracing-lockdep.patch
+> 
+> just apply the patch, accept the offered Kconfig defaults and it will be 
+> configured to do the trace-crashes thing. Reproduce the crash and save 
+> /proc/latency_trace - it contains the execution history leading up to 
+> the crash. (on the CPU that crashes) Should work on i386 and x86_64.
+> 
+> the trace is saved upon the first crash or lockdep assert that occurs on 
+> the box. (but you'll have lockdep disabled, so it's the crash that 
+> matters)
+> 
+> if the box dies after a crash then there's a possibility to print the 
+> execution history to the serial console - but that takes around 10-15 
+> minutes even on 115200 baud. If you want/need to do this then edit 
+> kernel/latency.c and change "trace_print_at_crash = 0" to 
+> "trace_print_at_crash = 1".
+> 
+> (btw., the tracer has another neat feature as well: if a kernel crashes 
+> or triple faults (and reboots) early during bootup, then the tracer can 
+> be configured to print all function calls to the serial console, via 
+> early_printk() - right when the function calls happen. I debugged 
+> numerous nasty boot-time bugs via this. To set it, change 
+> "print_functions = 0" to "print_functions = 1" in kernel/latency.c.)
 
-If there are a lot of RUNNABLE (i.e. on a run queue) tasks then normal 
-competition will mean that their CPU usage rates are small and therefore 
-unlikely to be greater than their cap.  The sinbin is only used for 
-tasks that are EXCEEDING their cap.
+Looks cool, but we'll have to beg the IBM guys to run it, I don't have
+access to that box anymore. Dumping to serial console would be cool,
+even if it's slow (the test boxes all have that logged).
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+M.
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

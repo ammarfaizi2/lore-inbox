@@ -1,77 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750895AbWEaSFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751769AbWEaSHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750895AbWEaSFN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 14:05:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751762AbWEaSFN
+	id S1751769AbWEaSHE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 14:07:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751773AbWEaSHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 14:05:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:922 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750895AbWEaSFM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 14:05:12 -0400
-Date: Wed, 31 May 2006 11:09:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Laurent Riffard <laurent.riffard@free.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm1
-Message-Id: <20060531110924.29fdf876.akpm@osdl.org>
-In-Reply-To: <447DD4D3.3060205@free.fr>
-References: <20060530022925.8a67b613.akpm@osdl.org>
-	<447DD4D3.3060205@free.fr>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Wed, 31 May 2006 14:07:04 -0400
+Received: from kanga.kvack.org ([66.96.29.28]:58530 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1751769AbWEaSHB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 14:07:01 -0400
+Date: Wed, 31 May 2006 15:05:45 -0300
+From: Marcelo Tosatti <marcelo@kvack.org>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, Ayaz Abdulla <aabdulla@nvidia.com>
+Subject: Re: [PATCH-2.4] forcedeth update to 0.50
+Message-ID: <20060531180545.GA30797@dmt>
+References: <20060530220319.GA6945@w.ods.org> <447D2EA8.8020001@colorfullife.com> <20060531055438.GA9142@w.ods.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060531055438.GA9142@w.ods.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 May 2006 19:39:31 +0200
-Laurent Riffard <laurent.riffard@free.fr> wrote:
-
-> Le 30.05.2006 11:29, Andrew Morton a écrit :
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm1/
+On Wed, May 31, 2006 at 07:54:38AM +0200, Willy Tarreau wrote:
+> On Wed, May 31, 2006 at 07:50:32AM +0200, Manfred Spraul wrote:
+> > Hi Willy,
+> > 
+> > Willy Tarreau wrote:
+> > 
+> > >I started from the latest backport you sent in september (0.42) and
+> > >incrementally applied 2.6 updates. I stopped at 0.50 which provides
+> > >VLAN support, because after this one, there are some 2.4-incompatible
+> > >changes (64bit consistent memory allocation for rings, and MSI/MSIX
+> > >support).
+> > >
+> > > 
+> > >
+> > I agree, 2.4 needs a backport. Either a full backport as you did, or a 
+> > minimal one-liner fix.
+> > Right now, the driver is not usable due to an incorrect initialization.
+> > Or to be more accurate:
+> >    # modprobe
+> >    # ifup
+> > works.
+> > But
+> >    # modprobe
+> >    # ifup
+> >    # ifdown
+> >    # ifup
+> > causes a misconfiguration, and the nic hangs hard after a few MB. And 
+> > recent distros do the equivalent of ifup/ifdown/ifup somewhere in the 
+> > initialization.
 > 
-> Hello, I've got this nice BUG:
+> That's what I read in one of the changelogs, but I'm not sure at all that
+> it's what happened, because I had the problem after an ifup only. What I
+> was doing with this box was pure performance tests which drew me to compare
+> the broadcom and nforce performance. My tests measured 3 creteria :
 > 
-> pktcdvd: writer pktcdvd0 mapped to hdc
-> BUG: unable to handle kernel NULL pointer dereference at virtual address 00000084
->  printing eip:
-> c01118f1
-> *pde = 00000000
-> Oops: 0000 [#1]
-> last sysfs file: /block/pktcdvd0/removable
-> Modules linked in: pktcdvd lp parport_pc parport snd_pcm_oss snd_mixer_oss snd_ens1371 gameport snd_rawmidi snd_seq_device snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd_page_alloc snd soundcore af_packet floppy ide_cd cdrom loop aes dm_crypt nls_iso8859_1 nls_cp850 vfat fat reiser4 reiserfs via_agp agpgart video joydev ohci1394 usbhid ieee1394 uhci_hcd usbcore dm_mirror dm_mod via82cxxx
-> CPU:    0
-> EIP:    0060:[<c01118f1>]    Not tainted VLI
-> EFLAGS: 00010006   (2.6.17-rc5-mm1 #11) 
-> EIP is at do_page_fault+0xb4/0x5bc
-> eax: d6750084   ebx: d6750000   ecx: 0000007b   edx: 00000000
-> esi: d6758000   edi: c011183d   ebp: d675007c   esp: d6750044
-> ds: 007b   es: 007b   ss: 0068
-> Process  (pid: 0, threadinfo=d674f000 task=d657c000)
-> Stack: 00000000 d6750084 00000000 00000049 00000084 00000000 00001e2e 02001120 
->        00000027 00000022 00000055 d6750000 d6758000 c011183d d67500f0 c010340d 
->        d6750000 0000007b 00000000 d6758000 c011183d d67500f0 d67500f8 0000007b 
-> Call Trace:
->  [<c010340d>] error_code+0x39/0x40
-> Code: 00 00 c0 81 0f 84 12 02 00 00 e9 1c 05 00 00 8b 45 cc f7 40 30 00 02 02 00 74 06 e8 68 af 01 00 fb f7 43 14 ff ff ff ef 8b 55 d0 <8b> b2 84 00 00 00 0f 85 e5 01 00 00 85 f6 0f 84 dd 01 00 00 8d 
-> EIP: [<c01118f1>] do_page_fault+0xb4/0x5bc SS:ESP 0068:d6750044
->  <0>Kernel panic - not syncing: Fatal exception in interrupt
->  BUG: warning at kernel/panic.c:138/panic()
->  [<c0103810>] show_trace_log_lvl+0x4b/0xf4
->  [<c0103e11>] show_trace+0xd/0x10
->  [<c0103e58>] dump_stack+0x19/0x1b
->  [<c0116768>] panic+0x14d/0x161
->  [<c0103d0d>] die+0x231/0x266
->  [<c0111cc3>] do_page_fault+0x486/0x5bc
-> SysRq : Emergency Sync
-> SysRq : Emergency Sync
-> SysRq : Emergency Remount R/O
-> SysRq : Emergency Sync
-> SysRq : Resetting
+>   - number of HTTP/1.0 hits/s
+>   - maximum data rate
+>   - maximum packets/s
+> 
+> on tg3, I got around 45 khits/s, 949 Mbps (TCP, =1.0 Gbps on wire) and
+> 1.05 Mpps receive (I want to build a high speed load-balancer and a sniffer).
+> This was stable.
+> 
+> On the nforce, I tried with the hits/s first because it's a good indication
+> of hardware-based and driver-based optimizations. It reached 18 khits/s with
+> a lot of difficulty and the machine was stuck at 100% of one CPU. But it ran
+> for a few minutes like this. Then I tried data rate (which is the same test
+> with 1MB objects), and it failed after about 2 seconds and few megabytes (or
+> hundreds of megabytes) transferred.
+> 
+> I had to reboot to get it to work again. And I'm fairly sure that I did not
+> do down/up this time as well, but the test came to the same end.
+> 
+> That's why I'm not sure at all that the one-liner will be enough.
+> 
+> Moreover, after the update, I reached the same performance as with the
+> broadcom, with a slight improvement on packet reception (1.09 Mpps), and
+> low CPU usage (15%). So basically, the upgrade rendered the driver from
+> barely usable for SSH to very performant.
+> 
+> > Marcelo: Do you need a one-liner, or could you apply a large backport 
+> > patch?
+> 
+> I would really vote for the full backport, and I can break it into pieces
+> if needed (I have them at hand, just have to re-inject the changelogs).
+> However, I have separate changes from 0.42 to 0.50, because I started
+> with your 0.30-0.42 backport patch.
+> 
+> I have this machine till the end of the week, so I can perform other tests
+> if you're interested in trying specific things.
 
-What a mess.
+Since v2.4.33 should be out RSN, my opinion is that applying the one-liner 
+to fix the bringup problem for now is more prudent..
 
-Your .config worked OK here.  There's probably not a lot of point in you
-persisting with rc5-mm1.  Please test next -mm and if that has the same bug
-then yes please, a bisection search would be great.
+Full patch could go into v2.4.34...
+

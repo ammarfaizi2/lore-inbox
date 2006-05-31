@@ -1,77 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965164AbWEaVZB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965165AbWEaV0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965164AbWEaVZB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 17:25:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965166AbWEaVZB
+	id S965165AbWEaV0r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 17:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965163AbWEaV0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 17:25:01 -0400
-Received: from smtp1.xs4all.be ([195.144.64.135]:20102 "EHLO smtp1.xs4all.be")
-	by vger.kernel.org with ESMTP id S965161AbWEaVYv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 17:24:51 -0400
-Date: Wed, 31 May 2006 23:23:56 +0200
-From: Frank Gevaerts <frank.gevaerts@fks.be>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: Frank Gevaerts <frank.gevaerts@fks.be>, Pete Zaitcev <zaitcev@redhat.com>,
-       linux-kernel@vger.kernel.org, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: usb-serial ipaq kernel problem
-Message-ID: <20060531212356.GA17140@fks.be>
-References: <20060529172410.63dffa72@doriath.conectiva> <20060529204724.GA22250@fks.be> <20060529193330.3c51f3ba@home.brethil> <20060530082141.GA26517@fks.be> <20060530113801.22c71afe@doriath.conectiva> <20060530115329.30184aa0@doriath.conectiva> <20060530174821.GA15969@fks.be> <20060530175208.2c2dedaa@doriath.conectiva> <20060530213635.GA28443@fks.be> <20060531181042.23cab50f@doriath.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060531181042.23cab50f@doriath.conectiva>
-User-Agent: Mutt/1.5.9i
-X-FKS-MailScanner: Found to be clean
-X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-105.815,
-	vereist 5, autolearn=not spam, ALL_TRUSTED -3.30, AWL 0.08,
-	BAYES_00 -2.60, USER_IN_WHITELIST -100.00)
+	Wed, 31 May 2006 17:26:47 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:40098 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S965161AbWEaV0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 17:26:45 -0400
+Message-ID: <447E0A12.5090209@ichips.intel.com>
+Date: Wed, 31 May 2006 14:26:42 -0700
+From: Sean Hefty <mshefty@ichips.intel.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steve Wise <swise@opengridcomputing.com>
+CC: rdreier@cisco.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH 2/2] iWARP Core Changes.
+References: <20060531182650.3308.81538.stgit@stevo-desktop> <20060531182654.3308.41372.stgit@stevo-desktop>
+In-Reply-To: <20060531182654.3308.41372.stgit@stevo-desktop>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31, 2006 at 06:10:42PM -0300, Luiz Fernando N. Capitulino wrote:
-> On Tue, 30 May 2006 23:36:35 +0200
-> Frank Gevaerts <frank.gevaerts@fks.be> wrote:
-> 
-> | On Tue, May 30, 2006 at 05:52:08PM -0300, Luiz Fernando N. Capitulino wrote:
-> | > On Tue, 30 May 2006 19:48:21 +0200
-> | > Frank Gevaerts <frank.gevaerts@fks.be> wrote:
-> | > 
-> | > | On Tue, May 30, 2006 at 11:53:29AM -0300, Luiz Fernando N. Capitulino wrote:
-> | > | > On Tue, 30 May 2006 11:38:01 -0300
-> | > | > "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> wrote:
-> | > | > 
-> | > | >  If it ran _before_ the timeout expires with no timeout error it does not
-> | > | > depend. Then we can do the simpler solution: just kill the read urb in the
-> | > | > ipaq_open's error path.
-> | > | 
-> | > | That seems to work.
-> | > | I also found that both the return in ipaq_write_bulk_callback and the
-> | > | flush_scheduled_work() in destroy_serial() are needed to get rid of the
-> | > | usb_serial_disconnect() bug.
-> | > 
-> | >  Then did you hit it with my patch?
-> | > 
-> | >  I'm just worried with the fact that you're hitting it with every
-> | > proposed fix. Maybe it's something else.
-> | 
-> | I'm hitting it with either of the proposed fixes, but not when both are
-> | applied.
-> 
->  Is this still true? :)
+Mainly nits...
 
-Yes. It's still running, with about 2000 disconnects since the last
-boot.
+Steve Wise wrote:
+> -static int copy_addr(struct rdma_dev_addr *dev_addr, struct net_device *dev,
+> +int copy_addr(struct rdma_dev_addr *dev_addr, struct net_device *dev,
+>  		     unsigned char *dst_dev_addr)
 
-Frank
+Might want to rename this to something like rdma_copy_addr if you're going to 
+export it.
 
-> 
-> -- 
-> Luiz Fernando N. Capitulino
+> +static int cma_iw_handler(struct iw_cm_id *iw_id, struct iw_cm_event *iw_event)
+> +{
+> +	struct rdma_id_private *id_priv = iw_id->context;
+> +	enum rdma_cm_event_type event = 0;
+> +	struct sockaddr_in *sin;
+> +	int ret = 0;
+> +
+> +	atomic_inc(&id_priv->dev_remove);
+> +
+> +	switch (iw_event->event) {
+> +	case IW_CM_EVENT_CLOSE:
+> +		event = RDMA_CM_EVENT_DISCONNECTED;
+> +		break;
+> +	case IW_CM_EVENT_CONNECT_REPLY:
+> +		sin = (struct sockaddr_in*)&id_priv->id.route.addr.src_addr;
+> +		*sin = iw_event->local_addr;
+> +		sin = (struct sockaddr_in*)&id_priv->id.route.addr.dst_addr;
 
--- 
-Frank Gevaerts                                 frank.gevaerts@fks.be
-fks bvba - Formal and Knowledge Systems        http://www.fks.be/
-Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
-B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19
+spacing nit - (struct sockaddr_in *) &id_priv->...
+
+> +struct net_device *ip_dev_find(u32 ip);
+
+Just include header file with definition.
+
+> +	sin = (struct sockaddr_in*)&new_cm_id->route.addr.src_addr;
+> +	*sin = iw_event->local_addr;
+> +	sin = (struct sockaddr_in*)&new_cm_id->route.addr.dst_addr;
+
+same spacing nit...  appears in a couple other places as well.
+
+> +static inline union ib_gid* iw_addr_get_sgid(struct rdma_dev_addr* rda)
+> +{
+> +	return (union ib_gid*)rda->src_dev_addr;
+> +}
+> +
+> +static inline union ib_gid* iw_addr_get_dgid(struct rdma_dev_addr* rda)
+> +{
+> +	return (union ib_gid*)rda->dst_dev_addr;
+> +}
+
+spacing nits
+
+> +struct iw_cm_verbs;
+>  struct ib_device {
+>  	struct device                *dma_device;
+>  
+> @@ -846,6 +873,8 @@ struct ib_device {
+>  
+>  	u32                           flags;
+>  
+> +	struct iw_cm_verbs*           iwcm;
+> +
+
+'*' placement nit
+
+- Sean

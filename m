@@ -1,23 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965064AbWEaVF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965068AbWEaVIo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965064AbWEaVF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 17:05:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965055AbWEaVF5
+	id S965068AbWEaVIo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 17:08:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965055AbWEaVIo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 17:05:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20179 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965003AbWEaVFj (ORCPT
+	Wed, 31 May 2006 17:08:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25044 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965053AbWEaVIn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 17:05:39 -0400
-Date: Wed, 31 May 2006 14:08:23 -0700
+	Wed, 31 May 2006 17:08:43 -0400
+Date: Wed, 31 May 2006 14:11:39 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Martin Bligh <mbligh@google.com>
-Cc: linux-kernel@vger.kernel.org, apw@shadowen.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.17-rc5-mm1
-Message-Id: <20060531140823.580dbece.akpm@osdl.org>
-In-Reply-To: <447DEF47.6010908@google.com>
-References: <447DEF47.6010908@google.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: arjan@linux.intel.com, pauldrynoff@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc5-mm1 - output of lock validator
+Message-Id: <20060531141139.2fd32a69.akpm@osdl.org>
+In-Reply-To: <20060531194437.GA31121@elte.hu>
+References: <20060530195417.e870b305.pauldrynoff@gmail.com>
+	<20060530132540.a2c98244.akpm@osdl.org>
+	<20060531181926.51c4f4c5.pauldrynoff@gmail.com>
+	<1149085739.3114.34.camel@laptopd505.fenrus.org>
+	<20060531102128.eb0020ad.akpm@osdl.org>
+	<20060531194437.GA31121@elte.hu>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,45 +29,37 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Bligh <mbligh@google.com> wrote:
+Ingo Molnar <mingo@elte.hu> wrote:
 >
-> Another panic. This time on x440.
 > 
-> M.
+> * Andrew Morton <akpm@osdl.org> wrote:
 > 
-> http://test.kernel.org/abat/33803/debug/console.log
+> > On Wed, 31 May 2006 16:28:59 +0200
+> > Arjan van de Ven <arjan@linux.intel.com> wrote:
+> > 
+> > > --- linux-2.6.17-rc5-mm1.5.orig/drivers/net/8390.c
+> > > +++ linux-2.6.17-rc5-mm1.5/drivers/net/8390.c
+> > > @@ -299,7 +299,7 @@ static int ei_start_xmit(struct sk_buff 
+> > >  	 
+> > >  	disable_irq_nosync(dev->irq);
+> > >  	
+> > > -	spin_lock(&ei_local->page_lock);
+> > > +	spin_lock_irqsave(&ei_local->page_lock, flags);
+> > 
+> > Again, notabug - we did disable_irq().
+> > 
+> > I think lockdep needs to be taught about this idiom.  Perhaps add a 
+> > new disable_irq_tell_lockdep() which assumes that we're in an 
+> > equivalent-to-local_irq_disable() state.
 > 
-> BUG: unable to handle kernel paging request at virtual address 22222232
->   printing eip:
-> c012b6eb
-> *pde = 15621001
-> *pte = 00000000
-> Oops: 0000 [#1]
-> SMP
-> last sysfs file: /class/vc/vcs1/dev
-> CPU:    1
-> EIP:    0060:[<c012b6eb>]    Not tainted VLI
-> EFLAGS: 00010002   (2.6.17-rc5-mm1-autokern1 #1)
-> EIP is at check_deadlock+0x15/0xe0
-> eax: 22222222   ebx: 00000001   ecx: d4996000   edx: 00000001
-> esi: d686f550   edi: 22222222   ebp: 22222222   esp: d5bdfec8
-> ds: 007b   es: 007b   ss: 0068
-> Process mkdir09 (pid: 18867, threadinfo=d5bdf000 task=d5c0e000)
-> Stack: 00000000 d686f550 d3960568 22222222 c012b77b d3960568 d5bdf000 
-> d5bdff00
->         d5c0e000 c012b922 d5bdff48 d3960568 00000246 c02d50de d5bdff00 
-> d5bdff00
->         11111111 11111111 d5bdff00 ffffff9c d5bdff48 00000000 d5bdff48 
-> ffffffef
-> Call Trace:
->   <c012b77b> check_deadlock+0xa5/0xe0  <c012b922> 
-> debug_mutex_add_waiter+0x46/0x55
->   <c02d50de> __mutex_lock_slowpath+0x9e/0x1c0  <c0160061> 
-> lookup_create+0x19/0x5b
->   <c016043a> sys_mkdirat+0x4c/0xc3  <c01604c0> sys_mkdir+0xf/0x13
->   <c02d6217> syscall_call+0x7/0xb
+> agreed. I'll cook up an API for that. The best would be to disable local 
+> irqs if LOCKDEP is enabled - i.e. how about disable_irq_lockdep() that 
+> maps to disable_irq() if !LOCKDEP and on LOCKDEP it also disables local 
+> interrupts? Likewise there would be an enable_irq_lockdep() which would 
+> re-enable local irqs.
+> 
 
-Looks like the lock validator came unstuck.  But there's so much other crap
-happening in there it's hard to tell.  Did you try it without all the
-lockdep stuff enabled?
+That would probably work - we'd have to watch out for people doing
+schedule() inside disable_irq_lockdep().
+
 
